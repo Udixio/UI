@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { faHome } from '@fortawesome/pro-regular-svg-icons';
+import { faHome } from '@fortawesome/free-solid-svg-icons';
 import { Tab, TabProps, TabsVariant } from '../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
