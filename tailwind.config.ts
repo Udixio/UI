@@ -38,6 +38,8 @@ const config: Config = {
             },
         },
     },
-    plugins: [...materialTailwind.plugins],
+    plugins: [...materialTailwind.plugins, require('@tailwindcss/container-queries'),
+    ],
+
 };
 export default config;
