@@ -2,14 +2,11 @@ import React, { FunctionComponent, useEffect, useState } from 'react';
 
 import { Tabs, TabsVariant } from '../tabs';
 import { IconButton } from '../button';
-import {
-  faClipboard,
-  faClipboardCheck,
-} from '@fortawesome/pro-regular-svg-icons';
 import { Highlight, themes } from 'prism-react-renderer';
 import classNames from 'classnames';
 import { LivePreview, LiveProvider } from 'react-live';
 import { Diviser } from '../diviser';
+import {faClipboard, faClipboardCheck} from "@fortawesome/free-solid-svg-icons";
 
 export interface CodePreviewProps {
   className?: string;

@@ -6,7 +6,7 @@ import {
   faMagnifyingGlass,
   faMessage,
   faPlane,
-} from '@fortawesome/pro-regular-svg-icons';
+} from '@fortawesome/free-solid-svg-icons';
 import { Tabs, TabsProps, TabsVariant } from '../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
