@@ -1,3 +1,17 @@
+# [1.0.0-beta.12](https://github.com/Udixio/UI/compare/v1.0.0-beta.11...v1.0.0-beta.12) (2023-12-08)
+
+
+### Bug Fixes
+
+* Delete src/avatar/index.ts ([44c04fa](https://github.com/Udixio/UI/commit/44c04fadf01570d54d924e568438b41bb7e1f97a))
+* github action ([89fc740](https://github.com/Udixio/UI/commit/89fc74026206080e200aa7744d6ee05339849e24))
+* github Action ([761d5b8](https://github.com/Udixio/UI/commit/761d5b8e704d9ebd6bb6804525b871675342d2f6))
+
+
+### Features
+
+* add card component ([b23b668](https://github.com/Udixio/UI/commit/b23b668845f2d8bfc40d1f509f0ffefb52ee327a))
+
 # [1.0.0-beta.11](https://github.com/Udixio/UI/compare/v1.0.0-beta.10...v1.0.0-beta.11) (2023-11-16)
 
 
