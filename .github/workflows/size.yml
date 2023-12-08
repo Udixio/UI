@@ -1,5 +1,10 @@
 name: size
-on: [pull_request]
+on:
+  push:
+    branches:
+      - master
+      - next
+      - beta
 jobs:
   size:
     runs-on: ubuntu-latest
