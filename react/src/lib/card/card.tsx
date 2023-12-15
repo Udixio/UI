@@ -1,10 +1,9 @@
-import { StylingHelper } from '../utils';
-import React, { FunctionComponent, ReactNode } from 'react';
-import classNames from 'classnames';
-import { CardMediaProps } from './CardMedia';
-import { CardContentProps } from './CardContent';
-import { CardHeaderProps } from './CardHeader';
-import { CardActionProps } from './CardAction';
+import React, { FunctionComponent } from 'react';
+import { CardActionProps } from './card-action';
+import { CardMediaProps } from './card-media';
+import { CardHeaderProps } from './card-header';
+import { CardContentProps } from './card-content';
+import { StyleHelper } from '../utils/style.helper';
 
 export type CardVariant = 'outlined' | 'elevated' | 'filled';
 
@@ -39,7 +38,7 @@ export const Card: FunctionComponent<CardProps> = ({
   className,
   responsiveBreakPoint = 500,
 }: CardProps) => {
-  const containerClass = StylingHelper.classNames([
+  const containerClass = StyleHelper.classNames([
     className,
     '@container border border-outline-variant rounded-xl m-6 overflow-hidden',
     {

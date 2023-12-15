@@ -1,5 +1,5 @@
-import type { FunctionComponent, ReactNode } from 'react';
-import { StylingHelper } from '../utils';
+import type { FunctionComponent } from 'react';
+import { StyleHelper } from '../utils/style.helper';
 
 type mediaData = {
   src: string;
@@ -28,7 +28,7 @@ export const CardMedia: FunctionComponent<CardMediaProps> = ({
   mediaType,
   mediaData,
 }: CardMediaProps) => {
-  const mediaClass = StylingHelper.classNames([
+  const mediaClass = StyleHelper.classNames([
     className,
     'rounded-xl object-cover w-full m-auto',
     {

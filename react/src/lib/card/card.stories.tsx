@@ -1,19 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
-import {
-  Button,
-  ButtonVariant,
-  Card,
-  CardContent,
-  CardProps,
-  CardVariant,
-  IconButton,
-} from '../src';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import { CardHeader } from '../src';
-import { Avatar } from '../src/avatar';
-import { CardAction } from '../src';
-import { CardMedia } from '../src';
+import { Card, CardProps, CardVariant } from './card';
+import { Avatar } from '../avatar/avatar';
+import { CardHeader } from './card-header';
+import { CardMedia } from './card-media';
+import { CardContent } from './card-content';
+import { CardAction } from './card-action';
+import { IconButton } from '../button/icon-button';
+import { Button, ButtonVariant } from '../button/button';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {

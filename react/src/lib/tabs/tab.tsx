@@ -2,8 +2,8 @@ import React, { FunctionComponent, useEffect } from 'react';
 
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { TabsVariant } from './tabs';
-import { StylingHelper } from '../utils';
-import { Icon } from '../icon';
+import { StyleHelper } from '../utils/style.helper';
+import { Icon } from '../icon/icon';
 
 export interface TabProps {
   className?: string;
@@ -19,17 +19,17 @@ export interface TabProps {
 }
 
 export const Tab: FunctionComponent<TabProps> = ({
-  setUnderlineWidth,
-  className,
-  onClick,
-  selected,
-  label,
-  variant = TabsVariant.Primary,
-  href,
-  title,
-  type,
-  icon,
-}) => {
+                                                   setUnderlineWidth,
+                                                   className,
+                                                   onClick,
+                                                   selected,
+                                                   label,
+                                                   variant = TabsVariant.Primary,
+                                                   href,
+                                                   title,
+                                                   type,
+                                                   icon,
+                                                 }) => {
   const ElementType = href ? 'a' : 'button';
 
   const contentRef = React.useRef<HTMLDivElement>(null);
@@ -79,7 +79,7 @@ export const Tab: FunctionComponent<TabProps> = ({
     buttonProps.onClick = handleClick;
   }
 
-  const getTabClass = StylingHelper.classNames([
+  const getTabClass = StyleHelper.classNames([
     className,
     'bg-surface',
     {
@@ -92,7 +92,7 @@ export const Tab: FunctionComponent<TabProps> = ({
     },
   ]);
 
-  const getStateLayerClass = StylingHelper.classNames([
+  const getStateLayerClass = StyleHelper.classNames([
     'flex px-4 justify-center h-full',
     {
       applyWhen: variant === TabsVariant.Primary,
@@ -108,7 +108,7 @@ export const Tab: FunctionComponent<TabProps> = ({
       styles: ['state-on-surface'],
     },
   ]);
-  const getContentClass = StylingHelper.classNames([
+  const getContentClass = StyleHelper.classNames([
     'content  h-full flex  gap-0.5 justify-end',
     {
       'pb-3.5': Boolean(label && !icon),
@@ -133,7 +133,7 @@ export const Tab: FunctionComponent<TabProps> = ({
       ],
     },
   ]);
-  const getIconClass = StylingHelper.classNames([
+  const getIconClass = StyleHelper.classNames([
     'h-6 w-6 p-0.5 !box-border',
     {
       applyWhen: variant === TabsVariant.Primary,
@@ -155,7 +155,7 @@ export const Tab: FunctionComponent<TabProps> = ({
     },
   ]);
 
-  const getLabelTextClass = StylingHelper.classNames([
+  const getLabelTextClass = StyleHelper.classNames([
     'text-title-small',
     {
       applyWhen: variant === TabsVariant.Primary,

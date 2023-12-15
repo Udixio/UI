@@ -1,8 +1,8 @@
-import type {FunctionComponent, MouseEventHandler} from 'react';
-import {Icon} from '../icon';
+import type { FunctionComponent, MouseEventHandler } from 'react';
 
-import {StylingHelper} from '../../../../src/utils';
-import {IconDefinition} from '@fortawesome/fontawesome-svg-core';
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { StyleHelper } from '../utils/style.helper';
+import { Icon } from '../icon/icon';
 
 export enum ButtonVariant {
   Filled = 'filled',
@@ -106,7 +106,7 @@ export const Button: FunctionComponent<ButtonProps> = ({
     }
   };
 
-  let linkProps: any = {};
+  const linkProps: any = {};
   if (href) {
     linkProps.href = href;
     linkProps.title = title;
@@ -115,13 +115,13 @@ export const Button: FunctionComponent<ButtonProps> = ({
     }
   }
 
-  let buttonProps: any = {};
+  const buttonProps: any = {};
   if (!href) {
     buttonProps.type = type;
     buttonProps.onClick = handleClick;
   }
 
-  const getButtonClass = StylingHelper.classNames([
+  const getButtonClass = StyleHelper.classNames([
     className,
     'button group rounded-full inline-block',
     {
@@ -150,7 +150,7 @@ export const Button: FunctionComponent<ButtonProps> = ({
     },
   ]);
 
-  const getStateLayerClass = StylingHelper.classNames([
+  const getStateLayerClass = StyleHelper.classNames([
     stateClassName,
     'state-layer flex gap-2 justify-center rounded-full  items-center px-6 py-2.5',
     {
@@ -200,7 +200,7 @@ export const Button: FunctionComponent<ButtonProps> = ({
       ],
     },
   ]);
-  const getIconClass = StylingHelper.classNames([
+  const getIconClass = StyleHelper.classNames([
     iconClassName,
     'icon h-[18px] w-[18px]',
     {
@@ -249,7 +249,7 @@ export const Button: FunctionComponent<ButtonProps> = ({
       ],
     },
   ]);
-  const getLabelTextClass = StylingHelper.classNames([
+  const getLabelTextClass = StyleHelper.classNames([
     labelClassName,
     'label-text text-label-large',
     {

@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useState } from 'react';
 import { Tab, TabProps } from './tab';
-import { StylingHelper } from '../utils';
-import { Diviser } from '../diviser';
+import { Diviser } from '../diviser/diviser';
+import { StyleHelper } from '../utils/style.helper';
 
 export enum TabsVariant {
   Primary = 'primary',
@@ -29,7 +29,7 @@ export const Tabs: FunctionComponent<TabsProps> = ({
     }
   };
 
-  const getTabClass = StylingHelper.classNames([
+  const getTabClass = StyleHelper.classNames([
     'flex-1',
     {
       applyWhen: variant === TabsVariant.Primary,
@@ -41,7 +41,7 @@ export const Tabs: FunctionComponent<TabsProps> = ({
     },
   ]);
 
-  const getUnderlineClass = StylingHelper.classNames([
+  const getUnderlineClass = StyleHelper.classNames([
     'bg-primary  absolute  bottom-0 transition-all duration-300',
     {
       applyWhen: variant === TabsVariant.Primary,

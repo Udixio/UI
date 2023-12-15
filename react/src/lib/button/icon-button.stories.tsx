@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
-
-import { faAccessibleIcon as farGear } from '@fortawesome/free-brands-svg-icons';
 import { faClipboard as fasGear } from '@fortawesome/free-solid-svg-icons';
-import { IconButton, IconButtonProps, IconButtonVariant } from '../src';
+import { IconButton, IconButtonProps, IconButtonVariant } from './icon-button';
+import { faAccessibleIcon as farGear } from '@fortawesome/free-brands-svg-icons';
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
   title: 'Inputs/IconButton',
@@ -32,12 +31,10 @@ const createIconButtonStory = (
   const IconButtonStory: Story = (args: IconButtonProps) => (
     <div className="">
       {!toggle && (
-        <>
-          <div className="flex m-4 gap-4 items-center">
-            <IconButton {...args} onToggle={undefined} />
-            <IconButton {...args} disabled onToggle={undefined} />
-          </div>
-        </>
+        <div className="flex m-4 gap-4 items-center">
+          <IconButton {...args} onToggle={undefined} />
+          <IconButton {...args} disabled onToggle={undefined} />
+        </div>
       )}
       {toggle && (
         <>

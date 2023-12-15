@@ -4,9 +4,9 @@ type StyleSet =
   | undefined
   | string
   | Record<string, boolean | undefined>
-  | { applyWhen: Boolean; styles: StyleSet | StyleSet[] };
+  | { applyWhen: boolean; styles: StyleSet | StyleSet[] };
 
-export class StylingHelper {
+export class StyleHelper {
   static classNames(styles?: StyleSet | StyleSet[]): string {
     if (!styles) return '';
 

@@ -1,12 +1,12 @@
 import React, { FunctionComponent } from 'react';
-import { StylingHelper } from '../utils';
+import { StyleHelper } from '../utils/style.helper';
 
 export interface DiviserProps {
   className?: string;
 }
 
 export const Diviser: FunctionComponent<DiviserProps> = ({ className }) => {
-  const getDiviserClass = StylingHelper.classNames([
+  const getDiviserClass = StyleHelper.classNames([
     className,
     'h-px w-full text-outline-variant',
   ]);

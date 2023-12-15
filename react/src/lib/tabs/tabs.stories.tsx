@@ -7,7 +7,7 @@ import {
   faMessage,
   faPlane,
 } from '@fortawesome/free-solid-svg-icons';
-import { Tabs, TabsProps, TabsVariant } from '../src';
+import { Tabs, TabsProps, TabsVariant } from './tabs';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {

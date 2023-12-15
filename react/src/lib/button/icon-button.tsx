@@ -1,8 +1,8 @@
-import type {FunctionComponent} from 'react';
-import React, {useEffect} from 'react';
-import {Icon} from '../icon';
-import {IconDefinition} from '@fortawesome/fontawesome-svg-core';
-import {StylingHelper} from '../../../../src/utils';
+import type { FunctionComponent } from 'react';
+import React, { useEffect } from 'react';
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { StyleHelper } from '../utils/style.helper';
+import { Icon } from '../icon/icon';
 
 export enum IconButtonVariant {
   STANDARD = 'standard',
@@ -62,19 +62,19 @@ export const IconButton: FunctionComponent<IconButtonProps> = ({
   // Détermine le type de l'élément à rendre : un bouton ou un lien
   const ElementType = href ? 'a' : 'button';
 
-  let linkProps: any = {};
+  const linkProps: any = {};
   if (href) {
     linkProps.href = href;
     linkProps.title = title;
   }
 
-  let buttonProps: any = {};
+  const buttonProps: any = {};
   if (!href) {
     buttonProps.type = type;
     buttonProps.onClick = handleClick;
   }
 
-  const getButtonClass = StylingHelper.classNames([
+  const getButtonClass = StyleHelper.classNames([
     'rounded-full overflow-hidden transition-all duration-300',
     className,
     {
@@ -137,7 +137,7 @@ export const IconButton: FunctionComponent<IconButtonProps> = ({
       ],
     },
   ]);
-  const getStateClass = StylingHelper.classNames([
+  const getStateClass = StyleHelper.classNames([
     'p-2 flex rounded-full',
     {
       applyWhen: variant === IconButtonVariant.STANDARD,
@@ -196,7 +196,7 @@ export const IconButton: FunctionComponent<IconButtonProps> = ({
       ],
     },
   ]);
-  const getIconClass = StylingHelper.classNames([
+  const getIconClass = StyleHelper.classNames([
     'h-5 w-5 transition-all duration-300',
     {
       applyWhen: variant === IconButtonVariant.STANDARD,

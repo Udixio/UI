@@ -1,12 +1,14 @@
 import React, { FunctionComponent, useEffect, useState } from 'react';
-
-import { Tabs, TabsVariant } from '../tabs';
-import { IconButton } from '../button';
 import { Highlight, themes } from 'prism-react-renderer';
 import classNames from 'classnames';
+import {
+  faClipboard,
+  faClipboardCheck,
+} from '@fortawesome/free-solid-svg-icons';
+import { IconButton } from '../button/icon-button';
 import { LivePreview, LiveProvider } from 'react-live';
-import { Diviser } from '../diviser';
-import {faClipboard, faClipboardCheck} from "@fortawesome/free-solid-svg-icons";
+import { Diviser } from '../diviser/diviser';
+import { Tabs, TabsVariant } from '../tabs/tabs';
 
 export interface CodePreviewProps {
   className?: string;
@@ -73,6 +75,7 @@ export const CodePreview: FunctionComponent<CodePreviewProps> = ({
           icon={faClipboard}
           iconSelected={faClipboardCheck}
         ></IconButton>
+        {/* eslint-disable-next-line react/jsx-no-undef */}
         <Diviser className="text-surface-container-highest absolute bottom-0" />
       </div>
 
