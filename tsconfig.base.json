@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@udixio/shareable": ["shareable/src/index.ts"],
       "@udixio/ui-angular": ["angular/src/index.ts"],
       "@udixio/ui-react": ["react/src/index.ts"]
     }
