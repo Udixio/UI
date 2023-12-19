@@ -13,7 +13,7 @@
           "error",
           {
             "type": "attribute",
-            "prefix": "udixio",
+            "prefix": "u",
             "style": "camelCase"
           }
         ],
@@ -21,7 +21,7 @@
           "error",
           {
             "type": "element",
-            "prefix": "udixio",
+            "prefix": "u",
             "style": "kebab-case"
           }
         ]
