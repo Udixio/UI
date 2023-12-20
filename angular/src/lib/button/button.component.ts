@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ViewEncapsulation } from '@angular/core';
 import type { MouseEventHandler } from 'react';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { ButtonStyle, ButtonVariant } from '@udixio/shareable';
@@ -74,6 +74,7 @@ export interface ButtonProps {
   selector: 'u-button',
   templateUrl: './button.component.html',
   standalone: true,
+  encapsulation: ViewEncapsulation.None,
 })
 export class ButtonComponent implements ButtonProps {
   @Input()

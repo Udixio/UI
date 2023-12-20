@@ -1,4 +1,4 @@
-import classnames from 'classnames';
+import * as classnames from 'classnames';
 
 type StyleSet =
   | undefined
