@@ -1,13 +1,7 @@
 import { Component, Input } from '@angular/core';
 import type { MouseEventHandler } from 'react';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-
-export type ButtonVariant =
-  | 'filled'
-  | 'elevated'
-  | 'outlined'
-  | 'text'
-  | 'tonal';
+import { ButtonStyle, ButtonVariant } from '@udixio/shareable';
 
 export interface ButtonProps {
   /**
@@ -93,4 +87,39 @@ export class ButtonComponent implements ButtonProps {
 
   @Input()
   disabled = false;
+
+  @Input()
+  styleClass?: string;
+
+  @Input()
+  stateClass?: string;
+
+  @Input()
+  iconClass?: string;
+
+  @Input()
+  labelClass?: string;
+
+  getButtonClass = ButtonStyle.button({
+    variant: this.variant,
+    disabled: this.disabled,
+    buttonClass: this.styleClass,
+  });
+  getStateLayerClass = ButtonStyle.state({
+    variant: this.variant,
+    disabled: this.disabled,
+    stateClass: this.stateClass,
+  });
+
+  getIconClass = ButtonStyle.icon({
+    variant: this.variant,
+    disabled: this.disabled,
+    iconClass: this.iconClass,
+  });
+
+  getLabelTextClass = ButtonStyle.label({
+    variant: this.variant,
+    disabled: this.disabled,
+    labelClass: this.labelClass,
+  });
 }

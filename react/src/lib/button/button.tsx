@@ -113,12 +113,12 @@ export const Button: FunctionComponent<ButtonProps> = ({
     buttonProps.onClick = handleClick;
   }
 
-  const buttonClass = ButtonStyle.button({
+  const getButtonClass = ButtonStyle.button({
     variant,
     disabled,
     buttonClass: className,
   });
-  const stateLayerClass = ButtonStyle.state({
+  const getStateLayerClass = ButtonStyle.state({
     variant,
     disabled,
     stateClass: stateClassName,
@@ -141,11 +141,11 @@ export const Button: FunctionComponent<ButtonProps> = ({
       disabled={disabled}
       href={href}
       title={title}
-      className={buttonClass}
+      className={getButtonClass}
       {...buttonProps}
       {...linkProps}
     >
-      <span className={stateLayerClass}>
+      <span className={getStateLayerClass}>
         {icon && <Icon icon={icon} className={getIconClass} />}
         <span className={getLabelTextClass}>{label}</span>
       </span>
