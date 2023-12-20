@@ -2,7 +2,7 @@ import React, { FunctionComponent, useEffect } from 'react';
 
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { TabsVariant } from './tabs';
-import { StyleHelper } from '../utils/style.helper';
+import { StyleHelper } from '@udixio/shareable';
 import { Icon } from '../icon/icon';
 
 export interface TabProps {
@@ -19,17 +19,17 @@ export interface TabProps {
 }
 
 export const Tab: FunctionComponent<TabProps> = ({
-                                                   setUnderlineWidth,
-                                                   className,
-                                                   onClick,
-                                                   selected,
-                                                   label,
-                                                   variant = TabsVariant.Primary,
-                                                   href,
-                                                   title,
-                                                   type,
-                                                   icon,
-                                                 }) => {
+  setUnderlineWidth,
+  className,
+  onClick,
+  selected,
+  label,
+  variant = TabsVariant.Primary,
+  href,
+  title,
+  type,
+  icon,
+}) => {
   const ElementType = href ? 'a' : 'button';
 
   const contentRef = React.useRef<HTMLDivElement>(null);
@@ -61,7 +61,7 @@ export const Tab: FunctionComponent<TabProps> = ({
     };
   }, [selected, setUnderlineWidth]);
 
-  let linkProps: any = {};
+  const linkProps: any = {};
   if (href) {
     linkProps.href = href;
     linkProps.title = title;
@@ -73,7 +73,7 @@ export const Tab: FunctionComponent<TabProps> = ({
     }
   };
 
-  let buttonProps: any = {};
+  const buttonProps: any = {};
   if (!href) {
     buttonProps.type = type;
     buttonProps.onClick = handleClick;

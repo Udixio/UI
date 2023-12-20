@@ -1,7 +1,7 @@
 import type { FunctionComponent } from 'react';
 import React, { useEffect } from 'react';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { StyleHelper } from '../utils/style.helper';
+import { StyleHelper } from '@udixio/shareable';
 import { Icon } from '../icon/icon';
 
 export enum IconButtonVariant {

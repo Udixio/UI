@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import { StyleHelper } from '../utils/style.helper';
+import { StyleHelper } from '@udixio/shareable';
 
 export interface DiviserProps {
   className?: string;

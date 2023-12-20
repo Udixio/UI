@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import { Button, ButtonProps, ButtonVariant } from './button';
+import { Button, ButtonProps } from './button';
+import { ButtonVariant } from '@udixio/shareable';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -44,8 +45,8 @@ const createButtonStory = (variant: ButtonVariant) => {
   };
   return ButtonStory;
 };
-export const Filled = createButtonStory(ButtonVariant.Filled);
-export const Outlined = createButtonStory(ButtonVariant.Outlined);
-export const Text = createButtonStory(ButtonVariant.Text);
-export const Elevated = createButtonStory(ButtonVariant.Elevated);
-export const Tonal = createButtonStory(ButtonVariant.FilledTonal);
+export const Filled = createButtonStory('filled');
+export const Outlined = createButtonStory('outlined');
+export const Text = createButtonStory('text');
+export const Elevated = createButtonStory('elevated');
+export const Tonal = createButtonStory('filledTonal');

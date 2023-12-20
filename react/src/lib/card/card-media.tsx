@@ -1,5 +1,5 @@
 import type { FunctionComponent } from 'react';
-import { StyleHelper } from '../utils/style.helper';
+import { StyleHelper } from '@udixio/shareable';
 
 type mediaData = {
   src: string;

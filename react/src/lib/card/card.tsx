@@ -3,7 +3,7 @@ import { CardActionProps } from './card-action';
 import { CardMediaProps } from './card-media';
 import { CardHeaderProps } from './card-header';
 import { CardContentProps } from './card-content';
-import { StyleHelper } from '../utils/style.helper';
+import { StyleHelper } from '@udixio/shareable';
 
 export type CardVariant = 'outlined' | 'elevated' | 'filled';
 

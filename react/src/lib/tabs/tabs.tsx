@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useState } from 'react';
 import { Tab, TabProps } from './tab';
 import { Diviser } from '../diviser/diviser';
-import { StyleHelper } from '../utils/style.helper';
+import { StyleHelper } from '@udixio/shareable';
 
 export enum TabsVariant {
   Primary = 'primary',
