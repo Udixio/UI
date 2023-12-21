@@ -1,0 +1,589 @@
+{
+    "pipes": [],
+    "interfaces": [
+        {
+            "name": "ButtonProps",
+            "id": "interface-ButtonProps-f819d6bf719b4cde628d88f1874ddc245f07772c400451e9af73a8b5091a6ab8eb288a3cafb47a39d39ae408c74d5520eb12c12e737c5e2e9db631793c451111",
+            "file": "angular/src/lib/button/button.component.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "import { Component, Input, ViewEncapsulation } from '@angular/core';\nimport type { MouseEventHandler } from 'react';\nimport { IconDefinition } from '@fortawesome/fontawesome-svg-core';\nimport { ButtonStyle, ButtonVariant } from '@udixio/shareable';\n\nexport interface ButtonProps {\n  /**\n   * The label is the text that is displayed on the button.\n   */\n  label: string;\n\n  /**\n   * The onClick function is called when the button is clicked.\n   */\n  onClick?: MouseEventHandler<HTMLElement> | undefined;\n\n  /**\n   * The button variant determines the style of the button.\n   */\n  variant?: ButtonVariant;\n\n  /**\n   * The 'type' of the button, defaults to 'button'. One of 'button', 'submit', 'reset', or undefined.\n   */\n  type?: 'button' | 'submit' | 'reset' | undefined;\n\n  /**\n   * If present, the button will be rendered as a link with this href.\n   */\n  href?: string;\n\n  /**\n   * If set to true and if href is provided, the link will be opened in a new tab.\n   */\n  external?: boolean;\n\n  /**\n   * The title is used as the tooltip text when the button is hovered.\n   */\n  title?: string;\n\n  /**\n   * Disables the button if set to true.\n   */\n  disabled?: boolean;\n\n  /**\n   * An optional icon to display in the button.\n   */\n  icon?: IconDefinition;\n\n  /**\n   * Optional class name for the button component.\n   */\n  className?: string;\n\n  /**\n   * Optional class name for the icon in the button.\n   */\n  iconClassName?: string;\n\n  /**\n   * Optional class name for the label in the button.\n   */\n  labelClassName?: string;\n\n  /**\n   * Optional class name for the state layer in the button.\n   */\n  stateClassName?: string;\n}\n\n@Component({\n  selector: 'u-button',\n  templateUrl: './button.component.html',\n  standalone: true,\n  encapsulation: ViewEncapsulation.None,\n})\nexport class ButtonComponent implements ButtonProps {\n  /**\n   * The label is the text that is displayed on the button.\n   */\n  @Input()\n  label = 'Button';\n\n  @Input()\n  variant: ButtonVariant = 'filled';\n\n  @Input()\n  type: 'button' | 'submit' | 'reset' | undefined = 'button';\n\n  @Input()\n  disabled = false;\n\n  @Input()\n  styleClass?: string;\n\n  @Input()\n  stateClass?: string;\n\n  @Input()\n  iconClass?: string;\n\n  @Input()\n  labelClass?: string;\n\n  getButtonClass = () =>\n    ButtonStyle.button({\n      variant: this.variant,\n      disabled: this.disabled,\n      buttonClass: this.styleClass,\n    });\n  getStateLayerClass = () =>\n    ButtonStyle.state({\n      variant: this.variant,\n      disabled: this.disabled,\n      stateClass: this.stateClass,\n    });\n  getIconClass = () =>\n    ButtonStyle.icon({\n      variant: this.variant,\n      disabled: this.disabled,\n      iconClass: this.iconClass,\n    });\n  getLabelTextClass = () =>\n    ButtonStyle.label({\n      variant: this.variant,\n      disabled: this.disabled,\n      labelClass: this.labelClass,\n    });\n}\n",
+            "properties": [
+                {
+                    "name": "className",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": true,
+                    "description": "<p>Optional class name for the button component.</p>\n",
+                    "line": 55,
+                    "rawdescription": "\n\nOptional class name for the button component.\n"
+                },
+                {
+                    "name": "disabled",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "<p>Disables the button if set to true.</p>\n",
+                    "line": 45,
+                    "rawdescription": "\n\nDisables the button if set to true.\n"
+                },
+                {
+                    "name": "external",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "boolean",
+                    "optional": true,
+                    "description": "<p>If set to true and if href is provided, the link will be opened in a new tab.</p>\n",
+                    "line": 35,
+                    "rawdescription": "\n\nIf set to true and if href is provided, the link will be opened in a new tab.\n"
+                },
+                {
+                    "name": "href",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": true,
+                    "description": "<p>If present, the button will be rendered as a link with this href.</p>\n",
+                    "line": 30,
+                    "rawdescription": "\n\nIf present, the button will be rendered as a link with this href.\n"
+                },
+                {
+                    "name": "icon",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "IconDefinition",
+                    "optional": true,
+                    "description": "<p>An optional icon to display in the button.</p>\n",
+                    "line": 50,
+                    "rawdescription": "\n\nAn optional icon to display in the button.\n"
+                },
+                {
+                    "name": "iconClassName",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": true,
+                    "description": "<p>Optional class name for the icon in the button.</p>\n",
+                    "line": 60,
+                    "rawdescription": "\n\nOptional class name for the icon in the button.\n"
+                },
+                {
+                    "name": "label",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": false,
+                    "description": "<p>The label is the text that is displayed on the button.</p>\n",
+                    "line": 10,
+                    "rawdescription": "\n\nThe label is the text that is displayed on the button.\n"
+                },
+                {
+                    "name": "labelClassName",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": true,
+                    "description": "<p>Optional class name for the label in the button.</p>\n",
+                    "line": 65,
+                    "rawdescription": "\n\nOptional class name for the label in the button.\n"
+                },
+                {
+                    "name": "onClick",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "MouseEventHandler<HTMLElement> | undefined",
+                    "optional": true,
+                    "description": "<p>The onClick function is called when the button is clicked.</p>\n",
+                    "line": 15,
+                    "rawdescription": "\n\nThe onClick function is called when the button is clicked.\n"
+                },
+                {
+                    "name": "stateClassName",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": true,
+                    "description": "<p>Optional class name for the state layer in the button.</p>\n",
+                    "line": 70,
+                    "rawdescription": "\n\nOptional class name for the state layer in the button.\n"
+                },
+                {
+                    "name": "title",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string",
+                    "optional": true,
+                    "description": "<p>The title is used as the tooltip text when the button is hovered.</p>\n",
+                    "line": 40,
+                    "rawdescription": "\n\nThe title is used as the tooltip text when the button is hovered.\n"
+                },
+                {
+                    "name": "type",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "\"button\" | \"submit\" | \"reset\" | undefined",
+                    "optional": true,
+                    "description": "<p>The &#39;type&#39; of the button, defaults to &#39;button&#39;. One of &#39;button&#39;, &#39;submit&#39;, &#39;reset&#39;, or undefined.</p>\n",
+                    "line": 25,
+                    "rawdescription": "\n\nThe 'type' of the button, defaults to 'button'. One of 'button', 'submit', 'reset', or undefined.\n"
+                },
+                {
+                    "name": "variant",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "ButtonVariant",
+                    "optional": true,
+                    "description": "<p>The button variant determines the style of the button.</p>\n",
+                    "line": 20,
+                    "rawdescription": "\n\nThe button variant determines the style of the button.\n"
+                }
+            ],
+            "indexSignatures": [],
+            "kind": 171,
+            "methods": [],
+            "extends": []
+        }
+    ],
+    "injectables": [],
+    "guards": [],
+    "interceptors": [],
+    "classes": [],
+    "directives": [],
+    "components": [
+        {
+            "name": "ButtonComponent",
+            "id": "component-ButtonComponent-f819d6bf719b4cde628d88f1874ddc245f07772c400451e9af73a8b5091a6ab8eb288a3cafb47a39d39ae408c74d5520eb12c12e737c5e2e9db631793c451111",
+            "file": "angular/src/lib/button/button.component.ts",
+            "encapsulation": [
+                "ViewEncapsulation.None"
+            ],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "u-button",
+            "styleUrls": [],
+            "styles": [],
+            "templateUrl": [
+                "./button.component.html"
+            ],
+            "viewProviders": [],
+            "hostDirectives": [],
+            "inputsClass": [
+                {
+                    "name": "disabled",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 93,
+                    "type": "boolean",
+                    "decorators": []
+                },
+                {
+                    "name": "iconClass",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 102,
+                    "type": "string",
+                    "decorators": []
+                },
+                {
+                    "name": "label",
+                    "defaultValue": "'Button'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n\nThe label is the text that is displayed on the button.\n",
+                    "description": "<p>The label is the text that is displayed on the button.</p>\n",
+                    "line": 84,
+                    "type": "string",
+                    "decorators": []
+                },
+                {
+                    "name": "labelClass",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 105,
+                    "type": "string",
+                    "decorators": []
+                },
+                {
+                    "name": "stateClass",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 99,
+                    "type": "string",
+                    "decorators": []
+                },
+                {
+                    "name": "styleClass",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 96,
+                    "type": "string",
+                    "decorators": []
+                },
+                {
+                    "name": "type",
+                    "defaultValue": "'button'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 90,
+                    "type": "\"button\" | \"submit\" | \"reset\" | undefined",
+                    "decorators": []
+                },
+                {
+                    "name": "variant",
+                    "defaultValue": "'filled'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 87,
+                    "type": "ButtonVariant",
+                    "decorators": []
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "getButtonClass",
+                    "defaultValue": "() => {...}",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 107
+                },
+                {
+                    "name": "getIconClass",
+                    "defaultValue": "() => {...}",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 119
+                },
+                {
+                    "name": "getLabelTextClass",
+                    "defaultValue": "() => {...}",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 125
+                },
+                {
+                    "name": "getStateLayerClass",
+                    "defaultValue": "() => {...}",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "optional": false,
+                    "description": "",
+                    "line": 113
+                }
+            ],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "standalone": true,
+            "imports": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, Input, ViewEncapsulation } from '@angular/core';\nimport type { MouseEventHandler } from 'react';\nimport { IconDefinition } from '@fortawesome/fontawesome-svg-core';\nimport { ButtonStyle, ButtonVariant } from '@udixio/shareable';\n\nexport interface ButtonProps {\n  /**\n   * The label is the text that is displayed on the button.\n   */\n  label: string;\n\n  /**\n   * The onClick function is called when the button is clicked.\n   */\n  onClick?: MouseEventHandler<HTMLElement> | undefined;\n\n  /**\n   * The button variant determines the style of the button.\n   */\n  variant?: ButtonVariant;\n\n  /**\n   * The 'type' of the button, defaults to 'button'. One of 'button', 'submit', 'reset', or undefined.\n   */\n  type?: 'button' | 'submit' | 'reset' | undefined;\n\n  /**\n   * If present, the button will be rendered as a link with this href.\n   */\n  href?: string;\n\n  /**\n   * If set to true and if href is provided, the link will be opened in a new tab.\n   */\n  external?: boolean;\n\n  /**\n   * The title is used as the tooltip text when the button is hovered.\n   */\n  title?: string;\n\n  /**\n   * Disables the button if set to true.\n   */\n  disabled?: boolean;\n\n  /**\n   * An optional icon to display in the button.\n   */\n  icon?: IconDefinition;\n\n  /**\n   * Optional class name for the button component.\n   */\n  className?: string;\n\n  /**\n   * Optional class name for the icon in the button.\n   */\n  iconClassName?: string;\n\n  /**\n   * Optional class name for the label in the button.\n   */\n  labelClassName?: string;\n\n  /**\n   * Optional class name for the state layer in the button.\n   */\n  stateClassName?: string;\n}\n\n@Component({\n  selector: 'u-button',\n  templateUrl: './button.component.html',\n  standalone: true,\n  encapsulation: ViewEncapsulation.None,\n})\nexport class ButtonComponent implements ButtonProps {\n  /**\n   * The label is the text that is displayed on the button.\n   */\n  @Input()\n  label = 'Button';\n\n  @Input()\n  variant: ButtonVariant = 'filled';\n\n  @Input()\n  type: 'button' | 'submit' | 'reset' | undefined = 'button';\n\n  @Input()\n  disabled = false;\n\n  @Input()\n  styleClass?: string;\n\n  @Input()\n  stateClass?: string;\n\n  @Input()\n  iconClass?: string;\n\n  @Input()\n  labelClass?: string;\n\n  getButtonClass = () =>\n    ButtonStyle.button({\n      variant: this.variant,\n      disabled: this.disabled,\n      buttonClass: this.styleClass,\n    });\n  getStateLayerClass = () =>\n    ButtonStyle.state({\n      variant: this.variant,\n      disabled: this.disabled,\n      stateClass: this.stateClass,\n    });\n  getIconClass = () =>\n    ButtonStyle.icon({\n      variant: this.variant,\n      disabled: this.disabled,\n      iconClass: this.iconClass,\n    });\n  getLabelTextClass = () =>\n    ButtonStyle.label({\n      variant: this.variant,\n      disabled: this.disabled,\n      labelClass: this.labelClass,\n    });\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": "",
+            "stylesData": "",
+            "extends": [],
+            "implements": [
+                "ButtonProps"
+            ],
+            "templateData": "<button\n  [attr.type]=\"type\"\n  [class]=\"getButtonClass()\"\n  [disabled]=\"disabled\"\n>\n    <span [class]=\"getStateLayerClass()\">\n      <span [class]=\"getLabelTextClass()\">{{ label }}</span>\n    </span>\n</button>\n"
+        }
+    ],
+    "modules": [],
+    "miscellaneous": {
+        "variables": [
+            {
+                "name": "config",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "angular/.storybook/main.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "StorybookConfig",
+                "defaultValue": "{\n  stories: ['../**/*.stories.@(js|jsx|ts|tsx|mdx)'],\n  addons: ['@storybook/addon-essentials', '@storybook/addon-interactions'],\n  framework: {\n    name: '@storybook/angular',\n    options: {},\n  },\n  docs: {\n    autodocs: true,\n    defaultName: 'Docs',\n  },\n}"
+            },
+            {
+                "name": "Elevated",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "angular/src/lib/button/button.component.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: { label: 'Click me!', variant: 'elevated' },\n}"
+            },
+            {
+                "name": "Filled",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "angular/src/lib/button/button.component.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: { label: 'Click me!', variant: 'filled' },\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "angular/src/lib/button/button.component.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<ButtonComponent>",
+                "defaultValue": "{\n  component: ButtonComponent,\n  title: 'button',\n  tags: ['autodocs'],\n}"
+            },
+            {
+                "name": "Outlined",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "angular/src/lib/button/button.component.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: { label: 'Click me!', variant: 'outlined' },\n}"
+            },
+            {
+                "name": "Text",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "angular/src/lib/button/button.component.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: { label: 'Click me!', variant: 'text' },\n}"
+            },
+            {
+                "name": "Tonal",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "angular/src/lib/button/button.component.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story",
+                "defaultValue": "{\n  args: { label: 'Click me!', variant: 'filledTonal' },\n}"
+            }
+        ],
+        "functions": [],
+        "typealiases": [
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "StoryObj<ButtonComponent>",
+                "file": "angular/src/lib/button/button.component.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 183
+            }
+        ],
+        "enumerations": [],
+        "groupedVariables": {
+            "angular/.storybook/main.ts": [
+                {
+                    "name": "config",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "angular/.storybook/main.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "StorybookConfig",
+                    "defaultValue": "{\n  stories: ['../**/*.stories.@(js|jsx|ts|tsx|mdx)'],\n  addons: ['@storybook/addon-essentials', '@storybook/addon-interactions'],\n  framework: {\n    name: '@storybook/angular',\n    options: {},\n  },\n  docs: {\n    autodocs: true,\n    defaultName: 'Docs',\n  },\n}"
+                }
+            ],
+            "angular/src/lib/button/button.component.stories.ts": [
+                {
+                    "name": "Elevated",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "angular/src/lib/button/button.component.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: { label: 'Click me!', variant: 'elevated' },\n}"
+                },
+                {
+                    "name": "Filled",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "angular/src/lib/button/button.component.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: { label: 'Click me!', variant: 'filled' },\n}"
+                },
+                {
+                    "name": "meta",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "angular/src/lib/button/button.component.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Meta<ButtonComponent>",
+                    "defaultValue": "{\n  component: ButtonComponent,\n  title: 'button',\n  tags: ['autodocs'],\n}"
+                },
+                {
+                    "name": "Outlined",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "angular/src/lib/button/button.component.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: { label: 'Click me!', variant: 'outlined' },\n}"
+                },
+                {
+                    "name": "Text",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "angular/src/lib/button/button.component.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: { label: 'Click me!', variant: 'text' },\n}"
+                },
+                {
+                    "name": "Tonal",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "angular/src/lib/button/button.component.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story",
+                    "defaultValue": "{\n  args: { label: 'Click me!', variant: 'filledTonal' },\n}"
+                }
+            ]
+        },
+        "groupedFunctions": {},
+        "groupedEnumerations": {},
+        "groupedTypeAliases": {
+            "angular/src/lib/button/button.component.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "StoryObj<ButtonComponent>",
+                    "file": "angular/src/lib/button/button.component.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 183
+                }
+            ]
+        }
+    },
+    "routes": [],
+    "coverage": {
+        "count": 11,
+        "status": "low",
+        "files": [
+            {
+                "filePath": "angular/.storybook/main.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "config",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "angular/src/lib/button/button.component.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Elevated",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "angular/src/lib/button/button.component.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Filled",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "angular/src/lib/button/button.component.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "meta",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "angular/src/lib/button/button.component.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Outlined",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "angular/src/lib/button/button.component.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Text",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "angular/src/lib/button/button.component.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Tonal",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "angular/src/lib/button/button.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "ButtonComponent",
+                "coveragePercent": 7,
+                "coverageCount": "1/13",
+                "status": "low"
+            },
+            {
+                "filePath": "angular/src/lib/button/button.component.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "ButtonProps",
+                "coveragePercent": 92,
+                "coverageCount": "13/14",
+                "status": "very-good"
+            }
+        ]
+    }
+}

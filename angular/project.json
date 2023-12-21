@@ -40,7 +40,8 @@
         "port": 4400,
         "configDir": "angular/.storybook",
         "browserTarget": "angular:build-storybook",
-        "compodoc": false,
+        "compodoc": true,
+        "compodocArgs": ["-e", "json", "-d", "angular"],
         "styles": ["angular/src/index.scss"]
       },
       "configurations": {
@@ -56,7 +57,8 @@
         "outputDir": "dist/storybook/angular",
         "configDir": "angular/.storybook",
         "browserTarget": "angular:build-storybook",
-        "compodoc": false,
+        "compodoc": true,
+        "compodocArgs": ["-e", "json", "-d", "angular"],
         "styles": ["angular/src/index.scss"]
       },
       "configurations": {
