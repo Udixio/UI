@@ -1,9 +1,9 @@
 <button
   [attr.type]="type"
-  [class]="getButtonClass"
+  [class]="getButtonClass()"
   [disabled]="disabled"
 >
-    <span [class]="getStateLayerClass">
-      <span [class]="getLabelTextClass">{{ label }}</span>
+    <span [class]="getStateLayerClass()">
+      <span [class]="getLabelTextClass()">{{ label }}</span>
     </span>
 </button>

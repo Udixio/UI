@@ -14,7 +14,7 @@ export class ButtonStyle {
       args.buttonClass,
       'button group rounded-full inline-block',
       {
-        applyWhen: args.variant === 'outlined',
+        applyWhen: args.variant === 'elevated',
         styles: [
           {
             'bg-surface-container-low': !args.disabled,

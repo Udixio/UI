@@ -101,26 +101,28 @@ export class ButtonComponent implements ButtonProps {
   @Input()
   labelClass?: string;
 
-  getButtonClass = ButtonStyle.button({
-    variant: this.variant,
-    disabled: this.disabled,
-    buttonClass: this.styleClass,
-  });
-  getStateLayerClass = ButtonStyle.state({
-    variant: this.variant,
-    disabled: this.disabled,
-    stateClass: this.stateClass,
-  });
-
-  getIconClass = ButtonStyle.icon({
-    variant: this.variant,
-    disabled: this.disabled,
-    iconClass: this.iconClass,
-  });
-
-  getLabelTextClass = ButtonStyle.label({
-    variant: this.variant,
-    disabled: this.disabled,
-    labelClass: this.labelClass,
-  });
+  getButtonClass = () =>
+    ButtonStyle.button({
+      variant: this.variant,
+      disabled: this.disabled,
+      buttonClass: this.styleClass,
+    });
+  getStateLayerClass = () =>
+    ButtonStyle.state({
+      variant: this.variant,
+      disabled: this.disabled,
+      stateClass: this.stateClass,
+    });
+  getIconClass = () =>
+    ButtonStyle.icon({
+      variant: this.variant,
+      disabled: this.disabled,
+      iconClass: this.iconClass,
+    });
+  getLabelTextClass = () =>
+    ButtonStyle.label({
+      variant: this.variant,
+      disabled: this.disabled,
+      labelClass: this.labelClass,
+    });
 }
