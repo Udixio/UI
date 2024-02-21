@@ -1,19 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
-import {
-  Button,
-  ButtonVariant,
-  Card,
-  CardContent,
-  CardProps,
-  CardVariant,
-  IconButton,
-} from '../src';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import { CardHeader } from '../src';
-import { Avatar } from '../src/avatar';
-import { CardAction } from '../src';
-import { CardMedia } from '../src';
+import { Card, CardProps, CardVariant } from '../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -35,154 +22,14 @@ type Story = StoryObj<typeof meta>;
 
 const createCardStory = (variant: CardVariant) => {
   const CardStory: Story = (args: CardProps) => (
-    <div className="">
-      <div className="lg:flex lg:m-4 lg:gap-4">
-        <Card
-          className={'flex-1'}
-          {...args}
-          header={
-            <CardHeader
-              avatar={<Avatar>T</Avatar>}
-              title={'Title'}
-              subTitle={'subtitle'}
-            />
-          }
-          media={
-            <CardMedia
-              mediaType={'image'}
-              mediaData={{
-                src: 'https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-                alt: 'alt',
-              }}
-            />
-          }
-          content={
-            <CardContent title={'Title'} subTitle={'subtitle'}>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                Accusantium ex iusto laborum, magni maxime molestias nulla
-                obcaecati, quae quis recusandae sed, veniam! Commodi consectetur
-                magnam molestias tempora? Accusamus, iste tempore.
-              </p>
-            </CardContent>
-          }
-          actions={
-            <CardAction>
-              <Button label={'label'} />
-              <IconButton arialLabel={'label'} icon={faPlus} />
-            </CardAction>
-          }
-        />
-
-        <div className={'flex-1'}>
-          <Card
-            className={''}
-            {...args}
-            media={
-              <CardMedia
-                mediaType={'image'}
-                mediaData={{
-                  src: 'https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-                  alt: 'alt',
-                }}
-              />
-            }
-            content={
-              <CardContent
-                title={"Glass Souls' World Tour"}
-                subTitle={'From your recent favorites'}
-              />
-            }
-            actions={
-              <CardAction>
-                <Button label={'Buy tickets'} />
-              </CardAction>
-            }
-          />
-
-          <Card
-            {...args}
-            content={
-              <CardContent
-                title={"Glass Souls' World Tour"}
-                subTitle={'From your recent favorites'}
-              />
-            }
-            actions={
-              <CardAction>
-                <Button label={'Buy tickets'} />
-              </CardAction>
-            }
-          />
-        </div>
-      </div>
-
+    <>
+      <Card className={'w-[360px] h-[360px]'} {...args}></Card>
       <Card
-        className={'flex-1'}
+        isInteractive={true}
+        className={'w-[360px] h-[360px]'}
         {...args}
-        media={
-          <CardMedia
-            mediaType={'image'}
-            mediaData={{
-              src: 'https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-              alt: 'alt',
-            }}
-          />
-        }
-        content={
-          <CardContent>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-              Accusantium ex iusto laborum, magni maxime molestias nulla
-              obcaecati, quae quis recusandae sed, veniam! Commodi consectetur
-              magnam molestias tempora? Accusamus, iste tempore.
-            </p>
-          </CardContent>
-        }
-        actions={
-          <CardAction>
-            <Button label={'Get tickets'} />
-            <Button variant={ButtonVariant.Outlined} label={'Learn more'} />
-          </CardAction>
-        }
-      />
-      <Card
-        className={'flex-1'}
-        {...args}
-        header={
-          <CardHeader
-            avatar={<Avatar>T</Avatar>}
-            title={'Title'}
-            subTitle={'subtitle'}
-          />
-        }
-        media={
-          <CardMedia
-            mediaType={'image'}
-            mediaData={{
-              src: 'https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-              alt: 'alt',
-            }}
-          />
-        }
-        content={
-          <CardContent title={'Title'} subTitle={'subtitle'}>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-              Accusantium ex iusto laborum, magni maxime molestias nulla
-              obcaecati, quae quis recusandae sed, veniam! Commodi consectetur
-              magnam molestias tempora? Accusamus, iste tempore.
-            </p>
-          </CardContent>
-        }
-        actions={
-          <CardAction>
-            <Button label={'Get tickets'} />
-            <Button variant={ButtonVariant.Outlined} label={'Learn more'} />
-          </CardAction>
-        }
-      />
-    </div>
+      ></Card>
+    </>
   );
   CardStory.args = {
     variant: variant,

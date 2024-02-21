@@ -1,6 +1,5 @@
 import { StylingHelper } from '../utils';
 import React, { FunctionComponent, ReactNode } from 'react';
-import classNames from 'classnames';
 import { CardMediaProps } from './CardMedia';
 import { CardContentProps } from './CardContent';
 import { CardHeaderProps } from './CardHeader';
@@ -19,29 +18,56 @@ export interface CardProps {
    */
   className?: string;
 
+  /**
+   * Optional class name for the state layer in the button.
+   */
+  stateClassName?: string;
+
+  /**
+   * @deprecated This will be removed in future versions. Use `children` instead.
+   */
   header?: React.ReactElement<CardHeaderProps>;
+
+  /**
+   * @deprecated This will be removed in future versions. Use `children` instead.
+   */
   media?: React.ReactElement<CardMediaProps>;
+
+  /**
+   * @deprecated This will be removed in future versions. Use `children` instead.
+   */
   content?: React.ReactElement<CardContentProps>;
+
+  /**
+   * @deprecated This will be removed in future versions. Use `children` instead.
+   */
   actions?: React.ReactElement<CardActionProps>;
 
   responsiveBreakPoint?: number;
+
+  isInteractive?: boolean;
+
+  children?: ReactNode;
 }
 
 /**
  * The Button component is a versatile component that can be used to trigger actions or to navigate to different sections of the application
  */
 export const Card: FunctionComponent<CardProps> = ({
-  variant,
+  variant = 'outlined',
   header,
   media,
   content,
   actions,
   className,
+  stateClassName,
+  children,
+  isInteractive,
   responsiveBreakPoint = 500,
 }: CardProps) => {
   const containerClass = StylingHelper.classNames([
     className,
-    '@container border border-outline-variant rounded-xl m-6 overflow-hidden',
+    'card @container relative group border border-outline-variant rounded-xl m-6 overflow-hidden',
     {
       applyWhen: variant === 'outlined',
       styles: 'bg-surface',
@@ -55,23 +81,37 @@ export const Card: FunctionComponent<CardProps> = ({
       styles: 'bg-surface-container-highest',
     },
   ]);
-  // const stateLayerClass = StylingHelper.classNames(["state-primary"])
+  const stateLayerClass = StylingHelper.classNames([
+    stateClassName,
+    'state-layer absolute w-full h-full ',
+    { 'state-on-surface': isInteractive },
+  ]);
 
-  return (
-    <article className={containerClass}>
-      <div className={''}></div>
-      <div className={'@[' + responsiveBreakPoint + 'px]:flex'}>
-        <div className={' flex-1'}>
-          {header && header}
-          {media && media}
+  if (header || media || content || actions)
+    return (
+      <article className={containerClass}>
+        <div className={''}></div>
+        <div className={'@[' + responsiveBreakPoint + 'px]:flex'}>
+          {children}
+          <div className={' flex-1'}>
+            {header && header}
+            {media && media}
+          </div>
+          <div
+            className={
+              'flex flex-col justify-around mb-4 @xl:items-end  flex-1'
+            }
+          >
+            {content && content}
+            {actions && actions}
+          </div>
         </div>
-        <div
-          className={'flex flex-col justify-around mb-4 @xl:items-end  flex-1'}
-        >
-          {content && content}
-          {actions && actions}
-        </div>
-      </div>
-    </article>
-  );
+      </article>
+    );
+  else
+    return (
+      <article className={containerClass}>
+        <div className={stateLayerClass}>{children}</div>
+      </article>
+    );
 };
