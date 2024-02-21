@@ -1,3 +1,10 @@
+# [1.0.0-beta.14](https://github.com/Udixio/UI/compare/v1.0.0-beta.13...v1.0.0-beta.14) (2024-02-21)
+
+
+### Bug Fixes
+
+* card height adjusts according to the child element ([d03af1d](https://github.com/Udixio/UI/commit/d03af1d9200c68da408ed9ab415bd0f62a5dcb2b))
+
 # [1.0.0-beta.13](https://github.com/Udixio/UI/compare/v1.0.0-beta.12...v1.0.0-beta.13) (2024-02-21)
 
 
