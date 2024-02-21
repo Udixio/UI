@@ -1,3 +1,10 @@
+# [1.0.0-beta.13](https://github.com/Udixio/UI/compare/v1.0.0-beta.12...v1.0.0-beta.13) (2024-02-21)
+
+
+### Features
+
+* simplify Card component and its usage in Storybook ([f10f16e](https://github.com/Udixio/UI/commit/f10f16e85deb5325d54989dd5b094d92ae15e3d7))
+
 # [1.0.0-beta.12](https://github.com/Udixio/UI/compare/v1.0.0-beta.11...v1.0.0-beta.12) (2023-12-08)
 
 
