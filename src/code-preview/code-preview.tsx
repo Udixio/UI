@@ -6,7 +6,10 @@ import { Highlight, themes } from 'prism-react-renderer';
 import classNames from 'classnames';
 import { LivePreview, LiveProvider } from 'react-live';
 import { Diviser } from '../diviser';
-import {faClipboard, faClipboardCheck} from "@fortawesome/free-solid-svg-icons";
+import {
+  faClipboard,
+  faClipboardCheck,
+} from '@fortawesome/free-solid-svg-icons';
 
 export interface CodePreviewProps {
   className?: string;

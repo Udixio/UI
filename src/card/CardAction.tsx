@@ -16,6 +16,5 @@ export const CardAction: FunctionComponent<CardActionProps> = ({
   className,
   children,
 }: CardActionProps) => {
-  const ElementType = typeof children == 'string' ? 'p' : 'div';
   return <div className={className + ` mt-8 px-3 flex gap-2`}>{children}</div>;
 };

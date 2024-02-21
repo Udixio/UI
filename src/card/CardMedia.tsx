@@ -1,4 +1,4 @@
-import type { FunctionComponent, ReactNode } from 'react';
+import type { FunctionComponent } from 'react';
 import { StylingHelper } from '../utils';
 
 type mediaData = {
