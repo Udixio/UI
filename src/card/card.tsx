@@ -83,7 +83,7 @@ export const Card: FunctionComponent<CardProps> = ({
   ]);
   const stateLayerClass = StylingHelper.classNames([
     stateClassName,
-    'state-layer absolute w-full h-full ',
+    'state-layer',
     { 'state-on-surface': isInteractive },
   ]);
 
