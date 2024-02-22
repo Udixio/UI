@@ -67,7 +67,7 @@ export const Card: FunctionComponent<CardProps> = ({
 }: CardProps) => {
   const containerClass = StylingHelper.classNames([
     className,
-    'card @container relative group border border-outline-variant rounded-xl m-6 overflow-hidden',
+    'card @container relative group border border-outline-variant rounded-xl overflow-hidden',
     {
       applyWhen: variant === 'outlined',
       styles: 'bg-surface',

@@ -6,3 +6,4 @@ export * from './diviser';
 export * from './icon';
 export * from './tabs';
 export * from './utils';
+export * from './communication/ProgressIndicator';
