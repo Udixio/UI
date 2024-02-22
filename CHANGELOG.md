@@ -1,3 +1,10 @@
+# [1.0.0-beta.15](https://github.com/Udixio/UI/compare/v1.0.0-beta.14...v1.0.0-beta.15) (2024-02-22)
+
+
+### Features
+
+* add ProgressIndicator component and update Card ([15b6992](https://github.com/Udixio/UI/commit/15b6992e01c7d39613df4a170f3cc4670dc9fbd9))
+
 # [1.0.0-beta.14](https://github.com/Udixio/UI/compare/v1.0.0-beta.13...v1.0.0-beta.14) (2024-02-21)
 
 
