@@ -1,3 +1,10 @@
+# [1.0.0-beta.16](https://github.com/Udixio/UI/compare/v1.0.0-beta.15...v1.0.0-beta.16) (2024-02-22)
+
+
+### Features
+
+* update ProgressIndicator with auto-hide feature ([6e5d839](https://github.com/Udixio/UI/commit/6e5d839b8dd4dfdf3510e84b312dfb381a9c4601))
+
 # [1.0.0-beta.15](https://github.com/Udixio/UI/compare/v1.0.0-beta.14...v1.0.0-beta.15) (2024-02-22)
 
 
