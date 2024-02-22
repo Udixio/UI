@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   ProgressIndicator,
   ProgressIndicatorProps,
@@ -22,44 +22,25 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+// Function to create ProgressIndicator stories
 const createProgressIndicatorStory = (variant: ProgressIndicatorVariant) => {
-  const ProgressIndicatorStory: Story = (args: ProgressIndicatorProps) => {
-    // New component definition
-    const WrapperComponent = () => {
-      const [completed, setCompleted] = useState(0);
-
-      useEffect(() => {
-        const intervalId = setInterval(() => {
-          const currentTime = new Date().getTime();
-          const currentSecond = (currentTime / 1000) % 60;
-          const progress = (currentSecond / 60) * 100;
-          setCompleted(progress);
-        }, 500);
-
-        return () => {
-          clearInterval(intervalId);
-        };
-      }, []);
-
-      return <ProgressIndicator {...args} value={completed} />;
-    };
-
-    return (
-      <div className="">
-        <div className="flex m-4 gap-4 items-center">
-          {/* Wrapped in a component */}
-          <WrapperComponent />
-        </div>
+  const ProgressIndicatorStory: Story = (args: ProgressIndicatorProps) => (
+    <div className="">
+      <div className="flex m-4 gap-4 items-center">
+        <ProgressIndicator {...args} />
       </div>
-    );
-  };
-
+    </div>
+  );
   ProgressIndicatorStory.args = {
     variant: variant,
+    value: 50,
   };
-
   return ProgressIndicatorStory;
 };
 
 export const LinearDeterminate =
   createProgressIndicatorStory('linear-determinate');
+
+LinearDeterminate.argTypes = {
+  value: { control: { type: 'range', min: 0, max: 100 } },
+};
