@@ -71,6 +71,8 @@ const createTextFieldStory = (
   return TextFieldStory;
 };
 
+export const Filled = createTextFieldStory('linear-determinate');
+
 export const FilledTrailingIcon = createTextFieldStory('linear-determinate', {
   trailingIcon: (
     <IconButton arialLabel="Action description" icon={faCircleXmark} />
@@ -87,4 +89,6 @@ export const FilledLealingIconAndTrailingIcon = createTextFieldStory(
   }
 );
 
-export const Filled = createTextFieldStory('linear-determinate');
+export const FilledLealingIcon = createTextFieldStory('linear-determinate', {
+  leadingIcon: faMagnifyingGlass,
+});
