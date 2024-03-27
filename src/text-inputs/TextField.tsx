@@ -5,11 +5,7 @@ import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { Icon } from '../icon';
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
 
-export type TextFieldVariant =
-  | 'linear-determinate'
-  | 'linear-indeterminate'
-  | 'circular-determinate'
-  | 'circular-indeterminate';
+export type TextFieldVariant = 'filled' | 'outlined';
 
 export interface TextFieldProps {
   variant?: TextFieldVariant;

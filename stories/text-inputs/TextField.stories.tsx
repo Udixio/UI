@@ -71,16 +71,35 @@ const createTextFieldStory = (
   return TextFieldStory;
 };
 
-export const Filled = createTextFieldStory('linear-determinate');
+export const Filled = createTextFieldStory('filled');
 
-export const FilledTrailingIcon = createTextFieldStory('linear-determinate', {
+export const FilledTrailingIcon = createTextFieldStory('filled', {
   trailingIcon: (
     <IconButton arialLabel="Action description" icon={faCircleXmark} />
   ),
 });
 
-export const FilledLealingIconAndTrailingIcon = createTextFieldStory(
-  'linear-determinate',
+export const FilledLealingIconAndTrailingIcon = createTextFieldStory('filled', {
+  leadingIcon: faMagnifyingGlass,
+  trailingIcon: (
+    <IconButton arialLabel="Action description" icon={faCircleXmark} />
+  ),
+});
+
+export const FilledLealingIcon = createTextFieldStory('filled', {
+  leadingIcon: faMagnifyingGlass,
+});
+
+export const Outlined = createTextFieldStory('filled');
+
+export const OutlinedTrailingIcon = createTextFieldStory('outlined', {
+  trailingIcon: (
+    <IconButton arialLabel="Action description" icon={faCircleXmark} />
+  ),
+});
+
+export const OutlinedLealingIconAndTrailingIcon = createTextFieldStory(
+  'outlined',
   {
     leadingIcon: faMagnifyingGlass,
     trailingIcon: (
@@ -89,6 +108,6 @@ export const FilledLealingIconAndTrailingIcon = createTextFieldStory(
   }
 );
 
-export const FilledLealingIcon = createTextFieldStory('linear-determinate', {
+export const OutlinedLealingIcon = createTextFieldStory('outlined', {
   leadingIcon: faMagnifyingGlass,
 });
