@@ -24,6 +24,7 @@ export type IconButtonProps = {
   onClick?: (e: React.MouseEvent<HTMLElement>) => void;
   type?: 'button' | 'submit' | 'reset';
   className?: string;
+  iconClassName?: string;
 };
 
 export const IconButton: FunctionComponent<IconButtonProps> = ({
@@ -39,6 +40,7 @@ export const IconButton: FunctionComponent<IconButtonProps> = ({
   icon,
   iconSelected,
   className,
+  iconClassName,
 }) => {
   const [isActive, setIsActive] = React.useState(activated);
   let handleClick:
@@ -196,7 +198,8 @@ export const IconButton: FunctionComponent<IconButtonProps> = ({
       ],
     },
   ]);
-  const getIconClass = StylingHelper.classNames([
+  const iconClass = StylingHelper.classNames([
+    iconClassName,
     'h-5 w-5 transition-all duration-300',
     {
       applyWhen: variant === IconButtonVariant.STANDARD,
@@ -267,7 +270,7 @@ export const IconButton: FunctionComponent<IconButtonProps> = ({
       {...linkProps}
     >
       <span className={getStateClass}>
-        {icon && <Icon icon={icon} className={getIconClass} />}
+        {icon && <Icon icon={icon} className={iconClass} />}
       </span>
     </ElementType>
   );
