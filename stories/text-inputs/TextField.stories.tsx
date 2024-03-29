@@ -90,7 +90,7 @@ export const FilledLealingIcon = createTextFieldStory('filled', {
   leadingIcon: faMagnifyingGlass,
 });
 
-export const Outlined = createTextFieldStory('filled');
+export const Outlined = createTextFieldStory('outlined');
 
 export const OutlinedTrailingIcon = createTextFieldStory('outlined', {
   trailingIcon: (

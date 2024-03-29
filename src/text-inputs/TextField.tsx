@@ -12,6 +12,7 @@ export interface TextFieldProps {
   placeholder: string;
   value?: string;
   name: string;
+  label: string;
   enabled: boolean;
   className?: string;
   contentClassName?: string;
@@ -30,12 +31,13 @@ export interface TextFieldProps {
 
 export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
   const {
-    variant = 'linear-determinate',
+    variant = 'filled',
     enabled = true,
     errorText,
     placeholder,
     name,
     inputClassName,
+    label,
     labelClassName,
     activeIndicatorClassName,
     className,
@@ -96,62 +98,107 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
 
   const contentClass = StylingHelper.classNames([
     inputClassName,
-    'content  relative rounded-t overflow-hidden',
-    { 'bg-surface-container-highest': enabled },
+    'content  relative rounded-t',
+
     { 'bg-on-surface/[0.04]': !enabled },
+    {
+      applyWhen: variant == 'filled',
+      styles: ['overflow-hidden', { 'bg-surface-container-highest': enabled }],
+    },
   ]);
 
   const labelClass = StylingHelper.classNames([
     labelClassName,
-    'label  outline-none transition-all duration-300 absolute left-4',
+    'label relative outline-none transition-all  flex items-center whitespace-nowrap',
     { 'text-on-surface-variant': enabled && !errorText?.length },
     { 'text-on-surface': !enabled },
     { 'text-error': !!errorText?.length },
+    { 'text-primary': !errorText?.length && isFocused },
     {
-      'left-12': !!leadingIcon,
-      'pr-12': !!trailingIcon,
-    },
-    {
-      applyWhen: !isFocused && (value?.length ?? 0) == 0,
+      applyWhen: !isFocused && !value?.length,
       styles: [
-        'text-body-large top-2/4 -translate-y-2/4',
+        'max-w-0 -left-5 text-body-large top-2/4 translate-y-0',
         { 'cursor-text': enabled },
       ],
     },
     {
-      applyWhen: isFocused || (value?.length ?? 0) !== 0,
-      styles: ['text-body-small top-2'],
+      applyWhen: isFocused || !!value?.length,
+      styles: [
+        'max-w-full left-0 text-body-small top-0 ',
+        { '-translate-y-2/4': variant == 'outlined' },
+      ],
+    },
+    {
+      applyWhen: variant == 'filled',
+      styles: ['duration-300'],
+    },
+    {
+      applyWhen: variant == 'outlined',
+      styles: ['duration-500'],
     },
   ]);
 
   const inputClass = StylingHelper.classNames([
     inputClassName,
     'input text-body-large bg-[inherit] outline-none',
-    'border-b-[1px]',
-    'pl-4 pb-2 pt-6',
     {
-      'border-on-surface-variant': !errorText?.length && !isFocused,
-      'border-primary': !errorText?.length && isFocused,
-    },
-    { 'border-error': !!errorText?.length },
-    {
-      'state-on-surface text-on-surface-variant placeholder:text-on-surface-variant':
-        enabled,
+      ' text-on-surface-variant placeholder:text-on-surface-variant': enabled,
       'placeholder:text-on-surface text-on-surface': !enabled,
     },
     {
+      'pl-4 ': !leadingIcon,
       'pl-12': !!leadingIcon,
+      'pr-4 ': !trailingIcon,
       'pr-12': !!trailingIcon,
+    },
+    {
+      applyWhen: variant == 'filled',
+      styles: [
+        'state-on-surface pb-2 pt-6',
+        {
+          'border-b-[1px]': variant == 'filled',
+          'border-on-surface-variant': !errorText?.length && !isFocused,
+          'border-primary': !errorText?.length && isFocused,
+        },
+        { 'border-error': !!errorText?.length },
+      ],
+    },
+    {
+      applyWhen: variant == 'outlined',
+      styles: ['py-4'],
     },
   ]);
   const activeIndicatorClass = StylingHelper.classNames([
     activeIndicatorClassName,
-    'absolute w-0 inset-x-0 border-rounded mx-auto transition-all duration-300 bottom-0 active-indicator  h-[3px]',
-    { 'bg-primary': !errorText?.length },
-    { 'bg-error': !!errorText?.length },
+    'active-indicator absolute w-0 inset-x-0 border-rounded mx-auto  bottom-0 active-indicator  ',
     {
-      applyWhen: isFocused,
-      styles: ['!w-full'],
+      applyWhen: variant == 'filled',
+      styles: [
+        'h-[3px] transition-all duration-500',
+        { 'bg-primary': !errorText?.length },
+        { 'bg-error': !!errorText?.length },
+        {
+          applyWhen: isFocused,
+          styles: ['!w-full'],
+        },
+      ],
+    },
+    {
+      applyWhen: variant == 'outlined',
+      styles: [
+        'border-[1px] border-t-0 h-1/2 w-full -z-10 rounded-b border-outline transition-all duration-500',
+        // "before:transition-all before:duration-100 before:absolute before:border-r-0 before:border-outline before:border-b-0 before:w-8 before:h-full before:rounded-tl before:border-[1px] before:left-[-1px] before:bottom-full before:content-['']",
+        // "after:transition-all after:duration-100 after:absolute after:border-l-0 after:border-outline after:border-b-0 after:w-[calc(100%-32px)] after:h-full after:rounded-tr after:border-[1px] after:right-[-1px] after:bottom-full after:content-['']",
+
+        { '!border-error': !!errorText?.length },
+        {
+          applyWhen: isFocused,
+          styles: [
+            'border-primary border-[3px]',
+            // 'before:left-[-3px] before:w-3 before:!border-primary before:border-primary before:border-[3px]',
+          ],
+        },
+      ],
     },
   ]);
   const supportingTextClass = StylingHelper.classNames([
@@ -195,9 +242,70 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
             )}
           </div>
         )}
-        <label htmlFor={name} className={labelClass}>
-          label
-        </label>
+        <div
+          className={StylingHelper.classNames([
+            'flex transition-all duration-500  absolute w-full  h-1/2',
+
+            {
+              applyWhen: variant == 'outlined',
+              styles: [
+                '-z-10',
+                {
+                  'gap-x-0': !isFocused && !value?.length,
+                  'gap-x-1': isFocused || !!value?.length,
+                },
+              ],
+            },
+          ])}
+        >
+          <div
+            className={StylingHelper.classNames([
+              'active-indicator transition-all border-r-0 border-outline border-b-0  h-full rounded-tl border-[1px] left-0 top-0',
+              {
+                '!border-error': !!errorText?.length,
+                'border-primary border-[3px]': isFocused,
+              },
+              {
+                applyWhen: !leadingIcon,
+                styles: [{ 'w-8': !isFocused && !value?.length }],
+              },
+              {
+                applyWhen: !!leadingIcon,
+                styles: [{ 'w-[68px]': !isFocused && !value?.length }],
+              },
+              {
+                applyWhen: variant == 'filled',
+                styles: [
+                  'duration-300 invisible',
+                  { 'w-4': (isFocused || !!value?.length) && !leadingIcon },
+                  { 'w-12': (isFocused || !!value?.length) && !!leadingIcon },
+                ],
+              },
+              {
+                applyWhen: variant == 'outlined',
+                styles: [
+                  'duration-500 ',
+                  { 'w-3': isFocused || !!value?.length },
+                ],
+              },
+            ])}
+          ></div>
+          <label htmlFor={name} className={labelClass}>
+            {label}
+          </label>
+          <div
+            className={StylingHelper.classNames([
+              'active-indicator transition-all duration-500 flex-1 border-l-0 border-outline border-b-0 w-[calc(100%-32px)] h-full rounded-tr border-[1px] right-0 top-0',
+              { '!border-error': !!errorText?.length },
+              {
+                'border-primary border-[3px]': isFocused,
+                '': !isFocused && !value?.length,
+                '': isFocused || !!value?.length,
+              },
+              { invisible: variant == 'filled' },
+            ])}
+          ></div>
+        </div>
         <input
           ref={inputRef}
           value={value}
