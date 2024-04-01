@@ -1,3 +1,10 @@
+# [1.0.0-beta.18](https://github.com/Udixio/UI/compare/v1.0.0-beta.17...v1.0.0-beta.18) (2024-04-01)
+
+
+### Bug Fixes
+
+* imports must be made automatically ([075d8de](https://github.com/Udixio/UI/commit/075d8deebbbf295a11e5c4f6c8929fe049b8903b))
+
 # [1.0.0-beta.17](https://github.com/Udixio/UI/compare/v1.0.0-beta.16...v1.0.0-beta.17) (2024-03-29)
 
 
