@@ -13,7 +13,7 @@ export interface TextFieldProps {
   value?: string;
   name: string;
   label: string;
-  enabled: boolean;
+  enabled?: boolean;
   className?: string;
   contentClassName?: string;
   inputClassName?: string;
