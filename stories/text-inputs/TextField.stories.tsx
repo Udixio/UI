@@ -1,16 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
 import {
+  IconButton,
   TextField,
   TextFieldProps,
   TextFieldVariant,
-} from '../../src/text-inputs/TextField';
+} from '../../src';
 import { v4 as uuidv4 } from 'uuid';
 import {
   faCircleXmark,
   faMagnifyingGlass,
 } from '@fortawesome/free-solid-svg-icons';
-import { IconButton } from '../../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {

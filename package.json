@@ -19,7 +19,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "analyze": "size-limit --why",
-    "prebuild": "rm ./src/**/index.tsx && rm ./src/index.tsx && ctix create -f index.tsx -a src\n",
+    "prebuild": "rm ./src/**/index.tsx && rm ./src/index.tsx && npx ctix create -f index.tsx -a src\n",
     "build": "dts build",
     "lint": "dts lint",
     "prepare": "dts build",
