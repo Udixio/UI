@@ -1,3 +1,15 @@
+# [1.0.0-beta.19](https://github.com/Udixio/UI/compare/v1.0.0-beta.18...v1.0.0-beta.19) (2024-04-01)
+
+
+### Bug Fixes
+
+* enabled textField is optional ([c7dba05](https://github.com/Udixio/UI/commit/c7dba05a61bda761733bffc227c1f0f00d3ef852))
+
+
+### Features
+
+* Add external onChange prop for TextField component ([d97ce54](https://github.com/Udixio/UI/commit/d97ce543bf2214a52b4bcb56c8433a97cec77d89))
+
 # [1.0.0-beta.18](https://github.com/Udixio/UI/compare/v1.0.0-beta.17...v1.0.0-beta.18) (2024-04-01)
 
 
