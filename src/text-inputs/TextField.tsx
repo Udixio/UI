@@ -27,6 +27,7 @@ export interface TextFieldProps {
   leadingIconClassName?: string;
   leadingIcon?: React.ReactElement<typeof IconButton> | IconDefinition;
   type: 'text' | 'password' | 'number';
+  onChange?: (value: string) => void;
 }
 
 export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
@@ -78,10 +79,14 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
     setIsFocused(true);
   };
 
-  const handleChange = (event: {
-    target: { value: React.SetStateAction<string | undefined> };
-  }) => {
-    setValue(event.target.value); // Mettre à jour l'état 'value'
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.value;
+    setValue(newValue); // Update local state
+
+    // If external onChange prop is provided, call it with the new value
+    if (typeof args.onChange === 'function') {
+      args.onChange(newValue);
+    }
   };
 
   const handleBlur = () => {
