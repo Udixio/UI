@@ -191,7 +191,7 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
     {
       applyWhen: variant == 'outlined',
       styles: [
-        'border-[1px] border-t-0 h-1/2 w-full -z-10 rounded-b border-outline transition-all duration-500',
+        'border-[1px] border-t-0 h-1/2 w-full rounded-b border-outline transition-all duration-500',
         // "before:transition-all before:duration-100 before:absolute before:border-r-0 before:border-outline before:border-b-0 before:w-8 before:h-full before:rounded-tl before:border-[1px] before:left-[-1px] before:bottom-full before:content-['']",
         // "after:transition-all after:duration-100 after:absolute after:border-l-0 after:border-outline after:border-b-0 after:w-[calc(100%-32px)] after:h-full after:rounded-tr after:border-[1px] after:right-[-1px] after:bottom-full after:content-['']",
 
@@ -265,6 +265,7 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
         >
           <div
             className={StylingHelper.classNames([
+              activeIndicatorClassName,
               'active-indicator transition-all border-r-0 border-outline border-b-0  h-full rounded-tl border-[1px] left-0 top-0',
               {
                 '!border-error': !!errorText?.length,
@@ -300,6 +301,7 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
           </label>
           <div
             className={StylingHelper.classNames([
+              activeIndicatorClassName,
               'active-indicator transition-all duration-500 flex-1 border-l-0 border-outline border-b-0 w-[calc(100%-32px)] h-full rounded-tr border-[1px] right-0 top-0',
               { '!border-error': !!errorText?.length },
               {
