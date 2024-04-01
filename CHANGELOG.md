@@ -1,3 +1,13 @@
+# [1.0.0-beta.17](https://github.com/Udixio/UI/compare/v1.0.0-beta.16...v1.0.0-beta.17) (2024-03-29)
+
+
+### Features
+
+* add examples in TextField.stories.tsx ([fc7b33d](https://github.com/Udixio/UI/commit/fc7b33df3230d7211473516ffd21a7ccc53585af))
+* add examples in TextField.stories.tsx ([58b6ab4](https://github.com/Udixio/UI/commit/58b6ab45e0601d7728f951fc04aadc6c4f4ab5b7))
+* add TextField component ([f5acd36](https://github.com/Udixio/UI/commit/f5acd3694aaa9ce073838fa3b27dbea69d61f9c6))
+* add TextField outlined variant ([2fd928b](https://github.com/Udixio/UI/commit/2fd928b4409706d4336176a7dd4a9c709f775c05))
+
 # [1.0.0-beta.16](https://github.com/Udixio/UI/compare/v1.0.0-beta.15...v1.0.0-beta.16) (2024-02-22)
 
 
