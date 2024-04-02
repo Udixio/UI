@@ -28,6 +28,7 @@ export interface TextFieldProps {
   leadingIcon?: React.ReactElement<typeof IconButton> | IconDefinition;
   type: 'text' | 'password' | 'number';
   onChange?: (value: string) => void;
+  showSupportingText?: boolean;
 }
 
 export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
@@ -42,24 +43,39 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
     labelClassName,
     activeIndicatorClassName,
     className,
+    supportingText,
     supportingTextClassName,
     trailingIcon,
     trailingIconClassName,
     leadingIcon,
     leadingIconClassName,
-    supportingText,
     type = 'text',
   } = args;
 
   const [value, setValue] = useState(args.value); // Déclare un nouvel état 'value'
   const [isFocused, setIsFocused] = useState(false);
   const [showErrorIcon, setShowErrorIcon] = useState(false);
+  const [showSupportingText, setShowSupportingText] = useState(
+    args.showSupportingText
+  );
 
   useEffect(() => {
     if (errorText) {
       setShowErrorIcon(true);
     }
   }, [errorText]);
+
+  useEffect(() => {
+    if (args.showSupportingText !== undefined) {
+      setShowSupportingText(args.showSupportingText);
+    } else {
+      if (supportingText?.length) {
+        setShowSupportingText(true);
+      } else {
+        setShowSupportingText(false);
+      }
+    }
+  }, [showSupportingText, supportingText]);
 
   useEffect(() => {
     if (isFocused) {
@@ -208,7 +224,7 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
   ]);
   const supportingTextClass = StylingHelper.classNames([
     supportingTextClassName,
-    'text-body-small px-4 pt-1',
+    'supporting-text text-body-small px-4 pt-1',
     { 'text-on-surface-variant': enabled && !errorText?.length },
     { 'text-on-surface': !enabled },
     {
@@ -355,9 +371,15 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
           </div>
         )}
       </div>
-      <p className={supportingTextClass}>
-        {errorText ?? (supportingText?.length != 0 ? supportingText : '\u00A0')}
-      </p>
+      {showSupportingText && (
+        <p className={supportingTextClass}>
+          {errorText?.length
+            ? errorText
+            : supportingText?.length != 0
+              ? supportingText
+              : '\u00A0'}
+        </p>
+      )}
     </div>
   );
 };
