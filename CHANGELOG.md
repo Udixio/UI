@@ -1,3 +1,10 @@
+# [1.0.0-beta.22](https://github.com/Udixio/UI/compare/v1.0.0-beta.21...v1.0.0-beta.22) (2024-04-02)
+
+
+### Bug Fixes
+
+* textField component's styling has been updated to ensure full-width text input and improved autofill behavior. ([2db4873](https://github.com/Udixio/UI/commit/2db4873cbc4f3b04e950ffa402f14d9dc41a3a53))
+
 # [1.0.0-beta.21](https://github.com/Udixio/UI/compare/v1.0.0-beta.20...v1.0.0-beta.21) (2024-04-02)
 
 
