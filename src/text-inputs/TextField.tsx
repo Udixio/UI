@@ -170,7 +170,7 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
     },
     {
       applyWhen: variant == 'outlined',
-      styles: ['py-4'],
+      styles: ['py-4 relative z-10'],
     },
   ]);
   const activeIndicatorClass = StylingHelper.classNames([
@@ -220,13 +220,13 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
 
   const leadingIconClass = StylingHelper.classNames([
     leadingIconClassName,
-    'absolute top-2/4 -translate-y-2/4 left-0 h-12 w-12 flex items-center justify-center',
+    'z-20 absolute top-2/4 -translate-y-2/4 left-0 h-12 w-12 flex items-center justify-center',
     { 'cursor-text': !React.isValidElement(leadingIcon) },
   ]);
 
   const trailingIconClass = StylingHelper.classNames([
     trailingIconClassName,
-    'absolute top-2/4 -translate-y-2/4 right-0 h-12 w-12 flex items-center justify-center',
+    'z-20 absolute top-2/4 -translate-y-2/4 right-0 h-12 w-12 flex items-center justify-center',
     { 'cursor-text': !React.isValidElement(trailingIcon) },
   ]);
 
@@ -248,13 +248,14 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
           </div>
         )}
         <div
+          onClick={() => focusInput()}
           className={StylingHelper.classNames([
-            'flex transition-all duration-500  absolute w-full  h-1/2',
+            'flex cursor-text transition-all duration-500  absolute w-full  h-1/2',
 
             {
               applyWhen: variant == 'outlined',
               styles: [
-                '-z-10',
+                '',
                 {
                   'gap-x-0': !isFocused && !value?.length,
                   'gap-x-1': isFocused || !!value?.length,
