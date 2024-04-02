@@ -60,8 +60,10 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
   );
 
   useEffect(() => {
-    if (errorText) {
+    if (errorText?.length) {
       setShowErrorIcon(true);
+    } else {
+      setShowErrorIcon(false);
     }
   }, [errorText]);
 
