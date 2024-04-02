@@ -1,3 +1,10 @@
+# [1.0.0-beta.20](https://github.com/Udixio/UI/compare/v1.0.0-beta.19...v1.0.0-beta.20) (2024-04-01)
+
+
+### Bug Fixes
+
+* update z-index and add active indicator in TextField ([3814603](https://github.com/Udixio/UI/commit/38146036a70965777cb9da65844f2af369344901))
+
 # [1.0.0-beta.19](https://github.com/Udixio/UI/compare/v1.0.0-beta.18...v1.0.0-beta.19) (2024-04-01)
 
 
