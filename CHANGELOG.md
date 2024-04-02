@@ -1,3 +1,10 @@
+# [1.0.0-beta.23](https://github.com/Udixio/UI/compare/v1.0.0-beta.22...v1.0.0-beta.23) (2024-04-02)
+
+
+### Features
+
+* add 'showSupportingText' property to TextField component ([2c960e2](https://github.com/Udixio/UI/commit/2c960e238b3e37ac296b35a1dde5460d878b0163))
+
 # [1.0.0-beta.22](https://github.com/Udixio/UI/compare/v1.0.0-beta.21...v1.0.0-beta.22) (2024-04-02)
 
 
