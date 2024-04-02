@@ -145,7 +145,7 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
 
   const inputClass = StylingHelper.classNames([
     inputClassName,
-    'input text-body-large bg-[inherit] outline-none',
+    'input w-full text-body-large bg-[inherit] outline-none autofill:transition-colors autofill:duration-[5000000ms]',
     {
       ' text-on-surface-variant placeholder:text-on-surface-variant': enabled,
       'placeholder:text-on-surface text-on-surface': !enabled,
