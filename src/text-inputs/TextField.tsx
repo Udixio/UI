@@ -375,7 +375,7 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
         <p className={supportingTextClass}>
           {errorText?.length
             ? errorText
-            : supportingText?.length != 0
+            : supportingText?.length
               ? supportingText
               : '\u00A0'}
         </p>
