@@ -1,3 +1,11 @@
+# [1.0.0-beta.24](https://github.com/Udixio/UI/compare/v1.0.0-beta.23...v1.0.0-beta.24) (2024-04-02)
+
+
+### Bug Fixes
+
+* the supportText must exist, even if it is empty, in case ShowSupportingText is true. ([03685ce](https://github.com/Udixio/UI/commit/03685ced936a286cc260f41084d01b3b964f29f8))
+* when there is no more error, error icon must disappear ([d6c7658](https://github.com/Udixio/UI/commit/d6c76586ab7944c4e5b8ed8fe9fb4dfb22bbd5c1))
+
 # [1.0.0-beta.23](https://github.com/Udixio/UI/compare/v1.0.0-beta.22...v1.0.0-beta.23) (2024-04-02)
 
 
