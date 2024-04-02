@@ -1,3 +1,10 @@
+# [1.0.0-beta.21](https://github.com/Udixio/UI/compare/v1.0.0-beta.20...v1.0.0-beta.21) (2024-04-02)
+
+
+### Bug Fixes
+
+* increase z-index for leading and trailing icons in TextField ([2079cac](https://github.com/Udixio/UI/commit/2079caceacb5e436188ea8bbc4ee2975f4ab225f))
+
 # [1.0.0-beta.20](https://github.com/Udixio/UI/compare/v1.0.0-beta.19...v1.0.0-beta.20) (2024-04-01)
 
 
