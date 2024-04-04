@@ -29,6 +29,7 @@ export interface TextFieldProps {
   type: 'text' | 'password' | 'number';
   onChange?: (value: string) => void;
   showSupportingText?: boolean;
+  autoComplete?: 'on' | 'off' | string; // add this line
 }
 
 export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
@@ -50,6 +51,7 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
     leadingIcon,
     leadingIconClassName,
     type = 'text',
+    autoComplete = 'on',
   } = args;
 
   const [value, setValue] = useState(args.value); // Déclare un nouvel état 'value'
@@ -346,6 +348,9 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
           onBlur={handleBlur}
           disabled={!enabled}
           type={type}
+          autoComplete={autoComplete}
+          aria-invalid={!!errorText?.length}
+          aria-label={label}
         />
         <div className={activeIndicatorClass}></div>
         {trailingIcon && !showErrorIcon && (
