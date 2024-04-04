@@ -101,6 +101,8 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
     const newValue = event.target.value;
     setValue(newValue); // Update local state
 
+    setShowErrorIcon(false);
+
     // If external onChange prop is provided, call it with the new value
     if (typeof args.onChange === 'function') {
       args.onChange(newValue);
@@ -338,6 +340,7 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
           onChange={handleChange}
           className={inputClass}
           id={name}
+          name={name}
           placeholder={isFocused ? placeholder : ''}
           onFocus={handleOnFocus}
           onBlur={handleBlur}
