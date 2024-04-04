@@ -1,3 +1,10 @@
+# [1.0.0-beta.25](https://github.com/Udixio/UI/compare/v1.0.0-beta.24...v1.0.0-beta.25) (2024-04-04)
+
+
+### Bug Fixes
+
+* TextFields must have a name attribute ([b299805](https://github.com/Udixio/UI/commit/b2998053ab6974ab9503d1e29c1266e985211b4d))
+
 # [1.0.0-beta.24](https://github.com/Udixio/UI/compare/v1.0.0-beta.23...v1.0.0-beta.24) (2024-04-02)
 
 
