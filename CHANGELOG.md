@@ -1,3 +1,10 @@
+# [1.0.0-beta.27](https://github.com/Udixio/UI/compare/v1.0.0-beta.26...v1.0.0-beta.27) (2024-04-09)
+
+
+### Features
+
+* refactor IconButtonVariant from enum to type ([7c6a0f2](https://github.com/Udixio/UI/commit/7c6a0f205f76f0f4dd8109995aeeeb17d7bbd2cd))
+
 # [1.0.0-beta.26](https://github.com/Udixio/UI/compare/v1.0.0-beta.25...v1.0.0-beta.26) (2024-04-04)
 
 
