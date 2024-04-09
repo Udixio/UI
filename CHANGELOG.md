@@ -1,3 +1,10 @@
+# [1.0.0-beta.26](https://github.com/Udixio/UI/compare/v1.0.0-beta.25...v1.0.0-beta.26) (2024-04-04)
+
+
+### Features
+
+* improve accessibility and autoComplete in TextField component ([2d91d17](https://github.com/Udixio/UI/commit/2d91d17c92f42c730671b211bb2e4f9fc9733c59))
+
 # [1.0.0-beta.25](https://github.com/Udixio/UI/compare/v1.0.0-beta.24...v1.0.0-beta.25) (2024-04-04)
 
 
