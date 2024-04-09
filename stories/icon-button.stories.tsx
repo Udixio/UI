@@ -72,27 +72,15 @@ const createIconButtonStory = (
 
   return IconButtonStory;
 };
-export const Standard = createIconButtonStory(IconButtonVariant.STANDARD);
-export const Filled = createIconButtonStory(IconButtonVariant.FILLED);
+export const Standard = createIconButtonStory('standard');
+export const Filled = createIconButtonStory('filled');
 
-export const Tonal = createIconButtonStory(IconButtonVariant.TONAl);
+export const Tonal = createIconButtonStory('tonal');
 
-export const Outlined = createIconButtonStory(IconButtonVariant.OUTLINED);
-export const StandardToggleable = createIconButtonStory(
-  IconButtonVariant.STANDARD,
-  true
-);
-export const FilledToggleable = createIconButtonStory(
-  IconButtonVariant.FILLED,
-  true
-);
+export const Outlined = createIconButtonStory('outlined');
+export const StandardToggleable = createIconButtonStory('standard', true);
+export const FilledToggleable = createIconButtonStory('filled', true);
 
-export const TonalToggleable = createIconButtonStory(
-  IconButtonVariant.TONAl,
-  true
-);
+export const TonalToggleable = createIconButtonStory('tonal', true);
 
-export const OutlinedToggleable = createIconButtonStory(
-  IconButtonVariant.OUTLINED,
-  true
-);
+export const OutlinedToggleable = createIconButtonStory('outlined', true);
