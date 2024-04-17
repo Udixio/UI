@@ -1,8 +1,12 @@
-import React, { cloneElement, FunctionComponent, ReactElement, useContext, useEffect, useRef, useState } from 'react';
-import { Tab, TabProps } from './tab';
+import React, {
+  FunctionComponent,
+  ReactElement,
+  useEffect,
+  useState,
+} from 'react';
+import { TabProps } from './tab';
 import { StylingHelper } from '../../utils';
 import { Diviser } from '../../diviser';
-
 
 export enum TabsVariant {
   Primary = 'primary',
@@ -12,7 +16,7 @@ export enum TabsVariant {
 export interface TabsProps {
   variant?: TabsVariant;
   onTabSelected?: (index: number) => void;
-  children:  ReactElement<TabProps>[];
+  children: ReactElement<TabProps>[];
 }
 
 interface TabContextType {
@@ -20,63 +24,42 @@ interface TabContextType {
   selectedTab: React.ForwardRefExoticComponent<any> | null;
 }
 
-export const TabContext = React.createContext<TabContextType>({setSelectedTab: null, selectedTab: null});
+export const TabContext = React.createContext<TabContextType>({
+  setSelectedTab: null,
+  selectedTab: null,
+});
 
 export const Tabs: FunctionComponent<TabsProps> = ({
   variant = TabsVariant.Primary,
   onTabSelected,
-  children
+  children,
 }) => {
-  // const [activeTab, setActiveTab] = useState(null);
-  // const [activeTabWidth, setActiveTabWidth] = useState(0);
   const [childRefs, setChildRefs] = React.useState([]);
-  // useEffect(() => {
-  //   const index = tabs.indexOf(activeTab);
-  //   const width = ref ? ref.offsetWidth : 0;
-  //
-  //   setActiveTab(index);
-  //   setActiveTabWidth(width);
-  // }, [activeTab]);
-
-
-  const [selectedTab, setSelectedTab] = useState< React.ForwardRefExoticComponent<any> | null>(null);
+  const [selectedTab, setSelectedTab] =
+    useState<React.ForwardRefExoticComponent<any> | null>(null);
   const [underlineWidth, setUnderlineWidth] = useState(0);
   const [underlineOffset, setUnderlineOffset] = useState(0);
 
-
-  const resizeUnderline = ()=> {
-    if (selectedTab){
-      let element = ((selectedTab as any).current) as HTMLElement;
-      console.log(selectedTab)
-      if(variant == "primary"){
-       element =  element.querySelector('.content')!
+  const resizeUnderline = () => {
+    if (selectedTab) {
+      let element = (selectedTab as any).current as HTMLElement;
+      if (variant == 'primary') {
+        element = element.querySelector('.content')!;
       }
       const style = window.getComputedStyle(element);
       const paddingLeft = parseFloat(style.paddingLeft);
       const paddingRight = parseFloat(style.paddingRight);
       const width = element.clientWidth - paddingLeft - paddingRight;
       const left = element.offsetLeft;
-      setUnderlineWidth(width)
+      setUnderlineWidth(width);
       setUnderlineOffset(left);
     }
-  }
+  };
 
   useEffect(() => {
-    resizeUnderline()
+    resizeUnderline();
     window.addEventListener('resize', resizeUnderline);
-    // return () => {
-    //   window.removeEventListener('resize', handleResize);
-    // };
   }, [selectedTab, variant]);
-
-
-
-  const handleChange = (index: number) => (event: React.MouseEvent) => {
-    setSelectedTab(index);
-    if (onTabSelected) {
-      onTabSelected(index); // Call the callback
-    }
-  };
 
   const getUnderlineClass = StylingHelper.classNames([
     'bg-primary  absolute  bottom-0 transition-all duration-300',
@@ -90,10 +73,7 @@ export const Tabs: FunctionComponent<TabsProps> = ({
     },
   ]);
 
-
-
   React.useEffect(() => {
-    // Créer une ref pour chaque enfant
     setChildRefs((refs) =>
       Array(children.length)
         .fill(0)
@@ -104,13 +84,11 @@ export const Tabs: FunctionComponent<TabsProps> = ({
   return (
     <div className="">
       <div className="flex relative">
-        <TabContext.Provider value={{ setSelectedTab: (ref) => {
-            setSelectedTab(ref);
-          }, selectedTab: selectedTab}}>
+        <TabContext.Provider value={{ setSelectedTab, selectedTab }}>
           {children.map((child, index) => {
             return React.cloneElement(child, {
               key: index,
-              ref: childRefs[index]
+              ref: childRefs[index],
             });
           })}
         </TabContext.Provider>
