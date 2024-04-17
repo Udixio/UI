@@ -1,9 +1,9 @@
-import React, { FunctionComponent, useEffect } from 'react';
+import React, { FunctionComponent, useContext, useEffect, useRef, forwardRef, useState } from 'react';
 
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { TabsVariant } from './tabs';
-import { StylingHelper } from '../utils';
-import { Icon } from '../icon';
+import { TabContext, TabsVariant } from './tabs';
+import { StylingHelper } from '../../utils';
+import { Icon } from '../../icon';
 
 export interface TabProps {
   className?: string;
@@ -18,48 +18,34 @@ export interface TabProps {
   setUnderlineWidth?: (measure: { width: number; left: number }) => void;
 }
 
-export const Tab: FunctionComponent<TabProps> = ({
-  setUnderlineWidth,
-  className,
-  onClick,
-  selected,
-  label,
-  variant = TabsVariant.Primary,
-  href,
-  title,
-  type,
-  icon,
-}) => {
-  const ElementType = href ? 'a' : 'button';
+export const Tab = forwardRef<HTMLButtonElement, TabProps>(({
+                                                              setUnderlineWidth,
+                                                              className,
+                                                              onClick,
+                                                              selected,
+                                                              label,
+                                                              variant = TabsVariant.Primary,
+                                                              href,
+                                                              title,
+                                                              type,
+                                                              icon,
+                                                            }, ref) => {
 
-  const contentRef = React.useRef<HTMLDivElement>(null);
+  const { setSelectedTab, selectedTab } = useContext(TabContext);
+  const [isSelected, setIsSelected] = useState<boolean>(selected|| false);
 
   useEffect(() => {
-    function handleResize() {
-      if (contentRef.current) {
-        const element = contentRef.current;
-        const style = window.getComputedStyle(element);
+    if(selected && ref)
+      setSelectedTab(ref);
+  }, [selected, ref]);
 
-        const paddingLeft = parseFloat(style.paddingLeft);
-        const paddingRight = parseFloat(style.paddingRight);
-        const width = element.clientWidth - paddingLeft - paddingRight;
-        const left = element.offsetLeft;
+  useEffect(() => {
+    if(ref)
+      setIsSelected(selectedTab?.current == ref.current)
+  }, [selectedTab]);
 
-        if (setUnderlineWidth && selected) {
-          setUnderlineWidth({ width, left });
-        }
-      }
-    }
+  const ElementType = href ? 'a' : 'button';
 
-    if (selected) {
-      window.addEventListener('resize', handleResize);
-      handleResize();
-    }
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [selected, setUnderlineWidth]);
 
   let linkProps: any = {};
   if (href) {
@@ -68,6 +54,8 @@ export const Tab: FunctionComponent<TabProps> = ({
   }
 
   const handleClick = (e: React.MouseEvent<HTMLElement>) => {
+    setSelectedTab(ref);
+    setIsSelected(true)
     if (onClick) {
       onClick(e);
     }
@@ -81,7 +69,7 @@ export const Tab: FunctionComponent<TabProps> = ({
 
   const getTabClass = StylingHelper.classNames([
     className,
-    'bg-surface',
+    'bg-surface flex-1',
     {
       applyWhen: Boolean(icon && label) && variant === TabsVariant.Primary,
       styles: ['h-16'],
@@ -92,14 +80,14 @@ export const Tab: FunctionComponent<TabProps> = ({
     },
   ]);
 
-  const getStateLayerClass = StylingHelper.classNames([
-    'flex px-4 justify-center h-full',
+  const stateLayerClass = StylingHelper.classNames([
+    'state-layer flex px-4 justify-center h-full',
     {
       applyWhen: variant === TabsVariant.Primary,
       styles: [
         {
-          'state-on-surface': !selected,
-          'state-primary': selected,
+          'state-on-surface': !isSelected,
+          'state-primary': isSelected,
         },
       ],
     },
@@ -108,7 +96,7 @@ export const Tab: FunctionComponent<TabProps> = ({
       styles: ['state-on-surface'],
     },
   ]);
-  const getContentClass = StylingHelper.classNames([
+  const contentClass = StylingHelper.classNames([
     'content  h-full flex  gap-0.5 justify-end',
     {
       'pb-3.5': Boolean(label && !icon),
@@ -133,14 +121,14 @@ export const Tab: FunctionComponent<TabProps> = ({
       ],
     },
   ]);
-  const getIconClass = StylingHelper.classNames([
+  const iconClass = StylingHelper.classNames([
     'h-6 w-6 p-0.5 !box-border',
     {
       applyWhen: variant === TabsVariant.Primary,
       styles: [
         {
-          'text-on-surface-variant': !selected,
-          'text-primary': selected,
+          'text-on-surface-variant': !isSelected,
+          'text-primary': isSelected,
         },
       ],
     },
@@ -148,21 +136,21 @@ export const Tab: FunctionComponent<TabProps> = ({
       applyWhen: variant === TabsVariant.Secondary,
       styles: [
         {
-          'text-on-surface-variant': !selected,
-          'text-on-surface': selected,
+          'text-on-surface-variant': !isSelected,
+          'text-on-surface': isSelected,
         },
       ],
     },
   ]);
 
-  const getLabelTextClass = StylingHelper.classNames([
+  const labelTextClass = StylingHelper.classNames([
     'text-title-small',
     {
       applyWhen: variant === TabsVariant.Primary,
       styles: [
         {
-          'text-on-surface-variant': !selected,
-          'text-primary': selected,
+          'text-on-surface-variant': !isSelected,
+          'text-primary': isSelected,
         },
       ],
     },
@@ -170,8 +158,8 @@ export const Tab: FunctionComponent<TabProps> = ({
       applyWhen: variant === TabsVariant.Secondary,
       styles: [
         {
-          'text-on-surface-variant': !selected,
-          'text-on-surface': selected,
+          'text-on-surface-variant': !isSelected,
+          'text-on-surface': isSelected,
         },
       ],
     },
@@ -179,22 +167,22 @@ export const Tab: FunctionComponent<TabProps> = ({
 
   return (
     <ElementType
+      ref={ref}
       href={href}
       title={title}
       className={getTabClass}
       {...buttonProps}
       {...linkProps}
-      ref={variant === TabsVariant.Secondary ? contentRef : null}
+      // ref={variant === TabsVariant.Secondary ? contentRef : null}
     >
-      <span className={getStateLayerClass}>
+      <span className={stateLayerClass}>
         <span
-          ref={variant === TabsVariant.Primary ? contentRef : null}
-          className={getContentClass}
+          className={contentClass}
         >
-          {icon && <Icon icon={icon} className={getIconClass} />}
-          <span className={getLabelTextClass}>{label}</span>
+          {icon && <Icon icon={icon} className={iconClass} />}
+          <span className={labelTextClass}>{label}</span>
         </span>
       </span>
     </ElementType>
   );
-};
+});
