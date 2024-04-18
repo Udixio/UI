@@ -1,4 +1,4 @@
-import { StylingHelper } from '../utils';
+import { StylesHelper } from '../utils';
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 
@@ -59,7 +59,7 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
     }
   }, [completedPercentage, transitionDuration]);
 
-  const progressIndicatorClass = StylingHelper.classNames([
+  const progressIndicatorClass = StylesHelper.classNames([
     className,
     'progress-indicator relative flex w-full',
   ]);

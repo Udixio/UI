@@ -2,7 +2,7 @@ import type { FunctionComponent } from 'react';
 import React, { useEffect } from 'react';
 import { Icon } from '../icon';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { StylingHelper } from '../utils';
+import { StylesHelper } from '../utils';
 
 export type IconButtonVariant = 'standard' | 'filled' | 'tonal' | 'outlined';
 
@@ -74,7 +74,7 @@ export const IconButton: FunctionComponent<IconButtonProps> = ({
     buttonProps.onClick = handleClick;
   }
 
-  const getButtonClass = StylingHelper.classNames([
+  const getButtonClass = StylesHelper.classNames([
     'rounded-full overflow-hidden transition-all duration-300',
     className,
     {
@@ -137,7 +137,7 @@ export const IconButton: FunctionComponent<IconButtonProps> = ({
       ],
     },
   ]);
-  const getStateClass = StylingHelper.classNames([
+  const getStateClass = StylesHelper.classNames([
     'p-2 flex rounded-full',
     {
       applyWhen: variant === 'standard',
@@ -196,7 +196,7 @@ export const IconButton: FunctionComponent<IconButtonProps> = ({
       ],
     },
   ]);
-  const iconClass = StylingHelper.classNames([
+  const iconClass = StylesHelper.classNames([
     iconClassName,
     'h-5 p-0.5 w-5 transition-all duration-300',
     {

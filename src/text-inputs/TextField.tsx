@@ -1,4 +1,4 @@
-import { StylingHelper } from '../utils';
+import { StylesHelper } from '../utils';
 import React, { useEffect, useState } from 'react';
 import { IconButton } from '../button';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
@@ -115,7 +115,7 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
     setIsFocused(false);
   };
 
-  const textFieldClass = StylingHelper.classNames([
+  const textFieldClass = StylesHelper.classNames([
     className,
     'text-field ',
     {
@@ -123,7 +123,7 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
     },
   ]);
 
-  const contentClass = StylingHelper.classNames([
+  const contentClass = StylesHelper.classNames([
     inputClassName,
     'content  relative rounded-t',
 
@@ -134,7 +134,7 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
     },
   ]);
 
-  const labelClass = StylingHelper.classNames([
+  const labelClass = StylesHelper.classNames([
     labelClassName,
     'label relative outline-none transition-all  flex items-center whitespace-nowrap',
     { 'text-on-surface-variant': enabled && !errorText?.length },
@@ -165,7 +165,7 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
     },
   ]);
 
-  const inputClass = StylingHelper.classNames([
+  const inputClass = StylesHelper.classNames([
     inputClassName,
     'input w-full text-body-large bg-[inherit] outline-none autofill:transition-colors autofill:duration-[5000000ms]',
     {
@@ -195,7 +195,7 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
       styles: ['py-4 relative z-10'],
     },
   ]);
-  const activeIndicatorClass = StylingHelper.classNames([
+  const activeIndicatorClass = StylesHelper.classNames([
     activeIndicatorClassName,
     'active-indicator absolute w-0 inset-x-0 border-rounded mx-auto  bottom-0 active-indicator  ',
     {
@@ -228,7 +228,7 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
       ],
     },
   ]);
-  const supportingTextClass = StylingHelper.classNames([
+  const supportingTextClass = StylesHelper.classNames([
     supportingTextClassName,
     'supporting-text text-body-small px-4 pt-1',
     { 'text-on-surface-variant': enabled && !errorText?.length },
@@ -240,13 +240,13 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
     { 'text-error': !!errorText?.length },
   ]);
 
-  const leadingIconClass = StylingHelper.classNames([
+  const leadingIconClass = StylesHelper.classNames([
     leadingIconClassName,
     'z-20 absolute top-2/4 -translate-y-2/4 left-0 h-12 w-12 flex items-center justify-center',
     { 'cursor-text': !React.isValidElement(leadingIcon) },
   ]);
 
-  const trailingIconClass = StylingHelper.classNames([
+  const trailingIconClass = StylesHelper.classNames([
     trailingIconClassName,
     'z-20 absolute top-2/4 -translate-y-2/4 right-0 h-12 w-12 flex items-center justify-center',
     { 'cursor-text': !React.isValidElement(trailingIcon) },
@@ -271,7 +271,7 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
         )}
         <div
           onClick={() => focusInput()}
-          className={StylingHelper.classNames([
+          className={StylesHelper.classNames([
             'flex cursor-text transition-all duration-500  absolute w-full  h-1/2',
 
             {
@@ -287,7 +287,7 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
           ])}
         >
           <div
-            className={StylingHelper.classNames([
+            className={StylesHelper.classNames([
               activeIndicatorClassName,
               'active-indicator transition-all border-r-0 border-outline border-b-0  h-full rounded-tl border-[1px] left-0 top-0',
               {
@@ -323,7 +323,7 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
             {label}
           </label>
           <div
-            className={StylingHelper.classNames([
+            className={StylesHelper.classNames([
               activeIndicatorClassName,
               'active-indicator transition-all duration-500 flex-1 border-l-0 border-outline border-b-0 w-[calc(100%-32px)] h-full rounded-tr border-[1px] right-0 top-0',
               { '!border-error': !!errorText?.length },

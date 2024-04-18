@@ -1,4 +1,4 @@
-import { StylingHelper } from '../utils';
+import { StylesHelper } from '../utils';
 import React, { FunctionComponent, ReactNode } from 'react';
 import { CardMediaProps } from './CardMedia';
 import { CardContentProps } from './CardContent';
@@ -65,7 +65,7 @@ export const Card: FunctionComponent<CardProps> = ({
   isInteractive,
   responsiveBreakPoint = 500,
 }: CardProps) => {
-  const containerClass = StylingHelper.classNames([
+  const containerClass = StylesHelper.classNames([
     className,
     'card @container relative group border border-outline-variant rounded-xl overflow-hidden',
     {
@@ -81,7 +81,7 @@ export const Card: FunctionComponent<CardProps> = ({
       styles: 'bg-surface-container-highest',
     },
   ]);
-  const stateLayerClass = StylingHelper.classNames([
+  const stateLayerClass = StylesHelper.classNames([
     stateClassName,
     'state-layer',
     { 'state-on-surface': isInteractive },
