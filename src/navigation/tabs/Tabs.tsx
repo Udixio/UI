@@ -19,8 +19,12 @@ export interface TabsProps {
 }
 
 interface TabContextType {
-  setSelectedTab: ((ref: React.ForwardRefExoticComponent<any>) => void) | null;
-  selectedTab: React.ForwardRefExoticComponent<any> | null;
+  setSelectedTab:
+    | ((ref: React.ForwardedRef<HTMLButtonElement | HTMLAnchorElement>) => void)
+    | null;
+  selectedTab: React.ForwardRefExoticComponent<
+    HTMLButtonElement | HTMLAnchorElement
+  > | null;
 }
 
 export const TabContext = React.createContext<TabContextType>({
@@ -35,7 +39,9 @@ export const Tabs: FunctionComponent<TabsProps> = ({
 }) => {
   const [childRefs, setChildRefs] = React.useState([]);
   const [selectedTab, setSelectedTab] =
-    useState<React.ForwardRefExoticComponent<any> | null>(null);
+    useState<React.ForwardRefExoticComponent<
+      HTMLButtonElement | HTMLAnchorElement
+    > | null>(null);
   const [underlineWidth, setUnderlineWidth] = useState(0);
   const [underlineOffset, setUnderlineOffset] = useState(0);
 
@@ -94,10 +100,17 @@ export const Tabs: FunctionComponent<TabsProps> = ({
   return (
     <div className="">
       <div className="flex relative">
-        <TabContext.Provider value={{ setSelectedTab, selectedTab }}>
+        <TabContext.Provider
+          value={{
+            // @ts-ignore
+            setSelectedTab,
+            selectedTab,
+          }}
+        >
           {children.map((child, index) => {
             return React.cloneElement(child, {
               key: index,
+              // @ts-ignore
               ref: childRefs[index],
             });
           })}
