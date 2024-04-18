@@ -26,7 +26,7 @@ const code = `
     const [count, setCount] = useState(0);
     return (
       <div>
-        <p>You clicked {count} times</p>
+        <p className="text-body-medium text-on-surface">You clicked {count} times</p>
         <Button label="Click me" onClick={() => setCount(count + 1)}/>
       </div>
     );

@@ -1,9 +1,10 @@
 import React, { FunctionComponent, useEffect, useState } from 'react';
 
-import { Tabs, TabsVariant } from '../tabs';
+import { Tab, Tabs } from '../navigation/tabs';
 import { IconButton } from '../button';
 import { Highlight, themes } from 'prism-react-renderer';
 import classNames from 'classnames';
+import classnames from 'classnames';
 import { LivePreview, LiveProvider } from 'react-live';
 import { Diviser } from '../diviser';
 import {
@@ -61,10 +62,14 @@ export const CodePreview: FunctionComponent<CodePreviewProps> = ({
       >
         {renderPreview && (
           <Tabs
-            onTabSelected={setSelectedTab}
-            variant={TabsVariant.Secondary}
-            tabs={[{ label: 'Preview' }, { label: 'Code' }]}
-          />
+            onTabSelected={({ index }) => {
+              setSelectedTab(index);
+            }}
+            variant={'secondary'}
+          >
+            <Tab label={'Preview'} />
+            <Tab label={'Code'}></Tab>
+          </Tabs>
         )}
         <IconButton
           activated={isCodeCopied}
@@ -79,29 +84,46 @@ export const CodePreview: FunctionComponent<CodePreviewProps> = ({
         <Diviser className="text-surface-container-highest absolute bottom-0" />
       </div>
 
-      <div className="px-4 py-3 !bg-surface">
-        {selectedTab === 0 && renderPreview && (
-          <div>
+      <div className="px-4 py-3 !bg-surface flex">
+        {renderPreview && (
+          <div
+            className={classnames(
+              'overflow-auto transition-[all,opacity] duration-300',
+              {
+                'flex-1 opacity-100  delay-[0s,150ms]':
+                  renderPreview && selectedTab === 0,
+                'flex-[0] opacity-0': renderPreview && selectedTab === 1,
+              }
+            )}
+          >
             <LiveProvider scope={{ ...scope, React, useState }} code={code}>
               <LivePreview />
             </LiveProvider>
           </div>
         )}
-        {(selectedTab === 1 || !renderPreview) && (
-          <Highlight theme={themes.vsDark} code={code.trim()} language="tsx">
-            {({ className, style, tokens, getLineProps, getTokenProps }) => (
-              <pre className="!bg-surface  overflow-auto" style={style}>
-                {tokens.map((line, i) => (
-                  <div key={i} {...getLineProps({ line })}>
-                    {line.map((token, key) => (
-                      <span key={key} {...getTokenProps({ token })} />
-                    ))}
-                  </div>
-                ))}
-              </pre>
-            )}
-          </Highlight>
-        )}
+        <Highlight theme={themes.vsDark} code={code.trim()} language="tsx">
+          {({ className, style, tokens, getLineProps, getTokenProps }) => (
+            <pre
+              className={classnames(
+                '!bg-surface overflow-auto transition-[all,opacity] duration-300 delay-[0s,150ms]',
+                {
+                  'flex-[0] opacity-0': renderPreview && selectedTab === 0,
+                  'flex-1 opacity-100  delay-[0s,150ms]':
+                    renderPreview && selectedTab === 1,
+                }
+              )}
+              style={style}
+            >
+              {tokens.map((line, i) => (
+                <div key={i} {...getLineProps({ line })}>
+                  {line.map((token, key) => (
+                    <span key={key} {...getTokenProps({ token })} />
+                  ))}
+                </div>
+              ))}
+            </pre>
+          )}
+        </Highlight>
       </div>
     </div>
   );
