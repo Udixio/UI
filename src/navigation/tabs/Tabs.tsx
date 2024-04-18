@@ -4,18 +4,17 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import { TabProps } from './tab';
-import { StylingHelper } from '../../utils';
+import { TabProps } from './Tab';
+import { StylesHelper } from '../../utils';
 import { Diviser } from '../../diviser';
 
-export enum TabsVariant {
-  Primary = 'primary',
-  Secondary = 'secondary',
-}
+export type TabsVariant = 'primary' | 'secondary';
 
 export interface TabsProps {
   variant?: TabsVariant;
-  onTabSelected?: (index: number) => void;
+  onTabSelected?: (
+    args: { index: number } & Pick<TabProps, 'label' | 'icon'>
+  ) => void;
   children: ReactElement<TabProps>[];
 }
 
@@ -30,7 +29,7 @@ export const TabContext = React.createContext<TabContextType>({
 });
 
 export const Tabs: FunctionComponent<TabsProps> = ({
-  variant = TabsVariant.Primary,
+  variant = 'primary',
   onTabSelected,
   children,
 }) => {
@@ -61,14 +60,14 @@ export const Tabs: FunctionComponent<TabsProps> = ({
     window.addEventListener('resize', resizeUnderline);
   }, [selectedTab, variant]);
 
-  const getUnderlineClass = StylingHelper.classNames([
-    'bg-primary  absolute  bottom-0 transition-all duration-300',
+  const getUnderlineClass = StylesHelper.classNames([
+    'underline bg-primary  absolute  bottom-0 transition-all duration-300',
     {
-      applyWhen: variant === TabsVariant.Primary,
+      applyWhen: variant === 'primary',
       styles: ['h-[3px] rounded-t'],
     },
     {
-      applyWhen: variant === TabsVariant.Secondary,
+      applyWhen: variant === 'secondary',
       styles: ['h-0.5'],
     },
   ]);
@@ -80,6 +79,17 @@ export const Tabs: FunctionComponent<TabsProps> = ({
         .map((_, i) => refs[i] || React.createRef())
     );
   }, [children]);
+
+  useEffect(() => {
+    if (selectedTab) {
+      const index = childRefs.findIndex((ref: any) => ref === selectedTab);
+      if (index !== -1 && onTabSelected) {
+        const selectedChild = children[index];
+        const label = selectedChild.props.label;
+        onTabSelected({ index, label });
+      }
+    }
+  }, [selectedTab]);
 
   return (
     <div className="">

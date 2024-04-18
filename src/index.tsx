@@ -5,6 +5,6 @@ export * from './code-preview';
 export * from './communication';
 export * from './diviser';
 export * from './icon';
-export * from './tabs';
+export * from './navigation/tabs';
 export * from './text-inputs';
 export * from './utils';

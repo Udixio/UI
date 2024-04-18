@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { faHome } from '@fortawesome/free-solid-svg-icons';
-import { Tab, TabProps, TabsVariant } from '../src';
+import { Tab, TabProps, TabsVariant } from '../../../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -40,15 +40,15 @@ const createTabStory = (variant: TabsVariant, args?: Partial<TabProps>) => {
   };
   return tabStory;
 };
-export const PrimaryIconAndLabel = createTabStory(TabsVariant.Primary, {
+export const PrimaryIconAndLabel = createTabStory('primary', {
   icon: faHome,
 });
-export const PrimaryIconOnly = createTabStory(TabsVariant.Primary, {
+export const PrimaryIconOnly = createTabStory('primary', {
   label: undefined,
   icon: faHome,
 });
-export const PrimaryLabelOnly = createTabStory(TabsVariant.Primary);
-export const SecondaryLabelOnly = createTabStory(TabsVariant.Secondary);
-export const SecondaryIconAndLabel = createTabStory(TabsVariant.Secondary, {
+export const PrimaryLabelOnly = createTabStory('primary');
+export const SecondaryLabelOnly = createTabStory('secondary');
+export const SecondaryIconAndLabel = createTabStory('secondary', {
   icon: faHome,
 });
