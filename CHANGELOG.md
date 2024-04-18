@@ -1,3 +1,19 @@
+# [1.0.0-beta.28](https://github.com/Udixio/UI/compare/v1.0.0-beta.27...v1.0.0-beta.28) (2024-04-18)
+
+
+### Bug Fixes
+
+* update Tab component to support both anchor and button elements ([e97b13b](https://github.com/Udixio/UI/commit/e97b13b3938ca5113e2a1bb82992b01c788a886e))
+
+
+### Features
+
+* add tabStyle ([543f2b9](https://github.com/Udixio/UI/commit/543f2b9954aec03abb555caf84ced8cd89bd9e81))
+* refactor tab and tabs components, update file structure ([f9f9625](https://github.com/Udixio/UI/commit/f9f9625ae9c5d256a6ef74d0b0f28e3384047ff3))
+* refactor Tabs in Code Preview ([bae09b3](https://github.com/Udixio/UI/commit/bae09b30a359a22f7110b10f5f6edcf482458080))
+* rename StylesHelper and improvement by adding a component customization system ([b868260](https://github.com/Udixio/UI/commit/b868260d2372d799925c958886b4e53b9b54605f))
+* tabs can be provided as tabs child ([c8769a6](https://github.com/Udixio/UI/commit/c8769a6b927bd9c676a0bf852e3ffb3dd76df49c))
+
 # [1.0.0-beta.27](https://github.com/Udixio/UI/compare/v1.0.0-beta.26...v1.0.0-beta.27) (2024-04-09)
 
 
