@@ -105,7 +105,7 @@ export const CodePreview: FunctionComponent<CodePreviewProps> = ({
           {({ className, style, tokens, getLineProps, getTokenProps }) => (
             <pre
               className={classnames(
-                '!bg-surface overflow-auto transition-[all,opacity] duration-300 delay-[0s,150ms]',
+                '!bg-surface overflow-auto transition-[all,opacity] duration-300',
                 {
                   'flex-[0] opacity-0': renderPreview && selectedTab === 0,
                   'flex-1 opacity-100  delay-[0s,150ms]':
