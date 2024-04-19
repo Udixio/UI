@@ -16,6 +16,7 @@ export interface TabsProps {
     args: { index: number } & Pick<TabProps, 'label' | 'icon'>
   ) => void;
   children: ReactElement<TabProps>[];
+  className?: string;
 }
 
 interface TabContextType {
@@ -36,6 +37,7 @@ export const Tabs: FunctionComponent<TabsProps> = ({
   variant = 'primary',
   onTabSelected,
   children,
+  className,
 }) => {
   const [childRefs, setChildRefs] = React.useState([]);
   const [selectedTab, setSelectedTab] =
@@ -49,7 +51,7 @@ export const Tabs: FunctionComponent<TabsProps> = ({
     if (selectedTab) {
       let element = (selectedTab as any).current as HTMLElement;
       if (variant == 'primary') {
-        element = element.querySelector('.content')!;
+        element = element.querySelector(' .content')!;
       }
       const style = window.getComputedStyle(element);
       const paddingLeft = parseFloat(style.paddingLeft);
@@ -98,7 +100,7 @@ export const Tabs: FunctionComponent<TabsProps> = ({
   }, [selectedTab]);
 
   return (
-    <div className="">
+    <div className={className}>
       <div className="flex relative">
         <TabContext.Provider
           value={{
