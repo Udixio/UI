@@ -1,3 +1,10 @@
+# [1.0.0-beta.29](https://github.com/Udixio/UI/compare/v1.0.0-beta.28...v1.0.0-beta.29) (2024-04-19)
+
+
+### Features
+
+* add className to Tabs ([f7630ee](https://github.com/Udixio/UI/commit/f7630ee3d254dfbec11dff43f574dc243007c997))
+
 # [1.0.0-beta.28](https://github.com/Udixio/UI/compare/v1.0.0-beta.27...v1.0.0-beta.28) (2024-04-18)
 
 
