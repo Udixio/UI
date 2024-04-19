@@ -1,3 +1,10 @@
+# [1.0.0-beta.30](https://github.com/Udixio/UI/compare/v1.0.0-beta.29...v1.0.0-beta.30) (2024-04-19)
+
+
+### Bug Fixes
+
+* add min width and height to card state ([1885c8c](https://github.com/Udixio/UI/commit/1885c8cc99c3164ca30a88817a75120ece348396))
+
 # [1.0.0-beta.29](https://github.com/Udixio/UI/compare/v1.0.0-beta.28...v1.0.0-beta.29) (2024-04-19)
 
 
