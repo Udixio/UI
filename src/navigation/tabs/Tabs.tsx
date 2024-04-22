@@ -89,7 +89,7 @@ export const Tabs = ({
         .fill(0)
         .map((_, i) => refs[i] || React.createRef())
     );
-  }, [tabChildren]);
+  }, [children]);
 
   useEffect(() => {
     if (selectedTab) {
