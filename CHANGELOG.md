@@ -1,3 +1,10 @@
+# [1.0.0-beta.34](https://github.com/Udixio/UI/compare/v1.0.0-beta.33...v1.0.0-beta.34) (2024-04-22)
+
+
+### Bug Fixes
+
+* infinite loop in Tabs useEffect hook ([e26b575](https://github.com/Udixio/UI/commit/e26b575890465cede5e568519d0c601754dc4e39))
+
 # [1.0.0-beta.33](https://github.com/Udixio/UI/compare/v1.0.0-beta.32...v1.0.0-beta.33) (2024-04-22)
 
 
