@@ -1,3 +1,10 @@
+# [1.0.0-beta.36](https://github.com/Udixio/UI/compare/v1.0.0-beta.35...v1.0.0-beta.36) (2024-04-22)
+
+
+### Features
+
+* remove hr to Tabs ([6b96ba1](https://github.com/Udixio/UI/commit/6b96ba1e2cf21c72e121c5a4fb5f11f60c819920))
+
 # [1.0.0-beta.35](https://github.com/Udixio/UI/compare/v1.0.0-beta.34...v1.0.0-beta.35) (2024-04-22)
 
 
