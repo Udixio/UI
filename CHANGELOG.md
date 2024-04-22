@@ -1,3 +1,10 @@
+# [1.0.0-beta.33](https://github.com/Udixio/UI/compare/v1.0.0-beta.32...v1.0.0-beta.33) (2024-04-22)
+
+
+### Features
+
+* update resize event listener in Tabs ([e4e1e5c](https://github.com/Udixio/UI/commit/e4e1e5c3ca51d9f06e97b3c4540c72f7d23d5255))
+
 # [1.0.0-beta.32](https://github.com/Udixio/UI/compare/v1.0.0-beta.31...v1.0.0-beta.32) (2024-04-22)
 
 
