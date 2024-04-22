@@ -1,3 +1,10 @@
+# [1.0.0-beta.37](https://github.com/Udixio/UI/compare/v1.0.0-beta.36...v1.0.0-beta.37) (2024-04-22)
+
+
+### Features
+
+* add support for additional props in Tab component ([89978f0](https://github.com/Udixio/UI/commit/89978f01e6d50a262eccf0783fbd87771b595433))
+
 # [1.0.0-beta.36](https://github.com/Udixio/UI/compare/v1.0.0-beta.35...v1.0.0-beta.36) (2024-04-22)
 
 
