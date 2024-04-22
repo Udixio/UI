@@ -1,10 +1,5 @@
-import React, {
-  FunctionComponent,
-  ReactElement,
-  useEffect,
-  useState,
-} from 'react';
-import { TabProps } from './Tab';
+import React, { ReactNode, useEffect, useState } from 'react';
+import { Tab, TabProps } from './Tab';
 import { StylesHelper } from '../../utils';
 import { Diviser } from '../../diviser';
 
@@ -15,7 +10,7 @@ export interface TabsProps {
   onTabSelected?: (
     args: { index: number } & Pick<TabProps, 'label' | 'icon'>
   ) => void;
-  children: ReactElement<TabProps>[];
+  children: ReactNode;
   className?: string;
 }
 
@@ -33,12 +28,12 @@ export const TabContext = React.createContext<TabContextType>({
   selectedTab: null,
 });
 
-export const Tabs: FunctionComponent<TabsProps> = ({
+export const Tabs = ({
   variant = 'primary',
   onTabSelected,
   children,
   className,
-}) => {
+}: TabsProps) => {
   const [childRefs, setChildRefs] = React.useState([]);
   const [selectedTab, setSelectedTab] =
     useState<React.ForwardRefExoticComponent<
@@ -46,6 +41,9 @@ export const Tabs: FunctionComponent<TabsProps> = ({
     > | null>(null);
   const [underlineWidth, setUnderlineWidth] = useState(0);
   const [underlineOffset, setUnderlineOffset] = useState(0);
+  const tabChildren = React.Children.toArray(children).filter(
+    (child) => React.isValidElement(child) && child.type === Tab
+  );
 
   const resizeUnderline = () => {
     if (selectedTab) {
@@ -82,17 +80,19 @@ export const Tabs: FunctionComponent<TabsProps> = ({
 
   React.useEffect(() => {
     setChildRefs((refs) =>
-      Array(children.length)
+      Array(tabChildren.length)
         .fill(0)
         .map((_, i) => refs[i] || React.createRef())
     );
-  }, [children]);
+  }, [tabChildren]);
 
   useEffect(() => {
     if (selectedTab) {
       const index = childRefs.findIndex((ref: any) => ref === selectedTab);
       if (index !== -1 && onTabSelected) {
-        const selectedChild = children[index];
+        const selectedChild = tabChildren[
+          index
+        ] as React.ReactElement<TabProps>;
         const label = selectedChild.props.label;
         onTabSelected({ index, label });
       }
@@ -109,10 +109,9 @@ export const Tabs: FunctionComponent<TabsProps> = ({
             selectedTab,
           }}
         >
-          {children.map((child, index) => {
-            return React.cloneElement(child, {
+          {tabChildren.map((child, index) => {
+            return React.cloneElement(child as React.ReactElement, {
               key: index,
-              // @ts-ignore
               ref: childRefs[index],
             });
           })}
