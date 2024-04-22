@@ -34,6 +34,7 @@ export const Tab = forwardRef<HTMLButtonElement | HTMLAnchorElement, TabProps>(
       title,
       type,
       icon,
+      ...restProps
     }: TabProps = args;
     const { setSelectedTab, selectedTab } = useContext(TabContext);
     const selected = useMemo(() => selectedTab === ref, [selectedTab, ref]);
@@ -78,6 +79,7 @@ export const Tab = forwardRef<HTMLButtonElement | HTMLAnchorElement, TabProps>(
 
     return (
       <ElementType
+        {...restProps}
         role="tab"
         aria-selected={selected}
         ref={ref}
