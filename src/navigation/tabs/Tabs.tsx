@@ -62,9 +62,14 @@ export const Tabs = ({
   };
 
   useEffect(() => {
-    resizeUnderline();
-    window.addEventListener('resize', resizeUnderline);
-  }, [selectedTab, variant]);
+    const handleResize = () => {
+      resizeUnderline();
+    };
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const getUnderlineClass = StylesHelper.classNames([
     'underline bg-primary  absolute  bottom-0 transition-all duration-300',
