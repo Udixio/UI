@@ -81,7 +81,7 @@ export const tabStyle: ClassNameComponent<TabState, TabElement> = ({
     },
   ]),
   label: StylesHelper.classNames([
-    'text-title-small',
+    'text-title-small  text-nowrap',
     {
       applyWhen: variant === 'primary',
       styles: [
