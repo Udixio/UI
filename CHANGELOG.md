@@ -1,3 +1,10 @@
+# [1.0.0-beta.32](https://github.com/Udixio/UI/compare/v1.0.0-beta.31...v1.0.0-beta.32) (2024-04-22)
+
+
+### Bug Fixes
+
+* the tab label should not break into a new line. ([45ea461](https://github.com/Udixio/UI/commit/45ea461ade4c59590d25de49b36b26d121d2951a))
+
 # [1.0.0-beta.31](https://github.com/Udixio/UI/compare/v1.0.0-beta.30...v1.0.0-beta.31) (2024-04-22)
 
 
