@@ -1,3 +1,10 @@
+# [1.0.0-beta.31](https://github.com/Udixio/UI/compare/v1.0.0-beta.30...v1.0.0-beta.31) (2024-04-22)
+
+
+### Bug Fixes
+
+* Update child typing and index computation in Tabs component ([33ecd43](https://github.com/Udixio/UI/commit/33ecd4360631802878468ccce1f9b69d7eca8f84))
+
 # [1.0.0-beta.30](https://github.com/Udixio/UI/compare/v1.0.0-beta.29...v1.0.0-beta.30) (2024-04-19)
 
 
