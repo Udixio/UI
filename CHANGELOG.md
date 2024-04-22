@@ -1,3 +1,10 @@
+# [1.0.0-beta.35](https://github.com/Udixio/UI/compare/v1.0.0-beta.34...v1.0.0-beta.35) (2024-04-22)
+
+
+### Bug Fixes
+
+* the underline no longer appears ([01fa87e](https://github.com/Udixio/UI/commit/01fa87e27d408c22823bd2ef42c6b5caa3c94cca))
+
 # [1.0.0-beta.34](https://github.com/Udixio/UI/compare/v1.0.0-beta.33...v1.0.0-beta.34) (2024-04-22)
 
 
