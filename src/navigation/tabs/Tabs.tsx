@@ -1,7 +1,7 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import { Tab, TabProps } from './Tab';
 import { StylesHelper } from '../../utils';
-import { Diviser } from '../../diviser';
+import classnames from 'classnames';
 
 export type TabsVariant = 'primary' | 'secondary';
 
@@ -103,28 +103,31 @@ export const Tabs = ({
   }, [selectedTab]);
 
   return (
-    <div className={className}>
-      <div className="flex relative">
-        <TabContext.Provider
-          value={{
-            // @ts-ignore
-            setSelectedTab,
-            selectedTab,
-          }}
-        >
-          {tabChildren.map((child, index) => {
-            return React.cloneElement(child as React.ReactElement, {
-              key: index,
-              ref: childRefs[index],
-            });
-          })}
-        </TabContext.Provider>
-        <span
-          style={{ width: underlineWidth + 'px', left: underlineOffset + 'px' }}
-          className={getUnderlineClass}
-        ></span>
-      </div>
-      <Diviser className="text-surface-container-highest " />
+    <div
+      className={classnames(
+        className,
+        'border-b border-surface-container-highest',
+        'flex relative'
+      )}
+    >
+      <TabContext.Provider
+        value={{
+          // @ts-ignore
+          setSelectedTab,
+          selectedTab,
+        }}
+      >
+        {tabChildren.map((child, index) => {
+          return React.cloneElement(child as React.ReactElement, {
+            key: index,
+            ref: childRefs[index],
+          });
+        })}
+      </TabContext.Provider>
+      <span
+        style={{ width: underlineWidth + 'px', left: underlineOffset + 'px' }}
+        className={getUnderlineClass}
+      ></span>
     </div>
   );
 };
