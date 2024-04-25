@@ -1,11 +1,9 @@
 import type { Config } from 'tailwindcss';
-import { createMaterialTheme } from '@udixio/tailwind-material';
+import { createTheme } from '@udixio/tailwind-material';
 
-const materialTailwind = createMaterialTheme({
-  colors: {
-    palette: {
-      primary: '#6750A4',
-    },
+const { colors, plugins, fontFamily } = createTheme({
+  colorPalette: {
+    primary: '#6750A4',
   },
   darkMode: 'class',
 });
@@ -17,12 +15,8 @@ const config: Config = {
     './stories/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
-    colors: {
-      ...materialTailwind.colors,
-    },
-    fontFamily: {
-      ...materialTailwind.fontFamily,
-    },
+    colors: colors,
+    fontFamily: fontFamily,
     extend: {
       boxShadow: {
         '1': '0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30)',
@@ -39,7 +33,7 @@ const config: Config = {
     },
   },
   plugins: [
-    ...materialTailwind.plugins,
+    ...plugins,
     require('@tailwindcss/container-queries'),
     require('autoprefixer'),
   ],

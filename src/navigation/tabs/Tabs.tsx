@@ -2,6 +2,7 @@ import React, { ReactNode, useEffect, useState } from 'react';
 import { Tab, TabProps } from './Tab';
 import { StylesHelper } from '../../utils';
 import classnames from 'classnames';
+import { motion } from 'framer-motion';
 
 export type TabsVariant = 'primary' | 'secondary';
 
@@ -45,17 +46,28 @@ export const Tabs = ({
     (child) => React.isValidElement(child) && child.type === Tab
   );
 
+  const underlineMotion = { width: underlineWidth, left: underlineOffset };
+
   const resizeUnderline = () => {
     if (selectedTab) {
       let element = (selectedTab as any).current as HTMLElement;
+      let width: number;
+      let left: number;
       if (variant == 'primary') {
-        element = element.querySelector(' .content')!;
+        const child: HTMLElement = element.querySelector(' .content')!;
+        const style = window.getComputedStyle(child);
+        const paddingLeft = parseFloat(style.paddingLeft);
+        const paddingRight = parseFloat(style.paddingRight);
+        width = child.clientWidth - paddingLeft - paddingRight;
+        left = element.offsetLeft + child.offsetLeft;
+      } else {
+        const style = window.getComputedStyle(element);
+        const paddingLeft = parseFloat(style.paddingLeft);
+        const paddingRight = parseFloat(style.paddingRight);
+        width = element.clientWidth - paddingLeft - paddingRight;
+        left = element.offsetLeft;
       }
-      const style = window.getComputedStyle(element);
-      const paddingLeft = parseFloat(style.paddingLeft);
-      const paddingRight = parseFloat(style.paddingRight);
-      const width = element.clientWidth - paddingLeft - paddingRight;
-      const left = element.offsetLeft;
+
       setUnderlineWidth(width);
       setUnderlineOffset(left);
     }
@@ -70,7 +82,7 @@ export const Tabs = ({
   }, [selectedTab, variant]);
 
   const getUnderlineClass = StylesHelper.classNames([
-    'underline bg-primary  absolute  bottom-0 transition-all duration-300',
+    'underline bg-primary  absolute  bottom-0',
     {
       applyWhen: variant === 'primary',
       styles: ['h-[3px] rounded-t'],
@@ -124,10 +136,16 @@ export const Tabs = ({
           });
         })}
       </TabContext.Provider>
-      <span
-        style={{ width: underlineWidth + 'px', left: underlineOffset + 'px' }}
+      <motion.span
+        initial={false}
+        animate={underlineMotion}
+        transition={{
+          type: 'spring',
+          stiffness: 300,
+          damping: 22,
+        }}
         className={getUnderlineClass}
-      ></span>
+      ></motion.span>
     </div>
   );
 };

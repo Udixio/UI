@@ -5,6 +5,7 @@ import { TabContext, TabsVariant } from './Tabs';
 import { StyleProps, StylesHelper } from '../../utils';
 import { Icon } from '../../icon';
 import { tabStyle } from './TabStyle';
+import RippleEffect from '../../effects/ripple/RippleEffect';
 
 export interface TabState {
   selected: boolean;
@@ -12,7 +13,7 @@ export interface TabState {
   label?: string;
   href?: string;
   title?: string;
-  onClick?: (e: React.MouseEvent<HTMLElement>) => void | undefined;
+  onClick?: (e: React.MouseEvent<HTMLElement>) => void;
   type?: 'button' | 'submit' | 'reset' | undefined;
   icon?: IconDefinition;
 }
@@ -66,7 +67,6 @@ export const Tab = forwardRef<HTMLButtonElement | HTMLAnchorElement, TabProps>(
     let buttonProps: any = {};
     if (!href) {
       buttonProps.type = type;
-      buttonProps.onClick = handleClick;
     }
 
     const getClassNames = (() => {
@@ -86,10 +86,17 @@ export const Tab = forwardRef<HTMLButtonElement | HTMLAnchorElement, TabProps>(
         href={href}
         title={title}
         className={getClassNames.tab}
+        onClick={handleClick}
         {...buttonProps}
         {...linkProps}
       >
         <span className={getClassNames.stateLayer}>
+          <RippleEffect
+            colorName={
+              variant === 'primary' && selected ? 'primary' : 'on-surface'
+            }
+            triggerRef={ref}
+          />
           <span className={getClassNames.content}>
             {icon && <Icon icon={icon} className={getClassNames.icon} />}
             <span className={getClassNames.label}>{label}</span>

@@ -34,12 +34,12 @@ export class StylesHelper {
     args.classNameList.forEach((classNameComponent) => {
       if (classNameComponent) {
         if (typeof classNameComponent == 'string') {
-          classNames[args.default] = classNameComponent;
+          classNames[args.default] = classNameComponent + ' ';
         } else {
           const result = classNameComponent(args.states);
           Object.entries(result).map(([key, value]) => {
             if (!classNames[key as E]) {
-              classNames[key as E] = key + ' ';
+              classNames[key as E] = key + ' ' + 'relative' + ' ';
             }
 
             classNames[key as E] =

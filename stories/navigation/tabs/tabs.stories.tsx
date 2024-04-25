@@ -43,7 +43,6 @@ const createTabStory = (variant?: TabsVariant, args?: Partial<TabsProps>) => {
       <Tab label={'Messages'}></Tab>,
       <Tab label={'Profil'}></Tab>,
     ],
-    onTabSelected: console.log, // Ajout d'un gestionnaire de sélection de tab pour déboguer
     ...args,
   };
 
