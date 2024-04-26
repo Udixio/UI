@@ -39,9 +39,12 @@ export class StylesHelper {
           const result = classNameComponent(args.states);
           Object.entries(result).map(([key, value]) => {
             if (!classNames[key as E]) {
-              classNames[key as E] = key + ' ' + 'relative' + ' ';
+              classNames[key as E] = key + ' ';
+              if (key == args.default) {
+                classNames[key as E] =
+                  (classNames[key as E] ?? '') + 'relative' + ' ';
+              }
             }
-
             classNames[key as E] =
               (classNames[key as E] ?? '') + (value ?? '') + ' ';
           });

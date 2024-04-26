@@ -8,7 +8,7 @@ export const tabStyle: ClassNameComponent<TabState, TabElement> = ({
   selected,
 }) => ({
   tab: StylesHelper.classNames([
-    'bg-surface flex-1 group overflow-hidden',
+    'bg-surface flex-1 group overflow-hidden flex px-4 justify-center',
     {
       applyWhen: Boolean(icon && label) && variant === 'primary',
       styles: ['h-16'],
@@ -19,7 +19,7 @@ export const tabStyle: ClassNameComponent<TabState, TabElement> = ({
     },
   ]),
   stateLayer: StylesHelper.classNames([
-    'flex px-4 justify-center h-full',
+    'absolute w-full h-full overflow-hidden left-1/2 top-1/2 transform -translate-y-1/2 -translate-x-1/2',
     {
       applyWhen: variant === 'primary',
       styles: [

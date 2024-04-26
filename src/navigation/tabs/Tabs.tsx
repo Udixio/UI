@@ -46,8 +46,6 @@ export const Tabs = ({
     (child) => React.isValidElement(child) && child.type === Tab
   );
 
-  const underlineMotion = { width: underlineWidth, left: underlineOffset };
-
   const resizeUnderline = () => {
     if (selectedTab) {
       let element = (selectedTab as any).current as HTMLElement;
@@ -61,10 +59,7 @@ export const Tabs = ({
         width = child.clientWidth - paddingLeft - paddingRight;
         left = element.offsetLeft + child.offsetLeft;
       } else {
-        const style = window.getComputedStyle(element);
-        const paddingLeft = parseFloat(style.paddingLeft);
-        const paddingRight = parseFloat(style.paddingRight);
-        width = element.clientWidth - paddingLeft - paddingRight;
+        width = element.clientWidth;
         left = element.offsetLeft;
       }
 
@@ -133,16 +128,17 @@ export const Tabs = ({
           return React.cloneElement(child as React.ReactElement, {
             key: index,
             ref: childRefs[index],
+            variant: variant,
           });
         })}
       </TabContext.Provider>
       <motion.span
         initial={false}
-        animate={underlineMotion}
+        animate={{ width: underlineWidth, left: underlineOffset }}
         transition={{
-          type: 'spring',
-          stiffness: 300,
-          damping: 22,
+          type: 'tween',
+          duration: 0.3,
+          ease: 'easeOut',
         }}
         className={getUnderlineClass}
       ></motion.span>

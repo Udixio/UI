@@ -73,7 +73,16 @@ export const Tab = forwardRef<HTMLButtonElement | HTMLAnchorElement, TabProps>(
       return StylesHelper.classNamesElements<TabState, TabElement>({
         default: 'tab',
         classNameList: [className, tabStyle],
-        states: { selected, variant, icon, href, title, label, onClick, type },
+        states: {
+          selected,
+          variant,
+          icon,
+          href,
+          title,
+          label,
+          onClick,
+          type,
+        },
       });
     })();
 
@@ -90,17 +99,17 @@ export const Tab = forwardRef<HTMLButtonElement | HTMLAnchorElement, TabProps>(
         {...buttonProps}
         {...linkProps}
       >
-        <span className={getClassNames.stateLayer}>
-          <RippleEffect
-            colorName={
-              variant === 'primary' && selected ? 'primary' : 'on-surface'
-            }
-            triggerRef={ref}
-          />
-          <span className={getClassNames.content}>
-            {icon && <Icon icon={icon} className={getClassNames.icon} />}
-            <span className={getClassNames.label}>{label}</span>
+        <span className={getClassNames.content}>
+          <span className={getClassNames.stateLayer}>
+            <RippleEffect
+              colorName={
+                variant === 'primary' && selected ? 'primary' : 'on-surface'
+              }
+              triggerRef={ref}
+            />
           </span>
+          {icon && <Icon icon={icon} className={getClassNames.icon} />}
+          <span className={getClassNames.label}>{label}</span>
         </span>
       </ElementType>
     );
