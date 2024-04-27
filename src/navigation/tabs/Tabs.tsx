@@ -12,7 +12,7 @@ export interface TabsProps {
     args: { index: number } & Pick<TabProps, 'label' | 'icon'>
   ) => void;
   children: ReactNode;
-  stateVariant: 'fit' | 'full';
+  stateVariant?: 'fit' | 'full';
   className?: string;
 }
 
