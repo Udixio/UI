@@ -55,7 +55,7 @@ const RippleEffect: React.FC<RippleEffectProps> = ({
     }
   }, [triggerRef]);
 
-  const handleMouseDown = (e) => {
+  const handleMouseDown = (e: MouseEvent) => {
     // @ts-ignore
     const el = triggerRef?.current as Element;
     const rect = el.getBoundingClientRect();
@@ -65,11 +65,11 @@ const RippleEffect: React.FC<RippleEffectProps> = ({
       y: ((e.clientY - rect.top) / el.clientHeight) * 100,
     });
   };
-  const handleMouseLeave = (e) => {
+  const handleMouseLeave = (e: MouseEvent) => {
     setIsActive(false);
   };
 
-  const handleMouseUp = (e) => {
+  const handleMouseUp = (e: MouseEvent) => {
     setIsActive(false);
   };
 
