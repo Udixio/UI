@@ -12,6 +12,7 @@ export interface TabsProps {
     args: { index: number } & Pick<TabProps, 'label' | 'icon'>
   ) => void;
   children: ReactNode;
+  stateVariant: 'fit' | 'full';
   className?: string;
 }
 
@@ -34,6 +35,7 @@ export const Tabs = ({
   onTabSelected,
   children,
   className,
+  stateVariant,
 }: TabsProps) => {
   const [childRefs, setChildRefs] = React.useState([]);
   const [selectedTab, setSelectedTab] =
@@ -129,6 +131,7 @@ export const Tabs = ({
             key: index,
             ref: childRefs[index],
             variant: variant,
+            stateVariant: stateVariant,
           });
         })}
       </TabContext.Provider>

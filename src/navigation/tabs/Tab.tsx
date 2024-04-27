@@ -6,6 +6,7 @@ import { StyleProps, StylesHelper } from '../../utils';
 import { Icon } from '../../icon';
 import { tabStyle } from './TabStyle';
 import RippleEffect from '../../effects/ripple/RippleEffect';
+import classnames from 'classnames';
 
 export interface TabState {
   selected: boolean;
@@ -16,6 +17,7 @@ export interface TabState {
   onClick?: (e: React.MouseEvent<HTMLElement>) => void;
   type?: 'button' | 'submit' | 'reset' | undefined;
   icon?: IconDefinition;
+  stateVariant: 'fit' | 'full';
 }
 
 export type TabElement = 'tab' | 'stateLayer' | 'icon' | 'label' | 'content';
@@ -30,6 +32,7 @@ export const Tab = forwardRef<HTMLButtonElement | HTMLAnchorElement, TabProps>(
       className,
       onClick,
       label,
+      stateVariant = 'full',
       variant = 'primary',
       href,
       title,
@@ -82,6 +85,7 @@ export const Tab = forwardRef<HTMLButtonElement | HTMLAnchorElement, TabProps>(
           label,
           onClick,
           type,
+          stateVariant,
         },
       });
     })();
@@ -100,15 +104,21 @@ export const Tab = forwardRef<HTMLButtonElement | HTMLAnchorElement, TabProps>(
         {...linkProps}
       >
         <span className={getClassNames.content}>
-          <span className={getClassNames.stateLayer}>
-            <RippleEffect
-              colorName={
-                variant === 'primary' && selected ? 'primary' : 'on-surface'
-              }
-              triggerRef={ref}
-            />
+          <span
+            className={classnames('flex', {
+              relative: stateVariant == 'fit' && icon && variant == 'primary',
+            })}
+          >
+            <span className={getClassNames.stateLayer}>
+              <RippleEffect
+                colorName={
+                  variant === 'primary' && selected ? 'primary' : 'on-surface'
+                }
+                triggerRef={ref}
+              />
+            </span>
+            {icon && <Icon icon={icon} className={getClassNames.icon} />}
           </span>
-          {icon && <Icon icon={icon} className={getClassNames.icon} />}
           <span className={getClassNames.label}>{label}</span>
         </span>
       </ElementType>

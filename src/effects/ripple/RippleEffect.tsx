@@ -57,9 +57,13 @@ const RippleEffect: React.FC<RippleEffectProps> = ({
 
   const handleMouseDown = (e) => {
     // @ts-ignore
-    const rect = (triggerRef?.current as Element).getBoundingClientRect();
+    const el = triggerRef?.current as Element;
+    const rect = el.getBoundingClientRect();
     setIsActive(true);
-    setCoordinates({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    setCoordinates({
+      x: ((e.clientX - rect.left) / el.clientWidth) * 100,
+      y: ((e.clientY - rect.top) / el.clientHeight) * 100,
+    });
   };
   const handleMouseLeave = (e) => {
     setIsActive(false);
@@ -77,8 +81,8 @@ const RippleEffect: React.FC<RippleEffectProps> = ({
             position: 'absolute',
             width: '100%',
             height: '100%',
-            top: coordinates.y,
-            left: coordinates.x,
+            top: coordinates.y + '%',
+            left: coordinates.x + '%',
 
             background: `rgb(var(--color-${colorName}) / 0.12)`,
             pointerEvents: 'none',

@@ -6,9 +6,10 @@ export const tabStyle: ClassNameComponent<TabState, TabElement> = ({
   icon,
   variant,
   selected,
+  stateVariant,
 }) => ({
   tab: StylesHelper.classNames([
-    'bg-surface flex-1 group overflow-hidden flex px-4 justify-center',
+    'bg-surface flex-1 group overflow-hidden flex px-4 justify-center items-center',
     {
       applyWhen: Boolean(icon && label) && variant === 'primary',
       styles: ['h-16'],
@@ -20,6 +21,9 @@ export const tabStyle: ClassNameComponent<TabState, TabElement> = ({
   ]),
   stateLayer: StylesHelper.classNames([
     'absolute w-full h-full overflow-hidden left-1/2 top-1/2 transform -translate-y-1/2 -translate-x-1/2',
+    {
+      'box-content px-5 py-1 rounded-full': stateVariant == 'fit',
+    },
     {
       applyWhen: variant === 'primary',
       styles: [
@@ -35,26 +39,23 @@ export const tabStyle: ClassNameComponent<TabState, TabElement> = ({
     },
   ]),
   content: StylesHelper.classNames([
-    'h-full flex  gap-0.5 justify-end',
+    'flex  gap-0.5',
     {
-      'pb-3.5': Boolean(label && !icon),
+      relative: stateVariant == 'fit' && !(icon && variant == 'primary'),
+    },
+    {
+      '': Boolean(label && !icon),
     },
     {
       applyWhen: variant === 'primary',
-      styles: [
-        'flex-col items-center',
-        {
-          'pb-2': Boolean(label && icon),
-          'pb-3': Boolean(!label && icon),
-        },
-      ],
+      styles: ['flex-col items-center'],
     },
     {
       applyWhen: variant === 'secondary',
       styles: [
         {
           'flex-col items-center': Boolean(!(label && icon)),
-          'flex-row pb-3 items-end gap-2': Boolean(label && icon),
+          'flex-row items-end gap-2': Boolean(label && icon),
         },
       ],
     },
