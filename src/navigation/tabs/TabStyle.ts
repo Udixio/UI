@@ -9,7 +9,7 @@ export const tabStyle: ClassNameComponent<TabState, TabElement> = ({
   stateVariant,
 }) => ({
   tab: StylesHelper.classNames([
-    'bg-surface h-full flex-1 group overflow-hidden flex px-4 justify-center items-center',
+    'bg-surface flex-1 group overflow-hidden flex px-4 justify-center items-center',
     {
       applyWhen: Boolean(icon && label) && variant === 'primary',
       styles: ['h-16'],

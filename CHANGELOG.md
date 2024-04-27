@@ -1,3 +1,11 @@
+# [1.0.0-beta.38](https://github.com/Udixio/UI/compare/v1.0.0-beta.37...v1.0.0-beta.38) (2024-04-27)
+
+
+### Features
+
+* add ripple effect to tabs ([3955854](https://github.com/Udixio/UI/commit/3955854186f56defc3eede4aa99968c8aa266cc5))
+* add stateVariant optional to Tabs ([85a77db](https://github.com/Udixio/UI/commit/85a77db926e97d96109cf40977debb5c3949bd14))
+
 # [1.0.0-beta.37](https://github.com/Udixio/UI/compare/v1.0.0-beta.36...v1.0.0-beta.37) (2024-04-22)
 
 
