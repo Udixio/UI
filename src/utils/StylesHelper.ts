@@ -34,7 +34,7 @@ export class StylesHelper {
     args.classNameList.forEach((classNameComponent) => {
       if (classNameComponent) {
         if (typeof classNameComponent == 'string') {
-          classNames[args.default] = classNameComponent + ' ';
+          classNames[args.default] = classNameComponent + ' relative' + ' ';
         } else {
           const result = classNameComponent(args.states);
           Object.entries(result).map(([key, value]) => {
