@@ -1,3 +1,10 @@
+# [1.0.0-beta.40](https://github.com/Udixio/UI/compare/v1.0.0-beta.39...v1.0.0-beta.40) (2024-05-07)
+
+
+### Features
+
+* remove unused props and simplify Card component ([f973d1e](https://github.com/Udixio/UI/commit/f973d1e543673b295bb063b1c25cc33884ed538b))
+
 # [1.0.0-beta.39](https://github.com/Udixio/UI/compare/v1.0.0-beta.38...v1.0.0-beta.39) (2024-05-06)
 
 
