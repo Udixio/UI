@@ -1,9 +1,5 @@
 import { StylesHelper } from '../utils';
 import React, { FunctionComponent, ReactNode } from 'react';
-import { CardMediaProps } from './CardMedia';
-import { CardContentProps } from './CardContent';
-import { CardHeaderProps } from './CardHeader';
-import { CardActionProps } from './CardAction';
 
 export type CardVariant = 'outlined' | 'elevated' | 'filled';
 
@@ -23,28 +19,6 @@ export interface CardProps {
    */
   stateClassName?: string;
 
-  /**
-   * @deprecated This will be removed in future versions. Use `children` instead.
-   */
-  header?: React.ReactElement<CardHeaderProps>;
-
-  /**
-   * @deprecated This will be removed in future versions. Use `children` instead.
-   */
-  media?: React.ReactElement<CardMediaProps>;
-
-  /**
-   * @deprecated This will be removed in future versions. Use `children` instead.
-   */
-  content?: React.ReactElement<CardContentProps>;
-
-  /**
-   * @deprecated This will be removed in future versions. Use `children` instead.
-   */
-  actions?: React.ReactElement<CardActionProps>;
-
-  responsiveBreakPoint?: number;
-
   isInteractive?: boolean;
 
   children?: ReactNode;
@@ -55,15 +29,10 @@ export interface CardProps {
  */
 export const Card: FunctionComponent<CardProps> = ({
   variant = 'outlined',
-  header,
-  media,
-  content,
-  actions,
   className,
   stateClassName,
   children,
   isInteractive,
-  responsiveBreakPoint = 500,
 }: CardProps) => {
   const containerClass = StylesHelper.classNames([
     className,
@@ -83,35 +52,14 @@ export const Card: FunctionComponent<CardProps> = ({
   ]);
   const stateLayerClass = StylesHelper.classNames([
     stateClassName,
-    'state-layer min-w-full min-h-full',
-    { 'state-on-surface': isInteractive },
+    'state-layer w-full h-full absolute -z-[1]',
+    { 'group-state-on-surface': isInteractive },
   ]);
 
-  if (header || media || content || actions)
-    return (
-      <article className={containerClass}>
-        <div className={''}></div>
-        <div className={'@[' + responsiveBreakPoint + 'px]:flex'}>
-          {children}
-          <div className={' flex-1'}>
-            {header && header}
-            {media && media}
-          </div>
-          <div
-            className={
-              'flex flex-col justify-around mb-4 @xl:items-end  flex-1'
-            }
-          >
-            {content && content}
-            {actions && actions}
-          </div>
-        </div>
-      </article>
-    );
-  else
-    return (
-      <article className={containerClass}>
-        <div className={stateLayerClass}>{children}</div>
-      </article>
-    );
+  return (
+    <div className={containerClass}>
+      <div className={stateLayerClass}></div>
+      {children}
+    </div>
+  );
 };
