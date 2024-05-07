@@ -1,3 +1,10 @@
+# [1.0.0-beta.39](https://github.com/Udixio/UI/compare/v1.0.0-beta.38...v1.0.0-beta.39) (2024-05-06)
+
+
+### Bug Fixes
+
+* a component must remain in relative position even if it has a className ([4aa212d](https://github.com/Udixio/UI/commit/4aa212d22c1ee6d143c4448d3bd557aee65b0a57))
+
 # [1.0.0-beta.38](https://github.com/Udixio/UI/compare/v1.0.0-beta.37...v1.0.0-beta.38) (2024-04-27)
 
 
