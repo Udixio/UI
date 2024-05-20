@@ -1,3 +1,10 @@
+# [1.0.0-beta.42](https://github.com/Udixio/UI/compare/v1.0.0-beta.41...v1.0.0-beta.42) (2024-05-20)
+
+
+### Bug Fixes
+
+* extend CardProps with HTMLAttributes in Card component ([6bbce1c](https://github.com/Udixio/UI/commit/6bbce1cf4f3200b6f0d440317da029d253845d86))
+
 # [1.0.0-beta.41](https://github.com/Udixio/UI/compare/v1.0.0-beta.40...v1.0.0-beta.41) (2024-05-07)
 
 
