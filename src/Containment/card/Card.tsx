@@ -18,28 +18,33 @@ export interface CardProps
   children?: ReactNode;
 }
 
-export const Card = ({
-  variant = 'outlined',
-  className,
-  children,
-  isInteractive,
-  ...rest
-}: CardProps) => {
-  const getClassNames = (() => {
-    return StylesHelper.classNamesElements<CardState, CardElement>({
-      default: 'card',
-      classNameList: [className, cardStyle],
-      states: {
-        variant,
-        isInteractive,
-      },
-    });
-  })();
+export const Card = React.forwardRef<HTMLDivElement, CardProps>(
+  (
+    {
+      variant = 'outlined',
+      className,
+      children,
+      isInteractive,
+      ...rest
+    }: CardProps,
+    ref
+  ) => {
+    const getClassNames = (() => {
+      return StylesHelper.classNamesElements<CardState, CardElement>({
+        default: 'card',
+        classNameList: [className, cardStyle],
+        states: {
+          variant,
+          isInteractive,
+        },
+      });
+    })();
 
-  return (
-    <div className={getClassNames.card} {...rest}>
-      <div className={getClassNames.stateLayer}></div>
-      {children}
-    </div>
-  );
-};
+    return (
+      <div ref={ref} className={getClassNames.card} {...rest}>
+        <div className={getClassNames.stateLayer}></div>
+        {children}
+      </div>
+    );
+  }
+);
