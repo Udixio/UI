@@ -13,7 +13,8 @@ export type CardElement = 'card' | 'stateLayer';
 
 export interface CardProps
   extends StyleProps<CardState, CardElement>,
-    Partial<CardState> {
+    Partial<CardState>,
+    Omit<React.HTMLAttributes<HTMLDivElement>, 'className'> {
   children?: ReactNode;
 }
 
@@ -22,6 +23,7 @@ export const Card = ({
   className,
   children,
   isInteractive,
+  ...rest
 }: CardProps) => {
   const getClassNames = (() => {
     return StylesHelper.classNamesElements<CardState, CardElement>({
@@ -35,7 +37,7 @@ export const Card = ({
   })();
 
   return (
-    <div className={getClassNames.card}>
+    <div className={getClassNames.card} {...rest}>
       <div className={getClassNames.stateLayer}></div>
       {children}
     </div>
