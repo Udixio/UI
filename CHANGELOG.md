@@ -1,3 +1,10 @@
+# [1.0.0-beta.41](https://github.com/Udixio/UI/compare/v1.0.0-beta.40...v1.0.0-beta.41) (2024-05-07)
+
+
+### Features
+
+* refactor Card component structure ([18e5f83](https://github.com/Udixio/UI/commit/18e5f83abeb69b142b07abcfd1b4d257cb82be2d))
+
 # [1.0.0-beta.40](https://github.com/Udixio/UI/compare/v1.0.0-beta.39...v1.0.0-beta.40) (2024-05-07)
 
 
