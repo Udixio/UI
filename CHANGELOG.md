@@ -1,3 +1,10 @@
+# [1.0.0-beta.44](https://github.com/Udixio/UI/compare/v1.0.0-beta.43...v1.0.0-beta.44) (2024-05-24)
+
+
+### Features
+
+* add fab component with storybook stories and styles ([85db360](https://github.com/Udixio/UI/commit/85db360f8f608d422873aec092acbe97d7c83891))
+
 # [1.0.0-beta.43](https://github.com/Udixio/UI/compare/v1.0.0-beta.42...v1.0.0-beta.43) (2024-05-20)
 
 
