@@ -1,3 +1,10 @@
+# [1.0.0-beta.43](https://github.com/Udixio/UI/compare/v1.0.0-beta.42...v1.0.0-beta.43) (2024-05-20)
+
+
+### Features
+
+* wrap Card component with React.forwardRef ([eb256b9](https://github.com/Udixio/UI/commit/eb256b92f7d0615f932176a18f159564e6f06cb0))
+
 # [1.0.0-beta.42](https://github.com/Udixio/UI/compare/v1.0.0-beta.41...v1.0.0-beta.42) (2024-05-20)
 
 
