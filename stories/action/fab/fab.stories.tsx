@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import { Fab, FabProps } from '../../../src/action/fab/Fab';
+import { Fab, FabProps } from '../../../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {

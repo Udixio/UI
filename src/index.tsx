@@ -1,3 +1,4 @@
+export * from './action/fab';
 export * from './avatar';
 export * from './button';
 export * from './code-preview';
