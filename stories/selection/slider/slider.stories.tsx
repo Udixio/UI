@@ -31,7 +31,7 @@ const createSliderStory = (
           value={25}
           min={-15}
           max={40}
-          step={null}
+          step={1}
           marks={[
             {
               value: -15,

@@ -14,6 +14,7 @@ export interface SliderState {
     label?: string;
   }[];
   step: number | null;
+  name: string;
 }
 
 export type SliderElement =
@@ -27,7 +28,9 @@ export type SliderElement =
 export interface SliderProps
   extends StyleProps<Omit<SliderState, 'isChanging'>, SliderElement>,
     SliderState,
-    Omit<React.HTMLAttributes<HTMLDivElement>, 'className' | 'value'> {}
+    Omit<React.HTMLAttributes<HTMLDivElement>, 'className' | 'value'> {
+  onChange?: (value: number) => void;
+}
 
 export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
   const getPourcentFromValue = (value: number) => {
@@ -42,7 +45,9 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
     min = 0,
     max = 100,
     step = 10,
+    name,
     marks,
+    onChange,
     ...restProps
   }: SliderProps = args;
   const [isChanging, setIsChanging] = useState(false);
@@ -126,7 +131,6 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
     value?: number;
   }) => {
     if (pourcent) {
-      console.log(pourcent);
       if (pourcent >= 100) {
         setValue(max);
         setPourcent(100);
@@ -168,6 +172,9 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
 
     setValue(value);
     setPourcent(pourcent);
+    if (onChange) {
+      onChange(value);
+    }
   };
   const [sliderWidth, setSliderWidth] = useState(0);
   useEffect(() => {
@@ -240,6 +247,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
       onDragStart={(e) => e.preventDefault()}
       {...restProps}
     >
+      <input type="hidden" name={name} value={value} />
       <div
         className={getClassNames.activeTrack}
         style={{ flex: pourcent / 100 }}
