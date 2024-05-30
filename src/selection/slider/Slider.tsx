@@ -11,7 +11,7 @@ export interface SliderState {
     value: number;
     label?: string;
   }[];
-  step: number;
+  step: number | null;
 }
 
 export type SliderElement =
@@ -40,6 +40,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
     min = 0,
     max = 100,
     step = 10,
+    marks,
     ...restProps
   }: SliderProps = args;
   const [isChanging, setIsChanging] = useState(false);
@@ -113,7 +114,16 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
       let pourcent = ((clientX - refPosition) / current.offsetWidth) * 100;
 
       let value = getValueFromPourcent(pourcent);
-      value = Math.round((value - min) / step) * step + min;
+
+      if (step != null) {
+        value = Math.round((value - min) / step) * step + min;
+      } else if (marks) {
+        value = marks.reduce((prev, curr) =>
+          Math.abs(curr.value - value) < Math.abs(prev.value - value)
+            ? curr
+            : prev
+        ).value;
+      }
 
       pourcent = getPourcentFromValue(value);
 
@@ -138,8 +148,8 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
         className={getClassNames.activeTrack}
         style={{ flex: pourcent / 100 }}
       >
-        {args.marks &&
-          args.marks.map((mark, index) => {
+        {marks &&
+          marks.map((mark, index) => {
             return (
               <div
                 key={index}
@@ -162,8 +172,8 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
         className={getClassNames.inactiveTrack}
         style={{ flex: 1 - pourcent / 100 }}
       >
-        {args.marks &&
-          args.marks.map((mark, index) => {
+        {marks &&
+          marks.map((mark, index) => {
             return (
               <div
                 key={index}
