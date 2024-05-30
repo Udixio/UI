@@ -1,6 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react';
-
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { Slider, SliderProps } from '../../../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -28,16 +26,39 @@ const createSliderStory = (
   const sliderStory: Story = (args: SliderProps) => (
     <div className="">
       <div className="flex m-4 gap-4 items-center">
-        <Slider {...args} value={75} min={50} max={100} />
+        <Slider
+          {...args}
+          value={25}
+          min={-15}
+          max={40}
+          marks={[
+            {
+              value: -15,
+              label: '-15°C',
+            },
+            {
+              value: -5,
+              label: '-5°C',
+            },
+            {
+              value: 5,
+              label: '5°C',
+            },
+            {
+              value: 15,
+              label: '15°C',
+            },
+            {
+              value: 40,
+              label: '40°C',
+            },
+          ]}
+        />
       </div>
     </div>
   );
   sliderStory.args = {
-    label: 'Slider',
-    icon: faPlus,
     ...args,
-    size,
-    isExtended,
   };
   return sliderStory;
 };
