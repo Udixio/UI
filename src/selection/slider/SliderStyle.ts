@@ -23,7 +23,7 @@ export const SliderStyle: ClassNameComponent<SliderState, SliderElement> = ({
       'absolute bg-inverse-surface text-inverse-on-surface py-3 px-4 rounded-full bottom-[calc(100%+4px)] transform left-1/2 -translate-x-1/2',
     ]),
     dot: StylesHelper.classNames([
-      'h-1 w-1 absolute transform  -translate-y-1/2 top-1/2 rounded-full bg-primary',
+      'h-1 w-1 absolute transform  -translate-y-1/2 -translate-x-1/2 top-1/2 rounded-full',
     ]),
   };
 };

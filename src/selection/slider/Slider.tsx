@@ -1,6 +1,7 @@
 import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import { StyleProps, StylesHelper } from '../../utils';
 import { SliderStyle } from './SliderStyle';
+import classNames from 'classnames';
 
 export interface SliderState {
   value: number;
@@ -134,7 +135,24 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
       setPourcent(pourcent);
     }
   };
+  const [sliderWidth, setSliderWidth] = useState(0);
+  useEffect(() => {
+    const updateSliderWidth = () => {
+      // @ts-ignore
+      if (resolvedRef.current) {
+        // @ts-ignore
+        setSliderWidth(resolvedRef.current.offsetWidth);
+      }
+    };
 
+    updateSliderWidth(); // Initial setup
+    window.addEventListener('resize', updateSliderWidth);
+
+    // Clean up
+    return () => {
+      window.removeEventListener('resize', updateSliderWidth);
+    };
+  }, []);
   return (
     <div
       className={getClassNames.slider}
@@ -147,22 +165,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
       <div
         className={getClassNames.activeTrack}
         style={{ flex: pourcent / 100 }}
-      >
-        {marks &&
-          marks.map((mark, index) => {
-            return (
-              <div
-                key={index}
-                className={getClassNames.dot + ' bg-primary-container'}
-                style={{
-                  left: `calc(${
-                    (getPourcentFromValue(mark.value) / pourcent) * 100
-                  }% + 4px)`,
-                }}
-              ></div>
-            );
-          })}
-      </div>
+      ></div>
       <div className={getClassNames.handle}>
         {isChanging && (
           <div className={getClassNames.valueIndicator}>{value}</div>
@@ -171,19 +174,36 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
       <div
         className={getClassNames.inactiveTrack}
         style={{ flex: 1 - pourcent / 100 }}
+      ></div>
+      <div
+        className={
+          'w-[calc(100%-12px)] h-full absolute -translate-x-1/2 transform left-1/2'
+        }
       >
         {marks &&
           marks.map((mark, index) => {
+            let isUnderActiveTrack = null;
+
+            const handleAndGapPercent =
+              ((isChanging ? 9 : 10) / sliderWidth) * 100;
+            const markPercent = getPourcentFromValue(mark.value);
+
+            if (markPercent <= pourcent - handleAndGapPercent) {
+              isUnderActiveTrack = true;
+            } else if (markPercent >= pourcent + handleAndGapPercent) {
+              isUnderActiveTrack = false;
+            }
             return (
               <div
                 key={index}
-                className={getClassNames.dot + ' bg-primary -translate-x-full'}
+                className={classNames(getClassNames.dot, {
+                  'bg-primary-container':
+                    isUnderActiveTrack != null && isUnderActiveTrack,
+                  'bg-primary':
+                    isUnderActiveTrack != null && !isUnderActiveTrack,
+                })}
                 style={{
-                  left: `calc(${
-                    ((getPourcentFromValue(mark.value) - pourcent) /
-                      (100 - pourcent)) *
-                    100
-                  }% - 4px)`,
+                  left: `${getPourcentFromValue(mark.value)}%`,
                 }}
               ></div>
             );
