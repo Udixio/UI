@@ -2,6 +2,7 @@ import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import { StyleProps, StylesHelper } from '../../utils';
 import { SliderStyle } from './SliderStyle';
 import classNames from 'classnames';
+import { AnimatePresence, motion } from 'framer-motion';
 
 export interface SliderState {
   value: number;
@@ -80,7 +81,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
     }
 
     return () => {
-      // Cleanup - remove both mouse and touch events
+      // Cleanup - remove both mouse, touch and drag events
       window.removeEventListener('mouseup', handleMouseUp);
       window.removeEventListener('mousemove', handleChange);
       window.removeEventListener('touchend', handleMouseUp);
@@ -161,15 +162,31 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
       ref={resolvedRef}
       onTouchStart={handleMouseDown}
       {...restProps}
+      onDragStart={(e) => e.preventDefault()}
     >
       <div
         className={getClassNames.activeTrack}
         style={{ flex: pourcent / 100 }}
       ></div>
       <div className={getClassNames.handle}>
-        {isChanging && (
-          <div className={getClassNames.valueIndicator}>{value}</div>
-        )}
+        <AnimatePresence>
+          {isChanging && (
+            <motion.div
+              className={getClassNames.valueIndicator}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              style={{ translate: '-50%', transformOrigin: 'center bottom' }}
+              variants={{
+                visible: { opacity: 1, scale: 1 },
+                hidden: { opacity: 1, scale: 0 },
+              }}
+              transition={{ duration: 0.1 }}
+            >
+              {value}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
       <div
         className={getClassNames.inactiveTrack}
