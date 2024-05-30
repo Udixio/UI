@@ -61,7 +61,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
   const [value, setValue] = useState(args.value);
   const [pourcent, setPourcent] = useState(getPourcentFromValue(args.value));
   const [mouseDown, setMouseDown] = useState(false);
-  const handleMouseDown = (e: MouseEvent) => {
+  const handleMouseDown = (e: any) => {
     setMouseDown(true);
     setIsChanging(true);
     handleChange(e);
