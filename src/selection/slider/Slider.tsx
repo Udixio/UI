@@ -28,7 +28,10 @@ export type SliderElement =
 export interface SliderProps
   extends StyleProps<Omit<SliderState, 'isChanging'>, SliderElement>,
     SliderState,
-    Omit<React.HTMLAttributes<HTMLDivElement>, 'className' | 'value'> {
+    Omit<
+      React.HTMLAttributes<HTMLDivElement>,
+      'className' | 'value' | 'onChange'
+    > {
   onChange?: (value: number) => void;
 }
 
@@ -58,7 +61,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
   const [value, setValue] = useState(args.value);
   const [pourcent, setPourcent] = useState(getPourcentFromValue(args.value));
   const [mouseDown, setMouseDown] = useState(false);
-  const handleMouseDown = (e) => {
+  const handleMouseDown = (e: MouseEvent) => {
     setMouseDown(true);
     setIsChanging(true);
     handleChange(e);
@@ -104,10 +107,11 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
         min,
         isChanging,
         step,
+        name,
       },
     });
   })();
-  const handleChange = (event) => {
+  const handleChange = (event: any) => {
     // @ts-ignore
     const current = resolvedRef?.current;
     if (current) {

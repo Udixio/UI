@@ -1,3 +1,10 @@
+# [1.0.0-beta.45](https://github.com/Udixio/UI/compare/v1.0.0-beta.44...v1.0.0-beta.45) (2024-05-24)
+
+
+### Features
+
+* export FAB components from library root ([9ab4a06](https://github.com/Udixio/UI/commit/9ab4a06a73d9702494dc99f0b71a7c36d9c8bf12))
+
 # [1.0.0-beta.44](https://github.com/Udixio/UI/compare/v1.0.0-beta.43...v1.0.0-beta.44) (2024-05-24)
 
 
