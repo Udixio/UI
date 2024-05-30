@@ -115,26 +115,59 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
 
       let pourcent = ((clientX - refPosition) / current.offsetWidth) * 100;
 
-      let value = getValueFromPourcent(pourcent);
-
-      if (step != null) {
-        value = Math.round((value - min) / step) * step + min;
-      } else if (marks) {
-        value = marks.reduce((prev, curr) =>
-          Math.abs(curr.value - value) < Math.abs(prev.value - value)
-            ? curr
-            : prev
-        ).value;
+      updateSliderValues({ pourcent });
+    }
+  };
+  const updateSliderValues = ({
+    pourcent,
+    value,
+  }: {
+    pourcent?: number;
+    value?: number;
+  }) => {
+    if (pourcent) {
+      console.log(pourcent);
+      if (pourcent >= 100) {
+        setValue(max);
+        setPourcent(100);
+        return;
+      }
+      if (pourcent <= 0) {
+        setValue(min);
+        setPourcent(0);
+        return;
       }
 
+      value = getValueFromPourcent(pourcent);
+    } else if (value != undefined) {
+      if (value >= max) {
+        setValue(max);
+        setPourcent(100);
+        return;
+      }
+      if (value <= min) {
+        setValue(min);
+        setPourcent(0);
+        return;
+      }
       pourcent = getPourcentFromValue(value);
-
-      if (pourcent > 100) pourcent = 100;
-      if (pourcent < 0) pourcent = 0;
-
-      setValue(value);
-      setPourcent(pourcent);
+    } else {
+      return;
     }
+    if (step != null) {
+      value = Math.round((value - min) / step) * step + min;
+    } else if (marks) {
+      value = marks.reduce((prev, curr) =>
+        Math.abs(curr.value - value!) < Math.abs(prev.value - value!)
+          ? curr
+          : prev
+      ).value;
+    }
+
+    pourcent = getPourcentFromValue(value);
+
+    setValue(value);
+    setPourcent(pourcent);
   };
   const [sliderWidth, setSliderWidth] = useState(0);
   useEffect(() => {
@@ -154,15 +187,58 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
       window.removeEventListener('resize', updateSliderWidth);
     };
   }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Check which key is pressed
+    switch (e.key) {
+      case 'ArrowRight':
+        if (step) {
+          updateSliderValues({ value: value + step });
+        } else if (marks) {
+          // Find the next mark (greater than the current value)
+          const nextMark = marks.find((mark) => mark.value > value);
+          if (nextMark) {
+            // If one exists, update the value to the mark's value
+            updateSliderValues({ value: nextMark.value });
+          }
+        }
+        break;
+
+      case 'ArrowLeft':
+        if (step) {
+          updateSliderValues({ value: value - step });
+        } else if (marks) {
+          // Find the previous mark (less than the current value)
+          const previousMark = marks
+            .slice(0)
+            .reverse()
+            .find((mark) => mark.value < value);
+          if (previousMark) {
+            // If one exists, update the value to the mark's value
+            updateSliderValues({ value: previousMark.value });
+          }
+        }
+        break;
+      default:
+        return;
+    }
+  };
   return (
     <div
+      tabIndex={0} // Make the slider focusable
+      onKeyDown={handleKeyDown} // Attach the keydown event
+      role="slider" // Inform assistive technologies about the type of the component
+      aria-valuemin={min} // Inform about the minimum value
+      aria-valuemax={max} // Inform about the maximum value
+      aria-valuenow={value} // Inform about the current value
+      aria-valuetext={value.toString()} // Textual representation of the value
       className={getClassNames.slider}
       onMouseDown={handleMouseDown}
       onClick={handleChange}
       ref={resolvedRef}
       onTouchStart={handleMouseDown}
-      {...restProps}
       onDragStart={(e) => e.preventDefault()}
+      {...restProps}
     >
       <div
         className={getClassNames.activeTrack}
