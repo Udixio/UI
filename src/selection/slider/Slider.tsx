@@ -37,22 +37,55 @@ export interface SliderProps
 
 export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
   const getPourcentFromValue = (value: number) => {
+    const min = getMin();
+    const max = getMax();
+
+    if (value === Infinity) {
+      return 100;
+    } else if (value === -Infinity) {
+      return 0;
+    }
     return ((value - min) / (max - min)) * 100;
   };
 
+  const getMax = (isInfinity = false) => {
+    if (isInfinity) {
+      return _max;
+    }
+    return _max == Infinity ? marks[marks?.length - 1].value : _max;
+  };
+  const getMin = (isInfinity = false) => {
+    if (isInfinity) {
+      return _min;
+    }
+    return _min == -Infinity ? marks[0].value : _min;
+  };
+
   const getValueFromPourcent = (pourcent: number) => {
+    const min = getMin(false);
+    const max = getMax(false);
     return ((max - min) * pourcent) / 100 + min;
   };
   const {
     className,
-    min = 0,
-    max = 100,
+
     step = 10,
     name,
-    marks,
+    marks = [
+      {
+        value: 0,
+        label: '0',
+      },
+      {
+        value: 100,
+        label: '100',
+      },
+    ],
     onChange,
     ...restProps
   }: SliderProps = args;
+  const _min = args.min ?? 0;
+  const _max = args.max ?? 100;
   const [isChanging, setIsChanging] = useState(false);
   const defaultRef = useRef<HTMLDivElement>(null);
   const resolvedRef: React.RefObject<any> | React.ForwardedRef<any> =
@@ -103,8 +136,8 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
       classNameList: [className, SliderStyle],
       states: {
         value,
-        max,
-        min,
+        max: getMax(true),
+        min: getMin(true),
         isChanging,
         step,
         name,
@@ -136,25 +169,31 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
   }) => {
     if (pourcent) {
       if (pourcent >= 100) {
-        setValue(max);
+        setValue(getMax(true));
         setPourcent(100);
         return;
       }
       if (pourcent <= 0) {
-        setValue(min);
+        setValue(getMin(true));
         setPourcent(0);
         return;
       }
 
       value = getValueFromPourcent(pourcent);
+      if (value == getMin()) {
+        value = getMin(true);
+      }
+      if (value == getMax()) {
+        value = getMax(true);
+      }
     } else if (value != undefined) {
-      if (value >= max) {
-        setValue(max);
+      if (value >= getMax()) {
+        setValue(getMax(true));
         setPourcent(100);
         return;
       }
-      if (value <= min) {
-        setValue(min);
+      if (value <= getMin()) {
+        setValue(getMin(true));
         setPourcent(0);
         return;
       }
@@ -163,13 +202,33 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
       return;
     }
     if (step != null) {
-      value = Math.round((value - min) / step) * step + min;
+      value = Math.round((value - getMin()) / step) * step + getMin();
     } else if (marks) {
-      value = marks.reduce((prev, curr) =>
-        Math.abs(curr.value - value!) < Math.abs(prev.value - value!)
-          ? curr
-          : prev
-      ).value;
+      value = marks.reduce((prev, curr, currentIndex) => {
+        let currDiff =
+          curr.value === Infinity
+            ? getMax()
+            : curr.value === -Infinity
+              ? getMin()
+              : curr.value;
+        let prevDiff =
+          prev.value === Infinity
+            ? getMax()
+            : prev.value === -Infinity
+              ? getMin()
+              : prev.value;
+        currDiff = Math.abs(currDiff - value);
+        prevDiff = Math.abs(prevDiff - value);
+
+        return currDiff < prevDiff ? curr : prev;
+      }).value;
+    }
+
+    if (value >= getMax()) {
+      value = getMax(true);
+    }
+    if (value <= getMin()) {
+      value = getMin(true);
     }
 
     pourcent = getPourcentFromValue(value);
@@ -239,8 +298,8 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
       tabIndex={0} // Make the slider focusable
       onKeyDown={handleKeyDown} // Attach the keydown event
       role="slider" // Inform assistive technologies about the type of the component
-      aria-valuemin={min} // Inform about the minimum value
-      aria-valuemax={max} // Inform about the maximum value
+      aria-valuemin={getMin(true)} // Inform about the minimum value
+      aria-valuemax={getMax(true)} // Inform about the maximum value
       aria-valuenow={value} // Inform about the current value
       aria-valuetext={value.toString()} // Textual representation of the value
       className={getClassNames.slider}
@@ -264,7 +323,11 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
               initial="hidden"
               animate="visible"
               exit="hidden"
-              style={{ translate: '-50%', transformOrigin: 'center bottom' }}
+              style={{
+                translate: '-50%',
+                transformOrigin: 'center bottom',
+                textWrap: 'nowrap',
+              }}
               variants={{
                 visible: { opacity: 1, scale: 1 },
                 hidden: { opacity: 1, scale: 0 },
