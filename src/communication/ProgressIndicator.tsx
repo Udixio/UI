@@ -80,9 +80,12 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
       <div
         style={{
           height: shouldHide ? '0px' : `${minHeight}px`,
-          transition: `width ${transitionDuration}ms ease-in-out ${completedPercentage == 100 ? ', height 200ms 0.5s ease-in-out' : ''}`,
+          marginLeft: completedPercentage != 100 ? '6px' : '0px',
+          transition: `width ${transitionDuration}ms ease-in-out ${completedPercentage == 100 ? `, height 200ms 0.5s ease-in-out, margin-left ${transitionDuration}ms ${transitionDuration / 1.5}ms` : ''}`,
         }}
-        className="h-full flex-1 rounded-full bg-primary-container"
+        className={classNames(
+          'h-full flex-1 rounded-full bg-primary-container '
+        )}
       ></div>
       <div
         style={{
@@ -90,9 +93,7 @@ export const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({
           width: `${minHeight}px`,
           transition: `width ${transitionDuration}ms ease-in-out, height 200ms 0.5s ease-in-out`,
         }}
-        className={classNames('absolute right-0 bg-primary rounded-full', {
-          'ml-1.5': completedPercentage < 100,
-        })}
+        className={classNames('absolute right-0 bg-primary rounded-full')}
       ></div>
     </div>
   );
