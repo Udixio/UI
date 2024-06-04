@@ -1,3 +1,11 @@
+# [1.0.0-beta.47](https://github.com/Udixio/UI/compare/v1.0.0-beta.46...v1.0.0-beta.47) (2024-06-04)
+
+
+### Features
+
+* add infinity value to slider ([48d7b03](https://github.com/Udixio/UI/commit/48d7b03311de24ffe390a8ee661d443aa5e8e6df))
+* add spacing in ProgressIndicator ([c8cc58f](https://github.com/Udixio/UI/commit/c8cc58f748ab655815c7b2764686ca0af9984504))
+
 # [1.0.0-beta.46](https://github.com/Udixio/UI/compare/v1.0.0-beta.45...v1.0.0-beta.46) (2024-05-30)
 
 
