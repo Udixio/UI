@@ -1,3 +1,20 @@
+# [1.0.0-beta.46](https://github.com/Udixio/UI/compare/v1.0.0-beta.45...v1.0.0-beta.46) (2024-05-30)
+
+
+### Features
+
+* add 'name' prop and 'onChange' handler to Slider component ([864eb89](https://github.com/Udixio/UI/commit/864eb8902b481bec420405fcd96e70d69dea7a7c))
+* add restricted values to slider component ([c98bdea](https://github.com/Udixio/UI/commit/c98bdeac570e95e32ceb7f4efe8c19869d91d7ba))
+* add slider component ([02cd7e3](https://github.com/Udixio/UI/commit/02cd7e3313c6f9356898450800e7d9c38bdf41d4))
+* animate slider ([0c9732e](https://github.com/Udixio/UI/commit/0c9732e2e5e562da3656c84a7a8324cbdd230eea))
+* enhance Slider component with step and marks options ([22e7d40](https://github.com/Udixio/UI/commit/22e7d400e434b1fdbb2cf66d6d4ea71ac4c29514))
+* refactor slider logic and add keyboard accessibility ([7e866f8](https://github.com/Udixio/UI/commit/7e866f81569d672889ad5bffb1103c7e6aa089b0))
+
+
+### Performance Improvements
+
+* optimize computation of active track position ([fb350f9](https://github.com/Udixio/UI/commit/fb350f9f98bed5c0cd1fb66c3b264f55d9cbd8c4))
+
 # [1.0.0-beta.45](https://github.com/Udixio/UI/compare/v1.0.0-beta.44...v1.0.0-beta.45) (2024-05-24)
 
 
