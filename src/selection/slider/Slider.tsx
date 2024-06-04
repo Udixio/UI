@@ -217,8 +217,8 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
             : prev.value === -Infinity
               ? getMin()
               : prev.value;
-        currDiff = Math.abs(currDiff - value);
-        prevDiff = Math.abs(prevDiff - value);
+        currDiff = Math.abs(currDiff - value!);
+        prevDiff = Math.abs(prevDiff - value!);
 
         return currDiff < prevDiff ? curr : prev;
       }).value;
