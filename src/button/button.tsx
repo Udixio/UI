@@ -1,4 +1,4 @@
-import type { FunctionComponent, MouseEventHandler } from 'react';
+import React, { MouseEventHandler } from 'react';
 import { Icon } from '../icon';
 
 import { StylesHelper } from '../utils';
@@ -12,7 +12,7 @@ export enum ButtonVariant {
   FilledTonal = 'tonal',
 }
 
-export interface ButtonProps {
+export interface ButtonProps extends React.HTMLAttributes<HTMLElement> {
   /**
    * The label is the text that is displayed on the button.
    */
@@ -82,7 +82,7 @@ export interface ButtonProps {
 /**
  * The Button component is a versatile component that can be used to trigger actions or to navigate to different sections of the application
  */
-export const Button: FunctionComponent<ButtonProps> = ({
+export const Button = ({
   variant = ButtonVariant.Filled,
   disabled,
   icon,
@@ -96,7 +96,8 @@ export const Button: FunctionComponent<ButtonProps> = ({
   iconClassName,
   labelClassName,
   stateClassName,
-}) => {
+  ...restProps // Ici
+}: ButtonProps) => {
   // Détermine le type de l'élément à rendre : un bouton ou un lien
   const ElementType = href ? 'a' : 'button';
 
@@ -307,6 +308,7 @@ export const Button: FunctionComponent<ButtonProps> = ({
       className={getButtonClass}
       {...buttonProps}
       {...linkProps}
+      {...restProps}
     >
       <span className={getStateLayerClass}>
         {icon && <Icon icon={icon} className={getIconClass} />}
