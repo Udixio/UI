@@ -20,66 +20,66 @@ export type SnackbarElement =
 export interface SnackbarProps
   extends StyleProps<Omit<SnackbarState, 'isChanging'>, SnackbarElement>,
     SnackbarState,
-    Omit<
-      React.HTMLAttributes<HTMLElement>,
-      'className' | 'value' | 'onChange'
-    > {
+    Omit<React.HTMLAttributes<HTMLElement>, 'className'> {
   closeIcon?: IconDefinition;
   duration?: number;
 }
 
-export const Snackbar = forwardRef<HTMLElement, SnackbarProps>((args, ref) => {
-  const {
-    supportingText,
-    className,
-    duration,
-    closeIcon,
-    ...restProps
-  }: SnackbarProps = args;
+export const Snackbar = forwardRef<HTMLDivElement, SnackbarProps>(
+  (args, ref) => {
+    const {
+      supportingText,
+      className,
+      duration,
+      closeIcon,
+      ...restProps
+    }: SnackbarProps = args;
 
-  const [isVisible, setIsVisible] = useState(true);
+    const [isVisible, setIsVisible] = useState(true);
 
-  const getClassNames = (() => {
-    return StylesHelper.classNamesElements<SnackbarState, SnackbarElement>({
-      default: 'snackbar',
-      classNameList: [className, SnackbarStyle],
-      states: {
-        supportingText,
-      },
-    });
-  })();
+    const getClassNames = (() => {
+      return StylesHelper.classNamesElements<SnackbarState, SnackbarElement>({
+        default: 'snackbar',
+        classNameList: [className, SnackbarStyle],
+        states: {
+          supportingText,
+        },
+      });
+    })();
 
-  useEffect(() => {
-    if (duration) {
-      setTimeout(() => {
-        setIsVisible(false);
-      }, duration);
-    }
-  }, [duration]);
+    useEffect(() => {
+      if (duration) {
+        setTimeout(() => {
+          setIsVisible(false);
+        }, duration);
+      }
+    }, [duration]);
 
-  return (
-    <AnimatePresence>
-      {isVisible && (
-        <motion.div
-          initial={{ height: 0 }}
-          animate={{ height: 'auto' }}
-          exit={{ height: 0 }}
-          transition={{ duration: 0.1 }}
-          className={getClassNames.snackbar}
-          ref={ref}
-          {...restProps}
-        >
-          <div className={getClassNames.container}>
-            <p className={getClassNames.supportingText}>{supportingText}</p>
-            <IconButton
-              onClick={() => setIsVisible(false)}
-              className={getClassNames.icon}
-              icon={closeIcon ?? faXmark}
-              arialLabel={'close the snackbar'}
-            ></IconButton>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-});
+    return (
+      <AnimatePresence>
+        {isVisible && (
+          // @ts-ignore
+          <motion.div
+            initial={{ height: 0 }}
+            animate={{ height: 'auto' }}
+            exit={{ height: 0 }}
+            transition={{ duration: 0.1 }}
+            className={getClassNames.snackbar}
+            ref={ref}
+            {...restProps}
+          >
+            <div className={getClassNames.container}>
+              <p className={getClassNames.supportingText}>{supportingText}</p>
+              <IconButton
+                onClick={() => setIsVisible(false)}
+                className={getClassNames.icon}
+                icon={closeIcon ?? faXmark}
+                arialLabel={'close the snackbar'}
+              ></IconButton>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
+  }
+);
