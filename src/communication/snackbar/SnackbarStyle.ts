@@ -8,7 +8,7 @@ export const SnackbarStyle: ClassNameComponent<
   return {
     snackbar: StylesHelper.classNames([' rounded bg-inverse-surface ']),
     container: StylesHelper.classNames([
-      'pl-4 pr-2 py-1 flex items-center flex-wrap',
+      'pl-4 pr-2 max-w-full py-1 flex items-center flex-wrap',
     ]),
     supportingText: StylesHelper.classNames([
       'text-body-medium text-inverse-on-surface ',

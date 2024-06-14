@@ -23,6 +23,7 @@ export interface SnackbarProps
     Omit<React.HTMLAttributes<HTMLElement>, 'className'> {
   closeIcon?: IconDefinition;
   duration?: number;
+  onClose?: () => void;
 }
 
 export const Snackbar = forwardRef<HTMLDivElement, SnackbarProps>(
@@ -32,6 +33,7 @@ export const Snackbar = forwardRef<HTMLDivElement, SnackbarProps>(
       className,
       duration,
       closeIcon,
+      onClose,
       ...restProps
     }: SnackbarProps = args;
 
@@ -50,10 +52,15 @@ export const Snackbar = forwardRef<HTMLDivElement, SnackbarProps>(
     useEffect(() => {
       if (duration) {
         setTimeout(() => {
-          setIsVisible(false);
+          handleClose();
         }, duration);
       }
     }, [duration]);
+
+    const handleClose = () => {
+      setIsVisible(false);
+      onClose?.();
+    };
 
     return (
       <AnimatePresence>
@@ -71,7 +78,7 @@ export const Snackbar = forwardRef<HTMLDivElement, SnackbarProps>(
             <div className={getClassNames.container}>
               <p className={getClassNames.supportingText}>{supportingText}</p>
               <IconButton
-                onClick={() => setIsVisible(false)}
+                onClick={() => handleClose()}
                 className={getClassNames.icon}
                 icon={closeIcon ?? faXmark}
                 arialLabel={'close the snackbar'}
