@@ -1,3 +1,10 @@
+# [1.0.0-beta.51](https://github.com/Udixio/UI/compare/v1.0.0-beta.50...v1.0.0-beta.51) (2024-06-14)
+
+
+### Features
+
+* update Snackbar component styling and add onClose function ([e114f32](https://github.com/Udixio/UI/commit/e114f32fcfd1de7134f58d41fb0638a088701d43))
+
 # [1.0.0-beta.50](https://github.com/Udixio/UI/compare/v1.0.0-beta.49...v1.0.0-beta.50) (2024-06-14)
 
 
