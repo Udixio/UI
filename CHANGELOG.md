@@ -1,3 +1,10 @@
+# [1.0.0-beta.49](https://github.com/Udixio/UI/compare/v1.0.0-beta.48...v1.0.0-beta.49) (2024-06-14)
+
+
+### Features
+
+* add snackBar ([718cb5f](https://github.com/Udixio/UI/commit/718cb5f0ae9d01062befe92f9ed1235a331144e5))
+
 # [1.0.0-beta.48](https://github.com/Udixio/UI/compare/v1.0.0-beta.47...v1.0.0-beta.48) (2024-06-06)
 
 
