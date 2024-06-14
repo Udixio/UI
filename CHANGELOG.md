@@ -1,3 +1,10 @@
+# [1.0.0-beta.48](https://github.com/Udixio/UI/compare/v1.0.0-beta.47...v1.0.0-beta.48) (2024-06-06)
+
+
+### Features
+
+* update Button component to accept HTML attributes ([b99bd1d](https://github.com/Udixio/UI/commit/b99bd1de790f4313a05dcaa97f8a232073a7f188))
+
 # [1.0.0-beta.47](https://github.com/Udixio/UI/compare/v1.0.0-beta.46...v1.0.0-beta.47) (2024-06-04)
 
 
