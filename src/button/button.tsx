@@ -124,12 +124,12 @@ export const Button = ({
 
   const getButtonClass = StylesHelper.classNames([
     className,
-    'button group relative overflow-hidden rounded-full inline-block flex gap-2 justify-center rounded-full  items-center px-6 py-2.5',
+    'button group relative outline-none overflow-hidden rounded-full inline-block flex gap-2 justify-center rounded-full  items-center px-6 py-2.5',
     {
       applyWhen: variant === ButtonVariant.Elevated,
       styles: [
         {
-          'bg-surface-container-low': !disabled,
+          'bg-surface-container-low  shadow-1 hover:shadow-2': !disabled,
         },
       ],
     },
@@ -137,7 +137,7 @@ export const Button = ({
       applyWhen: variant === ButtonVariant.Filled,
       styles: [
         {
-          'bg-primary': !disabled,
+          'bg-primary hover:shadow-1': !disabled,
         },
       ],
     },
@@ -145,7 +145,17 @@ export const Button = ({
       applyWhen: variant === ButtonVariant.FilledTonal,
       styles: [
         {
-          'bg-secondary-container': !disabled,
+          'bg-secondary-container hover:shadow-1': !disabled,
+        },
+      ],
+    },
+    {
+      applyWhen: variant === ButtonVariant.Outlined,
+      styles: [
+        ' border',
+        {
+          'border-on-surface/[0.12]': disabled,
+          ' border-outline focus:border-primary': !disabled,
         },
       ],
     },
@@ -159,7 +169,7 @@ export const Button = ({
       styles: [
         {
           'group-disabled:bg-on-surface/[0.12]': disabled,
-          'group-state-primary shadow-1  group-hover:shadow-2': !disabled,
+          'group-state-primary': !disabled,
         },
       ],
     },
@@ -168,7 +178,7 @@ export const Button = ({
       styles: [
         {
           'group-disabled:bg-on-surface/[0.12]': disabled,
-          'group-state-on-primary group-hover:shadow-1': !disabled,
+          'group-state-on-primary': !disabled,
         },
       ],
     },
@@ -177,18 +187,15 @@ export const Button = ({
       styles: [
         {
           'group-disabled:bg-on-surface/[0.12]': disabled,
-          'group-state-on-secondary-container group-hover:shadow-1': !disabled,
+          'group-state-on-secondary-container ': !disabled,
         },
       ],
     },
     {
       applyWhen: variant === ButtonVariant.Outlined,
       styles: [
-        ' border',
         {
-          'group-disabled:border-on-surface/[0.12]': disabled,
-          'group-state-primary border-outline group-state-primary group-focus:border-primary':
-            !disabled,
+          'group-state-primary  group-state-primary': !disabled,
         },
       ],
     },
