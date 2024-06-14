@@ -1,3 +1,10 @@
+# [1.0.0-beta.50](https://github.com/Udixio/UI/compare/v1.0.0-beta.49...v1.0.0-beta.50) (2024-06-14)
+
+
+### Bug Fixes
+
+* add button shadow ([a4ef655](https://github.com/Udixio/UI/commit/a4ef65571edf2ab6f0780d42b5f82e08f46be7a6))
+
 # [1.0.0-beta.49](https://github.com/Udixio/UI/compare/v1.0.0-beta.48...v1.0.0-beta.49) (2024-06-14)
 
 
