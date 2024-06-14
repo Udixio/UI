@@ -124,7 +124,7 @@ export const Button = ({
 
   const getButtonClass = StylesHelper.classNames([
     className,
-    'button group rounded-full inline-block',
+    'button group relative overflow-hidden rounded-full inline-block flex gap-2 justify-center rounded-full  items-center px-6 py-2.5',
     {
       applyWhen: variant === ButtonVariant.Elevated,
       styles: [
@@ -153,13 +153,13 @@ export const Button = ({
 
   const getStateLayerClass = StylesHelper.classNames([
     stateClassName,
-    'state-layer flex gap-2 justify-center rounded-full  items-center px-6 py-2.5',
+    'state-layer min-h-full min-w-full absolute top-0 left-0 ',
     {
       applyWhen: variant === ButtonVariant.Elevated,
       styles: [
         {
           'group-disabled:bg-on-surface/[0.12]': disabled,
-          'state-primary shadow-1  group-hover:shadow-2': !disabled,
+          'group-state-primary shadow-1  group-hover:shadow-2': !disabled,
         },
       ],
     },
@@ -168,7 +168,7 @@ export const Button = ({
       styles: [
         {
           'group-disabled:bg-on-surface/[0.12]': disabled,
-          'state-on-primary group-hover:shadow-1': !disabled,
+          'group-state-on-primary group-hover:shadow-1': !disabled,
         },
       ],
     },
@@ -177,7 +177,7 @@ export const Button = ({
       styles: [
         {
           'group-disabled:bg-on-surface/[0.12]': disabled,
-          'state-on-secondary-container group-hover:shadow-1': !disabled,
+          'group-state-on-secondary-container group-hover:shadow-1': !disabled,
         },
       ],
     },
@@ -187,7 +187,7 @@ export const Button = ({
         ' border',
         {
           'group-disabled:border-on-surface/[0.12]': disabled,
-          'state-primary border-outline state-primary group-focus:border-primary':
+          'group-state-primary border-outline group-state-primary group-focus:border-primary':
             !disabled,
         },
       ],
@@ -196,7 +196,7 @@ export const Button = ({
       applyWhen: variant === ButtonVariant.Text,
       styles: [
         {
-          'state-primary': !disabled,
+          'group-state-primary': !disabled,
         },
       ],
     },
@@ -310,10 +310,9 @@ export const Button = ({
       {...linkProps}
       {...restProps}
     >
-      <span className={getStateLayerClass}>
-        {icon && <Icon icon={icon} className={getIconClass} />}
-        <span className={getLabelTextClass}>{label}</span>
-      </span>
+      <span className={getStateLayerClass}></span>
+      {icon && <Icon icon={icon} className={getIconClass} />}
+      <span className={getLabelTextClass}>{label}</span>
     </ElementType>
   );
 };
