@@ -30,8 +30,8 @@ const createSliderStory = (
           {...args}
           value={25}
           min={-15}
-          max={40}
-          step={1}
+          max={Infinity}
+          step={null}
           marks={[
             {
               value: -15,
@@ -54,6 +54,11 @@ const createSliderStory = (
               label: '40°C',
             },
           ]}
+          valueFormatter={(value) => {
+            if (value == Infinity) return 'Unlimited';
+            if (value == -Infinity) return '-Unlimited';
+            return value;
+          }}
         />
       </div>
     </div>

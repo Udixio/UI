@@ -15,6 +15,7 @@ export interface SliderState {
   }[];
   step: number | null;
   name: string;
+  valueFormatter?: (value: number) => string | number;
 }
 
 export type SliderElement =
@@ -68,7 +69,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
   };
   const {
     className,
-
+    valueFormatter,
     step = 10,
     name,
     marks = [
@@ -334,7 +335,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
               }}
               transition={{ duration: 0.1 }}
             >
-              {value}
+              {valueFormatter ? valueFormatter(value) : value}
             </motion.div>
           )}
         </AnimatePresence>
