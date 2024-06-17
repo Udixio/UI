@@ -17,7 +17,7 @@ export const Diviser: FunctionComponent<DiviserProps> = ({
       'h-fit w-full border-t': orientation === 'horizontal',
     },
     {
-      'h-full w-fit border-l': orientation === 'vertical',
+      'h-auto self-stretch w-fit border-l': orientation === 'vertical',
     },
   ]);
 

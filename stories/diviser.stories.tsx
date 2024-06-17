@@ -21,7 +21,7 @@ type Story = StoryObj<typeof meta>;
 
 const createTabStory = (args?: Partial<DiviserProps>) => {
   const tabStory: Story = (args: DiviserProps) => (
-    <div className="h-96 w-96">
+    <div className="h-96 w-96 flex">
       <Diviser {...args} />
     </div>
   );
