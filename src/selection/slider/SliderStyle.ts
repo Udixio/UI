@@ -7,7 +7,7 @@ export const SliderStyle: ClassNameComponent<SliderState, SliderElement> = ({
 }) => {
   return {
     slider: StylesHelper.classNames([
-      'relative  w-full h-11 mt-10 flex items-center rounded gap-x-1.5 cursor-pointer',
+      'relative w-full h-11 flex items-center rounded gap-x-1.5 cursor-pointer',
     ]),
     activeTrack: StylesHelper.classNames([
       'h-4 relative transition-all duration-100 bg-primary overflow-hidden rounded-l-full ',
