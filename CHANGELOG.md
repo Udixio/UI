@@ -1,3 +1,11 @@
+# [1.0.0-beta.52](https://github.com/Udixio/UI/compare/v1.0.0-beta.51...v1.0.0-beta.52) (2024-06-17)
+
+
+### Features
+
+* add orientation property to Diviser component ([fb73a26](https://github.com/Udixio/UI/commit/fb73a264295eca06b10eeac020afbd0f4ce125ea))
+* add valueFormatter to Slider component ([25cd125](https://github.com/Udixio/UI/commit/25cd12550154b088aac8317b54c07faeb1311722))
+
 # [1.0.0-beta.51](https://github.com/Udixio/UI/compare/v1.0.0-beta.50...v1.0.0-beta.51) (2024-06-14)
 
 
