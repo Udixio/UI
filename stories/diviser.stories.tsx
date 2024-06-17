@@ -21,10 +21,8 @@ type Story = StoryObj<typeof meta>;
 
 const createTabStory = (args?: Partial<DiviserProps>) => {
   const tabStory: Story = (args: DiviserProps) => (
-    <div className="">
-      <div className="flex m-4 gap-4 items-center">
-        <Diviser {...args} />
-      </div>
+    <div className="h-96 w-96">
+      <Diviser {...args} />
     </div>
   );
   tabStory.args = {
@@ -34,4 +32,4 @@ const createTabStory = (args?: Partial<DiviserProps>) => {
 };
 
 export const Horizontal = createTabStory();
-export const Vertical = createTabStory();
+export const Vertical = createTabStory({ orientation: 'vertical' });
