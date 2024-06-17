@@ -1,3 +1,10 @@
+# [1.0.0-beta.53](https://github.com/Udixio/UI/compare/v1.0.0-beta.52...v1.0.0-beta.53) (2024-06-17)
+
+
+### Bug Fixes
+
+* update divider CSS for vertical orientation ([6720a5d](https://github.com/Udixio/UI/commit/6720a5d1c42fc3c46a1fbd0ceabbeffdd62d4390))
+
 # [1.0.0-beta.52](https://github.com/Udixio/UI/compare/v1.0.0-beta.51...v1.0.0-beta.52) (2024-06-17)
 
 
