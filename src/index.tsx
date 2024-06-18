@@ -9,5 +9,6 @@ export * from './effects/ripple';
 export * from './icon';
 export * from './navigation/tabs';
 export * from './selection/slider';
+export * from './selection/switch';
 export * from './text-inputs';
 export * from './utils';
