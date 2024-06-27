@@ -44,8 +44,8 @@ const createButtonStory = (variant: ButtonVariant) => {
   };
   return ButtonStory;
 };
-export const Filled = createButtonStory(ButtonVariant.Filled);
-export const Outlined = createButtonStory(ButtonVariant.Outlined);
-export const Text = createButtonStory(ButtonVariant.Text);
-export const Elevated = createButtonStory(ButtonVariant.Elevated);
-export const Tonal = createButtonStory(ButtonVariant.FilledTonal);
+export const Filled = createButtonStory('filled');
+export const Outlined = createButtonStory('outlined');
+export const Text = createButtonStory('text');
+export const Elevated = createButtonStory('elevated');
+export const Tonal = createButtonStory('filledTonal');

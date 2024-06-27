@@ -4,13 +4,12 @@ import { Icon } from '../icon';
 import { StylesHelper } from '../utils';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
-export enum ButtonVariant {
-  Filled = 'filled',
-  Elevated = 'elevated',
-  Outlined = 'outlined',
-  Text = 'text',
-  FilledTonal = 'tonal',
-}
+export type ButtonVariant =
+  | 'filled'
+  | 'elevated'
+  | 'outlined'
+  | 'text'
+  | 'filledTonal';
 
 export interface ButtonProps extends React.HTMLAttributes<HTMLElement> {
   /**
@@ -83,7 +82,7 @@ export interface ButtonProps extends React.HTMLAttributes<HTMLElement> {
  * The Button component is a versatile component that can be used to trigger actions or to navigate to different sections of the application
  */
 export const Button = ({
-  variant = ButtonVariant.Filled,
+  variant = 'filled',
   disabled,
   icon,
   href,
@@ -124,9 +123,10 @@ export const Button = ({
 
   const getButtonClass = StylesHelper.classNames([
     className,
-    'button group relative outline-none overflow-hidden rounded-full inline-block flex gap-2 justify-center rounded-full  items-center px-6 py-2.5',
+    'button group relative outline-none overflow-hidden rounded-full inline-block flex gap-2 justify-center rounded-full  items-center px-6 py-2.5 ',
+    { '-mx-6 -my-2.5': variant === 'text' },
     {
-      applyWhen: variant === ButtonVariant.Elevated,
+      applyWhen: variant === 'elevated',
       styles: [
         {
           'bg-surface-container-low  shadow-1 hover:shadow-2': !disabled,
@@ -134,7 +134,7 @@ export const Button = ({
       ],
     },
     {
-      applyWhen: variant === ButtonVariant.Filled,
+      applyWhen: variant === 'filled',
       styles: [
         {
           'bg-primary hover:shadow-1': !disabled,
@@ -142,7 +142,7 @@ export const Button = ({
       ],
     },
     {
-      applyWhen: variant === ButtonVariant.FilledTonal,
+      applyWhen: variant === 'filledTonal',
       styles: [
         {
           'bg-secondary-container hover:shadow-1': !disabled,
@@ -150,7 +150,7 @@ export const Button = ({
       ],
     },
     {
-      applyWhen: variant === ButtonVariant.Outlined,
+      applyWhen: variant === 'outlined',
       styles: [
         ' border',
         {
@@ -165,7 +165,7 @@ export const Button = ({
     stateClassName,
     'state-layer min-h-full min-w-full absolute top-0 left-0 ',
     {
-      applyWhen: variant === ButtonVariant.Elevated,
+      applyWhen: variant === 'elevated',
       styles: [
         {
           'group-disabled:bg-on-surface/[0.12]': disabled,
@@ -174,7 +174,7 @@ export const Button = ({
       ],
     },
     {
-      applyWhen: variant === ButtonVariant.Filled,
+      applyWhen: variant === 'elevated',
       styles: [
         {
           'group-disabled:bg-on-surface/[0.12]': disabled,
@@ -183,7 +183,7 @@ export const Button = ({
       ],
     },
     {
-      applyWhen: variant === ButtonVariant.FilledTonal,
+      applyWhen: variant === 'filledTonal',
       styles: [
         {
           'group-disabled:bg-on-surface/[0.12]': disabled,
@@ -192,7 +192,7 @@ export const Button = ({
       ],
     },
     {
-      applyWhen: variant === ButtonVariant.Outlined,
+      applyWhen: variant === 'outlined',
       styles: [
         {
           'group-state-primary  group-state-primary': !disabled,
@@ -200,7 +200,7 @@ export const Button = ({
       ],
     },
     {
-      applyWhen: variant === ButtonVariant.Text,
+      applyWhen: variant === 'text',
       styles: [
         {
           'group-state-primary': !disabled,
@@ -212,7 +212,7 @@ export const Button = ({
     iconClassName,
     'icon h-[18px] w-[18px]',
     {
-      applyWhen: variant === ButtonVariant.Elevated,
+      applyWhen: variant === 'elevated',
       styles: [
         {
           'text-primary': !disabled,
@@ -221,7 +221,7 @@ export const Button = ({
       ],
     },
     {
-      applyWhen: variant === ButtonVariant.Filled,
+      applyWhen: variant === 'filled',
       styles: [
         {
           'text-on-primary': !disabled,
@@ -230,7 +230,7 @@ export const Button = ({
       ],
     },
     {
-      applyWhen: variant === ButtonVariant.FilledTonal,
+      applyWhen: variant === 'filledTonal',
       styles: [
         {
           'text-on-secondary-container': !disabled,
@@ -239,7 +239,7 @@ export const Button = ({
       ],
     },
     {
-      applyWhen: variant === ButtonVariant.Outlined,
+      applyWhen: variant === 'outlined',
       styles: [
         {
           'text-primary': !disabled,
@@ -248,7 +248,7 @@ export const Button = ({
       ],
     },
     {
-      applyWhen: variant === ButtonVariant.Text,
+      applyWhen: variant === 'text',
       styles: [
         {
           'text-primary': !disabled,
@@ -261,7 +261,7 @@ export const Button = ({
     labelClassName,
     'label-text text-label-large',
     {
-      applyWhen: variant === ButtonVariant.Elevated,
+      applyWhen: variant === 'elevated',
       styles: [
         {
           'text-primary': !disabled,
@@ -270,7 +270,7 @@ export const Button = ({
       ],
     },
     {
-      applyWhen: variant === ButtonVariant.Filled,
+      applyWhen: variant === 'filled',
       styles: [
         {
           'text-on-primary': !disabled,
@@ -279,7 +279,7 @@ export const Button = ({
       ],
     },
     {
-      applyWhen: variant === ButtonVariant.FilledTonal,
+      applyWhen: variant === 'filledTonal',
       styles: [
         {
           'text-on-secondary-container': !disabled,
@@ -288,7 +288,7 @@ export const Button = ({
       ],
     },
     {
-      applyWhen: variant === ButtonVariant.Outlined,
+      applyWhen: variant === 'outlined',
       styles: [
         {
           'text-primary': !disabled,
@@ -297,7 +297,7 @@ export const Button = ({
       ],
     },
     {
-      applyWhen: variant === ButtonVariant.Text,
+      applyWhen: variant === 'text',
       styles: [
         {
           'text-primary': !disabled,
