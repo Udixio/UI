@@ -22,7 +22,15 @@ export type SwitchElement =
 export interface SwitchProps
   extends StyleProps<Omit<SwitchState, 'isSelected'>, SwitchElement>,
     Omit<SwitchState, 'isSelected'>,
-    Omit<React.HTMLAttributes<HTMLDivElement>, 'className' | 'onChange'> {
+    Omit<
+      React.HTMLAttributes<HTMLDivElement>,
+      | 'className'
+      | 'onChange'
+      | 'onAnimationStart'
+      | 'onDragStart'
+      | 'onDragEnd'
+      | 'onDrag'
+    > {
   onChange?: (checked: boolean) => void;
   selected: boolean;
 }
