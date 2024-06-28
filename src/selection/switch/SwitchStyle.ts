@@ -8,7 +8,7 @@ export const SwitchStyle: ClassNameComponent<SwitchState, SwitchElement> = ({
 }) => {
   return {
     switch: StylesHelper.classNames([
-      'group w-[52px] h-[32px] rounded-full  border-2 flex items-center',
+      'group w-[52px] h-[32px] outline-none rounded-full  border-2 flex items-center',
 
       { 'bg-on-surface/[0.12] border-transparent': disabled },
       {

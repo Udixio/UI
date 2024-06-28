@@ -40,14 +40,28 @@ export const Switch = forwardRef<HTMLDivElement, SwitchProps>((args, ref) => {
 
   const [isSelected, setIsSelected] = useState(selected);
 
-  const handleClick = (event: React.MouseEvent) => {
+  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (disabled) return;
-    setIsSelected(!isSelected);
-    onChange?.(!isSelected);
+    toggleSwitchState();
     if (args.onClick) {
-      // @ts-ignore
       args.onClick(event);
     }
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (disabled) return;
+    if (event.key === ' ' || event.key === 'Enter') {
+      event.preventDefault();
+      toggleSwitchState();
+    }
+    if (args.onKeyDown) {
+      args.onKeyDown(event);
+    }
+  };
+
+  const toggleSwitchState = () => {
+    setIsSelected(!isSelected);
+    onChange?.(!isSelected);
   };
 
   const getClassNames = (() => {
@@ -69,11 +83,16 @@ export const Switch = forwardRef<HTMLDivElement, SwitchProps>((args, ref) => {
 
   return (
     <motion.div
+      role="switch"
+      aria-checked={isSelected}
+      tabIndex={disabled ? -1 : 0}
+      onKeyDown={handleKeyDown}
       onClick={handleClick}
       ref={resolvedRef}
       className={getClassNames.switch}
       {...restProps}
     >
+      <input type="hidden" value={isSelected ? '1' : '0'} />
       <motion.div
         layout
         style={{ translate: isSelected ? '50%' : '-50%' }}
@@ -88,7 +107,7 @@ export const Switch = forwardRef<HTMLDivElement, SwitchProps>((args, ref) => {
           {(isSelected ? activeIcon : inactiveIcon) && (
             <Icon
               className={getClassNames.icon}
-              icon={isSelected ? activeIcon : inactiveIcon}
+              icon={isSelected ? activeIcon! : inactiveIcon!}
             ></Icon>
           )}
         </div>
