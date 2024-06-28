@@ -1,3 +1,10 @@
+# [1.0.0-beta.54](https://github.com/Udixio/UI/compare/v1.0.0-beta.53...v1.0.0-beta.54) (2024-06-17)
+
+
+### Bug Fixes
+
+* remove margin top from slider ([102f5e9](https://github.com/Udixio/UI/commit/102f5e9c5a87976158a717bb107a38220776954d))
+
 # [1.0.0-beta.53](https://github.com/Udixio/UI/compare/v1.0.0-beta.52...v1.0.0-beta.53) (2024-06-17)
 
 
