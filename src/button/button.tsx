@@ -76,6 +76,8 @@ export interface ButtonProps extends React.HTMLAttributes<HTMLElement> {
    * Optional class name for the state layer in the button.
    */
   stateClassName?: string;
+
+  iconPosition?: 'left' | 'right';
 }
 
 /**
@@ -95,6 +97,7 @@ export const Button = ({
   iconClassName,
   labelClassName,
   stateClassName,
+  iconPosition = 'left',
   ...restProps // Ici
 }: ButtonProps) => {
   // Détermine le type de l'élément à rendre : un bouton ou un lien
@@ -123,8 +126,8 @@ export const Button = ({
 
   const getButtonClass = StylesHelper.classNames([
     className,
-    'button group relative outline-none overflow-hidden rounded-full inline-block flex gap-2 justify-center rounded-full  items-center px-6 py-2.5 ',
-    { '-mx-6 -my-2.5': variant === 'text' },
+    'button group relative outline-none py-2.5 overflow-hidden rounded-full inline-block flex gap-2 justify-center rounded-full  items-center  ',
+
     {
       applyWhen: variant === 'elevated',
       styles: [
@@ -157,6 +160,27 @@ export const Button = ({
           'border-on-surface/[0.12]': disabled,
           ' border-outline focus:border-primary': !disabled,
         },
+      ],
+    },
+    {
+      applyWhen: variant === 'text',
+      styles: [
+        '-my-2.5',
+        { 'px-3': !icon },
+        { 'pl-3 -ml-3 pr-4 -mr-4': icon && iconPosition == 'left' },
+        { 'pl-4 -ml-4 pr-3 -mr-3': icon && iconPosition == 'right' },
+        {
+          'text-primary': !disabled,
+          'group-disabled:text-on-surface/[0.38]': disabled,
+        },
+      ],
+    },
+    {
+      applyWhen: variant !== 'text',
+      styles: [
+        { 'px-6': !icon },
+        { 'pl-4 pr-6': icon && iconPosition == 'left' },
+        { 'pl-6 pr-3': icon && iconPosition == 'right' },
       ],
     },
   ]);
@@ -307,6 +331,12 @@ export const Button = ({
     },
   ]);
 
+  const iconElement = icon ? (
+    <Icon icon={icon} className={getIconClass} />
+  ) : (
+    <></>
+  );
+
   return (
     <ElementType
       disabled={disabled}
@@ -318,8 +348,9 @@ export const Button = ({
       {...restProps}
     >
       <span className={getStateLayerClass}></span>
-      {icon && <Icon icon={icon} className={getIconClass} />}
+      {iconPosition === 'left' && iconElement}
       <span className={getLabelTextClass}>{label}</span>
+      {iconPosition === 'right' && iconElement}
     </ElementType>
   );
 };
