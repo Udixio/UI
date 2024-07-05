@@ -25,7 +25,7 @@ export const cardStyle: ClassNameComponent<CardState, CardElement> = ({
     },
   ]),
   stateLayer: StylesHelper.classNames([
-    'state-layer w-full h-full absolute -z-10',
+    'state-layer w-full top-0 left-0 h-full absolute -z-10',
     {
       ' group-hover:hover-state-on-surface group-focus-visible:focus-state-on-surface':
         isInteractive,
