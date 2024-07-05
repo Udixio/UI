@@ -1,4 +1,4 @@
-import React, { ReactNode, useRef } from 'react';
+import React, { forwardRef, ReactNode, useRef } from 'react';
 import { StyleProps, StylesHelper } from '../../utils';
 import { cardStyle } from './CardStyle';
 import { RippleEffect } from '../../effects/ripple';
@@ -19,7 +19,7 @@ export interface CardProps
   children?: ReactNode;
 }
 
-export const Card = React.forwardRef<HTMLDivElement, CardProps>(
+export const Card = forwardRef<HTMLDivElement, CardProps>(
   (
     {
       variant = 'outlined',
@@ -41,11 +41,11 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
       });
     })();
 
-    const defaultRef = useRef();
+    const defaultRef = useRef<HTMLDivElement>(null);
     const resolvedRef = ref || defaultRef;
 
     return (
-      <div ref={resolvedRef} className={getClassNames.card} {...rest}>
+      <div {...rest} ref={resolvedRef} className={getClassNames.card}>
         <div className={getClassNames.stateLayer}>
           {isInteractive && (
             <RippleEffect colorName={'on-surface'} triggerRef={resolvedRef} />
