@@ -1,3 +1,10 @@
+# [1.0.0-beta.56](https://github.com/Udixio/UI/compare/v1.0.0-beta.55...v1.0.0-beta.56) (2024-07-05)
+
+
+### Features
+
+* improve interactivity and accessibility of Card and Fab components ([06ce822](https://github.com/Udixio/UI/commit/06ce82273b90c31a183c48b547300a739d3a7a1a))
+
 # [1.0.0-beta.55](https://github.com/Udixio/UI/compare/v1.0.0-beta.54...v1.0.0-beta.55) (2024-06-28)
 
 
