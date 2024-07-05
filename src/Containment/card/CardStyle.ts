@@ -6,7 +6,7 @@ export const cardStyle: ClassNameComponent<CardState, CardElement> = ({
   variant,
 }) => ({
   card: StylesHelper.classNames([
-    'card group rounded-xl overflow-hidden z-10',
+    'card group/card rounded-xl overflow-hidden z-10',
     {
       applyWhen: variant === 'outlined',
       styles: 'bg-surface',
@@ -27,7 +27,7 @@ export const cardStyle: ClassNameComponent<CardState, CardElement> = ({
   stateLayer: StylesHelper.classNames([
     'state-layer w-full top-0 left-0 h-full absolute -z-10',
     {
-      ' group-hover:hover-state-on-surface group-focus-visible:focus-state-on-surface':
+      ' group-hover/card:hover-state-on-surface group-focus-visible/card:focus-state-on-surface':
         isInteractive,
     },
   ]),
