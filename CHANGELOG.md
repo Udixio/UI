@@ -1,3 +1,18 @@
+# [1.0.0-beta.55](https://github.com/Udixio/UI/compare/v1.0.0-beta.54...v1.0.0-beta.55) (2024-06-28)
+
+
+### Bug Fixes
+
+* add switch component base ([062681c](https://github.com/Udixio/UI/commit/062681c093458c39881aaa8535de5eb3a57cb6cc))
+* the text variant button must not have padding ([3aaf88f](https://github.com/Udixio/UI/commit/3aaf88fb135941fd0b20fd7bebd71ae886ff5486))
+
+
+### Features
+
+* add icon position property to Button component ([f1b5931](https://github.com/Udixio/UI/commit/f1b5931c0b85f198283b56956ba6b014e1277fee))
+* enhance accessibility of Switch component ([1887483](https://github.com/Udixio/UI/commit/18874830d4a039d7276f9d3183213acfb72be4f5))
+* enhance accessibility of Switch component ([368f8b8](https://github.com/Udixio/UI/commit/368f8b827e2eccc52786650e9dc2d8615c9469ee))
+
 # [1.0.0-beta.54](https://github.com/Udixio/UI/compare/v1.0.0-beta.53...v1.0.0-beta.54) (2024-06-17)
 
 
