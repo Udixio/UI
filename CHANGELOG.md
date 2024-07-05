@@ -1,3 +1,10 @@
+# [1.0.0-beta.57](https://github.com/Udixio/UI/compare/v1.0.0-beta.56...v1.0.0-beta.57) (2024-07-05)
+
+
+### Bug Fixes
+
+* update CardStyle for better interactivity ([1d759b9](https://github.com/Udixio/UI/commit/1d759b90cb55c2b82a8b083333c16e9975ad1f93))
+
 # [1.0.0-beta.56](https://github.com/Udixio/UI/compare/v1.0.0-beta.55...v1.0.0-beta.56) (2024-07-05)
 
 
