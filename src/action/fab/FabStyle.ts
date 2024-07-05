@@ -37,19 +37,19 @@ export const fabStyle: ClassNameComponent<FabState, FabElement> = ({
     {
       applyWhen: variant === 'primary',
       styles: [
-        'group-hover:hover-state-on-primary-container group-focus:focus-state-on-primary-container',
+        'group-hover:hover-state-on-primary-container group-focus-visible:focus-state-on-primary-container',
       ],
     },
     {
       applyWhen: variant === 'secondary',
       styles: [
-        'group-hover:hover-state-on-secondary-container group-focus:focus-state-on-secondary-container',
+        'group-hover:hover-state-on-secondary-container group-focus-visible:focus-state-on-secondary-container',
       ],
     },
     {
       applyWhen: variant === 'tertiary',
       styles: [
-        'group-hover:hover-state-on-tertiary-container group-focus:focus-state-on-tertiary-container',
+        'group-hover:hover-state-on-tertiary-container group-focus-visible:focus-state-on-tertiary-container',
       ],
     },
   ]),

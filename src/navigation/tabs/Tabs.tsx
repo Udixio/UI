@@ -113,6 +113,7 @@ export const Tabs = ({
 
   return (
     <div
+      role="tablist"
       className={classnames(
         className,
         'border-b border-surface-container-highest',

@@ -91,7 +91,6 @@ export const Fab = forwardRef<HTMLButtonElement | HTMLAnchorElement, FabProps>(
     return (
       <ElementType
         {...restProps}
-        role="fab"
         ref={resolvedRef}
         href={href}
         title={title}
