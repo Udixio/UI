@@ -1,11 +1,4 @@
-import React, {
-  forwardRef,
-  ForwardRefExoticComponent,
-  SetStateAction,
-  useEffect,
-  useMemo,
-  useRef,
-} from 'react';
+import React, { forwardRef, useEffect, useMemo, useRef } from 'react';
 
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { TabsVariant } from './Tabs';
@@ -24,12 +17,8 @@ export interface TabState {
   onClick?: (e: React.MouseEvent<HTMLElement>) => void;
   type?: 'button' | 'submit' | 'reset' | undefined;
   icon?: IconDefinition;
-  selectedTab?: React.ForwardRefExoticComponent<
-    HTMLButtonElement | HTMLAnchorElement
-  > | null;
-  setSelectedTab?: SetStateAction<ForwardRefExoticComponent<
-    HTMLButtonElement | HTMLAnchorElement
-  > | null>;
+  selectedTab?: number | null;
+  setSelectedTab?: React.Dispatch<React.SetStateAction<number | null>>;
   tabsId?: string;
   onTabSelected?: (
     args: { index: number } & Pick<TabProps, 'label' | 'icon'>
@@ -74,20 +63,21 @@ export const Tab = forwardRef<HTMLButtonElement | HTMLAnchorElement, TabProps>(
 
     const selected =
       useMemo(
-        () => selectedTab === resolvedRef || (!setSelectedTab && args.selected),
-        [selectedTab, resolvedRef]
+        () =>
+          (selectedTab === tabIndex && tabIndex != null) ||
+          (!setSelectedTab && args.selected),
+        [selectedTab]
       ) ?? false;
 
     useEffect(() => {
       if (setSelectedTab)
         if (args.selected && selectedTab == null) {
-          // @ts-ignore
-          setSelectedTab(resolvedRef);
+          setSelectedTab(tabIndex!);
         }
-    }, [args.selected, resolvedRef]);
+    }, [args.selected]);
 
     useEffect(() => {
-      if (selectedTab == resolvedRef && onTabSelected) {
+      if (selectedTab == tabIndex && onTabSelected) {
         onTabSelected({
           index: tabIndex || 0,
           label,
@@ -106,8 +96,7 @@ export const Tab = forwardRef<HTMLButtonElement | HTMLAnchorElement, TabProps>(
 
     const handleClick = (e: React.MouseEvent<HTMLElement>) => {
       if (setSelectedTab) {
-        // @ts-ignore
-        setSelectedTab(resolvedRef);
+        setSelectedTab(tabIndex!);
       }
       if (onClick) {
         onClick(e);

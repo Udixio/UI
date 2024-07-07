@@ -1,10 +1,4 @@
-import React, {
-  ForwardRefExoticComponent,
-  ReactNode,
-  SetStateAction,
-  useMemo,
-  useState,
-} from 'react';
+import React, { ReactNode, SetStateAction, useMemo, useState } from 'react';
 import { Tab, TabProps } from './Tab';
 import classnames from 'classnames';
 import { v4 as uuidv4 } from 'uuid';
@@ -18,12 +12,8 @@ export interface TabsProps {
   ) => void;
   children: ReactNode;
   stateVariant?: 'fit' | 'full';
-  selectedTab?: React.ForwardRefExoticComponent<
-    HTMLButtonElement | HTMLAnchorElement
-  > | null;
-  setSelectedTab?: SetStateAction<ForwardRefExoticComponent<
-    HTMLButtonElement | HTMLAnchorElement
-  > | null>;
+  selectedTab?: number | null;
+  setSelectedTab?: SetStateAction<number | null>;
   className?: string;
   scrollable?: boolean;
 }
@@ -37,7 +27,9 @@ export const Tabs = ({
   setSelectedTab: externalSetSelectedTab,
   scrollable,
 }: TabsProps) => {
-  const [internalSelectedTab, internalSetSelectedTab] = useState(null);
+  const [internalSelectedTab, internalSetSelectedTab] = useState<number | null>(
+    null
+  );
 
   const selectedTab = externalSelectedTab || internalSelectedTab;
   const setSelectedTab = externalSetSelectedTab || internalSetSelectedTab;
