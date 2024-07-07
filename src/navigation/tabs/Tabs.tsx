@@ -1,4 +1,10 @@
-import React, { ReactNode, SetStateAction, useMemo, useState } from 'react';
+import React, {
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useMemo,
+  useState,
+} from 'react';
 import { Tab, TabProps } from './Tab';
 import classnames from 'classnames';
 import { v4 as uuidv4 } from 'uuid';
@@ -13,7 +19,7 @@ export interface TabsProps {
   children: ReactNode;
   stateVariant?: 'fit' | 'full';
   selectedTab?: number | null;
-  setSelectedTab?: SetStateAction<number | null>;
+  setSelectedTab?: Dispatch<SetStateAction<number | null>>;
   className?: string;
   scrollable?: boolean;
 }
@@ -31,7 +37,13 @@ export const Tabs = ({
     null
   );
 
-  const selectedTab = externalSelectedTab || internalSelectedTab;
+  let selectedTab: number | null;
+  if (externalSelectedTab == 0 || externalSelectedTab != undefined) {
+    selectedTab = externalSelectedTab;
+  } else {
+    selectedTab = internalSelectedTab;
+  }
+
   const setSelectedTab = externalSetSelectedTab || internalSetSelectedTab;
 
   const tabChildren = React.Children.toArray(children).filter(
