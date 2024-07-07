@@ -1,12 +1,12 @@
-import React, { forwardRef, useEffect, useMemo, useRef } from 'react';
-
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { TabsVariant } from './Tabs';
-import { StyleProps, StylesHelper } from '../../utils';
-import { Icon } from '../../icon';
-import { tabStyle } from './TabStyle';
-import RippleEffect from '../../effects/ripple/RippleEffect';
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { motion } from 'framer-motion';
+import React, { forwardRef, useEffect, useRef, useState } from 'react';
+
+import type { TabsVariant } from './Tabs';
+import { tabStyle } from './TabStyle';
+import { Icon } from '../../icon';
+import { RippleEffect } from '../../effects/ripple';
+import { StyleProps, StylesHelper } from '../../utils';
 
 export interface TabState {
   selected: boolean;
@@ -50,8 +50,8 @@ export const Tab = forwardRef<HTMLButtonElement | HTMLAnchorElement, TabProps>(
       title,
       type,
       icon,
-      setSelectedTab,
       selectedTab,
+      setSelectedTab,
       tabsId,
       tabIndex,
       onTabSelected,
@@ -61,20 +61,15 @@ export const Tab = forwardRef<HTMLButtonElement | HTMLAnchorElement, TabProps>(
     const defaultRef = useRef();
     const resolvedRef = ref || defaultRef;
 
-    const selected =
-      useMemo(
-        () =>
-          (selectedTab === tabIndex && tabIndex != null) ||
-          (!setSelectedTab && args.selected),
-        [selectedTab]
-      ) ?? false;
+    const [selected, setSelected] = useState(args.selected);
 
     useEffect(() => {
-      if (setSelectedTab)
-        if (args.selected && selectedTab == null) {
-          setSelectedTab(tabIndex!);
-        }
-    }, [args.selected]);
+      if (args.selected && selectedTab == null) {
+        setSelected(true);
+      } else {
+        setSelected(selectedTab == tabIndex && tabIndex != null);
+      }
+    }, [selectedTab]);
 
     useEffect(() => {
       if (selectedTab == tabIndex && onTabSelected) {
@@ -113,7 +108,7 @@ export const Tab = forwardRef<HTMLButtonElement | HTMLAnchorElement, TabProps>(
         default: 'tab',
         classNameList: [className, tabStyle],
         states: {
-          selected,
+          selected: selected ?? false,
           variant,
           icon,
           href,
@@ -124,6 +119,7 @@ export const Tab = forwardRef<HTMLButtonElement | HTMLAnchorElement, TabProps>(
         },
       });
     })();
+
     return (
       <ElementType
         {...restProps}
