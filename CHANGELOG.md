@@ -1,3 +1,10 @@
+# [1.0.0-beta.58](https://github.com/Udixio/UI/compare/v1.0.0-beta.57...v1.0.0-beta.58) (2024-07-05)
+
+
+### Bug Fixes
+
+* update card CSS class and hover state ([1df2735](https://github.com/Udixio/UI/commit/1df2735638b080b4ce5e4aaa57ba1606c8ca012b))
+
 # [1.0.0-beta.57](https://github.com/Udixio/UI/compare/v1.0.0-beta.56...v1.0.0-beta.57) (2024-07-05)
 
 
