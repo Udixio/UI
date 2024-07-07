@@ -1,3 +1,10 @@
+# [1.0.0-beta.60](https://github.com/Udixio/UI/compare/v1.0.0-beta.59...v1.0.0-beta.60) (2024-07-07)
+
+
+### Features
+
+* refactor tab selection logic in navigation ([af4397b](https://github.com/Udixio/UI/commit/af4397b21991d211a6c866f41735941ef0ecf88f))
+
 # [1.0.0-beta.59](https://github.com/Udixio/UI/compare/v1.0.0-beta.58...v1.0.0-beta.59) (2024-07-07)
 
 
