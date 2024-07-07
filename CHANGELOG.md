@@ -1,3 +1,10 @@
+# [1.0.0-beta.62](https://github.com/Udixio/UI/compare/v1.0.0-beta.61...v1.0.0-beta.62) (2024-07-07)
+
+
+### Bug Fixes
+
+* the tab selected by default was not displayed ([4980fc3](https://github.com/Udixio/UI/commit/4980fc3728880068527cca33fb26b02723f45021))
+
 # [1.0.0-beta.61](https://github.com/Udixio/UI/compare/v1.0.0-beta.60...v1.0.0-beta.61) (2024-07-07)
 
 
