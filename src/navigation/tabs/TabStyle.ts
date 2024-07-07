@@ -5,11 +5,11 @@ export const tabStyle: ClassNameComponent<TabState, TabElement> = ({
   label,
   icon,
   variant,
-  selected,
-  stateVariant,
+  selected = false,
 }) => ({
   tab: StylesHelper.classNames([
-    'bg-surface flex-1 group overflow-hidden flex px-4 justify-center items-center',
+    'bg-surface flex-1 group outline-none flex px-4 justify-center items-center',
+    { 'z-10': selected },
     {
       applyWhen: Boolean(icon && label) && variant === 'primary',
       styles: ['h-16'],
@@ -22,26 +22,27 @@ export const tabStyle: ClassNameComponent<TabState, TabElement> = ({
   stateLayer: StylesHelper.classNames([
     'absolute w-full h-full overflow-hidden left-1/2 top-1/2 transform -translate-y-1/2 -translate-x-1/2',
     {
-      'box-content px-5 py-1 rounded-full': stateVariant == 'fit',
-    },
-    {
       applyWhen: variant === 'primary',
       styles: [
         {
-          'group-hover:hover-state-on-surface': !selected,
-          'group-hover:hover-state-primary': selected,
+          'group-hover:hover-state-on-surface group-focus-visible:focus-state-on-surface':
+            !selected,
+          'group-hover:hover-state-primary group-focus-visible:focus-state-primary':
+            selected,
         },
       ],
     },
     {
       applyWhen: variant === 'secondary',
-      styles: ['group-hover:hover-state-on-surface'],
+      styles: [
+        'group-hover:hover-state-on-surface group-focus-visible:focus-state-on-surface',
+      ],
     },
   ]),
   content: StylesHelper.classNames([
-    'flex  gap-0.5',
+    'flex  gap-0.5 h-full justify-center',
     {
-      relative: stateVariant == 'fit' && !(icon && variant == 'primary'),
+      relative: variant == 'primary',
     },
     {
       '': Boolean(label && !icon),
@@ -55,7 +56,7 @@ export const tabStyle: ClassNameComponent<TabState, TabElement> = ({
       styles: [
         {
           'flex-col items-center': Boolean(!(label && icon)),
-          'flex-row items-end gap-2': Boolean(label && icon),
+          'flex-row items-center gap-2': Boolean(label && icon),
         },
       ],
     },
@@ -100,6 +101,17 @@ export const tabStyle: ClassNameComponent<TabState, TabElement> = ({
           'text-on-surface': selected,
         },
       ],
+    },
+  ]),
+  underline: StylesHelper.classNames([
+    'underline bg-primary  absolute w-full left-0 bottom-0',
+    {
+      applyWhen: variant === 'primary',
+      styles: ['h-[3px] rounded-t'],
+    },
+    {
+      applyWhen: variant === 'secondary',
+      styles: ['h-0.5'],
     },
   ]),
 });

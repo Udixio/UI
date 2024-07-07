@@ -29,7 +29,7 @@ const createTabStory = (variant: TabsVariant, args?: Partial<TabProps>) => {
     <div className="">
       <div className="flex m-4 gap-4 items-center">
         <Tab {...args} />
-        <Tab {...args} selected={true} />
+        <Tab {...args} selected />
       </div>
     </div>
   );

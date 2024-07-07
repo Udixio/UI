@@ -1,12 +1,19 @@
-import React, { forwardRef, useContext, useEffect, useMemo } from 'react';
+import React, {
+  forwardRef,
+  ForwardRefExoticComponent,
+  SetStateAction,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { TabContext, TabsVariant } from './Tabs';
+import { TabsVariant } from './Tabs';
 import { StyleProps, StylesHelper } from '../../utils';
 import { Icon } from '../../icon';
 import { tabStyle } from './TabStyle';
 import RippleEffect from '../../effects/ripple/RippleEffect';
-import classnames from 'classnames';
+import { motion } from 'framer-motion';
 
 export interface TabState {
   selected: boolean;
@@ -17,10 +24,26 @@ export interface TabState {
   onClick?: (e: React.MouseEvent<HTMLElement>) => void;
   type?: 'button' | 'submit' | 'reset' | undefined;
   icon?: IconDefinition;
-  stateVariant: 'fit' | 'full';
+  selectedTab?: React.ForwardRefExoticComponent<
+    HTMLButtonElement | HTMLAnchorElement
+  > | null;
+  setSelectedTab?: SetStateAction<ForwardRefExoticComponent<
+    HTMLButtonElement | HTMLAnchorElement
+  > | null>;
+  tabsId?: string;
+  onTabSelected?: (
+    args: { index: number } & Pick<TabProps, 'label' | 'icon'>
+  ) => void;
+  tabIndex?: number;
 }
 
-export type TabElement = 'tab' | 'stateLayer' | 'icon' | 'label' | 'content';
+export type TabElement =
+  | 'tab'
+  | 'stateLayer'
+  | 'icon'
+  | 'label'
+  | 'content'
+  | 'underline';
 
 export interface TabProps
   extends StyleProps<TabState, TabElement>,
@@ -32,23 +55,45 @@ export const Tab = forwardRef<HTMLButtonElement | HTMLAnchorElement, TabProps>(
       className,
       onClick,
       label,
-      stateVariant = 'full',
       variant = 'primary',
       href,
       title,
       type,
       icon,
+      setSelectedTab,
+      selectedTab,
+      tabsId,
+      tabIndex,
+      onTabSelected,
       ...restProps
     }: TabProps = args;
-    const { setSelectedTab, selectedTab } = useContext(TabContext);
-    const selected = useMemo(() => selectedTab === ref, [selectedTab, ref]);
+
+    const defaultRef = useRef();
+    const resolvedRef = ref || defaultRef;
+
+    const selected =
+      useMemo(
+        () => selectedTab === resolvedRef || (!setSelectedTab && args.selected),
+        [selectedTab, resolvedRef]
+      ) ?? false;
 
     useEffect(() => {
-      if (args.selected && ref)
-        if (setSelectedTab) {
-          setSelectedTab(ref);
+      if (setSelectedTab)
+        if (args.selected && selectedTab == null) {
+          // @ts-ignore
+          setSelectedTab(resolvedRef);
         }
-    }, [args.selected, ref]);
+    }, [args.selected, resolvedRef]);
+
+    useEffect(() => {
+      if (selectedTab == resolvedRef && onTabSelected) {
+        onTabSelected({
+          index: tabIndex || 0,
+          label,
+          icon,
+        });
+      }
+    }, [selectedTab]);
 
     const ElementType = href ? 'a' : 'button';
 
@@ -60,7 +105,8 @@ export const Tab = forwardRef<HTMLButtonElement | HTMLAnchorElement, TabProps>(
 
     const handleClick = (e: React.MouseEvent<HTMLElement>) => {
       if (setSelectedTab) {
-        setSelectedTab(ref);
+        // @ts-ignore
+        setSelectedTab(resolvedRef);
       }
       if (onClick) {
         onClick(e);
@@ -85,17 +131,15 @@ export const Tab = forwardRef<HTMLButtonElement | HTMLAnchorElement, TabProps>(
           label,
           onClick,
           type,
-          stateVariant,
         },
       });
     })();
-
     return (
       <ElementType
         {...restProps}
         role="tab"
         aria-selected={selected}
-        ref={ref}
+        ref={resolvedRef}
         href={href}
         title={title}
         className={getClassNames.tab}
@@ -103,23 +147,24 @@ export const Tab = forwardRef<HTMLButtonElement | HTMLAnchorElement, TabProps>(
         {...buttonProps}
         {...linkProps}
       >
+        <span className={getClassNames.stateLayer}>
+          <RippleEffect
+            colorName={
+              variant === 'primary' && selected ? 'primary' : 'on-surface'
+            }
+            triggerRef={resolvedRef}
+          />
+        </span>
         <span className={getClassNames.content}>
-          <span
-            className={classnames('flex', {
-              relative: stateVariant == 'fit' && icon && variant == 'primary',
-            })}
-          >
-            <span className={getClassNames.stateLayer}>
-              <RippleEffect
-                colorName={
-                  variant === 'primary' && selected ? 'primary' : 'on-surface'
-                }
-                triggerRef={ref}
-              />
-            </span>
-            {icon && <Icon icon={icon} className={getClassNames.icon} />}
-          </span>
+          {icon && <Icon icon={icon} className={getClassNames.icon} />}
           <span className={getClassNames.label}>{label}</span>
+          {selected && (
+            <motion.span
+              layoutId={`underline-${tabsId}`}
+              className={getClassNames.underline}
+              transition={{ duration: 0.3 }}
+            />
+          )}
         </span>
       </ElementType>
     );

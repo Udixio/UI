@@ -30,7 +30,12 @@ type Story = StoryObj<typeof meta>;
 const createTabStory = (variant?: TabsVariant, args?: Partial<TabsProps>) => {
   const tabStory: Story = (args: TabsProps) => (
     <div className="w-full">
-      <Tabs {...args}>{args.children.map((child) => child)}</Tabs>
+      <Tabs {...args} onTabSelected={(tab) => console.log(tab)}>
+        {
+          // @ts-ignore
+          args.children.map((child) => child)
+        }
+      </Tabs>
     </div>
   );
 
