@@ -1,6 +1,6 @@
 {
   "name": "@udixio/ui",
-  "version": "1.0.0-beta.58",
+  "version": "1.0.0-beta.59",
   "license": "MIT",
   "author": "Joël",
   "main": "dist/index.js",

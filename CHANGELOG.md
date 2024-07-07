@@ -1,3 +1,11 @@
+# [1.0.0-beta.59](https://github.com/Udixio/UI/compare/v1.0.0-beta.58...v1.0.0-beta.59) (2024-07-07)
+
+
+### Features
+
+* add scrollable feature to navigation tabs ([1a1f06e](https://github.com/Udixio/UI/commit/1a1f06ed457a6d1ccc1735c574bf2130552e9b44))
+* update Tab component and dependencies ([a9cfaae](https://github.com/Udixio/UI/commit/a9cfaae3f9efd50109832234fd1390a19bb58383))
+
 # [1.0.0-beta.58](https://github.com/Udixio/UI/compare/v1.0.0-beta.57...v1.0.0-beta.58) (2024-07-05)
 
 
