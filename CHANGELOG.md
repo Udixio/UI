@@ -1,3 +1,10 @@
+# [1.0.0-beta.61](https://github.com/Udixio/UI/compare/v1.0.0-beta.60...v1.0.0-beta.61) (2024-07-07)
+
+
+### Bug Fixes
+
+* tab index should not be considered as null when it equals 0 ([5cdf26f](https://github.com/Udixio/UI/commit/5cdf26fe15032736aa63bafb906c5889451acad7))
+
 # [1.0.0-beta.60](https://github.com/Udixio/UI/compare/v1.0.0-beta.59...v1.0.0-beta.60) (2024-07-07)
 
 
