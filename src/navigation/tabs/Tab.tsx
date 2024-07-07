@@ -35,6 +35,7 @@ export interface TabState {
     args: { index: number } & Pick<TabProps, 'label' | 'icon'>
   ) => void;
   tabIndex?: number;
+  scrollable?: boolean;
 }
 
 export type TabElement =

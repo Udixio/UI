@@ -6,6 +6,7 @@ const { colors, plugins, fontFamily } = createTheme({
     primary: '#6750A4',
   },
   darkMode: 'class',
+  responsiveBreakPoints: {},
 });
 
 const config: Config = {

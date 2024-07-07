@@ -25,6 +25,7 @@ export interface TabsProps {
     HTMLButtonElement | HTMLAnchorElement
   > | null>;
   className?: string;
+  scrollable?: boolean;
 }
 
 export const Tabs = ({
@@ -34,6 +35,7 @@ export const Tabs = ({
   className,
   selectedTab: externalSelectedTab,
   setSelectedTab: externalSetSelectedTab,
+  scrollable,
 }: TabsProps) => {
   const [internalSelectedTab, internalSetSelectedTab] = useState(null);
 
@@ -51,7 +53,7 @@ export const Tabs = ({
       className={classnames(
         className,
         'border-b border-surface-container-highest',
-        'flex relative'
+        'flex relative overflow-x-auto'
       )}
     >
       {tabChildren.map((child, index) => {
@@ -63,6 +65,7 @@ export const Tabs = ({
           setSelectedTab: setSelectedTab,
           tabsId: tabsId,
           onTabSelected: onTabSelected,
+          scrollable,
         });
       })}
     </div>
