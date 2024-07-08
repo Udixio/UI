@@ -21,7 +21,9 @@ export interface TabState {
   setSelectedTab?: React.Dispatch<React.SetStateAction<number | null>>;
   tabsId?: string;
   onTabSelected?: (
-    args: { index: number } & Pick<TabProps, 'label' | 'icon'>
+    args: { index: number } & Pick<TabProps, 'label' | 'icon'> & {
+        ref: React.MutableRefObject<any>;
+      }
   ) => void;
   tabIndex?: number;
   scrollable?: boolean;
@@ -74,6 +76,7 @@ export const Tab = forwardRef<HTMLButtonElement | HTMLAnchorElement, TabProps>(
     useEffect(() => {
       if (selectedTab == tabIndex && onTabSelected) {
         onTabSelected({
+          ref: resolvedRef as any,
           index: tabIndex || 0,
           label,
           icon,

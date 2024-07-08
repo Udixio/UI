@@ -3,6 +3,7 @@ import React, {
   ReactNode,
   SetStateAction,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { Tab, TabProps } from './Tab';
@@ -50,14 +51,34 @@ export const Tabs = ({
     (child) => React.isValidElement(child) && child.type === Tab
   );
 
+  const ref = useRef();
+
+  const handleOnTabSelected = (args) => {
+    onTabSelected?.(args);
+
+    if (scrollable) {
+      const tabs: HTMLElement = ref.current!;
+      const tabSelected: HTMLElement = args.ref.current;
+      if (tabs && tabSelected) {
+        const scrollLeft =
+          tabSelected.offsetLeft +
+          tabSelected.offsetWidth / 2 -
+          tabs.offsetWidth / 2;
+        tabs.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+      }
+    }
+  };
+
   const tabsId = useMemo(() => uuidv4(), []);
   return (
     <div
+      ref={ref}
       role="tablist"
       className={classnames(
         className,
         'border-b border-surface-container-highest',
-        'flex relative overflow-x-auto'
+        'flex relative ',
+        { 'overflow-x-auto': scrollable }
       )}
     >
       {tabChildren.map((child, index) => {
@@ -68,7 +89,7 @@ export const Tabs = ({
           selectedTab: selectedTab,
           setSelectedTab: setSelectedTab,
           tabsId: tabsId,
-          onTabSelected: onTabSelected,
+          onTabSelected: handleOnTabSelected,
           scrollable,
         });
       })}
