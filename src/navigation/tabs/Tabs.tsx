@@ -3,7 +3,6 @@ import React, {
   ReactNode,
   SetStateAction,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 import { Tab, TabProps } from './Tab';
@@ -15,7 +14,9 @@ export type TabsVariant = 'primary' | 'secondary';
 export interface TabsProps {
   variant?: TabsVariant;
   onTabSelected?: (
-    args: { index: number } & Pick<TabProps, 'label' | 'icon'>
+    args: { index: number } & Pick<TabProps, 'label' | 'icon'> & {
+        ref: React.MutableRefObject<any>;
+      }
   ) => void;
   children: ReactNode;
   stateVariant?: 'fit' | 'full';
@@ -51,9 +52,13 @@ export const Tabs = ({
     (child) => React.isValidElement(child) && child.type === Tab
   );
 
-  const ref = useRef();
+  const ref = React.useRef<HTMLDivElement | null>(null);
 
-  const handleOnTabSelected = (args) => {
+  const handleOnTabSelected = (
+    args: { index: number } & Pick<TabProps, 'label' | 'icon'> & {
+        ref: React.MutableRefObject<any>;
+      }
+  ) => {
     onTabSelected?.(args);
 
     if (scrollable) {
