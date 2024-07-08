@@ -1,3 +1,10 @@
+# [1.0.0-beta.63](https://github.com/Udixio/UI/compare/v1.0.0-beta.62...v1.0.0-beta.63) (2024-07-08)
+
+
+### Features
+
+* add ref to Tab event and implement scrolling ([129c762](https://github.com/Udixio/UI/commit/129c762405fcc2435ad30d44fa39cf3a6a18be1e))
+
 # [1.0.0-beta.62](https://github.com/Udixio/UI/compare/v1.0.0-beta.61...v1.0.0-beta.62) (2024-07-07)
 
 
