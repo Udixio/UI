@@ -78,7 +78,7 @@ export const fabStyle: ClassNameComponent<FabState, FabElement> = ({
   ]),
 
   label: StylesHelper.classNames([
-    'text-label-large',
+    'text-label-large text-nowrap',
     {
       applyWhen: variant === 'surface',
       styles: ['text-primary'],
