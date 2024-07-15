@@ -1,3 +1,10 @@
+# [1.0.0-beta.64](https://github.com/Udixio/UI/compare/v1.0.0-beta.63...v1.0.0-beta.64) (2024-07-09)
+
+
+### Bug Fixes
+
+* add 'text-nowrap' class to FabStyle label ([be1de82](https://github.com/Udixio/UI/commit/be1de82fc44e19ea9a390f37fd9da1e74078d91e))
+
 # [1.0.0-beta.63](https://github.com/Udixio/UI/compare/v1.0.0-beta.62...v1.0.0-beta.63) (2024-07-08)
 
 
