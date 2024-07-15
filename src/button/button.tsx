@@ -198,7 +198,7 @@ export const Button = ({
       ],
     },
     {
-      applyWhen: variant === 'elevated',
+      applyWhen: variant === 'filled',
       styles: [
         {
           'group-disabled:bg-on-surface/[0.12]': disabled,
