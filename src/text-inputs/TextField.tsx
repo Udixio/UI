@@ -1,59 +1,81 @@
-import { StylesHelper } from '../utils';
-import React, { useEffect, useState } from 'react';
+import { StyleProps, StylesHelper } from '../utils';
+import React, { forwardRef, useEffect, useState } from 'react';
 import { IconButton } from '../button';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { Icon } from '../icon';
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { TextFieldStyle } from './TextFieldStyle';
 
 export type TextFieldVariant = 'filled' | 'outlined';
 
-export interface TextFieldProps {
-  variant?: TextFieldVariant;
-  placeholder: string;
-  value?: string;
+export interface TextFieldInternalState {
+  isFocused: boolean;
+  showErrorIcon: boolean;
+  showSupportingText: boolean;
+}
+export interface TextFieldDefaultProps {
+  value: string;
+  variant: TextFieldVariant;
+  type: 'text' | 'password' | 'number';
+  autoComplete: 'on' | 'off' | string;
+}
+export interface TextFieldExternalProps {
+  placeholder?: string;
   name: string;
   label: string;
-  enabled?: boolean;
-  className?: string;
-  contentClassName?: string;
-  inputClassName?: string;
-  labelClassName?: string;
-  activeIndicatorClassName?: string;
-  supportingTextClassName?: string;
+  disabled?: boolean;
   errorText?: string;
   supportingText?: string;
-  trailingIconClassName?: string;
   trailingIcon?: React.ReactElement<typeof IconButton> | IconDefinition;
-  leadingIconClassName?: string;
   leadingIcon?: React.ReactElement<typeof IconButton> | IconDefinition;
-  type: 'text' | 'password' | 'number';
   onChange?: (value: string) => void;
   showSupportingText?: boolean;
-  autoComplete?: 'on' | 'off' | string; // add this line
-  suffixClassName?: string;
   suffix?: string;
 }
 
-export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
+export type TextFieldElement =
+  | 'textField'
+  | 'content'
+  | 'label'
+  | 'input'
+  | 'activeIndicator'
+  | 'supportingText'
+  | 'leadingIcon'
+  | 'trailingIcon'
+  | 'suffix';
+
+export type TextFieldConfigurableProps = TextFieldExternalProps &
+  Partial<TextFieldDefaultProps>;
+
+export type TextFieldAttributes = Omit<
+  React.InputHTMLAttributes<HTMLDivElement>,
+  'className' | 'autoComplete' | 'name' | 'onChange' | 'type' | 'value'
+>;
+
+export interface TextFieldProps
+  extends TextFieldConfigurableProps,
+    StyleProps<
+      TextFieldConfigurableProps & TextFieldInternalState,
+      TextFieldElement
+    >,
+    TextFieldAttributes {}
+
+export const TextField: React.FC<TextFieldProps> = forwardRef<
+  HTMLDivElement,
+  TextFieldProps
+>((args, ref) => {
   const {
-    suffixClassName,
     variant = 'filled',
-    enabled = true,
+    disabled,
     errorText,
     placeholder,
     suffix,
     name,
-    inputClassName,
     label,
-    labelClassName,
-    activeIndicatorClassName,
     className,
     supportingText,
-    supportingTextClassName,
     trailingIcon,
-    trailingIconClassName,
     leadingIcon,
-    leadingIconClassName,
     type = 'text',
     autoComplete = 'on',
   } = args;
@@ -62,7 +84,7 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
   const [isFocused, setIsFocused] = useState(false);
   const [showErrorIcon, setShowErrorIcon] = useState(false);
   const [showSupportingText, setShowSupportingText] = useState(
-    args.showSupportingText
+    !!args.showSupportingText
   );
 
   useEffect(() => {
@@ -119,154 +141,35 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
     setIsFocused(false);
   };
 
-  const textFieldClass = StylesHelper.classNames([
-    className,
-    'text-field ',
-    {
-      'opacity-[.38]': !enabled,
-    },
-  ]);
-
-  const contentClass = StylesHelper.classNames([
-    inputClassName,
-    'content  relative rounded-t',
-
-    { 'bg-on-surface/[0.04]': !enabled },
-    {
-      applyWhen: variant == 'filled',
-      styles: ['overflow-hidden', { 'bg-surface-container-highest': enabled }],
-    },
-  ]);
-
-  const labelClass = StylesHelper.classNames([
-    labelClassName,
-    'label relative outline-none transition-all  flex items-center whitespace-nowrap',
-    { 'text-on-surface-variant': enabled && !errorText?.length },
-    { 'text-on-surface': !enabled },
-    { 'text-error': !!errorText?.length },
-    { 'text-primary': !errorText?.length && isFocused },
-    {
-      applyWhen: !isFocused && !value?.length,
-      styles: [
-        'max-w-0 -left-5 text-body-large top-2/4 translate-y-0',
-        { 'cursor-text': enabled },
-      ],
-    },
-    {
-      applyWhen: isFocused || !!value?.length,
-      styles: [
-        'max-w-full left-0 text-body-small top-0 ',
-        { '-translate-y-2/4': variant == 'outlined' },
-      ],
-    },
-    {
-      applyWhen: variant == 'filled',
-      styles: ['duration-300'],
-    },
-    {
-      applyWhen: variant == 'outlined',
-      styles: ['duration-500'],
-    },
-  ]);
-
-  const inputClass = StylesHelper.classNames([
-    inputClassName,
-    'input w-full text-body-large bg-[inherit] outline-none autofill:transition-colors autofill:duration-[5000000ms]',
-    {
-      ' text-on-surface-variant placeholder:text-on-surface-variant': enabled,
-      'placeholder:text-on-surface text-on-surface': !enabled,
-    },
-    {
-      'pl-4 ': !leadingIcon,
-      'pl-12': !!leadingIcon,
-      'pr-4 ': !trailingIcon,
-      'pr-12': !!trailingIcon,
-    },
-    {
-      applyWhen: variant == 'filled',
-      styles: [
-        'state-on-surface pb-2 pt-6',
-        {
-          'border-b-[1px]': variant == 'filled',
-          'border-on-surface-variant': !errorText?.length && !isFocused,
-          'border-primary': !errorText?.length && isFocused,
-        },
-        { 'border-error': !!errorText?.length },
-      ],
-    },
-    {
-      applyWhen: variant == 'outlined',
-      styles: ['py-4 relative z-10'],
-    },
-  ]);
-  const activeIndicatorClass = StylesHelper.classNames([
-    activeIndicatorClassName,
-    'active-indicator absolute w-0 inset-x-0 border-rounded mx-auto  bottom-0 active-indicator  ',
-    {
-      applyWhen: variant == 'filled',
-      styles: [
-        'h-[3px] transition-all duration-500',
-        { 'bg-primary': !errorText?.length },
-        { 'bg-error': !!errorText?.length },
-        {
-          applyWhen: isFocused,
-          styles: ['!w-full'],
-        },
-      ],
-    },
-    {
-      applyWhen: variant == 'outlined',
-      styles: [
-        'border-[1px] border-t-0 h-1/2 w-full rounded-b border-outline transition-all duration-500',
-        // "before:transition-all before:duration-100 before:absolute before:border-r-0 before:border-outline before:border-b-0 before:w-8 before:h-full before:rounded-tl before:border-[1px] before:left-[-1px] before:bottom-full before:content-['']",
-        // "after:transition-all after:duration-100 after:absolute after:border-l-0 after:border-outline after:border-b-0 after:w-[calc(100%-32px)] after:h-full after:rounded-tr after:border-[1px] after:right-[-1px] after:bottom-full after:content-['']",
-
-        { '!border-error': !!errorText?.length },
-        {
-          applyWhen: isFocused,
-          styles: [
-            'border-primary border-[3px]',
-            // 'before:left-[-3px] before:w-3 before:!border-primary before:border-primary before:border-[3px]',
-          ],
-        },
-      ],
-    },
-  ]);
-  const supportingTextClass = StylesHelper.classNames([
-    supportingTextClassName,
-    'supporting-text text-body-small px-4 pt-1',
-    { 'text-on-surface-variant': enabled && !errorText?.length },
-    { 'text-on-surface': !enabled },
-    {
-      applyWhen: isFocused,
-      styles: ['!w-full'],
-    },
-    { 'text-error': !!errorText?.length },
-  ]);
-
-  const leadingIconClass = StylesHelper.classNames([
-    leadingIconClassName,
-    'z-20 absolute top-2/4 -translate-y-2/4 left-0 h-12 w-12 flex items-center justify-center',
-    { 'cursor-text': !React.isValidElement(leadingIcon) },
-  ]);
-
-  const trailingIconClass = StylesHelper.classNames([
-    trailingIconClassName,
-    'z-20 absolute top-2/4 -translate-y-2/4 right-0 h-12 w-12 flex items-center justify-center',
-    { 'cursor-text': !React.isValidElement(trailingIcon) },
-  ]);
-
-  const suffixClass = StylesHelper.classNames([
-    suffixClassName,
-    'z-20 absolute top-2/4 -translate-y-2/4 right-0 h-12 w-12 flex items-center justify-center text-on-surface-variant',
-  ]);
+  const getClassNames = (() => {
+    return StylesHelper.classNamesElements<
+      TextFieldConfigurableProps & TextFieldInternalState,
+      TextFieldElement
+    >({
+      default: 'textField',
+      classNameList: [className, TextFieldStyle],
+      states: {
+        showSupportingText,
+        isFocused,
+        showErrorIcon,
+        disabled,
+        name,
+        label,
+        leadingIcon,
+        trailingIcon,
+        variant,
+        errorText,
+        value,
+      },
+    });
+  })();
 
   return (
-    <div className={textFieldClass}>
-      <div className={contentClass}>
+    <div className={getClassNames.textField}>
+      <div className={getClassNames.content}>
         {leadingIcon && (
           <div
-            className={leadingIconClass}
+            className={getClassNames.leadingIcon}
             onClick={() => {
               !React.isValidElement(leadingIcon) && focusInput();
             }}
@@ -297,7 +200,6 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
         >
           <div
             className={StylesHelper.classNames([
-              activeIndicatorClassName,
               'active-indicator transition-all border-r-0 border-outline border-b-0  h-full rounded-tl border-[1px] left-0 top-0',
               {
                 '!border-error': !!errorText?.length,
@@ -328,12 +230,11 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
               },
             ])}
           ></div>
-          <label htmlFor={name} className={labelClass}>
+          <label htmlFor={name} className={getClassNames.label}>
             {label}
           </label>
           <div
             className={StylesHelper.classNames([
-              activeIndicatorClassName,
               'active-indicator transition-all duration-500 flex-1 border-l-0 border-outline border-b-0 w-[calc(100%-32px)] h-full rounded-tr border-[1px] right-0 top-0',
               { '!border-error': !!errorText?.length },
               {
@@ -349,26 +250,26 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
           ref={inputRef}
           value={value}
           onChange={handleChange}
-          className={inputClass}
+          className={getClassNames.input}
           id={name}
           name={name}
           placeholder={isFocused ? placeholder : ''}
           onFocus={handleOnFocus}
           onBlur={handleBlur}
-          disabled={!enabled}
+          disabled={disabled}
           type={type}
           autoComplete={autoComplete}
           aria-invalid={!!errorText?.length}
           aria-label={label}
         />
 
-        <div className={activeIndicatorClass}></div>
+        <div className={getClassNames.activeIndicator}></div>
 
         {!showErrorIcon && (
           <>
             {trailingIcon && (
               <div
-                className={trailingIconClass}
+                className={getClassNames.trailingIcon}
                 onClick={() => {
                   !React.isValidElement(trailingIcon) && focusInput();
                 }}
@@ -381,14 +282,14 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
               </div>
             )}
             {!trailingIcon && suffix && (
-              <span className={suffixClass}>{suffix}</span>
+              <span className={getClassNames.suffix}>{suffix}</span>
             )}
           </>
         )}
 
         {showErrorIcon && (
           <div
-            className={trailingIconClass}
+            className={getClassNames.trailingIcon}
             onClick={() => {
               focusInput();
             }}
@@ -401,7 +302,7 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
         )}
       </div>
       {showSupportingText && (
-        <p className={supportingTextClass}>
+        <p className={getClassNames.supportingText}>
           {errorText?.length
             ? errorText
             : supportingText?.length
@@ -411,4 +312,4 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
       )}
     </div>
   );
-};
+});
