@@ -30,14 +30,18 @@ export interface TextFieldProps {
   onChange?: (value: string) => void;
   showSupportingText?: boolean;
   autoComplete?: 'on' | 'off' | string; // add this line
+  suffixClassName?: string;
+  suffix?: string;
 }
 
 export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
   const {
+    suffixClassName,
     variant = 'filled',
     enabled = true,
     errorText,
     placeholder,
+    suffix,
     name,
     inputClassName,
     label,
@@ -252,6 +256,11 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
     { 'cursor-text': !React.isValidElement(trailingIcon) },
   ]);
 
+  const suffixClass = StylesHelper.classNames([
+    suffixClassName,
+    'z-20 absolute top-2/4 -translate-y-2/4 right-0 h-12 w-12 flex items-center justify-center text-on-surface-variant',
+  ]);
+
   return (
     <div className={textFieldClass}>
       <div className={contentClass}>
@@ -352,21 +361,31 @@ export const TextField: React.FC<TextFieldProps> = (args: TextFieldProps) => {
           aria-invalid={!!errorText?.length}
           aria-label={label}
         />
+
         <div className={activeIndicatorClass}></div>
-        {trailingIcon && !showErrorIcon && (
-          <div
-            className={trailingIconClass}
-            onClick={() => {
-              !React.isValidElement(trailingIcon) && focusInput();
-            }}
-          >
-            {React.isValidElement(trailingIcon) ? (
-              trailingIcon
-            ) : (
-              <Icon className={'h-5'} icon={trailingIcon}></Icon>
+
+        {!showErrorIcon && (
+          <>
+            {trailingIcon && (
+              <div
+                className={trailingIconClass}
+                onClick={() => {
+                  !React.isValidElement(trailingIcon) && focusInput();
+                }}
+              >
+                {React.isValidElement(trailingIcon) ? (
+                  trailingIcon
+                ) : (
+                  <Icon className={'h-5'} icon={trailingIcon}></Icon>
+                )}
+              </div>
             )}
-          </div>
+            {!trailingIcon && suffix && (
+              <span className={suffixClass}>{suffix}</span>
+            )}
+          </>
         )}
+
         {showErrorIcon && (
           <div
             className={trailingIconClass}
