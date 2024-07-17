@@ -36,31 +36,32 @@ const createTextFieldStory = (
   const TextFieldStory: Story = (args: TextFieldProps) => (
     <div className="">
       <div className="flex m-4 gap-4 items-center">
-        <TextField name={'example' + uuidv4()} {...args} value="Input" />
+        <TextField {...args} name={'example' + uuidv4()} value="Input" />
         <TextField
-          name={'example' + uuidv4()}
           {...args}
+          name={'example' + uuidv4()}
           value="Input"
           errorText="invalid value"
         />
         <TextField
-          name={'example' + uuidv4()}
           {...args}
+          name={'example' + uuidv4()}
           value="Input"
-          enabled={false}
+          disabled
         />
       </div>
       <div className="flex m-4 gap-4 items-center">
-        <TextField name={'example' + uuidv4()} {...args} />
+        <TextField {...args} name={'example' + uuidv4()} />
         <TextField
-          name={'example' + uuidv4()}
           {...args}
+          name={'example' + uuidv4()}
           errorText="invalid value"
         />
-        <TextField name={'example' + uuidv4()} {...args} enabled={false} />
+        <TextField {...args} name={'example' + uuidv4()} disabled />
       </div>
     </div>
   );
+  // @ts-ignore
   TextFieldStory.args = {
     variant: variant,
     label: 'Label',

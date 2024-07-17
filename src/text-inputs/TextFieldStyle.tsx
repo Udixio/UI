@@ -17,6 +17,7 @@ export const TextFieldStyle: ClassNameComponent<
   errorText,
   isFocused,
   value,
+  suffix,
 }) => {
   return {
     textField: StylesHelper.classNames([
@@ -25,70 +26,62 @@ export const TextFieldStyle: ClassNameComponent<
       },
     ]),
     content: StylesHelper.classNames([
-      'relative rounded-t',
-
+      'group relative  flex rounded-t items-center ',
+      {
+        'border-on-surface-variant':
+          !errorText?.length && !isFocused && variant == 'filled',
+        'border-outline':
+          !errorText?.length && !isFocused && variant == 'outlined',
+        'border-primary': !errorText?.length && isFocused,
+        'border-error': !!errorText?.length,
+      },
       { 'bg-on-surface/[0.04]': disabled },
       {
         applyWhen: variant == 'filled',
         styles: [
-          'overflow-hidden',
+          'overflow-hidden border-b',
           { 'bg-surface-container-highest': !disabled },
         ],
       },
+      { applyWhen: variant == 'outlined', styles: ['border'] },
+    ]),
+    stateLayer: StylesHelper.classNames([
+      'absolute w-full h-full top-0 left-0',
+      {
+        hidden: variant == 'outlined',
+      },
+      {
+        'group-state-on-surface': !disabled,
+        'focus-state-on-surface': isFocused,
+      },
     ]),
     label: StylesHelper.classNames([
-      'relative outline-none transition-all  flex items-center whitespace-nowrap',
+      'inline-flex outline-none  whitespace-nowrap',
       { 'text-on-surface-variant': !disabled && !errorText?.length },
       { 'text-on-surface': disabled },
       { 'text-error': !!errorText?.length },
       { 'text-primary': !errorText?.length && isFocused },
       {
         applyWhen: !isFocused && !value?.length,
-        styles: [
-          'max-w-0 -left-5 text-body-large top-2/4 translate-y-0',
-          { 'cursor-text': !disabled },
-        ],
+        styles: [''],
       },
       {
         applyWhen: isFocused || !!value?.length,
-        styles: [
-          'max-w-full left-0 text-body-small top-0 ',
-          { '-translate-y-2/4': variant == 'outlined' },
-        ],
-      },
-      {
-        applyWhen: variant == 'filled',
-        styles: ['duration-300'],
-      },
-      {
-        applyWhen: variant == 'outlined',
-        styles: ['duration-500'],
+        styles: [''],
       },
     ]),
     input: StylesHelper.classNames([
-      'w-full text-body-large bg-[inherit] outline-none autofill:transition-colors autofill:duration-[5000000ms]',
+      'w-full px-4 text-body-large bg-[inherit] outline-none autofill:transition-colors autofill:duration-[5000000ms]',
       {
-        ' text-on-surface-variant placeholder:text-on-surface-variant':
-          !disabled,
+        ' text-on-surface placeholder:text-on-surface-variant': !disabled,
         'placeholder:text-on-surface text-on-surface': disabled,
       },
       {
-        'pl-4 ': !leadingIcon,
-        'pl-12': !!leadingIcon,
-        'pr-4 ': !trailingIcon,
-        'pr-12': !!trailingIcon,
+        'pr-0': !!suffix,
       },
       {
         applyWhen: variant == 'filled',
-        styles: [
-          'state-on-surface pb-2 pt-6',
-          {
-            'border-b-[1px]': variant == 'filled',
-            'border-on-surface-variant': !errorText?.length && !isFocused,
-            'border-primary': !errorText?.length && isFocused,
-          },
-          { 'border-error': !!errorText?.length },
-        ],
+        styles: [' pb-2 pt-6'],
       },
       {
         applyWhen: variant == 'outlined',
@@ -96,33 +89,16 @@ export const TextFieldStyle: ClassNameComponent<
       },
     ]),
     activeIndicator: StylesHelper.classNames([
-      ' absolute w-0 inset-x-0 border-rounded mx-auto  bottom-0 active-indicator  ',
+      'absolute w-0 inset-x-0 border-rounded mx-auto bottom-0',
       {
         applyWhen: variant == 'filled',
         styles: [
-          'h-[3px] transition-all duration-500',
+          'h-[2px] transition-all duration-300',
           { 'bg-primary': !errorText?.length },
           { 'bg-error': !!errorText?.length },
           {
             applyWhen: isFocused,
             styles: ['!w-full'],
-          },
-        ],
-      },
-      {
-        applyWhen: variant == 'outlined',
-        styles: [
-          'border-[1px] border-t-0 h-1/2 w-full rounded-b border-outline transition-all duration-500',
-          // "before:transition-all before:duration-100 before:absolute before:border-r-0 before:border-outline before:border-b-0 before:w-8 before:h-full before:rounded-tl before:border-[1px] before:left-[-1px] before:bottom-full before:content-['']",
-          // "after:transition-all after:duration-100 after:absolute after:border-l-0 after:border-outline after:border-b-0 after:w-[calc(100%-32px)] after:h-full after:rounded-tr after:border-[1px] after:right-[-1px] after:bottom-full after:content-['']",
-
-          { '!border-error': !!errorText?.length },
-          {
-            applyWhen: isFocused,
-            styles: [
-              'border-primary border-[3px]',
-              // 'before:left-[-3px] before:w-3 before:!border-primary before:border-primary before:border-[3px]',
-            ],
           },
         ],
       },
@@ -135,18 +111,27 @@ export const TextFieldStyle: ClassNameComponent<
         applyWhen: isFocused,
         styles: ['!w-full'],
       },
+
       { 'text-error': !!errorText?.length },
     ]),
     leadingIcon: StylesHelper.classNames([
-      'z-20 absolute top-2/4 -translate-y-2/4 left-0 h-12 w-12 flex items-center justify-center',
+      'h-12 w-12 flex items-center justify-center',
       { 'cursor-text': !React.isValidElement(leadingIcon) },
     ]),
     trailingIcon: StylesHelper.classNames([
-      'z-20 absolute top-2/4 -translate-y-2/4 right-0 h-12 w-12 flex items-center justify-center',
+      'h-12 w-12 flex items-center justify-center',
       { 'cursor-text': !React.isValidElement(trailingIcon) },
     ]),
     suffix: StylesHelper.classNames([
-      'z-20 absolute top-2/4 -translate-y-2/4 right-0 h-12 w-12 flex items-center justify-center text-on-surface-variant',
+      'text-on-surface-variant pl-0 pr-4',
+      {
+        applyWhen: variant == 'filled',
+        styles: [' pb-2 pt-6'],
+      },
+      {
+        applyWhen: variant == 'outlined',
+        styles: ['py-4 relative z-10'],
+      },
     ]),
   };
 };
