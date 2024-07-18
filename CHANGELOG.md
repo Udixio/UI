@@ -1,3 +1,12 @@
+# [1.0.0-beta.66](https://github.com/Udixio/UI/compare/v1.0.0-beta.65...v1.0.0-beta.66) (2024-07-18)
+
+
+### Features
+
+* add onClick event to IconButton and update TextField styles ([1ebeddc](https://github.com/Udixio/UI/commit/1ebeddc230633dcebd3a27da062787c6ecb797a0))
+* add suffix to field text ([b272f91](https://github.com/Udixio/UI/commit/b272f91b543032759ebe099965d7daa87d5149af))
+* refactor TextField component and its stories ([d4f471b](https://github.com/Udixio/UI/commit/d4f471b97198a91ca5613665d3e13162ebb038dc))
+
 # [1.0.0-beta.65](https://github.com/Udixio/UI/compare/v1.0.0-beta.64...v1.0.0-beta.65) (2024-07-15)
 
 
