@@ -1,3 +1,10 @@
+# [1.0.0-beta.65](https://github.com/Udixio/UI/compare/v1.0.0-beta.64...v1.0.0-beta.65) (2024-07-15)
+
+
+### Bug Fixes
+
+* change button variant condition from 'elevated' to 'filled' ([2c4c922](https://github.com/Udixio/UI/commit/2c4c922467ebb4306030b6ac094454ca37639bfa))
+
 # [1.0.0-beta.64](https://github.com/Udixio/UI/compare/v1.0.0-beta.63...v1.0.0-beta.64) (2024-07-09)
 
 
