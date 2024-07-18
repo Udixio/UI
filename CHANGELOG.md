@@ -1,3 +1,10 @@
+# [1.0.0-beta.67](https://github.com/Udixio/UI/compare/v1.0.0-beta.66...v1.0.0-beta.67) (2024-07-18)
+
+
+### Bug Fixes
+
+* Allow TextField component to be externally controlled ([5b3e1d5](https://github.com/Udixio/UI/commit/5b3e1d5989aa46cd5a50109f5276375d66157320))
+
 # [1.0.0-beta.66](https://github.com/Udixio/UI/compare/v1.0.0-beta.65...v1.0.0-beta.66) (2024-07-18)
 
 
