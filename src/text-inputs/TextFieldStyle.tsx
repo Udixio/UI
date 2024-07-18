@@ -26,7 +26,7 @@ export const TextFieldStyle: ClassNameComponent<
       },
     ]),
     content: StylesHelper.classNames([
-      'group relative  flex rounded-t items-center ',
+      'group h-14 transition-border duration-200 relative  flex  items-center ',
       {
         'border-on-surface-variant':
           !errorText?.length && !isFocused && variant == 'filled',
@@ -39,14 +39,22 @@ export const TextFieldStyle: ClassNameComponent<
       {
         applyWhen: variant == 'filled',
         styles: [
-          'overflow-hidden border-b',
+          'rounded-t overflow-hidden border-b',
           { 'bg-surface-container-highest': !disabled },
         ],
       },
-      { applyWhen: variant == 'outlined', styles: ['border'] },
+      {
+        applyWhen: variant == 'outlined',
+        styles: [
+          'border rounded box-border',
+          {
+            'border-[3px]': isFocused,
+          },
+        ],
+      },
     ]),
     stateLayer: StylesHelper.classNames([
-      'absolute w-full h-full top-0 left-0',
+      'absolute -z-10 w-full h-full top-0 left-0',
       {
         hidden: variant == 'outlined',
       },
@@ -115,7 +123,7 @@ export const TextFieldStyle: ClassNameComponent<
       { 'text-error': !!errorText?.length },
     ]),
     leadingIcon: StylesHelper.classNames([
-      'h-12 w-12 flex items-center justify-center',
+      'h-12 ml-3 flex items-center justify-center',
       { 'cursor-text': !React.isValidElement(leadingIcon) },
     ]),
     trailingIcon: StylesHelper.classNames([

@@ -76,14 +76,22 @@ export const Filled = createTextFieldStory('filled');
 
 export const FilledTrailingIcon = createTextFieldStory('filled', {
   trailingIcon: (
-    <IconButton arialLabel="Action description" icon={faCircleXmark} />
+    <IconButton
+      onClick={() => console.log('clicked')}
+      arialLabel="Action description"
+      icon={faCircleXmark}
+    />
   ),
 });
 
 export const FilledLealingIconAndTrailingIcon = createTextFieldStory('filled', {
   leadingIcon: faMagnifyingGlass,
   trailingIcon: (
-    <IconButton arialLabel="Action description" icon={faCircleXmark} />
+    <IconButton
+      onClick={() => console.log('clicked')}
+      arialLabel="Action description"
+      icon={faCircleXmark}
+    />
   ),
 });
 
@@ -95,7 +103,11 @@ export const Outlined = createTextFieldStory('outlined');
 
 export const OutlinedTrailingIcon = createTextFieldStory('outlined', {
   trailingIcon: (
-    <IconButton arialLabel="Action description" icon={faCircleXmark} />
+    <IconButton
+      onClick={() => console.log('clicked')}
+      arialLabel="Action description"
+      icon={faCircleXmark}
+    />
   ),
 });
 
@@ -104,7 +116,11 @@ export const OutlinedLealingIconAndTrailingIcon = createTextFieldStory(
   {
     leadingIcon: faMagnifyingGlass,
     trailingIcon: (
-      <IconButton arialLabel="Action description" icon={faCircleXmark} />
+      <IconButton
+        onClick={() => console.log('clicked')}
+        arialLabel="Action description"
+        icon={faCircleXmark}
+      />
     ),
   }
 );

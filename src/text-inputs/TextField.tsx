@@ -180,7 +180,7 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
             {React.isValidElement(leadingIcon) ? (
               leadingIcon
             ) : (
-              <Icon className={'h-5'} icon={leadingIcon}></Icon>
+              <Icon className={'h- w-h5'} icon={leadingIcon}></Icon>
             )}
           </div>
         )}
@@ -211,22 +211,12 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
           {((!isFocused && !value.length) || variant == 'filled') && (
             <motion.label
               htmlFor={name}
-              variants={{
-                center: { y: '-50%', top: '50%' },
-                top: { y: 0, top: '8px' },
-              }}
-              initial={'center'}
-              animate={
-                variant == 'filled' && !(!isFocused && !value.length)
-                  ? 'top'
-                  : 'center'
-              }
               className={classNames(
-                'absolute left-4 transition-[font-size] duration-300',
+                'absolute left-4  transition-all duration-300',
                 {
-                  'text-body-small':
+                  'text-body-small top-2':
                     variant == 'filled' && !(!isFocused && !value.length),
-                  'text-body-large': !(
+                  'text-body-large top-1/2 transform -translate-y-1/2': !(
                     variant == 'filled' && !(!isFocused && !value.length)
                   ),
                 }
@@ -265,7 +255,12 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
         {!showErrorIcon && (
           <>
             {trailingIcon && (
-              <div className={getClassNames.trailingIcon}>
+              <div
+                onClick={(event) => {
+                  event.stopPropagation();
+                }}
+                className={getClassNames.trailingIcon}
+              >
                 {React.isValidElement(trailingIcon) ? (
                   trailingIcon
                 ) : (
