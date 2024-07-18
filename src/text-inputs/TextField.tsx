@@ -92,6 +92,10 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
   );
 
   useEffect(() => {
+    setValue(args.value ?? '');
+  }, [args.value]);
+
+  useEffect(() => {
     if (errorText?.length) {
       setShowErrorIcon(true);
     } else {
