@@ -18,6 +18,7 @@ export const TextFieldStyle: ClassNameComponent<
   isFocused,
   value,
   suffix,
+  textLine,
 }) => {
   return {
     textField: StylesHelper.classNames([
@@ -26,7 +27,9 @@ export const TextFieldStyle: ClassNameComponent<
       },
     ]),
     content: StylesHelper.classNames([
-      'group h-14 transition-border duration-200 relative  flex  items-center ',
+      'group  transition-border duration-200 relative  flex  items-center ',
+      { 'h-14': textLine == 'singleLine' },
+      { 'h-46': textLine == 'textAreas' },
       {
         'border-on-surface-variant':
           !errorText?.length && !isFocused && variant == 'filled',
@@ -79,7 +82,7 @@ export const TextFieldStyle: ClassNameComponent<
       },
     ]),
     input: StylesHelper.classNames([
-      'w-full px-4 text-body-large bg-[inherit] outline-none autofill:transition-colors autofill:duration-[5000000ms]',
+      'w-full resize-none px-4 text-body-large bg-[inherit] outline-none autofill:transition-colors autofill:duration-[5000000ms]',
       {
         ' text-on-surface placeholder:text-on-surface-variant': !disabled,
         'placeholder:text-on-surface text-on-surface': disabled,

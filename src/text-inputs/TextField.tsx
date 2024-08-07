@@ -8,6 +8,7 @@ import { TextFieldStyle } from './TextFieldStyle';
 import { motion } from 'framer-motion';
 import { v4 as uuidv4 } from 'uuid';
 import classNames from 'classnames';
+import TextareaAutosize from 'react-textarea-autosize';
 
 export type TextFieldVariant = 'filled' | 'outlined';
 
@@ -21,6 +22,7 @@ export interface TextFieldDefaultProps {
   variant: TextFieldVariant;
   type: 'text' | 'password' | 'number';
   autoComplete: 'on' | 'off' | string;
+  textLine: 'singleLine' | 'multiLine' | 'textAreas';
 }
 export interface TextFieldExternalProps {
   placeholder?: string;
@@ -81,6 +83,7 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
     trailingIcon,
     leadingIcon,
     type = 'text',
+    textLine = 'singleLine',
     autoComplete = 'on',
   } = args;
 
@@ -169,11 +172,26 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
         errorText,
         value,
         suffix,
+        textLine,
       },
     });
   })();
 
   const [uuid] = useState(uuidv4());
+
+  let TextComponent;
+  switch (textLine) {
+    case 'multiLine':
+      TextComponent = TextareaAutosize;
+      break;
+    case 'textAreas':
+      TextComponent = 'textarea';
+      break;
+    case 'singleLine':
+    default:
+      TextComponent = 'input';
+      break;
+  }
 
   return (
     <div className={getClassNames.textField}>
@@ -236,7 +254,7 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
               </motion.span>
             </motion.label>
           )}
-          <input
+          <TextComponent
             ref={inputRef}
             value={value}
             onChange={handleChange}

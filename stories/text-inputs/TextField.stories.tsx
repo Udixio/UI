@@ -127,4 +127,8 @@ export const OutlinedLealingIconAndTrailingIcon = createTextFieldStory(
 
 export const OutlinedLealingIcon = createTextFieldStory('outlined', {
   leadingIcon: faMagnifyingGlass,
+  className: () => ({
+    textField: 'w-full md:w-fit md:flex-1 ',
+    content: 'rounded-full overflow-hidden bg-surface',
+  }),
 });
