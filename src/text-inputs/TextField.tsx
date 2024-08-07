@@ -124,7 +124,7 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
     }
   }, [isFocused]);
 
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const inputRef = React.useRef<HTMLInputElement & HTMLTextAreaElement>(null);
 
   const focusInput = () => {
     if (inputRef.current && !isFocused) {
@@ -136,7 +136,9 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
     setIsFocused(true);
   };
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    event: React.ChangeEvent<HTMLInputElement & HTMLTextAreaElement>
+  ) => {
     const newValue = event.target.value;
     setValue(newValue); // Update local state
 
@@ -179,17 +181,21 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
 
   const [uuid] = useState(uuidv4());
 
+  let textComponentProps: object;
   let TextComponent;
   switch (textLine) {
     case 'multiLine':
       TextComponent = TextareaAutosize;
+      textComponentProps = {};
       break;
     case 'textAreas':
       TextComponent = 'textarea';
+      textComponentProps = {};
       break;
     case 'singleLine':
     default:
       TextComponent = 'input';
+      textComponentProps = { type: type };
       break;
   }
 
@@ -265,10 +271,10 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
             onFocus={handleOnFocus}
             onBlur={handleBlur}
             disabled={disabled}
-            type={type}
             autoComplete={autoComplete}
             aria-invalid={!!errorText?.length}
             aria-label={label}
+            {...textComponentProps}
           />
         </div>
 

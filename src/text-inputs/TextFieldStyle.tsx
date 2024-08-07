@@ -29,7 +29,6 @@ export const TextFieldStyle: ClassNameComponent<
     content: StylesHelper.classNames([
       'group  transition-border duration-200 relative  flex  items-center ',
       { 'h-14': textLine == 'singleLine' },
-      { 'h-46': textLine == 'textAreas' },
       {
         'border-on-surface-variant':
           !errorText?.length && !isFocused && variant == 'filled',
