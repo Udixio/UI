@@ -1,4 +1,3 @@
-import { StylesHelper } from '../../utils';
 import React, { useEffect, useState } from 'react';
 import {
   ProgressIndicatorDefaultProps,
@@ -9,6 +8,7 @@ import {
 } from './progress-indicator.interface';
 import { ProgressIndicatorStyle } from './progress-indicator.style';
 import { motion } from 'framer-motion';
+import { StylesHelper } from '../../utils';
 
 export const ProgressIndicator = ({
   variant = 'linear-determinate',
@@ -17,13 +17,39 @@ export const ProgressIndicator = ({
   transitionDuration = 1000,
   className,
 }: ProgressIndicatorProps) => {
-  let completedPercentage = value;
-  if (completedPercentage > 100) {
-    completedPercentage = 100;
-  }
-  if (completedPercentage < 0) {
-    completedPercentage = 0;
-  }
+  const [completedPercentage, setCompletedPercentage] = useState(value);
+
+  const [transitionRotate, setTransitionRotate] = useState(1.5);
+
+  useEffect(() => {
+    if (value > 100) {
+      value = 100;
+    }
+    if (value < 0) {
+      value = 0;
+    }
+    setCompletedPercentage(value);
+  }, [value]);
+
+  const [togglePercentage, setTogglePercentage] = useState(true);
+
+  const getTransitionRotate = () => {
+    return togglePercentage ? transitionRotate : transitionRotate * 0.5;
+  };
+
+  useEffect(() => {
+    if (
+      (variant === 'circular-indeterminate' ||
+        variant === 'linear-indeterminate') &&
+      completedPercentage !== 100
+    ) {
+      const interval = setInterval(() => {
+        setCompletedPercentage(togglePercentage ? 10 : 90);
+        setTogglePercentage(!togglePercentage);
+      }, transitionRotate * 1000);
+      return () => clearInterval(interval);
+    }
+  }, [variant, togglePercentage, completedPercentage]);
 
   const [isVisible, setIsVisible] = useState(false);
 
@@ -69,7 +95,7 @@ export const ProgressIndicator = ({
             style={{
               height: isVisible ? '0px' : `${minHeight}px`,
               width: `${completedPercentage}%`,
-              transition: `width ${transitionDuration}ms ease-in-out ${completedPercentage == 100 ? ', height 200ms 0.5s ease-in-out' : ''}`,
+              transition: `width ${1}ms ease-in-out ${completedPercentage == 100 ? ', height 200ms 0.5s ease-in-out' : ''}`,
             }}
             className={classNames.track}
           ></div>
@@ -93,7 +119,19 @@ export const ProgressIndicator = ({
       )}
       {(variant === 'circular-determinate' ||
         variant == 'circular-indeterminate') && (
-        <motion.svg width="48" height="48" viewBox="0 0 48 48">
+        <motion.svg
+          key={togglePercentage + ''}
+          width="48"
+          height="48"
+          viewBox="0 0 48 48"
+          initial={{ rotate: -90 }}
+          animate={{ rotate: 270 }}
+          transition={{
+            repeat: Infinity,
+            duration: getTransitionRotate(),
+            ease: 'linear',
+          }}
+        >
           <motion.circle
             cx="50%"
             cy="50%"
@@ -103,18 +141,21 @@ export const ProgressIndicator = ({
             }}
             initial="hidden"
             animate="visible"
-            className={'stroke-primary fill-transparent stroke-[4px]'}
+            className={'stroke-primary fill-transparent stroke-[4px] '}
             variants={{
-              hidden: { pathLength: completedPercentage / 100 },
+              hidden: {
+                pathLength: togglePercentage ? 10 / 100 : 90 / 100,
+              },
               visible: {
-                pathLength: completedPercentage / 100,
-                transition: {
-                  pathLength: {
-                    type: 'spring',
-                    duration: 1.5,
-                    bounce: 0,
-                  },
-                },
+                pathLength: togglePercentage ? 90 / 100 : 10 / 100,
+              },
+            }}
+            transition={{
+              pathLength: {
+                type: 'tween',
+                ease: 'linear',
+                duration: getTransitionRotate(),
+                bounce: 0,
               },
             }}
           />
