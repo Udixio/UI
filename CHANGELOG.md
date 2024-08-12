@@ -1,3 +1,15 @@
+# [1.0.0-beta.68](https://github.com/Udixio/UI/compare/v1.0.0-beta.67...v1.0.0-beta.68) (2024-08-07)
+
+
+### Bug Fixes
+
+* refactor TextField component for type compatibility ([1c589d7](https://github.com/Udixio/UI/commit/1c589d7c598be38e953c13a3942df42ad62e11f1))
+
+
+### Features
+
+* add multiline support to TextField component ([0b105d7](https://github.com/Udixio/UI/commit/0b105d7c52f644f8708ee92019d1aec2083b402d))
+
 # [1.0.0-beta.67](https://github.com/Udixio/UI/compare/v1.0.0-beta.66...v1.0.0-beta.67) (2024-07-18)
 
 
