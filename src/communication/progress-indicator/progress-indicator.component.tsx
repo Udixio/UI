@@ -46,7 +46,7 @@ export const ProgressIndicator = ({
       const interval = setInterval(() => {
         setCompletedPercentage(togglePercentage ? 10 : 90);
         setTogglePercentage(!togglePercentage);
-      }, transitionRotate * 1000);
+      }, getTransitionRotate() * 1000);
       return () => clearInterval(interval);
     }
   }, [variant, togglePercentage, completedPercentage]);
@@ -56,13 +56,13 @@ export const ProgressIndicator = ({
   useEffect(() => {
     if (completedPercentage >= 100) {
       const timeoutId = setTimeout(() => {
-        setIsVisible(true);
+        setIsVisible(false);
       }, transitionDuration);
       return () => {
         clearTimeout(timeoutId);
       };
     } else {
-      setIsVisible(false);
+      setIsVisible(true);
     }
   }, [completedPercentage, transitionDuration]);
 
@@ -93,7 +93,7 @@ export const ProgressIndicator = ({
         >
           <div
             style={{
-              height: isVisible ? '0px' : `${minHeight}px`,
+              height: !isVisible ? '0px' : `${minHeight}px`,
               width: `${completedPercentage}%`,
               transition: `width ${1}ms ease-in-out ${completedPercentage == 100 ? ', height 200ms 0.5s ease-in-out' : ''}`,
             }}
@@ -101,7 +101,7 @@ export const ProgressIndicator = ({
           ></div>
           <div
             style={{
-              height: isVisible ? '0px' : `${minHeight}px`,
+              height: !isVisible ? '0px' : `${minHeight}px`,
               marginLeft: completedPercentage != 100 ? '6px' : '0px',
               transition: `width ${transitionDuration}ms ease-in-out ${completedPercentage == 100 ? `, height 200ms 0.5s ease-in-out, margin-left ${transitionDuration}ms ${transitionDuration / 1.5}ms` : ''}`,
             }}
@@ -109,7 +109,7 @@ export const ProgressIndicator = ({
           ></div>
           <div
             style={{
-              height: isVisible ? '0px' : `${minHeight}px`,
+              height: !isVisible ? '0px' : `${minHeight}px`,
               width: `${minHeight}px`,
               transition: `width ${transitionDuration}ms ease-in-out, height 200ms 0.5s ease-in-out`,
             }}
@@ -131,17 +131,18 @@ export const ProgressIndicator = ({
             duration: getTransitionRotate(),
             ease: 'linear',
           }}
+          className={classNames.progressIndicator}
         >
           <motion.circle
             cx="50%"
             cy="50%"
-            r="calc(50% - 2px)"
+            r={isVisible ? 'calc(50% - 2px)' : '50%'}
             style={{
               strokeLinecap: 'round',
             }}
             initial="hidden"
             animate="visible"
-            className={'stroke-primary fill-transparent stroke-[4px] '}
+            className={classNames.activeIndicator}
             variants={{
               hidden: {
                 pathLength: togglePercentage ? 10 / 100 : 90 / 100,

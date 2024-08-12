@@ -3,6 +3,8 @@ import { Icon } from '../icon';
 
 import { StylesHelper } from '../utils';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { ProgressIndicator } from '../communication/progress-indicator';
+import classNames from 'classnames';
 
 export type ButtonVariant =
   | 'filled'
@@ -78,6 +80,8 @@ export interface ButtonProps extends React.HTMLAttributes<HTMLElement> {
   stateClassName?: string;
 
   iconPosition?: 'left' | 'right';
+
+  loading?: boolean;
 }
 
 /**
@@ -98,6 +102,7 @@ export const Button = ({
   labelClassName,
   stateClassName,
   iconPosition = 'left',
+  loading = false,
   ...restProps // Ici
 }: ButtonProps) => {
   // Détermine le type de l'élément à rendre : un bouton ou un lien
@@ -127,7 +132,6 @@ export const Button = ({
   const getButtonClass = StylesHelper.classNames([
     className,
     'button group relative outline-none py-2.5 overflow-hidden rounded-full inline-block flex gap-2 justify-center rounded-full  items-center  ',
-
     {
       applyWhen: variant === 'elevated',
       styles: [
@@ -234,6 +238,7 @@ export const Button = ({
   ]);
   const getIconClass = StylesHelper.classNames([
     iconClassName,
+    { invisible: loading },
     'icon h-[18px] w-[18px]',
     {
       applyWhen: variant === 'elevated',
@@ -284,6 +289,7 @@ export const Button = ({
   const getLabelTextClass = StylesHelper.classNames([
     labelClassName,
     'label-text text-label-large',
+    { invisible: loading },
     {
       applyWhen: variant === 'elevated',
       styles: [
@@ -349,6 +355,48 @@ export const Button = ({
     >
       <span className={getStateLayerClass}></span>
       {iconPosition === 'left' && iconElement}
+      {loading && (
+        <div
+          className={
+            '!absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2'
+          }
+        >
+          <ProgressIndicator
+            className={() => ({
+              progressIndicator: 'h-6 w-6',
+              activeIndicator: classNames(
+                {
+                  '!stroke-primary': variant === 'elevated' && !disabled,
+                  'group-disabled:!stroke-on-surface/[38%]':
+                    variant === 'elevated' && disabled,
+                },
+                {
+                  '!stroke-on-primary': variant === 'filled' && !disabled,
+                  'group-disabled:!stroke-on-surface/[38%]':
+                    variant === 'filled' && disabled,
+                },
+                {
+                  '!stroke-on-secondary-container':
+                    variant === 'filledTonal' && !disabled,
+                  'group-disabled:!stroke-on-surface/[38%]':
+                    variant === 'filledTonal' && disabled,
+                },
+                {
+                  '!stroke-primary': variant === 'outlined' && !disabled,
+                  'group-disabled:!stroke-on-surface/[38%]':
+                    variant === 'outlined' && disabled,
+                },
+                {
+                  '!stroke-primary': variant === 'text' && !disabled,
+                  'group-disabled:!stroke-on-surface/[38%]':
+                    variant === 'text' && disabled,
+                }
+              ),
+            })}
+            variant={'circular-indeterminate'}
+          />
+        </div>
+      )}
       <span className={getLabelTextClass}>{label}</span>
       {iconPosition === 'right' && iconElement}
     </ElementType>
