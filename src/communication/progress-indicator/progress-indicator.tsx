@@ -10,13 +10,29 @@ import { ProgressIndicatorStyle } from './progress-indicator.style';
 import { motion } from 'framer-motion';
 import { StylesHelper } from '../../utils';
 
+/**
+ * The ProgressIndicator component provides visual feedback about operations that take an uncertain amount of time.
+ * It includes four variants, linear-determinate, linear-indeterminate, circular-determinate, and circular-indeterminate.
+ *
+ * @component
+ *
+ * @param {ProgressIndicatorProps} {
+ *   variant = 'linear-determinate',
+ *   minHeight = 4,
+ *   value = 0,
+ *   transitionDuration = 1000,
+ *   className,
+ * } - ProgressIndicatorProps include variant, minHeight, value, transitionDuration, className
+ *
+ * @return {*}
+ */
 export const ProgressIndicator = ({
   variant = 'linear-determinate',
   minHeight = 4,
   value = 0,
   transitionDuration = 1000,
   className,
-}: ProgressIndicatorProps) => {
+}: ProgressIndicatorProps): any => {
   const [completedPercentage, setCompletedPercentage] = useState(value);
 
   const [transitionRotate, setTransitionRotate] = useState(1.5);
