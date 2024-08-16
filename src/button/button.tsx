@@ -175,7 +175,7 @@ export const Button = ({
         { 'pl-4 -ml-4 pr-3 -mr-3': icon && iconPosition == 'right' },
         {
           'text-primary': !disabled,
-          'group-disabled:text-on-surface/[0.38]': disabled,
+          'text-on-surface/[0.38]': disabled,
         },
       ],
     },
@@ -196,7 +196,7 @@ export const Button = ({
       applyWhen: variant === 'elevated',
       styles: [
         {
-          'group-disabled:bg-on-surface/[0.12]': disabled,
+          'bg-on-surface/[0.12]': disabled,
           'group-state-primary': !disabled,
         },
       ],
@@ -205,7 +205,7 @@ export const Button = ({
       applyWhen: variant === 'filled',
       styles: [
         {
-          'group-disabled:bg-on-surface/[0.12]': disabled,
+          'bg-on-surface/[0.12]': disabled,
           'group-state-on-primary': !disabled,
         },
       ],
@@ -214,7 +214,7 @@ export const Button = ({
       applyWhen: variant === 'filledTonal',
       styles: [
         {
-          'group-disabled:bg-on-surface/[0.12]': disabled,
+          'bg-on-surface/[0.12]': disabled,
           'group-state-on-secondary-container ': !disabled,
         },
       ],
@@ -245,7 +245,7 @@ export const Button = ({
       styles: [
         {
           'text-primary': !disabled,
-          'group-disabled:text-on-surface/[38%]': disabled,
+          'text-on-surface/[38%]': disabled,
         },
       ],
     },
@@ -254,7 +254,7 @@ export const Button = ({
       styles: [
         {
           'text-on-primary': !disabled,
-          'group-disabled:text-on-surface/[38%]': disabled,
+          'text-on-surface/[38%]': disabled,
         },
       ],
     },
@@ -263,7 +263,7 @@ export const Button = ({
       styles: [
         {
           'text-on-secondary-container': !disabled,
-          'group-disabled:text-on-surface/[0.38]': disabled,
+          'text-on-surface/[0.38]': disabled,
         },
       ],
     },
@@ -272,7 +272,7 @@ export const Button = ({
       styles: [
         {
           'text-primary': !disabled,
-          'group-disabled:text-on-surface/[0.38]': disabled,
+          'text-on-surface/[0.38]': disabled,
         },
       ],
     },
@@ -281,7 +281,7 @@ export const Button = ({
       styles: [
         {
           'text-primary': !disabled,
-          'group-disabled:text-on-surface/[0.38]': disabled,
+          'text-on-surface/[0.38]': disabled,
         },
       ],
     },
@@ -295,7 +295,7 @@ export const Button = ({
       styles: [
         {
           'text-primary': !disabled,
-          'group-disabled:text-on-surface/[38%]': disabled,
+          'text-on-surface/[38%]': disabled,
         },
       ],
     },
@@ -304,7 +304,7 @@ export const Button = ({
       styles: [
         {
           'text-on-primary': !disabled,
-          'group-disabled:text-on-surface/[38%]': disabled,
+          'text-on-surface/[38%]': disabled,
         },
       ],
     },
@@ -313,7 +313,7 @@ export const Button = ({
       styles: [
         {
           'text-on-secondary-container': !disabled,
-          'group-disabled:text-on-surface/[0.38]': disabled,
+          'text-on-surface/[0.38]': disabled,
         },
       ],
     },
@@ -322,7 +322,7 @@ export const Button = ({
       styles: [
         {
           'text-primary': !disabled,
-          'group-disabled:text-on-surface/[0.38]': disabled,
+          'text-on-surface/[0.38]': disabled,
         },
       ],
     },
@@ -331,7 +331,7 @@ export const Button = ({
       styles: [
         {
           'text-primary': !disabled,
-          'group-disabled:text-on-surface/[0.38]': disabled,
+          'text-on-surface/[0.38]': disabled,
         },
       ],
     },
@@ -367,29 +367,27 @@ export const Button = ({
               activeIndicator: classNames(
                 {
                   '!stroke-primary': variant === 'elevated' && !disabled,
-                  'group-disabled:!stroke-on-surface/[38%]':
+                  '!stroke-on-surface/[38%]':
                     variant === 'elevated' && disabled,
                 },
                 {
                   '!stroke-on-primary': variant === 'filled' && !disabled,
-                  'group-disabled:!stroke-on-surface/[38%]':
-                    variant === 'filled' && disabled,
+                  '!stroke-on-surface/[38%]': variant === 'filled' && disabled,
                 },
                 {
                   '!stroke-on-secondary-container':
                     variant === 'filledTonal' && !disabled,
-                  'group-disabled:!stroke-on-surface/[38%]':
+                  '!stroke-on-surface/[38%]':
                     variant === 'filledTonal' && disabled,
                 },
                 {
                   '!stroke-primary': variant === 'outlined' && !disabled,
-                  'group-disabled:!stroke-on-surface/[38%]':
+                  '!stroke-on-surface/[38%]':
                     variant === 'outlined' && disabled,
                 },
                 {
                   '!stroke-primary': variant === 'text' && !disabled,
-                  'group-disabled:!stroke-on-surface/[38%]':
-                    variant === 'text' && disabled,
+                  '!stroke-on-surface/[38%]': variant === 'text' && disabled,
                 }
               ),
             })}
