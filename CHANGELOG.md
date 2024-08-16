@@ -1,3 +1,12 @@
+# [1.0.0-beta.69](https://github.com/Udixio/UI/compare/v1.0.0-beta.68...v1.0.0-beta.69) (2024-08-12)
+
+
+### Features
+
+* enhance ProgressIndicator and integrate loading state in Button ([43b5886](https://github.com/Udixio/UI/commit/43b5886c324cf43634d72df2d24967c996d76cff))
+* enhance ProgressIndicator with dynamic behavior ([34b67f3](https://github.com/Udixio/UI/commit/34b67f39f0a19a55e8d30d35dc35999c9a6dfc0b))
+* refactor and reorganize ProgressIndicator component ([238331f](https://github.com/Udixio/UI/commit/238331ffdcaa4d1eb1875812bf0eb4b358034a99))
+
 # [1.0.0-beta.68](https://github.com/Udixio/UI/compare/v1.0.0-beta.67...v1.0.0-beta.68) (2024-08-07)
 
 
