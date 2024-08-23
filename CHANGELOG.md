@@ -1,3 +1,10 @@
+# [1.0.0-beta.70](https://github.com/Udixio/UI/compare/v1.0.0-beta.69...v1.0.0-beta.70) (2024-08-16)
+
+
+### Bug Fixes
+
+* buttons with a link must have styles when disabled ([b5e643b](https://github.com/Udixio/UI/commit/b5e643bf1afbddeddb0b1f04b92e2c1d23884b87))
+
 # [1.0.0-beta.69](https://github.com/Udixio/UI/compare/v1.0.0-beta.68...v1.0.0-beta.69) (2024-08-12)
 
 
