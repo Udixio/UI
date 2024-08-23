@@ -1,3 +1,10 @@
+# [1.0.0-beta.71](https://github.com/Udixio/UI/compare/v1.0.0-beta.70...v1.0.0-beta.71) (2024-08-23)
+
+
+### Bug Fixes
+
+* icon size in TextField component ([07777ae](https://github.com/Udixio/UI/commit/07777ae6505d677e261206de1c1545832a87013d))
+
 # [1.0.0-beta.70](https://github.com/Udixio/UI/compare/v1.0.0-beta.69...v1.0.0-beta.70) (2024-08-16)
 
 
