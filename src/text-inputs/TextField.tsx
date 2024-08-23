@@ -208,7 +208,7 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
             {React.isValidElement(leadingIcon) ? (
               leadingIcon
             ) : (
-              <Icon className={'h- w-h5'} icon={leadingIcon}></Icon>
+              <Icon className={'w-5 h-5'} icon={leadingIcon}></Icon>
             )}
           </div>
         )}
