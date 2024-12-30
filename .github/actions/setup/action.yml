@@ -17,10 +17,13 @@ runs:
       uses: actions/setup-node@v3
       with:
         node-version: ${{ inputs.node_version }}
+
     - name: Create .npmrc
       run: |
         echo "@fortawesome:registry=https://npm.fontawesome.com/" > .npmrc
         echo "//npm.fontawesome.com/:_authToken=${{ inputs.fontawesome_token }}" >> .npmrc
+      shell: bash
+
     - name: Install dependencies
       id: npm-install
       run: npm ci
