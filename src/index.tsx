@@ -1,6 +1,6 @@
+export * from './action/button';
 export * from './action/fab';
 export * from './avatar';
-export * from './button';
 export * from './code-preview';
 export * from './communication/progress-indicator';
 export * from './communication/snackbar';
