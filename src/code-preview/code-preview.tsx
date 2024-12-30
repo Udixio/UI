@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useEffect, useState } from 'react';
 
 import { Tab, Tabs } from '../navigation/tabs';
-import { IconButton } from '../button';
+import { IconButton } from '../action/button';
 import { Highlight, themes } from 'prism-react-renderer';
 import classNames from 'classnames';
 import classnames from 'classnames';

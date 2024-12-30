@@ -1,6 +1,6 @@
 import { StyleProps, StylesHelper } from '../utils';
 import React, { forwardRef, useEffect, useState } from 'react';
-import { IconButton } from '../button';
+import { IconButton } from '../action/button';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { Icon } from '../icon';
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
