@@ -1,34 +1,61 @@
 name: Release
+
 on:
   push:
     branches:
-      - master
-      - next
-      - beta
+      - 'release/*'
+  pull_request:
+    branches:
+      - 'release/*'
 jobs:
-  semantic:
+  test:
+    if: github.event.pull_request.head.ref != 'develop'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Important: This makes sure the actual branch commit history is fetched
-          persist-credentials: false # Important: This makes sure the token used is the one provided above, not the default token actions/checkout provides
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.x'
-      - name: Create .npmrc
-        run: |
-          echo "@fortawesome:registry=https://npm.fontawesome.com/" > .npmrc
-          echo "//npm.fontawesome.com/:_authToken=$FONTAWESOME_TOKEN" >> .npmrc
-        env:
-          FONTAWESOME_TOKEN: ${{ secrets.FONTAWESOME_TOKEN }}
-      - name: Install deps and build (with cache)
-        uses: bahmutov/npm-install@v1
+          fetch-depth: 0
+      - name: Setup Dependencies
+        uses: ./.github/actions/setup
 
-      - name: Semantic Release
-        run: npx semantic-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PERSONAL_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_ENV: 'production'
+      - name: Get Token
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Lint
+        uses: ./.github/actions/lint
+      - name: Unit Test
+        uses: ./.github/actions/test
+      - uses: andresz1/size-limit-action@v1
+        with:
+          github_token: ${{ steps.app-token.outputs.token }}
+      - uses: chromaui/action@v1
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
+  chromatic:
+    if: github.event.pull_request.head.ref == 'develop'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Dependencies
+        uses: ./.github/actions/setup
+
+      - name: Get Token
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - uses: chromaui/action@v1
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}

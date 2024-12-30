@@ -1,0 +1,52 @@
+name: Hotfix
+
+on:
+  push:
+    branches:
+      - 'hotfix/*'
+
+permissions:
+  contents: write
+
+jobs:
+  checkcommits:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Dependencies
+        uses: ./.github/actions/setup
+
+      - name: Add execute permissions
+        run: chmod +x ./scripts/check_commits.sh
+
+      - name: Run check commits
+        run: |
+          ./scripts/check_commits.sh --branch main --block-major --block-minor
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get Token
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Setup Dependencies
+        uses: ./.github/actions/setup
+
+      - name: Lint
+        uses: ./.github/actions/lint
+
+      - name: Unit Test
+        uses: ./.github/actions/test

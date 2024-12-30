@@ -1,36 +1,67 @@
-name: CI
-on: [push]
+name: Main (Production)
+
+on:
+  push:
+    branches:
+      - 'main'
+
+permissions:
+  contents: write
+
 jobs:
-  build:
-    name: Build, lint, and test on Node ${{ matrix.node }} and ${{ matrix.os }}
-
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        node: ['18.x', '20.x']
-        os: [ubuntu-latest]
-
+  deploy:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-      - name: Use Node ${{ matrix.node }}
-        uses: actions/setup-node@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          node-version: ${{ matrix.node }}
-      - name: Create .npmrc
-        run: |
-          echo "@fortawesome:registry=https://npm.fontawesome.com/" > .npmrc
-          echo "//npm.fontawesome.com/:_authToken=$FONTAWESOME_TOKEN" >> .npmrc
+          fetch-depth: 0
+
+      - name: Get Token
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Setup Dependencies
+        uses: ./.github/actions/setup
+
+      - name: Run Semantic Release for versioning
         env:
-          FONTAWESOME_TOKEN: ${{ secrets.FONTAWESOME_TOKEN }}
-      - name: Install deps and build (with cache)
-        uses: bahmutov/npm-install@v1
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          NODE_ENV: 'production'
+        run: npx semantic-release
 
-      - name: Lint
-        run: yarn lint
+  merge-to-develop:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Test
-        run: yarn test --ci --coverage --maxWorkers=2
+      - name: Get Token
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
 
-      - name: Build
-        run: yarn build
+      - name: Checkout develop branch
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Merge main into develop
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git merge origin/main
+
+      - name: Push changes to develop
+        run: git push origin develop
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}

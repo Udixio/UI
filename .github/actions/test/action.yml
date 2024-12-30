@@ -1,0 +1,10 @@
+name: Test
+
+description: 'Run unit tests'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Run affected unit tests
+      run: npm run test
+      shell: bash
