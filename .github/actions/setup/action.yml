@@ -6,6 +6,9 @@ inputs:
     description: 'Node.js version to use'
     required: true
     default: '20'
+  fontawesome_token:
+    description: 'FontAwesome authentication token'
+    required: true
 
 runs:
   using: 'composite'
@@ -17,9 +20,7 @@ runs:
     - name: Create .npmrc
       run: |
         echo "@fortawesome:registry=https://npm.fontawesome.com/" > .npmrc
-        echo "//npm.fontawesome.com/:_authToken=$FONTAWESOME_TOKEN" >> .npmrc
-      env:
-        FONTAWESOME_TOKEN: ${{ secrets.FONTAWESOME_TOKEN }}
+        echo "//npm.fontawesome.com/:_authToken=${{ inputs.fontawesome_token }}" >> .npmrc
     - name: Install dependencies
       id: npm-install
       run: npm ci

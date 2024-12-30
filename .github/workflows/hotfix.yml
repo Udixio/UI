@@ -44,6 +44,9 @@ jobs:
 
       - name: Setup Dependencies
         uses: ./.github/actions/setup
+        with:
+          fontawesome_token: ${{ secrets.FONTAWESOME_TOKEN }}
+
 
       - name: Lint
         uses: ./.github/actions/lint
