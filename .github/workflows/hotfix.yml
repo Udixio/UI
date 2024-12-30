@@ -20,6 +20,8 @@ jobs:
 
       - name: Setup Dependencies
         uses: ./.github/actions/setup
+        with:
+          fontawesome_token: ${{ secrets.FONTAWESOME_TOKEN }}
 
       - name: Add execute permissions
         run: chmod +x ./scripts/check_commits.sh
