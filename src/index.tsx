@@ -4,7 +4,7 @@ export * from './button';
 export * from './code-preview';
 export * from './communication/progress-indicator';
 export * from './communication/snackbar';
-export * from './Containment/card';
+export * from './containment/card';
 export * from './diviser';
 export * from './effects/ripple';
 export * from './icon';
