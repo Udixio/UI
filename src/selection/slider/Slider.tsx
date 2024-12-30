@@ -283,7 +283,14 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
           const previousMark = marks
             .slice(0)
             .reverse()
-            .find((mark) => mark.value < value);
+            .find((mark, index, array) => {
+              if (value === Infinity) {
+                // If value is Infinity, take the second-to-last mark
+                return index === 1;
+              }
+              return mark.value < value;
+            });
+
           if (previousMark) {
             // If one exists, update the value to the mark's value
             updateSliderValues({ value: previousMark.value });
