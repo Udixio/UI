@@ -49,6 +49,8 @@ jobs:
           fetch-depth: 0
       - name: Setup Dependencies
         uses: ./.github/actions/setup
+        with:
+          fontawesome_token: ${{ secrets.FONTAWESOME_TOKEN }}
 
       - name: Get Token
         uses: actions/create-github-app-token@v1

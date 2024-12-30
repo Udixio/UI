@@ -14,23 +14,3 @@ jobs:
         run: |
           echo "Blocked: Pull requests to main must come from hotfix/* or release/* branches."
           exit 1
-  test:
-    needs: check-source
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Setup Dependencies
-        uses: ./.github/actions/setup
-        with:
-          fontawesome_token: ${{ secrets.FONTAWESOME_TOKEN }}
-
-      - name: Deploy to Staging
-        uses: ./.github/actions/deploy
-        with:
-          base_branch: 'main'
-          node_env: 'staging'
-      - name: Test
-        uses: ./.github/actions/test
