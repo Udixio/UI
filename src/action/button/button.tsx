@@ -1,9 +1,9 @@
 import React, { MouseEventHandler } from 'react';
-import { Icon } from '../icon';
+import { Icon } from '../../icon';
 
-import { StylesHelper } from '../utils';
+import { StylesHelper } from '../../utils';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { ProgressIndicator } from '../communication/progress-indicator';
+import { ProgressIndicator } from '../../communication/progress-indicator';
 import classNames from 'classnames';
 
 export type ButtonVariant =

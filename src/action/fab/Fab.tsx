@@ -71,7 +71,7 @@ export const Fab = forwardRef<HTMLButtonElement | HTMLAnchorElement, FabProps>(
       });
     })();
 
-    const defaultRef = useRef();
+    const defaultRef = useRef(null);
     const resolvedRef = ref || defaultRef;
 
     const labelVariants = {

@@ -60,7 +60,7 @@ export const Tab = forwardRef<HTMLButtonElement | HTMLAnchorElement, TabProps>(
       ...restProps
     }: TabProps = args;
 
-    const defaultRef = useRef();
+    const defaultRef = useRef(null);
     const resolvedRef = ref || defaultRef;
 
     const [selected, setSelected] = useState(args.selected);
