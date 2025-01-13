@@ -1,8 +1,13 @@
 import { ClassNameComponent, StylesHelper } from '../../utils';
-import { CarouselElement, CarouselState } from './Carousel';
+
+import {
+  CarouselElement,
+  CarouselInternalState,
+  CarouselProps,
+} from './carousel.interface';
 
 export const CarouselStyle: ClassNameComponent<
-  CarouselState,
+  CarouselProps & CarouselInternalState,
   CarouselElement
 > = ({}) => {
   return {
