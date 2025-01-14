@@ -1,40 +1,30 @@
-import React, { useRef } from 'react';
-import { StylesHelper } from '../../utils';
-import { CarouselStyle } from './CarouselStyle';
-import {
-  CarouselDefaultProps, CarouselElement,
-  CarouselExternalProps,
-  CarouselInternalState,
-  CarouselProps,
-} from './carousel.interface';
+import React, { useState } from 'react';
+import { CarouselFactory } from './carousel.interface';
 
-export const Carousel = ({
-  className,
-  variant = 'hero',
-  ref,
-  ...restProps
-}: CarouselProps) => {
-  const getClassNames = (() => {
-    return StylesHelper.classNamesElements<
-      CarouselExternalProps & CarouselDefaultProps & CarouselInternalState,
-      CarouselElement
-    >({
-      default: 'carousel',
-      classNameList: [className, CarouselStyle],
-      states: {
-        variant,
-        ref
-      },
-    });
-  })();
+// export const Carousel = ({}: PropsExternal &
+//   PropsOptional &
+//   PropsInternal & {
+//   ref?: React.RefObject<HTMLElement>;
+// } & HTMLAttributes<HTMLElement>) => {
+//   return (
+//       <div onClick={() => setCount(count + 1)} {...restProps}>
+//         {variant}
+//         {count}
+//       </div>
+//     );
+// };
 
-  const defaultRef = useRef<HTMLDivElement>(null);
-  const resolvedRef: React.RefObject<any> | React.ForwardedRef<any> =
-    ref || defaultRef;
+export const Carousel = new CarouselFactory(
+  ({ variant, count: countProps, ref, ...restProps }) => {
+    const [count, setCount] = useState(countProps);
 
-  return (
-    <div className={getClassNames.carousel} ref={resolvedRef} {...restProps}>
-      caroussel
-    </div>
-  );
-};
+    return (
+      <div onClick={() => setCount(count + 1)} {...restProps}>
+        {variant}
+        {count}
+      </div>
+    );
+  }
+).render();
+
+export type CarouselProps = Parameters<typeof Carousel>[0];
