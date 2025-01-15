@@ -6,6 +6,7 @@ export * from './communication/progress-indicator';
 export * from './communication/snackbar';
 export * from './containment/card';
 export * from './containment/carousel';
+export * from './containment/carousel/item';
 export * from './diviser';
 export * from './effects/ripple';
 export * from './icon';
