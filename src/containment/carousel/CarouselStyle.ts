@@ -4,6 +4,6 @@ import { CarouselClassName } from './carousel.interface';
 
 export const carouselStyle: CarouselClassName = ({}) => {
   return {
-    carousel: StylesHelper.classNames([]),
+    carousel: StylesHelper.classNames(['flex']),
   };
 };
