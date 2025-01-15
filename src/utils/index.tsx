@@ -1,2 +1,2 @@
-export * from './component-factory';
+export * from './component-helper';
 export * from './StylesHelper';
