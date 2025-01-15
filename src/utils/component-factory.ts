@@ -1,40 +1,45 @@
-import React, { HTMLAttributes, ReactNode } from 'react';
+import React, { HTMLAttributes } from 'react';
+import { StyleProps, StylesHelper } from './StylesHelper';
 
-export abstract class ComponentFactory<
-  PropsExternal extends object,
+export class ComponentHelper<
+  PropsRequired extends object,
   PropsOptional extends object,
-  PropsInternal extends object,
-  State extends object,
-  HTMLElement = HTMLDivElement,
+  States extends object,
+  HTML extends HTMLElement = HTMLDivElement,
 > {
-  abstract defaultProps: PropsOptional & PropsInternal;
-  protected abstract elements: string[];
+  elements: string[];
 
-  constructor(
-    protected callback: (
-      props: PropsExternal &
-        PropsOptional &
-        PropsInternal & {
-          ref?: React.RefObject<HTMLElement>;
-        } & HTMLAttributes<HTMLElement>
-    ) => ReactNode
-  ) {}
+  private classNameType!: StyleProps<
+    PropsOptional & PropsRequired & States,
+    (typeof this.elements)[number]
+  >;
 
-  render() {
-    return (
-      args: PropsExternal &
-        Partial<PropsOptional> & {
-          ref?: React.RefObject<HTMLElement>;
-        } & HTMLAttributes<HTMLElement>
-    ) => {
-      const props: PropsExternal & PropsOptional & PropsInternal = {
-        ...this.defaultProps,
-        ...args,
-      };
+  private propsType!: PropsRequired &
+    Partial<PropsOptional> & {
+      ref?: React.RefObject<HTML>;
+    } & HTMLAttributes<HTML> &
+    typeof this.classNameType;
 
-      // const test = this.internalStates.map
+  private style: (typeof this.classNameType)['className'];
 
-      return this.callback(props);
-    };
+  constructor(args: { elements: string[] }) {
+    this.elements = args.elements;
+  }
+
+  setDefaultStyle(className: (typeof this.classNameType)['className']) {
+    this.style = className;
+  }
+
+  getStyles(
+    args: PropsRequired & PropsOptional & States & typeof this.classNameType
+  ) {
+    return StylesHelper.classNamesElements<
+      PropsRequired & PropsOptional & States,
+      (typeof this.elements)[number]
+    >({
+      default: this.elements[0],
+      classNameList: [args.className, this.style],
+      states: args,
+    });
   }
 }

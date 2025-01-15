@@ -1,15 +1,8 @@
-import { ClassNameComponent, StylesHelper } from '../../utils';
+import { StylesHelper } from '../../utils';
 
-import {
-  CarouselElement,
-  CarouselInternalState,
-  CarouselProps,
-} from './carousel.interface';
+import { CarouselClassName } from './carousel.interface';
 
-export const CarouselStyle: ClassNameComponent<
-  CarouselProps & CarouselInternalState,
-  CarouselElement
-> = ({}) => {
+export const carouselStyle: CarouselClassName['className'] = ({}) => {
   return {
     carousel: StylesHelper.classNames([]),
   };
