@@ -11,7 +11,6 @@ export const Carousel = ({
   const styles = carouselHelper.getStyles({
     count,
     variant,
-    className,
   });
 
   return (
@@ -20,6 +19,7 @@ export const Carousel = ({
       onClick={() => setCount(count + 1)}
       {...restProps}
     >
+      <div></div>
       {variant}
       {count}
     </div>

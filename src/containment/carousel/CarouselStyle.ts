@@ -2,7 +2,7 @@ import { StylesHelper } from '../../utils';
 
 import { CarouselClassName } from './carousel.interface';
 
-export const carouselStyle: CarouselClassName['className'] = ({}) => {
+export const carouselStyle: CarouselClassName = ({}) => {
   return {
     carousel: StylesHelper.classNames([]),
   };

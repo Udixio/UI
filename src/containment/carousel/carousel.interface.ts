@@ -1,4 +1,4 @@
-import { ComponentHelper } from '../../utils';
+import { ComponentHelper, ComponentProps } from '../../utils';
 import { carouselStyle } from './CarouselStyle';
 
 type RequiredProps = {};
@@ -21,15 +21,23 @@ type OptionalProps = {
 type States = {
   count: number;
 };
+type Elements = 'carousel'
 
-export const carouselHelper = new ComponentHelper<
+export type CarouselProps = ComponentProps<
   RequiredProps,
   OptionalProps,
-  States
->({ elements: ['carousel'] });
+  States,
+  Elements,
+  HTMLDivElement
+>;
+export type CarouselClassName = CarouselProps['className'];
+
+export const carouselHelper = new ComponentHelper<
+  CarouselProps,
+  OptionalProps,
+  States,
+  Elements
+>('carousel');
 {
 }
-carouselHelper.setDefaultStyle(carouselStyle);
-
-export type CarouselProps = (typeof carouselHelper)['propsType'];
-export type CarouselClassName = (typeof carouselHelper)['classNameType'];
+carouselHelper.addStyle(carouselStyle);
