@@ -1,16 +1,8 @@
-import { ComponentHelper, ComponentProps } from '../../utils';
 import { carouselStyle } from './CarouselStyle';
+import { ComponentHelper, ComponentProps } from '../../utils';
 
 type RequiredProps = {};
 type OptionalProps = {
-  /**
-   * Defines the layout and behavior of the carousel.
-   * - `hero`: A prominent, large carousel for hero banners.
-   * - `center-aligned hero`: Similar to `hero` but content is center-aligned.
-   * - `multi-browse`: Allows browsing multiple items at once.
-   * - `un-contained`: Spans outside the container boundaries.
-   * - `full-screen`: Expands to fill the entire screen.
-   */
   variant:
     | 'hero'
     | 'center-aligned hero'
@@ -18,10 +10,8 @@ type OptionalProps = {
     | 'un-contained'
     | 'full-screen';
 };
-type States = {
-  count: number;
-};
-type Elements = 'carousel'
+type States = {};
+type Elements = 'carousel';
 
 export type CarouselProps = ComponentProps<
   RequiredProps,

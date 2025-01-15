@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { carouselHelper, CarouselProps } from './carousel.interface';
 
 export const Carousel = ({
@@ -6,24 +6,11 @@ export const Carousel = ({
   className,
   ...restProps
 }: CarouselProps) => {
-  const [count, setCount] = useState(0);
-
   const styles = carouselHelper.getStyles({
-    count,
     variant,
   });
 
-  return (
-    <div
-      className={styles.carousel}
-      onClick={() => setCount(count + 1)}
-      {...restProps}
-    >
-      <div></div>
-      {variant}
-      {count}
-    </div>
-  );
+  return <div className={styles.carousel} {...restProps}></div>;
 };
 
 // export const Carousel = new CarouselFactory(
