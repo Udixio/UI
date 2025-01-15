@@ -1,7 +1,10 @@
 import { carouselStyle } from './CarouselStyle';
 import { ComponentHelper, ComponentProps } from '../../utils';
+import { ReactNode } from 'react';
 
-type RequiredProps = {};
+type RequiredProps = {
+  children?: ReactNode
+};
 type OptionalProps = {
   variant:
     | 'hero'

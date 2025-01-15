@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Carousel, CarouselProps } from '../../../src';
+import { Carousel, CarouselProps, Item } from '../../../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -22,7 +22,26 @@ const createCarouselStory = (args?: Partial<CarouselProps>) => {
   const carouselStory: Story = (args: CarouselProps) => (
     <div className="">
       <div className="flex m-4 gap-4 items-center">
-        <Carousel {...args} />
+        <Carousel {...args}>
+          <Item>
+            <img alt={'illustration'} src={'images/architecture.jpg'} />
+          </Item>
+          <Item>
+            <img alt={'illustration'} src={'images/architecture.jpg'} />
+          </Item>
+          <Item>
+            <img alt={'illustration'} src={'images/architecture.jpg'} />
+          </Item>
+          <Item>
+            <img alt={'illustration'} src={'images/architecture.jpg'} />
+          </Item>
+          <Item>
+            <img alt={'illustration'} src={'images/architecture.jpg'} />
+          </Item>
+          <Item>
+            <img alt={'illustration'} src={'images/architecture.jpg'} />
+          </Item>
+        </Carousel>
       </div>
     </div>
   );
