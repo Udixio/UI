@@ -1,8 +1,16 @@
-import { ComponentFactory } from '../../utils';
+import { ComponentHelper } from '../../utils';
+import { carouselStyle } from './CarouselStyle';
 
-type ExternalProps = {
-};
+type RequiredProps = {};
 type OptionalProps = {
+  /**
+   * Defines the layout and behavior of the carousel.
+   * - `hero`: A prominent, large carousel for hero banners.
+   * - `center-aligned hero`: Similar to `hero` but content is center-aligned.
+   * - `multi-browse`: Allows browsing multiple items at once.
+   * - `un-contained`: Spans outside the container boundaries.
+   * - `full-screen`: Expands to fill the entire screen.
+   */
   variant:
     | 'hero'
     | 'center-aligned hero'
@@ -10,20 +18,18 @@ type OptionalProps = {
     | 'un-contained'
     | 'full-screen';
 };
-type InternalProps = {
+type States = {
   count: number;
 };
 
-type States = InternalProps;
-export class CarouselFactory extends ComponentFactory<
-  ExternalProps,
+export const carouselHelper = new ComponentHelper<
+  RequiredProps,
   OptionalProps,
-  InternalProps,
   States
-> {
-  defaultProps: OptionalProps & InternalProps = {
-    count: 0,
-    variant: 'hero',
-  };
-  protected elements = ['carousel'];
+>({ elements: ['carousel'] });
+{
 }
+carouselHelper.setDefaultStyle(carouselStyle);
+
+export type CarouselProps = (typeof carouselHelper)['propsType'];
+export type CarouselClassName = (typeof carouselHelper)['classNameType'];
