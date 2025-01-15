@@ -1,10 +1,12 @@
 import { ComponentHelper, ComponentProps } from '../../../utils';
 import { itemStyle } from './item.style';
+import { ReactNode } from 'react';
 
-type RequiredProps = {};
-type OptionalProps = {
-
+type RequiredProps = {
+  isExpanded?: boolean;
+  children?: ReactNode
 };
+type OptionalProps = {};
 type States = {};
 type Elements = 'item';
 
