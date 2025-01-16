@@ -32,32 +32,24 @@ export const Carousel = ({
   const calculatePercentages = (scrollXProgressValue: number) => {
     if (!trackRef.current) return [];
 
-    const trackRect = trackRef.current.getBoundingClientRect(); // Dimensions du conteneur
-    const containerCenterX = trackRect.left + trackRect.width / 2; // Centre du conteneur réel du carousel
+    const trackRect = trackRef.current.getBoundingClientRect();
 
     return items.map((_, index) => {
       const itemRef = itemRefs[index];
 
       if (!itemRef.current || !trackRef.current) return 0;
 
-      const itemRect = itemRef.current.getBoundingClientRect(); // Dimensions de chaque item
-
       const itemScrollXCenter =
         itemRef.current.offsetLeft /
         (trackRef.current.scrollWidth - itemRef.current.offsetWidth);
 
-      // Normalisation en pourcentage
       const absoluteDifference = Math.abs(
         itemScrollXCenter - scrollXProgressValue
       );
-
       const itemXPourcent = (1 - absoluteDifference) * 100;
-
       const trackVisiblePourcent =
         (trackRect.width / trackRef.current.scrollWidth) * 100;
-
       const trackInvisiblePourcent = 100 - trackVisiblePourcent;
-
       return (
         ((itemXPourcent - trackInvisiblePourcent) /
           (100 - trackInvisiblePourcent)) *
