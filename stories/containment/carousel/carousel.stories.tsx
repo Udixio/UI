@@ -23,7 +23,7 @@ const createCarouselStory = (args?: Partial<CarouselProps>) => {
     <div className="">
       <div className="flex m-4 gap-4 items-center">
         <Carousel {...args}>
-          {Array.from({ length: 7 }).map((_, index) => (
+          {Array.from({ length: 9 }).map((_, index) => (
             <Item key={index}>
               <img
                 className={'object-cover h-full'}
