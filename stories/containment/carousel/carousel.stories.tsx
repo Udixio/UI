@@ -26,7 +26,7 @@ const createCarouselStory = (args?: Partial<CarouselProps>) => {
           {Array.from({ length: 9 }).map((_, index) => (
             <Item key={index}>
               <img
-                className={'object-cover h-full'}
+                className={'object-cover  h-full w-full'}
                 alt={'illustration'}
                 src={`images/example-${Math.floor(Math.random() * 9) + 1}.png`}
               />
