@@ -33,34 +33,36 @@ export const Carousel = ({
     if (!trackRef.current) return [];
 
     const trackRect = trackRef.current.getBoundingClientRect(); // Dimensions du conteneur
-    const containerCenterX = trackRect.left + trackRect.width / 2; // Centre du conteneur
+    const containerCenterX = trackRect.left + trackRect.width / 2; // Centre du conteneur réel du carousel
 
     return items.map((_, index) => {
       const itemRef = itemRefs[index];
 
-      if (!itemRef.current) return 0;
+      if (!itemRef.current || !trackRef.current) return 0;
 
       const itemRect = itemRef.current.getBoundingClientRect(); // Dimensions de chaque item
-      const itemCenterX = itemRect.left + itemRect.width / 2; // Centre de l’item
 
-      // Ajustement en fonction du scrollXProgress
-      const adjustedItemCenterX =
-        itemCenterX - trackRect.width * (scrollXProgressValue - 0.5);
-
-      // Distance relative au centre (incluant scrollXProgress)
-      const distanceFromCenter = Math.abs(
-        containerCenterX - adjustedItemCenterX
-      );
-      const maxDistance = trackRect.width / 2; // Distance maximale (bord du conteneur)
+      const itemScrollXCenter =
+        itemRef.current.offsetLeft /
+        (trackRef.current.scrollWidth - itemRef.current.offsetWidth);
 
       // Normalisation en pourcentage
-      const percentage = Math.max(
-        0,
-        100 - (distanceFromCenter / maxDistance) * 100
+      const absoluteDifference = Math.abs(
+        itemScrollXCenter - scrollXProgressValue
       );
 
-      // Vérification de visibilité (minimale 50 % selon la demande)
-      return percentage > 50 ? percentage : 0;
+      const itemXPourcent = (1 - absoluteDifference) * 100;
+
+      const trackVisiblePourcent =
+        (trackRect.width / trackRef.current.scrollWidth) * 100;
+
+      const trackInvisiblePourcent = 100 - trackVisiblePourcent;
+
+      return (
+        ((itemXPourcent - trackInvisiblePourcent) /
+          (100 - trackInvisiblePourcent)) *
+        100
+      );
     });
   };
 
