@@ -3,11 +3,13 @@ import { itemStyle } from './item.style';
 import { ReactNode } from 'react';
 
 type RequiredProps = {
-  isExpanded?: boolean;
-  children?: ReactNode
+  children?: ReactNode;
+  visibilityPercentage: number;
 };
 type OptionalProps = {};
-type States = {};
+type States = {
+  isExpanded?: boolean;
+};
 type Elements = 'item';
 
 export type ItemProps = ComponentProps<
