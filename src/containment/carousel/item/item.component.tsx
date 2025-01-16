@@ -16,34 +16,33 @@ export const Item = ({
 
   const initialVisibility = visibilityPercentage ?? 0;
 
-  // MotionValue pour suivre visibilityPercentage
   const visibility = useMotionValue(initialVisibility);
 
-  // Mettre à jour automatiquement la MotionValue si percentage change
   useEffect(() => {
     if (visibilityPercentage !== undefined) {
-      visibility.set(visibilityPercentage); // Synchroniser avec la prop
+      visibility.set(visibilityPercentage);
     }
   }, [visibilityPercentage, visibility]);
 
-  // Calculer l'opacité avec useTransform
-  const opacity = useTransform(visibility, [10, 60], [0, 1]);
+  const flexBasis = useTransform(visibility, [10, 50], ['15%', '30%']);
+
   return (
     <motion.div
       style={{
-        opacity,
+        // opacity,
+        flexBasis,
       }}
       className={styles.item}
       {...restProps}
     >
       {children}
-      <p
-        className={
-          'text-display-large absolute text-on-surface bg-surface -translate-x-1/2 left-1/2 top-1/2'
-        }
-      >
-        {Math.round(visibilityPercentage)}
-      </p>
+      {/*<p*/}
+      {/*  className={*/}
+      {/*    'text-display-large absolute text-on-surface bg-surface -translate-x-1/2 left-1/2 top-1/2'*/}
+      {/*  }*/}
+      {/*>*/}
+      {/*  {Math.round(visibilityPercentage)}*/}
+      {/*</p>*/}
     </motion.div>
   );
 };
