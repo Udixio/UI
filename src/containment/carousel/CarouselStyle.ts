@@ -4,6 +4,7 @@ import { CarouselClassName } from './carousel.interface';
 
 export const carouselStyle: CarouselClassName = ({}) => {
   return {
-    carousel: StylesHelper.classNames(['flex']),
+    carousel: StylesHelper.classNames(['overflow-scroll ']),
+    track: StylesHelper.classNames(['flex gap-2']),
   };
 };
