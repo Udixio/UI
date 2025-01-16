@@ -9,7 +9,7 @@ export type ComponentProps<
   HTML extends HTMLElement,
 > = PropsRequired &
   Partial<PropsOptional> & {
-    ref?: React.RefObject<HTML>;
+    ref?: React.RefObject<HTML | null>;
   } & Omit<HTMLAttributes<HTML>, 'className'> &
   ComponentClassName<PropsRequired, PropsOptional, States, Elements>;
 

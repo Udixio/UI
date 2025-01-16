@@ -5,7 +5,8 @@ export const itemStyle: ItemClassName = ({ isExpanded }) => {
   return {
     item: StylesHelper.classNames([
       'rounded-[28px] overflow-hidden transition-all duration-300',
-      { ' flex-1 ': isExpanded, 'max-w-16 ': !isExpanded },
+      'basis-1/4 flex-none',
+      { '': isExpanded, 'min-w-16 opacity-50': !isExpanded },
     ]),
   };
 };

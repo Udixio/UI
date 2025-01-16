@@ -3,7 +3,7 @@ import { ComponentHelper, ComponentProps } from '../../utils';
 import { ReactNode } from 'react';
 
 type RequiredProps = {
-  children?: ReactNode
+  children?: ReactNode;
 };
 type OptionalProps = {
   variant:
@@ -14,7 +14,7 @@ type OptionalProps = {
     | 'full-screen';
 };
 type States = {};
-type Elements = 'carousel';
+type Elements = 'carousel' | 'track';
 
 export type CarouselProps = ComponentProps<
   RequiredProps,
