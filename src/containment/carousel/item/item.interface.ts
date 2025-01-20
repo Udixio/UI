@@ -5,11 +5,10 @@ import { ReactNode } from 'react';
 type RequiredProps = {
   children?: ReactNode;
   visibilityPercentage: number;
+  index?: number
 };
 type OptionalProps = {};
-type States = {
-  isExpanded?: boolean;
-};
+type States = {};
 type Elements = 'item';
 
 export type ItemProps = ComponentProps<
