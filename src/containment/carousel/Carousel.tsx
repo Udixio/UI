@@ -92,6 +92,7 @@ export const Carousel = ({
       visibilityPercentage: visibilityPercentages[index], // Passer la valeur de visibilité calculée
       ref: itemRefs[index],
       key: index,
+      index,
     });
   });
 
