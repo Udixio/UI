@@ -24,7 +24,7 @@ export const Item = ({
     }
   }, [visibilityPercentage, visibility]);
 
-  const flexBasis = useTransform(visibility, [10, 50], ['15%', '30%']);
+  const flexBasis = useTransform(visibility, [0.1, 0.5], ['15%', '30%']);
 
   return (
     <motion.div
@@ -41,7 +41,7 @@ export const Item = ({
       {/*    'text-display-large absolute text-on-surface bg-surface -translate-x-1/2 left-1/2 top-1/2'*/}
       {/*  }*/}
       {/*>*/}
-      {/*  {Math.round(visibilityPercentage)}*/}
+      {/*  {Math.round(visibilityPercentage * 100)}*/}
       {/*</p>*/}
     </motion.div>
   );
