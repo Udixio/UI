@@ -30,7 +30,7 @@ export const Carousel = ({
 
   // Fonction de calcul dynamique des pourcentages
   const calculatePercentages = (scrollXProgressValue: number) => {
-    if (!trackRef.current) return [];
+    if (!trackRef.current || !ref.current) return [];
 
     const trackRect = trackRef.current.getBoundingClientRect();
 
@@ -43,17 +43,32 @@ export const Carousel = ({
         itemRef.current.offsetLeft /
         (trackRef.current.scrollWidth - itemRef.current.offsetWidth);
 
-      const absoluteDifference = Math.abs(
-        itemScrollXCenter - scrollXProgressValue
-      );
-      const itemXPourcent = (1 - absoluteDifference) * 100;
-      const trackVisiblePourcent =
-        (trackRect.width / trackRef.current.scrollWidth) * 100;
-      const trackInvisiblePourcent = 100 - trackVisiblePourcent;
+      let itemXPourcent;
+      let isOnLeft;
+
+      if (itemScrollXCenter !== scrollXProgressValue) {
+        isOnLeft = scrollXProgressValue > itemScrollXCenter;
+        const min = isOnLeft ? 0 : scrollXProgressValue;
+        const max = isOnLeft ? scrollXProgressValue : 1;
+        itemXPourcent = (itemScrollXCenter - min) / (max - min);
+        if (!isOnLeft) {
+          itemXPourcent = 1 - itemXPourcent;
+        }
+      } else {
+        return 1;
+      }
+
+      const scrollLeft = ref.current?.scrollLeft!;
+      const scrollWidth = ref.current?.scrollWidth!;
+      const scrollRight = scrollWidth - scrollLeft! - ref.current?.clientWidth!;
+
+      const trackInvisiblePourcent =
+        (isOnLeft ? scrollLeft : scrollRight) /
+        scrollWidth /
+        (isOnLeft ? scrollXProgressValue : 1 - scrollXProgressValue);
+
       return (
-        ((itemXPourcent - trackInvisiblePourcent) /
-          (100 - trackInvisiblePourcent)) *
-        100
+        (itemXPourcent - trackInvisiblePourcent) / (1 - trackInvisiblePourcent)
       );
     });
   };
@@ -64,6 +79,11 @@ export const Carousel = ({
   // Mettre à jour les pourcentages à chaque changement de `scrollXProgress`
   useMotionValueEvent(scrollXProgress, 'change', (latestValue) => {
     const updatedPercentages = calculatePercentages(latestValue);
+
+    // console.log(
+    //   'somme: ',
+    //   updatedPercentages.reduce((sum, value) => sum + value, 0)
+    // );
     setVisibilityPercentages(updatedPercentages);
   });
 
