@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { carouselHelper, CarouselProps } from './carousel.interface';
 import { Item, ItemProps } from './item';
 import { useMotionValueEvent, useScroll } from 'framer-motion';
@@ -41,13 +41,15 @@ export const Carousel = ({
 
       if (!itemRef.current || !trackRef.current) return 0;
 
-      const itemScrollXCenter =
+      let itemScrollXCenter =
         itemRef.current.offsetLeft /
         (trackRef.current.scrollWidth - itemRef.current.offsetWidth);
 
       let itemXPourcent;
       let isOnLeft;
 
+      if (itemScrollXCenter > 1) itemScrollXCenter = 1;
+      if (itemScrollXCenter < 0) itemScrollXCenter = 0;
       if (itemScrollXCenter !== scrollXProgressValue) {
         isOnLeft = scrollXProgressValue > itemScrollXCenter;
         const min = isOnLeft ? 0 : scrollXProgressValue;
@@ -70,14 +72,6 @@ export const Carousel = ({
         scrollWidth /
         (isOnLeft ? scrollXProgressValue : 1 - scrollXProgressValue);
 
-      if (index == 58) {
-        console.log(`
-        invisible: ${trackInvisiblePourcent}
-        value: ${itemXPourcent}
-        result: ${(itemXPourcent - trackInvisiblePourcent) / (1 - trackInvisiblePourcent)}
-        `);
-      }
-
       return (
         (itemXPourcent - trackInvisiblePourcent) / (1 - trackInvisiblePourcent)
       );
@@ -97,6 +91,11 @@ export const Carousel = ({
     // );
     setVisibilityPercentages(updatedPercentages);
   });
+
+  useEffect(() => {
+    const updatedPercentages = calculatePercentages(0);
+    setVisibilityPercentages(updatedPercentages);
+  }, []);
 
   const renderItems = items.map((child, index) => {
     return React.cloneElement(child as React.ReactElement<ItemProps>, {
