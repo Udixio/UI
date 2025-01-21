@@ -34,7 +34,7 @@ export const Item = ({
     <motion.div
       animate={{ flex: '0 0 calc(' + flexBasis + '% - 4px)' }}
       transition={{
-        duration: 0,
+        duration: 0.2,
         ease: 'easeOut',
       }}
       className={styles.item}
