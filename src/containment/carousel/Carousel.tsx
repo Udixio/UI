@@ -8,10 +8,12 @@ export const Carousel = ({
   className,
   children,
   ref = useRef<HTMLDivElement>(null),
+  marginPourcent = 0.2,
   ...restProps
 }: CarouselProps) => {
   const styles = carouselHelper.getStyles({
     variant,
+    marginPourcent,
   });
 
   const items = React.Children.toArray(children).filter(
@@ -63,9 +65,18 @@ export const Carousel = ({
       const scrollRight = scrollWidth - scrollLeft! - ref.current?.clientWidth!;
 
       const trackInvisiblePourcent =
-        (isOnLeft ? scrollLeft : scrollRight) /
+        ((isOnLeft ? scrollLeft : scrollRight) -
+          marginPourcent * trackRect.width) /
         scrollWidth /
         (isOnLeft ? scrollXProgressValue : 1 - scrollXProgressValue);
+
+      if (index == 58) {
+        console.log(`
+        invisible: ${trackInvisiblePourcent}
+        value: ${itemXPourcent}
+        result: ${(itemXPourcent - trackInvisiblePourcent) / (1 - trackInvisiblePourcent)}
+        `);
+      }
 
       return (
         (itemXPourcent - trackInvisiblePourcent) / (1 - trackInvisiblePourcent)
