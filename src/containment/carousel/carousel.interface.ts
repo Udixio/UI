@@ -21,7 +21,7 @@ export type CarouselProps = ComponentProps<
   OptionalProps,
   States,
   Elements,
-  HTMLDivElement
+  'div'
 >;
 export type CarouselClassName = CarouselProps['className'];
 

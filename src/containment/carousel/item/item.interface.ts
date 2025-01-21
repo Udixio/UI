@@ -1,26 +1,26 @@
-import { ComponentHelper, ComponentProps } from '../../../utils';
+import { ComponentHelper, MotionComponentProps } from '../../../utils';
 import { itemStyle } from './item.style';
 import { ReactNode } from 'react';
 
 type RequiredProps = {
   children?: ReactNode;
   visibilityPercentage: number;
-  index?: number
+  index?: number;
 };
 type OptionalProps = {};
 type States = {};
 type Elements = 'item';
 
-export type ItemProps = ComponentProps<
+export type ItemProps = MotionComponentProps<
   RequiredProps,
   OptionalProps,
   States,
   Elements,
-  HTMLDivElement
+  'div'
 >;
 export type ItemClassName = ItemProps['className'];
 
-export const carouselHelper = new ComponentHelper<
+export const itemHelper = new ComponentHelper<
   ItemProps,
   OptionalProps,
   States,
@@ -28,4 +28,4 @@ export const carouselHelper = new ComponentHelper<
 >('item');
 {
 }
-carouselHelper.addStyle(itemStyle);
+itemHelper.addStyle(itemStyle);
