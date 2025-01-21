@@ -12,6 +12,7 @@ type OptionalProps = {
     | 'multi-browse'
     | 'un-contained'
     | 'full-screen';
+  marginPourcent: number;
 };
 type States = {};
 type Elements = 'carousel' | 'track';

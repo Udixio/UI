@@ -1,5 +1,5 @@
 import React from 'react';
-import { carouselHelper, ItemProps } from './item.interface';
+import { itemHelper, ItemProps } from './item.interface';
 import { motion } from 'framer-motion';
 
 const normalize = (
@@ -23,31 +23,31 @@ export const Item = ({
   index,
   ...restProps
 }: ItemProps) => {
-  const styles = carouselHelper.getStyles({
+  const styles = itemHelper.getStyles({
     visibilityPercentage,
   });
 
   const flexBasis =
-    normalize(visibilityPercentage, [0, 0.65], [0.1, 0.33]) * 100 + '%';
+    normalize(visibilityPercentage, [0.21, 0.65], [0.1, 1 / 3]) * 100;
 
   return (
     <motion.div
-      animate={{ flexBasis }}
+      animate={{ flex: '0 0 calc(' + flexBasis + '% - 4px)' }}
       transition={{
-        duration: 0.2,
-        ease: 'linear',
+        duration: 0,
+        ease: 'easeOut',
       }}
       className={styles.item}
       {...restProps}
     >
       {children}
-      {/*<p*/}
-      {/*  className={*/}
-      {/*    'text-display-large absolute text-on-surface bg-surface opacity-20 -translate-x-1/2 left-1/2 top-1/2'*/}
-      {/*  }*/}
-      {/*>*/}
-      {/*  {Math.round(visibilityPercentage * 100)}*/}
-      {/*</p>*/}
+      <p
+        className={
+          'text-display-large absolute text-on-surface bg-surface opacity-20 -translate-x-1/2 left-1/2 top-1/2'
+        }
+      >
+        {Math.round(visibilityPercentage * 100)}
+      </p>
     </motion.div>
   );
 };
