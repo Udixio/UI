@@ -1,3 +1,4 @@
+export * from './action/button';
 export * from './action/fab';
 export * from './avatar';
 export * from './communication/progress-indicator';
