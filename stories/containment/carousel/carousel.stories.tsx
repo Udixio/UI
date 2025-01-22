@@ -28,7 +28,7 @@ const createCarouselStory = (args?: Partial<CarouselProps>) => {
               <img
                 className={'object-cover  h-full w-full'}
                 alt={'illustration'}
-                src={`images/example-${Math.floor(Math.random() * 9) + 1}.png`}
+                src={`images/example-${Math.floor(Math.random() * 9) + 1}.webp`}
               />
             </Item>
           ))}
