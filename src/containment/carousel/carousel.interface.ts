@@ -4,6 +4,8 @@ import { ReactNode } from 'react';
 
 type RequiredProps = {
   children?: ReactNode;
+  inputRange?: [number, number];
+  outputRange?: [number, number];
 };
 type OptionalProps = {
   variant:
@@ -13,6 +15,7 @@ type OptionalProps = {
     | 'un-contained'
     | 'full-screen';
   marginPourcent: number;
+  height?: string;
 };
 type States = {};
 type Elements = 'carousel' | 'track';

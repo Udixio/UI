@@ -7,7 +7,10 @@ type RequiredProps = {
   visibilityPercentage: number;
   index?: number;
 };
-type OptionalProps = {};
+type OptionalProps = {
+  inputRange?: [number, number];
+  outputRange?: [number, number];
+};
 type States = {};
 type Elements = 'item';
 
