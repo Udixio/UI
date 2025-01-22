@@ -87,7 +87,7 @@ export const Tabs = ({
       )}
     >
       {tabChildren.map((child, index) => {
-        return React.cloneElement(child as React.ReactElement, {
+        return React.cloneElement(child as React.ReactElement<TabProps>, {
           key: index,
           tabIndex: index,
           variant: variant,
