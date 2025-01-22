@@ -1,8 +1,8 @@
 import type { FunctionComponent } from 'react';
 import React, { useEffect } from 'react';
-import { Icon } from '../icon';
+import { Icon } from '../../icon';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { StylesHelper } from '../utils';
+import { StylesHelper } from '../../utils';
 
 export type IconButtonVariant = 'standard' | 'filled' | 'tonal' | 'outlined';
 
