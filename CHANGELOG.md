@@ -1,3 +1,34 @@
+# [1.1.0](https://github.com/Udixio/UI/compare/v1.0.0...v1.1.0) (2025-01-22)
+
+
+### Bug Fixes
+
+* specify type for React element cloning ([ed5bac5](https://github.com/Udixio/UI/commit/ed5bac55701183378f347ee007178845f2d138ae))
+* **workflow:** trigger release on pull requests only ([ed973cf](https://github.com/Udixio/UI/commit/ed973cfd667764ad290ea1a338b6ac306a849122))
+
+
+### Features
+
+* add Carousel component and adjust casing ([4153448](https://github.com/Udixio/UI/commit/415344897be17774366b1f09eaf05cb97d169d0c))
+* **carousel:** add customizable height and input/output range ([4a43ffc](https://github.com/Udixio/UI/commit/4a43ffc3a0a17cffa50987f32b482313d50babae))
+* **carousel:** add dynamic flexBasis calculation for items ([92196bd](https://github.com/Udixio/UI/commit/92196bdc4d2ae002fa77464268da2acd4b8ae17d))
+* **carousel:** add dynamic visibility percentage tracking ([f87511f](https://github.com/Udixio/UI/commit/f87511fedef9affcffe72229c79dedeb5101b4ec))
+* **carousel:** add margin percentage for better layout control ([89fd461](https://github.com/Udixio/UI/commit/89fd461c36ee496c21e9c5f93f08ebd437f35047))
+* **carousel:** add storybook stories and refactor component ([5ab858e](https://github.com/Udixio/UI/commit/5ab858e2b19c5d0b41f2015d7c8fd7d08cbd15cb))
+* **carousel:** add support for child items in Carousel ([765bf75](https://github.com/Udixio/UI/commit/765bf75409f65fddfccff1636cab657ab7407156))
+* **carousel:** enhance dynamic visibility calculation logic ([c67e9f0](https://github.com/Udixio/UI/commit/c67e9f0728b70549cbe134c02bf97ef74ee17fb3))
+* **carousel:** enhance item handling in Carousel ([4c9c2ac](https://github.com/Udixio/UI/commit/4c9c2acae646941c3d16ec22fc09a81995bc52f7))
+* **carousel:** enhance visibility logic and animation ([9589039](https://github.com/Udixio/UI/commit/9589039a251960120e36c3826bb7f37cc1db3118))
+* **carousel:** implement dynamic item expansion on scroll ([2d0a7df](https://github.com/Udixio/UI/commit/2d0a7df9da6e53a4ab30a4cca7f3f6fcd7ffc188))
+* **carousel:** improve item visibility calculations ([8673eb6](https://github.com/Udixio/UI/commit/8673eb64f7075f4e9df8777af932f768d0ce12da))
+* **carousel:** improve responsive styling and behavior ([f667d9c](https://github.com/Udixio/UI/commit/f667d9c5dbe3f68d5a94e457a58d8eacfed6593f))
+* **carousel:** refactor Carousel component to use factory ([04f3806](https://github.com/Udixio/UI/commit/04f380685d0cafc822e70f842a27e57aed1ddfae))
+* dynamically update carousel images with new assets` ([de7c956](https://github.com/Udixio/UI/commit/de7c956e403cee4466ce9a99d8d2e8ebdc119b47))
+* enhance component props with Motion support ([ccc70d8](https://github.com/Udixio/UI/commit/ccc70d8e0954d4743b3a34c3c0c62a772dd38c71))
+* export carousel component from containment module ([23bc6cf](https://github.com/Udixio/UI/commit/23bc6cf3c90adb7cb83bd89e9cdd5c388da212cf))
+* **images:** update example images to new versions ([eb390eb](https://github.com/Udixio/UI/commit/eb390eb3ac80c91c8b65c9fce72610b04a63d70e))
+* improve item styling in carousel components ([81ea036](https://github.com/Udixio/UI/commit/81ea036a71fd5cf0968278b43c2b0022a410e60f))
+
 # 1.0.0 (2024-12-30)
 
 
