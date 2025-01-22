@@ -4,7 +4,7 @@ import { ReactNode } from 'react';
 
 type RequiredProps = {
   children?: ReactNode;
-  visibilityPercentage: number;
+  visibilityPercentage?: number;
   index?: number;
 };
 type OptionalProps = {
