@@ -21,6 +21,8 @@ export const Item = ({
   children,
   visibilityPercentage = 1,
   index,
+  inputRange = [0, 1],
+  outputRange = [0, 1],
   ...restProps
 }: ItemProps) => {
   const styles = itemHelper.getStyles({
@@ -28,7 +30,7 @@ export const Item = ({
   });
 
   const flexBasis =
-    normalize(visibilityPercentage, [0.21, 0.65], [0.1, 1 / 3]) * 100;
+    normalize(visibilityPercentage, inputRange, outputRange) * 100;
 
   return (
     <motion.div
@@ -41,13 +43,13 @@ export const Item = ({
       {...restProps}
     >
       {children}
-      <p
-        className={
-          'text-display-large absolute text-on-surface bg-surface opacity-20 -translate-x-1/2 left-1/2 top-1/2'
-        }
-      >
-        {Math.round(visibilityPercentage * 100)}
-      </p>
+      {/*<p*/}
+      {/*  className={*/}
+      {/*    'text-display-large absolute text-on-surface bg-surface opacity-20 -translate-x-1/2 left-1/2 top-1/2'*/}
+      {/*  }*/}
+      {/*>*/}
+      {/*  {Math.round(visibilityPercentage * 100)}*/}
+      {/*</p>*/}
     </motion.div>
   );
 };

@@ -5,10 +5,13 @@ import { useMotionValueEvent, useScroll } from 'framer-motion';
 
 export const Carousel = ({
   variant = 'hero',
+  height = '400px',
   className,
   children,
   ref = useRef<HTMLDivElement>(null),
   marginPourcent = 0.2,
+  inputRange = [0.21, 0.65],
+  outputRange = [0.1, 1 / 3],
   ...restProps
 }: CarouselProps) => {
   const styles = carouselHelper.getStyles({
@@ -103,11 +106,18 @@ export const Carousel = ({
       ref: itemRefs[index],
       key: index,
       index,
+      inputRange: inputRange,
+      outputRange: outputRange,
     });
   });
 
   return (
-    <div className={styles.carousel} ref={ref} {...restProps}>
+    <div
+      style={{ height }}
+      className={styles.carousel}
+      ref={ref}
+      {...restProps}
+    >
       <div className={styles.track} ref={trackRef}>
         {renderItems}
       </div>
