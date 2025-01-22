@@ -8,12 +8,15 @@ export const Carousel = ({
   height = '400px',
   className,
   children,
-  ref = useRef<HTMLDivElement>(null),
+  ref: propsRef,
   marginPourcent = 0.2,
   inputRange = [0.21, 0.65],
   outputRange = [0.1, 1 / 3],
   ...restProps
 }: CarouselProps) => {
+  const defaultRef = useRef<HTMLDivElement>(null);
+  const ref = propsRef || defaultRef;
+
   const styles = carouselHelper.getStyles({
     variant,
     marginPourcent,
@@ -81,8 +84,15 @@ export const Carousel = ({
     });
   };
 
-  // Refs pour chaque item
-  const itemRefs = items.map(() => useRef<HTMLDivElement>(null));
+  const itemRefs = useRef<React.RefObject<HTMLDivElement | null>[]>([]).current;
+
+  if (itemRefs.length !== items.length) {
+    items.forEach((_, i) => {
+      if (!itemRefs[i]) {
+        itemRefs[i] = React.createRef<HTMLDivElement>(); // Crée une nouvelle ref si manquante
+      }
+    });
+  }
 
   // Mettre à jour les pourcentages à chaque changement de `scrollXProgress`
   useMotionValueEvent(scrollXProgress, 'change', (latestValue) => {
