@@ -1,40 +1,29 @@
-import { carouselStyle } from './CarouselStyle';
-import { ComponentHelper, ComponentProps } from '../../utils';
+import { ComponentProps } from '../../utils';
 import { ReactNode } from 'react';
 
-type RequiredProps = {
+export type CarouselBaseProps = {
   children?: ReactNode;
   inputRange?: [number, number];
   outputRange?: [number, number];
-};
-type OptionalProps = {
-  variant:
+  variant?:
     | 'hero'
     | 'center-aligned hero'
     | 'multi-browse'
     | 'un-contained'
     | 'full-screen';
-  marginPourcent: number;
+  marginPourcent?: number;
   height?: string;
 };
-type States = {};
-type Elements = 'carousel' | 'track';
+export type CarouselStates = {
 
-export type CarouselProps = ComponentProps<
-  RequiredProps,
-  OptionalProps,
-  States,
-  Elements,
-  'div'
->;
-export type CarouselClassName = CarouselProps['className'];
+};
+export type CarouselElements = 'carousel' | 'track';
+export type CarouselElementType = 'div';
 
-export const carouselHelper = new ComponentHelper<
-  CarouselProps,
-  OptionalProps,
-  States,
-  Elements
->('carousel');
-{
-}
-carouselHelper.addStyle(carouselStyle);
+export type CarouselProps = CarouselBaseProps &
+  ComponentProps<
+    CarouselBaseProps,
+    CarouselStates,
+    CarouselElements,
+    CarouselElementType
+  >;

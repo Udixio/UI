@@ -1,29 +1,35 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { carouselHelper, CarouselProps } from './carousel.interface';
-import { Item, ItemProps } from './item';
+import { CarouselProps } from './carousel.interface';
+import { CarouselItem, ItemProps } from './item';
 import { useMotionValueEvent, useScroll } from 'framer-motion';
 
-export const Carousel = ({
+import { carouselStyle } from './carousel-style';
+
+export const CarouselComponent = ({
   variant = 'hero',
   height = '400px',
   className,
-  children,
-  ref: propsRef,
+  children = null,
+  ref: optionalRef,
   marginPourcent = 0.2,
   inputRange = [0.21, 0.65],
   outputRange = [0.1, 1 / 3],
   ...restProps
 }: CarouselProps) => {
-  const defaultRef = useRef<HTMLDivElement>(null);
-  const ref = propsRef || defaultRef;
+  const ref = optionalRef || useRef(null);
 
-  const styles = carouselHelper.getStyles({
+  const styles = carouselStyle({
+    className,
+    children,
     variant,
+    height,
+    inputRange,
+    outputRange,
     marginPourcent,
   });
 
   const items = React.Children.toArray(children).filter(
-    (child) => React.isValidElement(child) && child.type === Item
+    (child) => React.isValidElement(child) && child.type === CarouselItem
   );
 
   const trackRef = useRef<HTMLDivElement>(null);
@@ -31,12 +37,10 @@ export const Carousel = ({
     []
   );
 
-  // Hook framer-motion pour détecter le scroll
   const { scrollXProgress } = useScroll({
     container: ref,
   });
 
-  // Fonction de calcul dynamique des pourcentages
   const calculatePercentages = (scrollXProgressValue: number) => {
     if (!trackRef.current || !ref.current) return [];
 
@@ -94,14 +98,9 @@ export const Carousel = ({
     });
   }
 
-  // Mettre à jour les pourcentages à chaque changement de `scrollXProgress`
   useMotionValueEvent(scrollXProgress, 'change', (latestValue) => {
     const updatedPercentages = calculatePercentages(latestValue);
 
-    // console.log(
-    //   'somme: ',
-    //   updatedPercentages.reduce((sum, value) => sum + value, 0)
-    // );
     setVisibilityPercentages(updatedPercentages);
   });
 
