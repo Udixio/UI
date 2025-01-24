@@ -1,2 +1,2 @@
 export * from './component-helper';
-export * from './StylesHelper';
+export * from './styles/StylesHelper';
