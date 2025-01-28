@@ -1,34 +1,17 @@
-import { ComponentHelper, MotionComponentProps } from '../../../utils';
-import { itemStyle } from './item.style';
 import { ReactNode } from 'react';
+import { ComponentProps, MotionComponentProps } from '../../../utils';
 
-type RequiredProps = {
-  children?: ReactNode;
+export type ItemBaseProps = {
+  children?: ReactNode | undefined;
   visibilityPercentage?: number;
   index?: number;
-};
-type OptionalProps = {
   inputRange?: [number, number];
   outputRange?: [number, number];
 };
-type States = {};
-type Elements = 'item';
+export type ItemStates = {};
 
-export type ItemProps = MotionComponentProps<
-  RequiredProps,
-  OptionalProps,
-  States,
-  Elements,
-  'div'
->;
-export type ItemClassName = ItemProps['className'];
+export type ItemElements = 'item';
+export type ItemElementType = 'div';
 
-export const itemHelper = new ComponentHelper<
-  ItemProps,
-  OptionalProps,
-  States,
-  Elements
->('item');
-{
-}
-itemHelper.addStyle(itemStyle);
+export type ItemProps = ItemBaseProps &
+  MotionComponentProps<ItemBaseProps, ItemStates, ItemElements, ItemElementType>;

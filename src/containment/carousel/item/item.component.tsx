@@ -1,6 +1,7 @@
-import React from 'react';
-import { itemHelper, ItemProps } from './item.interface';
+import React, { useRef } from 'react';
+import { ItemProps } from './item.interface';
 import { motion } from 'framer-motion';
+import { itemStyle } from './item.style';
 
 const normalize = (
   value: number,
@@ -16,17 +17,26 @@ const normalize = (
 
   return outputMin + normalizedValue * (outputMax - outputMin);
 };
-export const Item = ({
+export const CarouselItem = ({
   className,
-  children,
+  children = null,
   visibilityPercentage = 1,
-  index,
+  index = 0,
   inputRange = [0, 1],
   outputRange = [0, 1],
+  ref: optionalRef,
   ...restProps
 }: ItemProps) => {
-  const styles = itemHelper.getStyles({
-    visibilityPercentage,
+  const ref: React.RefObject<null | HTMLDivElement> =
+    optionalRef || useRef(null);
+
+  const styles = itemStyle({
+    className: undefined,
+    index: index,
+    inputRange: inputRange,
+    outputRange: outputRange,
+    visibilityPercentage: visibilityPercentage,
+    children,
   });
 
   const flexBasis =
@@ -34,6 +44,7 @@ export const Item = ({
 
   return (
     <motion.div
+      ref={ref}
       animate={{ flex: '0 0 calc(' + flexBasis + '% - 4px)' }}
       transition={{
         duration: 0.2,
@@ -43,13 +54,6 @@ export const Item = ({
       {...restProps}
     >
       {children}
-      {/*<p*/}
-      {/*  className={*/}
-      {/*    'text-display-large absolute text-on-surface bg-surface opacity-20 -translate-x-1/2 left-1/2 top-1/2'*/}
-      {/*  }*/}
-      {/*>*/}
-      {/*  {Math.round(visibilityPercentage * 100)}*/}
-      {/*</p>*/}
     </motion.div>
   );
 };
