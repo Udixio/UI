@@ -3,7 +3,7 @@ import {
   ProgressIndicatorInternalState,
   ProgressIndicatorProps,
 } from './progress-indicator.interface';
-import { ClassNameComponent, StylesHelper } from '../../utils';
+import { ClassNameComponent, StylesHelper } from '@utils/index';
 
 export const ProgressIndicatorStyle: ClassNameComponent<
   ProgressIndicatorProps & ProgressIndicatorInternalState,

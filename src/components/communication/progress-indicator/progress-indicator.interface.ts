@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleProps } from '../../utils';
+import { StyleProps } from '@utils/index';
 
 /**
  * Type for the different variants of the ProgressIndicator component.

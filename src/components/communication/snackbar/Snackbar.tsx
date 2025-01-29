@@ -1,5 +1,5 @@
 import React, { forwardRef, useEffect, useState } from 'react';
-import { StyleProps, StylesHelper } from '../../utils';
+import { StyleProps, StylesHelper } from '@utils/index';
 import { SnackbarStyle } from './SnackbarStyle';
 import { AnimatePresence, motion } from 'framer-motion';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';

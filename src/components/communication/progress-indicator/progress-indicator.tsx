@@ -8,7 +8,7 @@ import {
 } from './progress-indicator.interface';
 import { ProgressIndicatorStyle } from './progress-indicator.style';
 import { motion } from 'framer-motion';
-import { StylesHelper } from '../../utils';
+import { StylesHelper } from '@utils/index';
 
 /**
  * The ProgressIndicator component provides visual feedback about operations that take an uncertain amount of time.

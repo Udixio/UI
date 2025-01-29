@@ -1,4 +1,4 @@
-import { ClassNameComponent, StylesHelper } from '../../utils';
+import { ClassNameComponent, StylesHelper } from '@utils/index';
 import { SnackbarElement, SnackbarState } from './Snackbar';
 
 export const SnackbarStyle: ClassNameComponent<
