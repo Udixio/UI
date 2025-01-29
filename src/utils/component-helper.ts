@@ -127,11 +127,6 @@ interface HTMLElements {
   webview: HTMLWebViewElement;
 }
 
-const test: IntrinsicElements['button'] = {
-  // href: 'rffre',
-
-  value: 'frfrf',
-};
 
 export type ComponentProps<
   Props extends object,

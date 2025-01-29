@@ -1,7 +1,7 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { ButtonVariant } from './button';
 import { ComponentProps } from '@utils/index';
-import { useRef } from 'react';
+import { MergeExclusive } from 'type-fest';
 
 export type ButtonBaseProps = {
   /**
@@ -32,13 +32,12 @@ export type ButtonStates = {};
 
 export type ButtonElements = 'button' | 'stateLayer' | 'icon' | 'label';
 
-export type ButtonProps = (
-  | (ComponentProps<ButtonBaseProps, ButtonStates, ButtonElements, 'a'> & {
-      // type?: never;
-      href: string;
-    })
-  | (ComponentProps<ButtonBaseProps, ButtonStates, ButtonElements, 'button'> & {
-      href?: never;
-    })
-) &
+export type ButtonProps = MergeExclusive<
+  ComponentProps<ButtonBaseProps, ButtonStates, ButtonElements, 'a'> & {
+    href: string;
+  },
+  ComponentProps<ButtonBaseProps, ButtonStates, ButtonElements, 'button'> & {
+    href?: never;
+  }
+> &
   ButtonBaseProps;
