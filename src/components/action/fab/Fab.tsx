@@ -1,11 +1,11 @@
 import React, { forwardRef, useRef } from 'react';
 
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { StyleProps, StylesHelper } from '../../utils';
-import { Icon } from '../../icon';
+import { StyleProps, StylesHelper } from '@utils/index';
+import { Icon } from '../../../icon';
 import { fabStyle } from './FabStyle';
 import classNames from 'classnames';
-import { RippleEffect } from '../../effects/ripple';
+import { RippleEffect } from '../../../effects/ripple';
 import { AnimatePresence, motion } from 'framer-motion';
 
 export type FabVariant = 'surface' | 'primary' | 'secondary' | 'tertiary';

@@ -1,4 +1,4 @@
-import { ClassNameComponent, StylesHelper } from '../../utils';
+import { ClassNameComponent, StylesHelper } from '@utils/index';
 import { FabElement, FabState } from './Fab';
 
 export const fabStyle: ClassNameComponent<FabState, FabElement> = ({

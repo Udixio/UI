@@ -4,7 +4,7 @@ import { SnackbarStyle } from './SnackbarStyle';
 import { AnimatePresence, motion } from 'framer-motion';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { IconButton } from '../../action/button';
+import { IconButton } from '@components/action/button';
 
 export interface SnackbarState {
   supportingText: string;
