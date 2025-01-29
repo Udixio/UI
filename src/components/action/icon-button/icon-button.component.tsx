@@ -6,7 +6,7 @@ import { Icon } from '../../../icon/icon';
 
 export type IconButtonVariant = 'standard' | 'filled' | 'tonal' | 'outlined';
 
-export const IconButtonComponent = ({
+export const IconButton = ({
   variant = 'standard',
   href,
   disabled = false,
