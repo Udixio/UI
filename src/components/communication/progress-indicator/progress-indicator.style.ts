@@ -1,42 +1,35 @@
 import {
-  ProgressIndicatorElement,
-  ProgressIndicatorInternalState,
-  ProgressIndicatorProps,
+  ProgressIndicatorBaseProps,
+  ProgressIndicatorElements,
+  ProgressIndicatorStates,
 } from './progress-indicator.interface';
-import { ClassNameComponent, StylesHelper } from '@utils/index';
+import { classNames, defaultClassNames } from '@utils/index';
 
-export const ProgressIndicatorStyle: ClassNameComponent<
-  ProgressIndicatorProps & ProgressIndicatorInternalState,
-  ProgressIndicatorElement
-> = ({ variant, isVisible }) => {
-  return {
-    progressIndicator: StylesHelper.classNames([
-      {
-        applyWhen:
-          variant === 'linear-determinate' || variant == 'linear-indeterminate',
-        styles: 'flex w-full',
-      },
-    ]),
+export const progressIndicatorStyle = defaultClassNames<
+  ProgressIndicatorBaseProps & ProgressIndicatorStates,
+  ProgressIndicatorElements
+>({
+  defaultClassName: ({ variant, isVisible }) => ({
+    progressIndicator: classNames(
+      variant === 'linear-determinate' ||
+        (variant == 'linear-indeterminate' && 'flex w-full')
+    ),
     track: 'h-full rounded-full bg-primary rounded-l-full',
-    activeIndicator: StylesHelper.classNames([
-      {
-        applyWhen:
-          variant === 'linear-determinate' || variant == 'linear-indeterminate',
-        styles: 'h-full flex-1 rounded-full bg-primary-container',
-      },
-      {
-        applyWhen:
-          variant === 'circular-determinate' ||
-          variant == 'circular-indeterminate',
-        styles: [
+    activeIndicator: classNames(
+      variant === 'linear-determinate' ||
+        (variant == 'linear-indeterminate' &&
+          'h-full flex-1 rounded-full bg-primary-container'),
+
+      variant === 'circular-determinate' ||
+        (variant == 'circular-indeterminate' && [
           'stroke-primary fill-transparent ',
           {
             'stroke-[4px]': isVisible,
             'stroke-[0px]': !isVisible,
           },
-        ],
-      },
-    ]),
+        ])
+    ),
     stop: 'absolute right-0 bg-primary rounded-full',
-  };
-};
+  }),
+  default: 'progressIndicator',
+});

@@ -1,5 +1,4 @@
-import React from 'react';
-import { StyleProps } from '@utils/index';
+import { ComponentProps } from '@utils/index';
 
 /**
  * Type for the different variants of the ProgressIndicator component.
@@ -10,71 +9,41 @@ export type ProgressIndicatorVariant =
   | 'circular-determinate'
   | 'circular-indeterminate';
 
-/**
- * Interface for the internal state of the ProgressIndicator component.
- */
-export interface ProgressIndicatorInternalState {
-  isVisible: boolean;
-}
-
-/**
- * Interface for the default props of the ProgressIndicator component.
- */
-export interface ProgressIndicatorDefaultProps {
+export type ProgressIndicatorBaseProps = {
   /**
    * The variant of the ProgressIndicator.
    */
-  variant: ProgressIndicatorVariant;
+  variant?: ProgressIndicatorVariant;
 
   /**
    * The minimum height of the line used to draw the linear indicator.
    */
-  minHeight: number;
+  minHeight?: number;
 
   /**
    * The percentage of the progress completed.
    */
-  value: number;
+  value?: number;
 
   /**
    * The duration of the transition animation in milliseconds.
    */
-  transitionDuration: number;
-}
-
-/**
- * Interface for the external props of the ProgressIndicator component.
- */
-export interface ProgressIndicatorExternalProps {}
-
-/**
- * Type for the different elements of the ProgressIndicator component.
- */
-export type ProgressIndicatorElement =
+  transitionDuration?: number;
+};
+export type ProgressIndicatorStates = {
+  isVisible: boolean;
+};
+export type ProgressIndicatorElements =
   | 'progressIndicator'
   | 'stop'
   | 'activeIndicator'
   | 'track';
+export type ProgressIndicatorElementType = 'div';
 
-/**
- * Type for the attributes of the ProgressIndicator component.
- * Omits 'className' and 'value' from the standard React InputHTMLAttributes.
- */
-export type ProgressIndicatorAttributes = Omit<
-  React.InputHTMLAttributes<HTMLDivElement>,
-  'className' | 'value'
->;
-
-/**
- * Interface for the props of the ProgressIndicator component.
- */
-export interface ProgressIndicatorProps
-  extends ProgressIndicatorExternalProps,
-    Partial<ProgressIndicatorDefaultProps>,
-    StyleProps<
-      ProgressIndicatorExternalProps &
-        ProgressIndicatorDefaultProps &
-        ProgressIndicatorInternalState,
-      ProgressIndicatorElement
-    >,
-    ProgressIndicatorAttributes {}
+export type ProgressIndicatorProps = ProgressIndicatorBaseProps &
+  ComponentProps<
+    ProgressIndicatorBaseProps,
+    ProgressIndicatorStates,
+    ProgressIndicatorElements,
+    ProgressIndicatorElementType
+  >;

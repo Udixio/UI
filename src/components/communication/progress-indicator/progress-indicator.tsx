@@ -1,14 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import {
-  ProgressIndicatorDefaultProps,
-  ProgressIndicatorElement,
-  ProgressIndicatorExternalProps,
-  ProgressIndicatorInternalState,
-  ProgressIndicatorProps,
-} from './progress-indicator.interface';
-import { ProgressIndicatorStyle } from './progress-indicator.style';
+import { ProgressIndicatorProps } from './progress-indicator.interface';
+
 import { motion } from 'framer-motion';
-import { StylesHelper } from '@utils/index';
+import { progressIndicatorStyle } from '@components/communication/progress-indicator/progress-indicator.style';
 
 /**
  * The ProgressIndicator component provides visual feedback about operations that take an uncertain amount of time.
@@ -32,6 +26,7 @@ export const ProgressIndicator = ({
   value = 0,
   transitionDuration = 1000,
   className,
+  ...restProps
 }: ProgressIndicatorProps): any => {
   const [completedPercentage, setCompletedPercentage] = useState(value);
 
@@ -82,21 +77,13 @@ export const ProgressIndicator = ({
     }
   }, [completedPercentage, transitionDuration]);
 
-  const classNames = StylesHelper.classNamesElements<
-    ProgressIndicatorExternalProps &
-      ProgressIndicatorDefaultProps &
-      ProgressIndicatorInternalState,
-    ProgressIndicatorElement
-  >({
-    default: 'progressIndicator',
-    classNameList: [className, ProgressIndicatorStyle],
-    states: {
-      variant,
-      value,
-      transitionDuration,
-      isVisible,
-      minHeight,
-    },
+  const styles = progressIndicatorStyle({
+    className,
+    variant,
+    value,
+    transitionDuration,
+    isVisible,
+    minHeight,
   });
 
   return (
@@ -105,7 +92,8 @@ export const ProgressIndicator = ({
         variant == 'linear-indeterminate') && (
         <div
           style={{ height: `${minHeight}px` }}
-          className={classNames.progressIndicator}
+          className={styles.progressIndicator}
+          {...restProps}
         >
           <div
             style={{
@@ -113,7 +101,7 @@ export const ProgressIndicator = ({
               width: `${completedPercentage}%`,
               transition: `width ${1}ms ease-in-out ${completedPercentage == 100 ? ', height 200ms 0.5s ease-in-out' : ''}`,
             }}
-            className={classNames.track}
+            className={styles.track}
           ></div>
           <div
             style={{
@@ -121,7 +109,7 @@ export const ProgressIndicator = ({
               marginLeft: completedPercentage != 100 ? '6px' : '0px',
               transition: `width ${transitionDuration}ms ease-in-out ${completedPercentage == 100 ? `, height 200ms 0.5s ease-in-out, margin-left ${transitionDuration}ms ${transitionDuration / 1.5}ms` : ''}`,
             }}
-            className={classNames.activeIndicator}
+            className={styles.activeIndicator}
           ></div>
           <div
             style={{
@@ -129,7 +117,7 @@ export const ProgressIndicator = ({
               width: `${minHeight}px`,
               transition: `width ${transitionDuration}ms ease-in-out, height 200ms 0.5s ease-in-out`,
             }}
-            className={classNames.stop}
+            className={styles.stop}
           ></div>
         </div>
       )}
@@ -147,7 +135,8 @@ export const ProgressIndicator = ({
             duration: getTransitionRotate(),
             ease: 'linear',
           }}
-          className={classNames.progressIndicator}
+          className={styles.progressIndicator}
+          {...(restProps as any)}
         >
           <motion.circle
             cx="50%"
@@ -158,7 +147,7 @@ export const ProgressIndicator = ({
             }}
             initial="hidden"
             animate="visible"
-            className={classNames.activeIndicator}
+            className={styles.activeIndicator}
             variants={{
               hidden: {
                 pathLength: togglePercentage ? 10 / 100 : 90 / 100,
