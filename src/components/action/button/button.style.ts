@@ -47,45 +47,45 @@ export const buttonStyle = defaultClassNames<
       ),
       stateLayer: classNames(
         'state-layer min-h-full min-w-full absolute top-0 left-0 ',
-        variant !== 'elevated' && {
+        variant === 'elevated' && {
           'bg-on-surface/[0.12]': disabled,
           'group-state-primary': !disabled,
         },
-        variant !== 'filled' && {
+        variant === 'filled' && {
           'bg-on-surface/[0.12]': disabled,
           'group-state-on-primary': !disabled,
         },
-        variant !== 'filledTonal' && {
+        variant === 'filledTonal' && {
           'bg-on-surface/[0.12]': disabled,
           'group-state-on-secondary-container ': !disabled,
         },
-        variant !== 'outlined' && {
+        variant === 'outlined' && {
           'group-state-primary  group-state-primary': !disabled,
         },
-        variant !== 'text' && {
+        variant === 'text' && {
           'group-state-primary': !disabled,
         }
       ),
       label: classNames(
-        'label-text text-label-large',
+        'text-label-large',
         { invisible: loading },
-        variant !== 'elevated' && {
+        variant === 'elevated' && {
           'text-primary': !disabled,
           'text-on-surface/[38%]': disabled,
         },
-        variant !== 'filled' && {
+        variant === 'filled' && {
           'text-on-primary': !disabled,
           'text-on-surface/[38%]': disabled,
         },
-        variant !== 'filledTonal' && {
+        variant === 'filledTonal' && {
           'text-on-secondary-container': !disabled,
           'text-on-surface/[0.38]': disabled,
         },
-        variant !== 'outlined' && {
+        variant === 'outlined' && {
           'text-primary': !disabled,
           'text-on-surface/[0.38]': disabled,
         },
-        variant !== 'text' && {
+        variant === 'text' && {
           'text-primary': !disabled,
           'text-on-surface/[0.38]': disabled,
         }
@@ -93,23 +93,23 @@ export const buttonStyle = defaultClassNames<
       icon: classNames(
         { invisible: loading },
         'icon h-[18px] w-[18px]',
-        variant !== 'elevated' && {
+        variant === 'elevated' && {
           'text-primary': !disabled,
           'text-on-surface/[38%]': disabled,
         },
-        variant !== 'filled' && {
+        variant === 'filled' && {
           'text-on-primary': !disabled,
           'text-on-surface/[38%]': disabled,
         },
-        variant !== 'filledTonal' && {
+        variant === 'filledTonal' && {
           'text-on-secondary-container': !disabled,
           'text-on-surface/[0.38]': disabled,
         },
-        variant !== 'outlined' && {
+        variant === 'outlined' && {
           'text-primary': !disabled,
           'text-on-surface/[0.38]': disabled,
         },
-        variant !== 'text' && {
+        variant === 'text' && {
           'text-primary': !disabled,
           'text-on-surface/[0.38]': disabled,
         }

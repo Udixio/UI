@@ -1,9 +1,6 @@
-import { Icon } from '../../../icon';
-import { ProgressIndicator } from '../../../communication/progress-indicator';
 import { ButtonProps } from './button.interface';
 import { buttonStyle } from '@components/action/button/button.style';
-import { classNames } from '@utils/styles';
-import { ClassAttributes } from 'react';
+import { Icon } from '../../../icon/icon';
 
 export type ButtonVariant =
   | 'filled'
@@ -44,9 +41,8 @@ export const Button = ({
     <></>
   );
 
-
   return (
-    <ElementType href={href} className={styles.button} {...restProps as any}>
+    <ElementType href={href} className={styles.button} {...(restProps as any)}>
       <span className={styles.stateLayer}></span>
       {iconPosition === 'left' && iconElement}
       {loading && (

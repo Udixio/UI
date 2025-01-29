@@ -1,9 +1,8 @@
-import React, { HTMLAttributes } from 'react';
+import React from 'react';
 
 import { HTMLMotionProps } from 'framer-motion';
 import { StyleProps } from './styles/get-classname';
 import { JSX } from 'react/jsx-runtime';
-import IntrinsicElements = JSX.IntrinsicElements;
 
 interface HTMLElements {
   a: HTMLAnchorElement;
@@ -127,16 +126,12 @@ interface HTMLElements {
   webview: HTMLWebViewElement;
 }
 
-
 export type ComponentProps<
   Props extends object,
   States extends object,
   Elements extends string,
   ElementType extends keyof HTMLElements,
-> = Omit<
-  IntrinsicElements[ElementType],
-  'className'
-> &
+> = Omit<JSX.IntrinsicElements[ElementType], 'className'> &
   ComponentClassName<Props, States, Elements> & {
     ref?: React.RefObject<HTMLElements[ElementType] | null>;
   };

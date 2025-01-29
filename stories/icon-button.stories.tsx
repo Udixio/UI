@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { faAccessibleIcon as farGear } from '@fortawesome/free-brands-svg-icons';
+import { faClipboard as farGear } from '@fortawesome/free-regular-svg-icons';
 import { faClipboard as fasGear } from '@fortawesome/free-solid-svg-icons';
 import { IconButton, IconButtonProps, IconButtonVariant } from '../src';
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export

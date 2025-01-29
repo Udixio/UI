@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
-import { Icon } from '../../../icon';
+
 import { buttonStyle } from '@components/action/icon-button/button.style';
 import { IconButtonProps } from '@components/action/icon-button/button.interface';
+import { Icon } from '../../../icon/icon';
 
 export type IconButtonVariant = 'standard' | 'filled' | 'tonal' | 'outlined';
 
@@ -37,10 +38,6 @@ export const IconButton = ({
 
   // Détermine le type de l'élément à rendre : un bouton ou un lien
   const ElementType = href ? 'a' : 'button';
-
-  let linkProps: any = {};
-
-  let buttonProps: any = {};
 
   const styles = buttonStyle({
     activated,

@@ -5,7 +5,6 @@ import {
   IconButtonStates,
 } from '@components/action/icon-button/button.interface';
 
-
 export const buttonStyle = defaultClassNames<
   IconButtonBaseProps & IconButtonStates,
   IconButtonElements
@@ -41,6 +40,7 @@ export const buttonStyle = defaultClassNames<
         ]
       ),
       stateLayer: classNames(
+        'p-2 flex rounded-full',
         !disabled && [
           variant === 'standard' && {
             'state-on-surface-variant': !isActive,
