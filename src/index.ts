@@ -3,6 +3,7 @@ export * from './communication/progress-indicator';
 export * from './communication/snackbar';
 export * from './components/action/button';
 export * from './components/action/fab';
+export * from './components/action/icon-button';
 export * from './containment/card';
 export * from './containment/carousel';
 export * from './diviser';

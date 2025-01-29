@@ -1,13 +1,14 @@
 import { classNames, defaultClassNames } from '@utils/styles';
 import {
-  ButtonBaseProps,
-  ButtonElements,
-  ButtonStates,
-} from './button.interface';
+  IconButtonBaseProps,
+  IconButtonElements,
+  IconButtonStates,
+} from '@components/action/icon-button/button.interface';
+
 
 export const buttonStyle = defaultClassNames<
-  ButtonBaseProps & ButtonStates,
-  ButtonElements
+  IconButtonBaseProps & IconButtonStates,
+  IconButtonElements
 >({
   defaultClassName: ({ variant, disabled, onToggle, isActive }) => {
     return {

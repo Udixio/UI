@@ -16,7 +16,7 @@ export type IconButtonStates = {
   isActive: boolean;
 };
 
-export type IconButtonElements = 'iconButton' | 'stateLayer' | 'icon';
+export type IconButtonElements = 'button' | 'stateLayer' | 'icon';
 
 export type IconButtonProps = MergeExclusive<
   ComponentProps<
