@@ -2,11 +2,15 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 import { faClipboard as farGear } from '@fortawesome/free-regular-svg-icons';
 import { faClipboard as fasGear } from '@fortawesome/free-solid-svg-icons';
-import { IconButton, IconButtonProps, IconButtonVariant } from '../src';
+import {
+  IconButtonComponent,
+  IconButtonProps,
+  IconButtonVariant,
+} from '../src';
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
   title: 'Inputs/IconButton',
-  component: IconButton,
+  component: IconButtonComponent,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/react/configure/story-layout
   },
@@ -18,7 +22,7 @@ const meta = {
     icon: { table: { disable: true } },
     disabled: { table: { disable: true } },
   },
-} satisfies Meta<typeof IconButton>;
+} satisfies Meta<typeof IconButtonComponent>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -34,20 +38,20 @@ const createIconButtonStory = (
       {!toggle && (
         <>
           <div className="flex m-4 gap-4 items-center">
-            <IconButton {...args} onToggle={undefined} />
-            <IconButton {...args} disabled onToggle={undefined} />
+            <IconButtonComponent {...args} onToggle={undefined} />
+            <IconButtonComponent {...args} disabled onToggle={undefined} />
           </div>
         </>
       )}
       {toggle && (
         <>
           <div className="flex m-4 gap-4 items-center">
-            <IconButton {...args} />
-            <IconButton {...args} disabled />
+            <IconButtonComponent {...args} />
+            <IconButtonComponent {...args} disabled />
           </div>
           <div className="flex m-4 gap-4 items-center">
-            <IconButton {...args} activated />
-            <IconButton {...args} disabled activated />
+            <IconButtonComponent {...args} activated />
+            <IconButtonComponent {...args} disabled activated />
           </div>
         </>
       )}

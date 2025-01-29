@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
 import {
-  IconButton,
+  IconButtonComponent,
   TextField,
   TextFieldProps,
   TextFieldVariant,
@@ -76,7 +76,7 @@ export const Filled = createTextFieldStory('filled');
 
 export const FilledTrailingIcon = createTextFieldStory('filled', {
   trailingIcon: (
-    <IconButton
+    <IconButtonComponent
       onClick={() => console.log('clicked')}
       arialLabel="Action description"
       icon={faCircleXmark}
@@ -87,7 +87,7 @@ export const FilledTrailingIcon = createTextFieldStory('filled', {
 export const FilledLealingIconAndTrailingIcon = createTextFieldStory('filled', {
   leadingIcon: faMagnifyingGlass,
   trailingIcon: (
-    <IconButton
+    <IconButtonComponent
       onClick={() => console.log('clicked')}
       arialLabel="Action description"
       icon={faCircleXmark}
@@ -103,7 +103,7 @@ export const Outlined = createTextFieldStory('outlined');
 
 export const OutlinedTrailingIcon = createTextFieldStory('outlined', {
   trailingIcon: (
-    <IconButton
+    <IconButtonComponent
       onClick={() => console.log('clicked')}
       arialLabel="Action description"
       icon={faCircleXmark}
@@ -116,7 +116,7 @@ export const OutlinedLealingIconAndTrailingIcon = createTextFieldStory(
   {
     leadingIcon: faMagnifyingGlass,
     trailingIcon: (
-      <IconButton
+      <IconButtonComponent
         onClick={() => console.log('clicked')}
         arialLabel="Action description"
         icon={faCircleXmark}

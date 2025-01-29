@@ -3,9 +3,9 @@ import {
   IconButtonBaseProps,
   IconButtonElements,
   IconButtonStates,
-} from '@components/action/icon-button/button.interface';
+} from '@components/action/icon-button/icon-button.interface';
 
-export const buttonStyle = defaultClassNames<
+export const iconButtonStyle = defaultClassNames<
   IconButtonBaseProps & IconButtonStates,
   IconButtonElements
 >({

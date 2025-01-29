@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { Button, ButtonProps } from '../src';
+import { ButtonComponent, ButtonProps } from '../src';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
   title: 'Inputs/Button',
-  component: Button,
+  component: ButtonComponent,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/react/configure/story-layout
   },
@@ -18,7 +18,7 @@ const meta = {
     icon: { table: { disable: true } },
     disabled: { table: { disable: true } },
   },
-} satisfies Meta<typeof Button>;
+} satisfies Meta<typeof ButtonComponent>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -29,18 +29,18 @@ const createButtonStory = (variant: ButtonProps['variant']) => {
   const ButtonStory: Story = (args: ButtonProps) => (
     <div className="">
       <div className="flex m-4 gap-4 items-center">
-        <Button {...args} disabled={false} />
-        <Button {...args} disabled={true} />
+        <ButtonComponent {...args} disabled={false} />
+        <ButtonComponent {...args} disabled={true} />
       </div>
       <div className="flex m-4 gap-4 items-center">
-        <Button {...args} disabled={false} icon={faPlus} />
-        <Button {...args} disabled={true} icon={faPlus} />
-        <Button
+        <ButtonComponent {...args} disabled={false} icon={faPlus} />
+        <ButtonComponent {...args} disabled={true} icon={faPlus} />
+        <ButtonComponent
           label={'ded'}
           disabled={true}
           href={'edede'}
           name={'true'}
-        ></Button>
+        ></ButtonComponent>
       </div>
     </div>
   );

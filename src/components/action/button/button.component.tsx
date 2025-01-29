@@ -1,6 +1,8 @@
 import { ButtonProps } from './button.interface';
 import { buttonStyle } from '@components/action/button/button.style';
-import { Icon } from '../../../icon/icon';
+import { Icon } from '../../../icon';
+import { ProgressIndicator } from '@components/communication/progress-indicator';
+import { classNames } from '@utils/styles';
 
 export type ButtonVariant =
   | 'filled'
@@ -12,7 +14,7 @@ export type ButtonVariant =
 /**
  * The Button component is a versatile component that can be used to trigger actions or to navigate to different sections of the application
  */
-export const Button = ({
+export const ButtonComponent = ({
   variant = 'filled',
   disabled = false,
   icon = null,
