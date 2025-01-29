@@ -10,11 +10,9 @@ export const carouselStyle = defaultClassNames<
   CarouselBaseProps & CarouselStates,
   CarouselElements
 >({
-  defaultClassName: ({}) => {
-    return {
-      carousel: classNames(['overflow-x-scroll ']),
-      track: classNames(['flex gap-2 h-full']),
-    };
-  },
+  defaultClassName: ({}) => ({
+    carousel: classNames(['overflow-x-scroll ']),
+    track: classNames(['flex gap-2 h-full']),
+  }),
   default: 'carousel',
 });
