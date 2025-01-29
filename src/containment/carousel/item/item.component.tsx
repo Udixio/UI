@@ -31,11 +31,11 @@ export const CarouselItem = ({
     optionalRef || useRef(null);
 
   const styles = itemStyle({
-    className: undefined,
-    index: index,
-    inputRange: inputRange,
-    outputRange: outputRange,
-    visibilityPercentage: visibilityPercentage,
+    className,
+    index,
+    inputRange,
+    outputRange,
+    visibilityPercentage,
     children,
   });
 
