@@ -3,8 +3,14 @@
     "module": "esnext",
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "paths": {
+      "@components/*": ["src/components/*"],
+      "@utils/*": ["src/utils/*"],
+      "@styles/*": ["src/styles/*"]
+    }
   },
+
   "extends": "@tsconfig/recommended/tsconfig.json",
   "include": ["src", "types"]
 }
