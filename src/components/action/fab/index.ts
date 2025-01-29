@@ -1,2 +1,2 @@
-export * from './Fab';
+export * from './fab.component';
 export * from './FabStyle';
