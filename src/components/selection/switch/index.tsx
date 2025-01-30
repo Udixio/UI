@@ -1,2 +1,2 @@
-export * from './Switch';
+export * from './switch.component';
 export * from './SwitchStyle';
