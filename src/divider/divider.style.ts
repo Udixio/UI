@@ -1,17 +1,17 @@
 import {
-  DiviserBaseProps,
-  DiviserElements,
-  DiviserStates,
-} from './diviser.interface';
+  DividerBaseProps,
+  DividerElements,
+  DividerStates,
+} from './divider.interface';
 import { classNames } from '@utils/styles/classnames';
 import { defaultClassNames } from '@utils/styles/get-classname';
 
-export const diviserStyle = defaultClassNames<
-  DiviserBaseProps & DiviserStates,
-  DiviserElements
+export const dividerStyle = defaultClassNames<
+  DividerBaseProps & DividerStates,
+  DividerElements
 >({
   defaultClassName: ({ orientation }) => ({
-    diviser: classNames(
+    divider: classNames(
       'border-outline-variant ',
       {
         'h-fit w-full border-t': orientation === 'horizontal',
@@ -21,5 +21,5 @@ export const diviserStyle = defaultClassNames<
       }
     ),
   }),
-  default: 'diviser',
+  default: 'divider',
 });
