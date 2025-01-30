@@ -1,42 +1,32 @@
-import React, { forwardRef, useEffect, useRef, useState } from 'react';
-import { StyleProps, StylesHelper } from '../../utils';
-import { SliderStyle } from './SliderStyle';
+import React, { useEffect, useRef, useState } from 'react';
+
 import classNames from 'classnames';
 import { AnimatePresence, motion } from 'framer-motion';
+import { SliderProps } from '@components/selection/slider/slider.interface';
+import { sliderStyle } from '@components/selection/slider/slider.style';
 
-export interface SliderState {
-  value: number;
-  min: number;
-  max: number;
-  isChanging: boolean;
-  marks?: {
-    value: number;
-    label?: string;
-  }[];
-  step: number | null;
-  name: string;
-  valueFormatter?: (value: number) => string | number;
-}
-
-export type SliderElement =
-  | 'slider'
-  | 'activeTrack'
-  | 'handle'
-  | 'inactiveTrack'
-  | 'valueIndicator'
-  | 'dot';
-
-export interface SliderProps
-  extends StyleProps<Omit<SliderState, 'isChanging'>, SliderElement>,
-    SliderState,
-    Omit<
-      React.HTMLAttributes<HTMLDivElement>,
-      'className' | 'value' | 'onChange'
-    > {
-  onChange?: (value: number) => void;
-}
-
-export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
+export const Slider = ({
+  className,
+  valueFormatter = null,
+  step = 10,
+  name,
+  value: defaultValue,
+  min = 0,
+  max = 100,
+  marks = [
+    {
+      value: 0,
+      label: '0',
+    },
+    {
+      value: 100,
+      label: '100',
+    },
+  ],
+  ref,
+  onChange,
+  ...restProps
+}: SliderProps) => {
   const getPourcentFromValue = (value: number) => {
     const min = getMin();
     const max = getMax();
@@ -51,15 +41,15 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
 
   const getMax = (isInfinity = false) => {
     if (isInfinity) {
-      return _max;
+      return max;
     }
-    return _max == Infinity ? marks[marks?.length - 1].value : _max;
+    return max == Infinity ? marks[marks?.length - 1].value : _max;
   };
   const getMin = (isInfinity = false) => {
     if (isInfinity) {
-      return _min;
+      return min;
     }
-    return _min == -Infinity ? marks[0].value : _min;
+    return min == -Infinity ? marks[0].value : min;
   };
 
   const getValueFromPourcent = (pourcent: number) => {
@@ -67,33 +57,14 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
     const max = getMax(false);
     return ((max - min) * pourcent) / 100 + min;
   };
-  const {
-    className,
-    valueFormatter,
-    step = 10,
-    name,
-    marks = [
-      {
-        value: 0,
-        label: '0',
-      },
-      {
-        value: 100,
-        label: '100',
-      },
-    ],
-    onChange,
-    ...restProps
-  }: SliderProps = args;
-  const _min = args.min ?? 0;
-  const _max = args.max ?? 100;
+
   const [isChanging, setIsChanging] = useState(false);
   const defaultRef = useRef<HTMLDivElement>(null);
   const resolvedRef: React.RefObject<any> | React.ForwardedRef<any> =
     ref || defaultRef;
 
-  const [value, setValue] = useState(args.value);
-  const [pourcent, setPourcent] = useState(getPourcentFromValue(args.value));
+  const [value, setValue] = useState(defaultValue);
+  const [pourcent, setPourcent] = useState(getPourcentFromValue(defaultValue));
   const [mouseDown, setMouseDown] = useState(false);
   const handleMouseDown = (e: any) => {
     setMouseDown(true);
@@ -131,20 +102,17 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
     };
   }, [mouseDown]);
 
-  const getClassNames = (() => {
-    return StylesHelper.classNamesElements<SliderState, SliderElement>({
-      default: 'slider',
-      classNameList: [className, SliderStyle],
-      states: {
-        value,
-        max: getMax(true),
-        min: getMin(true),
-        isChanging,
-        step,
-        name,
-      },
-    });
-  })();
+  const styles = sliderStyle({
+    className,
+    isChanging,
+    marks,
+    max,
+    min,
+    name,
+    step,
+    value,
+    valueFormatter,
+  });
   const handleChange = (event: any) => {
     // @ts-ignore
     const current = resolvedRef?.current;
@@ -310,7 +278,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
       aria-valuemax={getMax(true)} // Inform about the maximum value
       aria-valuenow={value} // Inform about the current value
       aria-valuetext={value.toString()} // Textual representation of the value
-      className={getClassNames.slider}
+      className={styles.slider}
       onMouseDown={handleMouseDown}
       onClick={handleChange}
       ref={resolvedRef}
@@ -320,14 +288,14 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
     >
       <input type="hidden" name={name} value={value} />
       <div
-        className={getClassNames.activeTrack}
+        className={styles.activeTrack}
         style={{ flex: pourcent / 100 }}
       ></div>
-      <div className={getClassNames.handle}>
+      <div className={styles.handle}>
         <AnimatePresence>
           {isChanging && (
             <motion.div
-              className={getClassNames.valueIndicator}
+              className={styles.valueIndicator}
               initial="hidden"
               animate="visible"
               exit="hidden"
@@ -348,7 +316,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
         </AnimatePresence>
       </div>
       <div
-        className={getClassNames.inactiveTrack}
+        className={styles.inactiveTrack}
         style={{ flex: 1 - pourcent / 100 }}
       ></div>
       <div
@@ -372,7 +340,7 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
             return (
               <div
                 key={index}
-                className={classNames(getClassNames.dot, {
+                className={classNames(styles.dot, {
                   'bg-primary-container':
                     isUnderActiveTrack != null && isUnderActiveTrack,
                   'bg-primary':
@@ -387,4 +355,4 @@ export const Slider = forwardRef<HTMLDivElement, SliderProps>((args, ref) => {
       </div>
     </div>
   );
-});
+};
