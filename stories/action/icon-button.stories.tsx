@@ -2,15 +2,12 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 import { faClipboard as farGear } from '@fortawesome/free-regular-svg-icons';
 import { faClipboard as fasGear } from '@fortawesome/free-solid-svg-icons';
-import {
-  IconButtonComponent,
-  IconButtonProps,
-  IconButtonVariant,
-} from '../src';
+import { IconButton, IconButtonProps, IconButtonVariant } from '../../src';
+
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
-  title: 'Inputs/IconButton',
-  component: IconButtonComponent,
+  title: 'Action/IconButton',
+  component: IconButton,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/react/configure/story-layout
   },
@@ -22,7 +19,7 @@ const meta = {
     icon: { table: { disable: true } },
     disabled: { table: { disable: true } },
   },
-} satisfies Meta<typeof IconButtonComponent>;
+} satisfies Meta<typeof IconButton>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -38,20 +35,20 @@ const createIconButtonStory = (
       {!toggle && (
         <>
           <div className="flex m-4 gap-4 items-center">
-            <IconButtonComponent {...args} onToggle={undefined} />
-            <IconButtonComponent {...args} disabled onToggle={undefined} />
+            <IconButton {...args} onToggle={undefined} />
+            <IconButton {...args} disabled onToggle={undefined} />
           </div>
         </>
       )}
       {toggle && (
         <>
           <div className="flex m-4 gap-4 items-center">
-            <IconButtonComponent {...args} />
-            <IconButtonComponent {...args} disabled />
+            <IconButton {...args} />
+            <IconButton {...args} disabled />
           </div>
           <div className="flex m-4 gap-4 items-center">
-            <IconButtonComponent {...args} activated />
-            <IconButtonComponent {...args} disabled activated />
+            <IconButton {...args} activated />
+            <IconButton {...args} disabled activated />
           </div>
         </>
       )}

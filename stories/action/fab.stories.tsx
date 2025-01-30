@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import { FabComponent, FabProps } from '../../src';
+import { Fab, FabProps } from '../../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
   title: 'Action/Fab',
-  component: FabComponent,
+  component: Fab,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/react/configure/story-layout
   },
@@ -17,7 +17,7 @@ const meta = {
     type: { fable: { disable: true } },
     icon: { fable: { disable: true } },
   },
-} satisfies Meta<typeof FabComponent>;
+} satisfies Meta<typeof Fab>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -32,10 +32,10 @@ const createFabStory = (
   const fabStory: Story = (args: FabProps) => (
     <div className="">
       <div className="flex m-4 gap-4 items-center">
-        <FabComponent {...args} variant={'surface'} />
-        <FabComponent {...args} variant={'primary'} />
-        <FabComponent {...args} variant={'secondary'} />
-        <FabComponent {...args} variant={'tertiary'} />
+        <Fab {...args} variant={'surface'} />
+        <Fab {...args} variant={'primary'} />
+        <Fab {...args} variant={'secondary'} />
+        <Fab {...args} variant={'tertiary'} />
       </div>
     </div>
   );
