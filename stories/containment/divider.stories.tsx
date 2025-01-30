@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { DividerComponent, DividerProps } from '../src';
+import { Divider, DividerProps } from '../../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
   title: 'Data Display/Divider',
-  component: DividerComponent,
+  component: Divider,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/react/configure/story-layout
   },
@@ -12,7 +12,7 @@ const meta = {
   tags: ['autodocs'],
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
   argTypes: {},
-} satisfies Meta<typeof DividerComponent>;
+} satisfies Meta<typeof Divider>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -22,7 +22,7 @@ type Story = StoryObj<typeof meta>;
 const createTabStory = (args?: Partial<DividerProps>) => {
   const tabStory: Story = (args: DividerProps) => (
     <div className="h-96 w-96 flex">
-      <DividerComponent {...args} />
+      <Divider {...args} />
     </div>
   );
   tabStory.args = {

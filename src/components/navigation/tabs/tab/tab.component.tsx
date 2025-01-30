@@ -6,7 +6,7 @@ import { RippleEffect } from '../../../../effects/ripple';
 import { tabStyle } from '@components/navigation/tabs/tab/tab.style';
 import { TabProps } from '@components/navigation/tabs/tab/tab.interface';
 
-export const TabComponent = ({
+export const Tab = ({
   className,
   onClick,
   label = null,
