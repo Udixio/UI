@@ -24,9 +24,19 @@ export const IconButton = ({
   let handleClick;
 
   if (!onToggle) {
-    handleClick = onClick;
+    handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
+      if (disabled) {
+        e.preventDefault();
+      }
+      if (onClick) {
+        onClick(e);
+      }
+    };
   } else if (onToggle) {
-    handleClick = () => {
+    handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
+      if (disabled) {
+        e.preventDefault();
+      }
       setIsActive(!isActive);
       onToggle(Boolean(isActive));
     };
