@@ -1,7 +1,7 @@
 import React, { forwardRef, useRef, useState } from 'react';
-import { StyleProps, StylesHelper } from '../../utils';
+import { StyleProps, StylesHelper } from '@utils/index';
 import { SwitchStyle } from './SwitchStyle';
-import { Icon } from '../../icon';
+import { Icon } from '../../../icon';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { motion } from 'framer-motion';
 

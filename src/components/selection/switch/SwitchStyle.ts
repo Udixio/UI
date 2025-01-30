@@ -1,4 +1,4 @@
-import { ClassNameComponent, StylesHelper } from '../../utils';
+import { ClassNameComponent, StylesHelper } from '@utils/index';
 import { SwitchElement, SwitchState } from './Switch';
 
 export const SwitchStyle: ClassNameComponent<SwitchState, SwitchElement> = ({
