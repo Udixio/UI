@@ -1,39 +1,17 @@
-import React, {
-  Dispatch,
-  ReactNode,
-  SetStateAction,
-  useMemo,
-  useState,
-} from 'react';
-import { Tab, TabProps } from './Tab';
-import classnames from 'classnames';
+import React, { useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-
-export type TabsVariant = 'primary' | 'secondary';
-
-export interface TabsProps {
-  variant?: TabsVariant;
-  onTabSelected?: (
-    args: { index: number } & Pick<TabProps, 'label' | 'icon'> & {
-        ref: React.MutableRefObject<any>;
-      }
-  ) => void;
-  children: ReactNode;
-  stateVariant?: 'fit' | 'full';
-  selectedTab?: number | null;
-  setSelectedTab?: Dispatch<SetStateAction<number | null>>;
-  className?: string;
-  scrollable?: boolean;
-}
+import { TabsProps } from '@components/navigation/tabs/tabs.interface';
+import { Tab, TabProps } from '@components/navigation/tabs/tab';
+import { tabsStyle } from '@components/navigation/tabs/tabs.style';
 
 export const Tabs = ({
   variant = 'primary',
-  onTabSelected,
+  onTabSelected = null,
   children,
   className,
   selectedTab: externalSelectedTab,
   setSelectedTab: externalSetSelectedTab,
-  scrollable,
+  scrollable = false,
 }: TabsProps) => {
   const [internalSelectedTab, internalSetSelectedTab] = useState<number | null>(
     null
@@ -56,7 +34,7 @@ export const Tabs = ({
 
   const handleOnTabSelected = (
     args: { index: number } & Pick<TabProps, 'label' | 'icon'> & {
-        ref: React.MutableRefObject<any>;
+        ref: React.RefObject<any>;
       }
   ) => {
     onTabSelected?.(args);
@@ -75,21 +53,22 @@ export const Tabs = ({
   };
 
   const tabsId = useMemo(() => uuidv4(), []);
+
+  const styles = tabsStyle({
+    children,
+    onTabSelected,
+    scrollable,
+    selectedTab,
+    setSelectedTab,
+    className,
+    variant,
+  });
   return (
-    <div
-      ref={ref}
-      role="tablist"
-      className={classnames(
-        className,
-        'border-b border-surface-container-highest',
-        'flex relative ',
-        { 'overflow-x-auto': scrollable }
-      )}
-    >
+    <div ref={ref} role="tablist" className={styles.tabs}>
       {tabChildren.map((child, index) => {
         return React.cloneElement(child as React.ReactElement<TabProps>, {
           key: index,
-          tabIndex: index,
+          index,
           variant: variant,
           selectedTab: selectedTab,
           setSelectedTab: setSelectedTab,
