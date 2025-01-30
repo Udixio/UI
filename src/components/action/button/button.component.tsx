@@ -3,6 +3,7 @@ import { buttonStyle } from '@components/action/button/button.style';
 import { Icon } from '../../../icon';
 import { ProgressIndicator } from '@components/communication/progress-indicator';
 import { classNames } from '@utils/styles';
+import React from 'react';
 
 export type ButtonVariant =
   | 'filled'
@@ -23,6 +24,7 @@ export const ButtonComponent = ({
   className,
   iconPosition = 'left',
   loading = false,
+  onClick,
   ...restProps
 }: ButtonProps) => {
   const ElementType = href ? 'a' : 'button';
@@ -44,7 +46,20 @@ export const ButtonComponent = ({
   );
 
   return (
-    <ElementType href={href} className={styles.button} {...(restProps as any)}>
+    <ElementType
+      href={href}
+      className={styles.button}
+      {...(restProps as any)}
+      onClick={(e: React.MouseEvent<any, MouseEvent>) => {
+        if (!disabled) {
+          if (onClick) {
+            onClick(e);
+          }
+        } else {
+          e.preventDefault();
+        }
+      }}
+    >
       <span className={styles.stateLayer}></span>
       {iconPosition === 'left' && iconElement}
       {loading && (

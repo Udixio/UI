@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { ButtonComponent, ButtonProps } from '../src';
+import { ButtonComponent, ButtonProps } from '../../src';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -35,18 +35,13 @@ const createButtonStory = (variant: ButtonProps['variant']) => {
       <div className="flex m-4 gap-4 items-center">
         <ButtonComponent {...args} disabled={false} icon={faPlus} />
         <ButtonComponent {...args} disabled={true} icon={faPlus} />
-        <ButtonComponent
-          label={'ded'}
-          disabled={true}
-          href={'edede'}
-          name={'true'}
-        ></ButtonComponent>
       </div>
     </div>
   );
   ButtonStory.args = {
     label: 'Label',
     variant: variant,
+    onClick: () => console.log('click'),
   };
   return ButtonStory;
 };

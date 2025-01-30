@@ -1,7 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { composeStory } from '@storybook/react';
 
-import Meta, { Filled as FilledButtonStory } from '../stories/Button.stories';
+import Meta, {
+  Filled as FilledButtonStory,
+} from '../stories/action/button.stories';
 
 const FilledButton = composeStory(FilledButtonStory, Meta);
 
