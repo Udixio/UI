@@ -1,102 +1,43 @@
-import { StyleProps, StylesHelper } from '../utils';
-import React, { forwardRef, useEffect, useState } from 'react';
-import { IconButton } from '@components/action/button';
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import React, { useEffect, useState } from 'react';
 import { Icon } from '../icon';
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
-import { TextFieldStyle } from './TextFieldStyle';
 import { motion } from 'framer-motion';
 import { v4 as uuidv4 } from 'uuid';
 import classNames from 'classnames';
 import TextareaAutosize from 'react-textarea-autosize';
+import { TextFieldProps } from './text-field.interface';
+import { textFieldStyle } from './text-field.style';
 
-export type TextFieldVariant = 'filled' | 'outlined';
-
-export interface TextFieldInternalState {
-  isFocused: boolean;
-  showErrorIcon: boolean;
-  showSupportingText: boolean;
-}
-export interface TextFieldDefaultProps {
-  value: string;
-  variant: TextFieldVariant;
-  type: 'text' | 'password' | 'number';
-  autoComplete: 'on' | 'off' | string;
-  textLine: 'singleLine' | 'multiLine' | 'textAreas';
-}
-export interface TextFieldExternalProps {
-  placeholder?: string;
-  name: string;
-  label: string;
-  disabled?: boolean;
-  errorText?: string;
-  supportingText?: string;
-  trailingIcon?: React.ReactElement<typeof IconButton> | IconDefinition;
-  leadingIcon?: React.ReactElement<typeof IconButton> | IconDefinition;
-  onChange?: (value: string) => void;
-  showSupportingText?: boolean;
-  suffix?: string;
-}
-
-export type TextFieldElement =
-  | 'textField'
-  | 'content'
-  | 'label'
-  | 'input'
-  | 'activeIndicator'
-  | 'supportingText'
-  | 'leadingIcon'
-  | 'trailingIcon'
-  | 'suffix'
-  | 'stateLayer';
-
-export type TextFieldConfigurableProps = TextFieldExternalProps &
-  Partial<TextFieldDefaultProps>;
-
-export type TextFieldAttributes = Omit<
-  React.InputHTMLAttributes<HTMLDivElement>,
-  'className' | 'autoComplete' | 'name' | 'onChange' | 'type' | 'value'
->;
-
-export interface TextFieldProps
-  extends TextFieldConfigurableProps,
-    StyleProps<
-      TextFieldConfigurableProps & TextFieldInternalState,
-      TextFieldElement
-    >,
-    TextFieldAttributes {}
-
-export const TextField: React.FC<TextFieldProps> = forwardRef<
-  HTMLDivElement,
-  TextFieldProps
->((args, ref) => {
-  const {
-    variant = 'filled',
-    disabled,
-    errorText,
-    placeholder,
-    suffix,
-    name,
-    label,
-    className,
-    supportingText,
-    trailingIcon,
-    leadingIcon,
-    type = 'text',
-    textLine = 'singleLine',
-    autoComplete = 'on',
-  } = args;
-
-  const [value, setValue] = useState(args.value ?? '');
+export const TextField = ({
+  variant = 'filled',
+  disabled = false,
+  errorText = null,
+  placeholder = null,
+  suffix = null,
+  name,
+  label,
+  className,
+  supportingText = null,
+  trailingIcon = null,
+  leadingIcon = null,
+  type = 'text',
+  textLine = 'singleLine',
+  autoComplete = 'on',
+  onChange = null,
+  value: defaultValue,
+  showSupportingText: defaultShowSupportingText = false,
+  ...restProps
+}: TextFieldProps) => {
+  const [value, setValue] = useState(defaultValue ?? '');
   const [isFocused, setIsFocused] = useState(false);
   const [showErrorIcon, setShowErrorIcon] = useState(false);
   const [showSupportingText, setShowSupportingText] = useState(
-    !!args.showSupportingText
+    defaultShowSupportingText
   );
 
   useEffect(() => {
-    setValue(args.value ?? '');
-  }, [args.value]);
+    setValue(defaultValue ?? '');
+  }, [defaultValue]);
 
   useEffect(() => {
     if (errorText?.length) {
@@ -107,8 +48,8 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
   }, [errorText]);
 
   useEffect(() => {
-    if (args.showSupportingText !== undefined) {
-      setShowSupportingText(args.showSupportingText);
+    if (defaultShowSupportingText) {
+      setShowSupportingText(defaultShowSupportingText);
     } else {
       if (supportingText?.length) {
         setShowSupportingText(true);
@@ -145,8 +86,8 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
     setShowErrorIcon(false);
 
     // If external onChange prop is provided, call it with the new value
-    if (typeof args.onChange === 'function') {
-      args.onChange(newValue);
+    if (typeof onChange === 'function') {
+      onChange(newValue);
     }
   };
 
@@ -154,30 +95,27 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
     setIsFocused(false);
   };
 
-  const getClassNames = (() => {
-    return StylesHelper.classNamesElements<
-      TextFieldConfigurableProps & TextFieldInternalState,
-      TextFieldElement
-    >({
-      default: 'textField',
-      classNameList: [className, TextFieldStyle],
-      states: {
-        showSupportingText,
-        isFocused,
-        showErrorIcon,
-        disabled,
-        name,
-        label,
-        leadingIcon,
-        trailingIcon,
-        variant,
-        errorText,
-        value,
-        suffix,
-        textLine,
-      },
-    });
-  })();
+  const styles = textFieldStyle({
+    showSupportingText,
+    isFocused,
+    showErrorIcon,
+    disabled,
+    name,
+    label,
+    autoComplete,
+    className,
+    onChange,
+    placeholder,
+    supportingText,
+    type,
+    leadingIcon,
+    trailingIcon,
+    variant,
+    errorText,
+    value,
+    suffix,
+    textLine,
+  });
 
   const [uuid] = useState(uuidv4());
 
@@ -200,11 +138,11 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
   }
 
   return (
-    <div className={getClassNames.textField}>
-      <fieldset onClick={focusInput} className={getClassNames.content}>
-        <div className={getClassNames.stateLayer}></div>
+    <div className={styles.textField} {...restProps}>
+      <fieldset onClick={focusInput} className={styles.content}>
+        <div className={styles.stateLayer}></div>
         {leadingIcon && (
-          <div className={getClassNames.leadingIcon}>
+          <div className={styles.leadingIcon}>
             {React.isValidElement(leadingIcon) ? (
               leadingIcon
             ) : (
@@ -226,7 +164,7 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
           >
             <span className={'transform inline-flex -translate-y-1/2'}>
               <motion.span
-                className={getClassNames.label}
+                className={styles.label}
                 transition={{ duration: 0.3 }}
                 layoutId={uuid}
               >
@@ -252,7 +190,7 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
               transition={{ duration: 0.3 }}
             >
               <motion.span
-                className={getClassNames.label}
+                className={styles.label}
                 transition={{ duration: 0.3 }}
                 layoutId={variant == 'outlined' ? uuid : undefined}
               >
@@ -264,10 +202,10 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
             ref={inputRef}
             value={value}
             onChange={handleChange}
-            className={getClassNames.input}
+            className={styles.input}
             id={name}
             name={name}
-            placeholder={isFocused ? placeholder : ''}
+            placeholder={isFocused ? (placeholder ?? undefined) : ''}
             onFocus={handleOnFocus}
             onBlur={handleBlur}
             disabled={disabled}
@@ -278,7 +216,7 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
           />
         </div>
 
-        <div className={getClassNames.activeIndicator}></div>
+        <div className={styles.activeIndicator}></div>
 
         {!showErrorIcon && (
           <>
@@ -287,7 +225,7 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
                 onClick={(event) => {
                   event.stopPropagation();
                 }}
-                className={getClassNames.trailingIcon}
+                className={styles.trailingIcon}
               >
                 {React.isValidElement(trailingIcon) ? (
                   trailingIcon
@@ -297,14 +235,14 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
               </div>
             )}
             {!trailingIcon && suffix && (
-              <span className={getClassNames.suffix}>{suffix}</span>
+              <span className={styles.suffix}>{suffix}</span>
             )}
           </>
         )}
 
         {showErrorIcon && (
           <div
-            className={classNames(getClassNames.trailingIcon, {
+            className={classNames(styles.trailingIcon, {
               ' absolute right-0': !trailingIcon,
             })}
           >
@@ -316,7 +254,7 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
         )}
       </fieldset>
       {showSupportingText && (
-        <p className={getClassNames.supportingText}>
+        <p className={styles.supportingText}>
           {errorText?.length
             ? errorText
             : supportingText?.length
@@ -326,4 +264,4 @@ export const TextField: React.FC<TextFieldProps> = forwardRef<
       )}
     </div>
   );
-});
+};
