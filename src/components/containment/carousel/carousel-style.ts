@@ -3,8 +3,8 @@ import {
   CarouselElements,
   CarouselStates,
 } from './carousel.interface';
-import { classNames } from '../../utils/styles/classnames';
-import { defaultClassNames } from '../../utils/styles/get-classname';
+import { classNames } from '@utils/styles/classnames';
+import { defaultClassNames } from '@utils/styles/get-classname';
 
 export const carouselStyle = defaultClassNames<
   CarouselBaseProps & CarouselStates,

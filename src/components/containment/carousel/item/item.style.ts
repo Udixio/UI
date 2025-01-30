@@ -1,6 +1,6 @@
-import { defaultClassNames } from '../../../utils/styles/get-classname';
+import { defaultClassNames } from '@utils/styles/get-classname';
 import { ItemBaseProps, ItemElements, ItemStates } from './item.interface';
-import { classNames } from '../../../utils/styles/classnames';
+import { classNames } from '@utils/styles/classnames';
 
 export const itemStyle = defaultClassNames<
   ItemBaseProps & ItemStates,

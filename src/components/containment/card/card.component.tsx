@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 
-import { RippleEffect } from '../../effects/ripple';
+import { RippleEffect } from '../../../effects/ripple';
 import { CardProps } from './card.interface';
 import { cardStyle } from './card.style';
 

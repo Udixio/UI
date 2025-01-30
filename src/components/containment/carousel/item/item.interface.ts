@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { ComponentProps, MotionComponentProps } from '../../../utils';
+import { MotionComponentProps } from '@utils/index';
 
 export type ItemBaseProps = {
   children?: ReactNode | undefined;
@@ -14,4 +14,9 @@ export type ItemElements = 'item';
 export type ItemElementType = 'div';
 
 export type ItemProps = ItemBaseProps &
-  MotionComponentProps<ItemBaseProps, ItemStates, ItemElements, ItemElementType>;
+  MotionComponentProps<
+    ItemBaseProps,
+    ItemStates,
+    ItemElements,
+    ItemElementType
+  >;

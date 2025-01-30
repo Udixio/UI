@@ -1,4 +1,4 @@
-import { ComponentProps } from '../../utils';
+import { ComponentProps } from '@utils/index';
 import { ReactNode } from 'react';
 
 export type CarouselBaseProps = {
@@ -14,9 +14,7 @@ export type CarouselBaseProps = {
   marginPourcent?: number;
   height?: string;
 };
-export type CarouselStates = {
-
-};
+export type CarouselStates = {};
 export type CarouselElements = 'carousel' | 'track';
 export type CarouselElementType = 'div';
 

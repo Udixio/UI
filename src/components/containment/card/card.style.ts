@@ -1,4 +1,4 @@
-import { classNames, defaultClassNames } from '../../utils';
+import { classNames, defaultClassNames } from '@utils/index';
 import { CardBaseProps, CardElements, CardStates } from './card.interface';
 
 export const cardStyle = defaultClassNames<
