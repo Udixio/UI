@@ -54,7 +54,7 @@ const createSliderStory = (
               label: '40°C',
             },
           ]}
-          valueFormatter={(value) => {
+          valueFormatter={(value: number) => {
             if (value == Infinity) return 'Unlimited';
             if (value == -Infinity) return '-Unlimited';
             return value;
