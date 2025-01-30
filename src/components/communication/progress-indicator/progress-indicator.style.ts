@@ -11,23 +11,22 @@ export const progressIndicatorStyle = defaultClassNames<
 >({
   defaultClassName: ({ variant, isVisible }) => ({
     progressIndicator: classNames(
-      variant === 'linear-determinate' ||
-        (variant == 'linear-indeterminate' && 'flex w-full')
+      (variant === 'linear-determinate' || variant == 'linear-indeterminate') &&
+        'flex w-full'
     ),
     track: 'h-full rounded-full bg-primary rounded-l-full',
     activeIndicator: classNames(
-      variant === 'linear-determinate' ||
-        (variant == 'linear-indeterminate' &&
-          'h-full flex-1 rounded-full bg-primary-container'),
+      (variant === 'linear-determinate' || variant == 'linear-indeterminate') &&
+        'h-full flex-1 rounded-full bg-primary-container',
 
-      variant === 'circular-determinate' ||
-        (variant == 'circular-indeterminate' && [
-          'stroke-primary fill-transparent ',
-          {
-            'stroke-[4px]': isVisible,
-            'stroke-[0px]': !isVisible,
-          },
-        ])
+      (variant === 'circular-determinate' ||
+        variant == 'circular-indeterminate') && [
+        'stroke-primary fill-transparent ',
+        {
+          'stroke-[4px]': isVisible,
+          'stroke-[0px]': !isVisible,
+        },
+      ]
     ),
     stop: 'absolute right-0 bg-primary rounded-full',
   }),
