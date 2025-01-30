@@ -1,2 +1,3 @@
-export * from './Card';
-export * from './CardStyle';
+export * from './card.component';
+export * from './card.interface';
+export * from './card.style';
