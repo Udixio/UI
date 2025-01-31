@@ -26,7 +26,7 @@ type Story = StoryObj<typeof meta>;
 // More on writing stories with args: https://storybook.js.org/docs/react/writing-stories/args
 
 const createButtonStory = (variant: ButtonProps['variant']) => {
-  const ButtonStory: Story = (args: ButtonProps) => (
+  const ButtonStory: Story = (args: Pick<ButtonProps, 'label'>) => (
     <div className="">
       <div className="flex m-4 gap-4 items-center">
         <ButtonComponent {...args} disabled={false} />
