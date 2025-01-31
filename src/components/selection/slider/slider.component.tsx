@@ -112,6 +112,7 @@ export const Slider = ({
     step,
     value,
     valueFormatter,
+    onChange,
   });
   const handleChange = (event: any) => {
     // @ts-ignore

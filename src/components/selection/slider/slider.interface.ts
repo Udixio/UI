@@ -9,9 +9,10 @@ export type SliderBaseProps = {
     value: number;
     label?: string;
   }[];
-  step: number ;
+  step: number;
   name: string;
-  valueFormatter?: ((value: number) => string | number) ;
+  onChange?: (value: number) => void;
+  valueFormatter?: (value: number) => string | number;
 };
 export type SliderStates = {};
 export type SliderElements =
@@ -24,10 +25,13 @@ export type SliderElements =
 
 export type SliderElementType = 'div';
 
-export type SliderProps = ComponentProps<
-  SliderBaseProps,
-  SliderStates,
-  SliderElements,
-  SliderElementType
+export type SliderProps = Omit<
+  ComponentProps<
+    SliderBaseProps,
+    SliderStates,
+    SliderElements,
+    SliderElementType
+  >,
+  'onChange'
 > &
   SliderBaseProps;
