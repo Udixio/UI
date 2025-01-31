@@ -43,7 +43,7 @@ export const Slider = ({
     if (isInfinity) {
       return max;
     }
-    return max == Infinity ? marks[marks?.length - 1].value : _max;
+    return max == Infinity ? marks[marks?.length - 1].value : max;
   };
   const getMin = (isInfinity = false) => {
     if (isInfinity) {
