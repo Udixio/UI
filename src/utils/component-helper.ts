@@ -1,6 +1,8 @@
-import React, { HTMLAttributes } from 'react';
-import { StyleProps, StylesHelper } from './StylesHelper';
+import React from 'react';
+
 import { HTMLMotionProps } from 'framer-motion';
+import { StyleProps } from './styles/get-classname';
+import { JSX } from 'react/jsx-runtime';
 
 interface HTMLElements {
   a: HTMLAnchorElement;
@@ -125,61 +127,25 @@ interface HTMLElements {
 }
 
 export type ComponentProps<
-  PropsRequired extends object,
-  PropsOptional extends object,
+  Props extends object,
   States extends object,
   Elements extends string,
-  HTML extends keyof HTMLElements,
-> = PropsRequired &
-  Partial<PropsOptional> & {
-    ref?: React.RefObject<HTMLElements[HTML] | null>;
-  } & Omit<HTMLAttributes<HTMLElements[HTML]>, 'className'> &
-  ComponentClassName<PropsRequired, PropsOptional, States, Elements>;
+  ElementType extends keyof HTMLElements,
+> = Omit<JSX.IntrinsicElements[ElementType], 'className'> &
+  ComponentClassName<Props, States, Elements> & {
+    ref?: React.RefObject<HTMLElements[ElementType] | null>;
+  };
 
 export type MotionComponentProps<
-  PropsRequired extends object,
-  PropsOptional extends object,
+  Props extends object,
   States extends object,
   Elements extends string,
-  HTML extends keyof HTMLElements,
-> = ComponentProps<PropsRequired, PropsOptional, States, Elements, HTML> &
-  Omit<HTMLMotionProps<HTML>, 'ref' | 'className'>;
+  ElementType extends keyof HTMLElements,
+> = ComponentProps<Props, States, Elements, ElementType> &
+  Omit<HTMLMotionProps<ElementType>, 'ref' | 'className'>;
 
 export type ComponentClassName<
-  PropsRequired extends object,
-  PropsOptional extends object,
+  Props extends object,
   States extends object,
   Elements extends string,
-> = StyleProps<PropsOptional & PropsRequired & States, Elements>;
-
-export class ComponentHelper<
-  TComponentProp extends ComponentProps<
-    { ref?: React.RefObject<any> },
-    any,
-    any,
-    any,
-    any
-  >,
-  PropsOptional extends object,
-  States extends object,
-  Elements extends string,
-> {
-  private styles: TComponentProp['className'][] = [];
-
-  constructor(private defaultElement: Elements) {}
-
-  addStyle(className: TComponentProp['className']) {
-    this.styles.push(className);
-  }
-
-  getStyles(args: TComponentProp & States & PropsOptional) {
-    return StylesHelper.classNamesElements<
-      TComponentProp & States & PropsOptional,
-      Elements
-    >({
-      default: this.defaultElement,
-      classNameList: [args.className, ...this.styles],
-      states: args,
-    });
-  }
-}
+> = StyleProps<Props & States, Elements>;

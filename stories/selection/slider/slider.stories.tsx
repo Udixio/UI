@@ -18,48 +18,13 @@ type Story = StoryObj<typeof meta>;
 
 // More on writing stories with args: https://storybook.js.org/docs/react/writing-stories/args
 
-const createSliderStory = (
-  size: 'small' | 'medium' | 'large',
-  isExtended?: boolean,
-  args?: Partial<SliderProps>
-) => {
+const createSliderStory = (args?: Partial<SliderProps>) => {
   const sliderStory: Story = (args: SliderProps) => (
     <div className="">
-      <div className="flex m-4 gap-4 items-center">
-        <Slider
-          {...args}
-          value={25}
-          min={-15}
-          max={Infinity}
-          step={null}
-          marks={[
-            {
-              value: -15,
-              label: '-15°C',
-            },
-            {
-              value: -5,
-              label: '-5°C',
-            },
-            {
-              value: 5,
-              label: '5°C',
-            },
-            {
-              value: 15,
-              label: '15°C',
-            },
-            {
-              value: 40,
-              label: '40°C',
-            },
-          ]}
-          valueFormatter={(value) => {
-            if (value == Infinity) return 'Unlimited';
-            if (value == -Infinity) return '-Unlimited';
-            return value;
-          }}
-        />
+      <div className="flex flex-col m-4 gap-4 items-center">
+        <Slider value={0} min={0} max={100} step={1} {...args} />
+        <Slider value={50} min={0} max={100} step={1} {...args} />
+        <Slider value={100} min={0} max={100} step={1} {...args} />
       </div>
     </div>
   );
@@ -68,7 +33,53 @@ const createSliderStory = (
   };
   return sliderStory;
 };
-export const smallSlider = createSliderStory('small');
-export const slider = createSliderStory('medium');
-export const largeSlider = createSliderStory('large');
-export const extendedSliders = createSliderStory('large', true);
+export const continuousSlider = createSliderStory({});
+export const discreteSlider = createSliderStory({
+  step: null,
+  marks: [
+    {
+      value: 0,
+      label: '0%',
+    },
+    {
+      value: 10,
+      label: '10%',
+    },
+    {
+      value: 20,
+      label: '20%',
+    },
+    {
+      value: 30,
+      label: '30%',
+    },
+    {
+      value: 40,
+      label: '40%',
+    },
+    {
+      value: 50,
+      label: '50%',
+    },
+    {
+      value: 60,
+      label: '60%',
+    },
+    {
+      value: 70,
+      label: '70%',
+    },
+    {
+      value: 80,
+      label: '80%',
+    },
+    {
+      value: 90,
+      label: '90%',
+    },
+    {
+      value: 100,
+      label: '100%',
+    },
+  ],
+});
