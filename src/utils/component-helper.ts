@@ -148,4 +148,4 @@ export type ComponentClassName<
   Props extends object,
   States extends object,
   Elements extends string,
-> = StyleProps<Required<Props> & States, Elements>;
+> = StyleProps<Props & States, Elements>;

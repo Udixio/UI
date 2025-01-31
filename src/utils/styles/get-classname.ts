@@ -1,3 +1,7 @@
+type RequiredNullable<T> = {
+  [K in keyof T]-?: any;
+};
+
 export interface StyleProps<S, E extends string> {
   className?: string | ClassNameComponent<S, E>;
 }
@@ -7,9 +11,9 @@ export type ClassNameComponent<S, E extends string> = (
 ) => Partial<Record<E, string>>;
 
 export const getClassNames = <States, Elements extends string>(args: {
-  classNameList: (ClassNameComponent<Required<States>, Elements> | string | undefined)[];
+  classNameList: (ClassNameComponent<States, Elements> | string | undefined)[];
   default: Elements;
-  states: Required<States>;
+  states: States;
 }): Record<Elements, string> => {
   let classNames: Record<Elements, string> = {} as Record<Elements, string>;
   args.classNameList.forEach((classNameComponent) => {
@@ -35,14 +39,18 @@ export const getClassNames = <States, Elements extends string>(args: {
   return classNames;
 };
 
-export const defaultClassNames = <States extends object, Elements extends string>(args: {
+export const defaultClassNames = <
+  States extends object,
+  Elements extends string,
+>(args: {
   defaultClassName: ClassNameComponent<States, Elements> | string | undefined;
   default: Elements;
 }) => {
   return (
-    states: Required<States> & {
-      className: ClassNameComponent<Required<States>, Elements> | string | undefined;
-    }
+    states: RequiredNullable<States> &
+      States & {
+        className: ClassNameComponent<States, Elements> | string | undefined;
+      }
   ) =>
     getClassNames({
       ...args,
