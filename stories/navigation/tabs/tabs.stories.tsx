@@ -7,12 +7,12 @@ import {
   faMessage,
   faPlane,
 } from '@fortawesome/free-solid-svg-icons';
-import { Tab, TabsComponent, TabsProps, TabsVariant } from '../../../src';
+import { Tab, Tabs, TabsProps, TabsVariant } from '../../../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
   title: 'Navigation/Tabs',
-  component: TabsComponent,
+  component: Tabs,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/react/configure/story-layout
   },
@@ -20,7 +20,7 @@ const meta = {
   tags: ['autodocs'],
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
   argTypes: {},
-} satisfies Meta<typeof TabsComponent>;
+} satisfies Meta<typeof Tabs>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -30,17 +30,13 @@ type Story = StoryObj<typeof meta>;
 const createTabStory = (variant?: TabsVariant, args?: Partial<TabsProps>) => {
   const tabStory: Story = (args: TabsProps) => (
     <div className="w-full flex flex-col gap-8">
-      <TabsComponent {...args} onTabSelected={(tab) => console.log(tab)}>
+      <Tabs {...args} onTabSelected={(tab) => console.log(tab)}>
         {
           // @ts-ignore
           args.children.map((child) => child)
         }
-      </TabsComponent>
-      <TabsComponent
-        scrollable
-        {...args}
-        onTabSelected={(tab) => console.log(tab)}
-      >
+      </Tabs>
+      <Tabs scrollable {...args} onTabSelected={(tab) => console.log(tab)}>
         {
           // @ts-ignore
           args.children.map((child) => child)
@@ -49,7 +45,7 @@ const createTabStory = (variant?: TabsVariant, args?: Partial<TabsProps>) => {
           // @ts-ignore
           args.children.map((child) => child)
         }
-      </TabsComponent>
+      </Tabs>
     </div>
   );
 
