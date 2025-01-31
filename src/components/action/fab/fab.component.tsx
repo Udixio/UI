@@ -9,7 +9,7 @@ import { fabStyle } from '@components/action/fab/fab.style';
 
 export const Fab = ({
   className,
-  label = null,
+  label,
   variant = 'primary',
   size = 'medium',
   href,

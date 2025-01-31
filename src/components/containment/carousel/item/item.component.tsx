@@ -19,7 +19,7 @@ const normalize = (
 };
 export const CarouselItem = ({
   className,
-  children = null,
+  children,
   visibilityPercentage = 1,
   index = 0,
   inputRange = [0, 1],

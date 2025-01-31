@@ -8,10 +8,10 @@ import { switchStyle } from '@components/selection/switch/switch.style';
 export const SwitchComponent = ({
   selected = false,
   className,
-  activeIcon = null,
+  activeIcon,
   disabled = false,
-  inactiveIcon = null,
-  onChange = null,
+  inactiveIcon,
+  onChange,
   onClick,
   onKeyDown,
   ref,

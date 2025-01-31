@@ -7,7 +7,7 @@ import { sliderStyle } from '@components/selection/slider/slider.style';
 
 export const Slider = ({
   className,
-  valueFormatter = null,
+  valueFormatter,
   step = 10,
   name,
   value: defaultValue,

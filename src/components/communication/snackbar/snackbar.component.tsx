@@ -9,9 +9,9 @@ import { IconButton } from '@components/action/icon-button';
 export const Snackbar = ({
   supportingText,
   className,
-  duration = null,
+  duration,
   closeIcon = faXmark,
-  onClose = null,
+  onClose,
   ...restProps
 }: SnackbarProps) => {
   const [isVisible, setIsVisible] = useState(true);

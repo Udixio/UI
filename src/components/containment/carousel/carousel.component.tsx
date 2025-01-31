@@ -9,7 +9,7 @@ export const CarouselComponent = ({
   variant = 'hero',
   height = '400px',
   className,
-  children = null,
+  children,
   ref: optionalRef,
   marginPourcent = 0.2,
   inputRange = [0.21, 0.65],

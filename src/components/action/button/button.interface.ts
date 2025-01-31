@@ -22,7 +22,7 @@ export type ButtonBaseProps = {
   /**
    * An optional icon to display in the button.
    */
-  icon?: IconDefinition | null;
+  icon?: IconDefinition ;
 
   iconPosition?: 'left' | 'right';
 

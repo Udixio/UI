@@ -6,7 +6,7 @@ import { tabsStyle } from '@components/navigation/tabs/tabs.style';
 
 export const Tabs = ({
   variant = 'primary',
-  onTabSelected = null,
+  onTabSelected,
   children,
   className,
   selectedTab: externalSelectedTab,
@@ -70,7 +70,7 @@ export const Tabs = ({
           key: index,
           index,
           variant: variant,
-          selectedTab: selectedTab,
+          selectedTab,
           setSelectedTab: setSelectedTab,
           tabsId: tabsId,
           onTabSelected: handleOnTabSelected,

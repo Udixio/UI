@@ -3,8 +3,8 @@ import { MotionComponentProps } from '@utils/component-helper';
 
 export type SnackbarBaseProps = {
   closeIcon?: IconDefinition;
-  duration?: number | null;
-  onClose?: (() => void) | null;
+  duration?: number;
+  onClose?: () => void;
   supportingText: string;
 };
 export type SnackbarStates = {

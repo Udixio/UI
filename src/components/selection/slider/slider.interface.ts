@@ -9,9 +9,9 @@ export type SliderBaseProps = {
     value: number;
     label?: string;
   }[];
-  step: number | null;
+  step: number ;
   name: string;
-  valueFormatter?: ((value: number) => string | number) | null;
+  valueFormatter?: ((value: number) => string | number) ;
 };
 export type SliderStates = {};
 export type SliderElements =

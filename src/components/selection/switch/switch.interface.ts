@@ -3,10 +3,10 @@ import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 export type SwitchBaseProps = {
   selected: boolean;
-  activeIcon?: IconDefinition | null;
-  inactiveIcon?: IconDefinition | null;
+  activeIcon?: IconDefinition;
+  inactiveIcon?: IconDefinition;
   disabled?: boolean;
-  onChange?: ((checked: boolean) => void) | null;
+  onChange?: (checked: boolean) => void;
 };
 export type SwitchStates = {
   isSelected: boolean;

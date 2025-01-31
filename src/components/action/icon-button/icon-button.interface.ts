@@ -8,7 +8,7 @@ export type IconButtonBaseProps = {
   disabled?: boolean;
   arialLabel: string;
   icon: IconDefinition;
-  iconSelected?: IconDefinition | null;
+  iconSelected?: IconDefinition;
   activated?: boolean;
   onToggle?: (isActive: boolean) => void;
 };

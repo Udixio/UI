@@ -5,7 +5,7 @@ import { MergeExclusive } from 'type-fest';
 export type FabVariant = 'surface' | 'primary' | 'secondary' | 'tertiary';
 export type FabBaseProps = {
   variant?: FabVariant;
-  label?: string | null;
+  label?: string ;
   icon: IconDefinition;
   size?: 'small' | 'medium' | 'large';
   isExtended?: boolean;

@@ -3,23 +3,20 @@ import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import React from 'react';
 import { IconButton } from '@components/action/icon-button';
 
-
 export type TextFieldVariant = 'filled' | 'outlined';
 
 export type TextFieldBaseProps = {
-  placeholder?: string | null;
+  placeholder?: string;
   name: string;
   label: string;
   disabled?: boolean;
   errorText?: string | null;
-  supportingText?: string | null;
-  trailingIcon?:
-    | (React.ReactElement<typeof IconButton> | IconDefinition)
-    | null;
-  leadingIcon?: (React.ReactElement<typeof IconButton> | IconDefinition) | null;
-  onChange?: ((value: string) => void) | null;
+  supportingText?: string;
+  trailingIcon?: React.ReactElement<typeof IconButton> | IconDefinition;
+  leadingIcon?: React.ReactElement<typeof IconButton> | IconDefinition;
+  onChange?: (value: string) => void;
   showSupportingText?: boolean;
-  suffix?: string | null;
+  suffix?: string;
 
   value: string;
   variant: TextFieldVariant;

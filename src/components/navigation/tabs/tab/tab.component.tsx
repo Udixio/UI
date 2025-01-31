@@ -9,15 +9,15 @@ import { TabProps } from '@components/navigation/tabs/tab/tab.interface';
 export const Tab = ({
   className,
   onClick,
-  label = null,
+  label,
   variant = 'primary',
   href,
-  icon = null,
-  selectedTab = null,
-  setSelectedTab = null,
-  tabsId = null,
-  index = null,
-  onTabSelected = null,
+  icon,
+  selectedTab,
+  setSelectedTab,
+  tabsId,
+  index,
+  onTabSelected,
   scrollable = false,
   selected,
   ref,
@@ -51,7 +51,7 @@ export const Tab = ({
 
   const handleClick = (e: React.MouseEvent<any>) => {
     if (setSelectedTab) {
-      setSelectedTab(index);
+      setSelectedTab(index ?? null);
     }
     if (onClick) {
       onClick(e);

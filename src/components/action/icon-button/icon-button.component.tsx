@@ -16,7 +16,7 @@ export const IconButton = ({
   activated = false,
   onClick,
   icon,
-  iconSelected = null,
+  iconSelected,
   className,
   ...restProps
 }: IconButtonProps) => {

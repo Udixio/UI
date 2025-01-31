@@ -18,7 +18,7 @@ export type ButtonVariant =
 export const ButtonComponent = ({
   variant = 'filled',
   disabled = false,
-  icon = null,
+  icon,
   href,
   label,
   className,

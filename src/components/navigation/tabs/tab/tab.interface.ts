@@ -8,19 +8,17 @@ import { TabsVariant } from '@components/navigation/tabs';
 export type TabBaseProps = {
   selected: boolean;
   variant: TabsVariant;
-  label?: string | null;
-  icon?: IconDefinition | null;
+  label?: string;
+  icon?: IconDefinition;
   selectedTab?: number | null;
-  setSelectedTab?: Dispatch<SetStateAction<number | null>> | null;
-  tabsId?: string | null;
-  onTabSelected?:
-    | ((
-        args: { index: number } & Pick<TabProps, 'label' | 'icon'> & {
-            ref: RefObject<any>;
-          }
-      ) => void)
-    | null;
-  index?: number | null;
+  setSelectedTab?: Dispatch<SetStateAction<number | null>>;
+  tabsId?: string;
+  onTabSelected?: (
+    args: { index: number } & Pick<TabProps, 'label' | 'icon'> & {
+        ref: RefObject<any>;
+      }
+  ) => void;
+  index?: number;
   scrollable?: boolean;
 };
 export type TabStates = {
