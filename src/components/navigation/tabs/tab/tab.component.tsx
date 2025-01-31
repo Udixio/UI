@@ -77,7 +77,7 @@ export const Tab = ({
     <ElementType
       {...restProps}
       role="tab"
-      aria-selected={selected}
+      aria-selected={isSelected}
       ref={resolvedRef}
       href={href}
       className={styles.tab}
@@ -87,7 +87,7 @@ export const Tab = ({
       <span className={styles.stateLayer}>
         <RippleEffect
           colorName={
-            variant === 'primary' && selected ? 'primary' : 'on-surface'
+            variant === 'primary' && isSelected ? 'primary' : 'on-surface'
           }
           triggerRef={resolvedRef}
         />
@@ -95,7 +95,7 @@ export const Tab = ({
       <span className={styles.content}>
         {icon && <Icon icon={icon} className={styles.icon} />}
         <span className={styles.label}>{label}</span>
-        {selected && (
+        {isSelected && (
           <motion.span
             layoutId={`underline-${tabsId}`}
             className={styles.underline}
