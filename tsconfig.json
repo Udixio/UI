@@ -4,6 +4,7 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "jsx": "react-jsx",
+    "baseUrl": "./",
     "paths": {
       "@components/*": ["src/components/*"],
       "@utils/*": ["src/utils/*"],
