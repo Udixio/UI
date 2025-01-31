@@ -1,11 +1,11 @@
 import React, { useRef } from 'react';
 import { Icon } from '../../../icon';
 
-import classNames from 'classnames';
 import { RippleEffect } from '../../../effects/ripple';
 import { AnimatePresence, motion } from 'framer-motion';
 import { FabProps } from '@components/action/fab/fab.interface';
 import { fabStyle } from '@components/action/fab/fab.style';
+import { classNames } from '@utils/styles';
 
 export const Fab = ({
   className,

@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import classNames from 'classnames';
 import { AnimatePresence, motion } from 'framer-motion';
 import { SliderProps } from '@components/selection/slider/slider.interface';
 import { sliderStyle } from '@components/selection/slider/slider.style';
+import { classNames } from '@utils/styles';
 
 export const Slider = ({
   className,

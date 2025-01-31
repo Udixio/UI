@@ -3,10 +3,11 @@ import { Icon } from '../icon';
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { motion } from 'framer-motion';
 import { v4 as uuidv4 } from 'uuid';
-import classNames from 'classnames';
+
 import TextareaAutosize from 'react-textarea-autosize';
 import { TextFieldProps } from './text-field.interface';
 import { textFieldStyle } from './text-field.style';
+import { classNames } from '@utils/styles';
 
 export const TextField = ({
   variant = 'filled',
