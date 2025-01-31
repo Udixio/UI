@@ -31,8 +31,8 @@ export const buttonStyle = defaultClassNames<
       variant === 'text' && [
         '-my-2.5',
         { 'px-3': !icon },
-        { 'pl-3 -ml-3 pr-4 -mr-4': icon && iconPosition == 'left' },
-        { 'pl-4 -ml-4 pr-3 -mr-3': icon && iconPosition == 'right' },
+        { 'pl-3 -ml-3 pr-4 -mr-4': icon && iconPosition === 'left' },
+        { 'pl-4 -ml-4 pr-3 -mr-3': icon && iconPosition === 'right' },
         {
           'text-primary': !disabled,
           'text-on-surface/[0.38]': disabled,

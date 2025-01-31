@@ -16,7 +16,8 @@ export const CarouselComponent = ({
   outputRange = [0.1, 1 / 3],
   ...restProps
 }: CarouselProps) => {
-  const ref = optionalRef || useRef(null);
+  const defaultRef = useRef(null);
+  const ref = optionalRef || defaultRef;
 
   const styles = carouselStyle({
     className,

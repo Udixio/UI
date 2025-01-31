@@ -27,8 +27,8 @@ export const CarouselItem = ({
   ref: optionalRef,
   ...restProps
 }: ItemProps) => {
-  const ref: React.RefObject<null | HTMLDivElement> =
-    optionalRef || useRef(null);
+  const defaultRef = useRef(null);
+  const ref: React.RefObject<null | HTMLDivElement> = optionalRef || defaultRef;
 
   const styles = itemStyle({
     className,

@@ -6,7 +6,10 @@ import {
   FabStates,
 } from '@components/action/fab/fab.interface';
 
-export const fabStyle = defaultClassNames<FabBaseProps & FabStates, FabElements>({
+export const fabStyle = defaultClassNames<
+  FabBaseProps & FabStates,
+  FabElements
+>({
   defaultClassName: ({ size, variant, isExtended }) => ({
     fab: classNames(
       'flex transition-all duration-300 shadow-3 hover:shadow-4 group overflow-hidden outline-none items-center',
