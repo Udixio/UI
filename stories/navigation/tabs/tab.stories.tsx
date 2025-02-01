@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 import { faHome } from '@fortawesome/free-solid-svg-icons';
 import { Tab, TabProps, TabsVariant } from '../../../src';
+import { fn } from '@storybook/test';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -36,6 +37,8 @@ const createTabStory = (variant: TabsVariant, args?: Partial<TabProps>) => {
   tabStory.args = {
     label: 'Tab',
     variant: variant,
+    onClick: fn(),
+    onTabSelected: fn(),
     ...args,
   };
   return tabStory;

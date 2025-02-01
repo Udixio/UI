@@ -45,10 +45,10 @@ LinearDeterminate.argTypes = {
   value: { control: { type: 'range', min: 0, max: 100 } },
 };
 
-export const CircularDeterminate = createProgressIndicatorStory(
-  'circular-determinate'
+export const CircularIndeterminate = createProgressIndicatorStory(
+  'circular-indeterminate'
 );
 
-CircularDeterminate.argTypes = {
+CircularIndeterminate.argTypes = {
   value: { control: { type: 'range', min: 0, max: 100 } },
 };

@@ -1,18 +1,18 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Switch, SwitchProps } from '../../../src';
+import { SwitchComponent, SwitchProps } from '../../../src';
 import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
   title: 'Selection/Switch',
-  component: Switch,
+  component: SwitchComponent,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/react/configure/story-layout
   },
   // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/react/writing-docs/autodocs
   tags: ['autodocs'],
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
-} satisfies Meta<typeof Switch>;
+} satisfies Meta<typeof SwitchComponent>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -23,12 +23,16 @@ const createSwitchStory = (args?: Partial<SwitchProps>) => {
   const switchStory: Story = (args: SwitchProps) => (
     <div className="">
       <div className="flex m-4 gap-4 items-center">
-        <Switch {...args} />
-        <Switch disabled {...args} />
+        <SwitchComponent {...args} />
+        <SwitchComponent disabled {...args} />
       </div>
       <div className="flex m-4 gap-4 items-center">
-        <Switch activeIcon={faCheck} inactiveIcon={faXmark} {...args} />
-        <Switch
+        <SwitchComponent
+          activeIcon={faCheck}
+          inactiveIcon={faXmark}
+          {...args}
+        />
+        <SwitchComponent
           activeIcon={faCheck}
           inactiveIcon={faXmark}
           disabled
