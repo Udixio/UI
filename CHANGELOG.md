@@ -1,3 +1,30 @@
+# [1.2.0](https://github.com/Udixio/UI/compare/v1.1.0...v1.2.0) (2025-02-01)
+
+
+### Bug Fixes
+
+* **carousel:** make visibilityPercentage optional ([6d39063](https://github.com/Udixio/UI/commit/6d39063eef68d61d28898f0f072d6028ecada9dc))
+* clean up redundant props in itemStyle function ([51e0389](https://github.com/Udixio/UI/commit/51e0389ca8c5464c07fcac7f0cc7e6da49799972))
+* ensure consistent refs and syntax corrections ([d3f4678](https://github.com/Udixio/UI/commit/d3f467891973ac204bc2ee853c680ad05a580039))
+* **icon-button:** prevent actions when disabled ([e7d8a3d](https://github.com/Udixio/UI/commit/e7d8a3d1cc717d83eecb6d98ad014fff24442d09))
+* **progress-indicator:** correct logical operator grouping ([bd4a111](https://github.com/Udixio/UI/commit/bd4a111d89a6c92e4c8233f807f852e9f2041359))
+* **progress-indicator:** update story name for consistency ([a5d7643](https://github.com/Udixio/UI/commit/a5d76436e2b18713edb1f82501a080cbc27f0095))
+* **slider:** add type annotation to valueFormatter parameter ([424d67c](https://github.com/Udixio/UI/commit/424d67c945757a519f01c77a57a22df8a41e1a3a))
+* **tabs:** adjust tab component behavior and typings ([6a9155d](https://github.com/Udixio/UI/commit/6a9155d5fa2e4a47b01e6102d501e898df573575))
+* **tab:** update variable name to isSelected for clarity ([81bd4d2](https://github.com/Udixio/UI/commit/81bd4d27071dc23f0d7eea2a19d17bf37ddc0541))
+* trigger release workflow on push to release branches ([b4b1838](https://github.com/Udixio/UI/commit/b4b183888061c35b20163baa4fc4e7c4f744f465))
+* **workflow:** conditionally run size-limit-action ([441ccff](https://github.com/Udixio/UI/commit/441ccff108a9ceeb224df3fea2fcd735fe304d67))
+
+
+### Features
+
+* add path aliases to tsconfig.json ([cf9b28f](https://github.com/Udixio/UI/commit/cf9b28ff09d28c8a377925da306de343c12231a9))
+* **button:** replace union type with `MergeExclusive` ([862362c](https://github.com/Udixio/UI/commit/862362c8d55b5820511aef8a84e88fdaec34e0a9))
+* remove Avatar component and refactor file structure ([d62bc56](https://github.com/Udixio/UI/commit/d62bc564b6a3ee11ea844baadcffcd3eb7741ca6))
+* **slider:** add onChange callback to slider interface ([b001827](https://github.com/Udixio/UI/commit/b001827f5ceefe395ee3d3710ca8ae0855b916a7))
+* **slider:** simplify slider stories and enhance styling logic ([e46afe5](https://github.com/Udixio/UI/commit/e46afe533e3bd3edc7fe3d5ad79ff002aeeee019))
+* **tsconfig:** add baseUrl configuration ([ab8a740](https://github.com/Udixio/UI/commit/ab8a7400d6fad02d56a615b62b6aeaa344ed84a8))
+
 # [1.1.0](https://github.com/Udixio/UI/compare/v1.0.0...v1.1.0) (2025-01-22)
 
 
