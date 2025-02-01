@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Card, CardProps, CardVariant } from '../../src';
+import { CardComponent, CardProps, CardVariant } from '../../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
   title: 'containment/Card',
-  component: Card,
+  component: CardComponent,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/react/configure/story-layout
   },
@@ -12,7 +12,7 @@ const meta = {
   tags: ['autodocs'],
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
   argTypes: {},
-} satisfies Meta<typeof Card>;
+} satisfies Meta<typeof CardComponent>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -22,13 +22,16 @@ type Story = StoryObj<typeof meta>;
 const createCardStory = (variant: CardVariant) => {
   const CardStory: Story = (args: CardProps) => (
     <>
-      <Card className={'w-[360px] h-[360px]'} {...args}></Card>
+      <CardComponent
+        className={'w-[360px] h-[360px]'}
+        {...args}
+      ></CardComponent>
       <a className={'group'} href={'https://example.com/'} target={'_blank'}>
-        <Card
+        <CardComponent
           isInteractive={true}
           className={'w-[360px] h-[360px]'}
           {...args}
-        ></Card>
+        ></CardComponent>
       </a>
     </>
   );

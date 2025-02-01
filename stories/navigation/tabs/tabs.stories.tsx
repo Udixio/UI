@@ -30,20 +30,20 @@ type Story = StoryObj<typeof meta>;
 const createTabStory = (variant?: TabsVariant, args?: Partial<TabsProps>) => {
   const tabStory: Story = (args: TabsProps) => (
     <div className="w-full flex flex-col gap-8">
-      <Tabs {...args} onTabSelected={(tab) => console.log(tab)}>
+      <Tabs {...args} onTabSelected={(tab: any) => console.log(tab)}>
         {
           // @ts-ignore
           args.children.map((child) => child)
         }
       </Tabs>
-      <Tabs scrollable {...args} onTabSelected={(tab) => console.log(tab)}>
+      <Tabs scrollable {...args} onTabSelected={(tab: any) => console.log(tab)}>
         {
           // @ts-ignore
           args.children.map((child) => child)
         }
         {
           // @ts-ignore
-          args.children.map((child) => child)
+          args.children.slice(1).map((child) => child)
         }
       </Tabs>
     </div>
