@@ -20,9 +20,9 @@ export type TextFieldBaseProps = {
 
   value: string;
   variant: TextFieldVariant;
-  type: 'text' | 'password' | 'number';
-  autoComplete: 'on' | 'off' | string;
-  textLine: 'singleLine' | 'multiLine' | 'textAreas';
+  type?: 'text' | 'password' | 'number';
+  autoComplete?: 'on' | 'off' | string;
+  textLine?: 'singleLine' | 'multiLine' | 'textAreas';
 };
 export type TextFieldStates = {
   isFocused: boolean;
