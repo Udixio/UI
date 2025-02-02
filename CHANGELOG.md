@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/Udixio/UI/compare/v1.2.2...v1.2.3) (2025-02-02)
+
+
+### Bug Fixes
+
+* **text-field:** make certain properties optional ([1a8d57c](https://github.com/Udixio/UI/commit/1a8d57cdae9058ead5a13f0fff990a002201b8e2))
+
 ## [1.2.2](https://github.com/Udixio/UI/compare/v1.2.1...v1.2.2) (2025-02-02)
 
 
