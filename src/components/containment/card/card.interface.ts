@@ -1,5 +1,6 @@
 import { ComponentProps } from '../../../utils';
 
+
 export type CardBaseProps = {
   variant?: 'outlined' | 'elevated' | 'filled';
   isInteractive?: boolean;
