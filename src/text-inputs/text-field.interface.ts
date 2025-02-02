@@ -19,7 +19,7 @@ export type TextFieldBaseProps = {
   suffix?: string;
 
   value: string;
-  variant: TextFieldVariant;
+  variant?: TextFieldVariant;
   type?: 'text' | 'password' | 'number';
   autoComplete?: 'on' | 'off' | string;
   textLine?: 'singleLine' | 'multiLine' | 'textAreas';

@@ -6,7 +6,7 @@ import { ComponentProps } from '../../../../utils';
 
 export type TabBaseProps = {
   selected: boolean;
-  variant: TabsVariant;
+  variant?: TabsVariant;
   label?: string;
   icon?: IconDefinition;
   selectedTab?: number | null;
