@@ -1,3 +1,11 @@
+## [1.2.2](https://github.com/Udixio/UI/compare/v1.2.1...v1.2.2) (2025-02-02)
+
+
+### Bug Fixes
+
+* remove path aliases for consistency ([0aca805](https://github.com/Udixio/UI/commit/0aca805efafa821ecd3c38123ca36ad3ea6425f8))
+* remove path aliases for consistency ([4595999](https://github.com/Udixio/UI/commit/45959999e5977abb13d8af9a3f43678add8dc954))
+
 ## [1.2.1](https://github.com/Udixio/UI/compare/v1.2.0...v1.2.1) (2025-02-02)
 
 
