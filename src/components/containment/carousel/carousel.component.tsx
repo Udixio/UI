@@ -5,7 +5,7 @@ import { useMotionValueEvent, useScroll } from 'framer-motion';
 
 import { carouselStyle } from './carousel-style';
 
-export const CarouselComponent = ({
+export const Carousel = ({
   variant = 'hero',
   height = '400px',
   className,

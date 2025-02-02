@@ -15,7 +15,7 @@ export type ButtonVariant =
 /**
  * The Button component is a versatile component that can be used to trigger actions or to navigate to different sections of the application
  */
-export const ButtonComponent = ({
+export const Button = ({
   variant = 'filled',
   disabled = false,
   icon,
