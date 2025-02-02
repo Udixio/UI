@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 
-import { iconButtonStyle } from '@components/action/icon-button/icon-button.style';
-import { IconButtonProps } from '@components/action/icon-button/icon-button.interface';
 import { Icon } from '../../../icon/icon';
+import { IconButtonProps } from './icon-button.interface';
+import { iconButtonStyle } from './icon-button.style';
 
 export type IconButtonVariant = 'standard' | 'filled' | 'tonal' | 'outlined';
 

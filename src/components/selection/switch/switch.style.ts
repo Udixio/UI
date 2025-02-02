@@ -1,9 +1,9 @@
-import { classNames, defaultClassNames } from '@utils/index';
+import { classNames, defaultClassNames } from '../../../utils';
 import {
   SwitchBaseProps,
   SwitchElements,
   SwitchStates,
-} from '@components/selection/switch/switch.interface';
+} from './switch.interface';
 
 export const switchStyle = defaultClassNames<
   SwitchBaseProps & SwitchStates,

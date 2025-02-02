@@ -1,4 +1,4 @@
-import { ComponentProps } from '@utils/index';
+import { ComponentProps } from '../../../utils';
 
 /**
  * Type for the different variants of the ProgressIndicator component.

@@ -1,6 +1,7 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { ComponentProps } from '@utils/index';
+
 import { MergeExclusive } from 'type-fest';
+import { ComponentProps } from '../../../utils';
 
 export type FabVariant = 'surface' | 'primary' | 'secondary' | 'tertiary';
 export type FabBaseProps = {

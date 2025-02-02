@@ -3,8 +3,7 @@ import {
   DividerElements,
   DividerStates,
 } from './divider.interface';
-import { classNames } from '@utils/styles/classnames';
-import { defaultClassNames } from '@utils/styles/get-classname';
+import { classNames, defaultClassNames } from '../../../utils';
 
 export const dividerStyle = defaultClassNames<
   DividerBaseProps & DividerStates,

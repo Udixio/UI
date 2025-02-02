@@ -1,5 +1,5 @@
-import { ComponentProps } from '@utils/index';
 import { ReactNode } from 'react';
+import { ComponentProps } from '../../../utils';
 
 export type CarouselBaseProps = {
   children?: ReactNode;

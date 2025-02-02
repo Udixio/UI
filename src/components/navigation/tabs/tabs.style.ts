@@ -1,5 +1,5 @@
-import { classNames, defaultClassNames } from '@utils/index';
 import { TabsBaseProps, TabsElements, TabsStates } from './tabs.interface';
+import { classNames, defaultClassNames } from '../../../utils';
 
 export const tabsStyle = defaultClassNames<
   TabsBaseProps & TabsStates,

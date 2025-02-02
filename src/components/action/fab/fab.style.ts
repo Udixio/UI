@@ -1,10 +1,5 @@
-import { classNames, defaultClassNames } from '@utils/index';
-import {
-  FabBaseProps,
-  FabElements,
-  FabProps,
-  FabStates,
-} from '@components/action/fab/fab.interface';
+import { classNames, defaultClassNames } from '../../../utils';
+import { FabBaseProps, FabElements, FabStates } from './fab.interface';
 
 export const fabStyle = defaultClassNames<
   FabBaseProps & FabStates,
