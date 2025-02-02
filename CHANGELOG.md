@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/Udixio/UI/compare/v1.2.0...v1.2.1) (2025-02-02)
+
+
+### Bug Fixes
+
+* standardize component naming by removing "Component" ([0123c92](https://github.com/Udixio/UI/commit/0123c92cf8f0a8db64575508d61664a1d4424457))
+
 # [1.2.0](https://github.com/Udixio/UI/compare/v1.1.0...v1.2.0) (2025-02-01)
 
 
