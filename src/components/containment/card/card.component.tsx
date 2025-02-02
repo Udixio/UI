@@ -4,7 +4,7 @@ import { RippleEffect } from '../../../effects/ripple';
 import { CardProps } from './card.interface';
 import { cardStyle } from './card.style';
 
-export const CardComponent = ({
+export const Card = ({
   variant = 'outlined',
   className,
   children,

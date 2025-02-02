@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { SwitchProps } from '@components/selection/switch/switch.interface';
 import { switchStyle } from '@components/selection/switch/switch.style';
 
-export const SwitchComponent = ({
+export const Switch = ({
   selected = false,
   className,
   activeIcon,

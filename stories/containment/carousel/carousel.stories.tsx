@@ -1,17 +1,17 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { CarouselComponent, CarouselItem, CarouselProps } from '../../../src';
+import { Carousel, CarouselItem, CarouselProps } from '../../../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
   title: 'containment/Carousel',
-  component: CarouselComponent,
+  component: Carousel,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/react/configure/story-layout
   },
   // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/react/writing-docs/autodocs
   tags: ['autodocs'],
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
-} satisfies Meta<typeof CarouselComponent>;
+} satisfies Meta<typeof Carousel>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -22,7 +22,7 @@ const createCarouselStory = (args?: Partial<CarouselProps>) => {
   const carouselStory: Story = (args: CarouselProps) => (
     <div className="">
       <div className="flex m-4 gap-4 items-center">
-        <CarouselComponent {...args}>
+        <Carousel {...args}>
           {Array.from({ length: 59 }).map((_, index) => (
             <CarouselItem key={index}>
               <img
@@ -32,7 +32,7 @@ const createCarouselStory = (args?: Partial<CarouselProps>) => {
               />
             </CarouselItem>
           ))}
-        </CarouselComponent>
+        </Carousel>
       </div>
     </div>
   );
