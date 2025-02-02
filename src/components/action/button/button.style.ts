@@ -1,9 +1,9 @@
-import { classNames, defaultClassNames } from '@utils/styles';
 import {
   ButtonBaseProps,
   ButtonElements,
   ButtonStates,
 } from './button.interface';
+import { classNames, defaultClassNames } from '../../../utils';
 
 export const buttonStyle = defaultClassNames<
   ButtonBaseProps & ButtonStates,

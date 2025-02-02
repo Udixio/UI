@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { HTMLMotionProps } from 'framer-motion';
-import { StyleProps } from './styles/get-classname';
+import { StyleProps } from './styles';
 import { JSX } from 'react/jsx-runtime';
 
 interface HTMLElements {

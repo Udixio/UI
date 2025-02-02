@@ -1,7 +1,9 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { ComponentProps } from '@utils/index';
+
 import { MergeExclusive } from 'type-fest';
-import { IconButtonVariant } from '@components/action/icon-button/icon-button.component';
+import { IconButtonVariant } from './icon-button.component';
+import { ComponentProps } from '../../../utils';
+
 
 export type IconButtonBaseProps = {
   variant?: IconButtonVariant;

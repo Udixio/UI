@@ -1,9 +1,11 @@
-import { ComponentProps } from '@utils/index';
+
 
 import { Dispatch, RefObject, SetStateAction } from 'react';
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { MergeExclusive } from 'type-fest';
-import { TabsVariant } from '@components/navigation/tabs';
+import { TabsVariant } from '../tabs.interface';
+import { ComponentProps } from '../../../../utils';
+
 
 export type TabBaseProps = {
   selected: boolean;

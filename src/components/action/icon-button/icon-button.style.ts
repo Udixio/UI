@@ -1,9 +1,6 @@
-import { classNames, defaultClassNames } from '@utils/styles';
-import {
-  IconButtonBaseProps,
-  IconButtonElements,
-  IconButtonStates,
-} from '@components/action/icon-button/icon-button.interface';
+import { IconButtonBaseProps, IconButtonElements, IconButtonStates } from './icon-button.interface';
+import { classNames, defaultClassNames } from '../../../utils';
+
 
 export const iconButtonStyle = defaultClassNames<
   IconButtonBaseProps & IconButtonStates,

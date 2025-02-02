@@ -3,8 +3,9 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { Icon } from '../../../../icon';
 import { RippleEffect } from '../../../../effects/ripple';
-import { tabStyle } from '@components/navigation/tabs/tab/tab.style';
-import { TabProps } from '@components/navigation/tabs/tab/tab.interface';
+import { tabStyle } from './tab.style';
+import { TabProps } from './tab.interface';
+
 
 export const Tab = ({
   className,

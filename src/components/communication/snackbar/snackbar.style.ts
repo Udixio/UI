@@ -1,9 +1,6 @@
-import { classNames, defaultClassNames } from '@utils/index';
-import {
-  SnackbarBaseProps,
-  SnackbarElements,
-  SnackbarStates,
-} from '@components/communication/snackbar/snackbar.interface';
+import { classNames, defaultClassNames } from '../../../utils';
+import { SnackbarBaseProps, SnackbarElements, SnackbarStates } from './snackbar.interface';
+
 
 export const snackbarStyle = defaultClassNames<
   SnackbarBaseProps & SnackbarStates,

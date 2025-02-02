@@ -3,7 +3,8 @@ import {
   ProgressIndicatorElements,
   ProgressIndicatorStates,
 } from './progress-indicator.interface';
-import { classNames, defaultClassNames } from '@utils/index';
+import { classNames, defaultClassNames } from '../../../utils';
+
 
 export const progressIndicatorStyle = defaultClassNames<
   ProgressIndicatorBaseProps & ProgressIndicatorStates,

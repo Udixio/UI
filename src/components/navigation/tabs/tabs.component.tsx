@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { TabsProps } from '@components/navigation/tabs/tabs.interface';
-import { Tab, TabProps } from '@components/navigation/tabs/tab';
-import { tabsStyle } from '@components/navigation/tabs/tabs.style';
+import { TabsProps } from './tabs.interface';
+import { Tab, TabProps } from './tab';
+import { tabsStyle } from './tabs.style';
+
 
 export const Tabs = ({
   variant = 'primary',

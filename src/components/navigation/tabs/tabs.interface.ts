@@ -1,6 +1,7 @@
-import { ComponentProps } from '@utils/index';
-import { TabProps } from '@components/navigation/tabs/tab';
+
 import { Dispatch, ReactNode, RefObject, SetStateAction } from 'react';
+import { TabProps } from './tab';
+import { ComponentProps } from '../../../utils';
 
 export type TabsVariant = 'primary' | 'secondary';
 export type TabsBaseProps = {

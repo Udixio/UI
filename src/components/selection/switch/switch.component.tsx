@@ -2,8 +2,8 @@ import React, { useRef, useState } from 'react';
 
 import { Icon } from '../../../icon';
 import { motion } from 'framer-motion';
-import { SwitchProps } from '@components/selection/switch/switch.interface';
-import { switchStyle } from '@components/selection/switch/switch.style';
+import { SwitchProps } from './switch.interface';
+import { switchStyle } from './switch.style';
 
 export const Switch = ({
   selected = false,

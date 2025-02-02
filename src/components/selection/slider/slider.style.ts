@@ -1,4 +1,4 @@
-import { classNames, defaultClassNames } from '@utils/index';
+import { classNames, defaultClassNames } from '../../../utils';
 import {
   SliderBaseProps,
   SliderElements,

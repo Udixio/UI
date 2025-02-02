@@ -7,7 +7,8 @@ import { v4 as uuidv4 } from 'uuid';
 import TextareaAutosize from 'react-textarea-autosize';
 import { TextFieldProps } from './text-field.interface';
 import { textFieldStyle } from './text-field.style';
-import { classNames } from '@utils/styles';
+import { classNames } from '../utils';
+
 
 export const TextField = ({
   variant = 'filled',
