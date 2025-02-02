@@ -1,3 +1,10 @@
+## [1.2.4](https://github.com/Udixio/UI/compare/v1.2.3...v1.2.4) (2025-02-02)
+
+
+### Bug Fixes
+
+* make `variant` property optional in interfaces ([7e1e1bb](https://github.com/Udixio/UI/commit/7e1e1bb2247c74162b517e27fa6ba084664f93c3))
+
 ## [1.2.3](https://github.com/Udixio/UI/compare/v1.2.2...v1.2.3) (2025-02-02)
 
 
