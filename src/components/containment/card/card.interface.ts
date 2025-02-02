@@ -1,4 +1,4 @@
-import { ComponentProps } from '@utils/index';
+import { ComponentProps } from '../../../utils';
 
 export type CardBaseProps = {
   variant?: 'outlined' | 'elevated' | 'filled';

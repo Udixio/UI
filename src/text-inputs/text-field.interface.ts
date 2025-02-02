@@ -1,7 +1,7 @@
-import { ComponentProps } from '@utils/index';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import React from 'react';
-import { IconButton } from '@components/action/icon-button';
+import { IconButton } from '../components/action/icon-button';
+import { ComponentProps } from '../utils';
 
 export type TextFieldVariant = 'filled' | 'outlined';
 

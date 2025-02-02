@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { classNames, defaultClassNames } from '@utils/index';
 import {
   TextFieldBaseProps,
   TextFieldElements,
   TextFieldStates,
 } from './text-field.interface';
+import { classNames, defaultClassNames } from '../utils';
 
 export const textFieldStyle = defaultClassNames<
   TextFieldBaseProps & TextFieldStates,

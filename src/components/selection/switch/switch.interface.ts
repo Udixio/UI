@@ -1,5 +1,5 @@
-import { MotionComponentProps } from '@utils/index';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { MotionComponentProps } from '../../../utils';
 
 export type SwitchBaseProps = {
   selected: boolean;

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ProgressIndicatorProps } from './progress-indicator.interface';
 
 import { motion } from 'framer-motion';
-import { progressIndicatorStyle } from '@components/communication/progress-indicator/progress-indicator.style';
+import { progressIndicatorStyle } from './progress-indicator.style';
 
 /**
  * The ProgressIndicator component provides visual feedback about operations that take an uncertain amount of time.

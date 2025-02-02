@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
-
-import { SnackbarProps } from '@components/communication/snackbar/snackbar.interface';
-import { snackbarStyle } from '@components/communication/snackbar/snackbar.style';
-import { IconButton } from '@components/action/icon-button';
+import { SnackbarProps } from './snackbar.interface';
+import { snackbarStyle } from './snackbar.style';
+import { IconButton } from '../../action/icon-button';
 
 export const Snackbar = ({
   supportingText,

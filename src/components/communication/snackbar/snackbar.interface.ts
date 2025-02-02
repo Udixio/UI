@@ -1,5 +1,5 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { MotionComponentProps } from '@utils/component-helper';
+import { MotionComponentProps } from '../../../utils';
 
 export type SnackbarBaseProps = {
   closeIcon?: IconDefinition;

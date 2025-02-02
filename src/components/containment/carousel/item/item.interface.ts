@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { MotionComponentProps } from '@utils/index';
+import { MotionComponentProps } from '../../../../utils';
 
 export type ItemBaseProps = {
   children?: ReactNode | undefined;

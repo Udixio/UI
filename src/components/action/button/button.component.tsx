@@ -1,9 +1,10 @@
 import { ButtonProps } from './button.interface';
-import { buttonStyle } from '@components/action/button/button.style';
+
 import { Icon } from '../../../icon';
-import { ProgressIndicator } from '@components/communication/progress-indicator';
-import { classNames } from '@utils/styles';
 import React from 'react';
+import { classNames } from '../../../utils';
+import { ProgressIndicator } from '../../communication/progress-indicator';
+import { buttonStyle } from './button.style';
 
 export type ButtonVariant =
   | 'filled'

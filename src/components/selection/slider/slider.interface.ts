@@ -1,4 +1,4 @@
-import { ComponentProps } from '@utils/index';
+import { ComponentProps } from '../../../utils';
 
 export type SliderBaseProps = {
   value: number;
