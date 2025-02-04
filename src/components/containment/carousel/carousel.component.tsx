@@ -42,6 +42,30 @@ export const Carousel = ({
     container: ref,
   });
 
+  useEffect(() => {
+    const container = ref.current;
+
+    const scrollSpeed = 1;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (!container) return;
+
+      e.preventDefault();
+
+      container.scrollLeft += e.deltaY * scrollSpeed;
+    };
+
+    if (container) {
+      container.addEventListener('wheel', handleWheel, { passive: false });
+    }
+
+    return () => {
+      if (container) {
+        container.removeEventListener('wheel', handleWheel);
+      }
+    };
+  }, [ref]);
+
   const calculatePercentages = (scrollXProgressValue: number) => {
     if (!trackRef.current || !ref.current) return [];
 
