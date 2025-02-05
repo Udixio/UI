@@ -7,10 +7,12 @@ export const SmoothScroll = ({
   children,
   orientation = 'vertical',
   physics = { damping: 15, mass: 0.27, stiffness: 55 },
+  transition = '.5s',
 }: {
   children: ReactNode;
   orientation?: 'vertical' | 'horizontal';
   physics?: { damping: number; mass: number; stiffness: number };
+  transition?: string;
 }) => {
   const scrollProgress = motionValue(0);
 
@@ -19,7 +21,10 @@ export const SmoothScroll = ({
   const transform = useTransform(scrollProgress, [0, 1], [0, dynamicRange]);
 
   const spring = useSpring(transform, physics);
-  const percentTransform = useTransform(spring, (value) => `${-value * 100}%`);
+  const percentTransform = useTransform(
+    transform,
+    (value) => `${-value * 100}%`
+  );
 
   return (
     <CustomScroll
@@ -32,15 +37,16 @@ export const SmoothScroll = ({
       }}
     >
       <motion.div
-        className={classNames({
-          'w-fit': orientation === 'horizontal',
-          'h-fit': orientation === 'vertical',
+        className={classNames('transition-transform  ease-out', {
+          'w-fit h-full': orientation === 'horizontal',
+          'h-fit w-full': orientation === 'vertical',
         })}
-        style={
-          orientation == 'vertical'
+        style={{
+          transitionDuration: transition,
+          ...(orientation == 'vertical'
             ? { y: percentTransform }
-            : { x: percentTransform }
-        }
+            : { x: percentTransform }),
+        }}
       >
         {children}
       </motion.div>

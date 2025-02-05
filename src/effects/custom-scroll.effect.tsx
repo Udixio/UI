@@ -1,6 +1,7 @@
 import { ReactNode, useLayoutEffect, useRef, useState } from 'react';
 import { motion, useMotionValueEvent, useScroll } from 'framer-motion';
 import { classNames } from '../utils';
+import { throttle } from 'lodash';
 
 export const CustomScroll = ({
   children,
@@ -60,7 +61,8 @@ export const CustomScroll = ({
     container: ref,
   });
 
-  useMotionValueEvent(scrollXProgress, 'change', (latestValue) => {
+  const handleScroll = throttle((latestValue) => {
+    console.log('scroll', latestValue);
     orientation === 'horizontal' &&
       onScroll &&
       onScroll({
@@ -69,8 +71,6 @@ export const CustomScroll = ({
         scrollTotal: contentScrollSize.width,
         scrollVisible: containerSize.width,
       });
-  });
-  useMotionValueEvent(scrollYProgress, 'change', (latestValue) => {
     orientation === 'vertical' &&
       onScroll &&
       onScroll({
@@ -79,13 +79,16 @@ export const CustomScroll = ({
         scrollTotal: contentScrollSize.height,
         scrollVisible: containerSize.height,
       });
-  });
+  }, 50);
+
+  useMotionValueEvent(scrollXProgress, 'change', handleScroll);
+  useMotionValueEvent(scrollYProgress, 'change', handleScroll);
 
   return (
     <div
-      className={classNames(' ', {
-        'overflow-y-scroll h-full': orientation === 'vertical',
-        'overflow-x-scroll flex w-full': orientation === 'horizontal',
+      className={classNames('h-full w-full', {
+        'overflow-y-scroll': orientation === 'vertical',
+        'overflow-x-scroll ': orientation === 'horizontal',
       })}
       ref={ref}
     >
@@ -97,8 +100,8 @@ export const CustomScroll = ({
             : { width: containerSize.width }
         }
         className={classNames('overflow-hidden flex-none sticky', {
-          'left-0': orientation === 'horizontal',
-          'top-0': orientation === 'vertical',
+          'left-0 h-full': orientation === 'horizontal',
+          'top-0 w-full': orientation === 'vertical',
         })}
       >
         {children}
