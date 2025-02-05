@@ -1,9 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import { CarouselProps } from './carousel.interface';
-import { CarouselItem, ItemProps } from './item';
-import { useMotionValueEvent, useScroll } from 'framer-motion';
+import { CarouselItem, ItemProps, normalize } from './item';
+import {
+  motion,
+  motionValue,
+  useMotionValueEvent,
+  useTransform,
+} from 'framer-motion';
 
 import { carouselStyle } from './carousel-style';
+import { CustomScroll } from '../../../effects/custom-scroll.effect';
 
 export const Carousel = ({
   variant = 'hero',
@@ -11,9 +17,10 @@ export const Carousel = ({
   className,
   children,
   ref: optionalRef,
-  marginPourcent = 0.2,
+  marginPourcent = 0,
   inputRange = [0.21, 0.65],
   outputRange = [0.1, 1 / 3],
+  gap = 8,
   ...restProps
 }: CarouselProps) => {
   const defaultRef = useRef(null);
@@ -27,6 +34,7 @@ export const Carousel = ({
     inputRange,
     outputRange,
     marginPourcent,
+    gap,
   });
 
   const items = React.Children.toArray(children).filter(
@@ -37,24 +45,35 @@ export const Carousel = ({
   const [visibilityPercentages, setVisibilityPercentages] = useState<number[]>(
     []
   );
-
-  const { scrollXProgress } = useScroll({
-    container: ref,
+  const scroll = useRef<{
+    scrollProgress: number;
+    scrollTotal: number;
+    scrollVisible: number;
+    scroll: number;
+  }>({
+    scrollProgress: 0,
+    scrollTotal: 0,
+    scrollVisible: 0,
+    scroll: 0,
   });
-
   const calculatePercentages = (scrollXProgressValue: number) => {
     if (!trackRef.current || !ref.current) return [];
 
-    const trackRect = trackRef.current.getBoundingClientRect();
+    const { scrollVisible, scrollTotal, scrollProgress } = scroll.current;
+
+    const invisiblePourcent = 1 - scrollVisible / scrollTotal;
+
+    const trackInvisiblePourcent = {
+      left: normalize(scrollProgress, [0, 1], [0, invisiblePourcent]),
+      right: normalize(1 - scrollProgress, [0, 1], [0, invisiblePourcent]),
+    };
 
     return items.map((_, index) => {
       const itemRef = itemRefs[index];
 
       if (!itemRef.current || !trackRef.current) return 0;
 
-      let itemScrollXCenter =
-        itemRef.current.offsetLeft /
-        (trackRef.current.scrollWidth - itemRef.current.offsetWidth);
+      let itemScrollXCenter = index / (items.length - 1);
 
       let itemXPourcent;
       let isOnLeft;
@@ -73,22 +92,12 @@ export const Carousel = ({
         return 1;
       }
 
-      const scrollLeft = ref.current?.scrollLeft!;
-      const scrollWidth = ref.current?.scrollWidth!;
-      const scrollRight = scrollWidth - scrollLeft! - ref.current?.clientWidth!;
-
-      const trackInvisiblePourcent =
-        ((isOnLeft ? scrollLeft : scrollRight) -
-          marginPourcent * trackRect.width) /
-        scrollWidth /
-        (isOnLeft ? scrollXProgressValue : 1 - scrollXProgressValue);
-
-      return (
-        (itemXPourcent - trackInvisiblePourcent) / (1 - trackInvisiblePourcent)
-      );
+      return normalize(itemXPourcent, [
+        isOnLeft ? trackInvisiblePourcent.left : trackInvisiblePourcent.right,
+        1,
+      ]);
     });
   };
-
   const itemRefs = useRef<React.RefObject<HTMLDivElement | null>[]>([]).current;
 
   if (itemRefs.length !== items.length) {
@@ -98,17 +107,6 @@ export const Carousel = ({
       }
     });
   }
-
-  useMotionValueEvent(scrollXProgress, 'change', (latestValue) => {
-    const updatedPercentages = calculatePercentages(latestValue);
-
-    setVisibilityPercentages(updatedPercentages);
-  });
-
-  useEffect(() => {
-    const updatedPercentages = calculatePercentages(0);
-    setVisibilityPercentages(updatedPercentages);
-  }, []);
 
   const renderItems = items.map((child, index) => {
     return React.cloneElement(child as React.ReactElement<ItemProps>, {
@@ -121,6 +119,51 @@ export const Carousel = ({
     });
   });
 
+  const scrollProgress = motionValue(0);
+
+  const dynamicRange = useRef(0);
+
+  const transform = useTransform(
+    scrollProgress,
+    [0, 1],
+    [0, dynamicRange.current]
+  );
+
+  const percentTransform = useTransform(
+    transform,
+    (value) => `${-value * 100}%`
+  );
+
+  const handleScroll = (args: {
+    scrollProgress: number;
+    scrollTotal: number;
+    scrollVisible: number;
+    scroll: number;
+  }) => {
+    if (args.scrollTotal > 0) {
+      scroll.current = args;
+      const updatedPercentages = calculatePercentages(args.scrollProgress);
+
+      setVisibilityPercentages(updatedPercentages);
+
+      dynamicRange.current = 1 - args.scrollVisible / args.scrollTotal;
+
+      scrollProgress.set(args.scrollProgress);
+    }
+  };
+
+  const [scrollSize, setScrollSize] = useState(0);
+  useLayoutEffect(() => {
+    setScrollSize(
+      ((ref.current?.clientWidth ?? 1) * outputRange[0] + gap) *
+        renderItems.length
+    );
+  }, [ref, itemRefs]);
+
+  useMotionValueEvent(transform, 'change', (latestValue) => {
+    console.log(latestValue);
+  });
+
   return (
     <div
       style={{ height }}
@@ -128,9 +171,23 @@ export const Carousel = ({
       ref={ref}
       {...restProps}
     >
-      <div className={styles.track} ref={trackRef}>
-        {renderItems}
-      </div>
+      <CustomScroll
+        orientation={'horizontal'}
+        onScroll={handleScroll}
+        scrollSize={scrollSize}
+      >
+        <motion.div
+          className={styles.track}
+          ref={trackRef}
+          style={{
+            transitionDuration: '0.5s',
+            gap: `${gap}px`,
+            x: percentTransform,
+          }}
+        >
+          {renderItems}
+        </motion.div>
+      </CustomScroll>
     </div>
   );
 };
