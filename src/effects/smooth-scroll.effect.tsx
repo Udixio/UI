@@ -61,8 +61,8 @@ export const SmoothScroll = ({
     orientation === 'vertical' ? scrollYProgress : scrollXProgress,
     [0, 1],
     orientation === 'vertical'
-      ? [0, contentScrollSize.height - containerSize.height]
-      : [0, -contentScrollSize.width - containerSize.width]
+      ? [0, -contentScrollSize.height + containerSize.height]
+      : [0, -contentScrollSize.width + containerSize.width]
   );
   const physics = { damping: 15, mass: 0.27, stiffness: 55 }; // easing of smooth scroll
   const spring = useSpring(transform, physics); // apply easing to the negative scroll value
