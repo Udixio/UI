@@ -1,12 +1,7 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { CarouselProps } from './carousel.interface';
 import { CarouselItem, ItemProps, normalize } from './item';
-import {
-  motion,
-  motionValue,
-  useMotionValueEvent,
-  useTransform,
-} from 'framer-motion';
+import { motion, motionValue, useTransform } from 'framer-motion';
 
 import { carouselStyle } from './carousel-style';
 import { CustomScroll } from '../../../effects/custom-scroll.effect';
@@ -45,7 +40,7 @@ export const Carousel = ({
   const [visibilityPercentages, setVisibilityPercentages] = useState<number[]>(
     []
   );
-  const scroll = useRef<{
+  const [scroll, setScroll] = useState<{
     scrollProgress: number;
     scrollTotal: number;
     scrollVisible: number;
@@ -59,7 +54,7 @@ export const Carousel = ({
   const calculatePercentages = (scrollXProgressValue: number) => {
     if (!trackRef.current || !ref.current) return [];
 
-    const { scrollVisible, scrollTotal, scrollProgress } = scroll.current;
+    const { scrollVisible, scrollTotal, scrollProgress } = scroll;
 
     const invisiblePourcent = 1 - scrollVisible / scrollTotal;
 
@@ -119,14 +114,12 @@ export const Carousel = ({
     });
   });
 
-  const scrollProgress = motionValue(0);
-
-  const dynamicRange = useRef(0);
+  const scrollProgress = motionValue(scroll.scrollProgress);
 
   const transform = useTransform(
     scrollProgress,
     [0, 1],
-    [0, dynamicRange.current]
+    [0, 1 - scroll.scrollVisible / scroll.scrollTotal]
   );
 
   const percentTransform = useTransform(
@@ -141,16 +134,14 @@ export const Carousel = ({
     scroll: number;
   }) => {
     if (args.scrollTotal > 0) {
-      scroll.current = args;
-      const updatedPercentages = calculatePercentages(args.scrollProgress);
-
-      setVisibilityPercentages(updatedPercentages);
-
-      dynamicRange.current = 1 - args.scrollVisible / args.scrollTotal;
-
-      scrollProgress.set(args.scrollProgress);
+      setScroll(args);
     }
   };
+
+  useEffect(() => {
+    const updatedPercentages = calculatePercentages(scroll.scrollProgress);
+    setVisibilityPercentages(updatedPercentages);
+  }, [scroll]);
 
   const [scrollSize, setScrollSize] = useState(0);
   useLayoutEffect(() => {
@@ -159,10 +150,6 @@ export const Carousel = ({
         renderItems.length
     );
   }, [ref, itemRefs]);
-
-  useMotionValueEvent(transform, 'change', (latestValue) => {
-    console.log(latestValue);
-  });
 
   return (
     <div
