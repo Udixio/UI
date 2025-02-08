@@ -1,4 +1,4 @@
-import { ReactNode, useLayoutEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motion, useMotionValueEvent, useScroll } from 'framer-motion';
 import { classNames } from '../utils';
 import { throttle } from 'lodash';
@@ -20,50 +20,47 @@ export const CustomScroll = ({
   }) => void;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
-  const contentRef = useRef(null);
+  const [contentScrollSize, setContentScrollSize] = useState<{
+    height: number;
+    width: number;
+  } | null>(null);
+  const [containerSize, setContainerSize] = useState<{
+    height: number;
+    width: number;
+  } | null>(null);
 
-  const [contentScrollSize, setContentScrollSize] = useState({
-    width: 0,
-    height: 0,
-  });
-  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
-
-  useLayoutEffect(() => {
-    const handleResize = (entries: ResizeObserverEntry[]) => {
-      for (let entry of entries) {
-        const { width, height } = entry.contentRect;
-        if (entry.target === ref.current) {
-          setContainerSize({
-            width,
-            height,
-          });
-        } else if (entry.target === contentRef.current) {
-          const el = contentRef.current as HTMLDivElement;
-          setContentScrollSize({
-            width: scrollSize ?? el.scrollWidth,
-            height: scrollSize ?? el.scrollHeight,
-          });
-        }
-      }
-    };
-    const resizeObserver = new ResizeObserver(handleResize);
-    if (!ref.current || !contentRef.current) {
-      throw new Error('ref or contentRef is not properly initialized.');
+  const getContentScrollSize = () => {
+    const el = contentRef.current;
+    if (!el) {
+      return null;
     }
-    ref && resizeObserver.observe(ref.current);
-    contentRef && resizeObserver.observe(contentRef.current);
-
-    return () => resizeObserver.disconnect();
-  }, [contentRef, orientation]);
+    return {
+      width: scrollSize ?? el.scrollWidth,
+      height: scrollSize ?? el.scrollHeight,
+    };
+  };
+  const getContainerSize = (): { width: number; height: number } | null => {
+    const el = ref.current;
+    if (!el) {
+      return null;
+    }
+    return {
+      width: el.clientWidth,
+      height: el.scrollHeight,
+    };
+  };
 
   const { scrollYProgress, scrollXProgress } = useScroll({
     container: ref,
   });
 
-  const handleScroll = throttle((latestValue) => {
-    console.log('scroll', latestValue);
+  const handleScroll = throttle((latestValue, scrollOrientation: 'x' | 'y') => {
+    if (!containerSize || !contentScrollSize) return;
+
     orientation === 'horizontal' &&
+      scrollOrientation === 'x' &&
       onScroll &&
       onScroll({
         scrollProgress: latestValue,
@@ -72,6 +69,7 @@ export const CustomScroll = ({
         scrollVisible: containerSize.width,
       });
     orientation === 'vertical' &&
+      scrollOrientation === 'y' &&
       onScroll &&
       onScroll({
         scrollProgress: latestValue,
@@ -81,14 +79,40 @@ export const CustomScroll = ({
       });
   }, 50);
 
-  useMotionValueEvent(scrollXProgress, 'change', handleScroll);
-  useMotionValueEvent(scrollYProgress, 'change', handleScroll);
+  useMotionValueEvent(scrollXProgress, 'change', (latestValue) => {
+    handleScroll(latestValue, 'x');
+  });
+  useMotionValueEvent(scrollYProgress, 'change', (latestValue) => {
+    handleScroll(latestValue, 'y');
+  });
+
+  const [isInitialized, setIsInitialized] = useState(false);
+  useLayoutEffect(() => {
+    if (isInitialized) return;
+    if (!containerSize || !contentScrollSize || !onScroll) return;
+    if (contentScrollSize.height == 0 || contentScrollSize.width == 0) return;
+
+    onScroll({
+      scrollProgress: 0,
+      scroll: 0,
+      scrollTotal: contentScrollSize.height,
+      scrollVisible: containerSize.height,
+    });
+    setIsInitialized(true);
+  }, [containerSize, contentScrollSize, onScroll]);
+
+  useLayoutEffect(() => {
+    setContentScrollSize(getContentScrollSize());
+    setContainerSize(getContainerSize());
+  }, [children]);
+
+  useEffect(() => {}, [contentScrollSize, containerSize]);
 
   return (
     <div
-      className={classNames('h-full w-full', {
-        'overflow-y-scroll': orientation === 'vertical',
-        'overflow-x-scroll ': orientation === 'horizontal',
+      className={classNames('flex h-full w-full', {
+        'overflow-y-scroll flex-col': orientation === 'vertical',
+        'overflow-x-scroll  flex-row': orientation === 'horizontal',
       })}
       ref={ref}
     >
@@ -96,8 +120,8 @@ export const CustomScroll = ({
         ref={contentRef}
         style={
           orientation === 'vertical'
-            ? { height: containerSize.height }
-            : { width: containerSize.width }
+            ? { height: containerSize?.height ?? '100%' }
+            : { width: containerSize?.width ?? '100%' }
         }
         className={classNames('overflow-hidden flex-none sticky', {
           'left-0 h-full': orientation === 'horizontal',
@@ -107,20 +131,26 @@ export const CustomScroll = ({
         {children}
       </div>
 
-      {orientation === 'vertical' &&
-        contentScrollSize.height > containerSize.height && (
-          <motion.div
-            style={{ height: contentScrollSize.height - containerSize.height }}
-          />
-        )}
+      {containerSize && contentScrollSize && (
+        <>
+          {orientation === 'vertical' &&
+            contentScrollSize.height > containerSize.height && (
+              <motion.div
+                style={{
+                  height: contentScrollSize.height - containerSize.height,
+                }}
+              />
+            )}
 
-      {orientation === 'horizontal' &&
-        contentScrollSize.width > containerSize.width && (
-          <motion.div
-            className={'flex-none'}
-            style={{ width: contentScrollSize.width - containerSize.width }}
-          />
-        )}
+          {orientation === 'horizontal' &&
+            contentScrollSize.width > containerSize.width && (
+              <motion.div
+                className={'flex-none'}
+                style={{ width: contentScrollSize.width - containerSize.width }}
+              />
+            )}
+        </>
+      )}
     </div>
   );
 };
