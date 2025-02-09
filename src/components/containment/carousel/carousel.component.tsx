@@ -14,7 +14,7 @@ export const Carousel = ({
   ref: optionalRef,
   marginPourcent = 0,
   inputRange = [0.21, 0.65],
-  outputRange = [0.1, 1 / 3],
+  outputRange = [30, 300],
   gap = 8,
   ...restProps
 }: CarouselProps) => {
@@ -51,47 +51,51 @@ export const Carousel = ({
     scrollVisible: 0,
     scroll: 0,
   });
-  const calculatePercentages = (scrollXProgressValue: number) => {
+  const calculatePercentages = () => {
     if (!trackRef.current || !ref.current) return [];
 
-    const { scrollVisible, scrollTotal, scrollProgress } = scroll;
+    const { scrollVisible, scrollProgress } = scroll;
 
-    const invisiblePourcent = 1 - scrollVisible / scrollTotal;
+    function assignRelativeIndexes(
+      values: number[],
+      progressScroll: number
+    ): number[] {
+      return values.map(
+        (value) => (value - progressScroll) / Math.abs(values[1] - values[0])
+      );
+    }
 
-    const trackInvisiblePourcent = {
-      left: normalize(scrollProgress, [0, 1], [0, invisiblePourcent]),
-      right: normalize(1 - scrollProgress, [0, 1], [0, invisiblePourcent]),
-    };
-
-    return items.map((_, index) => {
+    let itemValues = items.map((_, index) => {
       const itemRef = itemRefs[index];
 
       if (!itemRef.current || !trackRef.current) return 0;
 
       let itemScrollXCenter = index / (items.length - 1);
 
-      let itemXPourcent;
-      let isOnLeft;
-
       if (itemScrollXCenter > 1) itemScrollXCenter = 1;
       if (itemScrollXCenter < 0) itemScrollXCenter = 0;
-      if (itemScrollXCenter !== scrollXProgressValue) {
-        isOnLeft = scrollXProgressValue > itemScrollXCenter;
-        const min = isOnLeft ? 0 : scrollXProgressValue;
-        const max = isOnLeft ? scrollXProgressValue : 1;
-        itemXPourcent = (itemScrollXCenter - min) / (max - min);
-        if (!isOnLeft) {
-          itemXPourcent = 1 - itemXPourcent;
-        }
-      } else {
-        return 1;
-      }
 
-      return normalize(itemXPourcent, [
-        isOnLeft ? trackInvisiblePourcent.left : trackInvisiblePourcent.right,
-        1,
-      ]);
+      return itemScrollXCenter;
     });
+
+    itemValues = assignRelativeIndexes(itemValues, scrollProgress);
+
+    let visible = scrollVisible / (outputRange[1] + gap);
+
+    itemValues
+      .map((value, index) => ({ value: Math.abs(value), originalIndex: index })) // Associer chaque élément à son index
+      .sort((a, b) => a.value - b.value)
+      .forEach((item) => {
+        const result = normalize(
+          visible,
+          [0, 1],
+          [outputRange[0], outputRange[1]]
+        );
+        visible--;
+        itemValues[item.originalIndex] = result;
+      });
+
+    return itemValues;
   };
   const itemRefs = useRef<React.RefObject<HTMLDivElement | null>[]>([]).current;
 
@@ -116,11 +120,13 @@ export const Carousel = ({
 
   const scrollProgress = motionValue(scroll.scrollProgress);
 
+  // const transform = useTransform(scrollProgress, [0, 1], [0, 1]);
   const transform = useTransform(
     scrollProgress,
     [0, 1],
     [0, 1 - scroll.scrollVisible / scroll.scrollTotal]
   );
+  // console.log([0, scroll.scrollVisible, scroll.scrollTotal]);
 
   const percentTransform = useTransform(
     transform,
@@ -139,16 +145,20 @@ export const Carousel = ({
   };
 
   useEffect(() => {
-    const updatedPercentages = calculatePercentages(scroll.scrollProgress);
+    const updatedPercentages = calculatePercentages();
     setVisibilityPercentages(updatedPercentages);
   }, [scroll]);
 
   const [scrollSize, setScrollSize] = useState(0);
   useLayoutEffect(() => {
-    setScrollSize(
-      ((ref.current?.clientWidth ?? 1) * outputRange[0] + gap) *
-        renderItems.length
-    );
+    const visible = (ref.current?.clientWidth ?? 50) / (outputRange[1] + gap);
+    const result =
+      (outputRange[0] + gap) * renderItems.length +
+      visible * outputRange[1] -
+      visible * outputRange[0];
+
+    console.log(result, visible);
+    setScrollSize(result);
   }, [ref, itemRefs]);
 
   return (
