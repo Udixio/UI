@@ -81,18 +81,16 @@ export const Carousel = ({
     itemValues = assignRelativeIndexes(itemValues, scrollProgress);
 
     let visible =
-      (scrollVisible - (outputRange[0] + gap)) / (outputRange[1] + gap);
+      ((ref.current?.clientWidth ?? scrollVisible) - (outputRange[0] + gap)) /
+      (outputRange[1] + gap);
 
     itemValues
       .map((value, index) => ({ value: Math.abs(value), originalIndex: index })) // Associer chaque élément à son index
       .sort((a, b) => a.value - b.value)
       .forEach((item, index) => {
         if (index === 0) setSelectedItem(item.originalIndex);
-        const result = normalize(
-          visible,
-          [0, 1],
-          [outputRange[0], outputRange[1]]
-        );
+        let result = normalize(visible, [0, 1], [0, outputRange[1]]);
+        if (result < outputRange[0]) result = outputRange[0];
         visible--;
         itemValues[item.originalIndex] = result;
       });
@@ -130,7 +128,11 @@ export const Carousel = ({
   const transform = useTransform(
     scrollProgress,
     [0, 1],
-    [0, 1 - scroll.scrollVisible / scroll.scrollTotal]
+    [
+      0,
+      1 -
+        (ref.current?.clientWidth ?? 0) / (trackRef?.current?.clientWidth ?? 0),
+    ]
   );
 
   const percentTransform = useTransform(
@@ -164,7 +166,7 @@ export const Carousel = ({
       visible * outputRange[1] -
       visible * outputRange[0];
 
-    setScrollSize(result);
+    setScrollSize((outputRange[1] + gap) * renderItems.length);
   }, [ref, itemRefs]);
 
   return (
@@ -187,7 +189,6 @@ export const Carousel = ({
             transitionTimingFunction: 'ease-out',
             gap: `${gap}px`,
             x: percentTransform,
-            width: scrollSize,
           }}
         >
           {renderItems}

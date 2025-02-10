@@ -7,7 +7,7 @@ export const itemStyle = defaultClassNames<
 >({
   defaultClassName: ({}) => {
     return {
-      item: classNames('rounded-[28px] overflow-hidden flex-none', 'max-w-md'),
+      item: classNames('rounded-[28px] overflow-hidden flex-none'),
     };
   },
   default: 'item',

@@ -11,7 +11,9 @@ export const carouselStyle = defaultClassNames<
 >({
   defaultClassName: ({}) => ({
     carousel: classNames(['w-full']),
-    track: classNames(['flex h-full transition-transform  ease-out w-fit']),
+    track: classNames(
+      'grid grid-flow-col h-full transition-transform  ease-out w-fit'
+    ),
   }),
   default: 'carousel',
 });

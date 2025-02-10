@@ -42,7 +42,7 @@ export const CarouselItem = ({
   return (
     <motion.div
       ref={ref}
-      animate={{ flex: '1 0 ' + width + 'px' }}
+      animate={{ width: width + 'px' }}
       transition={{
         duration: 0.5,
         ease: 'easeOut',
