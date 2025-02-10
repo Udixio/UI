@@ -22,8 +22,6 @@ export const CarouselItem = ({
   children,
   width = 1,
   index = 0,
-  inputRange = [0, 1],
-  outputRange = [0, 1],
   ref: optionalRef,
   ...restProps
 }: ItemProps) => {
@@ -33,8 +31,6 @@ export const CarouselItem = ({
   const styles = itemStyle({
     className,
     index,
-    inputRange,
-    outputRange,
     width: width,
     children,
   });
