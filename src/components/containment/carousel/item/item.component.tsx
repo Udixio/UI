@@ -41,7 +41,7 @@ export const CarouselItem = ({
       animate={{ width: width + 'px' }}
       transition={{
         duration: 0.5,
-        ease: 'easeOut',
+        ease: 'linear',
       }}
       className={styles.item}
       {...restProps}
