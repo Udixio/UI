@@ -1,3 +1,12 @@
+## [1.3.1](https://github.com/Udixio/UI/compare/v1.3.0...v1.3.1) (2025-02-10)
+
+
+### Bug Fixes
+
+* **carousel-item:** update animation easing to linear ([dba807d](https://github.com/Udixio/UI/commit/dba807d6f21b7b32cf880a3344c5e3665e94f781))
+* **carousel:** improve layout and scrolling logic ([51d0778](https://github.com/Udixio/UI/commit/51d0778ff0eecc7310db4a7069746bd661b6c816))
+* **carousel:** simplify item props and add scroll sensitivity ([833de87](https://github.com/Udixio/UI/commit/833de87d426323ba25407dec20c41c091c19d2e1))
+
 # [1.3.0](https://github.com/Udixio/UI/compare/v1.2.4...v1.3.0) (2025-02-10)
 
 
