@@ -176,6 +176,7 @@ export const Carousel = ({
           ref={trackRef}
           style={{
             transitionDuration: '0.5s',
+            transitionTimingFunction: 'ease-out',
             gap: `${gap}px`,
             x: percentTransform,
             width: scrollSize,
