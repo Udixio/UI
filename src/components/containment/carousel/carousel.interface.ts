@@ -13,6 +13,7 @@ export type CarouselBaseProps = {
     | 'full-screen';
   marginPourcent?: number;
   height?: string;
+  gap?: number;
 };
 export type CarouselStates = {};
 export type CarouselElements = 'carousel' | 'track';

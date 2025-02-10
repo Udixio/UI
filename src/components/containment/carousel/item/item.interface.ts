@@ -3,7 +3,7 @@ import { MotionComponentProps } from '../../../../utils';
 
 export type ItemBaseProps = {
   children?: ReactNode | undefined;
-  visibilityPercentage?: number;
+  width?: number;
   index?: number;
   inputRange?: [number, number];
   outputRange?: [number, number];

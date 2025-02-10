@@ -14,7 +14,7 @@ export const Carousel = ({
   ref: optionalRef,
   marginPourcent = 0,
   inputRange = [0.21, 0.65],
-  outputRange = [30, 300],
+  outputRange = [42, 300],
   gap = 8,
   ...restProps
 }: CarouselProps) => {
@@ -37,9 +37,7 @@ export const Carousel = ({
   );
 
   const trackRef = useRef<HTMLDivElement>(null);
-  const [visibilityPercentages, setVisibilityPercentages] = useState<number[]>(
-    []
-  );
+  const [itemsWidth, setItemsWidth] = useState<number[]>([]);
   const [scroll, setScroll] = useState<{
     scrollProgress: number;
     scrollTotal: number;
@@ -80,7 +78,8 @@ export const Carousel = ({
 
     itemValues = assignRelativeIndexes(itemValues, scrollProgress);
 
-    let visible = scrollVisible / (outputRange[1] + gap);
+    let visible =
+      (scrollVisible - (outputRange[0] + gap)) / (outputRange[1] + gap);
 
     itemValues
       .map((value, index) => ({ value: Math.abs(value), originalIndex: index })) // Associer chaque élément à son index
@@ -109,7 +108,7 @@ export const Carousel = ({
 
   const renderItems = items.map((child, index) => {
     return React.cloneElement(child as React.ReactElement<ItemProps>, {
-      visibilityPercentage: visibilityPercentages[index], // Passer la valeur de visibilité calculée
+      width: itemsWidth[index],
       ref: itemRefs[index],
       key: index,
       index,
@@ -120,13 +119,11 @@ export const Carousel = ({
 
   const scrollProgress = motionValue(scroll.scrollProgress);
 
-  // const transform = useTransform(scrollProgress, [0, 1], [0, 1]);
   const transform = useTransform(
     scrollProgress,
     [0, 1],
     [0, 1 - scroll.scrollVisible / scroll.scrollTotal]
   );
-  // console.log([0, scroll.scrollVisible, scroll.scrollTotal]);
 
   const percentTransform = useTransform(
     transform,
@@ -146,18 +143,19 @@ export const Carousel = ({
 
   useEffect(() => {
     const updatedPercentages = calculatePercentages();
-    setVisibilityPercentages(updatedPercentages);
+    setItemsWidth(updatedPercentages);
   }, [scroll]);
 
   const [scrollSize, setScrollSize] = useState(0);
   useLayoutEffect(() => {
-    const visible = (ref.current?.clientWidth ?? 50) / (outputRange[1] + gap);
+    const visible =
+      ((ref.current?.clientWidth ?? 200) - (outputRange[0] + gap)) /
+      (outputRange[1] + gap);
     const result =
       (outputRange[0] + gap) * renderItems.length +
       visible * outputRange[1] -
       visible * outputRange[0];
 
-    console.log(result, visible);
     setScrollSize(result);
   }, [ref, itemRefs]);
 
@@ -180,6 +178,7 @@ export const Carousel = ({
             transitionDuration: '0.5s',
             gap: `${gap}px`,
             x: percentTransform,
+            width: scrollSize,
           }}
         >
           {renderItems}
