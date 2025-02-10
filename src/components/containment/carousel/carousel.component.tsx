@@ -16,6 +16,7 @@ export const Carousel = ({
   inputRange = [0.21, 0.65],
   outputRange = [42, 300],
   gap = 8,
+  onChange,
   ...restProps
 }: CarouselProps) => {
   const defaultRef = useRef(null);
@@ -29,6 +30,7 @@ export const Carousel = ({
     inputRange,
     outputRange,
     marginPourcent,
+    onChange,
     gap,
   });
 
@@ -84,7 +86,8 @@ export const Carousel = ({
     itemValues
       .map((value, index) => ({ value: Math.abs(value), originalIndex: index })) // Associer chaque élément à son index
       .sort((a, b) => a.value - b.value)
-      .forEach((item) => {
+      .forEach((item, index) => {
+        if (index === 0) setSelectedItem(item.originalIndex);
         const result = normalize(
           visible,
           [0, 1],
@@ -97,6 +100,11 @@ export const Carousel = ({
     return itemValues;
   };
   const itemRefs = useRef<React.RefObject<HTMLDivElement | null>[]>([]).current;
+  const [selectedItem, setSelectedItem] = useState(0);
+
+  useEffect(() => {
+    if (onChange) onChange(selectedItem);
+  }, [selectedItem]);
 
   if (itemRefs.length !== items.length) {
     items.forEach((_, i) => {
