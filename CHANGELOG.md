@@ -1,3 +1,23 @@
+# [1.3.0](https://github.com/Udixio/UI/compare/v1.2.4...v1.3.0) (2025-02-10)
+
+
+### Bug Fixes
+
+* **smooth-scroll:** correct scroll range calculation ([5271ecc](https://github.com/Udixio/UI/commit/5271ecc95ee35bbc0c763706b580797f4b88b3de))
+
+
+### Features
+
+* add effects module for scroll-related utilities ([a996831](https://github.com/Udixio/UI/commit/a9968318375c58990b324375a852744fde45c1ba))
+* add horizontal scrolling support in SmoothScroll ([c4f34df](https://github.com/Udixio/UI/commit/c4f34df827216066ce428bc4904cf0734641a6ba))
+* add smooth scrolling effect with framer-motion ([a26261c](https://github.com/Udixio/UI/commit/a26261c7073fb0f6e1d81c949888faf5500791f9))
+* **carousel:** add ease-out transition timing function ([20ad771](https://github.com/Udixio/UI/commit/20ad77199d9912bcd2883bdb358d8b1d43fe2ece))
+* **carousel:** add onChange callback for item selection ([c811955](https://github.com/Udixio/UI/commit/c8119558d47256c1a5e87aaaefe0169baede18a2))
+* **carousel:** improve scroll and visibility logic ([0a72bd6](https://github.com/Udixio/UI/commit/0a72bd636ba0baa742886750d5a9d1ea892adbab))
+* **carousel:** refine width control and improve animations ([13fee41](https://github.com/Udixio/UI/commit/13fee41e9018e92574d0bcd40812debd32f10c76))
+* integrate lodash and enhance scroll behavior ([44e4508](https://github.com/Udixio/UI/commit/44e45084b162a790d886adb3549d8f2b9594c3fc))
+* **scroll:** add customizable scroll effect component ([75374fd](https://github.com/Udixio/UI/commit/75374fd70b3e971d9ad2173485acbaadd2b84db5))
+
 ## [1.2.4](https://github.com/Udixio/UI/compare/v1.2.3...v1.2.4) (2025-02-02)
 
 
