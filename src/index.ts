@@ -9,6 +9,7 @@ export * from './components/containment/divider';
 export * from './components/navigation/tabs';
 export * from './components/selection/slider';
 export * from './components/selection/switch';
+export * from './effects';
 export * from './icon';
 export * from './text-inputs';
 export * from './utils';
