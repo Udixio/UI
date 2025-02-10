@@ -5,8 +5,6 @@ export type ItemBaseProps = {
   children?: ReactNode | undefined;
   width?: number;
   index?: number;
-  inputRange?: [number, number];
-  outputRange?: [number, number];
 };
 export type ItemStates = {};
 

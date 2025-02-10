@@ -4,7 +4,7 @@ import { CarouselItem, ItemProps, normalize } from './item';
 import { motion, motionValue, useTransform } from 'framer-motion';
 
 import { carouselStyle } from './carousel-style';
-import { CustomScroll } from '../../../effects/custom-scroll.effect';
+import { CustomScroll } from '../../../effects';
 
 export const Carousel = ({
   variant = 'hero',
@@ -17,6 +17,7 @@ export const Carousel = ({
   outputRange = [42, 300],
   gap = 8,
   onChange,
+  scrollSensitivity = 1.25,
   ...restProps
 }: CarouselProps) => {
   const defaultRef = useRef(null);
@@ -32,6 +33,7 @@ export const Carousel = ({
     marginPourcent,
     onChange,
     gap,
+    scrollSensitivity,
   });
 
   const items = React.Children.toArray(children).filter(
@@ -118,8 +120,6 @@ export const Carousel = ({
       ref: itemRefs[index],
       key: index,
       index,
-      inputRange: inputRange,
-      outputRange: outputRange,
     });
   });
 
@@ -158,15 +158,9 @@ export const Carousel = ({
 
   const [scrollSize, setScrollSize] = useState(0);
   useLayoutEffect(() => {
-    const visible =
-      ((ref.current?.clientWidth ?? 200) - (outputRange[0] + gap)) /
-      (outputRange[1] + gap);
-    const result =
-      (outputRange[0] + gap) * renderItems.length +
-      visible * outputRange[1] -
-      visible * outputRange[0];
-
-    setScrollSize((outputRange[1] + gap) * renderItems.length);
+    setScrollSize(
+      ((outputRange[1] + gap) * renderItems.length) / scrollSensitivity
+    );
   }, [ref, itemRefs]);
 
   return (
