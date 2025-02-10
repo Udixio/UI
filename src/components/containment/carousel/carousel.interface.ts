@@ -12,16 +12,21 @@ export type CarouselBaseProps = {
     | 'un-contained'
     | 'full-screen';
   marginPourcent?: number;
+  onChange?: (index: number) => void;
   height?: string;
+  gap?: number;
 };
 export type CarouselStates = {};
 export type CarouselElements = 'carousel' | 'track';
 export type CarouselElementType = 'div';
 
 export type CarouselProps = CarouselBaseProps &
-  ComponentProps<
-    CarouselBaseProps,
-    CarouselStates,
-    CarouselElements,
-    CarouselElementType
+  Omit<
+    ComponentProps<
+      CarouselBaseProps,
+      CarouselStates,
+      CarouselElements,
+      CarouselElementType
+    >,
+    'onChange'
   >;

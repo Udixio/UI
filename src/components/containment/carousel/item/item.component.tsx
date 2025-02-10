@@ -3,7 +3,7 @@ import { ItemProps } from './item.interface';
 import { motion } from 'framer-motion';
 import { itemStyle } from './item.style';
 
-const normalize = (
+export const normalize = (
   value: number,
   inputRange: [number, number],
   outputRange: [number, number] = [0, 1]
@@ -20,7 +20,7 @@ const normalize = (
 export const CarouselItem = ({
   className,
   children,
-  visibilityPercentage = 1,
+  width = 1,
   index = 0,
   inputRange = [0, 1],
   outputRange = [0, 1],
@@ -35,19 +35,16 @@ export const CarouselItem = ({
     index,
     inputRange,
     outputRange,
-    visibilityPercentage,
+    width: width,
     children,
   });
-
-  const flexBasis =
-    normalize(visibilityPercentage, inputRange, outputRange) * 100;
 
   return (
     <motion.div
       ref={ref}
-      animate={{ flex: '0 0 calc(' + flexBasis + '% - 4px)' }}
+      animate={{ flex: '1 0 ' + width + 'px' }}
       transition={{
-        duration: 0.2,
+        duration: 0.5,
         ease: 'easeOut',
       }}
       className={styles.item}
