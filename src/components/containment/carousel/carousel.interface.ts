@@ -15,6 +15,7 @@ export type CarouselBaseProps = {
   onChange?: (index: number) => void;
   height?: string;
   gap?: number;
+  scrollSensitivity?: number;
 };
 export type CarouselStates = {};
 export type CarouselElements = 'carousel' | 'track';

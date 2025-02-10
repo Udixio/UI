@@ -22,8 +22,6 @@ export const CarouselItem = ({
   children,
   width = 1,
   index = 0,
-  inputRange = [0, 1],
-  outputRange = [0, 1],
   ref: optionalRef,
   ...restProps
 }: ItemProps) => {
@@ -33,8 +31,6 @@ export const CarouselItem = ({
   const styles = itemStyle({
     className,
     index,
-    inputRange,
-    outputRange,
     width: width,
     children,
   });
@@ -42,10 +38,10 @@ export const CarouselItem = ({
   return (
     <motion.div
       ref={ref}
-      animate={{ flex: '1 0 ' + width + 'px' }}
+      animate={{ width: width + 'px' }}
       transition={{
         duration: 0.5,
-        ease: 'easeOut',
+        ease: 'linear',
       }}
       className={styles.item}
       {...restProps}

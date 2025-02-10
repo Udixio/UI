@@ -56,28 +56,42 @@ export const CustomScroll = ({
     container: ref,
   });
 
-  const handleScroll = throttle((latestValue, scrollOrientation: 'x' | 'y') => {
-    if (!containerSize.current || !contentScrollSize.current) return;
+  const handleScrollThrottledRef = useRef<
+    ((latestValue: number, scrollOrientation: 'x' | 'y') => void) | null
+  >(null);
 
-    orientation === 'horizontal' &&
-      scrollOrientation === 'x' &&
-      onScroll &&
-      onScroll({
-        scrollProgress: latestValue,
-        scroll: latestValue * contentScrollSize.current.width,
-        scrollTotal: contentScrollSize.current.width,
-        scrollVisible: containerSize.current.width,
-      });
-    orientation === 'vertical' &&
-      scrollOrientation === 'y' &&
-      onScroll &&
-      onScroll({
-        scrollProgress: latestValue,
-        scroll: latestValue * contentScrollSize.current.height,
-        scrollTotal: contentScrollSize.current.height,
-        scrollVisible: containerSize.current.height,
-      });
-  }, 50);
+  if (!handleScrollThrottledRef.current) {
+    handleScrollThrottledRef.current = throttle(
+      (latestValue, scrollOrientation: 'x' | 'y') => {
+        if (!containerSize.current || !contentScrollSize.current) return;
+        if (onScroll) {
+          if (orientation === 'horizontal' && scrollOrientation === 'x') {
+            onScroll({
+              scrollProgress: latestValue,
+              scroll: latestValue * contentScrollSize.current.width,
+              scrollTotal: contentScrollSize.current.width,
+              scrollVisible: containerSize.current.width,
+            });
+          }
+          if (orientation === 'vertical' && scrollOrientation === 'y') {
+            onScroll({
+              scrollProgress: latestValue,
+              scroll: latestValue * contentScrollSize.current.height,
+              scrollTotal: contentScrollSize.current.height,
+              scrollVisible: containerSize.current.height,
+            });
+          }
+        }
+      },
+      75
+    );
+  }
+
+  const handleScroll = (latestValue: number, scrollOrientation: 'x' | 'y') => {
+    if (handleScrollThrottledRef.current) {
+      handleScrollThrottledRef.current(latestValue, scrollOrientation);
+    }
+  };
 
   useMotionValueEvent(scrollXProgress, 'change', (latestValue) => {
     handleScroll(latestValue, 'x');
