@@ -14,7 +14,7 @@ export type CustomScrollBaseProps = {
   draggable?: boolean;
 };
 export type CustomScrollStates = {
-  isDragging: boolean
+  isDragging: boolean;
 };
 export type CustomScrollElements = 'customScroll' | 'track';
 export type CustomScrollElementType = 'div';
