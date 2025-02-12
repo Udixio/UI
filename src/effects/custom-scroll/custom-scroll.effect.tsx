@@ -10,7 +10,7 @@ export const CustomScroll = ({
   scrollSize,
   onScroll,
   className,
-  draggable = true,
+  draggable = false,
 }: CustomScrollProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -150,19 +150,20 @@ export const CustomScroll = ({
     draggable,
   });
 
-  const [startX, setStartX] = useState(0);
+  const [startX, setStartX] = useState<number | null>(0);
   const [scrollLeft, setScrollLeft] = useState(0);
 
   const handleDrag = (e: MouseEvent) => {
     if (!draggable) return;
     const container = ref.current;
     if (!container) return;
+    if (startX == null) return;
     const x = e.pageX - container.offsetLeft; // Déplace au fur et à mesure
     const walk = (x - startX) * 1.5; // Sensibilité du drag
     container.scrollLeft = scrollLeft - walk; // Mise à jour manuelle du défilement
   };
+
   const handleMouseDown = (e: any) => {
-    console.log('mouseDown');
     const container = ref.current;
     if (!container) return;
     setIsDragging(true);
@@ -177,21 +178,27 @@ export const CustomScroll = ({
   };
 
   const handleMouseUp = () => {
-    console.log('mouseUp');
     setIsDragging(false);
   };
 
   const handleMouseLeave = () => {
-    console.log('mouseLeave');
     setIsDragging(false);
   };
   const handleDragStart = (e: any) => {
     e.preventDefault();
   };
 
+  useEffect(() => {}, [isDragging]);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
-    console.log(isDragging);
-  }, [isDragging]);
+    // Nettoie le timer lorsqu'on quitte le composant (important pour éviter les fuites de mémoire)
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div
@@ -202,6 +209,22 @@ export const CustomScroll = ({
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave}
       onDragStart={handleDragStart}
+      onScroll={(e) => {
+        if (!isDragging) {
+          // Met à jour l'état pour indiquer que le scroll est en cours
+          setStartX(null);
+          setIsDragging(true);
+          // Réinitialiser le timer (on le supprime si des scrolls successifs se produisent)
+          if (timerRef.current) {
+            clearTimeout(timerRef.current);
+          }
+
+          // Créer un nouveau timer : `isDrawing` sera désactivé après 1 seconde
+          timerRef.current = setTimeout(() => {
+            setIsDragging(false);
+          }, 1000); // 1000ms = 1 seconde
+        }
+      }}
     >
       <div
         ref={contentRef}
