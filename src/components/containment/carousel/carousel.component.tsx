@@ -162,6 +162,7 @@ export const Carousel = ({
   return (
     <div className={styles.carousel} ref={ref} {...restProps}>
       <CustomScroll
+        draggable
         orientation={'horizontal'}
         onScroll={handleScroll}
         scrollSize={scrollSize}
