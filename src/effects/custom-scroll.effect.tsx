@@ -1,4 +1,4 @@
-import { ReactNode, useLayoutEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motion, useMotionValueEvent, useScroll } from 'framer-motion';
 import { classNames } from '../utils';
 import { throttle } from 'lodash';
@@ -21,6 +21,24 @@ export const CustomScroll = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState<number | null>(null);
+  useEffect(() => {
+    if (!ref.current) return;
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.target === ref.current) {
+          setWidth(entry.contentRect.width);
+        }
+      }
+    });
+
+    observer.observe(ref.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [ref]);
 
   const contentScrollSize = useRef<{
     height: number;
@@ -92,6 +110,10 @@ export const CustomScroll = ({
       handleScrollThrottledRef.current(latestValue, scrollOrientation);
     }
   };
+
+  useEffect(() => {
+    if (width) handleScroll(scrollXProgress.get(), 'x');
+  }, [width]);
 
   useMotionValueEvent(scrollXProgress, 'change', (latestValue) => {
     handleScroll(latestValue, 'x');
