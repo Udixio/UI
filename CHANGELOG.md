@@ -1,3 +1,19 @@
+# [1.5.0](https://github.com/Udixio/UI/compare/v1.4.0...v1.5.0) (2025-02-12)
+
+
+### Bug Fixes
+
+* **carousel:** correct import path in storybook file ([b2d3057](https://github.com/Udixio/UI/commit/b2d3057731938805eef37dfd6b12be0e3dead951))
+* **custom-scroll:** add missing semicolon in interface ([1398f51](https://github.com/Udixio/UI/commit/1398f511ec3d2dcbefab48fdcb319a794cba711b))
+
+
+### Features
+
+* **carousel:** add draggable support to CustomScroll ([9bb9a7d](https://github.com/Udixio/UI/commit/9bb9a7d87d117343d520229afc831d974fdd37ea))
+* **custom-scroll:** add draggable scroll functionality ([5e863d7](https://github.com/Udixio/UI/commit/5e863d77b8341be2c2fd82267f4edf5b6bf38767))
+* **custom-scroll:** enhance styling and interaction logic ([096ff7f](https://github.com/Udixio/UI/commit/096ff7fba59f9955bacdbeb2e3b462623c0d7c76))
+* **effects:** add custom scroll effect module ([2a19afc](https://github.com/Udixio/UI/commit/2a19afc5bc887ac3b31adc106c7874e66857f0d3))
+
 # [1.4.0](https://github.com/Udixio/UI/compare/v1.3.1...v1.4.0) (2025-02-12)
 
 
