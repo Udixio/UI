@@ -1,3 +1,15 @@
+# [1.4.0](https://github.com/Udixio/UI/compare/v1.3.1...v1.4.0) (2025-02-12)
+
+
+### Bug Fixes
+
+* add dynamic width handling using ResizeObserver ([6345877](https://github.com/Udixio/UI/commit/63458779b2b00b8838861fe87a021da646b630a5))
+
+
+### Features
+
+* add dynamic width handling using ResizeObserver ([f2a2c2d](https://github.com/Udixio/UI/commit/f2a2c2d1cf9830253c31b198f4b4663a8d2c8b8e))
+
 ## [1.3.1](https://github.com/Udixio/UI/compare/v1.3.0...v1.3.1) (2025-02-10)
 
 
