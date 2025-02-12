@@ -11,15 +11,21 @@ export type CustomScrollBaseProps = {
     scrollTotal: number;
     scrollVisible: number;
   }) => void;
+  draggable?: boolean;
 };
-export type CustomScrollStates = {};
+export type CustomScrollStates = {
+  isDragging: boolean
+};
 export type CustomScrollElements = 'customScroll' | 'track';
 export type CustomScrollElementType = 'div';
 
 export type CustomScrollProps = CustomScrollBaseProps &
-  ComponentProps<
-    CustomScrollBaseProps,
-    CustomScrollStates,
-    CustomScrollElements,
-    CustomScrollElementType
+  Omit<
+    ComponentProps<
+      CustomScrollBaseProps,
+      CustomScrollStates,
+      CustomScrollElements,
+      CustomScrollElementType
+    >,
+    'onScroll'
   >;
