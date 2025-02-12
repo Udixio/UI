@@ -10,7 +10,7 @@ export const carouselStyle = defaultClassNames<
   CarouselElements
 >({
   defaultClassName: ({}) => ({
-    carousel: classNames(['w-full']),
+    carousel: classNames(['w-full h-[400px]']),
     track: classNames(
       'grid grid-flow-col h-full transition-transform  ease-out w-fit'
     ),

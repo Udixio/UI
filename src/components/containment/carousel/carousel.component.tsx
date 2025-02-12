@@ -8,7 +8,6 @@ import { CustomScroll } from '../../../effects';
 
 export const Carousel = ({
   variant = 'hero',
-  height = '400px',
   className,
   children,
   ref: optionalRef,
@@ -27,7 +26,6 @@ export const Carousel = ({
     className,
     children,
     variant,
-    height,
     inputRange,
     outputRange,
     marginPourcent,
@@ -164,12 +162,7 @@ export const Carousel = ({
   }, [ref, itemRefs]);
 
   return (
-    <div
-      style={{ height }}
-      className={styles.carousel}
-      ref={ref}
-      {...restProps}
-    >
+    <div className={styles.carousel} ref={ref} {...restProps}>
       <CustomScroll
         orientation={'horizontal'}
         onScroll={handleScroll}

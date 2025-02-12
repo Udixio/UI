@@ -13,7 +13,6 @@ export type CarouselBaseProps = {
     | 'full-screen';
   marginPourcent?: number;
   onChange?: (index: number) => void;
-  height?: string;
   gap?: number;
   scrollSensitivity?: number;
 };
