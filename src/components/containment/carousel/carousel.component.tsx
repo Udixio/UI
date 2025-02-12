@@ -8,7 +8,6 @@ import { CustomScroll } from '../../../effects';
 
 export const Carousel = ({
   variant = 'hero',
-  height = '400px',
   className,
   children,
   ref: optionalRef,
@@ -27,7 +26,6 @@ export const Carousel = ({
     className,
     children,
     variant,
-    height,
     inputRange,
     outputRange,
     marginPourcent,
@@ -47,14 +45,9 @@ export const Carousel = ({
     scrollTotal: number;
     scrollVisible: number;
     scroll: number;
-  }>({
-    scrollProgress: 0,
-    scrollTotal: 0,
-    scrollVisible: 0,
-    scroll: 0,
-  });
+  } | null>(null);
   const calculatePercentages = () => {
-    if (!trackRef.current || !ref.current) return [];
+    if (!trackRef.current || !ref.current || !scroll) return [];
 
     const { scrollVisible, scrollProgress } = scroll;
 
@@ -123,7 +116,7 @@ export const Carousel = ({
     });
   });
 
-  const scrollProgress = motionValue(scroll.scrollProgress);
+  const scrollProgress = motionValue(scroll?.scrollProgress ?? 0);
 
   const transform = useTransform(
     scrollProgress,
@@ -158,18 +151,16 @@ export const Carousel = ({
 
   const [scrollSize, setScrollSize] = useState(0);
   useLayoutEffect(() => {
-    setScrollSize(
-      ((outputRange[1] + gap) * renderItems.length) / scrollSensitivity
-    );
-  }, [ref, itemRefs]);
+    let maxWidth = outputRange[1];
+    if (scroll && maxWidth > scroll.scrollVisible) {
+      maxWidth = scroll.scrollVisible;
+    }
+    const result = ((maxWidth + gap) * renderItems.length) / scrollSensitivity;
+    setScrollSize(result);
+  }, [ref, itemRefs, scroll]);
 
   return (
-    <div
-      style={{ height }}
-      className={styles.carousel}
-      ref={ref}
-      {...restProps}
-    >
+    <div className={styles.carousel} ref={ref} {...restProps}>
       <CustomScroll
         orientation={'horizontal'}
         onScroll={handleScroll}

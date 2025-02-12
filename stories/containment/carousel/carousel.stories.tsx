@@ -34,7 +34,11 @@ const createCarouselStory = (args?: Partial<CarouselProps>) => {
   const carouselStory: Story = (args: CarouselProps) => (
     <div className="">
       <div className="flex m-4 gap-4 items-center">
-        <Carousel {...args}>
+        <Carousel
+          className={'md:h-[600px] h-[200px]'}
+          outputRange={[40, 500]}
+          {...args}
+        >
           {Array.from({ length: 10 }).map((_, index) => (
             <CarouselItem key={index}>
               <img
