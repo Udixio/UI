@@ -1,2 +1,2 @@
-export * from './custom-scroll.effect';
 export * from './smooth-scroll.effect';
+export * from './custom-scroll';

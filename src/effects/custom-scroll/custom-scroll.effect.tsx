@@ -1,24 +1,17 @@
-import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motion, useMotionValueEvent, useScroll } from 'framer-motion';
-import { classNames } from '../utils';
 import { throttle } from 'lodash';
+import { CustomScrollProps } from './custom-scroll.interface';
+import { customScrollStyle } from './custom-scroll.style';
 
 export const CustomScroll = ({
   children,
   orientation = 'vertical',
   scrollSize,
   onScroll,
-}: {
-  children: ReactNode;
-  orientation?: 'vertical' | 'horizontal';
-  scrollSize?: number;
-  onScroll?: (args: {
-    scroll: number;
-    scrollProgress: number;
-    scrollTotal: number;
-    scrollVisible: number;
-  }) => void;
-}) => {
+  className,
+  draggable = false,
+}: CustomScrollProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState<number | null>(null);
@@ -145,14 +138,93 @@ export const CustomScroll = ({
 
   contentScrollSize.current = getContentScrollSize();
   containerSize.current = getContainerSize();
+  const [isDragging, setIsDragging] = useState(false);
+
+  const styles = customScrollStyle({
+    isDragging,
+    children,
+    className,
+    onScroll,
+    orientation,
+    scrollSize,
+    draggable,
+  });
+
+  const [startX, setStartX] = useState<number | null>(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  const handleDrag = (e: MouseEvent) => {
+    if (!draggable) return;
+    const container = ref.current;
+    if (!container) return;
+    if (startX == null) return;
+    const x = e.pageX - container.offsetLeft; // Déplace au fur et à mesure
+    const walk = (x - startX) * 1.5; // Sensibilité du drag
+    container.scrollLeft = scrollLeft - walk; // Mise à jour manuelle du défilement
+  };
+
+  const handleMouseDown = (e: any) => {
+    const container = ref.current;
+    if (!container) return;
+    setIsDragging(true);
+    setStartX(e.pageX - container.offsetLeft); // Détecte la position initiale
+    setScrollLeft(container.scrollLeft); // Stocke la position de défilement actuelle
+  };
+
+  const handleMouseMove = (e: any) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    handleDrag(e);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
+  const handleDragStart = (e: any) => {
+    e.preventDefault();
+  };
+
+  useEffect(() => {}, [isDragging]);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    // Nettoie le timer lorsqu'on quitte le composant (important pour éviter les fuites de mémoire)
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div
-      className={classNames('flex h-full w-full', {
-        'overflow-y-scroll flex-col': orientation === 'vertical',
-        'overflow-x-scroll  flex-row': orientation === 'horizontal',
-      })}
+      className={styles.customScroll}
       ref={ref}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseLeave}
+      onDragStart={handleDragStart}
+      onScroll={(e) => {
+        if (!isDragging) {
+          // Met à jour l'état pour indiquer que le scroll est en cours
+          setStartX(null);
+          setIsDragging(true);
+          // Réinitialiser le timer (on le supprime si des scrolls successifs se produisent)
+          if (timerRef.current) {
+            clearTimeout(timerRef.current);
+          }
+
+          // Créer un nouveau timer : `isDrawing` sera désactivé après 1 seconde
+          timerRef.current = setTimeout(() => {
+            setIsDragging(false);
+          }, 1000); // 1000ms = 1 seconde
+        }
+      }}
     >
       <div
         ref={contentRef}
@@ -161,10 +233,7 @@ export const CustomScroll = ({
             ? { height: containerSize?.current?.height ?? '100%' }
             : { width: containerSize?.current?.width ?? '100%' }
         }
-        className={classNames('overflow-hidden flex-none sticky', {
-          'left-0 h-full': orientation === 'horizontal',
-          'top-0 w-full': orientation === 'vertical',
-        })}
+        className={styles.track}
       >
         {children}
       </div>
