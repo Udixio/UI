@@ -1,6 +1,6 @@
 import { ReactNode, useState } from 'react';
-import { motion, motionValue, useSpring, useTransform } from 'framer-motion';
-import { CustomScroll } from './custom-scroll.effect';
+import { motion, motionValue, useTransform } from 'framer-motion';
+import { CustomScroll } from './custom-scroll/custom-scroll.effect';
 import { classNames } from '../utils';
 
 export const SmoothScroll = ({

@@ -1,24 +1,17 @@
-import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motion, useMotionValueEvent, useScroll } from 'framer-motion';
-import { classNames } from '../utils';
+import { classNames } from '../../utils';
 import { throttle } from 'lodash';
+import { CustomScrollProps } from './custom-scroll.interface';
+import { customScrollStyle } from './custom-scroll.style';
 
 export const CustomScroll = ({
   children,
   orientation = 'vertical',
   scrollSize,
   onScroll,
-}: {
-  children: ReactNode;
-  orientation?: 'vertical' | 'horizontal';
-  scrollSize?: number;
-  onScroll?: (args: {
-    scroll: number;
-    scrollProgress: number;
-    scrollTotal: number;
-    scrollVisible: number;
-  }) => void;
-}) => {
+  className
+}: CustomScrollProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState<number | null>(null);
@@ -146,12 +139,17 @@ export const CustomScroll = ({
   contentScrollSize.current = getContentScrollSize();
   containerSize.current = getContainerSize();
 
+  const styles = customScrollStyle({
+    children,
+    className,
+    onScroll,
+    orientation,
+    scrollSize,
+  });
+
   return (
     <div
-      className={classNames('flex h-full w-full', {
-        'overflow-y-scroll flex-col': orientation === 'vertical',
-        'overflow-x-scroll  flex-row': orientation === 'horizontal',
-      })}
+      className={styles.customScroll}
       ref={ref}
     >
       <div
@@ -161,10 +159,7 @@ export const CustomScroll = ({
             ? { height: containerSize?.current?.height ?? '100%' }
             : { width: containerSize?.current?.width ?? '100%' }
         }
-        className={classNames('overflow-hidden flex-none sticky', {
-          'left-0 h-full': orientation === 'horizontal',
-          'top-0 w-full': orientation === 'vertical',
-        })}
+        className={styles.customScroll}
       >
         {children}
       </div>
