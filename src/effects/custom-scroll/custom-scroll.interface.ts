@@ -12,6 +12,8 @@ export type CustomScrollBaseProps = {
     scrollVisible: number;
   }) => void;
   draggable?: boolean;
+  throttleDuration?: number;
+
 };
 export type CustomScrollStates = {
   isDragging: boolean;

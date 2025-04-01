@@ -11,6 +11,7 @@ export const CustomScroll = ({
   onScroll,
   className,
   draggable = false,
+  throttleDuration = 75,
 }: CustomScrollProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -108,7 +109,7 @@ export const CustomScroll = ({
           }
         }
       },
-      75
+      throttleDuration
     );
   }
 
@@ -164,6 +165,7 @@ export const CustomScroll = ({
     orientation,
     scrollSize,
     draggable,
+    throttleDuration
   });
 
   const [startX, setStartX] = useState<number | null>(0);

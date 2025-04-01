@@ -1,17 +1,24 @@
-import { ReactNode, useState } from 'react';
-import { motion, motionValue, useTransform } from 'framer-motion';
+import { ReactNode, useRef, useState } from 'react';
+import {
+  motion,
+  motionValue,
+  useMotionValueEvent,
+  useTransform,
+} from 'framer-motion';
 import { CustomScroll } from './custom-scroll/custom-scroll.effect';
 import { classNames } from '../utils';
+import { CustomScrollProps } from './custom-scroll';
 
 export const SmoothScroll = ({
   children,
-  orientation = 'vertical',
   transition = '.5s',
+  orientation = 'vertical',
+  throttleDuration = 25,
+  ...restProps
 }: {
   children: ReactNode;
-  orientation?: 'vertical' | 'horizontal';
   transition?: string;
-}) => {
+} & CustomScrollProps) => {
   const [scroll, setScroll] = useState<{
     scrollProgress: number;
     scrollTotal: number;
@@ -43,9 +50,29 @@ export const SmoothScroll = ({
       setScroll(args);
     }
   };
+  const lastChangeTimeRef = useRef<number | null>(null);
+  useMotionValueEvent(percentTransform, 'change', (value) => {
+    // Récupérer l'heure actuelle
+    const now = performance.now();
+
+    // Si une heure précédente existe, calculer le delta
+    if (lastChangeTimeRef.current !== null) {
+      const deltaTime = now - lastChangeTimeRef.current;
+      console.log(`Delta temps : ${deltaTime} ms`);
+    }
+
+    // Mettre à jour l'heure du dernier changement
+    lastChangeTimeRef.current = now;
+
+    console.log(value); // Affiche également la valeur si nécessaire
+  });
 
   return (
-    <CustomScroll orientation={orientation} onScroll={handleScroll}>
+    <CustomScroll
+      onScroll={handleScroll}
+      throttleDuration={throttleDuration}
+      {...restProps}
+    >
       <motion.div
         className={classNames('transition-transform  ease-out', {
           'w-fit h-full': orientation === 'horizontal',
