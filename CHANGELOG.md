@@ -1,3 +1,10 @@
+## [1.5.2](https://github.com/Udixio/UI/compare/v1.5.1...v1.5.2) (2025-04-01)
+
+
+### Bug Fixes
+
+* **custom-scroll:** add throttleDuration prop for flexibility ([08d1405](https://github.com/Udixio/UI/commit/08d1405ad5a42c72807ea668a25ed82a10a417f5))
+
 ## [1.5.1](https://github.com/Udixio/UI/compare/v1.5.0...v1.5.1) (2025-04-01)
 
 
