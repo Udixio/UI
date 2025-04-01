@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { SmoothScroll } from '../../src';
+import { JSX } from 'react/jsx-runtime';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -19,30 +20,26 @@ type Story = StoryObj<typeof meta>;
 
 // More on writing stories with args: https://storybook.js.org/docs/react/writing-stories/args
 
-const createSmoothScrollStory = (variant: SmoothScrollVariant) => {
-  const SmoothScrollStory: Story = (args) => (
-    <div>
-      <SmoothScroll orientation={'horizontal'} transition={'5s'} {...args}>
-        <div className={'flex'}>
-          <div className={'w-52 h-52 bg-primary'} />
-          <div className={'w-52 h-52 bg-secondary'} />
-          <div className={'w-52 h-52 bg-tertiary'} />{' '}
-          <div className={'w-52 h-52 bg-primary'} />
-          <div className={'w-52 h-52 bg-secondary'} />
-          <div className={'w-52 h-52 bg-tertiary'} />{' '}
-          <div className={'w-52 h-52 bg-primary'} />
-          <div className={'w-52 h-52 bg-secondary'} />
-          <div className={'w-52 h-52 bg-tertiary'} />{' '}
-          <div className={'w-52 h-52 bg-primary'} />
-          <div className={'w-52 h-52 bg-secondary'} />
-          <div className={'w-52 h-52 bg-tertiary'} />
-        </div>
+const createSmoothScrollStory = () => {
+  const SmoothScrollStory: () => JSX.Element = () => (
+    <div className={'h-96'}>
+      <SmoothScroll transition={'1s'}>
+        <div className={' h-52 bg-primary'} />
+        <div className={' h-52 bg-secondary'} />
+        <div className={' h-52 bg-tertiary'} />{' '}
+        <div className={' h-52 bg-primary'} />
+        <div className={' h-52 bg-secondary'} />
+        <div className={' h-52 bg-tertiary'} />{' '}
+        <div className={' h-52 bg-primary'} />
+        <div className={' h-52 bg-secondary'} />
+        <div className={' h-52 bg-tertiary'} />{' '}
+        <div className={' h-52 bg-primary'} />
+        <div className={' h-52 bg-secondary'} />
+        <div className={' h-52 bg-tertiary'} />
       </SmoothScroll>
     </div>
   );
-  SmoothScrollStory.args = {};
+
   return SmoothScrollStory;
 };
-export const Outlined = createSmoothScrollStory('outlined');
-export const Elevated = createSmoothScrollStory('elevated');
-export const Filled = createSmoothScrollStory('filled');
+export const SmoothScrollStory = createSmoothScrollStory();

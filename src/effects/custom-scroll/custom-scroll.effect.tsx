@@ -14,14 +14,27 @@ export const CustomScroll = ({
 }: CustomScrollProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState<number | null>(null);
+
+  // Ajout de l'état pour la largeur et la hauteur
+  const [dimensions, setDimensions] = useState<{
+    width: number | null;
+    height: number | null;
+  }>({
+    width: null,
+    height: null,
+  });
+
+  // Utilisation de ResizeObserver pour surveiller la largeur ET la hauteur
   useEffect(() => {
     if (!ref.current) return;
 
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
         if (entry.target === ref.current) {
-          setWidth(entry.contentRect.width);
+          setDimensions({
+            width: entry.contentRect.width,
+            height: entry.contentRect.height, // On observe aussi la hauteur maintenant
+          });
         }
       }
     });
@@ -59,7 +72,7 @@ export const CustomScroll = ({
     }
     return {
       width: el.clientWidth,
-      height: el.scrollHeight,
+      height: el.clientHeight, // Correction ici pour retourner la bonne hauteur
     };
   };
 
@@ -76,6 +89,7 @@ export const CustomScroll = ({
       (latestValue, scrollOrientation: 'x' | 'y') => {
         if (!containerSize.current || !contentScrollSize.current) return;
         if (onScroll) {
+          // Gestion uniforme pour la largeur et la hauteur
           if (orientation === 'horizontal' && scrollOrientation === 'x') {
             onScroll({
               scrollProgress: latestValue,
@@ -104,9 +118,11 @@ export const CustomScroll = ({
     }
   };
 
+  // Gestion des changements pour la width ET la height
   useEffect(() => {
-    if (width) handleScroll(scrollXProgress.get(), 'x');
-  }, [width]);
+    if (dimensions.width) handleScroll(scrollXProgress.get(), 'x');
+    if (dimensions.height) handleScroll(scrollYProgress.get(), 'y'); // Nouvelle ligne : mise à jour pour la hauteur
+  }, [dimensions]);
 
   useMotionValueEvent(scrollXProgress, 'change', (latestValue) => {
     handleScroll(latestValue, 'x');
@@ -243,6 +259,7 @@ export const CustomScroll = ({
           {orientation === 'vertical' &&
             contentScrollSize.current.height > containerSize.current.height && (
               <motion.div
+                className={'flex-none'}
                 style={{
                   height:
                     contentScrollSize.current.height -

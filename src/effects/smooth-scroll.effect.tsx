@@ -1,10 +1,5 @@
 import { ReactNode, useState } from 'react';
-import {
-  motion,
-  motionValue,
-  useMotionValueEvent,
-  useTransform,
-} from 'framer-motion';
+import { motion, motionValue, useTransform } from 'framer-motion';
 import { CustomScroll } from './custom-scroll/custom-scroll.effect';
 import { classNames } from '../utils';
 
@@ -44,15 +39,11 @@ export const SmoothScroll = ({
     scroll: number;
   }) => {
     scrollProgress.set(args.scrollProgress);
-
     if (args.scrollTotal > 0) {
       setScroll(args);
     }
   };
 
-  useMotionValueEvent(scrollProgress, 'change', (latestValue) => {
-    console.log('dd', scrollProgress);
-  });
   return (
     <CustomScroll orientation={orientation} onScroll={handleScroll}>
       <motion.div
