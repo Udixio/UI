@@ -1,3 +1,11 @@
+## [1.5.1](https://github.com/Udixio/UI/compare/v1.5.0...v1.5.1) (2025-04-01)
+
+
+### Bug Fixes
+
+* enhance logic SmoothScroll component and add storie ([e566ca0](https://github.com/Udixio/UI/commit/e566ca0688b12532f95393fb0440ed88e0bb3fe5))
+* improve smooth scroll and custom scroll logic ([10a742e](https://github.com/Udixio/UI/commit/10a742e4a08ffa35836d7cd3ae2ddc4a4fc3afcc))
+
 # [1.5.0](https://github.com/Udixio/UI/compare/v1.4.0...v1.5.0) (2025-02-12)
 
 
