@@ -54,7 +54,7 @@ export const IconButton = ({
     arialLabel,
     iconSelected,
     isActive,
-    onToggle(isActive: boolean): void {},
+    onToggle,
     disabled,
     icon,
     variant,
