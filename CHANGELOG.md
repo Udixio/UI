@@ -1,3 +1,10 @@
+## [1.5.3](https://github.com/Udixio/UI/compare/v1.5.2...v1.5.3) (2025-04-08)
+
+
+### Bug Fixes
+
+* **icon-button:** simplify onToggle prop definition ([175ec50](https://github.com/Udixio/UI/commit/175ec5073d7dd08819ffa9688680c6d997a94991))
+
 ## [1.5.2](https://github.com/Udixio/UI/compare/v1.5.1...v1.5.2) (2025-04-01)
 
 
