@@ -165,7 +165,7 @@ export const CustomScroll = ({
     orientation,
     scrollSize,
     draggable,
-    throttleDuration
+    throttleDuration,
   });
 
   const [startX, setStartX] = useState<number | null>(0);
