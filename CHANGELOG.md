@@ -1,3 +1,10 @@
+## [1.5.4](https://github.com/Udixio/UI/compare/v1.5.3...v1.5.4) (2025-04-29)
+
+
+### Bug Fixes
+
+* **theme:** integrate @udixio/theme and migrate configs ([f2220e1](https://github.com/Udixio/UI/commit/f2220e17d866267e629e2a4178244e500cf7525b))
+
 ## [1.5.3](https://github.com/Udixio/UI/compare/v1.5.2...v1.5.3) (2025-04-08)
 
 
