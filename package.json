@@ -43,7 +43,7 @@
     "testEnvironment": "jsdom"
   },
   "engines": {
-    "node": ">=12"
+    "node": ">=16"
   },
   "size-limit": [
     {
@@ -77,7 +77,6 @@
     "sass": "^1.83.0",
     "tailwind-merge": "^2.6.0",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.7.2",
     "uuid": "^11.0.3"
   },
   "peerDependencies": {
