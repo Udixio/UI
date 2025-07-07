@@ -3,6 +3,7 @@ import React from 'react';
 import { HTMLMotionProps } from 'framer-motion';
 import { StyleProps } from './styles';
 import { JSX } from 'react/jsx-runtime';
+import { Component } from './component';
 
 export interface HTMLElements {
   a: HTMLAnchorElement;
@@ -144,8 +145,4 @@ export type MotionComponentProps<
 > = ComponentProps<Props, States, Elements, ElementType> &
   Omit<HTMLMotionProps<ElementType>, 'ref' | 'className'>;
 
-export type ComponentClassName<
-  Props extends object,
-  States extends object,
-  Elements extends string,
-> = StyleProps<Props & States, Elements>;
+export type ComponentClassName<T extends Component<any>> = StyleProps<T>;

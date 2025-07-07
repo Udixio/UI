@@ -1,10 +1,7 @@
-import { classNames, defaultClassNames } from '../../../utils';
-import { FabBaseProps, FabElements, FabStates } from './fab.interface';
+import { classNames, defaultClassNames } from '../utils';
+import { FabInterface } from '../interfaces/fab.interface';
 
-export const fabStyle = defaultClassNames<
-  FabBaseProps & FabStates,
-  FabElements
->({
+export const fabStyle = defaultClassNames<FabInterface>({
   defaultClassName: ({ size, variant, isExtended }) => ({
     fab: classNames(
       'flex transition-all duration-300 shadow-3 hover:shadow-4 group overflow-hidden outline-none items-center',

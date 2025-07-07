@@ -6,7 +6,7 @@ export type ReactProps<T extends Component<any>> = Omit<
   JSX.IntrinsicElements[T['type']],
   'className'
 > &
-  ComponentClassName<T['props'], T['states'], T['elements']> & {
+  ComponentClassName<T> & {
     ref?: React.RefObject<HTMLElements[T['type']] | null>;
   } & Partial<T['defaultProps']> &
   T['props'];

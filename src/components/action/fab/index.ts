@@ -1,3 +1,3 @@
-export * from './fab.component';
-export * from './fab.interface';
-export * from './fab.style';
+export * from '../Fab';
+export * from '../../../interfaces/fab.interface';
+export * from '../../../styles/fab.style';
