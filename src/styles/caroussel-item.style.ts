@@ -1,0 +1,18 @@
+import {
+  ItemBaseProps,
+  ItemElements,
+  ItemStates,
+} from '../interfaces/carousel-item.interface';
+import { classNames, defaultClassNames } from '../utils';
+
+export const carousselItemStyle = defaultClassNames<
+  ItemBaseProps & ItemStates,
+  ItemElements
+>({
+  defaultClassName: ({}) => {
+    return {
+      item: classNames('rounded-[28px] overflow-hidden flex-none'),
+    };
+  },
+  default: 'item',
+});
