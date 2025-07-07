@@ -1,10 +1,8 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { ButtonVariant } from './button.component';
+import { Component } from '../../../utils/component';
 
-import { MergeExclusive } from 'type-fest';
-import { ComponentProps } from '../../../utils';
-
-export type ButtonBaseProps = {
+type Props = {
   /**
    * The label is the text that is displayed on the button.
    */
@@ -29,16 +27,28 @@ export type ButtonBaseProps = {
 
   loading?: boolean;
 };
-export type ButtonStates = {};
 
-export type ButtonElements = 'button' | 'stateLayer' | 'icon' | 'label';
+type DefaultProps = {
+  variant: 'filled' | 'elevated' | 'outlined' | 'text' | 'filledTonal';
+  disabled: boolean;
+  iconPosition: 'left' | 'right';
+  loading: boolean;
+};
 
-export type ButtonProps = MergeExclusive<
-  ComponentProps<ButtonBaseProps, ButtonStates, ButtonElements, 'a'> & {
-    href: string;
-  },
-  ComponentProps<ButtonBaseProps, ButtonStates, ButtonElements, 'button'> & {
-    href?: never;
-  }
-> &
-  ButtonBaseProps;
+type Elements = ['button', 'stateLayer', 'icon', 'label'];
+
+export type ButtonInterface =
+  | Component<{
+      type: 'a';
+      props: Props & { href: string };
+      states: {};
+      defaultProps: DefaultProps;
+      elements: Elements;
+    }>
+  | Component<{
+      type: 'button';
+      props: Props & { href?: never };
+      states: {};
+      defaultProps: DefaultProps;
+      elements: Elements;
+    }>;

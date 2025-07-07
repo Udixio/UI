@@ -4,7 +4,7 @@ import { HTMLMotionProps } from 'framer-motion';
 import { StyleProps } from './styles';
 import { JSX } from 'react/jsx-runtime';
 
-interface HTMLElements {
+export interface HTMLElements {
   a: HTMLAnchorElement;
   abbr: HTMLElement;
   address: HTMLElement;

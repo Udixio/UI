@@ -1,14 +1,7 @@
-import {
-  ButtonBaseProps,
-  ButtonElements,
-  ButtonStates,
-} from './button.interface';
+import { ButtonInterface } from './button.interface';
 import { classNames, defaultClassNames } from '../../../utils';
 
-export const buttonStyle = defaultClassNames<
-  ButtonBaseProps & ButtonStates,
-  ButtonElements
->({
+export const buttonStyle = defaultClassNames<ButtonInterface>({
   defaultClassName: ({ variant, disabled, iconPosition, icon, loading }) => ({
     button: classNames(
       'button group relative outline-none py-2.5 overflow-hidden rounded-full inline-block flex gap-2 justify-center rounded-full  items-center  ',

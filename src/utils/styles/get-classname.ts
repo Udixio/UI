@@ -1,56 +1,61 @@
+import { Component } from '../component';
+import { classnames } from './classnames';
+
 type RequiredNullable<T> = {
   [K in keyof T]-?: any;
 };
 
-export interface StyleProps<S, E extends string> {
-  className?: string | ClassNameComponent<S, E>;
+export interface StyleProps<T extends Component<any>> {
+  className?: string | ClassNameComponent<T>;
 }
 
-export type ClassNameComponent<S, E extends string> = (
-  states: S
-) => Partial<Record<E, string>>;
+export type ClassNameComponent<T extends Component<any>> = (
+  states: StatesFromComponent<T>
+) => Partial<Record<T['elements'], string>>;
 
-export const getClassNames = <States, Elements extends string>(args: {
-  classNameList: (ClassNameComponent<States, Elements> | string | undefined)[];
-  default: Elements;
-  states: States;
-}): Record<Elements, string> => {
-  let classNames: Record<Elements, string> = {} as Record<Elements, string>;
+export const getClassNames = <T extends Component<any>>(args: {
+  classNameList: (ClassNameComponent<T> | string | undefined)[];
+  default: T['elements'][0];
+  states: T['states'];
+}): Record<T['elements'][number], string> => {
+  let classNames: Partial<Record<T['elements'][number], string>> = {};
   args.classNameList.forEach((classNameComponent) => {
     if (classNameComponent) {
+      if (!classNames[args.default]) {
+        classNames[args.default] = 'relative';
+      }
       if (typeof classNameComponent == 'string') {
-        classNames[args.default] = classNameComponent + ' relative' + ' ';
+        classNames[args.default] = classnames(
+          classNames[args.default],
+          classNameComponent
+        );
       } else {
         const result = classNameComponent(args.states);
-        Object.entries(result).map(([key, value]) => {
-          if (!classNames[key as Elements]) {
-            classNames[key as Elements] = key + ' ';
-            if (key == args.default) {
-              classNames[key as Elements] =
-                (classNames[key as Elements] ?? '') + 'relative' + ' ';
-            }
+        Object.entries(result).map((argsElement) => {
+          const [key, value] = argsElement as [T['elements'], string];
+          if (!classNames[key]?.startsWith(key)) {
+            classNames[key] = classnames(key, classNames[key]);
           }
-          classNames[key as Elements] =
-            (classNames[key as Elements] ?? '') + (value ?? '') + ' ';
+          classNames[key] = classnames(classNames[key], value);
         });
       }
     }
   });
-  return classNames;
+  return classNames as Record<T['elements'][number], string>;
 };
 
-export const defaultClassNames = <
-  States extends object,
-  Elements extends string,
->(args: {
-  defaultClassName: ClassNameComponent<States, Elements> | string | undefined;
-  default: Elements;
+type StatesFromComponent<T extends Component<any>> = T['props'] &
+  RequiredNullable<T['defaultProps']> &
+  T['states'];
+
+export const defaultClassNames = <T extends Component<any>>(args: {
+  defaultClassName: ClassNameComponent<T> | string | undefined;
+  default: T['elements'][0];
 }) => {
   return (
-    states: RequiredNullable<States> &
-      States & {
-        className: ClassNameComponent<States, Elements> | string | undefined;
-      }
+    states: StatesFromComponent<T> & {
+      className: ClassNameComponent<T> | string | undefined;
+    }
   ) =>
     getClassNames({
       ...args,

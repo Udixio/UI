@@ -1,10 +1,11 @@
-import { ButtonProps } from './button.interface';
+import { ButtonInterface } from './button.interface';
 
 import { Icon } from '../../../icon';
 import React from 'react';
 import { classNames } from '../../../utils';
 import { ProgressIndicator } from '../../communication/progress-indicator';
 import { buttonStyle } from './button.style';
+import { ReactProps } from '../../../utils/component';
 
 export type ButtonVariant =
   | 'filled'
@@ -27,7 +28,7 @@ export const Button = ({
   loading = false,
   onClick,
   ...restProps
-}: ButtonProps) => {
+}: ReactProps<ButtonInterface>) => {
   const ElementType = href ? 'a' : 'button';
 
   const styles = buttonStyle({
