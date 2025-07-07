@@ -1,12 +1,12 @@
 import React, { useRef } from 'react';
-import { Icon } from '../../icon';
+import { Icon } from '../icon';
 
-import { RippleEffect } from '../../effects/ripple';
+import { RippleEffect } from '../effects/ripple';
 import { AnimatePresence, motion } from 'framer-motion';
-import { FabInterface } from '../../interfaces/fab.interface';
-import { fabStyle } from '../../styles/fab.style';
-import { classNames } from '../../utils';
-import { ReactProps } from '../../utils/component';
+import { FabInterface } from '../interfaces/fab.interface';
+import { fabStyle } from '../styles/fab.style';
+import { classNames } from '../utils';
+import { ReactProps } from '../utils/component';
 
 export const Fab = ({
   className,

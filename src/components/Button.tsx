@@ -1,9 +1,8 @@
-import { classNames } from '../../utils';
-import { ReactProps } from '../../utils/component';
-import { ButtonInterface } from '../../interfaces/button.interface';
-import { buttonStyle } from '../../styles/button.style';
-import { Icon } from '../../icon';
-
+import { classNames } from '../utils';
+import { ReactProps } from '../utils/component';
+import { ButtonInterface } from '../interfaces/button.interface';
+import { buttonStyle } from '../styles/button.style';
+import { Icon } from '../icon';
 
 /**
  * The Button component is a versatile component that can be used to trigger actions or to navigate to different sections of the application
