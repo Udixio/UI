@@ -1,18 +1,9 @@
-import { ButtonInterface } from './button.interface';
+import { classNames } from '../../utils';
+import { ReactProps } from '../../utils/component';
+import { ButtonInterface } from '../../interfaces/button.interface';
+import { buttonStyle } from '../../styles/button.style';
+import { Icon } from '../../icon';
 
-import { Icon } from '../../../icon';
-import React from 'react';
-import { classNames } from '../../../utils';
-import { ProgressIndicator } from '../../communication/progress-indicator';
-import { buttonStyle } from './button.style';
-import { ReactProps } from '../../../utils/component';
-
-export type ButtonVariant =
-  | 'filled'
-  | 'elevated'
-  | 'outlined'
-  | 'text'
-  | 'filledTonal';
 
 /**
  * The Button component is a versatile component that can be used to trigger actions or to navigate to different sections of the application

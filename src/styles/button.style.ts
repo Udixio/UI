@@ -1,5 +1,5 @@
-import { ButtonInterface } from './button.interface';
-import { classNames, defaultClassNames } from '../../../utils';
+import { classNames, defaultClassNames } from '../utils';
+import { ButtonInterface } from '../interfaces/button.interface';
 
 export const buttonStyle = defaultClassNames<ButtonInterface>({
   defaultClassName: ({ variant, disabled, iconPosition, icon, loading }) => ({

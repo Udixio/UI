@@ -1,6 +1,12 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { ButtonVariant } from './button.component';
-import { Component } from '../../../utils/component';
+import { Component } from '../utils/component';
+
+export type ButtonVariant =
+  | 'filled'
+  | 'elevated'
+  | 'outlined'
+  | 'text'
+  | 'filledTonal';
 
 type Props = {
   /**
