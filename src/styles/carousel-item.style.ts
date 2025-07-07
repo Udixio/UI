@@ -5,7 +5,7 @@ import {
 } from '../interfaces/carousel-item.interface';
 import { classNames, defaultClassNames } from '../utils';
 
-export const carousselItemStyle = defaultClassNames<
+export const carouselItemStyle = defaultClassNames<
   ItemBaseProps & ItemStates,
   ItemElements
 >({

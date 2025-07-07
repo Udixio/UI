@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { ItemProps } from '../interfaces/carousel-item.interface';
 import { motion } from 'framer-motion';
-import { carousselItemStyle } from '../styles/caroussel-item.style';
+import { carouselItemStyle } from '../styles/carousel-item.style';
 
 export const normalize = (
   value: number,
@@ -28,7 +28,7 @@ export const CarouselItem = ({
   const defaultRef = useRef(null);
   const ref: React.RefObject<null | HTMLDivElement> = optionalRef || defaultRef;
 
-  const styles = carousselItemStyle({
+  const styles = carouselItemStyle({
     className,
     index,
     width: width,
