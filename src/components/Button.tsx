@@ -21,8 +21,9 @@ export const Button = ({
   ...restProps
 }: ReactProps<ButtonInterface>) => {
   const ElementType = href ? 'a' : 'button';
+  let styles;
 
-  const styles = buttonStyle({
+  styles = buttonStyle({
     href: href as any,
     disabled,
     icon,

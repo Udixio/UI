@@ -4,7 +4,7 @@ import {
   motionValue,
   useMotionValueEvent,
   useTransform,
-} from 'framer-motion';
+} from 'motion/react';
 import { CustomScroll } from './custom-scroll/custom-scroll.effect';
 import { classNames } from '../utils';
 import { CustomScrollProps } from './custom-scroll';

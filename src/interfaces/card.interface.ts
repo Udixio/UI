@@ -1,6 +1,6 @@
 export interface CardInterface {
   type: 'div';
-  defaultProps: {
+  props: {
     variant?: 'outlined' | 'elevated' | 'filled';
     isInteractive?: boolean;
   };

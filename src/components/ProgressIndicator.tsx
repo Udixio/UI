@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ProgressIndicatorInterface, ProgressIndicatorProps } from '../interfaces/progress-indicator.interface';
 
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { progressIndicatorStyle } from '../styles/progress-indicator.style';
 import { ReactProps } from '../utils/component';
 

@@ -6,8 +6,6 @@ export interface CarouselInterface {
     children?: ReactNode;
     marginPourcent?: number;
     onChange?: (index: number) => void;
-  };
-  defaultProps: {
     variant?:
       | 'hero'
       | 'center-aligned hero'

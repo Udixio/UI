@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 
 import { Icon } from '../icon';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { SwitchInterface } from '../interfaces/switch.interface';
 import { switchStyle } from '../styles/switch.style';
 import { ReactProps } from '../utils/component';

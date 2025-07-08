@@ -18,6 +18,5 @@ export interface TabsInterface {
     scrollable?: boolean;
   };
   states: {};
-  defaultProps: {};
   elements: ['tabs'];
 }

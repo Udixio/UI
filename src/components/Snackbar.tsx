@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { SnackbarInterface } from '../interfaces/snackbar.interface';
 import { snackbarStyle } from '../styles/snackbar.style';

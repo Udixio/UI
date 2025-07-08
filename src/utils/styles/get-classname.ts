@@ -10,13 +10,13 @@ export interface StyleProps<T extends ComponentInterface> {
 }
 
 export type ClassNameComponent<T extends ComponentInterface> = (
-  states: StatesFromComponent<T>
+  states: T['states'] & T['props']
 ) => Partial<Record<T['elements'][number], string>>;
 
 export const getClassNames = <T extends ComponentInterface>(args: {
-  classNameList: (ClassNameComponent<T> | string | undefined)[];
+  classNameList: (ClassNameComponent<T> | string)[];
   default: T['elements'][0];
-  states: StatesFromComponent<T>;
+  states: T['states'] & T['props'];
 }): Record<T['elements'][number], string> => {
   let classNames: Partial<Record<T['elements'][number], string[]>> = {};
   args.classNameList.forEach((classNameComponent) => {
@@ -51,17 +51,14 @@ export const getClassNames = <T extends ComponentInterface>(args: {
   return result;
 };
 
-type StatesFromComponent<T extends ComponentInterface> = T['props'] &
-  T['defaultProps'] &
-  T['states'];
-
 export const defaultClassNames = <T extends ComponentInterface>(
   element: T['elements'][0],
   defaultClassName: ClassNameComponent<T> | string | undefined
 ) => {
   return (
-    states: RequiredNullable<StatesFromComponent<T>> &
-      StatesFromComponent<T> & {
+    states: RequiredNullable<T['props']> &
+      T['props'] &
+      T['states'] & {
         className: ClassNameComponent<T> | string | undefined;
       }
   ) =>

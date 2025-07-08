@@ -8,8 +8,7 @@ export type ReactProps<T extends ComponentInterface> = Omit<
 > &
   ComponentClassName<T> & {
     ref?: React.RefObject<HTMLElements[T['type']] | null>;
-  } & Partial<T['defaultProps']> &
-  T['props'];
+  } & T['props'];
 
 export interface LinkInterface<Props> {
   type: 'a';
@@ -27,6 +26,5 @@ export interface ComponentInterface {
   type: keyof HTMLElements;
   props?: object;
   states?: object;
-  defaultProps?: object;
   elements: string[];
 }

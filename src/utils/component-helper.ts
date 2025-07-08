@@ -1,8 +1,4 @@
-import React from 'react';
-
-import { HTMLMotionProps } from 'framer-motion';
 import { StyleProps } from './styles';
-import { JSX } from 'react/jsx-runtime';
 import { Component } from './component';
 
 export interface HTMLElements {
@@ -127,22 +123,12 @@ export interface HTMLElements {
   webview: HTMLWebViewElement;
 }
 
-export type ComponentProps<
-  Props extends object,
-  States extends object,
-  Elements extends string,
-  ElementType extends keyof HTMLElements,
-> = Omit<JSX.IntrinsicElements[ElementType], 'className'> &
-  ComponentClassName<Props, States, Elements> & {
-    ref?: React.RefObject<HTMLElements[ElementType] | null>;
-  };
-
-export type MotionComponentProps<
-  Props extends object,
-  States extends object,
-  Elements extends string,
-  ElementType extends keyof HTMLElements,
-> = ComponentProps<Props, States, Elements, ElementType> &
-  Omit<HTMLMotionProps<ElementType>, 'ref' | 'className'>;
+// export type MotionComponentProps<
+//   Props extends object,
+//   States extends object,
+//   Elements extends string,
+//   ElementType extends keyof HTMLElements,
+// > = ComponentProps<Props, States, Elements, ElementType> &
+//   Omit<HTMLMotionProps<ElementType>, 'ref' | 'className'>;
 
 export type ComponentClassName<T extends Component<any>> = StyleProps<T>;

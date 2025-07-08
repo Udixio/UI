@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { CarouselInterface } from '../interfaces/carousel.interface';
 
-import { motion, motionValue, useTransform } from 'framer-motion';
+import { motion, motionValue, useTransform } from 'motion/react';
 
 import { carouselStyle } from '../styles/carousel-style';
 import { CustomScroll } from '../effects';

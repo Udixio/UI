@@ -6,8 +6,8 @@ export interface SnackbarInterface {
     duration?: number;
     onClose?: () => void;
     supportingText: string;
+    closeIcon?: IconDefinition;
   };
   states: { isVisible: boolean };
-  defaultProps: { closeIcon: IconDefinition };
   elements: ['snackbar', 'container', 'supportingText', 'action', 'icon'];
 }

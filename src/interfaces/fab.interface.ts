@@ -7,15 +7,11 @@ type Props = {
   label?: string;
   icon: IconDefinition;
   size?: 'small' | 'medium' | 'large';
+  isExtended?: boolean;
 };
-type DefaultProps = {
-  isExtended: boolean;
-};
-export type States = {};
 
 export type Elements = ['fab', 'stateLayer', 'icon', 'label'];
 
 export type FabInterface = ActionOrLink<Props> & {
-  defaultProps: DefaultProps;
   elements: Elements;
 };

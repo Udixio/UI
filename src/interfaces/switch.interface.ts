@@ -10,6 +10,5 @@ export interface SwitchInterface {
     onChange?: (checked: boolean) => void;
   };
   states: { isSelected: boolean };
-  defaultProps: {};
   elements: ['switch', 'handleContainer', 'icon', 'handleStateLayer', 'handle'];
 }

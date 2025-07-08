@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 import { SliderInterface } from '../interfaces/slider.interface';
 import { sliderStyle } from '../styles/slider.style';
 import { classNames } from '../utils';

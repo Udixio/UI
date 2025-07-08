@@ -1,6 +1,6 @@
 export interface DividerInterface {
   type: 'hr';
-  defaultProps: {
+  props: {
     orientation?: 'vertical' | 'horizontal';
   };
   elements: ['divider'];

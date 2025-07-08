@@ -6,17 +6,16 @@ export interface SliderInterface {
     name: string;
     onChange?: (value: number) => void;
     valueFormatter?: (value: number) => string | number;
-  };
-  states: {};
-  defaultProps: {
-    step: number;
-    min: number;
-    max: number;
+
+    step?: number;
+    min?: number;
+    max?: number;
     marks?: {
       value: number;
       label?: string;
     }[];
   };
+  states: {};
   elements: [
     'slider',
     'activeTrack',

@@ -18,18 +18,14 @@ export type TabProps = {
   ) => void;
   index?: number;
   scrollable?: boolean;
-};
 
-type DefaultProps = {
-  variant: 'filled' | 'elevated' | 'outlined' | 'text' | 'filledTonal';
-  disabled: boolean;
-  iconPosition: 'left' | 'right';
-  loading: boolean;
+  disabled?: boolean;
+  iconPosition?: 'left' | 'right';
+  loading?: boolean;
 };
 
 type Elements = ['tab', 'stateLayer', 'icon', 'label', 'content', 'underline'];
 
 export type TabInterface = ActionOrLink<TabProps> & {
-  defaultProps: DefaultProps;
   elements: Elements;
 };

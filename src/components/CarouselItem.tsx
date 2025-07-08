@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { CarouselItemInterface } from '../interfaces/carousel-item.interface';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { carouselItemStyle } from '../styles/carousel-item.style';
 import { ReactProps } from '../utils/component';
 

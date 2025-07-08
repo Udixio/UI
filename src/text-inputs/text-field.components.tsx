@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Icon } from '../icon';
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { v4 as uuidv4 } from 'uuid';
 
 import TextareaAutosize from 'react-textarea-autosize';

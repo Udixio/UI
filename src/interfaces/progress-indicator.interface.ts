@@ -19,9 +19,7 @@ export interface ProgressIndicatorInterface {
      * The duration of the transition animation in milliseconds.
      */
     transitionDuration?: number;
-  };
-  states: { isVisible: boolean };
-  defaultProps: {
+
     /**
      * The variant of the ProgressIndicator.
      */
@@ -29,7 +27,9 @@ export interface ProgressIndicatorInterface {
     /**
      * The minimum height of the line used to draw the linear indicator.
      */
-    minHeight: number;
+    minHeight?: number;
   };
+  states: { isVisible: boolean };
+
   elements: ['progressIndicator', 'stop', 'activeIndicator', 'track'];
 }

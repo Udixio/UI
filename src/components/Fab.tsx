@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { Icon } from '../icon';
 
 import { RippleEffect } from '../effects/ripple';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'motion/react';
 import { FabInterface } from '../interfaces/fab.interface';
 import { fabStyle } from '../styles/fab.style';
 import { classNames } from '../utils';

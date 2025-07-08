@@ -68,7 +68,7 @@
     "@udixio/tailwind-material": "^1.0.0-beta.16",
     "@udixio/theme": "^1.0.0-beta.28",
     "color": "^4.2.3",
-    "framer-motion": "^12.0.1",
+    "motion": "^12.23.0",
     "lodash": "^4.17.21",
     "next": "^15.1.3",
     "postcss": "^8.4.49",

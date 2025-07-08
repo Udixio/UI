@@ -7,13 +7,11 @@ type Props = {
   icon: IconDefinition;
   iconSelected?: IconDefinition;
   onToggle?: (isActive: boolean) => void;
+  variant?: IconButtonVariant;
+  disabled?: boolean;
+  activated?: boolean;
 };
 
-type DefaultProps = {
-  variant: IconButtonVariant;
-  disabled: boolean;
-  activated: boolean;
-};
 export type IconButtonStates = {
   isActive: boolean;
 };
@@ -21,6 +19,5 @@ type Elements = ['button', 'stateLayer', 'icon'];
 
 export type IconButtonInterface = ActionOrLink<Props> & {
   states: IconButtonStates;
-  defaultProps: DefaultProps;
   elements: Elements;
 };
