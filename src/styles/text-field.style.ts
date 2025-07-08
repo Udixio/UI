@@ -1,17 +1,10 @@
 import React from 'react';
-
-import {
-  TextFieldBaseProps,
-  TextFieldElements,
-  TextFieldStates,
-} from './text-field.interface';
 import { classNames, defaultClassNames } from '../utils';
+import { TextFieldInterface } from '../interfaces/text-field.interface';
 
-export const textFieldStyle = defaultClassNames<
-  TextFieldBaseProps & TextFieldStates,
-  TextFieldElements
->({
-  defaultClassName: ({
+export const textFieldStyle = defaultClassNames<TextFieldInterface>(
+  'textField',
+  ({
     disabled,
     leadingIcon,
     trailingIcon,
@@ -106,6 +99,5 @@ export const textFieldStyle = defaultClassNames<
       variant == 'filled' && ' pb-2 pt-6',
       variant == 'outlined' && 'py-4 relative z-10'
     ),
-  }),
-  default: 'textField',
-});
+  })
+);

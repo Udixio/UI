@@ -5,9 +5,10 @@ import { motion } from 'motion/react';
 import { v4 as uuidv4 } from 'uuid';
 
 import TextareaAutosize from 'react-textarea-autosize';
-import { TextFieldProps } from './text-field.interface';
-import { textFieldStyle } from './text-field.style';
+import { textFieldStyle } from '../styles/text-field.style';
 import { classNames } from '../utils';
+import { ReactProps } from '../utils/component';
+import { TextFieldInterface } from '../interfaces/text-field.interface';
 
 export const TextField = ({
   variant = 'filled',
@@ -28,7 +29,7 @@ export const TextField = ({
   value: defaultValue,
   showSupportingText: defaultShowSupportingText = false,
   ...restProps
-}: TextFieldProps) => {
+}: ReactProps<TextFieldInterface>) => {
   const [value, setValue] = useState(defaultValue ?? '');
   const [isFocused, setIsFocused] = useState(false);
   const [showErrorIcon, setShowErrorIcon] = useState(false);

@@ -1,11 +1,10 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import React from 'react';
-import { IconButton } from '../components/action/icon-button';
-import { ComponentProps } from '../utils';
+import { IconButton } from '../components/IconButton';
 
 export type TextFieldVariant = 'filled' | 'outlined';
 
-export type TextFieldBaseProps = {
+export type Props = {
   placeholder?: string;
   name: string;
   label: string;
@@ -29,27 +28,21 @@ export type TextFieldStates = {
   showErrorIcon: boolean;
   showSupportingText: boolean;
 };
-export type TextFieldElements =
-  | 'textField'
-  | 'content'
-  | 'label'
-  | 'input'
-  | 'activeIndicator'
-  | 'supportingText'
-  | 'leadingIcon'
-  | 'trailingIcon'
-  | 'suffix'
-  | 'stateLayer';
 
-export type TextFieldElementType = 'div';
-
-export type TextFieldProps = Omit<
-  ComponentProps<
-    TextFieldBaseProps,
-    TextFieldStates,
-    TextFieldElements,
-    TextFieldElementType
-  >,
-  'onChange'
-> &
-  TextFieldBaseProps;
+export interface TextFieldInterface {
+  type: 'div';
+  props: Props;
+  states: TextFieldStates;
+  elements: [
+    'textField',
+    'content',
+    'label',
+    'input',
+    'activeIndicator',
+    'supportingText',
+    'leadingIcon',
+    'trailingIcon',
+    'suffix',
+    'stateLayer',
+  ];
+}
