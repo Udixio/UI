@@ -1,20 +1,13 @@
 import { ReactNode } from 'react';
-import { MotionComponentProps } from '../utils';
+import { Component } from '../utils/component';
 
-export type ItemBaseProps = {
-  children?: ReactNode | undefined;
-  width?: number;
-  index?: number;
-};
-export type ItemStates = {};
-
-export type ItemElements = 'item';
-export type ItemElementType = 'div';
-
-export type ItemProps = ItemBaseProps &
-  MotionComponentProps<
-    ItemBaseProps,
-    ItemStates,
-    ItemElements,
-    ItemElementType
-  >;
+export type ItemInterface = Component<{
+  type: 'div';
+  props: { children?: ReactNode | undefined };
+  states: {};
+  defaultProps: {
+    width?: number;
+    index?: number;
+  };
+  elements: ['item'];
+}>;

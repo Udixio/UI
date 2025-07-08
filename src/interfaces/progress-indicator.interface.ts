@@ -1,4 +1,4 @@
-import { ComponentProps } from '../utils';
+import { Component } from '../utils/component';
 
 /**
  * Type for the different variants of the ProgressIndicator component.
@@ -9,41 +9,32 @@ export type ProgressIndicatorVariant =
   | 'circular-determinate'
   | 'circular-indeterminate';
 
-export type ProgressIndicatorBaseProps = {
-  /**
-   * The variant of the ProgressIndicator.
-   */
-  variant?: ProgressIndicatorVariant;
+export type DividerInterface = Component<{
+  type: 'div';
+  props: {
+    /**
+     * The variant of the ProgressIndicator.
+     */
+    variant?: ProgressIndicatorVariant;
 
-  /**
-   * The minimum height of the line used to draw the linear indicator.
-   */
-  minHeight?: number;
+    /**
+     * The minimum height of the line used to draw the linear indicator.
+     */
+    minHeight?: number;
 
-  /**
-   * The percentage of the progress completed.
-   */
-  value?: number;
+    /**
+     * The percentage of the progress completed.
+     */
+    value?: number;
 
-  /**
-   * The duration of the transition animation in milliseconds.
-   */
-  transitionDuration?: number;
-};
-export type ProgressIndicatorStates = {
-  isVisible: boolean;
-};
-export type ProgressIndicatorElements =
-  | 'progressIndicator'
-  | 'stop'
-  | 'activeIndicator'
-  | 'track';
-export type ProgressIndicatorElementType = 'div';
-
-export type ProgressIndicatorProps = ProgressIndicatorBaseProps &
-  ComponentProps<
-    ProgressIndicatorBaseProps,
-    ProgressIndicatorStates,
-    ProgressIndicatorElements,
-    ProgressIndicatorElementType
-  >;
+    /**
+     * The duration of the transition animation in milliseconds.
+     */
+    transitionDuration?: number;
+  };
+  states: { isVisible: boolean };
+  defaultProps: {
+    orientation?: 'vertical' | 'horizontal';
+  };
+  elements: ['progressIndicator', 'stop', 'activeIndicator', 'track'];
+}>;

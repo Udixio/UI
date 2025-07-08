@@ -1,27 +1,14 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { MotionComponentProps } from '../utils';
+import { Component } from '../utils/component';
 
-export type SnackbarBaseProps = {
-  closeIcon?: IconDefinition;
-  duration?: number;
-  onClose?: () => void;
-  supportingText: string;
-};
-export type SnackbarStates = {
-  isVisible: boolean;
-};
-export type SnackbarElements =
-  | 'snackbar'
-  | 'container'
-  | 'supportingText'
-  | 'action'
-  | 'icon';
-export type SnackbarElementType = 'div';
-
-export type SnackbarProps = SnackbarBaseProps &
-  MotionComponentProps<
-    SnackbarBaseProps,
-    SnackbarStates,
-    SnackbarElements,
-    SnackbarElementType
-  >;
+export type SnackbarInterface = Component<{
+  type: 'div';
+  props: {
+    duration?: number;
+    onClose?: () => void;
+    supportingText: string;
+  };
+  states: { isVisible: boolean };
+  defaultProps: { closeIcon: IconDefinition };
+  elements: ['snackbar', 'container', 'supportingText', 'action', 'icon'];
+}>;

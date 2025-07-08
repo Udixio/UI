@@ -1,32 +1,16 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { MotionComponentProps } from '../utils';
+import { Component } from '../utils/component';
 
-export type SwitchBaseProps = {
-  selected: boolean;
-  activeIcon?: IconDefinition;
-  inactiveIcon?: IconDefinition;
-  disabled?: boolean;
-  onChange?: (checked: boolean) => void;
-};
-export type SwitchStates = {
-  isSelected: boolean;
-};
-export type SwitchElements =
-  | 'switch'
-  | 'handleContainer'
-  | 'icon'
-  | 'handleStateLayer'
-  | 'handle';
-
-export type SwitchElementType = 'div';
-
-export type SwitchProps = Omit<
-  MotionComponentProps<
-    SwitchBaseProps,
-    SwitchStates,
-    SwitchElements,
-    SwitchElementType
-  >,
-  'onChange'
-> &
-  SwitchBaseProps;
+export type SwitchInterface = Component<{
+  type: 'div';
+  props: {
+    selected?: boolean;
+    activeIcon?: IconDefinition;
+    inactiveIcon?: IconDefinition;
+    disabled?: boolean;
+    onChange?: (checked: boolean) => void;
+  };
+  states: { isSelected: boolean };
+  defaultProps: {};
+  elements: ['switch', 'handleContainer', 'icon', 'handleStateLayer', 'handle'];
+}>;

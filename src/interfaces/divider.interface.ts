@@ -1,16 +1,11 @@
-import { ComponentProps } from '../utils';
+import { Component } from '../utils/component';
 
-export type DividerBaseProps = {
-  orientation?: 'vertical' | 'horizontal';
-};
-export type DividerStates = {};
-export type DividerElements = 'divider';
-export type DividerElementType = 'hr';
-
-export type DividerProps = DividerBaseProps &
-  ComponentProps<
-    DividerBaseProps,
-    DividerStates,
-    DividerElements,
-    DividerElementType
-  >;
+export type DividerInterface = Component<{
+  type: 'hr';
+  props: {};
+  states: {};
+  defaultProps: {
+    orientation?: 'vertical' | 'horizontal';
+  };
+  elements: ['divider'];
+}>;

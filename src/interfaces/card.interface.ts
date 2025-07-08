@@ -1,12 +1,12 @@
-import { ComponentProps } from '../utils';
+import { Component } from '../utils/component';
 
-export type CardBaseProps = {
-  variant?: 'outlined' | 'elevated' | 'filled';
-  isInteractive?: boolean;
-};
-export type CardStates = {};
-export type CardElements = 'card' | 'stateLayer';
-export type CardElementType = 'div';
-
-export type CardProps = CardBaseProps &
-  ComponentProps<CardBaseProps, CardStates, CardElements, CardElementType>;
+export type CardInterface = Component<{
+  type: 'div';
+  props: {};
+  states: {};
+  defaultProps: {
+    variant?: 'outlined' | 'elevated' | 'filled';
+    isInteractive?: boolean;
+  };
+  elements: ['card', 'stateLayer'];
+}>;
