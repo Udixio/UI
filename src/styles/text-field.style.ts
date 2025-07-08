@@ -1,6 +1,7 @@
 import React from 'react';
-import { classNames, defaultClassNames } from '../utils';
+import { classNames } from '../utils';
 import { TextFieldInterface } from '../interfaces/text-field.interface';
+import { defaultClassNames } from '../utils/styles/get-classname';
 
 export const textFieldStyle = defaultClassNames<TextFieldInterface>(
   'textField',

@@ -1,5 +1,5 @@
 import { StyleProps } from './styles';
-import { Component } from './component';
+import { ComponentInterface } from './component';
 
 export interface HTMLElements {
   a: HTMLAnchorElement;
@@ -131,4 +131,4 @@ export interface HTMLElements {
 // > = ComponentProps<Props, States, Elements, ElementType> &
 //   Omit<HTMLMotionProps<ElementType>, 'ref' | 'className'>;
 
-export type ComponentClassName<T extends Component<any>> = StyleProps<T>;
+export type ComponentClassName<T extends ComponentInterface> = StyleProps<T>;

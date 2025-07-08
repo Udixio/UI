@@ -1,7 +1,6 @@
 import { ReactNode } from 'react';
-import { ComponentProps } from '../../utils';
 
-export type CustomScrollBaseProps = {
+type Props = {
   children: ReactNode;
   orientation?: 'vertical' | 'horizontal';
   scrollSize?: number;
@@ -14,19 +13,13 @@ export type CustomScrollBaseProps = {
   draggable?: boolean;
   throttleDuration?: number;
 };
-export type CustomScrollStates = {
+type CustomScrollStates = {
   isDragging: boolean;
 };
-export type CustomScrollElements = 'customScroll' | 'track';
-export type CustomScrollElementType = 'div';
 
-export type CustomScrollProps = CustomScrollBaseProps &
-  Omit<
-    ComponentProps<
-      CustomScrollBaseProps,
-      CustomScrollStates,
-      CustomScrollElements,
-      CustomScrollElementType
-    >,
-    'onScroll'
-  >;
+export interface CustomScrollInterface {
+  type: 'div';
+  props: Props;
+  states: CustomScrollStates;
+  elements: ['customScroll', 'track'];
+}

@@ -1,5 +1,6 @@
-import { classNames, defaultClassNames } from '../utils';
+import { classNames } from '../utils';
 import { TabInterface } from '../interfaces/tab.interface';
+import { defaultClassNames } from '../utils/styles/get-classname';
 
 export const tabStyle = defaultClassNames<TabInterface>(
   'tab',

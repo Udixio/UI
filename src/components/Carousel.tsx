@@ -3,7 +3,7 @@ import { CarouselInterface } from '../interfaces/carousel.interface';
 
 import { motion, motionValue, useTransform } from 'motion/react';
 
-import { carouselStyle } from '../styles/carousel-style';
+import { carouselStyle } from '../styles/carousel.style';
 import { CustomScroll } from '../effects';
 import { ReactProps } from '../utils/component';
 import { CarouselItemInterface } from '../interfaces/carousel-item.interface';

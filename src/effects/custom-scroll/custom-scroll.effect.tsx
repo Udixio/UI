@@ -1,8 +1,9 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motion, useMotionValueEvent, useScroll } from 'motion/react';
 import { throttle } from 'lodash';
-import { CustomScrollProps } from './custom-scroll.interface';
+import { CustomScrollInterface } from './custom-scroll.interface';
 import { customScrollStyle } from './custom-scroll.style';
+import { ReactProps } from '../../utils';
 
 export const CustomScroll = ({
   children,
@@ -12,7 +13,7 @@ export const CustomScroll = ({
   className,
   draggable = false,
   throttleDuration = 75,
-}: CustomScrollProps) => {
+}: ReactProps<CustomScrollInterface>) => {
   const ref = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
