@@ -1,15 +1,9 @@
 import { classNames, defaultClassNames } from '../utils';
-import {
-  SliderBaseProps,
-  SliderElements,
-  SliderStates,
-} from '../interfaces/slider.interface';
+import { SliderInterface } from '../interfaces/slider.interface';
 
-export const sliderStyle = defaultClassNames<
-  SliderBaseProps & SliderStates,
-  SliderElements
->({
-  defaultClassName: ({ value, isChanging }) => ({
+export const sliderStyle = defaultClassNames<SliderInterface>(
+  'slider',
+  ({ isChanging }) => ({
     slider: classNames([
       'relative w-full h-11 flex items-center rounded gap-x-1.5 cursor-pointer',
     ]),
@@ -29,6 +23,5 @@ export const sliderStyle = defaultClassNames<
     dot: classNames([
       'h-1 w-1 absolute transform -translate-y-1/2 -translate-x-1/2 top-1/2 rounded-full',
     ]),
-  }),
-  default: 'slider',
-});
+  })
+);

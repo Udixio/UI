@@ -1,15 +1,9 @@
 import { classNames, defaultClassNames } from '../utils';
-import {
-  TabBaseProps,
-  TabElements,
-  TabStates,
-} from '../interfaces/tab.interface';
+import { TabInterface } from '../interfaces/tab.interface';
 
-export const tabStyle = defaultClassNames<
-  TabBaseProps & TabStates,
-  TabElements
->({
-  defaultClassName: ({ isSelected, icon, label, variant }) => ({
+export const tabStyle = defaultClassNames<TabInterface>(
+  'tab',
+  ({ isSelected, icon, label, variant }) => ({
     tab: classNames(
       'bg-surface flex-1 group outline-none flex px-4 justify-center items-center',
       { 'z-10': isSelected },
@@ -69,6 +63,5 @@ export const tabStyle = defaultClassNames<
       variant === 'primary' && 'h-[3px] rounded-t',
       variant === 'secondary' && 'h-0.5'
     ),
-  }),
-  default: 'tab',
-});
+  })
+);

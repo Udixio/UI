@@ -1,15 +1,9 @@
 import { classNames, defaultClassNames } from '../utils';
-import {
-  SwitchBaseProps,
-  SwitchElements,
-  SwitchStates,
-} from '../interfaces/switch.interface';
+import { SwitchInterface } from '../interfaces/switch.interface';
 
-export const switchStyle = defaultClassNames<
-  SwitchBaseProps & SwitchStates,
-  SwitchElements
->({
-  defaultClassName: ({ isSelected, disabled, inactiveIcon }) => ({
+export const switchStyle = defaultClassNames<SwitchInterface>(
+  'switch',
+  ({ isSelected, disabled, inactiveIcon }) => ({
     switch: classNames(
       'group w-[52px] h-[32px] outline-none rounded-full  border-2 flex items-center',
 
@@ -53,6 +47,5 @@ export const switchStyle = defaultClassNames<
 
       { 'text-on-surface/[0.38]': disabled }
     ),
-  }),
-  default: 'switch',
-});
+  })
+);

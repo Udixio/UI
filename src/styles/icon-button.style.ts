@@ -1,15 +1,9 @@
-import {
-  IconButtonBaseProps,
-  IconButtonElements,
-  IconButtonStates,
-} from '../interfaces/icon-button.interface';
+import { IconButtonInterface } from '../interfaces/icon-button.interface';
 import { classNames, defaultClassNames } from '../utils';
 
-export const iconButtonStyle = defaultClassNames<
-  IconButtonBaseProps & IconButtonStates,
-  IconButtonElements
->({
-  defaultClassName: ({ variant, disabled, onToggle, isActive }) => {
+export const iconButtonStyle = defaultClassNames<IconButtonInterface>(
+  'button',
+  ({ variant, disabled, onToggle, isActive }) => {
     return {
       button: classNames(
         'rounded-full overflow-hidden transition-all duration-300',
@@ -83,6 +77,5 @@ export const iconButtonStyle = defaultClassNames<
         Boolean(disabled) && 'text-on-surface/[0.38]'
       ),
     };
-  },
-  default: 'button',
-});
+  }
+);

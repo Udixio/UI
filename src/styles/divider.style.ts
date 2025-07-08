@@ -1,15 +1,9 @@
-import {
-  DividerBaseProps,
-  DividerElements,
-  DividerStates,
-} from '../interfaces/divider.interface';
+import { DividerInterface } from '../interfaces/divider.interface';
 import { classNames, defaultClassNames } from '../utils';
 
-export const dividerStyle = defaultClassNames<
-  DividerBaseProps & DividerStates,
-  DividerElements
->({
-  defaultClassName: ({ orientation }) => ({
+export const dividerStyle = defaultClassNames<DividerInterface>(
+  'divider',
+  ({ orientation }) => ({
     divider: classNames(
       'border-outline-variant ',
       {
@@ -19,6 +13,5 @@ export const dividerStyle = defaultClassNames<
         'h-auto self-stretch w-fit border-l': orientation === 'vertical',
       }
     ),
-  }),
-  default: 'divider',
-});
+  })
+);

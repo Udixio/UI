@@ -20,7 +20,7 @@ export type IconButtonStates = {
 type Elements = ['button', 'stateLayer', 'icon'];
 
 export type IconButtonInterface = ActionOrLink<Props> & {
-  states: {};
+  states: IconButtonStates;
   defaultProps: DefaultProps;
   elements: Elements;
 };

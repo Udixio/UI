@@ -7,7 +7,7 @@ export type ProgressIndicatorVariant =
   | 'circular-determinate'
   | 'circular-indeterminate';
 
-export interface DividerInterface {
+export interface ProgressIndicatorInterface {
   type: 'div';
   props: {
     /**

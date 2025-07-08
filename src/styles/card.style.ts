@@ -1,15 +1,9 @@
-import {
-  CardBaseProps,
-  CardElements,
-  CardStates,
-} from '../interfaces/card.interface';
+import { CardInterface } from '../interfaces/card.interface';
 import { classNames, defaultClassNames } from '../utils';
 
-export const cardStyle = defaultClassNames<
-  CardBaseProps & CardStates,
-  CardElements
->({
-  defaultClassName: ({ variant, isInteractive }) => ({
+export const cardStyle = defaultClassNames<CardInterface>(
+  'card',
+  ({ variant, isInteractive }) => ({
     card: classNames(
       'card group/card rounded-xl overflow-hidden z-10',
       variant === 'outlined' && 'bg-surface',
@@ -24,6 +18,5 @@ export const cardStyle = defaultClassNames<
           isInteractive,
       },
     ]),
-  }),
-  default: 'card',
-});
+  })
+);

@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 
-export interface ItemInterface {
+export interface CarouselItemInterface {
   type: 'div';
   props: { children?: ReactNode | undefined };
   defaultProps: {

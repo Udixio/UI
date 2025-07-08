@@ -1,6 +1,7 @@
 export interface SliderInterface {
   type: 'div';
   props: {
+    value: number;
     isChanging: boolean;
     name: string;
     onChange?: (value: number) => void;
