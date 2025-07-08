@@ -4,7 +4,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Icon } from '../icon';
 import { RippleEffect } from '../effects/ripple';
 import { tabStyle } from '../styles/tab.style';
-import { TabProps } from '../interfaces/tab.interface';
+import { TabInterface } from '../interfaces/tab.interface';
+import { ReactProps } from '../utils/component';
 
 export const Tab = ({
   className,
@@ -22,7 +23,7 @@ export const Tab = ({
   selected,
   ref,
   ...restProps
-}: TabProps) => {
+}: ReactProps<TabInterface>) => {
   const defaultRef = useRef(null);
   const resolvedRef = ref || defaultRef;
 

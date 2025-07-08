@@ -2,8 +2,9 @@ import React, { useRef, useState } from 'react';
 
 import { Icon } from '../icon';
 import { motion } from 'framer-motion';
-import { SwitchProps } from '../interfaces/switch.interface';
+import { SwitchInterface } from '../interfaces/switch.interface';
 import { switchStyle } from '../styles/switch.style';
+import { ReactProps } from '../utils/component';
 
 export const Switch = ({
   selected = false,
@@ -16,7 +17,7 @@ export const Switch = ({
   onKeyDown,
   ref,
   ...restProps
-}: SwitchProps) => {
+}: ReactProps<SwitchInterface>) => {
   const [isSelected, setIsSelected] = useState(selected);
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {

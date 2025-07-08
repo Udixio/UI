@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { ProgressIndicatorProps } from '../interfaces/progress-indicator.interface';
+import { ProgressIndicatorInterface, ProgressIndicatorProps } from '../interfaces/progress-indicator.interface';
 
 import { motion } from 'framer-motion';
 import { progressIndicatorStyle } from '../styles/progress-indicator.style';
+import { ReactProps } from '../utils/component';
 
 /**
  * The ProgressIndicator component provides visual feedback about operations that take an uncertain amount of time.
@@ -27,7 +28,7 @@ export const ProgressIndicator = ({
   transitionDuration = 1000,
   className,
   ...restProps
-}: ProgressIndicatorProps): any => {
+}: ReactProps<ProgressIndicatorInterface>): any => {
   const [completedPercentage, setCompletedPercentage] = useState(value);
 
   const [transitionRotate, setTransitionRotate] = useState(1.5);
@@ -84,6 +85,7 @@ export const ProgressIndicator = ({
     transitionDuration,
     isVisible,
     minHeight,
+    orientation,
   });
 
   return (

@@ -1,8 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { TabsProps } from '../interfaces/tabs.interface';
-import { Tab, TabProps } from './navigation/tabs/tab';
+import { TabsInterface } from '../interfaces/tabs.interface';
+
 import { tabsStyle } from '../styles/tabs.style';
+import { ReactProps } from '../utils/component';
+import { TabProps } from '../interfaces/tab.interface';
+import { Tab } from './Tab';
 
 export const Tabs = ({
   variant = 'primary',
@@ -12,7 +15,7 @@ export const Tabs = ({
   selectedTab: externalSelectedTab,
   setSelectedTab: externalSetSelectedTab,
   scrollable = false,
-}: TabsProps) => {
+}: ReactProps<TabsInterface>) => {
   const [internalSelectedTab, internalSetSelectedTab] = useState<number | null>(
     null
   );

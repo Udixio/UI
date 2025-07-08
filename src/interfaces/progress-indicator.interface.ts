@@ -11,16 +11,6 @@ export interface ProgressIndicatorInterface {
   type: 'div';
   props: {
     /**
-     * The variant of the ProgressIndicator.
-     */
-    variant?: ProgressIndicatorVariant;
-
-    /**
-     * The minimum height of the line used to draw the linear indicator.
-     */
-    minHeight?: number;
-
-    /**
      * The percentage of the progress completed.
      */
     value?: number;
@@ -32,7 +22,14 @@ export interface ProgressIndicatorInterface {
   };
   states: { isVisible: boolean };
   defaultProps: {
-    orientation?: 'vertical' | 'horizontal';
+    /**
+     * The variant of the ProgressIndicator.
+     */
+    variant?: ProgressIndicatorVariant;
+    /**
+     * The minimum height of the line used to draw the linear indicator.
+     */
+    minHeight: number;
   };
   elements: ['progressIndicator', 'stop', 'activeIndicator', 'track'];
 }

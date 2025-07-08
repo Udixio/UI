@@ -1,14 +1,13 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { CarouselProps } from '../interfaces/carousel.interface';
-import {
-  CarouselItem,
-  ItemProps,
-  normalize,
-} from './containment/carousel/item';
+import { CarouselInterface } from '../interfaces/carousel.interface';
+
 import { motion, motionValue, useTransform } from 'framer-motion';
 
 import { carouselStyle } from '../styles/carousel-style';
 import { CustomScroll } from '../effects';
+import { ReactProps } from '../utils/component';
+import { CarouselItemInterface } from '../interfaces/carousel-item.interface';
+import { CarouselItem, normalize } from './CarouselItem';
 
 export const Carousel = ({
   variant = 'hero',
@@ -22,7 +21,7 @@ export const Carousel = ({
   onChange,
   scrollSensitivity = 1.25,
   ...restProps
-}: CarouselProps) => {
+}: ReactProps<CarouselInterface>) => {
   const defaultRef = useRef(null);
   const ref = optionalRef || defaultRef;
 
@@ -112,12 +111,15 @@ export const Carousel = ({
   }
 
   const renderItems = items.map((child, index) => {
-    return React.cloneElement(child as React.ReactElement<ItemProps>, {
-      width: itemsWidth[index],
-      ref: itemRefs[index],
-      key: index,
-      index,
-    });
+    return React.cloneElement(
+      child as React.ReactElement<ReactProps<CarouselItemInterface>>,
+      {
+        width: itemsWidth[index],
+        ref: itemRefs[index],
+        key: index,
+        index,
+      }
+    );
   });
 
   const scrollProgress = motionValue(scroll?.scrollProgress ?? 0);

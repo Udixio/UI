@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import { SnackbarProps } from '../interfaces/snackbar.interface';
+import { SnackbarInterface } from '../interfaces/snackbar.interface';
 import { snackbarStyle } from '../styles/snackbar.style';
-import { IconButton } from '../../action/icon-button';
+
+import { ReactProps } from '../utils/component';
+import { IconButton } from './IconButton';
 
 export const Snackbar = ({
   supportingText,
@@ -12,7 +14,7 @@ export const Snackbar = ({
   closeIcon = faXmark,
   onClose,
   ...restProps
-}: SnackbarProps) => {
+}: ReactProps<SnackbarInterface>) => {
   const [isVisible, setIsVisible] = useState(true);
 
   const styles = snackbarStyle({

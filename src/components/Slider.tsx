@@ -1,7 +1,9 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { SliderProps } from '../interfaces/slider.interface';
+import { SliderInterface } from '../interfaces/slider.interface';
 import { sliderStyle } from '../styles/slider.style';
 import { classNames } from '../utils';
+import { ReactProps } from '../utils/component';
+import { useEffect, useRef, useState } from 'react';
 
 export const Slider = ({
   className,
@@ -24,7 +26,7 @@ export const Slider = ({
   ref,
   onChange,
   ...restProps
-}: SliderProps) => {
+}: ReactProps<SliderInterface>) => {
   const getPourcentFromValue = (value: number) => {
     const min = getMin();
     const max = getMax();

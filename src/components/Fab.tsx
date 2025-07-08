@@ -23,6 +23,7 @@ export const Fab = ({
   const ElementType = href ? 'a' : 'button';
 
   const styles = fabStyle({
+    href: href as any,
     icon,
     isExtended,
     label,

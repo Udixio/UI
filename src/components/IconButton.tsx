@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 
 import { Icon } from '../icon/icon';
-import { IconButtonProps } from '../interfaces/icon-button.interface';
+import { IconButtonInterface } from '../interfaces/icon-button.interface';
 import { iconButtonStyle } from '../styles/icon-button.style';
+import { ReactProps } from '../utils/component';
 
 export type IconButtonVariant = 'standard' | 'filled' | 'tonal' | 'outlined';
 
@@ -19,7 +20,7 @@ export const IconButton = ({
   iconSelected,
   className,
   ...restProps
-}: IconButtonProps) => {
+}: ReactProps<IconButtonInterface>) => {
   const [isActive, setIsActive] = React.useState(activated);
   let handleClick;
 
@@ -50,6 +51,7 @@ export const IconButton = ({
   const ElementType = href ? 'a' : 'button';
 
   const styles = iconButtonStyle({
+    href: href as any,
     activated,
     arialLabel,
     iconSelected,
