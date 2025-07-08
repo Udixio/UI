@@ -16,35 +16,44 @@ export type ClassNameComponent<T extends ComponentInterface> = (
 export const getClassNames = <T extends ComponentInterface>(args: {
   classNameList: (ClassNameComponent<T> | string | undefined)[];
   default: T['elements'][0];
-  states: T['states'];
+  states: StatesFromComponent<T>;
 }): Record<T['elements'][number], string> => {
-  let classNames: Partial<Record<T['elements'][number], string>> = {};
+  let classNames: Partial<Record<T['elements'][number], string[]>> = {};
   args.classNameList.forEach((classNameComponent) => {
     if (classNameComponent) {
       if (!classNames[args.default]) {
-        classNames[args.default] = 'relative';
+        classNames[args.default] = [];
       }
       if (typeof classNameComponent == 'string') {
-        classNames[args.default] = classnames(
-          classNames[args.default],
-          classNameComponent
-        );
+        classNames[args.default]!.push(classNameComponent);
       } else {
         const result = classNameComponent(args.states);
         Object.entries(result).map((argsElement) => {
-          const [key, value] = argsElement as [T['elements'], string];
-          if (!classNames[key]?.startsWith(key)) {
-            classNames[key] = classnames(key, classNames[key]);
-          }
-          classNames[key] = classnames(classNames[key], value);
+          const [key, value] = argsElement as [T['elements'][number], string];
+          classNames[key]!.push(value);
         });
       }
     }
   });
-  return classNames as Record<T['elements'][number], string>;
+  const result = classNames as unknown as Record<T['elements'][number], string>;
+
+  Object.entries(classNames).map((argsElement) => {
+    const [key, value] = argsElement as [T['elements'][number], string[]];
+
+    if (key == args.default) {
+      value.unshift('relative');
+    }
+    value.unshift(key);
+
+    result[key] = classnames(...value);
+  });
+
+  return result;
 };
 
-type StatesFromComponent<T extends ComponentInterface> = T['props'] &
+type StatesFromComponent<T extends ComponentInterface> = RequiredNullable<
+  T['props']
+> &
   RequiredNullable<T['defaultProps']> &
   T['states'];
 

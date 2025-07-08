@@ -22,6 +22,7 @@ export const Button = ({
   const ElementType = href ? 'a' : 'button';
 
   const styles = buttonStyle({
+    href,
     disabled,
     icon,
     iconPosition,
