@@ -1,19 +1,19 @@
-import { Component } from '../component';
+import { ComponentInterface } from '../component';
 import { classnames } from './classnames';
 
 type RequiredNullable<T> = {
   [K in keyof T]-?: any;
 };
 
-export interface StyleProps<T extends Component<any>> {
+export interface StyleProps<T extends ComponentInterface> {
   className?: string | ClassNameComponent<T>;
 }
 
-export type ClassNameComponent<T extends Component<any>> = (
+export type ClassNameComponent<T extends ComponentInterface> = (
   states: StatesFromComponent<T>
-) => Partial<Record<T['elements'], string>>;
+) => Partial<Record<T['elements'][number], string>>;
 
-export const getClassNames = <T extends Component<any>>(args: {
+export const getClassNames = <T extends ComponentInterface>(args: {
   classNameList: (ClassNameComponent<T> | string | undefined)[];
   default: T['elements'][0];
   states: T['states'];
@@ -44,11 +44,11 @@ export const getClassNames = <T extends Component<any>>(args: {
   return classNames as Record<T['elements'][number], string>;
 };
 
-type StatesFromComponent<T extends Component<any>> = T['props'] &
+type StatesFromComponent<T extends ComponentInterface> = T['props'] &
   RequiredNullable<T['defaultProps']> &
   T['states'];
 
-export const defaultClassNames = <T extends Component<any>>(args: {
+export const defaultClassNames = <T extends ComponentInterface>(args: {
   defaultClassName: ClassNameComponent<T> | string | undefined;
   default: T['elements'][0];
 }) => {

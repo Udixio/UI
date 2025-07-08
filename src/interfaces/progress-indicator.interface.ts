@@ -1,5 +1,3 @@
-import { Component } from '../utils/component';
-
 /**
  * Type for the different variants of the ProgressIndicator component.
  */
@@ -9,7 +7,7 @@ export type ProgressIndicatorVariant =
   | 'circular-determinate'
   | 'circular-indeterminate';
 
-export type DividerInterface = Component<{
+export interface DividerInterface {
   type: 'div';
   props: {
     /**
@@ -37,4 +35,4 @@ export type DividerInterface = Component<{
     orientation?: 'vertical' | 'horizontal';
   };
   elements: ['progressIndicator', 'stop', 'activeIndicator', 'track'];
-}>;
+}

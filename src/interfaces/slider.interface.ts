@@ -1,10 +1,7 @@
-import { Component } from '../utils/component';
-
-export type SliderInterface = Component<{
+export interface SliderInterface {
   type: 'div';
   props: {
     isChanging: boolean;
-
     name: string;
     onChange?: (value: number) => void;
     valueFormatter?: (value: number) => string | number;
@@ -27,4 +24,4 @@ export type SliderInterface = Component<{
     'valueIndicator',
     'dot',
   ];
-}>;
+}

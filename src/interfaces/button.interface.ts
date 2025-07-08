@@ -1,5 +1,5 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { Component } from '../utils/component';
+import { ActionOrLink } from '../utils/component';
 
 export type ButtonVariant =
   | 'filled'
@@ -43,18 +43,7 @@ type DefaultProps = {
 
 type Elements = ['button', 'stateLayer', 'icon', 'label'];
 
-export type ButtonInterface =
-  | Component<{
-      type: 'a';
-      props: Props & { href: string };
-      states: {};
-      defaultProps: DefaultProps;
-      elements: Elements;
-    }>
-  | Component<{
-      type: 'button';
-      props: Props & { href?: never };
-      states: {};
-      defaultProps: DefaultProps;
-      elements: Elements;
-    }>;
+export type ButtonInterface = ActionOrLink<Props> & {
+  defaultProps: DefaultProps;
+  elements: Elements;
+};

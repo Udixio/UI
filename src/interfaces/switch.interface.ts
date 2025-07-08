@@ -1,7 +1,6 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { Component } from '../utils/component';
 
-export type SwitchInterface = Component<{
+export interface SwitchInterface {
   type: 'div';
   props: {
     selected?: boolean;
@@ -13,4 +12,4 @@ export type SwitchInterface = Component<{
   states: { isSelected: boolean };
   defaultProps: {};
   elements: ['switch', 'handleContainer', 'icon', 'handleStateLayer', 'handle'];
-}>;
+}

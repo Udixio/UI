@@ -1,4 +1,4 @@
-import { Component } from '../utils/component';
+import { ActionOrLink } from '../utils/component';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { TabsVariant } from './tabs.interface';
 import { Dispatch, RefObject, SetStateAction } from 'react';
@@ -12,7 +12,7 @@ export type TabProps = {
   setSelectedTab?: Dispatch<SetStateAction<number | null>>;
   tabsId?: string;
   onTabSelected?: (
-    args: { index: number } & Pick<Props, 'label' | 'icon'> & {
+    args: { index: number } & Pick<TabProps, 'label' | 'icon'> & {
         ref: RefObject<any>;
       }
   ) => void;
@@ -29,18 +29,7 @@ type DefaultProps = {
 
 type Elements = ['tab', 'stateLayer', 'icon', 'label', 'content', 'underline'];
 
-export type TabInterface =
-  | Component<{
-      type: 'a';
-      props: Props & { href: string };
-      states: {};
-      defaultProps: DefaultProps;
-      elements: Elements;
-    }>
-  | Component<{
-      type: 'button';
-      props: Props & { href?: never };
-      states: {};
-      defaultProps: DefaultProps;
-      elements: Elements;
-    }>;
+export type TabInterface = ActionOrLink<TabProps> & {
+  defaultProps: DefaultProps;
+  elements: Elements;
+};

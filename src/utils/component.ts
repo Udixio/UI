@@ -2,7 +2,7 @@ import { JSX } from 'react/jsx-runtime';
 import React from 'react';
 import { ComponentClassName, HTMLElements } from './component-helper';
 
-export type ReactProps<T extends Component<any>> = Omit<
+export type ReactProps<T extends ComponentInterface> = Omit<
   JSX.IntrinsicElements[T['type']],
   'className'
 > &
@@ -11,18 +11,22 @@ export type ReactProps<T extends Component<any>> = Omit<
   } & Partial<T['defaultProps']> &
   T['props'];
 
-export interface Component<
-  Config extends {
-    type: keyof HTMLElements;
-    props: unknown;
-    states: unknown;
-    defaultProps: unknown;
-    elements: string[];
-  },
-> {
-  props: Config['props'];
-  states: Config['states'];
-  type: Config['type'];
-  elements: Config['elements'];
-  defaultProps: Config['defaultProps'];
+export interface LinkInterface<Props> {
+  type: 'a';
+  props: Props & { href: string };
+}
+
+export interface ActionInterface<Props> {
+  type: 'button';
+  props: Props & { href?: never };
+}
+
+export type ActionOrLink<Props> = LinkInterface<Props> | ActionInterface<Props>;
+
+export interface ComponentInterface {
+  type: keyof HTMLElements;
+  props?: object;
+  states?: object;
+  defaultProps?: object;
+  elements: string[];
 }

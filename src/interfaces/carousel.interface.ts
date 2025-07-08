@@ -1,14 +1,12 @@
-import { Component } from '../utils/component';
 import { ReactNode } from 'react';
 
-export type CarouselInterface = Component<{
+export interface CarouselInterface {
   type: 'div';
   props: {
     children?: ReactNode;
     marginPourcent?: number;
     onChange?: (index: number) => void;
   };
-  states: {};
   defaultProps: {
     variant?:
       | 'hero'
@@ -22,4 +20,4 @@ export type CarouselInterface = Component<{
     outputRange?: [number, number];
   };
   elements: ['carousel', 'track'];
-}>;
+}

@@ -1,11 +1,7 @@
-import { Component } from '../utils/component';
-
-export type DividerInterface = Component<{
+export interface DividerInterface {
   type: 'hr';
-  props: {};
-  states: {};
   defaultProps: {
     orientation?: 'vertical' | 'horizontal';
   };
   elements: ['divider'];
-}>;
+}

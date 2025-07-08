@@ -1,7 +1,6 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { Component } from '../utils/component';
 
-export type SnackbarInterface = Component<{
+export interface SnackbarInterface {
   type: 'div';
   props: {
     duration?: number;
@@ -11,4 +10,4 @@ export type SnackbarInterface = Component<{
   states: { isVisible: boolean };
   defaultProps: { closeIcon: IconDefinition };
   elements: ['snackbar', 'container', 'supportingText', 'action', 'icon'];
-}>;
+}

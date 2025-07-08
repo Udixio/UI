@@ -1,10 +1,9 @@
-import { Component } from '../utils/component';
 import { TabProps } from './tab.interface';
 import { Dispatch, ReactNode, RefObject, SetStateAction } from 'react';
 
 export type TabsVariant = 'primary' | 'secondary';
 
-export type TabsInterface = Component<{
+export interface TabsInterface {
   type: 'div';
   props: {
     variant?: TabsVariant;
@@ -21,4 +20,4 @@ export type TabsInterface = Component<{
   states: {};
   defaultProps: {};
   elements: ['tabs'];
-}>;
+}
