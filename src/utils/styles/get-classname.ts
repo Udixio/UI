@@ -30,6 +30,9 @@ export const getClassNames = <T extends ComponentInterface>(args: {
         const result = classNameComponent(args.states);
         Object.entries(result).map((argsElement) => {
           const [key, value] = argsElement as [T['elements'][number], string];
+          if (!classNames[key]) {
+            classNames[key] = [];
+          }
           classNames[key]!.push(value);
         });
       }
@@ -53,13 +56,13 @@ export const getClassNames = <T extends ComponentInterface>(args: {
 
 export const defaultClassNames = <T extends ComponentInterface>(
   element: T['elements'][0],
-  defaultClassName: ClassNameComponent<T> | string | undefined
+  defaultClassName: ClassNameComponent<T> | string
 ) => {
   return (
     states: RequiredNullable<T['props']> &
       T['props'] &
       T['states'] & {
-        className: ClassNameComponent<T> | string | undefined;
+        className: ClassNameComponent<T> | string;
       }
   ) =>
     getClassNames({
