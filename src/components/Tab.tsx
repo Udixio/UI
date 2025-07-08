@@ -72,6 +72,7 @@ export const Tab = ({
     label,
     isSelected,
     setSelectedTab,
+    href: href as any,
   });
 
   return (

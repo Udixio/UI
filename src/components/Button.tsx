@@ -4,6 +4,7 @@ import { ButtonInterface } from '../interfaces/button.interface';
 import { buttonStyle } from '../styles/button.style';
 import { Icon } from '../icon';
 import { ProgressIndicator } from './ProgressIndicator';
+import { MouseEvent } from 'react';
 
 /**
  * The Button component is a versatile component that can be used to trigger actions or to navigate to different sections of the application
@@ -45,7 +46,7 @@ export const Button = ({
       href={href}
       className={styles.button}
       {...(restProps as any)}
-      onClick={(e: React.MouseEvent<any, MouseEvent>) => {
+      onClick={(e: MouseEvent<any, MouseEvent>) => {
         if (!disabled) {
           if (onClick) {
             onClick(e);

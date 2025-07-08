@@ -1,26 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { ProgressIndicatorInterface, ProgressIndicatorProps } from '../interfaces/progress-indicator.interface';
+import { ProgressIndicatorInterface } from '../interfaces/progress-indicator.interface';
 
 import { motion } from 'motion/react';
 import { progressIndicatorStyle } from '../styles/progress-indicator.style';
 import { ReactProps } from '../utils/component';
 
-/**
- * The ProgressIndicator component provides visual feedback about operations that take an uncertain amount of time.
- * It includes four variants, linear-determinate, linear-indeterminate, circular-determinate, and circular-indeterminate.
- *
- * @component
- *
- * @param {ProgressIndicatorProps} {
- *   variant = 'linear-determinate',
- *   minHeight = 4,
- *   value = 0,
- *   transitionDuration = 1000,
- *   className,
- * } - ProgressIndicatorProps include variant, minHeight, value, transitionDuration, className
- *
- * @return {*}
- */
 export const ProgressIndicator = ({
   variant = 'linear-determinate',
   minHeight = 4,
@@ -85,7 +69,6 @@ export const ProgressIndicator = ({
     transitionDuration,
     isVisible,
     minHeight,
-    orientation,
   });
 
   return (

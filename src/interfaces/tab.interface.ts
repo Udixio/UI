@@ -18,14 +18,13 @@ export type TabProps = {
   ) => void;
   index?: number;
   scrollable?: boolean;
-
-  disabled?: boolean;
-  iconPosition?: 'left' | 'right';
-  loading?: boolean;
 };
 
 type Elements = ['tab', 'stateLayer', 'icon', 'label', 'content', 'underline'];
 
 export type TabInterface = ActionOrLink<TabProps> & {
+  states: {
+    isSelected: boolean;
+  };
   elements: Elements;
 };
