@@ -3,6 +3,7 @@ import { ReactProps } from '../utils/component';
 import { ButtonInterface } from '../interfaces/button.interface';
 import { buttonStyle } from '../styles/button.style';
 import { Icon } from '../icon';
+import { ProgressIndicator } from './ProgressIndicator';
 
 /**
  * The Button component is a versatile component that can be used to trigger actions or to navigate to different sections of the application
@@ -22,7 +23,7 @@ export const Button = ({
   const ElementType = href ? 'a' : 'button';
 
   const styles = buttonStyle({
-    href,
+    href: href as any,
     disabled,
     icon,
     iconPosition,

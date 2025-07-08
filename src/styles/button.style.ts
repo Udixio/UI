@@ -1,8 +1,9 @@
 import { classNames, defaultClassNames } from '../utils';
 import { ButtonInterface } from '../interfaces/button.interface';
 
-export const buttonStyle = defaultClassNames<ButtonInterface>({
-  defaultClassName: ({ variant, disabled, iconPosition, icon, loading }) => ({
+export const buttonStyle = defaultClassNames<ButtonInterface>(
+  'button',
+  ({ variant, disabled, iconPosition, icon, loading }) => ({
     button: classNames(
       'button group relative outline-none py-2.5 overflow-hidden rounded-full inline-block flex gap-2 justify-center rounded-full  items-center  ',
       variant === 'elevated' && {
@@ -107,7 +108,5 @@ export const buttonStyle = defaultClassNames<ButtonInterface>({
         'text-on-surface/[0.38]': disabled,
       }
     ),
-  }),
-
-  default: 'button',
-});
+  })
+);

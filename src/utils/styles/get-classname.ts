@@ -51,24 +51,23 @@ export const getClassNames = <T extends ComponentInterface>(args: {
   return result;
 };
 
-type StatesFromComponent<T extends ComponentInterface> = RequiredNullable<
-  T['props']
-> &
-  RequiredNullable<T['defaultProps']> &
+type StatesFromComponent<T extends ComponentInterface> = T['props'] &
+  T['defaultProps'] &
   T['states'];
 
-export const defaultClassNames = <T extends ComponentInterface>(args: {
-  defaultClassName: ClassNameComponent<T> | string | undefined;
-  default: T['elements'][0];
-}) => {
+export const defaultClassNames = <T extends ComponentInterface>(
+  element: T['elements'][0],
+  defaultClassName: ClassNameComponent<T> | string | undefined
+) => {
   return (
-    states: StatesFromComponent<T> & {
-      className: ClassNameComponent<T> | string | undefined;
-    }
+    states: RequiredNullable<StatesFromComponent<T>> &
+      StatesFromComponent<T> & {
+        className: ClassNameComponent<T> | string | undefined;
+      }
   ) =>
     getClassNames({
-      ...args,
-      classNameList: [states.className, args.defaultClassName],
-      states: states,
+      classNameList: [states.className, defaultClassName],
+      default: element,
+      states,
     });
 };
