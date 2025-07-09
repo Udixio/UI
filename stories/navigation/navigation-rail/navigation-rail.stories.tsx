@@ -1,24 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
-import {
-  faCircleUser,
-  faHeart,
-  faMagnifyingGlass,
-  faMessage,
-  faPlane,
-} from '@fortawesome/free-solid-svg-icons';
-import {
-  ReactProps,
-  Tab,
-  Tabs,
-  TabsInterface,
-  TabsVariant,
-} from '../../../src';
+import { faCircleUser as fasCircleUser } from '@fortawesome/free-solid-svg-icons';
+import { Fab, NavigationRail, NavigationRailItem, ReactProps } from '../../../src';
+import { NavigationRailInterface } from '../../../src/interfaces/navigation-rail.interface';
+import { faCircleUser as farCircleUser } from '@fortawesome/free-regular-svg-icons';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
   title: 'Navigation/Navigation rail',
-  component: Tabs,
+  component: NavigationRail,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/react/configure/story-layout
   },
@@ -26,83 +16,63 @@ const meta = {
   tags: ['autodocs'],
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
   argTypes: {},
-} satisfies Meta<typeof Tabs>;
+} satisfies Meta<typeof NavigationRail>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 // More on writing stories with args: https://storybook.js.org/docs/react/writing-stories/args
 
-const createTabStory = (
-  variant?: TabsVariant,
-  args?: Partial<ReactProps<TabsInterface>>
-) => {
-  const tabStory: Story = (args: ReactProps<TabsInterface>) => (
-    <div className="w-full flex flex-col gap-8">
-      <Tabs {...args} onTabSelected={(tab: any) => console.log(tab)}>
-        {
-          // @ts-ignore
-          args.children.map((child) => child)
-        }
-      </Tabs>
-      <Tabs scrollable {...args} onTabSelected={(tab: any) => console.log(tab)}>
-        {
-          // @ts-ignore
-          args.children.map((child) => child)
-        }
-        {
-          // @ts-ignore
-          args.children.slice(1).map((child) => child)
-        }
-      </Tabs>
+const createStory = (args?: Partial<ReactProps<NavigationRailInterface>>) => {
+  const story: Story = (
+    args?: Partial<ReactProps<NavigationRailInterface>>
+  ) => (
+    <div className="w-full h-[90vh] flex flex-col gap-8">
+      <NavigationRail {...args} onTabSelected={(tab: any) => console.log(tab)}>
+        <Fab icon={farCircleUser} label={'Add Timer'} />
+        <NavigationRailItem
+          icon={farCircleUser}
+          iconSelected={fasCircleUser}
+          label={'Explorer'}
+          selected
+        ></NavigationRailItem>
+        <NavigationRailItem
+          icon={farCircleUser}
+          iconSelected={fasCircleUser}
+          label={'Favoris'}
+        ></NavigationRailItem>
+        <NavigationRailItem
+          icon={farCircleUser}
+          iconSelected={fasCircleUser}
+          label={'Voyages'}
+        ></NavigationRailItem>
+        <NavigationRailItem
+          icon={farCircleUser}
+          iconSelected={fasCircleUser}
+          label={'Messages'}
+        ></NavigationRailItem>
+        <NavigationRailItem
+          icon={farCircleUser}
+          iconSelected={fasCircleUser}
+          label={'Profil'}
+        ></NavigationRailItem>
+      </NavigationRail>
     </div>
   );
 
-  tabStory.args = {
-    variant,
-    children: [
-      <Tab label={'Explorer'} selected></Tab>,
-      <Tab label={'Favoris'}></Tab>,
-      <Tab label={'Voyages'}></Tab>,
-      <Tab label={'Messages'}></Tab>,
-      <Tab label={'Profil'}></Tab>,
-    ],
-    ...args,
+  story.args = {
+    ...(args as any),
   };
 
-  return tabStory;
+  return story;
 };
 
-export const PrimaryLabelOnly = createTabStory('primary');
+export const PrimaryLabelOnly = createStory();
 
-export const PrimaryIconAndLabel = createTabStory('primary', {
-  children: [
-    <Tab label={'Explorer'} icon={faMagnifyingGlass} selected />,
-    <Tab label={'Favoris'} icon={faHeart} />,
-    <Tab label={'Voyages'} icon={faPlane} />,
-    <Tab label={'Messages'} icon={faMessage} />,
-    <Tab label={'Profil'} icon={faCircleUser} />,
-  ],
-});
+export const PrimaryIconAndLabel = createStory();
 
-export const PrimaryIconOnly = createTabStory('primary', {
-  children: [
-    <Tab icon={faMagnifyingGlass} selected />,
-    <Tab icon={faHeart} />,
-    <Tab icon={faPlane} />,
-    <Tab icon={faMessage} />,
-    <Tab icon={faCircleUser} />,
-  ],
-});
+export const PrimaryIconOnly = createStory();
 
-export const SecondaryLabelOnly = createTabStory('secondary');
+export const SecondaryLabelOnly = createStory();
 
-export const SecondaryIconAndLabel = createTabStory('secondary', {
-  children: [
-    <Tab label={'Explorer'} icon={faMagnifyingGlass} selected />,
-    <Tab label={'Favoris'} icon={faHeart} />,
-    <Tab label={'Voyages'} icon={faPlane} />,
-    <Tab label={'Messages'} icon={faMessage} />,
-    <Tab label={'Profil'} icon={faCircleUser} />,
-  ],
-});
+export const SecondaryIconAndLabel = createStory();
