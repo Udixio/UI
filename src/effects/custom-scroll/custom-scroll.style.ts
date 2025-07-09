@@ -1,15 +1,9 @@
-import {
-  CustomScrollBaseProps,
-  CustomScrollElements,
-  CustomScrollStates,
-} from './custom-scroll.interface';
+import { CustomScrollInterface } from './custom-scroll.interface';
 import { classNames, defaultClassNames } from '../../utils';
 
-export const customScrollStyle = defaultClassNames<
-  CustomScrollBaseProps & CustomScrollStates,
-  CustomScrollElements
->({
-  defaultClassName: ({ orientation, draggable, isDragging }) => ({
+export const customScrollStyle = defaultClassNames<CustomScrollInterface>(
+  'customScroll',
+  ({ orientation, draggable, isDragging }) => ({
     customScroll: classNames(
       'flex h-full w-full',
       draggable && [
@@ -34,6 +28,5 @@ export const customScrollStyle = defaultClassNames<
       'left-0 h-full': orientation === 'horizontal',
       'top-0 w-full': orientation === 'vertical',
     }),
-  }),
-  default: 'customScroll',
-});
+  })
+);

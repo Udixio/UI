@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import { Fab, FabProps } from '../../src';
+import { Fab, FabInterface, ReactProps } from '../../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -27,9 +27,9 @@ type Story = StoryObj<typeof meta>;
 const createFabStory = (
   size: 'small' | 'medium' | 'large',
   isExtended?: boolean,
-  args?: Partial<FabProps>
+  args?: Partial<ReactProps<FabInterface>>
 ) => {
-  const fabStory: Story = (args: FabProps) => (
+  const fabStory: Story = (args: ReactProps<FabInterface>) => (
     <div className="">
       <div className="flex m-4 gap-4 items-center">
         <Fab {...args} variant={'surface'} />

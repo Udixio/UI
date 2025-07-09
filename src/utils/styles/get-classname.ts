@@ -1,60 +1,73 @@
+import { ComponentInterface } from '../component';
+import { classnames } from './classnames';
+
 type RequiredNullable<T> = {
   [K in keyof T]-?: any;
 };
 
-export interface StyleProps<S, E extends string> {
-  className?: string | ClassNameComponent<S, E>;
+export interface StyleProps<T extends ComponentInterface> {
+  className?: string | ClassNameComponent<T>;
 }
 
-export type ClassNameComponent<S, E extends string> = (
-  states: S
-) => Partial<Record<E, string>>;
+export type ClassNameComponent<T extends ComponentInterface> = (
+  states: T['states'] & T['props']
+) => Partial<Record<T['elements'][number], string>>;
 
-export const getClassNames = <States, Elements extends string>(args: {
-  classNameList: (ClassNameComponent<States, Elements> | string | undefined)[];
-  default: Elements;
-  states: States;
-}): Record<Elements, string> => {
-  let classNames: Record<Elements, string> = {} as Record<Elements, string>;
+export const getClassNames = <T extends ComponentInterface>(args: {
+  classNameList: (ClassNameComponent<T> | string | undefined)[];
+  default: T['elements'][0];
+  states: T['states'] & T['props'];
+}): Record<T['elements'][number], string> => {
+  let classNames: Partial<Record<T['elements'][number], string[]>> = {};
   args.classNameList.forEach((classNameComponent) => {
     if (classNameComponent) {
+      if (!classNames[args.default]) {
+        classNames[args.default] = [];
+      }
       if (typeof classNameComponent == 'string') {
-        classNames[args.default] = classNameComponent + ' relative' + ' ';
+        classNames[args.default]!.push(classNameComponent);
       } else {
         const result = classNameComponent(args.states);
-        Object.entries(result).map(([key, value]) => {
-          if (!classNames[key as Elements]) {
-            classNames[key as Elements] = key + ' ';
-            if (key == args.default) {
-              classNames[key as Elements] =
-                (classNames[key as Elements] ?? '') + 'relative' + ' ';
-            }
+        Object.entries(result).map((argsElement) => {
+          const [key, value] = argsElement as [T['elements'][number], string];
+          if (!classNames[key]) {
+            classNames[key] = [];
           }
-          classNames[key as Elements] =
-            (classNames[key as Elements] ?? '') + (value ?? '') + ' ';
+          classNames[key]!.push(value);
         });
       }
     }
   });
-  return classNames;
+  const result = classNames as unknown as Record<T['elements'][number], string>;
+
+  Object.entries(classNames).map((argsElement) => {
+    const [key, value] = argsElement as [T['elements'][number], string[]];
+
+    if (key == args.default) {
+      value.unshift('relative');
+    }
+    value.unshift(key);
+
+    result[key] = classnames(...value);
+  });
+
+  return result;
 };
 
-export const defaultClassNames = <
-  States extends object,
-  Elements extends string,
->(args: {
-  defaultClassName: ClassNameComponent<States, Elements> | string | undefined;
-  default: Elements;
-}) => {
+export const defaultClassNames = <T extends ComponentInterface>(
+  element: T['elements'][0],
+  defaultClassName: ClassNameComponent<T> | string
+) => {
   return (
-    states: RequiredNullable<States> &
-      States & {
-        className: ClassNameComponent<States, Elements> | string | undefined;
+    states: RequiredNullable<T['props']> &
+      T['props'] &
+      T['states'] & {
+        className: ClassNameComponent<T> | string | undefined;
       }
   ) =>
     getClassNames({
-      ...args,
-      classNameList: [states.className, args.defaultClassName],
-      states: states,
+      classNameList: [states.className, defaultClassName],
+      default: element,
+      states,
     });
 };

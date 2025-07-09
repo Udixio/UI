@@ -1,5 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Carousel, CarouselItem, CarouselProps } from '../../src';
+import {
+  Carousel,
+  CarouselInterface,
+  CarouselItem,
+  ReactProps,
+} from '../../src';
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
   title: 'containment/Carousel',
@@ -30,8 +35,8 @@ const src: string[] = [
   'https://images.unsplash.com/photo-1512389136781-65f9031df878?q=80&w=2500&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
 ];
 
-const createCarouselStory = (args?: Partial<CarouselProps>) => {
-  const carouselStory: Story = (args: CarouselProps) => (
+const createCarouselStory = (args?: Partial<ReactProps<CarouselInterface>>) => {
+  const carouselStory: Story = (args: ReactProps<CarouselInterface>) => (
     <div className="">
       <div className="flex m-4 gap-4 items-center">
         <Carousel

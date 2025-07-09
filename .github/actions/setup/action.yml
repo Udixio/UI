@@ -18,6 +18,11 @@ runs:
       with:
         node-version: ${{ inputs.node_version }}
 
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8
+
     - name: Create .npmrc
       run: |
         echo "@fortawesome:registry=https://npm.fontawesome.com/" > .npmrc
@@ -25,7 +30,7 @@ runs:
       shell: bash
 
     - name: Install dependencies
-      id: npm-install
-      run: npm ci
+      id: pnpm-install
+      run: pnpm install
       shell: bash
       continue-on-error: false
