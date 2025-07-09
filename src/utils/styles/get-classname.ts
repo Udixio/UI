@@ -1,6 +1,6 @@
 import { ComponentInterface } from '../component';
-import { classnames } from './classnames';
 import { convertToKebabCase } from '../string';
+import { classnames } from './classnames';
 
 type RequiredNullable<T> = {
   [K in keyof T]-?: any;
@@ -22,27 +22,24 @@ export const getClassNames = <T extends ComponentInterface>(args: {
   let classNames: Partial<Record<T['elements'][number], string[]>> = {};
   args.classNameList.forEach((classNameComponent) => {
     if (classNameComponent) {
-      if (!classNames[args.default]) {
-        classNames[args.default] = [];
-      }
       if (typeof classNameComponent == 'string') {
-        classNames[args.default]!.push(classNameComponent);
+        (classNames[args.default] ??= []).push(classNameComponent);
       } else {
         const result = classNameComponent(args.states);
         Object.entries(result).map((argsElement) => {
           const [key, value] = argsElement as [T['elements'][number], string];
-          if (!classNames[key]) {
-            classNames[key] = [];
-          }
-          classNames[key]!.push(value);
+          (classNames[key] ??= []).push(value);
         });
       }
     }
   });
+
   const result = classNames as unknown as Record<T['elements'][number], string>;
 
   Object.entries(classNames).map((argsElement) => {
-    const [key, value] = argsElement as [T['elements'][number], string[]];
+    let [key, value] = argsElement as [T['elements'][number], string[]];
+
+    value = value.reverse();
 
     if (key == args.default) {
       value.unshift('relative');
