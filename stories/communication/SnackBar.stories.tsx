@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
-import { Snackbar, SnackbarProps } from '../../src';
+import { ReactProps, Snackbar, SnackbarInterface } from '../../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -20,7 +20,9 @@ type Story = StoryObj<typeof meta>;
 
 // Function to create Snackbar stories
 const createSnackbarStory = (supportingText: string) => {
-  const SnackbarStory: Story = (args: SnackbarProps) => <Snackbar {...args} />;
+  const SnackbarStory: Story = (args: ReactProps<SnackbarInterface>) => (
+    <Snackbar {...args} />
+  );
   SnackbarStory.args = {
     supportingText: supportingText,
   };

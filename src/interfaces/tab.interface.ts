@@ -4,7 +4,7 @@ import { TabsVariant } from './tabs.interface';
 import { Dispatch, RefObject, SetStateAction } from 'react';
 
 export type TabProps = {
-  selected: boolean;
+  selected?: boolean;
   variant?: TabsVariant;
   label?: string;
   icon?: IconDefinition;

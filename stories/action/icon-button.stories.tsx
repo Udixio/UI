@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 import { faClipboard as farGear } from '@fortawesome/free-regular-svg-icons';
 import { faClipboard as fasGear } from '@fortawesome/free-solid-svg-icons';
-import { IconButton, IconButtonProps, IconButtonVariant } from '../../src';
+import { IconButton, IconButtonInterface, IconButtonVariant, ReactProps } from '../../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -28,9 +28,9 @@ type Story = StoryObj<typeof meta>;
 
 const createIconButtonStory = (
   variant: IconButtonVariant,
-  toggle?: boolean
+  toggle?: boolean,
 ) => {
-  const IconButtonStory: Story = (args: IconButtonProps) => (
+  const IconButtonStory: Story = (args: ReactProps<IconButtonInterface>) => (
     <div className="">
       {!toggle && (
         <>
@@ -59,7 +59,8 @@ const createIconButtonStory = (
     IconButtonStory.args = {
       variant: variant,
       arialLabel: 'Action description',
-      onToggle: (isActive: boolean) => {},
+      onToggle: (isActive: boolean) => {
+      },
       icon: farGear,
       iconSelected: fasGear,
     };

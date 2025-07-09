@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Slider, SliderProps } from '../../../src';
+import { ReactProps, Slider, SliderInterface } from '../../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -18,8 +18,8 @@ type Story = StoryObj<typeof meta>;
 
 // More on writing stories with args: https://storybook.js.org/docs/react/writing-stories/args
 
-const createSliderStory = (args?: Partial<SliderProps>) => {
-  const sliderStory: Story = (args: SliderProps) => (
+const createSliderStory = (args?: Partial<ReactProps<SliderInterface>>) => {
+  const sliderStory: Story = (args: ReactProps<SliderInterface>) => (
     <div className="">
       <div className="flex flex-col m-4 gap-4 items-center">
         <Slider value={0} min={0} max={100} step={1} {...args} />
@@ -35,7 +35,6 @@ const createSliderStory = (args?: Partial<SliderProps>) => {
 };
 export const continuousSlider = createSliderStory({});
 export const discreteSlider = createSliderStory({
-  step: null,
   marks: [
     {
       value: 0,

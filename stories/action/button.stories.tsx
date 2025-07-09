@@ -1,9 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import { ReactProps } from '../../src/utils/component';
-import { ButtonInterface } from '../../src/interfaces/button.interface';
-import { Button } from '../../src/components/Button';
+import { Button, ButtonInterface, ReactProps } from '../../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {

@@ -10,7 +10,7 @@ export const Slider = ({
   valueFormatter,
   step = 10,
   name,
-  value: defaultValue,
+  value: defaultValue = 0,
   min = 0,
   max = 100,
   marks = [

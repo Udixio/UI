@@ -10,7 +10,7 @@ type Props = {
   /**
    * The button variant determines the style of the button.
    */
-  variant: 'filled' | 'elevated' | 'outlined' | 'text' | 'filledTonal';
+  variant?: 'filled' | 'elevated' | 'outlined' | 'text' | 'filledTonal';
 
   /**
    * Disables the button if set to true.
