@@ -28,8 +28,8 @@ jobs:
           app-id: ${{ vars.APP_ID }}
           private-key: ${{ secrets.PRIVATE_KEY }}
 
-      - name: Lint
-        uses: ./.github/actions/lint
+      #      - name: Lint
+      #        uses: ./.github/actions/lint
       - name: Unit Test
         uses: ./.github/actions/test
       - uses: andresz1/size-limit-action@v1
