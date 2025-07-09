@@ -14,7 +14,7 @@ export type ClassNameComponent<T extends ComponentInterface> = (
 ) => Partial<Record<T['elements'][number], string>>;
 
 export const getClassNames = <T extends ComponentInterface>(args: {
-  classNameList: (ClassNameComponent<T> | string)[];
+  classNameList: (ClassNameComponent<T> | string | undefined)[];
   default: T['elements'][0];
   states: T['states'] & T['props'];
 }): Record<T['elements'][number], string> => {
@@ -62,7 +62,7 @@ export const defaultClassNames = <T extends ComponentInterface>(
     states: RequiredNullable<T['props']> &
       T['props'] &
       T['states'] & {
-        className: ClassNameComponent<T> | string;
+        className: ClassNameComponent<T> | string | undefined;
       }
   ) =>
     getClassNames({
