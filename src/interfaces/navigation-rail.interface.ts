@@ -17,5 +17,5 @@ export interface NavigationRailInterface {
     alignment?: 'middle' | 'top';
   };
   states: {};
-  elements: ['navigationRail'];
+  elements: ['navigationRail', 'segments'];
 }

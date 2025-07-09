@@ -72,7 +72,7 @@ export const NavigationRail = ({
           }
         )}
 
-      <div>
+      <div className={styles.segments}>
         {childrenArray.map((child, index) => {
           if (
             React.isValidElement(child) &&
