@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { CarouselItemInterface } from '../interfaces';
 import { motion } from 'motion/react';
 import { carouselItemStyle } from '../styles';
-import { ReactProps } from '../utils';
+import { MotionProps } from '../utils';
 
 export const normalize = (
   value: number,
@@ -25,7 +25,7 @@ export const CarouselItem = ({
   index = 0,
   ref: optionalRef,
   ...restProps
-}: ReactProps<CarouselItemInterface>) => {
+}: MotionProps<CarouselItemInterface>) => {
   const defaultRef = useRef(null);
   const ref: React.RefObject<null | HTMLDivElement> = optionalRef || defaultRef;
 
