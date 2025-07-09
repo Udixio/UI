@@ -1,5 +1,5 @@
 import { classNames, defaultClassNames } from '../utils';
-import { ButtonInterface } from '../interfaces/button.interface';
+import { ButtonInterface } from '../interfaces';
 
 export const buttonStyle = defaultClassNames<ButtonInterface>(
   'button',

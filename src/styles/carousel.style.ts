@@ -1,5 +1,5 @@
 import { classNames, defaultClassNames } from '../utils';
-import { CarouselInterface } from '../interfaces/carousel.interface';
+import { CarouselInterface } from '../interfaces';
 
 export const carouselStyle = defaultClassNames<CarouselInterface>(
   'carousel',

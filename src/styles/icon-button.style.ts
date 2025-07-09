@@ -30,7 +30,6 @@ export const iconButtonStyle = defaultClassNames<IconButtonInterface>(
             'border border-on-surface/[0.12]': !isActive,
             'border border-transparent bg-on-surface/[0.12]': isActive,
           },
-          ,
         ]
       ),
       stateLayer: classNames(

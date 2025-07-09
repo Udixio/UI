@@ -1,4 +1,4 @@
-import { CarouselItemInterface } from '../interfaces/carousel-item.interface';
+import { CarouselItemInterface } from '../interfaces';
 import { classNames, defaultClassNames } from '../utils';
 
 export const carouselItemStyle = defaultClassNames<CarouselItemInterface>(

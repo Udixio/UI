@@ -1,5 +1,5 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { ActionOrLink } from '../utils/component';
+import { ActionOrLink } from '../utils';
 
 type Props = {
   /**

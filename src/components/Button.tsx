@@ -1,7 +1,6 @@
-import { classNames } from '../utils';
-import { ReactProps } from '../utils/component';
-import { ButtonInterface } from '../interfaces/button.interface';
-import { buttonStyle } from '../styles/button.style';
+import { classNames, ReactProps } from '../utils';
+import { ButtonInterface } from '../interfaces';
+import { buttonStyle } from '../styles';
 import { Icon } from '../icon';
 import { ProgressIndicator } from './ProgressIndicator';
 

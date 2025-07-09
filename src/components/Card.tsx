@@ -1,9 +1,9 @@
 import { useRef } from 'react';
 
 import { RippleEffect } from '../effects/ripple';
-import { CardInterface } from '../interfaces/card.interface';
-import { cardStyle } from '../styles/card.style';
-import { ReactProps } from '../utils/component';
+import { CardInterface } from '../interfaces';
+import { cardStyle } from '../styles';
+import { ReactProps } from '../utils';
 
 export const Card = ({
   variant = 'outlined',

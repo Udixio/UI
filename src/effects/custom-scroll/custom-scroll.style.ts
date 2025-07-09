@@ -1,6 +1,5 @@
 import { CustomScrollInterface } from './custom-scroll.interface';
-import { classNames } from '../../utils';
-import { defaultClassNames } from '../../utils/styles/get-classname';
+import { classNames, defaultClassNames } from '../../utils';
 
 export const customScrollStyle = defaultClassNames<CustomScrollInterface>(
   'customScroll',

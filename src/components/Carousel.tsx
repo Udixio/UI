@@ -1,12 +1,11 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { CarouselInterface } from '../interfaces/carousel.interface';
+import { CarouselInterface, CarouselItemInterface } from '../interfaces';
 
 import { motion, motionValue, useTransform } from 'motion/react';
 
-import { carouselStyle } from '../styles/carousel.style';
+import { carouselStyle } from '../styles';
 import { CustomScroll } from '../effects';
-import { ReactProps } from '../utils/component';
-import { CarouselItemInterface } from '../interfaces/carousel-item.interface';
+import { ReactProps } from '../utils';
 import { CarouselItem, normalize } from './CarouselItem';
 
 export const Carousel = ({

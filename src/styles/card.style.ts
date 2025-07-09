@@ -1,4 +1,4 @@
-import { CardInterface } from '../interfaces/card.interface';
+import { CardInterface } from '../interfaces';
 import { classNames, defaultClassNames } from '../utils';
 
 export const cardStyle = defaultClassNames<CardInterface>(

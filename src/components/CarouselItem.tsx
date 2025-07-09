@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
-import { CarouselItemInterface } from '../interfaces/carousel-item.interface';
+import { CarouselItemInterface } from '../interfaces';
 import { motion } from 'motion/react';
-import { carouselItemStyle } from '../styles/carousel-item.style';
-import { ReactProps } from '../utils/component';
+import { carouselItemStyle } from '../styles';
+import { ReactProps } from '../utils';
 
 export const normalize = (
   value: number,
