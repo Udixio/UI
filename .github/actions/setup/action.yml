@@ -31,6 +31,6 @@ runs:
 
     - name: Install dependencies
       id: pnpm-install
-      run: pnpm install --frozen-lockfile
+      run: pnpm install
       shell: bash
       continue-on-error: false
