@@ -1,5 +1,6 @@
 import { ComponentInterface } from '../component';
 import { classnames } from './classnames';
+import { convertToKebabCase } from '../string';
 
 type RequiredNullable<T> = {
   [K in keyof T]-?: any;
@@ -46,7 +47,8 @@ export const getClassNames = <T extends ComponentInterface>(args: {
     if (key == args.default) {
       value.unshift('relative');
     }
-    value.unshift(key);
+
+    value.unshift(convertToKebabCase(key));
 
     result[key] = classnames(...value);
   });

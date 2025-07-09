@@ -14,3 +14,5 @@ export * from './Switch';
 export * from './Tab';
 export * from './Tabs';
 export * from './TextField';
+export * from './NavigationRailItem';
+export * from './NavigationRail';
