@@ -2,7 +2,7 @@ export interface SliderInterface {
   type: 'div';
   props: {
     value?: number;
-    isChanging: boolean;
+
     name: string;
     onChange?: (value: number) => void;
     valueFormatter?: (value: number) => string | number;
@@ -15,7 +15,9 @@ export interface SliderInterface {
       label?: string;
     }[];
   };
-  states: {};
+  states: {
+    isChanging: boolean;
+  };
   elements: [
     'slider',
     'activeTrack',

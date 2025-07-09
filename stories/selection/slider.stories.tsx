@@ -29,6 +29,7 @@ const createSliderStory = (args?: Partial<ReactProps<SliderInterface>>) => {
     </div>
   );
   sliderStory.args = {
+    name: 'test',
     ...args,
   };
   return sliderStory;

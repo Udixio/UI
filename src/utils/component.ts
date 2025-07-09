@@ -4,7 +4,7 @@ import { ComponentClassName, HTMLElements } from './component-helper';
 
 export type ReactProps<T extends ComponentInterface> = Omit<
   JSX.IntrinsicElements[T['type']],
-  'className'
+  keyof T['props'] | 'className'
 > &
   ComponentClassName<T> & {
     ref?: React.RefObject<HTMLElements[T['type']] | null>;

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ReactProps, Switch, SwitchInterface, SwitchProps } from '../../src';
+import { ReactProps, Switch, SwitchInterface } from '../../src';
 import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -20,7 +20,7 @@ type Story = StoryObj<typeof meta>;
 // More on writing stories with args: https://storybook.js.org/docs/react/writing-stories/args
 
 const createSwitchStory = (args?: Partial<ReactProps<SwitchInterface>>) => {
-  const switchStory: Story = (args: SwitchProps) => (
+  const switchStory: Story = (args: ReactProps<SwitchInterface>) => (
     <div className="">
       <div className="flex m-4 gap-4 items-center">
         <Switch {...args} />

@@ -1,8 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { SliderInterface } from '../interfaces/slider.interface';
-import { sliderStyle } from '../styles/slider.style';
-import { classNames } from '../utils';
-import { ReactProps } from '../utils/component';
+import { SliderInterface } from '../interfaces';
+import { sliderStyle } from '../styles';
+import { classNames, ReactProps } from '../utils';
 import { useEffect, useRef, useState } from 'react';
 
 export const Slider = ({
