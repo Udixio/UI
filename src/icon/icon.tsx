@@ -3,7 +3,7 @@ import type React from 'react';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { classNames } from '../utils';
 
-export interface Props {
+interface Props {
   icon: IconDefinition;
   colors?: string[];
   className?: string;

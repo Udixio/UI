@@ -4,7 +4,7 @@ import { IconButton } from '../components/IconButton';
 
 export type TextFieldVariant = 'filled' | 'outlined';
 
-export type Props = {
+type Props = {
   placeholder?: string;
   name: string;
   label: string;
