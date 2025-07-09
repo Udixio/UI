@@ -20,17 +20,11 @@
     "build-storybook": "storybook build",
     "analyze": "size-limit --why",
     "build": "dts build --name @udixio/ui",
-    "lint": "dts lint",
     "prepare": "npm run build",
     "size": "size-limit",
     "start": "npm run storybook",
     "test": "dts test --passWithNoTests",
     "semantic-release": "semantic-release"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "dts lint"
-    }
   },
   "prettier": {
     "printWidth": 80,
