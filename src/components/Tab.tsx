@@ -20,14 +20,14 @@ export const Tab = ({
   index,
   onTabSelected,
   scrollable = false,
-  selected,
+  selected = false,
   ref,
   ...restProps
 }: ReactProps<TabInterface>) => {
   const defaultRef = useRef(null);
   const resolvedRef = ref || defaultRef;
 
-  const [isSelected, setIsSelected] = useState(selected);
+  const [isSelected, setIsSelected] = useState<boolean>(selected);
 
   useEffect(() => {
     if (selected && selectedTab == null) {
