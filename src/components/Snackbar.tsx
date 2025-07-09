@@ -4,7 +4,7 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { SnackbarInterface } from '../interfaces/snackbar.interface';
 import { snackbarStyle } from '../styles/snackbar.style';
 
-import { ReactProps } from '../utils/component';
+import { MotionProps } from '../utils/component';
 import { IconButton } from './IconButton';
 
 export const Snackbar = ({
@@ -14,7 +14,7 @@ export const Snackbar = ({
   closeIcon = faXmark,
   onClose,
   ...restProps
-}: ReactProps<SnackbarInterface>) => {
+}: MotionProps<SnackbarInterface>) => {
   const [isVisible, setIsVisible] = useState(true);
 
   const styles = snackbarStyle({
