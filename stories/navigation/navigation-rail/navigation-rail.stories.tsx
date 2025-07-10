@@ -5,6 +5,7 @@ import {
   Fab,
   NavigationRail,
   NavigationRailItem,
+  NavigationRailSection,
   ReactProps,
 } from '../../../src';
 import { NavigationRailInterface } from '../../../src/interfaces/navigation-rail.interface';
@@ -60,6 +61,43 @@ const createStory = (args?: Partial<ReactProps<NavigationRailInterface>>) => {
           icon={farCircleUser}
           iconSelected={fasCircleUser}
           label={'Profil'}
+        ></NavigationRailItem>
+        <NavigationRailSection label={'Section Header'}></NavigationRailSection>
+        <NavigationRailItem
+          icon={farCircleUser}
+          iconSelected={fasCircleUser}
+          label={'Explorer'}
+        ></NavigationRailItem>
+        <NavigationRailItem
+          icon={farCircleUser}
+          iconSelected={fasCircleUser}
+          label={'Favoris'}
+        ></NavigationRailItem>
+        <NavigationRailItem
+          icon={farCircleUser}
+          iconSelected={fasCircleUser}
+          label={'Voyages'}
+        ></NavigationRailItem>
+        <NavigationRailItem
+          icon={farCircleUser}
+          iconSelected={fasCircleUser}
+          label={'Messages'}
+        ></NavigationRailItem>
+        <NavigationRailItem
+          icon={farCircleUser}
+          iconSelected={fasCircleUser}
+          label={'Profil'}
+        ></NavigationRailItem>
+        <NavigationRailSection label={'Section Header'}></NavigationRailSection>
+        <NavigationRailItem
+          icon={farCircleUser}
+          iconSelected={fasCircleUser}
+          label={'Explorer'}
+        ></NavigationRailItem>
+        <NavigationRailItem
+          icon={farCircleUser}
+          iconSelected={fasCircleUser}
+          label={'Favoris'}
         ></NavigationRailItem>
       </NavigationRail>
     </div>

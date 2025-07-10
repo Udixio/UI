@@ -7,6 +7,14 @@ import { navigationRailItemStyle } from '../styles/navigation-rail-item.style';
 import { AnimatePresence, motion } from 'motion/react';
 import { v4 as uuidv4 } from 'uuid';
 
+export const NavigationRailSection = ({ label }: { label: string }) => {
+  return (
+    <div className={' h-9 flex items-center ml-9'}>
+      <p className={'text-label-large text-on-surface-variant'}>{label}</p>
+    </div>
+  );
+};
+
 export const NavigationRailItem = ({
   className,
   onClick,
@@ -22,8 +30,10 @@ export const NavigationRailItem = ({
   selected = false,
   ref,
   transition,
+  isExtended,
   iconSelected,
   style,
+  extendedOnly,
   ...restProps
 }: ReactProps<NavigationRailItemInterface>) => {
   const defaultRef = useRef<any>(null);
@@ -62,6 +72,8 @@ export const NavigationRailItem = ({
   };
 
   const styles = navigationRailItemStyle({
+    isExtended,
+    extendedOnly,
     className,
     onTabSelected,
     selectedTab,
@@ -81,6 +93,8 @@ export const NavigationRailItem = ({
   const uuid = useRef(uuidv4());
 
   transition = { duration: 0.3, ...transition };
+
+  if (extendedOnly && !isExtended) return null;
 
   return (
     // @ts-ignore

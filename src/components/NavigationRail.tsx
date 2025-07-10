@@ -1,7 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { ReactProps } from '../utils';
-import { NavigationRailItem } from './NavigationRailItem';
+import {
+  NavigationRailItem,
+  NavigationRailSection,
+} from './NavigationRailItem';
 import { Fab } from './Fab';
 import { navigationRailStyle } from '../styles/navigation-rail.style';
 import { NavigationRailInterface } from '../interfaces/navigation-rail.interface';
@@ -80,6 +83,8 @@ export const NavigationRail = ({
     transition,
   });
 
+  const extendedOnly = useRef(false);
+  extendedOnly.current = false;
   return (
     <div ref={ref} className={styles.navigationRail}>
       <div className={styles.header}>
@@ -120,11 +125,24 @@ export const NavigationRail = ({
                 tabsId: tabsId,
                 onTabSelected: handleOnTabSelected,
                 transition,
+                extendedOnly: extendedOnly.current,
+                isExtended,
               }
             );
           }
           if (React.isValidElement(child) && child.type === Fab) {
             return null;
+          }
+          if (
+            React.isValidElement(child) &&
+            child.type === NavigationRailSection
+          ) {
+            extendedOnly.current = true;
+            if (!isExtended) return null;
+            return React.cloneElement(
+              child as React.ReactElement<{ label: string }>,
+              {}
+            );
           }
           return child;
         })}

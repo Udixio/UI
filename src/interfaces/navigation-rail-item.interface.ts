@@ -19,6 +19,8 @@ type NavProps = {
   ) => void;
   index?: number;
   transition?: Transition;
+  extendedOnly?: boolean;
+  isExtended?: boolean;
 };
 
 type Elements = [
