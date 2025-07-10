@@ -34,7 +34,7 @@ jobs:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           NODE_ENV: 'production'
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npx semantic-release
+        run: pnpm dlx semantic-release
 
   merge-to-develop:
     needs: deploy

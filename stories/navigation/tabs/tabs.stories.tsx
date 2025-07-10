@@ -7,7 +7,13 @@ import {
   faMessage,
   faPlane,
 } from '@fortawesome/free-solid-svg-icons';
-import { Tab, Tabs, TabsProps, TabsVariant } from '../../../src';
+import {
+  ReactProps,
+  Tab,
+  Tabs,
+  TabsInterface,
+  TabsVariant,
+} from '../../../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -27,8 +33,11 @@ type Story = StoryObj<typeof meta>;
 
 // More on writing stories with args: https://storybook.js.org/docs/react/writing-stories/args
 
-const createTabStory = (variant?: TabsVariant, args?: Partial<TabsProps>) => {
-  const tabStory: Story = (args: TabsProps) => (
+const createTabStory = (
+  variant?: TabsVariant,
+  args?: Partial<ReactProps<TabsInterface>>
+) => {
+  const tabStory: Story = (args: ReactProps<TabsInterface>) => (
     <div className="w-full flex flex-col gap-8">
       <Tabs {...args} onTabSelected={(tab: any) => console.log(tab)}>
         {

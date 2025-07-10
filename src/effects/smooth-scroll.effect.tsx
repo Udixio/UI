@@ -4,10 +4,9 @@ import {
   motionValue,
   useMotionValueEvent,
   useTransform,
-} from 'framer-motion';
-import { CustomScroll } from './custom-scroll/custom-scroll.effect';
-import { classNames } from '../utils';
-import { CustomScrollProps } from './custom-scroll';
+} from 'motion/react';
+import { CustomScroll, CustomScrollInterface } from './custom-scroll';
+import { classNames, ReactProps } from '../utils';
 
 export const SmoothScroll = ({
   children,
@@ -18,7 +17,7 @@ export const SmoothScroll = ({
 }: {
   children: ReactNode;
   transition?: string;
-} & CustomScrollProps) => {
+} & ReactProps<CustomScrollInterface>) => {
   const [scroll, setScroll] = useState<{
     scrollProgress: number;
     scrollTotal: number;

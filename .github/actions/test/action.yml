@@ -6,5 +6,5 @@ runs:
   using: 'composite'
   steps:
     - name: Run affected unit tests
-      run: npm run test
+      run: pnpm run test
       shell: bash

@@ -2,7 +2,12 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 import { faClipboard as farGear } from '@fortawesome/free-regular-svg-icons';
 import { faClipboard as fasGear } from '@fortawesome/free-solid-svg-icons';
-import { IconButton, IconButtonProps, IconButtonVariant } from '../../src';
+import {
+  IconButton,
+  IconButtonInterface,
+  IconButtonVariant,
+  ReactProps,
+} from '../../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -30,28 +35,35 @@ const createIconButtonStory = (
   variant: IconButtonVariant,
   toggle?: boolean
 ) => {
-  const IconButtonStory: Story = (args: IconButtonProps) => (
+  const sizes: ReactProps<IconButtonInterface>['size'][] = [
+    'xSmall',
+    'small',
+    'medium',
+    'large',
+    'xLarge',
+  ];
+  const IconButtonStory: Story = (args: ReactProps<IconButtonInterface>) => (
     <div className="">
-      {!toggle && (
-        <>
+      {!toggle &&
+        sizes.map((size) => (
           <div className="flex m-4 gap-4 items-center">
-            <IconButton {...args} onToggle={undefined} />
-            <IconButton {...args} disabled onToggle={undefined} />
+            <IconButton {...args} size={size} onToggle={undefined} />
+            <IconButton {...args} size={size} disabled onToggle={undefined} />
           </div>
-        </>
-      )}
-      {toggle && (
-        <>
-          <div className="flex m-4 gap-4 items-center">
-            <IconButton {...args} />
-            <IconButton {...args} disabled />
-          </div>
-          <div className="flex m-4 gap-4 items-center">
-            <IconButton {...args} activated />
-            <IconButton {...args} disabled activated />
-          </div>
-        </>
-      )}
+        ))}
+      {toggle &&
+        sizes.map((size) => (
+          <>
+            <div className="flex m-4 gap-4 items-center">
+              <IconButton {...args} size={size} />
+              <IconButton {...args} size={size} disabled />
+            </div>
+            <div className="flex m-4 gap-4 items-center">
+              <IconButton {...args} size={size} activated />
+              <IconButton {...args} size={size} disabled activated />
+            </div>
+          </>
+        ))}
     </div>
   );
 

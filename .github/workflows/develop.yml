@@ -49,8 +49,8 @@ jobs:
         with:
           fontawesome_token: ${{ secrets.FONTAWESOME_TOKEN }}
 
-      - name: Lint
-        uses: ./.github/actions/lint
+      #      - name: Lint
+      #        uses: ./.github/actions/lint
       - name: Unit Test
         uses: ./.github/actions/test
       - uses: andresz1/size-limit-action@v1

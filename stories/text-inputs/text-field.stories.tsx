@@ -8,8 +8,9 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import {
   IconButton,
+  ReactProps,
   TextField,
-  TextFieldProps,
+  TextFieldInterface,
   TextFieldVariant,
 } from '../../src';
 
@@ -32,9 +33,9 @@ type Story = StoryObj<typeof meta>;
 // Function to create TextField stories
 const createTextFieldStory = (
   variant: TextFieldVariant,
-  args?: Partial<TextFieldProps>
+  args?: Partial<ReactProps<TextFieldInterface>>
 ) => {
-  const TextFieldStory: Story = (args: TextFieldProps) => (
+  const TextFieldStory: Story = (args: ReactProps<TextFieldInterface>) => (
     <div className="">
       <div className="flex m-4 gap-4 items-center">
         <TextField {...args} name={'example' + uuidv4()} value="Input" />

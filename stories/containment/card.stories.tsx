@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Card, CardProps, CardVariant } from '../../src';
+import { Card, CardInterface, ReactProps } from '../../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -19,8 +19,8 @@ type Story = StoryObj<typeof meta>;
 
 // More on writing stories with args: https://storybook.js.org/docs/react/writing-stories/args
 
-const createCardStory = (variant: CardVariant) => {
-  const CardStory: Story = (args: CardProps) => (
+const createCardStory = (variant: ReactProps<CardInterface>['variant']) => {
+  const CardStory: Story = (args: ReactProps<CardInterface>) => (
     <>
       <Card className={'w-[360px] h-[360px]'} {...args}></Card>
       <a className={'group'} href={'https://example.com/'} target={'_blank'}>

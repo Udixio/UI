@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Divider, DividerProps } from '../../src';
+import { Divider, DividerInterface, ReactProps } from '../../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -19,8 +19,8 @@ type Story = StoryObj<typeof meta>;
 
 // More on writing stories with args: https://storybook.js.org/docs/react/writing-stories/args
 
-const createTabStory = (args?: Partial<DividerProps>) => {
-  const tabStory: Story = (args: DividerProps) => (
+const createTabStory = (args?: Partial<ReactProps<DividerInterface>>) => {
+  const tabStory: Story = (args: ReactProps<DividerInterface>) => (
     <div className="h-96 w-96 flex">
       <Divider {...args} />
     </div>
