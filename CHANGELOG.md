@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/Udixio/UI/compare/v1.7.0...v1.7.1) (2025-07-10)
+
+
+### Bug Fixes
+
+* **ui:** rename NavigationRail props for clarity ([48618ac](https://github.com/Udixio/UI/commit/48618acbf888f31f1daddb442bac6a45b3884a78))
+
 # [1.7.0](https://github.com/Udixio/UI/compare/v1.6.0...v1.7.0) (2025-07-10)
 
 
