@@ -30,6 +30,7 @@ export const NavigationRail = ({
       label: 'Close menu',
     },
   },
+  style,
   transition,
   setSelectedTab: externalSetSelectedTab,
 }: ReactProps<NavigationRailInterface>) => {
@@ -82,11 +83,15 @@ export const NavigationRail = ({
     menu,
     transition,
   });
-
+  transition = { duration: 0.3, ...transition };
   const extendedOnly = useRef(false);
   extendedOnly.current = false;
   return (
-    <div ref={ref} className={styles.navigationRail}>
+    <div
+      style={{ transition: transition.duration + 's', ...style }}
+      ref={ref}
+      className={styles.navigationRail}
+    >
       <div className={styles.header}>
         <IconButton
           onClick={() => setIsExtended(!isExtended)}

@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export const NavigationRailSection = ({ label }: { label: string }) => {
   return (
-    <div className={' h-9 flex items-center ml-9'}>
+    <div className={' h-9 flex items-center mx-9 mt-3'}>
       <p className={'text-label-large text-on-surface-variant'}>{label}</p>
     </div>
   );

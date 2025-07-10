@@ -33,7 +33,7 @@ const createStory = (args?: Partial<ReactProps<NavigationRailInterface>>) => {
   const story: Story = (
     args?: Partial<ReactProps<NavigationRailInterface>>
   ) => (
-    <div className="w-full h-[90vh] flex flex-col gap-8">
+    <div className="w-full h-[90vh] flex bg-surface">
       <NavigationRail {...args} onTabSelected={(tab: any) => console.log(tab)}>
         <Fab icon={farCircleUser} label={'Add Timer'} />
         <NavigationRailItem
@@ -100,6 +100,7 @@ const createStory = (args?: Partial<ReactProps<NavigationRailInterface>>) => {
           label={'Favoris'}
         ></NavigationRailItem>
       </NavigationRail>
+      <div className={'flex-1 bg-surface-container'}></div>
     </div>
   );
 
