@@ -5,7 +5,6 @@ import { ReactProps } from '../utils';
 import { NavigationRailItemInterface } from '../interfaces';
 import { navigationRailItemStyle } from '../styles/navigation-rail-item.style';
 import { AnimatePresence, motion } from 'motion/react';
-import { v4 as uuidv4 } from 'uuid';
 
 export const NavigationRailSection = ({ label }: { label: string }) => {
   return (
@@ -22,11 +21,10 @@ export const NavigationRailItem = ({
   variant = 'vertical',
   href,
   icon,
-  selectedTab,
-  setSelectedTab,
-  tabsId,
+  selectedItem,
+  setSelectedItem,
   index,
-  onTabSelected,
+  onItemSelected,
   selected = false,
   ref,
   transition,
@@ -42,29 +40,29 @@ export const NavigationRailItem = ({
   const [isSelected, setIsSelected] = useState<boolean>(selected);
 
   useEffect(() => {
-    if (selected && selectedTab == null) {
+    if (selected && selectedItem == null) {
       setIsSelected(true);
     } else {
-      setIsSelected(selectedTab == index && index != null);
+      setIsSelected(selectedItem == index && index != null);
     }
-  }, [selectedTab]);
+  }, [selectedItem]);
 
   useEffect(() => {
-    if (selectedTab == index && onTabSelected) {
-      onTabSelected({
+    if (selectedItem == index && onItemSelected) {
+      onItemSelected({
         ref: resolvedRef as any,
         index: index || 0,
         label,
         icon,
       });
     }
-  }, [selectedTab]);
+  }, [selectedItem]);
 
   const ElementType = href ? 'a' : 'button';
 
   const handleClick = (e: React.MouseEvent<any>) => {
-    if (setSelectedTab) {
-      setSelectedTab(index ?? null);
+    if (setSelectedItem) {
+      setSelectedItem(index ?? null);
     }
     if (onClick) {
       onClick(e);
@@ -75,22 +73,19 @@ export const NavigationRailItem = ({
     isExtended,
     extendedOnly,
     className,
-    onTabSelected,
-    selectedTab,
+    onItemSelected,
+    selectedItem,
     index,
-    tabsId,
     transition,
     selected: isSelected,
     variant,
     icon,
     label,
     isSelected,
-    setSelectedTab,
+    setSelectedItem,
     href: href as any,
     iconSelected,
   });
-
-  const uuid = useRef(uuidv4());
 
   transition = { duration: 0.3, ...transition };
 

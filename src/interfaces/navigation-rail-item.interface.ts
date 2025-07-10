@@ -9,10 +9,9 @@ export type NavProps = {
   label?: string;
   icon: IconDefinition;
   iconSelected: IconDefinition;
-  selectedTab?: number | null;
-  setSelectedTab?: Dispatch<SetStateAction<number | null>>;
-  tabsId?: string;
-  onTabSelected?: (
+  selectedItem?: number | null;
+  setSelectedItem?: Dispatch<SetStateAction<number | null>>;
+  onItemSelected?: (
     args: { index: number } & Pick<NavProps, 'label' | 'icon'> & {
         ref: RefObject<any>;
       }
