@@ -1,3 +1,15 @@
+# [1.7.0](https://github.com/Udixio/UI/compare/v1.6.0...v1.7.0) (2025-07-10)
+
+
+### Bug Fixes
+
+* **ui:** enhance NavigationRail component styling ([a31ecfe](https://github.com/Udixio/UI/commit/a31ecfe9b9143d4450c2f2f58fcc74fa0cac4515))
+
+
+### Features
+
+* **workflows:** refine release process with distribution tags ([008c9e4](https://github.com/Udixio/UI/commit/008c9e4d5db9bace868322964f1db3ca04d96b7c))
+
 # [1.6.0](https://github.com/Udixio/UI/compare/v1.5.4...v1.6.0) (2025-07-10)
 
 
