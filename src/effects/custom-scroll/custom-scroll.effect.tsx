@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motion, useMotionValueEvent, useScroll } from 'motion/react';
-import throttle from 'lodash-es/throttle';
+import { throttle } from 'throttle-debounce';
 import { CustomScrollInterface } from './custom-scroll.interface';
 import { customScrollStyle } from './custom-scroll.style';
 import { ReactProps } from '../../utils';
@@ -88,10 +88,10 @@ export const CustomScroll = ({
 
   if (!handleScrollThrottledRef.current) {
     handleScrollThrottledRef.current = throttle(
+      throttleDuration,
       (latestValue, scrollOrientation: 'x' | 'y') => {
         if (!containerSize.current || !contentScrollSize.current) return;
         if (onScroll) {
-          // Gestion uniforme pour la largeur et la hauteur
           if (orientation === 'horizontal' && scrollOrientation === 'x') {
             onScroll({
               scrollProgress: latestValue,
@@ -109,8 +109,7 @@ export const CustomScroll = ({
             });
           }
         }
-      },
-      throttleDuration
+      }
     );
   }
 
