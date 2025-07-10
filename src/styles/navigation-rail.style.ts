@@ -10,13 +10,11 @@ export const navigationRailStyle = defaultClassNames<NavigationRailInterface>(
       'justify-between': alignment == 'middle',
       'justify-start gap-10': alignment == 'top',
     }),
-    header: classNames('flex flex-col gap-1', {
-      'items-center': !isExtended,
-      'items-start': isExtended,
-    }),
-    segments: classNames(' flex flex-col items', {
+    header: classNames('flex flex-col gap-1 items-start'),
+    menuIcon: 'ml-5',
+    segments: classNames(' flex flex-col ', {
       'w-full': !isExtended,
-      'w-fit': isExtended,
+      'w-fit ml-5 items-start': isExtended,
     }),
   })
 );

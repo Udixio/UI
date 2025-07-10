@@ -81,14 +81,6 @@ export const NavigationRail = ({
   return (
     <div ref={ref} className={styles.navigationRail}>
       <div className={styles.header}>
-        {fab.length > 0 &&
-          React.cloneElement(
-            fab[0] as React.ReactElement<ReactProps<FabInterface>>,
-            {
-              isExtended: isExtended,
-              className: '!shadow-none ' + (fab[0] as any).props.className,
-            }
-          )}
         <IconButton
           onClick={() => setIsExtended(!isExtended)}
           arialLabel={isExtended ? menu?.opened.label : menu?.closed.label}
@@ -96,6 +88,14 @@ export const NavigationRail = ({
           className={styles.menuIcon}
           icon={!isExtended ? menu?.closed.icon : menu.opened.icon}
         />
+        {fab.length > 0 &&
+          React.cloneElement(
+            fab[0] as React.ReactElement<ReactProps<FabInterface>>,
+            {
+              isExtended: isExtended,
+              className: '!shadow-none ml-5 ' + (fab[0] as any).props.className,
+            }
+          )}
       </div>
 
       <div className={styles.segments}>
