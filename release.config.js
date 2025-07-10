@@ -11,7 +11,7 @@ module.exports = {
     },
     {
       name: 'release/*',
-      prerelease: 'next',
+      prerelease: '${name.replace(/^release\\//g, "")}',
     },
     {
       name: 'hotfix/*',
@@ -31,6 +31,7 @@ module.exports = {
           'dist/ui.cjs.production.min.js',
           'dist/ui.esm.js',
         ],
+        failComment: false,
       },
     ],
     '@semantic-release/npm',
