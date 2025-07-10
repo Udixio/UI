@@ -6,6 +6,8 @@ import { Fab } from './Fab';
 import { navigationRailStyle } from '../styles/navigation-rail.style';
 import { NavigationRailInterface } from '../interfaces/navigation-rail.interface';
 import { FabInterface, NavigationRailItemInterface } from '../interfaces';
+import { faBars, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { IconButton } from './IconButton';
 
 export const NavigationRail = ({
   variant = 'standard',
@@ -13,13 +15,25 @@ export const NavigationRail = ({
   children,
   className,
   selectedTab: externalSelectedTab,
-  isExtended,
-  alignment,
+  extended,
+  alignment = 'top',
+  menu = {
+    closed: {
+      icon: faBars,
+      label: 'Open menu',
+    },
+    opened: {
+      icon: faXmark,
+      label: 'Close menu',
+    },
+  },
   setSelectedTab: externalSetSelectedTab,
 }: ReactProps<NavigationRailInterface>) => {
   const [internalSelectedTab, internalSetSelectedTab] = useState<number | null>(
     null
   );
+
+  const [isExtended, setIsExtended] = useState(extended);
 
   let selectedTab: number | null;
   if (externalSelectedTab == 0 || externalSelectedTab != undefined) {
@@ -58,19 +72,31 @@ export const NavigationRail = ({
     setSelectedTab,
     className,
     variant,
+    extended: isExtended,
     isExtended,
-    alignment: 'top',
+    alignment,
+    menu,
   });
 
   return (
     <div ref={ref} className={styles.navigationRail}>
-      {fab.length > 0 &&
-        React.cloneElement(
-          fab[0] as React.ReactElement<ReactProps<FabInterface>>,
-          {
-            className: '!shadow-none ' + (fab[0] as any).props.className,
-          }
-        )}
+      <div className={styles.header}>
+        {fab.length > 0 &&
+          React.cloneElement(
+            fab[0] as React.ReactElement<ReactProps<FabInterface>>,
+            {
+              isExtended: isExtended,
+              className: '!shadow-none ' + (fab[0] as any).props.className,
+            }
+          )}
+        <IconButton
+          onClick={() => setIsExtended(!isExtended)}
+          arialLabel={isExtended ? menu?.opened.label : menu?.closed.label}
+          title={isExtended ? menu?.opened.label : menu?.closed.label}
+          className={styles.menuIcon}
+          icon={!isExtended ? menu?.closed.icon : menu.opened.icon}
+        />
+      </div>
 
       <div className={styles.segments}>
         {childrenArray.map((child, index) => {

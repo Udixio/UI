@@ -27,7 +27,7 @@ export const Icon: React.FC<Props> = ({ icon, colors = [], className }) => {
     <FontAwesomeIcon
       icon={icon}
       className={classNames(className, {
-        'h-full': !className?.includes('h-'),
+        'h-full': !className?.includes('h-') && !className?.includes('size-'),
       })}
       style={getColorStyle(colors)}
     />

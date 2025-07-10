@@ -51,7 +51,7 @@ export const IconButton = ({
   const ElementType = href ? 'a' : 'button';
 
   const styles = iconButtonStyle({
-    href: href as any,
+    href,
     activated,
     arialLabel,
     iconSelected,

@@ -1,5 +1,11 @@
 import { TabProps } from './tab.interface';
 import { Dispatch, ReactNode, RefObject, SetStateAction } from 'react';
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+
+type MenuState = {
+  icon: IconDefinition;
+  label: string;
+};
 
 export interface NavigationRailInterface {
   type: 'div';
@@ -13,9 +19,13 @@ export interface NavigationRailInterface {
     children: ReactNode;
     selectedTab?: number | null;
     setSelectedTab?: Dispatch<SetStateAction<number | null>>;
-    isExtended?: boolean;
+    extended?: boolean;
     alignment?: 'middle' | 'top';
+    menu?: {
+      closed: MenuState;
+      opened: MenuState;
+    };
   };
-  states: {};
-  elements: ['navigationRail', 'segments'];
+  states: { isExtended?: boolean };
+  elements: ['navigationRail', 'header', 'menuIcon', 'segments'];
 }
