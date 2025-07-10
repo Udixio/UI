@@ -4,10 +4,11 @@ module.exports = {
   branches: [
     {
       name: 'main',
+      channel: 'latest'
     },
     {
-      name: 'develop',
-      prerelease: true,
+      name: 'release/*',
+      channel: 'latest'
     },
     {
       name: 'hotfix/*',
@@ -15,7 +16,18 @@ module.exports = {
     },
   ],
   plugins: [
-    '@semantic-release/commit-analyzer',
+    [
+      '@semantic-release/commit-analyzer',
+      {
+        preset: 'angular',
+        releaseRules: [
+          { type: 'feat', release: 'minor' },
+          { type: 'fix', release: 'patch' },
+          { type: 'perf', release: 'patch' },
+          { breaking: true, release: 'major' },
+        ],
+      },
+    ],
     '@semantic-release/release-notes-generator',
     '@semantic-release/changelog',
     [
@@ -29,7 +41,25 @@ module.exports = {
         ],
       },
     ],
-    '@semantic-release/npm',
+    [
+      '@semantic-release/npm',
+      {
+        npmPublish: true,
+        pkgRoot: '.',
+        tarballDir: 'dist',
+        getNextVersion: (lastVersion, nextRelease) => {
+          // Use the next distribution tag for minor releases
+          if (nextRelease.type === 'minor') {
+            nextRelease.channel = 'next';
+          }
+          // Use the beta distribution tag for major releases
+          else if (nextRelease.type === 'major') {
+            nextRelease.channel = 'beta';
+          }
+          return nextRelease.version;
+        },
+      },
+    ],
     [
       '@semantic-release/git',
       {

@@ -1,4 +1,4 @@
-name: Main (Production)
+name: Main (Latest Release)
 
 on:
   push:
