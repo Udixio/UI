@@ -15,7 +15,7 @@ export const navigationRailItemStyle =
         }
       ),
       container: classNames(
-        ' w-fit flex justify-center  relative rounded-full items-center ml-5',
+        ' w-fit flex justify-center  relative rounded-full items-center mx-5',
         {
           'bg-secondary-container overflow-hidden': isSelected,
           'gap-2 ': variant == 'horizontal',
