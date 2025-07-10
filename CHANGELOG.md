@@ -1,3 +1,36 @@
+# [1.6.0](https://github.com/Udixio/UI/compare/v1.5.4...v1.6.0) (2025-07-10)
+
+
+### Bug Fixes
+
+* **styles:** reorder classNames ([b28aec2](https://github.com/Udixio/UI/commit/b28aec2cecc2d9cb7865525acd214fdfadba12f8))
+
+
+### Features
+
+* add pnpm lockfile for dependency management ([c6013aa](https://github.com/Udixio/UI/commit/c6013aaa825c0e07ec940e9a41f55bc893c632a4))
+* **ci:** add semantic-release and new release workflow ([4eca114](https://github.com/Udixio/UI/commit/4eca1149fcf594cc7f855cc785aceda22d7e2afe))
+* **ci:** improve release workflow with auto version PRs ([dd723f9](https://github.com/Udixio/UI/commit/dd723f9ab1d2bc852e41f25997da32afa830a5f2))
+* **components:** add NavigationRail and NavigationRailItem ([86fea85](https://github.com/Udixio/UI/commit/86fea85a5df30ff08d0e0e1ebd534342dfbd3606))
+* **components:** add NavigationRailSection for grouping items ([9edb0a2](https://github.com/Udixio/UI/commit/9edb0a2dcca6de378048ce846c48e770582b5e11))
+* **components:** add size variants to IconButton ([7819fa7](https://github.com/Udixio/UI/commit/7819fa70cc56badbc6fda4f7618611b4b500c9b8))
+* **components:** add transition support to NavigationRail ([0be885d](https://github.com/Udixio/UI/commit/0be885d5a5bfc2fdad0d44ffc1760322f3a748b5))
+* **components:** enhance NavigationRail with extended menu options ([43ec71c](https://github.com/Udixio/UI/commit/43ec71c4bf3388eef61580feefdaee7649b36a7a))
+* **components:** implement NavigationRail and related styles ([ea04ce7](https://github.com/Udixio/UI/commit/ea04ce73e24db11784f77662255b66514187d376))
+* **config:** add DTS configuration with Rollup external support ([04a0acd](https://github.com/Udixio/UI/commit/04a0acd7ec8fe41edb2eaa3bc9a8a3adf66bbb5f))
+* **config:** enhance release configuration for prereleases ([c68ea5c](https://github.com/Udixio/UI/commit/c68ea5c42efa327b91f32e6c654ac98cde815aed))
+* **dependencies:** add lodash-es and update imports ([7a51b72](https://github.com/Udixio/UI/commit/7a51b72fffc773d0fd335821a0a9a57bbf59d6af))
+* **dependencies:** bump React peerDependencies to v19+ ([56e8bf3](https://github.com/Udixio/UI/commit/56e8bf3ffc6714d31ff084eb7ccf37698df946be))
+* **readme:** update documentation for component library ([052e1e2](https://github.com/Udixio/UI/commit/052e1e20c00e1601cf032f27799495034feb1c29))
+* **styles:** add `segments` element and improve class handling ([8c69a2b](https://github.com/Udixio/UI/commit/8c69a2bbab10329e04b858b1c9d4b6bb224ac661))
+
+## [1.5.4](https://github.com/Udixio/UI/compare/v1.5.3...v1.5.4) (2025-04-29)
+
+
+### Bug Fixes
+
+* **theme:** integrate @udixio/theme and migrate configs ([f2220e1](https://github.com/Udixio/UI/commit/f2220e17d866267e629e2a4178244e500cf7525b))
+
 ## [1.5.3](https://github.com/Udixio/UI/compare/v1.5.2...v1.5.3) (2025-04-08)
 
 

@@ -11,6 +11,10 @@ module.exports = {
       channel: 'latest'
     },
     {
+      name: 'release/*',
+      prerelease: '${name.replace(/^release\\//g, "")}',
+    },
+    {
       name: 'hotfix/*',
       prerelease: false,
     },
@@ -39,6 +43,7 @@ module.exports = {
           'dist/ui.cjs.production.min.js',
           'dist/ui.esm.js',
         ],
+        failComment: false,
       },
     ],
     [
@@ -66,6 +71,7 @@ module.exports = {
         assets: ['package.json', 'CHANGELOG.md'],
         message:
           'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
+        noPush: true,
       },
     ],
   ],
