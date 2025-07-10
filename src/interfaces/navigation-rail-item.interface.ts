@@ -1,6 +1,7 @@
 import { ActionOrLink } from '../utils/component';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { Dispatch, RefObject, SetStateAction } from 'react';
+import { Transition } from 'motion';
 
 type NavProps = {
   selected?: boolean;
@@ -17,6 +18,7 @@ type NavProps = {
       }
   ) => void;
   index?: number;
+  transition?: Transition;
 };
 
 type Elements = [

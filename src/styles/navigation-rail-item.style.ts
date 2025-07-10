@@ -5,35 +5,39 @@ export const navigationRailItemStyle =
   defaultClassNames<NavigationRailItemInterface>(
     'navigationRailItem',
     ({ isSelected, icon, label, variant }) => ({
-      navigationRailItem: classNames(
-        ' flex flex-col items-center gap-2 group pt-1 pb-1.5',
-        {
-          'text-on-surface-variant': !isSelected,
-          'text-on-secondary-container': isSelected,
-        }
-      ),
+      navigationRailItem: classNames(' group flex flex-col  pt-1 pb-1.5', {
+        'text-on-surface-variant': !isSelected,
+        'text-on-secondary-container': isSelected,
+        'gap-2': variant == 'vertical',
+        'gap-0': variant == 'horizontal',
+      }),
       container: classNames(
-        'overflow-hidden w-fit flex justify-center relative  rounded-full items-center gap-2 ',
+        ' w-fit flex justify-center  relative rounded-full items-center ml-5',
         {
-          'bg-secondary-container': isSelected,
+          'bg-secondary-container overflow-hidden': isSelected,
+          'gap-2 ': variant == 'horizontal',
+          'gap-0 ': variant == 'vertical',
           'p-4': !label,
         },
         label && [
           'px-4',
           {
-            'py-1': variant == 'vertical',
-            'py-4': variant == 'horizontal',
+            'py-1 ': variant == 'vertical',
+            'py-4 ': variant == 'horizontal',
           },
         ]
       ),
-      stateLayer: classNames('  absolute w-full h-full left-0 top-0  ', {
-        'group-state-on-surface': !isSelected,
-        'group-state-on-secondary-container': isSelected,
-      }),
+      stateLayer: classNames(
+        '  absolute w-full rounded-full h-full left-0 top-0  ',
+        {
+          'group-state-on-surface': !isSelected,
+          'group-state-on-secondary-container': isSelected,
+        }
+      ),
 
       icon: classNames('size-6 flex'),
-      label: classNames({
-        'text-label-large': variant == 'horizontal',
+      label: classNames('w-fit mx-auto', {
+        'text-label-large ': variant == 'horizontal',
         'text-label-medium': variant == 'vertical',
       }),
     })

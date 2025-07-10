@@ -14,7 +14,7 @@ export const navigationRailStyle = defaultClassNames<NavigationRailInterface>(
     menuIcon: 'ml-5',
     segments: classNames(' flex flex-col ', {
       'w-full': !isExtended,
-      'w-fit ml-5 items-start': isExtended,
+      'w-fit  items-start': isExtended,
     }),
   })
 );

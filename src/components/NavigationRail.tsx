@@ -27,6 +27,7 @@ export const NavigationRail = ({
       label: 'Close menu',
     },
   },
+  transition,
   setSelectedTab: externalSetSelectedTab,
 }: ReactProps<NavigationRailInterface>) => {
   const [internalSelectedTab, internalSetSelectedTab] = useState<number | null>(
@@ -76,6 +77,7 @@ export const NavigationRail = ({
     isExtended,
     alignment,
     menu,
+    transition,
   });
 
   return (
@@ -92,6 +94,7 @@ export const NavigationRail = ({
           React.cloneElement(
             fab[0] as React.ReactElement<ReactProps<FabInterface>>,
             {
+              transition: transition,
               isExtended: isExtended,
               className: '!shadow-none ml-5 ' + (fab[0] as any).props.className,
             }
@@ -116,6 +119,7 @@ export const NavigationRail = ({
                 setSelectedTab: setSelectedTab,
                 tabsId: tabsId,
                 onTabSelected: handleOnTabSelected,
+                transition,
               }
             );
           }

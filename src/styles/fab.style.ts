@@ -5,7 +5,7 @@ export const fabStyle = defaultClassNames<FabInterface>(
   'fab',
   ({ size, variant, isExtended }) => ({
     fab: classNames(
-      'flex transition-all duration-300 shadow-3 hover:shadow-4 group overflow-hidden outline-none items-center',
+      'flex shadow-3 hover:shadow-4 group overflow-hidden outline-none items-center',
       {
         'rounded-[12px]': size == 'small' && !isExtended,
         'rounded-[16px]': size == 'medium' || isExtended,

@@ -18,19 +18,23 @@ export const Fab = ({
   icon,
   isExtended = false,
   ref,
+  transition,
   ...restProps
 }: ReactProps<FabInterface>) => {
   const ElementType = href ? 'a' : 'button';
 
   const styles = fabStyle({
-    href: href as any,
+    href,
     icon,
     isExtended,
     label,
     size,
     variant,
     className,
+    transition,
   });
+
+  transition = { duration: 0.3, ...transition };
 
   const defaultRef = useRef(null);
   const resolvedRef = ref || defaultRef;
@@ -40,13 +44,25 @@ export const Fab = ({
       width: 'auto',
       marginLeft: 12,
       opacity: 1,
-      transition: { opacity: { delay: 0.1 } },
+      transition: {
+        ...transition,
+        opacity: {
+          duration: transition.duration! / 2,
+          delay: transition.duration! - transition.duration! / 2,
+        },
+      },
     },
     hidden: {
       width: 0,
       marginLeft: 0,
       opacity: 0,
-      transition: { marginLeft: { delay: 0.2 } },
+      transition: {
+        ...transition,
+        marginLeft: {
+          duration: transition.duration! / 2,
+          delay: transition.duration! - transition.duration! / 2,
+        },
+      },
     },
   };
   return (
@@ -75,7 +91,6 @@ export const Fab = ({
             initial="hidden"
             animate="visible"
             exit="hidden"
-            transition={{ duration: 0.3 }}
             className={styles.label}
           >
             {label}

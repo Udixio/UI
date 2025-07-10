@@ -4,6 +4,8 @@ import { Icon } from '../icon';
 import { ReactProps } from '../utils';
 import { NavigationRailItemInterface } from '../interfaces';
 import { navigationRailItemStyle } from '../styles/navigation-rail-item.style';
+import { AnimatePresence, motion } from 'motion/react';
+import { v4 as uuidv4 } from 'uuid';
 
 export const NavigationRailItem = ({
   className,
@@ -19,10 +21,12 @@ export const NavigationRailItem = ({
   onTabSelected,
   selected = false,
   ref,
+  transition,
   iconSelected,
+  style,
   ...restProps
 }: ReactProps<NavigationRailItemInterface>) => {
-  const defaultRef = useRef(null);
+  const defaultRef = useRef<any>(null);
   const resolvedRef = ref || defaultRef;
 
   const [isSelected, setIsSelected] = useState<boolean>(selected);
@@ -63,6 +67,7 @@ export const NavigationRailItem = ({
     selectedTab,
     index,
     tabsId,
+    transition,
     selected: isSelected,
     variant,
     icon,
@@ -73,7 +78,12 @@ export const NavigationRailItem = ({
     iconSelected,
   });
 
+  const uuid = useRef(uuidv4());
+
+  transition = { duration: 0.3, ...transition };
+
   return (
+    // @ts-ignore
     <ElementType
       {...restProps}
       role="tab"
@@ -82,21 +92,98 @@ export const NavigationRailItem = ({
       href={href}
       className={styles.navigationRailItem}
       onClick={handleClick}
-      {...(restProps as any)}
+      style={{ transition: transition.duration + 's', ...style }}
     >
-      <div className={styles.container}>
-        <div className={styles.stateLayer}></div>
+      <motion.div
+        style={{
+          transition:
+            variant == 'horizontal'
+              ? transition.duration +
+                `s, gap ${transition.duration! / 2}s ${transition.duration! - transition.duration! / 2}s`
+              : transition.duration +
+                `s, gap ${transition.duration! / 3}s ${transition.duration! - transition.duration! / 3}s`,
+        }}
+        transition={transition}
+        className={styles.container}
+      >
+        <motion.div layout className={styles.stateLayer}></motion.div>
         {icon && (
           <Icon
             icon={isSelected ? iconSelected : icon}
             className={styles.icon}
           />
         )}
-        {variant == 'horizontal' && (
-          <span className={styles.label}>{label}</span>
-        )}
-      </div>
-      {variant == 'vertical' && <span className={styles.label}>{label}</span>}
+        <AnimatePresence>
+          {variant == 'horizontal' &&
+            (() => {
+              const initial = {
+                width: 0,
+                opacity: 0,
+                transition: {
+                  ...transition,
+                },
+              };
+              const animate = {
+                width: 'auto',
+                opacity: 1,
+                transition: {
+                  ...transition,
+                  opacity: {
+                    duration: transition.duration! / 2,
+                    delay: transition.duration! - transition.duration! / 2,
+                  },
+                },
+              };
+              return (
+                <motion.span
+                  initial={initial}
+                  animate={animate}
+                  exit={initial}
+                  className={styles.label}
+                >
+                  {label}
+                </motion.span>
+              );
+            })()}
+        </AnimatePresence>
+      </motion.div>
+      <AnimatePresence>
+        {variant == 'vertical' &&
+          (() => {
+            const initial = {
+              height: 0,
+              opacity: 0,
+              transition: {
+                ...transition,
+                opacity: {
+                  duration: 0,
+                },
+              },
+            };
+            const animate = {
+              height: 'auto',
+              opacity: 1,
+              transition: {
+                ...transition,
+                opacity: {
+                  duration: transition.duration! / 3,
+                  delay: transition.duration! - transition.duration! / 3,
+                },
+              },
+            };
+            return (
+              <motion.span
+                initial={initial}
+                animate={animate}
+                exit={initial}
+                className={styles.label}
+                transition={transition}
+              >
+                {label}
+              </motion.span>
+            );
+          })()}
+      </AnimatePresence>
     </ElementType>
   );
 };

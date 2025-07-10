@@ -1,7 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { faCircleUser as fasCircleUser } from '@fortawesome/free-solid-svg-icons';
-import { Fab, NavigationRail, NavigationRailItem, ReactProps } from '../../../src';
+import {
+  Fab,
+  NavigationRail,
+  NavigationRailItem,
+  ReactProps,
+} from '../../../src';
 import { NavigationRailInterface } from '../../../src/interfaces/navigation-rail.interface';
 import { faCircleUser as farCircleUser } from '@fortawesome/free-regular-svg-icons';
 

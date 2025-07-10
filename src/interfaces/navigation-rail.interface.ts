@@ -1,6 +1,7 @@
 import { TabProps } from './tab.interface';
 import { Dispatch, ReactNode, RefObject, SetStateAction } from 'react';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { Transition } from 'motion';
 
 type MenuState = {
   icon: IconDefinition;
@@ -25,6 +26,7 @@ export interface NavigationRailInterface {
       closed: MenuState;
       opened: MenuState;
     };
+    transition?: Transition;
   };
   states: { isExtended?: boolean };
   elements: ['navigationRail', 'header', 'menuIcon', 'segments'];
