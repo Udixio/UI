@@ -3,10 +3,10 @@ import { classNames, defaultClassNames } from '../utils';
 
 export const iconButtonStyle = defaultClassNames<IconButtonInterface>(
   'button',
-  ({ variant, disabled, onToggle, isActive }) => {
+  ({ variant, disabled, onToggle, isActive, size }) => {
     return {
       button: classNames(
-        'rounded-full overflow-hidden transition-all duration-300',
+        'rounded-full flex overflow-hidden transition-all duration-300',
         variant === 'filled' && [
           !disabled && {
             'bg-surface-container': !isActive && Boolean(onToggle),
@@ -33,7 +33,7 @@ export const iconButtonStyle = defaultClassNames<IconButtonInterface>(
         ]
       ),
       stateLayer: classNames(
-        'p-2 flex rounded-full',
+        'absolute top-0 left-0 h-full w-full ',
         !disabled && [
           variant === 'standard' && {
             'state-on-surface-variant': !isActive,
@@ -54,7 +54,12 @@ export const iconButtonStyle = defaultClassNames<IconButtonInterface>(
         ]
       ),
       icon: classNames(
-        'h-5 p-0.5 w-5 transition-all duration-300',
+        '  transition-all duration-300',
+        { 'size-5 p-1.5': size === 'xSmall' },
+        { 'size-6 p-2': size === 'small' },
+        { 'size-6 p-4': size === 'medium' },
+        { 'size-8 p-8': size === 'large' },
+        { 'size-10 p-12': size === 'xLarge' },
         !disabled && [
           variant === 'standard' && {
             'text-on-surface-variant': !isActive,

@@ -44,7 +44,7 @@ export const CarouselItem = ({
         duration: 0.5,
         ease: 'linear',
       }}
-      className={styles.item}
+      className={styles.carouselItem}
       {...restProps}
     >
       {children}

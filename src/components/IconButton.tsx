@@ -17,6 +17,7 @@ export const IconButton = ({
   activated = false,
   onClick,
   icon,
+  size = 'medium',
   iconSelected,
   className,
   ...restProps
@@ -51,7 +52,7 @@ export const IconButton = ({
   const ElementType = href ? 'a' : 'button';
 
   const styles = iconButtonStyle({
-    href: href as any,
+    href,
     activated,
     arialLabel,
     iconSelected,
@@ -61,6 +62,7 @@ export const IconButton = ({
     icon,
     variant,
     className,
+    size,
     ...restProps,
   });
 
@@ -73,9 +75,8 @@ export const IconButton = ({
       {...(restProps as any)}
       onClick={handleClick}
     >
-      <span className={styles.stateLayer}>
-        {icon && <Icon icon={icon} className={styles.icon} />}
-      </span>
+      <span className={styles.stateLayer}></span>{' '}
+      {icon && <Icon icon={icon} className={styles.icon} />}
     </ElementType>
   );
 };

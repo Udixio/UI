@@ -8,15 +8,15 @@ export type ReactProps<T extends ComponentInterface> = Omit<
   keyof T['props'] | 'className'
 > &
   ComponentClassName<T> & {
-  ref?: React.RefObject<HTMLElements[T['type']] | null>;
-} & T['props'];
+    ref?: React.RefObject<HTMLElements[T['type']] | null>;
+  } & T['props'];
 
-
-export type MotionProps<T extends ComponentInterface> = ReactProps<T> & HTMLMotionProps<T['type']>
+export type MotionProps<T extends ComponentInterface> = ReactProps<T> &
+  HTMLMotionProps<T['type']>;
 
 export interface LinkInterface<Props> {
   type: 'a';
-  props: Props & { href: string };
+  props: Props & { href?: string };
 }
 
 export interface ActionInterface<Props> {

@@ -7,5 +7,5 @@ export interface CarouselItemInterface {
     width?: number;
     index?: number;
   };
-  elements: ['item'];
+  elements: ['carouselItem'];
 }

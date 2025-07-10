@@ -5,6 +5,7 @@ import { ActionOrLink } from '../utils/component';
 type Props = {
   arialLabel: string;
   icon: IconDefinition;
+  size?: 'xSmall' | 'small' | 'medium' | 'large' | 'xLarge';
   iconSelected?: IconDefinition;
   onToggle?: (isActive: boolean) => void;
   variant?: IconButtonVariant;
