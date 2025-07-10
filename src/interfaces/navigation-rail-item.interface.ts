@@ -1,9 +1,9 @@
-import { ActionOrLink } from '../utils/component';
+import { ActionOrLink } from '../utils';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { Dispatch, RefObject, SetStateAction } from 'react';
 import { Transition } from 'motion';
 
-type NavProps = {
+export type NavProps = {
   selected?: boolean;
   variant?: 'vertical' | 'horizontal';
   label?: string;
