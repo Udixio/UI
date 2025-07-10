@@ -10,6 +10,10 @@ module.exports = {
       prerelease: true,
     },
     {
+      name: 'release/*',
+      prerelease: 'next',
+    },
+    {
       name: 'hotfix/*',
       prerelease: false,
     },
