@@ -1,5 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import React, { useEffect, useRef, useState } from 'react';
 import { ReactProps } from '../utils';
 import {
   NavigationRailItem,
@@ -14,10 +13,10 @@ import { IconButton } from './IconButton';
 
 export const NavigationRail = ({
   variant = 'standard',
-  onTabSelected,
+  onItemSelected,
   children,
   className,
-  selectedTab: externalSelectedTab,
+  selectedItem: externalSelectedItem,
   extended,
   alignment = 'top',
   menu = {
@@ -31,27 +30,28 @@ export const NavigationRail = ({
     },
   },
   style,
+  onExtendedChange,
   transition,
-  setSelectedTab: externalSetSelectedTab,
+  setSelectedItem: externalSetSelectedItem,
 }: ReactProps<NavigationRailInterface>) => {
-  const [internalSelectedTab, internalSetSelectedTab] = useState<number | null>(
-    null
-  );
+  const [internalSelectedItem, internalSetSelectedItem] = useState<
+    number | null
+  >(null);
 
   const [isExtended, setIsExtended] = useState(extended);
 
-  let selectedTab: number | null;
-  if (externalSelectedTab == 0 || externalSelectedTab != undefined) {
-    selectedTab = externalSelectedTab;
+  let selectedItem: number | null;
+  if (externalSelectedItem == 0 || externalSelectedItem != undefined) {
+    selectedItem = externalSelectedItem;
   } else {
-    selectedTab = internalSelectedTab;
+    selectedItem = internalSelectedItem;
   }
 
-  const setSelectedTab = externalSetSelectedTab || internalSetSelectedTab;
+  const setSelectedItem = externalSetSelectedItem || internalSetSelectedItem;
 
   const ref = React.useRef<HTMLDivElement | null>(null);
 
-  const handleOnTabSelected = (
+  const handleOnItemSelected = (
     args: { index: number } & Pick<
       ReactProps<NavigationRailItemInterface>,
       'label' | 'icon'
@@ -59,7 +59,7 @@ export const NavigationRail = ({
         ref: React.RefObject<any>;
       }
   ) => {
-    onTabSelected?.(args);
+    onItemSelected?.(args);
   };
 
   const childrenArray = React.Children.toArray(children);
@@ -68,13 +68,11 @@ export const NavigationRail = ({
     (child) => React.isValidElement(child) && child.type === Fab
   );
 
-  const tabsId = useMemo(() => uuidv4(), []);
-
   const styles = navigationRailStyle({
     children,
-    onTabSelected,
-    selectedTab,
-    setSelectedTab,
+    onItemSelected,
+    selectedItem,
+    setSelectedItem,
     className,
     variant,
     extended: isExtended,
@@ -82,10 +80,16 @@ export const NavigationRail = ({
     alignment,
     menu,
     transition,
+    onExtendedChange,
   });
   transition = { duration: 0.3, ...transition };
   const extendedOnly = useRef(false);
   extendedOnly.current = false;
+
+  useEffect(() => {
+    onExtendedChange?.(isExtended ?? false);
+  }, [isExtended]);
+
   return (
     <div
       style={{ transition: transition.duration + 's', ...style }}
@@ -125,10 +129,9 @@ export const NavigationRail = ({
                 key: index,
                 index,
                 variant: isExtended ? 'horizontal' : 'vertical',
-                selectedTab,
-                setSelectedTab: setSelectedTab,
-                tabsId: tabsId,
-                onTabSelected: handleOnTabSelected,
+                selectedItem,
+                setSelectedItem: setSelectedItem,
+                onItemSelected: handleOnItemSelected,
                 transition,
                 extendedOnly: extendedOnly.current,
                 isExtended,
