@@ -62,7 +62,19 @@ export const NavigationRail = ({
     onTabSelected?.(args);
   };
 
-  const childrenArray = React.Children.toArray(children);
+  function flattenChildren(children: React.ReactNode): React.ReactNode[] {
+    const flatChildren: React.ReactNode[] = [];
+    React.Children.forEach(children, (child) => {
+      if (React.isValidElement(child) && child.type === React.Fragment) {
+        flatChildren.push(...flattenChildren(child.props.children));
+      } else {
+        flatChildren.push(child);
+      }
+    });
+    return flatChildren;
+  }
+
+  const childrenArray = flattenChildren(children);
 
   const fab = childrenArray.filter(
     (child) => React.isValidElement(child) && child.type === Fab
