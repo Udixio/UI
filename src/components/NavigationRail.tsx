@@ -65,7 +65,10 @@ export const NavigationRail = ({
   function flattenChildren(children: React.ReactNode): React.ReactNode[] {
     const flatChildren: React.ReactNode[] = [];
     React.Children.forEach(children, (child) => {
-      if (React.isValidElement(child) && child.type === React.Fragment) {
+      if (
+        React.isValidElement<{ children?: React.ReactNode }>(child) &&
+        child.type === React.Fragment
+      ) {
         flatChildren.push(...flattenChildren(child.props.children));
       } else {
         flatChildren.push(child);
