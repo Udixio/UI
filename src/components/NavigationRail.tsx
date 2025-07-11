@@ -110,7 +110,7 @@ export const NavigationRail = ({
             {
               transition: transition,
               isExtended: isExtended,
-              className: '!shadow-none ml-5 ' + (fab[0] as any).props.className,
+              className: '!shadow-none mx-5 ' + (fab[0] as any).props.className,
             }
           )}
       </div>
