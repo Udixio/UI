@@ -1,3 +1,11 @@
+## [1.7.3](https://github.com/Udixio/UI/compare/v1.7.2...v1.7.3) (2025-07-11)
+
+
+### Bug Fixes
+
+* **ui:** handle React fragments in NavigationRail children ([ba2e2af](https://github.com/Udixio/UI/commit/ba2e2afa68d1ac01e9c4ee08d234f96345fa0fd1))
+* **ui:** refine type check for React.Fragment in flattenChildren ([fd1b6bd](https://github.com/Udixio/UI/commit/fd1b6bd08cb895463916c98eafb02d8a60619152))
+
 ## [1.7.2](https://github.com/Udixio/UI/compare/v1.7.1...v1.7.2) (2025-07-11)
 
 
