@@ -1,3 +1,10 @@
+## [1.7.2](https://github.com/Udixio/UI/compare/v1.7.1...v1.7.2) (2025-07-11)
+
+
+### Bug Fixes
+
+* **ui:** adjust NavigationRail spacing for alignment ([4a1cd5a](https://github.com/Udixio/UI/commit/4a1cd5ac01063ead74f6f79df0a4f0a802b77a26))
+
 ## [1.7.1](https://github.com/Udixio/UI/compare/v1.7.0...v1.7.1) (2025-07-10)
 
 
