@@ -5,6 +5,8 @@
 /.pnp
 .pnp.js
 
+.nx
+
 # testing
 /coverage
 
@@ -34,7 +36,6 @@ yarn-error.log*
 ClassNameHelper.tsbuildinfo
 next-env.d.ts
 yarn.lock
-.idea
 /storybook-static/
 /build-storybook.log
 *.log

@@ -1,0 +1,796 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AIAssistantCustomInstructionsStorage">
+    <option name="instructions">
+      <map>
+        <entry key="AIAssistant.VCS.GenerateCommitMessage">
+          <value>
+            <AIAssistantStoredInstruction>
+              <option name="actionId" value="AIAssistant.VCS.GenerateCommitMessage" />
+              <option name="content" value="Use Conventional Commit format" />
+            </AIAssistantStoredInstruction>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="7cbc347b-2994-488c-9f30-fc0abd18e59a" name="Changes" comment="refactor(project): restructure files into `packages/ui-react`&#10;&#10;Moved all project files into the `packages/ui-react` directory for better organization and modularity. Updated paths, configurations, and scripts to align with the new structure, ensuring compatibility and functionality remain intact.">
+      <change beforePath="$PROJECT_DIR$/packages/ui-react/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FormatOnSaveOptions">
+    <option name="myRunOnSave" value="true" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="hotfix/nav-align" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;vigreux-joel&quot;
+  }
+}</component>
+  <component name="GitHubPullRequestState">{
+  &quot;prStates&quot;: [
+    {
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOKRZ1tc6eYiJI&quot;,
+        &quot;number&quot;: 36
+      },
+      &quot;lastSeen&quot;: 1752183263148
+    }
+  ]
+}</component>
+  <component name="GitRewordedCommitMessages">
+    <option name="commitMessagesMapping">
+      <RewordedCommitMessageMapping>
+        <option name="originalMessage" value="feat(theme): integrate @udixio/theme and migrate configs&#10;&#10;Replaces @udixio/tailwind-material with @udixio/theme for theme configuration and simplifies Tailwind setup. Introduces a new `theme.config.ts` file for defining theme customizations. Additionally, updates dependencies including `react-textarea-autosize` and adjusts references to color variables in the code." />
+        <option name="rewordedMessage" value="fix(theme): integrate @udixio/theme and migrate configs&#10;&#10;Replaces @udixio/tailwind-material with @udixio/theme for theme configuration and simplifies Tailwind setup. Introduces a new `theme.config.ts` file for defining theme customizations. Additionally, updates dependencies including `react-textarea-autosize` and adjusts references to color variables in the code." />
+      </RewordedCommitMessageMapping>
+    </option>
+    <option name="currentCommit" value="1" />
+    <option name="onto" value="175ec5073d7dd08819ffa9688680c6d997a94991" />
+  </component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Udixio/UI.git&quot;,
+    &quot;accountId&quot;: &quot;da64924d-2a12-4320-81bb-255103fb2ccd&quot;
+  },
+  &quot;recentNewPullRequestHead&quot;: {
+    &quot;server&quot;: {
+      &quot;useHttp&quot;: false,
+      &quot;host&quot;: &quot;github.com&quot;,
+      &quot;port&quot;: null,
+      &quot;suffix&quot;: null
+    },
+    &quot;owner&quot;: &quot;Udixio&quot;,
+    &quot;repository&quot;: &quot;UI&quot;
+  }
+}</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/node_modules/@types/react/index.d.ts" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/node_modules/typescript/lib/lib.es5.d.ts" root0="SKIP_INSPECTION" />
+  </component>
+  <component name="OptimizeOnSaveOptions">
+    <option name="myRunOnSave" value="true" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="2jKNnibkUMcs065OzmpEjH9uYMi" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "JavaScript Debug.projects.executor": "Debug",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Nx.@udixio/ui-components:dev.executor": "Run",
+    "Nx.@udixio/ui-showcase:dev.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHELLCHECK.PATH": "/home/joel/.local/share/JetBrains/WebStorm2024.3/Shell Script/shellcheck",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "release/2.0",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "/home/joel/Documents/projets/udixio/ui/components/src/styles",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.standard": "true",
+    "node.js.detected.package.stylelint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.standard": "",
+    "node.js.selected.package.stylelint": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_interpreter_path": "/home/joel/.config/JetBrains/WebStorm2024.3/node/versions/22.14.0/bin/node",
+    "nodejs_package_manager_path": "npm",
+    "prettierjs.PrettierConfiguration.Package": "/home/joel/Documents/projets/udixio/ui/components/node_modules/prettier",
+    "rearrange.code.on.save": "true",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "ml.llm.AIAssistantPromptsLibrary",
+    "ts.external.directory.path": "/home/joel/Documents/projets/udixio/ui/components/node_modules/typescript/lib",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "dev.nx.console.project_details_files": [
+      "/home/joel/Documents/projets/udixio/ui/components/apps/ui-showcase/package.json",
+      "/home/joel/Documents/projets/udixio/ui/components/apps/ui-showcase/vite.config.ts",
+      "/home/joel/Documents/projets/udixio/ui/components/apps/ui-showcase/tsconfig.app.json",
+      "/home/joel/Documents/projets/udixio/ui/components/apps/ui-showcase/eslint.config.mjs",
+      "/home/joel/Documents/projets/udixio/ui/components/apps/ui-showcase-e2e/package.json",
+      "/home/joel/Documents/projets/udixio/ui/components/apps/ui-showcase-e2e/tsconfig.json",
+      "/home/joel/Documents/projets/udixio/ui/components/apps/ui-showcase-e2e/eslint.config.mjs",
+      "/home/joel/Documents/projets/udixio/ui/components/apps/ui-showcase-e2e/playwright.config.ts",
+      "/home/joel/Documents/projets/udixio/ui/components/packages/ui-components/package.json",
+      "/home/joel/Documents/projets/udixio/ui/components/packages/ui-components/vite.config.ts",
+      "/home/joel/Documents/projets/udixio/ui/components/packages/ui-components/tsconfig.json",
+      "/home/joel/Documents/projets/udixio/ui/components/packages/ui-components/eslint.config.mjs",
+      "/home/joel/Documents/projets/udixio/ui/components/packages/ui-components/.storybook/main.ts",
+      "/home/joel/Documents/projets/udixio/ui/components/packages/ui-components/.storybook/package.json"
+    ]
+  }
+}]]></component>
+  <component name="ReactDesignerToolWindowState">
+    <option name="myId2Visible">
+      <map>
+        <entry key="com.intellij.reactbuddy.reactComponents" value="false" />
+        <entry key="com.intellij.reactbuddy.reactInspector" value="false" />
+        <entry key="com.intellij.reactbuddy.storybook" value="false" />
+      </map>
+    </option>
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/styles" />
+      <recent name="$PROJECT_DIR$/src/interfaces" />
+      <recent name="$PROJECT_DIR$/src/components" />
+      <recent name="$PROJECT_DIR$/stories/navigation" />
+      <recent name="$PROJECT_DIR$" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/packages/ui-react" />
+      <recent name="$PROJECT_DIR$/packages" />
+      <recent name="$PROJECT_DIR$/stories/selection" />
+      <recent name="$PROJECT_DIR$/src/styles" />
+    </key>
+  </component>
+  <component name="RunManager" selected="JavaScript Debug.projects">
+    <configuration name="projects" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://127.0.0.1:4211/projects">
+      <method v="2" />
+    </configuration>
+    <configuration name="@udixio/ui-components:dev" type="NxRunConfigurationType">
+      <option name="nx-projects" value="@udixio/ui-components" />
+      <option name="nx-targets" value="dev" />
+      <option name="nx-target-configuration" value="" />
+      <envs />
+      <option name="arguments" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="@udixio/ui-showcase:dev" type="NxRunConfigurationType">
+      <option name="nx-projects" value="@udixio/ui-showcase" />
+      <option name="nx-targets" value="dev" />
+      <option name="nx-target-configuration" value="" />
+      <envs />
+      <option name="arguments" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JavaScript Debug.projects" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-WS-251.26927.40" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="7cbc347b-2994-488c-9f30-fc0abd18e59a" name="Changes" comment="" />
+      <created>1720511703166</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1720511703166</updated>
+      <workItem from="1721131981340" duration="4602000" />
+      <workItem from="1721144680630" duration="30634000" />
+      <workItem from="1721815668220" duration="36000" />
+      <workItem from="1721825765238" duration="1516000" />
+      <workItem from="1723040329127" duration="6178000" />
+      <workItem from="1723149478211" duration="645000" />
+      <workItem from="1723200231012" duration="3968000" />
+      <workItem from="1723218799957" duration="1932000" />
+      <workItem from="1723274536665" duration="10958000" />
+      <workItem from="1723292982302" duration="6251000" />
+      <workItem from="1723322569857" duration="3127000" />
+      <workItem from="1723442467169" duration="395000" />
+      <workItem from="1723442873136" duration="666000" />
+      <workItem from="1723476260898" duration="114000" />
+      <workItem from="1723815625478" duration="22000" />
+      <workItem from="1723818130026" duration="1987000" />
+      <workItem from="1724447281719" duration="1485000" />
+      <workItem from="1724488464539" duration="3000" />
+      <workItem from="1735551726698" duration="6178000" />
+      <workItem from="1735570384820" duration="4642000" />
+      <workItem from="1735836629758" duration="354000" />
+      <workItem from="1735904406467" duration="2740000" />
+      <workItem from="1736069646763" duration="133000" />
+      <workItem from="1736253397505" duration="220000" />
+      <workItem from="1736348006088" duration="1275000" />
+      <workItem from="1736752929582" duration="15080000" />
+      <workItem from="1736796400065" duration="496000" />
+      <workItem from="1736846234968" duration="19429000" />
+      <workItem from="1736894239887" duration="2274000" />
+      <workItem from="1736946551776" duration="13269000" />
+      <workItem from="1736961597221" duration="89000" />
+      <workItem from="1737018389917" duration="13817000" />
+      <workItem from="1737045266329" duration="4273000" />
+      <workItem from="1737103813939" duration="6189000" />
+      <workItem from="1737122786635" duration="3944000" />
+      <workItem from="1737136417561" duration="586000" />
+      <workItem from="1737143086131" duration="3761000" />
+      <workItem from="1737196912470" duration="14317000" />
+      <workItem from="1737363088294" duration="2973000" />
+      <workItem from="1737368182308" duration="7082000" />
+      <workItem from="1737389133844" duration="5406000" />
+      <workItem from="1737442936680" duration="6926000" />
+      <workItem from="1737460072449" duration="6839000" />
+      <workItem from="1737484165443" duration="1548000" />
+      <workItem from="1737530286350" duration="17087000" />
+      <workItem from="1737565922229" duration="445000" />
+      <workItem from="1737566512096" duration="4780000" />
+      <workItem from="1737571327414" duration="137000" />
+      <workItem from="1737576155352" duration="1261000" />
+      <workItem from="1737623332853" duration="2552000" />
+      <workItem from="1737637727608" duration="4338000" />
+      <workItem from="1737653242709" duration="1236000" />
+      <workItem from="1737656991863" duration="482000" />
+      <workItem from="1737701381153" duration="2956000" />
+      <workItem from="1737707522549" duration="622000" />
+      <workItem from="1737722011982" duration="250000" />
+      <workItem from="1737733981280" duration="1047000" />
+      <workItem from="1737737789599" duration="1605000" />
+      <workItem from="1737743505095" duration="863000" />
+      <workItem from="1738053623800" duration="7380000" />
+      <workItem from="1738070819276" duration="2620000" />
+      <workItem from="1738137581571" duration="5127000" />
+      <workItem from="1738147883648" duration="6650000" />
+      <workItem from="1738163624968" duration="2232000" />
+      <workItem from="1738165909301" duration="3200000" />
+      <workItem from="1738224014672" duration="1181000" />
+      <workItem from="1738230457929" duration="303000" />
+      <workItem from="1738230994926" duration="4816000" />
+      <workItem from="1738247513232" duration="7753000" />
+      <workItem from="1738320461474" duration="575000" />
+      <workItem from="1738330194325" duration="3838000" />
+      <workItem from="1738334075077" duration="70000" />
+      <workItem from="1738334193255" duration="2249000" />
+      <workItem from="1738346352085" duration="7893000" />
+      <workItem from="1738362637811" duration="859000" />
+      <workItem from="1738416629826" duration="2953000" />
+      <workItem from="1738484682657" duration="250000" />
+      <workItem from="1738484968444" duration="2866000" />
+      <workItem from="1738488049385" duration="2305000" />
+      <workItem from="1738684644052" duration="15000" />
+      <workItem from="1738685380091" duration="21109000" />
+      <workItem from="1738746255716" duration="9940000" />
+      <workItem from="1738765678972" duration="7785000" />
+      <workItem from="1738776374095" duration="1904000" />
+      <workItem from="1738778404655" duration="3321000" />
+      <workItem from="1738790748578" duration="5257000" />
+      <workItem from="1738863844557" duration="589000" />
+      <workItem from="1738919178028" duration="8550000" />
+      <workItem from="1738937912577" duration="2964000" />
+      <workItem from="1739035091133" duration="14268000" />
+      <workItem from="1739196405546" duration="4829000" />
+      <workItem from="1739202499825" duration="7219000" />
+      <workItem from="1739358326367" duration="4621000" />
+      <workItem from="1739383633175" duration="5233000" />
+      <workItem from="1739393313847" duration="4820000" />
+      <workItem from="1739435407398" duration="13000" />
+      <workItem from="1742233977142" duration="886000" />
+      <workItem from="1743508265331" duration="7777000" />
+      <workItem from="1743521940959" duration="278000" />
+      <workItem from="1744117324579" duration="524000" />
+      <workItem from="1745835876310" duration="72000" />
+      <workItem from="1745922196153" duration="2278000" />
+      <workItem from="1745959188697" duration="28000" />
+      <workItem from="1750942810324" duration="119000" />
+      <workItem from="1751276615337" duration="225000" />
+      <workItem from="1751356476167" duration="1825000" />
+      <workItem from="1751398822120" duration="4114000" />
+      <workItem from="1751443692054" duration="24000" />
+      <workItem from="1751446469250" duration="53000" />
+      <workItem from="1751447059852" duration="1240000" />
+      <workItem from="1751747568450" duration="3398000" />
+      <workItem from="1751835345421" duration="1575000" />
+      <workItem from="1751837209199" duration="930000" />
+      <workItem from="1751838301682" duration="2326000" />
+      <workItem from="1751859173881" duration="6740000" />
+      <workItem from="1751871261658" duration="74000" />
+      <workItem from="1751891371973" duration="11822000" />
+      <workItem from="1751955266275" duration="4284000" />
+      <workItem from="1751988963575" duration="6904000" />
+      <workItem from="1752006329998" duration="5555000" />
+      <workItem from="1752051741411" duration="8000" />
+      <workItem from="1752055630793" duration="25461000" />
+      <workItem from="1752088015877" duration="179000" />
+      <workItem from="1752088209388" duration="5709000" />
+      <workItem from="1752134968176" duration="8669000" />
+      <workItem from="1752144049643" duration="3245000" />
+      <workItem from="1752158666125" duration="9846000" />
+      <workItem from="1752170897321" duration="5588000" />
+      <workItem from="1752186394026" duration="11000" />
+      <workItem from="1752221888971" duration="185000" />
+      <workItem from="1752226808251" duration="1421000" />
+      <workItem from="1752353173658" duration="1790000" />
+    </task>
+    <task id="LOCAL-00168" summary="refactor(components): update typings and simplify imports&#10;&#10;Replaced component-specific prop types with a generic `ReactProps` utility for consistency and clarity. Updated imports across multiple components to align with the new typing structure. Improved maintainability and reduced redundancy in prop type definitions.">
+      <option name="closed" value="true" />
+      <created>1752007451907</created>
+      <option name="number" value="00168" />
+      <option name="presentableId" value="LOCAL-00168" />
+      <option name="project" value="LOCAL" />
+      <updated>1752007451907</updated>
+    </task>
+    <task id="LOCAL-00169" summary="refactor(dependencies): replace framer-motion with motion&#10;&#10;Replaced all imports of `framer-motion` with `motion/react` across components and effects. Updated `package.json` to reflect the dependency change and aligned imports accordingly for consistency and compatibility.">
+      <option name="closed" value="true" />
+      <created>1752010960352</created>
+      <option name="number" value="00169" />
+      <option name="presentableId" value="LOCAL-00169" />
+      <option name="project" value="LOCAL" />
+      <updated>1752010960352</updated>
+    </task>
+    <task id="LOCAL-00170" summary="refactor(components): update typings and adjust imports&#10;&#10;Replaced specific typing imports with consolidated types (e.g., `React.MouseEvent` to `MouseEvent`) for improved consistency. Simplified imports across multiple components and removed unused or redundant props. Enhanced maintainability and reduced code clutter in affected files.">
+      <option name="closed" value="true" />
+      <created>1752011212834</created>
+      <option name="number" value="00170" />
+      <option name="presentableId" value="LOCAL-00170" />
+      <option name="project" value="LOCAL" />
+      <updated>1752011212834</updated>
+    </task>
+    <task id="LOCAL-00171" summary="refactor(components): update typings and adjust imports&#10;&#10;Replaced specific typing imports with consolidated types (e.g., `React.MouseEvent` to `MouseEvent`) for improved consistency. Simplified imports across multiple components and removed unused or redundant props. Enhanced maintainability and reduced code clutter in affected files.">
+      <option name="closed" value="true" />
+      <created>1752011216678</created>
+      <option name="number" value="00171" />
+      <option name="presentableId" value="LOCAL-00171" />
+      <option name="project" value="LOCAL" />
+      <updated>1752011216679</updated>
+    </task>
+    <task id="LOCAL-00172" summary="refactor(components): rename and update TextField structure&#10;&#10;Moved and renamed TextField-related files to align with project conventions. Updated imports, typings, and definitions to improve consistency and maintainability. Simplified type usage by replacing redundant props and consolidating interfaces.">
+      <option name="closed" value="true" />
+      <created>1752011481168</created>
+      <option name="number" value="00172" />
+      <option name="presentableId" value="LOCAL-00172" />
+      <option name="project" value="LOCAL" />
+      <updated>1752011481168</updated>
+    </task>
+    <task id="LOCAL-00173" summary="refactor(components): centralize exports for reusable modules&#10;&#10;Created index files for components, interfaces, styles, and effects to centralize exports and improve scalability. Updated all related imports to use the new index files, reducing redundancy and improving maintainability across the codebase.">
+      <option name="closed" value="true" />
+      <created>1752012425519</created>
+      <option name="number" value="00173" />
+      <option name="presentableId" value="LOCAL-00173" />
+      <option name="project" value="LOCAL" />
+      <updated>1752012425519</updated>
+    </task>
+    <task id="LOCAL-00174" summary="refactor(styles): improve classNames handling in getClassNames&#10;&#10;Updated `getClassNames` to ensure proper initialization for className arrays. Removed unnecessary `undefined` checks in `defaultClassNames` to simplify typing and improve code consistency.">
+      <option name="closed" value="true" />
+      <created>1752012808436</created>
+      <option name="number" value="00174" />
+      <option name="presentableId" value="LOCAL-00174" />
+      <option name="project" value="LOCAL" />
+      <updated>1752012808436</updated>
+    </task>
+    <task id="LOCAL-00175" summary="refactor(stories): update typings to use ReactProps utility&#10;&#10;Replaced specific prop types with the generic `ReactProps` utility across all story files for uniformity. Simplified typings by adapting component interfaces, enhancing maintainability and consistency throughout the stories.">
+      <option name="closed" value="true" />
+      <created>1752056461495</created>
+      <option name="number" value="00175" />
+      <option name="presentableId" value="LOCAL-00175" />
+      <option name="project" value="LOCAL" />
+      <updated>1752056461497</updated>
+    </task>
+    <task id="LOCAL-00176" summary="refactor(styles): allow undefined in classNameList typings&#10;&#10;Updated `getClassNames` typings to support `undefined` in `classNameList` for better flexibility. Adjusted related typings to ensure proper handling of optional class names and improve code robustness.">
+      <option name="closed" value="true" />
+      <created>1752057079029</created>
+      <option name="number" value="00176" />
+      <option name="presentableId" value="LOCAL-00176" />
+      <option name="project" value="LOCAL" />
+      <updated>1752057079029</updated>
+    </task>
+    <task id="LOCAL-00177" summary="refactor(components): update typings and adjust imports&#10;&#10;Refined typings by centralizing `ReactProps` usage and updating interfaces for better consistency. Simplified imports by leveraging index files and adjusted props in stories to match the updated structures. Improved maintainability and reduced redundancy across components and stories.">
+      <option name="closed" value="true" />
+      <created>1752057498388</created>
+      <option name="number" value="00177" />
+      <option name="presentableId" value="LOCAL-00177" />
+      <option name="project" value="LOCAL" />
+      <updated>1752057498388</updated>
+    </task>
+    <task id="LOCAL-00178" summary="refactor(workflows): migrate from npm to pnpm&#10;&#10;Replaced `npm` commands with `pnpm` equivalents in GitHub Actions workflows for testing, linting, and deployment. Added pnpm setup action to ensure compatibility and used `pnpm install --frozen-lockfile` for dependency installation. Improved workflow efficiency and consistency by adopting pnpm.">
+      <option name="closed" value="true" />
+      <created>1752058253874</created>
+      <option name="number" value="00178" />
+      <option name="presentableId" value="LOCAL-00178" />
+      <option name="project" value="LOCAL" />
+      <updated>1752058253874</updated>
+    </task>
+    <task id="LOCAL-00179" summary="refactor(dependencies): remove package-lock.json&#10;&#10;Deleted `package-lock.json` to finalize the migration from npm to pnpm. Ensures consistency with the new package manager and prevents conflicts caused by multiple lock files. The project now adheres to pnpm's dependency management fully.">
+      <option name="closed" value="true" />
+      <created>1752058624104</created>
+      <option name="number" value="00179" />
+      <option name="presentableId" value="LOCAL-00179" />
+      <option name="project" value="LOCAL" />
+      <updated>1752058624104</updated>
+    </task>
+    <task id="LOCAL-00180" summary="refactor(interfaces): simplify Props declaration&#10;&#10;Replaced `export type` and `export interface` with `type` and `interface` respectively to align with coding standards. Ensures consistency and readability across interface declarations.">
+      <option name="closed" value="true" />
+      <created>1752058840523</created>
+      <option name="number" value="00180" />
+      <option name="presentableId" value="LOCAL-00180" />
+      <option name="project" value="LOCAL" />
+      <updated>1752058840523</updated>
+    </task>
+    <task id="LOCAL-00181" summary="refactor(components): remove unused MouseEvent import&#10;&#10;Eliminated the unused `MouseEvent` import from `Button` component to tidy up code and reduce redundancy. Adjusted the `onClick` handler to use a generic `any` type for parameter typing simplification.">
+      <option name="closed" value="true" />
+      <created>1752059203847</created>
+      <option name="number" value="00181" />
+      <option name="presentableId" value="LOCAL-00181" />
+      <option name="project" value="LOCAL" />
+      <updated>1752059203847</updated>
+    </task>
+    <task id="LOCAL-00182" summary="refactor(imports): simplify and centralize import paths&#10;&#10;Reorganized imports across components, styles, and interfaces to utilize centralized index files. Removed redundant and deeply nested imports, improving maintainability and reducing potential path inconsistencies.">
+      <option name="closed" value="true" />
+      <created>1752059578271</created>
+      <option name="number" value="00182" />
+      <option name="presentableId" value="LOCAL-00182" />
+      <option name="project" value="LOCAL" />
+      <updated>1752059578271</updated>
+    </task>
+    <task id="LOCAL-00183" summary="refactor(typings): enhance ReactProps and integrate MotionProps&#10;&#10;Updated `ReactProps` to improve flexibility">
+      <option name="closed" value="true" />
+      <created>1752060193539</created>
+      <option name="number" value="00183" />
+      <option name="presentableId" value="LOCAL-00183" />
+      <option name="project" value="LOCAL" />
+      <updated>1752060193539</updated>
+    </task>
+    <task id="LOCAL-00184" summary="refactor(typings): replace ReactProps with MotionProps&#10;&#10;Updated `Switch` and `Tab` components to use `MotionProps` instead of `ReactProps` for improved consistency with motion-related components. Adjusted default values and typings to enhance type safety and maintainability.">
+      <option name="closed" value="true" />
+      <created>1752060395561</created>
+      <option name="number" value="00184" />
+      <option name="presentableId" value="LOCAL-00184" />
+      <option name="project" value="LOCAL" />
+      <updated>1752060395561</updated>
+    </task>
+    <task id="LOCAL-00185" summary="**refactor(components): replace ReactProps with MotionProps in Snackbar**&#10;&#10;Updated the `Snackbar` component to use `MotionProps` instead of `ReactProps` for improved consistency with other motion-related components. This aligns the typings more closely with motion-specific requirements">
+      <option name="closed" value="true" />
+      <created>1752060538574</created>
+      <option name="number" value="00185" />
+      <option name="presentableId" value="LOCAL-00185" />
+      <option name="project" value="LOCAL" />
+      <updated>1752060538574</updated>
+    </task>
+    <task id="LOCAL-00186" summary="refactor(scripts): remove lint script and husky configuration&#10;&#10;Deleted the `lint` script and `husky` pre-commit hooks to simplify the project setup. Streamlined the package by removing unused configurations, reducing noise and unnecessary overhead.">
+      <option name="closed" value="true" />
+      <created>1752064967007</created>
+      <option name="number" value="00186" />
+      <option name="presentableId" value="LOCAL-00186" />
+      <option name="project" value="LOCAL" />
+      <updated>1752064967008</updated>
+    </task>
+    <task id="LOCAL-00187" summary="refactor(workflows): comment out lint steps in workflows&#10;&#10;Commented out the lint steps in `develop.yml`, `release.yml`, and `hotfix.yml` to align with the project's recent removal of the lint script. This simplifies the workflows and ensures they do not reference deprecated configurations.">
+      <option name="closed" value="true" />
+      <created>1752065255504</created>
+      <option name="number" value="00187" />
+      <option name="presentableId" value="LOCAL-00187" />
+      <option name="project" value="LOCAL" />
+      <updated>1752065255504</updated>
+    </task>
+    <task id="LOCAL-00188" summary="refactor(dependencies): remove unused packages&#10;&#10;Removed `ctix` and other unreferenced dependencies to streamline the project. This reduces bloated package files and ensures only essential dependencies are included.">
+      <option name="closed" value="true" />
+      <created>1752065973860</created>
+      <option name="number" value="00188" />
+      <option name="presentableId" value="LOCAL-00188" />
+      <option name="project" value="LOCAL" />
+      <updated>1752065973860</updated>
+    </task>
+    <task id="LOCAL-00189" summary="refactor(styles): rename `item` to `carouselItem` for clarity&#10;&#10;Updated variable names and class references from `item` to `carouselItem` in styles, interfaces, and components. This improves readability and better aligns with the carousel-specific naming convention.">
+      <option name="closed" value="true" />
+      <created>1752073438272</created>
+      <option name="number" value="00189" />
+      <option name="presentableId" value="LOCAL-00189" />
+      <option name="project" value="LOCAL" />
+      <updated>1752073438272</updated>
+    </task>
+    <task id="LOCAL-00190" summary="feat(components): add NavigationRail and NavigationRailItem&#10;&#10;Introduced `NavigationRail` and `NavigationRailItem` components for enhanced navigation support. Implemented styles, interfaces, and Storybook stories to support both vertical and horizontal variants with icons and labels. Added utility for string manipulation and updated class handling for improved styling.">
+      <option name="closed" value="true" />
+      <created>1752075988676</created>
+      <option name="number" value="00190" />
+      <option name="presentableId" value="LOCAL-00190" />
+      <option name="project" value="LOCAL" />
+      <updated>1752075988676</updated>
+    </task>
+    <task id="LOCAL-00191" summary="fix(styles): reorder classNames">
+      <option name="closed" value="true" />
+      <created>1752083477314</created>
+      <option name="number" value="00191" />
+      <option name="presentableId" value="LOCAL-00191" />
+      <option name="project" value="LOCAL" />
+      <updated>1752083477314</updated>
+    </task>
+    <task id="LOCAL-00192" summary="feat(components): implement NavigationRail and related styles&#10;&#10;Added `NavigationRail` component with support for extended and aligned configurations. Introduced associated interfaces, styles, and Storybook stories to illustrate usage and functionalities.">
+      <option name="closed" value="true" />
+      <created>1752085051067</created>
+      <option name="number" value="00192" />
+      <option name="presentableId" value="LOCAL-00192" />
+      <option name="project" value="LOCAL" />
+      <updated>1752085051067</updated>
+    </task>
+    <task id="LOCAL-00193" summary="feat(styles): add `segments` element and improve class handling&#10;&#10;Introduced the `segments` element in `NavigationRail` interface and applied related styles. Refactored class implementations for better structure and maintainability. This enhances the component's styling and adds additional customization options.">
+      <option name="closed" value="true" />
+      <created>1752085350541</created>
+      <option name="number" value="00193" />
+      <option name="presentableId" value="LOCAL-00193" />
+      <option name="project" value="LOCAL" />
+      <updated>1752085350541</updated>
+    </task>
+    <task id="LOCAL-00194" summary="feat(components): enhance NavigationRail with extended menu options&#10;&#10;Added menu toggle functionality to `NavigationRail` with support for customizable icons and labels. Updated styles and interfaces for better alignment and extended state handling. Refactored related elements to improve usability and maintainability.">
+      <option name="closed" value="true" />
+      <created>1752110705875</created>
+      <option name="number" value="00194" />
+      <option name="presentableId" value="LOCAL-00194" />
+      <option name="project" value="LOCAL" />
+      <updated>1752110705876</updated>
+    </task>
+    <task id="LOCAL-00195" summary="feat(components): add size variants to IconButton&#10;&#10;Introduced `size` property to `IconButton` with predefined variants (`xSmall`, `small`, `medium`, `large`, `xLarge`) for responsive design. Updated styles, interfaces, and Storybook stories to support and demonstrate the new functionality. Refactored related class handling to ensure proper alignment and consistency.">
+      <option name="closed" value="true" />
+      <created>1752114020471</created>
+      <option name="number" value="00195" />
+      <option name="presentableId" value="LOCAL-00195" />
+      <option name="project" value="LOCAL" />
+      <updated>1752114020471</updated>
+    </task>
+    <task id="LOCAL-00196" summary="refactor(styles): simplify and reorder NavigationRail styles&#10;&#10;Reorganized `NavigationRail` styles for better readability and maintainability. Simplified `header` and `segments` classes by removing unnecessary conditions and improving alignment handling. Updated `menuIcon` with consistent spacing for enhanced layout structure.">
+      <option name="closed" value="true" />
+      <created>1752114680281</created>
+      <option name="number" value="00196" />
+      <option name="presentableId" value="LOCAL-00196" />
+      <option name="project" value="LOCAL" />
+      <updated>1752114680281</updated>
+    </task>
+    <task id="LOCAL-00197" summary="feat(components): add transition support to NavigationRail&#10;&#10;Integrated `transition` property across `NavigationRail`, `NavigationRailItem`, and `Fab` components for enhanced animation capabilities. Updated associated interfaces, styles, and Storybook stories to support this feature. Refactored and optimized related classes to ensure smooth transitions and better maintainability.">
+      <option name="closed" value="true" />
+      <created>1752145625219</created>
+      <option name="number" value="00197" />
+      <option name="presentableId" value="LOCAL-00197" />
+      <option name="project" value="LOCAL" />
+      <updated>1752145625219</updated>
+    </task>
+    <task id="LOCAL-00198" summary="refactor(styles): update NavigationRailItem dimensions and gaps&#10;&#10;Added fixed height to `navigationRailItem` for consistent layout and adjusted gap conditions for better spacing control. These changes enhance visual alignment and maintainability of the component's styles.">
+      <option name="closed" value="true" />
+      <created>1752147295283</created>
+      <option name="number" value="00198" />
+      <option name="presentableId" value="LOCAL-00198" />
+      <option name="project" value="LOCAL" />
+      <updated>1752147295283</updated>
+    </task>
+    <task id="LOCAL-00199" summary="feat(components): add NavigationRailSection for grouping items&#10;&#10;Introduced `NavigationRailSection` to group and label related `NavigationRailItem`s. Updated `NavigationRail` logic to handle `extendedOnly` and `isExtended` states for conditional rendering. Enhanced Storybook stories to showcase the new functionality.">
+      <option name="closed" value="true" />
+      <created>1752160621014</created>
+      <option name="number" value="00199" />
+      <option name="presentableId" value="LOCAL-00199" />
+      <option name="project" value="LOCAL" />
+      <updated>1752160621014</updated>
+    </task>
+    <task id="LOCAL-00200" summary="feat(workflows): refine release process with distribution tags&#10;&#10;Updated GitHub Actions workflows to introduce distribution tags (`latest`, `next`, `beta`) for semantic releases. Enhanced `release.config.js` to support conditional versioning and tagging rules. Improved documentation with details about release channels and branch strategy.">
+      <option name="closed" value="true" />
+      <created>1752161971935</created>
+      <option name="number" value="00200" />
+      <option name="presentableId" value="LOCAL-00200" />
+      <option name="project" value="LOCAL" />
+      <updated>1752161971935</updated>
+    </task>
+    <task id="LOCAL-00201" summary="refactor(interfaces): update import path and export type in NavProps&#10;&#10;Changed `ActionOrLink` import path to align with updated structure and exported `NavProps` type for wider accessibility. These changes enhance code organization and maintain consistency across modules.">
+      <option name="closed" value="true" />
+      <created>1752162235432</created>
+      <option name="number" value="00201" />
+      <option name="presentableId" value="LOCAL-00201" />
+      <option name="project" value="LOCAL" />
+      <updated>1752162235432</updated>
+    </task>
+    <task id="LOCAL-00202" summary="feat(dependencies): add lodash-es and update imports&#10;&#10;Added `lodash-es` dependency for tree-shakable imports to improve bundle size. Refactored `throttle` import in `custom-scroll.effect.tsx` to utilize specific path from `lodash`. Updated lockfile to include changes.">
+      <option name="closed" value="true" />
+      <created>1752162902853</created>
+      <option name="number" value="00202" />
+      <option name="presentableId" value="LOCAL-00202" />
+      <option name="project" value="LOCAL" />
+      <updated>1752162902853</updated>
+    </task>
+    <task id="LOCAL-00203" summary="feat(config): add DTS configuration with Rollup external support&#10;&#10;Introduced `dts.config.js` to configure DTS with Rollup support. Specified `lodash-es` as an external dependency to optimize library build output and avoid bundling unnecessary modules.">
+      <option name="closed" value="true" />
+      <created>1752163251741</created>
+      <option name="number" value="00203" />
+      <option name="presentableId" value="LOCAL-00203" />
+      <option name="project" value="LOCAL" />
+      <updated>1752163251742</updated>
+    </task>
+    <task id="LOCAL-00204" summary="refactor(config): enhance Rollup configuration in DTS setup&#10;&#10;Updated `rollup` function in `dts.config.js` to dynamically mark `lodash-es` as external. This approach ensures broader compatibility and optimizes the configuration by handling various external formats seamlessly.">
+      <option name="closed" value="true" />
+      <created>1752163456155</created>
+      <option name="number" value="00204" />
+      <option name="presentableId" value="LOCAL-00204" />
+      <option name="project" value="LOCAL" />
+      <updated>1752163456155</updated>
+    </task>
+    <task id="LOCAL-00205" summary="refactor(dependencies): remove lodash and switch to lodash-es&#10;&#10;Replaced `lodash` with `lodash-es` for better tree-shaking support. Updated all relevant imports and added TypeScript types for `lodash-es`. Adjusted the package list and lockfile to reflect these changes.">
+      <option name="closed" value="true" />
+      <created>1752164298844</created>
+      <option name="number" value="00205" />
+      <option name="presentableId" value="LOCAL-00205" />
+      <option name="project" value="LOCAL" />
+      <updated>1752164298844</updated>
+    </task>
+    <task id="LOCAL-00206" summary="refactor(dependencies): replace lodash-es with throttle-debounce&#10;&#10;Removed `lodash-es` and added `throttle-debounce` for throttling functionality. Updated relevant imports and TypeScript types. Adjusted the package.json and lockfile to reflect these changes.">
+      <option name="closed" value="true" />
+      <created>1752164737210</created>
+      <option name="number" value="00206" />
+      <option name="presentableId" value="LOCAL-00206" />
+      <option name="project" value="LOCAL" />
+      <updated>1752164737211</updated>
+    </task>
+    <task id="LOCAL-00207" summary="feat(ci): add semantic-release and new release workflow&#10;&#10;Introduced a GitHub Actions workflow for semantic versioning using `semantic-release`. Added configurations to handle branch-specific pre-releases and integrated dependencies setup with app token generation for automated publishing.">
+      <option name="closed" value="true" />
+      <created>1752165807679</created>
+      <option name="number" value="00207" />
+      <option name="presentableId" value="LOCAL-00207" />
+      <option name="project" value="LOCAL" />
+      <updated>1752165807679</updated>
+    </task>
+    <task id="LOCAL-00208" summary="feat(config): enhance release configuration for prereleases&#10;&#10;Updated `release.config.js`">
+      <option name="closed" value="true" />
+      <created>1752166543841</created>
+      <option name="number" value="00208" />
+      <option name="presentableId" value="LOCAL-00208" />
+      <option name="project" value="LOCAL" />
+      <updated>1752166543841</updated>
+    </task>
+    <task id="LOCAL-00209" summary="refactor(ci): clean up release workflow steps formatting&#10;&#10;Removed unnecessary whitespaces in the release workflow file for better readability. This enhances the maintainability of the CI configuration without altering functionality.">
+      <option name="closed" value="true" />
+      <created>1752166977793</created>
+      <option name="number" value="00209" />
+      <option name="presentableId" value="LOCAL-00209" />
+      <option name="project" value="LOCAL" />
+      <updated>1752166977793</updated>
+    </task>
+    <task id="LOCAL-00210" summary="feat(ci): improve release workflow with auto version PRs&#10;&#10;Enhanced the release workflow to create pull requests with version changes after completing semantic-release. This addition ensures better visibility and traceability of version updates while maintaining automation. Updated">
+      <option name="closed" value="true" />
+      <created>1752167617822</created>
+      <option name="number" value="00210" />
+      <option name="presentableId" value="LOCAL-00210" />
+      <option name="project" value="LOCAL" />
+      <updated>1752167617822</updated>
+    </task>
+    <task id="LOCAL-00211" summary="refactor(ui): enhance NavigationRail component styling&#10;&#10;Updated the NavigationRail component for improved layout flexibility and standardization. Adjusted styles, added new dynamic properties, and refined spacing for better responsiveness and visual alignment.">
+      <option name="closed" value="true" />
+      <created>1752183234000</created>
+      <option name="number" value="00211" />
+      <option name="presentableId" value="LOCAL-00211" />
+      <option name="project" value="LOCAL" />
+      <updated>1752183234001</updated>
+    </task>
+    <task id="LOCAL-00212" summary="fix(ui): rename NavigationRail props for clarity&#10;&#10;Renamed NavigationRail props such as `selectedTab` to `selectedItem` and updated associated handlers for better semantic clarity. Removed redundant `uuid` generation and added `onExtendedChange` prop to enhance customization.">
+      <option name="closed" value="true" />
+      <created>1752184743692</created>
+      <option name="number" value="00212" />
+      <option name="presentableId" value="LOCAL-00212" />
+      <option name="project" value="LOCAL" />
+      <updated>1752184743693</updated>
+    </task>
+    <task id="LOCAL-00213" summary="fix(ui): adjust NavigationRail spacing for alignment&#10;&#10;Updated the NavigationRail component to replace left margin with horizontal spacing (mx-5) for improved visual alignment. This change ensures consistent spacing and better adherence to the design system.">
+      <option name="closed" value="true" />
+      <created>1752222040140</created>
+      <option name="number" value="00213" />
+      <option name="presentableId" value="LOCAL-00213" />
+      <option name="project" value="LOCAL" />
+      <updated>1752222040141</updated>
+    </task>
+    <task id="LOCAL-00214" summary="fix(ui): handle React fragments in NavigationRail children&#10;&#10;Added recursive flattening of child nodes to handle React.Fragment elements in the NavigationRail component. This ensures proper rendering and compatibility with complex child structures.">
+      <option name="closed" value="true" />
+      <created>1752227279251</created>
+      <option name="number" value="00214" />
+      <option name="presentableId" value="LOCAL-00214" />
+      <option name="project" value="LOCAL" />
+      <updated>1752227279251</updated>
+    </task>
+    <task id="LOCAL-00215" summary="fix(ui): refine type check for React.Fragment in flattenChildren&#10;&#10;Updated the `flattenChildren` function to include type-safe checks for React.Fragment. This ensures compatibility with TypeScript and prevents potential runtime errors when handling child nodes.">
+      <option name="closed" value="true" />
+      <created>1752227411569</created>
+      <option name="number" value="00215" />
+      <option name="presentableId" value="LOCAL-00215" />
+      <option name="project" value="LOCAL" />
+      <updated>1752227411569</updated>
+    </task>
+    <task id="LOCAL-00216" summary="refactor(project): restructure files into `packages/ui-react`&#10;&#10;Moved all project files into the `packages/ui-react` directory for better organization and modularity. Updated paths, configurations, and scripts to align with the new structure, ensuring compatibility and functionality remain intact.">
+      <option name="closed" value="true" />
+      <created>1752353874322</created>
+      <option name="number" value="00216" />
+      <option name="presentableId" value="LOCAL-00216" />
+      <option name="project" value="LOCAL" />
+      <updated>1752353874322</updated>
+    </task>
+    <option name="localTasksCounter" value="217" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="hotfix/nav" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat(components): add NavigationRailSection for grouping items&#10;&#10;Introduced `NavigationRailSection` to group and label related `NavigationRailItem`s. Updated `NavigationRail` logic to handle `extendedOnly`" />
+    <MESSAGE value="feat(workflows): refine release process with distribution tags&#10;&#10;Updated GitHub Actions workflows to introduce distribution tags (`latest`, `next`, `beta`) for semantic releases. Enhanced `release.config.js` to support conditional versioning and tagging rules. Improved documentation with details" />
+    <MESSAGE value="refactor(interfaces): update import path and export type in NavProps&#10;&#10;Changed `ActionOrLink` import path to align with updated structure and exported `NavProps` type for wider accessibility. These changes enhance code organization and maintain consistency across modules." />
+    <MESSAGE value="feat(dependencies): add lodash-es and update imports&#10;&#10;Added `lodash-es` dependency for tree-shakable imports to improve bundle size. Refactored `throttle` import in `custom-scroll.effect.tsx` to utilize specific path from `lodash`. Updated lockfile to include changes." />
+    <MESSAGE value="feat(config): add DTS configuration with Rollup external support&#10;&#10;Introduced `dts.config.js` to configure DTS with Rollup support. Specified `lodash-es` as an external dependency to optimize library build output and avoid bundling unnecessary modules." />
+    <MESSAGE value="refactor(config): enhance Rollup configuration in DTS setup&#10;&#10;Updated `rollup` function in `dts.config.js` to dynamically mark `lodash-es` as external. This approach ensures broader compatibility and optimizes the configuration by handling various external formats seamlessly." />
+    <MESSAGE value="refactor(dependencies): remove lodash and switch to lodash-es&#10;&#10;Replaced `lodash` with `lodash-es` for better tree-shaking support. Updated all relevant imports and added TypeScript types for `lodash-es`. Adjusted the package list and lockfile to reflect these changes." />
+    <MESSAGE value="refactor(dependencies): replace lodash-es with throttle-debounce&#10;&#10;Removed `lodash-es` and added `throttle-debounce` for throttling functionality. Updated relevant imports and TypeScript types. Adjusted the package.json and lockfile to reflect these changes." />
+    <MESSAGE value="feat(ci): add semantic-release and new release workflow&#10;&#10;Introduced a GitHub Actions workflow for semantic versioning using `semantic-release`. Added configurations to handle branch-specific pre-releases and integrated dependencies setup with app token generation for automated publishing." />
+    <MESSAGE value="feat(config): enhance release configuration for prereleases&#10;&#10;Updated `release.config" />
+    <MESSAGE value="feat(config): enhance release configuration for prereleases&#10;&#10;Updated `release.config to dynamically determine prerelease names based on branch patterns. Added `failComment: false` to the GitHub plugin for better customization and streamlined release processes." />
+    <MESSAGE value="refactor(ci): clean up release workflow steps formatting&#10;&#10;Removed unnecessary whitespaces in the release workflow file for better readability. This enhances the maintainability of the CI configuration without altering functionality." />
+    <MESSAGE value="feat(ci): improve release workflow with auto version PRs&#10;&#10;Enhanced the release workflow to create pull requests with version changes after completing semantic-release. This addition ensures better visibility and traceability of version updates while maintaining automation" />
+    <MESSAGE value="feat(ci): improve release workflow with auto version PRs&#10;&#10;Enhanced the release workflow to create pull requests with version changes after completing semantic-release. This addition ensures better visibility and traceability of version updates while maintaining automation configuration to include a conditional workflow trigger for push events." />
+    <MESSAGE value="fix(ui): enhance NavigationRail component styling&#10;&#10;Updated the NavigationRail component for improved layout flexibility and standardization. Adjusted styles, added new dynamic properties, and refined spacing for better responsiveness and visual alignment." />
+    <MESSAGE value="fix(ui): enhance NavigationRail component styling&#10;&#10;Updated the NavigationRail component for improved layout flexibility and standardization. Adjusted styles, added new dynamic properties, and refined spacing for better responsiveness and visual alignment." />
+    <MESSAGE value="refactor(ui): enhance NavigationRail component styling&#10;&#10;Updated the NavigationRail component for improved layout flexibility and standardization. Adjusted styles, added new dynamic properties, and refined spacing for better responsiveness and visual alignment." />
+    <MESSAGE value="chore(release): 1.7.0 [skip ci]&#10;&#10;# [1.7.0](https://github.com/Udixio/UI/compare/v1.6.0...v1.7.0) (2025-07-10)&#10;&#10;### Bug Fixes&#10;&#10;* **ui:** enhance NavigationRail component styling ([a31ecfe](https://github.com/Udixio/UI/commit/a31ecfe9b9143d4450c2f2f58fcc74fa0cac4515))&#10;&#10;### Features&#10;&#10;* **workflows:** refine release process with distribution tags ([008c9e4](https://github.com/Udixio/UI/commit/008c9e4d5db9bace868322964f1db3ca04d96b7c))" />
+    <MESSAGE value="fix(ui): rename NavigationRail props for clarity&#10;&#10;Renamed NavigationRail props such as `selectedTab` to `selectedItem` and updated associated handlers for better semantic clarity. Removed redundant `uuid` generation and added `onExtendedChange` prop to enhance customization." />
+    <MESSAGE value="fix(ui): adjust NavigationRail spacing for alignment&#10;&#10;Updated the NavigationRail component to replace left margin with horizontal spacing (mx-5) for improved visual alignment. This change ensures consistent spacing and better adherence to the design system." />
+    <MESSAGE value="fix(ui): handle React fragments in NavigationRail children&#10;&#10;Updated NavigationRail component to recursively flatten child nodes, handling React.Fragment elements. This improves compatibility and ensures correct rendering of children structure." />
+    <MESSAGE value="fix(ui): handle React fragments in NavigationRail children&#10;&#10;Added recursive flattening of child nodes to handle React.Fragment elements in the NavigationRail component. This ensures proper rendering and compatibility with complex child structures." />
+    <MESSAGE value="fix(ui): refine type check for React.Fragment in flattenChildren&#10;&#10;Updated the `flattenChildren` function to include type-safe checks for React.Fragment. This ensures compatibility with TypeScript and prevents potential runtime errors when handling child nodes." />
+    <MESSAGE value="refactor(project): restructure files into `packages/ui-react`&#10;&#10;Moved all project files into the `packages/ui-react` directory for better organization and modularity. Updated paths, configurations, and scripts to align with the new structure, ensuring compatibility and functionality remain intact." />
+    <MESSAGE value="feat(nx): add initial Nx workspace configuration&#10;&#10;Added `.nx/workspace-data/file-map.json` to configure and support Nx workspace. This file includes details about project files and non-project files for efficient workspace management." />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(nx): add initial Nx workspace configuration&#10;&#10;Added `.nx/workspace-data/file-map.json` to configure and support Nx workspace. This file includes details about project files and non-project files for efficient workspace management." />
+  </component>
+</project>
