@@ -6,8 +6,11 @@
     "jsx": "react-jsx"
   },
   "extends": "@tsconfig/recommended/tsconfig.json",
-  "include": [
-    "src",
-    "types"
+  "include": ["src", "types"],
+  "exclude": ["**/*.stories.ts", "**/*.stories.js"],
+  "references": [
+    {
+      "path": "./tsconfig.storybook.json"
+    }
   ]
 }

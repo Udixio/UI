@@ -1,43 +1,16 @@
 import type { StorybookConfig } from '@storybook/nextjs';
-import path from 'path';
 
 const config: StorybookConfig = {
-  stories: [
-    '../stories/**/*.mdx',
-    '../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)',
-  ],
-  addons: [
-    '@storybook/addon-links',
-    '@storybook/addon-essentials',
-    '@storybook/addon-onboarding',
-    '@storybook/addon-interactions',
-    '@storybook/addon-themes',
-    'storybook-addon-pseudo-states',
-    '@storybook/addon-a11y',
-    {
-      name: '@storybook/addon-styling-webpack',
-      options: {
-        sass: {
-          implementation: require('sass'),
-        },
-      },
-    },
-  ],
-  staticDirs: ['../public'],
+  stories: ['../**/*.@(mdx|stories.@(js|jsx|ts|tsx))'],
+  addons: [],
   framework: {
     name: '@storybook/nextjs',
     options: {},
   },
-  docs: {
-    autodocs: 'tag',
-  },
-  webpackFinal: async (config) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@': path.resolve(__dirname, '../src/'),
-    };
-    config.resolve.extensions.push('.ts', '.tsx');
-    return config;
-  },
 };
+
 export default config;
+
+// To customize your webpack configuration you can use the webpackFinal field.
+// Check https://storybook.js.org/docs/react/builders/webpack#extending-storybooks-webpack-config
+// and https://nx.dev/recipes/storybook/custom-builder-configs
