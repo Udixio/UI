@@ -16,15 +16,15 @@
     "access": "public"
   },
   "scripts": {
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
-    "analyze": "size-limit --why",
-    "build": "dts build --name @udixio/ui",
+    "storybook": "../../node_modules/.bin/storybook dev -p 6006",
+    "build-storybook": "../../node_modules/.bin/storybook build",
+    "analyze": "../../node_modules/.bin/size-limit --why",
+    "build": "../../node_modules/.bin/dts build --name @udixio/ui",
     "prepare": "npm run build",
-    "size": "size-limit",
+    "size": "../../node_modules/.bin/size-limit",
     "start": "npm run storybook",
-    "test": "dts test --passWithNoTests",
-    "semantic-release": "semantic-release"
+    "test": "../../node_modules/.bin/dts test --passWithNoTests",
+    "semantic-release": "../../node_modules/.bin/semantic-release"
   },
   "prettier": {
     "printWidth": 80,

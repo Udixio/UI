@@ -3,9 +3,11 @@
     "module": "esnext",
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "jsx": "react-jsx",
+    "jsx": "react-jsx"
   },
-
   "extends": "@tsconfig/recommended/tsconfig.json",
-  "include": ["src", "types"]
+  "include": [
+    "src",
+    "types"
+  ]
 }
