@@ -63,6 +63,7 @@
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@material/material-color-utilities": "^0.3.0",
     "@material/ripple": "^14.0.0",
+    "@nx/eslint-plugin": "^21.2.3",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@size-limit/esbuild": "^11.1.6",
