@@ -12,7 +12,7 @@ import {
   TextField,
   TextFieldInterface,
   TextFieldVariant,
-} from '../../src';
+} from '../../';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -33,7 +33,7 @@ type Story = StoryObj<typeof meta>;
 // Function to create TextField stories
 const createTextFieldStory = (
   variant: TextFieldVariant,
-  args?: Partial<ReactProps<TextFieldInterface>>
+  args?: Partial<ReactProps<TextFieldInterface>>,
 ) => {
   const TextFieldStory: Story = (args: ReactProps<TextFieldInterface>) => (
     <div className="">
@@ -124,7 +124,7 @@ export const OutlinedLealingIconAndTrailingIcon = createTextFieldStory(
         icon={faCircleXmark}
       />
     ),
-  }
+  },
 );
 
 export const OutlinedLealingIcon = createTextFieldStory('outlined', {

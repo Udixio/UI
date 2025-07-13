@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import { Button, ButtonInterface, ReactProps } from '../../src';
+import { Button, ButtonInterface, ReactProps } from '../../';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -27,7 +27,7 @@ type Story = StoryObj<typeof meta>;
 
 const createButtonStory = (variant: ReactProps<ButtonInterface>['variant']) => {
   const ButtonStory: Story = (
-    args: Pick<ReactProps<ButtonInterface>, 'label'>
+    args: Pick<ReactProps<ButtonInterface>, 'label'>,
   ) => (
     <div className="">
       <div className="flex m-4 gap-4 items-center">

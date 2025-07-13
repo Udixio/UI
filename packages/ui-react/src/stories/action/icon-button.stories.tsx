@@ -7,7 +7,7 @@ import {
   IconButtonInterface,
   IconButtonVariant,
   ReactProps,
-} from '../../src';
+} from '../../';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -33,7 +33,7 @@ type Story = StoryObj<typeof meta>;
 
 const createIconButtonStory = (
   variant: IconButtonVariant,
-  toggle?: boolean
+  toggle?: boolean,
 ) => {
   const sizes: ReactProps<IconButtonInterface>['size'][] = [
     'xSmall',

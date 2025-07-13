@@ -1,10 +1,10 @@
-import type { StorybookConfig } from '@storybook/react-vite';
+import type { StorybookConfig } from '@storybook/nextjs';
 
 const config: StorybookConfig = {
   stories: ['../src/**/*.@(mdx|stories.@(js|jsx|ts|tsx))'],
   addons: [],
   framework: {
-    name: '@storybook/react-vite',
+    name: '@storybook/nextjs',
     options: {
       builder: {
         viteConfigPath: 'vite.config.ts',

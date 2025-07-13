@@ -5,7 +5,7 @@ import {
   ProgressIndicatorInterface,
   ProgressIndicatorVariant,
   ReactProps,
-} from '../../src';
+} from '../../';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -26,7 +26,7 @@ type Story = StoryObj<typeof meta>;
 // Function to create ProgressIndicatorComponent stories
 const createProgressIndicatorStory = (variant: ProgressIndicatorVariant) => {
   const ProgressIndicatorStory: Story = (
-    args: ReactProps<ProgressIndicatorInterface>
+    args: ReactProps<ProgressIndicatorInterface>,
   ) => (
     <div className="">
       <div className="flex m-4 gap-4 items-center">
@@ -49,7 +49,7 @@ LinearDeterminate.argTypes = {
 };
 
 export const CircularIndeterminate = createProgressIndicatorStory(
-  'circular-indeterminate'
+  'circular-indeterminate',
 );
 
 CircularIndeterminate.argTypes = {

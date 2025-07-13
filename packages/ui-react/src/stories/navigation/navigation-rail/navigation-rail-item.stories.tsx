@@ -3,7 +3,7 @@ import {
   NavigationRailItem,
   NavigationRailItemInterface,
   ReactProps,
-} from '../../../src';
+} from '../../../';
 import { faCircleUser as fasCircleUser } from '@fortawesome/free-solid-svg-icons';
 import { faCircleUser as farCircleUser } from '@fortawesome/free-regular-svg-icons';
 
@@ -29,10 +29,10 @@ type Story = StoryObj<typeof meta>;
 // More on writing stories with args: https://storybook.js.org/docs/react/writing-stories/args
 
 const createNavigationRailItemStory = (
-  args?: Partial<ReactProps<NavigationRailItemInterface>>
+  args?: Partial<ReactProps<NavigationRailItemInterface>>,
 ) => {
   const navigationRailItemStory: Story = (
-    args: ReactProps<NavigationRailItemInterface>
+    args: ReactProps<NavigationRailItemInterface>,
   ) => (
     <div className="">
       <div className="flex m-4 gap-4 items-center">

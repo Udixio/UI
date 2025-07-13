@@ -3,10 +3,14 @@
   "version": "0.0.1",
   "main": "./index.js",
   "types": "./index.d.ts",
+  "type": "module",
   "exports": {
     ".": {
       "import": "./index.mjs",
       "require": "./index.js"
     }
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.11"
   }
 }

@@ -7,8 +7,8 @@ import {
   NavigationRailItem,
   NavigationRailSection,
   ReactProps,
-} from '../../../src';
-import { NavigationRailInterface } from '../../../src/interfaces/navigation-rail.interface';
+} from '../../../';
+import { NavigationRailInterface } from '../../..//interfaces/navigation-rail.interface';
 import { faCircleUser as farCircleUser } from '@fortawesome/free-regular-svg-icons';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -31,7 +31,7 @@ type Story = StoryObj<typeof meta>;
 
 const createStory = (args?: Partial<ReactProps<NavigationRailInterface>>) => {
   const story: Story = (
-    args?: Partial<ReactProps<NavigationRailInterface>>
+    args?: Partial<ReactProps<NavigationRailInterface>>,
   ) => (
     <div className="w-full h-[90vh] flex bg-surface">
       <NavigationRail {...args} onTabSelected={(tab: any) => console.log(tab)}>
