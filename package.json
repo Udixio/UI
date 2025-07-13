@@ -83,6 +83,7 @@
     "@types/throttle-debounce": "^5.0.2",
     "@udixio/tailwind-material": "^1.0.0-beta.16",
     "autoprefixer": "^10.4.20",
+    "awilix": "^12.0.5",
     "babel-jest": "^29.7.0",
     "babel-loader": "^9.2.1",
     "chroma-js": "^3.1.2",
