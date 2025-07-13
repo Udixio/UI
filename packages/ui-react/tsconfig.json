@@ -1,4 +1,5 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
     "allowJs": false,
@@ -6,9 +7,14 @@
     "allowSyntheticDefaultImports": true,
     "strict": true
   },
-  "extends": "@tsconfig/recommended/tsconfig.json",
-  "include": ["src", "types"],
-  "exclude": ["**/*.stories.ts", "**/*.stories.js"],
+  "include": [
+    "src",
+    "types"
+  ],
+  "exclude": [
+    "**/*.stories.ts",
+    "**/*.stories.js"
+  ],
   "references": [
     {
       "path": "./tsconfig.storybook.json"
