@@ -47,6 +47,7 @@
     "react-dom": ">=19"
   },
   "devDependencies": {
+    "@udixio/theme": "workspace:*"
   },
   "readme": "ERROR: No README data found!"
 }
