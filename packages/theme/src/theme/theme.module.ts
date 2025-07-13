@@ -1,10 +1,9 @@
-import { Module } from '@nestjs/common';
-import { SchemeService } from './services/scheme.service';
-import { ThemeService } from './services/theme.service';
-import { VariantService } from './services/variant.service';
+import { SchemeService, ThemeService, VariantService } from './services';
+import { asClass } from 'awilix';
+import { Module } from '../app.container';
 
-@Module({
-  providers: [SchemeService, ThemeService, VariantService],
-  exports: [ThemeService, SchemeService],
-})
-export class ThemeModule {}
+export const ThemeModule: Module = {
+  schemeService: asClass(SchemeService).singleton(),
+  variantService: asClass(VariantService).singleton(),
+  themeService: asClass(ThemeService).singleton(),
+};

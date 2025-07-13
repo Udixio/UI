@@ -1,5 +1,5 @@
 import { ColorService } from './color.service';
-import { ColorModule } from './color.module';
+import { ColorModule } from '../color.module';
 import { Test } from '@nestjs/testing';
 
 describe('ColorService', () => {

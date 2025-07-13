@@ -1,6 +1,6 @@
 module.exports = {
   npmPublish: true,
-  repositoryUrl: 'https://github.com/Udixio/tailwind-material.git',
+  repositoryUrl: 'https://github.com/Udixio/theme.git',
   branches: ['master', 'next', { name: 'beta', prerelease: true }],
   plugins: [
     '@semantic-release/commit-analyzer',

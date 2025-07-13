@@ -1,11 +1,17 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import AppContainer from './app.container';
 import { AppService } from './app.service';
+import { ConfigInterface, ConfigService } from './config';
 
-export async function main(): Promise<[AppService, () => Promise<void>]> {
-  const app = await NestFactory.create(AppModule);
-  const appService = app.get(AppService);
+export function bootstrap(): AppService {
+  return AppContainer.resolve<AppService>('appService');
+}
 
-  const close = () => app.close();
-  return [appService, close];
+export function bootstrapFromConfig(args?: {
+  path?: string;
+  config?: ConfigInterface;
+}): AppService {
+  const configService = AppContainer.resolve<ConfigService>('configService');
+  if (args?.path) configService.configPath = args.path;
+  configService.loadConfig(args?.config);
+  return AppContainer.resolve<AppService>('appService');
 }

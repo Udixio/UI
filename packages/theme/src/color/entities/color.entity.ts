@@ -2,9 +2,8 @@ import { hexFromArgb, TonalPalette } from '@material/material-color-utilities';
 import { SchemeEntity } from '../../theme/entities/scheme.entity';
 import { DynamicColor } from '../../material-color-utilities/dynamic_color';
 import { ContrastCurve } from '../../material-color-utilities';
-import mergeDeep from 'merge-deep';
 import { SchemeService } from '../../theme/services/scheme.service';
-import { ColorManagerService } from '../color-manager.service';
+import { ColorManagerService } from '../services/color-manager.service';
 
 export interface ColorOptions {
   palette: (scheme: SchemeEntity) => TonalPalette;
@@ -22,6 +21,14 @@ export interface ColorOptions {
   };
 }
 
+function argbToRgb(argb: number): { r: number; g: number; b: number } {
+  return {
+    r: (argb >> 16) & 0xff,
+    g: (argb >> 8) & 0xff,
+    b: argb & 0xff,
+  };
+}
+
 export class ColorEntity {
   private dynamicColor: DynamicColor | null = null;
 
@@ -33,7 +40,7 @@ export class ColorEntity {
 
   update(args: Partial<ColorOptions & { name: string }>) {
     this.dynamicColor = null;
-    this.option = mergeDeep(this.option, args);
+    this.option = { ...this.option, ...args };
   }
 
   getHex(): string {
@@ -42,6 +49,10 @@ export class ColorEntity {
 
   getArgb() {
     return this.getDynamicColor().getArgb(this.schemeService.get());
+  }
+
+  getRgb() {
+    return argbToRgb(this.getArgb());
   }
 
   getName(): string {

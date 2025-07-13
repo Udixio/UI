@@ -1,10 +1,7 @@
-import { Module } from '@nestjs/common';
+import { asClass } from 'awilix';
 import { AppService } from './app.service';
-import { ColorModule } from './color/color.module';
-import { ThemeModule } from './theme/theme.module';
+import { Module } from './app.container';
 
-@Module({
-  imports: [ColorModule, ThemeModule],
-  providers: [AppService],
-})
-export class AppModule {}
+export const AppModule: Module = {
+  appService: asClass(AppService).singleton(),
+};

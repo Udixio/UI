@@ -21,6 +21,8 @@ export class VariantModel {
       neutralVariant: (sourceColorHct) =>
         TonalPalette.fromHueAndChroma(sourceColorHct.hue, 8.0),
     },
+    customPalettes: (colorHct) =>
+      TonalPalette.fromHueAndChroma(colorHct.hue, 16),
   };
   static vibrant: VariantEntity = {
     palettes: {
@@ -41,6 +43,11 @@ export class VariantModel {
       neutralVariant: (sourceColorHct) =>
         TonalPalette.fromHueAndChroma(sourceColorHct.hue, 8.0),
     },
+    customPalettes: (colorHct) =>
+      TonalPalette.fromHueAndChroma(
+        getRotatedHue(colorHct, this.hues, this.secondaryRotations),
+        24.0
+      ),
   };
 
   private static readonly hues = [

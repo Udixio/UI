@@ -1,75 +1,39 @@
-import { Injectable } from '@nestjs/common';
-import { ContrastCurve, ToneDeltaPair } from '../material-color-utilities';
-import { DynamicColor } from '../material-color-utilities/dynamic_color';
-import { SchemeEntity } from '../theme/entities/scheme.entity';
+import { ContrastCurve, ToneDeltaPair } from '../../material-color-utilities';
+import { DynamicColor } from '../../material-color-utilities/dynamic_color';
+import { SchemeEntity } from '../../theme/entities/scheme.entity';
 
-import { ColorEntity, ColorOptions } from './entities/color.entity';
-import { SchemeService } from '../theme/services/scheme.service';
-
-export type DynamicColorKey =
-  | 'background'
-  | 'onBackground'
-  | 'surface'
-  | 'surfaceDim'
-  | 'surfaceBright'
-  | 'surfaceContainerLowest'
-  | 'surfaceContainerLow'
-  | 'surfaceContainer'
-  | 'surfaceContainerHigh'
-  | 'surfaceContainerHighest'
-  | 'onSurface'
-  | 'surfaceVariant'
-  | 'onSurfaceVariant'
-  | 'inverseSurface'
-  | 'inverseOnSurface'
-  | 'outline'
-  | 'outlineVariant'
-  | 'shadow'
-  | 'scrim'
-  | 'surfaceTint'
-  | 'primary'
-  | 'onPrimary'
-  | 'primaryContainer'
-  | 'onPrimaryContainer'
-  | 'inversePrimary'
-  | 'secondary'
-  | 'onSecondary'
-  | 'secondaryContainer'
-  | 'onSecondaryContainer'
-  | 'tertiary'
-  | 'onTertiary'
-  | 'tertiaryContainer'
-  | 'onTertiaryContainer'
-  | 'error'
-  | 'onError'
-  | 'errorContainer'
-  | 'onErrorContainer'
-  | 'primaryFixed'
-  | 'primaryFixedDim'
-  | 'onPrimaryFixed'
-  | 'onPrimaryFixedVariant'
-  | 'secondaryFixed'
-  | 'secondaryFixedDim'
-  | 'onSecondaryFixed'
-  | 'onSecondaryFixedVariant'
-  | 'tertiaryFixed'
-  | 'tertiaryFixedDim'
-  | 'onTertiaryFixed'
-  | 'onTertiaryFixedVariant';
+import { ColorEntity, ColorOptions } from '../entities/color.entity';
+import { SchemeService } from '../../theme/services/scheme.service';
+import { DynamicColorKey } from '../models/default-color.model';
+import { ColorService } from './color.service';
 
 function capitalizeFirstLetter(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-@Injectable()
+export const highestSurface = (
+  s: SchemeEntity,
+  colorService: ColorManagerService | ColorService
+): DynamicColor => {
+  if (colorService instanceof ColorService) {
+    return s.isDark
+      ? colorService.getColor('surfaceBright').getDynamicColor()
+      : colorService.getColor('surfaceDim').getDynamicColor();
+  } else {
+    return s.isDark
+      ? colorService.get('surfaceBright').getDynamicColor()
+      : colorService.get('surfaceDim').getDynamicColor();
+  }
+};
+
 export class ColorManagerService {
   private colorMap = new Map<string, ColorEntity>();
-  constructor(private schemeService: SchemeService) {}
+  private readonly schemeService: SchemeService;
+  constructor({ schemeService }: { schemeService: SchemeService }) {
+    this.schemeService = schemeService;
+  }
 
-  createOrUpdate(
-    key: string,
-    args: Partial<Omit<ColorOptions, 'name'>>
-  ): ColorEntity {
+  createOrUpdate(key: string, args: Partial<ColorOptions>): ColorEntity {
     let colorEntity = this.colorMap.get(key);
     if (!colorEntity) {
       const { palette, tone } = args;
@@ -107,12 +71,6 @@ export class ColorManagerService {
     return this.colorMap;
   }
 
-  highestSurface(s: SchemeEntity): DynamicColor {
-    return s.isDark
-      ? this.get('surfaceBright').getDynamicColor()
-      : this.get('surfaceDim').getDynamicColor();
-  }
-
   addFromPalette(key: string): void {
     const colorKey = key as DynamicColorKey;
     const ColorKey = capitalizeFirstLetter(key);
@@ -135,13 +93,13 @@ export class ColorManagerService {
         return s.isDark ? 80 : 40;
       },
       isBackground: true,
-      background: (s) => this.highestSurface(s),
+      background: (s) => highestSurface(s, this),
       contrastCurve: new ContrastCurve(3, 4.5, 7, 11),
       toneDeltaPair: (s) =>
         new ToneDeltaPair(
           this.get(colorKeyContainer).getDynamicColor(),
           this.get(colorKey).getDynamicColor(),
-          15,
+          10,
           'nearer',
           false
         ),
@@ -160,13 +118,13 @@ export class ColorManagerService {
         return s.isDark ? 30 : 90;
       },
       isBackground: true,
-      background: (s) => this.highestSurface(s),
+      background: (s) => highestSurface(s, this),
       contrastCurve: new ContrastCurve(1, 1, 3, 7),
       toneDeltaPair: (s) =>
         new ToneDeltaPair(
           this.get(colorKeyContainer).getDynamicColor(),
           this.get(colorKey).getDynamicColor(),
-          15,
+          10,
           'nearer',
           false
         ),
@@ -189,7 +147,7 @@ export class ColorManagerService {
       palette: (s) => s.getPalette(key),
       tone: (s) => 90.0,
       isBackground: true,
-      background: (s) => this.highestSurface(s),
+      background: (s) => highestSurface(s, this),
       contrastCurve: new ContrastCurve(1, 1, 3, 7),
       toneDeltaPair: (s) =>
         new ToneDeltaPair(
@@ -204,7 +162,7 @@ export class ColorManagerService {
       palette: (s) => s.getPalette(key),
       tone: (s) => 80.0,
       isBackground: true,
-      background: (s) => this.highestSurface(s),
+      background: (s) => highestSurface(s, this),
       contrastCurve: new ContrastCurve(1, 1, 3, 7),
       toneDeltaPair: (s) =>
         new ToneDeltaPair(
