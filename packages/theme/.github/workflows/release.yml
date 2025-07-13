@@ -1,0 +1,30 @@
+name: Release
+on:
+  push:
+    branches:
+      - master
+      - next
+      - beta
+jobs:
+  semantic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Important: This makes sure the actual branch commit history is fetched
+          persist-credentials: false # Important: This makes sure the token used is the one provided above, not the default token actions/checkout provides
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+
+      - name: Install deps and build (with cache)
+        uses: bahmutov/npm-install@v1
+
+      - name: Semantic Release
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PERSONAL_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_ENV: 'production'
