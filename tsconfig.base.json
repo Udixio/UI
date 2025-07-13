@@ -14,7 +14,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@udixio/theme": ["packages/theme/src/index.ts"]
+      "@udixio/theme": ["packages/theme/src/index.ts"],
+      "@udixio/ui-react": ["packages/ui-react/src/index.ts"]
     },
     "composite": true,
     "declaration": true,
