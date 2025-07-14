@@ -1,3 +1,16 @@
+# [1.8.0](https://github.com/Udixio/UI/compare/v1.7.6...v1.8.0) (2025-07-14)
+
+
+### Bug Fixes
+
+* button state disabled ([fd1631a](https://github.com/Udixio/UI/commit/fd1631a1a08ec58f4070b3a66a68cb5fc92640b3))
+
+
+### Features
+
+* **ui:** enhance Button component with new features and improved styling ([2dbfae9](https://github.com/Udixio/UI/commit/2dbfae905cfb3679e3580de6b5cd18273c689ca5))
+* **ui:** enhance IconButton component with new features and improved styling ([52bdf04](https://github.com/Udixio/UI/commit/52bdf04b8e49bd3892974a2e6d31eb9381baedb3))
+
 ## [1.7.6](https://github.com/Udixio/UI/compare/v1.7.5...v1.7.6) (2025-07-14)
 
 
