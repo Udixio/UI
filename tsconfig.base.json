@@ -9,17 +9,30 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "lib": ["es2020", "dom"],
+    "lib": [
+      "es2020",
+      "dom"
+    ],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@udixio/theme": ["packages/theme/src/index.ts"],
-      "@udixio/ui-react": ["packages/ui-react/src/index.ts"]
+      "@udixio/theme": [
+        "packages/theme/src/index.ts"
+      ],
+      "@udixio/ui-react": [
+        "packages/ui-react/src/index.ts"
+      ],
+      "@udixio/tailwind-sync-plugin": [
+        "tools/tailwind-sync-plugin/src/index.ts"
+      ]
     },
     "composite": true,
     "declaration": true,
     "declarationMap": true
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
 }
