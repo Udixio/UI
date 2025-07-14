@@ -39,7 +39,7 @@ type Props = {
   transition?: Transition;
 };
 
-type Elements = ['button', 'container', 'icon', 'label'];
+type Elements = ['button', 'stateLayer', 'container', 'icon', 'label'];
 
 export type ButtonInterface = ActionOrLink<Props> & {
   elements: Elements;

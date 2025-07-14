@@ -20,6 +20,7 @@ export const iconButtonStyle = defaultClassNames<IconButtonInterface>(
         (shape === 'rounded' ||
           (shape === 'squared' &&
             onToggle &&
+            !disabled &&
             isActive &&
             allowShapeTransformation)) && {
           'rounded-[30px]': size === 'xSmall' || size == 'small',
@@ -29,17 +30,19 @@ export const iconButtonStyle = defaultClassNames<IconButtonInterface>(
         (shape === 'squared' ||
           (shape === 'rounded' &&
             onToggle &&
+            !disabled &&
             isActive &&
             allowShapeTransformation)) && {
           'rounded-[12px]': size === 'xSmall' || size == 'small',
           'rounded-[16px]': size === 'medium',
           'rounded-[28px]': size === 'large' || size == 'xLarge',
         },
-        allowShapeTransformation && {
-          'group-active:rounded-[12px]': size === 'xSmall' || size == 'small',
-          'group-active:rounded-[16px]': size === 'medium',
-          'group-active:rounded-[28px]': size === 'large' || size == 'xLarge',
-        },
+        allowShapeTransformation &&
+          !disabled && {
+            'group-active:rounded-[12px]': size === 'xSmall' || size == 'small',
+            'group-active:rounded-[16px]': size === 'medium',
+            'group-active:rounded-[28px]': size === 'large' || size == 'xLarge',
+          },
         variant === 'filled' && [
           !disabled && {
             'bg-surface-container': !isActive && Boolean(onToggle),

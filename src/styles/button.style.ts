@@ -32,11 +32,12 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
         'rounded-[16px]': size === 'medium',
         'rounded-[28px]': size === 'large' || size == 'xLarge',
       },
-      allowShapeTransformation && {
-        'group-active:rounded-[12px]': size === 'xSmall' || size == 'small',
-        'group-active:rounded-[16px]': size === 'medium',
-        'group-active:rounded-[28px]': size === 'large' || size == 'xLarge',
-      },
+      allowShapeTransformation &&
+        !disabled && {
+          'group-active:rounded-[12px]': size === 'xSmall' || size == 'small',
+          'group-active:rounded-[16px]': size === 'medium',
+          'group-active:rounded-[28px]': size === 'large' || size == 'xLarge',
+        },
       variant === 'elevated' && {
         'bg-surface-container-low  shadow-1 hover:shadow-2': !disabled,
       },
@@ -61,7 +62,27 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
       ],
       disabled && 'cursor-default'
     ),
-
+    stateLayer: classNames(
+      'state-layer min-h-full min-w-full absolute top-0 left-0 ',
+      variant === 'elevated' && {
+        'bg-on-surface/[0.12]': disabled,
+        'group-state-primary': !disabled,
+      },
+      variant === 'filled' && {
+        'bg-on-surface/[0.12]': disabled,
+        'group-state-on-primary': !disabled,
+      },
+      variant === 'filledTonal' && {
+        'bg-on-surface/[0.12]': disabled,
+        'group-state-on-secondary-container ': !disabled,
+      },
+      variant === 'outlined' && {
+        'group-state-primary  group-state-primary': !disabled,
+      },
+      variant === 'text' && {
+        'group-state-primary': !disabled,
+      }
+    ),
     label: classNames(
       { invisible: loading },
       variant === 'elevated' && {

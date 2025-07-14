@@ -52,7 +52,6 @@ export const Button = ({
     <></>
   );
 
-
   transition = { duration: 0.3, ...transition };
   return (
     <ElementType
@@ -70,18 +69,26 @@ export const Button = ({
         }
       }}
     >
-      <div className={styles.container}      style={{ transition: transition.duration + 's' }}>
-        <RippleEffect
-          colorName={
-            (variant === 'elevated' && 'primary') ||
-            (variant === 'filled' && 'on-primary') ||
-            (variant === 'filledTonal' && 'on-secondary-container') ||
-            (variant === 'outlined' && 'primary') ||
-            (variant === 'text' && 'primary') ||
-            ''
-          }
-          triggerRef={resolvedRef}
-        />
+      <div
+        className={styles.container}
+        style={{ transition: transition.duration + 's' }}
+      >
+        <div className={styles.stateLayer}>
+          {!disabled && (
+            <RippleEffect
+              colorName={
+                (variant === 'elevated' && 'primary') ||
+                (variant === 'filled' && 'on-primary') ||
+                (variant === 'filledTonal' && 'on-secondary-container') ||
+                (variant === 'outlined' && 'primary') ||
+                (variant === 'text' && 'primary') ||
+                ''
+              }
+              triggerRef={resolvedRef}
+            />
+          )}
+        </div>
+
         {iconPosition === 'left' && iconElement}
         {loading && (
           <div
