@@ -173,7 +173,7 @@ export const NavigationRail = ({
           });
         })()}
       </div>
-      <div className={'flex-1 max-h-[116px]'}></div>
+      <div className={'flex-1 max-h-[160px]'}></div>
     </div>
   );
 };
