@@ -1,3 +1,10 @@
+## [1.7.5](https://github.com/Udixio/UI/compare/v1.7.4...v1.7.5) (2025-07-14)
+
+
+### Bug Fixes
+
+* **ui:** increment item index correctly in NavigationRail ([926fe7d](https://github.com/Udixio/UI/commit/926fe7d140d7def304c7d13139289e9b1af56ebf))
+
 ## [1.7.4](https://github.com/Udixio/UI/compare/v1.7.3...v1.7.4) (2025-07-14)
 
 
