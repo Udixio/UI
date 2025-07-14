@@ -1,11 +1,14 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { ActionOrLink } from '../utils';
+import { Transition } from 'motion';
 
 type Props = {
   /**
    * The label is the text that is displayed on the button.
    */
   label: string;
+
+  size?: 'xSmall' | 'small' | 'medium' | 'large' | 'xLarge';
 
   /**
    * The button variant determines the style of the button.
@@ -25,9 +28,18 @@ type Props = {
   iconPosition?: 'left' | 'right';
 
   loading?: boolean;
+
+  /**
+   * The shape of the button defines whether it is squared or rounded.
+   */
+  shape?: 'squared' | 'rounded';
+
+  allowShapeTransformation?: boolean;
+
+  transition?: Transition;
 };
 
-type Elements = ['button', 'stateLayer', 'icon', 'label'];
+type Elements = ['button', 'container', 'icon', 'label'];
 
 export type ButtonInterface = ActionOrLink<Props> & {
   elements: Elements;
