@@ -1,3 +1,10 @@
+## [1.7.6](https://github.com/Udixio/UI/compare/v1.7.5...v1.7.6) (2025-07-14)
+
+
+### Bug Fixes
+
+* **ui:** adjust max height of NavigationRail spacer for layout consistency ([cd8119e](https://github.com/Udixio/UI/commit/cd8119e2ddd21ee68e6889fb6291608a1f8a3e0c))
+
 ## [1.7.5](https://github.com/Udixio/UI/compare/v1.7.4...v1.7.5) (2025-07-14)
 
 
