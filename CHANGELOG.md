@@ -1,3 +1,10 @@
+## [1.7.4](https://github.com/Udixio/UI/compare/v1.7.3...v1.7.4) (2025-07-14)
+
+
+### Bug Fixes
+
+* **ui:** clean up NavigationRail styles and remove unused dependencies ([c807c7a](https://github.com/Udixio/UI/commit/c807c7a2407b4a7ecfe20222c1d971f5dd2aa1e1))
+
 ## [1.7.3](https://github.com/Udixio/UI/compare/v1.7.2...v1.7.3) (2025-07-11)
 
 
