@@ -2,11 +2,44 @@ import { IconButtonInterface } from '../interfaces/icon-button.interface';
 import { classNames, defaultClassNames } from '../utils';
 
 export const iconButtonStyle = defaultClassNames<IconButtonInterface>(
-  'button',
-  ({ variant, disabled, onToggle, isActive, size }) => {
+  'iconButton',
+  ({
+    variant,
+    disabled,
+    onToggle,
+    isActive,
+    size,
+    width,
+    shape,
+    allowShapeTransformation,
+  }) => {
     return {
-      button: classNames(
-        'rounded-full flex overflow-hidden transition-all duration-300',
+      iconButton: 'group  min-h-12 flex items-center',
+      container: classNames(
+        'rounded-full relative flex overflow-hidden transition-all duration-300',
+        (shape === 'rounded' ||
+          (shape === 'squared' &&
+            onToggle &&
+            isActive &&
+            allowShapeTransformation)) && {
+          'rounded-[30px]': size === 'xSmall' || size == 'small',
+          'rounded-[40px]': size === 'medium',
+          'rounded-[70px]': size === 'large' || size == 'xLarge',
+        },
+        (shape === 'squared' ||
+          (shape === 'rounded' &&
+            onToggle &&
+            isActive &&
+            allowShapeTransformation)) && {
+          'rounded-[12px]': size === 'xSmall' || size == 'small',
+          'rounded-[16px]': size === 'medium',
+          'rounded-[28px]': size === 'large' || size == 'xLarge',
+        },
+        allowShapeTransformation && {
+          'group-active:rounded-[12px]': size === 'xSmall' || size == 'small',
+          'group-active:rounded-[16px]': size === 'medium',
+          'group-active:rounded-[28px]': size === 'large' || size == 'xLarge',
+        },
         variant === 'filled' && [
           !disabled && {
             'bg-surface-container': !isActive && Boolean(onToggle),
@@ -60,6 +93,20 @@ export const iconButtonStyle = defaultClassNames<IconButtonInterface>(
         { 'size-6 p-4': size === 'medium' },
         { 'size-8 p-8': size === 'large' },
         { 'size-10 p-12': size === 'xLarge' },
+        width == 'narrow' && [
+          { 'px-1': size === 'xSmall' },
+          { 'px-1': size === 'small' },
+          { 'px-3': size === 'medium' },
+          { 'px-4': size === 'large' },
+          { 'px-8': size === 'xLarge' },
+        ],
+        width == 'wide' && [
+          { 'px-2.5': size === 'xSmall' },
+          { 'px-3.5': size === 'small' },
+          { 'px-6': size === 'medium' },
+          { 'px-12': size === 'large' },
+          { 'px-[72px]': size === 'xLarge' },
+        ],
         !disabled && [
           variant === 'standard' && {
             'text-on-surface-variant': !isActive,

@@ -46,20 +46,55 @@ const createIconButtonStory = (
     <div className="">
       {!toggle &&
         sizes.map((size) => (
-          <div className="flex m-4 gap-4 items-center">
-            <IconButton {...args} size={size} onToggle={undefined} />
-            <IconButton {...args} size={size} disabled onToggle={undefined} />
+          <div className="flex m-4 gap-4 items-center justify-around">
+            <IconButton
+              {...args}
+              width={'narrow'}
+              size={size}
+              onToggle={undefined}
+            />
+            <IconButton
+              {...args}
+              width={'default'}
+              size={size}
+              onToggle={undefined}
+            />
+            <IconButton
+              {...args}
+              width={'wide'}
+              size={size}
+              onToggle={undefined}
+            />
+            <IconButton
+              {...args}
+              width={'narrow'}
+              size={size}
+              disabled
+              onToggle={undefined}
+            />
+            <IconButton
+              {...args}
+              width={'default'}
+              size={size}
+              disabled
+              onToggle={undefined}
+            />
+            <IconButton
+              {...args}
+              width={'narrow'}
+              size={size}
+              disabled
+              onToggle={undefined}
+            />
           </div>
         ))}
       {toggle &&
         sizes.map((size) => (
           <>
-            <div className="flex m-4 gap-4 items-center">
+            <div className="flex m-4 gap-4 items-center justify-around">
               <IconButton {...args} size={size} />
-              <IconButton {...args} size={size} disabled />
-            </div>
-            <div className="flex m-4 gap-4 items-center">
               <IconButton {...args} size={size} activated />
+              <IconButton {...args} size={size} disabled />
               <IconButton {...args} size={size} disabled activated />
             </div>
           </>
