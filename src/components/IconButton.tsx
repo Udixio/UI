@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import { Icon } from '../icon/icon';
 import { IconButtonInterface } from '../interfaces/icon-button.interface';
 import { iconButtonStyle } from '../styles/icon-button.style';
 import { ReactProps } from '../utils/component';
+import { RippleEffect } from '../effects';
+import { classNames } from '../utils';
 
 export type IconButtonVariant = 'standard' | 'filled' | 'tonal' | 'outlined';
 
@@ -20,6 +22,11 @@ export const IconButton = ({
   size = 'medium',
   iconSelected,
   className,
+  ref,
+  width = 'default',
+  shape = 'rounded',
+  allowShapeTransformation = true,
+  transition,
   ...restProps
 }: ReactProps<IconButtonInterface>) => {
   const [isActive, setIsActive] = React.useState(activated);
@@ -52,6 +59,10 @@ export const IconButton = ({
   const ElementType = href ? 'a' : 'button';
 
   const styles = iconButtonStyle({
+    transition,
+    shape,
+    allowShapeTransformation,
+    width,
     href,
     activated,
     arialLabel,
@@ -66,17 +77,53 @@ export const IconButton = ({
     ...restProps,
   });
 
+  const defaultRef = useRef<HTMLDivElement>(null);
+  const resolvedRef = ref || defaultRef;
+
+  transition = { duration: 0.3, ...transition };
   return (
     <ElementType
       disabled={disabled}
       href={href}
-      className={styles.button}
+      className={styles.iconButton}
       aria-label={arialLabel}
+      title={arialLabel}
       {...(restProps as any)}
       onClick={handleClick}
+      ref={resolvedRef}
     >
-      <span className={styles.stateLayer}></span>{' '}
-      {icon && <Icon icon={icon} className={styles.icon} />}
+      <div
+        className={styles.container}
+        style={{ transition: transition.duration + 's' }}
+      >
+        <div className={styles.stateLayer}>
+          {!disabled && (
+            <RippleEffect
+              colorName={classNames(
+                variant === 'standard' && {
+                  'on-surface-variant': !isActive,
+                  primary: isActive,
+                },
+                variant === 'filled' && {
+                  primary: !isActive && Boolean(onToggle),
+                  'inverse-on-surface': isActive || !onToggle,
+                },
+                variant === 'tonal' && {
+                  'on-surface-variant': !isActive && Boolean(onToggle),
+                  'on-secondary-container': isActive || !onToggle,
+                },
+                variant === 'outlined' && {
+                  'on-surface-variant': !isActive,
+                  'on-primary': isActive,
+                }
+              )}
+              triggerRef={resolvedRef}
+            />
+          )}
+        </div>
+
+        {icon && <Icon icon={icon} className={styles.icon} />}
+      </div>
     </ElementType>
   );
 };
