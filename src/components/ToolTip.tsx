@@ -5,6 +5,7 @@ import { ToolTipInterface } from '../interfaces';
 import { toolStyle } from '../styles';
 import { v4 } from 'uuid';
 import { AnimatePresence, motion } from 'motion/react';
+import { SyncedFixedWrapper } from '../effects';
 
 export const ToolTip = ({
   variant = 'plain',
@@ -125,41 +126,44 @@ export const ToolTip = ({
       onMouseLeave={handleMouseLeave}
     >
       {children}
+
       <AnimatePresence>
         {isVisible && (
-          <motion.div
-            initial={{ opacity: currentToolTipId ? 1 : 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            exit={{ opacity: currentToolTipId ? 1 : 0 }}
-            className={styles.container}
-          >
+          <SyncedFixedWrapper targetRef={resolvedRef}>
             <motion.div
-              className={styles.content}
-              layoutId={'tool-tip'}
-              transition={{
-                type: 'spring',
-                stiffness: 200,
-                damping: 20,
-              }}
+              initial={{ opacity: currentToolTipId ? 1 : 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: currentToolTipId ? 0 : 0.3 }}
+              exit={{ opacity: currentToolTipId ? 1 : 0 }}
+              className={styles.container}
             >
-              {title && <div className={styles.subHead}>{title}</div>}
-              <div className={styles.supportingText}>{text}</div>
-              {buttons && (
-                <div className={styles.actions}>
-                  {Array.isArray(buttons) &&
-                    buttons.map((buttonArgs, index) => (
-                      <Button
-                        key={index}
-                        size={'small'}
-                        variant={'text'}
-                        {...buttonArgs}
-                      />
-                    ))}
-                </div>
-              )}
+              <motion.div
+                className={styles.content}
+                layoutId={'tool-tip'}
+                transition={{
+                  type: 'spring',
+                  stiffness: 200,
+                  damping: 20,
+                }}
+              >
+                {title && <div className={styles.subHead}>{title}</div>}
+                <div className={styles.supportingText}>{text}</div>
+                {buttons && (
+                  <div className={styles.actions}>
+                    {Array.isArray(buttons) &&
+                      buttons.map((buttonArgs, index) => (
+                        <Button
+                          key={index}
+                          size={'small'}
+                          variant={'text'}
+                          {...buttonArgs}
+                        />
+                      ))}
+                  </div>
+                )}
+              </motion.div>
             </motion.div>
-          </motion.div>
+          </SyncedFixedWrapper>
         )}
       </AnimatePresence>
     </div>
