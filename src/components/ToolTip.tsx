@@ -4,7 +4,7 @@ import { Button } from './Button';
 import { ToolTipInterface } from '../interfaces';
 import { toolStyle } from '../styles';
 import { v4 } from 'uuid';
-import { motion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 
 export const ToolTip = ({
   variant = 'plain',
@@ -54,7 +54,7 @@ export const ToolTip = ({
   const handleMouseLeave = () => {
     timeout.current = setTimeout(() => {
       close();
-    }, 1500);
+    }, 1_200);
   };
 
   useEffect(() => {
@@ -79,35 +79,43 @@ export const ToolTip = ({
       onMouseLeave={handleMouseLeave}
     >
       {children}
-      {isVisible && (
-        <div className={styles.container}>
+      <AnimatePresence>
+        {isVisible && (
           <motion.div
-            className={styles.content}
-            layoutId={'tool-tip'}
-            transition={{
-              type: 'spring',
-              stiffness: 300,
-              damping: 27.5,
-            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            exit={{ opacity: 0 }}
+            className={styles.container}
           >
-            {title && <div className={styles.subHead}>{title}</div>}
-            <div className={styles.supportingText}>{text}</div>
-            {buttons && (
-              <div className={styles.actions}>
-                {Array.isArray(buttons) &&
-                  buttons.map((buttonArgs, index) => (
-                    <Button
-                      key={index}
-                      size={'small'}
-                      variant={'text'}
-                      {...buttonArgs}
-                    />
-                  ))}
-              </div>
-            )}
+            <motion.div
+              className={styles.content}
+              layoutId={'tool-tip'}
+              transition={{
+                type: 'spring',
+                stiffness: 300,
+                damping: 27.5,
+              }}
+            >
+              {title && <div className={styles.subHead}>{title}</div>}
+              <div className={styles.supportingText}>{text}</div>
+              {buttons && (
+                <div className={styles.actions}>
+                  {Array.isArray(buttons) &&
+                    buttons.map((buttonArgs, index) => (
+                      <Button
+                        key={index}
+                        size={'small'}
+                        variant={'text'}
+                        {...buttonArgs}
+                      />
+                    ))}
+                </div>
+              )}
+            </motion.div>
           </motion.div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 };
