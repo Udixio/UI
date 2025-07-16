@@ -5,7 +5,7 @@ export const toolStyle = defaultClassNames<ToolTipInterface>(
   'toolTip',
   ({ position, variant }) => ({
     toolTip: classNames(''),
-    container: classNames(' w-fit   absolute  m-1 w-screen max-w-[312px]', {
+    container: classNames(' w-fit z-10  absolute  m-1 w-screen max-w-[312px]', {
       'bottom-full left-1/2 -translate-x-1/2': position == 'top',
       'top-full left-1/2 -translate-x-1/2': position == 'bottom',
       'right-full top-1/2 -translate-y-1/2': position == 'left',

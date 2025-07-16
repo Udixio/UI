@@ -14,11 +14,14 @@ export const ToolTip = ({
   title,
   text,
   position,
+  ref,
 }: ReactProps<ToolTipInterface>) => {
+  const defaultRef = useRef<HTMLDivElement>(null);
+  const resolvedRef = ref || defaultRef;
+
   const [currentToolTipId, setCurrentToolTipId] = useState<string | null>(null);
   const [id] = useState(v4());
   const [isVisible, setIsVisible] = useState(currentToolTipId === id);
-  const isReplaced = currentToolTipId != null;
 
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -66,6 +69,45 @@ export const ToolTip = ({
     };
   }, []);
 
+  if (!position && typeof window != undefined) {
+    if (resolvedRef?.current && !position) {
+      const rect = resolvedRef.current.getBoundingClientRect();
+
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+
+      const documentWidth = document.documentElement.scrollWidth;
+      const documentHeight = document.documentElement.scrollHeight;
+
+      const x = rect.left / viewportWidth; // X entre 0 et 1
+      const y = rect.top / viewportHeight; // Y entre 0 et 1
+
+      if (variant == 'plain') {
+        if (x < 1 / 3) {
+          position = 'right';
+        } else if (x > 2 / 3) {
+          position = 'left';
+        } else {
+          if (y > 0.5) {
+            position = 'top';
+          } else {
+            position = 'bottom';
+          }
+        }
+      } else {
+        if (x < 1 / 2 && y < 1 / 2) {
+          position = 'bottom-right';
+        } else if (x > 1 / 2 && y < 1 / 2) {
+          position = 'bottom-left';
+        } else if (x > 1 / 2 && y > 1 / 2) {
+          position = 'top-left';
+        } else if (x < 1 / 2 && y > 1 / 2) {
+          position = 'top-right';
+        }
+      }
+    }
+  }
+
   const styles = toolStyle({
     variant,
     buttons,
@@ -77,6 +119,7 @@ export const ToolTip = ({
 
   return (
     <div
+      ref={resolvedRef}
       className={styles.toolTip}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

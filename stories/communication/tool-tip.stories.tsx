@@ -20,7 +20,8 @@ type Story = StoryObj<typeof meta>;
 // More on writing stories with args: https://storybook.js.org/docs/react/writing-stories/args
 
 const createToolTipStory = (
-  variant: ReactProps<ToolTipInterface>['variant']
+  variant: ReactProps<ToolTipInterface>['variant'],
+  auto = false
 ) => {
   const ToolTipStory: Story = (args: ReactProps<ToolTipInterface>) => (
     <div className="h-96 relative">
@@ -122,8 +123,11 @@ const createToolTipStory = (
         onClick: () => {},
       },
     ],
+    ...(auto ? { position: undefined } : {}),
   };
   return ToolTipStory;
 };
 export const Plain = createToolTipStory('plain');
+export const PlainAuto = createToolTipStory('plain', true);
 export const Rich = createToolTipStory('rich');
+export const RichAuto = createToolTipStory('rich', true);
