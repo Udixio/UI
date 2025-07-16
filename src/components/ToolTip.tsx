@@ -96,8 +96,8 @@ export const ToolTip = ({
               layoutId={'tool-tip'}
               transition={{
                 type: 'spring',
-                stiffness: 300,
-                damping: 27.5,
+                stiffness: 200,
+                damping: 20,
               }}
             >
               {title && <div className={styles.subHead}>{title}</div>}

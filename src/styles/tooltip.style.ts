@@ -16,15 +16,20 @@ export const toolStyle = defaultClassNames<ToolTipInterface>(
       'top-full left-full': position == 'bottom-right',
     }),
     content: classNames(
-      ' px-4 pt-3 pb-2 rounded-2xl',
-      variant == 'rich' && 'bg-surface-container text-on-surface-container',
-      variant == 'plain' && 'bg-inverse-surface text-inverse-on-surface'
+      '  pb-2 ',
+      variant == 'rich' &&
+        'bg-surface-container rounded-2xl text-on-surface-container px-4 pt-3',
+      variant == 'plain' &&
+        'bg-inverse-surface rounded text-inverse-on-surface px-2 py-1'
     ),
-    actions: classNames('flex gap-10 px-1', variant == 'plain' && 'hidden'),
+    actions: classNames(
+      'flex gap-10 px-1 mt-2',
+      variant == 'plain' && 'hidden'
+    ),
     subHead: classNames(
       'text-title-small mb-1',
       variant == 'plain' && 'hidden'
     ),
-    supportingText: classNames('mb-2'),
+    supportingText: classNames(''),
   })
 );
