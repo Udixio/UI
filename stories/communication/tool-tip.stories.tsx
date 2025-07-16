@@ -109,6 +109,7 @@ const createToolTipStory = (
     </div>
   );
   ToolTipStory.args = {
+    variant: variant,
     title: 'Title',
     text: 'Supporting line text lorem ipsum dolor sit amet, consectetur',
     buttons: [

@@ -3,7 +3,7 @@ import { ToolTipInterface } from '../interfaces/tooltip.interface';
 
 export const toolStyle = defaultClassNames<ToolTipInterface>(
   'toolTip',
-  ({ position }) => ({
+  ({ position, variant }) => ({
     toolTip: classNames(''),
     container: classNames(' w-fit   absolute  m-1 w-screen max-w-[312px]', {
       'bottom-full left-1/2 -translate-x-1/2': position == 'top',
@@ -15,9 +15,16 @@ export const toolStyle = defaultClassNames<ToolTipInterface>(
       'top-full right-full': position == 'bottom-left',
       'top-full left-full': position == 'bottom-right',
     }),
-    content: classNames('bg-surface-container px-4 pt-3 pb-2 rounded-2xl'),
-    actions: classNames('flex gap-10 px-1'),
-    subHead: classNames('text-title-small mb-1'),
+    content: classNames(
+      ' px-4 pt-3 pb-2 rounded-2xl',
+      variant == 'rich' && 'bg-surface-container text-on-surface-container',
+      variant == 'plain' && 'bg-inverse-surface text-inverse-on-surface'
+    ),
+    actions: classNames('flex gap-10 px-1', variant == 'plain' && 'hidden'),
+    subHead: classNames(
+      'text-title-small mb-1',
+      variant == 'plain' && 'hidden'
+    ),
     supportingText: classNames('mb-2'),
   })
 );

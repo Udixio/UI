@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ReactProps } from '../utils';
 import { Button } from './Button';
 import { ToolTipInterface } from '../interfaces';
@@ -16,17 +16,15 @@ export const ToolTip = ({
   position,
 }: ReactProps<ToolTipInterface>) => {
   const [currentToolTipId, setCurrentToolTipId] = useState<string | null>(null);
-  const currentToolTipIdRef = useRef<string | null>(null);
   const [id] = useState(v4());
-  const isVisible = currentToolTipId === id;
+  const [isVisible, setIsVisible] = useState(currentToolTipId === id);
+  const isReplaced = currentToolTipId != null;
 
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const handleUpdate = (event: CustomEvent) => {
-      console.log('current:', event.detail);
       setCurrentToolTipId(event.detail);
-      currentToolTipIdRef.current = event.detail;
     };
 
     document.addEventListener('tooltip-update', handleUpdate as EventListener);
@@ -38,23 +36,28 @@ export const ToolTip = ({
     };
   }, []);
 
-  const close = useCallback(() => {
-    if (currentToolTipIdRef.current === id) {
-      const event = new CustomEvent('tooltip-update', { detail: null });
-      document.dispatchEvent(event);
+  useEffect(() => {
+    if (timeout.current) clearTimeout(timeout.current);
+
+    if (currentToolTipId) {
+      setIsVisible(currentToolTipId == id);
+    } else {
+      timeout.current = setTimeout(() => {
+        if (currentToolTipId !== id) {
+          setIsVisible(false);
+        }
+      }, 1_200);
     }
-  }, [id]);
+  }, [currentToolTipId]);
 
   const handleMouseEnter = () => {
-    if (timeout.current) clearTimeout(timeout.current);
     const event = new CustomEvent('tooltip-update', { detail: id });
     document.dispatchEvent(event);
   };
 
   const handleMouseLeave = () => {
-    timeout.current = setTimeout(() => {
-      close();
-    }, 1_200);
+    const event = new CustomEvent('tooltip-update', { detail: null });
+    document.dispatchEvent(event);
   };
 
   useEffect(() => {
@@ -82,10 +85,10 @@ export const ToolTip = ({
       <AnimatePresence>
         {isVisible && (
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={{ opacity: currentToolTipId ? 1 : 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
-            exit={{ opacity: 0 }}
+            exit={{ opacity: currentToolTipId ? 1 : 0 }}
             className={styles.container}
           >
             <motion.div
