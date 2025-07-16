@@ -1,3 +1,11 @@
+## [1.9.1](https://github.com/Udixio/UI/compare/v1.9.0...v1.9.1) (2025-07-16)
+
+
+### Bug Fixes
+
+* buttons tooltip optional ([c4af5d0](https://github.com/Udixio/UI/commit/c4af5d021c7ebecddaa2e59e757a49f539c166cd))
+* **ui:** add `SyncedFixedWrapper` for enhanced ToolTip positioning ([1a7725f](https://github.com/Udixio/UI/commit/1a7725ffe5035ab7f1420cfd02f4de6fc2bf433a))
+
 # [1.9.0](https://github.com/Udixio/UI/compare/v1.8.0...v1.9.0) (2025-07-16)
 
 
