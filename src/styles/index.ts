@@ -12,3 +12,4 @@ export * from './switch.style';
 export * from './tab.style';
 export * from './tabs.style';
 export * from './text-field.style';
+export * from './tooltip.style';

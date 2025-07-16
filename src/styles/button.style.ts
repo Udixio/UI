@@ -55,10 +55,16 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
         },
       ],
       variant === 'text' && [
+        'w-fit',
         {
           'text-primary': !disabled,
           'text-on-surface/[0.38]': disabled,
         },
+        size === 'xSmall' && '-mx-3',
+        size === 'small' && '-mx-4',
+        size === 'medium' && '-mx-6 ',
+        size === 'large' && '-mx-12',
+        size === 'xLarge' && '-mx-16 ',
       ],
       disabled && 'cursor-default'
     ),
