@@ -7,7 +7,7 @@ export interface ToolTipInterface {
     variant?: 'plain' | 'rich';
     title?: string;
     text: string;
-    buttons: ReactProps<ButtonInterface> | ReactProps<ButtonInterface>[];
+    buttons?: ReactProps<ButtonInterface> | ReactProps<ButtonInterface>[];
     position?:
       | 'top'
       | 'bottom'
