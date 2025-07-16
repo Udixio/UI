@@ -131,6 +131,8 @@ export const ToolTip = ({
         {isVisible && (
           <SyncedFixedWrapper targetRef={resolvedRef}>
             <motion.div
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
               initial={{ opacity: currentToolTipId ? 1 : 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: currentToolTipId ? 0 : 0.3 }}
