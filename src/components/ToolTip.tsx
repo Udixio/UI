@@ -20,6 +20,10 @@ export const ToolTip = ({
   const defaultRef = useRef<HTMLDivElement>(null);
   const resolvedRef = ref || defaultRef;
 
+  if (buttons && !Array.isArray(buttons)) {
+    buttons = [buttons];
+  }
+
   const [currentToolTipId, setCurrentToolTipId] = useState<string | null>(null);
   const [id] = useState(v4());
   const [isVisible, setIsVisible] = useState(currentToolTipId === id);
