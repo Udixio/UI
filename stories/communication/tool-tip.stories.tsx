@@ -26,53 +26,82 @@ const createToolTipStory = (
     <div className="h-96 relative">
       <div className="h-96 relative">
         <div className="absolute top-0 left-0">
-          <ToolTip position="bottom-right" {...args}>
-            <Button variant={'filledTonal'} label={'Bottom-right'}></Button>
-          </ToolTip>
-        </div>
-        <div className="absolute top-0 left-0">
-          <ToolTip position="bottom-right" {...args}>
+          <ToolTip
+            position="bottom-right"
+            {...args}
+            text="Cliquez pour plus d'infos"
+            title="Info rapide"
+          >
             <Button variant={'filledTonal'} label={'Bottom-right'}></Button>
           </ToolTip>
         </div>
         <div className="absolute top-0 left-1/2 -translate-x-1/2">
-          <ToolTip position="bottom" {...args}>
+          <ToolTip
+            position="bottom"
+            {...args}
+            text="Cet élément représente les statistiques globales de votre projet."
+            title="Statistiques"
+          >
             <Button variant={'filledTonal'} label={'Bottom-center'}></Button>
           </ToolTip>
         </div>
-
         <div className="absolute top-0 right-0">
-          <ToolTip position="bottom-left" {...args}>
+          <ToolTip
+            position="bottom-left"
+            {...args}
+            text="Cliquez ici pour télécharger le fichier associé."
+            title="Téléchargement"
+          >
             <Button variant={'filledTonal'} label={'Bottom-left'}></Button>
           </ToolTip>
         </div>
-
         <div className="absolute top-1/2 left-0 -translate-y-1/2">
-          <ToolTip position="right" {...args}>
+          <ToolTip
+            position="right"
+            {...args}
+            text="Cette action ne peut pas être annulée une fois confirmée."
+            title="Attention"
+          >
             <Button variant={'filledTonal'} label={'Center-right'}></Button>
           </ToolTip>
         </div>
-
         <div className="absolute top-1/2 right-0 -translate-y-1/2">
-          <ToolTip position="left" {...args}>
+          <ToolTip
+            position="left"
+            {...args}
+            text="Modifiez les paramètres dans l'onglet dédié à la personnalisation."
+            title="Personnalisation"
+          >
             <Button variant={'filledTonal'} label={'Center-left'}></Button>
           </ToolTip>
         </div>
-
         <div className="absolute bottom-0 left-0">
-          <ToolTip position="top-right" {...args}>
+          <ToolTip
+            position="top-right"
+            {...args}
+            text="L'action demandée supprimera toutes les données correspondantes."
+            title="Suppression de données"
+          >
             <Button variant={'filledTonal'} label={'Top-right'}></Button>
           </ToolTip>
         </div>
-
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
-          <ToolTip position="top" {...args}>
+          <ToolTip
+            position="top"
+            {...args}
+            text="Double-cliquez pour agrandir l'aperçu de l'élément sélectionné."
+            title="Aperçu"
+          >
             <Button variant={'filledTonal'} label={'Top-center'}></Button>
           </ToolTip>
         </div>
-
         <div className="absolute bottom-0 right-0">
-          <ToolTip position="top-left" {...args}>
+          <ToolTip
+            position="top-left"
+            {...args}
+            text="Passez la souris sur d'autres icônes pour plus de détails."
+            title="Icones et navigation"
+          >
             <Button variant={'filledTonal'} label={'Top-left'}></Button>
           </ToolTip>
         </div>

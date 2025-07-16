@@ -13,15 +13,22 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
     size,
     allowShapeTransformation,
   }) => ({
-    button: classNames('group min-h-12 flex items-center'),
+    button: classNames(
+      'group flex items-center',
+      size === 'xSmall' && 'py-2',
+      size === 'small' && 'py-1',
+      variant === 'text' && [
+        size === 'xSmall' && '-my-2',
+        size === 'small' && '-my-1',
+      ]
+    ),
     container: classNames(
       ' relative outline-none overflow-hidden inline-block flex  justify-center   items-center  ',
-
-      size === 'xSmall' && 'text-label-large px-3 h-8 gap-1',
-      size === 'small' && 'text-label-large px-4 h-10 gap-2',
-      size === 'medium' && 'text-title-medium px-6 h-14 gap-2',
-      size === 'large' && 'text-headline-small px-12 h-24 gap-3',
-      size === 'xLarge' && 'text-headline-large px-16 h-[136px] gap-4',
+      size === 'xSmall' && 'text-label-large px-3 py-1.5 gap-1',
+      size === 'small' && 'text-label-large px-4 py-2.5 gap-2',
+      size === 'medium' && 'text-title-medium px-6 py-4 gap-2',
+      size === 'large' && 'text-headline-small px-12 py-8 gap-3',
+      size === 'xLarge' && 'text-headline-large px-16 py-12 gap-4',
       shape === 'rounded' && {
         'rounded-[30px]': size === 'xSmall' || size == 'small',
         'rounded-[40px]': size === 'medium',
@@ -60,11 +67,15 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
           'text-primary': !disabled,
           'text-on-surface/[0.38]': disabled,
         },
-        size === 'xSmall' && '-mx-3',
-        size === 'small' && '-mx-4',
+        size === 'xSmall' && '-mx-3 ',
+        size === 'small' && '-mx-4 ',
         size === 'medium' && '-mx-6 ',
         size === 'large' && '-mx-12',
         size === 'xLarge' && '-mx-16 ',
+        // size === 'small' && ' -my-2.5',
+        // size === 'medium' && ' -my-4',
+        // size === 'large' && '-my-8',
+        // size === 'xLarge' && ' -my-12',
       ],
       disabled && 'cursor-default'
     ),

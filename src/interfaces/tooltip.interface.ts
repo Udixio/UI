@@ -18,5 +18,12 @@ export interface ToolTipInterface {
       | 'bottom-left'
       | 'bottom-right';
   };
-  elements: ['toolTip', 'container', 'subHead', 'supportingText', 'actions'];
+  elements: [
+    'toolTip',
+    'container',
+    'content',
+    'subHead',
+    'supportingText',
+    'actions',
+  ];
 }
