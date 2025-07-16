@@ -1,3 +1,10 @@
+## [1.9.2](https://github.com/Udixio/UI/compare/v1.9.1...v1.9.2) (2025-07-16)
+
+
+### Bug Fixes
+
+* **ui:** improve ToolTip behavior with hover handling and pointer-events support ([a33ae1d](https://github.com/Udixio/UI/commit/a33ae1de46fd10ec2363997160b5c3fba15b3e91))
+
 ## [1.9.1](https://github.com/Udixio/UI/compare/v1.9.0...v1.9.1) (2025-07-16)
 
 
