@@ -5,20 +5,23 @@ export const toolStyle = defaultClassNames<ToolTipInterface>(
   'toolTip',
   ({ position, variant }) => ({
     toolTip: classNames(''),
-    container: classNames('pointer-events-auto w-fit z-10  absolute  m-1 w-screen max-w-[312px]', {
-      'bottom-full left-1/2 -translate-x-1/2': position == 'top',
-      'top-full left-1/2 -translate-x-1/2': position == 'bottom',
-      'right-full top-1/2 -translate-y-1/2': position == 'left',
-      'left-full top-1/2 -translate-y-1/2': position == 'right',
-      'bottom-full right-full': position == 'top-left',
-      'bottom-full left-full': position == 'top-right',
-      'top-full right-full': position == 'bottom-left',
-      'top-full left-full': position == 'bottom-right',
-    }),
+    container: classNames(
+      ' pointer-events-auto w-fit z-10  absolute  m-1 w-screen max-w-[312px]',
+      {
+        'bottom-full left-1/2 -translate-x-1/2': position == 'top',
+        'top-full left-1/2 -translate-x-1/2': position == 'bottom',
+        'right-full top-1/2 -translate-y-1/2': position == 'left',
+        'left-full top-1/2 -translate-y-1/2': position == 'right',
+        'bottom-full right-full': position == 'top-left',
+        'bottom-full left-full': position == 'top-right',
+        'top-full right-full': position == 'bottom-left',
+        'top-full left-full': position == 'bottom-right',
+      }
+    ),
     content: classNames(
-      '  pb-2 ',
+      'pb-2',
       variant == 'rich' &&
-        'bg-surface-container rounded-2xl text-on-surface-container px-4 pt-3',
+        'bg-surface-container rounded-2xl text-on-surface-container px-4 pt-3 shadow-2',
       variant == 'plain' &&
         'bg-inverse-surface rounded text-inverse-on-surface px-2 py-1'
     ),
