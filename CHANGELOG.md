@@ -1,3 +1,15 @@
+# [1.9.0](https://github.com/Udixio/UI/compare/v1.8.0...v1.9.0) (2025-07-16)
+
+
+### Features
+
+* **ui:** add dynamic positioning for ToolTip and enhance story examples ([1c1fdd3](https://github.com/Udixio/UI/commit/1c1fdd334b0531d2d1c1742ea29e0c1a779cdad1))
+* **ui:** add ToolTip component for enhanced user interaction ([fbc0184](https://github.com/Udixio/UI/commit/fbc01844ebf184fa4ba169c31df727ae4c48fa2d))
+* **ui:** enhance ToolTip with AnimatePresence and improved transitions ([8a062fe](https://github.com/Udixio/UI/commit/8a062fe5c37d2be276caa53c16e833032ec03a88))
+* **ui:** enhance ToolTip with variant-based styling and improved behavior ([5cf2359](https://github.com/Udixio/UI/commit/5cf23596d828da76d59c2a5d4546ad1fe005ccc1))
+* **ui:** improve ToolTip component with visibility control and enhanced styling ([b263b16](https://github.com/Udixio/UI/commit/b263b16163fb6d8e59c9f7136082a6cdade5bfde))
+* **ui:** refine ToolTip dynamic styling and animations ([3e3f6b7](https://github.com/Udixio/UI/commit/3e3f6b7abd907054710edc638bb69ea3f6bc5538))
+
 # [1.8.0](https://github.com/Udixio/UI/compare/v1.7.6...v1.8.0) (2025-07-14)
 
 
