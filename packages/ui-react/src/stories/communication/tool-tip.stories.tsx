@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Button, ReactProps, ToolTip, ToolTipInterface } from '../../src';
+import { Button, ReactProps, ToolTip, ToolTipInterface } from '../../lib';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -21,7 +21,7 @@ type Story = StoryObj<typeof meta>;
 
 const createToolTipStory = (
   variant: ReactProps<ToolTipInterface>['variant'],
-  auto = false
+  auto = false,
 ) => {
   const ToolTipStory: Story = (args: ReactProps<ToolTipInterface>) => (
     <div className="h-96 relative">

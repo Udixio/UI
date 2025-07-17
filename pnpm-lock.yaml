@@ -264,9 +264,6 @@ importers:
       '@swc/jest':
         specifier: ~0.2.36
         version: 0.2.39(@swc/core@1.5.29(@swc/helpers@0.5.17))
-      '@tailwindcss/cli':
-        specifier: ^4.1.11
-        version: 4.1.11
       '@tailwindcss/postcss':
         specifier: ^4.1.11
         version: 4.1.11
@@ -346,6 +343,12 @@ importers:
         specifier: ^3.0.0
         version: 3.2.4(@types/node@22.16.3)(@vitest/ui@3.2.4)(jiti@2.4.2)(jsdom@22.1.0)(lightningcss@1.30.1)(sass@1.89.2)(terser@5.43.1)(yaml@2.8.0)
 
+  packages/tailwind:
+    dependencies:
+      tslib:
+        specifier: ^2.3.0
+        version: 2.8.1
+
   packages/theme: {}
 
   packages/ui-react:
@@ -353,6 +356,9 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.1.11
         version: 4.1.11(vite@6.3.5(@types/node@22.16.3)(jiti@2.4.2)(lightningcss@1.30.1)(sass@1.89.2)(terser@5.43.1)(yaml@2.8.0))
+      '@udixio/tailwind':
+        specifier: workspace:*
+        version: link:../tailwind
 
 packages:
 
@@ -3275,10 +3281,6 @@ packages:
   '@szmarczak/http-timer@5.0.1':
     resolution: {integrity: sha512-+PmQX0PiAYPMeVYe237LJAYvOMYW1j2rH5YROyS3b4CTVJum34HfRvKvAzozHAQG0TnHNdUfY9nCeUyRAs//cw==}
     engines: {node: '>=14.16'}
-
-  '@tailwindcss/cli@4.1.11':
-    resolution: {integrity: sha512-7RAFOrVaXCFz5ooEG36Kbh+sMJiI2j4+Ozp71smgjnLfBRu7DTfoq8DsTvzse2/6nDeo2M3vS/FGaxfDgr3rtQ==}
-    hasBin: true
 
   '@tailwindcss/node@4.1.11':
     resolution: {integrity: sha512-yzhzuGRmv5QyU9qLNg4GTlYI6STedBWRE7NjxP45CsFYYq9taI0zJXZBMqIC/c8fViNLhmrbpSFS57EoxUmD6Q==}
@@ -13294,6 +13296,7 @@ snapshots:
       '@parcel/watcher-win32-arm64': 2.5.1
       '@parcel/watcher-win32-ia32': 2.5.1
       '@parcel/watcher-win32-x64': 2.5.1
+    optional: true
 
   '@phenomnomnominal/tsquery@5.0.1(typescript@5.8.3)':
     dependencies:
@@ -14154,16 +14157,6 @@ snapshots:
   '@szmarczak/http-timer@5.0.1':
     dependencies:
       defer-to-connect: 2.0.1
-
-  '@tailwindcss/cli@4.1.11':
-    dependencies:
-      '@parcel/watcher': 2.5.1
-      '@tailwindcss/node': 4.1.11
-      '@tailwindcss/oxide': 4.1.11
-      enhanced-resolve: 5.18.2
-      mri: 1.2.0
-      picocolors: 1.1.1
-      tailwindcss: 4.1.11
 
   '@tailwindcss/node@4.1.11':
     dependencies:
@@ -16478,7 +16471,8 @@ snapshots:
 
   detect-indent@6.1.0: {}
 
-  detect-libc@1.0.3: {}
+  detect-libc@1.0.3:
+    optional: true
 
   detect-libc@2.0.4: {}
 
@@ -19535,7 +19529,8 @@ snapshots:
 
   node-addon-api@3.2.1: {}
 
-  node-addon-api@7.1.1: {}
+  node-addon-api@7.1.1:
+    optional: true
 
   node-emoji@2.2.0:
     dependencies:

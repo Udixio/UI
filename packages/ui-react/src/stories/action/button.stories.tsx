@@ -4,9 +4,8 @@ import {
   ButtonInterface,
   IconButtonInterface,
   ReactProps,
-} from '../../src';
+} from '../../';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import { Button, ButtonInterface, ReactProps } from '../../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -40,7 +39,7 @@ const createButtonStory = (variant: ReactProps<ButtonInterface>['variant']) => {
   ];
 
   const ButtonStory: Story = (
-    args: Pick<ReactProps<ButtonInterface>, 'label'>
+    args: Pick<ReactProps<ButtonInterface>, 'label'>,
   ) => (
     <div className="">
       {sizes.map((size) => (

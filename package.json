@@ -10,7 +10,7 @@
     "nx": "nx",
     "build": "nx run-many --target=build --all",
     "test": "nx run-many --target=test --all",
-    "storybook": "nx run ui-react:serve:storybook",
+    "storybook": "nx run ui-react:serve:storybook --verbose",
     "build-storybook": "nx run ui-react:build-storybook"
   },
   "devDependencies": {
