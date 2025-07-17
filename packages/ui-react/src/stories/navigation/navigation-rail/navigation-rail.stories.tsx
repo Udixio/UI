@@ -34,7 +34,7 @@ const createStory = (args?: Partial<ReactProps<NavigationRailInterface>>) => {
     args?: Partial<ReactProps<NavigationRailInterface>>,
   ) => (
     <div className="w-full h-[90vh] flex bg-surface">
-      <NavigationRail {...args} onTabSelected={(tab: any) => console.log(tab)}>
+      <NavigationRail alignment={'middle'} {...args}>
         <Fab icon={farCircleUser} label={'Add Timer'} />
         <NavigationRailItem
           icon={farCircleUser}

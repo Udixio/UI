@@ -12,12 +12,9 @@ export const navigationRailStyle = defaultClassNames<NavigationRailInterface>(
     }),
     header: classNames('flex flex-col gap-1 items-start'),
     menuIcon: 'mx-5',
-    segments: classNames(
-      ' flex flex-col flex-1 overflow-auto min-w-full mt-10',
-      {
-        'w-full': !isExtended,
-        'w-fit  items-start': isExtended,
-      }
-    ),
+    segments: classNames(' flex flex-col  overflow-auto min-w-full mt-10', {
+      'w-full': !isExtended,
+      'w-fit  items-start': isExtended,
+    }),
   })
 );

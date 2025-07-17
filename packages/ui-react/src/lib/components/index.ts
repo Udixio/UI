@@ -16,3 +16,4 @@ export * from './Tabs';
 export * from './TextField';
 export * from './NavigationRailItem';
 export * from './NavigationRail';
+export * from './ToolTip';

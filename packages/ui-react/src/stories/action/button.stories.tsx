@@ -1,7 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
-
+import {
+  Button,
+  ButtonInterface,
+  IconButtonInterface,
+  ReactProps,
+} from '../../src';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import { Button, ButtonInterface, ReactProps } from '../../';
+import { Button, ButtonInterface, ReactProps } from '../../src';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
@@ -26,18 +31,46 @@ type Story = StoryObj<typeof meta>;
 // More on writing stories with args: https://storybook.js.org/docs/react/writing-stories/args
 
 const createButtonStory = (variant: ReactProps<ButtonInterface>['variant']) => {
+  const sizes: ReactProps<IconButtonInterface>['size'][] = [
+    'xSmall',
+    'small',
+    'medium',
+    'large',
+    'xLarge',
+  ];
+
   const ButtonStory: Story = (
-    args: Pick<ReactProps<ButtonInterface>, 'label'>,
+    args: Pick<ReactProps<ButtonInterface>, 'label'>
   ) => (
     <div className="">
-      <div className="flex m-4 gap-4 items-center">
-        <Button {...args} disabled={false} />
-        <Button {...args} disabled={true} />
-      </div>
-      <div className="flex m-4 gap-4 items-center">
-        <Button {...args} disabled={false} icon={faPlus} />
-        <Button {...args} disabled={true} icon={faPlus} />
-      </div>
+      {sizes.map((size) => (
+        <div className="flex m-4 gap-4 items-center justify-around">
+          <Button {...args} size={size} disabled={false} />
+          <Button {...args} size={size} shape={'squared'} disabled={false} />
+          <Button {...args} size={size} disabled={true} />
+          <Button {...args} size={size} shape={'squared'} disabled={true} />
+        </div>
+      ))}
+      {sizes.map((size) => (
+        <div className="flex m-4 gap-4 items-center justify-around">
+          <Button {...args} icon={faPlus} size={size} disabled={false} />
+          <Button
+            {...args}
+            icon={faPlus}
+            size={size}
+            shape={'squared'}
+            disabled={false}
+          />
+          <Button {...args} icon={faPlus} size={size} disabled={true} />
+          <Button
+            {...args}
+            icon={faPlus}
+            size={size}
+            shape={'squared'}
+            disabled={true}
+          />
+        </div>
+      ))}
     </div>
   );
   ButtonStory.args = {

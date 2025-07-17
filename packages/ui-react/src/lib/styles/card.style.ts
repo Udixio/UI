@@ -12,7 +12,7 @@ export const cardStyle = defaultClassNames<CardInterface>(
       variant !== 'filled' && 'border border-outline-variant'
     ),
     stateLayer: classNames([
-      'state-layer w-full top-0 left-0 h-full absolute -z-10',
+      'w-full top-0 left-0 h-full absolute -z-10',
       {
         ' group-hover/card:hover-state-on-surface group-focus-visible/card:focus-state-on-surface':
           isInteractive,

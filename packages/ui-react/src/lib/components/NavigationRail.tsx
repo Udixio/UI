@@ -131,46 +131,49 @@ export const NavigationRail = ({
       </div>
 
       <div className={styles.segments}>
-        {childrenArray.map((child, index) => {
-          if (
-            React.isValidElement(child) &&
-            child.type === NavigationRailItem
-          ) {
-            return React.cloneElement(
-              child as React.ReactElement<
-                ReactProps<NavigationRailItemInterface>
-              >,
-              {
-                key: index,
-                index,
-                variant: isExtended ? 'horizontal' : 'vertical',
-                selectedItem,
-                setSelectedItem: setSelectedItem,
-                onItemSelected: handleOnItemSelected,
-                transition,
-                extendedOnly: extendedOnly.current,
-                isExtended,
-              }
-            );
-          }
-          if (React.isValidElement(child) && child.type === Fab) {
-            return null;
-          }
-          if (
-            React.isValidElement(child) &&
-            child.type === NavigationRailSection
-          ) {
-            extendedOnly.current = true;
-            if (!isExtended) return null;
-            return React.cloneElement(
-              child as React.ReactElement<{ label: string }>,
-              {}
-            );
-          }
-          return child;
-        })}
+        {(() => {
+          let itemIndex = 0;
+          return childrenArray.map((child) => {
+            if (
+              React.isValidElement(child) &&
+              child.type === NavigationRailItem
+            ) {
+              return React.cloneElement(
+                child as React.ReactElement<
+                  ReactProps<NavigationRailItemInterface>
+                >,
+                {
+                  key: itemIndex,
+                  index: itemIndex++, // Utilise et incrémente le compteur dédié
+                  variant: isExtended ? 'horizontal' : 'vertical',
+                  selectedItem,
+                  setSelectedItem: setSelectedItem,
+                  onItemSelected: handleOnItemSelected,
+                  transition,
+                  extendedOnly: extendedOnly.current,
+                  isExtended,
+                }
+              );
+            }
+            if (React.isValidElement(child) && child.type === Fab) {
+              return null;
+            }
+            if (
+              React.isValidElement(child) &&
+              child.type === NavigationRailSection
+            ) {
+              extendedOnly.current = true;
+              if (!isExtended) return null;
+              return React.cloneElement(
+                child as React.ReactElement<{ label: string }>,
+                {}
+              );
+            }
+            return child;
+          });
+        })()}
       </div>
-      <div></div>
+      <div className={'flex-1 max-h-[160px]'}></div>
     </div>
   );
 };
