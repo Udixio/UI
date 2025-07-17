@@ -20,7 +20,7 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
       variant === 'text' && [
         size === 'xSmall' && '-my-2',
         size === 'small' && '-my-1',
-      ]
+      ],
     ),
     container: classNames(
       ' relative outline-none overflow-hidden inline-block flex  justify-center   items-center  ',
@@ -52,7 +52,7 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
         'bg-primary hover:shadow-1': !disabled,
       },
       variant === 'filledTonal' && {
-        'bg-secondary-container hover:shadow-1': !disabled,
+        'bg-blue-500 hover:shadow-1': !disabled,
       },
       variant === 'outlined' && [
         ' border',
@@ -77,7 +77,7 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
         // size === 'large' && '-my-8',
         // size === 'xLarge' && ' -my-12',
       ],
-      disabled && 'cursor-default'
+      disabled && 'cursor-default',
     ),
     stateLayer: classNames(
       'state-layer min-h-full min-w-full absolute top-0 left-0 ',
@@ -98,7 +98,7 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
       },
       variant === 'text' && {
         'group-state-primary': !disabled,
-      }
+      },
     ),
     label: classNames(
       { invisible: loading },
@@ -121,7 +121,7 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
       variant === 'text' && {
         'text-primary': !disabled,
         'text-on-surface/[0.38]': disabled,
-      }
+      },
     ),
     icon: classNames(
       { invisible: loading },
@@ -149,7 +149,7 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
       variant === 'text' && {
         'text-primary': !disabled,
         'text-on-surface/[0.38]': disabled,
-      }
+      },
     ),
-  })
+  }),
 );
