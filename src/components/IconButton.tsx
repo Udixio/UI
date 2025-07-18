@@ -88,37 +88,6 @@ export const IconButton = ({
 
   transition = { duration: 0.3, ...transition };
 
-  const content = (
-    <>
-      <div className={styles.stateLayer}>
-        {!disabled && (
-          <RippleEffect
-            colorName={classNames(
-              variant === 'standard' && {
-                'on-surface-variant': !isActive,
-                primary: isActive,
-              },
-              variant === 'filled' && {
-                primary: !isActive && Boolean(onToggle),
-                'inverse-on-surface': isActive || !onToggle,
-              },
-              variant === 'tonal' && {
-                'on-surface-variant': !isActive && Boolean(onToggle),
-                'on-secondary-container': isActive || !onToggle,
-              },
-              variant === 'outlined' && {
-                'on-surface-variant': !isActive,
-                'on-primary': isActive,
-              }
-            )}
-            triggerRef={resolvedRef}
-          />
-        )}
-      </div>
-
-      {icon && <Icon icon={icon} className={styles.icon} />}
-    </>
-  );
   return (
     <ElementType
       disabled={disabled}
@@ -130,23 +99,43 @@ export const IconButton = ({
       onClick={handleClick}
       ref={resolvedRef}
     >
-      {!disabled && (
-        <ToolTip
-          style={{ transition: transition.duration + 's' }}
-          className={styles.container}
-          text={title}
-        >
-          {content}
-        </ToolTip>
-      )}
-      {disabled && (
-        <div
-          style={{ transition: transition.duration + 's' }}
-          className={styles.container}
-        >
-          {content}
+      <ToolTip
+        targetRef={resolvedRef}
+        trigger={disabled ? null : undefined}
+        text={title}
+      ></ToolTip>
+      <div
+        style={{ transition: transition.duration + 's' }}
+        className={styles.container}
+      >
+        <div className={styles.stateLayer}>
+          {!disabled && (
+            <RippleEffect
+              colorName={classNames(
+                variant === 'standard' && {
+                  'on-surface-variant': !isActive,
+                  primary: isActive,
+                },
+                variant === 'filled' && {
+                  primary: !isActive && Boolean(onToggle),
+                  'inverse-on-surface': isActive || !onToggle,
+                },
+                variant === 'tonal' && {
+                  'on-surface-variant': !isActive && Boolean(onToggle),
+                  'on-secondary-container': isActive || !onToggle,
+                },
+                variant === 'outlined' && {
+                  'on-surface-variant': !isActive,
+                  'on-primary': isActive,
+                }
+              )}
+              triggerRef={resolvedRef}
+            />
+          )}
         </div>
-      )}
+
+        {icon && <Icon icon={icon} className={styles.icon} />}
+      </div>
     </ElementType>
   );
 };
