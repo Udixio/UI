@@ -30,7 +30,7 @@ export const ToolTip = ({
 
   const [currentToolTipId, setCurrentToolTipId] = useState<string | null>(null);
   const [id] = useState(v4());
-  const [isVisible, setIsVisible] = useState(currentToolTipId === id);
+  const [isVisible, setIsVisible] = useState(false);
 
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -60,73 +60,78 @@ export const ToolTip = ({
     }
   }, [currentToolTipId, id]);
 
-  const handleMouseEnter = () => {
-    if (trigger.includes('hover')) {
-      const event = new CustomEvent('tooltip-update', { detail: id });
-      document.dispatchEvent(event);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (trigger.includes('hover')) {
-      const event = new CustomEvent('tooltip-update', { detail: null });
-      document.dispatchEvent(event);
-    }
-  };
-
-  const handleClick = () => {
-    if (trigger.includes('click')) {
-      const event = new CustomEvent('tooltip-update', {
-        detail: isVisible ? null : id,
-      });
-      document.dispatchEvent(event);
-    }
-  };
-
-  const handleFocus = () => {
-    if (trigger.includes('focus')) {
-      const event = new CustomEvent('tooltip-update', { detail: id });
-      document.dispatchEvent(event);
-    }
-  };
-
-  const handleBlur = () => {
-    if (trigger.includes('focus')) {
-      const event = new CustomEvent('tooltip-update', { detail: null });
-      document.dispatchEvent(event);
-    }
+  const addEventListener = (
+    element: HTMLElement,
+    type: keyof HTMLElementEventMap,
+    newHandler: (event: Event) => void
+  ) => {
+    const originalHandler = (element as any)[`on${type}`]; // Sauvegarde de l'ancien gestionnaire
+    element.addEventListener(type, (event: Event) => {
+      if (originalHandler) originalHandler.call(element, event); // Appel du gestionnaire existant
+      newHandler(event); // Appel du nouveau gestionnaire
+    });
   };
 
   useEffect(() => {
+    if (targetRef?.current) {
+      const targetElement = targetRef.current;
+
+      if (trigger.includes('hover')) {
+        addEventListener(targetElement, 'mouseenter', () => {
+          const event = new CustomEvent('tooltip-update', { detail: id });
+          document.dispatchEvent(event);
+        });
+
+        addEventListener(targetElement, 'mouseleave', () => {
+          const event = new CustomEvent('tooltip-update', { detail: null });
+          document.dispatchEvent(event);
+        });
+      }
+
+      if (trigger.includes('click')) {
+        addEventListener(targetElement, 'click', () => {
+          const event = new CustomEvent('tooltip-update', {
+            detail: isVisible ? null : id,
+          });
+          document.dispatchEvent(event);
+        });
+      }
+
+      if (trigger.includes('focus')) {
+        addEventListener(targetElement, 'focus', () => {
+          const event = new CustomEvent('tooltip-update', { detail: id });
+          document.dispatchEvent(event);
+        });
+
+        addEventListener(targetElement, 'blur', () => {
+          const event = new CustomEvent('tooltip-update', { detail: null });
+          document.dispatchEvent(event);
+        });
+      }
+    }
+
     return () => {
       if (timeout.current) clearTimeout(timeout.current);
     };
-  }, []);
+  }, [targetRef, trigger, id, isVisible]);
 
-  if (!position && typeof window != undefined) {
+  if (!position && typeof window !== 'undefined') {
     if (targetRef?.current && !position) {
       const rect = targetRef.current.getBoundingClientRect();
 
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
 
-      const documentWidth = document.documentElement.scrollWidth;
-      const documentHeight = document.documentElement.scrollHeight;
-
       const x = rect.left / viewportWidth; // X entre 0 et 1
       const y = rect.top / viewportHeight; // Y entre 0 et 1
 
-      if (variant == 'plain') {
+      if (variant === 'plain') {
         if (x < 1 / 3) {
           position = 'right';
         } else if (x > 2 / 3) {
           position = 'left';
         } else {
-          if (y > 0.5) {
-            position = 'top';
-          } else {
-            position = 'bottom';
-          }
+          position = y > 0.5 ? 'top' : 'bottom';
         }
       } else {
         if (x < 1 / 2 && y < 1 / 2) {
@@ -158,8 +163,6 @@ export const ToolTip = ({
       {isVisible && (
         <SyncedFixedWrapper targetRef={targetRef}>
           <motion.div
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
             initial={{ opacity: currentToolTipId ? 1 : 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: currentToolTipId ? 0 : 0.3 }}
