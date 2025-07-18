@@ -5,15 +5,12 @@ export const navigationRailItemStyle =
   defaultClassNames<NavigationRailItemInterface>(
     'navigationRailItem',
     ({ isSelected, icon, label, variant }) => ({
-      navigationRailItem: classNames(
-        ' group flex flex-col  pt-1 pb-1.5 h-[66px]',
-        {
-          'text-on-surface-variant': !isSelected,
-          'text-on-secondary-container': isSelected,
-          'gap-2': variant == 'vertical',
-          'gap-0': variant == 'horizontal',
-        }
-      ),
+      navigationRailItem: classNames(' group flex flex-col  pt-1 pb-1.5', {
+        'text-on-surface-variant': !isSelected,
+        'text-on-secondary-container': isSelected,
+        'gap-2  h-[68px]': variant == 'vertical',
+        'gap-0  h-[66px]': variant == 'horizontal',
+      }),
       container: classNames(
         ' w-fit flex justify-center  relative rounded-full items-center mx-5',
         {

@@ -1,10 +1,10 @@
 import { ReactProps } from '../utils';
 import { ButtonInterface } from './button.interface';
-import { RefObject } from 'react';
+import { ReactNode, RefObject } from 'react';
 
 type Trigger = 'hover' | 'click' | 'focus' | null;
 
-export interface ToolTipInterface {
+export type ToolTipInterface<T extends HTMLElement = any> = {
   type: 'div';
   props: {
     variant?: 'plain' | 'rich';
@@ -21,7 +21,15 @@ export interface ToolTipInterface {
       | 'bottom-left'
       | 'bottom-right';
     trigger?: Trigger | Trigger[];
-    targetRef: RefObject<HTMLElement>;
-  };
+  } & (
+    | {
+        children?: never;
+        targetRef: RefObject<T>;
+      }
+    | {
+        children: ReactNode;
+        targetRef?: never;
+      }
+  );
   elements: ['toolTip', 'container', 'subHead', 'supportingText', 'actions'];
-}
+};
