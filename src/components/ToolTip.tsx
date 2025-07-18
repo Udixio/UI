@@ -16,7 +16,12 @@ export const ToolTip = ({
   text,
   position,
   ref,
+  trigger = ['hover', 'focus'],
 }: ReactProps<ToolTipInterface>) => {
+  if (!Array.isArray(trigger)) {
+    trigger = [trigger];
+  }
+
   const defaultRef = useRef<HTMLDivElement>(null);
   const resolvedRef = ref || defaultRef;
 
@@ -48,24 +53,49 @@ export const ToolTip = ({
     if (timeout.current) clearTimeout(timeout.current);
 
     if (currentToolTipId) {
-      setIsVisible(currentToolTipId == id);
+      setIsVisible(currentToolTipId === id);
     } else {
       timeout.current = setTimeout(() => {
-        if (currentToolTipId !== id) {
-          setIsVisible(false);
-        }
-      }, 1_200);
+        setIsVisible(false);
+      }, 1200);
     }
-  }, [currentToolTipId]);
+  }, [currentToolTipId, id]);
 
   const handleMouseEnter = () => {
-    const event = new CustomEvent('tooltip-update', { detail: id });
-    document.dispatchEvent(event);
+    if (trigger.includes('hover')) {
+      const event = new CustomEvent('tooltip-update', { detail: id });
+      document.dispatchEvent(event);
+    }
   };
 
   const handleMouseLeave = () => {
-    const event = new CustomEvent('tooltip-update', { detail: null });
-    document.dispatchEvent(event);
+    if (trigger.includes('hover')) {
+      const event = new CustomEvent('tooltip-update', { detail: null });
+      document.dispatchEvent(event);
+    }
+  };
+
+  const handleClick = () => {
+    if (trigger.includes('click')) {
+      const event = new CustomEvent('tooltip-update', {
+        detail: isVisible ? null : id,
+      });
+      document.dispatchEvent(event);
+    }
+  };
+
+  const handleFocus = () => {
+    if (trigger.includes('focus')) {
+      const event = new CustomEvent('tooltip-update', { detail: id });
+      document.dispatchEvent(event);
+    }
+  };
+
+  const handleBlur = () => {
+    if (trigger.includes('focus')) {
+      const event = new CustomEvent('tooltip-update', { detail: null });
+      document.dispatchEvent(event);
+    }
   };
 
   useEffect(() => {
@@ -120,14 +150,19 @@ export const ToolTip = ({
     title,
     text,
     position,
+    trigger,
   });
 
   return (
     <div
       ref={resolvedRef}
       className={styles.toolTip}
+      tabIndex={trigger.includes('focus') ? 0 : undefined}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
     >
       {children}
 

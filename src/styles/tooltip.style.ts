@@ -6,7 +6,7 @@ export const toolStyle = defaultClassNames<ToolTipInterface>(
   ({ position, variant }) => ({
     toolTip: classNames(''),
     container: classNames(
-      ' pointer-events-auto w-fit z-10  absolute  m-1 w-screen max-w-[312px]',
+      ' pointer-events-auto w-max z-10  absolute  m-1 w-max-content max-w-[312px]',
       {
         'bottom-full left-1/2 -translate-x-1/2': position == 'top',
         'top-full left-1/2 -translate-x-1/2': position == 'bottom',

@@ -115,7 +115,6 @@ export const NavigationRail = ({
         <IconButton
           onClick={() => setIsExtended(!isExtended)}
           arialLabel={isExtended ? menu?.opened.label : menu?.closed.label}
-          title={isExtended ? menu?.opened.label : menu?.closed.label}
           className={styles.menuIcon}
           icon={!isExtended ? menu?.closed.icon : menu.opened.icon}
         />

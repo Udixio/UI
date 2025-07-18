@@ -6,6 +6,7 @@ import { iconButtonStyle } from '../styles/icon-button.style';
 import { ReactProps } from '../utils/component';
 import { RippleEffect } from '../effects';
 import { classNames } from '../utils';
+import { ToolTip } from './ToolTip';
 
 export type IconButtonVariant = 'standard' | 'filled' | 'tonal' | 'outlined';
 
@@ -14,6 +15,7 @@ export const IconButton = ({
   href,
   disabled = false,
   type = 'button',
+  title,
   arialLabel,
   onToggle,
   activated = false,
@@ -29,6 +31,10 @@ export const IconButton = ({
   transition,
   ...restProps
 }: ReactProps<IconButtonInterface>) => {
+  if (!title) {
+    title = arialLabel;
+  }
+
   const [isActive, setIsActive] = React.useState(activated);
   let handleClick;
 
@@ -81,49 +87,66 @@ export const IconButton = ({
   const resolvedRef = ref || defaultRef;
 
   transition = { duration: 0.3, ...transition };
+
+  const content = (
+    <>
+      <div className={styles.stateLayer}>
+        {!disabled && (
+          <RippleEffect
+            colorName={classNames(
+              variant === 'standard' && {
+                'on-surface-variant': !isActive,
+                primary: isActive,
+              },
+              variant === 'filled' && {
+                primary: !isActive && Boolean(onToggle),
+                'inverse-on-surface': isActive || !onToggle,
+              },
+              variant === 'tonal' && {
+                'on-surface-variant': !isActive && Boolean(onToggle),
+                'on-secondary-container': isActive || !onToggle,
+              },
+              variant === 'outlined' && {
+                'on-surface-variant': !isActive,
+                'on-primary': isActive,
+              }
+            )}
+            triggerRef={resolvedRef}
+          />
+        )}
+      </div>
+
+      {icon && <Icon icon={icon} className={styles.icon} />}
+    </>
+  );
   return (
     <ElementType
       disabled={disabled}
       href={href}
       className={styles.iconButton}
       aria-label={arialLabel}
-      title={arialLabel}
       {...(restProps as any)}
+      title={undefined}
       onClick={handleClick}
       ref={resolvedRef}
     >
-      <div
-        className={styles.container}
-        style={{ transition: transition.duration + 's' }}
-      >
-        <div className={styles.stateLayer}>
-          {!disabled && (
-            <RippleEffect
-              colorName={classNames(
-                variant === 'standard' && {
-                  'on-surface-variant': !isActive,
-                  primary: isActive,
-                },
-                variant === 'filled' && {
-                  primary: !isActive && Boolean(onToggle),
-                  'inverse-on-surface': isActive || !onToggle,
-                },
-                variant === 'tonal' && {
-                  'on-surface-variant': !isActive && Boolean(onToggle),
-                  'on-secondary-container': isActive || !onToggle,
-                },
-                variant === 'outlined' && {
-                  'on-surface-variant': !isActive,
-                  'on-primary': isActive,
-                }
-              )}
-              triggerRef={resolvedRef}
-            />
-          )}
+      {!disabled && (
+        <ToolTip
+          style={{ transition: transition.duration + 's' }}
+          className={styles.container}
+          text={title}
+        >
+          {content}
+        </ToolTip>
+      )}
+      {disabled && (
+        <div
+          style={{ transition: transition.duration + 's' }}
+          className={styles.container}
+        >
+          {content}
         </div>
-
-        {icon && <Icon icon={icon} className={styles.icon} />}
-      </div>
+      )}
     </ElementType>
   );
 };

@@ -1,6 +1,8 @@
 import { ReactProps } from '../utils';
 import { ButtonInterface } from './button.interface';
 
+type Trigger = 'hover' | 'click' | 'focus' | null;
+
 export interface ToolTipInterface {
   type: 'div';
   props: {
@@ -17,6 +19,7 @@ export interface ToolTipInterface {
       | 'top-right'
       | 'bottom-left'
       | 'bottom-right';
+    trigger?: Trigger | Trigger[];
   };
   elements: [
     'toolTip',
