@@ -8,10 +8,19 @@ module.exports = withNx(
     compiler: 'swc',
     format: ['cjs', 'esm'],
     assets: [{ input: '{projectRoot}', output: '.', glob: '*.md' }],
+    useLegacyTypescriptPlugin: false,
   },
   {
     // Provide additional rollup configuration here. See: https://rollupjs.org/configuration-options
-    // e.g.
-    // output: { sourcemap: true },
+    output: {
+      sourcemap: true,
+      sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
+        // Convert relative paths to absolute paths
+        return require('path').resolve(
+          require('path').dirname(sourcemapPath),
+          relativeSourcePath,
+        );
+      },
+    },
   },
 );

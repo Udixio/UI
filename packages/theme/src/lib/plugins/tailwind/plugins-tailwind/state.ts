@@ -1,6 +1,5 @@
 // from tailwindcss src/util/flattenColors
-import plugin from 'tailwindcss/plugin';
-import { PluginAPI } from 'tailwindcss/types/config';
+import plugin, { PluginAPI } from 'tailwindcss/plugin';
 
 type State = {
   statePrefix: string;
@@ -29,14 +28,14 @@ export const state = (colorkeys: string[]) =>
           duration: 150,
         },
       },
-      colorkeys
+      colorkeys,
     );
   }, {});
 
 const addAllNewComponents = (
   { addComponents }: PluginAPI,
   { statePrefix, disabledStyles, transition }: State,
-  colorKeys: string[]
+  colorKeys: string[],
 ) => {
   const newComponents: Components = {};
 

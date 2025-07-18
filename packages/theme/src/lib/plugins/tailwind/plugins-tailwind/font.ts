@@ -1,20 +1,17 @@
-import plugin from 'tailwindcss/plugin';
-import { CSSRuleObject, PluginAPI } from 'tailwindcss/types/config';
 import { FontRole, FontSize, FontStyle } from '../../font/font.plugin';
+import plugin, { PluginAPI } from 'tailwindcss/plugin';
 
 export const font = (
   fontStyles: Record<FontRole, Record<FontSize, FontStyle>>,
-  responsiveBreakPoints: Record<string, number>
+  responsiveBreakPoints: Record<string, number>,
 ) => {
-  const createUtilities = ({
-    theme,
-  }: Pick<PluginAPI, 'theme'>): CSSRuleObject => {
+  const createUtilities = ({ theme }: Pick<PluginAPI, 'theme'>): any => {
     const pixelUnit = 'rem';
     const newUtilities: any = {};
 
     const baseTextStyle = (sizeValue: FontStyle) => ({
       fontSize: sizeValue.fontSize + pixelUnit,
-      fontWeight: sizeValue.fontWeight as unknown as CSSRuleObject,
+      fontWeight: sizeValue.fontWeight as unknown as any,
       lineHeight: sizeValue.lineHeight + pixelUnit,
       letterSpacing: sizeValue.letterSpacing
         ? sizeValue.letterSpacing + pixelUnit
@@ -25,7 +22,7 @@ export const font = (
     const responsiveTextStyle = (
       sizeValue: FontStyle,
       breakPointName: string,
-      breakPointRatio: number
+      breakPointRatio: number,
     ) => ({
       [`@media (min-width: ${theme('screens.' + breakPointName, {})})`]: {
         fontSize: sizeValue.fontSize * breakPointRatio + pixelUnit,
@@ -44,18 +41,18 @@ export const font = (
                 ...responsiveTextStyle(
                   sizeValue,
                   breakPointName,
-                  breakPointRatio
+                  breakPointRatio,
                 ),
               };
               return acc;
             },
-            {}
+            {},
           ),
         };
       }
     }
 
-    return newUtilities as CSSRuleObject;
+    return newUtilities as any;
   };
   return plugin(
     ({
@@ -64,6 +61,6 @@ export const font = (
     }: Pick<PluginAPI, 'theme'> & Pick<PluginAPI, 'addUtilities'>) => {
       const newUtilities = createUtilities({ theme });
       addUtilities(newUtilities);
-    }
+    },
   );
 };

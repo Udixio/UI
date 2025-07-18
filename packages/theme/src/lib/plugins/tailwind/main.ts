@@ -1,7 +1,7 @@
-import { PluginsConfig } from 'tailwindcss/types/config';
 import { bootstrapFromConfig } from '../../main';
 import { AppService } from '../../app.service';
 import { TailwindPlugin } from './tailwind.plugin';
+import { PluginsConfig } from 'tailwindcss/plugin';
 
 export type Theme = {
   colors: Record<string, string>;

@@ -1,7 +1,7 @@
 {
   "name": "tailwind",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/ui-react/packages/tailwind/src",
+  "sourceRoot": "packages/tailwind/src",
   "projectType": "library",
   "release": {
     "version": {
@@ -20,11 +20,11 @@
         "{options.outputPath}"
       ],
       "options": {
-        "outputPath": "dist/packages/ui-react/packages/tailwind",
-        "main": "packages/ui-react/packages/tailwind/src/index.ts",
-        "tsConfig": "packages/ui-react/packages/tailwind/tsconfig.lib.json",
+        "outputPath": "dist/packages/tailwind",
+        "main": "packages/tailwind/src/index.ts",
+        "tsConfig": "packages/tailwind/tsconfig.lib.json",
         "assets": [
-          "packages/ui-react/packages/tailwind/*.md"
+          "packages/tailwind/*.md"
         ]
       }
     },
@@ -39,7 +39,7 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "packages/ui-react/packages/tailwind/jest.config.ts"
+        "jestConfig": "packages/tailwind/jest.config.ts"
       }
     }
   }
