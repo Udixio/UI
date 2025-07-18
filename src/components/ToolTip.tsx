@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ReactProps } from '../utils';
+import { MotionProps } from '../utils';
 import { Button } from './Button';
 import { ToolTipInterface } from '../interfaces';
 import { toolStyle } from '../styles';
@@ -15,15 +15,14 @@ export const ToolTip = ({
   title,
   text,
   position,
+  targetRef,
   ref,
   trigger = ['hover', 'focus'],
-}: ReactProps<ToolTipInterface>) => {
+  ...props
+}: MotionProps<ToolTipInterface>) => {
   if (!Array.isArray(trigger)) {
     trigger = [trigger];
   }
-
-  const defaultRef = useRef<HTMLDivElement>(null);
-  const resolvedRef = ref || defaultRef;
 
   if (buttons && !Array.isArray(buttons)) {
     buttons = [buttons];
@@ -105,8 +104,8 @@ export const ToolTip = ({
   }, []);
 
   if (!position && typeof window != undefined) {
-    if (resolvedRef?.current && !position) {
-      const rect = resolvedRef.current.getBoundingClientRect();
+    if (targetRef?.current && !position) {
+      const rect = targetRef.current.getBoundingClientRect();
 
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
@@ -151,62 +150,51 @@ export const ToolTip = ({
     text,
     position,
     trigger,
+    targetRef,
   });
 
   return (
-    <div
-      ref={resolvedRef}
-      className={styles.toolTip}
-      tabIndex={trigger.includes('focus') ? 0 : undefined}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onClick={handleClick}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-    >
-      {children}
-
-      <AnimatePresence>
-        {isVisible && (
-          <SyncedFixedWrapper targetRef={resolvedRef}>
+    <AnimatePresence>
+      {isVisible && (
+        <SyncedFixedWrapper targetRef={targetRef}>
+          <motion.div
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            initial={{ opacity: currentToolTipId ? 1 : 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: currentToolTipId ? 0 : 0.3 }}
+            exit={{ opacity: currentToolTipId ? 1 : 0 }}
+            className={styles.container}
+            {...props}
+          >
             <motion.div
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-              initial={{ opacity: currentToolTipId ? 1 : 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: currentToolTipId ? 0 : 0.3 }}
-              exit={{ opacity: currentToolTipId ? 1 : 0 }}
               className={styles.container}
+              layoutId={'tool-tip'}
+              transition={{
+                type: 'spring',
+                stiffness: 200,
+                damping: 20,
+              }}
             >
-              <motion.div
-                className={styles.content}
-                layoutId={'tool-tip'}
-                transition={{
-                  type: 'spring',
-                  stiffness: 200,
-                  damping: 20,
-                }}
-              >
-                {title && <div className={styles.subHead}>{title}</div>}
-                <div className={styles.supportingText}>{text}</div>
-                {buttons && (
-                  <div className={styles.actions}>
-                    {Array.isArray(buttons) &&
-                      buttons.map((buttonArgs, index) => (
-                        <Button
-                          key={index}
-                          size={'small'}
-                          variant={'text'}
-                          {...buttonArgs}
-                        />
-                      ))}
-                  </div>
-                )}
-              </motion.div>
+              {title && <div className={styles.subHead}>{title}</div>}
+              <div className={styles.supportingText}>{text}</div>
+              {buttons && (
+                <div className={styles.actions}>
+                  {Array.isArray(buttons) &&
+                    buttons.map((buttonArgs, index) => (
+                      <Button
+                        key={index}
+                        size={'small'}
+                        variant={'text'}
+                        {...buttonArgs}
+                      />
+                    ))}
+                </div>
+              )}
             </motion.div>
-          </SyncedFixedWrapper>
-        )}
-      </AnimatePresence>
-    </div>
+          </motion.div>
+        </SyncedFixedWrapper>
+      )}
+    </AnimatePresence>
   );
 };

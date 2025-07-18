@@ -4,8 +4,7 @@ import { ToolTipInterface } from '../interfaces/tooltip.interface';
 export const toolStyle = defaultClassNames<ToolTipInterface>(
   'toolTip',
   ({ position, variant }) => ({
-    toolTip: classNames(''),
-    container: classNames(
+    toolTip: classNames(
       ' pointer-events-auto w-max z-10  absolute  m-1 w-max-content max-w-[312px]',
       {
         'bottom-full left-1/2 -translate-x-1/2': position == 'top',
@@ -18,7 +17,7 @@ export const toolStyle = defaultClassNames<ToolTipInterface>(
         'top-full left-full': position == 'bottom-right',
       }
     ),
-    content: classNames(
+    container: classNames(
       'pb-2',
       variant == 'rich' &&
         'bg-surface-container rounded-2xl text-on-surface-container px-4 pt-3 shadow-2',

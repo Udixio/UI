@@ -1,5 +1,6 @@
 import { ReactProps } from '../utils';
 import { ButtonInterface } from './button.interface';
+import { RefObject } from 'react';
 
 type Trigger = 'hover' | 'click' | 'focus' | null;
 
@@ -20,13 +21,7 @@ export interface ToolTipInterface {
       | 'bottom-left'
       | 'bottom-right';
     trigger?: Trigger | Trigger[];
+    targetRef: RefObject<HTMLElement>;
   };
-  elements: [
-    'toolTip',
-    'container',
-    'content',
-    'subHead',
-    'supportingText',
-    'actions',
-  ];
+  elements: ['toolTip', 'container', 'subHead', 'supportingText', 'actions'];
 }
