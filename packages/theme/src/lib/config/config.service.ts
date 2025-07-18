@@ -43,7 +43,7 @@ export class ConfigService {
     });
     if (palettes) {
       Object.entries(palettes).forEach(([key, value]) =>
-        themeService.addCustomPalette(key, value)
+        themeService.addCustomPalette(key, value),
       );
     }
     if (useDefaultColors) {
@@ -84,7 +84,9 @@ export class ConfigService {
       }
 
       if (!configImport) {
-        throw new Error('Configuration file not found');
+        throw new Error(
+          `Configuration file not found, looked for: ${base} with extensions: ${extensions.join(', ')}`,
+        );
       }
 
       let config: unknown;
@@ -97,7 +99,7 @@ export class ConfigService {
       return config as ConfigInterface;
     } else {
       throw new Error(
-        'You must provide configuration object when using this library in a browser.'
+        'You must provide configuration object when using this library in a browser.',
       );
     }
   }

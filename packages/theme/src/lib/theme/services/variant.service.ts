@@ -7,6 +7,7 @@ export class VariantService {
   private variantEntity?: VariantEntity;
 
   private readonly schemeService: SchemeService;
+
   constructor({ schemeService }: { schemeService: SchemeService }) {
     this.schemeService = schemeService;
   }
@@ -18,12 +19,13 @@ export class VariantService {
 
   set(variantEntity: VariantEntity) {
     this.variantEntity = variantEntity;
-    if (!variantEntity.palettes.error) {
-      variantEntity.palettes.error = () =>
+    if (!variantEntity.palettes['error']) {
+      variantEntity.palettes['error'] = () =>
         TonalPalette.fromHueAndChroma(25.0, 84.0);
     }
     this.update();
   }
+
   private update() {
     if (!this.variantEntity) return;
     const palettes: Record<
