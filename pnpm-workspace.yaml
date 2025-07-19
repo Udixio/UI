@@ -4,4 +4,4 @@ ignoredBuiltDependencies:
 onlyBuiltDependencies:
   - nx
 packages:
-  - 'dist/packages/*'
+  - 'packages/*'

@@ -2,12 +2,12 @@
 import plugin from 'tailwindcss/plugin';
 import { createTheme } from '@udixio/theme';
 
-export default plugin.withOptions(
+module.exports = plugin.withOptions(
   // 1) factory(options) → la fonction “handler” du plugin
   (options = {}) => {
     const { plugins } = createTheme();
-    return function ({ addUtilities, theme, addComponents }: any) {
-      (plugins as any).forEach((udixioPlugin: any) => {
+    return function async({ addUtilities, theme, addComponents }) {
+      plugins.forEach((udixioPlugin) => {
         console.log(udixioPlugin);
         if (typeof udixioPlugin.handler !== 'function') {
           console.error('Plugin invalide détecté :', udixioPlugin);
@@ -31,7 +31,7 @@ export default plugin.withOptions(
           colors: {
             // on récupère l’objet options.palette ou on tombe
             // sur un fallback minimal
-            primary: (options as any).palette || {
+            primary: options.palette || {
               50: '#f0f5ff',
               100: 'rgba(245,17,17,0.82)',
               500: '#6366f1',
