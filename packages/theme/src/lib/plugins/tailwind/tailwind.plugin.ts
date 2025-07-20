@@ -1,8 +1,5 @@
 import { PluginAbstract, PluginImplAbstract } from '../../plugin';
 import { Theme } from './main';
-import { state, themer } from './plugins-tailwind';
-
-import { font } from './plugins-tailwind/font';
 import { FontPlugin } from '../font';
 
 interface TailwindPluginOptions {
@@ -58,14 +55,14 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
       colors: {},
       fontFamily: fontFamily,
       plugins: [
-        state(Object.keys(colors)),
-        font(fontStyles, this.options.responsiveBreakPoints!),
-        themer({
-          colors,
-          darkMode: this.options.darkMode!,
-          subThemes: this.options.subThemes,
-          appService: this.appService,
-        }),
+        // state(Object.keys(colors)),
+        // font(fontStyles, this.options.responsiveBreakPoints!),
+        // themer({
+        //   colors,
+        //   darkMode: this.options.darkMode!,
+        //   subThemes: this.options.subThemes,
+        //   appService: this.appService,
+        // }),
       ],
     };
   }
