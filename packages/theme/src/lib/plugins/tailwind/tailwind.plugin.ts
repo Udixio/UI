@@ -1,7 +1,12 @@
 import { PluginAbstract, PluginImplAbstract } from '../../plugin';
 import { FontPlugin } from '../font';
 import plugin from 'tailwindcss/plugin';
-import { createFile, findTailwindCssFile, replaceFileContent } from './file';
+import {
+  createFile,
+  findTailwindCssFile,
+  getFileContent,
+  replaceFileContent,
+} from './file';
 import path from 'path';
 
 interface TailwindPluginOptions {
@@ -39,7 +44,15 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
     const searchPattern = /@plugin "@udixio\/tailwind"\s*{\s*}/;
     const replacement = `@plugin "@udixio/tailwind" {\n}\n@import "./udixio.css" layer(theme);`;
 
-    replaceFileContent(tailwindCssPath, searchPattern, replacement);
+    if (
+      !getFileContent(
+        tailwindCssPath,
+        /@import\s+"\.\/udixio\.css"\s+layer\(theme\);/,
+      )
+    ) {
+      replaceFileContent(tailwindCssPath, searchPattern, replacement);
+    }
+
     const cssFilePath = path.dirname(tailwindCssPath);
 
     const colors: Record<
