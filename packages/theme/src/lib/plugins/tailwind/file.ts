@@ -16,7 +16,7 @@ export const createOrUpdateFile = (filePath: string, content: string): void => {
       console.log(`✅ File successfully created: ${filePath}`);
     } else {
       console.log(`⚠️ File already exists: ${filePath}`);
-      replaceFileContent(filePath, /.*\n/, content);
+      replaceFileContent(filePath, /[\s\S]*/, content);
     }
   } catch (error) {
     console.error('❌ Error while creating the file:', error);

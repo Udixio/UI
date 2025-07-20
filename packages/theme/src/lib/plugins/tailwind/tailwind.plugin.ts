@@ -1,12 +1,7 @@
 import { PluginAbstract, PluginImplAbstract } from '../../plugin';
 import { FontPlugin } from '../font';
 import plugin from 'tailwindcss/plugin';
-import {
-  createOrUpdateFile,
-  findTailwindCssFile,
-  getFileContent,
-  replaceFileContent,
-} from './file';
+import { createOrUpdateFile, findTailwindCssFile, getFileContent, replaceFileContent } from './file';
 import path from 'path';
 
 interface TailwindPluginOptions {
@@ -42,12 +37,12 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
       );
     }
     const searchPattern = /@plugin "@udixio\/tailwind"\s*{\s*}/;
-    const replacement = `@plugin "@udixio/tailwind" {\n}\n@import "./udixio.css" layer(theme);`;
+    const replacement = `@plugin "@udixio/tailwind" {\n}\n@import "./udixio.css";`;
 
     if (
       !getFileContent(
         tailwindCssPath,
-        /@import\s+"\.\/udixio\.css"\s+layer\(theme\);/,
+        /@import\s+"\.\/udixio\.css";/,
       )
     ) {
       replaceFileContent(tailwindCssPath, searchPattern, replacement);
@@ -83,12 +78,22 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
 
     createOrUpdateFile(
       path.join(cssFilePath, 'udixio.css'),
-      `@theme {
-    --color-*: initial;      
+      `
+@custom-variant dark (&:where(.dark, .dark *));
+@theme {
+    --color-*: initial;
   ${Object.entries(colors)
     .map(([key, value]) => `--color-${key}: ${value.light};`)
     .join('\n  ')}
-}`,
+}
+@layer theme {
+  .dark {
+  ${Object.entries(colors)
+        .map(([key, value]) => `--color-${key}: ${value.dark};`)
+        .join('\n  ')}
+  }
+}
+`,
     );
 
     return plugin.withOptions(

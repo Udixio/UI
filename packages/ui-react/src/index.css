@@ -2,4 +2,4 @@
 
 @plugin "@udixio/tailwind" {
 }
-@import "./udixio.css" layer(theme);
+@import "./udixio.css";
