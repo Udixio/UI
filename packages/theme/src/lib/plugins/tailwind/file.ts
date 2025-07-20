@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { replaceInFileSync } from 'replace-in-file';
 
-export const createFile = (filePath: string, content: string): void => {
+export const createOrUpdateFile = (filePath: string, content: string): void => {
   try {
     if (!fs.existsSync(filePath)) {
       // Create the folder if necessary.
@@ -16,6 +16,7 @@ export const createFile = (filePath: string, content: string): void => {
       console.log(`✅ File successfully created: ${filePath}`);
     } else {
       console.log(`⚠️ File already exists: ${filePath}`);
+      replaceFileContent(filePath, /.*\n/, content);
     }
   } catch (error) {
     console.error('❌ Error while creating the file:', error);

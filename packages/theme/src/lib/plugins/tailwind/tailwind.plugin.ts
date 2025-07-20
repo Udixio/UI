@@ -2,7 +2,7 @@ import { PluginAbstract, PluginImplAbstract } from '../../plugin';
 import { FontPlugin } from '../font';
 import plugin from 'tailwindcss/plugin';
 import {
-  createFile,
+  createOrUpdateFile,
   findTailwindCssFile,
   getFileContent,
   replaceFileContent,
@@ -81,7 +81,7 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
       .getInstance()
       .getFonts();
 
-    createFile(
+    createOrUpdateFile(
       path.join(cssFilePath, 'udixio.css'),
       `@theme {
     --color-*: initial;      
