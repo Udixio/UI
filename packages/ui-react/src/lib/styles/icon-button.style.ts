@@ -14,7 +14,12 @@ export const iconButtonStyle = defaultClassNames<IconButtonInterface>(
     allowShapeTransformation,
   }) => {
     return {
-      iconButton: 'group  min-h-12 flex items-center',
+      iconButton: classNames(
+        'group  min-h-12 flex items-center cursor-pointer',
+        {
+          'cursor-default': disabled,
+        },
+      ),
       container: classNames(
         'rounded-full relative flex overflow-hidden transition-all duration-300',
         (shape === 'rounded' ||
@@ -66,7 +71,7 @@ export const iconButtonStyle = defaultClassNames<IconButtonInterface>(
             'border border-on-surface/[0.12]': !isActive,
             'border border-transparent bg-on-surface/[0.12]': isActive,
           },
-        ]
+        ],
       ),
       stateLayer: classNames(
         'absolute top-0 left-0 h-full w-full ',
@@ -87,7 +92,7 @@ export const iconButtonStyle = defaultClassNames<IconButtonInterface>(
             'state-on-surface-variant': !isActive,
             'state-on-primary': isActive,
           },
-        ]
+        ],
       ),
       icon: classNames(
         '  transition-all duration-300',
@@ -128,8 +133,8 @@ export const iconButtonStyle = defaultClassNames<IconButtonInterface>(
             'text-inverse-on-surface': isActive,
           },
         ],
-        Boolean(disabled) && 'text-on-surface/[0.38]'
+        Boolean(disabled) && 'text-on-surface/[0.38]',
       ),
     };
-  }
+  },
 );

@@ -14,7 +14,7 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
     allowShapeTransformation,
   }) => ({
     button: classNames(
-      'group flex items-center',
+      'group flex items-center cursor-pointer',
       size === 'xSmall' && 'py-2',
       size === 'small' && 'py-1',
       variant === 'text' && [

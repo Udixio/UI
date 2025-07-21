@@ -5,7 +5,7 @@ export const fabStyle = defaultClassNames<FabInterface>(
   'fab',
   ({ size, variant, isExtended }) => ({
     fab: classNames(
-      'flex shadow-3 hover:shadow-4 group overflow-hidden outline-none items-center',
+      'flex shadow-3 hover:shadow-4 group overflow-hidden outline-none items-center cursor-pointer',
       {
         'rounded-[12px]': size == 'small' && !isExtended,
         'rounded-[16px]': size == 'medium' || isExtended,
@@ -19,7 +19,7 @@ export const fabStyle = defaultClassNames<FabInterface>(
       variant === 'surface' && 'bg-surface-container',
       variant === 'primary' && 'bg-primary-container',
       variant === 'secondary' && 'bg-secondary-container',
-      variant === 'tertiary' && 'bg-tertiary-container'
+      variant === 'tertiary' && 'bg-tertiary-container',
     ),
     stateLayer: classNames(
       'absolute w-full h-full overflow-hidden left-1/2 top-1/2 transform -translate-y-1/2 -translate-x-1/2',
@@ -30,7 +30,7 @@ export const fabStyle = defaultClassNames<FabInterface>(
       variant === 'secondary' &&
         'group-hover:hover-state-on-secondary-container group-focus-visible:focus-state-on-secondary-container',
       variant === 'tertiary' &&
-        'group-hover:hover-state-on-tertiary-container group-focus-visible:focus-state-on-tertiary-container'
+        'group-hover:hover-state-on-tertiary-container group-focus-visible:focus-state-on-tertiary-container',
     ),
 
     icon: classNames(
@@ -41,7 +41,7 @@ export const fabStyle = defaultClassNames<FabInterface>(
       variant === 'surface' && 'text-primary',
       variant === 'primary' && 'text-on-primary-container',
       variant === 'secondary' && 'text-on-secondary-container',
-      variant === 'tertiary' && 'text-on-tertiary-container'
+      variant === 'tertiary' && 'text-on-tertiary-container',
     ),
 
     label: classNames(
@@ -49,7 +49,7 @@ export const fabStyle = defaultClassNames<FabInterface>(
       variant === 'surface' && 'text-primary',
       variant === 'primary' && 'text-on-primary-container',
       variant === 'secondary' && 'text-on-secondary-container',
-      variant === 'tertiary' && 'text-on-tertiary-container'
+      variant === 'tertiary' && 'text-on-tertiary-container',
     ),
-  })
+  }),
 );
