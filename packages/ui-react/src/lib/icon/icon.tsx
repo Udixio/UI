@@ -1,4 +1,3 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type React from 'react';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { classNames } from '../utils';
@@ -10,7 +9,10 @@ interface Props {
 }
 
 export const Icon: React.FC<Props> = ({ icon, colors = [], className }) => {
-  const getColorStyle = (colors: string[]) => {
+  const { icon: iconData } = icon; // Extraction des données de l'icône.
+  const [width, height, , , svgPathData] = iconData || [];
+
+  const getColorStyle = (colors: string[]): React.CSSProperties => {
     switch (colors.length) {
       case 2:
         return {
@@ -23,13 +25,23 @@ export const Icon: React.FC<Props> = ({ icon, colors = [], className }) => {
         return {};
     }
   };
+
   return (
-    <FontAwesomeIcon
-      icon={icon}
-      className={classNames(className, {
-        'h-full': !className?.includes('h-') && !className?.includes('size-'),
-      })}
-      style={getColorStyle(colors)}
-    />
+    <svg
+      className={classNames('size-5 box-content', className)}
+      style={{
+        ...getColorStyle(colors),
+      }}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox={`0 0 ${width} ${height}`}
+      role="img"
+      aria-hidden="true"
+    >
+      {typeof svgPathData === 'string' ? (
+        <path className={'fill-current'} d={svgPathData} />
+      ) : (
+        svgPathData.map((d, index) => <path key={index} d={d} />)
+      )}
+    </svg>
   );
 };
