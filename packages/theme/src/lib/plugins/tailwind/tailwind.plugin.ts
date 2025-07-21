@@ -1,8 +1,15 @@
 import { PluginAbstract, PluginImplAbstract } from '../../plugin';
 import { FontPlugin } from '../font';
 import plugin from 'tailwindcss/plugin';
-import { createOrUpdateFile, findTailwindCssFile, getFileContent, replaceFileContent } from './file';
+import {
+  createOrUpdateFile,
+  findTailwindCssFile,
+  getFileContent,
+  replaceFileContent,
+} from './file';
 import path from 'path';
+import { font } from './plugins-tailwind/font';
+import { state } from './plugins-tailwind';
 
 interface TailwindPluginOptions {
   darkMode?: 'class' | 'media';
@@ -39,12 +46,7 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
     const searchPattern = /@plugin "@udixio\/tailwind"\s*{\s*}/;
     const replacement = `@plugin "@udixio/tailwind" {\n}\n@import "./udixio.css";`;
 
-    if (
-      !getFileContent(
-        tailwindCssPath,
-        /@import\s+"\.\/udixio\.css";/,
-      )
-    ) {
+    if (!getFileContent(tailwindCssPath, /@import\s+"\.\/udixio\.css";/)) {
       replaceFileContent(tailwindCssPath, searchPattern, replacement);
     }
 
@@ -89,46 +91,33 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
 @layer theme {
   .dark {
   ${Object.entries(colors)
-        .map(([key, value]) => `--color-${key}: ${value.dark};`)
-        .join('\n  ')}
+    .map(([key, value]) => `--color-${key}: ${value.dark};`)
+    .join('\n  ')}
   }
 }
 `,
     );
 
+    const plugins = [
+      state(Object.keys(colors)),
+      font(fontStyles, this.options.responsiveBreakPoints!),
+    ];
+
     return plugin.withOptions(
       // 1) factory(options) → la fonction “handler” du plugin
       (options = {}) => {
-        return async function ({
-          addUtilities,
-          theme,
-          addComponents,
-          addBase,
-        }) {
-          // vous pourriez créer ici des utilitaires avec addUtilities()
-          // par exemple pour raccourcir l’usage de primary
-          // const utils = {
-          //   '.text-primary': { color: theme('colors.primary.DEFAULT') },
-          // }
-          // addUtilities(utils, { variants: ['responsive', 'hover'] })
+        return async function (api) {
+          plugins.forEach((plugin) => {
+            plugin.handler(api);
+          });
         };
       },
       // 2) config(options) → objet à merger dans tailwind.config
       (options = {}) => {
         return {
-          // theme: {
-          //   colors: {
-          //     // on récupère l’objet options.palette ou on tombe
-          //     // sur un fallback minimal
-          //     primary: options.palette || {
-          //       50: '#f0f5ff',
-          //       100: 'rgba(245,17,17,0.82)',
-          //       500: '#6366f1',
-          //       700: '#b9b6da',
-          //       DEFAULT: '#b71b1b',
-          //     },
-          //   },
-          // },
+          theme: {
+            fontFamily,
+          },
         };
       },
     );
