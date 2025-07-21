@@ -83,8 +83,7 @@ const RippleEffect: React.FC<RippleEffectProps> = ({
             height: '100%',
             top: coordinates.y + '%',
             left: coordinates.x + '%',
-
-            background: `rgb(var(--colors-${colorName}) / 0.12)`,
+            background: `color-mix(in srgb, var(--color-${colorName}) 12%, transparent)`,
             pointerEvents: 'none',
           }}
           variants={ripple}
