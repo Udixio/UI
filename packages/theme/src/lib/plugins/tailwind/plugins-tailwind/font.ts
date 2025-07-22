@@ -1,4 +1,4 @@
-import { FontRole, FontSize, FontStyle } from '../../font/font.plugin';
+import { FontRole, FontSize, FontStyle } from '@udixio/theme';
 import plugin, { PluginAPI } from 'tailwindcss/plugin';
 
 export const font = (

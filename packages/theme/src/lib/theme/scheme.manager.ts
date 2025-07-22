@@ -16,7 +16,7 @@ export type SchemeServiceOptions = Omit<
   >;
 };
 
-export class SchemeService {
+export class SchemeManager {
   private schemeEntity?: Scheme;
   private options?: SchemeServiceOptions;
 

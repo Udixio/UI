@@ -1,5 +1,5 @@
 import { DynamicColor } from '@material/material-color-utilities';
-import { SchemeService, SchemeServiceOptions } from './scheme.service';
+import { SchemeManager, SchemeServiceOptions } from './scheme.manager';
 import { VariantManager } from './variant.manager';
 import { Variant } from './variant';
 
@@ -15,14 +15,14 @@ const colorPaletteKeyColor = DynamicColor.fromPalette({
 });
 
 export class ThemeApi {
-  private readonly schemeService: SchemeService;
+  private readonly schemeService: SchemeManager;
   private readonly variantService: VariantManager;
 
   constructor({
     schemeService,
     variantService,
   }: {
-    schemeService: SchemeService;
+    schemeService: SchemeManager;
     variantService: VariantManager;
   }) {
     this.schemeService = schemeService;

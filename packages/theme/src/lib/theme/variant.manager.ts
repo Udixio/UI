@@ -1,4 +1,4 @@
-import { SchemeService } from './scheme.service';
+import { SchemeManager } from './scheme.manager';
 import { Variant } from './variant';
 import { TonalPalette } from '@material/material-color-utilities';
 import { Hct } from '../material-color-utilities/htc';
@@ -7,9 +7,9 @@ export class VariantManager {
   public customPalettes: Record<string, string> = {};
   private variantEntity?: Variant;
 
-  private readonly schemeService: SchemeService;
+  private readonly schemeService: SchemeManager;
 
-  constructor({ schemeService }: { schemeService: SchemeService }) {
+  constructor({ schemeService }: { schemeService: SchemeManager }) {
     this.schemeService = schemeService;
   }
 

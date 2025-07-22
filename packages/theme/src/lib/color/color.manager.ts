@@ -3,7 +3,7 @@ import {
   DynamicColor,
   ToneDeltaPair,
 } from '../material-color-utilities';
-import { Scheme, SchemeService } from '../theme';
+import { SchemeManager } from '../theme';
 
 import { ColorOptions, ConfigurableColor } from './configurable-color';
 import { DynamicColorKey } from './default-color';
