@@ -1,4 +1,4 @@
-import { getRotatedHue, Variant } from '../variant';
+import { getPiecewiseHue, getRotatedHue, Variant } from '../variant';
 import {
   DynamicScheme,
   TonalPalette,
@@ -61,6 +61,14 @@ export const expressiveVariant: Variant = {
             ? 1.6
             : 2.3),
       );
+    },
+    error: (sourceColorHct) => {
+      const errorHue = getPiecewiseHue(
+        sourceColorHct,
+        [0, 3, 13, 23, 33, 43, 153, 273, 360],
+        [12, 22, 32, 12, 22, 32, 22, 12],
+      );
+      return TonalPalette.fromHueAndChroma(errorHue, 64);
     },
   },
   customPalettes: (colorHct) => TonalPalette.fromHueAndChroma(colorHct.hue, 16),

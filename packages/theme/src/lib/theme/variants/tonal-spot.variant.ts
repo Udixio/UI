@@ -1,4 +1,4 @@
-import { Variant } from '../variant';
+import { getPiecewiseHue, Variant } from '../variant';
 import {
   DynamicScheme,
   sanitizeDegreesDouble,
@@ -22,7 +22,14 @@ export const tonalSpotVariant: Variant = {
         sourceColorHct.hue,  5),
     neutralVariant: (sourceColorHct) =>
       TonalPalette.fromHueAndChroma(
-        sourceColorHct.hue, (  5 ) * 1.7)
+        sourceColorHct.hue, (  5 ) * 1.7),
+    error: (sourceColorHct) => {
+      const errorHue = getPiecewiseHue(
+        sourceColorHct, [0, 3, 13, 23, 33, 43, 153, 273, 360],
+        [12, 22, 32, 12, 22, 32, 22, 12]);
+      return   TonalPalette.fromHueAndChroma(
+        errorHue,  60 );
+    }
   },
   customPalettes: (colorHct) => TonalPalette.fromHueAndChroma(colorHct.hue, 16),
   colors: {},
