@@ -1,6 +1,6 @@
 import { Variant } from '../variant';
 import {
-  sanitizeDegreesDouble,
+  DynamicScheme,
   TonalPalette,
 } from '@material/material-color-utilities';
 import { Hct } from '../../material-color-utilities/htc';
@@ -19,8 +19,12 @@ export const tonalSpot: Variant = {
       ),
     tertiary: (sourceColorHct) =>
       TonalPalette.fromHueAndChroma(
-        sanitizeDegreesDouble(sourceColorHct.hue + 60.0),
-        24.0,
+        DynamicScheme.getRotatedHue(
+          sourceColorHct,
+          [0, 38, 105, 161, 204, 278, 333, 360],
+          [-32, 26, 10, -39, 24, -15, -32],
+        ),
+        20,
       ),
     neutral: (sourceColorHct) =>
       TonalPalette.fromHueAndChroma(sourceColorHct.hue, 6.0),

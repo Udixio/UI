@@ -1,10 +1,4 @@
-import {
-  getRotatedHue,
-  hues,
-  secondaryRotations,
-  tertiaryRotations,
-  Variant,
-} from '../variant';
+import { getRotatedHue, hues, secondaryRotations, Variant } from '../variant';
 import {
   DynamicScheme,
   TonalPalette,
@@ -25,8 +19,12 @@ export const vibrant: Variant = {
       ),
     tertiary: (sourceColorHct) =>
       TonalPalette.fromHueAndChroma(
-        getRotatedHue(sourceColorHct, hues, tertiaryRotations),
-        32.0,
+        DynamicScheme.getRotatedHue(
+          sourceColorHct,
+          [0, 38, 71, 105, 140, 161, 253, 333, 360],
+          [-72, 35, 24, -24, 62, 50, 62, -72],
+        ),
+        56,
       ),
     neutral: (sourceColorHct) =>
       TonalPalette.fromHueAndChroma(sourceColorHct.hue, 6.0),
