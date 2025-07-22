@@ -1,10 +1,27 @@
-import { Variant } from '../variant';
+import { getRotatedHue, Variant } from '../variant';
 import {
   DynamicScheme,
   TonalPalette,
 } from '@material/material-color-utilities';
+import { Hct } from '../../material-color-utilities/htc';
 
-export const tonalSpot: Variant = {
+const getExpressiveNeutralHue = (sourceColorHct: Hct): number => {
+  const hue = getRotatedHue(
+    sourceColorHct,
+    [0, 71, 124, 253, 278, 300, 360],
+    [10, 0, 10, 0, 10, 0],
+  );
+  return hue;
+};
+const getExpressiveNeutralChroma = (
+  sourceColorHct: Hct,
+  isDark: boolean,
+): number => {
+  const neutralHue = getExpressiveNeutralHue(sourceColorHct);
+  return isDark ? (Hct.isYellow(neutralHue) ? 6 : 14) : 18;
+};
+
+export const expressiveVariant: Variant = {
   palettes: {
     primary: (sourceColorHct) =>
       TonalPalette.fromHueAndChroma(sourceColorHct.hue, isDark ? 36 : 48),
@@ -27,7 +44,10 @@ export const tonalSpot: Variant = {
         48,
       ),
     neutral: (sourceColorHct) =>
-      TonalPalette.fromHueAndChroma(sourceColorHct.hue, 6.0),
+      TonalPalette.fromHueAndChroma(
+        getExpressiveNeutralHue(sourceColorHct),
+        getExpressiveNeutralChroma(sourceColorHct, isDark),
+      ),
     neutralVariant: (sourceColorHct) =>
       TonalPalette.fromHueAndChroma(sourceColorHct.hue, 8.0),
   },

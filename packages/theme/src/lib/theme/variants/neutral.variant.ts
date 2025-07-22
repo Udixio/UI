@@ -5,7 +5,7 @@ import {
 } from '@material/material-color-utilities';
 import { Hct } from '../../material-color-utilities/htc';
 
-export const tonalSpot: Variant = {
+export const neutralVariant: Variant = {
   palettes: {
     primary: (sourceColorHct) =>
       TonalPalette.fromHueAndChroma(
@@ -27,7 +27,7 @@ export const tonalSpot: Variant = {
         20,
       ),
     neutral: (sourceColorHct) =>
-      TonalPalette.fromHueAndChroma(sourceColorHct.hue, 6.0),
+      TonalPalette.fromHueAndChroma(sourceColorHct.hue, 1.4),
     neutralVariant: (sourceColorHct) =>
       TonalPalette.fromHueAndChroma(sourceColorHct.hue, 8.0),
   },

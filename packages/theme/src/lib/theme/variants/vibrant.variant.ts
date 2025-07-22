@@ -1,16 +1,27 @@
-import { getRotatedHue, hues, secondaryRotations, Variant } from '../variant';
-import {
-  DynamicScheme,
-  TonalPalette,
-} from '@material/material-color-utilities';
+import { getRotatedHue, Variant } from '../variant';
+import { TonalPalette } from '@material/material-color-utilities';
+import { Hct } from '../../material-color-utilities/htc';
 
-export const vibrant: Variant = {
+const getVibrantNeutralHue = (sourceColorHct: Hct): number => {
+  return getRotatedHue(
+    sourceColorHct,
+    [0, 38, 105, 140, 333, 360],
+    [-14, 10, -14, 10, -14],
+  );
+};
+
+const getVibrantNeutralChroma = (sourceColorHct: Hct): number => {
+  const neutralHue = getVibrantNeutralHue(sourceColorHct);
+  return 28;
+};
+
+export const vibrantVariant: Variant = {
   palettes: {
     primary: (sourceColorHct) =>
       TonalPalette.fromHueAndChroma(sourceColorHct.hue, 74),
     secondary: (sourceColorHct) =>
       TonalPalette.fromHueAndChroma(
-        DynamicScheme.getRotatedHue(
+        getRotatedHue(
           sourceColorHct,
           [0, 38, 105, 140, 333, 360],
           [-14, 10, -14, 10, -14],
@@ -19,7 +30,7 @@ export const vibrant: Variant = {
       ),
     tertiary: (sourceColorHct) =>
       TonalPalette.fromHueAndChroma(
-        DynamicScheme.getRotatedHue(
+        getRotatedHue(
           sourceColorHct,
           [0, 38, 71, 105, 140, 161, 253, 333, 360],
           [-72, 35, 24, -24, 62, 50, 62, -72],
@@ -27,7 +38,10 @@ export const vibrant: Variant = {
         56,
       ),
     neutral: (sourceColorHct) =>
-      TonalPalette.fromHueAndChroma(sourceColorHct.hue, 6.0),
+      TonalPalette.fromHueAndChroma(
+        getVibrantNeutralHue(sourceColorHct),
+        getVibrantNeutralChroma(sourceColorHct),
+      ),
     neutralVariant: (sourceColorHct) =>
       TonalPalette.fromHueAndChroma(sourceColorHct.hue, 8.0),
   },

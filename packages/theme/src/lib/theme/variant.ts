@@ -5,41 +5,32 @@ import {
 import { Hct } from '../material-color-utilities/htc';
 import { AddColors } from '../color';
 
-export const getRotatedHue = (
-  sourceColor: Hct,
+export const getPiecewiseHue = (
+  sourceColorHct: Hct,
+  hueBreakpoints: number[],
   hues: number[],
-  rotations: number[],
 ): number => {
-  const sourceHue = sourceColor.hue;
-  if (hues.length !== rotations.length) {
-    throw new Error(
-      `mismatch between hue length ${hues.length} & rotations ${rotations.length}`,
-    );
-  }
-  if (rotations.length === 1) {
-    return sanitizeDegreesDouble(sourceColor.hue + rotations[0]);
-  }
-  const size = hues.length;
-  for (let i = 0; i <= size - 2; i++) {
-    const thisHue = hues[i];
-    const nextHue = hues[i + 1];
-    if (thisHue < sourceHue && sourceHue < nextHue) {
-      return sanitizeDegreesDouble(sourceHue + rotations[i]);
+  const size = Math.min(hueBreakpoints.length - 1, hues.length);
+  const sourceHue = sourceColorHct.hue;
+  for (let i = 0; i < size; i++) {
+    if (sourceHue >= hueBreakpoints[i] && sourceHue < hueBreakpoints[i + 1]) {
+      return sanitizeDegreesDouble(hues[i]);
     }
   }
-  // If this statement executes, something is wrong, there should have been a
-  // rotation found using the arrays.
   return sourceHue;
 };
 
-export const hues = [0.0, 41.0, 61.0, 101.0, 131.0, 181.0, 251.0, 301.0, 360.0];
-
-export const secondaryRotations = [
-  18.0, 15.0, 10.0, 12.0, 15.0, 18.0, 15.0, 12.0, 12.0,
-];
-export const tertiaryRotations = [
-  35.0, 30.0, 20.0, 25.0, 30.0, 35.0, 30.0, 25.0, 25.0,
-];
+export const getRotatedHue = (
+  sourceColorHct: Hct,
+  hueBreakpoints: number[],
+  rotations: number[],
+): number => {
+  let rotation = getPiecewiseHue(sourceColorHct, hueBreakpoints, rotations);
+  if (Math.min(hueBreakpoints.length - 1, rotations.length) <= 0) {
+    rotation = 0;
+  }
+  return sanitizeDegreesDouble(sourceColorHct.hue + rotation);
+};
 
 export class Variant {
   constructor(

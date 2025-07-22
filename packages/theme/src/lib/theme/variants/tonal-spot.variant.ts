@@ -5,7 +5,7 @@ import {
   TonalPalette
 } from '@material/material-color-utilities';
 
-export const tonalSpot: Variant = {
+export const tonalSpotVariant: Variant = {
   palettes: {
     primary: (sourceColorHct) =>
       TonalPalette.fromHueAndChroma(sourceColorHct.hue, isDark ? 26 : 32),
@@ -18,7 +18,8 @@ export const tonalSpot: Variant = {
           [-40, 48, -32, 40, -32]),
        28 );
     neutral: (sourceColorHct) =>
-      TonalPalette.fromHueAndChroma(sourceColorHct.hue, 6.0),
+      TonalPalette.fromHueAndChroma(
+        sourceColorHct.hue,  5),
     neutralVariant: (sourceColorHct) =>
       TonalPalette.fromHueAndChroma(sourceColorHct.hue, 8.0),
   },
