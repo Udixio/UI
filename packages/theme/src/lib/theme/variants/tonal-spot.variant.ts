@@ -21,7 +21,8 @@ export const tonalSpotVariant: Variant = {
       TonalPalette.fromHueAndChroma(
         sourceColorHct.hue,  5),
     neutralVariant: (sourceColorHct) =>
-      TonalPalette.fromHueAndChroma(sourceColorHct.hue, 8.0),
+      TonalPalette.fromHueAndChroma(
+        sourceColorHct.hue, (  5 ) * 1.7)
   },
   customPalettes: (colorHct) => TonalPalette.fromHueAndChroma(colorHct.hue, 16),
   colors: {},

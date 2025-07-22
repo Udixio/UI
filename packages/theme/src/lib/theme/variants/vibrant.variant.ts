@@ -42,8 +42,14 @@ export const vibrantVariant: Variant = {
         getVibrantNeutralHue(sourceColorHct),
         getVibrantNeutralChroma(sourceColorHct),
       ),
-    neutralVariant: (sourceColorHct) =>
-      TonalPalette.fromHueAndChroma(sourceColorHct.hue, 8.0),
+    neutralVariant: (sourceColorHct) => {
+      const vibrantNeutralHue = getVibrantNeutralHue(sourceColorHct);
+      const vibrantNeutralChroma = getVibrantNeutralChroma(sourceColorHct);
+      return TonalPalette.fromHueAndChroma(
+        vibrantNeutralHue,
+        vibrantNeutralChroma * 1.29,
+      );
+    },
   },
   customPalettes: (colorHct) =>
     TonalPalette.fromHueAndChroma(

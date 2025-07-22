@@ -29,7 +29,7 @@ export const neutralVariant: Variant = {
     neutral: (sourceColorHct) =>
       TonalPalette.fromHueAndChroma(sourceColorHct.hue, 1.4),
     neutralVariant: (sourceColorHct) =>
-      TonalPalette.fromHueAndChroma(sourceColorHct.hue, 8.0),
+      TonalPalette.fromHueAndChroma(sourceColorHct.hue, 1.4 * 2.2),
   },
   customPalettes: (colorHct) => TonalPalette.fromHueAndChroma(colorHct.hue, 16),
   colors: {},
