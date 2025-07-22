@@ -100,13 +100,14 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => ({
     onBackground: {
       palette: (s) => s.getPalette('neutral'),
       tone: (s) => (s.isDark ? 90 : 10),
-      background: (s) => colorService.getColor('background').getDynamicColor(),
+      background: (s) => colorService.getColor('background').getMaterialColor(),
       contrastCurve: (s) => new ContrastCurve(3, 3, 4.5, 7),
     },
     surface: {
       palette: (s) => s.getPalette('neutral'),
       tone: (s) => (s.isDark ? 6 : 98),
       isBackground: true,
+      œ,
     },
     surfaceDim: {
       palette: (s) => s.getPalette('neutral'),

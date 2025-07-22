@@ -4,7 +4,6 @@ import {
   SchemeManager,
 } from './scheme.manager';
 import { Variant } from './variant';
-import { TonalPalette } from '@material/material-color-utilities';
 
 export class VariantManager {
   public customPalettes: Record<string, string> = {};
@@ -23,10 +22,6 @@ export class VariantManager {
 
   set(variantEntity: Variant) {
     this.variantEntity = variantEntity;
-    if (!variantEntity.palettes['error']) {
-      variantEntity.palettes['error'] = () =>
-        TonalPalette.fromHueAndChroma(25.0, 84.0);
-    }
     this.update();
   }
 
