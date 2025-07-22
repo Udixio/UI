@@ -3,6 +3,7 @@ import {
   TonalPalette,
 } from '@material/material-color-utilities';
 import { Hct } from '../material-color-utilities/htc';
+import { AddColors } from '../color';
 
 export const getRotatedHue = (
   sourceColor: Hct,
@@ -44,5 +45,6 @@ export class Variant {
   constructor(
     public palettes: Record<string, (sourceColorHct: Hct) => TonalPalette> = {},
     public customPalettes?: (colorHct: Hct) => TonalPalette,
+    public colors?: AddColors['colors'],
   ) {}
 }

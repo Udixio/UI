@@ -1,7 +1,7 @@
 import { ColorOptions, ConfigurableColor } from './configurable-color';
 import { ColorManager } from './color.manager';
 
-type AddColors = {
+export type AddColors = {
   colors?: Record<string, Partial<ColorOptions>>;
   fromPalettes?: string[] | string;
 };

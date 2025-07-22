@@ -168,7 +168,7 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => ({
       palette: (s) => s.getPalette('neutral'),
       tone: (s) => (s.isDark ? 20 : 95),
       background: (s) =>
-        colorService.getColor('inverseSurface').getDynamicColor(),
+        colorService.getColor('inverseSurface').getMaterialColor(),
       contrastCurve: (s) => new ContrastCurve(4.5, 7, 11, 21),
     },
     outline: {
@@ -210,7 +210,10 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => ({
     onSecondaryContainer: {
       tone: (s) => {
         return DynamicColor.foregroundTone(
-          colorService.getColor('secondaryContainer').getDynamicColor().tone(s),
+          colorService
+            .getColor('secondaryContainer')
+            .getMaterialColor()
+            .tone(s),
           4.5,
         );
       },
@@ -228,7 +231,7 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => ({
       palette: (s) => s.getPalette('tertiary'),
       tone: (s) => {
         return DynamicColor.foregroundTone(
-          colorService.getColor('tertiaryContainer').getDynamicColor().tone(s),
+          colorService.getColor('tertiaryContainer').getMaterialColor().tone(s),
           4.5,
         );
       },
@@ -241,8 +244,8 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => ({
       contrastCurve: (s) => new ContrastCurve(3, 4.5, 7, 11),
       toneDeltaPair: (s) =>
         new ToneDeltaPair(
-          colorService.getColor('errorContainer').getDynamicColor(),
-          colorService.getColor('error').getDynamicColor(),
+          colorService.getColor('errorContainer').getMaterialColor(),
+          colorService.getColor('error').getMaterialColor(),
           15,
           'nearer',
           false,
@@ -251,7 +254,7 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => ({
     onError: {
       palette: (s) => s.getPalette('error'),
       tone: (s) => (s.isDark ? 20 : 100),
-      background: (s) => colorService.getColor('error').getDynamicColor(),
+      background: (s) => colorService.getColor('error').getMaterialColor(),
       contrastCurve: (s) => new ContrastCurve(4.5, 7, 11, 21),
     },
     errorContainer: {
@@ -262,8 +265,8 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => ({
       contrastCurve: (s) => new ContrastCurve(1, 1, 3, 7),
       toneDeltaPair: (s) =>
         new ToneDeltaPair(
-          colorService.getColor('errorContainer').getDynamicColor(),
-          colorService.getColor('error').getDynamicColor(),
+          colorService.getColor('errorContainer').getMaterialColor(),
+          colorService.getColor('error').getMaterialColor(),
           15,
           'nearer',
           false,
@@ -273,7 +276,7 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => ({
       palette: (s) => s.getPalette('error'),
       tone: (s) => (s.isDark ? 90 : 10),
       background: (s) =>
-        colorService.getColor('errorContainer').getDynamicColor(),
+        colorService.getColor('errorContainer').getMaterialColor(),
       contrastCurve: (s) => new ContrastCurve(4.5, 7, 11, 21),
     },
 
@@ -281,18 +284,18 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => ({
       palette: (s) => s.getPalette('tertiary'),
       tone: (s) => 10.0,
       background: (s) =>
-        colorService.getColor('tertiaryFixedDim').getDynamicColor(),
+        colorService.getColor('tertiaryFixedDim').getMaterialColor(),
       secondBackground: (s) =>
-        colorService.getColor('tertiaryFixed').getDynamicColor(),
+        colorService.getColor('tertiaryFixed').getMaterialColor(),
       contrastCurve: (s) => new ContrastCurve(4.5, 7, 11, 21),
     },
     onTertiaryFixedVariant: {
       palette: (s) => s.getPalette('tertiary'),
       tone: (s) => 30.0,
       background: (s) =>
-        colorService.getColor('tertiaryFixedDim').getDynamicColor(),
+        colorService.getColor('tertiaryFixedDim').getMaterialColor(),
       secondBackground: (s) =>
-        colorService.getColor('tertiaryFixed').getDynamicColor(),
+        colorService.getColor('tertiaryFixed').getMaterialColor(),
       contrastCurve: (s) => new ContrastCurve(3, 4.5, 7, 11),
     },
   },
