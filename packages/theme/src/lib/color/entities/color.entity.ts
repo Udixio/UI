@@ -11,7 +11,7 @@ export interface ColorOptions {
   isBackground?: boolean;
   background?: (scheme: SchemeEntity) => DynamicColor;
   secondBackground?: (scheme: SchemeEntity) => DynamicColor;
-  contrastCurve?: ContrastCurve;
+  contrastCurve?: (scheme: SchemeEntity) => ContrastCurve;
   toneDeltaPair?: (scheme: SchemeEntity) => {
     roleA: DynamicColor;
     readonly roleB: DynamicColor;
@@ -35,7 +35,7 @@ export class ColorEntity {
   constructor(
     private option: ColorOptions & { name: string },
     private schemeService: SchemeService,
-    private colorService: ColorManagerService
+    private colorService: ColorManagerService,
   ) {}
 
   update(args: Partial<ColorOptions & { name: string }>) {

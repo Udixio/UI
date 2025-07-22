@@ -1,4 +1,5 @@
-import { Hct, TonalPalette } from '@material/material-color-utilities';
+import { TonalPalette } from '@material/material-color-utilities';
+import { Hct } from '../../material-color-utilities/htc';
 
 export interface SchemeOptions {
   sourceColorArgb: number;

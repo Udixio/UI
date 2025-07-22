@@ -1,18 +1,18 @@
 import {
-  Hct,
   sanitizeDegreesDouble,
   TonalPalette,
 } from '@material/material-color-utilities';
+import { Hct } from '../../material-color-utilities/htc';
 
 export const getRotatedHue = (
   sourceColor: Hct,
   hues: number[],
-  rotations: number[]
+  rotations: number[],
 ): number => {
   const sourceHue = sourceColor.hue;
   if (hues.length !== rotations.length) {
     throw new Error(
-      `mismatch between hue length ${hues.length} & rotations ${rotations.length}`
+      `mismatch between hue length ${hues.length} & rotations ${rotations.length}`,
     );
   }
   if (rotations.length === 1) {
@@ -34,6 +34,6 @@ export const getRotatedHue = (
 export class VariantEntity {
   constructor(
     public palettes: Record<string, (sourceColorHct: Hct) => TonalPalette> = {},
-    public customPalettes?: (colorHct: Hct) => TonalPalette
+    public customPalettes?: (colorHct: Hct) => TonalPalette,
   ) {}
 }

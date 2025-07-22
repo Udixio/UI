@@ -1,9 +1,6 @@
 import { SchemeEntity, SchemeOptions } from '../entities/scheme.entity';
-import {
-  argbFromHex,
-  Hct,
-  TonalPalette,
-} from '@material/material-color-utilities';
+import { argbFromHex, TonalPalette } from '@material/material-color-utilities';
+import { Hct } from '../../material-color-utilities/htc';
 
 export type SchemeServiceOptions = Omit<
   SchemeOptions,
@@ -57,7 +54,7 @@ export class SchemeService {
         palette = paletteFunction(sourceColorHct);
       } else {
         const sourceColorArgb = argbFromHex(
-          this.options.sourcesColorHex[sourceColorkey]
+          this.options.sourcesColorHex[sourceColorkey],
         );
         const sourceColorHct: Hct = Hct.fromInt(sourceColorArgb);
         palette = paletteFunction(sourceColorHct);

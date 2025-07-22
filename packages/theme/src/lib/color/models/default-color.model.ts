@@ -1,8 +1,9 @@
-import { DislikeAnalyzer, Hct } from '@material/material-color-utilities';
+import { DislikeAnalyzer } from '@material/material-color-utilities';
 import { ContrastCurve, ToneDeltaPair } from '../../material-color-utilities';
 import { DynamicColor } from '../../material-color-utilities/dynamic_color';
 import { highestSurface } from '../services/color-manager.service';
 import { AddColorsOptions, ColorService } from '../services/color.service';
+import { Hct } from '../../material-color-utilities/htc';
 
 export type DynamicColorKey =
   | 'background'
@@ -59,7 +60,7 @@ function findDesiredChromaByTone(
   hue: number,
   chroma: number,
   tone: number,
-  byDecreasingTone: boolean
+  byDecreasingTone: boolean,
 ): number {
   let answer = tone;
 
@@ -89,7 +90,7 @@ function findDesiredChromaByTone(
 }
 
 export const defaultColors: AddColorsOptions = (
-  colorService: ColorService
+  colorService: ColorService,
 ) => ({
   fromPalettes: ['primary', 'secondary', 'tertiary'],
   colors: {
@@ -102,7 +103,7 @@ export const defaultColors: AddColorsOptions = (
       palette: (s) => s.getPalette('neutral'),
       tone: (s) => (s.isDark ? 90 : 10),
       background: (s) => colorService.getColor('background').getDynamicColor(),
-      contrastCurve: new ContrastCurve(3, 3, 4.5, 7),
+      contrastCurve: (s) => new ContrastCurve(3, 3, 4.5, 7),
     },
     surface: {
       palette: (s) => s.getPalette('neutral'),
@@ -148,7 +149,7 @@ export const defaultColors: AddColorsOptions = (
       palette: (s) => s.getPalette('neutral'),
       tone: (s) => (s.isDark ? 90 : 10),
       background: (s) => highestSurface(s, colorService),
-      contrastCurve: new ContrastCurve(4.5, 7, 11, 21),
+      contrastCurve: (s) => new ContrastCurve(4.5, 7, 11, 21),
     },
     surfaceVariant: {
       palette: (s) => s.getPalette('neutralVariant'),
@@ -159,7 +160,7 @@ export const defaultColors: AddColorsOptions = (
       palette: (s) => s.getPalette('neutralVariant'),
       tone: (s) => (s.isDark ? 80 : 30),
       background: (s) => highestSurface(s, colorService),
-      contrastCurve: new ContrastCurve(3, 4.5, 7, 11),
+      contrastCurve: (s) => new ContrastCurve(3, 4.5, 7, 11),
     },
     inverseSurface: {
       palette: (s) => s.getPalette('neutral'),
@@ -170,19 +171,19 @@ export const defaultColors: AddColorsOptions = (
       tone: (s) => (s.isDark ? 20 : 95),
       background: (s) =>
         colorService.getColor('inverseSurface').getDynamicColor(),
-      contrastCurve: new ContrastCurve(4.5, 7, 11, 21),
+      contrastCurve: (s) => new ContrastCurve(4.5, 7, 11, 21),
     },
     outline: {
       palette: (s) => s.getPalette('neutralVariant'),
       tone: (s) => (s.isDark ? 60 : 50),
       background: (s) => highestSurface(s, colorService),
-      contrastCurve: new ContrastCurve(1.5, 3, 4.5, 7),
+      contrastCurve: (s) => new ContrastCurve(1.5, 3, 4.5, 7),
     },
     outlineVariant: {
       palette: (s) => s.getPalette('neutralVariant'),
       tone: (s) => (s.isDark ? 30 : 80),
       background: (s) => highestSurface(s, colorService),
-      contrastCurve: new ContrastCurve(1, 1, 3, 7),
+      contrastCurve: (s) => new ContrastCurve(1, 1, 3, 7),
     },
     shadow: {
       palette: (s) => s.getPalette('neutral'),
@@ -204,7 +205,7 @@ export const defaultColors: AddColorsOptions = (
           s.getPalette('secondary').hue,
           s.getPalette('secondary').chroma,
           initialTone,
-          !s.isDark
+          !s.isDark,
         );
       },
     },
@@ -212,7 +213,7 @@ export const defaultColors: AddColorsOptions = (
       tone: (s) => {
         return DynamicColor.foregroundTone(
           colorService.getColor('secondaryContainer').getDynamicColor().tone(s),
-          4.5
+          4.5,
         );
       },
     },
@@ -230,7 +231,7 @@ export const defaultColors: AddColorsOptions = (
       tone: (s) => {
         return DynamicColor.foregroundTone(
           colorService.getColor('tertiaryContainer').getDynamicColor().tone(s),
-          4.5
+          4.5,
         );
       },
     },
@@ -239,35 +240,35 @@ export const defaultColors: AddColorsOptions = (
       tone: (s) => (s.isDark ? 80 : 40),
       isBackground: true,
       background: (s) => highestSurface(s, colorService),
-      contrastCurve: new ContrastCurve(3, 4.5, 7, 11),
+      contrastCurve: (s) => new ContrastCurve(3, 4.5, 7, 11),
       toneDeltaPair: (s) =>
         new ToneDeltaPair(
           colorService.getColor('errorContainer').getDynamicColor(),
           colorService.getColor('error').getDynamicColor(),
           15,
           'nearer',
-          false
+          false,
         ),
     },
     onError: {
       palette: (s) => s.getPalette('error'),
       tone: (s) => (s.isDark ? 20 : 100),
       background: (s) => colorService.getColor('error').getDynamicColor(),
-      contrastCurve: new ContrastCurve(4.5, 7, 11, 21),
+      contrastCurve: (s) => new ContrastCurve(4.5, 7, 11, 21),
     },
     errorContainer: {
       palette: (s) => s.getPalette('error'),
       tone: (s) => (s.isDark ? 30 : 90),
       isBackground: true,
       background: (s) => highestSurface(s, colorService),
-      contrastCurve: new ContrastCurve(1, 1, 3, 7),
+      contrastCurve: (s) => new ContrastCurve(1, 1, 3, 7),
       toneDeltaPair: (s) =>
         new ToneDeltaPair(
           colorService.getColor('errorContainer').getDynamicColor(),
           colorService.getColor('error').getDynamicColor(),
           15,
           'nearer',
-          false
+          false,
         ),
     },
     onErrorContainer: {
@@ -275,7 +276,7 @@ export const defaultColors: AddColorsOptions = (
       tone: (s) => (s.isDark ? 90 : 10),
       background: (s) =>
         colorService.getColor('errorContainer').getDynamicColor(),
-      contrastCurve: new ContrastCurve(4.5, 7, 11, 21),
+      contrastCurve: (s) => new ContrastCurve(4.5, 7, 11, 21),
     },
 
     onTertiaryFixed: {
@@ -285,7 +286,7 @@ export const defaultColors: AddColorsOptions = (
         colorService.getColor('tertiaryFixedDim').getDynamicColor(),
       secondBackground: (s) =>
         colorService.getColor('tertiaryFixed').getDynamicColor(),
-      contrastCurve: new ContrastCurve(4.5, 7, 11, 21),
+      contrastCurve: (s) => new ContrastCurve(4.5, 7, 11, 21),
     },
     onTertiaryFixedVariant: {
       palette: (s) => s.getPalette('tertiary'),
@@ -294,7 +295,7 @@ export const defaultColors: AddColorsOptions = (
         colorService.getColor('tertiaryFixedDim').getDynamicColor(),
       secondBackground: (s) =>
         colorService.getColor('tertiaryFixed').getDynamicColor(),
-      contrastCurve: new ContrastCurve(3, 4.5, 7, 11),
+      contrastCurve: (s) => new ContrastCurve(3, 4.5, 7, 11),
     },
   },
 });

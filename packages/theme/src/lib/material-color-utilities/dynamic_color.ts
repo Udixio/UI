@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-import { clampDouble, Contrast, Hct, TonalPalette } from '@material/material-color-utilities';
+import { clampDouble, Contrast, TonalPalette } from '@material/material-color-utilities';
 import { ContrastCurve } from './contrastCurve';
 import { ToneDeltaPair } from './toneDeltaPair';
 import { SchemeEntity } from '../theme/entities/scheme.entity';
+import { Hct } from './htc';
 
 /**
  * @param name The name of the dynamic color. Defaults to empty.
