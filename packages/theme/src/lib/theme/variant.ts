@@ -34,8 +34,14 @@ export const getRotatedHue = (
 
 export class Variant {
   constructor(
-    public palettes: Record<string, (sourceColorHct: Hct) => TonalPalette> = {},
-    public customPalettes?: (colorHct: Hct) => TonalPalette,
+    public palettes: Record<
+      string,
+      (args: { sourceColorHct: Hct; isDark: boolean }) => TonalPalette
+    > = {},
+    public customPalettes?: (args: {
+      colorHct: Hct;
+      isDark: boolean;
+    }) => TonalPalette,
     public colors?: AddColors['colors'],
   ) {}
 }

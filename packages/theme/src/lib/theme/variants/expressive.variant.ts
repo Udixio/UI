@@ -20,9 +20,9 @@ const getExpressiveNeutralChroma = (
 
 export const expressiveVariant: Variant = {
   palettes: {
-    primary: (sourceColorHct) =>
+    primary: ({ sourceColorHct, isDark }) =>
       TonalPalette.fromHueAndChroma(sourceColorHct.hue, isDark ? 36 : 48),
-    secondary: (sourceColorHct) =>
+    secondary: ({ sourceColorHct, isDark }) =>
       TonalPalette.fromHueAndChroma(
         getRotatedHue(
           sourceColorHct,
@@ -31,7 +31,7 @@ export const expressiveVariant: Variant = {
         ),
         isDark ? 16 : 24,
       ),
-    tertiary: (sourceColorHct) =>
+    tertiary: ({ sourceColorHct }) =>
       TonalPalette.fromHueAndChroma(
         getRotatedHue(
           sourceColorHct,
@@ -40,12 +40,12 @@ export const expressiveVariant: Variant = {
         ),
         48,
       ),
-    neutral: (sourceColorHct) =>
+    neutral: ({ sourceColorHct, isDark }) =>
       TonalPalette.fromHueAndChroma(
         getExpressiveNeutralHue(sourceColorHct),
         getExpressiveNeutralChroma(sourceColorHct, isDark),
       ),
-    neutralVariant: (sourceColorHct) => {
+    neutralVariant: ({ sourceColorHct, isDark }) => {
       const expressiveNeutralHue = getExpressiveNeutralHue(sourceColorHct);
       const expressiveNeutralChroma = getExpressiveNeutralChroma(
         sourceColorHct,
@@ -59,7 +59,7 @@ export const expressiveVariant: Variant = {
             : 2.3),
       );
     },
-    error: (sourceColorHct) => {
+    error: ({ sourceColorHct }) => {
       const errorHue = getPiecewiseHue(
         sourceColorHct,
         [0, 3, 13, 23, 33, 43, 153, 273, 360],
@@ -68,7 +68,7 @@ export const expressiveVariant: Variant = {
       return TonalPalette.fromHueAndChroma(errorHue, 64);
     },
   },
-  customPalettes: (colorHct) =>
+  customPalettes: ({ colorHct, isDark }) =>
     TonalPalette.fromHueAndChroma(
       getRotatedHue(
         colorHct,

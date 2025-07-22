@@ -3,11 +3,11 @@ import { TonalPalette } from '@material/material-color-utilities';
 
 export const tonalSpotVariant: Variant = {
   palettes: {
-    primary: (sourceColorHct) =>
+    primary: ({ sourceColorHct, isDark }) =>
       TonalPalette.fromHueAndChroma(sourceColorHct.hue, isDark ? 26 : 32),
-    secondary: (sourceColorHct) =>
+    secondary: ({ sourceColorHct }) =>
       TonalPalette.fromHueAndChroma(sourceColorHct.hue, 16),
-    tertiary: (sourceColorHct) =>
+    tertiary: ({ sourceColorHct }) =>
       TonalPalette.fromHueAndChroma(
         getRotatedHue(
           sourceColorHct,
@@ -16,11 +16,11 @@ export const tonalSpotVariant: Variant = {
         ),
         28,
       ),
-    neutral: (sourceColorHct) =>
+    neutral: ({ sourceColorHct }) =>
       TonalPalette.fromHueAndChroma(sourceColorHct.hue, 5),
-    neutralVariant: (sourceColorHct) =>
+    neutralVariant: ({ sourceColorHct }) =>
       TonalPalette.fromHueAndChroma(sourceColorHct.hue, 5 * 1.7),
-    error: (sourceColorHct) => {
+    error: ({ sourceColorHct }) => {
       const errorHue = getPiecewiseHue(
         sourceColorHct,
         [0, 3, 13, 23, 33, 43, 153, 273, 360],
@@ -29,6 +29,7 @@ export const tonalSpotVariant: Variant = {
       return TonalPalette.fromHueAndChroma(errorHue, 60);
     },
   },
-  customPalettes: (colorHct) => TonalPalette.fromHueAndChroma(colorHct.hue, 16),
+  customPalettes: ({ colorHct }) =>
+    TonalPalette.fromHueAndChroma(colorHct.hue, 16),
   colors: {},
 };

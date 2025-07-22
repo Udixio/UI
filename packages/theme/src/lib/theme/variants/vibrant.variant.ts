@@ -17,9 +17,9 @@ const getVibrantNeutralChroma = (sourceColorHct: Hct): number => {
 
 export const vibrantVariant: Variant = {
   palettes: {
-    primary: (sourceColorHct) =>
+    primary: ({ sourceColorHct }) =>
       TonalPalette.fromHueAndChroma(sourceColorHct.hue, 74),
-    secondary: (sourceColorHct) =>
+    secondary: ({ sourceColorHct }) =>
       TonalPalette.fromHueAndChroma(
         getRotatedHue(
           sourceColorHct,
@@ -28,7 +28,7 @@ export const vibrantVariant: Variant = {
         ),
         56,
       ),
-    tertiary: (sourceColorHct) =>
+    tertiary: ({ sourceColorHct }) =>
       TonalPalette.fromHueAndChroma(
         getRotatedHue(
           sourceColorHct,
@@ -37,12 +37,12 @@ export const vibrantVariant: Variant = {
         ),
         56,
       ),
-    neutral: (sourceColorHct) =>
+    neutral: ({ sourceColorHct }) =>
       TonalPalette.fromHueAndChroma(
         getVibrantNeutralHue(sourceColorHct),
         getVibrantNeutralChroma(sourceColorHct),
       ),
-    neutralVariant: (sourceColorHct) => {
+    neutralVariant: ({ sourceColorHct }) => {
       const vibrantNeutralHue = getVibrantNeutralHue(sourceColorHct);
       const vibrantNeutralChroma = getVibrantNeutralChroma(sourceColorHct);
       return TonalPalette.fromHueAndChroma(
@@ -50,7 +50,7 @@ export const vibrantVariant: Variant = {
         vibrantNeutralChroma * 1.29,
       );
     },
-    error: (sourceColorHct) => {
+    error: ({ sourceColorHct }) => {
       const errorHue = getPiecewiseHue(
         sourceColorHct,
         [0, 3, 13, 23, 33, 43, 153, 273, 360],
@@ -59,7 +59,7 @@ export const vibrantVariant: Variant = {
       return TonalPalette.fromHueAndChroma(errorHue, 80);
     },
   },
-  customPalettes: (colorHct) =>
+  customPalettes: ({ colorHct }) =>
     TonalPalette.fromHueAndChroma(
       getRotatedHue(
         colorHct,
