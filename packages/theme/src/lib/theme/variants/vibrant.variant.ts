@@ -61,8 +61,12 @@ export const vibrantVariant: Variant = {
   },
   customPalettes: (colorHct) =>
     TonalPalette.fromHueAndChroma(
-      getRotatedHue(colorHct, hues, secondaryRotations),
-      24.0,
+      getRotatedHue(
+        colorHct,
+        [0, 38, 105, 140, 333, 360],
+        [-14, 10, -14, 10, -14],
+      ),
+      56,
     ),
 
   colors: {},

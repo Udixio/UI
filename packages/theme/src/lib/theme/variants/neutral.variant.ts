@@ -1,8 +1,5 @@
-import { getPiecewiseHue, Variant } from '../variant';
-import {
-  DynamicScheme,
-  TonalPalette,
-} from '@material/material-color-utilities';
+import { getPiecewiseHue, getRotatedHue, Variant } from '../variant';
+import { TonalPalette } from '@material/material-color-utilities';
 import { Hct } from '../../material-color-utilities/htc';
 
 export const neutralVariant: Variant = {
@@ -19,7 +16,7 @@ export const neutralVariant: Variant = {
       ),
     tertiary: (sourceColorHct) =>
       TonalPalette.fromHueAndChroma(
-        DynamicScheme.getRotatedHue(
+        getRotatedHue(
           sourceColorHct,
           [0, 38, 105, 161, 204, 278, 333, 360],
           [-32, 26, 10, -39, 24, -15, -32],
@@ -39,6 +36,10 @@ export const neutralVariant: Variant = {
       return TonalPalette.fromHueAndChroma(errorHue, 50);
     },
   },
-  customPalettes: (colorHct) => TonalPalette.fromHueAndChroma(colorHct.hue, 16),
+  customPalettes: (colorHct) =>
+    TonalPalette.fromHueAndChroma(
+      colorHct.hue,
+      Hct.isBlue(colorHct.hue) ? 6 : 4,
+    ),
   colors: {},
 };

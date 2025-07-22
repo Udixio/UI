@@ -1,8 +1,5 @@
 import { getPiecewiseHue, getRotatedHue, Variant } from '../variant';
-import {
-  DynamicScheme,
-  TonalPalette,
-} from '@material/material-color-utilities';
+import { TonalPalette } from '@material/material-color-utilities';
 import { Hct } from '../../material-color-utilities/htc';
 
 const getExpressiveNeutralHue = (sourceColorHct: Hct): number => {
@@ -27,7 +24,7 @@ export const expressiveVariant: Variant = {
       TonalPalette.fromHueAndChroma(sourceColorHct.hue, isDark ? 36 : 48),
     secondary: (sourceColorHct) =>
       TonalPalette.fromHueAndChroma(
-        DynamicScheme.getRotatedHue(
+        getRotatedHue(
           sourceColorHct,
           [0, 105, 140, 204, 253, 278, 300, 333, 360],
           [-160, 155, -100, 96, -96, -156, -165, -160],
@@ -36,7 +33,7 @@ export const expressiveVariant: Variant = {
       ),
     tertiary: (sourceColorHct) =>
       TonalPalette.fromHueAndChroma(
-        DynamicScheme.getRotatedHue(
+        getRotatedHue(
           sourceColorHct,
           [0, 105, 140, 204, 253, 278, 300, 333, 360],
           [-165, 160, -105, 101, -101, -160, -170, -165],
@@ -71,6 +68,14 @@ export const expressiveVariant: Variant = {
       return TonalPalette.fromHueAndChroma(errorHue, 64);
     },
   },
-  customPalettes: (colorHct) => TonalPalette.fromHueAndChroma(colorHct.hue, 16),
+  customPalettes: (colorHct) =>
+    TonalPalette.fromHueAndChroma(
+      getRotatedHue(
+        colorHct,
+        [0, 105, 140, 204, 253, 278, 300, 333, 360],
+        [-160, 155, -100, 96, -96, -156, -165, -160],
+      ),
+      isDark ? 16 : 24,
+    ),
   colors: {},
 };
