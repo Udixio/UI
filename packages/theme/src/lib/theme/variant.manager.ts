@@ -1,7 +1,10 @@
-import { SchemeManager } from './scheme.manager';
+import {
+  CustomPaletteFunction,
+  PaletteFunction,
+  SchemeManager,
+} from './scheme.manager';
 import { Variant } from './variant';
 import { TonalPalette } from '@material/material-color-utilities';
-import { Hct } from '../material-color-utilities/htc';
 
 export class VariantManager {
   public customPalettes: Record<string, string> = {};
@@ -31,19 +34,24 @@ export class VariantManager {
     if (!this.variantEntity) return;
     const palettes: Record<
       string,
-      {
-        sourceColorkey?: string;
-        tonalPalette: (sourceColorHct: Hct) => TonalPalette;
-      }
+      | {
+          sourceColorkey: string;
+          tonalPalette: CustomPaletteFunction;
+        }
+      | {
+          tonalPalette: PaletteFunction;
+        }
     > = {};
     Object.keys(this.variantEntity.palettes).forEach((key) => {
       palettes[key] = { tonalPalette: this.variantEntity!.palettes[key] };
     });
-    if (this.variantEntity.customPalettes) {
+
+    const customPalettes = this.variantEntity.customPalettes;
+    if (customPalettes) {
       Object.keys(this.customPalettes).forEach((key) => {
         palettes[key] = {
           sourceColorkey: key,
-          tonalPalette: this.variantEntity!.customPalettes!,
+          tonalPalette: customPalettes,
         };
       });
     }

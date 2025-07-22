@@ -9,12 +9,28 @@ export type SchemeServiceOptions = Omit<
   sourcesColorHex: Record<string, string> & { primary?: string };
   palettes: Record<
     string,
-    {
-      sourceColorkey?: string;
-      tonalPalette: (sourceColorHct: Hct) => TonalPalette;
-    }
+    | {
+        sourceColorkey: string;
+        tonalPalette: CustomPaletteFunction;
+      }
+    | {
+        sourceColorkey?: never;
+        tonalPalette: PaletteFunction;
+      }
   >;
 };
+
+type PaletteFunctionArgs = {
+  isDark: boolean;
+  sourceColorHct: Hct;
+};
+
+export type PaletteFunction = (args: PaletteFunctionArgs) => TonalPalette;
+export type CustomPaletteFunction = (
+  args: PaletteFunctionArgs & {
+    colorHct: Hct;
+  },
+) => TonalPalette;
 
 export class SchemeManager {
   private schemeEntity?: Scheme;
@@ -50,14 +66,21 @@ export class SchemeManager {
       { sourceColorkey, tonalPalette: paletteFunction },
     ] of Object.entries(this.options.palettes)) {
       let palette: TonalPalette;
-      if (!sourceColorkey) {
-        palette = paletteFunction(sourceColorHct);
+      if (typeof sourceColorkey != 'string') {
+        palette = paletteFunction({
+          sourceColorHct: sourceColorHct,
+          isDark: options.isDark ?? false,
+        });
       } else {
         const sourceColorArgb = argbFromHex(
           this.options.sourcesColorHex[sourceColorkey],
         );
-        const sourceColorHct: Hct = Hct.fromInt(sourceColorArgb);
-        palette = paletteFunction(sourceColorHct);
+        const colorHct: Hct = Hct.fromInt(sourceColorArgb);
+        palette = paletteFunction({
+          sourceColorHct: sourceColorHct,
+          colorHct: colorHct,
+          isDark: options.isDark ?? false,
+        });
       }
       palettes.set(key, palette);
     }

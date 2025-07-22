@@ -39,8 +39,9 @@ export class Variant {
       (args: { sourceColorHct: Hct; isDark: boolean }) => TonalPalette
     > = {},
     public customPalettes?: (args: {
-      colorHct: Hct;
       isDark: boolean;
+      sourceColorHct: Hct;
+      colorHct: Hct;
     }) => TonalPalette,
     public colors?: AddColors['colors'],
   ) {}
