@@ -3,7 +3,7 @@ import {
   DynamicColor,
   ToneDeltaPair,
 } from '../material-color-utilities';
-import { SchemeManager } from '../theme';
+import { Scheme, SchemeManager } from '../theme';
 
 import { ColorOptions, ConfigurableColor } from './configurable-color';
 import { DynamicColorKey } from './default-color';
@@ -14,7 +14,7 @@ function capitalizeFirstLetter(string: string) {
 }
 
 export const highestSurface = (
-  s: SchemeEntity,
+  s: Scheme,
   colorService: ColorManager | ColorApi,
 ): DynamicColor => {
   if (colorService instanceof ColorApi) {
@@ -30,9 +30,9 @@ export const highestSurface = (
 
 export class ColorManager {
   private colorMap = new Map<string, ConfigurableColor>();
-  private readonly schemeService: SchemeService;
+  private readonly schemeService: SchemeManager;
 
-  constructor({ schemeService }: { schemeService: SchemeService }) {
+  constructor({ schemeService }: { schemeService: SchemeManager }) {
     this.schemeService = schemeService;
   }
 

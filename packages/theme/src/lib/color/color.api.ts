@@ -26,7 +26,6 @@ export class ColorApi {
   }
 
   addColors(args: AddColorsOptions | AddColorsOptions[]) {
-    const colorsEntity: ConfigurableColor[] = [];
     if (!Array.isArray(args)) args = [args];
     args.forEach((args) => {
       if (typeof args === 'function') {

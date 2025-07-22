@@ -6,7 +6,7 @@ export interface ConfigInterface {
   sourceColor: string;
   contrastLevel?: number;
   isDark?: boolean;
-  variant?: VariantEntity;
+  variant?: Variant;
   colors?: AddColorsOptions | AddColorsOptions[];
   useDefaultColors?: boolean;
   palettes?: Record<string, string>;

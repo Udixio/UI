@@ -1,16 +1,16 @@
 import { hexFromArgb, TonalPalette } from '@material/material-color-utilities';
-import { SchemeManager } from '../theme';
+import { Scheme, SchemeManager } from '../theme';
 import { ContrastCurve, DynamicColor } from '../material-color-utilities';
 import { ColorManager } from './color.manager';
 
 export interface ColorOptions {
-  palette: (scheme: SchemeEntity) => TonalPalette;
-  tone: (scheme: SchemeEntity) => number;
+  palette: (scheme: Scheme) => TonalPalette;
+  tone: (scheme: Scheme) => number;
   isBackground?: boolean;
-  background?: (scheme: SchemeEntity) => DynamicColor;
-  secondBackground?: (scheme: SchemeEntity) => DynamicColor;
-  contrastCurve?: (scheme: SchemeEntity) => ContrastCurve;
-  toneDeltaPair?: (scheme: SchemeEntity) => {
+  background?: (scheme: Scheme) => DynamicColor;
+  secondBackground?: (scheme: Scheme) => DynamicColor;
+  contrastCurve?: (scheme: Scheme) => ContrastCurve;
+  toneDeltaPair?: (scheme: Scheme) => {
     roleA: DynamicColor;
     readonly roleB: DynamicColor;
     readonly delta: number;
@@ -32,7 +32,7 @@ export class ConfigurableColor {
 
   constructor(
     private option: ColorOptions & { name: string },
-    private schemeService: SchemeService,
+    private schemeService: SchemeManager,
     private colorService: ColorManager,
   ) {}
 
