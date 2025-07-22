@@ -14,9 +14,10 @@ const colorPaletteKeyColor = DynamicColor.fromPalette({
   tone: (s) => s.primaryPalette.keyColor.tone,
 });
 
-export class ThemeService {
+export class ThemeApi {
   private readonly schemeService: SchemeService;
   private readonly variantService: VariantService;
+
   constructor({
     schemeService,
     variantService,
@@ -34,6 +35,7 @@ export class ThemeService {
     // this.addPalette({key: "neutral"})
     // this.addPalette({key: "neutralVariant"})
   }
+
   // addPalette({key, palette, addDefaultColors}: {key: string; palette: TonalPalette; addDefaultColors: boolean}) {
   //   this.themeOptions.palettes.set(key, palette);
   //   if (addDefaultColors){
@@ -65,9 +67,11 @@ export class ThemeService {
     this.schemeService.createOrUpdate(themeOptions);
     if (options.variant) this.variantService.set(options.variant);
   }
+
   addCustomPalette(key: string, colorHex: string) {
     this.variantService.addCustomPalette(key, colorHex);
   }
+
   // theme(): SchemeService {
   //   return new SchemeService(this.themeOptions, this.colorService)
   // }

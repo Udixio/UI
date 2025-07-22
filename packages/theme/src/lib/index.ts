@@ -1,7 +1,7 @@
 export { default as AppContainer } from './app.container';
 export * from './app.container';
 export * from './app.module';
-export * from './app.service';
+export * from './API';
 export * from './color';
 export * from './config';
 export * from './main';

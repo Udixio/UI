@@ -1,11 +1,11 @@
-import { ContrastCurve, ToneDeltaPair } from '../../material-color-utilities';
-import { DynamicColor } from '../../material-color-utilities/dynamic_color';
-import { SchemeEntity } from '../../theme/entities/scheme.entity';
+import { ContrastCurve, ToneDeltaPair } from '../material-color-utilities';
+import { DynamicColor } from '../material-color-utilities';
+import { SchemeEntity } from '../theme';
 
-import { ColorEntity, ColorOptions } from '../entities/color.entity';
-import { SchemeService } from '../../theme/services/scheme.service';
-import { DynamicColorKey } from '../models/default-color.model';
-import { ColorService } from './color.service';
+import { ColorOptions, ConfigurableColor } from './configurable-color';
+import { SchemeService } from '../theme';
+import { DynamicColorKey } from './default-color.model';
+import { ColorApi } from './color.api';
 
 function capitalizeFirstLetter(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -13,33 +13,33 @@ function capitalizeFirstLetter(string: string) {
 
 export const highestSurface = (
   s: SchemeEntity,
-  colorService: ColorManagerService | ColorService,
+  colorService: ColorManager | ColorApi,
 ): DynamicColor => {
-  if (colorService instanceof ColorService) {
+  if (colorService instanceof ColorApi) {
     return s.isDark
-      ? colorService.getColor('surfaceBright').getDynamicColor()
-      : colorService.getColor('surfaceDim').getDynamicColor();
+      ? colorService.getColor('surfaceBright').getMaterialColor()
+      : colorService.getColor('surfaceDim').getMaterialColor();
   } else {
     return s.isDark
-      ? colorService.get('surfaceBright').getDynamicColor()
-      : colorService.get('surfaceDim').getDynamicColor();
+      ? colorService.get('surfaceBright').getMaterialColor()
+      : colorService.get('surfaceDim').getMaterialColor();
   }
 };
 
-export class ColorManagerService {
-  private colorMap = new Map<string, ColorEntity>();
+export class ColorManager {
+  private colorMap = new Map<string, ConfigurableColor>();
   private readonly schemeService: SchemeService;
 
   constructor({ schemeService }: { schemeService: SchemeService }) {
     this.schemeService = schemeService;
   }
 
-  createOrUpdate(key: string, args: Partial<ColorOptions>): ColorEntity {
+  createOrUpdate(key: string, args: Partial<ColorOptions>): ConfigurableColor {
     let colorEntity = this.colorMap.get(key);
     if (!colorEntity) {
       const { palette, tone } = args;
       if (palette && tone) {
-        colorEntity = new ColorEntity(
+        colorEntity = new ConfigurableColor(
           { ...args, palette, tone, name: key },
           this.schemeService,
           this,
@@ -59,7 +59,7 @@ export class ColorManagerService {
     return this.colorMap.delete(key);
   }
 
-  public get(key: string): ColorEntity {
+  public get(key: string): ConfigurableColor {
     const colorEntity = this.colorMap.get(key);
     if (colorEntity) {
       return colorEntity;
@@ -68,7 +68,7 @@ export class ColorManagerService {
     }
   }
 
-  public getAll(): ReadonlyMap<string, ColorEntity> {
+  public getAll(): ReadonlyMap<string, ConfigurableColor> {
     return this.colorMap;
   }
 
@@ -98,8 +98,8 @@ export class ColorManagerService {
       contrastCurve: (s) => new ContrastCurve(3, 4.5, 7, 11),
       toneDeltaPair: (s) =>
         new ToneDeltaPair(
-          this.get(colorKeyContainer).getDynamicColor(),
-          this.get(colorKey).getDynamicColor(),
+          this.get(colorKeyContainer).getMaterialColor(),
+          this.get(colorKey).getMaterialColor(),
           10,
           'nearer',
           false,
@@ -110,7 +110,7 @@ export class ColorManagerService {
       tone: (s) => {
         return s.isDark ? 20 : 100;
       },
-      background: (s) => this.get(colorKey).getDynamicColor(),
+      background: (s) => this.get(colorKey).getMaterialColor(),
       contrastCurve: (s) => new ContrastCurve(4.5, 7, 11, 21),
     });
     this.createOrUpdate(colorKeyContainer, {
@@ -123,8 +123,8 @@ export class ColorManagerService {
       contrastCurve: (s) => new ContrastCurve(1, 1, 3, 7),
       toneDeltaPair: (s) =>
         new ToneDeltaPair(
-          this.get(colorKeyContainer).getDynamicColor(),
-          this.get(colorKey).getDynamicColor(),
+          this.get(colorKeyContainer).getMaterialColor(),
+          this.get(colorKey).getMaterialColor(),
           10,
           'nearer',
           false,
@@ -135,13 +135,13 @@ export class ColorManagerService {
       tone: (s) => {
         return s.isDark ? 90 : 10;
       },
-      background: (s) => this.get(colorKeyContainer).getDynamicColor(),
+      background: (s) => this.get(colorKeyContainer).getMaterialColor(),
       contrastCurve: (s) => new ContrastCurve(4.5, 7, 11, 21),
     });
     this.createOrUpdate(inverseColorKey, {
       palette: (s) => s.getPalette(key),
       tone: (s) => (s.isDark ? 40 : 80),
-      background: (s) => this.get('inverseSurface').getDynamicColor(),
+      background: (s) => this.get('inverseSurface').getMaterialColor(),
       contrastCurve: (s) => new ContrastCurve(3, 4.5, 7, 11),
     });
     this.createOrUpdate(colorKeyFixed, {
@@ -152,8 +152,8 @@ export class ColorManagerService {
       contrastCurve: (s) => new ContrastCurve(1, 1, 3, 7),
       toneDeltaPair: (s) =>
         new ToneDeltaPair(
-          this.get(colorKeyFixed).getDynamicColor(),
-          this.get(colorKeyFixedDim).getDynamicColor(),
+          this.get(colorKeyFixed).getMaterialColor(),
+          this.get(colorKeyFixedDim).getMaterialColor(),
           10,
           'lighter',
           true,
@@ -167,8 +167,8 @@ export class ColorManagerService {
       contrastCurve: (s) => new ContrastCurve(1, 1, 3, 7),
       toneDeltaPair: (s) =>
         new ToneDeltaPair(
-          this.get(colorKeyFixed).getDynamicColor(),
-          this.get(colorKeyFixedDim).getDynamicColor(),
+          this.get(colorKeyFixed).getMaterialColor(),
+          this.get(colorKeyFixedDim).getMaterialColor(),
           10,
           'lighter',
           true,
@@ -177,15 +177,15 @@ export class ColorManagerService {
     this.createOrUpdate(onColorKeyFixed, {
       palette: (s) => s.getPalette(key),
       tone: (s) => 10.0,
-      background: (s) => this.get(colorKeyFixedDim).getDynamicColor(),
-      secondBackground: (s) => this.get(colorKeyFixed).getDynamicColor(),
+      background: (s) => this.get(colorKeyFixedDim).getMaterialColor(),
+      secondBackground: (s) => this.get(colorKeyFixed).getMaterialColor(),
       contrastCurve: (s) => new ContrastCurve(4.5, 7, 11, 21),
     });
     this.createOrUpdate(onColorKeyFixedVariant, {
       palette: (s) => s.getPalette(key),
       tone: (s) => 30.0,
-      background: (s) => this.get(colorKeyFixedDim).getDynamicColor(),
-      secondBackground: (s) => this.get(colorKeyFixed).getDynamicColor(),
+      background: (s) => this.get(colorKeyFixedDim).getMaterialColor(),
+      secondBackground: (s) => this.get(colorKeyFixed).getMaterialColor(),
       contrastCurve: (s) => new ContrastCurve(3, 4.5, 7, 11),
     });
   }

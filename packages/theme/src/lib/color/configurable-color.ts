@@ -1,9 +1,7 @@
 import { hexFromArgb, TonalPalette } from '@material/material-color-utilities';
-import { SchemeEntity } from '../../theme/entities/scheme.entity';
-import { DynamicColor } from '../../material-color-utilities/dynamic_color';
-import { ContrastCurve } from '../../material-color-utilities';
-import { SchemeService } from '../../theme/services/scheme.service';
-import { ColorManagerService } from '../services/color-manager.service';
+import { SchemeEntity, SchemeService } from '../theme';
+import { ContrastCurve, DynamicColor } from '../material-color-utilities';
+import { ColorManager } from './color.manager';
 
 export interface ColorOptions {
   palette: (scheme: SchemeEntity) => TonalPalette;
@@ -29,13 +27,13 @@ function argbToRgb(argb: number): { r: number; g: number; b: number } {
   };
 }
 
-export class ColorEntity {
+export class ConfigurableColor {
   private dynamicColor: DynamicColor | null = null;
 
   constructor(
     private option: ColorOptions & { name: string },
     private schemeService: SchemeService,
-    private colorService: ColorManagerService,
+    private colorService: ColorManager,
   ) {}
 
   update(args: Partial<ColorOptions & { name: string }>) {
@@ -48,7 +46,7 @@ export class ColorEntity {
   }
 
   getArgb() {
-    return this.getDynamicColor().getArgb(this.schemeService.get());
+    return this.getMaterialColor().getArgb(this.schemeService.get());
   }
 
   getRgb() {
@@ -59,7 +57,7 @@ export class ColorEntity {
     return this.option.name.replace(/([A-Z])/g, '_$1').toLowerCase();
   }
 
-  getDynamicColor(): DynamicColor {
+  getMaterialColor(): DynamicColor {
     if (!this.dynamicColor) {
       this.dynamicColor = DynamicColor.fromPalette({
         ...this.option,

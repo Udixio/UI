@@ -1,5 +1,4 @@
 import { bootstrapFromConfig } from '../../main';
-import { AppService } from '../../app.service';
 import { TailwindPlugin } from './tailwind.plugin';
 import { PluginsConfig } from 'tailwindcss/plugin';
 
@@ -9,8 +8,8 @@ export type Theme = {
   plugins: Partial<PluginsConfig>;
 };
 
-export const createTheme = (): Theme & { appService: AppService } => {
+export const createTheme = () => {
   const app = bootstrapFromConfig();
-  const plugin = app.pluginService.getPlugin(TailwindPlugin).getInstance();
+  const plugin = app.plugins.getPlugin(TailwindPlugin).getInstance();
   return plugin.load();
 };

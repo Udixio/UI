@@ -1,7 +1,7 @@
 import { asClass } from 'awilix';
-import { AppService } from './app.service';
+import { API } from './API';
 import { Module } from './app.container';
 
 export const AppModule: Module = {
-  appService: asClass(AppService).singleton(),
+  appService: asClass(API).singleton(),
 };

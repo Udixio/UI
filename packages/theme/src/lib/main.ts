@@ -1,17 +1,17 @@
 import AppContainer from './app.container';
-import { AppService } from './app.service';
+import { API } from './API';
 import { ConfigInterface, ConfigService } from './config';
 
-export function bootstrap(): AppService {
-  return AppContainer.resolve<AppService>('appService');
+export function bootstrap(): API {
+  return AppContainer.resolve<API>('appService');
 }
 
 export function bootstrapFromConfig(args?: {
   path?: string;
   config?: ConfigInterface;
-}): AppService {
+}): API {
   const configService = AppContainer.resolve<ConfigService>('configService');
   if (args?.path) configService.configPath = args.path;
   configService.loadConfig(args?.config);
-  return AppContainer.resolve<AppService>('appService');
+  return AppContainer.resolve<API>('appService');
 }

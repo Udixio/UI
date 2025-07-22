@@ -1,3 +1,3 @@
 export * from './scheme.service';
-export * from './theme.service';
+export * from './themeApi';
 export * from './variant.service';

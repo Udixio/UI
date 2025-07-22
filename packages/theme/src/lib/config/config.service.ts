@@ -2,7 +2,7 @@ import { ConfigInterface } from './config.interface';
 
 import { defaultColors } from '../color';
 import { VariantModel } from '../theme';
-import { AppService } from '../app.service';
+import { API } from '../API';
 
 export function defineConfig(configObject: ConfigInterface): ConfigInterface {
   if (!configObject || typeof configObject !== 'object') {
@@ -17,14 +17,13 @@ export function defineConfig(configObject: ConfigInterface): ConfigInterface {
 export class ConfigService {
   configPath = './theme.config';
 
-  private appService: AppService;
+  private readonly api: API;
 
-  constructor({ appService }: { appService: AppService }) {
-    this.appService = appService;
+  constructor({ api }: { api: API }) {
+    this.api = api;
   }
 
   public loadConfig(config?: ConfigInterface): void {
-    const { themeService, colorService, pluginService } = this.appService;
     const {
       sourceColor,
       contrastLevel = 0,
@@ -35,7 +34,7 @@ export class ConfigService {
       useDefaultColors = true,
       plugins,
     } = config ?? this.getConfig();
-    themeService.create({
+    this.api.themes.create({
       contrastLevel: contrastLevel,
       isDark: isDark,
       sourceColorHex: sourceColor,
@@ -43,20 +42,20 @@ export class ConfigService {
     });
     if (palettes) {
       Object.entries(palettes).forEach(([key, value]) =>
-        themeService.addCustomPalette(key, value),
+        this.api.themes.addCustomPalette(key, value),
       );
     }
     if (useDefaultColors) {
-      colorService.addColors(defaultColors);
+      this.api.colors.addColors(defaultColors);
     }
     if (colors) {
-      colorService.addColors(colors);
+      this.api.colors.addColors(colors);
     }
     if (plugins) {
       plugins.forEach((plugin) => {
-        pluginService.addPlugin(plugin);
+        this.api.plugins.addPlugin(plugin);
       });
-      pluginService.loadPlugins(this.appService);
+      this.api.plugins.loadPlugins(this.api);
     }
   }
 

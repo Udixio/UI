@@ -1,4 +1,4 @@
-import { AppService } from '../../../app.service';
+import { API } from '../../../API';
 
 type SubTheme = {
   name: string;
@@ -60,9 +60,9 @@ export const themer = (args: {
   >;
   darkMode: 'class' | 'media';
   subThemes?: Record<string, string>;
-  appService: AppService;
+  appService: API;
 }) => {
-  const { themeService, colorService } = args.appService;
+  const { themes, colors } = args.appService;
   const options: {
     defaultTheme: {
       extend: {
@@ -78,7 +78,7 @@ export const themer = (args: {
           colors: Record<string, string>;
         };
       },
-      ...SubTheme[]
+      ...SubTheme[],
     ];
   } = {
     defaultTheme: {
@@ -111,11 +111,11 @@ export const themer = (args: {
 
   if (args.subThemes) {
     Object.entries(args.subThemes).forEach(([key, value]) => {
-      themeService.update({ sourceColorHex: value });
+      themes.update({ sourceColorHex: value });
       for (const isDarkTheme of [true, false]) {
         const colors: Record<string, string> = {};
-        themeService.update({ isDark: isDarkTheme });
-        for (const [key, value] of colorService.getColors().entries()) {
+        themes.update({ isDark: isDarkTheme });
+        for (const [key, value] of colors.getColors().entries()) {
           const newKey = key
             .replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2')
             .toLowerCase();
@@ -127,7 +127,7 @@ export const themer = (args: {
             isDarkTheme: isDarkTheme,
             darkMode: args.darkMode,
             colors: colors,
-          })
+          }),
         );
       }
     });

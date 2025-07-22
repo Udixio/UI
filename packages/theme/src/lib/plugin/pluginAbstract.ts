@@ -1,4 +1,4 @@
-import { AppService } from '../app.service';
+import { API } from '../API';
 
 export type PluginConstructor<Plugin extends PluginImplAbstract<any>> = new (
   ...args: any
@@ -6,12 +6,11 @@ export type PluginConstructor<Plugin extends PluginImplAbstract<any>> = new (
 
 export abstract class PluginAbstract<
   Plugin extends PluginImplAbstract<Options>,
-  Options extends object
+  Options extends object,
 > {
-  public abstract readonly dependencies: (new (...args: any) => PluginAbstract<
-    any,
-    any
-  >)[];
+  public abstract readonly dependencies: (new (
+    ...args: any
+  ) => PluginAbstract<any, any>)[];
   public abstract readonly name: string;
   public options: Options;
   public abstract readonly pluginClass: PluginConstructor<Plugin>;
@@ -21,7 +20,7 @@ export abstract class PluginAbstract<
     this.options = options;
   }
 
-  public init(appService: AppService) {
+  public init(appService: API) {
     this.pluginInstance = new this.pluginClass(appService, this.options);
     this.pluginInstance.onInit();
     return this;
@@ -36,7 +35,10 @@ export abstract class PluginAbstract<
 }
 
 export abstract class PluginImplAbstract<Options extends object> {
-  constructor(protected appService: AppService, protected options: Options) {
+  constructor(
+    protected appService: API,
+    protected options: Options,
+  ) {
     this.onInit();
   }
 

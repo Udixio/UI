@@ -5,11 +5,11 @@ import {
   DisposableResolver,
   InjectionMode,
 } from 'awilix';
-import { ColorModule } from './color/color.module';
-import { ThemeModule } from './theme/theme.module';
+import { ColorModule } from './color';
+import { ThemeModule } from './theme';
 import { AppModule } from './app.module';
-import { ConfigModule } from './config/config.module';
-import { PluginModule } from './plugin/plugin.module';
+import { ConfigModule } from './config';
+import { PluginModule } from './plugin';
 
 export type Module = Record<
   string,
@@ -18,7 +18,7 @@ export type Module = Record<
 
 export function importContainer(
   container: AwilixContainer,
-  services: Module[]
+  services: Module[],
 ) {
   services.forEach((service) => {
     Object.entries(service).forEach(([name, serviceClass]) => {

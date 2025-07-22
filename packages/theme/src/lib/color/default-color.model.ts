@@ -1,9 +1,9 @@
 import { DislikeAnalyzer } from '@material/material-color-utilities';
-import { ContrastCurve, ToneDeltaPair } from '../../material-color-utilities';
-import { DynamicColor } from '../../material-color-utilities/dynamic_color';
-import { highestSurface } from '../services/color-manager.service';
-import { AddColorsOptions, ColorService } from '../services/color.service';
-import { Hct } from '../../material-color-utilities/htc';
+import { ContrastCurve, ToneDeltaPair } from '../material-color-utilities';
+import { DynamicColor } from '../material-color-utilities/dynamic_color';
+import { highestSurface } from './color.manager';
+import { AddColorsOptions, ColorApi } from './colorApi';
+import { Hct } from '../material-color-utilities/htc';
 
 export type DynamicColorKey =
   | 'background'
@@ -89,9 +89,7 @@ function findDesiredChromaByTone(
   return answer;
 }
 
-export const defaultColors: AddColorsOptions = (
-  colorService: ColorService,
-) => ({
+export const defaultColors: AddColorsOptions = (colorService: ColorApi) => ({
   fromPalettes: ['primary', 'secondary', 'tertiary'],
   colors: {
     background: {

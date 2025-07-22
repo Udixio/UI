@@ -61,10 +61,8 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
     > = {};
 
     for (const isDark of [false, true]) {
-      this.appService.themeService.update({ isDark: isDark });
-      for (const [key, value] of this.appService.colorService
-        .getColors()
-        .entries()) {
+      this.appService.themes.update({ isDark: isDark });
+      for (const [key, value] of this.appService.colors.getColors().entries()) {
         const newKey = key
           .replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2')
           .toLowerCase();
@@ -73,7 +71,7 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
       }
     }
 
-    const { fontStyles, fontFamily } = this.appService.pluginService
+    const { fontStyles, fontFamily } = this.appService.plugins
       .getPlugin(FontPlugin)
       .getInstance()
       .getFonts();

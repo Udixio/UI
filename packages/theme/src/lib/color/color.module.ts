@@ -1,9 +1,9 @@
-import { ColorService } from './services/color.service';
-import { ColorManagerService } from './services/color-manager.service';
+import { ColorApi } from './color.api';
+import { ColorManager } from './color.manager';
 import { asClass } from 'awilix';
-import { Module } from '../app.container';
+import { Module } from '@udixio/theme';
 
 export const ColorModule: Module = {
-  colorManagerService: asClass(ColorManagerService).singleton(),
-  colorService: asClass(ColorService).singleton(),
+  colorManagerService: asClass(ColorManager).singleton(),
+  colorService: asClass(ColorApi).singleton(),
 };
