@@ -10,7 +10,7 @@ import { TonalPalette } from '@material/material-color-utilities';
 export const vibrant: Variant = {
   palettes: {
     primary: (sourceColorHct) =>
-      TonalPalette.fromHueAndChroma(sourceColorHct.hue, 200.0),
+      TonalPalette.fromHueAndChroma(sourceColorHct.hue, 74),
     secondary: (sourceColorHct) =>
       TonalPalette.fromHueAndChroma(
         getRotatedHue(sourceColorHct, hues, secondaryRotations),
@@ -31,4 +31,6 @@ export const vibrant: Variant = {
       getRotatedHue(colorHct, hues, secondaryRotations),
       24.0,
     ),
+
+  colors: {},
 };

@@ -3,11 +3,15 @@ import {
   sanitizeDegreesDouble,
   TonalPalette,
 } from '@material/material-color-utilities';
+import { Hct } from '../../material-color-utilities/htc';
 
 export const tonalSpot: Variant = {
   palettes: {
     primary: (sourceColorHct) =>
-      TonalPalette.fromHueAndChroma(sourceColorHct.hue, isDark ? 26 : 32),
+      TonalPalette.fromHueAndChroma(
+        sourceColorHct.hue,
+        Hct.isBlue(sourceColorHct.hue) ? 12 : 8,
+      ),
     secondary: (sourceColorHct) =>
       TonalPalette.fromHueAndChroma(sourceColorHct.hue, 16.0),
     tertiary: (sourceColorHct) =>

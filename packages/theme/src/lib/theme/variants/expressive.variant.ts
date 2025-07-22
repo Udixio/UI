@@ -7,7 +7,7 @@ import {
 export const tonalSpot: Variant = {
   palettes: {
     primary: (sourceColorHct) =>
-      TonalPalette.fromHueAndChroma(sourceColorHct.hue, isDark ? 26 : 32),
+      TonalPalette.fromHueAndChroma(sourceColorHct.hue, isDark ? 36 : 48),
     secondary: (sourceColorHct) =>
       TonalPalette.fromHueAndChroma(sourceColorHct.hue, 16.0),
     tertiary: (sourceColorHct) =>
