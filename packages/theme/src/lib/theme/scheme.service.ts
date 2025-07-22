@@ -1,6 +1,6 @@
-import { SchemeEntity, SchemeOptions } from '../entities/scheme.entity';
+import { Scheme, SchemeOptions } from './scheme';
 import { argbFromHex, TonalPalette } from '@material/material-color-utilities';
-import { Hct } from '../../material-color-utilities/htc';
+import { Hct } from '../material-color-utilities/htc';
 
 export type SchemeServiceOptions = Omit<
   SchemeOptions,
@@ -17,7 +17,7 @@ export type SchemeServiceOptions = Omit<
 };
 
 export class SchemeService {
-  private schemeEntity?: SchemeEntity;
+  private schemeEntity?: Scheme;
   private options?: SchemeServiceOptions;
 
   createOrUpdate(options: Partial<SchemeServiceOptions>) {
@@ -61,14 +61,14 @@ export class SchemeService {
       }
       palettes.set(key, palette);
     }
-    this.schemeEntity = new SchemeEntity({
+    this.schemeEntity = new Scheme({
       ...this.options,
       palettes: palettes,
       sourceColorArgb: sourceColorArgb,
     });
   }
 
-  get(): SchemeEntity {
+  get(): Scheme {
     if (!this.schemeEntity) {
       throw new Error('Scheme is not created');
     }

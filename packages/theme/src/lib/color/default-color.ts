@@ -2,7 +2,7 @@ import { DislikeAnalyzer } from '@material/material-color-utilities';
 import { ContrastCurve, ToneDeltaPair } from '../material-color-utilities';
 import { DynamicColor } from '../material-color-utilities/dynamic_color';
 import { highestSurface } from './color.manager';
-import { AddColorsOptions, ColorApi } from './colorApi';
+import { AddColorsOptions, ColorApi } from './color.api';
 import { Hct } from '../material-color-utilities/htc';
 
 export type DynamicColorKey =

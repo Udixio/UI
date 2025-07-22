@@ -1,5 +1,5 @@
 import { hexFromArgb, TonalPalette } from '@material/material-color-utilities';
-import { SchemeEntity, SchemeService } from '../theme';
+import { Scheme, SchemeService } from '../theme';
 import { ContrastCurve, DynamicColor } from '../material-color-utilities';
 import { ColorManager } from './color.manager';
 

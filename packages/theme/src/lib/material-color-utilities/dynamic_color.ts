@@ -18,7 +18,7 @@
 import { clampDouble, Contrast, TonalPalette } from '@material/material-color-utilities';
 import { ContrastCurve } from './contrastCurve';
 import { ToneDeltaPair } from './toneDeltaPair';
-import { SchemeEntity } from '../theme/entities/scheme.entity';
+import { Scheme } from '../theme/scheme';
 import { Hct } from './htc';
 
 /**
@@ -49,14 +49,14 @@ import { Hct } from './htc';
  */
 interface FromPaletteOptions {
   name?: string;
-  palette: (scheme: SchemeEntity) => TonalPalette;
-  tone?: (scheme: SchemeEntity) => number;
-  chromaMultiplier?: (scheme: SchemeEntity) => number;
+  palette: (scheme: Scheme) => TonalPalette;
+  tone?: (scheme: Scheme) => number;
+  chromaMultiplier?: (scheme: Scheme) => number;
   isBackground?: boolean;
-  background?: (scheme: SchemeEntity) => DynamicColor | undefined;
-  secondBackground?: (scheme: SchemeEntity) => DynamicColor | undefined;
-  contrastCurve?: (scheme: SchemeEntity) => ContrastCurve | undefined;
-  toneDeltaPair?: (scheme: SchemeEntity) => ToneDeltaPair | undefined;
+  background?: (scheme: Scheme) => DynamicColor | undefined;
+  secondBackground?: (scheme: Scheme) => DynamicColor | undefined;
+  contrastCurve?: (scheme: Scheme) => ContrastCurve | undefined;
+  toneDeltaPair?: (scheme: Scheme) => ToneDeltaPair | undefined;
 }
 
 /**
@@ -111,7 +111,7 @@ export function extendSpecVersion(
  * DynamicColor.
  */
 export class DynamicColor {
-  private readonly hctCache = new Map<SchemeEntity, Hct>();
+  private readonly hctCache = new Map<Scheme, Hct>();
 
   /**
    * The base constructor for DynamicColor.
@@ -148,20 +148,14 @@ export class DynamicColor {
    */
   constructor(
     readonly name: string,
-    readonly palette: (scheme: SchemeEntity) => TonalPalette,
-    readonly tone: (scheme: SchemeEntity) => number,
+    readonly palette: (scheme: Scheme) => TonalPalette,
+    readonly tone: (scheme: Scheme) => number,
     readonly isBackground: boolean,
-    readonly chromaMultiplier?: (scheme: SchemeEntity) => number,
-    readonly background?: (scheme: SchemeEntity) => DynamicColor | undefined,
-    readonly secondBackground?: (
-      scheme: SchemeEntity,
-    ) => DynamicColor | undefined,
-    readonly contrastCurve?: (
-      scheme: SchemeEntity,
-    ) => ContrastCurve | undefined,
-    readonly toneDeltaPair?: (
-      scheme: SchemeEntity,
-    ) => ToneDeltaPair | undefined,
+    readonly chromaMultiplier?: (scheme: Scheme) => number,
+    readonly background?: (scheme: Scheme) => DynamicColor | undefined,
+    readonly secondBackground?: (scheme: Scheme) => DynamicColor | undefined,
+    readonly contrastCurve?: (scheme: Scheme) => ContrastCurve | undefined,
+    readonly toneDeltaPair?: (scheme: Scheme) => ToneDeltaPair | undefined,
   ) {
     if (!background && secondBackground) {
       throw new Error(
@@ -204,8 +198,8 @@ export class DynamicColor {
   }
 
   static getInitialToneFromBackground(
-    background?: (scheme: SchemeEntity) => DynamicColor | undefined,
-  ): (scheme: SchemeEntity) => number {
+    background?: (scheme: Scheme) => DynamicColor | undefined,
+  ): (scheme: Scheme) => number {
     if (background === undefined) {
       return (s) => 50;
     }
@@ -323,7 +317,7 @@ export class DynamicColor {
    *     whether or not it is dark mode or light mode, and what the desired
    *     contrast level is.
    */
-  getArgb(scheme: SchemeEntity): number {
+  getArgb(scheme: Scheme): number {
     return this.getHct(scheme).toInt();
   }
 
@@ -335,7 +329,7 @@ export class DynamicColor {
    *     whether or not it is dark mode or light mode, and what the desired
    *     contrast level is.
    */
-  getHct(scheme: SchemeEntity): Hct {
+  getHct(scheme: Scheme): Hct {
     const palette = this.palette(scheme);
     const tone = this.getTone(scheme);
     const hue = palette.hue;
@@ -354,7 +348,7 @@ export class DynamicColor {
    *     whether or not it is dark mode or light mode, and what the desired
    *     contrast level is.
    */
-  getTone(scheme: SchemeEntity): number {
+  getTone(scheme: Scheme): number {
     const toneDeltaPair = this.toneDeltaPair
       ? this.toneDeltaPair(scheme)
       : undefined;

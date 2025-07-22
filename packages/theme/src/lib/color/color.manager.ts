@@ -1,10 +1,12 @@
-import { ContrastCurve, ToneDeltaPair } from '../material-color-utilities';
-import { DynamicColor } from '../material-color-utilities';
-import { SchemeEntity } from '../theme';
+import {
+  ContrastCurve,
+  DynamicColor,
+  ToneDeltaPair,
+} from '../material-color-utilities';
+import { Scheme, SchemeService } from '../theme';
 
 import { ColorOptions, ConfigurableColor } from './configurable-color';
-import { SchemeService } from '../theme';
-import { DynamicColorKey } from './default-color.model';
+import { DynamicColorKey } from './default-color';
 import { ColorApi } from './color.api';
 
 function capitalizeFirstLetter(string: string) {

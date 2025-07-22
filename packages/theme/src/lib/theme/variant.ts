@@ -2,7 +2,7 @@ import {
   sanitizeDegreesDouble,
   TonalPalette,
 } from '@material/material-color-utilities';
-import { Hct } from '../../material-color-utilities/htc';
+import { Hct } from '../material-color-utilities/htc';
 
 export const getRotatedHue = (
   sourceColor: Hct,
@@ -31,7 +31,16 @@ export const getRotatedHue = (
   return sourceHue;
 };
 
-export class VariantEntity {
+export const hues = [0.0, 41.0, 61.0, 101.0, 131.0, 181.0, 251.0, 301.0, 360.0];
+
+export const secondaryRotations = [
+  18.0, 15.0, 10.0, 12.0, 15.0, 18.0, 15.0, 12.0, 12.0,
+];
+export const tertiaryRotations = [
+  35.0, 30.0, 20.0, 25.0, 30.0, 35.0, 30.0, 25.0, 25.0,
+];
+
+export class Variant {
   constructor(
     public palettes: Record<string, (sourceColorHct: Hct) => TonalPalette> = {},
     public customPalettes?: (colorHct: Hct) => TonalPalette,

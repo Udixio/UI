@@ -1,10 +1,11 @@
 import { SchemeService } from './scheme.service';
-import { VariantEntity } from '../entities/variant.entity';
-import { Hct, TonalPalette } from '@material/material-color-utilities';
+import { Variant } from './variant';
+import { TonalPalette } from '@material/material-color-utilities';
+import { Hct } from '../material-color-utilities/htc';
 
-export class VariantService {
+export class VariantManager {
   public customPalettes: Record<string, string> = {};
-  private variantEntity?: VariantEntity;
+  private variantEntity?: Variant;
 
   private readonly schemeService: SchemeService;
 
@@ -17,7 +18,7 @@ export class VariantService {
     this.update();
   }
 
-  set(variantEntity: VariantEntity) {
+  set(variantEntity: Variant) {
     this.variantEntity = variantEntity;
     if (!variantEntity.palettes['error']) {
       variantEntity.palettes['error'] = () =>

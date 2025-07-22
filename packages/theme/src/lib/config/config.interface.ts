@@ -1,5 +1,5 @@
 import { AddColorsOptions } from '../color';
-import { VariantEntity } from '../theme';
+import { Variant } from '../theme';
 import { PluginAbstract } from '../plugin';
 
 export interface ConfigInterface {

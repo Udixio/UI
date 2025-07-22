@@ -1,5 +1,5 @@
 import { TonalPalette } from '@material/material-color-utilities';
-import { Hct } from '../../material-color-utilities/htc';
+import { Hct } from '../material-color-utilities/htc';
 
 export interface SchemeOptions {
   sourceColorArgb: number;
@@ -8,7 +8,7 @@ export interface SchemeOptions {
   palettes: Map<string, TonalPalette>;
 }
 
-export class SchemeEntity {
+export class Scheme {
   constructor(private options: SchemeOptions) {}
 
   get contrastLevel() {

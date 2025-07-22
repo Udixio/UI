@@ -1,7 +1,7 @@
 import { DynamicColor } from '@material/material-color-utilities';
 import { SchemeService, SchemeServiceOptions } from './scheme.service';
-import { VariantService } from './variant.service';
-import { VariantEntity } from '../entities/variant.entity';
+import { VariantManager } from './variant.manager';
+import { Variant } from './variant';
 
 type ThemeOptions = Omit<
   SchemeServiceOptions,
@@ -16,14 +16,14 @@ const colorPaletteKeyColor = DynamicColor.fromPalette({
 
 export class ThemeApi {
   private readonly schemeService: SchemeService;
-  private readonly variantService: VariantService;
+  private readonly variantService: VariantManager;
 
   constructor({
     schemeService,
     variantService,
   }: {
     schemeService: SchemeService;
-    variantService: VariantService;
+    variantService: VariantManager;
   }) {
     this.schemeService = schemeService;
     this.variantService = variantService;
@@ -52,7 +52,7 @@ export class ThemeApi {
   //   return this.theme();
   // }
 
-  create(options: ThemeOptions & { variant: VariantEntity }) {
+  create(options: ThemeOptions & { variant: Variant }) {
     this.schemeService.createOrUpdate({
       ...options,
       sourcesColorHex: { primary: options.sourceColorHex },
@@ -60,7 +60,7 @@ export class ThemeApi {
     this.variantService.set(options.variant);
   }
 
-  update(options: Partial<ThemeOptions> & { variant?: VariantEntity }) {
+  update(options: Partial<ThemeOptions> & { variant?: Variant }) {
     const themeOptions: Partial<SchemeServiceOptions> = { ...options };
     if (options.sourceColorHex)
       themeOptions.sourcesColorHex = { primary: options.sourceColorHex };
