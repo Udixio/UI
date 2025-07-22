@@ -13,7 +13,10 @@ export const tonalSpot: Variant = {
         Hct.isBlue(sourceColorHct.hue) ? 12 : 8,
       ),
     secondary: (sourceColorHct) =>
-      TonalPalette.fromHueAndChroma(sourceColorHct.hue, 16.0),
+      TonalPalette.fromHueAndChroma(
+        sourceColorHct.hue,
+        Hct.isBlue(sourceColorHct.hue) ? 6 : 4,
+      ),
     tertiary: (sourceColorHct) =>
       TonalPalette.fromHueAndChroma(
         sanitizeDegreesDouble(sourceColorHct.hue + 60.0),
