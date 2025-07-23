@@ -1,6 +1,6 @@
 import { ColorOptions, ConfigurableColor } from './configurable-color';
 import { ColorManager } from './color.manager';
-import { DynamicColorKey } from './default-color';
+import { DynamicColorKey } from './color.utils';
 
 export type AddColors = {
   colors?: Record<

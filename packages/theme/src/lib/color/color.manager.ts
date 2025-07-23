@@ -2,7 +2,7 @@ import { DynamicColor, ToneDeltaPair } from '../material-color-utilities';
 import { Scheme, SchemeManager } from '../theme';
 
 import { ColorOptions, ConfigurableColor } from './configurable-color';
-import { DynamicColorKey, getCurve, tMaxC, tMinC } from './default-color';
+import { DynamicColorKey, getCurve, tMaxC, tMinC } from './color.utils';
 import { ColorApi } from './color.api';
 
 function capitalizeFirstLetter(string: string) {

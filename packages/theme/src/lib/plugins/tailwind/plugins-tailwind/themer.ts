@@ -62,7 +62,7 @@ export const themer = (args: {
   subThemes?: Record<string, string>;
   api: API;
 }) => {
-  const { themes, colors } = args.api;
+  const api = args.api;
   const options: {
     defaultTheme: {
       extend: {
@@ -111,11 +111,11 @@ export const themer = (args: {
 
   if (args.subThemes) {
     Object.entries(args.subThemes).forEach(([key, value]) => {
-      themes.update({ sourceColorHex: value });
+      api.themes.update({ sourceColorHex: value });
       for (const isDarkTheme of [true, false]) {
         const colors: Record<string, string> = {};
-        themes.update({ isDark: isDarkTheme });
-        for (const [key, value] of colors.getColors().entries()) {
+        api.themes.update({ isDark: isDarkTheme });
+        for (const [key, value] of api.colors.getColors().entries()) {
           const newKey = key
             .replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2')
             .toLowerCase();
