@@ -1,24 +1,9 @@
-import { hexFromArgb, TonalPalette } from '@material/material-color-utilities';
-import { Scheme, SchemeManager } from '../theme';
-import { ContrastCurve, DynamicColor } from '../material-color-utilities';
+import { hexFromArgb } from '@material/material-color-utilities';
+import { SchemeManager } from '../theme';
+import { DynamicColor, FromPaletteOptions } from '../material-color-utilities';
 import { ColorManager } from './color.manager';
 
-export interface ColorOptions {
-  palette: (scheme: Scheme) => TonalPalette;
-  tone: (scheme: Scheme) => number;
-  isBackground?: boolean;
-  background?: (scheme: Scheme) => DynamicColor;
-  secondBackground?: (scheme: Scheme) => DynamicColor;
-  contrastCurve?: (scheme: Scheme) => ContrastCurve;
-  toneDeltaPair?: (scheme: Scheme) => {
-    roleA: DynamicColor;
-    readonly roleB: DynamicColor;
-    readonly delta: number;
-    readonly polarity: 'darker' | 'lighter' | 'nearer' | 'farther';
-    readonly stayTogether: boolean;
-  };
-  chromaMultiplier?: (scheme: Scheme) => number;
-}
+export type ColorOptions = Omit<FromPaletteOptions, 'name'>;
 
 function argbToRgb(argb: number): { r: number; g: number; b: number } {
   return {

@@ -47,7 +47,7 @@ import { Hct } from './htc';
  *     constructed. When not provided or resolved as undefined, the tone is
  *     calculated based on other constraints.
  */
-interface FromPaletteOptions {
+export interface FromPaletteOptions {
   name?: string;
   palette: (scheme: Scheme) => TonalPalette;
   tone?: (scheme: Scheme) => number;

@@ -131,6 +131,15 @@ function tMaxC(
   return clampDouble(lowerBound, upperBound, answer);
 }
 
+function tMinC(
+  palette: TonalPalette,
+  lowerBound: number = 0,
+  upperBound: number = 100,
+): number {
+  let answer = findBestToneForChroma(palette.hue, palette.chroma, 0, false);
+  return clampDouble(lowerBound, upperBound, answer);
+}
+
 function findBestToneForChroma(
   hue: number,
   chroma: number,
@@ -402,51 +411,81 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => ({
       contrastCurve: (s) => (s.isDark ? getCurve(11) : getCurve(9)),
     },
     surfaceVariant: {
-      palette: (s) => s.getPalette('neutralVariant'),
-      tone: (s) => (s.isDark ? 30 : 90),
-      isBackground: true,
+      alias: 'surfaceContainerHighest',
     },
     onSurfaceVariant: {
       palette: (s) => s.getPalette('neutralVariant'),
-      tone: (s) => (s.isDark ? 80 : 30),
+      chromaMultiplier: (s) => {
+        if (s.variant === 'neutral') {
+          return 2.2;
+        } else if (s.variant === 'tonalSpot') {
+          return 1.7;
+        } else if (s.variant === 'expressive') {
+          return Hct.isYellow(s.getPalette('neutral').hue)
+            ? s.isDark
+              ? 3.0
+              : 2.3
+            : 1.6;
+        }
+
+        return 1;
+      },
       background: (s) => highestSurface(s, colorService),
-      contrastCurve: (s) => new ContrastCurve(3, 4.5, 7, 11),
+      contrastCurve: (s) => (s.isDark ? getCurve(6) : getCurve(4.5)),
     },
     inverseSurface: {
       palette: (s) => s.getPalette('neutral'),
-      tone: (s) => (s.isDark ? 90 : 20),
+      tone: (s) => (s.isDark ? 98 : 4),
+      isBackground: true,
     },
     inverseOnSurface: {
       palette: (s) => s.getPalette('neutral'),
       tone: (s) => (s.isDark ? 20 : 95),
       background: (s) =>
         colorService.getColor('inverseSurface').getMaterialColor(),
-      contrastCurve: (s) => new ContrastCurve(4.5, 7, 11, 21),
+      contrastCurve: (s) => getCurve(7),
     },
     outline: {
       palette: (s) => s.getPalette('neutralVariant'),
-      tone: (s) => (s.isDark ? 60 : 50),
+      chromaMultiplier: (s) => {
+        if (s.variant === 'neutral') {
+          return 2.2;
+        } else if (s.variant === 'tonalSpot') {
+          return 1.7;
+        } else if (s.variant === 'expressive') {
+          return Hct.isYellow(s.getPalette('neutral').hue)
+            ? s.isDark
+              ? 3.0
+              : 2.3
+            : 1.6;
+        }
+        return 1;
+      },
       background: (s) => highestSurface(s, colorService),
-      contrastCurve: (s) => new ContrastCurve(1.5, 3, 4.5, 7),
+      contrastCurve: (s) => getCurve(3),
     },
     outlineVariant: {
       palette: (s) => s.getPalette('neutralVariant'),
-      tone: (s) => (s.isDark ? 30 : 80),
+      chromaMultiplier: (s) => {
+        if (s.variant === 'neutral') {
+          return 2.2;
+        } else if (s.variant === 'tonalSpot') {
+          return 1.7;
+        } else if (s.variant === 'expressive') {
+          return Hct.isYellow(s.getPalette('neutral').hue)
+            ? s.isDark
+              ? 3.0
+              : 2.3
+            : 1.6;
+        }
+
+        return 1;
+      },
       background: (s) => highestSurface(s, colorService),
-      contrastCurve: (s) => new ContrastCurve(1, 1, 3, 7),
-    },
-    shadow: {
-      palette: (s) => s.getPalette('neutral'),
-      tone: (s) => 0,
-    },
-    scrim: {
-      palette: (s) => s.getPalette('neutral'),
-      tone: (s) => 0,
+      contrastCurve: (s) => getCurve(1.5),
     },
     surfaceTint: {
-      palette: (s) => s.getPalette('neutral'),
-      tone: (s) => (s.isDark ? 80 : 40),
-      isBackground: true,
+      alias: 'primary',
     },
     secondaryContainer: {
       tone: (s) => {
