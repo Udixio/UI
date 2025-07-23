@@ -8,6 +8,7 @@ import { DynamicColor } from '../material-color-utilities/dynamic_color';
 import { highestSurface } from './color.manager';
 import { AddColorsOptions, ColorApi } from './color.api';
 import { Hct } from '../material-color-utilities/htc';
+import { ColorOptions } from './configurable-color';
 
 export type DynamicColorKey =
   | 'background'
@@ -163,9 +164,8 @@ function findBestToneForChroma(
   return answer;
 }
 
-export const defaultColors: AddColorsOptions = (colorService: ColorApi) => ({
-  fromPalettes: ['primary', 'secondary', 'tertiary'],
-  colors: {
+export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
+  const colors: Record<DynamicColorKey, ColorOptions> = {
     // background: {
     //   palette: (s) => s.getPalette('neutral'),
     //   tone: (s) => (s.isDark ? 6 : 98),
@@ -589,5 +589,9 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => ({
         colorService.getColor('tertiaryFixed').getMaterialColor(),
       contrastCurve: (s) => new ContrastCurve(3, 4.5, 7, 11),
     },
-  },
-});
+  };
+  return {
+    fromPalettes: ['primary', 'secondary', 'tertiary'],
+    colors,
+  };
+};
