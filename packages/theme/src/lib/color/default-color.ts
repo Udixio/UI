@@ -5,6 +5,7 @@ import { highestSurface } from './color.manager';
 import { AddColorsOptions, ColorApi } from './color.api';
 import { Hct } from '../material-color-utilities/htc';
 import { ColorOptions } from './configurable-color';
+import { Scheme } from '../theme';
 
 export type DynamicColorKey =
   | 'background'
@@ -595,7 +596,11 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
     primaryFixed: {
       palette: (s) => s.getPalette('primary'),
       tone: (s) => {
-        let tempS = Object.assign({}, s, { isDark: false, contrastLevel: 0 });
+        const tempS = new Scheme({
+          ...s.options,
+          isDark: false,
+          contrastLevel: 0,
+        });
         return getColor('primaryContainer').getTone(tempS);
       },
       isBackground: true,
@@ -724,7 +729,11 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
     secondaryFixed: {
       palette: (s) => s.getPalette('secondary'),
       tone: (s) => {
-        let tempS = Object.assign({}, s, { isDark: false, contrastLevel: 0 });
+        const tempS = new Scheme({
+          ...s.options,
+          isDark: false,
+          contrastLevel: 0,
+        });
         return getColor('secondaryContainer').getTone(tempS);
       },
       isBackground: true,
@@ -854,7 +863,11 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
     tertiaryFixed: {
       palette: (s) => s.getPalette('tertiary'),
       tone: (s) => {
-        let tempS = Object.assign({}, s, { isDark: false, contrastLevel: 0 });
+        const tempS = new Scheme({
+          ...s.options,
+          isDark: false,
+          contrastLevel: 0,
+        });
         return getColor('tertiaryContainer').getTone(tempS);
       },
       isBackground: true,

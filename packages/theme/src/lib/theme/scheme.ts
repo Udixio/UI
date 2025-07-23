@@ -11,7 +11,7 @@ export interface SchemeOptions {
 }
 
 export class Scheme {
-  constructor(private options: SchemeOptions) {}
+  constructor(readonly options: SchemeOptions) {}
 
   get variant(): 'expressive' | 'neutral' | 'tonalSpot' | 'vibrant' | string {
     return this.options.variant.name;
