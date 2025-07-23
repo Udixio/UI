@@ -92,26 +92,51 @@ function findDesiredChromaByTone(
 export const defaultColors: AddColorsOptions = (colorService: ColorApi) => ({
   fromPalettes: ['primary', 'secondary', 'tertiary'],
   colors: {
-    background: {
-      palette: (s) => s.getPalette('neutral'),
-      tone: (s) => (s.isDark ? 6 : 98),
-      isBackground: true,
-    },
-    onBackground: {
-      palette: (s) => s.getPalette('neutral'),
-      tone: (s) => (s.isDark ? 90 : 10),
-      background: (s) => colorService.getColor('background').getMaterialColor(),
-      contrastCurve: (s) => new ContrastCurve(3, 3, 4.5, 7),
-    },
+    // background: {
+    //   palette: (s) => s.getPalette('neutral'),
+    //   tone: (s) => (s.isDark ? 6 : 98),
+    //   isBackground: true,
+    // },
+    // onBackground: {
+    //   palette: (s) => s.getPalette('neutral'),
+    //   tone: (s) => (s.isDark ? 90 : 10),
+    //   background: (s) => colorService.getColor('background').getMaterialColor(),
+    //   contrastCurve: (s) => new ContrastCurve(3, 3, 4.5, 7),
+    // },
     surface: {
       palette: (s) => s.getPalette('neutral'),
-      tone: (s) => (s.isDark ? 6 : 98),
+      tone: (s) => {
+        if (s.isDark) {
+          return 4;
+        } else {
+          if (Hct.isYellow(s.getPalette('neutral').hue)) {
+            return 99;
+          } else {
+            return 98;
+          }
+        }
+      },
       isBackground: true,
     },
     surfaceDim: {
       palette: (s) => s.getPalette('neutral'),
-      tone: (s) => (s.isDark ? 6 : 87),
+      tone: (s) => {
+        if (s.isDark) {
+          return 4;
+        } else {
+          if (Hct.isYellow(s.getPalette('neutral').hue)) {
+            return 90;
+          } else if (s.variant === Variant.VIBRANT) {
+            return 85;
+          } else {
+            return 87;
+          }
+        }
+      },
       isBackground: true,
+      chromaMultiplier: (s) => {
+        return 1;
+      },
     },
     surfaceBright: {
       palette: (s) => s.getPalette('neutral'),

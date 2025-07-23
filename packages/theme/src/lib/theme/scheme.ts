@@ -32,7 +32,15 @@ export class Scheme {
     return Hct.fromInt(this.options.sourceColorArgb);
   }
 
-  getPalette(key: string): TonalPalette {
+  getPalette(
+    key:
+      | 'primary'
+      | 'secondary'
+      | 'tertiary'
+      | 'neutral'
+      | 'neutralVariant'
+      | string,
+  ): TonalPalette {
     if (!this.options) {
       throw new Error('Scheme options is not set');
     }

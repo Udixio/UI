@@ -77,5 +77,14 @@ export const expressiveVariant: Variant = {
       ),
       isDark ? 16 : 24,
     ),
-  colors: {},
+  colors: {
+    surfaceDim: {
+      chromaMultiplier: (s) => {
+        if (!s.isDark) {
+          return Hct.isYellow(s.neutralPalette.hue) ? 2.7 : 1.75;
+        }
+        return 1;
+      },
+    },
+  },
 };
