@@ -2,9 +2,8 @@ import { clampDouble, TonalPalette } from '@material/material-color-utilities';
 import { ContrastCurve, ToneDeltaPair } from '../material-color-utilities';
 import { DynamicColor } from '../material-color-utilities/dynamic_color';
 import { highestSurface } from './color.manager';
-import { AddColorsOptions, ColorApi } from './color.api';
+import { AddColors, AddColorsOptions, ColorApi } from './color.api';
 import { Hct } from '../material-color-utilities/htc';
-import { ColorOptions } from './configurable-color';
 
 export type DynamicColorKey =
   | 'background'
@@ -161,7 +160,7 @@ function findBestToneForChroma(
 }
 
 export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
-  const colors: Record<DynamicColorKey, ColorOptions> = {
+  const colors: AddColors['colors'] = {
     background: {
       alias: 'surface',
     },

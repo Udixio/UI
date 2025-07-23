@@ -3,7 +3,11 @@ import { ColorManager } from './color.manager';
 import { DynamicColorKey } from './default-color';
 
 export type AddColors = {
-  colors?: Record<string, Partial<ColorOptions>>;
+  colors?: Record<
+    DynamicColorKey | string,
+    | (Partial<ColorOptions> & { alias?: never })
+    | { alias: string; palette?: never; tone?: never }
+  >;
   fromPalettes?: string[] | string;
 };
 
@@ -22,7 +26,12 @@ export class ColorApi {
     return this.colorManager.getAll();
   }
 
-  addColor(key: string, color: Partial<ColorOptions>): ConfigurableColor {
+  addColor(
+    key: string,
+    color:
+      | (Partial<ColorOptions> & { alias?: never })
+      | { alias: string; palette?: never; tone?: never },
+  ): ConfigurableColor {
     return this.colorManager.createOrUpdate(key, color);
   }
 
@@ -55,7 +64,12 @@ export class ColorApi {
     return this.colorManager.remove(key);
   }
 
-  updateColor(key: string, newColor: Partial<ColorOptions>): ConfigurableColor {
+  updateColor(
+    key: string,
+    newColor:
+      | (Partial<ColorOptions> & { alias?: never })
+      | { alias: string; palette?: never; tone?: never },
+  ): ConfigurableColor {
     return this.colorManager.createOrUpdate(key, newColor);
   }
 }

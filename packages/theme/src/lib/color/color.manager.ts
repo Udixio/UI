@@ -36,7 +36,12 @@ export class ColorManager {
     this.schemeManager = schemeManager;
   }
 
-  createOrUpdate(key: string, args: Partial<ColorOptions>): ConfigurableColor {
+  createOrUpdate(
+    key: string,
+    args:
+      | (Partial<ColorOptions> & { alias?: never })
+      | { alias: string; palette?: never; tone?: never },
+  ): ConfigurableColor {
     let colorEntity = this.colorMap.get(key);
     if (!colorEntity) {
       const { palette, tone } = args;

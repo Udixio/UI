@@ -3,7 +3,9 @@ import { SchemeManager } from '../theme';
 import { DynamicColor, FromPaletteOptions } from '../material-color-utilities';
 import { ColorManager } from './color.manager';
 
-export type ColorOptions = Omit<FromPaletteOptions, 'name'>;
+export type ColorOptions = Omit<FromPaletteOptions, 'name'> & {
+  alias?: string;
+};
 
 function argbToRgb(argb: number): { r: number; g: number; b: number } {
   return {
@@ -44,6 +46,9 @@ export class ConfigurableColor {
   }
 
   getMaterialColor(): DynamicColor {
+    if (this.option.alias) {
+      return this.colorService.get(this.option.alias).getMaterialColor();
+    }
     if (!this.dynamicColor) {
       this.dynamicColor = DynamicColor.fromPalette({
         ...this.option,
