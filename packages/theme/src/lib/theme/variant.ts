@@ -43,6 +43,10 @@ export class Variant {
       sourceColorHct: Hct;
       colorHct: Hct;
     }) => TonalPalette,
+    /** TODO
+     * Defines color modifications through variation.
+     * Allows customization of specific colors in the theme.
+     */
     public colors?: AddColors['colors'],
   ) {}
 }

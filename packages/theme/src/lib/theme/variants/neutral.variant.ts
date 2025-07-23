@@ -41,22 +41,4 @@ export const neutralVariant: Variant = {
       colorHct.hue,
       Hct.isBlue(colorHct.hue) ? 6 : 4,
     ),
-  colors: {
-    surfaceDim: {
-      chromaMultiplier: (s) => {
-        if (!s.isDark) {
-          return 2.5;
-        }
-        return 1;
-      },
-    },
-    surfaceBright: {
-      chromaMultiplier: (s) => {
-        if (s.isDark) {
-          return 2.5;
-        }
-        return 1;
-      },
-    },
-  },
 };

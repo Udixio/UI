@@ -31,22 +31,4 @@ export const tonalSpotVariant: Variant = {
   },
   customPalettes: ({ colorHct }) =>
     TonalPalette.fromHueAndChroma(colorHct.hue, 16),
-  colors: {
-    surfaceDim: {
-      chromaMultiplier: (s) => {
-        if (!s.isDark) {
-          return 1.7;
-        }
-        return 1;
-      },
-    },
-    surfaceBright: {
-      chromaMultiplier: (s) => {
-        if (s.isDark) {
-          return 1.7;
-        }
-        return 1;
-      },
-    },
-  },
 };

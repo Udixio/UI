@@ -6,10 +6,15 @@ export interface SchemeOptions {
   contrastLevel: number;
   isDark: boolean;
   palettes: Map<string, TonalPalette>;
+  variant: 'expressive' | 'neutral' | 'tonalSpot' | 'vibrant' | string;
 }
 
 export class Scheme {
   constructor(private options: SchemeOptions) {}
+
+  get variant() {
+    return this.options.variant;
+  }
 
   get contrastLevel() {
     if (!this.options) {
