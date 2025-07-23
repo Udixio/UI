@@ -162,17 +162,12 @@ function findBestToneForChroma(
 
 export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
   const colors: Record<DynamicColorKey, ColorOptions> = {
-    // background: {
-    //   palette: (s) => s.getPalette('neutral'),
-    //   tone: (s) => (s.isDark ? 6 : 98),
-    //   isBackground: true,
-    // },
-    // onBackground: {
-    //   palette: (s) => s.getPalette('neutral'),
-    //   tone: (s) => (s.isDark ? 90 : 10),
-    //   background: (s) => colorService.getColor('background').getMaterialColor(),
-    //   contrastCurve: (s) => new ContrastCurve(3, 3, 4.5, 7),
-    // },
+    background: {
+      alias: 'surface',
+    },
+    onBackground: {
+      alias: 'onSurface',
+    },
     surface: {
       palette: (s) => s.getPalette('neutral'),
       tone: (s) => {
