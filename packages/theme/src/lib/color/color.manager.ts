@@ -1,12 +1,8 @@
-import {
-  ContrastCurve,
-  DynamicColor,
-  ToneDeltaPair,
-} from '../material-color-utilities';
+import { DynamicColor, ToneDeltaPair } from '../material-color-utilities';
 import { Scheme, SchemeManager } from '../theme';
 
 import { ColorOptions, ConfigurableColor } from './configurable-color';
-import { DynamicColorKey } from './default-color';
+import { DynamicColorKey, getCurve, tMaxC, tMinC } from './default-color';
 import { ColorApi } from './color.api';
 
 function capitalizeFirstLetter(string: string) {
@@ -88,119 +84,130 @@ export class ColorManager {
 
   addFromPalette(key: string): void {
     const colorKey = key as DynamicColorKey;
+    const colorDimKey = (colorKey + 'Dim') as DynamicColorKey;
     const ColorKey = capitalizeFirstLetter(key);
     const onColorKey = ('on' + ColorKey) as DynamicColorKey;
-    const colorKeyContainer = (colorKey + 'Container') as DynamicColorKey;
-    const onColorKeyContainer = ('on' +
+    const colorContainerKey = (colorKey + 'Container') as DynamicColorKey;
+    const onColorContainerKey = ('on' +
       ColorKey +
       'Container') as DynamicColorKey;
     const inverseColorKey = ('inverse' + ColorKey) as DynamicColorKey;
-    const colorKeyFixed = (colorKey + 'Fixed') as DynamicColorKey;
-    const colorKeyFixedDim = (colorKey + 'FixedDim') as DynamicColorKey;
-    const onColorKeyFixed = ('on' + ColorKey + 'Fixed') as DynamicColorKey;
-    const onColorKeyFixedVariant = ('on' +
+    const colorFixedKey = (colorKey + 'Fixed') as DynamicColorKey;
+    const colorFixedDimKey = (colorKey + 'FixedDim') as DynamicColorKey;
+    const onColorFixedKey = ('on' + ColorKey + 'Fixed') as DynamicColorKey;
+    const onColorFixedVariantKey = ('on' +
       ColorKey +
       'FixedVariant') as DynamicColorKey;
 
     this.createOrUpdate(colorKey, {
-      palette: (s) => s.getPalette(key),
+      palette: (s) => s.getPalette(colorKey),
       tone: (s) => {
-        return s.isDark ? 80 : 40;
+        if (s.variant === 'neutral') {
+          return s.isDark
+            ? tMinC(s.getPalette(colorKey), 0, 98)
+            : tMaxC(s.getPalette(colorKey));
+        } else if (s.variant === 'vibrant') {
+          return tMaxC(s.getPalette(colorKey), 0, s.isDark ? 90 : 98);
+        } else {
+          return s.isDark ? 80 : tMaxC(s.getPalette(colorKey));
+        }
       },
       isBackground: true,
       background: (s) => highestSurface(s, this),
-      contrastCurve: (s) => new ContrastCurve(3, 4.5, 7, 11),
+      contrastCurve: (s) => getCurve(4.5),
       toneDeltaPair: (s) =>
         new ToneDeltaPair(
-          this.get(colorKeyContainer).getMaterialColor(),
+          this.get(colorContainerKey).getMaterialColor(),
           this.get(colorKey).getMaterialColor(),
-          10,
-          'nearer',
-          false,
+          5,
+          'relative_lighter',
+          true,
+          'farther',
+        ),
+    });
+    this.createOrUpdate(colorDimKey, {
+      palette: (s) => s.getPalette(colorKey),
+      tone: (s) => {
+        if (s.variant === 'neutral') {
+          return 85;
+        } else {
+          return tMaxC(s.getPalette(colorKey), 0, 90);
+        }
+      },
+      isBackground: true,
+      background: (s) => this.get('surfaceContainerHigh').getMaterialColor(),
+      contrastCurve: (s) => getCurve(4.5),
+      toneDeltaPair: (s) =>
+        new ToneDeltaPair(
+          this.get(colorDimKey).getMaterialColor(),
+          this.get(colorKey).getMaterialColor(),
+          5,
+          'darker',
+          true,
+          'farther',
         ),
     });
     this.createOrUpdate(onColorKey, {
-      palette: (s) => s.getPalette(key),
-      tone: (s) => {
-        return s.isDark ? 20 : 100;
-      },
+      palette: (s) => s.getPalette(colorKey),
       background: (s) => this.get(colorKey).getMaterialColor(),
-      contrastCurve: (s) => new ContrastCurve(4.5, 7, 11, 21),
+      contrastCurve: (s) => getCurve(6),
     });
-    this.createOrUpdate(colorKeyContainer, {
-      palette: (s) => s.getPalette(key),
+    this.createOrUpdate(colorContainerKey, {
+      palette: (s) => s.getPalette(colorKey),
       tone: (s) => {
-        return s.isDark ? 30 : 90;
+        if (s.variant === 'vibrant') {
+          return s.isDark
+            ? tMinC(s.getPalette(colorKey), 30, 40)
+            : tMaxC(s.getPalette(colorKey), 84, 90);
+        } else if (s.variant === 'expressive') {
+          return s.isDark ? 15 : tMaxC(s.getPalette(colorKey), 90, 95);
+        } else {
+          return s.isDark ? 25 : 90;
+        }
       },
       isBackground: true,
       background: (s) => highestSurface(s, this),
-      contrastCurve: (s) => new ContrastCurve(1, 1, 3, 7),
-      toneDeltaPair: (s) =>
-        new ToneDeltaPair(
-          this.get(colorKeyContainer).getMaterialColor(),
-          this.get(colorKey).getMaterialColor(),
-          10,
-          'nearer',
-          false,
-        ),
+      toneDeltaPair: (s) => undefined,
+      contrastCurve: (s) => (s.contrastLevel > 0 ? getCurve(1.5) : undefined),
     });
-    this.createOrUpdate(onColorKeyContainer, {
-      palette: (s) => s.getPalette(key),
+    this.createOrUpdate(onColorContainerKey, {
+      palette: (s) => s.getPalette(colorKey),
+      background: (s) => this.get(colorContainerKey).getMaterialColor(),
+      contrastCurve: (s) => getCurve(6),
+    });
+    this.createOrUpdate(colorFixedKey, {
+      palette: (s) => s.getPalette(colorKey),
       tone: (s) => {
-        return s.isDark ? 90 : 10;
+        let tempS = Object.assign({}, s, { isDark: false, contrastLevel: 0 });
+        return this.get(colorContainerKey).getMaterialColor().getTone(tempS);
       },
-      background: (s) => this.get(colorKeyContainer).getMaterialColor(),
-      contrastCurve: (s) => new ContrastCurve(4.5, 7, 11, 21),
-    });
-    this.createOrUpdate(inverseColorKey, {
-      palette: (s) => s.getPalette(key),
-      tone: (s) => (s.isDark ? 40 : 80),
-      background: (s) => this.get('inverseSurface').getMaterialColor(),
-      contrastCurve: (s) => new ContrastCurve(3, 4.5, 7, 11),
-    });
-    this.createOrUpdate(colorKeyFixed, {
-      palette: (s) => s.getPalette(key),
-      tone: (s) => 90.0,
       isBackground: true,
       background: (s) => highestSurface(s, this),
-      contrastCurve: (s) => new ContrastCurve(1, 1, 3, 7),
-      toneDeltaPair: (s) =>
-        new ToneDeltaPair(
-          this.get(colorKeyFixed).getMaterialColor(),
-          this.get(colorKeyFixedDim).getMaterialColor(),
-          10,
-          'lighter',
-          true,
-        ),
+      contrastCurve: (s) => (s.contrastLevel > 0 ? getCurve(1.5) : undefined),
     });
-    this.createOrUpdate(colorKeyFixedDim, {
-      palette: (s) => s.getPalette(key),
-      tone: (s) => 80.0,
+    this.createOrUpdate(colorFixedDimKey, {
+      palette: (s) => s.getPalette(colorKey),
+      tone: (s) => this.get(colorFixedKey).getMaterialColor().getTone(s),
       isBackground: true,
-      background: (s) => highestSurface(s, this),
-      contrastCurve: (s) => new ContrastCurve(1, 1, 3, 7),
       toneDeltaPair: (s) =>
         new ToneDeltaPair(
-          this.get(colorKeyFixed).getMaterialColor(),
-          this.get(colorKeyFixedDim).getMaterialColor(),
-          10,
-          'lighter',
+          this.get(colorFixedDimKey).getMaterialColor(),
+          this.get(colorFixedKey).getMaterialColor(),
+          5,
+          'darker',
           true,
+          'exact',
         ),
     });
-    this.createOrUpdate(onColorKeyFixed, {
-      palette: (s) => s.getPalette(key),
-      tone: (s) => 10.0,
-      background: (s) => this.get(colorKeyFixedDim).getMaterialColor(),
-      secondBackground: (s) => this.get(colorKeyFixed).getMaterialColor(),
-      contrastCurve: (s) => new ContrastCurve(4.5, 7, 11, 21),
+    this.createOrUpdate(onColorFixedKey, {
+      palette: (s) => s.getPalette(colorKey),
+      background: (s) => this.get(colorFixedDimKey).getMaterialColor(),
+      contrastCurve: (s) => getCurve(7),
     });
-    this.createOrUpdate(onColorKeyFixedVariant, {
-      palette: (s) => s.getPalette(key),
-      tone: (s) => 30.0,
-      background: (s) => this.get(colorKeyFixedDim).getMaterialColor(),
-      secondBackground: (s) => this.get(colorKeyFixed).getMaterialColor(),
-      contrastCurve: (s) => new ContrastCurve(3, 4.5, 7, 11),
+    this.createOrUpdate(onColorFixedVariantKey, {
+      palette: (s) => s.getPalette(colorKey),
+      background: (s) => this.get(colorFixedDimKey).getMaterialColor(),
+      contrastCurve: (s) => getCurve(4.5),
     });
   }
 }

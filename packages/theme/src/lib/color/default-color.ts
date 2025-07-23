@@ -59,7 +59,7 @@ export type DynamicColorKey =
   | 'onTertiaryFixed'
   | 'onTertiaryFixedVariant';
 
-function getCurve(defaultContrast: number): ContrastCurve {
+export function getCurve(defaultContrast: number): ContrastCurve {
   if (defaultContrast === 1.5) {
     return new ContrastCurve(1.5, 1.5, 3, 4.5);
   } else if (defaultContrast === 3) {
@@ -82,7 +82,7 @@ function getCurve(defaultContrast: number): ContrastCurve {
   }
 }
 
-function findDesiredChromaByTone(
+export function findDesiredChromaByTone(
   hue: number,
   chroma: number,
   tone: number,
@@ -115,7 +115,7 @@ function findDesiredChromaByTone(
   return answer;
 }
 
-function tMaxC(
+export function tMaxC(
   palette: TonalPalette,
   lowerBound: number = 0,
   upperBound: number = 100,
@@ -130,7 +130,7 @@ function tMaxC(
   return clampDouble(lowerBound, upperBound, answer);
 }
 
-function tMinC(
+export function tMinC(
   palette: TonalPalette,
   lowerBound: number = 0,
   upperBound: number = 100,
@@ -139,7 +139,7 @@ function tMinC(
   return clampDouble(lowerBound, upperBound, answer);
 }
 
-function findBestToneForChroma(
+export function findBestToneForChroma(
   hue: number,
   chroma: number,
   tone: number,
