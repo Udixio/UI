@@ -17,6 +17,7 @@ export interface ColorOptions {
     readonly polarity: 'darker' | 'lighter' | 'nearer' | 'farther';
     readonly stayTogether: boolean;
   };
+  chromaMultiplier?: (scheme: Scheme) => number;
 }
 
 function argbToRgb(argb: number): { r: number; g: number; b: number } {
