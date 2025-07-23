@@ -19,6 +19,7 @@ const getExpressiveNeutralChroma = (
 };
 
 export const expressiveVariant: Variant = {
+  name: 'expressive',
   palettes: {
     primary: ({ sourceColorHct, isDark }) =>
       TonalPalette.fromHueAndChroma(sourceColorHct.hue, isDark ? 36 : 48),

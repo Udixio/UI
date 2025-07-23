@@ -16,6 +16,7 @@ const getVibrantNeutralChroma = (sourceColorHct: Hct): number => {
 };
 
 export const vibrantVariant: Variant = {
+  name: 'vibrant',
   palettes: {
     primary: ({ sourceColorHct }) =>
       TonalPalette.fromHueAndChroma(sourceColorHct.hue, 74),

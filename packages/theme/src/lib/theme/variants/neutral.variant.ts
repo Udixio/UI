@@ -3,6 +3,7 @@ import { TonalPalette } from '@material/material-color-utilities';
 import { Hct } from '../../material-color-utilities/htc';
 
 export const neutralVariant: Variant = {
+  name: 'neutral',
   palettes: {
     primary: ({ sourceColorHct }) =>
       TonalPalette.fromHueAndChroma(

@@ -1,19 +1,20 @@
 import { TonalPalette } from '@material/material-color-utilities';
 import { Hct } from '../material-color-utilities/htc';
+import { Variant } from './variant';
 
 export interface SchemeOptions {
   sourceColorArgb: number;
   contrastLevel: number;
   isDark: boolean;
   palettes: Map<string, TonalPalette>;
-  variant: 'expressive' | 'neutral' | 'tonalSpot' | 'vibrant' | string;
+  variant: Variant;
 }
 
 export class Scheme {
   constructor(private options: SchemeOptions) {}
 
-  get variant() {
-    return this.options.variant;
+  get variant(): 'expressive' | 'neutral' | 'tonalSpot' | 'vibrant' | string {
+    return this.options.variant.name;
   }
 
   get contrastLevel() {

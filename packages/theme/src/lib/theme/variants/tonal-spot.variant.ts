@@ -2,6 +2,7 @@ import { getPiecewiseHue, getRotatedHue, Variant } from '../variant';
 import { TonalPalette } from '@material/material-color-utilities';
 
 export const tonalSpotVariant: Variant = {
+  name: 'tonalSpot',
   palettes: {
     primary: ({ sourceColorHct, isDark }) =>
       TonalPalette.fromHueAndChroma(sourceColorHct.hue, isDark ? 26 : 32),
