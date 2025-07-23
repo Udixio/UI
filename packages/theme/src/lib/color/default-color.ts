@@ -39,6 +39,7 @@ export type DynamicColorKey =
   | 'secondaryContainer'
   | 'onSecondaryContainer'
   | 'tertiary'
+  | 'tertiaryDim'
   | 'onTertiary'
   | 'tertiaryContainer'
   | 'onTertiaryContainer'
@@ -764,7 +765,136 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
     ////////////////////////////////////////////////////////////////
     // Tertiaries [T]                                             //
     ////////////////////////////////////////////////////////////////
+    tertiary: {
+      palette: (s) => s.getPalette('tertiary'),
+      tone: (s) => {
+        if (s.variant === 'expressive' || s.variant === 'vibrant') {
+          return tMaxC(
+            s.getPalette('tertiary'),
+            0,
+            Hct.isCyan(s.getPalette('tertiary').hue) ? 88 : s.isDark ? 98 : 100,
+          );
+        } else {
+          // NEUTRAL and TONAL_SPOT
+          return s.isDark
+            ? tMaxC(s.getPalette('tertiary'), 0, 98)
+            : tMaxC(s.getPalette('tertiary'));
+        }
+      },
+      isBackground: true,
+      background: (s) => highestSurface(s, colorService),
+      contrastCurve: (s) => getCurve(4.5),
+      toneDeltaPair: (s) =>
+        new ToneDeltaPair(
+          getColor('tertiaryContainer'),
+          getColor('tertiary'),
+          5,
+          'relative_lighter',
+          true,
+          'farther',
+        ),
+    },
+    tertiaryDim: {
+      palette: (s) => s.getPalette('tertiary'),
+      tone: (s) => {
+        if (s.variant === 'tonalSpot') {
+          return tMaxC(s.getPalette('tertiary'), 0, 90);
+        } else {
+          return tMaxC(s.getPalette('tertiary'));
+        }
+      },
+      isBackground: true,
+      background: (s) => getColor('surfaceContainerHigh'),
+      contrastCurve: (s) => getCurve(4.5),
+      toneDeltaPair: (s) =>
+        new ToneDeltaPair(
+          getColor('tertiaryDim'),
+          getColor('tertiary'),
+          5,
+          'darker',
+          true,
+          'farther',
+        ),
+    },
+    onTertiary: {
+      palette: (s) => s.getPalette('tertiary'),
+      background: (s) => getColor('tertiary'),
+      contrastCurve: (s) => getCurve(6),
+    },
+    tertiaryContainer: {
+      palette: (s) => s.getPalette('tertiary'),
+      tone: (s) => {
+        if (s.variant === 'neutral') {
+          return s.isDark
+            ? tMaxC(s.getPalette('tertiary'), 0, 93)
+            : tMaxC(s.getPalette('tertiary'), 0, 96);
+        } else if (s.variant === 'tonalSpot') {
+          return tMaxC(s.getPalette('tertiary'), 0, s.isDark ? 93 : 100);
+        } else if (s.variant === 'expressive') {
+          return tMaxC(
+            s.getPalette('tertiary'),
+            75,
+            Hct.isCyan(s.getPalette('tertiary').hue) ? 88 : s.isDark ? 93 : 100,
+          );
+        } else {
+          // VIBRANT
+          return s.isDark
+            ? tMaxC(s.getPalette('tertiary'), 0, 93)
+            : tMaxC(s.getPalette('tertiary'), 72, 100);
+        }
+      },
+      isBackground: true,
+      background: (s) => highestSurface(s, colorService),
+      toneDeltaPair: (s) => undefined,
+      contrastCurve: (s) => (s.contrastLevel > 0 ? getCurve(1.5) : undefined),
+    },
+    onTertiaryContainer: {
+      palette: (s) => s.getPalette('tertiary'),
+      background: (s) => getColor('tertiaryContainer'),
+      contrastCurve: (s) => getCurve(6),
+    },
 
+    tertiaryFixed: {
+      palette: (s) => s.getPalette('tertiary'),
+      tone: (s) => {
+        let tempS = Object.assign({}, s, { isDark: false, contrastLevel: 0 });
+        return getColor('tertiaryContainer').getTone(tempS);
+      },
+      isBackground: true,
+      background: (s) => highestSurface(s, colorService),
+      contrastCurve: (s) => (s.contrastLevel > 0 ? getCurve(1.5) : undefined),
+    },
+
+    tertiaryFixedDim: {
+      palette: (s) => s.getPalette('tertiary'),
+      tone: (s) => getColor('tertiaryFixed').getTone(s),
+      isBackground: true,
+      toneDeltaPair: (s) =>
+        new ToneDeltaPair(
+          getColor('tertiaryFixedDim'),
+          getColor('tertiaryFixed'),
+          5,
+          'darker',
+          true,
+          'exact',
+        ),
+    },
+
+    onTertiaryFixed: {
+      palette: (s) => s.getPalette('tertiary'),
+      background: (s) => getColor('tertiaryFixedDim'),
+      contrastCurve: (s) => getCurve(7),
+    },
+
+    onTertiaryFixedVariant: {
+      palette: (s) => s.getPalette('tertiary'),
+      background: (s) => getColor('tertiaryFixedDim'),
+      contrastCurve: (s) => getCurve(4.5),
+    },
+
+    ////////////////////////////////////////////////////////////////
+    // Errors [E]                                                 //
+    ////////////////////////////////////////////////////////////////
     inverseSecondary: {
       palette: (s) => s.getPalette('secondary'),
       tone: (s) => tMaxC(s.getPalette('secondary')),
@@ -786,38 +916,6 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
       alias: 'surfaceContainerHighest',
     },
 
-    tertiaryContainer: {
-      palette: (s) => s.getPalette('tertiary'),
-      tone: (s) => {
-        if (s.variant === 'neutral') {
-          return s.isDark
-            ? tMaxC(s.getPalette('tertiary'), 0, 93)
-            : tMaxC(s.getPalette('tertiary'), 0, 96);
-        } else if (s.variant === 'tonalSpot') {
-          return tMaxC(s.getPalette('tertiary'), 0, s.isDark ? 93 : 100);
-        } else if (s.variant === 'expressive') {
-          return tMaxC(
-            s.getPalette('tertiary'),
-            75,
-            Hct.isCyan(s.getPalette('tertiary').hue) ? 88 : s.isDark ? 93 : 100,
-          );
-        } else {
-          return s.isDark
-            ? tMaxC(s.getPalette('tertiary'), 0, 93)
-            : tMaxC(s.getPalette('tertiary'), 72, 100);
-        }
-      },
-      isBackground: true,
-      background: (s) => highestSurface(s, colorService),
-      toneDeltaPair: (s) => undefined,
-      contrastCurve: (s) => (s.contrastLevel > 0 ? getCurve(1.5) : undefined),
-    },
-    onTertiaryContainer: {
-      palette: (s) => s.getPalette('tertiary'),
-      background: (s) =>
-        colorService.getColor('tertiaryContainer').getMaterialColor(),
-      contrastCurve: (s) => getCurve(6),
-    },
     error: {
       palette: (s) => s.getPalette('error'),
       tone: (s) => {
@@ -859,19 +957,6 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
       palette: (s) => s.getPalette('error'),
       background: (s) =>
         colorService.getColor('errorContainer').getMaterialColor(),
-      contrastCurve: (s) => getCurve(4.5),
-    },
-
-    onTertiaryFixed: {
-      palette: (s) => s.getPalette('tertiary'),
-      background: (s) =>
-        colorService.getColor('tertiaryFixedDim').getMaterialColor(),
-      contrastCurve: (s) => getCurve(7),
-    },
-    onTertiaryFixedVariant: {
-      palette: (s) => s.getPalette('tertiary'),
-      background: (s) =>
-        colorService.getColor('tertiaryFixedDim').getMaterialColor(),
       contrastCurve: (s) => getCurve(4.5),
     },
   };
