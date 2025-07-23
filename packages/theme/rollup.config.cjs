@@ -5,7 +5,7 @@ module.exports = withNx(
     main: './src/index.ts',
     outputPath: '../../dist/packages/theme',
     tsConfig: './tsconfig.lib.json',
-    compiler: 'swc',
+    compiler: 'tsc',
     format: ['cjs', 'esm'],
     assets: [{ input: '{projectRoot}', output: '.', glob: '*.md' }],
     useLegacyTypescriptPlugin: false,
