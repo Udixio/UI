@@ -24,8 +24,6 @@ export type DynamicColorKey =
   | 'inverseOnSurface'
   | 'outline'
   | 'outlineVariant'
-  | 'shadow'
-  | 'scrim'
   | 'surfaceTint'
   | 'primary'
   | 'primaryDim'
@@ -424,7 +422,6 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
               : 2.3
             : 1.6;
         }
-
         return 1;
       },
       background: (s) => highestSurface(s, colorService),
