@@ -4,14 +4,21 @@
     "allowJs": false,
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
-    "strict": true
+    "strict": true,
+    "types": ["vite/client", "vitest"]
   },
-  "extends": "@tsconfig/recommended/tsconfig.json",
-  "include": ["src", "types"],
-  "exclude": ["**/*.stories.ts", "**/*.stories.js"],
+  "files": [],
+  "include": [],
   "references": [
+    {
+      "path": "./tsconfig.lib.json"
+    },
+    {
+      "path": "./tsconfig.spec.json"
+    },
     {
       "path": "./tsconfig.storybook.json"
     }
-  ]
+  ],
+  "extends": "../../tsconfig.base.json"
 }

@@ -3,3 +3,5 @@ ignoredBuiltDependencies:
   - sharp
 onlyBuiltDependencies:
   - nx
+packages:
+  - 'packages/*'
