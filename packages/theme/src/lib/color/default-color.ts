@@ -34,6 +34,7 @@ export type DynamicColorKey =
   | 'onPrimaryContainer'
   | 'inversePrimary'
   | 'secondary'
+  | 'secondaryDim'
   | 'onSecondary'
   | 'secondaryContainer'
   | 'onSecondaryContainer'
@@ -644,21 +645,60 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
     ////////////////////////////////////////////////////////////////
     // Secondaries [Q]                                            //
     ////////////////////////////////////////////////////////////////
-
-    surfaceTint: {
-      alias: 'primary',
+    secondary: {
+      palette: (s) => s.getPalette('secondary'),
+      tone: (s) => {
+        if (s.variant === 'neutral') {
+          return s.isDark
+            ? tMinC(s.getPalette('secondary'), 0, 98)
+            : tMaxC(s.getPalette('secondary'));
+        } else if (s.variant === 'vibrant') {
+          return tMaxC(s.getPalette('secondary'), 0, s.isDark ? 90 : 98);
+        } else {
+          // EXPRESSIVE and TONAL_SPOT
+          return s.isDark ? 80 : tMaxC(s.getPalette('secondary'));
+        }
+      },
+      isBackground: true,
+      background: (s) => highestSurface(s, colorService),
+      contrastCurve: (s) => getCurve(4.5),
+      toneDeltaPair: (s) =>
+        new ToneDeltaPair(
+          getColor('secondaryContainer'),
+          getColor('secondary'),
+          5,
+          'relative_lighter',
+          true,
+          'farther',
+        ),
     },
-
-    background: {
-      alias: 'surface',
+    secondaryDim: {
+      palette: (s) => s.getPalette('secondary'),
+      tone: (s) => {
+        if (s.variant === 'neutral') {
+          return 85;
+        } else {
+          return tMaxC(s.getPalette('secondary'), 0, 90);
+        }
+      },
+      isBackground: true,
+      background: (s) => getColor('surfaceContainerHigh'),
+      contrastCurve: (s) => getCurve(4.5),
+      toneDeltaPair: (s) =>
+        new ToneDeltaPair(
+          getColor('secondaryDim'),
+          getColor('secondary'),
+          5,
+          'darker',
+          true,
+          'farther',
+        ),
     },
-    onBackground: {
-      alias: 'onSurface',
+    onSecondary: {
+      palette: (s) => s.getPalette('secondary'),
+      background: (s) => getColor('secondary'),
+      contrastCurve: (s) => getCurve(6),
     },
-    surfaceVariant: {
-      alias: 'surfaceContainerHighest',
-    },
-
     secondaryContainer: {
       palette: (s) => s.getPalette('secondary'),
       tone: (s) => {
@@ -679,10 +719,73 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
     },
     onSecondaryContainer: {
       palette: (s) => s.getPalette('secondary'),
-      background: (s) =>
-        colorService.getColor('secondaryContainer').getMaterialColor(),
+      background: (s) => getColor('secondaryContainer'),
       contrastCurve: (s) => getCurve(6),
     },
+
+    secondaryFixed: {
+      palette: (s) => s.getPalette('secondary'),
+      tone: (s) => {
+        let tempS = Object.assign({}, s, { isDark: false, contrastLevel: 0 });
+        return getColor('secondaryContainer').getTone(tempS);
+      },
+      isBackground: true,
+      background: (s) => highestSurface(s, colorService),
+      contrastCurve: (s) => (s.contrastLevel > 0 ? getCurve(1.5) : undefined),
+    },
+
+    secondaryFixedDim: {
+      palette: (s) => s.getPalette('secondary'),
+      tone: (s) => getColor('secondaryFixed').getTone(s),
+      isBackground: true,
+      toneDeltaPair: (s) =>
+        new ToneDeltaPair(
+          getColor('secondaryFixedDim'),
+          getColor('secondaryFixed'),
+          5,
+          'darker',
+          true,
+          'exact',
+        ),
+    },
+
+    onSecondaryFixed: {
+      palette: (s) => s.getPalette('secondary'),
+      background: (s) => getColor('secondaryFixedDim'),
+      contrastCurve: (s) => getCurve(7),
+    },
+
+    onSecondaryFixedVariant: {
+      palette: (s) => s.getPalette('secondary'),
+      background: (s) => getColor('secondaryFixedDim'),
+      contrastCurve: (s) => getCurve(4.5),
+    },
+
+    ////////////////////////////////////////////////////////////////
+    // Tertiaries [T]                                             //
+    ////////////////////////////////////////////////////////////////
+
+    inverseSecondary: {
+      palette: (s) => s.getPalette('secondary'),
+      tone: (s) => tMaxC(s.getPalette('secondary')),
+      background: (s) =>
+        colorService.getColor('inverseSurface').getMaterialColor(),
+      contrastCurve: (s) => getCurve(6),
+    },
+    surfaceTint: {
+      alias: 'primary',
+    },
+
+    background: {
+      alias: 'surface',
+    },
+    onBackground: {
+      alias: 'onSurface',
+    },
+    surfaceVariant: {
+      alias: 'surfaceContainerHighest',
+    },
+
     tertiaryContainer: {
       palette: (s) => s.getPalette('tertiary'),
       tone: (s) => {
