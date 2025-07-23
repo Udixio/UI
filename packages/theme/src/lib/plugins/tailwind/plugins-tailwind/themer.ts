@@ -60,9 +60,9 @@ export const themer = (args: {
   >;
   darkMode: 'class' | 'media';
   subThemes?: Record<string, string>;
-  appService: API;
+  api: API;
 }) => {
-  const { themes, colors } = args.appService;
+  const { themes, colors } = args.api;
   const options: {
     defaultTheme: {
       extend: {

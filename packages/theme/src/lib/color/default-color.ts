@@ -107,7 +107,6 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => ({
       palette: (s) => s.getPalette('neutral'),
       tone: (s) => (s.isDark ? 6 : 98),
       isBackground: true,
-      œ,
     },
     surfaceDim: {
       palette: (s) => s.getPalette('neutral'),

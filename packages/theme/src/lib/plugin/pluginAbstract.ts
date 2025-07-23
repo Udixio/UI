@@ -20,8 +20,8 @@ export abstract class PluginAbstract<
     this.options = options;
   }
 
-  public init(appService: API) {
-    this.pluginInstance = new this.pluginClass(appService, this.options);
+  public init(api: API) {
+    this.pluginInstance = new this.pluginClass(api, this.options);
     this.pluginInstance.onInit();
     return this;
   }
@@ -36,7 +36,7 @@ export abstract class PluginAbstract<
 
 export abstract class PluginImplAbstract<Options extends object> {
   constructor(
-    protected appService: API,
+    protected api: API,
     protected options: Options,
   ) {
     this.onInit();

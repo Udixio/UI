@@ -8,7 +8,7 @@ export class PluginApi {
     this.plugins.set(plugin.name, plugin);
   }
 
-  public loadPlugins(appService: API) {
+  public loadPlugins(api: API) {
     const plugins = new Map(this.plugins);
 
     let size = 0;
@@ -19,7 +19,7 @@ export class PluginApi {
           (dep) => !this.plugins.has(new dep().name),
         );
         if (deps.length === 0) {
-          this.plugins.set(plugin.name, plugin.init(appService));
+          this.plugins.set(plugin.name, plugin.init(api));
           plugins.delete(key);
         }
       });

@@ -3,7 +3,7 @@ import { API } from './API';
 import { ConfigInterface, ConfigService } from './config';
 
 export function bootstrap(): API {
-  return AppContainer.resolve<API>('appService');
+  return AppContainer.resolve<API>('api');
 }
 
 export function bootstrapFromConfig(args?: {
@@ -13,5 +13,5 @@ export function bootstrapFromConfig(args?: {
   const configService = AppContainer.resolve<ConfigService>('configService');
   if (args?.path) configService.configPath = args.path;
   configService.loadConfig(args?.config);
-  return AppContainer.resolve<API>('appService');
+  return AppContainer.resolve<API>('api');
 }
