@@ -126,8 +126,6 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => ({
         } else {
           if (Hct.isYellow(s.getPalette('neutral').hue)) {
             return 90;
-          } else if (s.variant === Variant.VIBRANT) {
-            return 85;
           } else {
             return 87;
           }

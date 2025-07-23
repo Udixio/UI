@@ -82,43 +82,43 @@ export const vibrantVariant: Variant = {
           }
         }
       },
-      surfaceDim: {
-        tone: (s) => {
-          if (s.isDark) {
-            return 4;
+    },
+    surfaceDim: {
+      tone: (s) => {
+        if (s.isDark) {
+          return 4;
+        } else {
+          if (Hct.isYellow(s.getPalette('neutral').hue)) {
+            return 90;
           } else {
-            if (Hct.isYellow(s.getPalette('neutral').hue)) {
-              return 90;
-            } else {
-              return 85;
-            }
+            return 85;
           }
-        },
-        chromaMultiplier: (s) => {
-          if (!s.isDark) {
-            return 1.36;
-          }
-          return 1;
-        },
+        }
       },
-      surfaceBright: {
-        tone: (s) => {
-          if (s.isDark) {
-            return 18;
+      chromaMultiplier: (s) => {
+        if (!s.isDark) {
+          return 1.36;
+        }
+        return 1;
+      },
+    },
+    surfaceBright: {
+      tone: (s) => {
+        if (s.isDark) {
+          return 18;
+        } else {
+          if (Hct.isYellow(s.neutralPalette.hue)) {
+            return 99;
           } else {
-            if (Hct.isYellow(s.neutralPalette.hue)) {
-              return 99;
-            } else {
-              return 97;
-            }
+            return 97;
           }
-        },
-        chromaMultiplier: (s) => {
-          if (s.isDark) {
-            return 1.36;
-          }
-          return 1;
-        },
+        }
+      },
+      chromaMultiplier: (s) => {
+        if (s.isDark) {
+          return 1.36;
+        }
+        return 1;
       },
     },
   },
