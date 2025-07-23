@@ -2,7 +2,7 @@ import { ConfigInterface } from './config.interface';
 
 import { defaultColors } from '../color';
 import { API } from '../API';
-import { tonalSpot } from '../theme/variants';
+import { tonalSpotVariant } from '../theme/variants';
 
 export function defineConfig(configObject: ConfigInterface): ConfigInterface {
   if (!configObject || typeof configObject !== 'object') {
@@ -28,7 +28,7 @@ export class ConfigService {
       sourceColor,
       contrastLevel = 0,
       isDark = false,
-      variant = tonalSpot,
+      variant = tonalSpotVariant,
       palettes,
       colors,
       useDefaultColors = true,

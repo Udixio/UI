@@ -8,16 +8,16 @@ export class API {
   public plugins: PluginApi;
 
   constructor({
-    colorService,
-    themeService,
-    pluginService,
+    colorApi,
+    themeApi,
+    pluginApi,
   }: {
-    colorService: ColorApi;
-    themeService: ThemeApi;
-    pluginService: PluginApi;
+    colorApi: ColorApi;
+    themeApi: ThemeApi;
+    pluginApi: PluginApi;
   }) {
-    this.plugins = pluginService;
-    this.colors = colorService;
-    this.themes = themeService;
+    this.plugins = pluginApi;
+    this.colors = colorApi;
+    this.themes = themeApi;
   }
 }

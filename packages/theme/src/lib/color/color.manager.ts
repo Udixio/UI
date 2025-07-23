@@ -30,10 +30,10 @@ export const highestSurface = (
 
 export class ColorManager {
   private colorMap = new Map<string, ConfigurableColor>();
-  private readonly schemeService: SchemeManager;
+  private readonly schemeManager: SchemeManager;
 
-  constructor({ schemeService }: { schemeService: SchemeManager }) {
-    this.schemeService = schemeService;
+  constructor({ schemeManager }: { schemeManager: SchemeManager }) {
+    this.schemeManager = schemeManager;
   }
 
   createOrUpdate(key: string, args: Partial<ColorOptions>): ConfigurableColor {
@@ -43,7 +43,7 @@ export class ColorManager {
       if (palette && tone) {
         colorEntity = new ConfigurableColor(
           { ...args, palette, tone, name: key },
-          this.schemeService,
+          this.schemeManager,
           this,
         );
         this.colorMap.set(key, colorEntity);

@@ -15,18 +15,18 @@ const colorPaletteKeyColor = DynamicColor.fromPalette({
 });
 
 export class ThemeApi {
-  private readonly schemeService: SchemeManager;
-  private readonly variantService: VariantManager;
+  private readonly schemeManager: SchemeManager;
+  private readonly variantManager: VariantManager;
 
   constructor({
-    schemeService,
-    variantService,
+    schemeManager,
+    variantManager,
   }: {
-    schemeService: SchemeManager;
-    variantService: VariantManager;
+    schemeManager: SchemeManager;
+    variantManager: VariantManager;
   }) {
-    this.schemeService = schemeService;
-    this.variantService = variantService;
+    this.schemeManager = schemeManager;
+    this.variantManager = variantManager;
 
     // this.addPalette({key: "primary", addDefaultColors: true})
     // this.addPalette({key: "secondary", addDefaultColors: true})
@@ -53,23 +53,23 @@ export class ThemeApi {
   // }
 
   create(options: ThemeOptions & { variant: Variant }) {
-    this.schemeService.createOrUpdate({
+    this.schemeManager.createOrUpdate({
       ...options,
       sourcesColorHex: { primary: options.sourceColorHex },
     });
-    this.variantService.set(options.variant);
+    this.variantManager.set(options.variant);
   }
 
   update(options: Partial<ThemeOptions> & { variant?: Variant }) {
     const themeOptions: Partial<SchemeServiceOptions> = { ...options };
     if (options.sourceColorHex)
       themeOptions.sourcesColorHex = { primary: options.sourceColorHex };
-    this.schemeService.createOrUpdate(themeOptions);
-    if (options.variant) this.variantService.set(options.variant);
+    this.schemeManager.createOrUpdate(themeOptions);
+    if (options.variant) this.variantManager.set(options.variant);
   }
 
   addCustomPalette(key: string, colorHex: string) {
-    this.variantService.addCustomPalette(key, colorHex);
+    this.variantManager.addCustomPalette(key, colorHex);
   }
 
   // theme(): SchemeService {

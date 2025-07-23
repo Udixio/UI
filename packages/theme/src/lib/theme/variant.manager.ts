@@ -9,10 +9,10 @@ export class VariantManager {
   public customPalettes: Record<string, string> = {};
   private variantEntity?: Variant;
 
-  private readonly schemeService: SchemeManager;
+  private readonly schemeManager: SchemeManager;
 
-  constructor({ schemeService }: { schemeService: SchemeManager }) {
-    this.schemeService = schemeService;
+  constructor({ schemeManager }: { schemeManager: SchemeManager }) {
+    this.schemeManager = schemeManager;
   }
 
   addCustomPalette(key: string, colorHex: string) {
@@ -50,7 +50,7 @@ export class VariantManager {
         };
       });
     }
-    this.schemeService.createOrUpdate({
+    this.schemeManager.createOrUpdate({
       sourcesColorHex: this.customPalettes,
       palettes: palettes,
     });

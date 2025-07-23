@@ -3,5 +3,5 @@ import { Module } from '../app.container';
 import { PluginApi } from './pluginApi';
 
 export const PluginModule: Module = {
-  pluginService: asClass(PluginApi).singleton(),
+  pluginApi: asClass(PluginApi).singleton(),
 };

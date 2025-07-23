@@ -4,6 +4,6 @@ import { asClass } from 'awilix';
 import { Module } from '@udixio/theme';
 
 export const ColorModule: Module = {
-  colorManagerService: asClass(ColorManager).singleton(),
-  colorService: asClass(ColorApi).singleton(),
+  colorManager: asClass(ColorManager).singleton(),
+  colorApi: asClass(ColorApi).singleton(),
 };
