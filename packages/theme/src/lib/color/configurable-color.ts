@@ -3,9 +3,9 @@ import { SchemeManager } from '../theme';
 import { DynamicColor, FromPaletteOptions } from '../material-color-utilities';
 import { ColorManager } from './color.manager';
 
-export type ColorOptions = Omit<FromPaletteOptions, 'name'> & {
-  alias?: string;
-};
+export type ColorOptions =
+  | (Omit<FromPaletteOptions, 'name'> & { alias?: never })
+  | { alias: string; palette?: never; tone?: never };
 
 function argbToRgb(argb: number): { r: number; g: number; b: number } {
   return {

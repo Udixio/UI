@@ -581,8 +581,7 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
         }
       },
       isBackground: true,
-      background: (s) =>
-        colorService.getColor('highestSurface').getMaterialColor(),
+      background: (s) => highestSurface(s, colorService),
       toneDeltaPair: (s) => undefined,
       contrastCurve: (s) => (s.contrastLevel > 0 ? getCurve(1.5) : undefined),
     },

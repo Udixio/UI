@@ -44,16 +44,23 @@ export class ColorManager {
   ): ConfigurableColor {
     let colorEntity = this.colorMap.get(key);
     if (!colorEntity) {
-      const { palette, tone } = args;
-      if (palette && tone) {
+      const { palette, alias } = args;
+      if (palette) {
         colorEntity = new ConfigurableColor(
-          { ...args, palette, tone, name: key },
+          { ...args, palette: palette, name: key },
+          this.schemeManager,
+          this,
+        );
+        this.colorMap.set(key, colorEntity);
+      } else if (alias) {
+        colorEntity = new ConfigurableColor(
+          { ...args, alias: alias, name: key },
           this.schemeManager,
           this,
         );
         this.colorMap.set(key, colorEntity);
       } else {
-        throw new Error(`Palette ${key} does not exist`);
+        throw new Error(`Palette ${palette} does not exist from ${key}`);
       }
     } else {
       colorEntity.update({ ...args, name: key });
