@@ -52,7 +52,7 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
         'bg-primary hover:shadow-1': !disabled,
       },
       variant === 'filledTonal' && {
-        'hover:shadow-1': !disabled,
+        'bg-secondary-container hover:shadow-1': !disabled,
       },
       variant === 'outlined' && [
         ' border',
