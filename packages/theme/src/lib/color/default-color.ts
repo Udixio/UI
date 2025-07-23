@@ -44,6 +44,7 @@ export type DynamicColorKey =
   | 'tertiaryContainer'
   | 'onTertiaryContainer'
   | 'error'
+  | 'errorDim'
   | 'onError'
   | 'errorContainer'
   | 'onErrorContainer'
@@ -531,13 +532,13 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
         if (s.variant === 'neutral') {
           return 85;
         } else if (s.variant === 'tonalSpot') {
-          return tMaxC(s.primaryPalette, 0, 90);
+          return tMaxC(s.getPalette('primary'), 0, 90);
         } else {
-          return tMaxC(s.primaryPalette);
+          return tMaxC(s.getPalette('primary'));
         }
       },
       isBackground: true,
-      background: (s) => colorService.getColor('surfaceContainerHigh'),
+      background: (s) => getColor('surfaceContainerHigh'),
       contrastCurve: (s) => getCurve(4.5),
       toneDeltaPair: (s) =>
         new ToneDeltaPair(
@@ -895,26 +896,6 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
     ////////////////////////////////////////////////////////////////
     // Errors [E]                                                 //
     ////////////////////////////////////////////////////////////////
-    inverseSecondary: {
-      palette: (s) => s.getPalette('secondary'),
-      tone: (s) => tMaxC(s.getPalette('secondary')),
-      background: (s) =>
-        colorService.getColor('inverseSurface').getMaterialColor(),
-      contrastCurve: (s) => getCurve(6),
-    },
-    surfaceTint: {
-      alias: 'primary',
-    },
-
-    background: {
-      alias: 'surface',
-    },
-    onBackground: {
-      alias: 'onSurface',
-    },
-    surfaceVariant: {
-      alias: 'surfaceContainerHighest',
-    },
 
     error: {
       palette: (s) => s.getPalette('error'),
@@ -932,6 +913,22 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
           colorService.getColor('error').getMaterialColor(),
           5,
           'relative_lighter',
+          true,
+          'farther',
+        ),
+    },
+    errorDim: {
+      palette: (s) => s.getPalette('error'),
+      tone: (s) => tMinC(s.getPalette('error')),
+      isBackground: true,
+      background: (s) => getColor('surfaceContainerHigh'),
+      contrastCurve: (s) => getCurve(4.5),
+      toneDeltaPair: (s) =>
+        new ToneDeltaPair(
+          getColor('errorDim'),
+          getColor('error'),
+          5,
+          'darker',
           true,
           'farther',
         ),
@@ -958,6 +955,22 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
       background: (s) =>
         colorService.getColor('errorContainer').getMaterialColor(),
       contrastCurve: (s) => getCurve(4.5),
+    },
+
+    /////////////////////////////////////////////////////////////////
+    // Remapped Colors                                             //
+    /////////////////////////////////////////////////////////////////
+    surfaceVariant: {
+      alias: 'surfaceContainerHighest',
+    },
+    surfaceTint: {
+      alias: 'primary',
+    },
+    background: {
+      alias: 'surface',
+    },
+    onBackground: {
+      alias: 'onSurface',
     },
   };
   return {
