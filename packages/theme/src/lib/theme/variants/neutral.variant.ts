@@ -50,5 +50,13 @@ export const neutralVariant: Variant = {
         return 1;
       },
     },
+    surfaceBright: {
+      chromaMultiplier: (s) => {
+        if (s.isDark) {
+          return 2.5;
+        }
+        return 1;
+      },
+    },
   },
 };

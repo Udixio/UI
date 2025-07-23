@@ -40,5 +40,13 @@ export const tonalSpotVariant: Variant = {
         return 1;
       },
     },
+    surfaceBright: {
+      chromaMultiplier: (s) => {
+        if (s.isDark) {
+          return 1.7;
+        }
+        return 1;
+      },
+    },
   },
 };

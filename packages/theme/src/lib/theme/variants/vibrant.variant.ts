@@ -101,6 +101,25 @@ export const vibrantVariant: Variant = {
           return 1;
         },
       },
+      surfaceBright: {
+        tone: (s) => {
+          if (s.isDark) {
+            return 18;
+          } else {
+            if (Hct.isYellow(s.neutralPalette.hue)) {
+              return 99;
+            } else {
+              return 97;
+            }
+          }
+        },
+        chromaMultiplier: (s) => {
+          if (s.isDark) {
+            return 1.36;
+          }
+          return 1;
+        },
+      },
     },
   },
 };

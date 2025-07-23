@@ -86,5 +86,13 @@ export const expressiveVariant: Variant = {
         return 1;
       },
     },
+    surfaceBright: {
+      chromaMultiplier: (s) => {
+        if (s.isDark) {
+          return Hct.isYellow(s.neutralPalette.hue) ? 2.7 : 1.75;
+        }
+        return 1;
+      },
+    },
   },
 };

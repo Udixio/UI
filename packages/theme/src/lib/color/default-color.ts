@@ -140,8 +140,21 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => ({
     },
     surfaceBright: {
       palette: (s) => s.getPalette('neutral'),
-      tone: (s) => (s.isDark ? 24 : 98),
+      tone: (s) => {
+        if (s.isDark) {
+          return 18;
+        } else {
+          if (Hct.isYellow(s.getPalette('neutral').hue)) {
+            return 99;
+          } else {
+            return 98;
+          }
+        }
+      },
       isBackground: true,
+      chromaMultiplier: (s) => {
+        return 1;
+      },
     },
     surfaceContainerLowest: {
       palette: (s) => s.getPalette('neutral'),
