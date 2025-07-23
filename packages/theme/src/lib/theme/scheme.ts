@@ -44,6 +44,7 @@ export class Scheme {
       | 'tertiary'
       | 'neutral'
       | 'neutralVariant'
+      | 'error'
       | string,
   ): TonalPalette {
     if (!this.options) {

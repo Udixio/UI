@@ -1,8 +1,4 @@
-import {
-  clampDouble,
-  DislikeAnalyzer,
-  TonalPalette,
-} from '@material/material-color-utilities';
+import { clampDouble, TonalPalette } from '@material/material-color-utilities';
 import { ContrastCurve, ToneDeltaPair } from '../material-color-utilities';
 import { DynamicColor } from '../material-color-utilities/dynamic_color';
 import { highestSurface } from './color.manager';
@@ -488,110 +484,119 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
       alias: 'primary',
     },
     secondaryContainer: {
+      palette: (s) => s.getPalette('secondary'),
       tone: (s) => {
-        const initialTone = s.isDark ? 30 : 90;
-        return findDesiredChromaByTone(
-          s.getPalette('secondary').hue,
-          s.getPalette('secondary').chroma,
-          initialTone,
-          !s.isDark,
-        );
+        if (s.variant === 'vibrant') {
+          return s.isDark
+            ? tMinC(s.getPalette('secondary'), 30, 40)
+            : tMaxC(s.getPalette('secondary'), 84, 90);
+        } else if (s.variant === 'expressive') {
+          return s.isDark ? 15 : tMaxC(s.getPalette('secondary'), 90, 95);
+        } else {
+          return s.isDark ? 25 : 90;
+        }
       },
+      isBackground: true,
+      background: (s) => highestSurface(s, colorService),
+      toneDeltaPair: (s) => undefined,
+      contrastCurve: (s) => (s.contrastLevel > 0 ? getCurve(1.5) : undefined),
     },
     onSecondaryContainer: {
-      tone: (s) => {
-        return DynamicColor.foregroundTone(
-          colorService
-            .getColor('secondaryContainer')
-            .getMaterialColor()
-            .tone(s),
-          4.5,
-        );
-      },
+      palette: (s) => s.getPalette('secondary'),
+      background: (s) =>
+        colorService.getColor('secondaryContainer').getMaterialColor(),
+      contrastCurve: (s) => getCurve(6),
     },
     tertiaryContainer: {
       palette: (s) => s.getPalette('tertiary'),
       tone: (s) => {
-        const proposedHct = s
-          .getPalette('tertiary')
-          .getHct(s.sourceColorHct.tone);
-        return DislikeAnalyzer.fixIfDisliked(proposedHct).tone;
+        if (s.variant === 'neutral') {
+          return s.isDark
+            ? tMaxC(s.getPalette('tertiary'), 0, 93)
+            : tMaxC(s.getPalette('tertiary'), 0, 96);
+        } else if (s.variant === 'tonalSpot') {
+          return tMaxC(s.getPalette('tertiary'), 0, s.isDark ? 93 : 100);
+        } else if (s.variant === 'expressive') {
+          return tMaxC(
+            s.getPalette('tertiary'),
+            75,
+            Hct.isCyan(s.getPalette('tertiary').hue) ? 88 : s.isDark ? 93 : 100,
+          );
+        } else {
+          return s.isDark
+            ? tMaxC(s.getPalette('tertiary'), 0, 93)
+            : tMaxC(s.getPalette('tertiary'), 72, 100);
+        }
       },
+      isBackground: true,
+      background: (s) => highestSurface(s, colorService),
+      toneDeltaPair: (s) => undefined,
+      contrastCurve: (s) => (s.contrastLevel > 0 ? getCurve(1.5) : undefined),
     },
     onTertiaryContainer: {
       palette: (s) => s.getPalette('tertiary'),
-      tone: (s) => {
-        return DynamicColor.foregroundTone(
-          colorService.getColor('tertiaryContainer').getMaterialColor().tone(s),
-          4.5,
-        );
-      },
+      background: (s) =>
+        colorService.getColor('tertiaryContainer').getMaterialColor(),
+      contrastCurve: (s) => getCurve(6),
     },
     error: {
       palette: (s) => s.getPalette('error'),
-      tone: (s) => (s.isDark ? 80 : 40),
+      tone: (s) => {
+        return s.isDark
+          ? tMinC(s.getPalette('error'), 0, 98)
+          : tMaxC(s.getPalette('error'));
+      },
       isBackground: true,
       background: (s) => highestSurface(s, colorService),
-      contrastCurve: (s) => new ContrastCurve(3, 4.5, 7, 11),
+      contrastCurve: (s) => getCurve(4.5),
       toneDeltaPair: (s) =>
         new ToneDeltaPair(
           colorService.getColor('errorContainer').getMaterialColor(),
           colorService.getColor('error').getMaterialColor(),
-          15,
-          'nearer',
-          false,
+          5,
+          'relative_lighter',
+          true,
+          'farther',
         ),
     },
     onError: {
       palette: (s) => s.getPalette('error'),
-      tone: (s) => (s.isDark ? 20 : 100),
       background: (s) => colorService.getColor('error').getMaterialColor(),
-      contrastCurve: (s) => new ContrastCurve(4.5, 7, 11, 21),
+      contrastCurve: (s) => getCurve(6),
     },
     errorContainer: {
       palette: (s) => s.getPalette('error'),
-      tone: (s) => (s.isDark ? 30 : 90),
+      tone: (s) => {
+        return s.isDark
+          ? tMinC(s.getPalette('error'), 30, 93)
+          : tMaxC(s.getPalette('error'), 0, 90);
+      },
       isBackground: true,
       background: (s) => highestSurface(s, colorService),
-      contrastCurve: (s) => new ContrastCurve(1, 1, 3, 7),
-      toneDeltaPair: (s) =>
-        new ToneDeltaPair(
-          colorService.getColor('errorContainer').getMaterialColor(),
-          colorService.getColor('error').getMaterialColor(),
-          15,
-          'nearer',
-          false,
-        ),
+      toneDeltaPair: (s) => undefined,
+      contrastCurve: (s) => (s.contrastLevel > 0 ? getCurve(1.5) : undefined),
     },
     onErrorContainer: {
       palette: (s) => s.getPalette('error'),
-      tone: (s) => (s.isDark ? 90 : 10),
       background: (s) =>
         colorService.getColor('errorContainer').getMaterialColor(),
-      contrastCurve: (s) => new ContrastCurve(4.5, 7, 11, 21),
+      contrastCurve: (s) => getCurve(4.5),
     },
 
     onTertiaryFixed: {
       palette: (s) => s.getPalette('tertiary'),
-      tone: (s) => 10.0,
       background: (s) =>
         colorService.getColor('tertiaryFixedDim').getMaterialColor(),
-      secondBackground: (s) =>
-        colorService.getColor('tertiaryFixed').getMaterialColor(),
-      contrastCurve: (s) => new ContrastCurve(4.5, 7, 11, 21),
+      contrastCurve: (s) => getCurve(7),
     },
     onTertiaryFixedVariant: {
       palette: (s) => s.getPalette('tertiary'),
-      tone: (s) => 30.0,
       background: (s) =>
         colorService.getColor('tertiaryFixedDim').getMaterialColor(),
-      secondBackground: (s) =>
-        colorService.getColor('tertiaryFixed').getMaterialColor(),
-      contrastCurve: (s) => new ContrastCurve(3, 4.5, 7, 11),
+      contrastCurve: (s) => getCurve(4.5),
     },
   };
   return {
-    fromPalettes: ['primary', 'secondary', 'tertiary'],
     colors,
   };
 };

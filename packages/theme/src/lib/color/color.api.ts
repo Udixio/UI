@@ -1,5 +1,6 @@
 import { ColorOptions, ConfigurableColor } from './configurable-color';
 import { ColorManager } from './color.manager';
+import { DynamicColorKey } from './default-color';
 
 export type AddColors = {
   colors?: Record<string, Partial<ColorOptions>>;
@@ -46,7 +47,7 @@ export class ColorApi {
     });
   }
 
-  getColor(key: string): ConfigurableColor {
+  getColor(key: DynamicColorKey | string): ConfigurableColor {
     return this.colorManager.get(key);
   }
 
