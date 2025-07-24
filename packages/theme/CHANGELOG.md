@@ -1,3 +1,13 @@
+## 0.3.1 (2025-07-24)
+
+### 🩹 Fixes
+
+- **theme:** bump version to `1.0.1` in package.json ([cb3ed48](https://github.com/Udixio/UI/commit/cb3ed48))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.3.0 (2025-07-24)
 
 ### 🚀 Features
