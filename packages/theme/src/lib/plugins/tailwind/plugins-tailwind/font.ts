@@ -1,10 +1,10 @@
 import { FontRole, FontSize, FontStyle } from '@udixio/theme';
 import plugin, { PluginAPI } from 'tailwindcss/plugin';
 
-export const font = (
+export const font: (
   fontStyles: Record<FontRole, Record<FontSize, FontStyle>>,
   responsiveBreakPoints: Record<string, number>,
-) => {
+) => ReturnType<typeof plugin> = (fontStyles, responsiveBreakPoints) => {
   const createUtilities = ({ theme }: Pick<PluginAPI, 'theme'>): any => {
     const pixelUnit = 'rem';
     const newUtilities: any = {};

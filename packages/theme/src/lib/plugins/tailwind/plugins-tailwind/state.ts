@@ -14,7 +14,9 @@ type State = {
 
 type Components = Record<string, Record<string, {}>>;
 
-export const state = (colorkeys: string[]) =>
+export const state: (colorKeys: string[]) => ReturnType<typeof plugin> = (
+  colorKeys,
+) =>
   plugin((pluginArgs: PluginAPI) => {
     addAllNewComponents(
       pluginArgs,
@@ -28,7 +30,7 @@ export const state = (colorkeys: string[]) =>
           duration: 150,
         },
       },
-      colorkeys,
+      colorKeys,
     );
   }, {});
 
