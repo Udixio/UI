@@ -12,5 +12,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/Udixio/UI.git"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   }
 }
