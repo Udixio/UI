@@ -68,6 +68,7 @@ export const Button = ({
           e.preventDefault();
         }
       }}
+      disabled={disabled}
     >
       <div
         className={styles.container}
@@ -124,7 +125,7 @@ export const Button = ({
                   {
                     '!stroke-primary': variant === 'text' && !disabled,
                     '!stroke-on-surface/[38%]': variant === 'text' && disabled,
-                  }
+                  },
                 ),
               })}
               variant={'circular-indeterminate'}

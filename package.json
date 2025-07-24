@@ -97,6 +97,7 @@
     "@size-limit/esbuild-why": "^11.1.6",
     "@size-limit/preset-small-lib": "^11.1.6",
     "@storybook/test": "^8.6.14",
+    "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@tsconfig/recommended": "^1.0.8",
     "@tsconfig/vite-react": "^3.4.0",
