@@ -14,5 +14,9 @@
     "@udixio/theme": "workspace:*",
     "@udixio/tailwind": "workspace:*",
     "@tailwindcss/vite": "^4.1.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Udixio/UI.git"
   }
 }

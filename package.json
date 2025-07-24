@@ -6,6 +6,10 @@
   "workspaces": [
     "packages/*"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Udixio/UI.git"
+  },
   "scripts": {
     "nx": "nx",
     "build": "nx run-many -t build",

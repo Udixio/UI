@@ -8,5 +8,9 @@
     "@material/material-color-utilities": "^0.3.0",
     "replace-in-file": "^8.3.0",
     "tailwindcss": "^4.1.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Udixio/UI.git"
   }
 }
