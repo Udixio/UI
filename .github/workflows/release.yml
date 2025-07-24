@@ -2,19 +2,6 @@ name: Release Process
 
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version to release (leave empty for automatic versioning)'
-        required: false
-        type: string
-      dry_run:
-        description: 'Dry run (no actual changes)'
-        required: false
-        default: 'false'
-        type: choice
-        options:
-          - 'true'
-          - 'false'
 
 jobs:
   create-release:
@@ -39,6 +26,6 @@ jobs:
           cache: 'pnpm'
 
       - name: Publish packages
-        run: pnpm exec nx release --verbose
+        run: pnpm dlx nx release --verbose
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
