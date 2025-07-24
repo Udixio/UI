@@ -1,22 +1,37 @@
 {
   "targetDefaults": {
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "cache": true
     },
     "@nx/vite:test": {
       "cache": true,
-      "inputs": ["default", "^default"]
+      "inputs": [
+        "default",
+        "^default"
+      ]
     },
     "@nx/vite:build": {
       "cache": true,
-      "dependsOn": ["^build"],
-      "inputs": ["default", "^default"]
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "default",
+        "^default"
+      ]
     },
     "@nx/js:tsc": {
       "cache": true,
-      "dependsOn": ["^build"],
-      "inputs": ["default", "^default"]
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "default",
+        "^default"
+      ]
     },
     "lint": {
       "cache": true
@@ -34,13 +49,6 @@
   "workspaceLayout": {
     "appsDir": "apps",
     "libsDir": "packages"
-  },
-  "implicitDependencies": {
-    "package.json": {
-      "dependencies": "*",
-      "devDependencies": "*"
-    },
-    "nx.json": "*"
   },
   "projects": {
     "ui-react": {

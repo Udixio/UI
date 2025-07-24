@@ -80,11 +80,11 @@ export function getCurve(defaultContrast: number): ContrastCurve {
 
 export function tMaxC(
   palette: TonalPalette,
-  lowerBound: number = 0,
-  upperBound: number = 100,
-  chromaMultiplier: number = 1,
+  lowerBound = 0,
+  upperBound = 100,
+  chromaMultiplier = 1,
 ): number {
-  let answer = findBestToneForChroma(
+  const answer = findBestToneForChroma(
     palette.hue,
     palette.chroma * chromaMultiplier,
     100,
@@ -95,10 +95,10 @@ export function tMaxC(
 
 export function tMinC(
   palette: TonalPalette,
-  lowerBound: number = 0,
-  upperBound: number = 100,
+  lowerBound = 0,
+  upperBound = 100,
 ): number {
-  let answer = findBestToneForChroma(palette.hue, palette.chroma, 0, false);
+  const answer = findBestToneForChroma(palette.hue, palette.chroma, 0, false);
   return clampDouble(lowerBound, upperBound, answer);
 }
 

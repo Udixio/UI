@@ -370,7 +370,7 @@ export class DynamicColor {
       const selfRole = amRoleA ? roleA : roleB;
       const refRole = amRoleA ? roleB : roleA;
       let selfTone = selfRole.tone(scheme);
-      let refTone = refRole.getTone(scheme);
+      const refTone = refRole.getTone(scheme);
       const relativeDelta = absoluteDelta * (amRoleA ? 1 : -1);
 
       if (constraint === 'exact') {

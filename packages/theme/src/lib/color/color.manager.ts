@@ -178,7 +178,7 @@ export class ColorManager {
     this.createOrUpdate(colorFixedKey, {
       palette: (s) => s.getPalette(colorKey),
       tone: (s) => {
-        let tempS = Object.assign({}, s, { isDark: false, contrastLevel: 0 });
+        const tempS = Object.assign({}, s, { isDark: false, contrastLevel: 0 });
         return this.get(colorContainerKey).getMaterialColor().getTone(tempS);
       },
       isBackground: true,
