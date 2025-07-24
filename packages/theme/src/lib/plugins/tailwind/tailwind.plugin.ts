@@ -34,7 +34,7 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
     };
   }
 
-  load() {
+  load(): ReturnType<typeof plugin.withOptions> {
     const searchKeyword = '@plugin "@udixio/tailwind"';
 
     const tailwindCssPath = findTailwindCssFile(process.cwd(), searchKeyword);
