@@ -126,5 +126,6 @@
       }
     }
   },
-  "defaultBase": "origin/main"
+  "defaultBase": "origin/main",
+  "neverConnectToCloud": true
 }
