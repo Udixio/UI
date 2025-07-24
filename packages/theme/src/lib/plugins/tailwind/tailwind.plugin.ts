@@ -43,8 +43,8 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
         'Tailwind plugin not found. Please use it first. (@plugin "@udixio/tailwind")',
       );
     }
-    const searchPattern = /@plugin "@udixio\/tailwind"\s*{\s*}/;
-    const replacement = `@plugin "@udixio/tailwind" {\n}\n@import "./udixio.css";`;
+    const searchPattern = /@import 'tailwindcss';/;
+    const replacement = `@import 'tailwindcss';\n@import "./udixio.css";`;
 
     if (!getFileContent(tailwindCssPath, /@import\s+"\.\/udixio\.css";/)) {
       replaceFileContent(tailwindCssPath, searchPattern, replacement);

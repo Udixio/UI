@@ -1,5 +1,5 @@
 export * from './theme.module';
-export * from './variant';
+export * from './variants';
 export * from './scheme.manager';
 export * from './scheme';
 export * from './theme.api';
