@@ -2,6 +2,16 @@ name: Release Process
 
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag pour la publication"
+        required: false
+        default: ""
+        type: choice
+        options:
+          - ""
+          - next
+          - beta
 
 permissions:
   contents: write
@@ -41,7 +51,12 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
       - name: Publish packages
-        run: pnpm dlx nx release --first-release --verbose
+        run: |
+          if [ "${{ github.event.inputs.tag }}" != "" ]; then
+            pnpm dlx nx release publish --tag ${{ github.event.inputs.tag }} --verbose;
+          else
+            pnpm dlx nx release publish --verbose;
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
