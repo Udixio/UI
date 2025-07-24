@@ -53,9 +53,9 @@ jobs:
       - name: Publish packages
         run: |
           if [ "${{ github.event.inputs.tag }}" != "" ]; then
-            pnpm dlx nx release publish --tag ${{ github.event.inputs.tag }} --verbose;
+            pnpm dlx nx release --yes --tag ${{ github.event.inputs.tag }} --verbose;
           else
-            pnpm dlx nx release publish --verbose;
+            pnpm dlx nx release --yes --verbose;
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
