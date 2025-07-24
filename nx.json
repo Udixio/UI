@@ -111,6 +111,11 @@
     "version": {
       "preVersionCommand": "npm run build",
       "conventionalCommits": true
+    },
+    "changelog": {
+      "workspaceChangelog": {
+        "createRelease": "github"
+      }
     }
   },
   "generators": {

@@ -38,48 +38,7 @@ jobs:
           node-version: '18'
           cache: 'pnpm'
 
-      - name: Determine version
-        id: version
-        run: |
-          if [ -z "${{ github.event.inputs.version }}" ]; then
-            echo "Using conventional commits to determine version"
-            VERSION=$(npx semantic-release --dry-run | grep -oP 'The next release version is \K[0-9]+\.[0-9]+\.[0-9]+')
-          else
-            VERSION="${{ github.event.inputs.version }}"
-          fi
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Create release branch
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git checkout -b release/v${{ env.VERSION }}
-
-      - name: Run release script (version and changelog only)
-        run: |
-          DRY_RUN=${{ github.event.inputs.dry_run == 'true' && 'true' || 'false' }}
-          npx ts-node scripts/release.ts --version=${{ env.VERSION }} --dryRun=$DRY_RUN --verbose=true --skipPublish=true
-
-      - name: Push release branch
-        if: ${{ github.event.inputs.dry_run != 'true' }}
-        run: git push origin release/v${{ env.VERSION }}
-
-      - name: Create Pull Request to main
-        if: ${{ github.event.inputs.dry_run != 'true' }}
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          base: main
-          head: release/v${{ env.VERSION }}
-          title: "Release v${{ env.VERSION }}"
-          body: |
-            # Release v${{ env.VERSION }}
-
-            This PR represents the release of version ${{ env.VERSION }} to production.
-
-            ## Changes
-
-            Please review the CHANGELOG.md file for details on changes included in this release.
-          labels: release
-          draft: false
+      - name: Publish packages
+        run: npx nx release --verbose
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
