@@ -5,7 +5,7 @@ import { Transition } from 'motion';
 export type FabVariant = 'surface' | 'primary' | 'secondary' | 'tertiary';
 type Props = {
   variant?: FabVariant;
-  label?: string;
+  label: string;
   icon: IconDefinition;
   size?: 'small' | 'medium' | 'large';
   isExtended?: boolean;

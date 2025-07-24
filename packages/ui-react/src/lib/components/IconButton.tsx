@@ -6,6 +6,7 @@ import { iconButtonStyle } from '../styles/icon-button.style';
 import { ReactProps } from '../utils/component';
 import { RippleEffect } from '../effects';
 import { classNames } from '../utils';
+import { ToolTip } from './ToolTip';
 
 export type IconButtonVariant = 'standard' | 'filled' | 'tonal' | 'outlined';
 
@@ -14,6 +15,7 @@ export const IconButton = ({
   href,
   disabled = false,
   type = 'button',
+  title,
   arialLabel,
   onToggle,
   activated = false,
@@ -29,6 +31,10 @@ export const IconButton = ({
   transition,
   ...restProps
 }: ReactProps<IconButtonInterface>) => {
+  if (!title) {
+    title = arialLabel;
+  }
+
   const [isActive, setIsActive] = React.useState(activated);
   let handleClick;
 
@@ -81,20 +87,26 @@ export const IconButton = ({
   const resolvedRef = ref || defaultRef;
 
   transition = { duration: 0.3, ...transition };
+
   return (
     <ElementType
       disabled={disabled}
       href={href}
       className={styles.iconButton}
       aria-label={arialLabel}
-      title={arialLabel}
       {...(restProps as any)}
+      title={undefined}
       onClick={handleClick}
       ref={resolvedRef}
     >
+      <ToolTip
+        targetRef={resolvedRef}
+        trigger={disabled ? null : undefined}
+        text={title}
+      ></ToolTip>
       <div
-        className={styles.container}
         style={{ transition: transition.duration + 's' }}
+        className={styles.container}
       >
         <div className={styles.stateLayer}>
           {!disabled && (

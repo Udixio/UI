@@ -1,5 +1,5 @@
 {
-  "name": "udixio-ui-components",
+  "name": "udixio-ui",
   "version": "0.0.0",
   "license": "MIT",
   "private": true,
@@ -65,11 +65,20 @@
     "vitest": "^3.0.0",
     "yargs": "^18.0.0"
   },
+  "engines": {
+    "node": ">=16"
+  },
+  "size-limit": [
+    {
+      "path": "dist/ui.cjs.production.min.js",
+      "limit": "200 KB"
+    },
+    {
+      "path": "dist/ui.esm.js",
+      "limit": "200 KB"
+    }
+  ],
   "dependencies": {
-    "@babel/core": "^7.26.0",
-    "@babel/plugin-syntax-jsx": "^7.25.9",
-    "@babel/preset-env": "^7.26.0",
-    "@babel/preset-react": "^7.26.3",
     "@fontsource/roboto": "^5.1.1",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-brands-svg-icons": "^6.7.2",

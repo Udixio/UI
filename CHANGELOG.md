@@ -1,3 +1,19 @@
+## [1.9.4](https://github.com/Udixio/UI/compare/v1.9.3...v1.9.4) (2025-07-18)
+
+
+### Bug Fixes
+
+* **ui:** enhance ToolTip with improved flexibility and integration ([d05a23a](https://github.com/Udixio/UI/commit/d05a23a0891ac73d1e3c0af656eeba61d1e3da62))
+* **ui:** improve ToolTip functionality with trigger support and IconButton integration ([fdc3d6c](https://github.com/Udixio/UI/commit/fdc3d6c69b720e6bd1912f4da56f51324baa8a5d))
+
+## [1.9.3](https://github.com/Udixio/UI/compare/v1.9.2...v1.9.3) (2025-07-16)
+
+
+### Bug Fixes
+
+* **ui:** adjust tooltip styling for shadow and spacing cleanup ([31fadb3](https://github.com/Udixio/UI/commit/31fadb3d87dc84f782bce4f41e352f212f1048f2))
+* **ui:** ensure buttons in ToolTip are always an array ([d6be677](https://github.com/Udixio/UI/commit/d6be67771302e69ed58f97ff2e5e6c6afdfb8ba4))
+
 ## [1.9.2](https://github.com/Udixio/UI/compare/v1.9.1...v1.9.2) (2025-07-16)
 
 

@@ -7,6 +7,7 @@ import { FabInterface } from '../interfaces/fab.interface';
 import { fabStyle } from '../styles/fab.style';
 import { classNames } from '../utils';
 import { ReactProps } from '../utils/component';
+import { ToolTip } from './ToolTip';
 
 export const Fab = ({
   className,
@@ -70,8 +71,14 @@ export const Fab = ({
       {...(restProps as any)}
       ref={resolvedRef}
       href={href}
+      aria-label={isExtended ? undefined : label}
       className={styles.fab}
     >
+      <ToolTip
+        trigger={isExtended ? null : undefined}
+        text={label}
+        targetRef={resolvedRef}
+      />
       <span className={styles.stateLayer}>
         <RippleEffect
           colorName={classNames({

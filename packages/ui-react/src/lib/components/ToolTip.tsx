@@ -1,5 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
-import { ReactProps } from '../utils';
+import {
+  cloneElement,
+  isValidElement,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import { MotionProps } from '../utils';
 import { Button } from './Button';
 import { ToolTipInterface } from '../interfaces';
 import { toolStyle } from '../styles';
@@ -15,18 +21,28 @@ export const ToolTip = ({
   title,
   text,
   position,
+  targetRef,
   ref,
-}: ReactProps<ToolTipInterface>) => {
-  const defaultRef = useRef<HTMLDivElement>(null);
-  const resolvedRef = ref || defaultRef;
+  trigger = ['hover', 'focus'],
+  ...props
+}: MotionProps<ToolTipInterface>) => {
+  if (!children && !targetRef) {
+    throw new Error('ToolTip must have a child or a targetRef');
+  }
+  if (!Array.isArray(trigger)) {
+    trigger = [trigger];
+  }
 
   if (buttons && !Array.isArray(buttons)) {
     buttons = [buttons];
   }
 
+  const internalRef = useRef<HTMLElement | null>(null); // Ref interne au cas où targetRef est undefined
+  const resolvedRef = targetRef || internalRef; // Utilise targetRef si défini, sinon internalRef
+
   const [currentToolTipId, setCurrentToolTipId] = useState<string | null>(null);
   const [id] = useState(v4());
-  const [isVisible, setIsVisible] = useState(currentToolTipId === id);
+  const [isVisible, setIsVisible] = useState(false);
 
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -48,56 +64,97 @@ export const ToolTip = ({
     if (timeout.current) clearTimeout(timeout.current);
 
     if (currentToolTipId) {
-      setIsVisible(currentToolTipId == id);
+      setIsVisible(currentToolTipId === id);
     } else {
       timeout.current = setTimeout(() => {
-        if (currentToolTipId !== id) {
-          setIsVisible(false);
-        }
-      }, 1_200);
+        setIsVisible(false);
+      }, 1200);
     }
-  }, [currentToolTipId]);
+  }, [currentToolTipId, id]);
+
+  // Ajouter des gestionnaires sur l'élément cible (targetRef ou internalRef)
 
   const handleMouseEnter = () => {
-    const event = new CustomEvent('tooltip-update', { detail: id });
-    document.dispatchEvent(event);
+    if (trigger.includes('hover')) {
+      const event = new CustomEvent('tooltip-update', { detail: id });
+      document.dispatchEvent(event);
+    }
   };
 
   const handleMouseLeave = () => {
-    const event = new CustomEvent('tooltip-update', { detail: null });
-    document.dispatchEvent(event);
+    if (trigger.includes('hover')) {
+      const event = new CustomEvent('tooltip-update', { detail: null });
+      document.dispatchEvent(event);
+    }
+  };
+
+  const handleClick = () => {
+    if (trigger.includes('click')) {
+      const event = new CustomEvent('tooltip-update', {
+        detail: isVisible ? null : id,
+      });
+      document.dispatchEvent(event);
+    }
+  };
+
+  const handleFocus = () => {
+    if (trigger.includes('focus')) {
+      const event = new CustomEvent('tooltip-update', { detail: id });
+      document.dispatchEvent(event);
+    }
+  };
+
+  const handleBlur = () => {
+    if (trigger.includes('focus')) {
+      const event = new CustomEvent('tooltip-update', { detail: null });
+      document.dispatchEvent(event);
+    }
   };
 
   useEffect(() => {
-    return () => {
-      if (timeout.current) clearTimeout(timeout.current);
-    };
-  }, []);
+    if (resolvedRef?.current) {
+      const targetElement = resolvedRef.current;
 
-  if (!position && typeof window != undefined) {
+      targetElement.addEventListener('mouseenter', handleMouseEnter);
+      targetElement.addEventListener('mouseleave', handleMouseLeave);
+      targetElement.addEventListener('click', handleClick);
+      targetElement.addEventListener('focus', handleFocus);
+      targetElement.addEventListener('blur', handleBlur);
+
+      // Nettoyage au démontage
+      return () => {
+        targetElement.removeEventListener('mouseenter', handleMouseEnter);
+        targetElement.removeEventListener('mouseleave', handleMouseLeave);
+        targetElement.removeEventListener('click', handleClick);
+        targetElement.removeEventListener('focus', handleFocus);
+        targetElement.removeEventListener('blur', handleBlur);
+      };
+    }
+  }, [resolvedRef, trigger, id, isVisible]);
+
+  // Si targetRef est undefined, on applique la réf au premier enfant
+  const enhancedChildren =
+    !targetRef && isValidElement(children)
+      ? cloneElement(children, { ref: internalRef } as any)
+      : children;
+
+  if (!position && typeof window !== 'undefined') {
     if (resolvedRef?.current && !position) {
       const rect = resolvedRef.current.getBoundingClientRect();
 
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
 
-      const documentWidth = document.documentElement.scrollWidth;
-      const documentHeight = document.documentElement.scrollHeight;
-
       const x = rect.left / viewportWidth; // X entre 0 et 1
       const y = rect.top / viewportHeight; // Y entre 0 et 1
 
-      if (variant == 'plain') {
+      if (variant === 'plain') {
         if (x < 1 / 3) {
           position = 'right';
         } else if (x > 2 / 3) {
           position = 'left';
         } else {
-          if (y > 0.5) {
-            position = 'top';
-          } else {
-            position = 'bottom';
-          }
+          position = y > 0.5 ? 'top' : 'bottom';
         }
       } else {
         if (x < 1 / 2 && y < 1 / 2) {
@@ -120,31 +177,29 @@ export const ToolTip = ({
     title,
     text,
     position,
+    trigger,
+    targetRef: targetRef as any,
+    children: children as any,
   });
 
   return (
-    <div
-      ref={resolvedRef}
-      className={styles.toolTip}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      {children}
-
+    <>
+      {enhancedChildren}
       <AnimatePresence>
         {isVisible && (
           <SyncedFixedWrapper targetRef={resolvedRef}>
             <motion.div
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
               initial={{ opacity: currentToolTipId ? 1 : 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: currentToolTipId ? 0 : 0.3 }}
               exit={{ opacity: currentToolTipId ? 1 : 0 }}
-              className={styles.container}
+              className={styles.toolTip}
+              {...props}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
             >
               <motion.div
-                className={styles.content}
+                className={styles.container}
                 layoutId={'tool-tip'}
                 transition={{
                   type: 'spring',
@@ -172,6 +227,6 @@ export const ToolTip = ({
           </SyncedFixedWrapper>
         )}
       </AnimatePresence>
-    </div>
+    </>
   );
 };

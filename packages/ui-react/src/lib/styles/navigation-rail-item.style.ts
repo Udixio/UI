@@ -5,15 +5,12 @@ export const navigationRailItemStyle =
   defaultClassNames<NavigationRailItemInterface>(
     'navigationRailItem',
     ({ isSelected, icon, label, variant }) => ({
-      navigationRailItem: classNames(
-        ' group flex flex-col  pt-1 pb-1.5 h-[66px] cursor-pointer',
-        {
-          'text-on-surface-variant': !isSelected,
-          'text-on-secondary-container': isSelected,
-          'gap-2': variant == 'vertical',
-          'gap-0': variant == 'horizontal',
-        },
-      ),
+      navigationRailItem: classNames(' group flex flex-col  pt-1 pb-1.5 cursor-pointer', {
+        'text-on-surface-variant': !isSelected,
+        'text-on-secondary-container': isSelected,
+        'gap-2  h-[68px]': variant == 'vertical',
+        'gap-0  h-[66px]': variant == 'horizontal',
+      }),
       container: classNames(
         ' w-fit flex justify-center  relative rounded-full items-center mx-5',
         {
@@ -28,14 +25,14 @@ export const navigationRailItemStyle =
             'py-1 ': variant == 'vertical',
             'py-4 ': variant == 'horizontal',
           },
-        ],
+        ]
       ),
       stateLayer: classNames(
         '  absolute w-full rounded-full h-full left-0 top-0  ',
         {
           'group-state-on-surface': !isSelected,
           'group-state-on-secondary-container': isSelected,
-        },
+        }
       ),
 
       icon: classNames('size-6 flex'),
@@ -43,5 +40,5 @@ export const navigationRailItemStyle =
         'text-label-large ': variant == 'horizontal',
         'text-label-medium': variant == 'vertical',
       }),
-    }),
+    })
   );
