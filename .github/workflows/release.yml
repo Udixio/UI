@@ -26,6 +26,6 @@ jobs:
           cache: 'pnpm'
 
       - name: Publish packages
-        run: pnpm dlx nx release --verbose
+        run: pnpm dlx nx release --first-release
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
