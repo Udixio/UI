@@ -5,3 +5,4 @@ onlyBuiltDependencies:
   - nx
 packages:
   - 'packages/*'
+  - 'dist/packages/*'
