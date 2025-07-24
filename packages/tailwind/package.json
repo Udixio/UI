@@ -2,7 +2,7 @@
   "name": "@udixio/tailwind",
   "version": "0.0.1",
   "type": "commonjs",
-  "main": "src/index.ts",
+  "main": "src/index.js",
   "types": "./src/index.d.ts",
   "dependencies": {
     "@udixio/theme": "workspace:*",
