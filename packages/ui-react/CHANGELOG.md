@@ -1,3 +1,18 @@
+## 0.2.0 (2025-07-24)
+
+### 🚀 Features
+
+- **package:** add `repository` field to package.json files ([a05ca80](https://github.com/Udixio/UI/commit/a05ca80))
+
+### 🧱 Updated Dependencies
+
+- Updated tailwind to 0.2.0
+- Updated theme to 0.2.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.1.0 (2025-07-24)
 
 ### 🚀 Features
