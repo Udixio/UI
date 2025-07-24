@@ -1,111 +1,85 @@
-name: Release
+name: Release Process
 
 on:
-  push:
-    branches:
-      - 'release/*'
-  pull_request:
-    branches:
-      - 'release/*'
-
-permissions:
-  contents: write
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (leave empty for automatic versioning)'
+        required: false
+        type: string
+      dry_run:
+        description: 'Dry run (no actual changes)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
 
 jobs:
-  test:
-    if: github.event.pull_request.head.ref != 'develop'
+  create-release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Setup Dependencies
-        uses: ./.github/actions/setup
-        with:
-          fontawesome_token: ${{ secrets.FONTAWESOME_TOKEN }}
+          ref: develop
 
-      - name: Get Token
-        uses: actions/create-github-app-token@v1
-        id: app-token
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
         with:
-          app-id: ${{ vars.APP_ID }}
-          private-key: ${{ secrets.PRIVATE_KEY }}
+          version: 8
+          run_install: true
 
-      #      - name: Lint
-      #        uses: ./.github/actions/lint
-      - name: Unit Test
-        uses: ./.github/actions/test
-      - uses: andresz1/size-limit-action@v1
-        if: github.event_name == 'pull_request'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          github_token: ${{ steps.app-token.outputs.token }}
-      - name: Run Chromatic
-        uses: chromaui/action@latest
-        with:
-          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
-  chromatic:
-    if: github.event.pull_request.head.ref == 'develop'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Setup Dependencies
-        uses: ./.github/actions/setup
-        with:
-          fontawesome_token: ${{ secrets.FONTAWESOME_TOKEN }}
+          node-version: '18'
+          cache: 'pnpm'
 
-      - name: Get Token
-        uses: actions/create-github-app-token@v1
-        id: app-token
-        with:
-          app-id: ${{ vars.APP_ID }}
-          private-key: ${{ secrets.PRIVATE_KEY }}
+      - name: Determine version
+        id: version
+        run: |
+          if [ -z "${{ github.event.inputs.version }}" ]; then
+            echo "Using conventional commits to determine version"
+            VERSION=$(npx semantic-release --dry-run | grep -oP 'The next release version is \K[0-9]+\.[0-9]+\.[0-9]+')
+          else
+            VERSION="${{ github.event.inputs.version }}"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Run Chromatic
-        uses: chromaui/action@latest
-        with:
-          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
-  release:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - name: Create release branch
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git checkout -b release/v${{ env.VERSION }}
 
-      - name: Get Token
-        uses: actions/create-github-app-token@v1
-        id: app-token
-        with:
-          app-id: ${{ vars.APP_ID }}
-          private-key: ${{ secrets.PRIVATE_KEY }}
+      - name: Run release script (version and changelog only)
+        run: |
+          DRY_RUN=${{ github.event.inputs.dry_run == 'true' && 'true' || 'false' }}
+          npx ts-node scripts/release.ts --version=${{ env.VERSION }} --dryRun=$DRY_RUN --verbose=true --skipPublish=true
 
-      - name: Setup Dependencies
-        uses: ./.github/actions/setup
-        with:
-          fontawesome_token: ${{ secrets.FONTAWESOME_TOKEN }}
+      - name: Push release branch
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: git push origin release/v${{ env.VERSION }}
 
-      - name: Run Semantic Release for versioning
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          NODE_ENV: 'production'
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: pnpm dlx semantic-release
-
-      - name: Create Pull Request with version changes
-        if: success()
+      - name: Create Pull Request to main
+        if: ${{ github.event.inputs.dry_run != 'true' }}
         uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ steps.app-token.outputs.token }}
-          commit-message: "chore(release): update version [skip ci]"
-          title: "chore(release): update version from semantic-release"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: main
+          head: release/v${{ env.VERSION }}
+          title: "Release v${{ env.VERSION }}"
           body: |
-            This PR contains version updates from semantic-release.
+            # Release v${{ env.VERSION }}
 
-            The changes were automatically generated by the semantic-release process.
-          branch: semantic-release-version-update
-          base: ${{ github.ref_name }}
+            This PR represents the release of version ${{ env.VERSION }} to production.
+
+            ## Changes
+
+            Please review the CHANGELOG.md file for details on changes included in this release.
+          labels: release
+          draft: false

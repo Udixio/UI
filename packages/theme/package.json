@@ -1,0 +1,12 @@
+{
+  "name": "@udixio/theme",
+  "version": "0.0.1",
+  "main": "./index.cjs",
+  "module": "./index.js",
+  "dependencies": {
+    "awilix": "^12.0.5",
+    "@material/material-color-utilities": "^0.3.0",
+    "replace-in-file": "^8.3.0",
+    "tailwindcss": "^4.1.11"
+  }
+}

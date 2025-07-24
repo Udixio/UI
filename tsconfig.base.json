@@ -1,0 +1,41 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "moduleResolution": "bundler",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": [
+      "es2020",
+      "dom"
+    ],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@udixio/tailwind": [
+        "packages/tailwind/src/index.ts"
+      ],
+      "@udixio/tailwind-sync-plugin": [
+        "tools/tailwind-sync-plugin/src/index.ts"
+      ],
+      "@udixio/theme": [
+        "packages/theme/src/index.ts"
+      ],
+      "@udixio/ui-react": [
+        "packages/ui-react/src/index.ts"
+      ]
+    },
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true
+  },
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
+}

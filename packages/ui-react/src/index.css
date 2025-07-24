@@ -1,0 +1,5 @@
+@import 'tailwindcss';
+
+@plugin "@udixio/tailwind" {
+}
+@import "./udixio.css";
