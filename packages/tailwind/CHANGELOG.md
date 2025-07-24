@@ -1,3 +1,13 @@
+## 0.3.1 (2025-07-24)
+
+### 🩹 Fixes
+
+- **tailwind:** update `main` field in package.json and clean up index export ([14f3b7a](https://github.com/Udixio/UI/commit/14f3b7a))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.3.0 (2025-07-24)
 
 ### 🚀 Features
