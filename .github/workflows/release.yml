@@ -25,6 +25,11 @@ jobs:
           node-version: '22'
           cache: 'pnpm'
 
+      - name: Set Git Identity
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Publish packages
         run: pnpm dlx nx release --first-release
         env:
