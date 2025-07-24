@@ -1,3 +1,18 @@
+## 0.3.0 (2025-07-24)
+
+### 🚀 Features
+
+- **package:** add `publishConfig` to package.json for public npm publishing ([40307c0](https://github.com/Udixio/UI/commit/40307c0))
+
+### 🧱 Updated Dependencies
+
+- Updated tailwind to 0.3.0
+- Updated theme to 0.3.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.2.0 (2025-07-24)
 
 ### 🚀 Features
