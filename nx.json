@@ -120,5 +120,5 @@
       }
     }
   },
-  "defaultBase": "main"
+  "defaultBase": "origin/main"
 }
