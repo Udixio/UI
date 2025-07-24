@@ -113,6 +113,7 @@
       "conventionalCommits": true
     },
     "changelog": {
+      "projectChangelogs": true,
       "workspaceChangelog": {
         "createRelease": "github"
       }
