@@ -1,3 +1,17 @@
+## 0.4.1 (2025-07-25)
+
+### 🩹 Fixes
+
+- **dependencies:** update `pnpm-lock.yaml` for consistency and compatibility ([e6dfc9d](https://github.com/Udixio/UI/commit/e6dfc9d))
+
+### 🧱 Updated Dependencies
+
+- Updated theme to 0.4.2
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.4.0 (2025-07-25)
 
 ### 🚀 Features
