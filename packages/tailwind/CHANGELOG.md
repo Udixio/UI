@@ -1,3 +1,9 @@
+## 0.5.2 (2025-07-25)
+
+### 🧱 Updated Dependencies
+
+- Updated theme to 0.5.2
+
 ## 0.5.1 (2025-07-25)
 
 ### 🩹 Fixes
