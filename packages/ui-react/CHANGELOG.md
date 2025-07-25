@@ -1,3 +1,9 @@
+## 0.3.9 (2025-07-25)
+
+### 🧱 Updated Dependencies
+
+- Updated tailwind to 0.3.7
+
 ## 0.3.8 (2025-07-25)
 
 ### 🩹 Fixes

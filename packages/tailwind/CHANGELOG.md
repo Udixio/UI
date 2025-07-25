@@ -1,3 +1,13 @@
+## 0.3.7 (2025-07-25)
+
+### 🩹 Fixes
+
+- **tailwind:** add `styleFilePath` option for custom style file resolution ([369d03f](https://github.com/Udixio/UI/commit/369d03f))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.3.6 (2025-07-25)
 
 ### 🩹 Fixes
