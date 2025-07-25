@@ -1,3 +1,17 @@
+## 0.4.0 (2025-07-25)
+
+### 🚀 Features
+
+- **tailwind:** migrate build system to Vite for improved developer experience ([ae0fe46](https://github.com/Udixio/UI/commit/ae0fe46))
+
+### 🩹 Fixes
+
+- **tailwind:** enable SSR in Vite build configuration ([d85e3a9](https://github.com/Udixio/UI/commit/d85e3a9))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.3.7 (2025-07-25)
 
 ### 🩹 Fixes
