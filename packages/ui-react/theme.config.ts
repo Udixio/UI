@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [
     new FontPlugin({}),
     new TailwindPlugin({
-      darkMode: 'class',
+      // darkMode: 'class',
     }),
   ],
 });

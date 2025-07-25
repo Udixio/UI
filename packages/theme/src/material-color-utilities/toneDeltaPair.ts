@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { DynamicColor } from './dynamic_color.js';
+import { DynamicColor } from './dynamic_color';
 
 /**
  * Describes the different in tone between colors.

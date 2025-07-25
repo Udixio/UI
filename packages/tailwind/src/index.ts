@@ -1,5 +1,6 @@
-import { createTheme } from './lib';
+import { createTheme } from './main';
 
-const theme = createTheme();
-export * from './lib';
-export default theme;
+export * from './main';
+export * from './plugins-tailwind';
+export * from './tailwind.plugin';
+export default createTheme;
