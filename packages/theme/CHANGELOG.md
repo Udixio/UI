@@ -1,3 +1,13 @@
+## 0.5.2 (2025-07-25)
+
+### 🩹 Fixes
+
+- **theme:** switch to dynamic ES module imports in config service ([d2ce0fd](https://github.com/Udixio/UI/commit/d2ce0fd))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.5.1 (2025-07-25)
 
 ### 🩹 Fixes
