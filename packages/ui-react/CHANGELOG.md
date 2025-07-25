@@ -1,3 +1,13 @@
+## 0.3.7 (2025-07-25)
+
+### 🩹 Fixes
+
+- **ui-react:** update build config to improve module compatibility ([a6de1ee](https://github.com/Udixio/UI/commit/a6de1ee))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.3.6 (2025-07-25)
 
 ### 🧱 Updated Dependencies
