@@ -38,7 +38,7 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
     const tailwindCssPath = findTailwindCssFile(process.cwd(), searchKeyword);
     if (!tailwindCssPath) {
       throw new Error(
-        'Tailwind plugin not found. Please use it first. (@plugin "@udixio/tailwind")',
+        'The style file containing the Udixio plugin was not found.\n Please use it first. (@plugin "@udixio/tailwind")',
       );
     }
     const searchPattern = /@import ["']tailwindcss["'];/;

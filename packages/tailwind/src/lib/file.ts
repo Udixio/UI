@@ -109,11 +109,14 @@ export const findTailwindCssFile = (
       // Appeler récursivement si c'est un dossier
       const result = findTailwindCssFile(filePath, searchPattern);
       if (result) return result;
-    } else if (file.endsWith('.css')) {
-      // Lire chaque fichier .css
+    } else if (
+      file.endsWith('.css') ||
+      file.endsWith('.scss') ||
+      file.endsWith('.sass')
+    ) {
       const content = fs.readFileSync(filePath, 'utf8');
       if (content.includes(searchPattern)) {
-        console.log('Fichier trouvé :', filePath);
+        console.log('File found:\n', filePath);
         return filePath;
       }
     }
