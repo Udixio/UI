@@ -1,3 +1,13 @@
+## 0.3.8 (2025-07-25)
+
+### 🩹 Fixes
+
+- **dependencies:** update `pnpm-lock.yaml` for consistent dependency versions ([5dee7f3](https://github.com/Udixio/UI/commit/5dee7f3))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.3.7 (2025-07-25)
 
 ### 🩹 Fixes
