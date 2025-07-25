@@ -69,7 +69,7 @@ export class ConfigService {
       const fs = (await import('fs')).default;
 
       const base = path.resolve(this.configPath);
-      const extensions = ['.js', '.ts', '.jms', '.jcs'];
+      const extensions = ['.js', '.ts', '.mjs', '.jcs'];
       let configImport = null;
 
       for (const ext of extensions) {

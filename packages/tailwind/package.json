@@ -2,12 +2,13 @@
   "name": "@udixio/tailwind",
   "version": "0.0.1",
   "type": "module",
-  "main": "src/index.ts",
+  "main": "./src/index.ts",
   "types": "./src/index.d.ts",
   "exports": {
     ".": {
       "import": "./index.js",
-      "require": "./index.cjs"
+      "require": "./index.cjs",
+      "types": "./src/index.ts"
     }
   },
   "dependencies": {
