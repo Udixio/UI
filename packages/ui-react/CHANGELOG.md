@@ -1,3 +1,18 @@
+## 0.3.3 (2025-07-24)
+
+### 🩹 Fixes
+
+- **theme:** improve Tailwind CSS import handling in plugin ([f7c7f3a](https://github.com/Udixio/UI/commit/f7c7f3a))
+
+### 🧱 Updated Dependencies
+
+- Updated tailwind to 0.3.3
+- Updated theme to 0.3.2
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.3.2 (2025-07-24)
 
 ### 🧱 Updated Dependencies
