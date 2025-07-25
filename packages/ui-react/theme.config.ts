@@ -1,6 +1,6 @@
 import { defineConfig, FontPlugin, TailwindPlugin } from '@udixio/theme';
 
-module.exports = defineConfig({
+export default defineConfig({
   sourceColor: '#6750A4',
   plugins: [
     new FontPlugin({}),
