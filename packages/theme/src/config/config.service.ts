@@ -23,7 +23,7 @@ export class ConfigService {
     this.api = api;
   }
 
-  public loadConfig(config?: ConfigInterface): void {
+  public async loadConfig(config?: ConfigInterface): Promise<void> {
     const {
       sourceColor,
       contrastLevel = 0,
@@ -33,7 +33,7 @@ export class ConfigService {
       colors,
       useDefaultColors = true,
       plugins,
-    } = config ?? this.getConfig();
+    } = config ?? (await this.getConfig());
     this.api.themes.create({
       contrastLevel: contrastLevel,
       isDark: isDark,
@@ -59,16 +59,14 @@ export class ConfigService {
     }
   }
 
-  private getConfig(): ConfigInterface {
+  private async getConfig(): Promise<ConfigInterface> {
     if (
       typeof process !== 'undefined' &&
       process.release &&
       process.release.name === 'node'
     ) {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const path = require('path');
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const fs = require('fs');
+      const path = (await import('path')).default;
+      const fs = (await import('fs')).default;
 
       const base = path.resolve(this.configPath);
       const extensions = ['.js', '.ts', '.jms', '.jcs'];

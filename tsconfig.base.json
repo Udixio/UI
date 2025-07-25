@@ -20,9 +20,6 @@
       "@udixio/tailwind": [
         "packages/tailwind/src/index.ts"
       ],
-      "@udixio/tailwind-sync-plugin": [
-        "tools/tailwind-sync-plugin/src/index.ts"
-      ],
       "@udixio/theme": [
         "packages/theme/src/index.ts"
       ],

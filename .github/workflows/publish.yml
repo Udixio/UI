@@ -31,8 +31,6 @@ jobs:
           cache: 'pnpm'
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Install dependencies
-        run: pnpm i
 
       - name: Publish packages
         run: npx nx release publish --verbose

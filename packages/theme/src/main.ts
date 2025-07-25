@@ -6,12 +6,12 @@ export function bootstrap(): API {
   return AppContainer.resolve<API>('api');
 }
 
-export function bootstrapFromConfig(args?: {
+export async function bootstrapFromConfig(args?: {
   path?: string;
   config?: ConfigInterface;
-}): API {
+}): Promise<API> {
   const configService = AppContainer.resolve<ConfigService>('configService');
   if (args?.path) configService.configPath = args.path;
-  configService.loadConfig(args?.config);
+  await configService.loadConfig(args?.config);
   return AppContainer.resolve<API>('api');
 }
