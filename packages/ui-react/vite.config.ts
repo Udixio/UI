@@ -19,6 +19,7 @@ export default defineConfig(() => ({
       entryRoot: 'src',
       tsconfigPath: path.join(__dirname, 'tsconfig.lib.json'),
       pathsToAliases: false,
+      outDir: '../../dist/packages/ui-react/src',
     }),
     visualizer({
       filename: './stats.html', // Le fichier de sortie

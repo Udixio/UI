@@ -15,6 +15,7 @@ export default defineConfig(() => ({
       entryRoot: 'src',
       tsconfigPath: path.join(__dirname, 'tsconfig.lib.json'),
       pathsToAliases: false,
+      outDir: '../../dist/packages/tailwind/src',
     }),
   ],
   // Uncomment this if you are using workers.
