@@ -8,5 +8,4 @@ export * from './main';
 export * from './material-color-utilities';
 export * from './plugin';
 export * from './plugins/font';
-export * from './plugins/tailwind';
 export * from './theme';

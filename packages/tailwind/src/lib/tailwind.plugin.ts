@@ -6,13 +6,14 @@ import {
   replaceFileContent,
 } from './file';
 import path from 'path';
-import { font } from './plugins-tailwind/font';
-import { state } from './plugins-tailwind';
+
+import { font, state } from './plugins-tailwind';
+import { FontPlugin, PluginAbstract, PluginImplAbstract } from '@udixio/theme';
 
 interface TailwindPluginOptions {
-  darkMode?: 'class' | 'media';
+  // darkMode?: 'class' | 'media';
   responsiveBreakPoints?: Record<string, number>;
-  subThemes?: Record<string, string>;
+  // subThemes?: Record<string, string>;
 }
 
 export class TailwindPlugin extends PluginAbstract<
@@ -26,7 +27,6 @@ export class TailwindPlugin extends PluginAbstract<
 
 class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
   onInit() {
-    this.options.darkMode ??= 'class';
     this.options.responsiveBreakPoints ??= {
       lg: 1.125,
     };

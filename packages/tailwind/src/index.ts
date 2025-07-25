@@ -1,3 +1,5 @@
-import { createTheme } from '@udixio/theme';
+import { createTheme } from './lib';
 
-module.exports = createTheme();
+const theme = createTheme();
+export * from './lib';
+export default theme;
