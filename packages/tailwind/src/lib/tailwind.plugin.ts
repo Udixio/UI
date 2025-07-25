@@ -13,6 +13,7 @@ import { FontPlugin, PluginAbstract, PluginImplAbstract } from '@udixio/theme';
 interface TailwindPluginOptions {
   // darkMode?: 'class' | 'media';
   responsiveBreakPoints?: Record<string, number>;
+  styleFilePath?: string;
   // subThemes?: Record<string, string>;
 }
 
@@ -35,7 +36,9 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
   load(): ReturnType<typeof plugin.withOptions> {
     const searchKeyword = '@plugin "@udixio/tailwind"';
 
-    const tailwindCssPath = findTailwindCssFile(process.cwd(), searchKeyword);
+    const tailwindCssPath =
+      this.options.styleFilePath ??
+      findTailwindCssFile(process.cwd(), searchKeyword);
     if (!tailwindCssPath) {
       throw new Error(
         'The style file containing the Udixio plugin was not found.\n Please use it first. (@plugin "@udixio/tailwind")',
