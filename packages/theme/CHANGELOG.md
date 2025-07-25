@@ -1,3 +1,13 @@
+## 0.5.1 (2025-07-25)
+
+### 🩹 Fixes
+
+- **theme:** make config loading asynchronous to improve initialization flow ([d5de04f](https://github.com/Udixio/UI/commit/d5de04f))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.5.0 (2025-07-25)
 
 ### 🚀 Features
