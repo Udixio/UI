@@ -2,6 +2,8 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
+import { visualizer } from 'rollup-plugin-visualizer';
+
 import * as path from 'path';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
@@ -18,6 +20,11 @@ export default defineConfig(() => ({
       tsconfigPath: path.join(__dirname, 'tsconfig.lib.json'),
       pathsToAliases: false,
     }),
+    visualizer({
+      filename: './stats.html', // Le fichier de sortie
+      open: true, // Ouvre le rapport automatiquement après le build
+      template: 'treemap', // Options : 'treemap', 'sunburst', 'network', etc.
+    }),
   ],
   build: {
     outDir: '../../dist/packages/ui-react',
@@ -30,11 +37,33 @@ export default defineConfig(() => ({
       // Could also be a dictionary or array of multiple entry points.
       entry: 'src/index.ts',
       name: 'ui-react',
-      fileName: (format) => format === 'es' ? 'index.mjs' : 'index.js',
+      fileName: (format) => (format === 'es' ? 'index.mjs' : 'index.js'),
       formats: ['es' as const, 'cjs' as const],
     },
     rollupOptions: {
-      external: ['react', 'react-dom', 'react/jsx-runtime'],
+      external: [
+        'react',
+        'react-dom',
+        'react/jsx-runtime',
+        'react-textarea-autosize',
+        'tailwind-merge',
+        'motion',
+        'motion/react',
+      ],
+      output: {
+        // Ensure proper code splitting for dynamic imports
+        manualChunks: (id) => {
+          if (id.includes('react-textarea-autosize')) {
+            return 'textarea-autosize';
+          }
+          if (id.includes('tailwind-merge')) {
+            return 'tailwind-merge';
+          }
+          if (id.includes('motion')) {
+            return 'motion';
+          }
+        },
+      },
     },
   },
   test: {
