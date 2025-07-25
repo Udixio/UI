@@ -75,7 +75,7 @@ export class ConfigService {
       for (const ext of extensions) {
         const path = base + ext;
         if (fs.existsSync(path)) {
-          configImport = require(path);
+          configImport = (await import(path)).default;
           break;
         }
       }
