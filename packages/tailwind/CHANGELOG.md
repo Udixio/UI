@@ -1,3 +1,13 @@
+## 0.3.6 (2025-07-25)
+
+### 🩹 Fixes
+
+- **tailwind:** enhance plugin error message and support additional file extensions ([ad22830](https://github.com/Udixio/UI/commit/ad22830))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.3.5 (2025-07-25)
 
 ### 🧱 Updated Dependencies
