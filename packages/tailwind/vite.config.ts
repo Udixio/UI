@@ -27,7 +27,7 @@ export default defineConfig(() => ({
     outDir: '../../dist/packages/tailwind',
     emptyOutDir: true,
     reportCompressedSize: true,
-    // Specify that this is a server-side rendering (Node.js) build
+    ssr: true,
     commonjsOptions: {
       transformMixedEsModules: true,
     },
