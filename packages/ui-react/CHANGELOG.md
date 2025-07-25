@@ -1,3 +1,18 @@
+## 0.4.0 (2025-07-25)
+
+### 🚀 Features
+
+- **theme:** migrate build system from Rollup to Vite for improved performance and configuration ([3f33657](https://github.com/Udixio/UI/commit/3f33657))
+
+### 🧱 Updated Dependencies
+
+- Updated tailwind to 0.5.0
+- Updated theme to 0.5.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.3.11 (2025-07-25)
 
 ### 🩹 Fixes
