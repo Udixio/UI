@@ -1,3 +1,13 @@
+## 0.4.1 (2025-07-25)
+
+### 🩹 Fixes
+
+- **theme:** centralize Variants object and simplify imports ([60ad215](https://github.com/Udixio/UI/commit/60ad215))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.4.0 (2025-07-25)
 
 ### 🚀 Features
