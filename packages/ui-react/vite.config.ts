@@ -30,8 +30,8 @@ export default defineConfig(() => ({
       // Could also be a dictionary or array of multiple entry points.
       entry: 'src/index.ts',
       name: 'ui-react',
-      fileName: 'index',
-      formats: ['es' as const],
+      fileName: (format) => format === 'es' ? 'index.mjs' : 'index.js',
+      formats: ['es' as const, 'cjs' as const],
     },
     rollupOptions: {
       external: ['react', 'react-dom', 'react/jsx-runtime'],
