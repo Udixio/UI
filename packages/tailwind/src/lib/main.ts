@@ -1,4 +1,4 @@
-import { bootstrapFromConfig } from '../../main';
+import { bootstrapFromConfig } from '@udixio/theme';
 import { TailwindPlugin } from './tailwind.plugin';
 import plugin from 'tailwindcss/plugin';
 

@@ -1,5 +1,3 @@
-import { PluginAbstract, PluginImplAbstract } from '../../plugin';
-import { FontPlugin } from '../font';
 import plugin from 'tailwindcss/plugin';
 import {
   createOrUpdateFile,
