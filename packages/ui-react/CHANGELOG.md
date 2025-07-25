@@ -1,3 +1,18 @@
+## 0.3.4 (2025-07-25)
+
+### 🩹 Fixes
+
+- **theme:** switch to ES module exports and adjust package type ([7314ded](https://github.com/Udixio/UI/commit/7314ded))
+
+### 🧱 Updated Dependencies
+
+- Updated tailwind to 0.3.4
+- Updated theme to 0.4.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.3.3 (2025-07-24)
 
 ### 🩹 Fixes

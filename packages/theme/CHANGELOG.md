@@ -1,3 +1,13 @@
+## 0.4.0 (2025-07-25)
+
+### 🚀 Features
+
+- **theme:** add predefined variants for expressive, neutral, tonal spot, and vibrant themes ([a85a117](https://github.com/Udixio/UI/commit/a85a117))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.3.2 (2025-07-24)
 
 ### 🩹 Fixes
