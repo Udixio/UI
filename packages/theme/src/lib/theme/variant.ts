@@ -4,6 +4,12 @@ import {
 } from '@material/material-color-utilities';
 import { Hct } from '../material-color-utilities/htc';
 import { AddColors } from '../color';
+import {
+  expressiveVariant,
+  neutralVariant,
+  tonalSpotVariant,
+  vibrantVariant,
+} from './variants';
 
 export const getPiecewiseHue = (
   sourceColorHct: Hct,
@@ -30,6 +36,13 @@ export const getRotatedHue = (
     rotation = 0;
   }
   return sanitizeDegreesDouble(sourceColorHct.hue + rotation);
+};
+
+export const Variants = {
+  Expressive: expressiveVariant,
+  Neutral: neutralVariant,
+  TonalSpot: tonalSpotVariant,
+  Vibrant: vibrantVariant,
 };
 
 export class Variant {
