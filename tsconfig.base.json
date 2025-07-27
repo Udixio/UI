@@ -27,7 +27,7 @@
         "packages/ui-react/src/index.ts"
       ]
     },
-    "composite": true,
+    //    "composite": true,
     "declaration": true,
     "declarationMap": true
   },
