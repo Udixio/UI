@@ -1,3 +1,18 @@
+## 0.4.3 (2025-07-25)
+
+### 🩹 Fixes
+
+- add `types` field to package exports and correct file extensions ([6b8ce9c](https://github.com/Udixio/UI/commit/6b8ce9c))
+
+### 🧱 Updated Dependencies
+
+- Updated tailwind to 0.5.3
+- Updated theme to 0.5.3
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.4.2 (2025-07-25)
 
 ### 🧱 Updated Dependencies
