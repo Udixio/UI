@@ -7,11 +7,13 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import * as path from 'path';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
+import { udixioVite } from '@udixio/theme';
 
 export default defineConfig(() => ({
   root: __dirname,
   cacheDir: '../../node_modules/.vite/packages/ui-react',
   plugins: [
+    udixioVite(),
     react(),
     nxViteTsPaths(),
     nxCopyAssetsPlugin(['*.md']),

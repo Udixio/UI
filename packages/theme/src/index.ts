@@ -7,5 +7,5 @@ export * from './config';
 export * from './main';
 export * from './material-color-utilities';
 export * from './plugin';
-export * from './plugins/font';
+export * from './plugins';
 export * from './theme';

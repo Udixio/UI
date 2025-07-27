@@ -23,6 +23,13 @@ export class ConfigService {
     this.api = api;
   }
 
+  public async loadConfig(config: ConfigInterface): Promise<void>;
+
+  /**
+   * @deprecated Passing no config is deprecated.
+   */
+  public async loadConfig(config?: ConfigInterface): Promise<void>;
+
   public async loadConfig(config?: ConfigInterface): Promise<void> {
     const {
       sourceColor,
@@ -59,6 +66,7 @@ export class ConfigService {
     }
   }
 
+  /** @deprecated Use `VitePlugin` plugin instead.*/
   private async getConfig(): Promise<ConfigInterface> {
     if (
       typeof process !== 'undefined' &&

@@ -1,3 +1,3 @@
-export * from './pluginAbstract';
+export * from './plugin.abstract';
 export * from './plugin.module';
-export * from './pluginApi';
+export * from './plugin.api';

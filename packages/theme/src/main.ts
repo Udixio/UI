@@ -6,6 +6,7 @@ export function bootstrap(): API {
   return AppContainer.resolve<API>('api');
 }
 
+/** @deprecated Use `VitePlugin` plugin instead.*/
 export async function bootstrapFromConfig(args?: {
   path?: string;
   config?: ConfigInterface;

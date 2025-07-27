@@ -8,7 +8,12 @@ import {
 import path from 'path';
 
 import { font, state } from './plugins-tailwind';
-import { FontPlugin, PluginAbstract, PluginImplAbstract } from '@udixio/theme';
+import {
+  FontPlugin,
+  PluginAbstract,
+  PluginImplAbstract,
+  VitePlugin,
+} from '@udixio/theme';
 
 interface TailwindPluginOptions {
   // darkMode?: 'class' | 'media';
@@ -21,7 +26,7 @@ export class TailwindPlugin extends PluginAbstract<
   TailwindImplPlugin,
   TailwindPluginOptions
 > {
-  public dependencies = [FontPlugin];
+  public dependencies = [FontPlugin, VitePlugin];
   public name = 'tailwind';
   pluginClass = TailwindImplPlugin;
 }

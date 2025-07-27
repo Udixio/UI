@@ -1,4 +1,4 @@
-import { PluginAbstract } from './pluginAbstract';
+import { PluginAbstract } from './plugin.abstract';
 import { API } from '../API';
 
 export class PluginApi {

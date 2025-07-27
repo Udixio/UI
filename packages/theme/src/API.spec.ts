@@ -1,7 +1,7 @@
 import { API } from './API';
 import { ColorApi } from './color';
 import { ThemeApi } from './theme';
-import { PluginApi } from './plugin/pluginApi';
+import { PluginApi } from './plugin/index.js';
 
 describe('API', () => {
   let colorApi: ColorApi;
