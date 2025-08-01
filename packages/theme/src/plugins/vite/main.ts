@@ -2,8 +2,10 @@ import path from 'path';
 import { pathToFileURL } from 'url';
 import { Plugin } from 'vite';
 
-export const udixioVite = (configPath: string = './theme.config'): Plugin => {
+export const udixioVite = (configPath = './theme.config'): Plugin => {
   const absConfigPath = path.resolve(configPath);
+
+  console.log('Config path:', absConfigPath);
 
   return {
     name: 'vite:config-watcher',

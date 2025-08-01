@@ -19,7 +19,7 @@ export const getClassNames = <T extends ComponentInterface>(args: {
   default: T['elements'][0];
   states: T['states'] & T['props'];
 }): Record<T['elements'][number], string> => {
-  let classNames: Partial<Record<T['elements'][number], string[]>> = {};
+  const classNames: Partial<Record<T['elements'][number], string[]>> = {};
   args.classNameList.forEach((classNameComponent) => {
     if (classNameComponent) {
       if (typeof classNameComponent == 'string') {

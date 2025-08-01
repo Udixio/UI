@@ -124,7 +124,7 @@ export const Slider = ({
           ? event.touches[0].clientX
           : event.clientX;
 
-      let pourcent = ((clientX - refPosition) / current.offsetWidth) * 100;
+      const pourcent = ((clientX - refPosition) / current.offsetWidth) * 100;
 
       updateSliderValues({ pourcent });
     }

@@ -1,6 +1,5 @@
-import React from 'react';
-import { dividerStyle } from '../styles/divider.style';
-import { DividerInterface } from '../interfaces/divider.interface';
+import { dividerStyle } from '../styles';
+import { DividerInterface } from '../interfaces';
 import { ReactProps } from '../utils';
 
 export const Divider = ({

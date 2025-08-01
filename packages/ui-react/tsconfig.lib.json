@@ -9,9 +9,11 @@
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "forceConsistentCasingInFileNames": true,
-    "types": ["node", "vite/client"]
+    "jsx": "react-jsx",
+    "types": ["node", "vite/client"],
+    "lib": ["es2022", "dom", "dom.iterable"]
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
   "references": [
     {
       "path": "../tailwind/tsconfig.lib.json"
