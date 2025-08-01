@@ -1,23 +1,26 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "../../dist/out-tsc",
-    "types": [
-      "node",
-      "@nx/react/typings/cssmodule.d.ts",
-      "@nx/react/typings/image.d.ts",
-      "vite/client"
-    ]
+    "baseUrl": ".",
+    "rootDir": "src",
+    "outDir": "dist",
+    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
+    "emitDeclarationOnly": true,
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node", "vite/client"]
   },
+  "include": ["src/**/*.ts"],
+  "references": [
+    {
+      "path": "../tailwind/tsconfig.lib.json"
+    },
+    {
+      "path": "../theme/tsconfig.lib.json"
+    }
+  ],
   "exclude": [
-    "**/*.spec.ts",
-    "**/*.test.ts",
-    "**/*.spec.tsx",
-    "**/*.test.tsx",
-    "**/*.spec.js",
-    "**/*.test.js",
-    "**/*.spec.jsx",
-    "**/*.test.jsx",
     "vite.config.ts",
     "vite.config.mts",
     "vitest.config.ts",
@@ -29,11 +32,6 @@
     "src/**/*.test.js",
     "src/**/*.spec.js",
     "src/**/*.test.jsx",
-    "src/**/*.spec.jsx",
-    "**/*.stories.ts",
-    "**/*.stories.js",
-    "**/*.stories.jsx",
-    "**/*.stories.tsx"
-  ],
-  "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx"]
+    "src/**/*.spec.jsx"
+  ]
 }

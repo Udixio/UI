@@ -1,14 +1,16 @@
 {
   "name": "@udixio/ui-react",
   "version": "0.0.1",
-  "main": "./index.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "types": "./index.d.ts",
-  "type": "module",
   "exports": {
+    "./package.json": "./package.json",
     ".": {
-      "types": "./index.d.ts",
-      "import": "./index.mjs",
-      "require": "./index.js"
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
   "devDependencies": {

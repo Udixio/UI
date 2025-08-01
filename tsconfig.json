@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "files": [],
+  "references": [
+    {
+      "path": "./packages/tailwind"
+    },
+    {
+      "path": "./packages/theme"
+    },
+    {
+      "path": "./packages/ui-react"
+    }
+  ]
+}

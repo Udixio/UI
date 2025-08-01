@@ -1,38 +1,25 @@
 {
-  "compileOnSave": false,
   "compilerOptions": {
-    "rootDir": ".",
-    "sourceMap": true,
-    "moduleResolution": "bundler",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
+    "composite": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
     "importHelpers": true,
-    "target": "es2015",
-    "module": "esnext",
+    "isolatedModules": true,
     "lib": [
-      "es2020",
-      "dom"
+      "es2022"
     ],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "noEmitOnError": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
     "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "baseUrl": ".",
-    "paths": {
-      "@udixio/tailwind": [
-        "packages/tailwind/src/index.ts"
-      ],
-      "@udixio/theme": [
-        "packages/theme/src/index.ts"
-      ],
-      "@udixio/ui-react": [
-        "packages/ui-react/src/index.ts"
-      ]
-    },
-    //    "composite": true,
-    "declaration": true,
-    "declarationMap": true
-  },
-  "exclude": [
-    "node_modules",
-    "tmp"
-  ]
+    "strict": true,
+    "target": "es2022",
+    "customConditions": [
+      "development"
+    ]
+  }
 }
