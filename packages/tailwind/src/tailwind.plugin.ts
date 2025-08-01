@@ -1,4 +1,3 @@
-import plugin from 'tailwindcss/plugin';
 import {
   createOrUpdateFile,
   findTailwindCssFile,
@@ -6,14 +5,7 @@ import {
   replaceFileContent,
 } from './file';
 import path from 'path';
-
-import { font, state } from './plugins-tailwind';
-import {
-  FontPlugin,
-  PluginAbstract,
-  PluginImplAbstract,
-  VitePlugin,
-} from '@udixio/theme';
+import { FontPlugin, PluginAbstract, PluginImplAbstract } from '@udixio/theme';
 
 interface TailwindPluginOptions {
   // darkMode?: 'class' | 'media';
@@ -26,7 +18,7 @@ export class TailwindPlugin extends PluginAbstract<
   TailwindImplPlugin,
   TailwindPluginOptions
 > {
-  public dependencies = [FontPlugin, VitePlugin];
+  public dependencies = [FontPlugin];
   public name = 'tailwind';
   pluginClass = TailwindImplPlugin;
 }
@@ -38,7 +30,7 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
     };
   }
 
-  load(): ReturnType<typeof plugin.withOptions> {
+  onLoad() {
     const searchKeyword = '@plugin "@udixio/tailwind"';
 
     const tailwindCssPath =
@@ -100,30 +92,6 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
   }
 }
 `,
-    );
-
-    const plugins = [
-      state(Object.keys(colors)),
-      font(fontStyles, this.options.responsiveBreakPoints!),
-    ];
-
-    return plugin.withOptions(
-      // 1) factory(options) → la fonction “handler” du plugin
-      (options = {}) => {
-        return async function (api) {
-          plugins.forEach((plugin) => {
-            plugin.handler(api);
-          });
-        };
-      },
-      // 2) config(options) → objet à merger dans tailwind.config
-      (options = {}) => {
-        return {
-          theme: {
-            fontFamily,
-          },
-        };
-      },
     );
   }
 }

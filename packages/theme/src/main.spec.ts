@@ -1,7 +1,7 @@
 import AppContainer from './app.container';
 import { API } from './API';
 import { ConfigService } from './config';
-import { bootstrap, bootstrapFromConfig } from './main';
+import { bootstrap, bootstrapFromConfig } from './bootstrap';
 
 jest.mock('./app.container', () => ({
   resolve: jest.fn(),

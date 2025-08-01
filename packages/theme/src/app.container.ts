@@ -1,46 +1,24 @@
-import {
-  AwilixContainer,
-  BuildResolver,
-  createContainer,
-  DisposableResolver,
-  InjectionMode,
-} from 'awilix';
+import { createContainer, InjectionMode, Resolver } from 'awilix';
 import { ColorModule } from './color';
 import { ThemeModule } from './theme';
 import { AppModule } from './app.module';
-import { ConfigModule } from './config';
 import { PluginModule } from './plugin';
 
-export type Module = Record<
-  string,
-  BuildResolver<any> & DisposableResolver<any>
->;
+export type Module = Record<string, Resolver<any>>;
 
-export function importContainer(
-  container: AwilixContainer,
-  services: Module[],
-) {
-  services.forEach((service) => {
-    Object.entries(service).forEach(([name, serviceClass]) => {
-      container.register(name, serviceClass);
+export function registerModule(...modules: Module[]) {
+  modules.forEach((module) => {
+    Object.entries(module).forEach(([name, moduleClass]) => {
+      AppContainer.register(name, moduleClass);
     });
   });
-  return container;
+  return AppContainer;
 }
 
 const AppContainer = createContainer({
   injectionMode: InjectionMode.PROXY,
 });
 
-importContainer(AppContainer, [
-  ConfigModule,
-  AppModule,
-  PluginModule,
-  ColorModule,
-  ThemeModule,
-]);
-
-// AppContainer.register(ColorModule.cradle);
-// AppContainer.register(ThemeModule.cradle);
+registerModule(AppModule, PluginModule, ColorModule, ThemeModule);
 
 export default AppContainer;
