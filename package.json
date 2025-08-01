@@ -15,7 +15,7 @@
     "build": "nx run-many -t build",
     "postbuild": " npm run copy-license",
     "test": "nx run-many --target=test --all",
-    "storybook": "nx run ui-react:serve:storybook --verbose",
+    "storybook": "nx run ui-react:storybook --verbose",
     "build-storybook": "nx run ui-react:build-storybook",
     "copy-license": "for d in ./dist/packages/*/; do cp LICENSE \"$d\"; done"
   },

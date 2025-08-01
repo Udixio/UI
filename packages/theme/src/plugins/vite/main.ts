@@ -1,31 +1,69 @@
-import path from 'path';
-import { pathToFileURL } from 'url';
-import { Plugin } from 'vite';
+import path, { resolve } from 'node:path';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import type { Plugin } from 'vite';
 
-export const udixioVite = (configPath = './theme.config'): Plugin => {
+export const udixioVite = (args?: {
+  configPath?: string;
+  fileName?: string;
+  outDir?: string
+}): Plugin => {
+
+  const {
+    configPath = './theme.config',
+    fileName = 'dynamic-styles.css',
+    outDir = 'testDist',
+  } = args ?? {}
   const absConfigPath = path.resolve(configPath);
 
+  const generateCss = () => `
+  coucou
+  `;
+
   console.log('Config path:', absConfigPath);
+  if (typeof generateCss !== 'function') {
+    throw new Error(
+      '[css-writer-plugin] You must provide a `generateCss` function',
+    );
+  }
+
+  // Ensure output directory exists
+  function ensureOutDir() {
+    if (!existsSync(outDir)) {
+      mkdirSync(outDir, { recursive: true });
+    }
+  }
+
+  // Write CSS to disk
+  function writeCss() {
+    const css = generateCss();
+    const filePath = resolve(outDir, fileName);
+    writeFileSync(filePath, css, 'utf-8');
+    console.log(`[css-writer-plugin] Wrote CSS to ${filePath}`);
+  }
 
   return {
     name: 'vite:config-watcher',
-    async buildStart() {
-      this.addWatchFile(absConfigPath);
+    buildStart() {
+      ensureOutDir();
+      writeCss();
     },
-    async handleHotUpdate({ file, server }) {
-      if (file === absConfigPath) {
-        console.log(`[vite-plugin-config-watcher] Reloading config: ${file}`);
 
-        // Invalider le cache du module pour permettre le re-import
-        const configModulePath = pathToFileURL(absConfigPath).href;
-        const mod = await import(configModulePath + `?t=${Date.now()}`); // éviter cache
-        const config = mod.default;
+    // Runs after Rollup generates assets
+    generateBundle() {
+      // In case CSS should reflect final bundle state
+      writeCss();
+    },
 
-        console.log('New config:', config);
+    // Handles Hot Module Replacement in dev server
+    handleHotUpdate({ server, file, modules }) {
+      // Optionally, check if a relevant file changed
+      // For simplicity, regenerate CSS on every update
+      ensureOutDir();
+      writeCss();
 
-        // 👉 ici tu peux utiliser `config` comme tu veux
-        // par exemple : notifier tes modules, reconfigurer un système, etc.
-      }
+      // Trigger full page reload so CSS changes are applied
+      server.ws.send({ type: 'full-reload', path: '*' });
+      return modules;
     },
   };
 };
