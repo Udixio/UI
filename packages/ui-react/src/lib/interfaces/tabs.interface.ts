@@ -10,13 +10,13 @@ export interface TabsInterface {
     onTabSelected?: (
       args: { index: number } & Pick<TabProps, 'label' | 'icon'> & {
           ref: RefObject<any>;
-        }
+        },
     ) => void;
     children: ReactNode;
     selectedTab?: number | null;
     setSelectedTab?: Dispatch<SetStateAction<number | null>>;
     scrollable?: boolean;
   };
-  states: {};
+  states: object;
   elements: ['tabs'];
 }
