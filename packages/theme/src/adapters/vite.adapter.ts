@@ -1,66 +1,73 @@
-import type { Plugin } from 'vite';
+import { loadConfigFromFile, Plugin } from 'vite';
 import { AdapterAbstract, ConfigInterface } from '../adapter';
 import { FileAdapterMixin } from '../adapter/file-adapter.mixin';
-import { resolve } from 'node:path';
-import { existsSync } from 'node:fs';
-
-class Adapter extends AdapterAbstract {
-  constructor(private configPath: string) {
-    super();
-  }
-
-  async getConfig() {
-    const base = resolve(this.configPath);
-    const extensions = ['.js', '.ts', '.mjs', '.cjs'];
-    let configImport = null;
-
-    for (const ext of extensions) {
-      const path = base + ext;
-      if (existsSync(path)) {
-        configImport = (await import(path)).default;
-        break;
-      }
-    }
-
-    if (!configImport) {
-      throw new Error(
-        `Configuration file not found, looked for: ${base} with extensions: ${extensions.join(', ')}`,
-      );
-    }
-
-    let config: unknown;
-    if ('default' in configImport) {
-      config = configImport.default;
-    } else {
-      config = configImport;
-    }
-
-    return config as ConfigInterface;
-  }
-}
-
-export const ViteAdapter = FileAdapterMixin(Adapter);
+import * as path from 'node:path';
+import * as fs from 'node:fs';
 
 export const udixioVite = async (
   configPath = './theme.config',
 ): Promise<Plugin> => {
-  const adapter = new ViteAdapter(configPath);
-  await adapter.init();
+  class Adapter extends AdapterAbstract {
+    public configExtension?: string;
 
+    constructor(public configPath: string) {
+      super();
+    }
+
+    getConfigPath() {
+      if (!this.configExtension) {
+        throw new Error('config extension not found');
+      }
+      return path.resolve(this.configPath + this.configExtension);
+    }
+
+    async getConfig() {
+      // @ts-expect-error - NX_GRAPH_CREATION is a global variable set by Nx
+      if (global.NX_GRAPH_CREATION) {
+        return null;
+      }
+
+      const resolvedPath = path.resolve(this.configPath);
+
+      const result = await loadConfigFromFile(
+        { command: 'serve', mode: 'development' }, // ou 'build'
+        resolvedPath,
+      );
+      if (!result?.config) {
+        throw new Error('config not found');
+      }
+      if (!this.configExtension) {
+        this.configExtension = path.extname(result.dependencies[0]);
+      }
+      return result.config as unknown as ConfigInterface;
+    }
+  }
+
+  const ViteAdapter = FileAdapterMixin(Adapter);
+
+  const adapter = new ViteAdapter(configPath);
+
+  await adapter.init();
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
+  configPath = adapter.getConfigPath();
   return {
-    name: 'vite:config-watcher',
-    buildStart() {
+    name: 'vite:udixio-theme',
+    async buildStart() {
+      if (fs.existsSync(configPath)) {
+        this.addWatchFile(configPath);
+      }
       adapter.load();
     },
 
-    generateBundle() {
+    async generateBundle() {
       adapter.load();
     },
 
     // Handles Hot Module Replacement in dev server
     async handleHotUpdate({ server, file, modules }) {
       // Vérifie si le fichier modifié correspond au chemin du fichier de config
-      if (file === configPath) {
+      if (configPath === file) {
         const adapter = new ViteAdapter(configPath);
         await adapter.init();
         adapter.load();

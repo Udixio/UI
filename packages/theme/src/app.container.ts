@@ -15,10 +15,8 @@ export function registerModule(...modules: Module[]) {
   return AppContainer;
 }
 
-const AppContainer = createContainer({
+export const AppContainer = createContainer({
   injectionMode: InjectionMode.PROXY,
 });
 
 registerModule(AppModule, PluginModule, ColorModule, ThemeModule);
-
-export default AppContainer;

@@ -37,7 +37,7 @@ export class PluginApi {
 
   public loadPlugins() {
     this.plugins.forEach((plugin) => {
-      plugin.getInstance().load();
+      plugin.getInstance().onLoad?.();
     });
   }
 

@@ -16,9 +16,13 @@ export abstract class AdapterAbstract {
     });
   }
 
-  abstract getConfig(): Promise<ConfigInterface>;
+  abstract getConfig(): Promise<ConfigInterface | null>;
 
   public async init(): Promise<void> {
+    const config = await this.getConfig();
+    if (config == null) {
+      return;
+    }
     const {
       sourceColor,
       contrastLevel = 0,
@@ -28,7 +32,7 @@ export abstract class AdapterAbstract {
       colors,
       useDefaultColors = true,
       plugins,
-    } = await this.getConfig();
+    } = config;
     this.api.themes.create({
       contrastLevel: contrastLevel,
       isDark: isDark,

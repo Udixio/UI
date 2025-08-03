@@ -6,14 +6,22 @@
     "outDir": "dist",
     "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
     "emitDeclarationOnly": true,
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
     "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
-    "types": ["node", "vite/client"],
-    "lib": ["es2022", "dom", "dom.iterable"]
+    "types": [
+      "node",
+      "vite/client"
+    ],
+    "lib": [
+      "es2022",
+      "dom",
+      "dom.iterable"
+    ]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ],
   "references": [
     {
       "path": "../tailwind/tsconfig.lib.json"
