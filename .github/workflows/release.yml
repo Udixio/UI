@@ -52,7 +52,7 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
       - name: Release packages
-        run: pnpm dlx nx release --skip-publish --verbose  --first-release
+        run: pnpm dlx nx release --skip-publish --verbose
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
@@ -63,9 +63,9 @@ jobs:
       - name: Publish packages
         run: |
           if [ "${{ github.event.inputs.tag }}" != "" ]; then
-            pnpm dlx nx release publish --tag ${{ github.event.inputs.tag }} --verbose  --first-release;
+            pnpm dlx nx release publish --tag ${{ github.event.inputs.tag }} --verbose;
           else
-            pnpm dlx nx release publish --verbose  --first-release;
+            pnpm dlx nx release publish --verbose;
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

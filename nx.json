@@ -136,6 +136,9 @@
     }
   ],
   "release": {
+    "projects": [
+      "packages/*"
+    ],
     "projectsRelationship": "independent",
     "version": {
       "preVersionCommand": "npm run build",
