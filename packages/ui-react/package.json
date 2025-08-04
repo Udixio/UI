@@ -1,6 +1,6 @@
 {
   "name": "@udixio/ui-react",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -17,8 +17,7 @@
   },
   "devDependencies": {
     "@udixio/theme": "workspace:*",
-    "@udixio/tailwind": "workspace:*",
-    "@tailwindcss/vite": "^4.1.11"
+    "@udixio/tailwind": "workspace:*"
   },
   "repository": {
     "type": "git",
