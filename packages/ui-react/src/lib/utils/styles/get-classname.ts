@@ -11,7 +11,7 @@ export interface StyleProps<T extends ComponentInterface> {
 }
 
 export type ClassNameComponent<T extends ComponentInterface> = (
-  states: T['states'] & T['props']
+  states: T['states'] & T['props'],
 ) => Partial<Record<T['elements'][number], string>>;
 
 export const getClassNames = <T extends ComponentInterface>(args: {
@@ -19,7 +19,7 @@ export const getClassNames = <T extends ComponentInterface>(args: {
   default: T['elements'][0];
   states: T['states'] & T['props'];
 }): Record<T['elements'][number], string> => {
-  let classNames: Partial<Record<T['elements'][number], string[]>> = {};
+  const classNames: Partial<Record<T['elements'][number], string[]>> = {};
   args.classNameList.forEach((classNameComponent) => {
     if (classNameComponent) {
       if (typeof classNameComponent == 'string') {
@@ -37,6 +37,7 @@ export const getClassNames = <T extends ComponentInterface>(args: {
   const result = classNames as unknown as Record<T['elements'][number], string>;
 
   Object.entries(classNames).map((argsElement) => {
+    // eslint-disable-next-line prefer-const
     let [key, value] = argsElement as [T['elements'][number], string[]];
 
     value = value.reverse();
@@ -55,14 +56,14 @@ export const getClassNames = <T extends ComponentInterface>(args: {
 
 export const defaultClassNames = <T extends ComponentInterface>(
   element: T['elements'][0],
-  defaultClassName: ClassNameComponent<T> | string
+  defaultClassName: ClassNameComponent<T> | string,
 ) => {
   return (
     states: RequiredNullable<T['props']> &
       T['props'] &
       T['states'] & {
         className: ClassNameComponent<T> | string | undefined;
-      }
+      },
   ) =>
     getClassNames({
       classNameList: [states.className, defaultClassName],

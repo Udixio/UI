@@ -1,8 +1,10 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "emitDecoratorMetadata": true,
-    "outDir": ""
+    "outDir": "out-tsc/storybook",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "preserve"
   },
   "exclude": [
     "src/**/*.spec.ts",
@@ -22,6 +24,11 @@
     "src/**/*.stories.mdx",
     ".storybook/*.js",
     ".storybook/*.ts"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.lib.json"
+    }
   ],
   "files": [
     "../../node_modules/@nx/react/typings/styled-jsx.d.ts",

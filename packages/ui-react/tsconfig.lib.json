@@ -1,23 +1,36 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "../../dist/out-tsc",
+    "baseUrl": ".",
+    "rootDir": "src",
+    "outDir": "dist",
+    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
+    "emitDeclarationOnly": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react-jsx",
     "types": [
       "node",
-      "@nx/react/typings/cssmodule.d.ts",
-      "@nx/react/typings/image.d.ts",
       "vite/client"
+    ],
+    "lib": [
+      "es2022",
+      "dom",
+      "dom.iterable"
     ]
   },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ],
+  "references": [
+    {
+      "path": "../tailwind/tsconfig.lib.json"
+    },
+    {
+      "path": "../theme/tsconfig.lib.json"
+    }
+  ],
   "exclude": [
-    "**/*.spec.ts",
-    "**/*.test.ts",
-    "**/*.spec.tsx",
-    "**/*.test.tsx",
-    "**/*.spec.js",
-    "**/*.test.js",
-    "**/*.spec.jsx",
-    "**/*.test.jsx",
     "vite.config.ts",
     "vite.config.mts",
     "vitest.config.ts",
@@ -34,6 +47,5 @@
     "**/*.stories.js",
     "**/*.stories.jsx",
     "**/*.stories.tsx"
-  ],
-  "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx"]
+  ]
 }

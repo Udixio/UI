@@ -1,15 +1,14 @@
 {
-  "compilerOptions": {
-    "jsx": "react-jsx",
-    "allowJs": false,
-    "esModuleInterop": false,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "types": ["vite/client", "vitest"]
-  },
+  "extends": "../../tsconfig.base.json",
   "files": [],
   "include": [],
   "references": [
+    {
+      "path": "../tailwind"
+    },
+    {
+      "path": "../theme"
+    },
     {
       "path": "./tsconfig.lib.json"
     },
@@ -19,6 +18,5 @@
     {
       "path": "./tsconfig.storybook.json"
     }
-  ],
-  "extends": "../../tsconfig.base.json"
+  ]
 }

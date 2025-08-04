@@ -109,7 +109,7 @@ export const CustomScroll = ({
             });
           }
         }
-      }
+      },
     );
   }
 
@@ -206,7 +206,6 @@ export const CustomScroll = ({
     e.preventDefault();
   };
 
-  useEffect(() => {}, [isDragging]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {

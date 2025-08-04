@@ -1,4 +1,3 @@
-import plugin from 'tailwindcss/plugin';
 import {
   createOrUpdateFile,
   findTailwindCssFile,
@@ -6,9 +5,8 @@ import {
   replaceFileContent,
 } from './file';
 import path from 'path';
-
-import { font, state } from './plugins-tailwind';
 import { FontPlugin, PluginAbstract, PluginImplAbstract } from '@udixio/theme';
+import { ConfigCss } from './main';
 
 interface TailwindPluginOptions {
   // darkMode?: 'class' | 'media';
@@ -33,16 +31,14 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
     };
   }
 
-  load(): ReturnType<typeof plugin.withOptions> {
-    const searchKeyword = '@plugin "@udixio/tailwind"';
+  onLoad() {
+    const searchKeyword = "@import 'tailwindcss';";
 
     const tailwindCssPath =
       this.options.styleFilePath ??
       findTailwindCssFile(process.cwd(), searchKeyword);
     if (!tailwindCssPath) {
-      throw new Error(
-        'The style file containing the Udixio plugin was not found.\n Please use it first. (@plugin "@udixio/tailwind")',
-      );
+      throw new Error('The style file containing tailwind was not found.');
     }
     const searchPattern = /@import ["']tailwindcss["'];/;
     const replacement = `@import 'tailwindcss';\n@import "./udixio.css";`;
@@ -77,12 +73,38 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
       .getInstance()
       .getFonts();
 
+    const configCss: ConfigCss = {
+      colorKeys: Object.keys(colors).join(', '),
+      fontStyles: Object.entries(fontStyles)
+        .map(([fontRole, fontStyle]) =>
+          Object.entries(fontStyle)
+            .map(
+              ([fontSize, fontStyle]) =>
+                `${fontRole}-${fontSize} ${Object.entries(fontStyle)
+                  .map(([name, value]) => `${name}[${value}]`)
+                  .join(' ')}`,
+            )
+            .join(', '),
+        )
+        .join(', '),
+      responsiveBreakPoints: Object.entries(
+        this.options.responsiveBreakPoints ?? {},
+      )
+        .map(([key, value]) => `${key} ${value}`)
+        .join(', '),
+    };
+
     createOrUpdateFile(
       path.join(cssFilePath, 'udixio.css'),
       `
+@plugin "@udixio/tailwind" {
+  colorKeys: ${configCss.colorKeys};
+  fontStyles: ${configCss.fontStyles};
+  responsiveBreakPoints: ${configCss.responsiveBreakPoints};
+}
 @custom-variant dark (&:where(.dark, .dark *));
 @theme {
-    --color-*: initial;
+  --color-*: initial;
   ${Object.entries(colors)
     .map(([key, value]) => `--color-${key}: ${value.light};`)
     .join('\n  ')}
@@ -94,31 +116,15 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
     .join('\n  ')}
   }
 }
+@theme {
+  ${Object.entries(fontFamily)
+    .map(
+      ([key, values]) =>
+        `--font-${key}: ${values.map((value) => `"${value}"`).join(', ')};`,
+    )
+    .join('\n  ')}
+}
 `,
-    );
-
-    const plugins = [
-      state(Object.keys(colors)),
-      font(fontStyles, this.options.responsiveBreakPoints!),
-    ];
-
-    return plugin.withOptions(
-      // 1) factory(options) → la fonction “handler” du plugin
-      (options = {}) => {
-        return async function (api) {
-          plugins.forEach((plugin) => {
-            plugin.handler(api);
-          });
-        };
-      },
-      // 2) config(options) → objet à merger dans tailwind.config
-      (options = {}) => {
-        return {
-          theme: {
-            fontFamily,
-          },
-        };
-      },
     );
   }
 }

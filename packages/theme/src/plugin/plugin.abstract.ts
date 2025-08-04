@@ -22,7 +22,7 @@ export abstract class PluginAbstract<
 
   public init(api: API) {
     this.pluginInstance = new this.pluginClass(api, this.options);
-    this.pluginInstance.onInit();
+    this.pluginInstance.onInit?.();
     return this;
   }
 
@@ -39,8 +39,10 @@ export abstract class PluginImplAbstract<Options extends object> {
     protected api: API,
     protected options: Options,
   ) {
-    this.onInit();
+    this.onInit?.();
   }
 
-  abstract onInit(): void;
+  abstract onInit?(): void;
+
+  abstract onLoad?(): void;
 }

@@ -3,10 +3,10 @@ import { CarouselInterface } from '../interfaces';
 
 export const carouselStyle = defaultClassNames<CarouselInterface>(
   'carousel',
-  ({}) => ({
+  () => ({
     carousel: classNames(['w-full h-[400px]']),
     track: classNames(
-      'grid grid-flow-col h-full transition-transform  ease-out w-fit'
+      'grid grid-flow-col h-full transition-transform  ease-out w-fit',
     ),
-  })
+  }),
 );

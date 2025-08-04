@@ -1,6 +1,5 @@
-import { createTheme } from './main';
+import { main } from './main';
 
-export * from './main';
 export * from './plugins-tailwind';
 export * from './tailwind.plugin';
-export default createTheme;
+export default main;

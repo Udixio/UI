@@ -35,8 +35,8 @@ export const fabStyle = defaultClassNames<FabInterface>(
 
     icon: classNames(
       {
-        'h-6 w-6': size == 'small' || size == 'medium' || isExtended,
-        'h-9 w-9': size == 'large' && !isExtended,
+        'size-6': size == 'small' || size == 'medium' || isExtended,
+        'size-9': size == 'large' && !isExtended,
       },
       variant === 'surface' && 'text-primary',
       variant === 'primary' && 'text-on-primary-container',
@@ -45,7 +45,7 @@ export const fabStyle = defaultClassNames<FabInterface>(
     ),
 
     label: classNames(
-      'text-label-large text-nowrap',
+      'text-title-medium text-nowrap',
       variant === 'surface' && 'text-primary',
       variant === 'primary' && 'text-on-primary-container',
       variant === 'secondary' && 'text-on-secondary-container',

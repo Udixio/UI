@@ -1,6 +1,6 @@
 import { asClass } from 'awilix';
 import { Module } from '../app.container';
-import { PluginApi } from './pluginApi';
+import { PluginApi } from './plugin.api';
 
 export const PluginModule: Module = {
   pluginApi: asClass(PluginApi).singleton(),

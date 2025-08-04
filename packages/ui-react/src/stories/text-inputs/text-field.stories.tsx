@@ -63,7 +63,6 @@ const createTextFieldStory = (
       </div>
     </div>
   );
-  // @ts-ignore
   TextFieldStory.args = {
     variant: variant,
     label: 'Label',

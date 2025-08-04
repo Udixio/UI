@@ -1,4 +1,4 @@
-import { PluginAbstract } from './pluginAbstract';
+import { PluginAbstract } from './plugin.abstract';
 import { API } from '../API';
 
 export class PluginApi {
@@ -8,10 +8,13 @@ export class PluginApi {
     this.plugins.set(plugin.name, plugin);
   }
 
-  public loadPlugins(api: API) {
+  public initPlugins(api: API) {
     const plugins = new Map(this.plugins);
 
     let size = 0;
+
+    this.plugins = new Map();
+
     do {
       size = plugins.size;
       plugins.forEach((plugin, key) => {
@@ -30,6 +33,12 @@ export class PluginApi {
         "Some plugins couldn't be loaded due to missing dependencies: " +
           Array.from(plugins.keys()),
       );
+  }
+
+  public loadPlugins() {
+    this.plugins.forEach((plugin) => {
+      plugin.getInstance().onLoad?.();
+    });
   }
 
   public getPlugin<T extends PluginAbstract<any, any>>(

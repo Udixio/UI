@@ -1,13 +1,20 @@
 import { FontRole, FontSize, FontStyle } from '@udixio/theme';
 import plugin, { PluginAPI } from 'tailwindcss/plugin';
 
-export const font: (
-  fontStyles: Record<FontRole, Record<FontSize, FontStyle>>,
-  responsiveBreakPoints: Record<string, number>,
-) => ReturnType<typeof plugin> = (fontStyles, responsiveBreakPoints) => {
-  const createUtilities = ({ theme }: Pick<PluginAPI, 'theme'>): any => {
+export interface FontPluginOptions {
+  fontStyles: Record<FontRole, Record<FontSize, FontStyle>>;
+  responsiveBreakPoints: Record<string, number>;
+}
+
+export const font = plugin.withOptions((options: FontPluginOptions) => {
+  return ({
+    addUtilities,
+    theme,
+  }: Pick<PluginAPI, 'addUtilities' | 'theme'>) => {
+    const { fontStyles, responsiveBreakPoints } = options;
+
     const pixelUnit = 'rem';
-    const newUtilities: any = {};
+    const newUtilities: Record<string, any> = {};
 
     const baseTextStyle = (sizeValue: FontStyle) => ({
       fontSize: sizeValue.fontSize + pixelUnit,
@@ -32,35 +39,23 @@ export const font: (
 
     for (const [roleName, roleValue] of Object.entries(fontStyles)) {
       for (const [sizeName, sizeValue] of Object.entries(roleValue)) {
-        newUtilities['.text-' + roleName + '-' + sizeName] = {
+        newUtilities[`.text-${roleName}-${sizeName}`] = {
           ...baseTextStyle(sizeValue),
           ...Object.entries(responsiveBreakPoints).reduce(
-            (acc, [breakPointName, breakPointRatio]) => {
-              acc = {
-                ...acc,
-                ...responsiveTextStyle(
-                  sizeValue,
-                  breakPointName,
-                  breakPointRatio,
-                ),
-              };
-              return acc;
-            },
+            (acc, [breakPointName, breakPointRatio]) => ({
+              ...acc,
+              ...responsiveTextStyle(
+                sizeValue,
+                breakPointName,
+                breakPointRatio,
+              ),
+            }),
             {},
           ),
         };
       }
     }
 
-    return newUtilities as any;
+    addUtilities(newUtilities);
   };
-  return plugin(
-    ({
-      addUtilities,
-      theme,
-    }: Pick<PluginAPI, 'theme'> & Pick<PluginAPI, 'addUtilities'>) => {
-      const newUtilities = createUtilities({ theme });
-      addUtilities(newUtilities);
-    },
-  );
-};
+});

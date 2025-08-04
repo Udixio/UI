@@ -92,7 +92,8 @@ export const NavigationRailItem = ({
   if (extendedOnly && !isExtended) return null;
 
   return (
-    // @ts-ignore
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     <ElementType
       {...restProps}
       role="tab"

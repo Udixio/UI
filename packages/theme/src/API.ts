@@ -1,6 +1,6 @@
 import { ColorApi } from './color';
 import { ThemeApi } from './theme';
-import { PluginApi } from './plugin/pluginApi';
+import { PluginApi } from './plugin';
 
 export class API {
   public colors: ColorApi;
