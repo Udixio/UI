@@ -1,13 +1,17 @@
 import { loadConfigFromFile, Plugin } from 'vite';
 import { AdapterAbstract, ConfigInterface } from '../adapter';
-import { FileAdapterMixin } from '../adapter/file-adapter.mixin';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 
 export const udixioVite = async (
   configPath = './theme.config',
-): Promise<Plugin> => {
-  class Adapter extends AdapterAbstract {
+): Promise<Plugin | undefined> => {
+  // @ts-expect-error - NX_GRAPH_CREATION is a global variable set by Nx
+  if (global.NX_GRAPH_CREATION) {
+    return;
+  }
+
+  class ViteAdapter extends AdapterAbstract {
     public configExtension?: string;
 
     constructor(public configPath: string) {
@@ -22,11 +26,6 @@ export const udixioVite = async (
     }
 
     async getConfig() {
-      // @ts-expect-error - NX_GRAPH_CREATION is a global variable set by Nx
-      if (global.NX_GRAPH_CREATION) {
-        return null;
-      }
-
       const resolvedPath = path.resolve(this.configPath);
 
       const result = await loadConfigFromFile(
@@ -43,13 +42,10 @@ export const udixioVite = async (
     }
   }
 
-  const ViteAdapter = FileAdapterMixin(Adapter);
-
   const adapter = new ViteAdapter(configPath);
 
   await adapter.init();
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
+
   configPath = adapter.getConfigPath();
   return {
     name: 'vite:udixio-theme',

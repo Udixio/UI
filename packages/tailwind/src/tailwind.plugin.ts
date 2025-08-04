@@ -6,6 +6,7 @@ import {
 } from './file';
 import path from 'path';
 import { FontPlugin, PluginAbstract, PluginImplAbstract } from '@udixio/theme';
+import { ConfigCss } from './main';
 
 interface TailwindPluginOptions {
   // darkMode?: 'class' | 'media';
@@ -72,12 +73,38 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
       .getInstance()
       .getFonts();
 
+    const configCss: ConfigCss = {
+      colorKeys: Object.keys(colors).join(', '),
+      fontStyles: Object.entries(fontStyles)
+        .map(([fontRole, fontStyle]) =>
+          Object.entries(fontStyle)
+            .map(
+              ([fontSize, fontStyle]) =>
+                `${fontRole}-${fontSize} ${Object.entries(fontStyle)
+                  .map(([name, value]) => `${name}[${value}]`)
+                  .join(' ')}`,
+            )
+            .join(', '),
+        )
+        .join(', '),
+      responsiveBreakPoints: Object.entries(
+        this.options.responsiveBreakPoints ?? {},
+      )
+        .map(([key, value]) => `${key} ${value}`)
+        .join(', '),
+    };
+
     createOrUpdateFile(
       path.join(cssFilePath, 'udixio.css'),
       `
+@plugin "@udixio/tailwind" {
+  colorKeys: ${configCss.colorKeys};
+  fontStyles: ${configCss.fontStyles};
+  responsiveBreakPoints: ${configCss.responsiveBreakPoints};
+}
 @custom-variant dark (&:where(.dark, .dark *));
 @theme {
-    --color-*: initial;
+  --color-*: initial;
   ${Object.entries(colors)
     .map(([key, value]) => `--color-${key}: ${value.light};`)
     .join('\n  ')}
@@ -88,6 +115,14 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
     .map(([key, value]) => `--color-${key}: ${value.dark};`)
     .join('\n  ')}
   }
+}
+@theme {
+  ${Object.entries(fontFamily)
+    .map(
+      ([key, values]) =>
+        `--font-${key}: ${values.map((value) => `"${value}"`).join(', ')};`,
+    )
+    .join('\n  ')}
 }
 `,
     );

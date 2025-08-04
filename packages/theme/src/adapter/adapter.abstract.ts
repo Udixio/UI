@@ -16,7 +16,7 @@ export abstract class AdapterAbstract {
     });
   }
 
-  abstract getConfig(): Promise<ConfigInterface | null>;
+  abstract getConfig(): Promise<ConfigInterface>;
 
   public async init(): Promise<void> {
     const config = await this.getConfig();
