@@ -41,7 +41,8 @@ const RippleEffect: React.FC<RippleEffectProps> = ({
   }, [isActive]);
 
   useEffect(() => {
-    // @ts-ignore
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     const element = triggerRef?.current;
     if (element) {
       element.addEventListener('mousedown', handleMouseDown);
@@ -56,7 +57,8 @@ const RippleEffect: React.FC<RippleEffectProps> = ({
   }, [triggerRef]);
 
   const handleMouseDown = (e: MouseEvent) => {
-    // @ts-ignore
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     const el = triggerRef?.current as Element;
     const rect = el.getBoundingClientRect();
     setIsActive(true);

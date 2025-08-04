@@ -4,10 +4,9 @@ export type StateOptions = {
   colorKeys: string[];
 };
 
-type ResolvedState = Required<NonNullable<StateOptions['config']>>;
-type Components = Record<string, Record<string, {}>>;
+type Components = Record<string, Record<string, object>>;
 
-const defaultConfig: ResolvedState = {
+const defaultConfig = {
   statePrefix: 'state',
   disabledStyles: {
     textOpacity: 0.38,
@@ -19,7 +18,7 @@ const defaultConfig: ResolvedState = {
 };
 
 export const state = plugin.withOptions(({ colorKeys }: StateOptions) => {
-  const resolved: ResolvedState = {
+  const resolved = {
     ...defaultConfig,
     disabledStyles: {
       ...defaultConfig.disabledStyles,

@@ -114,7 +114,8 @@ export const Slider = ({
     onChange,
   });
   const handleChange = (event: any) => {
-    // @ts-ignore
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     const current = resolvedRef?.current;
     if (current) {
       const refPosition = current.getBoundingClientRect().left;
@@ -211,9 +212,11 @@ export const Slider = ({
   const [sliderWidth, setSliderWidth] = useState(0);
   useEffect(() => {
     const updateSliderWidth = () => {
-      // @ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
       if (resolvedRef.current) {
-        // @ts-ignore
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
         setSliderWidth(resolvedRef.current.offsetWidth);
       }
     };
