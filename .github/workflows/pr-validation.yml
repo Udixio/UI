@@ -26,11 +26,11 @@ jobs:
           node-version: '18'
           cache: 'pnpm'
 
-      - name: Lint
-        run: npx nx affected --target=lint
-
       - name: Test
         run: npx nx affected --target=test
 
       - name: Build
         run: npx nx affected --target=build
+
+      - name: Lint
+        run: npx nx affected --target=lint
