@@ -73,7 +73,7 @@ export const udixioVite = async (
         return modules;
       }
 
-      return [];
+      return;
     },
   };
 };
