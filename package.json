@@ -17,7 +17,7 @@
     "test": "nx run-many --target=test --all",
     "storybook": "nx run ui-react:storybook --verbose",
     "build-storybook": "nx run ui-react:build-storybook",
-    "copy-license": "for d in ./dist/packages/*/; do cp LICENSE \"$d\"; done"
+    "copy-license": "for d in ./packages/*/dist/; do cp LICENSE \"$d\"; done"
   },
   "devDependencies": {
     "@emotion/is-prop-valid": "^1.3.1",
