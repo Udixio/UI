@@ -1,3 +1,14 @@
+## 0.1.1 (2025-08-04)
+
+### 🩹 Fixes
+
+- dependencies pakcage ([9feff43](https://github.com/Udixio/UI/commit/9feff43))
+- dependencies pakcage ([afa3009](https://github.com/Udixio/UI/commit/afa3009))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.4.3 (2025-07-25)
 
 ### 🩹 Fixes
