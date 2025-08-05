@@ -51,6 +51,8 @@ export default defineConfig(async () => ({
       // External packages that should not be bundled into your library.
       external: [
         'react',
+        'clsx',
+        'throttle-debounce',
         'react-dom',
         'react/jsx-runtime',
         'react-textarea-autosize',
