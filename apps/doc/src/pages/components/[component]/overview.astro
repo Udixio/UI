@@ -1,0 +1,21 @@
+---
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const overviews = await getCollection('overviews');
+  return overviews.map(overview =>
+    ({
+      params: { component: overview.id.replace('overview', '') },
+      props: { overview }
+    })
+  );
+}
+
+// 2. Pour votre modèle, vous pouvez obtenir l'entrée directement à partir de la propriété
+const { overview } = Astro.props;
+
+const { component } = Astro.params;
+
+const { Content } = await render(overview);
+---
+<h2>{component}</h2>

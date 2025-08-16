@@ -1,0 +1,14 @@
+---
+import { getCollection } from 'astro:content';
+export async function getStaticPaths() {
+  const overviews = await getCollection('overviews');
+  return overviews.map(overview =>
+    ({
+      params: { component: overview.id.replace('overview', '') },
+      props: { overview }
+    })
+  );
+}
+
+return Astro.rewrite(new URL('./overview', Astro.url));
+---
