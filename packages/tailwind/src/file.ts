@@ -98,7 +98,7 @@ export const replaceFileContent = (
 export const findTailwindCssFile = (
   startDir: string,
   searchPattern: string,
-): string | null => {
+): string | never => {
   const files = fs.readdirSync(startDir);
 
   for (const file of files) {
@@ -122,5 +122,7 @@ export const findTailwindCssFile = (
     }
   }
 
-  return null;
+  throw new Error(
+    `Unable to determine the path of the style file containing the import from ${startDir}`,
+  );
 };
