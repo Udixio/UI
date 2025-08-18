@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { replaceInFileSync } from 'replace-in-file';
+import * as console from 'node:console';
 
 export const createOrUpdateFile = (filePath: string, content: string): void => {
   try {
@@ -97,32 +98,66 @@ export const replaceFileContent = (
 };
 export const findTailwindCssFile = (
   startDir: string,
-  searchPattern: string,
+  searchPattern: RegExp | string,
 ): string | never => {
-  const files = fs.readdirSync(startDir);
+  console.log('Recherche du fichier contenant le motif...', startDir);
 
-  for (const file of files) {
-    const filePath = path.join(startDir, file);
-    const stats = fs.statSync(filePath);
+  const stack = [startDir]; // Pile pour éviter une récursion implicite.
 
-    if (stats.isDirectory()) {
-      // Appeler récursivement si c'est un dossier
-      const result = findTailwindCssFile(filePath, searchPattern);
-      if (result) return result;
-    } else if (
-      file.endsWith('.css') ||
-      file.endsWith('.scss') ||
-      file.endsWith('.sass')
-    ) {
-      const content = fs.readFileSync(filePath, 'utf8');
-      if (content.includes(searchPattern)) {
-        console.log('File found:\n', filePath);
-        return filePath;
+  while (stack.length > 0) {
+    const currentDir = stack.pop()!; // Récupérer un répertoire de la pile.
+    const files = fs.readdirSync(currentDir);
+
+    for (const file of files) {
+      const filePath = path.join(currentDir, file);
+
+      let stats: fs.Stats;
+      try {
+        stats = fs.statSync(filePath);
+      } catch (error) {
+        console.error(`Erreur lors de l'accès à ${filePath}:`, error);
+        continue; // Ignorer toute erreur d'accès.
+      }
+
+      // Ignorer le dossier `node_modules` et autres fichiers inutiles.
+      if (stats.isDirectory()) {
+        if (file !== 'node_modules') stack.push(filePath); // Empiler seulement les dossiers valides.
+      } else if (
+        stats.isFile() &&
+        (file.endsWith('.css') ||
+          file.endsWith('.scss') ||
+          file.endsWith('.sass'))
+      ) {
+        try {
+          console.log(`Analyse du fichier : ${filePath}`);
+          const content = fs.readFileSync(filePath, 'utf8');
+          if (content.match(searchPattern)) {
+            console.log('Fichier trouvé :', filePath);
+            return filePath; // Retour dès qu'un fichier valide est identifié.
+          }
+        } catch (readError) {
+          console.error(`Erreur lors de la lecture de ${filePath}:`, readError);
+        }
       }
     }
   }
 
   throw new Error(
-    `Unable to determine the path of the style file containing the import from ${startDir}`,
+    `Impossible de trouver un fichier contenant "${searchPattern}" dans "${startDir}".`,
   );
 };
+
+export function findProjectRoot(startPath) {
+  let currentPath = startPath;
+
+  // Boucle jusqu'à trouver un package.json ou jusqu'à arriver à la racine du système
+  while (!fs.existsSync(path.join(currentPath, 'package.json'))) {
+    const parentPath = path.dirname(currentPath);
+    if (currentPath === parentPath) {
+      throw new Error('Impossible de localiser la racine du projet.');
+    }
+    currentPath = parentPath;
+  }
+
+  return currentPath;
+}

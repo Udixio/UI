@@ -2,16 +2,20 @@
   "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["./src/*"]
     }
   },
-  "include": [
-    ".astro/types.d.ts",
-    "**/*"
-  ],
-  "exclude": [
-    "dist"
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist"],
+  "references": [
+    {
+      "path": "../../packages/ui-react"
+    },
+    {
+      "path": "../../packages/tailwind"
+    },
+    {
+      "path": "../../packages/theme"
+    }
   ]
 }
