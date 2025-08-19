@@ -1,5 +1,6 @@
 ---
 import { getCollection, render } from 'astro:content';
+import Layout from '@/layouts/layout.astro';
 
 export async function getStaticPaths() {
   const overviews = await getCollection('overviews');
@@ -11,11 +12,15 @@ export async function getStaticPaths() {
   );
 }
 
-// 2. Pour votre modèle, vous pouvez obtenir l'entrée directement à partir de la propriété
 const { overview } = Astro.props;
-
 const { component } = Astro.params;
-
-const { Content } = await render(overview);
+const { Content, headings } = await render(overview);
 ---
-<h2>{component}</h2>
+<Layout>
+  <main class="container mx-auto p-4">
+    <h1 class="text-3xl font-semibold mb-4">{component}</h1>
+    <article class="prose max-w-none">
+      <Content />
+    </article>
+  </main>
+</Layout>

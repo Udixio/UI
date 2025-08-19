@@ -1,5 +1,116 @@
 ---
-
+title: Button
+status: stable
+package: '@udixio/ui-react'
+description: Buttons trigger most actions in a UI. This component follows Material 3 guidelines with multiple variants and sizes.
 ---
-# Buttons
-Buttons prompt most actions in a UI
+
+# Button
+
+Buttons are used to initiate actions or navigate to another page. The Button component supports multiple variants (filled, elevated, outlined, text, filledTonal), different sizes, a loading state, and an optional icon.
+
+## Installation
+
+- Install the React package:
+
+```bash
+pnpm add @udixio/ui-react @fortawesome/free-solid-svg-icons
+```
+
+- Import the global styles (once in your app):
+
+```text
+Import the library global styles once in your application (e.g., entry file):
+- @udixio/ui-react/dist/index.css
+```
+
+## Basic usage
+
+```tsx
+<div className="flex gap-3">
+  <Button label="Action" />
+  <Button label="Disabled" disabled />
+</div>
+```
+
+## Variants
+
+```tsx
+<div className="flex flex-wrap gap-3">
+  <Button label="Filled" variant="filled" />
+  <Button label="Elevated" variant="elevated" />
+  <Button label="Outlined" variant="outlined" />
+  <Button label="Text" variant="text" />
+  <Button label="Filled Tonal" variant="filledTonal" />
+</div>
+```
+
+## Sizes
+
+```tsx
+<div className="flex flex-wrap items-end gap-3">
+  <Button label="XS" size="xSmall" />
+  <Button label="S" size="small" />
+  <Button label="M" size="medium" />
+  <Button label="L" size="large" />
+  <Button label="XL" size="xLarge" />
+</div>
+```
+
+## Icon
+
+You can add an icon (FontAwesome) and choose its position.
+
+```text
+<div class="flex gap-3">
+  <!-- Example with a FontAwesome icon: const faPlus = ... -->
+  <Button label="Add" icon={faPlus} />
+  <Button label="Next" iconPosition="right" icon={faPlus} />
+</div>
+```
+
+## Loading state
+
+```tsx
+<Button label="Sending..." loading />
+```
+
+## Link or action
+
+If the `href` prop is provided, the component renders an `<a>` link; otherwise it renders a `<button>`.
+
+```tsx
+<div className="flex gap-3">
+  <Button label="Click me" onClick={() => console.log('clicked')} />
+  <Button label="Go to Udixio" href="https://udixio.dev" />
+</div>
+```
+
+## Props
+
+- label: string — Button text (required)
+- variant: 'filled' | 'elevated' | 'outlined' | 'text' | 'filledTonal' (default: 'filled')
+- size: 'xSmall' | 'small' | 'medium' | 'large' | 'xLarge' (default: 'medium')
+- disabled: boolean (default: false)
+- icon: IconDefinition — Optional icon
+- iconPosition: 'left' | 'right' (default: 'left')
+- loading: boolean — Shows a progress indicator (default: false)
+- shape: 'squared' | 'rounded' (default: 'rounded')
+- allowShapeTransformation: boolean — Enables shape animation (default: true)
+- href?: string — If set, renders an `<a>` element
+- onClick?: (event) => void — Click handler (ignored when `disabled`)
+- transition?: Transition (motion) — Customize animation duration
+- ...rest — Native HTML attributes forwarded to the button/link
+
+## Accessibility
+
+- Use explicit, concise labels.
+- Ensure sufficient color contrast between background and text.
+- Do not hide the visible focus indicator.
+- The `disabled` state prevents focus and clicks.
+
+## Best practices
+
+- Prefer `onClick` for immediate actions and `href` for navigation.
+- Use `variant="text"` for secondary actions and `outlined` for alternatives.
+- Keep the `label` short for readability.
