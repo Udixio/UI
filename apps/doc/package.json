@@ -10,11 +10,16 @@
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.4",
+    "@astrojs/react": "^4.3.0",
     "@tailwindcss/vite": "^4.1.12",
-    "astro": "^5.13.2",
-    "tailwindcss": "^4.1.12",
-    "@udixio/theme": "workspace:*",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
     "@udixio/tailwind": "workspace:*",
-    "@udixio/ui-react": "workspace:*"
+    "@udixio/theme": "workspace:*",
+    "@udixio/ui-react": "workspace:*",
+    "astro": "^5.13.2",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "tailwindcss": "^4.1.12"
   }
 }
