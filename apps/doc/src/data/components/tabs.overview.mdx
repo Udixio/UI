@@ -1,0 +1,55 @@
+---
+---
+
+import { CodePreview } from '@/components/CodePreview.js';
+import { faHome, faGear, faUser } from '@fortawesome/free-solid-svg-icons';
+
+## Usage
+
+Tabs organize content across different views. Use Tabs with Tab children.
+
+```bash
+import { Tabs, Tab } from "@udixio/ui-react"
+```
+
+<CodePreview client:load
+             code={`
+  <Tabs>
+    <Tab label="Home" icon={faHome} selected />
+    <Tab label="Settings" icon={faGear} />
+    <Tab label="Profile" icon={faUser} />
+  </Tabs>
+`}
+             scope={{ faHome, faGear, faUser }}
+/>
+
+## Variants
+
+- primary (default)
+- secondary
+
+```tsx
+<Tabs variant="secondary">
+  <Tab label="One" />
+  <Tab label="Two" />
+</Tabs>
+```
+
+## Controlled selection and scrollable
+
+Use `selectedTab` and `setSelectedTab` for controlled state. Set `scrollable` to true to enable horizontal scroll with automatic centering of the selected tab.
+
+```tsx
+function Example() {
+  const [tab, setTab] = React.useState(0)
+  return (
+    <Tabs selectedTab={tab} setSelectedTab={setTab} scrollable>
+      <Tab label="Overview" />
+      <Tab label="Activity" />
+      <Tab label="Settings" />
+      <Tab label="Billing" />
+      <Tab label="Advanced" />
+    </Tabs>
+  )
+}
+```

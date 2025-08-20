@@ -1,0 +1,66 @@
+---
+---
+
+import { CodePreview } from '@/components/CodePreview.js';
+import { faMagnifyingGlass, faXmark } from '@fortawesome/free-solid-svg-icons';
+
+## Usage
+
+TextField allows users to enter and edit text.
+
+```bash
+import { TextField } from "@udixio/ui-react"
+```
+
+```tsx
+<TextField label="Email" name="email" type="email" placeholder="you@company.com" />
+```
+
+## Variants
+
+- filled (default)
+- outlined
+
+```tsx
+<div className="flex items-end gap-6">
+  <TextField label="Name" name="name" variant="filled" />
+  <TextField label="Name" name="name2" variant="outlined" />
+</div>
+```
+
+## Leading/trailing icon and suffix
+
+Use `leadingIcon`, `trailingIcon`, or `suffix` for extra affordances.
+
+<CodePreview client:load
+             code={`
+  <div class="flex flex-col gap-4">
+    <TextField label="Search" name="q" leadingIcon={faMagnifyingGlass} />
+    <TextField label="Amount" name="amount" suffix="kg" />
+    <TextField label="Search" name="q2" trailingIcon={<button aria-label="clear"><i class="fa-solid fa-xmark" /></button>} />
+  </div>
+`}
+             scope={{ faMagnifyingGlass }}
+/>
+
+## Multi-line
+
+Set `textLine` to "multiLine" for auto-growing textarea, or "textAreas" for a standard textarea.
+
+```tsx
+<div className="space-y-4">
+  <TextField label="Description" name="desc1" textLine="multiLine" />
+  <TextField label="Notes" name="desc2" textLine="textAreas" />
+</div>
+```
+
+## Error and supporting text
+
+Show validation and helper text with `errorText` and `supportingText`.
+
+```tsx
+<div className="space-y-2">
+  <TextField label="Username" name="u1" supportingText="Use 3–16 characters" />
+  <TextField label="Password" name="p1" errorText="Password is too short" />
+</div>
+```

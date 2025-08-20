@@ -1,0 +1,35 @@
+---
+---
+
+import { CodePreview } from '@/components/CodePreview.js';
+
+## Usage
+
+Snackbars display brief messages about app processes. They appear above other elements and disappear automatically.
+
+```bash
+import { Snackbar } from "@udixio/ui-react"
+```
+
+```tsx
+<Snackbar supportingText="Message sent" />
+```
+
+## Auto dismiss
+
+Use `duration` (ms) to auto-close the snackbar; pass `onClose` to be notified.
+
+```tsx
+<Snackbar supportingText="Saved" duration={3000} onClose={() => console.log('closed')} />
+```
+
+## Custom close icon
+
+Provide a custom FontAwesome icon via `closeIcon`.
+
+<CodePreview client:load
+             code={`
+  import { faCheck } from '@fortawesome/free-solid-svg-icons';
+  <Snackbar supportingText="Done" closeIcon={faCheck} />
+`}
+/>

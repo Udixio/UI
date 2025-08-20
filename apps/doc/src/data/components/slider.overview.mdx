@@ -1,0 +1,64 @@
+---
+---
+
+## Usage
+
+Use Slider for selecting a value or range along a track.
+
+```bash
+import { Slider } from "@udixio/ui-react"
+```
+
+```tsx
+<Slider name="volume" value={30} step={5} />
+```
+
+## Step and marks
+
+- Provide `step` for incremental movement.
+- Or use `marks` to snap to labeled positions; omit `step` to only allow marks.
+
+```tsx
+<div className="space-y-6">
+  <Slider name="percent" value={50} step={10} />
+  <Slider
+    name="percent"
+    value={25}
+    step={null as any}
+    marks={[
+      { value: 0, label: '0' },
+      { value: 25, label: '25' },
+      { value: 50, label: '50' },
+      { value: 75, label: '75' },
+      { value: 100, label: '100' },
+    ]}
+  />
+</div>
+```
+
+## Min and max
+
+The slider supports finite and infinite ends. Use -Infinity/Infinity to make the first/last marks open ended.
+
+```tsx
+<Slider
+  name="range"
+  value={0}
+  min={-Infinity}
+  max={Infinity}
+  marks={[
+    { value: -Infinity, label: 'Min' },
+    { value: 0, label: '0' },
+    { value: 100, label: '100' },
+    { value: Infinity, label: 'Max' },
+  ]}
+/>
+```
+
+## Keyboard and change events
+
+The slider is focusable and responds to ArrowLeft/ArrowRight. Listen to `onChange` for value updates.
+
+```tsx
+<Slider name="brightness" value={70} step={10} onChange={(v) => console.log('value', v)} />
+```

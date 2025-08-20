@@ -1,0 +1,37 @@
+---
+---
+
+import { CodePreview } from '@/components/CodePreview.js';
+import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
+
+## Usage
+
+Switch toggles a single setting on or off.
+
+```bash
+import { Switch } from "@udixio/ui-react"
+```
+
+```tsx
+<Switch selected={false} onChange={(v) => console.log('selected:', v)} />
+```
+
+## With icons
+
+Provide `activeIcon` and/or `inactiveIcon` to display inside the thumb.
+
+<CodePreview client:load
+             code={`
+  <div class="flex items-center gap-6">
+    <Switch selected inactiveIcon={faMoon} activeIcon={faSun} />
+    <Switch inactiveIcon={faMoon} activeIcon={faSun} />
+  </div>
+`}
+             scope={{ faMoon, faSun }}
+/>
+
+## Disabled
+
+```tsx
+<Switch disabled selected />
+```

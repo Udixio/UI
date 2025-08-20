@@ -1,0 +1,56 @@
+---
+---
+
+import { CodePreview } from '@/components/CodePreview.js';
+
+## Usage
+
+ToolTip displays informative text when users hover, focus, or click a target.
+
+```bash
+import { ToolTip, Button } from "@udixio/ui-react"
+```
+
+<CodePreview client:load
+             code={`
+  <ToolTip text="Copy to clipboard">
+    <Button label="Hover me" />
+  </ToolTip>
+`}
+/>
+
+## Variants
+
+- plain (default): small text bubble
+- rich: card-like with title, text and actions
+
+```tsx
+<div className="flex gap-6">
+  <ToolTip text="Plain tooltip">
+    <Button label="Plain" />
+  </ToolTip>
+  <ToolTip variant="rich" title="Saved" text="Item added to favorites" buttons={[{ label: 'Undo', variant: 'text' }] }>
+    <Button label="Rich" />
+  </ToolTip>
+</div>
+```
+
+## Triggers
+
+Control how the tooltip appears using `trigger`: "hover", "focus", "click" or an array of these.
+
+```tsx
+<ToolTip text="Opens on click" trigger="click">
+  <Button label="Click" />
+</ToolTip>
+```
+
+## Position
+
+Provide an explicit `position` or let it auto-place based on target position.
+
+```tsx
+<ToolTip text="Top left" variant="rich" position="top-left">
+  <Button label="Positioned" />
+</ToolTip>
+```
