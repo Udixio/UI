@@ -48,7 +48,7 @@ export const CodePreview = ({
 
   return (
     <UI.Card
-      className={classNames(' flex flex-col', { 'min-h-48': code })}
+      className={classNames('not-prose flex flex-col', { 'min-h-48': code })}
       variant={'filled'}
     >
       <div

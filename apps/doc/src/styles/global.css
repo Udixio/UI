@@ -11,8 +11,8 @@
     background-color: transparent !important;
 }
 
-.prose-markdown {
-    @apply prose max-w-none;
+.prose-markdown:not(.not-prose *) {
+    @apply prose max-w-none text-inherit;
 
     /* Headings */
 
