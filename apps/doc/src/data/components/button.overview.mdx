@@ -3,33 +3,31 @@
 
 
 
-## Installation
 
-- Install the React package:
+
+
+
+
+
+
+
+import { CodePreview } from '@/components/CodePreview.js';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
+
+
+## Usage
 
 ```bash
-pnpm add @udixio/ui-react @fortawesome/free-solid-svg-icons
+import { Button } from "@udixio/ui-react"
 ```
-
-- Import the global styles (once in your app):
-
-```text
-Import the library global styles once in your application (e.g., entry file):
-- @udixio/ui-react/dist/index.css
-```
-
-## Basic usage
 
 ```tsx
-<div className="flex gap-3">
-  <Button label="Action" />
-  <Button label="Disabled" disabled />
-</div>
+<Button label={"Button"}/>
 ```
 
 ## Variants
 
-```tsx
+```jsx
 <div className="flex flex-wrap gap-3">
   <Button label="Filled" variant="filled" />
   <Button label="Elevated" variant="elevated" />
@@ -41,7 +39,7 @@ Import the library global styles once in your application (e.g., entry file):
 
 ## Sizes
 
-```tsx
+```jsx
 <div className="flex flex-wrap items-end gap-3">
   <Button label="XS" size="xSmall" />
   <Button label="S" size="small" />
@@ -55,17 +53,19 @@ Import the library global styles once in your application (e.g., entry file):
 
 You can add an icon (FontAwesome) and choose its position.
 
-```text
-<div class="flex gap-3">
-  <!-- Example with a FontAwesome icon: const faPlus = ... -->
-  <Button label="Add" icon={faPlus} />
-  <Button label="Next" iconPosition="right" icon={faPlus} />
-</div>
-```
+<CodePreview client:load
+             code={`
+    <div class="flex gap-3">
+      <Button label="Add" icon={faPlus} />
+      <Button label="Next" iconPosition="right" icon={faPlus} />
+    </div>
+  `}
+             scope={{ faPlus }}
+/>
 
 ## Loading state
 
-```tsx
+```jsx
 <Button label="Sending..." loading />
 ```
 
@@ -73,29 +73,9 @@ You can add an icon (FontAwesome) and choose its position.
 
 If the `href` prop is provided, the component renders an `<a>` link; otherwise it renders a `<button>`.
 
-```tsx
+```jsx
 <div className="flex gap-3">
   <Button label="Click me" onClick={() => console.log('clicked')} />
   <Button label="Go to Udixio" href="https://udixio.dev" />
 </div>
-```
-
-## Accessibility
-
-- Use explicit, concise labels.
-- Ensure sufficient color contrast between background and text.
-- Do not hide the visible focus indicator.
-- The `disabled` state prevents focus and clicks.
-
-## Best practices
-
-- Prefer `onClick` for immediate actions and `href` for navigation.
-- Use `variant="text"` for secondary actions and `outlined` for alternatives.
-- Keep the `label` short for readability.
-
-## Code preview example
-
-```jsx
-
-  <Button label="Action" />
 ```

@@ -4,8 +4,6 @@ import { CodePreview } from '@/components/CodePreview';
 
 const { 'data-code': code, 'data-language': language } = Astro.props;
 ---
-{(language == 'jsx' || language == 'tsx') &&
-<CodePreview client:load code={code}>
+<CodePreview client:load code={language == 'jsx' ? code : undefined}>
   <Code code={code} lang={language} defaultColor={false} />
-</CodePreview>}
-{(language !== 'jsx' && language !== 'tsx') && <Code code={code} lang={language} defaultColor={false} />}
+</CodePreview>

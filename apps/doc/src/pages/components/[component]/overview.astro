@@ -20,7 +20,7 @@ const { Content, headings } = await render(overview);
 <Layout>
 
   <h1 class="text-3xl font-semibold mb-4">{component}</h1>
-  <article class="prose max-w-none">
+  <article class="prose-markdown max-w-none">
     <Content components={{ pre: Code }} />
   </article>
 

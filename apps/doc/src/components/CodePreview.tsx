@@ -44,21 +44,36 @@ export const CodePreview = ({
     }
   }
 
-  const [tab, setTab] = useState<'Code' | 'Preview'>('Preview');
+  const [tab, setTab] = useState<'Code' | 'Preview'>(code ? 'Preview' : 'Code');
 
   return (
-    <UI.Card className={'min-h-48 flex flex-col'} variant={'filled'}>
-      <div className={'flex justify-between pr-2 bg-surface-container'}>
-        <UI.Tabs
-          onTabSelected={({ label }) => setTab(label)}
-          variant={'secondary'}
-        >
-          <UI.Tab className={'bg-surface-container'} label={'Preview'}></UI.Tab>
-          <UI.Tab className={'bg-surface-container'} label={'Code'}></UI.Tab>
-        </UI.Tabs>
+    <UI.Card
+      className={classNames(' flex flex-col', { 'min-h-48': code })}
+      variant={'filled'}
+    >
+      <div
+        className={classNames(' justify-between pr-2 bg-surface-container', {
+          flex: code,
+        })}
+      >
+        {code && (
+          <UI.Tabs
+            onTabSelected={({ label }) => setTab(label)}
+            variant={'secondary'}
+          >
+            <UI.Tab
+              className={'bg-surface-container'}
+              label={'Preview'}
+            ></UI.Tab>
+            <UI.Tab className={'bg-surface-container'} label={'Code'}></UI.Tab>
+          </UI.Tabs>
+        )}
         <UI.IconButton
           onToggle={handleCopy}
           size={'xSmall'}
+          className={classNames({
+            'absolute right-2': !code,
+          })}
           icon={farClipboard}
           ariaLabel={'Copy to clipboard'}
           iconSelected={faClipboardCheck}
