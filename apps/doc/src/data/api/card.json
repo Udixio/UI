@@ -1,0 +1,45 @@
+[
+  {
+    "tags": {},
+    "filePath": "node_modules/@udixio/ui-react/src/lib/components/Card.tsx",
+    "description": "",
+    "displayName": "Card",
+    "methods": [],
+    "props": {
+      "variant": {
+        "defaultValue": {
+          "value": "outlined"
+        },
+        "description": "",
+        "name": "variant",
+        "declarations": [
+          {
+            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/card.interface.ts",
+            "name": "TypeLiteral"
+          }
+        ],
+        "required": false,
+        "type": {
+          "name": "\"outlined\" | \"elevated\" | \"filled\""
+        }
+      },
+      "isInteractive": {
+        "defaultValue": {
+          "value": false
+        },
+        "description": "",
+        "name": "isInteractive",
+        "declarations": [
+          {
+            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/card.interface.ts",
+            "name": "TypeLiteral"
+          }
+        ],
+        "required": false,
+        "type": {
+          "name": "boolean"
+        }
+      }
+    }
+  }
+]

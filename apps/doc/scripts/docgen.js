@@ -4,7 +4,26 @@ import path from 'path';
 import { glob } from 'glob';
 import { mkdir, writeFile } from 'fs/promises';
 
-const parser = withDefaultConfig();
+const parser = withDefaultConfig({
+  propFilter: (prop, component) => {
+    // Exclure les props React standard et HTML
+    if (prop.name === 'key' || prop.name === 'ref') {
+      return false;
+    }
+
+    // Exclure les props HTML standard (ceux qui viennent de @types/react)
+    if (prop.parent && prop.parent.fileName.includes('@types/react')) {
+      return false;
+    }
+
+    // Exclure les props avec des descriptions vides et sans valeur par défaut
+    if (!prop.description && !prop.defaultValue) {
+      return false;
+    }
+
+    return true;
+  },
+});
 
 const getComponentName = (filepath) => {
   const filename = path.basename(filepath, '.tsx');

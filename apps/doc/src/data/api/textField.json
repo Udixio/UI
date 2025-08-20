@@ -1,0 +1,113 @@
+[
+  {
+    "tags": {},
+    "filePath": "node_modules/@udixio/ui-react/src/lib/components/TextField.tsx",
+    "description": "",
+    "displayName": "TextField",
+    "methods": [],
+    "props": {
+      "disabled": {
+        "defaultValue": {
+          "value": false
+        },
+        "description": "",
+        "name": "disabled",
+        "declarations": [
+          {
+            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/text-field.interface.ts",
+            "name": "TypeLiteral"
+          }
+        ],
+        "required": false,
+        "type": {
+          "name": "boolean"
+        }
+      },
+      "showSupportingText": {
+        "defaultValue": {
+          "value": false
+        },
+        "description": "",
+        "name": "showSupportingText",
+        "declarations": [
+          {
+            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/text-field.interface.ts",
+            "name": "TypeLiteral"
+          }
+        ],
+        "required": false,
+        "type": {
+          "name": "boolean"
+        }
+      },
+      "variant": {
+        "defaultValue": {
+          "value": "filled"
+        },
+        "description": "",
+        "name": "variant",
+        "declarations": [
+          {
+            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/text-field.interface.ts",
+            "name": "TypeLiteral"
+          }
+        ],
+        "required": false,
+        "type": {
+          "name": "TextFieldVariant"
+        }
+      },
+      "type": {
+        "defaultValue": {
+          "value": "text"
+        },
+        "description": "",
+        "name": "type",
+        "declarations": [
+          {
+            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/text-field.interface.ts",
+            "name": "TypeLiteral"
+          }
+        ],
+        "required": false,
+        "type": {
+          "name": "\"number\" | \"text\" | \"password\""
+        }
+      },
+      "autoComplete": {
+        "defaultValue": {
+          "value": "on"
+        },
+        "description": "",
+        "name": "autoComplete",
+        "declarations": [
+          {
+            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/text-field.interface.ts",
+            "name": "TypeLiteral"
+          }
+        ],
+        "required": false,
+        "type": {
+          "name": "string"
+        }
+      },
+      "textLine": {
+        "defaultValue": {
+          "value": "singleLine"
+        },
+        "description": "",
+        "name": "textLine",
+        "declarations": [
+          {
+            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/text-field.interface.ts",
+            "name": "TypeLiteral"
+          }
+        ],
+        "required": false,
+        "type": {
+          "name": "\"singleLine\" | \"multiLine\" | \"textAreas\""
+        }
+      }
+    }
+  }
+]

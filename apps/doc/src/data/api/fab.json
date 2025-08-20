@@ -1,0 +1,62 @@
+[
+  {
+    "tags": {},
+    "filePath": "node_modules/@udixio/ui-react/src/lib/components/Fab.tsx",
+    "description": "",
+    "displayName": "Fab",
+    "methods": [],
+    "props": {
+      "variant": {
+        "defaultValue": {
+          "value": "primary"
+        },
+        "description": "",
+        "name": "variant",
+        "declarations": [
+          {
+            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/fab.interface.ts",
+            "name": "TypeLiteral"
+          }
+        ],
+        "required": false,
+        "type": {
+          "name": "FabVariant"
+        }
+      },
+      "size": {
+        "defaultValue": {
+          "value": "medium"
+        },
+        "description": "",
+        "name": "size",
+        "declarations": [
+          {
+            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/fab.interface.ts",
+            "name": "TypeLiteral"
+          }
+        ],
+        "required": false,
+        "type": {
+          "name": "\"small\" | \"medium\" | \"large\""
+        }
+      },
+      "isExtended": {
+        "defaultValue": {
+          "value": false
+        },
+        "description": "",
+        "name": "isExtended",
+        "declarations": [
+          {
+            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/fab.interface.ts",
+            "name": "TypeLiteral"
+          }
+        ],
+        "required": false,
+        "type": {
+          "name": "boolean"
+        }
+      }
+    }
+  }
+]
