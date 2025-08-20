@@ -1,9 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { ReactProps } from '../utils';
 import {
-  NavigationRailItem,
-  NavigationRailSection,
-} from './NavigationRailItem';
+  Children,
+  cloneElement,
+  Fragment,
+  isValidElement,
+  ReactElement,
+  ReactNode,
+  RefObject,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
+import { ReactProps } from '../utils';
+import { NavigationRailItem, NavigationRailSection } from './NavigationRailItem';
 import { Fab } from './Fab';
 import { navigationRailStyle } from '../styles/navigation-rail.style';
 import { NavigationRailInterface } from '../interfaces/navigation-rail.interface';
@@ -11,6 +19,11 @@ import { FabInterface, NavigationRailItemInterface } from '../interfaces';
 import { faBars, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { IconButton } from './IconButton';
 
+/**
+ * Navigation rails let people switch between UI views on mid-sized devices
+ * @status beta
+ * @category Navigation
+ */
 export const NavigationRail = ({
   variant = 'standard',
   onItemSelected,
@@ -49,25 +62,25 @@ export const NavigationRail = ({
 
   const setSelectedItem = externalSetSelectedItem || internalSetSelectedItem;
 
-  const ref = React.useRef<HTMLDivElement | null>(null);
+  const ref = useRef<HTMLDivElement | null>(null);
 
   const handleOnItemSelected = (
     args: { index: number } & Pick<
       ReactProps<NavigationRailItemInterface>,
       'label' | 'icon'
     > & {
-        ref: React.RefObject<any>;
-      }
+        ref: RefObject<any>;
+      },
   ) => {
     onItemSelected?.(args);
   };
 
-  function flattenChildren(children: React.ReactNode): React.ReactNode[] {
-    const flatChildren: React.ReactNode[] = [];
-    React.Children.forEach(children, (child) => {
+  function flattenChildren(children: ReactNode): ReactNode[] {
+    const flatChildren: ReactNode[] = [];
+    Children.forEach(children, (child) => {
       if (
-        React.isValidElement<{ children?: React.ReactNode }>(child) &&
-        child.type === React.Fragment
+        isValidElement<{ children?: ReactNode }>(child) &&
+        child.type === Fragment
       ) {
         flatChildren.push(...flattenChildren(child.props.children));
       } else {
@@ -80,7 +93,7 @@ export const NavigationRail = ({
   const childrenArray = flattenChildren(children);
 
   const fab = childrenArray.filter(
-    (child) => React.isValidElement(child) && child.type === Fab
+    (child) => isValidElement(child) && child.type === Fab,
   );
 
   const styles = navigationRailStyle({
@@ -114,33 +127,25 @@ export const NavigationRail = ({
       <div className={styles.header}>
         <IconButton
           onClick={() => setIsExtended(!isExtended)}
-          arialLabel={isExtended ? menu?.opened.label : menu?.closed.label}
+          ariaLabel={isExtended ? menu?.opened.label : menu?.closed.label}
           className={styles.menuIcon}
           icon={!isExtended ? menu?.closed.icon : menu.opened.icon}
         />
         {fab.length > 0 &&
-          React.cloneElement(
-            fab[0] as React.ReactElement<ReactProps<FabInterface>>,
-            {
-              transition: transition,
-              isExtended: isExtended,
-              className: '!shadow-none mx-5 ' + (fab[0] as any).props.className,
-            }
-          )}
+          cloneElement(fab[0] as ReactElement<ReactProps<FabInterface>>, {
+            transition: transition,
+            isExtended: isExtended,
+            className: '!shadow-none mx-5 ' + (fab[0] as any).props.className,
+          })}
       </div>
 
       <div className={styles.segments}>
         {(() => {
           let itemIndex = 0;
           return childrenArray.map((child) => {
-            if (
-              React.isValidElement(child) &&
-              child.type === NavigationRailItem
-            ) {
-              return React.cloneElement(
-                child as React.ReactElement<
-                  ReactProps<NavigationRailItemInterface>
-                >,
+            if (isValidElement(child) && child.type === NavigationRailItem) {
+              return cloneElement(
+                child as ReactElement<ReactProps<NavigationRailItemInterface>>,
                 {
                   key: itemIndex,
                   index: itemIndex++, // Utilise et incrémente le compteur dédié
@@ -151,22 +156,16 @@ export const NavigationRail = ({
                   transition,
                   extendedOnly: extendedOnly.current,
                   isExtended,
-                }
+                },
               );
             }
-            if (React.isValidElement(child) && child.type === Fab) {
+            if (isValidElement(child) && child.type === Fab) {
               return null;
             }
-            if (
-              React.isValidElement(child) &&
-              child.type === NavigationRailSection
-            ) {
+            if (isValidElement(child) && child.type === NavigationRailSection) {
               extendedOnly.current = true;
               if (!isExtended) return null;
-              return React.cloneElement(
-                child as React.ReactElement<{ label: string }>,
-                {}
-              );
+              return cloneElement(child as ReactElement<{ label: string }>, {});
             }
             return child;
           });

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import { Icon } from '../icon';
 
 import { RippleEffect } from '../effects/ripple';
@@ -9,6 +9,11 @@ import { classNames } from '../utils';
 import { ReactProps } from '../utils/component';
 import { ToolTip } from './ToolTip';
 
+/**
+ * Floating action buttons (FABs) help people take primary actions
+ * @status beta
+ * @category Action
+ */
 export const Fab = ({
   className,
   label,

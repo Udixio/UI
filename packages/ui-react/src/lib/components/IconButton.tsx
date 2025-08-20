@@ -10,6 +10,11 @@ import { ToolTip } from './ToolTip';
 
 export type IconButtonVariant = 'standard' | 'filled' | 'tonal' | 'outlined';
 
+/**
+ * Icon buttons help people take minor actions with one tap
+ * @status beta
+ * @category Action
+ */
 export const IconButton = ({
   variant = 'standard',
   href,

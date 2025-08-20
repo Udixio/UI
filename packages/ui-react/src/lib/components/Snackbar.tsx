@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { SnackbarInterface } from '../interfaces/snackbar.interface';
@@ -7,6 +7,11 @@ import { snackbarStyle } from '../styles/snackbar.style';
 import { MotionProps } from '../utils/component';
 import { IconButton } from './IconButton';
 
+/**
+ * Snackbars show short updates about app processes at the bottom of the screen
+ * @status beta
+ * @category Communication
+ */
 export const Snackbar = ({
   supportingText,
   className,
@@ -56,7 +61,7 @@ export const Snackbar = ({
               onClick={() => handleClose()}
               className={styles.icon}
               icon={closeIcon}
-              arialLabel={'close the snackbar'}
+              ariaLabel={'close the snackbar'}
             ></IconButton>
           </div>
         </motion.div>

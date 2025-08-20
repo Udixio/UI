@@ -7,6 +7,11 @@ import { ReactProps } from '../utils/component';
 import { TabProps } from '../interfaces/tab.interface';
 import { Tab } from './Tab';
 
+/**
+ * Tabs organize content across different screens and views
+ * @status beta
+ * @category Navigation
+ */
 export const Tabs = ({
   variant = 'primary',
   onTabSelected,
@@ -17,7 +22,7 @@ export const Tabs = ({
   scrollable = false,
 }: ReactProps<TabsInterface>) => {
   const [internalSelectedTab, internalSetSelectedTab] = useState<number | null>(
-    null
+    null,
   );
 
   let selectedTab: number | null;
@@ -30,7 +35,7 @@ export const Tabs = ({
   const setSelectedTab = externalSetSelectedTab || internalSetSelectedTab;
 
   const tabChildren = React.Children.toArray(children).filter(
-    (child) => React.isValidElement(child) && child.type === Tab
+    (child) => React.isValidElement(child) && child.type === Tab,
   );
 
   const ref = React.useRef<HTMLDivElement | null>(null);
@@ -38,7 +43,7 @@ export const Tabs = ({
   const handleOnTabSelected = (
     args: { index: number } & Pick<TabProps, 'label' | 'icon'> & {
         ref: React.RefObject<any>;
-      }
+      },
   ) => {
     onTabSelected?.(args);
 

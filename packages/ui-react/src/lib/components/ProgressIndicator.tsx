@@ -1,10 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ProgressIndicatorInterface } from '../interfaces/progress-indicator.interface';
 
 import { motion } from 'motion/react';
 import { progressIndicatorStyle } from '../styles/progress-indicator.style';
 import { ReactProps } from '../utils/component';
 
+/**
+ * @status beta
+ * @category Communication
+ */
 export const ProgressIndicator = ({
   variant = 'linear-determinate',
   minHeight = 4,
@@ -15,7 +19,7 @@ export const ProgressIndicator = ({
 }: ReactProps<ProgressIndicatorInterface>): any => {
   const [completedPercentage, setCompletedPercentage] = useState(value);
 
-  const [transitionRotate, setTransitionRotate] = useState(1.5);
+  const [transitionRotate] = useState(1.5);
 
   useEffect(() => {
     if (value > 100) {
@@ -45,6 +49,7 @@ export const ProgressIndicator = ({
       }, getTransitionRotate() * 1000);
       return () => clearInterval(interval);
     }
+    return;
   }, [variant, togglePercentage, completedPercentage]);
 
   const [isVisible, setIsVisible] = useState(false);
@@ -60,6 +65,7 @@ export const ProgressIndicator = ({
     } else {
       setIsVisible(true);
     }
+    return;
   }, [completedPercentage, transitionDuration]);
 
   const styles = progressIndicatorStyle({

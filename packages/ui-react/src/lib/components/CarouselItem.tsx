@@ -4,10 +4,14 @@ import { motion } from 'motion/react';
 import { carouselItemStyle } from '../styles';
 import { MotionProps } from '../utils';
 
+/**
+ * @status beta
+ * @parent Carousel
+ */
 export const normalize = (
   value: number,
   inputRange: [number, number],
-  outputRange: [number, number] = [0, 1]
+  outputRange: [number, number] = [0, 1],
 ): number => {
   const [inputMin, inputMax] = inputRange;
   const [outputMin, outputMax] = outputRange;

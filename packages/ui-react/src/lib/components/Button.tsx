@@ -7,7 +7,9 @@ import { RippleEffect } from '../effects';
 import { useRef } from 'react';
 
 /**
- * The Button component is a versatile component that can be used to trigger actions or to navigate to different sections of the application
+ * Buttons prompt most actions in a UI
+ * @status beta
+ * @category Action
  */
 export const Button = ({
   variant = 'filled',

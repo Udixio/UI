@@ -6,6 +6,11 @@ import { SwitchInterface } from '../interfaces/switch.interface';
 import { switchStyle } from '../styles/switch.style';
 import { MotionProps } from '../utils/component';
 
+/**
+ * Switches toggle the selection of an item on or off
+ * @status beta
+ * @category Input
+ */
 export const Switch = ({
   selected = false,
   className,

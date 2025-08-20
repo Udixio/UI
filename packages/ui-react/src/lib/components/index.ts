@@ -3,7 +3,7 @@ export * from './Card';
 export * from './Carousel';
 export * from './CarouselItem';
 export * from './CarouselItem';
-export * from './Divided';
+export * from './Divider';
 export * from './Fab';
 export * from './IconButton';
 export * from './IconButton';

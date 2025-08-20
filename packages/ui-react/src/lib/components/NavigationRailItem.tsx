@@ -14,6 +14,10 @@ export const NavigationRailSection = ({ label }: { label: string }) => {
   );
 };
 
+/**
+ * @status beta
+ * @parent NavigationRail
+ */
 export const NavigationRailItem = ({
   className,
   onClick,

@@ -1,10 +1,4 @@
-import {
-  cloneElement,
-  isValidElement,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { cloneElement, isValidElement, useEffect, useRef, useState } from 'react';
 import { MotionProps } from '../utils';
 import { Button } from './Button';
 import { ToolTipInterface } from '../interfaces';
@@ -13,6 +7,11 @@ import { v4 } from 'uuid';
 import { AnimatePresence, motion } from 'motion/react';
 import { SyncedFixedWrapper } from '../effects';
 
+/**
+ * Tooltips display brief labels or messages
+ * @status beta
+ * @category Communication
+ */
 export const ToolTip = ({
   variant = 'plain',
   buttons,
@@ -55,7 +54,7 @@ export const ToolTip = ({
     return () => {
       document.removeEventListener(
         'tooltip-update',
-        handleUpdate as EventListener
+        handleUpdate as EventListener,
       );
     };
   }, []);
@@ -130,6 +129,7 @@ export const ToolTip = ({
         targetElement.removeEventListener('blur', handleBlur);
       };
     }
+    return;
   }, [resolvedRef, trigger, id, isVisible]);
 
   // Si targetRef est undefined, on applique la réf au premier enfant
