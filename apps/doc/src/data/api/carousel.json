@@ -1,8 +1,11 @@
 [
   {
-    "tags": {},
+    "tags": {
+      "status": "beta",
+      "category": "Layout"
+    },
     "filePath": "node_modules/@udixio/ui-react/src/lib/components/Carousel.tsx",
-    "description": "",
+    "description": "Carousels show a collection of items that can be scrolled on and off the screen\nResources",
     "displayName": "Carousel",
     "methods": [],
     "props": {

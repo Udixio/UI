@@ -1,8 +1,11 @@
 [
   {
-    "tags": {},
+    "tags": {
+      "status": "beta",
+      "category": "Communication"
+    },
     "filePath": "node_modules/@udixio/ui-react/src/lib/components/ToolTip.tsx",
-    "description": "",
+    "description": "Tooltips display brief labels or messages",
     "displayName": "ToolTip",
     "methods": [],
     "props": {

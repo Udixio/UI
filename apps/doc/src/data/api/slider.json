@@ -1,8 +1,11 @@
 [
   {
-    "tags": {},
+    "tags": {
+      "status": "beta",
+      "category": "Input"
+    },
     "filePath": "node_modules/@udixio/ui-react/src/lib/components/Slider.tsx",
-    "description": "",
+    "description": "Sliders let users make selections from a range of values",
     "displayName": "Slider",
     "methods": [],
     "props": {

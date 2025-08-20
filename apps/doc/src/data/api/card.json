@@ -1,8 +1,11 @@
 [
   {
-    "tags": {},
+    "tags": {
+      "status": "beta",
+      "category": "Layout"
+    },
     "filePath": "node_modules/@udixio/ui-react/src/lib/components/Card.tsx",
-    "description": "",
+    "description": "Cards display content and actions about a single subject",
     "displayName": "Card",
     "methods": [],
     "props": {

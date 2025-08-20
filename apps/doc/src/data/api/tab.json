@@ -1,6 +1,9 @@
 [
   {
-    "tags": {},
+    "tags": {
+      "status": "beta",
+      "parent": "Tabs"
+    },
     "filePath": "node_modules/@udixio/ui-react/src/lib/components/Tab.tsx",
     "description": "",
     "displayName": "Tab",

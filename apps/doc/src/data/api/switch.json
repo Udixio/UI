@@ -1,8 +1,11 @@
 [
   {
-    "tags": {},
+    "tags": {
+      "status": "beta",
+      "category": "Input"
+    },
     "filePath": "node_modules/@udixio/ui-react/src/lib/components/Switch.tsx",
-    "description": "",
+    "description": "Switches toggle the selection of an item on or off",
     "displayName": "Switch",
     "methods": [],
     "props": {

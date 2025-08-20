@@ -1,8 +1,11 @@
 [
   {
-    "tags": {},
+    "tags": {
+      "status": "beta",
+      "category": "Input"
+    },
     "filePath": "node_modules/@udixio/ui-react/src/lib/components/TextField.tsx",
-    "description": "",
+    "description": "Text fields let users enter text into a UI",
     "displayName": "TextField",
     "methods": [],
     "props": {

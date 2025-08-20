@@ -1,8 +1,11 @@
 [
   {
-    "tags": {},
+    "tags": {
+      "status": "beta",
+      "category": "Action"
+    },
     "filePath": "node_modules/@udixio/ui-react/src/lib/components/Button.tsx",
-    "description": "The Button component is a versatile component that can be used to trigger actions or to navigate to different sections of the application",
+    "description": "Buttons prompt most actions in a UI",
     "displayName": "Button",
     "methods": [],
     "props": {

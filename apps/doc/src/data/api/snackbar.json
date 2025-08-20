@@ -1,8 +1,11 @@
 [
   {
-    "tags": {},
+    "tags": {
+      "status": "beta",
+      "category": "Communication"
+    },
     "filePath": "node_modules/@udixio/ui-react/src/lib/components/Snackbar.tsx",
-    "description": "",
+    "description": "Snackbars show short updates about app processes at the bottom of the screen",
     "displayName": "Snackbar",
     "methods": [],
     "props": {

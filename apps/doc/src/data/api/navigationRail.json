@@ -1,8 +1,11 @@
 [
   {
-    "tags": {},
+    "tags": {
+      "status": "beta",
+      "category": "Navigation"
+    },
     "filePath": "node_modules/@udixio/ui-react/src/lib/components/NavigationRail.tsx",
-    "description": "",
+    "description": "Navigation rails let people switch between UI views on mid-sized devices",
     "displayName": "NavigationRail",
     "methods": [],
     "props": {

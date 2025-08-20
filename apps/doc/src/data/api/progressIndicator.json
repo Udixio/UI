@@ -1,6 +1,9 @@
 [
   {
-    "tags": {},
+    "tags": {
+      "status": "beta",
+      "category": "Communication"
+    },
     "filePath": "node_modules/@udixio/ui-react/src/lib/components/ProgressIndicator.tsx",
     "description": "",
     "displayName": "ProgressIndicator",

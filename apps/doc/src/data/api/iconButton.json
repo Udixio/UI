@@ -1,8 +1,11 @@
 [
   {
-    "tags": {},
+    "tags": {
+      "status": "beta",
+      "category": "Action"
+    },
     "filePath": "node_modules/@udixio/ui-react/src/lib/components/IconButton.tsx",
-    "description": "",
+    "description": "Icon buttons help people take minor actions with one tap",
     "displayName": "IconButton",
     "methods": [],
     "props": {
