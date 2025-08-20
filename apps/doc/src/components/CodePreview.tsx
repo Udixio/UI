@@ -64,6 +64,7 @@ export const CodePreview = ({
             <UI.Tab
               className={'bg-surface-container'}
               label={'Preview'}
+              selected
             ></UI.Tab>
             <UI.Tab className={'bg-surface-container'} label={'Code'}></UI.Tab>
           </UI.Tabs>

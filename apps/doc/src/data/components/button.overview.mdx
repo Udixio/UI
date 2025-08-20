@@ -17,12 +17,14 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 ## Usage
 
+The Button component can trigger an action or navigate to a link. Import it from the @udixio/ui-react package and provide at least a label via the label prop.
+
 ```bash
 import { Button } from "@udixio/ui-react"
 ```
 
 ```tsx
-<Button label={"Button"}/>
+<Button label={"Button"} />
 ```
 
 ## Variants
@@ -37,6 +39,17 @@ import { Button } from "@udixio/ui-react"
 </div>
 ```
 
+## Disabled state
+
+Use the `disabled` prop to make the button inactive.
+
+```jsx
+<div className="flex flex-wrap gap-3">
+  <Button label="Disabled" disabled />
+  <Button label="Disabled" variant="outlined" disabled />
+</div>
+```
+
 ## Sizes
 
 ```jsx
@@ -46,6 +59,17 @@ import { Button } from "@udixio/ui-react"
   <Button label="M" size="medium" />
   <Button label="L" size="large" />
   <Button label="XL" size="xLarge" />
+</div>
+```
+
+## Shapes
+
+Control the button's appearance via the `shape` prop.
+
+```jsx
+<div className="flex flex-wrap gap-3">
+  <Button label="Rounded" shape="rounded" />
+  <Button label="Squared" shape="squared" />
 </div>
 ```
 
