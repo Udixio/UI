@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "docgen": "node scripts/docgen.js",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -23,5 +24,9 @@
     "react-dom": "^19.1.1",
     "react-live": "^4.1.8",
     "tailwindcss": "^4.1.12"
+  },
+  "devDependencies": {
+    "glob": "^11.0.3",
+    "react-docgen-typescript": "^2.4.0"
   }
 }
