@@ -1,0 +1,45 @@
+---
+---
+
+## Usage
+
+Import the Card component from @udixio/ui-react. Use it to group related content.
+
+```bash
+import { Card } from "@udixio/ui-react"
+```
+
+```tsx
+<Card>
+  <div className="p-4 space-y-2">
+    <h3 className="text-lg font-semibold">Card title</h3>
+    <p>Card body content goes here.</p>
+  </div>
+</Card>
+```
+
+## Variants
+
+```jsx
+<div className="flex flex-col gap-4">
+  <Card>
+    <div className="p-4">Outlined (default)</div>
+  </Card>
+  <Card variant="elevated">
+    <div className="p-4">Elevated</div>
+  </Card>
+  <Card variant="filled">
+    <div className="p-4">Filled</div>
+  </Card>
+</div>
+```
+
+## Interactive state
+
+Enable ripple and hover feedback by setting `isInteractive` to true.
+
+```jsx
+<Card isInteractive>
+  <div className="p-4">Clickable card</div>
+</Card>
+```

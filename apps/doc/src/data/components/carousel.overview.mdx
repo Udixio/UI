@@ -1,0 +1,32 @@
+---
+---
+
+## Usage
+
+Use Carousel with CarouselItem children to create a horizontally scrollable showcase.
+
+```bash
+import { Carousel, CarouselItem } from "@udixio/ui-react"
+```
+
+```tsx
+<Carousel variant="hero" gap={8}>
+  <CarouselItem>
+    <div className="p-6 bg-surface rounded-xl">Slide 1</div>
+  </CarouselItem>
+  <CarouselItem>
+    <div className="p-6 bg-surface rounded-xl">Slide 2</div>
+  </CarouselItem>
+  <CarouselItem>
+    <div className="p-6 bg-surface rounded-xl">Slide 3</div>
+  </CarouselItem>
+</Carousel>
+```
+
+## Sizing behavior
+
+Items automatically adapt their width based on the scroll position and the variant settings. You can adjust spacing via `gap` and behavior with `variant`.
+
+```tsx
+<Carousel variant="hero" gap={16} />
+```

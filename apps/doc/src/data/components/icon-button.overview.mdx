@@ -1,0 +1,50 @@
+---
+---
+
+import { CodePreview } from '@/components/CodePreview.js';
+import { faPlus, faStar as fasStar } from '@fortawesome/free-solid-svg-icons';
+import { faStar as farStar } from '@fortawesome/free-regular-svg-icons';
+
+## Usage
+
+Import the IconButton from @udixio/ui-react. Use it for actions represented by an icon.
+
+```bash
+import { IconButton } from "@udixio/ui-react"
+```
+
+<CodePreview client:load
+             code={`
+  <div class="flex items-center gap-3">
+    <IconButton ariaLabel="Add item" icon={faPlus} />
+  </div>`}
+             scope={{ faPlus }}
+/>
+
+## Variants
+
+<CodePreview client:load
+             code={`
+  <div class="flex items-center gap-3">
+    <IconButton ariaLabel="Standard" icon={faPlus} variant="standard" />
+    <IconButton ariaLabel="Filled" icon={faPlus} variant="filled" />
+    <IconButton ariaLabel="Tonal" icon={faPlus} variant="tonal" />
+    <IconButton ariaLabel="Outlined" icon={faPlus} variant="outlined" />
+  </div>`}
+             scope={{ faPlus }}
+/>
+
+## Toggle state
+
+Use \`onToggle\` and \`iconSelected\` to turn it into a toggle button.
+
+<CodePreview client:load
+             code={`
+  <IconButton
+    ariaLabel="Favorite"
+    icon={farStar}
+    iconSelected={fasStar}
+    onToggle={(active) => console.log('active:', active)}
+  />`}
+             scope={{ farStar, fasStar }}
+/>
