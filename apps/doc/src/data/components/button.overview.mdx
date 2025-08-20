@@ -1,6 +1,7 @@
-import CodePreview from '@/components/CodePreview.tsx';
+---
+---
 
-Buttons are used to initiate actions or navigate to another page. The Button component supports multiple variants (filled, elevated, outlined, text, filledTonal), different sizes, a loading state, and an optional icon.
+
 
 ## Installation
 
@@ -94,18 +95,7 @@ If the `href` prop is provided, the component renders an `<a>` link; otherwise i
 
 ## Code preview example
 
-<CodePreview client:load title="Basic usage (toggle & copy)" language="tsx" initiallyOpen={true}
-             previewHtml={`<div class=\"flex gap-3\">\n  <button class=\"px-4 py-2 rounded bg-primary text-on-primary shadow\">Action</button>\n  <button class=\"px-4 py-2 rounded bg-surface text-on-surface opacity-40 cursor-not-allowed border border-outline\">Disabled</button>\n</div>`}>
-  {`import { Button } from '@udixio/ui-react';
-import '@udixio/ui-react/dist/index.css';
+```jsx
 
-export function Example() {
-  return (
-    <div className="flex gap-3">
-      <Button label="Action" />
-      <Button label="Disabled" disabled />
-    </div>
-  );
-}
-`}
-</CodePreview>
+  <Button label="Action" />
+```

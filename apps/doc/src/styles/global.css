@@ -3,3 +3,8 @@
 
 @source "../../node_modules/@udixio/ui-react";
 @source "../../src/";
+
+
+.astro-code.github-dark {
+    background-color: transparent !important;
+}

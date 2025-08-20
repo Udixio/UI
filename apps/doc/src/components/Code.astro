@@ -1,0 +1,11 @@
+---
+import { Code } from 'astro:components';
+import { CodePreview } from '@/components/CodePreview';
+
+const { 'data-code': code, 'data-language': language } = Astro.props;
+---
+{(language == 'jsx' || language == 'tsx') &&
+<CodePreview client:load code={code}>
+  <Code code={code} lang={language} defaultColor={false} />
+</CodePreview>}
+{(language !== 'jsx' && language !== 'tsx') && <Code code={code} lang={language} defaultColor={false} />}
