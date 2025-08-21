@@ -59,8 +59,9 @@ export const Button = ({
       if (disabled) {
         e.preventDefault();
       }
-      setIsActive(!isActive);
-      onToggle(Boolean(isActive));
+      const next = !isActive;
+      setIsActive(next);
+      onToggle(next);
     };
   }
   const styles = buttonStyle({
@@ -85,8 +86,7 @@ export const Button = ({
   ) : (
     <></>
   );
-  console.log('gfegrger', onToggle);
-  console.log('test', isActive, onToggle, handleClick);
+
   return (
     <ElementType
       ref={resolvedRef}
@@ -96,72 +96,72 @@ export const Button = ({
       onClick={handleClick}
       disabled={disabled}
       aria-pressed={onToggle ? isActive : undefined}
+      style={{ transition: transition.duration + 's' }}
     >
+      <div className={styles.touchTarget}></div>
       <div
-        className={styles.container}
+        className={styles.stateLayer}
         style={{ transition: transition.duration + 's' }}
       >
-        <div className={styles.stateLayer}>
-          {!disabled && (
-            <RippleEffect
-              colorName={
-                (variant === 'elevated' && 'primary') ||
-                (variant === 'filled' && 'on-primary') ||
-                (variant === 'filledTonal' && 'on-secondary-container') ||
-                (variant === 'outlined' && 'primary') ||
-                (variant === 'text' && 'primary') ||
-                ''
-              }
-              triggerRef={resolvedRef}
-            />
-          )}
-        </div>
-
-        {iconPosition === 'left' && iconElement}
-        {loading && (
-          <div
-            className={
-              '!absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2'
+        {!disabled && (
+          <RippleEffect
+            colorName={
+              (variant === 'filled' && onToggle && 'on-surface-variant') ||
+              (variant === 'filled' && !onToggle && 'on-primary') ||
+              (variant === 'elevated' && 'primary') ||
+              (variant === 'filledTonal' && 'on-secondary-container') ||
+              (variant === 'outlined' && 'primary') ||
+              (variant === 'text' && 'primary') ||
+              ''
             }
-          >
-            <ProgressIndicator
-              className={() => ({
-                progressIndicator: 'h-6 w-6',
-                activeIndicator: classNames(
-                  {
-                    '!stroke-primary': variant === 'elevated' && !disabled,
-                    '!stroke-on-surface/[38%]':
-                      variant === 'elevated' && disabled,
-                  },
-                  {
-                    '!stroke-on-primary': variant === 'filled' && !disabled,
-                    '!stroke-on-surface/[38%]':
-                      variant === 'filled' && disabled,
-                  },
-                  {
-                    '!stroke-on-secondary-container':
-                      variant === 'filledTonal' && !disabled,
-                    '!stroke-on-surface/[38%]':
-                      variant === 'filledTonal' && disabled,
-                  },
-                  {
-                    '!stroke-primary': variant === 'outlined' && !disabled,
-                    '!stroke-on-surface/[38%]':
-                      variant === 'outlined' && disabled,
-                  },
-                  {
-                    '!stroke-primary': variant === 'text' && !disabled,
-                    '!stroke-on-surface/[38%]': variant === 'text' && disabled,
-                  },
-                ),
-              })}
-              variant={'circular-indeterminate'}
-            />
-          </div>
+            triggerRef={resolvedRef}
+          />
         )}
-        <span className={styles.label}>{label ?? children}</span>
-        {iconPosition === 'right' && iconElement}
       </div>
+
+      {iconPosition === 'left' && iconElement}
+      {loading && (
+        <div
+          className={
+            '!absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2'
+          }
+        >
+          <ProgressIndicator
+            className={() => ({
+              progressIndicator: 'h-6 w-6',
+              activeIndicator: classNames(
+                {
+                  '!stroke-primary': variant === 'elevated' && !disabled,
+                  '!stroke-on-surface/[38%]':
+                    variant === 'elevated' && disabled,
+                },
+                {
+                  '!stroke-on-primary': variant === 'filled' && !disabled,
+                  '!stroke-on-surface/[38%]': variant === 'filled' && disabled,
+                },
+                {
+                  '!stroke-on-secondary-container':
+                    variant === 'filledTonal' && !disabled,
+                  '!stroke-on-surface/[38%]':
+                    variant === 'filledTonal' && disabled,
+                },
+                {
+                  '!stroke-primary': variant === 'outlined' && !disabled,
+                  '!stroke-on-surface/[38%]':
+                    variant === 'outlined' && disabled,
+                },
+                {
+                  '!stroke-primary': variant === 'text' && !disabled,
+                  '!stroke-on-surface/[38%]': variant === 'text' && disabled,
+                },
+              ),
+            })}
+            variant={'circular-indeterminate'}
+          />
+        </div>
+      )}
+      <span className={styles.label}>{label ?? children}</span>
+      {iconPosition === 'right' && iconElement}
     </ElementType>
   );
 };

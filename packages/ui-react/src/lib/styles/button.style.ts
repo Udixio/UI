@@ -11,20 +11,12 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
     isActive,
     loading,
     shape,
+    onToggle,
     size,
     allowShapeTransformation,
   }) => ({
     button: classNames(
-      'group flex items-center cursor-pointer',
-      size === 'xSmall' && 'py-2',
-      size === 'small' && 'py-1',
-      variant === 'text' && [
-        size === 'xSmall' && '-my-2',
-        size === 'small' && '-my-1',
-      ],
-    ),
-    container: classNames(
-      ' relative outline-none overflow-hidden inline-block flex  justify-center   items-center  ',
+      ' relative cursor-pointer group outline-none inline-block flex  justify-center   items-center  ',
       size === 'xSmall' && 'text-label-large px-3 py-1.5 gap-1',
       size === 'small' && 'text-label-large px-4 py-2.5 gap-2',
       size === 'medium' && 'text-title-medium px-6 py-4 gap-2',
@@ -35,22 +27,16 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
         'rounded-[40px]': size === 'medium',
         'rounded-[70px]': size === 'large' || size == 'xLarge',
       },
-      shape === 'squared' && {
+      (shape === 'squared' || (allowShapeTransformation && isActive)) && {
         'rounded-[12px]': size === 'xSmall' || size == 'small',
         'rounded-[16px]': size === 'medium',
         'rounded-[28px]': size === 'large' || size == 'xLarge',
       },
       allowShapeTransformation &&
         !disabled && {
-          'group-active:rounded-[12px]': size === 'xSmall' || size == 'small',
-          'group-active:rounded-[16px]': size === 'medium',
-          'group-active:rounded-[28px]': size === 'large' || size == 'xLarge',
-        },
-      allowShapeTransformation &&
-        isActive && {
-          'rounded-[12px]': size === 'xSmall' || size == 'small',
-          'rounded-[16px]': size === 'medium',
-          'rounded-[28px]': size === 'large' || size == 'xLarge',
+          'active:rounded-[12px]': size === 'xSmall' || size == 'small',
+          'active:rounded-[16px]': size === 'medium',
+          'active:rounded-[28px]': size === 'large' || size == 'xLarge',
         },
       variant === 'elevated' && {
         'shadow-1 hover:shadow-2': !disabled,
@@ -60,8 +46,10 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
       },
       variant === 'filled' && {
         'hover:shadow-1': !disabled,
-        'bg-surface-container text-on-surface-variant': !disabled && !isActive,
-        'bg-primary text-on-primary': !disabled && isActive,
+        'bg-surface-container text-on-surface-variant':
+          !disabled && !isActive && onToggle,
+        'bg-primary text-on-primary':
+          !disabled && ((isActive && onToggle) || !onToggle),
         'text-on-surface/[38%]': disabled,
       },
       variant === 'filledTonal' && {
@@ -100,16 +88,36 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
       ],
       disabled && 'cursor-default',
     ),
+    touchTarget: classNames(
+      'absolute -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2 h-12 w-full',
+    ),
     stateLayer: classNames(
-      'state-layer min-h-full min-w-full absolute top-0 left-0 ',
+      'min-h-full min-w-full absolute top-0 left-0 overflow-hidden',
       variant === 'elevated' && {
         'bg-on-surface/[0.12]': disabled,
         'group-state-primary': !disabled,
       },
       variant === 'filled' && {
         'bg-on-surface/[0.12]': disabled,
-        'group-state-on-primary': !disabled,
+        'group-state-on-primary': !disabled && !onToggle,
+        'group-state-on-surface-variant': !disabled && onToggle,
       },
+      shape === 'rounded' && {
+        'rounded-[30px]': size === 'xSmall' || size == 'small',
+        'rounded-[40px]': size === 'medium',
+        'rounded-[70px]': size === 'large' || size == 'xLarge',
+      },
+      (shape === 'squared' || (allowShapeTransformation && isActive)) && {
+        'rounded-[12px]': size === 'xSmall' || size == 'small',
+        'rounded-[16px]': size === 'medium',
+        'rounded-[28px]': size === 'large' || size == 'xLarge',
+      },
+      allowShapeTransformation &&
+        !disabled && {
+          'group-active:rounded-[12px]': size === 'xSmall' || size == 'small',
+          'group-active:rounded-[16px]': size === 'medium',
+          'group-active:rounded-[28px]': size === 'large' || size == 'xLarge',
+        },
       variant === 'filledTonal' && {
         'bg-on-surface/[0.12]': disabled,
         'group-state-on-secondary-container ': !disabled,

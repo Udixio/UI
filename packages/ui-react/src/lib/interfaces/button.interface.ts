@@ -42,7 +42,7 @@ type Props = {
   activated?: boolean;
 };
 
-type Elements = ['button', 'stateLayer', 'container', 'icon', 'label'];
+type Elements = ['button', 'touchTarget', 'stateLayer', 'icon', 'label'];
 
 export type ButtonInterface = ActionOrLink<Props> & {
   elements: Elements;

@@ -2,6 +2,11 @@
 ---
 
 
+
+
+
+
+
 import { CodePreview } from '@/components/CodePreview.js';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
@@ -24,11 +29,70 @@ import { Button } from "@udixio/ui-react"
 <div className="flex flex-wrap gap-3">
   <Button label="Filled" variant="filled" />
   <Button label="Elevated" variant="elevated" />
+  <Button label="Filled Tonal" variant="filledTonal" />
   <Button label="Outlined" variant="outlined" />
   <Button label="Text" variant="text" />
-  <Button label="Filled Tonal" variant="filledTonal" />
 </div>
 ```
+## Toggle buttons
+
+Make a button togglable by providing `onToggle` and controlling its state with `activated`.
+
+```jsx
+function ToggleExample() {
+  const [activeStates, setActiveStates] = React.useState({
+    filled: false,
+    elevated: false,
+    filledTonal: false,
+    outlined: false,
+    text: false
+  });
+
+  const handleToggle = (buttonType) => (newState) => {
+    setActiveStates(prev => ({
+      ...prev,
+      [buttonType]: newState
+    }));
+  };
+
+  return (
+    <div className="flex flex-wrap gap-3">
+      <Button
+        label={activeStates.filled ? 'Active' : 'Inactive'}
+        variant="filled"
+        onToggle={handleToggle('filled')}
+        activated={activeStates.filled}
+      />
+      <Button
+        label="Elevated"
+        variant="elevated"
+        onToggle={handleToggle('elevated')}
+        activated={activeStates.elevated}
+      />
+      <Button
+        label="Filled Tonal"
+        variant="filledTonal"
+        onToggle={handleToggle('filledTonal')}
+        activated={activeStates.filledTonal}
+      />
+      <Button
+        label="Outlined"
+        variant="outlined"
+        onToggle={handleToggle('outlined')}
+        activated={activeStates.outlined}
+      />
+      <Button
+        label="Text"
+        variant="text"
+        onToggle={handleToggle('text')}
+        activated={activeStates.text}
+      />
+    </div>
+  );
+}
+```
+
+Note: When used as a toggle button, accessibility is handled via `aria-pressed` automatically.
 
 ## Disabled state
 
@@ -94,3 +158,4 @@ If the `href` prop is provided, the component renders an `<a>` link; otherwise i
   <Button label="Go to Udixio" href="https://udixio.dev" />
 </div>
 ```
+
