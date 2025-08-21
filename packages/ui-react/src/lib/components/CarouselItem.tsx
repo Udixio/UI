@@ -4,10 +4,6 @@ import { motion } from 'motion/react';
 import { carouselItemStyle } from '../styles';
 import { MotionProps } from '../utils';
 
-/**
- * @status beta
- * @parent Carousel
- */
 export const normalize = (
   value: number,
   inputRange: [number, number],
@@ -22,6 +18,11 @@ export const normalize = (
 
   return outputMin + normalizedValue * (outputMax - outputMin);
 };
+
+/**
+ * @status beta
+ * @parent Carousel
+ */
 export const CarouselItem = ({
   className,
   children,

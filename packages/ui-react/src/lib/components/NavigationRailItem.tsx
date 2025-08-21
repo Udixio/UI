@@ -6,6 +6,10 @@ import { NavigationRailItemInterface } from '../interfaces';
 import { navigationRailItemStyle } from '../styles/navigation-rail-item.style';
 import { AnimatePresence, motion } from 'motion/react';
 
+/**
+ * @status beta
+ * @parent NavigationRail
+ */
 export const NavigationRailSection = ({ label }: { label: string }) => {
   return (
     <div className={' h-9 flex items-center mx-9 mt-3'}>
