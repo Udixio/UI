@@ -7,6 +7,8 @@ import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
 import { udixioVite } from '@udixio/theme';
 
+import vercel from '@astrojs/vercel';
+
 // https://astro.build/config
 export default defineConfig({
   vite: {
@@ -39,4 +41,6 @@ export default defineConfig({
     }),
     react(),
   ],
+
+  adapter: vercel(),
 });
