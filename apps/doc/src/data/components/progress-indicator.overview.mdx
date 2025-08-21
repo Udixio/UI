@@ -1,0 +1,50 @@
+---
+---
+
+## Usage
+
+Import ProgressIndicator to show operation progress.
+
+```bash
+import { ProgressIndicator } from "@udixio/ui-react"
+```
+
+```tsx
+<ProgressIndicator variant="linear-determinate" value={40} />
+```
+
+## Variants
+
+- linear-determinate
+- linear-indeterminate
+- circular-determinate
+- circular-indeterminate
+
+```jsx
+<div className="flex items-center gap-6">
+  <ProgressIndicator variant="linear-determinate" value={70} className="w-48" />
+  <ProgressIndicator variant="linear-indeterminate" className="w-48" />
+  <ProgressIndicator variant="circular-determinate" value={60} />
+  <ProgressIndicator variant="circular-indeterminate" />
+</div>
+```
+
+## Value and minHeight
+
+- `value` controls completion (0-100). Values outside the range are clamped.
+- `minHeight` sets the thickness of linear indicators.
+
+```jsx
+<div className="space-y-3">
+  <ProgressIndicator variant="linear-determinate" value={25} minHeight={2} className="w-56" />
+  <ProgressIndicator variant="linear-determinate" value={80} minHeight={8} className="w-56" />
+</div>
+```
+
+## Transition duration
+
+Adjust animation speed with `transitionDuration` (ms) for linear variants.
+
+```jsx
+<ProgressIndicator variant="linear-determinate" value={90} transitionDuration={1500} className="w-56" />
+```

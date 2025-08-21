@@ -7,6 +7,10 @@ import { tabStyle } from '../styles/tab.style';
 import { TabInterface } from '../interfaces/tab.interface';
 import { ReactProps } from '../utils/component';
 
+/**
+ * @status beta
+ * @parent Tabs
+ */
 export const Tab = ({
   className,
   onClick,

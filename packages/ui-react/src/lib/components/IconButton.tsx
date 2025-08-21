@@ -10,13 +10,18 @@ import { ToolTip } from './ToolTip';
 
 export type IconButtonVariant = 'standard' | 'filled' | 'tonal' | 'outlined';
 
+/**
+ * Icon buttons help people take minor actions with one tap
+ * @status beta
+ * @category Action
+ */
 export const IconButton = ({
   variant = 'standard',
   href,
   disabled = false,
   type = 'button',
   title,
-  arialLabel,
+  ariaLabel,
   onToggle,
   activated = false,
   onClick,
@@ -32,12 +37,12 @@ export const IconButton = ({
   ...restProps
 }: ReactProps<IconButtonInterface>) => {
   if (!title) {
-    title = arialLabel;
+    title = ariaLabel;
   }
 
   const [isActive, setIsActive] = React.useState(activated);
-  let handleClick;
 
+  let handleClick;
   if (!onToggle) {
     handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
       if (disabled) {
@@ -70,8 +75,8 @@ export const IconButton = ({
     allowShapeTransformation,
     width,
     href,
-    activated,
-    arialLabel,
+    activated: isActive,
+    ariaLabel,
     iconSelected,
     isActive,
     onToggle,
@@ -93,7 +98,7 @@ export const IconButton = ({
       disabled={disabled}
       href={href}
       className={styles.iconButton}
-      aria-label={arialLabel}
+      aria-label={ariaLabel}
       {...(restProps as any)}
       title={undefined}
       onClick={handleClick}
@@ -127,7 +132,7 @@ export const IconButton = ({
                 variant === 'outlined' && {
                   'on-surface-variant': !isActive,
                   'on-primary': isActive,
-                }
+                },
               )}
               triggerRef={resolvedRef}
             />

@@ -1,0 +1,161 @@
+---
+---
+
+
+
+
+
+
+
+import { CodePreview } from '@/components/CodePreview.js';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
+
+
+## Usage
+
+The Button component can trigger an action or navigate to a link. Import it from the @udixio/ui-react package and provide at least a label via the label prop.
+
+```bash
+import { Button } from "@udixio/ui-react"
+```
+
+```tsx
+<Button label={"Button"} />
+```
+
+## Variants
+
+```jsx
+<div className="flex flex-wrap gap-3">
+  <Button label="Filled" variant="filled" />
+  <Button label="Elevated" variant="elevated" />
+  <Button label="Filled Tonal" variant="filledTonal" />
+  <Button label="Outlined" variant="outlined" />
+  <Button label="Text" variant="text" />
+</div>
+```
+## Toggle buttons
+
+Make a button togglable by providing `onToggle` and controlling its state with `activated`.
+
+```jsx
+function ToggleExample() {
+  const [activeStates, setActiveStates] = React.useState({
+    filled: false,
+    elevated: false,
+    filledTonal: false,
+    outlined: false,
+    text: false
+  });
+
+  const handleToggle = (buttonType) => (newState) => {
+    setActiveStates(prev => ({
+      ...prev,
+      [buttonType]: newState
+    }));
+  };
+
+  return (
+    <div className="flex flex-wrap gap-3">
+      <Button
+        label={activeStates.filled ? 'Active' : 'Inactive'}
+        variant="filled"
+        onToggle={handleToggle('filled')}
+        activated={activeStates.filled}
+      />
+      <Button
+        label="Elevated"
+        variant="elevated"
+        onToggle={handleToggle('elevated')}
+        activated={activeStates.elevated}
+      />
+      <Button
+        label="Filled Tonal"
+        variant="filledTonal"
+        onToggle={handleToggle('filledTonal')}
+        activated={activeStates.filledTonal}
+      />
+      <Button
+        label="Outlined"
+        variant="outlined"
+        onToggle={handleToggle('outlined')}
+        activated={activeStates.outlined}
+      />
+      <Button
+        label="Text"
+        variant="text"
+        onToggle={handleToggle('text')}
+        activated={activeStates.text}
+      />
+    </div>
+  );
+}
+```
+
+Note: When used as a toggle button, accessibility is handled via `aria-pressed` automatically.
+
+## Disabled state
+
+Use the `disabled` prop to make the button inactive.
+
+```jsx
+<div className="flex flex-wrap gap-3">
+  <Button label="Disabled" disabled />
+  <Button label="Disabled" variant="outlined" disabled />
+</div>
+```
+
+## Sizes
+
+```jsx
+<div className="flex flex-wrap items-end gap-3">
+  <Button label="XS" size="xSmall" />
+  <Button label="S" size="small" />
+  <Button label="M" size="medium" />
+  <Button label="L" size="large" />
+  <Button label="XL" size="xLarge" />
+</div>
+```
+
+## Shapes
+
+Control the button's appearance via the `shape` prop.
+
+```jsx
+<div className="flex flex-wrap gap-3">
+  <Button label="Rounded" shape="rounded" />
+  <Button label="Squared" shape="squared" />
+</div>
+```
+
+## Icon
+
+You can add an icon (FontAwesome) and choose its position.
+
+<CodePreview client:load
+             code={`
+    <div className="flex gap-3">
+      <Button label="Add" icon={faPlus} />
+      <Button label="Next" iconPosition="right" icon={faPlus} />
+    </div>
+  `}
+             scope={{ faPlus }}
+/>
+
+## Loading state
+
+```jsx
+<Button label="Sending..." loading />
+```
+
+## Link or action
+
+If the `href` prop is provided, the component renders an `<a>` link; otherwise it renders a `<button>`.
+
+```jsx
+<div className="flex gap-3">
+  <Button label="Click me" onClick={() => console.log('clicked')} />
+  <Button label="Go to Udixio" href="https://udixio.dev" />
+</div>
+```
+

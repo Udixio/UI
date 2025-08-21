@@ -4,6 +4,11 @@ import { sliderStyle } from '../styles';
 import { classNames, ReactProps } from '../utils';
 import { useEffect, useRef, useState } from 'react';
 
+/**
+ * Sliders let users make selections from a range of values
+ * @status beta
+ * @category Input
+ */
 export const Slider = ({
   className,
   valueFormatter,

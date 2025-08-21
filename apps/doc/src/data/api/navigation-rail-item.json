@@ -1,0 +1,59 @@
+[
+  {
+    "tags": {
+      "status": "beta",
+      "parent": "NavigationRail"
+    },
+    "filePath": "node_modules/@udixio/ui-react/src/lib/components/NavigationRailItem.tsx",
+    "description": "",
+    "displayName": "NavigationRailSection",
+    "methods": [],
+    "props": {}
+  },
+  {
+    "tags": {
+      "status": "beta",
+      "parent": "NavigationRail"
+    },
+    "filePath": "node_modules/@udixio/ui-react/src/lib/components/NavigationRailItem.tsx",
+    "description": "",
+    "displayName": "NavigationRailItem",
+    "methods": [],
+    "props": {
+      "selected": {
+        "defaultValue": {
+          "value": false
+        },
+        "description": "",
+        "name": "selected",
+        "declarations": [
+          {
+            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/navigation-rail-item.interface.ts",
+            "name": "TypeLiteral"
+          }
+        ],
+        "required": false,
+        "type": {
+          "name": "boolean"
+        }
+      },
+      "variant": {
+        "defaultValue": {
+          "value": "vertical"
+        },
+        "description": "",
+        "name": "variant",
+        "declarations": [
+          {
+            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/navigation-rail-item.interface.ts",
+            "name": "TypeLiteral"
+          }
+        ],
+        "required": false,
+        "type": {
+          "name": "\"vertical\" | \"horizontal\""
+        }
+      }
+    }
+  }
+]

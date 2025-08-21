@@ -1,0 +1,27 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '@/layouts/layout.astro';
+import Code from '@/components/Code.astro';
+
+export async function getStaticPaths() {
+  const overviews = await getCollection('overviews');
+  return overviews.map(overview =>
+    ({
+      params: { component: overview.id.replace('overview', '') },
+      props: { overview }
+    })
+  );
+}
+
+const { overview } = Astro.props;
+const { component } = Astro.params;
+const { Content, headings } = await render(overview);
+---
+<Layout>
+
+  <h1 class="text-3xl font-semibold mb-4">{component}</h1>
+  <article class="prose-markdown max-w-none">
+    <Content components={{ pre: Code }} />
+  </article>
+
+</Layout>

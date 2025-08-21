@@ -1,0 +1,54 @@
+---
+---
+
+## Usage
+
+Use Divider to separate content sections.
+
+```bash
+import { Divider } from "@udixio/ui-react"
+```
+
+```tsx
+<Divider />
+```
+
+## Orientation
+
+Use `orientation` to switch between horizontal and vertical.
+
+```jsx
+<div className="flex items-center gap-4">
+  <div>
+    <p>Section A</p>
+    <Divider />
+    <p>Section B</p>
+  </div>
+  <Divider orientation="vertical" className="h-12" />
+  <div>
+    <p>Section C</p>
+  </div>
+</div>
+```
+
+## Spacing and sizing
+
+Control spacing and length with your utility classes.
+
+```jsx
+<div className="space-y-6">
+  <div>
+    <p className="mb-2">Tight spacing</p>
+    <Divider className="my-1" />
+  </div>
+  <div>
+    <p className="mb-2">Wide spacing</p>
+    <Divider className="my-6" />
+  </div>
+  <div className="flex items-center gap-4">
+    <span>Left</span>
+    <Divider orientation="vertical" className="h-8" />
+    <span>Right</span>
+  </div>
+</div>
+```

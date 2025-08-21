@@ -1,0 +1,124 @@
+@import 'tailwindcss';
+@import "./udixio.css";
+
+@plugin '@tailwindcss/typography';
+
+@source "../../node_modules/@udixio/ui-react";
+@source "../../src/";
+
+
+.astro-code.github-dark {
+    background-color: transparent !important;
+}
+
+.prose-markdown:not(.not-prose *) {
+    @apply prose max-w-none text-inherit;
+
+    /* Headings */
+
+    :is(h1, h2, h3, h4, h5, h6) {
+        @apply text-on-surface;
+    }
+
+    h1 {
+        @apply text-headline-medium lg:text-display-small;
+    }
+
+    h2 {
+        @apply text-headline-small lg:text-headline-medium;
+    }
+
+    h3 {
+        @apply text-headline-small;
+    }
+
+    h4 {
+        @apply text-title-large;
+    }
+
+    /* Text elements */
+
+    a {
+        @apply text-primary text-body-medium;
+
+        &.button {
+            @apply no-underline;
+        }
+    }
+
+    code:not(.card code) {
+        @apply text-on-surface bg-surface-container-highest p-1 mx-1 rounded text-body-medium;
+    }
+
+    li {
+        @apply text-on-surface-variant text-body-medium;
+    }
+
+    td {
+        @apply text-on-surface-variant text-body-medium;
+    }
+
+    blockquote {
+        @apply text-on-surface-variant text-body-large;
+    }
+
+    p {
+        @apply text-on-surface-variant text-body-medium;
+    }
+
+    strong {
+        @apply text-[inherit];
+    }
+
+    pre {
+        @apply m-0 p-0;
+    }
+
+    .card {
+        @apply mt-8;
+    }
+
+
+    p {
+        @apply text-on-surface-variant text-body-medium;
+    }
+
+    a {
+        &.button {
+            @apply no-underline;
+        }
+
+        &:not(.button) {
+            @apply text-primary    text-body-medium;
+        }
+    }
+}
+
+*::-webkit-scrollbar {
+    width: 14px;
+    height: 14px;
+}
+
+
+*::-webkit-scrollbar-track {
+    @apply bg-surface-container-highest;
+}
+
+*::-webkit-scrollbar-thumb {
+    @apply bg-on-surface-variant rounded-2xl;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    @apply bg-on-surface;
+}
+
+*::-webkit-scrollbar-thumb:active {
+    @apply bg-primary;
+}
+
+*::-webkit-scrollbar-corner {
+    @apply bg-surface-container-highest;
+}
+

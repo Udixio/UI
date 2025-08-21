@@ -8,6 +8,12 @@ import { CustomScroll } from '../effects';
 import { ReactProps } from '../utils';
 import { CarouselItem, normalize } from './CarouselItem';
 
+/**
+ * Carousels show a collection of items that can be scrolled on and off the screen
+ * Resources
+ * @status beta
+ * @category Layout
+ */
 export const Carousel = ({
   variant = 'hero',
   className,
@@ -37,7 +43,7 @@ export const Carousel = ({
   });
 
   const items = React.Children.toArray(children).filter(
-    (child) => React.isValidElement(child) && child.type === CarouselItem
+    (child) => React.isValidElement(child) && child.type === CarouselItem,
   );
 
   const trackRef = useRef<HTMLDivElement>(null);
@@ -55,10 +61,10 @@ export const Carousel = ({
 
     function assignRelativeIndexes(
       values: number[],
-      progressScroll: number
+      progressScroll: number,
     ): number[] {
       return values.map(
-        (value) => (value - progressScroll) / Math.abs(values[1] - values[0])
+        (value) => (value - progressScroll) / Math.abs(values[1] - values[0]),
       );
     }
 
@@ -117,7 +123,7 @@ export const Carousel = ({
         ref: itemRefs[index],
         key: index,
         index,
-      }
+      },
     );
   });
 
@@ -130,12 +136,12 @@ export const Carousel = ({
       0,
       1 -
         (ref.current?.clientWidth ?? 0) / (trackRef?.current?.clientWidth ?? 0),
-    ]
+    ],
   );
 
   const percentTransform = useTransform(
     transform,
-    (value) => `${-value * 100}%`
+    (value) => `${-value * 100}%`,
   );
 
   const handleScroll = (args: {

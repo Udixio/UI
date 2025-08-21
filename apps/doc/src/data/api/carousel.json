@@ -1,0 +1,116 @@
+[
+  {
+    "tags": {
+      "status": "beta",
+      "category": "Layout"
+    },
+    "filePath": "node_modules/@udixio/ui-react/src/lib/components/Carousel.tsx",
+    "description": "Carousels show a collection of items that can be scrolled on and off the screen\nResources",
+    "displayName": "Carousel",
+    "methods": [],
+    "props": {
+      "marginPourcent": {
+        "defaultValue": {
+          "value": 0
+        },
+        "description": "",
+        "name": "marginPourcent",
+        "declarations": [
+          {
+            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/carousel.interface.ts",
+            "name": "TypeLiteral"
+          }
+        ],
+        "required": false,
+        "type": {
+          "name": "number"
+        }
+      },
+      "variant": {
+        "defaultValue": {
+          "value": "hero"
+        },
+        "description": "",
+        "name": "variant",
+        "declarations": [
+          {
+            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/carousel.interface.ts",
+            "name": "TypeLiteral"
+          }
+        ],
+        "required": false,
+        "type": {
+          "name": "\"hero\" | \"center-aligned hero\" | \"multi-browse\" | \"un-contained\" | \"full-screen\""
+        }
+      },
+      "scrollSensitivity": {
+        "defaultValue": {
+          "value": 1.25
+        },
+        "description": "",
+        "name": "scrollSensitivity",
+        "declarations": [
+          {
+            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/carousel.interface.ts",
+            "name": "TypeLiteral"
+          }
+        ],
+        "required": false,
+        "type": {
+          "name": "number"
+        }
+      },
+      "gap": {
+        "defaultValue": {
+          "value": 8
+        },
+        "description": "",
+        "name": "gap",
+        "declarations": [
+          {
+            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/carousel.interface.ts",
+            "name": "TypeLiteral"
+          }
+        ],
+        "required": false,
+        "type": {
+          "name": "number"
+        }
+      },
+      "inputRange": {
+        "defaultValue": {
+          "value": "[0.21, 0.65]"
+        },
+        "description": "",
+        "name": "inputRange",
+        "declarations": [
+          {
+            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/carousel.interface.ts",
+            "name": "TypeLiteral"
+          }
+        ],
+        "required": false,
+        "type": {
+          "name": "[number, number]"
+        }
+      },
+      "outputRange": {
+        "defaultValue": {
+          "value": "[42, 300]"
+        },
+        "description": "",
+        "name": "outputRange",
+        "declarations": [
+          {
+            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/carousel.interface.ts",
+            "name": "TypeLiteral"
+          }
+        ],
+        "required": false,
+        "type": {
+          "name": "[number, number]"
+        }
+      }
+    }
+  }
+]

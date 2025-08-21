@@ -7,7 +7,7 @@ import { MotionProps } from '../utils';
 export const normalize = (
   value: number,
   inputRange: [number, number],
-  outputRange: [number, number] = [0, 1]
+  outputRange: [number, number] = [0, 1],
 ): number => {
   const [inputMin, inputMax] = inputRange;
   const [outputMin, outputMax] = outputRange;
@@ -18,6 +18,11 @@ export const normalize = (
 
   return outputMin + normalizedValue * (outputMax - outputMin);
 };
+
+/**
+ * @status beta
+ * @parent Carousel
+ */
 export const CarouselItem = ({
   className,
   children,

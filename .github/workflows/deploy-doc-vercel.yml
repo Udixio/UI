@@ -1,0 +1,80 @@
+name: Deploy apps-doc to Vercel
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/doc/**'
+      - '.github/workflows/deploy-doc-vercel.yml'
+      - 'pnpm-lock.yaml'
+      - 'package.json'
+      - 'pnpm-workspace.yaml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Vercel (apps/doc)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Pull Vercel Environment Information
+        working-directory: apps/doc
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          pnpm dlx vercel@latest pull --yes --environment=production --token "$VERCEL_TOKEN"
+
+      - name: Build with Vercel
+        working-directory: apps/doc
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          NODE_ENV: production
+        run: |
+          pnpm dlx vercel@latest build --prod --token "$VERCEL_TOKEN"
+
+      - name: Deploy to Vercel
+        id: deploy
+        working-directory: apps/doc
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          url=$(pnpm dlx vercel@latest deploy --prebuilt --prod --token "$VERCEL_TOKEN")
+          echo "deployment_url=$url" >> $GITHUB_OUTPUT
+
+      - name: Output Deployment URL
+        run: |
+          echo "Deployed to: ${{ steps.deploy.outputs.deployment_url }}"
+
+# Secrets required in repository or organization:
+# - VERCEL_TOKEN: Personal token from Vercel (Account Settings -> Tokens)
+# - VERCEL_ORG_ID: Your Vercel organization ID
+# - VERCEL_PROJECT_ID: The Vercel project ID for the apps-doc project
+#
+# This workflow deploys the Astro app located in apps/doc. The app is already configured
+# with the Vercel adapter in astro.config.mjs. It runs on pushes to main that affect the app
+# or can be triggered manually via workflow_dispatch.

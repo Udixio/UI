@@ -1,0 +1,79 @@
+---
+---
+
+import { CodePreview } from '@/components/CodePreview.js';
+import { faHome, faCog, faUser } from '@fortawesome/free-solid-svg-icons';
+
+## Usage
+
+NavigationRail provides primary navigation for an app. Use NavigationRail with NavigationRailItem children. Optionally include a Fab and sections.
+
+```bash
+import { NavigationRail, NavigationRailItem, NavigationRailSection, Fab } from "@udixio/ui-react"
+```
+
+<CodePreview client:load
+             code={`
+  <NavigationRail>
+    <NavigationRailItem icon={faHome} label="Home" selected />
+    <NavigationRailItem icon={faCog} label="Settings" />
+    <NavigationRailItem icon={faUser} label="Profile" />
+  </NavigationRail>
+`}
+             scope={{ faHome, faCog, faUser }}
+/>
+
+## Variants and alignment
+
+- variant: "standard" (default)
+- alignment: "top" (default) | "center"
+
+<CodePreview client:load
+             code={`
+  <NavigationRail alignment="center">
+    <NavigationRailItem icon={faHome} label="Home" />
+    <NavigationRailItem icon={faCog} label="Settings" />
+  </NavigationRail>
+`}
+             scope={{ faHome, faCog }}
+/>
+
+## Extended rail
+
+Toggle the extended mode to reveal labels and optional sections. You can control it with the `extended` and `onExtendedChange` props.
+
+<CodePreview client:load
+             code={`
+  function Example() {
+    const [extended, setExtended] = React.useState(false)
+    return (
+      <NavigationRail extended={extended} onExtendedChange={setExtended}>
+        <Fab label="New" icon={faHome} />
+        <NavigationRailSection label="Section" />
+        <NavigationRailItem icon={faHome} label="Home" />
+        <NavigationRailItem icon={faCog} label="Settings" />
+      </NavigationRail>
+    )
+  }
+`}
+             scope={{ faHome, faCog }}
+/>
+
+## Controlled selection
+
+Use `selectedItem` and `setSelectedItem` to control the selected item. `onItemSelected` notifies with index, label, and icon.
+
+<CodePreview client:load
+             code={`
+  function Controlled() {
+    const [index, setIndex] = React.useState(0)
+    return (
+      <NavigationRail selectedItem={index} setSelectedItem={setIndex}>
+        <NavigationRailItem icon={faHome} label="Home" />
+        <NavigationRailItem icon={faCog} label="Settings" />
+      </NavigationRail>
+    )
+  }
+`}
+             scope={{ faHome, faCog }}
+/>

@@ -1,0 +1,38 @@
+---
+import '@/styles/global.css';
+import { getCollection, render } from 'astro:content';
+import { Button } from '@udixio/ui-react';
+import { sentenceCase, kebabCase } from 'change-case';
+import { ComponentSidebar } from '@/components/ComponentSidebar';
+import { ClientRouter } from 'astro:transitions';
+
+const apis = await getCollection('api');
+
+const pathName = Astro.url.pathname;
+
+---
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width" />
+  <title>Astro</title>
+  <ClientRouter />
+</head>
+<body class="dark bg-surface text-on-surface">
+<main class="mx-auto flex justify-between">
+  <ComponentSidebar current={pathName.startsWith('/components') ? pathName.split('/').filter(Boolean)[1] : null} transition:name="component-sidebar"
+                    transition:persist client:load
+                    components={apis.filter(api => !Object.keys(api.data[0].tags).includes('parent')).map(({ id }) => ({
+                      slug: id
+                    }))}
+  />
+  <div class="max-w-screen-md  p-4 w-full">
+    <slot />
+  </div>
+  <div></div>
+</main>
+
+</body>
+</html>

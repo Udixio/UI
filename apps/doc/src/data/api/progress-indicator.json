@@ -1,0 +1,82 @@
+[
+  {
+    "tags": {
+      "status": "beta",
+      "category": "Communication"
+    },
+    "filePath": "node_modules/@udixio/ui-react/src/lib/components/ProgressIndicator.tsx",
+    "description": "",
+    "displayName": "ProgressIndicator",
+    "methods": [],
+    "props": {
+      "value": {
+        "defaultValue": {
+          "value": 0
+        },
+        "description": "The percentage of the progress completed.",
+        "name": "value",
+        "declarations": [
+          {
+            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/progress-indicator.interface.ts",
+            "name": "TypeLiteral"
+          }
+        ],
+        "required": false,
+        "type": {
+          "name": "number"
+        }
+      },
+      "transitionDuration": {
+        "defaultValue": {
+          "value": 1000
+        },
+        "description": "The duration of the transition animation in milliseconds.",
+        "name": "transitionDuration",
+        "declarations": [
+          {
+            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/progress-indicator.interface.ts",
+            "name": "TypeLiteral"
+          }
+        ],
+        "required": false,
+        "type": {
+          "name": "number"
+        }
+      },
+      "variant": {
+        "defaultValue": {
+          "value": "linear-determinate"
+        },
+        "description": "The variant of the ProgressIndicator.",
+        "name": "variant",
+        "declarations": [
+          {
+            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/progress-indicator.interface.ts",
+            "name": "TypeLiteral"
+          }
+        ],
+        "required": false,
+        "type": {
+          "name": "ProgressIndicatorVariant"
+        }
+      },
+      "minHeight": {
+        "defaultValue": {
+          "value": 4
+        },
+        "description": "The minimum height of the line used to draw the linear indicator.",
+        "name": "minHeight",
+        "declarations": [
+          {
+            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/progress-indicator.interface.ts",
+            "name": "TypeLiteral"
+          }
+        ],
+        "required": false,
+        "type": {
+          "name": "number"
+        }
+      }
+    }
+  }
+]

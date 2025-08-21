@@ -5,6 +5,11 @@ import { CardInterface } from '../interfaces';
 import { cardStyle } from '../styles';
 import { ReactProps } from '../utils';
 
+/**
+ * Cards display content and actions about a single subject
+ * @status beta
+ * @category Layout
+ */
 export const Card = ({
   variant = 'outlined',
   className,

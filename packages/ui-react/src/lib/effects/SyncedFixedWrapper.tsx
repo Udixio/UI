@@ -25,8 +25,6 @@ export const SyncedFixedWrapper = ({
 
     const rect = target.getBoundingClientRect();
 
-    console.log(target);
-
     setStyle({
       position: 'fixed',
       top: rect.top,

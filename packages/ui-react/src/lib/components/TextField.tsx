@@ -10,6 +10,11 @@ import { classNames } from '../utils';
 import { ReactProps } from '../utils/component';
 import { TextFieldInterface } from '../interfaces/text-field.interface';
 
+/**
+ * Text fields let users enter text into a UI
+ * @status beta
+ * @category Input
+ */
 export const TextField = ({
   variant = 'filled',
   disabled = false,
@@ -34,7 +39,7 @@ export const TextField = ({
   const [isFocused, setIsFocused] = useState(false);
   const [showErrorIcon, setShowErrorIcon] = useState(false);
   const [showSupportingText, setShowSupportingText] = useState(
-    defaultShowSupportingText
+    defaultShowSupportingText,
   );
 
   useEffect(() => {
@@ -80,7 +85,7 @@ export const TextField = ({
   };
 
   const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement & HTMLTextAreaElement>
+    event: React.ChangeEvent<HTMLInputElement & HTMLTextAreaElement>,
   ) => {
     const newValue = event.target.value;
     setValue(newValue); // Update local state
@@ -187,7 +192,7 @@ export const TextField = ({
                   'text-body-large top-1/2 transform -translate-y-1/2': !(
                     variant == 'filled' && !(!isFocused && !value.length)
                   ),
-                }
+                },
               )}
               transition={{ duration: 0.3 }}
             >

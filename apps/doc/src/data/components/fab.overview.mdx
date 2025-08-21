@@ -1,0 +1,80 @@
+---
+---
+
+
+
+import { CodePreview } from '@/components/CodePreview.js';
+import { faPen, faPlus, faShare } from '@fortawesome/free-solid-svg-icons';
+
+## Usage
+
+Floating Action Button (Fab) represents the primary action on a screen. Import it from @udixio/ui-react.
+
+```bash
+import { Fab } from "@udixio/ui-react"
+```
+
+<CodePreview client:load
+             code={`
+  <div className="flex items-end gap-4">
+    <Fab label="Create" icon={faPlus} />
+    <Fab label="Create" icon={faPlus} isExtended />
+  </div>`}
+             scope={{ faPlus }}
+/>
+
+## Variants
+
+- primary (default)
+- secondary
+- tertiary
+- surface
+
+<CodePreview client:load
+             code={`
+  <div className="flex items-end gap-4">
+    <Fab label="Primary" icon={faPlus} variant="primary" />
+    <Fab label="Secondary" icon={faPlus} variant="secondary" />
+    <Fab label="Tertiary" icon={faPlus} variant="tertiary" />
+    <Fab label="Surface" icon={faPlus} variant="surface" />
+  </div>`}
+             scope={{ faPlus }}
+/>
+
+## Sizes
+
+Available sizes: small, medium (default), large.
+
+<CodePreview client:load
+             code={`
+  <div className="flex items-end gap-4">
+    <Fab label="Edit" icon={faPen} size="small" />
+    <Fab label="Edit" icon={faPen} size="medium" />
+    <Fab label="Edit" icon={faPen} size="large" />
+  </div>`}
+             scope={{ faPen }}
+/>
+
+## Extended vs. regular
+
+Use `isExtended` to show the label next to the icon.
+
+<CodePreview client:load
+             code={`
+  <div className="flex items-end gap-4">
+    <Fab label="Share" icon={faShare} />
+    <Fab label="Share" icon={faShare} isExtended />
+  </div>`}
+             scope={{ faShare }}
+/>
+
+## Link or action
+
+If `href` is provided, the component renders an anchor; otherwise it renders a button. The `label` is used as aria-label for the non-extended Fab.
+
+<CodePreview client:load
+             code={`
+  <Fab label="Create" icon={faPlus} href="https://udixio.dev" />
+`}
+             scope={{ faPlus }}
+/>

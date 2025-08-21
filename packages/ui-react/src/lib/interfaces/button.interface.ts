@@ -37,10 +37,16 @@ type Props = {
   allowShapeTransformation?: boolean;
 
   transition?: Transition;
+
+  onToggle?: (isActive: boolean) => void;
+  activated?: boolean;
 };
 
-type Elements = ['button', 'stateLayer', 'container', 'icon', 'label'];
+type Elements = ['button', 'touchTarget', 'stateLayer', 'icon', 'label'];
 
 export type ButtonInterface = ActionOrLink<Props> & {
   elements: Elements;
+  states: {
+    isActive: boolean;
+  };
 };

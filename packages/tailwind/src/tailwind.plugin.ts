@@ -1,5 +1,6 @@
 import {
   createOrUpdateFile,
+  findProjectRoot,
   findTailwindCssFile,
   getFileContent,
   replaceFileContent,
@@ -7,6 +8,7 @@ import {
 import path from 'path';
 import { FontPlugin, PluginAbstract, PluginImplAbstract } from '@udixio/theme';
 import { ConfigCss } from './main';
+import * as console from 'node:console';
 
 interface TailwindPluginOptions {
   // darkMode?: 'class' | 'media';
@@ -32,22 +34,23 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
   }
 
   onLoad() {
-    const searchKeyword = "@import 'tailwindcss';";
+    let udixioCssPath = this.options.styleFilePath;
 
-    const tailwindCssPath =
-      this.options.styleFilePath ??
-      findTailwindCssFile(process.cwd(), searchKeyword);
-    if (!tailwindCssPath) {
-      throw new Error('The style file containing tailwind was not found.');
+    const projectRoot = findProjectRoot(path.resolve());
+
+    if (!udixioCssPath) {
+      const searchPattern = /@import ["']tailwindcss["'];/;
+      const replacement = `@import 'tailwindcss';\n@import "./udixio.css";`;
+
+      const tailwindCssPath = findTailwindCssFile(projectRoot, searchPattern);
+      udixioCssPath = path.join(tailwindCssPath, '../udixio.css');
+
+      console.log('rrgfgt', tailwindCssPath, udixioCssPath);
+
+      if (!getFileContent(tailwindCssPath, /@import\s+"\.\/udixio\.css";/)) {
+        replaceFileContent(tailwindCssPath, searchPattern, replacement);
+      }
     }
-    const searchPattern = /@import ["']tailwindcss["'];/;
-    const replacement = `@import 'tailwindcss';\n@import "./udixio.css";`;
-
-    if (!getFileContent(tailwindCssPath, /@import\s+"\.\/udixio\.css";/)) {
-      replaceFileContent(tailwindCssPath, searchPattern, replacement);
-    }
-
-    const cssFilePath = path.dirname(tailwindCssPath);
 
     const colors: Record<
       string,
@@ -95,7 +98,7 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
     };
 
     createOrUpdateFile(
-      path.join(cssFilePath, 'udixio.css'),
+      udixioCssPath,
       `
 @plugin "@udixio/tailwind" {
   colorKeys: ${configCss.colorKeys};
