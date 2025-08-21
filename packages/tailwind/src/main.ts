@@ -5,6 +5,7 @@ import {
   state,
   StateOptions,
 } from './plugins-tailwind';
+import { shadow } from './plugins-tailwind/shadow';
 
 export type ConfigJs = FontPluginOptions & StateOptions;
 export type ConfigCss = {
@@ -48,5 +49,6 @@ export const main = plugin.withOptions<ConfigJs>((args) => {
   return (api: PluginAPI) => {
     font(options).handler(api);
     state(options).handler(api);
+    shadow.handler(api);
   };
 });
