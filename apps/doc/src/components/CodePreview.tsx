@@ -10,7 +10,7 @@ type Props = {
   scope?: Record<string, unknown>;
   children?: React.ReactNode;
   className?: string;
-  center?: string;
+  center?: boolean;
 };
 
 export const CodePreview = ({
@@ -18,9 +18,7 @@ export const CodePreview = ({
   scope,
   children,
   center = true,
-  className = '',
 }: Props) => {
-  const [open, setOpen] = useState<boolean>(true);
   const [copyState, setCopyState] = useState<'idle' | 'ok' | 'error'>('idle');
   const liveRef = useRef<HTMLDivElement | null>(null);
 
