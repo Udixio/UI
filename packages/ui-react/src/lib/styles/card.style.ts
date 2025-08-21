@@ -6,10 +6,9 @@ export const cardStyle = defaultClassNames<CardInterface>(
   ({ variant, isInteractive }) => ({
     card: classNames(
       'card group/card rounded-xl overflow-hidden z-10',
-      variant === 'outlined' && 'bg-surface',
+      variant === 'outlined' && 'bg-surface border border-outline-variant',
       variant === 'elevated' && 'bg-surface-container-low shadow-1',
       variant === 'filled' && 'bg-surface-container-highest',
-      variant !== 'filled' && 'border border-outline-variant'
     ),
     stateLayer: classNames([
       'w-full top-0 left-0 h-full absolute -z-10',
@@ -18,5 +17,5 @@ export const cardStyle = defaultClassNames<CardInterface>(
           isInteractive,
       },
     ]),
-  })
+  }),
 );
