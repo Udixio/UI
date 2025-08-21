@@ -18,7 +18,7 @@ import { Slider } from "@udixio/ui-react"
 - Provide `step` for incremental movement.
 - Or use `marks` to snap to labeled positions; omit `step` to only allow marks.
 
-```tsx
+```jsx
 <div className="space-y-6">
   <Slider name="percent" value={50} step={10} />
   <Slider
@@ -40,7 +40,7 @@ import { Slider } from "@udixio/ui-react"
 
 The slider supports finite and infinite ends. Use -Infinity/Infinity to make the first/last marks open ended.
 
-```tsx
+```jsx
 <Slider
   name="range"
   value={0}
@@ -59,6 +59,6 @@ The slider supports finite and infinite ends. Use -Infinity/Infinity to make the
 
 The slider is focusable and responds to ArrowLeft/ArrowRight. Listen to `onChange` for value updates.
 
-```tsx
+```jsx
 <Slider name="brightness" value={70} step={10} onChange={(v) => console.log('value', v)} />
 ```

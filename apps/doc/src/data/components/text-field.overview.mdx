@@ -1,8 +1,11 @@
 ---
 ---
 
+
+
+
 import { CodePreview } from '@/components/CodePreview.js';
-import { faMagnifyingGlass, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 
 ## Usage
 
@@ -21,7 +24,7 @@ import { TextField } from "@udixio/ui-react"
 - filled (default)
 - outlined
 
-```tsx
+```jsx
 <div className="flex items-end gap-6">
   <TextField label="Name" name="name" variant="filled" />
   <TextField label="Name" name="name2" variant="outlined" />
@@ -47,7 +50,7 @@ Use `leadingIcon`, `trailingIcon`, or `suffix` for extra affordances.
 
 Set `textLine` to "multiLine" for auto-growing textarea, or "textAreas" for a standard textarea.
 
-```tsx
+```jsx
 <div className="space-y-4">
   <TextField label="Description" name="desc1" textLine="multiLine" />
   <TextField label="Notes" name="desc2" textLine="textAreas" />
@@ -58,7 +61,7 @@ Set `textLine` to "multiLine" for auto-growing textarea, or "textAreas" for a st
 
 Show validation and helper text with `errorText` and `supportingText`.
 
-```tsx
+```jsx
 <div className="space-y-2">
   <TextField label="Username" name="u1" supportingText="Use 3–16 characters" />
   <TextField label="Password" name="p1" errorText="Password is too short" />

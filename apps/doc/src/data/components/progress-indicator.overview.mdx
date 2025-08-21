@@ -20,7 +20,7 @@ import { ProgressIndicator } from "@udixio/ui-react"
 - circular-determinate
 - circular-indeterminate
 
-```tsx
+```jsx
 <div className="flex items-center gap-6">
   <ProgressIndicator variant="linear-determinate" value={70} className="w-48" />
   <ProgressIndicator variant="linear-indeterminate" className="w-48" />
@@ -34,7 +34,7 @@ import { ProgressIndicator } from "@udixio/ui-react"
 - `value` controls completion (0-100). Values outside the range are clamped.
 - `minHeight` sets the thickness of linear indicators.
 
-```tsx
+```jsx
 <div className="space-y-3">
   <ProgressIndicator variant="linear-determinate" value={25} minHeight={2} className="w-56" />
   <ProgressIndicator variant="linear-determinate" value={80} minHeight={8} className="w-56" />
@@ -45,6 +45,6 @@ import { ProgressIndicator } from "@udixio/ui-react"
 
 Adjust animation speed with `transitionDuration` (ms) for linear variants.
 
-```tsx
+```jsx
 <ProgressIndicator variant="linear-determinate" value={90} transitionDuration={1500} className="w-56" />
 ```

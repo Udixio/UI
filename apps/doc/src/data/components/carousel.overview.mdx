@@ -27,7 +27,7 @@ import { Carousel, CarouselItem } from "@udixio/ui-react"
 
 Available variants: `hero`, `center-aligned hero`, `multi-browse`, `un-contained`, `full-screen`.
 
-```tsx
+```jsx
 <div className="space-y-6">
   <Carousel variant="hero" gap={12}>
     <CarouselItem><div className="p-6 bg-surface rounded-xl">Hero</div></CarouselItem>
@@ -45,7 +45,7 @@ Available variants: `hero`, `center-aligned hero`, `multi-browse`, `un-contained
 
 You can set a fixed item width using the `width` prop on CarouselItem.
 
-```tsx
+```jsx
 <Carousel variant="multi-browse" gap={8}>
   <CarouselItem width={260}><div className="p-4 bg-surface rounded-xl">260px</div></CarouselItem>
   <CarouselItem width={260}><div className="p-4 bg-surface rounded-xl">260px</div></CarouselItem>
@@ -60,7 +60,7 @@ You can set a fixed item width using the `width` prop on CarouselItem.
 - `scrollSensitivity`: adjust scroll/drag responsiveness.
 - `onChange`: called with the active index.
 
-```tsx
+```jsx
 <Carousel
   variant="hero"
   gap={16}
@@ -80,6 +80,6 @@ You can set a fixed item width using the `width` prop on CarouselItem.
 
 Items adapt their width based on the variant settings. Tune presentation via `gap` and `variant`.
 
-```tsx
+```jsx
 <Carousel variant="hero" gap={16} />
 ```
