@@ -20,6 +20,7 @@
     "@udixio/theme": "workspace:*",
     "@udixio/ui-react": "workspace:*",
     "astro": "^5.13.2",
+    "change-case": "^5.4.4",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-live": "^4.1.8",

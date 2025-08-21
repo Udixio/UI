@@ -12,6 +12,12 @@ const overviews = defineCollection({
   }),
   /* ... */
 });
+const api = defineCollection({
+  loader: glob({
+    pattern: '**/*.json',
+    base: './src/data/api',
+  }),
+  /* ... */
+});
 
-// 4. Exporter un seul objet « collections » pour enregistrer votre/vos collection(s)
-export const collections = { overviews };
+export const collections = { overviews, api };

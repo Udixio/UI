@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import Layout from '@/layouts/layout.astro';
+
 export async function getStaticPaths() {
   const overviews = await getCollection('overviews');
   return overviews.map(overview =>
@@ -11,8 +12,5 @@ export async function getStaticPaths() {
   );
 }
 
-return Astro.rewrite(new URL('./overview', Astro.url));
+return Astro.rewrite(new URL(Astro.url.pathname + '/overview', Astro.url.origin));
 ---
-<Layout>
-
-</Layout>
