@@ -41,8 +41,8 @@ export const IconButton = ({
   }
 
   const [isActive, setIsActive] = React.useState(activated);
-  let handleClick;
 
+  let handleClick;
   if (!onToggle) {
     handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
       if (disabled) {
@@ -75,7 +75,7 @@ export const IconButton = ({
     allowShapeTransformation,
     width,
     href,
-    activated,
+    activated: isActive,
     ariaLabel,
     iconSelected,
     isActive,

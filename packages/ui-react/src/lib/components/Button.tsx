@@ -4,7 +4,7 @@ import { buttonStyle } from '../styles';
 import { Icon } from '../icon';
 import { ProgressIndicator } from './ProgressIndicator';
 import { RippleEffect } from '../effects';
-import { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 /**
  * Buttons prompt most actions in a UI
@@ -22,6 +22,8 @@ export const Button = ({
   loading = false,
   shape = 'rounded',
   onClick,
+  onToggle,
+  activated,
   ref,
   size = 'medium',
   allowShapeTransformation = true,
@@ -34,6 +36,33 @@ export const Button = ({
   const defaultRef = useRef<HTMLDivElement>(null);
   const resolvedRef = ref || defaultRef;
 
+  const [isActive, setIsActive] = React.useState(activated);
+  useEffect(() => {
+    setIsActive(activated);
+  }, [activated]);
+
+  transition = { duration: 0.3, ...transition };
+
+  let handleClick;
+
+  if (!onToggle) {
+    handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
+      if (disabled) {
+        e.preventDefault();
+      }
+      if (onClick) {
+        onClick(e);
+      }
+    };
+  } else if (onToggle) {
+    handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
+      if (disabled) {
+        e.preventDefault();
+      }
+      setIsActive(!isActive);
+      onToggle(Boolean(isActive));
+    };
+  }
   const styles = buttonStyle({
     allowShapeTransformation,
     size,
@@ -47,31 +76,26 @@ export const Button = ({
     variant,
     transition,
     className,
+    isActive: isActive ?? false,
+    onToggle,
+    activated: isActive,
   });
-
   const iconElement = icon ? (
     <Icon icon={icon} className={styles.icon} />
   ) : (
     <></>
   );
-
-  transition = { duration: 0.3, ...transition };
+  console.log('gfegrger', onToggle);
+  console.log('test', isActive, onToggle, handleClick);
   return (
     <ElementType
       ref={resolvedRef}
       href={href}
       className={styles.button}
       {...(restProps as any)}
-      onClick={(e: any) => {
-        if (!disabled) {
-          if (onClick) {
-            onClick(e);
-          }
-        } else {
-          e.preventDefault();
-        }
-      }}
+      onClick={handleClick}
       disabled={disabled}
+      aria-pressed={onToggle ? isActive : undefined}
     >
       <div
         className={styles.container}

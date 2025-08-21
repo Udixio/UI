@@ -8,6 +8,7 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
     disabled,
     iconPosition,
     icon,
+    isActive,
     loading,
     shape,
     size,
@@ -45,20 +46,40 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
           'group-active:rounded-[16px]': size === 'medium',
           'group-active:rounded-[28px]': size === 'large' || size == 'xLarge',
         },
+      allowShapeTransformation &&
+        isActive && {
+          'rounded-[12px]': size === 'xSmall' || size == 'small',
+          'rounded-[16px]': size === 'medium',
+          'rounded-[28px]': size === 'large' || size == 'xLarge',
+        },
       variant === 'elevated' && {
-        'bg-surface-container-low  shadow-1 hover:shadow-2': !disabled,
+        'shadow-1 hover:shadow-2': !disabled,
+        'bg-surface-container-low text-primary': !disabled && !isActive,
+        'bg-primary text-on-primary': !disabled && isActive,
+        'text-on-surface/[38%]': disabled,
       },
       variant === 'filled' && {
-        'bg-primary hover:shadow-1': !disabled,
+        'hover:shadow-1': !disabled,
+        'bg-surface-container text-on-surface-variant': !disabled && !isActive,
+        'bg-primary text-on-primary': !disabled && isActive,
+        'text-on-surface/[38%]': disabled,
       },
       variant === 'filledTonal' && {
-        'bg-secondary-container hover:shadow-1': !disabled,
+        'hover:shadow-1': !disabled,
+        'bg-secondary-container text-on-secondary-container':
+          !disabled && !isActive,
+        'bg-secondary text-on-secondary': !disabled && isActive,
+        'text-on-surface/[0.38]': disabled,
       },
       variant === 'outlined' && [
         ' border',
         {
-          'border-on-surface/[0.12]': disabled,
-          ' border-outline focus:border-primary': !disabled,
+          'border-on-surface/[0.12] text-on-surface/[0.38]': disabled,
+
+          'text-primary border-outline focus:border-primary':
+            !disabled && !isActive,
+          'text-inverse-on-surface bg-inverse-surface border-inverse-surface':
+            !disabled && isActive,
         },
       ],
       variant === 'text' && [
@@ -100,29 +121,7 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
         'group-state-primary': !disabled,
       },
     ),
-    label: classNames(
-      { invisible: loading },
-      variant === 'elevated' && {
-        'text-primary': !disabled,
-        'text-on-surface/[38%]': disabled,
-      },
-      variant === 'filled' && {
-        'text-on-primary': !disabled,
-        'text-on-surface/[38%]': disabled,
-      },
-      variant === 'filledTonal' && {
-        'text-on-secondary-container': !disabled,
-        'text-on-surface/[0.38]': disabled,
-      },
-      variant === 'outlined' && {
-        'text-primary': !disabled,
-        'text-on-surface/[0.38]': disabled,
-      },
-      variant === 'text' && {
-        'text-primary': !disabled,
-        'text-on-surface/[0.38]': disabled,
-      },
-    ),
+    label: classNames({ invisible: loading }),
     icon: classNames(
       { invisible: loading },
       size === 'xSmall' && 'size-5',
@@ -130,26 +129,6 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
       size === 'medium' && 'size-6',
       size === 'large' && 'size-8',
       size === 'xLarge' && 'size-10',
-      variant === 'elevated' && {
-        'text-primary': !disabled,
-        'text-on-surface/[38%]': disabled,
-      },
-      variant === 'filled' && {
-        'text-on-primary': !disabled,
-        'text-on-surface/[38%]': disabled,
-      },
-      variant === 'filledTonal' && {
-        'text-on-secondary-container': !disabled,
-        'text-on-surface/[0.38]': disabled,
-      },
-      variant === 'outlined' && {
-        'text-primary': !disabled,
-        'text-on-surface/[0.38]': disabled,
-      },
-      variant === 'text' && {
-        'text-primary': !disabled,
-        'text-on-surface/[0.38]': disabled,
-      },
     ),
   }),
 );
