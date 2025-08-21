@@ -4,6 +4,7 @@
 
 
 
+
 import { CodePreview } from '@/components/CodePreview.js';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 
@@ -37,10 +38,10 @@ Use `leadingIcon`, `trailingIcon`, or `suffix` for extra affordances.
 
 <CodePreview client:load
              code={`
-  <div class="flex flex-col gap-4">
+  <div className="flex flex-col gap-4">
     <TextField label="Search" name="q" leadingIcon={faMagnifyingGlass} />
     <TextField label="Amount" name="amount" suffix="kg" />
-    <TextField label="Search" name="q2" trailingIcon={<button aria-label="clear"><i class="fa-solid fa-xmark" /></button>} />
+    <TextField label="Search" name="q2" trailingIcon={<button aria-label="clear"><i className="fa-solid fa-xmark" /></button>} />
   </div>
 `}
              scope={{ faMagnifyingGlass }}

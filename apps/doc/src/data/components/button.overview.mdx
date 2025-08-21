@@ -2,15 +2,6 @@
 ---
 
 
-
-
-
-
-
-
-
-
-
 import { CodePreview } from '@/components/CodePreview.js';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
@@ -79,7 +70,7 @@ You can add an icon (FontAwesome) and choose its position.
 
 <CodePreview client:load
              code={`
-    <div class="flex gap-3">
+    <div className="flex gap-3">
       <Button label="Add" icon={faPlus} />
       <Button label="Next" iconPosition="right" icon={faPlus} />
     </div>
