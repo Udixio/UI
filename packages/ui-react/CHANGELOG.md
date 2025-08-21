@@ -1,3 +1,13 @@
+## 0.1.2 (2025-08-05)
+
+### 🩹 Fixes
+
+- dependencies package ([a04c368](https://github.com/Udixio/UI/commit/a04c368))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.1.1 (2025-08-04)
 
 ### 🩹 Fixes
