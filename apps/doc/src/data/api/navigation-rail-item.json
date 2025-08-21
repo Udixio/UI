@@ -1,6 +1,9 @@
 [
   {
-    "tags": {},
+    "tags": {
+      "status": "beta",
+      "parent": "NavigationRail"
+    },
     "filePath": "node_modules/@udixio/ui-react/src/lib/components/NavigationRailItem.tsx",
     "description": "",
     "displayName": "NavigationRailSection",

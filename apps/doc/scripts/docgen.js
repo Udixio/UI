@@ -3,6 +3,7 @@ import { withDefaultConfig } from 'react-docgen-typescript';
 import path from 'path';
 import { glob } from 'glob';
 import { mkdir, writeFile } from 'fs/promises';
+import { kebabCase } from 'change-case';
 
 const parser = withDefaultConfig({
   propFilter: (prop, component) => {
@@ -63,7 +64,7 @@ const normalizePaths = (docs, projectRoot) => {
 const writeComponentDoc = async (componentName, docs) => {
   const outputDir = path.resolve('./src/data/api');
   await mkdir(outputDir, { recursive: true });
-  const outputPath = path.join(outputDir, `${componentName}.json`);
+  const outputPath = path.join(outputDir, `${kebabCase(componentName)}.json`);
 
   // Obtenir le répertoire racine du projet
   const projectRoot = process.cwd();

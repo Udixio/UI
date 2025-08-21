@@ -1,6 +1,9 @@
 [
   {
-    "tags": {},
+    "tags": {
+      "status": "beta",
+      "parent": "Carousel"
+    },
     "filePath": "node_modules/@udixio/ui-react/src/lib/components/CarouselItem.tsx",
     "description": "",
     "displayName": "CarouselItem",
