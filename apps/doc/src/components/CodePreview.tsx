@@ -46,7 +46,7 @@ export const CodePreview = ({
 
   return (
     <UI.Card
-      className={classNames('not-prose  flex-col', {
+      className={classNames('not-prose mt-6 flex-col', {
         'min-h-48 flex': code,
       })}
       variant={'filled'}
@@ -85,13 +85,14 @@ export const CodePreview = ({
 
       <LiveProvider code={code} scope={{ ...UI, ...scope }}>
         {tab === 'Preview' && (
-          <div
-            className={classNames(' bg-inverse-surface/[0.05]', {
-              'flex justify-center items-center flex-1': center,
-            })}
-          >
-            <LivePreview /> <LiveError />
-          </div>
+          <>
+            <LivePreview
+              className={classNames(' bg-inverse-surface/[0.05]', {
+                'flex justify-center items-center flex-1 p-8': center,
+              })}
+            />
+            <LiveError />
+          </>
         )}
         {tab == 'Code' && (
           <div className={'p-4 bg-inverse-surface/[0.05]'}>

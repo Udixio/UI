@@ -36,9 +36,6 @@ export default defineConfig({
       remarkPlugins: [],
       rehypePlugins: [],
       // Configuration des composants personnalisés
-      components: {
-        code: './src/components/Code.tsx',
-      },
     }),
     react(),
   ],
