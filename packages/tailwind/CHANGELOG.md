@@ -1,3 +1,13 @@
+## 1.1.0 (2025-08-21)
+
+### 🚀 Features
+
+- **doc:** integrate Udixio ecosystem into Astro project ([ca6b750](https://github.com/Udixio/UI/commit/ca6b750))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 # 1.0.0 (2025-08-04)
 
 ### 🚀 Features
