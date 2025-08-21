@@ -12,7 +12,7 @@ export const ComponentSidebar = ({
         <Button
           label={sentenceCase(slug)}
           onToggle={() => console.log('click')}
-          variant="elevated"
+          variant="filled"
         />
       ))}
       {/*href={'/components/' + kebabCase(id)}*/}

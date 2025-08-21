@@ -48,12 +48,14 @@ export const CodePreview = ({
 
   return (
     <UI.Card
-      className={classNames('not-prose  flex-col', { 'min-h-48 flex': code })}
+      className={classNames('not-prose  flex-col', {
+        'min-h-48 flex': code,
+      })}
       variant={'filled'}
     >
       <div
         className={classNames(' justify-between pr-2 ', {
-          'flex bg-surface-container': code,
+          'flex bg-surface-container-high': code,
           'w-fit float-right': !code,
         })}
       >
@@ -63,11 +65,14 @@ export const CodePreview = ({
             variant={'secondary'}
           >
             <UI.Tab
-              className={'bg-surface-container'}
+              className={'bg-surface-container-high'}
               label={'Preview'}
               selected
             ></UI.Tab>
-            <UI.Tab className={'bg-surface-container'} label={'Code'}></UI.Tab>
+            <UI.Tab
+              className={'bg-surface-container-high'}
+              label={'Code'}
+            ></UI.Tab>
           </UI.Tabs>
         )}
         <UI.IconButton
@@ -83,7 +88,7 @@ export const CodePreview = ({
       <LiveProvider code={code} scope={{ ...UI, ...scope }}>
         {tab === 'Preview' && (
           <div
-            className={classNames({
+            className={classNames(' bg-inverse-surface/[0.05]', {
               'flex justify-center items-center flex-1': center,
             })}
           >
@@ -91,7 +96,7 @@ export const CodePreview = ({
           </div>
         )}
         {tab == 'Code' && (
-          <div className={'p-4'}>
+          <div className={'p-4 bg-inverse-surface/[0.05]'}>
             {!children && (
               <>
                 <LiveEditor />
