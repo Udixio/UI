@@ -1,16 +1,5 @@
 ---
-import { getCollection } from 'astro:content';
-import Layout from '@/layouts/layout.astro';
+export const prerender = false;
 
-export async function getStaticPaths() {
-  const overviews = await getCollection('overviews');
-  return overviews.map(overview =>
-    ({
-      params: { component: overview.id.replace('overview', '') },
-      props: { overview }
-    })
-  );
-}
-
-return Astro.rewrite(new URL(Astro.url.pathname + '/overview', Astro.url.origin));
+return Astro.redirect('overview');
 ---

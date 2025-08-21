@@ -7,19 +7,21 @@ export const ComponentSidebar = ({
   current = null,
 }: {
   components: { slug: string }[];
-  current : string | null
+  current: string | null;
 }) => {
-  const [activeComponent, setActiveComponent] = useState<null | string>(current);
+  const [activeComponent, setActiveComponent] = useState<null | string>(
+    current,
+  );
 
   useEffect(() => {
-    setActiveComponent(current)
+    setActiveComponent(current);
   }, [current]);
 
   return (
     <nav className="sticky top-0 flex flex-col  p-4 bg-surface-container h-screen overflow-auto">
       {components.map(({ slug }) => (
         <Button
-          href={'/components/' + slug}
+          href={`/components/${slug}/overview`}
           className={'justify-start'}
           label={sentenceCase(noCase(slug))}
           onToggle={(value) => {
