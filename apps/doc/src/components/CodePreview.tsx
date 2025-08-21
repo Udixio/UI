@@ -48,12 +48,13 @@ export const CodePreview = ({
 
   return (
     <UI.Card
-      className={classNames('not-prose flex flex-col', { 'min-h-48': code })}
+      className={classNames('not-prose  flex-col', { 'min-h-48 flex': code })}
       variant={'filled'}
     >
       <div
-        className={classNames(' justify-between pr-2 bg-surface-container', {
-          flex: code,
+        className={classNames(' justify-between pr-2 ', {
+          'flex bg-surface-container': code,
+          'w-fit float-right': !code,
         })}
       >
         {code && (
@@ -72,9 +73,6 @@ export const CodePreview = ({
         <UI.IconButton
           onToggle={handleCopy}
           size={'xSmall'}
-          className={classNames({
-            'absolute right-2': !code,
-          })}
           icon={farClipboard}
           ariaLabel={'Copy to clipboard'}
           iconSelected={faClipboardCheck}

@@ -7,3 +7,8 @@ const { 'data-code': code, 'data-language': language } = Astro.props;
 <CodePreview client:load code={language == 'jsx' ? code : undefined}>
   <Code code={code} lang={language} defaultColor={false} />
 </CodePreview>
+<style is:global>
+  pre {
+    text-wrap: auto;
+  }
+</style>
