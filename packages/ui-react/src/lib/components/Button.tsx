@@ -26,6 +26,7 @@ export const Button = ({
   size = 'medium',
   allowShapeTransformation = true,
   transition,
+  children,
   ...restProps
 }: ReactProps<ButtonInterface>) => {
   const ElementType = href ? 'a' : 'button';
@@ -134,7 +135,7 @@ export const Button = ({
             />
           </div>
         )}
-        <span className={styles.label}>{label}</span>
+        <span className={styles.label}>{label ?? children}</span>
         {iconPosition === 'right' && iconElement}
       </div>
     </ElementType>
