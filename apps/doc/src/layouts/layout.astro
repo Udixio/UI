@@ -3,6 +3,7 @@ import '@/styles/global.css';
 import { getCollection, render } from 'astro:content';
 import { Button } from '@udixio/ui-react';
 import { sentenceCase, kebabCase } from 'change-case';
+import { ComponentSidebar } from '@/components/ComponentSidebar';
 
 const apis = await getCollection('api');
 ---
@@ -16,14 +17,12 @@ const apis = await getCollection('api');
 </head>
 <body class="dark bg-surface text-on-surface">
 <main class="mx-auto flex justify-between">
-  <nav class="flex flex-col  p-4 bg-surface-container">
-    {apis.filter(api => !Object.keys(api.data[0].tags).includes('parent')).map(({ id }) =>
-      <Button client:load variant="filledTonal" href={'/components/' + kebabCase(id)}>
-        {sentenceCase(id)}
-      </Button>)}
-  </nav>
+  <ComponentSidebar client:load
+                    components={apis.filter(api => !Object.keys(api.data[0].tags).includes('parent')).map(({ id }) => ({
+                      slug: id
+                    }))}
+  />
   <div class="max-w-screen-md  p-4 w-full">
-
     <slot />
   </div>
   <div></div>
