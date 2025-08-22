@@ -88,7 +88,7 @@ export const CodePreview = ({
           <>
             <LivePreview
               className={classNames(' bg-inverse-surface/[0.05]', {
-                'flex justify-center items-center flex-1 p-8': center,
+                'flex justify-center items-center flex-1 flex-col p-8': center,
               })}
             />
             <LiveError />

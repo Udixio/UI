@@ -6,6 +6,9 @@
 
 
 
+
+
+
 import { CodePreview } from '@/components/CodePreview.js';
 import { faPlus, faStar as fasStar } from '@fortawesome/free-solid-svg-icons';
 import { faStar as farStar } from '@fortawesome/free-regular-svg-icons';
@@ -18,31 +21,34 @@ Import IconButton from @udixio/ui-react when an action is best represented by an
 import { IconButton } from "@udixio/ui-react"
 ```
 
-<CodePreview client:load
-             code={`
+<CodePreview
+  client:load
+  code={`
   <div className="flex items-center gap-3">
     <IconButton ariaLabel="Add item" icon={faPlus} onClick={() => console.log('add')} />
   </div>`}
-             scope={{ faPlus }}
+  scope={{ faPlus }}
 />
 
 ## Variants
 
-<CodePreview client:load
-             code={`
+<CodePreview
+  client:load
+  code={`
   <div className="flex items-center gap-3">
     <IconButton ariaLabel="Standard" icon={faPlus} variant="standard" />
     <IconButton ariaLabel="Filled" icon={faPlus} variant="filled" />
     <IconButton ariaLabel="Tonal" icon={faPlus} variant="tonal" />
     <IconButton ariaLabel="Outlined" icon={faPlus} variant="outlined" />
   </div>`}
-             scope={{ faPlus }}
+  scope={{ faPlus }}
 />
 
 ## Sizes
 
-<CodePreview client:load
-             code={`
+<CodePreview
+  client:load
+  code={`
   <div className="flex items-center gap-3">
     <IconButton variant="filled" ariaLabel="XS" icon={faPlus} size="xSmall" />
     <IconButton variant="filled" ariaLabel="S" icon={faPlus} size="small" />
@@ -50,62 +56,72 @@ import { IconButton } from "@udixio/ui-react"
     <IconButton variant="filled" ariaLabel="L" icon={faPlus} size="large" />
     <IconButton variant="filled" ariaLabel="XL" icon={faPlus} size="xLarge" />
   </div>`}
-             scope={{ faPlus }}
+  scope={{ faPlus }}
 />
 
 ## Shapes and widths
 
 Control the button outline with `shape` and surface padding with `width`.
 
-<CodePreview client:load
-             code={`
+<CodePreview
+  client:load
+  code={`
+ <>
   <div className="flex items-center gap-3">
-    <IconButton ariaLabel="Rounded" icon={faPlus} shape="rounded" />
-    <IconButton ariaLabel="Squared" icon={faPlus} shape="squared" />
-    <IconButton ariaLabel="Narrow" icon={faPlus} width="narrow" />
-    <IconButton ariaLabel="Wide" icon={faPlus} width="wide" />
-  </div>`}
-             scope={{ faPlus }}
+    <IconButton variant="filled" ariaLabel="Rounded" icon={faPlus} shape="rounded" width="narrow" />
+    <IconButton variant="filled" ariaLabel="Squared" icon={faPlus} shape="rounded" width="default" />
+    <IconButton variant="filled" ariaLabel="Narrow" icon={faPlus} shape="rounded" width="wide" />
+
+            </div>
+            <div className="flex items-center mt-8 gap-3">
+              <IconButton variant="filled" ariaLabel="Rounded" icon={faPlus} shape="squared" width="narrow" />
+              <IconButton variant="filled" ariaLabel="Squared" icon={faPlus} shape="squared" width="default" />
+              <IconButton variant="filled" ariaLabel="Narrow" icon={faPlus} shape="squared" width="wide" />
+            </div>
+           </>
+`}
+  scope={{ faPlus }}
 />
 
 ## States
 
-Use `disabled` to prevent user interaction and `activated` for a persistent selected state.
+Use `disabled` to prevent user interaction
 
-<CodePreview client:load
-             code={`
+<CodePreview
+  client:load
+  code={`
   <div className="flex items-center gap-3">
-    <IconButton ariaLabel="Active" icon={faPlus} activated />
-    <IconButton ariaLabel="Disabled" icon={faPlus} disabled />
-    <IconButton ariaLabel="Disabled active" icon={faPlus} disabled activated />
+    <IconButton variant="filled" ariaLabel="Disabled" icon={faPlus} disabled />
   </div>`}
-             scope={{ faPlus }}
+  scope={{ faPlus }}
 />
 
 ## Toggle state
 
 Use \`onToggle\` and \`iconSelected\` to turn it into a toggle button.
 
-<CodePreview client:load
-             code={`
+<CodePreview
+  client:load
+  code={`
   <IconButton
     ariaLabel="Favorite"
     icon={farStar}
     iconSelected={fasStar}
     onToggle={(active) => console.log('active:', active)}
   />`}
-             scope={{ farStar, fasStar }}
+  scope={{ farStar, fasStar }}
 />
 
 ## Link or action
 
 If the `href` prop is provided, it renders an anchor; otherwise it renders a button.
 
-<CodePreview client:load
-             code={`
+<CodePreview
+  client:load
+  code={`
   <div className="flex items-center gap-3">
     <IconButton ariaLabel="Go to Udixio" icon={faPlus} href="https://udixio.dev" />
     <IconButton ariaLabel="Run action" icon={faPlus} onClick={() => console.log('clicked')} />
   </div>`}
-             scope={{ faPlus }}
+  scope={{ faPlus }}
 />

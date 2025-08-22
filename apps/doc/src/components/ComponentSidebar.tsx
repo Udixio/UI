@@ -30,7 +30,7 @@ export const ComponentSidebar = ({
             }
           }}
           activated={slug === activeComponent}
-          variant="tonal"
+          variant="filled"
         />
       ))}
     </nav>

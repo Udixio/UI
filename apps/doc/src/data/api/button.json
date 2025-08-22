@@ -55,7 +55,7 @@
         ],
         "required": false,
         "type": {
-          "name": "\"text\" | \"filled\" | \"elevated\" | \"outlined\" | \"filledTonal\""
+          "name": "\"text\" | \"filled\" | \"elevated\" | \"tonal\" | \"outlined\""
         }
       },
       "disabled": {
