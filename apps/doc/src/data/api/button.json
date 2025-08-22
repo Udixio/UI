@@ -1,163 +1,176 @@
-[
-  {
-    "tags": {
-      "status": "beta",
-      "category": "Action"
+{
+  "tags": {
+    "status": "beta",
+    "category": "Action"
+  },
+  "filePath": "node_modules/@udixio/ui-react/src/lib/components/Button.tsx",
+  "description": "Buttons prompt most actions in a UI",
+  "displayName": "Button",
+  "methods": [],
+  "props": {
+    "label": {
+      "defaultValue": null,
+      "description": "The label is the text that is displayed on the button.",
+      "name": "label",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "string"
+      }
     },
-    "filePath": "node_modules/@udixio/ui-react/src/lib/components/Button.tsx",
-    "description": "Buttons prompt most actions in a UI",
-    "displayName": "Button",
-    "methods": [],
-    "props": {
-      "label": {
-        "defaultValue": null,
-        "description": "The label is the text that is displayed on the button.",
-        "name": "label",
-        "declarations": [
-          {
-            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
-            "name": "TypeLiteral"
-          }
-        ],
-        "required": false,
-        "type": {
-          "name": "string"
-        }
+    "size": {
+      "defaultValue": {
+        "value": "medium"
       },
-      "size": {
-        "defaultValue": {
-          "value": "medium"
-        },
-        "description": "",
-        "name": "size",
-        "declarations": [
-          {
-            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
-            "name": "TypeLiteral"
-          }
-        ],
-        "required": false,
-        "type": {
-          "name": "\"xSmall\" | \"small\" | \"medium\" | \"large\" | \"xLarge\""
+      "description": "",
+      "name": "size",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
+          "name": "TypeLiteral"
         }
+      ],
+      "required": false,
+      "type": {
+        "name": "\"xSmall\" | \"small\" | \"medium\" | \"large\" | \"xLarge\""
+      }
+    },
+    "variant": {
+      "defaultValue": {
+        "value": "filled"
       },
-      "variant": {
-        "defaultValue": {
-          "value": "filled"
-        },
-        "description": "The button variant determines the style of the button.",
-        "name": "variant",
-        "declarations": [
-          {
-            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
-            "name": "TypeLiteral"
-          }
-        ],
-        "required": false,
-        "type": {
-          "name": "\"text\" | \"filled\" | \"elevated\" | \"tonal\" | \"outlined\""
+      "description": "The button variant determines the style of the button.",
+      "name": "variant",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
+          "name": "TypeLiteral"
         }
+      ],
+      "required": false,
+      "type": {
+        "name": "\"text\" | \"filled\" | \"elevated\" | \"tonal\" | \"outlined\""
+      }
+    },
+    "disabled": {
+      "defaultValue": {
+        "value": false
       },
-      "disabled": {
-        "defaultValue": {
-          "value": false
-        },
-        "description": "Disables the button if set to true.",
-        "name": "disabled",
-        "declarations": [
-          {
-            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
-            "name": "TypeLiteral"
-          }
-        ],
-        "required": false,
-        "type": {
-          "name": "boolean"
+      "description": "Disables the button if set to true.",
+      "name": "disabled",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
+          "name": "TypeLiteral"
         }
+      ],
+      "required": false,
+      "type": {
+        "name": "boolean"
+      }
+    },
+    "disableTextMargins": {
+      "defaultValue": null,
+      "description": "Controls whether negative margins are applied to text variant buttons.\nWhen true, removes the default negative horizontal margins.\nOnly applies to 'text' variant buttons.",
+      "name": "disableTextMargins",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "boolean"
+      }
+    },
+    "icon": {
+      "defaultValue": null,
+      "description": "An optional icon to display in the button.",
+      "name": "icon",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "IconDefinition"
+      }
+    },
+    "iconPosition": {
+      "defaultValue": {
+        "value": "left"
       },
-      "icon": {
-        "defaultValue": null,
-        "description": "An optional icon to display in the button.",
-        "name": "icon",
-        "declarations": [
-          {
-            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
-            "name": "TypeLiteral"
-          }
-        ],
-        "required": false,
-        "type": {
-          "name": "IconDefinition"
+      "description": "",
+      "name": "iconPosition",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
+          "name": "TypeLiteral"
         }
+      ],
+      "required": false,
+      "type": {
+        "name": "\"left\" | \"right\""
+      }
+    },
+    "loading": {
+      "defaultValue": {
+        "value": false
       },
-      "iconPosition": {
-        "defaultValue": {
-          "value": "left"
-        },
-        "description": "",
-        "name": "iconPosition",
-        "declarations": [
-          {
-            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
-            "name": "TypeLiteral"
-          }
-        ],
-        "required": false,
-        "type": {
-          "name": "\"left\" | \"right\""
+      "description": "",
+      "name": "loading",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
+          "name": "TypeLiteral"
         }
+      ],
+      "required": false,
+      "type": {
+        "name": "boolean"
+      }
+    },
+    "shape": {
+      "defaultValue": {
+        "value": "rounded"
       },
-      "loading": {
-        "defaultValue": {
-          "value": false
-        },
-        "description": "",
-        "name": "loading",
-        "declarations": [
-          {
-            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
-            "name": "TypeLiteral"
-          }
-        ],
-        "required": false,
-        "type": {
-          "name": "boolean"
+      "description": "The shape of the button defines whether it is squared or rounded.",
+      "name": "shape",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
+          "name": "TypeLiteral"
         }
+      ],
+      "required": false,
+      "type": {
+        "name": "\"squared\" | \"rounded\""
+      }
+    },
+    "allowShapeTransformation": {
+      "defaultValue": {
+        "value": true
       },
-      "shape": {
-        "defaultValue": {
-          "value": "rounded"
-        },
-        "description": "The shape of the button defines whether it is squared or rounded.",
-        "name": "shape",
-        "declarations": [
-          {
-            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
-            "name": "TypeLiteral"
-          }
-        ],
-        "required": false,
-        "type": {
-          "name": "\"squared\" | \"rounded\""
+      "description": "",
+      "name": "allowShapeTransformation",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
+          "name": "TypeLiteral"
         }
-      },
-      "allowShapeTransformation": {
-        "defaultValue": {
-          "value": true
-        },
-        "description": "",
-        "name": "allowShapeTransformation",
-        "declarations": [
-          {
-            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
-            "name": "TypeLiteral"
-          }
-        ],
-        "required": false,
-        "type": {
-          "name": "boolean"
-        }
+      ],
+      "required": false,
+      "type": {
+        "name": "boolean"
       }
     }
   }
-]
+}

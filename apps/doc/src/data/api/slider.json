@@ -1,99 +1,97 @@
-[
-  {
-    "tags": {
-      "status": "beta",
-      "category": "Input"
+{
+  "tags": {
+    "status": "beta",
+    "category": "Input"
+  },
+  "filePath": "node_modules/@udixio/ui-react/src/lib/components/Slider.tsx",
+  "description": "Sliders let users make selections from a range of values",
+  "displayName": "Slider",
+  "methods": [],
+  "props": {
+    "value": {
+      "defaultValue": {
+        "value": 0
+      },
+      "description": "",
+      "name": "value",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/slider.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "number"
+      }
     },
-    "filePath": "node_modules/@udixio/ui-react/src/lib/components/Slider.tsx",
-    "description": "Sliders let users make selections from a range of values",
-    "displayName": "Slider",
-    "methods": [],
-    "props": {
-      "value": {
-        "defaultValue": {
-          "value": 0
-        },
-        "description": "",
-        "name": "value",
-        "declarations": [
-          {
-            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/slider.interface.ts",
-            "name": "TypeLiteral"
-          }
-        ],
-        "required": false,
-        "type": {
-          "name": "number"
-        }
+    "step": {
+      "defaultValue": {
+        "value": 10
       },
-      "step": {
-        "defaultValue": {
-          "value": 10
-        },
-        "description": "",
-        "name": "step",
-        "declarations": [
-          {
-            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/slider.interface.ts",
-            "name": "TypeLiteral"
-          }
-        ],
-        "required": false,
-        "type": {
-          "name": "number"
+      "description": "",
+      "name": "step",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/slider.interface.ts",
+          "name": "TypeLiteral"
         }
+      ],
+      "required": false,
+      "type": {
+        "name": "number"
+      }
+    },
+    "min": {
+      "defaultValue": {
+        "value": 0
       },
-      "min": {
-        "defaultValue": {
-          "value": 0
-        },
-        "description": "",
-        "name": "min",
-        "declarations": [
-          {
-            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/slider.interface.ts",
-            "name": "TypeLiteral"
-          }
-        ],
-        "required": false,
-        "type": {
-          "name": "number"
+      "description": "",
+      "name": "min",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/slider.interface.ts",
+          "name": "TypeLiteral"
         }
+      ],
+      "required": false,
+      "type": {
+        "name": "number"
+      }
+    },
+    "max": {
+      "defaultValue": {
+        "value": 100
       },
-      "max": {
-        "defaultValue": {
-          "value": 100
-        },
-        "description": "",
-        "name": "max",
-        "declarations": [
-          {
-            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/slider.interface.ts",
-            "name": "TypeLiteral"
-          }
-        ],
-        "required": false,
-        "type": {
-          "name": "number"
+      "description": "",
+      "name": "max",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/slider.interface.ts",
+          "name": "TypeLiteral"
         }
+      ],
+      "required": false,
+      "type": {
+        "name": "number"
+      }
+    },
+    "marks": {
+      "defaultValue": {
+        "value": "[\n    {\n      value: 0,\n      label: '0',\n    },\n    {\n      value: 100,\n      label: '100',\n    },\n  ]"
       },
-      "marks": {
-        "defaultValue": {
-          "value": "[\n    {\n      value: 0,\n      label: '0',\n    },\n    {\n      value: 100,\n      label: '100',\n    },\n  ]"
-        },
-        "description": "",
-        "name": "marks",
-        "declarations": [
-          {
-            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/slider.interface.ts",
-            "name": "TypeLiteral"
-          }
-        ],
-        "required": false,
-        "type": {
-          "name": "{ value: number; label?: string; }[]"
+      "description": "",
+      "name": "marks",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/slider.interface.ts",
+          "name": "TypeLiteral"
         }
+      ],
+      "required": false,
+      "type": {
+        "name": "{ value: number; label?: string; }[]"
       }
     }
   }
-]
+}

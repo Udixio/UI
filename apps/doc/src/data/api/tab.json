@@ -1,65 +1,63 @@
-[
-  {
-    "tags": {
-      "status": "beta",
-      "parent": "Tabs"
+{
+  "tags": {
+    "status": "beta",
+    "parent": "Tabs"
+  },
+  "filePath": "node_modules/@udixio/ui-react/src/lib/components/Tab.tsx",
+  "description": "",
+  "displayName": "Tab",
+  "methods": [],
+  "props": {
+    "selected": {
+      "defaultValue": {
+        "value": false
+      },
+      "description": "",
+      "name": "selected",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tab.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "boolean"
+      }
     },
-    "filePath": "node_modules/@udixio/ui-react/src/lib/components/Tab.tsx",
-    "description": "",
-    "displayName": "Tab",
-    "methods": [],
-    "props": {
-      "selected": {
-        "defaultValue": {
-          "value": false
-        },
-        "description": "",
-        "name": "selected",
-        "declarations": [
-          {
-            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tab.interface.ts",
-            "name": "TypeLiteral"
-          }
-        ],
-        "required": false,
-        "type": {
-          "name": "boolean"
-        }
+    "variant": {
+      "defaultValue": {
+        "value": "primary"
       },
-      "variant": {
-        "defaultValue": {
-          "value": "primary"
-        },
-        "description": "",
-        "name": "variant",
-        "declarations": [
-          {
-            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tab.interface.ts",
-            "name": "TypeLiteral"
-          }
-        ],
-        "required": false,
-        "type": {
-          "name": "TabsVariant"
+      "description": "",
+      "name": "variant",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tab.interface.ts",
+          "name": "TypeLiteral"
         }
+      ],
+      "required": false,
+      "type": {
+        "name": "TabsVariant"
+      }
+    },
+    "scrollable": {
+      "defaultValue": {
+        "value": false
       },
-      "scrollable": {
-        "defaultValue": {
-          "value": false
-        },
-        "description": "",
-        "name": "scrollable",
-        "declarations": [
-          {
-            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tab.interface.ts",
-            "name": "TypeLiteral"
-          }
-        ],
-        "required": false,
-        "type": {
-          "name": "boolean"
+      "description": "",
+      "name": "scrollable",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tab.interface.ts",
+          "name": "TypeLiteral"
         }
+      ],
+      "required": false,
+      "type": {
+        "name": "boolean"
       }
     }
   }
-]
+}
