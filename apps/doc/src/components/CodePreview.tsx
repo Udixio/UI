@@ -46,15 +46,15 @@ export const CodePreview = ({
 
   return (
     <UI.Card
-      className={classNames('not-prose  flex-col', {
+      className={classNames('not-prose card-code mt-4 flex-col', {
         'min-h-48 flex': code,
       })}
       variant={'filled'}
     >
       <div
-        className={classNames(' justify-between pr-2 ', {
-          'flex bg-surface-container-high': code,
-          'w-fit float-right': !code,
+        className={classNames('flex pr-2 items-center', {
+          'bg-surface-container-high relative': code,
+          'w-fit ': !code,
         })}
       >
         {code && (
@@ -76,8 +76,9 @@ export const CodePreview = ({
         <UI.IconButton
           onToggle={handleCopy}
           size={'xSmall'}
+          className={'absolute right-2 top-1/2 -translate-y-1/2'}
           icon={farClipboard}
-          ariaLabel={'Copy to clipboard'}
+          label={'Copy to clipboard'}
           iconSelected={faClipboardCheck}
           activated={copyState == 'ok'}
         />
@@ -85,13 +86,14 @@ export const CodePreview = ({
 
       <LiveProvider code={code} scope={{ ...UI, ...scope }}>
         {tab === 'Preview' && (
-          <div
-            className={classNames(' bg-inverse-surface/[0.05]', {
-              'flex justify-center items-center flex-1': center,
-            })}
-          >
-            <LivePreview /> <LiveError />
-          </div>
+          <>
+            <LivePreview
+              className={classNames(' bg-inverse-surface/[0.05]', {
+                'flex justify-center items-center flex-1 flex-col p-8': center,
+              })}
+            />
+            <LiveError />
+          </>
         )}
         {tab == 'Code' && (
           <div className={'p-4 bg-inverse-surface/[0.05]'}>

@@ -5,6 +5,7 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
   'button',
   ({
     variant,
+    disableTextMargins,
     disabled,
     iconPosition,
     icon,
@@ -52,7 +53,7 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
           !disabled && ((isActive && onToggle) || !onToggle),
         'text-on-surface/[38%]': disabled,
       },
-      variant === 'filledTonal' && {
+      variant === 'tonal' && {
         'hover:shadow-1': !disabled,
         'bg-secondary-container text-on-secondary-container':
           !disabled && !isActive,
@@ -76,15 +77,17 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
           'text-primary': !disabled,
           'text-on-surface/[0.38]': disabled,
         },
-        size === 'xSmall' && '-mx-3 ',
-        size === 'small' && '-mx-4 ',
-        size === 'medium' && '-mx-6 ',
-        size === 'large' && '-mx-12',
-        size === 'xLarge' && '-mx-16 ',
-        // size === 'small' && ' -my-2.5',
-        // size === 'medium' && ' -my-4',
-        // size === 'large' && '-my-8',
-        // size === 'xLarge' && ' -my-12',
+        disableTextMargins && [
+          size === 'xSmall' && '-mx-3 ',
+          size === 'small' && '-mx-4 ',
+          size === 'medium' && '-mx-6 ',
+          size === 'large' && '-mx-12',
+          size === 'xLarge' && '-mx-16 ',
+          // size === 'small' && ' -my-2.5',
+          // size === 'medium' && ' -my-4',
+          // size === 'large' && '-my-8',
+          // size === 'xLarge' && ' -my-12',
+        ],
       ],
       disabled && 'cursor-default',
     ),
@@ -118,7 +121,7 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
           'group-active:rounded-[16px]': size === 'medium',
           'group-active:rounded-[28px]': size === 'large' || size == 'xLarge',
         },
-      variant === 'filledTonal' && {
+      variant === 'tonal' && {
         'bg-on-surface/[0.12]': disabled,
         'group-state-on-secondary-container ': !disabled,
       },

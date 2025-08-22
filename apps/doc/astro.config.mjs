@@ -11,6 +11,7 @@ import vercel from '@astrojs/vercel';
 
 // https://astro.build/config
 export default defineConfig({
+  output: 'static',
   vite: {
     plugins: [tailwindcss(), udixioVite()],
   },
@@ -35,9 +36,6 @@ export default defineConfig({
       remarkPlugins: [],
       rehypePlugins: [],
       // Configuration des composants personnalisés
-      components: {
-        code: './src/components/Code.tsx',
-      },
     }),
     react(),
   ],

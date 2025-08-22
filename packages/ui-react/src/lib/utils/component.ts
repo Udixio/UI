@@ -5,7 +5,7 @@ import { HTMLMotionProps } from 'motion/react';
 
 export type ReactProps<T extends ComponentInterface> = Omit<
   JSX.IntrinsicElements[T['type']],
-  keyof T['props'] | 'className'
+  keyof T['props'] | 'className' | 'children'
 > &
   ComponentClassName<T> & {
     ref?: React.RefObject<HTMLElements[T['type']] | null>;

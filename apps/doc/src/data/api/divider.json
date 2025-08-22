@@ -1,31 +1,29 @@
-[
-  {
-    "tags": {
-      "status": "beta",
-      "category": "Layout"
-    },
-    "filePath": "node_modules/@udixio/ui-react/src/lib/components/Divider.tsx",
-    "description": "Dividers are thin lines that group content in lists or other containers",
-    "displayName": "Divider",
-    "methods": [],
-    "props": {
-      "orientation": {
-        "defaultValue": {
-          "value": "horizontal"
-        },
-        "description": "",
-        "name": "orientation",
-        "declarations": [
-          {
-            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/divider.interface.ts",
-            "name": "TypeLiteral"
-          }
-        ],
-        "required": false,
-        "type": {
-          "name": "\"vertical\" | \"horizontal\""
+{
+  "tags": {
+    "status": "beta",
+    "category": "Layout"
+  },
+  "filePath": "node_modules/@udixio/ui-react/src/lib/components/Divider.tsx",
+  "description": "Dividers are thin lines that group content in lists or other containers",
+  "displayName": "Divider",
+  "methods": [],
+  "props": {
+    "orientation": {
+      "defaultValue": {
+        "value": "horizontal"
+      },
+      "description": "",
+      "name": "orientation",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/divider.interface.ts",
+          "name": "TypeLiteral"
         }
+      ],
+      "required": false,
+      "type": {
+        "name": "\"vertical\" | \"horizontal\""
       }
     }
   }
-]
+}

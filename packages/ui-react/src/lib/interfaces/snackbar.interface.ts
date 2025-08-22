@@ -5,7 +5,7 @@ export interface SnackbarInterface {
   props: {
     duration?: number;
     onClose?: () => void;
-    supportingText: string;
+    message: string;
     closeIcon?: IconDefinition;
   };
   states: { isVisible: boolean };

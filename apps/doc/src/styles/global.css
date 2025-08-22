@@ -7,38 +7,39 @@
 @source "../../src/";
 
 
-.astro-code.github-dark {
+.astro-code.github-dark, pre.prism-code {
+    padding: 0 !important;
     background-color: transparent !important;
 }
 
-.prose-markdown:not(.not-prose *) {
+.prose-markdown {
     @apply prose max-w-none text-inherit;
 
     /* Headings */
 
-    :is(h1, h2, h3, h4, h5, h6) {
+    :is(h1, h2, h3, h4, h5, h6):not(.not-prose *) {
         @apply text-on-surface;
     }
 
-    h1 {
+    h1:not(.not-prose *) {
         @apply text-headline-medium lg:text-display-small;
     }
 
-    h2 {
-        @apply text-headline-small lg:text-headline-medium;
+    h2:not(.not-prose *) {
+        @apply text-headline-small lg:text-headline-medium mt-24 mb-4;
     }
 
-    h3 {
-        @apply text-headline-small;
-    }
-
-    h4 {
+    h3:not(.not-prose *) {
         @apply text-title-large;
+    }
+
+    h4:not(.not-prose *) {
+        @apply text-title-small;
     }
 
     /* Text elements */
 
-    a {
+    a:not(.not-prose *) {
         @apply text-primary text-body-medium;
 
         &.button {
@@ -46,44 +47,35 @@
         }
     }
 
-    code:not(.card code) {
+    code:not(.card code):not(.not-prose *) {
         @apply text-on-surface bg-surface-container-highest p-1 mx-1 rounded text-body-medium;
     }
 
-    li {
+    li:not(.not-prose *) {
         @apply text-on-surface-variant text-body-medium;
     }
 
-    td {
+    td:not(.not-prose *) {
         @apply text-on-surface-variant text-body-medium;
     }
 
-    blockquote {
+    blockquote:not(.not-prose *) {
         @apply text-on-surface-variant text-body-large;
     }
 
-    p {
+    p:not(.not-prose *) {
         @apply text-on-surface-variant text-body-medium;
     }
 
-    strong {
+    strong:not(.not-prose *) {
         @apply text-[inherit];
     }
 
-    pre {
+    pre:not(.not-prose *) {
         @apply m-0 p-0;
     }
 
-    .card {
-        @apply mt-8;
-    }
-
-
-    p {
-        @apply text-on-surface-variant text-body-medium;
-    }
-
-    a {
+    a:not(.not-prose *) {
         &.button {
             @apply no-underline;
         }

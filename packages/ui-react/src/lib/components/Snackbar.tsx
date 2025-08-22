@@ -13,7 +13,7 @@ import { IconButton } from './IconButton';
  * @category Communication
  */
 export const Snackbar = ({
-  supportingText,
+  message,
   className,
   duration,
   closeIcon = faXmark,
@@ -28,7 +28,7 @@ export const Snackbar = ({
     duration,
     isVisible,
     onClose,
-    supportingText,
+    message,
   });
 
   useEffect(() => {
@@ -56,12 +56,12 @@ export const Snackbar = ({
           {...restProps}
         >
           <div className={styles.container}>
-            <p className={styles.supportingText}>{supportingText}</p>
+            <p className={styles.supportingText}>{message}</p>
             <IconButton
               onClick={() => handleClose()}
               className={styles.icon}
               icon={closeIcon}
-              ariaLabel={'close the snackbar'}
+              label={'close the snackbar'}
             ></IconButton>
           </div>
         </motion.div>

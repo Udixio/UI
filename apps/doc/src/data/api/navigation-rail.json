@@ -1,65 +1,63 @@
-[
-  {
-    "tags": {
-      "status": "beta",
-      "category": "Navigation"
+{
+  "tags": {
+    "status": "beta",
+    "category": "Navigation"
+  },
+  "filePath": "node_modules/@udixio/ui-react/src/lib/components/NavigationRail.tsx",
+  "description": "Navigation rails let people switch between UI views on mid-sized devices",
+  "displayName": "NavigationRail",
+  "methods": [],
+  "props": {
+    "variant": {
+      "defaultValue": {
+        "value": "standard"
+      },
+      "description": "",
+      "name": "variant",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/navigation-rail.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "\"standard\" | \"modal\""
+      }
     },
-    "filePath": "node_modules/@udixio/ui-react/src/lib/components/NavigationRail.tsx",
-    "description": "Navigation rails let people switch between UI views on mid-sized devices",
-    "displayName": "NavigationRail",
-    "methods": [],
-    "props": {
-      "variant": {
-        "defaultValue": {
-          "value": "standard"
-        },
-        "description": "",
-        "name": "variant",
-        "declarations": [
-          {
-            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/navigation-rail.interface.ts",
-            "name": "TypeLiteral"
-          }
-        ],
-        "required": false,
-        "type": {
-          "name": "\"standard\" | \"modal\""
-        }
+    "alignment": {
+      "defaultValue": {
+        "value": "top"
       },
-      "alignment": {
-        "defaultValue": {
-          "value": "top"
-        },
-        "description": "",
-        "name": "alignment",
-        "declarations": [
-          {
-            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/navigation-rail.interface.ts",
-            "name": "TypeLiteral"
-          }
-        ],
-        "required": false,
-        "type": {
-          "name": "\"middle\" | \"top\""
+      "description": "",
+      "name": "alignment",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/navigation-rail.interface.ts",
+          "name": "TypeLiteral"
         }
+      ],
+      "required": false,
+      "type": {
+        "name": "\"middle\" | \"top\""
+      }
+    },
+    "menu": {
+      "defaultValue": {
+        "value": "{\n    closed: {\n      icon: faBars,\n      label: 'Open menu',\n    },\n    opened: {\n      icon: faXmark,\n      label: 'Close menu',\n    },\n  }"
       },
-      "menu": {
-        "defaultValue": {
-          "value": "{\n    closed: {\n      icon: faBars,\n      label: 'Open menu',\n    },\n    opened: {\n      icon: faXmark,\n      label: 'Close menu',\n    },\n  }"
-        },
-        "description": "",
-        "name": "menu",
-        "declarations": [
-          {
-            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/navigation-rail.interface.ts",
-            "name": "TypeLiteral"
-          }
-        ],
-        "required": false,
-        "type": {
-          "name": "{ closed: MenuState; opened: MenuState; }"
+      "description": "",
+      "name": "menu",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/navigation-rail.interface.ts",
+          "name": "TypeLiteral"
         }
+      ],
+      "required": false,
+      "type": {
+        "name": "{ closed: MenuState; opened: MenuState; }"
       }
     }
   }
-]
+}

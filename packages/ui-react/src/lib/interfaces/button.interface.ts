@@ -6,19 +6,28 @@ type Props = {
   /**
    * The label is the text that is displayed on the button.
    */
-  label: string;
+  label?: string;
+
+  children?: string;
 
   size?: 'xSmall' | 'small' | 'medium' | 'large' | 'xLarge';
 
   /**
    * The button variant determines the style of the button.
    */
-  variant?: 'filled' | 'elevated' | 'outlined' | 'text' | 'filledTonal';
+  variant?: 'filled' | 'elevated' | 'tonal' | 'outlined' | 'text';
 
   /**
    * Disables the button if set to true.
    */
   disabled?: boolean;
+
+  /**
+   * Controls whether negative margins are applied to text variant buttons.
+   * When true, removes the default negative horizontal margins.
+   * Only applies to 'text' variant buttons.
+   */
+  disableTextMargins?: boolean;
 
   /**
    * An optional icon to display in the button.

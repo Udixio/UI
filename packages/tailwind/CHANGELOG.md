@@ -1,3 +1,23 @@
+## 1.2.1 (2025-08-22)
+
+### 🩹 Fixes
+
+- **tailwind:** remove unused imports and enhance breakpoint parsing ([34dc995](https://github.com/Udixio/UI/commit/34dc995))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 1.2.0 (2025-08-21)
+
+### 🚀 Features
+
+- **tailwind:** add custom shadow utility plugin ([8e3485e](https://github.com/Udixio/UI/commit/8e3485e))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.1.0 (2025-08-21)
 
 ### 🚀 Features

@@ -5,6 +5,7 @@ import {
   state,
   StateOptions,
 } from './plugins-tailwind';
+import { shadow } from './plugins-tailwind/shadow';
 
 export type ConfigJs = FontPluginOptions & StateOptions;
 export type ConfigCss = {
@@ -34,8 +35,10 @@ export const main = plugin.withOptions<ConfigJs>((args) => {
   if (!Array.isArray(breakPointsCss)) {
     breakPointsCss = [breakPointsCss];
   }
+
   const responsiveBreakPoints: any = {};
-  breakPointsCss.forEach(([key, value]) => {
+  breakPointsCss.forEach((line) => {
+    const [key, value] = line.split(' ');
     responsiveBreakPoints[key] = value;
   });
 
@@ -48,5 +51,6 @@ export const main = plugin.withOptions<ConfigJs>((args) => {
   return (api: PluginAPI) => {
     font(options).handler(api);
     state(options).handler(api);
+    shadow.handler(api);
   };
 });

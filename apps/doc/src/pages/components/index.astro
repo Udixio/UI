@@ -1,7 +1,9 @@
 ---
 import Layout from '@/layouts/layout.astro';
 
-return Astro.rewrite('components/button');
+export const prerender = false;
+
+return Astro.redirect('/components/button/overview');
 ---
 
 <Layout>

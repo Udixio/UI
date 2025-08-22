@@ -4,12 +4,8 @@
 
 
 
-
-
-
 import { CodePreview } from '@/components/CodePreview.js';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-
 
 ## Usage
 
@@ -20,20 +16,21 @@ import { Button } from "@udixio/ui-react"
 ```
 
 ```tsx
-<Button label={"Button"} />
+<Button>Button</Button>
 ```
 
 ## Variants
 
 ```jsx
 <div className="flex flex-wrap gap-3">
-  <Button label="Filled" variant="filled" />
-  <Button label="Elevated" variant="elevated" />
-  <Button label="Filled Tonal" variant="filledTonal" />
-  <Button label="Outlined" variant="outlined" />
-  <Button label="Text" variant="text" />
+  <Button variant="filled">Filled</Button>
+  <Button variant="elevated">Elevated</Button>
+  <Button variant="tonal">Tonal</Button>
+  <Button variant="outlined">Outlined</Button>
+  <Button variant="text">Text</Button>
 </div>
 ```
+
 ## Toggle buttons
 
 Make a button togglable by providing `onToggle` and controlling its state with `activated`.
@@ -43,15 +40,15 @@ function ToggleExample() {
   const [activeStates, setActiveStates] = React.useState({
     filled: false,
     elevated: false,
-    filledTonal: false,
+    tonal: false,
     outlined: false,
-    text: false
+    text: false,
   });
 
   const handleToggle = (buttonType) => (newState) => {
-    setActiveStates(prev => ({
+    setActiveStates((prev) => ({
       ...prev,
-      [buttonType]: newState
+      [buttonType]: newState,
     }));
   };
 
@@ -71,21 +68,15 @@ function ToggleExample() {
       />
       <Button
         label="Filled Tonal"
-        variant="filledTonal"
-        onToggle={handleToggle('filledTonal')}
-        activated={activeStates.filledTonal}
+        variant="tonal"
+        onToggle={handleToggle('tonal')}
+        activated={activeStates.tonal}
       />
       <Button
         label="Outlined"
         variant="outlined"
         onToggle={handleToggle('outlined')}
         activated={activeStates.outlined}
-      />
-      <Button
-        label="Text"
-        variant="text"
-        onToggle={handleToggle('text')}
-        activated={activeStates.text}
       />
     </div>
   );
@@ -132,14 +123,15 @@ Control the button's appearance via the `shape` prop.
 
 You can add an icon (FontAwesome) and choose its position.
 
-<CodePreview client:load
-             code={`
+<CodePreview
+  client:load
+  code={`
     <div className="flex gap-3">
       <Button label="Add" icon={faPlus} />
       <Button label="Next" iconPosition="right" icon={faPlus} />
     </div>
   `}
-             scope={{ faPlus }}
+  scope={{ faPlus }}
 />
 
 ## Loading state
@@ -158,4 +150,3 @@ If the `href` prop is provided, the component renders an `<a>` link; otherwise i
   <Button label="Go to Udixio" href="https://udixio.dev" />
 </div>
 ```
-

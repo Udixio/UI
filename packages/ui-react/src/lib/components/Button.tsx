@@ -17,6 +17,7 @@ export const Button = ({
   icon,
   href,
   label,
+  disableTextMargins,
   className,
   iconPosition = 'left',
   loading = false,
@@ -31,6 +32,13 @@ export const Button = ({
   children,
   ...restProps
 }: ReactProps<ButtonInterface>) => {
+  if (children) label = children;
+  if (!label) {
+    throw new Error(
+      'Button component requires either a label prop or children content',
+    );
+  }
+
   const ElementType = href ? 'a' : 'button';
 
   const defaultRef = useRef<HTMLDivElement>(null);
@@ -67,12 +75,12 @@ export const Button = ({
   const styles = buttonStyle({
     allowShapeTransformation,
     size,
+    disableTextMargins,
     shape,
     href,
     disabled,
     icon,
     iconPosition,
-    label,
     loading,
     variant,
     transition,
@@ -80,6 +88,8 @@ export const Button = ({
     isActive: isActive ?? false,
     onToggle,
     activated: isActive,
+    label,
+    children: label,
   });
   const iconElement = icon ? (
     <Icon icon={icon} className={styles.icon} />
@@ -109,7 +119,7 @@ export const Button = ({
               (variant === 'filled' && onToggle && 'on-surface-variant') ||
               (variant === 'filled' && !onToggle && 'on-primary') ||
               (variant === 'elevated' && 'primary') ||
-              (variant === 'filledTonal' && 'on-secondary-container') ||
+              (variant === 'tonal' && 'on-secondary-container') ||
               (variant === 'outlined' && 'primary') ||
               (variant === 'text' && 'primary') ||
               ''
@@ -141,9 +151,8 @@ export const Button = ({
                 },
                 {
                   '!stroke-on-secondary-container':
-                    variant === 'filledTonal' && !disabled,
-                  '!stroke-on-surface/[38%]':
-                    variant === 'filledTonal' && disabled,
+                    variant === 'tonal' && !disabled,
+                  '!stroke-on-surface/[38%]': variant === 'tonal' && disabled,
                 },
                 {
                   '!stroke-primary': variant === 'outlined' && !disabled,
@@ -160,7 +169,7 @@ export const Button = ({
           />
         </div>
       )}
-      <span className={styles.label}>{label ?? children}</span>
+      <span className={styles.label}>{label}</span>
       {iconPosition === 'right' && iconElement}
     </ElementType>
   );

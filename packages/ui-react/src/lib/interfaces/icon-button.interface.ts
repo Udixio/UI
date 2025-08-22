@@ -4,7 +4,8 @@ import { ActionOrLink } from '../utils/component';
 import { Transition } from 'motion';
 
 type Props = {
-  ariaLabel: string;
+  label?: string;
+  children?: string;
   icon: IconDefinition;
   size?: 'xSmall' | 'small' | 'medium' | 'large' | 'xLarge';
   width?: 'default' | 'narrow' | 'wide';
@@ -27,7 +28,7 @@ type Props = {
 export type IconButtonStates = {
   isActive: boolean;
 };
-type Elements = ['iconButton', 'stateLayer', 'container', 'icon'];
+type Elements = ['iconButton', 'stateLayer', 'touchTarget', 'icon'];
 
 export type IconButtonInterface = ActionOrLink<Props> & {
   states: IconButtonStates;

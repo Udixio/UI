@@ -1,48 +1,46 @@
-[
-  {
-    "tags": {
-      "status": "beta",
-      "category": "Navigation"
-    },
-    "filePath": "node_modules/@udixio/ui-react/src/lib/components/Tabs.tsx",
-    "description": "Tabs organize content across different screens and views",
-    "displayName": "Tabs",
-    "methods": [],
-    "props": {
-      "variant": {
-        "defaultValue": {
-          "value": "primary"
-        },
-        "description": "",
-        "name": "variant",
-        "declarations": [
-          {
-            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tabs.interface.ts",
-            "name": "TypeLiteral"
-          }
-        ],
-        "required": false,
-        "type": {
-          "name": "TabsVariant"
-        }
+{
+  "tags": {
+    "status": "beta",
+    "category": "Navigation"
+  },
+  "filePath": "node_modules/@udixio/ui-react/src/lib/components/Tabs.tsx",
+  "description": "Tabs organize content across different screens and views",
+  "displayName": "Tabs",
+  "methods": [],
+  "props": {
+    "variant": {
+      "defaultValue": {
+        "value": "primary"
       },
-      "scrollable": {
-        "defaultValue": {
-          "value": false
-        },
-        "description": "",
-        "name": "scrollable",
-        "declarations": [
-          {
-            "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tabs.interface.ts",
-            "name": "TypeLiteral"
-          }
-        ],
-        "required": false,
-        "type": {
-          "name": "boolean"
+      "description": "",
+      "name": "variant",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tabs.interface.ts",
+          "name": "TypeLiteral"
         }
+      ],
+      "required": false,
+      "type": {
+        "name": "TabsVariant"
+      }
+    },
+    "scrollable": {
+      "defaultValue": {
+        "value": false
+      },
+      "description": "",
+      "name": "scrollable",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tabs.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "boolean"
       }
     }
   }
-]
+}

@@ -23,36 +23,6 @@ import { Carousel, CarouselItem } from "@udixio/ui-react"
 </Carousel>
 ```
 
-## Variants
-
-Available variants: `hero`, `center-aligned hero`, `multi-browse`, `un-contained`, `full-screen`.
-
-```jsx
-<div className="space-y-6">
-  <Carousel variant="hero" gap={12}>
-    <CarouselItem><div className="p-6 bg-surface rounded-xl">Hero</div></CarouselItem>
-    <CarouselItem><div className="p-6 bg-surface rounded-xl">Hero</div></CarouselItem>
-  </Carousel>
-  <Carousel variant="multi-browse" gap={8}>
-    <CarouselItem><div className="p-4 bg-surface rounded-xl">Multi</div></CarouselItem>
-    <CarouselItem><div className="p-4 bg-surface rounded-xl">Browse</div></CarouselItem>
-    <CarouselItem><div className="p-4 bg-surface rounded-xl">Items</div></CarouselItem>
-  </Carousel>
-</div>
-```
-
-## Controlling item width
-
-You can set a fixed item width using the `width` prop on CarouselItem.
-
-```jsx
-<Carousel variant="multi-browse" gap={8}>
-  <CarouselItem width={260}><div className="p-4 bg-surface rounded-xl">260px</div></CarouselItem>
-  <CarouselItem width={260}><div className="p-4 bg-surface rounded-xl">260px</div></CarouselItem>
-  <CarouselItem width={260}><div className="p-4 bg-surface rounded-xl">260px</div></CarouselItem>
-</Carousel>
-```
-
 ## Behavior and callbacks
 
 - `gap`: spacing between items.
@@ -68,18 +38,13 @@ You can set a fixed item width using the `width` prop on CarouselItem.
   scrollSensitivity={0.8}
   onChange={(index) => console.log('Active slide:', index)}
 >
-  {[1,2,3,4].map(i => (
+  {[1, 2, 3, 4].map((i) => (
     <CarouselItem key={i}>
-      <div className="p-6 bg-surface rounded-xl">Slide {i}</div>
+      <div className="bg-surface rounded-xl h-full flex flex-col">
+        <img className="w-full flex-1 object-cover rounded-2xl" src="https://picsum.photos/640/240" alt="Cover" />
+        <p class={'text-title-large m-8 text-nowrap'}>Slide {i}</p>
+      </div>
     </CarouselItem>
   ))}
 </Carousel>
-```
-
-## Sizing behavior
-
-Items adapt their width based on the variant settings. Tune presentation via `gap` and `variant`.
-
-```jsx
-<Carousel variant="hero" gap={16} />
 ```
