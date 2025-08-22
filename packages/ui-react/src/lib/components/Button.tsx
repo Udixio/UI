@@ -17,6 +17,7 @@ export const Button = ({
   icon,
   href,
   label,
+  disableTextMargins,
   className,
   iconPosition = 'left',
   loading = false,
@@ -74,6 +75,7 @@ export const Button = ({
   const styles = buttonStyle({
     allowShapeTransformation,
     size,
+    disableTextMargins,
     shape,
     href,
     disabled,

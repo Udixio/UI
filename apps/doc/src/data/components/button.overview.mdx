@@ -3,6 +3,7 @@
 
 
 
+
 import { CodePreview } from '@/components/CodePreview.js';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
@@ -76,12 +77,6 @@ function ToggleExample() {
         variant="outlined"
         onToggle={handleToggle('outlined')}
         activated={activeStates.outlined}
-      />
-      <Button
-        label="Text"
-        variant="text"
-        onToggle={handleToggle('text')}
-        activated={activeStates.text}
       />
     </div>
   );

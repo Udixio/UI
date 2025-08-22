@@ -23,6 +23,13 @@ type Props = {
   disabled?: boolean;
 
   /**
+   * Controls whether negative margins are applied to text variant buttons.
+   * When true, removes the default negative horizontal margins.
+   * Only applies to 'text' variant buttons.
+   */
+  disableTextMargins?: boolean;
+
+  /**
    * An optional icon to display in the button.
    */
   icon?: IconDefinition;
