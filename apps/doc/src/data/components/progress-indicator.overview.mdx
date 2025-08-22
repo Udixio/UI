@@ -16,35 +16,34 @@ import { ProgressIndicator } from "@udixio/ui-react"
 ## Variants
 
 - linear-determinate
-- linear-indeterminate
-- circular-determinate
+- ~~linear-indeterminate~~
+- ~~circular-determinate~~
 - circular-indeterminate
 
 ```jsx
-<div className="flex items-center gap-6">
-  <ProgressIndicator variant="linear-determinate" value={70} className="w-48" />
-  <ProgressIndicator variant="linear-indeterminate" className="w-48" />
-  <ProgressIndicator variant="circular-determinate" value={60} />
-  <ProgressIndicator variant="circular-indeterminate" />
-</div>
-```
+  () => {
+      const [value, setValue] = React.useState(0);
+      const [resetKey, setResetKey] = React.useState(0);
 
-## Value and minHeight
+      React.useEffect(() => {
+        const interval = setInterval(() => {
+          setValue((prev) => {
+            const newValue = prev >= 10 ? 0 : prev + 3;
+            // Si la valeur retourne à 0, on incrémente la clé de réinitialisation
+            if (newValue === 0 && prev > 0) {
+              setResetKey(prevKey => prevKey + 1);
+            }
+            return newValue;
+          });
+        }, 1500);
 
-- `value` controls completion (0-100). Values outside the range are clamped.
-- `minHeight` sets the thickness of linear indicators.
+        return () => clearInterval(interval);
+      }, []);
 
-```jsx
-<div className="space-y-3">
-  <ProgressIndicator variant="linear-determinate" value={25} minHeight={2} className="w-56" />
-  <ProgressIndicator variant="linear-determinate" value={80} minHeight={8} className="w-56" />
-</div>
-```
+      return <div className="flex items-center gap-6">
+          <ProgressIndicator transitionDuration={300} key={resetKey} variant="linear-determinate" value={value * 10} className="w-48" />
+          <ProgressIndicator variant="circular-indeterminate" />
+       </div>
+    }
 
-## Transition duration
-
-Adjust animation speed with `transitionDuration` (ms) for linear variants.
-
-```jsx
-<ProgressIndicator variant="linear-determinate" value={90} transitionDuration={1500} className="w-56" />
 ```
