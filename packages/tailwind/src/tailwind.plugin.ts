@@ -8,7 +8,6 @@ import {
 import path from 'path';
 import { FontPlugin, PluginAbstract, PluginImplAbstract } from '@udixio/theme';
 import { ConfigCss } from './main';
-import * as console from 'node:console';
 
 interface TailwindPluginOptions {
   // darkMode?: 'class' | 'media';
@@ -44,8 +43,6 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
 
       const tailwindCssPath = findTailwindCssFile(projectRoot, searchPattern);
       udixioCssPath = path.join(tailwindCssPath, '../udixio.css');
-
-      console.log('rrgfgt', tailwindCssPath, udixioCssPath);
 
       if (!getFileContent(tailwindCssPath, /@import\s+"\.\/udixio\.css";/)) {
         replaceFileContent(tailwindCssPath, searchPattern, replacement);

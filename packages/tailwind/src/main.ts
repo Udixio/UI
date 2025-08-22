@@ -35,8 +35,10 @@ export const main = plugin.withOptions<ConfigJs>((args) => {
   if (!Array.isArray(breakPointsCss)) {
     breakPointsCss = [breakPointsCss];
   }
+
   const responsiveBreakPoints: any = {};
-  breakPointsCss.forEach(([key, value]) => {
+  breakPointsCss.forEach((line) => {
+    const [key, value] = line.split(' ');
     responsiveBreakPoints[key] = value;
   });
 
