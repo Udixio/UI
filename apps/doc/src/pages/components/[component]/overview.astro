@@ -2,6 +2,8 @@
 import { getCollection, render } from 'astro:content';
 import Layout from '@/layouts/layout.astro';
 import Code from '@/components/Code.astro';
+import NotFound from '@/components/NotFound.astro';
+import { noCase, sentenceCase } from 'change-case';
 
 export async function getStaticPaths() {
   const overviews = await getCollection('overviews');
@@ -16,10 +18,18 @@ export async function getStaticPaths() {
 const { overview } = Astro.props;
 const { component } = Astro.params;
 const { Content, headings } = await render(overview);
+
+const apis = await getCollection('api');
+const componentApi = apis.find(api => api.id == component)
+
+if (!componentApi) {
+  return Astro.redirect('/404', 404);
+}
 ---
 <Layout>
 
-  <h1 class="text-display-medium mb-4">{component}</h1>
+  <h1 class="text-display-large mt-8">{sentenceCase(noCase(componentApi.id))}</h1>
+  <p class="text-headline-small mt-8">{componentApi.data.description}</p>
   <div class="prose-markdown max-w-none">
     <Content components={{ pre: Code }} />
   </div>

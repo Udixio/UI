@@ -83,5 +83,5 @@ for (const componentPath of componentPaths) {
   console.log(`Processing: ${componentPath}`);
   const docs = parser.parse(componentPath);
   const componentName = getComponentName(componentPath);
-  await writeComponentDoc(componentName, docs);
+  await writeComponentDoc(componentName, docs[0]);
 }

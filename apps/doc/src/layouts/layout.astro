@@ -25,14 +25,17 @@ const pathName = Astro.url.pathname;
 <main class="mx-auto flex justify-between">
   <ComponentSidebar current={pathName.startsWith('/components') ? pathName.split('/').filter(Boolean)[1] : null} transition:name="component-sidebar"
                     transition:persist client:load
-                    components={apis.filter(api => !Object.keys(api.data[0].tags).includes('parent')).map(({ id }) => ({
+                    components={apis.filter(api => !Object.keys(api.data.tags).includes('parent')).map(({ id }) => ({
                       slug: id
                     }))}
   />
-  <div class="max-w-screen-md  p-4 w-full">
-    <slot />
+  <div class="max-w-screen-lg flex flex-1 gap-8">
+    <div class="flex-1">
+      <slot />
+    </div>
+    <DocSidebar client:load />
   </div>
-  <DocSidebar client:load />
+  <div></div>
 </main>
 
 </body>

@@ -129,7 +129,7 @@ export const DocSidebar: React.FC = () => {
           <p className={'mt-2 text-title-large'}>
             {grouped.filter((h) => h.level == 1)[0].text}
           </p>
-          <nav className="flex flex-col mt-2 gap-1 w-fit mr-8">
+          <nav className="flex flex-col mt-2 gap-1 w-fit ">
             {grouped
               .filter((h) => h.level == 2)
               .map((h) => (
