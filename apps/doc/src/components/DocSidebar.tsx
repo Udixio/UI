@@ -107,10 +107,6 @@ export const DocSidebar: React.FC = () => {
 
   const grouped = useMemo(() => headings, [headings]);
 
-  if (grouped.length === 0) {
-    return null;
-  }
-
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
     const el = document.getElementById(id);
@@ -124,41 +120,45 @@ export const DocSidebar: React.FC = () => {
   };
 
   return (
-    <aside className="sticky top-0 h-screen mx-16 py-8 r-16 max-w-3xs">
-      <div className="text-title-small mb-2 text-on-surface-variant">
-        On this page
-      </div>
-      <nav className="flex flex-col gap-1">
-        {grouped.map((h) => (
-          <div className={'relative -mx-4'}>
-            <Button
-              size={'small'}
-              variant={'text'}
-              key={h.id}
-              className={classNames(
-                'text-on-surface-variant w-full justify-start',
-                {
-                  'text-primary': h.id === activeId,
-                },
-              )}
-              activated={h.id === activeId}
-              href={`#${h.id}`}
-              onClick={(e) => handleClick(e, h.id)}
-              //
-            >
-              {h.text}
-            </Button>
-            {h.id === activeId && (
-              <motion.div
-                layoutId={'doc-sidebar-button'}
-                className={
-                  ' absolute pointer-events-none h-full w-full border border-outline-variant top-0 left-0 rounded-xl'
-                }
-              ></motion.div>
-            )}
+    <aside className="sticky top-0 h-screen  p-4 r-16 w-[200px]">
+      {grouped.length !== 0 && (
+        <>
+          <div className="text-title-small mb-2 text-on-surface-variant">
+            On this page
           </div>
-        ))}
-      </nav>
+          <nav className="flex flex-col gap-1 w-fit mr-8">
+            {grouped.map((h) => (
+              <div className={'relative -mx-4'}>
+                <Button
+                  size={'small'}
+                  variant={'text'}
+                  key={h.id}
+                  className={classNames(
+                    'text-on-surface-variant w-full justify-start',
+                    {
+                      'text-primary': h.id === activeId,
+                    },
+                  )}
+                  activated={h.id === activeId}
+                  href={`#${h.id}`}
+                  onClick={(e) => handleClick(e, h.id)}
+                  //
+                >
+                  {h.text}
+                </Button>
+                {h.id === activeId && (
+                  <motion.div
+                    layoutId={'doc-sidebar-button'}
+                    className={
+                      ' absolute pointer-events-none h-full w-full border border-outline-variant top-0 left-0 rounded-xl'
+                    }
+                  ></motion.div>
+                )}
+              </div>
+            ))}
+          </nav>
+        </>
+      )}
     </aside>
   );
 };
