@@ -1,3 +1,23 @@
+# 1.0.0 (2025-08-22)
+
+### 🚀 Features
+
+- **ui-react:** improve progress indicator styles and visibility logic ([b5c908b](https://github.com/Udixio/UI/commit/b5c908b))
+- ⚠️  **ui-react:** enhance components with `children` support and refine accessibility ([d8626a5](https://github.com/Udixio/UI/commit/d8626a5))
+
+### 🩹 Fixes
+
+- ⚠️  **ui-react:** remove redundant variant assignment in Button component ([62a124f](https://github.com/Udixio/UI/commit/62a124f))
+
+### ⚠️  Breaking Changes
+
+- **ui-react:** The `filledTonal` variant behavior has been modified in the Button component. If you were relying on the previous redundant assignment logic, update your implementation to ensure consistent styling behavior.
+- **ui-react:** The `ariaLabel` prop has been replaced with `label` across all components (`Button`, `IconButton`, `Fab`, etc.) for better accessibility compliance. Update your components to use `label` instead of `ariaLabel`. Additionally, `Snackbar` component's `supportingText` prop has been renamed to `message`.
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.1.2 (2025-08-05)
 
 ### 🩹 Fixes
