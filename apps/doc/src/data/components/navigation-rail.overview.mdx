@@ -1,6 +1,7 @@
 ---
 ---
 
+
 import { CodePreview } from '@/components/CodePreview.js';
 import {
   faBell,
@@ -23,10 +24,18 @@ import { NavigationRail, NavigationRailItem, NavigationRailSection, Fab } from "
 
 ```tsx
 <NavigationRail>
-        <NavigationRailItem icon={faBell}  iconSelected={faBell} label="Alarm" />
-        <NavigationRailItem icon={faClock}  iconSelected={faClock} label="Clock" />
-        <NavigationRailItem icon={faHourglass}  iconSelected={faHourglass} label="Timer" />
-        <NavigationRailItem icon={faStopwatch}  iconSelected={faStopwatch} label="Stopwatch" />
+  <NavigationRailItem icon={faBell} iconSelected={faBell} selected>
+    Alarm
+  </NavigationRailItem>
+  <NavigationRailItem icon={faClock} iconSelected={faClock}>
+    Clock
+  </NavigationRailItem>
+  <NavigationRailItem icon={faHourglass} iconSelected={faHourglass}>
+    Timer
+  </NavigationRailItem>
+  <NavigationRailItem icon={faStopwatch} iconSelected={faStopwatch}>
+    Stopwatch
+  </NavigationRailItem>
 </NavigationRail>
 ```
 
@@ -37,13 +46,12 @@ alignment: "top" (default) | "middle"
 <CodePreview
   center={false}
   client:load
-  code={
-    `<div class="h-[750px] flex gap-8">
+  code={`<div class="h-[750px] flex gap-8">
    <NavigationRail className="bg-surface-container-highest" alignment="top">
-        <NavigationRailItem icon={faBell}  iconSelected={faBell} label="Alarm" selected />
-        <NavigationRailItem icon={faClock}  iconSelected={faClock} label="Clock" />
-        <NavigationRailItem icon={faHourglass}  iconSelected={faHourglass} label="Timer" />
-        <NavigationRailItem icon={faStopwatch}  iconSelected={faStopwatch} label="Stopwatch" />
+        <NavigationRailItem icon={faBell}  iconSelected={faBell} selected >Alarm</NavigationRailItem>
+        <NavigationRailItem icon={faClock}  iconSelected={faClock} >Clock</NavigationRailItem>
+        <NavigationRailItem icon={faHourglass}  iconSelected={faHourglass} >Timer</NavigationRailItem>
+        <NavigationRailItem icon={faStopwatch}  iconSelected={faStopwatch} >Stopwatch</NavigationRailItem>
   </NavigationRail>
   <NavigationRail className="bg-surface-container-highest" alignment="middle">
         <NavigationRailItem icon={faBell}  iconSelected={faBell} label="Alarm" selected />
@@ -60,26 +68,29 @@ alignment: "top" (default) | "middle"
 
 Toggle the extended mode to reveal labels and optional sections. You can control it with the `extended` and `onExtendedChange` props.
 
-<CodePreview
-  center={false}
-  client:load
-  code={`
-  function Example() {
+    <CodePreview
+      center={false}
+      client:load
+      code={`
+    function Example() {
     const [extended, setExtended] = React.useState(true)
     return (
-      <NavigationRail className="bg-surface-container-highest h-[750px]" extended={extended} onExtendedChange={setExtended}>
-        <Fab label="Add Timer" icon={faPlus} />
-        <NavigationRailItem icon={faBell}  iconSelected={faBell} label="Alarm" />
-        <NavigationRailItem icon={faClock}  iconSelected={faClock} label="Clock" />
-        <NavigationRailItem icon={faHourglass}  iconSelected={faHourglass} label="Timer" />
-        <NavigationRailItem icon={faStopwatch}  iconSelected={faStopwatch} label="Stopwatch" />
-        <NavigationRailSection label="Sleep well" />
-        <NavigationRailItem label="Schedule" icon={faCalendarDays}  iconSelected={faCalendarDays} />
-        <NavigationRailItem label="Stats" icon={faChartLine}  iconSelected={faChartLine} />
-        <NavigationRailItem label="Sleep sound" icon={faMusic}  iconSelected={faMusic} />
-      </NavigationRail>
-    )
-  }
+    <NavigationRail className="bg-surface-container-highest h-[750px]" extended={extended}
+
+onExtendedChange={setExtended}>
+
+<Fab label="Add Timer" icon={faPlus} />
+  <NavigationRailItem icon={faBell} iconSelected={faBell} label="Alarm" />
+  <NavigationRailItem icon={faClock} iconSelected={faClock} label="Clock" />
+  <NavigationRailItem icon={faHourglass} iconSelected={faHourglass} label="Timer" />
+  <NavigationRailItem icon={faStopwatch} iconSelected={faStopwatch} label="Stopwatch" />
+  <NavigationRailSection label="Sleep well" />
+  <NavigationRailItem label="Schedule" icon={faCalendarDays} iconSelected={faCalendarDays} />
+  <NavigationRailItem label="Stats" icon={faChartLine} iconSelected={faChartLine} />
+  <NavigationRailItem label="Sleep sound" icon={faMusic} iconSelected={faMusic} />
+</NavigationRail>
+)
+}
 `}
   scope={{
     faBell,
@@ -101,22 +112,22 @@ Use `selectedItem` and `setSelectedItem` to control the selected item. `onItemSe
   client:load
   center={false}
   code={`
-  function Example() {
-    const [index, setIndex] = React.useState(0)
-    return (
-      <NavigationRail className="bg-surface-container-highest h-[750px]" selectedItem={index} setSelectedItem={setIndex}>
-        <Fab label="Add Timer" icon={faPlus} />
-        <NavigationRailItem icon={faBell}  iconSelected={faBell} label="Alarm" />
-        <NavigationRailItem icon={faClock}  iconSelected={faClock} label="Clock" />
-        <NavigationRailItem icon={faHourglass}  iconSelected={faHourglass} label="Timer" />
-        <NavigationRailItem icon={faStopwatch}  iconSelected={faStopwatch} label="Stopwatch" />
-        <NavigationRailSection label="Sleep well" />
-        <NavigationRailItem label="Schedule" icon={faCalendarDays}  iconSelected={faCalendarDays} />
-        <NavigationRailItem label="Stats" icon={faChartLine}  iconSelected={faChartLine} />
-        <NavigationRailItem label="Sleep sound" icon={faMusic}  iconSelected={faMusic} />
-      </NavigationRail>
-    )
-  }
+function Example() {
+  const [index, setIndex] = React.useState(0)
+  return (
+    <NavigationRail className="bg-surface-container-highest h-[750px]" selectedItem={index} setSelectedItem={setIndex}>
+      <Fab label="Add Timer" icon={faPlus} />
+      <NavigationRailItem icon={faBell} iconSelected={faBell} label="Alarm" />
+      <NavigationRailItem icon={faClock} iconSelected={faClock} label="Clock" />
+      <NavigationRailItem icon={faHourglass} iconSelected={faHourglass} label="Timer" />
+      <NavigationRailItem icon={faStopwatch} iconSelected={faStopwatch} label="Stopwatch" />
+      <NavigationRailSection label="Sleep well" />
+      <NavigationRailItem label="Schedule" icon={faCalendarDays} iconSelected={faCalendarDays} />
+      <NavigationRailItem label="Stats" icon={faChartLine} iconSelected={faChartLine} />
+      <NavigationRailItem label="Sleep sound" icon={faMusic} iconSelected={faMusic} />
+    </NavigationRail>
+  )
+}
 `}
   scope={{
     faBell,

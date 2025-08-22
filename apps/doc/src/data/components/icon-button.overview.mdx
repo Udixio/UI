@@ -9,6 +9,7 @@
 
 
 
+
 import { CodePreview } from '@/components/CodePreview.js';
 import { faPlus, faStar as fasStar } from '@fortawesome/free-solid-svg-icons';
 import { faStar as farStar } from '@fortawesome/free-regular-svg-icons';
@@ -25,7 +26,7 @@ import { IconButton } from "@udixio/ui-react"
   client:load
   code={`
   <div className="flex items-center gap-3">
-    <IconButton ariaLabel="Add item" icon={faPlus} onClick={() => console.log('add')} />
+    <IconButton label="Add item" icon={faPlus} onClick={() => console.log('add')} />
   </div>`}
   scope={{ faPlus }}
 />
@@ -36,10 +37,10 @@ import { IconButton } from "@udixio/ui-react"
   client:load
   code={`
   <div className="flex items-center gap-3">
-    <IconButton ariaLabel="Standard" icon={faPlus} variant="standard" />
-    <IconButton ariaLabel="Filled" icon={faPlus} variant="filled" />
-    <IconButton ariaLabel="Tonal" icon={faPlus} variant="tonal" />
-    <IconButton ariaLabel="Outlined" icon={faPlus} variant="outlined" />
+    <IconButton label="Standard" icon={faPlus} variant="standard" />
+    <IconButton label="Filled" icon={faPlus} variant="filled" />
+    <IconButton label="Tonal" icon={faPlus} variant="tonal" />
+    <IconButton label="Outlined" icon={faPlus} variant="outlined" />
   </div>`}
   scope={{ faPlus }}
 />
@@ -50,11 +51,11 @@ import { IconButton } from "@udixio/ui-react"
   client:load
   code={`
   <div className="flex items-center gap-3">
-    <IconButton variant="filled" ariaLabel="XS" icon={faPlus} size="xSmall" />
-    <IconButton variant="filled" ariaLabel="S" icon={faPlus} size="small" />
-    <IconButton variant="filled" ariaLabel="M" icon={faPlus} size="medium" />
-    <IconButton variant="filled" ariaLabel="L" icon={faPlus} size="large" />
-    <IconButton variant="filled" ariaLabel="XL" icon={faPlus} size="xLarge" />
+    <IconButton variant="filled" label="XS" icon={faPlus} size="xSmall" />
+    <IconButton variant="filled" label="S" icon={faPlus} size="small" />
+    <IconButton variant="filled" label="M" icon={faPlus} size="medium" />
+    <IconButton variant="filled" label="L" icon={faPlus} size="large" />
+    <IconButton variant="filled" label="XL" icon={faPlus} size="xLarge" />
   </div>`}
   scope={{ faPlus }}
 />
@@ -68,17 +69,17 @@ Control the button outline with `shape` and surface padding with `width`.
   code={`
  <>
   <div className="flex items-center gap-3">
-    <IconButton variant="filled" ariaLabel="Rounded" icon={faPlus} shape="rounded" width="narrow" />
-    <IconButton variant="filled" ariaLabel="Squared" icon={faPlus} shape="rounded" width="default" />
-    <IconButton variant="filled" ariaLabel="Narrow" icon={faPlus} shape="rounded" width="wide" />
+    <IconButton variant="filled" label="Rounded" icon={faPlus} shape="rounded" width="narrow" />
+    <IconButton variant="filled" label="Squared" icon={faPlus} shape="rounded" width="default" />
+    <IconButton variant="filled" label="Narrow" icon={faPlus} shape="rounded" width="wide" />
 
-            </div>
-            <div className="flex items-center mt-8 gap-3">
-              <IconButton variant="filled" ariaLabel="Rounded" icon={faPlus} shape="squared" width="narrow" />
-              <IconButton variant="filled" ariaLabel="Squared" icon={faPlus} shape="squared" width="default" />
-              <IconButton variant="filled" ariaLabel="Narrow" icon={faPlus} shape="squared" width="wide" />
-            </div>
-           </>
+              </div>
+              <div className="flex items-center mt-8 gap-3">
+                <IconButton variant="filled" label="Rounded" icon={faPlus} shape="squared" width="narrow" />
+                <IconButton variant="filled" label="Squared" icon={faPlus} shape="squared" width="default" />
+                <IconButton variant="filled" label="Narrow" icon={faPlus} shape="squared" width="wide" />
+              </div>
+             </>
 `}
   scope={{ faPlus }}
 />
@@ -91,7 +92,7 @@ Use `disabled` to prevent user interaction
   client:load
   code={`
   <div className="flex items-center gap-3">
-    <IconButton variant="filled" ariaLabel="Disabled" icon={faPlus} disabled />
+    <IconButton variant="filled" label="Disabled" icon={faPlus} disabled />
   </div>`}
   scope={{ faPlus }}
 />
@@ -104,7 +105,7 @@ Use \`onToggle\` and \`iconSelected\` to turn it into a toggle button.
   client:load
   code={`
   <IconButton
-    ariaLabel="Favorite"
+    label="Favorite"
     icon={farStar}
     iconSelected={fasStar}
     onToggle={(active) => console.log('active:', active)}
@@ -120,8 +121,8 @@ If the `href` prop is provided, it renders an anchor; otherwise it renders a but
   client:load
   code={`
   <div className="flex items-center gap-3">
-    <IconButton ariaLabel="Go to Udixio" icon={faPlus} href="https://udixio.dev" />
-    <IconButton ariaLabel="Run action" icon={faPlus} onClick={() => console.log('clicked')} />
+    <IconButton label="Go to Udixio" icon={faPlus} href="https://udixio.dev" />
+    <IconButton label="Run action" icon={faPlus} onClick={() => console.log('clicked')} />
   </div>`}
   scope={{ faPlus }}
 />
