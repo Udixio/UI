@@ -1,3 +1,13 @@
+## 1.2.1 (2025-08-22)
+
+### 🩹 Fixes
+
+- **tailwind:** remove unused imports and enhance breakpoint parsing ([34dc995](https://github.com/Udixio/UI/commit/34dc995))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.2.0 (2025-08-21)
 
 ### 🚀 Features
