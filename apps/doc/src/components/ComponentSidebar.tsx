@@ -21,6 +21,7 @@ export const ComponentSidebar = ({
     <nav className="sticky top-0 flex flex-col  p-4 bg-surface-container h-screen overflow-auto">
       {components.map(({ slug }) => (
         <Button
+          size="small"
           href={`/components/${slug}/overview`}
           className={'justify-start'}
           label={sentenceCase(noCase(slug))}

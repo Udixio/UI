@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { classNames } from '@udixio/ui-react';
+import { Button, classNames } from '@udixio/ui-react';
+import { motion } from 'motion/react';
 // no external case libs to keep build simple
 
 export type HeadingItem = {
@@ -27,7 +28,7 @@ export const DocSidebar: React.FC = () => {
 
   // Extract headings from the document and ensure they have IDs
   useEffect(() => {
-    const selector = 'main h2, main h3';
+    const selector = 'main h2';
     const nodes = Array.from(
       document.querySelectorAll<HTMLHeadingElement>(selector),
     );
@@ -107,11 +108,7 @@ export const DocSidebar: React.FC = () => {
   const grouped = useMemo(() => headings, [headings]);
 
   if (grouped.length === 0) {
-    return (
-      <aside className="sticky top-0 h-screen overflow-auto p-4 text-on-surface-variant text-body-medium">
-        <div className="opacity-70">Aucun titre trouvé</div>
-      </aside>
-    );
+    return null;
   }
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
@@ -127,29 +124,39 @@ export const DocSidebar: React.FC = () => {
   };
 
   return (
-    <aside className="sticky top-0 h-screen overflow-auto p-4">
+    <aside className="sticky top-0 h-screen mx-16 py-8 r-16 max-w-3xs">
       <div className="text-title-small mb-2 text-on-surface-variant">
-        Sur cette page
+        On this page
       </div>
       <nav className="flex flex-col gap-1">
         {grouped.map((h) => (
-          <a
-            key={h.id}
-            href={`#${h.id}`}
-            onClick={(e) => handleClick(e, h.id)}
-            className={classNames(
-              'px-2 py-1 rounded outline-none transition-colors',
-              {
-                'ml-0 text-body-medium': h.level === 2,
-                'ml-4 text-body-small': h.level >= 3,
-              },
-              h.id === activeId
-                ? 'bg-surface-container-highest text-on-surface'
-                : 'text-on-surface-variant hover:bg-surface-container-high',
+          <div className={'relative -mx-4'}>
+            <Button
+              size={'small'}
+              variant={'text'}
+              key={h.id}
+              className={classNames(
+                'text-on-surface-variant w-full justify-start',
+                {
+                  'text-primary': h.id === activeId,
+                },
+              )}
+              activated={h.id === activeId}
+              href={`#${h.id}`}
+              onClick={(e) => handleClick(e, h.id)}
+              //
+            >
+              {h.text}
+            </Button>
+            {h.id === activeId && (
+              <motion.div
+                layoutId={'doc-sidebar-button'}
+                className={
+                  ' absolute pointer-events-none h-full w-full border border-outline-variant top-0 left-0 rounded-xl'
+                }
+              ></motion.div>
             )}
-          >
-            {h.text}
-          </a>
+          </div>
         ))}
       </nav>
     </aside>

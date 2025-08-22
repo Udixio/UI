@@ -32,9 +32,7 @@ const pathName = Astro.url.pathname;
   <div class="max-w-screen-md  p-4 w-full">
     <slot />
   </div>
-  <div class="hidden lg:block w-64 p-2">
-    <DocSidebar client:load />
-  </div>
+  <DocSidebar client:load />
 </main>
 
 </body>
