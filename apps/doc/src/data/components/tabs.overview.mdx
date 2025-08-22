@@ -4,6 +4,7 @@
 
 
 
+
 import { CodePreview } from '@/components/CodePreview.js';
 import { faGear, faHome, faUser } from '@fortawesome/free-solid-svg-icons';
 
@@ -31,11 +32,18 @@ import { Tabs, Tab } from "@udixio/ui-react"
 - primary (default)
 - secondary
 
-```tsx
-<Tabs variant="secondary">
-  <Tab label="One" />
-  <Tab label="Two" />
-</Tabs>
+```jsx
+<div class={"space-y-2"}>
+  <Tabs variant="primary">
+    <Tab label="One" selected />
+    <Tab label="Two" />
+  </Tabs>
+  <Tabs variant="secondary">
+    <Tab label="One" selected/>
+    <Tab label="Two" />
+  </Tabs>
+</div>
+
 ```
 
 ## Controlled selection and scrollable

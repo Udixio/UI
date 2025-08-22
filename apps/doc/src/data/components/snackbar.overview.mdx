@@ -3,7 +3,7 @@
 
 
 
-
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { CodePreview } from '@/components/CodePreview.js';
 
 ## Usage
@@ -15,7 +15,7 @@ import { Snackbar } from "@udixio/ui-react"
 ```
 
 ```tsx
-<Snackbar supportingText="Message sent" />
+<Snackbar message="Message sent" />
 ```
 
 ## Auto dismiss
@@ -23,7 +23,7 @@ import { Snackbar } from "@udixio/ui-react"
 Use `duration` (ms) to auto-close the snackbar; pass `onClose` to be notified.
 
 ```jsx
-<Snackbar supportingText="Saved" duration={3000} onClose={() => console.log('closed')} />
+<Snackbar message="Saved" duration={3000} onClose={() => console.log('closed')} />
 ```
 
 ## Custom close icon
@@ -32,7 +32,6 @@ Provide a custom FontAwesome icon via `closeIcon`.
 
 <CodePreview client:load
              code={`
-  import { faCheck } from '@fortawesome/free-solid-svg-icons';
-  <Snackbar supportingText="Done" closeIcon={faCheck} />
-`}
+  <Snackbar message="Done" closeIcon={faCheck} />
+`} scope={{ faCheck }}
 />

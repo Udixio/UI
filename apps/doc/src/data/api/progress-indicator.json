@@ -61,9 +61,7 @@
         }
       },
       "minHeight": {
-        "defaultValue": {
-          "value": 4
-        },
+        "defaultValue": null,
         "description": "The minimum height of the line used to draw the linear indicator.",
         "name": "minHeight",
         "declarations": [
