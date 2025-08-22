@@ -7,6 +7,7 @@
 
 
 
+
 import { CodePreview } from '@/components/CodePreview.js';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
@@ -29,7 +30,7 @@ import { Button } from "@udixio/ui-react"
 <div className="flex flex-wrap gap-3">
   <Button label="Filled" variant="filled" />
   <Button label="Elevated" variant="elevated" />
-  <Button label="Filled Tonal" variant="filledTonal" />
+  <Button label="Filled Tonal" variant="tonal" />
   <Button label="Outlined" variant="outlined" />
   <Button label="Text" variant="text" />
 </div>
@@ -43,7 +44,7 @@ function ToggleExample() {
   const [activeStates, setActiveStates] = React.useState({
     filled: false,
     elevated: false,
-    filledTonal: false,
+    tonal: false,
     outlined: false,
     text: false
   });
@@ -71,9 +72,9 @@ function ToggleExample() {
       />
       <Button
         label="Filled Tonal"
-        variant="filledTonal"
-        onToggle={handleToggle('filledTonal')}
-        activated={activeStates.filledTonal}
+        variant="tonal"
+        onToggle={handleToggle('tonal')}
+        activated={activeStates.tonal}
       />
       <Button
         label="Outlined"

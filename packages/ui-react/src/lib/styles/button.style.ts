@@ -52,7 +52,7 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
           !disabled && ((isActive && onToggle) || !onToggle),
         'text-on-surface/[38%]': disabled,
       },
-      variant === 'filledTonal' && {
+      variant === 'tonal' && {
         'hover:shadow-1': !disabled,
         'bg-secondary-container text-on-secondary-container':
           !disabled && !isActive,
@@ -118,7 +118,7 @@ export const buttonStyle = defaultClassNames<ButtonInterface>(
           'group-active:rounded-[16px]': size === 'medium',
           'group-active:rounded-[28px]': size === 'large' || size == 'xLarge',
         },
-      variant === 'filledTonal' && {
+      variant === 'tonal' && {
         'bg-on-surface/[0.12]': disabled,
         'group-state-on-secondary-container ': !disabled,
       },

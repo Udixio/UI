@@ -31,6 +31,8 @@ export const Button = ({
   children,
   ...restProps
 }: ReactProps<ButtonInterface>) => {
+  if (variant == ('filledTonal' as any)) variant = 'filled';
+
   const ElementType = href ? 'a' : 'button';
 
   const defaultRef = useRef<HTMLDivElement>(null);
@@ -109,7 +111,7 @@ export const Button = ({
               (variant === 'filled' && onToggle && 'on-surface-variant') ||
               (variant === 'filled' && !onToggle && 'on-primary') ||
               (variant === 'elevated' && 'primary') ||
-              (variant === 'filledTonal' && 'on-secondary-container') ||
+              (variant === 'tonal' && 'on-secondary-container') ||
               (variant === 'outlined' && 'primary') ||
               (variant === 'text' && 'primary') ||
               ''
@@ -141,9 +143,8 @@ export const Button = ({
                 },
                 {
                   '!stroke-on-secondary-container':
-                    variant === 'filledTonal' && !disabled,
-                  '!stroke-on-surface/[38%]':
-                    variant === 'filledTonal' && disabled,
+                    variant === 'tonal' && !disabled,
+                  '!stroke-on-surface/[38%]': variant === 'tonal' && disabled,
                 },
                 {
                   '!stroke-primary': variant === 'outlined' && !disabled,
