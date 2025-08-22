@@ -1,0 +1,157 @@
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { classNames } from '@udixio/ui-react';
+// no external case libs to keep build simple
+
+export type HeadingItem = {
+  id: string;
+  text: string;
+  level: number; // 2 for h2, 3 for h3, etc.
+};
+
+function slugify(text: string) {
+  // Basic slugify: lowercases, removes accents, replaces non-alphanumerics with '-'
+  return (text || '')
+    .toString()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+export const DocSidebar: React.FC = () => {
+  const [headings, setHeadings] = useState<HeadingItem[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+
+  // Extract headings from the document and ensure they have IDs
+  useEffect(() => {
+    const selector = 'main h2, main h3';
+    const nodes = Array.from(
+      document.querySelectorAll<HTMLHeadingElement>(selector),
+    );
+
+    if (nodes.length === 0) {
+      setHeadings([]);
+      return;
+    }
+
+    const items: HeadingItem[] = nodes.map((el) => {
+      let id = el.id;
+      if (!id) {
+        id = slugify(el.textContent || 'section');
+        // If id already used, add suffix
+        let uniqueId = id;
+        let i = 2;
+        while (document.getElementById(uniqueId)) {
+          uniqueId = `${id}-${i++}`;
+        }
+        el.id = uniqueId;
+        id = uniqueId;
+      }
+      const level = Number(el.tagName.replace('H', '')) || 2;
+      return { id, text: el.textContent || '', level };
+    });
+
+    setHeadings(items);
+  }, []);
+
+  // Setup IntersectionObserver for scrollspy
+  useEffect(() => {
+    if (headings.length === 0) return;
+
+    const options: IntersectionObserverInit = {
+      root: null,
+      // Consider a section active when its heading crosses 20% from top
+      rootMargin: '0px 0px -70% 0px',
+      threshold: [0, 1.0],
+    };
+
+    observerRef.current?.disconnect();
+    observerRef.current = new IntersectionObserver((entries) => {
+      // Pick the entry that is intersecting and nearest the top
+      const visible = entries
+        .filter((e) => e.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+      if (visible[0]) {
+        const id = (visible[0].target as HTMLElement).id;
+        setActiveId(id);
+      } else {
+        // If nothing intersecting, find the last heading above the viewport
+        const scrollY = window.scrollY;
+        let lastId: string | null = null;
+        for (const h of headings) {
+          const el = document.getElementById(h.id);
+          if (!el) continue;
+          const top = el.getBoundingClientRect().top + window.scrollY;
+          if (top <= scrollY + 80) {
+            lastId = h.id;
+          } else {
+            break;
+          }
+        }
+        if (lastId) setActiveId(lastId);
+      }
+    }, options);
+
+    const elements = headings
+      .map((h) => document.getElementById(h.id))
+      .filter(Boolean) as HTMLElement[];
+
+    elements.forEach((el) => observerRef.current?.observe(el));
+
+    return () => observerRef.current?.disconnect();
+  }, [headings]);
+
+  const grouped = useMemo(() => headings, [headings]);
+
+  if (grouped.length === 0) {
+    return (
+      <aside className="sticky top-0 h-screen overflow-auto p-4 text-on-surface-variant text-body-medium">
+        <div className="opacity-70">Aucun titre trouvé</div>
+      </aside>
+    );
+  }
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (el) {
+      // Smooth scroll with slight offset for any fixed elements
+      const y = el.getBoundingClientRect().top + window.scrollY - 16;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+      setActiveId(id);
+      history.replaceState(null, '', `#${id}`);
+    }
+  };
+
+  return (
+    <aside className="sticky top-0 h-screen overflow-auto p-4">
+      <div className="text-title-small mb-2 text-on-surface-variant">
+        Sur cette page
+      </div>
+      <nav className="flex flex-col gap-1">
+        {grouped.map((h) => (
+          <a
+            key={h.id}
+            href={`#${h.id}`}
+            onClick={(e) => handleClick(e, h.id)}
+            className={classNames(
+              'px-2 py-1 rounded outline-none transition-colors',
+              {
+                'ml-0 text-body-medium': h.level === 2,
+                'ml-4 text-body-small': h.level >= 3,
+              },
+              h.id === activeId
+                ? 'bg-surface-container-highest text-on-surface'
+                : 'text-on-surface-variant hover:bg-surface-container-high',
+            )}
+          >
+            {h.text}
+          </a>
+        ))}
+      </nav>
+    </aside>
+  );
+};

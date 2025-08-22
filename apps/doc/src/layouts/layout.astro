@@ -5,6 +5,7 @@ import { Button } from '@udixio/ui-react';
 import { sentenceCase, kebabCase } from 'change-case';
 import { ComponentSidebar } from '@/components/ComponentSidebar';
 import { ClientRouter } from 'astro:transitions';
+import { DocSidebar } from '@/components/DocSidebar';
 
 const apis = await getCollection('api');
 
@@ -31,7 +32,9 @@ const pathName = Astro.url.pathname;
   <div class="max-w-screen-md  p-4 w-full">
     <slot />
   </div>
-  <div></div>
+  <div class="hidden lg:block w-64 p-2">
+    <DocSidebar client:load />
+  </div>
 </main>
 
 </body>
