@@ -21,7 +21,7 @@ export const IconButton = ({
   disabled = false,
   type = 'button',
   title,
-  ariaLabel,
+  label,
   onToggle,
   activated = false,
   onClick,
@@ -34,10 +34,17 @@ export const IconButton = ({
   shape = 'rounded',
   allowShapeTransformation = true,
   transition,
+  children,
   ...restProps
 }: ReactProps<IconButtonInterface>) => {
+  if (children) label = children;
+  if (!label) {
+    throw new Error(
+      'IconButton component requires either a label prop or children content to provide an accessible aria-label',
+    );
+  }
   if (!title) {
-    title = ariaLabel;
+    title = label;
   }
 
   const [isActive, setIsActive] = React.useState(activated);
@@ -76,7 +83,7 @@ export const IconButton = ({
     width,
     href,
     activated: isActive,
-    ariaLabel,
+    label,
     iconSelected,
     isActive,
     onToggle,
@@ -85,6 +92,7 @@ export const IconButton = ({
     variant,
     className,
     size,
+    children: label,
     ...restProps,
   });
 
@@ -99,7 +107,7 @@ export const IconButton = ({
       href={href}
       style={{ transition: transition.duration + 's' }}
       className={styles.iconButton}
-      aria-label={ariaLabel}
+      aria-label={label}
       {...(restProps as any)}
       title={undefined}
       onClick={handleClick}

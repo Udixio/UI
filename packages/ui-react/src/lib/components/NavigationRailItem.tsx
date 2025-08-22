@@ -40,8 +40,11 @@ export const NavigationRailItem = ({
   iconSelected,
   style,
   extendedOnly,
+  children,
   ...restProps
 }: ReactProps<NavigationRailItemInterface>) => {
+  if (children) label = children;
+
   const defaultRef = useRef<any>(null);
   const resolvedRef = ref || defaultRef;
 
@@ -92,6 +95,7 @@ export const NavigationRailItem = ({
     isSelected,
     setSelectedItem,
     href: href as any,
+    children: label,
     iconSelected,
   });
 

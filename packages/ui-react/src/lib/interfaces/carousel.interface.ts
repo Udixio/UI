@@ -1,9 +1,10 @@
-import { ReactNode } from 'react';
+import { ReactElement } from 'react';
+import { CarouselItem } from '../components';
 
 export interface CarouselInterface {
   type: 'div';
   props: {
-    children?: ReactNode;
+    children?: ReactElement<typeof CarouselItem>[];
     marginPourcent?: number;
     onChange?: (index: number) => void;
     variant?:

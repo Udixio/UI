@@ -31,6 +31,13 @@ export const Button = ({
   children,
   ...restProps
 }: ReactProps<ButtonInterface>) => {
+  if (children) label = children;
+  if (!label) {
+    throw new Error(
+      'Button component requires either a label prop or children content',
+    );
+  }
+
   if (variant == ('filledTonal' as any)) variant = 'filled';
 
   const ElementType = href ? 'a' : 'button';
@@ -74,7 +81,6 @@ export const Button = ({
     disabled,
     icon,
     iconPosition,
-    label,
     loading,
     variant,
     transition,
@@ -82,6 +88,8 @@ export const Button = ({
     isActive: isActive ?? false,
     onToggle,
     activated: isActive,
+    label,
+    children: label,
   });
   const iconElement = icon ? (
     <Icon icon={icon} className={styles.icon} />
@@ -161,7 +169,7 @@ export const Button = ({
           />
         </div>
       )}
-      <span className={styles.label}>{label ?? children}</span>
+      <span className={styles.label}>{label}</span>
       {iconPosition === 'right' && iconElement}
     </ElementType>
   );

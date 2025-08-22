@@ -18,7 +18,7 @@ export const Card = ({
   ref,
   ...rest
 }: ReactProps<CardInterface>) => {
-  const styles = cardStyle({ className, isInteractive, variant });
+  const styles = cardStyle({ className, isInteractive, variant, children });
 
   const defaultRef = useRef<HTMLDivElement>(null);
   const resolvedRef = ref || defaultRef;

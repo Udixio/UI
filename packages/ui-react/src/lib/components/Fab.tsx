@@ -25,8 +25,15 @@ export const Fab = ({
   isExtended = false,
   ref,
   transition,
+  children,
   ...restProps
 }: ReactProps<FabInterface>) => {
+  if (children) label = children;
+  if (!label) {
+    throw new Error(
+      'FAB component requires either a label prop or children content',
+    );
+  }
   const ElementType = href ? 'a' : 'button';
 
   const styles = fabStyle({
@@ -38,6 +45,7 @@ export const Fab = ({
     variant,
     className,
     transition,
+    children: label,
   });
 
   transition = { duration: 0.3, ...transition };

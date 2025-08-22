@@ -127,7 +127,7 @@ export const NavigationRail = ({
       <div className={styles.header}>
         <IconButton
           onClick={() => setIsExtended(!isExtended)}
-          ariaLabel={isExtended ? menu?.opened.label : menu?.closed.label}
+          label={isExtended ? menu?.opened.label : menu?.closed.label}
           className={styles.menuIcon}
           icon={!isExtended ? menu?.closed.icon : menu.opened.icon}
         />

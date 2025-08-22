@@ -7,6 +7,7 @@ export type NavProps = {
   selected?: boolean;
   variant?: 'vertical' | 'horizontal';
   label?: string;
+  children?: string;
   icon: IconDefinition;
   iconSelected: IconDefinition;
   selectedItem?: number | null;
@@ -14,7 +15,7 @@ export type NavProps = {
   onItemSelected?: (
     args: { index: number } & Pick<NavProps, 'label' | 'icon'> & {
         ref: RefObject<any>;
-      }
+      },
   ) => void;
   index?: number;
   transition?: Transition;

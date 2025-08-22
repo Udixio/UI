@@ -77,7 +77,7 @@ export const CodePreview = ({
           onToggle={handleCopy}
           size={'xSmall'}
           icon={farClipboard}
-          ariaLabel={'Copy to clipboard'}
+          label={'Copy to clipboard'}
           iconSelected={faClipboardCheck}
           activated={copyState == 'ok'}
         />

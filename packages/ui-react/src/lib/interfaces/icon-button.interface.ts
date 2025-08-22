@@ -4,7 +4,8 @@ import { ActionOrLink } from '../utils/component';
 import { Transition } from 'motion';
 
 type Props = {
-  ariaLabel: string;
+  label?: string;
+  children?: string;
   icon: IconDefinition;
   size?: 'xSmall' | 'small' | 'medium' | 'large' | 'xLarge';
   width?: 'default' | 'narrow' | 'wide';

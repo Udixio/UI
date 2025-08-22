@@ -6,7 +6,9 @@ type Props = {
   /**
    * The label is the text that is displayed on the button.
    */
-  label: string;
+  label?: string;
+
+  children?: string;
 
   size?: 'xSmall' | 'small' | 'medium' | 'large' | 'xLarge';
 
