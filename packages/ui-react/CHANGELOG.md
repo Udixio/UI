@@ -1,3 +1,13 @@
+## 1.1.0 (2025-08-22)
+
+### 🚀 Features
+
+- **ui-react:** add `disableTextMargins` prop to Button component ([ed0600b](https://github.com/Udixio/UI/commit/ed0600b))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.0.1 (2025-08-22)
 
 ### 🧱 Updated Dependencies
