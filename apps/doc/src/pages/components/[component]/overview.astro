@@ -19,9 +19,9 @@ const { Content, headings } = await render(overview);
 ---
 <Layout>
 
-  <h1 class="text-3xl font-semibold mb-4">{component}</h1>
-  <article class="prose-markdown max-w-none">
+  <h1 class="text-display-medium mb-4">{component}</h1>
+  <div class="prose-markdown max-w-none">
     <Content components={{ pre: Code }} />
-  </article>
+  </div>
 
 </Layout>
