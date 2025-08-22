@@ -38,8 +38,6 @@ export const Button = ({
     );
   }
 
-  if (variant == ('filledTonal' as any)) variant = 'filled';
-
   const ElementType = href ? 'a' : 'button';
 
   const defaultRef = useRef<HTMLDivElement>(null);
