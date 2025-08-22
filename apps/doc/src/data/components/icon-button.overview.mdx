@@ -2,6 +2,10 @@
 ---
 
 
+
+
+
+
 import { CodePreview } from '@/components/CodePreview.js';
 import { faPlus, faStar as fasStar } from '@fortawesome/free-solid-svg-icons';
 import { faStar as farStar } from '@fortawesome/free-regular-svg-icons';
@@ -40,11 +44,11 @@ import { IconButton } from "@udixio/ui-react"
 <CodePreview client:load
              code={`
   <div className="flex items-center gap-3">
-    <IconButton ariaLabel="XS" icon={faPlus} size="xSmall" />
-    <IconButton ariaLabel="S" icon={faPlus} size="small" />
-    <IconButton ariaLabel="M" icon={faPlus} size="medium" />
-    <IconButton ariaLabel="L" icon={faPlus} size="large" />
-    <IconButton ariaLabel="XL" icon={faPlus} size="xLarge" />
+    <IconButton variant="filled" ariaLabel="XS" icon={faPlus} size="xSmall" />
+    <IconButton variant="filled" ariaLabel="S" icon={faPlus} size="small" />
+    <IconButton variant="filled" ariaLabel="M" icon={faPlus} size="medium" />
+    <IconButton variant="filled" ariaLabel="L" icon={faPlus} size="large" />
+    <IconButton variant="filled" ariaLabel="XL" icon={faPlus} size="xLarge" />
   </div>`}
              scope={{ faPlus }}
 />

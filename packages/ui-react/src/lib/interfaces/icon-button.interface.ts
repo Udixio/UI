@@ -27,7 +27,7 @@ type Props = {
 export type IconButtonStates = {
   isActive: boolean;
 };
-type Elements = ['iconButton', 'stateLayer', 'container', 'icon'];
+type Elements = ['iconButton', 'stateLayer', 'touchTarget', 'icon'];
 
 export type IconButtonInterface = ActionOrLink<Props> & {
   states: IconButtonStates;

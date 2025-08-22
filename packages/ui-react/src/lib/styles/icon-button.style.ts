@@ -15,13 +15,11 @@ export const iconButtonStyle = defaultClassNames<IconButtonInterface>(
   }) => {
     return {
       iconButton: classNames(
-        'group  min-h-12 flex items-center cursor-pointer',
+        'rounded-full relative flex transition-all duration-300',
+        'group cursor-pointer',
         {
           'cursor-default': disabled,
         },
-      ),
-      container: classNames(
-        'rounded-full relative flex overflow-hidden transition-all duration-300',
         (shape === 'rounded' ||
           (shape === 'squared' &&
             onToggle &&
@@ -73,8 +71,37 @@ export const iconButtonStyle = defaultClassNames<IconButtonInterface>(
           },
         ],
       ),
+      touchTarget: classNames(
+        'absolute -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2 h-12 w-full',
+      ),
       stateLayer: classNames(
-        'absolute top-0 left-0 h-full w-full ',
+        'absolute top-0 left-0 h-full w-full overflow-hidden',
+        (shape === 'rounded' ||
+          (shape === 'squared' &&
+            onToggle &&
+            !disabled &&
+            isActive &&
+            allowShapeTransformation)) && {
+          'rounded-[30px]': size === 'xSmall' || size == 'small',
+          'rounded-[40px]': size === 'medium',
+          'rounded-[70px]': size === 'large' || size == 'xLarge',
+        },
+        (shape === 'squared' ||
+          (shape === 'rounded' &&
+            onToggle &&
+            !disabled &&
+            isActive &&
+            allowShapeTransformation)) && {
+          'rounded-[12px]': size === 'xSmall' || size == 'small',
+          'rounded-[16px]': size === 'medium',
+          'rounded-[28px]': size === 'large' || size == 'xLarge',
+        },
+        allowShapeTransformation &&
+          !disabled && {
+            'group-active:rounded-[12px]': size === 'xSmall' || size == 'small',
+            'group-active:rounded-[16px]': size === 'medium',
+            'group-active:rounded-[28px]': size === 'large' || size == 'xLarge',
+          },
         !disabled && [
           variant === 'standard' && {
             'state-on-surface-variant': !isActive,
