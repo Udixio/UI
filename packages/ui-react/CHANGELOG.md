@@ -1,3 +1,9 @@
+## 1.0.1 (2025-08-22)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 1.2.1
+
 # 1.0.0 (2025-08-22)
 
 ### 🚀 Features
