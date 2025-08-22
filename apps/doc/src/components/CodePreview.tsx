@@ -46,13 +46,13 @@ export const CodePreview = ({
 
   return (
     <UI.Card
-      className={classNames('not-prose mt-6 flex-col', {
+      className={classNames('not-prose card-code mt-6 flex-col', {
         'min-h-48 flex': code,
       })}
       variant={'filled'}
     >
       <div
-        className={classNames(' justify-between pr-2 ', {
+        className={classNames(' justify-between pr-2 items-center', {
           'flex bg-surface-container-high': code,
           'w-fit float-right': !code,
         })}
