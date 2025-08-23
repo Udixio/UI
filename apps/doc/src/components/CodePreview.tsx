@@ -11,6 +11,7 @@ type Props = {
   children?: React.ReactNode;
   className?: string;
   center?: boolean;
+  preview?: boolean;
 };
 
 export const CodePreview = ({
@@ -18,6 +19,7 @@ export const CodePreview = ({
   scope,
   children,
   center = true,
+  preview = true,
 }: Props) => {
   const [copyState, setCopyState] = useState<'idle' | 'ok' | 'error'>('idle');
   const liveRef = useRef<HTMLDivElement | null>(null);
@@ -42,22 +44,24 @@ export const CodePreview = ({
     }
   }
 
-  const [tab, setTab] = useState<'Code' | 'Preview'>(code ? 'Preview' : 'Code');
+  const [tab, setTab] = useState<'Code' | 'Preview'>(
+    preview ? 'Preview' : 'Code',
+  );
 
   return (
     <UI.Card
       className={classNames('not-prose card-code mt-4 flex-col', {
-        'min-h-48 flex': code,
+        'min-h-48 flex': preview,
       })}
       variant={'filled'}
     >
       <div
         className={classNames('flex pr-2 items-center', {
-          'bg-surface-container-high relative': code,
-          'w-fit ': !code,
+          'bg-surface-container-high relative': preview,
+          'w-fit ': !preview,
         })}
       >
-        {code && (
+        {preview && (
           <UI.Tabs
             onTabSelected={({ label }) => setTab(label)}
             variant={'secondary'}
@@ -76,7 +80,10 @@ export const CodePreview = ({
         <UI.IconButton
           onToggle={handleCopy}
           size={'xSmall'}
-          className={'absolute right-2 top-1/2 -translate-y-1/2'}
+          className={classNames('absolute right-2', {
+            'top-1/2 -translate-y-1/2': preview,
+            'top-3': !preview,
+          })}
           icon={farClipboard}
           label={'Copy to clipboard'}
           iconSelected={faClipboardCheck}
@@ -96,7 +103,7 @@ export const CodePreview = ({
           </>
         )}
         {tab == 'Code' && (
-          <div className={'p-4 bg-inverse-surface/[0.05]'}>
+          <div className={'p-4 bg-inverse-surface/[0.05] pr-12'}>
             {!children && (
               <>
                 <LiveEditor />
