@@ -1,3 +1,19 @@
+## 1.2.0 (2025-08-23)
+
+### 🚀 Features
+
+- **ui-react:** introduce `Icon` type and update `Icon` component interface ([ea01bfb](https://github.com/Udixio/UI/commit/ea01bfb))
+- **ui-react:** replace `IconDefinition` with `Icon` in component interfaces ([819ebe1](https://github.com/Udixio/UI/commit/819ebe1))
+- **ui-react:** enhance `Icon` component to support multiple icon types ([86b1c58](https://github.com/Udixio/UI/commit/86b1c58))
+
+### 🩹 Fixes
+
+- **ui-react:** improve readability in `navigation-rail-item.style.ts` ([a7098eb](https://github.com/Udixio/UI/commit/a7098eb))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.1.0 (2025-08-22)
 
 ### 🚀 Features
