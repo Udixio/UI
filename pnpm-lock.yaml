@@ -397,6 +397,9 @@ importers:
       awilix:
         specifier: ^12.0.5
         version: 12.0.5
+      pathe:
+        specifier: ^2.0.3
+        version: 2.0.3
       replace-in-file:
         specifier: ^8.3.0
         version: 8.3.0

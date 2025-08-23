@@ -1,4 +1,5 @@
 import { AdapterAbstract, ConfigInterface } from '../adapter';
+import { resolve } from 'pathe';
 
 export class NodeAdapter extends AdapterAbstract {
   constructor(public configPath = './theme.config') {
@@ -11,17 +12,20 @@ export class NodeAdapter extends AdapterAbstract {
       process.release &&
       process.release.name === 'node'
     ) {
-      const path = (await import('path')).default;
       const fs = (await import('fs')).default;
+      const { pathToFileURL } = await import('url');
 
-      const base = path.resolve(this.configPath);
+      // pathe gère automatiquement tous les formats de chemins
+      const base = resolve(this.configPath);
       const extensions = ['.js', '.ts', '.mjs', '.cjs'];
       let configImport = null;
 
       for (const ext of extensions) {
-        const path = base + ext;
-        if (fs.existsSync(path)) {
-          configImport = (await import(path)).default;
+        const configFilePath = base + ext;
+        if (fs.existsSync(configFilePath)) {
+          // Convertir en URL pour l'import dynamique
+          const importPath = pathToFileURL(configFilePath).href;
+          configImport = (await import(importPath)).default;
           break;
         }
       }

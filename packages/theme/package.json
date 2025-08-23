@@ -16,6 +16,7 @@
     }
   },
   "dependencies": {
+    "pathe": "^2.0.3",
     "awilix": "^12.0.5",
     "@material/material-color-utilities": "^0.3.0",
     "replace-in-file": "^8.3.0",
