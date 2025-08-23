@@ -1,11 +1,11 @@
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { Icon } from '../icon';
 
 export interface SwitchInterface {
   type: 'div';
   props: {
     selected?: boolean;
-    activeIcon?: IconDefinition;
-    inactiveIcon?: IconDefinition;
+    activeIcon?: Icon;
+    inactiveIcon?: Icon;
     disabled?: boolean;
     onChange?: (checked: boolean) => void;
   };

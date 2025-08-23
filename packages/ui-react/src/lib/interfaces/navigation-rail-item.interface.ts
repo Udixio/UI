@@ -2,13 +2,14 @@ import { ActionOrLink } from '../utils';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { Dispatch, RefObject, SetStateAction } from 'react';
 import { Transition } from 'motion';
+import { Icon } from '../icon';
 
 export type NavProps = {
   selected?: boolean;
   variant?: 'vertical' | 'horizontal';
   label?: string;
   children?: string;
-  icon: IconDefinition;
+  icon: Icon;
   iconSelected: IconDefinition;
   selectedItem?: number | null;
   setSelectedItem?: Dispatch<SetStateAction<number | null>>;

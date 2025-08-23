@@ -1,6 +1,6 @@
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import React from 'react';
 import { IconButton } from '../components/IconButton';
+import { Icon } from '../icon';
 
 export type TextFieldVariant = 'filled' | 'outlined';
 
@@ -11,8 +11,8 @@ type Props = {
   disabled?: boolean;
   errorText?: string | null;
   supportingText?: string;
-  trailingIcon?: React.ReactElement<typeof IconButton> | IconDefinition;
-  leadingIcon?: React.ReactElement<typeof IconButton> | IconDefinition;
+  trailingIcon?: React.ReactElement<typeof IconButton> | Icon;
+  leadingIcon?: React.ReactElement<typeof IconButton> | Icon;
   onChange?: (value: string) => void;
   showSupportingText?: boolean;
   suffix?: string;

@@ -1,13 +1,13 @@
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { ActionOrLink } from '../utils/component';
 import { Transition } from 'motion';
+import { Icon } from '../icon';
 
 export type FabVariant = 'surface' | 'primary' | 'secondary' | 'tertiary';
 type Props = {
   variant?: FabVariant;
   label?: string;
   children?: string;
-  icon: IconDefinition;
+  icon: Icon;
   size?: 'small' | 'medium' | 'large';
   isExtended?: boolean;
   transition?: Transition;

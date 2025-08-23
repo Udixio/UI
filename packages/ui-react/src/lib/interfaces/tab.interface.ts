@@ -1,20 +1,20 @@
 import { ActionOrLink } from '../utils/component';
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { TabsVariant } from './tabs.interface';
 import { Dispatch, RefObject, SetStateAction } from 'react';
+import { Icon } from '../icon';
 
 export type TabProps = {
   selected?: boolean;
   variant?: TabsVariant;
   label?: string;
-  icon?: IconDefinition;
+  icon?: Icon;
   selectedTab?: number | null;
   setSelectedTab?: Dispatch<SetStateAction<number | null>>;
   tabsId?: string;
   onTabSelected?: (
     args: { index: number } & Pick<TabProps, 'label' | 'icon'> & {
         ref: RefObject<any>;
-      }
+      },
   ) => void;
   index?: number;
   scrollable?: boolean;
