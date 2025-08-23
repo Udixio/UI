@@ -2,6 +2,8 @@ import type React from 'react';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { classNames } from '../utils';
 
+export type Icon = IconDefinition | SvgImport | string;
+
 interface SvgImport {
   src: string;
   width: number;
@@ -10,7 +12,7 @@ interface SvgImport {
 }
 
 interface Props {
-  icon: IconDefinition | SvgImport | string;
+  icon: Icon;
   colors?: string[];
   className?: string;
 }
