@@ -195,7 +195,7 @@ export const NavigationRailItem = ({
             };
             return (
               <motion.span
-                initial={initial}
+                initial={animate}
                 animate={animate}
                 exit={initial}
                 className={styles.label}
