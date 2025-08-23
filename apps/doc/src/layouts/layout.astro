@@ -30,7 +30,7 @@ const pathName = Astro.url.pathname;
                     }))}
   />
   <div class="max-w-screen-lg flex flex-1 gap-8">
-    <div class="flex-1">
+    <div class="flex-1 overflow-auto">
       <slot />
     </div>
     <DocSidebar client:load />
