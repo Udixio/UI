@@ -1,22 +1,58 @@
 import * as fs from 'fs';
-import * as path from 'path';
 import { replaceInFileSync } from 'replace-in-file';
 import * as console from 'node:console';
+import { dirname, join, normalize, resolve } from 'pathe';
+import { fileURLToPath } from 'url';
+
+// Fonction utilitaire universelle de normalisation des chemins
+const normalizePath = (filePath: string): string => {
+  try {
+    if (filePath.startsWith('file://')) {
+      return normalize(fileURLToPath(filePath));
+    }
+    return normalize(filePath);
+  } catch (error) {
+    console.warn(
+      `Warning: Could not process path ${filePath}, treating as regular path`,
+    );
+    return normalize(filePath);
+  }
+};
+
+// Wrapper sécurisé pour fs.existsSync
+const safeExistsSync = (filePath: string): boolean => {
+  return fs.existsSync(normalizePath(filePath));
+};
+
+// Wrapper sécurisé pour fs.readFileSync
+const safeReadFileSync = (
+  filePath: string,
+  encoding: BufferEncoding = 'utf8',
+): string => {
+  return fs.readFileSync(normalizePath(filePath), encoding);
+};
+
+// Wrapper sécurisé pour fs.writeFileSync
+const safeWriteFileSync = (filePath: string, data: string): void => {
+  const normalizedPath = normalizePath(filePath);
+  const dirPath = dirname(normalizedPath);
+
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+  }
+
+  fs.writeFileSync(normalizedPath, data);
+};
 
 export const createOrUpdateFile = (filePath: string, content: string): void => {
   try {
-    if (!fs.existsSync(filePath)) {
-      // Create the folder if necessary.
-      const dirPath = path.dirname(filePath);
-      if (!fs.existsSync(dirPath)) {
-        fs.mkdirSync(dirPath, { recursive: true });
-      }
+    const normalizedPath = normalizePath(filePath);
 
-      // Create the file with the provided content.
-      fs.writeFileSync(filePath, content);
-      console.log(`✅ File successfully created: ${filePath}`);
+    if (!safeExistsSync(filePath)) {
+      safeWriteFileSync(filePath, content);
+      console.log(`✅ File successfully created: ${normalizedPath}`);
     } else {
-      console.log(`⚠️ File already exists: ${filePath}`);
+      console.log(`⚠️ File already exists: ${normalizedPath}`);
       replaceFileContent(filePath, /[\s\S]*/, content);
     }
   } catch (error) {
@@ -29,14 +65,16 @@ export const getFileContent = (
   searchPattern?: RegExp | string,
 ): string | false | null => {
   try {
+    const normalizedPath = normalizePath(filePath);
+
     // Vérifier si le fichier existe
-    if (!fs.existsSync(filePath)) {
-      console.error(`❌ The specified file does not exist: ${filePath}`);
+    if (!safeExistsSync(filePath)) {
+      console.error(`❌ The specified file does not exist: ${normalizedPath}`);
       return null;
     }
 
     // Lire le contenu du fichier entier
-    const fileContent = fs.readFileSync(filePath, 'utf8');
+    const fileContent = safeReadFileSync(filePath);
 
     // Si un motif est fourni, chercher le texte correspondant
     if (searchPattern) {
@@ -79,14 +117,18 @@ export const replaceFileContent = (
   replacement: string,
 ): void => {
   try {
+    const normalizedPath = normalizePath(filePath);
+
     const results = replaceInFileSync({
-      files: filePath,
+      files: normalizedPath,
       from: searchPattern,
       to: replacement,
     });
 
     if (results.length > 0 && results[0].hasChanged) {
-      console.log(`✅ Content successfully replaced in the file: ${filePath}`);
+      console.log(
+        `✅ Content successfully replaced in the file: ${normalizedPath}`,
+      );
     } else {
       console.log(
         `⚠️ No replacement made. Here are some possible reasons:\n- The pattern ${searchPattern} was not found.\n- The file might already contain the expected content.`,
@@ -96,20 +138,32 @@ export const replaceFileContent = (
     console.error('❌ Error while replacing the file content:', error);
   }
 };
+
 export const findTailwindCssFile = (
   startDir: string,
   searchPattern: RegExp | string,
 ): string | never => {
-  console.log('Recherche du fichier contenant le motif...', startDir);
+  const normalizedStartDir = normalizePath(startDir);
+  console.log('Recherche du fichier contenant le motif...', normalizedStartDir);
 
-  const stack = [startDir]; // Pile pour éviter une récursion implicite.
+  const stack = [normalizedStartDir]; // Pile pour éviter une récursion implicite.
 
   while (stack.length > 0) {
     const currentDir = stack.pop()!; // Récupérer un répertoire de la pile.
-    const files = fs.readdirSync(currentDir);
+
+    let files: string[];
+    try {
+      files = fs.readdirSync(currentDir);
+    } catch (error) {
+      console.error(
+        `Erreur lors de la lecture du répertoire ${currentDir}:`,
+        error,
+      );
+      continue;
+    }
 
     for (const file of files) {
-      const filePath = path.join(currentDir, file);
+      const filePath = join(currentDir, file);
 
       let stats: fs.Stats;
       try {
@@ -121,7 +175,9 @@ export const findTailwindCssFile = (
 
       // Ignorer le dossier `node_modules` et autres fichiers inutiles.
       if (stats.isDirectory()) {
-        if (file !== 'node_modules') stack.push(filePath); // Empiler seulement les dossiers valides.
+        if (file !== 'node_modules' && !file.startsWith('.')) {
+          stack.push(filePath); // Empiler seulement les dossiers valides.
+        }
       } else if (
         stats.isFile() &&
         (file.endsWith('.css') ||
@@ -130,8 +186,15 @@ export const findTailwindCssFile = (
       ) {
         try {
           console.log(`Analyse du fichier : ${filePath}`);
-          const content = fs.readFileSync(filePath, 'utf8');
-          if (content.match(searchPattern)) {
+          const content = safeReadFileSync(filePath);
+
+          // Gérer les deux types de searchPattern
+          const hasMatch =
+            typeof searchPattern === 'string'
+              ? content.includes(searchPattern)
+              : searchPattern.test(content);
+
+          if (hasMatch) {
             console.log('Fichier trouvé :', filePath);
             return filePath; // Retour dès qu'un fichier valide est identifié.
           }
@@ -143,16 +206,17 @@ export const findTailwindCssFile = (
   }
 
   throw new Error(
-    `Impossible de trouver un fichier contenant "${searchPattern}" dans "${startDir}".`,
+    `Impossible de trouver un fichier contenant "${searchPattern}" dans "${normalizedStartDir}".`,
   );
 };
 
-export function findProjectRoot(startPath) {
-  let currentPath = startPath;
+export function findProjectRoot(startPath: string): string {
+  const normalizedStartPath = normalizePath(startPath);
+  let currentPath = resolve(normalizedStartPath);
 
   // Boucle jusqu'à trouver un package.json ou jusqu'à arriver à la racine du système
-  while (!fs.existsSync(path.join(currentPath, 'package.json'))) {
-    const parentPath = path.dirname(currentPath);
+  while (!fs.existsSync(join(currentPath, 'package.json'))) {
+    const parentPath = dirname(currentPath);
     if (currentPath === parentPath) {
       throw new Error('Impossible de localiser la racine du projet.');
     }
