@@ -9,3 +9,4 @@ export * from './material-color-utilities';
 export * from './plugin';
 export * from './plugins';
 export * from './theme';
+export * from './core/config-loader';

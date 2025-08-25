@@ -1,7 +1,7 @@
-import { loadConfigFromFile, Plugin } from 'vite';
-import { AdapterAbstract, ConfigInterface } from '../adapter';
-import * as path from 'node:path';
+import { Plugin } from 'vite';
 import * as fs from 'node:fs';
+import { UniversalAdapter } from './universal.adapter';
+import { resolveConfig } from '../core/config-loader';
 
 export const udixioVite = async (
   configPath = './theme.config',
@@ -11,47 +11,24 @@ export const udixioVite = async (
     return;
   }
 
-  class ViteAdapter extends AdapterAbstract {
-    public configExtension?: string;
-
-    constructor(public configPath: string) {
-      super();
-    }
-
-    getConfigPath() {
-      if (!this.configExtension) {
-        throw new Error('config extension not found');
-      }
-      return path.resolve(this.configPath + this.configExtension);
-    }
-
-    async getConfig() {
-      const resolvedPath = path.resolve(this.configPath);
-
-      const result = await loadConfigFromFile(
-        { command: 'serve', mode: 'development' }, // ou 'build'
-        resolvedPath,
-      );
-      if (!result?.config) {
-        throw new Error('config not found');
-      }
-      if (!this.configExtension) {
-        this.configExtension = path.extname(result.dependencies[0]);
-      }
-      return result.config as unknown as ConfigInterface;
-    }
-  }
-
-  const adapter = new ViteAdapter(configPath);
-
+  const adapter = new UniversalAdapter(configPath);
   await adapter.init();
 
-  configPath = adapter.getConfigPath();
+  // resolve the actual file path to watch
+  let resolvedConfigPath: string;
+  try {
+    const result = await resolveConfig(configPath);
+    resolvedConfigPath = result.filePath;
+  } catch (e) {
+    // if not found yet, default to configPath (Vite will just not watch if missing)
+    resolvedConfigPath = configPath;
+  }
+
   return {
     name: 'vite:udixio-theme',
     async buildStart() {
-      if (fs.existsSync(configPath)) {
-        this.addWatchFile(configPath);
+      if (fs.existsSync(resolvedConfigPath)) {
+        this.addWatchFile(resolvedConfigPath);
       }
       adapter.load();
     },
@@ -62,17 +39,13 @@ export const udixioVite = async (
 
     // Handles Hot Module Replacement in dev server
     async handleHotUpdate({ server, file, modules }) {
-      // Vérifie si le fichier modifié correspond au chemin du fichier de config
-      if (configPath === file) {
-        const adapter = new ViteAdapter(configPath);
-        await adapter.init();
-        adapter.load();
-
+      if (resolvedConfigPath === file) {
+        const a = new UniversalAdapter(configPath);
+        await a.init();
+        a.load();
         server.ws.send({ type: 'full-reload', path: '*' });
-
         return modules;
       }
-
       return;
     },
   };
