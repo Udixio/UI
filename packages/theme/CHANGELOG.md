@@ -1,3 +1,15 @@
+## 1.1.0 (2025-08-25)
+
+### 🚀 Features
+
+- **tailwind:** enhance file utilities and integrate `pathe` for path normalization ([2c73d40](https://github.com/Udixio/UI/commit/2c73d40))
+- **theme:** integrate `jiti` for enhanced TypeScript config loading ([21b07a6](https://github.com/Udixio/UI/commit/21b07a6))
+- **theme:** integrate `pathe` for path resolution and improve config handling ([5a5aaf8](https://github.com/Udixio/UI/commit/5a5aaf8))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 # 1.0.0 (2025-08-04)
 
 ### 🚀 Features
