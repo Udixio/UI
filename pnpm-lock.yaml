@@ -385,6 +385,9 @@ importers:
       '@udixio/theme':
         specifier: workspace:*
         version: link:../theme
+      chalk:
+        specifier: ^5.6.0
+        version: 5.6.0
       pathe:
         specifier: ^2.0.3
         version: 2.0.3

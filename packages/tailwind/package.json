@@ -16,6 +16,7 @@
     }
   },
   "dependencies": {
+    "chalk": "^5.6.0",
     "pathe": "^2.0.3",
     "@udixio/theme": "workspace:*",
     "tslib": "^2.3.0"

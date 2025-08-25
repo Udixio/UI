@@ -3,6 +3,7 @@ import { replaceInFileSync } from 'replace-in-file';
 import * as console from 'node:console';
 import { dirname, join, normalize, resolve } from 'pathe';
 import { fileURLToPath } from 'url';
+import chalk from 'chalk';
 
 // Fonction utilitaire universelle de normalisation des chemins
 const normalizePath = (filePath: string): string => {
@@ -13,7 +14,9 @@ const normalizePath = (filePath: string): string => {
     return normalize(filePath);
   } catch (error) {
     console.warn(
-      `Warning: Could not process path ${filePath}, treating as regular path`,
+      chalk.yellow(
+        `⚠️  Could not process path ${filePath}, treating as regular path`,
+      ),
     );
     return normalize(filePath);
   }
@@ -50,13 +53,29 @@ export const createOrUpdateFile = (filePath: string, content: string): void => {
 
     if (!safeExistsSync(filePath)) {
       safeWriteFileSync(filePath, content);
-      console.log(`✅ File successfully created: ${normalizedPath}`);
+      console.log(
+        chalk.green(`📄 Created`) +
+          chalk.gray(` • `) +
+          chalk.cyan(normalizedPath),
+      );
     } else {
-      console.log(`⚠️ File already exists: ${normalizedPath}`);
+      console.log(
+        chalk.blue(`📝 Exists`) +
+          chalk.gray(` • `) +
+          chalk.cyan(normalizedPath),
+      );
       replaceFileContent(filePath, /[\s\S]*/, content);
     }
   } catch (error) {
-    console.error('❌ Error while creating the file:', error);
+    console.error(
+      chalk.red(`🚨 Failed to create file`) +
+        chalk.gray(` • `) +
+        chalk.cyan(filePath),
+    );
+    console.error(
+      chalk.gray(`   `) +
+        chalk.red(error instanceof Error ? error.message : error),
+    );
   }
 };
 
@@ -69,7 +88,11 @@ export const getFileContent = (
 
     // Vérifier si le fichier existe
     if (!safeExistsSync(filePath)) {
-      console.error(`❌ The specified file does not exist: ${normalizedPath}`);
+      console.error(
+        chalk.red(`❌ File not found`) +
+          chalk.gray(` • `) +
+          chalk.cyan(normalizedPath),
+      );
       return null;
     }
 
@@ -82,31 +105,52 @@ export const getFileContent = (
         const found = fileContent.includes(searchPattern)
           ? searchPattern
           : false;
-        console.log(
-          found
-            ? `✅ The file contains the specified string: "${searchPattern}"`
-            : `⚠️ The file does NOT contain the specified string: "${searchPattern}"`,
-        );
+        if (found) {
+          console.log(
+            chalk.green(`🔍 Found`) +
+              chalk.gray(` • `) +
+              chalk.yellow(`"${searchPattern}"`),
+          );
+        } else {
+          console.log(
+            chalk.yellow(`🔍 Missing`) +
+              chalk.gray(` • `) +
+              chalk.yellow(`"${searchPattern}"`),
+          );
+        }
         return found;
       } else {
         const match = fileContent.match(searchPattern);
         if (match) {
-          console.log(`✅ Found match: "${match[0]}"`);
-          return match[0]; // Retourner le texte trouvé
+          console.log(
+            chalk.green(`🎯 Match`) +
+              chalk.gray(` • `) +
+              chalk.yellow(`"${match[0]}"`),
+          );
+          return match[0];
         } else {
           console.log(
-            `⚠️ No match found for the pattern: "${searchPattern.toString()}"`,
+            chalk.yellow(`🎯 No match`) +
+              chalk.gray(` • `) +
+              chalk.magenta(searchPattern.toString()),
           );
-          return false; // Aucune correspondance trouvée
+          return false;
         }
       }
     }
 
-    // Si aucun motif n'est fourni, retourner tout le contenu
-    console.log(`✅ File content successfully retrieved.`);
+    console.log(
+      chalk.blue(`📖 Read`) + chalk.gray(` • `) + chalk.cyan(normalizedPath),
+    );
     return fileContent;
   } catch (error) {
-    console.error('❌ An error occurred while processing the file:', error);
+    console.error(
+      chalk.red(`🚨 Read failed`) + chalk.gray(` • `) + chalk.cyan(filePath),
+    );
+    console.error(
+      chalk.gray(`   `) +
+        chalk.red(error instanceof Error ? error.message : error),
+    );
     return null;
   }
 };
@@ -127,15 +171,26 @@ export const replaceFileContent = (
 
     if (results.length > 0 && results[0].hasChanged) {
       console.log(
-        `✅ Content successfully replaced in the file: ${normalizedPath}`,
+        chalk.green(`✏️  Updated`) +
+          chalk.gray(` • `) +
+          chalk.cyan(normalizedPath),
       );
     } else {
       console.log(
-        `⚠️ No replacement made. Here are some possible reasons:\n- The pattern ${searchPattern} was not found.\n- The file might already contain the expected content.`,
+        chalk.yellow(`⏭️  Skipped`) +
+          chalk.gray(` • `) +
+          chalk.cyan(normalizedPath) +
+          chalk.gray(` (no changes needed)`),
       );
     }
   } catch (error) {
-    console.error('❌ Error while replacing the file content:', error);
+    console.error(
+      chalk.red(`🚨 Update failed`) + chalk.gray(` • `) + chalk.cyan(filePath),
+    );
+    console.error(
+      chalk.gray(`   `) +
+        chalk.red(error instanceof Error ? error.message : error),
+    );
   }
 };
 
@@ -144,20 +199,25 @@ export const findTailwindCssFile = (
   searchPattern: RegExp | string,
 ): string | never => {
   const normalizedStartDir = normalizePath(startDir);
-  console.log('Recherche du fichier contenant le motif...', normalizedStartDir);
+  console.log(chalk.blue(`🔎 Searching for CSS file...`));
+  console.log(
+    chalk.gray(`   Starting from: `) + chalk.cyan(normalizedStartDir),
+  );
 
-  const stack = [normalizedStartDir]; // Pile pour éviter une récursion implicite.
+  const stack = [normalizedStartDir];
+  let filesScanned = 0;
 
   while (stack.length > 0) {
-    const currentDir = stack.pop()!; // Récupérer un répertoire de la pile.
+    const currentDir = stack.pop()!;
 
     let files: string[];
     try {
       files = fs.readdirSync(currentDir);
     } catch (error) {
       console.error(
-        `Erreur lors de la lecture du répertoire ${currentDir}:`,
-        error,
+        chalk.gray(`   `) +
+          chalk.red(`❌ Cannot read directory: `) +
+          chalk.cyan(currentDir),
       );
       continue;
     }
@@ -169,14 +229,17 @@ export const findTailwindCssFile = (
       try {
         stats = fs.statSync(filePath);
       } catch (error) {
-        console.error(`Erreur lors de l'accès à ${filePath}:`, error);
-        continue; // Ignorer toute erreur d'accès.
+        console.error(
+          chalk.gray(`   `) +
+            chalk.red(`❌ Cannot access: `) +
+            chalk.cyan(filePath),
+        );
+        continue;
       }
 
-      // Ignorer le dossier `node_modules` et autres fichiers inutiles.
       if (stats.isDirectory()) {
         if (file !== 'node_modules' && !file.startsWith('.')) {
-          stack.push(filePath); // Empiler seulement les dossiers valides.
+          stack.push(filePath);
         }
       } else if (
         stats.isFile() &&
@@ -185,43 +248,84 @@ export const findTailwindCssFile = (
           file.endsWith('.sass'))
       ) {
         try {
-          console.log(`Analyse du fichier : ${filePath}`);
+          filesScanned++;
+          process.stdout.write(
+            chalk.gray(`   📂 Scanning: `) + chalk.yellow(file) + `\r`,
+          );
+
           const content = safeReadFileSync(filePath);
 
-          // Gérer les deux types de searchPattern
           const hasMatch =
             typeof searchPattern === 'string'
               ? content.includes(searchPattern)
               : searchPattern.test(content);
 
           if (hasMatch) {
-            console.log('Fichier trouvé :', filePath);
-            return filePath; // Retour dès qu'un fichier valide est identifié.
+            console.log(chalk.green(`\n🎯 Found target file!`));
+            console.log(chalk.gray(`   📍 Location: `) + chalk.cyan(filePath));
+            return filePath;
           }
         } catch (readError) {
-          console.error(`Erreur lors de la lecture de ${filePath}:`, readError);
+          console.error(
+            chalk.gray(`\n   `) +
+              chalk.red(`❌ Cannot read: `) +
+              chalk.cyan(filePath),
+          );
         }
       }
     }
   }
 
-  throw new Error(
-    `Impossible de trouver un fichier contenant "${searchPattern}" dans "${normalizedStartDir}".`,
+  console.log(
+    chalk.blue(`\n📊 Scanned `) +
+      chalk.white.bold(filesScanned.toString()) +
+      chalk.blue(` CSS files`),
   );
+
+  const errorMsg =
+    chalk.red(`❌ No file found containing `) +
+    chalk.yellow(`"${searchPattern}"`) +
+    chalk.red(` in `) +
+    chalk.cyan(`"${normalizedStartDir}"`);
+
+  throw new Error(errorMsg);
 };
 
 export function findProjectRoot(startPath: string): string {
   const normalizedStartPath = normalizePath(startPath);
   let currentPath = resolve(normalizedStartPath);
+  let levels = 0;
 
-  // Boucle jusqu'à trouver un package.json ou jusqu'à arriver à la racine du système
+  console.log(chalk.blue(`🏠 Finding project root...`));
+  console.log(
+    chalk.gray(`   Starting from: `) + chalk.cyan(normalizedStartPath),
+  );
+
   while (!fs.existsSync(join(currentPath, 'package.json'))) {
     const parentPath = dirname(currentPath);
     if (currentPath === parentPath) {
-      throw new Error('Impossible de localiser la racine du projet.');
+      console.error(
+        chalk.red(`❌ Project root not found after checking `) +
+          chalk.white.bold(levels.toString()) +
+          chalk.red(` levels`),
+      );
+      throw new Error(
+        chalk.red('Unable to locate project root (no package.json found)'),
+      );
     }
     currentPath = parentPath;
+    levels++;
+
+    if (levels > 10) {
+      console.error(
+        chalk.red(`❌ Stopped after `) +
+          chalk.white.bold(levels.toString()) +
+          chalk.red(` levels (too deep)`),
+      );
+      throw new Error(chalk.red('Project root search exceeded maximum depth'));
+    }
   }
 
+  console.log(chalk.green(`📁 Project root: `) + chalk.cyan(currentPath));
   return currentPath;
 }
