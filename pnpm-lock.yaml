@@ -400,9 +400,15 @@ importers:
       awilix:
         specifier: ^12.0.5
         version: 12.0.5
+      chokidar:
+        specifier: ^4.0.3
+        version: 4.0.3
       jiti:
         specifier: ^2.5.1
         version: 2.5.1
+      mri:
+        specifier: ^1.2.0
+        version: 1.2.0
       pathe:
         specifier: ^2.0.3
         version: 2.0.3
@@ -16112,7 +16118,7 @@ snapshots:
 
   '@typescript-eslint/utils@5.62.0(eslint@8.57.1)(typescript@5.8.3)':
     dependencies:
-      '@eslint-community/eslint-utils': 4.7.0(eslint@9.32.0(jiti@2.4.2))
+      '@eslint-community/eslint-utils': 4.7.0(eslint@8.57.1)
       '@types/json-schema': 7.0.15
       '@types/semver': 7.7.0
       '@typescript-eslint/scope-manager': 5.62.0

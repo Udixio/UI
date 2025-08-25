@@ -1,12 +1,11 @@
 #!/usr/bin/env node
-import { UniversalAdapter } from '../src/adapters/universal.adapter';
+
 import chokidar from 'chokidar';
 import mri from 'mri';
+import { loadFromPath } from '../src';
 
 async function runOnce(configPath: string) {
-  const adapter = new UniversalAdapter(configPath);
-  await adapter.init();
-  adapter.load();
+  return loadFromPath(configPath);
 }
 
 async function main() {

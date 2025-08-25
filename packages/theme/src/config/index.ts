@@ -1,3 +1,3 @@
 export * from './config.interface';
-export * from './adapter.abstract';
 export * from './define-config';
+export * from './resolver-config';

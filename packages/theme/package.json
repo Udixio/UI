@@ -16,7 +16,7 @@
     }
   },
   "bin": {
-    "udixio-theme": "./bin/udixio-theme.js"
+    "udixio-theme": "./dist/bin.js"
   },
   "dependencies": {
     "pathe": "^2.0.3",

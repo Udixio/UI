@@ -1,7 +1,7 @@
 import { resolve } from 'pathe';
 import { createJiti } from 'jiti';
 import fs from 'node:fs';
-import type { ConfigInterface } from '../adapter';
+import { ConfigInterface } from './config.interface';
 
 export interface ResolvedConfigResult {
   config: ConfigInterface;
@@ -24,6 +24,7 @@ export async function resolveConfig(
   // If user passed a path with extension, try it as-is first
   const tryPaths: string[] = [];
   const resolvedInput = resolve(configPath);
+
   const extMatch = /\.(ts|js|mjs|cjs)$/.exec(resolvedInput);
   if (extMatch) {
     tryPaths.push(resolvedInput);
@@ -38,6 +39,7 @@ export async function resolveConfig(
       const cfg = (await jiti.import(file, {
         default: true,
       })) as ConfigInterface;
+
       return { config: cfg, filePath: file };
     }
   }
