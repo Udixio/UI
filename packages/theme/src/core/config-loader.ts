@@ -12,10 +12,12 @@ export interface ResolvedConfigResult {
  * Resolve and load theme.config.{ts,js,mjs,cjs} using JITI, independent of any bundler.
  * @param configPath base path without extension or full path with/without extension
  */
-export async function resolveConfig(configPath = './theme.config'): Promise<ResolvedConfigResult> {
+export async function resolveConfig(
+  configPath = './theme.config',
+): Promise<ResolvedConfigResult> {
   const jiti = createJiti(import.meta.url, {
     debug: process.env.NODE_ENV === 'development',
-    cache: true,
+    fsCache: true,
     interopDefault: true,
   });
 
@@ -33,7 +35,9 @@ export async function resolveConfig(configPath = './theme.config'): Promise<Reso
 
   for (const file of tryPaths) {
     if (fs.existsSync(file)) {
-      const cfg = (await jiti.import(file, { default: true })) as ConfigInterface;
+      const cfg = (await jiti.import(file, {
+        default: true,
+      })) as ConfigInterface;
       return { config: cfg, filePath: file };
     }
   }
