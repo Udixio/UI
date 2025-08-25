@@ -1,3 +1,22 @@
+## 1.3.0 (2025-08-25)
+
+### 🚀 Features
+
+- **doc:** refactor navigation and layout structure for consistency ([644c21a](https://github.com/Udixio/UI/commit/644c21a))
+
+### 🩹 Fixes
+
+- **ui-react:** update `NavigationRailItem` animation handling ([0ed4606](https://github.com/Udixio/UI/commit/0ed4606))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 1.3.0
+- Updated @udixio/theme to 1.1.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.2.0 (2025-08-23)
 
 ### 🚀 Features

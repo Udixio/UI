@@ -1,3 +1,17 @@
+## 1.3.0 (2025-08-25)
+
+### 🚀 Features
+
+- **tailwind:** enhance file utilities and integrate `pathe` for path normalization ([2c73d40](https://github.com/Udixio/UI/commit/2c73d40))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 1.1.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.2.1 (2025-08-22)
 
 ### 🩹 Fixes
