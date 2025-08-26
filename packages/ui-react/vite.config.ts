@@ -3,14 +3,14 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
 import * as path from 'path';
-import { udixioVite } from '@udixio/theme';
+import { vitePlugin } from '@udixio/theme';
 import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig(async () => ({
   root: __dirname,
   cacheDir: '../../node_modules/.vite/packages/ui-react',
   plugins: [
-    udixioVite(),
+    vitePlugin(),
     react(),
     dts({
       entryRoot: 'src',
