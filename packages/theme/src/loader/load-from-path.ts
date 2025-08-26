@@ -1,4 +1,4 @@
-import { resolveConfig } from '../config/resolver-config';
+import { resolveConfig } from '../config';
 import { loader } from './loader';
 
 export const loadFromPath = async (configPath = './theme.config') => {

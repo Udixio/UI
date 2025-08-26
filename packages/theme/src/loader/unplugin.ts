@@ -1,4 +1,3 @@
-import { createUnplugin } from 'unplugin';
 import { loadFromPath } from './load-from-path';
 
 export interface UdixioThemeOptions {
@@ -6,8 +5,17 @@ export interface UdixioThemeOptions {
   verbose?: boolean;
 }
 
-export const unpluginUdixioTheme = createUnplugin<UdixioThemeOptions>(
-  (options = {}) => {
+// Instance lazy-loadée
+let unpluginInstance: any = null;
+
+const createUnpluginTheme = async () => {
+  if (unpluginInstance) {
+    return unpluginInstance;
+  }
+
+  const { createUnplugin } = await import('unplugin');
+
+  unpluginInstance = createUnplugin<UdixioThemeOptions>((options = {}) => {
     const { configPath = './theme.config', verbose = false } = options;
 
     let resolvedConfigPath: string;
@@ -112,14 +120,39 @@ export const unpluginUdixioTheme = createUnplugin<UdixioThemeOptions>(
         },
       },
     };
-  },
-);
+  });
 
-// Exports pour chaque bundler
-export const vitePlugin = unpluginUdixioTheme.vite;
-export const webpackPlugin = unpluginUdixioTheme.webpack;
-export const rollupPlugin = unpluginUdixioTheme.rollup;
-export const esbuildPlugin = unpluginUdixioTheme.esbuild;
+  return unpluginInstance;
+};
 
-// Export par défaut (garde la compatibilité avec l'ancien code)
+// Exports avec lazy loading
+export const vitePlugin = async (options?: UdixioThemeOptions) => {
+  const plugin = await createUnpluginTheme();
+  return plugin.vite(options);
+};
+
+export const webpackPlugin = async (options?: UdixioThemeOptions) => {
+  const plugin = await createUnpluginTheme();
+  return plugin.webpack(options);
+};
+
+export const rollupPlugin = async (options?: UdixioThemeOptions) => {
+  const plugin = await createUnpluginTheme();
+  return plugin.rollup(options);
+};
+
+export const esbuildPlugin = async (options?: UdixioThemeOptions) => {
+  const plugin = await createUnpluginTheme();
+  return plugin.esbuild(options);
+};
+
+// Export principal avec lazy loading
+export const unpluginUdixioTheme = {
+  vite: vitePlugin,
+  webpack: webpackPlugin,
+  rollup: rollupPlugin,
+  esbuild: esbuildPlugin,
+};
+
+// Export par défaut
 export default unpluginUdixioTheme;

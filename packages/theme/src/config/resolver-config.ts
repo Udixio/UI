@@ -1,5 +1,4 @@
 import { resolve } from 'pathe';
-import { createJiti } from 'jiti';
 import fs from 'node:fs';
 import { ConfigInterface } from './config.interface';
 
@@ -15,6 +14,9 @@ export interface ResolvedConfigResult {
 export async function resolveConfig(
   configPath = './theme.config',
 ): Promise<ResolvedConfigResult> {
+  const { createJiti } = await import('jiti');
+  const { resolve } = await import('pathe');
+
   const jiti = createJiti(import.meta.url, {
     debug: process.env.NODE_ENV === 'development',
     fsCache: true,
