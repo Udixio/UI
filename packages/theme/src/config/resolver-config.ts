@@ -1,4 +1,3 @@
-import { resolve } from 'pathe';
 import fs from 'node:fs';
 import { ConfigInterface } from './config.interface';
 

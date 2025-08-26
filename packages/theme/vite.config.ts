@@ -14,7 +14,7 @@ export default defineConfig(() => ({
     }),
     visualizer({
       filename: '../../stats/theme.html',
-      open: false,
+      open: true,
       gzipSize: true,
       brotliSize: true,
     }),
@@ -49,7 +49,7 @@ export default defineConfig(() => ({
     },
     rollupOptions: {
       // External packages that should not be bundled into your library.
-      external: ['pathe'],
+      external: ['pathe', 'jiti'],
     },
   },
   test: {

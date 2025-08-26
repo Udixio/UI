@@ -3,7 +3,7 @@ import { defaultColors } from '../color';
 import { bootstrap } from '../bootstrap';
 import { registerModule } from '../app.container';
 import { asValue } from 'awilix';
-import { ConfigInterface } from '../config/config.interface';
+import { ConfigInterface } from '../config';
 
 const initializeApi = () => {
   const api = bootstrap();
@@ -13,7 +13,7 @@ const initializeApi = () => {
   return api;
 };
 
-export const loader = ({ config }: { config: ConfigInterface }) => {
+export const loader = async (config: ConfigInterface) => {
   const api = initializeApi();
 
   const init = () => {
@@ -52,15 +52,12 @@ export const loader = ({ config }: { config: ConfigInterface }) => {
     }
   };
 
-  const load = () => {
-    api.plugins.loadPlugins();
+  const load = async () => {
+    await api.plugins.loadPlugins();
   };
 
   init();
-  load();
+  await load();
 
-  return {
-    load,
-    init,
-  };
+  return api;
 };

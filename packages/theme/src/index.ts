@@ -2,7 +2,7 @@ export * from './app.container';
 export * from './app.module';
 export * from './API';
 export * from './color';
-export * from './loader.ts';
+export * from './loader';
 export * from './bootstrap';
 export * from './material-color-utilities';
 export * from './plugin';

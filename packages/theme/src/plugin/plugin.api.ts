@@ -35,10 +35,10 @@ export class PluginApi {
       );
   }
 
-  public loadPlugins() {
-    this.plugins.forEach((plugin) => {
-      plugin.getInstance().onLoad?.();
-    });
+  public async loadPlugins() {
+    for (const plugin of this.plugins.values()) {
+      await plugin.getInstance().onLoad?.();
+    }
   }
 
   public getPlugin<T extends PluginAbstract<any, any>>(

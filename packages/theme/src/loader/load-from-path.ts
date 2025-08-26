@@ -3,9 +3,7 @@ import { loader } from './loader';
 
 export const loadFromPath = async (configPath = './theme.config') => {
   const { config, filePath } = await resolveConfig(configPath);
-  loader({
-    config,
-  });
+  const api = await loader(config);
 
-  return { filePath };
+  return { filePath, api: api };
 };
