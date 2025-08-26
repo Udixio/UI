@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import "./udixio.css";
 
+
 @plugin '@tailwindcss/typography';
 
 @source "../../node_modules/@udixio/ui-react";

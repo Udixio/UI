@@ -1,6 +1,11 @@
 ---
 
-import Layout from '../layouts/layout.astro';---
-<Layout>
+import { ColorPicker } from '@/components/ColorPicker';
+import Layout from '../layouts/layout.astro';
+import {Button} from "@udixio/ui-react"
 
+---
+<Layout>
+<ColorPicker client:load></ColorPicker>
+  <Button>test</Button>
 </Layout>

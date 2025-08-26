@@ -1,4 +1,3 @@
-
 @plugin "@udixio/tailwind" {
   colorKeys: surface, surface-dim, surface-bright, surface-container-lowest, surface-container-low, surface-container, surface-container-high, surface-container-highest, on-surface, on-surface-variant, outline, outline-variant, inverse-surface, inverse-on-surface, primary, primary-dim, on-primary, primary-container, on-primary-container, primary-fixed, primary-fixed-dim, on-primary-fixed, on-primary-fixed-variant, inverse-primary, secondary, secondary-dim, on-secondary, secondary-container, on-secondary-container, secondary-fixed, secondary-fixed-dim, on-secondary-fixed, on-secondary-fixed-variant, tertiary, tertiary-dim, on-tertiary, tertiary-container, on-tertiary-container, tertiary-fixed, tertiary-fixed-dim, on-tertiary-fixed, on-tertiary-fixed-variant, error, error-dim, on-error, error-container, on-error-container, surface-variant, surface-tint, background, on-background;
   fontStyles: display-large fontWeight[400] fontSize[3.5625] lineHeight[4] letterSpacing[-0.015625] fontFamily[expressive], display-medium fontWeight[400] fontSize[2.8125] lineHeight[3.25] fontFamily[expressive], display-small fontWeight[400] fontSize[2.25] lineHeight[2.75] fontFamily[expressive], headline-large fontWeight[400] fontSize[2] lineHeight[2.5] fontFamily[expressive], headline-medium fontWeight[400] fontSize[1.75] lineHeight[2.25] fontFamily[expressive], headline-small fontWeight[400] fontSize[1.5] lineHeight[2] fontFamily[expressive], title-large fontWeight[400] fontSize[1.375] lineHeight[1.75] fontFamily[neutral], title-medium fontWeight[500] fontSize[1] lineHeight[1.5] fontFamily[neutral] letterSpacing[0.009375], title-small fontWeight[500] fontSize[0.875] lineHeight[1.25] fontFamily[neutral] letterSpacing[0.00625], label-large fontWeight[500] fontSize[0.875] lineHeight[1.25] fontFamily[neutral] letterSpacing[0.00625], label-medium fontWeight[500] fontSize[0.75] lineHeight[1] fontFamily[neutral] letterSpacing[0.03125], label-small fontWeight[500] fontSize[0.6875] lineHeight[1] fontFamily[neutral] letterSpacing[0.03125], body-large fontWeight[400] fontSize[1] lineHeight[1.5625] fontFamily[neutral] letterSpacing[0.03125], body-medium fontWeight[400] fontSize[0.875] lineHeight[1.25] fontFamily[neutral] letterSpacing[0.015625], body-small fontWeight[400] fontSize[0.75] lineHeight[1] fontFamily[neutral] letterSpacing[0.025];
@@ -114,6 +113,7 @@
   --color-on-background: #eae3ef;
   }
 }
+
 @theme {
   --font-expressive: "Roboto", "sans-serif";
   --font-neutral: "Roboto", "sans-serif";
