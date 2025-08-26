@@ -2,6 +2,7 @@
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import * as path from 'path';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig(() => ({
   root: __dirname,
@@ -10,6 +11,12 @@ export default defineConfig(() => ({
     dts({
       entryRoot: 'src',
       tsconfigPath: path.join(__dirname, 'tsconfig.lib.json'),
+    }),
+    visualizer({
+      filename: '../../stats/theme.html',
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
     }),
   ],
   // Uncomment this if you are using workers.

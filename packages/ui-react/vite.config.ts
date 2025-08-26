@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
 import * as path from 'path';
 import { udixioVite } from '@udixio/theme';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig(async () => ({
   root: __dirname,
@@ -14,6 +15,12 @@ export default defineConfig(async () => ({
     dts({
       entryRoot: 'src',
       tsconfigPath: path.join(__dirname, 'tsconfig.lib.json'),
+    }),
+    visualizer({
+      filename: '../../stats/ui-react.html',
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
     }),
   ],
   // Uncomment this if you are using workers.
