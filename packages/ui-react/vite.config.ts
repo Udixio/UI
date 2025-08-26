@@ -3,8 +3,8 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
 import * as path from 'path';
-import { vitePlugin } from '@udixio/theme';
 import { visualizer } from 'rollup-plugin-visualizer';
+import { vitePlugin } from '@udixio/theme/unplugin';
 
 export default defineConfig(async () => ({
   root: __dirname,
@@ -56,8 +56,9 @@ export default defineConfig(async () => ({
         'react-textarea-autosize',
         'tailwind-merge',
         'motion',
-        'motion/react',
         '@udixio/theme',
+        '@udixio/tailwind',
+        'motion/react',
       ],
     },
   },

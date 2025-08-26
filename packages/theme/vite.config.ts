@@ -7,6 +7,7 @@ import { visualizer } from 'rollup-plugin-visualizer';
 export default defineConfig(() => ({
   root: __dirname,
   cacheDir: '../../node_modules/.vite/packages/theme',
+
   plugins: [
     dts({
       entryRoot: 'src',
@@ -14,7 +15,7 @@ export default defineConfig(() => ({
     }),
     visualizer({
       filename: '../../stats/theme.html',
-      open: true,
+      open: false,
       gzipSize: true,
       brotliSize: true,
     }),
@@ -26,10 +27,10 @@ export default defineConfig(() => ({
   // Configuration for building your library.
   // See: https://vitejs.dev/guide/build.html#library-mode
   build: {
+    ssr: true,
     outDir: './dist',
     emptyOutDir: true,
     reportCompressedSize: true,
-    ssr: true,
     commonjsOptions: {
       transformMixedEsModules: true,
     },
@@ -38,6 +39,7 @@ export default defineConfig(() => ({
       entry: {
         index: 'src/index.ts',
         bin: 'bin/main.ts',
+        unplugin: 'src/loader/unplugin.ts',
       },
 
       name: '@udixio/theme',
@@ -49,7 +51,7 @@ export default defineConfig(() => ({
     },
     rollupOptions: {
       // External packages that should not be bundled into your library.
-      external: ['pathe', 'jiti'],
+      external: ['pathe', 'jiti', 'commander', 'unplugin', 'chokidar'],
     },
   },
   test: {

@@ -14,6 +14,9 @@ export default defineConfig({
   output: 'static',
   vite: {
     plugins: [tailwindcss(), vitePlugin()],
+    ssr: {
+      noExternal: ['@udixio/theme', '@udixio/ui-react', '@udixio/tailwind'],
+    },
   },
 
   markdown: {

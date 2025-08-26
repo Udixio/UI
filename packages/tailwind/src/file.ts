@@ -2,11 +2,13 @@ import * as fs from 'fs';
 import { replaceInFileSync } from 'replace-in-file';
 import * as console from 'node:console';
 import { dirname, join, normalize, resolve } from 'pathe';
-import { fileURLToPath } from 'url';
+
 import chalk from 'chalk';
 
 // Fonction utilitaire universelle de normalisation des chemins
-const normalizePath = (filePath: string): string => {
+const normalizePath = async (filePath: string): Promise<string> => {
+  const { fileURLToPath } = await import('url');
+
   try {
     if (filePath.startsWith('file://')) {
       return normalize(fileURLToPath(filePath));
@@ -23,21 +25,24 @@ const normalizePath = (filePath: string): string => {
 };
 
 // Wrapper sécurisé pour fs.existsSync
-const safeExistsSync = (filePath: string): boolean => {
-  return fs.existsSync(normalizePath(filePath));
+const safeExistsSync = async (filePath: string): Promise<boolean> => {
+  return fs.existsSync(await normalizePath(filePath));
 };
 
 // Wrapper sécurisé pour fs.readFileSync
-const safeReadFileSync = (
+const safeReadFileSync = async (
   filePath: string,
   encoding: BufferEncoding = 'utf8',
-): string => {
-  return fs.readFileSync(normalizePath(filePath), encoding);
+): Promise<string> => {
+  return fs.readFileSync(await normalizePath(filePath), encoding);
 };
 
 // Wrapper sécurisé pour fs.writeFileSync
-const safeWriteFileSync = (filePath: string, data: string): void => {
-  const normalizedPath = normalizePath(filePath);
+const safeWriteFileSync = async (
+  filePath: string,
+  data: string,
+): Promise<void> => {
+  const normalizedPath = await normalizePath(filePath);
   const dirPath = dirname(normalizedPath);
 
   if (!fs.existsSync(dirPath)) {
@@ -47,12 +52,15 @@ const safeWriteFileSync = (filePath: string, data: string): void => {
   fs.writeFileSync(normalizedPath, data);
 };
 
-export const createOrUpdateFile = (filePath: string, content: string): void => {
+export const createOrUpdateFile = async (
+  filePath: string,
+  content: string,
+): Promise<void> => {
   try {
     const normalizedPath = normalizePath(filePath);
 
-    if (!safeExistsSync(filePath)) {
-      safeWriteFileSync(filePath, content);
+    if (!(await safeExistsSync(filePath))) {
+      await safeWriteFileSync(filePath, content);
       console.log(
         chalk.green(`📄 Created`) +
           chalk.gray(` • `) +
@@ -64,7 +72,7 @@ export const createOrUpdateFile = (filePath: string, content: string): void => {
           chalk.gray(` • `) +
           chalk.cyan(normalizedPath),
       );
-      replaceFileContent(filePath, /[\s\S]*/, content);
+      await replaceFileContent(filePath, /[\s\S]*/, content);
     }
   } catch (error) {
     console.error(
@@ -79,15 +87,15 @@ export const createOrUpdateFile = (filePath: string, content: string): void => {
   }
 };
 
-export const getFileContent = (
+export const getFileContent = async (
   filePath: string,
   searchPattern?: RegExp | string,
-): string | false | null => {
+): Promise<string | false | null> => {
   try {
     const normalizedPath = normalizePath(filePath);
 
     // Vérifier si le fichier existe
-    if (!safeExistsSync(filePath)) {
+    if (!(await safeExistsSync(filePath))) {
       console.error(
         chalk.red(`❌ File not found`) +
           chalk.gray(` • `) +
@@ -97,7 +105,7 @@ export const getFileContent = (
     }
 
     // Lire le contenu du fichier entier
-    const fileContent = safeReadFileSync(filePath);
+    const fileContent = await safeReadFileSync(filePath);
 
     // Si un motif est fourni, chercher le texte correspondant
     if (searchPattern) {
@@ -155,13 +163,13 @@ export const getFileContent = (
   }
 };
 
-export const replaceFileContent = (
+export const replaceFileContent = async (
   filePath: string,
   searchPattern: RegExp | string,
   replacement: string,
-): void => {
+): Promise<void> => {
   try {
-    const normalizedPath = normalizePath(filePath);
+    const normalizedPath = await normalizePath(filePath);
 
     const results = replaceInFileSync({
       files: normalizedPath,
@@ -194,11 +202,11 @@ export const replaceFileContent = (
   }
 };
 
-export const findTailwindCssFile = (
+export const findTailwindCssFile = async (
   startDir: string,
   searchPattern: RegExp | string,
-): string | never => {
-  const normalizedStartDir = normalizePath(startDir);
+): Promise<string | never> => {
+  const normalizedStartDir = await normalizePath(startDir);
   console.log(chalk.blue(`🔎 Searching for CSS file...`));
   console.log(
     chalk.gray(`   Starting from: `) + chalk.cyan(normalizedStartDir),
@@ -253,7 +261,7 @@ export const findTailwindCssFile = (
             chalk.gray(`   📂 Scanning: `) + chalk.yellow(file) + `\r`,
           );
 
-          const content = safeReadFileSync(filePath);
+          const content = await safeReadFileSync(filePath);
 
           const hasMatch =
             typeof searchPattern === 'string'
@@ -291,8 +299,8 @@ export const findTailwindCssFile = (
   throw new Error(errorMsg);
 };
 
-export function findProjectRoot(startPath: string): string {
-  const normalizedStartPath = normalizePath(startPath);
+export async function findProjectRoot(startPath: string): Promise<string> {
+  const normalizedStartPath = await normalizePath(startPath);
   let currentPath = resolve(normalizedStartPath);
   let levels = 0;
 

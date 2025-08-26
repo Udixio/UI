@@ -26,10 +26,10 @@ export default defineConfig(() => ({
   // Configuration for building your library.
   // See: https://vitejs.dev/guide/build.html#library-mode
   build: {
+    ssr: true,
     outDir: './dist',
     emptyOutDir: true,
     reportCompressedSize: true,
-    ssr: true,
     commonjsOptions: {
       transformMixedEsModules: true,
     },
@@ -44,7 +44,13 @@ export default defineConfig(() => ({
     },
     rollupOptions: {
       // External packages that should not be bundled into your library.
-      external: ['tailwindcss', '@udixio/theme', 'pathe'],
+      external: [
+        'tailwindcss',
+        '@udixio/theme',
+        'pathe',
+        'replace-in-file',
+        'chalk',
+      ],
     },
   },
   test: {

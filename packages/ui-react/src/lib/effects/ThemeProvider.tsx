@@ -1,4 +1,3 @@
-'use client';
 import { type ConfigInterface, loader } from '@udixio/theme';
 import { useEffect, useState } from 'react';
 import { TailwindPlugin } from '@udixio/tailwind';

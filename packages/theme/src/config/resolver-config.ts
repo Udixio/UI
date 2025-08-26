@@ -1,5 +1,5 @@
-import fs from 'node:fs';
 import { ConfigInterface } from './config.interface';
+import * as fs from 'node:fs';
 
 export interface ResolvedConfigResult {
   config: ConfigInterface;
@@ -45,7 +45,5 @@ export async function resolveConfig(
     }
   }
 
-  throw new Error(
-    `Configuration file not found for ${resolvedInput}{.ts,.js,.mjs,.cjs}`,
-  );
+  throw new Error(`Configuration file not found for ${''}{.ts,.js,.mjs,.cjs}`);
 }

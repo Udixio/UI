@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import { Command } from 'commander';
 import chokidar from 'chokidar';
 import chalk from 'chalk';

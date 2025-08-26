@@ -13,6 +13,13 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "default": "./dist/index.js"
+    },
+    "./unplugin": {
+      "development": "./src/loader/unplugin.ts",
+      "types": "./dist/unplugin.d.ts",
+      "import": "./dist/unplugin.js",
+      "require": "./dist/unplugin.cjs",
+      "default": "./dist/unplugin.js"
     }
   },
   "bin": {
@@ -30,6 +37,9 @@
     "commander": "^14.0.0",
     "chalk": "^5.6.0",
     "unplugin": "^2.3.8"
+  },
+  "devDependencies": {
+
   },
   "repository": {
     "type": "git",

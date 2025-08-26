@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { HexColorPicker } from 'react-colorful';
-import { ThemeProvider } from '@/components/ThemeProvider.tsx';
 import config from '../../theme.config';
+import { ThemeProvider } from '@udixio/ui-react';
 
 export const ColorPicker = () => {
   const [color, setColor] = useState<string>('#ffffff');

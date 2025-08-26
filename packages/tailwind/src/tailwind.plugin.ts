@@ -1,4 +1,3 @@
-import path from 'path';
 import { FontPlugin, PluginAbstract, PluginImplAbstract } from '@udixio/theme';
 import { ConfigCss } from './main';
 
@@ -59,19 +58,26 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
       replaceFileContent,
     } = await import('./file');
 
+    const { resolve, join } = await import('pathe');
+
     let udixioCssPath = this.options.styleFilePath;
 
-    const projectRoot = findProjectRoot(path.resolve());
+    const projectRoot = await findProjectRoot(resolve());
 
     if (!udixioCssPath) {
       const searchPattern = /@import ["']tailwindcss["'];/;
       const replacement = `@import 'tailwindcss';\n@import "./udixio.css";`;
 
-      const tailwindCssPath = findTailwindCssFile(projectRoot, searchPattern);
-      udixioCssPath = path.join(tailwindCssPath, '../udixio.css');
+      const tailwindCssPath = await findTailwindCssFile(
+        projectRoot,
+        searchPattern,
+      );
+      udixioCssPath = join(tailwindCssPath, '../udixio.css');
 
-      if (!getFileContent(tailwindCssPath, /@import\s+"\.\/udixio\.css";/)) {
-        replaceFileContent(tailwindCssPath, searchPattern, replacement);
+      if (
+        !(await getFileContent(tailwindCssPath, /@import\s+"\.\/udixio\.css";/))
+      ) {
+        await replaceFileContent(tailwindCssPath, searchPattern, replacement);
       }
     }
 
@@ -117,7 +123,7 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
     .join('\n  ')}
 }`;
 
-    createOrUpdateFile(udixioCssPath, this.outputCss);
+    await createOrUpdateFile(udixioCssPath, this.outputCss);
   }
 
   loadColor() {
