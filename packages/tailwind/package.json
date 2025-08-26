@@ -16,6 +16,7 @@
     }
   },
   "dependencies": {
+    "@tailwindcss/browser": "^4.1.12",
     "chalk": "^5.6.0",
     "pathe": "^2.0.3",
     "@udixio/theme": "workspace:*",
