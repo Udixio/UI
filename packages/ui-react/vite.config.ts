@@ -4,13 +4,22 @@ import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
 import * as path from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
-import { vitePlugin } from '@udixio/theme';
+
+const getUdixioVite = async () => {
+  // @ts-expect-error - NX_GRAPH_CREATION is a global variable set by Nx
+  if (global.NX_GRAPH_CREATION) {
+    return;
+  } else {
+    const dynamicPath = '@udixio/theme';
+    return (await import(dynamicPath)).vitePlugin;
+  }
+};
 
 export default defineConfig(async () => ({
   root: __dirname,
   cacheDir: '../../node_modules/.vite/packages/ui-react',
   plugins: [
-    vitePlugin(),
+    await getUdixioVite(),
     react(),
     dts({
       entryRoot: 'src',
