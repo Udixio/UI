@@ -1,7 +1,7 @@
-import index from 'tailwindcss/index.css';
-import preflight from 'tailwindcss/preflight.css';
-import theme from 'tailwindcss/theme.css';
-import utilities from 'tailwindcss/utilities.css';
+import index from 'tailwindcss/index.css?inline';
+import preflight from 'tailwindcss/preflight.css?inline';
+import theme from 'tailwindcss/theme.css?inline';
+import utilities from 'tailwindcss/utilities.css?inline';
 
 export const css = {
   index,

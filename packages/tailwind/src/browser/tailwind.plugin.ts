@@ -64,7 +64,10 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
       }
     }
 
-    await import('@tailwindcss/browser');
+    if (typeof window !== 'undefined') {
+      const { tailwindBrowserInit } = await import('./tailwind-browser');
+      tailwindBrowserInit();
+    }
 
     this.loadColor();
   }

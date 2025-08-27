@@ -294,5 +294,6 @@ new MutationObserver((records) => {
 export function tailwindBrowserInit() {
   rebuild('full');
 
+  console.log(sheet);
   document.head.append(sheet);
 }
