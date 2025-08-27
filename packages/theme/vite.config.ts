@@ -37,9 +37,9 @@ export default defineConfig(() => ({
     lib: {
       // Could also be a dictionary or array of multiple entry points.
       entry: {
-        index: 'src/index.ts',
+        node: 'src/index.node.ts',
         bin: 'bin/main.ts',
-        unplugin: 'src/loader/unplugin.ts',
+        browser: 'src/index.browser.ts',
       },
 
       name: '@udixio/theme',

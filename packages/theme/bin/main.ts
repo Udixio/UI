@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import chokidar from 'chokidar';
 import chalk from 'chalk';
-import { loadFromPath } from '../src';
+import { loadFromPath } from '../src/loader/load-from-path';
 
 const program = new Command();
 

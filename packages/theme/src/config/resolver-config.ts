@@ -1,4 +1,4 @@
-import { ConfigInterface } from './config.interface';
+import { ConfigInterface } from './index';
 import * as fs from 'node:fs';
 
 export interface ResolvedConfigResult {
