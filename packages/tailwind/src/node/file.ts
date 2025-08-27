@@ -1,8 +1,7 @@
 import * as fs from 'fs';
-import { replaceInFileSync } from 'replace-in-file';
+
 import * as console from 'node:console';
 import { dirname, join, normalize, resolve } from 'pathe';
-
 import chalk from 'chalk';
 
 // Fonction utilitaire universelle de normalisation des chemins
@@ -169,6 +168,8 @@ export const replaceFileContent = async (
   replacement: string,
 ): Promise<void> => {
   try {
+    const { replaceInFileSync } = await import('replace-in-file');
+
     const normalizedPath = await normalizePath(filePath);
 
     const results = replaceInFileSync({

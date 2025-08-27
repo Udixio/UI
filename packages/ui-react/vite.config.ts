@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
 import * as path from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
-import { vitePlugin } from '@udixio/theme/unplugin';
+import { vitePlugin } from '@udixio/theme';
 
 export default defineConfig(async () => ({
   root: __dirname,
@@ -37,6 +37,7 @@ export default defineConfig(async () => ({
       transformMixedEsModules: true,
     },
     lib: {
+      ssr: true,
       // Could also be a dictionary or array of multiple entry points.
       entry: 'src/index.ts',
       name: '@udixio/ui-react',

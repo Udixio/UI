@@ -1,12 +1,8 @@
-import { FontPlugin, PluginAbstract, PluginImplAbstract } from '@udixio/theme';
-import { ConfigCss } from './main';
+import { FontPlugin, PluginAbstract } from '@udixio/theme';
 
-interface TailwindPluginOptions {
-  // darkMode?: 'class' | 'media';
-  responsiveBreakPoints?: Record<string, number>;
-  styleFilePath?: string;
-  // subThemes?: Record<string, string>;
-}
+import { TailwindImplPluginBrowser, TailwindPluginOptions } from '../browser/tailwind.plugin';
+
+import { ConfigCss } from '../main';
 
 export class TailwindPlugin extends PluginAbstract<
   TailwindImplPlugin,
@@ -17,18 +13,8 @@ export class TailwindPlugin extends PluginAbstract<
   pluginClass = TailwindImplPlugin;
 }
 
-class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
-  private isNode: boolean;
-  public outputCss = '';
-  private colors: Record<
-    string,
-    {
-      light: string;
-      dark: string;
-    }
-  > = {};
-
-  private detectEnvironment(): boolean {
+class TailwindImplPlugin extends TailwindImplPluginBrowser {
+  private isNodeJs(): boolean {
     return (
       typeof process !== 'undefined' &&
       process.versions != null &&
@@ -36,20 +22,13 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
     );
   }
 
-  onInit() {
-    this.options.responsiveBreakPoints ??= {
-      lg: 1.125,
-    };
-    this.isNode = this.detectEnvironment();
-  }
+  override async onLoad() {
+    if (!this.isNodeJs()) {
+      await super.onLoad();
+      return;
+    }
+    const { join, resolve } = await import('pathe');
 
-  async loadFromBrowser() {
-    await import('@tailwindcss/browser');
-
-    this.loadColor();
-  }
-
-  async loadFromNode() {
     const {
       createOrUpdateFile,
       findProjectRoot,
@@ -57,8 +36,17 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
       getFileContent,
       replaceFileContent,
     } = await import('./file');
-
-    const { resolve, join } = await import('pathe');
+    this.colors = {};
+    for (const isDark of [false, true]) {
+      this.api.themes.update({ isDark: isDark });
+      for (const [key, value] of this.api.colors.getColors().entries()) {
+        const newKey = key
+          .replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2')
+          .toLowerCase();
+        this.colors[newKey] ??= { light: '', dark: '' };
+        this.colors[newKey][isDark ? 'dark' : 'light'] = value.getHex();
+      }
+    }
 
     let udixioCssPath = this.options.styleFilePath;
 
@@ -124,44 +112,5 @@ class TailwindImplPlugin extends PluginImplAbstract<TailwindPluginOptions> {
 }`;
 
     await createOrUpdateFile(udixioCssPath, this.outputCss);
-  }
-
-  loadColor() {
-    this.outputCss += `
-@custom-variant dark (&:where(.dark, .dark *));
-@theme {
-  --color-*: initial;
-  ${Object.entries(this.colors)
-    .map(([key, value]) => `--color-${key}: ${value.light};`)
-    .join('\n  ')}
-}
-@layer theme {
-  .dark {
-  ${Object.entries(this.colors)
-    .map(([key, value]) => `--color-${key}: ${value.dark};`)
-    .join('\n  ')}
-  }
-}
-`;
-  }
-
-  async onLoad() {
-    this.colors = {};
-    for (const isDark of [false, true]) {
-      this.api.themes.update({ isDark: isDark });
-      for (const [key, value] of this.api.colors.getColors().entries()) {
-        const newKey = key
-          .replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2')
-          .toLowerCase();
-        this.colors[newKey] ??= { light: '', dark: '' };
-        this.colors[newKey][isDark ? 'dark' : 'light'] = value.getHex();
-      }
-    }
-
-    if (!this.isNode) {
-      await this.loadFromBrowser();
-    } else {
-      await this.loadFromNode();
-    }
   }
 }
