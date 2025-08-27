@@ -1,3 +1,28 @@
+## 1.2.0 (2025-08-27)
+
+### 🚀 Features
+
+- **theme, tailwind, ui-react:** update package entries and async plugin resolution ([be9c65c](https://github.com/Udixio/UI/commit/be9c65c))
+- **theme:** add browser and node-specific entry points with updated exports ([349ae2d](https://github.com/Udixio/UI/commit/349ae2d))
+- **theme, ui-react, tailwind:** introduce node polyfills and improve async support ([f5c816a](https://github.com/Udixio/UI/commit/f5c816a))
+- **theme:** enhance loader with async support and API improvements ([d524dcf](https://github.com/Udixio/UI/commit/d524dcf))
+- **theme:** implement lazy loading for `unplugin` to optimize imports ([c7aa0c1](https://github.com/Udixio/UI/commit/c7aa0c1))
+- integrate `rollup-plugin-visualizer` into Vite configs ([c92311a](https://github.com/Udixio/UI/commit/c92311a))
+- **theme:** refactor loader with `unplugin` and enhance plugin support ([4b45480](https://github.com/Udixio/UI/commit/4b45480))
+- **theme:** enhance CLI with `commander` and better logging via `chalk` ([d1b2d56](https://github.com/Udixio/UI/commit/d1b2d56))
+- **theme:** simplify loader utilities and remove legacy adapters ([781847e](https://github.com/Udixio/UI/commit/781847e))
+- **theme:** refactor configuration management and introduce CLI support ([c68eaa9](https://github.com/Udixio/UI/commit/c68eaa9))
+
+### 🩹 Fixes
+
+- **theme:** update `exports` field for accurate node entry resolution ([b41202f](https://github.com/Udixio/UI/commit/b41202f))
+- **theme:** correct `exports` field for `node` entry mappings ([df9210f](https://github.com/Udixio/UI/commit/df9210f))
+- **theme:** update exports to use `unplugin` in loader index ([9f1dce4](https://github.com/Udixio/UI/commit/9f1dce4))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.1.0 (2025-08-25)
 
 ### 🚀 Features
