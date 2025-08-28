@@ -4,18 +4,22 @@ import {
   Hct,
   hexFromArgb,
 } from '@material/material-color-utilities';
-import { sourceColorStore } from '@/stores/colorStore.tsx';
+import { themeConfigStore } from '@/stores/themeConfigStore.ts';
 import { useStore } from '@nanostores/react';
 
 export const ColorPicker = () => {
-  const $sourceColor = useStore(sourceColorStore);
+  const $themeConfig = useStore(themeConfigStore);
 
-  const [hue, setHue] = useState(Hct.fromInt(argbFromHex($sourceColor)).hue);
+  const [hue, setHue] = useState(
+    Hct.fromInt(argbFromHex($themeConfig.sourceColor)).hue,
+  );
   const [chroma, setChroma] = useState(
-    Hct.fromInt(argbFromHex($sourceColor)).chroma,
+    Hct.fromInt(argbFromHex($themeConfig.sourceColor)).chroma,
   );
 
-  const [tone, setTone] = useState(Hct.fromInt(argbFromHex($sourceColor)).tone);
+  const [tone, setTone] = useState(
+    Hct.fromInt(argbFromHex($themeConfig.sourceColor)).tone,
+  );
 
   const currentColor = Hct.from(hue, chroma, tone);
   const hexColor = hexFromArgb(currentColor.toInt());
@@ -54,8 +58,8 @@ export const ColorPicker = () => {
     return `linear-gradient(to right, ${colors.join(', ')})`;
   }, [hue, chroma]);
 
-  if (hexColor !== $sourceColor) {
-    sourceColorStore.set(hexColor);
+  if (hexColor !== $themeConfig.sourceColor) {
+    themeConfigStore.set({ ...themeConfigStore.get(), sourceColor: hexColor });
   }
 
   return (

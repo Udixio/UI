@@ -1,16 +1,14 @@
-import { sourceColorStore } from '@/stores/colorStore.tsx';
+import { themeConfigStore } from '@/stores/themeConfigStore.ts';
 import { useStore } from '@nanostores/react';
 import { ThemeProvider as Theme } from '@udixio/ui-react';
-import config from '../../theme.config';
 
 export const ThemeProvider = () => {
-  const $sourceColor = useStore(sourceColorStore);
+  const $themeConfig = useStore(themeConfigStore);
 
   return (
     <Theme
       config={{
-        ...config,
-        sourceColor: $sourceColor,
+        ...$themeConfig,
       }}
     />
   );
