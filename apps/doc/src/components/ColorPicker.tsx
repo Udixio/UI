@@ -1,10 +1,21 @@
 import { useMemo, useState } from 'react';
-import { Hct, hexFromArgb } from '@material/material-color-utilities';
+import {
+  argbFromHex,
+  Hct,
+  hexFromArgb,
+} from '@material/material-color-utilities';
+import { sourceColorStore } from '@/stores/colorStore.tsx';
+import { useStore } from '@nanostores/react';
 
 export const ColorPicker = () => {
-  const [hue, setHue] = useState(180);
-  const [chroma, setChroma] = useState(50);
-  const [tone, setTone] = useState(50);
+  const $sourceColor = useStore(sourceColorStore);
+
+  const [hue, setHue] = useState(Hct.fromInt(argbFromHex($sourceColor)).hue);
+  const [chroma, setChroma] = useState(
+    Hct.fromInt(argbFromHex($sourceColor)).chroma,
+  );
+
+  const [tone, setTone] = useState(Hct.fromInt(argbFromHex($sourceColor)).tone);
 
   const currentColor = Hct.from(hue, chroma, tone);
   const hexColor = hexFromArgb(currentColor.toInt());
@@ -42,6 +53,10 @@ export const ColorPicker = () => {
     }
     return `linear-gradient(to right, ${colors.join(', ')})`;
   }, [hue, chroma]);
+
+  if (hexColor !== $sourceColor) {
+    sourceColorStore.set(hexColor);
+  }
 
   return (
     <div className="p-5 max-w-md mx-auto font-sans">
