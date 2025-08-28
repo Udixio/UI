@@ -1,3 +1,15 @@
+## 1.5.0 (2025-08-28)
+
+### 🚀 Features
+
+- **tailwind:** enhance browser integration with direct CSS compilation ([ac2caad](https://github.com/Udixio/UI/commit/ac2caad))
+- **tailwind:** refactor browser integration and update dependencies ([3698754](https://github.com/Udixio/UI/commit/3698754))
+- **tailwind:** implement browser-specific runtime for dynamic stylesheet handling ([da29439](https://github.com/Udixio/UI/commit/da29439))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.4.0 (2025-08-27)
 
 ### 🚀 Features
