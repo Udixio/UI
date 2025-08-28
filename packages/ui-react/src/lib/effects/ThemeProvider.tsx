@@ -31,8 +31,6 @@ export const ThemeProvider = ({ config }: { config: ConfigInterface }) => {
         setOutputCss(
           api.plugins.getPlugin(TailwindPlugin).getInstance().outputCss,
         );
-
-        console.log('Theme loaded');
       } catch (err) {
         console.error('Theme loading failed:', err);
         setError(err instanceof Error ? err.message : 'Theme loading failed');
