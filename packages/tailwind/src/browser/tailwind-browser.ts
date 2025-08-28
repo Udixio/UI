@@ -291,9 +291,37 @@ new MutationObserver((records) => {
   subtree: true,
 });
 
-export function tailwindBrowserInit() {
-  rebuild('full');
+export async function tailwindBrowserInit(cssInput: string): Promise<string> {
+  // Compile the provided CSS input directly (no <style type="text/tailwindcss"> management)
+  // Ensure we import tailwind base if user didn't include any @import to control build.
+  let css = cssInput || '';
+  if (!css.includes('@import')) {
+    css = `@import "tailwindcss";${css}`;
+  }
 
-  console.log(sheet);
-  document.head.append(sheet);
+  // Create a one-off compiler for this input and build all utilities for classes found in the document
+  I.start('Create compiler (direct)');
+  try {
+    compiler = await tailwindcss.compile(css, {
+      base: '/',
+      loadStylesheet,
+      loadModule,
+    });
+  } finally {
+    I.end('Create compiler (direct)');
+  }
+
+  // Collect classes from the current document and build the CSS
+  classes.clear();
+  const allClasses = new Set<string>();
+  for (const element of document.querySelectorAll('[class]')) {
+    for (const c of element.classList) {
+      allClasses.add(c);
+    }
+  }
+
+  const cssOutput = compiler.build(Array.from(allClasses));
+
+  // Return the compiled CSS directly as string without injecting/creating a <style> tag
+  return cssOutput;
 }

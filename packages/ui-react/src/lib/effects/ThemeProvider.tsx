@@ -47,10 +47,5 @@ export const ThemeProvider = ({ config }: { config: ConfigInterface }) => {
   if (!outputCss) {
     return null;
   }
-  return (
-    <style
-      type="text/tailwindcss"
-      dangerouslySetInnerHTML={{ __html: outputCss }}
-    />
-  );
+  return <style dangerouslySetInnerHTML={{ __html: outputCss }} />;
 };
