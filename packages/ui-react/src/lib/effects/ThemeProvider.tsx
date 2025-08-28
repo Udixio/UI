@@ -95,7 +95,6 @@ export const ThemeProvider = ({
   }, []);
 
   if (error) {
-    console.error('ThemeProvider error:', error);
     return null;
   }
 
