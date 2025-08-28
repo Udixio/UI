@@ -1,3 +1,18 @@
+## 1.5.0 (2025-08-28)
+
+### 🚀 Features
+
+- **theme:** add throttling to color updates in `ThemeProvider` ([1886b68](https://github.com/Udixio/UI/commit/1886b68))
+- **tailwind:** enhance browser integration with direct CSS compilation ([ac2caad](https://github.com/Udixio/UI/commit/ac2caad))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 1.5.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.4.0 (2025-08-27)
 
 ### 🚀 Features
