@@ -1,3 +1,22 @@
+## 1.4.0 (2025-08-27)
+
+### 🚀 Features
+
+- **theme, tailwind, ui-react:** update package entries and async plugin resolution ([be9c65c](https://github.com/Udixio/UI/commit/be9c65c))
+- **tailwind:** split browser and node-specific logic with updated exports ([5335caa](https://github.com/Udixio/UI/commit/5335caa))
+- **theme, ui-react, tailwind:** introduce node polyfills and improve async support ([f5c816a](https://github.com/Udixio/UI/commit/f5c816a))
+- **tailwind:** add `@tailwindcss/browser` support and improve environment handling ([166d850](https://github.com/Udixio/UI/commit/166d850))
+- integrate `rollup-plugin-visualizer` into Vite configs ([c92311a](https://github.com/Udixio/UI/commit/c92311a))
+- **tailwind:** improve file utilities with enhanced CLI logging using `chalk` ([a32de93](https://github.com/Udixio/UI/commit/a32de93))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 1.2.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.3.0 (2025-08-25)
 
 ### 🚀 Features
