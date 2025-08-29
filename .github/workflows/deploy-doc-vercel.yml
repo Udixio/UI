@@ -36,8 +36,8 @@ jobs:
           node-version: '22'
           cache: 'pnpm'
 
-      - name: Build
-        run: npx nx affected --target=build
+      - name: Build Doc
+        run: npx nx run apps-doc:build
 
       - name: Pull Vercel Environment Information
         working-directory: apps/doc
