@@ -6,6 +6,7 @@ export * from './divider.style';
 export * from './fab.style';
 export * from './icon-button.style';
 export * from './progress-indicator.style';
+export * from './slide-sheet.style';
 export * from './slider.style';
 export * from './snackbar.style';
 export * from './switch.style';

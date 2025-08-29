@@ -1,4 +1,4 @@
-import { type ConfigInterface, loader } from '@udixio/theme';
+import { type API, type ConfigInterface, loader } from '@udixio/theme';
 import { useEffect, useRef, useState } from 'react';
 import { TailwindPlugin } from '@udixio/tailwind';
 
@@ -10,11 +10,12 @@ function isValidHexColor(hexColorString: string) {
 export const ThemeProvider = ({
   config,
   throttleDelay = 100, // Délai par défaut de 300ms
+  onLoad,
 }: {
   config: ConfigInterface;
+  onLoad?: (api: API) => void;
   throttleDelay?: number;
 }) => {
-  const [error, setError] = useState<string | null>(null);
   const [outputCss, setOutputCss] = useState<null | string>(null);
 
   // Refs pour gérer le throttling
@@ -42,9 +43,9 @@ export const ThemeProvider = ({
     }
 
     // Programmer un nouveau changement de thème avec un délai
-    timeoutRef.current = setTimeout(() => {
+    timeoutRef.current = setTimeout(async () => {
       lastSourceColorRef.current = config.sourceColor;
-      applyThemeChange(config.sourceColor);
+      await applyThemeChange(config.sourceColor);
       timeoutRef.current = null;
     }, throttleDelay);
 
@@ -59,19 +60,16 @@ export const ThemeProvider = ({
 
   const applyThemeChange = async (sourceColor: string) => {
     if (!isValidHexColor(sourceColor)) {
-      setError('Invalid hex color');
-      return;
+      throw new Error('Invalid hex color');
     }
-
-    setError(null);
 
     try {
       // Mesure du temps de chargement de l'API
-      const api = await loader(config);
-      api.themes.update({
-        sourceColorHex: sourceColor,
+      const api = await loader({
+        ...config,
+        sourceColor,
       });
-      await api.load();
+      onLoad?.(api);
 
       const generatedCss = api.plugins
         .getPlugin(TailwindPlugin)
@@ -81,7 +79,9 @@ export const ThemeProvider = ({
         setOutputCss(generatedCss);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Theme loading failed');
+      throw new Error(
+        err instanceof Error ? err.message : 'Theme loading failed',
+      );
     }
   };
 
@@ -94,12 +94,7 @@ export const ThemeProvider = ({
     };
   }, []);
 
-  if (error) {
-    return null;
-  }
-
   if (!outputCss) {
-    console.error('ThemeProvider null');
     return null;
   }
 

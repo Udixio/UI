@@ -22,6 +22,29 @@ class TailwindImplPlugin extends TailwindImplPluginBrowser {
     );
   }
 
+  override loadColor() {
+    if (!this.isNodeJs()) {
+      super.loadColor();
+      return;
+    }
+    this.outputCss += `
+@custom-variant dark (&:where(.dark, .dark *));
+@theme {
+  --color-*: initial;
+  ${Object.entries(this.colors)
+    .map(([key, value]) => `--color-${key}: ${value.light};`)
+    .join('\n  ')}
+}
+@layer theme {
+  .dark {
+    ${Object.entries(this.colors)
+      .map(([key, value]) => `--color-${key}: ${value.dark};`)
+      .join('\n  ')}
+  }
+}
+`;
+  }
+
   override async onLoad() {
     if (!this.isNodeJs()) {
       await super.onLoad();

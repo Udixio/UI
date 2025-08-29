@@ -34,24 +34,27 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
 
   loadColor() {
     this.outputCss += `
-@custom-variant dark (&:where(.dark, .dark *));
-@theme {
-  --color-*: initial;
-  ${Object.entries(this.colors)
-    .map(([key, value]) => `--color-${key}: ${value.light};`)
-    .join('\n  ')}
+@variant dynamic-default (&:where(.dynamic, .dynamic *));
+@variant dynamic-dark (&:where(.dynamic:where(.dark, .dark *), .dark:where(.dynamic, .dynamic *)));
+@layer theme {
+  .dynamic {
+    ${Object.entries(this.colors)
+      .map(([key, value]) => `--color-${key}: ${value.light};`)
+      .join('\n  ')}
+  }
 }
 @layer theme {
-  .dark {
-  ${Object.entries(this.colors)
-    .map(([key, value]) => `--color-${key}: ${value.dark};`)
-    .join('\n  ')}
-  }
+  :is(.dynamic.dark, .dynamic .dark, .dark .dynamic) {
+    ${Object.entries(this.colors)
+      .map(([key, value]) => `--color-${key}: ${value.dark};`)
+      .join('\n  ')}
+    }
 }
 `;
   }
 
   async onLoad() {
+    console.log('onLoad');
     this.colors = {};
     for (const isDark of [false, true]) {
       this.api.themes.update({ isDark: isDark });
@@ -66,6 +69,7 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
 
     if (typeof window !== 'undefined') {
       const { tailwindBrowserInit } = await import('./tailwind-browser');
+
       this.outputCss = await tailwindBrowserInit(this.outputCss);
     }
 

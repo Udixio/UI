@@ -25,7 +25,7 @@ const {docSidebar} = Astro.props
   <title>Astro</title>
   <ClientRouter />
 </head>
-<body class="dark bg-surface text-on-surface">
+<body class="dark dynamic bg-surface text-on-surface">
 <main class="mx-auto flex justify-between">
   <div class="flex sticky top-0 h-screen">
     <Navigation  client:load  transition:name="navigation" transition:persist/>
@@ -33,7 +33,7 @@ const {docSidebar} = Astro.props
     <slot name="sidebar" />
   </div>
 
-  <div class="max-w-screen-lg flex flex-1 gap-8">
+  <div class="max-w-screen-lg flex flex-1 gap-8 mx-8">
     <div class="flex-1 overflow-auto">
       <slot />
     </div>
@@ -42,6 +42,6 @@ const {docSidebar} = Astro.props
     {docSidebar &&   <DocSidebar client:load />}
   </div>
 </main>
-<ThemeProvider client:load transition:name="theme-provider" transition:persist />
+<ThemeProvider client:idle transition:name="theme-provider" transition:persist />
 </body>
 </html>

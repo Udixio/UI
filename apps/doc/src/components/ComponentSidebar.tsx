@@ -1,5 +1,5 @@
 import { noCase, sentenceCase } from 'change-case';
-import { Button } from '@udixio/ui-react';
+import { Button, SlideSheet } from '@udixio/ui-react';
 import { useEffect, useState } from 'react';
 
 export const ComponentSidebar = ({
@@ -18,22 +18,28 @@ export const ComponentSidebar = ({
   }, [current]);
 
   return (
-    <nav className=" flex flex-col  p-4 bg-surface-container h-screen overflow-auto">
-      {components.map(({ slug }) => (
-        <Button
-          size="small"
-          href={`/components/${slug}/overview`}
-          className={'justify-start'}
-          label={sentenceCase(noCase(slug))}
-          onToggle={(value) => {
-            if (value) {
-              setActiveComponent(slug);
-            }
-          }}
-          activated={slug === activeComponent}
-          variant="filled"
-        />
-      ))}
-    </nav>
+    <SlideSheet
+      position={'left'}
+      className={'bg-surface-container'}
+      title={'Components'}
+    >
+      <nav className="flex flex-col  p-4">
+        {components.map(({ slug }) => (
+          <Button
+            size="small"
+            href={`/components/${slug}/overview`}
+            className={'justify-start'}
+            label={sentenceCase(noCase(slug))}
+            onToggle={(value) => {
+              if (value) {
+                setActiveComponent(slug);
+              }
+            }}
+            activated={slug === activeComponent}
+            variant="filled"
+          />
+        ))}
+      </nav>
+    </SlideSheet>
   );
 };

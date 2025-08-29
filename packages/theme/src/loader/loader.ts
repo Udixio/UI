@@ -52,12 +52,8 @@ export const loader = async (config: ConfigInterface) => {
     }
   };
 
-  const load = async () => {
-    await api.plugins.loadPlugins();
-  };
-
   init();
-  await load();
+  await api.load();
 
   return api;
 };

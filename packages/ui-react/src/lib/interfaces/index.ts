@@ -6,6 +6,7 @@ export * from './divider.interface';
 export * from './fab.interface';
 export * from './icon-button.interface';
 export * from './progress-indicator.interface';
+export * from './slide-sheet.interface';
 export * from './slider.interface';
 export * from './snackbar.interface';
 export * from './switch.interface';
