@@ -1,6 +1,9 @@
 import { FontPlugin, PluginAbstract } from '@udixio/theme';
 
-import { TailwindImplPluginBrowser, TailwindPluginOptions } from '../browser/tailwind.plugin';
+import {
+  TailwindImplPluginBrowser,
+  TailwindPluginOptions,
+} from '../browser/tailwind.plugin';
 
 import { ConfigCss } from '../main';
 
@@ -39,7 +42,7 @@ class TailwindImplPlugin extends TailwindImplPluginBrowser {
   .dark {
     ${Object.entries(this.colors)
       .map(([key, value]) => `--color-${key}: ${value.dark};`)
-      .join('\n  ')}
+      .join('\n    ')}
   }
 }
 `;
