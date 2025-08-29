@@ -5,6 +5,8 @@ import { ThemeProvider as Theme } from '@udixio/ui-react';
 export const ThemeProvider = () => {
   const $themeConfig = useStore(themeConfigStore);
 
+  console.log($themeConfig);
+
   return (
     <Theme
       config={{

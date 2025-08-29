@@ -1,4 +1,4 @@
-import { type ConfigInterface, loader } from '@udixio/theme';
+import { type API, type ConfigInterface, loader } from '@udixio/theme';
 import { useEffect, useRef, useState } from 'react';
 import { TailwindPlugin } from '@udixio/tailwind';
 
@@ -10,8 +10,10 @@ function isValidHexColor(hexColorString: string) {
 export const ThemeProvider = ({
   config,
   throttleDelay = 100, // Délai par défaut de 300ms
+  onLoad,
 }: {
   config: ConfigInterface;
+  onLoad?: (api: API) => void;
   throttleDelay?: number;
 }) => {
   const [error, setError] = useState<string | null>(null);
@@ -42,9 +44,9 @@ export const ThemeProvider = ({
     }
 
     // Programmer un nouveau changement de thème avec un délai
-    timeoutRef.current = setTimeout(() => {
+    timeoutRef.current = setTimeout(async () => {
       lastSourceColorRef.current = config.sourceColor;
-      applyThemeChange(config.sourceColor);
+      await applyThemeChange(config.sourceColor);
       timeoutRef.current = null;
     }, throttleDelay);
 
@@ -67,11 +69,11 @@ export const ThemeProvider = ({
 
     try {
       // Mesure du temps de chargement de l'API
-      const api = await loader(config);
-      api.themes.update({
-        sourceColorHex: sourceColor,
+      const api = await loader({
+        ...config,
+        sourceColor,
       });
-      await api.load();
+      onLoad?.(api);
 
       const generatedCss = api.plugins
         .getPlugin(TailwindPlugin)
