@@ -1,3 +1,18 @@
+## 1.6.0 (2025-08-29)
+
+### 🚀 Features
+
+- **tailwind:** add dynamic variant support and improve dark mode handling ([f5ea520](https://github.com/Udixio/UI/commit/f5ea520))
+
+### 🩹 Fixes
+
+- **tailwind:** correct export paths in package.json for node builds ([1e5e6d3](https://github.com/Udixio/UI/commit/1e5e6d3))
+- **tailwind:** refine color handling and improve theme initialization ([dbb2254](https://github.com/Udixio/UI/commit/dbb2254))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.5.0 (2025-08-28)
 
 ### 🚀 Features
