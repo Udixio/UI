@@ -16,7 +16,6 @@ export const ThemeProvider = ({
   onLoad?: (api: API) => void;
   throttleDelay?: number;
 }) => {
-  const [error, setError] = useState<string | null>(null);
   const [outputCss, setOutputCss] = useState<null | string>(null);
 
   // Refs pour gérer le throttling
@@ -61,11 +60,8 @@ export const ThemeProvider = ({
 
   const applyThemeChange = async (sourceColor: string) => {
     if (!isValidHexColor(sourceColor)) {
-      setError('Invalid hex color');
-      return;
+      throw new Error('Invalid hex color');
     }
-
-    setError(null);
 
     try {
       // Mesure du temps de chargement de l'API
@@ -83,7 +79,9 @@ export const ThemeProvider = ({
         setOutputCss(generatedCss);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Theme loading failed');
+      throw new Error(
+        err instanceof Error ? err.message : 'Theme loading failed',
+      );
     }
   };
 
@@ -96,12 +94,7 @@ export const ThemeProvider = ({
     };
   }, []);
 
-  if (error) {
-    return null;
-  }
-
   if (!outputCss) {
-    console.error('ThemeProvider null');
     return null;
   }
 
