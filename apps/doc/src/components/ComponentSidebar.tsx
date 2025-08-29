@@ -1,5 +1,5 @@
 import { noCase, sentenceCase } from 'change-case';
-import { Button, SlideSheet } from '@udixio/ui-react';
+import { Button, SideSheet } from '@udixio/ui-react';
 import { useEffect, useState } from 'react';
 
 export const ComponentSidebar = ({
@@ -18,7 +18,7 @@ export const ComponentSidebar = ({
   }, [current]);
 
   return (
-    <SlideSheet
+    <SideSheet
       position={'left'}
       className={'bg-surface-container'}
       title={'Components'}
@@ -40,6 +40,6 @@ export const ComponentSidebar = ({
           />
         ))}
       </nav>
-    </SlideSheet>
+    </SideSheet>
   );
 };
