@@ -25,12 +25,12 @@ export interface NavigationRailInterface {
     selectedItem?: number | null;
     setSelectedItem?: Dispatch<SetStateAction<number | null>>;
     extended?: boolean;
+    onExtendedChange?: (extended: boolean) => void;
     alignment?: 'middle' | 'top';
     menu?: {
       closed: MenuState;
       opened: MenuState;
     };
-    onExtendedChange?: (extended: boolean) => void;
 
     transition?: Transition;
   };

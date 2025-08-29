@@ -9,6 +9,7 @@ export * from './IconButton';
 export * from './IconButton';
 export * from './ProgressIndicator';
 export * from './Slider';
+export * from './SlideSheet';
 export * from './Snackbar';
 export * from './Switch';
 export * from './Tab';
