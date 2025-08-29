@@ -1,14 +1,14 @@
 import { classNames, defaultClassNames } from '../utils';
-import { SlideSheetInterface } from '../interfaces/slide-sheet.interface';
+import { SideSheetInterface } from '../interfaces/side-sheet.interface';
 
-export const slideSheetStyle = defaultClassNames<SlideSheetInterface>(
+export const sideSheetStyle = defaultClassNames<SideSheetInterface>(
   'slideSheet',
   ({ variant, position }) => ({
     slideSheet: classNames(
       'bg-surface flex justify-between  max-w-xs z-10',
       {
         'flex-row-reverse': position == 'right',
-        'h-screen': variant == 'standard',
+        'h-full': variant == 'standard',
       },
       variant == 'modal' && [
         'rounded-2xl fixed top-0 m-[1rem] h-[calc(100dvh-2rem)]',

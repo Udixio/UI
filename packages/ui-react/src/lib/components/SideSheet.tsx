@@ -1,6 +1,6 @@
 import { MotionProps } from '../utils';
-import { SlideSheetInterface } from '../interfaces';
-import { slideSheetStyle } from '../styles';
+import { SideSheetInterface } from '../interfaces';
+import { sideSheetStyle } from '../styles';
 import { Divider } from './Divider';
 
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
@@ -14,23 +14,24 @@ import { AnimatePresence, motion } from 'motion/react';
  * @status beta
  * @category Layout
  */
-export const SlideSheet = ({
+export const SideSheet = ({
   variant = 'standard',
   className,
   children,
   title,
   position = 'right',
   extended,
+  divider,
   onExtendedChange,
   closeIcon = faXmark,
   transition,
   ...rest
-}: MotionProps<SlideSheetInterface>) => {
+}: MotionProps<SideSheetInterface>) => {
   transition = { duration: 0.3, ...transition };
 
   const [isExtended, setIsExtended] = useState(extended ?? true);
 
-  const styles = slideSheetStyle({
+  const styles = sideSheetStyle({
     transition,
     title,
     position,
@@ -38,6 +39,7 @@ export const SlideSheet = ({
     className,
     children,
     onExtendedChange,
+    divider,
     isExtended,
     extended: isExtended,
     variant,
@@ -107,7 +109,11 @@ export const SlideSheet = ({
                 {children}
               </div>
             </motion.div>
-            <Divider className={styles.divider} orientation="vertical" />
+            {(divider == undefined && variant == 'standard'
+              ? true
+              : divider) && (
+              <Divider className={styles.divider} orientation="vertical" />
+            )}
           </div>
         )}
       </AnimatePresence>

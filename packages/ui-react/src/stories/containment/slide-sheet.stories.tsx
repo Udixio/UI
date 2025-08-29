@@ -1,15 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import {
-  MotionProps,
-  ReactProps,
-  SlideSheet,
-  SlideSheetInterface,
-} from '../../';
+import { MotionProps, ReactProps, SideSheet, SideSheetInterface } from '../../';
 
 // More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
   title: 'containment/SlideSheet',
-  component: SlideSheet,
+  component: SideSheet,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/react/configure/story-layout
   },
@@ -17,7 +12,7 @@ const meta = {
   tags: ['autodocs'],
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
   argTypes: {},
-} satisfies Meta<typeof SlideSheet>;
+} satisfies Meta<typeof SideSheet>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -25,17 +20,17 @@ type Story = StoryObj<typeof meta>;
 // More on writing stories with args: https://storybook.js.org/docs/react/writing-stories/args
 
 const createSlideSheetStory = (
-  variant: ReactProps<SlideSheetInterface>['variant'],
+  variant: ReactProps<SideSheetInterface>['variant'],
 ) => {
-  const SlideSheetStory: Story = (args: MotionProps<SlideSheetInterface>) => (
+  const SlideSheetStory: Story = (args: MotionProps<SideSheetInterface>) => (
     <>
       <div
         className={
           'bg-surface-container-highest h-screen w-full flex justify-between'
         }
       >
-        <SlideSheet position={'left'} {...args}></SlideSheet>
-        <SlideSheet position={'right'} {...args}></SlideSheet>
+        <SideSheet position={'left'} {...args}></SideSheet>
+        <SideSheet position={'right'} {...args}></SideSheet>
       </div>
     </>
   );
