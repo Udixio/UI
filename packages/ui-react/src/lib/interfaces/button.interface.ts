@@ -1,6 +1,6 @@
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { ActionOrLink } from '../utils';
 import { Transition } from 'motion';
+import { Icon } from '../icon';
 
 type Props = {
   /**
@@ -32,7 +32,7 @@ type Props = {
   /**
    * An optional icon to display in the button.
    */
-  icon?: IconDefinition;
+  icon?: Icon;
 
   iconPosition?: 'left' | 'right';
 

@@ -4,7 +4,7 @@ import { CodePreview } from '@/components/CodePreview';
 
 const { 'data-code': code, 'data-language': language } = Astro.props;
 ---
-<CodePreview client:load code={language == 'jsx' ? code : undefined}>
+<CodePreview client:load code={code} preview={language == 'jsx'}>
   <Code code={code} lang={language} defaultColor={false} />
 </CodePreview>
 <style is:global>

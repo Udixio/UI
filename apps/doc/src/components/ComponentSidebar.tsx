@@ -18,7 +18,7 @@ export const ComponentSidebar = ({
   }, [current]);
 
   return (
-    <nav className="sticky top-0 flex flex-col  p-4 bg-surface-container h-screen overflow-auto">
+    <nav className=" flex flex-col  p-4 bg-surface-container h-screen overflow-auto">
       {components.map(({ slug }) => (
         <Button
           size="small"

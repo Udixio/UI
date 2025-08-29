@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
 import * as path from 'path';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 const getUdixioVite = async () => {
   // @ts-expect-error - NX_GRAPH_CREATION is a global variable set by Nx
@@ -10,7 +11,7 @@ const getUdixioVite = async () => {
     return;
   } else {
     const dynamicPath = '@udixio/theme';
-    return (await import(dynamicPath)).udixioVite();
+    return (await import(dynamicPath)).vitePlugin;
   }
 };
 
@@ -23,6 +24,12 @@ export default defineConfig(async () => ({
     dts({
       entryRoot: 'src',
       tsconfigPath: path.join(__dirname, 'tsconfig.lib.json'),
+    }),
+    visualizer({
+      filename: '../../stats/ui-react.html',
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
     }),
   ],
   // Uncomment this if you are using workers.
@@ -39,6 +46,7 @@ export default defineConfig(async () => ({
       transformMixedEsModules: true,
     },
     lib: {
+      ssr: true,
       // Could also be a dictionary or array of multiple entry points.
       entry: 'src/index.ts',
       name: '@udixio/ui-react',
@@ -58,8 +66,9 @@ export default defineConfig(async () => ({
         'react-textarea-autosize',
         'tailwind-merge',
         'motion',
-        'motion/react',
         '@udixio/theme',
+        '@udixio/tailwind',
+        'motion/react',
       ],
     },
   },

@@ -1,0 +1,29 @@
+---
+import '@/styles/global.css';
+import { getCollection, render } from 'astro:content';
+import { Button, Divider } from '@udixio/ui-react';
+import { sentenceCase, kebabCase } from 'change-case';
+import { ComponentSidebar } from '@/components/ComponentSidebar';
+import { Navigation } from '@/components/Navigation';
+import { ClientRouter } from 'astro:transitions';
+import { DocSidebar } from '@/components/DocSidebar';
+import Layout from '@/layouts/layout.astro';
+
+const apis = await getCollection('api');
+
+const pathName = Astro.url.pathname;
+
+
+---
+<Layout docSidebar>
+  <Fragment slot="sidebar"> <!-- pass table header -->
+    <ComponentSidebar  client:load  transition:name="component-sidebar" transition:persist
+                      current={pathName.startsWith('/components') ? pathName.split('/').filter(Boolean)[1] : null}
+                      components={apis.filter(api => !Object.keys(api.data.tags).includes('parent')).map(({ id }) => ({
+                        slug: id
+                      }))}
+    />
+  </Fragment>
+  <slot/>
+
+</Layout>

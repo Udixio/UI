@@ -1,6 +1,6 @@
 {
   "name": "@udixio/ui-react",
-  "version": "1.1.0",
+  "version": "1.5.0",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -21,16 +21,16 @@
   },
   "dependencies": {
     "throttle-debounce": "^5.0.2",
-    "clsx": "^2.1.1",
+    "clsx": "^1.1.1",
     "react-textarea-autosize": "^8.5.9",
     "motion": "^12.23.0",
     "tailwind-merge": "^3.3.1",
     "uuid": "^11.0.3",
-    "@fortawesome/fontawesome-svg-core": "^6.7.2",
-    "@fortawesome/free-brands-svg-icons": "^6.7.2",
-    "@fortawesome/free-regular-svg-icons": "^6.7.2",
-    "@fortawesome/free-solid-svg-icons": "^6.7.2",
-    "@fortawesome/react-fontawesome": "^0.2.2"
+    "@fortawesome/fontawesome-svg-core": "^7.0.0",
+    "@fortawesome/free-brands-svg-icons": "^7.0.0",
+    "@fortawesome/free-regular-svg-icons": "^7.0.0",
+    "@fortawesome/free-solid-svg-icons": "^7.0.0",
+    "@fortawesome/react-fontawesome": "^3.0.0"
   },
   "devDependencies": {
     "@udixio/theme": "workspace:*",

@@ -2,11 +2,12 @@ import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { IconButtonVariant } from '../components/IconButton';
 import { ActionOrLink } from '../utils/component';
 import { Transition } from 'motion';
+import { Icon } from '../icon';
 
 type Props = {
   label?: string;
   children?: string;
-  icon: IconDefinition;
+  icon: Icon;
   size?: 'xSmall' | 'small' | 'medium' | 'large' | 'xLarge';
   width?: 'default' | 'narrow' | 'wide';
   iconSelected?: IconDefinition;

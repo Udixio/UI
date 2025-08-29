@@ -1,16 +1,20 @@
 ---
 import '@/styles/global.css';
 import { getCollection, render } from 'astro:content';
-import { Button } from '@udixio/ui-react';
+import { Button, Divider } from '@udixio/ui-react';
 import { sentenceCase, kebabCase } from 'change-case';
 import { ComponentSidebar } from '@/components/ComponentSidebar';
+import { Navigation } from '@/components/Navigation';
 import { ClientRouter } from 'astro:transitions';
 import { DocSidebar } from '@/components/DocSidebar';
+import { ThemeProvider } from '@/components/theme/ThemeProvider';
 
 const apis = await getCollection('api');
 
 const pathName = Astro.url.pathname;
 
+
+const {docSidebar} = Astro.props
 ---
 
 <html lang="en">
@@ -23,20 +27,21 @@ const pathName = Astro.url.pathname;
 </head>
 <body class="dark bg-surface text-on-surface">
 <main class="mx-auto flex justify-between">
-  <ComponentSidebar current={pathName.startsWith('/components') ? pathName.split('/').filter(Boolean)[1] : null} transition:name="component-sidebar"
-                    transition:persist client:load
-                    components={apis.filter(api => !Object.keys(api.data.tags).includes('parent')).map(({ id }) => ({
-                      slug: id
-                    }))}
-  />
+  <div class="flex sticky top-0 h-screen">
+    <Navigation  client:load  transition:name="navigation" transition:persist/>
+    <Divider orientation="vertical" />
+    <slot name="sidebar" />
+  </div>
+
   <div class="max-w-screen-lg flex flex-1 gap-8">
     <div class="flex-1 overflow-auto">
       <slot />
     </div>
-    <DocSidebar client:load />
   </div>
-  <div></div>
+  <div>
+    {docSidebar &&   <DocSidebar client:load />}
+  </div>
 </main>
-
+<ThemeProvider client:load transition:name="theme-provider" transition:persist />
 </body>
 </html>

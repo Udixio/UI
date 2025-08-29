@@ -1,11 +1,11 @@
 import { Dispatch, ReactNode, RefObject, SetStateAction } from 'react';
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { Transition } from 'motion';
 import { ReactProps } from '../utils';
 import { NavigationRailItemInterface } from './navigation-rail-item.interface';
+import { Icon } from '../icon';
 
 type MenuState = {
-  icon: IconDefinition;
+  icon: Icon;
   label: string;
 };
 
@@ -19,7 +19,7 @@ export interface NavigationRailInterface {
         'label' | 'icon'
       > & {
           ref: RefObject<any>;
-        }
+        },
     ) => void;
     children: ReactNode;
     selectedItem?: number | null;

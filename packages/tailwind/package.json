@@ -1,21 +1,34 @@
 {
   "name": "@udixio/tailwind",
-  "version": "1.2.1",
+  "version": "1.5.0",
   "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/node.js",
+  "module": "./dist/node.js",
+  "types": "./dist/node.d.ts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "development": "./src/index.ts",
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.js"
+      "development": "./src/index.node.ts",
+      "types": "./dist/index.node.d.ts",
+      "browser": {
+        "import": "./dist/browser.js",
+        "require": "./dist/browser.cjs",
+        "default": "./dist/browser.js"
+      },
+      "node": {
+        "import": "./dist/node.js",
+        "require": "./dist/node.cjs",
+        "default": "./dist/node.js"
+      },
+      "import": "./dist/browser.js",
+      "require": "./dist/browser.cjs",
+      "default": "./dist/browser.js"
     }
   },
   "dependencies": {
+    "tailwindcss": "^4.1.12",
+    "chalk": "^5.6.0",
+    "pathe": "^2.0.3",
     "@udixio/theme": "workspace:*",
     "tslib": "^2.3.0"
   },

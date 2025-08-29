@@ -1,4 +1,4 @@
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { Icon } from '../icon';
 
 export interface SnackbarInterface {
   type: 'div';
@@ -6,7 +6,7 @@ export interface SnackbarInterface {
     duration?: number;
     onClose?: () => void;
     message: string;
-    closeIcon?: IconDefinition;
+    closeIcon?: Icon;
   };
   states: { isVisible: boolean };
   elements: ['snackbar', 'container', 'supportingText', 'action', 'icon'];

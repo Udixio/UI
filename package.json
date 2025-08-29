@@ -20,6 +20,7 @@
     "copy-license": "for d in ./packages/*/dist/; do cp LICENSE \"$d\"; done"
   },
   "devDependencies": {
+    "vite-plugin-node-polyfills": "^0.24.0",
     "@emotion/is-prop-valid": "^1.3.1",
     "@nrwl/cli": "^15.0.0",
     "@nrwl/nx-cloud": "latest",

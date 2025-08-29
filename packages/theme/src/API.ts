@@ -20,4 +20,8 @@ export class API {
     this.colors = colorApi;
     this.themes = themeApi;
   }
+
+  async load() {
+    return this.plugins.loadPlugins();
+  }
 }

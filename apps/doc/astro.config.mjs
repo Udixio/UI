@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
-import { udixioVite } from '@udixio/theme';
+import { vitePlugin } from '@udixio/theme';
 
 import vercel from '@astrojs/vercel';
 
@@ -13,7 +13,7 @@ import vercel from '@astrojs/vercel';
 export default defineConfig({
   output: 'static',
   vite: {
-    plugins: [tailwindcss(), udixioVite()],
+    plugins: [tailwindcss(), vitePlugin()],
   },
 
   markdown: {

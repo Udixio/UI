@@ -1,3 +1,74 @@
+## 1.5.0 (2025-08-28)
+
+### 🚀 Features
+
+- **theme:** add throttling to color updates in `ThemeProvider` ([1886b68](https://github.com/Udixio/UI/commit/1886b68))
+- **tailwind:** enhance browser integration with direct CSS compilation ([ac2caad](https://github.com/Udixio/UI/commit/ac2caad))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 1.5.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 1.4.0 (2025-08-27)
+
+### 🚀 Features
+
+- **ui-react:** add `clsx` dependency for enhanced className handling ([53e2a28](https://github.com/Udixio/UI/commit/53e2a28))
+- **theme, tailwind, ui-react:** update package entries and async plugin resolution ([be9c65c](https://github.com/Udixio/UI/commit/be9c65c))
+- **tailwind:** split browser and node-specific logic with updated exports ([5335caa](https://github.com/Udixio/UI/commit/5335caa))
+- **theme, ui-react, tailwind:** introduce node polyfills and improve async support ([f5c816a](https://github.com/Udixio/UI/commit/f5c816a))
+- **ui-react:** replace `udixioVite` with `vitePlugin` in Vite config and clean up CSS file ([1abc885](https://github.com/Udixio/UI/commit/1abc885))
+- integrate `rollup-plugin-visualizer` into Vite configs ([c92311a](https://github.com/Udixio/UI/commit/c92311a))
+- **theme:** simplify loader utilities and remove legacy adapters ([781847e](https://github.com/Udixio/UI/commit/781847e))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 1.4.0
+- Updated @udixio/theme to 1.2.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 1.3.0 (2025-08-25)
+
+### 🚀 Features
+
+- **doc:** refactor navigation and layout structure for consistency ([644c21a](https://github.com/Udixio/UI/commit/644c21a))
+
+### 🩹 Fixes
+
+- **ui-react:** update `NavigationRailItem` animation handling ([0ed4606](https://github.com/Udixio/UI/commit/0ed4606))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 1.3.0
+- Updated @udixio/theme to 1.1.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 1.2.0 (2025-08-23)
+
+### 🚀 Features
+
+- **ui-react:** introduce `Icon` type and update `Icon` component interface ([ea01bfb](https://github.com/Udixio/UI/commit/ea01bfb))
+- **ui-react:** replace `IconDefinition` with `Icon` in component interfaces ([819ebe1](https://github.com/Udixio/UI/commit/819ebe1))
+- **ui-react:** enhance `Icon` component to support multiple icon types ([86b1c58](https://github.com/Udixio/UI/commit/86b1c58))
+
+### 🩹 Fixes
+
+- **ui-react:** improve readability in `navigation-rail-item.style.ts` ([a7098eb](https://github.com/Udixio/UI/commit/a7098eb))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.1.0 (2025-08-22)
 
 ### 🚀 Features
