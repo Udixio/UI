@@ -25,29 +25,6 @@ class TailwindImplPlugin extends TailwindImplPluginBrowser {
     );
   }
 
-  override loadColor() {
-    if (!this.isNodeJs()) {
-      super.loadColor();
-      return;
-    }
-    this.outputCss += `
-@custom-variant dark (&:where(.dark, .dark *));
-@theme {
-  --color-*: initial;
-  ${Object.entries(this.colors)
-    .map(([key, value]) => `--color-${key}: ${value.light};`)
-    .join('\n  ')}
-}
-@layer theme {
-  .dark {
-    ${Object.entries(this.colors)
-      .map(([key, value]) => `--color-${key}: ${value.dark};`)
-      .join('\n    ')}
-  }
-}
-`;
-  }
-
   override async onLoad() {
     if (!this.isNodeJs()) {
       await super.onLoad();
@@ -62,17 +39,8 @@ class TailwindImplPlugin extends TailwindImplPluginBrowser {
       getFileContent,
       replaceFileContent,
     } = await import('./file');
-    this.colors = {};
-    for (const isDark of [false, true]) {
-      this.api.themes.update({ isDark: isDark });
-      for (const [key, value] of this.api.colors.getColors().entries()) {
-        const newKey = key
-          .replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2')
-          .toLowerCase();
-        this.colors[newKey] ??= { light: '', dark: '' };
-        this.colors[newKey][isDark ? 'dark' : 'light'] = value.getHex();
-      }
-    }
+
+    const colors = this.getColors();
 
     let udixioCssPath = this.options.styleFilePath;
 
@@ -101,7 +69,7 @@ class TailwindImplPlugin extends TailwindImplPluginBrowser {
       .getFonts();
 
     const configCss: ConfigCss = {
-      colorKeys: Object.keys(this.colors).join(', ') as any,
+      colorKeys: Object.keys(colors).join(', ') as any,
       fontStyles: Object.entries(fontStyles)
         .map(([fontRole, fontStyle]) =>
           Object.entries(fontStyle)
@@ -126,7 +94,7 @@ class TailwindImplPlugin extends TailwindImplPluginBrowser {
   fontStyles: ${configCss.fontStyles};
   responsiveBreakPoints: ${configCss.responsiveBreakPoints};
 }`;
-    this.loadColor();
+    this.loadColor({ isDynamic: false });
     this.outputCss += `
 @theme {
   ${Object.entries(fontFamily)
