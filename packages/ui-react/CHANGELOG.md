@@ -1,3 +1,17 @@
+## 1.6.1 (2025-08-31)
+
+### 🩹 Fixes
+
+- **ui-react:** rename `SlideSheet` to `SideSheet` and update associated files ([9cc5293](https://github.com/Udixio/UI/commit/9cc5293))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 1.7.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.6.0 (2025-08-29)
 
 ### 🚀 Features

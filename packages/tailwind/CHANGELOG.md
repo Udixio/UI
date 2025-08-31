@@ -1,3 +1,17 @@
+## 1.7.0 (2025-08-31)
+
+### 🚀 Features
+
+- **tailwind:** enhance dynamic theming with flexible CSS selectors ([64bef44](https://github.com/Udixio/UI/commit/64bef44))
+
+### 🩹 Fixes
+
+- **tailwind:** correct indentation in dynamic CSS generation and adjust imports ([701599f](https://github.com/Udixio/UI/commit/701599f))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.6.0 (2025-08-29)
 
 ### 🚀 Features
