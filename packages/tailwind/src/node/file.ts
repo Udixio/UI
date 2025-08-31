@@ -56,7 +56,7 @@ export const createOrUpdateFile = async (
   content: string,
 ): Promise<void> => {
   try {
-    const normalizedPath = normalizePath(filePath);
+    const normalizedPath = await normalizePath(filePath);
 
     if (!(await safeExistsSync(filePath))) {
       await safeWriteFileSync(filePath, content);
@@ -91,7 +91,7 @@ export const getFileContent = async (
   searchPattern?: RegExp | string,
 ): Promise<string | false | null> => {
   try {
-    const normalizedPath = normalizePath(filePath);
+    const normalizedPath = await normalizePath(filePath);
 
     // Vérifier si le fichier existe
     if (!(await safeExistsSync(filePath))) {
