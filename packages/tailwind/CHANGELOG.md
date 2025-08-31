@@ -1,3 +1,13 @@
+## 1.7.1 (2025-08-31)
+
+### 🩹 Fixes
+
+- **tailwind:** make `normalizePath` asynchronous in file handling methods ([510dd53](https://github.com/Udixio/UI/commit/510dd53))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.7.0 (2025-08-31)
 
 ### 🚀 Features
