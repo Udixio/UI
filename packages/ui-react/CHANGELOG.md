@@ -1,3 +1,22 @@
+## 1.6.0 (2025-08-29)
+
+### 🚀 Features
+
+- **ui-react:** add SlideSheet component with styles, interface, and stories ([b9d493c](https://github.com/Udixio/UI/commit/b9d493c))
+- **theme:** add `onLoad` callback and enhance theme update logic ([7778504](https://github.com/Udixio/UI/commit/7778504))
+
+### 🩹 Fixes
+
+- **ui-react:** remove error state and replace with exception handling in ThemeProvider ([b8087e4](https://github.com/Udixio/UI/commit/b8087e4))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 1.6.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.5.0 (2025-08-28)
 
 ### 🚀 Features
