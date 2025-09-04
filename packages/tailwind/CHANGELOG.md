@@ -1,3 +1,17 @@
+## 1.7.3 (2025-09-04)
+
+### 🩹 Fixes
+
+- the external colors must be coherent ([08cd685](https://github.com/Udixio/UI/commit/08cd685))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 1.3.1
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.7.2 (2025-09-04)
 
 ### 🧱 Updated Dependencies
