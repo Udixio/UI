@@ -1,4 +1,5 @@
 import { FontPlugin, PluginAbstract, PluginImplAbstract } from '@udixio/theme';
+import { argbFromHex, Hct, hexFromArgb } from '@material/material-color-utilities';
 
 export interface TailwindPluginOptions {
   darkMode?: 'class' | 'media';
@@ -157,14 +158,18 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
   })} 
 }`;
 
+    const sourceColor = this.api.themes.sourceColorHex;
     for (const [key, value] of Object.entries(this.options.subThemes ?? {})) {
-      this.api.themes.update({ sourceColorHex: value });
+      const newHue = Hct.fromInt(argbFromHex(value)).hue;
+      const newColor = Hct.from(newHue, sourceColor.chroma, sourceColor.tone);
+
+      this.api.themes.update({ sourceColorHex: hexFromArgb(newColor.toInt()) });
       const colors = this.getColors();
       this.outputCss += `
 @layer theme {
   ${createFlexibleSelector(dynamicSelector, '.theme-' + key)} {
     ${Object.entries(colors)
-      .map(([key, value]) => `--color-${key}: ${value.dark};`)
+      .map(([key, value]) => `--color-${key}: ${value.light};`)
       .join('\n    ')}
     }
 }

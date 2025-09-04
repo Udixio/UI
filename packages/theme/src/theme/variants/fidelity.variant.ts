@@ -33,6 +33,6 @@ export const fidelityVariant: Variant = {
       return TonalPalette.fromHueAndChroma(errorHue, 60);
     },
   },
-  customPalettes: ({ colorHct }) =>
-    TonalPalette.fromHueAndChroma(colorHct.hue, colorHct.chroma),
+  customPalettes: ({ colorHct , sourceColorHct}) =>
+    TonalPalette.fromHueAndChroma(colorHct.hue, sourceColorHct.chroma),
 };

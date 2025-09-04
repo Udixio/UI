@@ -52,6 +52,10 @@ export class ThemeApi {
   //   return this.theme();
   // }
 
+  get sourceColorHex() {
+    return this.schemeManager.get().sourceColorHct;
+  }
+
   create(options: ThemeOptions & { variant: Variant }) {
     this.schemeManager.createOrUpdate({
       ...options,
