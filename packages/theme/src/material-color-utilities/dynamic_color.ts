@@ -21,7 +21,6 @@ import {
   TonalPalette,
 } from '@material/material-color-utilities';
 import { ContrastCurve } from './contrastCurve';
-import { ToneDeltaPair } from './toneDeltaPair';
 import { Scheme } from '../theme/scheme';
 import { Hct } from './htc';
 
@@ -46,7 +45,7 @@ import { Hct } from './htc';
  *     against its background should behave in various contrast levels options.
  *     Must used together with `background`. When not provided or resolved as
  *     undefined, the contrast curve is calculated based on other constraints.
- * @param toneDeltaPair A `ToneDeltaPair` object specifying a tone delta
+ * @param adjustTone A `AdjustTone` object specifying a tone delta
  *     constraint between two colors. One of them must be the color being
  *     constructed. When not provided or resolved as undefined, the tone is
  *     calculated based on other constraints.
@@ -60,48 +59,13 @@ export interface FromPaletteOptions {
   background?: (scheme: Scheme) => DynamicColor | undefined;
   secondBackground?: (scheme: Scheme) => DynamicColor | undefined;
   contrastCurve?: (scheme: Scheme) => ContrastCurve | undefined;
-  toneDeltaPair?: (scheme: Scheme) => ToneDeltaPair | undefined;
+  adjustTone?: (scheme: Scheme) => AdjustTone | undefined;
 }
 
-/**
- * Returns a new DynamicColor that is the same as the original color, but with
- * the extended dynamic color's constraints for the given spec version.
- *
- * @param originlColor The original color.
- * @param specVersion The spec version to extend.
- * @param extendedColor The color with the values to extend.
- */
-export function extendSpecVersion(
-  originlColor: DynamicColor,
-  extendedColor: DynamicColor,
-): DynamicColor {
-  return DynamicColor.fromPalette({
-    name: originlColor.name,
-    palette: (s) => extendedColor.palette(s),
-    tone: (s) => extendedColor.tone(s),
-    isBackground: originlColor.isBackground,
-    chromaMultiplier: (s) => {
-      const chromaMultiplier = extendedColor.chromaMultiplier;
-      return chromaMultiplier !== undefined ? chromaMultiplier(s) : 1;
-    },
-    background: (s) => {
-      const background = extendedColor.background;
-      return background !== undefined ? background(s) : undefined;
-    },
-    secondBackground: (s) => {
-      const secondBackground = extendedColor.secondBackground;
-      return secondBackground !== undefined ? secondBackground(s) : undefined;
-    },
-    contrastCurve: (s) => {
-      const contrastCurve = extendedColor.contrastCurve;
-      return contrastCurve !== undefined ? contrastCurve(s) : undefined;
-    },
-    toneDeltaPair: (s) => {
-      const toneDeltaPair = extendedColor.toneDeltaPair;
-      return toneDeltaPair !== undefined ? toneDeltaPair(s) : undefined;
-    },
-  });
-}
+export type AdjustTone = (args: {
+  scheme: Scheme;
+  dynamicColor: DynamicColor;
+}) => number;
 
 /**
  * A color that adjusts itself based on UI state provided by DynamicScheme.
@@ -146,7 +110,7 @@ export class DynamicColor {
    * @param contrastCurve A `ContrastCurve` object specifying how its contrast
    *     against its background should behave in various contrast levels
    *     options.
-   * @param toneDeltaPair A `ToneDeltaPair` object specifying a tone delta
+   * @param adjustTone A `AdjustTone` object specifying a tone delta
    *     constraint between two colors. One of them must be the color being
    *     constructed.
    */
@@ -159,7 +123,7 @@ export class DynamicColor {
     readonly background?: (scheme: Scheme) => DynamicColor | undefined,
     readonly secondBackground?: (scheme: Scheme) => DynamicColor | undefined,
     readonly contrastCurve?: (scheme: Scheme) => ContrastCurve | undefined,
-    readonly toneDeltaPair?: (scheme: Scheme) => ToneDeltaPair | undefined,
+    readonly adjustTone?: (scheme: Scheme) => AdjustTone | undefined,
   ) {
     if (!background && secondBackground) {
       throw new Error(
@@ -197,7 +161,7 @@ export class DynamicColor {
       args.background,
       args.secondBackground,
       args.contrastCurve,
-      args.toneDeltaPair,
+      args.adjustTone,
     );
   }
 
@@ -302,7 +266,7 @@ export class DynamicColor {
       background: this.background,
       secondBackground: this.secondBackground,
       contrastCurve: this.contrastCurve,
-      toneDeltaPair: this.toneDeltaPair,
+      adjustTone: this.adjustTone,
     });
   }
 
@@ -353,13 +317,11 @@ export class DynamicColor {
    *     contrast level is.
    */
   getTone(scheme: Scheme): number {
-    const toneDeltaPair = this.toneDeltaPair
-      ? this.toneDeltaPair(scheme)
-      : undefined;
+    const adjustTone = this.adjustTone ? this.adjustTone(scheme) : undefined;
 
     // Case 0: tone delta constraint.
-    if (toneDeltaPair) {
-      return toneDeltaPair.adjustedTone({ scheme, dynamicColor: this });
+    if (adjustTone) {
+      return adjustTone({ scheme, dynamicColor: this });
     } else {
       // Case 1: No tone delta pair; just solve for itself.
       let answer = this.tone(scheme);

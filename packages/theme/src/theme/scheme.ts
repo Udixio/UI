@@ -13,7 +13,13 @@ export interface SchemeOptions {
 export class Scheme {
   constructor(readonly options: SchemeOptions) {}
 
-  get variant(): 'expressive' | 'neutral' | 'tonalSpot' | 'vibrant' | string {
+  get variant():
+    | 'expressive'
+    | 'neutral'
+    | 'tonalSpot'
+    | 'vibrant'
+    | 'fidelity'
+    | string {
     return this.options.variant.name;
   }
 

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { DynamicColor } from './dynamic_color';
+import { AdjustTone, DynamicColor } from './dynamic_color';
 import { clampDouble, Contrast } from '@material/material-color-utilities';
 import { Scheme } from '../theme';
 
@@ -45,7 +45,7 @@ export type DeltaConstraint = 'exact' | 'nearer' | 'farther';
  * designers want tonal distance, literally contrast, between two colors that
  * don't have a background / foreground relationship or a contrast guarantee.
  */
-export class ToneDeltaPair {
+class ToneDeltaPair {
   /**
    * Documents a constraint in tone distance between two DynamicColors.
    *
@@ -163,3 +163,9 @@ export class ToneDeltaPair {
     return selfTone;
   }
 }
+
+export const toneDeltaPair = (
+  ...params: ConstructorParameters<typeof ToneDeltaPair>
+): AdjustTone => {
+  return (args) => new ToneDeltaPair(...params).adjustedTone(args);
+};

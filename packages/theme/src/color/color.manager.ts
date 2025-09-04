@@ -1,4 +1,4 @@
-import { DynamicColor, ToneDeltaPair } from '../material-color-utilities';
+import { DynamicColor, toneDeltaPair } from '../material-color-utilities';
 import { Scheme, SchemeManager } from '../theme';
 
 import { ColorOptions, ConfigurableColor } from './configurable-color';
@@ -91,6 +91,8 @@ export class ColorManager {
     const onColorContainerKey = ('on' +
       ColorKey +
       'Container') as DynamicColorKey;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
     const inverseColorKey = ('inverse' + ColorKey) as DynamicColorKey;
     const colorFixedKey = (colorKey + 'Fixed') as DynamicColorKey;
     const colorFixedDimKey = (colorKey + 'FixedDim') as DynamicColorKey;
@@ -115,8 +117,8 @@ export class ColorManager {
       isBackground: true,
       background: (s) => highestSurface(s, this),
       contrastCurve: (s) => getCurve(4.5),
-      toneDeltaPair: (s) =>
-        new ToneDeltaPair(
+      adjustTone: (s) =>
+        toneDeltaPair(
           this.get(colorContainerKey).getMaterialColor(),
           this.get(colorKey).getMaterialColor(),
           5,
@@ -137,8 +139,8 @@ export class ColorManager {
       isBackground: true,
       background: (s) => this.get('surfaceContainerHigh').getMaterialColor(),
       contrastCurve: (s) => getCurve(4.5),
-      toneDeltaPair: (s) =>
-        new ToneDeltaPair(
+      adjustTone: (s) =>
+        toneDeltaPair(
           this.get(colorDimKey).getMaterialColor(),
           this.get(colorKey).getMaterialColor(),
           5,
@@ -167,7 +169,7 @@ export class ColorManager {
       },
       isBackground: true,
       background: (s) => highestSurface(s, this),
-      toneDeltaPair: (s) => undefined,
+      adjustTone: (s) => undefined,
       contrastCurve: (s) => (s.contrastLevel > 0 ? getCurve(1.5) : undefined),
     });
     this.createOrUpdate(onColorContainerKey, {
@@ -189,8 +191,8 @@ export class ColorManager {
       palette: (s) => s.getPalette(colorKey),
       tone: (s) => this.get(colorFixedKey).getMaterialColor().getTone(s),
       isBackground: true,
-      toneDeltaPair: (s) =>
-        new ToneDeltaPair(
+      adjustTone: (s) =>
+        toneDeltaPair(
           this.get(colorFixedDimKey).getMaterialColor(),
           this.get(colorFixedKey).getMaterialColor(),
           5,

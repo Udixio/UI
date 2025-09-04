@@ -1,4 +1,4 @@
-import { ToneDeltaPair } from '../material-color-utilities';
+import { toneDeltaPair } from '../material-color-utilities';
 import { DynamicColor } from '../material-color-utilities/dynamic_color';
 import { highestSurface } from './color.manager';
 import { AddColorsOptions, ColorApi } from './color.api';
@@ -6,6 +6,11 @@ import { Hct } from '../material-color-utilities/htc';
 import { ColorOptions } from './configurable-color';
 import { Scheme } from '../theme';
 import { DynamicColorKey, getCurve, tMaxC, tMinC } from './color.utils';
+import { Contrast } from '@material/material-color-utilities';
+
+const inverseTone = (tone: number) => {
+  return 100 - tone;
+};
 
 export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
   const getColor = (key: DynamicColorKey) => {
@@ -26,6 +31,9 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
         if (s.isDark) {
           return 4;
         } else {
+          if (s.variant == 'fidelity') {
+            return 100;
+          }
           if (Hct.isYellow(s.getPalette('neutral').hue)) {
             return 99;
           } else if (s.variant === 'vibrant') {
@@ -347,6 +355,8 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
                 ? 88
                 : 98,
           );
+        } else if (s.variant == 'fidelity') {
+          return s.sourceColorHct.tone;
         } else {
           return tMaxC(
             s.getPalette('primary'),
@@ -358,15 +368,34 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
       isBackground: true,
       background: (s) => highestSurface(s, colorService),
       contrastCurve: (s) => getCurve(4.5),
-      toneDeltaPair: (s) =>
-        new ToneDeltaPair(
-          colorService.getColor('primaryContainer').getMaterialColor(),
-          colorService.getColor('primary').getMaterialColor(),
-          5,
-          'relative_lighter',
-          true,
-          'farther',
-        ),
+      adjustTone: (s) =>
+        s.variant == 'fidelity'
+          ? () => {
+              const surfaceTone = colorService
+                .getColor('surface')
+                .getMaterialColor()
+                .tone(s);
+              const primaryTone = colorService
+                .getColor('primary')
+                .getMaterialColor()
+                .tone(s);
+              let selfTone = primaryTone;
+              if (Contrast.ratioOfTones(surfaceTone, selfTone) < 3) {
+                const result = inverseTone(primaryTone);
+                if (Contrast.ratioOfTones(surfaceTone, result) >= 3) {
+                  selfTone = result;
+                }
+              }
+              return selfTone;
+            }
+          : toneDeltaPair(
+              colorService.getColor('primaryContainer').getMaterialColor(),
+              colorService.getColor('primary').getMaterialColor(),
+              5,
+              'relative_lighter',
+              true,
+              'farther',
+            ),
     },
     primaryDim: {
       palette: (s) => s.getPalette('primary'),
@@ -382,8 +411,8 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
       isBackground: true,
       background: (s) => getColor('surfaceContainerHigh'),
       contrastCurve: (s) => getCurve(4.5),
-      toneDeltaPair: (s) =>
-        new ToneDeltaPair(
+      adjustTone: (s) =>
+        toneDeltaPair(
           colorService.getColor('primaryDim').getMaterialColor(),
           colorService.getColor('primary').getMaterialColor(),
           5,
@@ -414,6 +443,15 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
                 78,
                 Hct.isCyan(s.getPalette('primary').hue) ? 88 : 90,
               );
+        }
+        if (s.variant == 'fidelity') {
+          return s.isDark
+            ? tMaxC(s.getPalette('primary'), 30, 93)
+            : tMaxC(
+                s.getPalette('primary'),
+                78,
+                Hct.isCyan(s.getPalette('primary').hue) ? 88 : 90,
+              );
         } else {
           // VIBRANT
           return s.isDark
@@ -427,7 +465,17 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
       },
       isBackground: true,
       background: (s) => highestSurface(s, colorService),
-      toneDeltaPair: (s) => undefined,
+      adjustTone: (s) =>
+        s.variant == 'fidelity'
+          ? toneDeltaPair(
+              colorService.getColor('primary').getMaterialColor(),
+              colorService.getColor('primaryContainer').getMaterialColor(),
+              15,
+              'relative_darker',
+              true,
+              'farther',
+            )
+          : undefined,
       contrastCurve: (s) => (s.contrastLevel > 0 ? getCurve(1.5) : undefined),
     },
     onPrimaryContainer: {
@@ -457,8 +505,8 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
       tone: (s) =>
         colorService.getColor('primaryFixed').getMaterialColor().getTone(s),
       isBackground: true,
-      toneDeltaPair: (s) =>
-        new ToneDeltaPair(
+      adjustTone: (s) =>
+        toneDeltaPair(
           getColor('primaryFixedDim'),
           getColor('primaryFixed'),
           5,
@@ -509,8 +557,8 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
       isBackground: true,
       background: (s) => highestSurface(s, colorService),
       contrastCurve: (s) => getCurve(4.5),
-      toneDeltaPair: (s) =>
-        new ToneDeltaPair(
+      adjustTone: (s) =>
+        toneDeltaPair(
           getColor('secondaryContainer'),
           getColor('secondary'),
           5,
@@ -531,8 +579,8 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
       isBackground: true,
       background: (s) => getColor('surfaceContainerHigh'),
       contrastCurve: (s) => getCurve(4.5),
-      toneDeltaPair: (s) =>
-        new ToneDeltaPair(
+      adjustTone: (s) =>
+        toneDeltaPair(
           getColor('secondaryDim'),
           getColor('secondary'),
           5,
@@ -561,7 +609,7 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
       },
       isBackground: true,
       background: (s) => highestSurface(s, colorService),
-      toneDeltaPair: (s) => undefined,
+      adjustTone: (s) => undefined,
       contrastCurve: (s) => (s.contrastLevel > 0 ? getCurve(1.5) : undefined),
     },
     onSecondaryContainer: {
@@ -589,8 +637,8 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
       palette: (s) => s.getPalette('secondary'),
       tone: (s) => getColor('secondaryFixed').getTone(s),
       isBackground: true,
-      toneDeltaPair: (s) =>
-        new ToneDeltaPair(
+      adjustTone: (s) =>
+        toneDeltaPair(
           getColor('secondaryFixedDim'),
           getColor('secondaryFixed'),
           5,
@@ -634,8 +682,8 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
       isBackground: true,
       background: (s) => highestSurface(s, colorService),
       contrastCurve: (s) => getCurve(4.5),
-      toneDeltaPair: (s) =>
-        new ToneDeltaPair(
+      adjustTone: (s) =>
+        toneDeltaPair(
           getColor('tertiaryContainer'),
           getColor('tertiary'),
           5,
@@ -656,8 +704,8 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
       isBackground: true,
       background: (s) => getColor('surfaceContainerHigh'),
       contrastCurve: (s) => getCurve(4.5),
-      toneDeltaPair: (s) =>
-        new ToneDeltaPair(
+      adjustTone: (s) =>
+        toneDeltaPair(
           getColor('tertiaryDim'),
           getColor('tertiary'),
           5,
@@ -695,7 +743,7 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
       },
       isBackground: true,
       background: (s) => highestSurface(s, colorService),
-      toneDeltaPair: (s) => undefined,
+      adjustTone: (s) => undefined,
       contrastCurve: (s) => (s.contrastLevel > 0 ? getCurve(1.5) : undefined),
     },
     onTertiaryContainer: {
@@ -723,8 +771,8 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
       palette: (s) => s.getPalette('tertiary'),
       tone: (s) => getColor('tertiaryFixed').getTone(s),
       isBackground: true,
-      toneDeltaPair: (s) =>
-        new ToneDeltaPair(
+      adjustTone: (s) =>
+        toneDeltaPair(
           getColor('tertiaryFixedDim'),
           getColor('tertiaryFixed'),
           5,
@@ -760,8 +808,8 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
       isBackground: true,
       background: (s) => highestSurface(s, colorService),
       contrastCurve: (s) => getCurve(4.5),
-      toneDeltaPair: (s) =>
-        new ToneDeltaPair(
+      adjustTone: (s) =>
+        toneDeltaPair(
           colorService.getColor('errorContainer').getMaterialColor(),
           colorService.getColor('error').getMaterialColor(),
           5,
@@ -776,8 +824,8 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
       isBackground: true,
       background: (s) => getColor('surfaceContainerHigh'),
       contrastCurve: (s) => getCurve(4.5),
-      toneDeltaPair: (s) =>
-        new ToneDeltaPair(
+      adjustTone: (s) =>
+        toneDeltaPair(
           getColor('errorDim'),
           getColor('error'),
           5,
@@ -800,7 +848,7 @@ export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
       },
       isBackground: true,
       background: (s) => highestSurface(s, colorService),
-      toneDeltaPair: (s) => undefined,
+      adjustTone: (s) => undefined,
       contrastCurve: (s) => (s.contrastLevel > 0 ? getCurve(1.5) : undefined),
     },
     onErrorContainer: {
