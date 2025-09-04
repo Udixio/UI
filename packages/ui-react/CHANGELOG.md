@@ -1,3 +1,18 @@
+## 1.6.3 (2025-09-04)
+
+### 🩹 Fixes
+
+- change theme variant and remove free-brands-svg-icons ([b5f5468](https://github.com/Udixio/UI/commit/b5f5468))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 1.7.2
+- Updated @udixio/theme to 1.3.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.6.2 (2025-08-31)
 
 ### 🧱 Updated Dependencies
