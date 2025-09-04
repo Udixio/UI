@@ -2,13 +2,12 @@
 import { ColorPicker } from '@/components/theme/ColorPicker';
 import Layout from '../layouts/layout.astro';
 import { Button, Card, TextField, Switch, Divider } from '@udixio/ui-react';
-import { faXTwitter } from '@fortawesome/free-brands-svg-icons';
 ---
 <Layout>
   <section class="px-8 py-10 max-w-screen-lg">
     <div class="flex flex-col gap-4">
       {
-        ['primary', 'secondary', 'tertiary', 'error', ].map(colorName => (
+        ['primary', 'secondary', 'tertiary', 'error',"success" ].map(colorName => (
           <div class="flex gap-2">
             <div style={{background: `var(--color-${colorName}`}} class="size-32 flex-1"/>
             <div style={{background: `var(--color-on-${colorName}`}} class="size-32  flex-1"/>
@@ -40,7 +39,7 @@ import { faXTwitter } from '@fortawesome/free-brands-svg-icons';
             <Button client:load variant="tonal">Tonal</Button>
             <Button client:load variant="outlined">Outlined</Button>
             <Button client:load variant="text">Text</Button>
-            <Button client:load icon={faXTwitter} disabled>Disabled</Button>
+            <Button client:load disabled>Disabled</Button>
           </div>
         </section>
 
