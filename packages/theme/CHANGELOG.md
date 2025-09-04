@@ -1,3 +1,13 @@
+## 1.3.0 (2025-09-04)
+
+### 🚀 Features
+
+- add fidelity variant ([7675e2a](https://github.com/Udixio/UI/commit/7675e2a))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.2.0 (2025-08-27)
 
 ### 🚀 Features
