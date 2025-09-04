@@ -1,3 +1,9 @@
+## 1.6.2 (2025-08-31)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 1.7.1
+
 ## 1.6.1 (2025-08-31)
 
 ### 🩹 Fixes
