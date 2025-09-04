@@ -16,6 +16,8 @@
  */
 
 import { DynamicColor } from './dynamic_color';
+import { clampDouble, Contrast } from '@material/material-color-utilities';
+import { Scheme } from '../theme';
 
 /**
  * Describes the different in tone between colors.
@@ -78,5 +80,86 @@ export class ToneDeltaPair {
     readonly constraint?: DeltaConstraint,
   ) {
     this.constraint = constraint ?? 'exact';
+  }
+
+  adjustedTone({
+    scheme,
+    dynamicColor,
+  }: {
+    scheme: Scheme;
+    dynamicColor: DynamicColor;
+  }) {
+    const roleA = this.roleA;
+    const roleB = this.roleB;
+    const polarity = this.polarity;
+    const constraint = this.constraint;
+    const absoluteDelta =
+      polarity === 'darker' ||
+      (polarity === 'relative_lighter' && scheme.isDark) ||
+      (polarity === 'relative_darker' && !scheme.isDark)
+        ? -this.delta
+        : this.delta;
+
+    const amRoleA = dynamicColor.name === roleA.name;
+    const selfRole = amRoleA ? roleA : roleB;
+    const refRole = amRoleA ? roleB : roleA;
+    let selfTone = selfRole.tone(scheme);
+    const refTone = refRole.getTone(scheme);
+    const relativeDelta = absoluteDelta * (amRoleA ? 1 : -1);
+
+    if (constraint === 'exact') {
+      selfTone = clampDouble(0, 100, refTone + relativeDelta);
+    } else if (constraint === 'nearer') {
+      if (relativeDelta > 0) {
+        selfTone = clampDouble(
+          0,
+          100,
+          clampDouble(refTone, refTone + relativeDelta, selfTone),
+        );
+      } else {
+        selfTone = clampDouble(
+          0,
+          100,
+          clampDouble(refTone + relativeDelta, refTone, selfTone),
+        );
+      }
+    } else if (constraint === 'farther') {
+      if (relativeDelta > 0) {
+        selfTone = clampDouble(refTone + relativeDelta, 100, selfTone);
+      } else {
+        selfTone = clampDouble(0, refTone + relativeDelta, selfTone);
+      }
+    }
+
+    if (dynamicColor.background && dynamicColor.contrastCurve) {
+      const background = dynamicColor.background(scheme);
+      const contrastCurve = dynamicColor.contrastCurve(scheme);
+      if (background && contrastCurve) {
+        // Adjust the tones for contrast, if background and contrast curve
+        // are defined.
+        const bgTone = background.getTone(scheme);
+        const selfContrast = contrastCurve.get(scheme.contrastLevel);
+        selfTone =
+          Contrast.ratioOfTones(bgTone, selfTone) >= selfContrast &&
+          scheme.contrastLevel >= 0
+            ? selfTone
+            : DynamicColor.foregroundTone(bgTone, selfContrast);
+      }
+    }
+
+    // This can avoid the awkward tones for background colors including the
+    // access fixed colors. Accent fixed dim colors should not be adjusted.
+    if (
+      dynamicColor.isBackground &&
+      !dynamicColor.name.endsWith('_fixed_dim')
+    ) {
+      if (selfTone >= 57) {
+        selfTone = clampDouble(65, 100, selfTone);
+      } else {
+        selfTone = clampDouble(0, 49, selfTone);
+      }
+    }
+
+    return selfTone;
   }
 }

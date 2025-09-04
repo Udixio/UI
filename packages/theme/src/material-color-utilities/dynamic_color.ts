@@ -15,7 +15,11 @@
  * limitations under the License.
  */
 
-import { clampDouble, Contrast, TonalPalette } from '@material/material-color-utilities';
+import {
+  clampDouble,
+  Contrast,
+  TonalPalette,
+} from '@material/material-color-utilities';
 import { ContrastCurve } from './contrastCurve';
 import { ToneDeltaPair } from './toneDeltaPair';
 import { Scheme } from '../theme/scheme';
@@ -355,75 +359,7 @@ export class DynamicColor {
 
     // Case 0: tone delta constraint.
     if (toneDeltaPair) {
-      const roleA = toneDeltaPair.roleA;
-      const roleB = toneDeltaPair.roleB;
-      const polarity = toneDeltaPair.polarity;
-      const constraint = toneDeltaPair.constraint;
-      const absoluteDelta =
-        polarity === 'darker' ||
-        (polarity === 'relative_lighter' && scheme.isDark) ||
-        (polarity === 'relative_darker' && !scheme.isDark)
-          ? -toneDeltaPair.delta
-          : toneDeltaPair.delta;
-
-      const amRoleA = this.name === roleA.name;
-      const selfRole = amRoleA ? roleA : roleB;
-      const refRole = amRoleA ? roleB : roleA;
-      let selfTone = selfRole.tone(scheme);
-      const refTone = refRole.getTone(scheme);
-      const relativeDelta = absoluteDelta * (amRoleA ? 1 : -1);
-
-      if (constraint === 'exact') {
-        selfTone = clampDouble(0, 100, refTone + relativeDelta);
-      } else if (constraint === 'nearer') {
-        if (relativeDelta > 0) {
-          selfTone = clampDouble(
-            0,
-            100,
-            clampDouble(refTone, refTone + relativeDelta, selfTone),
-          );
-        } else {
-          selfTone = clampDouble(
-            0,
-            100,
-            clampDouble(refTone + relativeDelta, refTone, selfTone),
-          );
-        }
-      } else if (constraint === 'farther') {
-        if (relativeDelta > 0) {
-          selfTone = clampDouble(refTone + relativeDelta, 100, selfTone);
-        } else {
-          selfTone = clampDouble(0, refTone + relativeDelta, selfTone);
-        }
-      }
-
-      if (this.background && this.contrastCurve) {
-        const background = this.background(scheme);
-        const contrastCurve = this.contrastCurve(scheme);
-        if (background && contrastCurve) {
-          // Adjust the tones for contrast, if background and contrast curve
-          // are defined.
-          const bgTone = background.getTone(scheme);
-          const selfContrast = contrastCurve.get(scheme.contrastLevel);
-          selfTone =
-            Contrast.ratioOfTones(bgTone, selfTone) >= selfContrast &&
-            scheme.contrastLevel >= 0
-              ? selfTone
-              : DynamicColor.foregroundTone(bgTone, selfContrast);
-        }
-      }
-
-      // This can avoid the awkward tones for background colors including the
-      // access fixed colors. Accent fixed dim colors should not be adjusted.
-      if (this.isBackground && !this.name.endsWith('_fixed_dim')) {
-        if (selfTone >= 57) {
-          selfTone = clampDouble(65, 100, selfTone);
-        } else {
-          selfTone = clampDouble(0, 49, selfTone);
-        }
-      }
-
-      return selfTone;
+      return toneDeltaPair.adjustedTone({ scheme, dynamicColor: this });
     } else {
       // Case 1: No tone delta pair; just solve for itself.
       let answer = this.tone(scheme);
