@@ -1,5 +1,9 @@
 import { FontPlugin, PluginAbstract, PluginImplAbstract } from '@udixio/theme';
-import { argbFromHex, Hct, hexFromArgb } from '@material/material-color-utilities';
+import {
+  argbFromHex,
+  Hct,
+  hexFromArgb,
+} from '@material/material-color-utilities';
 
 export interface TailwindPluginOptions {
   darkMode?: 'class' | 'media';

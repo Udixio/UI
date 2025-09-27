@@ -1,23 +1,12 @@
 ---
 import { ColorPicker } from '@/components/theme/ColorPicker';
+import { ColorTokens } from '@/components/theme/ColorTokens';
+import { TokenGallery } from '@/components/theme/TokenGallery';
 import Layout from '../layouts/layout.astro';
 import { Button, Card, TextField, Switch, Divider } from '@udixio/ui-react';
 ---
 <Layout>
-  <section class="px-8 py-10 max-w-screen-lg">
-    <div class="flex flex-col gap-4">
-      {
-        ['primary', 'secondary', 'tertiary', 'error',"success" ].map(colorName => (
-          <div class="flex gap-2">
-            <div style={{background: `var(--color-${colorName}`}} class="size-32 flex-1"/>
-            <div style={{background: `var(--color-on-${colorName}`}} class="size-32  flex-1"/>
-            <div style={{background: `var(--color-${colorName}-container`}} class="size-32  flex-1"/>
-            <div style={{background: `var(--color-on-${colorName}-container`}} class="size-32  flex-1"/>
-          </div>
-        ))
-      }
-    </div>
-
+  <section class="px-8 py-10">
     <header class="mb-8">
       <h1 class="text-3xl font-bold mb-3">Themes</h1>
       <p class="text-base text-on-surface-variant leading-relaxed">
@@ -32,6 +21,11 @@ import { Button, Card, TextField, Switch, Divider } from '@udixio/ui-react';
       </div>
 
       <div class="space-y-8">
+        <section class="space-y-4">
+          <h2 class="text-lg font-semibold">Catalogue des couleurs</h2>
+          <p class="text-sm text-on-surface-variant">Toutes les clés de couleur (issues de udixio.css) avec prévisualisations, recherche, copie et export.</p>
+          <TokenGallery client:load />
+        </section>
         <section>
           <h2 class="text-lg font-semibold mb-3">Buttons</h2>
           <div class="flex flex-wrap gap-3">
