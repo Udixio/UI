@@ -1,21 +1,28 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useStore } from '@nanostores/react';
-import { themeConfigStore } from '@/stores/themeConfigStore.ts';
+import {
+  themeConfigStore,
+  themeServiceStore,
+} from '@/stores/themeConfigStore.ts';
+import { API } from '@udixio/theme';
+import * as Case from 'case'; // A richer UX gallery focusing on usability: search, filter, copy, and previews.
 
 // A richer UX gallery focusing on usability: search, filter, copy, and previews.
 
 type Token = { name: string; value: string };
 
-function readAllColorTokens(): Token[] {
+function readAllColorTokens({ colors }: API): Token[] {
   if (typeof window === 'undefined') return [];
   // Avoid getComputedStyle as requested; rely on known keys from CSS and display with CSS variables.
-  const cssVarNames = (
-    document.documentElement.getAttribute('data-udx-color-keys') ??
-    'surface surface-dim surface-bright surface-container-lowest surface-container-low surface-container surface-container-high surface-container-highest on-surface on-surface-variant outline outline-variant inverse-surface inverse-on-surface primary primary-dim on-primary primary-container on-primary-container primary-fixed primary-fixed-dim on-primary-fixed on-primary-fixed-variant inverse-primary secondary secondary-dim on-secondary secondary-container on-secondary-container secondary-fixed secondary-fixed-dim on-secondary-fixed on-secondary-fixed-variant tertiary tertiary-dim on-tertiary tertiary-container on-tertiary-container tertiary-fixed tertiary-fixed-dim on-tertiary-fixed on-tertiary-fixed-variant error error-dim on-error error-container on-error-container surface-variant surface-tint background on-background success success-dim on-success success-container on-success-container success-fixed success-fixed-dim on-success-fixed on-success-fixed-variant'
-  )
-    .split(/\s+/)
-    .filter(Boolean);
-  const out: Token[] = cssVarNames.map((k) => ({ name: `--color-${k}`, value: `var(--color-${k})` }));
+
+  const cssVarNames = Array.from(colors.getColors().keys()).map((k) =>
+    Case.kebab(k),
+  );
+
+  const out: Token[] = cssVarNames.map((k) => ({
+    name: `--color-${k}`,
+    value: `var(--color-${k})`,
+  }));
   return out.sort((a, b) => a.name.localeCompare(b.name));
 }
 
@@ -39,6 +46,8 @@ function getFamily(name: string) {
 }
 
 export const TokenGallery: React.FC = () => {
+  const $themeApi = useStore(themeServiceStore);
+
   useStore(themeConfigStore); // re-render on theme change
   const [tick, setTick] = useState(0);
   const [query, setQuery] = useState('');
@@ -53,9 +62,16 @@ export const TokenGallery: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
-  const tokens = useMemo(() => readAllColorTokens(), [tick]);
+  const tokens = useMemo(() => {
+    if (!$themeApi) {
+      return null;
+    }
+    return readAllColorTokens($themeApi);
+  }, [$themeApi]);
 
   const filtered = useMemo(() => {
+    if (!tokens) return [];
+
     const q = query.trim().toLowerCase();
     if (!q) return tokens;
     return tokens.filter((t) => t.name.toLowerCase().includes(q));
@@ -83,8 +99,6 @@ export const TokenGallery: React.FC = () => {
     }
   };
 
-
-
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -94,8 +108,7 @@ export const TokenGallery: React.FC = () => {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <div className="flex gap-2">
-        </div>
+        <div className="flex gap-2"></div>
       </div>
 
       {[...groups.keys()]
@@ -118,24 +131,15 @@ export const TokenGallery: React.FC = () => {
                 const on = `var(--color-on-${bgBase})`;
                 return (
                   <div
+                    style={{
+                      background: isOn ? bg : `var(${name})`,
+                      color: on,
+                    }}
                     key={name}
-                    className="group flex items-center gap-3 p-2 rounded-lg border border-outline-variant/40 bg-surface-container"
+                    className="group flex items-center gap-3 p-4 rounded-lg border border-outline-variant bg-surface-container"
                   >
-                    <div
-                      className="h-10 w-10 rounded border border-outline-variant/40"
-                      style={{ background: isOn ? bg : `var(${name})` }}
-                    />
                     <div className="min-w-0 flex-1">
-                      <div className="text-sm font-mono truncate">{name}</div>
-                      <div className="text-xs text-on-surface-variant">
-                        {t.value}
-                      </div>
-                    </div>
-                    <div
-                      className="min-w-40 max-w-64 text-xs px-3 py-2 rounded border border-outline-variant/40"
-                      style={{ background: bg, color: on }}
-                    >
-                      {base}
+                      <div className="text-label-large">{base}</div>
                     </div>
                     <button
                       onClick={() => handleCopy(name)}

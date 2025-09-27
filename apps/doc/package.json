@@ -25,6 +25,7 @@
     "@udixio/theme": "workspace:*",
     "@udixio/ui-react": "workspace:*",
     "astro": "^5.13.2",
+    "case": "^1.6.3",
     "change-case": "^5.4.4",
     "motion": "^12.23.3",
     "nanostores": "^1.0.1",
