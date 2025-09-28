@@ -34,9 +34,7 @@ export class ColorManager {
 
   createOrUpdate(
     key: string,
-    args:
-      | (Partial<ColorOptions> & { alias?: never })
-      | { alias: string; palette?: never; tone?: never },
+    args: Omit<ColorOptions, 'name'>,
   ): ConfigurableColor {
     let colorEntity = this.colorMap.get(key);
     if (!colorEntity) {

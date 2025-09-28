@@ -4,11 +4,13 @@ import { DynamicColor, FromPaletteOptions } from '../material-color-utilities';
 import { ColorManager } from './color.manager';
 
 export type ColorOptions = (
-  | (FromPaletteOptions & { alias?: string })
-  | (Partial<FromPaletteOptions> & {
+  | FromPaletteOptions
+  | {
       alias: string;
-      palette?: never;
-    })
+    }
+  | {
+      hex: string;
+    }
 ) & { name: string };
 
 function argbToRgb(argb: number): { r: number; g: number; b: number } {
@@ -57,10 +59,14 @@ export class ConfigurableColor {
       return this.colorService.get(this.option.alias).getMaterialColor();
     }
     if (!this.dynamicColor) {
-      this.dynamicColor = DynamicColor.fromPalette({
-        ...this.option,
-        name: this.getName(),
-      });
+      if ('hex' in this.option) {
+        // Hct.fromInt(argbFromHex(this.option.hex));
+      } else {
+        this.dynamicColor = DynamicColor.fromPalette({
+          ...this.option,
+          name: this.getName(),
+        });
+      }
     }
     return this.dynamicColor;
   }

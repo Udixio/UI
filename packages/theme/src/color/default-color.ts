@@ -12,7 +12,7 @@ const inverseTone = (tone: number) => {
   return 100 - tone;
 };
 
-export const defaultColors: AddColorsOptions = (colorService: ColorApi) => {
+export const defaultColors = (colorService: ColorApi): AddColorsOptions => {
   const getColor = (key: DynamicColorKey) => {
     return colorService.getColor(key).getMaterialColor();
   };

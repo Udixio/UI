@@ -20,6 +20,8 @@
     "react-dom": ">19.0.0"
   },
   "dependencies": {
+    "pathe": "^2.0.3",
+    "jiti": "^2.5.1",
     "throttle-debounce": "^5.0.2",
     "clsx": "^1.1.1",
     "react-textarea-autosize": "^8.5.9",

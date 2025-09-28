@@ -2,10 +2,12 @@ import { FontPlugin, PluginAbstract } from '@udixio/theme';
 
 import {
   TailwindImplPluginBrowser,
-  TailwindPluginOptions,
+  TailwindPluginOptions as TailwindPluginBrowserOptions,
 } from '../browser/tailwind.plugin';
 
 import { ConfigCss } from '../main';
+
+export type TailwindPluginOptions = TailwindPluginBrowserOptions;
 
 export class TailwindPlugin extends PluginAbstract<
   TailwindImplPlugin,

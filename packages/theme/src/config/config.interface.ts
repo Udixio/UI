@@ -7,7 +7,7 @@ export interface ConfigInterface {
   contrastLevel?: number;
   isDark?: boolean;
   variant?: Variant;
-  colors?: AddColorsOptions | AddColorsOptions[];
+  colors?: AddColorsOptions;
   useDefaultColors?: boolean;
   palettes?: Record<string, string>;
   plugins?: PluginAbstract<any, any>[];
