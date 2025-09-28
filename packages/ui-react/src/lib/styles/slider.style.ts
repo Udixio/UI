@@ -5,7 +5,7 @@ export const sliderStyle = defaultClassNames<SliderInterface>(
   'slider',
   ({ isChanging }) => ({
     slider: classNames([
-      'relative w-full h-11 flex items-center rounded gap-x-1.5 cursor-pointer',
+      'relative w-full h-11 flex items-center rounded gap-x-1.5 cursor-pointer min-w-32',
     ]),
     activeTrack: classNames([
       'h-4 relative transition-all duration-100 bg-primary overflow-hidden rounded-l-full ',
@@ -23,5 +23,5 @@ export const sliderStyle = defaultClassNames<SliderInterface>(
     dot: classNames([
       'h-1 w-1 absolute transform -translate-y-1/2 -translate-x-1/2 top-1/2 rounded-full',
     ]),
-  })
+  }),
 );

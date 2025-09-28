@@ -25,7 +25,7 @@ const {docSidebar} = Astro.props
   <title>Astro</title>
   <ClientRouter />
 </head>
-<body class="dark dynamic bg-surface text-on-surface">
+<body class="dark dynamic bg-surface text-on-surface" data-udx-color-keys="surface surface-dim surface-bright surface-container-lowest surface-container-low surface-container surface-container-high surface-container-highest on-surface on-surface-variant outline outline-variant inverse-surface inverse-on-surface primary primary-dim on-primary primary-container on-primary-container primary-fixed primary-fixed-dim on-primary-fixed on-primary-fixed-variant inverse-primary secondary secondary-dim on-secondary secondary-container on-secondary-container secondary-fixed secondary-fixed-dim on-secondary-fixed on-secondary-fixed-variant tertiary tertiary-dim on-tertiary tertiary-container on-tertiary-container tertiary-fixed tertiary-fixed-dim on-tertiary-fixed on-tertiary-fixed-variant error error-dim on-error error-container on-error-container surface-variant surface-tint background on-background success success-dim on-success success-container on-success-container success-fixed success-fixed-dim on-success-fixed on-success-fixed-variant">
 <main class="mx-auto flex justify-between">
   <div class="flex sticky top-0 h-screen">
     <Navigation  client:load  transition:name="navigation" transition:persist/>

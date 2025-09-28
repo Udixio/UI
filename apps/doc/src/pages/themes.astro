@@ -1,5 +1,5 @@
 ---
-import { ColorPicker } from '@/components/theme/ColorPicker';
+import { ThemePicker } from '@/components/theme/ThemePicker';
 import { ColorTokens } from '@/components/theme/ColorTokens';
 import { TokenGallery } from '@/components/theme/TokenGallery';
 import Layout from '../layouts/layout.astro';
@@ -16,8 +16,8 @@ import { Button, Card, TextField, Switch, Divider } from '@udixio/ui-react';
 
     <div class="flex items-start justify-evenly gap-16">
       <Card className="sticky top-4 p-4  max-w-lg flex-1">
-        <h2 class="text-sm font-semibold text-on-surface-variant mb-3">Source color</h2>
-        <ColorPicker client:load />
+        <h2 class="text-sm font-semibold text-on-surface-variant mb-3">Theme</h2>
+        <ThemePicker client:load />
       </Card>
       <div class="sticky top-4 space-y-8">
         <section>

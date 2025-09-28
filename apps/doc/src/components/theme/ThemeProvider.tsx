@@ -10,6 +10,7 @@ export const ThemeProvider = () => {
 
   return (
     <Theme
+      key={`${String($themeConfig.isDark ?? '')}-${String($themeConfig.contrastLevel ?? '')}-${$themeConfig.sourceColor}`}
       onLoad={(api) => {
         themeServiceStore.set(api);
       }}
