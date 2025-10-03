@@ -33,13 +33,13 @@ export const loader = async (config: ConfigInterface) => {
       sourceColorHex: sourceColor,
       variant: variant,
     });
+    if (useDefaultColors) {
+      api.colors.addColors(defaultColors);
+    }
     if (palettes) {
       Object.entries(palettes).forEach(([key, value]) =>
         api.themes.addCustomPalette(key, value),
       );
-    }
-    if (useDefaultColors) {
-      api.colors.addColors(defaultColors);
     }
     if (colors) {
       api.colors.addColors(colors);

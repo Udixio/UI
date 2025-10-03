@@ -62,10 +62,10 @@ export interface FromPaletteOptions {
   adjustTone?: (scheme: Scheme) => AdjustTone | undefined;
 }
 
-export type AdjustTone = (args: {
-  scheme: Scheme;
-  dynamicColor: DynamicColor;
-}) => number;
+// export type AdjustTone = (args: {
+//   scheme: Scheme;
+//   dynamicColor: DynamicColor;
+// }) => number;
 
 /**
  * A color that adjusts itself based on UI state provided by DynamicScheme.
@@ -79,8 +79,6 @@ export type AdjustTone = (args: {
  * DynamicColor.
  */
 export class DynamicColor {
-  private readonly hctCache = new Map<Scheme, Hct>();
-
   /**
    * The base constructor for DynamicColor.
    *
@@ -155,7 +153,8 @@ export class DynamicColor {
     return new DynamicColor(
       args.name ?? '',
       args.palette,
-      args.tone ?? DynamicColor.getInitialToneFromBackground(args.background),
+      args.tone ??
+        (() => DynamicColor.getInitialToneFromBackground(args.background)),
       args.isBackground ?? false,
       args.chromaMultiplier,
       args.background,
@@ -165,14 +164,14 @@ export class DynamicColor {
     );
   }
 
-  static getInitialToneFromBackground(
-    background?: (scheme: Scheme) => DynamicColor | undefined,
-  ): (scheme: Scheme) => number {
-    if (background === undefined) {
-      return (s) => 50;
-    }
-    return (s) => (background(s) ? background(s)!.getTone(s) : 50);
-  }
+  // static getInitialToneFromBackground(
+  //   background?: () => Color | undefined,
+  // ): number {
+  //   if (background === undefined) {
+  //     return 50;
+  //   }
+  //   return (background() ? background()!.getTone() : 50);
+  // }
 
   /**
    * Given a background tone, finds a foreground tone, while ensuring they reach
@@ -268,14 +267,6 @@ export class DynamicColor {
       contrastCurve: this.contrastCurve,
       adjustTone: this.adjustTone,
     });
-  }
-
-  /**
-   * Clears the cache of HCT values for this color. For testing or debugging
-   * purposes.
-   */
-  clearCache() {
-    this.hctCache.clear();
   }
 
   /**

@@ -1,7 +1,13 @@
-import { DynamicColor, toneDeltaPair } from '../material-color-utilities';
+import { toneDeltaPair } from '../material-color-utilities';
 import { Scheme, SchemeManager } from '../theme';
 
-import { ColorOptions, ConfigurableColor } from './configurable-color';
+import {
+  Color,
+  ColorAlias,
+  ColorFromHex,
+  ColorFromPalette,
+  ColorOptions,
+} from './color';
 import { DynamicColorKey, getCurve, tMaxC, tMinC } from './color.utils';
 import { ColorApi } from './color.api';
 
@@ -12,54 +18,45 @@ function capitalizeFirstLetter(string: string) {
 export const highestSurface = (
   s: Scheme,
   colorService: ColorManager | ColorApi,
-): DynamicColor => {
+): Color => {
   if (colorService instanceof ColorApi) {
     return s.isDark
-      ? colorService.getColor('surfaceBright').getMaterialColor()
-      : colorService.getColor('surfaceDim').getMaterialColor();
+      ? colorService.getColor('surfaceBright')
+      : colorService.getColor('surfaceDim');
   } else {
     return s.isDark
-      ? colorService.get('surfaceBright').getMaterialColor()
-      : colorService.get('surfaceDim').getMaterialColor();
+      ? colorService.get('surfaceBright')
+      : colorService.get('surfaceDim');
   }
 };
 
 export class ColorManager {
-  private colorMap = new Map<string, ConfigurableColor>();
+  private colorMap = new Map<string, Color>();
   private readonly schemeManager: SchemeManager;
 
   constructor({ schemeManager }: { schemeManager: SchemeManager }) {
     this.schemeManager = schemeManager;
   }
 
-  createOrUpdate(
-    key: string,
-    args: Omit<ColorOptions, 'name'>,
-  ): ConfigurableColor {
+  createOrUpdate(key: string, args: ColorOptions): Color {
     let colorEntity = this.colorMap.get(key);
-    if (!colorEntity) {
-      const { palette, alias } = args;
-      if (palette) {
-        colorEntity = new ConfigurableColor(
-          { ...args, palette: palette, name: key },
-          this.schemeManager,
-          this,
-        );
-        this.colorMap.set(key, colorEntity);
-      } else if (alias) {
-        colorEntity = new ConfigurableColor(
-          { ...args, alias: alias, name: key },
-          this.schemeManager,
-          this,
-        );
-        this.colorMap.set(key, colorEntity);
-      } else {
-        throw new Error(`Palette ${palette} does not exist from ${key}`);
-      }
+    if ('alias' in args) {
+      colorEntity = new ColorAlias(key, args.alias, this);
+    } else if ('hex' in args) {
+      colorEntity = new ColorFromHex(key, args.hex);
     } else {
-      colorEntity.update({ ...args, name: key });
-      this.colorMap.set(key, colorEntity);
+      try {
+        if (colorEntity instanceof ColorFromPalette) {
+          colorEntity.update(args);
+        } else {
+          colorEntity = new ColorFromPalette(key, args, this.schemeManager);
+        }
+      } catch (e) {
+        console.error(e);
+        throw new Error(`Invalid color options provided for ${key}`);
+      }
     }
+    this.colorMap.set(key, colorEntity);
     return colorEntity;
   }
 
@@ -67,7 +64,7 @@ export class ColorManager {
     return this.colorMap.delete(key);
   }
 
-  public get(key: string): ConfigurableColor {
+  public get(key: string): Color {
     const colorEntity = this.colorMap.get(key);
     if (colorEntity) {
       return colorEntity;
@@ -76,7 +73,7 @@ export class ColorManager {
     }
   }
 
-  public getAll(): ReadonlyMap<string, ConfigurableColor> {
+  public getAll(): ReadonlyMap<string, Color> {
     return this.colorMap;
   }
 
@@ -99,9 +96,11 @@ export class ColorManager {
       ColorKey +
       'FixedVariant') as DynamicColorKey;
 
+    const s = this.schemeManager.get();
+
     this.createOrUpdate(colorKey, {
-      palette: (s) => s.getPalette(colorKey),
-      tone: (s) => {
+      palette: () => s.getPalette(colorKey),
+      tone: () => {
         if (s.variant === 'neutral') {
           return s.isDark
             ? tMinC(s.getPalette(colorKey), 0, 98)
@@ -113,12 +112,12 @@ export class ColorManager {
         }
       },
       isBackground: true,
-      background: (s) => highestSurface(s, this),
-      contrastCurve: (s) => getCurve(4.5),
-      adjustTone: (s) =>
+      background: () => highestSurface(s, this),
+      contrastCurve: () => getCurve(4.5),
+      adjustTone: () =>
         toneDeltaPair(
-          this.get(colorContainerKey).getMaterialColor(),
-          this.get(colorKey).getMaterialColor(),
+          this.get(colorContainerKey),
+          this.get(colorKey),
           5,
           'relative_lighter',
           true,
@@ -126,8 +125,8 @@ export class ColorManager {
         ),
     });
     this.createOrUpdate(colorDimKey, {
-      palette: (s) => s.getPalette(colorKey),
-      tone: (s) => {
+      palette: () => s.getPalette(colorKey),
+      tone: () => {
         if (s.variant === 'neutral') {
           return 85;
         } else {
@@ -135,12 +134,12 @@ export class ColorManager {
         }
       },
       isBackground: true,
-      background: (s) => this.get('surfaceContainerHigh').getMaterialColor(),
-      contrastCurve: (s) => getCurve(4.5),
-      adjustTone: (s) =>
+      background: () => this.get('surfaceContainerHigh'),
+      contrastCurve: () => getCurve(4.5),
+      adjustTone: () =>
         toneDeltaPair(
-          this.get(colorDimKey).getMaterialColor(),
-          this.get(colorKey).getMaterialColor(),
+          this.get(colorDimKey),
+          this.get(colorKey),
           5,
           'darker',
           true,
@@ -148,13 +147,13 @@ export class ColorManager {
         ),
     });
     this.createOrUpdate(onColorKey, {
-      palette: (s) => s.getPalette(colorKey),
-      background: (s) => this.get(colorKey).getMaterialColor(),
-      contrastCurve: (s) => getCurve(6),
+      palette: () => s.getPalette(colorKey),
+      background: () => this.get(colorKey),
+      contrastCurve: () => getCurve(6),
     });
     this.createOrUpdate(colorContainerKey, {
-      palette: (s) => s.getPalette(colorKey),
-      tone: (s) => {
+      palette: () => s.getPalette(colorKey),
+      tone: () => {
         if (s.variant === 'vibrant') {
           return s.isDark
             ? tMinC(s.getPalette(colorKey), 30, 40)
@@ -166,33 +165,41 @@ export class ColorManager {
         }
       },
       isBackground: true,
-      background: (s) => highestSurface(s, this),
-      adjustTone: (s) => undefined,
-      contrastCurve: (s) => (s.contrastLevel > 0 ? getCurve(1.5) : undefined),
+      background: () => highestSurface(s, this),
+      adjustTone: () => undefined,
+      contrastCurve: () => (s.contrastLevel > 0 ? getCurve(1.5) : undefined),
     });
     this.createOrUpdate(onColorContainerKey, {
-      palette: (s) => s.getPalette(colorKey),
-      background: (s) => this.get(colorContainerKey).getMaterialColor(),
-      contrastCurve: (s) => getCurve(6),
+      palette: () => s.getPalette(colorKey),
+      background: () => this.get(colorContainerKey),
+      contrastCurve: () => getCurve(6),
     });
     this.createOrUpdate(colorFixedKey, {
-      palette: (s) => s.getPalette(colorKey),
-      tone: (s) => {
+      palette: () => s.getPalette(colorKey),
+      tone: () => {
         const tempS = Object.assign({}, s, { isDark: false, contrastLevel: 0 });
-        return this.get(colorContainerKey).getMaterialColor().getTone(tempS);
+
+        const color = this.get(colorContainerKey);
+        if (color instanceof ColorFromPalette) {
+          return color.getTone(tempS);
+        } else {
+          throw new Error(
+            'Primary container color must be an instance of ColorFromPalette',
+          );
+        }
       },
       isBackground: true,
-      background: (s) => highestSurface(s, this),
-      contrastCurve: (s) => (s.contrastLevel > 0 ? getCurve(1.5) : undefined),
+      background: () => highestSurface(s, this),
+      contrastCurve: () => (s.contrastLevel > 0 ? getCurve(1.5) : undefined),
     });
     this.createOrUpdate(colorFixedDimKey, {
-      palette: (s) => s.getPalette(colorKey),
-      tone: (s) => this.get(colorFixedKey).getMaterialColor().getTone(s),
+      palette: () => s.getPalette(colorKey),
+      tone: () => this.get(colorFixedKey).getTone(),
       isBackground: true,
-      adjustTone: (s) =>
+      adjustTone: () =>
         toneDeltaPair(
-          this.get(colorFixedDimKey).getMaterialColor(),
-          this.get(colorFixedKey).getMaterialColor(),
+          this.get(colorFixedDimKey),
+          this.get(colorFixedKey),
           5,
           'darker',
           true,
@@ -200,14 +207,14 @@ export class ColorManager {
         ),
     });
     this.createOrUpdate(onColorFixedKey, {
-      palette: (s) => s.getPalette(colorKey),
-      background: (s) => this.get(colorFixedDimKey).getMaterialColor(),
-      contrastCurve: (s) => getCurve(7),
+      palette: () => s.getPalette(colorKey),
+      background: () => this.get(colorFixedDimKey),
+      contrastCurve: () => getCurve(7),
     });
     this.createOrUpdate(onColorFixedVariantKey, {
-      palette: (s) => s.getPalette(colorKey),
-      background: (s) => this.get(colorFixedDimKey).getMaterialColor(),
-      contrastCurve: (s) => getCurve(4.5),
+      palette: () => s.getPalette(colorKey),
+      background: () => this.get(colorFixedDimKey),
+      contrastCurve: () => getCurve(4.5),
     });
   }
 }

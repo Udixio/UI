@@ -15,9 +15,13 @@
  * limitations under the License.
  */
 
-import { AdjustTone, DynamicColor } from './dynamic_color';
-import { clampDouble, Contrast } from '@material/material-color-utilities';
+import {
+  clampDouble,
+  Contrast,
+  DynamicColor,
+} from '@material/material-color-utilities';
 import { Scheme } from '../theme';
+import { AdjustTone, Color, ColorFromPalette } from '../color';
 
 /**
  * Describes the different in tone between colors.
@@ -72,8 +76,8 @@ class ToneDeltaPair {
    * one role has two backgrounds.
    */
   constructor(
-    readonly roleA: DynamicColor,
-    readonly roleB: DynamicColor,
+    readonly roleA: Color,
+    readonly roleB: Color,
     readonly delta: number,
     readonly polarity: TonePolarity,
     readonly stayTogether: boolean,
@@ -82,13 +86,7 @@ class ToneDeltaPair {
     this.constraint = constraint ?? 'exact';
   }
 
-  adjustedTone({
-    scheme,
-    dynamicColor,
-  }: {
-    scheme: Scheme;
-    dynamicColor: DynamicColor;
-  }) {
+  adjustedTone({ scheme, color }: { scheme: Scheme; color: Color }) {
     const roleA = this.roleA;
     const roleB = this.roleB;
     const polarity = this.polarity;
@@ -100,11 +98,16 @@ class ToneDeltaPair {
         ? -this.delta
         : this.delta;
 
-    const amRoleA = dynamicColor.name === roleA.name;
+    const amRoleA = color.name === roleA.name;
     const selfRole = amRoleA ? roleA : roleB;
     const refRole = amRoleA ? roleB : roleA;
-    let selfTone = selfRole.tone(scheme);
-    const refTone = refRole.getTone(scheme);
+
+    if (!(selfRole instanceof ColorFromPalette)) {
+      throw new Error('selfRole is not a ColorFromPalette');
+    }
+
+    let selfTone = selfRole.option.tone();
+    const refTone = refRole.getTone();
     const relativeDelta = absoluteDelta * (amRoleA ? 1 : -1);
 
     if (constraint === 'exact') {
@@ -131,32 +134,31 @@ class ToneDeltaPair {
       }
     }
 
-    if (dynamicColor.background && dynamicColor.contrastCurve) {
-      const background = dynamicColor.background(scheme);
-      const contrastCurve = dynamicColor.contrastCurve(scheme);
-      if (background && contrastCurve) {
-        // Adjust the tones for contrast, if background and contrast curve
-        // are defined.
-        const bgTone = background.getTone(scheme);
-        const selfContrast = contrastCurve.get(scheme.contrastLevel);
-        selfTone =
-          Contrast.ratioOfTones(bgTone, selfTone) >= selfContrast &&
-          scheme.contrastLevel >= 0
-            ? selfTone
-            : DynamicColor.foregroundTone(bgTone, selfContrast);
+    if (color instanceof ColorFromPalette) {
+      if (color.option.background && color.option.contrastCurve) {
+        const background = color.option.background(scheme);
+        const contrastCurve = color.option.contrastCurve(scheme);
+        if (background && contrastCurve) {
+          // Adjust the tones for contrast, if background and contrast curve
+          // are defined.
+          const bgTone = background.getTone(scheme);
+          const selfContrast = contrastCurve.get(scheme.contrastLevel);
+          selfTone =
+            Contrast.ratioOfTones(bgTone, selfTone) >= selfContrast &&
+            scheme.contrastLevel >= 0
+              ? selfTone
+              : DynamicColor.foregroundTone(bgTone, selfContrast);
+        }
       }
-    }
 
-    // This can avoid the awkward tones for background colors including the
-    // access fixed colors. Accent fixed dim colors should not be adjusted.
-    if (
-      dynamicColor.isBackground &&
-      !dynamicColor.name.endsWith('_fixed_dim')
-    ) {
-      if (selfTone >= 57) {
-        selfTone = clampDouble(65, 100, selfTone);
-      } else {
-        selfTone = clampDouble(0, 49, selfTone);
+      // This can avoid the awkward tones for background colors including the
+      // access fixed colors. Accent fixed dim colors should not be adjusted.
+      if (color.option.isBackground && !color.name.endsWith('_fixed_dim')) {
+        if (selfTone >= 57) {
+          selfTone = clampDouble(65, 100, selfTone);
+        } else {
+          selfTone = clampDouble(0, 49, selfTone);
+        }
       }
     }
 

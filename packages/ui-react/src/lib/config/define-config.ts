@@ -1,5 +1,9 @@
 import { ConfigInterface } from './config.interface';
-import { ConfigInterface as ConfigTheme, FontPlugin } from '@udixio/theme';
+import {
+  ConfigInterface as ConfigTheme,
+  FontPlugin,
+  Variants,
+} from '@udixio/theme';
 import { TailwindPlugin } from '@udixio/tailwind';
 
 export function defineConfig(configObject: ConfigInterface): ConfigTheme {
@@ -11,6 +15,7 @@ export function defineConfig(configObject: ConfigInterface): ConfigTheme {
   }
 
   return {
+    variant: Variants.Fidelity,
     ...configObject,
     plugins: [new FontPlugin(configObject), new TailwindPlugin(configObject)],
   };

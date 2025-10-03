@@ -2,6 +2,7 @@ import { DynamicColor } from '@material/material-color-utilities';
 import { SchemeManager, SchemeServiceOptions } from './scheme.manager';
 import { VariantManager } from './variant.manager';
 import { Variant } from './variant';
+import { ColorManager } from '../color';
 
 type ThemeOptions = Omit<
   SchemeServiceOptions,
@@ -17,14 +18,18 @@ const colorPaletteKeyColor = DynamicColor.fromPalette({
 export class ThemeApi {
   private readonly schemeManager: SchemeManager;
   private readonly variantManager: VariantManager;
+  private readonly colorManager: ColorManager;
 
   constructor({
     schemeManager,
     variantManager,
+    colorManager,
   }: {
+    colorManager: ColorManager;
     schemeManager: SchemeManager;
     variantManager: VariantManager;
   }) {
+    this.colorManager = colorManager;
     this.schemeManager = schemeManager;
     this.variantManager = variantManager;
 
@@ -72,8 +77,11 @@ export class ThemeApi {
     if (options.variant) this.variantManager.set(options.variant);
   }
 
-  addCustomPalette(key: string, colorHex: string) {
+  addCustomPalette(key: string, colorHex: string, addColors = true) {
     this.variantManager.addCustomPalette(key, colorHex);
+    if (addColors) {
+      this.colorManager.addFromPalette(key);
+    }
   }
 
   // theme(): SchemeService {
