@@ -1,9 +1,9 @@
-import { tonalSpotVariant } from '../theme';
 import { defaultColors } from '../color';
 import { bootstrap } from '../bootstrap';
 import { registerModule } from '../app.container';
 import { asValue } from 'awilix';
 import { ConfigInterface } from '../config';
+import { Variants } from '../variant/variants';
 
 const initializeApi = () => {
   const api = bootstrap();
@@ -21,25 +21,23 @@ export const loader = async (config: ConfigInterface) => {
       sourceColor,
       contrastLevel = 0,
       isDark = false,
-      variant = tonalSpotVariant,
+      variant = Variants.TonalSpot,
       palettes,
       colors,
-      useDefaultColors = true,
       plugins,
     } = config;
-    api.themes.create({
+
+    api.context.set({
       contrastLevel: contrastLevel,
       isDark: isDark,
       sourceColorHex: sourceColor,
       variant: variant,
     });
-    if (useDefaultColors) {
-      api.colors.addColors(defaultColors);
-    }
+
+    api.colors.addColors(defaultColors);
+
     if (palettes) {
-      Object.entries(palettes).forEach(([key, value]) =>
-        api.themes.addCustomPalette(key, value),
-      );
+      api.palettes.add(palettes);
     }
     if (colors) {
       api.colors.addColors(colors);

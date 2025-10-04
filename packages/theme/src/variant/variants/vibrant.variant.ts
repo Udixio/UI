@@ -1,4 +1,4 @@
-import { getPiecewiseHue, getRotatedHue, Variant } from '../variant';
+import { getPiecewiseHue, getRotatedHue, variant, Variant } from '../variant';
 import { TonalPalette } from '@material/material-color-utilities';
 import { Hct } from '../../material-color-utilities/htc';
 
@@ -15,7 +15,7 @@ const getVibrantNeutralChroma = (sourceColorHct: Hct): number => {
   return 28;
 };
 
-export const vibrantVariant: Variant = {
+export const vibrantVariant: Variant = variant({
   name: 'vibrant',
   palettes: {
     primary: ({ sourceColorHct }) =>
@@ -60,7 +60,7 @@ export const vibrantVariant: Variant = {
       return TonalPalette.fromHueAndChroma(errorHue, 80);
     },
   },
-  customPalettes: ({ colorHct }) =>
+  customPalettes: (_, colorHct) =>
     TonalPalette.fromHueAndChroma(
       getRotatedHue(
         colorHct,
@@ -69,4 +69,4 @@ export const vibrantVariant: Variant = {
       ),
       56,
     ),
-};
+});

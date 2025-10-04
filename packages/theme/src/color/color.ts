@@ -3,12 +3,12 @@ import {
   clampDouble,
   Contrast,
   hexFromArgb,
-  TonalPalette,
 } from '@material/material-color-utilities';
-import { Scheme, SchemeManager } from '../theme';
 import { ContrastCurve, DynamicColor } from '../material-color-utilities';
 import { Hct } from '../material-color-utilities/htc';
 import { ColorManager } from './color.manager';
+import { Palette } from '../palette/palette';
+import { Context } from 'src/context';
 
 export type ColorOptions =
   | FromPaletteOptions
@@ -27,13 +27,11 @@ function argbToRgb(argb: number): { r: number; g: number; b: number } {
   };
 }
 
-export function getInitialToneFromBackground(
-  background?: () => Color | undefined,
-): number {
+export function getInitialToneFromBackground(background?: Color): number {
   if (background === undefined) {
     return 50;
   }
-  return background() ? background()!.getTone() : 50;
+  return background.getTone();
 }
 
 export abstract class Color {
@@ -119,44 +117,66 @@ export class ColorFromHex extends Color {
  *     constructed. When not provided or resolved as undefined, the tone is
  *     calculated based on other constraints.
  */
-export interface FromPaletteOptions {
-  palette: () => TonalPalette;
+export type FromPaletteOptions = {
+  palette: () => Palette;
   tone?: () => number;
-  chromaMultiplier?: () => number;
+  chromaMultiplier?: () => number | undefined;
   isBackground?: boolean;
   background?: () => Color | undefined;
   secondBackground?: () => Color | undefined;
   contrastCurve?: () => ContrastCurve | undefined;
   adjustTone?: () => AdjustTone | undefined;
-}
+};
 
-export type AdjustTone = (args: { scheme: Scheme; color: Color }) => number;
+export type FromPalette = {
+  palette: Palette;
+  tone: number;
+  chromaMultiplier: number;
+  isBackground?: boolean;
+  background?: Color;
+  secondBackground?: Color;
+  contrastCurve?: ContrastCurve;
+  adjustTone?: AdjustTone;
+};
+
+export type AdjustTone = (args: { context: Context; color: Color }) => number;
 
 export class ColorFromPalette extends Color {
-  public option: FromPaletteOptions & {
-    tone: () => number;
-  };
+  get options(): FromPalette {
+    const options = {
+      ...this._options,
+      palette: this._options.palette(),
+      tone: this._options.tone?.(),
+      chromaMultiplier: this._options.chromaMultiplier?.(),
+      background: this._options.background?.(),
+      secondBackground: this._options.secondBackground?.(),
+      contrastCurve: this._options.contrastCurve?.(),
+      adjustTone: this._options.adjustTone?.(),
+    };
+
+    return {
+      ...options,
+      chromaMultiplier: options.chromaMultiplier ?? 1,
+      tone: options.tone ?? getInitialToneFromBackground(options.background),
+    };
+  }
+
   constructor(
     name: string,
-    option: FromPaletteOptions,
-    private schemeService: SchemeManager,
+    private _options: FromPaletteOptions,
+    private context: Context,
   ) {
     super(name);
-    this.option = {
-      ...option,
-      tone:
-        option.tone ?? (() => getInitialToneFromBackground(option.background)),
-    };
     this.validateOption();
   }
 
   update(args: Partial<ColorOptions>) {
-    this.option = { ...this.option, ...args };
+    this._options = { ...this._options, ...args };
     this.validateOption();
   }
 
   validateOption() {
-    const option = this.option;
+    const option = this._options;
     if ('palette' in option) {
       if (!option.background && option.secondBackground) {
         throw new Error(
@@ -180,66 +200,56 @@ export class ColorFromPalette extends Color {
   }
 
   getHct(): Hct {
-    const option = this.option;
+    const option = this.options;
 
-    const palette = option.palette();
+    const palette = option.palette;
     const tone = this.getTone();
     const hue = palette.hue;
-    const chroma =
-      palette.chroma *
-      (option.chromaMultiplier ? option.chromaMultiplier() : 1);
+    const chroma = palette.chroma * option.chromaMultiplier;
     return Hct.from(hue, chroma, tone);
   }
 
-  override getTone(scheme = this.schemeService.get()): number {
-    const adjustTone = this.option.adjustTone
-      ? this.option.adjustTone()
-      : undefined;
+  override getTone(): number {
+    const context = this.context;
+
+    const options = this.options;
+
+    const adjustTone = options.adjustTone;
 
     // Case 0: tone delta constraint.
     if (adjustTone) {
-      return adjustTone({ scheme, color: this });
+      return adjustTone({ context, color: this });
     } else {
       // Case 1: No tone delta pair; just solve for itself.
-      let answer = this.option.tone();
-      if (
-        this.option.background == undefined ||
-        this.option.background() === undefined ||
-        this.option.contrastCurve == undefined ||
-        this.option.contrastCurve() === undefined
-      ) {
+      let answer = options.tone;
+      if (!options.background || !options.contrastCurve) {
         return answer; // No adjustment for colors with no background.
       }
-      const bgTone = this.option.background()!.getTone();
-      const desiredRatio = this.option
-        .contrastCurve()!
-        .get(scheme.contrastLevel);
+      const bgTone = options.background.getTone();
+      const desiredRatio = options.contrastCurve.get(context.contrastLevel);
       // Recalculate the tone from desired contrast ratio if the current
       // contrast ratio is not enough or desired contrast level is decreasing
       // (<0).
       answer =
         Contrast.ratioOfTones(bgTone, answer) >= desiredRatio &&
-        scheme.contrastLevel >= 0
+        context.contrastLevel >= 0
           ? answer
           : DynamicColor.foregroundTone(bgTone, desiredRatio);
       // This can avoid the awkward tones for background colors including the
       // access fixed colors. Accent fixed dim colors should not be adjusted.
-      if (this.option.isBackground && !this.name.endsWith('_fixed_dim')) {
+      if (options.isBackground && !this.name.endsWith('_fixed_dim')) {
         if (answer >= 57) {
           answer = clampDouble(65, 100, answer);
         } else {
           answer = clampDouble(0, 49, answer);
         }
       }
-      if (
-        this.option.secondBackground == undefined ||
-        this.option.secondBackground() === undefined
-      ) {
+      if (!options.secondBackground) {
         return answer;
       }
       // Case 2: Adjust for dual backgrounds.
-      const [bg1, bg2] = [this.option.background, this.option.secondBackground];
-      const [bgTone1, bgTone2] = [bg1()!.getTone(), bg2()!.getTone()];
+      const [bg1, bg2] = [options.background, options.secondBackground];
+      const [bgTone1, bgTone2] = [bg1.getTone(), bg2.getTone()];
       const [upper, lower] = [
         Math.max(bgTone1, bgTone2),
         Math.min(bgTone1, bgTone2),

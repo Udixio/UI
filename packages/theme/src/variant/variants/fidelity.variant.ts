@@ -1,7 +1,7 @@
-import { getPiecewiseHue, getRotatedHue, Variant } from '../variant';
+import { getPiecewiseHue, getRotatedHue, variant, Variant } from '../variant';
 import { TonalPalette } from '@material/material-color-utilities';
 
-export const fidelityVariant: Variant = {
+export const fidelityVariant: Variant = variant({
   name: 'fidelity',
   palettes: {
     primary: ({ sourceColorHct, isDark }) =>
@@ -33,6 +33,6 @@ export const fidelityVariant: Variant = {
       return TonalPalette.fromHueAndChroma(errorHue, 60);
     },
   },
-  customPalettes: ({ colorHct , sourceColorHct}) =>
+  customPalettes: ({ sourceColorHct }, colorHct) =>
     TonalPalette.fromHueAndChroma(colorHct.hue, sourceColorHct.chroma),
-};
+});

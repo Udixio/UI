@@ -1,24 +1,36 @@
 import { ColorApi } from './color';
-import { ThemeApi } from './theme';
 import { PluginApi } from './plugin';
+import { Context } from './context';
+import { PaletteApi } from './palette/palette.api';
+import { Variant } from './variant/variant';
 
 export class API {
   public colors: ColorApi;
-  public themes: ThemeApi;
   public plugins: PluginApi;
+  public context: Context;
+  public palettes: PaletteApi;
+  public variant: Variant;
 
   constructor({
     colorApi,
-    themeApi,
     pluginApi,
+    context,
+    palettes,
+    variant,
   }: {
     colorApi: ColorApi;
-    themeApi: ThemeApi;
     pluginApi: PluginApi;
+    palettes: PaletteApi;
+    context: Context;
+    variant: Variant;
   }) {
+    colorApi.api = this;
+
+    this.context = context;
     this.plugins = pluginApi;
     this.colors = colorApi;
-    this.themes = themeApi;
+    this.palettes = palettes;
+    this.variant = variant;
   }
 
   async load() {

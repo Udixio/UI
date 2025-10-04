@@ -1,4 +1,4 @@
-import { getPiecewiseHue, getRotatedHue, Variant } from '../variant';
+import { getPiecewiseHue, getRotatedHue, variant } from '../variant';
 import { TonalPalette } from '@material/material-color-utilities';
 import { Hct } from '../../material-color-utilities/htc';
 
@@ -18,20 +18,21 @@ const getExpressiveNeutralChroma = (
   return isDark ? (Hct.isYellow(neutralHue) ? 6 : 14) : 18;
 };
 
-export const expressiveVariant: Variant = {
+export const expressiveVariant = variant({
   name: 'expressive',
   palettes: {
-    primary: ({ sourceColorHct, isDark }) =>
-      TonalPalette.fromHueAndChroma(sourceColorHct.hue, isDark ? 36 : 48),
-    secondary: ({ sourceColorHct, isDark }) =>
-      TonalPalette.fromHueAndChroma(
-        getRotatedHue(
-          sourceColorHct,
-          [0, 105, 140, 204, 253, 278, 300, 333, 360],
-          [-160, 155, -100, 96, -96, -156, -165, -160],
-        ),
-        isDark ? 16 : 24,
+    primary: ({ sourceColorHct, isDark }) => ({
+      hue: sourceColorHct.hue,
+      chroma: isDark ? 36 : 48,
+    }),
+    secondary: ({ sourceColorHct, isDark }) => ({
+      hue: getRotatedHue(
+        sourceColorHct,
+        [0, 105, 140, 204, 253, 278, 300, 333, 360],
+        [-160, 155, -100, 96, -96, -156, -165, -160],
       ),
+      chroma: isDark ? 16 : 24,
+    }),
     tertiary: ({ sourceColorHct }) =>
       TonalPalette.fromHueAndChroma(
         getRotatedHue(
@@ -69,13 +70,13 @@ export const expressiveVariant: Variant = {
       return TonalPalette.fromHueAndChroma(errorHue, 64);
     },
   },
-  customPalettes: ({ colorHct, isDark }) =>
+  customPalettes: ({ isDark }, color) =>
     TonalPalette.fromHueAndChroma(
       getRotatedHue(
-        colorHct,
+        color,
         [0, 105, 140, 204, 253, 278, 300, 333, 360],
         [-160, 155, -100, 96, -96, -156, -165, -160],
       ),
       isDark ? 16 : 24,
     ),
-};
+});

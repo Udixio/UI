@@ -1,8 +1,8 @@
-import { getPiecewiseHue, getRotatedHue, Variant } from '../variant';
+import { getPiecewiseHue, getRotatedHue, variant, Variant } from '../variant';
 import { TonalPalette } from '@material/material-color-utilities';
 import { Hct } from '../../material-color-utilities/htc';
 
-export const neutralVariant: Variant = {
+export const neutralVariant: Variant = variant({
   name: 'neutral',
   palettes: {
     primary: ({ sourceColorHct }) =>
@@ -37,9 +37,9 @@ export const neutralVariant: Variant = {
       return TonalPalette.fromHueAndChroma(errorHue, 50);
     },
   },
-  customPalettes: ({ colorHct }) =>
+  customPalettes: (_, colorHct) =>
     TonalPalette.fromHueAndChroma(
       colorHct.hue,
       Hct.isBlue(colorHct.hue) ? 6 : 4,
     ),
-};
+});

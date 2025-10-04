@@ -1,6 +1,7 @@
-import { clampDouble, TonalPalette } from '@material/material-color-utilities';
+import { clampDouble } from '@material/material-color-utilities';
 import { Hct } from '../material-color-utilities/htc';
 import { ContrastCurve } from '../material-color-utilities/contrastCurve';
+import { Palette } from '../palette/palette';
 
 export type DynamicColorKey =
   | 'background'
@@ -79,7 +80,7 @@ export function getCurve(defaultContrast: number): ContrastCurve {
 }
 
 export function tMaxC(
-  palette: TonalPalette,
+  palette: Palette,
   lowerBound = 0,
   upperBound = 100,
   chromaMultiplier = 1,
@@ -94,7 +95,7 @@ export function tMaxC(
 }
 
 export function tMinC(
-  palette: TonalPalette,
+  palette: Palette,
   lowerBound = 0,
   upperBound = 100,
 ): number {

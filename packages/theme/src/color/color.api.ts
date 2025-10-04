@@ -1,28 +1,18 @@
 import { Color, ColorOptions } from './color';
 import { ColorManager } from './color.manager';
 import { DynamicColorKey } from './color.utils';
-import { Scheme, SchemeManager } from '../theme';
+import { API } from '../API';
 
 export type AddColorsOptions =
-  | ((args: {
-      scheme: Scheme;
-      colors: ColorApi;
-    }) => Record<string, ColorOptions>)
+  | ((args: API) => Record<string, ColorOptions>)
   | Record<string, ColorOptions>;
 
 export class ColorApi {
   private readonly colorManager: ColorManager;
-  private readonly schemeManager: SchemeManager;
+  public api?: API;
 
-  constructor({
-    colorManager,
-    schemeManager,
-  }: {
-    colorManager: ColorManager;
-    schemeManager: SchemeManager;
-  }) {
+  constructor({ colorManager }: { colorManager: ColorManager }) {
     this.colorManager = colorManager;
-    this.schemeManager = schemeManager;
   }
 
   getColors() {
@@ -34,8 +24,13 @@ export class ColorApi {
   }
 
   addColors(args: AddColorsOptions) {
+    if (!this.api)
+      throw new Error(
+        'The API is not initialized. Please call bootstrap() before calling addColors().',
+      );
+
     if (typeof args === 'function') {
-      args = args({ scheme: this.schemeManager.get(), colors: this });
+      args = args(this.api);
     }
     if (args) {
       Object.entries(args).forEach(([name, colorOption]) => {
