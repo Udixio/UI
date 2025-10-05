@@ -9,7 +9,7 @@ export interface ConfigInterface {
   contrastLevel?: number;
   isDark?: boolean;
   variant?: Variant;
-  colors?: AddColorsOptions;
-  palettes?: Record<string, PaletteCallback | 'string'>;
+  colors?: AddColorsOptions | AddColorsOptions[];
+  palettes?: Record<string, PaletteCallback | string>;
   plugins?: PluginAbstract<any, any>[];
 }
