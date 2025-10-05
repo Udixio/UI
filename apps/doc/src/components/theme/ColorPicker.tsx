@@ -6,6 +6,7 @@ import {
 } from '@material/material-color-utilities';
 import { themeConfigStore } from '@/stores/themeConfigStore.ts';
 import { useStore } from '@nanostores/react';
+import { TextField } from '@udixio/ui-react';
 
 export const ColorPicker = () => {
   const $themeConfig = useStore(themeConfigStore);
@@ -23,6 +24,13 @@ export const ColorPicker = () => {
 
   const currentColor = Hct.from(hue, chroma, tone);
   const hexColor = hexFromArgb(currentColor.toInt());
+
+  const normalizeHex = (val: string) => {
+    const trimmed = val.trim();
+    const m = trimmed.match(/^#?([0-9a-fA-F]{6})$/);
+    if (!m) return null;
+    return `#${m[1].toUpperCase()}`;
+  };
 
   // Génération du dégradé pour Hue (arc-en-ciel)
   const hueGradient = useMemo(() => {
@@ -62,6 +70,15 @@ export const ColorPicker = () => {
     themeConfigStore.set({ ...themeConfigStore.get(), sourceColor: hexColor });
   }
 
+  const updateFromHex = (hex: string) => {
+    const normalized = normalizeHex(hex);
+    if (!normalized) return;
+    const hct = Hct.fromInt(argbFromHex(normalized));
+    setHue(hct.hue);
+    setChroma(hct.chroma);
+    setTone(hct.tone);
+  };
+
   return (
     <div className="p-5 max-w-md mx-auto font-sans">
       {/* Prévisualisation de la couleur */}
@@ -72,6 +89,35 @@ export const ColorPicker = () => {
         <span className="bg-white bg-opacity-90 px-2 py-1 rounded font-bold text-gray-800">
           {hexColor}
         </span>
+      </div>
+
+      {/* Saisie directe de la couleur */}
+      <div className="mb-6">
+        <label className="block mb-2 font-medium text-gray-700">
+          Couleur précise
+        </label>
+        <div className="flex gap-3 items-start">
+          <TextField
+            value={hexColor}
+            label={'précise'}
+            name="color"
+            placeholder={'#AABBCC'}
+            supportingText={'Saisir une couleur hexadécimale (#RRGGBB)'}
+            onChange={(value) => {
+              updateFromHex(value);
+            }}
+          />
+
+          <input
+            type="color"
+            value={hexColor}
+            onChange={(e) => {
+              updateFromHex(e.target.value);
+            }}
+            aria-label="Choisir une couleur"
+            className="size-15 rounded border border-outline cursor-pointer p-0"
+          />
+        </div>
       </div>
 
       {/* Slider Hue */}
