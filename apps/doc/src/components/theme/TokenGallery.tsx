@@ -15,7 +15,7 @@ function readAllColorTokens({ colors }: API): Token[] {
   if (typeof window === 'undefined') return [];
   // Avoid getComputedStyle as requested; rely on known keys from CSS and display with CSS variables.
 
-  const cssVarNames = Array.from(colors.getColors().keys()).map((k) =>
+  const cssVarNames = Array.from(colors.getAll().keys()).map((k) =>
     Case.kebab(k),
   );
 

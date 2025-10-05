@@ -7,5 +7,5 @@ export * from './bootstrap';
 export * from './material-color-utilities';
 export * from './plugin';
 export * from './plugins';
-export * from './theme';
 export * from './config';
+export * from './variant';

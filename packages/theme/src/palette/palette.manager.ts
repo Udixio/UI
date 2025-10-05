@@ -1,10 +1,12 @@
 import { Context } from 'src/context';
 import { Palette, PaletteCallback } from './palette';
 import { Hct } from '../material-color-utilities/htc';
+import { ColorApi } from '../color';
 
 export class PaletteManager {
   _palettes: Record<string, Palette> = {};
   context: Context;
+  colorApi: ColorApi;
 
   get palettes(): Readonly<Record<string, Palette>> {
     return {
@@ -13,13 +15,21 @@ export class PaletteManager {
     };
   }
 
-  constructor(args: { context: Context }) {
+  constructor(args: { context: Context; colorApi: ColorApi }) {
+    this.colorApi = args.colorApi;
     this.context = args.context;
+
+    this.context.onUpdate(() =>
+      Object.entries(this.palettes).forEach(([key, value]) => {
+        value.update(this.context);
+      }),
+    );
   }
 
   addCustomPalette(key: string, color: Hct) {
     const palette = Palette.fromVariant(color);
     this.add(key, palette);
+    this.colorApi.addFromCustomPalette(key);
   }
 
   add(key: string, palette: PaletteCallback | Palette): void {

@@ -162,12 +162,12 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
   })} 
 }`;
 
-    const sourceColor = this.api.themes.sourceColorHex;
+    const sourceColor = this.api.context.sourceColorHct;
     for (const [key, value] of Object.entries(this.options.subThemes ?? {})) {
       const newHue = Hct.fromInt(argbFromHex(value)).hue;
       const newColor = Hct.from(newHue, sourceColor.chroma, sourceColor.tone);
 
-      this.api.themes.update({ sourceColorHex: hexFromArgb(newColor.toInt()) });
+      this.api.context.sourceColor = hexFromArgb(newColor.toInt());
       const colors = this.getColors();
       this.outputCss += `
 @layer theme {
@@ -202,8 +202,8 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
       }
     > = {};
     for (const isDark of [false, true]) {
-      this.api.themes.update({ isDark: isDark });
-      for (const [key, value] of this.api.colors.getColors().entries()) {
+      this.api.context.darkMode = isDark;
+      for (const [key, value] of this.api.colors.getAll().entries()) {
         const newKey = key
           .replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2')
           .toLowerCase();

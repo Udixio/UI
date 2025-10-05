@@ -49,6 +49,7 @@ export class Variant {
   public readonly palettes: Record<string, Palette>;
   public readonly customPalettes: VariantOptions['customPalettes'];
   public readonly colors: AddColorsOptions;
+  public readonly name: string;
 
   constructor(args: VariantOptions) {
     this.palettes = Object.entries(args.palettes).reduce(
@@ -60,6 +61,7 @@ export class Variant {
     );
     this.customPalettes = args.customPalettes;
     this.colors = args.colors || {};
+    this.name = args.name;
   }
 }
 

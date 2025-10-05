@@ -50,17 +50,17 @@ import { Hct } from './htc';
  *     constructed. When not provided or resolved as undefined, the tone is
  *     calculated based on other constraints.
  */
-export interface FromPaletteOptions {
-  name?: string;
-  palette: (scheme: Scheme) => TonalPalette;
-  tone?: (scheme: Scheme) => number;
-  chromaMultiplier?: (scheme: Scheme) => number;
-  isBackground?: boolean;
-  background?: (scheme: Scheme) => DynamicColor | undefined;
-  secondBackground?: (scheme: Scheme) => DynamicColor | undefined;
-  contrastCurve?: (scheme: Scheme) => ContrastCurve | undefined;
-  adjustTone?: (scheme: Scheme) => AdjustTone | undefined;
-}
+// export interface FromPaletteOptions {
+//   name?: string;
+//   palette: (scheme: Scheme) => TonalPalette;
+//   tone?: (scheme: Scheme) => number;
+//   chromaMultiplier?: (scheme: Scheme) => number;
+//   isBackground?: boolean;
+//   background?: (scheme: Scheme) => DynamicColor | undefined;
+//   secondBackground?: (scheme: Scheme) => DynamicColor | undefined;
+//   contrastCurve?: (scheme: Scheme) => ContrastCurve | undefined;
+//   adjustTone?: (scheme: Scheme) => AdjustTone | undefined;
+// }
 
 // export type AdjustTone = (args: {
 //   scheme: Scheme;

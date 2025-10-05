@@ -11,7 +11,6 @@ const getVibrantNeutralHue = (sourceColorHct: Hct): number => {
 };
 
 const getVibrantNeutralChroma = (sourceColorHct: Hct): number => {
-  const neutralHue = getVibrantNeutralHue(sourceColorHct);
   return 28;
 };
 

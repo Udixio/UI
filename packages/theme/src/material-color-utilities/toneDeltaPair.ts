@@ -20,8 +20,9 @@ import {
   Contrast,
   DynamicColor,
 } from '@material/material-color-utilities';
-import { Scheme } from '../theme';
+
 import { AdjustTone, Color, ColorFromPalette } from '../color';
+import { Context } from 'src/context';
 
 /**
  * Describes the different in tone between colors.
@@ -86,15 +87,15 @@ class ToneDeltaPair {
     this.constraint = constraint ?? 'exact';
   }
 
-  adjustedTone({ scheme, color }: { scheme: Scheme; color: Color }) {
+  adjustedTone({ context: ctx, color }: { context: Context; color: Color }) {
     const roleA = this.roleA;
     const roleB = this.roleB;
     const polarity = this.polarity;
     const constraint = this.constraint;
     const absoluteDelta =
       polarity === 'darker' ||
-      (polarity === 'relative_lighter' && scheme.isDark) ||
-      (polarity === 'relative_darker' && !scheme.isDark)
+      (polarity === 'relative_lighter' && ctx.isDark) ||
+      (polarity === 'relative_darker' && !ctx.isDark)
         ? -this.delta
         : this.delta;
 
@@ -106,7 +107,7 @@ class ToneDeltaPair {
       throw new Error('selfRole is not a ColorFromPalette');
     }
 
-    let selfTone = selfRole.option.tone();
+    let selfTone = selfRole.options.tone;
     const refTone = refRole.getTone();
     const relativeDelta = absoluteDelta * (amRoleA ? 1 : -1);
 
@@ -135,17 +136,17 @@ class ToneDeltaPair {
     }
 
     if (color instanceof ColorFromPalette) {
-      if (color.option.background && color.option.contrastCurve) {
-        const background = color.option.background(scheme);
-        const contrastCurve = color.option.contrastCurve(scheme);
+      if (color.options.background && color.options.contrastCurve) {
+        const background = color.options.background;
+        const contrastCurve = color.options.contrastCurve;
         if (background && contrastCurve) {
           // Adjust the tones for contrast, if background and contrast curve
           // are defined.
-          const bgTone = background.getTone(scheme);
-          const selfContrast = contrastCurve.get(scheme.contrastLevel);
+          const bgTone = background.getTone();
+          const selfContrast = contrastCurve.get(ctx.contrastLevel);
           selfTone =
             Contrast.ratioOfTones(bgTone, selfTone) >= selfContrast &&
-            scheme.contrastLevel >= 0
+            ctx.contrastLevel >= 0
               ? selfTone
               : DynamicColor.foregroundTone(bgTone, selfContrast);
         }
@@ -153,7 +154,7 @@ class ToneDeltaPair {
 
       // This can avoid the awkward tones for background colors including the
       // access fixed colors. Accent fixed dim colors should not be adjusted.
-      if (color.option.isBackground && !color.name.endsWith('_fixed_dim')) {
+      if (color.options.isBackground && !color.name.endsWith('_fixed_dim')) {
         if (selfTone >= 57) {
           selfTone = clampDouble(65, 100, selfTone);
         } else {
