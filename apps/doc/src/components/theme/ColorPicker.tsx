@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   argbFromHex,
   Hct,
@@ -66,18 +66,59 @@ export const ColorPicker = () => {
     return `linear-gradient(to right, ${colors.join(', ')})`;
   }, [hue, chroma]);
 
-  if (hexColor !== $themeConfig.sourceColor) {
-    themeConfigStore.set({ ...themeConfigStore.get(), sourceColor: hexColor });
-  }
-
-  const updateFromHex = (hex: string) => {
+  const updateCurrentFromHex = useCallback((hex: string) => {
     const normalized = normalizeHex(hex);
     if (!normalized) return;
     const hct = Hct.fromInt(argbFromHex(normalized));
     setHue(hct.hue);
     setChroma(hct.chroma);
     setTone(hct.tone);
-  };
+  }, []);
+
+  const updateThemeFromHex = useCallback((hex: string) => {
+    themeConfigStore.set({ ...themeConfigStore.get(), sourceColor: hex });
+  }, []);
+
+  // Throttle utility (leading + trailing)
+  const throttle = useCallback(
+    <T extends (...args: any[]) => void>(fn: T, wait: number) => {
+      let last = 0;
+      let timeout: any;
+      return (...args: Parameters<T>) => {
+        const now = Date.now();
+        const remaining = wait - (now - last);
+        if (remaining <= 0) {
+          if (timeout) {
+            clearTimeout(timeout);
+            timeout = null;
+          }
+          last = now;
+          fn(...args);
+        } else {
+          if (timeout) clearTimeout(timeout);
+          timeout = setTimeout(() => {
+            last = Date.now();
+            fn(...args);
+          }, remaining);
+        }
+      };
+    },
+    [],
+  );
+
+  const throttledUpdateCurrentFromHex = useMemo(
+    () => throttle(updateCurrentFromHex, 50),
+    [throttle, updateCurrentFromHex],
+  );
+
+  const throttledUpdateThemeFromHex = useMemo(
+    () => throttle(updateThemeFromHex, 500),
+    [throttle, updateThemeFromHex],
+  );
+
+  if (hexColor !== $themeConfig.sourceColor) {
+    throttledUpdateThemeFromHex(hexColor);
+  }
 
   return (
     <div className="p-5 max-w-md mx-auto font-sans">
@@ -104,7 +145,7 @@ export const ColorPicker = () => {
             placeholder={'#AABBCC'}
             supportingText={'Saisir une couleur hexadécimale (#RRGGBB)'}
             onChange={(value) => {
-              updateFromHex(value);
+              throttledUpdateCurrentFromHex(value);
             }}
           />
 
@@ -112,10 +153,10 @@ export const ColorPicker = () => {
             type="color"
             value={hexColor}
             onChange={(e) => {
-              updateFromHex(e.target.value);
+              throttledUpdateCurrentFromHex(e.target.value);
             }}
             aria-label="Choisir une couleur"
-            className="size-15 rounded border border-outline cursor-pointer p-0"
+            className="size-15 rounded cursor-pointer p-0"
           />
         </div>
       </div>
