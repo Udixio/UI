@@ -1,4 +1,9 @@
-import { type API, type ConfigInterface, loader } from '@udixio/theme';
+import {
+  type API,
+  type ConfigInterface,
+  ContextOptions,
+  loader,
+} from '@udixio/theme';
 import { useEffect, useRef, useState } from 'react';
 import { TailwindPlugin } from '@udixio/tailwind';
 
@@ -12,28 +17,32 @@ export const ThemeProvider = ({
   throttleDelay = 100, // Délai par défaut de 300ms
   onLoad,
 }: {
-  config: ConfigInterface;
+  config: Readonly<ConfigInterface>;
   onLoad?: (api: API) => void;
   throttleDelay?: number;
 }) => {
-  const [outputCss, setOutputCss] = useState<null | string>(null);
+  const [themeApi, setThemeApi] = useState<API | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const api = await loader(config);
+      setThemeApi(api);
+    })();
+  }, []);
+
+  const outputCss = themeApi?.plugins
+    .getPlugin(TailwindPlugin)
+    .getInstance().outputCss;
 
   // Refs pour gérer le throttling
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const lastSourceColorRef = useRef<string>(config.sourceColor);
   const isInitialLoadRef = useRef<boolean>(true);
 
   useEffect(() => {
     // Si c'est le premier chargement, on applique immédiatement
     if (isInitialLoadRef.current) {
       isInitialLoadRef.current = false;
-      lastSourceColorRef.current = config.sourceColor;
-      applyThemeChange(config.sourceColor);
-      return;
-    }
-
-    // Si la couleur n'a pas changé, on ne fait rien
-    if (config.sourceColor === lastSourceColorRef.current) {
+      applyThemeChange(config);
       return;
     }
 
@@ -44,8 +53,10 @@ export const ThemeProvider = ({
 
     // Programmer un nouveau changement de thème avec un délai
     timeoutRef.current = setTimeout(async () => {
-      lastSourceColorRef.current = config.sourceColor;
-      await applyThemeChange(config.sourceColor);
+      await applyThemeChange({
+        ...config,
+        sourceColorHex: config.sourceColor,
+      });
       timeoutRef.current = null;
     }, throttleDelay);
 
@@ -56,33 +67,19 @@ export const ThemeProvider = ({
         timeoutRef.current = null;
       }
     };
-  }, [config.sourceColor, throttleDelay]);
+  }, [config, throttleDelay]);
 
-  const applyThemeChange = async (sourceColor: string) => {
-    if (!isValidHexColor(sourceColor)) {
+  const applyThemeChange = async (ctx: Partial<ContextOptions>) => {
+    if (ctx.sourceColorHex && !isValidHexColor(ctx.sourceColorHex)) {
       throw new Error('Invalid hex color');
     }
 
-    try {
-      // Mesure du temps de chargement de l'API
-      const api = await loader({
-        ...config,
-        sourceColor,
-      });
-      onLoad?.(api);
-
-      const generatedCss = api.plugins
-        .getPlugin(TailwindPlugin)
-        .getInstance().outputCss;
-
-      if (generatedCss) {
-        setOutputCss(generatedCss);
-      }
-    } catch (err) {
-      throw new Error(
-        err instanceof Error ? err.message : 'Theme loading failed',
-      );
+    if (!themeApi) {
+      throw new Error('Theme API is not initialized');
     }
+    themeApi.context.update(ctx);
+    await themeApi.load();
+    onLoad?.(themeApi);
   };
 
   // Cleanup lors du démontage du composant

@@ -16,7 +16,10 @@ function readColorTokens(): TokenInfo[] {
   )
     .split(/\s+/)
     .filter(Boolean);
-  const tokens: TokenInfo[] = cssVarNames.map((k) => ({ name: `--color-${k}`, value: `var(--color-${k})` }));
+  const tokens: TokenInfo[] = cssVarNames.map((k) => ({
+    name: `--color-${k}`,
+    value: `var(--color-${k})`,
+  }));
   tokens.sort((a, b) => a.name.localeCompare(b.name));
   return tokens;
 }
@@ -92,7 +95,10 @@ export const ColorTokens: React.FC = () => {
       : { background: bg, color: pairedOn };
 
     return (
-      <div key={varName} className="flex items-center gap-3 p-2 rounded-lg border border-outline-variant/40 bg-surface-container">
+      <div
+        key={varName}
+        className="flex items-center gap-3 p-2 rounded-lg border border-outline-variant/40 bg-surface-container"
+      >
         <div
           className="h-10 w-16 rounded border border-outline-variant/40"
           style={{ background: isOn ? pairedBg : bg }}
@@ -102,7 +108,10 @@ export const ColorTokens: React.FC = () => {
           <div className="text-sm font-mono truncate">{varName}</div>
           <div className="text-xs text-on-surface-variant">{t.value}</div>
         </div>
-        <div className="min-w-48 max-w-64 text-xs px-3 py-2 rounded border border-outline-variant/40" style={sampleStyle}>
+        <div
+          className="min-w-48 max-w-64 text-xs px-3 py-2 rounded border border-outline-variant/40"
+          style={sampleStyle}
+        >
           {base}
         </div>
       </div>
@@ -114,20 +123,24 @@ export const ColorTokens: React.FC = () => {
       <section>
         <h2 className="text-lg font-semibold mb-3">Palette tokens</h2>
         <p className="text-sm text-on-surface-variant mb-4">
-          Aperçu en temps réel de toutes les variables CSS de couleur générées (commençant par --color-). Modifiez la couleur source pour voir les mises à jour immédiates.
+          Aperçu en temps réel de toutes les variables CSS de couleur générées
+          (commençant par --color-). Modifiez la couleur source pour voir les
+          mises à jour immédiates.
         </p>
 
         {/* Families first */}
-        {(['primary', 'secondary', 'tertiary', 'success', 'error'] as const).map(
-          (family) => (
-            <div key={family} className="mb-6">
-              <h3 className="text-base font-semibold mb-2 capitalize">{family}</h3>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {(families[family] ?? []).map((t) => renderToken(t))}
-              </div>
+        {(
+          ['primary', 'secondary', 'tertiary', 'success', 'error'] as const
+        ).map((family) => (
+          <div key={family} className="mb-6">
+            <h3 className="text-base font-semibold mb-2 capitalize">
+              {family}
+            </h3>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {(families[family] ?? []).map((t) => renderToken(t))}
             </div>
-          ),
-        )}
+          </div>
+        ))}
 
         {/* Others */}
         <div className="mt-8">

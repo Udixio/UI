@@ -13,7 +13,7 @@ export class Context {
   private _options?: ContextOptions;
   private readonly updateCallbacks: Array<() => void> = [];
 
-  protected update(args: Partial<ContextOptions>) {
+  public update(args: Partial<ContextOptions>) {
     const options = this._options;
     if (!options) {
       throw new Error('Options not found');

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   argbFromHex,
   Hct,
@@ -76,6 +76,8 @@ export const ColorPicker = () => {
   }, []);
 
   const updateThemeFromHex = useCallback((hex: string) => {
+    if ($themeConfig.sourceColor === hex) return;
+
     themeConfigStore.set({ ...themeConfigStore.get(), sourceColor: hex });
   }, []);
 
@@ -116,9 +118,11 @@ export const ColorPicker = () => {
     [throttle, updateThemeFromHex],
   );
 
-  if (hexColor !== $themeConfig.sourceColor) {
-    throttledUpdateThemeFromHex(hexColor);
-  }
+  useEffect(() => {
+    if (hexColor !== $themeConfig.sourceColor) {
+      throttledUpdateThemeFromHex(hexColor);
+    }
+  }, [hexColor, $themeConfig.sourceColor, throttledUpdateThemeFromHex]);
 
   return (
     <div className="p-5 max-w-md mx-auto font-sans">
@@ -227,29 +231,29 @@ export const ColorPicker = () => {
         </div>
       </div>
 
-      <style jsx>{`
-        .slider::-webkit-slider-thumb {
-          -webkit-appearance: none;
-          width: 20px;
-          height: 20px;
-          border-radius: 50%;
-          background: white;
-          cursor: pointer;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-          border: 2px solid #333;
-        }
+      {/*<style jsx>{`*/}
+      {/*  .slider::-webkit-slider-thumb {*/}
+      {/*    -webkit-appearance: none;*/}
+      {/*    width: 20px;*/}
+      {/*    height: 20px;*/}
+      {/*    border-radius: 50%;*/}
+      {/*    background: white;*/}
+      {/*    cursor: pointer;*/}
+      {/*    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);*/}
+      {/*    border: 2px solid #333;*/}
+      {/*  }*/}
 
-        .slider::-moz-range-thumb {
-          width: 20px;
-          height: 20px;
-          border-radius: 50%;
-          background: white;
-          cursor: pointer;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-          border: 2px solid #333;
-          -moz-appearance: none;
-        }
-      `}</style>
+      {/*  .slider::-moz-range-thumb {*/}
+      {/*    width: 20px;*/}
+      {/*    height: 20px;*/}
+      {/*    border-radius: 50%;*/}
+      {/*    background: white;*/}
+      {/*    cursor: pointer;*/}
+      {/*    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);*/}
+      {/*    border: 2px solid #333;*/}
+      {/*    -moz-appearance: none;*/}
+      {/*  }*/}
+      {/*`}</style>*/}
     </div>
   );
 };
