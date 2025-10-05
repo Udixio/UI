@@ -23,6 +23,7 @@ export const ThemeProvider = ({
 }) => {
   const [themeApi, setThemeApi] = useState<API | null>(null);
 
+  // Charger l'API du thème une fois au montage
   useEffect(() => {
     (async () => {
       const api = await loader(config);
@@ -34,48 +35,65 @@ export const ThemeProvider = ({
     .getPlugin(TailwindPlugin)
     .getInstance().outputCss;
 
-  // Refs pour gérer le throttling
+  // Throttle avec exécution en tête (leading) et en fin (trailing)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isInitialLoadRef = useRef<boolean>(true);
+  const lastExecTimeRef = useRef<number>(0);
+  const lastArgsRef = useRef<Partial<ContextOptions> | null>(null);
 
   useEffect(() => {
-    // Si c'est le premier chargement, on applique immédiatement
-    if (isInitialLoadRef.current) {
-      isInitialLoadRef.current = false;
-      applyThemeChange(config);
-      return;
-    }
+    if (!themeApi) return; // Attendre que l'API soit prête
 
-    // Annuler le timeout précédent s'il existe
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
+    const ctx: Partial<ContextOptions> = {
+      ...config,
+      // Assurer la compatibilité avec l'API qui attend sourceColorHex
+      sourceColorHex: (config as any).sourceColor,
+    };
 
-    // Programmer un nouveau changement de thème avec un délai
-    timeoutRef.current = setTimeout(async () => {
-      await applyThemeChange({
-        ...config,
-        sourceColorHex: config.sourceColor,
-      });
-      timeoutRef.current = null;
-    }, throttleDelay);
+    const now = Date.now();
+    const timeSinceLast = now - lastExecTimeRef.current;
 
-    // Cleanup function pour annuler le timeout si le composant se démonte
-    return () => {
+    const invoke = async (args: Partial<ContextOptions>) => {
+      // applique et notifie
+      await applyThemeChange(args);
+    };
+
+    // Leading: si délai écoulé ou jamais exécuté, exécuter tout de suite
+    if (lastExecTimeRef.current === 0 || timeSinceLast >= throttleDelay) {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
       }
-    };
-  }, [config, throttleDelay]);
+      lastArgsRef.current = null;
+      lastExecTimeRef.current = now;
+      void invoke(ctx);
+    } else {
+      // Sinon, mémoriser la dernière requête et programmer une exécution en trailing
+      lastArgsRef.current = ctx;
+      if (!timeoutRef.current) {
+        const remaining = Math.max(0, throttleDelay - timeSinceLast);
+        timeoutRef.current = setTimeout(async () => {
+          timeoutRef.current = null;
+          const args = lastArgsRef.current;
+          lastArgsRef.current = null;
+          if (args) {
+            lastExecTimeRef.current = Date.now();
+            await invoke(args);
+          }
+        }, remaining);
+      }
+    }
+
+    // Cleanup: au changement de dépendances, ne rien faire ici (on gère trailing)
+    return () => {};
+  }, [config, throttleDelay, themeApi]);
 
   const applyThemeChange = async (ctx: Partial<ContextOptions>) => {
     if (ctx.sourceColorHex && !isValidHexColor(ctx.sourceColorHex)) {
       throw new Error('Invalid hex color');
     }
-
     if (!themeApi) {
-      throw new Error('Theme API is not initialized');
+      // L'API n'est pas prête; ignorer silencieusement car l'effet principal attend themeApi
+      return;
     }
     themeApi.context.update(ctx);
     await themeApi.load();
@@ -87,6 +105,7 @@ export const ThemeProvider = ({
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
       }
     };
   }, []);
