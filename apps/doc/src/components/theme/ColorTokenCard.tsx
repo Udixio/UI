@@ -6,7 +6,7 @@ type Props = {
   name: string;
   color: ColorFromPalette;
   onColor: ColorFromPalette;
-  onSelect?: (name: string) => void; // triggered on hover start (for tone highlight)
+  onSelect?: (name: string, color: ColorFromPalette) => void; // triggered on hover start (for tone highlight)
   onHoverEnd?: () => void; // triggered on hover end (for tone highlight)
 };
 
@@ -41,7 +41,7 @@ export const ColorTokenCard: React.FC<Props> = ({
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(displayName);
+      await navigator.clipboard.writeText(color);
       setCopied(true);
       setTimeout(() => setCopied(false), 1200);
     } catch (e) {
@@ -52,7 +52,7 @@ export const ColorTokenCard: React.FC<Props> = ({
   return (
     <div
       onMouseEnter={() => {
-        onSelect?.(name);
+        onSelect?.(name, color);
       }}
       onMouseLeave={() => {
         onHoverEnd?.();
@@ -72,7 +72,9 @@ export const ColorTokenCard: React.FC<Props> = ({
         <div className="text-label-large">{name}</div>
         <div className="text-body-small ">
           Tone:{' '}
-          {inverted ? 'Affichage de la clé on (inversé)' : color.options.tone}
+          {inverted
+            ? 'Affichage de la clé on (inversé)'
+            : Math.round(color.getTone())}
         </div>
       </div>
       <div className="flex items-center gap-2">

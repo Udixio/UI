@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { API } from '@udixio/theme';
+import { API, ColorFromPalette } from '@udixio/theme';
 import { hexFromArgb } from '@material/material-color-utilities';
 import { AnimatePresence, motion } from 'motion/react';
 
@@ -16,7 +16,7 @@ export type PaletteGroup =
 type Props = {
   api: API | null | undefined;
   group: PaletteGroup;
-  highlightedTone?: number | null;
+  highlighted?: { name: string; color: ColorFromPalette } | null;
   // Optional label to indicate where the highlighted tone comes from
   sourceLabel?: string | null;
 };
@@ -39,7 +39,7 @@ function mapGroupToPaletteKey(g: PaletteGroup): string | null {
 export const PaletteToneRow: React.FC<Props> = ({
   api,
   group,
-  highlightedTone,
+  highlighted,
   sourceLabel,
 }) => {
   const toneSteps = useMemo(
@@ -58,6 +58,11 @@ export const PaletteToneRow: React.FC<Props> = ({
   }, [api, group]);
 
   if (!palette) return null;
+
+  let highlightedTone = highlighted?.color.getTone();
+  if (highlightedTone) {
+    highlightedTone = Math.round(highlightedTone);
+  }
 
   const roundedSelected =
     typeof highlightedTone === 'number' && !Number.isNaN(highlightedTone)

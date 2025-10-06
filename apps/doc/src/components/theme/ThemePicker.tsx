@@ -19,7 +19,7 @@ export const ThemePicker: React.FC = () => {
     }
   }, [isDark]);
 
-  const [brightness, setBrightness] = useState();
+  const [brightness, setBrightness] = useState(0);
 
   useEffect(() => {
     themeConfigStore.set({

@@ -1,105 +1,50 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useStore } from '@nanostores/react';
 import {
   themeConfigStore,
   themeServiceStore,
 } from '@/stores/themeConfigStore.ts';
-import { API, ColorAlias, ColorFromPalette } from '@udixio/theme';
-import * as Case from 'case';
+import { ColorAlias, ColorFromPalette } from '@udixio/theme';
 import { Card, classNames, TextField } from '@udixio/ui-react';
 import PaletteToneRow from './PaletteToneRow';
 import ColorTokenCard from './ColorTokenCard';
-import { argbFromHex } from '@material/material-color-utilities';
 import { AnimatePresence, motion } from 'motion/react';
+import { kebabCase } from 'change-case';
 
 // A richer UX gallery focusing on usability: search, filter, copy, and previews.
 
 type Token = { name: string; value: string };
 
-function readAllColorTokens({ colors }: API): Token[] {
-  if (typeof window === 'undefined') return [];
-  // Avoid getComputedStyle as requested; rely on known keys from CSS and display with CSS variables.
-
-  const cssVarNames = Array.from(colors.getAll().keys()).map((k) =>
-    Case.kebab(k),
-  );
-
-  const out: Token[] = cssVarNames.map((k) => ({
-    name: `--color-${k}`,
-    value: `var(--color-${k})`,
-  }));
-  return out.sort((a, b) => a.name.localeCompare(b.name));
-}
-
 const paletteOrder = [
-  'neutral',
-  'neutral-variant',
-  'primary',
-  'secondary',
-  'tertiary',
-  'error',
-  'success',
+  'Primary',
+  'Secondary',
+  'Tertiary',
+  'Neutral',
+  'NeutralVariant',
+  'Error',
+  'Success',
 ] as const;
 
 type PaletteFamily = (typeof paletteOrder)[number] | 'others';
 
-function getPaletteFamily(name: string): PaletteFamily {
-  const key = name.replace(/^--color-/, '');
-  const base = key.startsWith('on-') ? key.replace(/^on-/, '') : key;
-
-  // Direct palette prefixes
-  if (base.startsWith('primary')) return 'primary';
-  if (base.startsWith('secondary')) return 'secondary';
-  if (base.startsWith('tertiary')) return 'tertiary';
-  if (base.startsWith('error')) return 'error';
-  if (base.startsWith('success')) return 'success';
-
-  // Neutral-variant related
-  if (
-    base.startsWith('outline') ||
-    base.startsWith('surface-variant') ||
-    base.startsWith('on-surface-variant')
-  ) {
-    return 'neutral-variant';
-  }
-
-  // Neutral-related usages (derived from neutral palette)
-  if (
-    base === 'background' ||
-    base.startsWith('surface') ||
-    base.startsWith('inverse') ||
-    base === 'on-background'
-  ) {
-    return 'neutral';
-  }
-
-  return 'others';
+function getPaletteFamily(color: ColorFromPalette): PaletteFamily {
+  return color.options.palette.name as PaletteFamily;
 }
 
 export const TokenGallery: React.FC = () => {
   const $themeApi = useStore(themeServiceStore);
 
   useStore(themeConfigStore); // re-render on theme change
-  const [tick, setTick] = useState(0);
   const [query, setQuery] = useState('');
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
     {},
   );
   const [selectedToneByGroup, setSelectedToneByGroup] = useState<
-    Record<string, number | null>
+    Record<string, { name: string; color: ColorFromPalette } | null>
   >({});
   const [hoveredTokenByGroup, setHoveredTokenByGroup] = useState<
-    Record<string, string | null>
+    Record<string, { name: string; color: ColorFromPalette } | null>
   >({});
-
-  useEffect(() => {
-    const observer = new MutationObserver(() => setTick((x) => x + 1));
-    observer.observe(document.documentElement, {
-      childList: true,
-      subtree: true,
-    });
-    return () => observer.disconnect();
-  }, []);
 
   const tokens = useMemo(() => {
     if (!$themeApi) {
@@ -108,18 +53,11 @@ export const TokenGallery: React.FC = () => {
     return Array.from($themeApi.colors.getAll().entries());
   }, [$themeApi]);
 
-  const palettes = useMemo(() => {
-    if (!$themeApi) {
-      return null;
-    }
-    return $themeApi.palettes.getAll();
-  }, [$themeApi]);
-
   const filtered = useMemo(() => {
     if (!tokens) return [];
 
     const baseList = tokens.filter(([name]) => {
-      return !name.toLowerCase().includes('on');
+      return !kebabCase(name).includes('on-');
     });
 
     const q = query.trim().toLowerCase();
@@ -150,21 +88,6 @@ export const TokenGallery: React.FC = () => {
     return map;
   }, [filtered]);
 
-  const mapGroupToPaletteKey = (g: string): string | null => {
-    if (g === 'neutral-variant') return 'neutralVariant';
-    if (
-      g === 'primary' ||
-      g === 'secondary' ||
-      g === 'tertiary' ||
-      g === 'neutral' ||
-      g === 'error' ||
-      g === 'success'
-    ) {
-      return g;
-    }
-    return null;
-  };
-
   const parseCssVarHex = (cssVarName: string): string | null => {
     if (typeof window === 'undefined') return null;
     const val = getComputedStyle(document.documentElement)
@@ -187,46 +110,6 @@ export const TokenGallery: React.FC = () => {
       return `#${r}${g}${b}`;
     }
     return null;
-  };
-
-  const rgbFromArgb = (argb: number) => ({
-    r: (argb >> 16) & 0xff,
-    g: (argb >> 8) & 0xff,
-    b: argb & 0xff,
-  });
-  const dist2 = (
-    a: { r: number; g: number; b: number },
-    b: { r: number; g: number; b: number },
-  ) => {
-    const dr = a.r - b.r,
-      dg = a.g - b.g,
-      db = a.b - b.b;
-    return dr * dr + dg * dg + db * db;
-  };
-
-  const nearestToneForHex = (group: string, hex: string): number | null => {
-    if (!$themeApi) return null;
-    const key = mapGroupToPaletteKey(group);
-    if (!key) return null;
-    let palette: any;
-    try {
-      palette = $themeApi.palettes.get(key as any);
-    } catch (e) {
-      palette = null;
-    }
-    if (!palette) return null;
-    const target = rgbFromArgb(argbFromHex(hex));
-    let bestTone = 0;
-    let bestd = Number.POSITIVE_INFINITY;
-    for (let t = 0; t <= 100; t++) {
-      const rgb = rgbFromArgb(palette.tone(t));
-      const d = dist2(rgb, target);
-      if (d < bestd) {
-        bestd = d;
-        bestTone = t;
-      }
-    }
-    return bestTone;
   };
 
   // Animation variants for palette keys reveal
@@ -252,19 +135,22 @@ export const TokenGallery: React.FC = () => {
     },
     exit: { opacity: 0, y: -6, scale: 0.98, transition: { duration: 0.15 } },
   } as const;
-
-  const handleTokenHover = (name: string) => {
-    const group = getPaletteFamily(name);
-    const hex = parseCssVarHex(name);
+  const handleTokenHover = (name: string, color: ColorFromPalette) => {
+    const group = getPaletteFamily(color);
+    const hex = color.getHex();
     if (!hex) return;
-    const tone = nearestToneForHex(group, hex);
-    setSelectedToneByGroup((prev) => ({ ...prev, [group]: tone }));
-    const label = name; // keep full token name; PaletteToneRow will prettify
-    setHoveredTokenByGroup((prev) => ({ ...prev, [group]: label }));
+    setSelectedToneByGroup((prev) => ({
+      ...prev,
+      [group]: { name, color },
+    }));
+    setHoveredTokenByGroup((prev) => ({
+      ...prev,
+      [group]: { name, color },
+    }));
   };
 
-  const handleTokenHoverEnd = (name: string) => {
-    const group = getPaletteFamily(name);
+  const handleTokenHoverEnd = (name: string, color: ColorFromPalette) => {
+    const group = getPaletteFamily(color);
     setSelectedToneByGroup((prev) => ({ ...prev, [group]: null }));
     setHoveredTokenByGroup((prev) => ({ ...prev, [group]: null }));
   };
@@ -327,8 +213,7 @@ export const TokenGallery: React.FC = () => {
             <PaletteToneRow
               api={$themeApi}
               group={group as any}
-              highlightedTone={selectedToneByGroup[group] ?? null}
-              sourceLabel={hoveredTokenByGroup[group] ?? null}
+              highlighted={selectedToneByGroup[group] ?? null}
             />
             <AnimatePresence initial={false}>
               {expandedGroups[group] && (
@@ -347,8 +232,9 @@ export const TokenGallery: React.FC = () => {
                         <ColorTokenCard
                           name={name}
                           color={t.color}
+                          onColor={t.color}
                           onSelect={handleTokenHover}
-                          onHoverEnd={() => handleTokenHoverEnd(name)}
+                          onHoverEnd={() => handleTokenHoverEnd(name, t.color)}
                         />
                       </motion.div>
                     );
