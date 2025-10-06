@@ -6,12 +6,12 @@ import { Context } from '../context';
 import { AddPaletteOptions } from '../palette/palette.api';
 
 export const getPiecewiseHue = (
-  sourceColorHct: Hct,
+  sourceColor: Hct,
   hueBreakpoints: number[],
   hues: number[],
 ): number => {
   const size = Math.min(hueBreakpoints.length - 1, hues.length);
-  const sourceHue = sourceColorHct.hue;
+  const sourceHue = sourceColor.hue;
   for (let i = 0; i < size; i++) {
     if (sourceHue >= hueBreakpoints[i] && sourceHue < hueBreakpoints[i + 1]) {
       return sanitizeDegreesDouble(hues[i]);
@@ -21,15 +21,15 @@ export const getPiecewiseHue = (
 };
 
 export const getRotatedHue = (
-  sourceColorHct: Hct,
+  sourceColor: Hct,
   hueBreakpoints: number[],
   rotations: number[],
 ): number => {
-  let rotation = getPiecewiseHue(sourceColorHct, hueBreakpoints, rotations);
+  let rotation = getPiecewiseHue(sourceColor, hueBreakpoints, rotations);
   if (Math.min(hueBreakpoints.length - 1, rotations.length) <= 0) {
     rotation = 0;
   }
-  return sanitizeDegreesDouble(sourceColorHct.hue + rotation);
+  return sanitizeDegreesDouble(sourceColor.hue + rotation);
 };
 
 export interface VariantOptions {
@@ -46,22 +46,35 @@ export interface VariantOptions {
 }
 
 export class Variant {
-  public readonly palettes: Record<string, Palette>;
+  public _palettes?: Record<string, Palette>;
   public readonly customPalettes: VariantOptions['customPalettes'];
   public readonly colors: AddColorsOptions;
   public readonly name: string;
+  private context?: Context;
 
-  constructor(args: VariantOptions) {
-    this.palettes = Object.entries(args.palettes).reduce(
+  constructor(private options: VariantOptions) {
+    this.customPalettes = options.customPalettes;
+    this.colors = options.colors || {};
+    this.name = options.name;
+  }
+
+  get palettes() {
+    if (!this._palettes) {
+      throw new Error('Variant not initialized');
+    }
+    return this._palettes;
+  }
+
+  init(context: Context) {
+    if (this.context) return;
+    this.context = context;
+    this._palettes = Object.entries(this.options.palettes).reduce(
       (acc, [key, callback]) => ({
         ...acc,
-        [key]: new Palette(callback),
+        [key]: new Palette(key, callback, context),
       }),
       {},
     );
-    this.customPalettes = args.customPalettes;
-    this.colors = args.colors || {};
-    this.name = args.name;
   }
 }
 

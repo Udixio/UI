@@ -352,7 +352,7 @@ export const defaultColors: AddColorsOptions = ({
                 : 98,
           );
         } else if (c.variant.name == 'fidelity') {
-          return c.sourceColorHct.tone;
+          return c.sourceColor.tone;
         } else {
           return tMaxC(
             palettes.get('primary'),

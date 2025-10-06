@@ -2,55 +2,56 @@ import { getPiecewiseHue, getRotatedHue, variant } from '../variant';
 import { TonalPalette } from '@material/material-color-utilities';
 import { Hct } from '../../material-color-utilities/htc';
 
-const getExpressiveNeutralHue = (sourceColorHct: Hct): number => {
+const getExpressiveNeutralHue = (sourceColor: Hct): number => {
   const hue = getRotatedHue(
-    sourceColorHct,
+    sourceColor,
     [0, 71, 124, 253, 278, 300, 360],
     [10, 0, 10, 0, 10, 0],
   );
   return hue;
 };
 const getExpressiveNeutralChroma = (
-  sourceColorHct: Hct,
+  sourceColor: Hct,
   isDark: boolean,
 ): number => {
-  const neutralHue = getExpressiveNeutralHue(sourceColorHct);
+  const neutralHue = getExpressiveNeutralHue(sourceColor);
   return isDark ? (Hct.isYellow(neutralHue) ? 6 : 14) : 18;
 };
 
 export const expressiveVariant = variant({
   name: 'expressive',
   palettes: {
-    primary: ({ sourceColorHct, isDark }) => ({
-      hue: sourceColorHct.hue,
+    primary: ({ sourceColor, isDark }) => ({
+      hue: sourceColor.hue,
       chroma: isDark ? 36 : 48,
     }),
-    secondary: ({ sourceColorHct, isDark }) => ({
+    secondary: ({ sourceColor, isDark }) => ({
       hue: getRotatedHue(
-        sourceColorHct,
+        sourceColor,
         [0, 105, 140, 204, 253, 278, 300, 333, 360],
         [-160, 155, -100, 96, -96, -156, -165, -160],
       ),
+
       chroma: isDark ? 16 : 24,
     }),
-    tertiary: ({ sourceColorHct }) =>
+    tertiary: ({ sourceColor }) =>
       TonalPalette.fromHueAndChroma(
         getRotatedHue(
-          sourceColorHct,
+          sourceColor,
           [0, 105, 140, 204, 253, 278, 300, 333, 360],
           [-165, 160, -105, 101, -101, -160, -170, -165],
         ),
         48,
       ),
-    neutral: ({ sourceColorHct, isDark }) =>
+    neutral: ({ sourceColor, isDark }) =>
       TonalPalette.fromHueAndChroma(
-        getExpressiveNeutralHue(sourceColorHct),
-        getExpressiveNeutralChroma(sourceColorHct, isDark),
+        getExpressiveNeutralHue(sourceColor),
+        getExpressiveNeutralChroma(sourceColor, isDark),
       ),
-    neutralVariant: ({ sourceColorHct, isDark }) => {
-      const expressiveNeutralHue = getExpressiveNeutralHue(sourceColorHct);
+    neutralVariant: ({ sourceColor, isDark }) => {
+      const expressiveNeutralHue = getExpressiveNeutralHue(sourceColor);
       const expressiveNeutralChroma = getExpressiveNeutralChroma(
-        sourceColorHct,
+        sourceColor,
         isDark,
       );
       return TonalPalette.fromHueAndChroma(
@@ -61,9 +62,9 @@ export const expressiveVariant = variant({
             : 2.3),
       );
     },
-    error: ({ sourceColorHct }) => {
+    error: ({ sourceColor }) => {
       const errorHue = getPiecewiseHue(
-        sourceColorHct,
+        sourceColor,
         [0, 3, 13, 23, 33, 43, 153, 273, 360],
         [12, 22, 32, 12, 22, 32, 22, 12],
       );

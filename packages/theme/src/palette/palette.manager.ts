@@ -19,15 +19,15 @@ export class PaletteManager {
     this.colorApi = args.colorApi;
     this.context = args.context;
 
-    this.context.onUpdate(() =>
+    this.context.onUpdate((changed) =>
       Object.entries(this.palettes).forEach(([key, value]) => {
-        value.update(this.context);
+        value.update(changed);
       }),
     );
   }
 
   addCustomPalette(key: string, color: Hct) {
-    const palette = Palette.fromVariant(color);
+    const palette = Palette.fromVariant(key, color, this.context);
     this.add(key, palette);
     this.colorApi.addFromCustomPalette(key);
   }
@@ -36,7 +36,8 @@ export class PaletteManager {
     if (this._palettes['key']) {
       throw new Error(`Palette with key ${key} already exists`);
     }
-    if (!(palette instanceof Palette)) palette = new Palette(palette);
+    if (!(palette instanceof Palette))
+      palette = new Palette(key, palette, this.context);
     this.set(key, palette);
   }
 
@@ -66,7 +67,7 @@ export class PaletteManager {
       throw new Error(`Palette with key ${key} not found`);
     }
     if (!(args instanceof Palette)) {
-      args = new Palette(args);
+      args = new Palette(key, args, this.context);
     }
     this.set(key, args);
   }

@@ -46,7 +46,7 @@ export const ThemeProvider = ({
     const ctx: Partial<ContextOptions> = {
       ...config,
       // Assurer la compatibilité avec l'API qui attend sourceColorHex
-      sourceColorHex: (config as any).sourceColor,
+      sourceColor: config.sourceColor,
     };
 
     const now = Date.now();
@@ -88,15 +88,20 @@ export const ThemeProvider = ({
   }, [config, throttleDelay, themeApi]);
 
   const applyThemeChange = async (ctx: Partial<ContextOptions>) => {
-    if (ctx.sourceColorHex && !isValidHexColor(ctx.sourceColorHex)) {
-      throw new Error('Invalid hex color');
+    if (typeof ctx.sourceColor == 'string') {
+      if (!isValidHexColor(ctx.sourceColor)) {
+        throw new Error('Invalid hex color');
+      }
     }
+
     if (!themeApi) {
       // L'API n'est pas prête; ignorer silencieusement car l'effet principal attend themeApi
       return;
     }
     themeApi.context.update(ctx);
+
     await themeApi.load();
+
     onLoad?.(themeApi);
   };
 

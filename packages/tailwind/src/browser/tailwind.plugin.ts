@@ -162,7 +162,7 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
   })} 
 }`;
 
-    const sourceColor = this.api.context.sourceColorHct;
+    const sourceColor = this.api.context.sourceColor;
     for (const [key, value] of Object.entries(this.options.subThemes ?? {})) {
       const newHue = Hct.fromInt(argbFromHex(value)).hue;
       const newColor = Hct.from(newHue, sourceColor.chroma, sourceColor.tone);
@@ -194,35 +194,41 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
   }
 
   getColors() {
-    const colors: Record<
-      string,
-      {
-        light: string;
-        dark: string;
-      }
-    > = {};
-    for (const isDark of [false, true]) {
+    const colors: Record<string, { light: string; dark: string }> = {};
+    const regex = /([a-z0-9]|(?=[A-Z]))([A-Z])/g;
+    [false, true].forEach((isDark) => {
       this.api.context.darkMode = isDark;
-      for (const [key, value] of this.api.colors.getAll().entries()) {
-        const newKey = key
-          .replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2')
-          .toLowerCase();
-        colors[newKey] ??= { light: '', dark: '' };
+      this.api.colors.getAll().forEach((value, key) => {
+        const newKey = key.replace(regex, '$1-$2').toLowerCase();
+        if (!colors[newKey]) {
+          colors[newKey] = { light: '', dark: '' };
+        }
         colors[newKey][isDark ? 'dark' : 'light'] = value.getHex();
-      }
-    }
-
+      });
+    });
     return colors;
   }
 
   async onLoad() {
+    console.time('load tailwind');
+    console.log('load tailwind browser');
+
+    console.time('getColor');
     this.getColors();
+    console.timeEnd('getColor');
 
-    if (typeof window !== 'undefined') {
-      const { tailwindBrowserInit } = await import('./tailwind-browser');
+    console.log(this.outputCss);
 
-      this.outputCss = await tailwindBrowserInit(this.outputCss);
-    }
+    // if (typeof window !== 'undefined') {
+    //   const { tailwindBrowserInit } = await import('./tailwind-browser');
+    //
+    //   this.outputCss = await tailwindBrowserInit(this.outputCss);
+    // }
+
+    console.time('loadColor');
     this.loadColor({ isDynamic: true });
+    console.timeEnd('loadColor');
+
+    console.timeEnd('load tailwind');
   }
 }

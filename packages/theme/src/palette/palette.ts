@@ -1,5 +1,5 @@
+import { Context } from '../context';
 import { Hct } from '../material-color-utilities/htc';
-import { Context } from 'src/context';
 
 export type PaletteCallback = (context: Context) => {
   hue: number;
@@ -11,20 +11,51 @@ export class Palette {
   private hueCache: number | null = null;
   private chromaCache: number | null = null;
 
-  constructor(public callback: PaletteCallback) {}
+  private dependencies: (keyof Context)[] | null = null;
 
-  static fromVariant(color: Hct): Palette {
+  constructor(
+    public name: string,
+    public callback: PaletteCallback,
+    public context: Context,
+  ) {
+    this.update([]);
+  }
+
+  static fromVariant(name: string, color: Hct, ctx: Context): Palette {
     const callback: PaletteCallback = (context) => {
       return context.variant.customPalettes(context, color);
     };
-    return new Palette(callback);
+    return new Palette(name, callback, ctx);
   }
 
-  update(args: Context) {
-    this.clearCache();
-    const result = this.callback(args);
-    this.hueCache = result.hue;
-    this.chromaCache = result.chroma;
+  update(change: Partial<keyof Context>[]): void {
+    let result: {
+      hue: number;
+      chroma: number;
+    } | null = null;
+
+    if (this.dependencies == null) {
+      const trackDependencies = Context.trackDependencies(this.context, (ctx) =>
+        this.callback(ctx),
+      );
+      this.dependencies = trackDependencies.dependencies;
+      result = trackDependencies.result;
+    } else if (
+      change.length > 0 &&
+      change.some((c) => this.dependencies?.includes(c))
+    ) {
+      result = this.callback(this.context);
+    }
+
+    if (
+      result &&
+      this.hueCache !== result.hue &&
+      this.chromaCache !== result.chroma
+    ) {
+      this.clearCache();
+      this.hueCache = result.hue;
+      this.chromaCache = result.chroma;
+    }
   }
 
   private clearCache() {
@@ -67,14 +98,14 @@ export class Palette {
   get hue(): number {
     const hue = this.hueCache;
     if (hue == null) {
-      throw new Error('Palette must be updated before using hue');
+      throw new Error(`Palette ${this.name} must be updated before using hue`);
     }
     return hue;
   }
   get chroma(): number {
     const chroma = this.chromaCache;
     if (chroma == null) {
-      throw new Error('Palette must be updated before using hue');
+      throw new Error(`Palette ${this.name} must be updated before using hue`);
     }
     return chroma;
   }

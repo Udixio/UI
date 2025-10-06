@@ -4,26 +4,26 @@ import { TonalPalette } from '@material/material-color-utilities';
 export const tonalSpotVariant: Variant = variant({
   name: 'tonalSpot',
   palettes: {
-    primary: ({ sourceColorHct, isDark }) =>
-      TonalPalette.fromHueAndChroma(sourceColorHct.hue, isDark ? 26 : 32),
-    secondary: ({ sourceColorHct }) =>
-      TonalPalette.fromHueAndChroma(sourceColorHct.hue, 16),
-    tertiary: ({ sourceColorHct }) =>
+    primary: ({ sourceColor, isDark }) =>
+      TonalPalette.fromHueAndChroma(sourceColor.hue, isDark ? 26 : 32),
+    secondary: ({ sourceColor }) =>
+      TonalPalette.fromHueAndChroma(sourceColor.hue, 16),
+    tertiary: ({ sourceColor }) =>
       TonalPalette.fromHueAndChroma(
         getRotatedHue(
-          sourceColorHct,
+          sourceColor,
           [0, 20, 71, 161, 333, 360],
           [-40, 48, -32, 40, -32],
         ),
         28,
       ),
-    neutral: ({ sourceColorHct }) =>
-      TonalPalette.fromHueAndChroma(sourceColorHct.hue, 5),
-    neutralVariant: ({ sourceColorHct }) =>
-      TonalPalette.fromHueAndChroma(sourceColorHct.hue, 5 * 1.7),
-    error: ({ sourceColorHct }) => {
+    neutral: ({ sourceColor }) =>
+      TonalPalette.fromHueAndChroma(sourceColor.hue, 5),
+    neutralVariant: ({ sourceColor }) =>
+      TonalPalette.fromHueAndChroma(sourceColor.hue, 5 * 1.7),
+    error: ({ sourceColor }) => {
       const errorHue = getPiecewiseHue(
-        sourceColorHct,
+        sourceColor,
         [0, 3, 13, 23, 33, 43, 153, 273, 360],
         [12, 22, 32, 12, 22, 32, 22, 12],
       );

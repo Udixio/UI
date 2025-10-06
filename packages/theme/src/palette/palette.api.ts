@@ -11,7 +11,7 @@ export class PaletteApi {
     this.paletteManager = paletteManager;
   }
 
-  add(args: Record<string, PaletteCallback | 'string'>): void {
+  add(args: Record<string, PaletteCallback | string>): void {
     Object.entries(args).forEach(([key, callback]) => {
       if (typeof callback === 'string') {
         this.paletteManager.addCustomPalette(

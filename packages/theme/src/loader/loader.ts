@@ -1,20 +1,10 @@
 import { defaultColors } from '../color';
 import { bootstrap } from '../bootstrap';
-import { registerModule } from '../app.container';
-import { asValue } from 'awilix';
 import { ConfigInterface } from '../config';
 import { Variants } from '../variant/variants';
 
-const initializeApi = () => {
-  const api = bootstrap();
-  registerModule({
-    adapter: asValue(this),
-  });
-  return api;
-};
-
 export const loader = async (config: ConfigInterface) => {
-  const api = initializeApi();
+  const api = bootstrap();
 
   const init = () => {
     const {
@@ -30,7 +20,7 @@ export const loader = async (config: ConfigInterface) => {
     api.context.set({
       contrastLevel: contrastLevel,
       isDark: isDark,
-      sourceColorHex: sourceColor,
+      sourceColor,
       variant: variant,
     });
 

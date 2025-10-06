@@ -5,32 +5,32 @@ import { Hct } from '../../material-color-utilities/htc';
 export const neutralVariant: Variant = variant({
   name: 'neutral',
   palettes: {
-    primary: ({ sourceColorHct }) =>
+    primary: ({ sourceColor }) =>
       TonalPalette.fromHueAndChroma(
-        sourceColorHct.hue,
-        Hct.isBlue(sourceColorHct.hue) ? 12 : 8,
+        sourceColor.hue,
+        Hct.isBlue(sourceColor.hue) ? 12 : 8,
       ),
-    secondary: ({ sourceColorHct }) =>
+    secondary: ({ sourceColor }) =>
       TonalPalette.fromHueAndChroma(
-        sourceColorHct.hue,
-        Hct.isBlue(sourceColorHct.hue) ? 6 : 4,
+        sourceColor.hue,
+        Hct.isBlue(sourceColor.hue) ? 6 : 4,
       ),
-    tertiary: ({ sourceColorHct }) =>
+    tertiary: ({ sourceColor }) =>
       TonalPalette.fromHueAndChroma(
         getRotatedHue(
-          sourceColorHct,
+          sourceColor,
           [0, 38, 105, 161, 204, 278, 333, 360],
           [-32, 26, 10, -39, 24, -15, -32],
         ),
         20,
       ),
-    neutral: ({ sourceColorHct }) =>
-      TonalPalette.fromHueAndChroma(sourceColorHct.hue, 1.4),
-    neutralVariant: ({ sourceColorHct }) =>
-      TonalPalette.fromHueAndChroma(sourceColorHct.hue, 1.4 * 2.2),
-    error: ({ sourceColorHct }) => {
+    neutral: ({ sourceColor }) =>
+      TonalPalette.fromHueAndChroma(sourceColor.hue, 1.4),
+    neutralVariant: ({ sourceColor }) =>
+      TonalPalette.fromHueAndChroma(sourceColor.hue, 1.4 * 2.2),
+    error: ({ sourceColor }) => {
       const errorHue = getPiecewiseHue(
-        sourceColorHct,
+        sourceColor,
         [0, 3, 13, 23, 33, 43, 153, 273, 360],
         [12, 22, 32, 12, 22, 32, 22, 12],
       );
