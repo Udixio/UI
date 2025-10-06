@@ -5,7 +5,8 @@ import {
   themeServiceStore,
 } from '@/stores/themeConfigStore.ts';
 import { API } from '@udixio/theme';
-import * as Case from 'case'; // A richer UX gallery focusing on usability: search, filter, copy, and previews.
+import * as Case from 'case';
+import { TextField } from '@udixio/ui-react'; // A richer UX gallery focusing on usability: search, filter, copy, and previews.
 
 // A richer UX gallery focusing on usability: search, filter, copy, and previews.
 
@@ -102,11 +103,16 @@ export const TokenGallery: React.FC = () => {
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-        <input
-          placeholder="Rechercher un token (ex: primary, on-surface...)"
-          className="flex-1 px-3 py-2 rounded-md border border-outline-variant/40 bg-surface text-on-surface"
+        <TextField
+          variant={'outlined'}
+          name={'token-search'}
+          label="Search for a token"
+          placeholder="Search for a token (eg: primary, surface...)"
+          supportingText={
+            'All the color keys (from udixio.css) with previews, search, copy and export.'
+          }
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(value) => setQuery(value)}
         />
         <div className="flex gap-2"></div>
       </div>
