@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
+import { ColorFromPalette } from '@udixio/theme';
+import { kebabCase } from 'change-case';
 
 type Props = {
-  name: string; // CSS variable name, e.g. --color-primary
+  name: string;
+  color: ColorFromPalette;
+  onColor: ColorFromPalette;
   onSelect?: (name: string) => void; // triggered on hover start (for tone highlight)
   onHoverEnd?: () => void; // triggered on hover end (for tone highlight)
 };
@@ -9,21 +13,31 @@ type Props = {
 export const ColorTokenCard: React.FC<Props> = ({
   name,
   onSelect,
+  onColor,
+  color,
   onHoverEnd,
 }) => {
   const [copied, setCopied] = useState(false);
   const [inverted, setInverted] = useState(false);
 
-  const base = name.replace(/^--color-/, '');
-  const isOn = base.startsWith('on-');
-  const bgBase = isOn ? base.replace(/^on-/, '') : base;
-
-  // determine what to display: base token by default, on- variant when inverted
-  const displayName = inverted ? `--color-on-${bgBase}` : `--color-${bgBase}`;
+  const base = kebabCase(name).replace(/^--color-/, '');
+  const isOn = base.includes('on-');
+  const bgBase = (isOn ? base.replace(/^on-/, '') : base).replace(
+    'inverse-',
+    '',
+  );
 
   // Preview: when inverted, swap bg/fg to preview that token color
-  const bg = inverted ? `var(--color-on-${bgBase})` : `var(--color-${bgBase})`;
-  const fg = inverted ? `var(--color-${bgBase})` : `var(--color-on-${bgBase})`;
+  let bg = inverted ? `var(--color-on-${bgBase})` : `var(--color-${bgBase})`;
+  let fg = inverted ? `var(--color-${bgBase})` : `var(--color-on-${bgBase})`;
+  if (base.includes('inverse')) {
+    bg = inverted
+      ? `var(--color-inverse-on-${bgBase})`
+      : `var(--color-inverse-${bgBase})`;
+    fg = inverted
+      ? `var(--color-inverse-${bgBase})`
+      : `var(--color-inverse-on-${bgBase})`;
+  }
 
   const handleCopy = async () => {
     try {
@@ -47,7 +61,7 @@ export const ColorTokenCard: React.FC<Props> = ({
         background: bg,
         color: fg,
       }}
-      className="h-full group cursor-pointer flex items-center gap-3 p-4 rounded-lg border border-outline-variant bg-surface-container transition-all duration-300 hover:scale-[1.01]"
+      className="h-full group cursor-pointer flex flex-col gap-3 p-4 rounded-lg border border-outline-variant bg-surface-container transition-all duration-300 hover:scale-[1.01]"
       title={
         inverted
           ? 'Inversé: aperçu avec la clé on'
@@ -55,13 +69,10 @@ export const ColorTokenCard: React.FC<Props> = ({
       }
     >
       <div className="min-w-0 flex-1">
-        <div className="text-label-large">
-          {displayName.replace(/^--color-/, '')}
-        </div>
-        <div className="text-body-small text-on-surface-variant/80">
-          {inverted
-            ? 'Affichage de la clé on (inversé)'
-            : 'Affichage de la clé de base'}
+        <div className="text-label-large">{name}</div>
+        <div className="text-body-small ">
+          Tone:{' '}
+          {inverted ? 'Affichage de la clé on (inversé)' : color.options.tone}
         </div>
       </div>
       <div className="flex items-center gap-2">

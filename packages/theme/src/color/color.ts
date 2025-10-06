@@ -67,6 +67,10 @@ export class ColorAlias extends Color {
   ) {
     super(name);
   }
+
+  color() {
+    return this.colorService.get(this.as) as ColorFromPalette;
+  }
 }
 
 export class ColorFromHex extends Color {

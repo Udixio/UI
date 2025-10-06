@@ -4,7 +4,7 @@ import {
   themeConfigStore,
   themeServiceStore,
 } from '@/stores/themeConfigStore.ts';
-import { API } from '@udixio/theme';
+import { API, ColorAlias, ColorFromPalette } from '@udixio/theme';
 import * as Case from 'case';
 import { Card, classNames, TextField } from '@udixio/ui-react';
 import PaletteToneRow from './PaletteToneRow';
@@ -105,26 +105,45 @@ export const TokenGallery: React.FC = () => {
     if (!$themeApi) {
       return null;
     }
-    return readAllColorTokens($themeApi);
+    return Array.from($themeApi.colors.getAll().entries());
+  }, [$themeApi]);
+
+  const palettes = useMemo(() => {
+    if (!$themeApi) {
+      return null;
+    }
+    return $themeApi.palettes.getAll();
   }, [$themeApi]);
 
   const filtered = useMemo(() => {
     if (!tokens) return [];
 
-    // Always hide tokens that are explicit "on-" variants
-    const baseList = tokens.filter((t) => !/--color-on-/.test(t.name));
+    const baseList = tokens.filter(([name]) => {
+      return !name.toLowerCase().includes('on');
+    });
 
     const q = query.trim().toLowerCase();
     if (!q) return baseList;
-    return baseList.filter((t) => t.name.toLowerCase().includes(q));
+
+    return baseList.filter(([name]) => name.toLowerCase().includes(q));
   }, [tokens, query]);
 
   const groups = useMemo(() => {
-    const map = new Map<string, Token[]>();
+    const map = new Map<string, { name: string; color: ColorFromPalette }[]>();
     for (const t of filtered) {
-      const fam = getPaletteFamily(t.name);
+      if (t[1] instanceof ColorAlias) {
+        t[1] = t[1].color();
+      }
+      if (!(t[1] instanceof ColorFromPalette)) {
+        console.error(t[1]);
+        throw new Error('Invalid color type');
+      }
+      const fam = t[1].options.palette.name;
       if (!map.has(fam)) map.set(fam, []);
-      map.get(fam)!.push(t);
+      map.get(fam)!.push({
+        name: t[0],
+        color: t[1],
+      });
     }
     for (const [k, list] of map)
       list.sort((a, b) => a.name.localeCompare(b.name));
@@ -327,6 +346,7 @@ export const TokenGallery: React.FC = () => {
                       <motion.div key={name} variants={itemVariants} layout>
                         <ColorTokenCard
                           name={name}
+                          color={t.color}
                           onSelect={handleTokenHover}
                           onHoverEnd={() => handleTokenHoverEnd(name)}
                         />
