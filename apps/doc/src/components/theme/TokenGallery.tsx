@@ -136,7 +136,7 @@ export const TokenGallery: React.FC = () => {
                       color: on,
                     }}
                     key={name}
-                    className="group flex items-center gap-3 p-4 rounded-lg border border-outline-variant bg-surface-container"
+                    className="group flex items-center gap-3 p-4 rounded-lg border border-outline-variant bg-surface-container transition-all duration-500"
                   >
                     <div className="min-w-0 flex-1">
                       <div className="text-label-large">{base}</div>
