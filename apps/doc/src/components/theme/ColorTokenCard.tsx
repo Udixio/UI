@@ -6,7 +6,11 @@ type Props = {
   onHoverEnd?: () => void; // triggered on hover end (for tone highlight)
 };
 
-export const ColorTokenCard: React.FC<Props> = ({ name, onSelect, onHoverEnd }) => {
+export const ColorTokenCard: React.FC<Props> = ({
+  name,
+  onSelect,
+  onHoverEnd,
+}) => {
   const [copied, setCopied] = useState(false);
   const [inverted, setInverted] = useState(false);
 
@@ -43,13 +47,21 @@ export const ColorTokenCard: React.FC<Props> = ({ name, onSelect, onHoverEnd }) 
         background: bg,
         color: fg,
       }}
-      className="group cursor-pointer flex items-center gap-3 p-4 rounded-lg border border-outline-variant bg-surface-container transition-all duration-300 hover:scale-[1.01]"
-      title={inverted ? 'Inversé: aperçu avec la clé on' : 'Aperçu de base: survolez pour mettre en évidence la tone correspondante'}
+      className="h-full group cursor-pointer flex items-center gap-3 p-4 rounded-lg border border-outline-variant bg-surface-container transition-all duration-300 hover:scale-[1.01]"
+      title={
+        inverted
+          ? 'Inversé: aperçu avec la clé on'
+          : 'Aperçu de base: survolez pour mettre en évidence la tone correspondante'
+      }
     >
       <div className="min-w-0 flex-1">
-        <div className="text-label-large">{displayName.replace(/^--color-/, '')}</div>
+        <div className="text-label-large">
+          {displayName.replace(/^--color-/, '')}
+        </div>
         <div className="text-body-small text-on-surface-variant/80">
-          {inverted ? 'Affichage de la clé on (inversé)' : 'Affichage de la clé de base'}
+          {inverted
+            ? 'Affichage de la clé on (inversé)'
+            : 'Affichage de la clé de base'}
         </div>
       </div>
       <div className="flex items-center gap-2">
@@ -59,7 +71,11 @@ export const ColorTokenCard: React.FC<Props> = ({ name, onSelect, onHoverEnd }) 
             setInverted((v) => !v);
           }}
           className="opacity-80 group-hover:opacity-100 text-xs px-2 py-1 rounded border border-outline-variant/40 hover:bg-surface-container-high"
-          title={inverted ? 'Désactiver l\'inversion (afficher la clé de base)' : 'Inverser (afficher la clé on)'}
+          title={
+            inverted
+              ? "Désactiver l'inversion (afficher la clé de base)"
+              : 'Inverser (afficher la clé on)'
+          }
         >
           {inverted ? 'Désinverser' : 'Inverser'}
         </button>
@@ -69,7 +85,9 @@ export const ColorTokenCard: React.FC<Props> = ({ name, onSelect, onHoverEnd }) 
             handleCopy();
           }}
           className="opacity-80 group-hover:opacity-100 text-xs px-2 py-1 rounded border border-outline-variant/40"
-          title={inverted ? 'Copier le nom du token on' : 'Copier le nom du token'}
+          title={
+            inverted ? 'Copier le nom du token on' : 'Copier le nom du token'
+          }
         >
           {copied ? 'Copié' : inverted ? 'Copier “on”' : 'Copier'}
         </button>

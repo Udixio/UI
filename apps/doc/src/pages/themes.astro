@@ -14,8 +14,8 @@ import { Button, Card, TextField, Switch, Divider } from '@udixio/ui-react';
       </p>
     </header>
 
-    <div class="flex items-start justify-evenly gap-16">
-      <Card variant='filled' className="sticky top-4 p-4  max-w-lg flex-1">
+    <div class="flex items-start justify-evenly gap-8">
+      <Card variant='filled' className="sticky top-4 p-8  max-w-lg flex-1 bg-surface-container">
         <h2 class="text-sm font-semibold text-on-surface-variant mb-3">Theme</h2>
         <ThemePicker client:load />
       </Card>
@@ -75,9 +75,11 @@ import { Button, Card, TextField, Switch, Divider } from '@udixio/ui-react';
       <!--    </div>-->
       <!--  </section>-->
       <!--</div>-->
-      <section class="space-y-4 flex-1 sticky top-4">
-        <h2 class="text-lg font-semibold">Catalog of colors</h2>
-        <TokenGallery client:load />
+      <section class=" flex-1 ">
+        <Card variant="filled" className="space-y-4 p-8 bg-surface-container">
+          <h2 class="text-lg font-semibold">Catalog of colors</h2>
+          <TokenGallery client:load />
+        </Card>
       </section>
     </div>
   </section>

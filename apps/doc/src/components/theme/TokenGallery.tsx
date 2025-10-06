@@ -6,7 +6,7 @@ import {
 } from '@/stores/themeConfigStore.ts';
 import { API } from '@udixio/theme';
 import * as Case from 'case';
-import { TextField } from '@udixio/ui-react';
+import { Card, classNames, TextField } from '@udixio/ui-react';
 import PaletteToneRow from './PaletteToneRow';
 import ColorTokenCard from './ColorTokenCard';
 import { argbFromHex } from '@material/material-color-utilities';
@@ -251,7 +251,7 @@ export const TokenGallery: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="">
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
         <TextField
           variant={'outlined'}
@@ -275,8 +275,18 @@ export const TokenGallery: React.FC = () => {
           const sb = ib === -1 ? Number.MAX_SAFE_INTEGER : ib;
           return sa - sb;
         })
-        .map((group) => (
-          <div key={group} className="space-y-2">
+        .map((group, index) => (
+          <Card
+            variant={'filled'}
+            key={group}
+            className={classNames(
+              'space-y-2 bg-surface-container-highest px-4 -mx-4 mt-2 py-4',
+              {
+                'rounded-t-none ': index > 0,
+                'rounded-b-none': index < groups.size - 1,
+              },
+            )}
+          >
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-on-surface-variant capitalize">
                 {group === 'others' ? 'Autres' : group}
@@ -326,7 +336,7 @@ export const TokenGallery: React.FC = () => {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
+          </Card>
         ))}
     </div>
   );
