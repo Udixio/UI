@@ -10,6 +10,7 @@ import { TextField } from '@udixio/ui-react';
 import PaletteToneRow from './PaletteToneRow';
 import ColorTokenCard from './ColorTokenCard';
 import { argbFromHex } from '@material/material-color-utilities';
+import { AnimatePresence, motion } from 'motion/react';
 
 // A richer UX gallery focusing on usability: search, filter, copy, and previews.
 
@@ -81,8 +82,12 @@ export const TokenGallery: React.FC = () => {
   useStore(themeConfigStore); // re-render on theme change
   const [tick, setTick] = useState(0);
   const [query, setQuery] = useState('');
-  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
-  const [selectedToneByGroup, setSelectedToneByGroup] = useState<Record<string, number | null>>({});
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
+    {},
+  );
+  const [selectedToneByGroup, setSelectedToneByGroup] = useState<
+    Record<string, number | null>
+  >({});
 
   useEffect(() => {
     const observer = new MutationObserver(() => setTick((x) => x + 1));
@@ -140,7 +145,9 @@ export const TokenGallery: React.FC = () => {
 
   const parseCssVarHex = (cssVarName: string): string | null => {
     if (typeof window === 'undefined') return null;
-    const val = getComputedStyle(document.documentElement).getPropertyValue(cssVarName).trim();
+    const val = getComputedStyle(document.documentElement)
+      .getPropertyValue(cssVarName)
+      .trim();
     if (!val) return null;
     // Normalize rgb(...) to hex if needed by creating a dummy element
     if (val.startsWith('#')) return val;
@@ -160,10 +167,19 @@ export const TokenGallery: React.FC = () => {
     return null;
   };
 
-  const rgbFromArgb = (argb: number) => ({ r: (argb >> 16) & 0xff, g: (argb >> 8) & 0xff, b: argb & 0xff });
-  const dist2 = (a: {r:number;g:number;b:number}, b: {r:number;g:number;b:number}) => {
-    const dr = a.r - b.r, dg = a.g - b.g, db = a.b - b.b;
-    return dr*dr + dg*dg + db*db;
+  const rgbFromArgb = (argb: number) => ({
+    r: (argb >> 16) & 0xff,
+    g: (argb >> 8) & 0xff,
+    b: argb & 0xff,
+  });
+  const dist2 = (
+    a: { r: number; g: number; b: number },
+    b: { r: number; g: number; b: number },
+  ) => {
+    const dr = a.r - b.r,
+      dg = a.g - b.g,
+      db = a.b - b.b;
+    return dr * dr + dg * dg + db * db;
   };
 
   const nearestToneForHex = (group: string, hex: string): number | null => {
@@ -190,6 +206,30 @@ export const TokenGallery: React.FC = () => {
     }
     return bestTone;
   };
+
+  // Animation variants for palette keys reveal
+  const gridVariants = {
+    hidden: {
+      opacity: 0,
+      height: 0,
+    },
+    show: {
+      opacity: 1,
+      height: 'auto',
+      transition: { staggerChildren: 0.035, when: 'beforeChildren' },
+    },
+  } as const;
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 8, scale: 0.98 },
+    show: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { type: 'spring', stiffness: 300, damping: 24 },
+    },
+    exit: { opacity: 0, y: -6, scale: 0.98, transition: { duration: 0.15 } },
+  } as const;
 
   const handleTokenHover = (name: string) => {
     const group = getPaletteFamily(name);
@@ -238,10 +278,15 @@ export const TokenGallery: React.FC = () => {
               <button
                 className="text-sm px-2 py-1 rounded border border-outline-variant hover:bg-surface-container-high"
                 onClick={() =>
-                  setExpandedGroups((prev) => ({ ...prev, [group]: !prev[group] }))
+                  setExpandedGroups((prev) => ({
+                    ...prev,
+                    [group]: !prev[group],
+                  }))
                 }
               >
-                {expandedGroups[group] ? 'Masquer les clés' : 'Afficher les clés'}
+                {expandedGroups[group]
+                  ? 'Masquer les clés'
+                  : 'Afficher les clés'}
               </button>
             </div>
             <PaletteToneRow
@@ -249,16 +294,31 @@ export const TokenGallery: React.FC = () => {
               group={group as any}
               highlightedTone={selectedToneByGroup[group] ?? null}
             />
-            {expandedGroups[group] && (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                {groups.get(group)!.map((t) => {
-                  const name = t.name;
-                  return (
-                    <ColorTokenCard key={name} name={name} onSelect={handleTokenHover} onHoverEnd={() => handleTokenHoverEnd(name)} />
-                  );
-                })}
-              </div>
-            )}
+            <AnimatePresence initial={false}>
+              {expandedGroups[group] && (
+                <motion.div
+                  key={`${group}-grid`}
+                  className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2"
+                  variants={gridVariants}
+                  initial="hidden"
+                  animate="show"
+                  exit="hidden"
+                >
+                  {groups.get(group)!.map((t) => {
+                    const name = t.name;
+                    return (
+                      <motion.div key={name} variants={itemVariants} layout>
+                        <ColorTokenCard
+                          name={name}
+                          onSelect={handleTokenHover}
+                          onHoverEnd={() => handleTokenHoverEnd(name)}
+                        />
+                      </motion.div>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         ))}
     </div>
