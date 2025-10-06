@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { API } from '@udixio/theme';
 import { hexFromArgb } from '@material/material-color-utilities';
+import { AnimatePresence, motion } from 'motion/react';
 
 export type PaletteGroup =
   | 'primary'
@@ -16,6 +17,8 @@ type Props = {
   api: API | null | undefined;
   group: PaletteGroup;
   highlightedTone?: number | null;
+  // Optional label to indicate where the highlighted tone comes from
+  sourceLabel?: string | null;
 };
 
 function mapGroupToPaletteKey(g: PaletteGroup): string | null {
@@ -37,6 +40,7 @@ export const PaletteToneRow: React.FC<Props> = ({
   api,
   group,
   highlightedTone,
+  sourceLabel,
 }) => {
   const toneSteps = useMemo(
     () => Array.from({ length: 11 }, (_, i) => i * 10).reverse(),
@@ -87,43 +91,66 @@ export const PaletteToneRow: React.FC<Props> = ({
 
   return (
     <div className="">
-      <div className="flex items-end gap-1 py-1">
-        {items.map(({ t, kind }) => {
-          const isExtra = kind === 'extra';
-          const hex = hexFromArgb(palette.tone(t));
-          const textColor = t >= 60 ? '#000' : '#fff';
-          const isSelected = !isExtra && roundedSelected === t;
-          return (
-            <div
-              key={`${kind}-${t}`}
-              className="flex flex-1 flex-col items-center"
-            >
-              <div
-                className={`w-full h-12 rounded border ${
+      <motion.div
+        className="flex items-end gap-1 py-1"
+        layout
+        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+      >
+        <AnimatePresence initial={false} mode="popLayout">
+          {items.map(({ t, kind }) => {
+            const isExtra = kind === 'extra';
+            const hex = hexFromArgb(palette.tone(t));
+            const textColor = t >= 60 ? '#000' : '#fff';
+            const isSelected = !isExtra && !needsExtra && roundedSelected === t;
+            return (
+              <motion.div
+                key={`${kind}-${t}`}
+                className="relative flex flex-1 flex-col items-center"
+                layout
+                initial={
+                  isExtra ? { opacity: 0, y: -12, scale: 0.9 } : (false as any)
+                }
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={
                   isExtra
-                    ? 'border-2 border-dashed border-primary ring-2 ring-primary/30'
-                    : isSelected
-                      ? 'border-primary ring-2 ring-primary/50 scale-[1.02]'
-                      : 'border-outline-variant'
-                }`}
-                style={{ background: hex, color: textColor }}
-                title={`tone ${t}${isExtra ? ' (sélection)' : ''} ${hex}`}
-              />
-              <div
-                className={`mt-1 text-body-small ${
-                  isExtra
-                    ? 'text-primary font-semibold'
-                    : isSelected
-                      ? 'text-primary font-semibold'
-                      : 'text-on-surface-variant'
-                }`}
+                    ? {
+                        opacity: 0,
+                        y: -12,
+                        scale: 0.95,
+                        pointerEvents: 'none',
+                      }
+                    : { opacity: 0 }
+                }
+                transition={{ type: 'spring', stiffness: 350, damping: 26 }}
               >
-                {t}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+                <motion.div
+                  className={`w-full h-12 rounded border ${
+                    isExtra
+                      ? 'border-2 border-dashed border-primary ring-2 ring-primary/30'
+                      : isSelected
+                        ? 'border-primary ring-2 ring-primary/50 scale-[1.02]'
+                        : 'border-outline-variant'
+                  }`}
+                  style={{ background: hex, color: textColor }}
+                  title={`tone ${t}${isExtra ? ' (sélection)' : ''} ${hex}`}
+                  layout
+                />
+                <div
+                  className={`mt-1 text-body-small ${
+                    isExtra
+                      ? 'text-primary font-semibold'
+                      : isSelected
+                        ? 'text-primary font-semibold'
+                        : 'text-on-surface-variant'
+                  }`}
+                >
+                  {t}
+                </div>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+      </motion.div>
     </div>
   );
 };

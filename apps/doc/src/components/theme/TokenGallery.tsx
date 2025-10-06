@@ -88,6 +88,9 @@ export const TokenGallery: React.FC = () => {
   const [selectedToneByGroup, setSelectedToneByGroup] = useState<
     Record<string, number | null>
   >({});
+  const [hoveredTokenByGroup, setHoveredTokenByGroup] = useState<
+    Record<string, string | null>
+  >({});
 
   useEffect(() => {
     const observer = new MutationObserver(() => setTick((x) => x + 1));
@@ -237,11 +240,14 @@ export const TokenGallery: React.FC = () => {
     if (!hex) return;
     const tone = nearestToneForHex(group, hex);
     setSelectedToneByGroup((prev) => ({ ...prev, [group]: tone }));
+    const label = name; // keep full token name; PaletteToneRow will prettify
+    setHoveredTokenByGroup((prev) => ({ ...prev, [group]: label }));
   };
 
   const handleTokenHoverEnd = (name: string) => {
     const group = getPaletteFamily(name);
     setSelectedToneByGroup((prev) => ({ ...prev, [group]: null }));
+    setHoveredTokenByGroup((prev) => ({ ...prev, [group]: null }));
   };
 
   return (
@@ -293,6 +299,7 @@ export const TokenGallery: React.FC = () => {
               api={$themeApi}
               group={group as any}
               highlightedTone={selectedToneByGroup[group] ?? null}
+              sourceLabel={hoveredTokenByGroup[group] ?? null}
             />
             <AnimatePresence initial={false}>
               {expandedGroups[group] && (
