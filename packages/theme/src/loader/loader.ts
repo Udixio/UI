@@ -3,7 +3,7 @@ import { bootstrap } from '../bootstrap';
 import { ConfigInterface } from '../config';
 import { Variants } from '../variant/variants';
 
-export const loader = async (config: ConfigInterface) => {
+export const loader = async (config: ConfigInterface, load = true) => {
   const api = bootstrap();
 
   const init = () => {
@@ -41,7 +41,10 @@ export const loader = async (config: ConfigInterface) => {
   };
 
   init();
-  await api.load();
+
+  if (load) {
+    await api.load();
+  }
 
   return api;
 };

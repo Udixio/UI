@@ -210,14 +210,7 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
   }
 
   async onLoad() {
-    console.time('load tailwind');
-    console.log('load tailwind browser');
-
-    console.time('getColor');
     this.getColors();
-    console.timeEnd('getColor');
-
-    console.log(this.outputCss);
 
     // if (typeof window !== 'undefined') {
     //   const { tailwindBrowserInit } = await import('./tailwind-browser');
@@ -225,10 +218,6 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
     //   this.outputCss = await tailwindBrowserInit(this.outputCss);
     // }
 
-    console.time('loadColor');
     this.loadColor({ isDynamic: true });
-    console.timeEnd('loadColor');
-
-    console.timeEnd('load tailwind');
   }
 }
