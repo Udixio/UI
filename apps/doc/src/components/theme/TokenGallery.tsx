@@ -103,9 +103,12 @@ export const TokenGallery: React.FC = () => {
   const filtered = useMemo(() => {
     if (!tokens) return [];
 
+    // Always hide tokens that are explicit "on-" variants
+    const baseList = tokens.filter((t) => !/--color-on-/.test(t.name));
+
     const q = query.trim().toLowerCase();
-    if (!q) return tokens;
-    return tokens.filter((t) => t.name.toLowerCase().includes(q));
+    if (!q) return baseList;
+    return baseList.filter((t) => t.name.toLowerCase().includes(q));
   }, [tokens, query]);
 
   const groups = useMemo(() => {
