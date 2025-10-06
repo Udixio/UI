@@ -3,7 +3,7 @@ import { getPiecewiseHue, getRotatedHue, variant, Variant } from '../variant';
 export const fidelityVariant: Variant = variant({
   name: 'fidelity',
   palettes: {
-    primary: ({ sourceColor, isDark }) => ({
+    primary: ({ sourceColor }) => ({
       hue: sourceColor.hue,
       chroma: sourceColor.chroma,
     }),

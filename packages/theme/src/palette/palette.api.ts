@@ -36,4 +36,8 @@ export class PaletteApi {
   ): Palette {
     return this.paletteManager.get(key);
   }
+
+  getAll(): Readonly<Record<string, Palette>> {
+    return this.paletteManager.palettes;
+  }
 }

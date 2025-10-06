@@ -437,12 +437,8 @@ export const defaultColors: AddColorsOptions = ({
         }
         if (c.variant.name == 'fidelity') {
           return c.isDark
-            ? tMaxC(palettes.get('primary'), 30, 93)
-            : tMaxC(
-                palettes.get('primary'),
-                78,
-                Hct.isCyan(palettes.get('primary').hue) ? 88 : 90,
-              );
+            ? tMinC(palettes.get('primary'), 35, 93)
+            : tMaxC(palettes.get('primary'), 0, 90);
         } else {
           // VIBRANT
           return c.isDark
