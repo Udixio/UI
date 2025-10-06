@@ -22,6 +22,13 @@ export const ColorPicker = () => {
     Hct.fromInt(argbFromHex($themeConfig.sourceColor)).tone,
   );
 
+  const [maxChroma, setMaxChroma] = useState(200);
+
+  useEffect(() => {
+    const maxChroma = Hct.from(hue, 200, 50).chroma;
+    setMaxChroma(maxChroma);
+  }, [tone, hue]);
+
   const currentColor = Hct.from(hue, chroma, tone);
   const hexColor = hexFromArgb(currentColor.toInt());
 
@@ -46,14 +53,13 @@ export const ColorPicker = () => {
   // Génération du dégradé pour Chroma (saturation)
   const chromaGradient = useMemo(() => {
     const colors = [];
-    const maxChroma = 150;
     for (let c = 0; c <= maxChroma; c += maxChroma / 10) {
       const color = Hct.from(hue, c, 50);
       const hex = hexFromArgb(color.toInt());
       colors.push(hex);
     }
     return `linear-gradient(to right, ${colors.join(', ')})`;
-  }, [hue, tone]);
+  }, [hue, tone, maxChroma]);
 
   // Génération du dégradé pour Tone (clarté)
   const toneGradient = useMemo(() => {
@@ -196,7 +202,7 @@ export const ColorPicker = () => {
           <input
             type="range"
             min="0"
-            max="150"
+            max={maxChroma}
             value={chroma}
             onChange={(e) => setChroma(Number(e.target.value))}
             className="w-full h-full appearance-none cursor-pointer slider"
@@ -231,29 +237,29 @@ export const ColorPicker = () => {
         </div>
       </div>
 
-      {/*<style jsx>{`*/}
-      {/*  .slider::-webkit-slider-thumb {*/}
-      {/*    -webkit-appearance: none;*/}
-      {/*    width: 20px;*/}
-      {/*    height: 20px;*/}
-      {/*    border-radius: 50%;*/}
-      {/*    background: white;*/}
-      {/*    cursor: pointer;*/}
-      {/*    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);*/}
-      {/*    border: 2px solid #333;*/}
-      {/*  }*/}
+      <style>{`
+        .slider::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: white;
+          cursor: pointer;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+          border: 2px solid #333;
+        }
 
-      {/*  .slider::-moz-range-thumb {*/}
-      {/*    width: 20px;*/}
-      {/*    height: 20px;*/}
-      {/*    border-radius: 50%;*/}
-      {/*    background: white;*/}
-      {/*    cursor: pointer;*/}
-      {/*    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);*/}
-      {/*    border: 2px solid #333;*/}
-      {/*    -moz-appearance: none;*/}
-      {/*  }*/}
-      {/*`}</style>*/}
+        .slider::-moz-range-thumb {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: white;
+          cursor: pointer;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+          border: 2px solid #333;
+          -moz-appearance: none;
+        }
+      `}</style>
     </div>
   );
 };
