@@ -20,6 +20,10 @@ export const fabStyle = defaultClassNames<FabInterface>(
       variant === 'primary' && 'bg-primary-container',
       variant === 'secondary' && 'bg-secondary-container',
       variant === 'tertiary' && 'bg-tertiary-container',
+      variant === 'surface' && 'text-primary',
+      variant === 'primary' && 'text-on-primary-container',
+      variant === 'secondary' && 'text-on-secondary-container',
+      variant === 'tertiary' && 'text-on-tertiary-container',
     ),
     stateLayer: classNames(
       'absolute w-full h-full overflow-hidden left-1/2 top-1/2 transform -translate-y-1/2 -translate-x-1/2',
@@ -33,23 +37,11 @@ export const fabStyle = defaultClassNames<FabInterface>(
         'group-hover:hover-state-on-tertiary-container group-focus-visible:focus-state-on-tertiary-container',
     ),
 
-    icon: classNames(
-      {
-        'size-6': size == 'small' || size == 'medium' || isExtended,
-        'size-9': size == 'large' && !isExtended,
-      },
-      variant === 'surface' && 'text-primary',
-      variant === 'primary' && 'text-on-primary-container',
-      variant === 'secondary' && 'text-on-secondary-container',
-      variant === 'tertiary' && 'text-on-tertiary-container',
-    ),
+    icon: classNames({
+      'size-6': size == 'small' || size == 'medium' || isExtended,
+      'size-9': size == 'large' && !isExtended,
+    }),
 
-    label: classNames(
-      'text-title-medium text-nowrap',
-      variant === 'surface' && 'text-primary',
-      variant === 'primary' && 'text-on-primary-container',
-      variant === 'secondary' && 'text-on-secondary-container',
-      variant === 'tertiary' && 'text-on-tertiary-container',
-    ),
+    label: classNames('text-title-medium text-nowrap'),
   }),
 );
