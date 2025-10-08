@@ -4,7 +4,13 @@ import { AddColorsOptions } from './color.api';
 import { Hct } from '../material-color-utilities/htc';
 import { ColorFromPalette, getInitialToneFromBackground } from './color';
 
-import { DynamicColorKey, getCurve, tMaxC, tMinC } from './color.utils';
+import {
+  calculateToneAdjustmentPercentage,
+  DynamicColorKey,
+  getCurve,
+  tMaxC,
+  tMinC,
+} from './color.utils';
 import { Contrast } from '@material/material-color-utilities';
 
 const inverseTone = (tone: number) => {
@@ -372,10 +378,13 @@ export const defaultColors: AddColorsOptions = ({
                 .options.tone;
               let selfTone = primaryTone;
               if (Contrast.ratioOfTones(surfaceTone, selfTone) < 3) {
-                const result = inverseTone(primaryTone);
-                if (Contrast.ratioOfTones(surfaceTone, result) >= 3) {
-                  selfTone = result;
-                }
+                const ratio = calculateToneAdjustmentPercentage(
+                  surfaceTone,
+                  selfTone,
+                  3,
+                );
+                const inverseT = inverseTone(primaryTone);
+                selfTone = selfTone + (inverseT - selfTone) * ratio;
               }
               return selfTone;
             }

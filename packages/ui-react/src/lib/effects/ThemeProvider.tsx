@@ -5,7 +5,6 @@ import {
   loader,
 } from '@udixio/theme';
 import { useEffect, useRef, useState } from 'react';
-import { hexFromArgb } from '@material/material-color-utilities';
 import { TailwindPlugin } from '@udixio/tailwind';
 
 function isValidHexColor(hexColorString: string) {
@@ -101,15 +100,12 @@ export const ThemeProvider = ({
     }
     themeApi.context.update(ctx);
 
-    console.log(themeApi, hexFromArgb(themeApi.context.sourceColor.toInt()));
-
     await themeApi.load();
 
     const outputCss = themeApi?.plugins
       .getPlugin(TailwindPlugin)
       .getInstance().outputCss;
     setOutputCss(outputCss);
-    console.log(outputCss);
 
     onLoad?.(themeApi);
   };

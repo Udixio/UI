@@ -9,7 +9,7 @@ export const fidelityVariant: Variant = variant({
     }),
     secondary: ({ sourceColor }) => ({
       hue: sourceColor.hue,
-      chroma: sourceColor.chroma * 0.5,
+      chroma: sourceColor.chroma / 1.4,
     }),
     tertiary: ({ sourceColor }) => ({
       hue: getRotatedHue(
