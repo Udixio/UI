@@ -6,7 +6,7 @@ export const tabStyle = defaultClassNames<TabInterface>(
   'tab',
   ({ isSelected, icon, label, variant }) => ({
     tab: classNames(
-      'bg-surface flex-1 group outline-none flex px-4 justify-center items-center cursor-pointer',
+      'flex-1 group outline-none flex px-4 justify-center items-center cursor-pointer',
       { 'z-10': isSelected },
       Boolean(icon && label) && variant === 'primary' && 'h-16',
       !(Boolean(icon && label) && variant === 'primary') && 'h-12',

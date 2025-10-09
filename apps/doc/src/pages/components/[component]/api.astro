@@ -1,0 +1,94 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '@/layouts/layout.astro';
+import Code from '@/components/Code.astro';
+import { Button, Card } from '@udixio/ui-react';
+import { noCase, sentenceCase } from 'change-case';
+import Components from '@/layouts/components.astro';
+import { ComponentSidebar } from '@/components/ComponentSidebar.tsx';
+
+export async function getStaticPaths() {
+  const overviews = await getCollection('api');
+  return overviews.map(overview => ({
+    params: { component: overview.id },
+    props: { overview }
+  }));
+}
+
+const { overview } = Astro.props;
+const { component } = Astro.params;
+const { Content, headings } = await render(overview);
+
+const apis = await getCollection('api');
+const componentApi = apis.find(api => api.id === component);
+
+function extractCondition(desc) {
+  if (!desc) return null;
+  // Heuristic: pull sentence mentioning "Only applies" or "S'applique uniquement"
+  const match = desc.match(/([^.!?]*\bOnly applies\b[^.!?]*[.!?])|([^.!?]*S'applique uniquement[^.!?]*[.!?])/i);
+  return match ? match[0] : null;
+}
+
+function formatDefault(def) {
+  if (!def || typeof def.value === 'undefined' || def.value === null) return '—';
+  const v = def.value;
+  if (typeof v === 'string') return v; // values like medium, filled come already as string
+  return String(v);
+}
+
+if (!componentApi) {
+  return Astro.redirect('/404', 404);
+}
+---
+<Components>
+  <Fragment slot="header"> <!-- pass table header -->
+    <h1 class="text-display-large ">{sentenceCase(noCase(componentApi.id))}</h1>
+    <p class="text-headline-small mt-8">{componentApi.data.description}</p>
+  </Fragment>
+
+  {componentApi.data?.props ? (
+    <Card variant='filled' className="mt-10 overflow-x-auto bg-surface-container">
+      <table class="w-full min-w-[800px] text-start border-collapse border-spacing-y-2  divide-y divide-outline-variant ">
+        <caption class="sr-only">Tableau des propriétés et de l'API du composant</caption>
+        <thead>
+          <tr class="text-title-small text-on-surface-variant divide-x divide-outline-variant ">
+            <th class="py-2 pe-4">Propriété</th>
+            <th class="py-2 pe-4">Type</th>
+            <th class="py-2 pe-4">Obligatoire</th>
+            <th class="py-2 pe-4">Valeur par défaut</th>
+            <th class="py-2 pe-4">Description</th>
+            <th class="py-2">Condition</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-x divide-outline-variant">
+          {Object.values(componentApi.data.props).map((prop) => {
+            const condition = extractCondition(prop.description);
+            return (
+              <tr class="align-top  text-center divide-x divide-outline-variant ">
+                <td class="py-3 pe-4 whitespace-nowrap">
+                  <code class="inline-block px-1.5 py-0.5 rounded bg-black/5">{prop.name}</code>
+                </td>
+                <td class="py-3 pe-4">
+                  <code class="inline-block px-1.5 py-0.5 rounded bg-black/5">{prop.type?.name ?? '—'}</code>
+                </td>
+                <td class="py-3 pe-4">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-black/5">{prop.required ? 'Oui' : 'Non'}</span>
+                </td>
+                <td class="py-3 pe-4">
+                  <code class="inline-block px-1.5 py-0.5 rounded bg-black/5">{formatDefault(prop.defaultValue)}</code>
+                </td>
+                <td class="py-3 pe-4 max-w-[36rem] text-sm leading-relaxed">
+                  {prop.description || '—'}
+                </td>
+                <td class="py-3 text-sm italic text-on-surface-variant">{condition ?? '—'}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </Card>
+  ) : (
+    <p class="mt-6 text-body-medium text-on-surface-variant">No props available for this component.</p>
+  )}
+</>
+</Components>

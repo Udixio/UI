@@ -5,9 +5,9 @@ export const tabsStyle = defaultClassNames<TabsInterface>(
   'tabs',
   ({ scrollable }) => ({
     tabs: classNames(
-      'border-b border-surface-container-highest',
+      'border-b border-surface-container-highest bg-surface',
       'flex relative ',
-      { 'overflow-x-auto': scrollable }
+      { 'overflow-x-auto': scrollable },
     ),
-  })
+  }),
 );

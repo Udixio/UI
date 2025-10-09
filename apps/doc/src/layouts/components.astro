@@ -1,30 +1,43 @@
 ---
 import '@/styles/global.css';
 import { getCollection, render } from 'astro:content';
-import { Button, Divider } from '@udixio/ui-react';
+import { Button, Divider , Tabs, Tab} from '@udixio/ui-react';
 import { sentenceCase, kebabCase } from 'change-case';
 import { ComponentSidebar } from '@/components/ComponentSidebar';
+import { ComponentNavigation } from '@/components/ComponentNavigation';
 import { Navigation } from '@/components/Navigation';
 import { ClientRouter } from 'astro:transitions';
 import { DocSidebar } from '@/components/DocSidebar';
 import Layout from '@/layouts/layout.astro';
+import {Card}from "@udixio/ui-react";
 
 const apis = await getCollection('api');
 
 const pathName = Astro.url.pathname;
 
+const { component } = Astro.params;
+const componentApi = apis.find(api => api.id === component);
 
+if (!componentApi) {
+  return Astro.redirect('/404', 404);
+}
 ---
 <Layout docSidebar>
   <Fragment slot="sidebar"> <!-- pass table header -->
     <ComponentSidebar  client:load  transition:name="component-sidebar" transition:persist
-                      current={pathName.startsWith('/components') ? pathName.split('/').filter(Boolean)[1] : null}
-                      components={apis.filter(api => !Object.keys(api.data.tags).includes('parent')).map(({ id }) => ({
-                        slug: id
-                      }))}
+                       current={pathName.startsWith('/components') ? pathName.split('/').filter(Boolean)[1] : null}
+                       components={apis.filter(api => !Object.keys(api.data.tags).includes('parent')).map(({ id }) => ({
+                         slug: id
+                       }))}
     />
   </Fragment>
-  <div class="max-w-2xl mx-auto">
+  <div class="max-w-screen-xl mx-auto">
+    <Card variant="filled" className="mt-8 bg-surface-container">
+      <div class="p-8">
+        <slot name="header" />
+      </div>
+      <ComponentNavigation  client:load  transition:name="component-navigation"  transition:persist  componentApi={componentApi}/>
+    </Card>
     <slot/>
   </div>
 
