@@ -1,5 +1,6 @@
 import plugin, { PluginAPI } from 'tailwindcss/plugin';
 import {
+  animation,
   font,
   FontPluginOptions,
   state,
@@ -52,5 +53,6 @@ export const main = plugin.withOptions<ConfigJs>((args) => {
     font(options).handler(api);
     state(options).handler(api);
     shadow.handler(api);
+    animation(options).handler(api);
   };
 });

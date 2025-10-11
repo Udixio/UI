@@ -3,6 +3,8 @@ import { NavigationRail, NavigationRailItem } from '@udixio/ui-react';
 import rWidgets from '@material-design-icons/svg/outlined/widgets.svg?raw';
 import sWidgets from '@material-design-icons/svg/filled/widgets.svg?raw';
 import rPalette from '@material-design-icons/svg/outlined/palette.svg?raw';
+import sAnimation from '@material-design-icons/svg/filled/animation.svg?raw';
+import rAnimation from '@material-design-icons/svg/outlined/animation.svg?raw';
 import sPalette from '@material-design-icons/svg/filled/palette.svg?raw';
 
 export const Navigation = () => {
@@ -10,6 +12,13 @@ export const Navigation = () => {
     <NavigationRail className={'bg-surface-container'}>
       <NavigationRailItem icon={faHourglass} iconSelected={faHourglass}>
         Get started
+      </NavigationRailItem>
+      <NavigationRailItem
+        href={'/animations'}
+        icon={rAnimation}
+        iconSelected={sAnimation}
+      >
+        animations
       </NavigationRailItem>
       <NavigationRailItem
         href={'/components'}
