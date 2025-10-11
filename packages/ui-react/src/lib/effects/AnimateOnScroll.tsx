@@ -4,6 +4,8 @@ import React, {
   useEffect,
   useMemo,
   useRef,
+  lazy,
+  Suspense,
 } from 'react';
 
 /**
@@ -51,19 +53,19 @@ const KEYFRAMES: Record<
     to: { opacity: 1 },
   },
   'fade-up': {
-    from: { opacity: 0, transform: 'translate3d(0, 16px, 0)' },
+    from: { opacity: 0, transform: 'translate3d(0, 100px, 0)' },
     to: { opacity: 1, transform: 'translate3d(0, 0, 0)' },
   },
   'fade-down': {
-    from: { opacity: 0, transform: 'translate3d(0, -16px, 0)' },
+    from: { opacity: 0, transform: 'translate3d(0, -100px, 0)' },
     to: { opacity: 1, transform: 'translate3d(0, 0, 0)' },
   },
   'fade-left': {
-    from: { opacity: 0, transform: 'translate3d(16px, 0, 0)' },
+    from: { opacity: 0, transform: 'translate3d(100px, 0, 0)' },
     to: { opacity: 1, transform: 'translate3d(0, 0, 0)' },
   },
   'fade-right': {
-    from: { opacity: 0, transform: 'translate3d(-16px, 0, 0)' },
+    from: { opacity: 0, transform: 'translate3d(-100px, 0, 0)' },
     to: { opacity: 1, transform: 'translate3d(0, 0, 0)' },
   },
   'zoom-in': {
@@ -163,47 +165,7 @@ export const AnimateOnScroll = ({
     if (cssSupported) injectKeyframesOnce();
   }, [cssSupported, reduced]);
 
-  // JS fallback: IntersectionObserver to set styles on visibility
-  useEffect(() => {
-    if (reduced) return;
-    if (cssSupported) return; // no need for JS
-    const el = ref.current as HTMLElement | null;
-    if (!el) return;
-
-    const frames = KEYFRAMES[animate];
-
-    // initialize to starting state
-    applyInitial(el, frames.from);
-
-    const transition = `opacity ${duration}ms ${easing} ${delay}ms, transform ${duration}ms ${easing} ${delay}ms`;
-    el.style.transition = transition;
-
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            applyFinal(el, frames.to);
-            if (once) io.unobserve(el);
-          } else if (!once) {
-            applyInitial(el, frames.from);
-          }
-        });
-      },
-      { threshold },
-    );
-
-    io.observe(el);
-    return () => io.disconnect();
-  }, [
-    animate,
-    cssSupported,
-    delay,
-    duration,
-    easing,
-    once,
-    threshold,
-    reduced,
-  ]);
+  // JS fallback is implemented below using Framer Motion's useScroll for smooth progress-based animation
 
   const computedStyle: CSSProperties = useMemo(() => {
     const s: CSSProperties = { ...style };
@@ -223,10 +185,34 @@ export const AnimateOnScroll = ({
       s.willChange = 'opacity, transform';
       return s;
     }
-    // JS fallback initial state applied via effect; still provide will-change
+    // JS fallback will be driven by motion values; still provide will-change
     s.willChange = 'opacity, transform';
     return s;
   }, [animate, cssSupported, delay, duration, easing, range, style, reduced]);
+
+  // Lazy-load the JS fallback component only when needed (no CSS scroll-timeline support)
+  const AnimateOnScrollFallbackLazy = lazy(() => import('./AnimateOnScrollFallback'));
+
+  if (!cssSupported && !reduced) {
+    return (
+      <Suspense fallback={null}>
+        <AnimateOnScrollFallbackLazy
+          as={as}
+          className={className}
+          animate={animate}
+          duration={duration}
+          delay={delay}
+          easing={easing}
+          range={range}
+          once={once}
+          threshold={threshold}
+          style={style}
+        >
+          {children}
+        </AnimateOnScrollFallbackLazy>
+      </Suspense>
+    );
+  }
 
   return (
     <Tag ref={ref as any} className={className} style={computedStyle}>
