@@ -1,8 +1,6 @@
 import plugin, { PluginAPI } from 'tailwindcss/plugin';
 
-export interface AnimationPluginOptions {
-  prefix?: string;
-}
+export interface AnimationPluginOptions {}
 
 function filterDefault(values: Record<string, any>) {
   return Object.fromEntries(
@@ -15,7 +13,9 @@ function filterDefault(values: Record<string, any>) {
 // - minimal usage: combine .animate-in/.animate-out with effect utilities like .fade-in, .zoom-in, .slide-in-from-right
 // - trigger utilities: .udx-run, .udx-paused, .udx-view (scroll-driven)
 export const animation = plugin.withOptions(
-  ({ prefix = 'udx' }: AnimationPluginOptions) => {
+  (options: AnimationPluginOptions) => {
+    const prefix = 'udx';
+
     return ({
       addBase,
       addUtilities,
@@ -74,13 +74,48 @@ export const animation = plugin.withOptions(
         // Trigger helpers
         [`.${prefix}-run`]: { animationPlayState: 'running' },
         [`.${prefix}-paused`]: { animationPlayState: 'paused' },
-        // Scroll-driven trigger (in supporting browsers)
+        // Scroll-driven triggers (in supporting browsers)
         [`.${prefix}-view`]: {
           animationTimeline: 'view()',
-          animationRangeStart: 'entry 20%',
-          animationRangeEnd: 'cover 50%',
+          animationRangeStart: `var(--${prefix}-range-start, entry 20%)`,
+          animationRangeEnd: `var(--${prefix}-range-end, cover 50%)`,
           animationFillMode: 'both',
         },
+        // Axis-specific timelines
+        [`.${prefix}-view-block`]: {
+          animationTimeline: 'view(block)',
+          animationRangeStart: `var(--${prefix}-range-start, entry 20%)`,
+          animationRangeEnd: `var(--${prefix}-range-end, cover 50%)`,
+          animationFillMode: 'both',
+        },
+        [`.${prefix}-view-inline`]: {
+          animationTimeline: 'view(inline)',
+          animationRangeStart: `var(--${prefix}-range-start, entry 20%)`,
+          animationRangeEnd: `var(--${prefix}-range-end, cover 50%)`,
+          animationFillMode: 'both',
+        },
+        // Short aliases
+        [`.${prefix}-view-y`]: {
+          animationTimeline: 'view(block)',
+          animationRangeStart: `var(--${prefix}-range-start, entry 20%)`,
+          animationRangeEnd: `var(--${prefix}-range-end, cover 50%)`,
+          animationFillMode: 'both',
+        },
+        [`.${prefix}-view-x`]: {
+          animationTimeline: 'view(inline)',
+          animationRangeStart: `var(--${prefix}-range-start, entry 20%)`,
+          animationRangeEnd: `var(--${prefix}-range-end, cover 50%)`,
+          animationFillMode: 'both',
+        },
+        // Data-attribute triggers (for ergonomics)
+        [`[data-${prefix}-view]`]: {
+          animationTimeline: 'view()',
+          animationRangeStart: `var(--${prefix}-range-start, entry 20%)`,
+          animationRangeEnd: `var(--${prefix}-range-end, cover 50%)`,
+          animationFillMode: 'both',
+        },
+        [`[data-${prefix}-run]`]: { animationPlayState: 'running' },
+        [`[data-${prefix}-paused]`]: { animationPlayState: 'paused' },
       });
 
       // Effect utilities
@@ -143,6 +178,20 @@ export const animation = plugin.withOptions(
             string | number
           >,
         },
+      );
+
+      // Scroll trigger offset utilities (configurable via classnames)
+      matchUtilities(
+        {
+          [`${prefix}-start`]: (value) => ({
+            [`--${prefix}-range-start`]: value as string,
+          }),
+          [`${prefix}-end`]: (value) => ({
+            [`--${prefix}-range-end`]: value as string,
+          }),
+        },
+        // Allow theme-based and arbitrary values, e.g. udx-start-[entry_20%]
+        { values: {} as any },
       );
 
       // Prefixed animation property utilities (to avoid overlapping Tailwind's transition utilities)

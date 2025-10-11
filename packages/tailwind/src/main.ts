@@ -1,11 +1,7 @@
 import plugin, { PluginAPI } from 'tailwindcss/plugin';
-import {
-  animation,
-  font,
-  FontPluginOptions,
-  state,
-  StateOptions,
-} from './plugins-tailwind';
+import { animation } from './plugins-tailwind/animation';
+import { font, FontPluginOptions } from './plugins-tailwind/font';
+import { state, StateOptions } from './plugins-tailwind/state';
 import { shadow } from './plugins-tailwind/shadow';
 
 export type ConfigJs = FontPluginOptions & StateOptions;
