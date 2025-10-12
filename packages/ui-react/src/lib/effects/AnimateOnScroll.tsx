@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useMemo, useRef } from 'react';
+import { ReactNode, useEffect, useMemo, useRef } from 'react';
 
 /**
  * AnimateOnScroll
@@ -9,21 +9,22 @@ import React, { ReactNode, useEffect, useMemo, useRef } from 'react';
  */
 
 export type AnimateOnScrollProps = {
+  prefix?: string;
   children?: ReactNode;
   once?: boolean; // if true in JS modes, animate only first time per element
 };
 
 function supportsScrollTimeline(): boolean {
-  if (typeof window === 'undefined') return false;
+  if (typeof window === `undefined`) return false;
   try {
     // @ts-ignore - CSS may not exist in TS lib
-    if (window.CSS && typeof window.CSS.supports === 'function') {
+    if (window.CSS && typeof window.CSS.supports === `function`) {
       // @ts-ignore
       return (
-        CSS.supports('animation-timeline: view()') ||
-        CSS.supports('animation-timeline: scroll()') ||
+        CSS.supports(`animation-timeline: view()`) ||
+        CSS.supports(`animation-timeline: scroll()`) ||
         // some older implementations used view-timeline-name
-        CSS.supports('view-timeline-name: --a')
+        CSS.supports(`view-timeline-name: --a`)
       );
     }
   } catch {}
@@ -31,106 +32,112 @@ function supportsScrollTimeline(): boolean {
 }
 
 function prefersReducedMotion(): boolean {
-  if (typeof window === 'undefined' || !('matchMedia' in window)) return false;
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (typeof window === `undefined` || !(`matchMedia` in window)) return false;
+  return window.matchMedia(`(prefers-reduced-motion: reduce)`).matches;
 }
 
 function isScrollDrivenCandidate(el: Element): boolean {
   if (!(el instanceof HTMLElement)) return false;
   const cls = el.classList;
-  const hasAnimation =
-    cls.contains('animate-in') || cls.contains('animate-out');
+  const hasAnimation = cls.contains(`anim-in`) || cls.contains(`anim-out`);
   if (!hasAnimation) return false;
   // Explicit opt-in via class or data attribute for ScrollDriven
   return (
-    cls.contains('udx-view') ||
-    cls.contains('udx-view-x') ||
-    cls.contains('udx-view-y') ||
-    cls.contains('udx-view-inline') ||
-    cls.contains('udx-view-block') ||
-    el.hasAttribute('data-udx-view')
+    cls.contains(`anim-view`) ||
+    cls.contains(`anim-view-x`) ||
+    cls.contains(`anim-view-y`) ||
+    cls.contains(`anim-view-inline`) ||
+    cls.contains(`anim-view-block`)
   );
 }
 
 function isJsObserverCandidate(el: Element): boolean {
   if (!(el instanceof HTMLElement)) return false;
   const cls = el.classList;
-  const hasAnimation =
-    cls.contains('animate-in') || cls.contains('animate-out');
+  const hasAnimation = cls.contains(`anim-in`) || cls.contains(`anim-out`);
   if (!hasAnimation) return false;
   // Not scroll-driven
   return !isScrollDrivenCandidate(el);
 }
 
-function hydrateElement(el: HTMLElement) {
+function hydrateElement(el: HTMLElement, prefix: string): void {
   if (!isScrollDrivenCandidate(el)) return;
 
-  // Map data-udx-view to correct axis class if provided
-  if (el.hasAttribute('data-udx-view')) {
-    const raw = (el.getAttribute('data-udx-view') || '').trim().toLowerCase();
+  // Map data-anim-view to correct axis class if provided
+  if (el.hasAttribute(`data-${prefix}-view`)) {
+    const raw = (el.getAttribute(`data-${prefix}-view`) || ``)
+      .trim()
+      .toLowerCase();
     const axis =
-      raw === 'x' || raw === 'inline'
-        ? 'inline'
-        : raw === 'y' || raw === 'block'
-          ? 'block'
-          : 'auto';
+      raw === `x` || raw === `inline`
+        ? `inline`
+        : raw === `y` || raw === `block`
+          ? `block`
+          : `auto`;
     const hasAny =
-      el.classList.contains('udx-view') ||
-      el.classList.contains('udx-view-inline') ||
-      el.classList.contains('udx-view-block') ||
-      el.classList.contains('udx-view-x') ||
-      el.classList.contains('udx-view-y');
+      el.classList.contains(`${prefix}-view`) ||
+      el.classList.contains(`${prefix}-view-inline`) ||
+      el.classList.contains(`${prefix}-view-block`) ||
+      el.classList.contains(`${prefix}-view-x`) ||
+      el.classList.contains(`${prefix}-view-y`);
     if (!hasAny) {
-      if (axis === 'inline') el.classList.add('udx-view-inline');
-      else if (axis === 'block') el.classList.add('udx-view-block');
-      else el.classList.add('udx-view');
+      if (axis === `inline`) el.classList.add(`${prefix}-view-inline`);
+      else if (axis === `block`) el.classList.add(`${prefix}-view-block`);
+      else el.classList.add(`${prefix}-view`);
     }
   }
 
-  // Offsets via data-udx-start / data-udx-end (accepts tokens like "entry 20%", "cover 50%", etc.)
-  const start = el.getAttribute('data-udx-start');
-  if (start) el.style.setProperty('--udx-range-start', start);
-  const end = el.getAttribute('data-udx-end');
-  if (end) el.style.setProperty('--udx-range-end', end);
+  // Offsets via data-anim-start / data-anim-end (accepts tokens like "entry 20%", "cover 50%", etc.)
+  const start = el.getAttribute(`data-${prefix}-start`);
+  if (start) el.style.setProperty(`--${prefix}-range-start`, start);
+  const end = el.getAttribute(`data-${prefix}-end`);
+  if (end) el.style.setProperty(`--${prefix}-range-end`, end);
 
   // Ensure play state is running unless explicitly paused
   const explicitlyPaused =
-    el.hasAttribute('data-udx-paused') || el.classList.contains('udx-paused');
+    el.hasAttribute(`data-${prefix}-paused`) ||
+    el.classList.contains(`${prefix}-paused`);
   const alreadyRunning =
-    el.hasAttribute('data-udx-run') || el.classList.contains('udx-run');
+    el.hasAttribute(`data-${prefix}-run`) ||
+    el.classList.contains(`${prefix}-run`);
   if (!explicitlyPaused && !alreadyRunning) {
-    el.setAttribute('data-udx-run', '');
+    el.setAttribute(`data-${prefix}-run`, ``);
   }
 }
 
-const scrollDrivenSelectorParts = [
-  '.udx-view',
-  '.udx-view-x',
-  '.udx-view-y',
-  '.udx-view-inline',
-  '.udx-view-block',
-  '[data-udx-view]',
+const scrollDrivenSelectorParts = (prefix: string) => [
+  `.${prefix}-view`,
+  `.${prefix}-view-x`,
+  `.${prefix}-view-y`,
+  `.${prefix}-view-inline`,
+  `.${prefix}-view-block`,
+  `[data-${prefix}-view]`,
 ];
 
 function queryScrollDrivenCandidates(
   root: ParentNode = document,
+  prefix: string,
 ): HTMLElement[] {
-  const selector = scrollDrivenSelectorParts
-    .map((s) => `${s}.animate-in, ${s}.animate-out`)
-    .join(', ');
+  const selector = scrollDrivenSelectorParts(prefix)
+    .map((s) => `${s}.${prefix}-in, ${s}.${prefix}-out`)
+    .join(`, `);
   return Array.from(root.querySelectorAll<HTMLElement>(selector));
 }
 
-function queryJsObserverCandidates(root: ParentNode = document): HTMLElement[] {
-  // All animate-in/out that are NOT scroll-driven
+function queryJsObserverCandidates(
+  root: ParentNode = document,
+  prefix: string,
+): HTMLElement[] {
+  // All anim-in/out that are NOT scroll-driven
   const animated = Array.from(
-    root.querySelectorAll<HTMLElement>('.animate-in, .animate-out'),
+    root.querySelectorAll<HTMLElement>(`.${prefix}-in, .${prefix}-out`),
   );
 
   return animated.filter((el) => !isScrollDrivenCandidate(el));
 }
 
 export const AnimateOnScroll = ({
+  prefix = 'anim',
   children,
   once = true,
 }: AnimateOnScrollProps) => {
@@ -153,22 +160,22 @@ export const AnimateOnScroll = ({
           const el = entry.target as HTMLElement;
           if (!isJsObserverCandidate(el)) continue;
 
-          console.log('observed', entry);
+          console.log(`observed`, entry);
 
           const cls = el.classList;
-          const isIn = cls.contains('animate-in');
-          const isOut = cls.contains('animate-out');
+          const isIn = cls.contains(`${prefix}-in`);
+          const isOut = cls.contains(`${prefix}-out`);
           if (isIn && entry.isIntersecting) {
-            el.setAttribute('data-udx-run', '');
+            el.setAttribute(`data-${prefix}-run`, ``);
             if (once) io.unobserve(el);
           } else if (isOut && !entry.isIntersecting) {
             // Play exit when leaving viewport
-            el.setAttribute('data-udx-run', '');
+            el.setAttribute(`data-${prefix}-run`, ``);
             if (once) io.unobserve(el);
           } else {
             // Pause when not in the triggering state
             // Do not aggressively remove attribute if once=true and already ran
-            if (!once) el.removeAttribute('data-udx-run');
+            if (!once) el.removeAttribute(`data-${prefix}-run`);
           }
         }
       },
@@ -177,7 +184,7 @@ export const AnimateOnScroll = ({
     ioRef.current = io;
 
     const observeJsCandidates = (root?: ParentNode) => {
-      const candidates = queryJsObserverCandidates(root || document);
+      const candidates = queryJsObserverCandidates(root || document, prefix);
       for (const el of candidates) {
         if (observed.has(el)) continue;
         observed.add(el);
@@ -198,8 +205,8 @@ export const AnimateOnScroll = ({
         if (rafId != null) return;
         rafId = requestAnimationFrame(() => {
           rafId = null;
-          const els = queryScrollDrivenCandidates();
-          for (const el of els) hydrateElement(el);
+          const els = queryScrollDrivenCandidates(undefined, prefix);
+          for (const el of els) hydrateElement(el, prefix);
         });
       };
 
@@ -209,11 +216,11 @@ export const AnimateOnScroll = ({
       // Observe DOM changes to re-hydrate and attach IO to new js candidates
       const mo = new MutationObserver((muts) => {
         for (const m of muts) {
-          if (m.type === 'attributes') {
+          if (m.type === `attributes`) {
             const t = m.target;
             if (t instanceof HTMLElement) {
-              hydrateElement(t as HTMLElement);
-              // If an element lost/gained scroll-driven marker, ensure it's observed appropriately
+              hydrateElement(t as HTMLElement, prefix);
+              // If an element lost/gained scroll-driven marker, ensure it`s observed appropriately
               if (isJsObserverCandidate(t)) {
                 if (!observed.has(t)) {
                   observed.add(t);
@@ -221,14 +228,14 @@ export const AnimateOnScroll = ({
                 }
               }
             }
-          } else if (m.type === 'childList') {
+          } else if (m.type === `childList`) {
             // new nodes
             if (m.addedNodes && m.addedNodes.length) {
               for (const node of Array.from(m.addedNodes)) {
                 if (node instanceof HTMLElement) {
                   // hydrate scroll-driven in subtree
-                  const sds = queryScrollDrivenCandidates(node);
-                  for (const el of sds) hydrateElement(el);
+                  const sds = queryScrollDrivenCandidates(node, prefix);
+                  for (const el of sds) hydrateElement(el, prefix);
                   // observe js candidates in subtree
                   observeJsCandidates(node);
                 }
@@ -242,12 +249,12 @@ export const AnimateOnScroll = ({
         childList: true,
         attributes: true,
         attributeFilter: [
-          'class',
-          'data-udx-view',
-          'data-udx-start',
-          'data-udx-end',
-          'data-udx-paused',
-          'data-udx-run',
+          `class`,
+          `data-${prefix}-view`,
+          `data-${prefix}-start`,
+          `data-${prefix}-end`,
+          `data-${prefix}-paused`,
+          `data-${prefix}-run`,
         ],
       });
       moRef.current = mo;
@@ -260,14 +267,14 @@ export const AnimateOnScroll = ({
     } else {
       // No CSS support: dynamically import the fallback ONLY if there are scroll-driven candidates
       let stop: void | (() => void);
-      const existing = queryScrollDrivenCandidates();
+      const existing = queryScrollDrivenCandidates(undefined, prefix);
       if (existing.length > 0) {
-        import('./scrollDriven').then((m) => {
+        import(`./scrollDriven`).then((m) => {
           stop = m.initScrollViewFallback({ once });
         });
       }
       cleanupScrollDriven = () => {
-        if (typeof stop === 'function') (stop as () => void)();
+        if (typeof stop === `function`) (stop as () => void)();
       };
     }
 
