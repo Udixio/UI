@@ -172,7 +172,7 @@ export const AnimateOnScroll = ({
           }
         }
       },
-      { threshold: 0 },
+      { threshold: [0, 0.2] },
     );
     ioRef.current = io;
 
