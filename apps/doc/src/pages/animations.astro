@@ -6,15 +6,15 @@ import { Button, Card, Divider, AnimateOnScroll } from '@udixio/ui-react';
   <AnimateOnScroll client:load>
     <section class="relative overflow-hidden">
       <div class="container mx-auto px-6 py-16 lg:py-24">
-        <h1 class="aos-view animate-fade-down duration-700 text-4xl md:text-6xl font-extrabold tracking-tight text-on-surface">
+        <h1 class="udx-view animate-in fade-in slide-in-from-top anim-duration-700 text-4xl md:text-6xl font-extrabold tracking-tight text-on-surface">
           Animate on Scroll — Démo
         </h1>
-        <p class="aos-view animate-fade-up duration-700 delay-200 mt-4 max-w-2xl text-lg/8 text-on-surface-variant">
+        <p class="udx-view animate-in fade-in slide-in-from-bottom anim-duration-700 anim-delay-200 mt-4 max-w-2xl text-lg/8 text-on-surface-variant">
           Cette page présente différentes animations basées sur Tailwind et liées au défilement.
-          Les classes utilisent .aos-view + .animate-*. Quand le navigateur ne supporte pas les CSS Scroll-Driven Animations,
-          un fallback JS s’active automatiquement via le composant AnimateOnScroll.
+          Les classes utilisent .udx-view + .animate-in (avec des effets comme fade-in, slide-in-from-*, zoom-in/out).
+          Quand le navigateur ne supporte pas les CSS Scroll-Driven Animations, un fallback JS s’active automatiquement via le composant AnimateOnScroll.
         </p>
-        <div class="aos-view animate-fade-up duration-700 delay-300 mt-8 flex items-center gap-3">
+        <div class="udx-view animate-in fade-in slide-in-from-bottom anim-duration-700 anim-delay-300 mt-8 flex items-center gap-3">
           <Button variant="filled">Commencer</Button>
           <Button variant="outlined">Documentation</Button>
         </div>
@@ -24,37 +24,37 @@ import { Button, Card, Divider, AnimateOnScroll } from '@udixio/ui-react';
     <Divider className="my-10" />
 
     <section class="container mx-auto px-6">
-      <h2 class="aos-view animate-fade duration-700 text-2xl font-bold">Exemples basiques</h2>
-      <p class="aos-view animate-fade duration-700 delay-150 mt-2 text-on-surface-variant">
-        Variantes de base: fade, fade-up, fade-down, fade-left, fade-right, zoom-in et zoom-out.
+      <h2 class="udx-view animate-in fade-in anim-duration-700 text-2xl font-bold">Exemples basiques</h2>
+      <p class="udx-view animate-in fade-in anim-duration-700 anim-delay-150 mt-2 text-on-surface-variant">
+        Variantes de base: fade-in, slide-in-from-top/bottom/left/right, zoom-in et zoom-out.
       </p>
 
       <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card className="aos-view animate-fade duration-700 p-6">
+        <Card className="udx-view animate-in fade-in anim-duration-700 p-6">
           <h3 class="text-title-large font-semibold">Fade</h3>
           <p class="mt-2 text-on-surface-variant">Apparition progressive.</p>
         </Card>
-        <Card className="aos-view animate-fade-up duration-700 p-6">
+        <Card className="udx-view animate-in fade-in slide-in-from-bottom anim-duration-700 p-6">
           <h3 class="text-title-large font-semibold">Fade Up</h3>
           <p class="mt-2 text-on-surface-variant">Glisse vers le haut.</p>
         </Card>
-        <Card className="aos-view animate-fade-down duration-700 p-6">
+        <Card className="udx-view animate-in fade-in slide-in-from-top anim-duration-700 p-6">
           <h3 class="text-title-large font-semibold">Fade Down</h3>
           <p class="mt-2 text-on-surface-variant">Glisse vers le bas.</p>
         </Card>
-        <Card className="aos-view animate-fade-left duration-700 p-6">
+        <Card className="udx-view animate-in fade-in slide-in-from-left anim-duration-700 p-6">
           <h3 class="text-title-large font-semibold">Fade Left</h3>
           <p class="mt-2 text-on-surface-variant">Glisse depuis la gauche.</p>
         </Card>
-        <Card className="aos-view animate-fade-right duration-700 p-6">
+        <Card className="udx-view animate-in fade-in slide-in-from-right anim-duration-700 p-6">
           <h3 class="text-title-large font-semibold">Fade Right</h3>
           <p class="mt-2 text-on-surface-variant">Glisse depuis la droite.</p>
         </Card>
-        <Card className="aos-view animate-zoom-in duration-700 p-6">
+        <Card className="udx-view animate-in zoom-in anim-duration-700 p-6">
           <h3 class="text-title-large font-semibold">Zoom In</h3>
           <p class="mt-2 text-on-surface-variant">Zoom avant léger.</p>
         </Card>
-        <Card className="aos-view animate-zoom-out duration-700 p-6 sm:col-span-2 lg:col-span-1">
+        <Card className="udx-view animate-in zoom-out anim-duration-700 p-6 sm:col-span-2 lg:col-span-1">
           <h3 class="text-title-large font-semibold">Zoom Out</h3>
           <p class="mt-2 text-on-surface-variant">Zoom arrière léger.</p>
         </Card>
@@ -64,33 +64,33 @@ import { Button, Card, Divider, AnimateOnScroll } from '@udixio/ui-react';
     <Divider className="my-16" />
 
     <section class="container mx-auto px-6">
-      <h2 class="aos-view animate-fade duration-700 text-2xl font-bold">Durées & Easing</h2>
-      <p class="aos-view animate-fade duration-700 delay-150 mt-2 text-on-surface-variant">
-        Contrôlez la vitesse et l’interpolation avec les utilitaires Tailwind: duration-*, ease-*, delay-*.
+      <h2 class="udx-view animate-in fade-in anim-duration-700 text-2xl font-bold">Durées & Easing</h2>
+      <p class="udx-view animate-in fade-in anim-duration-700 anim-delay-150 mt-2 text-on-surface-variant">
+        Contrôlez la vitesse et l’interpolation avec les utilitaires: anim-duration-*, anim-ease-*, anim-delay-*.
       </p>
 
       <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card className="aos-view animate-fade-up duration-300 ease-linear p-6">
+        <Card className="udx-view animate-in fade-in slide-in-from-bottom anim-duration-300 anim-ease-linear p-6">
           <h3 class="text-title-large font-semibold">Rapide (300ms, linear)</h3>
           <p class="mt-2 text-on-surface-variant">Idéal pour des micro-transitions.</p>
         </Card>
-        <Card className="aos-view animate-fade-up duration-700 ease-out p-6">
+        <Card className="udx-view animate-in fade-in slide-in-from-bottom anim-duration-700 anim-ease-out p-6">
           <h3 class="text-title-large font-semibold">Standard (700ms, ease-out)</h3>
           <p class="mt-2 text-on-surface-variant">Courbe douce vers la fin.</p>
         </Card>
-        <Card className="aos-view animate-fade-up duration-[1200ms] ease-out p-6">
+        <Card className="udx-view animate-in fade-in slide-in-from-bottom anim-duration-[1200ms] anim-ease-out p-6">
           <h3 class="text-title-large font-semibold">Lent (1200ms)</h3>
           <p class="mt-2 text-on-surface-variant">Accentue la sensation de fluidité.</p>
         </Card>
-        <Card className="aos-view animate-fade-right duration-700 delay-150 p-6">
+        <Card className="udx-view animate-in fade-in slide-in-from-right anim-duration-700 anim-delay-150 p-6">
           <h3 class="text-title-large font-semibold">Delay 150ms</h3>
           <p class="mt-2 text-on-surface-variant">Différer l’entrée pour rythmer.</p>
         </Card>
-        <Card className="aos-view animate-fade-right duration-700 delay-300 p-6">
+        <Card className="udx-view animate-in fade-in slide-in-from-right anim-duration-700 anim-delay-300 p-6">
           <h3 class="text-title-large font-semibold">Delay 300ms</h3>
           <p class="mt-2 text-on-surface-variant">Utilisez des décalages en série.</p>
         </Card>
-        <Card className="aos-view animate-fade-right duration-700 delay-500 p-6">
+        <Card className="udx-view animate-in fade-in slide-in-from-right anim-duration-700 anim-delay-500 p-6">
           <h3 class="text-title-large font-semibold">Delay 500ms</h3>
           <p class="mt-2 text-on-surface-variant">Pour une chorégraphie plus marquée.</p>
         </Card>
@@ -100,35 +100,35 @@ import { Button, Card, Divider, AnimateOnScroll } from '@udixio/ui-react';
     <Divider className="my-16" />
 
     <section class="container mx-auto px-6">
-      <h2 class="aos-view animate-fade duration-700 text-2xl font-bold">Listes en cascade</h2>
-      <p class="aos-view animate-fade duration-700 delay-150 mt-2 text-on-surface-variant">
+      <h2 class="udx-view animate-in fade-in anim-duration-700 text-2xl font-bold">Listes en cascade</h2>
+      <p class="udx-view animate-in fade-in anim-duration-700 anim-delay-150 mt-2 text-on-surface-variant">
         Appliquez des délais croissants pour simuler un effet de cascade.
       </p>
 
       <ul class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <li class="aos-view animate-fade-up duration-700 p-4 rounded-lg bg-surface-container">
+        <li class="udx-view animate-in fade-in slide-in-from-bottom anim-duration-700 p-4 rounded-lg bg-surface-container">
           <h3 class="font-semibold">Élément 1</h3>
-          <p class="text-on-surface-variant">delay-0</p>
+          <p class="text-on-surface-variant">anim-delay-0</p>
         </li>
-        <li class="aos-view animate-fade-up duration-700 delay-150 p-4 rounded-lg bg-surface-container">
+        <li class="udx-view animate-in fade-in slide-in-from-bottom anim-duration-700 anim-delay-150 p-4 rounded-lg bg-surface-container">
           <h3 class="font-semibold">Élément 2</h3>
-          <p class="text-on-surface-variant">delay-150</p>
+          <p class="text-on-surface-variant">anim-delay-150</p>
         </li>
-        <li class="aos-view animate-fade-up duration-700 delay-300 p-4 rounded-lg bg-surface-container">
+        <li class="udx-view animate-in fade-in slide-in-from-bottom anim-duration-700 anim-delay-300 p-4 rounded-lg bg-surface-container">
           <h3 class="font-semibold">Élément 3</h3>
-          <p class="text-on-surface-variant">delay-300</p>
+          <p class="text-on-surface-variant">anim-delay-300</p>
         </li>
-        <li class="aos-view animate-fade-up duration-700 delay-500 p-4 rounded-lg bg-surface-container">
+        <li class="udx-view animate-in fade-in slide-in-from-bottom anim-duration-700 anim-delay-500 p-4 rounded-lg bg-surface-container">
           <h3 class="font-semibold">Élément 4</h3>
-          <p class="text-on-surface-variant">delay-500</p>
+          <p class="text-on-surface-variant">anim-delay-500</p>
         </li>
-        <li class="aos-view animate-fade-up duration-700 delay-[700ms] p-4 rounded-lg bg-surface-container">
+        <li class="udx-view animate-in fade-in slide-in-from-bottom anim-duration-700 anim-delay-[700ms] p-4 rounded-lg bg-surface-container">
           <h3 class="font-semibold">Élément 5</h3>
-          <p class="text-on-surface-variant">delay-700ms</p>
+          <p class="text-on-surface-variant">anim-delay-700ms</p>
         </li>
-        <li class="aos-view animate-fade-up duration-700 delay-[900ms] p-4 rounded-lg bg-surface-container">
+        <li class="udx-view animate-in fade-in slide-in-from-bottom anim-duration-700 anim-delay-[900ms] p-4 rounded-lg bg-surface-container">
           <h3 class="font-semibold">Élément 6</h3>
-          <p class="text-on-surface-variant">delay-900ms</p>
+          <p class="text-on-surface-variant">anim-delay-900ms</p>
         </li>
       </ul>
     </section>
@@ -136,42 +136,42 @@ import { Button, Card, Divider, AnimateOnScroll } from '@udixio/ui-react';
     <Divider className="my-16" />
 
     <section class="container mx-auto px-6 pb-24">
-      <h2 class="aos-view animate-fade duration-700 text-2xl font-bold">Combinaisons</h2>
-      <p class="aos-view animate-fade duration-700 delay-150 mt-2 text-on-surface-variant">
+      <h2 class="udx-view animate-in fade-in anim-duration-700 text-2xl font-bold">Combinaisons</h2>
+      <p class="udx-view animate-in fade-in anim-duration-700 anim-delay-150 mt-2 text-on-surface-variant">
         Combinez les variantes pour des mises en scène plus riches.
       </p>
 
       <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-6">
-          <div class="aos-view animate-fade-down duration-700">
+          <div class="udx-view animate-in fade-in slide-in-from-top anim-duration-700">
             <h3 class="text-title-large font-semibold">Bloc A</h3>
             <p class="mt-1 text-on-surface-variant">Titre en fade-down</p>
           </div>
-          <div class="aos-view animate-fade-up duration-[1000ms] delay-200 mt-4">
+          <div class="udx-view animate-in fade-in slide-in-from-bottom anim-duration-[1000ms] anim-delay-200 mt-4">
             <p>
               Contenu en fade-up plus lent, avec un léger délai. Idéal pour raconter une histoire lors du défilement.
             </p>
           </div>
-          <div class="aos-view animate-zoom-in duration-700 delay-400 mt-6">
+          <div class="udx-view animate-in zoom-in anim-duration-700 anim-delay-400 mt-6">
             <Button variant="filled">Action principale</Button>
           </div>
         </Card>
 
         <Card className="p-6">
           <div class="grid grid-cols-2 gap-4">
-            <div class="aos-view animate-fade-left duration-700">
+            <div class="udx-view animate-in fade-in slide-in-from-left anim-duration-700">
               <div class="h-24 rounded-lg bg-surface-container"></div>
               <p class="mt-2 text-on-surface-variant">fade-left</p>
             </div>
-            <div class="aos-view animate-fade-right duration-700">
+            <div class="udx-view animate-in fade-in slide-in-from-right anim-duration-700">
               <div class="h-24 rounded-lg bg-surface-container"></div>
               <p class="mt-2 text-on-surface-variant">fade-right</p>
             </div>
-            <div class="aos-view animate-zoom-out duration-700 delay-200">
+            <div class="udx-view animate-in zoom-out anim-duration-700 anim-delay-200">
               <div class="h-24 rounded-lg bg-surface-container"></div>
               <p class="mt-2 text-on-surface-variant">zoom-out</p>
             </div>
-            <div class="aos-view animate-zoom-in duration-700 delay-300">
+            <div class="udx-view animate-in zoom-in anim-duration-700 anim-delay-300">
               <div class="h-24 rounded-lg bg-surface-container"></div>
               <p class="mt-2 text-on-surface-variant">zoom-in</p>
             </div>
