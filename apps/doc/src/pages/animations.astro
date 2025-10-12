@@ -10,7 +10,7 @@ import { Button, Card, Divider, AnimateOnScroll } from '@udixio/ui-react';
           Animate on Scroll — Démo
         </h1>
         <p class="anim-in fade-in slide-in-from-bottom anim-duration-700 anim-delay-200 mt-4 max-w-2xl text-lg/8 text-on-surface-variant">
-          Cette page présente deux façons de déclencher les animations : via <strong>anim-in/animate-out</strong> (JS)
+          Cette page présente deux façons de déclencher les animations : via <strong>anim-in/anim-out</strong> (JS)
           ou via <strong>anim-view</strong> (Scroll‑Driven CSS). Choisissez l’un <em>ou</em> l’autre : les entrées <code>anim-in</code>
           ne sont pas compatibles avec <code>anim-view</code>. Avec <code>anim-view</code>, les paramètres <code>duration</code>
           et <code>delay</code> n’ont pas d’effet car la progression est entièrement synchronisée au pourcentage de scroll.
@@ -31,11 +31,11 @@ import { Button, Card, Divider, AnimateOnScroll } from '@udixio/ui-react';
       </p>
 
       <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card className="anim-in fade-in anim-duration-700 p-6">
+        <Card className="anim-in fade-in  p-6">
           <h3 class="text-title-large font-semibold">Fade</h3>
           <p class="mt-2 text-on-surface-variant">Apparition progressive.</p>
         </Card>
-        <Card className="anim-in fade-in slide-in-from-bottom anim-duration-700 p-6">
+        <Card className="anim-in fade-in slide-in-from-bottom anim-duration p-6">
           <h3 class="text-title-large font-semibold">Fade Up</h3>
           <p class="mt-2 text-on-surface-variant">Glisse vers le haut.</p>
         </Card>
@@ -233,24 +233,24 @@ import { Button, Card, Divider, AnimateOnScroll } from '@udixio/ui-react';
     <Divider className="my-16" />
 
     <section class="container mx-auto px-6 pb-32">
-      <h2 class="text-2xl font-bold">Sorties JS (animate-out)</h2>
+      <h2 class="text-2xl font-bold">Sorties JS (anim-out)</h2>
       <p class="mt-2 text-on-surface-variant">
-        Ces éléments emploient <code>animate-out</code>. Ils jouent leur animation lorsque vous <em>quittez</em> leur zone
+        Ces éléments emploient <code>anim-out</code>. Ils jouent leur animation lorsque vous <em>quittez</em> leur zone
         de vue (en les faisant sortir du viewport). Faites défiler doucement pour voir l’effet.
       </p>
 
       <div class="mt-8 space-y-8">
-        <Card className="animate-out fade-out slide-out-to-bottom-10 anim-duration-700 p-6">
+        <Card className="anim-out fade-out slide-out-to-bottom-10 anim-duration-700 p-6">
           <h3 class="text-title-large font-semibold">JS — Exit vers le bas</h3>
           <p class="mt-2 text-on-surface-variant">Se joue lorsque la carte sort de l’écran.</p>
         </Card>
         <div class="h-32"></div>
-        <Card className="animate-out fade-out slide-out-to-top-10 anim-duration-700 p-6">
+        <Card className="anim-out fade-out slide-out-to-top-10 anim-duration-700 p-6">
           <h3 class="text-title-large font-semibold">JS — Exit vers le haut</h3>
           <p class="mt-2 text-on-surface-variant">Se joue en remontant, quand la carte quitte le viewport.</p>
         </Card>
         <div class="h-32"></div>
-        <Card className="animate-out zoom-out-90 anim-duration-700 p-6">
+        <Card className="anim-out zoom-out-90 anim-duration-700 p-6">
           <h3 class="text-title-large font-semibold">JS — Zoom Out</h3>
           <p class="mt-2 text-on-surface-variant">Effet de sortie en zoom arrière.</p>
         </Card>

@@ -33,9 +33,9 @@ export const animation = plugin.withOptions(
         // in/out
         [`.${prefix}-in`]: {
           animationName: 'enter',
-          animationDuration: '200ms',
+          animationDuration: `var(--${prefix}-duration, 300ms)`,
           animationFillMode: 'both',
-          animationPlayState: `var(--${prefix}-anim-state, paused)`,
+          animationPlayState: `var(--${prefix}-state, paused)`,
           '--tw-enter-opacity': 'initial',
           '--tw-enter-scale': 'initial',
           '--tw-enter-rotate': 'initial',
@@ -45,9 +45,9 @@ export const animation = plugin.withOptions(
         },
         [`.${prefix}-out`]: {
           animationName: 'exit',
-          animationDuration: '200ms',
+          animationDuration: `var(--${prefix}-duration, 300ms)`,
           animationFillMode: 'both',
-          animationPlayState: `var(--${prefix}-anim-state, paused)`,
+          animationPlayState: `var(--${prefix}-state, paused)`,
           '--tw-exit-opacity': 'initial',
           '--tw-exit-scale': 'initial',
           '--tw-exit-rotate': 'initial',
@@ -56,8 +56,8 @@ export const animation = plugin.withOptions(
           willChange: 'opacity, transform',
         },
         // run/pause state
-        [`.${prefix}-run`]: { [`--${prefix}-anim-state`]: 'running' },
-        [`.${prefix}-paused`]: { [`--${prefix}-anim-state`]: 'paused' },
+        [`.${prefix}-run`]: { [`--${prefix}-state`]: 'running' },
+        [`.${prefix}-paused`]: { [`--${prefix}-state`]: 'paused' },
         // scroll-driven
         [`.${prefix}-view`]: {
           animationTimeline: 'view()',
@@ -94,8 +94,8 @@ export const animation = plugin.withOptions(
 
       // Data-attribute triggers
       addBase({
-        [`[data-${prefix}-run]`]: { [`--${prefix}-anim-state`]: 'running' },
-        [`[data-${prefix}-paused]`]: { [`--${prefix}-anim-state`]: 'paused' },
+        [`[data-${prefix}-run]`]: { [`--${prefix}-state`]: 'running' },
+        [`[data-${prefix}-paused]`]: { [`--${prefix}-state`]: 'paused' },
       });
 
       // Effets
