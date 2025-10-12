@@ -6,12 +6,11 @@ export interface AnimationPluginOptions {
 }
 
 // Animations inspired by temps.js but without overlapping Tailwind's transition utilities
-// - prefixed utilities for animation properties: anim-duration-*, anim-delay-*, anim-ease-*, anim-fill-*, anim-direction-*, anim-repeat
-// - minimal usage: combine .animate-in/.animate-out with effect utilities like .fade-in, .zoom-in, .slide-in-from-right
-// - trigger utilities: .udx-run, .udx-paused, .udx-view (scroll-driven)
+// - prefixed utilities for animation properties: {prefix}-duration-*, {prefix}-delay-*, {prefix}-ease-*, {prefix}-fill-*, {prefix}-direction-*, {prefix}-repeat
+// - usage: compose triggers ({prefix}-in|{prefix}-out or {prefix}-view*) + effects (fade/zoom/slide/spin) + params
 export const animation = plugin.withOptions(
   ({ prefix = 'anim' }: AnimationPluginOptions) => {
-    return ({ addBase, matchUtilities, addUtilities, theme }: PluginAPI) => {
+    return ({ addBase, matchUtilities, addUtilities }: PluginAPI) => {
       addBase({
         '@keyframes enter': {
           from: {
@@ -29,8 +28,9 @@ export const animation = plugin.withOptions(
         },
       });
 
-      // Base utilities for in/out animations
+      // Triggers (unifiés): in/out + view*
       addUtilities({
+        // in/out
         [`.${prefix}-in`]: {
           animationName: 'enter',
           animationDuration: '200ms',
@@ -55,17 +55,16 @@ export const animation = plugin.withOptions(
           '--tw-exit-translate-y': 'initial',
           willChange: 'opacity, transform',
         },
-        // Trigger helpers
+        // run/pause state
         [`.${prefix}-run`]: { [`--${prefix}-anim-state`]: 'running' },
         [`.${prefix}-paused`]: { [`--${prefix}-anim-state`]: 'paused' },
-        // Scroll-driven triggers (in supporting browsers)
+        // scroll-driven
         [`.${prefix}-view`]: {
           animationTimeline: 'view()',
           animationRangeStart: `var(--${prefix}-range-start, entry 20%)`,
           animationRangeEnd: `var(--${prefix}-range-end, cover 50%)`,
           animationFillMode: 'both',
         },
-        // Axis-specific timelines
         [`.${prefix}-view-block`]: {
           animationTimeline: 'view(block)',
           animationRangeStart: `var(--${prefix}-range-start, entry 20%)`,
@@ -78,7 +77,7 @@ export const animation = plugin.withOptions(
           animationRangeEnd: `var(--${prefix}-range-end, cover 50%)`,
           animationFillMode: 'both',
         },
-        // Short aliases
+        // aliases
         [`.${prefix}-view-y`]: {
           animationTimeline: 'view(block)',
           animationRangeStart: `var(--${prefix}-range-start, entry 20%)`,
@@ -93,19 +92,13 @@ export const animation = plugin.withOptions(
         },
       });
 
-      // Data-attribute triggers (moved to base to satisfy Tailwind utility selector rules)
+      // Data-attribute triggers
       addBase({
-        [`[data-${prefix}-view]`]: {
-          animationTimeline: 'view()',
-          animationRangeStart: `var(--${prefix}-range-start, entry 20%)`,
-          animationRangeEnd: `var(--${prefix}-range-end, cover 50%)`,
-          animationFillMode: 'both',
-        },
         [`[data-${prefix}-run]`]: { [`--${prefix}-anim-state`]: 'running' },
         [`[data-${prefix}-paused]`]: { [`--${prefix}-anim-state`]: 'paused' },
       });
 
-      // Effect utilities
+      // Effets
       matchUtilities(
         {
           'fade-in': (value) => ({ '--tw-enter-opacity': value }),
@@ -133,11 +126,8 @@ export const animation = plugin.withOptions(
         },
       );
 
-      // Separate zoom utilities to allow distinct DEFAULT values
       matchUtilities(
-        {
-          'zoom-in': (value) => ({ '--tw-enter-scale': value }),
-        },
+        { 'zoom-in': (value) => ({ '--tw-enter-scale': value }) },
         {
           values: {
             DEFAULT: '.95',
@@ -156,9 +146,7 @@ export const animation = plugin.withOptions(
       );
 
       matchUtilities(
-        {
-          'zoom-out': (value) => ({ '--tw-exit-scale': value }),
-        },
+        { 'zoom-out': (value) => ({ '--tw-exit-scale': value }) },
         {
           values: {
             DEFAULT: '.9',
@@ -267,7 +255,7 @@ export const animation = plugin.withOptions(
         },
       );
 
-      // Scroll trigger offset utilities (configurable via classnames)
+      // Offsets de timeline
       matchUtilities(
         {
           [`${prefix}-start`]: (value) => ({
@@ -277,11 +265,10 @@ export const animation = plugin.withOptions(
             [`--${prefix}-range-end`]: value,
           }),
         },
-        // Allow arbitrary values, e.g. udx-start-[entry_20%]
         { values: {} },
       );
 
-      // Prefixed animation property utilities (to avoid overlapping Tailwind's transition utilities)
+      // Paramètres (propriétés CSS) sous le même prefix
       matchUtilities(
         {
           [`${prefix}-duration`]: (value) => ({ animationDuration: value }),
@@ -318,11 +305,7 @@ export const animation = plugin.withOptions(
       );
 
       matchUtilities(
-        {
-          [`${prefix}-ease`]: (value) => ({
-            animationTimingFunction: value,
-          }),
-        },
+        { [`${prefix}-ease`]: (value) => ({ animationTimingFunction: value }) },
         {
           values: {
             linear: 'linear',
@@ -346,11 +329,7 @@ export const animation = plugin.withOptions(
       );
 
       matchUtilities(
-        {
-          [`${prefix}-direction`]: (value) => ({
-            animationDirection: value,
-          }),
-        },
+        { [`${prefix}-direction`]: (value) => ({ animationDirection: value }) },
         {
           values: {
             normal: 'normal',
@@ -363,16 +342,10 @@ export const animation = plugin.withOptions(
 
       matchUtilities(
         {
-          [`${prefix}-repeat`]: (value) => ({
-            animationIterationCount: value,
-          }),
+          [`${prefix}-repeat`]: (value) => ({ animationIterationCount: value }),
         },
         {
-          values: {
-            0: '0',
-            1: '1',
-            infinite: 'infinite',
-          },
+          values: { 0: '0', 1: '1', infinite: 'infinite' },
         },
       );
     };
