@@ -14,16 +14,14 @@ export const animation = plugin.withOptions(
       addBase({
         '@keyframes enter': {
           from: {
-            opacity: 'var(--tw-enter-opacity, 1)',
-            transform:
-              'translate3d(var(--tw-enter-translate-x, 0), var(--tw-enter-translate-y, 0), 0) scale3d(var(--tw-enter-scale, 1), var(--tw-enter-scale, 1), var(--tw-enter-scale, 1)) rotate(var(--tw-enter-rotate, 0))',
+            opacity: `var(--${prefix}-enter-opacity, 1)`,
+            transform: `translate3d(var(--${prefix}-enter-translate-x, 0), var(--${prefix}-enter-translate-y, 0), 0) scale3d(var(--${prefix}-enter-scale, 1), var(--${prefix}-enter-scale, 1), var(--${prefix}-enter-scale, 1)) rotate(var(--${prefix}-enter-rotate, 0))`,
           },
         },
         '@keyframes exit': {
           to: {
-            opacity: 'var(--tw-exit-opacity, 1)',
-            transform:
-              'translate3d(var(--tw-exit-translate-x, 0), var(--tw-exit-translate-y, 0), 0) scale3d(var(--tw-exit-scale, 1), var(--tw-exit-scale, 1), var(--tw-exit-scale, 1)) rotate(var(--tw-exit-rotate, 0))',
+            opacity: `var(--${prefix}-exit-opacity, 1)`,
+            transform: `translate3d(var(--${prefix}-exit-translate-x, 0), var(--${prefix}-exit-translate-y, 0), 0) scale3d(var(--${prefix}-exit-scale, 1), var(--${prefix}-exit-scale, 1), var(--${prefix}-exit-scale, 1)) rotate(var(--${prefix}-exit-rotate, 0))`,
           },
         },
       });
@@ -36,25 +34,25 @@ export const animation = plugin.withOptions(
           animationDuration: `var(--${prefix}-duration, 300ms)`,
           animationFillMode: 'both',
           animationPlayState: `var(--${prefix}-state, paused)`,
-          '--tw-enter-opacity': 'initial',
-          '--tw-enter-scale': 'initial',
-          '--tw-enter-rotate': 'initial',
-          '--tw-enter-translate-x': 'initial',
-          '--tw-enter-translate-y': 'initial',
+          [`--${prefix}-enter-opacity`]: 'initial',
+          [`--${prefix}-enter-scale`]: 'initial',
+          [`--${prefix}-enter-rotate`]: 'initial',
+          [`--${prefix}-enter-translate-x`]: 'initial',
+          [`--${prefix}-enter-translate-y`]: 'initial',
           willChange: 'opacity, transform',
         },
-        [`.${prefix}-out`]: {
-          animationName: 'exit',
-          animationDuration: `var(--${prefix}-duration, 300ms)`,
-          animationFillMode: 'both',
-          animationPlayState: `var(--${prefix}-state, paused)`,
-          '--tw-exit-opacity': 'initial',
-          '--tw-exit-scale': 'initial',
-          '--tw-exit-rotate': 'initial',
-          '--tw-exit-translate-x': 'initial',
-          '--tw-exit-translate-y': 'initial',
-          willChange: 'opacity, transform',
-        },
+        // [`.${prefix}-out`]: {
+        //   animationName: 'exit',
+        //   animationDuration: `var(--${prefix}-duration, 300ms)`,
+        //   animationFillMode: 'both',
+        //   animationPlayState: `var(--${prefix}-state, paused)`,
+        //   [`--${prefix}-exit-opacity`]: 'initial',
+        //   [`--${prefix}-exit-scale`]: 'initial',
+        //   [`--${prefix}-exit-rotate`]: 'initial',
+        //   [`--${prefix}-exit-translate-x`]: 'initial',
+        //   [`--${prefix}-exit-translate-y`]: 'initial',
+        //   willChange: 'opacity, transform',
+        // },
         // run/pause state
         [`.${prefix}-run`]: { [`--${prefix}-state`]: 'running' },
         [`.${prefix}-paused`]: { [`--${prefix}-state`]: 'paused' },
@@ -101,8 +99,8 @@ export const animation = plugin.withOptions(
       // Effets
       matchUtilities(
         {
-          'fade-in': (value) => ({ '--tw-enter-opacity': value }),
-          'fade-out': (value) => ({ '--tw-exit-opacity': value }),
+          'fade-in': (value) => ({ [`--${prefix}-enter-opacity`]: value }),
+          'fade-out': (value) => ({ [`--${prefix}-exit-opacity`]: value }),
         },
         {
           values: {
@@ -127,7 +125,7 @@ export const animation = plugin.withOptions(
       );
 
       matchUtilities(
-        { 'zoom-in': (value) => ({ '--tw-enter-scale': value }) },
+        { 'zoom-in': (value) => ({ [`--${prefix}-enter-scale`]: value }) },
         {
           values: {
             DEFAULT: '.95',
@@ -146,7 +144,7 @@ export const animation = plugin.withOptions(
       );
 
       matchUtilities(
-        { 'zoom-out': (value) => ({ '--tw-exit-scale': value }) },
+        { 'zoom-out': (value) => ({ [`--${prefix}-exit-scale`]: value }) },
         {
           values: {
             DEFAULT: '.9',
@@ -166,8 +164,8 @@ export const animation = plugin.withOptions(
 
       matchUtilities(
         {
-          'spin-in': (value) => ({ '--tw-enter-rotate': value }),
-          'spin-out': (value) => ({ '--tw-exit-rotate': value }),
+          'spin-in': (value) => ({ [`--${prefix}-enter-rotate`]: value }),
+          'spin-out': (value) => ({ [`--${prefix}-exit-rotate`]: value }),
         },
         {
           values: {
@@ -188,28 +186,28 @@ export const animation = plugin.withOptions(
       matchUtilities(
         {
           'slide-in-from-top': (value) => ({
-            '--tw-enter-translate-y': `-${value}`,
+            [`--${prefix}-enter-translate-y`]: `-${value}`,
           }),
           'slide-in-from-bottom': (value) => ({
-            '--tw-enter-translate-y': value,
+            [`--${prefix}-enter-translate-y`]: value,
           }),
           'slide-in-from-left': (value) => ({
-            '--tw-enter-translate-x': `-${value}`,
+            [`--${prefix}-enter-translate-x`]: `-${value}`,
           }),
           'slide-in-from-right': (value) => ({
-            '--tw-enter-translate-x': value,
+            [`--${prefix}-enter-translate-x`]: value,
           }),
           'slide-out-to-top': (value) => ({
-            '--tw-exit-translate-y': `-${value}`,
+            [`--${prefix}-exit-translate-y`]: `-${value}`,
           }),
           'slide-out-to-bottom': (value) => ({
-            '--tw-exit-translate-y': value,
+            [`--${prefix}-exit-translate-y`]: value,
           }),
           'slide-out-to-left': (value) => ({
-            '--tw-exit-translate-x': `-${value}`,
+            [`--${prefix}-exit-translate-x`]: `-${value}`,
           }),
           'slide-out-to-right': (value) => ({
-            '--tw-exit-translate-x': value,
+            [`--${prefix}-exit-translate-x`]: value,
           }),
         },
         {
@@ -340,14 +338,14 @@ export const animation = plugin.withOptions(
         },
       );
 
-      matchUtilities(
-        {
-          [`${prefix}-repeat`]: (value) => ({ animationIterationCount: value }),
-        },
-        {
-          values: { 0: '0', 1: '1', infinite: 'infinite' },
-        },
-      );
+      // matchUtilities(
+      //   {
+      //     [`${prefix}-repeat`]: (value) => ({ animationIterationCount: value }),
+      //   },
+      //   {
+      //     values: { 0: '0', 1: '1', infinite: 'infinite' },
+      //   },
+      // );
     };
   },
 );
