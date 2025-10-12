@@ -179,5 +179,57 @@ import { Button, Card, Divider, AnimateOnScroll } from '@udixio/ui-react';
         </Card>
       </div>
     </section>
+
+    <Divider className="my-16" />
+
+    <section class="container mx-auto px-6">
+      <h2 class="text-2xl font-bold">Entrées JS (animate-in sans udx-view)</h2>
+      <p class="mt-2 text-on-surface-variant">
+        Ces éléments n’utilisent <strong>pas</strong> udx-view. Ils sont déclenchés en JavaScript via IntersectionObserver
+        par le composant <code>AnimateOnScroll</code> et démarrent quand ils entrent dans le viewport.
+      </p>
+
+      <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card className="animate-in fade-in-50 slide-in-from-bottom anim-duration-700 p-6">
+          <h3 class="text-title-large font-semibold">JS — Fade Up</h3>
+          <p class="mt-2 text-on-surface-variant">Sans udx-view, déclenché à l’entrée.</p>
+        </Card>
+        <Card className="animate-in fade-in slide-in-from-left anim-duration-700 p-6">
+          <h3 class="text-title-large font-semibold">JS — Fade Left</h3>
+          <p class="mt-2 text-on-surface-variant">Purement via observer JS.</p>
+        </Card>
+        <Card className="animate-in zoom-in anim-duration-700 p-6">
+          <h3 class="text-title-large font-semibold">JS — Zoom In</h3>
+          <p class="mt-2 text-on-surface-variant">Aucune timeline CSS; déclencheur JS.</p>
+        </Card>
+      </div>
+    </section>
+
+    <Divider className="my-16" />
+
+    <section class="container mx-auto px-6 pb-32">
+      <h2 class="text-2xl font-bold">Sorties JS (animate-out)</h2>
+      <p class="mt-2 text-on-surface-variant">
+        Ces éléments emploient <code>animate-out</code>. Ils jouent leur animation lorsque vous <em>quittez</em> leur zone
+        de vue (en les faisant sortir du viewport). Faites défiler doucement pour voir l’effet.
+      </p>
+
+      <div class="mt-8 space-y-8">
+        <Card className="animate-out fade-out-0 slide-out-to-bottom-10 anim-duration-700 p-6">
+          <h3 class="text-title-large font-semibold">JS — Exit vers le bas</h3>
+          <p class="mt-2 text-on-surface-variant">Se joue lorsque la carte sort de l’écran.</p>
+        </Card>
+        <div class="h-32"></div>
+        <Card className="animate-out fade-out-0 slide-out-to-top-10 anim-duration-700 p-6">
+          <h3 class="text-title-large font-semibold">JS — Exit vers le haut</h3>
+          <p class="mt-2 text-on-surface-variant">Se joue en remontant, quand la carte quitte le viewport.</p>
+        </Card>
+        <div class="h-32"></div>
+        <Card className="animate-out zoom-out-90 anim-duration-700 p-6">
+          <h3 class="text-title-large font-semibold">JS — Zoom Out</h3>
+          <p class="mt-2 text-on-surface-variant">Effet de sortie en zoom arrière.</p>
+        </Card>
+      </div>
+    </section>
   </AnimateOnScroll>
 </Layout>

@@ -1,12 +1,7 @@
-import plugin, { PluginAPI } from 'tailwindcss/plugin';
+import plugin from 'tailwindcss/plugin';
+import { PluginAPI } from 'tailwindcss/dist/plugin';
 
 export interface AnimationPluginOptions {}
-
-function filterDefault(values: Record<string, any>) {
-  return Object.fromEntries(
-    Object.entries(values).filter(([key]) => key !== 'DEFAULT'),
-  );
-}
 
 // Animations inspired by temps.js but without overlapping Tailwind's transition utilities
 // - prefixed utilities for animation properties: anim-duration-*, anim-delay-*, anim-ease-*, anim-fill-*, anim-direction-*, anim-repeat
@@ -16,16 +11,7 @@ export const animation = plugin.withOptions(
   (options: AnimationPluginOptions) => {
     const prefix = 'udx';
 
-    return ({
-      addBase,
-      addUtilities,
-      matchUtilities,
-      theme,
-    }: Pick<
-      PluginAPI,
-      'addBase' | 'addUtilities' | 'matchUtilities' | 'theme'
-    >) => {
-      // Keyframes definitions using CSS variables (enter/exit)
+    return ({ addBase, matchUtilities, addUtilities, theme }: PluginAPI) => {
       addBase({
         '@keyframes enter': {
           from: {
@@ -47,8 +33,7 @@ export const animation = plugin.withOptions(
       addUtilities({
         '.animate-in': {
           animationName: 'enter',
-          animationDuration:
-            (theme('animationDuration.DEFAULT') as string) || '200ms',
+          animationDuration: '200ms',
           animationFillMode: 'both',
           animationPlayState: `var(--${prefix}-anim-state, paused)`,
           '--tw-enter-opacity': 'initial',
@@ -60,8 +45,7 @@ export const animation = plugin.withOptions(
         },
         '.animate-out': {
           animationName: 'exit',
-          animationDuration:
-            (theme('animationDuration.DEFAULT') as string) || '200ms',
+          animationDuration: '200ms',
           animationFillMode: 'both',
           animationPlayState: `var(--${prefix}-anim-state, paused)`,
           '--tw-exit-opacity': 'initial',
@@ -72,8 +56,8 @@ export const animation = plugin.withOptions(
           willChange: 'opacity, transform',
         },
         // Trigger helpers
-        [`.${prefix}-run`]: { animationPlayState: 'running' },
-        [`.${prefix}-paused`]: { animationPlayState: 'paused' },
+        [`.${prefix}-run`]: { [`--${prefix}-anim-state`]: 'running' },
+        [`.${prefix}-paused`]: { [`--${prefix}-anim-state`]: 'paused' },
         // Scroll-driven triggers (in supporting browsers)
         [`.${prefix}-view`]: {
           animationTimeline: 'view()',
@@ -107,42 +91,110 @@ export const animation = plugin.withOptions(
           animationRangeEnd: `var(--${prefix}-range-end, cover 50%)`,
           animationFillMode: 'both',
         },
-        // Data-attribute triggers (for ergonomics)
+      });
+
+      // Data-attribute triggers (moved to base to satisfy Tailwind utility selector rules)
+      addBase({
         [`[data-${prefix}-view]`]: {
           animationTimeline: 'view()',
           animationRangeStart: `var(--${prefix}-range-start, entry 20%)`,
           animationRangeEnd: `var(--${prefix}-range-end, cover 50%)`,
           animationFillMode: 'both',
         },
-        [`[data-${prefix}-run]`]: { animationPlayState: 'running' },
-        [`[data-${prefix}-paused]`]: { animationPlayState: 'paused' },
+        [`[data-${prefix}-run]`]: { [`--${prefix}-anim-state`]: 'running' },
+        [`[data-${prefix}-paused]`]: { [`--${prefix}-anim-state`]: 'paused' },
       });
 
       // Effect utilities
       matchUtilities(
         {
-          'fade-in': (value) => ({ '--tw-enter-opacity': value as string }),
-          'fade-out': (value) => ({ '--tw-exit-opacity': value as string }),
+          'fade-in': (value) => ({ '--tw-enter-opacity': value }),
+          'fade-out': (value) => ({ '--tw-exit-opacity': value }),
         },
         {
-          values: theme('animationOpacity') as Record<string, string | number>,
+          values: {
+            DEFAULT: '0',
+            0: '0',
+            5: '0.05',
+            10: '0.1',
+            20: '0.2',
+            25: '0.25',
+            30: '0.3',
+            40: '0.4',
+            50: '0.5',
+            60: '0.6',
+            70: '0.7',
+            75: '0.75',
+            80: '0.8',
+            90: '0.9',
+            95: '0.95',
+            100: '1',
+          },
+        },
+      );
+
+      // Separate zoom utilities to allow distinct DEFAULT values
+      matchUtilities(
+        {
+          'zoom-in': (value) => ({ '--tw-enter-scale': value }),
+        },
+        {
+          values: {
+            DEFAULT: '.95',
+            0: '0',
+            50: '.5',
+            75: '.75',
+            90: '.9',
+            95: '.95',
+            100: '1',
+            105: '1.05',
+            110: '1.1',
+            125: '1.25',
+            150: '1.5',
+          },
         },
       );
 
       matchUtilities(
         {
-          'zoom-in': (value) => ({ '--tw-enter-scale': value as string }),
-          'zoom-out': (value) => ({ '--tw-exit-scale': value as string }),
+          'zoom-out': (value) => ({ '--tw-exit-scale': value }),
         },
-        { values: theme('animationScale') as Record<string, string | number> },
+        {
+          values: {
+            DEFAULT: '.9',
+            0: '0',
+            50: '.5',
+            75: '.75',
+            90: '.9',
+            95: '.95',
+            100: '1',
+            105: '1.05',
+            110: '1.1',
+            125: '1.25',
+            150: '1.5',
+          },
+        },
       );
 
       matchUtilities(
         {
-          'spin-in': (value) => ({ '--tw-enter-rotate': value as string }),
-          'spin-out': (value) => ({ '--tw-exit-rotate': value as string }),
+          'spin-in': (value) => ({ '--tw-enter-rotate': value }),
+          'spin-out': (value) => ({ '--tw-exit-rotate': value }),
         },
-        { values: theme('animationRotate') as Record<string, string | number> },
+        {
+          values: {
+            DEFAULT: '6deg',
+            1: '1deg',
+            2: '2deg',
+            3: '3deg',
+            6: '6deg',
+            12: '12deg',
+            30: '30deg',
+            45: '45deg',
+            90: '90deg',
+            180: '180deg',
+          },
+        },
       );
 
       matchUtilities(
@@ -151,32 +203,67 @@ export const animation = plugin.withOptions(
             '--tw-enter-translate-y': `-${value}`,
           }),
           'slide-in-from-bottom': (value) => ({
-            '--tw-enter-translate-y': value as string,
+            '--tw-enter-translate-y': value,
           }),
           'slide-in-from-left': (value) => ({
             '--tw-enter-translate-x': `-${value}`,
           }),
           'slide-in-from-right': (value) => ({
-            '--tw-enter-translate-x': value as string,
+            '--tw-enter-translate-x': value,
           }),
           'slide-out-to-top': (value) => ({
             '--tw-exit-translate-y': `-${value}`,
           }),
           'slide-out-to-bottom': (value) => ({
-            '--tw-exit-translate-y': value as string,
+            '--tw-exit-translate-y': value,
           }),
           'slide-out-to-left': (value) => ({
             '--tw-exit-translate-x': `-${value}`,
           }),
           'slide-out-to-right': (value) => ({
-            '--tw-exit-translate-x': value as string,
+            '--tw-exit-translate-x': value,
           }),
         },
         {
-          values: theme('animationTranslate') as Record<
-            string,
-            string | number
-          >,
+          values: {
+            DEFAULT: '2rem',
+            full: '100%',
+            0: '0px',
+            px: '1px',
+            0.5: '0.125rem',
+            1: '0.25rem',
+            1.5: '0.375rem',
+            2: '0.5rem',
+            2.5: '0.625rem',
+            3: '0.75rem',
+            3.5: '0.875rem',
+            4: '1rem',
+            5: '1.25rem',
+            6: '1.5rem',
+            7: '1.75rem',
+            8: '2rem',
+            9: '2.25rem',
+            10: '2.5rem',
+            11: '2.75rem',
+            12: '3rem',
+            14: '3.5rem',
+            16: '4rem',
+            20: '5rem',
+            24: '6rem',
+            28: '7rem',
+            32: '8rem',
+            36: '9rem',
+            40: '10rem',
+            44: '11rem',
+            48: '12rem',
+            52: '13rem',
+            56: '14rem',
+            60: '15rem',
+            64: '16rem',
+            72: '18rem',
+            80: '20rem',
+            96: '24rem',
+          },
         },
       );
 
@@ -184,118 +271,110 @@ export const animation = plugin.withOptions(
       matchUtilities(
         {
           [`${prefix}-start`]: (value) => ({
-            [`--${prefix}-range-start`]: value as string,
+            [`--${prefix}-range-start`]: value,
           }),
           [`${prefix}-end`]: (value) => ({
-            [`--${prefix}-range-end`]: value as string,
+            [`--${prefix}-range-end`]: value,
           }),
         },
-        // Allow theme-based and arbitrary values, e.g. udx-start-[entry_20%]
-        { values: {} as any },
+        // Allow arbitrary values, e.g. udx-start-[entry_20%]
+        { values: {} },
       );
 
       // Prefixed animation property utilities (to avoid overlapping Tailwind's transition utilities)
       matchUtilities(
         {
-          'anim-duration': (value) => ({ animationDuration: value as string }),
+          'anim-duration': (value) => ({ animationDuration: value }),
         },
         {
-          values: filterDefault(
-            theme('animationDuration') as Record<string, any>,
-          ),
+          values: {
+            75: '75ms',
+            100: '100ms',
+            150: '150ms',
+            200: '200ms',
+            300: '300ms',
+            500: '500ms',
+            700: '700ms',
+            1000: '1000ms',
+          },
         },
       );
 
       matchUtilities(
-        { 'anim-delay': (value) => ({ animationDelay: value as string }) },
-        { values: theme('animationDelay') as Record<string, any> },
+        { 'anim-delay': (value) => ({ animationDelay: value }) },
+        {
+          values: {
+            0: '0ms',
+            75: '75ms',
+            100: '100ms',
+            150: '150ms',
+            200: '200ms',
+            300: '300ms',
+            500: '500ms',
+            700: '700ms',
+            1000: '1000ms',
+          },
+        },
       );
 
       matchUtilities(
         {
           'anim-ease': (value) => ({
-            animationTimingFunction: value as string,
+            animationTimingFunction: value,
           }),
         },
         {
-          values: filterDefault(
-            theme('animationTimingFunction') as Record<string, any>,
-          ),
+          values: {
+            linear: 'linear',
+            in: 'cubic-bezier(0.4, 0, 1, 1)',
+            out: 'cubic-bezier(0, 0, 0.2, 1)',
+            'in-out': 'cubic-bezier(0.4, 0, 0.2, 1)',
+          },
         },
       );
 
       matchUtilities(
-        { 'anim-fill': (value) => ({ animationFillMode: value as string }) },
-        { values: theme('animationFillMode') as Record<string, any> },
+        { 'anim-fill': (value) => ({ animationFillMode: value }) },
+        {
+          values: {
+            none: 'none',
+            forwards: 'forwards',
+            backwards: 'backwards',
+            both: 'both',
+          },
+        },
       );
 
       matchUtilities(
         {
           'anim-direction': (value) => ({
-            animationDirection: value as string,
+            animationDirection: value,
           }),
         },
-        { values: theme('animationDirection') as Record<string, any> },
+        {
+          values: {
+            normal: 'normal',
+            reverse: 'reverse',
+            alternate: 'alternate',
+            'alternate-reverse': 'alternate-reverse',
+          },
+        },
       );
 
       matchUtilities(
         {
           'anim-repeat': (value) => ({
-            animationIterationCount: value as string,
+            animationIterationCount: value,
           }),
         },
-        { values: theme('animationRepeat') as Record<string, any> },
+        {
+          values: {
+            0: '0',
+            1: '1',
+            infinite: 'infinite',
+          },
+        },
       );
     };
-  },
-  {
-    theme: {
-      extend: {
-        // Reuse Tailwind transition scales but scoped to animation-* theme keys
-        animationDelay: ({ theme }: any) => ({
-          ...(theme('transitionDelay') as Record<string, any>),
-        }),
-        animationDuration: ({ theme }: any) => ({
-          0: '0ms',
-          ...(theme('transitionDuration') as Record<string, any>),
-        }),
-        animationTimingFunction: ({ theme }: any) => ({
-          ...(theme('transitionTimingFunction') as Record<string, any>),
-        }),
-        animationFillMode: {
-          none: 'none',
-          forwards: 'forwards',
-          backwards: 'backwards',
-          both: 'both',
-        },
-        animationDirection: {
-          normal: 'normal',
-          reverse: 'reverse',
-          alternate: 'alternate',
-          'alternate-reverse': 'alternate-reverse',
-        },
-        animationOpacity: ({ theme }: any) => ({
-          DEFAULT: 0,
-          ...(theme('opacity') as Record<string, any>),
-        }),
-        animationTranslate: ({ theme }: any) => ({
-          DEFAULT: '100%',
-          ...(theme('translate') as Record<string, any>),
-        }),
-        animationScale: ({ theme }: any) => ({
-          DEFAULT: 0,
-          ...(theme('scale') as Record<string, any>),
-        }),
-        animationRotate: ({ theme }: any) => ({
-          DEFAULT: '30deg',
-          ...(theme('rotate') as Record<string, any>),
-        }),
-        animationRepeat: {
-          0: '0',
-          1: '1',
-          infinite: 'infinite',
-        },
-      },
-    },
   },
 );
