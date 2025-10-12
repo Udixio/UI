@@ -1,16 +1,16 @@
 import plugin from 'tailwindcss/plugin';
 import { PluginAPI } from 'tailwindcss/dist/plugin';
 
-export interface AnimationPluginOptions {}
+export interface AnimationPluginOptions {
+  prefix?: string;
+}
 
 // Animations inspired by temps.js but without overlapping Tailwind's transition utilities
 // - prefixed utilities for animation properties: anim-duration-*, anim-delay-*, anim-ease-*, anim-fill-*, anim-direction-*, anim-repeat
 // - minimal usage: combine .animate-in/.animate-out with effect utilities like .fade-in, .zoom-in, .slide-in-from-right
 // - trigger utilities: .udx-run, .udx-paused, .udx-view (scroll-driven)
 export const animation = plugin.withOptions(
-  (options: AnimationPluginOptions) => {
-    const prefix = 'udx';
-
+  ({ prefix = 'anim' }: AnimationPluginOptions) => {
     return ({ addBase, matchUtilities, addUtilities, theme }: PluginAPI) => {
       addBase({
         '@keyframes enter': {
@@ -31,7 +31,7 @@ export const animation = plugin.withOptions(
 
       // Base utilities for in/out animations
       addUtilities({
-        '.animate-in': {
+        [`.${prefix}-in`]: {
           animationName: 'enter',
           animationDuration: '200ms',
           animationFillMode: 'both',
@@ -43,7 +43,7 @@ export const animation = plugin.withOptions(
           '--tw-enter-translate-y': 'initial',
           willChange: 'opacity, transform',
         },
-        '.animate-out': {
+        [`.${prefix}-out`]: {
           animationName: 'exit',
           animationDuration: '200ms',
           animationFillMode: 'both',
@@ -284,7 +284,7 @@ export const animation = plugin.withOptions(
       // Prefixed animation property utilities (to avoid overlapping Tailwind's transition utilities)
       matchUtilities(
         {
-          'anim-duration': (value) => ({ animationDuration: value }),
+          [`${prefix}-duration`]: (value) => ({ animationDuration: value }),
         },
         {
           values: {
@@ -301,7 +301,7 @@ export const animation = plugin.withOptions(
       );
 
       matchUtilities(
-        { 'anim-delay': (value) => ({ animationDelay: value }) },
+        { [`${prefix}-delay`]: (value) => ({ animationDelay: value }) },
         {
           values: {
             0: '0ms',
@@ -319,7 +319,7 @@ export const animation = plugin.withOptions(
 
       matchUtilities(
         {
-          'anim-ease': (value) => ({
+          [`${prefix}-ease`]: (value) => ({
             animationTimingFunction: value,
           }),
         },
@@ -334,7 +334,7 @@ export const animation = plugin.withOptions(
       );
 
       matchUtilities(
-        { 'anim-fill': (value) => ({ animationFillMode: value }) },
+        { [`${prefix}-fill`]: (value) => ({ animationFillMode: value }) },
         {
           values: {
             none: 'none',
@@ -347,7 +347,7 @@ export const animation = plugin.withOptions(
 
       matchUtilities(
         {
-          'anim-direction': (value) => ({
+          [`${prefix}-direction`]: (value) => ({
             animationDirection: value,
           }),
         },
@@ -363,7 +363,7 @@ export const animation = plugin.withOptions(
 
       matchUtilities(
         {
-          'anim-repeat': (value) => ({
+          [`${prefix}-repeat`]: (value) => ({
             animationIterationCount: value,
           }),
         },
