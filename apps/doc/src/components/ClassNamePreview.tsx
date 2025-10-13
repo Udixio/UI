@@ -14,9 +14,16 @@ export default function ClassNamePreview({ className, children }: Props) {
     >
       {children}
 
-      <pre className="mt-4 whitespace-pre-wrap text-body-small bg-surface-container-low p-1 rounded-md w-fit">
-        {className}
-      </pre>
+      <div
+        style={{ wordSpacing: '1rem' }}
+        className="mt-4 text-body-small bg-surface-container-low p-1 rounded-md w-fit flex flex-wrap gap-2"
+      >
+        {className.split(' ').map((c, i) => (
+          <span key={i} className="inline-block">
+            {c}
+          </span>
+        ))}
+      </div>
     </Card>
   );
 }
