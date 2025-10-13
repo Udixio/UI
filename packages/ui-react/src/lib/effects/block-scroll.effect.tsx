@@ -1,4 +1,4 @@
-import React, { RefObject, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 type ScrollIntent =
   | {
@@ -18,16 +18,15 @@ type ScrollIntent =
 
 type BlockScrollProps = {
   onScroll?: (evt: ScrollIntent) => void; // log des intentions + du scroll via scrollbar
-  ref: RefObject<HTMLElement>;
+  el: HTMLElement;
 };
 
-export const BlockScroll: React.FC<BlockScrollProps> = ({ onScroll, ref }) => {
+export const BlockScroll: React.FC<BlockScrollProps> = ({ onScroll, el }) => {
   const lastTouch = useRef<{ x: number; y: number } | null>(null);
   const lastScrollTop = useRef<number>(0);
   const lastScrollLeft = useRef<number>(0);
 
   useEffect(() => {
-    const el = ref.current;
     if (!el) return;
 
     // Initialize last known scroll positions to block scrollbar-based scrolling
@@ -122,11 +121,38 @@ export const BlockScroll: React.FC<BlockScrollProps> = ({ onScroll, ref }) => {
       });
     };
 
+    // const onScrollEvent = (e) => {
+    //   const currentScrollTop = e.target.scrollTop;
+    //   const currentScrollLeft = e.target.scrollLeft;
+    //
+    //   // Check if scroll position changed from last known position
+    //   if (
+    //     currentScrollTop !== lastScrollTop.current ||
+    //     currentScrollLeft !== lastScrollLeft.current
+    //   ) {
+    //     console.log('onScrollllllllllll', e, document);
+    //     onScroll?.({
+    //       type: 'scrollbar',
+    //       scrollTop: currentScrollTop,
+    //       scrollLeft: currentScrollLeft,
+    //       maxScrollTop: e.target.scrollHeight - e.target.clientHeight,
+    //       maxScrollLeft: e.target.scrollWidth - e.target.clientWidth,
+    //     });
+    //   }
+    //
+    //   // Update last known scroll positions
+    //   lastScrollTop.current = currentScrollTop;
+    //   lastScrollLeft.current = currentScrollLeft;
+    //
+    //   document.querySelector('html')?.scrollTo({ top: 0 });
+    // };
+
     el.addEventListener('wheel', onWheel, { passive: false });
     el.addEventListener('touchstart', onTouchStart, { passive: true });
     el.addEventListener('touchmove', onTouchMove, { passive: false });
     el.addEventListener('touchend', onTouchEnd, { passive: true });
     el.addEventListener('keydown', onKeyDown);
+    // el.addEventListener('scroll', onScrollEvent, { passive: true });
 
     return () => {
       el.removeEventListener('wheel', onWheel as EventListener);
@@ -134,6 +160,7 @@ export const BlockScroll: React.FC<BlockScrollProps> = ({ onScroll, ref }) => {
       el.removeEventListener('touchmove', onTouchMove as EventListener);
       el.removeEventListener('touchend', onTouchEnd as EventListener);
       el.removeEventListener('keydown', onKeyDown as EventListener);
+      // el.removeEventListener('scroll', onScrollEvent as EventListener);
     };
   }, [onScroll]);
 };
