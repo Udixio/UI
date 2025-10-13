@@ -18,10 +18,15 @@ type ScrollIntent =
 
 type BlockScrollProps = {
   onScroll?: (evt: ScrollIntent) => void; // log des intentions + du scroll via scrollbar
+  touch?: boolean;
   el: HTMLElement;
 };
 
-export const BlockScroll: React.FC<BlockScrollProps> = ({ onScroll, el }) => {
+export const BlockScroll: React.FC<BlockScrollProps> = ({
+  onScroll,
+  el,
+  touch = true,
+}) => {
   const lastTouch = useRef<{ x: number; y: number } | null>(null);
   const lastScrollTop = useRef<number>(0);
   const lastScrollLeft = useRef<number>(0);
@@ -50,11 +55,13 @@ export const BlockScroll: React.FC<BlockScrollProps> = ({ onScroll, el }) => {
     };
 
     const onTouchStart = (e: TouchEvent) => {
+      if (!touch) return;
       const t = e.touches[0];
       if (t) lastTouch.current = { x: t.clientX, y: t.clientY };
     };
 
     const onTouchMove = (e: TouchEvent) => {
+      if (!touch) return;
       const t = e.touches[0];
       if (!t || !lastTouch.current) return;
       e.preventDefault();
@@ -71,6 +78,7 @@ export const BlockScroll: React.FC<BlockScrollProps> = ({ onScroll, el }) => {
     };
 
     const onTouchEnd = () => {
+      if (!touch) return;
       lastTouch.current = null;
     };
 
