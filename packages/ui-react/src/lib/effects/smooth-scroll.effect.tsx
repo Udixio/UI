@@ -1,16 +1,15 @@
 import { ReactNode, useEffect, useRef, useState } from 'react';
 import {
-  motion,
   motionValue,
   useMotionValueEvent,
   useSpring,
   useTransform,
 } from 'motion/react';
-import { CustomScroll, CustomScrollInterface } from './custom-scroll';
-import { classNames, ReactProps } from '../utils';
+import { CustomScrollInterface } from './custom-scroll';
+import { ReactProps } from '../utils';
+import { BlockScroll } from './block-scroll.effect';
 
 export const SmoothScroll = ({
-  children,
   transition,
   orientation = 'vertical',
   throttleDuration = 25,
@@ -33,7 +32,12 @@ export const SmoothScroll = ({
 
   const scrollProgress = motionValue(scroll?.scrollProgress ?? 0);
 
-  const ref = useRef<HTMLDivElement | null>(null);
+  const htmlRef = useRef<HTMLHtmlElement | null>(null);
+
+  useEffect(() => {
+    htmlRef.current = document.querySelector('html') as HTMLHtmlElement;
+  }, []);
+
   const refScrollable = useRef<HTMLDivElement | null>(null);
   const [dimensions, setDimensions] = useState<{
     width: number;
@@ -93,24 +97,15 @@ export const SmoothScroll = ({
     const last = lastAppliedYRef.current;
     if (Math.abs(rounded - last) < 0.1) return; // ignorer les déplacements < 0.1px
     lastAppliedYRef.current = rounded;
-    ref.current?.scrollTo({ top: rounded });
+    htmlRef.current?.scrollTo({ top: rounded });
   });
 
   return (
-    <CustomScroll
-      scrollSize={dimensions?.height}
-      onScroll={handleScroll}
-      throttleDuration={throttleDuration}
-      className={classNames('h-screen')}
-      {...restProps}
-    >
-      <motion.div
-        ref={ref}
-        style={{ transform: `translateY(-${springY}px)` }}
-        className={classNames('h-screen overflow-y-hidden', {})}
-      >
-        <div ref={refScrollable}>{children}</div>
-      </motion.div>
-    </CustomScroll>
+    <BlockScroll
+      ref={htmlRef}
+      onScroll={(scroll) => {
+        console.log('scroll', scroll);
+      }}
+    ></BlockScroll>
   );
 };
