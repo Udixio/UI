@@ -11,13 +11,18 @@ import { classNames, ReactProps } from '../utils';
 
 export const SmoothScroll = ({
   children,
-  transition = '.5s',
+  transition,
   orientation = 'vertical',
   throttleDuration = 25,
   ...restProps
 }: {
   children: ReactNode;
-  transition?: string;
+  transition?: Partial<{
+    stiffness: number;
+    damping: number;
+    restDelta: number;
+    mass?: number;
+  }>;
 } & ReactProps<CustomScrollInterface>) => {
   const [scroll, setScroll] = useState<{
     scrollProgress: number;
@@ -35,6 +40,8 @@ export const SmoothScroll = ({
     height: number;
   } | null>(null);
 
+  const lastAppliedYRef = useRef<number>(0);
+
   const scrollY = useTransform(
     scrollProgress,
     [0, 1],
@@ -44,7 +51,8 @@ export const SmoothScroll = ({
   const springY = useSpring(scrollY, {
     stiffness: 100,
     damping: 30,
-    restDelta: 0.001,
+    restDelta: 0.1,
+    ...(transition ?? {}),
   });
 
   const handleScroll = (args: {
@@ -80,9 +88,12 @@ export const SmoothScroll = ({
   }, []);
 
   useMotionValueEvent(springY, 'change', (value) => {
-    ref.current.scrollTo({ top: value });
-
-    console.log('grfgrf', value); // Affiche également la valeur si nécessaire
+    // Supprime les micro-mouvements inutiles qui déclenchent des scrollTo coûteux
+    const rounded = Math.round(value * 1000) / 1000; // stabilité numérique
+    const last = lastAppliedYRef.current;
+    if (Math.abs(rounded - last) < 0.1) return; // ignorer les déplacements < 0.1px
+    lastAppliedYRef.current = rounded;
+    ref.current?.scrollTo({ top: rounded });
   });
 
   return (
