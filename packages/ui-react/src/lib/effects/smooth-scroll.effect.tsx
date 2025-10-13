@@ -1,8 +1,8 @@
 import { ReactNode, useEffect, useRef, useState } from 'react';
-import { useMotionValueEvent, useSpring } from 'motion/react';
 import { CustomScrollInterface } from './custom-scroll';
 import { ReactProps } from '../utils';
 import { BlockScroll } from './block-scroll.effect';
+import { animate, AnimationPlaybackControls } from 'motion';
 
 export const SmoothScroll = ({
   transition,
@@ -27,19 +27,10 @@ export const SmoothScroll = ({
   const scrollTimeoutRef = useRef<NodeJS.Timeout>();
   const lastAppliedYRef = useRef(0);
 
-  // Springed value that follows scrollY smoothly
-  const springY = useSpring(0, {
-    stiffness: transition?.stiffness ?? 200,
-    damping: transition?.damping ?? 32,
-    mass: transition?.mass ?? 0.1,
-    restDelta: transition?.restDelta ?? 0.1,
-  });
-
   useEffect(() => {
     setEl(document as unknown as HTMLHtmlElement);
     const y = document.documentElement.scrollTop;
     setScrollY(y);
-    springY.set(y);
     lastAppliedYRef.current = y;
   }, []);
 
@@ -47,11 +38,7 @@ export const SmoothScroll = ({
   useEffect(() => {
     const onScroll = () => {
       if (isScrolling.current) return;
-      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-      scrollTimeoutRef.current = setTimeout(() => {
-        setScrollY(document.documentElement.scrollTop);
-        isScrolling.current = false;
-      }, 500);
+      setScrollY(document.documentElement.scrollTop);
     };
 
     el?.addEventListener('scroll', onScroll as unknown as EventListener);
@@ -62,23 +49,59 @@ export const SmoothScroll = ({
   }, [el]);
 
   // Drive the spring when target changes
+  const currentY = useRef<number | null>();
+  const animationRef = useRef<AnimationPlaybackControls | null>(null);
   useEffect(() => {
-    springY.set(scrollY);
-  }, [scrollY]);
+    const y = scrollY;
+    console.log('scrollY', y);
 
-  useMotionValueEvent(springY, 'change', (value) => {
-    const html = document.documentElement;
-    // Avoid micro-movements causing extra layout work
-    const rounded = Math.round(value * 1000) / 1000;
-    const last = lastAppliedYRef.current;
-    if (Math.abs(rounded - last) < 0.1) return;
-    lastAppliedYRef.current = rounded;
-
-    if (isScrolling.current) {
-      console.log('scrolY', rounded);
-      html.scrollTo({ top: rounded });
+    if (animationRef.current) {
+      animationRef.current.stop();
+      animationRef.current = null;
     }
-  });
+
+    if (!isScrolling.current) {
+      currentY.current = y;
+      return;
+    }
+    animationRef.current = animate(currentY.current ?? y, y, {
+      duration: 0.5,
+      ease: 'circOut',
+      stiffness: 300,
+
+      onUpdate: (value) => {
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current);
+        }
+        currentY.current = value;
+
+        const html = document.documentElement;
+        // Avoid micro-movements causing extra layout work
+        const rounded = Math.round(value * 1000) / 1000;
+        const last = lastAppliedYRef.current;
+        if (Math.abs(rounded - last) < 0.1) return;
+        lastAppliedYRef.current = rounded;
+
+        if (isScrolling.current) {
+          console.log('scrolY', rounded);
+          html.scrollTo({ top: rounded });
+        }
+      },
+      onComplete: () => {
+        scrollTimeoutRef.current = setTimeout(() => {
+          isScrolling.current = false;
+        }, 300);
+        animationRef.current = null;
+      },
+    });
+    return () => {
+      // Safety: stop if effect re-runs quickly
+      if (animationRef.current) {
+        animationRef.current.stop();
+        animationRef.current = null;
+      }
+    };
+  }, [scrollY]);
 
   if (!el) return null;
 
@@ -93,8 +116,8 @@ export const SmoothScroll = ({
           el &&
           scrollY !== null
         ) {
-          let y = scrollY + scroll.deltaY * 5;
-          console.log('y', y);
+          let y = animationRef.current == null ? scrollY : currentY.current!;
+          y += scroll.deltaY;
           const html = el.querySelector('html');
           if (html) {
             y = Math.min(y, html.scrollHeight - html.clientHeight);
@@ -103,12 +126,6 @@ export const SmoothScroll = ({
           setScrollY(y);
 
           isScrolling.current = true;
-          if (scrollTimeoutRef.current) {
-            clearTimeout(scrollTimeoutRef.current);
-          }
-          scrollTimeoutRef.current = setTimeout(() => {
-            isScrolling.current = false;
-          }, 300);
         }
       }}
     ></BlockScroll>
