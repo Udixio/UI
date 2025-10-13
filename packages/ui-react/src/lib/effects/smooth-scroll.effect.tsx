@@ -11,12 +11,9 @@ export const SmoothScroll = ({
   ...restProps
 }: {
   children: ReactNode;
-  transition?: Partial<{
-    stiffness: number;
-    damping: number;
-    restDelta: number;
-    mass?: number;
-  }>;
+  transition?: {
+    duration?: number;
+  };
 } & ReactProps<CustomScrollInterface>) => {
   // Target value (instant), driven by wheel/touch/keyboard or native scroll sync
   const [scrollY, setScrollY] = useState(0);
@@ -53,7 +50,6 @@ export const SmoothScroll = ({
   const animationRef = useRef<AnimationPlaybackControls | null>(null);
   useEffect(() => {
     const y = scrollY;
-    console.log('scrollY', y);
 
     if (animationRef.current) {
       animationRef.current.stop();
@@ -65,9 +61,8 @@ export const SmoothScroll = ({
       return;
     }
     animationRef.current = animate(currentY.current ?? y, y, {
-      duration: 0.5,
+      duration: transition?.duration ?? 0.5,
       ease: 'circOut',
-      stiffness: 300,
 
       onUpdate: (value) => {
         if (scrollTimeoutRef.current) {
@@ -83,7 +78,6 @@ export const SmoothScroll = ({
         lastAppliedYRef.current = rounded;
 
         if (isScrolling.current) {
-          console.log('scrolY', rounded);
           html.scrollTo({ top: rounded });
         }
       },
@@ -116,8 +110,7 @@ export const SmoothScroll = ({
           el &&
           scrollY !== null
         ) {
-          let y = animationRef.current == null ? scrollY : currentY.current!;
-          y += scroll.deltaY;
+          let y = scrollY + scroll.deltaY;
           const html = el.querySelector('html');
           if (html) {
             y = Math.min(y, html.scrollHeight - html.clientHeight);
