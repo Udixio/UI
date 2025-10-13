@@ -29,10 +29,10 @@ export const SmoothScroll = ({
 
   // Springed value that follows scrollY smoothly
   const springY = useSpring(0, {
-    stiffness: transition?.stiffness ?? 300,
-    damping: transition?.damping ?? 40,
+    stiffness: transition?.stiffness ?? 200,
+    damping: transition?.damping ?? 32,
+    mass: transition?.mass ?? 0.1,
     restDelta: transition?.restDelta ?? 0.1,
-    mass: transition?.mass ?? 1,
   });
 
   useEffect(() => {
@@ -93,7 +93,8 @@ export const SmoothScroll = ({
           el &&
           scrollY !== null
         ) {
-          let y = scrollY + scroll.deltaY;
+          let y = scrollY + scroll.deltaY * 5;
+          console.log('y', y);
           const html = el.querySelector('html');
           if (html) {
             y = Math.min(y, html.scrollHeight - html.clientHeight);
