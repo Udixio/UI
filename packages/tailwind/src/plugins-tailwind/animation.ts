@@ -41,18 +41,18 @@ export const animation = plugin.withOptions(
           [`--${prefix}-enter-translate-y`]: 'initial',
           willChange: 'opacity, transform',
         },
-        // [`.${prefix}-out`]: {
-        //   animationName: 'exit',
-        //   animationDuration: `var(--${prefix}-duration, 300ms)`,
-        //   animationFillMode: 'both',
-        //   animationPlayState: `var(--${prefix}-state, paused)`,
-        //   [`--${prefix}-exit-opacity`]: 'initial',
-        //   [`--${prefix}-exit-scale`]: 'initial',
-        //   [`--${prefix}-exit-rotate`]: 'initial',
-        //   [`--${prefix}-exit-translate-x`]: 'initial',
-        //   [`--${prefix}-exit-translate-y`]: 'initial',
-        //   willChange: 'opacity, transform',
-        // },
+        [`.${prefix}-out`]: {
+          animationName: 'exit',
+          animationDuration: `var(--${prefix}-duration, 300ms)`,
+          animationFillMode: 'both',
+          animationPlayState: `var(--${prefix}-state, paused)`,
+          [`--${prefix}-exit-opacity`]: 'initial',
+          [`--${prefix}-exit-scale`]: 'initial',
+          [`--${prefix}-exit-rotate`]: 'initial',
+          [`--${prefix}-exit-translate-x`]: 'initial',
+          [`--${prefix}-exit-translate-y`]: 'initial',
+          willChange: 'opacity, transform',
+        },
         // run/pause state
         [`.${prefix}-run`]: { [`--${prefix}-state`]: 'running' },
         [`.${prefix}-paused`]: { [`--${prefix}-state`]: 'paused' },
@@ -249,6 +249,165 @@ export const animation = plugin.withOptions(
             72: '18rem',
             80: '20rem',
             96: '24rem',
+          },
+        },
+      );
+
+      // Aliases bidirectionnels et ciblés (DX simplifiée)
+      // Slide: alias par défaut bidirectionnels et variantes in-/out-
+      matchUtilities(
+        {
+          // Bidirectionnels
+          'slide-from-top': (value) => ({
+            [`--${prefix}-enter-translate-y`]: `-${value}`,
+            [`--${prefix}-exit-translate-y`]: value,
+          }),
+          'slide-from-bottom': (value) => ({
+            [`--${prefix}-enter-translate-y`]: value,
+            [`--${prefix}-exit-translate-y`]: `-${value}`,
+          }),
+          'slide-from-left': (value) => ({
+            [`--${prefix}-enter-translate-x`]: `-${value}`,
+            [`--${prefix}-exit-translate-x`]: value,
+          }),
+          'slide-from-right': (value) => ({
+            [`--${prefix}-enter-translate-x`]: value,
+            [`--${prefix}-exit-translate-x`]: `-${value}`,
+          }),
+          // Ciblés (aliases cohérents)
+          'in-slide-from-top': (value) => ({ [`--${prefix}-enter-translate-y`]: `-${value}` }),
+          'in-slide-from-bottom': (value) => ({ [`--${prefix}-enter-translate-y`]: value }),
+          'in-slide-from-left': (value) => ({ [`--${prefix}-enter-translate-x`]: `-${value}` }),
+          'in-slide-from-right': (value) => ({ [`--${prefix}-enter-translate-x`]: value }),
+          'out-slide-to-top': (value) => ({ [`--${prefix}-exit-translate-y`]: `-${value}` }),
+          'out-slide-to-bottom': (value) => ({ [`--${prefix}-exit-translate-y`]: value }),
+          'out-slide-to-left': (value) => ({ [`--${prefix}-exit-translate-x`]: `-${value}` }),
+          'out-slide-to-right': (value) => ({ [`--${prefix}-exit-translate-x`]: value }),
+        },
+        {
+          values: {
+            DEFAULT: '2rem',
+            full: '100%',
+            0: '0px',
+            px: '1px',
+            0.5: '0.125rem',
+            1: '0.25rem',
+            1.5: '0.375rem',
+            2: '0.5rem',
+            2.5: '0.625rem',
+            3: '0.75rem',
+            3.5: '0.875rem',
+            4: '1rem',
+            5: '1.25rem',
+            6: '1.5rem',
+            7: '1.75rem',
+            8: '2rem',
+            9: '2.25rem',
+            10: '2.5rem',
+            11: '2.75rem',
+            12: '3rem',
+            14: '3.5rem',
+            16: '4rem',
+            20: '5rem',
+            24: '6rem',
+            28: '7rem',
+            32: '8rem',
+            36: '9rem',
+            40: '10rem',
+            44: '11rem',
+            48: '12rem',
+            52: '13rem',
+            56: '14rem',
+            60: '15rem',
+            64: '16rem',
+            72: '18rem',
+            80: '20rem',
+            96: '24rem',
+          },
+        },
+      );
+
+      // Fade: alias bidirectionnel et variantes in-/out-
+      matchUtilities(
+        {
+          'fade-from': (value) => ({
+            [`--${prefix}-enter-opacity`]: value,
+            [`--${prefix}-exit-opacity`]: value,
+          }),
+          'in-fade-from': (value) => ({ [`--${prefix}-enter-opacity`]: value }),
+          'out-fade-to': (value) => ({ [`--${prefix}-exit-opacity`]: value }),
+        },
+        {
+          values: {
+            DEFAULT: '0',
+            0: '0',
+            5: '0.05',
+            10: '0.1',
+            20: '0.2',
+            25: '0.25',
+            30: '0.3',
+            40: '0.4',
+            50: '0.5',
+            60: '0.6',
+            70: '0.7',
+            75: '0.75',
+            80: '0.8',
+            90: '0.9',
+            95: '0.95',
+            100: '1',
+          },
+        },
+      );
+
+      // Zoom: alias bidirectionnel et variantes in-/out-
+      matchUtilities(
+        {
+          'zoom-from': (value) => ({
+            [`--${prefix}-enter-scale`]: value,
+            [`--${prefix}-exit-scale`]: value,
+          }),
+          'in-zoom-from': (value) => ({ [`--${prefix}-enter-scale`]: value }),
+          'out-zoom-to': (value) => ({ [`--${prefix}-exit-scale`]: value }),
+        },
+        {
+          values: {
+            DEFAULT: '.95',
+            0: '0',
+            50: '.5',
+            75: '.75',
+            90: '.9',
+            95: '.95',
+            100: '1',
+            105: '1.05',
+            110: '1.1',
+            125: '1.25',
+            150: '1.5',
+          },
+        },
+      );
+
+      // Spin: alias bidirectionnel et variantes in-/out-
+      matchUtilities(
+        {
+          'spin-from': (value) => ({
+            [`--${prefix}-enter-rotate`]: value,
+            [`--${prefix}-exit-rotate`]: value,
+          }),
+          'in-spin-from': (value) => ({ [`--${prefix}-enter-rotate`]: value }),
+          'out-spin-to': (value) => ({ [`--${prefix}-exit-rotate`]: value }),
+        },
+        {
+          values: {
+            DEFAULT: '6deg',
+            1: '1deg',
+            2: '2deg',
+            3: '3deg',
+            6: '6deg',
+            12: '12deg',
+            30: '30deg',
+            45: '45deg',
+            90: '90deg',
+            180: '180deg',
           },
         },
       );
