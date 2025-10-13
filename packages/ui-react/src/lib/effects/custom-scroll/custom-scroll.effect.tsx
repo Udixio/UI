@@ -90,21 +90,32 @@ export const CustomScroll = ({
     handleScrollThrottledRef.current = throttle(
       throttleDuration,
       (latestValue, scrollOrientation: 'x' | 'y') => {
-        if (!containerSize.current || !contentScrollSize.current) return;
+        if (
+          !containerSize.current ||
+          !contentScrollSize.current ||
+          !ref.current
+        )
+          return;
         if (onScroll) {
           if (orientation === 'horizontal' && scrollOrientation === 'x') {
             onScroll({
               scrollProgress: latestValue,
-              scroll: latestValue * contentScrollSize.current.width,
-              scrollTotal: contentScrollSize.current.width,
+              scroll:
+                latestValue *
+                (contentScrollSize.current.width - ref.current.clientWidth),
+              scrollTotal:
+                contentScrollSize.current.width - ref.current.clientWidth,
               scrollVisible: containerSize.current.width,
             });
           }
           if (orientation === 'vertical' && scrollOrientation === 'y') {
             onScroll({
               scrollProgress: latestValue,
-              scroll: latestValue * contentScrollSize.current.height,
-              scrollTotal: contentScrollSize.current.height,
+              scroll:
+                latestValue *
+                (contentScrollSize.current.height - ref.current.clientHeight),
+              scrollTotal:
+                contentScrollSize.current.height - ref.current.clientHeight,
               scrollVisible: containerSize.current.height,
             });
           }

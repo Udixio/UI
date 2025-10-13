@@ -160,24 +160,19 @@ export const AnimateOnScroll = ({
           const el = entry.target as HTMLElement;
           if (!isJsObserverCandidate(el)) continue;
 
-          console.log(`observed`, entry);
-
           const cls = el.classList;
           const isIn = cls.contains(`${prefix}-in`);
           const isOut = cls.contains(`${prefix}-out`);
           if (isIn && entry.isIntersecting) {
             el.setAttribute(`data-${prefix}-run`, ``);
-            console.log(`play in`, el, once);
             if (once) io.unobserve(el);
           } else if (isOut && !entry.isIntersecting) {
             // Play exit when leaving viewport
             el.setAttribute(`data-${prefix}-run`, ``);
-            console.log(`play in`, el, once);
             if (once) io.unobserve(el);
           } else {
             // Pause when not in the triggering state
             // Do not aggressively remove attribute if once=true and already ran
-            console.log(`unplay in`, el, once);
             if (!once) {
               el.removeAttribute(`data-${prefix}-run`);
               el.classList.remove(`${prefix}-in`);

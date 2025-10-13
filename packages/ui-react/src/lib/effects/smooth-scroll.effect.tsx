@@ -1,8 +1,9 @@
-import { ReactNode, useRef, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import {
   motion,
   motionValue,
   useMotionValueEvent,
+  useSpring,
   useTransform,
 } from 'motion/react';
 import { CustomScroll, CustomScrollInterface } from './custom-scroll';
@@ -27,16 +28,24 @@ export const SmoothScroll = ({
 
   const scrollProgress = motionValue(scroll?.scrollProgress ?? 0);
 
-  const transform = useTransform(
+  const ref = useRef<HTMLDivElement | null>(null);
+  const refScrollable = useRef<HTMLDivElement | null>(null);
+  const [dimensions, setDimensions] = useState<{
+    width: number;
+    height: number;
+  } | null>(null);
+
+  const scrollY = useTransform(
     scrollProgress,
     [0, 1],
-    [0, 1 - (scroll?.scrollVisible ?? 0) / (scroll?.scrollTotal ?? 0)]
+    [0, scroll ? scroll.scrollTotal : 0],
   );
 
-  const percentTransform = useTransform(
-    transform,
-    (value) => `${-value * 100}%`
-  );
+  const springY = useSpring(scrollY, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001,
+  });
 
   const handleScroll = (args: {
     scrollProgress: number;
@@ -49,42 +58,47 @@ export const SmoothScroll = ({
       setScroll(args);
     }
   };
-  const lastChangeTimeRef = useRef<number | null>(null);
-  useMotionValueEvent(percentTransform, 'change', (value) => {
-    // Récupérer l'heure actuelle
-    const now = performance.now();
 
-    // Si une heure précédente existe, calculer le delta
-    if (lastChangeTimeRef.current !== null) {
-      const deltaTime = now - lastChangeTimeRef.current;
-      console.log(`Delta temps : ${deltaTime} ms`);
+  useEffect(() => {
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const height = entry.target.scrollHeight || entry.contentRect.height;
+        setDimensions({
+          width: entry.contentRect.width,
+          height: height,
+        });
+      }
+    });
+
+    if (refScrollable.current) {
+      observer.observe(refScrollable.current);
     }
 
-    // Mettre à jour l'heure du dernier changement
-    lastChangeTimeRef.current = now;
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
-    console.log(value); // Affiche également la valeur si nécessaire
+  useMotionValueEvent(springY, 'change', (value) => {
+    ref.current.scrollTo({ top: value });
+
+    console.log('grfgrf', value); // Affiche également la valeur si nécessaire
   });
 
   return (
     <CustomScroll
+      scrollSize={dimensions?.height}
       onScroll={handleScroll}
       throttleDuration={throttleDuration}
+      className={classNames('h-screen')}
       {...restProps}
     >
       <motion.div
-        className={classNames('transition-transform  ease-out', {
-          'w-fit h-full': orientation === 'horizontal',
-          'h-fit w-full': orientation === 'vertical',
-        })}
-        style={{
-          transitionDuration: transition,
-          ...(orientation == 'vertical'
-            ? { y: percentTransform }
-            : { x: percentTransform }),
-        }}
+        ref={ref}
+        style={{ transform: `translateY(-${springY}px)` }}
+        className={classNames('h-screen overflow-y-hidden', {})}
       >
-        {children}
+        <div ref={refScrollable}>{children}</div>
       </motion.div>
     </CustomScroll>
   );
