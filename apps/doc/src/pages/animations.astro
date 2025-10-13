@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/layout.astro';
 import { Button, Card, Divider, AnimateOnScroll } from '@udixio/ui-react';
+import ClassNamePreview from '../components/ClassNamePreview';
 ---
 <Layout>
   <AnimateOnScroll client:load>
@@ -31,34 +32,34 @@ import { Button, Card, Divider, AnimateOnScroll } from '@udixio/ui-react';
       </p>
 
       <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card className="anim-in fade-in  p-6">
+        <ClassNamePreview className="anim-in fade-in">
           <h3 class="text-title-large font-semibold">Fade</h3>
           <p class="mt-2 text-on-surface-variant">Apparition progressive.</p>
-        </Card>
-        <Card className="anim-in fade-in slide-in-from-bottom anim-duration p-6">
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-in fade-in slide-in-from-bottom anim-duration ">
           <h3 class="text-title-large font-semibold">Fade Up</h3>
           <p class="mt-2 text-on-surface-variant">Glisse vers le haut.</p>
-        </Card>
-        <Card className="anim-in fade-in slide-in-from-top anim-duration-700 p-6">
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-in fade-in slide-in-from-top anim-duration-700 ">
           <h3 class="text-title-large font-semibold">Fade Down</h3>
           <p class="mt-2 text-on-surface-variant">Glisse vers le bas.</p>
-        </Card>
-        <Card className="anim-in fade-in slide-in-from-left anim-duration-700 p-6">
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-in fade-in slide-in-from-left anim-duration-700 ">
           <h3 class="text-title-large font-semibold">Fade Left</h3>
           <p class="mt-2 text-on-surface-variant">Glisse depuis la gauche.</p>
-        </Card>
-        <Card className="anim-in fade-in slide-in-from-right anim-duration-700 p-6">
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-in fade-in slide-in-from-right anim-duration-700 ">
           <h3 class="text-title-large font-semibold">Fade Right</h3>
           <p class="mt-2 text-on-surface-variant">Glisse depuis la droite.</p>
-        </Card>
-        <Card className="anim-in zoom-in anim-duration-700 p-6">
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-in zoom-in anim-duration-700 ">
           <h3 class="text-title-large font-semibold">Zoom In</h3>
           <p class="mt-2 text-on-surface-variant">Zoom avant léger.</p>
-        </Card>
-        <Card className="anim-in zoom-out anim-duration-700 p-6 sm:col-span-2 lg:col-span-1">
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-in zoom-out anim-duration-700  sm:col-span-2 lg:col-span-1">
           <h3 class="text-title-large font-semibold">Zoom Out</h3>
           <p class="mt-2 text-on-surface-variant">Zoom arrière léger.</p>
-        </Card>
+        </ClassNamePreview>
       </div>
     </section>
 
@@ -71,18 +72,18 @@ import { Button, Card, Divider, AnimateOnScroll } from '@udixio/ui-react';
         <strong>pas de duration ni de delay</strong> (ces valeurs sont ignorées).
       </p>
       <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card className="anim-view anim-in fade-in p-6">
+        <ClassNamePreview className="anim-view anim-in fade-in ">
           <h3 class="text-title-large font-semibold">Scroll — Fade</h3>
           <p class="mt-2 text-on-surface-variant">Progression liée au scroll.</p>
-        </Card>
-        <Card className="anim-view anim-in fade-in slide-in-from-bottom p-6">
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-view anim-in fade-in slide-in-from-bottom ">
           <h3 class="text-title-large font-semibold">Scroll — Fade Up</h3>
           <p class="mt-2 text-on-surface-variant">Glisse vers le haut selon le scroll.</p>
-        </Card>
-        <Card className="anim-view anim-in zoom-in p-6">
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-view anim-in zoom-in ">
           <h3 class="text-title-large font-semibold">Scroll — Zoom In</h3>
           <p class="mt-2 text-on-surface-variant">Zoom avant lié au défilement.</p>
-        </Card>
+        </ClassNamePreview>
       </div>
     </section>
 
@@ -95,30 +96,30 @@ import { Button, Card, Divider, AnimateOnScroll } from '@udixio/ui-react';
       </p>
 
       <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card className="anim-in fade-in slide-in-from-bottom anim-duration-300 anim-ease-linear p-6">
+        <ClassNamePreview className="anim-in fade-in slide-in-from-bottom anim-duration-300 anim-ease-linear ">
           <h3 class="text-title-large font-semibold">Rapide (300ms, linear)</h3>
           <p class="mt-2 text-on-surface-variant">Idéal pour des micro-transitions.</p>
-        </Card>
-        <Card className="anim-in fade-in slide-in-from-bottom anim-duration-700 anim-ease-out p-6">
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-in fade-in slide-in-from-bottom anim-duration-700 anim-ease-out ">
           <h3 class="text-title-large font-semibold">Standard (700ms, ease-out)</h3>
           <p class="mt-2 text-on-surface-variant">Courbe douce vers la fin.</p>
-        </Card>
-        <Card className="anim-in fade-in slide-in-from-bottom anim-duration-[1200ms] anim-ease-out p-6">
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-in fade-in slide-in-from-bottom anim-duration-[1200ms] anim-ease-out ">
           <h3 class="text-title-large font-semibold">Lent (1200ms)</h3>
           <p class="mt-2 text-on-surface-variant">Accentue la sensation de fluidité.</p>
-        </Card>
-        <Card className="anim-in fade-in slide-in-from-right anim-duration-700 anim-delay-150 p-6">
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-in fade-in slide-in-from-right anim-duration-700 anim-delay-150 ">
           <h3 class="text-title-large font-semibold">Delay 150ms</h3>
           <p class="mt-2 text-on-surface-variant">Différer l’entrée pour rythmer.</p>
-        </Card>
-        <Card className="anim-in fade-in slide-in-from-right anim-duration-700 anim-delay-300 p-6">
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-in fade-in slide-in-from-right anim-duration-700 anim-delay-300 ">
           <h3 class="text-title-large font-semibold">Delay 300ms</h3>
           <p class="mt-2 text-on-surface-variant">Utilisez des décalages en série.</p>
-        </Card>
-        <Card className="anim-in fade-in slide-in-from-right anim-duration-700 anim-delay-500 p-6">
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-in fade-in slide-in-from-right anim-duration-700 anim-delay-500 ">
           <h3 class="text-title-large font-semibold">Delay 500ms</h3>
           <p class="mt-2 text-on-surface-variant">Pour une chorégraphie plus marquée.</p>
-        </Card>
+        </ClassNamePreview>
       </div>
     </section>
 
@@ -130,32 +131,32 @@ import { Button, Card, Divider, AnimateOnScroll } from '@udixio/ui-react';
         Appliquez des délais croissants pour simuler un effet de cascade.
       </p>
 
-      <ul class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <li class="anim-in fade-in slide-in-from-bottom anim-duration-700 p-4 rounded-lg bg-surface-container">
+      <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <ClassNamePreview className="anim-in fade-in slide-in-from-bottom anim-duration-700">
           <h3 class="font-semibold">Élément 1</h3>
           <p class="text-on-surface-variant">anim-delay-0</p>
-        </li>
-        <li class="anim-in fade-in slide-in-from-bottom anim-duration-700 anim-delay-150 p-4 rounded-lg bg-surface-container">
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-in fade-in slide-in-from-bottom anim-duration-700 anim-delay-150">
           <h3 class="font-semibold">Élément 2</h3>
           <p class="text-on-surface-variant">anim-delay-150</p>
-        </li>
-        <li class="anim-in fade-in slide-in-from-bottom anim-duration-700 anim-delay-300 p-4 rounded-lg bg-surface-container">
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-in fade-in slide-in-from-bottom anim-duration-700 anim-delay-300">
           <h3 class="font-semibold">Élément 3</h3>
           <p class="text-on-surface-variant">anim-delay-300</p>
-        </li>
-        <li class="anim-in fade-in slide-in-from-bottom anim-duration-700 anim-delay-500 p-4 rounded-lg bg-surface-container">
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-in fade-in slide-in-from-bottom anim-duration-700 anim-delay-500">
           <h3 class="font-semibold">Élément 4</h3>
           <p class="text-on-surface-variant">anim-delay-500</p>
-        </li>
-        <li class="anim-in fade-in slide-in-from-bottom anim-duration-700 anim-delay-[700ms] p-4 rounded-lg bg-surface-container">
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-in fade-in slide-in-from-bottom anim-duration-700 anim-delay-[700ms]">
           <h3 class="font-semibold">Élément 5</h3>
           <p class="text-on-surface-variant">anim-delay-700ms</p>
-        </li>
-        <li class="anim-in fade-in slide-in-from-bottom anim-duration-700 anim-delay-[900ms] p-4 rounded-lg bg-surface-container">
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-in fade-in slide-in-from-bottom anim-duration-700 anim-delay-[900ms]">
           <h3 class="font-semibold">Élément 6</h3>
           <p class="text-on-surface-variant">anim-delay-900ms</p>
-        </li>
-      </ul>
+        </ClassNamePreview>
+      </div>
     </section>
 
     <Divider className="my-16" />
@@ -215,18 +216,18 @@ import { Button, Card, Divider, AnimateOnScroll } from '@udixio/ui-react';
       </p>
 
       <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card className="anim-in fade-in-50 slide-in-from-bottom anim-duration-700 p-6">
+        <ClassNamePreview className="anim-in fade-in-50 slide-in-from-bottom anim-duration-700 p-6">
           <h3 class="text-title-large font-semibold">JS — Fade Up</h3>
           <p class="mt-2 text-on-surface-variant">Sans anim-view, déclenché à l’entrée.</p>
-        </Card>
-        <Card className="anim-in fade-in slide-in-from-left anim-duration-700 p-6">
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-in fade-in slide-in-from-left anim-duration-700 p-6">
           <h3 class="text-title-large font-semibold">JS — Fade Left</h3>
           <p class="mt-2 text-on-surface-variant">Purement via observer JS.</p>
-        </Card>
-        <Card className="anim-in zoom-in anim-duration-700 p-6">
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-in zoom-in anim-duration-700 p-6">
           <h3 class="text-title-large font-semibold">JS — Zoom In</h3>
           <p class="mt-2 text-on-surface-variant">Aucune timeline CSS; déclencheur JS.</p>
-        </Card>
+        </ClassNamePreview>
       </div>
     </section>
 
