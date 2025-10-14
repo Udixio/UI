@@ -1,10 +1,103 @@
-import plugin from 'tailwindcss/plugin';
-import { PluginAPI } from 'tailwindcss/dist/plugin';
+import plugin, { PluginAPI } from 'tailwindcss/plugin';
+import { kebabCase } from 'text-case';
 
 export interface AnimationPluginOptions {
   prefix?: string;
 }
 
+const createAnimation = (
+  {
+    addBase,
+    prefix,
+    name,
+    matchUtilities,
+    addUtilities,
+  }: {
+    name: string;
+    addBase: PluginAPI['addBase'];
+    matchUtilities: PluginAPI['matchUtilities'];
+    addUtilities: PluginAPI['addUtilities'];
+    prefix: string;
+  },
+  styles: (
+    variable: (propertyName: string) => string,
+  ) => Record<string, string>,
+  values: {
+    to: string;
+    from: string;
+    values: Record<string, string>;
+  },
+) => {
+  const variableName = ({
+    direction,
+    propertyName,
+  }: {
+    direction: string;
+    propertyName: string;
+  }) => {
+    return `--${prefix}-${direction}-${propertyName}`;
+  };
+
+  const variable = (direction: string) => (propertyName: string) => {
+    return `var(${variableName({ direction, propertyName })}, ${direction === 'from' ? values?.from : values?.to})`;
+  };
+
+  const dependencies: string[] = [];
+
+  Object.keys(styles(variable('to'))).forEach((key) => {
+    dependencies.push(kebabCase(key));
+  });
+
+  addBase({
+    [`@keyframes ${prefix}-${name}`]: {
+      from: {
+        ...styles(variable('from')),
+      },
+      to: {
+        ...styles(variable('to')),
+      },
+    },
+  });
+
+  addUtilities({
+    [`.${prefix}-${name}, .${prefix}-${name}-in, .${prefix}-${name}-out`]: {
+      animationName: `${name}`,
+      animationDuration: `var(--${prefix}-duration, 300ms)`,
+      animationFillMode: 'both',
+      animationPlayState: `var(--${prefix}-state, paused)`,
+      willChange: dependencies,
+    },
+  });
+
+  // view
+  // addUtilities({
+  //   [`.${prefix}-${name}`]: {
+  //     animationName: `${name}`,
+  //     animationDuration: `var(--${prefix}-duration, 300ms)`,
+  //     animationFillMode: 'both',
+  //     animationPlayState: `var(--${prefix}-state, paused)`,
+  //     [`--${prefix}-enter-opacity`]: 'initial',
+  //     [`--${prefix}-enter-scale`]: 'initial',
+  //     [`--${prefix}-enter-rotate`]: 'initial',
+  //     [`--${prefix}-enter-translate-x`]: 'initial',
+  //     [`--${prefix}-enter-translate-y`]: 'initial',
+  //     willChange: 'opacity, transform',
+  //   },
+  // });
+
+  ['from', 'to'].forEach((direction) => {
+    matchUtilities(
+      {
+        [`${prefix}-${name}-${direction}`]: (value) => ({
+          [variableName({ direction, property: 'opacity' })]: value,
+        }),
+      },
+      {
+        values: values.values,
+      },
+    );
+  });
+};
 // Animations inspired by temps.js but without overlapping Tailwind's transition utilities
 // - prefixed utilities for animation properties: {prefix}-duration-*, {prefix}-delay-*, {prefix}-ease-*, {prefix}-fill-*, {prefix}-direction-*, {prefix}-repeat
 // - usage: compose triggers ({prefix}-in|{prefix}-out or {prefix}-view*) + effects (fade/zoom/slide/spin) + params
@@ -96,15 +189,21 @@ export const animation = plugin.withOptions(
         [`[data-${prefix}-paused]`]: { [`--${prefix}-state`]: 'paused' },
       });
 
-      // Effets
-      matchUtilities(
+      createAnimation(
         {
-          'fade-in': (value) => ({ [`--${prefix}-enter-opacity`]: value }),
-          'fade-out': (value) => ({ [`--${prefix}-exit-opacity`]: value }),
+          name: 'fade',
+          addBase,
+          prefix,
+          matchUtilities,
+          addUtilities,
         },
+        (v) => ({
+          opacity: v('opacity'),
+        }),
         {
+          to: 'inherit',
+          from: '0',
           values: {
-            DEFAULT: '0',
             0: '0',
             5: '0.05',
             10: '0.1',
@@ -124,9 +223,48 @@ export const animation = plugin.withOptions(
         },
       );
 
-      matchUtilities(
-        { 'zoom-in': (value) => ({ [`--${prefix}-enter-scale`]: value }) },
+      // // Effets
+      // matchUtilities(
+      //   {
+      //     'fade-in': (value) => ({ [`--${prefix}-enter-opacity`]: value }),
+      //     'fade-out': (value) => ({ [`--${prefix}-exit-opacity`]: value }),
+      //   },
+      //   {
+      //     values: {
+      //       DEFAULT: '0',
+      //       0: '0',
+      //       5: '0.05',
+      //       10: '0.1',
+      //       20: '0.2',
+      //       25: '0.25',
+      //       30: '0.3',
+      //       40: '0.4',
+      //       50: '0.5',
+      //       60: '0.6',
+      //       70: '0.7',
+      //       75: '0.75',
+      //       80: '0.8',
+      //       90: '0.9',
+      //       95: '0.95',
+      //       100: '1',
+      //     },
+      //   },
+      // );
+
+      createAnimation(
         {
+          name: 'zoom',
+          addBase,
+          prefix,
+          matchUtilities,
+          addUtilities,
+        },
+        (v) => ({
+          zoom: v('zoom'),
+        }),
+        {
+          to: 'inherit',
+          from: '.95',
           values: {
             DEFAULT: '.95',
             0: '0',
@@ -143,24 +281,43 @@ export const animation = plugin.withOptions(
         },
       );
 
-      matchUtilities(
-        { 'zoom-out': (value) => ({ [`--${prefix}-exit-scale`]: value }) },
-        {
-          values: {
-            DEFAULT: '.9',
-            0: '0',
-            50: '.5',
-            75: '.75',
-            90: '.9',
-            95: '.95',
-            100: '1',
-            105: '1.05',
-            110: '1.1',
-            125: '1.25',
-            150: '1.5',
-          },
-        },
-      );
+      // matchUtilities(
+      //   { 'zoom-in': (value) => ({ [`--${prefix}-enter-scale`]: value }) },
+      //   {
+      //     values: {
+      //       DEFAULT: '.95',
+      //       0: '0',
+      //       50: '.5',
+      //       75: '.75',
+      //       90: '.9',
+      //       95: '.95',
+      //       100: '1',
+      //       105: '1.05',
+      //       110: '1.1',
+      //       125: '1.25',
+      //       150: '1.5',
+      //     },
+      //   },
+      // );
+      //
+      // matchUtilities(
+      //   { 'zoom-out': (value) => ({ [`--${prefix}-exit-scale`]: value }) },
+      //   {
+      //     values: {
+      //       DEFAULT: '.9',
+      //       0: '0',
+      //       50: '.5',
+      //       75: '.75',
+      //       90: '.9',
+      //       95: '.95',
+      //       100: '1',
+      //       105: '1.05',
+      //       110: '1.1',
+      //       125: '1.25',
+      //       150: '1.5',
+      //     },
+      //   },
+      // );
 
       matchUtilities(
         {
@@ -275,14 +432,30 @@ export const animation = plugin.withOptions(
             [`--${prefix}-exit-translate-x`]: `-${value}`,
           }),
           // Ciblés (aliases cohérents)
-          'in-slide-from-top': (value) => ({ [`--${prefix}-enter-translate-y`]: `-${value}` }),
-          'in-slide-from-bottom': (value) => ({ [`--${prefix}-enter-translate-y`]: value }),
-          'in-slide-from-left': (value) => ({ [`--${prefix}-enter-translate-x`]: `-${value}` }),
-          'in-slide-from-right': (value) => ({ [`--${prefix}-enter-translate-x`]: value }),
-          'out-slide-to-top': (value) => ({ [`--${prefix}-exit-translate-y`]: `-${value}` }),
-          'out-slide-to-bottom': (value) => ({ [`--${prefix}-exit-translate-y`]: value }),
-          'out-slide-to-left': (value) => ({ [`--${prefix}-exit-translate-x`]: `-${value}` }),
-          'out-slide-to-right': (value) => ({ [`--${prefix}-exit-translate-x`]: value }),
+          'in-slide-from-top': (value) => ({
+            [`--${prefix}-enter-translate-y`]: `-${value}`,
+          }),
+          'in-slide-from-bottom': (value) => ({
+            [`--${prefix}-enter-translate-y`]: value,
+          }),
+          'in-slide-from-left': (value) => ({
+            [`--${prefix}-enter-translate-x`]: `-${value}`,
+          }),
+          'in-slide-from-right': (value) => ({
+            [`--${prefix}-enter-translate-x`]: value,
+          }),
+          'out-slide-to-top': (value) => ({
+            [`--${prefix}-exit-translate-y`]: `-${value}`,
+          }),
+          'out-slide-to-bottom': (value) => ({
+            [`--${prefix}-exit-translate-y`]: value,
+          }),
+          'out-slide-to-left': (value) => ({
+            [`--${prefix}-exit-translate-x`]: `-${value}`,
+          }),
+          'out-slide-to-right': (value) => ({
+            [`--${prefix}-exit-translate-x`]: value,
+          }),
         },
         {
           values: {
