@@ -39,7 +39,8 @@ const createAnimationFunc =
     };
 
     const param = (propertyName: string) => {
-      return `var(${variableName(propertyName)})`;
+      const defaultValue = values[propertyName]?.DEFAULT;
+      return `var(${variableName(propertyName)} ${defaultValue ? `, ${defaultValue}` : ''})`;
     };
 
     const dependencies: string[] = [];
@@ -58,11 +59,16 @@ const createAnimationFunc =
 
     addUtilities({
       [`.${prefix}-${name}, .${prefix}-${name}-in, .${prefix}-${name}-out`]: {
-        animationName: `${name}`,
+        animationName: `${prefix}-${name}`,
         animationDuration: `var(--${prefix}-duration, 300ms)`,
         animationFillMode: 'both',
-        animationPlayState: `var(--${prefix}-state, paused)`,
-        willChange: dependencies,
+        ['will-change']: dependencies,
+      },
+      [`.${prefix}-${name}, .${prefix}-${name}-in`]: {
+        animationPlayState: `var(--${prefix}-in-state, paused)`,
+      },
+      [`.${prefix}-${name}-out`]: {
+        animationPlayState: `var(--${prefix}-out-state, paused)`,
       },
     });
 
@@ -133,8 +139,8 @@ export const animation = plugin.withOptions(
       addUtilities({
         // in/out
         // run/pause state
-        [`.${prefix}-run`]: { [`--${prefix}-state`]: 'running' },
-        [`.${prefix}-paused`]: { [`--${prefix}-state`]: 'paused' },
+        [`.${prefix}-in-run`]: { [`--${prefix}-in-state`]: 'running' },
+        [`.${prefix}-in-paused`]: { [`--${prefix}-in-state`]: 'paused' },
         // scroll-driven
         [`.${prefix}-view`]: {
           animationTimeline: 'view()',
@@ -171,8 +177,8 @@ export const animation = plugin.withOptions(
 
       // Data-attribute triggers
       addBase({
-        [`[data-${prefix}-run]`]: { [`--${prefix}-state`]: 'running' },
-        [`[data-${prefix}-paused]`]: { [`--${prefix}-state`]: 'paused' },
+        [`[data-${prefix}-in-run]`]: { [`--${prefix}-in-state`]: 'running' },
+        [`[data-${prefix}-in-paused]`]: { [`--${prefix}-in-state`]: 'paused' },
       });
 
       createAnimation(
@@ -301,7 +307,7 @@ export const animation = plugin.withOptions(
         'slide',
         (param) => {
           return {
-            transform: `translate3d(${param('distance')} * ${param('dx')}, calc(${param('distance')} * ${param('dy')}), 0)`,
+            transform: `translate3d(calc(${param('distance')} * ${param('dx')}), calc(${param('distance')} * ${param('dy')}), 0)`,
           };
         },
         {
@@ -351,19 +357,13 @@ export const animation = plugin.withOptions(
             const { dx, dy } = dxdy[direction];
 
             addUtilities({
-              [`.${prefix}-${name}, .${prefix}-${name}-in, .${prefix}-${name}-out`]:
+              [`.${prefix}-${name}-${directionAlias}, .${prefix}-${name}-in-${directionAlias}, .${prefix}-${name}-out-${directionAlias}`]:
                 {
-                  animationName: `${name}`,
+                  animationName: `${prefix}-${name}`,
                   animationDuration: `var(--${prefix}-duration, 300ms)`,
                   animationFillMode: 'both',
                   animationPlayState: `var(--${prefix}-state, paused)`,
-                  willChange: dependencies,
-                },
-            });
-
-            addUtilities({
-              [`.${prefix}-${name}-${directionAlias}, .${prefix}-${name}-in-${directionAlias}, .${prefix}-${name}-out-${directionAlias}`]:
-                {
+                  ['will-change']: dependencies,
                   [variableName('dx')]: dx,
                   [variableName('dy')]: dy,
                 },

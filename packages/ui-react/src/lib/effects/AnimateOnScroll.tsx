@@ -39,22 +39,17 @@ function prefersReducedMotion(): boolean {
 function isScrollDrivenCandidate(el: Element): boolean {
   if (!(el instanceof HTMLElement)) return false;
   const cls = el.classList;
-  const hasAnimation = cls.contains(`anim-in`) || cls.contains(`anim-out`);
-  if (!hasAnimation) return false;
-  // Explicit opt-in via class or data attribute for ScrollDriven
-  return (
-    cls.contains(`anim-view`) ||
-    cls.contains(`anim-view-x`) ||
-    cls.contains(`anim-view-y`) ||
-    cls.contains(`anim-view-inline`) ||
-    cls.contains(`anim-view-block`)
+
+  return Array.from(cls).some(
+    (className) => className.startsWith('anim-') && className.includes('view'),
   );
 }
-
 function isJsObserverCandidate(el: Element): boolean {
   if (!(el instanceof HTMLElement)) return false;
   const cls = el.classList;
-  const hasAnimation = cls.contains(`anim-in`) || cls.contains(`anim-out`);
+  const hasAnimation = Array.from(cls).some((className) =>
+    className.startsWith('anim-'),
+  );
   if (!hasAnimation) return false;
   // Not scroll-driven
   return !isScrollDrivenCandidate(el);
@@ -130,7 +125,7 @@ function queryJsObserverCandidates(
 ): HTMLElement[] {
   // All anim-in/out that are NOT scroll-driven
   const animated = Array.from(
-    root.querySelectorAll<HTMLElement>(`.${prefix}-in, .${prefix}-out`),
+    root.querySelectorAll<HTMLElement>(`[class*="anim-"]`),
   );
 
   return animated.filter((el) => !isScrollDrivenCandidate(el));
@@ -158,26 +153,29 @@ export const AnimateOnScroll = ({
       (entries) => {
         for (const entry of entries) {
           const el = entry.target as HTMLElement;
-          if (!isJsObserverCandidate(el)) continue;
+
+          if (!isJsObserverCandidate(el)) {
+            continue;
+          }
 
           const cls = el.classList;
-          const isIn = cls.contains(`${prefix}-in`);
           const isOut = cls.contains(`${prefix}-out`);
+          const isIn = !isOut;
+
           if (isIn && entry.isIntersecting) {
-            el.setAttribute(`data-${prefix}-run`, ``);
+            el.setAttribute(`data-${prefix}-in-run`, ``);
             if (once) io.unobserve(el);
           } else if (isOut && !entry.isIntersecting) {
             // Play exit when leaving viewport
-            el.setAttribute(`data-${prefix}-run`, ``);
+            el.setAttribute(`data-${prefix}-out-run`, ``);
             if (once) io.unobserve(el);
           } else {
             // Pause when not in the triggering state
             // Do not aggressively remove attribute if once=true and already ran
             if (!once) {
-              el.removeAttribute(`data-${prefix}-run`);
-              el.classList.remove(`${prefix}-in`);
+              el.removeAttribute(`data-${prefix}-in-run`);
+              el.removeAttribute(`data-${prefix}-out-run`);
               void el.offsetWidth; // reflow
-              el.classList.add(`${prefix}-in`); // rejoue
             }
           }
         }

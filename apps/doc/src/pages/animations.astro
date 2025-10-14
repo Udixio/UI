@@ -32,7 +32,7 @@ import ClassNamePreview from '../components/ClassNamePreview';
       </p>
 
       <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <ClassNamePreview className="anim-fade-in anim-fade anim-fade-500">
+        <ClassNamePreview className="anim-fade-in anim-fade anim-fade-50">
           <h3 class="text-title-large font-semibold">Fade</h3>
           <p class="mt-2 text-on-surface-variant">Apparition progressive.</p>
         </ClassNamePreview>
@@ -71,16 +71,16 @@ import ClassNamePreview from '../components/ClassNamePreview';
         Ces éléments utilisent <code>anim-view</code> et une timeline CSS scroll‑driven. Ils sont synchronisés au scroll :
         <strong>pas de duration ni de delay</strong> (ces valeurs sont ignorées).
       </p>
-      <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <ClassNamePreview className="anim-view anim-in fade-in ">
+      <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 min-h-screen">
+        <ClassNamePreview className="anim-view anim-in fade-in  h-fit">
           <h3 class="text-title-large font-semibold">Scroll — Fade</h3>
           <p class="mt-2 text-on-surface-variant">Progression liée au scroll.</p>
         </ClassNamePreview>
-        <ClassNamePreview className="anim-view anim-in fade-in slide-in-from-bottom ">
+        <ClassNamePreview className="anim-view anim-in fade-in slide-from-bottom slide-full h-fit">
           <h3 class="text-title-large font-semibold">Scroll — Fade Up</h3>
           <p class="mt-2 text-on-surface-variant">Glisse vers le haut selon le scroll.</p>
         </ClassNamePreview>
-        <ClassNamePreview className="anim-view anim-in zoom-in ">
+        <ClassNamePreview className="anim-view anim-in zoom-in  h-fit">
           <h3 class="text-title-large font-semibold">Scroll — Zoom In</h3>
           <p class="mt-2 text-on-surface-variant">Zoom avant lié au défilement.</p>
         </ClassNamePreview>
