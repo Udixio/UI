@@ -5,105 +5,115 @@ export interface AnimationPluginOptions {
   prefix?: string;
 }
 
-const createAnimation = (
-  {
+const createAnimationFunc =
+  ({
     addBase,
     prefix,
-    name,
     matchUtilities,
     addUtilities,
   }: {
-    name: string;
     addBase: PluginAPI['addBase'];
     matchUtilities: PluginAPI['matchUtilities'];
     addUtilities: PluginAPI['addUtilities'];
     prefix: string;
-  },
-  styles: (
-    variable: (propertyName: string) => string,
-  ) => Record<string, string>,
-  values: {
-    to: string;
-    from: string;
-    values: Record<string, string>;
-  },
-) => {
-  const variableName = ({
-    direction,
-    propertyName,
-  }: {
-    direction: string;
-    propertyName: string;
-  }) => {
-    return `--${prefix}-${direction}-${propertyName}`;
-  };
-
-  const variable = (direction: string) => (propertyName: string) => {
-    return `var(${variableName({ direction, propertyName })}, ${direction === 'from' ? values?.from : values?.to})`;
-  };
-
-  const dependencies: string[] = [];
-
-  Object.keys(styles(variable('to'))).forEach((key) => {
-    dependencies.push(kebabCase(key));
-  });
-
-  addBase({
-    [`@keyframes ${prefix}-${name}`]: {
-      from: {
-        ...styles(variable('from')),
-      },
-      to: {
-        ...styles(variable('to')),
-      },
-    },
-  });
-
-  addUtilities({
-    [`.${prefix}-${name}, .${prefix}-${name}-in, .${prefix}-${name}-out`]: {
-      animationName: `${name}`,
-      animationDuration: `var(--${prefix}-duration, 300ms)`,
-      animationFillMode: 'both',
-      animationPlayState: `var(--${prefix}-state, paused)`,
-      willChange: dependencies,
-    },
-  });
-
-  // view
-  // addUtilities({
-  //   [`.${prefix}-${name}`]: {
-  //     animationName: `${name}`,
-  //     animationDuration: `var(--${prefix}-duration, 300ms)`,
-  //     animationFillMode: 'both',
-  //     animationPlayState: `var(--${prefix}-state, paused)`,
-  //     [`--${prefix}-enter-opacity`]: 'initial',
-  //     [`--${prefix}-enter-scale`]: 'initial',
-  //     [`--${prefix}-enter-rotate`]: 'initial',
-  //     [`--${prefix}-enter-translate-x`]: 'initial',
-  //     [`--${prefix}-enter-translate-y`]: 'initial',
-  //     willChange: 'opacity, transform',
-  //   },
-  // });
-
-  ['from', 'to'].forEach((direction) => {
-    matchUtilities(
+  }) =>
+  (
+    name: string,
+    styles: (param: (propertyName: string) => string) => Record<string, string>,
+    values: Record<
+      string,
       {
-        [`${prefix}-${name}-${direction}`]: (value) => ({
-          [variableName({ direction, property: 'opacity' })]: value,
-        }),
+        as?: string;
+        DEFAULT: string;
+        values: Record<string, string>;
+      }
+    >,
+    callback?: (args: {
+      variableName: (propertyName: string) => string;
+      name: string;
+      dependencies: string[];
+    }) => void,
+  ) => {
+    const variableName = (propertyName: string) => {
+      return `--${prefix}-${propertyName}`;
+    };
+
+    const param = (propertyName: string) => {
+      return `var(${variableName(propertyName)})`;
+    };
+
+    const dependencies: string[] = [];
+
+    Object.keys(styles(param)).forEach((key) => {
+      dependencies.push(kebabCase(key));
+    });
+
+    addBase({
+      [`@keyframes ${prefix}-${name}`]: {
+        from: {
+          ...styles(param),
+        },
       },
-      {
-        values: values.values,
+    });
+
+    addUtilities({
+      [`.${prefix}-${name}, .${prefix}-${name}-in, .${prefix}-${name}-out`]: {
+        animationName: `${name}`,
+        animationDuration: `var(--${prefix}-duration, 300ms)`,
+        animationFillMode: 'both',
+        animationPlayState: `var(--${prefix}-state, paused)`,
+        willChange: dependencies,
       },
-    );
-  });
-};
+    });
+
+    // view
+    // addUtilities({
+    //   [`.${prefix}-${name}`]: {
+    //     animationName: `${name}`,
+    //     animationDuration: `var(--${prefix}-duration, 300ms)`,
+    //     animationFillMode: 'both',
+    //     animationPlayState: `var(--${prefix}-state, paused)`,
+    //     [`--${prefix}-enter-opacity`]: 'initial',
+    //     [`--${prefix}-enter-scale`]: 'initial',
+    //     [`--${prefix}-enter-rotate`]: 'initial',
+    //     [`--${prefix}-enter-translate-x`]: 'initial',
+    //     [`--${prefix}-enter-translate-y`]: 'initial',
+    //     willChange: 'opacity, transform',
+    //   },
+    // }
+
+    Object.entries(values).forEach(([key, value], index) => {
+      let as = value.as;
+      if (index !== 0 && !value.as) {
+        as = key;
+      }
+      matchUtilities(
+        {
+          [`${prefix}-${name}${as ? '-' + as : ''}`]: (value) => ({
+            [variableName(key)]: value,
+          }),
+        },
+        {
+          values: value.values,
+        },
+      );
+    });
+
+    callback?.({ variableName, name, dependencies });
+  };
 // Animations inspired by temps.js but without overlapping Tailwind's transition utilities
 // - prefixed utilities for animation properties: {prefix}-duration-*, {prefix}-delay-*, {prefix}-ease-*, {prefix}-fill-*, {prefix}-direction-*, {prefix}-repeat
 // - usage: compose triggers ({prefix}-in|{prefix}-out or {prefix}-view*) + effects (fade/zoom/slide/spin) + params
 export const animation = plugin.withOptions(
   ({ prefix = 'anim' }: AnimationPluginOptions) => {
     return ({ addBase, matchUtilities, addUtilities }: PluginAPI) => {
+      const createAnimation = createAnimationFunc({
+        addBase,
+        prefix,
+        matchUtilities,
+        addUtilities,
+      });
+
       addBase({
         '@keyframes enter': {
           from: {
@@ -122,30 +132,6 @@ export const animation = plugin.withOptions(
       // Triggers (unifiés): in/out + view*
       addUtilities({
         // in/out
-        [`.${prefix}-in`]: {
-          animationName: 'enter',
-          animationDuration: `var(--${prefix}-duration, 300ms)`,
-          animationFillMode: 'both',
-          animationPlayState: `var(--${prefix}-state, paused)`,
-          [`--${prefix}-enter-opacity`]: 'initial',
-          [`--${prefix}-enter-scale`]: 'initial',
-          [`--${prefix}-enter-rotate`]: 'initial',
-          [`--${prefix}-enter-translate-x`]: 'initial',
-          [`--${prefix}-enter-translate-y`]: 'initial',
-          willChange: 'opacity, transform',
-        },
-        [`.${prefix}-out`]: {
-          animationName: 'exit',
-          animationDuration: `var(--${prefix}-duration, 300ms)`,
-          animationFillMode: 'both',
-          animationPlayState: `var(--${prefix}-state, paused)`,
-          [`--${prefix}-exit-opacity`]: 'initial',
-          [`--${prefix}-exit-scale`]: 'initial',
-          [`--${prefix}-exit-rotate`]: 'initial',
-          [`--${prefix}-exit-translate-x`]: 'initial',
-          [`--${prefix}-exit-translate-y`]: 'initial',
-          willChange: 'opacity, transform',
-        },
         // run/pause state
         [`.${prefix}-run`]: { [`--${prefix}-state`]: 'running' },
         [`.${prefix}-paused`]: { [`--${prefix}-state`]: 'paused' },
@@ -190,44 +176,371 @@ export const animation = plugin.withOptions(
       });
 
       createAnimation(
-        {
-          name: 'fade',
-          addBase,
-          prefix,
-          matchUtilities,
-          addUtilities,
-        },
+        'fade',
         (v) => ({
           opacity: v('opacity'),
         }),
         {
-          to: 'inherit',
-          from: '0',
-          values: {
-            0: '0',
-            5: '0.05',
-            10: '0.1',
-            20: '0.2',
-            25: '0.25',
-            30: '0.3',
-            40: '0.4',
-            50: '0.5',
-            60: '0.6',
-            70: '0.7',
-            75: '0.75',
-            80: '0.8',
-            90: '0.9',
-            95: '0.95',
-            100: '1',
+          opacity: {
+            DEFAULT: '0',
+            values: {
+              0: '0',
+              5: '0.05',
+              10: '0.1',
+              20: '0.2',
+              25: '0.25',
+              30: '0.3',
+              40: '0.4',
+              50: '0.5',
+              60: '0.6',
+              70: '0.7',
+              75: '0.75',
+              80: '0.8',
+              90: '0.9',
+              95: '0.95',
+              100: '1',
+            },
           },
         },
       );
 
-      // // Effets
+      createAnimation(
+        'zoom',
+        (v) => ({
+          zoom: v('zoom'),
+        }),
+        {
+          zoom: {
+            DEFAULT: '.95',
+            values: {
+              0: '0',
+              50: '.5',
+              75: '.75',
+              90: '.9',
+              95: '.95',
+              100: '1',
+              105: '1.05',
+              110: '1.1',
+              125: '1.25',
+              150: '1.5',
+            },
+          },
+        },
+      );
+
+      // createAnimation(
+      //   {
+      //     name: 'spin',
+      //     addBase,
+      //     prefix,
+      //     matchUtilities,
+      //     addUtilities,
+      //   },
+      //   (v) => ({
+      //     opacity: v('opacity'),
+      //   }),
+      //   {
+      //     to: 'inherit',
+      //     from: '6deg',
+      //     values: {
+      //       1: '1deg',
+      //       2: '2deg',
+      //       3: '3deg',
+      //       6: '6deg',
+      //       12: '12deg',
+      //       30: '30deg',
+      //       45: '45deg',
+      //       90: '90deg',
+      //       180: '180deg',
+      //     },
+      //   },
+      // );
+
+      const slideValues = {
+        DEFAULT: '2rem',
+        values: {
+          full: '100%',
+          0: '0px',
+          px: '1px',
+          0.5: '0.125rem',
+          1: '0.25rem',
+          1.5: '0.375rem',
+          2: '0.5rem',
+          2.5: '0.625rem',
+          3: '0.75rem',
+          3.5: '0.875rem',
+          4: '1rem',
+          5: '1.25rem',
+          6: '1.5rem',
+          7: '1.75rem',
+          8: '2rem',
+          9: '2.25rem',
+          10: '2.5rem',
+          11: '2.75rem',
+          12: '3rem',
+          14: '3.5rem',
+          16: '4rem',
+          20: '5rem',
+          24: '6rem',
+          28: '7rem',
+          32: '8rem',
+          36: '9rem',
+          40: '10rem',
+          44: '11rem',
+          48: '12rem',
+          52: '13rem',
+          56: '14rem',
+          60: '15rem',
+          64: '16rem',
+          72: '18rem',
+          80: '20rem',
+          96: '24rem',
+        },
+      };
+      createAnimation(
+        'slide',
+        (param) => {
+          return {
+            transform: `translate3d(${param('distance')} * ${param('dx')}, calc(${param('distance')} * ${param('dy')}), 0)`,
+          };
+        },
+        {
+          distance: {
+            ...slideValues,
+          },
+        },
+        ({ name, variableName, dependencies }) => {
+          [
+            'up',
+            'down',
+            'left',
+            'right',
+            'from-top',
+            'from-bottom',
+            'from-left',
+            'from-right',
+          ].forEach((directionAlias) => {
+            let direction:
+              | 'from-top'
+              | 'from-bottom'
+              | 'from-left'
+              | 'from-right' = '';
+
+            if (directionAlias.startsWith('from-')) {
+              direction = directionAlias;
+            } else if (directionAlias === 'up') {
+              direction = 'from-bottom';
+            } else if (directionAlias === 'down') {
+              direction = 'from-top';
+            } else if (directionAlias === 'left') {
+              direction = 'from-right';
+            } else if (directionAlias === 'right') {
+              direction = 'from-left';
+            }
+
+            if (!direction) {
+              throw new Error(`Invalid direction: ${directionAlias}`);
+            }
+
+            const dxdy: Record<typeof direction, { dx: string; dy: string }> = {
+              'from-top': { dx: '0', dy: '1' }, // vient du haut => vers le bas => dy positif
+              'from-bottom': { dx: '0', dy: '-1' }, // vient du bas => vers le haut => dy négatif (up)
+              'from-left': { dx: '1', dy: '0' }, // vient de gauche => vers la droite => dx positif
+              'from-right': { dx: '-1', dy: '0' }, // vient de droite => vers la gauche => dx négatif
+            } as const;
+            const { dx, dy } = dxdy[direction];
+
+            addUtilities({
+              [`.${prefix}-${name}, .${prefix}-${name}-in, .${prefix}-${name}-out`]:
+                {
+                  animationName: `${name}`,
+                  animationDuration: `var(--${prefix}-duration, 300ms)`,
+                  animationFillMode: 'both',
+                  animationPlayState: `var(--${prefix}-state, paused)`,
+                  willChange: dependencies,
+                },
+            });
+
+            addUtilities({
+              [`.${prefix}-${name}-${directionAlias}, .${prefix}-${name}-in-${directionAlias}, .${prefix}-${name}-out-${directionAlias}`]:
+                {
+                  [variableName('dx')]: dx,
+                  [variableName('dy')]: dy,
+                },
+            });
+          });
+        },
+      );
+
       // matchUtilities(
       //   {
-      //     'fade-in': (value) => ({ [`--${prefix}-enter-opacity`]: value }),
-      //     'fade-out': (value) => ({ [`--${prefix}-exit-opacity`]: value }),
+      //     'slide-in-from-top': (value) => ({
+      //       [`--${prefix}-enter-translate-y`]: `-${value}`,
+      //     }),
+      //     'slide-in-from-bottom': (value) => ({
+      //       [`--${prefix}-enter-translate-y`]: value,
+      //     }),
+      //     'slide-in-from-left': (value) => ({
+      //       [`--${prefix}-enter-translate-x`]: `-${value}`,
+      //     }),
+      //     'slide-in-from-right': (value) => ({
+      //       [`--${prefix}-enter-translate-x`]: value,
+      //     }),
+      //     'slide-out-to-top': (value) => ({
+      //       [`--${prefix}-exit-translate-y`]: `-${value}`,
+      //     }),
+      //     'slide-out-to-bottom': (value) => ({
+      //       [`--${prefix}-exit-translate-y`]: value,
+      //     }),
+      //     'slide-out-to-left': (value) => ({
+      //       [`--${prefix}-exit-translate-x`]: `-${value}`,
+      //     }),
+      //     'slide-out-to-right': (value) => ({
+      //       [`--${prefix}-exit-translate-x`]: value,
+      //     }),
+      //   },
+      //   {
+      //     values: {
+      //       DEFAULT: '2rem',
+      //       full: '100%',
+      //       0: '0px',
+      //       px: '1px',
+      //       0.5: '0.125rem',
+      //       1: '0.25rem',
+      //       1.5: '0.375rem',
+      //       2: '0.5rem',
+      //       2.5: '0.625rem',
+      //       3: '0.75rem',
+      //       3.5: '0.875rem',
+      //       4: '1rem',
+      //       5: '1.25rem',
+      //       6: '1.5rem',
+      //       7: '1.75rem',
+      //       8: '2rem',
+      //       9: '2.25rem',
+      //       10: '2.5rem',
+      //       11: '2.75rem',
+      //       12: '3rem',
+      //       14: '3.5rem',
+      //       16: '4rem',
+      //       20: '5rem',
+      //       24: '6rem',
+      //       28: '7rem',
+      //       32: '8rem',
+      //       36: '9rem',
+      //       40: '10rem',
+      //       44: '11rem',
+      //       48: '12rem',
+      //       52: '13rem',
+      //       56: '14rem',
+      //       60: '15rem',
+      //       64: '16rem',
+      //       72: '18rem',
+      //       80: '20rem',
+      //       96: '24rem',
+      //     },
+      //   },
+      // );
+      //
+      // // Aliases bidirectionnels et ciblés (DX simplifiée)
+      // // Slide: alias par défaut bidirectionnels et variantes in-/out-
+      // matchUtilities(
+      //   {
+      //     // Bidirectionnels
+      //     'slide-from-top': (value) => ({
+      //       [`--${prefix}-enter-translate-y`]: `-${value}`,
+      //       [`--${prefix}-exit-translate-y`]: value,
+      //     }),
+      //     'slide-from-bottom': (value) => ({
+      //       [`--${prefix}-enter-translate-y`]: value,
+      //       [`--${prefix}-exit-translate-y`]: `-${value}`,
+      //     }),
+      //     'slide-from-left': (value) => ({
+      //       [`--${prefix}-enter-translate-x`]: `-${value}`,
+      //       [`--${prefix}-exit-translate-x`]: value,
+      //     }),
+      //     'slide-from-right': (value) => ({
+      //       [`--${prefix}-enter-translate-x`]: value,
+      //       [`--${prefix}-exit-translate-x`]: `-${value}`,
+      //     }),
+      //     // Ciblés (aliases cohérents)
+      //     'in-slide-from-top': (value) => ({
+      //       [`--${prefix}-enter-translate-y`]: `-${value}`,
+      //     }),
+      //     'in-slide-from-bottom': (value) => ({
+      //       [`--${prefix}-enter-translate-y`]: value,
+      //     }),
+      //     'in-slide-from-left': (value) => ({
+      //       [`--${prefix}-enter-translate-x`]: `-${value}`,
+      //     }),
+      //     'in-slide-from-right': (value) => ({
+      //       [`--${prefix}-enter-translate-x`]: value,
+      //     }),
+      //     'out-slide-to-top': (value) => ({
+      //       [`--${prefix}-exit-translate-y`]: `-${value}`,
+      //     }),
+      //     'out-slide-to-bottom': (value) => ({
+      //       [`--${prefix}-exit-translate-y`]: value,
+      //     }),
+      //     'out-slide-to-left': (value) => ({
+      //       [`--${prefix}-exit-translate-x`]: `-${value}`,
+      //     }),
+      //     'out-slide-to-right': (value) => ({
+      //       [`--${prefix}-exit-translate-x`]: value,
+      //     }),
+      //   },
+      //   {
+      //     values: {
+      //       DEFAULT: '2rem',
+      //       full: '100%',
+      //       0: '0px',
+      //       px: '1px',
+      //       0.5: '0.125rem',
+      //       1: '0.25rem',
+      //       1.5: '0.375rem',
+      //       2: '0.5rem',
+      //       2.5: '0.625rem',
+      //       3: '0.75rem',
+      //       3.5: '0.875rem',
+      //       4: '1rem',
+      //       5: '1.25rem',
+      //       6: '1.5rem',
+      //       7: '1.75rem',
+      //       8: '2rem',
+      //       9: '2.25rem',
+      //       10: '2.5rem',
+      //       11: '2.75rem',
+      //       12: '3rem',
+      //       14: '3.5rem',
+      //       16: '4rem',
+      //       20: '5rem',
+      //       24: '6rem',
+      //       28: '7rem',
+      //       32: '8rem',
+      //       36: '9rem',
+      //       40: '10rem',
+      //       44: '11rem',
+      //       48: '12rem',
+      //       52: '13rem',
+      //       56: '14rem',
+      //       60: '15rem',
+      //       64: '16rem',
+      //       72: '18rem',
+      //       80: '20rem',
+      //       96: '24rem',
+      //     },
+      //   },
+      // );
+
+      // Fade: alias bidirectionnel et variantes in-/out-
+      // matchUtilities(
+      //   {
+      //     'fade-from': (value) => ({
+      //       [`--${prefix}-enter-opacity`]: value,
+      //       [`--${prefix}-exit-opacity`]: value,
+      //     }),
+      //     'in-fade-from': (value) => ({ [`--${prefix}-enter-opacity`]: value }),
+      //     'out-fade-to': (value) => ({ [`--${prefix}-exit-opacity`]: value }),
       //   },
       //   {
       //     values: {
@@ -250,287 +563,6 @@ export const animation = plugin.withOptions(
       //     },
       //   },
       // );
-
-      createAnimation(
-        {
-          name: 'zoom',
-          addBase,
-          prefix,
-          matchUtilities,
-          addUtilities,
-        },
-        (v) => ({
-          zoom: v('zoom'),
-        }),
-        {
-          to: 'inherit',
-          from: '.95',
-          values: {
-            DEFAULT: '.95',
-            0: '0',
-            50: '.5',
-            75: '.75',
-            90: '.9',
-            95: '.95',
-            100: '1',
-            105: '1.05',
-            110: '1.1',
-            125: '1.25',
-            150: '1.5',
-          },
-        },
-      );
-
-      // matchUtilities(
-      //   { 'zoom-in': (value) => ({ [`--${prefix}-enter-scale`]: value }) },
-      //   {
-      //     values: {
-      //       DEFAULT: '.95',
-      //       0: '0',
-      //       50: '.5',
-      //       75: '.75',
-      //       90: '.9',
-      //       95: '.95',
-      //       100: '1',
-      //       105: '1.05',
-      //       110: '1.1',
-      //       125: '1.25',
-      //       150: '1.5',
-      //     },
-      //   },
-      // );
-      //
-      // matchUtilities(
-      //   { 'zoom-out': (value) => ({ [`--${prefix}-exit-scale`]: value }) },
-      //   {
-      //     values: {
-      //       DEFAULT: '.9',
-      //       0: '0',
-      //       50: '.5',
-      //       75: '.75',
-      //       90: '.9',
-      //       95: '.95',
-      //       100: '1',
-      //       105: '1.05',
-      //       110: '1.1',
-      //       125: '1.25',
-      //       150: '1.5',
-      //     },
-      //   },
-      // );
-
-      matchUtilities(
-        {
-          'spin-in': (value) => ({ [`--${prefix}-enter-rotate`]: value }),
-          'spin-out': (value) => ({ [`--${prefix}-exit-rotate`]: value }),
-        },
-        {
-          values: {
-            DEFAULT: '6deg',
-            1: '1deg',
-            2: '2deg',
-            3: '3deg',
-            6: '6deg',
-            12: '12deg',
-            30: '30deg',
-            45: '45deg',
-            90: '90deg',
-            180: '180deg',
-          },
-        },
-      );
-
-      matchUtilities(
-        {
-          'slide-in-from-top': (value) => ({
-            [`--${prefix}-enter-translate-y`]: `-${value}`,
-          }),
-          'slide-in-from-bottom': (value) => ({
-            [`--${prefix}-enter-translate-y`]: value,
-          }),
-          'slide-in-from-left': (value) => ({
-            [`--${prefix}-enter-translate-x`]: `-${value}`,
-          }),
-          'slide-in-from-right': (value) => ({
-            [`--${prefix}-enter-translate-x`]: value,
-          }),
-          'slide-out-to-top': (value) => ({
-            [`--${prefix}-exit-translate-y`]: `-${value}`,
-          }),
-          'slide-out-to-bottom': (value) => ({
-            [`--${prefix}-exit-translate-y`]: value,
-          }),
-          'slide-out-to-left': (value) => ({
-            [`--${prefix}-exit-translate-x`]: `-${value}`,
-          }),
-          'slide-out-to-right': (value) => ({
-            [`--${prefix}-exit-translate-x`]: value,
-          }),
-        },
-        {
-          values: {
-            DEFAULT: '2rem',
-            full: '100%',
-            0: '0px',
-            px: '1px',
-            0.5: '0.125rem',
-            1: '0.25rem',
-            1.5: '0.375rem',
-            2: '0.5rem',
-            2.5: '0.625rem',
-            3: '0.75rem',
-            3.5: '0.875rem',
-            4: '1rem',
-            5: '1.25rem',
-            6: '1.5rem',
-            7: '1.75rem',
-            8: '2rem',
-            9: '2.25rem',
-            10: '2.5rem',
-            11: '2.75rem',
-            12: '3rem',
-            14: '3.5rem',
-            16: '4rem',
-            20: '5rem',
-            24: '6rem',
-            28: '7rem',
-            32: '8rem',
-            36: '9rem',
-            40: '10rem',
-            44: '11rem',
-            48: '12rem',
-            52: '13rem',
-            56: '14rem',
-            60: '15rem',
-            64: '16rem',
-            72: '18rem',
-            80: '20rem',
-            96: '24rem',
-          },
-        },
-      );
-
-      // Aliases bidirectionnels et ciblés (DX simplifiée)
-      // Slide: alias par défaut bidirectionnels et variantes in-/out-
-      matchUtilities(
-        {
-          // Bidirectionnels
-          'slide-from-top': (value) => ({
-            [`--${prefix}-enter-translate-y`]: `-${value}`,
-            [`--${prefix}-exit-translate-y`]: value,
-          }),
-          'slide-from-bottom': (value) => ({
-            [`--${prefix}-enter-translate-y`]: value,
-            [`--${prefix}-exit-translate-y`]: `-${value}`,
-          }),
-          'slide-from-left': (value) => ({
-            [`--${prefix}-enter-translate-x`]: `-${value}`,
-            [`--${prefix}-exit-translate-x`]: value,
-          }),
-          'slide-from-right': (value) => ({
-            [`--${prefix}-enter-translate-x`]: value,
-            [`--${prefix}-exit-translate-x`]: `-${value}`,
-          }),
-          // Ciblés (aliases cohérents)
-          'in-slide-from-top': (value) => ({
-            [`--${prefix}-enter-translate-y`]: `-${value}`,
-          }),
-          'in-slide-from-bottom': (value) => ({
-            [`--${prefix}-enter-translate-y`]: value,
-          }),
-          'in-slide-from-left': (value) => ({
-            [`--${prefix}-enter-translate-x`]: `-${value}`,
-          }),
-          'in-slide-from-right': (value) => ({
-            [`--${prefix}-enter-translate-x`]: value,
-          }),
-          'out-slide-to-top': (value) => ({
-            [`--${prefix}-exit-translate-y`]: `-${value}`,
-          }),
-          'out-slide-to-bottom': (value) => ({
-            [`--${prefix}-exit-translate-y`]: value,
-          }),
-          'out-slide-to-left': (value) => ({
-            [`--${prefix}-exit-translate-x`]: `-${value}`,
-          }),
-          'out-slide-to-right': (value) => ({
-            [`--${prefix}-exit-translate-x`]: value,
-          }),
-        },
-        {
-          values: {
-            DEFAULT: '2rem',
-            full: '100%',
-            0: '0px',
-            px: '1px',
-            0.5: '0.125rem',
-            1: '0.25rem',
-            1.5: '0.375rem',
-            2: '0.5rem',
-            2.5: '0.625rem',
-            3: '0.75rem',
-            3.5: '0.875rem',
-            4: '1rem',
-            5: '1.25rem',
-            6: '1.5rem',
-            7: '1.75rem',
-            8: '2rem',
-            9: '2.25rem',
-            10: '2.5rem',
-            11: '2.75rem',
-            12: '3rem',
-            14: '3.5rem',
-            16: '4rem',
-            20: '5rem',
-            24: '6rem',
-            28: '7rem',
-            32: '8rem',
-            36: '9rem',
-            40: '10rem',
-            44: '11rem',
-            48: '12rem',
-            52: '13rem',
-            56: '14rem',
-            60: '15rem',
-            64: '16rem',
-            72: '18rem',
-            80: '20rem',
-            96: '24rem',
-          },
-        },
-      );
-
-      // Fade: alias bidirectionnel et variantes in-/out-
-      matchUtilities(
-        {
-          'fade-from': (value) => ({
-            [`--${prefix}-enter-opacity`]: value,
-            [`--${prefix}-exit-opacity`]: value,
-          }),
-          'in-fade-from': (value) => ({ [`--${prefix}-enter-opacity`]: value }),
-          'out-fade-to': (value) => ({ [`--${prefix}-exit-opacity`]: value }),
-        },
-        {
-          values: {
-            DEFAULT: '0',
-            0: '0',
-            5: '0.05',
-            10: '0.1',
-            20: '0.2',
-            25: '0.25',
-            30: '0.3',
-            40: '0.4',
-            50: '0.5',
-            60: '0.6',
-            70: '0.7',
-            75: '0.75',
-            80: '0.8',
-            90: '0.9',
-            95: '0.95',
-            100: '1',
-          },
-        },
-      );
 
       // Zoom: alias bidirectionnel et variantes in-/out-
       matchUtilities(
