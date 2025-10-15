@@ -219,9 +219,15 @@ export const AnimateOnScroll = ({
             // Pause when not in the triggering state
             // Do not aggressively remove attribute if once=true and already ran
             if (!once) {
+              // Store current animation name
+              const currentAnimationName = el.style.animationName;
+              // Remove animation name
+              el.style.animationName = 'none';
               el.removeAttribute(`data-${prefix}-in-run`);
               el.removeAttribute(`data-${prefix}-out-run`);
               void el.offsetWidth; // reflow
+              // Re-apply animation name
+              el.style.animationName = currentAnimationName;
             }
           }
         }

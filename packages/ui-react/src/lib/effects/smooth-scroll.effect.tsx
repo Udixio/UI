@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CustomScrollInterface } from './custom-scroll';
 import { ReactProps } from '../utils';
 import { BlockScroll } from './block-scroll.effect';
@@ -8,9 +8,7 @@ export const SmoothScroll = ({
   transition,
   orientation = 'vertical',
   throttleDuration = 25,
-  ...restProps
 }: {
-  children: ReactNode;
   transition?: {
     duration?: number;
   };
