@@ -19,7 +19,9 @@ const createAnimationFunc =
   }) =>
   (
     name: string,
-    styles: (param: (propertyName: string) => string) => Record<string, string>,
+    styles: (
+      param: (propertyName: string) => string,
+    ) => Record<string, Record<string, string>>,
     values: Record<
       string,
       {
@@ -45,22 +47,27 @@ const createAnimationFunc =
 
     const dependencies: string[] = [];
 
-    Object.keys(styles(param)).forEach((key) => {
-      dependencies.push(kebabCase(key));
+    Object.values(styles(param)).forEach((step) => {
+      Object.keys(step).forEach((key) => {
+        dependencies.push(kebabCase(key));
+      });
     });
 
     addBase({
-      [`@keyframes ${prefix}-${name}`]: {
-        from: {
-          ...styles(param),
-        },
-      },
+      [`@keyframes ${prefix}-${name}`]: styles(param),
     });
 
     addUtilities({
       [`.${prefix}-${name}, .${prefix}-${name}-in, .${prefix}-${name}-out`]: {
-        animationName: `${prefix}-${name}`,
-        animationDuration: `var(--${prefix}-duration, 300ms)`,
+        [`--${prefix}-names`]: `var(--${prefix}-names, noop), ${prefix}-${name}`,
+        [`--${prefix}-durations`]: `var(--${prefix}-durations, 1ms), var(--${prefix}-duration, 300ms)`,
+        [`--${prefix}-delays`]: `var(--${prefix}-delays, 0ms), var(--${prefix}-delay, 0ms)`,
+        [`--${prefix}-eases`]: `var(--${prefix}-eases, linear), var(--${prefix}-ease, cubic-bezier(0.4, 0, 0.2, 1))`,
+
+        animationName: `var(--${prefix}-names)`,
+        animationDuration: `var(--${prefix}-durations)`,
+        animationDelay: `var(--${prefix}-delays)`,
+        animationTimingFunction: `var(--${prefix}-eases)`,
         animationFillMode: 'both',
         ['will-change']: dependencies,
       },
@@ -184,7 +191,9 @@ export const animation = plugin.withOptions(
       createAnimation(
         'fade',
         (v) => ({
-          opacity: v('opacity'),
+          from: {
+            opacity: v('opacity'),
+          },
         }),
         {
           opacity: {
@@ -213,7 +222,9 @@ export const animation = plugin.withOptions(
       createAnimation(
         'zoom',
         (v) => ({
-          zoom: v('zoom'),
+          from: {
+            zoom: v('zoom'),
+          },
         }),
         {
           zoom: {
@@ -305,11 +316,14 @@ export const animation = plugin.withOptions(
       };
       createAnimation(
         'slide',
-        (param) => {
-          return {
-            transform: `translate3d(calc(${param('distance')} * ${param('dx')}), calc(${param('distance')} * ${param('dy')}), 0)`,
-          };
-        },
+        (param) => ({
+          from: {
+            translate: `calc(${param('distance')} * ${param('dx')}) calc(${param('distance')} * ${param('dy')});`,
+          },
+          to: {
+            translate: `var(--tw-translate-x, 0) var(--tw-translate-y, 0)`,
+          },
+        }),
         {
           distance: {
             ...slideValues,
@@ -359,14 +373,28 @@ export const animation = plugin.withOptions(
             addUtilities({
               [`.${prefix}-${name}-${directionAlias}, .${prefix}-${name}-in-${directionAlias}, .${prefix}-${name}-out-${directionAlias}`]:
                 {
-                  animationName: `${prefix}-${name}`,
-                  animationDuration: `var(--${prefix}-duration, 300ms)`,
-                  animationFillMode: 'both',
-                  animationPlayState: `var(--${prefix}-state, paused)`,
-                  ['will-change']: dependencies,
+                  [`--${prefix}-names`]: `var(--${prefix}-names, noop), ${prefix}-${name}`,
+                  [`--${prefix}-durations`]: `var(--${prefix}-durations, 1ms), var(--${prefix}-duration, 300ms)`,
+                  [`--${prefix}-delays`]: `var(--${prefix}-delays, 0ms), var(--${prefix}-delay, 0ms)`,
+                  [`--${prefix}-eases`]: `var(--${prefix}-eases, linear), var(--${prefix}-ease, cubic-bezier(0.4, 0, 0.2, 1))`,
+
                   [variableName('dx')]: dx,
                   [variableName('dy')]: dy,
+
+                  animationName: `var(--${prefix}-names)`,
+                  animationDuration: `var(--${prefix}-durations)`,
+                  animationDelay: `var(--${prefix}-delays)`,
+                  animationTimingFunction: `var(--${prefix}-eases)`,
+                  animationFillMode: 'both',
+                  ['will-change']: dependencies,
                 },
+              [`.${prefix}-${name}-${directionAlias}, .${prefix}-${name}-in-${directionAlias}`]:
+                {
+                  animationPlayState: `var(--${prefix}-in-state, paused)`,
+                },
+              [`.${prefix}-${name}-out-${directionAlias}`]: {
+                animationPlayState: `var(--${prefix}-out-state, paused)`,
+              },
             });
           });
         },
