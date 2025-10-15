@@ -1,3 +1,44 @@
+# 2.0.0 (2025-10-15)
+
+### 🚀 Features
+
+- **animation:** rename classes and refine scroll-driven animations ([414a875](https://github.com/Udixio/UI/commit/414a875))
+- **animation:** update animation class names and refine scroll behavior ([54688c3](https://github.com/Udixio/UI/commit/54688c3))
+- **animation:** enhance dependency handling and refine utility updates ([aa91136](https://github.com/Udixio/UI/commit/aa91136))
+- **animation:** enhance state handling and optimize utility usage ([1f134b4](https://github.com/Udixio/UI/commit/1f134b4))
+- **ui:** simplify SmoothScroll transition props and remove debug logs ([14caaba](https://github.com/Udixio/UI/commit/14caaba))
+- **ui:** refactor SmoothScroll to replace useSpring with animate for smoother transitions ([b85e8f7](https://github.com/Udixio/UI/commit/b85e8f7))
+- **ui:** adjust SmoothScroll transition dynamics and enhance debug support ([5a16e60](https://github.com/Udixio/UI/commit/5a16e60))
+- **ui:** enhance SmoothScroll with spring-based motion and optimize scroll handling ([d02ed31](https://github.com/Udixio/UI/commit/d02ed31))
+- **ui:** refactor SmoothScroll and BlockScroll for improved scroll handling ([ed225e7](https://github.com/Udixio/UI/commit/ed225e7))
+- **ui:** refactor SmoothScroll and BlockScroll for streamlined scroll handling ([137e173](https://github.com/Udixio/UI/commit/137e173))
+- **ui:** replace SmoothScroll with BlockScroll effect for improved scroll intent handling ([00fbd60](https://github.com/Udixio/UI/commit/00fbd60))
+- **ui:** improve SmoothScroll effect with customizable transitions ([13b5b6a](https://github.com/Udixio/UI/commit/13b5b6a))
+- **ui:** enhance smooth scroll effect and integrate into layout ([d5bc1ac](https://github.com/Udixio/UI/commit/d5bc1ac))
+- **ui:** refactor animation utilities and remove redundant exit animations ([d7719cb](https://github.com/Udixio/UI/commit/d7719cb))
+- **ui:** migrate `AnimateOnScroll` to use customizable prefix for animation utilities ([8ac82fd](https://github.com/Udixio/UI/commit/8ac82fd))
+- **ui:** enhance AnimateOnScroll thresholds and refine animation compatibility ([e652317](https://github.com/Udixio/UI/commit/e652317))
+- **ui:** refine animations and Tailwind plugin for better customization ([62ad9bf](https://github.com/Udixio/UI/commit/62ad9bf))
+- **ui:** remove legacy JS-based scroll animations and refine scroll-driven components ([d098430](https://github.com/Udixio/UI/commit/d098430))
+- **ui:** enhance scroll animations with fallback and Tailwind integration ([b5bec58](https://github.com/Udixio/UI/commit/b5bec58))
+- **ui:** add AnimateOnScrollFallback for JS-based scroll animations ([f99eca0](https://github.com/Udixio/UI/commit/f99eca0))
+- **ui:** add Animate component ([b69694a](https://github.com/Udixio/UI/commit/b69694a))
+- **docs:** add API documentation and improve components layout ([bbe090f](https://github.com/Udixio/UI/commit/bbe090f))
+- **styles:** enhance FAB styling and simplify class application ([72967d4](https://github.com/Udixio/UI/commit/72967d4))
+- **theme:** add tone adjustment calculation and improve contrast handling ([3546f05](https://github.com/Udixio/UI/commit/3546f05))
+- **theme:** refactor color utilities and update configuration ([177e68d](https://github.com/Udixio/UI/commit/177e68d))
+- **theme:** streamline color management and refactor configuration ([b1b1211](https://github.com/Udixio/UI/commit/b1b1211))
+- **theme:** introduce ThemePicker component and enhance theme configuration ([3d3d637](https://github.com/Udixio/UI/commit/3d3d637))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.0.0
+- Updated @udixio/theme to 2.0.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.6.3 (2025-09-04)
 
 ### 🩹 Fixes

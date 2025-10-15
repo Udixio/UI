@@ -1,3 +1,18 @@
+# 2.0.0 (2025-10-15)
+
+### 🚀 Features
+
+- **theme:** add tone adjustment calculation and improve contrast handling ([3546f05](https://github.com/Udixio/UI/commit/3546f05))
+- **theme:** enhance TokenGallery with palette integration and improved color grouping ([fdce7c7](https://github.com/Udixio/UI/commit/fdce7c7))
+- **theme:** modularize and refactor TokenGallery with new components ([9312297](https://github.com/Udixio/UI/commit/9312297))
+- **theme:** add success color tokens and extend color configuration ([852cd6c](https://github.com/Udixio/UI/commit/852cd6c))
+- **theme:** refactor color utilities and update configuration ([177e68d](https://github.com/Udixio/UI/commit/177e68d))
+- **theme:** streamline color management and refactor configuration ([b1b1211](https://github.com/Udixio/UI/commit/b1b1211))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.3.0 (2025-09-04)
 
 ### 🚀 Features
