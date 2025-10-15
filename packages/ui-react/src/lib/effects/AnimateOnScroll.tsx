@@ -41,7 +41,8 @@ function isScrollDrivenCandidate(el: Element): boolean {
   const cls = el.classList;
 
   return Array.from(cls).some(
-    (className) => className.startsWith('anim-') && className.includes('view'),
+    (className) =>
+      className.startsWith('anim-') && className.includes('scroll'),
   );
 }
 function isJsObserverCandidate(el: Element): boolean {
@@ -68,7 +69,7 @@ function updateAnimNamesAndWillChange(el: HTMLElement, prefix: string): void {
     // Replace the classList loop with this:
     Array.from(el.classList).forEach((className) => {
       if (className.startsWith('anim')) {
-        const cssVarName = `--anim-name-${className.replaceAll(/-in|-out|-view/g, '').replace(prefix + '-', '')}`;
+        const cssVarName = `--anim-name-${className.replaceAll(/-in|-out|-scroll/g, '').replace(prefix + '-', '')}`;
         const animationName = cs.getPropertyValue(cssVarName).trim();
         if (animationName) {
           animationNames.add(animationName.replace(prefix + '-', ''));
@@ -88,8 +89,6 @@ function updateAnimNamesAndWillChange(el: HTMLElement, prefix: string): void {
         })
         .join(', ');
 
-      console.log(el, Array.from(changes).join(', '));
-
       el.style.animationName = value;
       el.style.willChange = changes;
     }
@@ -101,9 +100,9 @@ function updateAnimNamesAndWillChange(el: HTMLElement, prefix: string): void {
 function hydrateElement(el: HTMLElement, prefix: string): void {
   if (!isScrollDrivenCandidate(el)) return;
 
-  // Map data-anim-view to correct axis class if provided
-  if (el.hasAttribute(`data-${prefix}-view`)) {
-    const raw = (el.getAttribute(`data-${prefix}-view`) || ``)
+  // Map data-anim-scroll to correct axis class if provided
+  if (el.hasAttribute(`data-${prefix}-scroll`)) {
+    const raw = (el.getAttribute(`data-${prefix}-scroll`) || ``)
       .trim()
       .toLowerCase();
     const axis =
@@ -113,15 +112,15 @@ function hydrateElement(el: HTMLElement, prefix: string): void {
           ? `block`
           : `auto`;
     const hasAny =
-      el.classList.contains(`${prefix}-view`) ||
-      el.classList.contains(`${prefix}-view-inline`) ||
-      el.classList.contains(`${prefix}-view-block`) ||
-      el.classList.contains(`${prefix}-view-x`) ||
-      el.classList.contains(`${prefix}-view-y`);
+      el.classList.contains(`${prefix}-timeline`) ||
+      el.classList.contains(`${prefix}-timeline-inline`) ||
+      el.classList.contains(`${prefix}-timeline-block`) ||
+      el.classList.contains(`${prefix}-timeline-x`) ||
+      el.classList.contains(`${prefix}-timeline-y`);
     if (!hasAny) {
-      if (axis === `inline`) el.classList.add(`${prefix}-view-inline`);
-      else if (axis === `block`) el.classList.add(`${prefix}-view-block`);
-      else el.classList.add(`${prefix}-view`);
+      if (axis === `inline`) el.classList.add(`${prefix}-timeline-inline`);
+      else if (axis === `block`) el.classList.add(`${prefix}-timeline-block`);
+      else el.classList.add(`${prefix}-scroll`);
     }
   }
 
@@ -147,22 +146,23 @@ function hydrateElement(el: HTMLElement, prefix: string): void {
 }
 
 const scrollDrivenSelectorParts = (prefix: string) => [
-  `.${prefix}-view`,
-  `.${prefix}-view-x`,
-  `.${prefix}-view-y`,
-  `.${prefix}-view-inline`,
-  `.${prefix}-view-block`,
-  `[data-${prefix}-view]`,
+  `.${prefix}-timeline`,
+  `.${prefix}-timeline-x`,
+  `.${prefix}-timeline-y`,
+  `.${prefix}-timeline-inline`,
+  `.${prefix}-timeline-block`,
+  `[data-${prefix}-scroll]`,
 ];
 
 function queryScrollDrivenCandidates(
   root: ParentNode = document,
   prefix: string,
 ): HTMLElement[] {
-  const selector = scrollDrivenSelectorParts(prefix)
-    .map((s) => `${s}.${prefix}-in, ${s}.${prefix}-out`)
-    .join(`, `);
-  return Array.from(root.querySelectorAll<HTMLElement>(selector));
+  // Select any elements that have an animation class and are marked as scroll-driven
+  const animated = Array.from(
+    root.querySelectorAll<HTMLElement>(`[class*="${prefix}-"]`),
+  );
+  return animated.filter((el) => isScrollDrivenCandidate(el));
 }
 
 function queryJsObserverCandidates(
@@ -306,7 +306,7 @@ export const AnimateOnScroll = ({
         attributes: true,
         attributeFilter: [
           `class`,
-          `data-${prefix}-view`,
+          `data-${prefix}-scroll`,
           `data-${prefix}-start`,
           `data-${prefix}-end`,
           `data-${prefix}-paused`,
