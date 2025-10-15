@@ -59,17 +59,12 @@ const createAnimationFunc =
 
     addUtilities({
       [`.${prefix}-${name}, .${prefix}-${name}-in, .${prefix}-${name}-out`]: {
-        [`--${prefix}-names`]: `var(--${prefix}-names, noop), ${prefix}-${name}`,
-        [`--${prefix}-durations`]: `var(--${prefix}-durations, 1ms), var(--${prefix}-duration, 300ms)`,
-        [`--${prefix}-delays`]: `var(--${prefix}-delays, 0ms), var(--${prefix}-delay, 0ms)`,
-        [`--${prefix}-eases`]: `var(--${prefix}-eases, linear), var(--${prefix}-ease, cubic-bezier(0.4, 0, 0.2, 1))`,
-
-        animationName: `var(--${prefix}-names)`,
-        animationDuration: `var(--${prefix}-durations)`,
-        animationDelay: `var(--${prefix}-delays)`,
-        animationTimingFunction: `var(--${prefix}-eases)`,
+        [`--${prefix}-name-${name}`]: `${prefix}-${name}`,
+        [`--${prefix}-dependencies-${name}`]: dependencies.join(', '),
+        animationDuration: `var(--${prefix}-durations, 300ms)`,
+        animationDelay: `var(--${prefix}-delays, 0)`,
+        animationTimingFunction: `var(--${prefix}-eases, cubic-bezier(0.4, 0, 0.2, 1))`,
         animationFillMode: 'both',
-        ['will-change']: dependencies,
       },
       [`.${prefix}-${name}, .${prefix}-${name}-in`]: {
         animationPlayState: `var(--${prefix}-in-state, paused)`,
@@ -373,20 +368,17 @@ export const animation = plugin.withOptions(
             addUtilities({
               [`.${prefix}-${name}-${directionAlias}, .${prefix}-${name}-in-${directionAlias}, .${prefix}-${name}-out-${directionAlias}`]:
                 {
-                  [`--${prefix}-names`]: `var(--${prefix}-names, noop), ${prefix}-${name}`,
-                  [`--${prefix}-durations`]: `var(--${prefix}-durations, 1ms), var(--${prefix}-duration, 300ms)`,
-                  [`--${prefix}-delays`]: `var(--${prefix}-delays, 0ms), var(--${prefix}-delay, 0ms)`,
-                  [`--${prefix}-eases`]: `var(--${prefix}-eases, linear), var(--${prefix}-ease, cubic-bezier(0.4, 0, 0.2, 1))`,
+                  [`--${prefix}-name-${name}-${directionAlias}`]: `${prefix}-${name}`,
+                  [`--${prefix}-name-${name}`]: `${prefix}-${name}`,
+                  [`--${prefix}-dependencies-${name}`]: dependencies.join(', '),
+
+                  animationDuration: `var(--${prefix}-durations, 300ms)`,
+                  animationDelay: `var(--${prefix}-delays, 0)`,
+                  animationTimingFunction: `var(--${prefix}-eases, cubic-bezier(0.4, 0, 0.2, 1))`,
+                  animationFillMode: 'both',
 
                   [variableName('dx')]: dx,
                   [variableName('dy')]: dy,
-
-                  animationName: `var(--${prefix}-names)`,
-                  animationDuration: `var(--${prefix}-durations)`,
-                  animationDelay: `var(--${prefix}-delays)`,
-                  animationTimingFunction: `var(--${prefix}-eases)`,
-                  animationFillMode: 'both',
-                  ['will-change']: dependencies,
                 },
               [`.${prefix}-${name}-${directionAlias}, .${prefix}-${name}-in-${directionAlias}`]:
                 {

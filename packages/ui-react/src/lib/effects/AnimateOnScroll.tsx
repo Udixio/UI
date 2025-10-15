@@ -55,6 +55,49 @@ function isJsObserverCandidate(el: Element): boolean {
   return !isScrollDrivenCandidate(el);
 }
 
+// Collect `--anim-names-*` CSS custom properties on the element and update:
+// - animations-names: comma-separated list of suffixes (after --anim-names-)
+// - will-change: union of comma-separated values from each variable
+function updateAnimNamesAndWillChange(el: HTMLElement, prefix: string): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const cs = getComputedStyle(el);
+
+    const animationNames = new Set<string>();
+
+    // Replace the classList loop with this:
+    Array.from(el.classList).forEach((className) => {
+      if (className.startsWith('anim')) {
+        const cssVarName = `--anim-name-${className.replaceAll(/-in|-out|-view/g, '').replace(prefix + '-', '')}`;
+        const animationName = cs.getPropertyValue(cssVarName).trim();
+        if (animationName) {
+          animationNames.add(animationName.replace(prefix + '-', ''));
+        }
+      }
+    });
+
+    if (animationNames.size > 0) {
+      const value = Array.from(animationNames)
+        .map((name) => {
+          return `var(--anim-name-${name})`;
+        })
+        .join(', ');
+      const changes = Array.from(animationNames)
+        .map((name) => {
+          return `var(--anim-dependencies-${name})`;
+        })
+        .join(', ');
+
+      console.log(el, Array.from(changes).join(', '));
+
+      el.style.animationName = value;
+      el.style.willChange = changes;
+    }
+  } catch {
+    // no-op
+  }
+}
+
 function hydrateElement(el: HTMLElement, prefix: string): void {
   if (!isScrollDrivenCandidate(el)) return;
 
@@ -98,6 +141,9 @@ function hydrateElement(el: HTMLElement, prefix: string): void {
   if (!explicitlyPaused && !alreadyRunning) {
     el.setAttribute(`data-${prefix}-run`, ``);
   }
+
+  // Update animations-names and will-change derived from --anim-names-*
+  updateAnimNamesAndWillChange(el, prefix);
 }
 
 const scrollDrivenSelectorParts = (prefix: string) => [
@@ -189,7 +235,8 @@ export const AnimateOnScroll = ({
       for (const el of candidates) {
         if (observed.has(el)) continue;
         observed.add(el);
-
+        // Update animations meta for non-scroll-driven animated elements
+        updateAnimNamesAndWillChange(el, prefix);
         io.observe(el);
       }
     };
@@ -228,6 +275,8 @@ export const AnimateOnScroll = ({
                   io.observe(t);
                 }
               }
+              // Always update animations meta on attribute changes that may affect styles
+              updateAnimNamesAndWillChange(t as HTMLElement, prefix);
             }
           } else if (m.type === `childList`) {
             // new nodes
@@ -269,6 +318,8 @@ export const AnimateOnScroll = ({
       // No CSS support: dynamically import the fallback ONLY if there are scroll-driven candidates
       let stop: void | (() => void);
       const existing = queryScrollDrivenCandidates(undefined, prefix);
+      // Update animations meta for scroll-driven candidates even without native support
+      for (const el of existing) updateAnimNamesAndWillChange(el, prefix);
       if (existing.length > 0) {
         import(`./scrollDriven`).then((m) => {
           stop = m.initScrollViewFallback({ once });
