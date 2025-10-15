@@ -29,7 +29,7 @@ const {docSidebar} = Astro.props
 <SmoothScroll client:idle />
 <main class="mx-auto flex justify-between">
 
-    <AnimateOnScroll once={false} client:load>
+    <AnimateOnScroll once={false} client:idle>
 
       <div class="flex sticky top-0 h-screen">
         <Navigation  client:load  transition:name="navigation" transition:persist/>
