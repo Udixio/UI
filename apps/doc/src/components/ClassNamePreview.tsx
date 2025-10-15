@@ -8,10 +8,7 @@ type Props = {
 
 export default function ClassNamePreview({ className, children }: Props) {
   return (
-    <Card
-      variant="filled"
-      className={className + ' relative p-6 bg-surface-container'}
-    >
+    <Card variant="filled" className={className + ' p-6 bg-surface-container'}>
       {children}
 
       <div

@@ -106,7 +106,7 @@ const createAnimationFunc =
   };
 // Animations inspired by temps.js but without overlapping Tailwind's transition utilities
 // - prefixed utilities for animation properties: {prefix}-duration-*, {prefix}-delay-*, {prefix}-ease-*, {prefix}-fill-*, {prefix}-direction-*, {prefix}-repeat
-// - usage: compose triggers ({prefix}-in|{prefix}-out or {prefix}-view*) + effects (fade/zoom/slide/spin) + params
+// - usage: compose triggers ({prefix}-in|{prefix}-out or {prefix}-view*) + effects (fade/scale/slide/spin) + params
 export const animation = plugin.withOptions(
   ({ prefix = 'anim' }: AnimationPluginOptions) => {
     return ({ addBase, matchUtilities, addUtilities }: PluginAPI) => {
@@ -192,14 +192,14 @@ export const animation = plugin.withOptions(
       );
 
       createAnimation(
-        'zoom',
+        'scale',
         (v) => ({
           from: {
-            zoom: v('zoom'),
+            scale: v('scale'),
           },
         }),
         {
-          zoom: {
+          scale: {
             DEFAULT: '.95',
             values: {
               0: '0',
@@ -469,6 +469,73 @@ export const animation = plugin.withOptions(
             forwards: 'forwards',
             backwards: 'backwards',
             both: 'both',
+          },
+        },
+      );
+
+      // Scroll-driven params utilities (work with the CSS vars used by -scroll classes)
+      // Timeline variable (useful when composing with `*.scroll` animation utilities)
+      matchUtilities(
+        {
+          [`${prefix}-timeline`]: (value) => ({
+            [`--${prefix}-timeline`]: value,
+          }),
+        },
+        {
+          values: {
+            view: 'view()',
+            'view-block': 'view(block)',
+            'view-inline': 'view(inline)',
+          },
+        },
+      );
+
+      // Range start utilities (presets + arbitrary values via [..])
+      matchUtilities(
+        {
+          [`${prefix}-range-start`]: (value) => ({
+            [`--${prefix}-range-start`]: value,
+          }),
+        },
+        {
+          values: {
+            'entry-0': 'entry 0%',
+            'entry-20': 'entry 20%',
+            'entry-50': 'entry 50%',
+            'entry-80': 'entry 80%',
+            'entry-100': 'entry 100%',
+            'contain-0': 'contain 0%',
+            'cover-0': 'cover 0%',
+            'cover-50': 'cover 50%',
+            'cover-100': 'cover 100%',
+            'exit-0': 'exit 0%',
+            'exit-20': 'exit 20%',
+            'exit-100': 'exit 100%',
+          },
+        },
+      );
+
+      // Range end utilities (presets + arbitrary values via [..])
+      matchUtilities(
+        {
+          [`${prefix}-range-end`]: (value) => ({
+            [`--${prefix}-range-end`]: value,
+          }),
+        },
+        {
+          values: {
+            'entry-0': 'entry 0%',
+            'entry-20': 'entry 20%',
+            'entry-50': 'entry 50%',
+            'entry-80': 'entry 80%',
+            'entry-100': 'entry 100%',
+            'contain-0': 'contain 0%',
+            'cover-0': 'cover 0%',
+            'cover-50': 'cover 50%',
+            'cover-100': 'cover 100%',
+            'exit-0': 'exit 0%',
+            'exit-20': 'exit 20%',
+            'exit-100': 'exit 100%',
           },
         },
       );

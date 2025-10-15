@@ -28,7 +28,7 @@ import ClassNamePreview from '../components/ClassNamePreview';
     <section class="container mx-auto px-6">
       <h2 class="text-2xl font-bold">Exemples basiques (JS — anim-in)</h2>
       <p class="mt-2 text-on-surface-variant">
-        Variantes de base côté JS : fade-in, anim-slide-from-top/bottom/left/right, zoom-in et zoom-out.
+        Variantes de base côté JS : fade-in, anim-slide-from-top/bottom/left/right, scale-in et scale-out.
       </p>
 
       <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -52,13 +52,13 @@ import ClassNamePreview from '../components/ClassNamePreview';
           <h3 class="text-title-large font-semibold">Fade Right</h3>
           <p class="mt-2 text-on-surface-variant">Glisse depuis la droite.</p>
         </ClassNamePreview>
-        <ClassNamePreview className="zoom-in anim-duration-700 ">
-          <h3 class="text-title-large font-semibold">Zoom In</h3>
-          <p class="mt-2 text-on-surface-variant">Zoom avant léger.</p>
+        <ClassNamePreview className="scale-in anim-duration-700 ">
+          <h3 class="text-title-large font-semibold">scale In</h3>
+          <p class="mt-2 text-on-surface-variant">scale avant léger.</p>
         </ClassNamePreview>
-        <ClassNamePreview className="zoom-out anim-duration-700  sm:col-span-2 lg:col-span-1">
-          <h3 class="text-title-large font-semibold">Zoom Out</h3>
-          <p class="mt-2 text-on-surface-variant">Zoom arrière léger.</p>
+        <ClassNamePreview className="scale-out anim-duration-700  sm:col-span-2 lg:col-span-1">
+          <h3 class="text-title-large font-semibold">scale Out</h3>
+          <p class="mt-2 text-on-surface-variant">scale arrière léger.</p>
         </ClassNamePreview>
       </div>
     </section>
@@ -71,8 +71,8 @@ import ClassNamePreview from '../components/ClassNamePreview';
         Ces éléments utilisent <code>anim-view</code> et une timeline CSS scroll‑driven. Ils sont synchronisés au scroll :
         <strong>pas de duration ni de delay</strong> (ces valeurs sont ignorées).
       </p>
-      <div class="mt-8 h-screen">
-        <ClassNamePreview className="anim-slide-scroll-from-left anim-fade-scroll anim-slide-full w-fit">
+      <div class="mt-8 h-screen relative flex items-end ">
+        <ClassNamePreview className="anim-slide-scroll-from-bottom-left anim-scale-scroll anim-scale-150 anim-fade-scroll anim-slide-full anim-scroll w-fit sticky bottom-0">
           <h3 class="text-title-large font-semibold">Scroll — Fade</h3>
           <p class="mt-2 text-on-surface-variant">Progression liée au scroll.</p>
         </ClassNamePreview>
@@ -170,7 +170,7 @@ import ClassNamePreview from '../components/ClassNamePreview';
               Contenu en fade-up plus lent, avec un léger délai. Idéal pour raconter une histoire lors du défilement.
             </p>
           </div>
-          <div class="zoom-in anim-duration-700 anim-delay-400 mt-6">
+          <div class="scale-in anim-duration-700 anim-delay-400 mt-6">
             <Button variant="filled">Action principale</Button>
           </div>
         </Card>
@@ -185,13 +185,13 @@ import ClassNamePreview from '../components/ClassNamePreview';
               <div class="h-24 rounded-lg bg-surface-container"></div>
               <p class="mt-2 text-on-surface-variant">fade-right</p>
             </div>
-            <div class="zoom-out anim-duration-700 anim-delay-200">
+            <div class="scale-out anim-duration-700 anim-delay-200">
               <div class="h-24 rounded-lg bg-surface-container"></div>
-              <p class="mt-2 text-on-surface-variant">zoom-out</p>
+              <p class="mt-2 text-on-surface-variant">scale-out</p>
             </div>
-            <div class="zoom-in anim-duration-700 anim-delay-300">
+            <div class="scale-in anim-duration-700 anim-delay-300">
               <div class="h-24 rounded-lg bg-surface-container"></div>
-              <p class="mt-2 text-on-surface-variant">zoom-in</p>
+              <p class="mt-2 text-on-surface-variant">scale-in</p>
             </div>
           </div>
         </Card>
@@ -216,8 +216,8 @@ import ClassNamePreview from '../components/ClassNamePreview';
           <h3 class="text-title-large font-semibold">JS — Fade Left</h3>
           <p class="mt-2 text-on-surface-variant">Purement via observer JS.</p>
         </ClassNamePreview>
-        <ClassNamePreview className="zoom-in anim-duration-700 p-6">
-          <h3 class="text-title-large font-semibold">JS — Zoom In</h3>
+        <ClassNamePreview className="scale-in anim-duration-700 p-6">
+          <h3 class="text-title-large font-semibold">JS — scale In</h3>
           <p class="mt-2 text-on-surface-variant">Aucune timeline CSS; déclencheur JS.</p>
         </ClassNamePreview>
       </div>
@@ -243,9 +243,9 @@ import ClassNamePreview from '../components/ClassNamePreview';
     <!--      <p class="mt-2 text-on-surface-variant">Se joue en remontant, quand la carte quitte le viewport.</p>-->
     <!--    </Card>-->
     <!--    <div class="h-32"></div>-->
-    <!--    <Card className="anim-out zoom-out-90 anim-duration-700 p-6">-->
-    <!--      <h3 class="text-title-large font-semibold">JS — Zoom Out</h3>-->
-    <!--      <p class="mt-2 text-on-surface-variant">Effet de sortie en zoom arrière.</p>-->
+    <!--    <Card className="anim-out scale-out-90 anim-duration-700 p-6">-->
+    <!--      <h3 class="text-title-large font-semibold">JS — scale Out</h3>-->
+    <!--      <p class="mt-2 text-on-surface-variant">Effet de sortie en scale arrière.</p>-->
     <!--    </Card>-->
     <!--  </div>-->
     <!--</section>-->
