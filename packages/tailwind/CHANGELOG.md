@@ -1,3 +1,13 @@
+## 2.3.1 (2025-10-16)
+
+### 🩹 Fixes
+
+- **animation:** streamline variable names for consistency ([4b390dd](https://github.com/Udixio/UI/commit/4b390dd))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.3.0 (2025-10-16)
 
 ### 🚀 Features
