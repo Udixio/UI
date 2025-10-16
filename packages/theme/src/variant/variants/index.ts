@@ -2,7 +2,7 @@ import { expressiveVariant } from './expressive.variant';
 import { neutralVariant } from './neutral.variant';
 import { tonalSpotVariant } from './tonal-spot.variant';
 import { vibrantVariant } from './vibrant.variant';
-import { fidelityVariant } from './fidelity.variant';
+import { udixioVariant } from './udixio.variant';
 
 export * from './tonal-spot.variant';
 export * from './vibrant.variant';
@@ -14,5 +14,5 @@ export const Variants = {
   Neutral: neutralVariant,
   TonalSpot: tonalSpotVariant,
   Vibrant: vibrantVariant,
-  Fidelity: fidelityVariant,
+  Fidelity: udixioVariant,
 };

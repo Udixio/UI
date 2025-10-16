@@ -1,6 +1,7 @@
 import { getPiecewiseHue, getRotatedHue, variant } from '../variant';
 import { TonalPalette } from '@material/material-color-utilities';
 import { Hct } from '../../material-color-utilities/htc';
+import { defaultColors } from '../../color';
 
 const getExpressiveNeutralHue = (sourceColor: Hct): number => {
   const hue = getRotatedHue(
@@ -80,4 +81,5 @@ export const expressiveVariant = variant({
       ),
       isDark ? 16 : 24,
     ),
+  colors: defaultColors,
 });
