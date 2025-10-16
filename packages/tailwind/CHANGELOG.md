@@ -1,3 +1,13 @@
+## 2.1.0 (2025-10-16)
+
+### 🚀 Features
+
+- **animation:** remove redundant `updateAnimNamesAndWillChange` logic and centralize handling in `animation` plugin ([d13c4d7](https://github.com/Udixio/UI/commit/d13c4d7))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 # 2.0.0 (2025-10-15)
 
 ### 🚀 Features
