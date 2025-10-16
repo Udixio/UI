@@ -11,11 +11,13 @@ const createAnimationFunc =
     prefix,
     matchUtilities,
     addUtilities,
+    animationNames,
   }: {
     addBase: PluginAPI['addBase'];
     matchUtilities: PluginAPI['matchUtilities'];
     addUtilities: PluginAPI['addUtilities'];
     prefix: string;
+    animationNames: Set<string>;
   }) =>
   (
     name: string,
@@ -36,6 +38,8 @@ const createAnimationFunc =
       dependencies: string[];
     }) => void,
   ) => {
+    animationNames.add(name);
+
     const variableName = (propertyName: string) => {
       return `--${prefix}-${propertyName}`;
     };
@@ -110,11 +114,14 @@ const createAnimationFunc =
 export const animation = plugin.withOptions(
   ({ prefix = 'anim' }: AnimationPluginOptions) => {
     return ({ addBase, matchUtilities, addUtilities }: PluginAPI) => {
+      const animationNames: Set<string> = new Set();
+
       const createAnimation = createAnimationFunc({
         addBase,
         prefix,
         matchUtilities,
         addUtilities,
+        animationNames,
       });
 
       addBase({
@@ -391,7 +398,6 @@ export const animation = plugin.withOptions(
 
             addUtilities({
               [`.${prefix}-${name}-scroll-${directionAlias}`]: {
-                [`--${prefix}-name-${name}-${directionAlias}`]: `${prefix}-${name}`,
                 [`--${prefix}-name-${name}`]: `${prefix}-${name}`,
                 [`--${prefix}-dependencies-${name}`]: dependencies.join(', '),
                 animationTimeline: `var(--${prefix}-timeline, view())`,
@@ -539,6 +545,17 @@ export const animation = plugin.withOptions(
           },
         },
       );
+
+      addBase({
+        [`[class*="${prefix}-"]`]: {
+          animationName: Array.from(animationNames)
+            .map((name) => `var(--${prefix}-name-${name}, noop)`)
+            .join(', '),
+          ['will-change']: Array.from(animationNames)
+            .map((name) => `var(--${prefix}-dependencies-${name}, noop)`)
+            .join(', '),
+        },
+      });
     };
   },
 );
