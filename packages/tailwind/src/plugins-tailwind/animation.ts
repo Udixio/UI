@@ -150,6 +150,8 @@ export const animation = plugin.withOptions(
         // run/pause state
         [`.${prefix}-in-run`]: { [`--${prefix}-in-state`]: 'running' },
         [`.${prefix}-in-paused`]: { [`--${prefix}-in-state`]: 'paused' },
+        [`.${prefix}-out-run`]: { [`--${prefix}-out-state`]: 'running' },
+        [`.${prefix}-out-paused`]: { [`--${prefix}-out-state`]: 'paused' },
         // scroll-driven
         [`.${prefix}-timeline-block`]: {
           animationTimeline: 'view(block)',
@@ -170,6 +172,10 @@ export const animation = plugin.withOptions(
       addBase({
         [`[data-${prefix}-in-run]`]: { [`--${prefix}-in-state`]: 'running' },
         [`[data-${prefix}-in-paused]`]: { [`--${prefix}-in-state`]: 'paused' },
+        [`[data-${prefix}-out-run]`]: { [`--${prefix}-out-state`]: 'running' },
+        [`[data-${prefix}-out-paused]`]: {
+          [`--${prefix}-out-state`]: 'paused',
+        },
       });
 
       createAnimation(
