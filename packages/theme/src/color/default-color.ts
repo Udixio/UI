@@ -6,10 +6,6 @@ import { getInitialToneFromBackground } from './color';
 
 import { DynamicColorKey, getCurve, tMaxC, tMinC } from './color.utils';
 
-const inverseTone = (tone: number) => {
-  return 100 - tone;
-};
-
 export const defaultColors: AddColorsOptions = ({
   colors,
   context: c,

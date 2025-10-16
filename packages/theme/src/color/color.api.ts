@@ -3,6 +3,7 @@ import { ColorManager, highestSurface } from './color.manager';
 import { DynamicColorKey, getCurve, tMaxC, tMinC } from './color.utils';
 import { API } from '../API';
 import { toneDeltaPair } from '../material-color-utilities';
+import { Context } from 'src/context';
 
 function capitalizeFirstLetter(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -14,10 +15,25 @@ export type AddColorsOptions =
 
 export class ColorApi {
   private readonly colorManager: ColorManager;
+  private readonly context: Context;
   public api?: API;
 
-  constructor({ colorManager }: { colorManager: ColorManager }) {
+  constructor({
+    colorManager,
+    context,
+  }: {
+    colorManager: ColorManager;
+    context: Context;
+  }) {
+    this.context = context;
     this.colorManager = colorManager;
+
+    this.context.onUpdate((changed) => {
+      if (changed.includes('variant')) {
+        this.colorManager.clear();
+        this.addColors(this.context.variant.colors);
+      }
+    });
   }
 
   getAll() {

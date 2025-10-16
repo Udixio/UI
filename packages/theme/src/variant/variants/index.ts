@@ -14,5 +14,5 @@ export const Variants = {
   Neutral: neutralVariant,
   TonalSpot: tonalSpotVariant,
   Vibrant: vibrantVariant,
-  Fidelity: udixioVariant,
+  Udixio: udixioVariant,
 };

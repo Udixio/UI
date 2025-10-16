@@ -9,7 +9,7 @@ import { TailwindPlugin } from '@udixio/tailwind';
 
 export function defineConfig(configObject: ConfigInterface): ConfigTheme {
   return defineConfigTheme({
-    variant: Variants.Fidelity,
+    variant: Variants.Udixio,
     ...configObject,
     plugins: [new FontPlugin(configObject), new TailwindPlugin(configObject)],
   });

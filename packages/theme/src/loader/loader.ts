@@ -1,4 +1,3 @@
-import { defaultColors } from '../color';
 import { bootstrap } from '../bootstrap';
 import { ConfigInterface } from '../config';
 import { Variants } from '../variant/variants';
@@ -23,9 +22,6 @@ export const loader = async (config: ConfigInterface, load = true) => {
       sourceColor,
       variant: variant,
     });
-
-    api.colors.addColors(defaultColors);
-
     if (palettes) {
       api.palettes.add(palettes);
     }

@@ -56,6 +56,9 @@ export class ColorManager {
   public remove(key: string) {
     return this.colorMap.delete(key);
   }
+  public clear() {
+    return this.colorMap.clear();
+  }
 
   public get(key: string): Color {
     const colorEntity = this.colorMap.get(key);

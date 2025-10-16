@@ -1,9 +1,23 @@
 import { getPiecewiseHue, getRotatedHue, variant, Variant } from '../variant';
-import { calculateToneAdjustmentPercentage, DynamicColorKey, getCurve, tMaxC, tMinC } from '../../color/color.utils';
+import {
+  calculateToneAdjustmentPercentage,
+  DynamicColorKey,
+  getCurve,
+  tMaxC,
+  tMinC,
+} from '../../color/color.utils';
 import { Hct } from '../../material-color-utilities/htc';
-import { ColorFromPalette, getInitialToneFromBackground, highestSurface } from '../../color';
+import {
+  ColorFromPalette,
+  getInitialToneFromBackground,
+  highestSurface,
+} from '../../color';
 import { Contrast } from '@material/material-color-utilities';
 import { toneDeltaPair } from '../../material-color-utilities';
+
+const inverseTone = (tone: number) => {
+  return 100 - tone;
+};
 
 export const udixioVariant: Variant = variant({
   name: 'fidelity',
@@ -48,11 +62,7 @@ export const udixioVariant: Variant = variant({
     hue: colorHct.hue,
     chroma: sourceColor.chroma,
   }),
-  colors: ({
-             colors,
-             context: c,
-             palettes,
-           }) => {
+  colors: ({ colors, context: c, palettes }) => {
     const getColor = (key: DynamicColorKey) => {
       return colors.get(key);
     };
@@ -404,29 +414,29 @@ export const udixioVariant: Variant = variant({
         adjustTone: () =>
           c.variant.name == 'fidelity'
             ? () => {
-              const surfaceTone = colors.get('surface').getTone();
-              const primaryTone = (colors.get('primary') as ColorFromPalette)
-                .options.tone;
-              let selfTone = primaryTone;
-              if (Contrast.ratioOfTones(surfaceTone, selfTone) < 3) {
-                const ratio = calculateToneAdjustmentPercentage(
-                  surfaceTone,
-                  selfTone,
-                  3,
-                );
-                const inverseT = inverseTone(primaryTone);
-                selfTone = selfTone + (inverseT - selfTone) * ratio;
+                const surfaceTone = colors.get('surface').getTone();
+                const primaryTone = (colors.get('primary') as ColorFromPalette)
+                  .options.tone;
+                let selfTone = primaryTone;
+                if (Contrast.ratioOfTones(surfaceTone, selfTone) < 3) {
+                  const ratio = calculateToneAdjustmentPercentage(
+                    surfaceTone,
+                    selfTone,
+                    3,
+                  );
+                  const inverseT = inverseTone(primaryTone);
+                  selfTone = selfTone + (inverseT - selfTone) * ratio;
+                }
+                return selfTone;
               }
-              return selfTone;
-            }
             : toneDeltaPair(
-              colors.get('primaryContainer'),
-              colors.get('primary'),
-              5,
-              'relative_lighter',
-              true,
-              'farther',
-            ),
+                colors.get('primaryContainer'),
+                colors.get('primary'),
+                5,
+                'relative_lighter',
+                true,
+                'farther',
+              ),
       },
       primaryDim: {
         palette: () => palettes.get('primary'),
@@ -470,10 +480,10 @@ export const udixioVariant: Variant = variant({
             return c.isDark
               ? tMaxC(palettes.get('primary'), 30, 93)
               : tMaxC(
-                palettes.get('primary'),
-                78,
-                Hct.isCyan(palettes.get('primary').hue) ? 88 : 90,
-              );
+                  palettes.get('primary'),
+                  78,
+                  Hct.isCyan(palettes.get('primary').hue) ? 88 : 90,
+                );
           }
           if (c.variant.name == 'fidelity') {
             return c.isDark
@@ -484,10 +494,10 @@ export const udixioVariant: Variant = variant({
             return c.isDark
               ? tMinC(palettes.get('primary'), 66, 93)
               : tMaxC(
-                palettes.get('primary'),
-                66,
-                Hct.isCyan(palettes.get('primary').hue) ? 88 : 93,
-              );
+                  palettes.get('primary'),
+                  66,
+                  Hct.isCyan(palettes.get('primary').hue) ? 88 : 93,
+                );
           }
         },
         isBackground: true,
@@ -495,13 +505,13 @@ export const udixioVariant: Variant = variant({
         adjustTone: () =>
           c.variant.name == 'fidelity'
             ? toneDeltaPair(
-              colors.get('primary'),
-              colors.get('primaryContainer'),
-              15,
-              'relative_darker',
-              true,
-              'farther',
-            )
+                colors.get('primary'),
+                colors.get('primaryContainer'),
+                15,
+                'relative_darker',
+                true,
+                'farther',
+              )
             : undefined,
         contrastCurve: () => (c.contrastLevel > 0 ? getCurve(1.5) : undefined),
       },
@@ -700,7 +710,11 @@ export const udixioVariant: Variant = variant({
             return tMaxC(
               palettes.get('tertiary'),
               0,
-              Hct.isCyan(palettes.get('tertiary').hue) ? 88 : c.isDark ? 98 : 100,
+              Hct.isCyan(palettes.get('tertiary').hue)
+                ? 88
+                : c.isDark
+                  ? 98
+                  : 100,
             );
           } else {
             // NEUTRAL and TONAL_SPOT
@@ -762,7 +776,11 @@ export const udixioVariant: Variant = variant({
             return tMaxC(
               palettes.get('tertiary'),
               75,
-              Hct.isCyan(palettes.get('tertiary').hue) ? 88 : c.isDark ? 93 : 100,
+              Hct.isCyan(palettes.get('tertiary').hue)
+                ? 88
+                : c.isDark
+                  ? 93
+                  : 100,
             );
           } else {
             // VIBRANT
@@ -907,6 +925,5 @@ export const udixioVariant: Variant = variant({
         alias: 'onSurface',
       },
     };
-  };
-
+  },
 });
