@@ -1,3 +1,17 @@
+## 2.1.0 (2025-10-16)
+
+### 🚀 Features
+
+- **animation:** refactor and simplify `AnimateOnScroll` initialization and handling ([ad68d1f](https://github.com/Udixio/UI/commit/ad68d1f))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.1.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 # 2.0.0 (2025-10-15)
 
 ### 🚀 Features
