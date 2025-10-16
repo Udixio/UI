@@ -3,38 +3,13 @@ import { API, ColorFromPalette } from '@udixio/theme';
 import { hexFromArgb } from '@material/material-color-utilities';
 import { AnimatePresence, motion } from 'motion/react';
 
-export type PaletteGroup =
-  | 'primary'
-  | 'secondary'
-  | 'tertiary'
-  | 'neutral'
-  | 'neutral-variant'
-  | 'error'
-  | 'success'
-  | 'others';
-
 type Props = {
   api: API | null | undefined;
-  group: PaletteGroup;
+  group: string;
   highlighted?: { name: string; color: ColorFromPalette } | null;
   // Optional label to indicate where the highlighted tone comes from
   sourceLabel?: string | null;
 };
-
-function mapGroupToPaletteKey(g: PaletteGroup): string | null {
-  if (g === 'neutral-variant') return 'neutralVariant';
-  if (
-    g === 'primary' ||
-    g === 'secondary' ||
-    g === 'tertiary' ||
-    g === 'neutral' ||
-    g === 'error' ||
-    g === 'success'
-  ) {
-    return g;
-  }
-  return null;
-}
 
 export const PaletteToneRow: React.FC<Props> = ({
   api,
@@ -48,7 +23,7 @@ export const PaletteToneRow: React.FC<Props> = ({
   );
 
   const palette = useMemo(() => {
-    const key = mapGroupToPaletteKey(group);
+    const key = group;
     if (!api || !key) return null as any;
     try {
       return api.palettes.get(key as any);
