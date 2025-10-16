@@ -75,10 +75,10 @@ const createAnimationFunc =
         animationFillMode: 'both',
       },
       [`.${prefix}-${name}, .${prefix}-${name}-in`]: {
-        animationPlayState: `var(--${prefix}-in-state, paused)`,
+        [`--${prefix}-play-state-${name}`]: `var(--${prefix}-in-state, paused)`,
       },
       [`.${prefix}-${name}-out`]: {
-        animationPlayState: `var(--${prefix}-out-state, paused)`,
+        [`--${prefix}-play-state-${name}`]: `var(--${prefix}-out-state, paused)`,
       },
     });
 
@@ -86,9 +86,8 @@ const createAnimationFunc =
       [`.${prefix}-${name}-scroll`]: {
         [`--${prefix}-name-${name}`]: `${prefix}-${name}`,
         [`--${prefix}-dependencies-${name}`]: dependencies.join(', '),
-        animationTimeline: `var(--${prefix}-timeline, view())`,
-        animationRangeStart: `var(--${prefix}-range-start, entry 20%)`,
-        animationRangeEnd: `var(--${prefix}-range-end, cover 50%)`,
+        [`--${prefix}-timeline-${name}`]: `var(--${prefix}-timeline, view())`,
+        [`--${prefix}-range-${name}`]: `var(--${prefix}-range-start, entry 20%) var(--${prefix}-range-end, cover 50%)`,
         animationFillMode: 'both',
       },
     });
@@ -405,10 +404,10 @@ export const animation = plugin.withOptions(
                 },
               [`.${prefix}-${name}-${directionAlias}, .${prefix}-${name}-in-${directionAlias}`]:
                 {
-                  animationPlayState: `var(--${prefix}-in-state, paused)`,
+                  [`--${prefix}-play-state-${name}`]: `var(--${prefix}-in-state, paused)`,
                 },
               [`.${prefix}-${name}-out-${directionAlias}`]: {
-                animationPlayState: `var(--${prefix}-out-state, paused)`,
+                [`--${prefix}-play-state-${name}`]: `var(--${prefix}-out-state, paused)`,
               },
             });
 
@@ -416,9 +415,8 @@ export const animation = plugin.withOptions(
               [`.${prefix}-${name}-scroll-${directionAlias}`]: {
                 [`--${prefix}-name-${name}`]: `${prefix}-${name}`,
                 [`--${prefix}-dependencies-${name}`]: dependencies.join(', '),
-                animationTimeline: `var(--${prefix}-timeline, view())`,
-                animationRangeStart: `var(--${prefix}-range-start, entry 20%)`,
-                animationRangeEnd: `var(--${prefix}-range-end, cover 50%)`,
+                [`--${prefix}-timeline-${name}`]: `var(--${prefix}-timeline, view())`,
+                [`--${prefix}-range-${name}`]: `var(--${prefix}-range-start, entry 20%) var(--${prefix}-range-end, cover 50%)`,
                 animationFillMode: 'both',
 
                 [variableName('dx')]: dx,
@@ -514,55 +512,31 @@ export const animation = plugin.withOptions(
         },
       );
 
-      // Range start utilities (presets + arbitrary values via [..])
-      matchUtilities(
-        {
-          [`${prefix}-range-start`]: (value) => ({
-            [`--${prefix}-range-start`]: value,
-          }),
-        },
-        {
-          values: {
-            'entry-0': 'entry 0%',
-            'entry-20': 'entry 20%',
-            'entry-50': 'entry 50%',
-            'entry-80': 'entry 80%',
-            'entry-100': 'entry 100%',
-            'contain-0': 'contain 0%',
-            'cover-0': 'cover 0%',
-            'cover-50': 'cover 50%',
-            'cover-100': 'cover 100%',
-            'exit-0': 'exit 0%',
-            'exit-20': 'exit 20%',
-            'exit-100': 'exit 100%',
-          },
-        },
-      );
+      ['start', 'end'].forEach((direction) => {
+        ['entry', 'contain', 'cover', 'exit'].forEach((preset) => {
+          matchUtilities(
+            {
+              [`${prefix}-scroll-${direction}-${preset}`]: (value) => ({
+                [`--${prefix}-range-${direction}`]: `${preset} ${value}`,
+              }),
+            },
+            {
+              values: {
+                ...theme('spacing'),
+                full: '100%',
+                '1/2': '50%',
+                '1/3': '33.333333%',
+                '2/3': '66.666667%',
+                '1/4': '25%',
+                '3/4': '75%',
+              },
+              supportsNegativeValues: true,
+            },
+          );
+        });
+      });
 
       // Range end utilities (presets + arbitrary values via [..])
-      matchUtilities(
-        {
-          [`${prefix}-range-end`]: (value) => ({
-            [`--${prefix}-range-end`]: value,
-          }),
-        },
-        {
-          values: {
-            'entry-0': 'entry 0%',
-            'entry-20': 'entry 20%',
-            'entry-50': 'entry 50%',
-            'entry-80': 'entry 80%',
-            'entry-100': 'entry 100%',
-            'contain-0': 'contain 0%',
-            'cover-0': 'cover 0%',
-            'cover-50': 'cover 50%',
-            'cover-100': 'cover 100%',
-            'exit-0': 'exit 0%',
-            'exit-20': 'exit 20%',
-            'exit-100': 'exit 100%',
-          },
-        },
-      );
 
       addBase({
         [`[class*="${prefix}-"]`]: {
@@ -571,6 +545,19 @@ export const animation = plugin.withOptions(
             .join(', '),
           ['will-change']: Array.from(animationNames)
             .map((name) => `var(--${prefix}-dependencies-${name}, noop)`)
+            .join(', '),
+          animationPlayState: Array.from(animationNames)
+            .map((name) => `var(--${prefix}-play-state-${name}, running)`)
+            .join(', '),
+        },
+      });
+      addBase({
+        [`[class*="${prefix}-"][class*="-scroll"]`]: {
+          animationTimeline: Array.from(animationNames)
+            .map((name) => `var(--${prefix}-timeline-${name}, auto)`)
+            .join(', '),
+          animationRange: Array.from(animationNames)
+            .map((name) => `var(--${prefix}-range-${name}, normal)`)
             .join(', '),
         },
       });
