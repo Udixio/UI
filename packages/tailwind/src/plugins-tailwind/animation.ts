@@ -433,7 +433,7 @@ export const animation = plugin.withOptions(
       matchUtilities(
         {
           [`${prefix}-duration`]: (value) => ({
-            [`${prefix}-duration`]: value,
+            [`--${prefix}-duration`]: value,
           }),
         },
         {
@@ -454,7 +454,7 @@ export const animation = plugin.withOptions(
       );
 
       matchUtilities(
-        { [`${prefix}-delay`]: (value) => ({ [`${prefix}-delay`]: value }) },
+        { [`${prefix}-delay`]: (value) => ({ [`--${prefix}-delay`]: value }) },
         {
           values: {
             0: '0ms',
@@ -474,7 +474,7 @@ export const animation = plugin.withOptions(
       );
 
       matchUtilities(
-        { [`${prefix}-ease`]: (value) => ({ [`${prefix}-ease`]: value }) },
+        { [`${prefix}-ease`]: (value) => ({ [`--${prefix}-ease`]: value }) },
         {
           values: {
             linear: 'linear',
