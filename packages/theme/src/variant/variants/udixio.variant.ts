@@ -8,15 +8,29 @@ import {
 } from '../../color/color.utils';
 import { Hct } from '../../material-color-utilities/htc';
 import {
+  Color,
+  ColorApi,
   ColorFromPalette,
+  ColorManager,
   getInitialToneFromBackground,
-  highestSurface,
 } from '../../color';
 import { Contrast } from '@material/material-color-utilities';
 import { toneDeltaPair } from '../../material-color-utilities';
+import { Context } from '../../context';
 
 const inverseTone = (tone: number) => {
   return 100 - tone;
+};
+
+const highestSurface = (
+  context: Context,
+  colorService: ColorManager | ColorApi,
+): Color => {
+  if (colorService instanceof ColorApi) {
+    return colorService.get('surface');
+  } else {
+    return colorService.get('surface');
+  }
 };
 
 export const udixioVariant: Variant = variant({
@@ -77,16 +91,7 @@ export const udixioVariant: Variant = variant({
           if (c.isDark) {
             return 4;
           } else {
-            if (c.variant.name == 'fidelity') {
-              return 99;
-            }
-            if (Hct.isYellow(palettes.get('neutral').hue)) {
-              return 99;
-            } else if (c.variant.name === 'vibrant') {
-              return 97;
-            } else {
-              return 98;
-            }
+            return 99;
           }
         },
         isBackground: true,
@@ -166,25 +171,13 @@ export const udixioVariant: Variant = variant({
           } else {
             if (Hct.isYellow(palettes.get('neutral').hue)) {
               return 98;
-            } else if (c.variant.name === 'vibrant') {
-              return 95;
-            } else {
-              return 96;
             }
+            return 96;
           }
         },
         isBackground: true,
         chromaMultiplier: () => {
-          if (c.variant.name === 'neutral') {
-            return 1.3;
-          } else if (c.variant.name === 'tonalSpot') {
-            return 1.25;
-          } else if (c.variant.name === 'expressive') {
-            return Hct.isYellow(palettes.get('neutral').hue) ? 1.3 : 1.15;
-          } else if (c.variant.name === 'vibrant') {
-            return 1.08;
-          }
-          return 1;
+          return 1.25;
         },
       },
       surfaceContainer: {
@@ -195,8 +188,6 @@ export const udixioVariant: Variant = variant({
           } else {
             if (Hct.isYellow(palettes.get('neutral').hue)) {
               return 96;
-            } else if (c.variant.name === 'vibrant') {
-              return 92;
             } else {
               return 94;
             }
@@ -204,16 +195,7 @@ export const udixioVariant: Variant = variant({
         },
         isBackground: true,
         chromaMultiplier: () => {
-          if (c.variant.name === 'neutral') {
-            return 1.6;
-          } else if (c.variant.name === 'tonalSpot') {
-            return 1.4;
-          } else if (c.variant.name === 'expressive') {
-            return Hct.isYellow(palettes.get('neutral').hue) ? 1.6 : 1.3;
-          } else if (c.variant.name === 'vibrant') {
-            return 1.15;
-          }
-          return 1;
+          return 1.4;
         },
       },
       surfaceContainerHigh: {
@@ -224,8 +206,6 @@ export const udixioVariant: Variant = variant({
           } else {
             if (Hct.isYellow(palettes.get('neutral').hue)) {
               return 94;
-            } else if (c.variant.name === 'vibrant') {
-              return 90;
             } else {
               return 92;
             }
@@ -233,16 +213,7 @@ export const udixioVariant: Variant = variant({
         },
         isBackground: true,
         chromaMultiplier: () => {
-          if (c.variant.name === 'neutral') {
-            return 1.9;
-          } else if (c.variant.name === 'tonalSpot') {
-            return 1.5;
-          } else if (c.variant.name === 'expressive') {
-            return Hct.isYellow(palettes.get('neutral').hue) ? 1.95 : 1.45;
-          } else if (c.variant.name === 'vibrant') {
-            return 1.22;
-          }
-          return 1;
+          return 1.5;
         },
       },
       surfaceContainerHighest: {
@@ -253,8 +224,6 @@ export const udixioVariant: Variant = variant({
           } else {
             if (Hct.isYellow(palettes.get('neutral').hue)) {
               return 92;
-            } else if (c.variant.name === 'vibrant') {
-              return 88;
             } else {
               return 90;
             }
@@ -262,18 +231,7 @@ export const udixioVariant: Variant = variant({
         },
         isBackground: true,
         chromaMultiplier: () => {
-          if (c.variant.name === 'neutral') {
-            return 2.2;
-          } else if (c.variant.name === 'tonalSpot') {
-            return 1.7;
-          } else if (c.variant.name === 'expressive') {
-            return Hct.isYellow(palettes.get('neutral').hue) ? 2.3 : 1.6;
-          } else if (c.variant.name === 'vibrant') {
-            return 1.29;
-          } else {
-            // default
-            return 1;
-          }
+          return 1.7;
         },
       },
       onSurface: {
@@ -288,19 +246,7 @@ export const udixioVariant: Variant = variant({
           }
         },
         chromaMultiplier: () => {
-          if (c.variant.name === 'neutral') {
-            return 2.2;
-          } else if (c.variant.name === 'tonalSpot') {
-            return 1.7;
-          } else if (c.variant.name === 'expressive') {
-            return Hct.isYellow(palettes.get('neutral').hue)
-              ? c.isDark
-                ? 3.0
-                : 2.3
-              : 1.6;
-          }
-
-          return 1;
+          return 1.7;
         },
         background: () => highestSurface(c, colors),
         contrastCurve: () => (c.isDark ? getCurve(11) : getCurve(9)),
@@ -308,18 +254,7 @@ export const udixioVariant: Variant = variant({
       onSurfaceVariant: {
         palette: () => palettes.get('neutralVariant'),
         chromaMultiplier: () => {
-          if (c.variant.name === 'neutral') {
-            return 2.2;
-          } else if (c.variant.name === 'tonalSpot') {
-            return 1.7;
-          } else if (c.variant.name === 'expressive') {
-            return Hct.isYellow(palettes.get('neutral').hue)
-              ? c.isDark
-                ? 3.0
-                : 2.3
-              : 1.6;
-          }
-          return 1;
+          return 1.7;
         },
         background: () => highestSurface(c, colors),
         contrastCurve: () => (c.isDark ? getCurve(6) : getCurve(4.5)),
@@ -327,18 +262,7 @@ export const udixioVariant: Variant = variant({
       outline: {
         palette: () => palettes.get('neutralVariant'),
         chromaMultiplier: () => {
-          if (c.variant.name === 'neutral') {
-            return 2.2;
-          } else if (c.variant.name === 'tonalSpot') {
-            return 1.7;
-          } else if (c.variant.name === 'expressive') {
-            return Hct.isYellow(palettes.get('neutral').hue)
-              ? c.isDark
-                ? 3.0
-                : 2.3
-              : 1.6;
-          }
-          return 1;
+          return 1.7;
         },
         background: () => highestSurface(c, colors),
         contrastCurve: () => getCurve(3),
@@ -346,19 +270,7 @@ export const udixioVariant: Variant = variant({
       outlineVariant: {
         palette: () => palettes.get('neutralVariant'),
         chromaMultiplier: () => {
-          if (c.variant.name === 'neutral') {
-            return 2.2;
-          } else if (c.variant.name === 'tonalSpot') {
-            return 1.7;
-          } else if (c.variant.name === 'expressive') {
-            return Hct.isYellow(palettes.get('neutral').hue)
-              ? c.isDark
-                ? 3.0
-                : 2.3
-              : 1.6;
-          }
-
-          return 1;
+          return 1.7;
         },
         background: () => highestSurface(c, colors),
         contrastCurve: () => getCurve(1.5),
@@ -521,24 +433,24 @@ export const udixioVariant: Variant = variant({
         contrastCurve: () => getCurve(6),
       },
 
-      primaryFixed: {
-        palette: () => palettes.get('primary'),
-        tone: () => {
-          return c.temp(
-            {
-              isDark: false,
-              contrastLevel: 0,
-            },
-            () => {
-              const color = getColor('primaryContainer');
-              return color.getTone();
-            },
-          );
-        },
-        isBackground: true,
-        background: () => highestSurface(c, colors),
-        contrastCurve: () => (c.contrastLevel > 0 ? getCurve(1.5) : undefined),
-      },
+      // primaryFixed: {
+      //   palette: () => palettes.get('primary'),
+      //   tone: () => {
+      //     return c.temp(
+      //       {
+      //         isDark: false,
+      //         contrastLevel: 0,
+      //       },
+      //       () => {
+      //         const color = getColor('primaryContainer');
+      //         return color.getTone();
+      //       },
+      //     );
+      //   },
+      //   isBackground: true,
+      //   background: () => highestSurface(c, colors),
+      //   contrastCurve: () => (c.contrastLevel > 0 ? getCurve(1.5) : undefined),
+      // },
 
       // primaryFixedDim: {
       //   palette: () => palettes.get('primary'),
@@ -654,24 +566,24 @@ export const udixioVariant: Variant = variant({
         contrastCurve: () => getCurve(6),
       },
 
-      secondaryFixed: {
-        palette: () => palettes.get('secondary'),
-        tone: () => {
-          return c.temp(
-            {
-              isDark: false,
-              contrastLevel: 0,
-            },
-            () => {
-              const color = getColor('secondaryContainer');
-              return color.getTone();
-            },
-          );
-        },
-        isBackground: true,
-        background: () => highestSurface(c, colors),
-        contrastCurve: () => (c.contrastLevel > 0 ? getCurve(1.5) : undefined),
-      },
+      // secondaryFixed: {
+      //   palette: () => palettes.get('secondary'),
+      //   tone: () => {
+      //     return c.temp(
+      //       {
+      //         isDark: false,
+      //         contrastLevel: 0,
+      //       },
+      //       () => {
+      //         const color = getColor('secondaryContainer');
+      //         return color.getTone();
+      //       },
+      //     );
+      //   },
+      //   isBackground: true,
+      //   background: () => highestSurface(c, colors),
+      //   contrastCurve: () => (c.contrastLevel > 0 ? getCurve(1.5) : undefined),
+      // },
 
       // secondaryFixedDim: {
       //   palette: () => palettes.get('secondary'),
@@ -800,24 +712,24 @@ export const udixioVariant: Variant = variant({
         contrastCurve: () => getCurve(6),
       },
 
-      tertiaryFixed: {
-        palette: () => palettes.get('tertiary'),
-        tone: () => {
-          return c.temp(
-            {
-              isDark: false,
-              contrastLevel: 0,
-            },
-            () => {
-              const color = getColor('tertiaryContainer');
-              return color.getTone();
-            },
-          );
-        },
-        isBackground: true,
-        background: () => highestSurface(c, colors),
-        contrastCurve: () => (c.contrastLevel > 0 ? getCurve(1.5) : undefined),
-      },
+      // tertiaryFixed: {
+      //   palette: () => palettes.get('tertiary'),
+      //   tone: () => {
+      //     return c.temp(
+      //       {
+      //         isDark: false,
+      //         contrastLevel: 0,
+      //       },
+      //       () => {
+      //         const color = getColor('tertiaryContainer');
+      //         return color.getTone();
+      //       },
+      //     );
+      //   },
+      //   isBackground: true,
+      //   background: () => highestSurface(c, colors),
+      //   contrastCurve: () => (c.contrastLevel > 0 ? getCurve(1.5) : undefined),
+      // },
 
       // tertiaryFixedDim: {
       //   palette: () => palettes.get('tertiary'),
@@ -834,11 +746,11 @@ export const udixioVariant: Variant = variant({
       //     ),
       // },
 
-      onTertiaryFixed: {
-        palette: () => palettes.get('tertiary'),
-        background: () => getColor('tertiaryFixedDim'),
-        contrastCurve: () => getCurve(7),
-      },
+      // onTertiaryFixed: {
+      //   palette: () => palettes.get('tertiary'),
+      //   background: () => getColor('tertiaryFixedDim'),
+      //   contrastCurve: () => getCurve(7),
+      // },
 
       // onTertiaryFixedVariant: {
       //   palette: () => palettes.get('tertiary'),

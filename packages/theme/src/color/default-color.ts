@@ -1,10 +1,26 @@
 import { toneDeltaPair } from '../material-color-utilities';
-import { highestSurface } from './color.manager';
-import { AddColorsOptions } from './color.api';
+import { ColorManager } from './color.manager';
+import { AddColorsOptions, ColorApi } from './color.api';
 import { Hct } from '../material-color-utilities/htc';
-import { getInitialToneFromBackground } from './color';
+import { Color, getInitialToneFromBackground } from './color';
 
 import { DynamicColorKey, getCurve, tMaxC, tMinC } from './color.utils';
+import { Context } from '../context';
+
+export const highestSurface = (
+  context: Context,
+  colorService: ColorManager | ColorApi,
+): Color => {
+  if (colorService instanceof ColorApi) {
+    return context.isDark
+      ? colorService.get('surfaceBright')
+      : colorService.get('surfaceDim');
+  } else {
+    return context.isDark
+      ? colorService.get('surfaceBright')
+      : colorService.get('surfaceDim');
+  }
+};
 
 export const defaultColors: AddColorsOptions = ({
   colors,
