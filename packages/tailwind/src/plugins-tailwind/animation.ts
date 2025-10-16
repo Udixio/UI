@@ -69,9 +69,9 @@ const createAnimationFunc =
       [`.${prefix}-${name}, .${prefix}-${name}-in, .${prefix}-${name}-out`]: {
         [`--${prefix}-name-${name}`]: `${prefix}-${name}`,
         [`--${prefix}-dependencies-${name}`]: dependencies.join(', '),
-        animationDuration: `var(--${prefix}-durations, 300ms)`,
-        animationDelay: `var(--${prefix}-delays, 0)`,
-        animationTimingFunction: `var(--${prefix}-eases, cubic-bezier(0.4, 0, 0.2, 1))`,
+        animationDuration: `var(--${prefix}-duration, 300ms)`,
+        animationDelay: `var(--${prefix}-delay, 0)`,
+        animationTimingFunction: `var(--${prefix}-ease, cubic-bezier(0.4, 0, 0.2, 1))`,
         animationFillMode: 'both',
       },
       [`.${prefix}-${name}, .${prefix}-${name}-in`]: {
@@ -395,8 +395,8 @@ export const animation = plugin.withOptions(
                   [`--${prefix}-name-${name}`]: `${prefix}-${name}`,
                   [`--${prefix}-dependencies-${name}`]: dependencies.join(', '),
 
-                  animationDuration: `var(--${prefix}-durations, 300ms)`,
-                  animationDelay: `var(--${prefix}-delays, 0)`,
+                  animationDuration: `var(--${prefix}-duration, 300ms)`,
+                  animationDelay: `var(--${prefix}-delay, 0)`,
                   animationTimingFunction: `var(--${prefix}-eases, cubic-bezier(0.4, 0, 0.2, 1))`,
                   animationFillMode: 'both',
 
@@ -432,7 +432,9 @@ export const animation = plugin.withOptions(
       // Paramètres (propriétés CSS) sous le même prefix
       matchUtilities(
         {
-          [`${prefix}-duration`]: (value) => ({ animationDuration: value }),
+          [`${prefix}-duration`]: (value) => ({
+            [`${prefix}-duration`]: value,
+          }),
         },
         {
           values: {
@@ -452,7 +454,7 @@ export const animation = plugin.withOptions(
       );
 
       matchUtilities(
-        { [`${prefix}-delay`]: (value) => ({ animationDelay: value }) },
+        { [`${prefix}-delay`]: (value) => ({ [`${prefix}-delay`]: value }) },
         {
           values: {
             0: '0ms',
@@ -472,7 +474,7 @@ export const animation = plugin.withOptions(
       );
 
       matchUtilities(
-        { [`${prefix}-ease`]: (value) => ({ animationTimingFunction: value }) },
+        { [`${prefix}-ease`]: (value) => ({ [`${prefix}-ease`]: value }) },
         {
           values: {
             linear: 'linear',
