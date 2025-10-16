@@ -21,9 +21,10 @@ const createAnimationFunc =
   }) =>
   (
     name: string,
-    styles: (
-      param: (propertyName: string) => string,
-    ) => Record<string, Record<string, string>>,
+    styles: (args: {
+      param: (propertyName: string, defaultValue?: string) => string;
+      variableName: (propertyName: string) => string;
+    }) => Record<string, Record<string, string>>,
     values: Record<
       string,
       {
@@ -45,21 +46,23 @@ const createAnimationFunc =
       return `--${prefix}-${propertyName}`;
     };
 
-    const param = (propertyName: string) => {
-      const defaultValue = values[propertyName]?.DEFAULT;
+    const param = (
+      propertyName: string,
+      defaultValue = values[propertyName]?.DEFAULT,
+    ) => {
       return `var(${variableName(propertyName)} ${defaultValue ? `, ${defaultValue}` : ''})`;
     };
 
     const dependencies: string[] = [];
 
-    Object.values(styles(param)).forEach((step) => {
+    Object.values(styles({ param, variableName })).forEach((step) => {
       Object.keys(step).forEach((key) => {
         dependencies.push(kebabCase(key));
       });
     });
 
     addBase({
-      [`@keyframes ${prefix}-${name}`]: styles(param),
+      [`@keyframes ${prefix}-${name}`]: styles({ param, variableName }),
     });
 
     addUtilities({
@@ -171,9 +174,9 @@ export const animation = plugin.withOptions(
 
       createAnimation(
         'fade',
-        (v) => ({
+        ({ param }) => ({
           from: {
-            opacity: v('opacity'),
+            opacity: param('opacity'),
           },
         }),
         {
@@ -203,14 +206,45 @@ export const animation = plugin.withOptions(
 
       createAnimation(
         'scale',
-        (v) => ({
+        ({ param, variableName }) => ({
           from: {
-            scale: v('scale'),
+            scale: `${param('scale-x', param('scale'))} ${param('scale-y', param('scale'))}`,
           },
         }),
         {
-          scale: {
-            supportsNegativeValues: true,
+          ['scale']: {
+            DEFAULT: '.95',
+            values: {
+              0: '0',
+              50: '.5',
+              75: '.75',
+              90: '.9',
+              95: '.95',
+              100: '1',
+              105: '1.05',
+              110: '1.1',
+              125: '1.25',
+              150: '1.5',
+            },
+          },
+          ['scale-x']: {
+            as: 'x',
+            DEFAULT: '.95',
+            values: {
+              0: '0',
+              50: '.5',
+              75: '.75',
+              90: '.9',
+              95: '.95',
+              100: '1',
+              105: '1.05',
+              110: '1.1',
+              125: '1.25',
+              150: '1.5',
+            },
+          },
+          ['scale-y']: {
+            as: 'y',
             DEFAULT: '.95',
             values: {
               0: '0',
@@ -271,7 +305,7 @@ export const animation = plugin.withOptions(
       };
       createAnimation(
         'slide',
-        (param) => ({
+        ({ param }) => ({
           from: {
             translate: `calc(${param('distance')} * ${param('dx')}) calc(${param('distance')} * ${param('dy')});`,
           },
