@@ -1,3 +1,13 @@
+## 2.3.0 (2025-10-16)
+
+### 🚀 Features
+
+- **animation:** add `run` and `paused` states for `out` animations ([dc134d3](https://github.com/Udixio/UI/commit/dc134d3))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.2.0 (2025-10-16)
 
 ### 🚀 Features
