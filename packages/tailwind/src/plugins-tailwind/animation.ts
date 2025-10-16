@@ -29,6 +29,7 @@ const createAnimationFunc =
       {
         as?: string;
         DEFAULT: string;
+        supportsNegativeValues?: boolean;
         values: Record<string, string>;
       }
     >,
@@ -102,6 +103,7 @@ const createAnimationFunc =
         },
         {
           values: value.values,
+          supportsNegativeValues: value.supportsNegativeValues,
         },
       );
     });
@@ -113,7 +115,7 @@ const createAnimationFunc =
 // - usage: compose triggers ({prefix}-in|{prefix}-out or {prefix}-view*) + effects (fade/scale/slide/spin) + params
 export const animation = plugin.withOptions(
   ({ prefix = 'anim' }: AnimationPluginOptions) => {
-    return ({ addBase, matchUtilities, addUtilities }: PluginAPI) => {
+    return ({ addBase, matchUtilities, addUtilities, theme }: PluginAPI) => {
       const animationNames: Set<string> = new Set();
 
       const createAnimation = createAnimationFunc({
@@ -177,6 +179,7 @@ export const animation = plugin.withOptions(
         {
           opacity: {
             DEFAULT: '0',
+            supportsNegativeValues: true,
             values: {
               0: '0',
               5: '0.05',
@@ -207,6 +210,7 @@ export const animation = plugin.withOptions(
         }),
         {
           scale: {
+            supportsNegativeValues: true,
             DEFAULT: '.95',
             values: {
               0: '0',
@@ -255,43 +259,15 @@ export const animation = plugin.withOptions(
       const slideValues = {
         DEFAULT: '2rem',
         values: {
-          full: '100%',
-          0: '0px',
-          px: '1px',
-          0.5: '0.125rem',
-          1: '0.25rem',
-          1.5: '0.375rem',
-          2: '0.5rem',
-          2.5: '0.625rem',
-          3: '0.75rem',
-          3.5: '0.875rem',
-          4: '1rem',
-          5: '1.25rem',
-          6: '1.5rem',
-          7: '1.75rem',
-          8: '2rem',
-          9: '2.25rem',
-          10: '2.5rem',
-          11: '2.75rem',
-          12: '3rem',
-          14: '3.5rem',
-          16: '4rem',
-          20: '5rem',
-          24: '6rem',
-          28: '7rem',
-          32: '8rem',
-          36: '9rem',
-          40: '10rem',
-          44: '11rem',
-          48: '12rem',
-          52: '13rem',
-          56: '14rem',
-          60: '15rem',
-          64: '16rem',
-          72: '18rem',
-          80: '20rem',
-          96: '24rem',
+          ...theme('spacing'), // échelle spacing
+          full: '100%', // ajout de "full"
+          '1/2': '50%', // (optionnel) fractions
+          '1/3': '33.333333%',
+          '2/3': '66.666667%',
+          '1/4': '25%',
+          '3/4': '75%',
         },
+        supportsNegativeValues: true,
       };
       createAnimation(
         'slide',
@@ -363,8 +339,8 @@ export const animation = plugin.withOptions(
             const dxdy: Record<typeof direction, { dx: string; dy: string }> = {
               'from-top': { dx: '0', dy: '1' },
               'from-bottom': { dx: '0', dy: '-1' },
-              'from-left': { dx: '1', dy: '0' },
-              'from-right': { dx: '-1', dy: '0' },
+              'from-left': { dx: '-1', dy: '0' },
+              'from-right': { dx: '1', dy: '0' },
               'from-top-left': { dx: '1', dy: '1' },
               'from-top-right': { dx: '-1', dy: '1' },
               'from-bottom-left': { dx: '1', dy: '-1' },
