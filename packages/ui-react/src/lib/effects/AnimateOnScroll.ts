@@ -42,12 +42,8 @@ function isScrollDrivenCandidate(el: Element): boolean {
 function isJsObserverCandidate(el: Element): boolean {
   if (!(el instanceof HTMLElement)) return false;
   const cls = el.classList;
-  const hasAnimation = Array.from(cls).some((className) =>
-    className.startsWith('anim-'),
-  );
-  if (!hasAnimation) return false;
-  // Not scroll-driven
-  return !isScrollDrivenCandidate(el);
+
+  return Array.from(cls).some((className) => className.startsWith('anim-'));
 }
 
 function hydrateElement(el: HTMLElement, prefix: string): void {
@@ -101,7 +97,9 @@ function queryScrollDrivenCandidates(
 ): HTMLElement[] {
   // Select any elements that have an animation class and are marked as scroll-driven
   const animated = Array.from(
-    root.querySelectorAll<HTMLElement>(`[class*="${prefix}-"]`),
+    root.querySelectorAll<HTMLElement>(
+      `[class*="${prefix}-"][class*="-scroll"]`,
+    ),
   );
   return animated.filter((el) => isScrollDrivenCandidate(el));
 }
@@ -110,13 +108,73 @@ function queryJsObserverCandidates(
   root: ParentNode = document,
   prefix: string,
 ): HTMLElement[] {
-  // All anim-in/out that are NOT scroll-driven
+  // Observe any element that has `${prefix}-in` or `${prefix}-out` even if it's scroll-driven.
+  // Additionally, observe elements that have at least one non-scroll `${prefix}-*` class
+  // (e.g., `anim-fade`, `anim-scale-150`) even if they also include scroll-driven classes.
+  // This ensures default IN animations are triggered.
   const animated = Array.from(
-    root.querySelectorAll<HTMLElement>(`[class*="anim-"]`),
+    root.querySelectorAll<HTMLElement>(`[class*="${prefix}-"]`),
   );
 
-  return animated.filter((el) => !isScrollDrivenCandidate(el));
+  const reserved = new Set([
+    `${prefix}-run`,
+    `${prefix}-in`,
+    `${prefix}-out`,
+    `${prefix}-in-run`,
+    `${prefix}-out-run`,
+    `${prefix}-paused`,
+    `${prefix}-timeline`,
+    `${prefix}-timeline-inline`,
+    `${prefix}-timeline-block`,
+    `${prefix}-timeline-x`,
+    `${prefix}-timeline-y`,
+    `${prefix}-scroll`,
+  ]);
+
+  return animated.filter((el) => {
+    if (!(el instanceof HTMLElement)) return false;
+    const cls = el.classList;
+    const hasInOut =
+      cls.contains(`${prefix}-in`) || cls.contains(`${prefix}-out`);
+    if (hasInOut) return true;
+
+    // Check if element has any non-scroll animation class (not in reserved set and not containing "scroll")
+    const hasNonScrollAnim = Array.from(cls).some(
+      (c) =>
+        c.startsWith(`${prefix}-`) && !c.includes('scroll') && !reserved.has(c),
+    );
+
+    if (hasNonScrollAnim) return true;
+
+    // Otherwise only observe if it's not scroll-driven at all
+    return !isScrollDrivenCandidate(el);
+  });
 }
+
+// Utility: identify presence of in/out classes
+function hasInOutClass(cls: DOMTokenList, prefix: string): boolean {
+  return cls.contains(`${prefix}-in`) || cls.contains(`${prefix}-out`);
+}
+
+// Utility: set run flags for a given direction ("in" or "out"), always ensuring generic run flag exists
+function setRunFlag(el: HTMLElement, prefix: string, dir: 'in' | 'out'): void {
+  el.setAttribute(`data-${prefix}-run`, ``);
+  el.setAttribute(`data-${prefix}-${dir}-run`, ``);
+}
+
+// Utility: reset run flags and restart animation timeline without changing computed styles
+function resetRunFlags(el: HTMLElement, prefix: string): void {
+  const currentAnimationName = el.style.animationName;
+  el.style.animationName = 'none';
+  el.removeAttribute(`data-${prefix}-run`);
+  el.removeAttribute(`data-${prefix}-in-run`);
+  el.removeAttribute(`data-${prefix}-out-run`);
+  void (el as HTMLElement).offsetWidth; // reflow to restart animations
+  el.style.animationName = currentAnimationName;
+}
+
+// IO thresholds centralized for clarity
+const IO_THRESHOLD: number[] = [0, 0.2];
 
 export type AnimateOnScrollOptions = {
   prefix?: string;
@@ -144,29 +202,20 @@ export function initAnimateOnScroll(
 
         if (!isJsObserverCandidate(el)) continue;
 
-        const cls = el.classList;
-        const isOut = cls.contains(`${prefix}-out`);
-        const isIn = !isOut;
+        const isOut = el.classList.contains(`${prefix}-out`);
 
-        if (isIn && entry.isIntersecting) {
-          el.setAttribute(`data-${prefix}-in-run`, ``);
+        if (!isOut && entry.isIntersecting) {
+          setRunFlag(el, prefix, 'in');
           if (once) io.unobserve(el);
         } else if (isOut && !entry.isIntersecting) {
-          el.setAttribute(`data-${prefix}-out-run`, ``);
+          setRunFlag(el, prefix, 'out');
           if (once) io.unobserve(el);
-        } else {
-          if (!once) {
-            const currentAnimationName = el.style.animationName;
-            el.style.animationName = 'none';
-            el.removeAttribute(`data-${prefix}-in-run`);
-            el.removeAttribute(`data-${prefix}-out-run`);
-            void el.offsetWidth; // reflow
-            el.style.animationName = currentAnimationName;
-          }
+        } else if (!once) {
+          resetRunFlags(el, prefix);
         }
       }
     },
-    { threshold: [0, 0.2] },
+    { threshold: IO_THRESHOLD },
   );
 
   const observeJsCandidates = (root?: ParentNode) => {
