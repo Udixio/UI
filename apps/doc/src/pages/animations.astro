@@ -1,10 +1,9 @@
 ---
 import Layout from '../layouts/layout.astro';
-import { Button, Card, Divider, AnimateOnScroll } from '@udixio/ui-react';
+import { Button, Card, Divider } from '@udixio/ui-react';
 import ClassNamePreview from '../components/ClassNamePreview';
 ---
 <Layout>
-  <AnimateOnScroll client:load>
     <section class="relative overflow-hidden">
       <div class="container mx-auto px-6 py-16 lg:py-24">
         <h1 class="anim-fade anim-slide-from-top anim-duration-700 text-4xl md:text-6xl font-extrabold tracking-tight text-on-surface">
@@ -249,5 +248,4 @@ import ClassNamePreview from '../components/ClassNamePreview';
     <!--    </Card>-->
     <!--  </div>-->
     <!--</section>-->
-  </AnimateOnScroll>
 </Layout>
