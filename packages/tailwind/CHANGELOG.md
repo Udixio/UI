@@ -1,3 +1,13 @@
+## 2.3.3 (2025-10-16)
+
+### 🩹 Fixes
+
+- **animation:** unify variable structure for scroll animations ([3f73978](https://github.com/Udixio/UI/commit/3f73978))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.3.2 (2025-10-16)
 
 ### 🩹 Fixes
