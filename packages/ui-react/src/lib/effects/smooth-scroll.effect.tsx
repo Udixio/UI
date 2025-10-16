@@ -10,6 +10,19 @@ export const SmoothScroll = ({
   throttleDuration = 25,
 }: {
   transition?: {
+    ease:
+      | 'linear'
+      | 'easeIn'
+      | 'easeOut'
+      | 'easeInOut'
+      | 'circIn'
+      | 'circOut'
+      | 'circInOut'
+      | 'backIn'
+      | 'backOut'
+      | 'backInOut'
+      | 'anticipate'
+      | ((t: number) => number);
     duration?: number;
   };
 } & ReactProps<CustomScrollInterface>) => {
@@ -59,8 +72,8 @@ export const SmoothScroll = ({
       return;
     }
     animationRef.current = animate(currentY.current ?? y, y, {
-      duration: transition?.duration ?? 0.5,
-      ease: 'circOut',
+      duration: (transition?.duration ?? 500) / 1000,
+      ease: transition?.ease ?? 'easeOut',
 
       onUpdate: (value) => {
         if (scrollTimeoutRef.current) {
