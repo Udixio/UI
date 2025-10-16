@@ -1,3 +1,13 @@
+## 2.3.2 (2025-10-16)
+
+### 🩹 Fixes
+
+- **animation:** update variable names for consistency with CSS conventions ([b13c01c](https://github.com/Udixio/UI/commit/b13c01c))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.3.1 (2025-10-16)
 
 ### 🩹 Fixes
