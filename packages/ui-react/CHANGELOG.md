@@ -1,3 +1,17 @@
+## 2.3.0 (2025-10-16)
+
+### 🚀 Features
+
+- **animations:** add customizable easing functions for smooth scroll effect ([98959d1](https://github.com/Udixio/UI/commit/98959d1))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.3.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.2.0 (2025-10-16)
 
 ### 🚀 Features
