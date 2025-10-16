@@ -1,3 +1,17 @@
+## 2.2.0 (2025-10-16)
+
+### 🚀 Features
+
+- **animation:** add `animateOnScroll` alias for `initAnimateOnScroll` ([558876c](https://github.com/Udixio/UI/commit/558876c))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.2.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.1.0 (2025-10-16)
 
 ### 🚀 Features
