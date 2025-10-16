@@ -49,8 +49,7 @@ export class Palette {
 
     if (
       result &&
-      this.hueCache !== result.hue &&
-      this.chromaCache !== result.chroma
+      (this.hueCache !== result.hue || this.chromaCache !== result.chroma)
     ) {
       this.clearCache();
       this.hueCache = result.hue;
