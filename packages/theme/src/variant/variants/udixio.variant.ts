@@ -20,7 +20,7 @@ const inverseTone = (tone: number) => {
 };
 
 export const udixioVariant: Variant = variant({
-  name: 'fidelity',
+  name: 'udixio',
   palettes: {
     primary: ({ sourceColor }) => ({
       hue: sourceColor.hue,
@@ -91,68 +91,68 @@ export const udixioVariant: Variant = variant({
         },
         isBackground: true,
       },
-      surfaceDim: {
-        palette: () => palettes.get('neutral'),
-        tone: () => {
-          if (c.isDark) {
-            return 4;
-          } else {
-            if (Hct.isYellow(palettes.get('neutral').hue)) {
-              return 90;
-            } else if (c.variant.name === 'vibrant') {
-              return 85;
-            } else {
-              return 87;
-            }
-          }
-        },
-        isBackground: true,
-        chromaMultiplier: () => {
-          if (!c.isDark) {
-            if (c.variant.name === 'neutral') {
-              return 2.5;
-            } else if (c.variant.name === 'tonalSpot') {
-              return 1.7;
-            } else if (c.variant.name === 'expressive') {
-              return Hct.isYellow(palettes.get('neutral').hue) ? 2.7 : 1.75;
-            } else if (c.variant.name === 'vibrant') {
-              return 1.36;
-            }
-          }
-          return 1;
-        },
-      },
-      surfaceBright: {
-        palette: () => palettes.get('neutral'),
-        tone: () => {
-          if (c.isDark) {
-            return 18;
-          } else {
-            if (Hct.isYellow(palettes.get('neutral').hue)) {
-              return 99;
-            } else if (c.variant.name === 'vibrant') {
-              return 97;
-            } else {
-              return 98;
-            }
-          }
-        },
-        isBackground: true,
-        chromaMultiplier: () => {
-          if (c.isDark) {
-            if (c.variant.name === 'neutral') {
-              return 2.5;
-            } else if (c.variant.name === 'tonalSpot') {
-              return 1.7;
-            } else if (c.variant.name === 'expressive') {
-              return Hct.isYellow(palettes.get('neutral').hue) ? 2.7 : 1.75;
-            } else if (c.variant.name === 'vibrant') {
-              return 1.36;
-            }
-          }
-          return 1;
-        },
-      },
+      // surfaceDim: {
+      //   palette: () => palettes.get('neutral'),
+      //   tone: () => {
+      //     if (c.isDark) {
+      //       return 4;
+      //     } else {
+      //       if (Hct.isYellow(palettes.get('neutral').hue)) {
+      //         return 90;
+      //       } else if (c.variant.name === 'vibrant') {
+      //         return 85;
+      //       } else {
+      //         return 87;
+      //       }
+      //     }
+      //   },
+      //   isBackground: true,
+      //   chromaMultiplier: () => {
+      //     if (!c.isDark) {
+      //       if (c.variant.name === 'neutral') {
+      //         return 2.5;
+      //       } else if (c.variant.name === 'tonalSpot') {
+      //         return 1.7;
+      //       } else if (c.variant.name === 'expressive') {
+      //         return Hct.isYellow(palettes.get('neutral').hue) ? 2.7 : 1.75;
+      //       } else if (c.variant.name === 'vibrant') {
+      //         return 1.36;
+      //       }
+      //     }
+      //     return 1;
+      //   },
+      // },
+      // surfaceBright: {
+      //   palette: () => palettes.get('neutral'),
+      //   tone: () => {
+      //     if (c.isDark) {
+      //       return 18;
+      //     } else {
+      //       if (Hct.isYellow(palettes.get('neutral').hue)) {
+      //         return 99;
+      //       } else if (c.variant.name === 'vibrant') {
+      //         return 97;
+      //       } else {
+      //         return 98;
+      //       }
+      //     }
+      //   },
+      //   isBackground: true,
+      //   chromaMultiplier: () => {
+      //     if (c.isDark) {
+      //       if (c.variant.name === 'neutral') {
+      //         return 2.5;
+      //       } else if (c.variant.name === 'tonalSpot') {
+      //         return 1.7;
+      //       } else if (c.variant.name === 'expressive') {
+      //         return Hct.isYellow(palettes.get('neutral').hue) ? 2.7 : 1.75;
+      //       } else if (c.variant.name === 'vibrant') {
+      //         return 1.36;
+      //       }
+      //     }
+      //     return 1;
+      //   },
+      // },
       surfaceContainerLowest: {
         palette: () => palettes.get('neutral'),
         tone: () => (c.isDark ? 0 : 100),
@@ -438,30 +438,30 @@ export const udixioVariant: Variant = variant({
                 'farther',
               ),
       },
-      primaryDim: {
-        palette: () => palettes.get('primary'),
-        tone: () => {
-          if (c.variant.name === 'neutral') {
-            return 85;
-          } else if (c.variant.name === 'tonalSpot') {
-            return tMaxC(palettes.get('primary'), 0, 90);
-          } else {
-            return tMaxC(palettes.get('primary'));
-          }
-        },
-        isBackground: true,
-        background: () => getColor('surfaceContainerHigh'),
-        contrastCurve: () => getCurve(4.5),
-        adjustTone: () =>
-          toneDeltaPair(
-            colors.get('primaryDim'),
-            colors.get('primary'),
-            5,
-            'darker',
-            true,
-            'farther',
-          ),
-      },
+      // primaryDim: {
+      //   palette: () => palettes.get('primary'),
+      //   tone: () => {
+      //     if (c.variant.name === 'neutral') {
+      //       return 85;
+      //     } else if (c.variant.name === 'tonalSpot') {
+      //       return tMaxC(palettes.get('primary'), 0, 90);
+      //     } else {
+      //       return tMaxC(palettes.get('primary'));
+      //     }
+      //   },
+      //   isBackground: true,
+      //   background: () => getColor('surfaceContainerHigh'),
+      //   contrastCurve: () => getCurve(4.5),
+      //   adjustTone: () =>
+      //     toneDeltaPair(
+      //       colors.get('primaryDim'),
+      //       colors.get('primary'),
+      //       5,
+      //       'darker',
+      //       true,
+      //       'farther',
+      //     ),
+      // },
       onPrimary: {
         palette: () => palettes.get('primary'),
         background: () => colors.get('primary'),
@@ -540,32 +540,32 @@ export const udixioVariant: Variant = variant({
         contrastCurve: () => (c.contrastLevel > 0 ? getCurve(1.5) : undefined),
       },
 
-      primaryFixedDim: {
-        palette: () => palettes.get('primary'),
-        tone: () => colors.get('primaryFixed').getTone(),
-        isBackground: true,
-        adjustTone: () =>
-          toneDeltaPair(
-            getColor('primaryFixedDim'),
-            getColor('primaryFixed'),
-            5,
-            'darker',
-            true,
-            'exact',
-          ),
-      },
+      // primaryFixedDim: {
+      //   palette: () => palettes.get('primary'),
+      //   tone: () => colors.get('primaryFixed').getTone(),
+      //   isBackground: true,
+      //   adjustTone: () =>
+      //     toneDeltaPair(
+      //       getColor('primaryFixedDim'),
+      //       getColor('primaryFixed'),
+      //       5,
+      //       'darker',
+      //       true,
+      //       'exact',
+      //     ),
+      // },
 
-      onPrimaryFixed: {
-        palette: () => palettes.get('primary'),
-        background: () => colors.get('primaryFixedDim'),
-        contrastCurve: () => getCurve(7),
-      },
+      // onPrimaryFixed: {
+      //   palette: () => palettes.get('primary'),
+      //   background: () => colors.get('primaryFixedDim'),
+      //   contrastCurve: () => getCurve(7),
+      // },
 
-      onPrimaryFixedVariant: {
-        palette: () => palettes.get('primary'),
-        background: () => colors.get('primaryFixedDim'),
-        contrastCurve: () => getCurve(4.5),
-      },
+      // onPrimaryFixedVariant: {
+      //   palette: () => palettes.get('primary'),
+      //   background: () => colors.get('primaryFixedDim'),
+      //   contrastCurve: () => getCurve(4.5),
+      // },
 
       inversePrimary: {
         palette: () => palettes.get('primary'),
@@ -603,28 +603,28 @@ export const udixioVariant: Variant = variant({
             'farther',
           ),
       },
-      secondaryDim: {
-        palette: () => palettes.get('secondary'),
-        tone: () => {
-          if (c.variant.name === 'neutral') {
-            return 85;
-          } else {
-            return tMaxC(palettes.get('secondary'), 0, 90);
-          }
-        },
-        isBackground: true,
-        background: () => getColor('surfaceContainerHigh'),
-        contrastCurve: () => getCurve(4.5),
-        adjustTone: () =>
-          toneDeltaPair(
-            getColor('secondaryDim'),
-            getColor('secondary'),
-            5,
-            'darker',
-            true,
-            'farther',
-          ),
-      },
+      // secondaryDim: {
+      //   palette: () => palettes.get('secondary'),
+      //   tone: () => {
+      //     if (c.variant.name === 'neutral') {
+      //       return 85;
+      //     } else {
+      //       return tMaxC(palettes.get('secondary'), 0, 90);
+      //     }
+      //   },
+      //   isBackground: true,
+      //   background: () => getColor('surfaceContainerHigh'),
+      //   contrastCurve: () => getCurve(4.5),
+      //   adjustTone: () =>
+      //     toneDeltaPair(
+      //       getColor('secondaryDim'),
+      //       getColor('secondary'),
+      //       5,
+      //       'darker',
+      //       true,
+      //       'farther',
+      //     ),
+      // },
       onSecondary: {
         palette: () => palettes.get('secondary'),
         background: () => getColor('secondary'),
@@ -673,32 +673,32 @@ export const udixioVariant: Variant = variant({
         contrastCurve: () => (c.contrastLevel > 0 ? getCurve(1.5) : undefined),
       },
 
-      secondaryFixedDim: {
-        palette: () => palettes.get('secondary'),
-        tone: () => getColor('secondaryFixed').getTone(),
-        isBackground: true,
-        adjustTone: () =>
-          toneDeltaPair(
-            getColor('secondaryFixedDim'),
-            getColor('secondaryFixed'),
-            5,
-            'darker',
-            true,
-            'exact',
-          ),
-      },
+      // secondaryFixedDim: {
+      //   palette: () => palettes.get('secondary'),
+      //   tone: () => getColor('secondaryFixed').getTone(),
+      //   isBackground: true,
+      //   adjustTone: () =>
+      //     toneDeltaPair(
+      //       getColor('secondaryFixedDim'),
+      //       getColor('secondaryFixed'),
+      //       5,
+      //       'darker',
+      //       true,
+      //       'exact',
+      //     ),
+      // },
 
-      onSecondaryFixed: {
-        palette: () => palettes.get('secondary'),
-        background: () => getColor('secondaryFixedDim'),
-        contrastCurve: () => getCurve(7),
-      },
+      // onSecondaryFixed: {
+      //   palette: () => palettes.get('secondary'),
+      //   background: () => getColor('secondaryFixedDim'),
+      //   contrastCurve: () => getCurve(7),
+      // },
 
-      onSecondaryFixedVariant: {
-        palette: () => palettes.get('secondary'),
-        background: () => getColor('secondaryFixedDim'),
-        contrastCurve: () => getCurve(4.5),
-      },
+      // onSecondaryFixedVariant: {
+      //   palette: () => palettes.get('secondary'),
+      //   background: () => getColor('secondaryFixedDim'),
+      //   contrastCurve: () => getCurve(4.5),
+      // },
 
       ////////////////////////////////////////////////////////////////
       // Tertiaries [T]                                             //
@@ -736,28 +736,28 @@ export const udixioVariant: Variant = variant({
             'farther',
           ),
       },
-      tertiaryDim: {
-        palette: () => palettes.get('tertiary'),
-        tone: () => {
-          if (c.variant.name === 'tonalSpot') {
-            return tMaxC(palettes.get('tertiary'), 0, 90);
-          } else {
-            return tMaxC(palettes.get('tertiary'));
-          }
-        },
-        isBackground: true,
-        background: () => getColor('surfaceContainerHigh'),
-        contrastCurve: () => getCurve(4.5),
-        adjustTone: () =>
-          toneDeltaPair(
-            getColor('tertiaryDim'),
-            getColor('tertiary'),
-            5,
-            'darker',
-            true,
-            'farther',
-          ),
-      },
+      // tertiaryDim: {
+      //   palette: () => palettes.get('tertiary'),
+      //   tone: () => {
+      //     if (c.variant.name === 'tonalSpot') {
+      //       return tMaxC(palettes.get('tertiary'), 0, 90);
+      //     } else {
+      //       return tMaxC(palettes.get('tertiary'));
+      //     }
+      //   },
+      //   isBackground: true,
+      //   background: () => getColor('surfaceContainerHigh'),
+      //   contrastCurve: () => getCurve(4.5),
+      //   adjustTone: () =>
+      //     toneDeltaPair(
+      //       getColor('tertiaryDim'),
+      //       getColor('tertiary'),
+      //       5,
+      //       'darker',
+      //       true,
+      //       'farther',
+      //     ),
+      // },
       onTertiary: {
         palette: () => palettes.get('tertiary'),
         background: () => getColor('tertiary'),
@@ -819,20 +819,20 @@ export const udixioVariant: Variant = variant({
         contrastCurve: () => (c.contrastLevel > 0 ? getCurve(1.5) : undefined),
       },
 
-      tertiaryFixedDim: {
-        palette: () => palettes.get('tertiary'),
-        tone: () => getColor('tertiaryFixed').getTone(),
-        isBackground: true,
-        adjustTone: () =>
-          toneDeltaPair(
-            getColor('tertiaryFixedDim'),
-            getColor('tertiaryFixed'),
-            5,
-            'darker',
-            true,
-            'exact',
-          ),
-      },
+      // tertiaryFixedDim: {
+      //   palette: () => palettes.get('tertiary'),
+      //   tone: () => getColor('tertiaryFixed').getTone(),
+      //   isBackground: true,
+      //   adjustTone: () =>
+      //     toneDeltaPair(
+      //       getColor('tertiaryFixedDim'),
+      //       getColor('tertiaryFixed'),
+      //       5,
+      //       'darker',
+      //       true,
+      //       'exact',
+      //     ),
+      // },
 
       onTertiaryFixed: {
         palette: () => palettes.get('tertiary'),
@@ -840,11 +840,11 @@ export const udixioVariant: Variant = variant({
         contrastCurve: () => getCurve(7),
       },
 
-      onTertiaryFixedVariant: {
-        palette: () => palettes.get('tertiary'),
-        background: () => getColor('tertiaryFixedDim'),
-        contrastCurve: () => getCurve(4.5),
-      },
+      // onTertiaryFixedVariant: {
+      //   palette: () => palettes.get('tertiary'),
+      //   background: () => getColor('tertiaryFixedDim'),
+      //   contrastCurve: () => getCurve(4.5),
+      // },
 
       ////////////////////////////////////////////////////////////////
       // Errors [E]                                                 //
@@ -870,22 +870,22 @@ export const udixioVariant: Variant = variant({
             'farther',
           ),
       },
-      errorDim: {
-        palette: () => palettes.get('error'),
-        tone: () => tMinC(palettes.get('error')),
-        isBackground: true,
-        background: () => getColor('surfaceContainerHigh'),
-        contrastCurve: () => getCurve(4.5),
-        adjustTone: () =>
-          toneDeltaPair(
-            getColor('errorDim'),
-            getColor('error'),
-            5,
-            'darker',
-            true,
-            'farther',
-          ),
-      },
+      // errorDim: {
+      //   palette: () => palettes.get('error'),
+      //   tone: () => tMinC(palettes.get('error')),
+      //   isBackground: true,
+      //   background: () => getColor('surfaceContainerHigh'),
+      //   contrastCurve: () => getCurve(4.5),
+      //   adjustTone: () =>
+      //     toneDeltaPair(
+      //       getColor('errorDim'),
+      //       getColor('error'),
+      //       5,
+      //       'darker',
+      //       true,
+      //       'farther',
+      //     ),
+      // },
       onError: {
         palette: () => palettes.get('error'),
         background: () => colors.get('error'),
