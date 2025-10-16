@@ -8,7 +8,6 @@
  * - Other entry/exit animations: handled via IntersectionObserver in JS.
  */
 
-
 function supportsScrollTimeline(): boolean {
   if (typeof window === `undefined`) return false;
   try {
@@ -124,7 +123,9 @@ export type AnimateOnScrollOptions = {
   once?: boolean;
 };
 
-export function initAnimateOnScroll(options: AnimateOnScrollOptions = {}): () => void {
+export function initAnimateOnScroll(
+  options: AnimateOnScrollOptions = {},
+): () => void {
   const { prefix = 'anim', once = true } = options;
 
   if (prefersReducedMotion()) {
@@ -265,3 +266,4 @@ export function initAnimateOnScroll(options: AnimateOnScrollOptions = {}): () =>
 
 // Backward-compatible alias name (non-React):
 export const AnimateOnScrollInit = initAnimateOnScroll;
+export const animateOnScroll = initAnimateOnScroll;
