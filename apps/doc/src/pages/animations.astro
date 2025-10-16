@@ -1,10 +1,9 @@
 ---
 import Layout from '../layouts/layout.astro';
-import { Button, Card, Divider, AnimateOnScroll } from '@udixio/ui-react';
+import { Button, Card, Divider } from '@udixio/ui-react';
 import ClassNamePreview from '../components/ClassNamePreview';
 ---
 <Layout>
-  <AnimateOnScroll client:load>
     <section class="relative overflow-hidden">
       <div class="container mx-auto px-6 py-16 lg:py-24">
         <h1 class="anim-fade anim-slide-from-top anim-duration-700 text-4xl md:text-6xl font-extrabold tracking-tight text-on-surface">
@@ -24,6 +23,39 @@ import ClassNamePreview from '../components/ClassNamePreview';
     </section>
 
     <Divider className="my-10" />
+
+    <section class="container mx-auto px-6">
+      <h2 class="text-2xl font-bold">Déclencheurs et effets disponibles</h2>
+      <p class="mt-2 text-on-surface-variant">
+        Il existe 3 déclencheurs: <strong>in</strong> (entrée), <strong>out</strong> (sortie), et <strong>scroll</strong> (anim-view).
+        Chaque déclencheur peut utiliser les effets suivants: <code>fade</code>, <code>scale</code>, <code>slide</code>.
+        Vous pouvez combiner plusieurs effets, par exemple <code>anim-fade</code> + <code>anim-slide-from-bottom</code> + <code>anim-scale</code>.
+      </p>
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <ClassNamePreview className="anim-fade anim-slide-from-bottom anim-duration-500">
+          <h3 class="text-title-large font-semibold">Trigger: in</h3>
+          <p class="mt-2 text-on-surface-variant">Démarre à l'entrée dans le viewport.</p>
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-fade-out anim-slide-out-from-top anim-duration-500">
+          <h3 class="text-title-large font-semibold">Trigger: out</h3>
+          <p class="mt-2 text-on-surface-variant">Se joue à la sortie du viewport.</p>
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-fade-scroll anim-slide-scroll-from-bottom anim-scroll">
+          <h3 class="text-title-large font-semibold">Trigger: scroll (anim-view)</h3>
+          <p class="mt-2 text-on-surface-variant">Synchronisé au défilement, sans duration ni delay.</p>
+        </ClassNamePreview>
+      </div>
+      <div class="mt-6 text-on-surface-variant text-sm">
+        <p>Effets disponibles:</p>
+        <ul class="list-disc pl-6">
+          <li><code>fade</code> — transparence via <code>anim-fade</code> (+ option <code>anim-fade-50</code>...).</li>
+          <li><code>scale</code> — zoom via <code>anim-scale</code>, ou axes <code>anim-scale-x-*</code>/<code>anim-scale-y-*</code>.</li>
+          <li><code>slide</code> — déplacement via <code>anim-slide-from-*</code> avec distances (<code>anim-slide-8</code>, <code>anim-slide-full</code>...).</li>
+        </ul>
+      </div>
+    </section>
+
+    <Divider className="my-16" />
 
     <section class="container mx-auto px-6">
       <h2 class="text-2xl font-bold">Exemples basiques (JS — anim-in)</h2>
@@ -52,11 +84,11 @@ import ClassNamePreview from '../components/ClassNamePreview';
           <h3 class="text-title-large font-semibold">Fade Right</h3>
           <p class="mt-2 text-on-surface-variant">Glisse depuis la droite.</p>
         </ClassNamePreview>
-        <ClassNamePreview className="scale-in anim-duration-700 ">
+        <ClassNamePreview className="anim-scale-in anim-duration-700 ">
           <h3 class="text-title-large font-semibold">scale In</h3>
           <p class="mt-2 text-on-surface-variant">scale avant léger.</p>
         </ClassNamePreview>
-        <ClassNamePreview className="scale-out anim-duration-700  sm:col-span-2 lg:col-span-1">
+        <ClassNamePreview className="anim-scale-out anim-duration-700  sm:col-span-2 lg:col-span-1">
           <h3 class="text-title-large font-semibold">scale Out</h3>
           <p class="mt-2 text-on-surface-variant">scale arrière léger.</p>
         </ClassNamePreview>
@@ -154,6 +186,44 @@ import ClassNamePreview from '../components/ClassNamePreview';
     <Divider className="my-16" />
 
     <section class="container mx-auto px-6 pb-24">
+      <h2 class="text-2xl font-bold">Paramètres visuels — exemples</h2>
+      <p class="mt-2 text-on-surface-variant">
+        Chaque effet accepte des paramètres. Voici des aperçus concrets pour les régler visuellement.
+      </p>
+      <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <ClassNamePreview className="anim-scale anim-scale-125 anim-duration-700">
+          <h3 class="text-title-large font-semibold">Scale 125%</h3>
+          <p class="mt-2 text-on-surface-variant"><code>anim-scale-125</code></p>
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-scale anim-scale-x-150 anim-duration-700">
+          <h3 class="text-title-large font-semibold">Scale X 150%</h3>
+          <p class="mt-2 text-on-surface-variant"><code>anim-scale-x-150</code></p>
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-scale anim-scale-y-90 anim-duration-700">
+          <h3 class="text-title-large font-semibold">Scale Y 90%</h3>
+          <p class="mt-2 text-on-surface-variant"><code>anim-scale-y-90</code></p>
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-fade anim-fade-50 anim-duration-700">
+          <h3 class="text-title-large font-semibold">Fade 50%</h3>
+          <p class="mt-2 text-on-surface-variant"><code>anim-fade-50</code></p>
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-slide-from-left anim-slide-8 anim-duration-700">
+          <h3 class="text-title-large font-semibold">Slide 2rem</h3>
+          <p class="mt-2 text-on-surface-variant"><code>anim-slide-from-left anim-slide-8</code></p>
+        </ClassNamePreview>
+        <ClassNamePreview className="anim-slide-from-right anim-slide-full anim-duration-700">
+          <h3 class="text-title-large font-semibold">Slide full</h3>
+          <p class="mt-2 text-on-surface-variant"><code>anim-slide-from-right anim-slide-full</code></p>
+        </ClassNamePreview>
+      </div>
+      <div class="mt-6 text-sm text-on-surface-variant">
+        <p>Astuce: combinez plusieurs effets. Exemple: <code>anim-fade</code> + <code>anim-slide-from-bottom</code> + <code>anim-scale-105</code>.</p>
+      </div>
+    </section>
+
+    <Divider className="my-16" />
+
+    <section class="container mx-auto px-6 pb-24">
       <h2 class="text-2xl font-bold">Combinaisons (JS — anim-in)</h2>
       <p class="mt-2 text-on-surface-variant">
         Combinez les variantes pour des mises en scène plus riches.
@@ -170,7 +240,7 @@ import ClassNamePreview from '../components/ClassNamePreview';
               Contenu en fade-up plus lent, avec un léger délai. Idéal pour raconter une histoire lors du défilement.
             </p>
           </div>
-          <div class="scale-in anim-duration-700 anim-delay-400 mt-6">
+          <div class="anim-scale-in anim-duration-700 anim-delay-400 mt-6">
             <Button variant="filled">Action principale</Button>
           </div>
         </Card>
@@ -185,11 +255,11 @@ import ClassNamePreview from '../components/ClassNamePreview';
               <div class="h-24 rounded-lg bg-surface-container"></div>
               <p class="mt-2 text-on-surface-variant">fade-right</p>
             </div>
-            <div class="scale-out anim-duration-700 anim-delay-200">
+            <div class="anim-scale-out anim-duration-700 anim-delay-200">
               <div class="h-24 rounded-lg bg-surface-container"></div>
               <p class="mt-2 text-on-surface-variant">scale-out</p>
             </div>
-            <div class="scale-in anim-duration-700 anim-delay-300">
+            <div class="anim-scale-in anim-duration-700 anim-delay-300">
               <div class="h-24 rounded-lg bg-surface-container"></div>
               <p class="mt-2 text-on-surface-variant">scale-in</p>
             </div>
@@ -216,7 +286,7 @@ import ClassNamePreview from '../components/ClassNamePreview';
           <h3 class="text-title-large font-semibold">JS — Fade Left</h3>
           <p class="mt-2 text-on-surface-variant">Purement via observer JS.</p>
         </ClassNamePreview>
-        <ClassNamePreview className="scale-in anim-duration-700 p-6">
+        <ClassNamePreview className="anim-scale-in anim-duration-700 p-6">
           <h3 class="text-title-large font-semibold">JS — scale In</h3>
           <p class="mt-2 text-on-surface-variant">Aucune timeline CSS; déclencheur JS.</p>
         </ClassNamePreview>
@@ -225,29 +295,28 @@ import ClassNamePreview from '../components/ClassNamePreview';
 
     <Divider className="my-16" />
 
-    <!--<section class="container mx-auto px-6 pb-32">-->
-    <!--  <h2 class="text-2xl font-bold">Sorties JS (anim-out)</h2>-->
-    <!--  <p class="mt-2 text-on-surface-variant">-->
-    <!--    Ces éléments emploient <code>anim-out</code>. Ils jouent leur animation lorsque vous <em>quittez</em> leur zone-->
-    <!--    de vue (en les faisant sortir du viewport). Faites défiler doucement pour voir l’effet.-->
-    <!--  </p>-->
+    <section class="container mx-auto px-6 pb-32">
+      <h2 class="text-2xl font-bold">Sorties JS (anim-out)</h2>
+      <p class="mt-2 text-on-surface-variant">
+        Ces éléments emploient <code>anim-out</code>. Ils jouent leur animation lorsque vous <em>quittez</em> leur zone
+        de vue (en les faisant sortir du viewport). Faites défiler doucement pour voir l’effet.
+      </p>
 
-    <!--  <div class="mt-8 space-y-8">-->
-    <!--    <Card className="anim-out fade-out slide-out-to-bottom-10 anim-duration-700 p-6">-->
-    <!--      <h3 class="text-title-large font-semibold">JS — Exit vers le bas</h3>-->
-    <!--      <p class="mt-2 text-on-surface-variant">Se joue lorsque la carte sort de l’écran.</p>-->
-    <!--    </Card>-->
-    <!--    <div class="h-32"></div>-->
-    <!--    <Card className="anim-out fade-out slide-out-to-top-10 anim-duration-700 p-6">-->
-    <!--      <h3 class="text-title-large font-semibold">JS — Exit vers le haut</h3>-->
-    <!--      <p class="mt-2 text-on-surface-variant">Se joue en remontant, quand la carte quitte le viewport.</p>-->
-    <!--    </Card>-->
-    <!--    <div class="h-32"></div>-->
-    <!--    <Card className="anim-out scale-out-90 anim-duration-700 p-6">-->
-    <!--      <h3 class="text-title-large font-semibold">JS — scale Out</h3>-->
-    <!--      <p class="mt-2 text-on-surface-variant">Effet de sortie en scale arrière.</p>-->
-    <!--    </Card>-->
-    <!--  </div>-->
-    <!--</section>-->
-  </AnimateOnScroll>
+      <div class="mt-8 space-y-8">
+        <Card className="anim-fade-out anim-slide-out-from-bottom anim-duration-700 p-6">
+          <h3 class="text-title-large font-semibold">JS — Exit vers le bas</h3>
+          <p class="mt-2 text-on-surface-variant">Se joue lorsque la carte sort de l’écran.</p>
+        </Card>
+        <div class="h-32"></div>
+        <Card className="anim-fade-out anim-slide-out-from-top anim-duration-700 p-6">
+          <h3 class="text-title-large font-semibold">JS — Exit vers le haut</h3>
+          <p class="mt-2 text-on-surface-variant">Se joue en remontant, quand la carte quitte le viewport.</p>
+        </Card>
+        <div class="h-32"></div>
+        <Card className="anim-scale-out anim-scale-90 anim-duration-700 p-6">
+          <h3 class="text-title-large font-semibold">JS — Scale Out</h3>
+          <p class="mt-2 text-on-surface-variant">Effet de sortie en scale arrière.</p>
+        </Card>
+      </div>
+    </section>
 </Layout>

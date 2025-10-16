@@ -1,3 +1,24 @@
+## 2.2.0 (2025-10-16)
+
+### 🚀 Features
+
+- **animation:** refactor `createAnimation` to support enhanced parameterization and new utilities ([96d1423](https://github.com/Udixio/UI/commit/96d1423))
+- **animation:** add `supportsNegativeValues` and enhance `slide` utility generation ([e9558db](https://github.com/Udixio/UI/commit/e9558db))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.1.0 (2025-10-16)
+
+### 🚀 Features
+
+- **animation:** remove redundant `updateAnimNamesAndWillChange` logic and centralize handling in `animation` plugin ([d13c4d7](https://github.com/Udixio/UI/commit/d13c4d7))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 # 2.0.0 (2025-10-15)
 
 ### 🚀 Features

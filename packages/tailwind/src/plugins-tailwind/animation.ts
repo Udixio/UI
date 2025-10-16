@@ -11,22 +11,26 @@ const createAnimationFunc =
     prefix,
     matchUtilities,
     addUtilities,
+    animationNames,
   }: {
     addBase: PluginAPI['addBase'];
     matchUtilities: PluginAPI['matchUtilities'];
     addUtilities: PluginAPI['addUtilities'];
     prefix: string;
+    animationNames: Set<string>;
   }) =>
   (
     name: string,
-    styles: (
-      param: (propertyName: string) => string,
-    ) => Record<string, Record<string, string>>,
+    styles: (args: {
+      param: (propertyName: string, defaultValue?: string) => string;
+      variableName: (propertyName: string) => string;
+    }) => Record<string, Record<string, string>>,
     values: Record<
       string,
       {
         as?: string;
         DEFAULT: string;
+        supportsNegativeValues?: boolean;
         values: Record<string, string>;
       }
     >,
@@ -36,25 +40,29 @@ const createAnimationFunc =
       dependencies: string[];
     }) => void,
   ) => {
+    animationNames.add(name);
+
     const variableName = (propertyName: string) => {
       return `--${prefix}-${propertyName}`;
     };
 
-    const param = (propertyName: string) => {
-      const defaultValue = values[propertyName]?.DEFAULT;
+    const param = (
+      propertyName: string,
+      defaultValue = values[propertyName]?.DEFAULT,
+    ) => {
       return `var(${variableName(propertyName)} ${defaultValue ? `, ${defaultValue}` : ''})`;
     };
 
     const dependencies: string[] = [];
 
-    Object.values(styles(param)).forEach((step) => {
+    Object.values(styles({ param, variableName })).forEach((step) => {
       Object.keys(step).forEach((key) => {
         dependencies.push(kebabCase(key));
       });
     });
 
     addBase({
-      [`@keyframes ${prefix}-${name}`]: styles(param),
+      [`@keyframes ${prefix}-${name}`]: styles({ param, variableName }),
     });
 
     addUtilities({
@@ -98,6 +106,7 @@ const createAnimationFunc =
         },
         {
           values: value.values,
+          supportsNegativeValues: value.supportsNegativeValues,
         },
       );
     });
@@ -109,12 +118,15 @@ const createAnimationFunc =
 // - usage: compose triggers ({prefix}-in|{prefix}-out or {prefix}-view*) + effects (fade/scale/slide/spin) + params
 export const animation = plugin.withOptions(
   ({ prefix = 'anim' }: AnimationPluginOptions) => {
-    return ({ addBase, matchUtilities, addUtilities }: PluginAPI) => {
+    return ({ addBase, matchUtilities, addUtilities, theme }: PluginAPI) => {
+      const animationNames: Set<string> = new Set();
+
       const createAnimation = createAnimationFunc({
         addBase,
         prefix,
         matchUtilities,
         addUtilities,
+        animationNames,
       });
 
       addBase({
@@ -162,14 +174,15 @@ export const animation = plugin.withOptions(
 
       createAnimation(
         'fade',
-        (v) => ({
+        ({ param }) => ({
           from: {
-            opacity: v('opacity'),
+            opacity: param('opacity'),
           },
         }),
         {
           opacity: {
             DEFAULT: '0',
+            supportsNegativeValues: true,
             values: {
               0: '0',
               5: '0.05',
@@ -193,13 +206,45 @@ export const animation = plugin.withOptions(
 
       createAnimation(
         'scale',
-        (v) => ({
+        ({ param, variableName }) => ({
           from: {
-            scale: v('scale'),
+            scale: `${param('scale-x', param('scale'))} ${param('scale-y', param('scale'))}`,
           },
         }),
         {
-          scale: {
+          ['scale']: {
+            DEFAULT: '.95',
+            values: {
+              0: '0',
+              50: '.5',
+              75: '.75',
+              90: '.9',
+              95: '.95',
+              100: '1',
+              105: '1.05',
+              110: '1.1',
+              125: '1.25',
+              150: '1.5',
+            },
+          },
+          ['scale-x']: {
+            as: 'x',
+            DEFAULT: '.95',
+            values: {
+              0: '0',
+              50: '.5',
+              75: '.75',
+              90: '.9',
+              95: '.95',
+              100: '1',
+              105: '1.05',
+              110: '1.1',
+              125: '1.25',
+              150: '1.5',
+            },
+          },
+          ['scale-y']: {
+            as: 'y',
             DEFAULT: '.95',
             values: {
               0: '0',
@@ -248,47 +293,19 @@ export const animation = plugin.withOptions(
       const slideValues = {
         DEFAULT: '2rem',
         values: {
-          full: '100%',
-          0: '0px',
-          px: '1px',
-          0.5: '0.125rem',
-          1: '0.25rem',
-          1.5: '0.375rem',
-          2: '0.5rem',
-          2.5: '0.625rem',
-          3: '0.75rem',
-          3.5: '0.875rem',
-          4: '1rem',
-          5: '1.25rem',
-          6: '1.5rem',
-          7: '1.75rem',
-          8: '2rem',
-          9: '2.25rem',
-          10: '2.5rem',
-          11: '2.75rem',
-          12: '3rem',
-          14: '3.5rem',
-          16: '4rem',
-          20: '5rem',
-          24: '6rem',
-          28: '7rem',
-          32: '8rem',
-          36: '9rem',
-          40: '10rem',
-          44: '11rem',
-          48: '12rem',
-          52: '13rem',
-          56: '14rem',
-          60: '15rem',
-          64: '16rem',
-          72: '18rem',
-          80: '20rem',
-          96: '24rem',
+          ...theme('spacing'), // échelle spacing
+          full: '100%', // ajout de "full"
+          '1/2': '50%', // (optionnel) fractions
+          '1/3': '33.333333%',
+          '2/3': '66.666667%',
+          '1/4': '25%',
+          '3/4': '75%',
         },
+        supportsNegativeValues: true,
       };
       createAnimation(
         'slide',
-        (param) => ({
+        ({ param }) => ({
           from: {
             translate: `calc(${param('distance')} * ${param('dx')}) calc(${param('distance')} * ${param('dy')});`,
           },
@@ -356,8 +373,8 @@ export const animation = plugin.withOptions(
             const dxdy: Record<typeof direction, { dx: string; dy: string }> = {
               'from-top': { dx: '0', dy: '1' },
               'from-bottom': { dx: '0', dy: '-1' },
-              'from-left': { dx: '1', dy: '0' },
-              'from-right': { dx: '-1', dy: '0' },
+              'from-left': { dx: '-1', dy: '0' },
+              'from-right': { dx: '1', dy: '0' },
               'from-top-left': { dx: '1', dy: '1' },
               'from-top-right': { dx: '-1', dy: '1' },
               'from-bottom-left': { dx: '1', dy: '-1' },
@@ -391,7 +408,6 @@ export const animation = plugin.withOptions(
 
             addUtilities({
               [`.${prefix}-${name}-scroll-${directionAlias}`]: {
-                [`--${prefix}-name-${name}-${directionAlias}`]: `${prefix}-${name}`,
                 [`--${prefix}-name-${name}`]: `${prefix}-${name}`,
                 [`--${prefix}-dependencies-${name}`]: dependencies.join(', '),
                 animationTimeline: `var(--${prefix}-timeline, view())`,
@@ -539,6 +555,17 @@ export const animation = plugin.withOptions(
           },
         },
       );
+
+      addBase({
+        [`[class*="${prefix}-"]`]: {
+          animationName: Array.from(animationNames)
+            .map((name) => `var(--${prefix}-name-${name}, noop)`)
+            .join(', '),
+          ['will-change']: Array.from(animationNames)
+            .map((name) => `var(--${prefix}-dependencies-${name}, noop)`)
+            .join(', '),
+        },
+      });
     };
   },
 );
