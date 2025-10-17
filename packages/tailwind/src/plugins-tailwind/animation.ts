@@ -376,14 +376,14 @@ export const animation = plugin.withOptions(
             }
 
             const dxdy: Record<typeof direction, { dx: string; dy: string }> = {
-              'from-top': { dx: '0', dy: '1' },
-              'from-bottom': { dx: '0', dy: '-1' },
+              'from-top': { dx: '0', dy: '-1' },
+              'from-bottom': { dx: '0', dy: '1' },
               'from-left': { dx: '-1', dy: '0' },
               'from-right': { dx: '1', dy: '0' },
-              'from-top-left': { dx: '1', dy: '1' },
-              'from-top-right': { dx: '-1', dy: '1' },
-              'from-bottom-left': { dx: '1', dy: '-1' },
-              'from-bottom-right': { dx: '-1', dy: '-1' },
+              'from-top-left': { dx: '-1', dy: '-1' },
+              'from-top-right': { dx: '1', dy: '-1' },
+              'from-bottom-left': { dx: '-1', dy: '1' },
+              'from-bottom-right': { dx: '1', dy: '1' },
             } as const;
             const { dx, dy } = dxdy[direction];
 
