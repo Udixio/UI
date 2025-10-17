@@ -1,3 +1,10 @@
+## 2.4.2 (2025-10-17)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.3.6
+- Updated @udixio/theme to 2.1.1
+
 ## 2.4.1 (2025-10-17)
 
 ### 🧱 Updated Dependencies
