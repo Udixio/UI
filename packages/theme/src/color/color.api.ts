@@ -1,5 +1,5 @@
 import { Color, ColorOptions } from './color';
-import { ColorManager, highestSurface } from './color.manager';
+import { ColorManager } from './color.manager';
 import { DynamicColorKey, getCurve, tMaxC, tMinC } from './color.utils';
 import { API } from '../API';
 import { toneDeltaPair } from '../material-color-utilities';

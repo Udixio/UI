@@ -35,6 +35,10 @@ export function getInitialToneFromBackground(background?: Color): number {
 }
 
 export abstract class Color {
+  static maxChroma(hue: number, tone = 50): number {
+    return Hct.from(hue, 200, tone).chroma;
+  }
+
   abstract getHct(): Hct;
 
   protected constructor(public readonly name: string) {}
