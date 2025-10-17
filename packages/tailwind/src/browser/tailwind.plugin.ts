@@ -103,7 +103,6 @@ export class TailwindPlugin extends PluginAbstract<
 
 export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPluginOptions> {
   public outputCss = '';
-  public readonly instanceId = v4();
 
   onInit() {
     this.options.responsiveBreakPoints ??= {
