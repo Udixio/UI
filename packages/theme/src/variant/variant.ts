@@ -42,12 +42,14 @@ export interface VariantOptions {
     hue: number;
     chroma: number;
   };
+  colorsFromCustomPalette?: (key: string) => AddColorsOptions;
   colors?: AddColorsOptions;
 }
 
 export class Variant {
   public _palettes?: Record<string, Palette>;
   public readonly customPalettes: VariantOptions['customPalettes'];
+  public readonly colorsFromCustomPalette?: (key: string) => AddColorsOptions;
   public readonly colors: AddColorsOptions;
   public readonly name: string;
   private context?: Context;
@@ -56,6 +58,7 @@ export class Variant {
     this.customPalettes = options.customPalettes;
     this.colors = options.colors || {};
     this.name = options.name;
+    this.colorsFromCustomPalette = options.colorsFromCustomPalette;
   }
 
   get palettes() {

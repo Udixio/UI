@@ -8,6 +8,8 @@ import {
 } from '../../color/color.utils';
 import { Hct } from '../../material-color-utilities/htc';
 import {
+  AddColorsOptions,
+  capitalizeFirstLetter,
   Color,
   ColorApi,
   ColorFromPalette,
@@ -71,14 +73,13 @@ export const udixioVariant: Variant = variant({
       chroma: sourceColor.chroma,
     }),
     neutral: ({ sourceColor }) => {
-      const maxChroma = Color.maxChroma(sourceColor.hue);
       return {
         hue: sourceColor.hue,
-        chroma: maxChroma * 0.05,
+        chroma: 5,
       };
     },
     neutralVariant: ({ sourceColor }) => {
-      const neutral = Color.maxChroma(sourceColor.hue) * 0.05;
+      const neutral = 5;
       return {
         hue: sourceColor.hue,
         chroma: neutral * 1.7,
@@ -100,6 +101,144 @@ export const udixioVariant: Variant = variant({
     hue: colorHct.hue,
     chroma: sourceColor.chroma,
   }),
+
+  colorsFromCustomPalette: (key: string) => {
+    const colorKey = key as DynamicColorKey;
+    // const colorDimKey = (colorKey + 'Dim') as DynamicColorKey;
+    const ColorKey = capitalizeFirstLetter(key);
+    const onColorKey = ('on' + ColorKey) as DynamicColorKey;
+    const colorContainerKey = (colorKey + 'Container') as DynamicColorKey;
+    const onColorContainerKey = ('on' +
+      ColorKey +
+      'Container') as DynamicColorKey;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    // const inverseColorKey = ('inverse' + ColorKey) as DynamicColorKey;
+    // const colorFixedKey = (colorKey + 'Fixed') as DynamicColorKey;
+    // const colorFixedDimKey = (colorKey + 'FixedDim') as DynamicColorKey;
+    // const onColorFixedKey = ('on' + ColorKey + 'Fixed') as DynamicColorKey;
+    // const onColorFixedVariantKey = ('on' +
+    //   ColorKey +
+    //   'FixedVariant') as DynamicColorKey;
+    const colors: AddColorsOptions = ({ palettes, colors, context: ctx }) => ({
+      [colorKey]: {
+        palette: () => palettes.get(colorKey),
+        tone: () => {
+          if (ctx.variant.name === 'neutral') {
+            return ctx.isDark
+              ? tMinC(palettes.get(colorKey), 0, 98)
+              : tMaxC(palettes.get(colorKey));
+          } else if (ctx.variant.name === 'vibrant') {
+            return tMaxC(palettes.get(colorKey), 0, ctx.isDark ? 90 : 98);
+          } else {
+            return ctx.isDark ? 80 : tMaxC(palettes.get(colorKey));
+          }
+        },
+        isBackground: true,
+        background: () => highestSurface(ctx, colors),
+        contrastCurve: () => getCurve(4.5),
+        adjustTone: () =>
+          toneDeltaPair(
+            colors.get(colorContainerKey),
+            colors.get(colorKey),
+            5,
+            'relative_lighter',
+            true,
+            'farther',
+          ),
+      },
+      // [colorDimKey]: {
+      //   palette: () => palettes.get(colorKey),
+      //   tone: () => {
+      //     if (ctx.variant.name === 'neutral') {
+      //       return 85;
+      //     } else {
+      //       return tMaxC(palettes.get(colorKey), 0, 90);
+      //     }
+      //   },
+      //   isBackground: true,
+      //   background: () => colors.get('surfaceContainerHigh'),
+      //   contrastCurve: () => getCurve(4.5),
+      //   adjustTone: () =>
+      //     toneDeltaPair(
+      //       colors.get(colorDimKey),
+      //       colors.get(colorKey),
+      //       5,
+      //       'darker',
+      //       true,
+      //       'farther',
+      //     ),
+      // },
+      [onColorKey]: {
+        palette: () => palettes.get(colorKey),
+        background: () => colors.get(colorKey),
+        contrastCurve: () => getCurve(6),
+      },
+      [colorContainerKey]: {
+        palette: () => palettes.get(colorKey),
+        tone: () => {
+          if (ctx.variant.name === 'vibrant') {
+            return ctx.isDark
+              ? tMinC(palettes.get(colorKey), 30, 40)
+              : tMaxC(palettes.get(colorKey), 84, 90);
+          } else if (ctx.variant.name === 'expressive') {
+            return ctx.isDark ? 15 : tMaxC(palettes.get(colorKey), 90, 95);
+          } else {
+            return ctx.isDark ? 25 : 90;
+          }
+        },
+        isBackground: true,
+        background: () => highestSurface(ctx, colors),
+        adjustTone: () => undefined,
+        contrastCurve: () =>
+          ctx.contrastLevel > 0 ? getCurve(1.5) : undefined,
+      },
+      [onColorContainerKey]: {
+        palette: () => palettes.get(colorKey),
+        background: () => colors.get(colorContainerKey),
+        contrastCurve: () => getCurve(6),
+      },
+      // [colorFixedKey]: {
+      //   palette: () => palettes.get(colorKey),
+      //   tone: () => {
+      //     return ctx.temp({ isDark: false, contrastLevel: 0 }, () => {
+      //       const color = colors.get(colorContainerKey);
+      //       return color.getTone();
+      //     });
+      //   },
+      //   isBackground: true,
+      //   background: () => highestSurface(ctx, colors),
+      //   contrastCurve: () =>
+      //     ctx.contrastLevel > 0 ? getCurve(1.5) : undefined,
+      // },
+      // [colorFixedDimKey]: {
+      //   palette: () => palettes.get(colorKey),
+      //   tone: () => colors.get(colorFixedKey).getTone(),
+      //   isBackground: true,
+      //   adjustTone: () =>
+      //     toneDeltaPair(
+      //       colors.get(colorFixedDimKey),
+      //       colors.get(colorFixedKey),
+      //       5,
+      //       'darker',
+      //       true,
+      //       'exact',
+      //     ),
+      // },
+      // [onColorFixedKey]: {
+      //   palette: () => palettes.get(colorKey),
+      //   background: () => this.get(colorFixedDimKey),
+      //   contrastCurve: () => getCurve(7),
+      // },
+      // [onColorFixedVariantKey]: {
+      //   palette: () => palettes.get(colorKey),
+      //   background: () => colors.get(colorFixedDimKey),
+      //   contrastCurve: () => getCurve(4.5),
+      // },
+    });
+
+    return colors;
+  },
   colors: ({ colors, context: c, palettes }) => {
     const getColor = (key: DynamicColorKey) => {
       return colors.get(key);
