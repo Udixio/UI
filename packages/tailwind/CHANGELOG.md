@@ -1,3 +1,13 @@
+## 2.3.5 (2025-10-17)
+
+### 🩹 Fixes
+
+- **plugins-tailwind:** correct `dx` and `dy` value mappings in animation plugin ([7bb82d9](https://github.com/Udixio/UI/commit/7bb82d9))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.3.4 (2025-10-17)
 
 ### 🧱 Updated Dependencies
