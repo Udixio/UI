@@ -1,3 +1,19 @@
+## 2.1.0 (2025-10-17)
+
+### 🚀 Features
+
+- **theme:** add custom palette support via `colorsFromCustomPalette` ([0ea6a63](https://github.com/Udixio/UI/commit/0ea6a63))
+- **theme:** update variant handling and enhance `UdixioVariant` support ([e413d3d](https://github.com/Udixio/UI/commit/e413d3d))
+- **theme:** add `defaultColors` property to enhance support for all variants ([bcdf338](https://github.com/Udixio/UI/commit/bcdf338))
+
+### 🩹 Fixes
+
+- **theme:** simplify palette cache validation logic ([d235a93](https://github.com/Udixio/UI/commit/d235a93))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 # 2.0.0 (2025-10-15)
 
 ### 🚀 Features

@@ -1,3 +1,18 @@
+## 2.4.0 (2025-10-17)
+
+### 🚀 Features
+
+- **theme:** update variant handling and enhance `UdixioVariant` support ([e413d3d](https://github.com/Udixio/UI/commit/e413d3d))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.3.4
+- Updated @udixio/theme to 2.1.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.3.3 (2025-10-16)
 
 ### 🩹 Fixes
