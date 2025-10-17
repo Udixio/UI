@@ -1,3 +1,9 @@
+## 2.4.1 (2025-10-17)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.3.5
+
 ## 2.4.0 (2025-10-17)
 
 ### 🚀 Features
