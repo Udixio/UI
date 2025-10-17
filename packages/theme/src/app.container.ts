@@ -1,4 +1,4 @@
-import { createContainer, InjectionMode, Resolver } from 'awilix';
+import { AwilixContainer, createContainer, InjectionMode, Resolver } from 'awilix';
 import { ColorModule } from './color';
 import { AppModule } from './app.module';
 import { PluginModule } from './plugin';
@@ -7,7 +7,17 @@ import { ContextModule } from './context';
 
 export type Module = Record<string, Resolver<any>>;
 
-export const AppContainer = () => {
+let cachedContainer: AwilixContainer | null = null;
+
+export const AppContainer = (options?: { fresh?: boolean }) => {
+  if (!options?.fresh && cachedContainer) {
+    return cachedContainer;
+  }
+
+  const container = createContainer({
+    injectionMode: InjectionMode.PROXY,
+  });
+
   function registerModule(...modules: Module[]) {
     modules.forEach((module) => {
       Object.entries(module).forEach(([name, moduleClass]) => {
@@ -17,10 +27,6 @@ export const AppContainer = () => {
     return AppContainer;
   }
 
-  const container = createContainer({
-    injectionMode: InjectionMode.PROXY,
-  });
-
   registerModule(
     AppModule,
     PluginModule,
@@ -29,5 +35,6 @@ export const AppContainer = () => {
     ContextModule,
   );
 
+  cachedContainer = container;
   return container;
 };

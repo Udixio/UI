@@ -60,8 +60,7 @@ export class Context {
 
   set(options: ContextOptions) {
     if (this._options) {
-      console.error(this._options);
-      throw new Error('Options already set');
+      return this.update(options);
     }
     if (typeof options.sourceColor === 'string') {
       options.sourceColor = Hct.fromInt(argbFromHex(options.sourceColor));
