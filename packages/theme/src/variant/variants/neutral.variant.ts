@@ -1,6 +1,7 @@
 import { getPiecewiseHue, getRotatedHue, variant, Variant } from '../variant';
 import { TonalPalette } from '@material/material-color-utilities';
 import { Hct } from '../../material-color-utilities/htc';
+import { defaultColors } from '../../color';
 
 export const neutralVariant: Variant = variant({
   name: 'neutral',
@@ -42,4 +43,5 @@ export const neutralVariant: Variant = variant({
       colorHct.hue,
       Hct.isBlue(colorHct.hue) ? 6 : 4,
     ),
+  colors: defaultColors,
 });

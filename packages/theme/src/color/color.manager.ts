@@ -5,23 +5,7 @@ import {
   ColorFromPalette,
   ColorOptions,
 } from './color';
-import { ColorApi } from './color.api';
 import { Context } from '../context';
-
-export const highestSurface = (
-  context: Context,
-  colorService: ColorManager | ColorApi,
-): Color => {
-  if (colorService instanceof ColorApi) {
-    return context.isDark
-      ? colorService.get('surfaceBright')
-      : colorService.get('surfaceDim');
-  } else {
-    return context.isDark
-      ? colorService.get('surfaceBright')
-      : colorService.get('surfaceDim');
-  }
-};
 
 export class ColorManager {
   private colorMap = new Map<string, Color>();
@@ -55,6 +39,10 @@ export class ColorManager {
 
   public remove(key: string) {
     return this.colorMap.delete(key);
+  }
+
+  public clear() {
+    this.colorMap.clear();
   }
 
   public get(key: string): Color {

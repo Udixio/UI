@@ -1,20 +1,25 @@
 import { toneDeltaPair } from '../material-color-utilities';
-import { highestSurface } from './color.manager';
-import { AddColorsOptions } from './color.api';
+import { ColorManager } from './color.manager';
+import { AddColorsOptions, ColorApi } from './color.api';
 import { Hct } from '../material-color-utilities/htc';
-import { ColorFromPalette, getInitialToneFromBackground } from './color';
+import { Color, getInitialToneFromBackground } from './color';
 
-import {
-  calculateToneAdjustmentPercentage,
-  DynamicColorKey,
-  getCurve,
-  tMaxC,
-  tMinC,
-} from './color.utils';
-import { Contrast } from '@material/material-color-utilities';
+import { DynamicColorKey, getCurve, tMaxC, tMinC } from './color.utils';
+import { Context } from '../context';
 
-const inverseTone = (tone: number) => {
-  return 100 - tone;
+export const highestSurface = (
+  context: Context,
+  colorService: ColorManager | ColorApi,
+): Color => {
+  if (colorService instanceof ColorApi) {
+    return context.isDark
+      ? colorService.get('surfaceBright')
+      : colorService.get('surfaceDim');
+  } else {
+    return context.isDark
+      ? colorService.get('surfaceBright')
+      : colorService.get('surfaceDim');
+  }
 };
 
 export const defaultColors: AddColorsOptions = ({
@@ -36,9 +41,6 @@ export const defaultColors: AddColorsOptions = ({
         if (c.isDark) {
           return 4;
         } else {
-          if (c.variant.name == 'fidelity') {
-            return 100;
-          }
           if (Hct.isYellow(palettes.get('neutral').hue)) {
             return 99;
           } else if (c.variant.name === 'vibrant') {
@@ -357,8 +359,6 @@ export const defaultColors: AddColorsOptions = ({
                 ? 88
                 : 98,
           );
-        } else if (c.variant.name == 'fidelity') {
-          return c.sourceColor.tone;
         } else {
           return tMaxC(
             palettes.get('primary'),
@@ -371,31 +371,14 @@ export const defaultColors: AddColorsOptions = ({
       background: () => highestSurface(c, colors),
       contrastCurve: () => getCurve(4.5),
       adjustTone: () =>
-        c.variant.name == 'fidelity'
-          ? () => {
-              const surfaceTone = colors.get('surface').getTone();
-              const primaryTone = (colors.get('primary') as ColorFromPalette)
-                .options.tone;
-              let selfTone = primaryTone;
-              if (Contrast.ratioOfTones(surfaceTone, selfTone) < 3) {
-                const ratio = calculateToneAdjustmentPercentage(
-                  surfaceTone,
-                  selfTone,
-                  3,
-                );
-                const inverseT = inverseTone(primaryTone);
-                selfTone = selfTone + (inverseT - selfTone) * ratio;
-              }
-              return selfTone;
-            }
-          : toneDeltaPair(
-              colors.get('primaryContainer'),
-              colors.get('primary'),
-              5,
-              'relative_lighter',
-              true,
-              'farther',
-            ),
+        toneDeltaPair(
+          colors.get('primaryContainer'),
+          colors.get('primary'),
+          5,
+          'relative_lighter',
+          true,
+          'farther',
+        ),
     },
     primaryDim: {
       palette: () => palettes.get('primary'),
@@ -444,34 +427,17 @@ export const defaultColors: AddColorsOptions = ({
                 Hct.isCyan(palettes.get('primary').hue) ? 88 : 90,
               );
         }
-        if (c.variant.name == 'fidelity') {
-          return c.isDark
-            ? tMinC(palettes.get('primary'), 35, 93)
-            : tMaxC(palettes.get('primary'), 0, 90);
-        } else {
-          // VIBRANT
-          return c.isDark
-            ? tMinC(palettes.get('primary'), 66, 93)
-            : tMaxC(
-                palettes.get('primary'),
-                66,
-                Hct.isCyan(palettes.get('primary').hue) ? 88 : 93,
-              );
-        }
+        // VIBRANT
+        return c.isDark
+          ? tMinC(palettes.get('primary'), 66, 93)
+          : tMaxC(
+              palettes.get('primary'),
+              66,
+              Hct.isCyan(palettes.get('primary').hue) ? 88 : 93,
+            );
       },
       isBackground: true,
       background: () => highestSurface(c, colors),
-      adjustTone: () =>
-        c.variant.name == 'fidelity'
-          ? toneDeltaPair(
-              colors.get('primary'),
-              colors.get('primaryContainer'),
-              15,
-              'relative_darker',
-              true,
-              'farther',
-            )
-          : undefined,
       contrastCurve: () => (c.contrastLevel > 0 ? getCurve(1.5) : undefined),
     },
     onPrimaryContainer: {
