@@ -28,6 +28,7 @@ class TailwindImplPlugin extends TailwindImplPluginBrowser {
   }
 
   override async onLoad() {
+    this.outputCss = '';
     if (!this.isNodeJs()) {
       await super.onLoad();
       return;

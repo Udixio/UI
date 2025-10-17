@@ -4,6 +4,6 @@ import { PaletteManager } from './palette.manager';
 import { PaletteApi } from './palette.api';
 
 export const PaletteModule: Module = {
-  paletteApi: asClass(PaletteApi).singleton(),
-  paletteManager: asClass(PaletteManager).singleton(),
+  paletteApi: asClass(PaletteApi).scoped(),
+  paletteManager: asClass(PaletteManager).scoped(),
 };

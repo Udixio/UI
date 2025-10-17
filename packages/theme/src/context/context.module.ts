@@ -3,5 +3,5 @@ import { Module } from '../app.container';
 import { Context } from './context';
 
 export const ContextModule: Module = {
-  context: asClass(Context).singleton(),
+  context: asClass(Context).scoped(),
 };

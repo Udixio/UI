@@ -4,6 +4,7 @@ import {
   Hct,
   hexFromArgb,
 } from '@material/material-color-utilities';
+import { v4 } from 'uuid';
 
 export interface TailwindPluginOptions {
   darkMode?: 'class' | 'media';
@@ -103,6 +104,7 @@ export class TailwindPlugin extends PluginAbstract<
 
 export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPluginOptions> {
   public outputCss = '';
+  public readonly instanceId = v4();
 
   onInit() {
     this.options.responsiveBreakPoints ??= {
@@ -163,6 +165,8 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
 }`;
 
     const sourceColor = this.api.context.sourceColor;
+    const originalSourceColorHex = hexFromArgb(sourceColor.toInt());
+
     for (const [key, value] of Object.entries(this.options.subThemes ?? {})) {
       const newHue = Hct.fromInt(argbFromHex(value)).hue;
       const newColor = Hct.from(newHue, sourceColor.chroma, sourceColor.tone);
@@ -188,9 +192,12 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
     styles: Object.entries(colors)
       .map(([key, value]) => `--color-${key}: ${value.dark};`)
       .join('\n    '),
-  })} 
+  })}
 }`;
     }
+
+    // Restore original sourceColor after processing subThemes
+    this.api.context.sourceColor = originalSourceColorHex;
   }
 
   getColors() {
@@ -210,7 +217,8 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
   }
 
   async onLoad() {
-    this.getColors();
+    this.outputCss = '';
+    // this.getColors();
 
     // if (typeof window !== 'undefined') {
     //   const { tailwindBrowserInit } = await import('./tailwind-browser');
