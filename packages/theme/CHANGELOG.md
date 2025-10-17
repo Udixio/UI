@@ -1,3 +1,13 @@
+## 2.1.1 (2025-10-17)
+
+### 🩹 Fixes
+
+- **theme, plugins-tailwind:** enhance instance management and fix subThemes processing ([0a1b42e](https://github.com/Udixio/UI/commit/0a1b42e))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.1.0 (2025-10-17)
 
 ### 🚀 Features
