@@ -4,7 +4,6 @@ import {
   Hct,
   hexFromArgb,
 } from '@material/material-color-utilities';
-import { v4 } from 'uuid';
 
 export interface TailwindPluginOptions {
   darkMode?: 'class' | 'media';
