@@ -1,6 +1,6 @@
 {
   "name": "@udixio/tailwind",
-  "version": "2.3.6",
+  "version": "2.3.7",
   "type": "module",
   "main": "./dist/node.js",
   "module": "./dist/node.js",
