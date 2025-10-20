@@ -44,7 +44,7 @@ export const CarouselItem = ({
   return (
     <motion.div
       ref={ref}
-      animate={{ width: width + 'px' }}
+      animate={{ maxWidth: width + 'px' }}
       transition={{
         duration: 0.5,
         ease: 'linear',
@@ -52,6 +52,13 @@ export const CarouselItem = ({
       className={styles.carouselItem}
       {...restProps}
     >
+      <div
+        className={'absolute inset-0 m-auto flex items-center justify-center'}
+      >
+        <span className={'text-display-large text-surface-variant'}>
+          {Math.round(width)}
+        </span>
+      </div>
       {children}
     </motion.div>
   );

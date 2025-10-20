@@ -33,14 +33,21 @@ import { Carousel, CarouselItem } from "@udixio/ui-react"
   scrollSensitivity={0.8}
   onChange={(index) => console.log('Active slide:', index)}
 >
-  {Array.from({length: 15}, (_, i) => i + 1).map((i) => (
-    <CarouselItem key={i}>
-      <div className="bg-surface rounded-xl h-full flex flex-col">
-        <img className="w-full flex-1 object-cover rounded-2xl" src={`https://picsum.photos/seed/udx-${i}/640/240`} alt="Cover" />
-        <p class={'text-title-large m-8 text-nowrap'}>Slide {i}</p>
-      </div>
-    </CarouselItem>
-  ))}
+  {Array.from({length: 15}, (_, i) => i + 1).map((i) => {
+    const fmt = i % 3;
+    const w = fmt === 0 ? 640 : fmt === 1 ? 400 : 240;
+    const h = fmt === 0 ? 240 : fmt === 1 ? 400 : 640;
+    return (
+      <CarouselItem key={i}>
+        <div className="bg-surface rounded-xl h-full flex flex-col">
+          <div className="flex-1 min-h-0">
+            <img className="size-full object-cover rounded-2xl" src={`https://picsum.photos/seed/udx-${i}-fmt-${fmt}/${w}/${h}`} alt="Cover" />
+          </div>
+          <p class={'text-title-large m-8 text-nowrap'}>Slide {i}</p>
+        </div>
+      </CarouselItem>
+    );
+  })}
 </Carousel>
 ```
 
@@ -86,18 +93,23 @@ import { Carousel, CarouselItem } from "@udixio/ui-react"
         index={index}
         onChange={setIndex}
       >
-        {Array.from({ length: total }, (_, i) => i + 1).map((i) => (
-          <CarouselItem key={i}>
-            <div className="bg-surface rounded-xl h-full flex flex-col">
-              <img
-                className="w-full flex-1 object-cover rounded-2xl"
-                src={`https://picsum.photos/seed/udx-${i}/640/240`}
-                alt={`Slide ${i}`}
-              />
-              <p className={'text-title-large m-8 text-nowrap'}>Slide {i}</p>
-            </div>
-          </CarouselItem>
-        ))}
+        {Array.from({ length: total }, (_, i) => i + 1).map((i) => {
+          const fmt = i % 3;
+          const w = fmt === 0 ? 640 : fmt === 1 ? 400 : 240;
+          const h = fmt === 0 ? 240 : fmt === 1 ? 400 : 640;
+          return (
+            <CarouselItem key={i}>
+              <div className="bg-surface rounded-xl h-full flex flex-col">
+                <img
+                  className="w-full flex-1 object-cover rounded-2xl"
+                  src={`https://picsum.photos/seed/udx-${i}-fmt-${fmt}/${w}/${h}`}
+                  alt={`Slide ${i}`}
+                />
+                <p className={'text-title-large m-8 text-nowrap'}>Slide {i}</p>
+              </div>
+            </CarouselItem>
+          );
+        })}
       </Carousel>
       <div className="w-full mt-3 flex justify-end gap-3">
         <Button variant="text" label="Previous" onClick={prev} />
