@@ -228,6 +228,53 @@ export const CustomScroll = ({
     };
   }, []);
 
+  // External controller: listen for bubbling custom event to set scroll programmatically
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const handler = (ev: Event) => {
+      const detail = (ev as CustomEvent).detail as
+        | { progress?: number; scroll?: number; orientation?: 'horizontal' | 'vertical' }
+        | undefined;
+      const container = ref.current;
+      if (!container || !detail) return;
+      const ori = detail.orientation ?? orientation;
+      if (typeof detail.progress === 'number') {
+        if (ori === 'horizontal') {
+          const total = Math.max(
+            0,
+            (contentScrollSize.current?.width ?? 0) - container.clientWidth,
+          );
+          container.scrollLeft = Math.min(total, Math.max(0, detail.progress * total));
+        } else {
+          const total = Math.max(
+            0,
+            (contentScrollSize.current?.height ?? 0) - container.clientHeight,
+          );
+          container.scrollTop = Math.min(total, Math.max(0, detail.progress * total));
+        }
+      } else if (typeof detail.scroll === 'number') {
+        if (ori === 'horizontal') {
+          const total = Math.max(
+            0,
+            (contentScrollSize.current?.width ?? 0) - container.clientWidth,
+          );
+          container.scrollLeft = Math.min(total, Math.max(0, detail.scroll));
+        } else {
+          const total = Math.max(
+            0,
+            (contentScrollSize.current?.height ?? 0) - container.clientHeight,
+          );
+          container.scrollTop = Math.min(total, Math.max(0, detail.scroll));
+        }
+      }
+    };
+    el.addEventListener('udx:customScroll:set', handler as EventListener);
+    return () => {
+      el.removeEventListener('udx:customScroll:set', handler as EventListener);
+    };
+  }, [orientation]);
+
   return (
     <div
       className={styles.customScroll}

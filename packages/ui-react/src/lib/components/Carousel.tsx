@@ -2,6 +2,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { CarouselInterface, CarouselItemInterface } from '../interfaces';
 
 import { motion, motionValue, useTransform } from 'motion/react';
+import { animate as motionAnimate } from 'motion';
 
 import { carouselStyle } from '../styles';
 import { CustomScroll } from '../effects';
@@ -55,9 +56,10 @@ export const Carousel = ({
     scroll: number;
   } | null>(null);
   const calculatePercentages = () => {
-    if (!trackRef.current || !ref.current || !scroll) return [];
+    if (!trackRef.current || !ref.current) return [];
 
-    const { scrollVisible, scrollProgress } = scroll;
+    const scrollVisible = scroll?.scrollVisible ?? (ref.current as any)?.clientWidth ?? 0;
+    const scrollProgress = scrollMV.get();
 
     function assignRelativeIndexes(
       values: number[],
@@ -107,6 +109,11 @@ export const Carousel = ({
     if (onChange) onChange(selectedItem);
   }, [selectedItem]);
 
+  // keep focused index aligned with selected when selection changes through scroll
+  useEffect(() => {
+    setFocusedIndex(selectedItem);
+  }, [selectedItem]);
+
   if (itemRefs.length !== items.length) {
     items.forEach((_, i) => {
       if (!itemRefs[i]) {
@@ -115,7 +122,37 @@ export const Carousel = ({
     });
   }
 
+  // accessibility and interaction states
+  const [focusedIndex, setFocusedIndex] = useState(0);
+
+  const centerOnIndex = (index: number, opts: { animate?: boolean } = {}) => {
+    if (!items.length) return;
+    const clamped = Math.max(0, Math.min(index, items.length - 1));
+    const targetProgress = items.length > 1 ? clamped / (items.length - 1) : 0;
+    if (opts.animate !== false) {
+      motionAnimate(scrollMV, targetProgress, { duration: 0.5, ease: 'easeOut' });
+    } else {
+      scrollMV.set(targetProgress);
+    }
+    setSelectedItem(clamped);
+    setFocusedIndex(clamped);
+    // Focus the item for accessibility
+    const el = itemRefs[clamped]?.current;
+    if (el && typeof (el as any).focus === 'function') {
+      (el as any).focus();
+    }
+  };
+
   const renderItems = items.map((child, index) => {
+    const existingOnClick = (child as any).props?.onClick as
+      | ((e: any) => void)
+      | undefined;
+    const handleClick = (e: any) => {
+      existingOnClick?.(e);
+      centerOnIndex(index);
+    };
+    const handleFocus = () => setFocusedIndex(index);
+
     return React.cloneElement(
       child as React.ReactElement<ReactProps<CarouselItemInterface>>,
       {
@@ -123,14 +160,21 @@ export const Carousel = ({
         ref: itemRefs[index],
         key: index,
         index,
-      },
+        role: 'option',
+        'aria-selected': selectedItem === index,
+        tabIndex: selectedItem === index ? 0 : -1,
+        onClick: handleClick,
+        onFocus: handleFocus,
+      } as any,
     );
   });
 
-  const scrollProgress = motionValue(scroll?.scrollProgress ?? 0);
+  // persistent motion value for scroll progress, driven by user scroll and programmatic centering
+  const scrollMVRef = useRef(motionValue(0));
+  const scrollMV = scrollMVRef.current;
 
   const transform = useTransform(
-    scrollProgress,
+    scrollMV,
     [0, 1],
     [
       0,
@@ -139,10 +183,7 @@ export const Carousel = ({
     ],
   );
 
-  const percentTransform = useTransform(
-    transform,
-    (value) => `${-value * 100}%`,
-  );
+  const percentTransform = useTransform(transform, (value) => `${-value * 100}%`);
 
   const handleScroll = (args: {
     scrollProgress: number;
@@ -151,6 +192,8 @@ export const Carousel = ({
     scroll: number;
   }) => {
     if (args.scrollTotal > 0) {
+      // update both MV (visual position) and raw scroll info
+      scrollMV.set(args.scrollProgress);
       setScroll(args);
     }
   };
@@ -159,6 +202,31 @@ export const Carousel = ({
     const updatedPercentages = calculatePercentages();
     setItemsWidth(updatedPercentages);
   }, [scroll]);
+
+  // Recalculate on scrollMV changes (e.g., programmatic animations)
+  useEffect(() => {
+    const unsubscribe = scrollMV.on('change', (p) => {
+      // Keep CustomScroll container in sync by dispatching a bubbling control event
+      const track = trackRef.current as HTMLElement | null;
+      if (track) {
+        track.dispatchEvent(
+          new CustomEvent('udx:customScroll:set', {
+            bubbles: true,
+            detail: { progress: p, orientation: 'horizontal' },
+          }),
+        );
+      }
+      const updated = calculatePercentages();
+      if (updated.length) setItemsWidth(updated);
+    });
+    return () => unsubscribe();
+  }, [scrollMV, trackRef]);
+
+  // Initial compute on mount and when items count changes
+  useLayoutEffect(() => {
+    const updated = calculatePercentages();
+    if (updated.length) setItemsWidth(updated);
+  }, [items.length]);
 
   const [scrollSize, setScrollSize] = useState(0);
   useLayoutEffect(() => {
@@ -170,8 +238,78 @@ export const Carousel = ({
     setScrollSize(result);
   }, [ref, itemRefs, scroll]);
 
+  // Recompute sizes on container/track resize
+  useEffect(() => {
+    const root = ref.current as unknown as HTMLElement | null;
+    const track = trackRef.current as unknown as HTMLElement | null;
+    if (!root || !track) return;
+    const ro = new ResizeObserver(() => {
+      const updated = calculatePercentages();
+      if (updated.length) setItemsWidth(updated);
+      let maxWidth = outputRange[1];
+      const visible = scroll?.scrollVisible ?? root.clientWidth;
+      if (maxWidth > visible) maxWidth = visible;
+      const result = ((maxWidth + gap) * renderItems.length) / scrollSensitivity;
+      setScrollSize(result);
+    });
+    ro.observe(root);
+    ro.observe(track);
+    return () => ro.disconnect();
+  }, [ref, trackRef, renderItems.length, gap, outputRange, scrollSensitivity, scroll]);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!items.length) return;
+    let idx = focusedIndex ?? selectedItem;
+    switch (e.key) {
+      case 'ArrowLeft':
+        e.preventDefault();
+        centerOnIndex(Math.max(0, idx - 1));
+        break;
+      case 'ArrowRight':
+        e.preventDefault();
+        centerOnIndex(Math.min(items.length - 1, idx + 1));
+        break;
+      case 'Home':
+        e.preventDefault();
+        centerOnIndex(0);
+        break;
+      case 'End':
+        e.preventDefault();
+        centerOnIndex(items.length - 1);
+        break;
+      case 'Enter':
+      case ' ': // Space
+        e.preventDefault();
+        centerOnIndex(idx);
+        break;
+    }
+  };
+
+  // External control via CustomEvent on root element
+  useEffect(() => {
+    const root = ref.current as any;
+    if (!root) return;
+    const handler = (ev: Event) => {
+      const detail = (ev as CustomEvent).detail as { index?: number } | undefined;
+      if (detail && typeof detail.index === 'number') {
+        centerOnIndex(detail.index);
+      }
+    };
+    root.addEventListener('udx:carousel:centerIndex', handler as EventListener);
+    return () => {
+      root.removeEventListener('udx:carousel:centerIndex', handler as EventListener);
+    };
+  }, [ref, items.length]);
+
   return (
-    <div className={styles.carousel} ref={ref} {...restProps}>
+    <div
+      className={styles.carousel}
+      ref={ref}
+      role="listbox"
+      aria-orientation="horizontal"
+      onKeyDown={handleKeyDown}
+      {...restProps}
+    >
       <CustomScroll
         draggable
         orientation={'horizontal'}

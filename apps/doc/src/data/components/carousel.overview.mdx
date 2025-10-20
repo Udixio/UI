@@ -38,7 +38,7 @@ import { Carousel, CarouselItem } from "@udixio/ui-react"
   scrollSensitivity={0.8}
   onChange={(index) => console.log('Active slide:', index)}
 >
-  {[1, 2, 3, 4].map((i) => (
+  {Array.from({length: 15}, (_, i) => i + 1).map((i) => (
     <CarouselItem key={i}>
       <div className="bg-surface rounded-xl h-full flex flex-col">
         <img className="w-full flex-1 object-cover rounded-2xl" src="https://picsum.photos/640/240" alt="Cover" />
