@@ -1,8 +1,3 @@
----
----
-
-## Usage
-
 Use Carousel with CarouselItem children to create a horizontally scrollable showcase.
 
 ```bash
@@ -41,10 +36,74 @@ import { Carousel, CarouselItem } from "@udixio/ui-react"
   {Array.from({length: 15}, (_, i) => i + 1).map((i) => (
     <CarouselItem key={i}>
       <div className="bg-surface rounded-xl h-full flex flex-col">
-        <img className="w-full flex-1 object-cover rounded-2xl" src="https://picsum.photos/640/240" alt="Cover" />
+        <img className="w-full flex-1 object-cover rounded-2xl" src={`https://picsum.photos/seed/udx-${i}/640/240`} alt="Cover" />
         <p class={'text-title-large m-8 text-nowrap'}>Slide {i}</p>
       </div>
     </CarouselItem>
   ))}
 </Carousel>
+```
+
+
+### With navigation buttons
+
+```jsx
+() => {
+  const total = 15;
+  const gap = 16;
+  const outputRange = [42, 300];
+  const [index, setIndex] = React.useState(0);
+  const containerRef = React.useRef(null);
+  const [visibleCount, setVisibleCount] = React.useState(1);
+
+  React.useLayoutEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const calc = () => {
+      const w = el.clientWidth || 0;
+      const v = (w - (outputRange[0] + gap)) / (outputRange[1] + gap);
+      const count = Math.max(1, Math.floor(v));
+      setVisibleCount(count);
+    };
+    calc();
+    const ro = new ResizeObserver(calc);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const step = Math.max(1, Math.floor(visibleCount / 2));
+  const prev = () => setIndex((i) => Math.max(0, i - step));
+  const next = () => setIndex((i) => Math.min(total - 1, i + step));
+
+  return (
+    <div className="w-full" ref={containerRef}>
+      <Carousel
+        variant="hero"
+        gap={gap}
+        marginPourcent={12}
+        outputRange={outputRange}
+        scrollSensitivity={0.8}
+        index={index}
+        onChange={setIndex}
+      >
+        {Array.from({ length: total }, (_, i) => i + 1).map((i) => (
+          <CarouselItem key={i}>
+            <div className="bg-surface rounded-xl h-full flex flex-col">
+              <img
+                className="w-full flex-1 object-cover rounded-2xl"
+                src={`https://picsum.photos/seed/udx-${i}/640/240`}
+                alt={`Slide ${i}`}
+              />
+              <p className={'text-title-large m-8 text-nowrap'}>Slide {i}</p>
+            </div>
+          </CarouselItem>
+        ))}
+      </Carousel>
+      <div className="w-full mt-3 flex justify-end gap-3">
+        <Button variant="text" label="Previous" onClick={prev} />
+        <Button variant="filled" label="Next" onClick={next} />
+      </div>
+    </div>
+  );
+}
 ```

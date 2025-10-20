@@ -25,6 +25,7 @@ export const Carousel = ({
   outputRange = [42, 300],
   gap = 8,
   onChange,
+  index,
   scrollSensitivity = 1.25,
   ...restProps
 }: ReactProps<CarouselInterface>) => {
@@ -58,7 +59,8 @@ export const Carousel = ({
   const calculatePercentages = () => {
     if (!trackRef.current || !ref.current) return [];
 
-    const scrollVisible = scroll?.scrollVisible ?? (ref.current as any)?.clientWidth ?? 0;
+    const scrollVisible =
+      scroll?.scrollVisible ?? (ref.current as any)?.clientWidth ?? 0;
     const scrollProgress = scrollMV.get();
 
     function assignRelativeIndexes(
@@ -109,6 +111,17 @@ export const Carousel = ({
     if (onChange) onChange(selectedItem);
   }, [selectedItem]);
 
+  // Sync controlled index prop to internal state/position
+  useEffect(() => {
+    if (
+      typeof index === 'number' &&
+      items.length > 0 &&
+      index !== selectedItem
+    ) {
+      centerOnIndex(index);
+    }
+  }, [index, items.length]);
+
   // keep focused index aligned with selected when selection changes through scroll
   useEffect(() => {
     setFocusedIndex(selectedItem);
@@ -130,7 +143,10 @@ export const Carousel = ({
     const clamped = Math.max(0, Math.min(index, items.length - 1));
     const targetProgress = items.length > 1 ? clamped / (items.length - 1) : 0;
     if (opts.animate !== false) {
-      motionAnimate(scrollMV, targetProgress, { duration: 0.5, ease: 'easeOut' });
+      motionAnimate(scrollMV, targetProgress, {
+        duration: 0.5,
+        ease: 'easeOut',
+      });
     } else {
       scrollMV.set(targetProgress);
     }
@@ -183,7 +199,10 @@ export const Carousel = ({
     ],
   );
 
-  const percentTransform = useTransform(transform, (value) => `${-value * 100}%`);
+  const percentTransform = useTransform(
+    transform,
+    (value) => `${-value * 100}%`,
+  );
 
   const handleScroll = (args: {
     scrollProgress: number;
@@ -249,17 +268,26 @@ export const Carousel = ({
       let maxWidth = outputRange[1];
       const visible = scroll?.scrollVisible ?? root.clientWidth;
       if (maxWidth > visible) maxWidth = visible;
-      const result = ((maxWidth + gap) * renderItems.length) / scrollSensitivity;
+      const result =
+        ((maxWidth + gap) * renderItems.length) / scrollSensitivity;
       setScrollSize(result);
     });
     ro.observe(root);
     ro.observe(track);
     return () => ro.disconnect();
-  }, [ref, trackRef, renderItems.length, gap, outputRange, scrollSensitivity, scroll]);
+  }, [
+    ref,
+    trackRef,
+    renderItems.length,
+    gap,
+    outputRange,
+    scrollSensitivity,
+    scroll,
+  ]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (!items.length) return;
-    let idx = focusedIndex ?? selectedItem;
+    const idx = focusedIndex ?? selectedItem;
     switch (e.key) {
       case 'ArrowLeft':
         e.preventDefault();
@@ -290,14 +318,19 @@ export const Carousel = ({
     const root = ref.current as any;
     if (!root) return;
     const handler = (ev: Event) => {
-      const detail = (ev as CustomEvent).detail as { index?: number } | undefined;
+      const detail = (ev as CustomEvent).detail as
+        | { index?: number }
+        | undefined;
       if (detail && typeof detail.index === 'number') {
         centerOnIndex(detail.index);
       }
     };
     root.addEventListener('udx:carousel:centerIndex', handler as EventListener);
     return () => {
-      root.removeEventListener('udx:carousel:centerIndex', handler as EventListener);
+      root.removeEventListener(
+        'udx:carousel:centerIndex',
+        handler as EventListener,
+      );
     };
   }, [ref, items.length]);
 

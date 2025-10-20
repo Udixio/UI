@@ -7,6 +7,7 @@ export interface CarouselInterface {
     children?: ReactElement<typeof CarouselItem>[];
     marginPourcent?: number;
     onChange?: (index: number) => void;
+    index?: number; // Controlled index for programmatic centering
     variant?:
       | 'hero'
       | 'center-aligned hero'
