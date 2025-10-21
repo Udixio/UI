@@ -180,15 +180,18 @@ export const Carousel = ({
       if (!item) return;
 
       if (index == 0) {
-        let relative = selectedItem?.relativeIndex * 2;
-        if (relative >= 0) relative = 1 - relative;
+        // let relative = selectedItem?.relativeIndex * 2;
+        // relative = relative > 0 ? (1 - relative) * -1 : 1 + relative;
 
-        const percent = normalize(item?.relativeIndex, [-2, -1], [0, 1]);
-        console.log(index, percent, relative, item?.relativeIndex);
+        const percent = normalize(
+          item?.relativeIndex,
+          [-2, item.index == 0 ? 0 : -1],
+          [0, 1],
+        );
+        console.log(index, percent, item?.relativeIndex);
 
-        item.width = normalize(percent, [0, 1], [0, visible * outputRange[1]]);
+        item.width = normalize(percent, [0, 1], [0, outputRange[1]]);
       } else {
-        console.log('itemIndex', item);
         item.width = null;
       }
 
