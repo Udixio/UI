@@ -6,7 +6,8 @@ export const carouselItemStyle = defaultClassNames<CarouselItemInterface>(
   ({ width }) => {
     return {
       carouselItem: classNames('rounded-[28px] overflow-hidden flex-none', {
-        hidden: !width,
+        hidden: width === undefined,
+        'flex-1': width == null,
       }),
     };
   },

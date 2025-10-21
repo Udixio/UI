@@ -27,6 +27,7 @@ export const CarouselItem = ({
   children,
   width,
   index = 0,
+  outputRange,
   ref: optionalRef,
   ...restProps
 }: MotionProps<CarouselItemInterface>) => {
@@ -38,12 +39,18 @@ export const CarouselItem = ({
     index,
     width,
     children,
+    outputRange,
   });
 
   return (
     <div
       ref={ref}
-      style={{ width: width + 'px', willChange: 'width' }}
+      style={{
+        width: width + 'px',
+        maxWidth: outputRange[1] + 'px',
+        minWidth: outputRange[0] + 'px',
+        willChange: 'width',
+      }}
       transition={{
         duration: 0.5,
         ease: 'linear',
