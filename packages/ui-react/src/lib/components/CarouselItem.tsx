@@ -1,6 +1,5 @@
 import React, { useRef } from 'react';
 import { CarouselItemInterface } from '../interfaces';
-import { motion } from 'motion/react';
 import { carouselItemStyle } from '../styles';
 import { MotionProps } from '../utils';
 
@@ -26,7 +25,7 @@ export const normalize = (
 export const CarouselItem = ({
   className,
   children,
-  width = 1,
+  width,
   index = 0,
   ref: optionalRef,
   ...restProps
@@ -37,14 +36,14 @@ export const CarouselItem = ({
   const styles = carouselItemStyle({
     className,
     index,
-    width: width,
+    width,
     children,
   });
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      animate={{ maxWidth: width + 'px' }}
+      style={{ width: width + 'px', willChange: 'width' }}
       transition={{
         duration: 0.5,
         ease: 'linear',
@@ -56,10 +55,10 @@ export const CarouselItem = ({
         className={'absolute inset-0 m-auto flex items-center justify-center'}
       >
         <span className={'text-display-large text-surface-variant'}>
-          {Math.round(width)}
+          {width === null ? 'null' : Math.round(width ?? 0)}
         </span>
       </div>
       {children}
-    </motion.div>
+    </div>
   );
 };

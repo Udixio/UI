@@ -19,7 +19,7 @@ export const Carousel = ({
   ref: optionalRef,
   marginPourcent = 0,
   inputRange = [0.21, 0.65],
-  outputRange = [42, 600],
+  outputRange = [42, 300],
   gap = 8,
   onChange,
   index,
@@ -47,7 +47,9 @@ export const Carousel = ({
   );
 
   const trackRef = useRef<HTMLDivElement>(null);
-  const [itemsWidth, setItemsWidth] = useState<number[]>([]);
+  const [itemsWidth, setItemsWidth] = useState<Record<number, number | null>>(
+    {},
+  );
   const [scroll, setScroll] = useState<{
     scrollProgress: number;
     scrollTotal: number;
@@ -55,7 +57,12 @@ export const Carousel = ({
     scroll: number;
   } | null>(null);
   const calculatePercentages = () => {
-    if (!trackRef.current || !ref.current) return [];
+    if (
+      !trackRef.current ||
+      !ref.current ||
+      scroll?.scrollProgress === undefined
+    )
+      return [];
 
     const scrollVisible =
       scroll?.scrollVisible ?? (ref.current as any)?.clientWidth ?? 0;
@@ -64,54 +71,126 @@ export const Carousel = ({
     function assignRelativeIndexes(
       values: number[],
       progressScroll: number,
-    ): number[] {
-      return values.map((value, index) => {
-        const result =
-          (value - progressScroll) / Math.abs(values[1] - values[0]);
-        return result;
-      });
+    ): {
+      itemScrollXCenter: number;
+      relativeIndex: number;
+      index: number;
+      width: number | null;
+    }[] {
+      return values.map((value, index) => ({
+        itemScrollXCenter: value,
+        relativeIndex:
+          (value - progressScroll) / Math.abs(values[1] - values[0]),
+        index: index,
+        width: null,
+      }));
     }
 
-    let itemValues = items.map((_, index) => {
+    const itemsScrollXCenter = items.map((_, index) => {
       const itemRef = itemRefs[index];
 
       if (!itemRef.current || !trackRef.current) return 0;
 
-      let itemScrollXCenter = index / (items.length - 1);
+      const itemScrollXCenter = index / (items.length - 1);
 
-      if (itemScrollXCenter > 1) itemScrollXCenter = 1;
-      if (itemScrollXCenter < 0) itemScrollXCenter = 0;
-
-      return itemScrollXCenter;
+      return normalize(itemScrollXCenter, [0, 1], [0, 1]);
     });
 
-    itemValues = assignRelativeIndexes(itemValues, scroll?.scrollProgress ?? 0);
+    const itemValues = assignRelativeIndexes(
+      itemsScrollXCenter,
+      scroll?.scrollProgress ?? 0,
+    );
+    // const visible =
+    //   ((ref.current?.clientWidth ?? scrollVisible) - (outputRange[0] + gap)) /
+    //   (outputRange[1] + gap);
 
-    const visible =
-      ((ref.current?.clientWidth ?? scrollVisible) - (outputRange[0] + gap)) /
+    let visible =
+      ((ref.current?.clientWidth ?? scrollVisible) + gap) /
       (outputRange[1] + gap);
 
-    console.log('visible', visible);
-    console.log('scroll', scroll);
+    const widthContent = 0;
 
-    itemValues
-      .map((value, index) => ({ value: Math.abs(value), originalIndex: index })) // Associer chaque élément à son index
-      .sort((a, b) => a.value - b.value)
-      .forEach((item, index) => {
-        if (index === 0) setSelectedItem(item.originalIndex);
+    const visibleItemValues = itemValues
+      .sort((a, b) => Math.abs(a.relativeIndex) - Math.abs(b.relativeIndex))
+      .map((item, index) => {
+        if (!item) return;
 
-        let result = normalize(visible, [0, 1], [0, outputRange[1]]);
+        if (index === 0) {
+          setSelectedItem(item.index);
+        }
 
-        console.log(item.originalIndex, item.value, result);
+        if (visible < 0) {
+          item.width = 0;
+          return;
+        }
 
-        if (result < outputRange[0]) result = outputRange[0];
-        // visible--;
+        const el = itemRefs[item.index]?.current;
+        if (!ref.current || !el) return;
 
-        // console.log(item.originalIndex, result);
-        itemValues[item.originalIndex] = result;
-      });
+        // const remainingWidth = (ref.current.clientWidth - widthContent) / 2;
 
-    return itemValues;
+        // const elRect = el.getBoundingClientRect();
+        // const containerRect = ref.current.getBoundingClientRect();
+        // const visibleWidth =
+        //   Math.min(elRect.right, containerRect.right) -
+        //   Math.max(elRect.left, containerRect.left);
+        // const percentVisibleX = visibleWidth / el.offsetWidth;
+
+        if (visible <= 0) {
+          item.width = outputRange[0];
+        } else if (visible >= 2) {
+          item.width = outputRange[1];
+          --visible;
+        } else {
+          item.width = null;
+          --visible;
+        }
+        return item;
+      })
+      .filter(Boolean) as {
+      itemScrollXCenter: number;
+      relativeIndex: number;
+      index: number;
+      width: number | null;
+    }[];
+
+    visible += 2;
+
+    const dynamicItems = visibleItemValues.filter(
+      (item) => item.width === null,
+    );
+
+    let dynamicWidth = 0;
+
+    dynamicItems.forEach((item) => {
+      if (!item) return;
+
+      const result = normalize(
+        1 - Math.abs(scroll.scrollProgress - item.itemScrollXCenter),
+        [0, 1],
+        [0, 1],
+      );
+      item.width = result;
+      dynamicWidth += result;
+    });
+
+    dynamicItems.forEach((item) => {
+      if (!item) return;
+
+      console.log(item, dynamicWidth, visible);
+
+      item.width = normalize(
+        item.width / dynamicWidth,
+        [0, 1],
+        [0, visible * outputRange[1]],
+      );
+    });
+
+    return Object.fromEntries(
+      visibleItemValues
+        .sort((a, b) => a.index - b.index)
+        .map((item) => [item.index, item.width]),
+    );
   };
   const itemRefs = useRef<React.RefObject<HTMLDivElement | null>[]>([]).current;
   const [selectedItem, setSelectedItem] = useState(0);
@@ -371,7 +450,7 @@ export const Carousel = ({
             transitionDuration: '0.5s',
             transitionTimingFunction: 'ease-out',
             gap: `${gap}px`,
-            translate: translateX,
+            // translate: translateX,
             willChange: 'translate',
           }}
         >
