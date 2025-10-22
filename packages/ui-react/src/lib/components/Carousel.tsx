@@ -77,14 +77,14 @@ export const Carousel = ({
       itemScrollXCenter: number;
       relativeIndex: number;
       index: number;
-      width: number | null;
+      width: number;
     }[] {
       return values.map((value, index) => ({
         itemScrollXCenter: value,
         relativeIndex:
           (value - progressScroll) / Math.abs(values[1] - values[0]),
         index: index,
-        width: null,
+        width: 0,
       }));
     }
 
@@ -127,21 +127,8 @@ export const Carousel = ({
         const el = itemRefs[item.index]?.current;
         if (!ref.current || !el) return;
 
-        // const remainingWidth = (ref.current.clientWidth - widthContent) / 2;
-
-        // const elRect = el.getBoundingClientRect();
-        // const containerRect = ref.current.getBoundingClientRect();
-        // const visibleWidth =
-        //   Math.min(elRect.right, containerRect.right) -
-        //   Math.max(elRect.left, containerRect.left);
-        // const percentVisibleX = visibleWidth / el.offsetWidth;
-
         if (widthContent <= 0) {
-          if (widthContent >= -1) {
-            item.width = outputRange[0];
-          } else {
-            return undefined;
-          }
+          return undefined;
         } else {
           item.width = outputRange[1];
         }
@@ -154,22 +141,24 @@ export const Carousel = ({
       itemScrollXCenter: number;
       relativeIndex: number;
       index: number;
-      width: number | null;
+      width: number;
     }[];
 
+    let widthLeft = (ref.current?.clientWidth ?? scrollVisible) - gap;
+
     const dynamicItems = visibleItemValues.filter((item, index, array) => {
+      let isDynamic = false;
       if (item.width == outputRange[1]) {
         if (index === 0 || index === array.length - 1) {
-          return true;
-        }
-        if (index === 1) {
-          return array[0].width !== outputRange[1];
-        }
-        if (index === array.length - 2) {
-          return array[array.length - 1].width !== outputRange[1];
+          isDynamic = true;
         }
       }
-      return false;
+      if (isDynamic) {
+        return true;
+      } else {
+        widthLeft -= item.width + gap;
+        return false;
+      }
     });
 
     // console.log(dynamicItems, visibleItemValues, visible);
@@ -188,52 +177,69 @@ export const Carousel = ({
       dynamicWidth += result;
     });
 
-    let widthLeft =
-      (visible -
-        visibleItemValues.filter((item) => item.width === outputRange[1])
-          .length) *
-      outputRange[1];
+    // let widthLeft =
+    //   (visible -
+    //     visibleItemValues
+    //       .slice(0, visibleItemValues.length - 2)
+    //       .filter((item) => item.width === outputRange[1]).length) *
+    //   outputRange[1];
 
+    // console.log(
+    //   visible,
+    //   widthLeft,
+    //   visibleItemValues
+    //     .slice(0, visibleItemValues.length - 2)
+    //     .filter((item) => item.width === outputRange[1]).length,
+    // );
+
+    let translate = 0;
     dynamicItems.forEach((item, index) => {
       if (!item) return;
 
       if (index == 0) {
-        // let relative = selectedItem?.relativeIndex * 2;
-        // relative = relative > 0 ? (1 - relative) * -1 : 1 + relative;
-
         const percent = normalize(
           item?.relativeIndex,
           [-2, item.index == 0 ? 0 : -1],
           [0, 1],
         );
-        // console.log(index, percent, item?.relativeIndex);
 
-        item.width = Math.max(
-          normalize(percent, [0, 1], [0, outputRange[1]]),
-          outputRange[0],
+        if (item.index >= 1) {
+          itemValues.sort((a, b) => a.index - b.index);
+
+          itemValues[item.index - 1].width = outputRange[0];
+          visibleItemValues.unshift(itemValues[item.index - 1]);
+          widthLeft -= outputRange[0] + gap;
+
+          translate = normalize(
+            1 - percent,
+            [0.25, 1],
+            [0, -(outputRange[0] + gap)],
+          );
+        }
+        widthLeft -= translate;
+        setTranslateX(translate);
+
+        // let relative = selectedItem?.relativeIndex * 2;
+        // relative = relative > 0 ? (1 - relative) * -1 : 1 + relative;
+
+        console.log(index, percent, item?.relativeIndex);
+
+        item.width = normalize(
+          percent,
+          [0, 1],
+          [outputRange[0], outputRange[1]],
         );
+
         widthLeft -= item.width;
 
-        if (item.index > 0) {
-          console.log(
-            percent,
-            normalize(percent, [0.5, 1], [-(outputRange[0] + gap), 0]),
-          );
-          if (percent < 0.5) {
-            setTranslateX(0);
-          } else {
-            setTranslateX(
-              normalize(percent, [0.5, 1], [-(outputRange[0] + gap), 0]),
-            );
-          }
-        } else if (translateX) {
-          setTranslateX(0);
-        }
+        // console.log(widthLeft);
       } else {
         let dynamicIndex = item.index;
+        // console.log('n', dynamicIndex, widthLeft);
         let isEnd = false;
+        // console.log('start');
         while (widthLeft > 0) {
-          console.log('boucle', widthLeft);
+          // console.log('boucle', widthLeft);
           const dynamicItem = itemValues.filter(
             (item) => item.index === dynamicIndex,
           )[0];
@@ -256,8 +262,22 @@ export const Carousel = ({
             if (!visibleItemValues.includes(dynamicItem)) {
               visibleItemValues.push(dynamicItem);
             }
-            dynamicItem.width = Math.min(outputRange[1], widthLeft);
-            widthLeft -= dynamicItem.width;
+
+            // console.log('widthLeft', dynamicItem.index, widthLeft, translate);
+
+            dynamicItem.width = normalize(
+              widthLeft,
+              [outputRange[0], outputRange[1]],
+              [outputRange[0], outputRange[1]],
+            );
+
+            // dynamicItem.width = Math.min(
+            //   outputRange[1],
+            //   widthLeft - (outputRange[0] + gap),
+            // );
+
+            widthLeft -= dynamicItem.width + gap;
+
             dynamicIndex++;
           }
         }
