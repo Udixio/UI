@@ -29,6 +29,8 @@ export const Carousel = ({
   const defaultRef = useRef(null);
   const ref = optionalRef || defaultRef;
 
+  const [translateX, setTranslateX] = useState(0);
+
   const styles = carouselStyle({
     index,
     className,
@@ -206,8 +208,27 @@ export const Carousel = ({
         );
         // console.log(index, percent, item?.relativeIndex);
 
-        item.width = normalize(percent, [0, 1], [0, outputRange[1]]);
+        item.width = Math.max(
+          normalize(percent, [0, 1], [0, outputRange[1]]),
+          outputRange[0],
+        );
         widthLeft -= item.width;
+
+        if (item.index > 0) {
+          console.log(
+            percent,
+            normalize(percent, [0.5, 1], [-(outputRange[0] + gap), 0]),
+          );
+          if (percent < 0.5) {
+            setTranslateX(0);
+          } else {
+            setTranslateX(
+              normalize(percent, [0.5, 1], [-(outputRange[0] + gap), 0]),
+            );
+          }
+        } else if (translateX) {
+          setTranslateX(0);
+        }
       } else {
         let dynamicIndex = item.index;
         let isEnd = false;
@@ -486,12 +507,6 @@ export const Carousel = ({
     };
   }, [ref, items.length]);
 
-  const translateX = normalize(
-    scroll?.scrollProgress ?? 0,
-    [0, 1],
-    [0, -((trackRef.current?.scrollWidth ?? 0) - (scroll?.scrollVisible ?? 0))],
-  );
-
   return (
     <div
       className={styles.carousel}
@@ -511,10 +526,8 @@ export const Carousel = ({
           className={styles.track}
           ref={trackRef}
           style={{
-            transitionDuration: '0.5s',
-            transitionTimingFunction: 'ease-out',
             gap: `${gap}px`,
-            // translate: translateX,
+            translate: translateX,
             willChange: 'translate',
           }}
         >
