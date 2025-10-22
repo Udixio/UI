@@ -99,16 +99,16 @@ export const Carousel = ({
     const itemValues = assignRelativeIndexes(
       itemsScrollXCenter,
       scroll?.scrollProgress ?? 0,
-    );
+    ).sort((a, b) => a.index - b.index);
     // const visible =
     //   ((ref.current?.clientWidth ?? scrollVisible) - (outputRange[0] + gap)) /
     //   (outputRange[1] + gap);
 
-    let visible =
+    const visible =
       ((ref.current?.clientWidth ?? scrollVisible) + gap) /
       (outputRange[1] + gap);
 
-    const widthContent = 0;
+    let widthContent = visible;
 
     let selectedItem;
 
@@ -120,11 +120,6 @@ export const Carousel = ({
         if (index === 0) {
           setSelectedItem(item.index);
           selectedItem = item;
-        }
-
-        if (visible < 0) {
-          item.width = 0;
-          return;
         }
 
         const el = itemRefs[item.index]?.current;
@@ -139,13 +134,17 @@ export const Carousel = ({
         //   Math.max(elRect.left, containerRect.left);
         // const percentVisibleX = visibleWidth / el.offsetWidth;
 
-        if (visible <= 0) {
-          item.width = outputRange[0];
+        if (widthContent <= 0) {
+          if (widthContent >= -1) {
+            item.width = outputRange[0];
+          } else {
+            return undefined;
+          }
         } else {
           item.width = outputRange[1];
         }
 
-        --visible;
+        --widthContent;
         return item;
       })
       .filter(Boolean)
@@ -156,11 +155,22 @@ export const Carousel = ({
       width: number | null;
     }[];
 
-    visible += 2;
+    const dynamicItems = visibleItemValues.filter((item, index, array) => {
+      if (item.width == outputRange[1]) {
+        if (index === 0 || index === array.length - 1) {
+          return true;
+        }
+        if (index === 1) {
+          return array[0].width !== outputRange[1];
+        }
+        if (index === array.length - 2) {
+          return array[array.length - 1].width !== outputRange[1];
+        }
+      }
+      return false;
+    });
 
-    const dynamicItems = visibleItemValues.filter(
-      (_, index, array) => index === 0 || index === array.length - 1,
-    );
+    // console.log(dynamicItems, visibleItemValues, visible);
 
     let dynamicWidth = 0;
 
@@ -176,6 +186,12 @@ export const Carousel = ({
       dynamicWidth += result;
     });
 
+    let widthLeft =
+      (visible -
+        visibleItemValues.filter((item) => item.width === outputRange[1])
+          .length) *
+      outputRange[1];
+
     dynamicItems.forEach((item, index) => {
       if (!item) return;
 
@@ -188,11 +204,42 @@ export const Carousel = ({
           [-2, item.index == 0 ? 0 : -1],
           [0, 1],
         );
-        console.log(index, percent, item?.relativeIndex);
+        // console.log(index, percent, item?.relativeIndex);
 
         item.width = normalize(percent, [0, 1], [0, outputRange[1]]);
+        widthLeft -= item.width;
       } else {
-        item.width = null;
+        let dynamicIndex = item.index;
+        let isEnd = false;
+        while (widthLeft > 0) {
+          console.log('boucle', widthLeft);
+          const dynamicItem = itemValues.filter(
+            (item) => item.index === dynamicIndex,
+          )[0];
+
+          if (!dynamicItem) {
+            if (isEnd) {
+              throw new Error('dynamicItem not found');
+            }
+            dynamicIndex = dynamicItems[0].index;
+            isEnd = true;
+            continue;
+          }
+
+          if (isEnd) {
+            console.log('end', dynamicItem);
+            dynamicItem.width = Math.max(dynamicItem.width, widthLeft);
+            widthLeft -= dynamicItem.width;
+            dynamicIndex--;
+          } else {
+            if (!visibleItemValues.includes(dynamicItem)) {
+              visibleItemValues.push(dynamicItem);
+            }
+            dynamicItem.width = Math.min(outputRange[1], widthLeft);
+            widthLeft -= dynamicItem.width;
+            dynamicIndex++;
+          }
+        }
       }
 
       // console.log(item, dynamicWidth, visible, selectedItem);
