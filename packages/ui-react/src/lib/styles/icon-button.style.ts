@@ -20,31 +20,21 @@ export const iconButtonStyle = defaultClassNames<IconButtonInterface>(
         {
           'cursor-default': disabled,
         },
-        (shape === 'rounded' ||
-          (shape === 'squared' &&
-            onToggle &&
-            !disabled &&
-            isActive &&
-            allowShapeTransformation)) && {
+        shape === 'rounded' && {
           'rounded-[30px]': size === 'xSmall' || size == 'small',
           'rounded-[40px]': size === 'medium',
           'rounded-[70px]': size === 'large' || size == 'xLarge',
         },
-        (shape === 'squared' ||
-          (shape === 'rounded' &&
-            onToggle &&
-            !disabled &&
-            isActive &&
-            allowShapeTransformation)) && {
+        (shape === 'squared' || (allowShapeTransformation && isActive)) && {
           'rounded-[12px]': size === 'xSmall' || size == 'small',
           'rounded-[16px]': size === 'medium',
           'rounded-[28px]': size === 'large' || size == 'xLarge',
         },
         allowShapeTransformation &&
           !disabled && {
-            'group-active:rounded-[12px]': size === 'xSmall' || size == 'small',
-            'group-active:rounded-[16px]': size === 'medium',
-            'group-active:rounded-[28px]': size === 'large' || size == 'xLarge',
+            'active:rounded-[12px]': size === 'xSmall' || size == 'small',
+            'active:rounded-[16px]': size === 'medium',
+            'active:rounded-[28px]': size === 'large' || size == 'xLarge',
           },
         variant === 'filled' && [
           !disabled && {
