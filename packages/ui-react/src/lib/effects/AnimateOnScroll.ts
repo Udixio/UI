@@ -190,8 +190,7 @@ function addAnimationLifecycle(el: HTMLElement, prefix: string): void {
     // which would block the initial in/out trigger from IntersectionObserver.
     if (
       el.hasAttribute(`data-${prefix}-in-run`) ||
-      el.hasAttribute(`data-${prefix}-out-run`) ||
-      el.hasAttribute(`data-${prefix}-run`)
+      el.hasAttribute(`data-${prefix}-out-run`)
     ) {
       el.setAttribute(`data-${prefix}-animating`, ``);
     }
