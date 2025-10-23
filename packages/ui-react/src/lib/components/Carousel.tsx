@@ -28,6 +28,7 @@ export const Carousel = ({
   outputRange = [42, 300],
   gap = 8,
   onChange,
+  onMetricsChange,
   index,
   scrollSensitivity = 1.25,
   ...restProps
@@ -333,7 +334,7 @@ export const Carousel = ({
       items.length > 0 &&
       index !== selectedItem
     ) {
-      // centerOnIndex(index);
+      centerOnIndex(index);
     }
   }, [index, items.length]);
 
@@ -353,26 +354,38 @@ export const Carousel = ({
   // accessibility and interaction states
   const [focusedIndex, setFocusedIndex] = useState(0);
 
-  // const centerOnIndex = (index: number, opts: { animate?: boolean } = {}) => {
-  //   if (!items.length) return;
-  //   const clamped = Math.max(0, Math.min(index, items.length - 1));
-  //   const targetProgress = items.length > 1 ? clamped / (items.length - 1) : 0;
-  //   if (opts.animate !== false) {
-  //     motionAnimate(scrollMV, targetProgress, {
-  //       duration: 0.5,
-  //       ease: 'easeOut',
-  //     });
-  //   } else {
-  //     scrollMV.set(targetProgress);
-  //   }
-  //   setSelectedItem(clamped);
-  //   setFocusedIndex(clamped);
-  //   // Focus the item for accessibility
-  //   const el = itemRefs[clamped]?.current;
-  //   if (el && typeof (el as any).focus === 'function') {
-  //     (el as any).focus();
-  //   }
-  // };
+  const centerOnIndex = (index: number, opts: { animate?: boolean } = {}) => {
+    // Guard: need valid refs and at least one item
+    if (!items.length) return 0;
+    const itemRef = itemRefs[index];
+    if (!itemRef || !itemRef.current || !trackRef.current) return 0;
+
+    // Compute progress (0..1) for the target item center within the track
+    const itemScrollXCenter = normalize(
+      index / Math.max(1, items.length - 1),
+      [0, 1],
+      [0, 1],
+    );
+
+    // Update selection/focus hint
+    setFocusedIndex(index);
+
+    // Ask CustomScroll to move to the computed progress. This will trigger onScroll,
+    // which in turn drives the smoothed animation via handleScroll().
+    const track = trackRef.current as HTMLElement;
+    track.dispatchEvent(
+      new CustomEvent('udx:customScroll:set', {
+        bubbles: true,
+        detail: {
+          progress: itemScrollXCenter,
+          orientation: 'horizontal',
+          animate: opts.animate !== false,
+        },
+      }),
+    );
+
+    return itemScrollXCenter;
+  };
 
   const renderItems = items.map((child, index) => {
     const existingOnClick = (child as any).props?.onClick as
@@ -452,6 +465,68 @@ export const Carousel = ({
     const updatedPercentages = calculatePercentages();
     setItemsWidth(updatedPercentages);
   }, [scroll]);
+
+  // Keep latest onMetricsChange in a ref to avoid effect dependency loops
+  const onMetricsChangeRef = useRef(onMetricsChange);
+  useEffect(() => {
+    onMetricsChangeRef.current = onMetricsChange;
+  }, [onMetricsChange]);
+
+  // Cache last emitted metrics to prevent redundant calls
+  const lastMetricsRef = useRef<any>(null);
+
+  // Compute and emit live metrics for external control
+  useEffect(() => {
+    const cb = onMetricsChangeRef.current;
+    if (!cb) return;
+    if (!ref?.current) return;
+    const total = items.length;
+    if (total <= 0) return;
+    const viewportWidth = (ref.current as any)?.clientWidth ?? 0;
+    const itemMaxWidth = outputRange[1];
+    const sProgress =
+      smoothedProgressRef.current ?? scroll?.scrollProgress ?? 0;
+    const visibleApprox = (viewportWidth + gap) / (itemMaxWidth + gap);
+    const visibleFull = Math.max(1, Math.floor(visibleApprox));
+    const stepHalf = Math.max(1, Math.round(visibleFull * (2 / 3)));
+    const selectedIndexSafe = Math.min(
+      Math.max(0, selectedItem),
+      Math.max(0, total - 1),
+    );
+    const canPrev = selectedIndexSafe > 0;
+    const canNext = selectedIndexSafe < total - 1;
+
+    const metrics = {
+      total,
+      selectedIndex: selectedIndexSafe,
+      visibleApprox,
+      visibleFull,
+      stepHalf,
+      canPrev,
+      canNext,
+      scrollProgress: sProgress,
+      viewportWidth,
+      itemMaxWidth,
+      gap,
+    } as any;
+
+    // Shallow compare with last metrics to avoid spamming parent and loops
+    const last = lastMetricsRef.current;
+    let changed = !last;
+    if (!changed) {
+      for (const k in metrics) {
+        if (metrics[k] !== last[k]) {
+          changed = true;
+          break;
+        }
+      }
+    }
+
+    if (changed) {
+      lastMetricsRef.current = metrics;
+      cb(metrics);
+    }
+  }, [ref, items.length, selectedItem, scroll, gap, outputRange]);
 
   // // Recalculate on scrollMV changes (e.g., programmatic animations)
   // useEffect(() => {

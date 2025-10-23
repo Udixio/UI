@@ -58,13 +58,6 @@ export const CarouselItem = ({
       className={styles.carouselItem}
       {...restProps}
     >
-      <div
-        className={'absolute inset-0 m-auto flex items-center justify-center'}
-      >
-        <span className={'text-display-large text-surface-variant'}>
-          {width === null ? 'null' : Math.round(width ?? 0)}
-        </span>
-      </div>
       {children}
     </div>
   );

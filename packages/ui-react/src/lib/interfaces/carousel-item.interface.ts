@@ -4,7 +4,7 @@ export interface CarouselItemInterface {
   type: 'div';
   props: {
     children?: ReactNode | undefined;
-    width?: number | null;
+    width?: number;
     index?: number;
     outputRange?: [number, number];
   };
