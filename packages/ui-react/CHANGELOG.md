@@ -1,3 +1,13 @@
+## 2.5.2 (2025-10-23)
+
+### 🩹 Fixes
+
+- **ui-react:** remove redundant animation run attribute check ([25c7b65](https://github.com/Udixio/UI/commit/25c7b65))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.5.1 (2025-10-23)
 
 ### 🩹 Fixes
