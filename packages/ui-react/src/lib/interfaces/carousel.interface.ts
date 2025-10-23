@@ -10,7 +10,7 @@ export interface CarouselInterface {
     index?: number; // Controlled index for programmatic centering
     variant?:
       | 'hero'
-      | 'center-aligned hero'
+      | 'center-aligned'
       | 'multi-browse'
       | 'un-contained'
       | 'full-screen';

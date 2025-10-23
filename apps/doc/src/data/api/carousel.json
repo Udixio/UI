@@ -1,10 +1,11 @@
 {
   "tags": {
     "status": "beta",
-    "category": "Layout"
+    "category": "Layout",
+    "limitations": "- At the end of the scroll, a residual gap/space may remain visible.\n- In/out behavior is inconsistent at range edges.\n- Responsive behavior on mobile is not supported.\n- Only the default (hero) variant is supported."
   },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/Carousel.tsx",
-  "description": "Carousels show a collection of items that can be scrolled on and off the screen\nResources",
+  "description": "Carousels show a collection of items that can be scrolled on and off the screen",
   "displayName": "Carousel",
   "methods": [],
   "props": {
@@ -39,7 +40,7 @@
       ],
       "required": false,
       "type": {
-        "name": "\"hero\" | \"center-aligned hero\" | \"multi-browse\" | \"un-contained\" | \"full-screen\""
+        "name": "\"hero\" | \"center-aligned\" | \"multi-browse\" | \"un-contained\" | \"full-screen\""
       }
     },
     "scrollSensitivity": {

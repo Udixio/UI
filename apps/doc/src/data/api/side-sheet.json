@@ -1,45 +1,64 @@
 {
   "tags": {
     "status": "beta",
-    "category": "Input"
+    "category": "Layout"
   },
-  "filePath": "node_modules/@udixio/ui-react/src/lib/components/Switch.tsx",
-  "description": "Switches toggle the selection of an item on or off",
-  "displayName": "Switch",
+  "filePath": "node_modules/@udixio/ui-react/src/lib/components/SideSheet.tsx",
+  "description": "Side sheets show secondary content anchored to the side of the screen",
+  "displayName": "SideSheet",
   "methods": [],
   "props": {
-    "selected": {
+    "variant": {
       "defaultValue": {
-        "value": false
+        "value": "standard"
       },
       "description": "",
-      "name": "selected",
+      "name": "variant",
       "declarations": [
         {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/switch.interface.ts",
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/side-sheet.interface.tsx",
           "name": "TypeLiteral"
         }
       ],
       "required": false,
       "type": {
-        "name": "boolean"
+        "name": "\"standard\" | \"modal\""
       }
     },
-    "disabled": {
+    "position": {
       "defaultValue": {
-        "value": false
+        "value": "right"
       },
       "description": "",
-      "name": "disabled",
+      "name": "position",
       "declarations": [
         {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/switch.interface.ts",
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/side-sheet.interface.tsx",
           "name": "TypeLiteral"
         }
       ],
       "required": false,
       "type": {
-        "name": "boolean"
+        "name": "\"left\" | \"right\""
+      }
+    },
+    "transition": {
+      "defaultValue": null,
+      "description": "Default transition. If no `transition` is defined in `animate`, it will use the transition defined here.\n```jsx\nconst spring = {\n  type: \"spring\",\n  damping: 10,\n  stiffness: 100\n}\n\n<motion.div transition={spring} animate={{ scale: 1.2 }} />\n```",
+      "name": "transition",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/side-sheet.interface.tsx",
+          "name": "TypeLiteral"
+        },
+        {
+          "fileName": "components/node_modules/.pnpm/motion-dom@12.23.21/node_modules/motion-dom/dist/index.d.ts",
+          "name": "MotionNodeAnimationOptions"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "Transition & Transition<any>"
       }
     },
     "initial": {
@@ -116,25 +135,6 @@
       "required": false,
       "type": {
         "name": "Variants"
-      }
-    },
-    "transition": {
-      "defaultValue": null,
-      "description": "Default transition. If no `transition` is defined in `animate`, it will use the transition defined here.\n```jsx\nconst spring = {\n  type: \"spring\",\n  damping: 10,\n  stiffness: 100\n}\n\n<motion.div transition={spring} animate={{ scale: 1.2 }} />\n```",
-      "name": "transition",
-      "parent": {
-        "fileName": "components/node_modules/.pnpm/motion-dom@12.23.21/node_modules/motion-dom/dist/index.d.ts",
-        "name": "MotionNodeAnimationOptions"
-      },
-      "declarations": [
-        {
-          "fileName": "components/node_modules/.pnpm/motion-dom@12.23.21/node_modules/motion-dom/dist/index.d.ts",
-          "name": "MotionNodeAnimationOptions"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "Transition<any>"
       }
     },
     "onUpdate": {

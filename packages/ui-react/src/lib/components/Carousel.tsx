@@ -8,9 +8,14 @@ import { CarouselItem, normalize } from './CarouselItem';
 
 /**
  * Carousels show a collection of items that can be scrolled on and off the screen
- * Resources
+ *
  * @status beta
  * @category Layout
+ * @limitations
+ * - At the end of the scroll, a residual gap/space may remain visible.
+ * - In/out behavior is inconsistent at range edges.
+ * - Responsive behavior on mobile is not supported.
+ * - Only the default (hero) variant is supported.
  */
 export const Carousel = ({
   variant = 'hero',
