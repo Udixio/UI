@@ -1,4 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { animate } from 'motion/react';
 import { CarouselInterface, CarouselItemInterface } from '../interfaces';
 
 import { carouselStyle } from '../styles';
@@ -63,6 +64,10 @@ export const Carousel = ({
     scrollVisible: number;
     scroll: number;
   } | null>(null);
+  // Smoothed scroll progress using framer-motion animate()
+  const smoothedProgressRef = useRef(0);
+  const scrollAnimationRef = useRef<ReturnType<typeof animate> | null>(null);
+
   const calculatePercentages = () => {
     if (
       !trackRef.current ||
@@ -422,9 +427,24 @@ export const Carousel = ({
     scroll: number;
   }) => {
     if (args.scrollTotal > 0) {
-      // update both MV (visual position) and raw scroll info
-      // scrollMV.set(args.scrollProgress);
-      setScroll(args);
+      // Smooth and inertial transition of scrollProgress using framer-motion animate()
+      // Stop any previous animation to avoid stacking
+      scrollAnimationRef.current?.stop();
+      const from = smoothedProgressRef.current ?? 0;
+      const to = args.scrollProgress ?? 0;
+
+      scrollAnimationRef.current = animate(from, to, {
+        // Spring tuning to add a bit of inertia and smoothness
+        type: 'spring',
+        stiffness: 260,
+        damping: 32,
+        mass: 0.6,
+        restDelta: 0.0005,
+        onUpdate: (v) => {
+          smoothedProgressRef.current = v;
+          setScroll({ ...args, scrollProgress: v });
+        },
+      });
     }
   };
 
@@ -457,6 +477,13 @@ export const Carousel = ({
   //   const updated = calculatePercentages();
   //   if (updated.length) setItemsWidth(updated);
   // }, [items.length]);
+
+  // Cleanup any pending animation on unmount
+  useEffect(() => {
+    return () => {
+      scrollAnimationRef.current?.stop();
+    };
+  }, []);
 
   const [scrollSize, setScrollSize] = useState(0);
   useLayoutEffect(() => {
