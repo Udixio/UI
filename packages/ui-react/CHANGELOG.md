@@ -1,3 +1,24 @@
+## 2.5.0 (2025-10-23)
+
+### 🚀 Features
+
+- **carousel:** add live metrics support and restore centering logic ([c0e57df](https://github.com/Udixio/UI/commit/c0e57df))
+- **carousel:** add smooth scroll animation with framer-motion ([8ddf506](https://github.com/Udixio/UI/commit/8ddf506))
+- **markdown:** add markdown renderer with class map support and HTML sanitization ([0ab4ae4](https://github.com/Udixio/UI/commit/0ab4ae4))
+- **carousel:** improve dynamic item width calculation and enhance responsiveness ([0363f14](https://github.com/Udixio/UI/commit/0363f14))
+- **carousel:** enhance `CarouselItem` width behavior and add controlled scroll progress ([fea2674](https://github.com/Udixio/UI/commit/fea2674))
+- **carousel:** add controlled `index` prop and example with navigation buttons ([2179cbc](https://github.com/Udixio/UI/commit/2179cbc))
+- **styles, carousel:** implement customizable themes and enhanced accessibility ([548af98](https://github.com/Udixio/UI/commit/548af98))
+
+### 🩹 Fixes
+
+- **ui-react:** simplify shape transformation logic in icon-button styles ([1766174](https://github.com/Udixio/UI/commit/1766174))
+- **slider:** add relative positioning to handle for improved style control ([b4cc12f](https://github.com/Udixio/UI/commit/b4cc12f))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.4.3 (2025-10-17)
 
 ### 🧱 Updated Dependencies
