@@ -1,3 +1,13 @@
+## 2.5.1 (2025-10-23)
+
+### 🩹 Fixes
+
+- **ui-react:** add animation lifecycle listeners to `AnimateOnScroll` ([18da79e](https://github.com/Udixio/UI/commit/18da79e))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.5.0 (2025-10-23)
 
 ### 🚀 Features
