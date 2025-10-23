@@ -165,12 +165,9 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
     const sourceColor = this.api.context.sourceColor;
     const originalSourceColorHex = hexFromArgb(sourceColor.toInt());
 
-    console.log('to subthmes', this.api.context.id);
     for (const [key, value] of Object.entries(this.options.subThemes ?? {})) {
       const newHue = Hct.fromInt(argbFromHex(value)).hue;
       const newColor = Hct.from(newHue, sourceColor.chroma, sourceColor.tone);
-
-      console.log('newColor', hexFromArgb(newColor.toInt()));
 
       this.api.context.sourceColor = hexFromArgb(newColor.toInt());
       const colors = this.getColors();
