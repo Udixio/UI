@@ -1,3 +1,17 @@
+## 2.3.7 (2025-10-17)
+
+### 🩹 Fixes
+
+- **theme, plugins-tailwind:** improve container caching and enhance debugging logs ([a8f955d](https://github.com/Udixio/UI/commit/a8f955d))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 2.1.2
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.3.6 (2025-10-17)
 
 ### 🩹 Fixes
