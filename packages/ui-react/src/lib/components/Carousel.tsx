@@ -212,17 +212,14 @@ export const Carousel = ({
 
           translate = normalize(
             1 - percent,
-            [0.25, 1],
+            [0, 1],
             [0, -(outputRange[0] + gap)],
           );
         }
         widthLeft -= translate;
-        setTranslateX(translate);
 
         // let relative = selectedItem?.relativeIndex * 2;
         // relative = relative > 0 ? (1 - relative) * -1 : 1 + relative;
-
-        console.log(index, percent, item?.relativeIndex);
 
         item.width = normalize(
           percent,
@@ -236,7 +233,8 @@ export const Carousel = ({
       } else {
         let dynamicIndex = item.index;
         // console.log('n', dynamicIndex, widthLeft);
-        let isEnd = false;
+        let isEnd = dynamicIndex == itemValues.length - 1;
+        const isNearEnd = dynamicIndex == itemValues.length - 2;
         // console.log('start');
         while (widthLeft > 0) {
           // console.log('boucle', widthLeft);
@@ -248,38 +246,51 @@ export const Carousel = ({
             if (isEnd) {
               throw new Error('dynamicItem not found');
             }
-            dynamicIndex = dynamicItems[0].index;
+            // dynamicIndex = dynamicItems[0].index;
             isEnd = true;
-            continue;
+            break;
           }
 
-          if (isEnd) {
-            console.log('end', dynamicItem);
-            dynamicItem.width = Math.max(dynamicItem.width, widthLeft);
-            widthLeft -= dynamicItem.width;
-            dynamicIndex--;
-          } else {
-            if (!visibleItemValues.includes(dynamicItem)) {
-              visibleItemValues.push(dynamicItem);
+          if (!visibleItemValues.includes(dynamicItem)) {
+            visibleItemValues.push(dynamicItem);
+          }
+
+          dynamicItem.width = normalize(
+            widthLeft,
+            [outputRange[0], outputRange[1] + (gap + outputRange[0]) * 2],
+            [outputRange[0], outputRange[1]],
+          );
+
+          widthLeft -= dynamicItem.width + gap;
+
+          if (
+            (isNearEnd || isEnd) &&
+            dynamicItem.index == itemValues.length - 1
+          ) {
+            let dynamicItemIndexStart = isEnd ? 1 : 1;
+
+            while (widthLeft > 0) {
+              const dynamicItemStart = visibleItemValues[dynamicItemIndexStart];
+
+              const width =
+                normalize(
+                  dynamicItemStart.width + widthLeft,
+                  [outputRange[0], outputRange[1]],
+                  [outputRange[0], outputRange[1]],
+                ) - dynamicItemStart.width;
+
+              dynamicItemStart.width += width;
+              widthLeft -= width;
+
+              dynamicItemIndexStart--;
+              // break;
             }
 
-            // console.log('widthLeft', dynamicItem.index, widthLeft, translate);
-
-            dynamicItem.width = normalize(
-              widthLeft,
-              [outputRange[0], outputRange[1]],
-              [outputRange[0], outputRange[1]],
-            );
-
-            // dynamicItem.width = Math.min(
-            //   outputRange[1],
-            //   widthLeft - (outputRange[0] + gap),
-            // );
-
-            widthLeft -= dynamicItem.width + gap;
-
+            break;
+          } else {
             dynamicIndex++;
           }
+          // }
         }
       }
 
@@ -291,6 +302,8 @@ export const Carousel = ({
       //   [0, visible * outputRange[1]],
       // );
     });
+
+    setTranslateX(translate);
 
     return Object.fromEntries(
       visibleItemValues.map((item) => [item.index, item.width]),
