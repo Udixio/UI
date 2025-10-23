@@ -14,7 +14,7 @@ export const sliderStyle = defaultClassNames<SliderInterface>(
       'h-4 relative transition-all duration-100 bg-primary-container rounded-r-full overflow-hidden',
     ]),
     handle: classNames([
-      'transform transition-all duration-100 bg-primary h-full rounded-full ',
+      'transform relative transition-all duration-100 bg-primary h-full rounded-full ',
       { 'w-0.5': isChanging, 'w-1': !isChanging },
     ]),
     valueIndicator: classNames([
