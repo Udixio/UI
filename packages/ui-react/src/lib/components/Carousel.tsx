@@ -49,6 +49,7 @@ export const Carousel = ({
     onChange,
     gap,
     scrollSensitivity,
+    onMetricsChange,
   });
 
   const items = React.Children.toArray(children).filter(
@@ -113,17 +114,10 @@ export const Carousel = ({
       itemsScrollXCenter,
       scroll?.scrollProgress ?? 0,
     ).sort((a, b) => a.index - b.index);
-    // const visible =
-    //   ((ref.current?.clientWidth ?? scrollVisible) - (outputRange[0] + gap)) /
-    //   (outputRange[1] + gap);
 
-    const visible =
+    let widthContent =
       ((ref.current?.clientWidth ?? scrollVisible) + gap) /
       (outputRange[1] + gap);
-
-    let widthContent = visible;
-
-    let selectedItem;
 
     const visibleItemValues = itemValues
       .sort((a, b) => Math.abs(a.relativeIndex) - Math.abs(b.relativeIndex))
@@ -132,7 +126,6 @@ export const Carousel = ({
 
         if (index === 0) {
           setSelectedItem(item.index);
-          selectedItem = item;
         }
 
         const el = itemRefs[item.index]?.current;
@@ -155,6 +148,8 @@ export const Carousel = ({
       width: number;
     }[];
 
+    // console.log(visibleItemValues.map((item) => item.index));
+
     let widthLeft = (ref.current?.clientWidth ?? scrollVisible) - gap;
 
     const dynamicItems = visibleItemValues.filter((item, index, array) => {
@@ -174,47 +169,46 @@ export const Carousel = ({
 
     // console.log(dynamicItems, visibleItemValues, visible);
 
-    let dynamicWidth = 0;
-
-    dynamicItems.forEach((item) => {
-      if (!item) return;
-
-      const result = normalize(
-        1 - Math.abs(scroll.scrollProgress - item.itemScrollXCenter),
-        [0, 1],
-        [0, 1],
-      );
-      item.width = result;
-      dynamicWidth += result;
-    });
-
-    // let widthLeft =
-    //   (visible -
-    //     visibleItemValues
-    //       .slice(0, visibleItemValues.length - 2)
-    //       .filter((item) => item.width === outputRange[1]).length) *
-    //   outputRange[1];
-
-    // console.log(
-    //   visible,
-    //   widthLeft,
-    //   visibleItemValues
-    //     .slice(0, visibleItemValues.length - 2)
-    //     .filter((item) => item.width === outputRange[1]).length,
-    // );
+    // let dynamicWidth = 0;
+    //
+    // dynamicItems.forEach((item) => {
+    //   if (!item) return;
+    //
+    //   const result = normalize(
+    //     1 - Math.abs(scroll.scrollProgress - item.itemScrollXCenter),
+    //     [0, 1],
+    //     [0, 1],
+    //   );
+    //   item.width = result;
+    //   dynamicWidth += result;
+    // });
 
     let translate = 0;
+    const firstIndex = 0;
     dynamicItems.forEach((item, index) => {
       if (!item) return;
 
-      if (index == 0) {
-        const percent = normalize(
+      if (index == firstIndex) {
+        let percent = normalize(
           item?.relativeIndex,
           [-2, item.index == 0 ? 0 : -1],
           [0, 1],
         );
+        if (percent == 0 && index == 0) {
+          console.log(visibleItemValues);
 
-        if (item.index >= 1) {
+          item.width = outputRange[0];
+          widthLeft -= item.width + gap;
+          item = visibleItemValues[1];
+          widthLeft += item.width;
+          console.log('f', item);
+
+          percent = normalize(
+            item?.relativeIndex,
+            [-2, item.index == 0 ? 0 : -1],
+            [0, 1],
+          );
+        } else if (item.index >= 1) {
           itemValues.sort((a, b) => a.index - b.index);
 
           itemValues[item.index - 1].width = outputRange[0];
@@ -227,6 +221,7 @@ export const Carousel = ({
             [0, -(outputRange[0] + gap)],
           );
         }
+
         widthLeft -= translate;
 
         // let relative = selectedItem?.relativeIndex * 2;
@@ -239,7 +234,7 @@ export const Carousel = ({
         );
 
         widthLeft -= item.width;
-
+        console.log(item.index, widthLeft, translate);
         // console.log(widthLeft);
       } else {
         let dynamicIndex = item.index;
