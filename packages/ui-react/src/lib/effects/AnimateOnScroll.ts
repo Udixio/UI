@@ -176,6 +176,41 @@ function resetRunFlags(el: HTMLElement, prefix: string): void {
 // IO thresholds centralized for clarity
 const IO_THRESHOLD: number[] = [0, 0.2];
 
+// Track which elements have animation lifecycle listeners attached
+const listenersAttached = new WeakSet<Element>();
+
+function addAnimationLifecycle(el: HTMLElement, prefix: string): void {
+  if (listenersAttached.has(el)) return;
+  listenersAttached.add(el);
+
+  const onStart = (e: AnimationEvent) => {
+    if (e.target !== el) return;
+    // Only mark as animating if this animation was initiated by our run flags.
+    // This avoids setting data-{prefix}-animating during hydration or passive CSS animations
+    // which would block the initial in/out trigger from IntersectionObserver.
+    if (
+      el.hasAttribute(`data-${prefix}-in-run`) ||
+      el.hasAttribute(`data-${prefix}-out-run`) ||
+      el.hasAttribute(`data-${prefix}-run`)
+    ) {
+      el.setAttribute(`data-${prefix}-animating`, ``);
+    }
+  };
+
+  const onEndOrCancel = (e: AnimationEvent) => {
+    if (e.target !== el) return;
+    el.removeAttribute(`data-${prefix}-animating`);
+    // Clear directional run flags so a new trigger can happen after completion
+    el.removeAttribute(`data-${prefix}-in-run`);
+    el.removeAttribute(`data-${prefix}-out-run`);
+    // Note: keep generic data-{prefix}-run for style stability
+  };
+
+  el.addEventListener('animationstart', onStart as EventListener);
+  el.addEventListener('animationend', onEndOrCancel as EventListener);
+  el.addEventListener('animationcancel', onEndOrCancel as EventListener);
+}
+
 export type AnimateOnScrollOptions = {
   prefix?: string;
   once?: boolean;
@@ -202,6 +237,9 @@ export function initAnimateOnScroll(
 
         if (!isJsObserverCandidate(el)) continue;
 
+        // If an animation is in progress, avoid re-triggering or flipping direction
+        if (el.hasAttribute(`data-${prefix}-animating`)) continue;
+
         const isOut = el.classList.contains(`${prefix}-out`);
 
         if (!isOut && entry.isIntersecting) {
@@ -211,6 +249,7 @@ export function initAnimateOnScroll(
           setRunFlag(el, prefix, 'out');
           if (once) io.unobserve(el);
         } else if (!once) {
+          // Only reset flags if not currently animating (already checked), to prevent rapid restarts
           resetRunFlags(el, prefix);
         }
       }
@@ -224,6 +263,7 @@ export function initAnimateOnScroll(
       if (observed.has(el)) continue;
       observed.add(el);
       io.observe(el);
+      addAnimationLifecycle(el, prefix);
     }
   };
 
@@ -258,6 +298,7 @@ export function initAnimateOnScroll(
               if (!observed.has(t)) {
                 observed.add(t);
                 io.observe(t);
+                addAnimationLifecycle(t as HTMLElement, prefix);
               }
             }
           }
