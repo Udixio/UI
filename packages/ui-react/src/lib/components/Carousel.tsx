@@ -115,44 +115,92 @@ export const Carousel = ({
       scroll?.scrollProgress ?? 0,
     ).sort((a, b) => a.index - b.index);
 
-    let widthContent =
-      ((ref.current?.clientWidth ?? scrollVisible) + gap) /
-      (outputRange[1] + gap);
+    let widthLeft = (ref.current?.clientWidth ?? scrollVisible) + gap;
+
+    console.log('new', widthLeft);
 
     const visibleItemValues = itemValues
       .sort((a, b) => Math.abs(a.relativeIndex) - Math.abs(b.relativeIndex))
       .map((item, index) => {
-        if (!item) return;
-
-        if (index === 0) {
-          setSelectedItem(item.index);
-        }
-
-        const el = itemRefs[item.index]?.current;
-        if (!ref.current || !el) return;
-
-        if (widthContent <= 0) {
+        if (widthLeft <= 0) {
           return undefined;
-        } else {
-          item.width = outputRange[1];
         }
 
-        --widthContent;
+        const relativePercent =
+          item?.relativeIndex - Math.trunc(item?.relativeIndex);
+
+        // const percent = normalize(
+        //   item?.relativeIndex,
+        //   [-2, item.index == 0 ? 0 : -1],
+        //   [0, 1],
+        // );
+
+        item.width = normalize(
+          widthLeft - gap,
+          [outputRange[0], outputRange[1]],
+          [outputRange[0], outputRange[1]],
+        );
+
+        widthLeft -= item.width + gap;
+
+        if (widthLeft != 0 && widthLeft < outputRange[0] + gap) {
+          const newWidth = item.width - (outputRange[0] + gap - widthLeft);
+
+          widthLeft += item.width;
+          item.width = newWidth;
+          widthLeft -= item.width;
+        }
+
+        console.log(item.index + 1, relativePercent, item.width, widthLeft);
+
         return item;
       })
-      .filter(Boolean)
-      .sort((a, b) => a.index - b.index) as {
+      .filter(Boolean) as unknown as {
       itemScrollXCenter: number;
       relativeIndex: number;
       index: number;
       width: number;
     }[];
 
+    const widthContent =
+      ((ref.current?.clientWidth ?? scrollVisible) + gap) /
+      (outputRange[1] + gap);
+
+    // const visibleItemValues = itemValues
+    //   .sort((a, b) => Math.abs(a.relativeIndex) - Math.abs(b.relativeIndex))
+    //   .map((item, index) => {
+    //     if (!item) return;
+    //
+    //     if (index === 0) {
+    //       setSelectedItem(item.index);
+    //     }
+    //
+    //     const el = itemRefs[item.index]?.current;
+    //     if (!ref.current || !el) return;
+    //
+    //     if (widthContent <= 0) {
+    //       return undefined;
+    //     } else {
+    //       item.width = outputRange[1];
+    //     }
+    //
+    //     --widthContent;
+    //     return item;
+    //   })
+    //   .filter(Boolean)
+    //   .sort((a, b) => a.index - b.index) as {
+    //   itemScrollXCenter: number;
+    //   relativeIndex: number;
+    //   index: number;
+    //   width: number;
+    // }[];
+
     // console.log(visibleItemValues.map((item) => item.index));
 
-    let widthLeft = (ref.current?.clientWidth ?? scrollVisible) - gap;
+    widthLeft = (ref.current?.clientWidth ?? scrollVisible) - gap;
 
     const dynamicItems = visibleItemValues.filter((item, index, array) => {
+      return;
       let isDynamic = false;
       if (item.width == outputRange[1]) {
         if (index === 0 || index === array.length - 1) {
@@ -186,6 +234,7 @@ export const Carousel = ({
     let translate = 0;
     const firstIndex = 0;
     dynamicItems.forEach((item, index) => {
+      return;
       if (!item) return;
 
       if (index == firstIndex) {
@@ -208,7 +257,9 @@ export const Carousel = ({
             [-2, item.index == 0 ? 0 : -1],
             [0, 1],
           );
+          console.log('b', item.index, item?.relativeIndex, percent);
         } else if (item.index >= 1) {
+          console.log('b', item.index, item?.relativeIndex, percent);
           itemValues.sort((a, b) => a.index - b.index);
 
           itemValues[item.index - 1].width = outputRange[0];
