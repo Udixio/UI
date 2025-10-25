@@ -139,12 +139,6 @@ export const Carousel = ({
           return undefined;
         }
 
-        // const percent = normalize(
-        //   item?.relativeIndex,
-        //   [-2, item.index == 0 ? 0 : -1],
-        //   [0, 1],
-        // );
-
         item.width = normalize(
           widthLeft - gap,
           [outputRange[0], outputRange[1]],
@@ -161,8 +155,6 @@ export const Carousel = ({
           widthLeft -= item.width;
         }
 
-        console.log(item.index + 1, item.relativeIndex, item.width, widthLeft);
-
         return item;
       })
       .filter(Boolean) as unknown as {
@@ -178,7 +170,23 @@ export const Carousel = ({
       (a, b) => Math.abs(a.index) - Math.abs(b.index),
     );
 
-    // console.log('ff', Math.abs(itemsVisibleByIndex[0].relativeIndex));
+    reverseItemsVisible.forEach((item, index) => {
+      const nextItem = reverseItemsVisible[index + 1];
+      if (!nextItem) return;
+
+      const test =
+        1 - (Math.abs(item.relativeIndex) - Math.abs(nextItem?.relativeIndex));
+
+      const newWidth = normalize(
+        test,
+        [0, 2],
+        [item.width + widthLeft, nextItem.width],
+      );
+
+      widthLeft += item.width;
+      item.width = newWidth;
+      widthLeft -= item.width;
+    });
 
     const percentMax = visibleItemValues.length / 2;
     const percent = normalize(
@@ -187,249 +195,7 @@ export const Carousel = ({
       [0, 1],
     );
 
-    console.log('percent', percent);
-
-    let firstItem = reverseItemsVisible[1];
-
-    //next item dynamic
-    const nextItem = reverseItemsVisible[0];
-
-    if(Math.abs(firstItem.index - nextItem.index) !== 1){
-      firstItem = reverseItemsVisible[2];
-    }
-
-    let newWidth = normalize(
-      percent,
-      [0, 1],
-      [nextItem.width, firstItem.width],
-    );
-
-    widthLeft += nextItem.width;
-    nextItem.width = newWidth;
-    widthLeft -= nextItem.width;
-
-    //first item dynamic
-    // console.log(
-    newWidth = normalize(percent, [0, 1], [firstItem.width, outputRange[1]]);
-
-    widthLeft += firstItem.width;
-    firstItem.width = newWidth;
-    widthLeft -= firstItem.width;
-
-    //second item dynamic
-    const itemIsRight = firstItem.relativeIndex >= 0;
-
-    let secondItem = itemIsRight
-      ? itemsVisibleByIndex[0]
-      : itemsVisibleByIndex[itemsVisibleByIndex.length - 1];
-    if (secondItem.width == outputRange[0]) {
-      secondItem = itemIsRight
-        ? itemsVisibleByIndex[1]
-        : itemsVisibleByIndex[itemsVisibleByIndex.length - 2];
-    }
-
-    secondItem.width += widthLeft;
-
-    //legacy
-    const widthContent =
-      ((ref.current?.clientWidth ?? scrollVisible) + gap) /
-      (outputRange[1] + gap);
-
-    // const visibleItemValues = itemValues
-    //   .sort((a, b) => Math.abs(a.relativeIndex) - Math.abs(b.relativeIndex))
-    //   .map((item, index) => {
-    //     if (!item) return;
-    //
-    //     if (index === 0) {
-    //       setSelectedItem(item.index);
-    //     }
-    //
-    //     const el = itemRefs[item.index]?.current;
-    //     if (!ref.current || !el) return;
-    //
-    //     if (widthContent <= 0) {
-    //       return undefined;
-    //     } else {
-    //       item.width = outputRange[1];
-    //     }
-    //
-    //     --widthContent;
-    //     return item;
-    //   })
-    //   .filter(Boolean)
-    //   .sort((a, b) => a.index - b.index) as {
-    //   itemScrollXCenter: number;
-    //   relativeIndex: number;
-    //   index: number;
-    //   width: number;
-    // }[];
-
-    // console.log(visibleItemValues.map((item) => item.index));
-
-    widthLeft = (ref.current?.clientWidth ?? scrollVisible) - gap;
-
-    const dynamicItems = visibleItemValues.filter((item, index, array) => {
-      return;
-      let isDynamic = false;
-      if (item.width == outputRange[1]) {
-        if (index === 0 || index === array.length - 1) {
-          isDynamic = true;
-        }
-      }
-      if (isDynamic) {
-        return true;
-      } else {
-        widthLeft -= item.width + gap;
-        return false;
-      }
-    });
-
-    // console.log(dynamicItems, visibleItemValues, visible);
-
-    // let dynamicWidth = 0;
-    //
-    // dynamicItems.forEach((item) => {
-    //   if (!item) return;
-    //
-    //   const result = normalize(
-    //     1 - Math.abs(scroll.scrollProgress - item.itemScrollXCenter),
-    //     [0, 1],
-    //     [0, 1],
-    //   );
-    //   item.width = result;
-    //   dynamicWidth += result;
-    // });
-
-    let translate = 0;
-    const firstIndex = 0;
-    dynamicItems.forEach((item, index) => {
-      return;
-      if (!item) return;
-
-      if (index == firstIndex) {
-        let percent = normalize(
-          item?.relativeIndex,
-          [-2, item.index == 0 ? 0 : -1],
-          [0, 1],
-        );
-        if (percent == 0 && index == 0) {
-          console.log(visibleItemValues);
-
-          item.width = outputRange[0];
-          widthLeft -= item.width + gap;
-          item = visibleItemValues[1];
-          widthLeft += item.width;
-          console.log('f', item);
-
-          percent = normalize(
-            item?.relativeIndex,
-            [-2, item.index == 0 ? 0 : -1],
-            [0, 1],
-          );
-          console.log('b', item.index, item?.relativeIndex, percent);
-        } else if (item.index >= 1) {
-          console.log('b', item.index, item?.relativeIndex, percent);
-          itemValues.sort((a, b) => a.index - b.index);
-
-          itemValues[item.index - 1].width = outputRange[0];
-          visibleItemValues.unshift(itemValues[item.index - 1]);
-          widthLeft -= outputRange[0] + gap;
-
-          translate = normalize(
-            1 - percent,
-            [0, 1],
-            [0, -(outputRange[0] + gap)],
-          );
-        }
-
-        widthLeft -= translate;
-
-        // let relative = selectedItem?.relativeIndex * 2;
-        // relative = relative > 0 ? (1 - relative) * -1 : 1 + relative;
-
-        item.width = normalize(
-          percent,
-          [0, 1],
-          [outputRange[0], outputRange[1]],
-        );
-
-        widthLeft -= item.width;
-        console.log(item.index, widthLeft, translate);
-        // console.log(widthLeft);
-      } else {
-        let dynamicIndex = item.index;
-        // console.log('n', dynamicIndex, widthLeft);
-        let isEnd = dynamicIndex == itemValues.length - 1;
-        const isNearEnd = dynamicIndex == itemValues.length - 2;
-        // console.log('start');
-        while (widthLeft > 0) {
-          // console.log('boucle', widthLeft);
-          const dynamicItem = itemValues.filter(
-            (item) => item.index === dynamicIndex,
-          )[0];
-
-          if (!dynamicItem) {
-            if (isEnd) {
-              throw new Error('dynamicItem not found');
-            }
-            // dynamicIndex = dynamicItems[0].index;
-            isEnd = true;
-            break;
-          }
-
-          if (!visibleItemValues.includes(dynamicItem)) {
-            visibleItemValues.push(dynamicItem);
-          }
-
-          dynamicItem.width = normalize(
-            widthLeft,
-            [outputRange[0], outputRange[1] + (gap + outputRange[0]) * 2],
-            [outputRange[0], outputRange[1]],
-          );
-
-          widthLeft -= dynamicItem.width + gap;
-
-          if (
-            (isNearEnd || isEnd) &&
-            dynamicItem.index == itemValues.length - 1
-          ) {
-            let dynamicItemIndexStart = isEnd ? 1 : 1;
-
-            while (widthLeft > 0) {
-              const dynamicItemStart = visibleItemValues[dynamicItemIndexStart];
-
-              const width =
-                normalize(
-                  dynamicItemStart.width + widthLeft,
-                  [outputRange[0], outputRange[1]],
-                  [outputRange[0], outputRange[1]],
-                ) - dynamicItemStart.width;
-
-              dynamicItemStart.width += width;
-              widthLeft -= width;
-
-              dynamicItemIndexStart--;
-              // break;
-            }
-
-            break;
-          } else {
-            dynamicIndex++;
-          }
-          // }
-        }
-      }
-
-      // console.log(item, dynamicWidth, visible, selectedItem);
-
-      // item.width = normalize(
-      //   item.width / dynamicWidth,
-      //   [0, 1],
-      //   [0, visible * outputRange[1]],
-      // );
-    });
-
-    setTranslateX(translate);
+    setTranslateX(0);
 
     return Object.fromEntries(
       visibleItemValues.map((item) => [item.index, item.width]),
