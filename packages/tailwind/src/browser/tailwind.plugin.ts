@@ -193,7 +193,6 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
   })}
 }`;
     }
-    console.log('finish');
     // Restore original sourceColor after processing subThemes
     this.api.context.sourceColor = originalSourceColorHex;
   }
