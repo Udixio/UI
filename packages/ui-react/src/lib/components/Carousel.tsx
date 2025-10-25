@@ -128,7 +128,8 @@ export const Carousel = ({
       scroll?.scrollProgress ?? 0,
     ).sort((a, b) => a.index - b.index);
 
-    let widthLeft = (ref.current?.clientWidth ?? scrollVisible) + gap;
+    let widthLeft =
+      (ref.current?.clientWidth ?? scrollVisible) + gap + outputRange[0] + gap;
 
     console.log('new', widthLeft);
 
@@ -147,13 +148,22 @@ export const Carousel = ({
 
         widthLeft -= item.width + gap;
 
-        if (widthLeft != 0 && widthLeft < outputRange[0] + gap) {
+        if (widthLeft != 0 && widthLeft < (outputRange[0] + gap) * 2) {
+          const newWidth =
+            item.width - ((outputRange[0] + gap) * 2 - widthLeft);
+
+          widthLeft += item.width;
+          item.width = newWidth;
+          widthLeft -= item.width;
+        } else if (widthLeft == 0 && item.width >= outputRange[0] * 2 + gap) {
+          console.log('ok', item.width);
           const newWidth = item.width - (outputRange[0] + gap - widthLeft);
 
           widthLeft += item.width;
           item.width = newWidth;
           widthLeft -= item.width;
         }
+        console.log('ff', item.index + 1, widthLeft, outputRange[0] + gap);
 
         return item;
       })
@@ -164,11 +174,12 @@ export const Carousel = ({
       width: number;
     }[];
 
-    //dynamic items
     const reverseItemsVisible = visibleItemValues.reverse();
     const itemsVisibleByIndex = [...visibleItemValues].sort(
       (a, b) => Math.abs(a.index) - Math.abs(b.index),
     );
+
+    //dynamic items
 
     reverseItemsVisible.forEach((item, index) => {
       const nextItem = reverseItemsVisible[index + 1];
@@ -195,7 +206,13 @@ export const Carousel = ({
       [0, 1],
     );
 
-    setTranslateX(0);
+    const translate =
+      normalize(percent, [0, 1], [0, 1]) * -(outputRange[0] + gap);
+    // widthLeft -= translate / 2;
+
+    console.log('translate', translate);
+
+    setTranslateX(translate);
 
     return Object.fromEntries(
       visibleItemValues.map((item) => [item.index, item.width]),
