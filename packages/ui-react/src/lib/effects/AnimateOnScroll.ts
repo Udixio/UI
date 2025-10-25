@@ -152,10 +152,11 @@ function queryJsObserverCandidates(
 }
 
 // Utility: identify presence of in/out classes
-function hasInOutClass(cls: DOMTokenList, prefix: string): boolean {
-  return cls.contains(`${prefix}-in`) || cls.contains(`${prefix}-out`);
+function hasOutClass(cls: DOMTokenList, prefix: string): boolean {
+  return Array.from(cls).some(
+    (className) => className.startsWith(prefix) && className.includes('-out'),
+  );
 }
-
 // Utility: set run flags for a given direction ("in" or "out"), always ensuring generic run flag exists
 function setRunFlag(el: HTMLElement, prefix: string, dir: 'in' | 'out'): void {
   el.setAttribute(`data-${prefix}-run`, ``);
@@ -163,12 +164,20 @@ function setRunFlag(el: HTMLElement, prefix: string, dir: 'in' | 'out'): void {
 }
 
 // Utility: reset run flags and restart animation timeline without changing computed styles
-function resetRunFlags(el: HTMLElement, prefix: string): void {
+function resetRunFlags(
+  el: HTMLElement,
+  prefix: string,
+  direction?: 'in' | 'out',
+): void {
   const currentAnimationName = el.style.animationName;
   el.style.animationName = 'none';
   el.removeAttribute(`data-${prefix}-run`);
-  el.removeAttribute(`data-${prefix}-in-run`);
-  el.removeAttribute(`data-${prefix}-out-run`);
+  if (!direction) {
+    el.removeAttribute(`data-${prefix}-in-run`);
+    el.removeAttribute(`data-${prefix}-out-run`);
+  } else {
+    el.removeAttribute(`data-${prefix}-${direction}-run`);
+  }
   void (el as HTMLElement).offsetWidth; // reflow to restart animations
   el.style.animationName = currentAnimationName;
 }
@@ -198,11 +207,9 @@ function addAnimationLifecycle(el: HTMLElement, prefix: string): void {
 
   const onEndOrCancel = (e: AnimationEvent) => {
     if (e.target !== el) return;
+    // If an IN animation just finished, persist a completion flag so it won't replay on upward scroll
+
     el.removeAttribute(`data-${prefix}-animating`);
-    // Clear directional run flags so a new trigger can happen after completion
-    el.removeAttribute(`data-${prefix}-in-run`);
-    el.removeAttribute(`data-${prefix}-out-run`);
-    // Note: keep generic data-{prefix}-run for style stability
   };
 
   el.addEventListener('animationstart', onStart as EventListener);
@@ -229,6 +236,21 @@ export function initAnimateOnScroll(
   // Setup JS observers for non-scroll-driven animations
   const observed = new WeakSet<Element>();
 
+  // Track scroll direction to prevent triggering IN when scrolling up
+  let lastScrollY =
+    typeof window !== 'undefined'
+      ? window.pageYOffset || window.scrollY || 0
+      : 0;
+  let scrollingDown = true; // default allow initial IN
+  const onScrollDir = () => {
+    const y = window.pageYOffset || window.scrollY || 0;
+    scrollingDown = y >= lastScrollY;
+    lastScrollY = y;
+  };
+  if (typeof window !== 'undefined') {
+    window.addEventListener('scroll', onScrollDir, { passive: true });
+  }
+
   const io = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
@@ -239,17 +261,25 @@ export function initAnimateOnScroll(
         // If an animation is in progress, avoid re-triggering or flipping direction
         if (el.hasAttribute(`data-${prefix}-animating`)) continue;
 
-        const isOut = el.classList.contains(`${prefix}-out`);
+        const isOut = hasOutClass(el.classList, prefix);
 
-        if (!isOut && entry.isIntersecting) {
+        if (entry.isIntersecting) {
+          if (isOut) {
+            resetRunFlags(el, prefix, 'out');
+          }
           setRunFlag(el, prefix, 'in');
+
           if (once) io.unobserve(el);
-        } else if (isOut && !entry.isIntersecting) {
-          setRunFlag(el, prefix, 'out');
-          if (once) io.unobserve(el);
-        } else if (!once) {
-          // Only reset flags if not currently animating (already checked), to prevent rapid restarts
-          resetRunFlags(el, prefix);
+        } else {
+          if (!once) {
+            if (!scrollingDown) {
+              resetRunFlags(el, prefix, 'in');
+            }
+
+            if (isOut) {
+              setRunFlag(el, prefix, 'out');
+            }
+          }
         }
       }
     },
@@ -349,6 +379,9 @@ export function initAnimateOnScroll(
   // Public cleanup
   return () => {
     if (cleanupScrollDriven) cleanupScrollDriven();
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('scroll', onScrollDir as EventListener);
+    }
     io.disconnect();
   };
 }
