@@ -7,6 +7,10 @@ import { CustomScroll } from '../effects';
 import { ReactProps } from '../utils';
 import { CarouselItem, normalize } from './CarouselItem';
 
+function clamp(v: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, v));
+}
+
 /**
  * Carousels show a collection of items that can be scrolled on and off the screen
  *
@@ -91,13 +95,22 @@ export const Carousel = ({
       index: number;
       width: number;
     }[] {
-      return values.map((value, index) => ({
-        itemScrollXCenter: value,
-        relativeIndex:
-          (value - progressScroll) / Math.abs(values[1] - values[0]),
-        index: index,
-        width: 0,
-      }));
+      return values.map((value, index) => {
+        const relativeIndex =
+          (value - progressScroll) / Math.abs(values[1] - values[0]);
+
+        // let relativePercent = relativeIndex - Math.trunc(relativeIndex);
+        // if (relativePercent > 0) {
+        //   relativePercent = 1 - relativePercent;
+        // }
+
+        return {
+          itemScrollXCenter: value,
+          relativeIndex,
+          index: index,
+          width: 0,
+        };
+      });
     }
 
     const itemsScrollXCenter = items.map((_, index) => {
@@ -126,9 +139,6 @@ export const Carousel = ({
           return undefined;
         }
 
-        const relativePercent =
-          item?.relativeIndex - Math.trunc(item?.relativeIndex);
-
         // const percent = normalize(
         //   item?.relativeIndex,
         //   [-2, item.index == 0 ? 0 : -1],
@@ -151,7 +161,7 @@ export const Carousel = ({
           widthLeft -= item.width;
         }
 
-        console.log(item.index + 1, relativePercent, item.width, widthLeft);
+        console.log(item.index + 1, item.relativeIndex, item.width, widthLeft);
 
         return item;
       })
@@ -162,6 +172,65 @@ export const Carousel = ({
       width: number;
     }[];
 
+    //dynamic items
+    const reverseItemsVisible = visibleItemValues.reverse();
+    const itemsVisibleByIndex = [...visibleItemValues].sort(
+      (a, b) => Math.abs(a.index) - Math.abs(b.index),
+    );
+
+    // console.log('ff', Math.abs(itemsVisibleByIndex[0].relativeIndex));
+
+    const percentMax = visibleItemValues.length / 2;
+    const percent = normalize(
+      Math.abs(itemsVisibleByIndex[0].relativeIndex),
+      [itemsVisibleByIndex[0].index == 0 ? 0 : percentMax - 1, percentMax],
+      [0, 1],
+    );
+
+    console.log('percent', percent);
+
+    let firstItem = reverseItemsVisible[1];
+
+    //next item dynamic
+    const nextItem = reverseItemsVisible[0];
+
+    if(Math.abs(firstItem.index - nextItem.index) !== 1){
+      firstItem = reverseItemsVisible[2];
+    }
+
+    let newWidth = normalize(
+      percent,
+      [0, 1],
+      [nextItem.width, firstItem.width],
+    );
+
+    widthLeft += nextItem.width;
+    nextItem.width = newWidth;
+    widthLeft -= nextItem.width;
+
+    //first item dynamic
+    // console.log(
+    newWidth = normalize(percent, [0, 1], [firstItem.width, outputRange[1]]);
+
+    widthLeft += firstItem.width;
+    firstItem.width = newWidth;
+    widthLeft -= firstItem.width;
+
+    //second item dynamic
+    const itemIsRight = firstItem.relativeIndex >= 0;
+
+    let secondItem = itemIsRight
+      ? itemsVisibleByIndex[0]
+      : itemsVisibleByIndex[itemsVisibleByIndex.length - 1];
+    if (secondItem.width == outputRange[0]) {
+      secondItem = itemIsRight
+        ? itemsVisibleByIndex[1]
+        : itemsVisibleByIndex[itemsVisibleByIndex.length - 2];
+    }
+
+    secondItem.width += widthLeft;
+
+    //legacy
     const widthContent =
       ((ref.current?.clientWidth ?? scrollVisible) + gap) /
       (outputRange[1] + gap);
