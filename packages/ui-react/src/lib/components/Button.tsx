@@ -1,6 +1,6 @@
 import { classNames, ReactProps } from '../utils';
 import { ButtonInterface } from '../interfaces';
-import { buttonStyle } from '../styles';
+import { useButtonStyle } from '../styles';
 import { Icon } from '../icon';
 import { ProgressIndicator } from './ProgressIndicator';
 import { RippleEffect } from '../effects';
@@ -72,7 +72,7 @@ export const Button = ({
       onToggle(next);
     };
   }
-  const styles = buttonStyle({
+  const styles = useButtonStyle({
     allowShapeTransformation,
     size,
     disableTextMargins,
