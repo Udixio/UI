@@ -17,8 +17,6 @@ function clamp(v: number, min: number, max: number) {
  * @status beta
  * @category Layout
  * @limitations
- * - At the end of the scroll, a residual gap/space may remain visible.
- * - In/out behavior is inconsistent at range edges.
  * - Responsive behavior on mobile is not supported.
  * - Only the default (hero) variant is supported.
  */
@@ -84,7 +82,6 @@ export const Carousel = ({
 
     const scrollVisible =
       scroll?.scrollVisible ?? (ref.current as any)?.clientWidth ?? 0;
-    // const scrollProgress = scrollMV.get();
 
     function assignRelativeIndexes(
       values: number[],
@@ -98,12 +95,6 @@ export const Carousel = ({
       return values.map((value, index) => {
         const relativeIndex =
           (value - progressScroll) / Math.abs(values[1] - values[0]);
-
-        // let relativePercent = relativeIndex - Math.trunc(relativeIndex);
-        // if (relativePercent > 0) {
-        //   relativePercent = 1 - relativePercent;
-        // }
-
         return {
           itemScrollXCenter: value,
           relativeIndex,
@@ -131,13 +122,14 @@ export const Carousel = ({
     let widthLeft =
       (ref.current?.clientWidth ?? scrollVisible) + gap + outputRange[0] + gap;
 
-    console.log('new', widthLeft);
-
     const visibleItemValues = itemValues
       .sort((a, b) => Math.abs(a.relativeIndex) - Math.abs(b.relativeIndex))
       .map((item, index) => {
         if (widthLeft <= 0) {
           return undefined;
+        }
+        if (index == 0) {
+          setSelectedItem(item.index);
         }
 
         item.width = normalize(
@@ -156,15 +148,12 @@ export const Carousel = ({
           item.width = newWidth;
           widthLeft -= item.width;
         } else if (widthLeft == 0 && item.width >= outputRange[0] * 2 + gap) {
-          console.log('ok', item.width);
           const newWidth = item.width - (outputRange[0] + gap - widthLeft);
 
           widthLeft += item.width;
           item.width = newWidth;
           widthLeft -= item.width;
         }
-        console.log('ff', item.index + 1, widthLeft, outputRange[0] + gap);
-
         return item;
       })
       .filter(Boolean) as unknown as {
@@ -208,9 +197,6 @@ export const Carousel = ({
 
     const translate =
       normalize(percent, [0, 1], [0, 1]) * -(outputRange[0] + gap);
-    // widthLeft -= translate / 2;
-
-    console.log('translate', translate);
 
     setTranslateX(translate);
 
@@ -311,25 +297,6 @@ export const Carousel = ({
       } as any,
     );
   });
-
-  // persistent motion value for scroll progress, driven by user scroll and programmatic centering
-  // const scrollMVRef = useRef(motionValue(0));
-  // const scrollMV = scrollMVRef.current;
-
-  // const transform = useTransform(
-  //   scrollMV,
-  //   [0, 1],
-  //   [
-  //     0,
-  //     1 -
-  //       (ref.current?.clientWidth ?? 0) / (trackRef?.current?.clientWidth ?? 0),
-  //   ],
-  // );
-
-  // const percentTransform = useTransform(
-  //   transform,
-  //   (value) => `${-value * 100}%`,
-  // );
 
   const handleScroll = (args: {
     scrollProgress: number;
