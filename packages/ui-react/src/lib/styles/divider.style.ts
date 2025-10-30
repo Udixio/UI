@@ -1,4 +1,4 @@
-import { DividerInterface } from '../interfaces/divider.interface';
+import { DividerInterface } from '../interfaces';
 import {
   type ClassNameComponent,
   classNames,

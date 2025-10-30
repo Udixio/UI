@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { SliderInterface } from '../interfaces';
-import { sliderStyle } from '../styles';
+import { useSliderStyle } from '../styles';
 import { classNames, ReactProps } from '../utils';
 import { useEffect, useRef, useState } from 'react';
 
@@ -106,7 +106,7 @@ export const Slider = ({
     };
   }, [mouseDown]);
 
-  const styles = sliderStyle({
+  const styles = useSliderStyle({
     className,
     isChanging,
     marks,

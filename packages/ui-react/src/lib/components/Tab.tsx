@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { Icon } from '../icon';
 import { RippleEffect } from '../effects/ripple';
-import { tabStyle } from '../styles/tab.style';
+import { useTabStyle } from '../styles/tab.style';
 import { TabInterface } from '../interfaces/tab.interface';
 import { ReactProps } from '../utils/component';
 
@@ -63,7 +63,7 @@ export const Tab = ({
     }
   };
 
-  const styles = tabStyle({
+  const styles = useTabStyle({
     className,
     onTabSelected,
     scrollable,

@@ -1,4 +1,4 @@
-import { dividerStyle } from '../styles';
+import { useDividerStyle } from '../styles';
 import { DividerInterface } from '../interfaces';
 import { ReactProps } from '../utils';
 
@@ -12,7 +12,7 @@ export const Divider = ({
   className,
   ...restProps
 }: ReactProps<DividerInterface>) => {
-  const styles = dividerStyle({ orientation, className });
+  const styles = useDividerStyle({ orientation, className });
 
   return <hr className={styles.divider} {...restProps} />;
 };

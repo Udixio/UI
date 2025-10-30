@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { CarouselItemInterface } from '../interfaces';
-import { carouselItemStyle } from '../styles';
+import { useCarouselItemStyle } from '../styles';
 import { MotionProps } from '../utils';
 
 export const normalize = (
@@ -34,7 +34,7 @@ export const CarouselItem = ({
   const defaultRef = useRef(null);
   const ref: React.RefObject<null | HTMLDivElement> = optionalRef || defaultRef;
 
-  const styles = carouselItemStyle({
+  const styles = useCarouselItemStyle({
     className,
     index,
     width,

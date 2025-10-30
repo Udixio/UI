@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 
 import { Icon } from '../icon/icon';
 import { IconButtonInterface } from '../interfaces/icon-button.interface';
-import { iconButtonStyle } from '../styles/icon-button.style';
+import { useIconButtonStyle } from '../styles/icon-button.style';
 import { ReactProps } from '../utils/component';
 import { RippleEffect } from '../effects';
 import { classNames } from '../utils';
@@ -76,7 +76,7 @@ export const IconButton = ({
   // Détermine le type de l'élément à rendre : un bouton ou un lien
   const ElementType = href ? 'a' : 'button';
 
-  const styles = iconButtonStyle({
+  const styles = useIconButtonStyle({
     transition,
     shape,
     allowShapeTransformation,

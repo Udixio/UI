@@ -2,7 +2,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { animate } from 'motion/react';
 import { CarouselInterface, CarouselItemInterface } from '../interfaces';
 
-import { carouselStyle } from '../styles';
+import { useCarouselStyle } from '../styles';
 import { CustomScroll } from '../effects';
 import { ReactProps } from '../utils';
 import { CarouselItem, normalize } from './CarouselItem';
@@ -40,7 +40,7 @@ export const Carousel = ({
 
   const [translateX, setTranslateX] = useState(0);
 
-  const styles = carouselStyle({
+  const styles = useCarouselStyle({
     index,
     className,
     children,

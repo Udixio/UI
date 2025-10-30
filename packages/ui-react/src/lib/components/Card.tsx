@@ -2,7 +2,7 @@ import { useRef } from 'react';
 
 import { RippleEffect } from '../effects/ripple';
 import { CardInterface } from '../interfaces';
-import { cardStyle } from '../styles';
+import { useCardStyle } from '../styles';
 import { ReactProps } from '../utils';
 
 /**
@@ -18,7 +18,7 @@ export const Card = ({
   ref,
   ...rest
 }: ReactProps<CardInterface>) => {
-  const styles = cardStyle({ className, isInteractive, variant, children });
+  const styles = useCardStyle({ className, isInteractive, variant, children });
 
   const defaultRef = useRef<HTMLDivElement>(null);
   const resolvedRef = ref || defaultRef;

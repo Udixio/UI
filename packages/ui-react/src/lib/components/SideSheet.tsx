@@ -1,6 +1,6 @@
 import { MotionProps } from '../utils';
 import { SideSheetInterface } from '../interfaces';
-import { sideSheetStyle } from '../styles';
+import { useSideSheetStyle } from '../styles';
 import { Divider } from './Divider';
 
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
@@ -31,7 +31,7 @@ export const SideSheet = ({
 
   const [isExtended, setIsExtended] = useState(extended ?? true);
 
-  const styles = sideSheetStyle({
+  const styles = useSideSheetStyle({
     transition,
     title,
     position,

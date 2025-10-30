@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Icon } from '../icon';
 import { ReactProps } from '../utils';
 import { NavigationRailItemInterface } from '../interfaces';
-import { navigationRailItemStyle } from '../styles/navigation-rail-item.style';
+import { useNavigationRailItemStyle } from '../styles/navigation-rail-item.style';
 import { AnimatePresence, motion } from 'motion/react';
 
 /**
@@ -80,7 +80,7 @@ export const NavigationRailItem = ({
     }
   };
 
-  const styles = navigationRailItemStyle({
+  const styles = useNavigationRailItemStyle({
     isExtended,
     extendedOnly,
     className,

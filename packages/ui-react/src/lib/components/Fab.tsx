@@ -4,7 +4,7 @@ import { Icon } from '../icon';
 import { RippleEffect } from '../effects/ripple';
 import { AnimatePresence, motion } from 'motion/react';
 import { FabInterface } from '../interfaces/fab.interface';
-import { fabStyle } from '../styles/fab.style';
+import { useFabStyle } from '../styles/fab.style';
 import { classNames } from '../utils';
 import { ReactProps } from '../utils/component';
 import { ToolTip } from './ToolTip';
@@ -36,7 +36,7 @@ export const Fab = ({
   }
   const ElementType = href ? 'a' : 'button';
 
-  const styles = fabStyle({
+  const styles = useFabStyle({
     href,
     icon,
     isExtended,
