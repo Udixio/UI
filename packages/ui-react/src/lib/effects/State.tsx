@@ -1,24 +1,50 @@
 import { RippleEffect } from './ripple';
-import { ClassNameComponent, classNames, createUseClassNames } from '../utils';
+import {
+  ClassNameComponent,
+  classNames,
+  createUseClassNames,
+  ReactProps,
+} from '../utils';
 import { useEffect, useRef, useState } from 'react';
 
 export interface StateInterface {
   type: 'div';
+  props: {
+    colorName: string;
+    stateClassName?:
+      | string
+      | 'state-ripple-group'
+      | 'state-group'
+      | 'state-layer';
+    className?: string;
+  };
   states: { isClient: boolean };
   elements: ['stateLayer'];
 }
 
-export const State = () => {
+export const State = ({
+  colorName,
+  stateClassName = 'state-ripple-group',
+  className,
+}: ReactProps<StateInterface>) => {
   const ref = useRef<HTMLDivElement>(null);
   const groupStateRef = useRef<HTMLElement | null>(null);
 
   const [isClient, setIsClient] = useState(false);
-  const styles = useStateStyle({ isClient });
+  const styles = useStateStyle({
+    isClient,
+    stateClassName,
+    className,
+    colorName,
+  });
 
   useEffect(() => {
-    if (ref.current) {
+    if (ref.current && stateClassName !== 'state-layer') {
+      const groupName = !stateClassName.includes('[')
+        ? 'group'
+        : stateClassName.split('[')[1].split(']')[0];
       const furthestGroupState = ref.current.closest(
-        '.group:not(.group .group)',
+        `.${groupName}:not(.${groupName} .${groupName})`,
       );
       groupStateRef.current = furthestGroupState as HTMLElement | null;
     }
@@ -26,20 +52,28 @@ export const State = () => {
   }, []);
 
   return (
-    <div ref={ref} className={styles.stateLayer}>
+    <div
+      ref={ref}
+      className={styles.stateLayer}
+      style={{
+        ['--state-color' as any]: `var(--color-${colorName})`,
+        ['--state-color-active' as any]: 'transparent',
+      }}
+    >
       {isClient && (
-        <RippleEffect colorName={'on-surface'} triggerRef={groupStateRef} />
+        <RippleEffect colorName={colorName} triggerRef={groupStateRef} />
       )}
     </div>
   );
 };
 // ... existing code ...
-const cardConfig: ClassNameComponent<StateInterface> = ({ isClient }) => ({
+const cardConfig: ClassNameComponent<StateInterface> = ({
+  isClient,
+  stateClassName,
+}) => ({
   stateLayer: classNames([
-    'w-full top-0 left-0 h-full absolute -z-10 pointer-events-none group-hover:hover-state-on-surface group-focus-visible:focus-state-on-surface',
-    {
-      'group-active:active-state-on-surface': !isClient,
-    },
+    stateClassName,
+    'w-full top-0 left-0 h-full absolute -z-10 pointer-events-none ',
   ]),
 });
 

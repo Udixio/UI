@@ -7,7 +7,6 @@ export type StateOptions = {
 type Components = Record<string, Record<string, object>>;
 
 const defaultConfig = {
-  statePrefix: 'state',
   disabledStyles: {
     textOpacity: 0.38,
     backgroundOpacity: 0.12,
@@ -33,14 +32,39 @@ export const state = plugin.withOptions(({ colorKeys }: StateOptions) => {
   return ({ matchUtilities, addUtilities }: PluginAPI) => {
     matchUtilities(
       {
-        [`${resolved.statePrefix}-group`]: (groupName: string) => {
+        [`state-group`]: (groupName: string) => {
           const groupVariant = groupName ? `/${groupName}` : '';
           return {
-            [`@apply group-hover${groupVariant}:bg-[var(--${resolved.statePrefix}-color)]/[0.08]`]:
+            [`@apply group-hover${groupVariant}:bg-[var(--state-color)]/[0.08]`]:
               {},
-            [`@apply group-active${groupVariant}:bg-[var(--${resolved.statePrefix}-color)]/[0.12]`]:
+            [`@apply group-active${groupVariant}:bg-[var(--state-color)]/[0.12]`]:
               {},
-            [`@apply group-focus-visible${groupVariant}:bg-[var(--${resolved.statePrefix}-color)]/[0.12]`]:
+            [`@apply group-focus-visible${groupVariant}:bg-[var(--state-color)]/[0.12]`]:
+              {},
+            [`@apply transition-colors`]: {},
+            [`@apply duration-${resolved.transition.duration}`]: {},
+            [`@apply group-disabled${groupVariant}:text-on-surface/[${resolved.disabledStyles.textOpacity}]`]:
+              {},
+            [`@apply group-disabled${groupVariant}:bg-on-surface/[${resolved.disabledStyles.backgroundOpacity}]`]:
+              {},
+          };
+        },
+      },
+      {
+        values: {
+          DEFAULT: '',
+        },
+      },
+    );
+
+    matchUtilities(
+      {
+        [`state-ripple-group`]: (groupName: string) => {
+          const groupVariant = groupName ? `/${groupName}` : '';
+          return {
+            [`@apply group-hover${groupVariant}:bg-[var(--state-color)]/[0.08]`]:
+              {},
+            [`@apply group-focus-visible${groupVariant}:bg-[var(--state-color)]/[0.12]`]:
               {},
             [`@apply transition-colors`]: {},
             [`@apply duration-${resolved.transition.duration}`]: {},
@@ -59,11 +83,10 @@ export const state = plugin.withOptions(({ colorKeys }: StateOptions) => {
     );
 
     addUtilities({
-      [`.${resolved.statePrefix}-layer`]: {
-        [`@apply hover:bg-[var(--${resolved.statePrefix}-color)]/[0.08]`]: {},
-        [`@apply active:bg-[var(--${resolved.statePrefix}-color)]/[0.12]`]: {},
-        [`@apply focus-visible:bg-[var(--${resolved.statePrefix}-color)]/[0.12]`]:
-          {},
+      [`.state-layer`]: {
+        [`@apply hover:bg-[var(--state-color)]/[0.08]`]: {},
+        [`@apply active:bg-[var(--state-color)]/[0.12]`]: {},
+        [`@apply focus-visible:bg-[var(--state-color)]/[0.12]`]: {},
         [`@apply transition-colors`]: {},
         [`@apply duration-${resolved.transition.duration}`]: {},
         [`@apply disabled:text-on-surface/[${resolved.disabledStyles.textOpacity}]`]:
@@ -75,9 +98,9 @@ export const state = plugin.withOptions(({ colorKeys }: StateOptions) => {
 
     matchUtilities(
       {
-        [`${resolved.statePrefix}`]: (colorName: string) => {
+        [`state`]: (colorName: string) => {
           return {
-            [`--${resolved.statePrefix}-color`]: `var(--color-${colorName})`,
+            [`--state-color`]: `var(--color-${colorName})`,
           };
         },
       },
