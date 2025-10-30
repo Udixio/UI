@@ -30,46 +30,66 @@ export const state = plugin.withOptions(({ colorKeys }: StateOptions) => {
     },
   };
 
-  return ({ addComponents }: PluginAPI) => {
-    const newComponents: Components = {};
-
-    for (const isGroup of [false, true]) {
-      const group = isGroup ? 'group-' : '';
-      for (const colorName of colorKeys) {
-        const className = `.${group}${resolved.statePrefix}-${colorName}`;
-        newComponents[className] = {
-          [`@apply ${group}hover:bg-${colorName}/[0.08]`]: {},
-          [`@apply ${group}active:bg-${colorName}/[0.12]`]: {},
-          [`@apply ${group}focus-visible:bg-${colorName}/[0.12]`]: {},
-          [`@apply transition-colors`]: {},
-          [`@apply duration-${resolved.transition.duration}`]: {},
-          [`@apply ${group}disabled:text-on-surface/[${resolved.disabledStyles.textOpacity}]`]:
-            {},
-          [`@apply ${group}disabled:bg-on-surface/[${resolved.disabledStyles.backgroundOpacity}]`]:
-            {},
-        };
-      }
-    }
-
-    for (const colorName of colorKeys) {
-      for (const stateName of ['hover', 'active', 'focus', 'disabled']) {
-        const className = `.${stateName}-${resolved.statePrefix}-${colorName}`;
-        if (stateName === 'disabled') {
-          newComponents[className] = {
-            [`@apply text-on-surface/[${resolved.disabledStyles.textOpacity}]`]:
+  return ({ matchUtilities, addUtilities }: PluginAPI) => {
+    matchUtilities(
+      {
+        [`${resolved.statePrefix}-group`]: (groupName: string) => {
+          const groupVariant = groupName ? `/${groupName}` : '';
+          return {
+            [`@apply group-hover${groupVariant}:bg-[var(--${resolved.statePrefix}-color)]/[0.08]`]:
               {},
-            [`@apply bg-on-surface/[${resolved.disabledStyles.backgroundOpacity}]`]:
+            [`@apply group-active${groupVariant}:bg-[var(--${resolved.statePrefix}-color)]/[0.12]`]:
+              {},
+            [`@apply group-focus-visible${groupVariant}:bg-[var(--${resolved.statePrefix}-color)]/[0.12]`]:
+              {},
+            [`@apply transition-colors`]: {},
+            [`@apply duration-${resolved.transition.duration}`]: {},
+            [`@apply group-disabled${groupVariant}:text-on-surface/[${resolved.disabledStyles.textOpacity}]`]:
+              {},
+            [`@apply group-disabled${groupVariant}:bg-on-surface/[${resolved.disabledStyles.backgroundOpacity}]`]:
               {},
           };
-        } else {
-          const opacity = stateName === 'hover' ? 0.08 : 0.12;
-          newComponents[className] = {
-            [`@apply bg-${colorName}/[${opacity}]`]: {},
-          };
-        }
-      }
-    }
+        },
+      },
+      {
+        values: {
+          DEFAULT: '',
+        },
+      },
+    );
 
-    addComponents(newComponents);
+    addUtilities({
+      [`.${resolved.statePrefix}-layer`]: {
+        [`@apply hover:bg-[var(--${resolved.statePrefix}-color)]/[0.08]`]: {},
+        [`@apply active:bg-[var(--${resolved.statePrefix}-color)]/[0.12]`]: {},
+        [`@apply focus-visible:bg-[var(--${resolved.statePrefix}-color)]/[0.12]`]:
+          {},
+        [`@apply transition-colors`]: {},
+        [`@apply duration-${resolved.transition.duration}`]: {},
+        [`@apply disabled:text-on-surface/[${resolved.disabledStyles.textOpacity}]`]:
+          {},
+        [`@apply disabled:bg-on-surface/[${resolved.disabledStyles.backgroundOpacity}]`]:
+          {},
+      },
+    });
+
+    matchUtilities(
+      {
+        [`${resolved.statePrefix}`]: (colorName: string) => {
+          return {
+            [`--${resolved.statePrefix}-color`]: `var(--color-${colorName})`,
+          };
+        },
+      },
+      {
+        values: colorKeys.reduce(
+          (acc, key) => {
+            acc[key] = key;
+            return acc;
+          },
+          {} as Record<string, string>,
+        ),
+      },
+    );
   };
 });
