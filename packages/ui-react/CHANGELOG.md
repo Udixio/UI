@@ -1,3 +1,20 @@
+## 2.6.0 (2025-10-25)
+
+### 🚀 Features
+
+- **ui-react:** enhance `AnimateOnScroll` with directional scroll detection and refined flag handling ([fb1e2e8](https://github.com/Udixio/UI/commit/fb1e2e8))
+- **ui-react:** refactor Carousel logic for dynamic width and item visibility adjustments ([3292d4c](https://github.com/Udixio/UI/commit/3292d4c))
+
+### 🩹 Fixes
+
+- **ui-react:** refine Carousel width calculation and logging ([6d0b2e2](https://github.com/Udixio/UI/commit/6d0b2e2))
+- **ui-react:** optimize width calculation and improve Carousel item handling ([6f2d7c2](https://github.com/Udixio/UI/commit/6f2d7c2))
+- **ui-react:** add onMetricsChange prop and simplify Carousel logic ([1a9ac6f](https://github.com/Udixio/UI/commit/1a9ac6f))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.5.2 (2025-10-23)
 
 ### 🩹 Fixes
