@@ -10,7 +10,6 @@ const RippleEffect: React.FC<RippleEffectProps> = ({
   colorName = 'on-surface',
   triggerRef,
 }) => {
-
   const ripple = {
     initial: {
       opacity: 1,
