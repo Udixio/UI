@@ -16,7 +16,7 @@ export interface SideSheetInterface {
   };
   states: { isExtended: boolean };
   elements: [
-    'slideSheet',
+    'sideSheet',
     'container',
     'title',
     'content',
