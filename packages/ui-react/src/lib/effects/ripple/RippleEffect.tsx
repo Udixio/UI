@@ -10,39 +10,41 @@ const RippleEffect: React.FC<RippleEffectProps> = ({
   colorName = 'on-surface',
   triggerRef,
 }) => {
+
   const ripple = {
     initial: {
-      opacity: 0,
-      borderRadius: '50%',
-      width: '25%',
-      height: '25%',
+      opacity: 1,
+      ['--r' as any]: '25%',
     },
     animate: {
       opacity: 1,
-      borderRadius: 0,
-      width: '200%',
-      height: '200%',
+      ['--r' as any]: '100%',
       transition: {
-        duration: 0.3,
-        borderRadius: { duration: 0.3, delay: 0.3 },
+        duration: 0.5,
       },
     },
-  };
+    exit: {
+      opacity: 0,
+      ['--r' as any]: '100%',
+      transition: {
+        duration: 0.3,
+      },
+    },
+  } as const;
 
   const [isCompleted, setIsCompleted] = useState(true);
   const [isActive, setIsActive] = useState(false);
-  const [coordinates, setCoordinates] = useState({ x: 0, y: 0 });
+  const [coordinates, setCoordinates] = useState({ x: 50, y: 50 });
 
   useEffect(() => {
     if (isActive) {
+      // restart presence cycle to allow exit animation after mouse up
       setIsCompleted(true);
       setIsCompleted(false);
     }
   }, [isActive]);
 
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
     const element = triggerRef?.current;
     if (element) {
       element.addEventListener('mousedown', handleMouseDown);
@@ -59,7 +61,10 @@ const RippleEffect: React.FC<RippleEffectProps> = ({
   const handleMouseDown = (e: MouseEvent) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
-    const el = triggerRef?.current as Element;
+    const el = triggerRef?.current as Element & {
+      clientWidth: number;
+      clientHeight: number;
+    };
     const rect = el.getBoundingClientRect();
     setIsActive(true);
     setCoordinates({
@@ -67,33 +72,42 @@ const RippleEffect: React.FC<RippleEffectProps> = ({
       y: ((e.clientY - rect.top) / el.clientHeight) * 100,
     });
   };
-  const handleMouseLeave = (e: MouseEvent) => {
+  const handleMouseLeave = (_e: MouseEvent) => {
     setIsActive(false);
   };
 
-  const handleMouseUp = (e: MouseEvent) => {
+  const handleMouseUp = (_e: MouseEvent) => {
     setIsActive(false);
+  };
+
+  // Build the background as a function of state.
+  // color token mixed to a subtle alpha
+  const colorMix = `color-mix(in srgb, var(--color-${colorName}) 12%, transparent)`;
+  // const colorMix = `red`;
+
+  const style: React.CSSProperties & Record<string, any> = {
+    position: 'absolute',
+    inset: 0,
+    width: '100%',
+    height: '100%',
+    // supply CSS variables for gradient center and radius
+    ['--x' as any]: coordinates.x + '%',
+    ['--y' as any]: coordinates.y + '%',
+    ['--r' as any]: '0%', // will be animated by motion
+    background: `radial-gradient(ellipse at var(--x) var(--y), ${colorMix} var(--r), transparent calc(var(--r) * 2))`,
+    pointerEvents: 'none',
   };
 
   return (
     <AnimatePresence mode="wait">
       {(isActive || (!isActive && !isCompleted)) && (
         <motion.div
-          style={{
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            top: coordinates.y + '%',
-            left: coordinates.x + '%',
-            background: `color-mix(in srgb, var(--color-${colorName}) 12%, transparent)`,
-            pointerEvents: 'none',
-          }}
+          style={style}
           variants={ripple}
           initial="initial"
-          animate={'animate'}
-          exit={{ opacity: 0, transition: { duration: 0 } }}
+          animate="animate"
+          exit="exit"
           onAnimationComplete={() => setIsCompleted(true)}
-          className={'transform -translate-x-1/2 -translate-y-1/2'}
         />
       )}
     </AnimatePresence>
