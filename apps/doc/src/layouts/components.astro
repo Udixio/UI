@@ -37,14 +37,15 @@ const limitationHtml = typeof limitation === 'string' && limitation.trim().lengt
     })
   : '';
 
+const components = apis.filter(api => !Object.keys(api.data.tags).includes('parent')).map(({ id }) => ({
+  slug: id
+})).sort((a, b) => a.slug.localeCompare(b.slug))
 ---
 <Layout docSidebar>
   <Fragment slot="sidebar"> <!-- pass table header -->
     <ComponentSidebar  client:load  transition:name="component-sidebar" transition:persist
                        current={pathName.startsWith('/components') ? pathName.split('/').filter(Boolean)[1] : null}
-                       components={apis.filter(api => !Object.keys(api.data.tags).includes('parent')).map(({ id }) => ({
-                         slug: id
-                       }))}
+                       components={components}
     />
   </Fragment>
   <div class="max-w-screen-xl mx-auto">

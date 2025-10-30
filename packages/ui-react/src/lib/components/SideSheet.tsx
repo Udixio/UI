@@ -1,6 +1,5 @@
 import { MotionProps } from '../utils';
 import { SideSheetInterface } from '../interfaces';
-import { useSideSheetStyle } from '../styles';
 import { Divider } from './Divider';
 
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
@@ -8,6 +7,7 @@ import { IconButton } from './IconButton';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'motion/react';
+import { sideSheetStyle } from '../styles';
 
 /**
  * Side sheets show secondary content anchored to the side of the screen
@@ -31,7 +31,7 @@ export const SideSheet = ({
 
   const [isExtended, setIsExtended] = useState(extended ?? true);
 
-  const styles = useSideSheetStyle({
+  const styles = sideSheetStyle({
     transition,
     title,
     position,
@@ -82,7 +82,7 @@ export const SideSheet = ({
         {isExtended && (
           <div
             {...rest}
-            className={styles.slideSheet}
+            className={styles.sideSheet}
             style={{ transition: transition.duration + 's' }}
           >
             <motion.div
