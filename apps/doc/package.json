@@ -25,6 +25,7 @@
     "@udixio/theme": "workspace:*",
     "@udixio/ui-react": "workspace:*",
     "astro": "^5.13.2",
+    "astro-pagefind": "^1.8.5",
     "case": "^1.6.3",
     "change-case": "^5.4.4",
     "motion": "^12.23.3",

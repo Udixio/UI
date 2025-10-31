@@ -1,6 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
-
+import pagefind from 'astro-pagefind';
 import tailwindcss from '@tailwindcss/vite';
 
 import mdx from '@astrojs/mdx';
@@ -13,7 +13,7 @@ import vercel from '@astrojs/vercel';
 export default defineConfig({
   output: 'static',
   vite: {
-    plugins: [tailwindcss(), vitePlugin()],
+    plugins: [tailwindcss(), vitePlugin(), pagefind()],
   },
 
   markdown: {
