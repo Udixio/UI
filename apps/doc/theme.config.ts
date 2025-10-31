@@ -1,7 +1,7 @@
 import { defineConfig } from '@udixio/ui-react';
 
 export default defineConfig({
-  sourceColor: '#65558F',
+  sourceColor: '#D0BCFE',
   palettes: {
     success: '#339900',
   },
