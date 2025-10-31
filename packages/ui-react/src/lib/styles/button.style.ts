@@ -1,5 +1,5 @@
 import type { ClassNameComponent } from '../utils';
-import { classNames, defaultClassNames, createUseClassNames } from '../utils';
+import { classNames, createUseClassNames, defaultClassNames } from '../utils';
 import { ButtonInterface } from '../interfaces';
 
 const buttonConfig: ClassNameComponent<ButtonInterface> = ({
@@ -16,7 +16,7 @@ const buttonConfig: ClassNameComponent<ButtonInterface> = ({
   allowShapeTransformation,
 }) => ({
   button: classNames(
-    ' relative cursor-pointer group outline-none inline-block flex  justify-center   items-center  ',
+    ' relative cursor-pointer group/button outline-none inline-block flex  justify-center   items-center  ',
     size === 'xSmall' && 'text-label-large px-3 py-1.5 gap-1',
     size === 'small' && 'text-label-large px-4 py-2.5 gap-2',
     size === 'medium' && 'text-title-medium px-6 py-4 gap-2',
@@ -94,16 +94,7 @@ const buttonConfig: ClassNameComponent<ButtonInterface> = ({
     'absolute -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2 h-12 w-full',
   ),
   stateLayer: classNames(
-    'min-h-full min-w-full absolute top-0 left-0 overflow-hidden',
-    variant === 'elevated' && {
-      'bg-on-surface/[0.12]': disabled,
-      'group-state-primary': !disabled,
-    },
-    variant === 'filled' && {
-      'bg-on-surface/[0.12]': disabled,
-      'group-state-on-primary': !disabled && !onToggle,
-      'group-state-on-surface-variant': !disabled && onToggle,
-    },
+    'overflow-hidden',
     shape === 'rounded' && {
       'rounded-[30px]': size === 'xSmall' || size == 'small',
       'rounded-[40px]': size === 'medium',
@@ -116,20 +107,12 @@ const buttonConfig: ClassNameComponent<ButtonInterface> = ({
     },
     allowShapeTransformation &&
       !disabled && {
-        'group-active:rounded-[12px]': size === 'xSmall' || size == 'small',
-        'group-active:rounded-[16px]': size === 'medium',
-        'group-active:rounded-[28px]': size === 'large' || size == 'xLarge',
+        'group-active/button:rounded-[12px]':
+          size === 'xSmall' || size == 'small',
+        'group-active/button:rounded-[16px]': size === 'medium',
+        'group-active/button:rounded-[28px]':
+          size === 'large' || size == 'xLarge',
       },
-    variant === 'tonal' && {
-      'bg-on-surface/[0.12]': disabled,
-      'group-state-on-secondary-container ': !disabled,
-    },
-    variant === 'outlined' && {
-      'group-state-primary  group-state-primary': !disabled,
-    },
-    variant === 'text' && {
-      'group-state-primary': !disabled,
-    },
   ),
   label: classNames({ invisible: loading }),
   icon: classNames(

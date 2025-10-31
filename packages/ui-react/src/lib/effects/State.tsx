@@ -17,12 +17,14 @@ export interface StateInterface {
       | 'state-group'
       | 'state-layer';
     className?: string;
+    style?: React.CSSProperties;
   };
   states: { isClient: boolean };
   elements: ['stateLayer'];
 }
 
 export const State = ({
+  style,
   colorName,
   stateClassName = 'state-ripple-group',
   className,
@@ -57,7 +59,7 @@ export const State = ({
       className={styles.stateLayer}
       style={{
         ['--state-color' as any]: `var(--color-${colorName})`,
-        ['--state-color-active' as any]: 'transparent',
+        ...style,
       }}
     >
       {isClient && (
@@ -73,7 +75,7 @@ const cardConfig: ClassNameComponent<StateInterface> = ({
 }) => ({
   stateLayer: classNames([
     stateClassName,
-    'w-full top-0 left-0 h-full absolute -z-10 pointer-events-none ',
+    'w-full top-0 left-0 h-full absolute pointer-events-none ',
   ]),
 });
 

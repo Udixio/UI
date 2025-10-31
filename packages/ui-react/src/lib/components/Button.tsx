@@ -3,7 +3,7 @@ import { ButtonInterface } from '../interfaces';
 import { useButtonStyle } from '../styles';
 import { Icon } from '../icon';
 import { ProgressIndicator } from './ProgressIndicator';
-import { RippleEffect } from '../effects';
+import { State } from '../effects';
 import React, { useEffect, useRef } from 'react';
 
 /**
@@ -109,25 +109,20 @@ export const Button = ({
       style={{ transition: transition.duration + 's' }}
     >
       <div className={styles.touchTarget}></div>
-      <div
-        className={styles.stateLayer}
+      <State
         style={{ transition: transition.duration + 's' }}
-      >
-        {!disabled && (
-          <RippleEffect
-            colorName={
-              (variant === 'filled' && onToggle && 'on-surface-variant') ||
-              (variant === 'filled' && !onToggle && 'on-primary') ||
-              (variant === 'elevated' && 'primary') ||
-              (variant === 'tonal' && 'on-secondary-container') ||
-              (variant === 'outlined' && 'primary') ||
-              (variant === 'text' && 'primary') ||
-              ''
-            }
-            triggerRef={resolvedRef}
-          />
-        )}
-      </div>
+        className={styles.stateLayer}
+        colorName={
+          (variant === 'filled' && onToggle && 'on-surface-variant') ||
+          (variant === 'filled' && !onToggle && 'on-primary') ||
+          (variant === 'elevated' && 'primary') ||
+          (variant === 'tonal' && 'on-secondary-container') ||
+          (variant === 'outlined' && 'primary') ||
+          (variant === 'text' && 'primary') ||
+          ''
+        }
+        stateClassName={'state-ripple-group-[button]'}
+      />
 
       {iconPosition === 'left' && iconElement}
       {loading && (
