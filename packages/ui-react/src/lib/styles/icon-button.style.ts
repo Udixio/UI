@@ -19,7 +19,7 @@ const iconButtonConfig: ClassNameComponent<IconButtonInterface> = ({
   return {
     iconButton: classNames(
       'rounded-full relative flex transition-all duration-300',
-      'group cursor-pointer',
+      'group/icon-button cursor-pointer',
       {
         'cursor-default': disabled,
       },
@@ -48,8 +48,9 @@ const iconButtonConfig: ClassNameComponent<IconButtonInterface> = ({
       ],
       variant === 'tonal' && [
         !disabled && {
-          'bg-surface-container': !isActive && Boolean(onToggle),
-          'bg-secondary-container': isActive || !onToggle,
+          'bg-secondary-container text-on-secondary-container':
+            !isActive && Boolean(onToggle),
+          'bg-secondary text-on-secondary': isActive || !onToggle,
         },
         Boolean(disabled) && 'bg-on-surface/[0.12]',
       ],
@@ -91,9 +92,11 @@ const iconButtonConfig: ClassNameComponent<IconButtonInterface> = ({
       },
       allowShapeTransformation &&
         !disabled && {
-          'group-active:rounded-[12px]': size === 'xSmall' || size == 'small',
-          'group-active:rounded-[16px]': size === 'medium',
-          'group-active:rounded-[28px]': size === 'large' || size == 'xLarge',
+          'group-active/icon-button:rounded-[12px]':
+            size === 'xSmall' || size == 'small',
+          'group-active/icon-button:rounded-[16px]': size === 'medium',
+          'group-active/icon-button:rounded-[28px]':
+            size === 'large' || size == 'xLarge',
         },
       !disabled && [
         variant === 'standard' && {
@@ -143,10 +146,6 @@ const iconButtonConfig: ClassNameComponent<IconButtonInterface> = ({
         variant === 'filled' && {
           'text-primary': !isActive && Boolean(onToggle),
           'text-on-primary': isActive || !onToggle,
-        },
-        variant === 'tonal' && {
-          'text-on-surface-variant': !isActive && Boolean(onToggle),
-          'text-on-secondary-container': isActive || !onToggle,
         },
         variant === 'outlined' && {
           'text-on-surface-variant': !isActive,

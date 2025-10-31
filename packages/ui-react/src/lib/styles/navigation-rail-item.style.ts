@@ -10,7 +10,7 @@ const navigationRailItemConfig: ClassNameComponent<
   NavigationRailItemInterface
 > = ({ isSelected, icon, label, variant }) => ({
   navigationRailItem: classNames(
-    ' group flex flex-col  pt-1 pb-1.5 cursor-pointer',
+    ' group/navigation-rail-item flex flex-col  pt-1 pb-1.5 cursor-pointer',
     {
       'text-on-surface-variant': !isSelected,
       'text-on-secondary-container': isSelected,
@@ -34,13 +34,7 @@ const navigationRailItemConfig: ClassNameComponent<
       },
     ],
   ),
-  stateLayer: classNames(
-    '  absolute w-full rounded-full h-full left-0 top-0  ',
-    {
-      'group-state-on-surface': !isSelected,
-      'group-state-on-secondary-container': isSelected,
-    },
-  ),
+  stateLayer: classNames('rounded-full'),
 
   icon: classNames('size-6 flex'),
   label: classNames('w-fit mx-auto text-nowrap', {

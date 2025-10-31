@@ -11,7 +11,7 @@ const cardConfig: ClassNameComponent<CardInterface> = ({
   isInteractive,
 }) => ({
   card: classNames(
-    'group/card group rounded-xl overflow-hidden z-10',
+    'group/card rounded-xl overflow-hidden z-10',
     variant === 'outlined' && 'bg-surface border border-outline-variant',
     variant === 'elevated' && 'bg-surface-container-low shadow-1',
     variant === 'filled' && 'bg-surface-container-highest',

@@ -4,7 +4,7 @@ import { Icon } from '../icon/icon';
 import { IconButtonInterface } from '../interfaces/icon-button.interface';
 import { useIconButtonStyle } from '../styles/icon-button.style';
 import { ReactProps } from '../utils/component';
-import { RippleEffect } from '../effects';
+import { State } from '../effects';
 import { classNames } from '../utils';
 import { ToolTip } from './ToolTip';
 
@@ -120,35 +120,29 @@ export const IconButton = ({
       ></ToolTip>
 
       <div className={styles.touchTarget} />
-      <div
-        className={styles.stateLayer}
+      <State
         style={{ transition: transition.duration + 's' }}
-      >
-        {!disabled && (
-          <RippleEffect
-            colorName={classNames(
-              variant === 'standard' && {
-                'on-surface-variant': !isActive,
-                primary: isActive,
-              },
-              variant === 'filled' && {
-                primary: !isActive && Boolean(onToggle),
-                'inverse-on-surface': isActive || !onToggle,
-              },
-              variant === 'tonal' && {
-                'on-surface-variant': !isActive && Boolean(onToggle),
-                'on-secondary-container': isActive || !onToggle,
-              },
-              variant === 'outlined' && {
-                'on-surface-variant': !isActive,
-                'on-primary': isActive,
-              },
-            )}
-            triggerRef={resolvedRef}
-          />
+        className={styles.stateLayer}
+        colorName={classNames(
+          variant === 'standard' && {
+            'on-surface-variant': !isActive,
+            'on-primary': isActive,
+          },
+          variant === 'filled' && {
+            'on-surface-variant': !isActive && Boolean(onToggle),
+            'on-primary': isActive || !onToggle,
+          },
+          variant === 'tonal' && {
+            'on-secondary': isActive && Boolean(onToggle),
+            'on-secondary-container': !isActive || !onToggle,
+          },
+          variant === 'outlined' && {
+            'inverse-on-surface': isActive && Boolean(onToggle),
+            'on-surface-variant': !isActive || !onToggle,
+          },
         )}
-      </div>
-
+        stateClassName={'state-ripple-group-[icon-button]'}
+      />
       {icon && <Icon icon={icon} className={styles.icon} />}
     </ElementType>
   );

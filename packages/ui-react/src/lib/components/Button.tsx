@@ -112,15 +112,25 @@ export const Button = ({
       <State
         style={{ transition: transition.duration + 's' }}
         className={styles.stateLayer}
-        colorName={
-          (variant === 'filled' && onToggle && 'on-surface-variant') ||
-          (variant === 'filled' && !onToggle && 'on-primary') ||
-          (variant === 'elevated' && 'primary') ||
-          (variant === 'tonal' && 'on-secondary-container') ||
-          (variant === 'outlined' && 'primary') ||
-          (variant === 'text' && 'primary') ||
-          ''
-        }
+        colorName={classNames(
+          variant === 'filled' && {
+            'on-surface-variant': !isActive && Boolean(onToggle),
+            'on-primary': isActive || !onToggle,
+          },
+          variant === 'elevated' && {
+            'on-primary': isActive && Boolean(onToggle),
+            primary: !isActive || !onToggle,
+          },
+          variant === 'tonal' && {
+            'on-secondary': isActive && Boolean(onToggle),
+            'on-secondary-container': !isActive || !onToggle,
+          },
+          variant === 'outlined' && {
+            'inverse-on-surface': isActive && Boolean(onToggle),
+            'on-surface-variant': !isActive || !onToggle,
+          },
+          variant === 'text' && 'primary',
+        )}
         stateClassName={'state-ripple-group-[button]'}
       />
 

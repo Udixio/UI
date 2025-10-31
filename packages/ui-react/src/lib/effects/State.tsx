@@ -62,9 +62,7 @@ export const State = ({
         ...style,
       }}
     >
-      {isClient && (
-        <RippleEffect colorName={colorName} triggerRef={groupStateRef} />
-      )}
+      {isClient && <RippleEffect triggerRef={groupStateRef} />}
     </div>
   );
 };
@@ -75,7 +73,7 @@ const cardConfig: ClassNameComponent<StateInterface> = ({
 }) => ({
   stateLayer: classNames([
     stateClassName,
-    'w-full top-0 left-0 h-full absolute pointer-events-none ',
+    'w-full top-0 left-0 h-full absolute pointer-events-none overflow-hidden',
   ]),
 });
 

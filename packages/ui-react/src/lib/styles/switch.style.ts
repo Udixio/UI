@@ -12,7 +12,7 @@ const switchConfig: ClassNameComponent<SwitchInterface> = ({
   inactiveIcon,
 }) => ({
   switch: classNames(
-    'group w-[52px] h-[32px] outline-none rounded-full  border-2 flex items-center',
+    'group/switch w-[52px] h-[32px] outline-none rounded-full  border-2 flex items-center',
 
     { 'bg-on-surface/[0.12] border-transparent': disabled },
     !disabled && [
@@ -34,9 +34,9 @@ const switchConfig: ClassNameComponent<SwitchInterface> = ({
     { 'w-[16px] h-[16px]': !isSelected && !inactiveIcon },
     { 'w-[24px] h-[24px]': !(!isSelected && !inactiveIcon) },
     !disabled && [
-      'cursor-pointer group-active:h-[28px] group-active:w-[28px]',
-      { 'bg-on-primary group-hover:bg-primary-container': isSelected },
-      { 'bg-outline group-hover:bg-on-surface-variant': !isSelected },
+      'cursor-pointer group-active/switch:h-[28px] group-active/switch:w-[28px]',
+      { 'bg-on-primary group-hover/switch:bg-primary-container': isSelected },
+      { 'bg-outline group-hover/switch:bg-on-surface-variant': !isSelected },
     ],
 
     { 'bg-surface': disabled },

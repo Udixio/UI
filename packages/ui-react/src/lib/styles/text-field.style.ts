@@ -22,7 +22,7 @@ const textFieldConfig: ClassNameComponent<TextFieldInterface> = ({
     'opacity-[.38]': disabled,
   }),
   content: classNames(
-    'group  transition-border duration-200 relative  flex  items-center ',
+    'group/text-field  transition-border duration-200 relative  flex  items-center ',
     { 'h-14': textLine == 'singleLine' },
     {
       'border-on-surface-variant':

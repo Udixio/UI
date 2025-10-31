@@ -13,7 +13,7 @@ const tabConfig: ClassNameComponent<TabInterface> = ({
   variant,
 }) => ({
   tab: classNames(
-    'flex-1 group outline-none flex px-4 justify-center items-center cursor-pointer',
+    'flex-1 group/tab outline-none flex px-4 justify-center items-center cursor-pointer',
     { 'z-10': isSelected },
     Boolean(icon && label) && variant === 'primary' && 'h-16',
     !(Boolean(icon && label) && variant === 'primary') && 'h-12',
@@ -21,13 +21,13 @@ const tabConfig: ClassNameComponent<TabInterface> = ({
   stateLayer: classNames(
     'absolute w-full h-full overflow-hidden left-1/2 top-1/2 transform -translate-y-1/2 -translate-x-1/2',
     variant === 'primary' && {
-      'group-hover:hover-state-on-surface group-focus-visible:focus-state-on-surface':
+      'group-hover/tab:hover-state-on-surface group-focus-visible/tab:focus-state-on-surface':
         !isSelected,
-      'group-hover:hover-state-primary group-focus-visible:focus-state-primary':
+      'group-hover/tab:hover-state-primary group-focus-visible/tab:focus-state-primary':
         isSelected,
     },
     variant === 'secondary' &&
-      'group-hover:hover-state-on-surface group-focus-visible:focus-state-on-surface',
+      'group-hover/tab:hover-state-on-surface group-focus-visible/tab:focus-state-on-surface',
   ),
   content: classNames(
     'flex  gap-0.5 h-full justify-center',

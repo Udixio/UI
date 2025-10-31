@@ -2,10 +2,10 @@ import { motion } from 'motion/react';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { Icon } from '../icon';
-import { RippleEffect } from '../effects/ripple';
 import { useTabStyle } from '../styles/tab.style';
 import { TabInterface } from '../interfaces/tab.interface';
 import { ReactProps } from '../utils/component';
+import { State } from '../effects';
 
 /**
  * @status beta
@@ -90,14 +90,14 @@ export const Tab = ({
       onClick={handleClick}
       {...(restProps as any)}
     >
-      <span className={styles.stateLayer}>
-        <RippleEffect
-          colorName={
-            variant === 'primary' && isSelected ? 'primary' : 'on-surface'
-          }
-          triggerRef={resolvedRef}
-        />
-      </span>
+      <State
+        style={{ transition: 0.3 + 's' }}
+        className={styles.stateLayer}
+        colorName={
+          variant === 'primary' && isSelected ? 'primary' : 'on-surface'
+        }
+        stateClassName={'state-ripple-group-[tab]'}
+      />
       <span className={styles.content}>
         {icon && <Icon icon={icon} className={styles.icon} />}
         <span className={styles.label}>{label}</span>

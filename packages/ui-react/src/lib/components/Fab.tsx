@@ -1,13 +1,12 @@
-import { useRef } from 'react';
+import React, { useRef } from 'react';
 import { Icon } from '../icon';
-
-import { RippleEffect } from '../effects/ripple';
 import { AnimatePresence, motion } from 'motion/react';
 import { FabInterface } from '../interfaces/fab.interface';
 import { useFabStyle } from '../styles/fab.style';
 import { classNames } from '../utils';
 import { ReactProps } from '../utils/component';
 import { ToolTip } from './ToolTip';
+import { State } from '../effects';
 
 /**
  * Floating action buttons (FABs) help people take primary actions
@@ -92,17 +91,17 @@ export const Fab = ({
         text={label}
         targetRef={resolvedRef}
       />
-      <span className={styles.stateLayer}>
-        <RippleEffect
-          colorName={classNames({
-            primary: variant == 'surface',
-            'on-primary-container': variant == 'primary',
-            'on-secondary-container': variant == 'secondary',
-            'on-tertiary-container': variant == 'tertiary',
-          })}
-          triggerRef={resolvedRef}
-        />
-      </span>
+      <State
+        style={{ transition: transition.duration + 's' }}
+        className={styles.stateLayer}
+        colorName={classNames({
+          'on-surface': variant == 'surface',
+          'on-primary-container': variant == 'primary',
+          'on-secondary-container': variant == 'secondary',
+          'on-tertiary-container': variant == 'tertiary',
+        })}
+        stateClassName={'state-ripple-group-[fab]'}
+      />
       <Icon icon={icon} className={styles.icon} />
       <AnimatePresence>
         {isExtended && (

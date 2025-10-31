@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import { Icon } from '../icon';
-import { ReactProps } from '../utils';
+import { classNames, ReactProps } from '../utils';
 import { NavigationRailItemInterface } from '../interfaces';
 import { useNavigationRailItemStyle } from '../styles/navigation-rail-item.style';
 import { AnimatePresence, motion } from 'motion/react';
+import { State } from '../effects';
 
 /**
  * @status beta
@@ -128,7 +129,15 @@ export const NavigationRailItem = ({
         transition={transition}
         className={styles.container}
       >
-        <motion.div layout className={styles.stateLayer}></motion.div>
+        <State
+          style={{ transition: transition.duration + 's' }}
+          className={styles.stateLayer}
+          colorName={classNames({
+            'on-surface': !isSelected,
+            'on-secondary-container': isSelected,
+          })}
+          stateClassName={'state-ripple-group-[navigation-rail-item]'}
+        />
         {icon && (
           <Icon
             icon={isSelected ? iconSelected : icon}

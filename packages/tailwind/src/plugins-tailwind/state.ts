@@ -9,7 +9,7 @@ type Components = Record<string, Record<string, object>>;
 const defaultConfig = {
   disabledStyles: {
     textOpacity: 0.38,
-    backgroundOpacity: 0.12,
+    backgroundOpacity: 0.1,
   },
   transition: {
     duration: 150,
@@ -37,9 +37,9 @@ export const state = plugin.withOptions(({ colorKeys }: StateOptions) => {
           return {
             [`@apply group-hover${groupVariant}:bg-[var(--state-color)]/[0.08]`]:
               {},
-            [`@apply group-active${groupVariant}:bg-[var(--state-color)]/[0.12]`]:
+            [`@apply group-active${groupVariant}:bg-[var(--state-color)]/[0.10]`]:
               {},
-            [`@apply group-focus-visible${groupVariant}:bg-[var(--state-color)]/[0.12]`]:
+            [`@apply group-focus-visible${groupVariant}:bg-[var(--state-color)]/[0.10]`]:
               {},
             [`@apply transition-colors`]: {},
             [`@apply duration-${resolved.transition.duration}`]: {},
@@ -64,7 +64,7 @@ export const state = plugin.withOptions(({ colorKeys }: StateOptions) => {
           return {
             [`@apply group-hover${groupVariant}:bg-[var(--state-color)]/[0.08]`]:
               {},
-            [`@apply group-focus-visible${groupVariant}:bg-[var(--state-color)]/[0.12]`]:
+            [`@apply group-focus-visible${groupVariant}:bg-[var(--state-color)]/[0.10]`]:
               {},
             [`@apply transition-colors`]: {},
             [`@apply duration-${resolved.transition.duration}`]: {},
@@ -85,8 +85,8 @@ export const state = plugin.withOptions(({ colorKeys }: StateOptions) => {
     addUtilities({
       [`.state-layer`]: {
         [`@apply hover:bg-[var(--state-color)]/[0.08]`]: {},
-        [`@apply active:bg-[var(--state-color)]/[0.12]`]: {},
-        [`@apply focus-visible:bg-[var(--state-color)]/[0.12]`]: {},
+        [`@apply active:bg-[var(--state-color)]/[0.10]`]: {},
+        [`@apply focus-visible:bg-[var(--state-color)]/[0.10]`]: {},
         [`@apply transition-colors`]: {},
         [`@apply duration-${resolved.transition.duration}`]: {},
         [`@apply disabled:text-on-surface/[${resolved.disabledStyles.textOpacity}]`]:

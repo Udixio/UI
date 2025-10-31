@@ -81,7 +81,7 @@ const RippleEffect: React.FC<RippleEffectProps> = ({
 
   // Build the background as a function of state.
   // color token mixed to a subtle alpha
-  const colorMix = `color-mix(in srgb, var(--color-${colorName}) 12%, transparent)`;
+  const colorMix = `color-mix(in srgb, var(--state-color,_var(--color-${colorName})) 10%, transparent)`;
   // const colorMix = `red`;
 
   const style: React.CSSProperties & Record<string, any> = {
