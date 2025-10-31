@@ -37,7 +37,7 @@ const limitationHtml = typeof limitation === 'string' && limitation.trim().lengt
     })
   : '';
 
-const components = apis.filter(api => !Object.keys(api.data.tags).includes('parent')).map(({ id }) => ({
+const components =apis.filter(api => !Object.keys(api.data.tags).includes('parent')).map(({ id }) => ({
   slug: id
 })).sort((a, b) => a.slug.localeCompare(b.slug))
 ---
