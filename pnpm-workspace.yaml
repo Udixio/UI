@@ -1,8 +1,9 @@
 ignoredBuiltDependencies:
-  - core-js-pure
-  - sharp
+  - 'core-js-pure'
+  - 'sharp'
 onlyBuiltDependencies:
-  - nx
+  - 'nx'
 packages:
   - 'packages/*'
   - 'apps/*'
+  - 'apps/doc/packages/*'

@@ -11,6 +11,12 @@
     },
     {
       "path": "./packages/ui-react"
+    },
+    {
+      "path": "./apps/doc/packages/mcp"
+    },
+    {
+      "path": "./packages/mcp"
     }
   ],
   "ts-node": {
