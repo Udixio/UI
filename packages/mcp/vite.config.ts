@@ -19,6 +19,7 @@ export default defineConfig(() => ({
   // Configuration for building your library.
   // See: https://vitejs.dev/guide/build.html#library-mode
   build: {
+    ssr: true,
     outDir: './dist',
     emptyOutDir: true,
     reportCompressedSize: true,
@@ -27,9 +28,14 @@ export default defineConfig(() => ({
     },
     lib: {
       // Could also be a dictionary or array of multiple entry points.
-      entry: 'src/index.ts',
-      name: 'mcp',
-      fileName: 'index',
+      entry: {
+        index: 'src/index.ts',
+        cli: 'src/lib/cli.ts',
+      },
+
+      name: '@udixio/mcp',
+      fileName: (format, entryName) =>
+        `${entryName}.${format === 'es' ? 'js' : 'cjs'}`,
       // Change this to the formats you want to support.
       // Don't forget to update your package.json as well.
       formats: ['es' as const],
