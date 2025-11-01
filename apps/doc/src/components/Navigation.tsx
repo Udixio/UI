@@ -10,7 +10,7 @@ import sPalette from '@material-design-icons/svg/filled/palette.svg?raw';
 export const Navigation = () => {
   return (
     <NavigationRail className={'bg-surface-container'}>
-      <Fab icon={faSearch} href={'/search'}>
+      <Fab variant={'tertiary'} icon={faSearch} href={'/search'}>
         Search
       </Fab>
       <NavigationRailItem icon={faHourglass} iconSelected={faHourglass}>

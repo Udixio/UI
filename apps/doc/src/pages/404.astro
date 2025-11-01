@@ -1,0 +1,18 @@
+---
+import Layout from '@/layouts/layout.astro';
+import { Button } from '@udixio/ui-react';
+---
+<Layout>
+  <div class="flex items-center justify-center min-h-[70vh] px-8">
+    <div class="text-center space-y-6">
+      <h1 class="text-4xl font-extrabold tracking-tight">404 — Page introuvable</h1>
+      <p class="text-base text-muted-foreground max-w-prose mx-auto">
+        La page que vous recherchez n'existe pas ou a été déplacée.
+      </p>
+      <div class="flex items-center justify-center gap-3">
+        <Button href="/">Retour à l’accueil</Button>
+        <Button variant="outlined" href="/search">Rechercher dans la documentation</Button>
+      </div>
+    </div>
+  </div>
+</Layout>

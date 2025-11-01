@@ -1,0 +1,149 @@
+---
+title: MCP — Utiliser le package @udixio/mcp
+description: Guide pour installer, lancer et connecter le serveur MCP de la lib UI Udixio.
+---
+
+
+
+
+# MCP — Utiliser le package `@udixio/mcp`
+
+Ce guide explique comment utiliser le serveur MCP distribué avec ce monorepo pour exposer aux assistants IA (Claude Desktop, Cursor, MCP Inspector, etc.) les informations de la librairie UI :
+
+- Liste des composants (scan des exports React dans `packages/ui-react/src`)
+- Recherche dans la documentation (sources Astro/MD/MDX sous `apps/doc/src`)
+- Tokens de thème (depuis `apps/doc/theme.config.ts` ou `.json`)
+- Accès à des fichiers de doc via une resource `doc://{path}`
+
+Le serveur MCP est packagé ici : `packages/mcp` sous le nom npm public `@udixio/mcp` et expose un binaire `udixio-mcp-ui`.
+
+
+## Prérequis
+
+- Node.js ≥ 18
+- pnpm (workspace Nx)
+- Ce monorepo cloné localement
+
+
+## Installation et build du package
+
+Depuis la racine du monorepo :
+
+```bash
+# (Optionnel) Installer les dépendances du workspace
+pnpm install
+
+# Construire le package MCP
+pnpm -w --filter @udixio/mcp build
+```
+
+En mode développement (exécute le CLI en TypeScript via tsx) :
+
+```bash
+pnpm -w --filter @udixio/mcp dev
+```
+
+Ou exécuter le binaire compilé :
+
+```bash
+pnpm -w --filter @udixio/mcp start
+```
+
+
+## Variables d’environnement (chemins)
+
+Par défaut, le serveur déduit les chemins à partir du dossier courant (`process.cwd()`). Vous pouvez les surcharger pour pointer explicitement vers votre repo local :
+
+- `UDIXIO_ROOT` → racine du repo (ce dossier)
+- `UDIXIO_UI_ROOT` → `${UDIXIO_ROOT}/packages/ui-react/src`
+- `UDIXIO_DOC_ROOT` → `${UDIXIO_ROOT}/apps/doc`
+- `UDIXIO_DOC_SRC` → `${UDIXIO_ROOT}/apps/doc/src`
+
+Exemple d’exécution avec variables explicites :
+
+```bash
+UDIXIO_ROOT=$PWD \
+UDIXIO_UI_ROOT=$PWD/packages/ui-react/src \
+UDIXIO_DOC_ROOT=$PWD/apps/doc \
+UDIXIO_DOC_SRC=$PWD/apps/doc/src \
+udixio-mcp-ui
+```
+
+Note: le binaire `udixio-mcp-ui` est exposé par `@udixio/mcp` après build.
+
+
+## Outils MCP exposés (Tools)
+
+Le serveur enregistre plusieurs « tools » accessibles côté client MCP :
+
+- `listComponents` — retourne la liste des composants et leurs fichiers source relatifs.
+- `getComponentDoc` — prend `{ name: string }` et renvoie des chemins de doc/story correspondants.
+- `searchDocs` — prend `{ query: string, limit?: number }` et fait une recherche plein texte dans `apps/doc/src`.
+- `getThemeTokens` — renvoie l’objet de thème depuis `apps/doc/theme.config.(ts|json)`.
+
+Exemple d’appel (depuis un client MCP) :
+
+```json
+{
+  "tool": "searchDocs",
+  "input": { "query": "Button", "limit": 5 }
+}
+```
+
+
+## Resources MCP
+
+Une resource est enregistrée pour lire directement des fichiers de doc par chemin relatif à `apps/doc/src` :
+
+- Template: `doc://{path}`
+- Exemple: `doc://components/button.mdx`
+
+
+## Intégration avec un client MCP (Claude Desktop)
+
+Ajoutez/éditez votre configuration utilisateur pour déclarer le serveur MCP. Exemple minimal :
+
+```json
+{
+  "mcpServers": {
+    "udixio-ui": {
+      "command": "udixio-mcp-ui",
+      "args": [],
+      "env": {
+        "UDIXIO_ROOT": "/chemin/vers/ui/components",
+        "UDIXIO_UI_ROOT": "/chemin/vers/ui/components/packages/ui-react/src",
+        "UDIXIO_DOC_ROOT": "/chemin/vers/ui/components/apps/doc",
+        "UDIXIO_DOC_SRC": "/chemin/vers/ui/components/apps/doc/src"
+      }
+    }
+  }
+}
+```
+
+Ensuite, dans le client, demandez par exemple :
+
+- « Appelle `listComponents` »
+- « Recherche dans la doc: `searchDocs` avec query=`colors` »
+- « Donne-moi les tokens de thème via `getThemeTokens` »
+- « Ouvre la resource `doc://path/vers/un/fichier.mdx` »
+
+
+## Dépannage (FAQ)
+
+- Erreur d’import du `theme.config.ts` : vérifiez que vous exécutez Node ≥ 18 et que le chemin `apps/doc/theme.config.ts` existe. En cas de souci, créez un `theme.config.json` de fallback au même endroit.
+- Liste des composants vide : contrôlez `UDIXIO_UI_ROOT` (par défaut `packages/ui-react/src`) et que vos exports de composants sont bien nommés en PascalCase.
+- Recherche sans résultats : le moteur MVP lit les sources `apps/doc/src`. Assurez-vous que les fichiers `.md`, `.mdx` ou `.astro` existent et contiennent la requête.
+
+
+## Publication npm
+
+Le package est configuré pour publication publique. Depuis la racine du workspace :
+
+```bash
+# Vérifier que vous êtes connecté à npm
+npm whoami
+
+# Build et publish
+pnpm -w --filter @udixio/mcp build
+pnpm -w --filter @udixio/mcp publish --access public
+```
