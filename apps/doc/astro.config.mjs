@@ -12,10 +12,10 @@ import vercel from '@astrojs/vercel';
 // https://astro.build/config
 export default defineConfig({
   output: 'static',
-  vite: {
-    plugins: [tailwindcss(), vitePlugin(), pagefind()],
-  },
 
+  vite: {
+    plugins: [tailwindcss(), vitePlugin()],
+  },
   markdown: {
     shikiConfig: {
       transformers: [
@@ -38,6 +38,7 @@ export default defineConfig({
       // Configuration des composants personnalisés
     }),
     react(),
+    pagefind(),
   ],
 
   adapter: vercel(),
