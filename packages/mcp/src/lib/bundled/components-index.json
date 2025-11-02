@@ -1,0 +1,7 @@
+{
+  "count": 2,
+  "components": [
+    { "name": "Button", "file": "components/Button.tsx" },
+    { "name": "Card", "file": "components/Card.tsx" }
+  ]
+}

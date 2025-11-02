@@ -13,7 +13,6 @@
       "development": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
       "default": "./dist/index.js"
     }
   },
@@ -25,16 +24,19 @@
     "design-system"
   ],
   "bin": {
-    "udixio-mcp-ui": "dist/cli.js"
+    "udixio-mcp": "dist/cli.js"
   },
   "files": [
     "dist",
     "README.md"
   ],
   "scripts": {
+    "build": "vite build",
     "dev": "tsx src/cli.ts",
     "start": "node dist/cli.js",
-    "clean": "rimraf dist"
+    "test": "vitest run",
+    "clean": "rimraf dist",
+    "prepack": "pnpm build && tsx scripts/snapshot.ts"
   },
   "dependencies": {
     "express": "^5.1.0",

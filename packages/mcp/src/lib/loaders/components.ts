@@ -2,38 +2,61 @@ import { globby } from 'globby';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-const ROOT = process.env.UDIXIO_ROOT || process.cwd();
-const UI_ROOT =
-  process.env.UDIXIO_UI_ROOT || path.join(ROOT, 'packages/ui-react/src');
+function hereDir() {
+  const u = new URL(import.meta.url);
+  return path.dirname(u.pathname);
+}
+
+function bundledComponentsIndexPath() {
+  // Bundled data lives beside this file under ./bundled when running from src or dist
+  const candidates = [
+    path.resolve(hereDir(), './bundled/components-index.json'),
+    path.resolve(hereDir(), '../bundled/components-index.json'),
+  ];
+  return candidates[0];
+}
+
+function bundledDocSrc() {
+  const candidates = [
+    path.resolve(hereDir(), './bundled/doc-src'),
+    path.resolve(hereDir(), '../bundled/doc-src'),
+  ];
+  return candidates[0];
+}
+
+async function pathExists(p: string) {
+  try {
+    await fs.stat(p);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export async function loadComponentsIndex() {
-  const files = await globby(['**/*.{tsx,ts}'], {
-    cwd: UI_ROOT,
-    absolute: true,
-  });
-  const components: { name: string; file: string }[] = [];
-  for (const file of files) {
-    const src = await fs.readFile(file, 'utf8');
-    const re = /export\s+(?:const|function|class)\s+([A-Z][A-Za-z0-9_]*)/g;
-    let m: RegExpExecArray | null;
-    while ((m = re.exec(src))) {
-      components.push({ name: m[1], file: path.relative(UI_ROOT, file) });
-    }
+  // Use bundled index only (zero-setup)
+  const bundledIndex = bundledComponentsIndexPath();
+  if (await pathExists(bundledIndex)) {
+    const raw = await fs.readFile(bundledIndex, 'utf8');
+    return JSON.parse(raw);
   }
-  return { count: components.length, components };
+  throw new Error('Bundled components-index.json not found. Please install @udixio/mcp package with bundled assets.');
 }
 
 export async function loadComponentDoc(name: string) {
-  // Heuristique: chercher un fichier MD/MDX/Story/Examples correspondant
-  const DOC_ROOT = process.env.UDIXIO_DOC_ROOT || path.join(ROOT, 'apps/doc');
+  // Heuristique: chercher un fichier MD/MDX/Story/Examples correspondant dans bundled docs
+  const base = bundledDocSrc();
+  if (!(await pathExists(base))) {
+    throw new Error('Bundled docs not found.');
+  }
   const patterns = [
     `**/${name}.md*`,
     `**/${name.toLowerCase()}.md*`,
     `**/${name}.stories.@(mdx|tsx)`,
   ];
-  const matches = await globby(patterns, { cwd: DOC_ROOT, absolute: true });
+  const matches = await globby(patterns, { cwd: base, absolute: true });
   return {
     name,
-    docs: matches.map((m) => path.relative(DOC_ROOT, m)),
+    docs: matches.map((m) => path.relative(base, m)),
   };
 }

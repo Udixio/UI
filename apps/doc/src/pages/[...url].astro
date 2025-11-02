@@ -25,7 +25,10 @@ const { Content, headings } = await render(page);
 ---
 <Layout>
   {/* Render the matched MD/MDX content component. Given getStaticPaths(), this should always be defined. */}
-  <div class="prose-markdown max-w-none">
-    <Content components={{ pre: Code }} />
-  </div>
+  <section class="px-8 py-10 max-w-screen-lg mx-auto">
+    <div class="prose-markdown">
+      <Content components={{ pre: Code }} />
+    </div>
+  </section>
+
 </Layout>
