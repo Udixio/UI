@@ -1,0 +1,31 @@
+---
+import Layout from '@/layouts/layout.astro';
+import { getCollection, render } from 'astro:content';
+import Code from '@/components/Code.astro';
+
+export async function getStaticPaths() {
+  const pages = await getCollection('pages');
+
+  return pages.map((page )=>{
+    let url = page.filePath!.replace(/\.(md|mdx)$/, '');
+    url = url.replace(/\/index$/, '');
+    url = url.replace('src/data/pages/', '/');
+
+    return{
+      params: { url: url },
+      props: { page }
+    }
+  });
+}
+
+const { page } = Astro.props;
+
+const { Content, headings } = await render(page);
+
+---
+<Layout>
+  {/* Render the matched MD/MDX content component. Given getStaticPaths(), this should always be defined. */}
+  <div class="prose-markdown max-w-none">
+    <Content components={{ pre: Code }} />
+  </div>
+</Layout>
