@@ -6,6 +6,9 @@ import { Fab } from './Fab';
 import { Button } from './Button';
 import { ButtonInterface } from '../interfaces';
 import { classNames } from '../utils';
+import { IconButton } from './IconButton';
+import { faClose } from '@fortawesome/free-solid-svg-icons';
+import { motion } from 'motion/react';
 
 /**
  * Floating action buttons (FABs) help people take primary actions
@@ -60,6 +63,9 @@ export const FabMenu = ({
     open,
   });
 
+  const MotionFab = motion.create(Fab);
+  const MotionIconButton = motion.create(IconButton);
+
   return (
     <div className={styles.fabMenu} ref={resolvedRef} {...restProps}>
       <div className={styles.actions} role="menu" aria-hidden={!open}>
@@ -89,16 +95,43 @@ export const FabMenu = ({
           );
         })}
       </div>
-      <Fab
-        icon={icon}
-        extended={extended}
-        label={label}
-        variant={variant}
-        size={size}
-        className={styles.fab}
-        aria-expanded={open}
-        onClick={() => setOpen(!open)}
-      />
+      {!open && (
+        <MotionFab
+          layout
+          layoutId="fab-menu"
+          icon={icon}
+          extended={extended}
+          label={label}
+          variant={(variant + 'Container') as any}
+          size={size}
+          className={styles.fab}
+          aria-expanded={open}
+          onClick={() => setOpen(true)}
+        />
+      )}
+      {open && (
+        <MotionIconButton
+          layout
+          layoutId="fab-menu"
+          variant={'filled'}
+          className={() => ({
+            iconButton: classNames({
+              'bg-primary text-on-primary': variant === 'primary',
+              'bg-secondary text-on-secondary': variant === 'secondary',
+              'bg-tertiary text-on-tertiary': variant === 'tertiary',
+            }),
+            stateLayer: classNames({
+              'state-on-primary': variant === 'primary',
+              'state-on-secondary': variant === 'secondary',
+              'state-on-tertiary': variant === 'tertiary',
+            }),
+          })}
+          icon={faClose}
+          onClick={() => setOpen(false)}
+        >
+          Close
+        </MotionIconButton>
+      )}
     </div>
   );
 };
