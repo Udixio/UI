@@ -67,10 +67,10 @@ export const FabMenu = ({
   const MotionIconButton = motion.create(IconButton);
 
   transition = {
-    duration: 0.3,
+    duration: transition.duration,
     ease: 'easeInOut',
-    borderRadius: { duration: 0.3, ease: 'easeInOut' },
-    background: { duration: 0.3, ease: 'easeInOut' },
+    borderRadius: { duration: transition.duration, ease: 'easeInOut' },
+    background: { duration: transition.duration, ease: 'easeInOut' },
     ...transition,
   };
 
@@ -121,39 +121,41 @@ export const FabMenu = ({
       {renderFab({
         className: 'invisible pointer-events-none',
       })}
-      {!open &&
-        renderFab({
-          className: 'absolute right-0 top-0',
-          layout: true,
-          layoutId: 'fab-menu',
-        })}
-      {open && (
-        <>
-          <MotionIconButton
-            layout
-            layoutId="fab-menu"
-            variant={'filled'}
-            className={() => ({
-              iconButton: classNames('absolute right-0 top-0', {
-                'bg-primary text-on-primary': variant === 'primary',
-                'bg-secondary text-on-secondary': variant === 'secondary',
-                'bg-tertiary text-on-tertiary': variant === 'tertiary',
-              }),
-              stateLayer: classNames({
-                'state-on-primary': variant === 'primary',
-                'state-on-secondary': variant === 'secondary',
-                'state-on-tertiary': variant === 'tertiary',
-              }),
-            })}
-            style={{ transition: 'border-radius 0.3s ease-in-out' }}
-            transition={transition}
-            icon={faClose}
-            onClick={() => setOpen(false)}
-          >
-            Close
-          </MotionIconButton>
-        </>
-      )}
+      <div className={'absolute right-0 top-0'}>
+        {!open &&
+          renderFab({
+            className: '',
+            layout: true,
+            layoutId: 'fab-menu',
+          })}
+        {open && (
+          <>
+            <MotionIconButton
+              layout
+              layoutId="fab-menu"
+              variant={'filled'}
+              className={() => ({
+                iconButton: classNames('', {
+                  'bg-primary text-on-primary': variant === 'primary',
+                  'bg-secondary text-on-secondary': variant === 'secondary',
+                  'bg-tertiary text-on-tertiary': variant === 'tertiary',
+                }),
+                stateLayer: classNames({
+                  'state-on-primary': variant === 'primary',
+                  'state-on-secondary': variant === 'secondary',
+                  'state-on-tertiary': variant === 'tertiary',
+                }),
+              })}
+              style={{ transition: 'border-radius 0.3s ease-in-out' }}
+              transition={transition}
+              icon={faClose}
+              onClick={() => setOpen(false)}
+            >
+              Close
+            </MotionIconButton>
+          </>
+        )}
+      </div>
     </div>
   );
 };
