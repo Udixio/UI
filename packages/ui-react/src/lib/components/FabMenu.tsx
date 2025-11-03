@@ -66,6 +66,14 @@ export const FabMenu = ({
   const MotionFab = motion.create(Fab);
   const MotionIconButton = motion.create(IconButton);
 
+  transition = {
+    duration: 0.3,
+    ease: 'easeInOut',
+    borderRadius: { duration: 0.3, ease: 'easeInOut' },
+    background: { duration: 0.3, ease: 'easeInOut' },
+    ...transition,
+  };
+
   return (
     <div className={styles.fabMenu} ref={resolvedRef} {...restProps}>
       <div className={styles.actions} role="menu" aria-hidden={!open}>
@@ -107,6 +115,7 @@ export const FabMenu = ({
           className={styles.fab}
           aria-expanded={open}
           onClick={() => setOpen(true)}
+          transition={transition}
         />
       )}
       {open && (
@@ -126,6 +135,8 @@ export const FabMenu = ({
               'state-on-tertiary': variant === 'tertiary',
             }),
           })}
+          style={{ transition: 'border-radius 0.3s ease-in-out' }}
+          transition={transition}
           icon={faClose}
           onClick={() => setOpen(false)}
         >
