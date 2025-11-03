@@ -194,9 +194,12 @@ export const FabMenu = ({
                   'bg-tertiary text-on-tertiary': variant === 'tertiary',
                 }),
                 stateLayer: classNames({
-                  'state-on-primary': variant === 'primary',
-                  'state-on-secondary': variant === 'secondary',
-                  'state-on-tertiary': variant === 'tertiary',
+                  '[--default-color:var(--color-on-primary)]':
+                    variant === 'primary',
+                  '[--default-color:var(--color-on-secondary)]':
+                    variant === 'secondary',
+                  '[--default-color:var(--color-on-tertiary)]':
+                    variant === 'tertiary',
                 }),
               })}
               style={{ transition: 'border-radius 0.3s ease-in-out' }}

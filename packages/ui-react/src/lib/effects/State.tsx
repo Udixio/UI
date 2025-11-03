@@ -58,9 +58,7 @@ export const State = ({
       ref={ref}
       className={styles.stateLayer}
       style={{
-        ...(colorName && !className?.includes('state-')
-          ? { ['--state-color' as any]: `var(--color-${colorName})` }
-          : {}),
+        ['--state-color' as any]: `var(--default-color, var(--color-${colorName}))`,
         ...style,
       }}
     >

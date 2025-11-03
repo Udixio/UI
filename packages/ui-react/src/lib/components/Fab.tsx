@@ -95,10 +95,12 @@ export const Fab = ({
         style={{ transition: transition.duration + 's' }}
         className={styles.stateLayer}
         colorName={classNames({
-          'on-surface': variant == 'surface',
-          'on-primary-container': variant == 'primary',
-          'on-secondary-container': variant == 'secondary',
-          'on-tertiary-container': variant == 'tertiary',
+          'on-primary': variant == 'primary',
+          'on-secondary': variant == 'secondary',
+          'on-tertiary': variant == 'tertiary',
+          'on-primary-container': variant == 'primaryContainer',
+          'on-secondary-container': variant == 'secondaryContainer',
+          'on-tertiary-container': variant == 'tertiaryContainer',
         })}
         stateClassName={'state-ripple-group-[fab]'}
       />
