@@ -74,6 +74,21 @@ export const FabMenu = ({
     ...transition,
   };
 
+  const renderFab = (props) => (
+    <MotionFab
+      icon={icon}
+      extended={extended}
+      label={label}
+      variant={(variant + 'Container') as any}
+      size={size}
+      className={styles.fab + ' ' + (className ?? '')}
+      aria-expanded={open}
+      onClick={() => setOpen(true)}
+      transition={transition}
+      {...props}
+    />
+  );
+
   return (
     <div className={styles.fabMenu} ref={resolvedRef} {...restProps}>
       <div className={styles.actions} role="menu" aria-hidden={!open}>
@@ -103,45 +118,41 @@ export const FabMenu = ({
           );
         })}
       </div>
-      {!open && (
-        <MotionFab
-          layout
-          layoutId="fab-menu"
-          icon={icon}
-          extended={extended}
-          label={label}
-          variant={(variant + 'Container') as any}
-          size={size}
-          className={styles.fab}
-          aria-expanded={open}
-          onClick={() => setOpen(true)}
-          transition={transition}
-        />
-      )}
+      {renderFab({
+        className: 'invisible pointer-events-none',
+      })}
+      {!open &&
+        renderFab({
+          className: 'absolute right-0 top-0',
+          layout: true,
+          layoutId: 'fab-menu',
+        })}
       {open && (
-        <MotionIconButton
-          layout
-          layoutId="fab-menu"
-          variant={'filled'}
-          className={() => ({
-            iconButton: classNames({
-              'bg-primary text-on-primary': variant === 'primary',
-              'bg-secondary text-on-secondary': variant === 'secondary',
-              'bg-tertiary text-on-tertiary': variant === 'tertiary',
-            }),
-            stateLayer: classNames({
-              'state-on-primary': variant === 'primary',
-              'state-on-secondary': variant === 'secondary',
-              'state-on-tertiary': variant === 'tertiary',
-            }),
-          })}
-          style={{ transition: 'border-radius 0.3s ease-in-out' }}
-          transition={transition}
-          icon={faClose}
-          onClick={() => setOpen(false)}
-        >
-          Close
-        </MotionIconButton>
+        <>
+          <MotionIconButton
+            layout
+            layoutId="fab-menu"
+            variant={'filled'}
+            className={() => ({
+              iconButton: classNames('absolute right-0 top-0', {
+                'bg-primary text-on-primary': variant === 'primary',
+                'bg-secondary text-on-secondary': variant === 'secondary',
+                'bg-tertiary text-on-tertiary': variant === 'tertiary',
+              }),
+              stateLayer: classNames({
+                'state-on-primary': variant === 'primary',
+                'state-on-secondary': variant === 'secondary',
+                'state-on-tertiary': variant === 'tertiary',
+              }),
+            })}
+            style={{ transition: 'border-radius 0.3s ease-in-out' }}
+            transition={transition}
+            icon={faClose}
+            onClick={() => setOpen(false)}
+          >
+            Close
+          </MotionIconButton>
+        </>
       )}
     </div>
   );
