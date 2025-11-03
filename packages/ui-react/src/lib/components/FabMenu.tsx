@@ -8,7 +8,7 @@ import { ButtonInterface } from '../interfaces';
 import { classNames } from '../utils';
 import { IconButton } from './IconButton';
 import { faClose } from '@fortawesome/free-solid-svg-icons';
-import { motion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 
 /**
  * Floating action buttons (FABs) help people take primary actions
@@ -32,7 +32,7 @@ export const FabMenu = ({
   onOpenChange,
   ...restProps
 }: ReactProps<FabMenuInterface>) => {
-  transition = { duration: 0.3, ...transition };
+  transition = { duration: 0.3, ease: 'easeInOut', ...transition };
 
   const defaultRef = useRef(null);
   const resolvedRef = ref || defaultRef;
@@ -65,14 +65,7 @@ export const FabMenu = ({
 
   const MotionFab = motion.create(Fab);
   const MotionIconButton = motion.create(IconButton);
-
-  transition = {
-    duration: transition.duration,
-    ease: 'easeInOut',
-    borderRadius: { duration: transition.duration, ease: 'easeInOut' },
-    background: { duration: transition.duration, ease: 'easeInOut' },
-    ...transition,
-  };
+  const MotionButton = motion.create(Button);
 
   const renderFab = (props) => (
     <MotionFab
@@ -84,40 +77,100 @@ export const FabMenu = ({
       className={styles.fab + ' ' + (className ?? '')}
       aria-expanded={open}
       onClick={() => setOpen(true)}
-      transition={transition}
+      style={{ transition: 'border-radius 0.3s ease-in-out' }}
+      transition={{
+        duration: transition.duration,
+        ease: 'easeInOut',
+        borderRadius: { duration: transition.duration, ease: 'easeInOut' },
+        background: { duration: transition.duration, ease: 'easeInOut' },
+        ...transition,
+      }}
       {...props}
     />
   );
 
   return (
     <div className={styles.fabMenu} ref={resolvedRef} {...restProps}>
-      <div className={styles.actions} role="menu" aria-hidden={!open}>
-        {buttonChildren.map((child, index) => {
-          return React.cloneElement(
-            child as React.ReactElement<ReactProps<ButtonInterface>>,
-            {
-              key: index,
-              shape: 'rounded',
-              variant: 'filled',
-              className: () => ({
-                button: classNames({
-                  'bg-primary-container text-on-primary-container':
-                    variant === 'primary',
-                  'bg-secondary-container text-on-secondary-container':
-                    variant === 'secondary',
-                  'bg-tertiary-container text-on-tertiary-container':
-                    variant === 'tertiary',
-                }),
-                stateLayer: classNames({
-                  'state-on-primary-container': variant === 'primary',
-                  'state-on-secondary-container': variant === 'secondary',
-                  'state-on-tertiary-container': variant === 'tertiary',
-                }),
-              }),
-            },
-          );
-        })}
-      </div>
+      <AnimatePresence>
+        {open && (
+          <div className={styles.actions} role="menu" aria-hidden={!open}>
+            {(() => {
+              const total = buttonChildren.length;
+              return buttonChildren.map((child, index) => {
+                const childProps = (
+                  child as React.ReactElement<ReactProps<ButtonInterface>>
+                ).props;
+                const reverseIndex = total - 1 - index; // inverser l'ordre d'animation
+                const delay = (transition?.delay ?? 0) + reverseIndex * 0.06; // délai échelonné inversé, un peu plus marqué
+
+                const variants = {
+                  open: {
+                    opacity: 1,
+                    width: 'auto',
+                    transition: {
+                      ...transition,
+                      delay,
+                      opacity: {
+                        delay: transition?.duration / 2 + delay,
+                      },
+                    },
+                  },
+                  close: {
+                    opacity: 0,
+                    width: 0,
+                    transition: {
+                      ...transition,
+                      delay,
+                      opacity: {
+                        duration: transition?.duration / 2,
+                      },
+                    },
+                  },
+                };
+
+                return (
+                  <motion.div
+                    initial={'close'}
+                    animate={'open'}
+                    className={'overflow-hidden'}
+                    variants={variants}
+                    transition={transition}
+                    exit={'close'}
+                  >
+                    {React.cloneElement(
+                      child as React.ReactElement<ReactProps<ButtonInterface>>,
+                      {
+                        key: index,
+                        shape: 'rounded',
+                        variant: 'filled',
+                        className: () => ({
+                          button: classNames('max-w-full overflow-hidden', {
+                            'px-0': !open,
+                            'bg-primary-container text-on-primary-container ':
+                              variant === 'primary',
+                            'bg-secondary-container text-on-secondary-container':
+                              variant === 'secondary',
+                            'bg-tertiary-container text-on-tertiary-container':
+                              variant === 'tertiary',
+                          }),
+                          stateLayer: classNames({
+                            'state-on-primary-container': variant === 'primary',
+                            'state-on-secondary-container':
+                              variant === 'secondary',
+                            'state-on-tertiary-container':
+                              variant === 'tertiary',
+                          }),
+                        }),
+                      },
+                    )}
+                  </motion.div>
+                );
+              });
+            })()}
+          </div>
+        )}
+      </AnimatePresence>
+
       {renderFab({
         className: 'invisible pointer-events-none',
       })}
@@ -147,7 +200,19 @@ export const FabMenu = ({
                 }),
               })}
               style={{ transition: 'border-radius 0.3s ease-in-out' }}
-              transition={transition}
+              transition={{
+                duration: transition.duration,
+                ease: 'easeInOut',
+                borderRadius: {
+                  duration: transition.duration,
+                  ease: 'easeInOut',
+                },
+                background: {
+                  duration: transition.duration,
+                  ease: 'easeInOut',
+                },
+                ...transition,
+              }}
               icon={faClose}
               onClick={() => setOpen(false)}
             >

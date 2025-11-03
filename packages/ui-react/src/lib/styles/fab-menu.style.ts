@@ -14,7 +14,6 @@ const fabMenuConfig: ClassNameComponent<FabMenuInterface> = ({
   fabMenu: classNames('relative inline-flex flex-col items-end'),
   actions: classNames(
     'flex flex-col gap-1 items-end absolute bottom-[calc(100%_+_8px)] right-0',
-    !open && 'hidden',
   ),
 });
 
