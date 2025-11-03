@@ -1,4 +1,7 @@
-import { themeConfigStore } from '@/stores/themeConfigStore.ts';
+import {
+  themeConfigStore,
+  themeServiceStore,
+} from '@/stores/themeConfigStore.ts';
 import { useStore } from '@nanostores/react';
 import { ThemeProvider as Theme } from '@udixio/ui-react';
 
@@ -7,9 +10,12 @@ export const ThemeProvider = () => {
 
   return (
     <Theme
-      config={{
-        ...$themeConfig,
+      throttleDelay={300}
+      onLoad={(api) => {
+        api.context.darkMode = $themeConfig.isDark;
+        themeServiceStore.set(api);
       }}
+      config={$themeConfig}
     />
   );
 };

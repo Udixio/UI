@@ -6,6 +6,7 @@ export interface CarouselItemInterface {
     children?: ReactNode | undefined;
     width?: number;
     index?: number;
+    outputRange?: [number, number];
   };
   elements: ['carouselItem'];
 }

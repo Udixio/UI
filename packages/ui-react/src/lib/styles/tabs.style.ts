@@ -1,13 +1,22 @@
-import { TabsInterface } from '../interfaces/tabs.interface';
-import { classNames, defaultClassNames } from '../utils';
+import { TabsInterface } from '../interfaces';
+import {
+  type ClassNameComponent,
+  classNames,
+  createUseClassNames,
+  defaultClassNames,
+} from '../utils';
 
-export const tabsStyle = defaultClassNames<TabsInterface>(
+const tabsConfig: ClassNameComponent<TabsInterface> = ({ scrollable }) => ({
+  tabs: classNames(
+    'border-b border-surface-container-highest bg-surface',
+    'flex relative ',
+    { 'overflow-x-auto': scrollable },
+  ),
+});
+
+export const tabsStyle = defaultClassNames<TabsInterface>('tabs', tabsConfig);
+
+export const useTabsStyle = createUseClassNames<TabsInterface>(
   'tabs',
-  ({ scrollable }) => ({
-    tabs: classNames(
-      'border-b border-surface-container-highest',
-      'flex relative ',
-      { 'overflow-x-auto': scrollable }
-    ),
-  })
+  tabsConfig,
 );

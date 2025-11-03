@@ -8,12 +8,15 @@ import {
   RefObject,
   useEffect,
   useRef,
-  useState
+  useState,
 } from 'react';
 import { ReactProps } from '../utils';
-import { NavigationRailItem, NavigationRailSection } from './NavigationRailItem';
+import {
+  NavigationRailItem,
+  NavigationRailSection,
+} from './NavigationRailItem';
 import { Fab } from './Fab';
-import { navigationRailStyle } from '../styles/navigation-rail.style';
+import { useNavigationRailStyle } from '../styles/navigation-rail.style';
 import { NavigationRailInterface } from '../interfaces/navigation-rail.interface';
 import { FabInterface, NavigationRailItemInterface } from '../interfaces';
 import { faBars, faXmark } from '@fortawesome/free-solid-svg-icons';
@@ -96,7 +99,7 @@ export const NavigationRail = ({
     (child) => isValidElement(child) && child.type === Fab,
   );
 
-  const styles = navigationRailStyle({
+  const styles = useNavigationRailStyle({
     children,
     onItemSelected,
     selectedItem,

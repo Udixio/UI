@@ -1,7 +1,11 @@
-import { defineConfig, FontPlugin } from '@udixio/theme';
-import { TailwindPlugin } from '@udixio/tailwind';
+import { defineConfig } from '@udixio/ui-react';
 
 export default defineConfig({
-  sourceColor: '#6750A4',
-  plugins: [new FontPlugin({}), new TailwindPlugin({})],
+  sourceColor: '#D0BCFE',
+  palettes: {
+    success: '#339900',
+  },
+  subThemes: {
+    warning: '#ffcc00',
+  },
 });

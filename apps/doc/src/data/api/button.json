@@ -101,7 +101,7 @@
       ],
       "required": false,
       "type": {
-        "name": "IconDefinition"
+        "name": "Icon"
       }
     },
     "iconPosition": {

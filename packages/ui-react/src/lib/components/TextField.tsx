@@ -5,7 +5,7 @@ import { motion } from 'motion/react';
 import { v4 as uuidv4 } from 'uuid';
 
 import TextareaAutosize from 'react-textarea-autosize';
-import { textFieldStyle } from '../styles/text-field.style';
+import { useTextFieldStyle } from '../styles/text-field.style';
 import { classNames } from '../utils';
 import { ReactProps } from '../utils/component';
 import { TextFieldInterface } from '../interfaces/text-field.interface';
@@ -102,7 +102,7 @@ export const TextField = ({
     setIsFocused(false);
   };
 
-  const styles = textFieldStyle({
+  const styles = useTextFieldStyle({
     showSupportingText,
     isFocused,
     showErrorIcon,

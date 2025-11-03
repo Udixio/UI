@@ -1,7 +1,7 @@
 import { Transition } from 'motion';
 import { Icon } from '../icon';
 
-export interface SlideSheetInterface {
+export interface SideSheetInterface {
   type: 'div';
   props: {
     variant?: 'standard' | 'modal';
@@ -12,10 +12,11 @@ export interface SlideSheetInterface {
     onExtendedChange?: (extended: boolean) => void;
     transition?: Transition;
     closeIcon?: Icon;
+    divider?: boolean;
   };
   states: { isExtended: boolean };
   elements: [
-    'slideSheet',
+    'sideSheet',
     'container',
     'title',
     'content',

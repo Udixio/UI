@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { TabsInterface } from '../interfaces/tabs.interface';
 
-import { tabsStyle } from '../styles/tabs.style';
+import { useTabsStyle } from '../styles/tabs.style';
 import { ReactProps } from '../utils/component';
 import { TabProps } from '../interfaces/tab.interface';
 import { Tab } from './Tab';
@@ -62,7 +62,7 @@ export const Tabs = ({
 
   const tabsId = useMemo(() => uuidv4(), []);
 
-  const styles = tabsStyle({
+  const styles = useTabsStyle({
     children,
     onTabSelected,
     scrollable,

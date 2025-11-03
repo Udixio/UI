@@ -1,3 +1,240 @@
+## 2.6.0 (2025-10-25)
+
+### 🚀 Features
+
+- **ui-react:** enhance `AnimateOnScroll` with directional scroll detection and refined flag handling ([fb1e2e8](https://github.com/Udixio/UI/commit/fb1e2e8))
+- **ui-react:** refactor Carousel logic for dynamic width and item visibility adjustments ([3292d4c](https://github.com/Udixio/UI/commit/3292d4c))
+
+### 🩹 Fixes
+
+- **ui-react:** refine Carousel width calculation and logging ([6d0b2e2](https://github.com/Udixio/UI/commit/6d0b2e2))
+- **ui-react:** optimize width calculation and improve Carousel item handling ([6f2d7c2](https://github.com/Udixio/UI/commit/6f2d7c2))
+- **ui-react:** add onMetricsChange prop and simplify Carousel logic ([1a9ac6f](https://github.com/Udixio/UI/commit/1a9ac6f))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.5.2 (2025-10-23)
+
+### 🩹 Fixes
+
+- **ui-react:** remove redundant animation run attribute check ([25c7b65](https://github.com/Udixio/UI/commit/25c7b65))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.5.1 (2025-10-23)
+
+### 🩹 Fixes
+
+- **ui-react:** add animation lifecycle listeners to `AnimateOnScroll` ([18da79e](https://github.com/Udixio/UI/commit/18da79e))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.5.0 (2025-10-23)
+
+### 🚀 Features
+
+- **carousel:** add live metrics support and restore centering logic ([c0e57df](https://github.com/Udixio/UI/commit/c0e57df))
+- **carousel:** add smooth scroll animation with framer-motion ([8ddf506](https://github.com/Udixio/UI/commit/8ddf506))
+- **markdown:** add markdown renderer with class map support and HTML sanitization ([0ab4ae4](https://github.com/Udixio/UI/commit/0ab4ae4))
+- **carousel:** improve dynamic item width calculation and enhance responsiveness ([0363f14](https://github.com/Udixio/UI/commit/0363f14))
+- **carousel:** enhance `CarouselItem` width behavior and add controlled scroll progress ([fea2674](https://github.com/Udixio/UI/commit/fea2674))
+- **carousel:** add controlled `index` prop and example with navigation buttons ([2179cbc](https://github.com/Udixio/UI/commit/2179cbc))
+- **styles, carousel:** implement customizable themes and enhanced accessibility ([548af98](https://github.com/Udixio/UI/commit/548af98))
+
+### 🩹 Fixes
+
+- **ui-react:** simplify shape transformation logic in icon-button styles ([1766174](https://github.com/Udixio/UI/commit/1766174))
+- **slider:** add relative positioning to handle for improved style control ([b4cc12f](https://github.com/Udixio/UI/commit/b4cc12f))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.4.3 (2025-10-17)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.3.7
+- Updated @udixio/theme to 2.1.2
+
+## 2.4.2 (2025-10-17)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.3.6
+- Updated @udixio/theme to 2.1.1
+
+## 2.4.1 (2025-10-17)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.3.5
+
+## 2.4.0 (2025-10-17)
+
+### 🚀 Features
+
+- **theme:** update variant handling and enhance `UdixioVariant` support ([e413d3d](https://github.com/Udixio/UI/commit/e413d3d))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.3.4
+- Updated @udixio/theme to 2.1.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.3.3 (2025-10-16)
+
+### 🩹 Fixes
+
+- **animation:** refine scroll-driven animations logic and improve utility functions ([9c84c83](https://github.com/Udixio/UI/commit/9c84c83))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.3.3
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.3.2 (2025-10-16)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.3.2
+
+## 2.3.1 (2025-10-16)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.3.1
+
+## 2.3.0 (2025-10-16)
+
+### 🚀 Features
+
+- **animations:** add customizable easing functions for smooth scroll effect ([98959d1](https://github.com/Udixio/UI/commit/98959d1))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.3.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.2.0 (2025-10-16)
+
+### 🚀 Features
+
+- **animation:** add `animateOnScroll` alias for `initAnimateOnScroll` ([558876c](https://github.com/Udixio/UI/commit/558876c))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.2.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.1.0 (2025-10-16)
+
+### 🚀 Features
+
+- **animation:** refactor and simplify `AnimateOnScroll` initialization and handling ([ad68d1f](https://github.com/Udixio/UI/commit/ad68d1f))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.1.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+# 2.0.0 (2025-10-15)
+
+### 🚀 Features
+
+- **animation:** rename classes and refine scroll-driven animations ([414a875](https://github.com/Udixio/UI/commit/414a875))
+- **animation:** update animation class names and refine scroll behavior ([54688c3](https://github.com/Udixio/UI/commit/54688c3))
+- **animation:** enhance dependency handling and refine utility updates ([aa91136](https://github.com/Udixio/UI/commit/aa91136))
+- **animation:** enhance state handling and optimize utility usage ([1f134b4](https://github.com/Udixio/UI/commit/1f134b4))
+- **ui:** simplify SmoothScroll transition props and remove debug logs ([14caaba](https://github.com/Udixio/UI/commit/14caaba))
+- **ui:** refactor SmoothScroll to replace useSpring with animate for smoother transitions ([b85e8f7](https://github.com/Udixio/UI/commit/b85e8f7))
+- **ui:** adjust SmoothScroll transition dynamics and enhance debug support ([5a16e60](https://github.com/Udixio/UI/commit/5a16e60))
+- **ui:** enhance SmoothScroll with spring-based motion and optimize scroll handling ([d02ed31](https://github.com/Udixio/UI/commit/d02ed31))
+- **ui:** refactor SmoothScroll and BlockScroll for improved scroll handling ([ed225e7](https://github.com/Udixio/UI/commit/ed225e7))
+- **ui:** refactor SmoothScroll and BlockScroll for streamlined scroll handling ([137e173](https://github.com/Udixio/UI/commit/137e173))
+- **ui:** replace SmoothScroll with BlockScroll effect for improved scroll intent handling ([00fbd60](https://github.com/Udixio/UI/commit/00fbd60))
+- **ui:** improve SmoothScroll effect with customizable transitions ([13b5b6a](https://github.com/Udixio/UI/commit/13b5b6a))
+- **ui:** enhance smooth scroll effect and integrate into layout ([d5bc1ac](https://github.com/Udixio/UI/commit/d5bc1ac))
+- **ui:** refactor animation utilities and remove redundant exit animations ([d7719cb](https://github.com/Udixio/UI/commit/d7719cb))
+- **ui:** migrate `AnimateOnScroll` to use customizable prefix for animation utilities ([8ac82fd](https://github.com/Udixio/UI/commit/8ac82fd))
+- **ui:** enhance AnimateOnScroll thresholds and refine animation compatibility ([e652317](https://github.com/Udixio/UI/commit/e652317))
+- **ui:** refine animations and Tailwind plugin for better customization ([62ad9bf](https://github.com/Udixio/UI/commit/62ad9bf))
+- **ui:** remove legacy JS-based scroll animations and refine scroll-driven components ([d098430](https://github.com/Udixio/UI/commit/d098430))
+- **ui:** enhance scroll animations with fallback and Tailwind integration ([b5bec58](https://github.com/Udixio/UI/commit/b5bec58))
+- **ui:** add AnimateOnScrollFallback for JS-based scroll animations ([f99eca0](https://github.com/Udixio/UI/commit/f99eca0))
+- **ui:** add Animate component ([b69694a](https://github.com/Udixio/UI/commit/b69694a))
+- **docs:** add API documentation and improve components layout ([bbe090f](https://github.com/Udixio/UI/commit/bbe090f))
+- **styles:** enhance FAB styling and simplify class application ([72967d4](https://github.com/Udixio/UI/commit/72967d4))
+- **theme:** add tone adjustment calculation and improve contrast handling ([3546f05](https://github.com/Udixio/UI/commit/3546f05))
+- **theme:** refactor color utilities and update configuration ([177e68d](https://github.com/Udixio/UI/commit/177e68d))
+- **theme:** streamline color management and refactor configuration ([b1b1211](https://github.com/Udixio/UI/commit/b1b1211))
+- **theme:** introduce ThemePicker component and enhance theme configuration ([3d3d637](https://github.com/Udixio/UI/commit/3d3d637))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.0.0
+- Updated @udixio/theme to 2.0.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 1.6.3 (2025-09-04)
+
+### 🩹 Fixes
+
+- change theme variant and remove free-brands-svg-icons ([b5f5468](https://github.com/Udixio/UI/commit/b5f5468))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 1.7.2
+- Updated @udixio/theme to 1.3.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 1.6.2 (2025-08-31)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 1.7.1
+
+## 1.6.1 (2025-08-31)
+
+### 🩹 Fixes
+
+- **ui-react:** rename `SlideSheet` to `SideSheet` and update associated files ([9cc5293](https://github.com/Udixio/UI/commit/9cc5293))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 1.7.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.6.0 (2025-08-29)
 
 ### 🚀 Features

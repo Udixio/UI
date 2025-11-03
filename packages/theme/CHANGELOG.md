@@ -1,3 +1,64 @@
+## 2.1.2 (2025-10-17)
+
+### 🩹 Fixes
+
+- **theme, plugins-tailwind:** improve container caching and enhance debugging logs ([a8f955d](https://github.com/Udixio/UI/commit/a8f955d))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.1.1 (2025-10-17)
+
+### 🩹 Fixes
+
+- **theme, plugins-tailwind:** enhance instance management and fix subThemes processing ([0a1b42e](https://github.com/Udixio/UI/commit/0a1b42e))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.1.0 (2025-10-17)
+
+### 🚀 Features
+
+- **theme:** add custom palette support via `colorsFromCustomPalette` ([0ea6a63](https://github.com/Udixio/UI/commit/0ea6a63))
+- **theme:** update variant handling and enhance `UdixioVariant` support ([e413d3d](https://github.com/Udixio/UI/commit/e413d3d))
+- **theme:** add `defaultColors` property to enhance support for all variants ([bcdf338](https://github.com/Udixio/UI/commit/bcdf338))
+
+### 🩹 Fixes
+
+- **theme:** simplify palette cache validation logic ([d235a93](https://github.com/Udixio/UI/commit/d235a93))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+# 2.0.0 (2025-10-15)
+
+### 🚀 Features
+
+- **theme:** add tone adjustment calculation and improve contrast handling ([3546f05](https://github.com/Udixio/UI/commit/3546f05))
+- **theme:** enhance TokenGallery with palette integration and improved color grouping ([fdce7c7](https://github.com/Udixio/UI/commit/fdce7c7))
+- **theme:** modularize and refactor TokenGallery with new components ([9312297](https://github.com/Udixio/UI/commit/9312297))
+- **theme:** add success color tokens and extend color configuration ([852cd6c](https://github.com/Udixio/UI/commit/852cd6c))
+- **theme:** refactor color utilities and update configuration ([177e68d](https://github.com/Udixio/UI/commit/177e68d))
+- **theme:** streamline color management and refactor configuration ([b1b1211](https://github.com/Udixio/UI/commit/b1b1211))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 1.3.0 (2025-09-04)
+
+### 🚀 Features
+
+- add fidelity variant ([7675e2a](https://github.com/Udixio/UI/commit/7675e2a))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.2.0 (2025-08-27)
 
 ### 🚀 Features

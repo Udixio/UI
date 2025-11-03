@@ -1,6 +1,7 @@
-import { clampDouble, TonalPalette } from '@material/material-color-utilities';
+import { clampDouble, Contrast } from '@material/material-color-utilities';
 import { Hct } from '../material-color-utilities/htc';
 import { ContrastCurve } from '../material-color-utilities/contrastCurve';
+import { Palette } from '../palette/palette';
 
 export type DynamicColorKey =
   | 'background'
@@ -79,7 +80,7 @@ export function getCurve(defaultContrast: number): ContrastCurve {
 }
 
 export function tMaxC(
-  palette: TonalPalette,
+  palette: Palette,
   lowerBound = 0,
   upperBound = 100,
   chromaMultiplier = 1,
@@ -94,7 +95,7 @@ export function tMaxC(
 }
 
 export function tMinC(
-  palette: TonalPalette,
+  palette: Palette,
   lowerBound = 0,
   upperBound = 100,
 ): number {
@@ -123,4 +124,48 @@ export function findBestToneForChroma(
   }
 
   return answer;
+}
+
+/**
+ * Calcule le pourcentage des tons à ajuster pour atteindre un ratio de contraste.
+ *
+ * @param toneA Le premier ton (par exemple, tone de surface).
+ * @param toneB Le ton cible à ajuster.
+ * @param desiredRatio Le ratio de contraste requis (ex : 3, 4.5, 7).
+ * @returns Un pourcentage (entre 0 et 100) indiquant l'effort nécessaire :
+ * - 0% si `toneB` est au bon ratio.
+ * - Un pourcentage positif ou négatif en fonction de la distance à ajuster.
+ */
+export function calculateToneAdjustmentPercentage(
+  toneA: number,
+  toneB: number,
+  desiredRatio: number,
+): number {
+  // Vérification du ratio actuel
+  const currentRatio = Contrast.ratioOfTones(toneA, toneB);
+
+  // Si le ratio est déjà atteint, inutile de changer
+  if (currentRatio >= desiredRatio) {
+    return 0;
+  }
+
+  // Calcul pour déterminer le ton minimal plus clair qui respecte le ratio
+  const lighterTone = Contrast.lighter(toneA, desiredRatio);
+
+  // Calcul pour déterminer le ton maximal plus sombre qui respecte le ratio
+  const darkerTone = Contrast.darker(toneA, desiredRatio);
+
+  // Vérifie quelle direction est atteignable et compare à toneB
+  if (lighterTone !== -1 && toneB < lighterTone) {
+    const percentageToAdjust = (toneB - lighterTone) / (toneA - lighterTone);
+    return clampDouble(0, 1, percentageToAdjust);
+  }
+
+  if (darkerTone !== -1 && toneB > darkerTone) {
+    const percentageToAdjust = (toneB - darkerTone) / (toneA - darkerTone);
+    return clampDouble(0, 1, percentageToAdjust);
+  }
+
+  // Si aucun ajustement n'est possible ou nécessaire
+  return 0;
 }

@@ -15,7 +15,14 @@
  * limitations under the License.
  */
 
-import { DynamicColor } from './dynamic_color';
+import {
+  clampDouble,
+  Contrast,
+  DynamicColor,
+} from '@material/material-color-utilities';
+
+import { AdjustTone, Color, ColorFromPalette } from '../color';
+import { Context } from 'src/context';
 
 /**
  * Describes the different in tone between colors.
@@ -43,7 +50,7 @@ export type DeltaConstraint = 'exact' | 'nearer' | 'farther';
  * designers want tonal distance, literally contrast, between two colors that
  * don't have a background / foreground relationship or a contrast guarantee.
  */
-export class ToneDeltaPair {
+class ToneDeltaPair {
   /**
    * Documents a constraint in tone distance between two DynamicColors.
    *
@@ -70,8 +77,8 @@ export class ToneDeltaPair {
    * one role has two backgrounds.
    */
   constructor(
-    readonly roleA: DynamicColor,
-    readonly roleB: DynamicColor,
+    readonly roleA: Color,
+    readonly roleB: Color,
     readonly delta: number,
     readonly polarity: TonePolarity,
     readonly stayTogether: boolean,
@@ -79,4 +86,89 @@ export class ToneDeltaPair {
   ) {
     this.constraint = constraint ?? 'exact';
   }
+
+  adjustedTone({ context: ctx, color }: { context: Context; color: Color }) {
+    const roleA = this.roleA;
+    const roleB = this.roleB;
+    const polarity = this.polarity;
+    const constraint = this.constraint;
+    const absoluteDelta =
+      polarity === 'darker' ||
+      (polarity === 'relative_lighter' && ctx.isDark) ||
+      (polarity === 'relative_darker' && !ctx.isDark)
+        ? -this.delta
+        : this.delta;
+
+    const amRoleA = color.name === roleA.name;
+    const selfRole = amRoleA ? roleA : roleB;
+    const refRole = amRoleA ? roleB : roleA;
+
+    if (!(selfRole instanceof ColorFromPalette)) {
+      throw new Error('selfRole is not a ColorFromPalette');
+    }
+
+    let selfTone = selfRole.options.tone;
+    const refTone = refRole.getTone();
+    const relativeDelta = absoluteDelta * (amRoleA ? 1 : -1);
+
+    if (constraint === 'exact') {
+      selfTone = clampDouble(0, 100, refTone + relativeDelta);
+    } else if (constraint === 'nearer') {
+      if (relativeDelta > 0) {
+        selfTone = clampDouble(
+          0,
+          100,
+          clampDouble(refTone, refTone + relativeDelta, selfTone),
+        );
+      } else {
+        selfTone = clampDouble(
+          0,
+          100,
+          clampDouble(refTone + relativeDelta, refTone, selfTone),
+        );
+      }
+    } else if (constraint === 'farther') {
+      if (relativeDelta > 0) {
+        selfTone = clampDouble(refTone + relativeDelta, 100, selfTone);
+      } else {
+        selfTone = clampDouble(0, refTone + relativeDelta, selfTone);
+      }
+    }
+
+    if (color instanceof ColorFromPalette) {
+      if (color.options.background && color.options.contrastCurve) {
+        const background = color.options.background;
+        const contrastCurve = color.options.contrastCurve;
+        if (background && contrastCurve) {
+          // Adjust the tones for contrast, if background and contrast curve
+          // are defined.
+          const bgTone = background.getTone();
+          const selfContrast = contrastCurve.get(ctx.contrastLevel);
+          selfTone =
+            Contrast.ratioOfTones(bgTone, selfTone) >= selfContrast &&
+            ctx.contrastLevel >= 0
+              ? selfTone
+              : DynamicColor.foregroundTone(bgTone, selfContrast);
+        }
+      }
+
+      // This can avoid the awkward tones for background colors including the
+      // access fixed colors. Accent fixed dim colors should not be adjusted.
+      if (color.options.isBackground && !color.name.endsWith('_fixed_dim')) {
+        if (selfTone >= 57) {
+          selfTone = clampDouble(65, 100, selfTone);
+        } else {
+          selfTone = clampDouble(0, 49, selfTone);
+        }
+      }
+    }
+
+    return selfTone;
+  }
 }
+
+export const toneDeltaPair = (
+  ...params: ConstructorParameters<typeof ToneDeltaPair>
+): AdjustTone => {
+  return (args) => new ToneDeltaPair(...params).adjustedTone(args);
+};

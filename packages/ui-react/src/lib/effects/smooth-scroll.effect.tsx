@@ -1,91 +1,137 @@
-import { ReactNode, useRef, useState } from 'react';
-import {
-  motion,
-  motionValue,
-  useMotionValueEvent,
-  useTransform,
-} from 'motion/react';
-import { CustomScroll, CustomScrollInterface } from './custom-scroll';
-import { classNames, ReactProps } from '../utils';
+import { useEffect, useRef, useState } from 'react';
+import { CustomScrollInterface } from './custom-scroll';
+import { ReactProps } from '../utils';
+import { BlockScroll } from './block-scroll.effect';
+import { animate, AnimationPlaybackControls } from 'motion';
 
 export const SmoothScroll = ({
-  children,
-  transition = '.5s',
+  transition,
   orientation = 'vertical',
   throttleDuration = 25,
-  ...restProps
 }: {
-  children: ReactNode;
-  transition?: string;
-} & ReactProps<CustomScrollInterface>) => {
-  const [scroll, setScroll] = useState<{
-    scrollProgress: number;
-    scrollTotal: number;
-    scrollVisible: number;
-    scroll: number;
-  } | null>(null);
-
-  const scrollProgress = motionValue(scroll?.scrollProgress ?? 0);
-
-  const transform = useTransform(
-    scrollProgress,
-    [0, 1],
-    [0, 1 - (scroll?.scrollVisible ?? 0) / (scroll?.scrollTotal ?? 0)]
-  );
-
-  const percentTransform = useTransform(
-    transform,
-    (value) => `${-value * 100}%`
-  );
-
-  const handleScroll = (args: {
-    scrollProgress: number;
-    scrollTotal: number;
-    scrollVisible: number;
-    scroll: number;
-  }) => {
-    scrollProgress.set(args.scrollProgress);
-    if (args.scrollTotal > 0) {
-      setScroll(args);
-    }
+  transition?: {
+    ease:
+      | 'linear'
+      | 'easeIn'
+      | 'easeOut'
+      | 'easeInOut'
+      | 'circIn'
+      | 'circOut'
+      | 'circInOut'
+      | 'backIn'
+      | 'backOut'
+      | 'backInOut'
+      | 'anticipate'
+      | ((t: number) => number);
+    duration?: number;
   };
-  const lastChangeTimeRef = useRef<number | null>(null);
-  useMotionValueEvent(percentTransform, 'change', (value) => {
-    // Récupérer l'heure actuelle
-    const now = performance.now();
+} & ReactProps<CustomScrollInterface>) => {
+  // Target value (instant), driven by wheel/touch/keyboard or native scroll sync
+  const [scrollY, setScrollY] = useState(0);
 
-    // Si une heure précédente existe, calculer le delta
-    if (lastChangeTimeRef.current !== null) {
-      const deltaTime = now - lastChangeTimeRef.current;
-      console.log(`Delta temps : ${deltaTime} ms`);
+  const [el, setEl] = useState<HTMLHtmlElement>();
+
+  const isScrolling = useRef(false);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout>();
+  const lastAppliedYRef = useRef(0);
+
+  useEffect(() => {
+    setEl(document as unknown as HTMLHtmlElement);
+    const y = document.documentElement.scrollTop;
+    setScrollY(y);
+    lastAppliedYRef.current = y;
+  }, []);
+
+  // Sync native scroll (e.g., scrollbar, programmatic) back to target after a small delay
+  useEffect(() => {
+    const onScroll = () => {
+      if (isScrolling.current) return;
+      setScrollY(document.documentElement.scrollTop);
+    };
+
+    el?.addEventListener('scroll', onScroll as unknown as EventListener);
+    return () => {
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+      el?.removeEventListener('scroll', onScroll as unknown as EventListener);
+    };
+  }, [el]);
+
+  // Drive the spring when target changes
+  const currentY = useRef<number | null>();
+  const animationRef = useRef<AnimationPlaybackControls | null>(null);
+  useEffect(() => {
+    const y = scrollY;
+
+    if (animationRef.current) {
+      animationRef.current.stop();
+      animationRef.current = null;
     }
 
-    // Mettre à jour l'heure du dernier changement
-    lastChangeTimeRef.current = now;
+    if (!isScrolling.current) {
+      currentY.current = y;
+      return;
+    }
+    animationRef.current = animate(currentY.current ?? y, y, {
+      duration: (transition?.duration ?? 500) / 1000,
+      ease: transition?.ease ?? 'easeOut',
 
-    console.log(value); // Affiche également la valeur si nécessaire
-  });
+      onUpdate: (value) => {
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current);
+        }
+        currentY.current = value;
+
+        const html = document.documentElement;
+        // Avoid micro-movements causing extra layout work
+        const rounded = Math.round(value * 1000) / 1000;
+        const last = lastAppliedYRef.current;
+        if (Math.abs(rounded - last) < 0.1) return;
+        lastAppliedYRef.current = rounded;
+
+        if (isScrolling.current) {
+          html.scrollTo({ top: rounded });
+        }
+      },
+      onComplete: () => {
+        scrollTimeoutRef.current = setTimeout(() => {
+          isScrolling.current = false;
+        }, 300);
+        animationRef.current = null;
+      },
+    });
+    return () => {
+      // Safety: stop if effect re-runs quickly
+      if (animationRef.current) {
+        animationRef.current.stop();
+        animationRef.current = null;
+      }
+    };
+  }, [scrollY]);
+
+  if (!el) return null;
 
   return (
-    <CustomScroll
-      onScroll={handleScroll}
-      throttleDuration={throttleDuration}
-      {...restProps}
-    >
-      <motion.div
-        className={classNames('transition-transform  ease-out', {
-          'w-fit h-full': orientation === 'horizontal',
-          'h-fit w-full': orientation === 'vertical',
-        })}
-        style={{
-          transitionDuration: transition,
-          ...(orientation == 'vertical'
-            ? { y: percentTransform }
-            : { x: percentTransform }),
-        }}
-      >
-        {children}
-      </motion.div>
-    </CustomScroll>
+    <BlockScroll
+      touch={false}
+      el={el as unknown as HTMLElement}
+      onScroll={(scroll) => {
+        if (
+          'deltaY' in scroll &&
+          scroll.deltaY !== 0 &&
+          el &&
+          scrollY !== null
+        ) {
+          let y = scrollY + scroll.deltaY;
+          const html = el.querySelector('html');
+          if (html) {
+            y = Math.min(y, html.scrollHeight - html.clientHeight);
+          }
+          y = Math.max(y, 0);
+          setScrollY(y);
+
+          isScrolling.current = true;
+        }
+      }}
+    ></BlockScroll>
   );
 };

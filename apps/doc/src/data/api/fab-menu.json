@@ -1,0 +1,11 @@
+{
+  "tags": {
+    "status": "beta",
+    "category": "Action"
+  },
+  "filePath": "node_modules/@udixio/ui-react/src/lib/components/FabMenu.tsx",
+  "description": "Floating action buttons (FABs) help people take primary actions",
+  "displayName": "Fab",
+  "methods": [],
+  "props": {}
+}

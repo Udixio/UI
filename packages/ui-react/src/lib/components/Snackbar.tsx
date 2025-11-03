@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { SnackbarInterface } from '../interfaces/snackbar.interface';
-import { snackbarStyle } from '../styles/snackbar.style';
+import { useSnackbarStyle } from '../styles/snackbar.style';
 
 import { MotionProps } from '../utils/component';
 import { IconButton } from './IconButton';
@@ -22,7 +22,7 @@ export const Snackbar = ({
 }: MotionProps<SnackbarInterface>) => {
   const [isVisible, setIsVisible] = useState(true);
 
-  const styles = snackbarStyle({
+  const styles = useSnackbarStyle({
     className,
     closeIcon,
     duration,

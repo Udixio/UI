@@ -1,6 +1,6 @@
 {
   "name": "@udixio/ui-react",
-  "version": "1.6.0",
+  "version": "2.6.0",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -20,6 +20,8 @@
     "react-dom": ">19.0.0"
   },
   "dependencies": {
+    "pathe": "^2.0.3",
+    "jiti": "^2.5.1",
     "throttle-debounce": "^5.0.2",
     "clsx": "^1.1.1",
     "react-textarea-autosize": "^8.5.9",
@@ -27,7 +29,6 @@
     "tailwind-merge": "^3.3.1",
     "uuid": "^11.0.3",
     "@fortawesome/fontawesome-svg-core": "^7.0.0",
-    "@fortawesome/free-brands-svg-icons": "^7.0.0",
     "@fortawesome/free-regular-svg-icons": "^7.0.0",
     "@fortawesome/free-solid-svg-icons": "^7.0.0",
     "@fortawesome/react-fontawesome": "^3.0.0"

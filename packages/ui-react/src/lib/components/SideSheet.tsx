@@ -1,6 +1,5 @@
 import { MotionProps } from '../utils';
-import { SlideSheetInterface } from '../interfaces';
-import { slideSheetStyle } from '../styles';
+import { SideSheetInterface } from '../interfaces';
 import { Divider } from './Divider';
 
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
@@ -8,29 +7,31 @@ import { IconButton } from './IconButton';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'motion/react';
+import { sideSheetStyle } from '../styles';
 
 /**
  * Side sheets show secondary content anchored to the side of the screen
  * @status beta
  * @category Layout
  */
-export const SlideSheet = ({
+export const SideSheet = ({
   variant = 'standard',
   className,
   children,
   title,
   position = 'right',
   extended,
+  divider,
   onExtendedChange,
   closeIcon = faXmark,
   transition,
   ...rest
-}: MotionProps<SlideSheetInterface>) => {
+}: MotionProps<SideSheetInterface>) => {
   transition = { duration: 0.3, ...transition };
 
   const [isExtended, setIsExtended] = useState(extended ?? true);
 
-  const styles = slideSheetStyle({
+  const styles = sideSheetStyle({
     transition,
     title,
     position,
@@ -38,6 +39,7 @@ export const SlideSheet = ({
     className,
     children,
     onExtendedChange,
+    divider,
     isExtended,
     extended: isExtended,
     variant,
@@ -80,7 +82,7 @@ export const SlideSheet = ({
         {isExtended && (
           <div
             {...rest}
-            className={styles.slideSheet}
+            className={styles.sideSheet}
             style={{ transition: transition.duration + 's' }}
           >
             <motion.div
@@ -107,7 +109,11 @@ export const SlideSheet = ({
                 {children}
               </div>
             </motion.div>
-            <Divider className={styles.divider} orientation="vertical" />
+            {(divider == undefined && variant == 'standard'
+              ? true
+              : divider) && (
+              <Divider className={styles.divider} orientation="vertical" />
+            )}
           </div>
         )}
       </AnimatePresence>

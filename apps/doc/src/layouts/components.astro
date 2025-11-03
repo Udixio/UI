@@ -1,29 +1,81 @@
 ---
 import '@/styles/global.css';
 import { getCollection, render } from 'astro:content';
-import { Button, Divider } from '@udixio/ui-react';
+import { Button, Divider , Tabs, Tab} from '@udixio/ui-react';
 import { sentenceCase, kebabCase } from 'change-case';
 import { ComponentSidebar } from '@/components/ComponentSidebar';
+import { ComponentNavigation } from '@/components/ComponentNavigation';
 import { Navigation } from '@/components/Navigation';
 import { ClientRouter } from 'astro:transitions';
 import { DocSidebar } from '@/components/DocSidebar';
 import Layout from '@/layouts/layout.astro';
+import {Card, Icon}from "@udixio/ui-react";
+import { renderMarkdown } from '@/lib/markdown';
+import { faExclamation, faInfo, faInfoCircle,  } from '@fortawesome/free-solid-svg-icons';
 
 const apis = await getCollection('api');
 
 const pathName = Astro.url.pathname;
 
+const { component } = Astro.params;
+const componentApi = apis.find(api => api.id === component);
 
+if (!componentApi) {
+  return Astro.redirect('/404', 404);
+}
+
+const limitation = componentApi.data.tags.limitations
+
+// Build robust, sanitized HTML from Markdown and style elements via classes
+const limitationHtml = typeof limitation === 'string' && limitation.trim().length > 0
+  ? renderMarkdown(limitation, {
+      classes: {
+        // ul: 'list-disc pl-6',
+        li: '!text-on-secondary-container',
+        // p: 'mb-2',
+      },
+    })
+  : '';
+
+const components =apis.filter(api => !Object.keys(api.data.tags).includes('parent')).map(({ id }) => ({
+  slug: id
+})).sort((a, b) => a.slug.localeCompare(b.slug))
 ---
 <Layout docSidebar>
   <Fragment slot="sidebar"> <!-- pass table header -->
     <ComponentSidebar  client:load  transition:name="component-sidebar" transition:persist
-                      current={pathName.startsWith('/components') ? pathName.split('/').filter(Boolean)[1] : null}
-                      components={apis.filter(api => !Object.keys(api.data.tags).includes('parent')).map(({ id }) => ({
-                        slug: id
-                      }))}
+                       current={pathName.startsWith('/components') ? pathName.split('/').filter(Boolean)[1] : null}
+                       components={components}
     />
   </Fragment>
-  <slot/>
+  <div class="max-w-screen-xl mx-auto">
+    <Card variant="filled" className="mt-8 bg-surface-container">
+      <div class="p-8">
+        <slot name="header" />
+      </div>
+      <ComponentNavigation  client:load  transition:name="component-navigation"  transition:persist  componentApi={componentApi}/>
+    </Card>
+    {limitation && (
+      <Card
+        className="my-12 theme-warning prose-markdown"
+        role="note"
+        aria-labelledby="limitations-title"
+      >
+        <div class="flex items-start gap-4 p-6 md:p-7">
+          <div class="p-2 rounded-full bg-primary-container">
+            <Icon icon={faExclamation} className="size-5 md:size-6 text-on-primary-container" />
+          </div>
+          <div>
+            <h3 id="limitations-title" class="text-base md:text-lg font-medium mb-2 text-on-secondary-container ml-2 !mt-0">
+              Known Limitations (Beta)
+            </h3>
+            <div class="text-sm leading-6 md:text-base md:leading-7 [&_ul]:list-disc [&_ul]:pl-5" set:html={limitationHtml}></div>
+          </div>
+        </div>
+      </Card>
+    )}
+
+    <slot/>
+  </div>
 
 </Layout>

@@ -1,10 +1,12 @@
 ---
-import { ColorPicker } from '@/components/theme/ColorPicker';
+import { ThemePicker } from '@/components/theme/ThemePicker';
+import { ColorTokens } from '@/components/theme/ColorTokens';
+import { TokenGallery } from '@/components/theme/TokenGallery';
 import Layout from '../layouts/layout.astro';
 import { Button, Card, TextField, Switch, Divider } from '@udixio/ui-react';
 ---
 <Layout>
-  <section class="px-8 py-10 max-w-screen-lg">
+  <section class="px-8 py-10">
     <header class="mb-8">
       <h1 class="text-3xl font-bold mb-3">Themes</h1>
       <p class="text-base text-on-surface-variant leading-relaxed">
@@ -12,68 +14,73 @@ import { Button, Card, TextField, Switch, Divider } from '@udixio/ui-react';
       </p>
     </header>
 
-    <div class="grid gap-8 lg:grid-cols-[420px,1fr]">
-      <div class="rounded-xl border border-outline-variant/40 bg-surface-container p-4 sticky top-4 h-fit">
-        <h2 class="text-sm font-semibold text-on-surface-variant mb-3">Source color</h2>
-        <ColorPicker client:load />
-      </div>
+    <div class="flex items-start justify-evenly gap-8">
+      <Card variant='filled' className="sticky top-4 p-8  max-w-lg flex-1 bg-surface-container">
+        <h2 class="text-sm font-semibold text-on-surface-variant mb-3">Theme</h2>
+        <ThemePicker client:load />
+      </Card>
+      <!--<div class="sticky top-4 space-y-8">-->
+      <!--  <section>-->
+      <!--    <h2 class="text-lg font-semibold mb-3">Buttons</h2>-->
+      <!--    <div class="flex flex-wrap gap-3">-->
+      <!--      <Button client:load>Primary</Button>-->
+      <!--      <Button client:load variant="tonal">Tonal</Button>-->
+      <!--      <Button client:load variant="outlined">Outlined</Button>-->
+      <!--      <Button client:load variant="text">Text</Button>-->
+      <!--      <Button client:load disabled>Disabled</Button>-->
+      <!--    </div>-->
+      <!--  </section>-->
 
-      <div class="space-y-8">
-        <section>
-          <h2 class="text-lg font-semibold mb-3">Buttons</h2>
-          <div class="flex flex-wrap gap-3">
-            <Button client:load>Primary</Button>
-            <Button client:load variant="tonal">Tonal</Button>
-            <Button client:load variant="outlined">Outlined</Button>
-            <Button client:load variant="text">Text</Button>
-            <Button client:load disabled>Disabled</Button>
-          </div>
-        </section>
+      <!--  <Divider />-->
 
-        <Divider />
+      <!--  <section>-->
+      <!--    <h2 class="text-lg font-semibold mb-3">TextFields</h2>-->
+      <!--    <div class="grid sm:grid-cols-2 gap-4">-->
+      <!--      <TextField client:load label="Email" name="email" placeholder="Email"  />-->
+      <!--      <TextField client:load name="password" label="Password" placeholder="Password" type="password" />-->
+      <!--      <div class="flex items-center gap-3">-->
+      <!--        <Switch client:load defaultChecked />-->
+      <!--        <span class="text-sm text-on-surface-variant">Enable notifications</span>-->
+      <!--      </div>-->
+      <!--    </div>-->
+      <!--  </section>-->
 
-        <section>
-          <h2 class="text-lg font-semibold mb-3">TextFields</h2>
-          <div class="grid sm:grid-cols-2 gap-4">
-            <TextField client:load label="Email" name="email" placeholder="Email"  />
-            <TextField client:load name="password" label="Password" placeholder="Password" type="password" />
-            <div class="flex items-center gap-3">
-              <Switch client:load defaultChecked />
-              <span class="text-sm text-on-surface-variant">Enable notifications</span>
-            </div>
-          </div>
-        </section>
+      <!--  <Divider />-->
 
-        <Divider />
-
-        <section>
-          <h2 class="text-lg font-semibold mb-3">Cards</h2>
-          <div class="grid md:grid-cols-2 gap-4">
-            <Card>
-              <div class="p-4 space-y-2">
-                <h3 class="font-semibold">Hand-picked Theme</h3>
-                <p class="text-sm text-on-surface-variant">
-                  Copy and paste this theme token set to get started quickly.
-                </p>
-                <div class="flex gap-2">
-                  <Button client:load size="small">Use theme</Button>
-                  <Button client:load size="small" variant="outlined">Copy tokens</Button>
-                </div>
-              </div>
-            </Card>
-            <Card>
-              <div class="p-4 space-y-2">
-                <h3 class="font-semibold">Live Preview</h3>
-                <p class="text-sm text-on-surface-variant">Interact with components to see color ramps.</p>
-                <div class="flex gap-2">
-                  <Button client:load size="small" variant="text">Secondary</Button>
-                  <Button client:load size="small" variant="tonal">Tonal</Button>
-                </div>
-              </div>
-            </Card>
-          </div>
-        </section>
-      </div>
+      <!--  <section>-->
+      <!--    <h2 class="text-lg font-semibold mb-3">Cards</h2>-->
+      <!--    <div class="grid md:grid-cols-2 gap-4">-->
+      <!--      <Card>-->
+      <!--        <div class="p-4 space-y-2">-->
+      <!--          <h3 class="font-semibold">Hand-picked Theme</h3>-->
+      <!--          <p class="text-sm text-on-surface-variant">-->
+      <!--            Copy and paste this theme token set to get started quickly.-->
+      <!--          </p>-->
+      <!--          <div class="flex gap-2">-->
+      <!--            <Button client:load size="small">Use theme</Button>-->
+      <!--            <Button client:load size="small" variant="outlined">Copy tokens</Button>-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--      </Card>-->
+      <!--      <Card>-->
+      <!--        <div class="p-4 space-y-2">-->
+      <!--          <h3 class="font-semibold">Live Preview</h3>-->
+      <!--          <p class="text-sm text-on-surface-variant">Interact with components to see color ramps.</p>-->
+      <!--          <div class="flex gap-2">-->
+      <!--            <Button client:load size="small" variant="text">Secondary</Button>-->
+      <!--            <Button client:load size="small" variant="tonal">Tonal</Button>-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--      </Card>-->
+      <!--    </div>-->
+      <!--  </section>-->
+      <!--</div>-->
+      <section class=" flex-1 ">
+        <Card variant="filled" className="space-y-4 p-8 bg-surface-container">
+          <h2 class="text-lg font-semibold">Catalog of colors</h2>
+          <TokenGallery client:load />
+        </Card>
+      </section>
     </div>
   </section>
 </Layout>

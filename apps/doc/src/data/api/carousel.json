@@ -1,10 +1,11 @@
 {
   "tags": {
     "status": "beta",
-    "category": "Layout"
+    "category": "Layout",
+    "limitations": "- Responsive behavior on mobile is not supported.\n- Only the default (hero) variant is supported."
   },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/Carousel.tsx",
-  "description": "Carousels show a collection of items that can be scrolled on and off the screen\nResources",
+  "description": "Carousels show a collection of items that can be scrolled on and off the screen",
   "displayName": "Carousel",
   "methods": [],
   "props": {
@@ -25,6 +26,21 @@
         "name": "number"
       }
     },
+    "onMetricsChange": {
+      "defaultValue": null,
+      "description": "Receive live metrics to better control the carousel externally",
+      "name": "onMetricsChange",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/carousel.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "(metrics: CarouselMetrics) => void"
+      }
+    },
     "variant": {
       "defaultValue": {
         "value": "hero"
@@ -39,7 +55,7 @@
       ],
       "required": false,
       "type": {
-        "name": "\"hero\" | \"center-aligned hero\" | \"multi-browse\" | \"un-contained\" | \"full-screen\""
+        "name": "\"hero\" | \"center-aligned\" | \"multi-browse\" | \"un-contained\" | \"full-screen\""
       }
     },
     "scrollSensitivity": {

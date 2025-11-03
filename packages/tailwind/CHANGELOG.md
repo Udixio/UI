@@ -1,3 +1,173 @@
+## 2.3.7 (2025-10-17)
+
+### 🩹 Fixes
+
+- **theme, plugins-tailwind:** improve container caching and enhance debugging logs ([a8f955d](https://github.com/Udixio/UI/commit/a8f955d))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 2.1.2
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.3.6 (2025-10-17)
+
+### 🩹 Fixes
+
+- **theme, plugins-tailwind:** enhance instance management and fix subThemes processing ([0a1b42e](https://github.com/Udixio/UI/commit/0a1b42e))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 2.1.1
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.3.5 (2025-10-17)
+
+### 🩹 Fixes
+
+- **plugins-tailwind:** correct `dx` and `dy` value mappings in animation plugin ([7bb82d9](https://github.com/Udixio/UI/commit/7bb82d9))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.3.4 (2025-10-17)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 2.1.0
+
+## 2.3.3 (2025-10-16)
+
+### 🩹 Fixes
+
+- **animation:** unify variable structure for scroll animations ([3f73978](https://github.com/Udixio/UI/commit/3f73978))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.3.2 (2025-10-16)
+
+### 🩹 Fixes
+
+- **animation:** update variable names for consistency with CSS conventions ([b13c01c](https://github.com/Udixio/UI/commit/b13c01c))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.3.1 (2025-10-16)
+
+### 🩹 Fixes
+
+- **animation:** streamline variable names for consistency ([4b390dd](https://github.com/Udixio/UI/commit/4b390dd))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.3.0 (2025-10-16)
+
+### 🚀 Features
+
+- **animation:** add `run` and `paused` states for `out` animations ([dc134d3](https://github.com/Udixio/UI/commit/dc134d3))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.2.0 (2025-10-16)
+
+### 🚀 Features
+
+- **animation:** refactor `createAnimation` to support enhanced parameterization and new utilities ([96d1423](https://github.com/Udixio/UI/commit/96d1423))
+- **animation:** add `supportsNegativeValues` and enhance `slide` utility generation ([e9558db](https://github.com/Udixio/UI/commit/e9558db))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.1.0 (2025-10-16)
+
+### 🚀 Features
+
+- **animation:** remove redundant `updateAnimNamesAndWillChange` logic and centralize handling in `animation` plugin ([d13c4d7](https://github.com/Udixio/UI/commit/d13c4d7))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+# 2.0.0 (2025-10-15)
+
+### 🚀 Features
+
+- **animation:** rename `zoom` to `scale` and add scroll-driven utilities ([cbc8141](https://github.com/Udixio/UI/commit/cbc8141))
+- **animation:** rename classes and refine scroll-driven animations ([414a875](https://github.com/Udixio/UI/commit/414a875))
+- **animation:** enhance dependency handling and refine utility updates ([aa91136](https://github.com/Udixio/UI/commit/aa91136))
+- **animation:** update `createAnimation` to support multi-step definitions and enhance utility generation ([a293d94](https://github.com/Udixio/UI/commit/a293d94))
+- **animation:** enhance state handling and optimize utility usage ([1f134b4](https://github.com/Udixio/UI/commit/1f134b4))
+- **animation:** refactor animation utilities and improve `createAnimation` logic ([dc55651](https://github.com/Udixio/UI/commit/dc55651))
+- **animation:** refactor animation utilities and integrate `text-case` ([cc44456](https://github.com/Udixio/UI/commit/cc44456))
+- **animation:** reintroduce `out` animations and add utility aliases ([b278026](https://github.com/Udixio/UI/commit/b278026))
+- **ui:** refactor animation utilities and remove redundant exit animations ([d7719cb](https://github.com/Udixio/UI/commit/d7719cb))
+- **ui:** update animation utilities and documentation for consistency ([1001b70](https://github.com/Udixio/UI/commit/1001b70))
+- **ui:** simplify animation plugin and enhance utility structure ([8b43734](https://github.com/Udixio/UI/commit/8b43734))
+- **ui:** add prefix option to animation plugin for customizable utility namespaces ([e94ef87](https://github.com/Udixio/UI/commit/e94ef87))
+- **ui:** refine animations and Tailwind plugin for better customization ([62ad9bf](https://github.com/Udixio/UI/commit/62ad9bf))
+- **ui:** remove legacy JS-based scroll animations and refine scroll-driven components ([d098430](https://github.com/Udixio/UI/commit/d098430))
+- **ui:** overhaul animation plugin for customizability and flexibility ([8993d62](https://github.com/Udixio/UI/commit/8993d62))
+- **ui:** enhance scroll animations with fallback and Tailwind integration ([b5bec58](https://github.com/Udixio/UI/commit/b5bec58))
+- **theme:** streamline color management and refactor configuration ([b1b1211](https://github.com/Udixio/UI/commit/b1b1211))
+- **doc:** add color token and gallery components ([a3356c0](https://github.com/Udixio/UI/commit/a3356c0))
+
+### 🩹 Fixes
+
+- the external colors must be coherent ([08cd685](https://github.com/Udixio/UI/commit/08cd685))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 2.0.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 1.7.2 (2025-09-04)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 1.3.0
+
+## 1.7.1 (2025-08-31)
+
+### 🩹 Fixes
+
+- **tailwind:** make `normalizePath` asynchronous in file handling methods ([510dd53](https://github.com/Udixio/UI/commit/510dd53))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 1.7.0 (2025-08-31)
+
+### 🚀 Features
+
+- **tailwind:** enhance dynamic theming with flexible CSS selectors ([64bef44](https://github.com/Udixio/UI/commit/64bef44))
+
+### 🩹 Fixes
+
+- **tailwind:** correct indentation in dynamic CSS generation and adjust imports ([701599f](https://github.com/Udixio/UI/commit/701599f))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 1.6.0 (2025-08-29)
 
 ### 🚀 Features

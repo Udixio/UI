@@ -42,12 +42,12 @@
         "name": "\"small\" | \"medium\" | \"large\""
       }
     },
-    "isExtended": {
+    "extended": {
       "defaultValue": {
         "value": false
       },
       "description": "",
-      "name": "isExtended",
+      "name": "extended",
       "declarations": [
         {
           "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/fab.interface.ts",

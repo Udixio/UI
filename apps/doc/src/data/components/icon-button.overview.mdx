@@ -10,6 +10,9 @@
 
 
 
+
+
+
 import { CodePreview } from '@/components/CodePreview.js';
 import { faPlus, faStar as fasStar } from '@fortawesome/free-solid-svg-icons';
 import { faStar as farStar } from '@fortawesome/free-regular-svg-icons';
@@ -104,12 +107,36 @@ Use \`onToggle\` and \`iconSelected\` to turn it into a toggle button.
 <CodePreview
   client:load
   code={`
-  <IconButton
-    label="Favorite"
-    icon={farStar}
-    iconSelected={fasStar}
-    onToggle={(active) => console.log('active:', active)}
-  />`}
+  <div className="flex items-center gap-3">
+    <IconButton
+      label="Standard"
+      icon={farStar}
+      iconSelected={fasStar}
+      onToggle={(active) => console.log('active:', active)}
+    />
+    <IconButton
+      variant="filled"
+      label="Filled"
+      icon={farStar}
+      iconSelected={fasStar}
+      onToggle={(active) => console.log('active:', active)}
+    />
+    <IconButton
+      variant="tonal"
+      label="Tonal"
+      icon={farStar}
+      iconSelected={fasStar}
+      onToggle={(active) => console.log('active:', active)}
+    />
+    <IconButton
+      variant="outlined"
+      label="Outlined"
+      icon={farStar}
+      iconSelected={fasStar}
+      onToggle={(active) => console.log('active:', active)}
+    />
+  </div>
+  `}
   scope={{ farStar, fasStar }}
 />
 

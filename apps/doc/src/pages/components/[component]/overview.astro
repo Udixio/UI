@@ -27,8 +27,10 @@ if (!componentApi) {
 }
 ---
 <Components>
-  <h1 class="text-display-large mt-8">{sentenceCase(noCase(componentApi.id))}</h1>
-  <p class="text-headline-small mt-8">{componentApi.data.description}</p>
+  <Fragment slot="header"> <!-- pass table header -->
+    <h1 class="text-display-large ">{sentenceCase(noCase(componentApi.id))}</h1>
+    <p class="text-headline-small mt-8">{componentApi.data.description}</p>
+  </Fragment>
   <div class="prose-markdown max-w-none">
     <Content components={{ pre: Code }} />
   </div>

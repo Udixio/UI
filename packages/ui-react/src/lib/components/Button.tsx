@@ -1,10 +1,38 @@
 import { classNames, ReactProps } from '../utils';
 import { ButtonInterface } from '../interfaces';
-import { buttonStyle } from '../styles';
+import { useButtonStyle } from '../styles';
 import { Icon } from '../icon';
 import { ProgressIndicator } from './ProgressIndicator';
-import { RippleEffect } from '../effects';
+import { State } from '../effects';
 import React, { useEffect, useRef } from 'react';
+
+/**
+ * Resolves variant aliases to their actual variant values
+ */
+function resolveVariantAlias(
+  variant?:
+    | 'filled'
+    | 'elevated'
+    | 'tonal'
+    | 'outlined'
+    | 'text'
+    | 'primary'
+    | 'secondary',
+): 'filled' | 'elevated' | 'tonal' | 'outlined' | 'text' {
+  const aliasMap = {
+    primary: 'filled',
+    secondary: 'tonal',
+  } as const;
+
+  if (variant && variant in aliasMap) {
+    return aliasMap[variant as keyof typeof aliasMap];
+  }
+
+  return (
+    (variant as 'filled' | 'elevated' | 'tonal' | 'outlined' | 'text') ||
+    'filled'
+  );
+}
 
 /**
  * Buttons prompt most actions in a UI
@@ -38,6 +66,7 @@ export const Button = ({
       'Button component requires either a label prop or children content',
     );
   }
+  variant = resolveVariantAlias(variant);
 
   const ElementType = href ? 'a' : 'button';
 
@@ -72,7 +101,7 @@ export const Button = ({
       onToggle(next);
     };
   }
-  const styles = buttonStyle({
+  const styles = useButtonStyle({
     allowShapeTransformation,
     size,
     disableTextMargins,
@@ -109,25 +138,30 @@ export const Button = ({
       style={{ transition: transition.duration + 's' }}
     >
       <div className={styles.touchTarget}></div>
-      <div
-        className={styles.stateLayer}
+      <State
         style={{ transition: transition.duration + 's' }}
-      >
-        {!disabled && (
-          <RippleEffect
-            colorName={
-              (variant === 'filled' && onToggle && 'on-surface-variant') ||
-              (variant === 'filled' && !onToggle && 'on-primary') ||
-              (variant === 'elevated' && 'primary') ||
-              (variant === 'tonal' && 'on-secondary-container') ||
-              (variant === 'outlined' && 'primary') ||
-              (variant === 'text' && 'primary') ||
-              ''
-            }
-            triggerRef={resolvedRef}
-          />
+        className={styles.stateLayer}
+        colorName={classNames(
+          variant === 'filled' && {
+            'on-surface-variant': !isActive && Boolean(onToggle),
+            'on-primary': isActive || !onToggle,
+          },
+          variant === 'elevated' && {
+            'on-primary': isActive && Boolean(onToggle),
+            primary: !isActive || !onToggle,
+          },
+          variant === 'tonal' && {
+            'on-secondary': isActive && Boolean(onToggle),
+            'on-secondary-container': !isActive || !onToggle,
+          },
+          variant === 'outlined' && {
+            'inverse-on-surface': isActive && Boolean(onToggle),
+            'on-surface-variant': !isActive || !onToggle,
+          },
+          variant === 'text' && 'primary',
         )}
-      </div>
+        stateClassName={'state-ripple-group-[button]'}
+      />
 
       {iconPosition === 'left' && iconElement}
       {loading && (

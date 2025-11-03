@@ -1,22 +1,40 @@
-import { createContainer, InjectionMode, Resolver } from 'awilix';
+import { AwilixContainer, createContainer, InjectionMode, Resolver } from 'awilix';
 import { ColorModule } from './color';
-import { ThemeModule } from './theme';
 import { AppModule } from './app.module';
 import { PluginModule } from './plugin';
+import { PaletteModule } from './palette';
+import { ContextModule } from './context';
 
 export type Module = Record<string, Resolver<any>>;
 
-export function registerModule(...modules: Module[]) {
-  modules.forEach((module) => {
-    Object.entries(module).forEach(([name, moduleClass]) => {
-      AppContainer.register(name, moduleClass);
-    });
+let cachedContainer: AwilixContainer | null = null;
+
+export const AppContainer = (options?: { fresh?: boolean }) => {
+  if (!options?.fresh && cachedContainer) {
+    return cachedContainer;
+  }
+
+  const container = createContainer({
+    injectionMode: InjectionMode.PROXY,
   });
-  return AppContainer;
-}
 
-export const AppContainer = createContainer({
-  injectionMode: InjectionMode.PROXY,
-});
+  function registerModule(...modules: Module[]) {
+    modules.forEach((module) => {
+      Object.entries(module).forEach(([name, moduleClass]) => {
+        container.register(name, moduleClass);
+      });
+    });
+    return AppContainer;
+  }
 
-registerModule(AppModule, PluginModule, ColorModule, ThemeModule);
+  registerModule(
+    AppModule,
+    PluginModule,
+    ColorModule,
+    PaletteModule,
+    ContextModule,
+  );
+
+  cachedContainer = container;
+  return container;
+};

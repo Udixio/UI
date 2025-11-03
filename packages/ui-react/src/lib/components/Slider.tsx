@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { SliderInterface } from '../interfaces';
-import { sliderStyle } from '../styles';
+import { useSliderStyle } from '../styles';
 import { classNames, ReactProps } from '../utils';
 import { useEffect, useRef, useState } from 'react';
 
@@ -31,7 +31,7 @@ export const Slider = ({
   onChange,
   ...restProps
 }: ReactProps<SliderInterface>) => {
-  const getPourcentFromValue = (value: number) => {
+  const getpercentFromValue = (value: number) => {
     const min = getMin();
     const max = getMax();
 
@@ -56,10 +56,10 @@ export const Slider = ({
     return min == -Infinity ? marks[0].value : min;
   };
 
-  const getValueFromPourcent = (pourcent: number) => {
+  const getValueFrompercent = (percent: number) => {
     const min = getMin(false);
     const max = getMax(false);
-    return ((max - min) * pourcent) / 100 + min;
+    return ((max - min) * percent) / 100 + min;
   };
 
   const [isChanging, setIsChanging] = useState(false);
@@ -68,7 +68,7 @@ export const Slider = ({
     ref || defaultRef;
 
   const [value, setValue] = useState(defaultValue);
-  const [pourcent, setPourcent] = useState(getPourcentFromValue(defaultValue));
+  const [percent, setpercent] = useState(getpercentFromValue(defaultValue));
   const [mouseDown, setMouseDown] = useState(false);
   const handleMouseDown = (e: any) => {
     setMouseDown(true);
@@ -106,7 +106,7 @@ export const Slider = ({
     };
   }, [mouseDown]);
 
-  const styles = sliderStyle({
+  const styles = useSliderStyle({
     className,
     isChanging,
     marks,
@@ -130,31 +130,31 @@ export const Slider = ({
           ? event.touches[0].clientX
           : event.clientX;
 
-      const pourcent = ((clientX - refPosition) / current.offsetWidth) * 100;
+      const percent = ((clientX - refPosition) / current.offsetWidth) * 100;
 
-      updateSliderValues({ pourcent });
+      updateSliderValues({ percent });
     }
   };
   const updateSliderValues = ({
-    pourcent,
+    percent,
     value,
   }: {
-    pourcent?: number;
+    percent?: number;
     value?: number;
   }) => {
-    if (pourcent) {
-      if (pourcent >= 100) {
+    if (percent) {
+      if (percent >= 100) {
         setValue(getMax(true));
-        setPourcent(100);
+        setpercent(100);
         return;
       }
-      if (pourcent <= 0) {
+      if (percent <= 0) {
         setValue(getMin(true));
-        setPourcent(0);
+        setpercent(0);
         return;
       }
 
-      value = getValueFromPourcent(pourcent);
+      value = getValueFrompercent(percent);
       if (value == getMin()) {
         value = getMin(true);
       }
@@ -164,15 +164,15 @@ export const Slider = ({
     } else if (value != undefined) {
       if (value >= getMax()) {
         setValue(getMax(true));
-        setPourcent(100);
+        setpercent(100);
         return;
       }
       if (value <= getMin()) {
         setValue(getMin(true));
-        setPourcent(0);
+        setpercent(0);
         return;
       }
-      pourcent = getPourcentFromValue(value);
+      percent = getpercentFromValue(value);
     } else {
       return;
     }
@@ -206,10 +206,10 @@ export const Slider = ({
       value = getMin(true);
     }
 
-    pourcent = getPourcentFromValue(value);
+    percent = getpercentFromValue(value);
 
     setValue(value);
-    setPourcent(pourcent);
+    setpercent(percent);
     if (onChange) {
       onChange(value);
     }
@@ -295,10 +295,7 @@ export const Slider = ({
       {...restProps}
     >
       <input type="hidden" name={name} value={value} />
-      <div
-        className={styles.activeTrack}
-        style={{ flex: pourcent / 100 }}
-      ></div>
+      <div className={styles.activeTrack} style={{ flex: percent / 100 }}></div>
       <div className={styles.handle}>
         <AnimatePresence>
           {isChanging && (
@@ -325,7 +322,7 @@ export const Slider = ({
       </div>
       <div
         className={styles.inactiveTrack}
-        style={{ flex: 1 - pourcent / 100 }}
+        style={{ flex: 1 - percent / 100 }}
       ></div>
       <div
         className={
@@ -338,11 +335,11 @@ export const Slider = ({
 
             const handleAndGapPercent =
               ((isChanging ? 9 : 10) / sliderWidth) * 100;
-            const markPercent = getPourcentFromValue(mark.value);
+            const markPercent = getpercentFromValue(mark.value);
 
-            if (markPercent <= pourcent - handleAndGapPercent) {
+            if (markPercent <= percent - handleAndGapPercent) {
               isUnderActiveTrack = true;
-            } else if (markPercent >= pourcent + handleAndGapPercent) {
+            } else if (markPercent >= percent + handleAndGapPercent) {
               isUnderActiveTrack = false;
             }
             return (
@@ -355,7 +352,7 @@ export const Slider = ({
                     isUnderActiveTrack != null && !isUnderActiveTrack,
                 })}
                 style={{
-                  left: `${getPourcentFromValue(mark.value)}%`,
+                  left: `${getpercentFromValue(mark.value)}%`,
                 }}
               ></div>
             );

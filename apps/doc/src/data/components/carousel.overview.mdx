@@ -1,8 +1,3 @@
----
----
-
-## Usage
-
 Use Carousel with CarouselItem children to create a horizontally scrollable showcase.
 
 ```bash
@@ -38,13 +33,76 @@ import { Carousel, CarouselItem } from "@udixio/ui-react"
   scrollSensitivity={0.8}
   onChange={(index) => console.log('Active slide:', index)}
 >
-  {[1, 2, 3, 4].map((i) => (
-    <CarouselItem key={i}>
-      <div className="bg-surface rounded-xl h-full flex flex-col">
-        <img className="w-full flex-1 object-cover rounded-2xl" src="https://picsum.photos/640/240" alt="Cover" />
-        <p class={'text-title-large m-8 text-nowrap'}>Slide {i}</p>
-      </div>
-    </CarouselItem>
-  ))}
+  {Array.from({length: 15}, (_, i) => i + 1).map((i) => {
+    const fmt = i % 3;
+    const w = fmt === 0 ? 640 : fmt === 1 ? 400 : 240;
+    const h = fmt === 0 ? 240 : fmt === 1 ? 400 : 640;
+    return (
+      <CarouselItem key={i}>
+        <div className="bg-surface rounded-xl h-full flex flex-col">
+          <div className="flex-1 min-h-0">
+            <img className="size-full object-cover rounded-2xl" src={`https://picsum.photos/seed/udx-${i}-fmt-${fmt}/${w}/${h}`} alt="Cover" />
+          </div>
+          <p class={'text-title-large m-8 text-nowrap'}>Slide {i}</p>
+        </div>
+      </CarouselItem>
+    );
+  })}
 </Carousel>
+```
+
+
+### With navigation buttons
+
+```jsx
+() => {
+  const total = 15;
+
+  const [index, setIndex] = React.useState(0);
+  const [step, setStep] = React.useState(1);
+  const [visible, setVisible] = React.useState({ approx: 0, full: 0 });
+
+  const prev = () => setIndex((i) => Math.max(0, i - step));
+  const next = () => setIndex((i) => Math.min(total - 1, i + step));
+
+  return (
+    <div className="w-full">
+      <Carousel
+        variant="hero"
+        scrollSensitivity={0.8}
+        index={index}
+        onChange={setIndex}
+        onMetricsChange={(m) => {
+          setStep(m.stepHalf); // step equals half of visible items
+          setVisible({ approx: m.visibleApprox, full: m.visibleFull });
+        }}
+      >
+        {Array.from({ length: total }, (_, i) => i + 1).map((i) => {
+          const fmt = i % 3;
+          const w = fmt === 0 ? 640 : fmt === 1 ? 400 : 240;
+          const h = fmt === 0 ? 240 : fmt === 1 ? 400 : 640;
+          return (
+            <CarouselItem key={i}>
+              <div className="bg-surface rounded-xl h-full flex flex-col ">
+                <div className="flex-1 min-h-0">
+                  <img className="size-full object-cover rounded-2xl" src={`https://picsum.photos/seed/udx-${i}-fmt-${fmt}/${w}/${h}`} alt="Cover" />
+                </div>
+                <p className={'text-title-large m-8 text-nowrap'}>Slide {i}</p>
+              </div>
+            </CarouselItem>
+          );
+        })}
+      </Carousel>
+      <div className="w-full mt-3 flex items-center justify-between gap-3">
+        <div className="text-on-surface-variant text-body-small">
+          Visible ≈ {visible.approx.toFixed(2)} (full {visible.full}), step: {step}
+        </div>
+        <div className="flex gap-3">
+          <Button variant="text" label="Previous" onClick={prev} />
+          <Button variant="filled" label="Next" onClick={next} />
+        </div>
+      </div>
+    </div>
+  );
+}
 ```

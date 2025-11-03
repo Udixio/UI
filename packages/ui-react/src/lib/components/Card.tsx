@@ -1,9 +1,8 @@
 import { useRef } from 'react';
-
-import { RippleEffect } from '../effects/ripple';
 import { CardInterface } from '../interfaces';
-import { cardStyle } from '../styles';
+import { useCardStyle } from '../styles';
 import { ReactProps } from '../utils';
+import { State } from '../effects';
 
 /**
  * Cards display content and actions about a single subject
@@ -18,18 +17,21 @@ export const Card = ({
   ref,
   ...rest
 }: ReactProps<CardInterface>) => {
-  const styles = cardStyle({ className, isInteractive, variant, children });
+  const styles = useCardStyle({ className, isInteractive, variant, children });
 
   const defaultRef = useRef<HTMLDivElement>(null);
   const resolvedRef = ref || defaultRef;
 
   return (
     <div {...rest} ref={resolvedRef} className={styles.card}>
-      <div className={styles.stateLayer}>
-        {isInteractive && (
-          <RippleEffect colorName={'on-surface'} triggerRef={resolvedRef} />
-        )}
-      </div>
+      {isInteractive && (
+        <State
+          className={styles.stateLayer}
+          colorName={'on-surface'}
+          stateClassName={'state-ripple-group-[card]'}
+        />
+      )}
+
       {children}
     </div>
   );

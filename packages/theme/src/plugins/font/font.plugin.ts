@@ -13,7 +13,7 @@ export type FontStyle = {
 };
 export type FontRole = 'display' | 'headline' | 'title' | 'label' | 'body';
 export type FontSize = 'large' | 'medium' | 'small';
-interface FontPluginOptions {
+export interface FontPluginOptions {
   fontFamily?: {
     expressive?: string[];
     neutral?: string[];

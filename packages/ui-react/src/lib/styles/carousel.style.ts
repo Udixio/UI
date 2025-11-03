@@ -1,12 +1,22 @@
-import { classNames, defaultClassNames } from '../utils';
+import {
+  type ClassNameComponent,
+  classNames,
+  createUseClassNames,
+  defaultClassNames,
+} from '../utils';
 import { CarouselInterface } from '../interfaces';
+
+const carouselConfig: ClassNameComponent<CarouselInterface> = () => ({
+  carousel: classNames(['w-full h-[400px]']),
+  track: classNames('flex h-full w-full'),
+});
 
 export const carouselStyle = defaultClassNames<CarouselInterface>(
   'carousel',
-  () => ({
-    carousel: classNames(['w-full h-[400px]']),
-    track: classNames(
-      'grid grid-flow-col h-full transition-transform  ease-out w-fit',
-    ),
-  }),
+  carouselConfig,
+);
+
+export const useCarouselStyle = createUseClassNames<CarouselInterface>(
+  'carousel',
+  carouselConfig,
 );

@@ -1,4 +1,9 @@
-import { type API, type ConfigInterface, loader } from '@udixio/theme';
+import {
+  type API,
+  type ConfigInterface,
+  ContextOptions,
+  loader,
+} from '@udixio/theme';
 import { useEffect, useRef, useState } from 'react';
 import { TailwindPlugin } from '@udixio/tailwind';
 
@@ -11,78 +16,98 @@ export const ThemeProvider = ({
   config,
   throttleDelay = 100, // Délai par défaut de 300ms
   onLoad,
+  loadTheme = false,
 }: {
-  config: ConfigInterface;
+  config: Readonly<ConfigInterface>;
   onLoad?: (api: API) => void;
   throttleDelay?: number;
+  loadTheme?: boolean;
 }) => {
-  const [outputCss, setOutputCss] = useState<null | string>(null);
+  const [themeApi, setThemeApi] = useState<API | null>(null);
 
-  // Refs pour gérer le throttling
+  // Charger l'API du thème une fois au montage
+  useEffect(() => {
+    (async () => {
+      const api = await loader(config, loadTheme);
+      setThemeApi(api);
+    })();
+  }, []);
+
+  const [outputCss, setOutputCss] = useState<string | null>(null);
+
+  // Throttle avec exécution en tête (leading) et en fin (trailing)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const lastSourceColorRef = useRef<string>(config.sourceColor);
-  const isInitialLoadRef = useRef<boolean>(true);
+  const lastExecTimeRef = useRef<number>(0);
+  const lastArgsRef = useRef<Partial<ContextOptions> | null>(null);
 
   useEffect(() => {
-    // Si c'est le premier chargement, on applique immédiatement
-    if (isInitialLoadRef.current) {
-      isInitialLoadRef.current = false;
-      lastSourceColorRef.current = config.sourceColor;
-      applyThemeChange(config.sourceColor);
-      return;
-    }
+    if (!themeApi) return; // Attendre que l'API soit prête
 
-    // Si la couleur n'a pas changé, on ne fait rien
-    if (config.sourceColor === lastSourceColorRef.current) {
-      return;
-    }
+    const ctx: Partial<ContextOptions> = {
+      ...config,
+      // Assurer la compatibilité avec l'API qui attend sourceColorHex
+      sourceColor: config.sourceColor,
+    };
 
-    // Annuler le timeout précédent s'il existe
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
+    const now = Date.now();
+    const timeSinceLast = now - lastExecTimeRef.current;
 
-    // Programmer un nouveau changement de thème avec un délai
-    timeoutRef.current = setTimeout(async () => {
-      lastSourceColorRef.current = config.sourceColor;
-      await applyThemeChange(config.sourceColor);
-      timeoutRef.current = null;
-    }, throttleDelay);
+    const invoke = async (args: Partial<ContextOptions>) => {
+      // applique et notifie
+      await applyThemeChange(args);
+    };
 
-    // Cleanup function pour annuler le timeout si le composant se démonte
-    return () => {
+    // Leading: si délai écoulé ou jamais exécuté, exécuter tout de suite
+    if (lastExecTimeRef.current === 0 || timeSinceLast >= throttleDelay) {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
       }
-    };
-  }, [config.sourceColor, throttleDelay]);
-
-  const applyThemeChange = async (sourceColor: string) => {
-    if (!isValidHexColor(sourceColor)) {
-      throw new Error('Invalid hex color');
-    }
-
-    try {
-      // Mesure du temps de chargement de l'API
-      const api = await loader({
-        ...config,
-        sourceColor,
-      });
-      onLoad?.(api);
-
-      const generatedCss = api.plugins
-        .getPlugin(TailwindPlugin)
-        .getInstance().outputCss;
-
-      if (generatedCss) {
-        setOutputCss(generatedCss);
+      lastArgsRef.current = null;
+      lastExecTimeRef.current = now;
+      void invoke(ctx);
+    } else {
+      // Sinon, mémoriser la dernière requête et programmer une exécution en trailing
+      lastArgsRef.current = ctx;
+      if (!timeoutRef.current) {
+        const remaining = Math.max(0, throttleDelay - timeSinceLast);
+        timeoutRef.current = setTimeout(async () => {
+          timeoutRef.current = null;
+          const args = lastArgsRef.current;
+          lastArgsRef.current = null;
+          if (args) {
+            lastExecTimeRef.current = Date.now();
+            await invoke(args);
+          }
+        }, remaining);
       }
-    } catch (err) {
-      throw new Error(
-        err instanceof Error ? err.message : 'Theme loading failed',
-      );
     }
+
+    // Cleanup: au changement de dépendances, ne rien faire ici (on gère trailing)
+    return () => {};
+  }, [config, throttleDelay, themeApi]);
+
+  const applyThemeChange = async (ctx: Partial<ContextOptions>) => {
+    if (typeof ctx.sourceColor == 'string') {
+      if (!isValidHexColor(ctx.sourceColor)) {
+        throw new Error('Invalid hex color');
+      }
+    }
+
+    if (!themeApi) {
+      // L'API n'est pas prête; ignorer silencieusement car l'effet principal attend themeApi
+      return;
+    }
+    themeApi.context.update(ctx);
+
+    await themeApi.load();
+
+    const outputCss = themeApi?.plugins
+      .getPlugin(TailwindPlugin)
+      .getInstance().outputCss;
+    setOutputCss(outputCss);
+
+    onLoad?.(themeApi);
   };
 
   // Cleanup lors du démontage du composant
@@ -90,6 +115,7 @@ export const ThemeProvider = ({
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
       }
     };
   }, []);

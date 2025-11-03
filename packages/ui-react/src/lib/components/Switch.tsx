@@ -3,7 +3,7 @@ import React, { useRef, useState } from 'react';
 import { Icon } from '../icon';
 import { motion } from 'motion/react';
 import { SwitchInterface } from '../interfaces/switch.interface';
-import { switchStyle } from '../styles/switch.style';
+import { useSwitchStyle } from '../styles/switch.style';
 import { MotionProps } from '../utils/component';
 
 /**
@@ -48,7 +48,7 @@ export const Switch = ({
     setIsSelected(!isSelected);
     onChange?.(!isSelected);
   };
-  const styles = switchStyle({
+  const styles = useSwitchStyle({
     className,
     isSelected,
     activeIcon,

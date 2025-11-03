@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ProgressIndicatorInterface } from '../interfaces/progress-indicator.interface';
 
 import { motion } from 'motion/react';
-import { progressIndicatorStyle } from '../styles/progress-indicator.style';
+import { useProgressIndicatorStyle } from '../styles/progress-indicator.style';
 import { ReactProps } from '../utils/component';
 
 /**
@@ -67,7 +67,7 @@ export const ProgressIndicator = ({
     return;
   }, [completedPercentage, transitionDuration]);
 
-  const styles = progressIndicatorStyle({
+  const styles = useProgressIndicatorStyle({
     className,
     variant,
     value,

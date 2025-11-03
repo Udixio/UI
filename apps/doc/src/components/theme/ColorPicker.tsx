@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   argbFromHex,
   Hct,
@@ -6,6 +6,7 @@ import {
 } from '@material/material-color-utilities';
 import { themeConfigStore } from '@/stores/themeConfigStore.ts';
 import { useStore } from '@nanostores/react';
+import { TextField } from '@udixio/ui-react';
 
 export const ColorPicker = () => {
   const $themeConfig = useStore(themeConfigStore);
@@ -21,8 +22,22 @@ export const ColorPicker = () => {
     Hct.fromInt(argbFromHex($themeConfig.sourceColor)).tone,
   );
 
+  const [maxChroma, setMaxChroma] = useState(200);
+
+  useEffect(() => {
+    const maxChroma = Hct.from(hue, 200, 50).chroma;
+    setMaxChroma(maxChroma);
+  }, [tone, hue]);
+
   const currentColor = Hct.from(hue, chroma, tone);
   const hexColor = hexFromArgb(currentColor.toInt());
+
+  const normalizeHex = (val: string) => {
+    const trimmed = val.trim();
+    const m = trimmed.match(/^#?([0-9a-fA-F]{6})$/);
+    if (!m) return null;
+    return `#${m[1].toUpperCase()}`;
+  };
 
   // Génération du dégradé pour Hue (arc-en-ciel)
   const hueGradient = useMemo(() => {
@@ -38,14 +53,13 @@ export const ColorPicker = () => {
   // Génération du dégradé pour Chroma (saturation)
   const chromaGradient = useMemo(() => {
     const colors = [];
-    const maxChroma = 150;
     for (let c = 0; c <= maxChroma; c += maxChroma / 10) {
       const color = Hct.from(hue, c, 50);
       const hex = hexFromArgb(color.toInt());
       colors.push(hex);
     }
     return `linear-gradient(to right, ${colors.join(', ')})`;
-  }, [hue, tone]);
+  }, [hue, tone, maxChroma]);
 
   // Génération du dégradé pour Tone (clarté)
   const toneGradient = useMemo(() => {
@@ -58,9 +72,63 @@ export const ColorPicker = () => {
     return `linear-gradient(to right, ${colors.join(', ')})`;
   }, [hue, chroma]);
 
-  if (hexColor !== $themeConfig.sourceColor) {
-    themeConfigStore.set({ ...themeConfigStore.get(), sourceColor: hexColor });
-  }
+  const updateCurrentFromHex = useCallback((hex: string) => {
+    const normalized = normalizeHex(hex);
+    if (!normalized) return;
+    const hct = Hct.fromInt(argbFromHex(normalized));
+    setHue(hct.hue);
+    setChroma(hct.chroma);
+    setTone(hct.tone);
+  }, []);
+
+  const updateThemeFromHex = useCallback((hex: string) => {
+    if ($themeConfig.sourceColor === hex) return;
+
+    themeConfigStore.set({ ...themeConfigStore.get(), sourceColor: hex });
+  }, []);
+
+  // Throttle utility (leading + trailing)
+  const throttle = useCallback(
+    <T extends (...args: any[]) => void>(fn: T, wait: number) => {
+      let last = 0;
+      let timeout: any;
+      return (...args: Parameters<T>) => {
+        const now = Date.now();
+        const remaining = wait - (now - last);
+        if (remaining <= 0) {
+          if (timeout) {
+            clearTimeout(timeout);
+            timeout = null;
+          }
+          last = now;
+          fn(...args);
+        } else {
+          if (timeout) clearTimeout(timeout);
+          timeout = setTimeout(() => {
+            last = Date.now();
+            fn(...args);
+          }, remaining);
+        }
+      };
+    },
+    [],
+  );
+
+  const throttledUpdateCurrentFromHex = useMemo(
+    () => throttle(updateCurrentFromHex, 50),
+    [throttle, updateCurrentFromHex],
+  );
+
+  const throttledUpdateThemeFromHex = useMemo(
+    () => throttle(updateThemeFromHex, 500),
+    [throttle, updateThemeFromHex],
+  );
+
+  useEffect(() => {
+    if (hexColor !== $themeConfig.sourceColor) {
+      throttledUpdateThemeFromHex(hexColor);
+    }
+  }, [hexColor, $themeConfig.sourceColor, throttledUpdateThemeFromHex]);
 
   return (
     <div className="p-5 max-w-md mx-auto font-sans">
@@ -72,6 +140,35 @@ export const ColorPicker = () => {
         <span className="bg-white bg-opacity-90 px-2 py-1 rounded font-bold text-gray-800">
           {hexColor}
         </span>
+      </div>
+
+      {/* Saisie directe de la couleur */}
+      <div className="mb-6">
+        <label className="block mb-2 font-medium text-gray-700">
+          Couleur précise
+        </label>
+        <div className="flex gap-3 items-start">
+          <TextField
+            value={hexColor}
+            label={'précise'}
+            name="color"
+            placeholder={'#AABBCC'}
+            supportingText={'Saisir une couleur hexadécimale (#RRGGBB)'}
+            onChange={(value) => {
+              throttledUpdateCurrentFromHex(value);
+            }}
+          />
+
+          <input
+            type="color"
+            value={hexColor}
+            onChange={(e) => {
+              throttledUpdateCurrentFromHex(e.target.value);
+            }}
+            aria-label="Choisir une couleur"
+            className="size-15 rounded cursor-pointer p-0"
+          />
+        </div>
       </div>
 
       {/* Slider Hue */}
@@ -105,7 +202,7 @@ export const ColorPicker = () => {
           <input
             type="range"
             min="0"
-            max="150"
+            max={maxChroma}
             value={chroma}
             onChange={(e) => setChroma(Number(e.target.value))}
             className="w-full h-full appearance-none cursor-pointer slider"
@@ -140,7 +237,7 @@ export const ColorPicker = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .slider::-webkit-slider-thumb {
           -webkit-appearance: none;
           width: 20px;

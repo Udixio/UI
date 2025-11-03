@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
 import { CarouselItemInterface } from '../interfaces';
-import { motion } from 'motion/react';
-import { carouselItemStyle } from '../styles';
+import { useCarouselItemStyle } from '../styles';
 import { MotionProps } from '../utils';
 
 export const normalize = (
@@ -26,25 +25,32 @@ export const normalize = (
 export const CarouselItem = ({
   className,
   children,
-  width = 1,
+  width,
   index = 0,
+  outputRange,
   ref: optionalRef,
   ...restProps
 }: MotionProps<CarouselItemInterface>) => {
   const defaultRef = useRef(null);
   const ref: React.RefObject<null | HTMLDivElement> = optionalRef || defaultRef;
 
-  const styles = carouselItemStyle({
+  const styles = useCarouselItemStyle({
     className,
     index,
-    width: width,
+    width,
     children,
+    outputRange,
   });
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      animate={{ width: width + 'px' }}
+      style={{
+        width: width + 'px',
+        maxWidth: outputRange[1] + 'px',
+        minWidth: outputRange[0] + 'px',
+        willChange: 'width',
+      }}
       transition={{
         duration: 0.5,
         ease: 'linear',
@@ -53,6 +59,6 @@ export const CarouselItem = ({
       {...restProps}
     >
       {children}
-    </motion.div>
+    </div>
   );
 };

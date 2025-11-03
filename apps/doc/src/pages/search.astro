@@ -1,0 +1,12 @@
+---
+import Search from "astro-pagefind/components/Search";
+import Layout from '@/layouts/layout.astro'
+import { Card } from "@udixio/ui-react";
+---
+<Layout>
+  <div class="flex items-center justify-center size-full px-8">
+    <Card variant="filled" className="p-8 max-w-screen-xl mx-auto min-h-[90vh] w-full bg-surface-container">
+      <Search id="search" className="pagefind-ui" uiOptions={{ showImages: false }} />
+    </Card>
+  </div>
+</Layout>

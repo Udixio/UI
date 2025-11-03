@@ -1,9 +1,47 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motion, useMotionValueEvent, useScroll } from 'motion/react';
-import { throttle } from 'throttle-debounce';
 import { CustomScrollInterface } from './custom-scroll.interface';
 import { customScrollStyle } from './custom-scroll.style';
 import { ReactProps } from '../../utils';
+
+// Throttle helper that guarantees execution of the latest call after the wait window (leading + trailing)
+function createScrollThrottle(
+  wait: number,
+  fn: (latestValue: number, scrollOrientation: 'x' | 'y') => void,
+) {
+  let lastInvokeTime = 0;
+  let trailingTimeout: ReturnType<typeof setTimeout> | null = null;
+  let lastArgs: { v: number; o: 'x' | 'y' } | null = null;
+
+  const invoke = (v: number, o: 'x' | 'y') => {
+    lastInvokeTime = Date.now();
+    fn(v, o);
+  };
+
+  return (v: number, o: 'x' | 'y') => {
+    const now = Date.now();
+    const remaining = wait - (now - lastInvokeTime);
+
+    if (remaining <= 0) {
+      if (trailingTimeout) {
+        clearTimeout(trailingTimeout);
+        trailingTimeout = null;
+      }
+      invoke(v, o);
+    } else {
+      // Save the latest call and schedule a trailing execution
+      lastArgs = { v, o };
+      if (!trailingTimeout) {
+        trailingTimeout = setTimeout(() => {
+          trailingTimeout = null;
+          const args = lastArgs;
+          lastArgs = null;
+          if (args) invoke(args.v, args.o);
+        }, remaining);
+      }
+    }
+  };
+}
 
 export const CustomScroll = ({
   children,
@@ -13,6 +51,8 @@ export const CustomScroll = ({
   className,
   draggable = false,
   throttleDuration = 75,
+  scroll,
+  setScroll,
 }: ReactProps<CustomScrollInterface>) => {
   const ref = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -87,24 +127,41 @@ export const CustomScroll = ({
   >(null);
 
   if (!handleScrollThrottledRef.current) {
-    handleScrollThrottledRef.current = throttle(
+    handleScrollThrottledRef.current = createScrollThrottle(
       throttleDuration,
       (latestValue, scrollOrientation: 'x' | 'y') => {
-        if (!containerSize.current || !contentScrollSize.current) return;
+        if (
+          !containerSize.current ||
+          !contentScrollSize.current ||
+          !ref.current
+        )
+          return;
+
+        // Notify simple percentage if requested
+        if (scrollOrientation === (orientation === 'horizontal' ? 'x' : 'y')) {
+          setScroll?.(latestValue);
+        }
+
         if (onScroll) {
           if (orientation === 'horizontal' && scrollOrientation === 'x') {
             onScroll({
               scrollProgress: latestValue,
-              scroll: latestValue * contentScrollSize.current.width,
-              scrollTotal: contentScrollSize.current.width,
+              scroll:
+                latestValue *
+                (contentScrollSize.current.width - ref.current.clientWidth),
+              scrollTotal:
+                contentScrollSize.current.width - ref.current.clientWidth,
               scrollVisible: containerSize.current.width,
             });
           }
           if (orientation === 'vertical' && scrollOrientation === 'y') {
             onScroll({
               scrollProgress: latestValue,
-              scroll: latestValue * contentScrollSize.current.height,
-              scrollTotal: contentScrollSize.current.height,
+              scroll:
+                latestValue *
+                (contentScrollSize.current.height - ref.current.clientHeight),
+              scrollTotal:
+                contentScrollSize.current.height - ref.current.clientHeight,
               scrollVisible: containerSize.current.height,
             });
           }
@@ -124,6 +181,22 @@ export const CustomScroll = ({
     if (dimensions.width) handleScroll(scrollXProgress.get(), 'x');
     if (dimensions.height) handleScroll(scrollYProgress.get(), 'y'); // Nouvelle ligne : mise à jour pour la hauteur
   }, [dimensions]);
+
+  // Apply controlled scroll percentage to DOM when provided
+  useEffect(() => {
+    const container = ref.current;
+    const content = contentRef.current;
+    if (!container || !content) return;
+    if (typeof scroll !== 'number') return;
+    const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
+    if (orientation === 'horizontal') {
+      const total = Math.max(0, (scrollSize ?? content.scrollWidth) - container.clientWidth);
+      container.scrollLeft = clamp(scroll * total, 0, total);
+    } else {
+      const total = Math.max(0, (scrollSize ?? content.scrollHeight) - container.clientHeight);
+      container.scrollTop = clamp(scroll * total, 0, total);
+    }
+  }, [scroll, orientation, scrollSize]);
 
   useMotionValueEvent(scrollXProgress, 'change', (latestValue) => {
     handleScroll(latestValue, 'x');
@@ -216,6 +289,53 @@ export const CustomScroll = ({
       }
     };
   }, []);
+
+  // External controller: listen for bubbling custom event to set scroll programmatically
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const handler = (ev: Event) => {
+      const detail = (ev as CustomEvent).detail as
+        | { progress?: number; scroll?: number; orientation?: 'horizontal' | 'vertical' }
+        | undefined;
+      const container = ref.current;
+      if (!container || !detail) return;
+      const ori = detail.orientation ?? orientation;
+      if (typeof detail.progress === 'number') {
+        if (ori === 'horizontal') {
+          const total = Math.max(
+            0,
+            (contentScrollSize.current?.width ?? 0) - container.clientWidth,
+          );
+          container.scrollLeft = Math.min(total, Math.max(0, detail.progress * total));
+        } else {
+          const total = Math.max(
+            0,
+            (contentScrollSize.current?.height ?? 0) - container.clientHeight,
+          );
+          container.scrollTop = Math.min(total, Math.max(0, detail.progress * total));
+        }
+      } else if (typeof detail.scroll === 'number') {
+        if (ori === 'horizontal') {
+          const total = Math.max(
+            0,
+            (contentScrollSize.current?.width ?? 0) - container.clientWidth,
+          );
+          container.scrollLeft = Math.min(total, Math.max(0, detail.scroll));
+        } else {
+          const total = Math.max(
+            0,
+            (contentScrollSize.current?.height ?? 0) - container.clientHeight,
+          );
+          container.scrollTop = Math.min(total, Math.max(0, detail.scroll));
+        }
+      }
+    };
+    el.addEventListener('udx:customScroll:set', handler as EventListener);
+    return () => {
+      el.removeEventListener('udx:customScroll:set', handler as EventListener);
+    };
+  }, [orientation]);
 
   return (
     <div

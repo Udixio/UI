@@ -1,8 +1,14 @@
-import { cloneElement, isValidElement, useEffect, useRef, useState } from 'react';
+import {
+  cloneElement,
+  isValidElement,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { MotionProps } from '../utils';
 import { Button } from './Button';
 import { ToolTipInterface } from '../interfaces';
-import { toolStyle } from '../styles';
+import { useToolTipStyle } from '../styles';
 import { v4 } from 'uuid';
 import { AnimatePresence, motion } from 'motion/react';
 import { SyncedFixedWrapper } from '../effects';
@@ -170,7 +176,7 @@ export const ToolTip = ({
     }
   }
 
-  const styles = toolStyle({
+  const styles = useToolTipStyle({
     variant,
     buttons,
     className,

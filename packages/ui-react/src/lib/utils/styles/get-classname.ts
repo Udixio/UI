@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { ComponentInterface } from '../component';
 import { convertToKebabCase } from '../string';
 import { classnames } from './classnames';
@@ -70,4 +71,26 @@ export const defaultClassNames = <T extends ComponentInterface>(
       default: element,
       states,
     });
+};
+
+export const createUseClassNames = <T extends ComponentInterface>(
+  element: T['elements'][0],
+  defaultClassName: ClassNameComponent<T> | string,
+) => {
+  return (
+    states: T['states'] & T['props'] & {
+      className?: string | ClassNameComponent<T>;
+    },
+  ): Record<T['elements'][number], string> => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useMemo(
+      () =>
+        getClassNames<T>({
+          classNameList: [states.className, defaultClassName],
+          default: element,
+          states,
+        }),
+      [states],
+    );
+  };
 };
