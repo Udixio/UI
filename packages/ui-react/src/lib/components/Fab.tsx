@@ -21,7 +21,7 @@ export const Fab = ({
   href,
   type,
   icon,
-  isExtended = false,
+  extended = false,
   ref,
   transition,
   children,
@@ -38,7 +38,7 @@ export const Fab = ({
   const styles = useFabStyle({
     href,
     icon,
-    isExtended,
+    extended,
     label,
     size,
     variant,
@@ -83,11 +83,11 @@ export const Fab = ({
       {...(restProps as any)}
       ref={resolvedRef}
       href={href}
-      aria-label={isExtended ? undefined : label}
+      aria-label={extended ? undefined : label}
       className={styles.fab}
     >
       <ToolTip
-        trigger={isExtended ? null : undefined}
+        trigger={extended ? null : undefined}
         text={label}
         targetRef={resolvedRef}
       />
@@ -104,7 +104,7 @@ export const Fab = ({
       />
       <Icon icon={icon} className={styles.icon} />
       <AnimatePresence>
-        {isExtended && (
+        {extended && (
           <motion.span
             variants={labelVariants}
             initial="hidden"

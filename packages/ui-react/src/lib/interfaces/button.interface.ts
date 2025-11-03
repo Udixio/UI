@@ -2,6 +2,9 @@ import { ActionOrLink } from '../utils';
 import { Transition } from 'motion';
 import { Icon } from '../icon';
 
+type ButtonVariant = 'filled' | 'elevated' | 'tonal' | 'outlined' | 'text';
+type ButtonVariantAlias = 'primary' | 'secondary';
+
 type Props = {
   /**
    * The label is the text that is displayed on the button.
@@ -14,8 +17,9 @@ type Props = {
 
   /**
    * The button variant determines the style of the button.
+   * Aliases: 'primary' maps to 'filled', 'secondary' maps to 'tonal'
    */
-  variant?: 'filled' | 'elevated' | 'tonal' | 'outlined' | 'text';
+  variant?: ButtonVariant | ButtonVariantAlias;
 
   /**
    * Disables the button if set to true.

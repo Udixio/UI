@@ -2,14 +2,20 @@ import { ActionOrLink } from '../utils/component';
 import { Transition } from 'motion';
 import { Icon } from '../icon';
 
-export type FabVariant = 'surface' | 'primary' | 'secondary' | 'tertiary';
+export type FabVariant =
+  | 'primary'
+  | 'secondary'
+  | 'tertiary'
+  | 'primaryContainer'
+  | 'secondaryContainer'
+  | 'tertiaryContainer';
 type Props = {
   variant?: FabVariant;
   label?: string;
   children?: string;
   icon: Icon;
   size?: 'small' | 'medium' | 'large';
-  isExtended?: boolean;
+  extended?: boolean;
   transition?: Transition;
 };
 

@@ -5,6 +5,7 @@ export * from './CarouselItem';
 export * from './CarouselItem';
 export * from './Divider';
 export * from './Fab';
+export * from './FabMenu';
 export * from './IconButton';
 export * from './IconButton';
 export * from './ProgressIndicator';

@@ -1,0 +1,104 @@
+import React, { useRef, useState } from 'react';
+import { FabMenuInterface } from '../interfaces/fab-menu.interface';
+import { useFabMenuStyle } from '../styles/fab-menu.style';
+import { ReactProps } from '../utils/component';
+import { Fab } from './Fab';
+import { Button } from './Button';
+import { ButtonInterface } from '../interfaces';
+import { classNames } from '../utils';
+
+/**
+ * Floating action buttons (FABs) help people take primary actions
+ * @status beta
+ * @category Action
+ */
+export const FabMenu = ({
+  className,
+  label,
+  variant = 'primary',
+  size = 'medium',
+  href,
+  type,
+  icon,
+  extended = false,
+  ref,
+  transition,
+  children,
+  open: openProp,
+  defaultOpen = false,
+  onOpenChange,
+  ...restProps
+}: ReactProps<FabMenuInterface>) => {
+  transition = { duration: 0.3, ...transition };
+
+  const defaultRef = useRef(null);
+  const resolvedRef = ref || defaultRef;
+
+  // Controlled/uncontrolled open state
+  const isControlled = typeof openProp === 'boolean';
+  const [internalOpen, setInternalOpen] = useState<boolean>(defaultOpen);
+  const open = isControlled ? (openProp as boolean) : internalOpen;
+  const setOpen = (next: boolean) => {
+    if (!isControlled) setInternalOpen(next);
+    onOpenChange?.(next);
+  };
+
+  const buttonChildren = React.Children.toArray(children).filter(
+    (child) => React.isValidElement(child) && child.type === Button,
+  );
+
+  const styles = useFabMenuStyle({
+    href,
+    icon,
+    extended,
+    label,
+    size,
+    variant,
+    className,
+    transition,
+    children: label,
+    open,
+  });
+
+  return (
+    <div className={styles.fabMenu} ref={resolvedRef} {...restProps}>
+      <div className={styles.actions} role="menu" aria-hidden={!open}>
+        {buttonChildren.map((child, index) => {
+          return React.cloneElement(
+            child as React.ReactElement<ReactProps<ButtonInterface>>,
+            {
+              key: index,
+              shape: 'rounded',
+              variant: 'filled',
+              className: () => ({
+                button: classNames({
+                  'bg-primary-container text-on-primary-container':
+                    variant === 'primary',
+                  'bg-secondary-container text-on-secondary-container':
+                    variant === 'secondary',
+                  'bg-tertiary-container text-on-tertiary-container':
+                    variant === 'tertiary',
+                }),
+                stateLayer: classNames({
+                  'state-on-primary-container': variant === 'primary',
+                  'state-on-secondary-container': variant === 'secondary',
+                  'state-on-tertiary-container': variant === 'tertiary',
+                }),
+              }),
+            },
+          );
+        })}
+      </div>
+      <Fab
+        icon={icon}
+        extended={extended}
+        label={label}
+        variant={variant}
+        size={size}
+        className={styles.fab}
+        aria-expanded={open}
+        onClick={() => setOpen(!open)}
+      />
+    </div>
+  );
+};

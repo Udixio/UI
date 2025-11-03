@@ -7,6 +7,34 @@ import { State } from '../effects';
 import React, { useEffect, useRef } from 'react';
 
 /**
+ * Resolves variant aliases to their actual variant values
+ */
+function resolveVariantAlias(
+  variant?:
+    | 'filled'
+    | 'elevated'
+    | 'tonal'
+    | 'outlined'
+    | 'text'
+    | 'primary'
+    | 'secondary',
+): 'filled' | 'elevated' | 'tonal' | 'outlined' | 'text' {
+  const aliasMap = {
+    primary: 'filled',
+    secondary: 'tonal',
+  } as const;
+
+  if (variant && variant in aliasMap) {
+    return aliasMap[variant as keyof typeof aliasMap];
+  }
+
+  return (
+    (variant as 'filled' | 'elevated' | 'tonal' | 'outlined' | 'text') ||
+    'filled'
+  );
+}
+
+/**
  * Buttons prompt most actions in a UI
  * @status beta
  * @category Action
@@ -38,6 +66,7 @@ export const Button = ({
       'Button component requires either a label prop or children content',
     );
   }
+  variant = resolveVariantAlias(variant);
 
   const ElementType = href ? 'a' : 'button';
 

@@ -4,6 +4,7 @@ export * from './carousel-item.interface';
 export * from './carousel.interface';
 export * from './divider.interface';
 export * from './fab.interface';
+export * from './fab-menu.interface';
 export * from './icon-button.interface';
 export * from './progress-indicator.interface';
 export * from './side-sheet.interface';

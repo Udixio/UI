@@ -4,6 +4,7 @@ export * from './carousel-item.style';
 export * from './carousel.style';
 export * from './divider.style';
 export * from './fab.style';
+export * from './fab-menu.style';
 export * from './icon-button.style';
 export * from './progress-indicator.style';
 export * from './side-sheet.style';
