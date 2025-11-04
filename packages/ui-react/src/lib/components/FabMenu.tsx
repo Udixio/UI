@@ -104,6 +104,7 @@ export const FabMenu = ({
 
                 const variants = {
                   open: {
+                    overflow: 'visible',
                     opacity: 1,
                     width: 'auto',
                     transition: {
@@ -115,13 +116,14 @@ export const FabMenu = ({
                     },
                   },
                   close: {
+                    overflow: 'hidden',
                     opacity: 0,
                     width: 0,
                     transition: {
                       ...transition,
                       delay,
                       opacity: {
-                        duration: transition?.duration / 2,
+                        duration: transition?.duration / 1.5,
                       },
                     },
                   },
@@ -131,7 +133,6 @@ export const FabMenu = ({
                   <motion.div
                     initial={'close'}
                     animate={'open'}
-                    className={'overflow-hidden'}
                     variants={variants}
                     transition={transition}
                     exit={'close'}
