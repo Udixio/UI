@@ -21,7 +21,6 @@ export const FabMenu = ({
   variant = 'primary',
   size = 'medium',
   href,
-  type,
   icon,
   extended = false,
   ref,

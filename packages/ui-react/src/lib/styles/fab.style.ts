@@ -14,14 +14,14 @@ const fabConfig: ClassNameComponent<FabInterface> = ({
   fab: classNames(
     'flex shadow-3 hover:shadow-4 group/fab overflow-hidden outline-none items-center cursor-pointer',
     {
-      'rounded-[12px]': size == 'small' && !extended,
-      'rounded-[16px]': size == 'medium' || extended,
-      'rounded-[28px]': size == 'large' && !extended,
+      'rounded-[12px]': size == 'small',
+      'rounded-[16px]': size == 'medium',
+      'rounded-[28px]': size == 'large',
     },
     {
-      'p-2': size == 'small' && !extended,
-      'p-4': size == 'medium' || extended,
-      'p-[30px]': size == 'large' && !extended,
+      'p-2': size == 'small',
+      'p-4': size == 'medium',
+      'p-[30px]': size == 'large',
     },
     variant === 'primary' && 'bg-primary text-on-primary',
     variant === 'secondary' && 'bg-secondary text-on-secondary',
@@ -34,10 +34,14 @@ const fabConfig: ClassNameComponent<FabInterface> = ({
       'bg-tertiary-container text-on-tertiary-container',
   ),
   icon: classNames({
-    'size-6': size == 'small' || size == 'medium' || extended,
-    'size-9': size == 'large' && !extended,
+    'size-6': size == 'small' || size == 'medium',
+    'size-9': size == 'large',
   }),
-  label: classNames('text-title-medium text-nowrap'),
+  label: classNames('text-nowrap', {
+    'text-title-medium': size == 'small',
+    'text-title-large': size == 'medium',
+    'text-headline-small': size == 'large',
+  }),
 });
 
 export const fabStyle = defaultClassNames<FabInterface>('fab', fabConfig);
