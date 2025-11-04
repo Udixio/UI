@@ -1,3 +1,13 @@
+## 2.8.0 (2025-11-04)
+
+### 🚀 Features
+
+- **ui-react:** enhance `FabMenu` transition handling with overflow visibility ([4fcde60](https://github.com/Udixio/UI/commit/4fcde60))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.7.0 (2025-11-03)
 
 ### 🚀 Features
