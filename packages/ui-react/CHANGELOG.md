@@ -1,3 +1,13 @@
+## 2.8.1 (2025-11-04)
+
+### 🩹 Fixes
+
+- **ui-react:** enhance scroll handling with auto-detection of scrollable parents ([85f33ca](https://github.com/Udixio/UI/commit/85f33ca))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.8.0 (2025-11-04)
 
 ### 🚀 Features
