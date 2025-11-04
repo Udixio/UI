@@ -9,6 +9,7 @@ import { classNames } from '../utils';
 import { IconButton } from './IconButton';
 import { faClose } from '@fortawesome/free-solid-svg-icons';
 import { AnimatePresence, motion } from 'motion/react';
+import { v4 } from 'uuid';
 
 /**
  * Floating action buttons (FABs) help people take primary actions
@@ -87,6 +88,8 @@ export const FabMenu = ({
       {...props}
     />
   );
+
+  const [uuid] = useState(v4());
 
   return (
     <div className={styles.fabMenu} ref={resolvedRef} {...restProps}>
@@ -179,13 +182,13 @@ export const FabMenu = ({
           renderFab({
             className: '',
             layout: true,
-            layoutId: 'fab-menu',
+            layoutId: 'fab-menu' + uuid,
           })}
         {open && (
           <>
             <MotionIconButton
               layout
-              layoutId="fab-menu"
+              layoutId={'fab-menu' + uuid}
               variant={'filled'}
               className={() => ({
                 iconButton: classNames('', {
