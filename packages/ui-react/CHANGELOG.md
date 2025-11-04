@@ -1,3 +1,13 @@
+## 2.8.2 (2025-11-04)
+
+### 🩹 Fixes
+
+- **ui-react:** add unique `layoutId` to `FabMenu` with `uuid` for improved animation isolation ([06c5f7a](https://github.com/Udixio/UI/commit/06c5f7a))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.8.1 (2025-11-04)
 
 ### 🩹 Fixes
