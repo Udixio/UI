@@ -43,7 +43,46 @@ export const BlockScroll: React.FC<BlockScrollProps> = ({
       onScroll?.(payload);
     };
 
+    const findScrollableParent = (
+      node: HTMLElement | null,
+    ): HTMLElement | null => {
+      let elNode: HTMLElement | null = node;
+      while (
+        elNode &&
+        elNode !== document.body &&
+        elNode !== document.documentElement
+      ) {
+        const style = window.getComputedStyle(elNode);
+        const overflowY = style.overflowY || style.overflow;
+        const isScrollableY =
+          (overflowY === 'auto' || overflowY === 'scroll') &&
+          elNode.scrollHeight > elNode.clientHeight;
+        if (isScrollableY) return elNode;
+        elNode = elNode.parentElement;
+      }
+      return null;
+    };
+
     const onWheel = (e: WheelEvent) => {
+      // Auto-detect closest scrollable ancestor and allow native scroll when it can handle the intent
+      const target = e.target as HTMLElement | null;
+
+      const scrollableParent = findScrollableParent(target);
+
+      if (scrollableParent && scrollableParent !== el) {
+        const canScrollDown =
+          scrollableParent.scrollTop <
+          scrollableParent.scrollHeight - scrollableParent.clientHeight;
+        const canScrollUp = scrollableParent.scrollTop > 0;
+
+        // Wheel: positive deltaY => scroll down, negative => scroll up
+        if ((e.deltaY > 0 && canScrollDown) || (e.deltaY < 0 && canScrollUp)) {
+          // Let the native scrolling happen inside the scrollable element
+          return;
+        }
+      }
+
+      // Otherwise, block native scroll and emit intent for global smooth scroll
       e.preventDefault();
       emitIntent({
         type: 'intent',
@@ -64,9 +103,31 @@ export const BlockScroll: React.FC<BlockScrollProps> = ({
       if (!touch) return;
       const t = e.touches[0];
       if (!t || !lastTouch.current) return;
-      e.preventDefault();
+
       const dx = lastTouch.current.x - t.clientX;
       const dy = lastTouch.current.y - t.clientY;
+
+      // Auto-detect closest scrollable ancestor for touch and allow native scroll when possible
+      const target = e.target as HTMLElement | null;
+
+      const scrollableParent = findScrollableParent(target);
+
+      if (scrollableParent && scrollableParent !== el) {
+        const canScrollDown =
+          scrollableParent.scrollTop <
+          scrollableParent.scrollHeight - scrollableParent.clientHeight;
+        const canScrollUp = scrollableParent.scrollTop > 0;
+
+        // Touch: dy > 0 means user moves finger up -> intent to scroll down
+        if ((dy > 0 && canScrollDown) || (dy < 0 && canScrollUp)) {
+          // Update last touch and allow native scroll inside the element
+          lastTouch.current = { x: t.clientX, y: t.clientY };
+          return;
+        }
+      }
+
+      // Otherwise block and emit intent for global smooth scroll
+      e.preventDefault();
       lastTouch.current = { x: t.clientX, y: t.clientY };
       emitIntent({
         type: 'intent',
