@@ -1,3 +1,14 @@
+## 2.4.0 (2025-11-03)
+
+### 🚀 Features
+
+- **ui-react, plugins-tailwind:** migrate to `State` component for unified state handling ([92996bc](https://github.com/Udixio/UI/commit/92996bc))
+- **ui-react, plugins-tailwind:** enhance `State` component and streamline state utilities ([0e1858a](https://github.com/Udixio/UI/commit/0e1858a))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.3.7 (2025-10-17)
 
 ### 🩹 Fixes

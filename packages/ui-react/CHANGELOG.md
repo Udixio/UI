@@ -1,3 +1,27 @@
+## 2.7.0 (2025-11-03)
+
+### 🚀 Features
+
+- **ui-react, docs:** refine color handling and enhance `FabMenu` documentation ([a1d83fc](https://github.com/Udixio/UI/commit/a1d83fc))
+- **ui-react:** enhance `FabMenu` with `AnimatePresence` and improved motion logic ([bea652d](https://github.com/Udixio/UI/commit/bea652d))
+- **ui-react:** enhance `FabMenu` with customizable transitions ([e36dfc9](https://github.com/Udixio/UI/commit/e36dfc9))
+- **ui-react, docs:** enhance `FabMenu` with motion support and update documentation ([7833a1c](https://github.com/Udixio/UI/commit/7833a1c))
+- **ui-react:** introduce `FabMenu` component with enhanced button variants and menu styling ([286f9be](https://github.com/Udixio/UI/commit/286f9be))
+- **ui-react, plugins-tailwind:** migrate to `State` component for unified state handling ([92996bc](https://github.com/Udixio/UI/commit/92996bc))
+- **ui-react:** replace `RippleEffect` with `State` component for consistent state management ([c876cf6](https://github.com/Udixio/UI/commit/c876cf6))
+- **ui-react, plugins-tailwind:** enhance `State` component and streamline state utilities ([0e1858a](https://github.com/Udixio/UI/commit/0e1858a))
+- **ui-react:** add `State` component with dynamic styling support ([900d9b0](https://github.com/Udixio/UI/commit/900d9b0))
+- **ui-react:** integrate `useClassNames` for consistent and reusable styles ([577e05f](https://github.com/Udixio/UI/commit/577e05f))
+- **ui-react:** introduce `useClassNames` hook and update button styles integration ([f7a9936](https://github.com/Udixio/UI/commit/f7a9936))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.6.0 (2025-10-25)
 
 ### 🚀 Features
