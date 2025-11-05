@@ -65,8 +65,6 @@ export const FabMenu = ({
 
   const MotionFab = motion.create(Fab);
   const MotionIconButton = motion.create(IconButton);
-  const MotionButton = motion.create(Button);
-
   const renderFab = (props) => (
     <MotionFab
       icon={icon}
