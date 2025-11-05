@@ -19,7 +19,7 @@ export class PaletteApi {
           Hct.fromInt(argbFromHex(callback)),
         );
       } else {
-        this.paletteManager.add(key, callback);
+        this.paletteManager.addCustomPalette(key, callback);
       }
     });
   }

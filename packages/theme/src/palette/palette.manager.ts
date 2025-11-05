@@ -26,8 +26,13 @@ export class PaletteManager {
     );
   }
 
-  addCustomPalette(key: string, color: Hct) {
-    const palette = Palette.fromVariant(key, color, this.context);
+  addCustomPalette(key: string, args: Hct | PaletteCallback): void {
+    let palette: Palette;
+    if (args instanceof Hct) {
+      palette = Palette.fromVariant(key, args, this.context);
+    } else {
+      palette = new Palette(key, args, this.context);
+    }
     this.add(key, palette);
     this.colorApi.addFromCustomPalette(key);
   }

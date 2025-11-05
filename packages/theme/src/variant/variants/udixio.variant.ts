@@ -124,15 +124,7 @@ export const udixioVariant: Variant = variant({
       [colorKey]: {
         palette: () => palettes.get(colorKey),
         tone: () => {
-          if (ctx.variant.name === 'neutral') {
-            return ctx.isDark
-              ? tMinC(palettes.get(colorKey), 0, 98)
-              : tMaxC(palettes.get(colorKey));
-          } else if (ctx.variant.name === 'vibrant') {
-            return tMaxC(palettes.get(colorKey), 0, ctx.isDark ? 90 : 98);
-          } else {
-            return ctx.isDark ? 80 : tMaxC(palettes.get(colorKey));
-          }
+          return ctx.isDark ? 80 : tMaxC(palettes.get(colorKey));
         },
         isBackground: true,
         background: () => highestSurface(ctx, colors),
