@@ -1,3 +1,9 @@
+## 2.4.1 (2025-11-05)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 2.1.3
+
 ## 2.4.0 (2025-11-03)
 
 ### 🚀 Features
