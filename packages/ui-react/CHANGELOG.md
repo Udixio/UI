@@ -1,3 +1,13 @@
+## 2.8.4 (2025-11-24)
+
+### 🩹 Fixes
+
+- **ui-react:** remove unused `type` prop from `IconButton` ([906f757](https://github.com/Udixio/UI/commit/906f757))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.8.3 (2025-11-05)
 
 ### 🧱 Updated Dependencies
