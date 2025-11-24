@@ -19,7 +19,6 @@ export const IconButton = ({
   variant = 'standard',
   href,
   disabled = false,
-  type = 'button',
   title,
   label,
   onToggle,
