@@ -4,6 +4,13 @@
 
 
 
+
+
+
+
+
+
+
 import { CodePreview } from '@/components/CodePreview.js';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
@@ -57,9 +64,14 @@ Astuce : utilisez `filled/tonal` pour un accent plus marqué, `outlined/elevate
 
 Un assist chip déclenche une action immédiate : ouvrir une vue, copier un texte, appliquer un filtre temporaire, etc.
 
-```jsx
+<CodePreview
+  client:load
+  code={`
 <Chip label="Nouveau" icon={faPlus} onClick={() => console.log('nouveau')} />
-```
+  `}
+  scope={{ faPlus }}
+/>
+
 
 ### Filter chip (sélection)
 
@@ -102,9 +114,12 @@ Présentez des suggestions contextuelles (réponses rapides, filtres de recherch
 Représente des entrées d’utilisateur (ex. tags). L’ajout/retrait est géré par votre logique applicative.
 
 ```jsx
-function Tags({ tags, onRemove }) {
+
+function Inputs() {
+  const tags = ["React", "TypeScript", "Next.js", "Tailwind"];
+  const onRemove =(tag) => console.log('Removing:', tag)
   return (
-    <div className="flex flex-wrap gap-2">
+     <div className="flex flex-wrap gap-2">
       {tags.map((t) => (
         <Chip key={t} variant="tonal" label={t} onClick={() => onRemove(t)} />
       ))}
@@ -128,33 +143,6 @@ Vous pouvez afficher une icône (FontAwesome) à gauche ou à droite du libellé
   scope={{ faPlus }}
 />
 
-## État désactivé et chargement
-
-Rendez un chip inactif avec `disabled`. Affichez un indicateur avec `loading` pour les actions asynchrones.
-
-```jsx
-<div className="flex flex-wrap gap-3">
-  <Chip disabled>Indispo</Chip>
-  <Chip loading variant="filled">Envoi...</Chip>
-</div>
-```
-
-## Tailles et forme
-
-Ajustez la taille et la forme selon la densité de votre interface.
-
-```jsx
-<div className="flex flex-wrap items-end gap-3">
-  <Chip size="small">S</Chip>
-  <Chip size="medium">M</Chip>
-  <Chip size="large">L</Chip>
-</div>
-
-<div className="flex flex-wrap gap-3 mt-3">
-  <Chip shape="rounded">Arrondi</Chip>
-  <Chip shape="squared">Angulaire</Chip>
-</div>
-```
 
 ## Lien ou action
 
