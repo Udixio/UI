@@ -48,26 +48,18 @@ export const IconButton = ({
 
   const [isActive, setIsActive] = React.useState(activated);
 
-  let handleClick;
-  if (!onToggle) {
-    handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
-      if (disabled) {
-        e.preventDefault();
-      }
-      if (onClick) {
-        onClick(e);
-      }
-    };
-  } else if (onToggle) {
-    handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
-      if (disabled) {
-        e.preventDefault();
-      }
+  const handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
+    if (disabled) {
+      e.preventDefault();
+    }
+    if (onToggle) {
       setIsActive(!isActive);
-      onToggle(Boolean(isActive));
-    };
-    icon = isActive ? (iconSelected ? iconSelected : icon) : icon;
-  }
+      onToggle(!isActive);
+    } else if (onClick) {
+      onClick(e);
+    }
+  };
+
   useEffect(() => {
     setIsActive(activated);
   }, [activated]);

@@ -17,7 +17,12 @@ interface Props {
   className?: string;
 }
 
-export const Icon: React.FC<Props> = ({ icon, colors = [], className }) => {
+export const Icon: React.FC<Props> = ({
+  icon,
+  colors = [],
+  className,
+  ...restProps
+}) => {
   // Si c'est une chaîne de caractères (SVG raw)
   if (typeof icon === 'string') {
     // Modifier la couleur du SVG en remplaçant les attributs fill/stroke
@@ -98,6 +103,7 @@ export const Icon: React.FC<Props> = ({ icon, colors = [], className }) => {
       viewBox={`0 0 ${width} ${height}`}
       role="img"
       aria-hidden="true"
+      {...restProps}
     >
       {typeof svgPathData === 'string' ? (
         <path className={'fill-current'} d={svgPathData} />

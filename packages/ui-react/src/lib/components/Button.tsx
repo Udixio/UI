@@ -80,27 +80,18 @@ export const Button = ({
 
   transition = { duration: 0.3, ...transition };
 
-  let handleClick;
+  const handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
+    if (disabled) {
+      e.preventDefault();
+    }
+    if (onToggle) {
+      setIsActive(!isActive);
+      onToggle(!isActive);
+    } else if (onClick) {
+      onClick(e);
+    }
+  };
 
-  if (!onToggle) {
-    handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
-      if (disabled) {
-        e.preventDefault();
-      }
-      if (onClick) {
-        onClick(e);
-      }
-    };
-  } else if (onToggle) {
-    handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
-      if (disabled) {
-        e.preventDefault();
-      }
-      const next = !isActive;
-      setIsActive(next);
-      onToggle(next);
-    };
-  }
   const styles = useButtonStyle({
     allowShapeTransformation,
     size,

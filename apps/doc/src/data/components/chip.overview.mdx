@@ -11,6 +11,27 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { CodePreview } from '@/components/CodePreview.js';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
@@ -42,21 +63,6 @@ Vous pouvez aussi fournir le texte via les enfants :
 ```tsx
 <Chip>Option</Chip>
 ```
-
-## Variants visuels
-
-Selon le contexte, vous pouvez ajuster le style visuel. Les variantes les plus courantes sont : `filled`, `elevated`, `tonal`, `outlined`.
-
-```jsx
-<div className="flex flex-wrap gap-3">
-  <Chip variant="filled">Filled</Chip>
-  <Chip variant="elevated">Elevated</Chip>
-  <Chip variant="tonal">Tonal</Chip>
-  <Chip variant="outlined">Outlined</Chip>
-</div>
-```
-
-Astuce : utilisez `filled/tonal` pour un accent plus marqué, `outlined/elevated` pour une présence visuelle plus légère.
 
 ## Types d’usage
 
@@ -101,11 +107,26 @@ function Filters() {
 
 Présentez des suggestions contextuelles (réponses rapides, filtres de recherche). Gardez des libellés courts (idéalement ≤ 20 caractères).
 
+Cas standard (fond neutre) :
+
 ```jsx
 <div className="flex flex-wrap gap-2">
-  <Chip variant="elevated">Près de moi</Chip>
-  <Chip variant="elevated">Ouvert maintenant</Chip>
-  <Chip variant="elevated">4★ et +</Chip>
+  <Chip variant="outlined">Près de moi</Chip>
+  <Chip variant="outlined">Ouvert maintenant</Chip>
+  <Chip variant="outlined">4★ et +</Chip>
+</div>
+```
+
+Sur image ou fond chargé, utilisez `elevated` pour améliorer le contraste :
+
+```jsx
+<div class={"relative"}>
+  <img src="https://images.unsplash.com/photo-1520975916090-3105956dac38?q=80&w=1200&auto=format&fit=crop" alt="Image" className="max-w-sm"/>
+  <div className="flex flex-wrap gap-2 absolute bottom-4 left-2">
+    <Chip variant="elevated">Près de moi</Chip>
+    <Chip variant="elevated">Ouvert</Chip>
+    <Chip variant="elevated">4★ et +</Chip>
+  </div>
 </div>
 ```
 
@@ -114,30 +135,28 @@ Présentez des suggestions contextuelles (réponses rapides, filtres de recherch
 Représente des entrées d’utilisateur (ex. tags). L’ajout/retrait est géré par votre logique applicative.
 
 ```jsx
-
 function Inputs() {
-  const tags = ["React", "TypeScript", "Next.js", "Tailwind"];
-  const onRemove =(tag) => console.log('Removing:', tag)
+  const [tags, setTags] = React.useState(["React", "TypeScript", "Next.js", "Tailwind"]);
+  const onRemove = (tag) => setTags((arr) => arr.filter((t) => t !== tag));
   return (
-     <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-2">
       {tags.map((t) => (
-        <Chip key={t} variant="tonal" label={t} onClick={() => onRemove(t)} />
+        <Chip key={t} variant="outlined" label={t} onRemove={() => onRemove(t)} />
       ))}
     </div>
   );
 }
 ```
 
-## Icône et position
+## Icône
 
-Vous pouvez afficher une icône (FontAwesome) à gauche ou à droite du libellé.
+Vous pouvez afficher une icône (FontAwesome) dans le chip.
 
 <CodePreview
   client:load
   code={`
     <div className="flex gap-3">
       <Chip label="Ajouter" icon={faPlus} />
-      <Chip label="Suivant" iconPosition="right" icon={faPlus} />
     </div>
   `}
   scope={{ faPlus }}
@@ -155,34 +174,18 @@ Si `href` est fourni, le composant peut se comporter comme un lien. Sinon, il ag
 </div>
 ```
 
-## Accessibilité
 
-- Les chips commutables exposent `aria-pressed` automatiquement lorsque `onToggle` est utilisé.
+## États et accessibilité
+
+- `disabled` rend le chip inactif.
+- `loading` affiche un indicateur de progression lors d’une action asynchrone.
+- Les chips commutables (`onToggle`) exposent `aria-pressed` automatiquement.
 - Conservez une cible tactile d’au moins 48 dp et un contraste suffisant selon le thème.
-- Les libellés doivent être concis et explicites.
 
-## Placement et mise en page
+```jsx
+<div className="flex flex-wrap gap-3">
+  <Chip disabled variant="outlined">Indisponible</Chip>
+  <Chip loading variant="outlined">Chargement…</Chip>
+</div>
+```
 
-- Alignez les chips sur une ou plusieurs lignes, avec retour à la ligne si nécessaire.
-- Préservez au moins 8 dp d’espacement entre chips et entre les lignes.
-- Les ensembles de chips à une seule ligne peuvent défiler horizontalement si besoin.
-- Les libellés trop longs se tronquent en mise en page compacte.
-
-## Bonnes pratiques de contenu
-
-- Préférez des noms et expressions courtes.
-- Pour les suggestion chips, restez idéalement sous 20 caractères.
-- Évitez le jargon ; privilégiez la clarté et l’action.
-
-## API (résumé)
-
-- `label` | contenu textuel du chip (ou enfants)
-- `variant` | style visuel : `filled`, `elevated`, `tonal`, `outlined`
-- `icon`, `iconPosition` | icône optionnelle, à gauche ou à droite
-- `disabled`, `loading` | états inactif/chargement
-- `onClick` | action de clic (assist/suggestion)
-- `onToggle`, `activated` | sélection (filter)
-- `href` | transforme le chip en lien
-- `size`, `shape` | dimensions et forme
-
-Remarque : certaines capacités (par ex. suppression d’un chip d’entrée) dépendent de votre logique d’application et des props exposées par `Chip`. Adaptez selon votre cas d’usage.

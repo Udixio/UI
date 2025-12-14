@@ -2,9 +2,9 @@ import { classNames, ReactProps } from '../utils';
 import { ChipInterface } from '../interfaces';
 import { useChipStyle } from '../styles';
 import { Icon } from '../icon';
-import { ProgressIndicator } from './ProgressIndicator';
 import { State } from '../effects';
 import React, { useEffect, useRef } from 'react';
+import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 
 /**
  * Chips prompt most actions in a UI
@@ -12,35 +12,36 @@ import React, { useEffect, useRef } from 'react';
  * @category Action
  */
 export const Chip = ({
-  variant = 'filled',
+  variant = 'outlined',
   disabled = false,
   icon,
   href,
   label,
-  disableTextMargins,
   className,
-  iconPosition = 'left',
-  loading = false,
-  shape = 'rounded',
+  selected,
   onClick,
   onToggle,
   activated,
   ref,
-  size = 'medium',
-  allowShapeTransformation = true,
+  onRemove,
   transition,
   children,
   ...restProps
 }: ReactProps<ChipInterface>) => {
+  if (onRemove && onToggle) {
+    throw new Error(
+      'Chip component cannot have both onRemove and onToggle props. Use onRemove for input chips (removable tags) or onToggle for filter chips (selection), but not both.',
+    );
+  }
+
   if (children) label = children;
   if (!label) {
     throw new Error(
       'Chip component requires either a label prop or children content',
     );
   }
-  variant = resolveVariantAlias(variant);
 
-  const ElementType = href ? 'a' : 'Chip';
+  const ElementType = href ? 'a' : 'button';
 
   const defaultRef = useRef<HTMLDivElement>(null);
   const resolvedRef = ref || defaultRef;
@@ -50,39 +51,36 @@ export const Chip = ({
     setIsActive(activated);
   }, [activated]);
 
+  useEffect(() => {
+    if (selected !== undefined) {
+      setIsActive(selected);
+    }
+  }, [selected]);
+
   transition = { duration: 0.3, ...transition };
 
-  let handleClick;
+  const handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
+    if (disabled) {
+      e.preventDefault();
+    }
+    if (onToggle) {
+      setIsActive(!isActive);
+      onToggle(!isActive);
+    } else if (onClick) {
+      onClick(e);
+    }
+  };
 
-  if (!onToggle) {
-    handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
-      if (disabled) {
-        e.preventDefault();
-      }
-      if (onClick) {
-        onClick(e);
-      }
-    };
-  } else if (onToggle) {
-    handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
-      if (disabled) {
-        e.preventDefault();
-      }
-      const next = !isActive;
-      setIsActive(next);
-      onToggle(next);
-    };
+  const isInteractive = !!onToggle || !!onRemove || !!onClick || !!href;
+
+  if (activated) {
+    icon = faCheck;
   }
+
   const styles = useChipStyle({
-    allowShapeTransformation,
-    size,
-    disableTextMargins,
-    shape,
     href,
     disabled,
     icon,
-    iconPosition,
-    loading,
     variant,
     transition,
     className,
@@ -90,93 +88,48 @@ export const Chip = ({
     onToggle,
     activated: isActive,
     label,
+    isInteractive,
     children: label,
   });
-  const iconElement = icon ? (
-    <Icon icon={icon} className={styles.icon} />
-  ) : (
-    <></>
-  );
 
   return (
     <ElementType
       ref={resolvedRef}
       href={href}
-      className={styles.Chip}
+      className={styles.chip}
       {...(restProps as any)}
       onClick={handleClick}
       disabled={disabled}
       aria-pressed={onToggle ? isActive : undefined}
       style={{ transition: transition.duration + 's' }}
     >
-      <div className={styles.touchTarget}></div>
-      <State
-        style={{ transition: transition.duration + 's' }}
-        className={styles.stateLayer}
-        colorName={classNames(
-          variant === 'filled' && {
-            'on-surface-variant': !isActive && Boolean(onToggle),
-            'on-primary': isActive || !onToggle,
-          },
-          variant === 'elevated' && {
-            'on-primary': isActive && Boolean(onToggle),
-            primary: !isActive || !onToggle,
-          },
-          variant === 'tonal' && {
-            'on-secondary': isActive && Boolean(onToggle),
-            'on-secondary-container': !isActive || !onToggle,
-          },
-          variant === 'outlined' && {
-            'inverse-on-surface': isActive && Boolean(onToggle),
-            'on-surface-variant': !isActive || !onToggle,
-          },
-          variant === 'text' && 'primary',
-        )}
-        stateClassName={'state-ripple-group-[Chip]'}
-      />
-
-      {iconPosition === 'left' && iconElement}
-      {loading && (
-        <div
-          className={
-            '!absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2'
-          }
-        >
-          <ProgressIndicator
-            className={() => ({
-              progressIndicator: 'h-6 w-6',
-              activeIndicator: classNames(
-                {
-                  '!stroke-primary': variant === 'elevated' && !disabled,
-                  '!stroke-on-surface/[38%]':
-                    variant === 'elevated' && disabled,
-                },
-                {
-                  '!stroke-on-primary': variant === 'filled' && !disabled,
-                  '!stroke-on-surface/[38%]': variant === 'filled' && disabled,
-                },
-                {
-                  '!stroke-on-secondary-container':
-                    variant === 'tonal' && !disabled,
-                  '!stroke-on-surface/[38%]': variant === 'tonal' && disabled,
-                },
-                {
-                  '!stroke-primary': variant === 'outlined' && !disabled,
-                  '!stroke-on-surface/[38%]':
-                    variant === 'outlined' && disabled,
-                },
-                {
-                  '!stroke-primary': variant === 'text' && !disabled,
-                  '!stroke-on-surface/[38%]': variant === 'text' && disabled,
-                },
-              ),
-            })}
-            variant={'circular-indeterminate'}
-          />
-        </div>
+      {isInteractive && !disabled && (
+        <State
+          style={{ transition: transition.duration + 's' }}
+          className={styles.stateLayer}
+          colorName={classNames({
+            'on-surface-variant': !isActive,
+            'on-secondary-container': isActive,
+          })}
+          stateClassName={'state-ripple-group-[chip]'}
+        />
       )}
+
+      {icon && <Icon icon={icon} className={styles.leadingIcon} />}
       <span className={styles.label}>{label}</span>
-      {iconPosition === 'right' && iconElement}
+      {onRemove && (
+        <Icon
+          icon={faXmark}
+          className={styles.trailingIcon}
+          onClick={(e: React.MouseEvent) => {
+            console.log('click');
+            e.stopPropagation();
+            if (!disabled) {
+              onRemove();
+            }
+          }}
+        />
+      )}
     </ElementType>
   );
 };

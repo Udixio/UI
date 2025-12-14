@@ -27,19 +27,25 @@ type Props = {
    */
   icon?: Icon;
 
-  loading?: boolean;
-
   transition?: Transition;
 
   onToggle?: (isActive: boolean) => void;
+
   activated?: boolean;
+
+  selected?: boolean;
+
+  onRemove?: () => void;
 };
 
-type Elements = ['chip', 'touchTarget', 'stateLayer', 'icon', 'label'];
+type Elements = ['chip', 'stateLayer', 'leadingIcon', 'trailingIcon', 'label'];
 
 export type ChipInterface = ActionOrLink<Props> & {
   elements: Elements;
   states: {
     isActive: boolean;
+    trailingIcon?: boolean;
+
+    isInteractive: boolean;
   };
 };
