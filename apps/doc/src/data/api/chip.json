@@ -1,0 +1,93 @@
+{
+  "tags": {
+    "status": "beta",
+    "category": "Action"
+  },
+  "filePath": "node_modules/@udixio/ui-react/src/lib/components/Chip.tsx",
+  "description": "Chips prompt most actions in a UI",
+  "displayName": "Chip",
+  "methods": [],
+  "props": {
+    "label": {
+      "defaultValue": null,
+      "description": "The label is the text that is displayed on the chip.",
+      "name": "label",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "string"
+      }
+    },
+    "variant": {
+      "defaultValue": {
+        "value": "filled"
+      },
+      "description": "The chip variant determines the style.",
+      "name": "variant",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "ChipVariant"
+      }
+    },
+    "disabled": {
+      "defaultValue": {
+        "value": false
+      },
+      "description": "Disables the chip if set to true.",
+      "name": "disabled",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "boolean"
+      }
+    },
+    "icon": {
+      "defaultValue": null,
+      "description": "An optional icon to display in the chip.",
+      "name": "icon",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "Icon"
+      }
+    },
+    "loading": {
+      "defaultValue": {
+        "value": false
+      },
+      "description": "",
+      "name": "loading",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "boolean"
+      }
+    }
+  }
+}

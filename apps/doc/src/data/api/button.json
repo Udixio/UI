@@ -44,7 +44,7 @@
       "defaultValue": {
         "value": "filled"
       },
-      "description": "The button variant determines the style of the button.",
+      "description": "The button variant determines the style of the button.\nAliases: 'primary' maps to 'filled', 'secondary' maps to 'tonal'",
       "name": "variant",
       "declarations": [
         {
@@ -54,7 +54,7 @@
       ],
       "required": false,
       "type": {
-        "name": "\"text\" | \"filled\" | \"elevated\" | \"tonal\" | \"outlined\""
+        "name": "ButtonVariant | ButtonVariantAlias"
       }
     },
     "disabled": {
