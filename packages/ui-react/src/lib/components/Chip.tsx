@@ -42,6 +42,7 @@ export const Chip = ({
 
   const [isActive, setIsActive] = React.useState(activated);
   const [isSelected, setIsSelected] = React.useState(false);
+  const [isDragging, setIsDragging] = React.useState(false);
   useEffect(() => {
     setIsActive(activated);
   }, [activated]);
@@ -80,6 +81,8 @@ export const Chip = ({
     onFocus: restOnFocus,
     onBlur: restOnBlur,
     onKeyDown: restOnKeyDown,
+    onDragStart: restOnDragStart,
+    onDragEnd: restOnDragEnd,
     ...rest
   } = (restProps as any) ?? {};
 
@@ -98,6 +101,7 @@ export const Chip = ({
     children: label,
     selected: isSelected && selectionEnabled,
     isSelected: isSelected && selectionEnabled,
+    isDragging: true,
   });
 
   return (
@@ -107,6 +111,19 @@ export const Chip = ({
       className={styles.chip}
       {...(rest as any)}
       onClick={handleClick}
+      draggable={!disabled && !!(restProps as any)?.draggable}
+      onDragStart={(e: React.DragEvent<any>) => {
+        if (!disabled && (restProps as any)?.draggable) {
+          setIsDragging(true);
+        }
+        restOnDragStart?.(e);
+      }}
+      onDragEnd={(e: React.DragEvent<any>) => {
+        if ((restProps as any)?.draggable) {
+          setIsDragging(false);
+        }
+        restOnDragEnd?.(e);
+      }}
       onFocus={(e: React.FocusEvent<any>) => {
         if (selectionEnabled) {
           setIsSelected(true);

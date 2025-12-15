@@ -36,6 +36,21 @@ export type ChipProps = {
   selected?: boolean;
 
   onRemove?: () => void;
+
+  /**
+   * Enable native HTML drag and drop on the chip.
+   */
+  draggable?: boolean;
+
+  /**
+   * Called when drag starts (composed with internal handler that sets isDragging).
+   */
+  onDragStart?: (e: React.DragEvent) => void;
+
+  /**
+   * Called when drag ends (composed with internal handler that clears isDragging).
+   */
+  onDragEnd?: (e: React.DragEvent) => void;
 };
 
 type Elements = ['chip', 'stateLayer', 'leadingIcon', 'trailingIcon', 'label'];
@@ -47,5 +62,6 @@ export type ChipInterface = ActionOrLink<ChipProps> & {
     trailingIcon?: boolean;
     isSelected: boolean;
     isInteractive: boolean;
+    isDragging?: boolean;
   };
 };

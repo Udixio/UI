@@ -12,10 +12,11 @@ const chipConfig: ClassNameComponent<ChipInterface> = ({
   isInteractive,
   activated,
   isSelected,
+  isDragging,
   onToggle,
 }) => ({
   chip: classNames(
-    ' group/chip px-3 py-1.5  rounded-lg flex items-center gap-2  overflow-hidden outline-none',
+    ' group/chip px-3 py-1.5  rounded-lg flex items-center gap-2 outline-none',
     {
       'pl-2': icon,
       'pr-2': trailingIcon,
@@ -27,11 +28,13 @@ const chipConfig: ClassNameComponent<ChipInterface> = ({
       'bg-secondary-container text-on-secondary-container':
         activated || isSelected,
     },
+    // Dragging feedback
+    isDragging && ['opacity-100 cursor-grabbing shadow-3'],
     variant === 'outlined' && ['border border-outline-variant'],
     variant === 'elevated' && ['shadow-1 bg-surface-container-low'],
   ),
 
-  stateLayer: classNames(),
+  stateLayer: classNames('rounded-lg overflow-hidden', {}),
   label: classNames('', {
     'opacity-[0.38]': disabled,
   }),

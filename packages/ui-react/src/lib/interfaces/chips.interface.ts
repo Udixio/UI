@@ -1,5 +1,5 @@
 import { ActionOrLink } from '../utils';
-import { Dispatch, ReactNode, SetStateAction } from 'react';
+import { ReactNode } from 'react';
 
 type ChipsVariant = 'input';
 
@@ -11,8 +11,6 @@ type Props = {
 
   children?: ReactNode;
 
-  selectedChip?: number | null;
-  setSelectedChip?: Dispatch<SetStateAction<number | null>>;
   scrollable?: boolean;
 };
 

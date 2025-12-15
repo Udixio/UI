@@ -12,12 +12,9 @@ import { ChipProps } from '../interfaces';
  * @category Navigation
  */
 export const Chips = ({
-  variant = 'primary',
-  onChipSelected,
+  variant = 'input',
   children,
   className,
-  selectedChip: externalSelectedChip,
-  setSelectedChip: externalSetSelectedChip,
   scrollable = true,
 }: ReactProps<ChipsInterface>) => {
   const [internalSelectedChip, internalSetSelectedChip] = useState<
@@ -38,26 +35,6 @@ export const Chips = ({
   );
 
   const ref = React.useRef<HTMLDivElement | null>(null);
-
-  const handleOnChipSelected = (
-    args: { index: number } & Pick<ChipProps, 'label' | 'icon'> & {
-        ref: React.RefObject<any>;
-      },
-  ) => {
-    setSelectedChip(args.index);
-
-    if (scrollable) {
-      const chips: HTMLElement = ref.current!;
-      const chipSelected: HTMLElement = args.ref.current;
-      if (chips && chipSelected) {
-        const scrollLeft =
-          chipSelected.offsetLeft +
-          chipSelected.offsetWidth / 2 -
-          chips.offsetWidth / 2;
-        chips.scrollTo({ left: scrollLeft, behavior: 'smooth' });
-      }
-    }
-  };
 
   const styles = useChipsStyle({
     children,
@@ -87,6 +64,7 @@ export const Chips = ({
           ...chipEl.props,
           key: index,
           selected: selectedChip == index,
+          draggable: true,
           ref: chipRefs.current[index],
           scrollable,
         });
