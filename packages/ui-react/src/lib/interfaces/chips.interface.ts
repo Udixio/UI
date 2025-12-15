@@ -1,7 +1,7 @@
 import { ActionOrLink } from '../utils';
 import { Dispatch, ReactNode, SetStateAction } from 'react';
 
-type ChipsVariant = 'outlined' | 'elevated';
+type ChipsVariant = 'input';
 
 type Props = {
   /**

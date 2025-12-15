@@ -28,12 +28,6 @@ export const Chip = ({
   children,
   ...restProps
 }: ReactProps<ChipInterface>) => {
-  if (onRemove && onToggle) {
-    throw new Error(
-      'Chip component cannot have both onRemove and onToggle props. Use onRemove for input chips (removable tags) or onToggle for filter chips (selection), but not both.',
-    );
-  }
-
   if (children) label = children;
   if (!label) {
     throw new Error(
@@ -47,6 +41,7 @@ export const Chip = ({
   const resolvedRef = ref || defaultRef;
 
   const [isActive, setIsActive] = React.useState(activated);
+  const [isSelected, setIsSelected] = React.useState(false);
   useEffect(() => {
     setIsActive(activated);
   }, [activated]);
@@ -73,9 +68,20 @@ export const Chip = ({
 
   const isInteractive = !!onToggle || !!onRemove || !!onClick || !!href;
 
+  // Selection (focus visual + keyboard safety) is enabled only for interactive or removable chips
+  const selectionEnabled = isInteractive || !!onRemove;
+
   if (activated) {
     icon = faCheck;
   }
+
+  // Extract potential onFocus/onBlur from rest props to compose handlers
+  const {
+    onFocus: restOnFocus,
+    onBlur: restOnBlur,
+    onKeyDown: restOnKeyDown,
+    ...rest
+  } = (restProps as any) ?? {};
 
   const styles = useChipStyle({
     href,
@@ -90,6 +96,8 @@ export const Chip = ({
     label,
     isInteractive,
     children: label,
+    selected: isSelected && selectionEnabled,
+    isSelected: isSelected && selectionEnabled,
   });
 
   return (
@@ -97,8 +105,48 @@ export const Chip = ({
       ref={resolvedRef}
       href={href}
       className={styles.chip}
-      {...(restProps as any)}
+      {...(rest as any)}
       onClick={handleClick}
+      onFocus={(e: React.FocusEvent<any>) => {
+        if (selectionEnabled) {
+          setIsSelected(true);
+        }
+        restOnFocus?.(e);
+      }}
+      onBlur={(e: React.FocusEvent<any>) => {
+        setIsSelected(false);
+        restOnBlur?.(e);
+      }}
+      onKeyDown={(e: React.KeyboardEvent<any>) => {
+        // Only handle keys when focused/selected and not disabled
+        if (!disabled && selectionEnabled && isSelected) {
+          const key = e.key;
+
+          // Toggle active state on Enter or Space when togglable
+          if (
+            onToggle &&
+            (key === 'Enter' || key === ' ' || key === 'Spacebar')
+          ) {
+            e.preventDefault();
+            const next = !isActive;
+            setIsActive(next);
+            onToggle(next);
+          }
+
+          // Trigger remove on Backspace or Delete when removable
+          if (
+            onRemove &&
+            (key === 'Backspace' || key === 'Delete' || key === 'Del')
+          ) {
+            e.preventDefault();
+            e.stopPropagation();
+            onRemove();
+          }
+        }
+
+        // Delegate to user handler last
+        restOnKeyDown?.(e);
+      }}
       disabled={disabled}
       aria-pressed={onToggle ? isActive : undefined}
       style={{ transition: transition.duration + 's' }}

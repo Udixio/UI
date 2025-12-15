@@ -8,6 +8,12 @@
 
 
 
+
+
+
+
+
+
 import { CodePreview } from '@/components/CodePreview.js';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
@@ -199,22 +205,24 @@ function Inputs() {
     setExpandedContactId((prev) => (prev === id ? null : id));
 
   return (
-    <Chips>
-      {contacts.map((contact) => (
-        <Chip
-          key={contact.id}
-          label={contact.name}
-          expanded={expandedContactId === contact.id}
-          onClick={() => toggleExpanded(contact.id)}
-          renderExpanded={({CloseExpanded, Leading, Label}) => (
-            <div className="flex flex-col gap-1">
-              <Chip.Label>{contact.role}</Chip.Label>>
-              <CloseExpanded/>
-            </div>
-          )}
-        />
-      ))}
-    </Chips>
+    <div className="border border-outline px-4 py-2 rounded-md w-full max-w-lg">
+      <Chips>
+        {contacts.map((contact) => (
+          <Chip
+            key={contact.id}
+            label={contact.name}
+            expanded={expandedContactId === contact.id}
+            onClick={() => toggleExpanded(contact.id)}
+            renderExpanded={({CloseExpanded, Leading, Label}) => (
+              <div className="flex flex-col gap-1">
+                <Chip.Label>{contact.role}</Chip.Label>>
+                <CloseExpanded/>
+              </div>
+            )}
+          />
+        ))}
+      </Chips>
+    </div>
   );
 }
 ```

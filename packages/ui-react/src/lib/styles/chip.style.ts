@@ -11,21 +11,21 @@ const chipConfig: ClassNameComponent<ChipInterface> = ({
   isActive,
   isInteractive,
   activated,
-  selected,
+  isSelected,
   onToggle,
 }) => ({
   chip: classNames(
-    ' group/chip px-3 py-1.5  rounded-lg flex items-center gap-2  overflow-hidden',
+    ' group/chip px-3 py-1.5  rounded-lg flex items-center gap-2  overflow-hidden outline-none',
     {
       'pl-2': icon,
       'pr-2': trailingIcon,
       'cursor-pointer': !disabled && isInteractive,
     },
     {
-      ' text-on-surface-variant': !activated && !selected,
+      ' text-on-surface-variant': !activated && !isSelected,
 
       'bg-secondary-container text-on-secondary-container':
-        activated || selected,
+        activated || isSelected,
     },
     variant === 'outlined' && ['border border-outline-variant'],
     variant === 'elevated' && ['shadow-1 bg-surface-container-low'],

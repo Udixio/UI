@@ -45,7 +45,7 @@ export type ChipInterface = ActionOrLink<ChipProps> & {
   states: {
     isActive: boolean;
     trailingIcon?: boolean;
-
+    isSelected: boolean;
     isInteractive: boolean;
   };
 };

@@ -88,14 +88,6 @@ export const Chips = ({
           key: index,
           selected: selectedChip == index,
           ref: chipRefs.current[index],
-          onClick: () => {
-            handleOnChipSelected({
-              index,
-              label: chipEl.props.label ?? chipEl.props.children,
-              icon: chipEl.props.icon,
-              ref: chipRefs.current[index],
-            });
-          },
           scrollable,
         });
       })}
