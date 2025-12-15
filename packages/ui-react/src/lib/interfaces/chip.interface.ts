@@ -4,7 +4,7 @@ import { Icon } from '../icon';
 
 type ChipVariant = 'outlined' | 'elevated';
 
-type Props = {
+export type ChipProps = {
   /**
    * The label is the text that is displayed on the chip.
    */
@@ -40,7 +40,7 @@ type Props = {
 
 type Elements = ['chip', 'stateLayer', 'leadingIcon', 'trailingIcon', 'label'];
 
-export type ChipInterface = ActionOrLink<Props> & {
+export type ChipInterface = ActionOrLink<ChipProps> & {
   elements: Elements;
   states: {
     isActive: boolean;

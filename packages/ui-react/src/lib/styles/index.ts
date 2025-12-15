@@ -3,6 +3,7 @@ export * from './card.style';
 export * from './carousel-item.style';
 export * from './carousel.style';
 export * from './chip.style';
+export * from './chips.style';
 export * from './divider.style';
 export * from './fab.style';
 export * from './fab-menu.style';

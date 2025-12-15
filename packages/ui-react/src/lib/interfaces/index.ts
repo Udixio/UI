@@ -3,6 +3,7 @@ export * from './card.interface';
 export * from './carousel-item.interface';
 export * from './carousel.interface';
 export * from './chip.interface';
+export * from './chips.interface';
 export * from './divider.interface';
 export * from './fab.interface';
 export * from './fab-menu.interface';

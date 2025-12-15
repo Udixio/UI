@@ -4,6 +4,7 @@ export * from './Carousel';
 export * from './CarouselItem';
 export * from './CarouselItem';
 export * from './Chip';
+export * from './Chips';
 export * from './Divider';
 export * from './Fab';
 export * from './FabMenu';

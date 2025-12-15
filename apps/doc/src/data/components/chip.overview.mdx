@@ -8,30 +8,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import { CodePreview } from '@/components/CodePreview.js';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
@@ -178,14 +154,67 @@ Si `href` est fourni, le composant peut se comporter comme un lien. Sinon, il ag
 ## États et accessibilité
 
 - `disabled` rend le chip inactif.
-- `loading` affiche un indicateur de progression lors d’une action asynchrone.
 - Les chips commutables (`onToggle`) exposent `aria-pressed` automatiquement.
 - Conservez une cible tactile d’au moins 48 dp et un contraste suffisant selon le thème.
 
 ```jsx
 <div className="flex flex-wrap gap-3">
   <Chip disabled variant="outlined">Indisponible</Chip>
-  <Chip loading variant="outlined">Chargement…</Chip>
 </div>
 ```
 
+## titre  expedded
+
+Vous pouvez afficher une icône (FontAwesome) dans le chip.
+
+```jsx
+function Inputs() {
+  const contacts = [
+      {
+        id: 1,
+        name: "Alice Dupont",
+        email: "alice@example.com",
+        phone: "+33 6 12 34 56 78",
+        role: "Designer",
+      },
+      {
+        id: 2,
+        name: "Bob Martin",
+        email: "bob@example.com",
+        phone: "+33 6 98 76 54 32",
+        role: "Développeur",
+      },
+      {
+        id: 3,
+        name: "Clara Lopez",
+        email: "clara@example.com",
+        phone: "+33 6 11 22 33 44",
+        role: "Product Manager",
+      },
+    ];
+
+  const [expandedContactId, setExpandedContactId] = React.useState(null);
+
+  const toggleExpanded = (id) =>
+    setExpandedContactId((prev) => (prev === id ? null : id));
+
+  return (
+    <Chips>
+      {contacts.map((contact) => (
+        <Chip
+          key={contact.id}
+          label={contact.name}
+          expanded={expandedContactId === contact.id}
+          onClick={() => toggleExpanded(contact.id)}
+          renderExpanded={({CloseExpanded, Leading, Label}) => (
+            <div className="flex flex-col gap-1">
+              <Chip.Label>{contact.role}</Chip.Label>>
+              <CloseExpanded/>
+            </div>
+          )}
+        />
+      ))}
+    </Chips>
+  );
+}
+```
