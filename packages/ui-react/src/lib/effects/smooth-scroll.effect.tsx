@@ -4,6 +4,11 @@ import { ReactProps } from '../utils';
 import { BlockScroll } from './block-scroll.effect';
 import { animate, AnimationPlaybackControls } from 'motion';
 
+/**
+ * WARNING: using this component is not recommended for now.
+ * It may block or alter certain scroll events (wheel/touch/keyboard) depending on the context.
+ * Rework it later (e.g., via Lenis or another solution) before using it in production.
+ */
 export const SmoothScroll = ({
   transition,
   orientation = 'vertical',

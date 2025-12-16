@@ -22,6 +22,12 @@ type BlockScrollProps = {
   el: HTMLElement;
 };
 
+/**
+ * @deprecated Potentially blocks scroll events unintentionally (wheel/touch/keyboard)
+ * and may interfere with internal scrollable areas (modals, lists, overflow containers).
+ * This API will be removed soon. Avoid using it and migrate to native behaviors
+ * or to local scroll handling at the component level.
+ */
 export const BlockScroll: React.FC<BlockScrollProps> = ({
   onScroll,
   el,
@@ -143,11 +149,73 @@ export const BlockScroll: React.FC<BlockScrollProps> = ({
       lastTouch.current = null;
     };
 
+    const interactiveRoles = new Set([
+      'textbox',
+      'listbox',
+      'menu',
+      'menubar',
+      'grid',
+      'tree',
+      'tablist',
+      'toolbar',
+      'radiogroup',
+      'combobox',
+      'spinbutton',
+      'slider',
+    ]);
+
+    const isEditableOrInteractive = (node: HTMLElement | null) => {
+      if (!node) return false;
+      const tag = node.tagName.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select')
+        return true;
+      if ((node as HTMLInputElement).isContentEditable) return true;
+      if (tag === 'button') return true;
+      if (tag === 'a' && (node as HTMLAnchorElement).href) return true;
+      const role = node.getAttribute('role');
+      if (role && interactiveRoles.has(role)) return true;
+      return false;
+    };
+
+    const hasInteractiveAncestor = (el: HTMLElement | null) => {
+      let n: HTMLElement | null = el;
+      while (n && n !== document.body && n !== document.documentElement) {
+        if (isEditableOrInteractive(n)) return true;
+        n = n.parentElement;
+      }
+      return false;
+    };
+
+    const canAncestorScroll = (start: HTMLElement | null, dy: number) => {
+      let n: HTMLElement | null = start;
+      while (n && n !== el) {
+        const style = window.getComputedStyle(n);
+        const overflowY = style.overflowY || style.overflow;
+        const canScrollY =
+          (overflowY === 'auto' || overflowY === 'scroll') &&
+          n.scrollHeight > n.clientHeight;
+        if (canScrollY) {
+          const canDown = n.scrollTop < n.scrollHeight - n.clientHeight;
+          const canUp = n.scrollTop > 0;
+          if ((dy > 0 && canDown) || (dy < 0 && canUp)) return true;
+        }
+        n = n.parentElement;
+      }
+      return false;
+    };
+
     const onKeyDown = (e: KeyboardEvent) => {
+      if (e.defaultPrevented) return;
+
+      // Garder les comportements natifs pour les éléments interactifs
+      const target = e.target as HTMLElement | null;
+      if (isEditableOrInteractive(target) || hasInteractiveAncestor(target)) {
+        return; // ne pas empêcher
+      }
+
       const line = 40;
       const page = el.clientHeight * 0.9;
-      let dx = 0,
-        dy = 0;
+      let dy = 0;
 
       switch (e.key) {
         case 'ArrowDown':
@@ -155,12 +223,6 @@ export const BlockScroll: React.FC<BlockScrollProps> = ({
           break;
         case 'ArrowUp':
           dy = -line;
-          break;
-        case 'ArrowRight':
-          dx = line;
-          break;
-        case 'ArrowLeft':
-          dx = -line;
           break;
         case 'PageDown':
           dy = page;
@@ -174,17 +236,33 @@ export const BlockScroll: React.FC<BlockScrollProps> = ({
         case 'End':
           dy = Number.POSITIVE_INFINITY;
           break;
-        case ' ':
+        case ' ': {
+          // Espace: laisser passer sur boutons/inputs/etc. déjà filtrés ci-dessus
           dy = e.shiftKey ? -page : page;
           break;
+        }
         default:
-          return;
+          return; // ne pas gérer, laisser natif
       }
+
+      // Si un ancêtre (≠ el) peut scroller dans ce sens, laisser le natif
+      if (canAncestorScroll(target, dy)) return;
+
+      // Ne gérer que si focus est sur body/html ou dans el
+      const ae = document.activeElement as HTMLElement | null;
+      const focusInsideEl =
+        ae &&
+        (ae === document.body ||
+          ae === document.documentElement ||
+          el.contains(ae));
+      if (!focusInsideEl) return;
+
+      // OK on prend en charge: empêcher le natif et émettre l’intention
       e.preventDefault();
       emitIntent({
         type: 'intent',
         source: 'keyboard',
-        deltaX: dx,
+        deltaX: 0,
         deltaY: dy,
         originalEvent: e,
       });
