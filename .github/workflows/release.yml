@@ -37,10 +37,6 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
-          scope: '@udixio'
-
-      - name: Vérifier l'identité npm
-        run: npm whoami
 
       - name: Get Token
         uses: actions/create-github-app-token@v1
@@ -66,9 +62,9 @@ jobs:
       - name: Publish packages
         run: |
           if [ "${{ github.event.inputs.tag }}" != "" ]; then
-            pnxlx nx release publish --tag ${{ github.event.inputs.tag }} --verbose;
+            npx nx release publish --tag ${{ github.event.inputs.tag }} --verbose;
           else
-            pnpm dlx nx release publish --verbose;
+            npx nx release publish --verbose;
           fi
         env:
           NPM_CONFIG_PROVENANCE: true
