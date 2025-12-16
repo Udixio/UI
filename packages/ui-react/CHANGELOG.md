@@ -1,3 +1,26 @@
+## 2.9.0 (2025-12-16)
+
+### 🚀 Features
+
+- **ui-react:** improve scroll handling and deprecate unstable effects ([4a20ed6](https://github.com/Udixio/UI/commit/4a20ed6))
+- **ui-react:** improve `Chips` scroll behavior for better focus and editing UX ([401e6e8](https://github.com/Udixio/UI/commit/401e6e8))
+- **ui-react:** enhance `Chip` and `Chips` with advanced editing and focus behavior ([94ea2d9](https://github.com/Udixio/UI/commit/94ea2d9))
+- **ui-react:** add inline editing and chip creation for `Chips` (variant="input") ([2d6fa0e](https://github.com/Udixio/UI/commit/2d6fa0e))
+- **ui-react:** refactor `Chips` to support controlled and uncontrolled modes ([9a6beed](https://github.com/Udixio/UI/commit/9a6beed))
+- **ui-react:** add drag and drop support to `Chip` component ([2d36fb9](https://github.com/Udixio/UI/commit/2d36fb9))
+- **ui-react:** enhance `Chip` component with improved selection and keyboard accessibility ([99f0dd5](https://github.com/Udixio/UI/commit/99f0dd5))
+- **ui-react:** add `Chips` component with support for multiple variants and improved navigation ([a0725a1](https://github.com/Udixio/UI/commit/a0725a1))
+- **ui-react:** enhance `Chip` component with new props and refactored logic ([453f12e](https://github.com/Udixio/UI/commit/453f12e))
+- **ui-react:** introduce `Chip` component with support for multiple variants and custom behavior ([2745b66](https://github.com/Udixio/UI/commit/2745b66))
+
+### 🩹 Fixes
+
+- **ui-react:** update focus logic and remove redundant scrollable padding in `Chip` and `Chips` ([8cb7697](https://github.com/Udixio/UI/commit/8cb7697))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.8.4 (2025-11-24)
 
 ### 🩹 Fixes
