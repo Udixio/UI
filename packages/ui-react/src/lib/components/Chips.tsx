@@ -1,74 +1,70 @@
-import React, { useRef, useState } from 'react';
-
+import React from 'react';
 import { Chip } from './Chip';
 import { ReactProps } from '../utils';
-import { ChipsInterface } from '../interfaces/chips.interface';
-import { useChipsStyle } from '../styles/chips.style';
-import { ChipProps } from '../interfaces';
+import { ChipItem, ChipsInterface } from '../interfaces';
+import { useChipsStyle } from '../styles';
 
-/**
- * Chips organize content across different screens and views
- * @status beta
- * @category Navigation
- */
 export const Chips = ({
   variant = 'input',
-  children,
   className,
   scrollable = true,
+  items,
+  defaultItems,
+  onItemsChange,
 }: ReactProps<ChipsInterface>) => {
-  const [internalSelectedChip, internalSetSelectedChip] = useState<
-    number | null
-  >(null);
+  const isControlled = items != null;
+  const [internalItems, setInternalItems] = React.useState<ChipItem[]>(
+    defaultItems ?? [],
+  );
+  const list = isControlled ? (items as ChipItem[]) : internalItems;
 
-  let selectedChip: number | null;
-  if (externalSelectedChip == 0 || externalSelectedChip != undefined) {
-    selectedChip = externalSelectedChip;
-  } else {
-    selectedChip = internalSelectedChip;
-  }
-
-  const setSelectedChip = externalSetSelectedChip || internalSetSelectedChip;
-
-  const chipChildren = React.Children.toArray(children).filter(
-    (child) => React.isValidElement(child) && child.type === Chip,
+  const updateItems = React.useCallback(
+    (updater: (prev: ChipItem[]) => ChipItem[]) => {
+      if (isControlled) onItemsChange?.(updater(list));
+      else setInternalItems((prev) => updater(prev));
+    },
+    [isControlled, onItemsChange, list],
   );
 
-  const ref = React.useRef<HTMLDivElement | null>(null);
+  const removeAt = React.useCallback(
+    (index: number) => {
+      updateItems((prev) => prev.filter((_, i) => i !== index));
+    },
+    [updateItems],
+  );
 
   const styles = useChipsStyle({
-    children,
-
     scrollable,
-    selectedChip,
-    setSelectedChip,
     className,
     variant,
   });
 
-  const chipRefs = useRef<React.RefObject<HTMLElement>[]>([]);
-
+  // MODE ITEMS (source de vérité locale ou contrôlée)
   return (
-    <div ref={ref} role="chiplist" className={styles.chips}>
-      {chipChildren.map((child, index) => {
-        // Ensure a ref exists for this chip index
-        if (!chipRefs.current[index]) {
-          chipRefs.current[index] = React.createRef<HTMLElement>();
-        }
-
-        const chipEl = child as React.ReactElement<ChipProps>;
-
-        console.log(selectedChip, index);
-
-        return React.cloneElement(chipEl, {
-          ...chipEl.props,
-          key: index,
-          selected: selectedChip == index,
-          draggable: true,
-          ref: chipRefs.current[index],
-          scrollable,
-        });
-      })}
+    <div role="chiplist" className={styles.chips}>
+      {list?.map((item, index) => (
+        <Chip
+          key={item.id}
+          label={item.label}
+          icon={item.icon}
+          activated={item.activated}
+          disabled={item.disabled}
+          variant={item.variant}
+          href={item.href}
+          draggable={item.draggable}
+          onToggle={
+            item.activated === undefined
+              ? undefined
+              : (next) =>
+                  updateItems((prev) =>
+                    prev.map((it) =>
+                      it.id === item.id ? { ...it, activated: next } : it,
+                    ),
+                  )
+          }
+          onRemove={variant == 'input' ? () => removeAt(index) : undefined}
+        />
+      ))}
     </div>
   );
 };

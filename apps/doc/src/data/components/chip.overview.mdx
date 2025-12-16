@@ -14,6 +14,9 @@
 
 
 
+
+
+
 import { CodePreview } from '@/components/CodePreview.js';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
@@ -169,60 +172,40 @@ Si `href` est fourni, le composant peut se comporter comme un lien. Sinon, il ag
 </div>
 ```
 
-## titre  expedded
+## Chips (liste) — sans children
 
-Vous pouvez afficher une icône (FontAwesome) dans le chip.
+Le composant conteneur `Chips` ne supporte pas le mode `children`. Il rend exclusivement une liste à partir de `items` (ou `defaultItems`) et notifie les changements via `onItemsChange`.
+
+Exemple contrôlé:
 
 ```jsx
-function Inputs() {
-  const contacts = [
-      {
-        id: 1,
-        name: "Alice Dupont",
-        email: "alice@example.com",
-        phone: "+33 6 12 34 56 78",
-        role: "Designer",
-      },
-      {
-        id: 2,
-        name: "Bob Martin",
-        email: "bob@example.com",
-        phone: "+33 6 98 76 54 32",
-        role: "Développeur",
-      },
-      {
-        id: 3,
-        name: "Clara Lopez",
-        email: "clara@example.com",
-        phone: "+33 6 11 22 33 44",
-        role: "Product Manager",
-      },
-    ];
-
-  const [expandedContactId, setExpandedContactId] = React.useState(null);
-
-  const toggleExpanded = (id) =>
-    setExpandedContactId((prev) => (prev === id ? null : id));
+function Contacts() {
+  const [items, setItems] = React.useState([
+    { id: 1, label: 'Alice Dupont', draggable: true },
+    { id: 2, label: 'Bob Martin' },
+    { id: 3, label: 'Clara Lopez' },
+  ]);
 
   return (
-    <div className="border border-outline px-4 py-2 rounded-md w-full max-w-lg">
-      <Chips>
-        {contacts.map((contact) => (
-          <Chip
-            key={contact.id}
-            label={contact.name}
-            expanded={expandedContactId === contact.id}
-            onClick={() => toggleExpanded(contact.id)}
-            renderExpanded={({CloseExpanded, Leading, Label}) => (
-              <div className="flex flex-col gap-1">
-                <Chip.Label>{contact.role}</Chip.Label>>
-                <CloseExpanded/>
-              </div>
-            )}
-          />
-        ))}
-      </Chips>
+    <div className="border border-outline px-4 py-3 rounded-md w-full max-w-xl space-y-3">
+      <Chips
+        items={items}
+        onItemsChange={setItems}
+      />
     </div>
   );
 }
 ```
+
+Exemple non contrôlé (valeur initiale):
+
+```jsx
+<Chips
+  defaultItems={[
+    { id: 'a', label: 'Alpha' },
+    { id: 'b', label: 'Beta', draggable: true },
+  ]}
+/>
+```
+
+Suppression: si `variant="input"`, chaque chip est rendu amovible et `Chips` retire l’élément supprimé de la liste (et appelle `onItemsChange` en mode contrôlé).
