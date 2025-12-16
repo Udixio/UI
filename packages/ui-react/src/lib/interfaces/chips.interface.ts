@@ -3,7 +3,6 @@ import type { Icon } from '../icon';
 
 // Ce que Chips a besoin de connaître pour (re)construire un Chip
 export type ChipItem = {
-  id: string | number; // clé stable
   label: string;
   icon?: Icon;
   activated?: boolean;
@@ -27,21 +26,6 @@ type Props = {
 
   /** Notifie toute modification de la liste (remove, toggle, etc.) */
   onItemsChange?: (next: ChipItem[]) => void;
-
-  /**
-   * Hook appelé lorsqu'un nouvel item est créé (par clic dans la zone vide en variant="input").
-   * Retournez des props supplémentaires à fusionner dans l'item créé (ex: icône, disabled, variant...).
-   */
-  onCreate?: (ctx: { id: ChipItem['id'] }) => Partial<ChipItem> | void;
-
-  /** Notifié immédiatement au démarrage de la création (après insertion dans la liste). */
-  onCreateStart?: (item: ChipItem) => void;
-
-  /** Notifié quand l'édition de création est validée (label non vide). */
-  onCreateCommit?: (item: ChipItem) => void;
-
-  /** Notifié quand la création est annulée (ou label vide). */
-  onCreateCancel?: (id: ChipItem['id']) => void;
 };
 
 type Elements = ['chips'];

@@ -3,7 +3,7 @@ import { ChipInterface } from '../interfaces';
 import { useChipStyle } from '../styles';
 import { Icon } from '../icon';
 import { State } from '../effects';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 
 /**
@@ -18,14 +18,12 @@ export const Chip = ({
   href,
   label,
   className,
-  selected,
   onClick,
   onToggle,
   activated,
   ref,
   onRemove,
   editable,
-  isEditing,
   onEditStart,
   onEditCommit,
   onEditCancel,
@@ -48,7 +46,8 @@ export const Chip = ({
   const resolvedRef = ref || defaultRef;
 
   const [isActive, setIsActive] = React.useState(activated);
-  const [isSelected, setIsSelected] = React.useState(false);
+  const [isFocused, setIsFocused] = React.useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [isDragging, setIsDragging] = React.useState(false);
   const [editValue, setEditValue] = React.useState<string>(
     typeof label === 'string' ? label : '',
@@ -59,17 +58,18 @@ export const Chip = ({
   }, [activated]);
 
   useEffect(() => {
-    if (selected !== undefined) {
-      setIsActive(selected);
+    if (editable) {
+      setIsEditing(isFocused);
     }
-  }, [selected]);
+  }, [isFocused, editable]);
 
   // Sync edit value and focus caret when entering editing mode
   useEffect(() => {
     if (isEditing) {
       setEditValue(typeof label === 'string' ? label : '');
       // focus contenteditable span and move caret to end
-      const el = (labelRef.current as unknown as HTMLSpanElement) || editSpanRef.current;
+      const el =
+        (labelRef.current as unknown as HTMLSpanElement) || editSpanRef.current;
       if (el) {
         el.focus();
         const range = document.createRange();
@@ -97,9 +97,6 @@ export const Chip = ({
   };
 
   const isInteractive = !!onToggle || !!onRemove || !!onClick || !!href;
-
-  // Selection (focus visual + keyboard safety) is enabled only for interactive or removable chips
-  const selectionEnabled = isInteractive || !!onRemove;
 
   if (activated) {
     icon = faCheck;
@@ -129,16 +126,28 @@ export const Chip = ({
     label,
     isInteractive,
     children: label,
-    selected: isSelected && selectionEnabled,
-    isSelected: isSelected && selectionEnabled,
+    isFocused: isFocused,
     isDragging,
+    onEditCommit,
     isEditing,
   });
 
   const labelRef = useRef(null);
 
+  const handleCommit = () => {
+    const trimmed = (editValue ?? '').trim();
+    if (!trimmed) {
+      if (onRemove) {
+        onRemove();
+      }
+      return;
+    }
+    onEditCommit?.(trimmed);
+  };
+
   return (
     <ElementType
+      contentEditable={false}
       ref={resolvedRef}
       href={href}
       className={styles.chip}
@@ -168,32 +177,41 @@ export const Chip = ({
         restOnDoubleClick?.(e);
       }}
       onFocus={(e: React.FocusEvent<any>) => {
-        if (selectionEnabled) {
-          setIsSelected(true);
+        if (isInteractive) {
+          setIsFocused(true);
         }
         restOnFocus?.(e);
       }}
       onBlur={(e: React.FocusEvent<any>) => {
-        setIsSelected(false);
+        console.log('focus');
+        setIsFocused(false);
         restOnBlur?.(e);
       }}
       onKeyDown={(e: React.KeyboardEvent<any>) => {
+        const key = e.key;
+
         // While editing: handle commit/cancel locally
         if (!disabled && isEditing) {
-          if (e.key === 'Enter') {
+          if (key === 'Enter') {
             e.preventDefault();
-            onEditCommit?.(editValue);
-          } else if (e.key === 'Escape') {
+            handleCommit();
+          } else if (key === 'Escape') {
             e.preventDefault();
             onEditCancel?.();
+          } else if (
+            onRemove &&
+            editValue?.trim() === '' &&
+            (key === 'Backspace' || key === 'Delete' || key === 'Del')
+          ) {
+            e.preventDefault();
+            e.stopPropagation();
+            onRemove();
           }
           return;
         }
 
         // Only handle keys when focused/selected and not disabled
-        if (!disabled && selectionEnabled && isSelected) {
-          const key = e.key;
-
+        if (!disabled && isEditing) {
           // Start editing with F2 or Enter when editable and no toggle behavior
           if (editable && !onToggle && (key === 'F2' || key === 'Enter')) {
             e.preventDefault();
@@ -257,7 +275,7 @@ export const Chip = ({
         }}
         onBlur={(e) => {
           if (editable && isEditing) {
-            onEditCommit?.(editValue);
+            handleCommit();
           }
         }}
         onKeyDown={(e) => {
@@ -265,7 +283,7 @@ export const Chip = ({
           if (editable && isEditing && e.key === 'Enter') {
             e.preventDefault();
             e.stopPropagation();
-            onEditCommit?.(editValue);
+            handleCommit();
             return;
           }
           if (editable && isEditing && e.key === 'Escape') {
@@ -277,33 +295,15 @@ export const Chip = ({
       >
         {label}
       </span>
-      {/*{isEditing && (*/}
-      {/*  <span*/}
-      {/*    ref={editSpanRef}*/}
-      {/*    className={styles.label}*/}
-      {/*   */}
-      {/*    suppressContentEditableWarning*/}
-      {/*    role="textbox"*/}
-      {/*    spellCheck={false}*/}
-      {/*    onInput={(e) => setEditValue((e.currentTarget as HTMLSpanElement).innerText)}*/}
-      {/*    onFocus={(e) => e.stopPropagation()}*/}
-      {/*    onBlur={() => {*/}
-      {/*      onEditCommit?.(editValue);*/}
-      {/*    }}*/}
-      {/*    onKeyDown={(e) => {*/}
-      {/*      // prevent line breaks in contenteditable*/}
-      {/*      if (e.key === 'Enter') e.preventDefault();*/}
-      {/*    }}*/}
-      {/*  >*/}
-      {/*    {editValue}*/}
-      {/*  </span>*/}
-      {/*)}*/}
-      {onRemove && (
+      {onRemove && !isEditing && (
         <Icon
           icon={faXmark}
           className={styles.trailingIcon}
+          onMouseDown={(e) => {
+            e.preventDefault(); // ⬅️ clé
+            e.stopPropagation();
+          }}
           onClick={(e: React.MouseEvent) => {
-            console.log('click');
             e.stopPropagation();
             if (!disabled) {
               onRemove();

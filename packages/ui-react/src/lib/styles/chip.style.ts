@@ -11,7 +11,7 @@ const chipConfig: ClassNameComponent<ChipInterface> = ({
   isActive,
   isInteractive,
   activated,
-  isSelected,
+  isFocused,
   isDragging,
   isEditing,
 }) => ({
@@ -23,10 +23,9 @@ const chipConfig: ClassNameComponent<ChipInterface> = ({
       'cursor-pointer': !disabled && isInteractive,
     },
     {
-      ' text-on-surface-variant': !activated && !isSelected,
-
+      ' text-on-surface-variant': (!activated && !isFocused) || isEditing,
       'bg-secondary-container text-on-secondary-container':
-        activated || isSelected,
+        (activated || isFocused) && !isEditing,
     },
     // Dragging feedback
     isDragging && ['opacity-100 cursor-grabbing shadow-3'],

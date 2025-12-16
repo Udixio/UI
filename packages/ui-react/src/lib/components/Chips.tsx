@@ -3,6 +3,8 @@ import { ReactProps } from '../utils';
 import { ChipItem, ChipsInterface } from '../interfaces';
 import { useChipsStyle } from '../styles';
 import { Chip } from './Chip';
+import { Divider } from './Divider';
+import { v4 } from 'uuid';
 
 export const Chips = ({
   variant = 'input',
@@ -10,21 +12,33 @@ export const Chips = ({
   scrollable = true,
   items,
   onItemsChange,
-  onCreate,
-  onCreateStart,
-  onCreateCommit,
-  onCreateCancel,
 }: ReactProps<ChipsInterface>) => {
   const list = items ?? [];
 
-  // Editing management (only for variant 'input')
-  const [editingId, setEditingId] = React.useState<string | number | null>(
-    null,
-  );
-  // Track newly created items that aren't finalized yet
-  const [creatingIds, setCreatingIds] = React.useState<Set<string | number>>(
-    () => new Set(),
-  );
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  const [isFocused, setIsFocused] = React.useState<boolean>(false);
+
+  // Internal stable ids per item object (since ChipItem no longer exposes id)
+  const idMapRef = React.useRef<WeakMap<ChipItem, string>>(new WeakMap());
+  const getInternalId = React.useCallback((it: ChipItem) => {
+    const map = idMapRef.current;
+    let id = map.get(it);
+    if (!id) {
+      id = v4();
+      map.set(it, id);
+    }
+    return id;
+  }, []);
+
+  React.useEffect(() => {
+    console.log('isFocused Chips', isFocused);
+    if (isFocused) {
+      console.log('focus Chiups');
+      ref.current?.focus();
+    }
+  }, [isFocused]);
+
   const chipRefs = React.useRef<(HTMLElement | null)[]>([]);
 
   const updateItems = React.useCallback(
@@ -47,113 +61,136 @@ export const Chips = ({
     variant,
   });
 
+  const createAndStartEdit = React.useCallback(
+    (seedLabel = '') => {
+      if (variant !== 'input') return;
+
+      const newItem: ChipItem = {
+        label: seedLabel,
+      } as ChipItem;
+
+      // Ask parent to add as well
+      const next = [...list, newItem];
+      onItemsChange?.(next);
+
+      // Focus after paint
+      requestAnimationFrame(() => {
+        const idx = list.length; // appended at the end visually
+        const el = chipRefs.current[idx] as any;
+
+        el?.focus?.();
+      });
+    },
+    [variant, onItemsChange, list],
+  );
+
   // MODE ITEMS (source de vérité locale ou contrôlée)
   return (
     <div
+      ref={ref}
       role="list"
       aria-label="Chips"
       className={styles.chips}
-      onMouseDown={(e) => {
-        // Add new chip only when clicking on empty area of the container
+      tabIndex={variant === 'input' ? 0 : undefined}
+      onFocus={(e) => {
+        if (e.target === e.currentTarget) {
+          setIsFocused(true);
+        }
+      }}
+      onBlur={() => setIsFocused(false)}
+      onKeyDown={(e) => {
         if (variant !== 'input') return;
-        if (e.target !== e.currentTarget) return;
-        const newId = `__chip_${Date.now()}_${Math.random()
-          .toString(36)
-          .slice(2, 8)}`;
-        const extra = onCreate?.({ id: newId }) ?? {};
-        const newItem: ChipItem = {
-          id: newId,
-          label: '',
-          ...extra,
-        } as ChipItem;
-        const next = [...list, newItem];
-        onItemsChange?.(next);
-        setCreatingIds((prev) => {
-          const n = new Set(prev);
-          n.add(newId);
-          return n;
-        });
-        setEditingId(newId);
-        onCreateStart?.(newItem);
-        // Focus will be handled after render by focusing the chip element if possible
-        requestAnimationFrame(() => {
-          const idx = list.length; // appended at the end
-          const el = chipRefs.current[idx] as any;
+
+        const key = e.key;
+        const target = e.target as HTMLElement;
+        const isContainerFocused = target === e.currentTarget;
+
+        // If currently editing a chip, let the chip handle keys
+        if (!isFocused) return;
+
+        // Determine focused chip index if any
+        const activeEl = document.activeElement as HTMLElement | null;
+        const focusedIndex = chipRefs.current.findIndex(
+          (el) => el === activeEl,
+        );
+
+        if (key === 'ArrowLeft') {
+          e.preventDefault();
+          const nextIdx = focusedIndex > 0 ? focusedIndex - 1 : list.length - 1;
+          const el = chipRefs.current[nextIdx] as any;
           el?.focus?.();
-        });
+          return;
+        }
+        if (key === 'ArrowRight') {
+          e.preventDefault();
+          const nextIdx =
+            focusedIndex >= 0
+              ? (focusedIndex + 1) % Math.max(1, list.length)
+              : 0;
+          const el = chipRefs.current[nextIdx] as any;
+          el?.focus?.();
+          return;
+        }
+        if (key === 'Home') {
+          e.preventDefault();
+          const el = chipRefs.current[0] as any;
+          el?.focus?.();
+          return;
+        }
+        if (key === 'End') {
+          e.preventDefault();
+          const el = chipRefs.current[list.length - 1] as any;
+          el?.focus?.();
+          return;
+        }
+
+        if (isContainerFocused) {
+          if (key === 'Enter') {
+            e.preventDefault();
+            createAndStartEdit('');
+            return;
+          }
+          if (key === 'Backspace') {
+            e.preventDefault();
+            // Focus last chip if any
+            if (list.length > 0) {
+              const el = chipRefs.current[list.length - 1] as any;
+              el?.focus?.();
+            }
+            return;
+          }
+          // Start creation when typing a printable character
+          if (key.length === 1 && !e.altKey && !e.ctrlKey && !e.metaKey) {
+            createAndStartEdit(key);
+            e.preventDefault();
+            return;
+          }
+        }
       }}
     >
       {list.map((item, index) => {
+        const internalId = getInternalId(item);
         const isInputVariant = variant === 'input';
         const editProps = isInputVariant
           ? {
               editable: true,
-              isEditing: editingId === item.id,
-              onEditStart: () => {
-                setEditingId(item.id);
-              },
               onEditCommit: (next: string | undefined) => {
-                setEditingId(null);
-                const trimmed = (next ?? '').trim();
-                const isCreating = creatingIds.has(item.id);
-                if (!trimmed) {
-                  if (isCreating) {
-                    onCreateCancel?.(item.id);
-                    setCreatingIds((prev) => {
-                      const n = new Set(prev);
-                      n.delete(item.id);
-                      return n;
-                    });
-                  }
-                  removeAt(index);
-                  return;
-                }
-                let committedItem: ChipItem | null = null;
+                setIsFocused(true);
                 updateItems((prev) =>
-                  prev.map((it) => {
-                    if (it.id === item.id) {
-                      committedItem = { ...it, label: trimmed } as ChipItem;
-                      return committedItem;
-                    }
-                    return it;
-                  }),
-                );
-                if (isCreating && committedItem) {
-                  setCreatingIds((prev) => {
-                    const n = new Set(prev);
-                    n.delete(item.id);
-                    return n;
-                  });
-                  onCreateCommit?.(committedItem);
-                }
-              },
-              onEditCancel: () => {
-                setEditingId(null);
-                const isCreating = creatingIds.has(item.id);
-                if (isCreating || !item.label || item.label.trim() === '') {
-                  onCreateCancel?.(item.id);
-                  setCreatingIds((prev) => {
-                    const n = new Set(prev);
-                    n.delete(item.id);
-                    return n;
-                  });
-                  removeAt(index);
-                }
-              },
-              onChange: (next: string) => {
-                // live update label while editing (without committing)
-                updateItems((prev) =>
-                  prev.map((it) =>
-                    it.id === item.id ? { ...it, label: next } : it,
+                  prev.map((it, i) =>
+                    i === index ? { ...it, label: next as any } : it,
                   ),
                 );
+              },
+              onEditCancel: () => {
+                setIsFocused(true);
               },
             }
           : {};
 
         return (
           <Chip
-            key={item.id}
+            key={internalId}
             ref={(el: any) => (chipRefs.current[index] = el)}
             label={item.label ?? ''}
             icon={item.icon}
@@ -168,15 +205,45 @@ export const Chips = ({
                 ? undefined
                 : (next) =>
                     updateItems((prev) =>
-                      prev.map((it) =>
-                        it.id === item.id ? { ...it, activated: next } : it,
+                      prev.map((it, i) =>
+                        i === index ? { ...it, activated: next } : it,
                       ),
                     )
             }
-            onRemove={isInputVariant ? () => removeAt(index) : undefined}
+            onRemove={
+              isInputVariant
+                ? () => {
+                    setIsFocused(true);
+                    removeAt(index);
+                  }
+                : undefined
+            }
           />
         );
       })}
+      {isFocused && (
+        <>
+          <Divider
+            orientation="vertical"
+            className="animate-[var(--animate-blink)] border-outline"
+            style={
+              {
+                '--animate-blink':
+                  'blink 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              } as React.CSSProperties
+            }
+          />
+
+          <style>
+            {`
+        @keyframes blink {
+          0%, 50% { opacity: 1; }
+          50.01%, 100% { opacity: 0; }
+        }
+      `}
+          </style>
+        </>
+      )}
     </div>
   );
 };

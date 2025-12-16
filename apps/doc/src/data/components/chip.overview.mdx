@@ -176,16 +176,18 @@ Si `href` est fourni, le composant peut se comporter comme un lien. Sinon, il ag
 
 ## Chips (liste)
 
-Le composant conteneur `Chips` ne supporte pas le mode `children`. Il rend exclusivement une liste à partir de `items` (ou `defaultItems`) et notifie les changements via `onItemsChange`.
+Le composant conteneur `Chips` ne supporte pas le mode `children`. Il rend exclusivement une liste à partir de `items` et notifie les changements via `onItemsChange`.
+
+Note: vous n'avez pas besoin de fournir un `id` pour chaque item — `Chips` assigne automatiquement des identifiants internes stables pour les clés de rendu.
 
 Exemple contrôlé:
 
 ```jsx
 function Contacts() {
   const [items, setItems] = React.useState([
-    { id: 1, label: 'Alice Dupont', draggable: true },
-    { id: 2, label: 'Bob Martin' },
-    { id: 3, label: 'Clara Lopez' },
+    { label: 'Alice Dupont', draggable: true },
+    { label: 'Bob Martin' },
+    { label: 'Clara Lopez' },
   ]);
 
   return (

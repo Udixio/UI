@@ -3,7 +3,7 @@ import { classNames, createUseClassNames, defaultClassNames } from '../utils';
 import { ChipsInterface } from '../interfaces';
 
 const chipsConfig: ClassNameComponent<ChipsInterface> = ({ variant }) => ({
-  chips: classNames(' flex flex-wrap gap-3'),
+  chips: classNames(' flex flex-wrap gap-3 outline-none'),
 });
 
 export const chipsStyle = defaultClassNames<ChipsInterface>(

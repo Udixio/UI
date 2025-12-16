@@ -33,8 +33,6 @@ export type ChipProps = {
 
   activated?: boolean;
 
-  selected?: boolean;
-
   onRemove?: () => void;
 
   /**
@@ -53,14 +51,15 @@ export type ChipProps = {
   onDragEnd?: (e: React.DragEvent) => void;
 } & (
   | {
-      draggable?: false;
+      editable?: false;
+      onEditStart?: never;
+      onEditCommit: never;
+      onEditCancel?: never;
+      onChange?: never;
     }
   | {
       /** Enable label inline edition for this chip (used by Chips variant="input"). */
       editable?: true;
-
-      /** When true, the chip is currently being edited (driven by parent). */
-      isEditing?: boolean;
 
       /** Request to start editing (e.g., double-click, Enter/F2). */
       onEditStart?: () => void;
@@ -86,7 +85,7 @@ export type ChipInterface = ActionOrLink<ChipProps> & {
   states: {
     isActive: boolean;
     trailingIcon?: boolean;
-    isSelected: boolean;
+    isFocused: boolean;
     isInteractive: boolean;
     isDragging?: boolean;
     isEditing?: boolean;
