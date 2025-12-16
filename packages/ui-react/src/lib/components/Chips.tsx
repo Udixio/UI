@@ -92,6 +92,11 @@ export const Chips = ({
       if (index !== -1) {
         const el = chipRefs.current[index] as any;
         el?.focus?.();
+
+        const chipsEl = ref.current!;
+        const scrollLeft =
+          el.offsetLeft + el.offsetWidth / 2 - chipsEl.offsetWidth / 2;
+        chipsEl.scrollTo({ left: scrollLeft, behavior: 'smooth' });
       }
     }
   }, [selectedChip, list, getInternalId]);
@@ -197,6 +202,14 @@ export const Chips = ({
               },
               onEditCancel: () => {
                 setIsFocused(true);
+              },
+              onChange: (next: ChipItem[]) => {
+                if (chipRefs.current.length == index + 1) {
+                  const el = ref.current!;
+                  requestAnimationFrame(() => {
+                    el.scrollTo({ left: el.scrollWidth, behavior: 'smooth' });
+                  });
+                }
               },
             }
           : {};

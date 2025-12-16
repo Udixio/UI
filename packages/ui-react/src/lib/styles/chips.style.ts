@@ -5,7 +5,7 @@ import { ChipsInterface } from '../interfaces';
 const chipsConfig: ClassNameComponent<ChipsInterface> = ({ scrollable }) => ({
   chips: classNames(' flex  gap-3 outline-none', {
     'flex-wrap': !scrollable,
-    'overflow-x-auto': scrollable,
+    'overflow-x-auto pr-[40%]': scrollable,
   }),
 });
 
