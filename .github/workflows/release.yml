@@ -54,7 +54,7 @@ jobs:
       - name: Release packages
         run: pnpm dlx nx release --skip-publish --verbose
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       - name: Install dependencies
