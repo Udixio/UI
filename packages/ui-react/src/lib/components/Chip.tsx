@@ -228,7 +228,7 @@ export const Chip = ({
         }
 
         // Only handle keys when focused/selected and not disabled
-        if (!disabled && isEditing) {
+        if (!disabled && isFocused) {
           // Start editing with F2 or Enter when editable and no toggle behavior
           if (editable && !onToggle && (key === 'F2' || key === 'Enter')) {
             e.preventDefault();
