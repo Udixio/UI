@@ -38,6 +38,7 @@
     "url": "https://github.com/Udixio/UI.git"
   },
   "publishConfig": {
+    "provenance": true,
     "access": "public"
   }
 }
