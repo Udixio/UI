@@ -18,6 +18,7 @@
 
 
 
+
 import { CodePreview } from '@/components/CodePreview.js';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
@@ -173,7 +174,7 @@ Si `href` est fourni, le composant peut se comporter comme un lien. Sinon, il ag
 </div>
 ```
 
-## Chips (liste) — sans children
+## Chips (liste)
 
 Le composant conteneur `Chips` ne supporte pas le mode `children`. Il rend exclusivement une liste à partir de `items` (ou `defaultItems`) et notifie les changements via `onItemsChange`.
 
@@ -197,4 +198,12 @@ function Contacts() {
   );
 }
 ```
+
+## Édition (variant="input")
+
+- Double‑clic (ou F2/Enter quand le chip a le focus et n’est pas togglable) met un chip en édition directement.
+- Cliquer dans une zone vide du conteneur ajoute un nouveau chip à la fin et l’ouvre immédiatement en édition.
+- L’édition est inline via `contenteditable` (pas de champ d’entrée séparé). Appuyez sur Enter pour valider, Échap pour annuler, ou sortez du focus pour valider.
+- Si vous validez une étiquette vide (ou annulez une création vide), le chip est retiré.
+- Les raccourcis existants demeurent: Enter/Espace pour `onToggle`, Retour/Suppr pour `onRemove` quand le chip est sélectionné et non en édition.
 

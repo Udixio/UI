@@ -51,7 +51,33 @@ export type ChipProps = {
    * Called when drag ends (composed with internal handler that clears isDragging).
    */
   onDragEnd?: (e: React.DragEvent) => void;
-};
+} & (
+  | {
+      draggable?: false;
+    }
+  | {
+      /** Enable label inline edition for this chip (used by Chips variant="input"). */
+      editable?: true;
+
+      /** When true, the chip is currently being edited (driven by parent). */
+      isEditing?: boolean;
+
+      /** Request to start editing (e.g., double-click, Enter/F2). */
+      onEditStart?: () => void;
+
+      /** Commit edition with the new label. */
+      onEditCommit: (nextLabel: string) => void;
+
+      /** Cancel edition and restore previous label. */
+      onEditCancel?: () => void;
+
+      /**
+       * Fired on each edit keystroke when content changes (only while editing).
+       * Useful for live formatting, suggestions, validation, etc.
+       */
+      onChange?: (nextLabel: string) => void;
+    }
+);
 
 type Elements = ['chip', 'stateLayer', 'leadingIcon', 'trailingIcon', 'label'];
 
@@ -63,5 +89,6 @@ export type ChipInterface = ActionOrLink<ChipProps> & {
     isSelected: boolean;
     isInteractive: boolean;
     isDragging?: boolean;
+    isEditing?: boolean;
   };
 };

@@ -24,12 +24,19 @@ export const Chip = ({
   activated,
   ref,
   onRemove,
+  editable,
+  isEditing,
+  onEditStart,
+  onEditCommit,
+  onEditCancel,
+  onChange,
   transition,
   children,
   ...restProps
 }: ReactProps<ChipInterface>) => {
   if (children) label = children;
-  if (!label) {
+  // Allow empty string when editable (newly created chips start empty)
+  if (label === undefined && !editable) {
     throw new Error(
       'Chip component requires either a label prop or children content',
     );
@@ -43,6 +50,10 @@ export const Chip = ({
   const [isActive, setIsActive] = React.useState(activated);
   const [isSelected, setIsSelected] = React.useState(false);
   const [isDragging, setIsDragging] = React.useState(false);
+  const [editValue, setEditValue] = React.useState<string>(
+    typeof label === 'string' ? label : '',
+  );
+  const editSpanRef = React.useRef<HTMLSpanElement>(null);
   useEffect(() => {
     setIsActive(activated);
   }, [activated]);
@@ -52,6 +63,24 @@ export const Chip = ({
       setIsActive(selected);
     }
   }, [selected]);
+
+  // Sync edit value and focus caret when entering editing mode
+  useEffect(() => {
+    if (isEditing) {
+      setEditValue(typeof label === 'string' ? label : '');
+      // focus contenteditable span and move caret to end
+      const el = (labelRef.current as unknown as HTMLSpanElement) || editSpanRef.current;
+      if (el) {
+        el.focus();
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        const sel = window.getSelection();
+        sel?.removeAllRanges();
+        sel?.addRange(range);
+      }
+    }
+  }, [isEditing]);
 
   transition = { duration: 0.3, ...transition };
 
@@ -83,6 +112,7 @@ export const Chip = ({
     onKeyDown: restOnKeyDown,
     onDragStart: restOnDragStart,
     onDragEnd: restOnDragEnd,
+    onDoubleClick: restOnDoubleClick,
     ...rest
   } = (restProps as any) ?? {};
 
@@ -101,8 +131,11 @@ export const Chip = ({
     children: label,
     selected: isSelected && selectionEnabled,
     isSelected: isSelected && selectionEnabled,
-    isDragging: true,
+    isDragging,
+    isEditing,
   });
+
+  const labelRef = useRef(null);
 
   return (
     <ElementType
@@ -110,7 +143,9 @@ export const Chip = ({
       href={href}
       className={styles.chip}
       {...(rest as any)}
-      onClick={handleClick}
+      onClick={(e: React.MouseEvent<any>) => {
+        if (!isEditing) handleClick(e);
+      }}
       draggable={!disabled && !!(restProps as any)?.draggable}
       onDragStart={(e: React.DragEvent<any>) => {
         if (!disabled && (restProps as any)?.draggable) {
@@ -124,6 +159,14 @@ export const Chip = ({
         }
         restOnDragEnd?.(e);
       }}
+      onDoubleClick={(e: React.MouseEvent<any>) => {
+        if (!disabled && editable && !isEditing) {
+          onEditStart?.();
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        restOnDoubleClick?.(e);
+      }}
       onFocus={(e: React.FocusEvent<any>) => {
         if (selectionEnabled) {
           setIsSelected(true);
@@ -135,9 +178,28 @@ export const Chip = ({
         restOnBlur?.(e);
       }}
       onKeyDown={(e: React.KeyboardEvent<any>) => {
+        // While editing: handle commit/cancel locally
+        if (!disabled && isEditing) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            onEditCommit?.(editValue);
+          } else if (e.key === 'Escape') {
+            e.preventDefault();
+            onEditCancel?.();
+          }
+          return;
+        }
+
         // Only handle keys when focused/selected and not disabled
         if (!disabled && selectionEnabled && isSelected) {
           const key = e.key;
+
+          // Start editing with F2 or Enter when editable and no toggle behavior
+          if (editable && !onToggle && (key === 'F2' || key === 'Enter')) {
+            e.preventDefault();
+            onEditStart?.();
+            return;
+          }
 
           // Toggle active state on Enter or Space when togglable
           if (
@@ -168,7 +230,7 @@ export const Chip = ({
       aria-pressed={onToggle ? isActive : undefined}
       style={{ transition: transition.duration + 's' }}
     >
-      {isInteractive && !disabled && (
+      {isInteractive && !disabled && !isEditing && (
         <State
           style={{ transition: transition.duration + 's' }}
           className={styles.stateLayer}
@@ -181,7 +243,61 @@ export const Chip = ({
       )}
 
       {icon && <Icon icon={icon} className={styles.leadingIcon} />}
-      <span className={styles.label}>{label}</span>
+      <span
+        ref={labelRef}
+        contentEditable={!!editable && !!isEditing}
+        suppressContentEditableWarning
+        className={styles.label}
+        role={editable ? 'textbox' : undefined}
+        spellCheck={false}
+        onInput={(e) => {
+          const text = (e.currentTarget as HTMLSpanElement).innerText;
+          setEditValue(text);
+          onChange?.(text);
+        }}
+        onBlur={(e) => {
+          if (editable && isEditing) {
+            onEditCommit?.(editValue);
+          }
+        }}
+        onKeyDown={(e) => {
+          // prevent line breaks inside contenteditable
+          if (editable && isEditing && e.key === 'Enter') {
+            e.preventDefault();
+            e.stopPropagation();
+            onEditCommit?.(editValue);
+            return;
+          }
+          if (editable && isEditing && e.key === 'Escape') {
+            e.preventDefault();
+            e.stopPropagation();
+            onEditCancel?.();
+          }
+        }}
+      >
+        {label}
+      </span>
+      {/*{isEditing && (*/}
+      {/*  <span*/}
+      {/*    ref={editSpanRef}*/}
+      {/*    className={styles.label}*/}
+      {/*   */}
+      {/*    suppressContentEditableWarning*/}
+      {/*    role="textbox"*/}
+      {/*    spellCheck={false}*/}
+      {/*    onInput={(e) => setEditValue((e.currentTarget as HTMLSpanElement).innerText)}*/}
+      {/*    onFocus={(e) => e.stopPropagation()}*/}
+      {/*    onBlur={() => {*/}
+      {/*      onEditCommit?.(editValue);*/}
+      {/*    }}*/}
+      {/*    onKeyDown={(e) => {*/}
+      {/*      // prevent line breaks in contenteditable*/}
+      {/*      if (e.key === 'Enter') e.preventDefault();*/}
+      {/*    }}*/}
+      {/*  >*/}
+      {/*    {editValue}*/}
+      {/*  </span>*/}
+      {/*)}*/}
       {onRemove && (
         <Icon
           icon={faXmark}

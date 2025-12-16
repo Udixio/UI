@@ -13,7 +13,7 @@ const chipConfig: ClassNameComponent<ChipInterface> = ({
   activated,
   isSelected,
   isDragging,
-  onToggle,
+  isEditing,
 }) => ({
   chip: classNames(
     ' group/chip px-3 py-1.5  rounded-lg flex items-center gap-2 outline-none',
@@ -30,12 +30,21 @@ const chipConfig: ClassNameComponent<ChipInterface> = ({
     },
     // Dragging feedback
     isDragging && ['opacity-100 cursor-grabbing shadow-3'],
-    variant === 'outlined' && ['border border-outline-variant'],
-    variant === 'elevated' && ['shadow-1 bg-surface-container-low'],
+    variant === 'outlined' && [
+      'border border-outline-variant',
+      {
+        'border-transparent': isEditing,
+      },
+    ],
+    variant === 'elevated' &&
+      !isEditing && [
+        'shadow-1 bg-surface-container-low',
+        'border border-outline-variant',
+      ],
   ),
 
   stateLayer: classNames('rounded-lg overflow-hidden', {}),
-  label: classNames('', {
+  label: classNames('outline-none', {
     'opacity-[0.38]': disabled,
   }),
   leadingIcon: classNames('text-primary size-[18px]', {
