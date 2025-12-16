@@ -25,9 +25,6 @@ type Props = {
   /** Mode contrôlé: la source de vérité */
   items?: ChipItem[];
 
-  /** Mode non contrôlé: valeur initiale */
-  defaultItems?: ChipItem[];
-
   /** Notifie toute modification de la liste (remove, toggle, etc.) */
   onItemsChange?: (next: ChipItem[]) => void;
 };

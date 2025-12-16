@@ -9,21 +9,15 @@ export const Chips = ({
   className,
   scrollable = true,
   items,
-  defaultItems,
   onItemsChange,
 }: ReactProps<ChipsInterface>) => {
-  const isControlled = items != null;
-  const [internalItems, setInternalItems] = React.useState<ChipItem[]>(
-    defaultItems ?? [],
-  );
-  const list = isControlled ? (items as ChipItem[]) : internalItems;
+  const list = items;
 
   const updateItems = React.useCallback(
     (updater: (prev: ChipItem[]) => ChipItem[]) => {
-      if (isControlled) onItemsChange?.(updater(list));
-      else setInternalItems((prev) => updater(prev));
+      onItemsChange?.(updater(list));
     },
-    [isControlled, onItemsChange, list],
+    [onItemsChange, list],
   );
 
   const removeAt = React.useCallback(

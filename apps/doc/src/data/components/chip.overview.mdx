@@ -17,6 +17,7 @@
 
 
 
+
 import { CodePreview } from '@/components/CodePreview.js';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
@@ -197,15 +198,3 @@ function Contacts() {
 }
 ```
 
-Exemple non contrôlé (valeur initiale):
-
-```jsx
-<Chips
-  defaultItems={[
-    { id: 'a', label: 'Alpha' },
-    { id: 'b', label: 'Beta', draggable: true },
-  ]}
-/>
-```
-
-Suppression: si `variant="input"`, chaque chip est rendu amovible et `Chips` retire l’élément supprimé de la liste (et appelle `onItemsChange` en mode contrôlé).
