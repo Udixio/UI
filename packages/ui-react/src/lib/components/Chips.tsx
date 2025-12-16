@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ReactProps } from '../utils';
 import { ChipItem, ChipsInterface } from '../interfaces';
 import { useChipsStyle } from '../styles';
@@ -10,6 +10,7 @@ export const Chips = ({
   variant = 'input',
   className,
   scrollable = true,
+  draggable = false,
   items,
   onItemsChange,
 }: ReactProps<ChipsInterface>) => {
@@ -32,9 +33,7 @@ export const Chips = ({
   }, []);
 
   React.useEffect(() => {
-    console.log('isFocused Chips', isFocused);
     if (isFocused) {
-      console.log('focus Chiups');
       ref.current?.focus();
     }
   }, [isFocused]);
@@ -69,20 +68,33 @@ export const Chips = ({
         label: seedLabel,
       } as ChipItem;
 
+      // Generate internal ID for the new item
+      const newId = getInternalId(newItem);
+
       // Ask parent to add as well
       const next = [...list, newItem];
       onItemsChange?.(next);
 
-      // Focus after paint
       requestAnimationFrame(() => {
-        const idx = list.length; // appended at the end visually
-        const el = chipRefs.current[idx] as any;
-
-        el?.focus?.();
+        setSelectedChip(newId);
       });
     },
-    [variant, onItemsChange, list],
+    [variant, onItemsChange, list, getInternalId],
   );
+
+  const [selectedChip, setSelectedChip] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (selectedChip) {
+      const index = list.findIndex(
+        (item) => getInternalId(item) === selectedChip,
+      );
+      if (index !== -1) {
+        const el = chipRefs.current[index] as any;
+        el?.focus?.();
+      }
+    }
+  }, [selectedChip, list, getInternalId]);
 
   // MODE ITEMS (source de vérité locale ou contrôlée)
   return (
@@ -117,8 +129,8 @@ export const Chips = ({
         if (key === 'ArrowLeft') {
           e.preventDefault();
           const nextIdx = focusedIndex > 0 ? focusedIndex - 1 : list.length - 1;
-          const el = chipRefs.current[nextIdx] as any;
-          el?.focus?.();
+          const elId = getInternalId(list[nextIdx]);
+          setSelectedChip(elId);
           return;
         }
         if (key === 'ArrowRight') {
@@ -127,20 +139,20 @@ export const Chips = ({
             focusedIndex >= 0
               ? (focusedIndex + 1) % Math.max(1, list.length)
               : 0;
-          const el = chipRefs.current[nextIdx] as any;
-          el?.focus?.();
+          const elId = getInternalId(list[nextIdx]);
+          setSelectedChip(elId);
           return;
         }
         if (key === 'Home') {
           e.preventDefault();
-          const el = chipRefs.current[0] as any;
-          el?.focus?.();
+          const elId = getInternalId(list[0]);
+          setSelectedChip(elId);
           return;
         }
         if (key === 'End') {
           e.preventDefault();
-          const el = chipRefs.current[list.length - 1] as any;
-          el?.focus?.();
+          const elId = getInternalId(list[list.length - 1]);
+          setSelectedChip(elId);
           return;
         }
 
@@ -174,6 +186,7 @@ export const Chips = ({
         const editProps = isInputVariant
           ? {
               editable: true,
+              editing: selectedChip === internalId,
               onEditCommit: (next: string | undefined) => {
                 setIsFocused(true);
                 updateItems((prev) =>
@@ -198,7 +211,7 @@ export const Chips = ({
             disabled={item.disabled}
             variant={item.variant}
             href={item.href}
-            draggable={item.draggable}
+            draggable={draggable}
             {...editProps}
             onToggle={
               item.activated === undefined
@@ -210,6 +223,11 @@ export const Chips = ({
                       ),
                     )
             }
+            onBlur={() => {
+              if (selectedChip === internalId) {
+                setSelectedChip(null);
+              }
+            }}
             onRemove={
               isInputVariant
                 ? () => {

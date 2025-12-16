@@ -52,6 +52,7 @@ export type ChipProps = {
 } & (
   | {
       editable?: false;
+      editing?: never;
       onEditStart?: never;
       onEditCommit: never;
       onEditCancel?: never;
@@ -60,6 +61,9 @@ export type ChipProps = {
   | {
       /** Enable label inline edition for this chip (used by Chips variant="input"). */
       editable?: true;
+
+      /** Affirms that the chip is currently being edited. */
+      editing?: boolean;
 
       /** Request to start editing (e.g., double-click, Enter/F2). */
       onEditStart?: () => void;

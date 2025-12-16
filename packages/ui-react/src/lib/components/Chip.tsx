@@ -30,6 +30,7 @@ export const Chip = ({
   onChange,
   transition,
   children,
+  editing,
   ...restProps
 }: ReactProps<ChipInterface>) => {
   if (children) label = children;
@@ -47,7 +48,7 @@ export const Chip = ({
 
   const [isActive, setIsActive] = React.useState(activated);
   const [isFocused, setIsFocused] = React.useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(editing && editable);
   const [isDragging, setIsDragging] = React.useState(false);
   const [editValue, setEditValue] = React.useState<string>(
     typeof label === 'string' ? label : '',
@@ -58,10 +59,27 @@ export const Chip = ({
   }, [activated]);
 
   useEffect(() => {
-    if (editable) {
-      setIsEditing(isFocused);
+    if (editing) {
+      setIsEditing(editing);
     }
-  }, [isFocused, editable]);
+    if (editable && isFocused) {
+      // Délai de 1 seconde avant d'activer l'édition
+      const timerId = setTimeout(() => {
+        // Ignore l'édition si draggable et en cours de dragging
+        if ((restProps as any)?.draggable && isDragging) {
+          return;
+        }
+        setIsEditing(true);
+      }, 1000);
+
+      // Cleanup: annule le timer si le focus est perdu avant 1 seconde
+      return () => clearTimeout(timerId);
+    } else if (!isFocused) {
+      // Désactive l'édition immédiatement si le focus est perdu
+      setIsEditing(false);
+    }
+    return;
+  }, [isFocused, editable, isDragging, restProps, editValue]);
 
   // Sync edit value and focus caret when entering editing mode
   useEffect(() => {
@@ -183,7 +201,6 @@ export const Chip = ({
         restOnFocus?.(e);
       }}
       onBlur={(e: React.FocusEvent<any>) => {
-        console.log('focus');
         setIsFocused(false);
         restOnBlur?.(e);
       }}

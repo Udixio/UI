@@ -9,7 +9,6 @@ export type ChipItem = {
   disabled?: boolean;
   variant?: 'outlined' | 'elevated';
   href?: string; // si tu utilises ActionOrLink côté Chip
-  draggable?: boolean; // optionnel
 };
 
 type ChipsVariant = 'input';
@@ -20,6 +19,8 @@ type Props = {
 
   /** Active/masse un comportement de container (si utile) */
   scrollable?: boolean;
+
+  draggable?: boolean; // optionnel
 
   /** Mode contrôlé: la source de vérité */
   items?: ChipItem[];
