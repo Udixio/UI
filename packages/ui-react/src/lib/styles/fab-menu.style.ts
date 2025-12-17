@@ -15,6 +15,7 @@ const fabMenuConfig: ClassNameComponent<FabMenuInterface> = ({
   actions: classNames(
     'flex flex-col gap-1 items-end absolute bottom-[calc(100%_+_8px)] right-0',
   ),
+  label: classNames('text-nowrap'),
 });
 
 export const fabMenuStyle = defaultClassNames<FabMenuInterface>(
