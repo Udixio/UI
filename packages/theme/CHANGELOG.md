@@ -1,3 +1,13 @@
+## 2.1.8 (2026-01-07)
+
+### 🩹 Fixes
+
+- **theme:** simplify tone adjustment logic for `udixio` variant ([8f90d7f](https://github.com/Udixio/UI/commit/8f90d7f))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.1.7 (2026-01-07)
 
 This was a version bump only for @udixio/theme to align it with other projects, there were no code changes.

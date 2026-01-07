@@ -1,3 +1,9 @@
+## 2.4.6 (2026-01-07)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 2.1.8
+
 ## 2.4.5 (2026-01-07)
 
 ### 🧱 Updated Dependencies
