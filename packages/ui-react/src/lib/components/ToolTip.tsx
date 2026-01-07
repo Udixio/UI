@@ -29,8 +29,11 @@ export const ToolTip = ({
   targetRef,
   ref,
   trigger = ['hover', 'focus'],
+  transition,
   ...props
 }: MotionProps<ToolTipInterface>) => {
+  transition = { duration: 0.3, delay: 0.4, ...transition };
+
   if (!children && !targetRef) {
     throw new Error('ToolTip must have a child or a targetRef');
   }
@@ -50,6 +53,7 @@ export const ToolTip = ({
   const [isVisible, setIsVisible] = useState(false);
 
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const handleUpdate = (event: CustomEvent) => {
@@ -67,9 +71,19 @@ export const ToolTip = ({
 
   useEffect(() => {
     if (timeout.current) clearTimeout(timeout.current);
+    if (showTimeout.current) clearTimeout(showTimeout.current);
 
     if (currentToolTipId) {
-      setIsVisible(currentToolTipId === id);
+      if (currentToolTipId === id) {
+        showTimeout.current = setTimeout(
+          () => {
+            setIsVisible(true);
+          },
+          (transition?.delay ?? 0) * 1000,
+        );
+      } else {
+        setIsVisible(false);
+      }
     } else {
       timeout.current = setTimeout(() => {
         setIsVisible(false);
@@ -188,6 +202,17 @@ export const ToolTip = ({
     children: children as any,
   });
 
+  const variants = {
+    open: {
+      opacity: 1,
+      height: 'auto',
+    },
+    close: {
+      opacity: 0,
+      height: 16,
+    },
+  };
+
   return (
     <>
       {enhancedChildren}
@@ -195,24 +220,17 @@ export const ToolTip = ({
         {isVisible && (
           <SyncedFixedWrapper targetRef={resolvedRef}>
             <motion.div
-              initial={{ opacity: currentToolTipId ? 1 : 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: currentToolTipId ? 0 : 0.3 }}
-              exit={{ opacity: currentToolTipId ? 1 : 0 }}
+              initial={'close'}
+              variants={variants}
+              animate={'open'}
+              transition={{ duration: transition.duration }}
+              exit={'close'}
               className={styles.toolTip}
               {...props}
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
             >
-              <motion.div
-                className={styles.container}
-                layoutId={'tool-tip'}
-                transition={{
-                  type: 'spring',
-                  stiffness: 200,
-                  damping: 20,
-                }}
-              >
+              <div className={styles.container}>
                 {title && <div className={styles.subHead}>{title}</div>}
                 <div className={styles.supportingText}>{text}</div>
                 {buttons && (
@@ -228,7 +246,7 @@ export const ToolTip = ({
                       ))}
                   </div>
                 )}
-              </motion.div>
+              </div>
             </motion.div>
           </SyncedFixedWrapper>
         )}
