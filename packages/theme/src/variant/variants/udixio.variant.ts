@@ -463,16 +463,14 @@ export const udixioVariant: Variant = variant({
         isBackground: true,
         background: () => highestSurface(c, colors),
         adjustTone: () =>
-          c.variant.name == 'fidelity'
-            ? toneDeltaPair(
-                colors.get('primary'),
-                colors.get('primaryContainer'),
-                15,
-                'relative_darker',
-                true,
-                'farther',
-              )
-            : undefined,
+          toneDeltaPair(
+            colors.get('primary'),
+            colors.get('primaryContainer'),
+            15,
+            'relative_darker',
+            true,
+            'farther',
+          ),
         contrastCurve: () => (c.contrastLevel > 0 ? getCurve(1.5) : undefined),
       },
       onPrimaryContainer: {
