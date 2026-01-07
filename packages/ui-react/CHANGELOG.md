@@ -1,3 +1,24 @@
+## 2.9.4 (2026-01-07)
+
+### 🚀 Features
+
+- **ui-react:** enhance `ToolTip` with transition support and refined variant styles ([d663d98](https://github.com/Udixio/UI/commit/d663d98))
+- **ui-react:** add `label` class to `fab-menu` styles for text wrapping adjustments ([f5d7fb0](https://github.com/Udixio/UI/commit/f5d7fb0))
+
+### 🩹 Fixes
+
+- **ui-react:** add `label` class to `fab-menu` styles for nowrap text handling ([3084ace](https://github.com/Udixio/UI/commit/3084ace))
+- **ui-react:** add `label` class to `fab-menu` styles for text wrapping adjustments ([511a67a](https://github.com/Udixio/UI/commit/511a67a))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.5
+- Updated @udixio/theme to 2.1.7
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.9.3 (2025-12-16)
 
 ### 🧱 Updated Dependencies

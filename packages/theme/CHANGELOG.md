@@ -1,3 +1,7 @@
+## 2.1.7 (2026-01-07)
+
+This was a version bump only for @udixio/theme to align it with other projects, there were no code changes.
+
 ## 2.1.6 (2025-12-16)
 
 This was a version bump only for @udixio/theme to align it with other projects, there were no code changes.
