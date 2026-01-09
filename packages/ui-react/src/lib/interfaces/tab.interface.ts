@@ -1,6 +1,6 @@
 import { ActionOrLink } from '../utils/component';
 import { TabsVariant } from './tabs.interface';
-import { Dispatch, RefObject, SetStateAction } from 'react';
+import { Dispatch, ReactNode, RefObject, SetStateAction } from 'react';
 import { Icon } from '../icon';
 
 export type TabProps = {
@@ -18,6 +18,7 @@ export type TabProps = {
   ) => void;
   index?: number;
   scrollable?: boolean;
+  children?: ReactNode;
 };
 
 type Elements = ['tab', 'stateLayer', 'icon', 'label', 'content', 'underline'];

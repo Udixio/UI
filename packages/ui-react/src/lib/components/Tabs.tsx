@@ -36,7 +36,7 @@ export const Tabs = ({
 
   const tabChildren = React.Children.toArray(children).filter(
     (child) => React.isValidElement(child) && child.type === Tab,
-  );
+  ) as React.ReactElement<TabProps>[];
 
   const ref = React.useRef<HTMLDivElement | null>(null);
 
@@ -62,6 +62,18 @@ export const Tabs = ({
 
   const tabsId = useMemo(() => uuidv4(), []);
 
+  // Collecter les panels (children des Tab qui ne sont pas des strings utilisés comme label)
+  const panels = tabChildren.map((child) => {
+    const { children: tabChildren, label } = child.props;
+    // Si children est un string et pas de label → c'est le label, pas un panel
+    if (typeof tabChildren === 'string' && !label) {
+      return null;
+    }
+    return tabChildren;
+  });
+
+  const hasPanels = panels.some((panel) => panel != null);
+
   const styles = useTabsStyle({
     children,
     onTabSelected,
@@ -70,21 +82,40 @@ export const Tabs = ({
     setSelectedTab,
     className,
     variant,
+    hasPanels,
   });
+
   return (
-    <div ref={ref} role="tablist" className={styles.tabs}>
-      {tabChildren.map((child, index) => {
-        return React.cloneElement(child as React.ReactElement<TabProps>, {
-          key: index,
-          index,
-          variant: variant,
-          selectedTab,
-          setSelectedTab: setSelectedTab,
-          tabsId: tabsId,
-          onTabSelected: handleOnTabSelected,
-          scrollable,
-        });
-      })}
-    </div>
+    <>
+      <div ref={ref} role="tablist" className={styles.tabs}>
+        {tabChildren.map((child, index) => {
+          return React.cloneElement(child, {
+            key: index,
+            index,
+            variant: variant,
+            selectedTab,
+            setSelectedTab: setSelectedTab,
+            tabsId: tabsId,
+            onTabSelected: handleOnTabSelected,
+            scrollable,
+          });
+        })}
+      </div>
+      {hasPanels && (
+        <div className={styles.panels}>
+          {panels.map((panel, index) => (
+            <div
+              key={index}
+              role="tabpanel"
+              aria-labelledby={`tab-${tabsId}-${index}`}
+              hidden={selectedTab !== index}
+              className={styles.panel}
+            >
+              {panel}
+            </div>
+          ))}
+        </div>
+      )}
+    </>
   );
 };

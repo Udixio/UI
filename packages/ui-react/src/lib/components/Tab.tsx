@@ -14,7 +14,7 @@ import { State } from '../effects';
 export const Tab = ({
   className,
   onClick,
-  label,
+  label: labelProp,
   variant = 'primary',
   href,
   icon,
@@ -25,11 +25,21 @@ export const Tab = ({
   onTabSelected,
   scrollable = false,
   selected = false,
+  children,
   ref,
   ...restProps
 }: ReactProps<TabInterface>) => {
   const defaultRef = useRef(null);
   const resolvedRef = ref || defaultRef;
+
+  // Si children est une string et pas de label prop → children devient le label
+  // Sinon label prop est utilisé
+  const label =
+    labelProp ?? (typeof children === 'string' ? children : undefined);
+
+  // Panel content : children si c'est un ReactNode (non-string), ou si label prop existe et children est string
+  const panelContent =
+    typeof children !== 'string' ? children : labelProp ? children : undefined;
 
   const [isSelected, setIsSelected] = useState<boolean>(selected);
 

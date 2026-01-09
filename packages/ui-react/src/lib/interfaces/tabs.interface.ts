@@ -17,6 +17,8 @@ export interface TabsInterface {
     setSelectedTab?: Dispatch<SetStateAction<number | null>>;
     scrollable?: boolean;
   };
-  states: object;
-  elements: ['tabs'];
+  states: {
+    hasPanels: boolean;
+  };
+  elements: ['tabs', 'panels', 'panel'];
 }

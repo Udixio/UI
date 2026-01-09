@@ -64,3 +64,54 @@ function Example() {
   )
 }
 ```
+
+## Tab panels
+
+Use `children` on Tab to add panel content. The content is automatically displayed below the tabs when a tab is selected.
+
+```jsx
+<Tabs>
+  <Tab label="Profile" selected>
+    <div className="p-4">
+      <h3 className="text-title-medium">Profile Content</h3>
+      <p>This is the profile panel content.</p>
+    </div>
+  </Tab>
+  <Tab label="Settings">
+    <div className="p-4">
+      <h3 className="text-title-medium">Settings Content</h3>
+      <p>Configure your preferences here.</p>
+    </div>
+  </Tab>
+  <Tab label="Notifications">
+    <div className="p-4">
+      <h3 className="text-title-medium">Notifications</h3>
+      <p>Manage your notification settings.</p>
+    </div>
+  </Tab>
+</Tabs>
+```
+
+## Children as label
+
+You can use `children` as an alternative to the `label` prop when providing a string.
+
+```jsx
+<Tabs>
+  <Tab selected>Home</Tab>
+  <Tab>Settings</Tab>
+  <Tab>Profile</Tab>
+</Tabs>
+```
+
+## Link or action
+
+If the `href` prop is provided on a Tab, it renders an `<a>` link; otherwise it renders a `<button>`.
+
+```jsx
+<Tabs>
+  <Tab label="Dashboard" selected />
+  <Tab label="Documentation" href="/docs" />
+  <Tab label="External" href="https://udixio.dev" />
+</Tabs>
+```

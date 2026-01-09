@@ -12,6 +12,8 @@ const tabsConfig: ClassNameComponent<TabsInterface> = ({ scrollable }) => ({
     'flex relative ',
     { 'overflow-x-auto': scrollable },
   ),
+  panels: classNames(''),
+  panel: classNames(''),
 });
 
 export const tabsStyle = defaultClassNames<TabsInterface>('tabs', tabsConfig);
