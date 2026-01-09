@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { TabGroupContext } from './TabGroupContext';
-import { TabPanelsInterface, TabPanelInterface } from '../interfaces/tab-panels.interface';
+import { TabPanelsInterface } from '../interfaces/tab-panels.interface';
 import { ReactProps } from '../utils/component';
-import { useTabPanelsStyle, useTabPanelStyle } from '../styles/tab-panels.style';
+import { useTabPanelsStyle } from '../styles/tab-panels.style';
 import { TabPanel } from './TabPanel';
 
 /**
@@ -46,18 +46,18 @@ export const TabPanels = ({
                 variants={{
                   enter: (dir: number) => ({
                     x: dir * 100 + '%',
-                    opacity: 0,
+                    opacity: 1,
                   }),
                   center: { x: 0, opacity: 1 },
                   exit: (dir: number) => ({
                     x: dir * -100 + '%',
-                    opacity: 0,
+                    opacity: 1,
                   }),
                 }}
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 40 }}
                 role="tabpanel"
                 aria-labelledby={`tab-${tabsId}-${index}`}
               >
