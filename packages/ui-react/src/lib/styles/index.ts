@@ -15,6 +15,7 @@ export * from './snackbar.style';
 export * from './switch.style';
 export * from './tab.style';
 export * from './tabs.style';
+export * from './tab-panels.style';
 export * from './text-field.style';
 export * from './tooltip.style';
 export { useButtonStyle } from './button.style';

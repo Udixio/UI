@@ -32,14 +32,8 @@ export const Tab = ({
   const defaultRef = useRef(null);
   const resolvedRef = ref || defaultRef;
 
-  // Si children est une string et pas de label prop → children devient le label
-  // Sinon label prop est utilisé
-  const label =
-    labelProp ?? (typeof children === 'string' ? children : undefined);
-
-  // Panel content : children si c'est un ReactNode (non-string), ou si label prop existe et children est string
-  const panelContent =
-    typeof children !== 'string' ? children : labelProp ? children : undefined;
+  // children (string) peut être utilisé comme alternative à label prop
+  const label = labelProp ?? (typeof children === 'string' ? children : undefined);
 
   const [isSelected, setIsSelected] = useState<boolean>(selected);
 
