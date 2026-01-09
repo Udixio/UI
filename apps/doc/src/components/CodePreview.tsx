@@ -44,10 +44,6 @@ export const CodePreview = ({
     }
   }
 
-  const [tab, setTab] = useState<'Code' | 'Preview'>(
-    preview ? 'Preview' : 'Code',
-  );
-
   return (
     <UI.Card
       className={classNames(
@@ -58,65 +54,72 @@ export const CodePreview = ({
       )}
       variant={'filled'}
     >
-      <div
-        className={classNames('flex pr-2 items-center', {
-          'bg-surface-container-high relative': preview,
-          'w-fit ': !preview,
-        })}
-      >
-        {preview && (
-          <UI.Tabs
-            onTabSelected={({ label }) => setTab(label)}
-            variant={'secondary'}
-          >
-            <UI.Tab
-              className={'bg-surface-container-high'}
-              label={'Preview'}
-              selected
-            ></UI.Tab>
-            <UI.Tab
-              className={'bg-surface-container-high'}
-              label={'Code'}
-            ></UI.Tab>
-          </UI.Tabs>
-        )}
-        <UI.IconButton
-          onToggle={handleCopy}
-          size={'xSmall'}
-          className={classNames('absolute right-2', {
-            'top-1/2 -translate-y-1/2': preview,
-            'top-3': !preview,
+      <UI.TabGroup defaultTab={preview ? 0 : 1}>
+        <div
+          className={classNames('flex pr-2 items-center', {
+            'bg-surface-container-high relative': preview,
+            'w-fit ': !preview,
           })}
-          icon={farClipboard}
-          label={'Copy to clipboard'}
-          iconSelected={faClipboardCheck}
-          activated={copyState == 'ok'}
-        />
-      </div>
+        >
+          {preview && (
+            <UI.Tabs
+              onTabSelected={({ label }) => setTab(label)}
+              variant={'secondary'}
+            >
+              <UI.Tab
+                className={'bg-surface-container-high'}
+                label={'Preview'}
+                selected
+              ></UI.Tab>
+              <UI.Tab
+                className={'bg-surface-container-high'}
+                label={'Code'}
+              ></UI.Tab>
+            </UI.Tabs>
+          )}
+          <UI.IconButton
+            onToggle={handleCopy}
+            size={'xSmall'}
+            className={classNames('absolute right-2', {
+              'top-1/2 -translate-y-1/2': preview,
+              'top-3': !preview,
+            })}
+            icon={farClipboard}
+            label={'Copy to clipboard'}
+            iconSelected={faClipboardCheck}
+            activated={copyState == 'ok'}
+          />
+        </div>
 
-      <LiveProvider code={code} scope={{ ...UI, ...scope }}>
-        {tab === 'Preview' && (
-          <>
-            <LivePreview
-              className={classNames(' bg-inverse-surface/[0.05]', {
-                'flex justify-center items-center flex-1 flex-col p-8': center,
-              })}
-            />
-            <LiveError />
-          </>
-        )}
-        {tab == 'Code' && (
-          <div className={'p-4 bg-inverse-surface/[0.05] pr-12'}>
-            {!children && (
+        <UI.TabPanels>
+          <UI.TabPanel className={'flex-1'}>
+            <LiveProvider code={code} scope={{ ...UI, ...scope }}>
               <>
-                <LiveEditor />
+                <LivePreview
+                  className={classNames(' bg-inverse-surface/[0.05]', {
+                    'flex justify-center items-center flex-1 flex-col p-8':
+                      center,
+                  })}
+                />
                 <LiveError />
               </>
-            )}
-            {children && children}
-          </div>
-        )}
-      </LiveProvider>
+            </LiveProvider>
+          </UI.TabPanel>
+          <UI.TabPanel className={'flex-1'}>
+            <LiveProvider code={code} scope={{ ...UI, ...scope }}>
+              <div className={'p-4 bg-inverse-surface/[0.05] pr-12'}>
+                {!children && (
+                  <>
+                    <LiveEditor />
+                    <LiveError />
+                  </>
+                )}
+                {children && children}
+              </div>
+            </LiveProvider>
+          </UI.TabPanel>
+        </UI.TabPanels>
+      </UI.TabGroup>
     </UI.Card>
   );
 };
