@@ -1,3 +1,13 @@
+## 2.1.9 (2026-01-09)
+
+### 🩹 Fixes
+
+- **theme:** refactor `udixio` variant for improved clarity and maintainability ([0c1266d](https://github.com/Udixio/UI/commit/0c1266d))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.1.8 (2026-01-07)
 
 ### 🩹 Fixes
