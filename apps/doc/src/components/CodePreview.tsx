@@ -62,10 +62,7 @@ export const CodePreview = ({
           })}
         >
           {preview && (
-            <UI.Tabs
-              onTabSelected={({ label }) => setTab(label)}
-              variant={'secondary'}
-            >
+            <UI.Tabs variant={'secondary'}>
               <UI.Tab
                 className={'bg-surface-container-high'}
                 label={'Preview'}
