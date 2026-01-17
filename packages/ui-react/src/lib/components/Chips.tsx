@@ -44,6 +44,9 @@ export const Chips = ({
 
   const chipRefs = React.useRef<(HTMLElement | null)[]>([]);
 
+  // Guard to prevent multiple chip creation from fast typing
+  const isCreatingRef = React.useRef(false);
+
   const updateItems = React.useCallback(
     (updater: (prev: ChipItem[]) => ChipItem[]) => {
       onItemsChange?.(updater(list));
@@ -68,6 +71,10 @@ export const Chips = ({
     (seedLabel = '') => {
       if (variant !== 'input') return;
 
+      // Guard against multiple rapid creations
+      if (isCreatingRef.current) return;
+      isCreatingRef.current = true;
+
       const newItem: ChipItem = {
         label: seedLabel,
       } as ChipItem;
@@ -81,6 +88,8 @@ export const Chips = ({
 
       requestAnimationFrame(() => {
         setSelectedChip(newId);
+        // Reset guard after chip is selected
+        isCreatingRef.current = false;
       });
     },
     [variant, onItemsChange, list, getInternalId],
@@ -107,7 +116,7 @@ export const Chips = ({
 
   // MODE ITEMS (source de vérité locale ou contrôlée)
 
-  const ghostChipRef = useRef<HTMLDivElement>(null);
+  const ghostChipRef = useRef<HTMLButtonElement>(null);
 
   return (
     <div
@@ -200,7 +209,7 @@ export const Chips = ({
               onEditCancel: () => {
                 setIsFocused(true);
               },
-              onChange: (next: ChipItem[]) => {
+              onChange: () => {
                 if (chipRefs.current.length == index + 1) {
                   const el = ref.current!;
                   requestAnimationFrame(() => {
@@ -272,23 +281,26 @@ export const Chips = ({
           </style>
         </>
       )}
-      {isFocused && variant === 'input' && (
+      {(isFocused || list.length === 0) && variant === 'input' && (
         <Chip
           ref={ghostChipRef}
           className="opacity-0"
           draggable={draggable}
           editable={true}
+          editing={true}
           onChange={(f) => {
             createAndStartEdit(f);
+          }}
+          onEditCommit={() => {
+            // Ghost chip doesn't commit - it creates a new chip via onChange
           }}
           onBlur={() => {
             setIsFocused(false);
           }}
-          onFocus={(e) => {
+          onFocus={(e: React.FocusEvent) => {
             setIsFocused(true);
             e.stopPropagation();
           }}
-          editing={true}
         >
           &nbsp;
         </Chip>
