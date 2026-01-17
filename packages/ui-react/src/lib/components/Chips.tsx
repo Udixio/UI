@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ReactProps } from '../utils';
 import { ChipItem, ChipsInterface } from '../interfaces';
 import { useChipsStyle } from '../styles';
@@ -34,7 +34,11 @@ export const Chips = ({
 
   React.useEffect(() => {
     if (isFocused) {
-      ref.current?.focus();
+      if (variant == 'input') {
+        ghostChipRef.current?.focus();
+      } else {
+        ref.current?.focus();
+      }
     }
   }, [isFocused]);
 
@@ -102,6 +106,9 @@ export const Chips = ({
   }, [selectedChip, list, getInternalId]);
 
   // MODE ITEMS (source de vérité locale ou contrôlée)
+
+  const ghostChipRef = useRef<HTMLDivElement>(null);
+
   return (
     <div
       ref={ref}
@@ -114,7 +121,9 @@ export const Chips = ({
           setIsFocused(true);
         }
       }}
-      onBlur={() => setIsFocused(false)}
+      onBlur={() => {
+        setIsFocused(false);
+      }}
       onKeyDown={(e) => {
         if (variant !== 'input') return;
 
@@ -160,13 +169,7 @@ export const Chips = ({
           setSelectedChip(elId);
           return;
         }
-
         if (isContainerFocused) {
-          if (key === 'Enter') {
-            e.preventDefault();
-            createAndStartEdit('');
-            return;
-          }
           if (key === 'Backspace') {
             e.preventDefault();
             // Focus last chip if any
@@ -174,12 +177,6 @@ export const Chips = ({
               const el = chipRefs.current[list.length - 1] as any;
               el?.focus?.();
             }
-            return;
-          }
-          // Start creation when typing a printable character
-          if (key.length === 1 && !e.altKey && !e.ctrlKey && !e.metaKey) {
-            createAndStartEdit(key);
-            e.preventDefault();
             return;
           }
         }
@@ -274,6 +271,27 @@ export const Chips = ({
       `}
           </style>
         </>
+      )}
+      {isFocused && variant === 'input' && (
+        <Chip
+          ref={ghostChipRef}
+          className="opacity-0"
+          draggable={draggable}
+          editable={true}
+          onChange={(f) => {
+            createAndStartEdit(f);
+          }}
+          onBlur={() => {
+            setIsFocused(false);
+          }}
+          onFocus={(e) => {
+            setIsFocused(true);
+            e.stopPropagation();
+          }}
+          editing={true}
+        >
+          &nbsp;
+        </Chip>
       )}
     </div>
   );

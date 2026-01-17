@@ -114,7 +114,8 @@ export const Chip = ({
     }
   };
 
-  const isInteractive = !!onToggle || !!onRemove || !!onClick || !!href;
+  const isInteractive =
+    !!onToggle || !!onRemove || !!onClick || !!href || !!editable;
 
   if (activated) {
     icon = faCheck;
