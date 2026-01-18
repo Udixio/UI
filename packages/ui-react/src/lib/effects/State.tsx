@@ -44,9 +44,13 @@ export const State = ({
     if (ref.current && stateClassName !== 'state-layer') {
       const groupName = !stateClassName.includes('[')
         ? 'group'
-        : stateClassName.split('[')[1].split(']')[0];
+        : 'group/' + stateClassName.split('[')[1].split(']')[0];
+
+      // On échappe le slash pour le sélecteur CSS
+      const safeGroupName = groupName.replace(/\//g, '\\/');
+
       const furthestGroupState = ref.current.closest(
-        `.${groupName}:not(.${groupName} .${groupName})`,
+        `.${safeGroupName}:not(.${safeGroupName} .${safeGroupName})`,
       );
       groupStateRef.current = furthestGroupState as HTMLElement | null;
     }
