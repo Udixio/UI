@@ -1,3 +1,23 @@
+## 2.9.6 (2026-01-09)
+
+### 🚀 Features
+
+- **ui-react:** add `TabGroup` component and enhance tab navigation system ([3e65048](https://github.com/Udixio/UI/commit/3e65048))
+- **ui-react:** support panel content in `Tab` component and improve label handling ([3f052b4](https://github.com/Udixio/UI/commit/3f052b4))
+
+### 🩹 Fixes
+
+- **ui-react:** simplify `TabPanels` component and update animation styles ([8c705f4](https://github.com/Udixio/UI/commit/8c705f4))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.7
+- Updated @udixio/theme to 2.1.9
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.9.5 (2026-01-07)
 
 ### 🧱 Updated Dependencies
