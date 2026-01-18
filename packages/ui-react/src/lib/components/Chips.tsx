@@ -118,6 +118,8 @@ export const Chips = ({
 
   const ghostChipRef = useRef<HTMLButtonElement>(null);
 
+  const isGhostChip = (isFocused || list.length === 0) && variant === 'input';
+
   return (
     <div
       ref={ref}
@@ -281,15 +283,24 @@ export const Chips = ({
           </style>
         </>
       )}
-      {(isFocused || list.length === 0) && variant === 'input' && (
+      {isGhostChip && (
         <Chip
           ref={ghostChipRef}
           className="opacity-0"
           draggable={draggable}
           editable={true}
           editing={true}
-          onChange={(f) => {
-            createAndStartEdit(f);
+          onChange={(v) => {
+            v = v.replace(/(&nbsp;)+/g, ' ').trim();
+            console.log('Ghost chip onChange', v, !!v);
+            if (v) {
+              createAndStartEdit(v);
+            } else {
+              if (list.length > 0) {
+                const el = chipRefs.current[list.length - 1] as any;
+                el?.focus?.();
+              }
+            }
           }}
           onEditCommit={() => {
             // Ghost chip doesn't commit - it creates a new chip via onChange
