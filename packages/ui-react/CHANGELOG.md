@@ -1,3 +1,21 @@
+## 2.9.7 (2026-01-18)
+
+### 🚀 Features
+
+- **ui-react:** enhance ghost chip creation and editing logic in `Chips` ([8b04a1a](https://github.com/Udixio/UI/commit/8b04a1a))
+- **ui-react:** integrate `lenis` for smooth scrolling and enhance `SmoothScroll` API ([252c043](https://github.com/Udixio/UI/commit/252c043))
+- **ui-react:** add guard to prevent duplicate chip creation in `Chips` component ([db0a903](https://github.com/Udixio/UI/commit/db0a903))
+- **ui-react:** add editable ghost chip support for input variant in `Chips` ([b94a6fa](https://github.com/Udixio/UI/commit/b94a6fa))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.8
+- Updated @udixio/theme to 2.1.10
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.9.6 (2026-01-09)
 
 ### 🚀 Features
