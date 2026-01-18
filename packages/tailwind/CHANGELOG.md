@@ -1,3 +1,17 @@
+## 2.4.9 (2026-01-18)
+
+### 🩹 Fixes
+
+- **ui-react:** refine card styles, enhance theme color support, and update dependencies ([b89ca17](https://github.com/Udixio/UI/commit/b89ca17))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 2.1.11
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.4.8 (2026-01-18)
 
 ### 🧱 Updated Dependencies
