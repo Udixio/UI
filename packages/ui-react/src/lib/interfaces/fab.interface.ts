@@ -1,6 +1,7 @@
 import { ActionOrLink } from '../utils/component';
 import { Transition } from 'motion';
 import { Icon } from '../icon';
+import { ReactNode } from 'react';
 
 export type FabVariant =
   | 'primary'
@@ -12,7 +13,7 @@ export type FabVariant =
 type Props = {
   variant?: FabVariant;
   label?: string;
-  children?: string;
+  children?: ReactNode;
   icon: Icon;
   size?: 'small' | 'medium' | 'large';
   extended?: boolean;

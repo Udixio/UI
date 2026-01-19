@@ -1,4 +1,38 @@
 ---
+import {
+  Button,
+  Card,
+  Carousel,
+  CarouselItem,
+  Chip,
+  Chips,
+  Divider,
+  Fab,
+  FabMenu,
+  IconButton,
+  NavigationRail,
+  NavigationRailItem,
+  ProgressIndicator,
+  SideSheet,
+  Slider,
+  Snackbar,
+  Switch,
+  Tab,
+  TabGroup,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  TextField,
+  Tooltip,
+} from '@udixio/ui-react';
+import {
+  faBell,
+  faGear,
+  faHouse,
+  faPlus,
+  faStar,
+} from '@fortawesome/free-solid-svg-icons';
+
 type PreviewProps = {
   id: string;
 };
@@ -9,148 +43,111 @@ const { id } = Astro.props as PreviewProps;
 <div class="rounded-2xl border border-outline-variant bg-surface-container-high p-4">
   {id === 'button' && (
     <div class="flex flex-wrap gap-2">
-      <span class="rounded-full bg-primary px-4 py-2 text-label-medium text-on-primary">Primary</span>
-      <span class="rounded-full border border-outline px-4 py-2 text-label-medium text-on-surface">Outlined</span>
-      <span class="rounded-full bg-surface-container-high px-4 py-2 text-label-medium text-on-surface">Tonal</span>
+      <Button label="Primary" />
+      <Button label="Outlined" variant="outlined" />
+      <Button label="Tonal" variant="tonal" />
     </div>
   )}
   {id === 'card' && (
-    <div class="rounded-2xl border border-outline-variant bg-surface p-4">
+    <Card className="p-4">
       <div class="h-4 w-1/2 rounded bg-surface-variant"></div>
       <div class="mt-3 h-3 w-full rounded bg-surface-variant/60"></div>
       <div class="mt-2 h-3 w-5/6 rounded bg-surface-variant/60"></div>
-    </div>
+    </Card>
   )}
   {id === 'carousel' && (
-    <div class="flex gap-3 overflow-hidden">
-      {Array.from({ length: 4 }).map((_, idx) => (
-        <div
-          class={`h-16 w-24 rounded-xl ${idx === 1 ? 'bg-primary/80' : 'bg-surface-variant/60'}`}
-        ></div>
+    <Carousel gap={12} >
+      {[0, 1, 2, 3].map((index) => (
+        <CarouselItem>
+          <Card className="p-4">Item {index + 1}</Card>
+        </CarouselItem>
       ))}
-    </div>
+    </Carousel>
   )}
   {id === 'chip' && (
     <div class="flex flex-wrap gap-2">
-      <span class="rounded-full border border-outline px-3 py-1 text-label-medium text-on-surface">Chip</span>
-      <span class="rounded-full bg-secondary-container px-3 py-1 text-label-medium text-on-secondary-container">Selected</span>
-      <span class="rounded-full bg-surface-variant px-3 py-1 text-label-medium text-on-surface-variant">Input</span>
+      <Chip label="Chip" />
+      <Chip label="Selected" activated />
+      <Chip label="Input" variant="tonal" />
     </div>
   )}
   {id === 'chips' && (
-    <div class="flex flex-wrap gap-2">
-      {['Design', 'Research', 'QA'].map((label) => (
-        <span class="rounded-full border border-outline px-3 py-1 text-label-medium text-on-surface">{label}</span>
-      ))}
-      <span class="rounded-full border border-outline px-3 py-1 text-label-medium text-on-surface-variant">+ Add</span>
-    </div>
+    <Chips
+      items={[
+        { label: 'Design' },
+        { label: 'Research' },
+        { label: 'QA' },
+      ]}
+      onItemsChange={() => {}}
+    />
   )}
   {id === 'divider' && (
     <div class="flex items-center gap-4">
-      <div class="h-px flex-1 bg-outline-variant"></div>
-      <div class="text-label-small text-on-surface-variant">OR</div>
-      <div class="h-px flex-1 bg-outline-variant"></div>
+      <Divider className="flex-1" />
+      <span class="text-label-small text-on-surface-variant">OR</span>
+      <Divider className="flex-1" />
     </div>
   )}
   {id === 'fab' && (
     <div class="flex items-center gap-3">
-      <span class="grid size-12 place-items-center rounded-full bg-primary text-on-primary">+</span>
-      <span class="rounded-full bg-primary px-4 py-2 text-label-medium text-on-primary">Create</span>
+      <Fab label="Create" icon={faPlus} />
+      <Fab label="Add" extended icon={faPlus} />
     </div>
   )}
   {id === 'fab-menu' && (
-    <div class="relative h-20">
-      <div class="absolute bottom-0 right-0 grid gap-2">
-        <span class="rounded-full bg-surface-container-high px-3 py-1 text-label-small text-on-surface">New doc</span>
-        <span class="rounded-full bg-surface-container-high px-3 py-1 text-label-small text-on-surface">Upload</span>
-        <span class="grid size-12 place-items-center rounded-full bg-primary text-on-primary">+</span>
-      </div>
-    </div>
+    <FabMenu icon={faPlus} label="Create" defaultOpen={false}>
+      <Button label="New doc" />
+      <Button label="Upload" />
+    </FabMenu>
   )}
   {id === 'icon-button' && (
     <div class="flex gap-2">
-      <span class="grid size-10 place-items-center rounded-full bg-surface-container-high text-on-surface">★</span>
-      <span class="grid size-10 place-items-center rounded-full border border-outline text-on-surface">☆</span>
+      <IconButton label="Favorite" icon={faStar} />
+      <IconButton label="Star" icon={faStar} variant="outlined" />
     </div>
   )}
   {id === 'navigation-rail' && (
-    <div class="flex h-24 w-full rounded-2xl border border-outline-variant bg-surface">
-      <div class="flex w-14 flex-col items-center gap-3 py-3">
-        <span class="grid size-9 place-items-center rounded-full bg-primary text-on-primary">🏠</span>
-        <span class="grid size-9 place-items-center rounded-full bg-surface-variant/60">🔔</span>
-        <span class="grid size-9 place-items-center rounded-full bg-surface-variant/60">⚙️</span>
-      </div>
-      <div class="flex-1 px-4 py-3">
-        <div class="h-3 w-2/3 rounded bg-surface-variant/60"></div>
-        <div class="mt-3 h-3 w-4/5 rounded bg-surface-variant/40"></div>
-      </div>
-    </div>
+    <NavigationRail>
+      <NavigationRailItem label="Home" icon={faHouse} />
+      <NavigationRailItem label="Updates" icon={faBell} />
+      <NavigationRailItem label="Settings" icon={faGear} />
+    </NavigationRail>
   )}
   {id === 'progress-indicator' && (
     <div class="flex items-center gap-4">
-      <div class="h-2 w-32 rounded-full bg-surface-variant">
-        <div class="h-2 w-2/3 rounded-full bg-primary"></div>
-      </div>
-      <div class="grid size-8 place-items-center rounded-full border-2 border-primary text-label-small text-primary">%</div>
+      <ProgressIndicator variant="linear-determinate" value={70} />
+      <ProgressIndicator variant="circular-indeterminate" />
     </div>
   )}
   {id === 'side-sheet' && (
-    <div class="relative h-24 overflow-hidden rounded-2xl border border-outline-variant bg-surface">
-      <div class="absolute right-0 top-0 h-full w-28 bg-surface-container-high p-3">
-        <div class="h-3 w-16 rounded bg-surface-variant/60"></div>
-        <div class="mt-2 h-2 w-full rounded bg-surface-variant/40"></div>
-        <div class="mt-2 h-2 w-4/5 rounded bg-surface-variant/40"></div>
-      </div>
-    </div>
+    <SideSheet title="Details" extended={true} variant="standard">
+      <p class="text-body-small text-on-surface-variant">Side content</p>
+    </SideSheet>
   )}
-  {id === 'slider' && (
-    <div class="flex items-center gap-3">
-      <div class="relative h-2 w-40 rounded-full bg-surface-variant">
-        <div class="h-2 w-2/3 rounded-full bg-primary"></div>
-        <span class="absolute left-2/3 top-1/2 -translate-y-1/2 translate-x-1 rounded-full bg-primary px-2 py-1 text-label-small text-on-primary">
-          70
-        </span>
-      </div>
-    </div>
-  )}
-  {id === 'snackbar' && (
-    <div class="flex items-center justify-between rounded-2xl bg-surface-container-high px-4 py-3 text-label-medium text-on-surface">
-      <span>Message sent</span>
-      <span class="text-primary">Undo</span>
-    </div>
-  )}
-  {id === 'switch' && (
-    <div class="flex items-center gap-3">
-      <span class="text-label-medium text-on-surface">Notifications</span>
-      <span class="relative h-6 w-11 rounded-full bg-primary">
-        <span class="absolute right-1 top-1 size-4 rounded-full bg-on-primary"></span>
-      </span>
-    </div>
-  )}
+  {id === 'slider' && <Slider value={70} onChange={() => {}} />}
+  {id === 'snackbar' && <Snackbar message="Message sent" />}
+  {id === 'switch' && <Switch selected />}
   {(id === 'tabs' || id === 'tab-group' || id === 'tab-panels') && (
-    <div>
-      <div class="flex gap-4 border-b border-outline-variant pb-2 text-label-medium text-on-surface-variant">
-        <span class="text-on-surface">Overview</span>
-        <span>Details</span>
-        <span>Settings</span>
-      </div>
-      <div class="mt-3 h-3 w-2/3 rounded bg-surface-variant/60"></div>
-      <div class="mt-2 h-3 w-4/5 rounded bg-surface-variant/40"></div>
-    </div>
+    <TabGroup defaultTab={0}>
+      <Tabs>
+        <Tab label="Overview" />
+        <Tab label="Details" />
+        <Tab label="Settings" />
+      </Tabs>
+      <TabPanels>
+        <TabPanel>Overview content</TabPanel>
+        <TabPanel>Details content</TabPanel>
+        <TabPanel>Settings content</TabPanel>
+      </TabPanels>
+    </TabGroup>
   )}
   {id === 'text-field' && (
-    <div class="rounded-xl border border-outline px-4 py-3">
-      <div class="text-label-small text-on-surface-variant">Label</div>
-      <div class="mt-1 text-body-medium text-on-surface">Type here</div>
-    </div>
+    <TextField label="Label" value="Type here" onChange={() => {}} />
   )}
   {id === 'tooltip' && (
-    <div class="relative inline-flex items-center gap-2">
-      <span class="rounded-full border border-outline px-3 py-1 text-label-medium text-on-surface">Hover</span>
-      <div class="rounded-lg bg-inverse-surface px-3 py-1 text-label-small text-inverse-on-surface">
-        Tooltip text
-      </div>
-    </div>
+    <Tooltip text="Tooltip text">
+      <Button label="Hover me" />
+    </Tooltip>
   )}
   {!(
     id === 'button' ||
