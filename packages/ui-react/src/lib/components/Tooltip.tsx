@@ -1,17 +1,11 @@
-import {
-  cloneElement,
-  isValidElement,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { cloneElement, isValidElement, useRef } from 'react';
 import { MotionProps } from '../utils';
 import { Button } from './Button';
 import { ToolTipInterface } from '../interfaces';
 import { useToolTipStyle } from '../styles';
-import { v4 } from 'uuid';
 import { AnimatePresence, motion } from 'motion/react';
 import { SyncedFixedWrapper } from '../effects';
+import { useTooltipTrigger, useTooltipPosition } from '../hooks';
 
 /**
  * Tooltips display brief labels or messages
@@ -25,170 +19,85 @@ export const Tooltip = ({
   children,
   title,
   text,
-  position,
+  content,
+  position: positionProp,
   targetRef,
   ref,
   trigger = ['hover', 'focus'],
   transition,
+  openDelay = 400,
+  closeDelay = 150,
+  isOpen: isOpenProp,
+  defaultOpen = false,
+  onOpenChange,
+  id,
   ...props
 }: MotionProps<ToolTipInterface>) => {
-  transition = { duration: 0.3, delay: 0.4, ...transition };
+  transition = { duration: 0.3, ...transition };
 
   if (!children && !targetRef) {
-    throw new Error('ToolTip must have a child or a targetRef');
-  }
-  if (!Array.isArray(trigger)) {
-    trigger = [trigger];
+    throw new Error('Tooltip must have a child or a targetRef');
   }
 
   if (buttons && !Array.isArray(buttons)) {
     buttons = [buttons];
   }
 
-  const internalRef = useRef<HTMLElement | null>(null); // Ref interne au cas où targetRef est undefined
-  const resolvedRef = targetRef || internalRef; // Utilise targetRef si défini, sinon internalRef
+  const internalRef = useRef<HTMLElement | null>(null);
+  const resolvedRef = targetRef || internalRef;
 
-  const [currentToolTipId, setCurrentToolTipId] = useState<string | null>(null);
-  const [id] = useState(v4());
-  const [isVisible, setIsVisible] = useState(false);
+  // Use the trigger hook for state management and accessibility
+  const { triggerProps, tooltipProps, isOpen } = useTooltipTrigger({
+    trigger,
+    isOpen: isOpenProp,
+    defaultOpen,
+    onOpenChange,
+    openDelay,
+    closeDelay,
+    id,
+  });
 
-  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const showTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Use the position hook for auto-positioning
+  const { resolvedPosition } = useTooltipPosition({
+    targetRef: resolvedRef,
+    position: positionProp,
+    variant,
+    isOpen,
+  });
 
-  useEffect(() => {
-    const handleUpdate = (event: CustomEvent) => {
-      setCurrentToolTipId(event.detail);
-    };
-
-    document.addEventListener('tooltip-update', handleUpdate as EventListener);
-    return () => {
-      document.removeEventListener(
-        'tooltip-update',
-        handleUpdate as EventListener,
-      );
-    };
-  }, []);
-
-  useEffect(() => {
-    if (timeout.current) clearTimeout(timeout.current);
-    if (showTimeout.current) clearTimeout(showTimeout.current);
-
-    if (currentToolTipId) {
-      if (currentToolTipId === id) {
-        showTimeout.current = setTimeout(
-          () => {
-            setIsVisible(true);
-          },
-          (transition?.delay ?? 0) * 1000,
-        );
-      } else {
-        setIsVisible(false);
-      }
-    } else {
-      timeout.current = setTimeout(() => {
-        setIsVisible(false);
-      }, 1200);
-    }
-  }, [currentToolTipId, id]);
-
-  // Ajouter des gestionnaires sur l'élément cible (targetRef ou internalRef)
-
-  const handleMouseEnter = () => {
-    if (trigger.includes('hover')) {
-      const event = new CustomEvent('tooltip-update', { detail: id });
-      document.dispatchEvent(event);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (trigger.includes('hover')) {
-      const event = new CustomEvent('tooltip-update', { detail: null });
-      document.dispatchEvent(event);
-    }
-  };
-
-  const handleClick = () => {
-    if (trigger.includes('click')) {
-      const event = new CustomEvent('tooltip-update', {
-        detail: isVisible ? null : id,
-      });
-      document.dispatchEvent(event);
-    }
-  };
-
-  const handleFocus = () => {
-    if (trigger.includes('focus')) {
-      const event = new CustomEvent('tooltip-update', { detail: id });
-      document.dispatchEvent(event);
-    }
-  };
-
-  const handleBlur = () => {
-    if (trigger.includes('focus')) {
-      const event = new CustomEvent('tooltip-update', { detail: null });
-      document.dispatchEvent(event);
-    }
-  };
-
-  useEffect(() => {
-    if (resolvedRef?.current) {
-      const targetElement = resolvedRef.current;
-
-      targetElement.addEventListener('mouseenter', handleMouseEnter);
-      targetElement.addEventListener('mouseleave', handleMouseLeave);
-      targetElement.addEventListener('click', handleClick);
-      targetElement.addEventListener('focus', handleFocus);
-      targetElement.addEventListener('blur', handleBlur);
-
-      // Nettoyage au démontage
-      return () => {
-        targetElement.removeEventListener('mouseenter', handleMouseEnter);
-        targetElement.removeEventListener('mouseleave', handleMouseLeave);
-        targetElement.removeEventListener('click', handleClick);
-        targetElement.removeEventListener('focus', handleFocus);
-        targetElement.removeEventListener('blur', handleBlur);
-      };
-    }
-    return;
-  }, [resolvedRef, trigger, id, isVisible]);
-
-  // Si targetRef est undefined, on applique la réf au premier enfant
+  // Apply trigger props to the target element
   const enhancedChildren =
     !targetRef && isValidElement(children)
-      ? cloneElement(children, { ref: internalRef } as any)
+      ? cloneElement(children, {
+          ref: internalRef,
+          ...triggerProps,
+          // Merge event handlers if the child already has them
+          onMouseEnter: (e: React.MouseEvent) => {
+            triggerProps.onMouseEnter();
+            (children.props as any)?.onMouseEnter?.(e);
+          },
+          onMouseLeave: (e: React.MouseEvent) => {
+            triggerProps.onMouseLeave();
+            (children.props as any)?.onMouseLeave?.(e);
+          },
+          onFocus: (e: React.FocusEvent) => {
+            triggerProps.onFocus();
+            (children.props as any)?.onFocus?.(e);
+          },
+          onBlur: (e: React.FocusEvent) => {
+            triggerProps.onBlur();
+            (children.props as any)?.onBlur?.(e);
+          },
+          onClick: (e: React.MouseEvent) => {
+            triggerProps.onClick();
+            (children.props as any)?.onClick?.(e);
+          },
+          onKeyDown: (e: React.KeyboardEvent) => {
+            triggerProps.onKeyDown(e);
+            (children.props as any)?.onKeyDown?.(e);
+          },
+        } as any)
       : children;
-
-  if (!position && typeof window !== 'undefined') {
-    if (resolvedRef?.current && !position) {
-      const rect = resolvedRef.current.getBoundingClientRect();
-
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
-
-      const x = rect.left / viewportWidth; // X entre 0 et 1
-      const y = rect.top / viewportHeight; // Y entre 0 et 1
-
-      if (variant === 'plain') {
-        if (x < 1 / 3) {
-          position = 'right';
-        } else if (x > 2 / 3) {
-          position = 'left';
-        } else {
-          position = y > 0.5 ? 'top' : 'bottom';
-        }
-      } else {
-        if (x < 1 / 2 && y < 1 / 2) {
-          position = 'bottom-right';
-        } else if (x > 1 / 2 && y < 1 / 2) {
-          position = 'bottom-left';
-        } else if (x > 1 / 2 && y > 1 / 2) {
-          position = 'top-left';
-        } else if (x < 1 / 2 && y > 1 / 2) {
-          position = 'top-right';
-        }
-      }
-    }
-  }
 
   const styles = useToolTipStyle({
     variant,
@@ -196,7 +105,7 @@ export const Tooltip = ({
     className,
     title,
     text,
-    position,
+    position: resolvedPosition,
     trigger,
     targetRef: targetRef as any,
     children: children as any,
@@ -217,7 +126,7 @@ export const Tooltip = ({
     <>
       {enhancedChildren}
       <AnimatePresence>
-        {isVisible && (
+        {isOpen && (
           <SyncedFixedWrapper targetRef={resolvedRef}>
             <motion.div
               initial={'close'}
@@ -227,24 +136,31 @@ export const Tooltip = ({
               exit={'close'}
               className={styles.toolTip}
               {...props}
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
+              {...tooltipProps}
             >
               <div className={styles.container}>
-                {title && <div className={styles.subHead}>{title}</div>}
-                <div className={styles.supportingText}>{text}</div>
-                {buttons && (
-                  <div className={styles.actions}>
-                    {Array.isArray(buttons) &&
-                      buttons.map((buttonArgs, index) => (
-                        <Button
-                          key={index}
-                          size={'small'}
-                          variant={'text'}
-                          {...buttonArgs}
-                        />
-                      ))}
-                  </div>
+                {content ? (
+                  <div className={styles.content}>{content}</div>
+                ) : (
+                  <>
+                    {title && <div className={styles.subHead}>{title}</div>}
+                    {text && (
+                      <div className={styles.supportingText}>{text}</div>
+                    )}
+                    {buttons && (
+                      <div className={styles.actions}>
+                        {Array.isArray(buttons) &&
+                          buttons.map((buttonArgs, index) => (
+                            <Button
+                              key={index}
+                              size={'small'}
+                              variant={'text'}
+                              {...buttonArgs}
+                            />
+                          ))}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </motion.div>

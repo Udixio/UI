@@ -1,0 +1,90 @@
+{
+  "tags": {},
+  "filePath": "node_modules/@udixio/ui-react/src/lib/components/Chips.tsx",
+  "description": "",
+  "displayName": "Chips",
+  "methods": [],
+  "props": {
+    "variant": {
+      "defaultValue": {
+        "value": "input"
+      },
+      "description": "Style du conteneur de chips",
+      "name": "variant",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chips.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "\"input\""
+      }
+    },
+    "scrollable": {
+      "defaultValue": {
+        "value": true
+      },
+      "description": "Active/masse un comportement de container (si utile)",
+      "name": "scrollable",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chips.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "boolean"
+      }
+    },
+    "draggable": {
+      "defaultValue": {
+        "value": false
+      },
+      "description": "",
+      "name": "draggable",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chips.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "boolean"
+      }
+    },
+    "items": {
+      "defaultValue": null,
+      "description": "Mode contrôlé: la source de vérité",
+      "name": "items",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chips.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "ChipItem[]"
+      }
+    },
+    "onItemsChange": {
+      "defaultValue": null,
+      "description": "Notifie toute modification de la liste (remove, toggle, etc.)",
+      "name": "onItemsChange",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chips.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "(next: ChipItem[]) => void"
+      }
+    }
+  }
+}

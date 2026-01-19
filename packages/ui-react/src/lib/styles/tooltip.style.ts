@@ -34,6 +34,7 @@ const toolTipConfig: ClassNameComponent<ToolTipInterface> = ({
   actions: classNames('flex gap-10 px-1 mt-2', variant == 'plain' && 'hidden'),
   subHead: classNames('text-title-small mb-1', variant == 'plain' && 'hidden'),
   supportingText: classNames(''),
+  content: classNames('w-full'),
 });
 
 export const toolStyle = defaultClassNames<ToolTipInterface>(

@@ -1,0 +1,11 @@
+{
+  "tags": {
+    "status": "beta",
+    "category": "Navigation"
+  },
+  "filePath": "node_modules/@udixio/ui-react/src/lib/components/TabPanel.tsx",
+  "description": "TabPanel contains the content for a single tab\nMust be used within TabPanels",
+  "displayName": "TabPanel",
+  "methods": [],
+  "props": {}
+}
