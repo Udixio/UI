@@ -40,7 +40,7 @@ type PreviewProps = {
 const { id } = Astro.props as PreviewProps;
 ---
 
-<div class="rounded-2xl border border-outline-variant bg-surface-container-high p-4">
+<div class="rounded-2xl border border-outline-variant bg-surface-container-high p-4 pointer-events-none">
   {id === 'button' && (
     <div class="flex flex-wrap gap-2">
       <Button label="Primary" />
@@ -56,9 +56,9 @@ const { id } = Astro.props as PreviewProps;
     </Card>
   )}
   {id === 'carousel' && (
-    <Carousel gap={12} >
+    <Carousel gap={12} outputRange={[120, 160]} inputRange={[0.1, 0.8]}>
       {[0, 1, 2, 3].map((index) => (
-        <CarouselItem>
+        <CarouselItem index={index} width={140} outputRange={[120, 160]}>
           <Card className="p-4">Item {index + 1}</Card>
         </CarouselItem>
       ))}
@@ -95,7 +95,7 @@ const { id } = Astro.props as PreviewProps;
     </div>
   )}
   {id === 'fab-menu' && (
-    <FabMenu icon={faPlus} label="Create" defaultOpen={false}>
+    <FabMenu icon={faPlus} label="Create" defaultOpen={true}>
       <Button label="New doc" />
       <Button label="Upload" />
     </FabMenu>
