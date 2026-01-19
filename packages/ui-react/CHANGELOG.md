@@ -1,3 +1,19 @@
+## 2.9.8 (2026-01-18)
+
+### 🩹 Fixes
+
+- **ui-react:** escape slash in group state selectors for CSS compatibility ([9c96104](https://github.com/Udixio/UI/commit/9c96104))
+- **ui-react:** refine card styles, enhance theme color support, and update dependencies ([b89ca17](https://github.com/Udixio/UI/commit/b89ca17))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.9
+- Updated @udixio/theme to 2.1.11
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.9.7 (2026-01-18)
 
 ### 🚀 Features
