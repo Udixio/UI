@@ -6,6 +6,7 @@
 
 
 
+
 import { CodePreview } from '@/components/CodePreview.js';
 
 ## Usage
@@ -28,7 +29,7 @@ import { Tooltip, Button } from "@udixio/ui-react"
 
 Use `content` to render fully custom tooltip content (Markdown, rich text, or components). When `content` is provided, `title`, `text`, and `buttons` are ignored.
 
-```tsx
+```jsx
 <Tooltip
   variant="rich"
   content={
@@ -44,10 +45,9 @@ Use `content` to render fully custom tooltip content (Markdown, rich text, or co
 
 ## Variants
 
-- plain (default): small text bubble
-- rich: card-like with title, text and actions
+Plain is a small text bubble. Rich is card-like with title, text, and actions.
 
-```tsx
+```jsx
 <div className="flex gap-6">
   <Tooltip text="Plain tooltip">
     <Button label="Plain" />
@@ -58,60 +58,6 @@ Use `content` to render fully custom tooltip content (Markdown, rich text, or co
 </div>
 ```
 
-## Guidelines
-
-Tooltips provide additional context for a UI element. Material Design 3 defines two types: plain and rich.
-
-### Usage
-
-- Plain tooltips briefly describe a UI element and are best for icon-only buttons or controls without a visible label.
-- Rich tooltips provide additional context and can include an optional subhead, supporting text, and actions (buttons or links). They’re best for longer definitions or explanations.
-
-### Do / Don’t
-
-- Do use plain tooltips to label icon-only buttons.
-- Don’t use plain tooltips when the UI element already has label text.
-- Do use rich tooltips to provide extra information and actions about a feature.
-- Don’t hide critical information in tooltips; use a dialog instead.
-
-### Anatomy
-
-Plain tooltip
-- Container
-- Supporting text
-
-Rich tooltip
-- Subhead (optional)
-- Container
-- Supporting text
-- Text button (optional, up to two)
-
-### Content
-
-- Plain tooltips should be short, one line, and focused on a single label.
-- Avoid wrapping plain tooltip text to multiple lines or packing in multiple pieces of information.
-- Keep rich tooltip subheads brief (ideally one line) and use them to summarize the message.
-- Keep rich tooltip actions short so buttons can sit side by side; avoid stacking buttons when possible.
-
-### Placement
-
-- Plain tooltips appear above their anchor by default.
-- Use 4dp spacing when the anchor has a clear visual boundary (e.g., buttons).
-- Use 8dp spacing when anchored to text baselines or elements without a clear boundary.
-- If the anchor is in an app bar, show the tooltip below the element with the same spacing.
-- Rich tooltips default to the bottom-right of the anchor and should reposition to stay on-screen without covering the anchor.
-- On desktop, rich tooltips may appear centered below the target and remain visible while the pointer moves within the target region.
-- Adjust placement in 8dp steps to keep the tooltip inside the viewport.
-
-### Behavior
-
-- On desktop, tooltips appear on hover; on mobile, they appear on tap and hold.
-- Persistent rich tooltips only appear on click/tap (or on page load to explain a new feature).
-- Transient tooltips disappear 1.5 seconds after leaving the target region.
-- Only one tooltip should be visible at a time; opening a new one closes the previous.
-- Persistent rich tooltips remain visible when leaving the target region and close when interacting elsewhere.
-- Avoid persistent rich tooltips on icon buttons.
-
 ## Triggers
 
 Control how the tooltip appears using `trigger`: "hover", "focus", "click" or an array of these.
@@ -119,6 +65,39 @@ Control how the tooltip appears using `trigger`: "hover", "focus", "click" or an
 ```jsx
 <Tooltip text="Opens on click" trigger="click">
   <Button label="Click" />
+</Tooltip>
+```
+
+## Guidelines (M3 aligned)
+
+Use plain tooltips to label icon-only controls; rich tooltips are for longer explanations and optional actions.
+
+```jsx
+<div className="flex gap-6">
+  <Tooltip text="Present now">
+    <Button label="🎥" />
+  </Tooltip>
+  <Tooltip
+    variant="rich"
+    title="New setting"
+    text="Choose who can see your activity status."
+    buttons={[{ label: 'Learn more', variant: 'text' }]}
+  >
+    <Button label="Privacy" />
+  </Tooltip>
+</div>
+```
+
+Avoid hiding critical info inside a tooltip; use a dialog for destructive or required decisions.
+
+```jsx
+<Tooltip
+  variant="rich"
+  title="Delete project"
+  text="This action is permanent."
+  buttons={[{ label: 'Learn more', variant: 'text' }]}
+>
+  <Button label="Delete" />
 </Tooltip>
 ```
 
@@ -154,6 +133,16 @@ Provide an explicit `position` or let it auto-place based on target position.
 ```jsx
 <Tooltip text="Top left" variant="rich" position="top-left">
   <Button label="Positioned" />
+</Tooltip>
+```
+
+## Behavior
+
+On desktop, tooltips open on hover or focus. Use `trigger="click"` for persistent rich tooltips that stay open until another interaction.
+
+```jsx
+<Tooltip variant="rich" text="Persistent tooltip" trigger="click">
+  <Button label="Click to toggle" />
 </Tooltip>
 ```
 

@@ -49,7 +49,7 @@ export const CodePreview = ({
       className={classNames(
         'not-prose card-code mt-4 flex-col bg-surface-container-low',
         {
-          'min-h-48 flex': preview,
+          ' flex': preview,
         },
       )}
       variant={'filled'}
