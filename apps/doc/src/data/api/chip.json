@@ -1,7 +1,10 @@
 {
   "tags": {
     "status": "beta",
-    "category": "Action"
+    "category": "Action",
+    "devx": "- `editable` relies on contentEditable; label should be a string.\n- `onToggle` uses internal state; pair with `activated` for controlled usage.",
+    "a11y": "- Uses `aria-pressed` only when togglable.",
+    "limitations": "- Edit mode starts after a 1s focus delay (no prop to customize)."
   },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/Chip.tsx",
   "description": "Chips prompt most actions in a UI",

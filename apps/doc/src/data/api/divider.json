@@ -1,7 +1,8 @@
 {
   "tags": {
     "status": "beta",
-    "category": "Layout"
+    "category": "Layout",
+    "devx": "- Renders a semantic `<hr>`; use `orientation` for vertical dividers."
   },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/Divider.tsx",
   "description": "Dividers are thin lines that group content in lists or other containers",

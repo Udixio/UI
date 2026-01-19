@@ -1,7 +1,9 @@
 {
   "tags": {
     "status": "beta",
-    "category": "Communication"
+    "category": "Communication",
+    "devx": "- `content` overrides `title`/`text`/`buttons` for fully custom content.\n- Supports controlled `isOpen` plus `openDelay`/`closeDelay`.",
+    "a11y": "- Provides `role=\"tooltip\"` and `aria-describedby` when open."
   },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/Tooltip.tsx",
   "description": "Tooltips display brief labels or messages",

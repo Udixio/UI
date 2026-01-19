@@ -1,7 +1,8 @@
 {
   "tags": {
     "status": "beta",
-    "category": "Navigation"
+    "category": "Navigation",
+    "devx": "- Should be rendered inside `TabPanels` for animations and aria wiring."
   },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/TabPanel.tsx",
   "description": "TabPanel contains the content for a single tab\nMust be used within TabPanels",

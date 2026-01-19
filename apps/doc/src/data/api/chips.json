@@ -1,7 +1,12 @@
 {
-  "tags": {},
+  "tags": {
+    "status": "beta",
+    "category": "Input",
+    "devx": "- Works best as controlled: pass `items` + `onItemsChange`.\n- Internal ids are derived from object identity; replace items carefully.",
+    "limitations": "- No virtualization; very large lists can be slow."
+  },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/Chips.tsx",
-  "description": "",
+  "description": "Chips group for input or selection lists",
   "displayName": "Chips",
   "methods": [],
   "props": {

@@ -1,7 +1,9 @@
 {
   "tags": {
     "status": "beta",
-    "category": "Action"
+    "category": "Action",
+    "devx": "- Requires `label` or children; used for visible text and a11y.\n- `onToggle` uses internal state; pair with `activated` for controlled usage.",
+    "limitations": "- No explicit `type` prop; HTML button defaults may submit in forms.\n- When `href` is set, `disabled` is visual only (no `aria-disabled`)."
   },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/Button.tsx",
   "description": "Buttons prompt most actions in a UI",

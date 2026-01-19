@@ -1,7 +1,9 @@
 {
   "tags": {
     "status": "beta",
-    "category": "Input"
+    "category": "Input",
+    "devx": "- `value` is treated as the initial value; component is uncontrolled after mount.\n- `onChange` receives the numeric value (not the DOM event).",
+    "a11y": "- Provides slider role/aria values, but no label prop."
   },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/Slider.tsx",
   "description": "Sliders let users make selections from a range of values",
