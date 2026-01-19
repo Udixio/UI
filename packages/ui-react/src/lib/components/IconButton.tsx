@@ -14,6 +14,11 @@ export type IconButtonVariant = 'standard' | 'filled' | 'tonal' | 'outlined';
  * Icon buttons help people take minor actions with one tap
  * @status beta
  * @category Action
+ * @devx
+ * - Requires `label` or children to provide an aria-label.
+ * - Uses `title` as tooltip text; native title attribute is suppressed.
+ * @limitations
+ * - Tooltip is always rendered (no explicit opt-out).
  */
 export const IconButton = ({
   variant = 'standard',

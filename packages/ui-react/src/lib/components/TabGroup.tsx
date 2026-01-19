@@ -8,6 +8,10 @@ import { ReactProps } from '../utils/component';
  * TabGroup provides shared state for Tabs and TabPanels
  * @status beta
  * @category Navigation
+ * @devx
+ * - Provides selection + slide direction for Tabs/TabPanels.
+ * @limitations
+ * - No URL/hash syncing or persistence built in.
  */
 export const TabGroup = ({
   children,

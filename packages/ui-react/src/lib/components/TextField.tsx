@@ -14,6 +14,11 @@ import { TextFieldInterface } from '../interfaces/text-field.interface';
  * Text fields let users enter text into a UI
  * @status beta
  * @category Input
+ * @devx
+ * - `onChange` receives the string value (not the DOM event).
+ * - `value` syncs internal state; not a fully controlled input.
+ * @a11y
+ * - Uses `label` for `aria-label`; no `aria-describedby` for supporting text.
  */
 export const TextField = ({
   variant = 'filled',

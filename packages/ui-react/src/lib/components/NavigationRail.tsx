@@ -26,6 +26,12 @@ import { IconButton } from './IconButton';
  * Navigation rails let people switch between UI views on mid-sized devices
  * @status beta
  * @category Navigation
+ * @devx
+ * - Treats `NavigationRailItem`, `NavigationRailSection`, and `Fab` specially.
+ * - Selection is index-based; provide `selectedItem` for controlled usage.
+ * @limitations
+ * - `extended` is not fully controlled (prop changes after mount aren’t synced).
+ * - Keyboard navigation/roving tabindex is not implemented.
  */
 export const NavigationRail = ({
   variant = 'standard',

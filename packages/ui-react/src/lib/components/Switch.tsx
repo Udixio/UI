@@ -10,6 +10,10 @@ import { MotionProps } from '../utils/component';
  * Switches toggle the selection of an item on or off
  * @status beta
  * @category Input
+ * @devx
+ * - `selected` is used as initial state only; prop changes won’t sync.
+ * @a11y
+ * - Uses `role="switch"` but no label prop is exposed here.
  */
 export const Switch = ({
   selected = false,

@@ -10,6 +10,13 @@ import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
  * Chips prompt most actions in a UI
  * @status beta
  * @category Action
+ * @devx
+ * - `editable` relies on contentEditable; label should be a string.
+ * - `onToggle` uses internal state; pair with `activated` for controlled usage.
+ * @a11y
+ * - Uses `aria-pressed` only when togglable.
+ * @limitations
+ * - Edit mode starts after a 1s focus delay (no prop to customize).
  */
 export const Chip = ({
   variant = 'outlined',

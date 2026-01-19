@@ -38,6 +38,12 @@ function resolveVariantAlias(
  * Buttons prompt most actions in a UI
  * @status beta
  * @category Action
+ * @devx
+ * - Requires `label` or children; used for visible text and a11y.
+ * - `onToggle` uses internal state; pair with `activated` for controlled usage.
+ * @limitations
+ * - No explicit `type` prop; HTML button defaults may submit in forms.
+ * - When `href` is set, `disabled` is visual only (no `aria-disabled`).
  */
 export const Button = ({
   variant = 'filled',

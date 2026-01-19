@@ -12,6 +12,10 @@ import { State } from '../effects';
  * Floating action buttons (FABs) help people take primary actions
  * @status beta
  * @category Action
+ * @devx
+ * - Requires `label` or children; icon-only still needs a label for a11y.
+ * @limitations
+ * - No built-in positioning; placement is handled by the layout.
  */
 export const Fab = ({
   className,

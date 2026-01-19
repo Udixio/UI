@@ -15,6 +15,13 @@ import { v4 } from 'uuid';
  * Floating action buttons (FABs) help people take primary actions
  * @status beta
  * @category Action
+ * @devx
+ * - Only `Button` children are rendered as actions.
+ * - Controlled via `open`/`onOpenChange` or `defaultOpen`.
+ * @a11y
+ * - No focus trap or Escape handling when open.
+ * @limitations
+ * - No outside-click handling; close uses the explicit close button.
  */
 export const FabMenu = ({
   className,

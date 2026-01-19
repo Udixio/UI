@@ -11,6 +11,10 @@ import { TabPanel } from './TabPanel';
  * Must be used within a TabGroup
  * @status beta
  * @category Navigation
+ * @devx
+ * - Requires `TabGroup` context; otherwise it renders nothing.
+ * @limitations
+ * - Only renders the active panel (no offscreen preservation).
  */
 export const TabPanels = ({
   children,

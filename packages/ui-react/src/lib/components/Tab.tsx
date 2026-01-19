@@ -10,6 +10,11 @@ import { State } from '../effects';
 /**
  * @status beta
  * @parent Tabs
+ * @devx
+ * - `label` can come from string children; selection is index-based.
+ * - Use `TabGroup` to sync selection with panels/animations.
+ * @a11y
+ * - No keyboard navigation or `aria-controls` wiring.
  */
 export const Tab = ({
   className,

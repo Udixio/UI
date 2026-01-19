@@ -8,6 +8,10 @@ import { State } from '../effects';
  * Cards display content and actions about a single subject
  * @status beta
  * @category Layout
+ * @devx
+ * - `isInteractive` only adds a state layer; add your own click/role semantics.
+ * @limitations
+ * - No built-in header/actions slots; layout is fully custom via children.
  */
 export const Card = ({
   variant = 'outlined',

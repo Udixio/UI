@@ -1,5 +1,10 @@
 import { createContext, Dispatch, SetStateAction } from 'react';
 
+/**
+ * Shared state container for Tabs and TabPanels.
+ * @internal
+ */
+
 export interface TabGroupContextValue {
   selectedTab: number | null;
   setSelectedTab: Dispatch<SetStateAction<number | null>>;

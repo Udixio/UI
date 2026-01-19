@@ -12,6 +12,10 @@ import { TabGroupContext } from './TabGroupContext';
  * Tabs organize content across different screens and views
  * @status beta
  * @category Navigation
+ * @devx
+ * - Can be controlled via `selectedTab`/`setSelectedTab` or through `TabGroup`.
+ * @a11y
+ * - No keyboard navigation or roving tabindex.
  */
 export const Tabs = ({
   variant = 'primary',

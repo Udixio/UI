@@ -6,6 +6,16 @@ import { Chip } from './Chip';
 import { Divider } from './Divider';
 import { v4 } from 'uuid';
 
+/**
+ * Chips group for input or selection lists
+ * @status beta
+ * @category Input
+ * @devx
+ * - Works best as controlled: pass `items` + `onItemsChange`.
+ * - Internal ids are derived from object identity; replace items carefully.
+ * @limitations
+ * - No virtualization; very large lists can be slow.
+ */
 export const Chips = ({
   variant = 'input',
   className,

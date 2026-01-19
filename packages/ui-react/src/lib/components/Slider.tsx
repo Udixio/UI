@@ -8,6 +8,11 @@ import { useEffect, useRef, useState } from 'react';
  * Sliders let users make selections from a range of values
  * @status beta
  * @category Input
+ * @devx
+ * - `value` is treated as the initial value; component is uncontrolled after mount.
+ * - `onChange` receives the numeric value (not the DOM event).
+ * @a11y
+ * - Provides slider role/aria values, but no label prop.
  */
 export const Slider = ({
   className,

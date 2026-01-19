@@ -8,6 +8,8 @@ import { useTabPanelStyle } from '../styles/tab-panels.style';
  * Must be used within TabPanels
  * @status beta
  * @category Navigation
+ * @devx
+ * - Should be rendered inside `TabPanels` for animations and aria wiring.
  */
 export const TabPanel = ({
   children,

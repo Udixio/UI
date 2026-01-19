@@ -13,6 +13,13 @@ import { sideSheetStyle } from '../styles';
  * Side sheets show secondary content anchored to the side of the screen
  * @status beta
  * @category Layout
+ * @devx
+ * - Controlled via `extended`/`onExtendedChange` or internal state.
+ * - `variant="modal"` renders into a portal on `document.body`.
+ * @a11y
+ * - No focus trap, Escape handling, or `aria-modal` attributes.
+ * @limitations
+ * - No body scroll lock when open.
  */
 export const SideSheet = ({
   variant = 'standard',

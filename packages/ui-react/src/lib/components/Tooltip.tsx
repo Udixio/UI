@@ -11,6 +11,11 @@ import { useTooltipTrigger, useTooltipPosition } from '../hooks';
  * Tooltips display brief labels or messages
  * @status beta
  * @category Communication
+ * @devx
+ * - `content` overrides `title`/`text`/`buttons` for fully custom content.
+ * - Supports controlled `isOpen` plus `openDelay`/`closeDelay`.
+ * @a11y
+ * - Provides `role="tooltip"` and `aria-describedby` when open.
  */
 export const Tooltip = ({
   variant = 'plain',
