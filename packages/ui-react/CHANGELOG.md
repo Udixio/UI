@@ -1,3 +1,17 @@
+## 2.9.9 (2026-01-19)
+
+### 🚀 Features
+
+- **docs:** add API documentation for Chips, Tab components, Tooltip, and hooks ([65dd0ef](https://github.com/Udixio/UI/commit/65dd0ef))
+
+### 🩹 Fixes
+
+- **ui-react:** rename `ToolTip` to `Tooltip` for consistency across components ([3c29f02](https://github.com/Udixio/UI/commit/3c29f02))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.9.8 (2026-01-18)
 
 ### 🩹 Fixes
