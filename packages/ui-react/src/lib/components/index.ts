@@ -23,4 +23,4 @@ export * from './TabPanel';
 export * from './TextField';
 export * from './NavigationRailItem';
 export * from './NavigationRail';
-export * from './ToolTip';
+export * from './Tooltip';

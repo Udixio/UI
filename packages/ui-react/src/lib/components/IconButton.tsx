@@ -6,7 +6,7 @@ import { useIconButtonStyle } from '../styles/icon-button.style';
 import { ReactProps } from '../utils/component';
 import { State } from '../effects';
 import { classNames } from '../utils';
-import { ToolTip } from './ToolTip';
+import { Tooltip } from './Tooltip';
 
 export type IconButtonVariant = 'standard' | 'filled' | 'tonal' | 'outlined';
 
@@ -104,11 +104,11 @@ export const IconButton = ({
       onClick={handleClick}
       ref={resolvedRef}
     >
-      <ToolTip
+      <Tooltip
         targetRef={resolvedRef}
         trigger={disabled ? null : undefined}
         text={title}
-      ></ToolTip>
+      ></Tooltip>
 
       <div className={styles.touchTarget} />
       <State

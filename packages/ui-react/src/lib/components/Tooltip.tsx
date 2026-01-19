@@ -18,7 +18,7 @@ import { SyncedFixedWrapper } from '../effects';
  * @status beta
  * @category Communication
  */
-export const ToolTip = ({
+export const Tooltip = ({
   variant = 'plain',
   buttons,
   className,

@@ -4,21 +4,23 @@
 
 
 
+
+
 import { CodePreview } from '@/components/CodePreview.js';
 
 ## Usage
 
-ToolTip displays informative text when users hover, focus, or click a target.
+Tooltip displays informative text when users hover, focus, or click a target.
 
 ```bash
-import { ToolTip, Button } from "@udixio/ui-react"
+import { Tooltip, Button } from "@udixio/ui-react"
 ```
 
 <CodePreview client:load
              code={`
-  <ToolTip text="Copy to clipboard">
+  <Tooltip text="Copy to clipboard">
     <Button label="Hover me" />
-  </ToolTip>
+  </Tooltip>
 `}
 />
 
@@ -29,12 +31,12 @@ import { ToolTip, Button } from "@udixio/ui-react"
 
 ```tsx
 <div className="flex gap-6">
-  <ToolTip text="Plain tooltip">
+  <Tooltip text="Plain tooltip">
     <Button label="Plain" />
-  </ToolTip>
-  <ToolTip variant="rich" title="Saved" text="Item added to favorites" buttons={[{ label: 'Undo', variant: 'text' }] }>
+  </Tooltip>
+  <Tooltip variant="rich" title="Saved" text="Item added to favorites" buttons={[{ label: 'Undo', variant: 'text' }] }>
     <Button label="Rich" />
-  </ToolTip>
+  </Tooltip>
 </div>
 ```
 
@@ -43,9 +45,9 @@ import { ToolTip, Button } from "@udixio/ui-react"
 Control how the tooltip appears using `trigger`: "hover", "focus", "click" or an array of these.
 
 ```jsx
-<ToolTip text="Opens on click" trigger="click">
+<Tooltip text="Opens on click" trigger="click">
   <Button label="Click" />
-</ToolTip>
+</Tooltip>
 ```
 
 ## Position
@@ -53,7 +55,7 @@ Control how the tooltip appears using `trigger`: "hover", "focus", "click" or an
 Provide an explicit `position` or let it auto-place based on target position.
 
 ```jsx
-<ToolTip text="Top left" variant="rich" position="top-left">
+<Tooltip text="Top left" variant="rich" position="top-left">
   <Button label="Positioned" />
-</ToolTip>
+</Tooltip>
 ```

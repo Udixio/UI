@@ -5,7 +5,7 @@ import { FabInterface } from '../interfaces/fab.interface';
 import { useFabStyle } from '../styles/fab.style';
 import { classNames } from '../utils';
 import { ReactProps } from '../utils/component';
-import { ToolTip } from './ToolTip';
+import { Tooltip } from './Tooltip';
 import { State } from '../effects';
 
 /**
@@ -86,7 +86,7 @@ export const Fab = ({
       aria-label={extended ? undefined : label}
       className={styles.fab}
     >
-      <ToolTip
+      <Tooltip
         trigger={extended ? null : undefined}
         text={label}
         targetRef={resolvedRef}
