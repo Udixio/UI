@@ -1,4 +1,4 @@
-import { cloneElement, isValidElement, useRef } from 'react';
+import { cloneElement, isValidElement, useEffect, useRef } from 'react';
 import { MotionProps } from '../utils';
 import { Button } from './Button';
 import { ToolTipInterface } from '../interfaces';
@@ -103,6 +103,46 @@ export const Tooltip = ({
           },
         } as any)
       : children;
+
+  // Attach trigger handlers when using targetRef (no direct child to clone)
+  useEffect(() => {
+    if (!targetRef) return;
+    const element = targetRef.current;
+    if (!element) return;
+
+    const handleMouseEnter = () => triggerProps.onMouseEnter();
+    const handleMouseLeave = () => triggerProps.onMouseLeave();
+    const handleFocus = () => triggerProps.onFocus();
+    const handleBlur = () => triggerProps.onBlur();
+    const handleClick = () => triggerProps.onClick();
+    const handleKeyDown = (event: KeyboardEvent) =>
+      triggerProps.onKeyDown(event as unknown as React.KeyboardEvent);
+
+    element.addEventListener('mouseenter', handleMouseEnter);
+    element.addEventListener('mouseleave', handleMouseLeave);
+    element.addEventListener('focus', handleFocus, true);
+    element.addEventListener('blur', handleBlur, true);
+    element.addEventListener('click', handleClick);
+    element.addEventListener('keydown', handleKeyDown);
+
+    if (triggerProps['aria-describedby']) {
+      element.setAttribute(
+        'aria-describedby',
+        triggerProps['aria-describedby'],
+      );
+    } else {
+      element.removeAttribute('aria-describedby');
+    }
+
+    return () => {
+      element.removeEventListener('mouseenter', handleMouseEnter);
+      element.removeEventListener('mouseleave', handleMouseLeave);
+      element.removeEventListener('focus', handleFocus, true);
+      element.removeEventListener('blur', handleBlur, true);
+      element.removeEventListener('click', handleClick);
+      element.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [targetRef, triggerProps]);
 
   const styles = useToolTipStyle({
     variant,

@@ -1,11 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 
-import { Icon } from '../icon/icon';
-import { IconButtonInterface } from '../interfaces/icon-button.interface';
-import { useIconButtonStyle } from '../styles/icon-button.style';
-import { ReactProps } from '../utils/component';
+import { Icon } from '../icon';
+import { IconButtonInterface } from '../interfaces';
+import { useIconButtonStyle } from '../styles';
+import { classNames, ReactProps } from '../utils';
 import { State } from '../effects';
-import { classNames } from '../utils';
 import { Tooltip } from './Tooltip';
 
 export type IconButtonVariant = 'standard' | 'filled' | 'tonal' | 'outlined';
