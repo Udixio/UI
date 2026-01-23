@@ -1,3 +1,15 @@
+## 2.9.10 (2026-01-23)
+
+### 🚀 Features
+
+- **ui-react:** add targetRef handlers to Tooltip for improved accessibility and interactivity ([1c4e5b4](https://github.com/Udixio/UI/commit/1c4e5b4))
+- **docs:** integrate interactive component previews using `@udixio/ui-react` ([ee40307](https://github.com/Udixio/UI/commit/ee40307))
+- **docs:** add development and accessibility notes to component documentation ([2b6cfd1](https://github.com/Udixio/UI/commit/2b6cfd1))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.9.9 (2026-01-19)
 
 ### 🚀 Features
