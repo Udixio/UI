@@ -1,3 +1,13 @@
+## 2.4.10 (2026-01-26)
+
+### 🩹 Fixes
+
+- **tailwind:** handle array font-family values in `baseTextStyle` ([2014572](https://github.com/Udixio/UI/commit/2014572))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.4.9 (2026-01-18)
 
 ### 🩹 Fixes
