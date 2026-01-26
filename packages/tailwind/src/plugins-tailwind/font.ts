@@ -4,6 +4,10 @@ import plugin, { PluginAPI } from 'tailwindcss/plugin';
 export interface FontPluginOptions {
   fontStyles: Record<FontRole, Record<FontSize, FontStyle>>;
   responsiveBreakPoints: Record<string, number>;
+  fontFamily: {
+    expressive: string[];
+    neutral: string[];
+  };
 }
 
 export const font = plugin.withOptions((options: FontPluginOptions) => {
@@ -11,13 +15,19 @@ export const font = plugin.withOptions((options: FontPluginOptions) => {
     addUtilities,
     theme,
   }: Pick<PluginAPI, 'addUtilities' | 'theme'>) => {
-    const { fontStyles, responsiveBreakPoints } = options;
+    const { fontStyles, responsiveBreakPoints, fontFamily } = options;
 
     const pixelUnit = 'rem';
     const newUtilities: Record<string, any> = {};
 
     const baseTextStyle = (sizeValue: FontStyle) => {
-      const fontFamilyValue = theme('fontFamily.' + sizeValue.fontFamily);
+      const fontFamilyArray = fontFamily[sizeValue.fontFamily as keyof typeof fontFamily];
+
+      // Process font family: keep var() without quotes, add quotes to others
+      const processedFontFamily = fontFamilyArray
+        .map((font) => (font.trim().startsWith('var(') ? font : `"${font}"`))
+        .join(', ');
+
       return {
         fontSize: sizeValue.fontSize + pixelUnit,
         fontWeight: sizeValue.fontWeight as unknown as any,
@@ -25,9 +35,7 @@ export const font = plugin.withOptions((options: FontPluginOptions) => {
         letterSpacing: sizeValue.letterSpacing
           ? sizeValue.letterSpacing + pixelUnit
           : null,
-        fontFamily: Array.isArray(fontFamilyValue)
-          ? fontFamilyValue.join(', ')
-          : fontFamilyValue,
+        fontFamily: processedFontFamily,
       };
     };
 

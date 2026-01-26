@@ -90,12 +90,16 @@ class TailwindImplPlugin extends TailwindImplPluginBrowser {
       )
         .map(([key, value]) => `${key} ${value}`)
         .join(', ') as any,
+      fontFamily: Object.entries(fontFamily)
+        .map(([key, values]) => `${key} ${values.join('|')}`)
+        .join(', ') as any,
     };
 
     this.outputCss += `@plugin "@udixio/tailwind" {
   colorKeys: ${configCss.colorKeys};
   fontStyles: ${configCss.fontStyles};
   responsiveBreakPoints: ${configCss.responsiveBreakPoints};
+  fontFamily: ${configCss.fontFamily};
 }`;
     this.loadColor({ isDynamic: false });
     this.outputCss += `
@@ -103,7 +107,7 @@ class TailwindImplPlugin extends TailwindImplPluginBrowser {
   ${Object.entries(fontFamily)
     .map(
       ([key, values]) =>
-        `--font-${key}: ${values.map((value) => `"${value}"`).join(', ')};`,
+        `--font-${key}: ${values.map((value) => value.trim().startsWith('var(') ? value : `"${value}"`).join(', ')};`,
     )
     .join('\n  ')}
 }`;
