@@ -1,3 +1,13 @@
+## 2.4.11 (2026-01-26)
+
+### 🩹 Fixes
+
+- **tailwind:** improve `fontFamily` support with improved processing for CSS compatibility ([5538980](https://github.com/Udixio/UI/commit/5538980))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.4.10 (2026-01-26)
 
 ### 🩹 Fixes
