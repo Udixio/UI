@@ -16,15 +16,20 @@ export const font = plugin.withOptions((options: FontPluginOptions) => {
     const pixelUnit = 'rem';
     const newUtilities: Record<string, any> = {};
 
-    const baseTextStyle = (sizeValue: FontStyle) => ({
-      fontSize: sizeValue.fontSize + pixelUnit,
-      fontWeight: sizeValue.fontWeight as unknown as any,
-      lineHeight: sizeValue.lineHeight + pixelUnit,
-      letterSpacing: sizeValue.letterSpacing
-        ? sizeValue.letterSpacing + pixelUnit
-        : null,
-      fontFamily: theme('fontFamily.' + sizeValue.fontFamily),
-    });
+    const baseTextStyle = (sizeValue: FontStyle) => {
+      const fontFamilyValue = theme('fontFamily.' + sizeValue.fontFamily);
+      return {
+        fontSize: sizeValue.fontSize + pixelUnit,
+        fontWeight: sizeValue.fontWeight as unknown as any,
+        lineHeight: sizeValue.lineHeight + pixelUnit,
+        letterSpacing: sizeValue.letterSpacing
+          ? sizeValue.letterSpacing + pixelUnit
+          : null,
+        fontFamily: Array.isArray(fontFamilyValue)
+          ? fontFamilyValue.join(', ')
+          : fontFamilyValue,
+      };
+    };
 
     const responsiveTextStyle = (
       sizeValue: FontStyle,
