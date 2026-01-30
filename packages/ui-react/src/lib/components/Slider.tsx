@@ -75,6 +75,12 @@ export const Slider = ({
   const [value, setValue] = useState(defaultValue);
   const [percent, setpercent] = useState(getpercentFromValue(defaultValue));
   const [mouseDown, setMouseDown] = useState(false);
+
+  useEffect(() => {
+    setValue(defaultValue);
+    setpercent(getpercentFromValue(defaultValue));
+  }, [defaultValue]);
+
   const handleMouseDown = (e: any) => {
     setMouseDown(true);
     setIsChanging(true);

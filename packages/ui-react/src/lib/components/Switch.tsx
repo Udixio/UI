@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { Icon } from '../icon';
 import { motion } from 'motion/react';
@@ -28,6 +28,10 @@ export const Switch = ({
   ...restProps
 }: MotionProps<SwitchInterface>) => {
   const [isSelected, setIsSelected] = useState(selected);
+
+  useEffect(() => {
+    setIsSelected(selected);
+  }, [selected]);
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (disabled) return;
