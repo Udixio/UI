@@ -7,9 +7,12 @@ import {
 import { themeConfigStore } from '@/stores/themeConfigStore.ts';
 import { useStore } from '@nanostores/react';
 import { TextField } from '@udixio/ui-react';
+import { HexColorPicker } from 'react-colorful';
+import { AnimatePresence, motion } from 'motion/react';
 
 export const ColorPicker = () => {
   const $themeConfig = useStore(themeConfigStore);
+  const [showPicker, setShowPicker] = useState(false);
 
   const [hue, setHue] = useState(
     Hct.fromInt(argbFromHex($themeConfig.sourceColor)).hue,
@@ -131,133 +134,176 @@ export const ColorPicker = () => {
   }, [hexColor, $themeConfig.sourceColor, throttledUpdateThemeFromHex]);
 
   return (
-    <div className="p-5 max-w-md mx-auto font-sans">
+    <div className="space-y-6">
       {/* Prévisualisation de la couleur */}
       <div
-        className="w-full h-20 rounded-lg mb-5 flex items-center justify-center shadow-lg"
+        className="w-full h-24 rounded-xl shadow-sm border border-outline-variant flex items-center justify-center transition-colors duration-200 relative overflow-hidden group"
         style={{ backgroundColor: hexColor }}
       >
-        <span className="bg-white bg-opacity-90 px-2 py-1 rounded font-bold text-gray-800">
+        <span className="bg-surface/90 text-on-surface px-3 py-1.5 rounded-md font-mono text-sm shadow-sm backdrop-blur-sm border border-outline/10 z-10">
           {hexColor}
         </span>
       </div>
 
       {/* Saisie directe de la couleur */}
-      <div className="mb-6">
-        <label className="block mb-2 font-medium text-gray-700">
-          Couleur précise
-        </label>
-        <div className="flex gap-3 items-start">
+      <div className="flex gap-4 items-end relative">
+        <div className="flex-1">
           <TextField
             value={hexColor}
-            label={'précise'}
+            label={'Couleur source'}
             name="color"
             placeholder={'#AABBCC'}
-            supportingText={'Saisir une couleur hexadécimale (#RRGGBB)'}
+            supportingText={'Format hexadécimal'}
             onChange={(value) => {
               throttledUpdateCurrentFromHex(value);
             }}
           />
+        </div>
 
-          <input
-            type="color"
-            value={hexColor}
-            onChange={(e) => {
-              throttledUpdateCurrentFromHex(e.target.value);
-            }}
-            aria-label="Choisir une couleur"
-            className="size-15 rounded cursor-pointer p-0"
+        <div className="relative">
+          <button
+            onClick={() => setShowPicker(!showPicker)}
+            className="size-12 rounded-lg overflow-hidden border border-outline-variant shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+            style={{ backgroundColor: hexColor }}
+            aria-label="Ouvrir le sélecteur de couleur"
           />
+          <AnimatePresence>
+            {showPicker && (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setShowPicker(false)}
+                />
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className="absolute right-0 bottom-full mb-2 z-50 shadow-xl rounded-xl overflow-hidden"
+                >
+                  <HexColorPicker
+                    color={hexColor}
+                    onChange={throttledUpdateCurrentFromHex}
+                  />
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
-      {/* Slider Hue */}
-      <div className="mb-4">
-        <label className="block mb-2 font-medium text-gray-700">
-          Hue: {Math.round(hue)}°
-        </label>
-        <div className="relative h-5 rounded-full overflow-hidden shadow-md">
-          <input
-            type="range"
-            min="0"
-            max="360"
-            value={hue}
-            onChange={(e) => setHue(Number(e.target.value))}
-            className="w-full h-full appearance-none cursor-pointer slider"
-            style={{
-              background: hueGradient,
-              WebkitAppearance: 'none',
-              MozAppearance: 'none',
-            }}
-          />
+      <div className="space-y-5">
+        {/* Slider Hue */}
+        <div>
+          <div className="flex justify-between mb-2">
+            <label className="text-sm font-medium text-on-surface-variant">
+              Teinte (Hue)
+            </label>
+            <span className="text-sm text-on-surface-variant font-mono">
+              {Math.round(hue)}°
+            </span>
+          </div>
+          <div className="relative h-6 rounded-full overflow-hidden ring-1 ring-inset ring-outline-variant/20">
+            <input
+              type="range"
+              min="0"
+              max="360"
+              value={hue}
+              onChange={(e) => setHue(Number(e.target.value))}
+              className="w-full h-full appearance-none cursor-pointer slider opacity-100"
+              style={{
+                background: hueGradient,
+              }}
+            />
+          </div>
         </div>
-      </div>
 
-      {/* Slider Chroma */}
-      <div className="mb-4">
-        <label className="block mb-2 font-medium text-gray-700">
-          Chroma: {Math.round(chroma)}
-        </label>
-        <div className="relative h-5 rounded-full overflow-hidden shadow-md">
-          <input
-            type="range"
-            min="0"
-            max={maxChroma}
-            value={chroma}
-            onChange={(e) => setChroma(Number(e.target.value))}
-            className="w-full h-full appearance-none cursor-pointer slider"
-            style={{
-              background: chromaGradient,
-              WebkitAppearance: 'none',
-              MozAppearance: 'none',
-            }}
-          />
+        {/* Slider Chroma */}
+        <div>
+          <div className="flex justify-between mb-2">
+            <label className="text-sm font-medium text-on-surface-variant">
+              Saturation (Chroma)
+            </label>
+            <span className="text-sm text-on-surface-variant font-mono">
+              {Math.round(chroma)}
+            </span>
+          </div>
+          <div className="relative h-6 rounded-full overflow-hidden ring-1 ring-inset ring-outline-variant/20">
+            <input
+              type="range"
+              min="0"
+              max={maxChroma}
+              value={chroma}
+              onChange={(e) => setChroma(Number(e.target.value))}
+              className="w-full h-full appearance-none cursor-pointer slider"
+              style={{
+                background: chromaGradient,
+              }}
+            />
+          </div>
         </div>
-      </div>
 
-      {/* Slider Tone */}
-      <div className="mb-4">
-        <label className="block mb-2 font-medium text-gray-700">
-          Tone: {Math.round(tone)}
-        </label>
-        <div className="relative h-5 rounded-full overflow-hidden shadow-md">
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={tone}
-            onChange={(e) => setTone(Number(e.target.value))}
-            className="w-full h-full appearance-none cursor-pointer slider"
-            style={{
-              background: toneGradient,
-              WebkitAppearance: 'none',
-              MozAppearance: 'none',
-            }}
-          />
+        {/* Slider Tone */}
+        <div>
+          <div className="flex justify-between mb-2">
+            <label className="text-sm font-medium text-on-surface-variant">
+              Luminosité (Tone)
+            </label>
+            <span className="text-sm text-on-surface-variant font-mono">
+              {Math.round(tone)}
+            </span>
+          </div>
+          <div className="relative h-6 rounded-full overflow-hidden ring-1 ring-inset ring-outline-variant/20">
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={tone}
+              onChange={(e) => setTone(Number(e.target.value))}
+              className="w-full h-full appearance-none cursor-pointer slider"
+              style={{
+                background: toneGradient,
+              }}
+            />
+          </div>
         </div>
       </div>
 
       <style>{`
+        .slider {
+          -webkit-appearance: none;
+          appearance: none;
+          outline: none;
+        }
         .slider::-webkit-slider-thumb {
           -webkit-appearance: none;
-          width: 20px;
-          height: 20px;
+          appearance: none;
+          width: 24px;
+          height: 24px;
           border-radius: 50%;
           background: white;
           cursor: pointer;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-          border: 2px solid #333;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          border: 2px solid rgba(0, 0, 0, 0.1);
+          transform: scale(0.8);
+          transition: transform 0.1s;
+        }
+        .slider:active::-webkit-slider-thumb {
+          transform: scale(1);
         }
 
         .slider::-moz-range-thumb {
-          width: 20px;
-          height: 20px;
+          width: 24px;
+          height: 24px;
           border-radius: 50%;
           background: white;
           cursor: pointer;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-          border: 2px solid #333;
-          -moz-appearance: none;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          border: 2px solid rgba(0, 0, 0, 0.1);
+          transform: scale(0.8);
+          transition: transform 0.1s;
+        }
+        .slider:active::-moz-range-thumb {
+          transform: scale(1);
         }
       `}</style>
     </div>
