@@ -47,9 +47,13 @@ const highestSurface = (
   colorService: ColorManager | ColorApi,
 ): Color => {
   if (colorService instanceof ColorApi) {
-    return colorService.get('surface');
+    return context.isDark
+      ? colorService.get('surfaceBright')
+      : colorService.get('surfaceDim');
   } else {
-    return colorService.get('surface');
+    return context.isDark
+      ? colorService.get('surfaceBright')
+      : colorService.get('surfaceDim');
   }
 };
 
@@ -159,20 +163,21 @@ export const udixioVariant: Variant = variant({
       [colorKey]: {
         palette: () => palettes.get(colorKey),
         tone: () => {
-          return ctx.isDark ? 80 : tMaxC(palettes.get(colorKey));
+          return colors.get('primary').getTone();
+          // return ctx.isDark ? 80 : tMaxC(palettes.get(colorKey));
         },
         isBackground: true,
-        background: () => highestSurface(ctx, colors),
-        contrastCurve: () => getCurve(4.5),
-        adjustTone: () =>
-          toneDeltaPair(
-            colors.get(colorContainerKey),
-            colors.get(colorKey),
-            5,
-            'relative_lighter',
-            true,
-            'farther',
-          ),
+        // background: () => highestSurface(ctx, colors),
+        // contrastCurve: () => getCurve(4.5),
+        // adjustTone: () =>
+        //   toneDeltaPair(
+        //     colors.get(colorContainerKey),
+        //     colors.get(colorKey),
+        //     5,
+        //     'relative_lighter',
+        //     true,
+        //     'farther',
+        //   ),
       },
       // [colorDimKey]: {
       //   palette: () => palettes.get(colorKey),
@@ -216,7 +221,15 @@ export const udixioVariant: Variant = variant({
         },
         isBackground: true,
         background: () => highestSurface(ctx, colors),
-        adjustTone: () => undefined,
+        adjustTone: () =>
+          toneDeltaPair(
+            colors.get(colorKey),
+            colors.get(colorContainerKey),
+            15,
+            'relative_darker',
+            true,
+            'farther',
+          ),
         contrastCurve: () =>
           ctx.contrastLevel > 0 ? getCurve(1.5) : undefined,
       },
@@ -415,20 +428,9 @@ export const udixioVariant: Variant = variant({
         background: () => highestSurface(ctx, colors),
         contrastCurve: () => getCurve(4.5),
         adjustTone: () => () => {
-          const surfaceTone = colors.get('surface').getTone();
-          const primaryTone = (colors.get('primary') as ColorFromPalette)
-            .options.tone;
-          let selfTone = primaryTone;
-          if (Contrast.ratioOfTones(surfaceTone, selfTone) < 3) {
-            const ratio = calculateToneAdjustmentPercentage(
-              surfaceTone,
-              selfTone,
-              3,
-            );
-            const inverseT = inverseTone(primaryTone);
-            selfTone = selfTone + (inverseT - selfTone) * ratio;
-          }
-          return selfTone;
+          return createMinContrastToneAdjuster(ctx, colors, {
+            selfKey: 'primary',
+          });
         },
       },
       // primaryDim: {
@@ -545,20 +547,20 @@ export const udixioVariant: Variant = variant({
       secondary: {
         palette: () => palettes.get('secondary'),
         tone: () => {
-          return ctx.isDark ? 80 : tMaxC(palettes.get('secondary'));
+          return colors.get('primary').getTone();
         },
         isBackground: true,
-        background: () => highestSurface(ctx, colors),
-        contrastCurve: () => getCurve(4.5),
-        adjustTone: () =>
-          toneDeltaPair(
-            getColor('secondaryContainer'),
-            getColor('secondary'),
-            5,
-            'relative_lighter',
-            true,
-            'farther',
-          ),
+        // background: () => highestSurface(ctx, colors),
+        // contrastCurve: () => getCurve(4.5),
+        // adjustTone: () =>
+        //   toneDeltaPair(
+        //     getColor('secondaryContainer'),
+        //     getColor('secondary'),
+        //     5,
+        //     'relative_lighter',
+        //     true,
+        //     'farther',
+        //   ),
       },
       // secondaryDim: {
       //   palette: () => palettes.get('secondary'),
@@ -594,7 +596,15 @@ export const udixioVariant: Variant = variant({
         },
         isBackground: true,
         background: () => highestSurface(ctx, colors),
-        adjustTone: () => undefined,
+        adjustTone: () =>
+          toneDeltaPair(
+            colors.get('secondary'),
+            colors.get('secondaryContainer'),
+            15,
+            'relative_darker',
+            true,
+            'farther',
+          ),
         contrastCurve: () =>
           ctx.contrastLevel > 0 ? getCurve(1.5) : undefined,
       },
@@ -656,22 +666,21 @@ export const udixioVariant: Variant = variant({
       tertiary: {
         palette: () => palettes.get('tertiary'),
         tone: () => {
-          return ctx.isDark
-            ? tMaxC(palettes.get('tertiary'), 0, 98)
-            : tMaxC(palettes.get('tertiary'));
+          const tone = colors.get('primary').getTone();
+          return Math.max(20, Math.min(80, tone));
         },
         isBackground: true,
-        background: () => highestSurface(ctx, colors),
-        contrastCurve: () => getCurve(4.5),
-        adjustTone: () =>
-          toneDeltaPair(
-            getColor('tertiaryContainer'),
-            getColor('tertiary'),
-            5,
-            'relative_lighter',
-            true,
-            'farther',
-          ),
+        // background: () => highestSurface(ctx, colors),
+        // contrastCurve: () => getCurve(4.5),
+        // adjustTone: () =>
+        //   toneDeltaPair(
+        //     getColor('tertiaryContainer'),
+        //     getColor('tertiary'),
+        //     5,
+        //     'relative_lighter',
+        //     true,
+        //     'farther',
+        //   ),
       },
       // tertiaryDim: {
       //   palette: () => palettes.get('tertiary'),
@@ -707,7 +716,15 @@ export const udixioVariant: Variant = variant({
         },
         isBackground: true,
         background: () => highestSurface(ctx, colors),
-        adjustTone: () => undefined,
+        adjustTone: () =>
+          toneDeltaPair(
+            colors.get('tertiary'),
+            colors.get('tertiaryContainer'),
+            15,
+            'relative_darker',
+            true,
+            'farther',
+          ),
         contrastCurve: () =>
           ctx.contrastLevel > 0 ? getCurve(1.5) : undefined,
       },
