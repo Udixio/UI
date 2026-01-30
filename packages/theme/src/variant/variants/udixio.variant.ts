@@ -53,6 +53,41 @@ const highestSurface = (
   }
 };
 
+// Permet de réutiliser la logique "si contraste < minContrast, pousser le tone vers l'inverse"
+// pour n'importe quelle couleur (pas seulement `primary`), et avec une référence configurable.
+export const createMinContrastToneAdjuster = (
+  ctx: Context,
+  colors: ColorManager | ColorApi,
+  options: {
+    selfKey: DynamicColorKey;
+    referenceKey?: DynamicColorKey; // par défaut: la surface la plus "haute"
+    minContrast?: number; // par défaut: 3
+  },
+) => {
+  const { selfKey, referenceKey, minContrast = 3 } = options;
+
+  const referenceTone = referenceKey
+    ? colors.get(referenceKey).getTone()
+    : highestSurface(ctx, colors).getTone();
+
+  // On part du tone "source" défini dans les options (comme ton code `primary`).
+  const baseTone = (colors.get(selfKey) as ColorFromPalette).options.tone;
+
+  let selfTone = baseTone;
+  console.log('contrast ratio2', referenceTone, selfTone);
+  if (Contrast.ratioOfTones(referenceTone, selfTone) < minContrast) {
+    const ratio = calculateToneAdjustmentPercentage(
+      referenceTone,
+      selfTone,
+      minContrast,
+    );
+    const inverseT = inverseTone(baseTone);
+    selfTone = selfTone + (inverseT - selfTone) * ratio;
+  }
+
+  return selfTone;
+};
+
 export const udixioVariant: Variant = variant({
   name: 'udixio',
   palettes: {
