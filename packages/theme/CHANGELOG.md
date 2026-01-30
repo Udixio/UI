@@ -1,3 +1,14 @@
+## 2.1.12 (2026-01-30)
+
+### 🚀 Features
+
+- **theme:** improve tone logic and adjust background calculations ([6eda481](https://github.com/Udixio/UI/commit/6eda481))
+- **theme:** add `createMinContrastToneAdjuster` util for dynamic tone adjustments ([d963806](https://github.com/Udixio/UI/commit/d963806))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.1.11 (2026-01-18)
 
 This was a version bump only for @udixio/theme to align it with other projects, there were no code changes.

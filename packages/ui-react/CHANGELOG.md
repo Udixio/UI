@@ -1,3 +1,18 @@
+## 2.9.13 (2026-01-30)
+
+### 🚀 Features
+
+- **ui-react:** sync component state with updated props via `useEffect` ([086671b](https://github.com/Udixio/UI/commit/086671b))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.12
+- Updated @udixio/theme to 2.1.12
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.9.12 (2026-01-26)
 
 ### 🧱 Updated Dependencies
