@@ -9,7 +9,7 @@ import { State } from '../effects';
  * @status beta
  * @category Layout
  * @devx
- * - `isInteractive` only adds a state layer; add your own click/role semantics.
+ * - `interactive` only adds a state layer; add your own click/role semantics.
  * @limitations
  * - No built-in header/actions slots; layout is fully custom via children.
  */
@@ -17,18 +17,23 @@ export const Card = ({
   variant = 'outlined',
   className,
   children,
-  isInteractive = false,
+  interactive = false,
   ref,
   ...rest
 }: ReactProps<CardInterface>) => {
-  const styles = useCardStyle({ className, isInteractive, variant, children });
+  const styles = useCardStyle({
+    className,
+    isInteractive: interactive,
+    variant,
+    children,
+  });
 
   const defaultRef = useRef<HTMLDivElement>(null);
   const resolvedRef = ref || defaultRef;
 
   return (
     <div {...rest} ref={resolvedRef} className={styles.card}>
-      {isInteractive && (
+      {interactive && (
         <State
           className={styles.stateLayer}
           colorName={'on-surface'}
