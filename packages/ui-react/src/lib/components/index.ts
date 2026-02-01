@@ -25,3 +25,4 @@ export * from './TextField';
 export * from './NavigationRailItem';
 export * from './NavigationRail';
 export * from './Tooltip';
+export * from './DatePicker';

@@ -1,0 +1,119 @@
+{
+  "tags": {
+    "status": "beta",
+    "category": "Selection"
+  },
+  "filePath": "node_modules/@udixio/ui-react/src/lib/components/DatePicker.tsx",
+  "description": "DatePickers let users select a date, or a range of dates.",
+  "displayName": "DatePicker",
+  "methods": [],
+  "props": {
+    "value": {
+      "defaultValue": null,
+      "description": "The currently selected date.",
+      "name": "value",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/date-picker.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "Date"
+      }
+    },
+    "defaultValue": {
+      "defaultValue": null,
+      "description": "Default selected date for uncontrolled usage.",
+      "name": "defaultValue",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/date-picker.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "Date"
+      }
+    },
+    "onChange": {
+      "defaultValue": null,
+      "description": "Callback fired when a day is selected.",
+      "name": "onChange",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/date-picker.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "(date: Date) => void"
+      }
+    },
+    "minDate": {
+      "defaultValue": null,
+      "description": "Minimum selectable date.",
+      "name": "minDate",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/date-picker.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "Date"
+      }
+    },
+    "maxDate": {
+      "defaultValue": null,
+      "description": "Maximum selectable date.",
+      "name": "maxDate",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/date-picker.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "Date"
+      }
+    },
+    "shouldDisableDate": {
+      "defaultValue": null,
+      "description": "Disables specific dates.",
+      "name": "shouldDisableDate",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/date-picker.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "(date: Date) => boolean"
+      }
+    },
+    "locale": {
+      "defaultValue": {
+        "value": "default"
+      },
+      "description": "Locale for formatting dates (defaults to browser locale or 'en-US').\nNote: This simple implementation might use Intl APIs directly.",
+      "name": "locale",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/date-picker.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "string"
+      }
+    }
+  }
+}
