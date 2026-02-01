@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useId, useRef, useState } from 'react';
 import { FabMenuInterface } from '../interfaces/fab-menu.interface';
 import { useFabMenuStyle } from '../styles/fab-menu.style';
 import { ReactProps } from '../utils/component';
@@ -9,7 +9,6 @@ import { classNames } from '../utils';
 import { IconButton } from './IconButton';
 import { faClose } from '@fortawesome/free-solid-svg-icons';
 import { AnimatePresence, motion } from 'motion/react';
-import { v4 } from 'uuid';
 
 /**
  * Floating action buttons (FABs) help people take primary actions
@@ -94,7 +93,7 @@ export const FabMenu = ({
     />
   );
 
-  const [uuid] = useState(v4());
+  const id = useId();
 
   return (
     <div className={styles.fabMenu} ref={resolvedRef} {...restProps}>
@@ -187,13 +186,13 @@ export const FabMenu = ({
           renderFab({
             className: '',
             layout: true,
-            layoutId: 'fab-menu' + uuid,
+            layoutId: 'fab-menu' + id,
           })}
         {open && (
           <>
             <MotionIconButton
               layout
-              layoutId={'fab-menu' + uuid}
+              layoutId={'fab-menu' + id}
               variant={'filled'}
               className={() => ({
                 iconButton: classNames('', {

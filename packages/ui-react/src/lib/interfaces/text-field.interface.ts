@@ -6,22 +6,25 @@ export type TextFieldVariant = 'filled' | 'outlined';
 
 type Props = {
   placeholder?: string;
-  name: string;
+  name?: string;
   label: string;
   disabled?: boolean;
   errorText?: string | null;
   supportingText?: string;
   trailingIcon?: React.ReactElement<typeof IconButton> | Icon;
   leadingIcon?: React.ReactElement<typeof IconButton> | Icon;
-  onChange?: (value: string) => void;
+  onChange?: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
   showSupportingText?: boolean;
   suffix?: string;
 
-  value: string;
+  value?: string;
+  defaultValue?: string;
+  id?: string;
+  style?: React.CSSProperties;
   variant?: TextFieldVariant;
   type?: 'text' | 'password' | 'number';
   autoComplete?: 'on' | 'off' | string;
-  textLine?: 'singleLine' | 'multiLine' | 'textAreas';
+  multiline?: boolean;
 };
 export type TextFieldStates = {
   isFocused: boolean;
