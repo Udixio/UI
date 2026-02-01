@@ -18,6 +18,7 @@ export interface StateInterface {
       | 'state-layer';
     className?: string;
     style?: React.CSSProperties;
+    children?: React.ReactNode;
   };
   states: { isClient: boolean };
   elements: ['stateLayer'];
@@ -27,6 +28,7 @@ export const State = ({
   style,
   colorName,
   stateClassName = 'state-ripple-group',
+  children,
   className,
 }: ReactProps<StateInterface>) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -67,6 +69,7 @@ export const State = ({
       }}
     >
       {isClient && <RippleEffect triggerRef={groupStateRef} />}
+      {children}
     </div>
   );
 };
@@ -76,8 +79,8 @@ const cardConfig: ClassNameComponent<StateInterface> = ({
   stateClassName,
 }) => ({
   stateLayer: classNames([
-    stateClassName,
     'w-full top-0 left-0 h-full absolute pointer-events-none overflow-hidden',
+    stateClassName,
   ]),
 });
 
