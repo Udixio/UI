@@ -5,7 +5,6 @@ import { createContext, Dispatch, SetStateAction } from 'react';
  * @parent Tabs
  * @internal
  */
-
 export interface TabGroupContextValue {
   selectedTab: number | null;
   setSelectedTab: Dispatch<SetStateAction<number | null>>;
