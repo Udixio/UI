@@ -41,6 +41,7 @@
   "dependencies": {
     "express": "^5.1.0",
     "@modelcontextprotocol/sdk": "^1.20.2",
+    "@udixio/theme": "workspace:*",
     "zod": "^4.1.12",
     "globby": "^15.0.0",
     "gray-matter": "^4.0.3"
