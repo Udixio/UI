@@ -1,6 +1,7 @@
 {
   "tags": {
     "status": "beta",
+    "parent": "Tabs",
     "category": "Navigation",
     "devx": "- Provides selection + slide direction for Tabs/TabPanels.",
     "limitations": "- No URL/hash syncing or persistence built in."

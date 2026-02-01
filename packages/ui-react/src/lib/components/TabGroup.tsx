@@ -6,6 +6,7 @@ import { ReactProps } from '../utils/component';
 /**
  * TabGroup provides shared state for Tabs and TabPanels
  * @status beta
+ * @parent Tabs
  * @category Navigation
  * @devx
  * - Provides selection + slide direction for Tabs/TabPanels.

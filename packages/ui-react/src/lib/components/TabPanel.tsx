@@ -7,6 +7,7 @@ import { useTabPanelStyle } from '../styles/tab-panels.style';
  * TabPanel contains the content for a single tab
  * Must be used within TabPanels
  * @status beta
+ * @parent Tabs
  * @category Navigation
  * @devx
  * - Should be rendered inside `TabPanels` for animations and aria wiring.
