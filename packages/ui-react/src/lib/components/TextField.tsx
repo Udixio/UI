@@ -14,14 +14,10 @@ import { TextFieldInterface } from '../interfaces/text-field.interface';
  * @status beta
  * @category Input
  * @devx
- * - Component handles both controlled (`value`) and uncontrolled (`defaultValue`) states.
- * - `multiline` prop enables textarea mode (replaces `textLine`).
- * - `style` prop is applied to the root container; other props spread to input/textarea.
+ * - Supports controlled (`value`) and uncontrolled (`defaultValue`) usage.
+ * - `multiline` switches to textarea mode.
  * @a11y
- * - Uses `useId` for stable ID linking without hydration mismatches.
- * - `name` is decoupled from `id` (use `id` prop to override generated ID).
- * - `aria-describedby` automatically links supporting text/error to input.
- * - `fieldset` marked as presentation to avoid semantic issues with single inputs.
+ * - `aria-describedby` links supporting text/error to input.
  */
 export const TextField = ({
   variant = 'filled',
@@ -57,8 +53,6 @@ export const TextField = ({
   const [isFocused, setIsFocused] = useState(false);
   const [showErrorIcon, setShowErrorIcon] = useState(!!errorText?.length);
 
-  // Directly derive state for supporting text visibility
-  // treat showSupportingText as an override if provided, otherwise check content
   const hasSupportingText =
     showSupportingText ?? (!!errorText?.length || !!supportingText?.length);
 
@@ -125,7 +119,6 @@ export const TextField = ({
   });
 
   const TextComponent = multiline ? TextareaAutosize : 'input';
-  // Only pass type to input, not textarea
   const textComponentProps = multiline ? {} : { type };
 
   const isFloating =
@@ -203,7 +196,6 @@ export const TextField = ({
             </motion.label>
           )}
 
-          {/* Type casting to any to suppress union type mismatch for ref/props which is safe here given the runtime switch */}
           <TextComponent
             ref={inputRef as any}
             value={value}
