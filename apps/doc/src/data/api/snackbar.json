@@ -1,7 +1,10 @@
 {
   "tags": {
     "status": "beta",
-    "category": "Communication"
+    "category": "Communication",
+    "devx": "- Uncontrolled visibility; use `duration` to auto-dismiss.",
+    "a11y": "- No `role=\"status\"`/`alert` announcements.",
+    "limitations": "- No queue/stacking and no controlled open prop."
   },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/Snackbar.tsx",
   "description": "Snackbars show short updates about app processes at the bottom of the screen",

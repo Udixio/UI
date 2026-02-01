@@ -11,6 +11,12 @@ import { IconButton } from './IconButton';
  * Snackbars show short updates about app processes at the bottom of the screen
  * @status beta
  * @category Communication
+ * @devx
+ * - Uncontrolled visibility; use `duration` to auto-dismiss.
+ * @a11y
+ * - No `role="status"`/`alert` announcements.
+ * @limitations
+ * - No queue/stacking and no controlled open prop.
  */
 export const Snackbar = ({
   message,

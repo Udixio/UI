@@ -1,3 +1,102 @@
+## 2.4.12 (2026-01-30)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 2.1.12
+
+## 2.4.11 (2026-01-26)
+
+### 🩹 Fixes
+
+- **tailwind:** improve `fontFamily` support with improved processing for CSS compatibility ([5538980](https://github.com/Udixio/UI/commit/5538980))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.4.10 (2026-01-26)
+
+### 🩹 Fixes
+
+- **tailwind:** handle array font-family values in `baseTextStyle` ([2014572](https://github.com/Udixio/UI/commit/2014572))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.4.9 (2026-01-18)
+
+### 🩹 Fixes
+
+- **ui-react:** refine card styles, enhance theme color support, and update dependencies ([b89ca17](https://github.com/Udixio/UI/commit/b89ca17))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 2.1.11
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.4.8 (2026-01-18)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 2.1.10
+
+## 2.4.7 (2026-01-09)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 2.1.9
+
+## 2.4.6 (2026-01-07)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 2.1.8
+
+## 2.4.5 (2026-01-07)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 2.1.7
+
+## 2.4.4 (2025-12-16)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 2.1.6
+
+## 2.4.3 (2025-12-16)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 2.1.5
+
+## 2.4.2 (2025-12-16)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 2.1.4
+
+## 2.4.1 (2025-11-05)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 2.1.3
+
+## 2.4.0 (2025-11-03)
+
+### 🚀 Features
+
+- **ui-react, plugins-tailwind:** migrate to `State` component for unified state handling ([92996bc](https://github.com/Udixio/UI/commit/92996bc))
+- **ui-react, plugins-tailwind:** enhance `State` component and streamline state utilities ([0e1858a](https://github.com/Udixio/UI/commit/0e1858a))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.3.7 (2025-10-17)
 
 ### 🩹 Fixes

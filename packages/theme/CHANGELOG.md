@@ -1,3 +1,68 @@
+## 2.1.12 (2026-01-30)
+
+### 🚀 Features
+
+- **theme:** improve tone logic and adjust background calculations ([6eda481](https://github.com/Udixio/UI/commit/6eda481))
+- **theme:** add `createMinContrastToneAdjuster` util for dynamic tone adjustments ([d963806](https://github.com/Udixio/UI/commit/d963806))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.1.11 (2026-01-18)
+
+This was a version bump only for @udixio/theme to align it with other projects, there were no code changes.
+
+## 2.1.10 (2026-01-18)
+
+This was a version bump only for @udixio/theme to align it with other projects, there were no code changes.
+
+## 2.1.9 (2026-01-09)
+
+### 🩹 Fixes
+
+- **theme:** refactor `udixio` variant for improved clarity and maintainability ([0c1266d](https://github.com/Udixio/UI/commit/0c1266d))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.1.8 (2026-01-07)
+
+### 🩹 Fixes
+
+- **theme:** simplify tone adjustment logic for `udixio` variant ([8f90d7f](https://github.com/Udixio/UI/commit/8f90d7f))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.1.7 (2026-01-07)
+
+This was a version bump only for @udixio/theme to align it with other projects, there were no code changes.
+
+## 2.1.6 (2025-12-16)
+
+This was a version bump only for @udixio/theme to align it with other projects, there were no code changes.
+
+## 2.1.5 (2025-12-16)
+
+This was a version bump only for @udixio/theme to align it with other projects, there were no code changes.
+
+## 2.1.4 (2025-12-16)
+
+This was a version bump only for @udixio/theme to align it with other projects, there were no code changes.
+
+## 2.1.3 (2025-11-05)
+
+### 🩹 Fixes
+
+- **theme:** simplify tone calculation and enhance custom palette handling ([b7bb339](https://github.com/Udixio/UI/commit/b7bb339))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.1.2 (2025-10-17)
 
 ### 🩹 Fixes

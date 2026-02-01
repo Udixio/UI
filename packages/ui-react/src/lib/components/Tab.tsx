@@ -10,11 +10,16 @@ import { State } from '../effects';
 /**
  * @status beta
  * @parent Tabs
+ * @devx
+ * - `label` can come from string children; selection is index-based.
+ * - Use `TabGroup` to sync selection with panels/animations.
+ * @a11y
+ * - No keyboard navigation or `aria-controls` wiring.
  */
 export const Tab = ({
   className,
   onClick,
-  label,
+  label: labelProp,
   variant = 'primary',
   href,
   icon,
@@ -25,11 +30,15 @@ export const Tab = ({
   onTabSelected,
   scrollable = false,
   selected = false,
+  children,
   ref,
   ...restProps
 }: ReactProps<TabInterface>) => {
   const defaultRef = useRef(null);
   const resolvedRef = ref || defaultRef;
+
+  // children (string) peut être utilisé comme alternative à label prop
+  const label = labelProp ?? (typeof children === 'string' ? children : undefined);
 
   const [isSelected, setIsSelected] = useState<boolean>(selected);
 

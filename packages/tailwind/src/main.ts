@@ -9,6 +9,7 @@ export type ConfigCss = {
   colorKeys: string[];
   fontStyles: string[];
   responsiveBreakPoints: string[];
+  fontFamily: string[];
 };
 
 export const main = plugin.withOptions<ConfigJs>((args) => {
@@ -39,10 +40,22 @@ export const main = plugin.withOptions<ConfigJs>((args) => {
     responsiveBreakPoints[key] = value;
   });
 
+  let fontFamilyCss = configCss.fontFamily;
+  if (!Array.isArray(fontFamilyCss)) {
+    fontFamilyCss = [fontFamilyCss];
+  }
+
+  const fontFamily: any = {};
+  fontFamilyCss.forEach((line) => {
+    const [key, ...values] = line.split(' ');
+    fontFamily[key] = values.join(' ').split('|');
+  });
+
   const options: ConfigJs = {
     colorKeys: configCss.colorKeys,
     fontStyles: fontStyles,
     responsiveBreakPoints,
+    fontFamily,
   };
 
   return (api: PluginAPI) => {

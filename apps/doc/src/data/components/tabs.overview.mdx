@@ -64,3 +64,108 @@ function Example() {
   )
 }
 ```
+
+## Tab panels with TabGroup
+
+Use `TabGroup` to connect `Tabs` with `TabPanels`. This provides flexibility to place panels anywhere and includes a slide animation.
+
+```bash
+import { TabGroup, Tabs, Tab, TabPanels, TabPanel } from "@udixio/ui-react"
+```
+
+```jsx
+<TabGroup defaultTab={0}>
+  <Tabs>
+    <Tab>Profile</Tab>
+    <Tab>Settings</Tab>
+    <Tab>Notifications</Tab>
+  </Tabs>
+  <TabPanels>
+    <TabPanel>
+      <div className="p-4">
+        <h3 className="text-title-medium">Profile Content</h3>
+        <p>This is the profile panel content.</p>
+      </div>
+    </TabPanel>
+    <TabPanel>
+      <div className="p-4">
+        <h3 className="text-title-medium">Settings Content</h3>
+        <p>Configure your preferences here.</p>
+      </div>
+    </TabPanel>
+    <TabPanel>
+      <div className="p-4">
+        <h3 className="text-title-medium">Notifications</h3>
+        <p>Manage your notification settings.</p>
+      </div>
+    </TabPanel>
+  </TabPanels>
+</TabGroup>
+```
+
+## Flexible layout with TabGroup
+
+Since `TabGroup` uses context, you can place `Tabs` and `TabPanels` anywhere within the group.
+
+```jsx
+<TabGroup>
+  <div className="flex gap-4">
+    <Tabs>
+      <Tab>One</Tab>
+      <Tab>Two</Tab>
+    </Tabs>
+    <div className="flex-1">
+      <TabPanels>
+        <TabPanel>Content for tab one</TabPanel>
+        <TabPanel>Content for tab two</TabPanel>
+      </TabPanels>
+    </div>
+  </div>
+</TabGroup>
+```
+
+## Controlled TabGroup
+
+Control the selected tab externally via `selectedTab` and `setSelectedTab` props on `TabGroup`.
+
+```jsx
+function Example() {
+  const [tab, setTab] = React.useState(0)
+  return (
+    <TabGroup selectedTab={tab} setSelectedTab={setTab}>
+      <Tabs>
+        <Tab>First</Tab>
+        <Tab>Second</Tab>
+      </Tabs>
+      <TabPanels>
+        <TabPanel>First panel</TabPanel>
+        <TabPanel>Second panel</TabPanel>
+      </TabPanels>
+    </TabGroup>
+  )
+}
+```
+
+## Children as label
+
+You can use `children` as an alternative to the `label` prop when providing a string.
+
+```jsx
+<Tabs>
+  <Tab selected>Home</Tab>
+  <Tab>Settings</Tab>
+  <Tab>Profile</Tab>
+</Tabs>
+```
+
+## Link or action
+
+If the `href` prop is provided on a Tab, it renders an `<a>` link; otherwise it renders a `<button>`.
+
+```jsx
+<Tabs>
+  <Tab label="Dashboard" selected />
+  <Tab label="Documentation" href="/docs" />
+  <Tab label="External" href="https://udixio.dev" />
+</Tabs>
+```

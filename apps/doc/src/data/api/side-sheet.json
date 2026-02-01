@@ -1,7 +1,10 @@
 {
   "tags": {
     "status": "beta",
-    "category": "Layout"
+    "category": "Layout",
+    "devx": "- Controlled via `extended`/`onExtendedChange` or internal state.\n- `variant=\"modal\"` renders into a portal on `document.body`.",
+    "a11y": "- No focus trap, Escape handling, or `aria-modal` attributes.",
+    "limitations": "- No body scroll lock when open."
   },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/SideSheet.tsx",
   "description": "Side sheets show secondary content anchored to the side of the screen",

@@ -1,3 +1,253 @@
+## 2.9.13 (2026-01-30)
+
+### 🚀 Features
+
+- **ui-react:** sync component state with updated props via `useEffect` ([086671b](https://github.com/Udixio/UI/commit/086671b))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.12
+- Updated @udixio/theme to 2.1.12
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.9.12 (2026-01-26)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.11
+
+## 2.9.11 (2026-01-26)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.10
+
+## 2.9.10 (2026-01-23)
+
+### 🚀 Features
+
+- **ui-react:** add targetRef handlers to Tooltip for improved accessibility and interactivity ([1c4e5b4](https://github.com/Udixio/UI/commit/1c4e5b4))
+- **docs:** integrate interactive component previews using `@udixio/ui-react` ([ee40307](https://github.com/Udixio/UI/commit/ee40307))
+- **docs:** add development and accessibility notes to component documentation ([2b6cfd1](https://github.com/Udixio/UI/commit/2b6cfd1))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.9.9 (2026-01-19)
+
+### 🚀 Features
+
+- **docs:** add API documentation for Chips, Tab components, Tooltip, and hooks ([65dd0ef](https://github.com/Udixio/UI/commit/65dd0ef))
+
+### 🩹 Fixes
+
+- **ui-react:** rename `ToolTip` to `Tooltip` for consistency across components ([3c29f02](https://github.com/Udixio/UI/commit/3c29f02))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.9.8 (2026-01-18)
+
+### 🩹 Fixes
+
+- **ui-react:** escape slash in group state selectors for CSS compatibility ([9c96104](https://github.com/Udixio/UI/commit/9c96104))
+- **ui-react:** refine card styles, enhance theme color support, and update dependencies ([b89ca17](https://github.com/Udixio/UI/commit/b89ca17))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.9
+- Updated @udixio/theme to 2.1.11
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.9.7 (2026-01-18)
+
+### 🚀 Features
+
+- **ui-react:** enhance ghost chip creation and editing logic in `Chips` ([8b04a1a](https://github.com/Udixio/UI/commit/8b04a1a))
+- **ui-react:** integrate `lenis` for smooth scrolling and enhance `SmoothScroll` API ([252c043](https://github.com/Udixio/UI/commit/252c043))
+- **ui-react:** add guard to prevent duplicate chip creation in `Chips` component ([db0a903](https://github.com/Udixio/UI/commit/db0a903))
+- **ui-react:** add editable ghost chip support for input variant in `Chips` ([b94a6fa](https://github.com/Udixio/UI/commit/b94a6fa))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.8
+- Updated @udixio/theme to 2.1.10
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.9.6 (2026-01-09)
+
+### 🚀 Features
+
+- **ui-react:** add `TabGroup` component and enhance tab navigation system ([3e65048](https://github.com/Udixio/UI/commit/3e65048))
+- **ui-react:** support panel content in `Tab` component and improve label handling ([3f052b4](https://github.com/Udixio/UI/commit/3f052b4))
+
+### 🩹 Fixes
+
+- **ui-react:** simplify `TabPanels` component and update animation styles ([8c705f4](https://github.com/Udixio/UI/commit/8c705f4))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.7
+- Updated @udixio/theme to 2.1.9
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.9.5 (2026-01-07)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.6
+- Updated @udixio/theme to 2.1.8
+
+## 2.9.4 (2026-01-07)
+
+### 🚀 Features
+
+- **ui-react:** enhance `ToolTip` with transition support and refined variant styles ([d663d98](https://github.com/Udixio/UI/commit/d663d98))
+- **ui-react:** add `label` class to `fab-menu` styles for text wrapping adjustments ([f5d7fb0](https://github.com/Udixio/UI/commit/f5d7fb0))
+
+### 🩹 Fixes
+
+- **ui-react:** add `label` class to `fab-menu` styles for nowrap text handling ([3084ace](https://github.com/Udixio/UI/commit/3084ace))
+- **ui-react:** add `label` class to `fab-menu` styles for text wrapping adjustments ([511a67a](https://github.com/Udixio/UI/commit/511a67a))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.5
+- Updated @udixio/theme to 2.1.7
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.9.3 (2025-12-16)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.4
+- Updated @udixio/theme to 2.1.6
+
+## 2.9.2 (2025-12-16)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.3
+- Updated @udixio/theme to 2.1.5
+
+## 2.9.1 (2025-12-16)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.2
+- Updated @udixio/theme to 2.1.4
+
+## 2.9.0 (2025-12-16)
+
+### 🚀 Features
+
+- **ui-react:** improve scroll handling and deprecate unstable effects ([4a20ed6](https://github.com/Udixio/UI/commit/4a20ed6))
+- **ui-react:** improve `Chips` scroll behavior for better focus and editing UX ([401e6e8](https://github.com/Udixio/UI/commit/401e6e8))
+- **ui-react:** enhance `Chip` and `Chips` with advanced editing and focus behavior ([94ea2d9](https://github.com/Udixio/UI/commit/94ea2d9))
+- **ui-react:** add inline editing and chip creation for `Chips` (variant="input") ([2d6fa0e](https://github.com/Udixio/UI/commit/2d6fa0e))
+- **ui-react:** refactor `Chips` to support controlled and uncontrolled modes ([9a6beed](https://github.com/Udixio/UI/commit/9a6beed))
+- **ui-react:** add drag and drop support to `Chip` component ([2d36fb9](https://github.com/Udixio/UI/commit/2d36fb9))
+- **ui-react:** enhance `Chip` component with improved selection and keyboard accessibility ([99f0dd5](https://github.com/Udixio/UI/commit/99f0dd5))
+- **ui-react:** add `Chips` component with support for multiple variants and improved navigation ([a0725a1](https://github.com/Udixio/UI/commit/a0725a1))
+- **ui-react:** enhance `Chip` component with new props and refactored logic ([453f12e](https://github.com/Udixio/UI/commit/453f12e))
+- **ui-react:** introduce `Chip` component with support for multiple variants and custom behavior ([2745b66](https://github.com/Udixio/UI/commit/2745b66))
+
+### 🩹 Fixes
+
+- **ui-react:** update focus logic and remove redundant scrollable padding in `Chip` and `Chips` ([8cb7697](https://github.com/Udixio/UI/commit/8cb7697))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.8.4 (2025-11-24)
+
+### 🩹 Fixes
+
+- **ui-react:** remove unused `type` prop from `IconButton` ([906f757](https://github.com/Udixio/UI/commit/906f757))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.8.3 (2025-11-05)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.1
+- Updated @udixio/theme to 2.1.3
+
+## 2.8.2 (2025-11-04)
+
+### 🩹 Fixes
+
+- **ui-react:** add unique `layoutId` to `FabMenu` with `uuid` for improved animation isolation ([06c5f7a](https://github.com/Udixio/UI/commit/06c5f7a))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.8.1 (2025-11-04)
+
+### 🩹 Fixes
+
+- **ui-react:** enhance scroll handling with auto-detection of scrollable parents ([85f33ca](https://github.com/Udixio/UI/commit/85f33ca))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.8.0 (2025-11-04)
+
+### 🚀 Features
+
+- **ui-react:** enhance `FabMenu` transition handling with overflow visibility ([4fcde60](https://github.com/Udixio/UI/commit/4fcde60))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
+## 2.7.0 (2025-11-03)
+
+### 🚀 Features
+
+- **ui-react, docs:** refine color handling and enhance `FabMenu` documentation ([a1d83fc](https://github.com/Udixio/UI/commit/a1d83fc))
+- **ui-react:** enhance `FabMenu` with `AnimatePresence` and improved motion logic ([bea652d](https://github.com/Udixio/UI/commit/bea652d))
+- **ui-react:** enhance `FabMenu` with customizable transitions ([e36dfc9](https://github.com/Udixio/UI/commit/e36dfc9))
+- **ui-react, docs:** enhance `FabMenu` with motion support and update documentation ([7833a1c](https://github.com/Udixio/UI/commit/7833a1c))
+- **ui-react:** introduce `FabMenu` component with enhanced button variants and menu styling ([286f9be](https://github.com/Udixio/UI/commit/286f9be))
+- **ui-react, plugins-tailwind:** migrate to `State` component for unified state handling ([92996bc](https://github.com/Udixio/UI/commit/92996bc))
+- **ui-react:** replace `RippleEffect` with `State` component for consistent state management ([c876cf6](https://github.com/Udixio/UI/commit/c876cf6))
+- **ui-react, plugins-tailwind:** enhance `State` component and streamline state utilities ([0e1858a](https://github.com/Udixio/UI/commit/0e1858a))
+- **ui-react:** add `State` component with dynamic styling support ([900d9b0](https://github.com/Udixio/UI/commit/900d9b0))
+- **ui-react:** integrate `useClassNames` for consistent and reusable styles ([577e05f](https://github.com/Udixio/UI/commit/577e05f))
+- **ui-react:** introduce `useClassNames` hook and update button styles integration ([f7a9936](https://github.com/Udixio/UI/commit/f7a9936))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.0
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.6.0 (2025-10-25)
 
 ### 🚀 Features

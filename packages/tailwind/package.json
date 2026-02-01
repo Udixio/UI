@@ -1,6 +1,6 @@
 {
   "name": "@udixio/tailwind",
-  "version": "2.3.7",
+  "version": "2.4.12",
   "type": "module",
   "main": "./dist/node.js",
   "module": "./dist/node.js",
@@ -38,7 +38,7 @@
     "url": "https://github.com/Udixio/UI.git"
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/",
+    "provenance": true,
     "access": "public"
   }
 }

@@ -1,0 +1,31 @@
+{
+  "tags": {
+    "status": "beta",
+    "category": "Navigation",
+    "devx": "- Provides selection + slide direction for Tabs/TabPanels.",
+    "limitations": "- No URL/hash syncing or persistence built in."
+  },
+  "filePath": "node_modules/@udixio/ui-react/src/lib/components/TabGroup.tsx",
+  "description": "TabGroup provides shared state for Tabs and TabPanels",
+  "displayName": "TabGroup",
+  "methods": [],
+  "props": {
+    "defaultTab": {
+      "defaultValue": {
+        "value": 0
+      },
+      "description": "",
+      "name": "defaultTab",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tab-group.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "number"
+      }
+    }
+  }
+}

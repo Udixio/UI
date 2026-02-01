@@ -1,10 +1,172 @@
 ---
 import Layout from '@/layouts/layout.astro';
+import { getCollection } from 'astro:content';
+import { sentenceCase } from 'change-case';
+import { ComponentSidebar } from '@/components/ComponentSidebar';
+import { renderMarkdown } from '@/lib/markdown';
+import ComponentPreview from '@/components/ComponentPreview.astro';
 
 export const prerender = false;
 
-return Astro.redirect('/components/button/overview');
+const overviews = await getCollection('overviews');
+const apis = await getCollection('api');
+
+const overviewIds = new Set(
+  overviews.map((overview) => overview.id.replaceAll("overview", '')),
+);
+
+
+
+const components = apis
+  .filter((api) => !api.data.tags?.parent)
+  .filter((api) => overviewIds.has(api.id))
+  .map((api) => {
+    const tags = api.data.tags ?? {};
+    const toHtml = (value?: string) =>
+      typeof value === 'string' && value.trim().length > 0
+        ? renderMarkdown(value, {
+            classes: {
+              li: 'text-sm text-on-surface-variant',
+            },
+          })
+        : '';
+
+    return {
+      id: api.id,
+      displayName: api.data.displayName ?? sentenceCase(api.id),
+      description: api.data.description ?? '',
+      status: tags.status ?? 'beta',
+      category: tags.category ?? 'Other',
+      hasDevx: !!tags.devx,
+      hasA11y: !!tags.a11y,
+      hasLimitations: !!tags.limitations,
+      devxHtml: toHtml(tags.devx),
+      limitationsHtml: toHtml(tags.limitations),
+      a11yHtml: toHtml(tags.a11y),
+    };
+  })
+  .sort((a, b) => a.displayName.localeCompare(b.displayName));
+
+console.log('Filtered and sorted components:', overviewIds, );
+
+const componentsByCategory = components.reduce(
+  (acc, component) => {
+    const group = acc[component.category] ?? [];
+    group.push(component);
+    acc[component.category] = group;
+    return acc;
+  },
+  {} as Record<string, typeof components>,
+);
+
+const categories = Object.keys(componentsByCategory).sort((a, b) =>
+  a.localeCompare(b),
+);
 ---
 
-<Layout>
+<Layout docSidebar>
+  <Fragment slot="sidebar">
+    <ComponentSidebar
+      client:load
+      transition:name="component-sidebar"
+      transition:persist
+      current={null}
+      components={components.map((component) => ({ slug: component.id }))}
+    />
+  </Fragment>
+
+  <div class="max-w-screen-xl mx-auto px-6 py-10">
+    <div class="mb-10">
+      <h1 class="text-display-large">Components</h1>
+      <p class="text-headline-small mt-4 text-on-surface-variant">
+        Browse all documented components and their essential dev notes.
+      </p>
+    </div>
+
+    {categories.map((category) => (
+      <section class="mb-12">
+        <div class="flex items-center justify-between mb-5">
+          <h2 class="text-title-large">{category}</h2>
+          <span class="text-label-large text-on-surface-variant">
+            {componentsByCategory[category].length} components
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {componentsByCategory[category].map((component) => (
+            <article class="rounded-2xl border border-outline-variant bg-surface-container p-6">
+              <div class="flex items-center justify-between gap-4">
+                <a
+                  href={`/components/${component.id}/overview`}
+                  class="text-title-medium hover:underline"
+                >
+                  {component.displayName}
+                </a>
+                <span class="rounded-full bg-surface-variant px-3 py-1 text-label-small text-on-surface-variant">
+                  {component.status}
+                </span>
+              </div>
+              <div class="mt-3">
+                <ComponentPreview id={component.id} />
+              </div>
+              <p class="mt-3 text-body-small text-on-surface-variant">
+                {component.description}
+              </p>
+
+              <div class="mt-4 flex flex-wrap gap-2 text-label-small">
+                <span class="rounded-full bg-surface-variant px-3 py-1 text-on-surface-variant">
+                  {component.category}
+                </span>
+                {component.hasDevx && (
+                  <span class="rounded-full bg-secondary-container px-3 py-1 text-on-secondary-container">
+                    Dev UX
+                  </span>
+                )}
+                {component.hasA11y && (
+                  <span class="rounded-full bg-tertiary-container px-3 py-1 text-on-tertiary-container">
+                    A11y
+                  </span>
+                )}
+                {component.hasLimitations && (
+                  <span class="rounded-full bg-error-container px-3 py-1 text-on-error-container">
+                    Limitations
+                  </span>
+                )}
+              </div>
+
+              <div class="mt-5 space-y-3">
+                {component.devxHtml && (
+                  <details class="rounded-xl bg-surface-container-high p-3">
+                    <summary class="text-label-large">Dev UX</summary>
+                    <div
+                      class="mt-2 [&_ul]:list-disc [&_ul]:pl-5"
+                      set:html={component.devxHtml}
+                    />
+                  </details>
+                )}
+                {component.a11yHtml && (
+                  <details class="rounded-xl bg-surface-container-high p-3">
+                    <summary class="text-label-large">Accessibility</summary>
+                    <div
+                      class="mt-2 [&_ul]:list-disc [&_ul]:pl-5"
+                      set:html={component.a11yHtml}
+                    />
+                  </details>
+                )}
+                {component.limitationsHtml && (
+                  <details class="rounded-xl bg-surface-container-high p-3">
+                    <summary class="text-label-large">Limitations</summary>
+                    <div
+                      class="mt-2 [&_ul]:list-disc [&_ul]:pl-5"
+                      set:html={component.limitationsHtml}
+                    />
+                  </details>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
 </Layout>

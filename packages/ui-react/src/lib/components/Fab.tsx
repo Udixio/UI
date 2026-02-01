@@ -5,13 +5,17 @@ import { FabInterface } from '../interfaces/fab.interface';
 import { useFabStyle } from '../styles/fab.style';
 import { classNames } from '../utils';
 import { ReactProps } from '../utils/component';
-import { ToolTip } from './ToolTip';
+import { Tooltip } from './Tooltip';
 import { State } from '../effects';
 
 /**
  * Floating action buttons (FABs) help people take primary actions
  * @status beta
  * @category Action
+ * @devx
+ * - Requires `label` or children; icon-only still needs a label for a11y.
+ * @limitations
+ * - No built-in positioning; placement is handled by the layout.
  */
 export const Fab = ({
   className,
@@ -21,7 +25,7 @@ export const Fab = ({
   href,
   type,
   icon,
-  isExtended = false,
+  extended = false,
   ref,
   transition,
   children,
@@ -38,7 +42,7 @@ export const Fab = ({
   const styles = useFabStyle({
     href,
     icon,
-    isExtended,
+    extended,
     label,
     size,
     variant,
@@ -83,11 +87,11 @@ export const Fab = ({
       {...(restProps as any)}
       ref={resolvedRef}
       href={href}
-      aria-label={isExtended ? undefined : label}
+      aria-label={extended ? undefined : label}
       className={styles.fab}
     >
-      <ToolTip
-        trigger={isExtended ? null : undefined}
+      <Tooltip
+        trigger={extended ? null : undefined}
         text={label}
         targetRef={resolvedRef}
       />
@@ -95,16 +99,18 @@ export const Fab = ({
         style={{ transition: transition.duration + 's' }}
         className={styles.stateLayer}
         colorName={classNames({
-          'on-surface': variant == 'surface',
-          'on-primary-container': variant == 'primary',
-          'on-secondary-container': variant == 'secondary',
-          'on-tertiary-container': variant == 'tertiary',
+          'on-primary': variant == 'primary',
+          'on-secondary': variant == 'secondary',
+          'on-tertiary': variant == 'tertiary',
+          'on-primary-container': variant == 'primaryContainer',
+          'on-secondary-container': variant == 'secondaryContainer',
+          'on-tertiary-container': variant == 'tertiaryContainer',
         })}
         stateClassName={'state-ripple-group-[fab]'}
       />
       <Icon icon={icon} className={styles.icon} />
       <AnimatePresence>
-        {isExtended && (
+        {extended && (
           <motion.span
             variants={labelVariants}
             initial="hidden"

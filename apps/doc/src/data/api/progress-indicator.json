@@ -1,7 +1,10 @@
 {
   "tags": {
     "status": "beta",
-    "category": "Communication"
+    "category": "Communication",
+    "devx": "- `value` is clamped to 0–100; indeterminate variants ignore it.",
+    "a11y": "- Missing `role=\"progressbar\"` and aria-* attributes.",
+    "limitations": "- Visibility auto-hides at 100% (no controlled open prop)."
   },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/ProgressIndicator.tsx",
   "description": "",

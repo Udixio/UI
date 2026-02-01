@@ -1,0 +1,13 @@
+{
+  "tags": {
+    "status": "beta",
+    "category": "Navigation",
+    "devx": "- Requires `TabGroup` context; otherwise it renders nothing.",
+    "limitations": "- Only renders the active panel (no offscreen preservation)."
+  },
+  "filePath": "node_modules/@udixio/ui-react/src/lib/components/TabPanels.tsx",
+  "description": "TabPanels renders the content panels with slide animation\nMust be used within a TabGroup",
+  "displayName": "TabPanels",
+  "methods": [],
+  "props": {}
+}

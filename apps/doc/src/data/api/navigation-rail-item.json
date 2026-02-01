@@ -1,7 +1,8 @@
 {
   "tags": {
     "status": "beta",
-    "parent": "NavigationRail"
+    "parent": "NavigationRail",
+    "devx": "- Section labels only render when the rail is extended."
   },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/NavigationRailItem.tsx",
   "description": "",

@@ -8,6 +8,12 @@ import { ReactProps } from '../utils/component';
 /**
  * @status beta
  * @category Communication
+ * @devx
+ * - `value` is clamped to 0–100; indeterminate variants ignore it.
+ * @a11y
+ * - Missing `role="progressbar"` and aria-* attributes.
+ * @limitations
+ * - Visibility auto-hides at 100% (no controlled open prop).
  */
 export const ProgressIndicator = ({
   variant = 'linear-determinate',

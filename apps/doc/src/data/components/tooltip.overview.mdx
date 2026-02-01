@@ -1,0 +1,159 @@
+---
+---
+
+
+
+
+
+
+
+import { CodePreview } from '@/components/CodePreview.js';
+
+## Usage
+
+Tooltip displays informative text when users hover, focus, or click a target.
+
+```bash
+import { Tooltip, Button } from "@udixio/ui-react"
+```
+
+<CodePreview client:load
+             code={`
+  <Tooltip text="Copy to clipboard">
+    <Button label="Hover me" />
+  </Tooltip>
+`}
+/>
+
+## Content
+
+Use `content` to render fully custom tooltip content (Markdown, rich text, or components). When `content` is provided, `title`, `text`, and `buttons` are ignored.
+
+```jsx
+<Tooltip
+  variant="rich"
+  content={
+    <div>
+      <strong>Shortcuts</strong>
+      <p>Press ⌘K to open the command palette.</p>
+    </div>
+  }
+>
+  <Button label="Help" />
+</Tooltip>
+```
+
+## Variants
+
+Plain is a small text bubble. Rich is card-like with title, text, and actions.
+
+```jsx
+<div className="flex gap-6">
+  <Tooltip text="Plain tooltip">
+    <Button label="Plain" />
+  </Tooltip>
+  <Tooltip variant="rich" title="Saved" text="Item added to favorites" buttons={[{ label: 'Undo', variant: 'text' }] }>
+    <Button label="Rich" />
+  </Tooltip>
+</div>
+```
+
+## Triggers
+
+Control how the tooltip appears using `trigger`: "hover", "focus", "click" or an array of these.
+
+```jsx
+<Tooltip text="Opens on click" trigger="click">
+  <Button label="Click" />
+</Tooltip>
+```
+
+## Guidelines (M3 aligned)
+
+Use plain tooltips to label icon-only controls; rich tooltips are for longer explanations and optional actions.
+
+```jsx
+<div className="flex gap-6">
+  <Tooltip text="Present now">
+    <Button label="🎥" />
+  </Tooltip>
+  <Tooltip
+    variant="rich"
+    title="New setting"
+    text="Choose who can see your activity status."
+    buttons={[{ label: 'Learn more', variant: 'text' }]}
+  >
+    <Button label="Privacy" />
+  </Tooltip>
+</div>
+```
+
+Avoid hiding critical info inside a tooltip; use a dialog for destructive or required decisions.
+
+```jsx
+<Tooltip
+  variant="rich"
+  title="Delete project"
+  text="This action is permanent."
+  buttons={[{ label: 'Learn more', variant: 'text' }]}
+>
+  <Button label="Delete" />
+</Tooltip>
+```
+
+## Delays
+
+Use `openDelay` and `closeDelay` (ms) to tune the hover/focus behavior. Defaults: `openDelay={400}`, `closeDelay={150}`.
+
+```jsx
+<Tooltip text="Slightly slower open" openDelay={600} closeDelay={100}>
+  <Button label="Hover" />
+</Tooltip>
+```
+
+## Controlled open state
+
+Use `isOpen` with `onOpenChange` to fully control the visibility. Use `defaultOpen` for uncontrolled initial state.
+
+```jsx
+function ControlledTooltip() {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <Tooltip text="Controlled" isOpen={open} onOpenChange={setOpen}>
+      <Button label={open ? 'Hide' : 'Show'} onClick={() => setOpen(!open)} />
+    </Tooltip>
+  );
+}
+```
+
+## Position
+
+Provide an explicit `position` or let it auto-place based on target position.
+
+```jsx
+<Tooltip text="Top left" variant="rich" position="top-left">
+  <Button label="Positioned" />
+</Tooltip>
+```
+
+## Behavior
+
+On desktop, tooltips open on hover or focus. Use `trigger="click"` for persistent rich tooltips that stay open until another interaction.
+
+```jsx
+<Tooltip variant="rich" text="Persistent tooltip" trigger="click">
+  <Button label="Click to toggle" />
+</Tooltip>
+```
+
+## Keyboard
+
+| Keys | Actions |
+| --- | --- |
+| Tab | Focus lands on button, if available |
+| Space or Enter | Activates the focused element |
+
+## Accessibility
+
+- The tooltip uses `role="tooltip"` and links to its trigger via `aria-describedby` when open.
+- Press `Escape` to close an open tooltip.

@@ -1,7 +1,9 @@
 {
   "tags": {
     "status": "beta",
-    "parent": "Carousel"
+    "parent": "Carousel",
+    "devx": "- Intended for use inside `Carousel`; width and outputRange drive sizing.",
+    "limitations": "- Requires `outputRange` for min/max sizing; missing values can break layout."
   },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/CarouselItem.tsx",
   "description": "",

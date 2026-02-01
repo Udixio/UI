@@ -70,9 +70,9 @@ export const PaletteToneRow: React.FC<Props> = ({
   }, [toneSteps, needsExtra, highlightedTone]);
 
   return (
-    <div className="">
+    <div className="w-full overflow-x-auto pb-2">
       <motion.div
-        className="flex items-end gap-1 py-1"
+        className="flex items-end gap-1.5 py-2 min-w-max px-1"
         layout
         transition={{ type: 'spring', stiffness: 400, damping: 30 }}
       >
@@ -85,7 +85,7 @@ export const PaletteToneRow: React.FC<Props> = ({
             return (
               <motion.div
                 key={`${kind}-${t}`}
-                className="relative flex flex-1 flex-col items-center"
+                className="relative flex flex-col items-center group"
                 layout
                 initial={
                   isExtra ? { opacity: 0, y: -12, scale: 0.9 } : (false as any)
@@ -104,24 +104,22 @@ export const PaletteToneRow: React.FC<Props> = ({
                 transition={{ type: 'spring', stiffness: 350, damping: 26 }}
               >
                 <motion.div
-                  className={`w-full h-12 rounded border ${
+                  className={`w-10 h-14 rounded-md border transition-shadow duration-200 ${
                     isExtra
-                      ? 'border-2 border-dashed border-primary ring-2 ring-primary/30'
+                      ? 'border-2 border-dashed border-primary ring-2 ring-primary/30 z-10'
                       : isSelected
-                        ? 'border-primary ring-2 ring-primary/50 scale-[1.02]'
-                        : 'border-outline-variant'
+                        ? 'border-primary ring-2 ring-primary/50 scale-110 z-10 shadow-md'
+                        : 'border-outline-variant/50 hover:scale-105 hover:z-10 hover:shadow-sm'
                   }`}
                   style={{ background: hex, color: textColor }}
-                  title={`tone ${t}${isExtra ? ' (sélection)' : ''} ${hex}`}
+                  title={`Tone ${t} (${hex})`}
                   layout
                 />
                 <div
-                  className={`mt-1 text-body-small ${
-                    isExtra
-                      ? 'text-primary font-semibold'
-                      : isSelected
-                        ? 'text-primary font-semibold'
-                        : 'text-on-surface-variant'
+                  className={`mt-1.5 text-[10px] font-mono transition-colors duration-200 ${
+                    isExtra || isSelected
+                      ? 'text-primary font-bold'
+                      : 'text-on-surface-variant/70 group-hover:text-on-surface-variant'
                   }`}
                 >
                   {t}

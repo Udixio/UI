@@ -12,6 +12,9 @@ const toolTipConfig: ClassNameComponent<ToolTipInterface> = ({
 }) => ({
   toolTip: classNames(
     ' pointer-events-auto w-max z-10  absolute  m-1 w-max-content max-w-[312px]',
+    variant == 'rich' &&
+      'bg-surface-container rounded-2xl text-on-surface-container shadow-2',
+    variant == 'plain' && 'bg-inverse-surface rounded text-inverse-on-surface ',
     {
       'bottom-full left-1/2 -translate-x-1/2': position == 'top',
       'top-full left-1/2 -translate-x-1/2': position == 'bottom',
@@ -25,14 +28,13 @@ const toolTipConfig: ClassNameComponent<ToolTipInterface> = ({
   ),
   container: classNames(
     'pb-2',
-    variant == 'rich' &&
-      'bg-surface-container rounded-2xl text-on-surface-container px-4 pt-3 shadow-2',
-    variant == 'plain' &&
-      'bg-inverse-surface rounded text-inverse-on-surface px-2 py-1',
+    variant == 'rich' && 'px-4 pt-3 ',
+    variant == 'plain' && 'px-2 py-1',
   ),
   actions: classNames('flex gap-10 px-1 mt-2', variant == 'plain' && 'hidden'),
   subHead: classNames('text-title-small mb-1', variant == 'plain' && 'hidden'),
   supportingText: classNames(''),
+  content: classNames('w-full'),
 });
 
 export const toolStyle = defaultClassNames<ToolTipInterface>(

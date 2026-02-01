@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { TabsInterface } from '../interfaces/tabs.interface';
 
@@ -6,11 +6,16 @@ import { useTabsStyle } from '../styles/tabs.style';
 import { ReactProps } from '../utils/component';
 import { TabProps } from '../interfaces/tab.interface';
 import { Tab } from './Tab';
+import { TabGroupContext } from './TabGroupContext';
 
 /**
  * Tabs organize content across different screens and views
  * @status beta
  * @category Navigation
+ * @devx
+ * - Can be controlled via `selectedTab`/`setSelectedTab` or through `TabGroup`.
+ * @a11y
+ * - No keyboard navigation or roving tabindex.
  */
 export const Tabs = ({
   variant = 'primary',
@@ -21,22 +26,28 @@ export const Tabs = ({
   setSelectedTab: externalSetSelectedTab,
   scrollable = false,
 }: ReactProps<TabsInterface>) => {
+  const tabGroupContext = useContext(TabGroupContext);
+
   const [internalSelectedTab, internalSetSelectedTab] = useState<number | null>(
     null,
   );
 
+  // Priorité : props > context > état interne
   let selectedTab: number | null;
-  if (externalSelectedTab == 0 || externalSelectedTab != undefined) {
+  if (externalSelectedTab === 0 || externalSelectedTab != undefined) {
     selectedTab = externalSelectedTab;
+  } else if (tabGroupContext) {
+    selectedTab = tabGroupContext.selectedTab;
   } else {
     selectedTab = internalSelectedTab;
   }
 
-  const setSelectedTab = externalSetSelectedTab || internalSetSelectedTab;
+  const setSelectedTab =
+    externalSetSelectedTab ?? tabGroupContext?.setSelectedTab ?? internalSetSelectedTab;
 
   const tabChildren = React.Children.toArray(children).filter(
     (child) => React.isValidElement(child) && child.type === Tab,
-  );
+  ) as React.ReactElement<TabProps>[];
 
   const ref = React.useRef<HTMLDivElement | null>(null);
 
@@ -60,7 +71,10 @@ export const Tabs = ({
     }
   };
 
-  const tabsId = useMemo(() => uuidv4(), []);
+  const tabsId = useMemo(
+    () => tabGroupContext?.tabsId ?? uuidv4(),
+    [tabGroupContext?.tabsId],
+  );
 
   const styles = useTabsStyle({
     children,
@@ -71,10 +85,11 @@ export const Tabs = ({
     className,
     variant,
   });
+
   return (
     <div ref={ref} role="tablist" className={styles.tabs}>
       {tabChildren.map((child, index) => {
-        return React.cloneElement(child as React.ReactElement<TabProps>, {
+        return React.cloneElement(child, {
           key: index,
           index,
           variant: variant,

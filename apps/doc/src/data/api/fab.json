@@ -1,7 +1,9 @@
 {
   "tags": {
     "status": "beta",
-    "category": "Action"
+    "category": "Action",
+    "devx": "- Requires `label` or children; icon-only still needs a label for a11y.",
+    "limitations": "- No built-in positioning; placement is handled by the layout."
   },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/Fab.tsx",
   "description": "Floating action buttons (FABs) help people take primary actions",
@@ -42,12 +44,12 @@
         "name": "\"small\" | \"medium\" | \"large\""
       }
     },
-    "isExtended": {
+    "extended": {
       "defaultValue": {
         "value": false
       },
       "description": "",
-      "name": "isExtended",
+      "name": "extended",
       "declarations": [
         {
           "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/fab.interface.ts",

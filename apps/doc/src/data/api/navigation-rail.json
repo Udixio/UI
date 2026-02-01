@@ -1,7 +1,9 @@
 {
   "tags": {
     "status": "beta",
-    "category": "Navigation"
+    "category": "Navigation",
+    "devx": "- Treats `NavigationRailItem`, `NavigationRailSection`, and `Fab` specially.\n- Selection is index-based; provide `selectedItem` for controlled usage.",
+    "limitations": "- `extended` is not fully controlled (prop changes after mount aren’t synced).\n- Keyboard navigation/roving tabindex is not implemented."
   },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/NavigationRail.tsx",
   "description": "Navigation rails let people switch between UI views on mid-sized devices",

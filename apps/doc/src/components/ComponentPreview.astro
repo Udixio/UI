@@ -1,0 +1,178 @@
+---
+import {
+  Button,
+  Card,
+  Carousel,
+  CarouselItem,
+  Chip,
+  Chips,
+  Divider,
+  Fab,
+  FabMenu,
+  IconButton,
+  NavigationRail,
+  NavigationRailItem,
+  ProgressIndicator,
+  SideSheet,
+  Slider,
+  Snackbar,
+  Switch,
+  Tab,
+  TabGroup,
+  TabPanel,
+  TabPanels,
+  Tabs,
+  TextField,
+  Tooltip,
+} from '@udixio/ui-react';
+import {
+  faBell,
+  faGear,
+  faHouse,
+  faPlus,
+  faStar,
+} from '@fortawesome/free-solid-svg-icons';
+
+type PreviewProps = {
+  id: string;
+};
+
+const { id } = Astro.props as PreviewProps;
+---
+
+<div class="rounded-2xl border border-outline-variant bg-surface-container-high p-4 pointer-events-none">
+  {id === 'button' && (
+    <div class="flex flex-wrap gap-2">
+      <Button label="Primary" />
+      <Button label="Outlined" variant="outlined" />
+      <Button label="Tonal" variant="tonal" />
+    </div>
+  )}
+  {id === 'card' && (
+    <Card className="p-4">
+      <div class="h-4 w-1/2 rounded bg-surface-variant"></div>
+      <div class="mt-3 h-3 w-full rounded bg-surface-variant/60"></div>
+      <div class="mt-2 h-3 w-5/6 rounded bg-surface-variant/60"></div>
+    </Card>
+  )}
+  {id === 'carousel' && (
+    <Carousel gap={12} outputRange={[120, 160]} inputRange={[0.1, 0.8]}>
+      {[0, 1, 2, 3].map((index) => (
+        <CarouselItem index={index} width={140} outputRange={[120, 160]}>
+          <Card className="p-4">Item {index + 1}</Card>
+        </CarouselItem>
+      ))}
+    </Carousel>
+  )}
+  {id === 'chip' && (
+    <div class="flex flex-wrap gap-2">
+      <Chip label="Chip" />
+      <Chip label="Selected" activated />
+      <Chip label="Input" variant="tonal" />
+    </div>
+  )}
+  {id === 'chips' && (
+    <Chips
+      items={[
+        { label: 'Design' },
+        { label: 'Research' },
+        { label: 'QA' },
+      ]}
+      onItemsChange={() => {}}
+    />
+  )}
+  {id === 'divider' && (
+    <div class="flex items-center gap-4">
+      <Divider className="flex-1" />
+      <span class="text-label-small text-on-surface-variant">OR</span>
+      <Divider className="flex-1" />
+    </div>
+  )}
+  {id === 'fab' && (
+    <div class="flex items-center gap-3">
+      <Fab label="Create" icon={faPlus} />
+      <Fab label="Add" extended icon={faPlus} />
+    </div>
+  )}
+  {id === 'fab-menu' && (
+    <FabMenu icon={faPlus} label="Create" defaultOpen={true}>
+      <Button label="New doc" />
+      <Button label="Upload" />
+    </FabMenu>
+  )}
+  {id === 'icon-button' && (
+    <div class="flex gap-2">
+      <IconButton label="Favorite" icon={faStar} />
+      <IconButton label="Star" icon={faStar} variant="outlined" />
+    </div>
+  )}
+  {id === 'navigation-rail' && (
+    <NavigationRail>
+      <NavigationRailItem label="Home" icon={faHouse} />
+      <NavigationRailItem label="Updates" icon={faBell} />
+      <NavigationRailItem label="Settings" icon={faGear} />
+    </NavigationRail>
+  )}
+  {id === 'progress-indicator' && (
+    <div class="flex items-center gap-4">
+      <ProgressIndicator variant="linear-determinate" value={70} />
+      <ProgressIndicator variant="circular-indeterminate" />
+    </div>
+  )}
+  {id === 'side-sheet' && (
+    <SideSheet title="Details" extended={true} variant="standard">
+      <p class="text-body-small text-on-surface-variant">Side content</p>
+    </SideSheet>
+  )}
+  {id === 'slider' && <Slider value={70} onChange={() => {}} />}
+  {id === 'snackbar' && <Snackbar message="Message sent" />}
+  {id === 'switch' && <Switch selected />}
+  {(id === 'tabs' || id === 'tab-group' || id === 'tab-panels') && (
+    <TabGroup defaultTab={0}>
+      <Tabs>
+        <Tab label="Overview" />
+        <Tab label="Details" />
+        <Tab label="Settings" />
+      </Tabs>
+      <TabPanels>
+        <TabPanel>Overview content</TabPanel>
+        <TabPanel>Details content</TabPanel>
+        <TabPanel>Settings content</TabPanel>
+      </TabPanels>
+    </TabGroup>
+  )}
+  {id === 'text-field' && (
+    <TextField label="Label" value="Type here" onChange={() => {}} />
+  )}
+  {id === 'tooltip' && (
+    <Tooltip text="Tooltip text">
+      <Button label="Hover me" />
+    </Tooltip>
+  )}
+  {!(
+    id === 'button' ||
+    id === 'card' ||
+    id === 'carousel' ||
+    id === 'chip' ||
+    id === 'chips' ||
+    id === 'divider' ||
+    id === 'fab' ||
+    id === 'fab-menu' ||
+    id === 'icon-button' ||
+    id === 'navigation-rail' ||
+    id === 'progress-indicator' ||
+    id === 'side-sheet' ||
+    id === 'slider' ||
+    id === 'snackbar' ||
+    id === 'switch' ||
+    id === 'tabs' ||
+    id === 'tab-group' ||
+    id === 'tab-panels' ||
+    id === 'text-field' ||
+    id === 'tooltip'
+  ) && (
+    <span class="inline-flex items-center rounded-full bg-surface-variant px-3 py-1 text-label-small text-on-surface-variant">
+      Preview pending
+    </span>
+  )}
+</div>

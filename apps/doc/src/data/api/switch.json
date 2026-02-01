@@ -1,7 +1,9 @@
 {
   "tags": {
     "status": "beta",
-    "category": "Input"
+    "category": "Input",
+    "devx": "- `selected` is used as initial state only; prop changes won’t sync.",
+    "a11y": "- Uses `role=\"switch\"` but no label prop is exposed here."
   },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/Switch.tsx",
   "description": "Switches toggle the selection of an item on or off",
