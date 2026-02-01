@@ -40,7 +40,7 @@ type PreviewProps = {
 const { id } = Astro.props as PreviewProps;
 ---
 
-<div class="rounded-2xl border border-outline-variant bg-surface-container-high p-4 pointer-events-none">
+<div class="w-full flex items-center justify-center gap-4 pointer-events-none">
   {id === 'button' && (
     <div class="flex flex-wrap gap-2">
       <Button label="Primary" />

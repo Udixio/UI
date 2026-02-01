@@ -2,6 +2,8 @@
 import Layout from '@/layouts/layout.astro';
 import { getCollection } from 'astro:content';
 import { sentenceCase } from 'change-case';
+import { Card } from '@udixio/ui-react';
+
 import { ComponentSidebar } from '@/components/ComponentSidebar';
 import { renderMarkdown } from '@/lib/markdown';
 import ComponentPreview from '@/components/ComponentPreview.astro';
@@ -12,10 +14,8 @@ const overviews = await getCollection('overviews');
 const apis = await getCollection('api');
 
 const overviewIds = new Set(
-  overviews.map((overview) => overview.id.replaceAll("overview", '')),
+  overviews.map((overview) => overview.id.replaceAll('overview', '')),
 );
-
-
 
 const components = apis
   .filter((api) => !api.data.tags?.parent)
@@ -47,7 +47,7 @@ const components = apis
   })
   .sort((a, b) => a.displayName.localeCompare(b.displayName));
 
-console.log('Filtered and sorted components:', overviewIds, );
+console.log('Filtered and sorted components:', overviewIds);
 
 const componentsByCategory = components.reduce(
   (acc, component) => {
@@ -83,90 +83,48 @@ const categories = Object.keys(componentsByCategory).sort((a, b) =>
       </p>
     </div>
 
-    {categories.map((category) => (
-      <section class="mb-12">
-        <div class="flex items-center justify-between mb-5">
-          <h2 class="text-title-large">{category}</h2>
-          <span class="text-label-large text-on-surface-variant">
-            {componentsByCategory[category].length} components
-          </span>
-        </div>
+    {
+      categories.map((category) => (
+        <section class="mb-12">
+          <div class="flex items-center justify-between mb-5">
+            <h2 class="text-title-large">{category}</h2>
+            <span class="text-label-large text-on-surface-variant">
+              {componentsByCategory[category].length} components
+            </span>
+          </div>
 
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {componentsByCategory[category].map((component) => (
-            <article class="rounded-2xl border border-outline-variant bg-surface-container p-6">
-              <div class="flex items-center justify-between gap-4">
-                <a
-                  href={`/components/${component.id}/overview`}
-                  class="text-title-medium hover:underline"
+          <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {componentsByCategory[category].map((component) => (
+              <a
+                href={`/components/${component.id}/overview`}
+                class="group block no-underline"
+              >
+                <Card
+                  client:visible
+                  isInteractive
+                  variant="filled"
+                  className="flex h-full rounded-3xl flex-col overflow-hidden p-0 transition-all duration-200 y"
                 >
-                  {component.displayName}
-                </a>
-                <span class="rounded-full bg-surface-variant px-3 py-1 text-label-small text-on-surface-variant">
-                  {component.status}
-                </span>
-              </div>
-              <div class="mt-3">
-                <ComponentPreview id={component.id} />
-              </div>
-              <p class="mt-3 text-body-small text-on-surface-variant">
-                {component.description}
-              </p>
+                  <div class="relative rounded-3xl flex min-h-[200px] flex-1 items-center justify-center overflow-hidden bg-surface-container-high p-4">
+                    <div class="pointer-events-none scale-100">
+                      <ComponentPreview id={component.id} />
+                    </div>
+                  </div>
 
-              <div class="mt-4 flex flex-wrap gap-2 text-label-small">
-                <span class="rounded-full bg-surface-variant px-3 py-1 text-on-surface-variant">
-                  {component.category}
-                </span>
-                {component.hasDevx && (
-                  <span class="rounded-full bg-secondary-container px-3 py-1 text-on-secondary-container">
-                    Dev UX
-                  </span>
-                )}
-                {component.hasA11y && (
-                  <span class="rounded-full bg-tertiary-container px-3 py-1 text-on-tertiary-container">
-                    A11y
-                  </span>
-                )}
-                {component.hasLimitations && (
-                  <span class="rounded-full bg-error-container px-3 py-1 text-on-error-container">
-                    Limitations
-                  </span>
-                )}
-              </div>
-
-              <div class="mt-5 space-y-3">
-                {component.devxHtml && (
-                  <details class="rounded-xl bg-surface-container-high p-3">
-                    <summary class="text-label-large">Dev UX</summary>
-                    <div
-                      class="mt-2 [&_ul]:list-disc [&_ul]:pl-5"
-                      set:html={component.devxHtml}
-                    />
-                  </details>
-                )}
-                {component.a11yHtml && (
-                  <details class="rounded-xl bg-surface-container-high p-3">
-                    <summary class="text-label-large">Accessibility</summary>
-                    <div
-                      class="mt-2 [&_ul]:list-disc [&_ul]:pl-5"
-                      set:html={component.a11yHtml}
-                    />
-                  </details>
-                )}
-                {component.limitationsHtml && (
-                  <details class="rounded-xl bg-surface-container-high p-3">
-                    <summary class="text-label-large">Limitations</summary>
-                    <div
-                      class="mt-2 [&_ul]:list-disc [&_ul]:pl-5"
-                      set:html={component.limitationsHtml}
-                    />
-                  </details>
-                )}
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-    ))}
+                  <div class="flex flex-col gap-1 p-4 ">
+                    <h3 class="text-title-large">
+                      {component.displayName}
+                    </h3>
+                    <p class="text-body-medium text-on-surface-variant">
+                      {component.description}
+                    </p>
+                  </div>
+                </Card>
+              </a>
+            ))}
+          </div>
+        </section>
+      ))
+    }
   </div>
 </Layout>

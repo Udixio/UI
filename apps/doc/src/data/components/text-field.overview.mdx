@@ -10,7 +10,8 @@ import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 
 ## Usage
 
-TextField allows users to enter and edit text.
+TextField allows users to enter and edit text. It supports both controlled
+(`value`) and uncontrolled (`defaultValue`) usage.
 
 ```bash
 import { TextField } from "@udixio/ui-react"
@@ -49,12 +50,12 @@ Use `leadingIcon`, `trailingIcon`, or `suffix` for extra affordances.
 
 ## Multi-line
 
-Set `textLine` to "multiLine" for auto-growing textarea, or "textAreas" for a standard textarea.
+Set `multiline` for an auto-growing textarea.
 
 ```jsx
 <div className="space-y-4">
-  <TextField label="Description" name="desc1" textLine="multiLine" />
-  <TextField label="Notes" name="desc2" textLine="textAreas" />
+  <TextField label="Description" name="desc1" multiline />
+  <TextField label="Notes" name="desc2" multiline defaultValue="Initial content" />
 </div>
 ```
 
@@ -67,4 +68,23 @@ Show validation and helper text with `errorText` and `supportingText`.
   <TextField label="Username" name="u1" supportingText="Use 3–16 characters" />
   <TextField label="Password" name="p1" errorText="Password is too short" />
 </div>
+```
+
+## Controlled vs uncontrolled
+
+```jsx
+function Example() {
+  const [value, setValue] = React.useState('hello');
+  return (
+    <div className="space-y-3">
+      <TextField
+        label="Controlled"
+        name="c1"
+        value={value}
+        onChange={(event) => setValue(event.target.value)}
+      />
+      <TextField label="Uncontrolled" name="u2" defaultValue="Initial value" />
+    </div>
+  );
+}
 ```
