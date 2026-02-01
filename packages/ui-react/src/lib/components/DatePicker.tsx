@@ -1,18 +1,19 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useDatePickerStyle } from '../styles/date-picker.style';
 import { classNames, ReactProps } from '../utils';
 import {
   DatePickerInterface,
   DateRange,
 } from '../interfaces/date-picker.interface';
-import { Icon } from '../icon';
-import { State } from '../effects';
 import {
+  faChevronDown,
   faChevronLeft,
   faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
 import { Button } from './Button';
+import { IconButton } from './IconButton';
 import { AnimatePresence, motion } from 'motion/react';
+import { Icon } from '../icon';
 
 /**
  * DatePickers let users select a date, or a range of dates.
@@ -47,6 +48,7 @@ export const DatePicker = ({
   });
 
   const [direction, setDirection] = useState(0);
+  const [viewMode, setViewMode] = useState<'day' | 'year'>('day');
 
   // State for selected date
   const isControlled = valueProp !== undefined;
@@ -99,6 +101,31 @@ export const DatePicker = ({
     return days;
   }, [viewDate, weekStartDay]);
 
+  const years = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const start = currentYear - 100;
+    const end = currentYear + 100;
+    const list = [];
+    for (let i = start; i <= end; i++) {
+      list.push(i);
+    }
+    return list;
+  }, []);
+
+  const yearsContainerRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to selected year when opening year view
+  useEffect(() => {
+    if (viewMode === 'year' && yearsContainerRef.current) {
+      const selectedYearBtn = yearsContainerRef.current.querySelector(
+        '[data-selected="true"]',
+      );
+      if (selectedYearBtn) {
+        selectedYearBtn.scrollIntoView({ block: 'center' });
+      }
+    }
+  }, [viewMode]);
+
   // Formatters
   const monthFormatter = useMemo(
     () => new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }),
@@ -126,6 +153,11 @@ export const DatePicker = ({
   const handleNextMonth = () => {
     setDirection(1);
     setViewDate((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
+  };
+
+  const handleYearSelect = (year: number) => {
+    setViewDate((d) => new Date(year, d.getMonth(), 1));
+    setViewMode('day');
   };
 
   const isSameDay = (d1: Date | null | undefined, d2: Date) => {
@@ -240,110 +272,159 @@ export const DatePicker = ({
     >
       {/* Header */}
       <div className={styles.header}>
-        <span className={styles.monthLabel}>
-          {monthFormatter.format(viewDate)}
-        </span>
-        <button
-          className={styles.monthNav}
-          onClick={handlePrevMonth}
-          type="button"
+        <Button
+          variant="text"
+          disableTextMargins
+          size="small"
+          onClick={() => setViewMode((m) => (m === 'day' ? 'year' : 'day'))}
+          className="text-label-large font-bold capitalize text-on-surface hover:bg-surface-container-highest"
         >
-          <State
-            stateClassName="state-ripple-group-[nav-prev] rounded-full"
-            colorName="on-surface-variant"
+          <span className="mr-2">
+            {viewMode === 'day'
+              ? monthFormatter.format(viewDate)
+              : viewDate.getFullYear()}
+          </span>
+          <Icon
+            icon={faChevronDown}
+            className={classNames(
+              'w-3 h-3 transition-transform duration-200 inline',
+              viewMode === 'year' && 'rotate-180',
+            )}
           />
-          <Icon icon={faChevronLeft} className="w-5 h-5" />
-        </button>
+        </Button>
 
-        <button
-          className={styles.monthNav}
-          onClick={handleNextMonth}
-          type="button"
-        >
-          <State
-            stateClassName="state-ripple-group-[nav-next] rounded-full"
-            colorName="on-surface-variant"
-          />
-          <Icon icon={faChevronRight} className="w-5 h-5" />
-        </button>
-      </div>
-
-      {/* Week Days */}
-      <div className={styles.weekDays}>
-        {weekDays.map((day, i) => (
-          <div key={i} className={styles.weekDay}>
-            {day}
+        {viewMode === 'day' && (
+          <div className="flex items-center">
+            <IconButton
+              size={'xSmall'}
+              allowShapeTransformation={false}
+              onClick={handlePrevMonth}
+              icon={faChevronLeft}
+              label="Previous month"
+              title={null}
+            />
+            <IconButton
+              size={'xSmall'}
+              allowShapeTransformation={false}
+              onClick={handleNextMonth}
+              icon={faChevronRight}
+              label="Next month"
+              title={null}
+            />
           </div>
-        ))}
+        )}
       </div>
 
-      {/* Days Grid */}
-      <div className="overflow-hidden relative">
-        <AnimatePresence mode="popLayout" initial={false} custom={direction}>
-          <motion.div
-            key={viewDate.toISOString()}
-            custom={direction}
-            variants={variants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
-            className={styles.daysGrid}
-          >
-            {calendarDays.map((item, index) => {
-              if (!item.isCurrentMonth) {
-                return <div key={index} className={styles.dayCell} />;
-              }
+      {viewMode === 'year' ? (
+        <div
+          className="h-[280px] overflow-y-auto grid grid-cols-3 gap-2 p-2 scrollbar-hide"
+          ref={yearsContainerRef}
+        >
+          {years.map((year) => (
+            <Button
+              size={'small'}
+              key={year}
+              variant={year === viewDate.getFullYear() ? 'filled' : 'text'}
+              onClick={() => handleYearSelect(year)}
+              data-selected={year === viewDate.getFullYear()}
+              className={classNames('w-full', {
+                'text-on-surface': year !== viewDate.getFullYear(),
+              })}
+              label={year.toString()}
+            >
+              {year}
+            </Button>
+          ))}
+        </div>
+      ) : (
+        <>
+          {/* Week Days */}
+          <div className={styles.weekDays}>
+            {weekDays.map((day, i) => (
+              <div key={i} className={styles.weekDay}>
+                {day}
+              </div>
+            ))}
+          </div>
 
-              const { isSelected, isStart, isEnd, isInRange } = checkSelection(
-                item.date,
-              );
-              const isTodayDate = isToday(item.date);
-              const isDisabled =
-                (minDate && item.date < minDate) ||
-                (maxDate && item.date > maxDate) ||
-                shouldDisableDate?.(item.date);
+          {/* Days Grid */}
+          <div className="overflow-hidden relative min-h-[240px]">
+            <AnimatePresence
+              mode="popLayout"
+              initial={false}
+              custom={direction}
+            >
+              <motion.div
+                key={viewDate.toISOString()}
+                custom={direction}
+                variants={variants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+                className={styles.daysGrid}
+              >
+                {calendarDays.map((item, index) => {
+                  if (!item.isCurrentMonth) {
+                    return <div key={index} className={styles.dayCell} />;
+                  }
 
-              return (
-                <div
-                  key={index}
-                  className={classNames(
-                    styles.dayCell,
-                    // Range background styles applied to the cell wrapper
-                    isInRange && 'bg-primary/20',
-                    isStart &&
-                      (selectedValue as DateRange)?.[1] &&
-                      'bg-gradient-to-r from-transparent to-primary/20',
-                    isEnd &&
-                      (selectedValue as DateRange)?.[0] &&
-                      'bg-gradient-to-l from-transparent to-primary/20',
-                  )}
-                >
-                  <Button
-                    className={classNames('aspect-square h-[40px] p-0', {
-                      'text-on-surface': !isSelected && !isTodayDate,
-                    })}
-                    size="small"
-                    allowShapeTransformation={false}
-                    variant={
-                      classNames({
-                        filled: isSelected,
-                        outlined: isTodayDate,
-                        text: !isSelected && !isTodayDate,
-                      }) as any
-                    }
-                    label={item.date.getDate().toString()}
-                    onClick={() => handleDateClick(item.date)}
-                    disabled={isDisabled}
-                  >
-                    {item.date.getDate().toString()}
-                  </Button>
-                </div>
-              );
-            })}
-          </motion.div>
-        </AnimatePresence>
-      </div>
+                  const { isSelected, isStart, isEnd, isInRange } =
+                    checkSelection(item.date);
+                  const isTodayDate = isToday(item.date);
+                  const isDisabled =
+                    (minDate && item.date < minDate) ||
+                    (maxDate && item.date > maxDate) ||
+                    shouldDisableDate?.(item.date);
+
+                  return (
+                    <div
+                      key={index}
+                      className={classNames(
+                        styles.dayCell,
+                        // Range background styles applied to the cell wrapper
+                        isInRange && 'bg-primary/20',
+                        isStart &&
+                          (selectedValue as DateRange)?.[1] &&
+                          'bg-gradient-to-r from-transparent to-primary/20',
+                        isEnd &&
+                          (selectedValue as DateRange)?.[0] &&
+                          'bg-gradient-to-l from-transparent to-primary/20',
+                      )}
+                    >
+                      <Button
+                        className={() => ({
+                          button: classNames('aspect-square h-[40px] p-0', {
+                            'text-on-surface': !isSelected && !isTodayDate,
+                            'opacity-50': isDisabled,
+                          }),
+                          stateLayer: classNames({
+                            '!bg-transparent': isDisabled,
+                          }),
+                        })}
+                        size="small"
+                        allowShapeTransformation={false}
+                        variant={
+                          classNames({
+                            filled: isSelected,
+                            outlined: isTodayDate,
+                            text: !isSelected && !isTodayDate,
+                          }) as any
+                        }
+                        label={item.date.getDate().toString()}
+                        onClick={() => handleDateClick(item.date)}
+                        disabled={isDisabled}
+                      >
+                        {item.date.getDate().toString()}
+                      </Button>
+                    </div>
+                  );
+                })}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </>
+      )}
     </div>
   );
 };
