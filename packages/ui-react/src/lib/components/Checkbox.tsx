@@ -1,11 +1,12 @@
-import React, { useId, useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import React, { useEffect, useId, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useCheckboxStyle } from '../styles/checkbox.style';
 import { classNames } from '../utils';
 import { ReactProps } from '../utils/component';
 import { CheckboxInterface } from '../interfaces/checkbox.interface';
 import { Icon } from '../icon';
 import { faCheck, faMinus } from '@fortawesome/free-solid-svg-icons';
+import { State } from '../effects';
 
 /**
  * Checkboxes allow the user to select one or more items from a set.
@@ -36,11 +37,12 @@ export const Checkbox = ({
   const id = idProp || generatedId;
 
   const isControlled = checkedProp !== undefined;
-  const [internalChecked, setInternalChecked] = useState(defaultChecked ?? false);
+  const [internalChecked, setInternalChecked] = useState(
+    defaultChecked ?? false,
+  );
   const isChecked = isControlled ? checkedProp : internalChecked;
 
   const [isFocused, setIsFocused] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -69,37 +71,33 @@ export const Checkbox = ({
     isDisabled: disabled,
     isError: error,
     isFocused,
-    isHovered,
-    // Pass other props needed for style derivation if configured in style.ts
+    isHovered: false, // Not used in style logic but requested by strict type if defined in interface? style config keys are flexible usually.
   });
 
   return (
-    <div 
-      className={classNames(styles.checkbox, className)} 
+    <div
+      className={classNames(styles.checkbox, className, 'group/checkbox')}
       style={style}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
-      <div className={styles.stateLayer}></div>
-      
-      <input
-        ref={inputRef}
-        type="checkbox"
-        id={id}
-        name={name}
-        value={value}
-        checked={isChecked}
-        disabled={disabled}
-        onChange={handleChange}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-        className={styles.input}
-        {...(restProps as any)}
-      />
-
-      <div className={styles.container}>
+      <State
+        stateClassName={styles.stateLayer}
+        colorName={isChecked || indeterminate ? 'primary' : 'on-surface'}
+      >
+        <input
+          ref={inputRef}
+          type="checkbox"
+          id={id}
+          name={name}
+          value={value}
+          checked={isChecked}
+          disabled={disabled}
+          onChange={handleChange}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          className={styles.input}
+          {...(restProps as any)}
+        />
         <div className={styles.box}></div>
-        
         <AnimatePresence>
           {(isChecked || indeterminate) && (
             <motion.div
@@ -109,16 +107,14 @@ export const Checkbox = ({
               transition={{ duration: 0.15 }}
               className={styles.icon}
             >
-              <Icon 
-                icon={indeterminate ? faMinus : faCheck} 
-                className="w-3.5 h-3.5" // ~14px icon
+              <Icon
+                icon={indeterminate ? faMinus : faCheck}
+                className="size-3.5" // ~14px icon
               />
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
+      </State>
     </div>
   );
 };
-
-
