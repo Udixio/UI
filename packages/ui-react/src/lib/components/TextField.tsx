@@ -13,6 +13,7 @@ import { useTextFieldStyle } from '../styles/text-field.style';
 import { classNames } from '../utils';
 import { ReactProps } from '../utils/component';
 import { AnchorPositioner } from './AnchorPositioner';
+import { TextFieldInterface } from '../interfaces';
 
 /**
  * Text fields let users enter text into a UI
