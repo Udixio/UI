@@ -43,9 +43,16 @@ const overviewIds = new Set(
   overviews.map((overview) => overview.id.replaceAll('overview', '')),
 );
 
-const components =apis .filter((api) => !api.data.tags?.parent)  .filter((api) => overviewIds.has(api.id)).map(({ id }) => ({
-  slug: id
-})).sort((a, b) => a.slug.localeCompare(b.slug))
+const components = apis
+  .filter((api) => !api.data.tags?.parent)
+  .filter((api) => overviewIds.has(api.id))
+  .map((api) => ({
+    slug: api.id,
+    displayName: api.data.displayName ?? sentenceCase(api.id),
+    description: api.data.description ?? '',
+    tags: api.data.tags ?? {},
+  }))
+  .sort((a, b) => a.slug.localeCompare(b.slug))
 ---
 <Layout docSidebar>
   <Fragment slot="sidebar"> <!-- pass table header -->

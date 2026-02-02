@@ -5,7 +5,6 @@ import Code from '@/components/Code.astro';
 import { Button, Card } from '@udixio/ui-react';
 import { noCase, sentenceCase } from 'change-case';
 import Components from '@/layouts/components.astro';
-import { ComponentSidebar } from '@/components/ComponentSidebar.tsx';
 
 export async function getStaticPaths() {
   const overviews = await getCollection('api');
