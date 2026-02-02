@@ -1,3 +1,7 @@
+## 0.3.1 (2026-02-02)
+
+This was a version bump only for @udixio/mcp to align it with other projects, there were no code changes.
+
 ## 0.3.0 (2026-02-02)
 
 ### 🚀 Features
