@@ -52,6 +52,10 @@
     "typescript": "^5.9.3",
     "rimraf": "^6.1.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Udixio/UI.git"
+  },
   "engines": {
     "node": ">=18"
   },
