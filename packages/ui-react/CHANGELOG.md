@@ -1,3 +1,29 @@
+## 2.9.14 (2026-02-02)
+
+### 🚀 Features
+
+- **ui-react:** enhance `DatePicker` with year selection and improved navigation ([95df26c](https://github.com/Udixio/UI/commit/95df26c))
+- **ui-react:** add animations to `DatePicker` for month transitions ([f4d6e26](https://github.com/Udixio/UI/commit/f4d6e26))
+- **ui-react:** add `DatePicker` component with single/range selection and advanced customization ([5de514f](https://github.com/Udixio/UI/commit/5de514f))
+- **ui-react:** rename `isInteractive` prop to `interactive` in Card component ([af49a1d](https://github.com/Udixio/UI/commit/af49a1d))
+- **ui-react:** make `title` and `icon` props optional in `IconButton` ([a66e4dd](https://github.com/Udixio/UI/commit/a66e4dd))
+- **ui-react:** add `children` prop support to `State` component ([56f3a98](https://github.com/Udixio/UI/commit/56f3a98))
+- **doc:** document `Checkbox` usage and API details ([19c3bc1](https://github.com/Udixio/UI/commit/19c3bc1))
+- **ui-react:** rename `isInteractive` prop to `interactive` across Card component ([81b9abb](https://github.com/Udixio/UI/commit/81b9abb))
+- **ui-react:** add `@parent` metadata to Tabs components for improved API organization ([b60357e](https://github.com/Udixio/UI/commit/b60357e))
+- **ui-react:** add Checkbox component with controlled/uncontrolled states and styles ([2d470dc](https://github.com/Udixio/UI/commit/2d470dc))
+- **ui-react:** simplify TextField props and documentation for better clarity ([eb316bc](https://github.com/Udixio/UI/commit/eb316bc))
+- **ui-react:** refactor TextField and FabMenu for improved flexibility and stability ([1a26d63](https://github.com/Udixio/UI/commit/1a26d63))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.13
+- Updated @udixio/theme to 2.1.13
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.9.13 (2026-01-30)
 
 ### 🚀 Features
