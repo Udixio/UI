@@ -57,7 +57,7 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
       - name: Release packages
-        run: pnpm dlx nx release --skip-publish --verbose --first-release
+        run: pnpm dlx nx release --skip-publish --verbose
         env:
           NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
