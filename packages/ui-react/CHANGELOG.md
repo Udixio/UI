@@ -1,3 +1,17 @@
+## 2.9.15 (2026-02-02)
+
+### 🚀 Features
+
+- **ui-react:** replace `useTooltipPosition` hook with `AnchorPositioner` component ([755bc5d](https://github.com/Udixio/UI/commit/755bc5d))
+
+### 🩹 Fixes
+
+- **ui-react:** improve tooltip and text field positioning logic ([d3183c7](https://github.com/Udixio/UI/commit/d3183c7))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.9.14 (2026-02-02)
 
 ### 🚀 Features
