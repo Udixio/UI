@@ -151,15 +151,18 @@ export const FabMenu = ({
                         shape: 'rounded',
                         variant: 'filled',
                         className: () => ({
-                          button: classNames('max-w-full overflow-hidden', {
-                            'px-0': !open,
-                            'bg-primary-container text-on-primary-container ':
-                              variant === 'primary',
-                            'bg-secondary-container text-on-secondary-container':
-                              variant === 'secondary',
-                            'bg-tertiary-container text-on-tertiary-container':
-                              variant === 'tertiary',
-                          }),
+                          button: classNames(
+                            'max-w-full overflow-hidden text-nowrap',
+                            {
+                              'px-0': !open,
+                              'bg-primary-container text-on-primary-container ':
+                                variant === 'primary',
+                              'bg-secondary-container text-on-secondary-container':
+                                variant === 'secondary',
+                              'bg-tertiary-container text-on-tertiary-container':
+                                variant === 'tertiary',
+                            },
+                          ),
                           stateLayer: classNames({
                             'state-on-primary-container': variant === 'primary',
                             'state-on-secondary-container':
@@ -195,7 +198,7 @@ export const FabMenu = ({
               layoutId={'fab-menu' + id}
               variant={'filled'}
               className={() => ({
-                iconButton: classNames('', {
+                iconButton: classNames({
                   'bg-primary text-on-primary': variant === 'primary',
                   'bg-secondary text-on-secondary': variant === 'secondary',
                   'bg-tertiary text-on-tertiary': variant === 'tertiary',
