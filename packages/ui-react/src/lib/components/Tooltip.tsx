@@ -1,11 +1,19 @@
-import { cloneElement, isValidElement, useEffect, useRef } from 'react';
+import {
+  cloneElement,
+  isValidElement,
+  useEffect,
+  useRef,
+  CSSProperties,
+  RefObject,
+} from 'react';
 import { MotionProps } from '../utils';
 import { Button } from './Button';
+import { AnchorPositioner } from './AnchorPositioner';
 import { ToolTipInterface } from '../interfaces';
 import { useToolTipStyle } from '../styles';
 import { AnimatePresence, motion } from 'motion/react';
 import { SyncedFixedWrapper } from '../effects';
-import { useTooltipTrigger, useTooltipPosition } from '../hooks';
+import { useTooltipTrigger } from '../hooks';
 
 /**
  * Tooltips display brief labels or messages
@@ -36,8 +44,13 @@ export const Tooltip = ({
   defaultOpen = false,
   onOpenChange,
   id,
+  anchorRef,
   ...props
 }: MotionProps<ToolTipInterface>) => {
+  if (content) {
+    variant = 'custom';
+  }
+
   transition = { duration: 0.3, ...transition };
 
   if (!children && !targetRef) {
@@ -50,6 +63,7 @@ export const Tooltip = ({
 
   const internalRef = useRef<HTMLElement | null>(null);
   const resolvedRef = targetRef || internalRef;
+  const positioningRef = anchorRef || resolvedRef;
 
   // Use the trigger hook for state management and accessibility
   const { triggerProps, tooltipProps, isOpen } = useTooltipTrigger({
@@ -62,13 +76,7 @@ export const Tooltip = ({
     id,
   });
 
-  // Use the position hook for auto-positioning
-  const { resolvedPosition } = useTooltipPosition({
-    targetRef: resolvedRef,
-    position: positionProp,
-    variant,
-    isOpen,
-  });
+
 
   // Apply trigger props to the target element
   const enhancedChildren =
@@ -150,7 +158,7 @@ export const Tooltip = ({
     className,
     title,
     text,
-    position: resolvedPosition,
+    position: positionProp,
     trigger,
     targetRef: targetRef as any,
     children: children as any,
@@ -172,7 +180,10 @@ export const Tooltip = ({
       {enhancedChildren}
       <AnimatePresence>
         {isOpen && (
-          <SyncedFixedWrapper targetRef={resolvedRef}>
+          <AnchorPositioner
+            anchorRef={positioningRef}
+            position={positionProp}
+          >
             <motion.div
               initial={'close'}
               variants={variants}
@@ -209,9 +220,11 @@ export const Tooltip = ({
                 )}
               </div>
             </motion.div>
-          </SyncedFixedWrapper>
+          </AnchorPositioner>
         )}
       </AnimatePresence>
     </>
   );
 };
+
+

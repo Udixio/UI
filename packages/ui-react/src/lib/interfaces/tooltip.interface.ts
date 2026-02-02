@@ -8,7 +8,7 @@ type Trigger = 'hover' | 'click' | 'focus' | null;
 export type ToolTipInterface<T extends HTMLElement = any> = {
   type: 'div';
   props: {
-    variant?: 'plain' | 'rich';
+    variant?: 'plain' | 'rich' | 'custom';
     title?: string;
     /** Supporting text for the tooltip. Optional when using `content` prop. */
     text?: string;
@@ -38,6 +38,8 @@ export type ToolTipInterface<T extends HTMLElement = any> = {
     onOpenChange?: (open: boolean) => void;
     /** Custom ID for accessibility linking. Auto-generated if not provided. */
     id?: string;
+    /** Custom anchor for positioning. Defaults to the trigger element. */
+    anchorRef?: RefObject<HTMLElement>;
   } & (
     | {
         children?: never;

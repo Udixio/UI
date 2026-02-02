@@ -1,13 +1,24 @@
-import React, { useEffect, useId, useState } from 'react';
+import React, {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Icon } from '../icon';
-import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCalendarDays,
+  faCircleExclamation,
+} from '@fortawesome/free-solid-svg-icons';
 import { motion } from 'motion/react';
+import { DatePicker } from './DatePicker';
+import { Button } from './Button';
 
 import TextareaAutosize from 'react-textarea-autosize';
 import { useTextFieldStyle } from '../styles/text-field.style';
 import { classNames } from '../utils';
 import { ReactProps } from '../utils/component';
-import { TextFieldInterface } from '../interfaces/text-field.interface';
+import { AnchorPositioner } from './AnchorPositioner';
 
 /**
  * Text fields let users enter text into a UI
@@ -40,6 +51,7 @@ export const TextField = ({
   showSupportingText,
   id: idProp,
   style,
+  ref,
   ...restProps
 }: ReactProps<TextFieldInterface>) => {
   const generatedId = useId();
@@ -53,14 +65,18 @@ export const TextField = ({
   const [isFocused, setIsFocused] = useState(false);
   const [showErrorIcon, setShowErrorIcon] = useState(!!errorText?.length);
 
+  const internalRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+  const inputRef = (ref as any) || internalRef;
+
+  const textFieldRef = useRef<HTMLDivElement>(null);
+  const calendarTriggerRef = useRef<HTMLDivElement>(null);
+
   const hasSupportingText =
     showSupportingText ?? (!!errorText?.length || !!supportingText?.length);
 
   useEffect(() => {
     setShowErrorIcon(!!errorText?.length);
   }, [errorText]);
-
-  const inputRef = React.useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
   const focusInput = () => {
     if (inputRef.current && !isFocused) {
@@ -96,6 +112,56 @@ export const TextField = ({
     }
   };
 
+  // Date Picker Logic
+  const isDateInput = type === 'date';
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [tempDate, setTempDate] = useState<Date | null>(null);
+
+  const initialDateValue = useMemo(() => {
+    const val = String(value);
+    if (!val) return null;
+    const [y, m, d] = val.split('-').map(Number);
+    if (y && m && d) return new Date(y, m - 1, d);
+    return null;
+  }, [value]);
+
+  const handleDatePickerOpen = () => {
+    if (disabled) return;
+    setTempDate(initialDateValue);
+    setShowDatePicker(true);
+  };
+
+
+
+  const handleDateConfirm = () => {
+    const newValue = tempDate ? tempDate.toLocaleDateString('en-CA') : '';
+
+    if (!isControlled) {
+      setInternalValue(newValue);
+    }
+
+    if (onChange) {
+      // Create a synthetic event
+      const event = {
+        target: {
+          value: newValue,
+          name,
+          type,
+        },
+      } as React.ChangeEvent<HTMLInputElement>;
+      onChange(event);
+    }
+    setShowDatePicker(false);
+  };
+
+  const effectiveTrailingIcon =
+    isDateInput && !trailingIcon ? faCalendarDays : trailingIcon;
+
+  // Enhance styles for date input
+  const inputDateClass = isDateInput
+    ? '[&::-webkit-calendar-picker-indicator]:hidden cursor-pointer'
+    : '';
+
   const styles = useTextFieldStyle({
     showSupportingText: hasSupportingText,
     isFocused,
@@ -110,7 +176,7 @@ export const TextField = ({
     supportingText,
     type,
     leadingIcon,
-    trailingIcon,
+    trailingIcon: effectiveTrailingIcon,
     variant,
     errorText,
     value: String(value),
@@ -122,12 +188,14 @@ export const TextField = ({
   const textComponentProps = multiline ? {} : { type };
 
   const isFloating =
-    isFocused || (typeof value === 'string' && value.length > 0);
+    isFocused ||
+    (typeof value === 'string' && value.length > 0) ||
+    type == 'date'; // Float label when picker open
   const showLegend = isFloating && variant === 'outlined';
   const showLabel = !showLegend;
 
   return (
-    <div className={styles.textField} style={style}>
+    <div ref={textFieldRef} className={styles.textField} style={style}>
       <fieldset
         onClick={focusInput}
         className={styles.content}
@@ -200,11 +268,18 @@ export const TextField = ({
             ref={inputRef as any}
             value={value}
             onChange={handleChange}
-            className={styles.input}
+            className={classNames(styles.input, inputDateClass)}
             id={id}
             name={name}
             placeholder={isFocused ? (placeholder ?? undefined) : ''}
-            onFocus={handleOnFocus}
+            onFocus={(e) => {
+              handleOnFocus();
+              if (isDateInput) {
+                // Maybe open picker on focus? User preference.
+                // Often better on click/icon click.
+                // But let's stick to icon click for now or explicit open.
+              }
+            }}
             onBlur={handleBlur}
             disabled={disabled}
             autoComplete={autoComplete}
@@ -219,21 +294,31 @@ export const TextField = ({
 
         {!showErrorIcon && (
           <>
-            {trailingIcon && (
+            {effectiveTrailingIcon && (
               <div
+                ref={isDateInput ? calendarTriggerRef : undefined}
                 onClick={(event) => {
                   event.stopPropagation();
+                  if (isDateInput) handleDatePickerOpen();
                 }}
-                className={styles.trailingIcon}
-              >
-                {React.isValidElement(trailingIcon) ? (
-                  trailingIcon
-                ) : (
-                  <Icon className={'h-5'} icon={trailingIcon}></Icon>
+                className={classNames(
+                  styles.trailingIcon,
+                  isDateInput && 'cursor-pointer',
                 )}
+              >
+                <div className="flex items-center justify-center w-full h-full">
+                  {React.isValidElement(effectiveTrailingIcon) ? (
+                    effectiveTrailingIcon
+                  ) : (
+                    <Icon
+                      className={'h-5'}
+                      icon={effectiveTrailingIcon as any}
+                    />
+                  )}
+                </div>
               </div>
             )}
-            {!trailingIcon && suffix && (
+            {!effectiveTrailingIcon && suffix && (
               <span className={styles.suffix}>{suffix}</span>
             )}
           </>
@@ -242,7 +327,7 @@ export const TextField = ({
         {showErrorIcon && (
           <div
             className={classNames(styles.trailingIcon, {
-              ' absolute right-0': !trailingIcon,
+              ' absolute right-0': !effectiveTrailingIcon,
             })}
           >
             <Icon
@@ -252,6 +337,7 @@ export const TextField = ({
           </div>
         )}
       </fieldset>
+
       {hasSupportingText && (
         <p className={styles.supportingText} id={helperTextId}>
           {errorText?.length
@@ -260,6 +346,39 @@ export const TextField = ({
               ? supportingText
               : '\u00A0'}
         </p>
+      )}
+
+      {isDateInput && showDatePicker && (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-transparent"
+            onClick={() => setShowDatePicker(false)}
+          />
+          <AnchorPositioner
+            anchorRef={textFieldRef}
+            position="bottom-right"
+          >
+            <div className="z-50 shadow-xl rounded-[28px] bg-surface-container-high overflow-hidden">
+              <DatePicker value={tempDate} onChange={setTempDate} />
+              <div className="flex justify-end gap-2 p-4 pt-0">
+                <Button
+                  variant="text"
+                  size="small"
+                  onClick={() => setShowDatePicker(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="filled"
+                  size="small"
+                  onClick={handleDateConfirm}
+                >
+                  OK
+                </Button>
+              </div>
+            </div>
+          </AnchorPositioner>
+        </>
       )}
     </div>
   );

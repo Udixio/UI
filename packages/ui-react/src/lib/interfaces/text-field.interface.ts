@@ -22,7 +22,7 @@ type Props = {
   id?: string;
   style?: React.CSSProperties;
   variant?: TextFieldVariant;
-  type?: 'text' | 'password' | 'number';
+  type?: 'text' | 'password' | 'number' | 'date';
   autoComplete?: 'on' | 'off' | string;
   multiline?: boolean;
 };

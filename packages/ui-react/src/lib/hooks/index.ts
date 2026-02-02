@@ -4,7 +4,6 @@ export type {
   UseTooltipTriggerReturn,
 } from './useTooltipTrigger';
 
-export { useTooltipPosition } from './useTooltipPosition';
 export type {
   UseTooltipPositionOptions,
   UseTooltipPositionReturn,

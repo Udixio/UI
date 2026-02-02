@@ -1,6 +1,9 @@
 ---
 ---
 
+
+
+import { faCalendarDays } from '@fortawesome/free-solid-svg-icons';
 import { CodePreview } from '@/components/CodePreview.js';
 
 ## Usage
@@ -73,6 +76,29 @@ Limit the selectable range.
   defaultValue={new Date(2023, 5, 1)}
 />
 ```
+
+
+## With Input Field
+
+Combine with TextField and IconButton for a popup picker.
+
+<CodePreview
+  client:load
+  code={`
+
+  function Example() {
+
+  return (
+    <div className="relative max-w-xs">
+      <TextField
+              type="date"
+              label="Date"
+            />
+    </div>
+  );
+  } `} scope={{ faCalendarDays }}
+/>
+
 
 ## Disable specific dates
 
