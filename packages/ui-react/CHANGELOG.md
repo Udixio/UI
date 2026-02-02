@@ -1,3 +1,17 @@
+## 2.9.16 (2026-02-02)
+
+### 🚀 Features
+
+- **ui-react:** add `TextFieldInterface` import to `TextField` component ([fa7032a](https://github.com/Udixio/UI/commit/fa7032a))
+
+### 🩹 Fixes
+
+- **ui-react:** enhance FabMenu button styles with text wrapping adjustments ([0d015da](https://github.com/Udixio/UI/commit/0d015da))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.9.15 (2026-02-02)
 
 ### 🚀 Features
