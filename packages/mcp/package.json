@@ -1,0 +1,65 @@
+{
+  "name": "@udixio/mcp",
+  "version": "0.4.3",
+  "private": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "author": "Udixio",
+  "license": "MIT",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "development": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "udixio",
+    "ui",
+    "design-system"
+  ],
+  "bin": {
+    "udixio-mcp": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "dev": "tsx src/cli.ts",
+    "start": "node dist/cli.js",
+    "test": "vitest run",
+    "clean": "rimraf dist",
+    "prebuild": "tsx scripts/snapshot.ts"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "@modelcontextprotocol/sdk": "^1.20.2",
+    "@udixio/theme": "workspace:*",
+    "zod": "^4.1.12",
+    "globby": "^15.0.0",
+    "gray-matter": "^4.0.3"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.5",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "rimraf": "^6.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Udixio/UI.git"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

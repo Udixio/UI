@@ -1,3 +1,13 @@
+## 2.1.13 (2026-02-02)
+
+### 🩹 Fixes
+
+- **theme:** remove debug `console.log` from `udixio ([e02f6ce](https://github.com/Udixio/UI/commit/e02f6ce))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.1.12 (2026-01-30)
 
 ### 🚀 Features

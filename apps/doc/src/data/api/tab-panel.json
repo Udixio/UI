@@ -1,6 +1,7 @@
 {
   "tags": {
     "status": "beta",
+    "parent": "Tabs",
     "category": "Navigation",
     "devx": "- Should be rendered inside `TabPanels` for animations and aria wiring."
   },

@@ -4,7 +4,7 @@ export interface CardInterface {
   type: 'div';
   props: {
     variant?: 'outlined' | 'elevated' | 'filled';
-    isInteractive?: boolean;
+    interactive?: boolean;
     children: ReactNode;
   };
   elements: ['card', 'stateLayer'];

@@ -14,10 +14,12 @@ import { renderMarkdown } from '@/lib/markdown';
 import { faExclamation, faInfo, faInfoCircle,  } from '@fortawesome/free-solid-svg-icons';
 
 const apis = await getCollection('api');
+const overviews = await getCollection('overviews');
 
 const pathName = Astro.url.pathname;
 
 const { component } = Astro.params;
+
 const componentApi = apis.find(api => api.id === component);
 
 if (!componentApi) {
@@ -37,7 +39,11 @@ const limitationHtml = typeof limitation === 'string' && limitation.trim().lengt
     })
   : '';
 
-const components =apis.filter(api => !Object.keys(api.data.tags).includes('parent')).map(({ id }) => ({
+const overviewIds = new Set(
+  overviews.map((overview) => overview.id.replaceAll('overview', '')),
+);
+
+const components =apis .filter((api) => !api.data.tags?.parent)  .filter((api) => overviewIds.has(api.id)).map(({ id }) => ({
   slug: id
 })).sort((a, b) => a.slug.localeCompare(b.slug))
 ---

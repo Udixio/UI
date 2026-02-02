@@ -10,6 +10,7 @@ import { TabPanel } from './TabPanel';
  * TabPanels renders the content panels with slide animation
  * Must be used within a TabGroup
  * @status beta
+ * @parent Tabs
  * @category Navigation
  * @devx
  * - Requires `TabGroup` context; otherwise it renders nothing.

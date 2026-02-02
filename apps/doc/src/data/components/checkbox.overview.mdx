@@ -1,0 +1,172 @@
+---
+---
+
+
+
+
+
+import { CodePreview } from '@/components/CodePreview.js';
+
+## Usage
+
+Checkboxes allow users to select one or more items from a set.
+
+```bash
+import { Checkbox } from "@udixio/ui-react"
+```
+
+## Select one or more options in a list
+
+```jsx
+function Example() {
+  const [selected, setSelected] = React.useState({
+    news: true,
+    design: false,
+    dev: false,
+  });
+
+  return (
+    <ul className="space-y-2">
+      <li className="flex items-center gap-3">
+        <Checkbox
+          id="opt-news"
+          name="topics"
+          value="news"
+          checked={selected.news}
+          onChange={(e) =>
+            setSelected((prev) => ({ ...prev, news: e.target.checked }))
+          }
+        />
+        <label htmlFor="opt-news">News</label>
+      </li>
+      <li className="flex items-center gap-3">
+        <Checkbox
+          id="opt-design"
+          name="topics"
+          value="design"
+          checked={selected.design}
+          onChange={(e) =>
+            setSelected((prev) => ({ ...prev, design: e.target.checked }))
+          }
+        />
+        <label htmlFor="opt-design">Design</label>
+      </li>
+      <li className="flex items-center gap-3">
+        <Checkbox
+          id="opt-dev"
+          name="topics"
+          value="dev"
+          checked={selected.dev}
+          onChange={(e) =>
+            setSelected((prev) => ({ ...prev, dev: e.target.checked }))
+          }
+        />
+        <label htmlFor="opt-dev">Development</label>
+      </li>
+    </ul>
+  );
+}
+```
+
+## Present a list with sub-selections
+
+Use `indeterminate` for a parent checkbox when only some children are selected.
+
+```jsx
+function Example() {
+  const [children, setChildren] = React.useState({
+    email: true,
+    sms: false,
+  });
+
+  const allChecked = children.email && children.sms;
+  const isIndeterminate = (children.email || children.sms) && !allChecked;
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-3">
+        <Checkbox
+          id="notif-all"
+          checked={allChecked}
+          indeterminate={isIndeterminate}
+          onChange={(e) =>
+            setChildren({
+              email: e.target.checked,
+              sms: e.target.checked,
+            })
+          }
+        />
+        <label htmlFor="notif-all">Notifications</label>
+      </div>
+      <div className="ml-6 space-y-2">
+        <div className="flex items-center gap-3">
+          <Checkbox
+            id="notif-email"
+            checked={children.email}
+            onChange={(e) =>
+              setChildren((prev) => ({ ...prev, email: e.target.checked }))
+            }
+          />
+          <label htmlFor="notif-email">Email</label>
+        </div>
+        <div className="flex items-center gap-3">
+          <Checkbox
+            id="notif-sms"
+            checked={children.sms}
+            onChange={(e) =>
+              setChildren((prev) => ({ ...prev, sms: e.target.checked }))
+            }
+          />
+          <label htmlFor="notif-sms">SMS</label>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+## Enable or disable a desktop option
+
+```jsx
+<div className="flex items-center gap-3">
+  <Checkbox id="launch-startup" defaultChecked />
+  <label htmlFor="launch-startup">Launch on system startup</label>
+</div>
+```
+
+## Visually group similar options
+
+```jsx
+<div className="space-y-4">
+  <div>
+    <div className="text-xs uppercase tracking-wide text-muted-foreground">
+      Privacy
+    </div>
+    <div className="mt-2 space-y-2">
+      <div className="flex items-center gap-3">
+        <Checkbox id="privacy-ads" />
+        <label htmlFor="privacy-ads">Personalized ads</label>
+      </div>
+      <div className="flex items-center gap-3">
+        <Checkbox id="privacy-analytics" defaultChecked />
+        <label htmlFor="privacy-analytics">Analytics sharing</label>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div className="text-xs uppercase tracking-wide text-muted-foreground">
+      Emails
+    </div>
+    <div className="mt-2 space-y-2">
+      <div className="flex items-center gap-3">
+        <Checkbox id="email-product" defaultChecked />
+        <label htmlFor="email-product">Product updates</label>
+      </div>
+      <div className="flex items-center gap-3">
+        <Checkbox id="email-marketing" />
+        <label htmlFor="email-marketing">Marketing tips</label>
+      </div>
+    </div>
+  </div>
+</div>
+```

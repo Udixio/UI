@@ -78,7 +78,6 @@ export const createMinContrastToneAdjuster = (
   const baseTone = (colors.get(selfKey) as ColorFromPalette).options.tone;
 
   let selfTone = baseTone;
-  console.log('contrast ratio2', referenceTone, selfTone);
   if (Contrast.ratioOfTones(referenceTone, selfTone) < minContrast) {
     const ratio = calculateToneAdjustmentPercentage(
       referenceTone,

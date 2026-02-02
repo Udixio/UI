@@ -1,5 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import React, { useId, useMemo, useRef, useState } from 'react';
 import { TabGroupContext, TabGroupContextValue } from './TabGroupContext';
 import { TabGroupInterface } from '../interfaces/tab-group.interface';
 import { ReactProps } from '../utils/component';
@@ -7,6 +6,7 @@ import { ReactProps } from '../utils/component';
 /**
  * TabGroup provides shared state for Tabs and TabPanels
  * @status beta
+ * @parent Tabs
  * @category Navigation
  * @devx
  * - Provides selection + slide direction for Tabs/TabPanels.
@@ -26,7 +26,9 @@ export const TabGroup = ({
 
   // Priorité : props externes > état interne
   const selectedTab =
-    externalSelectedTab !== undefined ? externalSelectedTab : internalSelectedTab;
+    externalSelectedTab !== undefined
+      ? externalSelectedTab
+      : internalSelectedTab;
 
   const setSelectedTab = externalSetSelectedTab ?? internalSetSelectedTab;
 
@@ -43,7 +45,7 @@ export const TabGroup = ({
     previousTabRef.current = selectedTab;
   }
 
-  const tabsId = useMemo(() => uuidv4(), []);
+  const id = useId();
 
   const contextValue: TabGroupContextValue = useMemo(
     () => ({
@@ -51,9 +53,9 @@ export const TabGroup = ({
       setSelectedTab,
       previousTab: previousTabRef.current,
       direction,
-      tabsId,
+      tabsId: id,
     }),
-    [selectedTab, setSelectedTab, direction, tabsId],
+    [selectedTab, setSelectedTab, direction, id],
   );
 
   return (

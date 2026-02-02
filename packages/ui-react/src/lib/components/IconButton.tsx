@@ -46,7 +46,7 @@ export const IconButton = ({
       'IconButton component requires either a label prop or children content to provide an accessible aria-label',
     );
   }
-  if (!title) {
+  if (!title && title !== null) {
     title = label;
   }
 
@@ -108,11 +108,13 @@ export const IconButton = ({
       onClick={handleClick}
       ref={resolvedRef}
     >
-      <Tooltip
-        targetRef={resolvedRef}
-        trigger={disabled ? null : undefined}
-        text={title}
-      ></Tooltip>
+      {title !== null && (
+        <Tooltip
+          targetRef={resolvedRef}
+          trigger={disabled ? null : undefined}
+          text={title}
+        ></Tooltip>
+      )}
 
       <div className={styles.touchTarget} />
       <State
@@ -138,7 +140,7 @@ export const IconButton = ({
         )}
         stateClassName={'state-ripple-group-[icon-button]'}
       />
-      {icon && <Icon icon={icon} className={styles.icon} />}
+      {icon ? <Icon icon={icon} className={styles.icon} /> : children}
     </ElementType>
   );
 };

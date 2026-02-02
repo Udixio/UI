@@ -25,7 +25,7 @@ const createCardStory = (variant: ReactProps<CardInterface>['variant']) => {
       <Card className={'w-[360px] h-[360px]'} {...args}></Card>
       <a className={'group'} href={'https://example.com/'} target={'_blank'}>
         <Card
-          isInteractive={true}
+          interactive={true}
           className={'w-[360px] h-[360px]'}
           {...args}
         ></Card>

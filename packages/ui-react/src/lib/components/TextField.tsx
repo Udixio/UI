@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import { Icon } from '../icon';
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { motion } from 'motion/react';
-import { v4 as uuidv4 } from 'uuid';
 
 import TextareaAutosize from 'react-textarea-autosize';
 import { useTextFieldStyle } from '../styles/text-field.style';
@@ -15,10 +14,10 @@ import { TextFieldInterface } from '../interfaces/text-field.interface';
  * @status beta
  * @category Input
  * @devx
- * - `onChange` receives the string value (not the DOM event).
- * - `value` syncs internal state; not a fully controlled input.
+ * - Supports controlled (`value`) and uncontrolled (`defaultValue`) usage.
+ * - `multiline` switches to textarea mode.
  * @a11y
- * - Uses `label` for `aria-label`; no `aria-describedby` for supporting text.
+ * - `aria-describedby` links supporting text/error to input.
  */
 export const TextField = ({
   variant = 'filled',
@@ -33,51 +32,35 @@ export const TextField = ({
   trailingIcon,
   leadingIcon,
   type = 'text',
-  textLine = 'singleLine',
+  multiline = false,
   autoComplete = 'on',
   onChange,
-  value: defaultValue,
-  showSupportingText: defaultShowSupportingText = false,
+  value: valueProp,
+  defaultValue,
+  showSupportingText,
+  id: idProp,
+  style,
   ...restProps
 }: ReactProps<TextFieldInterface>) => {
-  const [value, setValue] = useState(defaultValue ?? '');
+  const generatedId = useId();
+  const id = idProp || generatedId;
+  const helperTextId = `${id}-helper`;
+
+  const isControlled = valueProp !== undefined;
+  const [internalValue, setInternalValue] = useState(defaultValue ?? '');
+  const value = isControlled ? valueProp : internalValue;
+
   const [isFocused, setIsFocused] = useState(false);
-  const [showErrorIcon, setShowErrorIcon] = useState(false);
-  const [showSupportingText, setShowSupportingText] = useState(
-    defaultShowSupportingText,
-  );
+  const [showErrorIcon, setShowErrorIcon] = useState(!!errorText?.length);
+
+  const hasSupportingText =
+    showSupportingText ?? (!!errorText?.length || !!supportingText?.length);
 
   useEffect(() => {
-    setValue(defaultValue ?? '');
-  }, [defaultValue]);
-
-  useEffect(() => {
-    if (errorText?.length) {
-      setShowErrorIcon(true);
-    } else {
-      setShowErrorIcon(false);
-    }
+    setShowErrorIcon(!!errorText?.length);
   }, [errorText]);
 
-  useEffect(() => {
-    if (defaultShowSupportingText) {
-      setShowSupportingText(defaultShowSupportingText);
-    } else {
-      if (supportingText?.length) {
-        setShowSupportingText(true);
-      } else {
-        setShowSupportingText(false);
-      }
-    }
-  }, [showSupportingText, supportingText]);
-
-  useEffect(() => {
-    if (isFocused) {
-      setShowErrorIcon(false);
-    }
-  }, [isFocused]);
-
-  const inputRef = React.useRef<HTMLInputElement & HTMLTextAreaElement>(null);
+  const inputRef = React.useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
   const focusInput = () => {
     if (inputRef.current && !isFocused) {
@@ -87,28 +70,34 @@ export const TextField = ({
 
   const handleOnFocus = () => {
     setIsFocused(true);
+    setShowErrorIcon(false);
   };
 
   const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement & HTMLTextAreaElement>,
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const newValue = event.target.value;
-    setValue(newValue); // Update local state
+
+    if (!isControlled) {
+      setInternalValue(newValue);
+    }
 
     setShowErrorIcon(false);
 
-    // If external onChange prop is provided, call it with the new value
-    if (typeof onChange === 'function') {
-      onChange(newValue);
+    if (onChange) {
+      onChange(event);
     }
   };
 
   const handleBlur = () => {
     setIsFocused(false);
+    if (errorText?.length) {
+      setShowErrorIcon(true);
+    }
   };
 
   const styles = useTextFieldStyle({
-    showSupportingText,
+    showSupportingText: hasSupportingText,
     isFocused,
     showErrorIcon,
     disabled,
@@ -124,34 +113,26 @@ export const TextField = ({
     trailingIcon,
     variant,
     errorText,
-    value,
+    value: String(value),
     suffix,
-    textLine,
+    multiline,
   });
 
-  const [uuid] = useState(uuidv4());
+  const TextComponent = multiline ? TextareaAutosize : 'input';
+  const textComponentProps = multiline ? {} : { type };
 
-  let textComponentProps: object;
-  let TextComponent;
-  switch (textLine) {
-    case 'multiLine':
-      TextComponent = TextareaAutosize;
-      textComponentProps = {};
-      break;
-    case 'textAreas':
-      TextComponent = 'textarea';
-      textComponentProps = {};
-      break;
-    case 'singleLine':
-    default:
-      TextComponent = 'input';
-      textComponentProps = { type: type };
-      break;
-  }
+  const isFloating =
+    isFocused || (typeof value === 'string' && value.length > 0);
+  const showLegend = isFloating && variant === 'outlined';
+  const showLabel = !showLegend;
 
   return (
-    <div className={styles.textField} {...restProps}>
-      <fieldset onClick={focusInput} className={styles.content}>
+    <div className={styles.textField} style={style}>
+      <fieldset
+        onClick={focusInput}
+        className={styles.content}
+        role="presentation"
+      >
         <div className={styles.stateLayer}></div>
         {leadingIcon && (
           <div className={styles.leadingIcon}>
@@ -163,59 +144,64 @@ export const TextField = ({
           </div>
         )}
 
-        {!((!isFocused && !value.length) || variant == 'filled') && (
-          <motion.legend
-            variants={{
-              hidden: { width: 0, padding: 0 },
-              visible: { width: 'auto', padding: '0 8px' },
-            }}
-            initial={'hidden'}
-            animate={!(!isFocused && !value.length) ? 'visible' : 'hidden'}
-            className={'max-w-full ml-2 px-2 text-body-small h-0'}
-            transition={{ duration: 0.2 }}
-          >
-            <span className={'transform inline-flex -translate-y-1/2'}>
-              <motion.span
-                className={styles.label}
-                transition={{ duration: 0.3 }}
-                layoutId={uuid}
-              >
-                {label}
-              </motion.span>
-            </span>
-          </motion.legend>
-        )}
+        <motion.legend
+          aria-hidden="true"
+          variants={{
+            hidden: { width: 0, padding: 0 },
+            visible: { width: 'auto', padding: '0 8px' },
+          }}
+          initial={showLegend ? 'visible' : 'hidden'}
+          animate={showLegend ? 'visible' : 'hidden'}
+          className={
+            'max-w-full ml-2 px-2 text-body-small h-0 overflow-hidden whitespace-nowrap'
+          }
+          transition={{ duration: 0.2 }}
+        >
+          <span className={'transform inline-flex -translate-y-1/2 opacity-0'}>
+            {label}
+          </span>
+        </motion.legend>
+
         <div className={'flex-1 relative'}>
-          {((!isFocused && !value.length) || variant == 'filled') && (
+          {showLabel && (
             <motion.label
-              htmlFor={name}
+              htmlFor={id}
               className={classNames(
-                'absolute left-4  transition-all duration-300',
+                'absolute left-4  transition-all duration-300 pointer-events-none',
                 {
-                  'text-body-small top-2':
-                    variant == 'filled' && !(!isFocused && !value.length),
+                  'text-body-small top-2': variant == 'filled' && isFloating,
                   'text-body-large top-1/2 transform -translate-y-1/2': !(
-                    variant == 'filled' && !(!isFocused && !value.length)
+                    variant == 'filled' && isFloating
                   ),
                 },
               )}
               transition={{ duration: 0.3 }}
+              layoutId={variant === 'outlined' ? `${id}-label` : undefined}
             >
-              <motion.span
-                className={styles.label}
-                transition={{ duration: 0.3 }}
-                layoutId={variant == 'outlined' ? uuid : undefined}
-              >
-                {label}
-              </motion.span>
+              <span className={styles.label}>{label}</span>
             </motion.label>
           )}
+
+          {showLegend && (
+            <motion.label
+              htmlFor={id}
+              className={classNames(
+                'absolute left-2 -top-3 px-1 text-body-small z-10',
+                styles.label,
+              )}
+              layoutId={`${id}-label`}
+              transition={{ duration: 0.3 }}
+            >
+              {label}
+            </motion.label>
+          )}
+
           <TextComponent
-            ref={inputRef}
+            ref={inputRef as any}
             value={value}
             onChange={handleChange}
             className={styles.input}
-            id={name}
+            id={id}
             name={name}
             placeholder={isFocused ? (placeholder ?? undefined) : ''}
             onFocus={handleOnFocus}
@@ -223,8 +209,9 @@ export const TextField = ({
             disabled={disabled}
             autoComplete={autoComplete}
             aria-invalid={!!errorText?.length}
-            aria-label={label}
+            aria-describedby={hasSupportingText ? helperTextId : undefined}
             {...textComponentProps}
+            {...(restProps as any)}
           />
         </div>
 
@@ -265,8 +252,8 @@ export const TextField = ({
           </div>
         )}
       </fieldset>
-      {showSupportingText && (
-        <p className={styles.supportingText}>
+      {hasSupportingText && (
+        <p className={styles.supportingText} id={helperTextId}>
           {errorText?.length
             ? errorText
             : supportingText?.length
