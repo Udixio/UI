@@ -3,8 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 function hereDir() {
-  const u = new URL(import.meta.url);
-  return path.dirname(u.pathname);
+  return __dirname;
 }
 
 function bundledComponentsIndexPath() {

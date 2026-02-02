@@ -2,8 +2,7 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 
 function hereDir() {
-  const u = new URL(import.meta.url);
-  return path.dirname(u.pathname);
+  return __dirname;
 }
 
 function bundledThemePath() {

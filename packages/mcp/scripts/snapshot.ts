@@ -37,10 +37,7 @@ async function copyFilePreserve(src: string, destRoot: string, base: string) {
 }
 
 // Recursive file finder using native fs
-async function findFiles(
-  dir: string,
-  extensions: string[],
-): Promise<string[]> {
+async function findFiles(dir: string, extensions: string[]): Promise<string[]> {
   const results: string[] = [];
 
   async function walk(currentDir: string) {

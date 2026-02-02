@@ -4,9 +4,8 @@ import path from 'node:path';
 import matter from 'gray-matter';
 
 function hereDir() {
-  // Works in ESM/TS via import.meta.url at runtime
-  const u = new URL(import.meta.url);
-  return path.dirname(u.pathname);
+  // Works in both CommonJS and ESM
+  return __dirname;
 }
 
 function bundledDocSrc() {
