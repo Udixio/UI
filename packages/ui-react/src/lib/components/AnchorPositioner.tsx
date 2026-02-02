@@ -79,7 +79,54 @@ export const AnchorPositioner = ({
     return <div style={floatingStyles}>{children}</div>;
   }
 
+  const fallbackStyles: CSSProperties = {
+    position: 'absolute',
+    pointerEvents: 'auto',
+    ...style,
+  };
+
+  switch (position) {
+    case 'top':
+      fallbackStyles.bottom = '100%';
+      fallbackStyles.left = '50%';
+      fallbackStyles.transform = 'translateX(-50%)';
+      break;
+    case 'top-left':
+      fallbackStyles.bottom = '100%';
+      fallbackStyles.left = 0;
+      break;
+    case 'top-right':
+      fallbackStyles.bottom = '100%';
+      fallbackStyles.right = 0;
+      break;
+    case 'bottom':
+      fallbackStyles.top = '100%';
+      fallbackStyles.left = '50%';
+      fallbackStyles.transform = 'translateX(-50%)';
+      break;
+    case 'bottom-left':
+      fallbackStyles.top = '100%';
+      fallbackStyles.left = 0;
+      break;
+    case 'bottom-right':
+      fallbackStyles.top = '100%';
+      fallbackStyles.right = 0;
+      break;
+    case 'left':
+      fallbackStyles.right = '100%';
+      fallbackStyles.top = '50%';
+      fallbackStyles.transform = 'translateY(-50%)';
+      break;
+    case 'right':
+      fallbackStyles.left = '100%';
+      fallbackStyles.top = '50%';
+      fallbackStyles.transform = 'translateY(-50%)';
+      break;
+  }
+
   return (
-    <SyncedFixedWrapper targetRef={anchorRef}>{children}</SyncedFixedWrapper>
+    <SyncedFixedWrapper targetRef={anchorRef}>
+      <div style={fallbackStyles}>{children}</div>
+    </SyncedFixedWrapper>
   );
 };

@@ -9,6 +9,7 @@ export const ComponentSidebar = ({
   components: { slug: string }[];
   current: string | null;
 }) => {
+  console.log(components);
   const [activeComponent, setActiveComponent] = useState<null | string>(
     current,
   );

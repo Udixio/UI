@@ -10,7 +10,7 @@ const datePickerConfig: ClassNameComponent<DatePickerInterface> = ({
   hasSelected,
 }) => ({
   datePicker: classNames(
-    'inline-flex flex-col bg-surface-container-high rounded-[28px] p-3 shadow-sm select-none', // Using shadow-sm as placeholder for elevation
+    'inline-flex flex-col bg-surface-container-high rounded-[28px] p-3 select-none', // Using shadow-sm as placeholder for elevation
     'min-w-[320px]',
   ),
   header: classNames('flex items-center justify-between h-12 mb-2 px-2'),

@@ -8,7 +8,7 @@ type Trigger = 'hover' | 'click' | 'focus' | null;
 export type ToolTipInterface<T extends HTMLElement = any> = {
   type: 'div';
   props: {
-    variant?: 'plain' | 'rich' | 'custom';
+    variant?: 'plain' | 'rich';
     title?: string;
     /** Supporting text for the tooltip. Optional when using `content` prop. */
     text?: string;

@@ -1,10 +1,4 @@
-import React, {
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Icon } from '../icon';
 import {
   faCalendarDays,
@@ -130,8 +124,6 @@ export const TextField = ({
     setTempDate(initialDateValue);
     setShowDatePicker(true);
   };
-
-
 
   const handleDateConfirm = () => {
     const newValue = tempDate ? tempDate.toLocaleDateString('en-CA') : '';
@@ -354,12 +346,13 @@ export const TextField = ({
             className="fixed inset-0 z-40 bg-transparent"
             onClick={() => setShowDatePicker(false)}
           />
-          <AnchorPositioner
-            anchorRef={textFieldRef}
-            position="bottom-right"
-          >
+          <AnchorPositioner anchorRef={textFieldRef} position="bottom">
             <div className="z-50 shadow-xl rounded-[28px] bg-surface-container-high overflow-hidden">
-              <DatePicker value={tempDate} onChange={setTempDate} />
+              <DatePicker
+                className={''}
+                value={tempDate}
+                onChange={setTempDate}
+              />
               <div className="flex justify-end gap-2 p-4 pt-0">
                 <Button
                   variant="text"

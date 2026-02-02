@@ -1,18 +1,10 @@
-import {
-  cloneElement,
-  isValidElement,
-  useEffect,
-  useRef,
-  CSSProperties,
-  RefObject,
-} from 'react';
+import { cloneElement, isValidElement, useEffect, useRef } from 'react';
 import { MotionProps } from '../utils';
 import { Button } from './Button';
 import { AnchorPositioner } from './AnchorPositioner';
 import { ToolTipInterface } from '../interfaces';
 import { useToolTipStyle } from '../styles';
 import { AnimatePresence, motion } from 'motion/react';
-import { SyncedFixedWrapper } from '../effects';
 import { useTooltipTrigger } from '../hooks';
 
 /**
@@ -47,9 +39,8 @@ export const Tooltip = ({
   anchorRef,
   ...props
 }: MotionProps<ToolTipInterface>) => {
-  if (content) {
-    variant = 'custom';
-  }
+  const defaultPosition = variant === 'rich' ? 'bottom-right' : 'bottom';
+  const effectivePosition = positionProp || defaultPosition;
 
   transition = { duration: 0.3, ...transition };
 
@@ -75,8 +66,6 @@ export const Tooltip = ({
     closeDelay,
     id,
   });
-
-
 
   // Apply trigger props to the target element
   const enhancedChildren =
@@ -158,7 +147,7 @@ export const Tooltip = ({
     className,
     title,
     text,
-    position: positionProp,
+    position: effectivePosition,
     trigger,
     targetRef: targetRef as any,
     children: children as any,
@@ -182,7 +171,7 @@ export const Tooltip = ({
         {isOpen && (
           <AnchorPositioner
             anchorRef={positioningRef}
-            position={positionProp}
+            position={effectivePosition}
           >
             <motion.div
               initial={'close'}
@@ -226,5 +215,3 @@ export const Tooltip = ({
     </>
   );
 };
-
-
