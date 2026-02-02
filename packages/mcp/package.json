@@ -36,7 +36,7 @@
     "start": "node dist/cli.js",
     "test": "vitest run",
     "clean": "rimraf dist",
-    "prepack": "pnpm build && tsx scripts/snapshot.ts"
+    "prepack": "pnpm -s build && tsx scripts/snapshot.ts"
   },
   "dependencies": {
     "express": "^5.1.0",
