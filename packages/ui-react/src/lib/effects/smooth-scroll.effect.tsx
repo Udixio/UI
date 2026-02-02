@@ -1,4 +1,4 @@
-import { useEffect, useRef, ReactNode } from 'react';
+import { ReactNode, useEffect, useRef } from 'react';
 import Lenis from 'lenis';
 
 export type SmoothScrollProps = {
@@ -36,6 +36,20 @@ export type SmoothScrollProps = {
 /**
  * SmoothScroll component using Lenis for smooth scrolling.
  * This component enables smooth scrolling at the document level.
+ *
+ * @warning **Use with caution.** Overriding native scroll behavior can cause:
+ * - **Accessibility issues**: Screen readers, keyboard navigation, and assistive technologies
+ *   may not work correctly with custom scroll implementations.
+ * - **Anchor links broken**: `scrollIntoView()`, hash navigation (`#section`), and
+ *   `window.scrollTo()` may behave unexpectedly or be ignored.
+ * - **Third-party library conflicts**: Libraries relying on native scroll events
+ *   (infinite scroll, lazy loading, scroll-triggered animations) may malfunction.
+ * - **Browser features disabled**: Find-in-page (Ctrl+F), autoscroll, and native
+ *   momentum scrolling on trackpads may not work as expected.
+ * - **Performance overhead**: The RAF loop runs continuously, which may impact
+ *   battery life and performance on low-end devices.
+ * - **Mobile issues**: Touch gestures, pull-to-refresh, and overscroll behaviors
+ *   can conflict with smooth scroll implementations.
  */
 export const SmoothScroll = ({
   transition = 1.2,
