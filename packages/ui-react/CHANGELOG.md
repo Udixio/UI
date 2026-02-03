@@ -1,3 +1,13 @@
+## 2.9.21 (2026-02-03)
+
+### 🚀 Features
+
+- **ui-react:** add `autoFocus` prop to `TextField` component ([0ee6e4f](https://github.com/Udixio/UI/commit/0ee6e4f))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.9.20 (2026-02-03)
 
 ### 🩹 Fixes
