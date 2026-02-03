@@ -79,9 +79,12 @@ export const TextField = ({
     }
   };
 
-  const handleOnFocus = () => {
+  const handleOnFocus = (
+    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     setIsFocused(true);
     setShowErrorIcon(false);
+    restProps.onFocus?.(e);
   };
 
   const handleChange = (
@@ -100,11 +103,14 @@ export const TextField = ({
     }
   };
 
-  const handleBlur = () => {
+  const handleBlur = (
+    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     setIsFocused(false);
     if (errorText?.length) {
       setShowErrorIcon(true);
     }
+    restProps.onBlur?.(e);
   };
 
   // Date Picker Logic
@@ -258,6 +264,7 @@ export const TextField = ({
           )}
 
           <TextComponent
+            {...(restProps as any)}
             ref={inputRef as any}
             value={value}
             onChange={handleChange}
@@ -265,21 +272,13 @@ export const TextField = ({
             id={id}
             name={name}
             placeholder={isFocused ? (placeholder ?? undefined) : ''}
-            onFocus={(e) => {
-              handleOnFocus();
-              if (isDateInput) {
-                // Maybe open picker on focus? User preference.
-                // Often better on click/icon click.
-                // But let's stick to icon click for now or explicit open.
-              }
-            }}
+            onFocus={handleOnFocus}
             onBlur={handleBlur}
             disabled={disabled}
             autoComplete={autoComplete}
             aria-invalid={!!errorText?.length}
             aria-describedby={hasSupportingText ? helperTextId : undefined}
             {...textComponentProps}
-            {...(restProps as any)}
           />
         </div>
 
