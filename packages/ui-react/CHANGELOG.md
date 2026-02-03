@@ -1,3 +1,18 @@
+## 2.9.19 (2026-02-03)
+
+### 🚀 Features
+
+- **ui-react:** improve `TextField` and `AnchorPositioner` with date picker handling ([32ebd5e](https://github.com/Udixio/UI/commit/32ebd5e))
+
+### 🩹 Fixes
+
+- **ui-react:** refactor `TextField` focus and blur handling ([c808202](https://github.com/Udixio/UI/commit/c808202))
+- **ui-react:** improve `TextField` and `AnchorPositioner` with date picker handling ([61833e9](https://github.com/Udixio/UI/commit/61833e9))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.9.18 (2026-02-03)
 
 ### 🩹 Fixes
