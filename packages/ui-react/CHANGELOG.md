@@ -1,3 +1,13 @@
+## 2.9.20 (2026-02-03)
+
+### 🩹 Fixes
+
+- **ui-react:** add `onFocus` and `onBlur` support to `TextField` interface ([7b48250](https://github.com/Udixio/UI/commit/7b48250))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.9.19 (2026-02-03)
 
 ### 🚀 Features
