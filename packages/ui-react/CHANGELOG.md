@@ -1,3 +1,13 @@
+## 2.9.22 (2026-02-03)
+
+### 🩹 Fixes
+
+- **ui-react:** remove unused `autoFocus` prop from `TextField` and update docs ([6d22b28](https://github.com/Udixio/UI/commit/6d22b28))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.9.21 (2026-02-03)
 
 ### 🚀 Features
