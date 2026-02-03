@@ -294,7 +294,6 @@ export const TextField = ({
             autoComplete={autoComplete}
             aria-invalid={!!errorText?.length}
             aria-describedby={hasSupportingText ? helperTextId : undefined}
-            autoFocus={autoFocus}
             {...textComponentProps}
           />
         </div>

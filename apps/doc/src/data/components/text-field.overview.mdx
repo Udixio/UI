@@ -5,6 +5,8 @@
 
 
 
+
+
 import { CodePreview } from '@/components/CodePreview.js';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 
@@ -87,4 +89,12 @@ function Example() {
     </div>
   );
 }
+```
+
+## Autofocus
+
+Use the `autoFocus` prop to automatically focus the `TextField` on mount.
+
+```jsx
+<TextField label="Search" name="q" autoFocus onFocus={() => console.log('focused')} onBlur={() => console.log('blurred')} />
 ```
