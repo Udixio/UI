@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import { SyncedFixedWrapper } from '../effects';
 import { createPortal } from 'react-dom';
+import IntrinsicElements = React.JSX.IntrinsicElements;
 
 export type Position =
   | 'top'
@@ -31,7 +32,8 @@ export const AnchorPositioner = ({
   position = 'bottom',
   children,
   style,
-}: AnchorPositionerProps) => {
+  ...restProps
+}: AnchorPositionerProps & IntrinsicElements['div']) => {
   const uniqueId = useId();
   const anchorName = `--anchor-${uniqueId.replace(/:/g, '')}`;
   const [supportsAnchor, setSupportsAnchor] = useState(false);
@@ -78,7 +80,9 @@ export const AnchorPositioner = ({
     } as any;
 
     return createPortal(
-      <div style={floatingStyles}>{children}</div>,
+      <div style={floatingStyles} {...restProps}>
+        {children}
+      </div>,
       document.body,
     );
   }
@@ -130,7 +134,9 @@ export const AnchorPositioner = ({
 
   return (
     <SyncedFixedWrapper targetRef={anchorRef}>
-      <div style={fallbackStyles}>{children}</div>
+      <div style={fallbackStyles} {...restProps}>
+        {children}
+      </div>
     </SyncedFixedWrapper>
   );
 };

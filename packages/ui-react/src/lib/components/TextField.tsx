@@ -65,6 +65,7 @@ export const TextField = ({
 
   const textFieldRef = useRef<HTMLDivElement>(null);
   const calendarTriggerRef = useRef<HTMLDivElement>(null);
+  const datePickerRef = useRef<HTMLDivElement>(null);
 
   const hasSupportingText =
     showSupportingText ?? (!!errorText?.length || !!supportingText?.length);
@@ -131,6 +132,14 @@ export const TextField = ({
     setTempDate(initialDateValue);
     setShowDatePicker(true);
   };
+
+  useEffect(() => {
+    if (showDatePicker) {
+      setIsFocused(true);
+    } else {
+      setIsFocused(false);
+    }
+  }, [showDatePicker]);
 
   const handleDateConfirm = () => {
     const newValue = tempDate ? tempDate.toLocaleDateString('en-CA') : '';
@@ -342,12 +351,26 @@ export const TextField = ({
 
       {isDateInput && showDatePicker && (
         <>
-          <div
-            className="fixed inset-0 z-40 bg-transparent"
-            onClick={() => setShowDatePicker(false)}
-          />
-          <AnchorPositioner anchorRef={textFieldRef} position="bottom">
-            <div className="z-50 shadow-xl rounded-[28px] bg-surface-container-high overflow-hidden">
+          <AnchorPositioner
+            onBlur={(e) => {
+              console.log(
+                datePickerRef.current,
+                !datePickerRef.current?.contains(e.relatedTarget),
+              );
+              if (
+                datePickerRef.current &&
+                !datePickerRef.current?.contains(e.relatedTarget)
+              ) {
+                setShowDatePicker(false);
+              }
+            }}
+            anchorRef={textFieldRef}
+            position="bottom"
+          >
+            <div
+              ref={datePickerRef}
+              className="z-50 shadow-xl rounded-[28px] bg-surface-container-high overflow-hidden"
+            >
               <DatePicker
                 className={''}
                 value={tempDate}
