@@ -47,6 +47,8 @@ export const TextField = ({
   id: idProp,
   style,
   ref,
+  onFocus,
+  onBlur,
   ...restProps
 }: ReactProps<TextFieldInterface>) => {
   const generatedId = useId();
@@ -83,12 +85,12 @@ export const TextField = ({
   useEffect(() => {
     if (isFocused) {
       setShowErrorIcon(false);
-      restProps.onFocus?.(e);
+      onFocus?.();
     } else {
       if (errorText?.length) {
         setShowErrorIcon(true);
       }
-      restProps.onBlur?.(e);
+      onBlur?.();
     }
   }, [isFocused]);
 

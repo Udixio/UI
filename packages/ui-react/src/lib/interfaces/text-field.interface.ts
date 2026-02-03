@@ -25,6 +25,8 @@ type Props = {
   type?: 'text' | 'password' | 'number' | 'date';
   autoComplete?: 'on' | 'off' | string;
   multiline?: boolean;
+  onFocus?: () => void;
+  onBlur?: () => void;
 };
 export type TextFieldStates = {
   isFocused: boolean;
