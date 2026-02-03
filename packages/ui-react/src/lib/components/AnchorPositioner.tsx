@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { SyncedFixedWrapper } from '../effects';
+import { createPortal } from 'react-dom';
 
 export type Position =
   | 'top'
@@ -76,7 +77,10 @@ export const AnchorPositioner = ({
       ...style,
     } as any;
 
-    return <div style={floatingStyles}>{children}</div>;
+    return createPortal(
+      <div style={floatingStyles}>{children}</div>,
+      document.body,
+    );
   }
 
   const fallbackStyles: CSSProperties = {
