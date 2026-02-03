@@ -27,6 +27,7 @@ import { TextFieldInterface } from '../interfaces';
  */
 export const TextField = ({
   variant = 'filled',
+  autoFocus,
   disabled = false,
   errorText,
   placeholder,
@@ -81,6 +82,16 @@ export const TextField = ({
       inputRef.current.focus();
     }
   };
+
+  useEffect(() => {
+    if (!autoFocus || disabled) return;
+
+    const rafId = window.requestAnimationFrame(() => {
+      focusInput();
+    });
+
+    return () => window.cancelAnimationFrame(rafId);
+  }, [autoFocus, disabled, inputRef]);
 
   useEffect(() => {
     if (isFocused) {
@@ -283,6 +294,7 @@ export const TextField = ({
             autoComplete={autoComplete}
             aria-invalid={!!errorText?.length}
             aria-describedby={hasSupportingText ? helperTextId : undefined}
+            autoFocus={autoFocus}
             {...textComponentProps}
           />
         </div>
@@ -349,10 +361,6 @@ export const TextField = ({
         <>
           <AnchorPositioner
             onBlur={(e) => {
-              console.log(
-                datePickerRef.current,
-                !datePickerRef.current?.contains(e.relatedTarget),
-              );
               if (
                 datePickerRef.current &&
                 !datePickerRef.current?.contains(e.relatedTarget)

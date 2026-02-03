@@ -24,6 +24,7 @@ type Props = {
   variant?: TextFieldVariant;
   type?: 'text' | 'password' | 'number' | 'date';
   autoComplete?: 'on' | 'off' | string;
+  autoFocus?: boolean;
   multiline?: boolean;
   onFocus?: () => void;
   onBlur?: () => void;
