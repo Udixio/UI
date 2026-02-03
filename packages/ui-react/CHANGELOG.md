@@ -1,3 +1,17 @@
+## 2.9.17 (2026-02-03)
+
+### 🚀 Features
+
+- **ui-react:** add support for `onFocus` and `onBlur` props passthrough in `TextField` ([6142846](https://github.com/Udixio/UI/commit/6142846))
+
+### 🩹 Fixes
+
+- **ui-react:** add support for `onFocus` and `onBlur` props passthrough in `TextField` ([c26dce0](https://github.com/Udixio/UI/commit/c26dce0))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.9.16 (2026-02-02)
 
 ### 🚀 Features
