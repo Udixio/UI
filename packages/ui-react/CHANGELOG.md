@@ -1,3 +1,13 @@
+## 2.9.18 (2026-02-03)
+
+### 🩹 Fixes
+
+- **ui-react:** render `AnchorPositioner` using `createPortal` ([c88c691](https://github.com/Udixio/UI/commit/c88c691))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.9.17 (2026-02-03)
 
 ### 🚀 Features
