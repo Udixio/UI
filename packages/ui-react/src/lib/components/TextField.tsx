@@ -134,10 +134,14 @@ export const TextField = ({
     return null;
   }, [value]);
 
-  const handleDatePickerOpen = () => {
+  const handleDatePickerToggle = () => {
     if (disabled) return;
-    setTempDate(initialDateValue);
-    setShowDatePicker(true);
+    if (showDatePicker) {
+      setShowDatePicker(false);
+    } else {
+      setTempDate(initialDateValue);
+      setShowDatePicker(true);
+    }
   };
 
   useEffect(() => {
@@ -146,6 +150,49 @@ export const TextField = ({
     } else {
       setIsFocused(false);
     }
+  }, [showDatePicker]);
+
+  useEffect(() => {
+    if (!showDatePicker) return;
+
+    const isInside = (target: Node | null) => {
+      if (!target) return false;
+      return (
+        textFieldRef.current?.contains(target) ||
+        datePickerRef.current?.contains(target)
+      );
+    };
+
+    const handlePointerDown = (e: PointerEvent) => {
+      const target = e.target as Node;
+      const inDatePicker = datePickerRef.current?.contains(target);
+      const inCalendarTrigger = calendarTriggerRef.current?.contains(target);
+      if (!inDatePicker && !inCalendarTrigger) {
+        setShowDatePicker(false);
+      }
+    };
+
+    const handleFocusIn = (e: FocusEvent) => {
+      if (!isInside(e.target as Node)) {
+        setShowDatePicker(false);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowDatePicker(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('focusin', handleFocusIn);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('focusin', handleFocusIn);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, [showDatePicker]);
 
   const handleDateConfirm = () => {
@@ -307,7 +354,7 @@ export const TextField = ({
                 ref={isDateInput ? calendarTriggerRef : undefined}
                 onClick={(event) => {
                   event.stopPropagation();
-                  if (isDateInput) handleDatePickerOpen();
+                  if (isDateInput) handleDatePickerToggle();
                 }}
                 className={classNames(
                   styles.trailingIcon,
@@ -358,18 +405,7 @@ export const TextField = ({
 
       {isDateInput && showDatePicker && (
         <>
-          <AnchorPositioner
-            onBlur={(e) => {
-              if (
-                datePickerRef.current &&
-                !datePickerRef.current?.contains(e.relatedTarget)
-              ) {
-                setShowDatePicker(false);
-              }
-            }}
-            anchorRef={textFieldRef}
-            position="bottom"
-          >
+          <AnchorPositioner anchorRef={textFieldRef} position="bottom">
             <div
               ref={datePickerRef}
               className="z-50 shadow-xl rounded-[28px] bg-surface-container-high overflow-hidden"
