@@ -80,13 +80,17 @@ export const TextField = ({
     }
   };
 
-  const handleOnFocus = (
-    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    setIsFocused(true);
-    setShowErrorIcon(false);
-    restProps.onFocus?.(e);
-  };
+  useEffect(() => {
+    if (isFocused) {
+      setShowErrorIcon(false);
+      restProps.onFocus?.(e);
+    } else {
+      if (errorText?.length) {
+        setShowErrorIcon(true);
+      }
+      restProps.onBlur?.(e);
+    }
+  }, [isFocused]);
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -102,16 +106,6 @@ export const TextField = ({
     if (onChange) {
       onChange(event);
     }
-  };
-
-  const handleBlur = (
-    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    setIsFocused(false);
-    if (errorText?.length) {
-      setShowErrorIcon(true);
-    }
-    restProps.onBlur?.(e);
   };
 
   // Date Picker Logic
@@ -281,8 +275,8 @@ export const TextField = ({
             id={id}
             name={name}
             placeholder={isFocused ? (placeholder ?? undefined) : ''}
-            onFocus={handleOnFocus}
-            onBlur={handleBlur}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
             disabled={disabled}
             autoComplete={autoComplete}
             aria-invalid={!!errorText?.length}
