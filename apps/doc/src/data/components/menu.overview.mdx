@@ -4,6 +4,9 @@ import {
   faUser,
   faSort,
   faChevronDown,
+  faScissors,
+  faCopy,
+  faPaste,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   Menu,
@@ -74,13 +77,14 @@ Vertical menu items can be grouped by adding a divider or small gap. Use groups 
     type="select"
     label="Edit Actions"
   >
-      <MenuItem value="cut" leadingIcon="fa-solid fa-scissors">Cut</MenuItem>
-      <MenuItem value="copy" leadingIcon="fa-regular fa-copy">Copy</MenuItem>
-      <MenuItem value="paste" leadingIcon="fa-regular fa-paste">Paste</MenuItem>
+      <MenuItem value="cut" leadingIcon={faScissors}>Cut</MenuItem>
+      <MenuItem value="copy" leadingIcon={faCopy}>Copy</MenuItem>
+      <MenuItem value="paste" leadingIcon={faPaste}>Paste</MenuItem>
       <Divider />
       <MenuItem value="all">Select All</MenuItem>
   </TextField>
 `}
+  scope={{ faScissors, faCopy, faPaste }}
 />
 
 ### Scrollable Menu
@@ -153,11 +157,28 @@ scope={{ faChevronDown: { prefix: 'fas', iconName: 'chevron-down' }, AnchorPosit
 
 ### Submenus
 
-Submenus should open next to the parent menu item without overlapping it.
+Submenus can be created by passing a `Menu` component to the `subMenu` prop of a `MenuItem`.
 
-_(Note: Native submenu support is coming soon. Currently, you can implement custom behavior or use flat grouped lists for simpler navigation on mobile.)_
-
-![A submenu opens to the right of its parent menu item](https://firebasestorage.googleapis.com/v0/b/design-spec/o/projects%2Fgoogle-material-3%2Fimages%2Fmhlm1f1q-15.png?alt=media&token=57bbf425-3173-4f90-b96c-93de307cf824)
+<CodePreview
+  client:load
+  code={`
+  <div className="relative h-[200px]">
+      <Menu>
+        <MenuItem value="copy">Copy</MenuItem>
+        <MenuItem value="paste">Paste</MenuItem>
+        <Divider />
+        <MenuItem value="more" subMenu={
+            <Menu>
+                <MenuItem value="share">Share</MenuItem>
+                <MenuItem value="export">Export</MenuItem>
+            </Menu>
+        }>
+            More Actions
+        </MenuItem>
+      </Menu>
+  </div>
+`}
+/>
 
 ### Anatomy
 

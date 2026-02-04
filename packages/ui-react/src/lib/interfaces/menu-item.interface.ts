@@ -8,6 +8,7 @@ export interface MenuItemInterface {
   leadingIcon?: any;
   trailingIcon?: any;
   disabled?: boolean;
+  subMenu?: React.ReactNode;
   selected?: boolean; // Injected by parent
   variant?: 'standard' | 'vibrant'; // Injected by parent
   onClick?: (e?: React.MouseEvent) => void;

@@ -17,7 +17,11 @@ export type Position =
   | 'top-left'
   | 'top-right'
   | 'bottom-left'
-  | 'bottom-right';
+  | 'bottom-right'
+  | 'right-start'
+  | 'right-end'
+  | 'left-start'
+  | 'left-end';
 
 export interface AnchorPositionerProps {
   anchorRef: RefObject<HTMLElement | null>;
@@ -67,6 +71,10 @@ export const AnchorPositioner = ({
       'top-right': 'top right',
       'bottom-left': 'bottom left',
       'bottom-right': 'bottom right',
+      'right-start': 'right top',
+      'right-end': 'right bottom',
+      'left-start': 'left top',
+      'left-end': 'left bottom',
     };
 
     const floatingStyles: CSSProperties = {
@@ -75,7 +83,7 @@ export const AnchorPositioner = ({
       zIndex: 9999,
       positionAnchor: anchorName,
       positionArea: positionAreaMap[position],
-      positionTryFallbacks: 'flip-block, flip-inline',
+      positionTryFallbacks: 'flip-block, flip-inline', // Correct CSS prop
       ...style,
     } as any;
 
