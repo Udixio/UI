@@ -1,0 +1,35 @@
+{
+  "tags": {
+    "status": "beta",
+    "category": "Selection",
+    "devx": "- Used internally by `TextField` for `type=\"select\"`.\n- Supports keyboard navigation and auto-scrolling to selected item.",
+    "a11y": "- `role=\"listbox\"` with `aria-selected` management."
+  },
+  "filePath": "node_modules/@udixio/ui-react/src/lib/components/Menu.tsx",
+  "description": "Menu displays a list of choices on a temporary surface.",
+  "displayName": "Menu",
+  "methods": [],
+  "props": {
+    "variant": {
+      "defaultValue": {
+        "value": "standard"
+      },
+      "description": "",
+      "name": "variant",
+      "parent": {
+        "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/menu.interface.ts",
+        "name": "MenuProps"
+      },
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/menu.interface.ts",
+          "name": "MenuProps"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "\"standard\" | \"vibrant\""
+      }
+    }
+  }
+}

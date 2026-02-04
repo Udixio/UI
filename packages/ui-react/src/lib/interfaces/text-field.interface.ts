@@ -22,7 +22,15 @@ type Props = {
   id?: string;
   style?: React.CSSProperties;
   variant?: TextFieldVariant;
-  type?: 'text' | 'password' | 'number' | 'date';
+  options?: Array<{
+    label: string;
+    value: string | number;
+    leadingIcon?: any;
+    trailingIcon?: any;
+    disabled?: boolean;
+    type?: 'divider' | 'headline';
+  }>;
+  type?: 'text' | 'password' | 'number' | 'date' | 'select';
   autoComplete?: 'on' | 'off' | string;
   autoFocus?: boolean;
   multiline?: boolean;

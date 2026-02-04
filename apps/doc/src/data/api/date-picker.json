@@ -8,9 +8,26 @@
   "displayName": "DatePicker",
   "methods": [],
   "props": {
+    "mode": {
+      "defaultValue": {
+        "value": "single"
+      },
+      "description": "Selection mode: 'single' for one date, 'range' for start/end period.",
+      "name": "mode",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/date-picker.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "\"single\" | \"range\""
+      }
+    },
     "value": {
       "defaultValue": null,
-      "description": "The currently selected date.",
+      "description": "The currently selected date(s).\nDate for single mode, [start, end] tuple for range mode.",
       "name": "value",
       "declarations": [
         {
@@ -20,12 +37,12 @@
       ],
       "required": false,
       "type": {
-        "name": "Date"
+        "name": "Date | DateRange"
       }
     },
     "defaultValue": {
       "defaultValue": null,
-      "description": "Default selected date for uncontrolled usage.",
+      "description": "Default selected date(s) for uncontrolled usage.",
       "name": "defaultValue",
       "declarations": [
         {
@@ -35,12 +52,12 @@
       ],
       "required": false,
       "type": {
-        "name": "Date"
+        "name": "Date | DateRange"
       }
     },
     "onChange": {
       "defaultValue": null,
-      "description": "Callback fired when a day is selected.",
+      "description": "Callback fired when selection changes.\nReturns Date in single mode, DateRange in range mode.",
       "name": "onChange",
       "declarations": [
         {
@@ -50,7 +67,7 @@
       ],
       "required": false,
       "type": {
-        "name": "(date: Date) => void"
+        "name": "(value: any) => void"
       }
     },
     "minDate": {
@@ -102,7 +119,7 @@
       "defaultValue": {
         "value": "default"
       },
-      "description": "Locale for formatting dates (defaults to browser locale or 'en-US').\nNote: This simple implementation might use Intl APIs directly.",
+      "description": "Locale for formatting dates.",
       "name": "locale",
       "declarations": [
         {
@@ -113,6 +130,23 @@
       "required": false,
       "type": {
         "name": "string"
+      }
+    },
+    "weekStartDay": {
+      "defaultValue": {
+        "value": 0
+      },
+      "description": "First day of the week (0=Sunday, 1=Monday).",
+      "name": "weekStartDay",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/date-picker.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "0 | 2 | 1 | 3 | 4 | 5 | 6"
       }
     }
   }

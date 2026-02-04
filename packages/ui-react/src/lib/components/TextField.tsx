@@ -3,10 +3,16 @@ import { Icon } from '../icon';
 import {
   faCalendarDays,
   faCircleExclamation,
+  faChevronDown,
+  faChevronUp,
 } from '@fortawesome/free-solid-svg-icons';
 import { motion } from 'motion/react';
 import { DatePicker } from './DatePicker';
 import { Button } from './Button';
+import { Menu } from './Menu';
+import { MenuItem } from './MenuItem';
+import { Divider } from './Divider';
+import { MenuHeadline } from './MenuHeadline';
 
 import TextareaAutosize from 'react-textarea-autosize';
 import { useTextFieldStyle } from '../styles/text-field.style';
@@ -22,6 +28,7 @@ import { TextFieldInterface } from '../interfaces';
  * @devx
  * - Supports controlled (`value`) and uncontrolled (`defaultValue`) usage.
  * - `multiline` switches to textarea mode.
+ * - `type="select" ` switches to select mode with `options`
  * @a11y
  * - `aria-describedby` links supporting text/error to input.
  */
@@ -50,8 +57,10 @@ export const TextField = ({
   ref,
   onFocus,
   onBlur,
+  options,
+  children,
   ...restProps
-}: ReactProps<TextFieldInterface>) => {
+}: ReactProps<TextFieldInterface> & { children?: React.ReactNode }) => {
   const generatedId = useId();
   const id = idProp || generatedId;
   const helperTextId = `${id}-helper`;
@@ -78,20 +87,23 @@ export const TextField = ({
   }, [errorText]);
 
   const focusInput = () => {
-    if (inputRef.current && !isFocused) {
-      inputRef.current.focus();
+    if (inputRef.current && !isFocused && !disabled) {
+      if (type !== 'select') {
+        inputRef.current.focus();
+      }
     }
   };
 
   useEffect(() => {
     if (!autoFocus || disabled) return;
 
-    const rafId = window.requestAnimationFrame(() => {
-      focusInput();
-    });
-
-    return () => window.cancelAnimationFrame(rafId);
-  }, [autoFocus, disabled, inputRef]);
+    if (type !== 'select') {
+      const rafId = window.requestAnimationFrame(() => {
+        focusInput();
+      });
+      return () => window.cancelAnimationFrame(rafId);
+    }
+  }, [autoFocus, disabled, inputRef, type]);
 
   useEffect(() => {
     if (isFocused) {
@@ -147,7 +159,7 @@ export const TextField = ({
   useEffect(() => {
     if (showDatePicker) {
       setIsFocused(true);
-    } else {
+    } else if (!isSelectInput || !showMenu) {
       setIsFocused(false);
     }
   }, [showDatePicker]);
@@ -203,7 +215,6 @@ export const TextField = ({
     }
 
     if (onChange) {
-      // Create a synthetic event
       const event = {
         target: {
           value: newValue,
@@ -216,13 +227,78 @@ export const TextField = ({
     setShowDatePicker(false);
   };
 
-  const effectiveTrailingIcon =
-    isDateInput && !trailingIcon ? faCalendarDays : trailingIcon;
+  // Select Logic
+  const isSelectInput = type === 'select';
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  // Enhance styles for date input
-  const inputDateClass = isDateInput
-    ? '[&::-webkit-calendar-picker-indicator]:hidden cursor-pointer'
-    : '';
+  const displayValue = useMemo(() => {
+    if (isSelectInput && options) {
+      const selectedOption = options.find(
+        (o) => String(o.value) === String(value),
+      );
+      return selectedOption ? selectedOption.label : value;
+    }
+    return value;
+  }, [value, isSelectInput, options]);
+
+  const handleSelectToggle = () => {
+    if (disabled) return;
+    setShowMenu(!showMenu);
+    setIsFocused(!showMenu);
+  };
+
+  const handleSelectOption = (optionValue: string | number) => {
+    if (!isControlled) {
+      setInternalValue(String(optionValue));
+    }
+
+    if (onChange) {
+      const event = {
+        target: {
+          value: String(optionValue),
+          name,
+          type,
+        },
+      } as React.ChangeEvent<HTMLInputElement>;
+      onChange(event);
+    }
+    setShowMenu(false);
+    setIsFocused(false);
+  };
+
+  // Close menu on outside click
+  useEffect(() => {
+    if (!showMenu) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        textFieldRef.current &&
+        !textFieldRef.current.contains(event.target as Node) &&
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node)
+      ) {
+        setShowMenu(false);
+        setIsFocused(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showMenu]);
+
+  const effectiveTrailingIcon = useMemo(() => {
+    if (trailingIcon) return trailingIcon;
+    if (isDateInput) return faCalendarDays;
+    if (isSelectInput) return showMenu ? faChevronUp : faChevronDown;
+    return undefined;
+  }, [trailingIcon, isDateInput, isSelectInput, showMenu]);
+
+  // Enhance styles for date input or select
+  const inputSpecialClass =
+    isDateInput || isSelectInput
+      ? '[&::-webkit-calendar-picker-indicator]:hidden cursor-pointer selection:bg-transparent'
+      : '';
 
   const styles = useTextFieldStyle({
     showSupportingText: hasSupportingText,
@@ -241,25 +317,37 @@ export const TextField = ({
     trailingIcon: effectiveTrailingIcon,
     variant,
     errorText,
-    value: String(value),
+    value: String(displayValue),
     suffix,
     multiline,
   });
 
   const TextComponent = multiline ? TextareaAutosize : 'input';
-  const textComponentProps = multiline ? {} : { type };
+  // For select, we want the input to be readOnly but still focusable? 
+  // Actually, for better UX, standard select inputs are often readOnly text fields.
+  const textComponentProps = multiline
+    ? {}
+    : {
+        type: isSelectInput ? 'text' : type,
+        readOnly: isSelectInput,
+      };
 
   const isFloating =
     isFocused ||
     (typeof value === 'string' && value.length > 0) ||
-    type == 'date'; // Float label when picker open
+    type == 'date' ||
+    (isSelectInput && showMenu);
+
   const showLegend = isFloating && variant === 'outlined';
   const showLabel = !showLegend;
 
   return (
     <div ref={textFieldRef} className={styles.textField} style={style}>
       <fieldset
-        onClick={focusInput}
+        onClick={() => {
+            if (isSelectInput) handleSelectToggle();
+            else focusInput();
+        }}
         className={styles.content}
         role="presentation"
       >
@@ -329,14 +417,19 @@ export const TextField = ({
           <TextComponent
             {...(restProps as any)}
             ref={inputRef as any}
-            value={value}
+            value={displayValue} // Use displayValue for select
             onChange={handleChange}
-            className={classNames(styles.input, inputDateClass)}
+            className={classNames(styles.input, inputSpecialClass)}
             id={id}
             name={name}
             placeholder={isFocused ? (placeholder ?? undefined) : ''}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
+            onFocus={() => {
+                if(!isSelectInput) setIsFocused(true)
+            }}
+            onBlur={() => {
+                 // For select, we manage focus manually with menu state usually
+                 if(!isSelectInput) setIsFocused(false)
+            }}
             disabled={disabled}
             autoComplete={autoComplete}
             aria-invalid={!!errorText?.length}
@@ -355,10 +448,11 @@ export const TextField = ({
                 onClick={(event) => {
                   event.stopPropagation();
                   if (isDateInput) handleDatePickerToggle();
+                  if (isSelectInput) handleSelectToggle();
                 }}
                 className={classNames(
                   styles.trailingIcon,
-                  isDateInput && 'cursor-pointer',
+                  (isDateInput || isSelectInput) && 'cursor-pointer',
                 )}
               >
                 <div className="flex items-center justify-center w-full h-full">
@@ -435,6 +529,40 @@ export const TextField = ({
           </AnchorPositioner>
         </>
       )}
+
+      {isSelectInput && showMenu && (
+        <AnchorPositioner anchorRef={textFieldRef} position="bottom" style={{ width: textFieldRef.current?.offsetWidth }}>
+            <div ref={menuRef}>
+                <Menu
+                    selected={value}
+                    onItemSelect={handleSelectOption}
+                >
+                    {children}
+                    {!children && options?.map((opt, i) => {
+                         if (opt.type === 'divider') {
+                            return <Divider key={i} className="my-1" />
+                         }
+                         if (opt.type === 'headline') {
+                            return <MenuHeadline key={i} label={opt.label} />
+                         }
+                         return (
+                            <MenuItem
+                                key={opt.value ?? i}
+                                value={opt.value ?? ''}
+                                label={opt.label}
+                                leadingIcon={opt.leadingIcon}
+                                trailingIcon={opt.trailingIcon}
+                                disabled={opt.disabled}
+                            >
+                                {opt.label}
+                            </MenuItem>
+                         )
+                    })}
+                </Menu>
+            </div>
+        </AnchorPositioner>
+      )}
     </div>
   );
 };
+

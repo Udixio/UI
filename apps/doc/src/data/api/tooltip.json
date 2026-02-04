@@ -205,6 +205,21 @@
         "name": "string"
       }
     },
+    "anchorRef": {
+      "defaultValue": null,
+      "description": "Custom anchor for positioning. Defaults to the trigger element.",
+      "name": "anchorRef",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tooltip.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "RefObject<HTMLElement>"
+      }
+    },
     "initial": {
       "defaultValue": null,
       "description": "Properties, variant label or array of variant labels to start in.\n\nSet to `false` to initialise with the values in `animate` (disabling the mount animation)\n\n```jsx\n// As values\n<motion.div initial={{ opacity: 1 }} />\n\n// As variant\n<motion.div initial=\"visible\" variants={variants} />\n\n// Multiple variants\n<motion.div initial={[\"visible\", \"active\"]} variants={variants} />\n\n// As false (disable mount animation)\n<motion.div initial={false} animate={{ opacity: 0 }} />\n```",

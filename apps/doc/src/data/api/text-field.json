@@ -2,7 +2,7 @@
   "tags": {
     "status": "beta",
     "category": "Input",
-    "devx": "- Supports controlled (`value`) and uncontrolled (`defaultValue`) usage.\n- `multiline` switches to textarea mode.",
+    "devx": "- Supports controlled (`value`) and uncontrolled (`defaultValue`) usage.\n- `multiline` switches to textarea mode.\n- `type=\"select\" ` switches to select mode with `options`",
     "a11y": "- `aria-describedby` links supporting text/error to input."
   },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/TextField.tsx",
@@ -58,7 +58,7 @@
       ],
       "required": false,
       "type": {
-        "name": "\"number\" | \"text\" | \"password\""
+        "name": "\"number\" | \"text\" | \"password\" | \"date\" | \"select\""
       }
     },
     "autoComplete": {

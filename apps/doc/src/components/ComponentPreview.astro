@@ -12,6 +12,7 @@ import {
   Fab,
   FabMenu,
   IconButton,
+  Menu,
   NavigationRail,
   NavigationRailItem,
   ProgressIndicator,
@@ -26,6 +27,9 @@ import {
   Tabs,
   TextField,
   Tooltip,
+  AnchorPositioner,
+  MenuItem,
+  MenuHeadline,
 } from '@udixio/ui-react';
 import {
   faBell,
@@ -33,6 +37,7 @@ import {
   faHouse,
   faPlus,
   faStar,
+  faChevronDown,
 } from '@fortawesome/free-solid-svg-icons';
 
 type PreviewProps = {
@@ -171,6 +176,19 @@ const { id } = Astro.props as PreviewProps;
     )
   }
   {
+    id === 'menu' && (
+      <TextField
+        type="select"
+        label="Select"
+        defaultValue="option1"
+        className="min-w-[150px]"
+      >
+        <MenuItem value="option1">Option 1</MenuItem>
+        <MenuItem value="option2">Option 2</MenuItem>
+      </TextField>
+    )
+  }
+  {
     id === 'tooltip' && (
       <Tooltip text="Tooltip text">
         <Button label="Hover me" />
@@ -208,6 +226,7 @@ const { id } = Astro.props as PreviewProps;
       id === 'tab-group' ||
       id === 'tab-panels' ||
       id === 'text-field' ||
+      id === 'menu' ||
       id === 'tooltip'
     ) && (
       <span class="inline-flex items-center rounded-full bg-surface-variant px-3 py-1 text-label-small text-on-surface-variant">

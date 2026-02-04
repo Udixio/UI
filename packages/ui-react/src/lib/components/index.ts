@@ -1,8 +1,8 @@
+
 export * from './AnchorPositioner';
 export * from './Button';
 export * from './Card';
 export * from './Carousel';
-export * from './CarouselItem';
 export * from './CarouselItem';
 export * from './Checkbox';
 export * from './Chip';
@@ -11,7 +11,9 @@ export * from './Divider';
 export * from './Fab';
 export * from './FabMenu';
 export * from './IconButton';
-export * from './IconButton';
+export * from './Menu';
+export * from './MenuItem';
+export * from './MenuHeadline';
 export * from './ProgressIndicator';
 export * from './Slider';
 export * from './SideSheet';

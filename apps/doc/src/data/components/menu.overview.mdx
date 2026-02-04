@@ -1,0 +1,176 @@
+import { CodePreview } from '@/components/CodePreview.js';
+import {
+  faMagnifyingGlass,
+  faUser,
+  faSort,
+  faChevronDown,
+} from '@fortawesome/free-solid-svg-icons';
+import {
+  Menu,
+  MenuItem,
+  Divider,
+  MenuHeadline,
+  Chip,
+  AnchorPositioner,
+} from '@udixio/ui-react';
+import React from 'react';
+
+## Usage
+
+Menus display a list of choices on a temporary surface. They appear when users interact with a button, action, or other control.
+
+One common use case for Menus is the **Exposed Dropdown Menu**, integrated into `TextField` (often called a "Select").
+
+### Exposed Dropdown Menu (Select)
+
+Use `TextField` with `type="select"` to create a dropdown menu. Pass `MenuItem` components as children to define the options.
+
+<CodePreview
+  client:load
+  code={`
+  <div className="flex flex-col gap-4 max-w-sm">
+      <TextField
+        type="select"
+        label="Favorite Fruit"
+      >
+        <MenuItem value="apple">Apple</MenuItem>
+        <MenuItem value="banana">Banana</MenuItem>
+        <MenuItem value="orange">Orange</MenuItem>
+      </TextField>
+  </div>
+`}
+/>
+
+### Color options
+
+Menus have two color mappings:
+
+- **Standard**: Surface-based, lower visual emphasis.
+- **Vibrant**: Tertiary-based, higher visual emphasis.
+
+<CodePreview
+  client:load
+  code={`
+  <div className="flex flex-col gap-4 max-w-sm">
+    <TextField
+        type="select"
+        label="Standard Menu"
+    >
+        <MenuItem value="1">Standard Option 1</MenuItem>
+        <MenuItem value="2">Standard Option 2</MenuItem>
+    </TextField>
+  </div>
+`}
+/>
+
+### Menu groups & Dividers
+
+Vertical menu items can be grouped by adding a divider or small gap. Use groups to bundle similar actions together.
+
+<CodePreview
+  client:load
+  code={`
+  <TextField
+    type="select"
+    label="Edit Actions"
+  >
+      <MenuItem value="cut" leadingIcon="fa-solid fa-scissors">Cut</MenuItem>
+      <MenuItem value="copy" leadingIcon="fa-regular fa-copy">Copy</MenuItem>
+      <MenuItem value="paste" leadingIcon="fa-regular fa-paste">Paste</MenuItem>
+      <Divider />
+      <MenuItem value="all">Select All</MenuItem>
+  </TextField>
+`}
+/>
+
+### Scrollable Menu
+
+Menus can scroll when all menu items can’t display at once.
+
+<CodePreview
+  client:load
+  code={`
+  <TextField
+    type="select"
+    label="So many options"
+  >
+    {Array.from({ length: 20 }, (_, i) => (
+      <MenuItem key={i} value={i}>Option {i + 1}</MenuItem>
+    ))}
+  </TextField>
+`}
+/>
+
+### Filter Chip Menu
+
+A menu can be triggered by a Filter Chip.
+
+<CodePreview
+  client:load
+  code={`
+function ChipMenu() {
+  const [open, setOpen] = React.useState(false);
+  const chipRef = React.useRef(null);
+  const [selected, setSelected] = React.useState('DATE_ASC');
+
+return (
+
+<div className="relative h-[200px]">
+<div ref={chipRef} className="inline-block">
+<Chip
+label="Sort by"
+variant="filter"
+selected={open}
+trailingIcon={faChevronDown}
+onClick={() => setOpen(!open)}
+/>
+</div>
+
+      {open && (
+        <AnchorPositioner anchorRef={chipRef} position="bottom-left" className="mt-1">
+             <Menu
+                selected={selected}
+                onItemSelect={(val) => {
+                    setSelected(val);
+                    setOpen(false);
+                }}
+             >
+                <MenuItem value="DATE_DESC">Date (Newest first)</MenuItem>
+                <MenuItem value="DATE_ASC">Date (Oldest first)</MenuItem>
+                <Divider />
+                <MenuItem value="NAME_ASC">Name (A-Z)</MenuItem>
+                <MenuItem value="NAME_DESC">Name (Z-A)</MenuItem>
+             </Menu>
+        </AnchorPositioner>
+      )}
+    </div>
+
+);
+}
+`}
+scope={{ faChevronDown: { prefix: 'fas', iconName: 'chevron-down' }, AnchorPositioner, Menu, MenuItem, Divider, Chip }}
+/>
+
+### Submenus
+
+Submenus should open next to the parent menu item without overlapping it.
+
+_(Note: Native submenu support is coming soon. Currently, you can implement custom behavior or use flat grouped lists for simpler navigation on mobile.)_
+
+![A submenu opens to the right of its parent menu item](https://firebasestorage.googleapis.com/v0/b/design-spec/o/projects%2Fgoogle-material-3%2Fimages%2Fmhlm1f1q-15.png?alt=media&token=57bbf425-3173-4f90-b96c-93de307cf824)
+
+### Anatomy
+
+![Diagram outlining 11 elements of a menu’s anatomy.](https://lh3.googleusercontent.com/23G6to4Ij-HsQF2iAQsFg737t4f1InY3ANqqt-NYDrCj4ajmDFHSL7o3BTM7CHvUGdR8bTgcGg-OWPY5sp5qepK-LfRRWNZg8b1gwuq3gjU=s0)
+
+1.  Menu item
+2.  Leading icon (optional)
+3.  Menu item text
+4.  Trailing icon (optional)
+5.  Badge (optional)
+6.  Trailing text (optional)
+7.  Container
+8.  Supporting text (optional)
+9.  Label text (optional)
+10. Gap (optional)
+11. Divider (optional)

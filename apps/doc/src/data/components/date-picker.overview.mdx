@@ -3,6 +3,7 @@
 
 
 
+
 import { faCalendarDays } from '@fortawesome/free-solid-svg-icons';
 import { CodePreview } from '@/components/CodePreview.js';
 
@@ -93,6 +94,7 @@ Combine with TextField and IconButton for a popup picker.
       <TextField
               type="date"
               label="Date"
+              onFocus={() => console.log('focused')} onBlur={() => console.log('blurred')}
             />
     </div>
   );
