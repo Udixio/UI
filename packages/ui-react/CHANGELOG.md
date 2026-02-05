@@ -1,3 +1,13 @@
+## 2.9.23 (2026-02-03)
+
+### 🩹 Fixes
+
+- **ui-react:** improve `TextField` date picker toggling and accessibility ([428cdbb](https://github.com/Udixio/UI/commit/428cdbb))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.9.22 (2026-02-03)
 
 ### 🩹 Fixes
