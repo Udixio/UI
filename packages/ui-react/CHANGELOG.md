@@ -1,3 +1,13 @@
+## 2.10.0 (2026-02-05)
+
+### 🚀 Features
+
+- improve SVG attribute handling in `Icon` component ([faf94cb](https://github.com/Udixio/UI/commit/faf94cb))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.9.24 (2026-02-05)
 
 ### 🚀 Features
