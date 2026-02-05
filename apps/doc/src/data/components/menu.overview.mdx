@@ -1,21 +1,5 @@
 import { CodePreview } from '@/components/CodePreview.js';
-import {
-  faMagnifyingGlass,
-  faUser,
-  faSort,
-  faChevronDown,
-  faScissors,
-  faCopy,
-  faPaste,
-} from '@fortawesome/free-solid-svg-icons';
-import {
-  Menu,
-  MenuItem,
-  Divider,
-  MenuHeadline,
-  Chip,
-  AnchorPositioner,
-} from '@udixio/ui-react';
+import { faChevronDown, faCopy, faEllipsisVertical, faPaste, faScissors } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
 
 ## Usage
@@ -119,7 +103,7 @@ function ChipMenu() {
 
 return (
 
-<div className="relative h-[200px]">
+<div className="relative">
 <div ref={chipRef} className="inline-block">
 <Chip
 label="Sort by"
@@ -130,8 +114,7 @@ onClick={() => setOpen(!open)}
 />
 </div>
 
-      {open && (
-        <AnchorPositioner anchorRef={chipRef} position="bottom-left" className="mt-1">
+        <AnchorPositioner anchorRef={chipRef} position="bottom left" className="mt-1">
              <Menu
                 selected={selected}
                 onItemSelect={(val) => {
@@ -146,13 +129,13 @@ onClick={() => setOpen(!open)}
                 <MenuItem value="NAME_DESC">Name (Z-A)</MenuItem>
              </Menu>
         </AnchorPositioner>
-      )}
+
     </div>
 
 );
 }
 `}
-scope={{ faChevronDown: { prefix: 'fas', iconName: 'chevron-down' }, AnchorPositioner, Menu, MenuItem, Divider, Chip }}
+scope={{ faChevronDown }}
 />
 
 ### Submenus
@@ -185,6 +168,120 @@ Submenus can be created by passing a `Menu` component to the `subMenu` prop of a
   </div>
 `}
 />
+
+### Icon Button Menu
+
+Menus are often triggered by an icon button, such as the "kebab" menu (three vertical dots).
+
+<CodePreview
+  client:load
+  code={`
+function IconMenu() {
+  const [open, setOpen] = React.useState(false);
+  const btnRef = React.useRef(null);
+
+return (
+<div className="relative h-[200px] flex justify-center items-center">
+<div ref={btnRef}>
+<IconButton
+icon={faEllipsisVertical}
+label="Options"
+onClick={() => setOpen(!open)}
+/>
+</div>
+{open && (
+<AnchorPositioner anchorRef={btnRef} position="bottom left">
+<Menu onItemSelect={() => setOpen(false)}>
+<MenuItem value="edit">Edit</MenuItem>
+<MenuItem value="duplicate">Duplicate</MenuItem>
+<Divider />
+<MenuItem value="delete">Delete</MenuItem>
+</Menu>
+</AnchorPositioner>
+)}
+</div>
+);
+}
+`}
+scope={{ faEllipsisVertical }}
+/>
+
+### Context Menu
+
+Menus can be opened via right-click interaction (context menu).
+
+```jsx
+function ContextMenu() {
+  const [contextMenu, setContextMenu] = React.useState(null);
+  const anchorRef = React.useRef(null);
+
+  const handleContextMenu = (event) => {
+    console.log('context menu triggered', {mouseX: event.clientX,
+      mouseY: event.clientY});
+    event.preventDefault();
+    setContextMenu({
+      mouseX: event.clientX,
+      mouseY: event.clientY,
+    });
+  };
+
+  const handleClose = () => {
+   setContextMenu(null);
+  };
+
+  React.useEffect(() => {
+  if (!contextMenu) return;
+    const handleOutsideInteraction = () => setContextMenu(null);
+    window.addEventListener('click', handleOutsideInteraction);
+    window.addEventListener('scroll', handleOutsideInteraction);
+    window.addEventListener('contextmenu', handleOutsideInteraction);
+
+    return () => {
+        window.removeEventListener('click', handleOutsideInteraction);
+        window.removeEventListener('scroll', handleOutsideInteraction);
+        window.removeEventListener('contextmenu', handleOutsideInteraction);
+    };
+
+  }, [contextMenu]);
+
+  return (
+  <div onContextMenu={handleContextMenu} className="cursor-context-menu relative  flex items-center justify-center">
+  <Card className="p-8 flex items-center justify-center bg-surface-container-low border-dashed border-2 border-outline-variant">
+  <span className="text-on-surface-variant">Right click here</span>
+  </Card>
+
+          {/* Invisible anchor element positioned at cursor */}
+          <div
+              ref={anchorRef}
+              style={{
+                  position: 'fixed',
+                  top: contextMenu?.mouseY ?? 0,
+                  left: contextMenu?.mouseX ?? 0,
+                  width: 1,
+                  height: 1,
+                  pointerEvents: 'none'
+              }}
+          />
+
+          {contextMenu && (
+               <AnchorPositioner
+                  anchorRef={anchorRef}
+                  position="bottom left"
+                  onClick={(e) => e.stopPropagation()}
+               >
+                   <Menu onItemSelect={handleClose}>
+                      <MenuItem value="view">View Details</MenuItem>
+                      <MenuItem value="open">Open in new tab</MenuItem>
+                      <Divider />
+                      <MenuItem value="properties">Properties</MenuItem>
+                   </Menu>
+               </AnchorPositioner>
+          )}
+      </div>
+
+  );
+}
+```
 
 ### Anatomy
 
