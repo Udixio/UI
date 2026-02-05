@@ -14,16 +14,20 @@ export const MenuGroup = ({
   children,
   className,
   variant,
+  label,
   ...restProps
 }: ReactProps<MenuGroupInterface> & React.HTMLAttributes<HTMLDivElement>) => {
   const styles = useMenuGroupStyle({
     children,
     className,
     variant,
+    label,
+    ...restProps,
   });
 
   return (
     <div className={styles.menuGroup} role="group" {...restProps}>
+      {label && <div className={styles.groupLabel}>{label}</div>}
       {children}
     </div>
   );
