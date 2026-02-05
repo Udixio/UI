@@ -1,11 +1,8 @@
-
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { Icon } from '../icon';
 import { classNames, ReactProps } from '../utils';
 import { MenuItemInterface } from '../interfaces/menu-item.interface';
 import { useMenuItemStyle } from '../styles/menu-item.style';
-
-import { useRef, useState } from 'react';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { AnchorPositioner } from './AnchorPositioner';
 
@@ -23,58 +20,87 @@ export const MenuItem = ({
   disabled,
   selected,
   variant,
-  subMenu,
   onClick,
   onItemSelect, // Injected by Menu
   className,
   ...restProps
 }: ReactProps<MenuItemInterface>) => {
+  /* Extract subMenu from children if present */
+  let subMenuElement: React.ReactNode = null;
+  const contentChildren: React.ReactNode[] = [];
+
+  React.Children.forEach(children, (child) => {
+    // Check for Menu component via name (development) or if it has displayName 'Menu'
+    // We accept a child that is valid element and looks like a Menu.
+    if (
+      React.isValidElement(child) &&
+      ((child.type as any)?.name === 'Menu' ||
+        (child.type as any)?.displayName === 'Menu')
+    ) {
+      subMenuElement = child;
+    } else {
+      contentChildren.push(child);
+    }
+  });
+
+  const labelContent = contentChildren.length > 0 ? contentChildren : label;
+
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
+  const closeTimerRef = useRef<any>(null);
+
   const styles = useMenuItemStyle({
-      variant,
-      disabled,
-      selected,
-      className
+    variant,
+    disabled,
+    selected,
+    className,
   });
 
   const handleClick = (e: React.MouseEvent) => {
     if (disabled) {
-        e.preventDefault();
-        return;
+      e.preventDefault();
+      return;
     }
-    
-    if (subMenu) {
-        e.stopPropagation();
-        // Toggle on click for touch devices or if preferred
-        // setIsSubMenuOpen(!isSubMenuOpen); 
-        // Actually, usually click performs action OR opens menu. 
-        // If it has submenu, maybe just open it?
-        return;
+
+    if (subMenuElement) {
+      e.stopPropagation();
+      return;
     }
 
     onClick?.(e);
     if (onItemSelect) {
-        onItemSelect(value);
+      onItemSelect(value);
     }
   };
 
   const handleMouseEnter = () => {
-    if (!disabled && subMenu) {
-        setIsSubMenuOpen(true);
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+    if (!disabled && subMenuElement) {
+      setIsSubMenuOpen(true);
     }
   };
 
   const handleMouseLeave = () => {
-     // Delay closing or check if moving to submenu?
-     // simple for now
-     if (subMenu) {
+    if (subMenuElement) {
+      closeTimerRef.current = setTimeout(() => {
         setIsSubMenuOpen(false);
-     }
+      }, 150); // Delay to allow diagonal movement
+    }
   };
 
-  // Ensure trailing icon is chevron if submenu exists and no other icon provided
-  const effectiveTrailingIcon = trailingIcon ?? (subMenu ? faChevronRight : undefined);
+  React.useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) {
+        clearTimeout(closeTimerRef.current);
+      }
+    };
+  }, []);
+
+  const effectiveTrailingIcon =
+    trailingIcon ?? (subMenuElement ? faChevronRight : undefined);
 
   return (
     <div
@@ -84,60 +110,61 @@ export const MenuItem = ({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       role="option"
-      aria-haspopup={!!subMenu}
+      aria-haspopup={!!subMenuElement}
       aria-expanded={isSubMenuOpen}
       aria-selected={selected}
       tabIndex={disabled ? -1 : 0}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
-          if (subMenu) {
-             setIsSubMenuOpen(!isSubMenuOpen);
+          if (subMenuElement) {
+            setIsSubMenuOpen(!isSubMenuOpen);
           } else {
-             handleClick(e as any);
+            handleClick(e as any);
           }
         }
-        if (e.key === 'ArrowRight' && subMenu) {
-             setIsSubMenuOpen(true);
-             e.stopPropagation();
+        if (e.key === 'ArrowRight' && subMenuElement) {
+          setIsSubMenuOpen(true);
+          e.stopPropagation();
         }
         if (e.key === 'ArrowLeft' && isSubMenuOpen) {
-             setIsSubMenuOpen(false);
-             e.stopPropagation();
+          setIsSubMenuOpen(false);
+          e.stopPropagation();
         }
       }}
       {...restProps}
     >
-        {leadingIcon && (
-            <div className={classNames(styles.itemIcon, styles.leadingIcon)}>
-                {React.isValidElement(leadingIcon) ? leadingIcon : <Icon icon={leadingIcon} />}
-            </div>
-        )}
-        <span className={styles.itemLabel}>{children ?? label}</span>
-        {effectiveTrailingIcon && (
-             <div className={classNames(styles.itemIcon, styles.trailingIcon)}>
-                {React.isValidElement(effectiveTrailingIcon) ? effectiveTrailingIcon : <Icon icon={effectiveTrailingIcon} />}
-            </div>
-        )}
-        
-        {subMenu && isSubMenuOpen && (
-            <AnchorPositioner 
-                anchorRef={itemRef} 
-                position="right-start" 
-                hoverOpen={true} // Keep open when hovering the menu itself
-            >
-                {/* We render the subMenu (expected to be a Menu component) directly. 
-                    AnchorPositioner will wrap it. 
-                    Ideally subMenu is <Menu>...</Menu>
-                */}
-                <div 
-                   onMouseEnter={() => setIsSubMenuOpen(true)}
-                   onMouseLeave={() => setIsSubMenuOpen(false)}
-                >
-                    {subMenu}
-                </div>
-            </AnchorPositioner>
-        )}
+      {leadingIcon && (
+        <div className={classNames(styles.itemIcon, styles.leadingIcon)}>
+          {React.isValidElement(leadingIcon) ? (
+            leadingIcon
+          ) : (
+            <Icon icon={leadingIcon} />
+          )}
+        </div>
+      )}
+      <span className={styles.itemLabel}>{labelContent}</span>
+      {effectiveTrailingIcon && (
+        <div className={classNames(styles.itemIcon, styles.trailingIcon)}>
+          {React.isValidElement(effectiveTrailingIcon) ? (
+            effectiveTrailingIcon
+          ) : (
+            <Icon icon={effectiveTrailingIcon} />
+          )}
+        </div>
+      )}
+
+      {subMenuElement && isSubMenuOpen && (
+        <AnchorPositioner
+          anchorRef={itemRef}
+          position="inline-end span-block-end"
+          hoverOpen={true}
+        >
+          <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+            {subMenuElement}
+          </div>
+        </AnchorPositioner>
+      )}
     </div>
   );
 };

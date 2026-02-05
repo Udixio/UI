@@ -167,13 +167,19 @@ Submenus can be created by passing a `Menu` component to the `subMenu` prop of a
         <MenuItem value="copy">Copy</MenuItem>
         <MenuItem value="paste">Paste</MenuItem>
         <Divider />
-        <MenuItem value="more" subMenu={
+        <MenuItem value="more">
+            More Actions
             <Menu>
                 <MenuItem value="share">Share</MenuItem>
-                <MenuItem value="export">Export</MenuItem>
+                <MenuItem value="export">
+                    Export
+                    <Menu>
+                        <MenuItem value="pdf">PDF</MenuItem>
+                        <MenuItem value="csv">CSV</MenuItem>
+                        <MenuItem value="excel">Excel</MenuItem>
+                    </Menu>
+                </MenuItem>
             </Menu>
-        }>
-            More Actions
         </MenuItem>
       </Menu>
   </div>

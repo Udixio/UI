@@ -5,15 +5,65 @@ import React, {
   useLayoutEffect,
   useState,
 } from 'react';
-import { SyncedFixedWrapper } from '../effects';
 import { createPortal } from 'react-dom';
+import { SyncedFixedWrapper } from '../effects';
 import IntrinsicElements = React.JSX.IntrinsicElements;
 
-export type Position =
+export type PositionKeyword =
+  | 'left'
+  | 'center'
+  | 'right'
+  | 'span-left'
+  | 'span-right'
+  | 'x-start'
+  | 'x-end'
+  | 'span-x-start'
+  | 'span-x-end'
+  | 'self-x-start'
+  | 'self-x-end'
+  | 'span-self-x-start'
+  | 'span-self-x-end'
   | 'top'
   | 'bottom'
-  | 'left'
-  | 'right'
+  | 'span-top'
+  | 'span-bottom'
+  | 'y-start'
+  | 'y-end'
+  | 'span-y-start'
+  | 'span-y-end'
+  | 'self-y-start'
+  | 'self-y-end'
+  | 'span-self-y-start'
+  | 'span-self-y-end'
+  | 'block-start'
+  | 'block-end'
+  | 'span-block-start'
+  | 'span-block-end'
+  | 'inline-start'
+  | 'inline-end'
+  | 'span-inline-start'
+  | 'span-inline-end'
+  | 'self-block-start'
+  | 'self-block-end'
+  | 'span-self-block-start'
+  | 'span-self-block-end'
+  | 'self-inline-start'
+  | 'self-inline-end'
+  | 'span-self-inline-start'
+  | 'span-self-inline-end'
+  | 'start'
+  | 'end'
+  | 'span-start'
+  | 'span-end'
+  | 'self-start'
+  | 'self-end'
+  | 'span-self-start'
+  | 'span-self-end'
+  | 'span-all';
+
+export type Position =
+  | PositionKeyword
+  | `${PositionKeyword} ${PositionKeyword}`
   | 'top-left'
   | 'top-right'
   | 'bottom-left'
@@ -62,27 +112,12 @@ export const AnchorPositioner = ({
   }, [supportsAnchor, anchorRef, anchorName]);
 
   if (supportsAnchor) {
-    const positionAreaMap: Record<Position, string> = {
-      top: 'top',
-      bottom: 'bottom',
-      left: 'left',
-      right: 'right',
-      'top-left': 'top left',
-      'top-right': 'top right',
-      'bottom-left': 'bottom left',
-      'bottom-right': 'bottom right',
-      'right-start': 'right top',
-      'right-end': 'right bottom',
-      'left-start': 'left top',
-      'left-end': 'left bottom',
-    };
-
     const floatingStyles: CSSProperties = {
       position: 'fixed',
       margin: 0,
       zIndex: 9999,
       positionAnchor: anchorName,
-      positionArea: positionAreaMap[position],
+      positionArea: position,
       positionTryFallbacks: 'flip-block, flip-inline', // Correct CSS prop
       ...style,
     } as any;

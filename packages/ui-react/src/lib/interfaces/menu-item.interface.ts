@@ -1,14 +1,12 @@
-
 import { ComponentInterface } from '../utils/component';
 
-export interface MenuItemInterface {
-  label?: string; // Optional if using children
-  children?: React.ReactNode;
+export interface MenuItemInterface extends ComponentInterface {
   value: string | number;
+  label?: string;
+  children?: React.ReactNode;
   leadingIcon?: any;
   trailingIcon?: any;
   disabled?: boolean;
-  subMenu?: React.ReactNode;
   selected?: boolean; // Injected by parent
   variant?: 'standard' | 'vibrant'; // Injected by parent
   onClick?: (e?: React.MouseEvent) => void;
