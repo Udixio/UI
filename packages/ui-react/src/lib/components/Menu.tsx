@@ -27,19 +27,20 @@ export const Menu = ({
   ...restProps
 }: ReactProps<MenuInterface> & React.HTMLAttributes<HTMLDivElement>) => {
   /* pass restProps to include key such as variant */
+  const hasGroups = React.Children.toArray(children).some(
+    (child) => React.isValidElement(child) && child.type === MenuGroup,
+  );
   const styles = useMenuStyle({
     children,
     selected,
     onItemSelect,
     className,
     variant,
+    hasGroups,
     ...restProps,
   });
-  const listRef = useRef<HTMLDivElement>(null);
 
-  const hasGroups = React.Children.toArray(children).some(
-    (child) => React.isValidElement(child) && child.type === MenuGroup,
-  );
+  const listRef = useRef<HTMLDivElement>(null);
 
   // Scroll to selected item on open
   useEffect(() => {
@@ -62,15 +63,7 @@ export const Menu = ({
         const groupChildren = renderChildren((child.props as any).children);
         return React.cloneElement(child, {
           children: groupChildren,
-          className: classNames(
-            'flex flex-col gap-1 mb-0.5 last:mb-0',
-            // Add surface styles to group
-            'rounded-lg py-2 shadow-2',
-            variant === 'vibrant'
-              ? 'bg-tertiary-container text-on-tertiary-container'
-              : 'bg-surface-container',
-            (child.props as any).className,
-          ),
+          variant: variant,
         } as any);
       }
 
@@ -105,19 +98,8 @@ export const Menu = ({
     });
   };
 
-  const menuClass = classNames(
-    styles.menu,
-    // If groups are present, remove parent surface styles and make transparent/padding-less
-    hasGroups && 'bg-transparent shadow-0 py-0 ',
-  );
-
   return (
-    <div
-      ref={listRef}
-      className={classNames(menuClass, className)}
-      role="listbox"
-      {...restProps}
-    >
+    <div ref={listRef} className={styles.menu} role="listbox" {...restProps}>
       {renderChildren(children)}
       {React.Children.count(children) === 0 && (
         <div className="px-4 py-3 text-on-surface-variant opacity-60 italic text-body-medium">

@@ -21,7 +21,15 @@ export interface MenuItemInterface extends ComponentInterface {
     selected?: boolean;
     variant?: 'standard' | 'vibrant';
     onItemSelect?: (value: string | number) => void; // Injected
+    children?: React.ReactNode;
   };
   states: Record<string, any>;
-  elements: ['item', 'selectedItem', 'itemLabel', 'itemIcon', 'leadingIcon', 'trailingIcon'];
+  elements: [
+    'menuItem',
+    'selectedItem',
+    'itemLabel',
+    'itemIcon',
+    'leadingIcon',
+    'trailingIcon',
+  ];
 }

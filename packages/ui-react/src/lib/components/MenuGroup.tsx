@@ -1,6 +1,7 @@
 import React from 'react';
 import { ReactProps } from '../utils/component';
-import { MenuItem } from './MenuItem';
+import { useMenuGroupStyle } from '../styles/menu-group.style';
+import { MenuGroupInterface } from '../interfaces/menu-group.interface';
 
 /**
  * MenuGroup renders a group of menu items with persistent styling.
@@ -9,14 +10,21 @@ import { MenuItem } from './MenuItem';
  * @status beta
  * @category Selection
  */
-export const MenuGroup = ({ 
-  children, 
+export const MenuGroup = ({
+  children,
   className,
-  ...restProps 
-}: ReactProps<{ children: React.ReactNode }> & React.HTMLAttributes<HTMLDivElement>) => {
+  variant,
+  ...restProps
+}: ReactProps<MenuGroupInterface> & React.HTMLAttributes<HTMLDivElement>) => {
+  const styles = useMenuGroupStyle({
+    children,
+    className,
+    variant,
+  });
+
   return (
-    <div className={className} role="group" {...restProps}>
-        {children}
+    <div className={styles.menuGroup} role="group" {...restProps}>
+      {children}
     </div>
   );
 };

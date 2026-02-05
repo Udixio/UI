@@ -10,6 +10,7 @@ export * from './fab.style';
 export * from './fab-menu.style';
 export * from './icon-button.style';
 export * from './menu.style';
+export * from './menu-group.style';
 export * from './progress-indicator.style';
 export * from './side-sheet.style';
 export * from './slider.style';

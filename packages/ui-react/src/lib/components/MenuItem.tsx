@@ -5,6 +5,7 @@ import { MenuItemInterface } from '../interfaces/menu-item.interface';
 import { useMenuItemStyle } from '../styles/menu-item.style';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { AnchorPositioner } from './AnchorPositioner';
+import { State } from '../effects';
 
 /**
  * Single item within a Menu.
@@ -54,6 +55,7 @@ export const MenuItem = ({
     disabled,
     selected,
     className,
+    value,
   });
 
   const handleClick = (e: React.MouseEvent) => {
@@ -105,7 +107,7 @@ export const MenuItem = ({
   return (
     <div
       ref={itemRef}
-      className={classNames(styles.item, { [styles.selectedItem]: selected })}
+      className={styles.menuItem} // Added relative and overflow-hidden for State
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -115,6 +117,7 @@ export const MenuItem = ({
       aria-selected={selected}
       tabIndex={disabled ? -1 : 0}
       onKeyDown={(e) => {
+        // ... key handlers ...
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           if (subMenuElement) {
@@ -134,8 +137,24 @@ export const MenuItem = ({
       }}
       {...restProps}
     >
+      <State
+        className="absolute inset-0 pointer-events-none"
+        colorName={classNames(
+          // Match text color for state layer usually
+          variant === 'vibrant' ? 'on-tertiary-container' : 'on-surface',
+          selected && 'on-secondary-container',
+        )}
+        stateClassName={'state-ripple-group-[menu-item]'}
+      />
+
       {leadingIcon && (
-        <div className={classNames(styles.itemIcon, styles.leadingIcon)}>
+        <div
+          className={classNames(
+            styles.itemIcon,
+            styles.leadingIcon,
+            'z-10 relative',
+          )}
+        >
           {React.isValidElement(leadingIcon) ? (
             leadingIcon
           ) : (
@@ -143,9 +162,17 @@ export const MenuItem = ({
           )}
         </div>
       )}
-      <span className={styles.itemLabel}>{labelContent}</span>
+      <span className={classNames(styles.itemLabel, 'z-10 relative')}>
+        {labelContent}
+      </span>
       {effectiveTrailingIcon && (
-        <div className={classNames(styles.itemIcon, styles.trailingIcon)}>
+        <div
+          className={classNames(
+            styles.itemIcon,
+            styles.trailingIcon,
+            'z-10 relative',
+          )}
+        >
           {React.isValidElement(effectiveTrailingIcon) ? (
             effectiveTrailingIcon
           ) : (
