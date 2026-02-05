@@ -26,11 +26,10 @@ export const Icon: React.FC<Props> = ({
   // Si c'est une chaîne de caractères (SVG raw)
   if (typeof icon === 'string') {
     let svgContent = icon;
-
-    let additionalAttrs = ' width="100%" height="100%"';
+    let colorAttrs = '';
 
     if (colors[0]) {
-      additionalAttrs += ` fill="${colors[0]}" color="${colors[0]}"`;
+      colorAttrs = ` fill="${colors[0]}" color="${colors[0]}"`;
       // Remplacer les paths existants pour utiliser currentColor
       svgContent = svgContent.replace(
         /<path([^>]*?)>/g,
@@ -38,11 +37,18 @@ export const Icon: React.FC<Props> = ({
       );
     }
 
-    // Injecter les attributs (taille + couleur éventuelle) dans la balise <svg>
-    svgContent = svgContent.replace(
-      /<svg([^>]*)>/,
-      `<svg$1${additionalAttrs}>`,
-    );
+    // Remplacer la balise <svg> ouvrante pour :
+    // 1. Supprimer width/height existants
+    // 2. Ajouter width="100%" height="100%"
+    // 3. Ajouter les attributs de couleur si nécessaire
+    svgContent = svgContent.replace(/<svg([^>]*)>/, (_, attributes) => {
+      // Supprime width="..." ou height="..." (avec guillemets simples ou doubles)
+      const cleanAttrs = attributes.replace(
+        /\s+(width|height)=["'][^"']*["']/g,
+        '',
+      );
+      return `<svg${cleanAttrs} width="100%" height="100%"${colorAttrs}>`;
+    });
 
     return (
       <div
