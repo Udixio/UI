@@ -9,7 +9,7 @@ import { MenuInterface } from '../interfaces';
 const menuConfig: ClassNameComponent<MenuInterface> = ({ props }) => ({
   menu: classNames(
     'z-50 min-w-[112px] max-w-[280px] max-h-[300px] overflow-y-auto',
-    'rounded-sm py-2 shadow-2', // Elevation 2
+    'rounded-2xl py-2 shadow-2', // Elevation 2
     'flex flex-col',
     {
       'bg-surface-container': !props?.variant || props.variant === 'standard',

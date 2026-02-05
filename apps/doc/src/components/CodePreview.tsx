@@ -93,7 +93,7 @@ export const CodePreview = ({
             <LiveProvider code={code} scope={{ ...UI, ...scope }}>
               <>
                 <LivePreview
-                  className={classNames(' bg-inverse-surface/[0.05]', {
+                  className={classNames(' bg-surface-bright', {
                     'flex justify-center items-center flex-1 flex-col p-8':
                       center,
                   })}
@@ -104,7 +104,7 @@ export const CodePreview = ({
           </UI.TabPanel>
           <UI.TabPanel className={'flex-1'}>
             <LiveProvider code={code} scope={{ ...UI, ...scope }}>
-              <div className={'p-4 bg-inverse-surface/[0.05] pr-12'}>
+              <div className={"p-4 ' bg-surface-bright pr-12"}>
                 {!children && (
                   <>
                     <LiveEditor />

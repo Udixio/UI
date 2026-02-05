@@ -2,8 +2,6 @@ import { CodePreview } from '@/components/CodePreview.js';
 import { faChevronDown, faCopy, faEllipsisVertical, faPaste, faScissors } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
 
-## Usage
-
 Menus display a list of choices on a temporary surface. They appear when users interact with a button, action, or other control.
 
 One common use case for Menus is the **Exposed Dropdown Menu**, integrated into `TextField` (often called a "Select").
@@ -28,7 +26,7 @@ Use `TextField` with `type="select"` to create a dropdown menu. Pass `MenuItem` 
 `}
 />
 
-### Color options
+## Color options
 
 Menus have two color mappings:
 
@@ -50,7 +48,7 @@ Menus have two color mappings:
 `}
 />
 
-### Menu groups & Dividers
+## Menu Dividers
 
 Vertical menu items can be grouped by adding a divider or small gap. Use groups to bundle similar actions together.
 
@@ -71,7 +69,30 @@ Vertical menu items can be grouped by adding a divider or small gap. Use groups 
   scope={{ faScissors, faCopy, faPaste }}
 />
 
-### Scrollable Menu
+### Grouped Menu Items
+
+Use `MenuGroup` to visually divide menu items into distinct groups with a gap and separator.
+
+<CodePreview
+  client:load
+  code={`
+  <Menu>
+       <MenuGroup>
+        <MenuItem value="cut" leadingIcon={faScissors}>Cut</MenuItem>
+        <MenuItem value="copy" leadingIcon={faCopy}>Copy</MenuItem>
+        <MenuItem value="paste" leadingIcon={faPaste}>Paste</MenuItem>
+      </MenuGroup>
+      <MenuGroup>
+        <MenuItem value="all">Select All</MenuItem>
+        <MenuItem value="none">Select None</MenuItem>
+      </MenuGroup>
+  </Menu>
+
+`}
+  scope={{ faScissors, faCopy, faPaste,  }}
+/>
+
+## Scrollable Menu
 
 Menus can scroll when all menu items can’t display at once.
 
@@ -89,7 +110,7 @@ Menus can scroll when all menu items can’t display at once.
 `}
 />
 
-### Filter Chip Menu
+## Filter Chip Menu
 
 A menu can be triggered by a Filter Chip.
 
@@ -104,33 +125,37 @@ function ChipMenu() {
 return (
 
 <div className="relative">
-<div ref={chipRef} className="inline-block">
-<Chip
-label="Sort by"
-variant="filter"
-selected={open}
-trailingIcon={faChevronDown}
-onClick={() => setOpen(!open)}
-/>
+  <div ref={chipRef} className="inline-block">
+    <Chip
+      label="Sort by"
+      variant="filter"
+      selected={open}
+      trailingIcon={faChevronDown}
+      onClick={() => setOpen(!open)}
+    />
+  </div>
+  {open && (
+    <AnchorPositioner
+      anchorRef={chipRef}
+      position="bottom left"
+      className="mt-1"
+    >
+      <Menu
+        selected={selected}
+        onItemSelect={(val) => {
+          setSelected(val);
+          setOpen(false);
+        }}
+      >
+        <MenuItem value="DATE_DESC">Date (Newest first)</MenuItem>
+        <MenuItem value="DATE_ASC">Date (Oldest first)</MenuItem>
+        <Divider />
+        <MenuItem value="NAME_ASC">Name (A-Z)</MenuItem>
+        <MenuItem value="NAME_DESC">Name (Z-A)</MenuItem>
+      </Menu>
+    </AnchorPositioner>
+  )}
 </div>
-
-        <AnchorPositioner anchorRef={chipRef} position="bottom left" className="mt-1">
-             <Menu
-                selected={selected}
-                onItemSelect={(val) => {
-                    setSelected(val);
-                    setOpen(false);
-                }}
-             >
-                <MenuItem value="DATE_DESC">Date (Newest first)</MenuItem>
-                <MenuItem value="DATE_ASC">Date (Oldest first)</MenuItem>
-                <Divider />
-                <MenuItem value="NAME_ASC">Name (A-Z)</MenuItem>
-                <MenuItem value="NAME_DESC">Name (Z-A)</MenuItem>
-             </Menu>
-        </AnchorPositioner>
-
-    </div>
 
 );
 }
@@ -138,7 +163,7 @@ onClick={() => setOpen(!open)}
 scope={{ faChevronDown }}
 />
 
-### Submenus
+## Submenus
 
 Submenus can be created by passing a `Menu` component to the `subMenu` prop of a `MenuItem`.
 
@@ -169,7 +194,7 @@ Submenus can be created by passing a `Menu` component to the `subMenu` prop of a
 `}
 />
 
-### Icon Button Menu
+## Icon Button Menu
 
 Menus are often triggered by an icon button, such as the "kebab" menu (three vertical dots).
 
@@ -181,32 +206,30 @@ function IconMenu() {
   const btnRef = React.useRef(null);
 
 return (
+
 <div className="relative h-[200px] flex justify-center items-center">
-<div ref={btnRef}>
-<IconButton
-icon={faEllipsisVertical}
-label="Options"
-onClick={() => setOpen(!open)}
-/>
+  <div ref={btnRef}>
+    <IconButton
+      icon={faEllipsisVertical}
+      label="Options"
+      onClick={() => setOpen(!open)}
+    />
+  </div>
+  {open && (
+    <AnchorPositioner anchorRef={btnRef} position="bottom left">
+      <Menu onItemSelect={() => setOpen(false)}>
+        <MenuItem value="edit">Edit</MenuItem>
+        <MenuItem value="duplicate">Duplicate</MenuItem>
+        <Divider />
+        <MenuItem value="delete">Delete</MenuItem>
+      </Menu>
+    </AnchorPositioner>
+  )}
 </div>
-{open && (
-<AnchorPositioner anchorRef={btnRef} position="bottom left">
-<Menu onItemSelect={() => setOpen(false)}>
-<MenuItem value="edit">Edit</MenuItem>
-<MenuItem value="duplicate">Duplicate</MenuItem>
-<Divider />
-<MenuItem value="delete">Delete</MenuItem>
-</Menu>
-</AnchorPositioner>
-)}
-</div>
-);
-}
-`}
-scope={{ faEllipsisVertical }}
+); } `} scope={{ faEllipsisVertical }}
 />
 
-### Context Menu
+## Context Menu
 
 Menus can be opened via right-click interaction (context menu).
 
@@ -216,8 +239,10 @@ function ContextMenu() {
   const anchorRef = React.useRef(null);
 
   const handleContextMenu = (event) => {
-    console.log('context menu triggered', {mouseX: event.clientX,
-      mouseY: event.clientY});
+    console.log('context menu triggered', {
+      mouseX: event.clientX,
+      mouseY: event.clientY,
+    });
     event.preventDefault();
     setContextMenu({
       mouseX: event.clientX,
@@ -226,64 +251,65 @@ function ContextMenu() {
   };
 
   const handleClose = () => {
-   setContextMenu(null);
+    setContextMenu(null);
   };
 
   React.useEffect(() => {
-  if (!contextMenu) return;
+    if (!contextMenu) return;
     const handleOutsideInteraction = () => {
-      setContextMenu(null)
+      setContextMenu(null);
     };
     window.addEventListener('click', handleOutsideInteraction);
     window.addEventListener('scroll', handleOutsideInteraction);
 
     return () => {
-        window.removeEventListener('click', handleOutsideInteraction);
-        window.removeEventListener('scroll', handleOutsideInteraction);
+      window.removeEventListener('click', handleOutsideInteraction);
+      window.removeEventListener('scroll', handleOutsideInteraction);
     };
-
   }, [contextMenu]);
 
   return (
-  <div onContextMenu={handleContextMenu} className="cursor-context-menu relative  flex items-center justify-center">
-  <Card className="p-8 flex items-center justify-center bg-surface-container-low border-dashed border-2 border-outline-variant">
-  <span className="text-on-surface-variant">Right click here</span>
-  </Card>
+    <div
+      onContextMenu={handleContextMenu}
+      className="cursor-context-menu relative  flex items-center justify-center"
+    >
+      <Card className="p-8 flex items-center justify-center bg-surface-container-low border-dashed border-2 border-outline-variant">
+        <span className="text-on-surface-variant">Right click here</span>
+      </Card>
 
-          {/* Invisible anchor element positioned at cursor */}
-          <div
-              ref={anchorRef}
-              style={{
-                  position: 'fixed',
-                  top: contextMenu?.mouseY ?? 0,
-                  left: contextMenu?.mouseX ?? 0,
-                  width: 1,
-                  height: 1,
-                  pointerEvents: 'none'
-              }}
-          />
+      {/* Invisible anchor element positioned at cursor */}
+      <div
+        ref={anchorRef}
+        style={{
+          position: 'fixed',
+          top: contextMenu?.mouseY ?? 0,
+          left: contextMenu?.mouseX ?? 0,
+          width: 1,
+          height: 1,
+          pointerEvents: 'none',
+        }}
+      />
 
-          {contextMenu && (
-               <AnchorPositioner
-                  anchorRef={anchorRef}
-                  position="bottom right"
-                  onClick={(e) => e.stopPropagation()}
-               >
-                   <Menu onItemSelect={handleClose}>
-                      <MenuItem value="view">View Details</MenuItem>
-                      <MenuItem value="open">Open in new tab</MenuItem>
-                      <Divider />
-                      <MenuItem value="properties">Properties</MenuItem>
-                   </Menu>
-               </AnchorPositioner>
-          )}
-      </div>
-
+      {contextMenu && (
+        <AnchorPositioner
+          anchorRef={anchorRef}
+          position="bottom right"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Menu onItemSelect={handleClose}>
+            <MenuItem value="view">View Details</MenuItem>
+            <MenuItem value="open">Open in new tab</MenuItem>
+            <Divider />
+            <MenuItem value="properties">Properties</MenuItem>
+          </Menu>
+        </AnchorPositioner>
+      )}
+    </div>
   );
 }
 ```
 
-### Anatomy
+## Anatomy
 
 ![Diagram outlining 11 elements of a menu’s anatomy.](https://lh3.googleusercontent.com/23G6to4Ij-HsQF2iAQsFg737t4f1InY3ANqqt-NYDrCj4ajmDFHSL7o3BTM7CHvUGdR8bTgcGg-OWPY5sp5qepK-LfRRWNZg8b1gwuq3gjU=s0)
 
