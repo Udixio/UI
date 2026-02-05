@@ -1,22 +1,22 @@
-
 import {
   type ClassNameComponent,
   classNames,
   createUseClassNames,
   defaultClassNames,
 } from '../utils';
-import { MenuInterface } from '../interfaces/menu.interface';
+import { MenuInterface } from '../interfaces';
 
 const menuConfig: ClassNameComponent<MenuInterface> = ({ props }) => ({
   menu: classNames(
     'z-50 min-w-[112px] max-w-[280px] max-h-[300px] overflow-y-auto',
-    'rounded-sm py-2 shadow-xl', // Elevation 2
+    'rounded-sm py-2 shadow-2', // Elevation 2
     'flex flex-col',
     {
       'bg-surface-container': !props?.variant || props.variant === 'standard',
-       // Vibrant uses tertiary-container (approximated) or just colored surface
-      'bg-tertiary-container text-on-tertiary-container': props?.variant === 'vibrant',
-    }
+      // Vibrant uses tertiary-container (approximated) or just colored surface
+      'bg-tertiary-container text-on-tertiary-container':
+        props?.variant === 'vibrant',
+    },
   ),
 });
 

@@ -231,15 +231,15 @@ function ContextMenu() {
 
   React.useEffect(() => {
   if (!contextMenu) return;
-    const handleOutsideInteraction = () => setContextMenu(null);
+    const handleOutsideInteraction = () => {
+      setContextMenu(null)
+    };
     window.addEventListener('click', handleOutsideInteraction);
     window.addEventListener('scroll', handleOutsideInteraction);
-    window.addEventListener('contextmenu', handleOutsideInteraction);
 
     return () => {
         window.removeEventListener('click', handleOutsideInteraction);
         window.removeEventListener('scroll', handleOutsideInteraction);
-        window.removeEventListener('contextmenu', handleOutsideInteraction);
     };
 
   }, [contextMenu]);
@@ -266,7 +266,7 @@ function ContextMenu() {
           {contextMenu && (
                <AnchorPositioner
                   anchorRef={anchorRef}
-                  position="bottom left"
+                  position="bottom right"
                   onClick={(e) => e.stopPropagation()}
                >
                    <Menu onItemSelect={handleClose}>
