@@ -1,3 +1,25 @@
+## 2.9.24 (2026-02-05)
+
+### 🚀 Features
+
+- **ui-react, docs:** add `ContextMenu` component and update documentation ([58a431e](https://github.com/Udixio/UI/commit/58a431e))
+- **ui-react, docs:** add `label` support for `MenuGroup` and update styles ([f9ad9e0](https://github.com/Udixio/UI/commit/f9ad9e0))
+- **ui-react:** refine `Menu` interface, styles, and behavior ([043ebe6](https://github.com/Udixio/UI/commit/043ebe6))
+- **ui-react:** add `MenuGroup` styling and enhance `Menu` handling ([8511906](https://github.com/Udixio/UI/commit/8511906))
+- **ui-react, docs:** add `MenuGroup` component and update documentation ([451dfb2](https://github.com/Udixio/UI/commit/451dfb2))
+- **ui-react:** refine `Menu` styles and adjust positioning ([be29812](https://github.com/Udixio/UI/commit/be29812))
+- **ui-react:** enhance `MenuItem` with improved submenu handling and additional alignment options ([5f35232](https://github.com/Udixio/UI/commit/5f35232))
+- **ui-react:** add submenu support to `MenuItem` and improve `AnchorPositioner` ([6657da2](https://github.com/Udixio/UI/commit/6657da2))
+- **ui-react:** introduce `Menu` component for dropdown functionality ([7cc5621](https://github.com/Udixio/UI/commit/7cc5621))
+
+### 🩹 Fixes
+
+- **ui-react:** ensure `MenuItem` does not shrink in flex containers ([22e5baf](https://github.com/Udixio/UI/commit/22e5baf))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.9.23 (2026-02-03)
 
 ### 🩹 Fixes
