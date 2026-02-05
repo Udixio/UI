@@ -12,6 +12,8 @@ import { MenuGroup } from './MenuGroup';
  * Menu displays a list of choices on a temporary surface.
  * @status beta
  * @category Selection
+ * @limitations
+ * - Don’t use MenuGroup in scrollable menus
  * @devx
  * - Used internally by `TextField` for `type="select"`.
  * - Supports keyboard navigation and auto-scrolling to selected item.
@@ -25,7 +27,7 @@ export const Menu = ({
   className,
   variant = 'standard',
   ...restProps
-}: ReactProps<MenuInterface> & React.HTMLAttributes<HTMLDivElement>) => {
+}: ReactProps<MenuInterface>) => {
   /* pass restProps to include key such as variant */
   const hasGroups = React.Children.toArray(children).some(
     (child) => React.isValidElement(child) && child.type === MenuGroup,

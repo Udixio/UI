@@ -1,6 +1,3 @@
-
-import { ComponentInterface } from '../utils/component';
-
 export type MenuStates = Record<string, any>;
 
 export interface MenuProps {
@@ -16,8 +13,8 @@ export interface MenuProps {
 export interface MenuInterface {
   type: 'div';
   props: MenuProps;
-  states: MenuStates;
-  elements: [
-    'menu',
-  ];
+  states: {
+    hasGroups: boolean;
+  };
+  elements: ['menu'];
 }
