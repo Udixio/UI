@@ -1,11 +1,5 @@
 import { CodePreview } from '@/components/CodePreview.js';
-import {
-  faChevronDown,
-  faCopy,
-  faEllipsisVertical,
-  faPaste,
-  faScissors,
-} from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown, faCopy, faEllipsisVertical, faPaste, faScissors } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
 
 Menus display a list of choices on a temporary surface. They appear when users interact with a button, action, or other control.
@@ -240,79 +234,18 @@ return (
 Menus can be opened via right-click interaction (context menu).
 
 ```jsx
-function ContextMenu() {
-  const [contextMenu, setContextMenu] = React.useState(null);
-  const anchorRef = React.useRef(null);
-
-  const handleContextMenu = (event) => {
-    console.log('context menu triggered', {
-      mouseX: event.clientX,
-      mouseY: event.clientY,
-    });
-    event.preventDefault();
-    setContextMenu({
-      mouseX: event.clientX,
-      mouseY: event.clientY,
-    });
-  };
-
-  const handleClose = () => {
-    setContextMenu(null);
-  };
-
-  React.useEffect(() => {
-    if (!contextMenu) return;
-    const handleOutsideInteraction = () => {
-      setContextMenu(null);
-    };
-    window.addEventListener('click', handleOutsideInteraction);
-    window.addEventListener('scroll', handleOutsideInteraction);
-
-    return () => {
-      window.removeEventListener('click', handleOutsideInteraction);
-      window.removeEventListener('scroll', handleOutsideInteraction);
-    };
-  }, [contextMenu]);
-
-  return (
-    <div
-      onContextMenu={handleContextMenu}
-      className="cursor-context-menu relative  flex items-center justify-center"
-    >
-      <Card className="p-8 flex items-center justify-center bg-surface-container-low border-dashed border-2 border-outline-variant">
+<ContextMenu
+  trigger={
+    <Card className="p-8 flex items-center justify-center bg-surface-container-low border-dashed border-2 border-outline-variant cursor-context-menu">
         <span className="text-on-surface-variant">Right click here</span>
-      </Card>
-
-      {/* Invisible anchor element positioned at cursor */}
-      <div
-        ref={anchorRef}
-        style={{
-          position: 'fixed',
-          top: contextMenu?.mouseY ?? 0,
-          left: contextMenu?.mouseX ?? 0,
-          width: 1,
-          height: 1,
-          pointerEvents: 'none',
-        }}
-      />
-
-      {contextMenu && (
-        <AnchorPositioner
-          anchorRef={anchorRef}
-          position="bottom right"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Menu onItemSelect={handleClose}>
-            <MenuItem value="view">View Details</MenuItem>
-            <MenuItem value="open">Open in new tab</MenuItem>
-            <Divider />
-            <MenuItem value="properties">Properties</MenuItem>
-          </Menu>
-        </AnchorPositioner>
-      )}
-    </div>
-  );
-}
+    </Card>
+  }
+>
+    <MenuItem value="view">View Details</MenuItem>
+    <MenuItem value="open">Open in new tab</MenuItem>
+    <Divider />
+    <MenuItem value="properties">Properties</MenuItem>
+</ContextMenu>
 ```
 
 ## Anatomy
