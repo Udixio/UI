@@ -2,8 +2,8 @@
   "name": "@udixio/mcp",
   "version": "0.4.3",
   "private": false,
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "author": "Udixio",
   "license": "MIT",
@@ -12,8 +12,8 @@
     ".": {
       "development": "./src/index.ts",
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.mjs"
     }
   },
   "keywords": [
@@ -24,7 +24,7 @@
     "design-system"
   ],
   "bin": {
-    "udixio-mcp": "dist/cli.js"
+    "udixio-mcp": "dist/cli.mjs"
   },
   "files": [
     "dist",
@@ -33,7 +33,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "tsx src/cli.ts",
-    "start": "node dist/cli.js",
+    "start": "node dist/cli.mjs",
     "test": "vitest run",
     "clean": "rimraf dist",
     "prebuild": "tsx scripts/snapshot.ts"
