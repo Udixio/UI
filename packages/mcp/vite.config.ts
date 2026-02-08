@@ -2,8 +2,12 @@
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import * as path from 'path';
+import pkg from './package.json' with { type: 'json' };
 
 export default defineConfig(() => ({
+  define: {
+    __PKG_VERSION__: JSON.stringify(pkg.version),
+  },
   root: __dirname,
   cacheDir: '../../node_modules/.vite/packages/mcp',
   plugins: [
