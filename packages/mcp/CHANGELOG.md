@@ -1,3 +1,13 @@
+## 0.4.5 (2026-02-08)
+
+### 🩹 Fixes
+
+- **mcp:** update exports to use ES module format (`.mjs`) ([ecff222](https://github.com/Udixio/UI/commit/ecff222))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.4.4 (2026-02-08)
 
 ### 🧱 Updated Dependencies
