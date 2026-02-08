@@ -1,3 +1,13 @@
+## 2.10.1 (2026-02-05)
+
+### 🩹 Fixes
+
+- optimize SVG attribute injection logic ([e1c89e4](https://github.com/Udixio/UI/commit/e1c89e4))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.10.0 (2026-02-05)
 
 ### 🚀 Features
