@@ -2,12 +2,14 @@
 
 Model Context Protocol (MCP) server for the Udixio UI Design System. This package exposes tools and resources to interact with the UI library documentation and theme tokens.
 
+> **Note:** This package is currently in beta. Use the `@beta` tag when installing.
+
 ## Installation
 
 ```bash
-npm install @udixio/mcp
+pnpm add @udixio/mcp@beta
 # or
-pnpm add @udixio/mcp
+npm install @udixio/mcp@beta
 ```
 
 ## Usage
@@ -32,8 +34,21 @@ Add to your Claude Desktop configuration (`~/.config/claude/claude_desktop_confi
 {
   "mcpServers": {
     "udixio-ui": {
+      "command": "pnpm",
+      "args": ["dlx", "@udixio/mcp@beta"]
+    }
+  }
+}
+```
+
+Or with npx:
+
+```json
+{
+  "mcpServers": {
+    "udixio-ui": {
       "command": "npx",
-      "args": ["@udixio/mcp"]
+      "args": ["@udixio/mcp@beta"]
     }
   }
 }
