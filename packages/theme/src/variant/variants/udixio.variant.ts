@@ -100,7 +100,7 @@ export const udixioVariant: Variant = variant({
     }),
     secondary: ({ sourceColor }) => ({
       hue: sourceColor.hue,
-      chroma: sourceColor.chroma / 1.4,
+      chroma: sourceColor.chroma * 0.5,
     }),
     tertiary: ({ sourceColor }) => ({
       hue: getRotatedHue(
@@ -208,15 +208,9 @@ export const udixioVariant: Variant = variant({
       [colorContainerKey]: {
         palette: () => palettes.get(colorKey),
         tone: () => {
-          if (ctx.variant.name === 'vibrant') {
-            return ctx.isDark
-              ? tMinC(palettes.get(colorKey), 30, 40)
-              : tMaxC(palettes.get(colorKey), 84, 90);
-          } else if (ctx.variant.name === 'expressive') {
-            return ctx.isDark ? 15 : tMaxC(palettes.get(colorKey), 90, 95);
-          } else {
-            return ctx.isDark ? 25 : 90;
-          }
+          return ctx.isDark
+            ? tMinC(palettes.get(colorKey), 35, 93)
+            : tMaxC(palettes.get(colorKey), 0, 90);
         },
         isBackground: true,
         background: () => highestSurface(ctx, colors),
@@ -591,7 +585,9 @@ export const udixioVariant: Variant = variant({
       secondaryContainer: {
         palette: () => palettes.get('secondary'),
         tone: () => {
-          return ctx.isDark ? 25 : 90;
+          return ctx.isDark
+            ? tMinC(palettes.get('secondary'), 35, 93)
+            : tMaxC(palettes.get('secondary'), 0, 90);
         },
         isBackground: true,
         background: () => highestSurface(ctx, colors),
