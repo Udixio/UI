@@ -1,23 +1,49 @@
 #!/usr/bin/env node
+declare const __PKG_VERSION__: string;
+
 import { registerToolsAndResources } from './mcp';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
-import express from 'express';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 
 export async function main() {
+  const args = process.argv.slice(2);
+
+  if (args.includes('--http')) {
+    await startHttpServer();
+  } else {
+    await startStdioServer();
+  }
+}
+
+async function startStdioServer() {
   const server = new McpServer({
     name: '@udixio/mcp',
-    version: '0.1.0',
+    version: __PKG_VERSION__,
   });
 
   registerToolsAndResources(server);
 
-  // Set up Express and HTTP transport
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+}
+
+async function startHttpServer() {
+  const { default: express } = await import('express');
+  const { StreamableHTTPServerTransport } = await import(
+    '@modelcontextprotocol/sdk/server/streamableHttp.js'
+  );
+
+  const server = new McpServer({
+    name: '@udixio/mcp',
+    version: __PKG_VERSION__,
+  });
+
+  registerToolsAndResources(server);
+
   const app = express();
   app.use(express.json());
 
   app.post('/mcp', async (req, res) => {
-    // Create a new transport for each request to prevent request ID collisions
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
       enableJsonResponse: true,
@@ -34,7 +60,7 @@ export async function main() {
   const port = parseInt(process.env.PORT || '3000');
   app
     .listen(port, () => {
-      console.log(`Demo MCP Server running on http://localhost:${port}/mcp`);
+      console.log(`MCP Server running on http://localhost:${port}/mcp`);
     })
     .on('error', (error) => {
       console.error('Server error:', error);
