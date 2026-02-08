@@ -154,8 +154,8 @@ export const ColorPicker = () => {
             name="color"
             placeholder={'#AABBCC'}
             supportingText={'Format hexadécimal'}
-            onChange={(value) => {
-              throttledUpdateCurrentFromHex(value);
+            onChange={(e) => {
+              throttledUpdateCurrentFromHex(e.target.value);
             }}
           />
         </div>

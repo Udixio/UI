@@ -169,7 +169,7 @@ export const TokenGallery: React.FC = () => {
               'Explorez tous les tokens de couleur disponibles dans le thème.'
             }
             value={query}
-            onChange={(value) => setQuery(value)}
+            onChange={(e) => setQuery(e.target.value)}
             className="w-full"
           />
         </div>
