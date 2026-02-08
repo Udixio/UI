@@ -14,18 +14,6 @@ npm install @udixio/mcp@beta
 
 ## Usage
 
-### Running the MCP Server
-
-```bash
-# Development
-pnpm dev
-
-# Production
-pnpm start
-```
-
-The server runs on `http://localhost:3000/mcp` by default.
-
 ### Configuring with Claude Desktop
 
 Add to your Claude Desktop configuration (`~/.config/claude/claude_desktop_config.json`):
@@ -53,6 +41,22 @@ Or with npx:
   }
 }
 ```
+
+### Configuring with Claude Code
+
+```bash
+claude mcp add udixio-ui -- pnpm dlx @udixio/mcp@beta
+```
+
+### HTTP Mode
+
+To run the server as an HTTP endpoint (e.g. for web clients):
+
+```bash
+pnpm dlx @udixio/mcp@beta --http
+```
+
+The server runs on `http://localhost:3000/mcp` by default. Use the `PORT` environment variable to customize the port.
 
 ## Available Tools
 
@@ -111,17 +115,17 @@ Input: { "name": "primary" }
 Tool: listPalettes
 ```
 
-## Building
-
-```bash
-pnpm build
-```
-
 ## Development
 
 ```bash
-# Run in development mode with hot reload
+# Run in development mode (stdio)
 pnpm dev
+
+# Run in development mode (HTTP)
+pnpm dev -- --http
+
+# Build
+pnpm build
 
 # Run tests
 pnpm test
