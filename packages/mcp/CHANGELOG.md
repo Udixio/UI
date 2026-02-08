@@ -1,3 +1,9 @@
+## 0.4.4 (2026-02-08)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 2.1.14
+
 ## 0.4.3 (2026-02-02)
 
 This was a version bump only for @udixio/mcp to align it with other projects, there were no code changes.

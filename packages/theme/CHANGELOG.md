@@ -1,3 +1,13 @@
+## 2.1.14 (2026-02-08)
+
+### 🩹 Fixes
+
+- improve color theme ([e247e14](https://github.com/Udixio/UI/commit/e247e14))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.1.13 (2026-02-02)
 
 ### 🩹 Fixes
