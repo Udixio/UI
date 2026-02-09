@@ -1,3 +1,13 @@
+## 0.4.8 (2026-02-09)
+
+### 🚀 Features
+
+- **mcp:** add integration tests for MCP protocol and optimize TypeScript config ([2352339](https://github.com/Udixio/UI/commit/2352339))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.4.7 (2026-02-09)
 
 ### 🩹 Fixes
