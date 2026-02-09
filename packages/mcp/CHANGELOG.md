@@ -1,3 +1,14 @@
+## 0.4.6 (2026-02-08)
+
+### 🚀 Features
+
+- **mcp:** inject package version into build config ([2d1d68f](https://github.com/Udixio/UI/commit/2d1d68f))
+- **mcp:** add support for both HTTP and stdio server modes ([fd80920](https://github.com/Udixio/UI/commit/fd80920))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.4.5 (2026-02-08)
 
 ### 🩹 Fixes
