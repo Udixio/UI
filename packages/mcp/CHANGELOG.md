@@ -1,3 +1,13 @@
+## 0.4.7 (2026-02-09)
+
+### 🩹 Fixes
+
+- **mcp:** refactor bundled file resolution and enhance build script ([69b9885](https://github.com/Udixio/UI/commit/69b9885))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.4.6 (2026-02-08)
 
 ### 🚀 Features
