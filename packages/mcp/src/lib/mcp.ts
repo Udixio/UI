@@ -13,6 +13,11 @@ import {
   getThemeConfig,
 } from './loaders/theme.js';
 
+function toJsonText(value: unknown): string {
+  const json = JSON.stringify(value, null, 2);
+  return json ?? JSON.stringify({ error: 'No data available' });
+}
+
 export function registerToolsAndResources(server: McpServer) {
   // ============ COMPONENTS TOOLS ============
 
@@ -30,7 +35,7 @@ export function registerToolsAndResources(server: McpServer) {
         content: [
           {
             type: 'text' as const,
-            text: JSON.stringify(list, null, 2),
+            text: toJsonText(list),
           },
         ],
       };
@@ -53,7 +58,7 @@ export function registerToolsAndResources(server: McpServer) {
         content: [
           {
             type: 'text' as const,
-            text: typeof doc === 'string' ? doc : JSON.stringify(doc, null, 2),
+            text: typeof doc === 'string' ? doc : toJsonText(doc),
           },
         ],
       };
@@ -79,7 +84,7 @@ export function registerToolsAndResources(server: McpServer) {
         content: [
           {
             type: 'text' as const,
-            text: JSON.stringify(results, null, 2),
+            text: toJsonText(results),
           },
         ],
       };
@@ -103,7 +108,7 @@ export function registerToolsAndResources(server: McpServer) {
         content: [
           {
             type: 'text' as const,
-            text: JSON.stringify(tokens, null, 2),
+            text: toJsonText(tokens),
           },
         ],
       };
@@ -125,7 +130,7 @@ export function registerToolsAndResources(server: McpServer) {
         content: [
           {
             type: 'text' as const,
-            text: JSON.stringify(config, null, 2),
+            text: toJsonText(config),
           },
         ],
       };
@@ -152,7 +157,7 @@ export function registerToolsAndResources(server: McpServer) {
         content: [
           {
             type: 'text' as const,
-            text: JSON.stringify(colors, null, 2),
+            text: toJsonText(colors),
           },
         ],
       };
@@ -182,7 +187,7 @@ export function registerToolsAndResources(server: McpServer) {
           content: [
             {
               type: 'text' as const,
-              text: JSON.stringify({ error: `Color '${name}' not found` }),
+              text: toJsonText({ error: `Color '${name}' not found` }),
             },
           ],
         };
@@ -191,7 +196,7 @@ export function registerToolsAndResources(server: McpServer) {
         content: [
           {
             type: 'text' as const,
-            text: JSON.stringify(color, null, 2),
+            text: toJsonText(color),
           },
         ],
       };
@@ -212,7 +217,7 @@ export function registerToolsAndResources(server: McpServer) {
         content: [
           {
             type: 'text' as const,
-            text: JSON.stringify(palettes, null, 2),
+            text: toJsonText(palettes),
           },
         ],
       };
@@ -241,7 +246,7 @@ export function registerToolsAndResources(server: McpServer) {
           content: [
             {
               type: 'text' as const,
-              text: JSON.stringify({ error: `Color '${name}' not found` }),
+              text: toJsonText({ error: `Color '${name}' not found` }),
             },
           ],
         };
@@ -251,7 +256,7 @@ export function registerToolsAndResources(server: McpServer) {
         content: [
           {
             type: 'text' as const,
-            text: JSON.stringify({ name, light, dark }, null, 2),
+            text: toJsonText({ name, light, dark }),
           },
         ],
       };
@@ -298,7 +303,7 @@ export function registerToolsAndResources(server: McpServer) {
           {
             uri: uri.href,
             mimeType: 'application/json',
-            text: JSON.stringify(tokens, null, 2),
+            text: toJsonText(tokens),
           },
         ],
       };
