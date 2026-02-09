@@ -436,6 +436,66 @@ describe('MCP Integration — AI client simulation', () => {
     });
   });
 
+  // ── Regression: CallToolResult schema conformance ─────
+
+  describe('Regression: every tool must return valid CallToolResult', () => {
+    it('all tools should return content[0].text as a string, never undefined', async () => {
+      const { tools } = await client.listTools();
+
+      const argsMap: Record<string, Record<string, unknown>> = {
+        listComponents: {},
+        getComponentDoc: { name: 'Button' },
+        searchDocs: { query: 'button' },
+        getThemeTokens: {},
+        getThemeConfig: {},
+        listColors: { mode: 'light' },
+        getColor: { name: 'primary', mode: 'light' },
+        listPalettes: {},
+        compareColor: { name: 'primary' },
+      };
+
+      for (const tool of tools) {
+        const args = argsMap[tool.name] ?? {};
+        const result = await client.callTool({
+          name: tool.name,
+          arguments: args,
+        });
+
+        // The SDK would throw McpError if content[0].text was undefined
+        // This test ensures no tool silently produces invalid responses
+        const content = result.content as { type: string; text: string }[];
+        expect(content).toBeDefined();
+        expect(content.length).toBeGreaterThan(0);
+        expect(typeof content[0].text).toBe('string');
+        expect(content[0].text.length).toBeGreaterThan(0);
+        expect(content[0].type).toBe('text');
+
+        // Verify the text is valid JSON
+        expect(() => JSON.parse(content[0].text)).not.toThrow();
+      }
+    });
+
+    it('getThemeConfig should still return valid response when config data is missing', async () => {
+      // Simulate a broken theme.json without config field
+      const { getThemeConfig: mockedGetConfig } = await import('./loaders/theme');
+      const original = vi.mocked(mockedGetConfig).getMockImplementation();
+
+      vi.mocked(mockedGetConfig).mockResolvedValueOnce(undefined as never);
+
+      const result = await client.callTool({
+        name: 'getThemeConfig',
+        arguments: {},
+      });
+
+      // Should NOT throw McpError — the response must still be schema-valid
+      const content = result.content as { type: string; text: string }[];
+      expect(typeof content[0].text).toBe('string');
+
+      // Restore
+      if (original) vi.mocked(mockedGetConfig).mockImplementation(original);
+    });
+  });
+
   // ── Realistic AI workflow scenarios ────────────────────
 
   describe('AI workflow scenarios', () => {
