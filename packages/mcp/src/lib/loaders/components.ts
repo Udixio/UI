@@ -1,26 +1,10 @@
 import { globby } from 'globby';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 function hereDir() {
-  return __dirname;
-}
-
-function bundledComponentsIndexPath() {
-  // Bundled data lives beside this file under ./bundled when running from src or dist
-  const candidates = [
-    path.resolve(hereDir(), './bundled/components-index.json'),
-    path.resolve(hereDir(), '../bundled/components-index.json'),
-  ];
-  return candidates[0];
-}
-
-function bundledDocSrc() {
-  const candidates = [
-    path.resolve(hereDir(), './bundled/doc-src'),
-    path.resolve(hereDir(), '../bundled/doc-src'),
-  ];
-  return candidates[0];
+  return path.dirname(fileURLToPath(import.meta.url));
 }
 
 async function pathExists(p: string) {
@@ -32,9 +16,19 @@ async function pathExists(p: string) {
   }
 }
 
+async function resolveBundledPath(relativePath: string): Promise<string> {
+  const candidates = [
+    path.resolve(hereDir(), 'bundled', relativePath),
+    path.resolve(hereDir(), '..', 'bundled', relativePath),
+  ];
+  for (const c of candidates) {
+    if (await pathExists(c)) return c;
+  }
+  return candidates[0];
+}
+
 export async function loadComponentsIndex() {
-  // Use bundled index only (zero-setup)
-  const bundledIndex = bundledComponentsIndexPath();
+  const bundledIndex = await resolveBundledPath('components-index.json');
   if (await pathExists(bundledIndex)) {
     const raw = await fs.readFile(bundledIndex, 'utf8');
     return JSON.parse(raw);
@@ -43,8 +37,7 @@ export async function loadComponentsIndex() {
 }
 
 export async function loadComponentDoc(name: string) {
-  // Heuristique: chercher un fichier MD/MDX/Story/Examples correspondant dans bundled docs
-  const base = bundledDocSrc();
+  const base = await resolveBundledPath('doc-src');
   if (!(await pathExists(base))) {
     throw new Error('Bundled docs not found.');
   }

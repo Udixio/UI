@@ -1,16 +1,9 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 
 function hereDir() {
-  return __dirname;
-}
-
-function bundledThemePath() {
-  const candidates = [
-    path.resolve(hereDir(), './bundled/theme.json'),
-    path.resolve(hereDir(), '../bundled/theme.json'),
-  ];
-  return candidates[0];
+  return path.dirname(fileURLToPath(import.meta.url));
 }
 
 async function pathExists(p: string) {
@@ -20,6 +13,17 @@ async function pathExists(p: string) {
   } catch {
     return false;
   }
+}
+
+async function resolveBundledPath(relativePath: string): Promise<string> {
+  const candidates = [
+    path.resolve(hereDir(), 'bundled', relativePath),
+    path.resolve(hereDir(), '..', 'bundled', relativePath),
+  ];
+  for (const c of candidates) {
+    if (await pathExists(c)) return c;
+  }
+  return candidates[0];
 }
 
 export interface ThemeSnapshot {
@@ -38,7 +42,7 @@ export interface ThemeSnapshot {
 }
 
 export async function loadThemeTokens(): Promise<ThemeSnapshot> {
-  const bundled = bundledThemePath();
+  const bundled = await resolveBundledPath('theme.json');
   if (await pathExists(bundled)) {
     const raw = await fs.readFile(bundled, 'utf8');
     return JSON.parse(raw) as ThemeSnapshot;

@@ -31,12 +31,11 @@
     "README.md"
   ],
   "scripts": {
-    "build": "vite build",
+    "build": "tsx scripts/snapshot.ts && vite build && cp -r src/bundled dist/bundled",
     "dev": "tsx src/cli.ts",
     "start": "node dist/cli.mjs",
     "test": "vitest run",
-    "clean": "rimraf dist",
-    "prebuild": "tsx scripts/snapshot.ts"
+    "clean": "rimraf dist"
   },
   "dependencies": {
     "express": "^5.1.0",

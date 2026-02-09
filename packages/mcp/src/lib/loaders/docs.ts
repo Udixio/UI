@@ -1,23 +1,11 @@
 import { globby } from 'globby';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import matter from 'gray-matter';
 
 function hereDir() {
-  // Works in both CommonJS and ESM
-  return __dirname;
-}
-
-function bundledDocSrc() {
-  // Support dev (src) and build (dist)
-  const candidates = [
-    path.resolve(hereDir(), './bundled/doc-src'),
-    path.resolve(hereDir(), '../bundled/doc-src'),
-  ];
-  for (const c of candidates) {
-    return c;
-  }
-  return path.resolve(hereDir(), './bundled/doc-src');
+  return path.dirname(fileURLToPath(import.meta.url));
 }
 
 async function pathExists(p: string) {
@@ -29,8 +17,19 @@ async function pathExists(p: string) {
   }
 }
 
+async function resolveBundledPath(relativePath: string): Promise<string> {
+  const candidates = [
+    path.resolve(hereDir(), 'bundled', relativePath),
+    path.resolve(hereDir(), '..', 'bundled', relativePath),
+  ];
+  for (const c of candidates) {
+    if (await pathExists(c)) return c;
+  }
+  return candidates[0];
+}
+
 async function resolveDocBase(): Promise<string> {
-  const bundled = bundledDocSrc();
+  const bundled = await resolveBundledPath('doc-src');
   if (await pathExists(bundled)) return bundled;
   throw new Error('Bundled documentation not found.');
 }
