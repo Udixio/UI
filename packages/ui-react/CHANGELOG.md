@@ -1,3 +1,14 @@
+## 2.10.3 (2026-02-12)
+
+### 🚀 Features
+
+- **menu:** add toggleable `MenuItem` with `onToggle` and `activated` support ([052c57f](https://github.com/Udixio/UI/commit/052c57f))
+- **menu:** add link support to `MenuItem` ([35e4c51](https://github.com/Udixio/UI/commit/35e4c51))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.10.2 (2026-02-08)
 
 ### 🧱 Updated Dependencies
