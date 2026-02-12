@@ -1,3 +1,13 @@
+## 0.4.9 (2026-02-09)
+
+### 🚀 Features
+
+- **mcp:** introduce `toJsonText` utility to streamline JSON serialization ([5abeac3](https://github.com/Udixio/UI/commit/5abeac3))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.4.8 (2026-02-09)
 
 ### 🚀 Features
