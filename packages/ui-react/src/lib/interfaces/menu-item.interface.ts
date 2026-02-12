@@ -1,6 +1,6 @@
-import { ComponentInterface } from '../utils/component';
+import { ActionOrLink } from '../utils/component';
 
-export interface MenuItemInterface extends ComponentInterface {
+type Props = {
   value: string | number;
   label?: string;
   children?: React.ReactNode;
@@ -10,26 +10,19 @@ export interface MenuItemInterface extends ComponentInterface {
   selected?: boolean; // Injected by parent
   variant?: 'standard' | 'vibrant'; // Injected by parent
   onClick?: (e?: React.MouseEvent) => void;
-  // ComponentInterface implementation
-  type: 'div';
-  props: {
-    label?: string;
-    value: string | number;
-    leadingIcon?: any;
-    trailingIcon?: any;
-    disabled?: boolean;
-    selected?: boolean;
-    variant?: 'standard' | 'vibrant';
-    onItemSelect?: (value: string | number) => void; // Injected
-    children?: React.ReactNode;
-  };
+  onItemSelect?: (value: string | number) => void; // Injected
+};
+
+type Elements = [
+  'menuItem',
+  'selectedItem',
+  'itemLabel',
+  'itemIcon',
+  'leadingIcon',
+  'trailingIcon',
+];
+
+export type MenuItemInterface = ActionOrLink<Props> & {
   states: Record<string, any>;
-  elements: [
-    'menuItem',
-    'selectedItem',
-    'itemLabel',
-    'itemIcon',
-    'leadingIcon',
-    'trailingIcon',
-  ];
-}
+  elements: Elements;
+};

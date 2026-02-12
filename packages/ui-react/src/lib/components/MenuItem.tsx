@@ -21,6 +21,7 @@ export const MenuItem = ({
   disabled,
   selected,
   variant,
+  href,
   onClick,
   onItemSelect, // Injected by Menu
   className,
@@ -47,7 +48,7 @@ export const MenuItem = ({
   const labelContent = contentChildren.length > 0 ? contentChildren : label;
 
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
-  const itemRef = useRef<HTMLDivElement>(null);
+  const itemRef = useRef<HTMLButtonElement | HTMLAnchorElement>(null);
   const closeTimerRef = useRef<any>(null);
 
   const styles = useMenuItemStyle({
@@ -104,10 +105,13 @@ export const MenuItem = ({
   const effectiveTrailingIcon =
     trailingIcon ?? (subMenuElement ? faChevronRight : undefined);
 
+  const ElementType = href ? 'a' : 'button';
+
   return (
-    <div
-      ref={itemRef}
-      className={styles.menuItem} // Added relative and overflow-hidden for State
+    <ElementType
+      ref={itemRef as any}
+      href={href}
+      className={styles.menuItem}
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -116,8 +120,8 @@ export const MenuItem = ({
       aria-expanded={isSubMenuOpen}
       aria-selected={selected}
       tabIndex={disabled ? -1 : 0}
+      disabled={!href ? disabled : undefined}
       onKeyDown={(e) => {
-        // ... key handlers ...
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           if (subMenuElement) {
@@ -135,7 +139,7 @@ export const MenuItem = ({
           e.stopPropagation();
         }
       }}
-      {...restProps}
+      {...(restProps as any)}
     >
       <State
         className="absolute inset-0 pointer-events-none"
@@ -192,6 +196,6 @@ export const MenuItem = ({
           </div>
         </AnchorPositioner>
       )}
-    </div>
+    </ElementType>
   );
 };
