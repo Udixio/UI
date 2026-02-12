@@ -1,16 +1,14 @@
 import { ActionOrLink } from '../utils/component';
 
 type Props = {
-  value: string | number;
+  value?: string | number;
   label?: string;
   children?: React.ReactNode;
   leadingIcon?: any;
   trailingIcon?: any;
   disabled?: boolean;
-  selected?: boolean; // Injected by parent
   variant?: 'standard' | 'vibrant'; // Injected by parent
   onClick?: (e?: React.MouseEvent) => void;
-  onItemSelect?: (value: string | number) => void; // Injected
 };
 
 type Elements = [

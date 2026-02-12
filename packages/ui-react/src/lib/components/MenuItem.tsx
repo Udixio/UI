@@ -19,11 +19,9 @@ export const MenuItem = ({
   leadingIcon,
   trailingIcon,
   disabled,
-  selected,
-  variant,
+  variant = 'standard',
   href,
   onClick,
-  onItemSelect, // Injected by Menu
   className,
   ...restProps
 }: ReactProps<MenuItemInterface>) => {
@@ -54,7 +52,6 @@ export const MenuItem = ({
   const styles = useMenuItemStyle({
     variant,
     disabled,
-    selected,
     className,
     value,
   });
@@ -71,9 +68,6 @@ export const MenuItem = ({
     }
 
     onClick?.(e);
-    if (onItemSelect) {
-      onItemSelect(value);
-    }
   };
 
   const handleMouseEnter = () => {
@@ -118,7 +112,6 @@ export const MenuItem = ({
       role="option"
       aria-haspopup={!!subMenuElement}
       aria-expanded={isSubMenuOpen}
-      aria-selected={selected}
       tabIndex={disabled ? -1 : 0}
       disabled={!href ? disabled : undefined}
       onKeyDown={(e) => {
@@ -145,8 +138,8 @@ export const MenuItem = ({
         className="absolute inset-0 pointer-events-none"
         colorName={classNames(
           // Match text color for state layer usually
-          variant === 'vibrant' ? 'on-tertiary-container' : 'on-surface',
-          selected && 'on-secondary-container',
+          variant === 'vibrant' && 'on-tertiary-container',
+          variant === 'standard' && 'on-secondary-container',
         )}
         stateClassName={'state-ripple-group-[menu-item]'}
       />

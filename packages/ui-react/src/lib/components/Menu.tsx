@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { MenuInterface } from '../interfaces/menu.interface';
 import { useMenuStyle } from '../styles/menu.style';
 import { classNames } from '../utils';
@@ -22,8 +22,6 @@ import { MenuGroup } from './MenuGroup';
  */
 export const Menu = ({
   children,
-  selected,
-  onItemSelect,
   className,
   variant = 'standard',
   ...restProps
@@ -34,8 +32,6 @@ export const Menu = ({
   );
   const styles = useMenuStyle({
     children,
-    selected,
-    onItemSelect,
     className,
     variant,
     hasGroups,
@@ -43,18 +39,6 @@ export const Menu = ({
   });
 
   const listRef = useRef<HTMLDivElement>(null);
-
-  // Scroll to selected item on open
-  useEffect(() => {
-    if (listRef.current) {
-      const selectedEl = listRef.current.querySelector(
-        '[aria-selected="true"]',
-      ) as HTMLElement;
-      if (selectedEl) {
-        selectedEl.scrollIntoView({ block: 'nearest' });
-      }
-    }
-  }, []);
 
   const renderChildren = (nodes: React.ReactNode): React.ReactNode => {
     return React.Children.map(nodes, (child) => {
@@ -70,17 +54,8 @@ export const Menu = ({
       }
 
       if (child.type === MenuItem) {
-        const childValue = (child.props as any).value;
-        const isSelected = Array.isArray(selected)
-          ? selected.includes(childValue)
-          : selected === childValue;
-
         return React.cloneElement(child, {
-          selected: isSelected,
           variant: variant,
-          onItemSelect: (val: string | number) => {
-            onItemSelect?.(val);
-          },
         } as any);
       }
 
