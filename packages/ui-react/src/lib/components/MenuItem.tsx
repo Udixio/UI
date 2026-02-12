@@ -1,9 +1,9 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Icon } from '../icon';
 import { classNames, ReactProps } from '../utils';
 import { MenuItemInterface } from '../interfaces/menu-item.interface';
 import { useMenuItemStyle } from '../styles/menu-item.style';
-import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { AnchorPositioner } from './AnchorPositioner';
 import { State } from '../effects';
 
@@ -22,6 +22,8 @@ export const MenuItem = ({
   variant = 'standard',
   href,
   onClick,
+  onToggle,
+  activated = false,
   className,
   ...restProps
 }: ReactProps<MenuItemInterface>) => {
@@ -46,14 +48,26 @@ export const MenuItem = ({
   const labelContent = contentChildren.length > 0 ? contentChildren : label;
 
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
+  const [isActive, setIsActive] = useState(activated);
+
+  if (isActive) {
+    leadingIcon = faCheck;
+  }
+
   const itemRef = useRef<HTMLButtonElement | HTMLAnchorElement>(null);
   const closeTimerRef = useRef<any>(null);
+
+  useEffect(() => {
+    setIsActive(activated);
+  }, [activated]);
 
   const styles = useMenuItemStyle({
     variant,
     disabled,
     className,
     value,
+    activated: isActive,
+    isActive,
   });
 
   const handleClick = (e: React.MouseEvent) => {
@@ -67,7 +81,12 @@ export const MenuItem = ({
       return;
     }
 
-    onClick?.(e);
+    if (onToggle) {
+      setIsActive(!isActive);
+      onToggle(!isActive);
+    } else {
+      onClick?.(e);
+    }
   };
 
   const handleMouseEnter = () => {
@@ -112,6 +131,7 @@ export const MenuItem = ({
       role="option"
       aria-haspopup={!!subMenuElement}
       aria-expanded={isSubMenuOpen}
+      aria-pressed={onToggle ? isActive : undefined}
       tabIndex={disabled ? -1 : 0}
       disabled={!href ? disabled : undefined}
       onKeyDown={(e) => {
@@ -138,8 +158,9 @@ export const MenuItem = ({
         className="absolute inset-0 pointer-events-none"
         colorName={classNames(
           // Match text color for state layer usually
-          variant === 'vibrant' && 'on-tertiary-container',
-          variant === 'standard' && 'on-secondary-container',
+          variant === 'vibrant' || isActive
+            ? 'on-tertiary-container'
+            : 'on-secondary-container',
         )}
         stateClassName={'state-ripple-group-[menu-item]'}
       />

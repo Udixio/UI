@@ -105,6 +105,20 @@ Menu items can be used as navigation links using the `href` prop.
   </Menu>
 ```
 
+## Toggle Menu Items
+
+Menu items can be used as toggle buttons using the `onToggle` prop.
+
+<CodePreview
+  client:load
+  code={`
+  <Menu>
+    <MenuItem onToggle={(activated) => console.log(activated)}>Toggle Item</MenuItem>
+    <MenuItem onToggle={(activated) => console.log(activated)} activated>Activated Item</MenuItem>
+  </Menu>
+`}
+/>
+
 ## Scrollable Menu
 
 Menus can scroll when all menu items can’t display at once.

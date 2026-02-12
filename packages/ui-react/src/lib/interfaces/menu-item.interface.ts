@@ -9,6 +9,8 @@ type Props = {
   disabled?: boolean;
   variant?: 'standard' | 'vibrant'; // Injected by parent
   onClick?: (e?: React.MouseEvent) => void;
+  onToggle?: (activated: boolean) => void;
+  activated?: boolean;
 };
 
 type Elements = [
@@ -21,6 +23,8 @@ type Elements = [
 ];
 
 export type MenuItemInterface = ActionOrLink<Props> & {
-  states: Record<string, any>;
+  states: {
+    isActive: boolean;
+  };
   elements: Elements;
 };
