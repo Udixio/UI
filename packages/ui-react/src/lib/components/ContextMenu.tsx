@@ -21,7 +21,6 @@ export type ContextMenuProps = {
 export const ContextMenu = ({
   trigger,
   children,
-  onItemSelect,
   ...menuProps
 }: ReactProps<ContextMenuProps>) => {
   const [contextMenu, setContextMenu] = useState<{
@@ -42,9 +41,8 @@ export const ContextMenu = ({
     setContextMenu(null);
   };
 
-  const handleSelect = (val: string | number) => {
+  const handleSelect = () => {
     handleClose();
-    onItemSelect?.(val);
   };
 
   useEffect(() => {
@@ -101,7 +99,7 @@ export const ContextMenu = ({
           position="bottom right"
           onClick={(e) => e.stopPropagation()}
         >
-          <Menu onItemSelect={handleSelect} {...menuProps}>
+          <Menu onClick={handleSelect} {...menuProps}>
             {children}
           </Menu>
         </AnchorPositioner>

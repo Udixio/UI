@@ -15,7 +15,6 @@ import { State } from '../effects';
 export const MenuItem = ({
   label,
   children,
-  value,
   leadingIcon,
   trailingIcon,
   disabled,
@@ -65,12 +64,12 @@ export const MenuItem = ({
     variant,
     disabled,
     className,
-    value,
     activated: isActive,
     isActive,
   });
 
   const handleClick = (e: React.MouseEvent) => {
+    console.log('refrefd', disabled, subMenuElement, onToggle);
     if (disabled) {
       e.preventDefault();
       return;
@@ -85,6 +84,7 @@ export const MenuItem = ({
       setIsActive(!isActive);
       onToggle(!isActive);
     } else {
+      console.log('click', onClick);
       onClick?.(e);
     }
   };

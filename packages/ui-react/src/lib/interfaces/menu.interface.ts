@@ -3,7 +3,6 @@ export type MenuStates = Record<string, any>;
 export interface MenuProps {
   children: React.ReactNode;
   selected?: string | number | (string | number)[];
-  onItemSelect?: (value: string | number) => void;
   className?: string;
   variant?: 'standard' | 'vibrant';
   // options prop REMOVED as requested by user ("options passed as children")

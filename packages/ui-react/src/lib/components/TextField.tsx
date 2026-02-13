@@ -2,9 +2,9 @@ import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Icon } from '../icon';
 import {
   faCalendarDays,
-  faCircleExclamation,
   faChevronDown,
   faChevronUp,
+  faCircleExclamation,
 } from '@fortawesome/free-solid-svg-icons';
 import { motion } from 'motion/react';
 import { DatePicker } from './DatePicker';
@@ -323,7 +323,7 @@ export const TextField = ({
   });
 
   const TextComponent = multiline ? TextareaAutosize : 'input';
-  // For select, we want the input to be readOnly but still focusable? 
+  // For select, we want the input to be readOnly but still focusable?
   // Actually, for better UX, standard select inputs are often readOnly text fields.
   const textComponentProps = multiline
     ? {}
@@ -345,8 +345,8 @@ export const TextField = ({
     <div ref={textFieldRef} className={styles.textField} style={style}>
       <fieldset
         onClick={() => {
-            if (isSelectInput) handleSelectToggle();
-            else focusInput();
+          if (isSelectInput) handleSelectToggle();
+          else focusInput();
         }}
         className={styles.content}
         role="presentation"
@@ -424,11 +424,11 @@ export const TextField = ({
             name={name}
             placeholder={isFocused ? (placeholder ?? undefined) : ''}
             onFocus={() => {
-                if(!isSelectInput) setIsFocused(true)
+              if (!isSelectInput) setIsFocused(true);
             }}
             onBlur={() => {
-                 // For select, we manage focus manually with menu state usually
-                 if(!isSelectInput) setIsFocused(false)
+              // For select, we manage focus manually with menu state usually
+              if (!isSelectInput) setIsFocused(false);
             }}
             disabled={disabled}
             autoComplete={autoComplete}
@@ -531,38 +531,39 @@ export const TextField = ({
       )}
 
       {isSelectInput && showMenu && (
-        <AnchorPositioner anchorRef={textFieldRef} position="bottom" style={{ width: textFieldRef.current?.offsetWidth }}>
-            <div ref={menuRef}>
-                <Menu
-                    selected={value}
-                    onItemSelect={handleSelectOption}
-                >
-                    {children}
-                    {!children && options?.map((opt, i) => {
-                         if (opt.type === 'divider') {
-                            return <Divider key={i} className="my-1" />
-                         }
-                         if (opt.type === 'headline') {
-                            return <MenuHeadline key={i} label={opt.label} />
-                         }
-                         return (
-                            <MenuItem
-                                key={opt.value ?? i}
-                                value={opt.value ?? ''}
-                                label={opt.label}
-                                leadingIcon={opt.leadingIcon}
-                                trailingIcon={opt.trailingIcon}
-                                disabled={opt.disabled}
-                            >
-                                {opt.label}
-                            </MenuItem>
-                         )
-                    })}
-                </Menu>
-            </div>
+        <AnchorPositioner
+          anchorRef={textFieldRef}
+          position="bottom"
+          style={{ width: textFieldRef.current?.offsetWidth }}
+        >
+          <div ref={menuRef}>
+            <Menu selected={value}>
+              {children}
+              {!children &&
+                options?.map((opt, i) => {
+                  if (opt.type === 'divider') {
+                    return <Divider key={i} className="my-1" />;
+                  }
+                  if (opt.type === 'headline') {
+                    return <MenuHeadline key={i} label={opt.label} />;
+                  }
+                  return (
+                    <MenuItem
+                      key={opt.value ?? i}
+                      label={opt.label}
+                      leadingIcon={opt.leadingIcon}
+                      trailingIcon={opt.trailingIcon}
+                      disabled={opt.disabled}
+                      onClick={() => console.log(opt.value)}
+                    >
+                      {opt.label}
+                    </MenuItem>
+                  );
+                })}
+            </Menu>
+          </div>
         </AnchorPositioner>
       )}
     </div>
   );
 };
-

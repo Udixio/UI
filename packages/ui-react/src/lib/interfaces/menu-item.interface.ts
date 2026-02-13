@@ -1,7 +1,6 @@
 import { ActionOrLink } from '../utils/component';
 
 type Props = {
-  value?: string | number;
   label?: string;
   children?: React.ReactNode;
   leadingIcon?: any;

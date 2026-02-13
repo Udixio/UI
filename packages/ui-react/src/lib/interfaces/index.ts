@@ -10,6 +10,8 @@ export * from './fab.interface';
 export * from './fab-menu.interface';
 export * from './icon-button.interface';
 export * from './menu.interface';
+export * from './menu-group.interface';
+export * from './menu-item.interface';
 export * from './progress-indicator.interface';
 export * from './side-sheet.interface';
 export * from './slider.interface';
