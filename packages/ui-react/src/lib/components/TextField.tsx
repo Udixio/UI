@@ -538,28 +538,45 @@ export const TextField = ({
         >
           <div ref={menuRef}>
             <Menu selected={value}>
-              {children}
-              {!children &&
-                options?.map((opt, i) => {
-                  if (opt.type === 'divider') {
-                    return <Divider key={i} className="my-1" />;
-                  }
-                  if (opt.type === 'headline') {
-                    return <MenuHeadline key={i} label={opt.label} />;
-                  }
-                  return (
-                    <MenuItem
-                      key={opt.value ?? i}
-                      label={opt.label}
-                      leadingIcon={opt.leadingIcon}
-                      trailingIcon={opt.trailingIcon}
-                      disabled={opt.disabled}
-                      onClick={() => console.log(opt.value)}
-                    >
-                      {opt.label}
-                    </MenuItem>
-                  );
-                })}
+              {children
+                ? React.Children.map(children, (child) => {
+                    if (
+                      React.isValidElement(child) &&
+                      child.type === MenuItem
+                    ) {
+                      return React.cloneElement(child, {
+                        onClick: (e: React.MouseEvent) => {
+                          if (child.props.onClick) {
+                            child.props.onClick(e);
+                          }
+                          handleSelectOption(child.props.value ?? '');
+                        },
+                      } as any);
+                    }
+                    return child;
+                  })
+                : options?.map((opt, i) => {
+                    if (opt.type === 'divider') {
+                      return <Divider key={i} className="my-1" />;
+                    }
+                    if (opt.type === 'headline') {
+                      return <MenuHeadline key={i} label={opt.label} />;
+                    }
+                    return (
+                      <MenuItem
+                        key={opt.value ?? i}
+                        onClick={(e) => {
+                          if (opt.onClick) {
+                            opt.onClick(e);
+                          }
+                          handleSelectOption(opt.value ?? '');
+                        }}
+                        {...opt}
+                      >
+                        {opt.label}
+                      </MenuItem>
+                    );
+                  })}
             </Menu>
           </div>
         </AnchorPositioner>

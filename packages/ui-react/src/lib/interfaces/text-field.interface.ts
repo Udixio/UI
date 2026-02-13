@@ -1,6 +1,7 @@
 import React from 'react';
 import { IconButton } from '../components/IconButton';
 import { Icon } from '../icon';
+import { MenuItemInterface } from './menu-item.interface';
 
 export type TextFieldVariant = 'filled' | 'outlined';
 
@@ -22,14 +23,12 @@ type Props = {
   id?: string;
   style?: React.CSSProperties;
   variant?: TextFieldVariant;
-  options?: Array<{
-    label: string;
-    value: string | number;
-    leadingIcon?: any;
-    trailingIcon?: any;
-    disabled?: boolean;
-    type?: 'divider' | 'headline';
-  }>;
+  options?: Array<
+    {
+      value: string | number;
+      type?: 'divider' | 'headline';
+    } & MenuItemInterface['props']
+  >;
   type?: 'text' | 'password' | 'number' | 'date' | 'select';
   autoComplete?: 'on' | 'off' | string;
   autoFocus?: boolean;
