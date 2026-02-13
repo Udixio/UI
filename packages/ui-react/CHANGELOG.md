@@ -1,3 +1,14 @@
+## 2.10.4 (2026-02-13)
+
+### 🩹 Fixes
+
+- **text-field:** update `options` prop to use `MenuItemInterface` and improve selection handling ([8cb7537](https://github.com/Udixio/UI/commit/8cb7537))
+- **menu:** remove unused props and simplify components ([f8bf152](https://github.com/Udixio/UI/commit/f8bf152))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.10.3 (2026-02-12)
 
 ### 🚀 Features
