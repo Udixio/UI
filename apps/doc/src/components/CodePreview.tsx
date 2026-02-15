@@ -2,8 +2,8 @@ import React, { useRef, useState } from 'react';
 import { LiveEditor, LiveError, LivePreview, LiveProvider } from 'react-live';
 import * as UI from '@udixio/ui-react';
 import { classNames } from '@udixio/ui-react';
-import { faClipboard as farClipboard } from '@fortawesome/free-regular-svg-icons';
-import { faClipboardCheck } from '@fortawesome/free-solid-svg-icons';
+import { iContentCopy } from '@udixio/icons-rounded-400/content_copy';
+import { iContentCopyFilled } from '@udixio/icons-rounded-400/filled/content_copy';
 
 type Props = {
   code?: string;
@@ -81,9 +81,9 @@ export const CodePreview = ({
               'top-1/2 -translate-y-1/2': preview,
               'top-3': !preview,
             })}
-            icon={farClipboard}
+            icon={iContentCopy}
             label={'Copy to clipboard'}
-            iconSelected={faClipboardCheck}
+            iconSelected={iContentCopyFilled}
             activated={copyState == 'ok'}
           />
         </div>

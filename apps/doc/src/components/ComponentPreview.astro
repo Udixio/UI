@@ -31,14 +31,12 @@ import {
   MenuItem,
   MenuHeadline,
 } from '@udixio/ui-react';
-import {
-  faBell,
-  faGear,
-  faHouse,
-  faPlus,
-  faStar,
-  faChevronDown,
-} from '@fortawesome/free-solid-svg-icons';
+import { iNotifications } from '@udixio/icons-rounded-400/notifications';
+import { iSettings } from '@udixio/icons-rounded-400/settings';
+import { iHome } from '@udixio/icons-rounded-400/home';
+import { iAdd } from '@udixio/icons-rounded-400/add';
+import { iStar } from '@udixio/icons-rounded-400/star';
+import { iKeyboardArrowDown } from '@udixio/icons-rounded-400/keyboard_arrow_down';
 
 type PreviewProps = {
   id: string;
@@ -106,14 +104,14 @@ const { id } = Astro.props as PreviewProps;
   {
     id === 'fab' && (
       <div class="flex items-center gap-3">
-        <Fab label="Create" icon={faPlus} />
-        <Fab label="Add" extended icon={faPlus} />
+        <Fab label="Create" icon={iAdd} />
+        <Fab label="Add" extended icon={iAdd} />
       </div>
     )
   }
   {
     id === 'fab-menu' && (
-      <FabMenu icon={faPlus} label="Create" defaultOpen={true}>
+      <FabMenu icon={iAdd} label="Create" defaultOpen={true}>
         <Button label="New doc" />
         <Button label="Upload" />
       </FabMenu>
@@ -122,17 +120,17 @@ const { id } = Astro.props as PreviewProps;
   {
     id === 'icon-button' && (
       <div class="flex gap-2">
-        <IconButton label="Favorite" icon={faStar} />
-        <IconButton label="Star" icon={faStar} variant="outlined" />
+        <IconButton label="Favorite" icon={iStar} />
+        <IconButton label="Star" icon={iStar} variant="outlined" />
       </div>
     )
   }
   {
     id === 'navigation-rail' && (
       <NavigationRail>
-        <NavigationRailItem label="Home" icon={faHouse} />
-        <NavigationRailItem label="Updates" icon={faBell} />
-        <NavigationRailItem label="Settings" icon={faGear} />
+        <NavigationRailItem label="Home" icon={iHome} />
+        <NavigationRailItem label="Updates" icon={iNotifications} />
+        <NavigationRailItem label="Settings" icon={iSettings} />
       </NavigationRail>
     )
   }

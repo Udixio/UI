@@ -6,7 +6,9 @@
 
 
 import { CodePreview } from '@/components/CodePreview.js';
-import { faGear, faHome, faUser } from '@fortawesome/free-solid-svg-icons';
+import { iSettings } from '@udixio/icons-rounded-400/settings';
+import { iHome } from '@udixio/icons-rounded-400/home';
+import { iPerson } from '@udixio/icons-rounded-400/person';
 
 ## Usage
 
@@ -19,12 +21,12 @@ import { Tabs, Tab } from "@udixio/ui-react"
 <CodePreview client:load
              code={`
   <Tabs>
-    <Tab label="Home" icon={faHome} selected />
-    <Tab label="Settings" icon={faGear} />
-    <Tab label="Profile" icon={faUser} />
+    <Tab label="Home" icon={iHome} selected />
+    <Tab label="Settings" icon={iSettings} />
+    <Tab label="Profile" icon={iPerson} />
   </Tabs>
 `}
-             scope={{ faHome, faGear, faUser }}
+             scope={{ iHome, iSettings, iPerson }}
 />
 
 ## Variants

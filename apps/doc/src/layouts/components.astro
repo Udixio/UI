@@ -11,7 +11,7 @@ import { DocSidebar } from '@/components/DocSidebar';
 import Layout from '@/layouts/layout.astro';
 import {Card, Icon}from "@udixio/ui-react";
 import { renderMarkdown } from '@/lib/markdown';
-import { faExclamation, faInfo, faInfoCircle,  } from '@fortawesome/free-solid-svg-icons';
+import { iExclamation } from '@udixio/icons-rounded-400/exclamation';
 
 const apis = await getCollection('api');
 const overviews = await getCollection('overviews');
@@ -76,7 +76,7 @@ const components = apis
       >
         <div class="flex items-start gap-4 p-6 md:p-7">
           <div class="p-2 rounded-full bg-primary-container">
-            <Icon icon={faExclamation} className="size-5 md:size-6 text-on-primary-container" />
+            <Icon icon={iExclamation} className="size-5 md:size-6 text-on-primary-container" />
           </div>
           <div>
             <h3 id="limitations-title" class="text-base md:text-lg font-medium mb-2 text-on-secondary-container ml-2 !mt-0">

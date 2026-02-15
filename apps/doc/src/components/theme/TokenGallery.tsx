@@ -10,7 +10,8 @@ import PaletteToneRow from './PaletteToneRow';
 import ColorTokenCard from './ColorTokenCard';
 import { AnimatePresence, motion } from 'motion/react';
 import { kebabCase } from 'change-case';
-import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
+import { iKeyboardArrowDown } from '@udixio/icons-rounded-400/keyboard_arrow_down';
+import { iKeyboardArrowUp } from '@udixio/icons-rounded-400/keyboard_arrow_up';
 
 // A richer UX gallery focusing on usability: search, filter, copy, and previews.
 
@@ -217,7 +218,7 @@ export const TokenGallery: React.FC = () => {
                   >
                     {expandedGroups[group] ? 'Masquer' : 'Afficher'}
                     <Icon
-                      icon={expandedGroups[group] ? faChevronUp : faChevronDown}
+                      icon={expandedGroups[group] ? iKeyboardArrowUp : iKeyboardArrowDown}
                       className="text-xs"
                     />
                   </button>

@@ -25,7 +25,7 @@
 
 
 import { CodePreview } from '@/components/CodePreview.js';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { iAdd } from '@udixio/icons-rounded-400/add';
 
 ## Chip — aperçu et usage
 
@@ -65,9 +65,9 @@ Un assist chip déclenche une action immédiate : ouvrir une vue, copier un te
 <CodePreview
   client:load
   code={`
-<Chip label="Nouveau" icon={faPlus} onClick={() => console.log('nouveau')} />
+<Chip label="Nouveau" icon={iAdd} onClick={() => console.log('nouveau')} />
   `}
-  scope={{ faPlus }}
+  scope={{ iAdd }}
 />
 
 
@@ -148,10 +148,10 @@ Vous pouvez afficher une icône (FontAwesome) dans le chip.
   client:load
   code={`
     <div className="flex gap-3">
-      <Chip label="Ajouter" icon={faPlus} />
+      <Chip label="Ajouter" icon={iAdd} />
     </div>
   `}
-  scope={{ faPlus }}
+  scope={{ iAdd }}
 />
 
 

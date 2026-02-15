@@ -5,7 +5,7 @@
 
 
 import { CodePreview } from '@/components/CodePreview.js';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { iAdd } from '@udixio/icons-rounded-400/add';
 
 ## Usage
 
@@ -127,11 +127,11 @@ You can add an icon (FontAwesome) and choose its position.
   client:load
   code={`
     <div className="flex gap-3">
-      <Button label="Add" icon={faPlus} />
-      <Button label="Next" iconPosition="right" icon={faPlus} />
+      <Button label="Add" icon={iAdd} />
+      <Button label="Next" iconPosition="right" icon={iAdd} />
     </div>
   `}
-  scope={{ faPlus }}
+  scope={{ iAdd }}
 />
 
 ## Loading state

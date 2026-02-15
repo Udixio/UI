@@ -13,8 +13,10 @@
 
 
 
+
+
 import { CodePreview } from '@/components/CodePreview.js';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { iAdd } from '@udixio/icons-rounded-400/add';
 
 ## Usage
 
@@ -27,7 +29,7 @@ import { Fab } from "@udixio/ui-react"
 <CodePreview client:load
              code={`
   <div className="flex items-end gap-4 h-96">
-    <FabMenu size="large" label="Create" icon={faPlus} >
+    <FabMenu size="large" label="Create" icon={iAdd} >
       <Button variant="filled">Filled</Button>
       <Button variant="elevated">Elevated</Button>
       <Button variant="tonal">Tonal</Button>
@@ -35,13 +37,13 @@ import { Fab } from "@udixio/ui-react"
       <Button variant="text">Text</Button>
     </FabMenu>
   </div>`}
-             scope={{ faPlus }}
+             scope={{ iAdd }}
 />
 
 <CodePreview client:load
              code={`
   <div className="flex items-end gap-4 h-96">
-    <FabMenu extended variant="secondary" size="large" label="Create" icon={faPlus} >
+    <FabMenu extended variant="secondary" size="large" label="Create" icon={iAdd} >
       <Button variant="filled">Filled</Button>
       <Button variant="elevated">Elevated</Button>
       <Button variant="tonal">Tonal</Button>
@@ -49,14 +51,14 @@ import { Fab } from "@udixio/ui-react"
       <Button variant="text">Text</Button>
     </FabMenu>
   </div>`}
-             scope={{ faPlus }}
+             scope={{ iAdd }}
 />
 
 
 <CodePreview client:load
              code={`
   <div className="flex items-end gap-4 h-96">
-    <FabMenu variant="tertiary" size="large" label="Create" icon={faPlus} >
+    <FabMenu variant="tertiary" size="large" label="Create" icon={iAdd} >
       <Button variant="filled">Filled</Button>
       <Button variant="elevated">Elevated</Button>
       <Button variant="tonal">Tonal</Button>
@@ -64,6 +66,5 @@ import { Fab } from "@udixio/ui-react"
       <Button variant="text">Text</Button>
     </FabMenu>
   </div>`}
-             scope={{ faPlus }}
+             scope={{ iAdd }}
 />
-
