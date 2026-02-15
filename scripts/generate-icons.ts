@@ -4,12 +4,6 @@ import * as path from 'path';
 const VALID_STYLES = ['outlined', 'rounded', 'sharp'] as const;
 type Style = (typeof VALID_STYLES)[number];
 
-const STYLE_MAP: Record<Style, string> = {
-  outlined: 'Outlined',
-  rounded: 'Rounded',
-  sharp: 'Sharp',
-};
-
 function toPascalCase(name: string): string {
   return name
     .split(/[-_]/)
@@ -26,14 +20,9 @@ function getIconName(filename: string): string {
   return filename.replace(/\.svg$/, '').replace(/-fill$/, '');
 }
 
-function generateExportName(
-  iconName: string,
-  style: Style,
-  weight: string
-): string {
+function generateExportName(iconName: string): string {
   const pascalName = toPascalCase(iconName);
-  const styleName = STYLE_MAP[style];
-  return `i${pascalName}${styleName}${weight}`;
+  return `i${pascalName}`;
 }
 
 function main() {
@@ -74,21 +63,18 @@ function main() {
     fs.rmSync(srcDir, { recursive: true });
   }
   fs.mkdirSync(srcDir, { recursive: true });
-  fs.mkdirSync(path.join(srcDir, 'filled'), { recursive: true });
-
-  const nonFilledBarrel: string[] = [];
-  const filledBarrel: string[] = [];
-
-  const seen = new Set<string>();
 
   let fileCount = 0;
+  let filledCount = 0;
+  let nonFilledCount = 0;
 
   const files = fs.readdirSync(styleDir).filter((f) => f.endsWith('.svg'));
 
   for (const file of files) {
     const isFilled = file.endsWith('-fill.svg');
     const iconName = getIconName(file);
-    const exportName = generateExportName(iconName, style, weight);
+    const baseName = generateExportName(iconName);
+    const exportName = isFilled ? `${baseName}Filled` : baseName;
 
     // Read SVG
     const svgContent = fs
@@ -103,38 +89,16 @@ function main() {
       : `${iconName}.ts`;
     const iconFilePath = path.join(srcDir, iconFileName);
 
-    // Write individual icon file
-    const fileContent = `const ${exportName} = '${escapedSvg}';\nexport default ${exportName};\n`;
+    // Each file exports a named export matching the icon name
+    const fileContent = `export const ${exportName} = '${escapedSvg}';\n`;
     fs.writeFileSync(iconFilePath, fileContent);
     fileCount++;
-
-    // Add barrel export (deduplicate just in case)
-    if (!seen.has(exportName + (isFilled ? '-fill' : ''))) {
-      seen.add(exportName + (isFilled ? '-fill' : ''));
-      if (isFilled) {
-        filledBarrel.push(
-          `export { default as ${exportName} } from '../${iconName}.filled.js';`
-        );
-      } else {
-        nonFilledBarrel.push(
-          `export { default as ${exportName} } from './${iconName}.js';`
-        );
-      }
-    }
+    if (isFilled) filledCount++;
+    else nonFilledCount++;
   }
 
-  // Write barrel index files
-  fs.writeFileSync(
-    path.join(srcDir, 'index.ts'),
-    nonFilledBarrel.join('\n') + '\n'
-  );
-  fs.writeFileSync(
-    path.join(srcDir, 'filled', 'index.ts'),
-    filledBarrel.join('\n') + '\n'
-  );
-
   console.log(
-    `@udixio/icons-${style}-${weight}: ${fileCount} files, ${nonFilledBarrel.length} non-filled, ${filledBarrel.length} filled`
+    `@udixio/icons-${style}-${weight}: ${fileCount} files, ${nonFilledCount} non-filled, ${filledCount} filled`
   );
 }
 

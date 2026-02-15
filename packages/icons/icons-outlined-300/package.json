@@ -5,20 +5,17 @@
   "sideEffects": false,
   "exports": {
     "./package.json": "./package.json",
-    ".": {
-      "development": "./src/index.ts",
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+    "./*": {
+      "development": "./src/*.ts",
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js"
     },
-    "./filled": {
-      "development": "./src/filled/index.ts",
-      "types": "./dist/filled/index.d.ts",
-      "import": "./dist/filled/index.js"
+    "./filled/*": {
+      "development": "./src/*.filled.ts",
+      "types": "./dist/*.filled.d.ts",
+      "import": "./dist/*.filled.js"
     }
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "scripts": {
     "generate": "tsx ../../../scripts/generate-icons.ts outlined 300",
     "build": "pnpm generate && tsc -p tsconfig.lib.json"
