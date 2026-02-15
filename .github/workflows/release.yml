@@ -69,9 +69,9 @@ jobs:
       - name: Publish packages
         run: |
           if [ "${{ github.event.inputs.tag }}" != "" ]; then
-            npx nx release publish --tag ${{ github.event.inputs.tag }} --verbose;
+            npx nx release publish --first-release --tag ${{ github.event.inputs.tag }} --verbose;
           else
-            npx nx release publish --verbose;
+            npx nx release publish --first-release --verbose;
           fi
         env:
           NPM_CONFIG_PROVENANCE: true
