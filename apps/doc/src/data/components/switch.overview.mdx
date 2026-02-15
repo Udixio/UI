@@ -6,7 +6,8 @@
 
 
 import { CodePreview } from '@/components/CodePreview.js';
-import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
+import { iDarkMode } from '@udixio/icons-rounded-400/dark_mode';
+import { iLightMode } from '@udixio/icons-rounded-400/light_mode';
 
 ## Usage
 
@@ -27,11 +28,11 @@ Provide `activeIcon` and/or `inactiveIcon` to display inside the thumb.
 <CodePreview client:load
              code={`
   <div className="flex items-center gap-6">
-    <Switch selected inactiveIcon={faMoon} activeIcon={faSun} />
-    <Switch inactiveIcon={faMoon} activeIcon={faSun} />
+    <Switch selected inactiveIcon={iDarkMode} activeIcon={iLightMode} />
+    <Switch inactiveIcon={iDarkMode} activeIcon={iLightMode} />
   </div>
 `}
-             scope={{ faMoon, faSun }}
+             scope={{ iDarkMode, iLightMode }}
 />
 
 ## Disabled

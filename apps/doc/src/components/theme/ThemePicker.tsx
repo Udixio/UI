@@ -3,7 +3,8 @@ import { useStore } from '@nanostores/react';
 import { themeConfigStore } from '@/stores/themeConfigStore.ts';
 import { ColorPicker } from './ColorPicker';
 import { Slider, Switch } from '@udixio/ui-react';
-import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
+import { iDarkMode } from '@udixio/icons-rounded-400/dark_mode';
+import { iLightMode } from '@udixio/icons-rounded-400/light_mode';
 
 export const ThemePicker: React.FC = () => {
   const $config = useStore(themeConfigStore);
@@ -41,8 +42,8 @@ export const ThemePicker: React.FC = () => {
             </span>
           </div>
           <Switch
-            activeIcon={faMoon}
-            inactiveIcon={faSun}
+            activeIcon={iDarkMode}
+            inactiveIcon={iLightMode}
             onChange={(value) => setIsDark(value)}
             selected={isDark}
           />

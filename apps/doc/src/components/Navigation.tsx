@@ -1,39 +1,40 @@
-import { faHourglass, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { Fab, NavigationRail, NavigationRailItem } from '@udixio/ui-react';
-import rWidgets from '@material-design-icons/svg/outlined/widgets.svg?raw';
-import sWidgets from '@material-design-icons/svg/filled/widgets.svg?raw';
-import rPalette from '@material-design-icons/svg/outlined/palette.svg?raw';
-import sAnimation from '@material-design-icons/svg/filled/animation.svg?raw';
-import rAnimation from '@material-design-icons/svg/outlined/animation.svg?raw';
-import sPalette from '@material-design-icons/svg/filled/palette.svg?raw';
+import { iAnimation } from '@udixio/icons-rounded-400/animation';
+import { iHourglass } from '@udixio/icons-rounded-400/hourglass';
+import { iPalette } from '@udixio/icons-rounded-400/palette';
+import { iWidgets } from '@udixio/icons-rounded-400/widgets';
+import { iSearch } from '@udixio/icons-rounded-400/search';
+import { iAnimationFilled } from '@udixio/icons-rounded-400/filled/animation';
+import { iPaletteFilled } from '@udixio/icons-rounded-400/filled/palette';
+import { iWidgetsFilled } from '@udixio/icons-rounded-400/filled/widgets';
 
 export const Navigation = () => {
   return (
     <NavigationRail className={'bg-surface-container'}>
-      <Fab variant={'tertiary'} icon={faSearch} href={'/search'}>
+      <Fab variant={'tertiary'} icon={iSearch} href={'/search'}>
         Search
       </Fab>
-      <NavigationRailItem icon={faHourglass} iconSelected={faHourglass}>
+      <NavigationRailItem icon={iHourglass} iconSelected={iHourglass}>
         Get started
       </NavigationRailItem>
       <NavigationRailItem
         href={'/animations'}
-        icon={rAnimation}
-        iconSelected={sAnimation}
+        icon={iAnimation}
+        iconSelected={iAnimationFilled}
       >
         animations
       </NavigationRailItem>
       <NavigationRailItem
         href={'/components'}
-        icon={rWidgets}
-        iconSelected={sWidgets}
+        icon={iWidgets}
+        iconSelected={iWidgetsFilled}
       >
         Components
       </NavigationRailItem>
       <NavigationRailItem
         href={'/themes'}
-        icon={rPalette}
-        iconSelected={sPalette}
+        icon={iPalette}
+        iconSelected={iPaletteFilled}
       >
         Themes
       </NavigationRailItem>

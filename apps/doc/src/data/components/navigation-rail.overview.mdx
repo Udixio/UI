@@ -3,16 +3,14 @@
 
 
 import { CodePreview } from '@/components/CodePreview.js';
-import {
-  faBell,
-  faCalendarDays,
-  faChartLine,
-  faClock,
-  faHourglass,
-  faMusic,
-  faPlus,
-  faStopwatch
-} from '@fortawesome/free-solid-svg-icons';
+import { iNotifications } from '@udixio/icons-rounded-400/notifications';
+import { iCalendarMonth } from '@udixio/icons-rounded-400/calendar_month';
+import { iShowChart } from '@udixio/icons-rounded-400/show_chart';
+import { iSchedule } from '@udixio/icons-rounded-400/schedule';
+import { iHourglass } from '@udixio/icons-rounded-400/hourglass';
+import { iMusicNote } from '@udixio/icons-rounded-400/music_note';
+import { iAdd } from '@udixio/icons-rounded-400/add';
+import { iTimer } from '@udixio/icons-rounded-400/timer';
 
 ## Usage
 
@@ -24,16 +22,16 @@ import { NavigationRail, NavigationRailItem, NavigationRailSection, Fab } from "
 
 ```tsx
 <NavigationRail>
-  <NavigationRailItem icon={faBell} iconSelected={faBell} selected>
+  <NavigationRailItem icon={iNotifications} iconSelected={iNotifications} selected>
     Alarm
   </NavigationRailItem>
-  <NavigationRailItem icon={faClock} iconSelected={faClock}>
+  <NavigationRailItem icon={iSchedule} iconSelected={iSchedule}>
     Clock
   </NavigationRailItem>
-  <NavigationRailItem icon={faHourglass} iconSelected={faHourglass}>
+  <NavigationRailItem icon={iHourglass} iconSelected={iHourglass}>
     Timer
   </NavigationRailItem>
-  <NavigationRailItem icon={faStopwatch} iconSelected={faStopwatch}>
+  <NavigationRailItem icon={iTimer} iconSelected={iTimer}>
     Stopwatch
   </NavigationRailItem>
 </NavigationRail>
@@ -48,20 +46,20 @@ alignment: "top" (default) | "middle"
   client:load
   code={`<div class="h-[750px] flex gap-8">
    <NavigationRail className="bg-surface-container-highest" alignment="top">
-        <NavigationRailItem icon={faBell}  iconSelected={faBell} selected >Alarm</NavigationRailItem>
-        <NavigationRailItem icon={faClock}  iconSelected={faClock} >Clock</NavigationRailItem>
-        <NavigationRailItem icon={faHourglass}  iconSelected={faHourglass} >Timer</NavigationRailItem>
-        <NavigationRailItem icon={faStopwatch}  iconSelected={faStopwatch} >Stopwatch</NavigationRailItem>
+        <NavigationRailItem icon={iNotifications}  iconSelected={iNotifications} selected >Alarm</NavigationRailItem>
+        <NavigationRailItem icon={iSchedule}  iconSelected={iSchedule} >Clock</NavigationRailItem>
+        <NavigationRailItem icon={iHourglass}  iconSelected={iHourglass} >Timer</NavigationRailItem>
+        <NavigationRailItem icon={iTimer}  iconSelected={iTimer} >Stopwatch</NavigationRailItem>
   </NavigationRail>
   <NavigationRail className="bg-surface-container-highest" alignment="middle">
-        <NavigationRailItem icon={faBell}  iconSelected={faBell} label="Alarm" selected />
-        <NavigationRailItem icon={faClock}  iconSelected={faClock} label="Clock" />
-        <NavigationRailItem icon={faHourglass}  iconSelected={faHourglass} label="Timer" />
-        <NavigationRailItem icon={faStopwatch}  iconSelected={faStopwatch} label="Stopwatch" />
+        <NavigationRailItem icon={iNotifications}  iconSelected={iNotifications} label="Alarm" selected />
+        <NavigationRailItem icon={iSchedule}  iconSelected={iSchedule} label="Clock" />
+        <NavigationRailItem icon={iHourglass}  iconSelected={iHourglass} label="Timer" />
+        <NavigationRailItem icon={iTimer}  iconSelected={iTimer} label="Stopwatch" />
   </NavigationRail>
 </div>
 `}
-  scope={{ faBell, faClock, faHourglass, faStopwatch, faPlus }}
+  scope={{ iNotifications, iSchedule, iHourglass, iTimer, iAdd }}
 />
 
 ## Extended rail
@@ -79,28 +77,28 @@ Toggle the extended mode to reveal labels and optional sections. You can control
 
 onExtendedChange={setExtended}>
 
-<Fab label="Add Timer" icon={faPlus} />
-  <NavigationRailItem icon={faBell} iconSelected={faBell} label="Alarm" />
-  <NavigationRailItem icon={faClock} iconSelected={faClock} label="Clock" />
-  <NavigationRailItem icon={faHourglass} iconSelected={faHourglass} label="Timer" />
-  <NavigationRailItem icon={faStopwatch} iconSelected={faStopwatch} label="Stopwatch" />
+<Fab label="Add Timer" icon={iAdd} />
+  <NavigationRailItem icon={iNotifications} iconSelected={iNotifications} label="Alarm" />
+  <NavigationRailItem icon={iSchedule} iconSelected={iSchedule} label="Clock" />
+  <NavigationRailItem icon={iHourglass} iconSelected={iHourglass} label="Timer" />
+  <NavigationRailItem icon={iTimer} iconSelected={iTimer} label="Stopwatch" />
   <NavigationRailSection label="Sleep well" />
-  <NavigationRailItem label="Schedule" icon={faCalendarDays} iconSelected={faCalendarDays} />
-  <NavigationRailItem label="Stats" icon={faChartLine} iconSelected={faChartLine} />
-  <NavigationRailItem label="Sleep sound" icon={faMusic} iconSelected={faMusic} />
+  <NavigationRailItem label="Schedule" icon={iCalendarMonth} iconSelected={iCalendarMonth} />
+  <NavigationRailItem label="Stats" icon={iShowChart} iconSelected={iShowChart} />
+  <NavigationRailItem label="Sleep sound" icon={iMusicNote} iconSelected={iMusicNote} />
 </NavigationRail>
 )
 }
 `}
   scope={{
-    faBell,
-    faClock,
-    faHourglass,
-    faStopwatch,
-    faPlus,
-    faCalendarDays,
-    faChartLine,
-    faMusic,
+    iNotifications,
+    iSchedule,
+    iHourglass,
+    iTimer,
+    iAdd,
+    iCalendarMonth,
+    iShowChart,
+    iMusicNote,
   }}
 />
 
@@ -116,27 +114,27 @@ function Example() {
   const [index, setIndex] = React.useState(0)
   return (
     <NavigationRail className="bg-surface-container-highest h-[750px]" selectedItem={index} setSelectedItem={setIndex}>
-      <Fab label="Add Timer" icon={faPlus} />
-      <NavigationRailItem icon={faBell} iconSelected={faBell} label="Alarm" />
-      <NavigationRailItem icon={faClock} iconSelected={faClock} label="Clock" />
-      <NavigationRailItem icon={faHourglass} iconSelected={faHourglass} label="Timer" />
-      <NavigationRailItem icon={faStopwatch} iconSelected={faStopwatch} label="Stopwatch" />
+      <Fab label="Add Timer" icon={iAdd} />
+      <NavigationRailItem icon={iNotifications} iconSelected={iNotifications} label="Alarm" />
+      <NavigationRailItem icon={iSchedule} iconSelected={iSchedule} label="Clock" />
+      <NavigationRailItem icon={iHourglass} iconSelected={iHourglass} label="Timer" />
+      <NavigationRailItem icon={iTimer} iconSelected={iTimer} label="Stopwatch" />
       <NavigationRailSection label="Sleep well" />
-      <NavigationRailItem label="Schedule" icon={faCalendarDays} iconSelected={faCalendarDays} />
-      <NavigationRailItem label="Stats" icon={faChartLine} iconSelected={faChartLine} />
-      <NavigationRailItem label="Sleep sound" icon={faMusic} iconSelected={faMusic} />
+      <NavigationRailItem label="Schedule" icon={iCalendarMonth} iconSelected={iCalendarMonth} />
+      <NavigationRailItem label="Stats" icon={iShowChart} iconSelected={iShowChart} />
+      <NavigationRailItem label="Sleep sound" icon={iMusicNote} iconSelected={iMusicNote} />
     </NavigationRail>
   )
 }
 `}
   scope={{
-    faBell,
-    faClock,
-    faHourglass,
-    faStopwatch,
-    faPlus,
-    faCalendarDays,
-    faChartLine,
-    faMusic,
+    iNotifications,
+    iSchedule,
+    iHourglass,
+    iTimer,
+    iAdd,
+    iCalendarMonth,
+    iShowChart,
+    iMusicNote,
   }}
 />
