@@ -1,5 +1,5 @@
 {
-  "name": "@udixio/icons",
+  "name": "@udixio/icons-sharp-300",
   "version": "0.0.1",
   "type": "module",
   "sideEffects": false,
@@ -20,17 +20,11 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "generate": "tsx scripts/generate.ts",
+    "generate": "tsx ../../../scripts/generate-icons.ts sharp 300",
     "build": "pnpm generate && tsc -p tsconfig.lib.json"
   },
   "devDependencies": {
-    "@material-symbols/svg-100": "*",
-    "@material-symbols/svg-200": "*",
     "@material-symbols/svg-300": "*",
-    "@material-symbols/svg-400": "*",
-    "@material-symbols/svg-500": "*",
-    "@material-symbols/svg-600": "*",
-    "@material-symbols/svg-700": "*",
     "tsx": "*"
   },
   "repository": {

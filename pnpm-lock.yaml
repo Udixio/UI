@@ -425,26 +425,188 @@ importers:
         specifier: ^2.4.0
         version: 2.4.0(typescript@5.9.3)
 
-  packages/icons:
+  packages/icons/icons-outlined-100:
     devDependencies:
       '@material-symbols/svg-100':
         specifier: '*'
         version: 0.40.2
+      tsx:
+        specifier: '*'
+        version: 4.20.6
+
+  packages/icons/icons-outlined-200:
+    devDependencies:
       '@material-symbols/svg-200':
         specifier: '*'
         version: 0.40.2
+      tsx:
+        specifier: '*'
+        version: 4.20.6
+
+  packages/icons/icons-outlined-300:
+    devDependencies:
       '@material-symbols/svg-300':
         specifier: '*'
         version: 0.40.2
+      tsx:
+        specifier: '*'
+        version: 4.20.6
+
+  packages/icons/icons-outlined-400:
+    devDependencies:
       '@material-symbols/svg-400':
         specifier: '*'
         version: 0.40.2
+      tsx:
+        specifier: '*'
+        version: 4.20.6
+
+  packages/icons/icons-outlined-500:
+    devDependencies:
       '@material-symbols/svg-500':
         specifier: '*'
         version: 0.40.2
+      tsx:
+        specifier: '*'
+        version: 4.20.6
+
+  packages/icons/icons-outlined-600:
+    devDependencies:
       '@material-symbols/svg-600':
         specifier: '*'
         version: 0.40.2
+      tsx:
+        specifier: '*'
+        version: 4.20.6
+
+  packages/icons/icons-outlined-700:
+    devDependencies:
+      '@material-symbols/svg-700':
+        specifier: '*'
+        version: 0.40.2
+      tsx:
+        specifier: '*'
+        version: 4.20.6
+
+  packages/icons/icons-rounded-100:
+    devDependencies:
+      '@material-symbols/svg-100':
+        specifier: '*'
+        version: 0.40.2
+      tsx:
+        specifier: '*'
+        version: 4.20.6
+
+  packages/icons/icons-rounded-200:
+    devDependencies:
+      '@material-symbols/svg-200':
+        specifier: '*'
+        version: 0.40.2
+      tsx:
+        specifier: '*'
+        version: 4.20.6
+
+  packages/icons/icons-rounded-300:
+    devDependencies:
+      '@material-symbols/svg-300':
+        specifier: '*'
+        version: 0.40.2
+      tsx:
+        specifier: '*'
+        version: 4.20.6
+
+  packages/icons/icons-rounded-400:
+    devDependencies:
+      '@material-symbols/svg-400':
+        specifier: '*'
+        version: 0.40.2
+      tsx:
+        specifier: '*'
+        version: 4.20.6
+
+  packages/icons/icons-rounded-500:
+    devDependencies:
+      '@material-symbols/svg-500':
+        specifier: '*'
+        version: 0.40.2
+      tsx:
+        specifier: '*'
+        version: 4.20.6
+
+  packages/icons/icons-rounded-600:
+    devDependencies:
+      '@material-symbols/svg-600':
+        specifier: '*'
+        version: 0.40.2
+      tsx:
+        specifier: '*'
+        version: 4.20.6
+
+  packages/icons/icons-rounded-700:
+    devDependencies:
+      '@material-symbols/svg-700':
+        specifier: '*'
+        version: 0.40.2
+      tsx:
+        specifier: '*'
+        version: 4.20.6
+
+  packages/icons/icons-sharp-100:
+    devDependencies:
+      '@material-symbols/svg-100':
+        specifier: '*'
+        version: 0.40.2
+      tsx:
+        specifier: '*'
+        version: 4.20.6
+
+  packages/icons/icons-sharp-200:
+    devDependencies:
+      '@material-symbols/svg-200':
+        specifier: '*'
+        version: 0.40.2
+      tsx:
+        specifier: '*'
+        version: 4.20.6
+
+  packages/icons/icons-sharp-300:
+    devDependencies:
+      '@material-symbols/svg-300':
+        specifier: '*'
+        version: 0.40.2
+      tsx:
+        specifier: '*'
+        version: 4.20.6
+
+  packages/icons/icons-sharp-400:
+    devDependencies:
+      '@material-symbols/svg-400':
+        specifier: '*'
+        version: 0.40.2
+      tsx:
+        specifier: '*'
+        version: 4.20.6
+
+  packages/icons/icons-sharp-500:
+    devDependencies:
+      '@material-symbols/svg-500':
+        specifier: '*'
+        version: 0.40.2
+      tsx:
+        specifier: '*'
+        version: 4.20.6
+
+  packages/icons/icons-sharp-600:
+    devDependencies:
+      '@material-symbols/svg-600':
+        specifier: '*'
+        version: 0.40.2
+      tsx:
+        specifier: '*'
+        version: 4.20.6
+
+  packages/icons/icons-sharp-700:
+    devDependencies:
       '@material-symbols/svg-700':
         specifier: '*'
         version: 0.40.2
@@ -17353,7 +17515,7 @@ snapshots:
 
   '@typescript-eslint/utils@5.62.0(eslint@8.57.1)(typescript@5.9.3)':
     dependencies:
-      '@eslint-community/eslint-utils': 4.9.0(eslint@8.57.1)
+      '@eslint-community/eslint-utils': 4.9.0(eslint@9.37.0(jiti@2.4.2))
       '@types/json-schema': 7.0.15
       '@types/semver': 7.7.1
       '@typescript-eslint/scope-manager': 5.62.0

@@ -5,4 +5,5 @@ onlyBuiltDependencies:
   - 'nx'
 packages:
   - 'packages/*'
+  - 'packages/icons/*'
   - 'apps/*'
