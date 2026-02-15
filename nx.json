@@ -117,7 +117,7 @@
     }
   ],
   "release": {
-    "projects": ["packages/*", "mcp"],
+    "projects": ["packages/*", "packages/icons/*"],
     "projectsRelationship": "independent",
     "version": {
       "preVersionCommand": "npm run build",
