@@ -1,3 +1,7 @@
+## 2.1.15 (2026-02-15)
+
+This was a version bump only for @udixio/theme to align it with other projects, there were no code changes.
+
 ## 2.1.14 (2026-02-08)
 
 ### 🩹 Fixes
