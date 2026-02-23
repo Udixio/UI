@@ -56,7 +56,7 @@ export const Icon: React.FC<Props> = ({
           'size-5 box-content inline-flex fill-current',
           className,
         )}
-        style={{ color: colors[0] || 'inherit' }}
+        style={{ color: colors[0] || '' }}
         dangerouslySetInnerHTML={{ __html: svgContent }}
       />
     );
