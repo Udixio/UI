@@ -1,3 +1,13 @@
+## 2.10.7 (2026-02-23)
+
+### 🩹 Fixes
+
+- **icon:** update default color fallback to empty string in style attribute ([bda1694](https://github.com/Udixio/UI/commit/bda1694))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.10.6 (2026-02-15)
 
 ### 🧱 Updated Dependencies
