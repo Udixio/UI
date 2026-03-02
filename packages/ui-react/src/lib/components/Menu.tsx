@@ -55,7 +55,7 @@ export const Menu = ({
 
       if (child.type === MenuItem) {
         return React.cloneElement(child, {
-          variant: variant,
+          variant: (child.props as any).variant ?? variant,
         } as any);
       }
 
