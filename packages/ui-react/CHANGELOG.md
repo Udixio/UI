@@ -1,3 +1,14 @@
+## 2.10.8 (2026-03-02)
+
+### 🩹 Fixes
+
+- **menu:** add `max-w-full` class to support responsive menu width ([1043649](https://github.com/Udixio/UI/commit/1043649))
+- **menu:** ensure variant is preserved for nested menu items ([6c55c0e](https://github.com/Udixio/UI/commit/6c55c0e))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.10.7 (2026-02-23)
 
 ### 🩹 Fixes
