@@ -537,7 +537,7 @@ export const TextField = ({
           style={{ width: textFieldRef.current?.offsetWidth }}
         >
           <div ref={menuRef}>
-            <Menu selected={value}>
+            <Menu className={'max-w-full'} selected={value}>
               {children
                 ? React.Children.map(children, (child) => {
                     if (
