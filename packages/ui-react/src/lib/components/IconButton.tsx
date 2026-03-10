@@ -1,12 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 
-import { Icon } from '../icon/icon';
-import { IconButtonInterface } from '../interfaces/icon-button.interface';
-import { useIconButtonStyle } from '../styles/icon-button.style';
-import { ReactProps } from '../utils/component';
+import { Icon } from '../icon';
+import { IconButtonInterface } from '../interfaces';
+import { useIconButtonStyle } from '../styles';
+import { classNames, ReactProps } from '../utils';
 import { State } from '../effects';
-import { classNames } from '../utils';
-import { ToolTip } from './ToolTip';
+import { Tooltip } from './Tooltip';
 
 export type IconButtonVariant = 'standard' | 'filled' | 'tonal' | 'outlined';
 
@@ -14,12 +13,16 @@ export type IconButtonVariant = 'standard' | 'filled' | 'tonal' | 'outlined';
  * Icon buttons help people take minor actions with one tap
  * @status beta
  * @category Action
+ * @devx
+ * - Requires `label` or children to provide an aria-label.
+ * - Uses `title` as tooltip text; native title attribute is suppressed.
+ * @limitations
+ * - Tooltip is always rendered (no explicit opt-out).
  */
 export const IconButton = ({
   variant = 'standard',
   href,
   disabled = false,
-  type = 'button',
   title,
   label,
   onToggle,
@@ -43,32 +46,24 @@ export const IconButton = ({
       'IconButton component requires either a label prop or children content to provide an accessible aria-label',
     );
   }
-  if (!title) {
+  if (!title && title !== null) {
     title = label;
   }
 
   const [isActive, setIsActive] = React.useState(activated);
 
-  let handleClick;
-  if (!onToggle) {
-    handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
-      if (disabled) {
-        e.preventDefault();
-      }
-      if (onClick) {
-        onClick(e);
-      }
-    };
-  } else if (onToggle) {
-    handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
-      if (disabled) {
-        e.preventDefault();
-      }
+  const handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
+    if (disabled) {
+      e.preventDefault();
+    }
+    if (onToggle) {
       setIsActive(!isActive);
-      onToggle(Boolean(isActive));
-    };
-    icon = isActive ? (iconSelected ? iconSelected : icon) : icon;
-  }
+      onToggle(!isActive);
+    } else if (onClick) {
+      onClick(e);
+    }
+  };
+
   useEffect(() => {
     setIsActive(activated);
   }, [activated]);
@@ -113,11 +108,13 @@ export const IconButton = ({
       onClick={handleClick}
       ref={resolvedRef}
     >
-      <ToolTip
-        targetRef={resolvedRef}
-        trigger={disabled ? null : undefined}
-        text={title}
-      ></ToolTip>
+      {title !== null && (
+        <Tooltip
+          targetRef={resolvedRef}
+          trigger={disabled ? null : undefined}
+          text={title}
+        ></Tooltip>
+      )}
 
       <div className={styles.touchTarget} />
       <State
@@ -143,7 +140,7 @@ export const IconButton = ({
         )}
         stateClassName={'state-ripple-group-[icon-button]'}
       />
-      {icon && <Icon icon={icon} className={styles.icon} />}
+      {icon ? <Icon icon={icon} className={styles.icon} /> : children}
     </ElementType>
   );
 };

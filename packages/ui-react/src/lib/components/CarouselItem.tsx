@@ -21,6 +21,10 @@ export const normalize = (
 /**
  * @status beta
  * @parent Carousel
+ * @devx
+ * - Intended for use inside `Carousel`; width and outputRange drive sizing.
+ * @limitations
+ * - Requires `outputRange` for min/max sizing; missing values can break layout.
  */
 export const CarouselItem = ({
   className,

@@ -1,3 +1,4 @@
+
 import { classNames, ReactProps } from '../utils';
 import { ButtonInterface } from '../interfaces';
 import { useButtonStyle } from '../styles';
@@ -38,6 +39,12 @@ function resolveVariantAlias(
  * Buttons prompt most actions in a UI
  * @status beta
  * @category Action
+ * @devx
+ * - Requires `label` or children; used for visible text and a11y.
+ * - `onToggle` uses internal state; pair with `activated` for controlled usage.
+ * @limitations
+ * - No explicit `type` prop; HTML button defaults may submit in forms.
+ * - When `href` is set, `disabled` is visual only (no `aria-disabled`).
  */
 export const Button = ({
   variant = 'filled',
@@ -80,27 +87,18 @@ export const Button = ({
 
   transition = { duration: 0.3, ...transition };
 
-  let handleClick;
+  const handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
+    if (disabled) {
+      e.preventDefault();
+    }
+    if (onToggle) {
+      setIsActive(!isActive);
+      onToggle(!isActive);
+    } else if (onClick) {
+      onClick(e);
+    }
+  };
 
-  if (!onToggle) {
-    handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
-      if (disabled) {
-        e.preventDefault();
-      }
-      if (onClick) {
-        onClick(e);
-      }
-    };
-  } else if (onToggle) {
-    handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
-      if (disabled) {
-        e.preventDefault();
-      }
-      const next = !isActive;
-      setIsActive(next);
-      onToggle(next);
-    };
-  }
   const styles = useButtonStyle({
     allowShapeTransformation,
     size,

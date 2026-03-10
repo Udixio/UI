@@ -36,12 +36,17 @@ import { Card } from "@udixio/ui-react"
 
 ## Interactive state
 
-Enable hover and press feedback by setting `isInteractive` to true. Use it for clickable cards (e.g., navigation tiles).
+Enable hover and press feedback by setting `interactive` to true. Use it for clickable cards (e.g., navigation tiles).
 
 ```jsx
-<Card className={"w-full h-48 flex items-center justify-center"} isInteractive>
+<>
+<Card className={"w-full h-48 flex items-center justify-center"} interactive>
   <div className={"text-display-small"} >Clickable card</div>
 </Card>
+<Card className={"w-full h-48 flex items-center justify-center"} interactive>
+  <div className={"text-display-small"} >Clickable card</div>
+</Card>
+</>
 ```
 
 ## Composition patterns

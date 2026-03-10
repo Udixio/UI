@@ -2,7 +2,8 @@
   "tags": {
     "status": "beta",
     "category": "Layout",
-    "limitations": "- Responsive behavior on mobile is not supported.\n- Only the default (hero) variant is supported."
+    "devx": "- Only `CarouselItem` children are rendered; other children are ignored.\n- Use `index` for controlled positioning; otherwise relies on internal scroll state.",
+    "limitations": "- Responsive behavior on mobile is not supported.\n- Only the default (hero) variant is supported.\n- No keyboard navigation or focus management."
   },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/Carousel.tsx",
   "description": "Carousels show a collection of items that can be scrolled on and off the screen",

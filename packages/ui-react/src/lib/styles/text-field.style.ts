@@ -16,14 +16,14 @@ const textFieldConfig: ClassNameComponent<TextFieldInterface> = ({
   isFocused,
   value,
   suffix,
-  textLine,
+  multiline,
 }) => ({
   textField: classNames({
     'opacity-[.38]': disabled,
   }),
   content: classNames(
     'group/text-field  transition-border duration-200 relative  flex  items-center ',
-    { 'h-14': textLine == 'singleLine' },
+    { 'h-14': !multiline },
     {
       'border-on-surface-variant':
         !errorText?.length && !isFocused && variant == 'filled',

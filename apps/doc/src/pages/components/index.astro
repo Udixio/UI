@@ -1,10 +1,139 @@
 ---
 import Layout from '@/layouts/layout.astro';
+import { getCollection } from 'astro:content';
+import { sentenceCase } from 'change-case';
+import { Card } from '@udixio/ui-react';
+
+import { ComponentSidebar } from '@/components/ComponentSidebar';
+import { renderMarkdown } from '@/lib/markdown';
+import ComponentPreview from '@/components/ComponentPreview.astro';
 
 export const prerender = false;
 
-return Astro.redirect('/components/button/overview');
+const overviews = await getCollection('overviews');
+const apis = await getCollection('api');
+
+const overviewIds = new Set(
+  overviews.map((overview) => overview.id.replaceAll('overview', '')),
+);
+
+const components = apis
+  .filter((api) => !api.data.tags?.parent)
+  .filter((api) => overviewIds.has(api.id))
+  .map((api) => {
+    const tags = api.data.tags ?? {};
+    const toHtml = (value?: string) =>
+      typeof value === 'string' && value.trim().length > 0
+        ? renderMarkdown(value, {
+            classes: {
+              li: 'text-sm text-on-surface-variant',
+            },
+          })
+        : '';
+
+    return {
+      id: api.id,
+      displayName: api.data.displayName ?? sentenceCase(api.id),
+      description: api.data.description ?? '',
+      status: tags.status ?? 'beta',
+      category: tags.category ?? 'Other',
+      hasDevx: !!tags.devx,
+      hasA11y: !!tags.a11y,
+      hasLimitations: !!tags.limitations,
+      devxHtml: toHtml(tags.devx),
+      limitationsHtml: toHtml(tags.limitations),
+      a11yHtml: toHtml(tags.a11y),
+    };
+  })
+  .sort((a, b) => a.displayName.localeCompare(b.displayName));
+
+console.log('Filtered and sorted components:', overviewIds);
+
+const componentsByCategory = components.reduce(
+  (acc, component) => {
+    const group = acc[component.category] ?? [];
+    group.push(component);
+    acc[component.category] = group;
+    return acc;
+  },
+  {} as Record<string, typeof components>,
+);
+
+const categories = Object.keys(componentsByCategory).sort((a, b) =>
+  a.localeCompare(b),
+);
 ---
 
-<Layout>
+<Layout docSidebar>
+  <Fragment slot="sidebar">
+    <ComponentSidebar
+      client:load
+      transition:name="component-sidebar"
+      transition:persist
+      current={null}
+      components={apis
+        .filter((api) => !api.data.tags?.parent)
+        .filter((api) => overviewIds.has(api.id))
+        .map((api) => ({
+          slug: api.id,
+          displayName: api.data.displayName ?? sentenceCase(api.id),
+          description: api.data.description ?? '',
+          tags: api.data.tags ?? {},
+        }))
+        .sort((a, b) => a.displayName.localeCompare(b.displayName))}
+    />
+  </Fragment>
+
+  <div class="max-w-screen-xl mx-auto px-6 py-10">
+    <div class="mb-10">
+      <h1 class="text-display-large">Components</h1>
+      <p class="text-headline-small mt-4 text-on-surface-variant">
+        Browse all documented components and their essential dev notes.
+      </p>
+    </div>
+
+    {
+      categories.map((category) => (
+        <section class="mb-12">
+          <div class="flex items-center justify-between mb-5">
+            <h2 class="text-title-large">{category}</h2>
+            <span class="text-label-large text-on-surface-variant">
+              {componentsByCategory[category].length} components
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {componentsByCategory[category].map((component) => (
+              <a
+                href={`/components/${component.id}/overview`}
+                class="group block no-underline"
+              >
+                <Card
+                  client:visible
+                  isInteractive
+                  variant="filled"
+                  className="flex h-full rounded-3xl flex-col overflow-hidden p-0 transition-all duration-200 y"
+                >
+                  <div class="relative rounded-3xl flex min-h-[200px] flex-1 items-center justify-center overflow-hidden bg-surface-container-high p-4">
+                    <div class="pointer-events-none scale-100">
+                      <ComponentPreview id={component.id} />
+                    </div>
+                  </div>
+
+                  <div class="flex flex-col gap-1 p-4 ">
+                    <h3 class="text-title-large">
+                      {component.displayName}
+                    </h3>
+                    <p class="text-body-medium text-on-surface-variant">
+                      {component.description}
+                    </p>
+                  </div>
+                </Card>
+              </a>
+            ))}
+          </div>
+        </section>
+      ))
+    }
+  </div>
 </Layout>

@@ -17,17 +17,19 @@ interface Props {
   className?: string;
 }
 
-export const Icon: React.FC<Props> = ({ icon, colors = [], className }) => {
+export const Icon: React.FC<Props> = ({
+  icon,
+  colors = [],
+  className,
+  ...restProps
+}) => {
   // Si c'est une chaîne de caractères (SVG raw)
   if (typeof icon === 'string') {
-    // Modifier la couleur du SVG en remplaçant les attributs fill/stroke
     let svgContent = icon;
+    let colorAttrs = '';
+
     if (colors[0]) {
-      // Remplacer ou ajouter des attributs de couleur
-      svgContent = svgContent.replace(
-        /<svg([^>]*)>/,
-        `<svg$1 fill="${colors[0]}" color="${colors[0]}">`,
-      );
+      colorAttrs = ` fill="${colors[0]}" color="${colors[0]}"`;
       // Remplacer les paths existants pour utiliser currentColor
       svgContent = svgContent.replace(
         /<path([^>]*?)>/g,
@@ -35,13 +37,26 @@ export const Icon: React.FC<Props> = ({ icon, colors = [], className }) => {
       );
     }
 
+    // Remplacer la balise <svg> ouvrante pour :
+    // 1. Supprimer width/height existants
+    // 2. Ajouter width="100%" height="100%"
+    // 3. Ajouter les attributs de couleur si nécessaire
+    svgContent = svgContent.replace(/<svg([^>]*)>/, (_, attributes) => {
+      // Supprime width="..." ou height="..." (avec guillemets simples ou doubles)
+      const cleanAttrs = attributes.replace(
+        /\s+(width|height)=["'][^"']*["']/g,
+        '',
+      );
+      return `<svg${cleanAttrs} width="100%" height="100%"${colorAttrs}>`;
+    });
+
     return (
       <div
         className={classNames(
           'size-5 box-content inline-flex fill-current',
           className,
         )}
-        style={{ color: colors[0] || 'inherit' }}
+        style={{ color: colors[0] || '' }}
         dangerouslySetInnerHTML={{ __html: svgContent }}
       />
     );
@@ -98,6 +113,7 @@ export const Icon: React.FC<Props> = ({ icon, colors = [], className }) => {
       viewBox={`0 0 ${width} ${height}`}
       role="img"
       aria-hidden="true"
+      {...restProps}
     >
       {typeof svgPathData === 'string' ? (
         <path className={'fill-current'} d={svgPathData} />

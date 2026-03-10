@@ -1,22 +1,40 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Icon } from '../icon';
-import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCalendarDays,
+  faChevronDown,
+  faChevronUp,
+  faCircleExclamation,
+} from '@fortawesome/free-solid-svg-icons';
 import { motion } from 'motion/react';
-import { v4 as uuidv4 } from 'uuid';
+import { DatePicker } from './DatePicker';
+import { Button } from './Button';
+import { Menu } from './Menu';
+import { MenuItem } from './MenuItem';
+import { Divider } from './Divider';
+import { MenuHeadline } from './MenuHeadline';
 
 import TextareaAutosize from 'react-textarea-autosize';
 import { useTextFieldStyle } from '../styles/text-field.style';
 import { classNames } from '../utils';
 import { ReactProps } from '../utils/component';
-import { TextFieldInterface } from '../interfaces/text-field.interface';
+import { AnchorPositioner } from './AnchorPositioner';
+import { TextFieldInterface } from '../interfaces';
 
 /**
  * Text fields let users enter text into a UI
  * @status beta
  * @category Input
+ * @devx
+ * - Supports controlled (`value`) and uncontrolled (`defaultValue`) usage.
+ * - `multiline` switches to textarea mode.
+ * - `type="select" ` switches to select mode with `options`
+ * @a11y
+ * - `aria-describedby` links supporting text/error to input.
  */
 export const TextField = ({
   variant = 'filled',
+  autoFocus,
   disabled = false,
   errorText,
   placeholder,
@@ -28,82 +46,262 @@ export const TextField = ({
   trailingIcon,
   leadingIcon,
   type = 'text',
-  textLine = 'singleLine',
+  multiline = false,
   autoComplete = 'on',
   onChange,
-  value: defaultValue,
-  showSupportingText: defaultShowSupportingText = false,
+  value: valueProp,
+  defaultValue,
+  showSupportingText,
+  id: idProp,
+  style,
+  ref,
+  onFocus,
+  onBlur,
+  options,
+  children,
   ...restProps
-}: ReactProps<TextFieldInterface>) => {
-  const [value, setValue] = useState(defaultValue ?? '');
+}: ReactProps<TextFieldInterface> & { children?: React.ReactNode }) => {
+  const generatedId = useId();
+  const id = idProp || generatedId;
+  const helperTextId = `${id}-helper`;
+
+  const isControlled = valueProp !== undefined;
+  const [internalValue, setInternalValue] = useState(defaultValue ?? '');
+  const value = isControlled ? valueProp : internalValue;
+
   const [isFocused, setIsFocused] = useState(false);
-  const [showErrorIcon, setShowErrorIcon] = useState(false);
-  const [showSupportingText, setShowSupportingText] = useState(
-    defaultShowSupportingText,
-  );
+  const [showErrorIcon, setShowErrorIcon] = useState(!!errorText?.length);
+
+  const internalRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+  const inputRef = (ref as any) || internalRef;
+
+  const textFieldRef = useRef<HTMLDivElement>(null);
+  const calendarTriggerRef = useRef<HTMLDivElement>(null);
+  const datePickerRef = useRef<HTMLDivElement>(null);
+
+  const hasSupportingText =
+    showSupportingText ?? (!!errorText?.length || !!supportingText?.length);
 
   useEffect(() => {
-    setValue(defaultValue ?? '');
-  }, [defaultValue]);
-
-  useEffect(() => {
-    if (errorText?.length) {
-      setShowErrorIcon(true);
-    } else {
-      setShowErrorIcon(false);
-    }
+    setShowErrorIcon(!!errorText?.length);
   }, [errorText]);
 
-  useEffect(() => {
-    if (defaultShowSupportingText) {
-      setShowSupportingText(defaultShowSupportingText);
-    } else {
-      if (supportingText?.length) {
-        setShowSupportingText(true);
-      } else {
-        setShowSupportingText(false);
+  const focusInput = () => {
+    if (inputRef.current && !isFocused && !disabled) {
+      if (type !== 'select') {
+        inputRef.current.focus();
       }
     }
-  }, [showSupportingText, supportingText]);
+  };
+
+  useEffect(() => {
+    if (!autoFocus || disabled) return;
+
+    if (type !== 'select') {
+      const rafId = window.requestAnimationFrame(() => {
+        focusInput();
+      });
+      return () => window.cancelAnimationFrame(rafId);
+    }
+  }, [autoFocus, disabled, inputRef, type]);
 
   useEffect(() => {
     if (isFocused) {
       setShowErrorIcon(false);
+      onFocus?.();
+    } else {
+      if (errorText?.length) {
+        setShowErrorIcon(true);
+      }
+      onBlur?.();
     }
   }, [isFocused]);
 
-  const inputRef = React.useRef<HTMLInputElement & HTMLTextAreaElement>(null);
-
-  const focusInput = () => {
-    if (inputRef.current && !isFocused) {
-      inputRef.current.focus();
-    }
-  };
-
-  const handleOnFocus = () => {
-    setIsFocused(true);
-  };
-
   const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement & HTMLTextAreaElement>,
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const newValue = event.target.value;
-    setValue(newValue); // Update local state
+
+    if (!isControlled) {
+      setInternalValue(newValue);
+    }
 
     setShowErrorIcon(false);
 
-    // If external onChange prop is provided, call it with the new value
-    if (typeof onChange === 'function') {
-      onChange(newValue);
+    if (onChange) {
+      onChange(event);
     }
   };
 
-  const handleBlur = () => {
+  // Date Picker Logic
+  const isDateInput = type === 'date';
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [tempDate, setTempDate] = useState<Date | null>(null);
+
+  const initialDateValue = useMemo(() => {
+    const val = String(value);
+    if (!val) return null;
+    const [y, m, d] = val.split('-').map(Number);
+    if (y && m && d) return new Date(y, m - 1, d);
+    return null;
+  }, [value]);
+
+  const handleDatePickerToggle = () => {
+    if (disabled) return;
+    if (showDatePicker) {
+      setShowDatePicker(false);
+    } else {
+      setTempDate(initialDateValue);
+      setShowDatePicker(true);
+    }
+  };
+
+  useEffect(() => {
+    if (showDatePicker) {
+      setIsFocused(true);
+    } else if (!isSelectInput || !showMenu) {
+      setIsFocused(false);
+    }
+  }, [showDatePicker]);
+
+  useEffect(() => {
+    if (!showDatePicker) return;
+
+    const isInside = (target: Node | null) => {
+      if (!target) return false;
+      return (
+        textFieldRef.current?.contains(target) ||
+        datePickerRef.current?.contains(target)
+      );
+    };
+
+    const handlePointerDown = (e: PointerEvent) => {
+      const target = e.target as Node;
+      const inDatePicker = datePickerRef.current?.contains(target);
+      const inCalendarTrigger = calendarTriggerRef.current?.contains(target);
+      if (!inDatePicker && !inCalendarTrigger) {
+        setShowDatePicker(false);
+      }
+    };
+
+    const handleFocusIn = (e: FocusEvent) => {
+      if (!isInside(e.target as Node)) {
+        setShowDatePicker(false);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowDatePicker(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('focusin', handleFocusIn);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('focusin', handleFocusIn);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showDatePicker]);
+
+  const handleDateConfirm = () => {
+    const newValue = tempDate ? tempDate.toLocaleDateString('en-CA') : '';
+
+    if (!isControlled) {
+      setInternalValue(newValue);
+    }
+
+    if (onChange) {
+      const event = {
+        target: {
+          value: newValue,
+          name,
+          type,
+        },
+      } as React.ChangeEvent<HTMLInputElement>;
+      onChange(event);
+    }
+    setShowDatePicker(false);
+  };
+
+  // Select Logic
+  const isSelectInput = type === 'select';
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const displayValue = useMemo(() => {
+    if (isSelectInput && options) {
+      const selectedOption = options.find(
+        (o) => String(o.value) === String(value),
+      );
+      return selectedOption ? selectedOption.label : value;
+    }
+    return value;
+  }, [value, isSelectInput, options]);
+
+  const handleSelectToggle = () => {
+    if (disabled) return;
+    setShowMenu(!showMenu);
+    setIsFocused(!showMenu);
+  };
+
+  const handleSelectOption = (optionValue: string | number) => {
+    if (!isControlled) {
+      setInternalValue(String(optionValue));
+    }
+
+    if (onChange) {
+      const event = {
+        target: {
+          value: String(optionValue),
+          name,
+          type,
+        },
+      } as React.ChangeEvent<HTMLInputElement>;
+      onChange(event);
+    }
+    setShowMenu(false);
     setIsFocused(false);
   };
 
+  // Close menu on outside click
+  useEffect(() => {
+    if (!showMenu) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        textFieldRef.current &&
+        !textFieldRef.current.contains(event.target as Node) &&
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node)
+      ) {
+        setShowMenu(false);
+        setIsFocused(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showMenu]);
+
+  const effectiveTrailingIcon = useMemo(() => {
+    if (trailingIcon) return trailingIcon;
+    if (isDateInput) return faCalendarDays;
+    if (isSelectInput) return showMenu ? faChevronUp : faChevronDown;
+    return undefined;
+  }, [trailingIcon, isDateInput, isSelectInput, showMenu]);
+
+  // Enhance styles for date input or select
+  const inputSpecialClass =
+    isDateInput || isSelectInput
+      ? '[&::-webkit-calendar-picker-indicator]:hidden cursor-pointer selection:bg-transparent'
+      : '';
+
   const styles = useTextFieldStyle({
-    showSupportingText,
+    showSupportingText: hasSupportingText,
     isFocused,
     showErrorIcon,
     disabled,
@@ -116,37 +314,43 @@ export const TextField = ({
     supportingText,
     type,
     leadingIcon,
-    trailingIcon,
+    trailingIcon: effectiveTrailingIcon,
     variant,
     errorText,
-    value,
+    value: String(displayValue),
     suffix,
-    textLine,
+    multiline,
   });
 
-  const [uuid] = useState(uuidv4());
+  const TextComponent = multiline ? TextareaAutosize : 'input';
+  // For select, we want the input to be readOnly but still focusable?
+  // Actually, for better UX, standard select inputs are often readOnly text fields.
+  const textComponentProps = multiline
+    ? {}
+    : {
+        type: isSelectInput ? 'text' : type,
+        readOnly: isSelectInput,
+      };
 
-  let textComponentProps: object;
-  let TextComponent;
-  switch (textLine) {
-    case 'multiLine':
-      TextComponent = TextareaAutosize;
-      textComponentProps = {};
-      break;
-    case 'textAreas':
-      TextComponent = 'textarea';
-      textComponentProps = {};
-      break;
-    case 'singleLine':
-    default:
-      TextComponent = 'input';
-      textComponentProps = { type: type };
-      break;
-  }
+  const isFloating =
+    isFocused ||
+    (typeof value === 'string' && value.length > 0) ||
+    type == 'date' ||
+    (isSelectInput && showMenu);
+
+  const showLegend = isFloating && variant === 'outlined';
+  const showLabel = !showLegend;
 
   return (
-    <div className={styles.textField} {...restProps}>
-      <fieldset onClick={focusInput} className={styles.content}>
+    <div ref={textFieldRef} className={styles.textField} style={style}>
+      <fieldset
+        onClick={() => {
+          if (isSelectInput) handleSelectToggle();
+          else focusInput();
+        }}
+        className={styles.content}
+        role="presentation"
+      >
         <div className={styles.stateLayer}></div>
         {leadingIcon && (
           <div className={styles.leadingIcon}>
@@ -158,67 +362,78 @@ export const TextField = ({
           </div>
         )}
 
-        {!((!isFocused && !value.length) || variant == 'filled') && (
-          <motion.legend
-            variants={{
-              hidden: { width: 0, padding: 0 },
-              visible: { width: 'auto', padding: '0 8px' },
-            }}
-            initial={'hidden'}
-            animate={!(!isFocused && !value.length) ? 'visible' : 'hidden'}
-            className={'max-w-full ml-2 px-2 text-body-small h-0'}
-            transition={{ duration: 0.2 }}
-          >
-            <span className={'transform inline-flex -translate-y-1/2'}>
-              <motion.span
-                className={styles.label}
-                transition={{ duration: 0.3 }}
-                layoutId={uuid}
-              >
-                {label}
-              </motion.span>
-            </span>
-          </motion.legend>
-        )}
+        <motion.legend
+          aria-hidden="true"
+          variants={{
+            hidden: { width: 0, padding: 0 },
+            visible: { width: 'auto', padding: '0 8px' },
+          }}
+          initial={showLegend ? 'visible' : 'hidden'}
+          animate={showLegend ? 'visible' : 'hidden'}
+          className={
+            'max-w-full ml-2 px-2 text-body-small h-0 overflow-hidden whitespace-nowrap'
+          }
+          transition={{ duration: 0.2 }}
+        >
+          <span className={'transform inline-flex -translate-y-1/2 opacity-0'}>
+            {label}
+          </span>
+        </motion.legend>
+
         <div className={'flex-1 relative'}>
-          {((!isFocused && !value.length) || variant == 'filled') && (
+          {showLabel && (
             <motion.label
-              htmlFor={name}
+              htmlFor={id}
               className={classNames(
-                'absolute left-4  transition-all duration-300',
+                'absolute left-4  transition-all duration-300 pointer-events-none',
                 {
-                  'text-body-small top-2':
-                    variant == 'filled' && !(!isFocused && !value.length),
+                  'text-body-small top-2': variant == 'filled' && isFloating,
                   'text-body-large top-1/2 transform -translate-y-1/2': !(
-                    variant == 'filled' && !(!isFocused && !value.length)
+                    variant == 'filled' && isFloating
                   ),
                 },
               )}
               transition={{ duration: 0.3 }}
+              layoutId={variant === 'outlined' ? `${id}-label` : undefined}
             >
-              <motion.span
-                className={styles.label}
-                transition={{ duration: 0.3 }}
-                layoutId={variant == 'outlined' ? uuid : undefined}
-              >
-                {label}
-              </motion.span>
+              <span className={styles.label}>{label}</span>
             </motion.label>
           )}
+
+          {showLegend && (
+            <motion.label
+              htmlFor={id}
+              className={classNames(
+                'absolute left-2 -top-3 px-1 text-body-small z-10',
+                styles.label,
+              )}
+              layoutId={`${id}-label`}
+              transition={{ duration: 0.3 }}
+            >
+              {label}
+            </motion.label>
+          )}
+
           <TextComponent
-            ref={inputRef}
-            value={value}
+            {...(restProps as any)}
+            ref={inputRef as any}
+            value={displayValue} // Use displayValue for select
             onChange={handleChange}
-            className={styles.input}
-            id={name}
+            className={classNames(styles.input, inputSpecialClass)}
+            id={id}
             name={name}
             placeholder={isFocused ? (placeholder ?? undefined) : ''}
-            onFocus={handleOnFocus}
-            onBlur={handleBlur}
+            onFocus={() => {
+              if (!isSelectInput) setIsFocused(true);
+            }}
+            onBlur={() => {
+              // For select, we manage focus manually with menu state usually
+              if (!isSelectInput) setIsFocused(false);
+            }}
             disabled={disabled}
             autoComplete={autoComplete}
             aria-invalid={!!errorText?.length}
-            aria-label={label}
+            aria-describedby={hasSupportingText ? helperTextId : undefined}
             {...textComponentProps}
           />
         </div>
@@ -227,21 +442,32 @@ export const TextField = ({
 
         {!showErrorIcon && (
           <>
-            {trailingIcon && (
+            {effectiveTrailingIcon && (
               <div
+                ref={isDateInput ? calendarTriggerRef : undefined}
                 onClick={(event) => {
                   event.stopPropagation();
+                  if (isDateInput) handleDatePickerToggle();
+                  if (isSelectInput) handleSelectToggle();
                 }}
-                className={styles.trailingIcon}
-              >
-                {React.isValidElement(trailingIcon) ? (
-                  trailingIcon
-                ) : (
-                  <Icon className={'h-5'} icon={trailingIcon}></Icon>
+                className={classNames(
+                  styles.trailingIcon,
+                  (isDateInput || isSelectInput) && 'cursor-pointer',
                 )}
+              >
+                <div className="flex items-center justify-center w-full h-full">
+                  {React.isValidElement(effectiveTrailingIcon) ? (
+                    effectiveTrailingIcon
+                  ) : (
+                    <Icon
+                      className={'h-5'}
+                      icon={effectiveTrailingIcon as any}
+                    />
+                  )}
+                </div>
               </div>
             )}
-            {!trailingIcon && suffix && (
+            {!effectiveTrailingIcon && suffix && (
               <span className={styles.suffix}>{suffix}</span>
             )}
           </>
@@ -250,7 +476,7 @@ export const TextField = ({
         {showErrorIcon && (
           <div
             className={classNames(styles.trailingIcon, {
-              ' absolute right-0': !trailingIcon,
+              ' absolute right-0': !effectiveTrailingIcon,
             })}
           >
             <Icon
@@ -260,14 +486,100 @@ export const TextField = ({
           </div>
         )}
       </fieldset>
-      {showSupportingText && (
-        <p className={styles.supportingText}>
+
+      {hasSupportingText && (
+        <p className={styles.supportingText} id={helperTextId}>
           {errorText?.length
             ? errorText
             : supportingText?.length
               ? supportingText
               : '\u00A0'}
         </p>
+      )}
+
+      {isDateInput && showDatePicker && (
+        <>
+          <AnchorPositioner anchorRef={textFieldRef} position="bottom">
+            <div
+              ref={datePickerRef}
+              className="z-50 shadow-xl rounded-[28px] bg-surface-container-high overflow-hidden"
+            >
+              <DatePicker
+                className={''}
+                value={tempDate}
+                onChange={setTempDate}
+              />
+              <div className="flex justify-end gap-2 p-4 pt-0">
+                <Button
+                  variant="text"
+                  size="small"
+                  onClick={() => setShowDatePicker(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="filled"
+                  size="small"
+                  onClick={handleDateConfirm}
+                >
+                  OK
+                </Button>
+              </div>
+            </div>
+          </AnchorPositioner>
+        </>
+      )}
+
+      {isSelectInput && showMenu && (
+        <AnchorPositioner
+          anchorRef={textFieldRef}
+          position="bottom"
+          style={{ width: textFieldRef.current?.offsetWidth }}
+        >
+          <div ref={menuRef}>
+            <Menu className={'max-w-full'} selected={value}>
+              {children
+                ? React.Children.map(children, (child) => {
+                    if (
+                      React.isValidElement(child) &&
+                      child.type === MenuItem
+                    ) {
+                      return React.cloneElement(child, {
+                        onClick: (e: React.MouseEvent) => {
+                          if (child.props.onClick) {
+                            child.props.onClick(e);
+                          }
+                          handleSelectOption(child.props.value ?? '');
+                        },
+                      } as any);
+                    }
+                    return child;
+                  })
+                : options?.map((opt, i) => {
+                    if (opt.type === 'divider') {
+                      return <Divider key={i} className="my-1" />;
+                    }
+                    if (opt.type === 'headline') {
+                      return <MenuHeadline key={i} label={opt.label} />;
+                    }
+                    return (
+                      <MenuItem
+                        key={opt.value ?? i}
+                        onClick={(e) => {
+                          if (opt.onClick) {
+                            opt.onClick(e);
+                          }
+                          handleSelectOption(opt.value ?? '');
+                        }}
+                        {...opt}
+                      >
+                        {opt.label}
+                      </MenuItem>
+                    );
+                  })}
+            </Menu>
+          </div>
+        </AnchorPositioner>
       )}
     </div>
   );

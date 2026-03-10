@@ -1,6 +1,6 @@
 {
   "name": "@udixio/ui-react",
-  "version": "2.7.0",
+  "version": "2.10.8",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -28,6 +28,7 @@
     "motion": "^12.23.0",
     "tailwind-merge": "^3.3.1",
     "uuid": "^11.0.3",
+    "lenis": "^1.2.3",
     "@fortawesome/fontawesome-svg-core": "^7.0.0",
     "@fortawesome/free-regular-svg-icons": "^7.0.0",
     "@fortawesome/free-solid-svg-icons": "^7.0.0",
@@ -44,7 +45,7 @@
     "url": "https://github.com/Udixio/UI.git"
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/",
+    "provenance": true,
     "access": "public"
   }
 }

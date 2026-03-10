@@ -1,0 +1,11 @@
+{
+  "tags": {
+    "status": "beta",
+    "category": "Selection"
+  },
+  "filePath": "node_modules/@udixio/ui-react/src/lib/components/MenuItem.tsx",
+  "description": "Single item within a Menu.",
+  "displayName": "MenuItem",
+  "methods": [],
+  "props": {}
+}

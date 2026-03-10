@@ -12,7 +12,7 @@ export const ThemeProvider = () => {
     <Theme
       throttleDelay={300}
       onLoad={(api) => {
-        api.context.darkMode = $themeConfig.isDark;
+        api.context.darkMode = $themeConfig.isDark ?? false;
         themeServiceStore.set(api);
       }}
       config={$themeConfig}

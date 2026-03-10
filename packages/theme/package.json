@@ -1,6 +1,6 @@
 {
   "name": "@udixio/theme",
-  "version": "2.1.2",
+  "version": "2.1.16",
   "type": "module",
   "main": "./dist/node.js",
   "module": "./dist/node.js",
@@ -45,7 +45,7 @@
     "url": "https://github.com/Udixio/UI.git"
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/",
+    "provenance": true,
     "access": "public"
   }
 }

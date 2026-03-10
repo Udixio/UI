@@ -6,6 +6,8 @@ import { ReactProps } from '../utils';
  * Dividers are thin lines that group content in lists or other containers
  * @status beta
  * @category Layout
+ * @devx
+ * - Renders a semantic `<hr>`; use `orientation` for vertical dividers.
  */
 export const Divider = ({
   orientation = 'horizontal',

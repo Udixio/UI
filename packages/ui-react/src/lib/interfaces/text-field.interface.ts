@@ -1,27 +1,40 @@
 import React from 'react';
 import { IconButton } from '../components/IconButton';
 import { Icon } from '../icon';
+import { MenuItemInterface } from './menu-item.interface';
 
 export type TextFieldVariant = 'filled' | 'outlined';
 
 type Props = {
   placeholder?: string;
-  name: string;
+  name?: string;
   label: string;
   disabled?: boolean;
   errorText?: string | null;
   supportingText?: string;
   trailingIcon?: React.ReactElement<typeof IconButton> | Icon;
   leadingIcon?: React.ReactElement<typeof IconButton> | Icon;
-  onChange?: (value: string) => void;
+  onChange?: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
   showSupportingText?: boolean;
   suffix?: string;
 
-  value: string;
+  value?: string;
+  defaultValue?: string;
+  id?: string;
+  style?: React.CSSProperties;
   variant?: TextFieldVariant;
-  type?: 'text' | 'password' | 'number';
+  options?: Array<
+    {
+      value: string | number;
+      type?: 'divider' | 'headline';
+    } & MenuItemInterface['props']
+  >;
+  type?: 'text' | 'password' | 'number' | 'date' | 'select';
   autoComplete?: 'on' | 'off' | string;
-  textLine?: 'singleLine' | 'multiLine' | 'textAreas';
+  autoFocus?: boolean;
+  multiline?: boolean;
+  onFocus?: () => void;
+  onBlur?: () => void;
 };
 export type TextFieldStates = {
   isFocused: boolean;

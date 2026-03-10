@@ -1,0 +1,11 @@
+{
+  "tags": {
+    "status": "beta",
+    "category": "Selection"
+  },
+  "filePath": "node_modules/@udixio/ui-react/src/lib/components/MenuGroup.tsx",
+  "description": "MenuGroup renders a group of menu items with persistent styling.\nIt is primarily used to apply grouping logic or context to its children.",
+  "displayName": "MenuGroup",
+  "methods": [],
+  "props": {}
+}

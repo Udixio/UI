@@ -18,6 +18,7 @@ export interface StateInterface {
       | 'state-layer';
     className?: string;
     style?: React.CSSProperties;
+    children?: React.ReactNode;
   };
   states: { isClient: boolean };
   elements: ['stateLayer'];
@@ -27,6 +28,7 @@ export const State = ({
   style,
   colorName,
   stateClassName = 'state-ripple-group',
+  children,
   className,
 }: ReactProps<StateInterface>) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -44,9 +46,13 @@ export const State = ({
     if (ref.current && stateClassName !== 'state-layer') {
       const groupName = !stateClassName.includes('[')
         ? 'group'
-        : stateClassName.split('[')[1].split(']')[0];
+        : 'group/' + stateClassName.split('[')[1].split(']')[0];
+
+      // On échappe le slash pour le sélecteur CSS
+      const safeGroupName = groupName.replace(/\//g, '\\/');
+
       const furthestGroupState = ref.current.closest(
-        `.${groupName}:not(.${groupName} .${groupName})`,
+        `.${safeGroupName}:not(.${safeGroupName} .${safeGroupName})`,
       );
       groupStateRef.current = furthestGroupState as HTMLElement | null;
     }
@@ -63,6 +69,7 @@ export const State = ({
       }}
     >
       {isClient && <RippleEffect triggerRef={groupStateRef} />}
+      {children}
     </div>
   );
 };
@@ -72,8 +79,8 @@ const cardConfig: ClassNameComponent<StateInterface> = ({
   stateClassName,
 }) => ({
   stateLayer: classNames([
-    stateClassName,
     'w-full top-0 left-0 h-full absolute pointer-events-none overflow-hidden',
+    stateClassName,
   ]),
 });
 

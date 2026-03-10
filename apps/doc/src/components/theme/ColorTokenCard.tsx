@@ -61,48 +61,48 @@ export const ColorTokenCard: React.FC<Props> = ({
         background: bg,
         color: fg,
       }}
-      className="h-full group cursor-pointer flex flex-col gap-3 p-4 rounded-lg border border-outline-variant bg-surface-container transition-all duration-300 hover:scale-[1.01]"
+      className="relative h-full min-h-[100px] group cursor-pointer flex flex-col justify-between p-4 rounded-xl border border-outline-variant/50 transition-all duration-200 hover:shadow-md hover:scale-[1.02]"
       title={
         inverted
           ? 'Inversé: aperçu avec la clé on'
           : 'Aperçu de base: survolez pour mettre en évidence la tone correspondante'
       }
     >
-      <div className="min-w-0 flex-1">
-        <div className="text-label-large">{name}</div>
-        <div className="text-body-small ">
-          Tone:{' '}
-          {inverted
-            ? 'Affichage de la clé on (inversé)'
-            : Math.round(color.getTone())}
+      <div className="flex flex-col gap-1">
+        <div className="text-label-large font-medium tracking-wide break-words">
+          {name}
+        </div>
+        <div className="text-body-small opacity-80 font-mono text-xs">
+          Tone: {inverted ? 'on-key' : Math.round(color.getTone())}
         </div>
       </div>
-      <div className="flex items-center gap-2">
+
+      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pt-2">
         <button
           onClick={(e) => {
             e.stopPropagation();
             setInverted((v) => !v);
           }}
-          className="opacity-80 group-hover:opacity-100 text-xs px-2 py-1 rounded border border-outline-variant/40 hover:bg-surface-container-high"
+          className="text-xs font-medium px-2.5 py-1.5 rounded-md border border-current/20 hover:bg-current/10 transition-colors"
           title={
             inverted
               ? "Désactiver l'inversion (afficher la clé de base)"
               : 'Inverser (afficher la clé on)'
           }
         >
-          {inverted ? 'Désinverser' : 'Inverser'}
+          {inverted ? 'Reset' : 'Invert'}
         </button>
         <button
           onClick={(e) => {
             e.stopPropagation();
             handleCopy();
           }}
-          className="opacity-80 group-hover:opacity-100 text-xs px-2 py-1 rounded border border-outline-variant/40"
+          className="text-xs font-medium px-2.5 py-1.5 rounded-md border border-current/20 hover:bg-current/10 transition-colors"
           title={
             inverted ? 'Copier le nom du token on' : 'Copier le nom du token'
           }
         >
-          {copied ? 'Copié' : inverted ? 'Copier “on”' : 'Copier'}
+          {copied ? 'Copié!' : inverted ? 'Copier “on”' : 'Copier'}
         </button>
       </div>
     </div>

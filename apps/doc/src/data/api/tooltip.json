@@ -1,11 +1,13 @@
 {
   "tags": {
     "status": "beta",
-    "category": "Communication"
+    "category": "Communication",
+    "devx": "- `content` overrides `title`/`text`/`buttons` for fully custom content.\n- Supports controlled `isOpen` plus `openDelay`/`closeDelay`.",
+    "a11y": "- Provides `role=\"tooltip\"` and `aria-describedby` when open."
   },
-  "filePath": "node_modules/@udixio/ui-react/src/lib/components/ToolTip.tsx",
+  "filePath": "node_modules/@udixio/ui-react/src/lib/components/Tooltip.tsx",
   "description": "Tooltips display brief labels or messages",
-  "displayName": "ToolTip",
+  "displayName": "Tooltip",
   "methods": [],
   "props": {
     "variant": {
@@ -25,6 +27,40 @@
         "name": "\"plain\" | \"rich\""
       }
     },
+    "text": {
+      "defaultValue": null,
+      "description": "Supporting text for the tooltip. Optional when using `content` prop.",
+      "name": "text",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tooltip.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "string"
+      }
+    },
+    "content": {
+      "defaultValue": null,
+      "description": "Custom content slot that replaces title/text/buttons when provided",
+      "name": "content",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tooltip.interface.ts",
+          "name": "TypeLiteral"
+        },
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tooltip.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "ReactNode & string"
+      }
+    },
     "trigger": {
       "defaultValue": {
         "value": "['hover', 'focus']"
@@ -40,6 +76,148 @@
       "required": false,
       "type": {
         "name": "Trigger | Trigger[]"
+      }
+    },
+    "transition": {
+      "defaultValue": null,
+      "description": "Default transition. If no `transition` is defined in `animate`, it will use the transition defined here.\n```jsx\nconst spring = {\n  type: \"spring\",\n  damping: 10,\n  stiffness: 100\n}\n\n<motion.div transition={spring} animate={{ scale: 1.2 }} />\n```",
+      "name": "transition",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tooltip.interface.ts",
+          "name": "TypeLiteral"
+        },
+        {
+          "fileName": "components/node_modules/.pnpm/motion-dom@12.23.21/node_modules/motion-dom/dist/index.d.ts",
+          "name": "MotionNodeAnimationOptions"
+        },
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tooltip.interface.ts",
+          "name": "TypeLiteral"
+        },
+        {
+          "fileName": "components/node_modules/.pnpm/motion-dom@12.23.21/node_modules/motion-dom/dist/index.d.ts",
+          "name": "MotionNodeAnimationOptions"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "Transition & Transition<any>"
+      }
+    },
+    "openDelay": {
+      "defaultValue": {
+        "value": 400
+      },
+      "description": "Delay in milliseconds before showing the tooltip. Default: 400ms",
+      "name": "openDelay",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tooltip.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "number"
+      }
+    },
+    "closeDelay": {
+      "defaultValue": {
+        "value": 150
+      },
+      "description": "Delay in milliseconds before hiding the tooltip. Default: 150ms",
+      "name": "closeDelay",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tooltip.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "number"
+      }
+    },
+    "isOpen": {
+      "defaultValue": null,
+      "description": "Controlled mode: explicitly control whether the tooltip is open",
+      "name": "isOpen",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tooltip.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "boolean"
+      }
+    },
+    "defaultOpen": {
+      "defaultValue": {
+        "value": false
+      },
+      "description": "Uncontrolled mode: default open state",
+      "name": "defaultOpen",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tooltip.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "boolean"
+      }
+    },
+    "onOpenChange": {
+      "defaultValue": null,
+      "description": "Callback when the open state changes",
+      "name": "onOpenChange",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tooltip.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "(open: boolean) => void"
+      }
+    },
+    "id": {
+      "defaultValue": null,
+      "description": "Custom ID for accessibility linking. Auto-generated if not provided.",
+      "name": "id",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tooltip.interface.ts",
+          "name": "TypeLiteral"
+        },
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tooltip.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "string"
+      }
+    },
+    "anchorRef": {
+      "defaultValue": null,
+      "description": "Custom anchor for positioning. Defaults to the trigger element.",
+      "name": "anchorRef",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tooltip.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "RefObject<HTMLElement>"
       }
     },
     "initial": {
@@ -116,25 +294,6 @@
       "required": false,
       "type": {
         "name": "Variants"
-      }
-    },
-    "transition": {
-      "defaultValue": null,
-      "description": "Default transition. If no `transition` is defined in `animate`, it will use the transition defined here.\n```jsx\nconst spring = {\n  type: \"spring\",\n  damping: 10,\n  stiffness: 100\n}\n\n<motion.div transition={spring} animate={{ scale: 1.2 }} />\n```",
-      "name": "transition",
-      "parent": {
-        "fileName": "components/node_modules/.pnpm/motion-dom@12.23.21/node_modules/motion-dom/dist/index.d.ts",
-        "name": "MotionNodeAnimationOptions"
-      },
-      "declarations": [
-        {
-          "fileName": "components/node_modules/.pnpm/motion-dom@12.23.21/node_modules/motion-dom/dist/index.d.ts",
-          "name": "MotionNodeAnimationOptions"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "Transition<any>"
       }
     },
     "onUpdate": {

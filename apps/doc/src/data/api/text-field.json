@@ -1,7 +1,9 @@
 {
   "tags": {
     "status": "beta",
-    "category": "Input"
+    "category": "Input",
+    "devx": "- Supports controlled (`value`) and uncontrolled (`defaultValue`) usage.\n- `multiline` switches to textarea mode.\n- `type=\"select\" ` switches to select mode with `options`",
+    "a11y": "- `aria-describedby` links supporting text/error to input."
   },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/TextField.tsx",
   "description": "Text fields let users enter text into a UI",
@@ -14,23 +16,6 @@
       },
       "description": "",
       "name": "disabled",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/text-field.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean"
-      }
-    },
-    "showSupportingText": {
-      "defaultValue": {
-        "value": false
-      },
-      "description": "",
-      "name": "showSupportingText",
       "declarations": [
         {
           "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/text-field.interface.ts",
@@ -73,7 +58,7 @@
       ],
       "required": false,
       "type": {
-        "name": "\"number\" | \"text\" | \"password\""
+        "name": "\"number\" | \"text\" | \"password\" | \"date\" | \"select\""
       }
     },
     "autoComplete": {
@@ -93,12 +78,12 @@
         "name": "string"
       }
     },
-    "textLine": {
+    "multiline": {
       "defaultValue": {
-        "value": "singleLine"
+        "value": false
       },
       "description": "",
-      "name": "textLine",
+      "name": "multiline",
       "declarations": [
         {
           "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/text-field.interface.ts",
@@ -107,7 +92,7 @@
       ],
       "required": false,
       "type": {
-        "name": "\"singleLine\" | \"multiLine\" | \"textAreas\""
+        "name": "boolean"
       }
     }
   }

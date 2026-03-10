@@ -10,6 +10,8 @@ import { State } from '../effects';
 /**
  * @status beta
  * @parent NavigationRail
+ * @devx
+ * - Section labels only render when the rail is extended.
  */
 export const NavigationRailSection = ({ label }: { label: string }) => {
   return (
@@ -22,6 +24,11 @@ export const NavigationRailSection = ({ label }: { label: string }) => {
 /**
  * @status beta
  * @parent NavigationRail
+ * @devx
+ * - Selection is index-based and provided by the parent rail.
+ * - `extendedOnly` hides items when the rail is collapsed.
+ * @a11y
+ * - Uses `role="tab"` but no roving tabindex or aria-controls wiring.
  */
 export const NavigationRailItem = ({
   className,

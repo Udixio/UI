@@ -1,7 +1,9 @@
 {
   "tags": {
     "status": "beta",
-    "parent": "Tabs"
+    "parent": "Tabs",
+    "devx": "- `label` can come from string children; selection is index-based.\n- Use `TabGroup` to sync selection with panels/animations.",
+    "a11y": "- No keyboard navigation or `aria-controls` wiring."
   },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/Tab.tsx",
   "description": "",

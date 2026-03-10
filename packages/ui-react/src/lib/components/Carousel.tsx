@@ -16,9 +16,13 @@ function clamp(v: number, min: number, max: number) {
  *
  * @status beta
  * @category Layout
+ * @devx
+ * - Only `CarouselItem` children are rendered; other children are ignored.
+ * - Use `index` for controlled positioning; otherwise relies on internal scroll state.
  * @limitations
  * - Responsive behavior on mobile is not supported.
  * - Only the default (hero) variant is supported.
+ * - No keyboard navigation or focus management.
  */
 export const Carousel = ({
   variant = 'hero',

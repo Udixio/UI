@@ -20,4 +20,12 @@ const api = defineCollection({
   /* ... */
 });
 
-export const collections = { overviews, api };
+// Collection dédiée aux pages de contenu (MD/MDX) avec sous-dossiers
+const pages = defineCollection({
+  loader: glob({
+    pattern: '**/*.{md,mdx}',
+    base: './src/data/pages',
+  }),
+});
+
+export const collections = { overviews, api, pages };

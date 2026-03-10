@@ -1,7 +1,9 @@
 {
   "tags": {
     "status": "beta",
-    "category": "Layout"
+    "category": "Layout",
+    "devx": "- `interactive` only adds a state layer; add your own click/role semantics.",
+    "limitations": "- No built-in header/actions slots; layout is fully custom via children."
   },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/Card.tsx",
   "description": "Cards display content and actions about a single subject",
@@ -25,12 +27,12 @@
         "name": "\"outlined\" | \"elevated\" | \"filled\""
       }
     },
-    "isInteractive": {
+    "interactive": {
       "defaultValue": {
         "value": false
       },
       "description": "",
-      "name": "isInteractive",
+      "name": "interactive",
       "declarations": [
         {
           "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/card.interface.ts",

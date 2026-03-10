@@ -1,7 +1,9 @@
 {
   "tags": {
     "status": "beta",
-    "category": "Action"
+    "category": "Action",
+    "devx": "- Requires `label` or children to provide an aria-label.\n- Uses `title` as tooltip text; native title attribute is suppressed.",
+    "limitations": "- Tooltip is always rendered (no explicit opt-out)."
   },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/IconButton.tsx",
   "description": "Icon buttons help people take minor actions with one tap",

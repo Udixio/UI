@@ -4,12 +4,6 @@
   "include": [],
   "references": [
     {
-      "path": "../tailwind"
-    },
-    {
-      "path": "../theme"
-    },
-    {
       "path": "./tsconfig.lib.json"
     },
     {

@@ -1,137 +1,112 @@
-import { useEffect, useRef, useState } from 'react';
-import { CustomScrollInterface } from './custom-scroll';
-import { ReactProps } from '../utils';
-import { BlockScroll } from './block-scroll.effect';
-import { animate, AnimationPlaybackControls } from 'motion';
+import { ReactNode, useEffect, useRef } from 'react';
+import Lenis from 'lenis';
 
+export type SmoothScrollProps = {
+  /**
+   * Duration of the scroll animation in seconds or as a CSS string (e.g., '1s', '500ms').
+   * Default: 1.2
+   */
+  transition?: number | string;
+  /**
+   * Easing function for the scroll animation.
+   * Default: easeOutQuint
+   */
+  easing?: (t: number) => number;
+  /**
+   * Scroll orientation.
+   * Default: 'vertical'
+   */
+  orientation?: 'vertical' | 'horizontal';
+  /**
+   * Enable smooth scrolling on touch devices.
+   * Default: false (native touch scrolling is usually preferred)
+   */
+  smoothTouch?: boolean;
+  /**
+   * Multiplier for touch scroll sensitivity.
+   * Default: 2
+   */
+  touchMultiplier?: number;
+  /**
+   * Children elements (optional, component works at document level)
+   */
+  children?: ReactNode;
+};
+
+/**
+ * SmoothScroll component using Lenis for smooth scrolling.
+ * This component enables smooth scrolling at the document level.
+ *
+ * @warning **Use with caution.** Overriding native scroll behavior can cause:
+ * - **Accessibility issues**: Screen readers, keyboard navigation, and assistive technologies
+ *   may not work correctly with custom scroll implementations.
+ * - **Anchor links broken**: `scrollIntoView()`, hash navigation (`#section`), and
+ *   `window.scrollTo()` may behave unexpectedly or be ignored.
+ * - **Third-party library conflicts**: Libraries relying on native scroll events
+ *   (infinite scroll, lazy loading, scroll-triggered animations) may malfunction.
+ * - **Browser features disabled**: Find-in-page (Ctrl+F), autoscroll, and native
+ *   momentum scrolling on trackpads may not work as expected.
+ * - **Performance overhead**: The RAF loop runs continuously, which may impact
+ *   battery life and performance on low-end devices.
+ * - **Mobile issues**: Touch gestures, pull-to-refresh, and overscroll behaviors
+ *   can conflict with smooth scroll implementations.
+ */
 export const SmoothScroll = ({
-  transition,
+  transition = 1.2,
+  easing,
   orientation = 'vertical',
-  throttleDuration = 25,
-}: {
-  transition?: {
-    ease:
-      | 'linear'
-      | 'easeIn'
-      | 'easeOut'
-      | 'easeInOut'
-      | 'circIn'
-      | 'circOut'
-      | 'circInOut'
-      | 'backIn'
-      | 'backOut'
-      | 'backInOut'
-      | 'anticipate'
-      | ((t: number) => number);
-    duration?: number;
-  };
-} & ReactProps<CustomScrollInterface>) => {
-  // Target value (instant), driven by wheel/touch/keyboard or native scroll sync
-  const [scrollY, setScrollY] = useState(0);
-
-  const [el, setEl] = useState<HTMLHtmlElement>();
-
-  const isScrolling = useRef(false);
-  const scrollTimeoutRef = useRef<NodeJS.Timeout>();
-  const lastAppliedYRef = useRef(0);
+  smoothTouch = false,
+  touchMultiplier = 2,
+  children,
+}: SmoothScrollProps) => {
+  const lenisRef = useRef<Lenis | null>(null);
+  const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
-    setEl(document as unknown as HTMLHtmlElement);
-    const y = document.documentElement.scrollTop;
-    setScrollY(y);
-    lastAppliedYRef.current = y;
-  }, []);
-
-  // Sync native scroll (e.g., scrollbar, programmatic) back to target after a small delay
-  useEffect(() => {
-    const onScroll = () => {
-      if (isScrolling.current) return;
-      setScrollY(document.documentElement.scrollTop);
-    };
-
-    el?.addEventListener('scroll', onScroll as unknown as EventListener);
-    return () => {
-      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-      el?.removeEventListener('scroll', onScroll as unknown as EventListener);
-    };
-  }, [el]);
-
-  // Drive the spring when target changes
-  const currentY = useRef<number | null>();
-  const animationRef = useRef<AnimationPlaybackControls | null>(null);
-  useEffect(() => {
-    const y = scrollY;
-
-    if (animationRef.current) {
-      animationRef.current.stop();
-      animationRef.current = null;
-    }
-
-    if (!isScrolling.current) {
-      currentY.current = y;
-      return;
-    }
-    animationRef.current = animate(currentY.current ?? y, y, {
-      duration: (transition?.duration ?? 500) / 1000,
-      ease: transition?.ease ?? 'easeOut',
-
-      onUpdate: (value) => {
-        if (scrollTimeoutRef.current) {
-          clearTimeout(scrollTimeoutRef.current);
-        }
-        currentY.current = value;
-
-        const html = document.documentElement;
-        // Avoid micro-movements causing extra layout work
-        const rounded = Math.round(value * 1000) / 1000;
-        const last = lastAppliedYRef.current;
-        if (Math.abs(rounded - last) < 0.1) return;
-        lastAppliedYRef.current = rounded;
-
-        if (isScrolling.current) {
-          html.scrollTo({ top: rounded });
-        }
-      },
-      onComplete: () => {
-        scrollTimeoutRef.current = setTimeout(() => {
-          isScrolling.current = false;
-        }, 300);
-        animationRef.current = null;
-      },
-    });
-    return () => {
-      // Safety: stop if effect re-runs quickly
-      if (animationRef.current) {
-        animationRef.current.stop();
-        animationRef.current = null;
+    // Parse duration from string if needed (e.g., '1s' -> 1, '500ms' -> 0.5)
+    let duration: number;
+    if (typeof transition === 'string') {
+      if (transition.endsWith('ms')) {
+        duration = parseFloat(transition) / 1000;
+      } else if (transition.endsWith('s')) {
+        duration = parseFloat(transition);
+      } else {
+        duration = parseFloat(transition) || 1.2;
       }
+    } else {
+      duration = transition;
+    }
+
+    // Default easing: easeOutQuint
+    const defaultEasing = (t: number) => 1 - Math.pow(1 - t, 5);
+
+    // Initialize Lenis
+    lenisRef.current = new Lenis({
+      duration,
+      easing: easing ?? defaultEasing,
+      orientation,
+      smoothWheel: true,
+      touchMultiplier,
+      syncTouch: smoothTouch,
+    });
+
+    // Animation frame loop
+    const raf = (time: number) => {
+      lenisRef.current?.raf(time);
+      rafRef.current = requestAnimationFrame(raf);
     };
-  }, [scrollY]);
 
-  if (!el) return null;
+    rafRef.current = requestAnimationFrame(raf);
 
-  return (
-    <BlockScroll
-      touch={false}
-      el={el as unknown as HTMLElement}
-      onScroll={(scroll) => {
-        if (
-          'deltaY' in scroll &&
-          scroll.deltaY !== 0 &&
-          el &&
-          scrollY !== null
-        ) {
-          let y = scrollY + scroll.deltaY;
-          const html = el.querySelector('html');
-          if (html) {
-            y = Math.min(y, html.scrollHeight - html.clientHeight);
-          }
-          y = Math.max(y, 0);
-          setScrollY(y);
+    // Cleanup
+    return () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+      }
+      lenisRef.current?.destroy();
+      lenisRef.current = null;
+    };
+  }, [transition, easing, orientation, smoothTouch, touchMultiplier]);
 
-          isScrolling.current = true;
-        }
-      }}
-    ></BlockScroll>
-  );
+  return children ? <>{children}</> : null;
 };

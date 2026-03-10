@@ -5,12 +5,16 @@
 
 
 
+
+
+
 import { CodePreview } from '@/components/CodePreview.js';
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { iSearch } from '@udixio/icons-rounded-400/search';
 
 ## Usage
 
-TextField allows users to enter and edit text.
+TextField allows users to enter and edit text. It supports both controlled
+(`value`) and uncontrolled (`defaultValue`) usage.
 
 ```bash
 import { TextField } from "@udixio/ui-react"
@@ -39,22 +43,22 @@ Use `leadingIcon`, `trailingIcon`, or `suffix` for extra affordances.
 <CodePreview client:load
              code={`
   <div className="flex flex-col gap-4">
-    <TextField label="Search" name="q" leadingIcon={faMagnifyingGlass} />
+    <TextField label="Search" name="q" leadingIcon={iSearch} />
     <TextField label="Amount" name="amount" suffix="kg" />
     <TextField label="Search" name="q2" trailingIcon={<button aria-label="clear"><i className="fa-solid fa-xmark" /></button>} />
   </div>
 `}
-             scope={{ faMagnifyingGlass }}
+             scope={{ iSearch }}
 />
 
 ## Multi-line
 
-Set `textLine` to "multiLine" for auto-growing textarea, or "textAreas" for a standard textarea.
+Set `multiline` for an auto-growing textarea.
 
 ```jsx
 <div className="space-y-4">
-  <TextField label="Description" name="desc1" textLine="multiLine" />
-  <TextField label="Notes" name="desc2" textLine="textAreas" />
+  <TextField label="Description" name="desc1" multiline />
+  <TextField label="Notes" name="desc2" multiline defaultValue="Initial content" />
 </div>
 ```
 
@@ -67,4 +71,31 @@ Show validation and helper text with `errorText` and `supportingText`.
   <TextField label="Username" name="u1" supportingText="Use 3–16 characters" />
   <TextField label="Password" name="p1" errorText="Password is too short" />
 </div>
+```
+
+## Controlled vs uncontrolled
+
+```jsx
+function Example() {
+  const [value, setValue] = React.useState('hello');
+  return (
+    <div className="space-y-3">
+      <TextField
+        label="Controlled"
+        name="c1"
+        value={value}
+        onChange={(event) => setValue(event.target.value)}
+      />
+      <TextField label="Uncontrolled" name="u2" defaultValue="Initial value" />
+    </div>
+  );
+}
+```
+
+## Autofocus
+
+Use the `autoFocus` prop to automatically focus the `TextField` on mount.
+
+```jsx
+<TextField label="Search" name="q" autoFocus  />
 ```

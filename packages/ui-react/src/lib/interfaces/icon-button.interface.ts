@@ -7,7 +7,7 @@ import { Icon } from '../icon';
 type Props = {
   label?: string;
   children?: string;
-  icon: Icon;
+  icon?: Icon;
   size?: 'xSmall' | 'small' | 'medium' | 'large' | 'xLarge';
   width?: 'default' | 'narrow' | 'wide';
   iconSelected?: IconDefinition;
@@ -15,6 +15,7 @@ type Props = {
   variant?: IconButtonVariant;
   disabled?: boolean;
   activated?: boolean;
+  title?: string | null;
 
   /**
    * The shape of the button defines whether it is squared or rounded.

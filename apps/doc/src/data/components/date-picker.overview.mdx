@@ -1,0 +1,130 @@
+---
+---
+
+
+
+
+import { iCalendarMonth } from '@udixio/icons-rounded-400/calendar_month';
+import { CodePreview } from '@/components/CodePreview.js';
+
+## Usage
+
+DatePicker allow users to select a date or a range of dates.
+
+```bash
+import { DatePicker } from "@udixio/ui-react"
+```
+
+## Basic usage
+
+```jsx
+function Example() {
+  const [date, setDate] = React.useState(new Date());
+
+  return (
+    <div className="flex flex-col items-center">
+      <DatePicker value={date} onChange={setDate} />
+      <p className="mt-4 text-body-medium">
+        Selected: {date.toLocaleDateString()}
+      </p>
+    </div>
+  );
+}
+```
+
+## Select a range
+
+Use `mode="range"` to select a date range.
+
+```jsx
+function Example() {
+  const [range, setRange] = React.useState([
+    new Date(2023, 5, 1),
+    new Date(2023, 5, 10),
+  ]);
+
+  return (
+    <div className="flex flex-col items-center">
+      <DatePicker mode="range" value={range} onChange={setRange} />
+      <p className="mt-4 text-body-medium text-center">
+        Start: {range[0]?.toLocaleDateString() || '-'} <br />
+        End: {range[1]?.toLocaleDateString() || '-'}
+      </p>
+    </div>
+  );
+}
+```
+
+## Uncontrolled
+
+You can use `defaultValue` for uncontrolled usage.
+
+```jsx
+<DatePicker
+  defaultValue={new Date(2023, 5, 15)}
+  onChange={(date) => console.log('Selected:', date)}
+/>
+```
+
+## Min and Max dates
+
+Limit the selectable range.
+
+```jsx
+<DatePicker
+  minDate={new Date(2023, 0, 1)}
+  maxDate={new Date(2023, 11, 31)}
+  defaultValue={new Date(2023, 5, 1)}
+/>
+```
+
+
+## With Input Field
+
+Combine with TextField and IconButton for a popup picker.
+
+<CodePreview
+  client:load
+  code={`
+
+  function Example() {
+
+  return (
+    <div className="relative max-w-xs">
+      <TextField
+              type="date"
+              label="Date"
+              onFocus={() => console.log('focused')} onBlur={() => console.log('blurred')}
+            />
+    </div>
+  );
+  } `} scope={{ iCalendarMonth }}
+/>
+
+
+## Disable specific dates
+
+Disable weekends for example.
+
+```jsx
+<DatePicker
+  shouldDisableDate={(date) => {
+    const day = date.getDay();
+    return day === 0 || day === 6; // Disable Sunday and Saturday
+  }}
+  defaultValue={new Date()}
+/>
+```
+
+## Localization
+
+Use `locale` to format the calendar.
+
+```jsx
+<div className="flex flex-wrap gap-8">
+  {/* Default (English) */}
+  <DatePicker locale="en-US" defaultValue={new Date()} />
+  {/* French (Monday start) */}
+  <DatePicker locale="fr-FR" weekStartDay={1} defaultValue={new Date()} />
+</div>
+```

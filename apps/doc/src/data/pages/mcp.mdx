@@ -1,0 +1,92 @@
+---
+title: MCP — Utiliser le package @udixio/mcp
+description: Guide pour installer, lancer et connecter le serveur MCP de la lib UI Udixio.
+---
+
+
+# MCP — Utiliser le package `@udixio/mcp`
+
+Ce guide explique comment utiliser le serveur MCP pour exposer aux assistants IA (Claude Desktop, Cursor, MCP Inspector, etc.) les informations de la librairie UI :
+
+- Liste des composants du design system
+- Recherche dans la documentation (MD/MDX)
+- Tokens de thème (couleurs, espaces, etc.)
+- Accès à des fichiers de doc via une resource `doc://{path}`
+
+Le serveur MCP est publié sous le nom npm public `@udixio/mcp` et expose un binaire `udixio-mcp`.
+
+
+## Prérequis
+
+- Node.js ≥ 18
+
+Le package `@udixio/mcp` est auto‑contenu: il embarque un instantané (docs, thème, index des composants) et fonctionne sans aucune configuration.
+
+## Utilisation (zéro setup)
+
+```bash
+# Installer le binaire globalement
+npm i -g @udixio/mcp
+
+# Lancer le serveur MCP (utilise les données embarquées)
+udixio-mcp
+```
+
+Intégration côté client (ex. Claude Desktop):
+
+```json
+{
+  "mcpServers": {
+    "udixio-ui": { "command": "udixio-mcp" }
+  }
+}
+```
+
+
+## Outils MCP exposés (Tools)
+
+Le serveur enregistre plusieurs « tools » accessibles côté client MCP :
+
+- `listComponents` — retourne la liste des composants et leurs fichiers source relatifs (données embarquées).
+- `getComponentDoc` — prend `{ name: string }` et renvoie des chemins de doc/story correspondants (données embarquées).
+- `searchDocs` — prend `{ query: string, limit?: number }` et effectue une recherche plein texte dans la documentation embarquée.
+- `getThemeTokens` — renvoie l’objet de thème issu du snapshot embarqué.
+
+Exemple d’appel (depuis un client MCP) :
+
+```json
+{
+  "tool": "searchDocs",
+  "input": { "query": "Button", "limit": 5 }
+}
+```
+
+
+## Resources MCP
+
+Une resource est enregistrée pour lire directement des fichiers de doc par chemin relatif à `apps/doc/src` :
+
+- Template: `doc://{path}`
+- Exemple: `doc://components/button.mdx`
+
+
+## Intégration avec un client MCP (Claude Desktop)
+
+Ajoutez/éditez votre configuration utilisateur pour déclarer le serveur MCP. Exemple minimal :
+
+```json
+{
+  "mcpServers": {
+    "udixio-ui": {
+      "command": "udixio-mcp"
+    }
+  }
+}
+```
+
+Ensuite, dans le client, demandez par exemple :
+
+- « Appelle `listComponents` »
+- « Recherche dans la doc: `searchDocs` avec query=`colors` »
+- « Donne-moi les tokens de thème via `getThemeTokens` »
+- « Ouvre la resource `doc://path/vers/un/fichier.mdx` »

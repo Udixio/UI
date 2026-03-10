@@ -1,0 +1,65 @@
+{
+  "tags": {
+    "status": "beta",
+    "category": "Selection",
+    "devx": "- Supports controlled (`checked`) and uncontrolled (`defaultChecked`) modes.\n- Handles `indeterminate` state strictly as visual (updates UI, but underlying input is checked/unchecked based on logic).",
+    "a11y": "- Uses native input for accessibility.\n- Supports standard keyboard interaction."
+  },
+  "filePath": "node_modules/@udixio/ui-react/src/lib/components/Checkbox.tsx",
+  "description": "Checkboxes allow the user to select one or more items from a set.",
+  "displayName": "Checkbox",
+  "methods": [],
+  "props": {
+    "indeterminate": {
+      "defaultValue": {
+        "value": false
+      },
+      "description": "",
+      "name": "indeterminate",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/checkbox.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "boolean"
+      }
+    },
+    "disabled": {
+      "defaultValue": {
+        "value": false
+      },
+      "description": "",
+      "name": "disabled",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/checkbox.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "boolean"
+      }
+    },
+    "error": {
+      "defaultValue": {
+        "value": false
+      },
+      "description": "",
+      "name": "error",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/checkbox.interface.ts",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "boolean"
+      }
+    }
+  }
+}

@@ -2,42 +2,51 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { SmoothScroll } from '../../';
 import { JSX } from 'react/jsx-runtime';
 
-// More on how to set up stories at: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta = {
   title: 'effect/SmoothScroll',
   component: SmoothScroll,
-  parameters: {
-    // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/react/configure/story-layout
-  },
-  // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/react/writing-docs/autodocs
+  parameters: {},
   tags: ['autodocs'],
-  // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
-  argTypes: {},
+  argTypes: {
+    transition: {
+      control: { type: 'text' },
+      description: 'Duration of the scroll animation (e.g., "1s", "500ms", or number in seconds)',
+    },
+    orientation: {
+      control: { type: 'select' },
+      options: ['vertical', 'horizontal'],
+    },
+    smoothTouch: {
+      control: { type: 'boolean' },
+      description: 'Enable smooth scrolling on touch devices',
+    },
+    touchMultiplier: {
+      control: { type: 'number' },
+      description: 'Multiplier for touch scroll sensitivity',
+    },
+  },
 } satisfies Meta<typeof SmoothScroll>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// More on writing stories with args: https://storybook.js.org/docs/react/writing-stories/args
-
 const createSmoothScrollStory = () => {
   const SmoothScrollStory: () => JSX.Element = () => (
-    <div className={'h-96'}>
-      <SmoothScroll transition={'1s'}>
-        <div className={' h-52 bg-primary'} />
-        <div className={' h-52 bg-secondary'} />
-        <div className={' h-52 bg-tertiary'} />{' '}
-        <div className={' h-52 bg-primary'} />
-        <div className={' h-52 bg-secondary'} />
-        <div className={' h-52 bg-tertiary'} />{' '}
-        <div className={' h-52 bg-primary'} />
-        <div className={' h-52 bg-secondary'} />
-        <div className={' h-52 bg-tertiary'} />{' '}
-        <div className={' h-52 bg-primary'} />
-        <div className={' h-52 bg-secondary'} />
-        <div className={' h-52 bg-tertiary'} />
-      </SmoothScroll>
-    </div>
+    <>
+      <SmoothScroll transition="1s" />
+      <div className="h-52 bg-primary" />
+      <div className="h-52 bg-secondary" />
+      <div className="h-52 bg-tertiary" />
+      <div className="h-52 bg-primary" />
+      <div className="h-52 bg-secondary" />
+      <div className="h-52 bg-tertiary" />
+      <div className="h-52 bg-primary" />
+      <div className="h-52 bg-secondary" />
+      <div className="h-52 bg-tertiary" />
+      <div className="h-52 bg-primary" />
+      <div className="h-52 bg-secondary" />
+      <div className="h-52 bg-tertiary" />
+    </>
   );
 
   return SmoothScrollStory;

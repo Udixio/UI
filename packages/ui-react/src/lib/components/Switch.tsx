@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { Icon } from '../icon';
 import { motion } from 'motion/react';
@@ -10,6 +10,10 @@ import { MotionProps } from '../utils/component';
  * Switches toggle the selection of an item on or off
  * @status beta
  * @category Input
+ * @devx
+ * - `selected` is used as initial state only; prop changes won’t sync.
+ * @a11y
+ * - Uses `role="switch"` but no label prop is exposed here.
  */
 export const Switch = ({
   selected = false,
@@ -24,6 +28,10 @@ export const Switch = ({
   ...restProps
 }: MotionProps<SwitchInterface>) => {
   const [isSelected, setIsSelected] = useState(selected);
+
+  useEffect(() => {
+    setIsSelected(selected);
+  }, [selected]);
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (disabled) return;

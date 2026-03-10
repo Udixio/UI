@@ -1,0 +1,35 @@
+{
+  "name": "@udixio/icons-rounded-100",
+  "version": "0.1.1",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    "./package.json": "./package.json",
+    "./*": {
+      "development": "./src/*.ts",
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js"
+    },
+    "./filled/*": {
+      "development": "./src/*.filled.ts",
+      "types": "./dist/*.filled.d.ts",
+      "import": "./dist/*.filled.js"
+    }
+  },
+  "scripts": {
+    "generate": "tsx ../../../scripts/generate-icons.ts rounded 100",
+    "build": "pnpm generate && tsc -p tsconfig.lib.json"
+  },
+  "devDependencies": {
+    "@material-symbols/svg-100": "*",
+    "tsx": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Udixio/UI.git"
+  },
+  "publishConfig": {
+    "provenance": true,
+    "access": "public"
+  }
+}

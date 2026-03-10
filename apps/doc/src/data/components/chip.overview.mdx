@@ -1,0 +1,216 @@
+---
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { CodePreview } from '@/components/CodePreview.js';
+import { iAdd } from '@udixio/icons-rounded-400/add';
+
+## Chip — aperçu et usage
+
+Les Chips sont de petits composants interactifs qui représentent une action, un choix ou une entrée compacte. Ils suivent les principes de Material 3 et se déclinent en quatre grands types d’usage :
+
+- Assist (déclenche une action rapide, proche d’un bouton)
+- Filter (sélection on/off ou multi‑sélection)
+- Input (représente une valeur saisie par l’utilisateur, ex. un tag)
+- Suggestion (propose des options contextuelles)
+
+Cette page explique comment utiliser `Chip` dans Udixio, avec des exemples pratiques. Le code du composant pourra évoluer, mais les concepts et bonnes pratiques restent valables.
+
+## Installation et import
+
+```bash
+import { Chip } from "@udixio/ui-react"
+```
+
+## Exemple minimal
+
+```tsx
+<Chip label="Option" />
+```
+
+Vous pouvez aussi fournir le texte via les enfants :
+
+```tsx
+<Chip>Option</Chip>
+```
+
+## Types d’usage
+
+### Assist chip (action rapide)
+
+Un assist chip déclenche une action immédiate : ouvrir une vue, copier un texte, appliquer un filtre temporaire, etc.
+
+<CodePreview
+  client:load
+  code={`
+<Chip label="Nouveau" icon={iAdd} onClick={() => console.log('nouveau')} />
+  `}
+  scope={{ iAdd }}
+/>
+
+
+### Filter chip (sélection)
+
+Rendez un chip sélectionnable avec `onToggle`. Contrôlez l’état via `activated` si nécessaire.
+
+```jsx
+function Filters() {
+  const [selected, setSelected] = React.useState({ jazz: false, rock: true });
+  return (
+    <div className="flex flex-wrap gap-3">
+      <Chip
+        variant="outlined"
+        activated={selected.jazz}
+        onToggle={(v) => setSelected((s) => ({ ...s, jazz: v }))}
+      >Jazz</Chip>
+      <Chip
+        variant="outlined"
+        activated={selected.rock}
+        onToggle={(v) => setSelected((s) => ({ ...s, rock: v }))}
+      >Rock</Chip>
+    </div>
+  );
+}
+```
+
+### Suggestion chip (proposition)
+
+Présentez des suggestions contextuelles (réponses rapides, filtres de recherche). Gardez des libellés courts (idéalement ≤ 20 caractères).
+
+Cas standard (fond neutre) :
+
+```jsx
+<div className="flex flex-wrap gap-2">
+  <Chip variant="outlined">Près de moi</Chip>
+  <Chip variant="outlined">Ouvert maintenant</Chip>
+  <Chip variant="outlined">4★ et +</Chip>
+</div>
+```
+
+Sur image ou fond chargé, utilisez `elevated` pour améliorer le contraste :
+
+```jsx
+<div class={"relative"}>
+  <img src="https://images.unsplash.com/photo-1520975916090-3105956dac38?q=80&w=1200&auto=format&fit=crop" alt="Image" className="max-w-sm"/>
+  <div className="flex flex-wrap gap-2 absolute bottom-4 left-2">
+    <Chip variant="elevated">Près de moi</Chip>
+    <Chip variant="elevated">Ouvert</Chip>
+    <Chip variant="elevated">4★ et +</Chip>
+  </div>
+</div>
+```
+
+### Input chip (valeur saisie)
+
+Représente des entrées d’utilisateur (ex. tags). L’ajout/retrait est géré par votre logique applicative.
+
+```jsx
+function Inputs() {
+  const [tags, setTags] = React.useState(["React", "TypeScript", "Next.js", "Tailwind"]);
+  const onRemove = (tag) => setTags((arr) => arr.filter((t) => t !== tag));
+  return (
+    <div className="flex flex-wrap gap-2">
+      {tags.map((t) => (
+        <Chip key={t} variant="outlined" label={t} onRemove={() => onRemove(t)} />
+      ))}
+    </div>
+  );
+}
+```
+
+## Icône
+
+Vous pouvez afficher une icône (FontAwesome) dans le chip.
+
+<CodePreview
+  client:load
+  code={`
+    <div className="flex gap-3">
+      <Chip label="Ajouter" icon={iAdd} />
+    </div>
+  `}
+  scope={{ iAdd }}
+/>
+
+
+## Lien ou action
+
+Si `href` est fourni, le composant peut se comporter comme un lien. Sinon, il agit comme un contrôle interactif (click/toggle).
+
+```jsx
+<div className="flex gap-3">
+  <Chip onClick={() => console.log('clic')}>Action</Chip>
+  <Chip href="https://udixio.dev">Lien</Chip>
+</div>
+```
+
+
+## États et accessibilité
+
+- `disabled` rend le chip inactif.
+- Les chips commutables (`onToggle`) exposent `aria-pressed` automatiquement.
+- Conservez une cible tactile d’au moins 48 dp et un contraste suffisant selon le thème.
+
+```jsx
+<div className="flex flex-wrap gap-3">
+  <Chip disabled variant="outlined">Indisponible</Chip>
+</div>
+```
+
+## Chips (liste)
+
+Le composant conteneur `Chips` ne supporte pas le mode `children`. Il rend exclusivement une liste à partir de `items` et notifie les changements via `onItemsChange`.
+
+Note: vous n'avez pas besoin de fournir un `id` pour chaque item — `Chips` assigne automatiquement des identifiants internes stables pour les clés de rendu.
+
+Exemple contrôlé:
+
+```jsx
+function Contacts() {
+  const [items, setItems] = React.useState([
+    { label: 'Alice Dupont', draggable: true },
+    { label: 'Bob Martin' },
+    { label: 'Clara Lopez' },
+  ]);
+
+  return (
+    <div className="border border-outline px-4 py-3 rounded-md w-full max-w-xl space-y-3">
+      <Chips
+        items={items}
+        onItemsChange={setItems}
+      />
+    </div>
+  );
+}
+```
+
+## Édition (variant="input")
+
+- Double‑clic (ou F2/Enter quand le chip a le focus et n’est pas togglable) met un chip en édition directement.
+- Cliquer dans une zone vide du conteneur ajoute un nouveau chip à la fin et l’ouvre immédiatement en édition.
+- L’édition est inline via `contenteditable` (pas de champ d’entrée séparé). Appuyez sur Enter pour valider, Échap pour annuler, ou sortez du focus pour valider.
+- Si vous validez une étiquette vide (ou annulez une création vide), le chip est retiré.
+- Les raccourcis existants demeurent: Enter/Espace pour `onToggle`, Retour/Suppr pour `onRemove` quand le chip est sélectionné et non en édition.
+

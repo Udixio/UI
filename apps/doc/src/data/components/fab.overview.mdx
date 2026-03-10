@@ -4,7 +4,9 @@
 
 
 import { CodePreview } from '@/components/CodePreview.js';
-import { faPen, faPlus, faShare } from '@fortawesome/free-solid-svg-icons';
+import { iEdit } from '@udixio/icons-rounded-400/edit';
+import { iAdd } from '@udixio/icons-rounded-400/add';
+import { iShare } from '@udixio/icons-rounded-400/share';
 
 ## Usage
 
@@ -17,10 +19,10 @@ import { Fab } from "@udixio/ui-react"
 <CodePreview client:load
              code={`
   <div className="flex items-end gap-4">
-    <Fab label="Create" icon={faPlus} />
-    <Fab label="Create" icon={faPlus} isExtended />
+    <Fab label="Create" icon={iAdd} />
+    <Fab label="Create" icon={iAdd} isExtended />
   </div>`}
-             scope={{ faPlus }}
+             scope={{ iAdd }}
 />
 
 ## Variants
@@ -33,12 +35,12 @@ import { Fab } from "@udixio/ui-react"
 <CodePreview client:load
              code={`
   <div className="flex items-end gap-4">
-    <Fab label="Primary" icon={faPlus} variant="primary" />
-    <Fab label="Secondary" icon={faPlus} variant="secondary" />
-    <Fab label="Tertiary" icon={faPlus} variant="tertiary" />
-    <Fab label="Surface" icon={faPlus} variant="surface" />
+    <Fab label="Primary" icon={iAdd} variant="primary" />
+    <Fab label="Secondary" icon={iAdd} variant="secondary" />
+    <Fab label="Tertiary" icon={iAdd} variant="tertiary" />
+    <Fab label="Surface" icon={iAdd} variant="surface" />
   </div>`}
-             scope={{ faPlus }}
+             scope={{ iAdd }}
 />
 
 ## Sizes
@@ -48,11 +50,11 @@ Available sizes: small, medium (default), large.
 <CodePreview client:load
              code={`
   <div className="flex items-end gap-4">
-    <Fab label="Edit" icon={faPen} size="small" />
-    <Fab label="Edit" icon={faPen} size="medium" />
-    <Fab label="Edit" icon={faPen} size="large" />
+    <Fab label="Edit" icon={iEdit} size="small" />
+    <Fab label="Edit" icon={iEdit} size="medium" />
+    <Fab label="Edit" icon={iEdit} size="large" />
   </div>`}
-             scope={{ faPen }}
+             scope={{ iEdit }}
 />
 
 ## Extended vs. regular
@@ -62,10 +64,10 @@ Use `isExtended` to show the label next to the icon.
 <CodePreview client:load
              code={`
   <div className="flex items-end gap-4">
-    <Fab label="Share" icon={faShare} />
-    <Fab label="Share" icon={faShare} isExtended />
+    <Fab label="Share" icon={iShare} />
+    <Fab label="Share" icon={iShare} isExtended />
   </div>`}
-             scope={{ faShare }}
+             scope={{ iShare }}
 />
 
 ## Link or action
@@ -74,7 +76,7 @@ If `href` is provided, the component renders an anchor; otherwise it renders a b
 
 <CodePreview client:load
              code={`
-  <Fab label="Create" icon={faPlus} href="https://udixio.dev" />
+  <Fab label="Create" icon={iAdd} href="https://udixio.dev" />
 `}
-             scope={{ faPlus }}
+             scope={{ iAdd }}
 />

@@ -13,9 +13,12 @@
 
 
 
+
+
 import { CodePreview } from '@/components/CodePreview.js';
-import { faPlus, faStar as fasStar } from '@fortawesome/free-solid-svg-icons';
-import { faStar as farStar } from '@fortawesome/free-regular-svg-icons';
+import { iAdd } from '@udixio/icons-rounded-400/add';
+import { iStar } from '@udixio/icons-rounded-400/star';
+import { iStarFilled } from '@udixio/icons-rounded-400/filled/star';
 
 ## Usage
 
@@ -29,9 +32,9 @@ import { IconButton } from "@udixio/ui-react"
   client:load
   code={`
   <div className="flex items-center gap-3">
-    <IconButton label="Add item" icon={faPlus} onClick={() => console.log('add')} />
+    <IconButton label="Add item" icon={iAdd} onClick={() => console.log('add')} />
   </div>`}
-  scope={{ faPlus }}
+  scope={{ iAdd }}
 />
 
 ## Variants
@@ -40,12 +43,12 @@ import { IconButton } from "@udixio/ui-react"
   client:load
   code={`
   <div className="flex items-center gap-3">
-    <IconButton label="Standard" icon={faPlus} variant="standard" />
-    <IconButton label="Filled" icon={faPlus} variant="filled" />
-    <IconButton label="Tonal" icon={faPlus} variant="tonal" />
-    <IconButton label="Outlined" icon={faPlus} variant="outlined" />
+    <IconButton label="Standard" icon={iAdd} variant="standard" />
+    <IconButton label="Filled" icon={iAdd} variant="filled" />
+    <IconButton label="Tonal" icon={iAdd} variant="tonal" />
+    <IconButton label="Outlined" icon={iAdd} variant="outlined" />
   </div>`}
-  scope={{ faPlus }}
+  scope={{ iAdd }}
 />
 
 ## Sizes
@@ -54,13 +57,13 @@ import { IconButton } from "@udixio/ui-react"
   client:load
   code={`
   <div className="flex items-center gap-3">
-    <IconButton variant="filled" label="XS" icon={faPlus} size="xSmall" />
-    <IconButton variant="filled" label="S" icon={faPlus} size="small" />
-    <IconButton variant="filled" label="M" icon={faPlus} size="medium" />
-    <IconButton variant="filled" label="L" icon={faPlus} size="large" />
-    <IconButton variant="filled" label="XL" icon={faPlus} size="xLarge" />
+    <IconButton variant="filled" label="XS" icon={iAdd} size="xSmall" />
+    <IconButton variant="filled" label="S" icon={iAdd} size="small" />
+    <IconButton variant="filled" label="M" icon={iAdd} size="medium" />
+    <IconButton variant="filled" label="L" icon={iAdd} size="large" />
+    <IconButton variant="filled" label="XL" icon={iAdd} size="xLarge" />
   </div>`}
-  scope={{ faPlus }}
+  scope={{ iAdd }}
 />
 
 ## Shapes and widths
@@ -72,19 +75,19 @@ Control the button outline with `shape` and surface padding with `width`.
   code={`
  <>
   <div className="flex items-center gap-3">
-    <IconButton variant="filled" label="Rounded" icon={faPlus} shape="rounded" width="narrow" />
-    <IconButton variant="filled" label="Squared" icon={faPlus} shape="rounded" width="default" />
-    <IconButton variant="filled" label="Narrow" icon={faPlus} shape="rounded" width="wide" />
+    <IconButton variant="filled" label="Rounded" icon={iAdd} shape="rounded" width="narrow" />
+    <IconButton variant="filled" label="Squared" icon={iAdd} shape="rounded" width="default" />
+    <IconButton variant="filled" label="Narrow" icon={iAdd} shape="rounded" width="wide" />
 
               </div>
               <div className="flex items-center mt-8 gap-3">
-                <IconButton variant="filled" label="Rounded" icon={faPlus} shape="squared" width="narrow" />
-                <IconButton variant="filled" label="Squared" icon={faPlus} shape="squared" width="default" />
-                <IconButton variant="filled" label="Narrow" icon={faPlus} shape="squared" width="wide" />
+                <IconButton variant="filled" label="Rounded" icon={iAdd} shape="squared" width="narrow" />
+                <IconButton variant="filled" label="Squared" icon={iAdd} shape="squared" width="default" />
+                <IconButton variant="filled" label="Narrow" icon={iAdd} shape="squared" width="wide" />
               </div>
              </>
 `}
-  scope={{ faPlus }}
+  scope={{ iAdd }}
 />
 
 ## States
@@ -95,9 +98,9 @@ Use `disabled` to prevent user interaction
   client:load
   code={`
   <div className="flex items-center gap-3">
-    <IconButton variant="filled" label="Disabled" icon={faPlus} disabled />
+    <IconButton variant="filled" label="Disabled" icon={iAdd} disabled />
   </div>`}
-  scope={{ faPlus }}
+  scope={{ iAdd }}
 />
 
 ## Toggle state
@@ -110,34 +113,34 @@ Use \`onToggle\` and \`iconSelected\` to turn it into a toggle button.
   <div className="flex items-center gap-3">
     <IconButton
       label="Standard"
-      icon={farStar}
-      iconSelected={fasStar}
+      icon={iStar}
+      iconSelected={iStarFilled}
       onToggle={(active) => console.log('active:', active)}
     />
     <IconButton
       variant="filled"
       label="Filled"
-      icon={farStar}
-      iconSelected={fasStar}
+      icon={iStar}
+      iconSelected={iStarFilled}
       onToggle={(active) => console.log('active:', active)}
     />
     <IconButton
       variant="tonal"
       label="Tonal"
-      icon={farStar}
-      iconSelected={fasStar}
+      icon={iStar}
+      iconSelected={iStarFilled}
       onToggle={(active) => console.log('active:', active)}
     />
     <IconButton
       variant="outlined"
       label="Outlined"
-      icon={farStar}
-      iconSelected={fasStar}
+      icon={iStar}
+      iconSelected={iStarFilled}
       onToggle={(active) => console.log('active:', active)}
     />
   </div>
   `}
-  scope={{ farStar, fasStar }}
+  scope={{ iStar, iStarFilled }}
 />
 
 ## Link or action
@@ -148,8 +151,8 @@ If the `href` prop is provided, it renders an anchor; otherwise it renders a but
   client:load
   code={`
   <div className="flex items-center gap-3">
-    <IconButton label="Go to Udixio" icon={faPlus} href="https://udixio.dev" />
-    <IconButton label="Run action" icon={faPlus} onClick={() => console.log('clicked')} />
+    <IconButton label="Go to Udixio" icon={iAdd} href="https://udixio.dev" />
+    <IconButton label="Run action" icon={iAdd} onClick={() => console.log('clicked')} />
   </div>`}
-  scope={{ faPlus }}
+  scope={{ iAdd }}
 />

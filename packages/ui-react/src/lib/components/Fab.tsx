@@ -5,13 +5,17 @@ import { FabInterface } from '../interfaces/fab.interface';
 import { useFabStyle } from '../styles/fab.style';
 import { classNames } from '../utils';
 import { ReactProps } from '../utils/component';
-import { ToolTip } from './ToolTip';
+import { Tooltip } from './Tooltip';
 import { State } from '../effects';
 
 /**
  * Floating action buttons (FABs) help people take primary actions
  * @status beta
  * @category Action
+ * @devx
+ * - Requires `label` or children; icon-only still needs a label for a11y.
+ * @limitations
+ * - No built-in positioning; placement is handled by the layout.
  */
 export const Fab = ({
   className,
@@ -86,7 +90,7 @@ export const Fab = ({
       aria-label={extended ? undefined : label}
       className={styles.fab}
     >
-      <ToolTip
+      <Tooltip
         trigger={extended ? null : undefined}
         text={label}
         targetRef={resolvedRef}

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useId, useRef, useState } from 'react';
 import { FabMenuInterface } from '../interfaces/fab-menu.interface';
 import { useFabMenuStyle } from '../styles/fab-menu.style';
 import { ReactProps } from '../utils/component';
@@ -14,6 +14,13 @@ import { AnimatePresence, motion } from 'motion/react';
  * Floating action buttons (FABs) help people take primary actions
  * @status beta
  * @category Action
+ * @devx
+ * - Only `Button` children are rendered as actions.
+ * - Controlled via `open`/`onOpenChange` or `defaultOpen`.
+ * @a11y
+ * - No focus trap or Escape handling when open.
+ * @limitations
+ * - No outside-click handling; close uses the explicit close button.
  */
 export const FabMenu = ({
   className,
@@ -21,7 +28,6 @@ export const FabMenu = ({
   variant = 'primary',
   size = 'medium',
   href,
-  type,
   icon,
   extended = false,
   ref,
@@ -65,8 +71,6 @@ export const FabMenu = ({
 
   const MotionFab = motion.create(Fab);
   const MotionIconButton = motion.create(IconButton);
-  const MotionButton = motion.create(Button);
-
   const renderFab = (props) => (
     <MotionFab
       icon={icon}
@@ -89,6 +93,8 @@ export const FabMenu = ({
     />
   );
 
+  const id = useId();
+
   return (
     <div className={styles.fabMenu} ref={resolvedRef} {...restProps}>
       <AnimatePresence>
@@ -105,6 +111,7 @@ export const FabMenu = ({
 
                 const variants = {
                   open: {
+                    overflow: 'visible',
                     opacity: 1,
                     width: 'auto',
                     transition: {
@@ -116,13 +123,14 @@ export const FabMenu = ({
                     },
                   },
                   close: {
+                    overflow: 'hidden',
                     opacity: 0,
                     width: 0,
                     transition: {
                       ...transition,
                       delay,
                       opacity: {
-                        duration: transition?.duration / 2,
+                        duration: transition?.duration / 1.5,
                       },
                     },
                   },
@@ -132,7 +140,6 @@ export const FabMenu = ({
                   <motion.div
                     initial={'close'}
                     animate={'open'}
-                    className={'overflow-hidden'}
                     variants={variants}
                     transition={transition}
                     exit={'close'}
@@ -144,15 +151,18 @@ export const FabMenu = ({
                         shape: 'rounded',
                         variant: 'filled',
                         className: () => ({
-                          button: classNames('max-w-full overflow-hidden', {
-                            'px-0': !open,
-                            'bg-primary-container text-on-primary-container ':
-                              variant === 'primary',
-                            'bg-secondary-container text-on-secondary-container':
-                              variant === 'secondary',
-                            'bg-tertiary-container text-on-tertiary-container':
-                              variant === 'tertiary',
-                          }),
+                          button: classNames(
+                            'max-w-full overflow-hidden text-nowrap',
+                            {
+                              'px-0': !open,
+                              'bg-primary-container text-on-primary-container ':
+                                variant === 'primary',
+                              'bg-secondary-container text-on-secondary-container':
+                                variant === 'secondary',
+                              'bg-tertiary-container text-on-tertiary-container':
+                                variant === 'tertiary',
+                            },
+                          ),
                           stateLayer: classNames({
                             'state-on-primary-container': variant === 'primary',
                             'state-on-secondary-container':
@@ -179,16 +189,16 @@ export const FabMenu = ({
           renderFab({
             className: '',
             layout: true,
-            layoutId: 'fab-menu',
+            layoutId: 'fab-menu' + id,
           })}
         {open && (
           <>
             <MotionIconButton
               layout
-              layoutId="fab-menu"
+              layoutId={'fab-menu' + id}
               variant={'filled'}
               className={() => ({
-                iconButton: classNames('', {
+                iconButton: classNames({
                   'bg-primary text-on-primary': variant === 'primary',
                   'bg-secondary text-on-secondary': variant === 'secondary',
                   'bg-tertiary text-on-tertiary': variant === 'tertiary',
