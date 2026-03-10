@@ -6,6 +6,9 @@ import { useProgressIndicatorStyle } from '../styles/progress-indicator.style';
 import { ReactProps } from '../utils/component';
 
 /**
+ * The ProgressIndicator component is used to display the progress of a task.
+ * It can be linear or circular, and determinate or indeterminate.
+ *
  * @status beta
  * @category Communication
  * @devx
@@ -22,26 +25,33 @@ export const ProgressIndicator = ({
   className,
   ...restProps
 }: ReactProps<ProgressIndicatorInterface>): any => {
+  // State to track the completion percentage, initialized with the prop value.
   const [completedPercentage, setCompletedPercentage] = useState(value);
 
+  // State for the duration of the rotation in the circular animation.
   const [transitionRotate] = useState(1.5);
 
+  // Effect to ensure the progress value remains within the 0 to 100 bounds.
   useEffect(() => {
-    if (value > 100) {
-      value = 100;
+    let clampedValue = value;
+    if (clampedValue > 100) {
+      clampedValue = 100;
     }
-    if (value < 0) {
-      value = 0;
+    if (clampedValue < 0) {
+      clampedValue = 0;
     }
-    setCompletedPercentage(value);
+    setCompletedPercentage(clampedValue);
   }, [value]);
 
+  // State to toggle the animation in indeterminate variants.
   const [togglePercentage, setTogglePercentage] = useState(true);
 
+  // Function to get the rotation transition duration.
   const getTransitionRotate = () => {
     return togglePercentage ? transitionRotate : transitionRotate * 0.5;
   };
 
+  // Effect to handle the animation of indeterminate indicators.
   useEffect(() => {
     if (
       (variant === 'circular-indeterminate' ||
@@ -57,8 +67,10 @@ export const ProgressIndicator = ({
     return;
   }, [variant, togglePercentage, completedPercentage]);
 
+  // State to control the visibility of the component.
   const [isVisible, setIsVisible] = useState(false);
 
+  // Effect to hide the component after it reaches 100%.
   useEffect(() => {
     if (completedPercentage >= 100) {
       const timeoutId = setTimeout(() => {
@@ -73,6 +85,7 @@ export const ProgressIndicator = ({
     return;
   }, [completedPercentage, transitionDuration]);
 
+  // Applying styles using a custom style hook.
   const styles = useProgressIndicatorStyle({
     className,
     variant,
@@ -83,9 +96,11 @@ export const ProgressIndicator = ({
 
   return (
     <>
+      {/* Render for linear variants (determinate and indeterminate) */}
       {(variant === 'linear-determinate' ||
         variant == 'linear-indeterminate') && (
         <div className={styles.progressIndicator} {...restProps}>
+          {/* Main progress bar */}
           <div
             style={{
               width: `${completedPercentage}%`,
@@ -93,6 +108,7 @@ export const ProgressIndicator = ({
             }}
             className={styles.track}
           ></div>
+          {/* Active indicator (for indeterminate animation) */}
           <div
             style={{
               marginLeft: completedPercentage != 100 ? '6px' : '0px',
@@ -100,6 +116,7 @@ export const ProgressIndicator = ({
             }}
             className={styles.activeIndicator}
           ></div>
+          {/* Stop element */}
           <div
             style={{
               width: `4 px`,
@@ -109,6 +126,7 @@ export const ProgressIndicator = ({
           ></div>
         </div>
       )}
+      {/* Render for circular variants (determinate and indeterminate) */}
       {(variant === 'circular-determinate' ||
         variant == 'circular-indeterminate') && (
         <motion.svg
@@ -126,6 +144,7 @@ export const ProgressIndicator = ({
           className={styles.progressIndicator}
           {...(restProps as any)}
         >
+          {/* Animated progress circle */}
           <motion.circle
             cx="50%"
             cy="50%"
