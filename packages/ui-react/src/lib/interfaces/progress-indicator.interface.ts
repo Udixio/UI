@@ -29,7 +29,10 @@ export interface ProgressIndicatorInterface {
      */
     minHeight?: number;
   };
-  states: { isVisible: boolean };
+  states: {
+    isVisible: boolean,
+    completed: boolean
+  };
 
   elements: ['progressIndicator', 'stop', 'activeIndicator', 'track'];
 }
