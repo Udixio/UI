@@ -8,7 +8,7 @@ import {
 
 const progressIndicatorConfig: ClassNameComponent<
   ProgressIndicatorInterface
-> = ({ variant, isVisible }) => ({
+> = ({ variant, isVisible, completed }) => ({
   progressIndicator: classNames(
     (variant === 'linear-determinate' || variant == 'linear-indeterminate') &&
       'flex w-full h-1',
