@@ -34,12 +34,15 @@ export const ProgressIndicator = ({
   // Effect to ensure the progress value remains within the 0 to 100 bounds.
   useEffect(() => {
     let clampedValue = value;
+
     if (clampedValue > 100) {
       clampedValue = 100;
     }
+
     if (clampedValue < 0) {
       clampedValue = 0;
     }
+
     setCompletedPercentage(clampedValue);
   }, [value]);
 
@@ -47,10 +50,7 @@ export const ProgressIndicator = ({
   const [togglePercentage, setTogglePercentage] = useState(true);
 
   // Function to get the rotation transition duration.
-  const getTransitionRotate = () => {
-    return togglePercentage ? transitionRotate : transitionRotate * 0.5;
-  };
-
+  const getTransitionRotate = () => togglePercentage ? transitionRotate : transitionRotate * 0.5;
   // Effect to handle the animation of indeterminate indicators.
   useEffect(() => {
     if (
@@ -62,6 +62,7 @@ export const ProgressIndicator = ({
         setCompletedPercentage(togglePercentage ? 10 : 90);
         setTogglePercentage(!togglePercentage);
       }, getTransitionRotate() * 1000);
+
       return () => clearInterval(interval);
     }
     return;
@@ -73,12 +74,9 @@ export const ProgressIndicator = ({
   // Effect to hide the component after it reaches 100%.
   useEffect(() => {
     if (completedPercentage >= 100) {
-      const timeoutId = setTimeout(() => {
-        setIsVisible(false);
-      }, transitionDuration);
-      return () => {
-        clearTimeout(timeoutId);
-      };
+      const timeoutId = setTimeout(() => setIsVisible(false), transitionDuration);
+
+      return () => clearTimeout(timeoutId);
     } else {
       setIsVisible(true);
     }
