@@ -10,6 +10,7 @@ export default [
       '**/vite.config.*.timestamp*',
       '**/vitest.config.*.timestamp*',
       '**/*.stories.tsx',
+      "**/*.d.ts"
     ],
   },
   {
