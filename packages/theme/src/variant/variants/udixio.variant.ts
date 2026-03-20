@@ -27,6 +27,21 @@ const inverseTone = (tone: number) => {
   return 100 - tone;
 };
 
+export const normalize = (
+  value: number,
+  inputRange: [number, number],
+  outputRange: [number, number] = [0, 1],
+): number => {
+  const [inputMin, inputMax] = inputRange;
+  const [outputMin, outputMax] = outputRange;
+
+  const clampedValue = Math.max(inputMin, Math.min(value, inputMax));
+
+  const normalizedValue = (clampedValue - inputMin) / (inputMax - inputMin);
+
+  return outputMin + normalizedValue * (outputMax - outputMin);
+};
+
 const surfaceContainerTone = (
   layer: number,
   api: Pick<API, 'palettes' | 'context'>,
@@ -65,10 +80,13 @@ export const createMinContrastToneAdjuster = (
   options: {
     selfKey: DynamicColorKey;
     referenceKey?: DynamicColorKey; // par défaut: la surface la plus "haute"
-    minContrast?: number; // par défaut: 3
   },
 ) => {
-  const { selfKey, referenceKey, minContrast = 3 } = options;
+  const { selfKey, referenceKey } = options;
+  const minContrast =
+    ctx.contrastLevel >= 0
+      ? normalize(ctx.contrastLevel, [0, 1], [4.5, 7])
+      : normalize(ctx.contrastLevel, [-1, 0], [0, 4.5]);
 
   const referenceTone = referenceKey
     ? colors.get(referenceKey).getTone()
@@ -84,7 +102,7 @@ export const createMinContrastToneAdjuster = (
       selfTone,
       minContrast,
     );
-    const inverseT = inverseTone(baseTone);
+    const inverseT = ctx.isDark ? 100 : 0;
     selfTone = selfTone + (inverseT - selfTone) * ratio;
   }
 
