@@ -13,6 +13,7 @@ import { AnimatePresence, motion } from 'motion/react';
 export const ColorPicker = () => {
   const $themeConfig = useStore(themeConfigStore);
   const [showPicker, setShowPicker] = useState(false);
+  const [inputValue, setInputValue] = useState($themeConfig.sourceColor);
 
   const [hue, setHue] = useState(
     Hct.fromInt(argbFromHex($themeConfig.sourceColor)).hue,
@@ -77,6 +78,7 @@ export const ColorPicker = () => {
 
   const updateCurrentFromHex = useCallback((hex: string) => {
     const normalized = normalizeHex(hex);
+
     if (!normalized) return;
     const hct = Hct.fromInt(argbFromHex(normalized));
     setHue(hct.hue);
@@ -131,6 +133,7 @@ export const ColorPicker = () => {
     if (hexColor !== $themeConfig.sourceColor) {
       throttledUpdateThemeFromHex(hexColor);
     }
+    setInputValue(hexColor);
   }, [hexColor, $themeConfig.sourceColor, throttledUpdateThemeFromHex]);
 
   return (
@@ -149,12 +152,13 @@ export const ColorPicker = () => {
       <div className="flex gap-4 items-end relative">
         <div className="flex-1">
           <TextField
-            value={hexColor}
+            value={inputValue}
             label={'Couleur source'}
             name="color"
             placeholder={'#AABBCC'}
             supportingText={'Format hexadécimal'}
             onChange={(e) => {
+              setInputValue(e.target.value);
               throttledUpdateCurrentFromHex(e.target.value);
             }}
           />
