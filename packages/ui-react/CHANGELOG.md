@@ -1,3 +1,13 @@
+## 2.10.10 (2026-03-21)
+
+### 🩹 Fixes
+
+- **button:** add `w-fit` class to button styles for improved size handling ([4cd77b0](https://github.com/Udixio/UI/commit/4cd77b0))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.10.9 (2026-03-20)
 
 ### 🧱 Updated Dependencies
