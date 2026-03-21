@@ -16,7 +16,7 @@ const buttonConfig: ClassNameComponent<ButtonInterface> = ({
   allowShapeTransformation,
 }) => ({
   button: classNames(
-    ' relative cursor-pointer group/button outline-none inline-block flex  justify-center   items-center  ',
+    ' relative cursor-pointer group/button outline-none inline-block flex w-fit  justify-center   items-center  ',
     size === 'xSmall' && 'text-label-large px-3 py-1.5 gap-1',
     size === 'small' && 'text-label-large px-4 py-2.5 gap-2',
     size === 'medium' && 'text-title-medium px-6 py-4 gap-2',
