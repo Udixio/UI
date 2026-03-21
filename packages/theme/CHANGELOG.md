@@ -1,3 +1,13 @@
+## 2.1.17 (2026-03-20)
+
+### 🩹 Fixes
+
+- **variant:** normalize contrast levels and adjust tone inversion logic ([cc369c3](https://github.com/Udixio/UI/commit/cc369c3))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.1.16 (2026-02-15)
 
 This was a version bump only for @udixio/theme to align it with other projects, there were no code changes.
