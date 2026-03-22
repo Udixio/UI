@@ -1,3 +1,10 @@
+## 2.10.11 (2026-03-22)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.18
+- Updated @udixio/theme to 2.1.18
+
 ## 2.10.10 (2026-03-21)
 
 ### 🩹 Fixes

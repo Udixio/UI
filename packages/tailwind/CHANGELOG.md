@@ -1,3 +1,17 @@
+## 2.4.18 (2026-03-22)
+
+### 🚀 Features
+
+- **theme:** enhance `sourceColor` flexibility and improve context handling ([9bb6068](https://github.com/Udixio/UI/commit/9bb6068))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 2.1.18
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.4.17 (2026-03-20)
 
 ### 🧱 Updated Dependencies
