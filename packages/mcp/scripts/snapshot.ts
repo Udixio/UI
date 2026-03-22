@@ -118,7 +118,7 @@ async function snapshotTheme(): Promise<void> {
   }
 
   const config = configModule.default as {
-    sourceColor: string;
+    sourceColor: string | ((context: unknown) => string | unknown);
     contrastLevel?: number;
     isDark?: boolean;
     variant?: { name: string };
@@ -128,6 +128,7 @@ async function snapshotTheme(): Promise<void> {
   // Use the @udixio/theme loader to generate complete tokens
   try {
     const { loader } = await import('@udixio/theme');
+    const { hexFromArgb } = await import('@material/material-color-utilities');
 
     // Generate light mode colors
     const apiLight = await loader(
@@ -182,7 +183,7 @@ async function snapshotTheme(): Promise<void> {
 
     const snapshot: ThemeSnapshot = {
       config: {
-        sourceColor: config.sourceColor,
+        sourceColor: hexFromArgb(apiLight.context.sourceColor.toInt()),
         contrastLevel: config.contrastLevel ?? 0,
         isDark: config.isDark ?? false,
         variant: config.variant?.name ?? 'tonal-spot',
@@ -208,7 +209,7 @@ async function snapshotTheme(): Promise<void> {
     // Fallback to raw config export
     const fallback = {
       config: {
-        sourceColor: config.sourceColor,
+        sourceColor: typeof config.sourceColor === 'string' ? config.sourceColor : 'unknown',
         contrastLevel: config.contrastLevel ?? 0,
         isDark: config.isDark ?? false,
         variant: 'unknown',

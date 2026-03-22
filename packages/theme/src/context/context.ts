@@ -1,9 +1,10 @@
 import { argbFromHex } from '@material/material-color-utilities';
 import { Hct } from '../material-color-utilities/htc';
 import { Variant } from '../variant/variant';
+import { ConfigInterface } from '../config';
 
 export interface ContextOptions {
-  sourceColor: string | Hct;
+  sourceColor: ConfigInterface['sourceColor'] | Hct;
   contrastLevel: number;
   isDark: boolean;
   variant: Variant;
@@ -138,10 +139,16 @@ export class Context {
   }
   get sourceColor(): Hct {
     let sourceColor = this.getOptions().sourceColor;
+    if (typeof sourceColor == 'function') {
+      sourceColor = sourceColor(this);
+    }
     if (typeof sourceColor === 'string') {
       sourceColor = Hct.fromInt(argbFromHex(sourceColor));
     }
     return sourceColor;
+  }
+  get rawSourceColor(): ContextOptions['sourceColor'] {
+    return this.getOptions().sourceColor;
   }
 
   set variant(variant: Variant) {

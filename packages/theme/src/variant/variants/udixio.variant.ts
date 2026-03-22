@@ -85,8 +85,8 @@ export const createMinContrastToneAdjuster = (
   const { selfKey, referenceKey } = options;
   const minContrast =
     ctx.contrastLevel >= 0
-      ? normalize(ctx.contrastLevel, [0, 1], [4.5, 7])
-      : normalize(ctx.contrastLevel, [-1, 0], [0, 4.5]);
+      ? normalize(ctx.contrastLevel, [0, 1], [3, 7])
+      : normalize(ctx.contrastLevel, [-1, 0], [0, 3]);
 
   const referenceTone = referenceKey
     ? colors.get(referenceKey).getTone()

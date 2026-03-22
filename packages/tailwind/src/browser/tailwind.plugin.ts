@@ -163,7 +163,7 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
 }`;
 
     const sourceColor = this.api.context.sourceColor;
-    const originalSourceColorHex = hexFromArgb(sourceColor.toInt());
+    const originalRawSourceColor = this.api.context.rawSourceColor;
 
     for (const [key, value] of Object.entries(this.options.subThemes ?? {})) {
       const newHue = Hct.fromInt(argbFromHex(value)).hue;
@@ -194,7 +194,7 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
 }`;
     }
     // Restore original sourceColor after processing subThemes
-    this.api.context.sourceColor = originalSourceColorHex;
+    this.api.context.update({ sourceColor: originalRawSourceColor });
   }
 
   getColors() {
