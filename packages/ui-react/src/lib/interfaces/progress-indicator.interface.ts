@@ -31,5 +31,11 @@ export interface ProgressIndicatorInterface {
   };
   states: { isVisible: boolean };
 
-  elements: ['progressIndicator', 'stop', 'activeIndicator', 'track'];
+  elements: [
+    'progressIndicator',
+    'stop',
+    'activeIndicator',
+    'lastTrack',
+    'firstTrack',
+  ];
 }

@@ -91,14 +91,14 @@ export const ProgressIndicator = ({
               width: `${completedPercentage}%`,
               transition: `width ${transitionDuration}ms ease-in-out ${completedPercentage == 100 ? ', max-height 200ms 0.5s ease-in-out' : ''}`,
             }}
-            className={styles.track}
+            className={styles.activeIndicator}
           ></div>
           <div
             style={{
               marginLeft: completedPercentage != 100 ? '6px' : '0px',
               transition: `width ${transitionDuration}ms ease-in-out ${completedPercentage == 100 ? `, max-height 200ms 0.5s ease-in-out, margin-left ${transitionDuration}ms ${transitionDuration / 1.5}ms` : ''}`,
             }}
-            className={styles.activeIndicator}
+            className={styles.lastTrack}
           ></div>
           <div
             style={{
@@ -112,17 +112,25 @@ export const ProgressIndicator = ({
       {(variant === 'circular-determinate' ||
         variant == 'circular-indeterminate') && (
         <motion.svg
-          key={togglePercentage + ''}
+          key={
+            variant === 'circular-indeterminate'
+              ? togglePercentage + ''
+              : 'static'
+          }
           width="48"
           height="48"
           viewBox="0 0 48 48"
           initial={{ rotate: -90 }}
-          animate={{ rotate: 270 }}
-          transition={{
-            repeat: Infinity,
-            duration: getTransitionRotate(),
-            ease: 'linear',
-          }}
+          animate={{ rotate: variant === 'circular-indeterminate' ? 270 : -90 }}
+          transition={
+            variant === 'circular-indeterminate'
+              ? {
+                  repeat: Infinity,
+                  duration: getTransitionRotate(),
+                  ease: 'linear',
+                }
+              : { duration: transitionDuration / 1000 }
+          }
           className={styles.progressIndicator}
           {...(restProps as any)}
         >
@@ -133,8 +141,12 @@ export const ProgressIndicator = ({
             style={{
               strokeLinecap: 'round',
             }}
-            initial="hidden"
-            animate="visible"
+            initial={
+              variant === 'circular-indeterminate' ? 'hidden' : 'determinate'
+            }
+            animate={
+              variant === 'circular-indeterminate' ? 'visible' : 'determinate'
+            }
             className={styles.activeIndicator}
             variants={{
               hidden: {
@@ -143,14 +155,24 @@ export const ProgressIndicator = ({
               visible: {
                 pathLength: togglePercentage ? 90 / 100 : 10 / 100,
               },
+              determinate: {
+                pathLength: completedPercentage / 100,
+              },
             }}
             transition={{
-              pathLength: {
-                type: 'tween',
-                ease: 'linear',
-                duration: getTransitionRotate(),
-                bounce: 0,
-              },
+              pathLength:
+                variant === 'circular-indeterminate'
+                  ? {
+                      type: 'tween',
+                      ease: 'linear',
+                      duration: getTransitionRotate(),
+                      bounce: 0,
+                    }
+                  : {
+                      type: 'tween',
+                      ease: 'easeInOut',
+                      duration: transitionDuration / 1000,
+                    },
             }}
           />
         </motion.svg>
