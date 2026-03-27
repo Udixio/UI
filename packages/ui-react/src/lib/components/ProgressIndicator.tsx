@@ -49,7 +49,7 @@ export const ProgressIndicator = ({
       completedPercentage !== 100
     ) {
       const interval = setInterval(() => {
-        setCompletedPercentage(togglePercentage ? 10 : 90);
+        setCompletedPercentage(togglePercentage ? 20 : 40);
         setTogglePercentage(!togglePercentage);
       }, getTransitionRotate() * 1000);
       return () => clearInterval(interval);
@@ -86,23 +86,54 @@ export const ProgressIndicator = ({
       {(variant === 'linear-determinate' ||
         variant == 'linear-indeterminate') && (
         <div className={styles.progressIndicator} {...restProps}>
+          {variant === 'linear-indeterminate' && (
+            <motion.div
+              animate={{
+                width: ['0%', '40%', '100%'],
+              }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+              style={{ flexShrink: 0 }}
+              className={styles.firstTrack}
+            ></motion.div>
+          )}
+          {variant === 'linear-determinate' ? (
+            <div
+              style={{
+                width: `${completedPercentage}%`,
+                transition: `width ${transitionDuration}ms ease-in-out ${completedPercentage == 100 ? ', max-height 200ms 0.5s ease-in-out' : ''}`,
+              }}
+              className={styles.activeIndicator}
+            ></div>
+          ) : (
+            <motion.div
+              animate={{
+                width: ['5%', '60%', '150%'],
+              }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+              style={{ flexShrink: 0, marginLeft: '6px' }}
+              className={styles.activeIndicator}
+            ></motion.div>
+          )}
           <div
-            style={{
-              width: `${completedPercentage}%`,
-              transition: `width ${transitionDuration}ms ease-in-out ${completedPercentage == 100 ? ', max-height 200ms 0.5s ease-in-out' : ''}`,
-            }}
-            className={styles.activeIndicator}
-          ></div>
-          <div
-            style={{
+            style={variant === 'linear-determinate' ? {
               marginLeft: completedPercentage != 100 ? '6px' : '0px',
               transition: `width ${transitionDuration}ms ease-in-out ${completedPercentage == 100 ? `, max-height 200ms 0.5s ease-in-out, margin-left ${transitionDuration}ms ${transitionDuration / 1.5}ms` : ''}`,
+            } : {
+              marginLeft: '6px'
             }}
             className={styles.lastTrack}
           ></div>
           <div
             style={{
-              width: `4 px`,
+              width: `4px`,
               transition: `width ${transitionDuration}ms ease-in-out, max-height 200ms 0.5s ease-in-out`,
             }}
             className={styles.stop}

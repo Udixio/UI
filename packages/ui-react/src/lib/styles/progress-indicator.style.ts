@@ -12,10 +12,21 @@ const progressIndicatorConfig: ClassNameComponent<
   progressIndicator: classNames(
     (variant === 'linear-determinate' || variant == 'linear-indeterminate') &&
       'flex w-full h-1',
+    variant === 'linear-indeterminate' &&
+      'relative overflow-hidden rounded-full',
+  ),
+  firstTrack: classNames(
+    (variant === 'linear-determinate' || variant == 'linear-indeterminate') &&
+      'h-full rounded-full bg-primary-container',
+    {
+      'max-h-0': !isVisible,
+      'max-h-full': isVisible,
+    },
   ),
   activeIndicator: classNames(
-    'h-full rounded-full bg-primary rounded-l-full',
+    'h-full rounded-full bg-primary',
     {
+      'rounded-l-full': variant === 'linear-determinate',
       'max-h-0': !isVisible,
       'max-h-full': isVisible,
     },
