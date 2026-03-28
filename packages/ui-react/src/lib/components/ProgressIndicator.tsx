@@ -43,11 +43,7 @@ export const ProgressIndicator = ({
   };
 
   useEffect(() => {
-    if (
-      (variant === 'circular-indeterminate' ||
-        variant === 'linear-indeterminate') &&
-      completedPercentage !== 100
-    ) {
+    if (variant === 'circular-indeterminate' && completedPercentage !== 100) {
       const interval = setInterval(() => {
         setCompletedPercentage(togglePercentage ? 20 : 40);
         setTogglePercentage(!togglePercentage);
@@ -83,51 +79,55 @@ export const ProgressIndicator = ({
 
   return (
     <>
-      {(variant === 'linear-determinate' ||
-        variant == 'linear-indeterminate') && (
+      {variant === 'linear-indeterminate' && (
         <div className={styles.progressIndicator} {...restProps}>
-          {variant === 'linear-indeterminate' && (
-            <motion.div
-              animate={{
-                width: ['0%', '40%', '100%'],
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              }}
-              style={{ flexShrink: 0 }}
-              className={styles.firstTrack}
-            ></motion.div>
-          )}
-          {variant === 'linear-determinate' ? (
-            <div
-              style={{
-                width: `${completedPercentage}%`,
-                transition: `width ${transitionDuration}ms ease-in-out ${completedPercentage == 100 ? ', max-height 200ms 0.5s ease-in-out' : ''}`,
-              }}
-              className={styles.activeIndicator}
-            ></div>
-          ) : (
-            <motion.div
-              animate={{
-                width: ['5%', '60%', '150%'],
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              }}
-              style={{ flexShrink: 0, marginLeft: '6px' }}
-              className={styles.activeIndicator}
-            ></motion.div>
-          )}
+          <motion.div
+            animate={{
+              width: ['0%', '0%', '0%', '20%'],
+              marginRight: ['0px', '0px', '6px', '6px'],
+            }}
+            transition={{
+              duration: 1.5,
+              repeat: Infinity,
+              ease: 'easeInOut',
+              times: [0, 0.499, 0.5, 1],
+            }}
+            style={{ flexShrink: 0 }}
+            className={styles.activeIndicator}
+          />
+          <motion.div
+            animate={{ width: ['0%', '40%', '100%'] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ flexShrink: 0 }}
+            className={styles.firstTrack}
+          />
+          <motion.div
+            animate={{ width: ['20%', '60%', '20%'] }}
+            transition={{
+              duration: 1.5,
+              repeat: Infinity,
+              ease: 'easeInOut',
+              times: [0, 0.5, 1],
+            }}
+            style={{ flexShrink: 0, marginLeft: '6px' }}
+            className={styles.activeIndicator}
+          />
+          <div style={{ marginLeft: '6px' }} className={styles.lastTrack} />
+        </div>
+      )}
+      {variant === 'linear-determinate' && (
+        <div className={styles.progressIndicator} {...restProps}>
           <div
-            style={variant === 'linear-determinate' ? {
+            style={{
+              width: `${completedPercentage}%`,
+              transition: `width ${transitionDuration}ms ease-in-out ${completedPercentage == 100 ? ', max-height 200ms 0.5s ease-in-out' : ''}`,
+            }}
+            className={styles.activeIndicator}
+          ></div>
+          <div
+            style={{
               marginLeft: completedPercentage != 100 ? '6px' : '0px',
               transition: `width ${transitionDuration}ms ease-in-out ${completedPercentage == 100 ? `, max-height 200ms 0.5s ease-in-out, margin-left ${transitionDuration}ms ${transitionDuration / 1.5}ms` : ''}`,
-            } : {
-              marginLeft: '6px'
             }}
             className={styles.lastTrack}
           ></div>

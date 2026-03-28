@@ -25,8 +25,11 @@ const progressIndicatorConfig: ClassNameComponent<
   ),
   activeIndicator: classNames(
     'h-full rounded-full bg-primary',
-    {
-      'rounded-l-full': variant === 'linear-determinate',
+    variant === 'linear-determinate' && {
+      'rounded-l-full': true,
+    },
+    (variant === 'linear-indeterminate' ||
+      variant === 'linear-determinate') && {
       'max-h-0': !isVisible,
       'max-h-full': isVisible,
     },
