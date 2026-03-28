@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useStore } from '@nanostores/react';
 import { themeConfigStore } from '@/stores/themeConfigStore.ts';
 import { ColorPicker } from './ColorPicker';
-import { Slider, Switch } from '@udixio/ui-react';
+import { Divider, Slider, Switch } from '@udixio/ui-react';
 import { iDarkMode } from '@udixio/icons-rounded-400/dark_mode';
 import { iLightMode } from '@udixio/icons-rounded-400/light_mode';
 
@@ -30,39 +30,47 @@ export const ThemePicker: React.FC = () => {
   }, [brightness]);
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="flex items-center justify-between p-4 rounded-xl border border-outline-variant/40 bg-surface-container hover:bg-surface-container-high transition-colors">
+    <div className="space-y-8 mt-4">
+      <div className="flex flex-col gap-6">
+        <label className="flex items-center justify-between cursor-pointer group">
           <div className="flex flex-col">
-            <span className="text-label-large font-medium text-on-surface">
+            <span className="text-title-medium font-semibold text-on-surface">
               Mode Sombre
             </span>
-            <span className="text-body-small text-on-surface-variant">
-              Basculer entre clair et sombre
+            <span className="text-body-medium text-on-surface-variant">
+              Appliquer le thème sombre
             </span>
           </div>
           <Switch
             activeIcon={iDarkMode}
             inactiveIcon={iLightMode}
-            onChange={(value) => setIsDark(value)}
+            onChange={(value) => {
+              if (typeof value === 'boolean') {
+                setIsDark(value);
+              }
+            }}
             selected={isDark}
           />
-        </div>
+        </label>
 
-        <div className="flex flex-col justify-center p-4 rounded-xl border border-outline-variant/40 bg-surface-container hover:bg-surface-container-high transition-colors gap-2">
+        <Divider />
+
+        <div className="flex flex-col gap-4">
           <div className="flex justify-between items-center">
-            <label
-              htmlFor="contrast"
-              className="text-label-large font-medium text-on-surface"
-            >
-              Contraste
-            </label>
-            <span className="text-label-small font-mono bg-surface-variant text-on-surface-variant px-2 py-0.5 rounded">
+            <div className="flex flex-col">
+              <span className="text-title-medium font-semibold text-on-surface">
+                Contraste
+              </span>
+              <span className="text-body-medium text-on-surface-variant">
+                Ajuster le niveau de contraste
+              </span>
+            </div>
+            <span className="text-label-large font-mono bg-surface text-on-surface px-3 py-1 rounded-lg shadow-sm border border-outline-variant">
               {brightness > 0 ? '+' : ''}
               {Math.round(brightness * 10) / 10}
             </span>
           </div>
-          <div className="px-1">
+          <div className="px-2 pt-2 pb-4">
             <Slider
               valueFormatter={(value) => {
                 return Math.round(value * 10) / 10;
@@ -78,12 +86,10 @@ export const ThemePicker: React.FC = () => {
         </div>
       </div>
 
-      <div className="p-5 rounded-xl border border-outline-variant/40 bg-surface-container-low">
-        <h3 className="text-title-medium font-bold mb-4 text-on-surface">
-          Personnalisation de la couleur
-        </h3>
-        <ColorPicker />
-      </div>
+      <h3 className="text-title-medium font-bold mb-6 text-on-surface">
+        Couleur source
+      </h3>
+      <ColorPicker />
     </div>
   );
 };

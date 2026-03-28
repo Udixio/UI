@@ -1,9 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  argbFromHex,
-  Hct,
-  hexFromArgb,
-} from '@material/material-color-utilities';
+import { argbFromHex, Hct, hexFromArgb } from '@material/material-color-utilities';
 import { themeConfigStore } from '@/stores/themeConfigStore.ts';
 import { useStore } from '@nanostores/react';
 import { TextField } from '@udixio/ui-react';
@@ -138,25 +134,15 @@ export const ColorPicker = () => {
 
   return (
     <div className="space-y-6">
-      {/* Prévisualisation de la couleur */}
-      <div
-        className="w-full h-24 rounded-xl shadow-sm border border-outline-variant flex items-center justify-center transition-colors duration-200 relative overflow-hidden group"
-        style={{ backgroundColor: hexColor }}
-      >
-        <span className="bg-surface/90 text-on-surface px-3 py-1.5 rounded-md font-mono text-sm shadow-sm backdrop-blur-sm border border-outline/10 z-10">
-          {hexColor}
-        </span>
-      </div>
-
       {/* Saisie directe de la couleur */}
       <div className="flex gap-4 items-end relative">
         <div className="flex-1">
           <TextField
+            variant={'outlined'}
             value={inputValue}
             label={'Couleur source'}
             name="color"
             placeholder={'#AABBCC'}
-            supportingText={'Format hexadécimal'}
             onChange={(e) => {
               setInputValue(e.target.value);
               throttledUpdateCurrentFromHex(e.target.value);
