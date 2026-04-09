@@ -1,3 +1,17 @@
+## 2.10.13 (2026-04-09)
+
+### 🚀 Features
+
+- **config:** enhance Vite worker and output configuration ([1945ca4](https://github.com/Udixio/UI/commit/1945ca4))
+
+### 🩹 Fixes
+
+- **theme:** use ES module URL for worker initialization in ThemeProvider ([b4a8639](https://github.com/Udixio/UI/commit/b4a8639))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.10.12 (2026-04-09)
 
 ### 🚀 Features
