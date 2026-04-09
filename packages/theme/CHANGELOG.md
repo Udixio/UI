@@ -1,3 +1,15 @@
+## 2.1.19 (2026-04-09)
+
+### 🚀 Features
+
+- **theme:** add worker-based CSS generation and theme serialization ([14af45b](https://github.com/Udixio/UI/commit/14af45b))
+- **theme:** export `htc` from material-color-utilities ([f100207](https://github.com/Udixio/UI/commit/f100207))
+- **theme:** enhance palette management with callbacks, overrides, and synchronization ([d404896](https://github.com/Udixio/UI/commit/d404896))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.1.18 (2026-03-22)
 
 ### 🚀 Features
