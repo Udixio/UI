@@ -23,7 +23,7 @@ export const Card = ({
 }: ReactProps<CardInterface>) => {
   const styles = useCardStyle({
     className,
-    isInteractive: interactive,
+    interactive,
     variant,
     children,
   });

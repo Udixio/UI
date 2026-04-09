@@ -2,14 +2,15 @@
 import { ThemePicker } from '@/components/theme/ThemePicker';
 import { ThemePreviewTabs } from '@/components/theme/ThemePreviewTabs';
 import Layout from '../layouts/layout.astro';
-import { Card } from '@udixio/ui-react';
+import { Card, Divider } from '@udixio/ui-react';
 ---
 <Layout>
-  <section class="flex items-start justify-evenly gap-8">
-      <Card variant='filled' className="sticky top-0 p-8 min-h-screen max-w-lg flex-1 bg-surface-container">
+  <section class="flex items-start   bg-surface-container">
+      <Card variant='filled' className="sticky top-0 p-8 h-screen max-w-lg flex-1 bg-surface-container overflow-auto">
         <h2 class="text-sm font-semibold text-on-surface-variant mb-3">Theme</h2>
         <ThemePicker client:load />
       </Card>
+    <Divider orientation="vertical" />
       <div class="flex-[2] ">
         <ThemePreviewTabs client:load />
       </div>

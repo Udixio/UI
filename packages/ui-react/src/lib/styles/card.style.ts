@@ -8,7 +8,7 @@ import {
 
 const cardConfig: ClassNameComponent<CardInterface> = ({
   variant,
-  isInteractive,
+  interactive,
 }) => ({
   card: classNames(
     ' rounded-xl overflow-hidden ',
@@ -16,7 +16,7 @@ const cardConfig: ClassNameComponent<CardInterface> = ({
     variant === 'elevated' && 'bg-surface-container-low shadow-1',
     variant === 'filled' && 'bg-surface-container-highest',
     {
-      'group/card': isInteractive,
+      'group/card cursor-pointer': interactive,
     },
   ),
 });
