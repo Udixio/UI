@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { argbFromHex, hexFromArgb } from '@material/material-color-utilities';
-import {
-  themeConfigStore,
-  themeServiceStore,
-} from '@/stores/themeConfigStore.ts';
+import { themeConfigStore, themeServiceStore } from '@/stores/themeConfigStore.ts';
 import { useStore } from '@nanostores/react';
 import { Button, TextField } from '@udixio/ui-react';
 import { HexColorPicker } from 'react-colorful';
@@ -63,7 +60,6 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
     return `#${m[1].toUpperCase()}`;
   };
 
-  // Génération du dégradé pour Hue (arc-en-ciel)
   const hueGradient = useMemo(() => {
     const colors = [];
     for (let h = 0; h <= 360; h += 30) {
@@ -74,7 +70,6 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
     return `linear-gradient(to right, ${colors.join(', ')})`;
   }, [chroma, tone]);
 
-  // Génération du dégradé pour Chroma (saturation)
   const chromaGradient = useMemo(() => {
     const colors = [];
     for (let c = 0; c <= maxChroma; c += maxChroma / 10) {
@@ -85,7 +80,6 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
     return `linear-gradient(to right, ${colors.join(', ')})`;
   }, [hue, tone, maxChroma]);
 
-  // Génération du dégradé pour Tone (clarté)
   const toneGradient = useMemo(() => {
     const colors = [];
     for (let t = 0; t <= 100; t += 10) {
@@ -98,7 +92,6 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
 
   const updateCurrentFromHex = useCallback((hex: string) => {
     const normalized = normalizeHex(hex);
-
     if (!normalized) return;
     const hct = Hct.fromInt(argbFromHex(normalized));
     setHue(hct.hue);
@@ -138,43 +131,6 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
     [paletteKey],
   );
 
-  // Throttle utility (leading + trailing)
-  const throttle = useCallback(
-    <T extends (...args: any[]) => void>(fn: T, wait: number) => {
-      let last = 0;
-      let timeout: any;
-      return (...args: Parameters<T>) => {
-        const now = Date.now();
-        const remaining = wait - (now - last);
-        if (remaining <= 0) {
-          if (timeout) {
-            clearTimeout(timeout);
-            timeout = null;
-          }
-          last = now;
-          fn(...args);
-        } else {
-          if (timeout) clearTimeout(timeout);
-          timeout = setTimeout(() => {
-            last = Date.now();
-            fn(...args);
-          }, remaining);
-        }
-      };
-    },
-    [],
-  );
-
-  const throttledUpdateCurrentFromHex = useMemo(
-    () => throttle(updateCurrentFromHex, 50),
-    [throttle, updateCurrentFromHex],
-  );
-
-  const throttledUpdateThemeFromHex = useMemo(
-    () => throttle(updateThemeFromHex, 500),
-    [throttle, updateThemeFromHex],
-  );
-
   const currentStoreColor = useMemo(() => {
     if (!paletteKey) return $themeConfig.sourceColor as string;
     const val = $themeConfig.palettes?.[paletteKey];
@@ -198,10 +154,10 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
 
   useEffect(() => {
     if (hexColor !== currentStoreColor) {
-      throttledUpdateThemeFromHex(hexColor);
+      updateThemeFromHex(hexColor);
     }
     setInputValue(hexColor);
-  }, [hexColor, currentStoreColor, throttledUpdateThemeFromHex]);
+  }, [hexColor, currentStoreColor, updateThemeFromHex]);
 
   const handleReset = () => {
     const api = themeServiceStore.get();
@@ -231,7 +187,7 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
             placeholder={'#AABBCC'}
             onChange={(e) => {
               setInputValue(e.target.value);
-              throttledUpdateCurrentFromHex(e.target.value);
+              updateCurrentFromHex(e.target.value);
             }}
           />
         </div>
@@ -258,7 +214,7 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
                 >
                   <HexColorPicker
                     color={hexColor}
-                    onChange={throttledUpdateCurrentFromHex}
+                    onChange={updateCurrentFromHex}
                   />
                 </motion.div>
               </>
@@ -286,9 +242,7 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
               value={hue}
               onChange={(e) => setHue(Number(e.target.value))}
               className="w-full h-full appearance-none cursor-pointer slider opacity-100"
-              style={{
-                background: hueGradient,
-              }}
+              style={{ background: hueGradient }}
             />
           </div>
         </div>
@@ -311,9 +265,7 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
               value={chroma}
               onChange={(e) => setChroma(Number(e.target.value))}
               className="w-full h-full appearance-none cursor-pointer slider"
-              style={{
-                background: chromaGradient,
-              }}
+              style={{ background: chromaGradient }}
             />
           </div>
         </div>
@@ -336,9 +288,7 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
               value={tone}
               onChange={(e) => setTone(Number(e.target.value))}
               className="w-full h-full appearance-none cursor-pointer slider"
-              style={{
-                background: toneGradient,
-              }}
+              style={{ background: toneGradient }}
             />
           </div>
         </div>

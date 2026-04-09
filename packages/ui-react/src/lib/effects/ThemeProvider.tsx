@@ -34,7 +34,9 @@ export const ThemeProvider = ({
 
   const workerRef = useRef<Worker | null>(null);
   const generationRef = useRef(0);
+  const lastAppliedIdRef = useRef(0);
   const themeApiRef = useRef<API | null>(null);
+  const firstLoadDoneRef = useRef(false);
   const onLoadRef = useRef(onLoad);
   useEffect(() => {
     onLoadRef.current = onLoad;
@@ -58,7 +60,9 @@ export const ThemeProvider = ({
       workerRef.current = worker;
 
       worker.onmessage = (e: MessageEvent<WorkerOutboundMessage>) => {
-        if (e.data.id === generationRef.current) {
+        if (e.data.id > lastAppliedIdRef.current) {
+          lastAppliedIdRef.current = e.data.id;
+          firstLoadDoneRef.current = true;
           setOutputCss(e.data.css);
           onLoadRef.current?.(themeApiRef.current!);
         }
@@ -134,10 +138,11 @@ export const ThemeProvider = ({
     const worker = workerRef.current;
 
     // Fallback synchrone : premier rendu ou Worker pas encore prêt
-    if (!worker || outputCss === null) {
+    if (!worker || !firstLoadDoneRef.current) {
       await api.load();
       const css = api.plugins.getPlugin(TailwindPlugin).getInstance().outputCss;
       setOutputCss(css);
+      firstLoadDoneRef.current = true;
       onLoad?.(api);
       return;
     }

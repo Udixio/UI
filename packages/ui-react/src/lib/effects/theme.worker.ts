@@ -3,9 +3,8 @@ import {
   getVariantByName,
   Hct,
   FontPlugin,
-  serializeThemeContext,
 } from '@udixio/theme';
-import type { FontPluginOptions, ThemeContextSnapshot } from '@udixio/theme';
+import type { API, FontPluginOptions, ThemeContextSnapshot } from '@udixio/theme';
 import { TailwindPlugin } from '@udixio/tailwind';
 import type { TailwindPluginOptions } from '@udixio/tailwind';
 
@@ -21,39 +20,78 @@ export interface WorkerOutboundMessage {
   css: string;
 }
 
-// Re-export for use in ThemeProvider (type-only, stripped from bundle)
-export type { ThemeContextSnapshot, serializeThemeContext };
+let workerApi: API | null = null;
+let latestMessage: WorkerInboundMessage | null = null;
+let processing = false;
 
-self.onmessage = async (event: MessageEvent<WorkerInboundMessage>) => {
-  const { id, snapshot, tailwindOptions, fontOptions } = event.data;
+async function processLatest() {
+  if (processing || !latestMessage) return;
+  processing = true;
 
-  const api = await loader(
-    {
-      sourceColor: Hct.from(
-        snapshot.sourceColor.hue,
-        snapshot.sourceColor.chroma,
-        snapshot.sourceColor.tone,
-      ),
-      isDark: snapshot.isDark,
-      contrastLevel: snapshot.contrastLevel,
-      variant: getVariantByName(snapshot.variantName),
-      plugins: [new FontPlugin(fontOptions), new TailwindPlugin(tailwindOptions)],
-    },
-    false,
-  );
+  const msg = latestMessage;
+  latestMessage = null;
 
-  // sync() utilise override() — évite addFromCustomPalette dupliqué sur les palettes variant
+  const { snapshot, tailwindOptions, fontOptions } = msg;
+
   const palettesCallbacks = Object.fromEntries(
     Object.entries(snapshot.palettes).map(([key, { hue, chroma }]) => [
       key,
       () => ({ hue, chroma }),
     ]),
   );
-  api.palettes.sync(palettesCallbacks);
 
-  await api.load();
+  try {
+    if (!workerApi) {
+      // Initialisation unique — coût amorti sur tous les messages suivants
+      workerApi = await loader(
+        {
+          sourceColor: Hct.from(
+            snapshot.sourceColor.hue,
+            snapshot.sourceColor.chroma,
+            snapshot.sourceColor.tone,
+          ),
+          isDark: snapshot.isDark,
+          contrastLevel: snapshot.contrastLevel,
+          variant: getVariantByName(snapshot.variantName),
+          plugins: [new FontPlugin(fontOptions), new TailwindPlugin(tailwindOptions)],
+        },
+        false,
+      );
+      workerApi.palettes.sync(palettesCallbacks);
+    } else {
+      // Mise à jour légère — pas de re-bootstrap
+      workerApi.context.update({
+        isDark: snapshot.isDark,
+        contrastLevel: snapshot.contrastLevel,
+        sourceColor: Hct.from(
+          snapshot.sourceColor.hue,
+          snapshot.sourceColor.chroma,
+          snapshot.sourceColor.tone,
+        ),
+        variant: getVariantByName(snapshot.variantName),
+      });
+      workerApi.palettes.sync(palettesCallbacks);
 
-  const css = api.plugins.getPlugin(TailwindPlugin).getInstance().outputCss;
+      // Mise à jour des options plugins si elles ont changé
+      workerApi.plugins.getPlugin(TailwindPlugin).options = tailwindOptions;
+      workerApi.plugins.getPlugin(FontPlugin).options = fontOptions;
+    }
 
-  self.postMessage({ id, css } satisfies WorkerOutboundMessage);
+    await workerApi.load();
+
+    const css = workerApi.plugins.getPlugin(TailwindPlugin).getInstance().outputCss;
+    self.postMessage({ id: msg.id, css } satisfies WorkerOutboundMessage);
+  } catch (e) {
+    console.error('[Worker] error during processLatest:', e);
+    workerApi = null; // reset state for clean retry
+  } finally {
+    processing = false;
+    // Traite le prochain message s'il est arrivé pendant le traitement
+    processLatest();
+  }
+}
+
+self.onmessage = (event: MessageEvent<WorkerInboundMessage>) => {
+  latestMessage = event.data;
+  processLatest();
 };
