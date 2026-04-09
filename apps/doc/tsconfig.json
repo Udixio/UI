@@ -2,26 +2,22 @@
   "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["./src/*"]
     },
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },
-  "include": [
-    ".astro/types.d.ts",
-    "**/*"
-  ],
-  "exclude": [
-    "dist"
-  ],
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist"],
   "references": [
     {
       "path": "../../packages/ui-react"
     },
     {
       "path": "../../packages/tailwind"
+    },
+    {
+      "path": "../../packages/icons/icons-rounded-400"
     },
     {
       "path": "../../packages/theme"

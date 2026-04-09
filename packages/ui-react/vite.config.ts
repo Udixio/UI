@@ -32,9 +32,6 @@ export default defineConfig(async () => ({
       brotliSize: true,
     }),
   ],
-  worker: {
-    format: 'es' as const,
-  },
   // Configuration for building your library.
   // See: https://vitejs.dev/guide/build.html#library-mode
   build: {

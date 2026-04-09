@@ -14,6 +14,69 @@
     },
     {
       "path": "./packages/mcp"
+    },
+    {
+      "path": "./packages/icons/icons-outlined-100"
+    },
+    {
+      "path": "./packages/icons/icons-outlined-200"
+    },
+    {
+      "path": "./packages/icons/icons-outlined-300"
+    },
+    {
+      "path": "./packages/icons/icons-outlined-400"
+    },
+    {
+      "path": "./packages/icons/icons-outlined-500"
+    },
+    {
+      "path": "./packages/icons/icons-outlined-600"
+    },
+    {
+      "path": "./packages/icons/icons-outlined-700"
+    },
+    {
+      "path": "./packages/icons/icons-rounded-100"
+    },
+    {
+      "path": "./packages/icons/icons-rounded-200"
+    },
+    {
+      "path": "./packages/icons/icons-rounded-300"
+    },
+    {
+      "path": "./packages/icons/icons-rounded-400"
+    },
+    {
+      "path": "./packages/icons/icons-rounded-500"
+    },
+    {
+      "path": "./packages/icons/icons-rounded-600"
+    },
+    {
+      "path": "./packages/icons/icons-rounded-700"
+    },
+    {
+      "path": "./packages/icons/icons-sharp-100"
+    },
+    {
+      "path": "./packages/icons/icons-sharp-200"
+    },
+    {
+      "path": "./packages/icons/icons-sharp-300"
+    },
+    {
+      "path": "./packages/icons/icons-sharp-400"
+    },
+    {
+      "path": "./packages/icons/icons-sharp-500"
+    },
+    {
+      "path": "./packages/icons/icons-sharp-600"
+    },
+    {
+      "path": "./packages/icons/icons-sharp-700"
     }
   ],
   "ts-node": {
