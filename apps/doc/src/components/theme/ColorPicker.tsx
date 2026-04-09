@@ -1,26 +1,50 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { argbFromHex, Hct, hexFromArgb } from '@material/material-color-utilities';
-import { themeConfigStore } from '@/stores/themeConfigStore.ts';
+import { argbFromHex, hexFromArgb } from '@material/material-color-utilities';
+import {
+  themeConfigStore,
+  themeServiceStore,
+} from '@/stores/themeConfigStore.ts';
 import { useStore } from '@nanostores/react';
-import { TextField } from '@udixio/ui-react';
+import { Button, TextField } from '@udixio/ui-react';
 import { HexColorPicker } from 'react-colorful';
 import { AnimatePresence, motion } from 'motion/react';
+import { Hct } from '@udixio/theme';
 
-export const ColorPicker = () => {
+interface ColorPickerProps {
+  paletteKey?: string;
+}
+
+export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
   const $themeConfig = useStore(themeConfigStore);
+  const $themeService = useStore(themeServiceStore);
+
+  const [initialState] = useState(() => {
+    const hex = paletteKey
+      ? (() => {
+          const override = themeConfigStore.get().palettes?.[paletteKey];
+          if (typeof override === 'string') return override;
+          const api = themeServiceStore.get();
+          if (api) {
+            try {
+              const toneSource = api.context.sourceColor.tone;
+              return hexFromArgb(
+                api.palettes.get(paletteKey as any).tone(toneSource),
+              );
+            } catch {}
+          }
+          return '#888888';
+        })()
+      : (themeConfigStore.get().sourceColor as string);
+    const hct = Hct.fromInt(argbFromHex(hex));
+    return { hex, hue: hct.hue, chroma: hct.chroma, tone: hct.tone };
+  });
+
   const [showPicker, setShowPicker] = useState(false);
-  const [inputValue, setInputValue] = useState($themeConfig.sourceColor);
+  const [inputValue, setInputValue] = useState(initialState.hex);
 
-  const [hue, setHue] = useState(
-    Hct.fromInt(argbFromHex($themeConfig.sourceColor)).hue,
-  );
-  const [chroma, setChroma] = useState(
-    Hct.fromInt(argbFromHex($themeConfig.sourceColor)).chroma,
-  );
-
-  const [tone, setTone] = useState(
-    Hct.fromInt(argbFromHex($themeConfig.sourceColor)).tone,
-  );
+  const [hue, setHue] = useState(initialState.hue);
+  const [chroma, setChroma] = useState(initialState.chroma);
+  const [tone, setTone] = useState(initialState.tone);
 
   const [maxChroma, setMaxChroma] = useState(200);
 
@@ -82,11 +106,37 @@ export const ColorPicker = () => {
     setTone(hct.tone);
   }, []);
 
-  const updateThemeFromHex = useCallback((hex: string) => {
-    if ($themeConfig.sourceColor === hex) return;
+  const updateThemeFromHex = useCallback(
+    (hex: string) => {
+      if (paletteKey) {
+        const current = themeConfigStore.get().palettes?.[paletteKey];
+        if (typeof current === 'string' && current === hex) return;
 
-    themeConfigStore.set({ ...themeConfigStore.get(), sourceColor: hex });
-  }, []);
+        if (paletteKey === 'primary') {
+          themeConfigStore.set({
+            ...themeConfigStore.get(),
+            sourceColor: hex,
+          });
+        } else {
+          const hct = Hct.fromInt(argbFromHex(hex));
+          themeConfigStore.set({
+            ...themeConfigStore.get(),
+            palettes: {
+              ...themeConfigStore.get().palettes,
+              [paletteKey]: () => ({
+                hue: hct.hue,
+                chroma: hct.chroma,
+              }),
+            },
+          });
+        }
+      } else {
+        if (themeConfigStore.get().sourceColor === hex) return;
+        themeConfigStore.set({ ...themeConfigStore.get(), sourceColor: hex });
+      }
+    },
+    [paletteKey],
+  );
 
   // Throttle utility (leading + trailing)
   const throttle = useCallback(
@@ -125,12 +175,48 @@ export const ColorPicker = () => {
     [throttle, updateThemeFromHex],
   );
 
+  const currentStoreColor = useMemo(() => {
+    if (!paletteKey) return $themeConfig.sourceColor as string;
+    const val = $themeConfig.palettes?.[paletteKey];
+    if (typeof val === 'string') return val;
+    if ($themeService) {
+      const toneSource = $themeService.context.sourceColor.tone;
+      try {
+        return hexFromArgb(
+          $themeService.palettes.get(paletteKey as any).tone(toneSource),
+        );
+      } catch {}
+    }
+    return initialState.hex;
+  }, [
+    $themeConfig.palettes,
+    $themeConfig.sourceColor,
+    paletteKey,
+    $themeService,
+    initialState.hex,
+  ]);
+
   useEffect(() => {
-    if (hexColor !== $themeConfig.sourceColor) {
+    if (hexColor !== currentStoreColor) {
       throttledUpdateThemeFromHex(hexColor);
     }
     setInputValue(hexColor);
-  }, [hexColor, $themeConfig.sourceColor, throttledUpdateThemeFromHex]);
+  }, [hexColor, currentStoreColor, throttledUpdateThemeFromHex]);
+
+  const handleReset = () => {
+    const api = themeServiceStore.get();
+    if (api && paletteKey) {
+      const variantPalette = api.context.variant.palettes[paletteKey];
+      if (variantPalette) {
+        const toneSource = api.context.sourceColor.tone;
+        const defaultHex = hexFromArgb(variantPalette.tone(toneSource));
+        updateCurrentFromHex(defaultHex);
+      }
+    }
+    const palettes = { ...themeConfigStore.get().palettes };
+    delete palettes[paletteKey!];
+    themeConfigStore.set({ ...themeConfigStore.get(), palettes });
+  };
 
   return (
     <div className="space-y-6">
@@ -140,7 +226,7 @@ export const ColorPicker = () => {
           <TextField
             variant={'outlined'}
             value={inputValue}
-            label={'Couleur source'}
+            label={paletteKey ? 'Couleur' : 'Couleur source'}
             name="color"
             placeholder={'#AABBCC'}
             onChange={(e) => {
@@ -257,7 +343,13 @@ export const ColorPicker = () => {
           </div>
         </div>
       </div>
-
+      {paletteKey && paletteKey !== 'primary' && (
+        <div className="flex justify-end">
+          <Button variant="text" onClick={handleReset}>
+            Réinitialiser
+          </Button>
+        </div>
+      )}
       <style>{`
         .slider {
           -webkit-appearance: none;

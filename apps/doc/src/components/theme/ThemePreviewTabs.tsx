@@ -48,26 +48,24 @@ export const ThemePreviewTabs = () => {
                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto bg-surface-container-low p-4 space-y-4">
+              <div className="flex-1 overflow-y-auto bg-surface-container-lowest p-4 space-y-4">
                 <div className="flex items-center justify-between mt-2 mb-6">
                   <div>
-                    <h3 className="font-bold text-headline-small text-on-surface">
+                    <h3 className=" text-headline-small text-on-surface">
                       My Tasks
                     </h3>
                     <p className="text-body-small text-on-surface-variant">
                       5 pending tasks
                     </p>
                   </div>
-                  <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold text-lg">
+                  <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-on-primary  text-title-large">
                     A
                   </div>
                 </div>
 
-                <Card>
+                <Card variant={'filled'} className={'bg-surface-container'}>
                   <div className="p-4 space-y-3">
-                    <h3 className="font-semibold text-title-medium text-primary">
-                      Work
-                    </h3>
+                    <h3 className="text-label-large text-primary">Work</h3>
                     <div className="space-y-3">
                       <label className="flex items-center gap-3 cursor-pointer">
                         <Checkbox defaultChecked />
@@ -85,9 +83,9 @@ export const ThemePreviewTabs = () => {
                   </div>
                 </Card>
 
-                <Card variant="elevated" className="overflow-hidden bg-surface">
+                <Card variant={'filled'} className={'bg-surface-container'}>
                   <div className="p-4 space-y-3">
-                    <h3 className="font-semibold text-title-medium text-secondary">
+                    <h3 className="text-label-large  text-secondary">
                       Personal
                     </h3>
                     <div className="space-y-3">
@@ -101,9 +99,9 @@ export const ThemePreviewTabs = () => {
                   </div>
                 </Card>
 
-                <Card variant="elevated" className="overflow-hidden bg-surface">
+                <Card variant={'filled'} className={'bg-surface-container'}>
                   <div className="p-4 space-y-3">
-                    <h3 className="font-semibold text-title-medium text-tertiary">
+                    <h3 className="text-label-large text-tertiary">
                       Groceries
                     </h3>
                     <div className="space-y-3">
@@ -135,9 +133,7 @@ export const ThemePreviewTabs = () => {
                 </div>
               </div>
               <div className="h-14 bg-surface-container flex items-center justify-between px-4 border-b border-outline-variant/30 shrink-0">
-                <h3 className="font-bold text-title-medium text-on-surface">
-                  Chat
-                </h3>
+                <h3 className="text-label-large text-on-surface">Chat</h3>
                 <IconButton
                   icon={faSearch as any}
                   variant="standard"
@@ -155,9 +151,7 @@ export const ThemePreviewTabs = () => {
                     </div>
                     <div className="flex-1">
                       <div className="flex justify-between items-baseline mb-1">
-                        <h4 className="font-semibold text-body-medium text-on-surface">
-                          Team Update #{i}
-                        </h4>
+                        <h4 className="text-title-small">Team Update #{i}</h4>
                         <span className="text-label-small text-on-surface-variant">
                           10:4{i} AM
                         </span>
@@ -178,7 +172,8 @@ export const ThemePreviewTabs = () => {
                     className="flex-1 bg-surface-container-high border-none outline-none text-on-surface placeholder:text-on-surface-variant text-body-medium px-4 py-2.5 rounded-full"
                   />
                   <IconButton
-                    icon={faPaperPlane as any}
+                    size={'small'}
+                    icon={faPaperPlane}
                     variant="filled"
                     label="Send"
                   />
@@ -200,7 +195,7 @@ export const ThemePreviewTabs = () => {
         <TabPanel>
           <div className="space-y-8 p-4">
             <section>
-              <h2 className="text-lg font-semibold mb-3">Buttons</h2>
+              <h2 className="text-title-large mb-3">Buttons</h2>
               <div className="flex flex-wrap gap-3">
                 <Button>Primary</Button>
                 <Button variant="tonal">Tonal</Button>
@@ -213,7 +208,7 @@ export const ThemePreviewTabs = () => {
             <Divider />
 
             <section>
-              <h2 className="text-lg font-semibold mb-3">TextFields</h2>
+              <h2 className="text-title-large mb-3">TextFields</h2>
               <div className="grid sm:grid-cols-2 gap-4">
                 <TextField label="Email" name="email" placeholder="Email" />
                 <TextField
@@ -234,7 +229,7 @@ export const ThemePreviewTabs = () => {
             <Divider />
 
             <section>
-              <h2 className="text-lg font-semibold mb-3">Cards</h2>
+              <h2 className="text-title-large mb-3">Cards</h2>
               <div className="grid md:grid-cols-2 gap-4">
                 <Card>
                   <div className="p-4 space-y-2">

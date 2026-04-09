@@ -1,13 +1,39 @@
 import React, { useEffect, useState } from 'react';
 import { useStore } from '@nanostores/react';
-import { themeConfigStore } from '@/stores/themeConfigStore.ts';
+import {
+  themeConfigStore,
+  themeServiceStore,
+} from '@/stores/themeConfigStore.ts';
 import { ColorPicker } from './ColorPicker';
-import { Divider, Slider, Switch } from '@udixio/ui-react';
+import { Card, Divider, Slider, Switch } from '@udixio/ui-react';
 import { iDarkMode } from '@udixio/icons-rounded-400/dark_mode';
 import { iLightMode } from '@udixio/icons-rounded-400/light_mode';
+import { hexFromArgb } from '@material/material-color-utilities';
+import { AnimatePresence, motion } from 'motion/react';
+
+const PALETTES = [
+  { key: 'primary', label: 'Primary' },
+  { key: 'secondary', label: 'Secondary' },
+  { key: 'tertiary', label: 'Tertiary' },
+  { key: 'error', label: 'Error' },
+  { key: 'neutral', label: 'Neutral' },
+  { key: 'neutralVariant', label: 'Neutral Variant' },
+] as const;
 
 export const ThemePicker: React.FC = () => {
   const $config = useStore(themeConfigStore);
+  const $themeService = useStore(themeServiceStore);
+
+  const [activePalette, setActivePalette] = useState<string | null>(null);
+
+  const getPaletteHex = (key: string): string => {
+    if (!$themeService) return '#888888';
+    try {
+      return hexFromArgb($themeService.palettes.get(key as any).tone(40));
+    } catch {
+      return '#888888';
+    }
+  };
 
   const [isDark, setIsDark] = React.useState($config.isDark);
 
@@ -86,10 +112,68 @@ export const ThemePicker: React.FC = () => {
         </div>
       </div>
 
-      <h3 className="text-title-medium font-bold mb-6 text-on-surface">
-        Couleur source
-      </h3>
-      <ColorPicker />
+      <div>
+        <h3 className="text-title-medium font-bold mb-4 text-on-surface">
+          Couleurs de palette
+        </h3>
+        <div className="flex flex-col gap-2">
+          {PALETTES.map(({ key, label }) => {
+            const hex = getPaletteHex(key);
+            const isOpen = activePalette === key;
+            const isOverridden = !!$config.palettes?.[key];
+            return (
+              <div
+                key={key}
+                className="overflow-hidden rounded-2xl bg-surface-container-highest"
+              >
+                <Card
+                  interactive
+                  variant="filled"
+                  onClick={() => setActivePalette(isOpen ? null : key)}
+                  className="flex items-center gap-3 p-2 rounded-2xl"
+                >
+                  <div
+                    className="size-10 rounded-full shadow-sm shrink-0 relative"
+                    style={{ background: `var(--color-${key})` }}
+                  >
+                    {isOverridden && (
+                      <div className="size-2.5 rounded-full bg-primary border-2 border-surface absolute -top-0.5 -right-0.5" />
+                    )}
+                  </div>
+                  <span className="text-title-medium flex-1">{label}</span>
+                  <motion.svg
+                    className="mr-2 text-on-surface-variant shrink-0"
+                    animate={{ rotate: isOpen ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M7 10l5 5 5-5z" />
+                  </motion.svg>
+                </Card>
+
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25, ease: 'easeInOut' }}
+                      style={{ overflow: 'hidden' }}
+                    >
+                      <div className="px-4 pt-6">
+                        <ColorPicker paletteKey={key} />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };
