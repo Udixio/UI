@@ -12,7 +12,6 @@ import type {
   WorkerInboundMessage,
   WorkerOutboundMessage,
 } from './theme.worker';
-import ThemeWorker from './theme.worker?worker&inline';
 
 function isValidHexColor(hexColorString: string) {
   const regex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
@@ -54,7 +53,10 @@ export const ThemeProvider = ({
       themeApiRef.current = api;
       setThemeApi(api);
 
-      const worker = new ThemeWorker() as Worker;
+      const worker = new Worker(
+        new URL('./theme.worker.ts', import.meta.url),
+        { type: 'module' },
+      );
       workerRef.current = worker;
 
       worker.onmessage = (e: MessageEvent<WorkerOutboundMessage>) => {
