@@ -1,3 +1,7 @@
+## 2.10.15 (2026-04-09)
+
+This was a version bump only for @udixio/ui-react to align it with other projects, there were no code changes.
+
 ## 2.10.14 (2026-04-09)
 
 This was a version bump only for @udixio/ui-react to align it with other projects, there were no code changes.
