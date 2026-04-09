@@ -68,12 +68,36 @@ export class PaletteManager {
   }
 
   update(key: string, args: PaletteCallback | Palette): void {
-    if (!this.palettes['key']) {
+    const existing = this._palettes[key];
+    if (!existing) {
       throw new Error(`Palette with key ${key} not found`);
     }
-    if (!(args instanceof Palette)) {
-      args = new Palette(key, args, this.context);
+    if (args instanceof Palette) {
+      this.set(key, args);
+    } else {
+      existing.setCallback(args);
     }
-    this.set(key, args);
+  }
+
+  remove(key: string): void {
+    delete this._palettes[key];
+  }
+
+  override(key: string, args: Hct | PaletteCallback): void {
+    const callback: PaletteCallback =
+      args instanceof Hct
+        ? (context) => context.variant.customPalettes(context, args)
+        : args;
+
+    if (this._palettes[key]) {
+      this.update(key, callback);
+    } else {
+      const palette = new Palette(key, callback, this.context);
+      this.set(key, palette);
+      const isVariantPalette = !!this.context.variant.palettes[key];
+      if (!isVariantPalette) {
+        this.colorApi.addFromCustomPalette(key);
+      }
+    }
   }
 }

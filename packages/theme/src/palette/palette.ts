@@ -57,6 +57,15 @@ export class Palette {
     }
   }
 
+  setCallback(callback: PaletteCallback): void {
+    this.callback = callback;
+    this.dependencies = null;
+    this.cache.clear();
+    this.hueCache = null;
+    this.chromaCache = null;
+    this.update([]);
+  }
+
   private clearCache() {
     this.cache.clear();
     this.hueCache = null;

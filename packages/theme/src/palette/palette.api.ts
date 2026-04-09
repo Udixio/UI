@@ -24,6 +24,26 @@ export class PaletteApi {
     });
   }
 
+  override(args: Record<string, PaletteCallback | string>): void {
+    Object.entries(args).forEach(([key, callback]) => {
+      if (typeof callback === 'string') {
+        this.paletteManager.override(key, Hct.fromInt(argbFromHex(callback)));
+      } else {
+        this.paletteManager.override(key, callback);
+      }
+    });
+  }
+
+  sync(args: Record<string, PaletteCallback | string> | undefined): void {
+    const incoming = new Set(Object.keys(args ?? {}));
+    Object.keys(this.paletteManager._palettes).forEach((key) => {
+      if (!incoming.has(key)) {
+        this.paletteManager.remove(key);
+      }
+    });
+    if (args) this.override(args);
+  }
+
   get(
     key:
       | 'primary'
