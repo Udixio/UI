@@ -1,3 +1,27 @@
+## 2.10.12 (2026-04-09)
+
+### 🚀 Features
+
+- **config:** update tsconfig and worker initialization for multi-package icon support ([8beb5ba](https://github.com/Udixio/UI/commit/8beb5ba))
+- **theme:** remove throttling and enhance load handling ([a7335da](https://github.com/Udixio/UI/commit/a7335da))
+- **theme:** add worker-based CSS generation and theme serialization ([14af45b](https://github.com/Udixio/UI/commit/14af45b))
+- **theme:** sync palettes in ThemeProvider using `themeApi.palettes.sync` ([66bac8b](https://github.com/Udixio/UI/commit/66bac8b))
+- **progress-indicator:** improve linear-indeterminate animation with margin adjustments ([57d329b](https://github.com/Udixio/UI/commit/57d329b))
+- **carousel:** optimize layout and rendering performance ([bd9f8d2](https://github.com/Udixio/UI/commit/bd9f8d2))
+- **card:** rename `isInteractive` to `interactive` and enhance styles ([c223e40](https://github.com/Udixio/UI/commit/c223e40))
+- **progress-indicator:** refine linear-indeterminate animation and adjust styles ([0dbbb9f](https://github.com/Udixio/UI/commit/0dbbb9f))
+- **progress-indicator:** refine linear animation handling and enhance styles ([520384e](https://github.com/Udixio/UI/commit/520384e))
+- **progress-indicator:** enhance transition logic and add circular-determinate variant ([5e00a3a](https://github.com/Udixio/UI/commit/5e00a3a))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.19
+- Updated @udixio/theme to 2.1.19
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.10.11 (2026-03-22)
 
 ### 🧱 Updated Dependencies

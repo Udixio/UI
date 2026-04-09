@@ -1,6 +1,6 @@
 {
   "name": "@udixio/theme",
-  "version": "2.1.18",
+  "version": "2.1.19",
   "type": "module",
   "main": "./dist/node.js",
   "module": "./dist/node.js",
