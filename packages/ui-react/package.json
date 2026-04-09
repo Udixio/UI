@@ -12,6 +12,9 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "default": "./dist/index.js"
+    },
+    "./theme-worker": {
+      "default": "./dist/theme.worker.js"
     }
   },
   "peerDependencies": {
