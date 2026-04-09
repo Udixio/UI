@@ -32,10 +32,9 @@ export default defineConfig(async () => ({
       brotliSize: true,
     }),
   ],
-  // Uncomment this if you are using workers.
-  // worker: {
-  //  plugins: [ nxViteTsPaths() ],
-  // },
+  worker: {
+    format: 'es' as const,
+  },
   // Configuration for building your library.
   // See: https://vitejs.dev/guide/build.html#library-mode
   build: {

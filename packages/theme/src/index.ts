@@ -11,3 +11,4 @@ export * from './palette';
 export * from './plugin';
 export * from './plugins';
 export * from './variant';
+export * from './serialize';

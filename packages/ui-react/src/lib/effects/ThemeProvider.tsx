@@ -2,10 +2,16 @@ import {
   type API,
   type ConfigInterface,
   ContextOptions,
+  FontPlugin,
   loader,
+  serializeThemeContext,
 } from '@udixio/theme';
 import { useEffect, useRef, useState } from 'react';
 import { TailwindPlugin } from '@udixio/tailwind';
+import type {
+  WorkerInboundMessage,
+  WorkerOutboundMessage,
+} from './theme.worker';
 
 function isValidHexColor(hexColorString: string) {
   const regex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
@@ -14,7 +20,7 @@ function isValidHexColor(hexColorString: string) {
 
 export const ThemeProvider = ({
   config,
-  throttleDelay = 100, // Délai par défaut de 300ms
+  throttleDelay = 100,
   onLoad,
   loadTheme = false,
 }: {
@@ -24,16 +30,47 @@ export const ThemeProvider = ({
   loadTheme?: boolean;
 }) => {
   const [themeApi, setThemeApi] = useState<API | null>(null);
+  const [outputCss, setOutputCss] = useState<string | null>(null);
 
-  // Charger l'API du thème une fois au montage
+  const workerRef = useRef<Worker | null>(null);
+  const generationRef = useRef(0);
+  const themeApiRef = useRef<API | null>(null);
+  const onLoadRef = useRef(onLoad);
   useEffect(() => {
+    onLoadRef.current = onLoad;
+  }, [onLoad]);
+
+  // Initialisation de l'API et du Worker
+  useEffect(() => {
+    let cancelled = false;
+
     (async () => {
       const api = await loader(config, loadTheme);
-      setThemeApi(api);
-    })();
-  }, []);
+      if (cancelled) return;
 
-  const [outputCss, setOutputCss] = useState<string | null>(null);
+      themeApiRef.current = api;
+      setThemeApi(api);
+
+      const worker = new Worker(
+        new URL('./theme.worker.ts', import.meta.url),
+        { type: 'module' },
+      );
+      workerRef.current = worker;
+
+      worker.onmessage = (e: MessageEvent<WorkerOutboundMessage>) => {
+        if (e.data.id === generationRef.current) {
+          setOutputCss(e.data.css);
+          onLoadRef.current?.(themeApiRef.current!);
+        }
+      };
+    })();
+
+    return () => {
+      cancelled = true;
+      workerRef.current?.terminate();
+      workerRef.current = null;
+    };
+  }, []);
 
   // Throttle avec exécution en tête (leading) et en fin (trailing)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -41,11 +78,10 @@ export const ThemeProvider = ({
   const lastArgsRef = useRef<Partial<ContextOptions> | null>(null);
 
   useEffect(() => {
-    if (!themeApi) return; // Attendre que l'API soit prête
+    if (!themeApi) return;
 
     const ctx: Partial<ContextOptions> = {
       ...config,
-      // Assurer la compatibilité avec l'API qui attend sourceColorHex
       sourceColor: config.sourceColor,
     };
 
@@ -53,11 +89,9 @@ export const ThemeProvider = ({
     const timeSinceLast = now - lastExecTimeRef.current;
 
     const invoke = async (args: Partial<ContextOptions>) => {
-      // applique et notifie
       await applyThemeChange(args);
     };
 
-    // Leading: si délai écoulé ou jamais exécuté, exécuter tout de suite
     if (lastExecTimeRef.current === 0 || timeSinceLast >= throttleDelay) {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -67,7 +101,6 @@ export const ThemeProvider = ({
       lastExecTimeRef.current = now;
       void invoke(ctx);
     } else {
-      // Sinon, mémoriser la dernière requête et programmer une exécution en trailing
       lastArgsRef.current = ctx;
       if (!timeoutRef.current) {
         const remaining = Math.max(0, throttleDelay - timeSinceLast);
@@ -83,36 +116,42 @@ export const ThemeProvider = ({
       }
     }
 
-    // Cleanup: au changement de dépendances, ne rien faire ici (on gère trailing)
     return () => {};
   }, [config, throttleDelay, themeApi]);
 
   const applyThemeChange = async (ctx: Partial<ContextOptions>) => {
-    if (typeof ctx.sourceColor == 'string') {
-      if (!isValidHexColor(ctx.sourceColor)) {
-        throw new Error('Invalid hex color');
-      }
+    if (typeof ctx.sourceColor === 'string' && !isValidHexColor(ctx.sourceColor)) {
+      throw new Error('Invalid hex color');
     }
 
-    if (!themeApi) {
-      // L'API n'est pas prête; ignorer silencieusement car l'effet principal attend themeApi
+    const api = themeApiRef.current;
+    if (!api) return;
+
+    // Toujours évaluer sur le main thread (rapide)
+    api.context.update(ctx);
+    api.palettes.sync((ctx as any).palettes);
+
+    const worker = workerRef.current;
+
+    // Fallback synchrone : premier rendu ou Worker pas encore prêt
+    if (!worker || outputCss === null) {
+      await api.load();
+      const css = api.plugins.getPlugin(TailwindPlugin).getInstance().outputCss;
+      setOutputCss(css);
+      onLoad?.(api);
       return;
     }
-    themeApi.context.update(ctx);
 
-    themeApi.palettes.sync((ctx as any).palettes);
-
-    await themeApi.load();
-
-    const outputCss = themeApi?.plugins
-      .getPlugin(TailwindPlugin)
-      .getInstance().outputCss;
-    setOutputCss(outputCss);
-
-    onLoad?.(themeApi);
+    // Offload au Worker
+    const id = ++generationRef.current;
+    worker.postMessage({
+      id,
+      snapshot: serializeThemeContext(api),
+      tailwindOptions: api.plugins.getPlugin(TailwindPlugin).options,
+      fontOptions: api.plugins.getPlugin(FontPlugin).options,
+    } satisfies WorkerInboundMessage);
   };
 
-  // Cleanup lors du démontage du composant
   useEffect(() => {
     return () => {
       if (timeoutRef.current) {

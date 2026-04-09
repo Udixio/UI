@@ -16,3 +16,11 @@ export const Variants = {
   Vibrant: vibrantVariant,
   Udixio: udixioVariant,
 };
+
+export function getVariantByName(name: string): (typeof Variants)[keyof typeof Variants] {
+  const found = Object.values(Variants).find((v) => v.name === name);
+  if (!found) {
+    throw new Error(`Unknown variant: "${name}". Known: ${Object.values(Variants).map((v) => v.name).join(', ')}`);
+  }
+  return found;
+}

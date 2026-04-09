@@ -34,6 +34,14 @@ export class PaletteApi {
     });
   }
 
+  getSerializableState(): Record<string, { hue: number; chroma: number }> {
+    const result: Record<string, { hue: number; chroma: number }> = {};
+    for (const [key, palette] of Object.entries(this.paletteManager._palettes)) {
+      result[key] = { hue: palette.hue, chroma: palette.chroma };
+    }
+    return result;
+  }
+
   sync(args: Record<string, PaletteCallback | string> | undefined): void {
     const incoming = new Set(Object.keys(args ?? {}));
     Object.keys(this.paletteManager._palettes).forEach((key) => {
