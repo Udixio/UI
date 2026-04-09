@@ -16,7 +16,7 @@ const progressIndicatorConfig: ClassNameComponent<
       'relative overflow-hidden rounded-full',
   ),
   firstTrack: classNames(
-    (variant === 'linear-determinate' || variant == 'linear-indeterminate') &&
+    (variant === 'linear-determinate' || variant === 'linear-indeterminate') &&
       'h-full rounded-full bg-primary-container',
     {
       'max-h-0': !isVisible,
