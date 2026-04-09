@@ -17,6 +17,7 @@ const getUdixioVite = async () => {
 
 export default defineConfig(async () => ({
   root: __dirname,
+  base: './',
   cacheDir: '../../node_modules/.vite/packages/ui-react',
   plugins: [
     await getUdixioVite(),
@@ -32,6 +33,14 @@ export default defineConfig(async () => ({
       brotliSize: true,
     }),
   ],
+  worker: {
+    format: 'es' as const,
+    rollupOptions: {
+      output: {
+        entryFileNames: '[name].js',
+      },
+    },
+  },
   // Configuration for building your library.
   // See: https://vitejs.dev/guide/build.html#library-mode
   build: {
@@ -52,6 +61,11 @@ export default defineConfig(async () => ({
       formats: ['es' as const, 'cjs' as const],
     },
     rollupOptions: {
+      output: {
+        // Worker JS emis sans hash pour que la référence dans dist/index.js soit stable
+        assetFileNames: '[name][extname]',
+        chunkFileNames: '[name].js',
+      },
       // External packages that should not be bundled into your library.
       external: [
         'react',
