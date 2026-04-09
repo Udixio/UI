@@ -100,6 +100,8 @@ export const ThemeProvider = ({
     }
     themeApi.context.update(ctx);
 
+    themeApi.palettes.sync((ctx as any).palettes);
+
     await themeApi.load();
 
     const outputCss = themeApi?.plugins
