@@ -41,23 +41,16 @@ export const CarouselItem = ({
   const styles = useCarouselItemStyle({
     className,
     index,
-    width,
     children,
-    outputRange,
   });
 
   return (
     <div
       ref={ref}
       style={{
-        width: width + 'px',
-        maxWidth: outputRange[1] + 'px',
-        minWidth: outputRange[0] + 'px',
-        willChange: 'width',
-      }}
-      transition={{
-        duration: 0.5,
-        ease: 'linear',
+        width: 'var(--carousel-item-width, 100%)',
+        maxWidth: outputRange ? outputRange[1] + 'px' : undefined,
+        minWidth: outputRange ? outputRange[0] + 'px' : undefined,
       }}
       className={styles.carouselItem}
       {...restProps}

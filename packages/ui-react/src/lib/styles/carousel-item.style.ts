@@ -6,13 +6,9 @@ import {
   defaultClassNames,
 } from '../utils';
 
-export const carouselItemConfig: ClassNameComponent<CarouselItemInterface> = ({
-  width,
-}) => {
+export const carouselItemConfig: ClassNameComponent<CarouselItemInterface> = () => {
   return {
     carouselItem: classNames('rounded-[28px] overflow-hidden flex-none', {
-      hidden: width === undefined,
-      'flex-1': width == null,
     }),
   };
 };

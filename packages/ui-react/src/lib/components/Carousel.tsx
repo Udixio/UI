@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
 import { animate } from 'motion/react';
 import { CarouselInterface, CarouselItemInterface } from '../interfaces';
 
@@ -6,10 +6,6 @@ import { useCarouselStyle } from '../styles';
 import { CustomScroll } from '../effects';
 import { ReactProps } from '../utils';
 import { CarouselItem, normalize } from './CarouselItem';
-
-function clamp(v: number, min: number, max: number) {
-  return Math.max(min, Math.min(max, v));
-}
 
 /**
  * Carousels show a collection of items that can be scrolled on and off the screen
@@ -39,10 +35,8 @@ export const Carousel = ({
   scrollSensitivity = 1.25,
   ...restProps
 }: ReactProps<CarouselInterface>) => {
-  const defaultRef = useRef(null);
+  const defaultRef = useRef<HTMLDivElement>(null);
   const ref = optionalRef || defaultRef;
-
-  const [translateX, setTranslateX] = useState(0);
 
   const styles = useCarouselStyle({
     index,
@@ -63,78 +57,64 @@ export const Carousel = ({
   );
 
   const trackRef = useRef<HTMLDivElement>(null);
-  const [itemsWidth, setItemsWidth] = useState<Record<number, number | null>>(
-    {},
-  );
-  const [scroll, setScroll] = useState<{
-    scrollProgress: number;
-    scrollTotal: number;
-    scrollVisible: number;
-    scroll: number;
-  } | null>(null);
+  
+  // OPTIMIZATION: We no longer store width and translate in React state to avoid laggy 60fps re-renders.
+  // We use refs instead.
+  const getScrollState = useRef({
+    scrollProgress: 0,
+    scrollTotal: 0,
+    scrollVisible: 0,
+    scroll: 0,
+  });
+  
   // Smoothed scroll progress using framer-motion animate()
   const smoothedProgressRef = useRef(0);
   const scrollAnimationRef = useRef<ReturnType<typeof animate> | null>(null);
 
-  const calculatePercentages = () => {
-    if (
-      !trackRef.current ||
-      !ref.current ||
-      scroll?.scrollProgress === undefined
-    )
-      return [];
+  const itemRefs = useRef<React.RefObject<HTMLDivElement | null>[]>([]).current;
+  const [selectedItem, setSelectedItem] = useState(0);
 
-    const scrollVisible =
-      scroll?.scrollVisible ?? (ref.current as any)?.clientWidth ?? 0;
+  if (itemRefs.length !== items.length) {
+    itemRefs.length = 0; // reset
+    items.forEach((_, i) => {
+      itemRefs[i] = React.createRef<HTMLDivElement>();
+    });
+  }
 
-    function assignRelativeIndexes(
-      values: number[],
-      progressScroll: number,
-    ): {
-      itemScrollXCenter: number;
-      relativeIndex: number;
-      index: number;
-      width: number;
-    }[] {
-      return values.map((value, index) => {
-        const relativeIndex =
-          (value - progressScroll) / Math.abs(values[1] - values[0]);
-        return {
-          itemScrollXCenter: value,
-          relativeIndex,
-          index: index,
-          width: 0,
-        };
+  // Pure mathematical logic - kept from original
+  const updateLayoutFromCalculations = useCallback(() => {
+    if (!trackRef.current || !ref.current) return;
+    const currentScrollProgress = smoothedProgressRef.current;
+    
+    // Need dimensions
+    const scrollVisible = getScrollState.current.scrollVisible || (ref.current as any).clientWidth || 0;
+
+    function assignRelativeIndexes(values: number[], progressScroll: number) {
+      return values.map((value, idx) => {
+        const relativeIndex = (value - progressScroll) / Math.abs(values[1] - values[0]);
+        return { itemScrollXCenter: value, relativeIndex, index: idx, width: 0 };
       });
     }
 
-    const itemsScrollXCenter = items.map((_, index) => {
-      const itemRef = itemRefs[index];
-
-      if (!itemRef.current || !trackRef.current) return 0;
-
-      const itemScrollXCenter = index / (items.length - 1);
-
+    const itemsScrollXCenter = items.map((_, idx) => {
+      // Calculate original center normalized
+      const itemScrollXCenter = idx / Math.max(1, items.length - 1);
       return normalize(itemScrollXCenter, [0, 1], [0, 1]);
     });
 
     const itemValues = assignRelativeIndexes(
       itemsScrollXCenter,
-      scroll?.scrollProgress ?? 0,
+      currentScrollProgress,
     ).sort((a, b) => a.index - b.index);
 
-    let widthLeft =
-      (ref.current?.clientWidth ?? scrollVisible) + gap + outputRange[0] + gap;
+    let widthLeft = scrollVisible + gap + outputRange[0] + gap;
 
+    let localSelected = selectedItem;
     const visibleItemValues = itemValues
       .sort((a, b) => Math.abs(a.relativeIndex) - Math.abs(b.relativeIndex))
-      .map((item, index) => {
-        if (widthLeft <= 0) {
-          return undefined;
-        }
-        if (index == 0) {
-          setSelectedItem(item.index);
-        }
+      .map((item, idx) => {
+        if (widthLeft <= 0) return undefined;
+        if (idx === 0) localSelected = item.index;
 
         item.width = normalize(
           widthLeft - gap,
@@ -144,48 +124,30 @@ export const Carousel = ({
 
         widthLeft -= item.width + gap;
 
-        if (widthLeft != 0 && widthLeft < (outputRange[0] + gap) * 2) {
-          const newWidth =
-            item.width - ((outputRange[0] + gap) * 2 - widthLeft);
-
+        if (widthLeft !== 0 && widthLeft < (outputRange[0] + gap) * 2) {
+          const newWidth = item.width - ((outputRange[0] + gap) * 2 - widthLeft);
           widthLeft += item.width;
           item.width = newWidth;
           widthLeft -= item.width;
-        } else if (widthLeft == 0 && item.width >= outputRange[0] * 2 + gap) {
+        } else if (widthLeft === 0 && item.width >= outputRange[0] * 2 + gap) {
           const newWidth = item.width - (outputRange[0] + gap - widthLeft);
-
           widthLeft += item.width;
           item.width = newWidth;
           widthLeft -= item.width;
         }
         return item;
       })
-      .filter(Boolean) as unknown as {
-      itemScrollXCenter: number;
-      relativeIndex: number;
-      index: number;
-      width: number;
-    }[];
+      .filter(Boolean) as { itemScrollXCenter: number; relativeIndex: number; index: number; width: number; }[];
 
-    const reverseItemsVisible = visibleItemValues.reverse();
-    const itemsVisibleByIndex = [...visibleItemValues].sort(
-      (a, b) => Math.abs(a.index) - Math.abs(b.index),
-    );
+    const reverseItemsVisible = [...visibleItemValues].reverse();
+    const itemsVisibleByIndex = [...visibleItemValues].sort((a, b) => Math.abs(a.index) - Math.abs(b.index));
 
-    //dynamic items
-
-    reverseItemsVisible.forEach((item, index) => {
-      const nextItem = reverseItemsVisible[index + 1];
+    reverseItemsVisible.forEach((item, idx) => {
+      const nextItem = reverseItemsVisible[idx + 1];
       if (!nextItem) return;
 
-      const test =
-        1 - (Math.abs(item.relativeIndex) - Math.abs(nextItem?.relativeIndex));
-
-      const newWidth = normalize(
-        test,
-        [0, 2],
-        [item.width + widthLeft, nextItem.width],
-      );
+      const test = 1 - (Math.abs(item.relativeIndex) - Math.abs(nextItem.relativeIndex));
+      const newWidth = normalize(test, [0, 2], [item.width + widthLeft, nextItem.width]);
 
       widthLeft += item.width;
       item.width = newWidth;
@@ -195,71 +157,69 @@ export const Carousel = ({
     const percentMax = visibleItemValues.length / 2;
     const percent = normalize(
       Math.abs(itemsVisibleByIndex[0].relativeIndex),
-      [itemsVisibleByIndex[0].index == 0 ? 0 : percentMax - 1, percentMax],
+      [itemsVisibleByIndex[0].index === 0 ? 0 : percentMax - 1, percentMax],
       [0, 1],
     );
 
-    const translate =
-      normalize(percent, [0, 1], [0, 1]) * -(outputRange[0] + gap);
+    const translate = normalize(percent, [0, 1], [0, 1]) * -(outputRange[0] + gap);
 
-    setTranslateX(translate);
+    // ===================================
+    // DOM INJECTION OPTIMIZATION
+    // ===================================
+    
+    // Apply width to each visible item using DOM instead of setItemWidths React state
+    // First, fallback everything to outputRange[0] (or hide them)
+    itemRefs.forEach((refItem, i) => {
+      if (refItem.current) {
+        const match = visibleItemValues.find(v => v.index === i);
+        if (match) {
+           refItem.current.style.setProperty('--carousel-item-width', `${match.width}px`);
+           refItem.current.style.display = 'block';
+        } else {
+           refItem.current.style.setProperty('--carousel-item-width', `${outputRange[0]}px`);
+           refItem.current.style.display = 'none';
+        }
+      }
+    });
 
-    return Object.fromEntries(
-      visibleItemValues.map((item) => [item.index, item.width]),
-    );
-  };
-  const itemRefs = useRef<React.RefObject<HTMLDivElement | null>[]>([]).current;
-  const [selectedItem, setSelectedItem] = useState(0);
+    // Apply track translate directly via DOM
+    trackRef.current.style.transform = `translateX(${translate}px)`;
+
+    if (localSelected !== selectedItem) {
+      setSelectedItem(localSelected);
+    }
+  }, [items.length, outputRange, gap, selectedItem]);
+
+  useLayoutEffect(() => {
+    updateLayoutFromCalculations();
+  }, [updateLayoutFromCalculations, items.length]);
+
 
   useEffect(() => {
     if (onChange) onChange(selectedItem);
-  }, [selectedItem]);
-
-  // Sync controlled index prop to internal state/position
-  useEffect(() => {
-    if (
-      typeof index === 'number' &&
-      items.length > 0 &&
-      index !== selectedItem
-    ) {
-      centerOnIndex(index);
-    }
-  }, [index, items.length]);
-
-  // keep focused index aligned with selected when selection changes through scroll
-  useEffect(() => {
-    setFocusedIndex(selectedItem);
-  }, [selectedItem]);
-
-  if (itemRefs.length !== items.length) {
-    items.forEach((_, i) => {
-      if (!itemRefs[i]) {
-        itemRefs[i] = React.createRef<HTMLDivElement>(); // Crée une nouvelle ref si manquante
-      }
-    });
-  }
+  }, [selectedItem, onChange]);
 
   // accessibility and interaction states
   const [focusedIndex, setFocusedIndex] = useState(0);
 
-  const centerOnIndex = (index: number, opts: { animate?: boolean } = {}) => {
-    // Guard: need valid refs and at least one item
+  useEffect(() => {
+    setFocusedIndex(selectedItem);
+  }, [selectedItem]);
+
+
+  const centerOnIndex = (idx: number, opts: { animate?: boolean } = {}) => {
     if (!items.length) return 0;
-    const itemRef = itemRefs[index];
+    const itemRef = itemRefs[idx];
     if (!itemRef || !itemRef.current || !trackRef.current) return 0;
 
-    // Compute progress (0..1) for the target item center within the track
     const itemScrollXCenter = normalize(
-      index / Math.max(1, items.length - 1),
+      idx / Math.max(1, items.length - 1),
       [0, 1],
       [0, 1],
     );
 
-    // Update selection/focus hint
-    setFocusedIndex(index);
+    setFocusedIndex(idx);
 
-    // Ask CustomScroll to move to the computed progress. This will trigger onScroll,
-    // which in turn drives the smoothed animation via handleScroll().
     const track = trackRef.current as HTMLElement;
     track.dispatchEvent(
       new CustomEvent('udx:customScroll:set', {
@@ -275,32 +235,11 @@ export const Carousel = ({
     return itemScrollXCenter;
   };
 
-  const renderItems = items.map((child, index) => {
-    const existingOnClick = (child as any).props?.onClick as
-      | ((e: any) => void)
-      | undefined;
-    const handleClick = (e: any) => {
-      existingOnClick?.(e);
-      // centerOnIndex(index);
-    };
-    const handleFocus = () => setFocusedIndex(index);
-
-    return React.cloneElement(
-      child as React.ReactElement<ReactProps<CarouselItemInterface>>,
-      {
-        width: itemsWidth[index],
-        outputRange,
-        ref: itemRefs[index],
-        key: index,
-        index,
-        role: 'option',
-        'aria-selected': selectedItem === index,
-        tabIndex: selectedItem === index ? 0 : -1,
-        onClick: handleClick,
-        onFocus: handleFocus,
-      } as any,
-    );
-  });
+  useEffect(() => {
+    if (typeof index === 'number' && items.length > 0 && index !== selectedItem) {
+      centerOnIndex(index);
+    }
+  }, [index, items.length]);
 
   const handleScroll = (args: {
     scrollProgress: number;
@@ -308,15 +247,14 @@ export const Carousel = ({
     scrollVisible: number;
     scroll: number;
   }) => {
+    getScrollState.current = args;
+
     if (args.scrollTotal > 0) {
-      // Smooth and inertial transition of scrollProgress using framer-motion animate()
-      // Stop any previous animation to avoid stacking
       scrollAnimationRef.current?.stop();
       const from = smoothedProgressRef.current ?? 0;
       const to = args.scrollProgress ?? 0;
 
       scrollAnimationRef.current = animate(from, to, {
-        // Spring tuning to add a bit of inertia and smoothness
         type: 'spring',
         stiffness: 260,
         damping: 32,
@@ -324,16 +262,13 @@ export const Carousel = ({
         restDelta: 0.0005,
         onUpdate: (v) => {
           smoothedProgressRef.current = v;
-          setScroll({ ...args, scrollProgress: v });
+          requestAnimationFrame(() => {
+              updateLayoutFromCalculations(); // Apply DOM updates synchronously to animation
+          });
         },
       });
     }
   };
-
-  useEffect(() => {
-    const updatedPercentages = calculatePercentages();
-    setItemsWidth(updatedPercentages);
-  }, [scroll]);
 
   // Keep latest onMetricsChange in a ref to avoid effect dependency loops
   const onMetricsChangeRef = useRef(onMetricsChange);
@@ -341,29 +276,19 @@ export const Carousel = ({
     onMetricsChangeRef.current = onMetricsChange;
   }, [onMetricsChange]);
 
-  // Cache last emitted metrics to prevent redundant calls
   const lastMetricsRef = useRef<any>(null);
 
-  // Compute and emit live metrics for external control
   useEffect(() => {
     const cb = onMetricsChangeRef.current;
-    if (!cb) return;
-    if (!ref?.current) return;
+    if (!cb || !ref?.current || items.length <= 0) return;
     const total = items.length;
-    if (total <= 0) return;
-    const viewportWidth = (ref.current as any)?.clientWidth ?? 0;
+    const viewportWidth = (ref.current as any).clientWidth || 0;
     const itemMaxWidth = outputRange[1];
-    const sProgress =
-      smoothedProgressRef.current ?? scroll?.scrollProgress ?? 0;
+    const sProgress = smoothedProgressRef.current;
     const visibleApprox = (viewportWidth + gap) / (itemMaxWidth + gap);
     const visibleFull = Math.max(1, Math.floor(visibleApprox));
     const stepHalf = Math.max(1, Math.round(visibleFull * (2 / 3)));
-    const selectedIndexSafe = Math.min(
-      Math.max(0, selectedItem),
-      Math.max(0, total - 1),
-    );
-    const canPrev = selectedIndexSafe > 0;
-    const canNext = selectedIndexSafe < total - 1;
+    const selectedIndexSafe = Math.min(Math.max(0, selectedItem), Math.max(0, total - 1));
 
     const metrics = {
       total,
@@ -371,20 +296,19 @@ export const Carousel = ({
       visibleApprox,
       visibleFull,
       stepHalf,
-      canPrev,
-      canNext,
+      canPrev: selectedIndexSafe > 0,
+      canNext: selectedIndexSafe < total - 1,
       scrollProgress: sProgress,
       viewportWidth,
       itemMaxWidth,
       gap,
-    } as any;
+    };
 
-    // Shallow compare with last metrics to avoid spamming parent and loops
     const last = lastMetricsRef.current;
     let changed = !last;
     if (!changed) {
       for (const k in metrics) {
-        if (metrics[k] !== last[k]) {
+        if ((metrics as any)[k] !== last[k]) {
           changed = true;
           break;
         }
@@ -395,34 +319,8 @@ export const Carousel = ({
       lastMetricsRef.current = metrics;
       cb(metrics);
     }
-  }, [ref, items.length, selectedItem, scroll, gap, outputRange]);
+  }, [ref, items.length, selectedItem, gap, outputRange]);
 
-  // // Recalculate on scrollMV changes (e.g., programmatic animations)
-  // useEffect(() => {
-  //   const unsubscribe = scrollMV.on('change', (p) => {
-  //     // Keep CustomScroll container in sync by dispatching a bubbling control event
-  //     const track = trackRef.current as HTMLElement | null;
-  //     if (track) {
-  //       track.dispatchEvent(
-  //         new CustomEvent('udx:customScroll:set', {
-  //           bubbles: true,
-  //           detail: { progress: p, orientation: 'horizontal' },
-  //         }),
-  //       );
-  //     }
-  //     const updated = calculatePercentages();
-  //     if (updated.length) setItemsWidth(updated);
-  //   });
-  //   return () => unsubscribe();
-  // }, [scrollMV, trackRef]);
-
-  // Initial compute on mount and when items count changes
-  // useLayoutEffect(() => {
-  //   const updated = calculatePercentages();
-  //   if (updated.length) setItemsWidth(updated);
-  // }, [items.length]);
-
-  // Cleanup any pending animation on unmount
   useEffect(() => {
     return () => {
       scrollAnimationRef.current?.stop();
@@ -432,40 +330,14 @@ export const Carousel = ({
   const [scrollSize, setScrollSize] = useState(0);
   useLayoutEffect(() => {
     let maxWidth = outputRange[1];
-    if (scroll && maxWidth > scroll.scrollVisible) {
-      maxWidth = scroll.scrollVisible;
+    const scrollState = getScrollState.current;
+    if (scrollState && maxWidth > scrollState.scrollVisible && scrollState.scrollVisible > 0) {
+      maxWidth = scrollState.scrollVisible;
     }
-    const result = ((maxWidth + gap) * renderItems.length) / scrollSensitivity;
-    setScrollSize(result);
-  }, [ref, itemRefs, scroll]);
+    const result = ((maxWidth + gap) * items.length) / scrollSensitivity;
+    setScrollSize(result || 400); // Fail-safe
+  }, [ref, items.length, gap, outputRange, scrollSensitivity]);
 
-  // Recompute sizes on container/track resize
-  // useEffect(() => {
-  //   const root = ref.current as unknown as HTMLElement | null;
-  //   const track = trackRef.current as unknown as HTMLElement | null;
-  //   if (!root || !track) return;
-  //   const ro = new ResizeObserver(() => {
-  //     const updated = calculatePercentages();
-  //     if (updated.length) setItemsWidth(updated);
-  //     let maxWidth = outputRange[1];
-  //     const visible = scroll?.scrollVisible ?? root.clientWidth;
-  //     if (maxWidth > visible) maxWidth = visible;
-  //     const result =
-  //       ((maxWidth + gap) * renderItems.length) / scrollSensitivity;
-  //     setScrollSize(result);
-  //   });
-  //   ro.observe(root);
-  //   ro.observe(track);
-  //   return () => ro.disconnect();
-  // }, [
-  //   ref,
-  //   trackRef,
-  //   renderItems.length,
-  //   gap,
-  //   outputRange,
-  //   scrollSensitivity,
-  //   scroll,
-  // ]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (!items.length) return;
@@ -488,33 +360,51 @@ export const Carousel = ({
         centerOnIndex(items.length - 1);
         break;
       case 'Enter':
-      case ' ': // Space
+      case ' ':
         e.preventDefault();
         centerOnIndex(idx);
         break;
     }
   };
 
-  // External control via CustomEvent on root element
   useEffect(() => {
     const root = ref.current as any;
     if (!root) return;
     const handler = (ev: Event) => {
-      const detail = (ev as CustomEvent).detail as
-        | { index?: number }
-        | undefined;
+      const detail = (ev as CustomEvent).detail;
       if (detail && typeof detail.index === 'number') {
         centerOnIndex(detail.index);
       }
     };
-    root.addEventListener('udx:carousel:centerIndex', handler as EventListener);
+    root.addEventListener('udx:carousel:centerIndex', handler);
     return () => {
-      root.removeEventListener(
-        'udx:carousel:centerIndex',
-        handler as EventListener,
-      );
+      root.removeEventListener('udx:carousel:centerIndex', handler);
     };
   }, [ref, items.length]);
+
+  const renderItems = items.map((child, idx) => {
+    const existingOnClick = (child as any).props?.onClick;
+    const handleClick = (e: any) => {
+      existingOnClick?.(e);
+      // centerOnIndex(idx);
+    };
+
+    return React.cloneElement(
+      child as React.ReactElement<ReactProps<CarouselItemInterface>>,
+      {
+        outputRange,
+        ref: itemRefs[idx],
+        key: idx,
+        index: idx,
+        role: 'option',
+        'aria-selected': selectedItem === idx,
+        tabIndex: selectedItem === idx ? 0 : -1,
+        onClick: handleClick,
+        onFocus: () => setFocusedIndex(idx),
+        // NOTE: We REMOVED the 'width' prop from here!
+      } as any,
+    );
+  });
 
   return (
     <div
@@ -536,8 +426,7 @@ export const Carousel = ({
           ref={trackRef}
           style={{
             gap: `${gap}px`,
-            translate: translateX,
-            willChange: 'translate',
+            willChange: 'transform',
           }}
         >
           {renderItems}
