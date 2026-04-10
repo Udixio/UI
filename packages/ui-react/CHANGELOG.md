@@ -1,3 +1,13 @@
+## 2.10.16 (2026-04-09)
+
+### 🚀 Features
+
+- **ui-react:** add theme worker export and refine worker message cloning ([d856270](https://github.com/Udixio/UI/commit/d856270))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.10.15 (2026-04-09)
 
 This was a version bump only for @udixio/ui-react to align it with other projects, there were no code changes.
