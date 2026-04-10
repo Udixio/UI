@@ -20,6 +20,14 @@ export abstract class PluginAbstract<
     this.options = options;
   }
 
+  public toSerializable(): Options {
+    return JSON.parse(
+      JSON.stringify(this.options, (_key, value) =>
+        typeof value === 'function' ? undefined : value,
+      ),
+    ) as Options;
+  }
+
   public init(api: API) {
     this.pluginInstance = new this.pluginClass(api, this.options);
     this.pluginInstance.onInit?.();

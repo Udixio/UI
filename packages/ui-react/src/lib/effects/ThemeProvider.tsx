@@ -149,25 +149,11 @@ export const ThemeProvider = ({
 
     // Offload au Worker
     const id = ++generationRef.current;
-    const rawTailwind = api.plugins.getPlugin(TailwindPlugin).options;
-    const rawFont = api.plugins.getPlugin(FontPlugin).options;
     worker.postMessage({
       id,
       snapshot: serializeThemeContext(api),
-      // Ne passer que les champs primitifs : TailwindPlugin.options stocke le ConfigInterface
-      // complet (palettes inclus) qui peut contenir des fonctions non-clonables.
-      tailwindOptions: {
-        darkMode: rawTailwind.darkMode,
-        dynamicSelector: rawTailwind.dynamicSelector,
-        darkSelector: rawTailwind.darkSelector,
-        responsiveBreakPoints: rawTailwind.responsiveBreakPoints,
-        styleFilePath: rawTailwind.styleFilePath,
-        subThemes: rawTailwind.subThemes,
-      },
-      fontOptions: {
-        fontFamily: rawFont.fontFamily,
-        fontStyles: rawFont.fontStyles,
-      },
+      tailwindOptions: api.plugins.getPlugin(TailwindPlugin).toSerializable(),
+      fontOptions: api.plugins.getPlugin(FontPlugin).toSerializable(),
     } satisfies WorkerInboundMessage);
   };
 
