@@ -1,3 +1,13 @@
+## 2.1.20 (2026-04-10)
+
+### 🚀 Features
+
+- **theme:** enhance theme configuration and improve plugin serialization ([789ad63](https://github.com/Udixio/UI/commit/789ad63))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.1.19 (2026-04-09)
 
 ### 🚀 Features

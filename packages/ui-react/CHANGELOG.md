@@ -1,3 +1,18 @@
+## 2.10.17 (2026-04-10)
+
+### 🚀 Features
+
+- **theme:** enhance theme configuration and improve plugin serialization ([789ad63](https://github.com/Udixio/UI/commit/789ad63))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.20
+- Updated @udixio/theme to 2.1.20
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.10.16 (2026-04-09)
 
 ### 🚀 Features
