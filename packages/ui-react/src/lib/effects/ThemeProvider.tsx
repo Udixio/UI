@@ -23,14 +23,19 @@ export const ThemeProvider = ({
   throttleDelay = 100,
   onLoad,
   loadTheme = false,
+  initialCss,
 }: {
   config: Readonly<ConfigInterface>;
   onLoad?: (api: API) => void;
   throttleDelay?: number;
   loadTheme?: boolean;
+  /** Pre-generated CSS from the server (e.g. via `generateThemeCss`).
+   *  When provided, the component renders immediately without waiting for the
+   *  Worker — eliminates FOUC on SSR pages with dynamic themes. */
+  initialCss?: string;
 }) => {
   const [themeApi, setThemeApi] = useState<API | null>(null);
-  const [outputCss, setOutputCss] = useState<string | null>(null);
+  const [outputCss, setOutputCss] = useState<string | null>(initialCss ?? null);
 
   const workerRef = useRef<Worker | null>(null);
   const generationRef = useRef(0);
