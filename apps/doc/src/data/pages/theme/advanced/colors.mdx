@@ -1,0 +1,172 @@
+---
+title: Colors API
+description: api.colors.get(), AddColorsOptions, FromPaletteOptions, contrastCurve, toneDeltaPair — custom semantic tokens.
+---
+
+# Colors API
+
+`ColorApi` resolves semantic color tokens — the named values like `primary`, `surface`, `onPrimary` — from palette tones. Each token is a `Color` instance that computes its HCT value at read time, respecting the current contrast level and dark mode.
+
+## `api.colors.get(key)`
+
+Returns the `Color` instance for a semantic token. Available after the first `api.load()`.
+
+```ts
+const primary = api.colors.get('primary');
+
+console.log(primary.getTone());  // e.g. 40 (light) or 80 (dark)
+console.log(primary.getHex());   // e.g. "#6750A4"
+
+const hct = primary.getHct();
+console.log(hct.hue, hct.chroma, hct.tone);
+```
+
+### `Color` methods
+
+| Method | Return | Description |
+|--------|--------|-------------|
+| `getHct()` | `Hct` | Full HCT value |
+| `getHex()` | `string` | CSS hex string (`#rrggbb`) |
+| `getArgb()` | `number` | ARGB integer |
+| `getRgb()` | `{ r, g, b }` | RGB components |
+| `getTone()` | `number` | Perceptual tone (0–100) |
+
+## `api.colors.getAll()`
+
+Returns a read-only map of all registered color tokens:
+
+```ts
+const all = api.colors.getAll();
+for (const [key, color] of Object.entries(all)) {
+  console.log(key, color.getHex());
+}
+```
+
+## Adding custom tokens
+
+### Via `AddColorsOptions`
+
+```ts
+type AddColorsOptions =
+  | Record<string, ColorOptions>
+  | ((api: API) => Record<string, ColorOptions>);
+```
+
+Pass to `loader()` via the `colors` key, or call `api.colors.addColors()` directly.
+
+### Simple hex token
+
+```ts
+api.colors.addColors({
+  brandOrange: { hex: '#FF5722' },
+});
+```
+
+This creates a static color — it does not adapt to dark mode or contrast level.
+
+### Alias token
+
+```ts
+api.colors.addColors({
+  ctaBackground: { alias: 'primary' },
+});
+```
+
+`ctaBackground` mirrors whatever `primary` resolves to.
+
+### Dynamic token from palette
+
+`FromPaletteOptions` is the full form — the token adapts to dark mode, contrast level, and tone delta constraints:
+
+```ts
+api.colors.addColors(({ palettes, colors }) => ({
+  highlight: {
+    palette: () => palettes.get('primary'),
+    tone: () => 70,                         // fixed tone
+    isBackground: true,
+    background: () => colors.get('surface'),
+    contrastCurve: () => getCurve(3),       // min 3:1 contrast ratio
+  },
+  onHighlight: {
+    palette: () => palettes.get('primary'),
+    background: () => colors.get('highlight'),
+    contrastCurve: () => getCurve(4.5),     // min 4.5:1 contrast ratio
+  },
+}));
+```
+
+### `FromPaletteOptions` reference
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `palette` | `() => Palette` | Source palette for hue+chroma |
+| `tone` | `() => number` | Base tone (0–100). Defaults to background tone or 50 |
+| `isBackground` | `boolean` | Whether this token is a background (affects clamping) |
+| `background` | `() => Color \| undefined` | The background this token sits on |
+| `secondBackground` | `() => Color \| undefined` | Second background (for dual-background contrast) |
+| `contrastCurve` | `() => ContrastCurve \| undefined` | Required when `background` is set |
+| `adjustTone` | `() => AdjustTone \| undefined` | Tone delta constraint relative to another token |
+| `chromaMultiplier` | `() => number \| undefined` | Multiplies palette chroma. Default `1` |
+
+### `getCurve(ratio)`
+
+Constructs a `ContrastCurve` targeting the given minimum contrast ratio at normal contrast level (`contrastLevel = 0`):
+
+```ts
+import { getCurve } from '@udixio/theme';
+
+getCurve(3);    // 3:1 minimum (AA large text)
+getCurve(4.5);  // 4.5:1 minimum (AA normal text)
+getCurve(7);    // 7:1 minimum (AAA)
+```
+
+### `toneDeltaPair`
+
+Constrains two tokens to maintain a minimum tone distance — used when tokens must remain visually distinct regardless of contrast level:
+
+```ts
+import { toneDeltaPair } from '@udixio/theme';
+
+adjustTone: () =>
+  toneDeltaPair(
+    colors.get('surfaceContainer'),
+    colors.get('surface'),
+    5,               // minimum tone delta
+    'relative_lighter',
+    true,
+    'farther',
+  ),
+```
+
+## Example: custom `highlight` token pair
+
+```ts
+import { loader } from '@udixio/theme';
+import { getCurve } from '@udixio/theme';
+import { TailwindPlugin } from '@udixio/tailwind';
+import { FontPlugin } from '@udixio/ui-react';
+
+const api = await loader({
+  sourceColor: '#6750A4',
+  colors: ({ palettes, colors }) => ({
+    highlight: {
+      palette: () => palettes.get('tertiary'),
+      tone: () => 70,
+      isBackground: true,
+      background: () => colors.get('surface'),
+      contrastCurve: () => getCurve(3),
+    },
+    onHighlight: {
+      palette: () => palettes.get('tertiary'),
+      background: () => colors.get('highlight'),
+      contrastCurve: () => getCurve(4.5),
+    },
+  }),
+  plugins: [new FontPlugin(), new TailwindPlugin()],
+});
+
+// TailwindPlugin generates:
+// --color-highlight: …
+// --color-on-highlight: …
+// .bg-highlight, .text-on-highlight, etc.
+```

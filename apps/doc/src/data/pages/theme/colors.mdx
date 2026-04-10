@@ -1,0 +1,163 @@
+---
+title: Color tokens
+description: Reference for generated semantic tokens — surfaces, primary, secondary, tertiary, error.
+---
+
+# Color tokens
+
+The system generates semantic tokens from palettes. Each token has a tone optimized for the configured light/dark mode and contrast level.
+
+## Usage in Tailwind CSS
+
+Tokens are exposed as CSS variables and Tailwind utility classes:
+
+```html
+<!-- Surface background -->
+<div class="bg-surface text-on-surface">...</div>
+
+<!-- Primary button -->
+<button class="bg-primary text-on-primary">Action</button>
+
+<!-- Secondary container -->
+<div class="bg-secondary-container text-on-secondary-container">...</div>
+```
+
+## Token reference
+
+### Surfaces
+
+Surfaces form the layers of the interface. They range from darkest (`surfaceContainerLowest`) to lightest (`surfaceContainerHighest`) in light mode, and inversely in dark mode.
+
+| Token | Tailwind class | Usage |
+|-------|----------------|-------|
+| `surface` | `bg-surface` | Main background |
+| `surfaceDim` | `bg-surface-dim` | Slightly dimmed surface |
+| `surfaceBright` | `bg-surface-bright` | Slightly brightened surface |
+| `surfaceContainerLowest` | `bg-surface-container-lowest` | Layer 0 (lowest) |
+| `surfaceContainerLow` | `bg-surface-container-low` | Layer 1 |
+| `surfaceContainer` | `bg-surface-container` | Layer 2 (cards, dialogs) |
+| `surfaceContainerHigh` | `bg-surface-container-high` | Layer 3 |
+| `surfaceContainerHighest` | `bg-surface-container-highest` | Layer 4 (highest) |
+| `onSurface` | `text-on-surface` | Primary text on surface |
+| `onSurfaceVariant` | `text-on-surface-variant` | Secondary text on surface |
+| `outline` | `border-outline` | Visible borders |
+| `outlineVariant` | `border-outline-variant` | Subtle dividers |
+| `inverseSurface` | `bg-inverse-surface` | Inverted surface (snackbar, tooltip) |
+| `inverseOnSurface` | `text-inverse-on-surface` | Text on inverted surface |
+
+### Primary
+
+| Token | Tailwind class | Usage |
+|-------|----------------|-------|
+| `primary` | `bg-primary` | Main actions, CTAs |
+| `onPrimary` | `text-on-primary` | Text on `primary` |
+| `primaryContainer` | `bg-primary-container` | Soft colored areas |
+| `onPrimaryContainer` | `text-on-primary-container` | Text on `primaryContainer` |
+| `inversePrimary` | `text-inverse-primary` | Link on inverted surface |
+
+### Secondary
+
+| Token | Tailwind class | Usage |
+|-------|----------------|-------|
+| `secondary` | `bg-secondary` | Secondary accents |
+| `onSecondary` | `text-on-secondary` | Text on `secondary` |
+| `secondaryContainer` | `bg-secondary-container` | Chips, badges |
+| `onSecondaryContainer` | `text-on-secondary-container` | Text on `secondaryContainer` |
+
+### Tertiary
+
+| Token | Tailwind class | Usage |
+|-------|----------------|-------|
+| `tertiary` | `bg-tertiary` | Additional accents |
+| `onTertiary` | `text-on-tertiary` | Text on `tertiary` |
+| `tertiaryContainer` | `bg-tertiary-container` | Soft tertiary areas |
+| `onTertiaryContainer` | `text-on-tertiary-container` | Text on `tertiaryContainer` |
+
+### Error
+
+| Token | Tailwind class | Usage |
+|-------|----------------|-------|
+| `error` | `bg-error` | Error state |
+| `onError` | `text-on-error` | Text on error |
+| `errorContainer` | `bg-error-container` | Soft error area |
+| `onErrorContainer` | `text-on-error-container` | Text on `errorContainer` |
+
+### Aliases
+
+These tokens are aliases for Material Design compatibility:
+
+| Alias | Points to |
+|-------|-----------|
+| `background` | `surface` |
+| `onBackground` | `onSurface` |
+| `surfaceVariant` | `surfaceContainerHighest` |
+| `surfaceTint` | `primary` |
+
+## Raw CSS variables
+
+Variables are generated as `--color-{token}` with camelCase converted to kebab-case:
+
+```css
+:root {
+  --color-primary: #6750A4;
+  --color-on-primary: #FFFFFF;
+  --color-primary-container: #EADDFF;
+  --color-surface: #FEF7FF;
+  /* … */
+}
+
+.dark {
+  --color-primary: #D0BCFF;
+  --color-on-primary: #381E72;
+  /* … */
+}
+```
+
+## Custom color tokens (Udixio variant)
+
+With `variant: Variants.Udixio` and custom palettes, these tokens are generated for each `{name}` palette:
+
+```css
+--color-{name}
+--color-on-{name}
+--color-{name}-container
+--color-on-{name}-container
+```
+
+```html
+<!-- Example with "brand" palette -->
+<div class="bg-brand text-on-brand">...</div>
+<div class="bg-brand-container text-on-brand-container">...</div>
+```
+
+## Adding custom tokens
+
+The `colors` option in `ConfigInterface` lets you define additional tokens:
+
+```ts
+import type { AddColorsOptions } from '@udixio/theme';
+
+const colors: AddColorsOptions = ({ palettes, colors, context }) => ({
+  highlight: {
+    palette: () => palettes.get('tertiary'),
+    tone: () => context.isDark ? 70 : 40,
+    isBackground: true,
+  },
+  onHighlight: {
+    palette: () => palettes.get('tertiary'),
+    background: () => colors.get('highlight'),
+    contrastCurve: () => getCurve(4.5),
+  },
+});
+```
+
+## Reading tokens from the API
+
+```ts
+const api = await loader(config);
+await api.load();
+
+const primary = api.colors.get('primary');
+console.log(primary.getTone());   // e.g. 40 in light mode
+console.log(primary.toHex());     // e.g. "#6750A4"
+```

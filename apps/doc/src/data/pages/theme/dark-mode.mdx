@@ -1,0 +1,153 @@
+---
+title: Dark mode
+description: Dark mode strategies, the .dynamic selector mechanism, and runtime toggling in React.
+---
+
+# Dark mode
+
+## How it works
+
+`ThemeProvider` generates two CSS layers. The static `@theme` layer is used by Tailwind at build time. The dynamic `@layer theme` layer is what actually changes at runtime:
+
+```css
+/* Static — Tailwind build-time values */
+@theme {
+  --color-primary: #6750A4;
+  --color-surface: #FFFBFE;
+}
+
+/* Dynamic — injected by ThemeProvider, scoped to .dynamic */
+@layer theme {
+  .dynamic {
+    --color-primary: #6750A4;   /* light */
+    --color-surface: #FFFBFE;
+  }
+}
+
+@layer theme {
+  /* Generated for darkMode: 'class', darkSelector: '.dark' */
+  .dark .dynamic, .dark.dynamic {
+    --color-primary: #D0BCFF;   /* dark */
+    --color-surface: #1C1B1F;
+  }
+}
+```
+
+Every element inside `.dynamic` inherits whichever set of variables is active. Switching dark mode is as simple as adding or removing a class — no JavaScript theme recalculation required.
+
+## Configuration
+
+### `darkMode: 'class'` (default)
+
+Dark mode activates when a CSS class is present on an ancestor element.
+
+```ts
+defineConfig({
+  sourceColor: '#6750A4',
+  darkMode: 'class',
+  darkSelector: '.dark',   // default value
+})
+```
+
+Add the class to `<html>` or `<body>`:
+
+```html
+<html class="dark">        <!-- dark mode on -->
+<html>                     <!-- light mode -->
+```
+
+### `darkMode: 'media'`
+
+Dark mode follows the system preference automatically — no class management needed.
+
+```ts
+defineConfig({
+  sourceColor: '#6750A4',
+  darkMode: 'media',
+})
+```
+
+```css
+/* Generated */
+@media (prefers-color-scheme: dark) {
+  .dynamic { --color-primary: #D0BCFF; }
+}
+```
+
+## Runtime toggle in React
+
+```tsx
+import { useState, useEffect } from 'react';
+import { ThemeProvider, defineConfig } from '@udixio/ui-react';
+
+const config = defineConfig({
+  sourceColor: '#6750A4',
+  darkMode: 'class',
+  darkSelector: '.dark',
+});
+
+export function App() {
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDark);
+  }, [isDark]);
+
+  return (
+    <>
+      <ThemeProvider config={config} />
+      <button onClick={() => setIsDark(d => !d)}>
+        Toggle dark mode
+      </button>
+    </>
+  );
+}
+```
+
+> `ThemeProvider` itself does not manage the dark class — it only generates CSS for both modes. You control when dark mode is active by toggling the selector class.
+
+## Passing `isDark` through config
+
+If you want `ThemeProvider` to reflect a dark state (e.g. to pass it down to `onLoad`), set it on the config:
+
+```ts
+const config = defineConfig({
+  sourceColor: '#6750A4',
+  darkMode: 'class',
+  darkSelector: '.dark',
+});
+
+// No need to set isDark on config for CSS — 
+// the CSS covers both modes regardless.
+// Use api.context.isDark in onLoad callbacks if needed.
+```
+
+## Custom `darkSelector`
+
+Any valid CSS selector works:
+
+```ts
+darkSelector: '[data-theme="dark"]'
+```
+
+```html
+<html data-theme="dark">
+```
+
+## The `.dynamic` selector
+
+`.dynamic` is the scope boundary for live theme updates. Elements outside it still receive Tailwind theme values from the static `@theme` layer — but those don't update when the user changes the source color interactively.
+
+For a standard app, put `.dynamic` on `<body>`:
+
+```html
+<body class="dynamic dark bg-surface text-on-surface">
+```
+
+For isolated theming in a specific component, apply it to that element only:
+
+```html
+<div class="dynamic theme-ocean rounded-xl p-4">
+  <!-- only this section uses the ocean theme variables -->
+</div>
+```

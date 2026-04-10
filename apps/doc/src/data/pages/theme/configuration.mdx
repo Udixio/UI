@@ -1,0 +1,168 @@
+---
+title: Configuration
+description: All defineConfig options — sourceColor, isDark, contrastLevel, variant, palettes, darkMode, subThemes, fontFamily.
+---
+
+# Configuration
+
+All options are passed as a flat object to `defineConfig`. `TailwindPlugin` and `FontPlugin` options live at the same level as the core theme options — no nesting required.
+
+```ts
+import { defineConfig } from '@udixio/ui-react';
+
+const config = defineConfig({
+  // ── Core ──────────────────────────────────────
+  sourceColor: '#6750A4',
+  contrastLevel: 0,
+  variant: Variants.Udixio,
+  palettes: {},
+
+  // ── Dark mode (TailwindPlugin) ─────────────────
+  darkMode: 'class',
+  darkSelector: '.dark',
+  dynamicSelector: '.dynamic',
+
+  // ── Sub-themes (TailwindPlugin) ────────────────
+  subThemes: {},
+
+  // ── Typography (FontPlugin) ────────────────────
+  fontFamily: { expressive: ['Roboto'], neutral: ['Roboto'] },
+  fontStyles: {},
+});
+```
+
+## Core options
+
+### `sourceColor`
+
+The single color that drives the entire palette. Accepted as a hex string, an `Hct` object, or a dynamic function:
+
+```ts
+sourceColor: '#6750A4'
+
+import { Hct } from '@udixio/theme';
+sourceColor: Hct.from(270, 36, 49)
+
+// Re-evaluated on every context change
+sourceColor: (ctx) => ctx.isDark ? '#A08EC4' : '#6750A4'
+```
+
+### `contrastLevel`
+
+Adjusts contrast globally between `−1` and `+1`.
+
+| Value | Effect |
+|-------|--------|
+| `-1` | Minimum contrast |
+| `0` | Material Design standard (default) |
+| `0.5` | Medium contrast |
+| `1` | Maximum — WCAG AAA |
+
+### `variant`
+
+Selects the palette derivation algorithm. `Variants.Udixio` is the default when using `defineConfig`.
+
+```ts
+import { Variants } from '@udixio/theme';
+variant: Variants.Udixio      // default
+variant: Variants.TonalSpot
+variant: Variants.Expressive
+variant: Variants.Neutral
+variant: Variants.Vibrant
+```
+
+See [Variants](/theme/variants) for a side-by-side comparison.
+
+### `palettes`
+
+Override standard palettes or add custom brand colors (Udixio variant only):
+
+```ts
+palettes: {
+  // Shift the primary hue
+  primary: ({ sourceColor }) => ({
+    hue: sourceColor.hue + 30,
+    chroma: sourceColor.chroma,
+  }),
+  // Add a custom brand palette — generates brand/onBrand/brandContainer/onBrandContainer
+  brand: '#FF5722',
+}
+```
+
+See [Custom palettes](/theme/palettes) for details.
+
+## Dark mode options
+
+### `darkMode`
+
+```ts
+darkMode: 'class'   // default — toggle via a CSS class
+darkMode: 'media'   // automatic via prefers-color-scheme
+```
+
+### `darkSelector`
+
+The CSS class that activates dark mode when `darkMode: 'class'` (default: `'.dark'`).
+
+```ts
+darkSelector: '.dark'     // <html class="dark"> or <body class="dark">
+darkSelector: '[data-theme="dark"]'
+```
+
+See [Dark mode](/theme/dark-mode) for runtime toggle examples.
+
+### `dynamicSelector`
+
+The CSS selector that receives the live variables (default: `'.dynamic'`). Elements without this ancestor use the static `@theme` values from build time.
+
+```ts
+dynamicSelector: '.dynamic'   // default
+dynamicSelector: '.my-app'
+```
+
+## Sub-themes
+
+### `subThemes`
+
+Define named color variants that can be applied to any element via `.theme-{name}`:
+
+```ts
+subThemes: {
+  ocean: '#006699',
+  forest: '#2E7D32',
+}
+```
+
+```html
+<section class="theme-ocean">
+  <button class="bg-primary text-on-primary">Ocean button</button>
+</section>
+```
+
+See [Sub-themes](/theme/sub-themes) for the full feature reference.
+
+## Typography options
+
+### `fontFamily`
+
+Override the two conceptual font families:
+
+```ts
+fontFamily: {
+  expressive: ['Playfair Display', 'Georgia', 'serif'],  // display, headline
+  neutral: ['Inter', 'system-ui', 'sans-serif'],          // title, label, body
+}
+```
+
+### `fontStyles`
+
+Fine-tune any role/size combination:
+
+```ts
+fontStyles: {
+  display: { large: { fontSize: 4, fontWeight: 300 } },
+  body: { large: { lineHeight: 1.75 } },
+}
+```
+
+See [Typography](/theme/typography) for the full type scale reference.

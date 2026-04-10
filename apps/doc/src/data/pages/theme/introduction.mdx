@@ -1,0 +1,105 @@
+---
+title: Theme — Introduction
+description: Set up dynamic theming in a React app with ThemeProvider and defineConfig in under 5 minutes.
+---
+
+# Theme
+
+Udixio's theme system generates a complete set of color and typography tokens from a single source color. Drop in `ThemeProvider`, call `defineConfig`, and every component on your page adapts automatically.
+
+## Installation
+
+```bash
+npm install @udixio/ui-react
+```
+
+`@udixio/ui-react` re-exports everything you need — no separate theme package required for standard usage.
+
+## Quick setup
+
+```tsx
+// theme.config.ts
+import { defineConfig } from '@udixio/ui-react';
+
+export const themeConfig = defineConfig({
+  sourceColor: '#6750A4',
+  darkMode: 'class',
+  darkSelector: '.dark',
+});
+```
+
+```tsx
+// App.tsx (or your root layout)
+import { ThemeProvider } from '@udixio/ui-react';
+import { themeConfig } from './theme.config';
+
+export default function App() {
+  return (
+    <body className="dynamic dark">
+      <ThemeProvider config={themeConfig} />
+      {/* rest of your app */}
+    </body>
+  );
+}
+```
+
+That's it. Every element inside `.dynamic` now inherits live color variables. Removing `.dark` switches to light mode.
+
+## What `ThemeProvider` does
+
+`ThemeProvider` renders a single `<style>` tag. It recalculates and reinjects that tag whenever `config` changes — the rest of the DOM is untouched.
+
+The CSS it generates has two layers:
+
+```css
+/* Static layer — used by Tailwind at build time */
+@theme {
+  --color-primary: #6750A4;
+  --color-surface: #FFFBFE;
+  /* … all tokens */
+}
+
+/* Dynamic layer — updated at runtime, scoped to .dynamic */
+@layer theme {
+  .dynamic { --color-primary: #6750A4; /* … */ }
+  .dark .dynamic { --color-primary: #D0BCFF; /* … */ }
+}
+```
+
+## What `defineConfig` does
+
+`defineConfig` from `@udixio/ui-react` is a thin wrapper that:
+- Sets `Variants.Udixio` as the default variant
+- Wires `TailwindPlugin` and `FontPlugin` automatically with the options you pass
+- Merges `TailwindPluginOptions` and `FontPluginOptions` into a **flat** config object
+
+You never instantiate plugins manually — just pass their options directly:
+
+```ts
+defineConfig({
+  sourceColor: '#6750A4',
+
+  // TailwindPlugin options — flat
+  darkMode: 'class',
+  darkSelector: '.dark',
+  subThemes: { ocean: '#006699' },
+
+  // FontPlugin options — flat
+  fontFamily: {
+    expressive: ['Playfair Display', 'serif'],
+    neutral: ['Inter', 'sans-serif'],
+  },
+})
+```
+
+## Next steps
+
+| Page | What you'll learn |
+|------|-------------------|
+| [Configuration](/theme/configuration) | All `defineConfig` options |
+| [Colors & Surfaces](/theme/colors) | Tailwind classes for color tokens |
+| [Dark mode](/theme/dark-mode) | Strategies, `.dynamic`, runtime toggle |
+| [Sub-themes](/theme/sub-themes) | Multiple color schemes on one page |
+| [Typography](/theme/typography) | `text-display-lg`, font family setup |
+| [Variants](/theme/variants) | Change the visual flavor |
+| [Custom palettes](/theme/palettes) | Add brand colors |

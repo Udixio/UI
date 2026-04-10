@@ -1,0 +1,102 @@
+---
+title: Theme variants
+description: The 5 available variants — TonalSpot, Expressive, Neutral, Vibrant, Udixio — and their visual differences.
+---
+
+# Variants
+
+A variant defines the algorithm that derives the `primary`, `secondary`, `tertiary`, `neutral`, and `error` palettes from the source color. Changing the variant dramatically shifts the feel of the theme without touching `sourceColor`.
+
+## Importing variants
+
+```ts
+import { Variants } from '@udixio/theme';
+
+// In ConfigInterface:
+variant: Variants.TonalSpot
+```
+
+## The 5 variants
+
+### `TonalSpot` (Material Design 3 default)
+
+```ts
+variant: Variants.TonalSpot
+```
+
+The reference Material Design 3 variant. Secondary and tertiary have slightly rotated hues from the source color, with moderate chroma. Neutral is heavily desaturated.
+
+**Best for**: general-purpose apps, professional interfaces.
+
+---
+
+### `Expressive`
+
+```ts
+variant: Variants.Expressive
+```
+
+More pronounced hue rotations between primary, secondary, and tertiary — up to +120° and +240°. More expressive and visually contrasted palettes.
+
+**Best for**: creative apps, marketing, landing pages.
+
+---
+
+### `Neutral`
+
+```ts
+variant: Variants.Neutral
+```
+
+Very low chroma across all palettes. The interface remains monochromatic regardless of `sourceColor`. Only primary accents have noticeable color.
+
+**Best for**: dashboards, productivity tools, typographic-first designs.
+
+---
+
+### `Vibrant`
+
+```ts
+variant: Variants.Vibrant
+```
+
+Maximum chroma on all palettes. Colors are intense and saturated. Use sparingly on surface-level backgrounds.
+
+**Best for**: games, youth apps, high-energy interfaces.
+
+---
+
+### `Udixio`
+
+```ts
+variant: Variants.Udixio
+```
+
+Udixio's in-house variant. It extends Material Design 3 with:
+
+- **Custom palettes** (`customPalettes`): every custom color added via `palettes` automatically generates `color`, `onColor`, `colorContainer`, `onColorContainer` tokens.
+- **Dynamic surfaces**: surface tones vary with contrast level and adapt to perceptual yellows.
+- **Adaptive contrast**: the contrast algorithm pushes tone toward the inverse if the minimum ratio is not met.
+
+This is the **default variant** when using `defineConfig` from `@udixio/ui-react`.
+
+**Best for**: Udixio applications and projects requiring custom brand colors.
+
+## Dynamic variant switching
+
+The variant can change at runtime — the theme fully recomputes:
+
+```tsx
+const [variant, setVariant] = useState(Variants.TonalSpot);
+
+<ThemeProvider
+  config={defineConfig({
+    sourceColor: '#6750A4',
+    variant,
+  })}
+/>
+```
+
+## Creating a custom variant
+
+Building a fully custom variant requires the lower-level `@udixio/theme` API. See [Variants API](/theme/advanced/variants) in the advanced section.

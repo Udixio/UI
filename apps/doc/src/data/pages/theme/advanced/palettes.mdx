@@ -1,0 +1,125 @@
+---
+title: Palettes API
+description: PaletteCallback, api.palettes.get(), sync(), override() — direct palette manipulation via @udixio/theme.
+---
+
+# Palettes API
+
+`PaletteApi` manages the hue+chroma palettes that semantic color tokens draw their tones from. It sits between the `Context` (which provides `sourceColor`) and `ColorApi` (which resolves tones into hex values).
+
+## `PaletteCallback`
+
+```ts
+type PaletteCallback = (context: { sourceColor: Hct }) => { hue: number; chroma: number };
+```
+
+The callback is re-evaluated on every `api.load()`. It receives the current `sourceColor` as an `Hct` object.
+
+```ts
+import { Hct } from '@udixio/theme';
+
+const callback: PaletteCallback = ({ sourceColor }) => ({
+  hue: sourceColor.hue + 30,
+  chroma: Math.min(sourceColor.chroma, 60),
+});
+```
+
+## `api.palettes.get(key)`
+
+Returns a `Palette` instance for the given key. Available after the first `api.load()`.
+
+```ts
+const api = await loader(config);
+
+const primary = api.palettes.get('primary');
+console.log(primary.hue);    // e.g. 270.4
+console.log(primary.chroma); // e.g. 36.0
+
+// Compute a specific tone (returns ARGB integer)
+const argb = primary.tone(50);
+```
+
+Standard keys: `'primary'`, `'secondary'`, `'tertiary'`, `'neutral'`, `'neutralVariant'`, `'error'`.
+
+Custom palette keys are accessible too, if you added them via `palettes` in config.
+
+## `api.palettes.getAll()`
+
+Returns a read-only map of all current palettes:
+
+```ts
+const palettes = api.palettes.getAll();
+for (const [key, palette] of Object.entries(palettes)) {
+  console.log(key, palette.hue, palette.chroma);
+}
+```
+
+## `api.palettes.override(args)`
+
+Overrides specific palettes without removing others. Existing palettes not included in `args` stay unchanged.
+
+```ts
+api.palettes.override({
+  primary: ({ sourceColor }) => ({ hue: sourceColor.hue, chroma: 80 }),
+});
+await api.load();
+```
+
+Hex strings are accepted as shorthand:
+
+```ts
+api.palettes.override({ primary: '#FF5722' });
+```
+
+## `api.palettes.sync(args)`
+
+Replaces the entire palette set atomically — palettes not present in `args` are removed:
+
+```ts
+api.palettes.sync({
+  primary: () => ({ hue: 270, chroma: 40 }),
+  brand:   () => ({ hue: 15,  chroma: 80 }),
+});
+await api.load();
+```
+
+Use `sync()` when you want the final palette set to match `args` exactly — equivalent to a full replace.
+
+## `api.palettes.add(args)`
+
+Adds custom palettes without touching existing ones. Used internally when `customPalettes` keys are present in config:
+
+```ts
+api.palettes.add({
+  highlight: '#FFAB40',
+});
+```
+
+## `api.palettes.getSerializableState()`
+
+Returns a plain `Record<string, { hue, chroma }>` safe for `JSON.stringify` or `postMessage`:
+
+```ts
+const state = api.palettes.getSerializableState();
+worker.postMessage({ palettes: state });
+```
+
+## Example: palette inspection build script
+
+```ts
+import { loader } from '@udixio/theme/node';
+import { Variants } from '@udixio/theme';
+
+const api = await loader({
+  sourceColor: '#6750A4',
+  variant: Variants.Udixio,
+});
+
+const all = api.palettes.getAll();
+for (const [key, palette] of Object.entries(all)) {
+  console.log(`${key}: hue=${palette.hue.toFixed(1)}°, chroma=${palette.chroma.toFixed(1)}`);
+}
+// primary: hue=270.4°, chroma=36.0
+// secondary: hue=270.4°, chroma=16.0
+// …
+```

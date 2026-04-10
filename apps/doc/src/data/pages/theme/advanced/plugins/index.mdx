@@ -1,0 +1,106 @@
+---
+title: Plugin system
+description: Plugin architecture — PluginAbstract, PluginImplAbstract, lifecycle, creating custom plugins.
+---
+
+# Plugin system
+
+Plugins transform computed tokens into concrete outputs (CSS, JSON, etc.). They are initialized once and updated on every theme change. Two plugins are included by default: [TailwindPlugin](/theme/advanced/plugins/tailwind) and [FontPlugin](/theme/advanced/plugins/font).
+
+## Architecture
+
+Each plugin is a pair of classes:
+
+- **`PluginAbstract`** — configuration and lifecycle, instantiated by the consumer
+- **`PluginImplAbstract`** — execution logic, instantiated by the API during `init()`
+
+```ts
+// packages/theme — base class
+abstract class PluginAbstract<Plugin, Options> {
+  options: Options;
+
+  // Returns options without functions (safe for postMessage / structuredClone)
+  toSerializable(): Options;
+
+  // Called by the API — creates the internal instance
+  init(api: API): this;
+
+  // Returns the internal instance (after init)
+  getInstance(): Plugin;
+}
+
+abstract class PluginImplAbstract<Options> {
+  protected api: API;
+  protected options: Options;
+
+  onInit?(): void;   // called on initialization
+  onLoad?(): void;   // called on every api.load()
+}
+```
+
+## Execution order
+
+Plugins execute in the order declared in `plugins: []`. If a plugin declares `dependencies`, the API ensures those are initialized first.
+
+```ts
+plugins: [
+  new FontPlugin(),       // initialized first
+  new TailwindPlugin(),   // can access FontPlugin via this.api.plugins
+]
+```
+
+## `toSerializable()`
+
+Available on every `PluginAbstract`. Performs a JSON round-trip that strips functions — required to transfer options to a Web Worker via `postMessage`.
+
+```ts
+const opts = api.plugins.getPlugin(TailwindPlugin).toSerializable();
+// safe for structuredClone / postMessage
+worker.postMessage({ tailwindOptions: opts });
+```
+
+## Creating a custom plugin
+
+```ts
+import { PluginAbstract, PluginImplAbstract } from '@udixio/theme';
+
+interface MyPluginOptions {
+  prefix?: string;
+}
+
+class MyPluginImpl extends PluginImplAbstract<MyPluginOptions> {
+  output = '';
+
+  onLoad() {
+    const prefix = this.options.prefix ?? 'my';
+    const primary = this.api.colors.get('primary').toHex();
+    this.output = `--${prefix}-primary: ${primary};`;
+  }
+}
+
+export class MyPlugin extends PluginAbstract<MyPluginImpl, MyPluginOptions> {
+  dependencies = [];
+  name = 'myPlugin';
+  pluginClass = MyPluginImpl;
+}
+```
+
+```ts
+const api = await loader({
+  sourceColor: '#6750A4',
+  plugins: [new MyPlugin({ prefix: 'app' })],
+});
+await api.load();
+
+console.log(api.plugins.getPlugin(MyPlugin).getInstance().output);
+// "--app-primary: #6750A4;"
+```
+
+### Available API in `onLoad`
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `this.api.context` | `Context` | `isDark`, `contrastLevel`, `variant`, `sourceColor` |
+| `this.api.palettes` | `PaletteApi` | Computed palettes (`get`, `sync`) |
+| `this.api.colors` | `ColorApi` | Semantic tokens (`get`, `toHex`, `getTone`) |
+| `this.api.plugins` | `PluginApi` | Access other plugins (`getPlugin`) |

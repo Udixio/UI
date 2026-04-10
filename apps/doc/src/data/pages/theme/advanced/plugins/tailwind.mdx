@@ -1,0 +1,118 @@
+---
+title: TailwindPlugin internals
+description: TailwindPlugin reference — CSS generation, .dynamic selector mechanism, darkMode, responsiveBreakPoints, styleFilePath.
+---
+
+# TailwindPlugin
+
+`TailwindPlugin` transforms computed color and typography tokens into CSS. It generates the static `@theme` block (Tailwind build-time) and the dynamic `@layer theme` block (runtime, scoped to `.dynamic`).
+
+When using `defineConfig` from `@udixio/ui-react`, `TailwindPlugin` is wired automatically — you never instantiate it directly. All options are passed flat into `defineConfig`. This page covers the internals.
+
+## Direct instantiation
+
+```ts
+import { loader } from '@udixio/theme';
+import { TailwindPlugin } from '@udixio/tailwind';
+
+const api = await loader({
+  sourceColor: '#6750A4',
+  plugins: [new TailwindPlugin({ darkMode: 'class', darkSelector: '.dark' })],
+});
+await api.load();
+
+const css = api.plugins.getPlugin(TailwindPlugin).getInstance().outputCss;
+```
+
+## Options reference
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `darkMode` | `'class' \| 'media'` | `'class'` | Dark mode strategy |
+| `darkSelector` | `string` | `'.dark'` | CSS class/selector that activates dark mode |
+| `dynamicSelector` | `string` | `'.dynamic'` | Selector that receives live CSS variables |
+| `subThemes` | `Record<string, string>` | — | Named color variants (see [Sub-themes](/theme/sub-themes)) |
+| `responsiveBreakPoints` | `Record<string, number>` | `{ lg: 1.125 }` | Additional Tailwind breakpoints |
+| `styleFilePath` | `string` | — | Path to an existing CSS file (node/build mode) |
+
+## CSS structure
+
+The plugin generates three distinct blocks on every `api.load()`:
+
+```css
+/* 1. Static — Tailwind build-time values */
+@theme {
+  --color-primary: #6750A4;
+  --color-surface: #FFFBFE;
+  /* … all tokens */
+}
+
+/* 2. Dynamic light — runtime, scoped to .dynamic */
+@layer theme {
+  .dynamic {
+    --color-primary: #6750A4;
+    --color-surface: #FFFBFE;
+  }
+}
+
+/* 3. Dynamic dark — runtime, scoped to .dark .dynamic */
+@layer theme {
+  .dark .dynamic,
+  .dark.dynamic {
+    --color-primary: #D0BCFF;
+    --color-surface: #1C1B1F;
+  }
+}
+```
+
+For `darkMode: 'media'`, block 3 uses `@media (prefers-color-scheme: dark)` instead of a class selector.
+
+## `dynamicSelector`
+
+The dynamic selector is the scope boundary for runtime updates. Only elements inside `.dynamic` (or whatever value you configure) receive live variable updates when `ThemeProvider` reinjects the `<style>` tag.
+
+```ts
+new TailwindPlugin({ dynamicSelector: '.my-app' })
+```
+
+```html
+<div class="my-app">
+  <!-- lives in the live-update scope -->
+</div>
+```
+
+Elements outside this selector still get Tailwind values from the static `@theme` block, but those reflect the build-time snapshot only.
+
+## `responsiveBreakPoints`
+
+Adds custom breakpoints to the generated CSS:
+
+```ts
+new TailwindPlugin({
+  responsiveBreakPoints: {
+    '3xl': 1920,
+    tablet: 768,
+  },
+})
+```
+
+## `styleFilePath`
+
+In non-browser environments (Vite plugin, build script), you can point `TailwindPlugin` at an existing CSS file. The plugin appends the generated blocks to that file:
+
+```ts
+new TailwindPlugin({
+  styleFilePath: './src/styles/theme.css',
+})
+```
+
+## Accessing output from `onLoad`
+
+```ts
+class MyPlugin extends PluginImplAbstract<{}> {
+  onLoad() {
+    const tw = this.api.plugins.getPlugin(TailwindPlugin).getInstance();
+    console.log(tw.outputCss); // the full generated CSS string
+  }
+}
+```

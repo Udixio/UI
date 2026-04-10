@@ -1,0 +1,161 @@
+---
+title: Sub-themes
+description: Apply named color variants to any element using .theme-* classes — subThemes, hue rotation, multi-tenant patterns.
+---
+
+# Sub-themes
+
+Sub-themes let you apply a different color palette to any section of your page — without changing the global theme. Activate one by adding a `.theme-{name}` class to any element.
+
+## Setup
+
+```ts
+import { defineConfig } from '@udixio/ui-react';
+
+export const config = defineConfig({
+  sourceColor: '#6750A4',   // purple — main theme
+  darkMode: 'class',
+  darkSelector: '.dark',
+  subThemes: {
+    ocean: '#006699',
+    forest: '#2E7D32',
+    sunset: '#E91E63',
+  },
+});
+```
+
+## Usage
+
+```html
+<!-- Main theme (purple) -->
+<div class="dynamic">
+  <button class="bg-primary text-on-primary">Default</button>
+</div>
+
+<!-- Ocean sub-theme on a section -->
+<section class="theme-ocean">
+  <button class="bg-primary text-on-primary">Ocean</button>
+</section>
+
+<!-- Forest on a single card -->
+<div class="theme-forest bg-surface-container rounded-xl p-4">
+  <h2 class="text-on-surface">Forest card</h2>
+  <button class="bg-primary text-on-primary">Action</button>
+</div>
+```
+
+Every color token (`--color-primary`, `--color-surface`, etc.) is overridden within `.theme-*`. Tailwind utility classes like `bg-primary` just work.
+
+## How the hue algorithm works
+
+Sub-themes don't use the hex color you provide as-is. Instead, they **extract only the hue** from that color and combine it with the **chroma and tone of your main `sourceColor`**:
+
+```
+subThemes.ocean = '#006699'
+  → hue extracted: ~200° (blue)
+  → chroma: same as main sourceColor
+  → tone: same as main sourceColor
+
+result: a blue with identical visual weight to your purple main theme
+```
+
+This guarantees all sub-themes feel visually cohesive — same saturation, same brightness, only the hue changes.
+
+## CSS generated
+
+For each sub-theme, the plugin generates a scoped block:
+
+```css
+/* Light mode — .dynamic + .theme-ocean together */
+@layer theme {
+  .dynamic.theme-ocean,
+  .dynamic .theme-ocean {
+    --color-primary: #006E99;
+    --color-on-primary: #FFFFFF;
+    --color-surface: #F5FAFE;
+    /* … all tokens */
+  }
+}
+
+/* Dark mode */
+@layer theme {
+  .dark .dynamic.theme-ocean,
+  .dark .dynamic .theme-ocean,
+  .dark.dynamic .theme-ocean {
+    --color-primary: #65D3FF;
+    --color-surface: #001E2B;
+    /* … */
+  }
+}
+```
+
+The flexible selector covers all placement combinations — `.theme-ocean` can be on the same element as `.dynamic` or on any descendant.
+
+## Nesting and combining
+
+Sub-themes cascade normally — a nested `.theme-*` overrides its parent:
+
+```html
+<body class="dynamic dark">
+  <main>
+    <!-- Uses global theme -->
+    <div class="theme-ocean">
+      <!-- All ocean tokens here -->
+      <div class="theme-forest">
+        <!-- Forest overrides ocean here -->
+      </div>
+    </div>
+  </main>
+</body>
+```
+
+## Use cases
+
+### Multi-tenant apps
+
+Each tenant has a brand color — apply it to their workspace:
+
+```tsx
+<div className={`theme-${tenant.colorKey}`}>
+  <Dashboard />
+</div>
+```
+
+```ts
+subThemes: {
+  [tenant.colorKey]: tenant.brandColor,
+}
+```
+
+### Color-coded cards or badges
+
+```html
+<div class="theme-sunset bg-primary-container rounded-lg p-3">
+  <span class="text-on-primary-container text-label-md">Hot deal</span>
+</div>
+```
+
+### Side-by-side theme preview
+
+```tsx
+{Object.keys(config.subThemes).map(name => (
+  <div key={name} className={`theme-${name} bg-surface-container p-4 rounded-xl`}>
+    <div className="bg-primary h-8 rounded" />
+    <p className="text-on-surface text-body-sm mt-2">{name}</p>
+  </div>
+))}
+```
+
+## Dark mode compatibility
+
+Sub-themes automatically generate dark variants — no extra configuration needed. The dark class (`darkSelector`) on an ancestor is all that's required:
+
+```html
+<html class="dark">
+  <body class="dynamic">
+    <section class="theme-ocean">
+      <!-- Dark ocean tokens active automatically -->
+    </section>
+  </body>
+</html>
+```

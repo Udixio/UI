@@ -1,0 +1,126 @@
+---
+title: Typography
+description: Material Design 3 type scale — Tailwind classes, font family setup, customization via defineConfig.
+---
+
+# Typography
+
+The theme system generates the full Material Design 3 type scale as Tailwind utility classes. Font families and sizes are configurable through `defineConfig`.
+
+## Type scale
+
+5 roles × 3 sizes = 15 classes. Use them as Tailwind text utilities:
+
+```html
+<h1 class="text-display-lg">Display Large</h1>
+<h2 class="text-headline-md">Headline Medium</h2>
+<p class="text-body-lg">Body Large</p>
+<span class="text-label-sm">Label Small</span>
+```
+
+### Full reference
+
+| Class | Font size | Line height | Weight |
+|-------|-----------|-------------|--------|
+| `text-display-lg` | 57px | 64px | 400 |
+| `text-display-md` | 45px | 52px | 400 |
+| `text-display-sm` | 36px | 44px | 400 |
+| `text-headline-lg` | 32px | 40px | 400 |
+| `text-headline-md` | 28px | 36px | 400 |
+| `text-headline-sm` | 24px | 32px | 400 |
+| `text-title-lg` | 22px | 28px | 400 |
+| `text-title-md` | 16px | 24px | 500 |
+| `text-title-sm` | 14px | 20px | 500 |
+| `text-label-lg` | 14px | 20px | 500 |
+| `text-label-md` | 12px | 16px | 500 |
+| `text-label-sm` | 11px | 16px | 500 |
+| `text-body-lg` | 16px | 25px | 400 |
+| `text-body-md` | 14px | 20px | 400 |
+| `text-body-sm` | 12px | 16px | 400 |
+
+## Font families
+
+Two conceptual families map to different roles:
+
+| Family | Applied to | Default |
+|--------|-----------|---------|
+| `expressive` | `display`, `headline` | `Roboto, sans-serif` |
+| `neutral` | `title`, `label`, `body` | `Roboto, sans-serif` |
+
+Override them in `defineConfig`:
+
+```ts
+defineConfig({
+  sourceColor: '#6750A4',
+  fontFamily: {
+    expressive: ['Playfair Display', 'Georgia', 'serif'],
+    neutral: ['Inter', 'system-ui', 'sans-serif'],
+  },
+})
+```
+
+Values are used directly as CSS `font-family` — include fallbacks at the end.
+
+## Loading fonts
+
+`defineConfig` declares the font families but does not load them. Add your fonts to the document `<head>`:
+
+```html
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Playfair+Display:wght@400;700&display=swap"
+  rel="stylesheet"
+/>
+```
+
+Or via CSS:
+
+```css
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+```
+
+## Customizing sizes and weights
+
+Use `fontStyles` in `defineConfig` to override any role/size combination. Only the properties you specify are changed — everything else stays at the Material Design defaults.
+
+```ts
+defineConfig({
+  fontStyles: {
+    display: {
+      large: {
+        fontSize: 4,         // rem
+        lineHeight: 4.5,     // rem
+        fontWeight: 300,
+        letterSpacing: -0.02,
+      },
+    },
+    headline: {
+      medium: { fontWeight: 600 },
+    },
+    body: {
+      large: { lineHeight: 1.75 },
+    },
+  },
+})
+```
+
+### `FontStyle` properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `fontSize` | `number` | Size in `rem` |
+| `lineHeight` | `number` | Height in `rem` |
+| `fontWeight` | `number` | CSS font-weight |
+| `letterSpacing` | `number` (optional) | Spacing in `rem` |
+
+## Using `text-*` with color tokens
+
+Combine typography classes with color tokens for complete text styling:
+
+```html
+<h1 class="text-display-lg text-on-surface">Page title</h1>
+<p class="text-body-lg text-on-surface-variant">Supporting text</p>
+<span class="text-label-md text-primary">Category</span>
+```

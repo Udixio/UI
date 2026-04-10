@@ -1,0 +1,90 @@
+---
+title: FontPlugin internals
+description: FontPlugin reference — token generation, FontStyle type, initialization order, direct instantiation.
+---
+
+# FontPlugin
+
+`FontPlugin` generates the Material Design 3 typography tokens consumed by `TailwindPlugin`. It runs **before** `TailwindPlugin` in the default plugin order — `TailwindPlugin` reads its output to build the CSS `text-*` utilities.
+
+When using `defineConfig` from `@udixio/ui-react`, `FontPlugin` is wired automatically. This page covers the internals for direct use.
+
+## Direct instantiation
+
+```ts
+import { loader } from '@udixio/theme';
+import { FontPlugin } from '@udixio/ui-react';
+
+const api = await loader({
+  sourceColor: '#6750A4',
+  plugins: [
+    new FontPlugin({
+      fontFamily: { neutral: ['Inter', 'sans-serif'] },
+    }),
+  ],
+});
+await api.load();
+```
+
+## Options reference
+
+```ts
+new FontPlugin({
+  fontFamily?: {
+    expressive?: string[];  // display, headline roles
+    neutral?: string[];     // title, label, body roles
+  };
+  fontStyles?: Partial<Record<FontRole, Partial<Record<FontSize, Partial<FontStyle>>>>>;
+})
+```
+
+### `FontRole`
+
+`'display' | 'headline' | 'title' | 'label' | 'body'`
+
+### `FontSize`
+
+`'large' | 'medium' | 'small'`
+
+### `FontStyle`
+
+```ts
+type FontStyle = {
+  fontSize: number;       // rem
+  lineHeight: number;     // rem
+  fontWeight: number;
+  letterSpacing?: number; // rem (optional)
+  fontFamily: FontFamily; // 'expressive' | 'neutral' — auto-assigned, can be overridden
+};
+```
+
+## Plugin initialization order
+
+`FontPlugin` must be declared **before** `TailwindPlugin` in the `plugins` array. If you use `loader()` directly without `defineConfig`, ensure the order is correct:
+
+```ts
+plugins: [
+  new FontPlugin(fontOptions),   // 1. generates typography tokens
+  new TailwindPlugin(twOptions), // 2. reads tokens, generates CSS
+]
+```
+
+`defineConfig` enforces this order automatically.
+
+## Accessing font tokens
+
+After `api.load()`, the plugin instance exposes the computed token map:
+
+```ts
+const fontPlugin = api.plugins.getPlugin(FontPlugin).getInstance();
+console.log(fontPlugin.tokens);
+// {
+//   'display-lg': { fontSize: 3.5625, lineHeight: 4, fontWeight: 400, ... },
+//   'body-md': { fontSize: 0.875, lineHeight: 1.25, fontWeight: 400, ... },
+//   ...
+// }
+```
+
+## User-facing documentation
+
+For the Tailwind class reference (`text-display-lg`, `text-body-md`, etc.) and `fontFamily`/`fontStyles` usage in `defineConfig`, see [Typography](/theme/typography).

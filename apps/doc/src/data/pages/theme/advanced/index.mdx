@@ -1,0 +1,61 @@
+---
+title: '@udixio/theme — Overview'
+description: When and why to use @udixio/theme directly — architecture, packages, and responsibilities.
+---
+
+# @udixio/theme
+
+`@udixio/theme` is the low-level engine that powers all Udixio theming. Most developers never need it directly — `@udixio/ui-react` wraps it and handles everything through `defineConfig` and `ThemeProvider`.
+
+Use `@udixio/theme` when you need to:
+
+- Generate theme CSS outside of React (Vite plugin, Node script, build step)
+- Create a custom palette derivation algorithm (custom `variant`)
+- Build a custom plugin that reads computed color tokens
+- Access the raw HCT values of any semantic color token
+
+## Package responsibilities
+
+| Package | Responsibility |
+|---------|---------------|
+| `@udixio/theme` | Core engine — `loader()`, `variant()`, `Hct`, `Palette`, `Color`, plugin base classes |
+| `@udixio/tailwind` | `TailwindPlugin` — generates Tailwind CSS from tokens |
+| `@udixio/ui-react` | `defineConfig`, `ThemeProvider` — React DX layer, auto-wires plugins |
+
+## Architecture
+
+The core is a dependency-injection container (`bootstrap()`) that assembles four modules:
+
+```
+Context      — holds sourceColor, isDark, contrastLevel, variant
+PaletteApi   — derives hue+chroma palettes from Context
+ColorApi     — resolves semantic tokens (primary, surface…) from Palette tones
+PluginApi    — executes plugins in order, each reading from ColorApi
+```
+
+Everything is re-evaluated top-down on every `api.load()` call.
+
+## `loader()`
+
+The main entry point for headless usage:
+
+```ts
+import { loader } from '@udixio/theme';
+
+const api = await loader(config, load);
+```
+
+- `config` — same `ConfigInterface` used by `defineConfig`, minus `fontFamily`/`fontStyles`
+- `load` — boolean, default `true` — pass `false` to initialize without running the first load
+
+See [Using loader()](/theme/advanced/loader) for full usage examples.
+
+## Advanced pages
+
+| Page | What you'll learn |
+|------|-------------------|
+| [Using loader()](/theme/advanced/loader) | Headless usage, Node/Vite integration, `api.context.update()` |
+| [Variants API](/theme/advanced/variants) | `variant()` function, custom palette derivation |
+| [Palettes API](/theme/advanced/palettes) | `api.palettes.get()`, `sync()`, `PaletteCallback` |
+| [Colors API](/theme/advanced/colors) | `api.colors.get()`, `FromPaletteOptions`, `contrastCurve` |
+| [Plugin system](/theme/advanced/plugins) | `PluginAbstract`, `PluginImplAbstract`, custom plugins |

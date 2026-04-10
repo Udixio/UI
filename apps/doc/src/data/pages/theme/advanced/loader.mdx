@@ -1,0 +1,130 @@
+---
+title: Using loader()
+description: Headless theme generation with loader() — Node scripts, Vite plugins, api.load(), api.context.update().
+---
+
+# Using loader()
+
+`loader()` initializes the theme engine without React. Use it to generate CSS in a build script, a Vite plugin, a Node server, or any non-browser context.
+
+```ts
+import { loader } from '@udixio/theme';
+import { TailwindPlugin } from '@udixio/tailwind';
+import { FontPlugin } from '@udixio/ui-react';
+import { Variants } from '@udixio/theme';
+
+const api = await loader({
+  sourceColor: '#6750A4',
+  variant: Variants.Udixio,
+  plugins: [
+    new FontPlugin(),
+    new TailwindPlugin({ darkMode: 'class', darkSelector: '.dark' }),
+  ],
+});
+
+const css = api.plugins.getPlugin(TailwindPlugin).getInstance().outputCss;
+```
+
+## Signature
+
+```ts
+loader(config: ConfigInterface, load?: boolean): Promise<API>
+```
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `config` | `ConfigInterface` | — | Theme configuration |
+| `load` | `boolean` | `true` | Call `api.load()` immediately after initialization |
+
+Pass `load: false` to initialize without running the first computation — useful when you want to set up listeners before the first load.
+
+```ts
+const api = await loader(config, false);
+
+// Register a listener before first load
+api.context.onUpdate((changed) => {
+  console.log('changed:', changed);
+});
+
+await api.load();
+```
+
+## `api.load()`
+
+Triggers a full recomputation:
+
+1. `Context` evaluates `sourceColor` (resolves functions)
+2. `PaletteApi` recomputes all palette hue/chroma values
+3. `ColorApi` resolves all semantic token tones
+4. Each plugin's `onLoad()` runs in declaration order
+
+```ts
+await api.load(); // recompute everything
+```
+
+## `api.context.update()`
+
+Updates one or more context values and triggers reactive callbacks. Does **not** call `api.load()` automatically — call it yourself afterward.
+
+```ts
+api.context.update({ sourceColor: '#FF5722' });
+await api.load();
+```
+
+### Context properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `sourceColor` | `string \| Hct \| (ctx) => Hct` | Drives all palette generation |
+| `isDark` | `boolean` | Current dark/light state |
+| `contrastLevel` | `number` | −1 to +1 |
+| `variant` | `Variant` | Palette derivation algorithm |
+
+## Generating CSS in a Vite plugin
+
+```ts
+// vite-plugin-theme.ts
+import { loader } from '@udixio/theme';
+import { TailwindPlugin } from '@udixio/tailwind';
+import { FontPlugin } from '@udixio/ui-react';
+import fs from 'node:fs';
+
+export function themePlugin() {
+  return {
+    name: 'udixio-theme',
+    async buildStart() {
+      const api = await loader({
+        sourceColor: '#6750A4',
+        plugins: [new FontPlugin(), new TailwindPlugin()],
+      });
+
+      const css = api.plugins.getPlugin(TailwindPlugin).getInstance().outputCss;
+      fs.writeFileSync('./src/styles/theme.generated.css', css);
+    },
+  };
+}
+```
+
+## Dynamic source color
+
+`sourceColor` can be a function re-evaluated on every `api.load()`:
+
+```ts
+const api = await loader({
+  sourceColor: (ctx) => ctx.isDark ? '#A08EC4' : '#6750A4',
+  // …
+});
+
+api.context.update({ isDark: true });
+await api.load(); // sourceColor re-evaluates → dark palette
+```
+
+## Node entrypoint
+
+`@udixio/theme` ships a dedicated Node build that avoids browser-only globals:
+
+```ts
+import { loader } from '@udixio/theme/node';
+```
+
+Use this in scripts that run outside a browser environment.

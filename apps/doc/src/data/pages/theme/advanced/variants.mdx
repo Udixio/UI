@@ -1,0 +1,131 @@
+---
+title: Variants API
+description: Create custom palette derivation algorithms with variant() — getPiecewiseHue, getRotatedHue, VariantOptions.
+---
+
+# Variants API
+
+A `Variant` defines how `primary`, `secondary`, `tertiary`, `neutral`, `neutralVariant`, and `error` palettes are derived from `sourceColor`. The five built-in variants cover most use cases — this page is for building your own.
+
+## `variant(options)`
+
+```ts
+import { variant } from '@udixio/theme';
+
+const myVariant = variant({
+  name: 'myVariant',
+  palettes: { /* … */ },
+  customPalettes: (context, color) => ({ hue: color.hue, chroma: color.chroma }),
+  colorsFromCustomPalette: (key) => ({ /* AddColorsOptions */ }),
+  colors: { /* AddColorsOptions */ },
+});
+```
+
+### `VariantOptions`
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | `string` | ✓ | Unique identifier |
+| `palettes` | `Record<string, PaletteCallback>` | ✓ | Palette callbacks for each role |
+| `customPalettes` | `(context, color) => { hue, chroma }` | ✓ | How to derive an extra palette from a hex color (used by Udixio variant for `palettes.brand`) |
+| `colorsFromCustomPalette` | `(key) => AddColorsOptions` | — | Override which semantic tokens are generated for each custom palette key |
+| `colors` | `AddColorsOptions` | — | Extra semantic tokens added when this variant is active |
+
+## Minimal example
+
+A variant that uses the source hue for primary and shifts secondary by +60°:
+
+```ts
+import { variant } from '@udixio/theme';
+
+export const complementaryVariant = variant({
+  name: 'complementary',
+  palettes: {
+    primary: ({ sourceColor }) => ({
+      hue: sourceColor.hue,
+      chroma: sourceColor.chroma,
+    }),
+    secondary: ({ sourceColor }) => ({
+      hue: sourceColor.hue + 60,
+      chroma: sourceColor.chroma * 0.6,
+    }),
+    tertiary: ({ sourceColor }) => ({
+      hue: sourceColor.hue + 120,
+      chroma: sourceColor.chroma * 0.8,
+    }),
+    neutral: ({ sourceColor }) => ({
+      hue: sourceColor.hue,
+      chroma: 4,
+    }),
+    neutralVariant: ({ sourceColor }) => ({
+      hue: sourceColor.hue,
+      chroma: 8,
+    }),
+    error: () => ({ hue: 25, chroma: 84 }),
+  },
+  customPalettes: (_ctx, color) => ({
+    hue: color.hue,
+    chroma: color.chroma,
+  }),
+});
+```
+
+## `getPiecewiseHue`
+
+Maps a source hue to a target hue based on hue breakpoints. Each breakpoint range maps to a fixed output hue — useful for "color harmonization" where you want certain source hues to produce a specific output.
+
+```ts
+import { getPiecewiseHue } from '@udixio/theme';
+
+// If sourceColor.hue is between 0°–60°, output 330°
+// If between 60°–120°, output 30°
+// Otherwise, pass through
+const hue = getPiecewiseHue(
+  sourceColor,
+  [0, 60, 120, 360],   // breakpoints
+  [330, 30, sourceColor.hue], // target hues per range
+);
+```
+
+## `getRotatedHue`
+
+Adds a rotation to the source hue, with the rotation amount determined by which breakpoint range the source hue falls in:
+
+```ts
+import { getRotatedHue } from '@udixio/theme';
+
+// +15° rotation when source is in 0°–120° range
+// +60° rotation when source is in 120°–240° range
+// +30° otherwise
+const hue = getRotatedHue(
+  sourceColor,
+  [0, 120, 240, 360],  // breakpoints
+  [15, 60, 30],        // rotations per range
+);
+```
+
+Both functions are used by the built-in variants (e.g. `TonalSpot` uses `getRotatedHue` for secondary and tertiary).
+
+## Using a custom variant
+
+```ts
+import { loader } from '@udixio/theme';
+
+const api = await loader({
+  sourceColor: '#6750A4',
+  variant: complementaryVariant,
+  plugins: [/* … */],
+});
+```
+
+Or via `defineConfig`:
+
+```ts
+import { defineConfig } from '@udixio/ui-react';
+import { complementaryVariant } from './my-variant';
+
+defineConfig({
+  sourceColor: '#6750A4',
+  variant: complementaryVariant,
+})
+```

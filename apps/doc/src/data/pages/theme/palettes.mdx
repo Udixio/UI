@@ -1,0 +1,104 @@
+---
+title: Color palettes
+description: Standard palettes, overrides and custom palettes — PaletteCallback, hue, chroma.
+---
+
+# Palettes
+
+A palette is a hue + chroma function. It generates a continuous range of tones (0–100) in HCT space. **Semantic color tokens** (surface, primary…) then pick the appropriate tone from that palette.
+
+## Standard palettes
+
+Each variant automatically derives these 6 palettes from `sourceColor`:
+
+| Palette | Role |
+|---------|------|
+| `primary` | Main brand color |
+| `secondary` | Complementary accent |
+| `tertiary` | Additional accent with a stronger hue rotation |
+| `neutral` | Surfaces and backgrounds (very low saturation) |
+| `neutralVariant` | Borders, secondary text |
+| `error` | Error states |
+
+## Overriding a standard palette
+
+The `palettes` key in `ConfigInterface` accepts a `PaletteCallback` to replace the palette computed by the variant:
+
+```ts
+palettes: {
+  primary: ({ sourceColor }) => ({
+    hue: sourceColor.hue + 30,   // hue shift
+    chroma: 60,                  // fixed saturation
+  }),
+  neutral: () => ({
+    hue: 200,   // always blue-grey neutral
+    chroma: 6,
+  }),
+}
+```
+
+### `PaletteCallback`
+
+```ts
+type PaletteCallback = (context: {
+  sourceColor: Hct;
+}) => { hue: number; chroma: number };
+```
+
+The callback receives the current context. It is re-evaluated on every `sourceColor` change.
+
+## Custom palettes (Udixio variant)
+
+With the `Udixio` variant, every palette added in `palettes` automatically generates a group of 4 semantic color tokens:
+
+```ts
+variant: Variants.Udixio,
+palettes: {
+  brand: '#FF5722',   // hex → converted to HCT automatically
+  info: ({ sourceColor }) => ({ hue: 220, chroma: 50 }),
+}
+```
+
+For `brand`, the system generates:
+- `--color-brand` / `.bg-brand`
+- `--color-on-brand` / `.text-on-brand`
+- `--color-brand-container` / `.bg-brand-container`
+- `--color-on-brand-container` / `.text-on-brand-container`
+
+## Hex color as a palette
+
+```ts
+// Short form (hex string)
+palettes: {
+  accent: '#E91E63',
+}
+
+// Explicit equivalent
+import { Hct } from '@udixio/theme';
+palettes: {
+  accent: () => {
+    const hct = Hct.fromInt(argbFromHex('#E91E63'));
+    return { hue: hct.hue, chroma: hct.chroma };
+  }
+}
+```
+
+## Example: two-color theme
+
+```ts
+defineConfig({
+  sourceColor: '#1565C0',
+  variant: Variants.Udixio,
+  palettes: {
+    secondary: ({ sourceColor }) => ({
+      hue: sourceColor.hue + 180,  // complementary color
+      chroma: sourceColor.chroma,
+    }),
+    accent: '#FF6D00',
+  },
+})
+```
+
+## Advanced palette API
+
+For direct palette manipulation via `api.palettes.get()`, `api.palettes.sync()`, or to understand how tones are generated, see [Palettes API](/theme/advanced/palettes) in the advanced section.
