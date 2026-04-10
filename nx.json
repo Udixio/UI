@@ -121,7 +121,13 @@
     "projectsRelationship": "independent",
     "version": {
       "preVersionCommand": "npm run build",
-      "conventionalCommits": true
+      "conventionalCommits": true,
+      "conventionalCommitsConfig": {
+        "types": {
+          "feat": { "semverBump": "minor" },
+          "fix":  { "semverBump": "patch" }
+        }
+      }
     },
     "changelog": {
       "projectChangelogs": true,
