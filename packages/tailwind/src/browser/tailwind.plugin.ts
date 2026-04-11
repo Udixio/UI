@@ -12,6 +12,11 @@ export interface TailwindPluginOptions {
   responsiveBreakPoints?: Record<string, number>;
   styleFilePath?: string;
   subThemes?: Record<string, string>;
+  /**
+   * Force browser-compatible CSS output (pure CSS variables, no @plugin/@theme directives,
+   * no filesystem writes). Set automatically by `generateThemeCss()` for SSR use cases.
+   */
+  ssr?: boolean;
 }
 
 function createFlexibleSelector(...classes: (string | undefined)[]): string {

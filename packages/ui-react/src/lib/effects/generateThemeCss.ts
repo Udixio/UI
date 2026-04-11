@@ -30,6 +30,14 @@ export async function generateThemeCss(
   config: ConfigInterface,
   onApi?: (api: API) => void | Promise<void>,
 ): Promise<string> {
+  // Force browser-compatible output regardless of environment:
+  // prevents @plugin/@theme directives and filesystem writes in Node.js.
+  config.plugins?.forEach((plugin) => {
+    if (plugin instanceof TailwindPlugin) {
+      plugin.options = { ...plugin.options, ssr: true };
+    }
+  });
+
   const api = await loader(config, false);
   await onApi?.(api);
   await api.load();
