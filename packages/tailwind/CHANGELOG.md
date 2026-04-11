@@ -1,3 +1,21 @@
+## 2.5.0 (2026-04-11)
+
+### 🚀 Features
+
+- add global logging prefix and optimize error handling ([62c499e](https://github.com/Udixio/UI/commit/62c499e))
+
+### 🩹 Fixes
+
+- ensure deduplication of concurrent file writes in Node.js ([095e4b6](https://github.com/Udixio/UI/commit/095e4b6))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 2.1.22
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.4.21 (2026-04-11)
 
 ### 🚀 Features

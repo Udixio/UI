@@ -1,3 +1,13 @@
+## 2.1.22 (2026-04-11)
+
+### 🚀 Features
+
+- **theme:** enhance config file watching and optimize HMR handling ([e558ec6](https://github.com/Udixio/UI/commit/e558ec6))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.1.21 (2026-04-11)
 
 This was a version bump only for @udixio/theme to align it with other projects, there were no code changes.
