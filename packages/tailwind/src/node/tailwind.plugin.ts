@@ -18,6 +18,9 @@ export class TailwindPlugin extends PluginAbstract<
   pluginClass = TailwindImplPlugin;
 }
 
+// Deduplication: only one concurrent file-write per process
+let nodeOnLoadPromise: Promise<void> | null = null;
+
 class TailwindImplPlugin extends TailwindImplPluginBrowser {
   private isNodeJs(): boolean {
     return (
@@ -33,6 +36,21 @@ class TailwindImplPlugin extends TailwindImplPluginBrowser {
       await super.onLoad();
       return;
     }
+
+    // If another instance is already writing, wait for it and skip our own write
+    if (nodeOnLoadPromise) {
+      await nodeOnLoadPromise;
+      return;
+    }
+    nodeOnLoadPromise = this._doNodeLoad();
+    try {
+      await nodeOnLoadPromise;
+    } finally {
+      nodeOnLoadPromise = null;
+    }
+  }
+
+  private async _doNodeLoad() {
     const { join, resolve } = await import('pathe');
 
     const {
