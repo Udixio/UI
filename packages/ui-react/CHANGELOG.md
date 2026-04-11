@@ -1,3 +1,13 @@
+## 2.10.18 (2026-04-10)
+
+### 🚀 Features
+
+- **ui-react:** add `generateThemeCss` utility for SSR and dynamic themes ([47bed11](https://github.com/Udixio/UI/commit/47bed11))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.10.17 (2026-04-10)
 
 ### 🚀 Features
