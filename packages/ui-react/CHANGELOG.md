@@ -1,3 +1,18 @@
+## 2.10.19 (2026-04-11)
+
+### 🚀 Features
+
+- **tailwind:** add SSR-compatible CSS output for plugins ([b79430c](https://github.com/Udixio/UI/commit/b79430c))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 2.4.21
+- Updated @udixio/theme to 2.1.21
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 2.10.18 (2026-04-10)
 
 ### 🚀 Features

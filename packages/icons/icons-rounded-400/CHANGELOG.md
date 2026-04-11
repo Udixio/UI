@@ -1,3 +1,7 @@
+## 0.1.2 (2026-04-11)
+
+This was a version bump only for @udixio/icons-rounded-400 to align it with other projects, there were no code changes.
+
 ## 0.1.1 (2026-02-15)
 
 ### 🚀 Features
