@@ -18,7 +18,10 @@ export async function resolveConfig(
 
   const jiti = createJiti(import.meta.url, {
     debug: process.env.NODE_ENV === 'development',
-    fsCache: true,
+    // fsCache en prod uniquement — en dev, on veut toujours relire le fichier frais
+    fsCache: process.env.NODE_ENV !== 'development',
+    // Pas de cache mémoire entre les appels (watch)
+    moduleCache: false,
     interopDefault: true,
   });
 

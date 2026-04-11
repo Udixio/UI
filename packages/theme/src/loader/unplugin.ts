@@ -49,8 +49,12 @@ const createUnpluginTheme = async () => {
       name: 'udixio-theme',
 
       // Hook appelé au début du build (tous les bundlers)
-      buildStart: async () => {
+      buildStart: async function () {
         await loadTheme();
+        // Indique au bundler (Rollup/Vite) de surveiller le fichier config
+        if (resolvedConfigPath) {
+          this.addWatchFile(resolvedConfigPath);
+        }
       },
 
       // Hook appelé pendant la génération (Rollup/Vite)
@@ -60,21 +64,28 @@ const createUnpluginTheme = async () => {
 
       // Support spécifique Vite pour HMR
       vite: {
-        handleHotUpdate: async ({ server, file, modules }) => {
+        configureServer: async (server) => {
+          // Résoudre le chemin du config si pas encore fait
           if (!resolvedConfigPath) {
             const result = await loadFromPath(configPath);
             resolvedConfigPath = result?.filePath || '';
           }
+          // Enregistrer explicitement le fichier config dans le watcher de Vite
+          if (resolvedConfigPath) {
+            server.watcher.add(resolvedConfigPath);
+          }
+        },
 
-          if (resolvedConfigPath === file) {
+        handleHotUpdate: async ({ server, file }) => {
+          if (resolvedConfigPath && resolvedConfigPath === file) {
             if (verbose) {
               console.log(`🔄 Theme config changed: ${file}`);
             }
             await loadTheme();
             server.ws.send({ type: 'full-reload', path: '*' });
-            return modules;
+            // Retourner [] pour stopper le traitement HMR par défaut
+            return [];
           }
-          return;
         },
       },
 
