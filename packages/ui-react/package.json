@@ -1,6 +1,6 @@
 {
   "name": "@udixio/ui-react",
-  "version": "2.10.18",
+  "version": "2.10.19",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
