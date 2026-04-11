@@ -119,15 +119,15 @@
   "release": {
     "projects": ["packages/*", "packages/icons/*"],
     "projectsRelationship": "independent",
+    "conventionalCommits": {
+      "types": {
+        "feat": { "semverBump": "minor" },
+        "fix":  { "semverBump": "patch" }
+      }
+    },
     "version": {
       "preVersionCommand": "npm run build",
-      "conventionalCommits": true,
-      "conventionalCommitsConfig": {
-        "types": {
-          "feat": { "semverBump": "minor" },
-          "fix":  { "semverBump": "patch" }
-        }
-      }
+      "conventionalCommits": true
     },
     "changelog": {
       "projectChangelogs": true,
