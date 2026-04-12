@@ -396,7 +396,8 @@ export const Carousel = ({
         ref: itemRefs[idx],
         key: idx,
         index: idx,
-        role: 'option',
+        role: 'group',
+        'aria-roledescription': 'slide',
         'aria-selected': selectedItem === idx,
         tabIndex: selectedItem === idx ? 0 : -1,
         onClick: handleClick,
@@ -410,8 +411,8 @@ export const Carousel = ({
     <div
       className={styles.carousel}
       ref={ref}
-      role="listbox"
-      aria-orientation="horizontal"
+      role="region"
+      aria-roledescription="carousel"
       onKeyDown={handleKeyDown}
       {...restProps}
     >
