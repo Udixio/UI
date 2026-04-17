@@ -5,7 +5,7 @@ import { Button, Divider, SmoothScroll } from '@udixio/ui-react';
 import { sentenceCase, kebabCase } from 'change-case';
 import { Navigation } from '@/components/Navigation';
 import { ClientRouter } from 'astro:transitions';
-import { DocSidebar } from '@/components/DocSidebar';
+import { Sidebar } from '@/components/Sidebar';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
 
 const apis = await getCollection('api');
@@ -28,10 +28,10 @@ const {docSidebar} = Astro.props
 <main class="mx-auto flex justify-between">
   <div class="flex sticky top-0 h-screen">
     <Navigation  client:load  transition:name="navigation" transition:persist/>
-    <Divider orientation="vertical" />
+    {!docSidebar && <Divider orientation="vertical" />}
     <slot name="sidebar" />
   </div>
-  <div class=" flex flex-1 gap-8">
+  <div class=" flex flex-1 gap-8 bg-surface-container">
 
     <div class="flex-1">
 
@@ -41,7 +41,7 @@ const {docSidebar} = Astro.props
 
   </div>
   <div>
-    {docSidebar &&   <DocSidebar client:load />}
+    {docSidebar && <Sidebar client:load mode="toc" />}
   </div>
 </main>
 <script >

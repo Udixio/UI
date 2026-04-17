@@ -35,16 +35,14 @@ export const ThemePicker: React.FC = () => {
     }
   };
 
-  const [isDark, setIsDark] = React.useState($config.isDark);
-
   useEffect(() => {
-    const next = { ...themeConfigStore.get(), isDark };
-    themeConfigStore.set(next);
-
     if (typeof document !== 'undefined') {
-      document.body.classList.toggle('dark', !!isDark);
+      const isActuallyDark = document.body.classList.contains('dark');
+      if (isActuallyDark !== themeConfigStore.get().isDark) {
+        themeConfigStore.set({ ...themeConfigStore.get(), isDark: isActuallyDark });
+      }
     }
-  }, [isDark]);
+  }, []);
 
   const [brightness, setBrightness] = useState(0);
 
@@ -72,10 +70,13 @@ export const ThemePicker: React.FC = () => {
             inactiveIcon={iLightMode}
             onChange={(value) => {
               if (typeof value === 'boolean') {
-                setIsDark(value);
+                themeConfigStore.set({ ...themeConfigStore.get(), isDark: value });
+                if (typeof document !== 'undefined') {
+                  document.body.classList.toggle('dark', value);
+                }
               }
             }}
-            selected={isDark}
+            selected={$config.isDark}
           />
         </label>
 

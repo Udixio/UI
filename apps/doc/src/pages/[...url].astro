@@ -2,33 +2,49 @@
 import Layout from '@/layouts/layout.astro';
 import { getCollection, render } from 'astro:content';
 import Code from '@/components/Code.astro';
+import { Sidebar, THEME_SECTIONS } from '@/components/Sidebar';
 
 export async function getStaticPaths() {
   const pages = await getCollection('pages');
 
-  return pages.map((page )=>{
+  return pages.map((page) => {
     let url = page.filePath!.replace(/\.(md|mdx)$/, '');
     url = url.replace(/\/index$/, '');
     url = url.replace('src/data/pages/', '/');
 
-    return{
+    return {
       params: { url: url },
-      props: { page }
-    }
+      props: { page },
+    };
   });
 }
 
 const { page } = Astro.props;
+const { Content } = await render(page);
 
-const { Content, headings } = await render(page);
-
+const pathname = Astro.url.pathname;
+const isThemePage = pathname.startsWith('/theme/');
+const themeSlug = isThemePage ? pathname.replace(/^\/theme\//, '') : null;
 ---
-<Layout>
-  {/* Render the matched MD/MDX content component. Given getStaticPaths(), this should always be defined. */}
+
+<Layout docSidebar>
+  {isThemePage && (
+    <Fragment slot="sidebar">
+      <Sidebar
+        client:load
+        transition:name="theme-sidebar"
+        transition:persist
+        mode="nav"
+        title="Theme"
+        sections={THEME_SECTIONS}
+        basePath="/theme"
+        current={themeSlug}
+      />
+    </Fragment>
+  )}
   <section class="px-8 py-10 max-w-screen-lg mx-auto">
     <div class="prose-markdown">
       <Content components={{ pre: Code }} />
     </div>
   </section>
-
 </Layout>

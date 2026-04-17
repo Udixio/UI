@@ -39,7 +39,7 @@ export const TokenGallery: React.FC = () => {
   useStore(themeConfigStore); // re-render on theme change
   const [query, setQuery] = useState('');
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
-    {},
+    { Primary: true },
   );
   const [selectedToneByGroup, setSelectedToneByGroup] = useState<
     Record<string, { name: string; color: ColorFromPalette } | null>
@@ -58,9 +58,7 @@ export const TokenGallery: React.FC = () => {
   const filtered = useMemo(() => {
     if (!tokens) return [];
 
-    const baseList = tokens.filter(([name]) => {
-      return !kebabCase(name).includes('on-');
-    });
+    const baseList = tokens;
 
     const q = query.trim().toLowerCase();
     if (!q) return baseList;
@@ -164,10 +162,10 @@ export const TokenGallery: React.FC = () => {
           <TextField
             variant={'outlined'}
             name={'token-search'}
-            label="Rechercher un token"
-            placeholder="ex: primary, surface, container..."
+            label="Search tokens"
+            placeholder="e.g. primary, surface, container..."
             supportingText={
-              'Explorez tous les tokens de couleur disponibles dans le thème.'
+              'Explore all color tokens available in the theme.'
             }
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -185,83 +183,84 @@ export const TokenGallery: React.FC = () => {
             const sb = ib === -1 ? Number.MAX_SAFE_INTEGER : ib;
             return sa - sb;
           })
-          .map((group, index) => (
+          .map((group) => (
             <Card
-              variant={'filled'}
               key={group}
-              className={classNames(
-                'overflow-hidden transition-all duration-300 border border-outline-variant/30',
-                {
-                  'bg-surface-container-low': index % 2 === 0,
-                  'bg-surface-container': index % 2 !== 0,
-                },
-              )}
+              variant="filled"
+              className="overflow-hidden border border-outline-variant/30"
             >
-              <div className="p-4 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <h3 className="text-title-medium font-bold text-on-surface capitalize tracking-tight">
-                      {group === 'others' ? 'Autres' : group}
-                    </h3>
-                    <span className="text-label-small px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container">
-                      {groups.get(group)?.length || 0} tokens
-                    </span>
-                  </div>
-                  <button
-                    className="flex items-center gap-2 text-label-medium text-primary hover:bg-primary/10 px-3 py-1.5 rounded-full transition-colors"
-                    onClick={() =>
-                      setExpandedGroups((prev) => ({
-                        ...prev,
-                        [group]: !prev[group],
-                      }))
-                    }
-                  >
-                    {expandedGroups[group] ? 'Masquer' : 'Afficher'}
-                    <Icon
-                      icon={expandedGroups[group] ? iKeyboardArrowUp : iKeyboardArrowDown}
-                      className="text-xs"
-                    />
-                  </button>
+              <div
+                onClick={() =>
+                  setExpandedGroups((prev) => ({
+                    ...prev,
+                    [group]: !prev[group],
+                  }))
+                }
+                className="flex items-center justify-between p-4 bg-surface-container hover:bg-surface-container-high transition-colors cursor-pointer select-none"
+              >
+                <div className="flex items-center gap-3">
+                  <h3 className="text-title-medium font-bold text-on-surface capitalize tracking-tight">
+                    {group === 'others' ? 'Others' : group}
+                  </h3>
+                  <span className="text-label-small px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container">
+                    {groups.get(group)?.length || 0} tokens
+                  </span>
                 </div>
-
-                <div className="bg-surface/50 rounded-lg p-2 border border-outline-variant/20">
-                  <PaletteToneRow
-                    api={$themeApi}
-                    group={group as any}
-                    highlighted={selectedToneByGroup[group] ?? null}
+                <div className="flex items-center gap-2 text-label-medium text-on-surface-variant">
+                  {expandedGroups[group] ? 'Hide' : 'Show'}
+                  <Icon
+                    icon={expandedGroups[group] ? iKeyboardArrowUp : iKeyboardArrowDown}
+                    className="text-xs"
                   />
                 </div>
-
-                <AnimatePresence initial={false}>
-                  {expandedGroups[group] && (
-                    <motion.div
-                      key={`${group}-grid`}
-                      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 pt-2"
-                      variants={gridVariants}
-                      initial="hidden"
-                      animate="show"
-                      exit="hidden"
-                    >
-                      {groups.get(group)!.map((t) => {
-                        const name = t.name;
-                        return (
-                          <motion.div key={name} variants={itemVariants} layout>
-                            <ColorTokenCard
-                              name={name}
-                              color={t.color}
-                              onColor={t.color}
-                              onSelect={handleTokenHover}
-                              onHoverEnd={() =>
-                                handleTokenHoverEnd(name, t.color)
-                              }
-                            />
-                          </motion.div>
-                        );
-                      })}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
               </div>
+
+              <AnimatePresence initial={false}>
+                {expandedGroups[group] && (
+                  <motion.div
+                    key={`${group}-content`}
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden bg-surface-container-lowest"
+                  >
+                    <div className="p-4 space-y-4 border-t border-outline-variant/20">
+                      <div className="bg-surface/50 rounded-lg p-2 border border-outline-variant/20">
+                        <PaletteToneRow
+                          api={$themeApi}
+                          group={group as any}
+                          highlighted={selectedToneByGroup[group] ?? null}
+                        />
+                      </div>
+
+                      <motion.div
+                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 pt-2"
+                        variants={gridVariants}
+                        initial="hidden"
+                        animate="show"
+                        exit="hidden"
+                      >
+                        {groups.get(group)!.map((t) => {
+                          const name = t.name;
+                          return (
+                            <motion.div key={name} variants={itemVariants} layout>
+                                <ColorTokenCard
+                                  name={name}
+                                  color={t.color}
+                                onSelect={handleTokenHover}
+                                onHoverEnd={() =>
+                                  handleTokenHoverEnd(name, t.color)
+                                }
+                              />
+                            </motion.div>
+                          );
+                        })}
+                      </motion.div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </Card>
           ))}
       </div>

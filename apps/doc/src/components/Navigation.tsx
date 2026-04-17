@@ -5,6 +5,7 @@ import { iPalette } from '@udixio/icons-rounded-400/palette';
 import { iWidgets } from '@udixio/icons-rounded-400/widgets';
 import { iSearch } from '@udixio/icons-rounded-400/search';
 import { iAnimationFilled } from '@udixio/icons-rounded-400/filled/animation';
+import { iHourglassFilled } from '@udixio/icons-rounded-400/filled/hourglass';
 import { iPaletteFilled } from '@udixio/icons-rounded-400/filled/palette';
 import { iWidgetsFilled } from '@udixio/icons-rounded-400/filled/widgets';
 
@@ -14,7 +15,11 @@ export const Navigation = () => {
       <Fab variant={'tertiary'} icon={iSearch} href={'/search'}>
         Search
       </Fab>
-      <NavigationRailItem icon={iHourglass} iconSelected={iHourglass}>
+      <NavigationRailItem
+        href={'/theme/introduction'}
+        icon={iHourglass}
+        iconSelected={iHourglassFilled}
+      >
         Get started
       </NavigationRailItem>
       <NavigationRailItem
@@ -32,7 +37,7 @@ export const Navigation = () => {
         Components
       </NavigationRailItem>
       <NavigationRailItem
-        href={'/themes'}
+        href={'/theme/builder'}
         icon={iPalette}
         iconSelected={iPaletteFilled}
       >

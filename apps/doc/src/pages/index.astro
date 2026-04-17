@@ -1,5 +1,335 @@
 ---
-export const prerender = false;
+import Layout from '@/layouts/layout.astro';
+import { ThemePreviewTabs } from '@/components/theme/ThemePreviewTabs';
+import { Button, Card, Icon } from '@udixio/ui-react';
+import { iArrowForward } from '@udixio/icons-rounded-400/arrow_forward';
+import { iPalette } from '@udixio/icons-rounded-400/palette';
+import { iCode } from '@udixio/icons-rounded-400/code';
+import { iSettings } from '@udixio/icons-rounded-400/settings';
+import { iWidgets } from '@udixio/icons-rounded-400/widgets';
+import { Code } from 'astro-expressive-code/components';
 
-return Astro.redirect('/components');
+const tailwindExample = `
+<div class="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-8 flex flex-col gap-6">
+  <div class="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 -960 960 960">
+      <path d="M480-80q-82 0-155-31.5t-127.5-86Q143-252 111.5-325T80-480q0-85 32-158t87.5-127q55.5-54 130-84.5T489-880q79 0 150 26.5T763.5-780q53.5 47 85 111.5T880-527q0..." />
+    </svg>
+  </div>
+  <div class="space-y-3">
+    <h3 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+      MD3 Architecture
+    </h3>
+    <p class="text-lg text-zinc-500 dark:text-zinc-400">
+      Built systematically according to the latest MD3 specifications.
+    </p>
+  </div>
+</div>
+`.trim();
+
+const udixioExample = `
+import { Card, Icon } from "@udixio/ui";
+import { iPalette } from "@udixio/icons-rounded-400/palette";
+
+<Card variant="outlined" className="p-8 flex flex-col gap-6">
+  <div className="w-12 h-12 rounded-2xl bg-primary-container text-on-primary-container flex items-center justify-center">
+    <Icon icon={iPalette} className="text-2xl" />
+  </div>
+  <div className="space-y-3">
+    <h3 className="text-headline-small font-bold text-on-surface">
+      MD3 Architecture
+    </h3>
+    <p className="text-body-large text-on-surface-variant">
+      Built systematically according to the latest MD3 specifications.
+    </p>
+  </div>
+</Card>
+`.trim();
 ---
+
+<Layout>
+  <div
+    class="min-h-screen flex flex-col relative w-full overflow-hidden bg-surface"
+  >
+    {/* Background glow effects */}
+    <div
+      class="absolute top-0 right-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] pointer-events-none -z-10 translate-x-1/2 -translate-y-1/2"
+    >
+    </div>
+    <div
+      class="absolute top-1/4 left-0 w-[400px] h-[400px] bg-tertiary/20 rounded-full blur-[100px] pointer-events-none -z-10 -translate-x-1/2"
+    >
+    </div>
+
+    <div
+      class="max-w-[1400px] mx-auto w-full px-6 lg:px-12 py-20 flex flex-col gap-32"
+    >
+      {/* Hero Section */}
+      <section
+        class="flex flex-col items-center text-center gap-8 mt-12 animate-fade-in"
+      >
+        <div
+          class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary-container/50 border border-outline-variant/30 text-on-secondary-container text-label-large mb-4"
+        >
+          <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+          Material Design 3 goes dynamic
+        </div>
+
+        <h1
+          class="text-display-large md:text-display-large lg:text-[5rem] font-bold tracking-tight text-on-surface max-w-4xl leading-tight"
+        >
+          A dynamic <span
+            class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-tertiary"
+            >Material 3</span
+          > React Library
+        </h1>
+
+        <p
+          class="text-headline-small text-on-surface-variant max-w-2xl font-normal leading-relaxed"
+        >
+          Dynamic theming with <code>ThemeProvider</code> and config logic in under
+          5 minutes. No rigid build steps. Fully compatible with Tailwind CSS.
+        </p>
+
+        <div class="flex flex-wrap items-center justify-center gap-4 mt-4">
+          <Button
+            href="/theme/introduction"
+            variant="filled"
+            size="large"
+            icon={iArrowForward}
+            iconPosition="right"
+          >
+            Get Started
+          </Button>
+          <Button
+            href="/components"
+            variant="outlined"
+            size="large"
+            icon={iWidgets}
+          >
+            Explore Components
+          </Button>
+        </div>
+
+        <div
+          class="flex items-center justify-center gap-6 mt-6 md:mt-8 pt-6 border-t border-outline-variant/30 text-on-surface-variant font-medium text-body-large w-full max-w-2xl"
+        >
+          <div class="flex items-center gap-2">
+            <span class="text-primary font-bold text-xl">20+</span>
+            <span>Components</span>
+          </div>
+          <div class="w-1.5 h-1.5 rounded-full bg-outline-variant/50"></div>
+          <div class="flex items-center gap-2">
+            <span class="text-primary font-bold text-xl">100%</span>
+            <span>Tailwind Native</span>
+          </div>
+          <div
+            class="w-1.5 h-1.5 rounded-full bg-outline-variant/50 hidden sm:block"
+          >
+          </div>
+          <div class="items-center gap-2 hidden sm:flex">
+            <span class="text-primary font-bold text-xl">MD3</span>
+            <span>Specifications</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Live Preview Section */}
+      <section
+        class="flex flex-col gap-12 items-center w-full relative z-10 animate-fade-in-up"
+      >
+        <div class="text-center space-y-4 max-w-2xl">
+          <h2 class="text-display-small font-bold text-on-surface">
+            Experience True Theming
+          </h2>
+          <p class="text-title-large text-on-surface-variant font-normal">
+            Interact with the ecosystem. Our design tokens inject instantly into
+            the DOM, changing your UI live.
+          </p>
+        </div>
+
+        <div class="flex justify-center w-full mt-4">
+          <ThemePreviewTabs client:load />
+        </div>
+      </section>
+
+      {/* Features Grid */}
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+        <Card
+          variant="outlined"
+          className="p-8 flex flex-col gap-6 hover:border-primary/50 transition-colors"
+        >
+          <div
+            class="w-12 h-12 rounded-2xl bg-primary-container text-on-primary-container flex items-center justify-center"
+          >
+            <Icon icon={iPalette} className="text-2xl" />
+          </div>
+          <div class="space-y-3">
+            <h3 class="text-headline-small font-bold text-on-surface">
+              MD3 Architecture
+            </h3>
+            <p class="text-body-large text-on-surface-variant">
+              Built systematically according to the latest MD3 specifications.
+              Full support for tonal palettes, standard surface hierarchies, and
+              precise contrast ratios.
+            </p>
+          </div>
+        </Card>
+
+        <Card
+          variant="outlined"
+          className="p-8 flex flex-col gap-6 hover:border-primary/50 transition-colors"
+        >
+          <div
+            class="w-12 h-12 rounded-2xl bg-secondary-container text-on-secondary-container flex items-center justify-center"
+          >
+            <Icon icon={iSettings} className="text-2xl" />
+          </div>
+          <div class="space-y-3">
+            <h3 class="text-headline-small font-bold text-on-surface">
+              Dynamic Runtime Injection
+            </h3>
+            <p class="text-body-large text-on-surface-variant">
+              Drop in your source hex color and <code>ThemeProvider</code> calculates
+              and injects the CSS custom properties instantly. Zero pre-compilation
+              required.
+            </p>
+          </div>
+        </Card>
+
+        <Card
+          variant="outlined"
+          className="p-8 flex flex-col gap-6 hover:border-primary/50 transition-colors"
+        >
+          <div
+            class="w-12 h-12 rounded-2xl bg-tertiary-container text-on-tertiary-container flex items-center justify-center"
+          >
+            <Icon icon={iCode} className="text-2xl" />
+          </div>
+          <div class="space-y-3">
+            <h3 class="text-headline-small font-bold text-on-surface">
+              Tailwind Native
+            </h3>
+            <p class="text-body-large text-on-surface-variant">
+              Integrates flawlessly with Tailwind CSS. We expose a Tailwind
+              plugin that merges the semantic MD3 tokens to your utility classes
+              natively.
+            </p>
+          </div>
+        </Card>
+      </section>
+
+      {/* Code Comparison Section */}
+      <section
+        class="max-w-[1200px] mx-auto w-full flex flex-col gap-10 relative z-10 my-16"
+      >
+        <div class="text-center space-y-4 max-w-3xl mx-auto">
+          <h2 class="text-display-small font-bold text-on-surface">
+            Less Verbose, More Semantic
+          </h2>
+          <p class="text-title-large text-on-surface-variant font-normal">
+            Udixio UI abstracts complex utility combinations and dark mode
+            variants into semantic, role-based MD3 tokens.
+          </p>
+        </div>
+
+        <div class="flex justify-center -mb-6 relative z-20">
+          <div class="flex flex-col items-center gap-2">
+            <span
+              class="text-label-large font-bold tracking-wide bg-primary-container text-on-primary-container px-4 py-2 rounded-full shadow-sm"
+            >
+              👆 Inspecting the Feature Cards above
+            </span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          {/* Tailwind Example */}
+          <Card
+            variant="outlined"
+            className="flex flex-col overflow-hidden shadow-none"
+          >
+            <div
+              class="px-6 py-4 border-b border-outline-variant/30 bg-surface-container-lowest flex items-center justify-between"
+            >
+              <span class="text-title-medium font-bold text-on-surface-variant"
+                >Default Tailwind</span
+              >
+              <span
+                class="px-2 py-1 bg-error-container text-on-error-container text-label-small rounded-md shadow-sm"
+                >Verbose</span
+              >
+            </div>
+
+            <div class="[&>figure]:!m-0 [&>figure]:!rounded-none border-t border-outline-variant/20 flex-1 overflow-hidden">
+              <Code code={tailwindExample} lang="tsx" del="3-5" />
+            </div>
+          </Card>
+
+          {/* Udixio Example */}
+          <Card
+            variant="outlined"
+            className="flex flex-col overflow-hidden relative shadow-none"
+          >
+            <div
+              class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"
+            >
+            </div>
+            <div
+              class="px-6 py-4 border-b border-primary/20 bg-primary/5 flex items-center justify-between relative z-10"
+            >
+              <span class="text-title-medium font-bold text-primary"
+                >Udixio UI</span
+              >
+              <span
+                class="px-2 py-1 bg-success-container text-on-success-container text-label-small rounded-md shadow-sm"
+                >Semantic</span
+              >
+            </div>
+
+            <div class="[&>figure]:!m-0 [&>figure]:!rounded-none border-t border-outline-variant/20 flex-1 overflow-hidden relative z-10">
+              <Code code={udixioExample} lang="tsx" ins="4,6,15" meta="mark='text-headline-small' mark='text-on-surface' mark='text-body-large' mark='text-on-surface-variant' mark='bg-primary-container' mark='text-on-primary-container'" />
+            </div>
+              <div
+                class="mt-8 p-4 rounded-xl bg-surface-container border border-outline-variant/30 flex flex-col gap-2"
+              >
+                <p class="text-body-small text-on-surface-variant">
+                  <strong class="text-on-surface">Built-in Dark Mode:</strong> No
+                  need for <code>dark:</code> prefixes. Colors adapt automatically
+                  based on the theme.
+                </p>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </section>
+
+      {/* Bottom CTA */}
+      <section
+        class="max-w-4xl mx-auto flex flex-col items-center w-full text-center gap-8 bg-surface-container-high rounded-[2rem] p-12 lg:p-20 border border-outline-variant/20 mb-20 relative overflow-hidden"
+      >
+        <div class="absolute inset-0 bg-primary/5 pointer-events-none"></div>
+        <h2 class="text-display-medium font-bold text-on-surface relative z-10">
+          Start building premium interfaces.
+        </h2>
+        <p
+          class="text-title-large text-on-surface-variant font-normal relative z-10 mb-2"
+        >
+          Install Udixio UI today and supercharge your next React application
+          with a world-class design system.
+        </p>
+        <div class="relative z-10">
+          <Button
+            href="/theme/introduction"
+            variant="filled"
+            size="large"
+            icon={iArrowForward}
+            iconPosition="right"
+          >
+            Read the Installation Guide
+          </Button>
+        </div>
+      </section>
+    </div>
+  </div>
+</Layout>

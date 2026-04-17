@@ -7,6 +7,8 @@ import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
 import { vitePlugin } from '@udixio/theme';
 
+import astroExpressiveCode from 'astro-expressive-code';
+
 import vercel from '@astrojs/vercel';
 
 // https://astro.build/config
@@ -15,6 +17,9 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss(), vitePlugin()],
+    optimizeDeps: {
+      exclude: ['@udixio/ui-react'],
+    },
   },
   markdown: {
     shikiConfig: {
@@ -32,6 +37,12 @@ export default defineConfig({
   },
 
   integrations: [
+    astroExpressiveCode({
+      styleOverrides: {
+        borderRadius: '1rem', // Match Card styling
+        codeFontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+      }
+    }),
     mdx({
       remarkPlugins: [],
       rehypePlugins: [],

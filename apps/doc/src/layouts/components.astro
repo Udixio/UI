@@ -3,11 +3,11 @@ import '@/styles/global.css';
 import { getCollection, render } from 'astro:content';
 import { Button, Divider , Tabs, Tab} from '@udixio/ui-react';
 import { sentenceCase, kebabCase } from 'change-case';
-import { ComponentSidebar } from '@/components/ComponentSidebar';
+import { Sidebar } from '@/components/Sidebar';
+import type { NavSection } from '@/components/Sidebar';
 import { ComponentNavigation } from '@/components/ComponentNavigation';
 import { Navigation } from '@/components/Navigation';
 import { ClientRouter } from 'astro:transitions';
-import { DocSidebar } from '@/components/DocSidebar';
 import Layout from '@/layouts/layout.astro';
 import {Card, Icon}from "@udixio/ui-react";
 import { renderMarkdown } from '@/lib/markdown';
@@ -53,12 +53,38 @@ const components = apis
     tags: api.data.tags ?? {},
   }))
   .sort((a, b) => a.slug.localeCompare(b.slug))
+
+const componentSections: NavSection[] = Object.entries(
+  components.reduce(
+    (acc, c) => {
+      const cat = (c.tags as any).category || 'Other';
+      if (!acc[cat]) acc[cat] = [];
+      acc[cat].push(c);
+      return acc;
+    },
+    {} as Record<string, typeof components>,
+  ),
+)
+  .sort(([a], [b]) => a.localeCompare(b))
+  .map(([category, items]) => ({
+    category,
+    pages: items.map(({ slug, displayName }) => ({
+      slug,
+      label: displayName,
+      href: `/components/${slug}/overview`,
+    })),
+  }));
 ---
 <Layout docSidebar>
   <Fragment slot="sidebar"> <!-- pass table header -->
-    <ComponentSidebar  client:load  transition:name="component-sidebar" transition:persist
-                       current={pathName.startsWith('/components') ? pathName.split('/').filter(Boolean)[1] : null}
-                       components={components}
+    <Sidebar
+      client:load
+      transition:name="component-sidebar"
+      transition:persist
+      mode="nav"
+      title="Components"
+      sections={componentSections}
+      current={pathName.startsWith('/components') ? pathName.split('/').filter(Boolean)[1] : null}
     />
   </Fragment>
   <div class="max-w-screen-xl mx-auto">

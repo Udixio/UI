@@ -4,7 +4,8 @@ import { getCollection } from 'astro:content';
 import { sentenceCase } from 'change-case';
 import { Card } from '@udixio/ui-react';
 
-import { ComponentSidebar } from '@/components/ComponentSidebar';
+import { Sidebar } from '@/components/Sidebar';
+import type { NavSection } from '@/components/Sidebar';
 import { renderMarkdown } from '@/lib/markdown';
 import ComponentPreview from '@/components/ComponentPreview.astro';
 
@@ -66,21 +67,23 @@ const categories = Object.keys(componentsByCategory).sort((a, b) =>
 
 <Layout docSidebar>
   <Fragment slot="sidebar">
-    <ComponentSidebar
+    <Sidebar
       client:load
       transition:name="component-sidebar"
       transition:persist
+      mode="nav"
+      title="Components"
+      sections={Object.entries(componentsByCategory)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([category, items]): NavSection => ({
+          category,
+          pages: items.map(({ id, displayName }) => ({
+            slug: id,
+            label: displayName,
+            href: `/components/${id}/overview`,
+          })),
+        }))}
       current={null}
-      components={apis
-        .filter((api) => !api.data.tags?.parent)
-        .filter((api) => overviewIds.has(api.id))
-        .map((api) => ({
-          slug: api.id,
-          displayName: api.data.displayName ?? sentenceCase(api.id),
-          description: api.data.description ?? '',
-          tags: api.data.tags ?? {},
-        }))
-        .sort((a, b) => a.displayName.localeCompare(b.displayName))}
     />
   </Fragment>
 
