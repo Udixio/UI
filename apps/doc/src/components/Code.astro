@@ -2,11 +2,15 @@
 import { Code } from 'astro:components';
 import { CodePreview } from '@/components/CodePreview';
 
-const { 'data-code': code, 'data-language': language } = Astro.props;
+const { 'data-code': code, 'data-language': language, ...htmlProps } = Astro.props;
 ---
-<CodePreview client:load code={code} preview={language == 'jsx'}>
-  <Code code={code} lang={language} defaultColor={false} />
-</CodePreview>
+{code != null ? (
+  <CodePreview client:load code={code} preview={language == 'jsx'}>
+    <Code code={code} lang={language ?? 'text'} defaultColor={false} />
+  </CodePreview>
+) : (
+  <pre {...htmlProps}><slot /></pre>
+)}
 <style is:global>
   pre {
     text-wrap: auto;
