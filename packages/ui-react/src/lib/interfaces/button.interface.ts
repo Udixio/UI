@@ -5,13 +5,19 @@ import { Icon } from '../icon';
 type ButtonVariant = 'filled' | 'elevated' | 'tonal' | 'outlined' | 'text';
 type ButtonVariantAlias = 'primary' | 'secondary';
 
-type Props = {
-  /**
-   * The label is the text that is displayed on the button.
-   */
-  label?: string;
+/**
+ * At least one of `label` or `children` must be provided.
+ */
+type ButtonContent =
+  | { label: string; children?: string }
+  | { label?: string; children: string };
 
-  children?: string;
+type ButtonBaseProps = {
+  /**
+   * The HTML button type attribute. Only applies when rendered as `<button>`.
+   * @default 'button'
+   */
+  type?: 'button' | 'submit' | 'reset';
 
   size?: 'xSmall' | 'small' | 'medium' | 'large' | 'xLarge';
 
@@ -54,6 +60,8 @@ type Props = {
   onToggle?: (isActive: boolean) => void;
   activated?: boolean;
 };
+
+type Props = ButtonContent & ButtonBaseProps;
 
 type Elements = ['button', 'touchTarget', 'stateLayer', 'icon', 'label'];
 

@@ -1,4 +1,3 @@
-
 import { classNames, ReactProps } from '../utils';
 import { ButtonInterface } from '../interfaces';
 import { useButtonStyle } from '../styles';
@@ -42,13 +41,14 @@ function resolveVariantAlias(
  * @devx
  * - Requires `label` or children; used for visible text and a11y.
  * - `onToggle` uses internal state; pair with `activated` for controlled usage.
+ * - `type` defaults to `'button'` to prevent accidental form submits.
  * @limitations
- * - No explicit `type` prop; HTML button defaults may submit in forms.
- * - When `href` is set, `disabled` is visual only (no `aria-disabled`).
+ * - When `href` is set with `disabled`, the link is made inert via `aria-disabled` and `tabIndex={-1}`.
  */
 export const Button = ({
   variant = 'filled',
   disabled = false,
+  type = 'button',
   icon,
   href,
   label,
@@ -69,15 +69,22 @@ export const Button = ({
 }: ReactProps<ButtonInterface>) => {
   if (children) label = children;
   if (!label) {
-    throw new Error(
-      'Button component requires either a label prop or children content',
-    );
+    if (
+      typeof process !== 'undefined' &&
+      process.env?.NODE_ENV !== 'production'
+    ) {
+      console.error(
+        'Udixio UI: <Button> requires either a `label` prop or `children` content. Rendering nothing.',
+      );
+    }
+    return null;
   }
   variant = resolveVariantAlias(variant);
 
-  const ElementType = href ? 'a' : 'button';
+  const isLink = !!href;
+  const ElementType = isLink ? 'a' : 'button';
 
-  const defaultRef = useRef<HTMLDivElement>(null);
+  const defaultRef = useRef<HTMLButtonElement | HTMLAnchorElement>(null);
   const resolvedRef = ref || defaultRef;
 
   const [isActive, setIsActive] = React.useState(activated);
@@ -90,6 +97,7 @@ export const Button = ({
   const handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
     if (disabled) {
       e.preventDefault();
+      return;
     }
     if (onToggle) {
       setIsActive(!isActive);
@@ -124,14 +132,28 @@ export const Button = ({
     <></>
   );
 
+  // Build element-specific HTML attributes
+  const elementProps: Record<string, any> = {};
+  if (isLink) {
+    if (disabled) {
+      elementProps['aria-disabled'] = true;
+      elementProps.tabIndex = -1;
+      elementProps.role = 'link';
+    } else {
+      elementProps.href = href;
+    }
+  } else {
+    elementProps.type = type;
+    elementProps.disabled = disabled;
+  }
+
   return (
     <ElementType
       ref={resolvedRef}
-      href={href}
       className={styles.button}
+      {...elementProps}
       {...(restProps as any)}
       onClick={handleClick}
-      disabled={disabled}
       aria-pressed={onToggle ? isActive : undefined}
       style={{ transition: transition.duration + 's' }}
     >
