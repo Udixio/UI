@@ -1,6 +1,6 @@
 ---
 import { ThemePicker } from '@/components/theme/ThemePicker';
-import { ThemePreviewTabs } from '@/components/theme/ThemePreviewTabs';
+import { ThemeBuilderContent } from '@/components/theme/ThemeBuilderContent';
 import Layout from '@/layouts/layout.astro';
 import { Sidebar, THEME_SECTIONS } from '@/components/Sidebar';
 import { Card, Divider } from '@udixio/ui-react';
@@ -24,8 +24,8 @@ import { Card, Divider } from '@udixio/ui-react';
       <ThemePicker client:load />
     </Card>
     <Divider orientation="vertical" />
-    <div class="flex-[2]">
-      <ThemePreviewTabs client:load />
+    <div class="flex-[2] overflow-y-auto h-screen">
+      <ThemeBuilderContent client:load />
     </div>
   </section>
 </Layout>
