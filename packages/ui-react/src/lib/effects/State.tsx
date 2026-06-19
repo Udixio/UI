@@ -51,10 +51,15 @@ export const State = ({
       // On échappe le slash pour le sélecteur CSS
       const safeGroupName = groupName.replace(/\//g, '\\/');
 
-      const furthestGroupState = ref.current.closest(
-        `.${safeGroupName}:not(.${safeGroupName} .${safeGroupName})`,
-      );
-      groupStateRef.current = furthestGroupState as HTMLElement | null;
+      try {
+        const furthestGroupState = ref.current.closest(
+          `.${safeGroupName}:not(.${safeGroupName} .${safeGroupName})`,
+        );
+        groupStateRef.current = furthestGroupState as HTMLElement | null;
+      } catch {
+        // Fallback for environments (e.g. JSDOM) that can't parse escaped selectors
+        groupStateRef.current = ref.current.parentElement;
+      }
     }
     setIsClient(true);
   }, []);
