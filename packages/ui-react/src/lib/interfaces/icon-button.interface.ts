@@ -1,4 +1,3 @@
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { IconButtonVariant } from '../components/IconButton';
 import { ActionOrLink } from '../utils/component';
 import { Transition } from 'motion';
@@ -10,7 +9,7 @@ type Props = {
   icon?: Icon;
   size?: 'xSmall' | 'small' | 'medium' | 'large' | 'xLarge';
   width?: 'default' | 'narrow' | 'wide';
-  iconSelected?: IconDefinition;
+  iconSelected?: Icon;
   onToggle?: (isActive: boolean) => void;
   variant?: IconButtonVariant;
   disabled?: boolean;

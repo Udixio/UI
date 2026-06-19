@@ -143,7 +143,7 @@ export const NavigationRail = ({
         {fab.length > 0 &&
           cloneElement(fab[0] as ReactElement<ReactProps<FabInterface>>, {
             transition: transition,
-            isExtended: isExtended,
+            extended: isExtended,
             className: '!shadow-none mx-5 ' + (fab[0] as any).props.className,
           })}
       </div>
