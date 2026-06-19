@@ -10,6 +10,7 @@ export const ThemeBuilderNav: React.FC = () => {
   const [active, setActive] = useState<string>(SECTIONS[0].id);
 
   useEffect(() => {
+    const scrollRoot = document.getElementById('builder-scroll');
     const observers: IntersectionObserver[] = [];
     SECTIONS.forEach(({ id }) => {
       const el = document.getElementById(id);
@@ -18,7 +19,7 @@ export const ThemeBuilderNav: React.FC = () => {
         ([entry]) => {
           if (entry.isIntersecting) setActive(id);
         },
-        { threshold: 0.2, rootMargin: '0px 0px -55% 0px' },
+        { root: scrollRoot, threshold: 0.2, rootMargin: '0px 0px -55% 0px' },
       );
       obs.observe(el);
       observers.push(obs);
