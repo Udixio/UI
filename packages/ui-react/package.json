@@ -22,23 +22,25 @@
     "react-dom": ">19.0.0"
   },
   "dependencies": {
-    "pathe": "^2.0.3",
-    "jiti": "^2.5.1",
-    "throttle-debounce": "^5.0.2",
-    "clsx": "^1.1.1",
-    "react-textarea-autosize": "^8.5.9",
-    "motion": "^12.23.0",
-    "tailwind-merge": "^3.3.1",
-    "uuid": "^11.0.3",
-    "lenis": "^1.2.3",
     "@fortawesome/fontawesome-svg-core": "^7.0.0",
     "@fortawesome/free-regular-svg-icons": "^7.0.0",
     "@fortawesome/free-solid-svg-icons": "^7.0.0",
-    "@fortawesome/react-fontawesome": "^3.0.0"
+    "@fortawesome/react-fontawesome": "^3.0.0",
+    "clsx": "^1.1.1",
+    "jiti": "^2.5.1",
+    "lenis": "^1.2.3",
+    "motion": "^12.23.0",
+    "pathe": "^2.0.3",
+    "react-textarea-autosize": "^8.5.9",
+    "tailwind-merge": "^3.3.1",
+    "throttle-debounce": "^5.0.2",
+    "uuid": "^11.0.3"
   },
   "devDependencies": {
-    "@udixio/theme": "workspace:*",
+    "@types/jest-axe": "^3.5.9",
     "@udixio/tailwind": "workspace:*",
+    "@udixio/theme": "workspace:*",
+    "jest-axe": "^10.0.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
