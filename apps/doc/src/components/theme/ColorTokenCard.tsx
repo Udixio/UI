@@ -8,6 +8,7 @@ type Props = {
   onColor?: ColorFromPalette; // Unused
   onSelect?: (name: string, color: ColorFromPalette) => void;
   onHoverEnd?: () => void;
+  usage?: string;
 };
 
 export const ColorTokenCard: React.FC<Props> = ({
@@ -15,6 +16,7 @@ export const ColorTokenCard: React.FC<Props> = ({
   onSelect,
   color,
   onHoverEnd,
+  usage,
 }) => {
   const [copiedType, setCopiedType] = useState<'hex' | 'var' | null>(null);
 
@@ -57,11 +59,16 @@ export const ColorTokenCard: React.FC<Props> = ({
         </div>
       </div>
 
-      <div className="flex items-end justify-between">
-        <div className="text-title-medium font-mono font-medium" style={{ textShadow: tone > 60 ? 'none' : '0 1px 2px rgba(0,0,0,0.3)' }}>
+      <div className="flex items-end justify-between gap-2">
+        <div className="text-title-medium font-mono font-medium shrink-0" style={{ textShadow: tone > 60 ? 'none' : '0 1px 2px rgba(0,0,0,0.3)' }}>
           {copiedType === 'hex' ? 'Copied!' : hex}
         </div>
-        
+        {usage && (
+          <div className="text-[9px] italic text-right leading-tight opacity-70 truncate" style={{ color: secondaryTextColor }}>
+            {usage}
+          </div>
+        )}
+
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
            <button
              onClick={(e) => handleCopy(e, 'hex')}
