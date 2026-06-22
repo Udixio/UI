@@ -22,20 +22,16 @@ export const Slider = ({
   value: defaultValue = 0,
   min = 0,
   max = 100,
-  marks = [
-    {
-      value: 0,
-      label: '0',
-    },
-    {
-      value: 100,
-      label: '100',
-    },
-  ],
+  marks,
   ref,
   onChange,
   ...restProps
 }: ReactProps<SliderInterface>) => {
+  const resolvedMarks = marks ?? [
+    { value: min === -Infinity ? 0 : min, label: String(min === -Infinity ? 0 : min) },
+    { value: max === Infinity ? 100 : max, label: String(max === Infinity ? 100 : max) },
+  ];
+
   const getpercentFromValue = (value: number) => {
     const min = getMin();
     const max = getMax();
@@ -52,13 +48,13 @@ export const Slider = ({
     if (isInfinity) {
       return max;
     }
-    return max == Infinity ? marks[marks?.length - 1].value : max;
+    return max == Infinity ? resolvedMarks[resolvedMarks.length - 1].value : max;
   };
   const getMin = (isInfinity = false) => {
     if (isInfinity) {
       return min;
     }
-    return min == -Infinity ? marks[0].value : min;
+    return min == -Infinity ? resolvedMarks[0].value : min;
   };
 
   const getValueFrompercent = (percent: number) => {
@@ -189,8 +185,8 @@ export const Slider = ({
     }
     if (step != null) {
       value = Math.round((value - getMin()) / step) * step + getMin();
-    } else if (marks) {
-      value = marks.reduce((prev, curr, currentIndex) => {
+    } else if (resolvedMarks) {
+      value = resolvedMarks.reduce((prev, curr, currentIndex) => {
         let currDiff =
           curr.value === Infinity
             ? getMax()
@@ -340,8 +336,8 @@ export const Slider = ({
           'w-[calc(100%-12px)] h-full absolute -translate-x-1/2 transform left-1/2'
         }
       >
-        {marks &&
-          marks.map((mark, index) => {
+        {resolvedMarks &&
+          resolvedMarks.map((mark, index) => {
             let isUnderActiveTrack = null;
 
             const handleAndGapPercent =
