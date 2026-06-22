@@ -32,8 +32,6 @@ export const PaletteToneRow: React.FC<Props> = ({
     }
   }, [api, group]);
 
-  if (!palette) return null;
-
   let highlightedTone = highlighted?.color.getTone();
   if (highlightedTone) {
     highlightedTone = Math.round(highlightedTone);
@@ -47,6 +45,7 @@ export const PaletteToneRow: React.FC<Props> = ({
     typeof highlightedTone === 'number' && highlightedTone % 10 !== 0;
 
   const items = useMemo(() => {
+    if (!palette) return [];
     const base = toneSteps.map((t) => ({ t, kind: 'standard' as const }));
     if (needsExtra && highlightedTone != null) {
       let inserted = false;
@@ -67,7 +66,9 @@ export const PaletteToneRow: React.FC<Props> = ({
       return out;
     }
     return base;
-  }, [toneSteps, needsExtra, highlightedTone]);
+  }, [toneSteps, needsExtra, highlightedTone, palette]);
+
+  if (!palette) return null;
 
   return (
     <div className="w-full overflow-x-auto pb-2">
