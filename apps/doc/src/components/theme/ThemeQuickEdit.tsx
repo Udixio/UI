@@ -27,7 +27,7 @@ export const ThemeQuickEdit = () => {
   return (
     <Card
       variant="outlined"
-      className="bg-surface-container-low w-full max-w-3xl p-4 md:p-6 flex flex-row items-center justify-between shadow-lg rounded-[2rem] border-outline-variant/50"
+      className="bg-surface-container-low w-full max-w-3xl p-4 md:p-6 flex flex-row items-center justify-between shadow-lg rounded-[2rem] border-outline-variant"
     >
       <div className="flex items-center gap-4 md:gap-6">
         <div
@@ -53,7 +53,7 @@ export const ThemeQuickEdit = () => {
         </div>
       </div>
 
-      <div className="w-px h-10 bg-outline-variant/40 hidden sm:block" />
+      <div className="w-px h-10 bg-outline-variant hidden sm:block" />
 
       <div className="flex items-center gap-4 md:gap-6">
         <span

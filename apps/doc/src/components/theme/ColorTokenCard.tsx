@@ -24,9 +24,7 @@ export const ColorTokenCard: React.FC<Props> = ({
   const tone = Math.round(color.getTone());
   const cssVar = `--color-${kebabCase(name)}`;
   
-  // Decide text color based on tone (light tone -> dark text, dark tone -> light text)
-  const textColor = tone > 60 ? '#1f1f1f' : '#ffffff';
-  const secondaryTextColor = tone > 60 ? '#4b4b4b' : '#d4d4d4';
+  const textColor = tone > 60 ? 'black' : 'white';
 
   const handleCopy = async (e: React.MouseEvent, type: 'hex' | 'var') => {
     e.stopPropagation();
@@ -48,23 +46,23 @@ export const ColorTokenCard: React.FC<Props> = ({
         backgroundColor: `var(${cssVar})`,
         color: textColor,
       }}
-      className="relative h-[110px] group flex flex-col justify-between p-4 rounded-xl border border-outline-variant/20 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:z-10"
+      className="relative h-[110px] group flex flex-col justify-between p-4 rounded-xl border border-outline-variant transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:z-10"
     >
       <div className="flex flex-col gap-0.5">
-        <div className="text-label-large font-bold tracking-wide break-words truncate" style={{ textShadow: tone > 60 ? 'none' : '0 1px 2px rgba(0,0,0,0.3)' }}>
+        <div className="text-label-large font-bold tracking-wide break-words truncate" style={{ textShadow: tone > 60 ? undefined : '0 1px 2px rgb(0 0 0 / 30%)' }}>
           {name}
         </div>
-        <div className="text-body-small font-mono text-[10px] break-words truncate" style={{ color: secondaryTextColor, textShadow: tone > 60 ? 'none' : '0 1px 2px rgba(0,0,0,0.3)' }}>
+        <div className="text-body-small font-mono text-[10px] break-words truncate opacity-70" style={{ textShadow: tone > 60 ? undefined : '0 1px 2px rgb(0 0 0 / 30%)' }}>
           var({cssVar})
         </div>
       </div>
 
       <div className="flex items-end justify-between gap-2">
-        <div className="text-title-medium font-mono font-medium shrink-0" style={{ textShadow: tone > 60 ? 'none' : '0 1px 2px rgba(0,0,0,0.3)' }}>
+        <div className="text-title-medium font-mono font-medium shrink-0" style={{ textShadow: tone > 60 ? undefined : '0 1px 2px rgb(0 0 0 / 30%)' }}>
           {copiedType === 'hex' ? 'Copied!' : hex}
         </div>
         {usage && (
-          <div className="text-[9px] italic text-right leading-tight opacity-70 truncate" style={{ color: secondaryTextColor }}>
+          <div className="text-[9px] italic text-right leading-tight opacity-70 truncate">
             {usage}
           </div>
         )}
@@ -72,7 +70,7 @@ export const ColorTokenCard: React.FC<Props> = ({
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
            <button
              onClick={(e) => handleCopy(e, 'hex')}
-             className="text-[10px] uppercase tracking-wider font-bold px-2 py-1.5 bg-black/10 hover:bg-black/20 rounded-lg backdrop-blur-sm transition-colors border border-white/10"
+             className="text-[10px] uppercase tracking-wider font-bold px-2 py-1.5 bg-current/10 hover:bg-current/20 rounded-lg backdrop-blur-sm transition-colors border border-current/10"
              style={{ color: textColor }}
              title="Copy HEX code"
            >
@@ -80,7 +78,7 @@ export const ColorTokenCard: React.FC<Props> = ({
            </button>
            <button
              onClick={(e) => handleCopy(e, 'var')}
-             className="text-[10px] uppercase tracking-wider font-bold px-2 py-1.5 bg-black/10 hover:bg-black/20 rounded-lg backdrop-blur-sm transition-colors border border-white/10"
+             className="text-[10px] uppercase tracking-wider font-bold px-2 py-1.5 bg-current/10 hover:bg-current/20 rounded-lg backdrop-blur-sm transition-colors border border-current/10"
              style={{ color: textColor }}
              title="Copy CSS variable"
            >

@@ -234,7 +234,7 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
               {Math.round(hue)}°
             </span>
           </div>
-          <div className="relative h-6 rounded-full overflow-hidden ring-1 ring-inset ring-outline-variant/20">
+          <div className="relative h-6 rounded-full overflow-hidden ring-1 ring-inset ring-outline-variant">
             <input
               type="range"
               min="0"
@@ -257,7 +257,7 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
               {Math.round(chroma)}
             </span>
           </div>
-          <div className="relative h-6 rounded-full overflow-hidden ring-1 ring-inset ring-outline-variant/20">
+          <div className="relative h-6 rounded-full overflow-hidden ring-1 ring-inset ring-outline-variant">
             <input
               type="range"
               min="0"
@@ -280,7 +280,7 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
               {Math.round(tone)}
             </span>
           </div>
-          <div className="relative h-6 rounded-full overflow-hidden ring-1 ring-inset ring-outline-variant/20">
+          <div className="relative h-6 rounded-full overflow-hidden ring-1 ring-inset ring-outline-variant">
             <input
               type="range"
               min="0"
@@ -314,8 +314,8 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
           border-radius: 50%;
           background: white;
           cursor: pointer;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-          border: 2px solid rgba(0, 0, 0, 0.1);
+          box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
+          border: 2px solid rgb(0 0 0 / 10%);
           transform: scale(0.8);
           transition: transform 0.1s;
         }
@@ -329,8 +329,8 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
           border-radius: 50%;
           background: white;
           cursor: pointer;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-          border: 2px solid rgba(0, 0, 0, 0.1);
+          box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
+          border: 2px solid rgb(0 0 0 / 10%);
           transform: scale(0.8);
           transition: transform 0.1s;
         }

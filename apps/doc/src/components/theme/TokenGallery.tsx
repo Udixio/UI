@@ -5,17 +5,12 @@ import {
   themeServiceStore,
 } from '@/stores/themeConfigStore.ts';
 import { ColorAlias, ColorFromPalette } from '@udixio/theme';
-import { Card, classNames, Icon, TextField } from '@udixio/ui-react';
+import { Card, Icon, TextField } from '@udixio/ui-react';
 import PaletteToneRow from './PaletteToneRow';
 import ColorTokenCard from './ColorTokenCard';
 import { AnimatePresence, motion } from 'motion/react';
-import { kebabCase } from 'change-case';
 import { iKeyboardArrowDown } from '@udixio/icons-rounded-400/keyboard_arrow_down';
 import { iKeyboardArrowUp } from '@udixio/icons-rounded-400/keyboard_arrow_up';
-
-// A richer UX gallery focusing on usability: search, filter, copy, and previews.
-
-type Token = { name: string; value: string };
 
 const paletteOrder = [
   'Primary',
@@ -27,12 +22,6 @@ const paletteOrder = [
   'Success',
 ] as const;
 
-type PaletteFamily = (typeof paletteOrder)[number] | 'others';
-
-function getPaletteFamily(color: ColorFromPalette): PaletteFamily {
-  return color.options.palette.name as PaletteFamily;
-}
-
 export const TokenGallery: React.FC = () => {
   const $themeApi = useStore(themeServiceStore);
 
@@ -41,12 +30,6 @@ export const TokenGallery: React.FC = () => {
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
     { Primary: true },
   );
-  const [selectedToneByGroup, setSelectedToneByGroup] = useState<
-    Record<string, { name: string; color: ColorFromPalette } | null>
-  >({});
-  const [hoveredTokenByGroup, setHoveredTokenByGroup] = useState<
-    Record<string, { name: string; color: ColorFromPalette } | null>
-  >({});
 
   const tokens = useMemo(() => {
     if (!$themeApi) {
@@ -88,30 +71,6 @@ export const TokenGallery: React.FC = () => {
     return map;
   }, [filtered]);
 
-  const parseCssVarHex = (cssVarName: string): string | null => {
-    if (typeof window === 'undefined') return null;
-    const val = getComputedStyle(document.documentElement)
-      .getPropertyValue(cssVarName)
-      .trim();
-    if (!val) return null;
-    // Normalize rgb(...) to hex if needed by creating a dummy element
-    if (val.startsWith('#')) return val;
-    // Attempt to compute actual color by assigning to a temp element
-    const el = document.createElement('div');
-    el.style.color = `var(${cssVarName})`;
-    const rgb = getComputedStyle(el).color;
-    el.remove();
-    // rgb(a, r, g, b) -> convert
-    const m = rgb.match(/rgba?\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
-    if (m) {
-      const r = Number(m[1]).toString(16).padStart(2, '0');
-      const g = Number(m[2]).toString(16).padStart(2, '0');
-      const b = Number(m[3]).toString(16).padStart(2, '0');
-      return `#${r}${g}${b}`;
-    }
-    return null;
-  };
-
   // Animation variants for palette keys reveal
   const gridVariants = {
     hidden: {
@@ -135,29 +94,9 @@ export const TokenGallery: React.FC = () => {
     },
     exit: { opacity: 0, y: -6, scale: 0.98, transition: { duration: 0.15 } },
   } as const;
-  const handleTokenHover = (name: string, color: ColorFromPalette) => {
-    const group = getPaletteFamily(color);
-    const hex = color.getHex();
-    if (!hex) return;
-    setSelectedToneByGroup((prev) => ({
-      ...prev,
-      [group]: { name, color },
-    }));
-    setHoveredTokenByGroup((prev) => ({
-      ...prev,
-      [group]: { name, color },
-    }));
-  };
-
-  const handleTokenHoverEnd = (name: string, color: ColorFromPalette) => {
-    const group = getPaletteFamily(color);
-    setSelectedToneByGroup((prev) => ({ ...prev, [group]: null }));
-    setHoveredTokenByGroup((prev) => ({ ...prev, [group]: null }));
-  };
-
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 bg-surface-container p-4 rounded-xl border border-outline-variant/40">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 bg-surface-container p-4 rounded-xl border border-outline-variant">
         <div className="flex-1">
           <TextField
             variant={'outlined'}
@@ -187,7 +126,7 @@ export const TokenGallery: React.FC = () => {
             <Card
               key={group}
               variant="filled"
-              className="overflow-hidden border border-outline-variant/30"
+              className="overflow-hidden border border-outline-variant"
             >
               <div
                 onClick={() =>
@@ -225,12 +164,11 @@ export const TokenGallery: React.FC = () => {
                     transition={{ duration: 0.2 }}
                     className="overflow-hidden bg-surface-container-lowest"
                   >
-                    <div className="p-4 space-y-4 border-t border-outline-variant/20">
-                      <div className="bg-surface/50 rounded-lg p-2 border border-outline-variant/20">
+                    <div className="p-4 space-y-4 border-t border-outline-variant">
+                      <div className="bg-surface rounded-lg p-2 border border-outline-variant">
                         <PaletteToneRow
                           api={$themeApi}
                           group={group as any}
-                          highlighted={selectedToneByGroup[group] ?? null}
                         />
                       </div>
 
@@ -246,12 +184,8 @@ export const TokenGallery: React.FC = () => {
                           return (
                             <motion.div key={name} variants={itemVariants} layout>
                                 <ColorTokenCard
-                                  name={name}
-                                  color={t.color}
-                                onSelect={handleTokenHover}
-                                onHoverEnd={() =>
-                                  handleTokenHoverEnd(name, t.color)
-                                }
+                                name={name}
+                                color={t.color}
                               />
                             </motion.div>
                           );

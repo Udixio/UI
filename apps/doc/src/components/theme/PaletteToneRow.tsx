@@ -1,135 +1,183 @@
-import React, { useMemo } from 'react';
-import { API, ColorFromPalette } from '@udixio/theme';
+import React, { useMemo, useRef, useState } from 'react';
+import { useStore } from '@nanostores/react';
+import { API } from '@udixio/theme';
 import { hexFromArgb } from '@material/material-color-utilities';
-import { AnimatePresence, motion } from 'motion/react';
+import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
+import { themeConfigStore } from '@/stores/themeConfigStore.ts';
 
-type Props = {
-  api: API | null | undefined;
-  group: string;
-  highlighted?: { name: string; color: ColorFromPalette } | null;
-  // Optional label to indicate where the highlighted tone comes from
-  sourceLabel?: string | null;
-};
+type Props = { api: API | null | undefined; group: string };
 
-export const PaletteToneRow: React.FC<Props> = ({
-  api,
-  group,
-  highlighted,
-  sourceLabel,
-}) => {
-  const toneSteps = useMemo(
-    () => Array.from({ length: 11 }, (_, i) => i * 10).reverse(),
-    [],
-  );
+const IND_W = 48;
+const GAP = 8;
+const SPRING = { stiffness: 360, damping: 28, mass: 0.7 };
+
+function makeGradient(
+  palette: ReturnType<API['palettes']['get']>,
+  fromTone: number,
+  toTone: number,
+) {
+  if (fromTone === toTone) return hexFromArgb(palette.tone(fromTone));
+  const steps = Math.max(2, Math.round(Math.abs(fromTone - toTone) / 5) + 1);
+  const stops = Array.from({ length: steps }, (_, i) => {
+    const t = fromTone + (toTone - fromTone) * (i / (steps - 1));
+    return hexFromArgb(palette.tone(Math.round(t)));
+  });
+  return `linear-gradient(to right, ${stops.join(', ')})`;
+}
+
+export const PaletteToneRow: React.FC<Props> = ({ api, group }) => {
+  const cwRef = useRef(400);
+  const activeRef = useRef(false); // synchronous hover flag, immune to React batching
+
+  const [tone, setTone] = useState(50);
+  const [copied, setCopied] = useState(false);
+
+  const themeConfig = useStore(themeConfigStore);
 
   const palette = useMemo(() => {
-    const key = group;
-    if (!api || !key) return null as any;
+    if (!api || !group) return null;
+    console.log('palette', api.palettes.get(group as any));
     try {
-      return api.palettes.get(key as any);
-    } catch (e) {
-      return null as any;
+      return api.palettes.get(group as any);
+    } catch {
+      return null;
     }
-  }, [api, group]);
+  }, [api, group, themeConfig]);
 
-  let highlightedTone = highlighted?.color.getTone();
-  if (highlightedTone) {
-    highlightedTone = Math.round(highlightedTone);
-  }
+  const fullGradient = useMemo(
+    () => (palette ? makeGradient(palette, 100, 0) : ''),
+    [palette],
+  );
 
-  const roundedSelected =
-    typeof highlightedTone === 'number' && !Number.isNaN(highlightedTone)
-      ? Math.round(highlightedTone / 10) * 10
-      : null;
-  const needsExtra =
-    typeof highlightedTone === 'number' && highlightedTone % 10 !== 0;
+  // ── MotionValues ──────────────────────────────────────────────────────────
+  const cursorX = useMotionValue(0);
+  const indW = useSpring(0, SPRING);
+  const gapSpring = useSpring(0, SPRING);
 
-  const items = useMemo(() => {
-    if (!palette) return [];
-    const base = toneSteps.map((t) => ({ t, kind: 'standard' as const }));
-    if (needsExtra && highlightedTone != null) {
-      let inserted = false;
-      const out: { t: number; kind: 'standard' | 'extra' }[] = [];
-      for (let i = 0; i < base.length; i++) {
-        const curr = base[i].t; // descending order
-        const prev = i === 0 ? 101 : base[i - 1].t; // 101 > 100 ensures proper comparison at start
-        if (!inserted && highlightedTone <= prev && highlightedTone > curr) {
-          out.push({ t: highlightedTone, kind: 'extra' });
-          inserted = true;
-        }
-        out.push(base[i]);
-      }
-      if (!inserted) {
-        // Append at the end if it's <= last tone (i.e., between 0 and -inf)
-        out.push({ t: highlightedTone, kind: 'extra' });
-      }
-      return out;
-    }
-    return base;
-  }, [toneSteps, needsExtra, highlightedTone, palette]);
+  const indLeft = useTransform(
+    [cursorX, indW],
+    ([x, iw]: number[]) => x - iw / 2,
+  );
+  const leftW = useTransform(
+    [cursorX, indW, gapSpring],
+    ([x, iw, g]: number[]) => Math.max(0, x - iw / 2 - g),
+  );
+  const rightLeft = useTransform(
+    [cursorX, indW, gapSpring],
+    ([x, iw, g]: number[]) => x + iw / 2 + g,
+  );
+
+  const pillOpacity = useTransform(indW, [0, 8], [1, 0]);
+  const textOpacity = useTransform(indW, [0, IND_W * 0.55, IND_W], [0, 0, 1]);
 
   if (!palette) return null;
 
+  const leftGrad = makeGradient(palette, 100, tone);
+  const rightGrad = makeGradient(palette, tone, 0);
+  const indHex = hexFromArgb(palette.tone(tone));
+  const contrastHex = hexFromArgb(palette.tone(tone >= 50 ? 0 : 100));
+
+  const clampX = (x: number) =>
+    Math.max(IND_W / 2 + GAP, Math.min(cwRef.current - IND_W / 2 - GAP, x));
+
+  const xToTone = (x: number) =>
+    Math.round(Math.max(0, Math.min(100, (1 - x / cwRef.current) * 100)));
+
+  const triggerEnter = (x: number) => {
+    cursorX.set(x);
+    setTone(xToTone(x));
+    indW.set(IND_W);
+    gapSpring.set(GAP);
+  };
+
+  // ── Handlers ─────────────────────────────────────────────────────────────
+  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+    activeRef.current = true;
+    const rect = e.currentTarget.getBoundingClientRect();
+    cwRef.current = rect.width;
+    triggerEnter(clampX(e.clientX - rect.left));
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    cwRef.current = rect.width;
+    const x = clampX(e.clientX - rect.left);
+    // If onMouseEnter was missed, activate from here
+    if (!activeRef.current) {
+      activeRef.current = true;
+      triggerEnter(x);
+      return;
+    }
+    cursorX.set(x);
+    setTone(xToTone(x));
+  };
+
+  const handleMouseLeave = () => {
+    activeRef.current = false;
+    setCopied(false);
+    indW.set(0);
+    gapSpring.set(0);
+  };
+
+  const handleClick = () => {
+    navigator.clipboard
+      .writeText(hexFromArgb(palette.tone(tone)))
+      .catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1200);
+  };
+
   return (
-    <div className="w-full overflow-x-auto pb-2">
+    <div
+      className="relative w-full h-12 cursor-crosshair"
+      onMouseEnter={handleMouseEnter}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
+    >
+      {/* Left : tone 100 → hovered tone */}
       <motion.div
-        className="flex items-end gap-1.5 py-2 min-w-max px-1"
-        layout
-        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+        className="absolute top-0 bottom-0 left-0 pointer-events-none"
+        style={{
+          width: leftW,
+          background: leftGrad,
+          borderRadius: '24px 12px 12px 24px',
+        }}
+      />
+
+      {/* Indicator */}
+      <motion.div
+        className="absolute top-0 bottom-0 flex items-center justify-center overflow-hidden pointer-events-none"
+        style={{
+          left: indLeft,
+          width: indW,
+          background: indHex,
+          borderRadius: '12px',
+        }}
       >
-        <AnimatePresence initial={false} mode="popLayout">
-          {items.map(({ t, kind }) => {
-            const isExtra = kind === 'extra';
-            const hex = hexFromArgb(palette.tone(t));
-            const textColor = t >= 60 ? '#000' : '#fff';
-            const isSelected = !isExtra && !needsExtra && roundedSelected === t;
-            return (
-              <motion.div
-                key={`${kind}-${t}`}
-                className="relative flex flex-col items-center group"
-                layout
-                initial={
-                  isExtra ? { opacity: 0, y: -12, scale: 0.9 } : (false as any)
-                }
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={
-                  isExtra
-                    ? {
-                        opacity: 0,
-                        y: -12,
-                        scale: 0.95,
-                        pointerEvents: 'none',
-                      }
-                    : { opacity: 0 }
-                }
-                transition={{ type: 'spring', stiffness: 350, damping: 26 }}
-              >
-                <motion.div
-                  className={`w-10 h-14 rounded-md border transition-shadow duration-200 ${
-                    isExtra
-                      ? 'border-2 border-dashed border-primary ring-2 ring-primary/30 z-10'
-                      : isSelected
-                        ? 'border-primary ring-2 ring-primary/50 scale-110 z-10 shadow-md'
-                        : 'border-outline-variant/50 hover:scale-105 hover:z-10 hover:shadow-sm'
-                  }`}
-                  style={{ background: hex, color: textColor }}
-                  title={`Tone ${t} (${hex})`}
-                  layout
-                />
-                <div
-                  className={`mt-1.5 text-[10px] font-mono transition-colors duration-200 ${
-                    isExtra || isSelected
-                      ? 'text-primary font-bold'
-                      : 'text-on-surface-variant/70 group-hover:text-on-surface-variant'
-                  }`}
-                >
-                  {t}
-                </div>
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
+        <motion.span
+          className="text-label-small   select-none whitespace-nowrap"
+          style={{ color: contrastHex, opacity: textOpacity }}
+        >
+          {copied ? '✓' : tone}
+        </motion.span>
       </motion.div>
+
+      {/* Right : hovered tone → tone 0 */}
+      <motion.div
+        className="absolute top-0 bottom-0 right-0 pointer-events-none"
+        style={{
+          left: rightLeft,
+          background: rightGrad,
+          borderRadius: '12px 24px 24px 12px',
+        }}
+      />
+
+      {/* Pill — on top (rendered last), covers split pieces at rest */}
+      <motion.div
+        className="absolute inset-0 rounded-full pointer-events-none"
+        style={{ background: fullGradient, opacity: pillOpacity }}
+      />
     </div>
   );
 };

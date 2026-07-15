@@ -132,11 +132,11 @@ export const ThemePreviewTabs = () => {
                       <span>🔋</span>
                     </div>
                   </div>
-                  <div className="h-14 bg-surface-container flex items-center justify-between px-4 border-b border-outline-variant/30 shrink-0">
+                  <div className="h-14 bg-surface-container flex items-center justify-between px-4 border-b border-outline-variant shrink-0">
                     <h3 className="text-label-large text-on-surface">Chat</h3>
                     <IconButton icon={iSearch} variant="standard" label="Search" />
                   </div>
-                  <div className="flex-1 overflow-y-auto divide-y divide-outline-variant/50 bg-surface">
+                  <div className="flex-1 overflow-y-auto divide-y divide-outline-variant bg-surface">
                     {[1, 2, 3, 4, 5].map((i) => (
                       <div
                         key={i}
@@ -160,7 +160,7 @@ export const ThemePreviewTabs = () => {
                     ))}
                   </div>
 
-                  <div className="p-3 bg-surface-container-lowest border-t border-outline-variant/30 shrink-0">
+                  <div className="p-3 bg-surface-container-lowest border-t border-outline-variant shrink-0">
                     <div className="flex gap-2 items-center">
                       <input
                         type="text"

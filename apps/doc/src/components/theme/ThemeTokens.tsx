@@ -109,7 +109,7 @@ export const ThemeTokens: React.FC = () => {
           placeholder="Rechercher un token…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="flex-1 max-w-xs bg-surface-container border border-outline-variant/40 rounded-xl px-4 py-2 text-body-medium text-on-surface placeholder:text-on-surface-variant outline-none focus:border-primary transition-colors"
+          className="flex-1 max-w-xs bg-surface-container border border-outline-variant rounded-xl px-4 py-2 text-body-medium text-on-surface placeholder:text-on-surface-variant outline-none focus:border-primary transition-colors"
         />
         <div className="flex gap-2 flex-wrap">
           {ALL_KEYS.map((key) => (
@@ -119,8 +119,8 @@ export const ThemeTokens: React.FC = () => {
               onClick={() => setActiveGroup(key)}
               className={`px-3 py-1.5 rounded-full text-label-large transition-all border ${
                 activeGroup === key
-                  ? 'bg-primary-container text-on-primary-container border-primary/30'
-                  : 'text-on-surface-variant border-outline-variant/40 hover:bg-surface-container-high'
+                  ? 'bg-primary-container text-on-primary-container border-primary-container'
+                  : 'text-on-surface-variant border-outline-variant hover:bg-surface-container-high'
               }`}
             >
               {CHIP_LABELS[key]}
@@ -142,7 +142,7 @@ export const ThemeTokens: React.FC = () => {
             {/* Group header */}
             <div className="flex items-center gap-3 mb-3">
               <span className="text-label-large font-bold text-on-surface uppercase tracking-wider">{group.label}</span>
-              <div className="flex-1 h-px bg-outline-variant/30" />
+              <div className="flex-1 h-px bg-outline-variant" />
             </div>
             <p className="text-body-small text-on-surface-variant mb-3 font-mono">{group.hint}</p>
 
