@@ -33,5 +33,5 @@ type Elements = ['chips'];
 
 export type ChipsInterface = ActionOrLink<Props> & {
   elements: Elements;
-  states: {};
+  states: Record<string, never>;
 };

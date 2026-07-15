@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import { Icon } from '../icon';
-import { classNames, ReactProps } from '../utils';
-import { NavigationRailItemInterface } from '../interfaces';
-import { useNavigationRailItemStyle } from '../styles/navigation-rail-item.style';
+import { classNames, ReactProps } from '@udixio/styles';
+import { NavigationRailItemInterface } from '@udixio/styles';
+import { useNavigationRailItemStyle } from '@udixio/styles';
 import { AnimatePresence, motion } from 'motion/react';
 import { State } from '../effects';
 

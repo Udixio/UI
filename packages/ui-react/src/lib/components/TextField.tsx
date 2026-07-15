@@ -15,11 +15,11 @@ import { Divider } from './Divider';
 import { MenuHeadline } from './MenuHeadline';
 
 import TextareaAutosize from 'react-textarea-autosize';
-import { useTextFieldStyle } from '../styles/text-field.style';
-import { classNames } from '../utils';
-import { ReactProps } from '../utils/component';
+import { useTextFieldStyle } from '@udixio/styles';
+import { classNames } from '@udixio/styles';
+import { ReactProps } from '@udixio/styles';
 import { AnchorPositioner } from './AnchorPositioner';
-import { TextFieldInterface } from '../interfaces';
+import { TextFieldInterface } from '@udixio/styles';
 
 /**
  * Text fields let users enter text into a UI

@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
-import { MenuInterface } from '../interfaces/menu.interface';
-import { useMenuStyle } from '../styles/menu.style';
-import { classNames } from '../utils';
-import { ReactProps } from '../utils/component';
+import { MenuInterface } from '@udixio/styles';
+import { useMenuStyle } from '@udixio/styles';
+import { classNames } from '@udixio/styles';
+import { ReactProps } from '@udixio/styles';
 import { MenuItem } from './MenuItem';
 import { Divider } from './Divider';
 import { MenuHeadline } from './MenuHeadline';

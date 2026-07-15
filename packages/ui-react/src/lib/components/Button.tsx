@@ -1,6 +1,6 @@
-import { classNames, ReactProps } from '../utils';
-import { ButtonInterface } from '../interfaces';
-import { useButtonStyle } from '../styles';
+import { classNames, ReactProps } from '@udixio/styles';
+import { ButtonInterface } from '@udixio/styles';
+import { useButtonStyle } from '@udixio/styles';
 import { Icon } from '../icon';
 import { ProgressIndicator } from './ProgressIndicator';
 import { State } from '../effects';

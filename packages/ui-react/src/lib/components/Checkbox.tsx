@@ -1,9 +1,9 @@
 import React, { useEffect, useId, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCheckboxStyle } from '../styles/checkbox.style';
-import { classNames } from '../utils';
-import { ReactProps } from '../utils/component';
-import { CheckboxInterface } from '../interfaces/checkbox.interface';
+import { useCheckboxStyle } from '@udixio/styles';
+import { classNames } from '@udixio/styles';
+import { ReactProps } from '@udixio/styles';
+import { CheckboxInterface } from '@udixio/styles';
 import { Icon } from '../icon';
 import { faCheck, faMinus } from '@fortawesome/free-solid-svg-icons';
 import { State } from '../effects';

@@ -1,9 +1,9 @@
 import { cloneElement, isValidElement, useEffect, useRef } from 'react';
-import { MotionProps } from '../utils';
+import { MotionProps } from '@udixio/styles';
 import { Button } from './Button';
 import { AnchorPositioner } from './AnchorPositioner';
-import { ToolTipInterface } from '../interfaces';
-import { useToolTipStyle } from '../styles';
+import { ToolTipInterface } from '@udixio/styles';
+import { useToolTipStyle } from '@udixio/styles';
 import { AnimatePresence, motion } from 'motion/react';
 import { useTooltipTrigger } from '../hooks';
 

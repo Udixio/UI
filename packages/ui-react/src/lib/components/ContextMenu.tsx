@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { AnchorPositioner } from './AnchorPositioner';
 import { Menu } from './Menu';
-// import { MenuProps } from '../interfaces/menu.interface'; // MenuProps is not exported from interface file usually, check file content
-import { MenuInterface } from '../interfaces';
-import { ReactProps } from '../utils';
+// import { MenuProps } from '@udixio/styles'; // MenuProps is not exported from interface file usually, check file content
+import { MenuInterface } from '@udixio/styles';
+import { ReactProps } from '@udixio/styles';
 
 // MenuInterface has props: MenuProps.
 // But MenuProps might not be exported directly from the package index, so accessing it via MenuInterface['props'] is safer if we can't import it.

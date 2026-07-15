@@ -1,7 +1,8 @@
-import { IconButtonVariant } from '../components/IconButton';
 import { ActionOrLink } from '../utils/component';
 import { Transition } from 'motion';
 import { Icon } from '../icon';
+
+export type IconButtonVariant = 'standard' | 'filled' | 'tonal' | 'outlined';
 
 type Props = {
   label?: string;

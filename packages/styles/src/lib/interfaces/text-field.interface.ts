@@ -1,5 +1,4 @@
 import React from 'react';
-import { IconButton } from '../components/IconButton';
 import { Icon } from '../icon';
 import { MenuItemInterface } from './menu-item.interface';
 
@@ -12,8 +11,8 @@ type Props = {
   disabled?: boolean;
   errorText?: string | null;
   supportingText?: string;
-  trailingIcon?: React.ReactElement<typeof IconButton> | Icon;
-  leadingIcon?: React.ReactElement<typeof IconButton> | Icon;
+  trailingIcon?: React.ReactElement | Icon;
+  leadingIcon?: React.ReactElement | Icon;
   onChange?: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
   showSupportingText?: boolean;
   suffix?: string;

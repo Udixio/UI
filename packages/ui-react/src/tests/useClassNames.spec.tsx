@@ -1,9 +1,9 @@
 import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useClassNames } from '../lib/utils/styles/use-classnames';
-import type { ComponentInterface } from '../lib/utils/component';
-import type { ClassNameComponent } from '../lib/utils/styles/get-classname';
+import { useClassNames } from '@udixio/styles';
+import type { ComponentInterface } from '@udixio/styles';
+import type { ClassNameComponent } from '@udixio/styles';
 
 // Minimal fake component interface for testing the hook
 interface TestComp extends ComponentInterface {

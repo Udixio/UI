@@ -82,7 +82,6 @@ export const createUseClassNames = <T extends ComponentInterface>(
       className?: string | ClassNameComponent<T>;
     },
   ): Record<T['elements'][number], string> => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     return useMemo(
       () =>
         getClassNames<T>({

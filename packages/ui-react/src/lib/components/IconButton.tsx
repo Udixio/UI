@@ -1,13 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 
 import { Icon } from '../icon';
-import { IconButtonInterface } from '../interfaces';
-import { useIconButtonStyle } from '../styles';
-import { classNames, ReactProps } from '../utils';
+import { IconButtonInterface } from '@udixio/styles';
+import { useIconButtonStyle } from '@udixio/styles';
+import { classNames, ReactProps } from '@udixio/styles';
 import { State } from '../effects';
 import { Tooltip } from './Tooltip';
 
-export type IconButtonVariant = 'standard' | 'filled' | 'tonal' | 'outlined';
+export type { IconButtonVariant } from '@udixio/styles';
 
 /**
  * Icon buttons help people take minor actions with one tap

@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { SliderInterface } from '../interfaces';
-import { useSliderStyle } from '../styles';
-import { classNames, ReactProps } from '../utils';
+import { SliderInterface } from '@udixio/styles';
+import { useSliderStyle } from '@udixio/styles';
+import { classNames, ReactProps } from '@udixio/styles';
 import { useEffect, useRef, useState } from 'react';
 
 /**

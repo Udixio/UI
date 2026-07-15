@@ -1,7 +1,7 @@
 import React from 'react';
-import { ReactProps } from '../utils/component';
-import { useMenuGroupStyle } from '../styles/menu-group.style';
-import { MenuGroupInterface } from '../interfaces/menu-group.interface';
+import { ReactProps } from '@udixio/styles';
+import { useMenuGroupStyle } from '@udixio/styles';
+import { MenuGroupInterface } from '@udixio/styles';
 
 /**
  * MenuGroup renders a group of menu items with persistent styling.

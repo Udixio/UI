@@ -2,9 +2,9 @@ import { motion } from 'motion/react';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { Icon } from '../icon';
-import { useTabStyle } from '../styles/tab.style';
-import { TabInterface } from '../interfaces/tab.interface';
-import { ReactProps } from '../utils/component';
+import { useTabStyle } from '@udixio/styles';
+import { TabInterface } from '@udixio/styles';
+import { ReactProps } from '@udixio/styles';
 import { State } from '../effects';
 
 /**

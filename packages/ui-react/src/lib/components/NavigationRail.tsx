@@ -10,15 +10,15 @@ import {
   useRef,
   useState,
 } from 'react';
-import { ReactProps } from '../utils';
+import { ReactProps } from '@udixio/styles';
 import {
   NavigationRailItem,
   NavigationRailSection,
 } from './NavigationRailItem';
 import { Fab } from './Fab';
-import { useNavigationRailStyle } from '../styles/navigation-rail.style';
-import { NavigationRailInterface } from '../interfaces/navigation-rail.interface';
-import { FabInterface, NavigationRailItemInterface } from '../interfaces';
+import { useNavigationRailStyle } from '@udixio/styles';
+import { NavigationRailInterface } from '@udixio/styles';
+import { FabInterface, NavigationRailItemInterface } from '@udixio/styles';
 import { faBars, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { IconButton } from './IconButton';
 

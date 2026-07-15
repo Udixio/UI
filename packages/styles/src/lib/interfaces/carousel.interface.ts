@@ -1,5 +1,4 @@
 import { ReactElement } from 'react';
-import { CarouselItem } from '../components';
 
 export interface CarouselMetrics {
   total: number;
@@ -18,7 +17,7 @@ export interface CarouselMetrics {
 export interface CarouselInterface {
   type: 'div';
   props: {
-    children?: ReactElement<typeof CarouselItem>[];
+    children?: ReactElement[];
     marginPourcent?: number;
     onChange?: (index: number) => void;
     /**

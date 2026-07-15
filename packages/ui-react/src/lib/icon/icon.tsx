@@ -1,15 +1,12 @@
 import type React from 'react';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { classNames } from '../utils';
+import {
+  classNames,
+  type Icon as IconType,
+  type SvgImport,
+} from '@udixio/styles';
 
-export type Icon = IconDefinition | SvgImport | string;
-
-interface SvgImport {
-  src: string;
-  width: number;
-  height: number;
-  format: string;
-}
+export type Icon = IconType;
 
 interface Props {
   icon: Icon;

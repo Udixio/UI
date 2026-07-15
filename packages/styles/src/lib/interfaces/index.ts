@@ -3,6 +3,8 @@ export * from './card.interface';
 export * from './carousel-item.interface';
 export * from './carousel.interface';
 export * from './checkbox.interface';
+export * from './date-picker.interface';
+export * from './navigation-rail.interface';
 export * from './chip.interface';
 export * from './chips.interface';
 export * from './divider.interface';

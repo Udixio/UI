@@ -1,7 +1,7 @@
 import React, { useId, useMemo, useRef, useState } from 'react';
 import { TabGroupContext, TabGroupContextValue } from './TabGroupContext';
-import { TabGroupInterface } from '../interfaces/tab-group.interface';
-import { ReactProps } from '../utils/component';
+import { TabGroupInterface } from '@udixio/styles';
+import { ReactProps } from '@udixio/styles';
 
 /**
  * TabGroup provides shared state for Tabs and TabPanels

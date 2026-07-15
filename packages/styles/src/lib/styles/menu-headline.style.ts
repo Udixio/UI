@@ -1,5 +1,8 @@
-
-import { type ClassNameComponent, classNames, defaultClassNames, createUseClassNames } from '../utils';
+import {
+  type ClassNameComponent,
+  classNames,
+  createUseClassNames,
+} from '../utils';
 
 export interface MenuHeadlineInterface {
     label?: string;
@@ -17,4 +20,7 @@ const menuHeadlineConfig: ClassNameComponent<MenuHeadlineInterface> = ({ props }
   }),
 });
 
-export const useMenuHeadlineStyle = createUseClassNames<MenuHeadlineInterface>('menu-headline', menuHeadlineConfig);
+export const useMenuHeadlineStyle = createUseClassNames<MenuHeadlineInterface>(
+  'headline',
+  menuHeadlineConfig,
+);

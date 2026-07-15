@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motion, useMotionValueEvent, useScroll } from 'motion/react';
 import { CustomScrollInterface } from './custom-scroll.interface';
 import { customScrollStyle } from './custom-scroll.style';
-import { ReactProps } from '../../utils';
+import { ReactProps } from '@udixio/styles';
 
 // Throttle helper that guarantees execution of the latest call after the wait window (leading + trailing)
 function createScrollThrottle(

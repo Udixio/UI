@@ -4,7 +4,7 @@ import {
   classNames,
   createUseClassNames,
   ReactProps,
-} from '../utils';
+} from '@udixio/styles';
 import { useEffect, useRef, useState } from 'react';
 
 export interface StateInterface {

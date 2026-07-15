@@ -8,31 +8,11 @@
     "emitDeclarationOnly": true,
     "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
-    "types": [
-      "node",
-      "vite/client"
-    ],
-    "lib": [
-      "es2022",
-      "dom",
-      "dom.iterable"
-    ]
+    "types": ["node", "vite/client"],
+    "lib": ["es2022", "dom", "dom.iterable"]
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx"
-  ],
-  "references": [
-    {
-      "path": "../styles/tsconfig.lib.json"
-    },
-    {
-      "path": "../tailwind/tsconfig.lib.json"
-    },
-    {
-      "path": "../theme/tsconfig.lib.json"
-    }
-  ],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "references": [],
   "exclude": [
     "vite.config.ts",
     "vite.config.mts",
@@ -45,10 +25,6 @@
     "src/**/*.test.js",
     "src/**/*.spec.js",
     "src/**/*.test.jsx",
-    "src/**/*.spec.jsx",
-    "**/*.stories.ts",
-    "**/*.stories.js",
-    "**/*.stories.jsx",
-    "**/*.stories.tsx"
+    "src/**/*.spec.jsx"
   ]
 }

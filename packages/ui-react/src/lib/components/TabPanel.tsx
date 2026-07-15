@@ -1,7 +1,7 @@
 import React from 'react';
-import { TabPanelInterface } from '../interfaces/tab-panels.interface';
-import { ReactProps } from '../utils/component';
-import { useTabPanelStyle } from '../styles/tab-panels.style';
+import { TabPanelInterface } from '@udixio/styles';
+import { ReactProps } from '@udixio/styles';
+import { useTabPanelStyle } from '@udixio/styles';
 
 /**
  * TabPanel contains the content for a single tab

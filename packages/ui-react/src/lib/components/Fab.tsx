@@ -1,10 +1,10 @@
 import React, { useRef } from 'react';
 import { Icon } from '../icon';
 import { AnimatePresence, motion } from 'motion/react';
-import { FabInterface } from '../interfaces/fab.interface';
-import { useFabStyle } from '../styles/fab.style';
-import { classNames } from '../utils';
-import { ReactProps } from '../utils/component';
+import { FabInterface } from '@udixio/styles';
+import { useFabStyle } from '@udixio/styles';
+import { classNames } from '@udixio/styles';
+import { ReactProps } from '@udixio/styles';
 import { Tooltip } from './Tooltip';
 import { State } from '../effects';
 

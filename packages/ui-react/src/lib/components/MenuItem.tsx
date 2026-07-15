@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Icon } from '../icon';
-import { classNames, ReactProps } from '../utils';
-import { MenuItemInterface } from '../interfaces/menu-item.interface';
-import { useMenuItemStyle } from '../styles/menu-item.style';
+import { classNames, ReactProps } from '@udixio/styles';
+import { MenuItemInterface } from '@udixio/styles';
+import { useMenuItemStyle } from '@udixio/styles';
 import { faCheck, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { AnchorPositioner } from './AnchorPositioner';
 import { State } from '../effects';
