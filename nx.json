@@ -30,6 +30,11 @@
     },
     "build-storybook": {
       "cache": true
+    },
+    "@nx/angular:package": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
     }
   },
   "workspaceLayout": {
@@ -121,8 +126,12 @@
     "projectsRelationship": "independent",
     "conventionalCommits": {
       "types": {
-        "feat": { "semverBump": "minor" },
-        "fix":  { "semverBump": "patch" }
+        "feat": {
+          "semverBump": "minor"
+        },
+        "fix": {
+          "semverBump": "patch"
+        }
       }
     },
     "version": {
@@ -141,6 +150,13 @@
       "library": {
         "unitTestRunner": "vitest"
       }
+    },
+    "@nx/angular:library": {
+      "linter": "eslint",
+      "unitTestRunner": "jest"
+    },
+    "@nx/angular:component": {
+      "style": "css"
     }
   },
   "defaultBase": "origin/main",

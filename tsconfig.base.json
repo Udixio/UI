@@ -5,9 +5,7 @@
     "emitDeclarationOnly": true,
     "importHelpers": true,
     "isolatedModules": true,
-    "lib": [
-      "es2022"
-    ],
+    "lib": ["es2022"],
     "module": "esnext",
     "moduleResolution": "bundler",
     "noEmitOnError": true,
@@ -18,8 +16,9 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
-    "customConditions": [
-      "development"
-    ]
+    "customConditions": ["development"],
+    "paths": {
+      "@udixio/ui-angular": ["./packages/ui-angular/src/index.ts"]
+    }
   }
 }
