@@ -1,6 +1,7 @@
 
 export * from './AnchorPositioner';
 export * from './Button';
+export * from './button.react';
 export * from './Card';
 export * from './Card';
 export * from './Carousel';
@@ -28,6 +29,7 @@ export * from './TabGroup';
 export * from './TabPanels';
 export * from './TabPanel';
 export * from './TextField';
+export * from './text-field.react';
 export * from './NavigationRailItem';
 export * from './NavigationRail';
 export * from './Tooltip';

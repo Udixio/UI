@@ -7,14 +7,14 @@ type Props = {
   value?: string;
   variant?: TextFieldVariant;
   multiline?: boolean;
-  leadingIconInteractive?: boolean;
-  trailingIconInteractive?: boolean;
 };
 
 export type TextFieldStates = {
   isFocused: boolean;
   showErrorIcon: boolean;
   showSupportingText: boolean;
+  leadingIconInteractive?: boolean;
+  trailingIconInteractive?: boolean;
 };
 
 export interface TextFieldInterface {
