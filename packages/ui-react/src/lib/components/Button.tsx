@@ -1,6 +1,5 @@
-import { classNames, ReactProps } from '@udixio/core';
-import { ButtonInterface } from '@udixio/core';
-import { useButtonStyle } from '@udixio/core';
+import { classNames } from '@udixio/core';
+import { useButtonStyle, type ReactButtonProps } from './button.react';
 import { Icon } from '../icon';
 import { ProgressIndicator } from './ProgressIndicator';
 import { State } from '../effects';
@@ -66,7 +65,7 @@ export const Button = ({
   transition,
   children,
   ...restProps
-}: ReactProps<ButtonInterface>) => {
+}: ReactButtonProps) => {
   if (children) label = children;
   if (!label) {
     if (

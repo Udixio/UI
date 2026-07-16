@@ -1,18 +1,9 @@
 import { ActionOrLink } from '../utils';
-import { Transition } from 'motion';
-import { Icon } from '../icon';
 
 type ButtonVariant = 'filled' | 'elevated' | 'tonal' | 'outlined' | 'text';
 type ButtonVariantAlias = 'primary' | 'secondary';
 
-/**
- * At least one of `label` or `children` must be provided.
- */
-type ButtonContent =
-  | { label: string; children?: string }
-  | { label?: string; children: string };
-
-type ButtonBaseProps = {
+export interface ButtonProps {
   /**
    * The HTML button type attribute. Only applies when rendered as `<button>`.
    * @default 'button'
@@ -39,13 +30,6 @@ type ButtonBaseProps = {
    */
   disableTextMargins?: boolean;
 
-  /**
-   * An optional icon to display in the button.
-   */
-  icon?: Icon;
-
-  iconPosition?: 'left' | 'right';
-
   loading?: boolean;
 
   /**
@@ -55,17 +39,14 @@ type ButtonBaseProps = {
 
   allowShapeTransformation?: boolean;
 
-  transition?: Transition;
-
   onToggle?: (isActive: boolean) => void;
   activated?: boolean;
-};
-
-type Props = ButtonContent & ButtonBaseProps;
+  label?: string;
+}
 
 type Elements = ['button', 'touchTarget', 'stateLayer', 'icon', 'label'];
 
-export type ButtonInterface = ActionOrLink<Props> & {
+export type ButtonInterface = ActionOrLink<ButtonProps> & {
   elements: Elements;
   states: {
     isActive: boolean;

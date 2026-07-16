@@ -1,13 +1,11 @@
 import type { ClassNameComponent } from '../utils';
-import { classNames, createUseClassNames, defaultClassNames } from '../utils';
+import { classNames, defaultClassNames } from '../utils';
 import { ButtonInterface } from '../interfaces';
 
 const buttonConfig: ClassNameComponent<ButtonInterface> = ({
   variant,
   disableTextMargins,
   disabled,
-  iconPosition,
-  icon,
   isActive,
   loading,
   shape,
@@ -126,11 +124,6 @@ const buttonConfig: ClassNameComponent<ButtonInterface> = ({
 });
 
 export const buttonStyle = defaultClassNames<ButtonInterface>(
-  'button',
-  buttonConfig,
-);
-
-export const useButtonStyle = createUseClassNames<ButtonInterface>(
   'button',
   buttonConfig,
 );
