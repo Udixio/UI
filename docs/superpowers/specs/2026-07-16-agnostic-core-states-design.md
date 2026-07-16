@@ -42,8 +42,10 @@ encore couplées React), ce qui est toléré transitoirement.
 - Type `Icon` (`IconDefinition | SvgImport | string`) — agnostique (dépendance de **type**
   fortawesome uniquement).
 - Par composant : interface de props agnostique + states + `elements` + fonction `xxxStyle`.
-- **Retiré du cœur** : `createUseClassNames`, `useClassNames` (hooks) ; `ReactProps`,
-  `MotionProps` (mappers React) ; toute dépendance `react`/`motion` de `package.json`.
+- **À terme, retiré du cœur** (cible finale du déroulé) : `createUseClassNames`,
+  `useClassNames` (hooks) ; `ReactProps`, `MotionProps` (mappers React) ; les dépendances
+  `react`/`motion`. **Pendant le pilote** ils restent dans le cœur (utilisés par les 26 non
+  convertis) — voir « Nature transitionnelle du pilote ».
 
 ### `@udixio/ui-react` — couche framework
 
@@ -129,19 +131,35 @@ Fait avant le découplage pour ne pas réécrire les imports deux fois :
 - Réécriture des imports `@udixio/styles` → `@udixio/core` dans ui-react et les tests.
 - `@udixio/core` reste dépendance `workspace:*` de ui-react, qui continue de le ré-exporter.
 
-## Garde-fou anti-régression
+## Nature transitionnelle du pilote
 
-Un check échoue si le cœur réimporte un framework : `grep -rE "from '(react|motion)" packages/core/src`
-doit ne rien renvoyer. À câbler comme cible lint/CI simple (ou test) sur `@udixio/core`.
+Tant que les 26 autres composants ne sont pas convertis, le cœur **garde** transitoirement
+`react`/`motion` : leurs interfaces importent encore des types React, et ils consomment les
+hooks `createUseClassNames`/`useClassNames` du cœur. Ces éléments **restent dans le cœur**
+pendant le pilote ; leur suppression totale (et le retrait de `react`/`motion` du
+`package.json` du cœur) est l'affaire du **déroulé** une fois les 28 composants convertis.
+
+Le pilote introduit le hook `createUseStyle` **dans ui-react** (sans supprimer
+`createUseClassNames` du cœur, encore utilisé par les 26). Idem `ReactProps`/`MotionProps` :
+ils restent dans le cœur tant que des interfaces non converties en dépendent.
+
+## Garde-fou anti-régression (limité aux fichiers convertis)
+
+Un check échoue si un **fichier converti** réimporte un framework. Pendant le pilote il porte
+sur les 4 fichiers convertis :
+`grep -rE "from '(react|motion)" packages/core/src/lib/{styles/button.style.ts,styles/text-field.style.ts,interfaces/button.interface.ts,interfaces/text-field.interface.ts}`
+doit ne rien renvoyer. La version globale (`packages/core/src`) sera activée en fin de déroulé.
 
 ## Critères de succès
 
-- `nx build core` réussit ; `packages/core/package.json` **n'a plus** `react`/`motion` en
-  dépendances ; le grep garde-fou ne renvoie rien.
+- `nx build core` réussit ; les 4 fichiers convertis n'importent plus `react`/`motion`
+  (garde-fou limité vert).
 - `nx build ui-react`, `nx test ui-react` passent ; `Button.spec` toujours vert ; le test du
-  hook (ex-`useClassNames.spec`) passe depuis ui-react.
-- `Button` et `TextField` : interfaces cœur agnostiques, `xxxStyle` pures, composants React
-  recâblés sur les bindings + hooks locaux, rendu inchangé.
+  hook (ex-`useClassNames.spec`) passe.
+- `Button` et `TextField` : interfaces cœur agnostiques, `buttonStyle`/`textFieldStyle` pures
+  (plus de `useXxxStyle` exporté depuis le cœur **pour ces deux**), composants React recâblés
+  sur les bindings + `createUseStyle` local, rendu inchangé.
+- Les 26 autres composants **compilent et testent toujours** (dette transitionnelle assumée).
 - Graphe Nx acyclique (`ui-react → core`).
 
 ## Hors périmètre (déroulé ultérieur)
