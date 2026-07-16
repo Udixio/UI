@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { Icon } from '../icon';
 import { motion } from 'motion/react';
-import { SwitchInterface } from '@udixio/styles';
-import { useSwitchStyle } from '@udixio/styles';
-import { MotionProps } from '@udixio/styles';
+import { SwitchInterface } from '@udixio/core';
+import { useSwitchStyle } from '@udixio/core';
+import { MotionProps } from '@udixio/core';
 
 /**
  * Switches toggle the selection of an item on or off

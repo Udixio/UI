@@ -79,7 +79,7 @@
       "path": "./packages/icons/icons-sharp-700"
     },
     {
-      "path": "./packages/styles"
+      "path": "./packages/core"
     }
   ],
   "ts-node": {

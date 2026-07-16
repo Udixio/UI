@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
-import { CarouselItemInterface } from '@udixio/styles';
-import { useCarouselItemStyle } from '@udixio/styles';
-import { MotionProps } from '@udixio/styles';
+import { CarouselItemInterface } from '@udixio/core';
+import { useCarouselItemStyle } from '@udixio/core';
+import { MotionProps } from '@udixio/core';
 
 export const normalize = (
   value: number,

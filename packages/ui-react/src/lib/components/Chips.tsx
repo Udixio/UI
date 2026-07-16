@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ReactProps } from '@udixio/styles';
-import { ChipItem, ChipsInterface } from '@udixio/styles';
-import { useChipsStyle } from '@udixio/styles';
+import { ReactProps } from '@udixio/core';
+import { ChipItem, ChipsInterface } from '@udixio/core';
+import { useChipsStyle } from '@udixio/core';
 import { Chip } from './Chip';
 import { Divider } from './Divider';
 import { v4 } from 'uuid';

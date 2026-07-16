@@ -18,7 +18,8 @@
     "target": "es2022",
     "customConditions": ["development"],
     "paths": {
-      "@udixio/ui-angular": ["./packages/ui-angular/src/index.ts"]
+      "@udixio/ui-angular": ["./packages/ui-angular/src/index.ts"],
+      "@udixio/core": ["./packages/core/src/index.ts"]
     }
   }
 }

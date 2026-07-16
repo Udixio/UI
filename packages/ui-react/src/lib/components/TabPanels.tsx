@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { TabGroupContext } from './TabGroupContext';
-import { TabPanelsInterface } from '@udixio/styles';
-import { ReactProps } from '@udixio/styles';
-import { useTabPanelsStyle } from '@udixio/styles';
+import { TabPanelsInterface } from '@udixio/core';
+import { ReactProps } from '@udixio/core';
+import { useTabPanelsStyle } from '@udixio/core';
 import { TabPanel } from './TabPanel';
 
 /**

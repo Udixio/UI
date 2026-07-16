@@ -4,7 +4,7 @@ import {
   classNames,
   type Icon as IconType,
   type SvgImport,
-} from '@udixio/styles';
+} from '@udixio/core';
 
 export type Icon = IconType;
 

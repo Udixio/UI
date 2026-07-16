@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useDatePickerStyle } from '@udixio/styles';
-import { classNames, ReactProps } from '@udixio/styles';
+import { useDatePickerStyle } from '@udixio/core';
+import { classNames, ReactProps } from '@udixio/core';
 import {
   DatePickerInterface,
   DateRange,
-} from '@udixio/styles';
+} from '@udixio/core';
 import {
   faChevronDown,
   faChevronLeft,

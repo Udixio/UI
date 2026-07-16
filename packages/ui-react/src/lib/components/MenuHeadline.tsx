@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { useMenuHeadlineStyle, MenuHeadlineInterface } from '@udixio/styles';
-import { ReactProps } from '@udixio/styles';
+import { useMenuHeadlineStyle, MenuHeadlineInterface } from '@udixio/core';
+import { ReactProps } from '@udixio/core';
 
 export const MenuHeadline = ({ label, children, variant, className, ...restProps }: ReactProps<MenuHeadlineInterface> & { children?: React.ReactNode }) => {
     const styles = useMenuHeadlineStyle({ variant, className });

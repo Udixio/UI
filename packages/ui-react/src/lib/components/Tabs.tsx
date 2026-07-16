@@ -1,10 +1,10 @@
 import React, { useContext, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { TabsInterface } from '@udixio/styles';
+import { TabsInterface } from '@udixio/core';
 
-import { useTabsStyle } from '@udixio/styles';
-import { ReactProps } from '@udixio/styles';
-import { TabProps } from '@udixio/styles';
+import { useTabsStyle } from '@udixio/core';
+import { ReactProps } from '@udixio/core';
+import { TabProps } from '@udixio/core';
 import { Tab } from './Tab';
 import { TabGroupContext } from './TabGroupContext';
 

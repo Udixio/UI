@@ -1,10 +1,10 @@
 import React, { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
 import { animate } from 'motion/react';
-import { CarouselInterface, CarouselItemInterface } from '@udixio/styles';
+import { CarouselInterface, CarouselItemInterface } from '@udixio/core';
 
-import { useCarouselStyle } from '@udixio/styles';
+import { useCarouselStyle } from '@udixio/core';
 import { CustomScroll } from '../effects';
-import { ReactProps } from '@udixio/styles';
+import { ReactProps } from '@udixio/core';
 import { CarouselItem, normalize } from './CarouselItem';
 
 /**

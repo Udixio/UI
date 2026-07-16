@@ -1,5 +1,5 @@
 import { CustomScrollInterface } from './custom-scroll.interface';
-import { classNames, defaultClassNames } from '@udixio/styles';
+import { classNames, defaultClassNames } from '@udixio/core';
 
 export const customScrollStyle = defaultClassNames<CustomScrollInterface>(
   'customScroll',

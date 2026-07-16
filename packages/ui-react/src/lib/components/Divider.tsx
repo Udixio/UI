@@ -1,6 +1,6 @@
-import { useDividerStyle } from '@udixio/styles';
-import { DividerInterface } from '@udixio/styles';
-import { ReactProps } from '@udixio/styles';
+import { useDividerStyle } from '@udixio/core';
+import { DividerInterface } from '@udixio/core';
+import { ReactProps } from '@udixio/core';
 
 /**
  * Dividers are thin lines that group content in lists or other containers

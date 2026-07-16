@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { ProgressIndicatorInterface } from '@udixio/styles';
+import { ProgressIndicatorInterface } from '@udixio/core';
 
 import { motion } from 'motion/react';
-import { useProgressIndicatorStyle } from '@udixio/styles';
-import { ReactProps } from '@udixio/styles';
+import { useProgressIndicatorStyle } from '@udixio/core';
+import { ReactProps } from '@udixio/core';
 
 /**
  * @status beta

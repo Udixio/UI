@@ -1,6 +1,6 @@
-import { classNames, ReactProps } from '@udixio/styles';
-import { ChipInterface } from '@udixio/styles';
-import { useChipStyle } from '@udixio/styles';
+import { classNames, ReactProps } from '@udixio/core';
+import { ChipInterface } from '@udixio/core';
+import { useChipStyle } from '@udixio/core';
 import { Icon } from '../icon';
 import { State } from '../effects';
 import React, { useEffect, useRef, useState } from 'react';

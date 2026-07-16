@@ -1,11 +1,11 @@
 import React, { useId, useRef, useState } from 'react';
-import { FabMenuInterface } from '@udixio/styles';
-import { useFabMenuStyle } from '@udixio/styles';
-import { ReactProps } from '@udixio/styles';
+import { FabMenuInterface } from '@udixio/core';
+import { useFabMenuStyle } from '@udixio/core';
+import { ReactProps } from '@udixio/core';
 import { Fab } from './Fab';
 import { Button } from './Button';
-import { ButtonInterface } from '@udixio/styles';
-import { classNames } from '@udixio/styles';
+import { ButtonInterface } from '@udixio/core';
+import { classNames } from '@udixio/core';
 import { IconButton } from './IconButton';
 import { faClose } from '@fortawesome/free-solid-svg-icons';
 import { AnimatePresence, motion } from 'motion/react';

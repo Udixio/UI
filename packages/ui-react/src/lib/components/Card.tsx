@@ -1,7 +1,7 @@
 import { useRef } from 'react';
-import { CardInterface } from '@udixio/styles';
-import { useCardStyle } from '@udixio/styles';
-import { ReactProps } from '@udixio/styles';
+import { CardInterface } from '@udixio/core';
+import { useCardStyle } from '@udixio/core';
+import { ReactProps } from '@udixio/core';
 import { State } from '../effects';
 
 /**

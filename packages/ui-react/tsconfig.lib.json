@@ -24,7 +24,7 @@
   ],
   "references": [
     {
-      "path": "../styles/tsconfig.lib.json"
+      "path": "../core/tsconfig.lib.json"
     },
     {
       "path": "../tailwind/tsconfig.lib.json"

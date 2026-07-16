@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import { SnackbarInterface } from '@udixio/styles';
-import { useSnackbarStyle } from '@udixio/styles';
+import { SnackbarInterface } from '@udixio/core';
+import { useSnackbarStyle } from '@udixio/core';
 
-import { MotionProps } from '@udixio/styles';
+import { MotionProps } from '@udixio/core';
 import { IconButton } from './IconButton';
 
 /**

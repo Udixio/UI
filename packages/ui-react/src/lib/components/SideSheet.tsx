@@ -1,5 +1,5 @@
-import { MotionProps } from '@udixio/styles';
-import { SideSheetInterface } from '@udixio/styles';
+import { MotionProps } from '@udixio/core';
+import { SideSheetInterface } from '@udixio/core';
 import { Divider } from './Divider';
 
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
@@ -7,7 +7,7 @@ import { IconButton } from './IconButton';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'motion/react';
-import { sideSheetStyle } from '@udixio/styles';
+import { sideSheetStyle } from '@udixio/core';
 
 /**
  * Side sheets show secondary content anchored to the side of the screen
