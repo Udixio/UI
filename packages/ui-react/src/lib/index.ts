@@ -1,6 +1,7 @@
 export * from './components';
 export * from './effects';
 export * from './hooks';
+export * from './utils/create-use-style';
 export * from '@udixio/core';
 export * from './icon';
 export * from './config';
