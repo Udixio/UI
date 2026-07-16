@@ -1,16 +1,14 @@
-import React from 'react';
 import {
   type ClassNameComponent,
   classNames,
-  createUseClassNames,
   defaultClassNames,
 } from '../utils';
 import { TextFieldInterface } from '../interfaces';
 
 const textFieldConfig: ClassNameComponent<TextFieldInterface> = ({
   disabled,
-  leadingIcon,
-  trailingIcon,
+  leadingIconInteractive,
+  trailingIconInteractive,
   variant,
   errorText,
   isFocused,
@@ -92,10 +90,10 @@ const textFieldConfig: ClassNameComponent<TextFieldInterface> = ({
   ),
   leadingIcon: classNames([
     'h-12 ml-3 flex items-center justify-center',
-    { 'cursor-text': !React.isValidElement(leadingIcon) },
+    { 'cursor-text': !leadingIconInteractive },
   ]),
   trailingIcon: classNames('h-12 w-12 flex items-center justify-center', {
-    'cursor-text': !React.isValidElement(trailingIcon),
+    'cursor-text': !trailingIconInteractive,
   }),
   suffix: classNames(
     'text-on-surface-variant pl-0 pr-4',
@@ -105,11 +103,6 @@ const textFieldConfig: ClassNameComponent<TextFieldInterface> = ({
 });
 
 export const textFieldStyle = defaultClassNames<TextFieldInterface>(
-  'textField',
-  textFieldConfig,
-);
-
-export const useTextFieldStyle = createUseClassNames<TextFieldInterface>(
   'textField',
   textFieldConfig,
 );

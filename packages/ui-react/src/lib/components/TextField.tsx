@@ -15,11 +15,9 @@ import { Divider } from './Divider';
 import { MenuHeadline } from './MenuHeadline';
 
 import TextareaAutosize from 'react-textarea-autosize';
-import { useTextFieldStyle } from '@udixio/core';
 import { classNames } from '@udixio/core';
-import { ReactProps } from '@udixio/core';
 import { AnchorPositioner } from './AnchorPositioner';
-import { TextFieldInterface } from '@udixio/core';
+import { useTextFieldStyle, type ReactTextFieldProps } from './text-field.react';
 
 /**
  * Text fields let users enter text into a UI
@@ -60,7 +58,7 @@ export const TextField = ({
   options,
   children,
   ...restProps
-}: ReactProps<TextFieldInterface> & { children?: React.ReactNode }) => {
+}: ReactTextFieldProps) => {
   const generatedId = useId();
   const id = idProp || generatedId;
   const helperTextId = `${id}-helper`;
@@ -300,21 +298,17 @@ export const TextField = ({
       ? '[&::-webkit-calendar-picker-indicator]:hidden cursor-pointer selection:bg-transparent'
       : '';
 
+  const leadingIconInteractive = React.isValidElement(leadingIcon);
+  const trailingIconInteractive = React.isValidElement(effectiveTrailingIcon);
+
   const styles = useTextFieldStyle({
     showSupportingText: hasSupportingText,
     isFocused,
     showErrorIcon,
     disabled,
-    name,
-    label,
-    autoComplete,
     className,
-    onChange,
-    placeholder,
-    supportingText,
-    type,
-    leadingIcon,
-    trailingIcon: effectiveTrailingIcon,
+    leadingIconInteractive,
+    trailingIconInteractive,
     variant,
     errorText,
     value: String(displayValue),
