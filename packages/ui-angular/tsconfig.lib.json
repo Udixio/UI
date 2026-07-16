@@ -5,6 +5,7 @@
     "declaration": true,
     "declarationMap": true,
     "inlineSources": true,
+    "lib": ["es2022", "dom"],
     "types": []
   },
   "exclude": [
@@ -14,5 +15,10 @@
     "src/**/*.test.ts",
     "jest.config.cts"
   ],
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts"],
+  "references": [
+    {
+      "path": "../core/tsconfig.lib.json"
+    }
+  ]
 }

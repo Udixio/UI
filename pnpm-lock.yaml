@@ -801,6 +801,9 @@ importers:
       '@angular/core':
         specifier: ^20.3.0
         version: 20.3.26(@angular/compiler@20.3.26)(rxjs@7.8.2)(zone.js@0.15.1)
+      '@udixio/core':
+        specifier: workspace:*
+        version: link:../core
 
   packages/ui-react:
     dependencies:
