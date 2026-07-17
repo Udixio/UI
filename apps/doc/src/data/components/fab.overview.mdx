@@ -3,6 +3,7 @@
 
 
 
+
 import { CodePreview } from '@/components/CodePreview.js';
 import { iEdit } from '@udixio/icons-rounded-400/edit';
 import { iAdd } from '@udixio/icons-rounded-400/add';
@@ -20,7 +21,7 @@ import { Fab } from "@udixio/ui-react"
              code={`
   <div className="flex items-end gap-4">
     <Fab label="Create" icon={iAdd} />
-    <Fab label="Create" icon={iAdd} isExtended />
+    <Fab label="Create" icon={iAdd} extended />
   </div>`}
              scope={{ iAdd }}
 />
@@ -59,13 +60,13 @@ Available sizes: small, medium (default), large.
 
 ## Extended vs. regular
 
-Use `isExtended` to show the label next to the icon.
+Use `extended` to show the label next to the icon.
 
 <CodePreview client:load
              code={`
   <div className="flex items-end gap-4">
     <Fab label="Share" icon={iShare} />
-    <Fab label="Share" icon={iShare} isExtended />
+    <Fab label="Share" icon={iShare} extended />
   </div>`}
              scope={{ iShare }}
 />

@@ -19,6 +19,7 @@
     "@tailwindcss/vite": "^4.1.12",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
+    "@udixio/core": "workspace:*",
     "@udixio/icons-rounded-400": "workspace:*",
     "@udixio/tailwind": "workspace:*",
     "@udixio/theme": "workspace:*",

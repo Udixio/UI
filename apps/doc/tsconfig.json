@@ -20,6 +20,9 @@
       "path": "../../packages/icons/icons-rounded-400"
     },
     {
+      "path": "../../packages/core"
+    },
+    {
       "path": "../../packages/theme"
     }
   ]
