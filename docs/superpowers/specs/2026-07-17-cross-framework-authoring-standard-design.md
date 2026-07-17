@@ -65,19 +65,27 @@ export const buttonStyle = defaultClassNames<ButtonInterface>('button', buttonCo
    framework. C'est ce qui supprime le `href: undefined` à la racine : `href` n'est plus dans
    l'ensemble de complétude du style.
 
-2. **Règle states-vs-props :**
-   - Donnée **saisie** par l'utilisateur qui pilote le style → `props`.
-   - Booléen **calculé** par le composant (interaction : `isActive`, `isFocused` ; ou dérivé d'un
-     élément framework, ex. `leadingIconInteractive`) → `states`.
-   - Justification : `ReactProps<T>` ne diffuse que `T['props']` ; mettre les flags calculés dans
-     `states` les empêche de fuiter comme props publiques / attributs DOM.
+2. **Définition de `props` = l'API de données agnostique réellement câblée du composant.**
+   `XxxProps` contient toute donnée agnostique **saisie par l'utilisateur que le composant expose
+   et transmet réellement** — donc *personnalisable* par un customizer via `className`, même si le
+   style **par défaut** ne la lit pas encore (ex. `label`). Ce n'est **pas** « seulement ce que lit
+   `xxxConfig` ». Corollaire strict : **une prop n'est dans `XxxProps` que si le composant la câble
+   avec une vraie valeur** — une prop déclarée mais non transmise (« creuse ») est **interdite**
+   (voir décision 3). À l'inverse, un booléen **calculé** par le composant (interaction : `isActive`,
+   `isFocused` ; ou dérivé d'un élément framework, ex. `leadingIconInteractive`) → `states`.
+   Justification `states` : `ReactProps<T>` ne diffuse que `T['props']` ; mettre les flags calculés
+   dans `states` les empêche de fuiter comme props publiques / attributs DOM.
 
-3. **`RequiredNullable` conservé, requalifié en garde-fou.** La signature de `defaultClassNames`
-   garde `RequiredNullable<T['props']>`, ce qui **oblige l'auteur à acquitter chaque prop de
-   style** — protection contre l'oubli de câblage d'une prop lors de l'écriture des 28×2
-   composants. Comme `props` est resserré au strict nécessaire au style (décision 1 + 2),
-   l'ensemble à fournir reste petit ; un `x: undefined` résiduel est un opt-out **documenté**
-   pour une prop que ce composant ne supporte pas.
+3. **`RequiredNullable` conservé — garantie compile-time « déclaré == câblé ».** La signature de
+   `defaultClassNames` garde `RequiredNullable<T['props']>`, ce qui **force le composant à
+   transmettre chaque prop déclarée**. Sans ça, un auteur peut déclarer `variant` dans `ButtonProps`
+   mais oublier de le câbler : le style par défaut reçoit `undefined` (bug de style), la fonction
+   `className` d'un tiers lit `state.variant === undefined` **alors que le type promet sa présence**
+   — une prop **creuse**, non détectée. `RequiredNullable` transforme cet oubli en **erreur de
+   compilation** → le type de personnalisation reste **honnête** (surface déclarée == surface
+   transmise). Conséquence directe : **pas de `x: undefined`** — écrire `shape: undefined` signifie
+   soit exposer `shape` comme vrai input (`shape: this.shape()`), soit le retirer de `ButtonProps`.
+   La contrainte est précisément ce qui **oblige à trancher** au lieu de laisser une prop creuse.
 
 4. **Hook de personnalisation.** `className?: string | ClassNameComponent<Interface>` fait partie
    de la signature de `xxxStyle`. `ClassNameComponent<T> = (state: T['states'] & T['props']) =>
@@ -140,26 +148,34 @@ export function createStyle<S>(
 }
 ```
 
-Composant standard (`packages/ui-angular/src/lib/button/button.ts`) :
+Composant standard (`packages/ui-angular/src/lib/button/button.ts`). **Chaque prop de
+`ButtonProps` est un vrai input, transmis avec sa valeur** — `RequiredNullable` l'impose, donc
+aucun `x: undefined` :
 ```ts
 readonly variant = input<ButtonProps['variant']>('filled');
 readonly size = input<ButtonProps['size']>('medium');
 readonly disabled = input<boolean>(false);
+readonly disableTextMargins = input<boolean>(false);
+readonly loading = input<boolean>(false);
+readonly shape = input<ButtonProps['shape']>('rounded');
+readonly allowShapeTransformation = input<boolean>(false);
 readonly label = input<string>('');
-readonly href = input<string>();                                   // binding framework
+readonly onToggle = input<ButtonProps['onToggle']>();
 readonly className = input<string | ClassNameComponent<ButtonInterface>>();
+readonly href = input<string>();                                   // binding framework (rendu <a>/<button>)
 protected readonly isActive = signal(false);
 
 protected readonly styles = createStyle(buttonStyle, () => ({
   variant: this.variant(), size: this.size(), disabled: this.disabled(),
-  shape: undefined, disableTextMargins: undefined, loading: undefined,
-  allowShapeTransformation: undefined, onToggle: undefined,
-  activated: this.isActive(), label: this.label(),
+  disableTextMargins: this.disableTextMargins(), loading: this.loading(),
+  shape: this.shape(), allowShapeTransformation: this.allowShapeTransformation(),
+  onToggle: this.onToggle(), label: this.label(), activated: this.isActive(),
   isActive: this.isActive(),
   className: this.className(),
 }));
 ```
-- Contenu : `<ng-content>` (et/ou `label`). Events : `output()`. `href`/`as` : inputs Angular.
+- Contenu : `<ng-content>` (et/ou `label`). Events : `output()`. `href`/`as` : bindings Angular
+  (choix de l'élément rendu), hors contrat de style.
 - Le sélecteur suit le préfixe imposé par la config lint Angular (`lib-…`).
 
 ## Sortie de React du cœur
@@ -186,8 +202,10 @@ Le standard est validé en y **conformant** :
 - `createUseStyle` mémoïse réellement (test : même état → même référence de résultat ; état
   changé → recalcul).
 - La personnalisation par **fonction `className`** est démontrée par un test dans **chaque**
-  framework (React + Angular), lisant état interne + externe.
-- Plus aucun `href: undefined` dans les composants de référence.
+  framework (React + Angular), lisant état interne (`isActive`) **et** externe (une prop, ex.
+  `variant`) — ce qui prouve que ces props sont réellement câblées (pas creuses).
+- **Aucune prop creuse** dans les composants de référence : plus aucun `x: undefined` (ni
+  `href: undefined`) — chaque prop de `XxxProps` est un vrai input transmis.
 - Graphe Nx acyclique (`ui-react → core`, `ui-angular → core`).
 
 ## Livrable convention
