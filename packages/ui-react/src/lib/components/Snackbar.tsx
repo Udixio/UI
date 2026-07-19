@@ -1,11 +1,17 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import { SnackbarInterface } from '@udixio/core';
-import { useSnackbarStyle } from '@udixio/core';
-
-import { MotionProps } from '@udixio/core';
+import {
+  type MotionProps,
+  type SnackbarInterface,
+  snackbarStyle,
+} from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
 import { IconButton } from './IconButton';
+
+export type ReactSnackbarProps = MotionProps<SnackbarInterface>;
+
+export const useSnackbarStyle = createUseStyle(snackbarStyle);
 
 /**
  * Snackbars show short updates about app processes at the bottom of the screen
@@ -25,7 +31,7 @@ export const Snackbar = ({
   closeIcon = faXmark,
   onClose,
   ...restProps
-}: MotionProps<SnackbarInterface>) => {
+}: ReactSnackbarProps) => {
   const [isVisible, setIsVisible] = useState(true);
 
   const styles = useSnackbarStyle({

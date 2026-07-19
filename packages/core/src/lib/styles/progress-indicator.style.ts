@@ -2,7 +2,6 @@ import { ProgressIndicatorInterface } from '../interfaces/progress-indicator.int
 import {
   type ClassNameComponent,
   classNames,
-  createUseClassNames,
   defaultClassNames,
 } from '../utils';
 
@@ -61,12 +60,6 @@ const progressIndicatorConfig: ClassNameComponent<
 
 export const progressIndicatorStyle =
   defaultClassNames<ProgressIndicatorInterface>(
-    'progressIndicator',
-    progressIndicatorConfig,
-  );
-
-export const useProgressIndicatorStyle =
-  createUseClassNames<ProgressIndicatorInterface>(
     'progressIndicator',
     progressIndicatorConfig,
   );

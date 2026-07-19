@@ -1,9 +1,19 @@
 import { useEffect, useState } from 'react';
-import { ProgressIndicatorInterface } from '@udixio/core';
+import {
+  type ProgressIndicatorInterface,
+  progressIndicatorStyle,
+  type ReactProps,
+} from '@udixio/core';
 
 import { motion } from 'motion/react';
-import { useProgressIndicatorStyle } from '@udixio/core';
-import { ReactProps } from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
+
+export type ReactProgressIndicatorProps =
+  ReactProps<ProgressIndicatorInterface>;
+
+export const useProgressIndicatorStyle = createUseStyle(
+  progressIndicatorStyle,
+);
 
 /**
  * @status beta
@@ -19,9 +29,10 @@ export const ProgressIndicator = ({
   variant = 'linear-determinate',
   value = 0,
   transitionDuration = 1000,
+  minHeight,
   className,
   ...restProps
-}: ReactProps<ProgressIndicatorInterface>): any => {
+}: ReactProgressIndicatorProps): any => {
   const [completedPercentage, setCompletedPercentage] = useState(value);
 
   const [transitionRotate] = useState(1.5);
@@ -74,6 +85,7 @@ export const ProgressIndicator = ({
     variant,
     value,
     transitionDuration,
+    minHeight,
     isVisible,
   });
 

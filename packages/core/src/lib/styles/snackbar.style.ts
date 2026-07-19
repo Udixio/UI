@@ -1,7 +1,6 @@
 import {
   type ClassNameComponent,
   classNames,
-  createUseClassNames,
   defaultClassNames,
 } from '../utils';
 import { SnackbarInterface } from '../interfaces';
@@ -16,11 +15,6 @@ const snackbarConfig: ClassNameComponent<SnackbarInterface> = () => ({
 });
 
 export const snackbarStyle = defaultClassNames<SnackbarInterface>(
-  'snackbar',
-  snackbarConfig,
-);
-
-export const useSnackbarStyle = createUseClassNames<SnackbarInterface>(
   'snackbar',
   snackbarConfig,
 );

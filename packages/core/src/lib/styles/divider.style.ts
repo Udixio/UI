@@ -2,7 +2,6 @@ import { DividerInterface } from '../interfaces';
 import {
   type ClassNameComponent,
   classNames,
-  createUseClassNames,
   defaultClassNames,
 } from '../utils';
 
@@ -21,11 +20,6 @@ const dividerConfig: ClassNameComponent<DividerInterface> = ({
 });
 
 export const dividerStyle = defaultClassNames<DividerInterface>(
-  'divider',
-  dividerConfig,
-);
-
-export const useDividerStyle = createUseClassNames<DividerInterface>(
   'divider',
   dividerConfig,
 );
