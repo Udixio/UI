@@ -1,16 +1,13 @@
-import { ActionOrLink } from '../utils/component';
-import { Transition } from 'motion';
 import { Icon } from '../icon';
 
 export type IconButtonVariant = 'standard' | 'filled' | 'tonal' | 'outlined';
 
 type Props = {
   label?: string;
-  children?: string;
   icon?: Icon;
+  iconSelected?: Icon;
   size?: 'xSmall' | 'small' | 'medium' | 'large' | 'xLarge';
   width?: 'default' | 'narrow' | 'wide';
-  iconSelected?: Icon;
   onToggle?: (isActive: boolean) => void;
   variant?: IconButtonVariant;
   disabled?: boolean;
@@ -23,8 +20,6 @@ type Props = {
   shape?: 'squared' | 'rounded';
 
   allowShapeTransformation?: boolean;
-
-  transition?: Transition;
 };
 
 export type IconButtonStates = {
@@ -32,7 +27,9 @@ export type IconButtonStates = {
 };
 type Elements = ['iconButton', 'stateLayer', 'touchTarget', 'icon'];
 
-export type IconButtonInterface = ActionOrLink<Props> & {
+export interface IconButtonInterface {
+  type: 'button';
+  props: Props;
   states: IconButtonStates;
   elements: Elements;
-};
+}

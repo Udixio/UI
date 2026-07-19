@@ -1,13 +1,27 @@
 import React, { useEffect, useRef } from 'react';
+import type { Transition } from 'motion';
 
 import { Icon } from '../icon';
-import { IconButtonInterface } from '@udixio/core';
-import { useIconButtonStyle } from '@udixio/core';
-import { classNames, ReactProps } from '@udixio/core';
+import {
+  classNames,
+  type IconButtonInterface,
+  iconButtonStyle,
+  type ReactProps,
+} from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
 import { State } from '../effects';
 import { Tooltip } from './Tooltip';
 
 export type { IconButtonVariant } from '@udixio/core';
+
+export type ReactIconButtonProps = ReactProps<IconButtonInterface> & {
+  // `children` sert de repli d'aria-label → typé string (comme l'ancien contrat)
+  children?: string;
+  href?: string;
+  transition?: Transition;
+};
+
+export const useIconButtonStyle = createUseStyle(iconButtonStyle);
 
 /**
  * Icon buttons help people take minor actions with one tap
@@ -39,7 +53,7 @@ export const IconButton = ({
   transition,
   children,
   ...restProps
-}: ReactProps<IconButtonInterface>) => {
+}: ReactIconButtonProps) => {
   if (children) label = children;
   if (!label) {
     throw new Error(
@@ -72,23 +86,20 @@ export const IconButton = ({
   const ElementType = href ? 'a' : 'button';
 
   const styles = useIconButtonStyle({
-    transition,
+    label,
+    icon,
+    iconSelected,
+    size,
+    width,
+    onToggle,
+    variant,
+    disabled,
+    activated: isActive,
+    title,
     shape,
     allowShapeTransformation,
-    width,
-    href,
-    activated: isActive,
-    label,
-    iconSelected,
     isActive,
-    onToggle,
-    disabled,
-    icon,
-    variant,
     className,
-    size,
-    children: label,
-    ...restProps,
   });
 
   const defaultRef = useRef<HTMLDivElement>(null);

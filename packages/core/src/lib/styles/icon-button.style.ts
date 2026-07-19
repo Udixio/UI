@@ -2,7 +2,6 @@ import { IconButtonInterface } from '../interfaces/icon-button.interface';
 import {
   type ClassNameComponent,
   classNames,
-  createUseClassNames,
   defaultClassNames,
 } from '../utils';
 
@@ -158,11 +157,6 @@ const iconButtonConfig: ClassNameComponent<IconButtonInterface> = ({
 };
 
 export const iconButtonStyle = defaultClassNames<IconButtonInterface>(
-  'iconButton',
-  iconButtonConfig,
-);
-
-export const useIconButtonStyle = createUseClassNames<IconButtonInterface>(
   'iconButton',
   iconButtonConfig,
 );
