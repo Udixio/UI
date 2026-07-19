@@ -111,7 +111,6 @@ export const Button = ({
     size,
     disableTextMargins,
     shape,
-    href,
     disabled,
     icon,
     iconPosition,

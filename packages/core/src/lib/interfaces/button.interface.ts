@@ -1,5 +1,3 @@
-import { ActionOrLink } from '../utils';
-
 type ButtonVariant = 'filled' | 'elevated' | 'tonal' | 'outlined' | 'text';
 type ButtonVariantAlias = 'primary' | 'secondary';
 
@@ -46,9 +44,9 @@ export interface ButtonProps {
 
 type Elements = ['button', 'touchTarget', 'stateLayer', 'icon', 'label'];
 
-export type ButtonInterface = ActionOrLink<ButtonProps> & {
+export interface ButtonInterface {
+  type: 'button';
+  props: ButtonProps;
+  states: { isActive: boolean };
   elements: Elements;
-  states: {
-    isActive: boolean;
-  };
-};
+}

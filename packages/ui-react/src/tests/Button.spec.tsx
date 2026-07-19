@@ -199,4 +199,18 @@ describe('Button', () => {
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
+
+  it('accepte className en fonction, lisant état interne (isActive) et externe (variant)', () => {
+    render(
+      <Button
+        label="X"
+        variant="tonal"
+        activated
+        className={(s) => ({ button: `v-${s.variant} a-${s.isActive}` })}
+      />,
+    );
+    const button = screen.getByRole('button');
+    expect(button.className).toContain('v-tonal'); // prop externe câblée
+    expect(button.className).toContain('a-true'); // état interne câblé
+  });
 });

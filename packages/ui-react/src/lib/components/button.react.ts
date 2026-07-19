@@ -12,6 +12,7 @@ export type ReactButtonProps = ReactProps<ButtonInterface> & {
   children?: ReactNode;
   icon?: Icon;
   iconPosition?: 'left' | 'right';
+  href?: string;
   transition?: Transition;
 };
 
