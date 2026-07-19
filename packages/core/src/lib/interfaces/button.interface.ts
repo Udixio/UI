@@ -1,3 +1,5 @@
+import { Icon } from '../icon';
+
 type ButtonVariant = 'filled' | 'elevated' | 'tonal' | 'outlined' | 'text';
 type ButtonVariantAlias = 'primary' | 'secondary';
 
@@ -7,6 +9,13 @@ export interface ButtonProps {
    * @default 'button'
    */
   type?: 'button' | 'submit' | 'reset';
+
+  /**
+   * An optional icon to display in the button (agnostic Icon data).
+   */
+  icon?: Icon;
+
+  iconPosition?: 'left' | 'right';
 
   size?: 'xSmall' | 'small' | 'medium' | 'large' | 'xLarge';
 

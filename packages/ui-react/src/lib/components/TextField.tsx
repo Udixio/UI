@@ -1,4 +1,13 @@
-import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
+import React, {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
 import { Icon } from '../icon';
 import {
   faCalendarDays,
@@ -15,9 +24,43 @@ import { Divider } from './Divider';
 import { MenuHeadline } from './MenuHeadline';
 
 import TextareaAutosize from 'react-textarea-autosize';
-import { classNames } from '@udixio/core';
+import {
+  classNames,
+  textFieldStyle,
+  type MenuItemInterface,
+  type TextFieldInterface,
+  type ReactProps,
+} from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
 import { AnchorPositioner } from './AnchorPositioner';
-import { useTextFieldStyle, type ReactTextFieldProps } from './text-field.react';
+
+export type ReactTextFieldProps = ReactProps<TextFieldInterface> & {
+  children?: ReactNode;
+  placeholder?: string;
+  name?: string;
+  label: string;
+  supportingText?: string;
+  trailingIcon?: ReactElement | Icon;
+  leadingIcon?: ReactElement | Icon;
+  onChange?: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
+  showSupportingText?: boolean;
+  defaultValue?: string;
+  id?: string;
+  style?: CSSProperties;
+  options?: Array<
+    {
+      value: string | number;
+      type?: 'divider' | 'headline';
+    } & MenuItemInterface['props']
+  >;
+  type?: 'text' | 'password' | 'number' | 'date' | 'select';
+  autoComplete?: 'on' | 'off' | string;
+  autoFocus?: boolean;
+  onFocus?: () => void;
+  onBlur?: () => void;
+};
+
+export const useTextFieldStyle = createUseStyle(textFieldStyle);
 
 /**
  * Text fields let users enter text into a UI

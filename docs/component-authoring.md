@@ -24,19 +24,28 @@ Règles :
   signature `RequiredNullable` force `déclaré == câblé` à la compilation.
 - **`states`** = booléens calculés (`isActive`, `isFocused`, `leadingIconInteractive`…). Jamais
   dans `props` (sinon ils fuient au DOM via `ReactProps`).
-- Pas de type framework dans le cœur (`ReactNode`, `RefObject`, `Transition`, signaux…). Pas
+- Pas de **type framework** dans le cœur (`ReactNode`, `RefObject`, `Transition`, signaux…). Pas
   d'`ActionOrLink` dans le contrat de style : lien/bouton (`href`, `as`) = couche framework.
+- **Les types agnostiques vont dans le cœur, même « renderables ».** `Icon`
+  (`IconDefinition | SvgImport | string`) est agnostique → `icon?: Icon` vit dans `XxxProps`
+  (partagé entre frameworks). Ne partent en couche framework que les types **réellement** liés à
+  un framework (`ReactNode`, `RefObject`, motion `Transition`).
 
 ## 2. React (`@udixio/ui-react`)
 
+Le type de props React et le hook vivent **en haut du fichier composant** `Xxx.tsx`
+(pas de fichier `.react.ts` séparé — redondant dans un package mono-framework) :
+
 ```ts
-// xxx.react.ts
+// Xxx.tsx
 export type ReactXxxProps = ReactProps<XxxInterface> & {
-  children?: ReactNode; icon?: Icon; href?: string; transition?: Transition; // bindings React
+  children?: ReactNode; href?: string; transition?: Transition; // bindings framework uniquement
 };
 export const useXxxStyle = createUseStyle(xxxStyle);
+
+export const Xxx = (props: ReactXxxProps) => { /* … */ };
 ```
-Ré-exporter `xxx.react` depuis `components/index.ts`. Le composant assemble l'état complet
+Le barrel `components/index.ts` exporte simplement `./Xxx`. Le composant assemble l'état complet
 (toutes les props + states + `className`) et appelle `useXxxStyle(state)`.
 
 ## 3. Angular (`@udixio/ui-angular`)

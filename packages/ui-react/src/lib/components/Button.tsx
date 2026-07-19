@@ -1,9 +1,24 @@
-import { classNames } from '@udixio/core';
-import { useButtonStyle, type ReactButtonProps } from './button.react';
+import type { ReactNode } from 'react';
+import type { Transition } from 'motion';
+import {
+  classNames,
+  buttonStyle,
+  type ButtonInterface,
+  type ReactProps,
+} from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
 import { Icon } from '../icon';
 import { ProgressIndicator } from './ProgressIndicator';
 import { State } from '../effects';
 import React, { useEffect, useRef } from 'react';
+
+export type ReactButtonProps = ReactProps<ButtonInterface> & {
+  children?: ReactNode;
+  href?: string;
+  transition?: Transition;
+};
+
+export const useButtonStyle = createUseStyle(buttonStyle);
 
 /**
  * Resolves variant aliases to their actual variant values
@@ -108,6 +123,8 @@ export const Button = ({
 
   const styles = useButtonStyle({
     type,
+    icon,
+    iconPosition,
     allowShapeTransformation,
     size,
     disableTextMargins,
