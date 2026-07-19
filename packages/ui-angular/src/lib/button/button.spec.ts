@@ -27,8 +27,8 @@ describe('Button (Angular, consuming @udixio/core)', () => {
     expect(button.textContent?.trim()).toBe('Envoyer');
   });
 
-  it('toggles isActive on click when toggleable', () => {
-    fixture.componentRef.setInput('toggleable', true);
+  it('toggles isActive on click when onToggle is set', () => {
+    fixture.componentRef.setInput('onToggle', () => undefined);
     const emitted: boolean[] = [];
     fixture.componentInstance.toggled.subscribe((v) => emitted.push(v));
     fixture.detectChanges();
@@ -37,5 +37,16 @@ describe('Button (Angular, consuming @udixio/core)', () => {
     fixture.detectChanges();
 
     expect(emitted).toEqual([true]);
+  });
+
+  it('accepte className en fonction, lisant état externe (variant) et interne (isActive)', () => {
+    fixture.componentRef.setInput('variant', 'tonal');
+    fixture.componentRef.setInput('className', (s: { variant?: string; isActive?: boolean }) => ({
+      button: `v-${s.variant} a-${s.isActive}`,
+    }));
+    fixture.detectChanges();
+    const button: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+    expect(button.className).toContain('v-tonal');
+    expect(button.className).toContain('a-false');
   });
 });
