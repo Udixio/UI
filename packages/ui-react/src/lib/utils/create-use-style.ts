@@ -1,9 +1,23 @@
-import { useMemo } from 'react';
+import { useRef } from 'react';
+import { shallowEqual } from './shallow-equal';
 
-export function createUseStyle<TState>(
-  styleFn: (state: TState) => Record<string, string>,
-): (state: TState) => Record<string, string> {
-  return (state: TState) =>
+export function createUseStyle<S extends object>(
+  styleFn: (state: S) => Record<string, string>,
+): (state: S) => Record<string, string> {
+  return (state: S) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useMemo(() => styleFn(state), [state]);
+    const ref = useRef<{ state: S; result: Record<string, string> } | null>(
+      null,
+    );
+    if (
+      !ref.current ||
+      !shallowEqual(
+        ref.current.state as Record<string, unknown>,
+        state as Record<string, unknown>,
+      )
+    ) {
+      ref.current = { state, result: styleFn(state) };
+    }
+    return ref.current.result;
+  };
 }
