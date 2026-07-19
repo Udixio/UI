@@ -1,8 +1,16 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { SliderInterface } from '@udixio/core';
-import { useSliderStyle } from '@udixio/core';
-import { classNames, ReactProps } from '@udixio/core';
+import {
+  classNames,
+  type ReactProps,
+  type SliderInterface,
+  sliderStyle,
+} from '@udixio/core';
 import { useEffect, useRef, useState } from 'react';
+import { createUseStyle } from '../utils/create-use-style';
+
+export type ReactSliderProps = ReactProps<SliderInterface>;
+
+export const useSliderStyle = createUseStyle(sliderStyle);
 
 /**
  * Sliders let users make selections from a range of values
@@ -26,7 +34,7 @@ export const Slider = ({
   ref,
   onChange,
   ...restProps
-}: ReactProps<SliderInterface>) => {
+}: ReactSliderProps) => {
   const resolvedMarks = marks ?? [
     { value: min === -Infinity ? 0 : min, label: String(min === -Infinity ? 0 : min) },
     { value: max === Infinity ? 100 : max, label: String(max === Infinity ? 100 : max) },

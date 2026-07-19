@@ -13,6 +13,7 @@ export * from './fab-menu.interface';
 export * from './icon-button.interface';
 export * from './menu.interface';
 export * from './menu-group.interface';
+export * from './menu-headline.interface';
 export * from './menu-item.interface';
 export * from './progress-indicator.interface';
 export * from './side-sheet.interface';

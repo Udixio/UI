@@ -1,7 +1,6 @@
 import {
   type ClassNameComponent,
   classNames,
-  createUseClassNames,
   defaultClassNames,
 } from '../utils';
 import { SwitchInterface } from '../interfaces';
@@ -57,11 +56,6 @@ const switchConfig: ClassNameComponent<SwitchInterface> = ({
 });
 
 export const switchStyle = defaultClassNames<SwitchInterface>(
-  'switch',
-  switchConfig,
-);
-
-export const useSwitchStyle = createUseClassNames<SwitchInterface>(
   'switch',
   switchConfig,
 );

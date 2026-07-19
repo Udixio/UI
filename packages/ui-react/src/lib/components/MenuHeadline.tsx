@@ -1,9 +1,33 @@
+import { type ReactNode } from 'react';
+import {
+  type MenuHeadlineInterface,
+  menuHeadlineStyle,
+  type ReactProps,
+} from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
 
-import React from 'react';
-import { useMenuHeadlineStyle, MenuHeadlineInterface } from '@udixio/core';
-import { ReactProps } from '@udixio/core';
+export type ReactMenuHeadlineProps = ReactProps<MenuHeadlineInterface> & {
+  children?: ReactNode;
+};
 
-export const MenuHeadline = ({ label, children, variant, className, ...restProps }: ReactProps<MenuHeadlineInterface> & { children?: React.ReactNode }) => {
-    const styles = useMenuHeadlineStyle({ variant, className });
-    return <div className={styles.headline} role="group" aria-label={label} {...restProps}>{children ?? label}</div>;
+export const useMenuHeadlineStyle = createUseStyle(menuHeadlineStyle);
+
+export const MenuHeadline = ({
+  label,
+  children,
+  variant,
+  className,
+  ...restProps
+}: ReactMenuHeadlineProps) => {
+  const styles = useMenuHeadlineStyle({ label, variant, className });
+  return (
+    <div
+      className={styles.headline}
+      role="group"
+      aria-label={label}
+      {...restProps}
+    >
+      {children ?? label}
+    </div>
+  );
 };

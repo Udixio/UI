@@ -1,26 +1,16 @@
-import {
-  type ClassNameComponent,
-  classNames,
-  createUseClassNames,
-} from '../utils';
+import { type ClassNameComponent, classNames, defaultClassNames } from '../utils';
+import { MenuHeadlineInterface } from '../interfaces/menu-headline.interface';
 
-export interface MenuHeadlineInterface {
-    label?: string;
-    variant?: 'standard' | 'vibrant';
-    type: 'div';
-    props: { label?: string; variant?: 'standard' | 'vibrant' };
-    states: Record<string, any>;
-    elements: ['headline'];
-}
-
-const menuHeadlineConfig: ClassNameComponent<MenuHeadlineInterface> = ({ props }) => ({
+const menuHeadlineConfig: ClassNameComponent<MenuHeadlineInterface> = ({
+  variant,
+}) => ({
   headline: classNames('px-3 py-1 text-label-small opacity-60 mt-1', {
-      'text-on-surface-variant': !props?.variant || props.variant === 'standard',
-       // Vibrant treatment if different
+    'text-on-surface-variant': !variant || variant === 'standard',
+    // Vibrant treatment if different
   }),
 });
 
-export const useMenuHeadlineStyle = createUseClassNames<MenuHeadlineInterface>(
+export const menuHeadlineStyle = defaultClassNames<MenuHeadlineInterface>(
   'headline',
   menuHeadlineConfig,
 );

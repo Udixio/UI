@@ -1,7 +1,6 @@
 import {
   type ClassNameComponent,
   classNames,
-  createUseClassNames,
   defaultClassNames,
 } from '../utils';
 import { SliderInterface } from '../interfaces';
@@ -31,11 +30,6 @@ export const sliderConfig: ClassNameComponent<SliderInterface> = ({
 });
 
 export const sliderStyle = defaultClassNames<SliderInterface>(
-  'slider',
-  sliderConfig,
-);
-
-export const useSliderStyle = createUseClassNames<SliderInterface>(
   'slider',
   sliderConfig,
 );

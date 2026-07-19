@@ -1,7 +1,16 @@
-import React from 'react';
-import { ReactProps } from '@udixio/core';
-import { useMenuGroupStyle } from '@udixio/core';
-import { MenuGroupInterface } from '@udixio/core';
+import { type ReactNode } from 'react';
+import {
+  type MenuGroupInterface,
+  menuGroupStyle,
+  type ReactProps,
+} from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
+
+export type ReactMenuGroupProps = ReactProps<MenuGroupInterface> & {
+  children?: ReactNode;
+};
+
+export const useMenuGroupStyle = createUseStyle(menuGroupStyle);
 
 /**
  * MenuGroup renders a group of menu items with persistent styling.
@@ -16,14 +25,8 @@ export const MenuGroup = ({
   variant,
   label,
   ...restProps
-}: ReactProps<MenuGroupInterface> & React.HTMLAttributes<HTMLDivElement>) => {
-  const styles = useMenuGroupStyle({
-    children,
-    className,
-    variant,
-    label,
-    ...restProps,
-  });
+}: ReactMenuGroupProps) => {
+  const styles = useMenuGroupStyle({ variant, label, className });
 
   return (
     <div className={styles.menuGroup} role="group" {...restProps}>

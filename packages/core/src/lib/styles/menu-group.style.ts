@@ -1,7 +1,6 @@
 import {
   type ClassNameComponent,
   classNames,
-  createUseClassNames,
   defaultClassNames,
 } from '../utils';
 import { MenuGroupInterface } from '../interfaces/menu-group.interface';
@@ -24,11 +23,6 @@ const menuGroupConfig: ClassNameComponent<MenuGroupInterface> = ({
 });
 
 export const menuGroupStyle = defaultClassNames<MenuGroupInterface>(
-  'menuGroup',
-  menuGroupConfig,
-);
-
-export const useMenuGroupStyle = createUseClassNames<MenuGroupInterface>(
   'menuGroup',
   menuGroupConfig,
 );

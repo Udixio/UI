@@ -2,9 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { Icon } from '../icon';
 import { motion } from 'motion/react';
-import { SwitchInterface } from '@udixio/core';
-import { useSwitchStyle } from '@udixio/core';
-import { MotionProps } from '@udixio/core';
+import { type MotionProps, switchStyle, type SwitchInterface } from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
+
+export type ReactSwitchProps = MotionProps<SwitchInterface>;
+
+export const useSwitchStyle = createUseStyle(switchStyle);
 
 /**
  * Switches toggle the selection of an item on or off
@@ -26,7 +29,7 @@ export const Switch = ({
   onKeyDown,
   ref,
   ...restProps
-}: MotionProps<SwitchInterface>) => {
+}: ReactSwitchProps) => {
   const [isSelected, setIsSelected] = useState(selected);
 
   useEffect(() => {

@@ -1,6 +1,4 @@
 export interface MenuGroupProps {
-  children: React.ReactNode;
-  className?: string;
   variant?: 'standard' | 'vibrant';
   label?: string;
 }
