@@ -1,10 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ReactProps } from '@udixio/core';
-import { ChipItem, ChipsInterface } from '@udixio/core';
-import { useChipsStyle } from '@udixio/core';
+import {
+  chipsStyle,
+  type ChipItem,
+  type ChipsInterface,
+  type ReactProps,
+} from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
 import { Chip } from './Chip';
 import { Divider } from './Divider';
 import { v4 } from 'uuid';
+
+export type ReactChipsProps = ReactProps<ChipsInterface>;
+
+export const useChipsStyle = createUseStyle(chipsStyle);
 
 /**
  * Chips group for input or selection lists
@@ -23,7 +31,7 @@ export const Chips = ({
   draggable = false,
   items,
   onItemsChange,
-}: ReactProps<ChipsInterface>) => {
+}: ReactChipsProps) => {
   const list = items ?? [];
 
   const ref = React.useRef<HTMLDivElement>(null);
@@ -72,9 +80,12 @@ export const Chips = ({
   );
 
   const styles = useChipsStyle({
-    scrollable,
-    className,
     variant,
+    scrollable,
+    draggable,
+    items,
+    onItemsChange,
+    className,
   });
 
   const createAndStartEdit = React.useCallback(

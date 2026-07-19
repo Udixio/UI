@@ -1,4 +1,3 @@
-import { ActionOrLink } from '../utils';
 import type { Icon } from '../icon';
 
 // Ce que Chips a besoin de connaître pour (re)construire un Chip
@@ -8,7 +7,7 @@ export type ChipItem = {
   activated?: boolean;
   disabled?: boolean;
   variant?: 'outlined' | 'elevated';
-  href?: string; // si tu utilises ActionOrLink côté Chip
+  href?: string;
 };
 
 type ChipsVariant = 'input';
@@ -31,7 +30,11 @@ type Props = {
 
 type Elements = ['chips'];
 
-export type ChipsInterface = ActionOrLink<Props> & {
+export interface ChipsInterface {
+  type: 'div';
+  props: Props;
+  // Pas d'état d'interaction. `object` (et non `Record<string, never>`) car ce
+  // dernier rend la signature de style insatisfiable dans l'intersection.
+  states: object;
   elements: Elements;
-  states: Record<string, never>;
-};
+}
