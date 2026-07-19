@@ -107,22 +107,19 @@ export const Button = ({
   };
 
   const styles = useButtonStyle({
+    type,
     allowShapeTransformation,
     size,
     disableTextMargins,
     shape,
     disabled,
-    icon,
-    iconPosition,
     loading,
     variant,
-    transition,
     className,
     isActive: isActive ?? false,
     onToggle,
     activated: isActive,
     label,
-    children: label,
   });
   const iconElement = icon ? (
     <Icon icon={icon} className={styles.icon} />

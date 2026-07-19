@@ -15,9 +15,11 @@ import { createStyle } from '../utils/create-style';
 
 /**
  * Exemple/référence : Button Angular consommant le cœur agnostique.
- * Chaque prop de ButtonProps est un vrai input, transmis avec sa valeur
- * (RequiredNullable l'impose) — aucune prop creuse. `href` est un binding
- * de rendu (couche framework), hors contrat de style.
+ * La plupart des props de ButtonProps sont des inputs réels, transmis avec
+ * leur valeur (RequiredNullable l'impose). `activated` fait exception : il
+ * n'a pas d'input dédié, il est dérivé de l'état interne `isActive`. `href`
+ * est réservé au rendu lien (couche framework) mais n'est pas encore câblé
+ * dans ce composant de référence — le template rend toujours `<button>`.
  */
 @Component({
   selector: 'lib-button',
