@@ -55,3 +55,26 @@ préfixé `lib-…`.
 `className` accepte `string | (state) => Partial<Record<element, string>>`. La fonction reçoit
 l'état complet (interne `isActive` + externe `variant`, …) — d'où l'importance de la règle
 « pas de prop creuse ».
+
+## 5. Vérification du typage (obligatoire par composant)
+
+La garantie « déclaré == câblé » (via `RequiredNullable`) n'a de valeur que si le type-checker
+tourne. **`nx build`/`nx test` de `ui-react` ne vérifient PAS les types** (Vite + vitest).
+Chaque composant converti doit donc passer :
+
+```
+NX_IGNORE_UNSUPPORTED_TS_SETUP=true node_modules/.bin/tsc -p packages/ui-react/tsconfig.lib.json --noEmit
+```
+
+sans erreur **sur son fichier** (l'appel `useXxxStyle({...})` doit ne contenir que les clés de
+`XxxProps` + `states` + `className` — ni binding React en trop, ni clé omise). Côté Angular,
+`nx build ui-angular` (ng-packagr) fait un vrai `tsc` : l'erreur est bloquante d'office.
+
+> **Dette / fin de déroulé :** `ui-react` a des erreurs `tsc` pré-existantes (composants non
+> encore convertis + typage de rendu React). Un **gate CI `tsc --noEmit`** sur `ui-react` sera
+> **activé à la fin du déroulé**, une fois les 26 composants convertis et typecheck-propres —
+> même échéance que le retrait de `react`/`motion` du cœur.
+
+**Limite connue des primitives :** `createUseStyle`/`createStyle` renvoient `Record<string,string>`,
+donc une faute de frappe sur une clé d'élément (`styles.buton`) n'est pas détectée. Améliorer les
+primitives pour préserver `Record<T['elements'][number], string>` est un chantier séparé.

@@ -189,6 +189,20 @@ protected readonly styles = createStyle(buttonStyle, () => ({
 - **Cible finale (fin de déroulé, hors périmètre ici)** : `grep -rE "from '(react|motion)'"
   packages/core/src` ne renvoie rien.
 
+## Enforcement du typage côté React (gate différé)
+
+La garantie `RequiredNullable` (« déclaré == câblé ») n'a d'effet que si `tsc` tourne. Or
+`nx build ui-react` (Vite + `vite-plugin-dts`) et `nx test ui-react` (vitest) **ne vérifient pas
+les types** — Angular, via ng-packagr, fait un vrai `tsc` bloquant. `ui-react` a par ailleurs des
+erreurs `tsc` **pré-existantes** (composants non convertis + typage de rendu React).
+- **Ici (référence)** : Button et TextField (React) doivent être **conformes** ; l'appel
+  `useXxxStyle({...})` ne contient que `XxxProps` + `states` + `className` (vérifié :
+  `tsc -p packages/ui-react/tsconfig.lib.json --noEmit` sans l'erreur d'excès/omission sur ces
+  fichiers). Les erreurs pré-existantes **hors** Button/TextField sont hors périmètre.
+- **Fin de déroulé (hors périmètre ici)** : activer un **gate CI `tsc --noEmit`** sur `ui-react`,
+  une fois les 26 composants convertis et typecheck-propres — même échéance que le retrait de
+  `react`/`motion` du cœur.
+
 ## Validation & critères de succès
 
 Le standard est validé en y **conformant** :

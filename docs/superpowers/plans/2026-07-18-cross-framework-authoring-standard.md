@@ -319,13 +319,13 @@ import { createStyle } from '../utils/create-style';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <button
-      [class]="styles().button"
+      [class]="styles()['button']"
       [attr.type]="type()"
       [disabled]="disabled()"
       [attr.aria-pressed]="onToggle() ? isActive() : null"
       (click)="handleClick()"
     >
-      <span [class]="styles().label">{{ label() }}</span>
+      <span [class]="styles()['label']">{{ label() }}</span>
     </button>
   `,
 })
@@ -373,6 +373,7 @@ export class Button {
   }
 }
 ```
+Note : le template utilise l'accès par crochets `styles()['button']`/`['label']` (et non `.button`), car `noPropertyAccessFromIndexSignature` est actif et la primitive `createStyle` renvoie `Record<string, string>`.
 
 - [ ] **Step 2: Ajouter le test `className`-fonction (état interne + externe)**
 
