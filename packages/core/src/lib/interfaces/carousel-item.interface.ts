@@ -1,12 +1,10 @@
-import { ReactNode } from 'react';
-
 export interface CarouselItemInterface {
   type: 'div';
   props: {
-    children?: ReactNode | undefined;
     width?: number;
     index?: number;
     outputRange?: [number, number];
   };
+  states: object;
   elements: ['carouselItem'];
 }

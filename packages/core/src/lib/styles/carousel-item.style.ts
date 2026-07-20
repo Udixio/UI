@@ -2,7 +2,6 @@ import { CarouselItemInterface } from '../interfaces';
 import {
   type ClassNameComponent,
   classNames,
-  createUseClassNames,
   defaultClassNames,
 } from '../utils';
 
@@ -14,11 +13,6 @@ export const carouselItemConfig: ClassNameComponent<CarouselItemInterface> = () 
 };
 
 export const carouselItemStyle = defaultClassNames<CarouselItemInterface>(
-  'carouselItem',
-  carouselItemConfig,
-);
-
-export const useCarouselItemStyle = createUseClassNames<CarouselItemInterface>(
   'carouselItem',
   carouselItemConfig,
 );

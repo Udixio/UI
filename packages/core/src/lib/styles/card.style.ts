@@ -2,7 +2,6 @@ import { CardInterface } from '../interfaces';
 import {
   type ClassNameComponent,
   classNames,
-  createUseClassNames,
   defaultClassNames,
 } from '../utils';
 
@@ -22,8 +21,3 @@ const cardConfig: ClassNameComponent<CardInterface> = ({
 });
 
 export const cardStyle = defaultClassNames<CardInterface>('card', cardConfig);
-
-export const useCardStyle = createUseClassNames<CardInterface>(
-  'card',
-  cardConfig,
-);

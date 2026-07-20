@@ -1,7 +1,16 @@
-import React, { useRef } from 'react';
-import { CarouselItemInterface } from '@udixio/core';
-import { useCarouselItemStyle } from '@udixio/core';
-import { MotionProps } from '@udixio/core';
+import React, { useRef, type ReactNode } from 'react';
+import {
+  carouselItemStyle,
+  type CarouselItemInterface,
+  type MotionProps,
+} from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
+
+export type ReactCarouselItemProps = MotionProps<CarouselItemInterface> & {
+  children?: ReactNode;
+};
+
+export const useCarouselItemStyle = createUseStyle(carouselItemStyle);
 
 export const normalize = (
   value: number,
@@ -34,14 +43,15 @@ export const CarouselItem = ({
   outputRange,
   ref: optionalRef,
   ...restProps
-}: MotionProps<CarouselItemInterface>) => {
+}: ReactCarouselItemProps) => {
   const defaultRef = useRef(null);
   const ref: React.RefObject<null | HTMLDivElement> = optionalRef || defaultRef;
 
   const styles = useCarouselItemStyle({
-    className,
+    width,
     index,
-    children,
+    outputRange,
+    className,
   });
 
   return (

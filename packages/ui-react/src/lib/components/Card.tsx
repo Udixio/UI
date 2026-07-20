@@ -1,8 +1,17 @@
-import { useRef } from 'react';
-import { CardInterface } from '@udixio/core';
-import { useCardStyle } from '@udixio/core';
-import { ReactProps } from '@udixio/core';
+import { useRef, type ReactNode } from 'react';
+import {
+  cardStyle,
+  type CardInterface,
+  type ReactProps,
+} from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
 import { State } from '../effects';
+
+export type ReactCardProps = ReactProps<CardInterface> & {
+  children?: ReactNode;
+};
+
+export const useCardStyle = createUseStyle(cardStyle);
 
 /**
  * Cards display content and actions about a single subject
@@ -20,12 +29,11 @@ export const Card = ({
   interactive = false,
   ref,
   ...rest
-}: ReactProps<CardInterface>) => {
+}: ReactCardProps) => {
   const styles = useCardStyle({
-    className,
-    interactive,
     variant,
-    children,
+    interactive,
+    className,
   });
 
   const defaultRef = useRef<HTMLDivElement>(null);
