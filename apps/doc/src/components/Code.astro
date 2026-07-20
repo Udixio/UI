@@ -2,10 +2,36 @@
 import { Code } from 'astro:components';
 import { CodePreview } from '@/components/CodePreview';
 
-const { 'data-code': code, 'data-language': language, ...htmlProps } = Astro.props;
+const { 'data-code': dataCode, 'data-language': dataLanguage, ...htmlProps } =
+  Astro.props;
+
+// Les blocs de code fenced sont rendus par Astro/MDX en `<pre><code class="language-XXX">code</code></pre>`,
+// sans que `data-code`/`data-language` ne soient injectés en props (le transformer Shiki `pre()`
+// n'est pas appelé dans ce projet, et expressive-code ne transmet pas le code au composant mappé
+// via `components={{ pre: Code }}`). On reconstruit donc la langue et le code source à partir du slot.
+const slotHtml =
+  (Astro.slots.has('default') && (await Astro.slots.render('default'))) || '';
+
+// Langue : priorité à la prop, sinon extraite de la classe `language-XXX` du <code>.
+const langFromClass = slotHtml.match(/<code[^>]*class="[^"]*language-([\w-]+)/)?.[1];
+const language = dataLanguage ?? langFromClass ?? 'text';
+
+// Code source : priorité à la prop `data-code`, sinon on extrait le texte du <code>
+// et on décode les entités HTML pour récupérer le source brut attendu par react-live.
+const code =
+  dataCode ??
+  slotHtml
+    .replace(/^[\s\S]*?<code[^>]*>/, '')
+    .replace(/<\/code>[\s\S]*$/, '')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&')
+    .replace(/\n$/, '');
 ---
-{code != null ? (
-  <CodePreview client:load code={code} preview={language == 'jsx'}>
+{code != null && code !== '' ? (
+  <CodePreview client:load code={code} preview={language == 'jsx' || language == 'tsx'}>
     <Code code={code} lang={language ?? 'text'} defaultColor={false} />
   </CodePreview>
 ) : (
