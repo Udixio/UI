@@ -1,11 +1,49 @@
-import { cloneElement, isValidElement, useEffect, useRef } from 'react';
-import { MotionProps } from '@udixio/core';
-import { Button } from './Button';
-import { AnchorPositioner } from './AnchorPositioner';
-import { ToolTipInterface } from '@udixio/core';
-import { useToolTipStyle } from '@udixio/core';
+import {
+  cloneElement,
+  isValidElement,
+  type ReactNode,
+  type RefObject,
+  useEffect,
+  useRef,
+} from 'react';
+import type { Transition } from 'motion';
 import { AnimatePresence, motion } from 'motion/react';
+import {
+  type ReactProps,
+  type TooltipInterface,
+  tooltipStyle,
+} from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
+import { Button, type ReactButtonProps } from './Button';
+import { AnchorPositioner } from './AnchorPositioner';
 import { useTooltipTrigger } from '../hooks';
+
+export type {
+  TooltipPosition,
+  TooltipTrigger,
+  TooltipVariant,
+} from '@udixio/core';
+
+export type ReactTooltipProps<T extends HTMLElement = any> =
+  ReactProps<TooltipInterface> & {
+    /** Custom content slot that replaces title/text/buttons when provided */
+    content?: ReactNode;
+    buttons?: ReactButtonProps | ReactButtonProps[];
+    transition?: Transition;
+    /** Custom anchor for positioning. Defaults to the trigger element. */
+    anchorRef?: RefObject<HTMLElement>;
+  } & (
+      | {
+          children?: never;
+          targetRef: RefObject<T>;
+        }
+      | {
+          children: ReactNode;
+          targetRef?: never;
+        }
+    );
+
+export const useTooltipStyle = createUseStyle(tooltipStyle);
 
 /**
  * Tooltips display brief labels or messages
@@ -38,7 +76,7 @@ export const Tooltip = ({
   id,
   anchorRef,
   ...props
-}: MotionProps<ToolTipInterface>) => {
+}: ReactTooltipProps) => {
   const defaultPosition = variant === 'rich' ? 'bottom-right' : 'bottom';
   const effectivePosition = positionProp || defaultPosition;
 
@@ -141,16 +179,20 @@ export const Tooltip = ({
     };
   }, [targetRef, triggerProps]);
 
-  const styles = useToolTipStyle({
+  const styles = useTooltipStyle({
     variant,
-    buttons,
-    className,
     title,
     text,
     position: effectivePosition,
     trigger,
-    targetRef: targetRef as any,
-    children: children as any,
+    openDelay,
+    closeDelay,
+    isOpen: isOpenProp,
+    defaultOpen,
+    onOpenChange,
+    id,
+    isVisible: isOpen,
+    className,
   });
 
   const variants = {
@@ -180,7 +222,7 @@ export const Tooltip = ({
               transition={{ duration: transition.duration }}
               exit={'close'}
               className={styles.toolTip}
-              {...props}
+              {...(props as any)}
               {...tooltipProps}
             >
               <div className={styles.container}>

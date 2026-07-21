@@ -1,12 +1,11 @@
 import {
   type ClassNameComponent,
   classNames,
-  createUseClassNames,
   defaultClassNames,
 } from '../utils';
-import { ToolTipInterface } from '../interfaces';
+import { TooltipInterface } from '../interfaces';
 
-const toolTipConfig: ClassNameComponent<ToolTipInterface> = ({
+const tooltipConfig: ClassNameComponent<TooltipInterface> = ({
   position,
   variant,
 }) => ({
@@ -37,12 +36,7 @@ const toolTipConfig: ClassNameComponent<ToolTipInterface> = ({
   content: classNames('w-full'),
 });
 
-export const toolStyle = defaultClassNames<ToolTipInterface>(
+export const tooltipStyle = defaultClassNames<TooltipInterface>(
   'toolTip',
-  toolTipConfig,
-);
-
-export const useToolTipStyle = createUseClassNames<ToolTipInterface>(
-  'toolTip',
-  toolTipConfig,
+  tooltipConfig,
 );
