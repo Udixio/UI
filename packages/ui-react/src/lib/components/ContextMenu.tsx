@@ -1,28 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, type ReactNode } from 'react';
 import { AnchorPositioner } from './AnchorPositioner';
-import { Menu } from './Menu';
-// import { MenuProps } from '@udixio/core'; // MenuProps is not exported from interface file usually, check file content
-import { MenuInterface } from '@udixio/core';
-import { ReactProps } from '@udixio/core';
+import { Menu, type ReactMenuProps } from './Menu';
 
-// MenuInterface has props: MenuProps.
-// But MenuProps might not be exported directly from the package index, so accessing it via MenuInterface['props'] is safer if we can't import it.
-// Actually checking Step 1271, MenuProps IS exported.
-
-export type ContextMenuProps = {
-  props: { trigger: React.ReactNode } & MenuInterface['props'];
-  type: 'div';
-  states: {
-    hasGroups: boolean;
-  };
-  elements: [''];
+export type ContextMenuProps = ReactMenuProps & {
+  trigger?: ReactNode;
 };
 
 export const ContextMenu = ({
   trigger,
   children,
   ...menuProps
-}: ReactProps<ContextMenuProps>) => {
+}: ContextMenuProps) => {
   const [contextMenu, setContextMenu] = useState<{
     mouseX: number;
     mouseY: number;

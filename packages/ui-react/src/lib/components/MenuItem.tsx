@@ -1,11 +1,24 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Icon } from '../icon';
-import { classNames, ReactProps } from '@udixio/core';
-import { MenuItemInterface } from '@udixio/core';
-import { useMenuItemStyle } from '@udixio/core';
+import {
+  classNames,
+  type MenuItemInterface,
+  menuItemStyle,
+  type ReactProps,
+} from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
 import { faCheck, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { AnchorPositioner } from './AnchorPositioner';
 import { State } from '../effects';
+
+export type { MenuItemVariant } from '@udixio/core';
+
+export type ReactMenuItemProps = ReactProps<MenuItemInterface> & {
+  children?: ReactNode;
+  href?: string;
+};
+
+export const useMenuItemStyle = createUseStyle(menuItemStyle);
 
 /**
  * Single item within a Menu.
@@ -25,7 +38,7 @@ export const MenuItem = ({
   activated = false,
   className,
   ...restProps
-}: ReactProps<MenuItemInterface>) => {
+}: ReactMenuItemProps) => {
   /* Extract subMenu from children if present */
   let subMenuElement: React.ReactNode = null;
   const contentChildren: React.ReactNode[] = [];
@@ -60,15 +73,22 @@ export const MenuItem = ({
     setIsActive(activated);
   }, [activated]);
 
+  const effectiveTrailingIcon =
+    trailingIcon ?? (subMenuElement ? faChevronRight : undefined);
+
   const styles = useMenuItemStyle({
-    variant,
+    label,
+    leadingIcon,
+    trailingIcon: effectiveTrailingIcon,
     disabled,
-    className,
+    variant,
+    onToggle,
     activated: isActive,
     isActive,
+    className,
   });
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     console.log('refrefd', disabled, subMenuElement, onToggle);
     if (disabled) {
       e.preventDefault();
@@ -114,9 +134,6 @@ export const MenuItem = ({
       }
     };
   }, []);
-
-  const effectiveTrailingIcon =
-    trailingIcon ?? (subMenuElement ? faChevronRight : undefined);
 
   const ElementType = href ? 'a' : 'button';
 
@@ -173,11 +190,7 @@ export const MenuItem = ({
             'z-10 relative',
           )}
         >
-          {React.isValidElement(leadingIcon) ? (
-            leadingIcon
-          ) : (
-            <Icon icon={leadingIcon} />
-          )}
+          <Icon icon={leadingIcon} />
         </div>
       )}
       <span className={classNames(styles.itemLabel, 'z-10 relative')}>
@@ -191,11 +204,7 @@ export const MenuItem = ({
             'z-10 relative',
           )}
         >
-          {React.isValidElement(effectiveTrailingIcon) ? (
-            effectiveTrailingIcon
-          ) : (
-            <Icon icon={effectiveTrailingIcon} />
-          )}
+          <Icon icon={effectiveTrailingIcon} />
         </div>
       )}
 

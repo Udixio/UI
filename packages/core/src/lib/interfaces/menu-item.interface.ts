@@ -1,15 +1,20 @@
-import { ActionOrLink } from '../utils/component';
+import { Icon } from '../icon';
+
+export type MenuItemVariant = 'standard' | 'vibrant';
 
 type Props = {
   label?: string;
-  children?: React.ReactNode;
-  leadingIcon?: any;
-  trailingIcon?: any;
+  leadingIcon?: Icon;
+  trailingIcon?: Icon;
   disabled?: boolean;
-  variant?: 'standard' | 'vibrant'; // Injected by parent
-  onClick?: (e?: React.MouseEvent) => void;
+  /** Injected by the parent menu. */
+  variant?: MenuItemVariant;
   onToggle?: (activated: boolean) => void;
   activated?: boolean;
+};
+
+export type MenuItemStates = {
+  isActive: boolean;
 };
 
 type Elements = [
@@ -21,9 +26,9 @@ type Elements = [
   'trailingIcon',
 ];
 
-export type MenuItemInterface = ActionOrLink<Props> & {
-  states: {
-    isActive: boolean;
-  };
+export interface MenuItemInterface {
+  type: 'button';
+  props: Props;
+  states: MenuItemStates;
   elements: Elements;
-};
+}

@@ -1,19 +1,17 @@
-export type MenuStates = Record<string, any>;
+export type MenuVariant = 'standard' | 'vibrant';
 
-export interface MenuProps {
-  children: React.ReactNode;
+type Props = {
   selected?: string | number | (string | number)[];
-  className?: string;
-  variant?: 'standard' | 'vibrant';
-  // options prop REMOVED as requested by user ("options passed as children")
-  // However, for backward compat or data-driven, one might want it, but I will strictly follow "options as children"
-}
+  variant?: MenuVariant;
+};
+
+export type MenuStates = {
+  hasGroups: boolean;
+};
 
 export interface MenuInterface {
   type: 'div';
-  props: MenuProps;
-  states: {
-    hasGroups: boolean;
-  };
+  props: Props;
+  states: MenuStates;
   elements: ['menu'];
 }

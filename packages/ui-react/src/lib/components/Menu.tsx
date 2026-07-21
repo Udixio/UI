@@ -1,12 +1,23 @@
-import React, { useRef } from 'react';
-import { MenuInterface } from '@udixio/core';
-import { useMenuStyle } from '@udixio/core';
-import { classNames } from '@udixio/core';
-import { ReactProps } from '@udixio/core';
+import React, { useRef, type ReactNode } from 'react';
+import {
+  classNames,
+  type MenuInterface,
+  menuStyle,
+  type ReactProps,
+} from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
 import { MenuItem } from './MenuItem';
 import { Divider } from './Divider';
 import { MenuHeadline } from './MenuHeadline';
 import { MenuGroup } from './MenuGroup';
+
+export type { MenuVariant } from '@udixio/core';
+
+export type ReactMenuProps = ReactProps<MenuInterface> & {
+  children?: ReactNode;
+};
+
+export const useMenuStyle = createUseStyle(menuStyle);
 
 /**
  * Menu displays a list of choices on a temporary surface.
@@ -24,18 +35,17 @@ export const Menu = ({
   children,
   className,
   variant = 'standard',
+  selected,
   ...restProps
-}: ReactProps<MenuInterface>) => {
-  /* pass restProps to include key such as variant */
+}: ReactMenuProps) => {
   const hasGroups = React.Children.toArray(children).some(
     (child) => React.isValidElement(child) && child.type === MenuGroup,
   );
   const styles = useMenuStyle({
-    children,
-    className,
+    selected,
     variant,
     hasGroups,
-    ...restProps,
+    className,
   });
 
   const listRef = useRef<HTMLDivElement>(null);

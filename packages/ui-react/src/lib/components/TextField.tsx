@@ -51,6 +51,7 @@ export type ReactTextFieldProps = ReactProps<TextFieldInterface> & {
     {
       value: string | number;
       type?: 'divider' | 'headline';
+      onClick?: React.MouseEventHandler<HTMLButtonElement>;
     } & MenuItemInterface['props']
   >;
   type?: 'text' | 'password' | 'number' | 'date' | 'select';
@@ -599,6 +600,8 @@ export const TextField = ({
                     if (opt.type === 'headline') {
                       return <MenuHeadline key={i} label={opt.label} />;
                     }
+                    // `type` only tags the option kind, it is not a MenuItem prop
+                    const { type: _optionType, ...itemProps } = opt;
                     return (
                       <MenuItem
                         key={opt.value ?? i}
@@ -608,7 +611,7 @@ export const TextField = ({
                           }
                           handleSelectOption(opt.value ?? '');
                         }}
-                        {...opt}
+                        {...itemProps}
                       >
                         {opt.label}
                       </MenuItem>

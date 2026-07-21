@@ -1,7 +1,6 @@
 import {
   type ClassNameComponent,
   classNames,
-  createUseClassNames,
   defaultClassNames,
 } from '../utils';
 import { MenuInterface } from '../interfaces';
@@ -25,8 +24,3 @@ const menuConfig: ClassNameComponent<MenuInterface> = ({
 });
 
 export const menuStyle = defaultClassNames<MenuInterface>('menu', menuConfig);
-
-export const useMenuStyle = createUseClassNames<MenuInterface>(
-  'menu',
-  menuConfig,
-);
