@@ -1,12 +1,25 @@
 import React, { useEffect, useId, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCheckboxStyle } from '@udixio/core';
-import { classNames } from '@udixio/core';
-import { ReactProps } from '@udixio/core';
-import { CheckboxInterface } from '@udixio/core';
+import {
+  type CheckboxInterface,
+  checkboxStyle,
+  classNames,
+  type ReactProps,
+} from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
 import { Icon } from '../icon';
 import { faCheck, faMinus } from '@fortawesome/free-solid-svg-icons';
 import { State } from '../effects';
+
+export type ReactCheckboxProps = Omit<
+  ReactProps<CheckboxInterface>,
+  'onChange'
+> & {
+  /** Native change handler of the underlying input element. */
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
+};
+
+export const useCheckboxStyle = createUseStyle(checkboxStyle);
 
 /**
  * Checkboxes allow the user to select one or more items from a set.
@@ -32,7 +45,7 @@ export const Checkbox = ({
   style,
   className,
   ...restProps
-}: ReactProps<CheckboxInterface>) => {
+}: ReactCheckboxProps) => {
   const generatedId = useId();
   const id = idProp || generatedId;
 
@@ -66,17 +79,22 @@ export const Checkbox = ({
   };
 
   const styles = useCheckboxStyle({
+    checked: checkedProp,
+    defaultChecked,
+    indeterminate,
+    disabled,
+    error,
+    name,
+    id,
+    value,
     isChecked: !!isChecked,
-    isIndeterminate: indeterminate,
-    isDisabled: disabled,
-    isError: error,
     isFocused,
-    isHovered: false, // Not used in style logic but requested by strict type if defined in interface? style config keys are flexible usually.
+    className,
   });
 
   return (
     <div
-      className={classNames(styles.checkbox, className, 'group/checkbox')}
+      className={classNames(styles.checkbox, 'group/checkbox')}
       style={style}
     >
       <State

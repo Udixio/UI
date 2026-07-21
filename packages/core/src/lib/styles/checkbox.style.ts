@@ -1,23 +1,20 @@
 import {
   type ClassNameComponent,
   classNames,
-  createUseClassNames,
   defaultClassNames,
 } from '../utils';
 import { CheckboxInterface } from '../interfaces/checkbox.interface';
 
 const checkboxConfig: ClassNameComponent<CheckboxInterface> = ({
   isChecked,
-  isIndeterminate,
-  isDisabled,
-  isError,
-  isFocused,
-  isHovered,
+  indeterminate,
+  disabled,
+  error,
 }) => ({
   checkbox: classNames(
     'inline-flex items-center justify-center relative size-4.5 ',
     {
-      'pointer-events-none opacity-[0.38]': isDisabled,
+      'pointer-events-none opacity-[0.38]': disabled,
     },
   ),
   input: classNames(
@@ -30,23 +27,23 @@ const checkboxConfig: ClassNameComponent<CheckboxInterface> = ({
     'absolute left-1/2 top-1/2 -translate-1/2 to rounded-[2px] size-4 border-2 transition-colors duration-200',
     // Unchecked state (Border only)
     !isChecked &&
-      !isIndeterminate && {
-        'border-on-surface-variant': !isError && !isDisabled,
-        'border-error': isError && !isDisabled,
-        'border-on-surface': isDisabled,
+      !indeterminate && {
+        'border-on-surface-variant': !error && !disabled,
+        'border-error': error && !disabled,
+        'border-on-surface': disabled,
       },
     // Checked or Indeterminate state (Filled)
-    (isChecked || isIndeterminate) && {
-      'bg-primary border-primary': !isError && !isDisabled,
-      'bg-error border-error': isError && !isDisabled,
-      'bg-on-surface border-on-surface': isDisabled,
+    (isChecked || indeterminate) && {
+      'bg-primary border-primary': !error && !disabled,
+      'bg-error border-error': error && !disabled,
+      'bg-on-surface border-on-surface': disabled,
     },
   ),
   icon: classNames(
     'z-10 relative text-on-primary w-full h-full flex items-center justify-center pointer-events-none',
     {
-      'text-on-error': isError && !isDisabled,
-      'text-surface': isDisabled, // Usually on-surface with opacity against on-surface bg? No, checked disabled is on-surface bg with surface icon usually.
+      'text-on-error': error && !disabled,
+      'text-surface': disabled, // Usually on-surface with opacity against on-surface bg? No, checked disabled is on-surface bg with surface icon usually.
     },
   ),
   stateLayer:
@@ -54,11 +51,6 @@ const checkboxConfig: ClassNameComponent<CheckboxInterface> = ({
 });
 
 export const checkboxStyle = defaultClassNames<CheckboxInterface>(
-  'checkbox',
-  checkboxConfig,
-);
-
-export const useCheckboxStyle = createUseClassNames<CheckboxInterface>(
   'checkbox',
   checkboxConfig,
 );
