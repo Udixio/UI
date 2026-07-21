@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useDatePickerStyle } from '@udixio/core';
-import { classNames, ReactProps } from '@udixio/core';
 import {
-  DatePickerInterface,
-  DateRange,
+  classNames,
+  type DatePickerInterface,
+  datePickerStyle,
+  type DateRange,
+  type ReactProps,
 } from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
 import {
   faChevronDown,
   faChevronLeft,
@@ -14,6 +16,10 @@ import { Button } from './Button';
 import { IconButton } from './IconButton';
 import { AnimatePresence, motion } from 'motion/react';
 import { Icon } from '../icon';
+
+export type ReactDatePickerProps = ReactProps<DatePickerInterface>;
+
+export const useDatePickerStyle = createUseStyle(datePickerStyle);
 
 /**
  * DatePickers let users select a date, or a range of dates.
@@ -33,7 +39,7 @@ export const DatePicker = ({
   style,
   mode = 'single',
   ...restProps
-}: ReactProps<DatePickerInterface>) => {
+}: ReactDatePickerProps) => {
   // State for the currently displayed month (always set to the 1st of the month)
   const [viewDate, setViewDate] = useState(() => {
     // Try to find a valid start date from value to focus
@@ -246,7 +252,17 @@ export const DatePicker = ({
   };
 
   const styles = useDatePickerStyle({
+    mode,
+    value: valueProp,
+    defaultValue,
+    onChange,
+    minDate,
+    maxDate,
+    shouldDisableDate,
+    locale,
+    weekStartDay,
     hasSelected: !!selectedValue,
+    className,
   });
 
   const variants = {
@@ -266,7 +282,7 @@ export const DatePicker = ({
 
   return (
     <div
-      className={classNames(styles.datePicker, className)}
+      className={styles.datePicker}
       style={style}
       {...(restProps as any)}
     >

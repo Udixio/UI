@@ -1,7 +1,6 @@
 import {
   type ClassNameComponent,
   classNames,
-  createUseClassNames,
   defaultClassNames,
 } from '../utils';
 import { DatePickerInterface } from '../interfaces/date-picker.interface';
@@ -33,11 +32,6 @@ const datePickerConfig: ClassNameComponent<DatePickerInterface> = ({
 });
 
 export const datePickerStyle = defaultClassNames<DatePickerInterface>(
-  'datePicker',
-  datePickerConfig,
-);
-
-export const useDatePickerStyle = createUseClassNames<DatePickerInterface>(
   'datePicker',
   datePickerConfig,
 );
