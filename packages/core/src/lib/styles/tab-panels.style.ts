@@ -2,7 +2,6 @@ import { TabPanelsInterface, TabPanelInterface } from '../interfaces';
 import {
   type ClassNameComponent,
   classNames,
-  createUseClassNames,
   defaultClassNames,
 } from '../utils';
 
@@ -15,21 +14,11 @@ export const tabPanelsStyle = defaultClassNames<TabPanelsInterface>(
   tabPanelsConfig,
 );
 
-export const useTabPanelsStyle = createUseClassNames<TabPanelsInterface>(
-  'tabPanels',
-  tabPanelsConfig,
-);
-
 const tabPanelConfig: ClassNameComponent<TabPanelInterface> = () => ({
   tabPanel: classNames(''),
 });
 
 export const tabPanelStyle = defaultClassNames<TabPanelInterface>(
-  'tabPanel',
-  tabPanelConfig,
-);
-
-export const useTabPanelStyle = createUseClassNames<TabPanelInterface>(
   'tabPanel',
   tabPanelConfig,
 );

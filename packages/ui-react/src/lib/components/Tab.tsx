@@ -1,11 +1,37 @@
 import { motion } from 'motion/react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  type Dispatch,
+  type ReactNode,
+  type RefObject,
+  type SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { Icon } from '../icon';
-import { useTabStyle } from '@udixio/core';
-import { TabInterface } from '@udixio/core';
-import { ReactProps } from '@udixio/core';
+import {
+  type ReactProps,
+  type TabInterface,
+  tabStyle,
+} from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
 import { State } from '../effects';
+
+/** Payload emitted when a tab becomes the selected one. */
+export type TabSelectedEvent = Pick<TabInterface['props'], 'label' | 'icon'> & {
+  index: number;
+  ref: RefObject<any>;
+};
+
+export type ReactTabProps = ReactProps<TabInterface> & {
+  children?: ReactNode;
+  href?: string;
+  setSelectedTab?: Dispatch<SetStateAction<number | null>>;
+  onTabSelected?: (args: TabSelectedEvent) => void;
+};
+
+export const useTabStyle = createUseStyle(tabStyle);
 
 /**
  * @status beta
@@ -28,17 +54,17 @@ export const Tab = ({
   tabsId,
   index,
   onTabSelected,
-  scrollable = false,
   selected = false,
   children,
   ref,
   ...restProps
-}: ReactProps<TabInterface>) => {
+}: ReactTabProps) => {
   const defaultRef = useRef(null);
   const resolvedRef = ref || defaultRef;
 
   // children (string) peut être utilisé comme alternative à label prop
-  const label = labelProp ?? (typeof children === 'string' ? children : undefined);
+  const label =
+    labelProp ?? (typeof children === 'string' ? children : undefined);
 
   const [isSelected, setIsSelected] = useState<boolean>(selected);
 
@@ -73,27 +99,22 @@ export const Tab = ({
   };
 
   const styles = useTabStyle({
-    className,
-    onTabSelected,
-    scrollable,
-    selectedTab,
-    index,
-    tabsId,
-    selected: isSelected,
-    variant,
-    icon,
     label,
+    icon,
+    variant,
+    selected,
+    index,
+    selectedTab,
+    tabsId,
     isSelected,
-    setSelectedTab,
-    href: href as any,
+    className,
   });
 
   return (
     <ElementType
-      {...restProps}
       role="tab"
       aria-selected={isSelected}
-      ref={resolvedRef}
+      ref={resolvedRef as any}
       href={href}
       className={styles.tab}
       onClick={handleClick}

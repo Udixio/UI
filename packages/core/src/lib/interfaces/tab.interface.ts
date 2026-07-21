@@ -1,31 +1,30 @@
-import { ActionOrLink } from '../utils/component';
-import { TabsVariant } from './tabs.interface';
-import { Dispatch, ReactNode, RefObject, SetStateAction } from 'react';
 import { Icon } from '../icon';
+import { TabsVariant } from './tabs.interface';
 
-export type TabProps = {
-  selected?: boolean;
-  variant?: TabsVariant;
+type Props = {
   label?: string;
   icon?: Icon;
-  selectedTab?: number | null;
-  setSelectedTab?: Dispatch<SetStateAction<number | null>>;
-  tabsId?: string;
-  onTabSelected?: (
-    args: { index: number } & Pick<TabProps, 'label' | 'icon'> & {
-        ref: RefObject<any>;
-      },
-  ) => void;
+  /** Injected by the parent Tabs. */
+  variant?: TabsVariant;
+  /** Controlled selected state, used when no parent drives the selection. */
+  selected?: boolean;
+  /** Injected by the parent Tabs: position of this tab in the list. */
   index?: number;
-  scrollable?: boolean;
-  children?: ReactNode;
+  /** Injected by the parent Tabs: index of the currently selected tab. */
+  selectedTab?: number | null;
+  /** Injected by the parent Tabs: identifier shared by every tab of the group. */
+  tabsId?: string;
+};
+
+export type TabStates = {
+  isSelected: boolean;
 };
 
 type Elements = ['tab', 'stateLayer', 'icon', 'label', 'content', 'underline'];
 
-export type TabInterface = ActionOrLink<TabProps> & {
-  states: {
-    isSelected: boolean;
-  };
+export interface TabInterface {
+  type: 'button';
+  props: Props;
+  states: TabStates;
   elements: Elements;
-};
+}

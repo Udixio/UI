@@ -2,7 +2,6 @@ import { TabsInterface } from '../interfaces';
 import {
   type ClassNameComponent,
   classNames,
-  createUseClassNames,
   defaultClassNames,
 } from '../utils';
 
@@ -15,8 +14,3 @@ const tabsConfig: ClassNameComponent<TabsInterface> = ({ scrollable }) => ({
 });
 
 export const tabsStyle = defaultClassNames<TabsInterface>('tabs', tabsConfig);
-
-export const useTabsStyle = createUseClassNames<TabsInterface>(
-  'tabs',
-  tabsConfig,
-);

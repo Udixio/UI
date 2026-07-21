@@ -1,7 +1,18 @@
-import React from 'react';
-import { TabPanelInterface } from '@udixio/core';
-import { ReactProps } from '@udixio/core';
-import { useTabPanelStyle } from '@udixio/core';
+import type { ReactNode } from 'react';
+import {
+  type ReactProps,
+  type TabPanelInterface,
+  tabPanelStyle,
+} from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
+
+export type ReactTabPanelProps = ReactProps<TabPanelInterface> & {
+  children?: ReactNode;
+  /** Injected by the parent TabPanels: whether this panel is the visible one. */
+  isSelected?: boolean;
+};
+
+export const useTabPanelStyle = createUseStyle(tabPanelStyle);
 
 /**
  * TabPanel contains the content for a single tab
@@ -16,9 +27,8 @@ export const TabPanel = ({
   children,
   className,
   isSelected = false,
-}: ReactProps<TabPanelInterface>) => {
+}: ReactTabPanelProps) => {
   const styles = useTabPanelStyle({
-    children,
     className,
     isSelected,
   });

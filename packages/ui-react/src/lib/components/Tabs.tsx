@@ -1,12 +1,27 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, {
+  type Dispatch,
+  type ReactNode,
+  type SetStateAction,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { TabsInterface } from '@udixio/core';
+import { type ReactProps, type TabsInterface, tabsStyle } from '@udixio/core';
 
-import { useTabsStyle } from '@udixio/core';
-import { ReactProps } from '@udixio/core';
-import { TabProps } from '@udixio/core';
-import { Tab } from './Tab';
+import { createUseStyle } from '../utils/create-use-style';
+import { Tab, type ReactTabProps, type TabSelectedEvent } from './Tab';
 import { TabGroupContext } from './TabGroupContext';
+
+export type { TabsVariant } from '@udixio/core';
+
+export type ReactTabsProps = ReactProps<TabsInterface> & {
+  children?: ReactNode;
+  setSelectedTab?: Dispatch<SetStateAction<number | null>>;
+  onTabSelected?: (args: TabSelectedEvent) => void;
+};
+
+export const useTabsStyle = createUseStyle(tabsStyle);
 
 /**
  * Tabs organize content across different screens and views
@@ -25,7 +40,7 @@ export const Tabs = ({
   selectedTab: externalSelectedTab,
   setSelectedTab: externalSetSelectedTab,
   scrollable = false,
-}: ReactProps<TabsInterface>) => {
+}: ReactTabsProps) => {
   const tabGroupContext = useContext(TabGroupContext);
 
   const [internalSelectedTab, internalSetSelectedTab] = useState<number | null>(
@@ -33,29 +48,27 @@ export const Tabs = ({
   );
 
   // Priorité : props > context > état interne
-  let selectedTab: number | null;
+  let selectedIndex: number | null;
   if (externalSelectedTab === 0 || externalSelectedTab != undefined) {
-    selectedTab = externalSelectedTab;
+    selectedIndex = externalSelectedTab;
   } else if (tabGroupContext) {
-    selectedTab = tabGroupContext.selectedTab;
+    selectedIndex = tabGroupContext.selectedTab;
   } else {
-    selectedTab = internalSelectedTab;
+    selectedIndex = internalSelectedTab;
   }
 
   const setSelectedTab =
-    externalSetSelectedTab ?? tabGroupContext?.setSelectedTab ?? internalSetSelectedTab;
+    externalSetSelectedTab ??
+    tabGroupContext?.setSelectedTab ??
+    internalSetSelectedTab;
 
   const tabChildren = React.Children.toArray(children).filter(
     (child) => React.isValidElement(child) && child.type === Tab,
-  ) as React.ReactElement<TabProps>[];
+  ) as React.ReactElement<ReactTabProps>[];
 
   const ref = React.useRef<HTMLDivElement | null>(null);
 
-  const handleOnTabSelected = (
-    args: { index: number } & Pick<TabProps, 'label' | 'icon'> & {
-        ref: React.RefObject<any>;
-      },
-  ) => {
+  const handleOnTabSelected = (args: TabSelectedEvent) => {
     onTabSelected?.(args);
 
     if (scrollable) {
@@ -77,13 +90,11 @@ export const Tabs = ({
   );
 
   const styles = useTabsStyle({
-    children,
-    onTabSelected,
-    scrollable,
-    selectedTab,
-    setSelectedTab,
-    className,
     variant,
+    scrollable,
+    selectedTab: externalSelectedTab,
+    selectedIndex,
+    className,
   });
 
   return (
@@ -93,11 +104,10 @@ export const Tabs = ({
           key: index,
           index,
           variant: variant,
-          selectedTab,
+          selectedTab: selectedIndex,
           setSelectedTab: setSelectedTab,
           tabsId: tabsId,
           onTabSelected: handleOnTabSelected,
-          scrollable,
         });
       })}
     </div>

@@ -1,7 +1,6 @@
 import {
   type ClassNameComponent,
   classNames,
-  createUseClassNames,
   defaultClassNames,
 } from '../utils';
 import { TabInterface } from '../interfaces';
@@ -74,5 +73,3 @@ const tabConfig: ClassNameComponent<TabInterface> = ({
 });
 
 export const tabStyle = defaultClassNames<TabInterface>('tab', tabConfig);
-
-export const useTabStyle = createUseClassNames<TabInterface>('tab', tabConfig);

@@ -1,22 +1,23 @@
-import { TabProps } from './tab.interface';
-import { Dispatch, ReactNode, RefObject, SetStateAction } from 'react';
-
 export type TabsVariant = 'primary' | 'secondary';
+
+type Props = {
+  variant?: TabsVariant;
+  /** Enables horizontal scrolling and auto-centering of the selected tab. */
+  scrollable?: boolean;
+  /** Controlled index of the selected tab. */
+  selectedTab?: number | null;
+};
+
+export type TabsStates = {
+  /** Resolved selected index (controlled prop, TabGroup context or internal state). */
+  selectedIndex: number | null;
+};
+
+type Elements = ['tabs'];
 
 export interface TabsInterface {
   type: 'div';
-  props: {
-    variant?: TabsVariant;
-    onTabSelected?: (
-      args: { index: number } & Pick<TabProps, 'label' | 'icon'> & {
-          ref: RefObject<any>;
-        },
-    ) => void;
-    children: ReactNode;
-    selectedTab?: number | null;
-    setSelectedTab?: Dispatch<SetStateAction<number | null>>;
-    scrollable?: boolean;
-  };
-  states: object;
-  elements: ['tabs'];
+  props: Props;
+  states: TabsStates;
+  elements: Elements;
 }

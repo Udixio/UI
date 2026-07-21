@@ -1,10 +1,19 @@
-import React, { useContext } from 'react';
+import React, { type ReactNode, useContext } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { TabGroupContext } from './TabGroupContext';
-import { TabPanelsInterface } from '@udixio/core';
-import { ReactProps } from '@udixio/core';
-import { useTabPanelsStyle } from '@udixio/core';
+import {
+  type ReactProps,
+  type TabPanelsInterface,
+  tabPanelsStyle,
+} from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
 import { TabPanel } from './TabPanel';
+
+export type ReactTabPanelsProps = ReactProps<TabPanelsInterface> & {
+  children?: ReactNode;
+};
+
+export const useTabPanelsStyle = createUseStyle(tabPanelsStyle);
 
 /**
  * TabPanels renders the content panels with slide animation
@@ -17,10 +26,7 @@ import { TabPanel } from './TabPanel';
  * @limitations
  * - Only renders the active panel (no offscreen preservation).
  */
-export const TabPanels = ({
-  children,
-  className,
-}: ReactProps<TabPanelsInterface>) => {
+export const TabPanels = ({ children, className }: ReactTabPanelsProps) => {
   const context = useContext(TabGroupContext);
 
   if (!context) {
@@ -32,10 +38,9 @@ export const TabPanels = ({
 
   const panelChildren = React.Children.toArray(children).filter(
     (child) => React.isValidElement(child) && child.type === TabPanel,
-  ) as React.ReactElement[];
+  ) as React.ReactElement<{ isSelected?: boolean }>[];
 
   const styles = useTabPanelsStyle({
-    children,
     className,
   });
 

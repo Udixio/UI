@@ -1,7 +1,19 @@
-import React, { useId, useMemo, useRef, useState } from 'react';
+import {
+  type Dispatch,
+  type ReactNode,
+  type SetStateAction,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { TabGroupContext, TabGroupContextValue } from './TabGroupContext';
-import { TabGroupInterface } from '@udixio/core';
-import { ReactProps } from '@udixio/core';
+import type { ReactProps, TabGroupInterface } from '@udixio/core';
+
+export type ReactTabGroupProps = ReactProps<TabGroupInterface> & {
+  children?: ReactNode;
+  setSelectedTab?: Dispatch<SetStateAction<number | null>>;
+};
 
 /**
  * TabGroup provides shared state for Tabs and TabPanels
@@ -18,7 +30,7 @@ export const TabGroup = ({
   selectedTab: externalSelectedTab,
   setSelectedTab: externalSetSelectedTab,
   defaultTab = 0,
-}: ReactProps<TabGroupInterface>) => {
+}: ReactTabGroupProps) => {
   const [internalSelectedTab, internalSetSelectedTab] = useState<number | null>(
     defaultTab,
   );
