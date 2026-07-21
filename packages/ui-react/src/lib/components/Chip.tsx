@@ -1,10 +1,24 @@
-import { classNames, ReactProps } from '@udixio/core';
-import { ChipInterface } from '@udixio/core';
-import { useChipStyle } from '@udixio/core';
+import {
+  type ChipInterface,
+  chipStyle,
+  classNames,
+  type ReactProps,
+} from '@udixio/core';
+import type { Transition } from 'motion';
 import { Icon } from '../icon';
 import { State } from '../effects';
 import React, { useEffect, useRef, useState } from 'react';
 import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { createUseStyle } from '../utils/create-use-style';
+
+export type ReactChipProps = ReactProps<ChipInterface> & {
+  // `children` sert de repli de `label` → typé string (comme l'ancien contrat)
+  children?: string;
+  href?: string;
+  transition?: Transition;
+};
+
+export const useChipStyle = createUseStyle(chipStyle);
 
 /**
  * Chips prompt most actions in a UI
@@ -30,6 +44,7 @@ export const Chip = ({
   activated,
   ref,
   onRemove,
+  draggable = false,
   editable,
   onEditStart,
   onEditCommit,
@@ -38,8 +53,15 @@ export const Chip = ({
   transition,
   children,
   editing,
+  // Handlers utilisateur composés avec les handlers internes
+  onFocus: userOnFocus,
+  onBlur: userOnBlur,
+  onKeyDown: userOnKeyDown,
+  onDragStart: userOnDragStart,
+  onDragEnd: userOnDragEnd,
+  onDoubleClick: userOnDoubleClick,
   ...restProps
-}: ReactProps<ChipInterface>) => {
+}: ReactChipProps) => {
   if (children) label = children;
   // Allow empty string when editable (newly created chips start empty)
   if (label === undefined && !editable) {
@@ -50,12 +72,12 @@ export const Chip = ({
 
   const ElementType = href ? 'a' : 'button';
 
-  const defaultRef = useRef<HTMLDivElement>(null);
+  const defaultRef = useRef<HTMLButtonElement>(null);
   const resolvedRef = ref || defaultRef;
 
   const [isActive, setIsActive] = React.useState(activated);
   const [isFocused, setIsFocused] = React.useState(false);
-  const [isEditing, setIsEditing] = useState(editing && editable);
+  const [isEditing, setIsEditing] = useState<boolean>(!!editing && !!editable);
   const [isDragging, setIsDragging] = React.useState(false);
   const [editValue, setEditValue] = React.useState<string>(
     typeof label === 'string' ? label : '',
@@ -73,7 +95,7 @@ export const Chip = ({
       // Délai de 1 seconde avant d'activer l'édition
       const timerId = setTimeout(() => {
         // Ignore l'édition si draggable et en cours de dragging
-        if ((restProps as any)?.draggable && isDragging) {
+        if (draggable && isDragging) {
           return;
         }
         setIsEditing(true);
@@ -86,7 +108,7 @@ export const Chip = ({
       setIsEditing(false);
     }
     return;
-  }, [isFocused, editable, isDragging, restProps, editValue]);
+  }, [isFocused, editable, isDragging, draggable, editValue]);
 
   // Sync edit value and focus caret when entering editing mode
   useEffect(() => {
@@ -128,34 +150,45 @@ export const Chip = ({
     icon = faCheck;
   }
 
-  // Extract potential onFocus/onBlur from rest props to compose handlers
-  const {
-    onFocus: restOnFocus,
-    onBlur: restOnBlur,
-    onKeyDown: restOnKeyDown,
-    onDragStart: restOnDragStart,
-    onDragEnd: restOnDragEnd,
-    onDoubleClick: restOnDoubleClick,
-    ...rest
-  } = (restProps as any) ?? {};
+  const hasTrailingIcon = !!onRemove && !isEditing;
+
+  const trailingIconHandlers = {
+    onMouseDown: (e: React.MouseEvent) => {
+      e.preventDefault(); // ⬅️ clé
+      e.stopPropagation();
+    },
+    onClick: (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (!disabled) {
+        onRemove?.();
+      }
+    },
+  };
 
   const styles = useChipStyle({
-    href,
+    // props
+    label,
+    variant,
     disabled,
     icon,
-    variant,
-    transition,
-    className,
-    isActive: isActive ?? false,
-    onToggle,
     activated: isActive,
-    label,
-    isInteractive,
-    children: label,
-    isFocused: isFocused,
-    isDragging,
+    onToggle,
+    onRemove,
+    draggable,
+    editable,
+    editing,
+    onEditStart,
     onEditCommit,
+    onEditCancel,
+    onChange,
+    // states
+    isActive: isActive ?? false,
+    isFocused,
+    isInteractive,
+    isDragging,
     isEditing,
+    trailingIcon: hasTrailingIcon,
+    className,
   });
 
   const labelRef = useRef(null);
@@ -177,22 +210,22 @@ export const Chip = ({
       ref={resolvedRef}
       href={href}
       className={styles.chip}
-      {...(rest as any)}
+      {...(restProps as any)}
       onClick={(e: React.MouseEvent<any>) => {
         if (!isEditing) handleClick(e);
       }}
-      draggable={!disabled && !!(restProps as any)?.draggable}
+      draggable={!disabled && draggable}
       onDragStart={(e: React.DragEvent<any>) => {
-        if (!disabled && (restProps as any)?.draggable) {
+        if (!disabled && draggable) {
           setIsDragging(true);
         }
-        restOnDragStart?.(e);
+        userOnDragStart?.(e);
       }}
       onDragEnd={(e: React.DragEvent<any>) => {
-        if ((restProps as any)?.draggable) {
+        if (draggable) {
           setIsDragging(false);
         }
-        restOnDragEnd?.(e);
+        userOnDragEnd?.(e);
       }}
       onDoubleClick={(e: React.MouseEvent<any>) => {
         if (!disabled && editable && !isEditing) {
@@ -200,17 +233,17 @@ export const Chip = ({
           e.preventDefault();
           e.stopPropagation();
         }
-        restOnDoubleClick?.(e);
+        userOnDoubleClick?.(e);
       }}
       onFocus={(e: React.FocusEvent<any>) => {
         if (isInteractive) {
           setIsFocused(true);
         }
-        restOnFocus?.(e);
+        userOnFocus?.(e);
       }}
       onBlur={(e: React.FocusEvent<any>) => {
         setIsFocused(false);
-        restOnBlur?.(e);
+        userOnBlur?.(e);
       }}
       onKeyDown={(e: React.KeyboardEvent<any>) => {
         const key = e.key;
@@ -267,7 +300,7 @@ export const Chip = ({
         }
 
         // Delegate to user handler last
-        restOnKeyDown?.(e);
+        userOnKeyDown?.(e);
       }}
       disabled={disabled}
       aria-pressed={onToggle ? isActive : undefined}
@@ -298,7 +331,7 @@ export const Chip = ({
           setEditValue(text);
           onChange?.(text);
         }}
-        onBlur={(e) => {
+        onBlur={() => {
           if (editable && isEditing) {
             handleCommit();
           }
@@ -320,20 +353,12 @@ export const Chip = ({
       >
         {label}
       </span>
-      {onRemove && !isEditing && (
+      {hasTrailingIcon && (
         <Icon
           icon={faXmark}
           className={styles.trailingIcon}
-          onMouseDown={(e) => {
-            e.preventDefault(); // ⬅️ clé
-            e.stopPropagation();
-          }}
-          onClick={(e: React.MouseEvent) => {
-            e.stopPropagation();
-            if (!disabled) {
-              onRemove();
-            }
-          }}
+          // `Icon` ne déclare pas de handlers DOM mais les transmet au <svg>.
+          {...(trailingIconHandlers as any)}
         />
       )}
     </ElementType>

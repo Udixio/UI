@@ -1,16 +1,12 @@
-import { ActionOrLink } from '../utils';
-import { Transition } from 'motion';
 import { Icon } from '../icon';
 
 type ChipVariant = 'outlined' | 'elevated';
 
-export type ChipProps = {
+type Props = {
   /**
    * The label is the text that is displayed on the chip.
    */
   label?: string;
-
-  children?: string;
 
   /**
    * The chip variant determines the style.
@@ -27,71 +23,64 @@ export type ChipProps = {
    */
   icon?: Icon;
 
-  transition?: Transition;
+  /**
+   * Controlled selected state (the resolved value lives in `states.isActive`).
+   */
+  activated?: boolean;
 
   onToggle?: (isActive: boolean) => void;
-
-  activated?: boolean;
 
   onRemove?: () => void;
 
   /**
-   * Enable native HTML drag and drop on the chip.
+   * Enable native drag and drop on the chip.
    */
   draggable?: boolean;
 
-  /**
-   * Called when drag starts (composed with internal handler that sets isDragging).
-   */
-  onDragStart?: (e: React.DragEvent) => void;
+  /** Enable label inline edition for this chip (used by Chips variant="input"). */
+  editable?: boolean;
 
   /**
-   * Called when drag ends (composed with internal handler that clears isDragging).
+   * Controlled edition state (the resolved value lives in `states.isEditing`).
    */
-  onDragEnd?: (e: React.DragEvent) => void;
-} & (
-  | {
-      editable?: false;
-      editing?: never;
-      onEditStart?: never;
-      onEditCommit: never;
-      onEditCancel?: never;
-      onChange?: never;
-    }
-  | {
-      /** Enable label inline edition for this chip (used by Chips variant="input"). */
-      editable?: true;
+  editing?: boolean;
 
-      /** Affirms that the chip is currently being edited. */
-      editing?: boolean;
+  /** Request to start editing (e.g., double-click, Enter/F2). */
+  onEditStart?: () => void;
 
-      /** Request to start editing (e.g., double-click, Enter/F2). */
-      onEditStart?: () => void;
+  /** Commit edition with the new label. */
+  onEditCommit?: (nextLabel: string) => void;
 
-      /** Commit edition with the new label. */
-      onEditCommit: (nextLabel: string) => void;
+  /** Cancel edition and restore previous label. */
+  onEditCancel?: () => void;
 
-      /** Cancel edition and restore previous label. */
-      onEditCancel?: () => void;
+  /**
+   * Fired on each edit keystroke when content changes (only while editing).
+   * Useful for live formatting, suggestions, validation, etc.
+   */
+  onChange?: (nextLabel: string) => void;
+};
 
-      /**
-       * Fired on each edit keystroke when content changes (only while editing).
-       * Useful for live formatting, suggestions, validation, etc.
-       */
-      onChange?: (nextLabel: string) => void;
-    }
-);
+export type ChipStates = {
+  /** Resolved selected state (controlled `activated` + internal toggle). */
+  isActive: boolean;
+  /** The chip currently holds the focus. */
+  isFocused: boolean;
+  /** The chip reacts to user interaction (toggle, remove, click, link, edit). */
+  isInteractive: boolean;
+  /** A native drag is in progress. */
+  isDragging: boolean;
+  /** Resolved edition state (controlled `editing` + internal edition). */
+  isEditing: boolean;
+  /** A trailing (remove) icon is rendered. */
+  trailingIcon: boolean;
+};
 
 type Elements = ['chip', 'stateLayer', 'leadingIcon', 'trailingIcon', 'label'];
 
-export type ChipInterface = ActionOrLink<ChipProps> & {
+export interface ChipInterface {
+  type: 'button';
+  props: Props;
+  states: ChipStates;
   elements: Elements;
-  states: {
-    isActive: boolean;
-    trailingIcon?: boolean;
-    isFocused: boolean;
-    isInteractive: boolean;
-    isDragging?: boolean;
-    isEditing?: boolean;
-  };
-};
+}

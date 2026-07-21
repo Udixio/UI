@@ -1,16 +1,14 @@
 import type { ClassNameComponent } from '../utils';
-import { classNames, createUseClassNames, defaultClassNames } from '../utils';
+import { classNames, defaultClassNames } from '../utils';
 import { ChipInterface } from '../interfaces';
 
 const chipConfig: ClassNameComponent<ChipInterface> = ({
   variant,
-
   disabled,
   trailingIcon,
   icon,
   isActive,
   isInteractive,
-  activated,
   isFocused,
   isDragging,
   isEditing,
@@ -23,9 +21,9 @@ const chipConfig: ClassNameComponent<ChipInterface> = ({
       'cursor-pointer': !disabled && isInteractive,
     },
     {
-      ' text-on-surface-variant': (!activated && !isFocused) || isEditing,
+      ' text-on-surface-variant': (!isActive && !isFocused) || isEditing,
       'bg-secondary-container text-on-secondary-container':
-        (activated || isFocused) && !isEditing,
+        (isActive || isFocused) && !isEditing,
     },
     // Dragging feedback
     isDragging && ['opacity-100 cursor-grabbing shadow-3'],
@@ -55,8 +53,3 @@ const chipConfig: ClassNameComponent<ChipInterface> = ({
 });
 
 export const chipStyle = defaultClassNames<ChipInterface>('chip', chipConfig);
-
-export const useChipStyle = createUseClassNames<ChipInterface>(
-  'chip',
-  chipConfig,
-);
