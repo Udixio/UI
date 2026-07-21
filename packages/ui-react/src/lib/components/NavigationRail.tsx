@@ -1,26 +1,41 @@
 import {
   Children,
   cloneElement,
+  type Dispatch,
   Fragment,
   isValidElement,
-  ReactElement,
-  ReactNode,
-  RefObject,
+  type ReactElement,
+  type ReactNode,
+  type SetStateAction,
   useEffect,
   useRef,
   useState,
 } from 'react';
-import { ReactProps } from '@udixio/core';
+import type { Transition } from 'motion';
+import {
+  type NavigationRailInterface,
+  navigationRailStyle,
+  type ReactProps,
+} from '@udixio/core';
 import {
   NavigationRailItem,
+  type NavigationRailItemSelectedEvent,
   NavigationRailSection,
+  type ReactNavigationRailItemProps,
 } from './NavigationRailItem';
 import { Fab, type ReactFabProps } from './Fab';
-import { useNavigationRailStyle } from '@udixio/core';
-import { NavigationRailInterface } from '@udixio/core';
-import { NavigationRailItemInterface } from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
 import { faBars, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { IconButton } from './IconButton';
+
+export type ReactNavigationRailProps = ReactProps<NavigationRailInterface> & {
+  children?: ReactNode;
+  transition?: Transition;
+  setSelectedItem?: Dispatch<SetStateAction<number | null>>;
+  onItemSelected?: (args: NavigationRailItemSelectedEvent) => void;
+};
+
+export const useNavigationRailStyle = createUseStyle(navigationRailStyle);
 
 /**
  * Navigation rails let people switch between UI views on mid-sized devices
@@ -55,32 +70,25 @@ export const NavigationRail = ({
   onExtendedChange,
   transition,
   setSelectedItem: externalSetSelectedItem,
-}: ReactProps<NavigationRailInterface>) => {
+}: ReactNavigationRailProps) => {
   const [internalSelectedItem, internalSetSelectedItem] = useState<
     number | null
   >(null);
 
-  const [isExtended, setIsExtended] = useState(extended);
+  const [isExtended, setIsExtended] = useState(extended ?? false);
 
-  let selectedItem: number | null;
+  let selectedIndex: number | null;
   if (externalSelectedItem == 0 || externalSelectedItem != undefined) {
-    selectedItem = externalSelectedItem;
+    selectedIndex = externalSelectedItem;
   } else {
-    selectedItem = internalSelectedItem;
+    selectedIndex = internalSelectedItem;
   }
 
   const setSelectedItem = externalSetSelectedItem || internalSetSelectedItem;
 
   const ref = useRef<HTMLDivElement | null>(null);
 
-  const handleOnItemSelected = (
-    args: { index: number } & Pick<
-      ReactProps<NavigationRailItemInterface>,
-      'label' | 'icon'
-    > & {
-        ref: RefObject<any>;
-      },
-  ) => {
+  const handleOnItemSelected = (args: NavigationRailItemSelectedEvent) => {
     onItemSelected?.(args);
   };
 
@@ -106,25 +114,22 @@ export const NavigationRail = ({
   );
 
   const styles = useNavigationRailStyle({
-    children,
-    onItemSelected,
-    selectedItem,
-    setSelectedItem,
-    className,
     variant,
-    extended: isExtended,
-    isExtended,
+    selectedItem: externalSelectedItem,
+    extended,
+    onExtendedChange,
     alignment,
     menu,
-    transition,
-    onExtendedChange,
+    isExtended,
+    selectedIndex,
+    className,
   });
   transition = { duration: 0.3, ...transition };
   const extendedOnly = useRef(false);
   extendedOnly.current = false;
 
   useEffect(() => {
-    onExtendedChange?.(isExtended ?? false);
+    onExtendedChange?.(isExtended);
   }, [isExtended]);
 
   return (
@@ -154,12 +159,12 @@ export const NavigationRail = ({
           return childrenArray.map((child) => {
             if (isValidElement(child) && child.type === NavigationRailItem) {
               return cloneElement(
-                child as ReactElement<ReactProps<NavigationRailItemInterface>>,
+                child as ReactElement<ReactNavigationRailItemProps>,
                 {
                   key: itemIndex,
                   index: itemIndex++, // Utilise et incrémente le compteur dédié
                   variant: isExtended ? 'horizontal' : 'vertical',
-                  selectedItem,
+                  selectedItem: selectedIndex,
                   setSelectedItem: setSelectedItem,
                   onItemSelected: handleOnItemSelected,
                   transition,

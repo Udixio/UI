@@ -1,11 +1,46 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  type Dispatch,
+  type RefObject,
+  type SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import type { Transition } from 'motion';
 
 import { Icon } from '../icon';
-import { classNames, ReactProps } from '@udixio/core';
-import { NavigationRailItemInterface } from '@udixio/core';
-import { useNavigationRailItemStyle } from '@udixio/core';
+import {
+  classNames,
+  type NavigationRailItemInterface,
+  navigationRailItemStyle,
+  type ReactProps,
+} from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
 import { AnimatePresence, motion } from 'motion/react';
 import { State } from '../effects';
+
+/** Payload emitted when an item becomes the selected one. */
+export type NavigationRailItemSelectedEvent = Pick<
+  NavigationRailItemInterface['props'],
+  'label' | 'icon'
+> & {
+  index: number;
+  ref: RefObject<any>;
+};
+
+export type ReactNavigationRailItemProps =
+  ReactProps<NavigationRailItemInterface> & {
+    // `children` sert de repli de `label` → typé string (comme Fab / IconButton)
+    children?: string;
+    href?: string;
+    transition?: Transition;
+    setSelectedItem?: Dispatch<SetStateAction<number | null>>;
+    onItemSelected?: (args: NavigationRailItemSelectedEvent) => void;
+  };
+
+export const useNavigationRailItemStyle = createUseStyle(
+  navigationRailItemStyle,
+);
 
 /**
  * @status beta
@@ -50,7 +85,7 @@ export const NavigationRailItem = ({
   extendedOnly,
   children,
   ...restProps
-}: ReactProps<NavigationRailItemInterface>) => {
+}: ReactNavigationRailItemProps) => {
   if (children) label = children;
 
   const defaultRef = useRef<any>(null);
@@ -89,22 +124,17 @@ export const NavigationRailItem = ({
   };
 
   const styles = useNavigationRailItemStyle({
+    label,
+    icon,
+    iconSelected,
+    selected,
+    variant,
+    index,
+    selectedItem,
     isExtended,
     extendedOnly,
-    className,
-    onItemSelected,
-    selectedItem,
-    index,
-    transition,
-    selected: isSelected,
-    variant,
-    icon,
-    label,
     isSelected,
-    setSelectedItem,
-    href: href as any,
-    children: label,
-    iconSelected,
+    className,
   });
 
   transition = { duration: 0.3, ...transition };
@@ -112,13 +142,11 @@ export const NavigationRailItem = ({
   if (extendedOnly && !isExtended) return null;
 
   return (
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
     <ElementType
-      {...restProps}
+      {...(restProps as any)}
       role="tab"
       aria-selected={isSelected}
-      ref={resolvedRef}
+      ref={resolvedRef as any}
       href={href}
       className={styles.navigationRailItem}
       onClick={handleClick}

@@ -1,7 +1,6 @@
 import {
   type ClassNameComponent,
   classNames,
-  createUseClassNames,
   defaultClassNames,
 } from '../utils';
 import { NavigationRailItemInterface } from '../interfaces';
@@ -45,12 +44,6 @@ const navigationRailItemConfig: ClassNameComponent<
 
 export const navigationRailItemStyle =
   defaultClassNames<NavigationRailItemInterface>(
-    'navigationRailItem',
-    navigationRailItemConfig,
-  );
-
-export const useNavigationRailItemStyle =
-  createUseClassNames<NavigationRailItemInterface>(
     'navigationRailItem',
     navigationRailItemConfig,
   );
