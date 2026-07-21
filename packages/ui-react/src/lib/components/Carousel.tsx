@@ -1,11 +1,28 @@
-import React, { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useCallback,
+  type ReactNode,
+} from 'react';
 import { animate } from 'motion/react';
-import { CarouselInterface, CarouselItemInterface } from '@udixio/core';
+import {
+  carouselStyle,
+  type CarouselInterface,
+  type CarouselItemInterface,
+  type ReactProps,
+} from '@udixio/core';
 
-import { useCarouselStyle } from '@udixio/core';
 import { CustomScroll } from '../effects';
-import { ReactProps } from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
 import { CarouselItem, normalize } from './CarouselItem';
+
+export type ReactCarouselProps = ReactProps<CarouselInterface> & {
+  children?: ReactNode;
+};
+
+export const useCarouselStyle = createUseStyle(carouselStyle);
 
 /**
  * Carousels show a collection of items that can be scrolled on and off the screen
@@ -34,23 +51,9 @@ export const Carousel = ({
   index,
   scrollSensitivity = 1.25,
   ...restProps
-}: ReactProps<CarouselInterface>) => {
+}: ReactCarouselProps) => {
   const defaultRef = useRef<HTMLDivElement>(null);
   const ref = optionalRef || defaultRef;
-
-  const styles = useCarouselStyle({
-    index,
-    className,
-    children,
-    variant,
-    inputRange,
-    outputRange,
-    marginPourcent,
-    onChange,
-    gap,
-    scrollSensitivity,
-    onMetricsChange,
-  });
 
   const items = React.Children.toArray(children).filter(
     (child) => React.isValidElement(child) && child.type === CarouselItem,
@@ -73,6 +76,20 @@ export const Carousel = ({
 
   const itemRefs = useRef<React.RefObject<HTMLDivElement | null>[]>([]).current;
   const [selectedItem, setSelectedItem] = useState(0);
+
+  const styles = useCarouselStyle({
+    variant,
+    marginPourcent,
+    gap,
+    scrollSensitivity,
+    inputRange,
+    outputRange,
+    index,
+    onChange,
+    onMetricsChange,
+    selectedIndex: selectedItem,
+    className,
+  });
 
   if (itemRefs.length !== items.length) {
     itemRefs.length = 0; // reset
