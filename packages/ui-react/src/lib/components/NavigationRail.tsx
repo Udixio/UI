@@ -15,10 +15,10 @@ import {
   NavigationRailItem,
   NavigationRailSection,
 } from './NavigationRailItem';
-import { Fab } from './Fab';
+import { Fab, type ReactFabProps } from './Fab';
 import { useNavigationRailStyle } from '@udixio/core';
 import { NavigationRailInterface } from '@udixio/core';
-import { FabInterface, NavigationRailItemInterface } from '@udixio/core';
+import { NavigationRailItemInterface } from '@udixio/core';
 import { faBars, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { IconButton } from './IconButton';
 
@@ -141,7 +141,7 @@ export const NavigationRail = ({
           icon={!isExtended ? menu?.closed.icon : menu.opened.icon}
         />
         {fab.length > 0 &&
-          cloneElement(fab[0] as ReactElement<ReactProps<FabInterface>>, {
+          cloneElement(fab[0] as ReactElement<ReactFabProps>, {
             transition: transition,
             extended: isExtended,
             className: '!shadow-none mx-5 ' + (fab[0] as any).props.className,

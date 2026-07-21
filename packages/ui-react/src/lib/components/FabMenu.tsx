@@ -1,14 +1,28 @@
-import React, { useId, useRef, useState } from 'react';
-import { FabMenuInterface } from '@udixio/core';
-import { useFabMenuStyle } from '@udixio/core';
-import { ReactProps } from '@udixio/core';
+import React, { useId, useRef, useState, type ReactNode } from 'react';
+import type { Transition } from 'motion';
+import {
+  type ButtonInterface,
+  classNames,
+  type FabMenuInterface,
+  fabMenuStyle,
+  type ReactProps,
+} from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
 import { Fab } from './Fab';
 import { Button } from './Button';
-import { ButtonInterface } from '@udixio/core';
-import { classNames } from '@udixio/core';
 import { IconButton } from './IconButton';
 import { faClose } from '@fortawesome/free-solid-svg-icons';
 import { AnimatePresence, motion } from 'motion/react';
+
+export type { FabMenuVariant } from '@udixio/core';
+
+export type ReactFabMenuProps = ReactProps<FabMenuInterface> & {
+  children?: ReactNode;
+  href?: string;
+  transition?: Transition;
+};
+
+export const useFabMenuStyle = createUseStyle(fabMenuStyle);
 
 /**
  * Floating action buttons (FABs) help people take primary actions
@@ -37,7 +51,7 @@ export const FabMenu = ({
   defaultOpen = false,
   onOpenChange,
   ...restProps
-}: ReactProps<FabMenuInterface>) => {
+}: ReactFabMenuProps) => {
   transition = { duration: 0.3, ease: 'easeInOut', ...transition };
 
   const defaultRef = useRef(null);
@@ -57,21 +71,21 @@ export const FabMenu = ({
   );
 
   const styles = useFabMenuStyle({
-    href,
-    icon,
-    extended,
-    label,
-    size,
     variant,
-    className,
-    transition,
-    children: label,
+    label,
+    icon,
+    size,
+    extended,
     open,
+    defaultOpen,
+    onOpenChange,
+    isOpen: open,
+    className,
   });
 
   const MotionFab = motion.create(Fab);
   const MotionIconButton = motion.create(IconButton);
-  const renderFab = (props) => (
+  const renderFab = (props: Record<string, unknown>) => (
     <MotionFab
       icon={icon}
       extended={extended}
@@ -103,9 +117,6 @@ export const FabMenu = ({
             {(() => {
               const total = buttonChildren.length;
               return buttonChildren.map((child, index) => {
-                const childProps = (
-                  child as React.ReactElement<ReactProps<ButtonInterface>>
-                ).props;
                 const reverseIndex = total - 1 - index; // inverser l'ordre d'animation
                 const delay = (transition?.delay ?? 0) + reverseIndex * 0.06; // délai échelonné inversé, un peu plus marqué
 
@@ -118,7 +129,7 @@ export const FabMenu = ({
                       ...transition,
                       delay,
                       opacity: {
-                        delay: transition?.duration / 2 + delay,
+                        delay: transition.duration! / 2 + delay,
                       },
                     },
                   },
@@ -130,7 +141,7 @@ export const FabMenu = ({
                       ...transition,
                       delay,
                       opacity: {
-                        duration: transition?.duration / 1.5,
+                        duration: transition.duration! / 1.5,
                       },
                     },
                   },

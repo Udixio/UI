@@ -1,12 +1,27 @@
-import React, { useRef } from 'react';
+import { useRef } from 'react';
+import type { Transition } from 'motion';
 import { Icon } from '../icon';
 import { AnimatePresence, motion } from 'motion/react';
-import { FabInterface } from '@udixio/core';
-import { useFabStyle } from '@udixio/core';
-import { classNames } from '@udixio/core';
-import { ReactProps } from '@udixio/core';
+import {
+  classNames,
+  type FabInterface,
+  fabStyle,
+  type ReactProps,
+} from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
 import { Tooltip } from './Tooltip';
 import { State } from '../effects';
+
+export type { FabVariant } from '@udixio/core';
+
+export type ReactFabProps = ReactProps<FabInterface> & {
+  // `children` sert de repli de `label` → typé string (comme IconButton)
+  children?: string;
+  href?: string;
+  transition?: Transition;
+};
+
+export const useFabStyle = createUseStyle(fabStyle);
 
 /**
  * Floating action buttons (FABs) help people take primary actions
@@ -30,7 +45,7 @@ export const Fab = ({
   transition,
   children,
   ...restProps
-}: ReactProps<FabInterface>) => {
+}: ReactFabProps) => {
   if (children) label = children;
   if (!label) {
     throw new Error(
@@ -40,15 +55,12 @@ export const Fab = ({
   const ElementType = href ? 'a' : 'button';
 
   const styles = useFabStyle({
-    href,
-    icon,
-    extended,
-    label,
-    size,
     variant,
+    label,
+    icon,
+    size,
+    extended,
     className,
-    transition,
-    children: label,
   });
 
   transition = { duration: 0.3, ...transition };

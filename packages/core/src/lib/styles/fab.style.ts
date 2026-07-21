@@ -1,7 +1,6 @@
 import {
   type ClassNameComponent,
   classNames,
-  createUseClassNames,
   defaultClassNames,
 } from '../utils';
 import { FabInterface } from '../interfaces/fab.interface';
@@ -45,5 +44,3 @@ const fabConfig: ClassNameComponent<FabInterface> = ({
 });
 
 export const fabStyle = defaultClassNames<FabInterface>('fab', fabConfig);
-
-export const useFabStyle = createUseClassNames<FabInterface>('fab', fabConfig);
