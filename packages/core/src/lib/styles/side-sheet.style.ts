@@ -1,7 +1,6 @@
 import {
   type ClassNameComponent,
   classNames,
-  createUseClassNames,
   defaultClassNames,
 } from '../utils';
 
@@ -35,11 +34,6 @@ export const sideSheetConfig: ClassNameComponent<SideSheetInterface> = ({
 });
 
 export const sideSheetStyle = defaultClassNames<SideSheetInterface>(
-  'sideSheet',
-  sideSheetConfig,
-);
-
-export const useSideSheetStyle = createUseClassNames<SideSheetInterface>(
   'sideSheet',
   sideSheetConfig,
 );

@@ -1,13 +1,25 @@
-import { MotionProps } from '@udixio/core';
-import { SideSheetInterface } from '@udixio/core';
-import { Divider } from './Divider';
-
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import { IconButton } from './IconButton';
-import { useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
+import type { Transition } from 'motion';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'motion/react';
-import { sideSheetStyle } from '@udixio/core';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import {
+  type ReactProps,
+  type SideSheetInterface,
+  sideSheetStyle,
+} from '@udixio/core';
+import { createUseStyle } from '../utils/create-use-style';
+import { Divider } from './Divider';
+import { IconButton } from './IconButton';
+
+export type { SideSheetPosition, SideSheetVariant } from '@udixio/core';
+
+export type ReactSideSheetProps = ReactProps<SideSheetInterface> & {
+  children?: ReactNode;
+  transition?: Transition;
+};
+
+export const useSideSheetStyle = createUseStyle(sideSheetStyle);
 
 /**
  * Side sheets show secondary content anchored to the side of the screen
@@ -33,18 +45,16 @@ export const SideSheet = ({
   closeIcon = faXmark,
   transition,
   ...rest
-}: MotionProps<SideSheetInterface>) => {
+}: ReactSideSheetProps) => {
   transition = { duration: 0.3, ...transition };
 
   const [isExtended, setIsExtended] = useState(extended ?? true);
 
-  const styles = sideSheetStyle({
-    transition,
+  const styles = useSideSheetStyle({
     title,
     position,
     closeIcon,
     className,
-    children,
     onExtendedChange,
     divider,
     isExtended,
