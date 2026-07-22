@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Create Material Component'
+  short_description: 'Create a multi-framework Material 3 component'
+  default_prompt: 'Use $create-material-component to implement a Material 3 component in core, React, Angular, tests, and docs.'

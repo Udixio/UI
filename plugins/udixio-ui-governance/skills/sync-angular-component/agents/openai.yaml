@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Sync Angular Component'
+  short_description: 'Synchronize Angular from the React source'
+  default_prompt: 'Use $sync-angular-component to bring an Angular component into parity with its React source.'

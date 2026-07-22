@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Audit Accessibility'
+  short_description: 'Audit and repair component accessibility'
+  default_prompt: 'Use $audit-accessibility to audit and fix the accessibility contract of a component.'

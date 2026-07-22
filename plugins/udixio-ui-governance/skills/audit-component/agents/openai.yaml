@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Audit Component'
+  short_description: 'Audit and repair a component end to end'
+  default_prompt: 'Use $audit-component to audit Button across core, React, Angular, accessibility, tests, and documentation.'

@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Audit Framework Quality'
+  short_description: 'Audit framework practices and technical debt'
+  default_prompt: 'Use $audit-framework-quality to audit React and Angular conventions, naming, tests, and technical debt.'

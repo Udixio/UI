@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Audit Multiframework'
+  short_description: 'Audit shared contracts across UI frameworks'
+  default_prompt: 'Use $audit-multiframework to validate and repair the shared cross-framework architecture of a component.'

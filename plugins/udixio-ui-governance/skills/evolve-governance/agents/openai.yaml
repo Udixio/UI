@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Evolve Governance'
+  short_description: 'Keep component governance rules current'
+  default_prompt: 'Use $evolve-governance to update and validate this plugin against current repository and framework standards.'

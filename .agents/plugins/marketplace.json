@@ -1,0 +1,20 @@
+{
+  "name": "udixio-ui-local",
+  "interface": {
+    "displayName": "Udixio UI Local"
+  },
+  "plugins": [
+    {
+      "name": "udixio-ui-governance",
+      "source": {
+        "source": "local",
+        "path": "./plugins/udixio-ui-governance"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

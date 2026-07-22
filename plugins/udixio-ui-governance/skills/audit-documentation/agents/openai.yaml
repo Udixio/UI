@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Audit Documentation'
+  short_description: 'Audit and repair component documentation'
+  default_prompt: 'Use $audit-documentation to validate and fix component API docs and framework examples.'

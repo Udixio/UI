@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Audit React Angular Parity'
+  short_description: 'Compare and repair React Angular parity'
+  default_prompt: 'Use $audit-parity to compare a React component with Angular and repair contract drift.'
