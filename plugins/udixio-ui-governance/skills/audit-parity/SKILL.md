@@ -6,7 +6,8 @@ description: Compare, repair, or strictly validate an Angular component against 
 # Audit React-Angular parity
 
 Treat React as the default source adapter only after verifying that it obeys core and repository
-standards. Never synchronize a confirmed React defect.
+standards, including [the public API standard](../../references/public-api-standard.md). Never
+synchronize a confirmed React defect or a semantically weak public name.
 
 ## Build a parity matrix
 
@@ -24,6 +25,9 @@ Read [the audit contract](../../references/audit-contract.md) and
 
 Classify every difference as `defect`, `platform-adaptation`, or `documented-exception`. A valid
 platform adaptation preserves the same public meaning and user-observable behavior.
+
+Do not count identical questionable names as successful parity. Report the source defect as
+`API-DESIGN-*`, resolve it, then compare both adapters against the corrected canonical concept.
 
 ## Repair and validate
 

@@ -39,11 +39,13 @@ Do not inflate severity. Absence of evidence is not a pass.
 ## Acceptance policy
 
 - React is the default source adapter. Shared contracts, styles, behavior, and DOM controllers in
-  core outrank framework implementation details.
+  core outrank framework implementation details. React is not presumed to have a sound public API.
+- Apply [the public API standard](public-api-standard.md) before implementation or synchronization.
+  A questionable public contract is a major `API-DESIGN-*` finding and blocks propagation.
 - An intentional framework difference must have a platform reason, a test, and documentation.
 - Never accept silent duplication, `any`, disabled lint rules, skipped tests, compatibility shims
   without removal criteria, or a second animation/state engine as a fix.
-- Preserve unrelated user changes and existing public compatibility unless the task explicitly
-  authorizes a breaking change.
+- Preserve unrelated user changes. Protect released compatibility, but do not create deprecation
+  debt for unreleased APIs or preserve a design defect merely because React already exposes it.
 - Close with: scope inspected, findings ordered by severity, changes made, validation commands and
   results, remaining risks, and documented exceptions.

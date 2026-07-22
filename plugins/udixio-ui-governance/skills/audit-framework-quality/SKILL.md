@@ -6,7 +6,20 @@ description: Audit, repair, or validate React and Angular implementation quality
 # Audit framework quality
 
 Read current repository standards and use current official React/Angular documentation for claims
-that may have changed. Apply [the audit contract](../../references/audit-contract.md).
+that may have changed. Apply [the audit contract](../../references/audit-contract.md) and
+[the public API standard](../../references/public-api-standard.md).
+
+## Public API design
+
+When composing a full component audit, let `audit-public-api` own the semantic contract review.
+Still flag negative or imperative toggles, implementation-shaped names, CSS/DOM leakage, ambiguous
+booleans, surprising defaults, and contracts that will become false when internals change during a
+standalone framework-quality audit.
+
+For each questionable member, report an `API-DESIGN-*` finding with two or three alternatives, a
+recommendation, cross-framework usage examples, and release impact. Stop synchronization until the
+contract is resolved. Never silence the finding by copying the name to Angular or adding a
+deprecated alias automatically.
 
 ## React
 

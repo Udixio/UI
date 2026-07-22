@@ -56,6 +56,12 @@ arguments. Run `validate_api_docs.py --all` as an explicit repository-wide debt 
 components have migrated to complete TSDoc, findings from `--all` remain visible and actionable but
 do not block an unrelated component repair; never use that policy to waive a touched component.
 
+Before changing a public contract and after implementation, compare the core interfaces plus React
+and Angular declarations with an explicit release or branch baseline. Review each name, type,
+default, alias, event, slot, and semantic behavior. Any delta blocks an unreviewed sync: classify API
+maturity, explain the delta, and obtain authorization for stable breaking changes. Generated API
+artifacts validate documentation extraction only; they do not prove source-contract quality.
+
 Do not launch dependent Nx builds concurrently when they share output directories. If the full
 React typecheck contains known unrelated failures, capture the complete result, isolate diagnostics
 for touched files, and never describe the full gate as passing.

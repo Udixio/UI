@@ -17,21 +17,24 @@ Finish the React and core review before judging Angular parity.
 3. Run `../../scripts/component_inventory.py <component> --root <repo>` and inspect every candidate.
 4. Establish the public component scope, including core artifacts, exports, tests, TSDoc sources,
    generated API JSON, docs renderers, examples, and deliberate exceptions.
+5. Inspect contract maturity and choose the Git baseline used to review source API stability.
 
 ## Compose the checkers
 
 Read and apply these sibling skills in this exact order:
 
-1. [audit-multiframework](../audit-multiframework/SKILL.md): validate the core contract and the
-   React implementation first.
-2. [audit-framework-quality](../audit-framework-quality/SKILL.md): review React practices, naming,
-   tests, and debt.
-3. [audit-accessibility](../audit-accessibility/SKILL.md): prove the React semantic and interaction
+1. [audit-public-api](../audit-public-api/SKILL.md): judge source interfaces and adapter contracts;
+   stop before propagation on an unresolved `API-DESIGN-*` finding.
+2. [audit-framework-quality](../audit-framework-quality/SKILL.md): review framework practices,
+   implementation naming, tests, and debt.
+3. [audit-multiframework](../audit-multiframework/SKILL.md): validate the resolved core contract and
+   React implementation.
+4. [audit-accessibility](../audit-accessibility/SKILL.md): prove the React semantic and interaction
    contract.
-4. [audit-parity](../audit-parity/SKILL.md): compare Angular with the resolved React/core source.
-5. Apply `audit-framework-quality` and `audit-accessibility` to Angular, including framework-specific
+5. [audit-parity](../audit-parity/SKILL.md): compare Angular with the resolved React/core source.
+6. Apply `audit-framework-quality` and `audit-accessibility` to Angular, including framework-specific
    and rendered-DOM concerns.
-6. [audit-documentation](../audit-documentation/SKILL.md): verify the public story only after the
+7. [audit-documentation](../audit-documentation/SKILL.md): verify the public story only after the
    implementation contract is resolved, including TSDoc truth, per-framework API extraction,
    generated-artifact freshness, and actual rendering.
 

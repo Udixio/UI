@@ -22,8 +22,8 @@ description: Maintain and evolve the Udixio UI Governance plugin when repository
 - Put commands and acceptance rules in `references/quality-gates.md`.
 - Keep each checker focused on its domain and keep the orchestration order only in
   `audit-component`.
-- Extend deterministic scripts for discovery/validation; do not encode semantic judgments with
-  fragile text matching.
+- Extend deterministic scripts for discovery and structural validation. Keep semantic public-API
+  judgment in `audit-public-api`; do not replace it with fragile text matching or generated docs.
 - Version generated API schemas explicitly when their shape changes. Keep structural validation in
   scripts and semantic TSDoc review in `audit-documentation`; never infer documentation truth from
   keyword counts or timestamps.

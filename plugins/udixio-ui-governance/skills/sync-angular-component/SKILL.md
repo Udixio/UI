@@ -9,9 +9,13 @@ description: Create or update an Udixio Angular component from the default React
 
 1. Read [the repository map](../../references/repository-map.md), current authoring/behavior docs,
    and inventory the component.
-2. Audit core and React enough to establish that the source behavior is valid. Fix confirmed source
+2. Apply [the public API standard](../../references/public-api-standard.md) to every source prop,
+   callback, default, and type before conversion. React is not presumed correct.
+3. If a contract is negative, implementation-shaped, ambiguous, or unstable, emit proposals and
+   stop before editing Angular. Do not obtain parity by propagating the defect or adding an alias.
+4. Audit core and React enough to establish that the source behavior is valid. Fix confirmed source
    defects before conversion.
-3. Write a parity matrix for API, defaults, state ownership, events, DOM semantics, styles, Motion,
+5. Write a parity matrix for API, defaults, state ownership, events, DOM semantics, styles, Motion,
    accessibility, exports, and tests.
 
 ## Translate the contract, not JSX

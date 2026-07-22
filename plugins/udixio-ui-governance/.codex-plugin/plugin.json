@@ -1,6 +1,6 @@
 {
   "name": "udixio-ui-governance",
-  "version": "0.1.0+codex.20260722133054",
+  "version": "0.1.0+codex.20260722135539",
   "description": "Audit, synchronize, and create Udixio UI components across React, Angular, core behavior, accessibility, and documentation.",
   "author": {
     "name": "Udixio"
@@ -19,7 +19,7 @@
   "interface": {
     "displayName": "Udixio UI Governance",
     "shortDescription": "Govern React and Angular components without drift.",
-    "longDescription": "Audits component quality, accessibility, shared contracts, React-Angular parity, tests, and documentation. It can repair findings, synchronize Angular from the React source, and create complete Material 3 components.",
+    "longDescription": "Audits long-lived public API design, component quality, accessibility, shared contracts, React-Angular parity, tests, and documentation. It proposes durable contracts before repair or synchronization and can create complete Material 3 components.",
     "developerName": "Udixio",
     "category": "Developer Tools",
     "capabilities": [
@@ -28,6 +28,7 @@
     ],
     "defaultPrompt": [
       "Audit Button end to end and fix every verified issue.",
+      "Review a component public API and propose stable names before synchronization.",
       "Synchronize the Angular component from its React source.",
       "Create a Material 3 component for React and Angular."
     ]

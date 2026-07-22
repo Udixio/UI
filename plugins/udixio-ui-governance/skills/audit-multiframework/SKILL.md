@@ -6,7 +6,8 @@ description: Audit, repair, or validate Udixio's framework-agnostic component ar
 # Audit multiframework architecture
 
 Read [the repository map](../../references/repository-map.md), current authoring/behavior docs, and
-[the audit contract](../../references/audit-contract.md).
+[the audit contract](../../references/audit-contract.md). Resolve vocabulary with
+[the public API standard](../../references/public-api-standard.md) before assigning ownership.
 
 ## Resolve ownership
 
@@ -24,11 +25,13 @@ CSS. Require one Motion JavaScript controller when both frameworks need the same
 ## Review the source slice
 
 1. Inventory all artifacts and public barrels.
-2. Validate interface props, resolved states, element keys, and `className` state exposure.
-3. Validate controlled/uncontrolled semantics and blocked transitions against shared pure behavior.
-4. Review React completely against the resolved core contract.
-5. Review Angular only after the React/core source contract is stable.
-6. Require the same scenario matrix in core, React, and Angular tests where applicable.
+2. Validate the semantic public contract; do not promote a React implementation name into core
+   until it is intent-oriented, framework-neutral, and stable.
+3. Validate interface props, resolved states, element keys, and `className` state exposure.
+4. Validate controlled/uncontrolled semantics and blocked transitions against shared pure behavior.
+5. Review React completely against the resolved core contract.
+6. Review Angular only after the React/core source contract is stable.
+7. Require the same scenario matrix in core, React, and Angular tests where applicable.
 
 Distinguish API parity from platform syntax: `children`/`ng-content`, callbacks/outputs, and refs/view
 queries may differ while semantics remain equal.

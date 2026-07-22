@@ -15,7 +15,9 @@ description: Create a complete Udixio Material 3 component from current official
 3. Record anatomy, variants, states, interactions, motion, tokens, responsive/RTL behavior,
    accessibility, and content constraints. Mark each item as normative, local design choice, or
    unsupported.
-4. Propose the public contract before implementation. Avoid speculative variants and hollow props.
+4. Apply [the public API standard](../../references/public-api-standard.md) and propose the public
+   contract before implementation. Include alternatives for ambiguous vocabulary and obtain a
+   decision before freezing it in core. Avoid speculative variants and hollow props.
 
 ## Implement vertically
 

@@ -20,12 +20,14 @@ from another library. Translate the specification into the repository's shared c
 ## Implementation sequence
 
 1. Inspect neighboring mature components and repository standards.
-2. Write the framework-agnostic contract and resolved states in core.
-3. Add pure behavior and a single shared DOM/Motion controller when imperative effects are needed.
-4. Implement and test React as the default source adapter.
-5. Synchronize Angular from the resolved contract, not by transliterating JSX.
-6. Add direct-source React and Angular examples and MDX documentation.
-7. Run the complete quality gates and a parity audit.
+2. Review public vocabulary with [the public API standard](public-api-standard.md), record rejected
+   alternatives, and resolve ambiguous product intent before scaffolding adapters.
+3. Write the framework-agnostic contract and resolved states in core.
+4. Add pure behavior and a single shared DOM/Motion controller when imperative effects are needed.
+5. Implement and test React as the default source adapter.
+6. Synchronize Angular from the resolved contract, not by transliterating JSX.
+7. Add direct-source React and Angular examples and MDX documentation.
+8. Run the complete quality gates and a parity audit.
 
 Reject invented variants, hollow props, framework types in core, duplicated animations, CSS-only
 reimplementations of shared Motion behavior, and documentation examples that cannot compile.

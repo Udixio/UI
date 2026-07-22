@@ -53,7 +53,8 @@ stale components are detected.
 Also validate the API artifact structurally: valid JSON, stable schema version where present,
 framework availability derived from non-empty payloads, unique prop/input/output names, and no
 selector tab without matching data. Keep these checks deterministic; semantic truth still requires
-the source-and-test review above. For schema v2, run
+the source-and-test review above. The source public-API checker owns semantic naming and stability;
+this checker verifies that the resolved contract is extracted faithfully. For schema v2, run
 `plugins/udixio-ui-governance/scripts/validate_api_docs.py --component <component>`. Use `--all`
 only for the separate repository-wide documentation-debt audit.
 
