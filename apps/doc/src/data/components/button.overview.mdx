@@ -1,33 +1,46 @@
 ---
 ---
 
-import { CodePreview } from '@/components/CodePreview.js';
 import Code from '@/components/Code.astro';
 import ButtonVariantsReact from '@/examples/react/button-variants.tsx';
 import ButtonSizesReact from '@/examples/react/button-sizes.tsx';
 import ButtonToggleReact from '@/examples/react/button-toggle.tsx';
+import ButtonStatesReact from '@/examples/react/button-states.tsx';
+import ButtonIconsReact from '@/examples/react/button-icons.tsx';
+import ButtonActionsReact from '@/examples/react/button-actions.tsx';
 import { ButtonVariantsAngular } from '@/examples/angular/button-variants.ts';
+import { ButtonSizesAngular } from '@/examples/angular/button-sizes.ts';
 import { ButtonToggleAngular } from '@/examples/angular/button-toggle.ts';
+import { ButtonStatesAngular } from '@/examples/angular/button-states.ts';
+import { ButtonIconsAngular } from '@/examples/angular/button-icons.ts';
+import { ButtonActionsAngular } from '@/examples/angular/button-actions.ts';
 import buttonVariantsReactSource from '@/examples/react/button-variants.tsx?raw';
 import buttonSizesReactSource from '@/examples/react/button-sizes.tsx?raw';
 import buttonToggleReactSource from '@/examples/react/button-toggle.tsx?raw';
+import buttonStatesReactSource from '@/examples/react/button-states.tsx?raw';
+import buttonIconsReactSource from '@/examples/react/button-icons.tsx?raw';
+import buttonActionsReactSource from '@/examples/react/button-actions.tsx?raw';
 import buttonVariantsAngularSource from '@/examples/angular/button-variants.ts?raw';
+import buttonSizesAngularSource from '@/examples/angular/button-sizes.ts?raw';
 import buttonToggleAngularSource from '@/examples/angular/button-toggle.ts?raw';
-import { iAdd } from '@udixio/icons-rounded-400/add';
+import buttonStatesAngularSource from '@/examples/angular/button-states.ts?raw';
+import buttonIconsAngularSource from '@/examples/angular/button-icons.ts?raw';
+import buttonActionsAngularSource from '@/examples/angular/button-actions.ts?raw';
 
 ## Usage
 
-The Button component can trigger an action or navigate to a link. Import it from the @udixio/ui-react package and provide at least a label via the label prop.
+Button triggers an action or navigates to a destination. Import `Button` from
+`@udixio/ui-react` or `@udixio/ui-angular`. Provide visible text with React
+children, Angular projected content, or the shared `label` property.
 
-```bash
-import { Button } from "@udixio/ui-react"
-```
-
-```tsx
-<Button>Button</Button>
-```
+Action buttons render a native `<button>` and default to `type="button"`.
+Providing `href` renders a native `<a>` instead.
 
 ## Variants
+
+The canonical variants are `filled`, `elevated`, `tonal`, `outlined`, and
+`text`. The compatibility aliases `primary` and `secondary` resolve to `filled`
+and `tonal`.
 
 <Code
   codes={{
@@ -41,9 +54,10 @@ import { Button } from "@udixio/ui-react"
 
 ## Toggle buttons
 
-Use `toggleable` for the semantic mode. `pressed` is the controlled value and
-`defaultPressed` initializes an uncontrolled button. React notifies changes with
-`onPressedChange`; Angular exposes the matching `pressedChange` output.
+`toggleable` enables toggle-button semantics. `pressed` is the controlled value;
+`defaultPressed` is captured once for uncontrolled usage. React emits
+`onPressedChange` and Angular emits `pressedChange`. `onClick` and `(click)`
+remain independent action events.
 
 <Code
   codes={{
@@ -55,64 +69,78 @@ Use `toggleable` for the semantic mode. `pressed` is the controlled value and
   <ButtonToggleAngular slot="angular" client:load />
 </Code>
 
-The component manages `aria-pressed` automatically in both frameworks.
-
-## Disabled state
-
-Use the `disabled` prop to make the button inactive.
-
-```jsx
-<div className="flex flex-wrap gap-3">
-  <Button label="Disabled" disabled />
-  <Button label="Disabled" variant="outlined" disabled />
-</div>
-```
+The visible label stays stable while `aria-pressed` communicates the state.
+Navigation links ignore toggle state; mark the current destination with
+`aria-current` instead.
 
 ## Sizes
 
-<Code codes={{ react: buttonSizesReactSource }}>
+Sizes range from `xSmall` to `xLarge`. Every size includes a 48px pointer target,
+including compact visual treatments.
+
+<Code
+  codes={{ react: buttonSizesReactSource, angular: buttonSizesAngularSource }}
+>
   <ButtonSizesReact slot="react" client:load />
+  <ButtonSizesAngular slot="angular" client:load />
 </Code>
 
-## Shapes
+## States and shapes
 
-Control the button's appearance via the `shape` prop.
+`disabled` and `loading` block actions and pressed-state changes. Loading also
+sets `aria-busy` while keeping the label available as the accessible name.
+`shape` selects the rounded or squared resting shape.
 
-```jsx
-<div className="flex flex-wrap gap-3">
-  <Button label="Rounded" shape="rounded" />
-  <Button label="Squared" shape="squared" />
-</div>
-```
+<Code
+  codes={{ react: buttonStatesReactSource, angular: buttonStatesAngularSource }}
+>
+  <ButtonStatesReact slot="react" client:load />
+  <ButtonStatesAngular slot="angular" client:load />
+</Code>
 
-## Icon
+By default, the shared Motion controller transforms the button shape on press.
+Set `allowShapeTransformation={false}` / `[allowShapeTransformation]="false"`
+to disable it, or pass a Motion `transition` to customize it. Reduced-motion
+preferences keep the feedback but remove the movement.
 
-You can add an icon (FontAwesome) and choose its position.
+Text buttons use negative inline margins for alignment. Set
+`disableTextMargins` to remove those margins.
 
-<CodePreview
-  client:load
-  code={`
-    <div className="flex gap-3">
-      <Button label="Add" icon={iAdd} />
-      <Button label="Next" iconPosition="right" icon={iAdd} />
-    </div>
-  `}
-  scope={{ iAdd }}
-/>
+## Icons
 
-## Loading state
+`iconPosition` uses the logical values `start` and `end`, so placement follows
+the page direction in RTL layouts. The historical `left` and `right` aliases
+remain supported. Button icons are decorative; the text label names the action.
 
-```jsx
-<Button label="Sending..." loading />
-```
+<Code
+  codes={{ react: buttonIconsReactSource, angular: buttonIconsAngularSource }}
+>
+  <ButtonIconsReact slot="react" client:load />
+  <ButtonIconsAngular slot="angular" client:load />
+</Code>
 
 ## Link or action
 
-If the `href` prop is provided, the component renders an `<a>` link; otherwise it renders a `<button>`.
+React forwards native button or anchor attributes. Angular exposes the common
+link attributes `target`, `rel`, `tabIndex`, `aria-label`, `aria-describedby`,
+and `aria-current` on the inner interactive element. A disabled or loading link
+has no `href`, receives `aria-disabled="true"`, and leaves the tab order.
 
-```jsx
-<div className="flex gap-3">
-  <Button label="Click me" onClick={() => console.log('clicked')} />
-  <Button label="Go to Udixio" href="https://udixio.dev" />
-</div>
-```
+<Code
+  codes={{
+    react: buttonActionsReactSource,
+    angular: buttonActionsAngularSource,
+  }}
+>
+  <ButtonActionsReact slot="react" client:load />
+  <ButtonActionsAngular slot="angular" client:load />
+</Code>
+
+## Accessibility
+
+Button relies on native button and link keyboard behavior. Toggle buttons expose
+`aria-pressed`; loading buttons expose `aria-busy`; and keyboard focus receives
+a visible two-pixel outline. Always provide a concise accessible name. When
+custom visual content replaces the visible label in React, keep `label` as the
+accessible-name fallback. In Angular, use `aria-label` for projected icon-only
+content.

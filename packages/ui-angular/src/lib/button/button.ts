@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  booleanAttribute,
   computed,
   type OnInit,
   input,
@@ -13,6 +14,7 @@ import {
   getButtonPressTransition,
   getButtonShapeTransition,
   getButtonStateColor,
+  resolveButtonIconPosition,
   type ButtonProps,
   type ClassNameComponent,
   type ButtonInterface,
@@ -22,6 +24,9 @@ import { createStyle } from '../utils/create-style';
 import { Icon } from '../icon/icon';
 import { StateLayer } from '../state-layer/state-layer';
 import { ButtonLoadingIndicator } from './button-loading-indicator';
+
+const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
+  value === undefined ? undefined : booleanAttribute(value);
 
 /**
  * Button Angular consuming the same style and interaction contracts as React.
@@ -33,20 +38,24 @@ import { ButtonLoadingIndicator } from './button-loading-indicator';
   standalone: true,
   imports: [NgTemplateOutlet, Icon, StateLayer, ButtonLoadingIndicator],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { style: 'display: contents' },
   template: `
     <ng-template #content>
-      @if (iconPosition() === 'left' && icon(); as leadingIcon) {
+      @if (resolvedIconPosition() === 'start' && icon(); as leadingIcon) {
         <lib-icon [icon]="leadingIcon" [className]="styles()['icon']" />
       }
       @if (loading()) {
         <span
+          aria-hidden="true"
           class="!absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
         >
           <lib-button-loading-indicator [color]="progressColor()" />
         </span>
       }
-      <span [class]="styles()['label']">{{ label() }}</span>
-      @if (iconPosition() === 'right' && icon(); as trailingIcon) {
+      <span [class]="styles()['label']">
+        <ng-content>{{ label() }}</ng-content>
+      </span>
+      @if (resolvedIconPosition() === 'end' && icon(); as trailingIcon) {
         <lib-icon [icon]="trailingIcon" [className]="styles()['icon']" />
       }
     </ng-template>
@@ -56,10 +65,15 @@ import { ButtonLoadingIndicator } from './button-loading-indicator';
         [class]="styles()['button']"
         [attr.href]="interactionBlocked() ? null : href()"
         [attr.aria-disabled]="interactionBlocked() || null"
-        [attr.aria-pressed]="toggleable() ? isPressed() : null"
+        [attr.aria-pressed]="isToggleButton() ? isPressed() : null"
         [attr.aria-busy]="loading() || null"
-        [attr.tabindex]="interactionBlocked() ? -1 : null"
+        [attr.aria-label]="ariaLabel()"
+        [attr.aria-describedby]="ariaDescribedBy()"
+        [attr.aria-current]="ariaCurrent()"
+        [attr.tabindex]="interactionBlocked() ? -1 : tabIndex()"
         [attr.role]="interactionBlocked() ? 'link' : null"
+        [attr.target]="target()"
+        [attr.rel]="rel()"
         (click)="handleClick($event)"
       >
         <span [class]="styles()['touchTarget']"></span>
@@ -76,8 +90,11 @@ import { ButtonLoadingIndicator } from './button-loading-indicator';
         [class]="styles()['button']"
         [attr.type]="type()"
         [disabled]="interactionBlocked()"
-        [attr.aria-pressed]="toggleable() ? isPressed() : null"
+        [attr.aria-pressed]="isToggleButton() ? isPressed() : null"
         [attr.aria-busy]="loading() || null"
+        [attr.aria-label]="ariaLabel()"
+        [attr.aria-describedby]="ariaDescribedBy()"
+        [attr.tabindex]="tabIndex()"
         (click)="handleClick($event)"
       >
         <span [class]="styles()['touchTarget']"></span>
@@ -97,19 +114,35 @@ export class Button implements OnInit {
   readonly variant = input<ButtonProps['variant']>('filled');
   readonly size = input<ButtonProps['size']>('medium');
   readonly icon = input<ButtonProps['icon']>();
-  readonly iconPosition = input<ButtonProps['iconPosition']>('left');
-  readonly disabled = input<boolean>(false);
-  readonly disableTextMargins = input<boolean>(false);
-  readonly loading = input<boolean>(false);
+  readonly iconPosition = input<ButtonProps['iconPosition']>('start');
+  readonly disabled = input(false, { transform: booleanAttribute });
+  readonly disableTextMargins = input(false, { transform: booleanAttribute });
+  readonly loading = input(false, { transform: booleanAttribute });
   readonly shape = input<ButtonProps['shape']>('rounded');
-  readonly allowShapeTransformation = input<boolean>(true);
+  readonly allowShapeTransformation = input(true, {
+    transform: booleanAttribute,
+  });
   readonly transition = input<ButtonProps['transition']>();
-  readonly toggleable = input<boolean>(false);
-  readonly pressed = input<boolean>();
-  readonly defaultPressed = input<boolean>(false);
+  readonly toggleable = input(false, { transform: booleanAttribute });
+  readonly pressed = input<boolean | undefined, unknown>(undefined, {
+    transform: optionalBooleanAttribute,
+  });
+  readonly defaultPressed = input(false, { transform: booleanAttribute });
   readonly label = input<string>('');
   readonly className = input<string | ClassNameComponent<ButtonInterface>>();
   readonly href = input<string>();
+  readonly target = input<string>();
+  readonly rel = input<string>();
+  readonly tabIndex = input<number>();
+  readonly ariaLabel = input<string | undefined>(undefined, {
+    alias: 'aria-label',
+  });
+  readonly ariaDescribedBy = input<string | undefined>(undefined, {
+    alias: 'aria-describedby',
+  });
+  readonly ariaCurrent = input<
+    boolean | 'page' | 'step' | 'location' | 'date' | 'time' | undefined
+  >(undefined, { alias: 'aria-current' });
 
   readonly pressedChange = output<boolean>();
 
@@ -117,20 +150,33 @@ export class Button implements OnInit {
     value: this.pressed,
     defaultValue: this.defaultPressed,
     onChange: (pressed) => this.pressedChange.emit(pressed),
+    componentName: 'Button',
+    stateName: 'pressed',
   });
 
   protected readonly isPressed = this.pressedState.value;
+  protected readonly resolvedIconPosition = computed(() =>
+    resolveButtonIconPosition(this.iconPosition()),
+  );
+  protected readonly isToggleButton = computed(
+    () => this.toggleable() && this.href() === undefined,
+  );
+  protected readonly interactionBlocked = computed(
+    () => this.disabled() || this.loading(),
+  );
   protected readonly stateColor = computed(() =>
     getButtonStateColor({
       variant: this.variant(),
-      toggleable: this.toggleable(),
-      isPressed: this.toggleable() && this.isPressed(),
+      toggleable: this.isToggleButton(),
+      isPressed: this.isToggleButton() && this.isPressed(),
     }),
   );
   protected readonly progressColor = computed(() =>
     getButtonProgressColor({
       variant: this.variant(),
       disabled: this.disabled(),
+      toggleable: this.isToggleButton(),
+      isPressed: this.isToggleButton() && this.isPressed(),
     }),
   );
   protected readonly shapeTransition = computed(() =>
@@ -138,7 +184,7 @@ export class Button implements OnInit {
       size: this.size(),
       shape: this.shape(),
       allowShapeTransformation: this.allowShapeTransformation(),
-      isPressed: this.toggleable() && this.isPressed(),
+      isPressed: this.isToggleButton() && this.isPressed(),
       disabled: this.disabled() || this.loading(),
       transition: this.transition(),
     }),
@@ -156,11 +202,11 @@ export class Button implements OnInit {
     shape: this.shape(),
     allowShapeTransformation: this.allowShapeTransformation(),
     transition: this.transition(),
-    toggleable: this.toggleable(),
+    toggleable: this.isToggleButton(),
     pressed: this.pressed(),
     defaultPressed: this.defaultPressed(),
     label: this.label(),
-    isPressed: this.toggleable() && this.isPressed(),
+    isPressed: this.isToggleButton() && this.isPressed(),
     className: this.className(),
   }));
 
@@ -168,16 +214,12 @@ export class Button implements OnInit {
     this.pressedState.initialize();
   }
 
-  protected interactionBlocked(): boolean {
-    return this.disabled() || this.loading();
-  }
-
   protected handleClick(event: Event): void {
     const interaction = getButtonPressTransition({
       disabled: this.disabled(),
       loading: this.loading(),
-      toggleable: this.toggleable(),
-      isPressed: this.toggleable() && this.isPressed(),
+      toggleable: this.isToggleButton(),
+      isPressed: this.isToggleButton() && this.isPressed(),
     });
 
     if (interaction.blocked) {

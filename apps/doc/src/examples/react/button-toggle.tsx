@@ -6,7 +6,7 @@ export default function ButtonToggleReact() {
 
   return (
     <Button
-      label={pressed ? 'Notifications enabled' : 'Notifications disabled'}
+      label="Notifications"
       toggleable
       pressed={pressed}
       onPressedChange={setPressed}

@@ -77,12 +77,26 @@ describe('Button', () => {
 
     const button = container.querySelector('button');
     expect(button).toBeInTheDocument();
-    // Verify the label is visually hidden (invisible class) during loading
     const label = screen.getByText('Test Button');
     expect(label).toBeInTheDocument();
+    expect(label.className).toContain('opacity-0');
+    expect(label.className).not.toContain('invisible');
+    expect(screen.getByRole('button', { name: 'Test Button' })).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
     expect(button?.querySelector('svg')).toHaveStyle({
       stroke: 'var(--color-on-primary)',
     });
+  });
+
+  it('blocks action events while loading', () => {
+    const onClick = vi.fn();
+    render(<Button label="Saving" loading onClick={onClick} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Saving' }));
+
+    expect(onClick).not.toHaveBeenCalled();
   });
 
   // ─── Sprint 1: type attribute ─────────────────────────────────
@@ -106,6 +120,15 @@ describe('Button', () => {
 
     const link = screen.getByText('Link').closest('a');
     expect(link).not.toHaveAttribute('type');
+  });
+
+  it('forwards native current-page semantics to links', () => {
+    render(<Button label="Current page" href="/current" aria-current="page" />);
+
+    expect(screen.getByRole('link', { name: 'Current page' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
   });
 
   // ─── Sprint 1: disabled link a11y ─────────────────────────────
@@ -143,7 +166,9 @@ describe('Button', () => {
   // ─── Sprint 1: graceful handling without label ────────────────
 
   it('renders null and logs error when no label or children provided', () => {
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const errorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
 
     // @ts-expect-error — intentionally testing missing required prop
     const { container } = render(<Button />);
@@ -233,6 +258,29 @@ describe('Button', () => {
     expect(onPressedChange).toHaveBeenCalledWith(true);
   });
 
+  it('keeps navigation links out of toggle-button semantics', () => {
+    const onClick = vi.fn();
+    const onPressedChange = vi.fn();
+    render(
+      <Button
+        label="Destination"
+        href="/destination"
+        toggleable
+        defaultPressed
+        onClick={onClick}
+        onPressedChange={onPressedChange}
+      />,
+    );
+
+    const link = screen.getByRole('link', { name: 'Destination' });
+    expect(link).not.toHaveAttribute('aria-pressed');
+    expect(link.className).toContain('bg-primary');
+
+    fireEvent.click(link);
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(onPressedChange).not.toHaveBeenCalled();
+  });
+
   it.each(['disabled', 'loading'] as const)(
     'blocks pressed changes while %s',
     (blockedProp) => {
@@ -258,6 +306,86 @@ describe('Button', () => {
     expect(screen.getByRole('button').className).toContain(
       'bg-secondary-container',
     );
+  });
+
+  it('uses the semantic content color for toggle loading indicators', () => {
+    render(
+      <Button
+        label="Toggle"
+        variant="tonal"
+        toggleable
+        defaultPressed
+        loading
+      />,
+    );
+
+    expect(screen.getByRole('button').querySelector('svg')).toHaveStyle({
+      stroke: 'var(--color-on-secondary)',
+    });
+  });
+
+  it('uses logical icon positions while preserving physical aliases', () => {
+    const { rerender } = render(
+      <Button label="Add" icon={faPlus} iconPosition="start" />,
+    );
+    let label = screen.getByText('Add');
+    expect(label.previousElementSibling?.tagName).toBe('svg');
+
+    rerender(<Button label="Add" icon={faPlus} iconPosition="right" />);
+    label = screen.getByText('Add');
+    expect(label.nextElementSibling?.tagName).toBe('svg');
+  });
+
+  it('keeps default text alignment margins unless explicitly disabled', () => {
+    const { rerender } = render(
+      <Button label="Text" variant="text" size="medium" />,
+    );
+    expect(screen.getByRole('button').className).toContain('-mx-6');
+
+    rerender(
+      <Button label="Text" variant="text" size="medium" disableTextMargins />,
+    );
+    expect(screen.getByRole('button').className).not.toContain('-mx-6');
+  });
+
+  it('provides a durable focus-visible indicator and 48px touch target', () => {
+    render(<Button label="Focus" />);
+    const button = screen.getByRole('button');
+
+    expect(button.className).toContain('focus-visible:outline-2');
+    expect(button.className).toContain('focus-visible:outline-offset-2');
+    const touchTarget = button.querySelector('.touch-target');
+    expect(touchTarget?.className).toContain('h-12');
+    expect(touchTarget?.className).toContain('min-w-12');
+  });
+
+  it('uses label as the accessible-name fallback for custom content', () => {
+    render(
+      <Button label="Save changes">
+        <span aria-hidden="true">✓</span>
+      </Button>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Save changes' })).toBeVisible();
+  });
+
+  it('falls back to label when children do not render visible content', () => {
+    render(<Button label="Fallback">{false}</Button>);
+
+    expect(screen.getByRole('button', { name: 'Fallback' })).toBeVisible();
+  });
+
+  it('hides trusted raw SVG icons from the accessibility tree', () => {
+    render(
+      <Button
+        label="Add"
+        icon={'<svg viewBox="0 0 24 24"><path d="M0 0" /></svg>'}
+      />,
+    );
+
+    expect(
+      screen.getByRole('button').querySelector('.icon[aria-hidden="true"]'),
+    ).not.toBeNull();
   });
 
   // ─── Sprint 1: axe-core a11y audit ───────────────────────────

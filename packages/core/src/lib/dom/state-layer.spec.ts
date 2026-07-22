@@ -99,6 +99,70 @@ describe('state layer controller', () => {
     expect(animate).not.toHaveBeenCalled();
   });
 
+  it('preserves feedback without motion when reduced motion is requested', () => {
+    const trigger = document.createElement('button');
+    const layer = document.createElement('div');
+    trigger.append(layer);
+    let onPressStart: ((element: Element, event: PointerEvent) => void) | null =
+      null;
+    vi.mocked(press).mockImplementation((_target, callback) => {
+      onPressStart = callback as typeof onPressStart;
+      return vi.fn();
+    });
+    const controller = createStateLayerController({
+      trigger,
+      layer,
+      reducedMotion: () => true,
+    });
+
+    controller.updateShape({
+      restingBorderRadius: '40px',
+      pressedBorderRadius: '16px',
+      enabled: true,
+      transition: { type: 'spring' },
+    });
+    onPressStart!(trigger, {
+      pointerType: '',
+      clientX: 0,
+      clientY: 0,
+    } as PointerEvent);
+
+    expect(trigger.style.borderRadius).toBe('16px');
+    expect(animate).toHaveBeenCalledWith(
+      expect.any(HTMLElement),
+      { '--udixio-ripple-radius': ['0%', '100%'] },
+      { duration: 0, ease: 'easeOut' },
+    );
+    expect(
+      vi.mocked(animate).mock.calls.some(([target]) => target === trigger),
+    ).toBe(false);
+  });
+
+  it('detaches gestures and removes active ripples on destroy', () => {
+    const trigger = document.createElement('button');
+    const layer = document.createElement('div');
+    trigger.append(layer);
+    const stopPress = vi.fn();
+    let onPressStart: ((element: Element, event: PointerEvent) => void) | null =
+      null;
+    vi.mocked(press).mockImplementation((_target, callback) => {
+      onPressStart = callback as typeof onPressStart;
+      return stopPress;
+    });
+    const controller = createStateLayerController({ trigger, layer });
+    onPressStart!(trigger, {
+      pointerType: 'mouse',
+      clientX: 0,
+      clientY: 0,
+    } as PointerEvent);
+
+    expect(layer.querySelector('[data-udixio-ripple]')).not.toBeNull();
+    controller.destroy();
+
+    expect(stopPress).toHaveBeenCalledTimes(1);
+    expect(layer.querySelector('[data-udixio-ripple]')).toBeNull();
+  });
+
   it('animates the trigger shape while the layer inherits its exact radius', async () => {
     const trigger = document.createElement('button');
     const layer = document.createElement('div');

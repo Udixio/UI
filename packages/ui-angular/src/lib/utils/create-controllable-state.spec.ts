@@ -1,4 +1,5 @@
 import { signal } from '@angular/core';
+import { jest } from '@jest/globals';
 import { createControllableState } from './create-controllable-state';
 
 describe('createControllableState', () => {
@@ -47,5 +48,32 @@ describe('createControllableState', () => {
     defaultValue.set(true);
 
     expect(state.value()).toBe(false);
+  });
+
+  it('reports a controlled-mode change once', () => {
+    const controlled = signal<boolean | undefined>(undefined);
+    const errorSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+    const state = createControllableState({
+      value: controlled,
+      defaultValue: signal(false),
+      componentName: 'Fixture',
+      stateName: 'checked',
+    });
+    state.initialize();
+
+    controlled.set(true);
+    expect(state.value()).toBe(true);
+    controlled.set(undefined);
+    expect(state.value()).toBe(false);
+
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining(
+        '<Fixture> changed checked from uncontrolled to controlled',
+      ),
+    );
+    errorSpy.mockRestore();
   });
 });

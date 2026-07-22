@@ -2,176 +2,353 @@
   "tags": {
     "status": "beta",
     "category": "Action",
-    "devx": "- Requires `label` or children; used for visible text and a11y.\n- `onToggle` uses internal state; pair with `activated` for controlled usage.",
-    "limitations": "- No explicit `type` prop; HTML button defaults may submit in forms.\n- When `href` is set, `disabled` is visual only (no `aria-disabled`)."
+    "devx": "- Requires `label` or children; used for visible text and a11y.\n- `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.\n- `toggleable` enables `aria-pressed` and `onPressedChange` on action buttons.\n- `type` defaults to `'button'` to prevent accidental form submits.",
+    "a11y": "- Uses native button/link semantics and preserves its accessible name while loading.\n- Provides a 48px touch target and a visible `:focus-visible` outline.",
+    "limitations": "- When `href` is set with `disabled`, the link is made inert via `aria-disabled` and `tabIndex={-1}`.\n- Navigation links ignore toggle state; use `aria-current` for the current destination."
   },
   "filePath": "node_modules/@udixio/ui-react/src/lib/components/Button.tsx",
   "description": "Buttons prompt most actions in a UI",
   "displayName": "Button",
   "methods": [],
   "props": {
-    "label": {
-      "defaultValue": null,
-      "description": "The label is the text that is displayed on the button.",
-      "name": "label",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "string"
-      }
-    },
-    "size": {
+    "type": {
       "defaultValue": {
-        "value": "medium"
+        "value": "'button'"
       },
-      "description": "",
-      "name": "size",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "\"xSmall\" | \"small\" | \"medium\" | \"large\" | \"xLarge\""
-      }
-    },
-    "variant": {
-      "defaultValue": {
-        "value": "filled"
+      "description": "The HTML button type attribute. Only applies when rendered as `<button>`.",
+      "name": "type",
+      "parent": {
+        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+        "name": "ButtonProps"
       },
-      "description": "The button variant determines the style of the button.\nAliases: 'primary' maps to 'filled', 'secondary' maps to 'tonal'",
-      "name": "variant",
       "declarations": [
         {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
-          "name": "TypeLiteral"
+          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+          "name": "ButtonProps"
         }
       ],
       "required": false,
       "type": {
-        "name": "ButtonVariant | ButtonVariantAlias"
-      }
-    },
-    "disabled": {
-      "defaultValue": {
-        "value": false
-      },
-      "description": "Disables the button if set to true.",
-      "name": "disabled",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean"
-      }
-    },
-    "disableTextMargins": {
-      "defaultValue": null,
-      "description": "Controls whether negative margins are applied to text variant buttons.\nWhen true, removes the default negative horizontal margins.\nOnly applies to 'text' variant buttons.",
-      "name": "disableTextMargins",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean"
+        "name": "\"button\" | \"submit\" | \"reset\" | undefined"
       }
     },
     "icon": {
       "defaultValue": null,
-      "description": "An optional icon to display in the button.",
+      "description": "An optional icon to display in the button (agnostic Icon data).",
       "name": "icon",
+      "parent": {
+        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+        "name": "ButtonProps"
+      },
       "declarations": [
         {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
-          "name": "TypeLiteral"
+          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+          "name": "ButtonProps"
         }
       ],
       "required": false,
       "type": {
-        "name": "Icon"
+        "name": "Icon | undefined"
       }
     },
     "iconPosition": {
       "defaultValue": {
-        "value": "left"
+        "value": "'start'"
       },
-      "description": "",
+      "description": "Logical icon position. The `left` and `right` aliases are retained for\ncompatibility and resolve to `start` and `end` respectively.",
       "name": "iconPosition",
+      "parent": {
+        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+        "name": "ButtonProps"
+      },
       "declarations": [
         {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
-          "name": "TypeLiteral"
+          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+          "name": "ButtonProps"
         }
       ],
       "required": false,
       "type": {
-        "name": "\"left\" | \"right\""
+        "name": "ButtonIconPosition | ButtonIconPositionAlias | undefined"
+      }
+    },
+    "size": {
+      "defaultValue": null,
+      "description": "Visual size; every option retains a 48px touch target.",
+      "name": "size",
+      "parent": {
+        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+        "name": "ButtonProps"
+      },
+      "declarations": [
+        {
+          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+          "name": "ButtonProps"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "\"xSmall\" | \"small\" | \"medium\" | \"large\" | \"xLarge\" | undefined"
+      }
+    },
+    "variant": {
+      "defaultValue": null,
+      "description": "The button variant determines the style of the button.\nAliases: 'primary' maps to 'filled', 'secondary' maps to 'tonal'",
+      "name": "variant",
+      "parent": {
+        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+        "name": "ButtonProps"
+      },
+      "declarations": [
+        {
+          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+          "name": "ButtonProps"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "ButtonVariant | ButtonVariantAlias | undefined"
+      }
+    },
+    "disabled": {
+      "defaultValue": null,
+      "description": "Disables the button if set to true.",
+      "name": "disabled",
+      "parent": {
+        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+        "name": "ButtonProps"
+      },
+      "declarations": [
+        {
+          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+          "name": "ButtonProps"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "boolean | undefined"
+      }
+    },
+    "disableTextMargins": {
+      "defaultValue": {
+        "value": "false"
+      },
+      "description": "Removes the default negative horizontal margins from text buttons.\nOnly applies to 'text' variant buttons.",
+      "name": "disableTextMargins",
+      "parent": {
+        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+        "name": "ButtonProps"
+      },
+      "declarations": [
+        {
+          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+          "name": "ButtonProps"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "boolean | undefined"
       }
     },
     "loading": {
-      "defaultValue": {
-        "value": false
-      },
-      "description": "",
+      "defaultValue": null,
+      "description": "Blocks interaction and exposes the busy state while preserving the label.",
       "name": "loading",
+      "parent": {
+        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+        "name": "ButtonProps"
+      },
       "declarations": [
         {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
-          "name": "TypeLiteral"
+          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+          "name": "ButtonProps"
         }
       ],
       "required": false,
       "type": {
-        "name": "boolean"
+        "name": "boolean | undefined"
       }
     },
     "shape": {
-      "defaultValue": {
-        "value": "rounded"
-      },
+      "defaultValue": null,
       "description": "The shape of the button defines whether it is squared or rounded.",
       "name": "shape",
+      "parent": {
+        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+        "name": "ButtonProps"
+      },
       "declarations": [
         {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
-          "name": "TypeLiteral"
+          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+          "name": "ButtonProps"
         }
       ],
       "required": false,
       "type": {
-        "name": "\"squared\" | \"rounded\""
+        "name": "\"squared\" | \"rounded\" | undefined"
       }
     },
     "allowShapeTransformation": {
-      "defaultValue": {
-        "value": true
-      },
-      "description": "",
+      "defaultValue": null,
+      "description": "Enables the shared press/toggle shape transformation.",
       "name": "allowShapeTransformation",
+      "parent": {
+        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+        "name": "ButtonProps"
+      },
       "declarations": [
         {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/button.interface.ts",
+          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+          "name": "ButtonProps"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "boolean | undefined"
+      }
+    },
+    "transition": {
+      "defaultValue": null,
+      "description": "Motion transition shared by every framework for shape changes.",
+      "name": "transition",
+      "parent": {
+        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+        "name": "ButtonProps"
+      },
+      "declarations": [
+        {
+          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+          "name": "ButtonProps"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "Transition | undefined"
+      }
+    },
+    "toggleable": {
+      "defaultValue": null,
+      "description": "Enables the semantic pressed state and its visual treatment.",
+      "name": "toggleable",
+      "parent": {
+        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+        "name": "ButtonProps"
+      },
+      "declarations": [
+        {
+          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+          "name": "ButtonProps"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "boolean | undefined"
+      }
+    },
+    "pressed": {
+      "defaultValue": null,
+      "description": "Controlled pressed state. Framework adapters expose the matching change\nevent (`onPressedChange` in React, `pressedChange` in Angular).",
+      "name": "pressed",
+      "parent": {
+        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+        "name": "ButtonProps"
+      },
+      "declarations": [
+        {
+          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+          "name": "ButtonProps"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "boolean | undefined"
+      }
+    },
+    "defaultPressed": {
+      "defaultValue": null,
+      "description": "Initial pressed state when `pressed` is not controlled.",
+      "name": "defaultPressed",
+      "parent": {
+        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+        "name": "ButtonProps"
+      },
+      "declarations": [
+        {
+          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+          "name": "ButtonProps"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "boolean | undefined"
+      }
+    },
+    "label": {
+      "defaultValue": null,
+      "description": "Visible label and accessible-name fallback for custom content.",
+      "name": "label",
+      "parent": {
+        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+        "name": "ButtonProps"
+      },
+      "declarations": [
+        {
+          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
+          "name": "ButtonProps"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "string | undefined"
+      }
+    },
+    "children": {
+      "defaultValue": null,
+      "description": "Visible React content; `label` remains an accessible-name fallback.",
+      "name": "children",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/components/Button.tsx",
           "name": "TypeLiteral"
         }
       ],
       "required": false,
       "type": {
-        "name": "boolean"
+        "name": "ReactNode"
+      }
+    },
+    "onPressedChange": {
+      "defaultValue": null,
+      "description": "Notifies an accepted toggle-state request.",
+      "name": "onPressedChange",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/components/Button.tsx",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "((pressed: boolean) => void) | undefined"
+      }
+    },
+    "href": {
+      "defaultValue": null,
+      "description": "Navigation destination; switches the native element from button to link.",
+      "name": "href",
+      "declarations": [
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/components/Button.tsx",
+          "name": "TypeLiteral"
+        },
+        {
+          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/components/Button.tsx",
+          "name": "TypeLiteral"
+        }
+      ],
+      "required": false,
+      "type": {
+        "name": "string | undefined"
       }
     }
   }

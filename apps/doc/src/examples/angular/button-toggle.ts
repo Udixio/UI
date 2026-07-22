@@ -8,7 +8,7 @@ import { Button } from '@udixio/ui-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <lib-button
-      [label]="pressed() ? 'Notifications enabled' : 'Notifications disabled'"
+      label="Notifications"
       toggleable
       [pressed]="pressed()"
       (pressedChange)="pressed.set($event)"

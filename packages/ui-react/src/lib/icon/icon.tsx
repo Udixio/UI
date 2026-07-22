@@ -49,6 +49,7 @@ export const Icon: React.FC<Props> = ({
 
     return (
       <div
+        aria-hidden="true"
         className={classNames(
           'size-5 box-content inline-flex fill-current',
           className,

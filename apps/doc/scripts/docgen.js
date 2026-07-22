@@ -6,7 +6,7 @@ import { mkdir, writeFile } from 'fs/promises';
 import { kebabCase } from 'change-case';
 
 const parser = withDefaultConfig({
-  propFilter: (prop, component) => {
+  propFilter: (prop) => {
     // Exclure les props React standard et HTML
     if (prop.name === 'key' || prop.name === 'ref') {
       return false;
@@ -30,6 +30,8 @@ const getComponentName = (filepath) => {
   const filename = path.basename(filepath, '.tsx');
   return filename.charAt(0).toLowerCase() + filename.slice(1);
 };
+
+const requestedComponent = process.env.DOCGEN_COMPONENT?.toLowerCase();
 
 // Fonction pour normaliser les chemins et les rendre relatifs
 const normalizePaths = (docs, projectRoot) => {
@@ -80,8 +82,22 @@ const componentPaths = await glob(
 );
 
 for (const componentPath of componentPaths) {
+  const displayName = path.basename(componentPath, '.tsx');
+  if (requestedComponent && displayName.toLowerCase() !== requestedComponent) {
+    continue;
+  }
+
   console.log(`Processing: ${componentPath}`);
   const docs = parser.parse(componentPath);
   const componentName = getComponentName(componentPath);
-  await writeComponentDoc(componentName, docs[0]);
+  const componentDocs = docs.find((doc) => doc.displayName === displayName);
+
+  if (!componentDocs) {
+    console.warn(
+      `Skipping ${displayName}: no matching component documentation.`,
+    );
+    continue;
+  }
+
+  await writeComponentDoc(componentName, componentDocs);
 }

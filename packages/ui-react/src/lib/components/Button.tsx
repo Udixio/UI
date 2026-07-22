@@ -13,6 +13,7 @@ import {
   getButtonPressTransition,
   getButtonShapeTransition,
   getButtonStateColor,
+  resolveButtonIconPosition,
   type ButtonProps,
   type ButtonInterface,
   type ComponentClassName,
@@ -22,11 +23,13 @@ import { useControllableState } from '../utils/use-controllable-state';
 import { Icon } from '../icon';
 import { ProgressIndicator } from './ProgressIndicator';
 import { State } from '../effects';
-import { useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 
 type ReactButtonOwnProps = ButtonProps &
   ComponentClassName<ButtonInterface> & {
+    /** Visible React content; `label` remains an accessible-name fallback. */
     children?: ReactNode;
+    /** Notifies an accepted toggle-state request. */
     onPressedChange?: (pressed: boolean) => void;
   };
 
@@ -45,6 +48,7 @@ type ReactButtonLinkProps = ReactButtonOwnProps &
     AnchorHTMLAttributes<HTMLAnchorElement>,
     keyof ReactButtonOwnProps | 'children' | 'className' | 'onClick' | 'href'
   > & {
+    /** Navigation destination; switches the native element from button to link. */
     href: string;
     ref?: Ref<HTMLAnchorElement>;
     onClick?: MouseEventHandler<HTMLAnchorElement>;
@@ -91,6 +95,30 @@ function getNativeElementProps(props: ReactButtonProps) {
     ...nativeProps
   } = props;
 
+  void {
+    _allowShapeTransformation,
+    _children,
+    _className,
+    _defaultPressed,
+    _disabled,
+    _disableTextMargins,
+    _href,
+    _icon,
+    _iconPosition,
+    _label,
+    _loading,
+    _onClick,
+    _onPressedChange,
+    _pressed,
+    _ref,
+    _shape,
+    _size,
+    _toggleable,
+    _transition,
+    _type,
+    _variant,
+  };
+
   return nativeProps;
 }
 
@@ -103,10 +131,14 @@ export const useButtonStyle = createUseStyle(buttonStyle);
  * @devx
  * - Requires `label` or children; used for visible text and a11y.
  * - `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.
- * - `toggleable` enables `aria-pressed` and `onPressedChange` notifications.
+ * - `toggleable` enables `aria-pressed` and `onPressedChange` on action buttons.
  * - `type` defaults to `'button'` to prevent accidental form submits.
+ * @a11y
+ * - Uses native button/link semantics and preserves its accessible name while loading.
+ * - Provides a 48px touch target and a visible `:focus-visible` outline.
  * @limitations
  * - When `href` is set with `disabled`, the link is made inert via `aria-disabled` and `tabIndex={-1}`.
+ * - Navigation links ignore toggle state; use `aria-current` for the current destination.
  */
 export const Button = (props: ReactButtonProps) => {
   const {
@@ -118,7 +150,7 @@ export const Button = (props: ReactButtonProps) => {
     label,
     disableTextMargins,
     className,
-    iconPosition = 'left',
+    iconPosition = 'start',
     loading = false,
     shape = 'rounded',
     toggleable = false,
@@ -130,10 +162,19 @@ export const Button = (props: ReactButtonProps) => {
     transition,
     children,
   } = props;
-  const resolvedLabel = children ?? label;
-
-  const defaultButtonRef = useRef<HTMLButtonElement>(null);
-  const defaultLinkRef = useRef<HTMLAnchorElement>(null);
+  const hasCustomContent =
+    children !== undefined &&
+    children !== null &&
+    typeof children !== 'boolean' &&
+    children !== '';
+  const resolvedLabel = hasCustomContent ? children : label;
+  const hasVisibleLabel =
+    resolvedLabel !== undefined &&
+    resolvedLabel !== null &&
+    resolvedLabel !== false &&
+    resolvedLabel !== '';
+  const resolvedIconPosition = resolveButtonIconPosition(iconPosition);
+  const isToggleButton = toggleable && href === undefined;
   const [pressedState, setPressedState] = useControllableState({
     value: pressed,
     defaultValue: defaultPressed,
@@ -141,7 +182,7 @@ export const Button = (props: ReactButtonProps) => {
     componentName: 'Button',
     stateName: 'pressed',
   });
-  const isPressed = toggleable && pressedState;
+  const isPressed = isToggleButton && pressedState;
 
   const shapeTransition = useMemo(
     () =>
@@ -168,7 +209,7 @@ export const Button = (props: ReactButtonProps) => {
     const interaction = getButtonPressTransition({
       disabled,
       loading,
-      toggleable,
+      toggleable: isToggleButton,
       isPressed,
     });
 
@@ -199,13 +240,13 @@ export const Button = (props: ReactButtonProps) => {
     variant,
     className,
     isPressed,
-    toggleable,
+    toggleable: isToggleButton,
     pressed,
     defaultPressed,
     label,
   });
 
-  if (!resolvedLabel) {
+  if (!hasVisibleLabel) {
     if (
       typeof process !== 'undefined' &&
       process.env?.NODE_ENV !== 'production'
@@ -229,15 +270,16 @@ export const Button = (props: ReactButtonProps) => {
         className={styles.stateLayer}
         colorName={getButtonStateColor({
           variant,
-          toggleable,
+          toggleable: isToggleButton,
           isPressed,
         })}
         stateClassName={'state-ripple-group-[button]'}
       />
 
-      {iconPosition === 'left' && iconElement}
+      {resolvedIconPosition === 'start' && iconElement}
       {loading && (
         <div
+          aria-hidden="true"
           className={
             '!absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2'
           }
@@ -247,19 +289,26 @@ export const Button = (props: ReactButtonProps) => {
               progressIndicator: 'h-6 w-6',
             })}
             aria-hidden="true"
-            style={{ stroke: getButtonProgressColor({ variant, disabled }) }}
+            style={{
+              stroke: getButtonProgressColor({
+                variant,
+                disabled,
+                toggleable: isToggleButton,
+                isPressed,
+              }),
+            }}
             variant={'circular-indeterminate'}
           />
         </div>
       )}
       <span className={styles.label}>{resolvedLabel}</span>
-      {iconPosition === 'right' && iconElement}
+      {resolvedIconPosition === 'end' && iconElement}
     </>
   );
 
   const sharedElementProps = {
     className: styles.button,
-    'aria-pressed': toggleable ? isPressed : undefined,
+    'aria-pressed': isToggleButton ? isPressed : undefined,
     'aria-busy': loading || undefined,
   };
   const interactionBlocked = disabled || loading;
@@ -268,13 +317,16 @@ export const Button = (props: ReactButtonProps) => {
     const nativeProps = getNativeElementProps(props);
     return (
       <a
-        ref={props.ref ?? defaultLinkRef}
+        ref={props.ref}
         {...nativeProps}
         {...sharedElementProps}
         href={interactionBlocked ? undefined : href}
         aria-disabled={interactionBlocked || undefined}
         tabIndex={interactionBlocked ? -1 : nativeProps.tabIndex}
         role={interactionBlocked ? 'link' : nativeProps.role}
+        aria-label={
+          nativeProps['aria-label'] ?? (hasCustomContent ? label : undefined)
+        }
         onClick={(event) => {
           if (handlePress(event)) {
             props.onClick?.(event);
@@ -289,11 +341,14 @@ export const Button = (props: ReactButtonProps) => {
   const nativeProps = getNativeElementProps(props);
   return (
     <button
-      ref={props.ref ?? defaultButtonRef}
+      ref={props.ref}
       {...nativeProps}
       {...sharedElementProps}
       type={type}
       disabled={interactionBlocked}
+      aria-label={
+        nativeProps['aria-label'] ?? (hasCustomContent ? label : undefined)
+      }
       onClick={(event) => {
         if (handlePress(event)) {
           props.onClick?.(event);

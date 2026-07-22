@@ -8,6 +8,8 @@ export type ButtonVariant =
   | 'outlined'
   | 'text';
 export type ButtonVariantAlias = 'primary' | 'secondary';
+export type ButtonIconPosition = 'start' | 'end';
+export type ButtonIconPositionAlias = 'left' | 'right';
 
 export interface ButtonProps {
   /**
@@ -21,8 +23,14 @@ export interface ButtonProps {
    */
   icon?: Icon;
 
-  iconPosition?: 'left' | 'right';
+  /**
+   * Logical icon position. The `left` and `right` aliases are retained for
+   * compatibility and resolve to `start` and `end` respectively.
+   * @default 'start'
+   */
+  iconPosition?: ButtonIconPosition | ButtonIconPositionAlias;
 
+  /** Visual size; every option retains a 48px touch target. */
   size?: 'xSmall' | 'small' | 'medium' | 'large' | 'xLarge';
 
   /**
@@ -37,12 +45,13 @@ export interface ButtonProps {
   disabled?: boolean;
 
   /**
-   * Controls whether negative margins are applied to text variant buttons.
-   * When true, removes the default negative horizontal margins.
+   * Removes the default negative horizontal margins from text buttons.
    * Only applies to 'text' variant buttons.
+   * @default false
    */
   disableTextMargins?: boolean;
 
+  /** Blocks interaction and exposes the busy state while preserving the label. */
   loading?: boolean;
 
   /**
@@ -50,6 +59,7 @@ export interface ButtonProps {
    */
   shape?: 'squared' | 'rounded';
 
+  /** Enables the shared press/toggle shape transformation. */
   allowShapeTransformation?: boolean;
 
   /** Motion transition shared by every framework for shape changes. */
@@ -67,6 +77,7 @@ export interface ButtonProps {
   /** Initial pressed state when `pressed` is not controlled. */
   defaultPressed?: boolean;
 
+  /** Visible label and accessible-name fallback for custom content. */
   label?: string;
 }
 

@@ -1,10 +1,14 @@
 // @vitest-environment jsdom
 
 import { animate } from 'motion';
-import { expect, it, vi } from 'vitest';
+import { beforeEach, expect, it, vi } from 'vitest';
 import { createCircularProgressController } from './circular-progress.js';
 
 vi.mock('motion', () => ({ animate: vi.fn() }));
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 it('runs and cleans up the shared circular progress animations', () => {
   const stopRotation = vi.fn();
@@ -33,4 +37,24 @@ it('runs and cleans up the shared circular progress animations', () => {
   cleanup();
   expect(stopRotation).toHaveBeenCalled();
   expect(stopPath).toHaveBeenCalled();
+});
+
+it('renders a stable reduced-motion indicator without starting animations', () => {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  const circle = document.createElementNS(
+    'http://www.w3.org/2000/svg',
+    'circle',
+  );
+
+  const cleanup = createCircularProgressController({
+    svg,
+    circle,
+    reducedMotion: () => true,
+  });
+
+  expect(svg.style.transform).toBe('rotate(-90deg)');
+  expect(circle.getAttribute('pathLength')).toBe('1');
+  expect(circle.style.strokeDasharray).toBe('0.25 1');
+  expect(animate).not.toHaveBeenCalled();
+  expect(cleanup()).toBeUndefined();
 });

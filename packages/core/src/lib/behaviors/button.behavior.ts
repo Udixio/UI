@@ -1,5 +1,7 @@
 import type {
   ButtonProps,
+  ButtonIconPosition,
+  ButtonIconPositionAlias,
   ButtonVariant,
   ButtonVariantAlias,
 } from '../interfaces/button.interface';
@@ -27,6 +29,14 @@ const BUTTON_VARIANT_ALIASES: Record<ButtonVariantAlias, ButtonVariant> = {
   secondary: 'tonal',
 };
 
+const BUTTON_ICON_POSITION_ALIASES: Record<
+  ButtonIconPositionAlias,
+  ButtonIconPosition
+> = {
+  left: 'start',
+  right: 'end',
+};
+
 export function resolveButtonVariant(
   variant: ButtonProps['variant'] = 'filled',
 ): ButtonVariant {
@@ -35,6 +45,16 @@ export function resolveButtonVariant(
   }
 
   return variant;
+}
+
+export function resolveButtonIconPosition(
+  position: ButtonProps['iconPosition'] = 'start',
+): ButtonIconPosition {
+  if (position === 'left' || position === 'right') {
+    return BUTTON_ICON_POSITION_ALIASES[position];
+  }
+
+  return position;
 }
 
 export interface ButtonPressState {
@@ -94,24 +114,20 @@ export function getButtonStateColor({
 export function getButtonProgressColor({
   variant,
   disabled,
-}: {
+  toggleable,
+  isPressed,
+}: Pick<ButtonPressState, 'disabled' | 'toggleable' | 'isPressed'> & {
   variant: ButtonProps['variant'];
-  disabled: boolean;
 }): string {
   if (disabled) {
     return 'color-mix(in srgb, var(--color-on-surface) 38%, transparent)';
   }
 
-  switch (resolveButtonVariant(variant)) {
-    case 'filled':
-      return 'var(--color-on-primary)';
-    case 'tonal':
-      return 'var(--color-on-secondary-container)';
-    case 'elevated':
-    case 'outlined':
-    case 'text':
-      return 'var(--color-primary)';
-  }
+  return `var(--color-${getButtonStateColor({
+    variant,
+    toggleable,
+    isPressed,
+  })})`;
 }
 
 export function getButtonShapeTransition({

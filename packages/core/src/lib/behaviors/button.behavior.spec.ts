@@ -5,6 +5,7 @@ import {
   getButtonShapeTransition,
   getButtonStateColor,
   resolveButtonVariant,
+  resolveButtonIconPosition,
 } from './button.behavior.js';
 
 describe('button behavior', () => {
@@ -13,6 +14,13 @@ describe('button behavior', () => {
     expect(resolveButtonVariant('primary')).toBe('filled');
     expect(resolveButtonVariant('secondary')).toBe('tonal');
     expect(resolveButtonVariant('outlined')).toBe('outlined');
+  });
+
+  it('normalizes physical icon-position aliases to logical positions', () => {
+    expect(resolveButtonIconPosition()).toBe('start');
+    expect(resolveButtonIconPosition('left')).toBe('start');
+    expect(resolveButtonIconPosition('right')).toBe('end');
+    expect(resolveButtonIconPosition('end')).toBe('end');
   });
 
   it('computes the next semantic pressed state for toggle buttons', () => {
@@ -70,11 +78,48 @@ describe('button behavior', () => {
 
   it('resolves loading colors from the shared variant aliases', () => {
     expect(
-      getButtonProgressColor({ variant: 'primary', disabled: false }),
+      getButtonProgressColor({
+        variant: 'primary',
+        disabled: false,
+        toggleable: false,
+        isPressed: false,
+      }),
     ).toBe('var(--color-on-primary)');
     expect(
-      getButtonProgressColor({ variant: 'secondary', disabled: false }),
+      getButtonProgressColor({
+        variant: 'secondary',
+        disabled: false,
+        toggleable: false,
+        isPressed: false,
+      }),
     ).toBe('var(--color-on-secondary-container)');
+  });
+
+  it('keeps loading indicators legible across toggle states', () => {
+    expect(
+      getButtonProgressColor({
+        variant: 'filled',
+        disabled: false,
+        toggleable: true,
+        isPressed: false,
+      }),
+    ).toBe('var(--color-on-surface-variant)');
+    expect(
+      getButtonProgressColor({
+        variant: 'tonal',
+        disabled: false,
+        toggleable: true,
+        isPressed: true,
+      }),
+    ).toBe('var(--color-on-secondary)');
+    expect(
+      getButtonProgressColor({
+        variant: 'outlined',
+        disabled: true,
+        toggleable: true,
+        isPressed: true,
+      }),
+    ).toBe('color-mix(in srgb, var(--color-on-surface) 38%, transparent)');
   });
 
   it('resolves one Motion shape contract for every adapter', () => {
