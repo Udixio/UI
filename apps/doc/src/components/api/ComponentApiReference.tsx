@@ -24,16 +24,20 @@ function MemberName({
   binding?: 'input' | 'output';
 }) {
   const publicName = member.alias ?? member.name;
+  const displayedName =
+    binding === 'input'
+      ? `[${publicName}]`
+      : binding === 'output'
+        ? `(${publicName})`
+        : member.name;
+  const hasDistinctPropertyName = binding && publicName !== member.name;
 
   return (
     <>
-      <code className="rounded bg-black/5 px-1.5 py-0.5">{member.name}</code>
-      {binding && (
+      <code className="rounded bg-black/5 px-1.5 py-0.5">{displayedName}</code>
+      {hasDistinctPropertyName && (
         <span className="mt-1 block text-xs text-on-surface-variant">
-          Template:{' '}
-          <code>
-            {binding === 'input' ? `[${publicName}]` : `(${publicName})`}
-          </code>
+          Property: <code>{member.name}</code>
         </span>
       )}
     </>

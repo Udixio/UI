@@ -14,6 +14,10 @@ const apis = await getCollection('api');
 const overviews = await getCollection('overviews');
 
 const pathName = Astro.url.pathname;
+const isApiPage = pathName.split('/').filter(Boolean).at(-1) === 'api';
+const documentationTags = isApiPage
+  ? (['devx', 'a11y', 'limitations'] as const)
+  : (['limitations'] as const);
 
 const { component } = Astro.params;
 
@@ -34,7 +38,7 @@ const documentationHtml = Object.fromEntries(
       [
         framework,
         Object.fromEntries(
-          (['devx', 'a11y', 'limitations'] as const).flatMap((tag) => {
+          documentationTags.flatMap((tag) => {
             const value = tags[tag];
             return typeof value === 'string' && value.trim()
               ? [[tag, renderMarkdown(value)]]

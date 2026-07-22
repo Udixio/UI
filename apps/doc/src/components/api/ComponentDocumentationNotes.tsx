@@ -31,7 +31,10 @@ export function ComponentDocumentationNotes({
   if (visibleNotes.length === 0) return null;
 
   return (
-    <aside className="my-12 grid gap-4 lg:grid-cols-3" aria-label="API notes">
+    <aside
+      className={`my-12 grid gap-4 ${visibleNotes.length > 1 ? 'lg:grid-cols-3' : ''}`}
+      aria-label="API notes"
+    >
       {visibleNotes.map((key) => (
         <section key={key} className={`rounded-3xl p-6 ${NOTE_META[key].tone}`}>
           <h2 className="mb-3 text-title-medium">{NOTE_META[key].title}</h2>
