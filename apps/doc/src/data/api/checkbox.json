@@ -1,64 +1,115 @@
 {
-  "tags": {
-    "status": "beta",
-    "category": "Selection",
-    "devx": "- Supports controlled (`checked`) and uncontrolled (`defaultChecked`) modes.\n- Handles `indeterminate` state strictly as visual (updates UI, but underlying input is checked/unchecked based on logic).",
-    "a11y": "- Uses native input for accessibility.\n- Supports standard keyboard interaction."
-  },
-  "filePath": "node_modules/@udixio/ui-react/src/lib/components/Checkbox.tsx",
-  "description": "Checkboxes allow the user to select one or more items from a set.",
+  "schemaVersion": 2,
   "displayName": "Checkbox",
-  "methods": [],
-  "props": {
-    "indeterminate": {
-      "defaultValue": {
-        "value": false
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/Checkbox.tsx",
+      "description": "Checkboxes allow the user to select one or more items from a set.",
+      "tags": {
+        "status": "beta",
+        "category": "Selection",
+        "devx": "- Supports controlled (`checked`) and uncontrolled (`defaultChecked`) modes.\n- Handles `indeterminate` state strictly as visual (updates UI, but underlying input is checked/unchecked based on logic).",
+        "a11y": "- Uses native input for accessibility.\n- Supports standard keyboard interaction."
       },
-      "description": "",
-      "name": "indeterminate",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/checkbox.interface.ts",
-          "name": "TypeLiteral"
+      "methods": [],
+      "props": {
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<CheckboxInterface> | undefined"
+          },
+          "defaultValue": null
+        },
+        "defaultChecked": {
+          "name": "defaultChecked",
+          "description": "Uncontrolled mode: initial checked state.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null
+        },
+        "id": {
+          "name": "id",
+          "description": "Id of the underlying form control. Auto-generated if not provided.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null
+        },
+        "checked": {
+          "name": "checked",
+          "description": "Controlled mode: explicitly control whether the checkbox is checked.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null
+        },
+        "indeterminate": {
+          "name": "indeterminate",
+          "description": "Visually marks the checkbox as partially selected.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "error": {
+          "name": "error",
+          "description": "Renders the checkbox with the error color role.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "name": {
+          "name": "name",
+          "description": "Name of the underlying form control.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null
+        },
+        "value": {
+          "name": "value",
+          "description": "Value submitted with the form when checked.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null
+        },
+        "onChange": {
+          "name": "onChange",
+          "description": "Native change handler of the underlying input element.",
+          "required": false,
+          "type": {
+            "name": "ChangeEventHandler<HTMLInputElement> | undefined"
+          },
+          "defaultValue": null
         }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean"
-      }
-    },
-    "disabled": {
-      "defaultValue": {
-        "value": false
-      },
-      "description": "",
-      "name": "disabled",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/checkbox.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean"
-      }
-    },
-    "error": {
-      "defaultValue": {
-        "value": false
-      },
-      "description": "",
-      "name": "error",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/checkbox.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean"
       }
     }
   }

@@ -1,41 +1,63 @@
 export interface ComponentTags {
   status?: string;
   category?: string;
+  parent?: string;
   devx?: string;
   a11y?: string;
   limitations?: string;
 }
 
-export interface PropDeclaration {
-  fileName: string;
+export interface ApiType {
   name: string;
 }
 
-export interface PropType {
-  name: string;
+export interface ApiDefaultValue {
+  value: string;
 }
 
-export interface PropDefaultValue {
-  value: string | boolean | number;
-}
-
-export interface ComponentProp {
-  defaultValue: PropDefaultValue | null;
+export interface ApiMember {
+  defaultValue: ApiDefaultValue | null;
   description: string;
   name: string;
-  declarations: PropDeclaration[];
   required: boolean;
-  type: PropType;
+  type: ApiType;
+  alias?: string;
+}
+
+export interface AngularContentSlot {
+  name: string;
+  selector: string;
+  description: string;
+}
+
+export interface ReactComponentApi {
+  filePath: string;
+  description: string;
+  tags: ComponentTags;
+  methods: unknown[];
+  props: Record<string, ApiMember>;
+}
+
+export interface AngularComponentApi {
+  filePath: string;
+  description: string;
+  tags: ComponentTags;
+  inputs: Record<string, ApiMember>;
+  outputs: Record<string, ApiMember>;
+  content?: Record<string, AngularContentSlot>;
 }
 
 export interface ComponentApiData {
-  tags: ComponentTags;
-  filePath: string;
-  description: string;
+  schemaVersion: 2;
   displayName: string;
-  methods: unknown[];
-  props: Record<string, ComponentProp>;
+  defaultFramework: 'react';
+  frameworks: {
+    react: ReactComponentApi;
+    angular?: AngularComponentApi;
+  };
 }
+
+export type ComponentFrameworkApi = ReactComponentApi | AngularComponentApi;
 
 export interface ComponentSidebarItem {
   slug: string;

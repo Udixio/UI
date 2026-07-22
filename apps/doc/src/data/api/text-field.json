@@ -1,98 +1,83 @@
 {
-  "tags": {
-    "status": "beta",
-    "category": "Input",
-    "devx": "- Supports controlled (`value`) and uncontrolled (`defaultValue`) usage.\n- `multiline` switches to textarea mode.\n- `type=\"select\" ` switches to select mode with `options`",
-    "a11y": "- `aria-describedby` links supporting text/error to input."
-  },
-  "filePath": "node_modules/@udixio/ui-react/src/lib/components/TextField.tsx",
-  "description": "Text fields let users enter text into a UI",
+  "schemaVersion": 2,
   "displayName": "TextField",
-  "methods": [],
-  "props": {
-    "disabled": {
-      "defaultValue": {
-        "value": false
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/TextField.tsx",
+      "description": "Text fields let users enter text into a UI",
+      "tags": {
+        "status": "beta",
+        "category": "Input",
+        "devx": "- Supports controlled (`value`) and uncontrolled (`defaultValue`) usage.\n- `multiline` switches to textarea mode.\n- `type=\"select\" ` switches to select mode with `options`",
+        "a11y": "- `aria-describedby` links supporting text/error to input."
       },
-      "description": "",
-      "name": "disabled",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/text-field.interface.ts",
-          "name": "TypeLiteral"
+      "methods": [],
+      "props": {
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<TextFieldInterface> | undefined"
+          },
+          "defaultValue": null
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "variant": {
+          "name": "variant",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "TextFieldVariant | undefined"
+          },
+          "defaultValue": {
+            "value": "'filled'"
+          }
+        },
+        "multiline": {
+          "name": "multiline",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "type": {
+          "name": "type",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "\"number\" | \"text\" | \"password\" | \"date\" | \"select\" | undefined"
+          },
+          "defaultValue": {
+            "value": "'text'"
+          }
+        },
+        "autoComplete": {
+          "name": "autoComplete",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": {
+            "value": "'on'"
+          }
         }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean"
-      }
-    },
-    "variant": {
-      "defaultValue": {
-        "value": "filled"
-      },
-      "description": "",
-      "name": "variant",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/text-field.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "TextFieldVariant"
-      }
-    },
-    "type": {
-      "defaultValue": {
-        "value": "text"
-      },
-      "description": "",
-      "name": "type",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/text-field.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "\"number\" | \"text\" | \"password\" | \"date\" | \"select\""
-      }
-    },
-    "autoComplete": {
-      "defaultValue": {
-        "value": "on"
-      },
-      "description": "",
-      "name": "autoComplete",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/text-field.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "string"
-      }
-    },
-    "multiline": {
-      "defaultValue": {
-        "value": false
-      },
-      "description": "",
-      "name": "multiline",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/text-field.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean"
       }
     }
   }

@@ -1,64 +1,79 @@
 {
-  "tags": {
-    "status": "beta",
-    "category": "Navigation",
-    "devx": "- Treats `NavigationRailItem`, `NavigationRailSection`, and `Fab` specially.\n- Selection is index-based; provide `selectedItem` for controlled usage.",
-    "limitations": "- `extended` is not fully controlled (prop changes after mount aren’t synced).\n- Keyboard navigation/roving tabindex is not implemented."
-  },
-  "filePath": "node_modules/@udixio/ui-react/src/lib/components/NavigationRail.tsx",
-  "description": "Navigation rails let people switch between UI views on mid-sized devices",
+  "schemaVersion": 2,
   "displayName": "NavigationRail",
-  "methods": [],
-  "props": {
-    "variant": {
-      "defaultValue": {
-        "value": "standard"
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/NavigationRail.tsx",
+      "description": "Navigation rails let people switch between UI views on mid-sized devices",
+      "tags": {
+        "status": "beta",
+        "category": "Navigation",
+        "devx": "- Treats `NavigationRailItem`, `NavigationRailSection`, and `Fab` specially.\n- Selection is index-based; provide `selectedItem` for controlled usage.",
+        "limitations": "- `extended` is not fully controlled (prop changes after mount aren’t synced).\n- Keyboard navigation/roving tabindex is not implemented."
       },
-      "description": "",
-      "name": "variant",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/navigation-rail.interface.ts",
-          "name": "TypeLiteral"
+      "methods": [],
+      "props": {
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<NavigationRailInterface> | undefined"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "\"standard\" | \"modal\" | undefined"
+          },
+          "defaultValue": {
+            "value": "'standard'"
+          }
+        },
+        "selectedItem": {
+          "name": "selectedItem",
+          "description": "Controlled index of the selected item.",
+          "required": false,
+          "type": {
+            "name": "number | null | undefined"
+          },
+          "defaultValue": null
+        },
+        "extended": {
+          "name": "extended",
+          "description": "Controlled extended state of the rail.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null
+        },
+        "alignment": {
+          "name": "alignment",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "\"middle\" | \"top\" | undefined"
+          },
+          "defaultValue": {
+            "value": "'top'"
+          }
+        },
+        "menu": {
+          "name": "menu",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "{ closed: MenuState; opened: MenuState; } | undefined"
+          },
+          "defaultValue": {
+            "value": "{\n    closed: {\n      icon: faBars,\n      label: 'Open menu',\n    },\n    opened: {\n      icon: faXmark,\n      label: 'Close menu',\n    },\n  }"
+          }
         }
-      ],
-      "required": false,
-      "type": {
-        "name": "\"standard\" | \"modal\""
-      }
-    },
-    "alignment": {
-      "defaultValue": {
-        "value": "top"
-      },
-      "description": "",
-      "name": "alignment",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/navigation-rail.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "\"middle\" | \"top\""
-      }
-    },
-    "menu": {
-      "defaultValue": {
-        "value": "{\n    closed: {\n      icon: faBars,\n      label: 'Open menu',\n    },\n    opened: {\n      icon: faXmark,\n      label: 'Close menu',\n    },\n  }"
-      },
-      "description": "",
-      "name": "menu",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/navigation-rail.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "{ closed: MenuState; opened: MenuState; }"
       }
     }
   }

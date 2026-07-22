@@ -1,64 +1,61 @@
 {
-  "tags": {
-    "status": "beta",
-    "category": "Action",
-    "devx": "- Requires `label` or children; icon-only still needs a label for a11y.",
-    "limitations": "- No built-in positioning; placement is handled by the layout."
-  },
-  "filePath": "node_modules/@udixio/ui-react/src/lib/components/Fab.tsx",
-  "description": "Floating action buttons (FABs) help people take primary actions",
+  "schemaVersion": 2,
   "displayName": "Fab",
-  "methods": [],
-  "props": {
-    "variant": {
-      "defaultValue": {
-        "value": "primary"
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/Fab.tsx",
+      "description": "Floating action buttons (FABs) help people take primary actions",
+      "tags": {
+        "status": "beta",
+        "category": "Action",
+        "devx": "- Requires `label` or children; icon-only still needs a label for a11y.",
+        "limitations": "- No built-in positioning; placement is handled by the layout."
       },
-      "description": "",
-      "name": "variant",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/fab.interface.ts",
-          "name": "TypeLiteral"
+      "methods": [],
+      "props": {
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<FabInterface> | undefined"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "FabVariant | undefined"
+          },
+          "defaultValue": {
+            "value": "'primary'"
+          }
+        },
+        "size": {
+          "name": "size",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "\"small\" | \"medium\" | \"large\" | undefined"
+          },
+          "defaultValue": {
+            "value": "'medium'"
+          }
+        },
+        "extended": {
+          "name": "extended",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
         }
-      ],
-      "required": false,
-      "type": {
-        "name": "FabVariant"
-      }
-    },
-    "size": {
-      "defaultValue": {
-        "value": "medium"
-      },
-      "description": "",
-      "name": "size",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/fab.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "\"small\" | \"medium\" | \"large\""
-      }
-    },
-    "extended": {
-      "defaultValue": {
-        "value": false
-      },
-      "description": "",
-      "name": "extended",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/fab.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean"
       }
     }
   }

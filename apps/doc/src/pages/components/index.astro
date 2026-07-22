@@ -1,12 +1,10 @@
 ---
 import Layout from '@/layouts/layout.astro';
 import { getCollection } from 'astro:content';
-import { sentenceCase } from 'change-case';
 import { Card } from '@udixio/ui-react';
 
 import { Sidebar } from '@/components/Sidebar';
 import type { NavSection } from '@/components/Sidebar';
-import { renderMarkdown } from '@/lib/markdown';
 import ComponentPreview from '@/components/ComponentPreview.astro';
 
 export const prerender = false;
@@ -19,36 +17,24 @@ const overviewIds = new Set(
 );
 
 const components = apis
-  .filter((api) => !api.data.tags?.parent)
-  .filter((api) => overviewIds.has(api.id))
-  .map((api) => {
-    const tags = api.data.tags ?? {};
-    const toHtml = (value?: string) =>
-      typeof value === 'string' && value.trim().length > 0
-        ? renderMarkdown(value, {
-            classes: {
-              li: 'text-sm text-on-surface-variant',
-            },
-          })
-        : '';
+  .map((api) => ({
+    entry: api,
+    data: api.data,
+  }))
+  .filter(({ data }) => !data.frameworks.react.tags.parent)
+  .filter(({ entry }) => overviewIds.has(entry.id))
+  .map(({ entry, data }) => {
+    const frameworkApi = data.frameworks.react;
+    const tags = frameworkApi.tags ?? {};
 
     return {
-      id: api.id,
-      displayName: api.data.displayName ?? sentenceCase(api.id),
-      description: api.data.description ?? '',
-      status: tags.status ?? 'beta',
+      id: entry.id,
+      displayName: data.displayName,
+      description: frameworkApi.description,
       category: tags.category ?? 'Other',
-      hasDevx: !!tags.devx,
-      hasA11y: !!tags.a11y,
-      hasLimitations: !!tags.limitations,
-      devxHtml: toHtml(tags.devx),
-      limitationsHtml: toHtml(tags.limitations),
-      a11yHtml: toHtml(tags.a11y),
     };
   })
   .sort((a, b) => a.displayName.localeCompare(b.displayName));
-
-console.log('Filtered and sorted components:', overviewIds);
 
 const componentsByCategory = components.reduce(
   (acc, component) => {

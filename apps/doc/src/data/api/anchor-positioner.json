@@ -1,29 +1,25 @@
 {
-  "tags": {},
-  "filePath": "node_modules/@udixio/ui-react/src/lib/components/AnchorPositioner.tsx",
-  "description": "",
+  "schemaVersion": 2,
   "displayName": "AnchorPositioner",
-  "methods": [],
-  "props": {
-    "position": {
-      "defaultValue": {
-        "value": "bottom"
-      },
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/AnchorPositioner.tsx",
       "description": "",
-      "name": "position",
-      "parent": {
-        "fileName": "doc/node_modules/@udixio/ui-react/src/lib/components/AnchorPositioner.tsx",
-        "name": "AnchorPositionerProps"
-      },
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/components/AnchorPositioner.tsx",
-          "name": "AnchorPositionerProps"
+      "tags": {},
+      "methods": [],
+      "props": {
+        "position": {
+          "name": "position",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "Position | undefined"
+          },
+          "defaultValue": {
+            "value": "'bottom'"
+          }
         }
-      ],
-      "required": false,
-      "type": {
-        "name": "Position"
       }
     }
   }

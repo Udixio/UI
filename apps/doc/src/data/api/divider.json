@@ -1,29 +1,38 @@
 {
-  "tags": {
-    "status": "beta",
-    "category": "Layout",
-    "devx": "- Renders a semantic `<hr>`; use `orientation` for vertical dividers."
-  },
-  "filePath": "node_modules/@udixio/ui-react/src/lib/components/Divider.tsx",
-  "description": "Dividers are thin lines that group content in lists or other containers",
+  "schemaVersion": 2,
   "displayName": "Divider",
-  "methods": [],
-  "props": {
-    "orientation": {
-      "defaultValue": {
-        "value": "horizontal"
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/Divider.tsx",
+      "description": "Dividers are thin lines that group content in lists or other containers",
+      "tags": {
+        "status": "beta",
+        "category": "Layout",
+        "devx": "- Renders a semantic `<hr>`; use `orientation` for vertical dividers."
       },
-      "description": "",
-      "name": "orientation",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/divider.interface.ts",
-          "name": "TypeLiteral"
+      "methods": [],
+      "props": {
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<DividerInterface> | undefined"
+          },
+          "defaultValue": null
+        },
+        "orientation": {
+          "name": "orientation",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "\"vertical\" | \"horizontal\" | undefined"
+          },
+          "defaultValue": {
+            "value": "'horizontal'"
+          }
         }
-      ],
-      "required": false,
-      "type": {
-        "name": "\"vertical\" | \"horizontal\""
       }
     }
   }

@@ -1,31 +1,49 @@
 {
-  "tags": {
-    "status": "beta",
-    "parent": "Tabs",
-    "category": "Navigation",
-    "devx": "- Provides selection + slide direction for Tabs/TabPanels.",
-    "limitations": "- No URL/hash syncing or persistence built in."
-  },
-  "filePath": "node_modules/@udixio/ui-react/src/lib/components/TabGroup.tsx",
-  "description": "TabGroup provides shared state for Tabs and TabPanels",
+  "schemaVersion": 2,
   "displayName": "TabGroup",
-  "methods": [],
-  "props": {
-    "defaultTab": {
-      "defaultValue": {
-        "value": 0
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/TabGroup.tsx",
+      "description": "TabGroup provides shared state for Tabs and TabPanels",
+      "tags": {
+        "status": "beta",
+        "parent": "Tabs",
+        "category": "Navigation",
+        "devx": "- Provides selection + slide direction for Tabs/TabPanels.",
+        "limitations": "- No URL/hash syncing or persistence built in."
       },
-      "description": "",
-      "name": "defaultTab",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tab-group.interface.ts",
-          "name": "TypeLiteral"
+      "methods": [],
+      "props": {
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<TabGroupInterface> | undefined"
+          },
+          "defaultValue": null
+        },
+        "selectedTab": {
+          "name": "selectedTab",
+          "description": "Controlled index of the selected tab.",
+          "required": false,
+          "type": {
+            "name": "number | null | undefined"
+          },
+          "defaultValue": null
+        },
+        "defaultTab": {
+          "name": "defaultTab",
+          "description": "Index selected on mount when the group is uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "number | undefined"
+          },
+          "defaultValue": {
+            "value": "0"
+          }
         }
-      ],
-      "required": false,
-      "type": {
-        "name": "number"
       }
     }
   }

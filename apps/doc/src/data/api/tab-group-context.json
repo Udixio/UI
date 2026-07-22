@@ -1,8 +1,14 @@
 {
-  "tags": {},
-  "filePath": "node_modules/@udixio/ui-react/src/lib/components/TabGroupContext.tsx",
-  "description": "",
+  "schemaVersion": 2,
   "displayName": "TabGroupContext",
-  "methods": [],
-  "props": {}
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/TabGroupContext.tsx",
+      "description": "",
+      "tags": {},
+      "methods": [],
+      "props": {}
+    }
+  }
 }

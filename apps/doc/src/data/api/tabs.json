@@ -1,47 +1,59 @@
 {
-  "tags": {
-    "status": "beta",
-    "category": "Navigation",
-    "devx": "- Can be controlled via `selectedTab`/`setSelectedTab` or through `TabGroup`.",
-    "a11y": "- No keyboard navigation or roving tabindex."
-  },
-  "filePath": "node_modules/@udixio/ui-react/src/lib/components/Tabs.tsx",
-  "description": "Tabs organize content across different screens and views",
+  "schemaVersion": 2,
   "displayName": "Tabs",
-  "methods": [],
-  "props": {
-    "variant": {
-      "defaultValue": {
-        "value": "primary"
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/Tabs.tsx",
+      "description": "Tabs organize content across different screens and views",
+      "tags": {
+        "status": "beta",
+        "category": "Navigation",
+        "devx": "- Can be controlled via `selectedTab`/`setSelectedTab` or through `TabGroup`.",
+        "a11y": "- No keyboard navigation or roving tabindex."
       },
-      "description": "",
-      "name": "variant",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tabs.interface.ts",
-          "name": "TypeLiteral"
+      "methods": [],
+      "props": {
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<TabsInterface> | undefined"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "TabsVariant | undefined"
+          },
+          "defaultValue": {
+            "value": "'primary'"
+          }
+        },
+        "scrollable": {
+          "name": "scrollable",
+          "description": "Enables horizontal scrolling and auto-centering of the selected tab.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "selectedTab": {
+          "name": "selectedTab",
+          "description": "Controlled index of the selected tab.",
+          "required": false,
+          "type": {
+            "name": "number | null | undefined"
+          },
+          "defaultValue": null
         }
-      ],
-      "required": false,
-      "type": {
-        "name": "TabsVariant"
-      }
-    },
-    "scrollable": {
-      "defaultValue": {
-        "value": false
-      },
-      "description": "",
-      "name": "scrollable",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/tabs.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean"
       }
     }
   }

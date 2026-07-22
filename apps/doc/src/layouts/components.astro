@@ -1,17 +1,14 @@
 ---
 import '@/styles/global.css';
-import { getCollection, render } from 'astro:content';
-import { Button, Divider , Tabs, Tab} from '@udixio/ui-react';
-import { sentenceCase, kebabCase } from 'change-case';
+import { getCollection } from 'astro:content';
 import { Sidebar } from '@/components/Sidebar';
 import type { NavSection } from '@/components/Sidebar';
 import { ComponentNavigation } from '@/components/ComponentNavigation';
-import { Navigation } from '@/components/Navigation';
-import { ClientRouter } from 'astro:transitions';
 import Layout from '@/layouts/layout.astro';
-import {Card, Icon}from "@udixio/ui-react";
+import { Card } from '@udixio/ui-react';
 import { renderMarkdown } from '@/lib/markdown';
-import { iExclamation } from '@udixio/icons-rounded-400/exclamation';
+import { ComponentDocumentationNotes } from '@/components/api/ComponentDocumentationNotes';
+import type { DocumentationNoteHtml } from '@/components/api/ComponentDocumentationNotes';
 
 const apis = await getCollection('api');
 const overviews = await getCollection('overviews');
@@ -20,39 +17,53 @@ const pathName = Astro.url.pathname;
 
 const { component } = Astro.params;
 
-const componentApi = apis.find(api => api.id === component);
+const componentApi = apis.find((api) => api.id === component);
 
 if (!componentApi) {
   return Astro.redirect('/404', 404);
 }
 
-const limitation = componentApi.data.tags.limitations
+const componentApiData = componentApi.data;
 
-// Build robust, sanitized HTML from Markdown and style elements via classes
-const limitationHtml = typeof limitation === 'string' && limitation.trim().length > 0
-  ? renderMarkdown(limitation, {
-      classes: {
-        // ul: 'list-disc pl-6',
-        li: '!text-on-secondary-container',
-        // p: 'mb-2',
-      },
-    })
-  : '';
+const documentationHtml = Object.fromEntries(
+  (['react', 'angular'] as const).flatMap((framework) => {
+    const tags = componentApiData.frameworks[framework]?.tags;
+    if (!tags) return [];
+
+    return [
+      [
+        framework,
+        Object.fromEntries(
+          (['devx', 'a11y', 'limitations'] as const).flatMap((tag) => {
+            const value = tags[tag];
+            return typeof value === 'string' && value.trim()
+              ? [[tag, renderMarkdown(value)]]
+              : [];
+          }),
+        ),
+      ],
+    ];
+  }),
+) as DocumentationNoteHtml;
 
 const overviewIds = new Set(
   overviews.map((overview) => overview.id.replaceAll('overview', '')),
 );
 
 const components = apis
-  .filter((api) => !api.data.tags?.parent)
-  .filter((api) => overviewIds.has(api.id))
   .map((api) => ({
-    slug: api.id,
-    displayName: api.data.displayName ?? sentenceCase(api.id),
-    description: api.data.description ?? '',
-    tags: api.data.tags ?? {},
+    entry: api,
+    data: api.data,
   }))
-  .sort((a, b) => a.slug.localeCompare(b.slug))
+  .filter(({ data }) => !data.frameworks.react.tags.parent)
+  .filter(({ entry }) => overviewIds.has(entry.id))
+  .map(({ entry, data }) => ({
+    slug: entry.id,
+    displayName: data.displayName,
+    description: data.frameworks.react.description,
+    tags: data.frameworks.react.tags,
+  }))
+  .sort((a, b) => a.slug.localeCompare(b.slug));
 
 const componentSections: NavSection[] = Object.entries(
   components.reduce(
@@ -76,7 +87,7 @@ const componentSections: NavSection[] = Object.entries(
   }));
 ---
 <Layout docSidebar>
-  <Fragment slot="sidebar"> <!-- pass table header -->
+  <Fragment slot="sidebar">
     <Sidebar
       client:load
       transition:name="component-sidebar"
@@ -84,7 +95,9 @@ const componentSections: NavSection[] = Object.entries(
       mode="nav"
       title="Components"
       sections={componentSections}
-      current={pathName.startsWith('/components') ? pathName.split('/').filter(Boolean)[1] : null}
+      current={pathName.startsWith('/components')
+        ? pathName.split('/').filter(Boolean)[1]
+        : null}
     />
   </Fragment>
   <div class="max-w-screen-xl mx-auto">
@@ -92,29 +105,19 @@ const componentSections: NavSection[] = Object.entries(
       <div class="p-8">
         <slot name="header" />
       </div>
-      <ComponentNavigation  client:load  transition:name="component-navigation"  transition:persist  componentApi={componentApi}/>
+      <ComponentNavigation
+        client:load
+        transition:name="component-navigation"
+        transition:persist
+        componentApi={componentApi}
+      />
     </Card>
-    {limitation && (
-      <Card
-        className="my-12 theme-warning prose-markdown"
-        role="note"
-        aria-labelledby="limitations-title"
-      >
-        <div class="flex items-start gap-4 p-6 md:p-7">
-          <div class="p-2 rounded-full bg-primary-container">
-            <Icon icon={iExclamation} className="size-5 md:size-6 text-on-primary-container" />
-          </div>
-          <div>
-            <h3 id="limitations-title" class="text-base md:text-lg font-medium mb-2 text-on-secondary-container ml-2 !mt-0">
-              Known Limitations (Beta)
-            </h3>
-            <div class="text-sm leading-6 md:text-base md:leading-7 [&_ul]:list-disc [&_ul]:pl-5" set:html={limitationHtml}></div>
-          </div>
-        </div>
-      </Card>
-    )}
+    <ComponentDocumentationNotes
+      client:load
+      api={componentApiData}
+      html={documentationHtml}
+    />
 
-    <slot/>
+    <slot />
   </div>
-
 </Layout>

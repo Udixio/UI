@@ -1,94 +1,73 @@
 {
-  "tags": {
-    "status": "beta",
-    "category": "Action",
-    "devx": "- Only `Button` children are rendered as actions.\n- Controlled via `open`/`onOpenChange` or `defaultOpen`.",
-    "a11y": "- No focus trap or Escape handling when open.",
-    "limitations": "- No outside-click handling; close uses the explicit close button."
-  },
-  "filePath": "node_modules/@udixio/ui-react/src/lib/components/FabMenu.tsx",
-  "description": "Floating action buttons (FABs) help people take primary actions",
+  "schemaVersion": 2,
   "displayName": "FabMenu",
-  "methods": [],
-  "props": {
-    "variant": {
-      "defaultValue": {
-        "value": "primary"
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/FabMenu.tsx",
+      "description": "Floating action buttons (FABs) help people take primary actions",
+      "tags": {
+        "status": "beta",
+        "category": "Action",
+        "devx": "- Only `Button` children are rendered as actions.\n- Controlled via `open`/`onOpenChange` or `defaultOpen`.",
+        "a11y": "- No focus trap or Escape handling when open.",
+        "limitations": "- No outside-click handling; close uses the explicit close button."
       },
-      "description": "",
-      "name": "variant",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/fab.interface.ts",
-          "name": "TypeLiteral"
+      "methods": [],
+      "props": {
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<FabMenuInterface> | undefined"
+          },
+          "defaultValue": null
         },
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/fab-menu.interface.ts",
-          "name": "TypeLiteral"
+        "variant": {
+          "name": "variant",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "FabMenuVariant | undefined"
+          },
+          "defaultValue": {
+            "value": "'primary'"
+          }
         },
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/fab.interface.ts",
-          "name": "TypeLiteral"
+        "size": {
+          "name": "size",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "\"small\" | \"medium\" | \"large\" | undefined"
+          },
+          "defaultValue": {
+            "value": "'medium'"
+          }
         },
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/fab-menu.interface.ts",
-          "name": "TypeLiteral"
+        "extended": {
+          "name": "extended",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "defaultOpen": {
+          "name": "defaultOpen",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
         }
-      ],
-      "required": false,
-      "type": {
-        "name": "\"primary\" | \"secondary\" | \"tertiary\""
-      }
-    },
-    "size": {
-      "defaultValue": {
-        "value": "medium"
-      },
-      "description": "",
-      "name": "size",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/fab.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "\"small\" | \"medium\" | \"large\""
-      }
-    },
-    "extended": {
-      "defaultValue": {
-        "value": false
-      },
-      "description": "",
-      "name": "extended",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/fab.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean"
-      }
-    },
-    "defaultOpen": {
-      "defaultValue": {
-        "value": false
-      },
-      "description": "",
-      "name": "defaultOpen",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/fab-menu.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean"
       }
     }
   }

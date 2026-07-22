@@ -1,132 +1,105 @@
 {
-  "tags": {
-    "status": "beta",
-    "category": "Action",
-    "devx": "- Requires `label` or children to provide an aria-label.\n- Uses `title` as tooltip text; native title attribute is suppressed.",
-    "limitations": "- Tooltip is always rendered (no explicit opt-out)."
-  },
-  "filePath": "node_modules/@udixio/ui-react/src/lib/components/IconButton.tsx",
-  "description": "Icon buttons help people take minor actions with one tap",
+  "schemaVersion": 2,
   "displayName": "IconButton",
-  "methods": [],
-  "props": {
-    "size": {
-      "defaultValue": {
-        "value": "medium"
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/IconButton.tsx",
+      "description": "Icon buttons help people take minor actions with one tap",
+      "tags": {
+        "status": "beta",
+        "category": "Action",
+        "devx": "- Requires `label` or children to provide an aria-label.\n- Uses `title` as tooltip text; native title attribute is suppressed.",
+        "limitations": "- Tooltip is always rendered (no explicit opt-out)."
       },
-      "description": "",
-      "name": "size",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/icon-button.interface.ts",
-          "name": "TypeLiteral"
+      "methods": [],
+      "props": {
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<IconButtonInterface> | undefined"
+          },
+          "defaultValue": null
+        },
+        "size": {
+          "name": "size",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "\"xSmall\" | \"small\" | \"medium\" | \"large\" | \"xLarge\" | undefined"
+          },
+          "defaultValue": {
+            "value": "'medium'"
+          }
+        },
+        "width": {
+          "name": "width",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "\"default\" | \"narrow\" | \"wide\" | undefined"
+          },
+          "defaultValue": {
+            "value": "'default'"
+          }
+        },
+        "variant": {
+          "name": "variant",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "IconButtonVariant | undefined"
+          },
+          "defaultValue": {
+            "value": "'standard'"
+          }
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "activated": {
+          "name": "activated",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "shape": {
+          "name": "shape",
+          "description": "The shape of the button defines whether it is squared or rounded.",
+          "required": false,
+          "type": {
+            "name": "\"squared\" | \"rounded\" | undefined"
+          },
+          "defaultValue": {
+            "value": "'rounded'"
+          }
+        },
+        "allowShapeTransformation": {
+          "name": "allowShapeTransformation",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "true"
+          }
         }
-      ],
-      "required": false,
-      "type": {
-        "name": "\"xSmall\" | \"small\" | \"medium\" | \"large\" | \"xLarge\""
-      }
-    },
-    "width": {
-      "defaultValue": {
-        "value": "default"
-      },
-      "description": "",
-      "name": "width",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/icon-button.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "\"default\" | \"narrow\" | \"wide\""
-      }
-    },
-    "variant": {
-      "defaultValue": {
-        "value": "standard"
-      },
-      "description": "",
-      "name": "variant",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/icon-button.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "IconButtonVariant"
-      }
-    },
-    "disabled": {
-      "defaultValue": {
-        "value": false
-      },
-      "description": "",
-      "name": "disabled",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/icon-button.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean"
-      }
-    },
-    "activated": {
-      "defaultValue": {
-        "value": false
-      },
-      "description": "",
-      "name": "activated",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/icon-button.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean"
-      }
-    },
-    "shape": {
-      "defaultValue": {
-        "value": "rounded"
-      },
-      "description": "The shape of the button defines whether it is squared or rounded.",
-      "name": "shape",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/icon-button.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "\"squared\" | \"rounded\""
-      }
-    },
-    "allowShapeTransformation": {
-      "defaultValue": {
-        "value": true
-      },
-      "description": "",
-      "name": "allowShapeTransformation",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/icon-button.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean"
       }
     }
   }

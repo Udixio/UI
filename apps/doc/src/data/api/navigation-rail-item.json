@@ -1,12 +1,87 @@
 {
-  "tags": {
-    "status": "beta",
-    "parent": "NavigationRail",
-    "devx": "- Section labels only render when the rail is extended."
-  },
-  "filePath": "node_modules/@udixio/ui-react/src/lib/components/NavigationRailItem.tsx",
-  "description": "",
-  "displayName": "NavigationRailSection",
-  "methods": [],
-  "props": {}
+  "schemaVersion": 2,
+  "displayName": "NavigationRailItem",
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/NavigationRailItem.tsx",
+      "description": "",
+      "tags": {
+        "status": "beta",
+        "parent": "NavigationRail",
+        "devx": "- Selection is index-based and provided by the parent rail.\n- `extendedOnly` hides items when the rail is collapsed.",
+        "a11y": "- Uses `role=\"tab\"` but no roving tabindex or aria-controls wiring."
+      },
+      "methods": [],
+      "props": {
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<NavigationRailItemInterface> | undefined"
+          },
+          "defaultValue": null
+        },
+        "selected": {
+          "name": "selected",
+          "description": "Controlled selected state, used when no parent drives the selection.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Injected by the parent NavigationRail: layout direction of the item.",
+          "required": false,
+          "type": {
+            "name": "\"vertical\" | \"horizontal\" | undefined"
+          },
+          "defaultValue": {
+            "value": "'vertical'"
+          }
+        },
+        "index": {
+          "name": "index",
+          "description": "Injected by the parent NavigationRail: position of this item in the rail.",
+          "required": false,
+          "type": {
+            "name": "number | undefined"
+          },
+          "defaultValue": null
+        },
+        "selectedItem": {
+          "name": "selectedItem",
+          "description": "Injected by the parent NavigationRail: index of the currently selected item.",
+          "required": false,
+          "type": {
+            "name": "number | null | undefined"
+          },
+          "defaultValue": null
+        },
+        "isExtended": {
+          "name": "isExtended",
+          "description": "Injected by the parent NavigationRail: whether the rail is extended.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null
+        },
+        "extendedOnly": {
+          "name": "extendedOnly",
+          "description": "Injected by the parent NavigationRail: hide the item while the rail is collapsed.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null
+        }
+      }
+    }
+  }
 }

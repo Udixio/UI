@@ -1,11 +1,27 @@
 {
-  "tags": {
-    "status": "beta",
-    "category": "Selection"
-  },
-  "filePath": "node_modules/@udixio/ui-react/src/lib/components/MenuGroup.tsx",
-  "description": "MenuGroup renders a group of menu items with persistent styling.\nIt is primarily used to apply grouping logic or context to its children.",
+  "schemaVersion": 2,
   "displayName": "MenuGroup",
-  "methods": [],
-  "props": {}
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/MenuGroup.tsx",
+      "description": "MenuGroup renders a group of menu items with persistent styling.\nIt is primarily used to apply grouping logic or context to its children.",
+      "tags": {
+        "status": "beta",
+        "category": "Selection"
+      },
+      "methods": [],
+      "props": {
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<MenuGroupInterface> | undefined"
+          },
+          "defaultValue": null
+        }
+      }
+    }
+  }
 }

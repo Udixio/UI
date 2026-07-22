@@ -1,14 +1,30 @@
 {
-  "tags": {
-    "status": "beta",
-    "parent": "Tabs",
-    "category": "Navigation",
-    "devx": "- Requires `TabGroup` context; otherwise it renders nothing.",
-    "limitations": "- Only renders the active panel (no offscreen preservation)."
-  },
-  "filePath": "node_modules/@udixio/ui-react/src/lib/components/TabPanels.tsx",
-  "description": "TabPanels renders the content panels with slide animation\nMust be used within a TabGroup",
+  "schemaVersion": 2,
   "displayName": "TabPanels",
-  "methods": [],
-  "props": {}
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/TabPanels.tsx",
+      "description": "TabPanels renders the content panels with slide animation\nMust be used within a TabGroup",
+      "tags": {
+        "status": "beta",
+        "parent": "Tabs",
+        "category": "Navigation",
+        "devx": "- Requires `TabGroup` context; otherwise it renders nothing.",
+        "limitations": "- Only renders the active panel (no offscreen preservation)."
+      },
+      "methods": [],
+      "props": {
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<TabPanelsInterface> | undefined"
+          },
+          "defaultValue": null
+        }
+      }
+    }
+  }
 }

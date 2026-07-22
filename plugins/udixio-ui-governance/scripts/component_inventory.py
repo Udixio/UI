@@ -76,6 +76,7 @@ def inventory(root: Path, component: str) -> dict[str, object]:
     angular_lib = root / "packages/ui-angular/src/lib"
     core = root / "packages/core/src/lib"
     docs = root / "apps/doc/src/data/components"
+    api_docs = root / "apps/doc/src/data/api"
     examples = root / "apps/doc/src/examples"
 
     react_source = matching_files(react_components, "*.tsx", slug)
@@ -94,6 +95,11 @@ def inventory(root: Path, component: str) -> dict[str, object]:
         for path in react_tests.rglob("*.ts*")
         if slug in kebab_case(path.name)
     ] if react_tests.exists() else []
+    core_test_files = [
+        path
+        for path in core.rglob("*.spec.ts")
+        if slug in kebab_case(path.name)
+    ] if core.exists() else []
 
     artifact_patterns = {
         "core_interface": [core / "interfaces" / f"{slug}.interface.ts"],
@@ -101,7 +107,29 @@ def inventory(root: Path, component: str) -> dict[str, object]:
         "core_behavior": [core / "behaviors" / f"{slug}.behavior.ts"],
         "core_dom": [core / "dom" / f"{slug}.ts"],
         "documentation": [docs / f"{slug}.overview.mdx"],
+        "generated_api": [api_docs / f"{slug}.json"],
     }
+
+    shared_api_doc_sources = artifact_patterns["core_interface"]
+    api_doc_sources = [
+        *shared_api_doc_sources,
+        *react_source,
+        *angular_source,
+    ]
+    documentation_infrastructure = [
+        root / "apps/doc/scripts/docgen.js",
+        root / "apps/doc/src/content.config.ts",
+        root / "apps/doc/src/layouts/components.astro",
+        root / "apps/doc/src/pages/components/[component]/api.astro",
+        root / "apps/doc/src/stores/exampleFrameworkStore.ts",
+    ]
+    api_components = root / "apps/doc/src/components/api"
+    if api_components.exists():
+        documentation_infrastructure.extend(
+            path
+            for path in api_components.rglob("*")
+            if path.is_file() and path.suffix in {".astro", ".ts", ".tsx"}
+        )
 
     barrel_candidates = [
         root / "packages/core/src/index.ts",
@@ -123,7 +151,7 @@ def inventory(root: Path, component: str) -> dict[str, object]:
     ]
 
     result: dict[str, object] = {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
         "component": component,
         "slug": slug,
         "symbol": symbol,
@@ -136,8 +164,19 @@ def inventory(root: Path, component: str) -> dict[str, object]:
             "coreInterface": relative_paths(root, artifact_patterns["core_interface"]),
             "coreStyle": relative_paths(root, artifact_patterns["core_style"]),
             "coreBehavior": relative_paths(root, artifact_patterns["core_behavior"]),
+            "coreTests": relative_paths(root, core_test_files),
             "coreDom": relative_paths(root, artifact_patterns["core_dom"]),
             "documentation": relative_paths(root, artifact_patterns["documentation"]),
+            "generatedApi": relative_paths(root, artifact_patterns["generated_api"]),
+            "sharedApiDocumentationSources": relative_paths(
+                root, shared_api_doc_sources
+            ),
+            "reactApiDocumentationSources": relative_paths(root, react_source),
+            "angularApiDocumentationSources": relative_paths(root, angular_source),
+            "apiDocumentationSources": relative_paths(root, api_doc_sources),
+            "documentationInfrastructure": relative_paths(
+                root, documentation_infrastructure
+            ),
             "reactExamples": relative_paths(
                 root, matching_examples(examples / "react", "*.tsx", slug)
             ),
@@ -161,8 +200,12 @@ def missing_required(result: dict[str, object]) -> list[str]:
         "coreInterface",
         "coreStyle",
         "documentation",
+        "generatedApi",
     )
-    return [key for key in required if not artifacts.get(key)]
+    missing = [key for key in required if not artifacts.get(key)]
+    if artifacts.get("coreBehavior") and not artifacts.get("coreTests"):
+        missing.append("coreTests")
+    return missing
 
 
 def markdown(result: dict[str, object]) -> str:

@@ -1,80 +1,71 @@
 {
-  "tags": {
-    "status": "beta",
-    "category": "Communication",
-    "devx": "- `value` is clamped to 0–100; indeterminate variants ignore it.",
-    "a11y": "- Missing `role=\"progressbar\"` and aria-* attributes.",
-    "limitations": "- Visibility auto-hides at 100% (no controlled open prop)."
-  },
-  "filePath": "node_modules/@udixio/ui-react/src/lib/components/ProgressIndicator.tsx",
-  "description": "",
+  "schemaVersion": 2,
   "displayName": "ProgressIndicator",
-  "methods": [],
-  "props": {
-    "value": {
-      "defaultValue": {
-        "value": 0
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/ProgressIndicator.tsx",
+      "description": "",
+      "tags": {
+        "status": "beta",
+        "category": "Communication",
+        "devx": "- `value` is clamped to 0–100; indeterminate variants ignore it.",
+        "a11y": "- Missing `role=\"progressbar\"` and aria-* attributes.",
+        "limitations": "- Visibility auto-hides at 100% (no controlled open prop)."
       },
-      "description": "The percentage of the progress completed.",
-      "name": "value",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/progress-indicator.interface.ts",
-          "name": "TypeLiteral"
+      "methods": [],
+      "props": {
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<ProgressIndicatorInterface> | undefined"
+          },
+          "defaultValue": null
+        },
+        "value": {
+          "name": "value",
+          "description": "The percentage of the progress completed.",
+          "required": false,
+          "type": {
+            "name": "number | undefined"
+          },
+          "defaultValue": {
+            "value": "0"
+          }
+        },
+        "transitionDuration": {
+          "name": "transitionDuration",
+          "description": "The duration of the transition animation in milliseconds.",
+          "required": false,
+          "type": {
+            "name": "number | undefined"
+          },
+          "defaultValue": {
+            "value": "1000"
+          }
+        },
+        "variant": {
+          "name": "variant",
+          "description": "The variant of the ProgressIndicator.",
+          "required": false,
+          "type": {
+            "name": "ProgressIndicatorVariant | undefined"
+          },
+          "defaultValue": {
+            "value": "'linear-determinate'"
+          }
+        },
+        "minHeight": {
+          "name": "minHeight",
+          "description": "The minimum height of the line used to draw the linear indicator.",
+          "required": false,
+          "type": {
+            "name": "number | undefined"
+          },
+          "defaultValue": null
         }
-      ],
-      "required": false,
-      "type": {
-        "name": "number"
-      }
-    },
-    "transitionDuration": {
-      "defaultValue": {
-        "value": 1000
-      },
-      "description": "The duration of the transition animation in milliseconds.",
-      "name": "transitionDuration",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/progress-indicator.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "number"
-      }
-    },
-    "variant": {
-      "defaultValue": {
-        "value": "linear-determinate"
-      },
-      "description": "The variant of the ProgressIndicator.",
-      "name": "variant",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/progress-indicator.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "ProgressIndicatorVariant"
-      }
-    },
-    "minHeight": {
-      "defaultValue": null,
-      "description": "The minimum height of the line used to draw the linear indicator.",
-      "name": "minHeight",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/progress-indicator.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "number"
       }
     }
   }

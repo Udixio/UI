@@ -1,130 +1,112 @@
 {
-  "tags": {
-    "status": "beta",
-    "category": "Layout",
-    "devx": "- Only `CarouselItem` children are rendered; other children are ignored.\n- Use `index` for controlled positioning; otherwise relies on internal scroll state.",
-    "limitations": "- Responsive behavior on mobile is not supported.\n- Only the default (hero) variant is supported.\n- No keyboard navigation or focus management."
-  },
-  "filePath": "node_modules/@udixio/ui-react/src/lib/components/Carousel.tsx",
-  "description": "Carousels show a collection of items that can be scrolled on and off the screen",
+  "schemaVersion": 2,
   "displayName": "Carousel",
-  "methods": [],
-  "props": {
-    "marginPourcent": {
-      "defaultValue": {
-        "value": 0
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/Carousel.tsx",
+      "description": "Carousels show a collection of items that can be scrolled on and off the screen",
+      "tags": {
+        "status": "beta",
+        "category": "Layout",
+        "devx": "- Only `CarouselItem` children are rendered; other children are ignored.\n- Use `index` for controlled positioning; otherwise relies on internal scroll state.",
+        "limitations": "- Responsive behavior on mobile is not supported.\n- Only the default (hero) variant is supported.\n- No keyboard navigation or focus management."
       },
-      "description": "",
-      "name": "marginPourcent",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/carousel.interface.ts",
-          "name": "TypeLiteral"
+      "methods": [],
+      "props": {
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<CarouselInterface> | undefined"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "\"hero\" | \"center-aligned\" | \"multi-browse\" | \"un-contained\" | \"full-screen\" | undefined"
+          },
+          "defaultValue": {
+            "value": "'hero'"
+          }
+        },
+        "marginPourcent": {
+          "name": "marginPourcent",
+          "description": "Outer margins as a percentage of the viewport width.",
+          "required": false,
+          "type": {
+            "name": "number | undefined"
+          },
+          "defaultValue": {
+            "value": "0"
+          }
+        },
+        "gap": {
+          "name": "gap",
+          "description": "Gap between items, in pixels.",
+          "required": false,
+          "type": {
+            "name": "number | undefined"
+          },
+          "defaultValue": {
+            "value": "8"
+          }
+        },
+        "scrollSensitivity": {
+          "name": "scrollSensitivity",
+          "description": "Adjusts scroll/drag responsiveness.",
+          "required": false,
+          "type": {
+            "name": "number | undefined"
+          },
+          "defaultValue": {
+            "value": "1.25"
+          }
+        },
+        "inputRange": {
+          "name": "inputRange",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "[number, number] | undefined"
+          },
+          "defaultValue": {
+            "value": "[0.21, 0.65]"
+          }
+        },
+        "outputRange": {
+          "name": "outputRange",
+          "description": "Min/max item width, in pixels.",
+          "required": false,
+          "type": {
+            "name": "[number, number] | undefined"
+          },
+          "defaultValue": {
+            "value": "[42, 300]"
+          }
+        },
+        "index": {
+          "name": "index",
+          "description": "Controlled index for programmatic centering.",
+          "required": false,
+          "type": {
+            "name": "number | undefined"
+          },
+          "defaultValue": null
+        },
+        "onMetricsChange": {
+          "name": "onMetricsChange",
+          "description": "Receive live metrics to better control the carousel externally",
+          "required": false,
+          "type": {
+            "name": "((metrics: CarouselMetrics) => void) | undefined"
+          },
+          "defaultValue": null
         }
-      ],
-      "required": false,
-      "type": {
-        "name": "number"
-      }
-    },
-    "onMetricsChange": {
-      "defaultValue": null,
-      "description": "Receive live metrics to better control the carousel externally",
-      "name": "onMetricsChange",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/carousel.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "(metrics: CarouselMetrics) => void"
-      }
-    },
-    "variant": {
-      "defaultValue": {
-        "value": "hero"
-      },
-      "description": "",
-      "name": "variant",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/carousel.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "\"hero\" | \"center-aligned\" | \"multi-browse\" | \"un-contained\" | \"full-screen\""
-      }
-    },
-    "scrollSensitivity": {
-      "defaultValue": {
-        "value": 1.25
-      },
-      "description": "",
-      "name": "scrollSensitivity",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/carousel.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "number"
-      }
-    },
-    "gap": {
-      "defaultValue": {
-        "value": 8
-      },
-      "description": "",
-      "name": "gap",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/carousel.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "number"
-      }
-    },
-    "inputRange": {
-      "defaultValue": {
-        "value": "[0.21, 0.65]"
-      },
-      "description": "",
-      "name": "inputRange",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/carousel.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "[number, number]"
-      }
-    },
-    "outputRange": {
-      "defaultValue": {
-        "value": "[42, 300]"
-      },
-      "description": "",
-      "name": "outputRange",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/carousel.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "[number, number]"
       }
     }
   }

@@ -1,11 +1,49 @@
 {
-  "tags": {
-    "status": "beta",
-    "category": "Selection"
-  },
-  "filePath": "node_modules/@udixio/ui-react/src/lib/components/MenuItem.tsx",
-  "description": "Single item within a Menu.",
+  "schemaVersion": 2,
   "displayName": "MenuItem",
-  "methods": [],
-  "props": {}
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/MenuItem.tsx",
+      "description": "Single item within a Menu.",
+      "tags": {
+        "status": "beta",
+        "category": "Selection"
+      },
+      "methods": [],
+      "props": {
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<MenuItemInterface> | undefined"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Injected by the parent menu.",
+          "required": false,
+          "type": {
+            "name": "MenuItemVariant | undefined"
+          },
+          "defaultValue": {
+            "value": "'standard'"
+          }
+        },
+        "activated": {
+          "name": "activated",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        }
+      }
+    }
+  }
 }

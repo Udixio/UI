@@ -1,35 +1,33 @@
 ---
 import { getCollection, render } from 'astro:content';
-import Layout from '@/layouts/layout.astro';
 import Code from '@/components/Code.astro';
-import { noCase, sentenceCase } from 'change-case';
 import Components from '@/layouts/components.astro';
+import { ComponentApiHeader } from '@/components/api/ComponentApiHeader';
 
 export async function getStaticPaths() {
   const overviews = await getCollection('overviews');
-  return overviews.map(overview =>
-    ({
-      params: { component: overview.id.replace('overview', '') },
-      props: { overview }
-    })
-  );
+  return overviews.map((overview) => ({
+    params: { component: overview.id.replace('overview', '') },
+    props: { overview },
+  }));
 }
 
 const { overview } = Astro.props;
 const { component } = Astro.params;
-const { Content, headings } = await render(overview);
+const { Content } = await render(overview);
 
 const apis = await getCollection('api');
-const componentApi = apis.find(api => api.id == component)
+const componentApi = apis.find((api) => api.id === component);
 
 if (!componentApi) {
   return Astro.redirect('/404', 404);
 }
+
+const componentApiData = componentApi.data;
 ---
 <Components>
-  <Fragment slot="header"> <!-- pass table header -->
-    <h1 class="text-display-large ">{sentenceCase(noCase(componentApi.id))}</h1>
-    <p class="text-headline-small mt-8">{componentApi.data.description}</p>
+  <Fragment slot="header">
+    <ComponentApiHeader client:load api={componentApiData} />
   </Fragment>
   <div class="prose-markdown max-w-none pb-8">
     <Content components={{ pre: Code }} />

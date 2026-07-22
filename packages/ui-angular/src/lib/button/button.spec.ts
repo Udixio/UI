@@ -70,6 +70,16 @@ describe('Button (Angular, consuming @udixio/core)', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
+  it('keeps an unlabeled native control out of rendering and the accessibility tree', () => {
+    fixture.detectChanges();
+
+    const button: HTMLButtonElement =
+      fixture.nativeElement.querySelector('button');
+    expect(button.hidden).toBe(true);
+    expect(button.disabled).toBe(true);
+    expect(button.getAttribute('aria-hidden')).toBe('true');
+  });
+
   it('applies the shared Tailwind classes from @udixio/core (filled variant)', () => {
     fixture.componentRef.setInput('label', 'Envoyer');
     fixture.detectChanges();
@@ -126,6 +136,8 @@ describe('Button (Angular, consuming @udixio/core)', () => {
 
     const button: HTMLButtonElement =
       hostFixture.nativeElement.querySelector('button');
+    hostFixture.detectChanges();
+    expect(button.hidden).toBe(false);
     expect(button.textContent?.trim()).toBe('Projected label');
     expect(button.textContent).not.toContain('Fallback label');
     expect(

@@ -15,8 +15,8 @@ Finish the React and core review before judging Angular parity.
 2. Read [the repository map](../../references/repository-map.md) and current
    `docs/component-authoring.md` plus `docs/component-behavior.md`.
 3. Run `../../scripts/component_inventory.py <component> --root <repo>` and inspect every candidate.
-4. Establish the public component scope, including core artifacts, exports, tests, docs, examples,
-   and deliberate exceptions.
+4. Establish the public component scope, including core artifacts, exports, tests, TSDoc sources,
+   generated API JSON, docs renderers, examples, and deliberate exceptions.
 
 ## Compose the checkers
 
@@ -32,7 +32,8 @@ Read and apply these sibling skills in this exact order:
 5. Apply `audit-framework-quality` and `audit-accessibility` to Angular, including framework-specific
    and rendered-DOM concerns.
 6. [audit-documentation](../audit-documentation/SKILL.md): verify the public story only after the
-   implementation contract is resolved.
+   implementation contract is resolved, including TSDoc truth, per-framework API extraction,
+   generated-artifact freshness, and actual rendering.
 
 Do not mark a later checker as passing because an earlier checker already inspected similar code.
 Record independent evidence for each dimension.

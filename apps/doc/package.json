@@ -6,6 +6,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "docgen": "node scripts/docgen.js",
+    "docgen:check": "node scripts/docgen.js --check",
+    "docgen:test": "node --test scripts/docgen.test.js",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -60,6 +62,7 @@
   "devDependencies": {
     "@types/sanitize-html": "^2.16.0",
     "glob": "^11.0.3",
-    "react-docgen-typescript": "^2.4.0"
+    "react-docgen-typescript": "^2.4.0",
+    "typescript": "^5.9.3"
   }
 }

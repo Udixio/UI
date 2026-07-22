@@ -8,6 +8,7 @@ type RequiredNullable<T> = {
 };
 
 export interface StyleProps<T extends ComponentInterface> {
+  /** Classes or state-aware element classes applied through the shared style contract. */
   className?: string | ClassNameComponent<T>;
 }
 

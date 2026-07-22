@@ -25,13 +25,14 @@ import { ProgressIndicator } from './ProgressIndicator';
 import { State } from '../effects';
 import { useMemo } from 'react';
 
-type ReactButtonOwnProps = ButtonProps &
-  ComponentClassName<ButtonInterface> & {
-    /** Visible React content; `label` remains an accessible-name fallback. */
-    children?: ReactNode;
-    /** Notifies an accepted toggle-state request. */
-    onPressedChange?: (pressed: boolean) => void;
-  };
+type ReactButtonOwnProps = ButtonProps & {
+  /** Classes or state-aware element classes applied through the shared style contract. */
+  className?: ComponentClassName<ButtonInterface>['className'];
+  /** Visible React content; `label` remains an accessible-name fallback. */
+  children?: ReactNode;
+  /** Notifies an accepted toggle-state request. */
+  onPressedChange?: (pressed: boolean) => void;
+};
 
 type ReactButtonActionProps = ReactButtonOwnProps &
   Omit<
@@ -39,7 +40,9 @@ type ReactButtonActionProps = ReactButtonOwnProps &
     keyof ReactButtonOwnProps | 'children' | 'className' | 'onClick'
   > & {
     href?: undefined;
+    /** Ref forwarded to the native button element. */
     ref?: Ref<HTMLButtonElement>;
+    /** Handles clicks accepted by the button interaction contract. */
     onClick?: MouseEventHandler<HTMLButtonElement>;
   };
 
@@ -50,7 +53,9 @@ type ReactButtonLinkProps = ReactButtonOwnProps &
   > & {
     /** Navigation destination; switches the native element from button to link. */
     href: string;
+    /** Ref forwarded to the native anchor element. */
     ref?: Ref<HTMLAnchorElement>;
+    /** Handles clicks accepted by the link interaction contract. */
     onClick?: MouseEventHandler<HTMLAnchorElement>;
   };
 
@@ -171,7 +176,6 @@ export const Button = (props: ReactButtonProps) => {
   const hasVisibleLabel =
     resolvedLabel !== undefined &&
     resolvedLabel !== null &&
-    resolvedLabel !== false &&
     resolvedLabel !== '';
   const resolvedIconPosition = resolveButtonIconPosition(iconPosition);
   const isToggleButton = toggleable && href === undefined;

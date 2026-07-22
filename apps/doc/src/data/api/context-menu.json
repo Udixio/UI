@@ -1,8 +1,24 @@
 {
-  "tags": {},
-  "filePath": "node_modules/@udixio/ui-react/src/lib/components/ContextMenu.tsx",
-  "description": "",
+  "schemaVersion": 2,
   "displayName": "ContextMenu",
-  "methods": [],
-  "props": {}
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/ContextMenu.tsx",
+      "description": "",
+      "tags": {},
+      "methods": [],
+      "props": {
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<MenuInterface> | undefined"
+          },
+          "defaultValue": null
+        }
+      }
+    }
+  }
 }

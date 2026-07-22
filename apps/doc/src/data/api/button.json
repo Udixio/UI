@@ -1,354 +1,496 @@
 {
-  "tags": {
-    "status": "beta",
-    "category": "Action",
-    "devx": "- Requires `label` or children; used for visible text and a11y.\n- `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.\n- `toggleable` enables `aria-pressed` and `onPressedChange` on action buttons.\n- `type` defaults to `'button'` to prevent accidental form submits.",
-    "a11y": "- Uses native button/link semantics and preserves its accessible name while loading.\n- Provides a 48px touch target and a visible `:focus-visible` outline.",
-    "limitations": "- When `href` is set with `disabled`, the link is made inert via `aria-disabled` and `tabIndex={-1}`.\n- Navigation links ignore toggle state; use `aria-current` for the current destination."
-  },
-  "filePath": "node_modules/@udixio/ui-react/src/lib/components/Button.tsx",
-  "description": "Buttons prompt most actions in a UI",
+  "schemaVersion": 2,
   "displayName": "Button",
-  "methods": [],
-  "props": {
-    "type": {
-      "defaultValue": {
-        "value": "'button'"
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/Button.tsx",
+      "description": "Buttons prompt most actions in a UI",
+      "tags": {
+        "status": "beta",
+        "category": "Action",
+        "devx": "- Requires `label` or children; used for visible text and a11y.\n- `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.\n- `toggleable` enables `aria-pressed` and `onPressedChange` on action buttons.\n- `type` defaults to `'button'` to prevent accidental form submits.",
+        "a11y": "- Uses native button/link semantics and preserves its accessible name while loading.\n- Provides a 48px touch target and a visible `:focus-visible` outline.",
+        "limitations": "- When `href` is set with `disabled`, the link is made inert via `aria-disabled` and `tabIndex={-1}`.\n- Navigation links ignore toggle state; use `aria-current` for the current destination."
       },
-      "description": "The HTML button type attribute. Only applies when rendered as `<button>`.",
-      "name": "type",
-      "parent": {
-        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-        "name": "ButtonProps"
-      },
-      "declarations": [
-        {
-          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-          "name": "ButtonProps"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "\"button\" | \"submit\" | \"reset\" | undefined"
-      }
-    },
-    "icon": {
-      "defaultValue": null,
-      "description": "An optional icon to display in the button (agnostic Icon data).",
-      "name": "icon",
-      "parent": {
-        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-        "name": "ButtonProps"
-      },
-      "declarations": [
-        {
-          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-          "name": "ButtonProps"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "Icon | undefined"
-      }
-    },
-    "iconPosition": {
-      "defaultValue": {
-        "value": "'start'"
-      },
-      "description": "Logical icon position. The `left` and `right` aliases are retained for\ncompatibility and resolve to `start` and `end` respectively.",
-      "name": "iconPosition",
-      "parent": {
-        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-        "name": "ButtonProps"
-      },
-      "declarations": [
-        {
-          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-          "name": "ButtonProps"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "ButtonIconPosition | ButtonIconPositionAlias | undefined"
-      }
-    },
-    "size": {
-      "defaultValue": null,
-      "description": "Visual size; every option retains a 48px touch target.",
-      "name": "size",
-      "parent": {
-        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-        "name": "ButtonProps"
-      },
-      "declarations": [
-        {
-          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-          "name": "ButtonProps"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "\"xSmall\" | \"small\" | \"medium\" | \"large\" | \"xLarge\" | undefined"
-      }
-    },
-    "variant": {
-      "defaultValue": null,
-      "description": "The button variant determines the style of the button.\nAliases: 'primary' maps to 'filled', 'secondary' maps to 'tonal'",
-      "name": "variant",
-      "parent": {
-        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-        "name": "ButtonProps"
-      },
-      "declarations": [
-        {
-          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-          "name": "ButtonProps"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "ButtonVariant | ButtonVariantAlias | undefined"
-      }
-    },
-    "disabled": {
-      "defaultValue": null,
-      "description": "Disables the button if set to true.",
-      "name": "disabled",
-      "parent": {
-        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-        "name": "ButtonProps"
-      },
-      "declarations": [
-        {
-          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-          "name": "ButtonProps"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean | undefined"
-      }
-    },
-    "disableTextMargins": {
-      "defaultValue": {
-        "value": "false"
-      },
-      "description": "Removes the default negative horizontal margins from text buttons.\nOnly applies to 'text' variant buttons.",
-      "name": "disableTextMargins",
-      "parent": {
-        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-        "name": "ButtonProps"
-      },
-      "declarations": [
-        {
-          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-          "name": "ButtonProps"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean | undefined"
-      }
-    },
-    "loading": {
-      "defaultValue": null,
-      "description": "Blocks interaction and exposes the busy state while preserving the label.",
-      "name": "loading",
-      "parent": {
-        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-        "name": "ButtonProps"
-      },
-      "declarations": [
-        {
-          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-          "name": "ButtonProps"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean | undefined"
-      }
-    },
-    "shape": {
-      "defaultValue": null,
-      "description": "The shape of the button defines whether it is squared or rounded.",
-      "name": "shape",
-      "parent": {
-        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-        "name": "ButtonProps"
-      },
-      "declarations": [
-        {
-          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-          "name": "ButtonProps"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "\"squared\" | \"rounded\" | undefined"
-      }
-    },
-    "allowShapeTransformation": {
-      "defaultValue": null,
-      "description": "Enables the shared press/toggle shape transformation.",
-      "name": "allowShapeTransformation",
-      "parent": {
-        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-        "name": "ButtonProps"
-      },
-      "declarations": [
-        {
-          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-          "name": "ButtonProps"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean | undefined"
-      }
-    },
-    "transition": {
-      "defaultValue": null,
-      "description": "Motion transition shared by every framework for shape changes.",
-      "name": "transition",
-      "parent": {
-        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-        "name": "ButtonProps"
-      },
-      "declarations": [
-        {
-          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-          "name": "ButtonProps"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "Transition | undefined"
-      }
-    },
-    "toggleable": {
-      "defaultValue": null,
-      "description": "Enables the semantic pressed state and its visual treatment.",
-      "name": "toggleable",
-      "parent": {
-        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-        "name": "ButtonProps"
-      },
-      "declarations": [
-        {
-          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-          "name": "ButtonProps"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean | undefined"
-      }
-    },
-    "pressed": {
-      "defaultValue": null,
-      "description": "Controlled pressed state. Framework adapters expose the matching change\nevent (`onPressedChange` in React, `pressedChange` in Angular).",
-      "name": "pressed",
-      "parent": {
-        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-        "name": "ButtonProps"
-      },
-      "declarations": [
-        {
-          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-          "name": "ButtonProps"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean | undefined"
-      }
-    },
-    "defaultPressed": {
-      "defaultValue": null,
-      "description": "Initial pressed state when `pressed` is not controlled.",
-      "name": "defaultPressed",
-      "parent": {
-        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-        "name": "ButtonProps"
-      },
-      "declarations": [
-        {
-          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-          "name": "ButtonProps"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean | undefined"
-      }
-    },
-    "label": {
-      "defaultValue": null,
-      "description": "Visible label and accessible-name fallback for custom content.",
-      "name": "label",
-      "parent": {
-        "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-        "name": "ButtonProps"
-      },
-      "declarations": [
-        {
-          "fileName": "components/packages/core/dist/lib/interfaces/button.interface.d.ts",
-          "name": "ButtonProps"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "string | undefined"
-      }
-    },
-    "children": {
-      "defaultValue": null,
-      "description": "Visible React content; `label` remains an accessible-name fallback.",
-      "name": "children",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/components/Button.tsx",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "ReactNode"
-      }
-    },
-    "onPressedChange": {
-      "defaultValue": null,
-      "description": "Notifies an accepted toggle-state request.",
-      "name": "onPressedChange",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/components/Button.tsx",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "((pressed: boolean) => void) | undefined"
-      }
-    },
-    "href": {
-      "defaultValue": null,
-      "description": "Navigation destination; switches the native element from button to link.",
-      "name": "href",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/components/Button.tsx",
-          "name": "TypeLiteral"
+      "methods": [],
+      "props": {
+        "type": {
+          "name": "type",
+          "description": "The HTML button type attribute. Only applies when rendered as `<button>`.",
+          "required": false,
+          "type": {
+            "name": "\"button\" | \"submit\" | \"reset\" | undefined"
+          },
+          "defaultValue": {
+            "value": "'button'"
+          }
         },
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/components/Button.tsx",
-          "name": "TypeLiteral"
+        "icon": {
+          "name": "icon",
+          "description": "An optional icon to display in the button (agnostic Icon data).",
+          "required": false,
+          "type": {
+            "name": "Icon | undefined"
+          },
+          "defaultValue": null
+        },
+        "iconPosition": {
+          "name": "iconPosition",
+          "description": "Logical icon position. The `left` and `right` aliases are retained for\ncompatibility and resolve to `start` and `end` respectively.",
+          "required": false,
+          "type": {
+            "name": "ButtonIconPosition | ButtonIconPositionAlias | undefined"
+          },
+          "defaultValue": {
+            "value": "'start'"
+          }
+        },
+        "size": {
+          "name": "size",
+          "description": "Visual size; every option retains a 48px touch target.",
+          "required": false,
+          "type": {
+            "name": "\"xSmall\" | \"small\" | \"medium\" | \"large\" | \"xLarge\" | undefined"
+          },
+          "defaultValue": {
+            "value": "'medium'"
+          }
+        },
+        "variant": {
+          "name": "variant",
+          "description": "The button variant determines the style of the button.\nAliases: 'primary' maps to 'filled', 'secondary' maps to 'tonal'",
+          "required": false,
+          "type": {
+            "name": "ButtonVariant | ButtonVariantAlias | undefined"
+          },
+          "defaultValue": {
+            "value": "'filled'"
+          }
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Disables the button if set to true.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "disableTextMargins": {
+          "name": "disableTextMargins",
+          "description": "Removes the default negative horizontal margins from text buttons.\nOnly applies to 'text' variant buttons.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "loading": {
+          "name": "loading",
+          "description": "Blocks interaction and exposes the busy state while preserving the label.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "shape": {
+          "name": "shape",
+          "description": "The shape of the button defines whether it is squared or rounded.",
+          "required": false,
+          "type": {
+            "name": "\"squared\" | \"rounded\" | undefined"
+          },
+          "defaultValue": {
+            "value": "'rounded'"
+          }
+        },
+        "allowShapeTransformation": {
+          "name": "allowShapeTransformation",
+          "description": "Enables the shared press/toggle shape transformation.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "true"
+          }
+        },
+        "transition": {
+          "name": "transition",
+          "description": "Motion transition shared by every framework for shape changes.",
+          "required": false,
+          "type": {
+            "name": "Transition | undefined"
+          },
+          "defaultValue": null
+        },
+        "toggleable": {
+          "name": "toggleable",
+          "description": "Enables the semantic pressed state and its visual treatment.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "pressed": {
+          "name": "pressed",
+          "description": "Controlled pressed state. Framework adapters expose the matching change\nevent (`onPressedChange` in React, `pressedChange` in Angular).",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null
+        },
+        "defaultPressed": {
+          "name": "defaultPressed",
+          "description": "Initial pressed state when `pressed` is not controlled.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "label": {
+          "name": "label",
+          "description": "Visible label and accessible-name fallback for custom content.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<ButtonInterface> | undefined"
+          },
+          "defaultValue": null
+        },
+        "children": {
+          "name": "children",
+          "description": "Visible React content; `label` remains an accessible-name fallback.",
+          "required": false,
+          "type": {
+            "name": "ReactNode"
+          },
+          "defaultValue": null
+        },
+        "onPressedChange": {
+          "name": "onPressedChange",
+          "description": "Notifies an accepted toggle-state request.",
+          "required": false,
+          "type": {
+            "name": "((pressed: boolean) => void) | undefined"
+          },
+          "defaultValue": null
+        },
+        "href": {
+          "name": "href",
+          "description": "Navigation destination; switches the native element from button to link.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null
+        },
+        "ref": {
+          "name": "ref",
+          "description": "Ref forwarded to the native button element.\nRef forwarded to the native anchor element.",
+          "required": false,
+          "type": {
+            "name": "((instance: HTMLButtonElement | null) => void | (() => VoidOrUndefinedOnly)) | RefObject<HTMLButtonElement | null> | ((instance: HTMLAnchorElement | null) => void | (() => VoidOrUndefinedOnly)) | RefObject<...> | null | undefined"
+          },
+          "defaultValue": null
+        },
+        "onClick": {
+          "name": "onClick",
+          "description": "Handles clicks accepted by the button interaction contract.\nHandles clicks accepted by the link interaction contract.",
+          "required": false,
+          "type": {
+            "name": "MouseEventHandler<HTMLButtonElement> | MouseEventHandler<HTMLAnchorElement> | undefined"
+          },
+          "defaultValue": null
         }
-      ],
-      "required": false,
-      "type": {
-        "name": "string | undefined"
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/button/button.ts",
+      "description": "Buttons prompt most actions in a UI.",
+      "tags": {
+        "status": "beta",
+        "category": "Action",
+        "devx": "- Requires the `label` input or projected content for visible text and accessibility.\n- `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.\n- `toggleable` enables `aria-pressed` and the `pressedChange` output on action buttons.\n- `type` defaults to `'button'` to prevent accidental form submissions.",
+        "a11y": "- Uses native button/link semantics and preserves its accessible name while loading.\n- Provides a 48px touch target and a visible `:focus-visible` outline.",
+        "limitations": "- When `href` is set with `disabled`, the link is made inert with `aria-disabled` and removed from the tab order.\n- Navigation links ignore toggle state; use `aria-current` for the current destination."
+      },
+      "inputs": {
+        "type": {
+          "name": "type",
+          "description": "The HTML button type attribute. Only applies when rendered as `<button>`.",
+          "required": false,
+          "type": {
+            "name": "\"button\" | \"submit\" | \"reset\""
+          },
+          "defaultValue": {
+            "value": "'button'"
+          }
+        },
+        "variant": {
+          "name": "variant",
+          "description": "The button variant determines the style of the button.\nAliases: 'primary' maps to 'filled', 'secondary' maps to 'tonal'",
+          "required": false,
+          "type": {
+            "name": "ButtonVariant | ButtonVariantAlias | undefined"
+          },
+          "defaultValue": {
+            "value": "'filled'"
+          }
+        },
+        "size": {
+          "name": "size",
+          "description": "Visual size; every option retains a 48px touch target.",
+          "required": false,
+          "type": {
+            "name": "\"xSmall\" | \"small\" | \"medium\" | \"large\" | \"xLarge\" | undefined"
+          },
+          "defaultValue": {
+            "value": "'medium'"
+          }
+        },
+        "icon": {
+          "name": "icon",
+          "description": "An optional icon to display in the button (agnostic Icon data).",
+          "required": false,
+          "type": {
+            "name": "Icon | undefined"
+          },
+          "defaultValue": null
+        },
+        "iconPosition": {
+          "name": "iconPosition",
+          "description": "Logical icon position. The `left` and `right` aliases are retained for\ncompatibility and resolve to `start` and `end` respectively.",
+          "required": false,
+          "type": {
+            "name": "ButtonIconPosition | ButtonIconPositionAlias | undefined"
+          },
+          "defaultValue": {
+            "value": "'start'"
+          }
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Disables the button if set to true.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "disableTextMargins": {
+          "name": "disableTextMargins",
+          "description": "Removes the default negative horizontal margins from text buttons.\nOnly applies to 'text' variant buttons.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "loading": {
+          "name": "loading",
+          "description": "Blocks interaction and exposes the busy state while preserving the label.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "shape": {
+          "name": "shape",
+          "description": "The shape of the button defines whether it is squared or rounded.",
+          "required": false,
+          "type": {
+            "name": "\"squared\" | \"rounded\" | undefined"
+          },
+          "defaultValue": {
+            "value": "'rounded'"
+          }
+        },
+        "allowShapeTransformation": {
+          "name": "allowShapeTransformation",
+          "description": "Enables the shared press/toggle shape transformation.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "true"
+          }
+        },
+        "transition": {
+          "name": "transition",
+          "description": "Motion transition shared by every framework for shape changes.",
+          "required": false,
+          "type": {
+            "name": "Transition | undefined"
+          },
+          "defaultValue": null
+        },
+        "toggleable": {
+          "name": "toggleable",
+          "description": "Enables the semantic pressed state and its visual treatment.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "pressed": {
+          "name": "pressed",
+          "description": "Controlled pressed state. Framework adapters expose the matching change\nevent (`onPressedChange` in React, `pressedChange` in Angular).",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null
+        },
+        "defaultPressed": {
+          "name": "defaultPressed",
+          "description": "Initial pressed state when `pressed` is not controlled.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "label": {
+          "name": "label",
+          "description": "Visible text fallback when no content is projected.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<ButtonInterface>"
+          },
+          "defaultValue": null
+        },
+        "href": {
+          "name": "href",
+          "description": "Navigation URL. When defined, the component renders a native link.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "target": {
+          "name": "target",
+          "description": "Native link browsing-context target.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "rel": {
+          "name": "rel",
+          "description": "Native link relationship tokens.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "tabIndex": {
+          "name": "tabIndex",
+          "description": "Tab order override applied to the inner interactive element.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
+        "ariaLabel": {
+          "name": "ariaLabel",
+          "description": "Accessible-name override for projected or icon-only content.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null,
+          "alias": "aria-label"
+        },
+        "ariaDescribedBy": {
+          "name": "ariaDescribedBy",
+          "description": "Id reference for elements that describe the button.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null,
+          "alias": "aria-describedby"
+        },
+        "ariaCurrent": {
+          "name": "ariaCurrent",
+          "description": "Current-item state for navigation links.",
+          "required": false,
+          "type": {
+            "name": "boolean | \"page\" | \"step\" | \"location\" | \"date\" | \"time\" | undefined"
+          },
+          "defaultValue": null,
+          "alias": "aria-current"
+        }
+      },
+      "outputs": {
+        "pressedChange": {
+          "name": "pressedChange",
+          "description": "Emits a requested pressed-state transition and supports `[(pressed)]`.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        }
+      },
+      "content": {
+        "default": {
+          "name": "default",
+          "selector": "*",
+          "description": "Default projected content."
+        }
       }
     }
   }

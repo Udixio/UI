@@ -1,237 +1,143 @@
 {
-  "tags": {
-    "status": "beta",
-    "category": "Action",
-    "devx": "- `editable` relies on contentEditable; label should be a string.\n- `onToggle` uses internal state; pair with `activated` for controlled usage.",
-    "a11y": "- Uses `aria-pressed` only when togglable.",
-    "limitations": "- Edit mode starts after a 1s focus delay (no prop to customize)."
-  },
-  "filePath": "node_modules/@udixio/ui-react/src/lib/components/Chip.tsx",
-  "description": "Chips prompt most actions in a UI",
+  "schemaVersion": 2,
   "displayName": "Chip",
-  "methods": [],
-  "props": {
-    "label": {
-      "defaultValue": null,
-      "description": "The label is the text that is displayed on the chip.",
-      "name": "label",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "string"
-      }
-    },
-    "variant": {
-      "defaultValue": {
-        "value": "outlined"
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/Chip.tsx",
+      "description": "Chips prompt most actions in a UI",
+      "tags": {
+        "status": "beta",
+        "category": "Action",
+        "devx": "- `editable` relies on contentEditable; label should be a string.\n- `onToggle` uses internal state; pair with `activated` for controlled usage.",
+        "a11y": "- Uses `aria-pressed` only when togglable.",
+        "limitations": "- Edit mode starts after a 1s focus delay (no prop to customize)."
       },
-      "description": "The chip variant determines the style.",
-      "name": "variant",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "ChipVariant"
-      }
-    },
-    "disabled": {
-      "defaultValue": {
-        "value": false
-      },
-      "description": "Disables the chip if set to true.",
-      "name": "disabled",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean"
-      }
-    },
-    "icon": {
-      "defaultValue": null,
-      "description": "An optional icon to display in the chip.",
-      "name": "icon",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "Icon"
-      }
-    },
-    "draggable": {
-      "defaultValue": null,
-      "description": "Enable native HTML drag and drop on the chip.",
-      "name": "draggable",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean"
-      }
-    },
-    "onDragStart": {
-      "defaultValue": null,
-      "description": "Called when drag starts (composed with internal handler that sets isDragging).",
-      "name": "onDragStart",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "(e: DragEvent<Element>) => void"
-      }
-    },
-    "onDragEnd": {
-      "defaultValue": null,
-      "description": "Called when drag ends (composed with internal handler that clears isDragging).",
-      "name": "onDragEnd",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "(e: DragEvent<Element>) => void"
-      }
-    },
-    "editable": {
-      "defaultValue": null,
-      "description": "Enable label inline edition for this chip (used by Chips variant=\"input\").",
-      "name": "editable",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
-          "name": "TypeLiteral"
+      "methods": [],
+      "props": {
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<ChipInterface> | undefined"
+          },
+          "defaultValue": null
         },
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean"
-      }
-    },
-    "editing": {
-      "defaultValue": null,
-      "description": "Affirms that the chip is currently being edited.",
-      "name": "editing",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
-          "name": "TypeLiteral"
+        "label": {
+          "name": "label",
+          "description": "The label is the text that is displayed on the chip.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null
         },
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "boolean"
-      }
-    },
-    "onEditStart": {
-      "defaultValue": null,
-      "description": "Request to start editing (e.g., double-click, Enter/F2).",
-      "name": "onEditStart",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
-          "name": "TypeLiteral"
+        "variant": {
+          "name": "variant",
+          "description": "The chip variant determines the style.",
+          "required": false,
+          "type": {
+            "name": "ChipVariant | undefined"
+          },
+          "defaultValue": {
+            "value": "'outlined'"
+          }
         },
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "() => void"
-      }
-    },
-    "onEditCommit": {
-      "defaultValue": null,
-      "description": "Commit edition with the new label.",
-      "name": "onEditCommit",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
-          "name": "TypeLiteral"
+        "disabled": {
+          "name": "disabled",
+          "description": "Disables the chip if set to true.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
         },
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": true,
-      "type": {
-        "name": "(nextLabel: string) => void"
-      }
-    },
-    "onEditCancel": {
-      "defaultValue": null,
-      "description": "Cancel edition and restore previous label.",
-      "name": "onEditCancel",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
-          "name": "TypeLiteral"
+        "icon": {
+          "name": "icon",
+          "description": "An optional icon to display in the chip.",
+          "required": false,
+          "type": {
+            "name": "Icon | undefined"
+          },
+          "defaultValue": null
         },
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
-          "name": "TypeLiteral"
-        }
-      ],
-      "required": false,
-      "type": {
-        "name": "() => void"
-      }
-    },
-    "onChange": {
-      "defaultValue": null,
-      "description": "Fired on each edit keystroke when content changes (only while editing).\nUseful for live formatting, suggestions, validation, etc.",
-      "name": "onChange",
-      "declarations": [
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
-          "name": "TypeLiteral"
+        "activated": {
+          "name": "activated",
+          "description": "Controlled selected state (the resolved value lives in `states.isActive`).",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null
         },
-        {
-          "fileName": "doc/node_modules/@udixio/ui-react/src/lib/interfaces/chip.interface.ts",
-          "name": "TypeLiteral"
+        "draggable": {
+          "name": "draggable",
+          "description": "Enable native drag and drop on the chip.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "editable": {
+          "name": "editable",
+          "description": "Enable label inline edition for this chip (used by Chips variant=\"input\").",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null
+        },
+        "editing": {
+          "name": "editing",
+          "description": "Controlled edition state (the resolved value lives in `states.isEditing`).",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null
+        },
+        "onEditStart": {
+          "name": "onEditStart",
+          "description": "Request to start editing (e.g., double-click, Enter/F2).",
+          "required": false,
+          "type": {
+            "name": "(() => void) | undefined"
+          },
+          "defaultValue": null
+        },
+        "onEditCommit": {
+          "name": "onEditCommit",
+          "description": "Commit edition with the new label.",
+          "required": false,
+          "type": {
+            "name": "((nextLabel: string) => void) | undefined"
+          },
+          "defaultValue": null
+        },
+        "onEditCancel": {
+          "name": "onEditCancel",
+          "description": "Cancel edition and restore previous label.",
+          "required": false,
+          "type": {
+            "name": "(() => void) | undefined"
+          },
+          "defaultValue": null
+        },
+        "onChange": {
+          "name": "onChange",
+          "description": "Fired on each edit keystroke when content changes (only while editing).\nUseful for live formatting, suggestions, validation, etc.",
+          "required": false,
+          "type": {
+            "name": "((nextLabel: string) => void) | undefined"
+          },
+          "defaultValue": null
         }
-      ],
-      "required": false,
-      "type": {
-        "name": "(nextLabel: string) => void"
       }
     }
   }
