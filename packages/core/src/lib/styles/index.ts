@@ -20,6 +20,7 @@ export * from './progress-indicator.style';
 export * from './side-sheet.style';
 export * from './slider.style';
 export * from './snackbar.style';
+export * from './state-layer.style';
 export * from './switch.style';
 export * from './tab.style';
 export * from './tabs.style';

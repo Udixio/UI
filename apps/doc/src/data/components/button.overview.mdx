@@ -1,10 +1,18 @@
 ---
 ---
 
-
-
-
 import { CodePreview } from '@/components/CodePreview.js';
+import Code from '@/components/Code.astro';
+import ButtonVariantsReact from '@/examples/react/button-variants.tsx';
+import ButtonSizesReact from '@/examples/react/button-sizes.tsx';
+import ButtonToggleReact from '@/examples/react/button-toggle.tsx';
+import { ButtonVariantsAngular } from '@/examples/angular/button-variants.ts';
+import { ButtonToggleAngular } from '@/examples/angular/button-toggle.ts';
+import buttonVariantsReactSource from '@/examples/react/button-variants.tsx?raw';
+import buttonSizesReactSource from '@/examples/react/button-sizes.tsx?raw';
+import buttonToggleReactSource from '@/examples/react/button-toggle.tsx?raw';
+import buttonVariantsAngularSource from '@/examples/angular/button-variants.ts?raw';
+import buttonToggleAngularSource from '@/examples/angular/button-toggle.ts?raw';
 import { iAdd } from '@udixio/icons-rounded-400/add';
 
 ## Usage
@@ -21,69 +29,33 @@ import { Button } from "@udixio/ui-react"
 
 ## Variants
 
-```jsx
-<div className="flex flex-wrap gap-3">
-  <Button variant="filled">Filled</Button>
-  <Button variant="elevated">Elevated</Button>
-  <Button variant="tonal">Tonal</Button>
-  <Button variant="outlined">Outlined</Button>
-  <Button variant="text">Text</Button>
-</div>
-```
+<Code
+  codes={{
+    react: buttonVariantsReactSource,
+    angular: buttonVariantsAngularSource,
+  }}
+>
+  <ButtonVariantsReact slot="react" client:load />
+  <ButtonVariantsAngular slot="angular" client:load />
+</Code>
 
 ## Toggle buttons
 
-Make a button togglable by providing `onToggle` and controlling its state with `activated`.
+Use `toggleable` for the semantic mode. `pressed` is the controlled value and
+`defaultPressed` initializes an uncontrolled button. React notifies changes with
+`onPressedChange`; Angular exposes the matching `pressedChange` output.
 
-```jsx
-function ToggleExample() {
-  const [activeStates, setActiveStates] = React.useState({
-    filled: false,
-    elevated: false,
-    tonal: false,
-    outlined: false,
-    text: false,
-  });
+<Code
+  codes={{
+    react: buttonToggleReactSource,
+    angular: buttonToggleAngularSource,
+  }}
+>
+  <ButtonToggleReact slot="react" client:load />
+  <ButtonToggleAngular slot="angular" client:load />
+</Code>
 
-  const handleToggle = (buttonType) => (newState) => {
-    setActiveStates((prev) => ({
-      ...prev,
-      [buttonType]: newState,
-    }));
-  };
-
-  return (
-    <div className="flex flex-wrap gap-3">
-      <Button
-        label={activeStates.filled ? 'Active' : 'Inactive'}
-        variant="filled"
-        onToggle={handleToggle('filled')}
-        activated={activeStates.filled}
-      />
-      <Button
-        label="Elevated"
-        variant="elevated"
-        onToggle={handleToggle('elevated')}
-        activated={activeStates.elevated}
-      />
-      <Button
-        label="Filled Tonal"
-        variant="tonal"
-        onToggle={handleToggle('tonal')}
-        activated={activeStates.tonal}
-      />
-      <Button
-        label="Outlined"
-        variant="outlined"
-        onToggle={handleToggle('outlined')}
-        activated={activeStates.outlined}
-      />
-    </div>
-  );
-}
-```
-
-Note: When used as a toggle button, accessibility is handled via `aria-pressed` automatically.
+The component manages `aria-pressed` automatically in both frameworks.
 
 ## Disabled state
 
@@ -98,15 +70,9 @@ Use the `disabled` prop to make the button inactive.
 
 ## Sizes
 
-```jsx
-<div className="flex flex-wrap items-end gap-3">
-  <Button label="XS" size="xSmall" />
-  <Button label="S" size="small" />
-  <Button label="M" size="medium" />
-  <Button label="L" size="large" />
-  <Button label="XL" size="xLarge" />
-</div>
-```
+<Code codes={{ react: buttonSizesReactSource }}>
+  <ButtonSizesReact slot="react" client:load />
+</Code>
 
 ## Shapes
 

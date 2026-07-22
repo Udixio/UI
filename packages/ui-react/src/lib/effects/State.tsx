@@ -1,95 +1,86 @@
-import { RippleEffect } from './ripple';
 import {
-  ClassNameComponent,
-  classNames,
-  createUseClassNames,
-  ReactProps,
+  stateLayerStyle,
+  type ComponentClassName,
+  type StateLayerInterface,
+  type StateLayerProps,
 } from '@udixio/core';
-import { useEffect, useRef, useState } from 'react';
+import {
+  createStateLayerController,
+  findStateLayerTrigger,
+  type StateLayerController,
+} from '@udixio/core/dom';
+import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
+import { createUseStyle } from '../utils/create-use-style';
 
-export interface StateInterface {
-  type: 'div';
-  props: {
-    colorName: string;
-    stateClassName?:
-      | string
-      | 'state-ripple-group'
-      | 'state-group'
-      | 'state-layer';
-    className?: string;
-    style?: React.CSSProperties;
-    children?: React.ReactNode;
+export type ReactStateLayerProps = StateLayerProps &
+  ComponentClassName<StateLayerInterface> & {
+    style?: CSSProperties;
+    children?: ReactNode;
   };
-  states: { isClient: boolean };
-  elements: ['stateLayer'];
-}
 
 export const State = ({
   style,
   colorName,
   stateClassName = 'state-ripple-group',
+  shapeTransition,
   children,
   className,
-}: ReactProps<StateInterface>) => {
+}: ReactStateLayerProps) => {
   const ref = useRef<HTMLDivElement>(null);
-  const groupStateRef = useRef<HTMLElement | null>(null);
-
-  const [isClient, setIsClient] = useState(false);
+  const controllerRef = useRef<StateLayerController>(null);
+  const shapeTransitionRef = useRef(shapeTransition);
+  shapeTransitionRef.current = shapeTransition;
   const styles = useStateStyle({
-    isClient,
     stateClassName,
     className,
     colorName,
+    shapeTransition,
   });
 
   useEffect(() => {
-    if (ref.current && stateClassName !== 'state-layer') {
-      const groupName = !stateClassName.includes('[')
-        ? 'group'
-        : 'group/' + stateClassName.split('[')[1].split(']')[0];
-
-      // On échappe le slash pour le sélecteur CSS
-      const safeGroupName = groupName.replace(/\//g, '\\/');
-
-      try {
-        const furthestGroupState = ref.current.closest(
-          `.${safeGroupName}:not(.${safeGroupName} .${safeGroupName})`,
-        );
-        groupStateRef.current = furthestGroupState as HTMLElement | null;
-      } catch {
-        // Fallback for environments (e.g. JSDOM) that can't parse escaped selectors
-        groupStateRef.current = ref.current.parentElement;
-      }
+    const layer = ref.current;
+    if (!layer) {
+      return;
     }
-    setIsClient(true);
-  }, []);
+
+    const trigger = findStateLayerTrigger(layer, stateClassName);
+    if (!trigger) {
+      return;
+    }
+
+    const controller = createStateLayerController({
+      trigger,
+      layer,
+      disabled: () => trigger.matches(':disabled, [aria-disabled="true"]'),
+    });
+    controllerRef.current = controller;
+    controller.updateShape(shapeTransitionRef.current);
+
+    return () => {
+      controller.destroy();
+      if (controllerRef.current === controller) {
+        controllerRef.current = null;
+      }
+    };
+  }, [stateClassName]);
+
+  useEffect(() => {
+    controllerRef.current?.updateShape(shapeTransition);
+  }, [shapeTransition]);
 
   return (
     <div
       ref={ref}
+      aria-hidden="true"
       className={styles.stateLayer}
       style={{
         ['--state-color' as any]: `var(--default-color, var(--color-${colorName}))`,
         ...style,
       }}
     >
-      {isClient && <RippleEffect triggerRef={groupStateRef} />}
       {children}
     </div>
   );
 };
-// ... existing code ...
-const cardConfig: ClassNameComponent<StateInterface> = ({
-  isClient,
-  stateClassName,
-}) => ({
-  stateLayer: classNames([
-    'w-full top-0 left-0 h-full absolute pointer-events-none overflow-hidden',
-    stateClassName,
-  ]),
-});
 
-export const useStateStyle = createUseClassNames<StateInterface>(
-  'stateLayer',
-  cardConfig,
-);
+export const useStateStyle = createUseStyle(stateLayerStyle);

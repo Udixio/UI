@@ -79,14 +79,10 @@ const NavSidebar = ({
                             'bg-transparent shadow-none!': slug !== activePage,
                           })}
                           label={label}
-                          activated={slug === activePage}
-                          onToggle={
-                            slug !== activePage
-                              ? (value) => {
-                                  if (value) setActivePage(slug);
-                                }
-                              : undefined
+                          aria-current={
+                            slug === activePage ? 'page' : undefined
                           }
+                          onClick={() => setActivePage(slug)}
                           variant="tonal"
                         />
                       ))}
@@ -233,7 +229,7 @@ const TocSidebar = () => {
                   'text-primary': h.id === activeId,
                 },
               )}
-              activated={h.id === activeId}
+              aria-current={h.id === activeId ? 'location' : undefined}
               href={`#${h.id}`}
               onClick={(e) => handleClick(e, h.id)}
             >

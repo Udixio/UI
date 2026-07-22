@@ -19,6 +19,7 @@ export * from './progress-indicator.interface';
 export * from './side-sheet.interface';
 export * from './slider.interface';
 export * from './snackbar.interface';
+export * from './state-layer.interface';
 export * from './switch.interface';
 export * from './tab.interface';
 export * from './tabs.interface';

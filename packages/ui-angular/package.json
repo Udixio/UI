@@ -2,7 +2,9 @@
   "name": "@udixio/ui-angular",
   "version": "0.0.1",
   "peerDependencies": {
+    "@angular/common": "^21.0.0",
     "@angular/core": "^21.0.0",
+    "@angular/platform-browser": "^21.0.0",
     "@udixio/core": "workspace:*"
   },
   "sideEffects": false

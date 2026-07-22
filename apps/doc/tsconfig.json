@@ -2,7 +2,8 @@
   "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@udixio/ui-angular": ["../../packages/ui-angular/src/index.ts"]
     },
     "jsx": "react-jsx",
     "jsxImportSource": "react"

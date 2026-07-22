@@ -1,7 +1,9 @@
 # Écrire un composant (standard multi-framework)
 
-Le style vit **une seule fois** dans `@udixio/core` (fonction pure + données).
-Chaque framework ajoute une couche de liaison fine.
+Le style et les transitions de comportement vivent **une seule fois** dans
+`@udixio/core` (fonctions pures + données). Chaque framework ajoute une couche
+de liaison fine. Le contrat détaillé des états interactifs est défini dans
+[`component-behavior.md`](./component-behavior.md).
 
 ## 1. Cœur (`@udixio/core`), par composant
 
@@ -10,7 +12,7 @@ Chaque framework ajoute une couche de liaison fine.
 export interface XxxProps {           // DONNÉES agnostiques réellement câblées (personnalisables)
   variant?: ...; size?: ...; disabled?: boolean; /* callbacks à signature simple OK */
 }
-export interface XxxStates { isActive: boolean } // booléens CALCULÉS par le composant
+export interface XxxStates { isSelected: boolean } // état sémantique RÉSOLU
 export interface XxxInterface {
   type: 'button'; props: XxxProps; states: XxxStates; elements: ['xxx', ...];
 }
@@ -19,17 +21,24 @@ export const xxxStyle = defaultClassNames<XxxInterface>('xxx', xxxConfig); // PU
 ```
 
 Règles :
+
 - **`props`** = données agnostiques exposées ET transmises par le composant (pas « ce que lit le
   style par défaut »). Une prop déclarée mais non câblée (« creuse ») est **interdite** : la
   signature `RequiredNullable` force `déclaré == câblé` à la compilation.
-- **`states`** = booléens calculés (`isActive`, `isFocused`, `leadingIconInteractive`…). Jamais
+- **`states`** = valeurs calculées (`isPressed`, `isSelected`, `isFocused`,
+  `leadingIconInteractive`…). Jamais
   dans `props` (sinon ils fuient au DOM via `ReactProps`).
-- Pas de **type framework** dans le cœur (`ReactNode`, `RefObject`, `Transition`, signaux…). Pas
+- Pas de **type framework** dans le cœur (`ReactNode`, `RefObject`, signaux…). Pas
   d'`ActionOrLink` dans le contrat de style : lien/bouton (`href`, `as`) = couche framework.
 - **Les types agnostiques vont dans le cœur, même « renderables ».** `Icon`
   (`IconDefinition | SvgImport | string`) est agnostique → `icon?: Icon` vit dans `XxxProps`
   (partagé entre frameworks). Ne partent en couche framework que les types **réellement** liés à
-  un framework (`ReactNode`, `RefObject`, motion `Transition`).
+  un framework (`ReactNode`, `RefObject`). Le type `Transition` de l'API JavaScript de Motion est
+  agnostique : il vit dans le cœur lorsqu'une animation est exécutée par `@udixio/core/dom` pour
+  tous les adaptateurs.
+- Une icône passée comme chaîne SVG est un **asset statique de confiance**, produit par les
+  packages `@udixio/icons-*`. Les adaptateurs doivent la rendre de la même manière, mais ne doivent
+  jamais accepter du SVG provenant d'un utilisateur ou d'une API sans assainissement préalable.
 
 ## 2. React (`@udixio/ui-react`)
 
@@ -39,12 +48,16 @@ Le type de props React et le hook vivent **en haut du fichier composant** `Xxx.t
 ```ts
 // Xxx.tsx
 export type ReactXxxProps = ReactProps<XxxInterface> & {
-  children?: ReactNode; href?: string; transition?: Transition; // bindings framework uniquement
+  children?: ReactNode;
+  href?: string;
 };
 export const useXxxStyle = createUseStyle(xxxStyle);
 
-export const Xxx = (props: ReactXxxProps) => { /* … */ };
+export const Xxx = (props: ReactXxxProps) => {
+  /* … */
+};
 ```
+
 Le barrel `components/index.ts` exporte simplement `./Xxx`. Le composant assemble l'état complet
 (toutes les props + states + `className`) et appelle `useXxxStyle(state)`.
 
@@ -53,16 +66,17 @@ Le barrel `components/index.ts` exporte simplement `./Xxx`. Le composant assembl
 ```ts
 readonly variant = input<XxxProps['variant']>('...');   // un input par prop, valeur réelle
 readonly className = input<string | ClassNameComponent<XxxInterface>>();
-protected isActive = signal(false);
+protected isSelected = /* primitive d'état contrôlable */;
 protected styles = createStyle(xxxStyle, () => ({ /* toutes les props+states+className */ }));
 ```
+
 Contenu via `<ng-content>` ; events via `output()` ; `href`/`as` = inputs Angular. Sélecteur
 préfixé `lib-…`.
 
 ## 4. Personnalisation
 
 `className` accepte `string | (state) => Partial<Record<element, string>>`. La fonction reçoit
-l'état complet (interne `isActive` + externe `variant`, …) — d'où l'importance de la règle
+l'état complet (résolu `isSelected` + externe `variant`, …) — d'où l'importance de la règle
 « pas de prop creuse ».
 
 ## 5. Vérification du typage (obligatoire par composant)
@@ -82,7 +96,7 @@ sans erreur **sur son fichier** (l'appel `useXxxStyle({...})` doit ne contenir q
 > **Dette / fin de déroulé :** `ui-react` a des erreurs `tsc` pré-existantes (composants non
 > encore convertis + typage de rendu React). Un **gate CI `tsc --noEmit`** sur `ui-react` sera
 > **activé à la fin du déroulé**, une fois les 26 composants convertis et typecheck-propres —
-> même échéance que le retrait de `react`/`motion` du cœur.
+> même échéance que le retrait des dépendances React du cœur.
 
 **Limite connue des primitives :** `createUseStyle`/`createStyle` renvoient `Record<string,string>`,
 donc une faute de frappe sur une clé d'élément (`styles.buton`) n'est pas détectée. Améliorer les

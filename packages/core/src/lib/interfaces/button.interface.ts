@@ -1,7 +1,13 @@
 import { Icon } from '../icon';
+import type { Transition } from 'motion';
 
-type ButtonVariant = 'filled' | 'elevated' | 'tonal' | 'outlined' | 'text';
-type ButtonVariantAlias = 'primary' | 'secondary';
+export type ButtonVariant =
+  | 'filled'
+  | 'elevated'
+  | 'tonal'
+  | 'outlined'
+  | 'text';
+export type ButtonVariantAlias = 'primary' | 'secondary';
 
 export interface ButtonProps {
   /**
@@ -46,8 +52,21 @@ export interface ButtonProps {
 
   allowShapeTransformation?: boolean;
 
-  onToggle?: (isActive: boolean) => void;
-  activated?: boolean;
+  /** Motion transition shared by every framework for shape changes. */
+  transition?: Transition;
+
+  /** Enables the semantic pressed state and its visual treatment. */
+  toggleable?: boolean;
+
+  /**
+   * Controlled pressed state. Framework adapters expose the matching change
+   * event (`onPressedChange` in React, `pressedChange` in Angular).
+   */
+  pressed?: boolean;
+
+  /** Initial pressed state when `pressed` is not controlled. */
+  defaultPressed?: boolean;
+
   label?: string;
 }
 
@@ -56,6 +75,6 @@ type Elements = ['button', 'touchTarget', 'stateLayer', 'icon', 'label'];
 export interface ButtonInterface {
   type: 'button';
   props: ButtonProps;
-  states: { isActive: boolean };
+  states: { isPressed: boolean };
   elements: Elements;
 }

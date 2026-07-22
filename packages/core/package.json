@@ -14,6 +14,13 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "default": "./dist/index.js"
+    },
+    "./dom": {
+      "development": "./src/dom.ts",
+      "types": "./dist/dom.d.ts",
+      "import": "./dist/dom.js",
+      "require": "./dist/dom.cjs",
+      "default": "./dist/dom.js"
     }
   },
   "dependencies": {

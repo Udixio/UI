@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   type ProgressIndicatorInterface,
   progressIndicatorStyle,
@@ -6,14 +6,13 @@ import {
 } from '@udixio/core';
 
 import { motion } from 'motion/react';
+import { createCircularProgressController } from '@udixio/core/dom';
 import { createUseStyle } from '../utils/create-use-style';
 
 export type ReactProgressIndicatorProps =
   ReactProps<ProgressIndicatorInterface>;
 
-export const useProgressIndicatorStyle = createUseStyle(
-  progressIndicatorStyle,
-);
+export const useProgressIndicatorStyle = createUseStyle(progressIndicatorStyle);
 
 /**
  * @status beta
@@ -34,8 +33,8 @@ export const ProgressIndicator = ({
   ...restProps
 }: ReactProgressIndicatorProps): any => {
   const [completedPercentage, setCompletedPercentage] = useState(value);
-
-  const [transitionRotate] = useState(1.5);
+  const indeterminateSvgRef = useRef<SVGSVGElement>(null);
+  const indeterminateCircleRef = useRef<SVGCircleElement>(null);
 
   useEffect(() => {
     if (value > 100) {
@@ -46,23 +45,6 @@ export const ProgressIndicator = ({
     }
     setCompletedPercentage(value);
   }, [value]);
-
-  const [togglePercentage, setTogglePercentage] = useState(true);
-
-  const getTransitionRotate = () => {
-    return togglePercentage ? transitionRotate : transitionRotate * 0.5;
-  };
-
-  useEffect(() => {
-    if (variant === 'circular-indeterminate' && completedPercentage !== 100) {
-      const interval = setInterval(() => {
-        setCompletedPercentage(togglePercentage ? 20 : 40);
-        setTogglePercentage(!togglePercentage);
-      }, getTransitionRotate() * 1000);
-      return () => clearInterval(interval);
-    }
-    return;
-  }, [variant, togglePercentage, completedPercentage]);
 
   const [isVisible, setIsVisible] = useState(false);
 
@@ -79,6 +61,21 @@ export const ProgressIndicator = ({
     }
     return;
   }, [completedPercentage, transitionDuration]);
+
+  useEffect(() => {
+    if (
+      variant !== 'circular-indeterminate' ||
+      !indeterminateSvgRef.current ||
+      !indeterminateCircleRef.current
+    ) {
+      return;
+    }
+
+    return createCircularProgressController({
+      svg: indeterminateSvgRef.current,
+      circle: indeterminateCircleRef.current,
+    });
+  }, [variant]);
 
   const styles = useProgressIndicatorStyle({
     className,
@@ -153,28 +150,34 @@ export const ProgressIndicator = ({
           ></div>
         </div>
       )}
-      {(variant === 'circular-determinate' ||
-        variant == 'circular-indeterminate') && (
+      {variant === 'circular-indeterminate' && (
+        <svg
+          ref={indeterminateSvgRef}
+          width="48"
+          height="48"
+          viewBox="0 0 48 48"
+          className={styles.progressIndicator}
+          {...(restProps as any)}
+        >
+          <circle
+            ref={indeterminateCircleRef}
+            cx="50%"
+            cy="50%"
+            r="calc(50% - 2px)"
+            style={{ strokeLinecap: 'round' }}
+            className={styles.activeIndicator}
+          />
+        </svg>
+      )}
+      {variant === 'circular-determinate' && (
         <motion.svg
-          key={
-            variant === 'circular-indeterminate'
-              ? togglePercentage + ''
-              : 'static'
-          }
+          key="static"
           width="48"
           height="48"
           viewBox="0 0 48 48"
           initial={{ rotate: -90 }}
-          animate={{ rotate: variant === 'circular-indeterminate' ? 270 : -90 }}
-          transition={
-            variant === 'circular-indeterminate'
-              ? {
-                  repeat: Infinity,
-                  duration: getTransitionRotate(),
-                  ease: 'linear',
-                }
-              : { duration: transitionDuration / 1000 }
-          }
+          animate={{ rotate: -90 }}
+          transition={{ duration: transitionDuration / 1000 }}
           className={styles.progressIndicator}
           {...(restProps as any)}
         >
@@ -185,38 +188,20 @@ export const ProgressIndicator = ({
             style={{
               strokeLinecap: 'round',
             }}
-            initial={
-              variant === 'circular-indeterminate' ? 'hidden' : 'determinate'
-            }
-            animate={
-              variant === 'circular-indeterminate' ? 'visible' : 'determinate'
-            }
+            initial="determinate"
+            animate="determinate"
             className={styles.activeIndicator}
             variants={{
-              hidden: {
-                pathLength: togglePercentage ? 10 / 100 : 90 / 100,
-              },
-              visible: {
-                pathLength: togglePercentage ? 90 / 100 : 10 / 100,
-              },
               determinate: {
                 pathLength: completedPercentage / 100,
               },
             }}
             transition={{
-              pathLength:
-                variant === 'circular-indeterminate'
-                  ? {
-                      type: 'tween',
-                      ease: 'linear',
-                      duration: getTransitionRotate(),
-                      bounce: 0,
-                    }
-                  : {
-                      type: 'tween',
-                      ease: 'easeInOut',
-                      duration: transitionDuration / 1000,
-                    },
+              pathLength: {
+                type: 'tween',
+                ease: 'easeInOut',
+                duration: transitionDuration / 1000,
+              },
             }}
           />
         </motion.svg>

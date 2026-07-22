@@ -11,7 +11,7 @@ const getUdixioVite = async () => {
     return;
   } else {
     const dynamicPath = '@udixio/theme';
-    return (await import(dynamicPath)).vitePlugin;
+    return (await import(dynamicPath)).vitePlugin();
   }
 };
 
@@ -76,6 +76,7 @@ export default defineConfig(async () => ({
         'react-textarea-autosize',
         'tailwind-merge',
         'motion',
+        '@udixio/core/dom',
         '@udixio/theme',
         '@udixio/tailwind',
         'motion/react',

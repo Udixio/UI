@@ -1,52 +1,100 @@
-import type { ReactNode } from 'react';
-import type { Transition } from 'motion';
+import type {
+  AnchorHTMLAttributes,
+  ButtonHTMLAttributes,
+  ComponentProps,
+  MouseEventHandler,
+  ReactNode,
+  Ref,
+  SyntheticEvent,
+} from 'react';
 import {
-  classNames,
   buttonStyle,
+  getButtonProgressColor,
+  getButtonPressTransition,
+  getButtonShapeTransition,
+  getButtonStateColor,
+  type ButtonProps,
   type ButtonInterface,
-  type ReactProps,
+  type ComponentClassName,
 } from '@udixio/core';
 import { createUseStyle } from '../utils/create-use-style';
+import { useControllableState } from '../utils/use-controllable-state';
 import { Icon } from '../icon';
 import { ProgressIndicator } from './ProgressIndicator';
 import { State } from '../effects';
-import React, { useEffect, useRef } from 'react';
+import { useMemo, useRef } from 'react';
 
-export type ReactButtonProps = ReactProps<ButtonInterface> & {
-  children?: ReactNode;
-  href?: string;
-  transition?: Transition;
-};
+type ReactButtonOwnProps = ButtonProps &
+  ComponentClassName<ButtonInterface> & {
+    children?: ReactNode;
+    onPressedChange?: (pressed: boolean) => void;
+  };
+
+type ReactButtonActionProps = ReactButtonOwnProps &
+  Omit<
+    ButtonHTMLAttributes<HTMLButtonElement>,
+    keyof ReactButtonOwnProps | 'children' | 'className' | 'onClick'
+  > & {
+    href?: undefined;
+    ref?: Ref<HTMLButtonElement>;
+    onClick?: MouseEventHandler<HTMLButtonElement>;
+  };
+
+type ReactButtonLinkProps = ReactButtonOwnProps &
+  Omit<
+    AnchorHTMLAttributes<HTMLAnchorElement>,
+    keyof ReactButtonOwnProps | 'children' | 'className' | 'onClick' | 'href'
+  > & {
+    href: string;
+    ref?: Ref<HTMLAnchorElement>;
+    onClick?: MouseEventHandler<HTMLAnchorElement>;
+  };
+
+export type ReactButtonProps = ReactButtonActionProps | ReactButtonLinkProps;
+
+type NativeActionProps = Omit<
+  ComponentProps<'button'>,
+  keyof ReactButtonOwnProps | 'children' | 'className' | 'onClick'
+>;
+type NativeLinkProps = Omit<
+  ComponentProps<'a'>,
+  keyof ReactButtonOwnProps | 'children' | 'className' | 'onClick' | 'href'
+>;
+
+function getNativeElementProps(
+  props: ReactButtonActionProps,
+): NativeActionProps;
+function getNativeElementProps(props: ReactButtonLinkProps): NativeLinkProps;
+function getNativeElementProps(props: ReactButtonProps) {
+  const {
+    allowShapeTransformation: _allowShapeTransformation,
+    children: _children,
+    className: _className,
+    defaultPressed: _defaultPressed,
+    disabled: _disabled,
+    disableTextMargins: _disableTextMargins,
+    href: _href,
+    icon: _icon,
+    iconPosition: _iconPosition,
+    label: _label,
+    loading: _loading,
+    onClick: _onClick,
+    onPressedChange: _onPressedChange,
+    pressed: _pressed,
+    ref: _ref,
+    shape: _shape,
+    size: _size,
+    toggleable: _toggleable,
+    transition: _transition,
+    type: _type,
+    variant: _variant,
+    ...nativeProps
+  } = props;
+
+  return nativeProps;
+}
 
 export const useButtonStyle = createUseStyle(buttonStyle);
-
-/**
- * Resolves variant aliases to their actual variant values
- */
-function resolveVariantAlias(
-  variant?:
-    | 'filled'
-    | 'elevated'
-    | 'tonal'
-    | 'outlined'
-    | 'text'
-    | 'primary'
-    | 'secondary',
-): 'filled' | 'elevated' | 'tonal' | 'outlined' | 'text' {
-  const aliasMap = {
-    primary: 'filled',
-    secondary: 'tonal',
-  } as const;
-
-  if (variant && variant in aliasMap) {
-    return aliasMap[variant as keyof typeof aliasMap];
-  }
-
-  return (
-    (variant as 'filled' | 'elevated' | 'tonal' | 'outlined' | 'text') ||
-    'filled'
-  );
-}
 
 /**
  * Buttons prompt most actions in a UI
@@ -54,35 +102,110 @@ function resolveVariantAlias(
  * @category Action
  * @devx
  * - Requires `label` or children; used for visible text and a11y.
- * - `onToggle` uses internal state; pair with `activated` for controlled usage.
+ * - `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.
+ * - `toggleable` enables `aria-pressed` and `onPressedChange` notifications.
  * - `type` defaults to `'button'` to prevent accidental form submits.
  * @limitations
  * - When `href` is set with `disabled`, the link is made inert via `aria-disabled` and `tabIndex={-1}`.
  */
-export const Button = ({
-  variant = 'filled',
-  disabled = false,
-  type = 'button',
-  icon,
-  href,
-  label,
-  disableTextMargins,
-  className,
-  iconPosition = 'left',
-  loading = false,
-  shape = 'rounded',
-  onClick,
-  onToggle,
-  activated,
-  ref,
-  size = 'medium',
-  allowShapeTransformation = true,
-  transition,
-  children,
-  ...restProps
-}: ReactButtonProps) => {
-  if (children) label = children;
-  if (!label) {
+export const Button = (props: ReactButtonProps) => {
+  const {
+    variant = 'filled',
+    disabled = false,
+    type = 'button',
+    icon,
+    href,
+    label,
+    disableTextMargins,
+    className,
+    iconPosition = 'left',
+    loading = false,
+    shape = 'rounded',
+    toggleable = false,
+    pressed,
+    defaultPressed = false,
+    onPressedChange,
+    size = 'medium',
+    allowShapeTransformation = true,
+    transition,
+    children,
+  } = props;
+  const resolvedLabel = children ?? label;
+
+  const defaultButtonRef = useRef<HTMLButtonElement>(null);
+  const defaultLinkRef = useRef<HTMLAnchorElement>(null);
+  const [pressedState, setPressedState] = useControllableState({
+    value: pressed,
+    defaultValue: defaultPressed,
+    onChange: onPressedChange,
+    componentName: 'Button',
+    stateName: 'pressed',
+  });
+  const isPressed = toggleable && pressedState;
+
+  const shapeTransition = useMemo(
+    () =>
+      getButtonShapeTransition({
+        size,
+        shape,
+        allowShapeTransformation,
+        isPressed,
+        disabled: disabled || loading,
+        transition,
+      }),
+    [
+      allowShapeTransformation,
+      disabled,
+      isPressed,
+      loading,
+      shape,
+      size,
+      transition,
+    ],
+  );
+
+  const handlePress = (event: SyntheticEvent): boolean => {
+    const interaction = getButtonPressTransition({
+      disabled,
+      loading,
+      toggleable,
+      isPressed,
+    });
+
+    if (interaction.blocked) {
+      event.preventDefault();
+      event.stopPropagation();
+      return false;
+    }
+
+    if (interaction.nextPressed !== undefined) {
+      setPressedState(interaction.nextPressed);
+    }
+
+    return true;
+  };
+
+  const styles = useButtonStyle({
+    type,
+    icon,
+    iconPosition,
+    allowShapeTransformation,
+    transition,
+    size,
+    disableTextMargins,
+    shape,
+    disabled,
+    loading,
+    variant,
+    className,
+    isPressed,
+    toggleable,
+    pressed,
+    defaultPressed,
+    label,
+  });
+
+  if (!resolvedLabel) {
     if (
       typeof process !== 'undefined' &&
       process.env?.NODE_ENV !== 'production'
@@ -93,105 +216,22 @@ export const Button = ({
     }
     return null;
   }
-  variant = resolveVariantAlias(variant);
 
-  const isLink = !!href;
-  const ElementType = isLink ? 'a' : 'button';
-
-  const defaultRef = useRef<HTMLButtonElement | HTMLAnchorElement>(null);
-  const resolvedRef = ref || defaultRef;
-
-  const [isActive, setIsActive] = React.useState(activated);
-  useEffect(() => {
-    setIsActive(activated);
-  }, [activated]);
-
-  transition = { duration: 0.3, ...transition };
-
-  const handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
-    if (disabled) {
-      e.preventDefault();
-      return;
-    }
-    if (onToggle) {
-      setIsActive(!isActive);
-      onToggle(!isActive);
-    } else if (onClick) {
-      onClick(e);
-    }
-  };
-
-  const styles = useButtonStyle({
-    type,
-    icon,
-    iconPosition,
-    allowShapeTransformation,
-    size,
-    disableTextMargins,
-    shape,
-    disabled,
-    loading,
-    variant,
-    className,
-    isActive: isActive ?? false,
-    onToggle,
-    activated: isActive,
-    label,
-  });
   const iconElement = icon ? (
     <Icon icon={icon} className={styles.icon} />
-  ) : (
-    <></>
-  );
+  ) : null;
 
-  // Build element-specific HTML attributes
-  const elementProps: Record<string, any> = {};
-  if (isLink) {
-    if (disabled) {
-      elementProps['aria-disabled'] = true;
-      elementProps.tabIndex = -1;
-      elementProps.role = 'link';
-    } else {
-      elementProps.href = href;
-    }
-  } else {
-    elementProps.type = type;
-    elementProps.disabled = disabled;
-  }
-
-  return (
-    <ElementType
-      ref={resolvedRef}
-      className={styles.button}
-      {...elementProps}
-      {...(restProps as any)}
-      onClick={handleClick}
-      aria-pressed={onToggle ? isActive : undefined}
-      style={{ transition: transition.duration + 's' }}
-    >
+  const content = (
+    <>
       <div className={styles.touchTarget}></div>
       <State
-        style={{ transition: transition.duration + 's' }}
+        shapeTransition={shapeTransition}
         className={styles.stateLayer}
-        colorName={classNames(
-          variant === 'filled' && {
-            'on-surface-variant': !isActive && Boolean(onToggle),
-            'on-primary': isActive || !onToggle,
-          },
-          variant === 'elevated' && {
-            'on-primary': isActive && Boolean(onToggle),
-            primary: !isActive || !onToggle,
-          },
-          variant === 'tonal' && {
-            'on-secondary': isActive && Boolean(onToggle),
-            'on-secondary-container': !isActive || !onToggle,
-          },
-          variant === 'outlined' && {
-            'inverse-on-surface': isActive && Boolean(onToggle),
-            'on-surface-variant': !isActive || !onToggle,
-          },
-          variant === 'text' && 'primary',
-        )}
+        colorName={getButtonStateColor({
+          variant,
+          toggleable,
+          isPressed,
+        })}
         stateClassName={'state-ripple-group-[button]'}
       />
 
@@ -205,38 +245,62 @@ export const Button = ({
           <ProgressIndicator
             className={() => ({
               progressIndicator: 'h-6 w-6',
-              activeIndicator: classNames(
-                {
-                  '!stroke-primary': variant === 'elevated' && !disabled,
-                  '!stroke-on-surface/[38%]':
-                    variant === 'elevated' && disabled,
-                },
-                {
-                  '!stroke-on-primary': variant === 'filled' && !disabled,
-                  '!stroke-on-surface/[38%]': variant === 'filled' && disabled,
-                },
-                {
-                  '!stroke-on-secondary-container':
-                    variant === 'tonal' && !disabled,
-                  '!stroke-on-surface/[38%]': variant === 'tonal' && disabled,
-                },
-                {
-                  '!stroke-primary': variant === 'outlined' && !disabled,
-                  '!stroke-on-surface/[38%]':
-                    variant === 'outlined' && disabled,
-                },
-                {
-                  '!stroke-primary': variant === 'text' && !disabled,
-                  '!stroke-on-surface/[38%]': variant === 'text' && disabled,
-                },
-              ),
             })}
+            aria-hidden="true"
+            style={{ stroke: getButtonProgressColor({ variant, disabled }) }}
             variant={'circular-indeterminate'}
           />
         </div>
       )}
-      <span className={styles.label}>{label}</span>
+      <span className={styles.label}>{resolvedLabel}</span>
       {iconPosition === 'right' && iconElement}
-    </ElementType>
+    </>
+  );
+
+  const sharedElementProps = {
+    className: styles.button,
+    'aria-pressed': toggleable ? isPressed : undefined,
+    'aria-busy': loading || undefined,
+  };
+  const interactionBlocked = disabled || loading;
+
+  if (props.href !== undefined) {
+    const nativeProps = getNativeElementProps(props);
+    return (
+      <a
+        ref={props.ref ?? defaultLinkRef}
+        {...nativeProps}
+        {...sharedElementProps}
+        href={interactionBlocked ? undefined : href}
+        aria-disabled={interactionBlocked || undefined}
+        tabIndex={interactionBlocked ? -1 : nativeProps.tabIndex}
+        role={interactionBlocked ? 'link' : nativeProps.role}
+        onClick={(event) => {
+          if (handlePress(event)) {
+            props.onClick?.(event);
+          }
+        }}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  const nativeProps = getNativeElementProps(props);
+  return (
+    <button
+      ref={props.ref ?? defaultButtonRef}
+      {...nativeProps}
+      {...sharedElementProps}
+      type={type}
+      disabled={interactionBlocked}
+      onClick={(event) => {
+        if (handlePress(event)) {
+          props.onClick?.(event);
+        }
+      }}
+    >
+      {content}
+    </button>
   );
 };

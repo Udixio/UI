@@ -1,16 +1,45 @@
 ---
 import { Code } from 'astro:components';
 import { CodePreview } from '@/components/CodePreview';
+import type { ExampleFramework } from '@/stores/exampleFrameworkStore';
 
-const { 'data-code': dataCode, 'data-language': dataLanguage, ...htmlProps } =
-  Astro.props;
+type Props = {
+  codes?: Partial<Record<ExampleFramework, string>>;
+  id?: string;
+  'data-code'?: string;
+  'data-language'?: string;
+  [key: string]: unknown;
+};
+
+const {
+  codes,
+  id,
+  'data-code': dataCode,
+  'data-language': dataLanguage,
+  ...htmlProps
+} = Astro.props as Props;
+
+const frameworkLanguages: Record<ExampleFramework, 'tsx' | 'ts'> = {
+  react: 'tsx',
+  angular: 'ts',
+};
+const frameworkOrder: ExampleFramework[] = ['react', 'angular'];
+const frameworks = frameworkOrder.filter(
+  (framework) =>
+    Astro.slots.has(framework) && typeof codes?.[framework] === 'string',
+);
+const isMultiFramework = frameworks.length > 0;
+const rootId = id ?? `code-example-${crypto.randomUUID()}`;
 
 // Les blocs de code fenced sont rendus par Astro/MDX en `<pre><code class="language-XXX">code</code></pre>`,
 // sans que `data-code`/`data-language` ne soient injectés en props (le transformer Shiki `pre()`
 // n'est pas appelé dans ce projet, et expressive-code ne transmet pas le code au composant mappé
 // via `components={{ pre: Code }}`). On reconstruit donc la langue et le code source à partir du slot.
 const slotHtml =
-  (Astro.slots.has('default') && (await Astro.slots.render('default'))) || '';
+  (!isMultiFramework &&
+    Astro.slots.has('default') &&
+    (await Astro.slots.render('default'))) ||
+  '';
 
 // Langue : priorité à la prop, sinon extraite de la classe `language-XXX` du <code>.
 const langFromClass = slotHtml.match(/<code[^>]*class="[^"]*language-([\w-]+)/)?.[1];
@@ -30,9 +59,82 @@ const code =
     .replace(/&amp;/g, '&')
     .replace(/\n$/, '');
 ---
-{code != null && code !== '' ? (
+{isMultiFramework ? (
+  <div
+    id={rootId}
+    class="not-prose card-code mt-4 overflow-hidden rounded-2xl bg-surface-container-low"
+  >
+    <CodePreview
+      client:load
+      mode="multiframework"
+      rootId={rootId}
+      frameworks={frameworks}
+      sources={codes ?? {}}
+    />
+    <div class="min-h-32 bg-surface-bright">
+      {frameworks.includes('react') && (
+        <>
+          <section
+            data-example-panel
+            data-framework="react"
+            data-view="preview"
+            class="flex min-h-32 items-center justify-center p-8"
+          >
+            <slot name="react" />
+          </section>
+          <section
+            data-example-panel
+            data-framework="react"
+            data-view="code"
+            hidden
+            class="code-source overflow-auto p-4"
+          >
+            <Code
+              code={codes?.react ?? ''}
+              lang={frameworkLanguages.react}
+              theme="css-variables"
+              defaultColor={false}
+            />
+          </section>
+        </>
+      )}
+      {frameworks.includes('angular') && (
+        <>
+          <section
+            data-example-panel
+            data-framework="angular"
+            data-view="preview"
+            hidden={frameworks[0] !== 'angular'}
+            class="flex min-h-32 items-center justify-center p-8"
+          >
+            <slot name="angular" />
+          </section>
+          <section
+            data-example-panel
+            data-framework="angular"
+            data-view="code"
+            hidden
+            class="code-source overflow-auto p-4"
+          >
+            <Code
+              code={codes?.angular ?? ''}
+              lang={frameworkLanguages.angular}
+              theme="css-variables"
+              defaultColor={false}
+            />
+          </section>
+        </>
+      )}
+    </div>
+  </div>
+) : code != null && code !== '' ? (
   <CodePreview client:load code={code} preview={language == 'jsx' || language == 'tsx'}>
-    <Code code={code} lang={language ?? 'text'} defaultColor={false} />
+    <Code
+      code={code}
+      lang={language ?? 'text'}
+      theme="css-variables"
+      defaultColor={false}
+    />
   </CodePreview>
 ) : (
   <pre {...htmlProps}><slot /></pre>
@@ -40,5 +142,14 @@ const code =
 <style is:global>
   pre {
     text-wrap: auto;
+  }
+
+  .card-code [hidden] {
+    display: none !important;
+  }
+
+  .card-code .code-source pre {
+    margin: 0;
+    background: transparent !important;
   }
 </style>

@@ -14,6 +14,18 @@ describe('Button', () => {
 
     const button = screen.getByText('Test Button');
     expect(button).toBeInTheDocument();
+    expect(
+      button.closest('button')?.querySelector('.touch-target'),
+    ).not.toBeNull();
+    expect(
+      button.closest('button')?.querySelector('.state-layer'),
+    ).not.toBeNull();
+    expect(button.closest('button')).toHaveStyle({ borderRadius: '40px' });
+    expect(button.closest('button')).not.toHaveStyle({ transition: '0.3s' });
+    expect(button.closest('button')?.className).not.toContain('active:rounded');
+    expect(
+      button.closest('button')?.querySelector<HTMLElement>('.state-layer'),
+    ).toHaveStyle({ borderRadius: 'inherit' });
   });
 
   it('disables the button when disabled prop is true', () => {
@@ -68,6 +80,9 @@ describe('Button', () => {
     // Verify the label is visually hidden (invisible class) during loading
     const label = screen.getByText('Test Button');
     expect(label).toBeInTheDocument();
+    expect(button?.querySelector('svg')).toHaveStyle({
+      stroke: 'var(--color-on-primary)',
+    });
   });
 
   // ─── Sprint 1: type attribute ─────────────────────────────────
@@ -141,25 +156,108 @@ describe('Button', () => {
     errorSpy.mockRestore();
   });
 
-  // ─── Sprint 1: toggle a11y ────────────────────────────────────
+  // ─── Shared controlled/uncontrolled state contract ───────────
 
   it('sets aria-pressed on toggle buttons', () => {
-    const onToggle = vi.fn();
-    render(<Button label="Toggle" onToggle={onToggle} activated={false} />);
+    render(<Button label="Toggle" toggleable />);
 
     const button = screen.getByText('Toggle').closest('button');
     expect(button).toHaveAttribute('aria-pressed', 'false');
   });
 
-  it('updates aria-pressed when toggled', () => {
-    const onToggle = vi.fn();
-    render(<Button label="Toggle" onToggle={onToggle} activated={false} />);
+  it('owns state initialized by defaultPressed in uncontrolled mode', () => {
+    const onPressedChange = vi.fn();
+    render(
+      <Button
+        label="Toggle"
+        toggleable
+        defaultPressed
+        onPressedChange={onPressedChange}
+      />,
+    );
 
     const button = screen.getByText('Toggle').closest('button');
-    expect(button).toHaveAttribute('aria-pressed', 'false');
+    expect(button).toHaveAttribute('aria-pressed', 'true');
+    expect(button).toHaveStyle({ borderRadius: '16px' });
+    expect(button?.className).toContain('rounded-[16px]');
+    expect(button?.className).not.toContain('rounded-[40px]');
 
     fireEvent.click(button!);
-    expect(onToggle).toHaveBeenCalledWith(true);
+    expect(button).toHaveAttribute('aria-pressed', 'false');
+    expect(onPressedChange).toHaveBeenCalledWith(false);
+  });
+
+  it('requests controlled changes without mutating the owned value', () => {
+    const onPressedChange = vi.fn();
+    const { rerender } = render(
+      <Button
+        label="Toggle"
+        toggleable
+        pressed={false}
+        onPressedChange={onPressedChange}
+      />,
+    );
+
+    const button = screen.getByText('Toggle').closest('button');
+    fireEvent.click(button!);
+
+    expect(onPressedChange).toHaveBeenCalledWith(true);
+    expect(button).toHaveAttribute('aria-pressed', 'false');
+
+    rerender(
+      <Button
+        label="Toggle"
+        toggleable
+        pressed
+        onPressedChange={onPressedChange}
+      />,
+    );
+    expect(button).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('keeps action and pressed-change events independent', () => {
+    const onClick = vi.fn();
+    const onPressedChange = vi.fn();
+    render(
+      <Button
+        label="Toggle"
+        toggleable
+        onClick={onClick}
+        onPressedChange={onPressedChange}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button'));
+
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(onPressedChange).toHaveBeenCalledWith(true);
+  });
+
+  it.each(['disabled', 'loading'] as const)(
+    'blocks pressed changes while %s',
+    (blockedProp) => {
+      const onPressedChange = vi.fn();
+      render(
+        <Button
+          label="Toggle"
+          toggleable
+          onPressedChange={onPressedChange}
+          {...{ [blockedProp]: true }}
+        />,
+      );
+
+      fireEvent.click(screen.getByRole('button'));
+
+      expect(onPressedChange).not.toHaveBeenCalled();
+    },
+  );
+
+  it('normalizes variant aliases through the shared core behavior', () => {
+    render(<Button label="Secondary" variant="secondary" />);
+
+    expect(screen.getByRole('button').className).toContain(
+      'bg-secondary-container',
+    );
   });
 
   // ─── Sprint 1: axe-core a11y audit ───────────────────────────
@@ -193,24 +291,25 @@ describe('Button', () => {
   });
 
   it('has no a11y violations (toggle button)', async () => {
-    const { container } = render(
-      <Button label="Toggle" onToggle={() => {}} />,
-    );
+    const { container } = render(<Button label="Toggle" toggleable />);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
-  it('accepte className en fonction, lisant état interne (isActive) et externe (variant)', () => {
+  it('exposes semantic and external state to className functions', () => {
     render(
       <Button
         label="X"
         variant="tonal"
-        activated
-        className={(s) => ({ button: `v-${s.variant} a-${s.isActive}` })}
+        toggleable
+        defaultPressed
+        className={(state) => ({
+          button: `v-${state.variant} p-${state.isPressed}`,
+        })}
       />,
     );
     const button = screen.getByRole('button');
-    expect(button.className).toContain('v-tonal'); // prop externe câblée
-    expect(button.className).toContain('a-true'); // état interne câblé
+    expect(button.className).toContain('v-tonal');
+    expect(button.className).toContain('p-true');
   });
 });
