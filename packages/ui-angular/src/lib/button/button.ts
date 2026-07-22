@@ -41,6 +41,8 @@ export class Button {
   readonly type = input<NonNullable<ButtonProps['type']>>('button');
   readonly variant = input<ButtonProps['variant']>('filled');
   readonly size = input<ButtonProps['size']>('medium');
+  readonly icon = input<ButtonProps['icon']>();
+  readonly iconPosition = input<ButtonProps['iconPosition']>('left');
   readonly disabled = input<boolean>(false);
   readonly disableTextMargins = input<boolean>(false);
   readonly loading = input<boolean>(false);
@@ -59,6 +61,8 @@ export class Button {
     type: this.type(),
     variant: this.variant(),
     size: this.size(),
+    icon: this.icon(),
+    iconPosition: this.iconPosition(),
     disabled: this.disabled(),
     disableTextMargins: this.disableTextMargins(),
     loading: this.loading(),
