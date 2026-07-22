@@ -26,7 +26,9 @@ const frameworkLanguages: Record<ExampleFramework, 'tsx' | 'ts'> = {
 const frameworkOrder: ExampleFramework[] = ['react', 'angular'];
 const frameworks = frameworkOrder.filter(
   (framework) =>
-    Astro.slots.has(framework) && typeof codes?.[framework] === 'string',
+    Astro.slots.has(framework) &&
+    typeof codes?.[framework] === 'string' &&
+    codes[framework].trim() !== '',
 );
 const isMultiFramework = frameworks.length > 0;
 const rootId = id ?? `code-example-${crypto.randomUUID()}`;
@@ -93,7 +95,6 @@ const code =
               code={codes?.react ?? ''}
               lang={frameworkLanguages.react}
               theme="css-variables"
-              defaultColor={false}
             />
           </section>
         </>
@@ -120,7 +121,6 @@ const code =
               code={codes?.angular ?? ''}
               lang={frameworkLanguages.angular}
               theme="css-variables"
-              defaultColor={false}
             />
           </section>
         </>
@@ -133,7 +133,6 @@ const code =
       code={code}
       lang={language ?? 'text'}
       theme="css-variables"
-      defaultColor={false}
     />
   </CodePreview>
 ) : (
@@ -148,8 +147,33 @@ const code =
     display: none !important;
   }
 
-  .card-code .code-source pre {
+  .card-code .astro-code {
+    --astro-code-background: transparent;
+    --astro-code-foreground: #24292f;
+    --astro-code-token-constant: #0550ae;
+    --astro-code-token-string: #0a3069;
+    --astro-code-token-comment: #6e7781;
+    --astro-code-token-keyword: #cf222e;
+    --astro-code-token-parameter: #953800;
+    --astro-code-token-function: #8250df;
+    --astro-code-token-string-expression: #0a3069;
+    --astro-code-token-punctuation: #24292f;
+    --astro-code-token-link: #0969da;
     margin: 0;
     background: transparent !important;
   }
+
+  .dark .card-code .astro-code {
+    --astro-code-foreground: #e1e4e8;
+    --astro-code-token-constant: #79b8ff;
+    --astro-code-token-string: #9ecbff;
+    --astro-code-token-comment: #6a737d;
+    --astro-code-token-keyword: #f97583;
+    --astro-code-token-parameter: #ffab70;
+    --astro-code-token-function: #b392f0;
+    --astro-code-token-string-expression: #9ecbff;
+    --astro-code-token-punctuation: #e1e4e8;
+    --astro-code-token-link: #79b8ff;
+  }
+
 </style>
