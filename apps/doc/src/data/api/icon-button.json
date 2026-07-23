@@ -5,49 +5,46 @@
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/IconButton.tsx",
-      "description": "Icon buttons help people take minor actions with one tap",
+      "description": "Icon buttons expose a frequent action through one unambiguous icon.",
       "tags": {
-        "status": "beta",
+        "status": "stable",
         "category": "Action",
-        "devx": "- Requires `label` or children to provide an aria-label.\n- Uses `title` as tooltip text; native title attribute is suppressed.",
-        "limitations": "- Tooltip is always rendered (no explicit opt-out)."
+        "devx": "- Requires `label` and `icon`; arbitrary children are not accepted.\n- `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.\n- `toggleable` enables `aria-pressed` and `onPressedChange` on action buttons.",
+        "a11y": "- Uses native button/link semantics, a stable accessible name, a 48px target, and visible focus.",
+        "limitations": "- Disabled links are inert and removed from the tab order.\n- Navigation links ignore toggle state; use `aria-current` for the current destination.\n- Compose an explicit Tooltip when visual hover/focus help is required."
       },
       "methods": [],
       "props": {
-        "className": {
-          "name": "className",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
-          "required": false,
+        "label": {
+          "name": "label",
+          "description": "Accessible name announced for the icon-only control.",
+          "required": true,
           "type": {
-            "name": "string | ClassNameComponent<IconButtonInterface> | undefined"
+            "name": "string"
           },
           "defaultValue": null
         },
-        "size": {
-          "name": "size",
-          "description": "",
-          "required": false,
+        "icon": {
+          "name": "icon",
+          "description": "Icon shown in the resting state.",
+          "required": true,
           "type": {
-            "name": "\"xSmall\" | \"small\" | \"medium\" | \"large\" | \"xLarge\" | undefined"
+            "name": "Icon"
           },
-          "defaultValue": {
-            "value": "'medium'"
-          }
+          "defaultValue": null
         },
-        "width": {
-          "name": "width",
-          "description": "",
+        "pressedIcon": {
+          "name": "pressedIcon",
+          "description": "Optional icon shown while a toggle icon button is pressed.",
           "required": false,
           "type": {
-            "name": "\"default\" | \"narrow\" | \"wide\" | undefined"
+            "name": "Icon | undefined"
           },
-          "defaultValue": {
-            "value": "'default'"
-          }
+          "defaultValue": null
         },
         "variant": {
           "name": "variant",
-          "description": "",
+          "description": "Visual style.",
           "required": false,
           "type": {
             "name": "IconButtonVariant | undefined"
@@ -56,20 +53,31 @@
             "value": "'standard'"
           }
         },
-        "disabled": {
-          "name": "disabled",
-          "description": "",
+        "size": {
+          "name": "size",
+          "description": "Visual size; every option retains at least a 48px touch target.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "IconButtonSize | undefined"
           },
           "defaultValue": {
-            "value": "false"
+            "value": "'medium'"
           }
         },
-        "activated": {
-          "name": "activated",
-          "description": "",
+        "width": {
+          "name": "width",
+          "description": "Horizontal container width.",
+          "required": false,
+          "type": {
+            "name": "IconButtonWidth | undefined"
+          },
+          "defaultValue": {
+            "value": "'default'"
+          }
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Disables interaction.",
           "required": false,
           "type": {
             "name": "boolean | undefined"
@@ -80,7 +88,7 @@
         },
         "shape": {
           "name": "shape",
-          "description": "The shape of the button defines whether it is squared or rounded.",
+          "description": "Resting container shape.",
           "required": false,
           "type": {
             "name": "\"squared\" | \"rounded\" | undefined"
@@ -89,16 +97,306 @@
             "value": "'rounded'"
           }
         },
-        "allowShapeTransformation": {
-          "name": "allowShapeTransformation",
-          "description": "",
+        "shapeFeedback": {
+          "name": "shapeFeedback",
+          "description": "Shape feedback shown for accepted press and toggle interactions.",
+          "required": false,
+          "type": {
+            "name": "ButtonShapeFeedback | undefined"
+          },
+          "defaultValue": {
+            "value": "'morph'"
+          }
+        },
+        "transition": {
+          "name": "transition",
+          "description": "Motion transition shared by every framework for shape changes.",
+          "required": false,
+          "type": {
+            "name": "Transition | undefined"
+          },
+          "defaultValue": null
+        },
+        "toggleable": {
+          "name": "toggleable",
+          "description": "Enables semantic pressed state for action buttons.",
           "required": false,
           "type": {
             "name": "boolean | undefined"
           },
           "defaultValue": {
-            "value": "true"
+            "value": "false"
           }
+        },
+        "pressed": {
+          "name": "pressed",
+          "description": "Controlled pressed state.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null
+        },
+        "defaultPressed": {
+          "name": "defaultPressed",
+          "description": "Initial pressed state when `pressed` is not controlled.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<IconButtonInterface> | undefined"
+          },
+          "defaultValue": null
+        },
+        "onPressedChange": {
+          "name": "onPressedChange",
+          "description": "Notifies an accepted toggle-state request.",
+          "required": false,
+          "type": {
+            "name": "((pressed: boolean) => void) | undefined"
+          },
+          "defaultValue": null
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/icon-button/icon-button.ts",
+      "description": "Icon buttons expose a frequent action through one unambiguous icon.",
+      "tags": {
+        "status": "stable",
+        "category": "Action",
+        "devx": "- Requires the `label` and `icon` inputs.\n- `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.\n- `toggleable` enables `aria-pressed` and the `pressedChange` output.",
+        "a11y": "- Uses native button/link semantics, a stable accessible name, a 48px target, and visible focus.",
+        "limitations": "- Disabled links are inert and removed from the tab order.\n- Navigation links ignore toggle state; use `aria-current` for the current destination."
+      },
+      "inputs": {
+        "label": {
+          "name": "label",
+          "description": "Accessible name announced for the icon-only control.",
+          "required": true,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "icon": {
+          "name": "icon",
+          "description": "Icon shown in the resting state.",
+          "required": true,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "pressedIcon": {
+          "name": "pressedIcon",
+          "description": "Optional icon shown while a toggle icon button is pressed.",
+          "required": false,
+          "type": {
+            "name": "Icon | undefined"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Visual style.",
+          "required": false,
+          "type": {
+            "name": "IconButtonVariant | undefined"
+          },
+          "defaultValue": {
+            "value": "'standard'"
+          }
+        },
+        "size": {
+          "name": "size",
+          "description": "Visual size; every option retains at least a 48px touch target.",
+          "required": false,
+          "type": {
+            "name": "IconButtonSize | undefined"
+          },
+          "defaultValue": {
+            "value": "'medium'"
+          }
+        },
+        "width": {
+          "name": "width",
+          "description": "Horizontal container width.",
+          "required": false,
+          "type": {
+            "name": "IconButtonWidth | undefined"
+          },
+          "defaultValue": {
+            "value": "'default'"
+          }
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Disables interaction.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "shape": {
+          "name": "shape",
+          "description": "Resting container shape.",
+          "required": false,
+          "type": {
+            "name": "\"squared\" | \"rounded\" | undefined"
+          },
+          "defaultValue": {
+            "value": "'rounded'"
+          }
+        },
+        "shapeFeedback": {
+          "name": "shapeFeedback",
+          "description": "Shape feedback shown for accepted press and toggle interactions.",
+          "required": false,
+          "type": {
+            "name": "\"morph\" | \"none\""
+          },
+          "defaultValue": {
+            "value": "'morph'"
+          }
+        },
+        "transition": {
+          "name": "transition",
+          "description": "Motion transition shared by every framework for shape changes.",
+          "required": false,
+          "type": {
+            "name": "Transition | undefined"
+          },
+          "defaultValue": null
+        },
+        "toggleable": {
+          "name": "toggleable",
+          "description": "Enables semantic pressed state for action buttons.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "pressed": {
+          "name": "pressed",
+          "description": "Controlled pressed state.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null
+        },
+        "defaultPressed": {
+          "name": "defaultPressed",
+          "description": "Initial pressed state when `pressed` is not controlled.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<IconButtonInterface>"
+          },
+          "defaultValue": null
+        },
+        "href": {
+          "name": "href",
+          "description": "Navigation destination; switches the inner element to a native link.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "target": {
+          "name": "target",
+          "description": "Native link browsing-context target.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "rel": {
+          "name": "rel",
+          "description": "Native link relationship tokens.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "tabIndex": {
+          "name": "tabIndex",
+          "description": "Tab order override applied to the inner interactive element.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
+        "title": {
+          "name": "title",
+          "description": "Optional native advisory title; no tooltip is generated implicitly.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "type": {
+          "name": "type",
+          "description": "Native action button type.",
+          "required": false,
+          "type": {
+            "name": "\"button\" | \"submit\" | \"reset\""
+          },
+          "defaultValue": {
+            "value": "'button'"
+          }
+        },
+        "ariaCurrent": {
+          "name": "ariaCurrent",
+          "description": "Current-item state for navigation links.",
+          "required": false,
+          "type": {
+            "name": "boolean | \"page\" | \"step\" | \"location\" | \"date\" | \"time\" | undefined"
+          },
+          "defaultValue": null,
+          "alias": "aria-current"
+        }
+      },
+      "outputs": {
+        "pressedChange": {
+          "name": "pressedChange",
+          "description": "Emits an accepted pressed-state request and supports `[(pressed)]`.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
         }
       }
     }

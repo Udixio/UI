@@ -5,27 +5,37 @@
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/Fab.tsx",
-      "description": "Floating action buttons (FABs) help people take primary actions",
+      "description": "Floating action buttons expose the primary action on a screen.",
       "tags": {
-        "status": "beta",
+        "status": "stable",
         "category": "Action",
-        "devx": "- Requires `label` or children; icon-only still needs a label for a11y.",
-        "limitations": "- No built-in positioning; placement is handled by the layout."
+        "devx": "- Requires `label` and `icon`; arbitrary children are not accepted.\n- `type` defaults to `'button'` to prevent accidental form submissions.",
+        "a11y": "- Uses native button/link semantics, a stable accessible name, a 48px target, and visible focus.",
+        "limitations": "- No built-in positioning; placement is handled by layout.\n- Disabled links are inert and removed from the tab order.\n- Compose an explicit Tooltip for non-extended FABs when visual help is required."
       },
       "methods": [],
       "props": {
-        "className": {
-          "name": "className",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
-          "required": false,
+        "label": {
+          "name": "label",
+          "description": "Accessible name and extended visible text.",
+          "required": true,
           "type": {
-            "name": "string | ClassNameComponent<FabInterface> | undefined"
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "icon": {
+          "name": "icon",
+          "description": "Icon representing the primary action.",
+          "required": true,
+          "type": {
+            "name": "Icon"
           },
           "defaultValue": null
         },
         "variant": {
           "name": "variant",
-          "description": "",
+          "description": "Visual color treatment.",
           "required": false,
           "type": {
             "name": "FabVariant | undefined"
@@ -36,10 +46,10 @@
         },
         "size": {
           "name": "size",
-          "description": "",
+          "description": "Visual size.",
           "required": false,
           "type": {
-            "name": "\"small\" | \"medium\" | \"large\" | undefined"
+            "name": "FabSize | undefined"
           },
           "defaultValue": {
             "value": "'medium'"
@@ -47,7 +57,7 @@
         },
         "extended": {
           "name": "extended",
-          "description": "",
+          "description": "Displays the visible text label beside the icon.",
           "required": false,
           "type": {
             "name": "boolean | undefined"
@@ -55,8 +65,199 @@
           "defaultValue": {
             "value": "false"
           }
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Disables interaction.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<FabInterface> | undefined"
+          },
+          "defaultValue": null
         }
       }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/fab/fab.ts",
+      "description": "Floating action buttons expose the primary action on a screen.",
+      "tags": {
+        "status": "stable",
+        "category": "Action",
+        "devx": "- Requires the `label` and `icon` inputs.\n- `type` defaults to `'button'` to prevent accidental form submissions.",
+        "a11y": "- Uses native button/link semantics, a stable accessible name, a 48px target, and visible focus.",
+        "limitations": "- No built-in positioning; placement is handled by layout.\n- Disabled links are inert and removed from the tab order."
+      },
+      "inputs": {
+        "label": {
+          "name": "label",
+          "description": "Accessible name and extended visible text.",
+          "required": true,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "icon": {
+          "name": "icon",
+          "description": "Icon representing the primary action.",
+          "required": true,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Visual color treatment.",
+          "required": false,
+          "type": {
+            "name": "FabVariant | undefined"
+          },
+          "defaultValue": {
+            "value": "'primary'"
+          }
+        },
+        "size": {
+          "name": "size",
+          "description": "Visual size.",
+          "required": false,
+          "type": {
+            "name": "FabSize | undefined"
+          },
+          "defaultValue": {
+            "value": "'medium'"
+          }
+        },
+        "extended": {
+          "name": "extended",
+          "description": "Displays the visible text label beside the icon.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Disables interaction.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<FabInterface>"
+          },
+          "defaultValue": null
+        },
+        "href": {
+          "name": "href",
+          "description": "Navigation destination; switches the inner element to a native link.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "target": {
+          "name": "target",
+          "description": "Native link browsing-context target.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "rel": {
+          "name": "rel",
+          "description": "Native link relationship tokens.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "tabIndex": {
+          "name": "tabIndex",
+          "description": "Tab order override applied to the inner interactive element.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
+        "title": {
+          "name": "title",
+          "description": "Optional native advisory title; no tooltip is generated implicitly.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "type": {
+          "name": "type",
+          "description": "Native action button type.",
+          "required": false,
+          "type": {
+            "name": "\"button\" | \"submit\" | \"reset\""
+          },
+          "defaultValue": {
+            "value": "'button'"
+          }
+        },
+        "ariaCurrent": {
+          "name": "ariaCurrent",
+          "description": "Current-item state for navigation links.",
+          "required": false,
+          "type": {
+            "name": "boolean | \"page\" | \"step\" | \"location\" | \"date\" | \"time\" | undefined"
+          },
+          "defaultValue": null,
+          "alias": "aria-current"
+        },
+        "ariaExpanded": {
+          "name": "ariaExpanded",
+          "description": "Expanded state forwarded to the inner interactive element.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null,
+          "alias": "aria-expanded"
+        },
+        "ariaControls": {
+          "name": "ariaControls",
+          "description": "Id of the element controlled by this FAB.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null,
+          "alias": "aria-controls"
+        }
+      },
+      "outputs": {}
     }
   }
 }

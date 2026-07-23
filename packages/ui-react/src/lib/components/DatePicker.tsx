@@ -309,19 +309,17 @@ export const DatePicker = ({
           <div className="flex items-center">
             <IconButton
               size={'xSmall'}
-              allowShapeTransformation={false}
+              shapeFeedback="none"
               onClick={handlePrevMonth}
               icon={faChevronLeft}
               label="Previous month"
-              title={null}
             />
             <IconButton
               size={'xSmall'}
-              allowShapeTransformation={false}
+              shapeFeedback="none"
               onClick={handleNextMonth}
               icon={faChevronRight}
               label="Next month"
-              title={null}
             />
           </div>
         )}

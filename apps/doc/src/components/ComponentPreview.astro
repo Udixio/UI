@@ -111,10 +111,15 @@ const { id } = Astro.props as PreviewProps;
   }
   {
     id === 'fab-menu' && (
-      <FabMenu icon={iAdd} label="Create" defaultOpen={true}>
-        <Button label="New doc" />
-        <Button label="Upload" />
-      </FabMenu>
+      <FabMenu
+        icon={iAdd}
+        label="Create"
+        defaultOpen={true}
+        actions={[
+          { id: 'document', label: 'New doc' },
+          { id: 'upload', label: 'Upload' },
+        ]}
+      />
     )
   }
   {

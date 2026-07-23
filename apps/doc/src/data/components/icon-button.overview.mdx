@@ -1,158 +1,65 @@
 ---
 ---
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import { CodePreview } from '@/components/CodePreview.js';
-import { iAdd } from '@udixio/icons-rounded-400/add';
-import { iStar } from '@udixio/icons-rounded-400/star';
-import { iStarFilled } from '@udixio/icons-rounded-400/filled/star';
+import Code from '@/components/Code.astro';
+import IconButtonStatesReact from '@/examples/react/icon-button-states.tsx';
+import { IconButtonStatesAngular } from '@/examples/angular/icon-button-states.ts';
+import iconButtonStatesReactSource from '@/examples/react/icon-button-states.tsx?raw';
+import iconButtonStatesAngularSource from '@/examples/angular/icon-button-states.ts?raw';
 
 ## Usage
 
-Import IconButton from @udixio/ui-react when an action is best represented by an icon.
+`IconButton` represents a frequent action with one unambiguous icon. Import it
+from `@udixio/ui-react` or `@udixio/ui-angular`. `label` and `icon` are required:
+the icon stays decorative while the stable label names the native control.
 
-```bash
-import { IconButton } from "@udixio/ui-react"
-```
+<Code
+  codes={{
+    react: iconButtonStatesReactSource,
+    angular: iconButtonStatesAngularSource,
+  }}
+>
+  <IconButtonStatesReact slot="react" client:load />
+  <IconButtonStatesAngular slot="angular" client:load />
+</Code>
 
-<CodePreview
-  client:load
-  code={`
-  <div className="flex items-center gap-3">
-    <IconButton label="Add item" icon={iAdd} onClick={() => console.log('add')} />
-  </div>`}
-  scope={{ iAdd }}
-/>
+## Variants, sizes, and shape
 
-## Variants
+Variants are `standard`, `filled`, `tonal`, and `outlined`. Sizes range from
+`xSmall` to `xLarge`; widths are `narrow`, `default`, and `wide`. Every
+combination retains at least a 48 px target.
 
-<CodePreview
-  client:load
-  code={`
-  <div className="flex items-center gap-3">
-    <IconButton label="Standard" icon={iAdd} variant="standard" />
-    <IconButton label="Filled" icon={iAdd} variant="filled" />
-    <IconButton label="Tonal" icon={iAdd} variant="tonal" />
-    <IconButton label="Outlined" icon={iAdd} variant="outlined" />
-  </div>`}
-  scope={{ iAdd }}
-/>
+`shape` selects the rounded or squared resting shape. The shared Motion
+controller morphs the shape on accepted presses by default. Set
+`shapeFeedback="none"` to keep it static.
 
-## Sizes
+## Toggle buttons
 
-<CodePreview
-  client:load
-  code={`
-  <div className="flex items-center gap-3">
-    <IconButton variant="filled" label="XS" icon={iAdd} size="xSmall" />
-    <IconButton variant="filled" label="S" icon={iAdd} size="small" />
-    <IconButton variant="filled" label="M" icon={iAdd} size="medium" />
-    <IconButton variant="filled" label="L" icon={iAdd} size="large" />
-    <IconButton variant="filled" label="XL" icon={iAdd} size="xLarge" />
-  </div>`}
-  scope={{ iAdd }}
-/>
+Set `toggleable` for binary actions such as Favorite. `pressed` is controlled;
+`defaultPressed` initializes uncontrolled state. React emits
+`onPressedChange`; Angular emits `pressedChange`. `pressedIcon` optionally
+replaces the resting icon while pressed.
 
-## Shapes and widths
+Navigation links ignore toggle state. Use `aria-current` for the current
+destination instead.
 
-Control the button outline with `shape` and surface padding with `width`.
+## Accessibility
 
-<CodePreview
-  client:load
-  code={`
- <>
-  <div className="flex items-center gap-3">
-    <IconButton variant="filled" label="Rounded" icon={iAdd} shape="rounded" width="narrow" />
-    <IconButton variant="filled" label="Squared" icon={iAdd} shape="rounded" width="default" />
-    <IconButton variant="filled" label="Narrow" icon={iAdd} shape="rounded" width="wide" />
+Action mode renders a native button with `type="button"` by default. `href`
+switches to a native link. Disabled links lose their destination, receive
+`aria-disabled`, and leave the tab order. Focus is visible and icons are
+decorative.
 
-              </div>
-              <div className="flex items-center mt-8 gap-3">
-                <IconButton variant="filled" label="Rounded" icon={iAdd} shape="squared" width="narrow" />
-                <IconButton variant="filled" label="Squared" icon={iAdd} shape="squared" width="default" />
-                <IconButton variant="filled" label="Narrow" icon={iAdd} shape="squared" width="wide" />
-              </div>
-             </>
-`}
-  scope={{ iAdd }}
-/>
+No tooltip is created implicitly. Compose `Tooltip` explicitly when visual
+hover/focus help is useful.
 
-## States
+## Migrating to 3.0
 
-Use `disabled` to prevent user interaction
-
-<CodePreview
-  client:load
-  code={`
-  <div className="flex items-center gap-3">
-    <IconButton variant="filled" label="Disabled" icon={iAdd} disabled />
-  </div>`}
-  scope={{ iAdd }}
-/>
-
-## Toggle state
-
-Use \`onToggle\` and \`iconSelected\` to turn it into a toggle button.
-
-<CodePreview
-  client:load
-  code={`
-  <div className="flex items-center gap-3">
-    <IconButton
-      label="Standard"
-      icon={iStar}
-      iconSelected={iStarFilled}
-      onToggle={(active) => console.log('active:', active)}
-    />
-    <IconButton
-      variant="filled"
-      label="Filled"
-      icon={iStar}
-      iconSelected={iStarFilled}
-      onToggle={(active) => console.log('active:', active)}
-    />
-    <IconButton
-      variant="tonal"
-      label="Tonal"
-      icon={iStar}
-      iconSelected={iStarFilled}
-      onToggle={(active) => console.log('active:', active)}
-    />
-    <IconButton
-      variant="outlined"
-      label="Outlined"
-      icon={iStar}
-      iconSelected={iStarFilled}
-      onToggle={(active) => console.log('active:', active)}
-    />
-  </div>
-  `}
-  scope={{ iStar, iStarFilled }}
-/>
-
-## Link or action
-
-If the `href` prop is provided, it renders an anchor; otherwise it renders a button.
-
-<CodePreview
-  client:load
-  code={`
-  <div className="flex items-center gap-3">
-    <IconButton label="Go to Udixio" icon={iAdd} href="https://udixio.dev" />
-    <IconButton label="Run action" icon={iAdd} onClick={() => console.log('clicked')} />
-  </div>`}
-  scope={{ iAdd }}
-/>
+| Before                                | 3.0                                                   |
+| ------------------------------------- | ----------------------------------------------------- |
+| `iconSelected`                        | `pressedIcon`                                         |
+| `activated`                           | `pressed` or `defaultPressed`                         |
+| `onToggle`                            | `toggleable` plus `onPressedChange` / `pressedChange` |
+| `allowShapeTransformation={false}`    | `shapeFeedback="none"`                                |
+| text `children` as the label          | required `label` and `icon`                           |
+| implicit tooltip from `title`/`label` | compose `Tooltip` explicitly                          |

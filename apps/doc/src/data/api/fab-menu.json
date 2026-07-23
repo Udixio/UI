@@ -5,28 +5,79 @@
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/FabMenu.tsx",
-      "description": "Floating action buttons (FABs) help people take primary actions",
+      "description": "FabMenu exposes related primary actions from one toggleable FAB.",
       "tags": {
-        "status": "beta",
+        "status": "stable",
         "category": "Action",
-        "devx": "- Only `Button` children are rendered as actions.\n- Controlled via `open`/`onOpenChange` or `defaultOpen`.",
-        "a11y": "- No focus trap or Escape handling when open.",
-        "limitations": "- No outside-click handling; close uses the explicit close button."
+        "devx": "- Uses the framework-independent `actions` model instead of framework-specific children.\n- `open` is controlled; `defaultOpen` initializes uncontrolled usage.",
+        "a11y": "- The trigger exposes `aria-expanded`/`aria-controls`.\n- Opening focuses the first enabled action; Escape closes and restores trigger focus.\n- Outside press and selection close the group without applying false ARIA menu semantics.",
+        "limitations": "- Consumers own action-specific side effects through `onActionSelect`."
       },
       "methods": [],
       "props": {
-        "className": {
-          "name": "className",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
-          "required": false,
+        "label": {
+          "name": "label",
+          "description": "Accessible name of the primary trigger.",
+          "required": true,
           "type": {
-            "name": "string | ClassNameComponent<FabMenuInterface> | undefined"
+            "name": "string"
           },
           "defaultValue": null
         },
+        "icon": {
+          "name": "icon",
+          "description": "Icon shown while the menu is closed.",
+          "required": true,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "actions": {
+          "name": "actions",
+          "description": "Framework-independent action model.",
+          "required": true,
+          "type": {
+            "name": "readonly FabMenuAction[]"
+          },
+          "defaultValue": null
+        },
+        "closeIcon": {
+          "name": "closeIcon",
+          "description": "Optional icon shown while the menu is open.",
+          "required": false,
+          "type": {
+            "name": "Icon | undefined"
+          },
+          "defaultValue": {
+            "value": "DEFAULT_FAB_MENU_CLOSE_ICON"
+          }
+        },
+        "closeLabel": {
+          "name": "closeLabel",
+          "description": "Accessible name of the open/close trigger while open.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": {
+            "value": "`Close ${label}`"
+          }
+        },
+        "actionsLabel": {
+          "name": "actionsLabel",
+          "description": "Accessible name applied to the action group.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": {
+            "value": "`${label} actions`"
+          }
+        },
         "variant": {
           "name": "variant",
-          "description": "",
+          "description": "Trigger and action color family.",
           "required": false,
           "type": {
             "name": "FabMenuVariant | undefined"
@@ -37,10 +88,10 @@
         },
         "size": {
           "name": "size",
-          "description": "",
+          "description": "Trigger size.",
           "required": false,
           "type": {
-            "name": "\"small\" | \"medium\" | \"large\" | undefined"
+            "name": "FabSize | undefined"
           },
           "defaultValue": {
             "value": "'medium'"
@@ -48,7 +99,7 @@
         },
         "extended": {
           "name": "extended",
-          "description": "",
+          "description": "Shows the trigger text beside its icon.",
           "required": false,
           "type": {
             "name": "boolean | undefined"
@@ -57,9 +108,9 @@
             "value": "false"
           }
         },
-        "defaultOpen": {
-          "name": "defaultOpen",
-          "description": "",
+        "disabled": {
+          "name": "disabled",
+          "description": "Disables the trigger and every action.",
           "required": false,
           "type": {
             "name": "boolean | undefined"
@@ -67,6 +118,213 @@
           "defaultValue": {
             "value": "false"
           }
+        },
+        "open": {
+          "name": "open",
+          "description": "Controlled open state.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null
+        },
+        "defaultOpen": {
+          "name": "defaultOpen",
+          "description": "Initial open state when uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<FabMenuInterface> | undefined"
+          },
+          "defaultValue": null
+        },
+        "onOpenChange": {
+          "name": "onOpenChange",
+          "description": "Notifies an accepted open-state request.",
+          "required": false,
+          "type": {
+            "name": "((open: boolean) => void) | undefined"
+          },
+          "defaultValue": null
+        },
+        "onActionSelect": {
+          "name": "onActionSelect",
+          "description": "Notifies selection before the menu closes.",
+          "required": false,
+          "type": {
+            "name": "((action: FabMenuAction, index: number) => void) | undefined"
+          },
+          "defaultValue": null
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/fab-menu/fab-menu.ts",
+      "description": "FabMenu exposes related primary actions from one toggleable FAB.",
+      "tags": {
+        "status": "stable",
+        "category": "Action",
+        "devx": "- Uses the framework-independent `actions` input.\n- `open` is controlled; `defaultOpen` initializes uncontrolled usage.",
+        "a11y": "- The trigger exposes `aria-expanded`/`aria-controls`.\n- Opening focuses the first enabled action; Escape closes and restores trigger focus.\n- Outside press and selection close the action group.",
+        "limitations": "- Consumers own action-specific side effects through the `actionSelect` output."
+      },
+      "inputs": {
+        "label": {
+          "name": "label",
+          "description": "Accessible name of the primary trigger.",
+          "required": true,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "icon": {
+          "name": "icon",
+          "description": "Icon shown while the menu is closed.",
+          "required": true,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "actions": {
+          "name": "actions",
+          "description": "Framework-independent action model.",
+          "required": true,
+          "type": {
+            "name": "readonly FabMenuAction[]"
+          },
+          "defaultValue": null
+        },
+        "closeIcon": {
+          "name": "closeIcon",
+          "description": "Optional icon shown while the menu is open.",
+          "required": false,
+          "type": {
+            "name": "Icon | undefined"
+          },
+          "defaultValue": null
+        },
+        "closeLabel": {
+          "name": "closeLabel",
+          "description": "Accessible name of the open/close trigger while open.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "actionsLabel": {
+          "name": "actionsLabel",
+          "description": "Accessible name applied to the action group.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Trigger and action color family.",
+          "required": false,
+          "type": {
+            "name": "FabMenuVariant | undefined"
+          },
+          "defaultValue": {
+            "value": "'primary'"
+          }
+        },
+        "size": {
+          "name": "size",
+          "description": "Trigger size.",
+          "required": false,
+          "type": {
+            "name": "FabSize | undefined"
+          },
+          "defaultValue": {
+            "value": "'medium'"
+          }
+        },
+        "extended": {
+          "name": "extended",
+          "description": "Shows the trigger text beside its icon.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Disables the trigger and every action.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "open": {
+          "name": "open",
+          "description": "Controlled open state.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null
+        },
+        "defaultOpen": {
+          "name": "defaultOpen",
+          "description": "Initial open state when uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<FabMenuInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {
+        "openChange": {
+          "name": "openChange",
+          "description": "Emits an accepted open-state request and supports `[(open)]`.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        },
+        "actionSelect": {
+          "name": "actionSelect",
+          "description": "Emits the selected action and its source index before closing.",
+          "required": false,
+          "type": {
+            "name": "FabMenuActionSelectEvent"
+          },
+          "defaultValue": null
         }
       }
     }

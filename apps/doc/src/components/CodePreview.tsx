@@ -137,12 +137,13 @@ const MultiFrameworkToolbar = ({
           ))}
         </div>
         <UI.IconButton
-          onToggle={handleCopy}
+          toggleable
+          onPressedChange={handleCopy}
           size="xSmall"
           icon={iContentCopy}
           label={`Copy ${frameworkLabels[activeFramework]} code to clipboard`}
-          iconSelected={iContentCopyFilled}
-          activated={copyState === 'ok'}
+          pressedIcon={iContentCopyFilled}
+          pressed={copyState === 'ok'}
         />
       </div>
       <div ref={liveRef} className="sr-only" aria-live="polite" />
@@ -211,7 +212,8 @@ const LegacyCodePreview = ({
             </UI.Tabs>
           )}
           <UI.IconButton
-            onToggle={handleCopy}
+            toggleable
+            onPressedChange={handleCopy}
             size={'xSmall'}
             className={classNames('absolute right-2', {
               'top-1/2 -translate-y-1/2': preview,
@@ -219,8 +221,8 @@ const LegacyCodePreview = ({
             })}
             icon={iContentCopy}
             label={'Copy to clipboard'}
-            iconSelected={iContentCopyFilled}
-            activated={copyState == 'ok'}
+            pressedIcon={iContentCopyFilled}
+            pressed={copyState == 'ok'}
           />
         </div>
 

@@ -6,8 +6,13 @@
 - **button:** replace `allowShapeTransformation` with `shapeFeedback: 'morph' | 'none'`.
 - **button:** require exactly one React content source (`label` or `children`) and use explicit `aria-label` for non-text content.
 - **button:** replace the legacy `activated` / `onToggle` state contract with `toggleable`, `pressed`, `defaultPressed`, and `onPressedChange`.
+- **icon-button:** replace `iconSelected`, `activated`, `onToggle`, and `allowShapeTransformation` with `pressedIcon`, the shared pressed-state contract, and `shapeFeedback`.
+- **icon-button:** require `label` and `icon`, remove text children and the implicit tooltip, and make disabled links inert.
+- **fab:** require `label` and `icon`, remove text children and implicit tooltip behavior, default actions to `type="button"`, and make disabled links inert.
+- **fab:** remove the React-only `transition` prop; FAB motion is now owned by shared component behavior and surrounding layout.
+- **fab-menu:** replace React-only `Button` children and transition choreography with the shared `actions` model, `onActionSelect` / `actionSelect`, and cross-framework focus and dismissal behavior.
 
-No compatibility aliases are included. See the Button overview migration table for consumer changes.
+No compatibility aliases are included. See each component overview migration table for consumer changes.
 
 ## 2.11.0 (2026-04-11)
 
@@ -973,13 +978,13 @@ This was a version bump only for @udixio/ui-react to align it with other project
 ### 🚀 Features
 
 - **ui-react:** improve progress indicator styles and visibility logic ([b5c908b](https://github.com/Udixio/UI/commit/b5c908b))
-- ⚠️  **ui-react:** enhance components with `children` support and refine accessibility ([d8626a5](https://github.com/Udixio/UI/commit/d8626a5))
+- ⚠️ **ui-react:** enhance components with `children` support and refine accessibility ([d8626a5](https://github.com/Udixio/UI/commit/d8626a5))
 
 ### 🩹 Fixes
 
-- ⚠️  **ui-react:** remove redundant variant assignment in Button component ([62a124f](https://github.com/Udixio/UI/commit/62a124f))
+- ⚠️ **ui-react:** remove redundant variant assignment in Button component ([62a124f](https://github.com/Udixio/UI/commit/62a124f))
 
-### ⚠️  Breaking Changes
+### ⚠️ Breaking Changes
 
 - **ui-react:** The `filledTonal` variant behavior has been modified in the Button component. If you were relying on the previous redundant assignment logic, update your implementation to ensure consistent styling behavior.
 - **ui-react:** The `ariaLabel` prop has been replaced with `label` across all components (`Button`, `IconButton`, `Fab`, etc.) for better accessibility compliance. Update your components to use `label` instead of `ariaLabel`. Additionally, `Snackbar` component's `supportingText` prop has been renamed to `message`.

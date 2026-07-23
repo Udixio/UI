@@ -1,4 +1,4 @@
-import { IconButtonInterface } from '../interfaces/icon-button.interface';
+import type { IconButtonInterface } from '../interfaces/icon-button.interface';
 import {
   type ClassNameComponent,
   classNames,
@@ -8,150 +8,80 @@ import {
 const iconButtonConfig: ClassNameComponent<IconButtonInterface> = ({
   variant,
   disabled,
-  onToggle,
-  isActive,
+  isPressed,
+  toggleable,
   size,
   width,
   shape,
-  allowShapeTransformation,
+  shapeFeedback,
 }) => {
+  const usesSquaredShape =
+    shape === 'squared' || (shapeFeedback === 'morph' && isPressed);
+
   return {
     iconButton: classNames(
-      'rounded-full relative flex transition-all duration-300',
-      'group/icon-button cursor-pointer',
-      {
-        'cursor-default': disabled,
-      },
-      shape === 'rounded' && {
-        'rounded-[30px]': size === 'xSmall' || size == 'small',
+      'relative inline-flex min-h-12 min-w-12 items-center justify-center overflow-visible outline-none group/icon-button',
+      'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current',
+      disabled ? 'cursor-default' : 'cursor-pointer',
+      !usesSquaredShape && {
+        'rounded-[30px]': size === 'xSmall' || size === 'small',
         'rounded-[40px]': size === 'medium',
-        'rounded-[70px]': size === 'large' || size == 'xLarge',
+        'rounded-[70px]': size === 'large' || size === 'xLarge',
       },
-      (shape === 'squared' || (allowShapeTransformation && isActive)) && {
-        'rounded-[12px]': size === 'xSmall' || size == 'small',
+      usesSquaredShape && {
+        'rounded-[12px]': size === 'xSmall' || size === 'small',
         'rounded-[16px]': size === 'medium',
-        'rounded-[28px]': size === 'large' || size == 'xLarge',
+        'rounded-[28px]': size === 'large' || size === 'xLarge',
       },
-      allowShapeTransformation &&
-        !disabled && {
-          'active:rounded-[12px]': size === 'xSmall' || size == 'small',
-          'active:rounded-[16px]': size === 'medium',
-          'active:rounded-[28px]': size === 'large' || size == 'xLarge',
-        },
-      variant === 'filled' && [
-        !disabled && {
-          'bg-surface-container': !isActive && Boolean(onToggle),
-          'bg-primary': isActive || !onToggle,
-        },
-        Boolean(disabled) && 'bg-on-surface/[0.12]',
-      ],
-      variant === 'tonal' && [
-        !disabled && {
-          'bg-secondary-container text-on-secondary-container':
-            !isActive && Boolean(onToggle),
-          'bg-secondary text-on-secondary': isActive || !onToggle,
-        },
-        Boolean(disabled) && 'bg-on-surface/[0.12]',
-      ],
-      variant === 'outlined' && [
-        !disabled && {
-          'border border-outline': !isActive,
-          'border border-transparent bg-inverse-surface': isActive,
-        },
-        Boolean(disabled) && {
-          'border border-on-surface/[0.12]': !isActive,
-          'border border-transparent bg-on-surface/[0.12]': isActive,
-        },
-      ],
+      variant === 'standard' && {
+        'text-on-surface-variant': !disabled && !isPressed,
+        'text-primary': !disabled && isPressed,
+      },
+      variant === 'filled' && {
+        'bg-surface-container text-primary':
+          !disabled && toggleable && !isPressed,
+        'bg-primary text-on-primary': !disabled && (!toggleable || isPressed),
+        'bg-on-surface/[0.12]': disabled,
+      },
+      variant === 'tonal' && {
+        'bg-secondary-container text-on-secondary-container':
+          !disabled && (!toggleable || !isPressed),
+        'bg-secondary text-on-secondary': !disabled && toggleable && isPressed,
+        'bg-on-surface/[0.12]': disabled,
+      },
+      variant === 'outlined' && {
+        'border border-outline text-on-surface-variant':
+          !disabled && !isPressed,
+        'border border-inverse-surface bg-inverse-surface text-inverse-on-surface':
+          !disabled && isPressed,
+        'border border-on-surface/[0.12]': disabled,
+      },
+      disabled && 'text-on-surface/[0.38]',
     ),
     touchTarget: classNames(
-      'absolute -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2 h-12 w-full',
+      'pointer-events-none absolute left-1/2 top-1/2 h-12 min-w-12 w-full -translate-x-1/2 -translate-y-1/2',
     ),
-    stateLayer: classNames(
-      'absolute top-0 left-0 h-full w-full overflow-hidden',
-      (shape === 'rounded' ||
-        (shape === 'squared' &&
-          onToggle &&
-          !disabled &&
-          isActive &&
-          allowShapeTransformation)) && {
-        'rounded-[30px]': size === 'xSmall' || size == 'small',
-        'rounded-[40px]': size === 'medium',
-        'rounded-[70px]': size === 'large' || size == 'xLarge',
-      },
-      (shape === 'squared' ||
-        (shape === 'rounded' &&
-          onToggle &&
-          !disabled &&
-          isActive &&
-          allowShapeTransformation)) && {
-        'rounded-[12px]': size === 'xSmall' || size == 'small',
-        'rounded-[16px]': size === 'medium',
-        'rounded-[28px]': size === 'large' || size == 'xLarge',
-      },
-      allowShapeTransformation &&
-        !disabled && {
-          'group-active/icon-button:rounded-[12px]':
-            size === 'xSmall' || size == 'small',
-          'group-active/icon-button:rounded-[16px]': size === 'medium',
-          'group-active/icon-button:rounded-[28px]':
-            size === 'large' || size == 'xLarge',
-        },
-      !disabled && [
-        variant === 'standard' && {
-          'state-on-surface-variant': !isActive,
-          'state-primary': isActive,
-        },
-        variant === 'filled' && {
-          'state-primary': !isActive && Boolean(onToggle),
-          'state-inverse-on-surface': isActive || !onToggle,
-        },
-        variant === 'tonal' && {
-          'state-on-surface-variant': !isActive && Boolean(onToggle),
-          'state-on-secondary-container': isActive || !onToggle,
-        },
-        variant === 'outlined' && {
-          'state-on-surface-variant': !isActive,
-          'state-on-primary': isActive,
-        },
-      ],
-    ),
+    stateLayer: classNames('overflow-hidden'),
     icon: classNames(
-      '  transition-all duration-300',
-      { 'size-5 p-1.5': size === 'xSmall' },
-      { 'size-6 p-2': size === 'small' },
-      { 'size-6 p-4': size === 'medium' },
-      { 'size-8 p-8': size === 'large' },
-      { 'size-10 p-12': size === 'xLarge' },
-      width == 'narrow' && [
-        { 'px-1': size === 'xSmall' },
-        { 'px-1': size === 'small' },
-        { 'px-3': size === 'medium' },
-        { 'px-4': size === 'large' },
-        { 'px-8': size === 'xLarge' },
-      ],
-      width == 'wide' && [
-        { 'px-2.5': size === 'xSmall' },
-        { 'px-3.5': size === 'small' },
-        { 'px-6': size === 'medium' },
-        { 'px-12': size === 'large' },
-        { 'px-[72px]': size === 'xLarge' },
-      ],
-      !disabled && [
-        variant === 'standard' && {
-          'text-on-surface-variant': !isActive,
-          'text-primary': isActive,
-        },
-        variant === 'filled' && {
-          'text-primary': !isActive && Boolean(onToggle),
-          'text-on-primary': isActive || !onToggle,
-        },
-        variant === 'outlined' && {
-          'text-on-surface-variant': !isActive,
-          'text-inverse-on-surface': isActive,
-        },
-      ],
-      Boolean(disabled) && 'text-on-surface/[0.38]',
+      'pointer-events-none',
+      size === 'xSmall' && 'size-5 p-1.5',
+      size === 'small' && 'size-6 p-2',
+      size === 'medium' && 'size-6 p-4',
+      size === 'large' && 'size-8 p-8',
+      size === 'xLarge' && 'size-10 p-12',
+      width === 'narrow' && {
+        'px-1': size === 'xSmall' || size === 'small',
+        'px-3': size === 'medium',
+        'px-4': size === 'large',
+        'px-8': size === 'xLarge',
+      },
+      width === 'wide' && {
+        'px-2.5': size === 'xSmall',
+        'px-3.5': size === 'small',
+        'px-6': size === 'medium',
+        'px-12': size === 'large',
+        'px-[72px]': size === 'xLarge',
+      },
     ),
   };
 };

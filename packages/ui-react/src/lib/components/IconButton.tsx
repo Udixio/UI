@@ -1,157 +1,304 @@
-import React, { useEffect, useRef } from 'react';
-import type { Transition } from 'motion';
-
-import { Icon } from '../icon';
+import type {
+  AnchorHTMLAttributes,
+  ButtonHTMLAttributes,
+  MouseEventHandler,
+  Ref,
+  SyntheticEvent,
+} from 'react';
+import { useMemo } from 'react';
 import {
-  classNames,
-  type IconButtonInterface,
+  getIconButtonPressTransition,
+  getIconButtonShapeTransition,
+  getIconButtonStateColor,
   iconButtonStyle,
-  type ReactProps,
+  type ComponentClassName,
+  type IconButtonInterface,
+  type IconButtonProps,
 } from '@udixio/core';
 import { createUseStyle } from '../utils/create-use-style';
+import { useControllableState } from '../utils/use-controllable-state';
+import { Icon } from '../icon';
 import { State } from '../effects';
-import { Tooltip } from './Tooltip';
 
-export type { IconButtonVariant } from '@udixio/core';
+export type {
+  IconButtonSize,
+  IconButtonVariant,
+  IconButtonWidth,
+} from '@udixio/core';
 
-export type ReactIconButtonProps = ReactProps<IconButtonInterface> & {
-  // `children` sert de repli d'aria-label → typé string (comme l'ancien contrat)
-  children?: string;
-  href?: string;
-  transition?: Transition;
+type ReactIconButtonOwnProps = IconButtonProps & {
+  /** Classes or state-aware element classes applied through the shared style contract. */
+  className?: ComponentClassName<IconButtonInterface>['className'];
+  /** Notifies an accepted toggle-state request. */
+  onPressedChange?: (pressed: boolean) => void;
 };
+
+type ReactIconButtonActionProps = ReactIconButtonOwnProps &
+  Omit<
+    ButtonHTMLAttributes<HTMLButtonElement>,
+    keyof ReactIconButtonOwnProps | 'children' | 'className' | 'onClick'
+  > & {
+    href?: undefined;
+    ref?: Ref<HTMLButtonElement>;
+    onClick?: MouseEventHandler<HTMLButtonElement>;
+  };
+
+type ReactIconButtonLinkProps = ReactIconButtonOwnProps &
+  Omit<
+    AnchorHTMLAttributes<HTMLAnchorElement>,
+    | keyof ReactIconButtonOwnProps
+    | 'children'
+    | 'className'
+    | 'onClick'
+    | 'href'
+  > & {
+    href: string;
+    ref?: Ref<HTMLAnchorElement>;
+    onClick?: MouseEventHandler<HTMLAnchorElement>;
+  };
+
+export type ReactIconButtonProps =
+  | ReactIconButtonActionProps
+  | ReactIconButtonLinkProps;
 
 export const useIconButtonStyle = createUseStyle(iconButtonStyle);
 
 /**
- * Icon buttons help people take minor actions with one tap
- * @status beta
+ * Icon buttons expose a frequent action through one unambiguous icon.
+ *
+ * @status stable
  * @category Action
  * @devx
- * - Requires `label` or children to provide an aria-label.
- * - Uses `title` as tooltip text; native title attribute is suppressed.
+ * - Requires `label` and `icon`; arbitrary children are not accepted.
+ * - `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.
+ * - `toggleable` enables `aria-pressed` and `onPressedChange` on action buttons.
+ * @a11y
+ * - Uses native button/link semantics, a stable accessible name, a 48px target, and visible focus.
  * @limitations
- * - Tooltip is always rendered (no explicit opt-out).
+ * - Disabled links are inert and removed from the tab order.
+ * - Navigation links ignore toggle state; use `aria-current` for the current destination.
+ * - Compose an explicit Tooltip when visual hover/focus help is required.
  */
-export const IconButton = ({
-  variant = 'standard',
-  href,
-  disabled = false,
-  title,
-  label,
-  onToggle,
-  activated = false,
-  onClick,
-  icon,
-  size = 'medium',
-  iconSelected,
-  className,
-  ref,
-  width = 'default',
-  shape = 'rounded',
-  allowShapeTransformation = true,
-  transition,
-  children,
-  ...restProps
-}: ReactIconButtonProps) => {
-  if (children) label = children;
-  if (!label) {
-    throw new Error(
-      'IconButton component requires either a label prop or children content to provide an accessible aria-label',
-    );
-  }
-  if (!title && title !== null) {
-    title = label;
-  }
-
-  const [isActive, setIsActive] = React.useState(activated);
-
-  const handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
-    if (disabled) {
-      e.preventDefault();
-    }
-    if (onToggle) {
-      setIsActive(!isActive);
-      onToggle(!isActive);
-    } else if (onClick) {
-      onClick(e);
-    }
-  };
-
-  useEffect(() => {
-    setIsActive(activated);
-  }, [activated]);
-
-  // Détermine le type de l'élément à rendre : un bouton ou un lien
-  const ElementType = href ? 'a' : 'button';
-
+export const IconButton = (props: ReactIconButtonProps) => {
+  const {
+    variant = 'standard',
+    disabled = false,
+    label,
+    icon,
+    pressedIcon,
+    size = 'medium',
+    width = 'default',
+    shape = 'rounded',
+    shapeFeedback = 'morph',
+    transition,
+    toggleable = false,
+    pressed,
+    defaultPressed = false,
+    onPressedChange,
+    className,
+  } = props;
+  const isToggleButton = toggleable && props.href === undefined;
+  const [pressedState, setPressedState] = useControllableState({
+    value: pressed,
+    defaultValue: defaultPressed,
+    onChange: onPressedChange,
+    componentName: 'IconButton',
+    stateName: 'pressed',
+  });
+  const isPressed = isToggleButton && pressedState;
+  const shapeTransition = useMemo(
+    () =>
+      getIconButtonShapeTransition({
+        size,
+        shape,
+        shapeFeedback,
+        isPressed,
+        disabled,
+        transition,
+      }),
+    [disabled, isPressed, shape, shapeFeedback, size, transition],
+  );
   const styles = useIconButtonStyle({
     label,
     icon,
-    iconSelected,
+    pressedIcon,
     size,
     width,
-    onToggle,
     variant,
     disabled,
-    activated: isActive,
-    title,
     shape,
-    allowShapeTransformation,
-    isActive,
+    shapeFeedback,
+    transition,
+    toggleable: isToggleButton,
+    pressed,
+    defaultPressed,
+    isPressed,
     className,
   });
+  const hasAccessibleLabel = label.trim() !== '';
 
-  const defaultRef = useRef<HTMLDivElement>(null);
-  const resolvedRef = ref || defaultRef;
+  const handlePress = (event: SyntheticEvent): boolean => {
+    const interaction = getIconButtonPressTransition({
+      disabled,
+      toggleable: isToggleButton,
+      isPressed,
+    });
 
-  transition = { duration: 0.3, ...transition };
+    if (interaction.blocked) {
+      event.preventDefault();
+      event.stopPropagation();
+      return false;
+    }
+
+    if (interaction.nextPressed !== undefined) {
+      setPressedState(interaction.nextPressed);
+    }
+    return true;
+  };
+
+  const content = (
+    <>
+      <span className={styles.touchTarget} />
+      <State
+        shapeTransition={shapeTransition}
+        className={styles.stateLayer}
+        colorName={getIconButtonStateColor({
+          variant,
+          toggleable: isToggleButton,
+          isPressed,
+        })}
+        stateClassName="state-ripple-group-[icon-button]"
+      />
+      <Icon
+        icon={isPressed && pressedIcon ? pressedIcon : icon}
+        className={styles.icon}
+      />
+    </>
+  );
+
+  if (!hasAccessibleLabel) {
+    if (
+      typeof process !== 'undefined' &&
+      process.env?.NODE_ENV !== 'production'
+    ) {
+      console.error(
+        'Udixio UI: <IconButton> requires a non-empty `label`. Rendering nothing.',
+      );
+    }
+    return null;
+  }
+
+  if (props.href !== undefined) {
+    const {
+      className: _className,
+      defaultPressed: _defaultPressed,
+      disabled: _disabled,
+      icon: _icon,
+      label: _label,
+      onClick,
+      onPressedChange: _onPressedChange,
+      pressed: _pressed,
+      pressedIcon: _pressedIcon,
+      ref,
+      shape: _shape,
+      shapeFeedback: _shapeFeedback,
+      size: _size,
+      toggleable: _toggleable,
+      transition: _transition,
+      variant: _variant,
+      width: _width,
+      ...nativeProps
+    } = props;
+    void {
+      _className,
+      _defaultPressed,
+      _disabled,
+      _icon,
+      _label,
+      _onPressedChange,
+      _pressed,
+      _pressedIcon,
+      _shape,
+      _shapeFeedback,
+      _size,
+      _toggleable,
+      _transition,
+      _variant,
+      _width,
+    };
+
+    return (
+      <a
+        {...nativeProps}
+        ref={ref}
+        className={styles.iconButton}
+        href={disabled ? undefined : props.href}
+        aria-label={label}
+        aria-disabled={disabled || undefined}
+        tabIndex={disabled ? -1 : nativeProps.tabIndex}
+        role={disabled ? 'link' : nativeProps.role}
+        onClick={(event) => {
+          if (handlePress(event)) onClick?.(event);
+        }}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  const {
+    className: _className,
+    defaultPressed: _defaultPressed,
+    disabled: _disabled,
+    icon: _icon,
+    label: _label,
+    onClick,
+    onPressedChange: _onPressedChange,
+    pressed: _pressed,
+    pressedIcon: _pressedIcon,
+    ref,
+    shape: _shape,
+    shapeFeedback: _shapeFeedback,
+    size: _size,
+    toggleable: _toggleable,
+    transition: _transition,
+    variant: _variant,
+    width: _width,
+    type = 'button',
+    ...nativeProps
+  } = props;
+  void {
+    _className,
+    _defaultPressed,
+    _disabled,
+    _icon,
+    _label,
+    _onPressedChange,
+    _pressed,
+    _pressedIcon,
+    _shape,
+    _shapeFeedback,
+    _size,
+    _toggleable,
+    _transition,
+    _variant,
+    _width,
+  };
 
   return (
-    <ElementType
+    <button
+      {...nativeProps}
+      ref={ref}
+      type={type}
       disabled={disabled}
-      href={href}
-      style={{ transition: transition.duration + 's' }}
       className={styles.iconButton}
       aria-label={label}
-      {...(restProps as any)}
-      title={undefined}
-      onClick={handleClick}
-      ref={resolvedRef}
+      aria-pressed={isToggleButton ? isPressed : undefined}
+      onClick={(event) => {
+        if (handlePress(event)) onClick?.(event);
+      }}
     >
-      {title !== null && (
-        <Tooltip
-          targetRef={resolvedRef}
-          trigger={disabled ? null : undefined}
-          text={title}
-        ></Tooltip>
-      )}
-
-      <div className={styles.touchTarget} />
-      <State
-        style={{ transition: transition.duration + 's' }}
-        className={styles.stateLayer}
-        colorName={classNames(
-          variant === 'standard' && {
-            'on-surface-variant': !isActive,
-            'on-primary': isActive,
-          },
-          variant === 'filled' && {
-            'on-surface-variant': !isActive && Boolean(onToggle),
-            'on-primary': isActive || !onToggle,
-          },
-          variant === 'tonal' && {
-            'on-secondary': isActive && Boolean(onToggle),
-            'on-secondary-container': !isActive || !onToggle,
-          },
-          variant === 'outlined' && {
-            'inverse-on-surface': isActive && Boolean(onToggle),
-            'on-surface-variant': !isActive || !onToggle,
-          },
-        )}
-        stateClassName={'state-ripple-group-[icon-button]'}
-      />
-      {icon ? <Icon icon={icon} className={styles.icon} /> : children}
-    </ElementType>
+      {content}
+    </button>
   );
 };

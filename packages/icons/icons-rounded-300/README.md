@@ -41,9 +41,11 @@ import { iStarFilled } from '@udixio/icons-rounded-300/filled/star'
 
 // Toggle icon button
 <IconButton
+  label="Favorite"
   icon={iStar}
-  iconSelected={iStarFilled}
-  onToggle={(active) => console.log(active)}
+  pressedIcon={iStarFilled}
+  toggleable
+  onPressedChange={(pressed) => console.log(pressed)}
 />
 ```
 

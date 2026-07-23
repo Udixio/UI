@@ -1,4 +1,4 @@
-import { Icon } from '../icon';
+import type { Icon } from '../icon';
 
 export type FabVariant =
   | 'primary'
@@ -7,20 +7,26 @@ export type FabVariant =
   | 'primaryContainer'
   | 'secondaryContainer'
   | 'tertiaryContainer';
+export type FabSize = 'small' | 'medium' | 'large';
 
-type Props = {
-  variant?: FabVariant;
-  label?: string;
+export interface FabProps {
+  /** Accessible name and extended visible text. */
+  label: string;
+  /** Icon representing the primary action. */
   icon: Icon;
-  size?: 'small' | 'medium' | 'large';
+  /** Visual color treatment. @default 'primary' */
+  variant?: FabVariant;
+  /** Visual size. @default 'medium' */
+  size?: FabSize;
+  /** Displays the visible text label beside the icon. */
   extended?: boolean;
-};
-
-export type Elements = ['fab', 'stateLayer', 'icon', 'label'];
+  /** Disables interaction. */
+  disabled?: boolean;
+}
 
 export interface FabInterface {
   type: 'button';
-  props: Props;
+  props: FabProps;
   states: object;
-  elements: Elements;
+  elements: ['fab', 'touchTarget', 'stateLayer', 'icon', 'label'];
 }

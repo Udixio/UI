@@ -3,13 +3,15 @@ import {
   classNames,
   defaultClassNames,
 } from '../utils';
-import { FabMenuInterface } from '../interfaces/fab-menu.interface';
+import type { FabMenuInterface } from '../interfaces/fab-menu.interface';
 
-const fabMenuConfig: ClassNameComponent<FabMenuInterface> = () => ({
+const fabMenuConfig: ClassNameComponent<FabMenuInterface> = ({ disabled }) => ({
   fabMenu: classNames('relative inline-flex flex-col items-end'),
+  fab: classNames(disabled && 'pointer-events-none'),
   actions: classNames(
-    'flex flex-col gap-1 items-end absolute bottom-[calc(100%_+_8px)] right-0',
+    'absolute bottom-[calc(100%_+_8px)] right-0 z-10 flex min-w-max flex-col items-end gap-2',
   ),
+  action: classNames('max-w-full text-nowrap'),
 });
 
 export const fabMenuStyle = defaultClassNames<FabMenuInterface>(

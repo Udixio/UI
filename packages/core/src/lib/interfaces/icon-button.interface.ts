@@ -1,35 +1,43 @@
-import { Icon } from '../icon';
+import type { Transition } from 'motion';
+import type { Icon } from '../icon';
+import type { ButtonShapeFeedback } from './button.interface';
 
 export type IconButtonVariant = 'standard' | 'filled' | 'tonal' | 'outlined';
+export type IconButtonSize = 'xSmall' | 'small' | 'medium' | 'large' | 'xLarge';
+export type IconButtonWidth = 'default' | 'narrow' | 'wide';
 
-type Props = {
-  label?: string;
-  icon?: Icon;
-  iconSelected?: Icon;
-  size?: 'xSmall' | 'small' | 'medium' | 'large' | 'xLarge';
-  width?: 'default' | 'narrow' | 'wide';
-  onToggle?: (isActive: boolean) => void;
+export interface IconButtonProps {
+  /** Accessible name announced for the icon-only control. */
+  label: string;
+  /** Icon shown in the resting state. */
+  icon: Icon;
+  /** Optional icon shown while a toggle icon button is pressed. */
+  pressedIcon?: Icon;
+  /** Visual style. @default 'standard' */
   variant?: IconButtonVariant;
+  /** Visual size; every option retains at least a 48px touch target. */
+  size?: IconButtonSize;
+  /** Horizontal container width. @default 'default' */
+  width?: IconButtonWidth;
+  /** Disables interaction. */
   disabled?: boolean;
-  activated?: boolean;
-  title?: string | null;
-
-  /**
-   * The shape of the button defines whether it is squared or rounded.
-   */
+  /** Resting container shape. @default 'rounded' */
   shape?: 'squared' | 'rounded';
-
-  allowShapeTransformation?: boolean;
-};
-
-export type IconButtonStates = {
-  isActive: boolean;
-};
-type Elements = ['iconButton', 'stateLayer', 'touchTarget', 'icon'];
+  /** Shape feedback shown for accepted press and toggle interactions. */
+  shapeFeedback?: ButtonShapeFeedback;
+  /** Motion transition shared by every framework for shape changes. */
+  transition?: Transition;
+  /** Enables semantic pressed state for action buttons. */
+  toggleable?: boolean;
+  /** Controlled pressed state. */
+  pressed?: boolean;
+  /** Initial pressed state when `pressed` is not controlled. */
+  defaultPressed?: boolean;
+}
 
 export interface IconButtonInterface {
   type: 'button';
-  props: Props;
-  states: IconButtonStates;
-  elements: Elements;
+  props: IconButtonProps;
+  states: { isPressed: boolean };
+  elements: ['iconButton', 'stateLayer', 'touchTarget', 'icon'];
 }

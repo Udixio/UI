@@ -1,250 +1,216 @@
-import React, { useId, useRef, useState, type ReactNode } from 'react';
-import type { Transition } from 'motion';
+import { useEffect, useId, useRef, type HTMLAttributes, type Ref } from 'react';
 import {
-  type ButtonInterface,
   classNames,
-  type FabMenuInterface,
+  DEFAULT_FAB_MENU_CLOSE_ICON,
   fabMenuStyle,
-  type ReactProps,
+  type ComponentClassName,
+  type FabMenuAction,
+  type FabMenuInterface,
+  type FabMenuProps,
 } from '@udixio/core';
+import { createFabMenuController } from '@udixio/core/dom';
 import { createUseStyle } from '../utils/create-use-style';
+import { useControllableState } from '../utils/use-controllable-state';
 import { Fab } from './Fab';
 import { Button } from './Button';
-import { IconButton } from './IconButton';
-import { faClose } from '@fortawesome/free-solid-svg-icons';
-import { AnimatePresence, motion } from 'motion/react';
 
-export type { FabMenuVariant } from '@udixio/core';
+export type { FabMenuAction, FabMenuVariant } from '@udixio/core';
 
-export type ReactFabMenuProps = ReactProps<FabMenuInterface> & {
-  children?: ReactNode;
-  href?: string;
-  transition?: Transition;
+type ReactFabMenuOwnProps = FabMenuProps & {
+  /** Classes or state-aware element classes applied through the shared style contract. */
+  className?: ComponentClassName<FabMenuInterface>['className'];
+  /** Notifies an accepted open-state request. */
+  onOpenChange?: (open: boolean) => void;
+  /** Notifies selection before the menu closes. */
+  onActionSelect?: (action: FabMenuAction, index: number) => void;
+  ref?: Ref<HTMLDivElement>;
 };
+
+export type ReactFabMenuProps = ReactFabMenuOwnProps &
+  Omit<
+    HTMLAttributes<HTMLDivElement>,
+    keyof ReactFabMenuOwnProps | 'children' | 'className'
+  >;
 
 export const useFabMenuStyle = createUseStyle(fabMenuStyle);
 
 /**
- * Floating action buttons (FABs) help people take primary actions
- * @status beta
+ * FabMenu exposes related primary actions from one toggleable FAB.
+ *
+ * @status stable
  * @category Action
  * @devx
- * - Only `Button` children are rendered as actions.
- * - Controlled via `open`/`onOpenChange` or `defaultOpen`.
+ * - Uses the framework-independent `actions` model instead of framework-specific children.
+ * - `open` is controlled; `defaultOpen` initializes uncontrolled usage.
  * @a11y
- * - No focus trap or Escape handling when open.
+ * - The trigger exposes `aria-expanded`/`aria-controls`.
+ * - Opening focuses the first enabled action; Escape closes and restores trigger focus.
+ * - Outside press and selection close the group without applying false ARIA menu semantics.
  * @limitations
- * - No outside-click handling; close uses the explicit close button.
+ * - Consumers own action-specific side effects through `onActionSelect`.
  */
-export const FabMenu = ({
-  className,
-  label,
-  variant = 'primary',
-  size = 'medium',
-  href,
-  icon,
-  extended = false,
-  ref,
-  transition,
-  children,
-  open: openProp,
-  defaultOpen = false,
-  onOpenChange,
-  ...restProps
-}: ReactFabMenuProps) => {
-  transition = { duration: 0.3, ease: 'easeInOut', ...transition };
-
-  const defaultRef = useRef(null);
-  const resolvedRef = ref || defaultRef;
-
-  // Controlled/uncontrolled open state
-  const isControlled = typeof openProp === 'boolean';
-  const [internalOpen, setInternalOpen] = useState<boolean>(defaultOpen);
-  const open = isControlled ? (openProp as boolean) : internalOpen;
-  const setOpen = (next: boolean) => {
-    if (!isControlled) setInternalOpen(next);
-    onOpenChange?.(next);
-  };
-
-  const buttonChildren = React.Children.toArray(children).filter(
-    (child) => React.isValidElement(child) && child.type === Button,
-  );
-
-  const styles = useFabMenuStyle({
-    variant,
+export const FabMenu = (props: ReactFabMenuProps) => {
+  const {
     label,
     icon,
+    actions,
+    closeIcon = DEFAULT_FAB_MENU_CLOSE_ICON,
+    closeLabel = `Close ${label}`,
+    actionsLabel = `${label} actions`,
+    variant = 'primary',
+    size = 'medium',
+    extended = false,
+    disabled = false,
+    open: openProp,
+    defaultOpen = false,
+    onOpenChange,
+    onActionSelect,
+    className,
+    ref,
+    ...nativeProps
+  } = props;
+  const [open, setOpen] = useControllableState({
+    value: openProp,
+    defaultValue: defaultOpen,
+    onChange: onOpenChange,
+    componentName: 'FabMenu',
+    stateName: 'open',
+  });
+  const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const panelId = `fab-menu-${useId().replace(/:/g, '')}`;
+  const hasAccessibleLabel = label.trim() !== '';
+  const styles = useFabMenuStyle({
+    label,
+    icon,
+    actions,
+    closeIcon,
+    closeLabel,
+    actionsLabel,
+    variant,
     size,
     extended,
-    open,
+    disabled,
+    open: openProp,
     defaultOpen,
-    onOpenChange,
     isOpen: open,
     className,
   });
 
-  const MotionFab = motion.create(Fab);
-  const MotionIconButton = motion.create(IconButton);
-  const renderFab = (props: Record<string, unknown>) => (
-    <MotionFab
-      icon={icon}
-      extended={extended}
-      label={label}
-      variant={(variant + 'Container') as any}
-      size={size}
-      className={styles.fab + ' ' + (className ?? '')}
-      aria-expanded={open}
-      onClick={() => setOpen(true)}
-      style={{ transition: 'border-radius 0.3s ease-in-out' }}
-      transition={{
-        duration: transition.duration,
-        ease: 'easeInOut',
-        borderRadius: { duration: transition.duration, ease: 'easeInOut' },
-        background: { duration: transition.duration, ease: 'easeInOut' },
-        ...transition,
-      }}
-      {...props}
-    />
-  );
+  useEffect(() => {
+    if (
+      !hasAccessibleLabel ||
+      !open ||
+      !rootRef.current ||
+      !triggerRef.current ||
+      !panelRef.current
+    ) {
+      return;
+    }
 
-  const id = useId();
+    return createFabMenuController({
+      root: rootRef.current,
+      trigger: triggerRef.current,
+      panel: panelRef.current,
+      onDismiss: () => setOpen(false),
+    }).destroy;
+  }, [hasAccessibleLabel, open, setOpen]);
+
+  const restoreTriggerFocus = () => {
+    queueMicrotask(() => triggerRef.current?.focus());
+  };
+  const selectAction = (action: FabMenuAction, index: number) => {
+    if (disabled || action.disabled) return;
+    onActionSelect?.(action, index);
+    setOpen(false);
+    restoreTriggerFocus();
+  };
+  const triggerVariant = `${variant}Container` as const;
+
+  if (!hasAccessibleLabel) {
+    if (
+      typeof process !== 'undefined' &&
+      process.env?.NODE_ENV !== 'production'
+    ) {
+      console.error(
+        'Udixio UI: <FabMenu> requires a non-empty `label`. Rendering nothing.',
+      );
+    }
+    return null;
+  }
 
   return (
-    <div className={styles.fabMenu} ref={resolvedRef} {...restProps}>
-      <AnimatePresence>
-        {open && (
-          <div className={styles.actions} role="menu" aria-hidden={!open}>
-            {(() => {
-              const total = buttonChildren.length;
-              return buttonChildren.map((child, index) => {
-                const reverseIndex = total - 1 - index; // inverser l'ordre d'animation
-                const delay = (transition?.delay ?? 0) + reverseIndex * 0.06; // délai échelonné inversé, un peu plus marqué
+    <div
+      {...nativeProps}
+      ref={(node) => {
+        rootRef.current = node;
+        if (typeof ref === 'function') ref(node);
+        else if (ref) ref.current = node;
+      }}
+      className={styles.fabMenu}
+    >
+      <Fab
+        ref={triggerRef}
+        label={open ? closeLabel : label}
+        icon={open ? closeIcon : icon}
+        variant={triggerVariant}
+        size={size}
+        extended={extended}
+        disabled={disabled}
+        className={styles.fab}
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => setOpen(!open)}
+      />
 
-                const variants = {
-                  open: {
-                    overflow: 'visible',
-                    opacity: 1,
-                    width: 'auto',
-                    transition: {
-                      ...transition,
-                      delay,
-                      opacity: {
-                        delay: transition.duration! / 2 + delay,
-                      },
-                    },
-                  },
-                  close: {
-                    overflow: 'hidden',
-                    opacity: 0,
-                    width: 0,
-                    transition: {
-                      ...transition,
-                      delay,
-                      opacity: {
-                        duration: transition.duration! / 1.5,
-                      },
-                    },
-                  },
-                };
+      {open && (
+        <div
+          ref={panelRef}
+          id={panelId}
+          className={styles.actions}
+          role="group"
+          aria-label={actionsLabel}
+        >
+          {actions.map((action, index) => {
+            const actionClassName = () => ({
+              button: classNames(
+                styles.action,
+                variant === 'primary' &&
+                  'bg-primary-container text-on-primary-container',
+                variant === 'secondary' &&
+                  'bg-secondary-container text-on-secondary-container',
+                variant === 'tertiary' &&
+                  'bg-tertiary-container text-on-tertiary-container',
+              ),
+            });
+            const sharedActionProps = {
+              label: action.label,
+              icon: action.icon,
+              disabled: disabled || action.disabled,
+              variant: 'filled' as const,
+              shape: 'rounded' as const,
+              className: actionClassName,
+              'data-fab-menu-action': '',
+            };
 
-                return (
-                  <motion.div
-                    initial={'close'}
-                    animate={'open'}
-                    variants={variants}
-                    transition={transition}
-                    exit={'close'}
-                  >
-                    {React.cloneElement(
-                      child as React.ReactElement<ReactProps<ButtonInterface>>,
-                      {
-                        key: index,
-                        shape: 'rounded',
-                        variant: 'filled',
-                        className: () => ({
-                          button: classNames(
-                            'max-w-full overflow-hidden text-nowrap',
-                            {
-                              'px-0': !open,
-                              'bg-primary-container text-on-primary-container ':
-                                variant === 'primary',
-                              'bg-secondary-container text-on-secondary-container':
-                                variant === 'secondary',
-                              'bg-tertiary-container text-on-tertiary-container':
-                                variant === 'tertiary',
-                            },
-                          ),
-                          stateLayer: classNames({
-                            'state-on-primary-container': variant === 'primary',
-                            'state-on-secondary-container':
-                              variant === 'secondary',
-                            'state-on-tertiary-container':
-                              variant === 'tertiary',
-                          }),
-                        }),
-                      },
-                    )}
-                  </motion.div>
-                );
-              });
-            })()}
-          </div>
-        )}
-      </AnimatePresence>
-
-      {renderFab({
-        className: 'invisible pointer-events-none',
-      })}
-      <div className={'absolute right-0 top-0'}>
-        {!open &&
-          renderFab({
-            className: '',
-            layout: true,
-            layoutId: 'fab-menu' + id,
+            return action.href ? (
+              <Button
+                key={action.id}
+                {...sharedActionProps}
+                href={action.href}
+                onClick={() => selectAction(action, index)}
+              />
+            ) : (
+              <Button
+                key={action.id}
+                {...sharedActionProps}
+                onClick={() => selectAction(action, index)}
+              />
+            );
           })}
-        {open && (
-          <>
-            <MotionIconButton
-              layout
-              layoutId={'fab-menu' + id}
-              variant={'filled'}
-              className={() => ({
-                iconButton: classNames({
-                  'bg-primary text-on-primary': variant === 'primary',
-                  'bg-secondary text-on-secondary': variant === 'secondary',
-                  'bg-tertiary text-on-tertiary': variant === 'tertiary',
-                }),
-                stateLayer: classNames({
-                  '[--default-color:var(--color-on-primary)]':
-                    variant === 'primary',
-                  '[--default-color:var(--color-on-secondary)]':
-                    variant === 'secondary',
-                  '[--default-color:var(--color-on-tertiary)]':
-                    variant === 'tertiary',
-                }),
-              })}
-              style={{ transition: 'border-radius 0.3s ease-in-out' }}
-              transition={{
-                duration: transition.duration,
-                ease: 'easeInOut',
-                borderRadius: {
-                  duration: transition.duration,
-                  ease: 'easeInOut',
-                },
-                background: {
-                  duration: transition.duration,
-                  ease: 'easeInOut',
-                },
-                ...transition,
-              }}
-              icon={faClose}
-              onClick={() => setOpen(false)}
-            >
-              Close
-            </MotionIconButton>
-          </>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

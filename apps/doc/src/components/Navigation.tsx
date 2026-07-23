@@ -12,9 +12,12 @@ import { iWidgetsFilled } from '@udixio/icons-rounded-400/filled/widgets';
 export const Navigation = () => {
   return (
     <NavigationRail className={'bg-surface-dim'}>
-      <Fab variant={'tertiary'} icon={iSearch} href={'/search'}>
-        Search
-      </Fab>
+      <Fab
+        variant={'tertiary'}
+        icon={iSearch}
+        href={'/search'}
+        label="Search"
+      />
       <NavigationRailItem
         href={'/theme/introduction'}
         icon={iHourglass}
