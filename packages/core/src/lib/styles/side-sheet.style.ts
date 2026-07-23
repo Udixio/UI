@@ -1,6 +1,6 @@
 import {
   type ClassNameComponent,
-  classNames,
+  cx,
   defaultClassNames,
 } from '../utils';
 
@@ -10,7 +10,7 @@ export const sideSheetConfig: ClassNameComponent<SideSheetInterface> = ({
   variant,
   position,
 }) => ({
-  sideSheet: classNames(
+  sideSheet: cx(
     'bg-surface flex justify-between  max-w-xs z-10',
     {
       'flex-row-reverse': position == 'right',
@@ -24,13 +24,13 @@ export const sideSheetConfig: ClassNameComponent<SideSheetInterface> = ({
       },
     ],
   ),
-  container: classNames('w-full overflow-hidden flex flex-col', {}),
-  header: classNames('p-4 flex items-center gap-2'),
-  content: classNames('flex-1 overflow-y-auto'),
-  title: classNames('text-on-surface-variant text-title-large'),
-  closeButton: classNames('ml-auto'),
-  divider: classNames({ hidden: variant == 'modal' }),
-  overlay: classNames('bg-[black]/[0.32] fixed top-0 left-0 w-screen h-screen'),
+  container: cx('w-full overflow-hidden flex flex-col', {}),
+  header: cx('p-4 flex items-center gap-2'),
+  content: cx('flex-1 overflow-y-auto'),
+  title: cx('text-on-surface-variant text-title-large'),
+  closeButton: cx('ml-auto'),
+  divider: cx({ hidden: variant == 'modal' }),
+  overlay: cx('bg-[black]/[0.32] fixed top-0 left-0 w-screen h-screen'),
 });
 
 export const sideSheetStyle = defaultClassNames<SideSheetInterface>(

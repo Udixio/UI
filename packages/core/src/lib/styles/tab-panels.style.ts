@@ -1,12 +1,12 @@
 import { TabPanelsInterface, TabPanelInterface } from '../interfaces';
 import {
   type ClassNameComponent,
-  classNames,
+  cx,
   defaultClassNames,
 } from '../utils';
 
 const tabPanelsConfig: ClassNameComponent<TabPanelsInterface> = () => ({
-  tabPanels: classNames('overflow-hidden'),
+  tabPanels: cx('overflow-hidden'),
 });
 
 export const tabPanelsStyle = defaultClassNames<TabPanelsInterface>(
@@ -15,7 +15,7 @@ export const tabPanelsStyle = defaultClassNames<TabPanelsInterface>(
 );
 
 const tabPanelConfig: ClassNameComponent<TabPanelInterface> = () => ({
-  tabPanel: classNames(''),
+  tabPanel: cx(''),
 });
 
 export const tabPanelStyle = defaultClassNames<TabPanelInterface>(

@@ -1,6 +1,6 @@
 import {
   type ClassNameComponent,
-  classNames,
+  cx,
   defaultClassNames,
 } from '../utils';
 import type { FabInterface } from '../interfaces/fab.interface';
@@ -11,7 +11,7 @@ const fabConfig: ClassNameComponent<FabInterface> = ({
   extended,
   disabled,
 }) => ({
-  fab: classNames(
+  fab: cx(
     'relative inline-flex min-h-12 min-w-12 items-center justify-center overflow-hidden outline-none group/fab',
     'shadow-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current',
     disabled ? 'cursor-default shadow-none' : 'cursor-pointer hover:shadow-4',
@@ -34,16 +34,16 @@ const fabConfig: ClassNameComponent<FabInterface> = ({
       'bg-tertiary-container text-on-tertiary-container',
     disabled && 'bg-on-surface/[0.12] text-on-surface/[0.38]',
   ),
-  touchTarget: classNames(
+  touchTarget: cx(
     'pointer-events-none absolute left-1/2 top-1/2 h-12 min-w-12 w-full -translate-x-1/2 -translate-y-1/2',
   ),
-  stateLayer: classNames('overflow-hidden'),
-  icon: classNames(
+  stateLayer: cx('overflow-hidden'),
+  icon: cx(
     'pointer-events-none shrink-0',
     (size === 'small' || size === 'medium') && 'size-6',
     size === 'large' && 'size-9',
   ),
-  label: classNames(
+  label: cx(
     'text-nowrap',
     size === 'small' && 'text-title-medium',
     size === 'medium' && 'text-title-large',

@@ -1,6 +1,6 @@
 import {
   type ClassNameComponent,
-  classNames,
+  cx,
   defaultClassNames,
 } from '../utils';
 import { DatePickerInterface } from '../interfaces/date-picker.interface';
@@ -8,24 +8,24 @@ import { DatePickerInterface } from '../interfaces/date-picker.interface';
 const datePickerConfig: ClassNameComponent<DatePickerInterface> = ({
   hasSelected,
 }) => ({
-  datePicker: classNames(
+  datePicker: cx(
     'inline-flex flex-col bg-surface-container-high rounded-[28px] p-3 select-none', // Using shadow-sm as placeholder for elevation
     'min-w-[320px]',
   ),
-  header: classNames('flex items-center justify-between h-12 mb-2 px-2'),
-  monthNav: classNames(
+  header: cx('flex items-center justify-between h-12 mb-2 px-2'),
+  monthNav: cx(
     'flex items-center justify-center w-10 h-10 rounded-full text-on-surface-variant hover:bg-on-surface-variant/8 transition-colors cursor-pointer',
   ),
-  monthLabel: classNames(
+  monthLabel: cx(
     'text-label-large text-on-surface font-bold capitalize',
   ),
-  weekDays: classNames('grid grid-cols-7 mb-2'),
-  weekDay: classNames(
+  weekDays: cx('grid grid-cols-7 mb-2'),
+  weekDay: cx(
     'h-10 flex items-center justify-center text-body-small text-on-surface-variant',
   ),
-  daysGrid: classNames('grid grid-cols-7 row-auto gap-y-2'),
-  dayCell: classNames('flex items-center justify-center  h-10 p-0 relative'),
-  dayButton: classNames(
+  daysGrid: cx('grid grid-cols-7 row-auto gap-y-2'),
+  dayCell: cx('flex items-center justify-center  h-10 p-0 relative'),
+  dayButton: cx(
     'w-10 h-10 rounded-full flex items-center justify-center text-body-large transition-all duration-200 relative overflow-hidden z-10 outline-none',
     // Base style is implicit text-on-surface
   ),

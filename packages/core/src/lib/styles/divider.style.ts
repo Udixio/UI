@@ -1,14 +1,14 @@
 import { DividerInterface } from '../interfaces';
 import {
   type ClassNameComponent,
-  classNames,
+  cx,
   defaultClassNames,
 } from '../utils';
 
 const dividerConfig: ClassNameComponent<DividerInterface> = ({
   orientation,
 }) => ({
-  divider: classNames(
+  divider: cx(
     'border-outline-variant ',
     {
       'h-fit w-full border-t': orientation === 'horizontal',

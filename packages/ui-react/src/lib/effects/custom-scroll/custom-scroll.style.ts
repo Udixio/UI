@@ -1,10 +1,10 @@
 import { CustomScrollInterface } from './custom-scroll.interface';
-import { classNames, defaultClassNames } from '@udixio/core';
+import { cx, defaultClassNames } from '@udixio/core';
 
 export const customScrollStyle = defaultClassNames<CustomScrollInterface>(
   'customScroll',
   ({ orientation, draggable, isDragging }) => ({
-    customScroll: classNames(
+    customScroll: cx(
       'flex h-full w-full',
       draggable && [
         '[&::-webkit-scrollbar-track]:rounded-full',
@@ -24,7 +24,7 @@ export const customScrollStyle = defaultClassNames<CustomScrollInterface>(
         'cursor-grabbing': draggable && isDragging,
       }
     ),
-    track: classNames('overflow-hidden flex-none sticky', {
+    track: cx('overflow-hidden flex-none sticky', {
       'left-0 h-full': orientation === 'horizontal',
       'top-0 w-full': orientation === 'vertical',
     }),

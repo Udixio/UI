@@ -1,13 +1,13 @@
 import {
   type ClassNameComponent,
-  classNames,
+  cx,
   defaultClassNames,
 } from '../utils';
 import { CarouselInterface } from '../interfaces';
 
 const carouselConfig: ClassNameComponent<CarouselInterface> = () => ({
-  carousel: classNames(['w-full h-[400px]']),
-  track: classNames('flex h-full w-full'),
+  carousel: cx(['w-full h-[400px]']),
+  track: cx('flex h-full w-full'),
 });
 
 export const carouselStyle = defaultClassNames<CarouselInterface>(

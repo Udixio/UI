@@ -1,6 +1,6 @@
 import {
   type ClassNameComponent,
-  classNames,
+  cx,
   defaultClassNames,
 } from '../utils';
 import { SwitchInterface } from '../interfaces';
@@ -10,7 +10,7 @@ const switchConfig: ClassNameComponent<SwitchInterface> = ({
   disabled,
   inactiveIcon,
 }) => ({
-  switch: classNames(
+  switch: cx(
     'group/switch w-[52px] h-[32px] outline-none rounded-full  border-2 flex items-center',
 
     { 'bg-on-surface/[0.12] border-transparent': disabled },
@@ -23,12 +23,12 @@ const switchConfig: ClassNameComponent<SwitchInterface> = ({
     // { 'justify-start': !isSelected },
     // { 'justify-end': isSelected },
   ),
-  handleContainer: classNames(
+  handleContainer: cx(
     'flex items-center justify-center absolute',
     { 'left-[14px]': !isSelected },
     { 'right-[14px]': isSelected },
   ),
-  handle: classNames(
+  handle: cx(
     'transition-all duration-100  z-10 rounded-full  flex items-center justify-center',
     { 'w-[16px] h-[16px]': !isSelected && !inactiveIcon },
     { 'w-[24px] h-[24px]': !(!isSelected && !inactiveIcon) },
@@ -40,11 +40,11 @@ const switchConfig: ClassNameComponent<SwitchInterface> = ({
 
     { 'bg-surface': disabled },
   ),
-  handleStateLayer: classNames(
+  handleStateLayer: cx(
     'w-[40px] h-[40px] -z-10 rounded-full absolute',
     { 'group-state-primary': !disabled },
   ),
-  icon: classNames(
+  icon: cx(
     'w-[16px] h-[16px]',
     !disabled && [
       { 'text-on-primary-container': isSelected },

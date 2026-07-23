@@ -1,6 +1,6 @@
 import {
   type ClassNameComponent,
-  classNames,
+  cx,
   defaultClassNames,
 } from '../utils';
 import { MenuItemInterface } from '../interfaces/menu-item.interface';
@@ -10,7 +10,7 @@ const menuItemConfig: ClassNameComponent<MenuItemInterface> = ({
   disabled,
   isActive,
 }) => ({
-  menuItem: classNames(
+  menuItem: cx(
     'group/menu-item text-start  overflow-hidden flex items-center h-12 px-3 cursor-pointer outline-none select-none shrink-0 ',
     'text-label-large',
     'transition-colors duration-200',
@@ -26,12 +26,12 @@ const menuItemConfig: ClassNameComponent<MenuItemInterface> = ({
       'bg-secondary-container text-on-secondary-container',
     ],
   ),
-  itemLabel: classNames('flex-1 truncate'),
-  itemIcon: classNames(
+  itemLabel: cx('flex-1 truncate'),
+  itemIcon: cx(
     'w-6 h-6 flex items-center justify-center menu-item-icon',
   ),
-  leadingIcon: classNames('mr-3'),
-  trailingIcon: classNames('ml-3'),
+  leadingIcon: cx('mr-3'),
+  trailingIcon: cx('ml-3'),
 });
 
 export const menuItemStyle = defaultClassNames<MenuItemInterface>(

@@ -1,6 +1,6 @@
 import {
   type ClassNameComponent,
-  classNames,
+  cx,
   defaultClassNames,
 } from '../utils';
 import { MenuInterface } from '../interfaces';
@@ -9,7 +9,7 @@ const menuConfig: ClassNameComponent<MenuInterface> = ({
   variant,
   hasGroups,
 }) => ({
-  menu: classNames(
+  menu: cx(
     'z-50 min-w-[112px] max-w-[280px] max-h-[300px] ',
     'flex flex-col',
     { 'overflow-y-auto': !hasGroups },

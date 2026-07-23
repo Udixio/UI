@@ -1,7 +1,6 @@
-import { useMemo } from 'react';
 import { ComponentInterface } from '../component';
 import { convertToKebabCase } from '../string';
-import { classnames } from './classnames';
+import { classNames } from './classnames';
 
 type RequiredNullable<T> = {
   [K in keyof T]-?: any;
@@ -21,24 +20,24 @@ export const getClassNames = <T extends ComponentInterface>(args: {
   default: T['elements'][0];
   states: T['states'] & T['props'];
 }): Record<T['elements'][number], string> => {
-  const classNames: Partial<Record<T['elements'][number], string[]>> = {};
+  const buckets: Partial<Record<T['elements'][number], string[]>> = {};
   args.classNameList.forEach((classNameComponent) => {
     if (classNameComponent) {
       if (typeof classNameComponent == 'string') {
-        (classNames[args.default] ??= []).push(classNameComponent);
+        (buckets[args.default] ??= []).push(classNameComponent);
       } else {
         const result = classNameComponent(args.states);
         Object.entries(result).map((argsElement) => {
           const [key, value] = argsElement as [T['elements'][number], string];
-          (classNames[key] ??= []).push(value);
+          (buckets[key] ??= []).push(value);
         });
       }
     }
   });
 
-  const result = classNames as unknown as Record<T['elements'][number], string>;
+  const result = buckets as unknown as Record<T['elements'][number], string>;
 
-  Object.entries(classNames).map((argsElement) => {
+  Object.entries(buckets).map((argsElement) => {
     // eslint-disable-next-line prefer-const
     let [key, value] = argsElement as [T['elements'][number], string[]];
 
@@ -50,7 +49,7 @@ export const getClassNames = <T extends ComponentInterface>(args: {
 
     value.unshift(convertToKebabCase(key));
 
-    result[key] = classnames(...value);
+    result[key] = classNames(...value);
   });
 
   return result;
@@ -72,25 +71,4 @@ export const defaultClassNames = <T extends ComponentInterface>(
       default: element,
       states,
     });
-};
-
-export const createUseClassNames = <T extends ComponentInterface>(
-  element: T['elements'][0],
-  defaultClassName: ClassNameComponent<T> | string,
-) => {
-  return (
-    states: T['states'] & T['props'] & {
-      className?: string | ClassNameComponent<T>;
-    },
-  ): Record<T['elements'][number], string> => {
-    return useMemo(
-      () =>
-        getClassNames<T>({
-          classNameList: [states.className, defaultClassName],
-          default: element,
-          states,
-        }),
-      [states],
-    );
-  };
 };

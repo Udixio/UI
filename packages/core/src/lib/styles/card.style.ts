@@ -1,7 +1,7 @@
 import { CardInterface } from '../interfaces';
 import {
   type ClassNameComponent,
-  classNames,
+  cx,
   defaultClassNames,
 } from '../utils';
 
@@ -9,7 +9,7 @@ const cardConfig: ClassNameComponent<CardInterface> = ({
   variant,
   interactive,
 }) => ({
-  card: classNames(
+  card: cx(
     'rounded-xl overflow-hidden',
     variant === 'outlined' && 'bg-surface border border-outline-variant',
     variant === 'elevated' && 'bg-surface-container-low shadow-1',

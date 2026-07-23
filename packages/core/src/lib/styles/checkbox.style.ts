@@ -1,6 +1,6 @@
 import {
   type ClassNameComponent,
-  classNames,
+  cx,
   defaultClassNames,
 } from '../utils';
 import { CheckboxInterface } from '../interfaces/checkbox.interface';
@@ -11,19 +11,19 @@ const checkboxConfig: ClassNameComponent<CheckboxInterface> = ({
   disabled,
   error,
 }) => ({
-  checkbox: classNames(
+  checkbox: cx(
     'inline-flex items-center justify-center relative size-4.5 ',
     {
       'pointer-events-none opacity-[0.38]': disabled,
     },
   ),
-  input: classNames(
+  input: cx(
     'absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer',
   ),
-  container: classNames(
+  container: cx(
     'relative flex items-center justify-center w-[18px] h-[18px] ',
   ),
-  box: classNames(
+  box: cx(
     'absolute left-1/2 top-1/2 -translate-1/2 to rounded-[2px] size-4 border-2 transition-colors duration-200',
     // Unchecked state (Border only)
     !isChecked &&
@@ -39,7 +39,7 @@ const checkboxConfig: ClassNameComponent<CheckboxInterface> = ({
       'bg-on-surface border-on-surface': disabled,
     },
   ),
-  icon: classNames(
+  icon: cx(
     'z-10 relative text-on-primary w-full h-full flex items-center justify-center pointer-events-none',
     {
       'text-on-error': error && !disabled,

@@ -1,5 +1,5 @@
 import type { ClassNameComponent } from '../utils';
-import { classNames, defaultClassNames } from '../utils';
+import { cx, defaultClassNames } from '../utils';
 import { ChipInterface } from '../interfaces';
 
 const chipConfig: ClassNameComponent<ChipInterface> = ({
@@ -13,7 +13,7 @@ const chipConfig: ClassNameComponent<ChipInterface> = ({
   isDragging,
   isEditing,
 }) => ({
-  chip: classNames(
+  chip: cx(
     ' group/chip px-3 py-1.5  rounded-lg flex items-center gap-2 outline-none',
     {
       'pl-2': icon,
@@ -40,14 +40,14 @@ const chipConfig: ClassNameComponent<ChipInterface> = ({
       ],
   ),
 
-  stateLayer: classNames('rounded-lg overflow-hidden', {}),
-  label: classNames('outline-none text-nowrap', {
+  stateLayer: cx('rounded-lg overflow-hidden', {}),
+  label: cx('outline-none text-nowrap', {
     'opacity-[0.38]': disabled,
   }),
-  leadingIcon: classNames('text-primary size-[18px]', {
+  leadingIcon: cx('text-primary size-[18px]', {
     'opacity-[0.38]': disabled,
   }),
-  trailingIcon: classNames('cursor-pointer size-[18px]', {
+  trailingIcon: cx('cursor-pointer size-[18px]', {
     'opacity-[0.38]': disabled,
   }),
 });

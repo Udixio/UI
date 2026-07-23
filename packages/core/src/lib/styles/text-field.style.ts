@@ -1,6 +1,6 @@
 import {
   type ClassNameComponent,
-  classNames,
+  cx,
   defaultClassNames,
 } from '../utils';
 import { TextFieldInterface } from '../interfaces';
@@ -16,10 +16,10 @@ const textFieldConfig: ClassNameComponent<TextFieldInterface> = ({
   suffix,
   multiline,
 }) => ({
-  textField: classNames({
+  textField: cx({
     'opacity-[.38]': disabled,
   }),
-  content: classNames(
+  content: cx(
     'group/text-field  transition-border duration-200 relative  flex  items-center ',
     { 'h-14': !multiline },
     {
@@ -43,7 +43,7 @@ const textFieldConfig: ClassNameComponent<TextFieldInterface> = ({
       },
     ],
   ),
-  stateLayer: classNames(
+  stateLayer: cx(
     'absolute -z-10 w-full h-full top-0 left-0',
     {
       hidden: variant == 'outlined',
@@ -53,14 +53,14 @@ const textFieldConfig: ClassNameComponent<TextFieldInterface> = ({
       'focus-state-on-surface': isFocused,
     },
   ),
-  label: classNames(
+  label: cx(
     'inline-flex outline-none  whitespace-nowrap',
     { 'text-on-surface-variant': !disabled && !errorText?.length },
     { 'text-on-surface': disabled },
     { 'text-error': !!errorText?.length },
     { 'text-primary': !errorText?.length && isFocused },
   ),
-  input: classNames(
+  input: cx(
     'w-full resize-none px-4 text-body-large bg-[inherit] outline-none autofill:transition-colors autofill:duration-[5000000ms]',
     {
       ' text-on-surface placeholder:text-on-surface-variant': !disabled,
@@ -72,7 +72,7 @@ const textFieldConfig: ClassNameComponent<TextFieldInterface> = ({
     variant == 'filled' && ' pb-2 pt-6',
     variant == 'outlined' && 'py-4 relative z-10',
   ),
-  activeIndicator: classNames(
+  activeIndicator: cx(
     'absolute w-0 inset-x-0 border-rounded mx-auto bottom-0',
     variant == 'filled' && [
       'h-[2px] transition-all duration-300',
@@ -81,21 +81,21 @@ const textFieldConfig: ClassNameComponent<TextFieldInterface> = ({
       { '!w-full': isFocused },
     ],
   ),
-  supportingText: classNames(
+  supportingText: cx(
     ' text-body-small px-4 pt-1',
     { 'text-on-surface-variant': !disabled && !errorText?.length },
     { 'text-on-surface': disabled },
     { '!w-full': isFocused },
     { 'text-error': !!errorText?.length },
   ),
-  leadingIcon: classNames([
+  leadingIcon: cx([
     'h-12 ml-3 flex items-center justify-center',
     { 'cursor-text': !leadingIconInteractive },
   ]),
-  trailingIcon: classNames('h-12 w-12 flex items-center justify-center', {
+  trailingIcon: cx('h-12 w-12 flex items-center justify-center', {
     'cursor-text': !trailingIconInteractive,
   }),
-  suffix: classNames(
+  suffix: cx(
     'text-on-surface-variant pl-0 pr-4',
     variant == 'filled' && ' pb-2 pt-6',
     variant == 'outlined' && 'py-4 relative z-10',

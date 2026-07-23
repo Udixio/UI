@@ -1,6 +1,6 @@
 import {
   type ClassNameComponent,
-  classNames,
+  cx,
   defaultClassNames,
 } from '../utils';
 import { NavigationRailItemInterface } from '../interfaces';
@@ -8,7 +8,7 @@ import { NavigationRailItemInterface } from '../interfaces';
 const navigationRailItemConfig: ClassNameComponent<
   NavigationRailItemInterface
 > = ({ isSelected, icon, label, variant }) => ({
-  navigationRailItem: classNames(
+  navigationRailItem: cx(
     ' group/navigation-rail-item flex flex-col  pt-1 pb-1.5 cursor-pointer',
     {
       'text-on-surface-variant': !isSelected,
@@ -17,7 +17,7 @@ const navigationRailItemConfig: ClassNameComponent<
       'gap-0  h-[66px]': variant == 'horizontal',
     },
   ),
-  container: classNames(
+  container: cx(
     ' w-fit flex justify-center  relative rounded-full items-center mx-5',
     {
       'bg-secondary-container overflow-hidden': isSelected,
@@ -33,10 +33,10 @@ const navigationRailItemConfig: ClassNameComponent<
       },
     ],
   ),
-  stateLayer: classNames('rounded-full'),
+  stateLayer: cx('rounded-full'),
 
-  icon: classNames('size-6 flex'),
-  label: classNames('w-fit mx-auto text-nowrap', {
+  icon: cx('size-6 flex'),
+  label: cx('w-fit mx-auto text-nowrap', {
     'text-label-large ': variant == 'horizontal',
     'text-label-medium': variant == 'vertical',
   }),

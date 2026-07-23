@@ -1,6 +1,6 @@
 import {
   type ClassNameComponent,
-  classNames,
+  cx,
   defaultClassNames,
 } from '../utils';
 import { MenuGroupInterface } from '../interfaces/menu-group.interface';
@@ -8,7 +8,7 @@ import { MenuGroupInterface } from '../interfaces/menu-group.interface';
 const menuGroupConfig: ClassNameComponent<MenuGroupInterface> = ({
   variant,
 }) => ({
-  menuGroup: classNames(
+  menuGroup: cx(
     'flex flex-col gap-0.5 mb-0.5 last:mb-0',
     'rounded-lg py-0.5 px-1 shadow-2 first:rounded-t-2xl last:rounded-b-2xl',
     {
@@ -16,7 +16,7 @@ const menuGroupConfig: ClassNameComponent<MenuGroupInterface> = ({
       'bg-tertiary-container text-on-tertiary-container': variant === 'vibrant',
     },
   ),
-  groupLabel: classNames('px-3 pt-2  text-label-small tracking-wide ', {
+  groupLabel: cx('px-3 pt-2  text-label-small tracking-wide ', {
     'text-on-surface-variant': variant === 'standard',
     'text-on-tertiary-container opacity-80': variant === 'vibrant',
   }),

@@ -1,5 +1,5 @@
 import type { ClassNameComponent } from '../utils';
-import { classNames, defaultClassNames } from '../utils';
+import { cx, defaultClassNames } from '../utils';
 import { ButtonInterface } from '../interfaces';
 import { resolveButtonVariant } from '../behaviors';
 
@@ -20,7 +20,7 @@ const buttonConfig: ClassNameComponent<ButtonInterface> = (state) => {
     shape === 'squared' || (shapeFeedback === 'morph' && isPressed);
 
   return {
-    button: classNames(
+    button: cx(
       'inline-flex w-fit cursor-pointer items-center justify-center group/button outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current',
       size === 'xSmall' && 'text-label-large px-3 py-1.5 gap-1',
       size === 'small' && 'text-label-large px-4 py-2.5 gap-2',
@@ -87,12 +87,12 @@ const buttonConfig: ClassNameComponent<ButtonInterface> = (state) => {
       ],
       interactionBlocked && 'cursor-default',
     ),
-    touchTarget: classNames(
+    touchTarget: cx(
       'absolute left-1/2 top-1/2 h-12 w-full min-w-12 -translate-x-1/2 -translate-y-1/2',
     ),
-    stateLayer: classNames('overflow-hidden'),
-    label: classNames({ 'opacity-0': loading }),
-    icon: classNames(
+    stateLayer: cx('overflow-hidden'),
+    label: cx({ 'opacity-0': loading }),
+    icon: cx(
       { invisible: loading },
       size === 'xSmall' && 'size-5',
       size === 'small' && 'size-5',
