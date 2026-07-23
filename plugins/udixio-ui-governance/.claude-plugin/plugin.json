@@ -1,0 +1,19 @@
+{
+  "name": "udixio-ui-governance",
+  "version": "0.1.0+codex.20260722135539",
+  "description": "Audit, synchronize, and create Udixio UI components across React, Angular, core behavior, accessibility, and documentation.",
+  "author": {
+    "name": "Udixio"
+  },
+  "homepage": "https://github.com/Udixio/UI",
+  "repository": "https://github.com/Udixio/UI",
+  "license": "Apache-2.0",
+  "keywords": [
+    "angular",
+    "accessibility",
+    "component-governance",
+    "material-design",
+    "multiframework",
+    "react"
+  ]
+}

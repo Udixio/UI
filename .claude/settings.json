@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "udixio-ui": {
+      "source": {
+        "source": "directory",
+        "path": "."
+      }
+    }
+  },
+  "enabledPlugins": {
+    "udixio-ui-governance@udixio-ui": true
+  }
+}

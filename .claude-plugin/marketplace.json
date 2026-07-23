@@ -1,0 +1,30 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "udixio-ui",
+  "description": "Plugins maintained alongside the Udixio UI component libraries.",
+  "owner": {
+    "name": "Udixio",
+    "url": "https://github.com/Udixio"
+  },
+  "plugins": [
+    {
+      "name": "udixio-ui-governance",
+      "description": "Audit, synchronize, and create Udixio UI components across React, Angular, core behavior, accessibility, and documentation.",
+      "author": {
+        "name": "Udixio"
+      },
+      "category": "development",
+      "keywords": [
+        "angular",
+        "accessibility",
+        "component-governance",
+        "material-design",
+        "multiframework",
+        "react"
+      ],
+      "source": "./plugins/udixio-ui-governance",
+      "homepage": "https://github.com/Udixio/UI",
+      "license": "Apache-2.0"
+    }
+  ]
+}
