@@ -281,16 +281,12 @@ export const DatePicker = ({
   };
 
   return (
-    <div
-      className={styles.datePicker}
-      style={style}
-      {...(restProps as any)}
-    >
+    <div className={styles.datePicker} style={style} {...(restProps as any)}>
       {/* Header */}
       <div className={styles.header}>
         <Button
           variant="text"
-          disableTextMargins
+          edgeAligned={false}
           size="small"
           onClick={() => setViewMode((m) => (m === 'day' ? 'year' : 'day'))}
           className="text-label-large font-bold capitalize text-on-surface hover:bg-surface-container-highest"
@@ -347,9 +343,7 @@ export const DatePicker = ({
                 'text-on-surface': year !== viewDate.getFullYear(),
               })}
               label={year.toString()}
-            >
-              {year}
-            </Button>
+            />
           ))}
         </div>
       ) : (
@@ -419,7 +413,7 @@ export const DatePicker = ({
                           }),
                         })}
                         size="small"
-                        allowShapeTransformation={false}
+                        shapeFeedback="none"
                         variant={
                           classNames({
                             filled: isSelected,
@@ -430,9 +424,7 @@ export const DatePicker = ({
                         label={item.date.getDate().toString()}
                         onClick={() => handleDateClick(item.date)}
                         disabled={isDisabled}
-                      >
-                        {item.date.getDate().toString()}
-                      </Button>
+                      />
                     </div>
                   );
                 })}

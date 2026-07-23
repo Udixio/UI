@@ -10,7 +10,7 @@ export default function ButtonActionsReact() {
         <Button label="Run action" onClick={() => setMessage('Action run')} />
         <Button
           label="Button documentation"
-          href="/docs/components/button"
+          href="/components/button/overview"
           aria-current="page"
           variant="outlined"
         />

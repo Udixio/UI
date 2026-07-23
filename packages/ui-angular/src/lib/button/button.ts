@@ -35,10 +35,11 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
 /**
  * Buttons prompt most actions in a UI.
  *
- * @status beta
+ * @status stable
  * @category Action
  * @devx
- * - Requires the `label` input or projected content for visible text and accessibility.
+ * - Requires the `label` input or projected visible content.
+ * - Projected non-text content requires an explicit `aria-label`.
  * - `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.
  * - `toggleable` enables `aria-pressed` and the `pressedChange` output on action buttons.
  * - `type` defaults to `'button'` to prevent accidental form submissions.
@@ -136,12 +137,11 @@ export class Button implements OnInit {
   readonly icon = input<ButtonProps['icon']>();
   readonly iconPosition = input<ButtonProps['iconPosition']>('start');
   readonly disabled = input(false, { transform: booleanAttribute });
-  readonly disableTextMargins = input(false, { transform: booleanAttribute });
+  readonly edgeAligned = input(true, { transform: booleanAttribute });
   readonly loading = input(false, { transform: booleanAttribute });
   readonly shape = input<ButtonProps['shape']>('rounded');
-  readonly allowShapeTransformation = input(true, {
-    transform: booleanAttribute,
-  });
+  readonly shapeFeedback =
+    input<NonNullable<ButtonProps['shapeFeedback']>>('morph');
   readonly transition = input<ButtonProps['transition']>();
   readonly toggleable = input(false, { transform: booleanAttribute });
   readonly pressed = input<boolean | undefined, unknown>(undefined, {
@@ -260,7 +260,7 @@ export class Button implements OnInit {
     getButtonShapeTransition({
       size: this.size(),
       shape: this.shape(),
-      allowShapeTransformation: this.allowShapeTransformation(),
+      shapeFeedback: this.shapeFeedback(),
       isPressed: this.isToggleButton() && this.isPressed(),
       disabled: this.disabled() || this.loading(),
       transition: this.transition(),
@@ -274,10 +274,10 @@ export class Button implements OnInit {
     icon: this.icon(),
     iconPosition: this.iconPosition(),
     disabled: this.disabled(),
-    disableTextMargins: this.disableTextMargins(),
+    edgeAligned: this.edgeAligned(),
     loading: this.loading(),
     shape: this.shape(),
-    allowShapeTransformation: this.allowShapeTransformation(),
+    shapeFeedback: this.shapeFeedback(),
     transition: this.transition(),
     toggleable: this.isToggleButton(),
     pressed: this.pressed(),

@@ -7,14 +7,32 @@
       "filePath": "packages/ui-react/src/lib/components/Button.tsx",
       "description": "Buttons prompt most actions in a UI",
       "tags": {
-        "status": "beta",
+        "status": "stable",
         "category": "Action",
-        "devx": "- Requires `label` or children; used for visible text and a11y.\n- `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.\n- `toggleable` enables `aria-pressed` and `onPressedChange` on action buttons.\n- `type` defaults to `'button'` to prevent accidental form submits.",
+        "devx": "- Requires exactly one visible-content source: `label` or children.\n- Custom non-text children require an explicit accessible name such as `aria-label`.\n- `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.\n- `toggleable` enables `aria-pressed` and `onPressedChange` on action buttons.\n- `type` defaults to `'button'` to prevent accidental form submits.",
         "a11y": "- Uses native button/link semantics and preserves its accessible name while loading.\n- Provides a 48px touch target and a visible `:focus-visible` outline.",
         "limitations": "- When `href` is set with `disabled`, the link is made inert via `aria-disabled` and `tabIndex={-1}`.\n- Navigation links ignore toggle state; use `aria-current` for the current destination."
       },
       "methods": [],
       "props": {
+        "transition": {
+          "name": "transition",
+          "description": "Motion transition shared by every framework for shape changes.",
+          "required": false,
+          "type": {
+            "name": "Transition | undefined"
+          },
+          "defaultValue": null
+        },
+        "icon": {
+          "name": "icon",
+          "description": "An optional icon to display in the button (agnostic Icon data).",
+          "required": false,
+          "type": {
+            "name": "Icon | undefined"
+          },
+          "defaultValue": null
+        },
         "type": {
           "name": "type",
           "description": "The HTML button type attribute. Only applies when rendered as `<button>`.",
@@ -25,15 +43,6 @@
           "defaultValue": {
             "value": "'button'"
           }
-        },
-        "icon": {
-          "name": "icon",
-          "description": "An optional icon to display in the button (agnostic Icon data).",
-          "required": false,
-          "type": {
-            "name": "Icon | undefined"
-          },
-          "defaultValue": null
         },
         "iconPosition": {
           "name": "iconPosition",
@@ -79,15 +88,15 @@
             "value": "false"
           }
         },
-        "disableTextMargins": {
-          "name": "disableTextMargins",
-          "description": "Removes the default negative horizontal margins from text buttons.\nOnly applies to 'text' variant buttons.",
+        "edgeAligned": {
+          "name": "edgeAligned",
+          "description": "Aligns text-button content with the surrounding inline edge.\nOnly applies to `text` variant buttons.",
           "required": false,
           "type": {
             "name": "boolean | undefined"
           },
           "defaultValue": {
-            "value": "false"
+            "value": "true"
           }
         },
         "loading": {
@@ -112,25 +121,16 @@
             "value": "'rounded'"
           }
         },
-        "allowShapeTransformation": {
-          "name": "allowShapeTransformation",
-          "description": "Enables the shared press/toggle shape transformation.",
+        "shapeFeedback": {
+          "name": "shapeFeedback",
+          "description": "Shape feedback shown for accepted press and toggle interactions.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "ButtonShapeFeedback | undefined"
           },
           "defaultValue": {
-            "value": "true"
+            "value": "'morph'"
           }
-        },
-        "transition": {
-          "name": "transition",
-          "description": "Motion transition shared by every framework for shape changes.",
-          "required": false,
-          "type": {
-            "name": "Transition | undefined"
-          },
-          "defaultValue": null
         },
         "toggleable": {
           "name": "toggleable",
@@ -165,10 +165,19 @@
         },
         "label": {
           "name": "label",
-          "description": "Visible label and accessible-name fallback for custom content.",
+          "description": "Visible text content. Do not combine with `children`.",
           "required": false,
           "type": {
             "name": "string | undefined"
+          },
+          "defaultValue": null
+        },
+        "children": {
+          "name": "children",
+          "description": "Custom visible content. Use `aria-label` when it has no accessible text.",
+          "required": false,
+          "type": {
+            "name": "((ReactButtonChildren | undefined) & ReactButtonChildren) | undefined"
           },
           "defaultValue": null
         },
@@ -178,15 +187,6 @@
           "required": false,
           "type": {
             "name": "string | ClassNameComponent<ButtonInterface> | undefined"
-          },
-          "defaultValue": null
-        },
-        "children": {
-          "name": "children",
-          "description": "Visible React content; `label` remains an accessible-name fallback.",
-          "required": false,
-          "type": {
-            "name": "ReactNode"
           },
           "defaultValue": null
         },
@@ -232,9 +232,9 @@
       "filePath": "packages/ui-angular/src/lib/button/button.ts",
       "description": "Buttons prompt most actions in a UI.",
       "tags": {
-        "status": "beta",
+        "status": "stable",
         "category": "Action",
-        "devx": "- Requires the `label` input or projected content for visible text and accessibility.\n- `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.\n- `toggleable` enables `aria-pressed` and the `pressedChange` output on action buttons.\n- `type` defaults to `'button'` to prevent accidental form submissions.",
+        "devx": "- Requires the `label` input or projected visible content.\n- Projected non-text content requires an explicit `aria-label`.\n- `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.\n- `toggleable` enables `aria-pressed` and the `pressedChange` output on action buttons.\n- `type` defaults to `'button'` to prevent accidental form submissions.",
         "a11y": "- Uses native button/link semantics and preserves its accessible name while loading.\n- Provides a 48px touch target and a visible `:focus-visible` outline.",
         "limitations": "- When `href` is set with `disabled`, the link is made inert with `aria-disabled` and removed from the tab order.\n- Navigation links ignore toggle state; use `aria-current` for the current destination."
       },
@@ -303,15 +303,15 @@
             "value": "false"
           }
         },
-        "disableTextMargins": {
-          "name": "disableTextMargins",
-          "description": "Removes the default negative horizontal margins from text buttons.\nOnly applies to 'text' variant buttons.",
+        "edgeAligned": {
+          "name": "edgeAligned",
+          "description": "Aligns text-button content with the surrounding inline edge.\nOnly applies to `text` variant buttons.",
           "required": false,
           "type": {
             "name": "boolean"
           },
           "defaultValue": {
-            "value": "false"
+            "value": "true"
           }
         },
         "loading": {
@@ -336,15 +336,15 @@
             "value": "'rounded'"
           }
         },
-        "allowShapeTransformation": {
-          "name": "allowShapeTransformation",
-          "description": "Enables the shared press/toggle shape transformation.",
+        "shapeFeedback": {
+          "name": "shapeFeedback",
+          "description": "Shape feedback shown for accepted press and toggle interactions.",
           "required": false,
           "type": {
-            "name": "boolean"
+            "name": "\"morph\" | \"none\""
           },
           "defaultValue": {
-            "value": "true"
+            "value": "'morph'"
           }
         },
         "transition": {

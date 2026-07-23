@@ -12,7 +12,7 @@ import { Button } from '@udixio/ui-angular';
         <lib-button label="Run action" (click)="message.set('Action run')" />
         <lib-button
           label="Button documentation"
-          href="/docs/components/button"
+          href="/components/button/overview"
           aria-current="page"
           variant="outlined"
         />

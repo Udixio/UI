@@ -25,16 +25,35 @@ import { ProgressIndicator } from './ProgressIndicator';
 import { State } from '../effects';
 import { useMemo } from 'react';
 
-type ReactButtonOwnProps = ButtonProps & {
+/** React content accepted as the button's sole visible-content source. */
+export type ReactButtonChildren = Exclude<
+  ReactNode,
+  boolean | null | undefined
+>;
+
+type ReactButtonContentConstraint =
+  | {
+      label: string;
+      children?: never;
+    }
+  | {
+      label?: never;
+      children: ReactButtonChildren;
+    };
+
+type ReactButtonOwnProps = Omit<ButtonProps, 'label'> & {
+  /** Visible text content. Do not combine with `children`. */
+  label?: string;
+  /** Custom visible content. Use `aria-label` when it has no accessible text. */
+  children?: ReactButtonChildren;
   /** Classes or state-aware element classes applied through the shared style contract. */
   className?: ComponentClassName<ButtonInterface>['className'];
-  /** Visible React content; `label` remains an accessible-name fallback. */
-  children?: ReactNode;
   /** Notifies an accepted toggle-state request. */
   onPressedChange?: (pressed: boolean) => void;
 };
 
 type ReactButtonActionProps = ReactButtonOwnProps &
+  ReactButtonContentConstraint &
   Omit<
     ButtonHTMLAttributes<HTMLButtonElement>,
     keyof ReactButtonOwnProps | 'children' | 'className' | 'onClick'
@@ -47,6 +66,7 @@ type ReactButtonActionProps = ReactButtonOwnProps &
   };
 
 type ReactButtonLinkProps = ReactButtonOwnProps &
+  ReactButtonContentConstraint &
   Omit<
     AnchorHTMLAttributes<HTMLAnchorElement>,
     keyof ReactButtonOwnProps | 'children' | 'className' | 'onClick' | 'href'
@@ -76,12 +96,11 @@ function getNativeElementProps(
 function getNativeElementProps(props: ReactButtonLinkProps): NativeLinkProps;
 function getNativeElementProps(props: ReactButtonProps) {
   const {
-    allowShapeTransformation: _allowShapeTransformation,
     children: _children,
     className: _className,
     defaultPressed: _defaultPressed,
     disabled: _disabled,
-    disableTextMargins: _disableTextMargins,
+    edgeAligned: _edgeAligned,
     href: _href,
     icon: _icon,
     iconPosition: _iconPosition,
@@ -92,6 +111,7 @@ function getNativeElementProps(props: ReactButtonProps) {
     pressed: _pressed,
     ref: _ref,
     shape: _shape,
+    shapeFeedback: _shapeFeedback,
     size: _size,
     toggleable: _toggleable,
     transition: _transition,
@@ -101,12 +121,11 @@ function getNativeElementProps(props: ReactButtonProps) {
   } = props;
 
   void {
-    _allowShapeTransformation,
     _children,
     _className,
     _defaultPressed,
     _disabled,
-    _disableTextMargins,
+    _edgeAligned,
     _href,
     _icon,
     _iconPosition,
@@ -117,6 +136,7 @@ function getNativeElementProps(props: ReactButtonProps) {
     _pressed,
     _ref,
     _shape,
+    _shapeFeedback,
     _size,
     _toggleable,
     _transition,
@@ -131,10 +151,11 @@ export const useButtonStyle = createUseStyle(buttonStyle);
 
 /**
  * Buttons prompt most actions in a UI
- * @status beta
+ * @status stable
  * @category Action
  * @devx
- * - Requires `label` or children; used for visible text and a11y.
+ * - Requires exactly one visible-content source: `label` or children.
+ * - Custom non-text children require an explicit accessible name such as `aria-label`.
  * - `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.
  * - `toggleable` enables `aria-pressed` and `onPressedChange` on action buttons.
  * - `type` defaults to `'button'` to prevent accidental form submits.
@@ -153,7 +174,7 @@ export const Button = (props: ReactButtonProps) => {
     icon,
     href,
     label,
-    disableTextMargins,
+    edgeAligned = true,
     className,
     iconPosition = 'start',
     loading = false,
@@ -163,7 +184,7 @@ export const Button = (props: ReactButtonProps) => {
     defaultPressed = false,
     onPressedChange,
     size = 'medium',
-    allowShapeTransformation = true,
+    shapeFeedback = 'morph',
     transition,
     children,
   } = props;
@@ -193,20 +214,12 @@ export const Button = (props: ReactButtonProps) => {
       getButtonShapeTransition({
         size,
         shape,
-        allowShapeTransformation,
+        shapeFeedback,
         isPressed,
         disabled: disabled || loading,
         transition,
       }),
-    [
-      allowShapeTransformation,
-      disabled,
-      isPressed,
-      loading,
-      shape,
-      size,
-      transition,
-    ],
+    [disabled, isPressed, loading, shape, shapeFeedback, size, transition],
   );
 
   const handlePress = (event: SyntheticEvent): boolean => {
@@ -234,10 +247,10 @@ export const Button = (props: ReactButtonProps) => {
     type,
     icon,
     iconPosition,
-    allowShapeTransformation,
+    shapeFeedback,
     transition,
     size,
-    disableTextMargins,
+    edgeAligned,
     shape,
     disabled,
     loading,
@@ -256,7 +269,7 @@ export const Button = (props: ReactButtonProps) => {
       process.env?.NODE_ENV !== 'production'
     ) {
       console.error(
-        'Udixio UI: <Button> requires either a `label` prop or `children` content. Rendering nothing.',
+        'Udixio UI: <Button> requires one non-empty `label` or `children` content source. Rendering nothing.',
       );
     }
     return null;
@@ -328,9 +341,6 @@ export const Button = (props: ReactButtonProps) => {
         aria-disabled={interactionBlocked || undefined}
         tabIndex={interactionBlocked ? -1 : nativeProps.tabIndex}
         role={interactionBlocked ? 'link' : nativeProps.role}
-        aria-label={
-          nativeProps['aria-label'] ?? (hasCustomContent ? label : undefined)
-        }
         onClick={(event) => {
           if (handlePress(event)) {
             props.onClick?.(event);
@@ -350,9 +360,6 @@ export const Button = (props: ReactButtonProps) => {
       {...sharedElementProps}
       type={type}
       disabled={interactionBlocked}
-      aria-label={
-        nativeProps['aria-label'] ?? (hasCustomContent ? label : undefined)
-      }
       onClick={(event) => {
         if (handlePress(event)) {
           props.onClick?.(event);

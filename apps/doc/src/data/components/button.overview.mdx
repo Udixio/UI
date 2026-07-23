@@ -31,7 +31,9 @@ import buttonActionsAngularSource from '@/examples/angular/button-actions.ts?raw
 
 Button triggers an action or navigates to a destination. Import `Button` from
 `@udixio/ui-react` or `@udixio/ui-angular`. Provide visible text with React
-children, Angular projected content, or the shared `label` property.
+children, Angular projected content, or the shared `label` property. React
+accepts exactly one of `label` and `children`, which keeps the visible and
+accessible labels from contradicting each other.
 
 Action buttons render a native `<button>` and default to `type="button"`.
 Providing `href` renders a native `<a>` instead.
@@ -99,12 +101,12 @@ sets `aria-busy` while keeping the label available as the accessible name.
 </Code>
 
 By default, the shared Motion controller transforms the button shape on press.
-Set `allowShapeTransformation={false}` / `[allowShapeTransformation]="false"`
-to disable it, or pass a Motion `transition` to customize it. Reduced-motion
+Set `shapeFeedback="none"` in React or Angular to keep a static shape, or pass a
+Motion `transition` to customize the `morph` feedback. Reduced-motion
 preferences keep the feedback but remove the movement.
 
-Text buttons use negative inline margins for alignment. Set
-`disableTextMargins` to remove those margins.
+Text buttons use negative inline margins for edge alignment by default. Set
+`edgeAligned={false}` / `[edgeAligned]="false"` to keep their full layout box.
 
 ## Icons
 
@@ -141,6 +143,22 @@ has no `href`, receives `aria-disabled="true"`, and leaves the tab order.
 Button relies on native button and link keyboard behavior. Toggle buttons expose
 `aria-pressed`; loading buttons expose `aria-busy`; and keyboard focus receives
 a visible two-pixel outline. Always provide a concise accessible name. When
-custom visual content replaces the visible label in React, keep `label` as the
-accessible-name fallback. In Angular, use `aria-label` for projected icon-only
-content.
+custom visual content has no accessible text, provide `aria-label` in both
+frameworks. Never provide a label that contradicts visible text.
+
+## Migration to the next major
+
+Button's stable contract intentionally has no compatibility aliases. Update
+consumers before adopting the next major release:
+
+| Previous API                           | Stable API                                            |
+| -------------------------------------- | ----------------------------------------------------- |
+| `disableTextMargins`                   | `edgeAligned` with inverted polarity                  |
+| `allowShapeTransformation={false}`     | `shapeFeedback="none"`                                |
+| `activated`                            | `pressed` or `defaultPressed`                         |
+| `onToggle`                             | `toggleable` plus `onPressedChange` / `pressedChange` |
+| React `label` together with `children` | Choose one; add `aria-label` for non-text children    |
+
+`edgeAligned` and `shapeFeedback` default to `true` and `morph`, preserving the
+previous default appearance. Toggle state now follows the controlled and
+uncontrolled contract described above, and action events remain independent.

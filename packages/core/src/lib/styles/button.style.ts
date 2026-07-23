@@ -5,18 +5,19 @@ import { resolveButtonVariant } from '../behaviors';
 
 const buttonConfig: ClassNameComponent<ButtonInterface> = (state) => {
   const {
-    disableTextMargins,
+    edgeAligned,
     disabled,
     isPressed,
     loading,
     shape,
     toggleable,
     size,
-    allowShapeTransformation,
+    shapeFeedback,
   } = state;
   const variant = resolveButtonVariant(state.variant);
+  const interactionBlocked = disabled || loading;
   const usesSquaredShape =
-    shape === 'squared' || (allowShapeTransformation && isPressed);
+    shape === 'squared' || (shapeFeedback === 'morph' && isPressed);
 
   return {
     button: classNames(
@@ -38,13 +39,14 @@ const buttonConfig: ClassNameComponent<ButtonInterface> = (state) => {
         'rounded-[28px]': size === 'large' || size === 'xLarge',
       },
       variant === 'elevated' && {
-        'shadow-1 hover:shadow-2': !disabled,
+        'shadow-1': !disabled,
+        'hover:shadow-2': !interactionBlocked,
         'bg-surface-container-low text-primary': !disabled && !isPressed,
         'bg-primary text-on-primary': !disabled && isPressed,
         'text-on-surface/[38%]': disabled,
       },
       variant === 'filled' && {
-        'hover:shadow-1': !disabled,
+        'hover:shadow-1': !interactionBlocked,
         'bg-surface-container text-on-surface-variant':
           !disabled && !isPressed && toggleable,
         'bg-primary text-on-primary':
@@ -52,7 +54,7 @@ const buttonConfig: ClassNameComponent<ButtonInterface> = (state) => {
         'text-on-surface/[38%]': disabled,
       },
       variant === 'tonal' && {
-        'hover:shadow-1': !disabled,
+        'hover:shadow-1': !interactionBlocked,
         'bg-secondary-container text-on-secondary-container':
           !disabled && !isPressed,
         'bg-secondary text-on-secondary': !disabled && isPressed,
@@ -75,7 +77,7 @@ const buttonConfig: ClassNameComponent<ButtonInterface> = (state) => {
           'text-primary': !disabled,
           'text-on-surface/[0.38]': disabled,
         },
-        !disableTextMargins && [
+        edgeAligned && [
           size === 'xSmall' && '-mx-3 ',
           size === 'small' && '-mx-4 ',
           size === 'medium' && '-mx-6 ',
@@ -83,7 +85,7 @@ const buttonConfig: ClassNameComponent<ButtonInterface> = (state) => {
           size === 'xLarge' && '-mx-16',
         ],
       ],
-      disabled && 'cursor-default',
+      interactionBlocked && 'cursor-default',
     ),
     touchTarget: classNames(
       'absolute left-1/2 top-1/2 h-12 w-full min-w-12 -translate-x-1/2 -translate-y-1/2',

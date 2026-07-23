@@ -1,3 +1,14 @@
+## 3.0.0 (Unreleased)
+
+### 💥 Breaking Changes
+
+- **button:** replace `disableTextMargins` with the positive `edgeAligned` contract.
+- **button:** replace `allowShapeTransformation` with `shapeFeedback: 'morph' | 'none'`.
+- **button:** require exactly one React content source (`label` or `children`) and use explicit `aria-label` for non-text content.
+- **button:** replace the legacy `activated` / `onToggle` state contract with `toggleable`, `pressed`, `defaultPressed`, and `onPressedChange`.
+
+No compatibility aliases are included. See the Button overview migration table for consumer changes.
+
 ## 2.11.0 (2026-04-11)
 
 ### 🧱 Updated Dependencies

@@ -858,6 +858,13 @@ importers:
       '@udixio/core':
         specifier: workspace:*
         version: link:../core
+    devDependencies:
+      '@types/jest-axe':
+        specifier: ^3.5.9
+        version: 3.5.9
+      jest-axe:
+        specifier: ^10.0.0
+        version: 10.0.0
 
   packages/ui-react:
     dependencies:

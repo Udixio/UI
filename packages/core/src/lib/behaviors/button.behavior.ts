@@ -133,25 +133,22 @@ export function getButtonProgressColor({
 export function getButtonShapeTransition({
   size = 'medium',
   shape = 'rounded',
-  allowShapeTransformation = true,
+  shapeFeedback = 'morph',
   isPressed,
   disabled,
   transition,
-}: Pick<
-  ButtonProps,
-  'size' | 'shape' | 'allowShapeTransformation' | 'transition'
-> & {
+}: Pick<ButtonProps, 'size' | 'shape' | 'shapeFeedback' | 'transition'> & {
   isPressed: boolean;
   disabled: boolean;
 }): StateLayerShapeTransition {
   const radii = BUTTON_SHAPE_RADII[size];
   const useSquaredRestingShape =
-    shape === 'squared' || (allowShapeTransformation && isPressed);
+    shape === 'squared' || (shapeFeedback === 'morph' && isPressed);
 
   return {
     restingBorderRadius: useSquaredRestingShape ? radii.squared : radii.rounded,
     pressedBorderRadius: radii.squared,
-    enabled: allowShapeTransformation && !disabled,
+    enabled: shapeFeedback === 'morph' && !disabled,
     transition: transition ?? DEFAULT_BUTTON_SHAPE_TRANSITION,
   };
 }

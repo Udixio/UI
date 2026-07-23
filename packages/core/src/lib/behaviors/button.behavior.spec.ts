@@ -127,7 +127,6 @@ describe('button behavior', () => {
       getButtonShapeTransition({
         size: 'medium',
         shape: 'rounded',
-        allowShapeTransformation: true,
         isPressed: false,
         disabled: false,
       }),
@@ -142,7 +141,7 @@ describe('button behavior', () => {
       getButtonShapeTransition({
         size: 'large',
         shape: 'rounded',
-        allowShapeTransformation: true,
+        shapeFeedback: 'morph',
         isPressed: true,
         disabled: false,
         transition: { type: 'tween', duration: 0.5, ease: 'easeInOut' },
@@ -152,6 +151,23 @@ describe('button behavior', () => {
       pressedBorderRadius: '28px',
       enabled: true,
       transition: { type: 'tween', duration: 0.5, ease: 'easeInOut' },
+    });
+  });
+
+  it('keeps the resting shape and disables shape motion when feedback is none', () => {
+    expect(
+      getButtonShapeTransition({
+        size: 'medium',
+        shape: 'rounded',
+        shapeFeedback: 'none',
+        isPressed: true,
+        disabled: false,
+      }),
+    ).toEqual({
+      restingBorderRadius: '40px',
+      pressedBorderRadius: '16px',
+      enabled: false,
+      transition: DEFAULT_BUTTON_SHAPE_TRANSITION,
     });
   });
 });

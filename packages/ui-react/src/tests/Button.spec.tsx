@@ -99,6 +99,47 @@ describe('Button', () => {
     expect(onClick).not.toHaveBeenCalled();
   });
 
+  it('uses blocked interaction styling while loading', () => {
+    render(<Button label="Saving" loading />);
+
+    const button = screen.getByRole('button', { name: 'Saving' });
+    expect(button.className).toContain('cursor-default');
+    expect(button.className).not.toContain('hover:shadow-1');
+  });
+
+  it.each(['Enter', ' '])('preserves native %s keyboard activation', (key) => {
+    const onClick = vi.fn();
+    render(<Button label="Keyboard action" onClick={onClick} />);
+
+    const button = screen.getByRole('button', { name: 'Keyboard action' });
+    const keyEvent = new KeyboardEvent('keydown', {
+      key,
+      bubbles: true,
+      cancelable: true,
+    });
+    expect(button.dispatchEvent(keyEvent)).toBe(true);
+
+    // Browsers dispatch the click after the native button key sequence.
+    button.click();
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('connects pointer feedback and removes it during cleanup', () => {
+    const { unmount } = render(<Button label="Pointer action" />);
+    const button = screen.getByRole('button', { name: 'Pointer action' });
+
+    fireEvent.pointerDown(button, {
+      pointerType: 'mouse',
+      clientX: 4,
+      clientY: 4,
+    });
+    const ripple = button.querySelector('[data-udixio-ripple]');
+    expect(ripple).not.toBeNull();
+
+    unmount();
+    expect(ripple?.isConnected).toBe(false);
+  });
+
   // ─── Sprint 1: type attribute ─────────────────────────────────
 
   it('renders with type="button" by default to prevent form submission', () => {
@@ -175,7 +216,7 @@ describe('Button', () => {
 
     expect(container.innerHTML).toBe('');
     expect(errorSpy).toHaveBeenCalledWith(
-      expect.stringContaining('requires either a `label` prop'),
+      expect.stringContaining('requires one non-empty `label`'),
     );
 
     errorSpy.mockRestore();
@@ -336,16 +377,31 @@ describe('Button', () => {
     expect(label.nextElementSibling?.tagName).toBe('svg');
   });
 
-  it('keeps default text alignment margins unless explicitly disabled', () => {
+  it('aligns text buttons to the surrounding edge by default', () => {
     const { rerender } = render(
       <Button label="Text" variant="text" size="medium" />,
     );
     expect(screen.getByRole('button').className).toContain('-mx-6');
 
     rerender(
-      <Button label="Text" variant="text" size="medium" disableTextMargins />,
+      <Button label="Text" variant="text" size="medium" edgeAligned={false} />,
     );
     expect(screen.getByRole('button').className).not.toContain('-mx-6');
+  });
+
+  it('supports intent-based shape feedback', () => {
+    render(
+      <Button
+        label="Static shape"
+        toggleable
+        defaultPressed
+        shapeFeedback="none"
+      />,
+    );
+
+    const button = screen.getByRole('button');
+    expect(button).toHaveStyle({ borderRadius: '40px' });
+    expect(button.className).toContain('rounded-[40px]');
   });
 
   it('provides a durable focus-visible indicator and 48px touch target', () => {
@@ -359,20 +415,26 @@ describe('Button', () => {
     expect(touchTarget?.className).toContain('min-w-12');
   });
 
-  it('uses label as the accessible-name fallback for custom content', () => {
+  it('keeps the visible custom label in the accessible name', () => {
     render(
-      <Button label="Save changes">
+      // @ts-expect-error — the major API forbids competing content sources.
+      <Button label="Enregistrer">
+        <span>Supprimer</span>
+      </Button>,
+    );
+
+    const button = screen.getByRole('button', { name: 'Supprimer' });
+    expect(button).not.toHaveAttribute('aria-label');
+  });
+
+  it('requires an explicit accessible name for non-text custom content', () => {
+    render(
+      <Button aria-label="Save changes">
         <span aria-hidden="true">✓</span>
       </Button>,
     );
 
     expect(screen.getByRole('button', { name: 'Save changes' })).toBeVisible();
-  });
-
-  it('falls back to label when children do not render visible content', () => {
-    render(<Button label="Fallback">{false}</Button>);
-
-    expect(screen.getByRole('button', { name: 'Fallback' })).toBeVisible();
   });
 
   it('hides trusted raw SVG icons from the accessibility tree', () => {

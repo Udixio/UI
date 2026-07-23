@@ -10,6 +10,7 @@ export type ButtonVariant =
 export type ButtonVariantAlias = 'primary' | 'secondary';
 export type ButtonIconPosition = 'start' | 'end';
 export type ButtonIconPositionAlias = 'left' | 'right';
+export type ButtonShapeFeedback = 'morph' | 'none';
 
 export interface ButtonProps {
   /**
@@ -45,11 +46,11 @@ export interface ButtonProps {
   disabled?: boolean;
 
   /**
-   * Removes the default negative horizontal margins from text buttons.
-   * Only applies to 'text' variant buttons.
-   * @default false
+   * Aligns text-button content with the surrounding inline edge.
+   * Only applies to `text` variant buttons.
+   * @default true
    */
-  disableTextMargins?: boolean;
+  edgeAligned?: boolean;
 
   /** Blocks interaction and exposes the busy state while preserving the label. */
   loading?: boolean;
@@ -59,8 +60,11 @@ export interface ButtonProps {
    */
   shape?: 'squared' | 'rounded';
 
-  /** Enables the shared press/toggle shape transformation. */
-  allowShapeTransformation?: boolean;
+  /**
+   * Shape feedback shown for accepted press and toggle interactions.
+   * @default 'morph'
+   */
+  shapeFeedback?: ButtonShapeFeedback;
 
   /** Motion transition shared by every framework for shape changes. */
   transition?: Transition;
@@ -77,7 +81,7 @@ export interface ButtonProps {
   /** Initial pressed state when `pressed` is not controlled. */
   defaultPressed?: boolean;
 
-  /** Visible label and accessible-name fallback for custom content. */
+  /** Visible text used when the framework adapter receives no custom content. */
   label?: string;
 }
 

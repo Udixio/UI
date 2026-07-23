@@ -14,7 +14,7 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/angular:package",
+      "executor": "@angular-devkit/build-angular:ng-packagr",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
         "project": "packages/ui-angular/ng-package.json",

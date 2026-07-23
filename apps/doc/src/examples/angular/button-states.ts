@@ -12,6 +12,7 @@ import { Button } from '@udixio/ui-angular';
       <lib-button label="Sending" loading />
       <lib-button label="Rounded" shape="rounded" variant="tonal" />
       <lib-button label="Squared" shape="squared" variant="outlined" />
+      <lib-button label="Static shape" shapeFeedback="none" variant="text" />
     </div>
   `,
 })

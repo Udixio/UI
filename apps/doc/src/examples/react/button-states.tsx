@@ -7,6 +7,7 @@ export default function ButtonStatesReact() {
       <Button label="Sending" loading />
       <Button label="Rounded" shape="rounded" variant="tonal" />
       <Button label="Squared" shape="squared" variant="outlined" />
+      <Button label="Static shape" shapeFeedback="none" variant="text" />
     </div>
   );
 }

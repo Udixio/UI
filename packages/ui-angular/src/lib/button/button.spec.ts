@@ -1,6 +1,9 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { axe, toHaveNoViolations } from 'jest-axe';
 import { Button } from './button';
+
+expect.extend(toHaveNoViolations);
 
 @Component({
   standalone: true,
@@ -128,6 +131,8 @@ describe('Button (Angular, consuming @udixio/core)', () => {
     );
     expect(button.getAttribute('aria-busy')).toBe('true');
     expect(button.textContent).toContain('Ajouter');
+    expect(button.className).toContain('cursor-default');
+    expect(button.className).not.toContain('hover:shadow-1');
   });
 
   it('projects custom content with the label as fallback', () => {
@@ -140,6 +145,7 @@ describe('Button (Angular, consuming @udixio/core)', () => {
     expect(button.hidden).toBe(false);
     expect(button.textContent?.trim()).toBe('Projected label');
     expect(button.textContent).not.toContain('Fallback label');
+    expect(button.getAttribute('aria-label')).toBeNull();
     expect(
       hostFixture.nativeElement.querySelector('lib-button').style.display,
     ).toBe('contents');
@@ -264,6 +270,9 @@ describe('Button (Angular, consuming @udixio/core)', () => {
     const link: HTMLAnchorElement = fixture.nativeElement.querySelector('a');
     expect(link.hasAttribute('aria-pressed')).toBe(false);
     expect(link.className).toContain('bg-primary');
+    link.addEventListener('click', (event) => event.preventDefault(), {
+      once: true,
+    });
     link.click();
     expect(emitted).toEqual([]);
   });
@@ -277,6 +286,47 @@ describe('Button (Angular, consuming @udixio/core)', () => {
 
     expect(hostFixture.componentInstance.actions).toBe(1);
     expect(hostFixture.componentInstance.pressed).toBe(true);
+  });
+
+  it.each(['Enter', ' '])('preserves native %s keyboard activation', (key) => {
+    const hostFixture = TestBed.createComponent(InteractiveButtonHost);
+    hostFixture.detectChanges();
+    const button: HTMLButtonElement =
+      hostFixture.nativeElement.querySelector('button');
+    const keyEvent = new KeyboardEvent('keydown', {
+      key,
+      bubbles: true,
+      cancelable: true,
+    });
+
+    expect(button.dispatchEvent(keyEvent)).toBe(true);
+    // Browsers dispatch the click after the native button key sequence.
+    button.click();
+    hostFixture.detectChanges();
+
+    expect(hostFixture.componentInstance.actions).toBe(1);
+    expect(hostFixture.componentInstance.pressed).toBe(true);
+  });
+
+  it('connects pointer feedback and removes it during cleanup', () => {
+    fixture.componentRef.setInput('label', 'Pointer action');
+    fixture.detectChanges();
+    const button: HTMLButtonElement =
+      fixture.nativeElement.querySelector('button');
+    const pointerDown = new MouseEvent('pointerdown', {
+      bubbles: true,
+      cancelable: true,
+      clientX: 4,
+      clientY: 4,
+    });
+    Object.defineProperty(pointerDown, 'pointerType', { value: 'mouse' });
+
+    button.dispatchEvent(pointerDown);
+    const ripple = button.querySelector('[data-udixio-ripple]');
+    expect(ripple).not.toBeNull();
+
+    fixture.destroy();
+    expect(ripple?.isConnected).toBe(false);
   });
 
   it('forwards accessible link attributes to the interactive element', () => {
@@ -313,7 +363,7 @@ describe('Button (Angular, consuming @udixio/core)', () => {
     expect(label.nextElementSibling?.tagName.toLowerCase()).toBe('lib-icon');
   });
 
-  it('keeps text alignment margins unless explicitly disabled', () => {
+  it('aligns text buttons to the surrounding edge by default', () => {
     fixture.componentRef.setInput('label', 'Text');
     fixture.componentRef.setInput('variant', 'text');
     fixture.detectChanges();
@@ -321,9 +371,22 @@ describe('Button (Angular, consuming @udixio/core)', () => {
       fixture.nativeElement.querySelector('button');
     expect(button.className).toContain('-mx-6');
 
-    fixture.componentRef.setInput('disableTextMargins', true);
+    fixture.componentRef.setInput('edgeAligned', false);
     fixture.detectChanges();
     expect(button.className).not.toContain('-mx-6');
+  });
+
+  it('supports intent-based shape feedback', () => {
+    fixture.componentRef.setInput('label', 'Static shape');
+    fixture.componentRef.setInput('toggleable', true);
+    fixture.componentRef.setInput('defaultPressed', true);
+    fixture.componentRef.setInput('shapeFeedback', 'none');
+    fixture.detectChanges();
+
+    const button: HTMLButtonElement =
+      fixture.nativeElement.querySelector('button');
+    expect(button.style.borderRadius).toBe('40px');
+    expect(button.className).toContain('rounded-[40px]');
   });
 
   it('provides a durable focus-visible indicator and 48px touch target', () => {
@@ -370,5 +433,13 @@ describe('Button (Angular, consuming @udixio/core)', () => {
       fixture.nativeElement.querySelector('button');
     expect(button.className).toContain('v-tonal');
     expect(button.className).toContain('p-true');
+  });
+
+  it('has no automated accessibility violations', async () => {
+    fixture.componentRef.setInput('label', 'Accessible button');
+    fixture.detectChanges();
+
+    const results = await axe(fixture.nativeElement);
+    expect(results).toHaveNoViolations();
   });
 });
