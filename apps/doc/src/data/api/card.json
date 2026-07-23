@@ -7,13 +7,45 @@
       "filePath": "packages/ui-react/src/lib/components/Card.tsx",
       "description": "Cards display content and actions about a single subject",
       "tags": {
-        "status": "beta",
+        "status": "stable",
         "category": "Layout",
-        "devx": "- `interactive` only adds a state layer; add your own click/role semantics.",
-        "limitations": "- No built-in header/actions slots; layout is fully custom via children."
+        "devx": "- `href` renders the card as a native link and always applies the interactive treatment.\n- `interactive` without `href` renders `role=\"button\"` with `tabIndex={0}` and Enter/Space activation; provide the action with `onClick`.",
+        "a11y": "- Actionable cards are focusable, expose native link or button semantics, and show a visible focus outline.\n- The accessible name of an actionable card comes from its content; keep meaningful text inside it.",
+        "limitations": "- No built-in header/actions slots; layout is fully custom via children.\n- An actionable card is one action target: do not nest interactive elements inside it; compose inner controls in a non-interactive card instead."
       },
       "methods": [],
       "props": {
+        "variant": {
+          "name": "variant",
+          "description": "Visual container treatment.",
+          "required": false,
+          "type": {
+            "name": "CardVariant | undefined"
+          },
+          "defaultValue": {
+            "value": "'outlined'"
+          }
+        },
+        "interactive": {
+          "name": "interactive",
+          "description": "Enables the actionable treatment: state layer, pointer cursor, and a\nvisible focus outline. Framework adapters also apply it whenever `href`\nis provided.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "children": {
+          "name": "children",
+          "description": "Custom card content; layout is fully owned by the consumer.",
+          "required": false,
+          "type": {
+            "name": "ReactNode"
+          },
+          "defaultValue": null
+        },
         "className": {
           "name": "className",
           "description": "Classes or state-aware element classes applied through the shared style contract.",
@@ -23,12 +55,43 @@
           },
           "defaultValue": null
         },
-        "variant": {
-          "name": "variant",
-          "description": "",
+        "href": {
+          "name": "href",
+          "description": "Navigation destination; switches the native element from div to link.",
           "required": false,
           "type": {
-            "name": "\"outlined\" | \"elevated\" | \"filled\" | undefined"
+            "name": "string | undefined"
+          },
+          "defaultValue": null
+        },
+        "ref": {
+          "name": "ref",
+          "description": "Ref forwarded to the native div element.\nRef forwarded to the native anchor element.",
+          "required": false,
+          "type": {
+            "name": "((instance: HTMLDivElement | null) => void | (() => VoidOrUndefinedOnly)) | RefObject<HTMLDivElement | null> | ((instance: HTMLAnchorElement | null) => void | (() => VoidOrUndefinedOnly)) | RefObject<...> | null | undefined"
+          },
+          "defaultValue": null
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/card/card.ts",
+      "description": "Cards display content and actions about a single subject",
+      "tags": {
+        "status": "stable",
+        "category": "Layout",
+        "devx": "- `href` renders the card as a native link and always applies the interactive treatment.\n- `interactive` without `href` renders `role=\"button\"` with `tabindex=\"0\"` and Enter/Space activation; bind the action with `(click)`.",
+        "a11y": "- Actionable cards are focusable, expose native link or button semantics, and show a visible focus outline.\n- The accessible name of an actionable card comes from its projected content; keep meaningful text inside it.",
+        "limitations": "- No built-in header/actions slots; layout is fully custom via projected content.\n- An actionable card is one action target: do not nest interactive elements inside it; compose inner controls in a non-interactive card instead."
+      },
+      "inputs": {
+        "variant": {
+          "name": "variant",
+          "description": "Visual container treatment.",
+          "required": false,
+          "type": {
+            "name": "CardVariant | undefined"
           },
           "defaultValue": {
             "value": "'outlined'"
@@ -36,14 +99,58 @@
         },
         "interactive": {
           "name": "interactive",
-          "description": "",
+          "description": "Enables the actionable treatment: state layer, pointer cursor, and a\nvisible focus outline. Framework adapters also apply it whenever `href`\nis provided.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "false"
           }
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<CardInterface>"
+          },
+          "defaultValue": null
+        },
+        "href": {
+          "name": "href",
+          "description": "Navigation URL. When defined, the component renders a native link.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "target": {
+          "name": "target",
+          "description": "Native link browsing-context target.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "rel": {
+          "name": "rel",
+          "description": "Native link relationship tokens.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {},
+      "content": {
+        "default": {
+          "name": "default",
+          "selector": "*",
+          "description": "Default projected content."
         }
       }
     }

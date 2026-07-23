@@ -1,91 +1,96 @@
 ---
 ---
 
+import Code from '@/components/Code.astro';
+import CardVariantsReact from '@/examples/react/card-variants.tsx';
+import CardActionsReact from '@/examples/react/card-actions.tsx';
+import CardCompositionReact from '@/examples/react/card-composition.tsx';
+import { CardVariantsAngular } from '@/examples/angular/card-variants.ts';
+import { CardActionsAngular } from '@/examples/angular/card-actions.ts';
+import { CardCompositionAngular } from '@/examples/angular/card-composition.ts';
+import cardVariantsReactSource from '@/examples/react/card-variants.tsx?raw';
+import cardActionsReactSource from '@/examples/react/card-actions.tsx?raw';
+import cardCompositionReactSource from '@/examples/react/card-composition.tsx?raw';
+import cardVariantsAngularSource from '@/examples/angular/card-variants.ts?raw';
+import cardActionsAngularSource from '@/examples/angular/card-actions.ts?raw';
+import cardCompositionAngularSource from '@/examples/angular/card-composition.ts?raw';
+
 ## Usage
 
-Import the Card component from @udixio/ui-react to group related content and actions.
-
-```bash
-import { Card } from "@udixio/ui-react"
-```
-
-```tsx
-<Card>
-  <div className="p-4 space-y-2">
-    <h3 className="text-lg font-semibold">Card title</h3>
-    <p>Card body content goes here.</p>
-  </div>
-</Card>
-```
+Card groups content and actions about a single subject. Import `Card` from
+`@udixio/ui-react` or `@udixio/ui-angular`. The component owns the container
+surface only: padding, typography, and inner layout come from your own content,
+passed as React children or Angular projected content.
 
 ## Variants
 
-```jsx
-<div className="flex flex-wrap gap-4 w-full">
-  <Card className={"flex-1 h-48 min-w-48 flex items-center justify-center"}>
-    <div className="text-display-small text-center">Outlined (default)</div>
-  </Card>
-  <Card className={"flex-1 h-48 min-w-48  flex items-center justify-center"} variant="elevated">
-    <div className="text-display-small">Elevated</div>
-  </Card>
-  <Card className={"flex-1 h-48 min-w-48  flex items-center justify-center"} variant="filled">
-    <div className="text-display-small">Filled</div>
-  </Card>
-</div>
-```
+`variant` selects the container treatment: `outlined` (default), `elevated`, and
+`filled`.
 
-## Interactive state
+<Code
+  codes={{ react: cardVariantsReactSource, angular: cardVariantsAngularSource }}
+>
+  <CardVariantsReact slot="react" client:load />
+  <CardVariantsAngular slot="angular" client:load />
+</Code>
 
-Enable hover and press feedback by setting `interactive` to true. Use it for clickable cards (e.g., navigation tiles).
+## Actionable cards
 
-```jsx
-<>
-<Card className={"w-full h-48 flex items-center justify-center"} interactive>
-  <div className={"text-display-small"} >Clickable card</div>
-</Card>
-<Card className={"w-full h-48 flex items-center justify-center"} interactive>
-  <div className={"text-display-small"} >Clickable card</div>
-</Card>
-</>
-```
+A card becomes actionable in two ways, and both apply the same visual treatment:
+the shared state layer, a pointer cursor, and a visible focus outline.
 
-## Composition patterns
+- `href` renders a native `<a>`. Use it for navigation tiles. Angular also
+  exposes `target` and `rel`.
+- `interactive` without `href` renders `role="button"` with `tabindex="0"` and
+  activates on Enter and Space, matching native button keyboard behavior. Bind
+  the action with React `onClick` or Angular `(click)`; keyboard activation goes
+  through the same click event.
 
-Cards are layout containers. Combine simple elements to create common patterns.
+<Code
+  codes={{ react: cardActionsReactSource, angular: cardActionsAngularSource }}
+>
+  <CardActionsReact slot="react" client:load />
+  <CardActionsAngular slot="angular" client:load />
+</Code>
 
-### Header + body
+An actionable card is a single action target. Do not nest links or buttons
+inside one: the nested control would be unreachable by keyboard in a predictable
+order and the card's accessible name would absorb its text. Put inner controls
+in a non-interactive card instead, as shown below.
 
-```jsx
-<Card>
-  <div className="p-4 space-y-1">
-    <h3 className="text-base font-semibold">Project Aurora</h3>
-    <p className="text-sm text-on-surface-variant">Last updated 2 days ago</p>
-  </div>
-</Card>
-```
+## Composition
 
-### Media + text
+Card has no built-in header, media, or actions slots. Compose those regions with
+your own markup and other Udixio components.
 
-```jsx
-<Card>
-  <img className="w-full h-40 object-cover" src="https://picsum.photos/640/240" alt="Cover" />
-  <div className="p-4">
-    <p>Beautiful landscapes collection</p>
-  </div>
-</Card>
-```
+<Code
+  codes={{
+    react: cardCompositionReactSource,
+    angular: cardCompositionAngularSource,
+  }}
+>
+  <CardCompositionReact slot="react" client:load />
+  <CardCompositionAngular slot="angular" client:load />
+</Code>
 
-### Actions
+## Accessibility
 
-```jsx
-<Card>
-  <div className="p-4 not-prose px-6 space-y-6">
-    <p class={"not-prose text-headline-small"}>Delete Confirmation</p>
-    <p>Are you sure you want to delete this item?</p>
-    <div className="flex gap-6">
-      <Button edgeAligned={false} size={"small"} label="Cancel" variant="text" />
-      <Button size={"small"}  label="Delete" variant="filled" />
-    </div>
-  </div>
-</Card>
-```
+A non-interactive card is a plain container: it carries no role, no tab stop,
+and no state layer, so assistive technology reads its content directly. An
+actionable card takes its accessible name from its content, so keep meaningful
+text inside it. Link cards rely on native anchor semantics; `interactive` cards
+expose button semantics with keyboard activation and a two-pixel focus outline.
+
+## Migration to the next major
+
+| Previous API                         | Stable API                                   |
+| ------------------------------------ | -------------------------------------------- |
+| `interactive` as a visual affordance | `interactive` also provides button semantics |
+| Custom overlay link inside the card  | `href` on the card itself                    |
+
+`interactive` previously added the state layer and pointer cursor without any
+role, tab stop, or keyboard activation, which made "clickable" cards
+unreachable by keyboard. It now renders `role="button"` with `tabindex="0"`.
+If you relied on the purely visual behavior and supplied your own semantics with
+a nested control, move that destination to `href` on the card, or drop
+`interactive` on the container that wraps your own interactive element.

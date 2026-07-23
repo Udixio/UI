@@ -10,12 +10,13 @@ const cardConfig: ClassNameComponent<CardInterface> = ({
   interactive,
 }) => ({
   card: classNames(
-    ' rounded-xl overflow-hidden ',
+    'rounded-xl overflow-hidden',
     variant === 'outlined' && 'bg-surface border border-outline-variant',
     variant === 'elevated' && 'bg-surface-container-low shadow-1',
     variant === 'filled' && 'bg-surface-container-highest',
     {
-      'group/card cursor-pointer': interactive,
+      'group/card cursor-pointer outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current':
+        interactive,
     },
   ),
 });
