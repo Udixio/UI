@@ -3,17 +3,18 @@ import React, {
   useLayoutEffect,
   useRef,
   useState,
-  useCallback,
   type ReactNode,
 } from 'react';
-import { animate } from 'motion/react';
 import {
   carouselStyle,
-  computeCarouselLayout,
   type CarouselInterface,
   type CarouselItemInterface,
   type ReactProps,
 } from '@udixio/core';
+import {
+  createCarouselController,
+  type CarouselController,
+} from '@udixio/core/dom';
 
 import { CustomScroll } from '../effects';
 import { createUseStyle } from '../utils/create-use-style';
@@ -65,25 +66,27 @@ export const Carousel = ({
   );
 
   const trackRef = useRef<HTMLDivElement>(null);
-  
-  // OPTIMIZATION: We no longer store width and translate in React state to avoid laggy 60fps re-renders.
-  // We use refs instead.
+
+  // Latest scroll metrics reported by CustomScroll. Kept in a ref so 60fps
+  // scrolling never triggers a React re-render.
   const getScrollState = useRef({
     scrollProgress: 0,
     scrollTotal: 0,
     scrollVisible: 0,
     scroll: 0,
   });
-  
-  // Smoothed scroll progress using framer-motion animate()
-  const smoothedProgressRef = useRef(0);
-  const scrollAnimationRef = useRef<ReturnType<typeof animate> | null>(null);
 
   const itemRefs = useRef<React.RefObject<HTMLDivElement | null>[]>([]).current;
   const [selectedItem, setSelectedItem] = useState(0);
-  // Mirror of `selectedItem` for the per-frame layout so the DOM-writing
-  // callback stays stable and never reads a stale closure value.
-  const selectedItemRef = useRef(0);
+
+  // The controller reads these through accessors, so it always sees the current
+  // prop values without being recreated when they change.
+  const gapRef = useRef(gap);
+  gapRef.current = gap;
+  const outputRangeRef = useRef(outputRange);
+  outputRangeRef.current = outputRange;
+
+  const controllerRef = useRef<CarouselController | null>(null);
 
   const styles = useCarouselStyle({
     variant,
@@ -104,43 +107,36 @@ export const Carousel = ({
     });
   }
 
-  // Resolve the layout for the current scroll progress (pure, shared with every
-  // adapter via @udixio/core) and write the results straight to the DOM. Widths
-  // and the track transform are applied imperatively to avoid a React re-render
-  // on every animation frame.
-  const applyLayout = useCallback(() => {
+  // The spring and the DOM writes live in @udixio/core/dom so every framework
+  // shares one implementation; React only owns the lifecycle wiring.
+  useEffect(() => {
     const root = ref.current;
     const track = trackRef.current;
     if (!root || !track) return;
 
-    const viewport = getScrollState.current.scrollVisible || root.clientWidth || 0;
-
-    const layout = computeCarouselLayout({
-      count: itemRefs.length,
-      viewport,
-      gap,
-      minItemWidth: outputRange[0],
-      maxItemWidth: outputRange[1],
-      progress: smoothedProgressRef.current,
+    const controller = createCarouselController({
+      track,
+      items: () => itemRefs.map((itemRef) => itemRef.current),
+      viewport: () =>
+        getScrollState.current.scrollVisible || root.clientWidth || 0,
+      gap: () => gapRef.current,
+      minItemWidth: () => outputRangeRef.current[0],
+      maxItemWidth: () => outputRangeRef.current[1],
+      onSelectedIndexChange: setSelectedItem,
     });
 
-    for (const item of layout.items) {
-      const el = itemRefs[item.index]?.current;
-      if (!el) continue;
-      el.style.setProperty('--carousel-item-width', `${item.width}px`);
-      el.style.display = item.visible ? 'block' : 'none';
-    }
-    track.style.transform = `translateX(${layout.translate}px)`;
+    controllerRef.current = controller;
+    controller.update();
 
-    if (layout.selectedIndex !== selectedItemRef.current) {
-      selectedItemRef.current = layout.selectedIndex;
-      setSelectedItem(layout.selectedIndex);
-    }
-  }, [gap, outputRange]);
+    return () => {
+      controller.destroy();
+      controllerRef.current = null;
+    };
+  }, [ref]);
 
   useLayoutEffect(() => {
-    applyLayout();
-  }, [applyLayout, items.length]);
+    controllerRef.current?.update();
+  }, [items.length, gap, outputRange]);
 
 
   useEffect(() => {
@@ -198,21 +194,7 @@ export const Carousel = ({
     getScrollState.current = args;
 
     if (args.scrollTotal > 0) {
-      scrollAnimationRef.current?.stop();
-      const from = smoothedProgressRef.current ?? 0;
-      const to = args.scrollProgress ?? 0;
-
-      scrollAnimationRef.current = animate(from, to, {
-        type: 'spring',
-        stiffness: 260,
-        damping: 32,
-        mass: 0.6,
-        restDelta: 0.0005,
-        onUpdate: (v) => {
-          smoothedProgressRef.current = v;
-          requestAnimationFrame(applyLayout);
-        },
-      });
+      controllerRef.current?.setProgress(args.scrollProgress ?? 0);
     }
   };
 
@@ -230,7 +212,7 @@ export const Carousel = ({
     const total = items.length;
     const viewportWidth = (ref.current as any).clientWidth || 0;
     const itemMaxWidth = outputRange[1];
-    const sProgress = smoothedProgressRef.current;
+    const sProgress = controllerRef.current?.getProgress() ?? 0;
     const visibleApprox = (viewportWidth + gap) / (itemMaxWidth + gap);
     const visibleFull = Math.max(1, Math.floor(visibleApprox));
     const stepHalf = Math.max(1, Math.round(visibleFull * (2 / 3)));
@@ -266,12 +248,6 @@ export const Carousel = ({
       cb(metrics);
     }
   }, [ref, items.length, selectedItem, gap, outputRange]);
-
-  useEffect(() => {
-    return () => {
-      scrollAnimationRef.current?.stop();
-    };
-  }, []);
 
   const [scrollSize, setScrollSize] = useState(0);
   useLayoutEffect(() => {
