@@ -138,17 +138,52 @@ shadow), pas seulement les couleurs — car l'émission static est centralisée 
 - Dé-committer les anciens `udixio.css` générés et les gitignore
   (`apps/doc/src/styles/udixio.css`, `packages/ui-react/src/udixio.css`).
 
-## Risque principal (spike avant implémentation)
+## Résultats du spike (2026-07-24) — les 3 hypothèses sont VALIDÉES
 
-**Tailwind v4 traite-t-il un `@plugin` imbriqué dans un fichier `@import`é ?**
+Vérifié avec `compile()` de `@tailwindcss/node` 4.1.14 sur Tailwind 4.1.14.
 
-- Si oui : l'utilisateur n'écrit qu'un `@import`, tout est câblé.
-- Si non : fallback trivial et toujours sans fragilité — l'utilisateur ajoute lui-même la
-  ligne `@plugin "@udixio/tailwind";` (documentée). Le reste du design est inchangé.
+**1. `NESTED_PLUGIN_OK = true`** — un `@plugin` placé dans un fichier `@import`é est bien
+traité. Entrée `@import "tailwindcss"; @import "./imported.css";` où `imported.css` contient
+`@plugin "./plg.cjs";` → sortie :
 
-Ce spike est la **première étape** du plan d'implémentation.
+```css
+.plg-mark { outline: 1px solid green; }
+```
 
-Risque secondaire : équivalence exacte des utilitaires `state` émis en CSS généré vs. via
+→ **Décision** : le fichier généré émet lui-même `@plugin "@udixio/tailwind";`. L'utilisateur
+n'écrit qu'un seul `@import`.
+
+**2. `UTILITY_IN_IMPORT_OK = true`** — un `@utility` défini dans un fichier `@import`é produit
+un utilitaire fonctionnel **et** compatible avec les variants :
+
+```css
+.probe-box { color: red; }
+.hover\:probe-box { @media (hover: hover) { color: red; } }
+```
+
+→ **Décision** : l'approche CSS statique est viable (elle conditionnait tout le design).
+
+**3. `THEME_IN_MEDIA_OK = true`** — `theme(--breakpoint-lg)` est résolu dans un `@media`
+imbriqué à l'intérieur d'un `@utility` :
+
+```css
+.probe-font { font-size: 3.5rem; @media (min-width: 64rem) { font-size: 4rem; } }
+```
+
+→ **Décision** : le helper `font` émet `@media (min-width: theme(--breakpoint-<name>))`. Le
+repli sur des largeurs en rem codées en dur n'est **pas** nécessaire, et les breakpoints
+personnalisés de l'utilisateur restent donc respectés.
+
+### Deux corrections d'outillage découvertes pendant le spike
+
+- `@tailwindcss/node` n'était qu'une dépendance **transitive** de `@tailwindcss/vite`, non
+  résolvable depuis `packages/tailwind` → ajoutée en `devDependencies` de ce package.
+- `compile()` résout `@import "tailwindcss"` depuis son `base` : un `base` en `os.tmpdir()`
+  échoue (`Can't resolve 'tailwindcss'`). Les tests doivent créer leur répertoire temporaire
+  **à l'intérieur du projet** (ex. `packages/tailwind/.tmp-test/`) pour que la résolution
+  Node remonte jusqu'aux `node_modules` du dépôt.
+
+Risque restant : équivalence exacte des utilitaires `state` émis en CSS généré vs. via
 `matchUtilities`. Mitigé en réutilisant verbatim les corps `@apply` et en comparant le CSS
 résolu par Tailwind avant/après.
 

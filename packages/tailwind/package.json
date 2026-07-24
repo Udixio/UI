@@ -40,5 +40,8 @@
   "publishConfig": {
     "provenance": true,
     "access": "public"
+  },
+  "devDependencies": {
+    "@tailwindcss/node": "^4.1.12"
   }
 }

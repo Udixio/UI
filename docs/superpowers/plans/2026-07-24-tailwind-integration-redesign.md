@@ -15,6 +15,13 @@
 - Do NOT break current consumers: `apps/doc` (Astro) and `@udixio/ui-react` must build green.
 - Behavior preservation: the resolved CSS (utilities `.text-*`, `.state-*`, `.shadow-*`, and `@theme --color-*`) for a fixed reference config must be equivalent before and after (verified by compile-based golden tests).
 - Reference config used by all tests: `defineConfig({ sourceColor: '#6750A4', plugins: [new FontPlugin({}), new TailwindPlugin({ ssr: true })] })` from `@udixio/theme` + `@udixio/tailwind`.
+- **Task 1 spike results (VALIDATED — these parameterize later tasks, no contingency branches remain):**
+  - `NESTED_PLUGIN_OK = true` → the generated CSS emits `@plugin "@udixio/tailwind";` itself (Task 6 keeps that line; Task 9 needs no explicit `@plugin` in user CSS).
+  - `UTILITY_IN_IMPORT_OK = true` → `@utility` in an imported file works and supports variants.
+  - `THEME_IN_MEDIA_OK = true` → Task 4's font helper MUST use `@media (min-width: theme(--breakpoint-<name>))`. Do NOT use the hardcoded rem table.
+- **Test harness constraints (discovered in Task 1 — both already applied):**
+  - `@tailwindcss/node` is a `devDependency` of `packages/tailwind` (added in Task 1). Import `compile` from it.
+  - `compile()` resolves `@import "tailwindcss"` relative to its `base`. A `base` in `os.tmpdir()` FAILS with `Can't resolve 'tailwindcss'`. Every test that compiles CSS MUST create its temp dir **inside the repo** (e.g. under `packages/tailwind/.tmp-test/`) and clean it up afterwards.
 - Commit message trailer for every commit: `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`.
 - Branch: work continues on `feat/angular` (already checked out).
 
@@ -148,7 +155,6 @@ Create `packages/tailwind/src/emit/test-utils.ts`:
 ```ts
 import { compile } from '@tailwindcss/node';
 import { mkdtempSync } from 'node:fs';
-import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { defineConfig, FontPlugin, loader } from '@udixio/theme';
 import { TailwindPlugin } from '../browser/tailwind.plugin';
@@ -174,8 +180,13 @@ export async function buildResolvedCss(
   generatedCss: string,
   candidates: string[],
 ): Promise<string> {
-  const dir = mkdtempSync(join(tmpdir(), 'udixio-emit-'));
-  const { writeFileSync } = await import('node:fs');
+  // The temp dir MUST live inside the repo: compile() resolves
+  // `@import "tailwindcss"` from `base`, and an os.tmpdir() base fails with
+  // "Can't resolve 'tailwindcss'".
+  const { writeFileSync, mkdirSync } = await import('node:fs');
+  const root = join(__dirname, '..', '..', '.tmp-test');
+  mkdirSync(root, { recursive: true });
+  const dir = mkdtempSync(join(root, 'emit-'));
   writeFileSync(join(dir, 'generated.css'), generatedCss);
   const entry = `@import "tailwindcss";\n@import "./generated.css";`;
   const { build } = await compile(entry, { base: dir, onDependency: () => {} });
