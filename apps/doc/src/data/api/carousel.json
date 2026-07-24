@@ -10,7 +10,8 @@
         "status": "beta",
         "category": "Layout",
         "devx": "- Only `CarouselItem` children are rendered; other children are ignored.\n- Use `index` for controlled positioning; otherwise relies on internal scroll state.",
-        "limitations": "- Responsive behavior on mobile is not supported.\n- Only the default (hero) variant is supported.\n- No keyboard navigation or focus management."
+        "a11y": "- The root is a `region` with `aria-roledescription=\"carousel\"`; provide an\n  accessible name via `aria-label` on the component.\n- Each item is a `group` with `aria-roledescription=\"slide\"` and an\n  `aria-label` of the form `\"n / total\"`.\n- Roving `tabIndex` keeps a single item in the tab order; Arrow/Home/End move\n  the selection and center the focused slide.",
+        "limitations": "- Responsive behavior on mobile is not supported.\n- Only the default (hero) variant is supported."
       },
       "methods": [],
       "props": {
@@ -19,7 +20,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<CarouselInterface> | undefined"
+            "name": "string | ClassNameComponent<CarouselInterface>"
           },
           "defaultValue": null
         },
@@ -28,7 +29,7 @@
           "description": "",
           "required": false,
           "type": {
-            "name": "\"hero\" | \"center-aligned\" | \"multi-browse\" | \"un-contained\" | \"full-screen\" | undefined"
+            "name": "\"hero\" | \"center-aligned\" | \"multi-browse\" | \"un-contained\" | \"full-screen\""
           },
           "defaultValue": {
             "value": "'hero'"
@@ -39,7 +40,7 @@
           "description": "Outer margins as a percentage of the viewport width.",
           "required": false,
           "type": {
-            "name": "number | undefined"
+            "name": "number"
           },
           "defaultValue": {
             "value": "0"
@@ -50,7 +51,7 @@
           "description": "Gap between items, in pixels.",
           "required": false,
           "type": {
-            "name": "number | undefined"
+            "name": "number"
           },
           "defaultValue": {
             "value": "8"
@@ -61,7 +62,7 @@
           "description": "Adjusts scroll/drag responsiveness.",
           "required": false,
           "type": {
-            "name": "number | undefined"
+            "name": "number"
           },
           "defaultValue": {
             "value": "1.25"
@@ -72,7 +73,7 @@
           "description": "",
           "required": false,
           "type": {
-            "name": "[number, number] | undefined"
+            "name": "[number, number]"
           },
           "defaultValue": {
             "value": "[0.21, 0.65]"
@@ -83,7 +84,7 @@
           "description": "Min/max item width, in pixels.",
           "required": false,
           "type": {
-            "name": "[number, number] | undefined"
+            "name": "[number, number]"
           },
           "defaultValue": {
             "value": "[42, 300]"
@@ -94,7 +95,7 @@
           "description": "Controlled index for programmatic centering.",
           "required": false,
           "type": {
-            "name": "number | undefined"
+            "name": "number"
           },
           "defaultValue": null
         },
@@ -103,7 +104,7 @@
           "description": "Receive live metrics to better control the carousel externally",
           "required": false,
           "type": {
-            "name": "((metrics: CarouselMetrics) => void) | undefined"
+            "name": "(metrics: CarouselMetrics) => void"
           },
           "defaultValue": null
         }
