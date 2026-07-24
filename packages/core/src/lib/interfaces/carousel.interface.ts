@@ -13,19 +13,20 @@ export interface CarouselMetrics {
 }
 
 type Props = {
+  /**
+   * Carousel layout variant. Only `hero` is implemented today; the other
+   * Material 3 arrangements are reserved and will be supported in the future.
+   */
   variant?:
     | 'hero'
     | 'center-aligned'
     | 'multi-browse'
     | 'un-contained'
     | 'full-screen';
-  /** Outer margins as a percentage of the viewport width. */
-  marginPourcent?: number;
   /** Gap between items, in pixels. */
   gap?: number;
   /** Adjusts scroll/drag responsiveness. */
   scrollSensitivity?: number;
-  inputRange?: [number, number];
   /** Min/max item width, in pixels. */
   outputRange?: [number, number];
   /** Controlled index for programmatic centering. */

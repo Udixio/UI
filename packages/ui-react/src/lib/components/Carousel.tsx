@@ -49,8 +49,6 @@ export const Carousel = ({
   className,
   children,
   ref: optionalRef,
-  marginPourcent = 0,
-  inputRange = [0.21, 0.65],
   outputRange = [42, 300],
   gap = 8,
   onChange,
@@ -89,10 +87,8 @@ export const Carousel = ({
 
   const styles = useCarouselStyle({
     variant,
-    marginPourcent,
     gap,
     scrollSensitivity,
-    inputRange,
     outputRange,
     index,
     onChange,
@@ -339,7 +335,6 @@ export const Carousel = ({
         outputRange,
         ref: itemRefs[idx],
         key: idx,
-        index: idx,
         role: 'group',
         'aria-roledescription': 'slide',
         'aria-label': `${idx + 1} / ${items.length}`,

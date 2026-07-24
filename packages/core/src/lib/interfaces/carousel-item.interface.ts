@@ -1,8 +1,7 @@
 export interface CarouselItemInterface {
   type: 'div';
   props: {
-    width?: number;
-    index?: number;
+    /** Min/max item width in px, provided by the parent `Carousel`. */
     outputRange?: [number, number];
   };
   states: object;

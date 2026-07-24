@@ -26,24 +26,13 @@
         },
         "variant": {
           "name": "variant",
-          "description": "",
+          "description": "Carousel layout variant. Only `hero` is implemented today; the other\nMaterial 3 arrangements are reserved and will be supported in the future.",
           "required": false,
           "type": {
             "name": "\"hero\" | \"center-aligned\" | \"multi-browse\" | \"un-contained\" | \"full-screen\""
           },
           "defaultValue": {
             "value": "'hero'"
-          }
-        },
-        "marginPourcent": {
-          "name": "marginPourcent",
-          "description": "Outer margins as a percentage of the viewport width.",
-          "required": false,
-          "type": {
-            "name": "number"
-          },
-          "defaultValue": {
-            "value": "0"
           }
         },
         "gap": {
@@ -66,17 +55,6 @@
           },
           "defaultValue": {
             "value": "1.25"
-          }
-        },
-        "inputRange": {
-          "name": "inputRange",
-          "description": "",
-          "required": false,
-          "type": {
-            "name": "[number, number]"
-          },
-          "defaultValue": {
-            "value": "[0.21, 0.65]"
           }
         },
         "outputRange": {

@@ -47,8 +47,6 @@ export const normalize = (
 export const CarouselItem = ({
   className,
   children,
-  width,
-  index = 0,
   outputRange,
   ref: optionalRef,
   ...restProps
@@ -57,8 +55,6 @@ export const CarouselItem = ({
   const ref: React.RefObject<null | HTMLDivElement> = optionalRef || defaultRef;
 
   const styles = useCarouselItemStyle({
-    width,
-    index,
     outputRange,
     className,
   });

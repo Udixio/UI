@@ -24,16 +24,14 @@
           },
           "defaultValue": null
         },
-        "index": {
-          "name": "index",
-          "description": "",
+        "outputRange": {
+          "name": "outputRange",
+          "description": "Min/max item width in px, provided by the parent `Carousel`.",
           "required": false,
           "type": {
-            "name": "number"
+            "name": "[number, number]"
           },
-          "defaultValue": {
-            "value": "0"
-          }
+          "defaultValue": null
         }
       }
     }
