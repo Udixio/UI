@@ -9,6 +9,7 @@ import React, {
 import { animate } from 'motion/react';
 import {
   carouselStyle,
+  computeCarouselLayout,
   type CarouselInterface,
   type CarouselItemInterface,
   type ReactProps,
@@ -17,7 +18,6 @@ import {
 import { CustomScroll } from '../effects';
 import { createUseStyle } from '../utils/create-use-style';
 import { CarouselItem, normalize } from './CarouselItem';
-import { computeCarouselLayout } from './carousel-layout';
 
 export type ReactCarouselProps = ReactProps<CarouselInterface> & {
   children?: ReactNode;
@@ -104,8 +104,8 @@ export const Carousel = ({
     });
   }
 
-  // Resolve the layout for the current scroll progress (pure, tested in
-  // carousel-layout.spec.ts) and write the results straight to the DOM. Widths
+  // Resolve the layout for the current scroll progress (pure, shared with every
+  // adapter via @udixio/core) and write the results straight to the DOM. Widths
   // and the track transform are applied imperatively to avoid a React re-render
   // on every animation frame.
   const applyLayout = useCallback(() => {

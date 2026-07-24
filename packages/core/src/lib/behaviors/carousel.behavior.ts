@@ -8,10 +8,9 @@
  * function so it can be unit-tested and reasoned about in isolation from React,
  * the DOM, and Motion.
  *
- * The behaviour is intentionally identical to the previous inline
- * implementation (locked by `carousel-layout.spec.ts` golden values); only its
- * structure and naming changed. It is deliberately kept framework-free so it can
- * later move to `@udixio/core` for the Angular adapter.
+ * The behaviour is locked by the golden values in `carousel.behavior.spec.ts`,
+ * captured from the original React-only implementation. Being framework-free, it
+ * is shared by every adapter rather than reimplemented per framework.
  */
 
 export interface CarouselLayoutInput {

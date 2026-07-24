@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   computeCarouselLayout,
   type CarouselLayoutInput,
-} from '../lib/components/carousel-layout';
-import golden from './carousel-layout.golden.json';
+} from './carousel.behavior';
+import { carouselLayoutGolden as golden } from './carousel.behavior.golden';
 
 const round = (n: number) => Math.round(n * 1e6) / 1e6;
 

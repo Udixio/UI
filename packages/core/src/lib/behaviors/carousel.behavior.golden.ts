@@ -1,0 +1,40 @@
+// Golden layout values captured from the original React-only Carousel
+// implementation. They lock the visual output (widths, visibility, track offset)
+// so any change to `computeCarouselLayout` that alters rendering is caught.
+//
+// `selectedIndex` is recorded but intentionally not asserted: the original
+// resolved exact ties via floating-point noise (see the spec for details).
+
+export interface CarouselLayoutGolden {
+  count: number;
+  viewport: number;
+  gap: number;
+  minItemWidth: number;
+  maxItemWidth: number;
+  progress: number;
+  widths: number[];
+  visible: boolean[];
+  translate: number;
+  selectedIndex: number;
+}
+
+export const carouselLayoutGolden: CarouselLayoutGolden[] = [
+  {"count":5,"viewport":800,"gap":8,"minItemWidth":42,"maxItemWidth":300,"progress":0,"widths":[300,300,184,42,42],"visible":[true,true,true,true,false],"translate":0,"selectedIndex":0},
+  {"count":5,"viewport":800,"gap":8,"minItemWidth":42,"maxItemWidth":300,"progress":0.125,"widths":[300,300,184,42,42],"visible":[true,true,true,true,false],"translate":-12.5,"selectedIndex":0},
+  {"count":5,"viewport":800,"gap":8,"minItemWidth":42,"maxItemWidth":300,"progress":0.25,"widths":[242,300,242,42,42],"visible":[true,true,true,true,false],"translate":-25,"selectedIndex":1},
+  {"count":5,"viewport":800,"gap":8,"minItemWidth":42,"maxItemWidth":300,"progress":0.375,"widths":[113,300,300,113,42],"visible":[true,true,true,true,false],"translate":-37.5,"selectedIndex":1},
+  {"count":5,"viewport":800,"gap":8,"minItemWidth":42,"maxItemWidth":300,"progress":0.5,"widths":[42,242,300,242,42],"visible":[true,true,true,true,false],"translate":-50,"selectedIndex":2},
+  {"count":5,"viewport":800,"gap":8,"minItemWidth":42,"maxItemWidth":300,"progress":0.625,"widths":[42,113,300,300,113],"visible":[false,true,true,true,true],"translate":-25,"selectedIndex":2},
+  {"count":5,"viewport":800,"gap":8,"minItemWidth":42,"maxItemWidth":300,"progress":0.75,"widths":[42,42,242,300,242],"visible":[false,true,true,true,true],"translate":-50,"selectedIndex":3},
+  {"count":5,"viewport":800,"gap":8,"minItemWidth":42,"maxItemWidth":300,"progress":0.875,"widths":[42,42,184,300,300],"visible":[false,true,true,true,true],"translate":-50,"selectedIndex":3},
+  {"count":5,"viewport":800,"gap":8,"minItemWidth":42,"maxItemWidth":300,"progress":1,"widths":[42,42,184,300,300],"visible":[false,true,true,true,true],"translate":-50,"selectedIndex":4},
+  {"count":15,"viewport":800,"gap":8,"minItemWidth":42,"maxItemWidth":300,"progress":0,"widths":[300,300,184,42,42,42,42,42,42,42,42,42,42,42,42],"visible":[true,true,true,true,false,false,false,false,false,false,false,false,false,false,false],"translate":0,"selectedIndex":0},
+  {"count":15,"viewport":800,"gap":8,"minItemWidth":42,"maxItemWidth":300,"progress":0.125,"widths":[77.5,271.59375,300,186.375,42,42,42,42,42,42,42,42,42,42,42],"visible":[true,true,true,true,false,false,false,false,false,false,false,false,false,false,false],"translate":-43.75,"selectedIndex":2},
+  {"count":15,"viewport":800,"gap":8,"minItemWidth":42,"maxItemWidth":300,"progress":0.25,"widths":[42,42,113,300,300,113,42,42,42,42,42,42,42,42,42],"visible":[false,false,true,true,true,true,false,false,false,false,false,false,false,false,false],"translate":-25,"selectedIndex":4},
+  {"count":15,"viewport":800,"gap":8,"minItemWidth":42,"maxItemWidth":300,"progress":0.375,"widths":[42,42,42,42,186.375,300,271.59375,77.5,42,42,42,42,42,42,42],"visible":[false,false,false,false,true,true,true,true,false,false,false,false,false,false,false],"translate":-12.5,"selectedIndex":5},
+  {"count":15,"viewport":800,"gap":8,"minItemWidth":42,"maxItemWidth":300,"progress":0.5,"widths":[42,42,42,42,42,42,242,300,242,42,42,42,42,42,42],"visible":[false,false,false,false,false,true,true,true,true,false,false,false,false,false,false],"translate":-50,"selectedIndex":7},
+  {"count":15,"viewport":800,"gap":8,"minItemWidth":42,"maxItemWidth":300,"progress":0.625,"widths":[42,42,42,42,42,42,42,77.5,271.59375,300,186.375,42,42,42,42],"visible":[false,false,false,false,false,false,false,true,true,true,true,false,false,false,false],"translate":-37.5,"selectedIndex":9},
+  {"count":15,"viewport":800,"gap":8,"minItemWidth":42,"maxItemWidth":300,"progress":0.75,"widths":[42,42,42,42,42,42,42,42,42,113,300,300,113,42,42],"visible":[false,false,false,false,false,false,false,false,false,true,true,true,true,false,false],"translate":-25,"selectedIndex":10},
+  {"count":15,"viewport":800,"gap":8,"minItemWidth":42,"maxItemWidth":300,"progress":0.875,"widths":[42,42,42,42,42,42,42,42,42,42,42,186.375,300,271.59375,77.5],"visible":[false,false,false,false,false,false,false,false,false,false,false,true,true,true,true],"translate":-12.5,"selectedIndex":12},
+  {"count":15,"viewport":800,"gap":8,"minItemWidth":42,"maxItemWidth":300,"progress":1,"widths":[42,42,42,42,42,42,42,42,42,42,42,42,184,300,300],"visible":[false,false,false,false,false,false,false,false,false,false,false,true,true,true,true],"translate":-50,"selectedIndex":14},
+];
