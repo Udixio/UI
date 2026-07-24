@@ -14,10 +14,10 @@
 - Package manager: pnpm workspaces; run tests via `npx nx run @udixio/tailwind:vitest:test` (node env, config in `packages/tailwind/vite.config.ts`).
 - Do NOT break current consumers: `apps/doc` (Astro) and `@udixio/ui-react` must build green.
 - Behavior preservation: the resolved CSS (utilities `.text-*`, `.state-*`, `.shadow-*`, and `@theme --color-*`) for a fixed reference config must be equivalent before and after (verified by compile-based golden tests).
-- **Reference config (CORRECTED in Task 2 — do NOT use `ssr: true`):** `ssr: true` makes the browser plugin emit **colors only** (no `@plugin`, no font/state/shadow), which would make the golden a near-empty safety net. Tests MUST use the **node** `TailwindPlugin` (from `../node/tailwind.plugin`) with an explicit sandboxed `styleFilePath` under `packages/tailwind/.tmp-test/`. The explicit `styleFilePath` is what prevents `_doNodeLoad()` from running its `findTailwindCssFile()` scan-and-overwrite on a real project CSS file. The canonical implementation is `packages/tailwind/src/emit/test-utils.ts` — read it rather than re-deriving. Its exported signatures (`referenceConfig()`, `generateReferenceCss(): Promise<string>`, `buildResolvedCss(generatedCss, candidates): Promise<string>`, `GOLDEN_CANDIDATES`) are stable and reused by Tasks 3–6 and 9.
-- **`@plugin` resolves through `packages/tailwind/dist/`, not live `src/`** (`@tailwindcss/node`'s `compile()` uses standard Node export conditions, not Vite's `development` condition). Any task that changes `src/main.ts` or `src/plugins-tailwind/*` AND relies on a compile-based test MUST rebuild first: `npx nx run @udixio/tailwind:build`. Otherwise the test silently exercises stale `dist/`. This applies to Tasks 8 and 9 in particular.
+- **Reference config (CORRECTED in Task 2 — do NOT use `ssr: true`):** `ssr: true` makes the browser plugin emit **colors only** (no `@plugin`, no font/state/shadow), which would make the golden a near-empty safety net. Tests MUST use the **node** `TailwindPlugin` (from `../node/tailwind.plugin`) with an explicit sandboxed `styleFilePath` under `packages/tailwind/.tmp-test/`. The explicit `styleFilePath` is what prevents `_doNodeLoad()` from running its `findTailwindCssFile()` scan-and-overwrite on a real project CSS file. The canonical implementation is `packages/tailwind/src/emit/test-utils.ts` — read it rather than re-deriving. Its exported signatures (`referenceConfig()`, `generateReferenceCss(): Promise<string>`, `buildResolvedCss(generatedCss, candidates): Promise<string>`, `GOLDEN_CANDIDATES`) are stable and reused by Tasks 3–7.
+- **`@plugin` resolves through `packages/tailwind/dist/`, not live `src/`** (`@tailwindcss/node`'s `compile()` uses standard Node export conditions, not Vite's `development` condition). Any task that changes `src/main.ts` or `src/plugins-tailwind/*` AND relies on a compile-based test MUST rebuild first: `npx nx run @udixio/tailwind:build`. Otherwise the test silently exercises stale `dist/`. This applies to Task 6 (cutover) and Task 7 (equivalence + builds) in particular.
 - **Task 1 spike results (VALIDATED — these parameterize later tasks, no contingency branches remain):**
-  - `NESTED_PLUGIN_OK = true` → the generated CSS emits `@plugin "@udixio/tailwind";` itself (Task 6 keeps that line; Task 9 needs no explicit `@plugin` in user CSS).
+  - `NESTED_PLUGIN_OK = true` → the generated CSS emits `@plugin "@udixio/tailwind";` itself (Task 6 keeps that line; Task 7 needs no explicit `@plugin` in user CSS).
   - `UTILITY_IN_IMPORT_OK = true` → `@utility` in an imported file works and supports variants.
   - `THEME_IN_MEDIA_OK = true` → Task 4's font helper MUST use `@media (min-width: theme(--breakpoint-<name>))`. Do NOT use the hardcoded rem table.
 - **Test harness constraints (discovered in Task 1 — both already applied):**
@@ -120,7 +120,7 @@ If `.plg-mark { outline: 1px solid green }` appears → nested `@plugin` works.
 
 Update the design doc `docs/superpowers/specs/2026-07-24-tailwind-integration-redesign-design.md`, section "Risque principal", replacing it with the observed results. Record three booleans and the chosen branch:
 
-- `NESTED_PLUGIN_OK` — if true, the generated CSS emits `@plugin "@udixio/tailwind";` itself (one user import). If false, the user setup requires an explicit `@plugin "@udixio/tailwind";` line (documented in Task 9); the generated file omits it.
+- `NESTED_PLUGIN_OK` — if true, the generated CSS emits `@plugin "@udixio/tailwind";` itself (one user import). If false, the user setup requires an explicit `@plugin "@udixio/tailwind";` line (documented in Task 7); the generated file omits it. [Moot: NESTED_PLUGIN_OK validated true.]
 - `UTILITY_IN_IMPORT_OK` — expected true; if false, escalate (blocks the static-CSS approach) and stop.
 - `THEME_IN_MEDIA_OK` — if true, font helper (Task 4) emits `@media (min-width: theme(--breakpoint-<name>))`. If false, font helper emits resolved rem widths for standard Tailwind breakpoints (`sm 40rem, md 48rem, lg 64rem, xl 80rem, 2xl 96rem`) and documents that custom screen widths are not tracked.
 
@@ -147,7 +147,7 @@ Capture the current behavior as a golden before any refactor, so later tasks pro
 
 **Interfaces:**
 - Consumes: `loader` and `TailwindPlugin` from the current packages; `compile` from `@tailwindcss/node`.
-- Produces: `buildResolvedCss(generatedCss: string, candidates: string[]): Promise<string>` and `generateReferenceCss(): Promise<string>` in `test-utils.ts`, reused by Task 6 and Task 9.
+- Produces: `buildResolvedCss(generatedCss: string, candidates: string[]): Promise<string>` and `generateReferenceCss(): Promise<string>` in `test-utils.ts`, reused by Task 6 and Task 7.
 
 - [ ] **Step 1: Write the shared test util**
 
@@ -566,19 +566,43 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 
 ---
 
-## Task 6: CSS emitter — assemble the full static theme CSS
+## Task 6: Internal cutover — static emitter + animation-only plugin + gitignored file write
 
-Extend the theme's `TailwindImplPluginBrowser` so its `outputCss` contains colors (existing) + font + state + shadow + the animation `@plugin` line. This is the single generation point reused by the node plugin and by `generateThemeCss`.
+> **ATOMIC TASK — do not split.** Tasks 6, 7, and 8 of the original plan were mutually
+> dependent and produced broken intermediate states if done separately (an empty
+> `@plugin` while `main.ts` still expects options; font/state/shadow defined twice; the
+> node file-path not calling the browser emitter). They are merged here into ONE cutover,
+> verified together against the Task 2 golden.
+
+**Corrections baked in from Tasks 1–5 findings:**
+- **Colors MUST be emitted as `@theme { --color-* }`** (the `loadColor({ isDynamic: false })`
+  path), NOT the browser `onLoad`'s `.dynamic { --color-* }` (`isDynamic: true`). Only `@theme`
+  registers Tailwind color utilities, which `text-primary`/`bg-primary`/`text-on-surface`
+  need — and which `state`'s disabled `@apply text-on-surface`/`bg-on-surface` need to
+  resolve. Using `.dynamic` here silently breaks every color utility and the state layer.
+- The full static CSS is produced by a new `emitStaticCss()` method and used by the **node
+  file path** (`_doNodeLoad`). The browser `onLoad` (SSR / `generateThemeCss`, `isDynamic: true`,
+  colors-only `.dynamic`) is **left unchanged** — SSR injects color vars at runtime; build-time
+  utilities do not belong there.
+- The emitted `@plugin "@udixio/tailwind";` carries **no options block**, so `main.ts` must be
+  reduced to animation-only in this same task or the plugin errors on missing `ConfigCss`.
+- `@plugin` resolves through `packages/tailwind/dist/`, so **rebuild before the compile-based
+  tests**: `npx nx run @udixio/tailwind:build`.
 
 **Files:**
-- Modify: `packages/tailwind/src/browser/tailwind.plugin.ts` (extend `onLoad` / add an `emitUtilities()` method; keep `loadColor`, `getColors`)
-- Test: `packages/tailwind/src/emit/emitter.spec.ts`
+- Modify: `packages/tailwind/src/browser/tailwind.plugin.ts` (add `emitStaticCss()`; add `outFile?: string` to `TailwindPluginOptions`; keep `loadColor`, `getColors`, and `onLoad` unchanged)
+- Modify: `packages/tailwind/src/node/tailwind.plugin.ts` (rewrite `_doNodeLoad`: call `emitStaticCss()`, write to `outFile`, gitignore it, no scan/mutation)
+- Modify: `packages/tailwind/src/main.ts` (animation-only)
+- Modify: `packages/tailwind/src/plugins-tailwind/index.ts` (export only `animation`)
+- Delete: `packages/tailwind/src/node/file.ts`, `packages/tailwind/src/plugins-tailwind/{font,state,shadow}.ts`
+- Modify: `packages/tailwind/package.json` (drop `replace-in-file`; drop `chalk` if unused)
+- Test: `packages/tailwind/src/emit/emitter.spec.ts`, `packages/tailwind/src/node/node-plugin.spec.ts`
 
 **Interfaces:**
-- Consumes: `shadowCss` (Task 3), `fontCss` (Task 4), `stateCss` (Task 5); `getColors()` (existing) for color keys; `this.api.plugins.getPlugin(FontPlugin).getInstance().getFonts()` for `fontStyles`/`fontFamily` (as in `node/tailwind.plugin.ts`).
-- Produces: `outputCss` that includes all sections. No signature change to public methods.
+- Consumes: `shadowCss()` (Task 3), `fontCss(FontCssArgs)` (Task 4), `stateCss(colorKeys)` (Task 5); `getColors()` (kebab keys); `FontPlugin.getFonts()` → `{ fontStyles, fontFamily }`.
+- Produces: `emitStaticCss(): void` setting `this.outputCss` to the full static CSS; node plugin writing `<outFile>` (gitignored). Default `outFile` = `<cwd>/udixio.generated.css`; `options.outFile` overrides (absolute or cwd-relative).
 
-- [ ] **Step 1: Write the failing test**
+- [ ] **Step 1: Write the failing emitter test**
 
 Create `packages/tailwind/src/emit/emitter.spec.ts`:
 
@@ -587,13 +611,16 @@ import { describe, expect, it } from 'vitest';
 import { generateReferenceCss } from './test-utils';
 
 describe('theme CSS emitter', () => {
-  it('emits colors, font, state, shadow and the animation @plugin line', async () => {
+  it('emits @theme colors, font, state, shadow and the animation @plugin line', async () => {
     const css = await generateReferenceCss();
-    expect(css).toContain('--color-primary:');          // colors
-    expect(css).toContain('@utility text-display-large'); // font
-    expect(css).toContain('@utility state-primary');      // state
-    expect(css).toContain('@utility shadow-1');           // shadow
-    expect(css).toContain('@plugin "@udixio/tailwind"');  // animation (if NESTED_PLUGIN_OK)
+    expect(css).toContain('@theme');                      // colors registered as theme
+    expect(css).toContain('--color-primary:');            // colors
+    expect(css).toContain('@utility text-display-large'); // font (static)
+    expect(css).toContain('@utility state-primary');      // state (static)
+    expect(css).toContain('@utility shadow-1');           // shadow (static)
+    expect(css).toContain('@plugin "@udixio/tailwind"');  // animation
+    // the old string round-trip block must be gone
+    expect(css).not.toContain('colorKeys:');
   });
 });
 ```
@@ -601,11 +628,11 @@ describe('theme CSS emitter', () => {
 - [ ] **Step 2: Run to verify it fails**
 
 Run: `npx vitest run --root packages/tailwind src/emit/emitter.spec.ts`
-Expected: FAIL — `outputCss` currently contains only color blocks, so the `@utility text-display-large` assertion fails.
+Expected: FAIL — current `_doNodeLoad` emits the `@plugin { colorKeys: … }` block and no `@utility` lines, so `@utility text-display-large` is missing and `colorKeys:` is present.
 
-- [ ] **Step 3: Extend the emitter**
+- [ ] **Step 3: Add `emitStaticCss()` to the browser plugin**
 
-In `packages/tailwind/src/browser/tailwind.plugin.ts`, add imports and an `emitUtilities()` method, and call it from `onLoad` after `loadColor`. Insert near the top:
+In `packages/tailwind/src/browser/tailwind.plugin.ts`, add imports near the top:
 
 ```ts
 import { fontCss } from '../emit/font.css';
@@ -614,11 +641,19 @@ import { shadowCss } from '../emit/shadow.css';
 import { FontPlugin } from '@udixio/theme';
 ```
 
-Add the method to `TailwindImplPluginBrowser`:
+Add `outFile?: string;` to the `TailwindPluginOptions` interface. Add this method to `TailwindImplPluginBrowser` (do NOT change `onLoad`, `loadColor`, or `getColors`):
 
 ```ts
-  emitUtilities() {
-    const colorKeys = Object.keys(this.getColors());
+  /**
+   * Assembles the full static theme CSS for the build-time generated file:
+   * @theme colors (registers Tailwind color utilities) + static font/state/shadow
+   * utilities + @theme font families + the animation plugin. NOT used by the SSR
+   * onLoad path, which stays colors-only under `.dynamic`.
+   */
+  emitStaticCss() {
+    this.outputCss = '';
+    this.loadColor({ isDynamic: false }); // @theme { --color-* } + dark @layer + subThemes
+    const colorKeys = Object.keys(this.getColors()); // kebab keys
     const { fontStyles, fontFamily } = this.api.plugins
       .getPlugin(FontPlugin)
       .getInstance()
@@ -633,109 +668,37 @@ Add the method to `TailwindImplPluginBrowser`:
         responsiveBreakPoints: this.options.responsiveBreakPoints ?? { lg: 1.125 },
         fontFamily,
       });
-    // If NESTED_PLUGIN_OK (Task 1): register the animation plugin from the file itself.
+    this.outputCss += `\n@theme {\n  ${Object.entries(fontFamily)
+      .map(
+        ([key, values]) =>
+          `--font-${key}: ${(values as string[])
+            .map((v) => (v.trim().startsWith('var(') ? v : `"${v}"`))
+            .join(', ')};`,
+      )
+      .join('\n  ')}\n}`;
     this.outputCss += '\n@plugin "@udixio/tailwind";';
   }
 ```
 
-Update `onLoad` (browser) to call it:
+- [ ] **Step 4: Rewrite `_doNodeLoad` (node plugin) to use `emitStaticCss` and write the gitignored file**
 
-```ts
-  async onLoad() {
-    this.outputCss = '';
-    this.loadColor({ isDynamic: true });
-    this.emitUtilities();
-  }
-```
-
-Note: `getColors()` keys are camelCase; `loadColor` already converts them to kebab-case for `--color-*`. `stateCss` needs the same kebab keys — reuse the kebab conversion from `getColors` by taking `Object.keys(this.getColors())` (already kebab in the returned map). Verify `getColors()` returns kebab keys (it does: it `.replace(regex, '$1-$2').toLowerCase()`).
-
-- [ ] **Step 4: Run to verify it passes**
-
-Run: `npx vitest run --root packages/tailwind src/emit/emitter.spec.ts`
-Expected: PASS. If `NESTED_PLUGIN_OK` was false in Task 1, remove the `@plugin` line from `emitUtilities` and delete that one assertion from the test.
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add packages/tailwind/src/browser/tailwind.plugin.ts packages/tailwind/src/emit/emitter.spec.ts
-git commit -m "feat(tailwind): emit full static theme CSS from the plugin
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
-```
-
----
-
-## Task 7: Node plugin — write gitignored file, no scan, no source mutation
-
-Rewrite `node/tailwind.plugin.ts` so it writes `udixio.generated.css` to a deterministic path and ensures a `.gitignore` entry, without scanning the FS or rewriting the user's CSS.
-
-**Files:**
-- Modify: `packages/tailwind/src/node/tailwind.plugin.ts` (replace `_doNodeLoad`)
-- Test: `packages/tailwind/src/node/node-plugin.spec.ts`
-
-**Interfaces:**
-- Consumes: the extended emitter (Task 6) — `this.outputCss` already holds the full CSS after `super.onLoad()`.
-- Produces: writes `<outDir>/udixio.generated.css`; `outDir` defaults to the directory of the resolved `theme.config`, overridable via `options.outFile` (absolute or project-relative path). Ensures the file is listed in the nearest `.gitignore`.
-
-- [ ] **Step 1: Write the failing test**
-
-Create `packages/tailwind/src/node/node-plugin.spec.ts`:
-
-```ts
-import { describe, expect, it } from 'vitest';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { defineConfig, FontPlugin, loader } from '@udixio/theme';
-import { TailwindPlugin } from './tailwind.plugin';
-
-describe('node TailwindPlugin', () => {
-  it('writes udixio.generated.css and gitignores it, without touching other CSS', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'udixio-node-'));
-    const userCss = join(dir, 'global.css');
-    writeFileSync(userCss, '@import "tailwindcss";\n');
-
-    const outFile = join(dir, 'udixio.generated.css');
-    const config = defineConfig({
-      sourceColor: '#6750A4',
-      plugins: [new FontPlugin({}), new TailwindPlugin({ outFile })],
-    });
-    const api = await loader(config, false);
-    await api.load();
-
-    expect(existsSync(outFile)).toBe(true);
-    expect(readFileSync(outFile, 'utf8')).toContain('--color-primary:');
-    // user CSS untouched
-    expect(readFileSync(userCss, 'utf8')).toBe('@import "tailwindcss";\n');
-    // gitignore updated
-    expect(readFileSync(join(dir, '.gitignore'), 'utf8')).toContain('udixio.generated.css');
-  });
-});
-```
-
-- [ ] **Step 2: Run to verify it fails**
-
-Run: `npx vitest run --root packages/tailwind src/node/node-plugin.spec.ts`
-Expected: FAIL — the current `_doNodeLoad` scans for a tailwind CSS file and writes `udixio.css` (not `udixio.generated.css`), and does not accept `outFile`.
-
-- [ ] **Step 3: Replace `_doNodeLoad`**
-
-In `packages/tailwind/src/node/tailwind.plugin.ts`, add `outFile?: string` to the options type re-export, and replace `_doNodeLoad` with a scan-free implementation:
+In `packages/tailwind/src/node/tailwind.plugin.ts`, replace `_doNodeLoad` with:
 
 ```ts
   private async _doNodeLoad() {
     const { dirname, isAbsolute, join, resolve } = await import('pathe');
-    const { existsSync, readFileSync, writeFileSync, mkdirSync } = await import('node:fs');
+    const { existsSync, readFileSync, writeFileSync, mkdirSync } = await import(
+      'node:fs'
+    );
 
-    // Build the full CSS via the shared emitter (colors + font + state + shadow + @plugin).
-    await super.onLoad();
+    // Full static CSS via the shared emitter (colors + font + state + shadow + @plugin).
+    this.emitStaticCss();
 
     const cwd = resolve();
     const outFile = this.options.outFile
-      ? (isAbsolute(this.options.outFile)
-          ? this.options.outFile
-          : join(cwd, this.options.outFile))
+      ? isAbsolute(this.options.outFile)
+        ? this.options.outFile
+        : join(cwd, this.options.outFile)
       : join(cwd, 'udixio.generated.css');
 
     const dir = dirname(outFile);
@@ -747,76 +710,19 @@ In `packages/tailwind/src/node/tailwind.plugin.ts`, add `outFile?: string` to th
     const base = outFile.slice(dir.length + 1);
     const current = existsSync(gitignore) ? readFileSync(gitignore, 'utf8') : '';
     if (!current.split(/\r?\n/).includes(base)) {
-      writeFileSync(gitignore, (current && !current.endsWith('\n') ? current + '\n' : current) + base + '\n');
+      writeFileSync(
+        gitignore,
+        (current && !current.endsWith('\n') ? current + '\n' : current) +
+          base +
+          '\n',
+      );
     }
   }
 ```
 
-Add `outFile?: string;` to `TailwindPluginOptions` in `packages/tailwind/src/browser/tailwind.plugin.ts`.
+The node override no longer needs `findTailwindCssFile`, `replaceFileContent`, `createOrUpdateFile`, `getFileContent`, or the `ConfigCss` block — remove those imports. Keep the `nodeOnLoadPromise` dedup and the `isNodeJs()`/`ssr` branch in `onLoad`.
 
-Note: `super.onLoad()` (browser) sets `this.outputCss` to the full static CSS (Task 6). The node override no longer needs `findTailwindCssFile`, `replaceFileContent`, `createOrUpdateFile`, or the `ConfigCss` block.
-
-- [ ] **Step 4: Run to verify it passes**
-
-Run: `npx vitest run --root packages/tailwind src/node/node-plugin.spec.ts`
-Expected: PASS.
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add packages/tailwind/src/node/tailwind.plugin.ts packages/tailwind/src/browser/tailwind.plugin.ts packages/tailwind/src/node/node-plugin.spec.ts
-git commit -m "feat(tailwind)!: write gitignored generated CSS, drop FS scan and source mutation
-
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
-```
-
----
-
-## Task 8: Reduce `main.ts` to animation-only; delete dead code
-
-The npm plugin entry `@udixio/tailwind` (`main.ts`) now registers only `animation`. Delete `node/file.ts` and the old `font`/`state`/`shadow` Tailwind plugins and the `ConfigCss` round-trip.
-
-**Files:**
-- Modify: `packages/tailwind/src/main.ts`
-- Delete: `packages/tailwind/src/node/file.ts`
-- Delete: `packages/tailwind/src/plugins-tailwind/font.ts`, `packages/tailwind/src/plugins-tailwind/state.ts`, `packages/tailwind/src/plugins-tailwind/shadow.ts`
-- Modify: `packages/tailwind/src/plugins-tailwind/index.ts` (export only `animation`)
-- Modify: `packages/tailwind/package.json` (drop `replace-in-file`, and `chalk` if unused)
-- Test: `packages/tailwind/src/emit/animation-plugin.spec.ts`
-
-**Interfaces:**
-- Produces: default export of `@udixio/tailwind` = the animation Tailwind plugin.
-
-- [ ] **Step 1: Write the failing test**
-
-Create `packages/tailwind/src/emit/animation-plugin.spec.ts`:
-
-```ts
-import { describe, expect, it } from 'vitest';
-import { compile } from '@tailwindcss/node';
-import { mkdtempSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-
-describe('@udixio/tailwind plugin (animation-only)', () => {
-  it('registers animation utilities via @plugin', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'udixio-anim-'));
-    // point @plugin at the built package entry via node_modules resolution
-    const entry = `@import "tailwindcss";\n@plugin "@udixio/tailwind";`;
-    writeFileSync(join(dir, 'in.css'), entry);
-    const { build } = await compile(entry, { base: process.cwd(), onDependency: () => {} });
-    const out = build(['anim-fade']); // an animation name from animation.ts
-    expect(out.length).toBeGreaterThan(0);
-  });
-});
-```
-
-- [ ] **Step 2: Run to verify it fails or errors**
-
-Run: `npx vitest run --root packages/tailwind src/emit/animation-plugin.spec.ts`
-Expected: FAIL/ERROR — `main.ts` currently also wires font/state/shadow and expects `ConfigCss` options, so resolving `@plugin "@udixio/tailwind"` without the option block behaves differently. (If the animation name `anim-fade` differs, read `plugins-tailwind/animation.ts` for a real animation name and use it.)
-
-- [ ] **Step 3: Reduce `main.ts` and delete dead files**
+- [ ] **Step 5: Reduce `main.ts` to animation-only and delete superseded files**
 
 Replace `packages/tailwind/src/main.ts`:
 
@@ -831,13 +737,9 @@ export const main = plugin.withOptions<AnimationPluginOptions>((options = {}) =>
 });
 ```
 
-Set `packages/tailwind/src/plugins-tailwind/index.ts` to export only animation:
+Set `packages/tailwind/src/plugins-tailwind/index.ts` to `export * from './animation';`.
 
-```ts
-export * from './animation';
-```
-
-Delete the dead files:
+Delete superseded files:
 
 ```bash
 git rm packages/tailwind/src/node/file.ts \
@@ -846,26 +748,89 @@ git rm packages/tailwind/src/node/file.ts \
        packages/tailwind/src/plugins-tailwind/shadow.ts
 ```
 
-Remove `replace-in-file` from `packages/tailwind/package.json` dependencies. Check `chalk` usage: run `grep -rn "chalk" packages/tailwind/src` — if no hits remain, remove `chalk` too. Then `pnpm install --offline`.
+Remove `replace-in-file` from `packages/tailwind/package.json` dependencies. Run `grep -rn "chalk" packages/tailwind/src`; if no hits, remove `chalk` too. Then `pnpm install --offline`.
 
-- [ ] **Step 4: Run to verify it passes**
+- [ ] **Step 6: Write the node-plugin write test**
 
-Run: `npx vitest run --root packages/tailwind src/emit/animation-plugin.spec.ts`
-Expected: PASS.
-Then run the whole tailwind suite: `npx nx run @udixio/tailwind:vitest:test` — Expected: all PASS.
+Create `packages/tailwind/src/node/node-plugin.spec.ts`. NOTE: the temp dir must be inside the repo (compile isn't used here, but keep parity and avoid tmpdir surprises):
 
-- [ ] **Step 5: Commit**
+```ts
+import { describe, expect, it } from 'vitest';
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
+import { join } from 'node:path';
+import { defineConfig, FontPlugin, loader } from '@udixio/theme';
+import { TailwindPlugin } from './tailwind.plugin';
+
+describe('node TailwindPlugin', () => {
+  it('writes udixio.generated.css and gitignores it, without touching other CSS', async () => {
+    const root = join(__dirname, '..', '..', '.tmp-test');
+    mkdirSync(root, { recursive: true });
+    const dir = mkdtempSync(join(root, 'node-'));
+    try {
+      const userCss = join(dir, 'global.css');
+      writeFileSync(userCss, '@import "tailwindcss";\n');
+      const outFile = join(dir, 'udixio.generated.css');
+
+      const config = defineConfig({
+        sourceColor: '#6750A4',
+        plugins: [new FontPlugin({}), new TailwindPlugin({ outFile })],
+      });
+      const api = await loader(config, false);
+      await api.load();
+
+      expect(existsSync(outFile)).toBe(true);
+      expect(readFileSync(outFile, 'utf8')).toContain('--color-primary:');
+      // user CSS untouched
+      expect(readFileSync(userCss, 'utf8')).toBe('@import "tailwindcss";\n');
+      // gitignore updated
+      expect(readFileSync(join(dir, '.gitignore'), 'utf8')).toContain(
+        'udixio.generated.css',
+      );
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
+```
+
+- [ ] **Step 7: Rebuild, then run the emitter + node tests**
 
 ```bash
-git add -A packages/tailwind
-git commit -m "refactor(tailwind)!: reduce plugin to animation-only, remove string round-trip and FS scan
+npx nx run @udixio/tailwind:build
+npx vitest run --root packages/tailwind src/emit/emitter.spec.ts src/node/node-plugin.spec.ts
+```
+Expected: both PASS. The rebuild is REQUIRED — `@plugin "@udixio/tailwind"` resolves through `dist/`, and the emitter test asserts the animation plugin registers. If the `animation` name assertion is added later (Task 7), confirm a real animation name from `plugins-tailwind/animation.ts`.
 
-Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
+- [ ] **Step 8: Run the whole tailwind suite**
+
+Run: `npx nx run @udixio/tailwind:vitest:test`
+Expected: all PASS (shadow, font, state, characterization, emitter, node-plugin). The characterization golden (Task 2) still describes the OLD dist behavior at snapshot time; it should remain green because it re-runs `generateReferenceCss` — if it now diverges, that is the equivalence signal Task 7 formalizes; investigate before forcing an update.
+
+- [ ] **Step 9: Commit**
+
+```bash
+git add packages/tailwind/src packages/tailwind/package.json pnpm-lock.yaml
+git status --short   # confirm ONLY packages/tailwind + pnpm-lock are staged (no carousel bleed)
+git commit -m "refactor(tailwind)!: generate static theme CSS, drop FS scan, string round-trip and source mutation
+
+The theme now emits one static CSS artifact (@theme colors + @utility
+font/state/shadow + @plugin animation) written to a gitignored file. Removes
+the filesystem scan, the user-CSS mutation, and the @plugin { colorKeys… }
+serialize/reparse round-trip. main.ts is reduced to the animation plugin.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>" -- packages/tailwind/src packages/tailwind/package.json pnpm-lock.yaml
 ```
 
 ---
 
-## Task 9: Equivalence proof + consumer migration + green builds
+## Task 7: Equivalence proof + consumer migration + green builds
 
 Prove the new emitter reproduces the golden baseline, migrate `apps/doc` and `ui-react`, and verify both build.
 
@@ -959,20 +924,25 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 
 ## Self-Review
 
+**Task structure (after the Tasks 1–5 rework):** Task 1 spike, Task 2 golden, Tasks 3–5 the
+three CSS helpers, **Task 6 the atomic internal cutover** (emitter + node write + main.ts
+animation-only + dead-code deletion — merged because splitting produced broken intermediates),
+**Task 7 the equivalence proof + consumer migration + builds**.
+
 **Spec coverage:**
-- Explicit import (spec decision 1) → Task 9 (consumer migration) + Task 7 (no scan/mutation). ✓
-- Static CSS for colors/font/state/shadow (decision 2) → Tasks 3–6. ✓
-- animation stays a plugin (decision 2) → Task 8. ✓
-- Gitignored generated file (decision 3) → Task 7. ✓
-- Round-trip removal → Task 8 (main.ts reduced, `ConfigCss` deleted). ✓
-- `generateThemeCss` still works → exercised implicitly via `generateReferenceCss` (same code path) in Tasks 2/6/9. ✓
-- Delete `node/file.ts`, reduce `main.ts` → Task 8. ✓
-- Consumer migration (apps/doc, ui-react) → Task 9. ✓
-- Nested `@plugin` risk (spec "Risque principal") → Task 1 spike. ✓
-- Tests: golden snapshot + equivalence + green builds → Tasks 2, 9. ✓
+- Explicit import (spec decision 1) → Task 7 (consumer migration) + Task 6 (no scan/mutation). ✓
+- Static CSS for colors/font/state/shadow (decision 2) → Tasks 3–5 (helpers) + Task 6 (assembly, `@theme` colors). ✓
+- animation stays a plugin (decision 2) → Task 6 (main.ts animation-only). ✓
+- Gitignored generated file (decision 3) → Task 6. ✓
+- Round-trip removal → Task 6 (main.ts reduced, `ConfigCss`/string block deleted). ✓
+- `generateThemeCss` (SSR) still works → left unchanged (browser `onLoad`, `.dynamic`); exercised via `generateReferenceCss` (node path) in Tasks 2/6/7. ✓
+- Delete `node/file.ts`, reduce `main.ts` → Task 6. ✓
+- Consumer migration (apps/doc, ui-react) → Task 7. ✓
+- Nested `@plugin` risk (spec "Risque principal") → Task 1 spike (validated true). ✓
+- Tests: golden snapshot + equivalence + green builds → Tasks 2, 7. ✓
 
-**Placeholder scan:** No "TBD"/"handle edge cases"/"similar to". Contingency branches (Task 1 booleans) are each spelled out with the concrete alternative. ✓
+**Placeholder scan:** No "TBD"/"handle edge cases"/"similar to". Task 1 contingency branches are moot (all three assumptions validated true); the plan now states the single chosen path. ✓
 
-**Type consistency:** `generateReferenceCss()`, `buildResolvedCss()`, `GOLDEN_CANDIDATES` defined in Task 2, reused with identical names in Tasks 3–9. `shadowCss()`, `fontCss(FontCssArgs)`, `stateCss(colorKeys)` defined and consumed by the emitter in Task 6 with matching signatures. `outFile` option added in Task 7 and used in Task 9. ✓
+**Type consistency:** `generateReferenceCss()`, `buildResolvedCss()`, `GOLDEN_CANDIDATES` defined in Task 2, reused with identical names in Tasks 3–7. `shadowCss()`, `fontCss(FontCssArgs)`, `stateCss(colorKeys)` defined in Tasks 3–5 and consumed by `emitStaticCss()` in Task 6 with matching signatures. `outFile` option added and used in Task 6. ✓
 
-**Known residual risk:** Task 1 outcomes parameterize Tasks 4 and 6 (media form, `@plugin` line). Both branches are specified, so execution is deterministic once the spike runs.
+**Known residual risk:** the Task 6 cutover is the one high-coupling change; the Task 2 golden + Task 7 equivalence test + consumer builds are the safety net. Task 6 must be verified as a whole (rebuild `dist/` before its compile tests).
