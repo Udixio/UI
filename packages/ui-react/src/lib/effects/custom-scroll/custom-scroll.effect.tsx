@@ -1,5 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { motion, useMotionValueEvent, useScroll } from 'motion/react';
+// `scroll` is Motion's vanilla JS scroll listener (aliased to avoid clashing
+// with this component's `scroll` prop). No React binding is needed here.
+import { scroll as motionScroll } from 'motion';
 import { CustomScrollInterface } from './custom-scroll.interface';
 import { customScrollStyle } from './custom-scroll.style';
 import { ReactProps } from '@udixio/core';
@@ -118,9 +120,8 @@ export const CustomScroll = ({
     };
   };
 
-  const { scrollYProgress, scrollXProgress } = useScroll({
-    container: ref,
-  });
+  // Latest progress per axis, so a resize can re-notify without a MotionValue.
+  const lastProgressRef = useRef({ x: 0, y: 0 });
 
   const handleScrollThrottledRef = useRef<
     ((latestValue: number, scrollOrientation: 'x' | 'y') => void) | null
@@ -176,10 +177,10 @@ export const CustomScroll = ({
     }
   };
 
-  // Gestion des changements pour la width ET la height
+  // Re-notify with the last known progress when the viewport size changes.
   useEffect(() => {
-    if (dimensions.width) handleScroll(scrollXProgress.get(), 'x');
-    if (dimensions.height) handleScroll(scrollYProgress.get(), 'y'); // Nouvelle ligne : mise à jour pour la hauteur
+    if (dimensions.width) handleScroll(lastProgressRef.current.x, 'x');
+    if (dimensions.height) handleScroll(lastProgressRef.current.y, 'y');
   }, [dimensions]);
 
   // Apply controlled scroll percentage to DOM when provided
@@ -198,12 +199,32 @@ export const CustomScroll = ({
     }
   }, [scroll, orientation, scrollSize]);
 
-  useMotionValueEvent(scrollXProgress, 'change', (latestValue) => {
-    handleScroll(latestValue, 'x');
-  });
-  useMotionValueEvent(scrollYProgress, 'change', (latestValue) => {
-    handleScroll(latestValue, 'y');
-  });
+  // Attach Motion's vanilla scroll listeners to the container. `scroll()` fires
+  // once on attach (covering init) and again on every scroll and resize, and
+  // returns a cleanup function.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const stopX = motionScroll(
+      (progress: number) => {
+        lastProgressRef.current.x = progress;
+        handleScroll(progress, 'x');
+      },
+      { axis: 'x', container: el },
+    );
+    const stopY = motionScroll(
+      (progress: number) => {
+        lastProgressRef.current.y = progress;
+        handleScroll(progress, 'y');
+      },
+      { axis: 'y', container: el },
+    );
+    return () => {
+      stopX();
+      stopY();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ref]);
 
   const [isInitialized, setIsInitialized] = useState(false);
   useLayoutEffect(() => {
@@ -379,7 +400,7 @@ export const CustomScroll = ({
         <>
           {orientation === 'vertical' &&
             contentScrollSize.current.height > containerSize.current.height && (
-              <motion.div
+              <div
                 className={'flex-none'}
                 style={{
                   height:
@@ -391,7 +412,7 @@ export const CustomScroll = ({
 
           {orientation === 'horizontal' &&
             contentScrollSize.current.width > containerSize.current.width && (
-              <motion.div
+              <div
                 className={'flex-none'}
                 style={{
                   width:
