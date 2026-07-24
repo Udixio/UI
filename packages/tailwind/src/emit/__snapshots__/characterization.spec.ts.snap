@@ -1,0 +1,396 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`current @udixio/tailwind resolved CSS (characterization) > golden resolved utilities + color vars for the reference config 1`] = `
+"/*! tailwindcss v4.1.14 | MIT License | https://tailwindcss.com */
+@layer properties;
+@layer theme, base, components, utilities;
+@layer theme {
+  :root, :host {
+    --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+      "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+      "Courier New", monospace;
+    --default-transition-duration: 150ms;
+    --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    --default-font-family: var(--font-sans);
+    --default-mono-font-family: var(--font-mono);
+    --color-on-surface: #34313a;
+    --color-primary: #655789;
+  }
+}
+@layer base {
+  *, ::after, ::before, ::backdrop, ::file-selector-button {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border: 0 solid;
+  }
+  html, :host {
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+    tab-size: 4;
+    font-family: var(--default-font-family, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
+    font-feature-settings: var(--default-font-feature-settings, normal);
+    font-variation-settings: var(--default-font-variation-settings, normal);
+    -webkit-tap-highlight-color: transparent;
+  }
+  hr {
+    height: 0;
+    color: inherit;
+    border-top-width: 1px;
+  }
+  abbr:where([title]) {
+    -webkit-text-decoration: underline dotted;
+    text-decoration: underline dotted;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+  a {
+    color: inherit;
+    -webkit-text-decoration: inherit;
+    text-decoration: inherit;
+  }
+  b, strong {
+    font-weight: bolder;
+  }
+  code, kbd, samp, pre {
+    font-family: var(--default-mono-font-family, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+    font-feature-settings: var(--default-mono-font-feature-settings, normal);
+    font-variation-settings: var(--default-mono-font-variation-settings, normal);
+    font-size: 1em;
+  }
+  small {
+    font-size: 80%;
+  }
+  sub, sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+  }
+  sub {
+    bottom: -0.25em;
+  }
+  sup {
+    top: -0.5em;
+  }
+  table {
+    text-indent: 0;
+    border-color: inherit;
+    border-collapse: collapse;
+  }
+  :-moz-focusring {
+    outline: auto;
+  }
+  progress {
+    vertical-align: baseline;
+  }
+  summary {
+    display: list-item;
+  }
+  ol, ul, menu {
+    list-style: none;
+  }
+  img, svg, video, canvas, audio, iframe, embed, object {
+    display: block;
+    vertical-align: middle;
+  }
+  img, video {
+    max-width: 100%;
+    height: auto;
+  }
+  button, input, select, optgroup, textarea, ::file-selector-button {
+    font: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    border-radius: 0;
+    background-color: transparent;
+    opacity: 1;
+  }
+  :where(select:is([multiple], [size])) optgroup {
+    font-weight: bolder;
+  }
+  :where(select:is([multiple], [size])) optgroup option {
+    padding-inline-start: 20px;
+  }
+  ::file-selector-button {
+    margin-inline-end: 4px;
+  }
+  ::placeholder {
+    opacity: 1;
+  }
+  @supports (not (-webkit-appearance: -apple-pay-button))  or (contain-intrinsic-size: 1px) {
+    ::placeholder {
+      color: currentcolor;
+      @supports (color: color-mix(in lab, red, red)) {
+        color: color-mix(in oklab, currentcolor 50%, transparent);
+      }
+    }
+  }
+  textarea {
+    resize: vertical;
+  }
+  ::-webkit-search-decoration {
+    -webkit-appearance: none;
+  }
+  ::-webkit-date-and-time-value {
+    min-height: 1lh;
+    text-align: inherit;
+  }
+  ::-webkit-datetime-edit {
+    display: inline-flex;
+  }
+  ::-webkit-datetime-edit-fields-wrapper {
+    padding: 0;
+  }
+  ::-webkit-datetime-edit, ::-webkit-datetime-edit-year-field, ::-webkit-datetime-edit-month-field, ::-webkit-datetime-edit-day-field, ::-webkit-datetime-edit-hour-field, ::-webkit-datetime-edit-minute-field, ::-webkit-datetime-edit-second-field, ::-webkit-datetime-edit-millisecond-field, ::-webkit-datetime-edit-meridiem-field {
+    padding-block: 0;
+  }
+  ::-webkit-calendar-picker-indicator {
+    line-height: 1;
+  }
+  :-moz-ui-invalid {
+    box-shadow: none;
+  }
+  button, input:where([type="button"], [type="reset"], [type="submit"]), ::file-selector-button {
+    appearance: button;
+  }
+  ::-webkit-inner-spin-button, ::-webkit-outer-spin-button {
+    height: auto;
+  }
+  [hidden]:where(:not([hidden="until-found"])) {
+    display: none !important;
+  }
+}
+@layer utilities {
+  .state-layer {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--state-color);
+        @supports (color: color-mix(in lab, red, red)) {
+          background-color: color-mix(in oklab, var(--state-color) 8%, transparent);
+        }
+      }
+    }
+    &:active {
+      background-color: var(--state-color);
+      @supports (color: color-mix(in lab, red, red)) {
+        background-color: color-mix(in oklab, var(--state-color) 10%, transparent);
+      }
+    }
+    &:focus-visible {
+      background-color: var(--state-color);
+      @supports (color: color-mix(in lab, red, red)) {
+        background-color: color-mix(in oklab, var(--state-color) 10%, transparent);
+      }
+    }
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+    --tw-duration: 150ms;
+    transition-duration: 150ms;
+    &:disabled {
+      color: color-mix(in srgb, #34313a 38%, transparent);
+      @supports (color: color-mix(in lab, red, red)) {
+        color: color-mix(in oklab, var(--color-on-surface) 38%, transparent);
+      }
+    }
+    &:disabled {
+      background-color: color-mix(in srgb, #34313a 10%, transparent);
+      @supports (color: color-mix(in lab, red, red)) {
+        background-color: color-mix(in oklab, var(--color-on-surface) 10%, transparent);
+      }
+    }
+  }
+  .bg-primary {
+    background-color: var(--color-primary);
+  }
+  .text-body-medium {
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.25rem;
+    letter-spacing: 0.015625rem;
+    font-family: "Roboto", "sans-serif";
+    @media (min-width: 64rem) {
+      font-size: 0.984375rem;
+      line-height: 1.40625rem;
+    }
+  }
+  .text-display-large {
+    font-size: 3.5625rem;
+    font-weight: 400;
+    line-height: 4rem;
+    letter-spacing: -0.015625rem;
+    font-family: "Roboto", "sans-serif";
+    @media (min-width: 64rem) {
+      font-size: 4.0078125rem;
+      line-height: 4.5rem;
+    }
+  }
+  .text-on-surface {
+    color: var(--color-on-surface);
+  }
+  .shadow-1 {
+    box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+  }
+  .state-primary {
+    --state-color: var(--color-primary);
+  }
+  .hover\\:shadow-2 {
+    &:hover {
+      @media (hover: hover) {
+        box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+      }
+    }
+  }
+  .lg\\:text-display-large {
+    @media (width >= 64rem) {
+      font-size: 3.5625rem;
+      font-weight: 400;
+      line-height: 4rem;
+      letter-spacing: -0.015625rem;
+      font-family: "Roboto", "sans-serif";
+      @media (min-width: 64rem) {
+        font-size: 4.0078125rem;
+        line-height: 4.5rem;
+      }
+    }
+  }
+}
+@layer theme {
+  .dark {
+    --color-surface: #0f0d12;
+    --color-surface-dim: #0f0d12;
+    --color-surface-bright: #2e2b34;
+    --color-surface-container-lowest: #000000;
+    --color-surface-container-low: #141218;
+    --color-surface-container: #1b181f;
+    --color-surface-container-high: #211e26;
+    --color-surface-container-highest: #27242d;
+    --color-on-surface: #eae3ef;
+    --color-on-surface-variant: #afa8bd;
+    --color-outline: #797286;
+    --color-outline-variant: #4b4557;
+    --color-inverse-surface: #fdf7fe;
+    --color-inverse-on-surface: #322f34;
+    --color-primary: #cdc0ec;
+    --color-primary-dim: #bfb2de;
+    --color-on-primary: #443a5f;
+    --color-primary-container: #574d72;
+    --color-on-primary-container: #e9deff;
+    --color-primary-fixed: #ded0fe;
+    --color-primary-fixed-dim: #d0c3ef;
+    --color-on-primary-fixed: #3c3256;
+    --color-on-primary-fixed-variant: #594e74;
+    --color-inverse-primary: #645980;
+    --color-secondary: #cbc2db;
+    --color-secondary-dim: #beb5cd;
+    --color-on-secondary: #433d51;
+    --color-secondary-container: #3e384c;
+    --color-on-secondary-container: #c4bbd4;
+    --color-secondary-fixed: #e8def8;
+    --color-secondary-fixed-dim: #dad0ea;
+    --color-on-secondary-fixed: #423c50;
+    --color-on-secondary-fixed-variant: #5f586e;
+    --color-tertiary: #ffcfef;
+    --color-tertiary-dim: #f4bfe3;
+    --color-on-tertiary: #69415f;
+    --color-tertiary-container: #f4bfe3;
+    --color-on-tertiary-container: #5f3956;
+    --color-tertiary-fixed: #f4bfe3;
+    --color-tertiary-fixed-dim: #e5b2d5;
+    --color-on-tertiary-fixed: #4a2642;
+    --color-on-tertiary-fixed-variant: #694260;
+    --color-error: #f97386;
+    --color-error-dim: #c44b5f;
+    --color-on-error: #490013;
+    --color-error-container: #871c34;
+    --color-on-error-container: #ff97a3;
+    --color-surface-variant: #27242d;
+    --color-surface-tint: #cdc0ec;
+    --color-background: #0f0d12;
+    --color-on-background: #eae3ef;
+  }
+}
+@layer base {
+  @keyframes enter {
+    from {
+      opacity: var(--anim-enter-opacity, 1);
+      transform: translate3d(var(--anim-enter-translate-x, 0), var(--anim-enter-translate-y, 0), 0) scale3d(var(--anim-enter-scale, 1), var(--anim-enter-scale, 1), var(--anim-enter-scale, 1)) rotate(var(--anim-enter-rotate, 0));
+    }
+  }
+  @keyframes exit {
+    to {
+      opacity: var(--anim-exit-opacity, 1);
+      transform: translate3d(var(--anim-exit-translate-x, 0), var(--anim-exit-translate-y, 0), 0) scale3d(var(--anim-exit-scale, 1), var(--anim-exit-scale, 1), var(--anim-exit-scale, 1)) rotate(var(--anim-exit-rotate, 0));
+    }
+  }
+}
+@layer base {
+  [data-anim-in-run] {
+    --anim-in-state: running;
+  }
+  [data-anim-in-paused] {
+    --anim-in-state: paused;
+  }
+  [data-anim-out-run] {
+    --anim-out-state: running;
+  }
+  [data-anim-out-paused] {
+    --anim-out-state: paused;
+  }
+}
+@layer base {
+  @keyframes anim-fade {
+    from {
+      opacity: var(--anim-opacity , 0);
+    }
+  }
+}
+@layer base {
+  @keyframes anim-scale {
+    from {
+      scale: var(--anim-scale-x , var(--anim-scale , .95)) var(--anim-scale-y , var(--anim-scale , .95));
+    }
+  }
+}
+@layer base {
+  @keyframes anim-slide {
+    from {
+      translate: calc(var(--anim-distance , 2rem) * var(--anim-dx )) calc(var(--anim-distance , 2rem) * var(--anim-dy ));;
+    }
+    to {
+      translate: var(--tw-translate-x, 0) var(--tw-translate-y, 0);
+    }
+  }
+}
+@layer base {
+  [class*="anim-"] {
+    animation-name: var(--anim-name-fade, noop), var(--anim-name-scale, noop), var(--anim-name-slide, noop);
+    will-change: var(--anim-dependencies-fade, noop), var(--anim-dependencies-scale, noop), var(--anim-dependencies-slide, noop);
+    animation-play-state: var(--anim-play-state-fade, running), var(--anim-play-state-scale, running), var(--anim-play-state-slide, running);
+  }
+}
+@layer base {
+  [class*="anim-"][class*="-scroll"] {
+    animation-timeline: var(--anim-timeline-fade, auto), var(--anim-timeline-scale, auto), var(--anim-timeline-slide, auto);
+    animation-range: var(--anim-range-fade, normal), var(--anim-range-scale, normal), var(--anim-range-slide, normal);
+  }
+}
+@property --tw-duration {
+  syntax: "*";
+  inherits: false;
+}
+@layer properties {
+  @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
+    *, ::before, ::after, ::backdrop {
+      --tw-duration: initial;
+    }
+  }
+}
+"
+`;
