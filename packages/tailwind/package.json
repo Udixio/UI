@@ -28,7 +28,6 @@
   "dependencies": {
     "text-case": "^1.2.9",
     "tailwindcss": "^4.1.12",
-    "chalk": "^5.6.0",
     "pathe": "^2.0.3",
     "@udixio/theme": "workspace:*",
     "tslib": "^2.3.0"

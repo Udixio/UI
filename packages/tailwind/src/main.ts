@@ -1,67 +1,8 @@
-import plugin, { PluginAPI } from 'tailwindcss/plugin';
-import { animation } from './plugins-tailwind/animation';
-import { font, FontPluginOptions } from './plugins-tailwind/font';
-import { state, StateOptions } from './plugins-tailwind/state';
-import { shadow } from './plugins-tailwind/shadow';
+import plugin from 'tailwindcss/plugin';
+import { animation, AnimationPluginOptions } from './plugins-tailwind/animation';
 
-export type ConfigJs = FontPluginOptions & StateOptions;
-export type ConfigCss = {
-  colorKeys: string[];
-  fontStyles: string[];
-  responsiveBreakPoints: string[];
-  fontFamily: string[];
-};
-
-export const main = plugin.withOptions<ConfigJs>((args) => {
-  const configCss = args as unknown as ConfigCss;
-
-  const fontStyles: any = {};
-
-  configCss.fontStyles.forEach((line) => {
-    const [styleToken, ...properties] = line.split(' ');
-    const [roleToken, sizeToken] = styleToken.split('-');
-
-    fontStyles[roleToken] ??= {};
-    properties.forEach((properties) => {
-      fontStyles[roleToken][sizeToken] ??= {};
-      const [key, value] = properties.slice(0, -1).split('[');
-      fontStyles[roleToken][sizeToken][key] = value;
-    });
-  });
-
-  let breakPointsCss = configCss.responsiveBreakPoints;
-  if (!Array.isArray(breakPointsCss)) {
-    breakPointsCss = [breakPointsCss];
-  }
-
-  const responsiveBreakPoints: any = {};
-  breakPointsCss.forEach((line) => {
-    const [key, value] = line.split(' ');
-    responsiveBreakPoints[key] = value;
-  });
-
-  let fontFamilyCss = configCss.fontFamily;
-  if (!Array.isArray(fontFamilyCss)) {
-    fontFamilyCss = [fontFamilyCss];
-  }
-
-  const fontFamily: any = {};
-  fontFamilyCss.forEach((line) => {
-    const [key, ...values] = line.split(' ');
-    fontFamily[key] = values.join(' ').split('|');
-  });
-
-  const options: ConfigJs = {
-    colorKeys: configCss.colorKeys,
-    fontStyles: fontStyles,
-    responsiveBreakPoints,
-    fontFamily,
-  };
-
-  return (api: PluginAPI) => {
-    font(options).handler(api);
-    state(options).handler(api);
-    shadow.handler(api);
+export const main = plugin.withOptions<AnimationPluginOptions>((options = {}) => {
+  return (api) => {
     animation(options).handler(api);
   };
 });

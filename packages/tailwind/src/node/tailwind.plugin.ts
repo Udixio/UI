@@ -5,8 +5,6 @@ import {
   TailwindPluginOptions as TailwindPluginBrowserOptions,
 } from '../browser/tailwind.plugin';
 
-import { ConfigCss } from '../main';
-
 export type TailwindPluginOptions = TailwindPluginBrowserOptions;
 
 export class TailwindPlugin extends PluginAbstract<
@@ -51,85 +49,36 @@ class TailwindImplPlugin extends TailwindImplPluginBrowser {
   }
 
   private async _doNodeLoad() {
-    const { join, resolve } = await import('pathe');
+    const { dirname, isAbsolute, join, resolve } = await import('pathe');
+    const { existsSync, readFileSync, writeFileSync, mkdirSync } = await import(
+      'node:fs'
+    );
 
-    const {
-      createOrUpdateFile,
-      findProjectRoot,
-      findTailwindCssFile,
-      getFileContent,
-      replaceFileContent,
-    } = await import('./file');
+    // Full static CSS via the shared emitter (colors + font + state + shadow + @plugin).
+    this.emitStaticCss();
 
-    const colors = this.getColors();
+    const cwd = resolve();
+    const outFile = this.options.outFile
+      ? isAbsolute(this.options.outFile)
+        ? this.options.outFile
+        : join(cwd, this.options.outFile)
+      : join(cwd, 'udixio.generated.css');
 
-    let udixioCssPath = this.options.styleFilePath;
+    const dir = dirname(outFile);
+    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+    writeFileSync(outFile, this.outputCss);
 
-    const projectRoot = await findProjectRoot(resolve());
-
-    if (!udixioCssPath) {
-      const searchPattern = /@import ["']tailwindcss["'];/;
-      const replacement = `@import 'tailwindcss';\n@import "./udixio.css";`;
-
-      const tailwindCssPath = await findTailwindCssFile(
-        projectRoot,
-        searchPattern,
+    // Ensure the generated file is gitignored (idempotent).
+    const gitignore = join(dir, '.gitignore');
+    const base = outFile.slice(dir.length + 1);
+    const current = existsSync(gitignore) ? readFileSync(gitignore, 'utf8') : '';
+    if (!current.split(/\r?\n/).includes(base)) {
+      writeFileSync(
+        gitignore,
+        (current && !current.endsWith('\n') ? current + '\n' : current) +
+          base +
+          '\n',
       );
-      udixioCssPath = join(tailwindCssPath, '../udixio.css');
-
-      if (
-        !(await getFileContent(tailwindCssPath, /@import\s+"\.\/udixio\.css";/))
-      ) {
-        await replaceFileContent(tailwindCssPath, searchPattern, replacement);
-      }
     }
-
-    const { fontStyles, fontFamily } = this.api.plugins
-      .getPlugin(FontPlugin)
-      .getInstance()
-      .getFonts();
-
-    const configCss: ConfigCss = {
-      colorKeys: Object.keys(colors).join(', ') as any,
-      fontStyles: Object.entries(fontStyles)
-        .map(([fontRole, fontStyle]) =>
-          Object.entries(fontStyle)
-            .map(
-              ([fontSize, fontStyle]) =>
-                `${fontRole}-${fontSize} ${Object.entries(fontStyle)
-                  .map(([name, value]) => `${name}[${value}]`)
-                  .join(' ')}`,
-            )
-            .join(', '),
-        )
-        .join(', ') as any,
-      responsiveBreakPoints: Object.entries(
-        this.options.responsiveBreakPoints ?? {},
-      )
-        .map(([key, value]) => `${key} ${value}`)
-        .join(', ') as any,
-      fontFamily: Object.entries(fontFamily)
-        .map(([key, values]) => `${key} ${values.join('|')}`)
-        .join(', ') as any,
-    };
-
-    this.outputCss += `@plugin "@udixio/tailwind" {
-  colorKeys: ${configCss.colorKeys};
-  fontStyles: ${configCss.fontStyles};
-  responsiveBreakPoints: ${configCss.responsiveBreakPoints};
-  fontFamily: ${configCss.fontFamily};
-}`;
-    this.loadColor({ isDynamic: false });
-    this.outputCss += `
-@theme {
-  ${Object.entries(fontFamily)
-    .map(
-      ([key, values]) =>
-        `--font-${key}: ${values.map((value) => value.trim().startsWith('var(') ? value : `"${value}"`).join(', ')};`,
-    )
-    .join('\n  ')}
-}`;
-
-    await createOrUpdateFile(udixioCssPath, this.outputCss);
   }
 }

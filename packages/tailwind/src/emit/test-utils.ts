@@ -17,16 +17,15 @@ import { TailwindPlugin } from '../node/tailwind.plugin';
  * it here would characterize a small slice of current behavior, not the full
  * resolved CSS this golden is meant to protect.
  *
- * `styleFilePath` is pinned to a directory under the repo's own
- * `.tmp-test/` (not `os.tmpdir()` and never a real project file) so the
- * plugin's node-only file-write side effect stays fully sandboxed: no
- * filesystem scan for a host project's CSS entry point, no mutation of any
- * real file, ever.
+ * `outFile` is pinned to a path under the repo's own `.tmp-test/` (not
+ * `os.tmpdir()` and never a real project file) so the plugin's node-only
+ * file-write side effect stays fully sandboxed: no default write to `<cwd>/
+ * udixio.generated.css`, no mutation of any real file, ever.
  */
-export function referenceConfig(styleFilePath: string) {
+export function referenceConfig(outFile: string) {
   return defineConfig({
     sourceColor: '#6750A4',
-    plugins: [new FontPlugin({}), new TailwindPlugin({ styleFilePath })],
+    plugins: [new FontPlugin({}), new TailwindPlugin({ outFile })],
   });
 }
 

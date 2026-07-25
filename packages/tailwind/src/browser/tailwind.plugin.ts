@@ -4,13 +4,16 @@ import {
   Hct,
   hexFromArgb,
 } from '@material/material-color-utilities';
+import { fontCss } from '../emit/font.css';
+import { stateCss } from '../emit/state.css';
+import { shadowCss } from '../emit/shadow.css';
 
 export interface TailwindPluginOptions {
   darkMode?: 'class' | 'media';
   dynamicSelector?: string;
   darkSelector?: string;
   responsiveBreakPoints?: Record<string, number>;
-  styleFilePath?: string;
+  outFile?: string;
   subThemes?: Record<string, string>;
   /**
    * Force browser-compatible CSS output (pure CSS variables, no @plugin/@theme directives,
@@ -229,5 +232,40 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
     // }
 
     this.loadColor({ isDynamic: true });
+  }
+
+  /**
+   * Assembles the full static theme CSS for the build-time generated file:
+   * @theme colors (registers Tailwind color utilities) + static font/state/shadow
+   * utilities + @theme font families + the animation plugin. NOT used by the SSR
+   * onLoad path, which stays colors-only under `.dynamic`.
+   */
+  emitStaticCss() {
+    this.outputCss = '';
+    this.loadColor({ isDynamic: false }); // @theme { --color-* } + dark @layer + subThemes
+    const colorKeys = Object.keys(this.getColors()); // kebab keys
+    const { fontStyles, fontFamily } = this.api.plugins
+      .getPlugin(FontPlugin)
+      .getInstance()
+      .getFonts();
+
+    this.outputCss += '\n' + shadowCss();
+    this.outputCss += '\n' + stateCss(colorKeys);
+    this.outputCss +=
+      '\n' +
+      fontCss({
+        fontStyles,
+        responsiveBreakPoints: this.options.responsiveBreakPoints ?? { lg: 1.125 },
+        fontFamily,
+      });
+    this.outputCss += `\n@theme {\n  ${Object.entries(fontFamily)
+      .map(
+        ([key, values]) =>
+          `--font-${key}: ${(values as string[])
+            .map((v) => (v.trim().startsWith('var(') ? v : `"${v}"`))
+            .join(', ')};`,
+      )
+      .join('\n  ')}\n}`;
+    this.outputCss += '\n@plugin "@udixio/tailwind";';
   }
 }

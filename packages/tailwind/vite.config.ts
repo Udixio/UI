@@ -48,13 +48,7 @@ export default defineConfig(() => ({
     },
     rollupOptions: {
       // External packages that should not be bundled into your library.
-      external: [
-        'tailwindcss',
-        '@udixio/theme',
-        'pathe',
-        'replace-in-file',
-        'chalk',
-      ],
+      external: ['tailwindcss', '@udixio/theme', 'pathe'],
     },
   },
   test: {
