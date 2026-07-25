@@ -8,4 +8,5 @@ export default defineConfig({
   subThemes: {
     warning: '#ffcc00',
   },
+  outFile: 'src/styles/udixio.generated.css',
 });

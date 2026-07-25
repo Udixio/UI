@@ -3,5 +3,8 @@ import { TailwindPlugin } from '@udixio/tailwind';
 
 export default defineConfig({
   sourceColor: '#6750A4',
-  plugins: [new FontPlugin({}), new TailwindPlugin({})],
+  plugins: [
+    new FontPlugin({}),
+    new TailwindPlugin({ outFile: 'src/udixio.generated.css' }),
+  ],
 });

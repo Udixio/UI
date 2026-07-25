@@ -1,5 +1,5 @@
 @import 'tailwindcss';
-@import "./udixio.css";
+@import "./udixio.generated.css";
 
 @source "@udixio/core";
 
