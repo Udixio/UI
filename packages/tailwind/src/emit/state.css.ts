@@ -6,32 +6,19 @@ const DURATION = 150;
 const TEXT_OPACITY = 0.38;
 const BG_OPACITY = 0.1;
 
-const groupBody = (includeActive: boolean) =>
-  [
-    `@apply group-hover:bg-[var(--state-color)]/[0.08];`,
-    includeActive ? `@apply group-active:bg-[var(--state-color)]/[0.10];` : '',
-    `@apply group-focus-visible:bg-[var(--state-color)]/[0.10];`,
-    `@apply transition-colors;`,
-    `@apply duration-${DURATION};`,
-    `@apply group-disabled:text-on-surface/[${TEXT_OPACITY}];`,
-    `@apply group-disabled:bg-on-surface/[${BG_OPACITY}];`,
-  ]
-    .filter(Boolean)
-    .map((l) => `  ${l}`)
-    .join('\n');
-
 /**
- * State-layer utilities as a static CSS string.
+ * Static state utilities: `state-layer` (a single, parameter-free utility) and
+ * `state-{colorKey}` (the `--state-color` setter, enumerated over the theme's
+ * color keys as the previous plugin did via `matchUtilities`).
  *
- * `state-group` / `state-ripple-group` / `state-layer` are single utilities;
- * `state-{colorKey}` is enumerated over the theme's color keys (the previous
- * plugin generated these via `matchUtilities` over the same key set).
+ * NOTE: `state-group` / `state-ripple-group` are deliberately NOT here — they
+ * take an optional arbitrary group name (`state-ripple-group-[button]`) that
+ * interpolates into a group variant (`group-hover/button:`), which a static
+ * `@utility` cannot express. They live in the `stateGroup` Tailwind plugin
+ * (`plugins-tailwind/state-group.ts`), wired through `@plugin "@udixio/tailwind"`.
  */
 export function stateCss(colorKeys: string[]): string {
   const blocks: string[] = [];
-
-  blocks.push(`@utility state-group {\n${groupBody(true)}\n}`);
-  blocks.push(`@utility state-ripple-group {\n${groupBody(false)}\n}`);
 
   blocks.push(
     `@utility state-layer {\n` +

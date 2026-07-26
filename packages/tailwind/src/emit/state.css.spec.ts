@@ -13,12 +13,14 @@ const THEME = `@theme {
 }`;
 
 describe('stateCss', () => {
-  it('emits state-layer, state-group and per-color state utilities', async () => {
+  // state-group / state-ripple-group are NOT emitted here anymore (they live in
+  // the stateGroup Tailwind plugin — see state-named-group.spec.ts). stateCss
+  // emits only the parameter-free state-layer and the per-color state-{key}.
+  it('emits state-layer and per-color state utilities', async () => {
     const css = THEME + '\n' + stateCss(['primary', 'secondary']);
     const resolved = await buildResolvedCss(css, [
       'state-layer',
       'state-primary',
-      'state-group',
     ]);
     expect(resolved).toMatch(/\.state-primary\s*\{/);
     expect(resolved).toContain('--state-color: var(--color-primary)');
