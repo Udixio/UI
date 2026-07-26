@@ -203,3 +203,19 @@ résolu par Tailwind avant/après.
 - Pas de simplification du `variant` / API de config couleur (point 2 : chantier séparé).
 - Pas de support d'un module virtuel `virtual:udixio-theme.css` (écarté : risque de
   résolution CSS par Tailwind v4, couplage Vite). Le fichier généré gitignoré est retenu.
+
+
+## Correction post-implémentation — `state-group` doit rester un plugin (2026-07-25)
+
+La bascule statique avait émis `state-group`/`state-ripple-group` en `@utility` statique.
+ERREUR : les composants les utilisent avec une valeur arbitraire — `state-ripple-group-[button]`
+— dont le nom s'interpole dans un **variant de groupe nommé** (`group-hover/button:`). Un
+`@utility` statique ne peut pas exprimer ça, et comme les racines de composants sont des groupes
+nommés (`group/button`), le `group-hover:` nu ne se déclenche jamais : le state layer (hover/
+active/focus) était **silencieusement mort** sur tous les composants interactifs.
+
+Correctif : `state-group`/`state-ripple-group` sont restaurés en plugin `matchUtilities`
+sans config (`plugins-tailwind/state-group.ts`), câblés via `@plugin "@udixio/tailwind"`.
+`state-layer` et le setter `state-{key}` restent statiques. Règle générale : **tout utilitaire
+à valeur arbitraire `-[...]` doit rester un plugin JS** (comme `animation`) ; seuls les
+utilitaires à noms fixes/énumérables peuvent devenir du CSS statique.
