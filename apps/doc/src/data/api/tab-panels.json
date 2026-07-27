@@ -20,7 +20,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<TabPanelsInterface> | undefined"
+            "name": "string | ClassNameComponent<TabPanelsInterface>"
           },
           "defaultValue": null
         }

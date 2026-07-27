@@ -19,7 +19,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<TabInterface> | undefined"
+            "name": "string | ClassNameComponent<TabInterface>"
           },
           "defaultValue": null
         },
@@ -28,7 +28,7 @@
           "description": "Injected by the parent Tabs.",
           "required": false,
           "type": {
-            "name": "TabsVariant | undefined"
+            "name": "TabsVariant"
           },
           "defaultValue": {
             "value": "'primary'"
@@ -39,7 +39,7 @@
           "description": "Controlled selected state, used when no parent drives the selection.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "false"
@@ -50,7 +50,7 @@
           "description": "Injected by the parent Tabs: position of this tab in the list.",
           "required": false,
           "type": {
-            "name": "number | undefined"
+            "name": "number"
           },
           "defaultValue": null
         },
@@ -59,7 +59,7 @@
           "description": "Injected by the parent Tabs: index of the currently selected tab.",
           "required": false,
           "type": {
-            "name": "number | null | undefined"
+            "name": "number"
           },
           "defaultValue": null
         },
@@ -68,7 +68,7 @@
           "description": "Injected by the parent Tabs: identifier shared by every tab of the group.",
           "required": false,
           "type": {
-            "name": "string | undefined"
+            "name": "string"
           },
           "defaultValue": null
         }

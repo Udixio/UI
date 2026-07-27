@@ -19,7 +19,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<TabPanelInterface> | undefined"
+            "name": "string | ClassNameComponent<TabPanelInterface>"
           },
           "defaultValue": null
         },
@@ -28,7 +28,7 @@
           "description": "Injected by the parent TabPanels: whether this panel is the visible one.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "false"

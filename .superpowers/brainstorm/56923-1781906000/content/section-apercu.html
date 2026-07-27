@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Section Aperçu</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #0f0f11; color: #e4e4e7;
+  min-height: 100vh; padding: 24px;
+}
+h1 { font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+.subtitle { font-size: 13px; color: #71717a; margin-bottom: 28px; }
+
+/* ── Section header ── */
+.section-header {
+  display: flex; align-items: baseline; gap: 12px; margin-bottom: 20px;
+}
+.eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #52525b; }
+.section-title { font-size: 20px; font-weight: 700; color: #f4f4f5; }
+
+/* ── Mockup stage ── */
+.stage {
+  background: #18181b;
+  border: 1px solid #27272a;
+  border-radius: 16px;
+  padding: 28px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.stage::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(109,40,217,.12), transparent);
+  pointer-events: none;
+}
+
+/* ── Phone mockup ── */
+.phone {
+  width: 180px;
+  border-radius: 28px;
+  border: 6px solid #27272a;
+  overflow: hidden;
+  background: #111;
+  box-shadow: 0 20px 60px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.05);
+  flex-shrink: 0;
+  display: flex; flex-direction: column;
+}
+.phone-status {
+  height: 20px;
+  background: #1a1a1a;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  font-size: 8px; color: #71717a; font-weight: 600;
+  flex-shrink: 0;
+}
+.phone-body { flex: 1; overflow: hidden; }
+
+/* App 1 — Task Manager */
+.app-tasks {
+  background: #0f0f11;
+  height: 340px;
+  overflow: hidden;
+}
+.app-topbar {
+  padding: 10px 10px 6px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.app-title { font-size: 14px; font-weight: 700; color: #f4f4f5; }
+.avatar {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+}
+.app-subtitle { padding: 0 10px 8px; font-size: 9px; color: #71717a; }
+.task-card {
+  margin: 0 8px 6px;
+  border-radius: 10px;
+  padding: 8px;
+}
+.task-card-title { font-size: 9px; font-weight: 600; margin-bottom: 5px; }
+.task-item { display: flex; align-items: center; gap: 5px; margin-bottom: 3px; }
+.task-cb {
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 1.5px solid currentColor; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.task-cb.checked::after { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.task-text { font-size: 8px; color: #a1a1aa; }
+.task-text.done { text-decoration: line-through; opacity: .5; }
+
+/* App 2 — Chat */
+.app-chat { background: #0f0f11; height: 340px; display: flex; flex-direction: column; }
+.chat-header {
+  padding: 8px 10px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid #27272a;
+  flex-shrink: 0;
+}
+.chat-title { font-size: 12px; font-weight: 600; color: #f4f4f5; }
+.icon-btn {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  color: #71717a; font-size: 10px;
+}
+.chat-list { flex: 1; overflow: hidden; }
+.chat-item {
+  padding: 6px 10px;
+  display: flex; gap: 6px; align-items: flex-start;
+  border-bottom: 1px solid rgba(39,39,42,.5);
+}
+.chat-avatar {
+  width: 20px; height: 20px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+}
+.chat-content { flex: 1; min-width: 0; }
+.chat-name-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; }
+.chat-name { font-size: 8px; font-weight: 600; color: #f4f4f5; }
+.chat-time { font-size: 7px; color: #52525b; }
+.chat-preview { font-size: 7.5px; color: #71717a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chat-footer {
+  padding: 6px 8px;
+  border-top: 1px solid #27272a;
+  display: flex; gap: 6px; align-items: center;
+  flex-shrink: 0;
+}
+.chat-input {
+  flex: 1; height: 22px; border-radius: 11px;
+  background: #27272a;
+  font-size: 8px; color: #52525b;
+  padding: 0 8px; display: flex; align-items: center;
+}
+.send-btn {
+  width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px;
+}
+
+/* App 3 — Web Dashboard */
+.web-app {
+  width: 280px;
+  border-radius: 14px;
+  border: 2px solid #27272a;
+  overflow: hidden;
+  background: #111;
+  box-shadow: 0 20px 60px rgba(0,0,0,.6);
+  flex-shrink: 0;
+}
+.web-bar {
+  height: 22px;
+  background: #1a1a1a;
+  display: flex; align-items: center; gap: 5px;
+  padding: 0 8px;
+  border-bottom: 1px solid #27272a;
+}
+.dot { width: 6px; height: 6px; border-radius: 50%; background: #3f3f46; }
+.url-bar {
+  flex: 1; height: 12px; border-radius: 3px;
+  background: #27272a; margin: 0 8px;
+  display: flex; align-items: center; padding: 0 6px;
+  font-size: 7px; color: #52525b;
+}
+.web-layout { display: flex; height: 280px; }
+.web-sidebar {
+  width: 60px; background: #18181b;
+  border-right: 1px solid #27272a;
+  padding: 10px 6px;
+  display: flex; flex-direction: column; gap: 4px;
+  flex-shrink: 0;
+}
+.nav-item {
+  padding: 5px 4px; border-radius: 6px;
+  font-size: 7px; color: #71717a; text-align: center;
+  cursor: pointer;
+}
+.nav-item.active { font-weight: 600; }
+.nav-dot { width: 16px; height: 16px; border-radius: 4px; margin: 0 auto 2px; display: flex; align-items: center; justify-content: center; font-size: 8px; }
+.web-main { flex: 1; padding: 10px; overflow: hidden; }
+.web-hero {
+  border-radius: 8px; padding: 10px;
+  margin-bottom: 8px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.web-hero-title { font-size: 11px; font-weight: 700; }
+.web-hero-sub { font-size: 8px; opacity: .7; }
+.web-hero-btn {
+  margin-top: 4px;
+  align-self: flex-start;
+  padding: 3px 8px; border-radius: 100px;
+  font-size: 8px; font-weight: 600;
+}
+.web-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.web-card { border-radius: 8px; padding: 8px; background: #27272a; }
+.web-card-label { font-size: 7px; color: #71717a; margin-bottom: 3px; }
+.web-card-val { font-size: 14px; font-weight: 700; color: #f4f4f5; }
+.web-card-trend { font-size: 7px; margin-top: 2px; }
+
+/* ── Interaction note ── */
+.interaction-note {
+  background: rgba(109,40,217,.1);
+  border: 1px solid rgba(109,40,217,.25);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 12px;
+  color: #c4b5fd;
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-bottom: 20px;
+}
+.note-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── Change indicators ── */
+.changes {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.change-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 10px; border-radius: 8px;
+  font-size: 11px; border: 1px solid;
+}
+.change-tag.fix { background: rgba(239,68,68,.08); border-color: rgba(239,68,68,.2); color: #fca5a5; }
+.change-tag.new { background: rgba(34,197,94,.08); border-color: rgba(34,197,94,.2); color: #86efac; }
+.change-tag.improve { background: rgba(59,130,246,.08); border-color: rgba(59,130,246,.2); color: #93c5fd; }
+
+/* Tokens de couleur dynamiques simulés */
+:root {
+  --c-primary: #7c3aed;
+  --c-primary-container: #ede9fe;
+  --c-on-primary: #ffffff;
+  --c-on-primary-cont: #3b0764;
+  --c-secondary: #059669;
+  --c-secondary-cont: #d1fae5;
+  --c-on-secondary-cont: #022c22;
+  --c-tertiary: #d97706;
+  --c-surface: #0f0f11;
+  --c-surface-cont: #1c1c1e;
+  --c-on-surface: #f4f4f5;
+  --c-on-surface-var: #71717a;
+}
+</style>
+</head>
+<body>
+
+<h1>Section 01 — Aperçu</h1>
+<p class="subtitle">Preview live de ton thème sur 3 contextes réels. Les composants sont interactifs (plus d'overlay z-50).</p>
+
+<!-- Mockups stage -->
+<div class="stage">
+
+  <!-- Phone 1: Task Manager -->
+  <div class="phone">
+    <div class="phone-status">
+      <span>9:41</span>
+      <span style="display:flex;gap:3px;align-items:center">
+        <span>▋▋▋</span><span>⬡</span>
+      </span>
+    </div>
+    <div class="phone-body">
+      <div class="app-tasks">
+        <div class="app-topbar">
+          <div>
+            <div class="app-title">My Tasks</div>
+          </div>
+          <div class="avatar" style="background:var(--c-primary);color:var(--c-on-primary)">A</div>
+        </div>
+        <div class="app-subtitle" style="color:var(--c-on-surface-var)">5 pending tasks</div>
+
+        <div class="task-card" style="background:var(--c-surface-cont)">
+          <div class="task-card-title" style="color:var(--c-primary)">Work</div>
+          <div class="task-item" style="color:var(--c-primary)">
+            <div class="task-cb checked"></div>
+            <span class="task-text done">Review PR #102</span>
+          </div>
+          <div class="task-item" style="color:var(--c-primary)">
+            <div class="task-cb"></div>
+            <span class="task-text">Draft design doc</span>
+          </div>
+        </div>
+
+        <div class="task-card" style="background:var(--c-surface-cont)">
+          <div class="task-card-title" style="color:var(--c-secondary)">Personal</div>
+          <div class="task-item" style="color:var(--c-secondary)">
+            <div class="task-cb"></div>
+            <span class="task-text">Call the dentist</span>
+          </div>
+        </div>
+
+        <div class="task-card" style="background:var(--c-surface-cont)">
+          <div class="task-card-title" style="color:var(--c-tertiary)">Groceries</div>
+          <div class="task-item" style="color:var(--c-tertiary)">
+            <div class="task-cb checked"></div>
+            <span class="task-text done">Milk &amp; Eggs</span>
+          </div>
+          <div class="task-item" style="color:var(--c-tertiary)">
+            <div class="task-cb"></div>
+            <span class="task-text">Coffee beans</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phone 2: Chat -->
+  <div class="phone">
+    <div class="phone-status">
+      <span>9:41</span>
+      <span style="display:flex;gap:3px;align-items:center">
+        <span>▋▋▋</span><span>⬡</span>
+      </span>
+    </div>
+    <div class="phone-body">
+      <div class="app-chat">
+        <div class="chat-header">
+          <div class="chat-title">Chat</div>
+          <div class="icon-btn">⌕</div>
+        </div>
+        <div class="chat-list">
+          <div class="chat-item">
+            <div class="chat-avatar" style="background:var(--c-secondary-cont);color:var(--c-on-secondary-cont)">1</div>
+            <div class="chat-content">
+              <div class="chat-name-row">
+                <span class="chat-name">Team Update #1</span>
+                <span class="chat-time">10:41 AM</span>
+              </div>
+              <div class="chat-preview">Lorem ipsum dolor sit amet...</div>
+            </div>
+          </div>
+          <div class="chat-item">
+            <div class="chat-avatar" style="background:var(--c-secondary-cont);color:var(--c-on-secondary-cont)">2</div>
+            <div class="chat-content">
+              <div class="chat-name-row">
+                <span class="chat-name">Team Update #2</span>
+                <span class="chat-time">10:42 AM</span>
+              </div>
+              <div class="chat-preview">Consectetur adipiscing elit...</div>
+            </div>
+          </div>
+          <div class="chat-item">
+            <div class="chat-avatar" style="background:var(--c-secondary-cont);color:var(--c-on-secondary-cont)">3</div>
+            <div class="chat-content">
+              <div class="chat-name-row">
+                <span class="chat-name">Team Update #3</span>
+                <span class="chat-time">10:43 AM</span>
+              </div>
+              <div class="chat-preview">Sed do eiusmod tempor...</div>
+            </div>
+          </div>
+          <div class="chat-item">
+            <div class="chat-avatar" style="background:var(--c-secondary-cont);color:var(--c-on-secondary-cont)">4</div>
+            <div class="chat-content">
+              <div class="chat-name-row">
+                <span class="chat-name">Team Update #4</span>
+                <span class="chat-time">10:44 AM</span>
+              </div>
+              <div class="chat-preview">Incididunt ut labore...</div>
+            </div>
+          </div>
+        </div>
+        <div class="chat-footer">
+          <div class="chat-input">Message...</div>
+          <div class="send-btn" style="background:var(--c-primary);color:var(--c-on-primary)">➤</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Web App: Dashboard -->
+  <div class="web-app">
+    <div class="web-bar">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      <div class="url-bar">udixio.dev/demo</div>
+    </div>
+    <div class="web-layout">
+      <div class="web-sidebar">
+        <div class="nav-item active">
+          <div class="nav-dot" style="background:var(--c-primary);color:var(--c-on-primary)">⊞</div>
+          Board
+        </div>
+        <div class="nav-item">
+          <div class="nav-dot">◷</div>
+          Tasks
+        </div>
+        <div class="nav-item">
+          <div class="nav-dot">⊙</div>
+          Team
+        </div>
+        <div class="nav-item">
+          <div class="nav-dot">◈</div>
+          Docs
+        </div>
+      </div>
+      <div class="web-main">
+        <div class="web-hero" style="background:var(--c-primary);color:var(--c-on-primary)">
+          <div class="web-hero-title">Good morning, Joel 👋</div>
+          <div class="web-hero-sub">3 tasks due today</div>
+          <div class="web-hero-btn" style="background:rgba(255,255,255,.15)">View tasks</div>
+        </div>
+        <div class="web-cards">
+          <div class="web-card">
+            <div class="web-card-label">Completed</div>
+            <div class="web-card-val" style="color:var(--c-secondary)">24</div>
+            <div class="web-card-trend" style="color:var(--c-secondary)">↑ +12%</div>
+          </div>
+          <div class="web-card">
+            <div class="web-card-label">In Progress</div>
+            <div class="web-card-val">8</div>
+            <div class="web-card-trend" style="color:var(--c-on-surface-var)">— stable</div>
+          </div>
+          <div class="web-card">
+            <div class="web-card-label">Overdue</div>
+            <div class="web-card-val" style="color:#dc2626">2</div>
+            <div class="web-card-trend" style="color:#dc2626">↑ attention</div>
+          </div>
+          <div class="web-card">
+            <div class="web-card-label">This week</div>
+            <div class="web-card-val" style="color:var(--c-tertiary)">15</div>
+            <div class="web-card-trend" style="color:var(--c-tertiary)">↑ +3</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Interaction note -->
+<div class="interaction-note">
+  <span class="note-icon">⚡</span>
+  <div>
+    <strong>Composants interactifs</strong> — L'overlay <code>z-50</code> qui bloquait toute interaction est supprimé. Les Checkbox, Switch, TextField réagissent au vrai thème en temps réel via les CSS custom properties. Le visiteur peut cliquer, cocher, taper dans les inputs.
+  </div>
+</div>
+
+<!-- What changed -->
+<div class="changes">
+  <div class="change-tag fix">🔴 Supprime l'overlay z-50 bloquant</div>
+  <div class="change-tag new">🟢 + Mockup web app (dashboard)</div>
+  <div class="change-tag improve">🔵 Composants utilisent les vraies CSS vars</div>
+  <div class="change-tag improve">🔵 Couleurs primary/secondary/tertiary distinctes</div>
+  <div class="change-tag new">🟢 Stage avec fond subtil + shadow</div>
+  <div class="change-tag improve">🔵 Section header avec eyebrow numéroté</div>
+</div>
+
+<script>
+const s = document.createElement('script');
+s.src = '/helper.js';
+document.head.appendChild(s);
+</script>
+</body>
+</html>

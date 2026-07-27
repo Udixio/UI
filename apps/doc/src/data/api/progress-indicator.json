@@ -20,7 +20,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<ProgressIndicatorInterface> | undefined"
+            "name": "string | ClassNameComponent<ProgressIndicatorInterface>"
           },
           "defaultValue": null
         },
@@ -29,7 +29,7 @@
           "description": "The percentage of the progress completed.",
           "required": false,
           "type": {
-            "name": "number | undefined"
+            "name": "number"
           },
           "defaultValue": {
             "value": "0"
@@ -40,7 +40,7 @@
           "description": "The duration of the transition animation in milliseconds.",
           "required": false,
           "type": {
-            "name": "number | undefined"
+            "name": "number"
           },
           "defaultValue": {
             "value": "1000"
@@ -51,7 +51,7 @@
           "description": "The variant of the ProgressIndicator.",
           "required": false,
           "type": {
-            "name": "ProgressIndicatorVariant | undefined"
+            "name": "ProgressIndicatorVariant"
           },
           "defaultValue": {
             "value": "'linear-determinate'"
@@ -62,7 +62,7 @@
           "description": "The minimum height of the line used to draw the linear indicator.",
           "required": false,
           "type": {
-            "name": "number | undefined"
+            "name": "number"
           },
           "defaultValue": null
         }

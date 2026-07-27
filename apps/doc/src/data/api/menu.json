@@ -20,7 +20,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<MenuInterface> | undefined"
+            "name": "string | ClassNameComponent<MenuInterface>"
           },
           "defaultValue": null
         },
@@ -29,7 +29,7 @@
           "description": "",
           "required": false,
           "type": {
-            "name": "MenuVariant | undefined"
+            "name": "MenuVariant"
           },
           "defaultValue": {
             "value": "'standard'"

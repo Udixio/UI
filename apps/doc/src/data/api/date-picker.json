@@ -17,7 +17,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<DatePickerInterface> | undefined"
+            "name": "string | ClassNameComponent<DatePickerInterface>"
           },
           "defaultValue": null
         },
@@ -26,7 +26,7 @@
           "description": "Selection mode: 'single' for one date, 'range' for start/end period.",
           "required": false,
           "type": {
-            "name": "\"single\" | \"range\" | undefined"
+            "name": "\"single\" | \"range\""
           },
           "defaultValue": {
             "value": "'single'"
@@ -37,7 +37,7 @@
           "description": "The currently selected date(s).\nDate for single mode, [start, end] tuple for range mode.",
           "required": false,
           "type": {
-            "name": "Date | DateRange | null | undefined"
+            "name": "Date | DateRange"
           },
           "defaultValue": null
         },
@@ -46,7 +46,7 @@
           "description": "Default selected date(s) for uncontrolled usage.",
           "required": false,
           "type": {
-            "name": "Date | DateRange | null | undefined"
+            "name": "Date | DateRange"
           },
           "defaultValue": null
         },
@@ -55,7 +55,7 @@
           "description": "Callback fired when selection changes.\nReturns Date in single mode, DateRange in range mode.",
           "required": false,
           "type": {
-            "name": "((value: any) => void) | undefined"
+            "name": "(value: any) => void"
           },
           "defaultValue": null
         },
@@ -64,7 +64,7 @@
           "description": "Minimum selectable date.",
           "required": false,
           "type": {
-            "name": "Date | undefined"
+            "name": "Date"
           },
           "defaultValue": null
         },
@@ -73,7 +73,7 @@
           "description": "Maximum selectable date.",
           "required": false,
           "type": {
-            "name": "Date | undefined"
+            "name": "Date"
           },
           "defaultValue": null
         },
@@ -82,7 +82,7 @@
           "description": "Disables specific dates.",
           "required": false,
           "type": {
-            "name": "((date: Date) => boolean) | undefined"
+            "name": "(date: Date) => boolean"
           },
           "defaultValue": null
         },
@@ -91,7 +91,7 @@
           "description": "Locale for formatting dates.",
           "required": false,
           "type": {
-            "name": "string | undefined"
+            "name": "string"
           },
           "defaultValue": {
             "value": "'default'"
@@ -102,7 +102,7 @@
           "description": "First day of the week (0=Sunday, 1=Monday).",
           "required": false,
           "type": {
-            "name": "0 | 2 | 1 | 3 | 4 | 5 | 6 | undefined"
+            "name": "0 | 2 | 1 | 3 | 4 | 5 | 6"
           },
           "defaultValue": {
             "value": "0"

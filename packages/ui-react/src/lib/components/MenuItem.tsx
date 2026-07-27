@@ -7,7 +7,8 @@ import {
   type ReactProps,
 } from '@udixio/core';
 import { createUseStyle } from '../utils/create-use-style';
-import { faCheck, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { iCheck } from '@udixio/icons-rounded-400/check';
+import { iChevronRight } from '@udixio/icons-rounded-400/chevron_right';
 import { AnchorPositioner } from './AnchorPositioner';
 import { State } from '../effects';
 
@@ -63,7 +64,7 @@ export const MenuItem = ({
   const [isActive, setIsActive] = useState(activated);
 
   if (isActive) {
-    leadingIcon = faCheck;
+    leadingIcon = iCheck;
   }
 
   const itemRef = useRef<HTMLButtonElement | HTMLAnchorElement>(null);
@@ -74,7 +75,7 @@ export const MenuItem = ({
   }, [activated]);
 
   const effectiveTrailingIcon =
-    trailingIcon ?? (subMenuElement ? faChevronRight : undefined);
+    trailingIcon ?? (subMenuElement ? iChevronRight : undefined);
 
   const styles = useMenuItemStyle({
     label,
@@ -89,7 +90,6 @@ export const MenuItem = ({
   });
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    console.log('refrefd', disabled, subMenuElement, onToggle);
     if (disabled) {
       e.preventDefault();
       return;
@@ -104,7 +104,6 @@ export const MenuItem = ({
       setIsActive(!isActive);
       onToggle(!isActive);
     } else {
-      console.log('click', onClick);
       onClick?.(e);
     }
   };
@@ -212,7 +211,6 @@ export const MenuItem = ({
         <AnchorPositioner
           anchorRef={itemRef}
           position="inline-end span-block-end"
-          hoverOpen={true}
         >
           <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             {subMenuElement}

@@ -25,7 +25,8 @@ import {
 } from './NavigationRailItem';
 import { Fab, type ReactFabProps } from './Fab';
 import { createUseStyle } from '../utils/create-use-style';
-import { faBars, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { iClose } from '@udixio/icons-rounded-400/close';
+import { iMenu } from '@udixio/icons-rounded-400/menu';
 import { IconButton } from './IconButton';
 
 export type ReactNavigationRailProps = ReactProps<NavigationRailInterface> & {
@@ -58,11 +59,11 @@ export const NavigationRail = ({
   alignment = 'top',
   menu = {
     closed: {
-      icon: faBars,
+      icon: iMenu,
       label: 'Open menu',
     },
     opened: {
-      icon: faXmark,
+      icon: iClose,
       label: 'Close menu',
     },
   },

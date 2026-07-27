@@ -20,7 +20,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<SideSheetInterface> | undefined"
+            "name": "string | ClassNameComponent<SideSheetInterface>"
           },
           "defaultValue": null
         },
@@ -29,7 +29,7 @@
           "description": "",
           "required": false,
           "type": {
-            "name": "SideSheetVariant | undefined"
+            "name": "SideSheetVariant"
           },
           "defaultValue": {
             "value": "'standard'"
@@ -40,7 +40,7 @@
           "description": "Headline displayed in the side sheet header.",
           "required": false,
           "type": {
-            "name": "string | undefined"
+            "name": "string"
           },
           "defaultValue": null
         },
@@ -49,7 +49,7 @@
           "description": "",
           "required": false,
           "type": {
-            "name": "SideSheetPosition | undefined"
+            "name": "SideSheetPosition"
           },
           "defaultValue": {
             "value": "'right'"
@@ -60,7 +60,7 @@
           "description": "Controlled mode: explicitly control whether the side sheet is extended.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": null
         },
@@ -69,16 +69,27 @@
           "description": "Callback when the extended state changes.",
           "required": false,
           "type": {
-            "name": "((extended: boolean) => void) | undefined"
+            "name": "(extended: boolean) => void"
           },
           "defaultValue": null
+        },
+        "closeIcon": {
+          "name": "closeIcon",
+          "description": "",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": {
+            "value": "iClose"
+          }
         },
         "divider": {
           "name": "divider",
           "description": "Show the trailing divider. Defaults to `true` for the standard variant.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": null
         }

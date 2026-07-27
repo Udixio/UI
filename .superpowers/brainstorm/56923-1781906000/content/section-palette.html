@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Section Palette</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #0f0f11; color: #e4e4e7;
+  min-height: 100vh; padding: 24px;
+}
+h1 { font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+.subtitle { font-size: 13px; color: #71717a; margin-bottom: 28px; }
+
+/* ── Section container ── */
+.section-wrap {
+  background: #18181b;
+  border: 1px solid #27272a;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.section-header {
+  display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px;
+}
+.eyebrow { font-size: 10px; font-weight: 700; letter-spacing:.12em; text-transform:uppercase; color:#52525b; }
+.section-title { font-size: 20px; font-weight: 700; color: #f4f4f5; }
+.section-desc { font-size: 13px; color: #71717a; margin-bottom: 24px; }
+
+/* ── Palette family row ── */
+.palette-family {
+  margin-bottom: 20px;
+}
+.family-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.family-name {
+  font-size: 12px; font-weight: 600; color: #a1a1aa;
+  display: flex; align-items: center; gap: 8px;
+}
+.family-source {
+  font-size: 10px; font-family: monospace; color: #52525b;
+  background: #27272a; padding: 2px 7px; border-radius: 4px;
+}
+.family-action {
+  font-size: 10px; color: #7c3aed; cursor: pointer; opacity: .7;
+}
+.family-action:hover { opacity: 1; }
+
+/* ── Tone row ── */
+.tone-row {
+  display: flex; gap: 3px; align-items: flex-end;
+}
+.tone-cell {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: transform .12s;
+}
+.tone-cell:hover { transform: translateY(-3px); }
+.tone-cell.highlighted { transform: translateY(-5px); }
+
+.tone-swatch {
+  width: 100%;
+  height: 44px;
+  border-radius: 6px;
+  transition: box-shadow .12s;
+  position: relative;
+}
+.tone-cell.highlighted .tone-swatch {
+  box-shadow: 0 0 0 2px #7c3aed, 0 4px 12px rgba(0,0,0,.4);
+}
+.tone-label {
+  font-size: 9px; font-family: monospace; color: #52525b;
+  transition: color .12s;
+}
+.tone-cell.highlighted .tone-label { color: #7c3aed; font-weight: 700; }
+
+/* Used-as badge on specific tones */
+.used-badge {
+  position: absolute;
+  bottom: 3px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,.5);
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-size: 7px; color: rgba(255,255,255,.8);
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+
+/* ── Palette families ── */
+.primary-swatches {
+  --t100: #3b0764; --t90: #581c87; --t80: #6d28d9; --t70: #7c3aed;
+  --t60: #8b5cf6; --t50: #a78bfa; --t40: #c4b5fd; --t30: #ddd6fe;
+  --t20: #ede9fe; --t10: #f5f3ff; --t0: #faf5ff;
+}
+.secondary-swatches {
+  --t100: #022c22; --t90: #064e3b; --t80: #065f46; --t70: #047857;
+  --t60: #059669; --t50: #10b981; --t40: #34d399; --t30: #6ee7b7;
+  --t20: #a7f3d0; --t10: #d1fae5; --t0: #ecfdf5;
+}
+.tertiary-swatches {
+  --t100: #78350f; --t90: #92400e; --t80: #b45309; --t70: #d97706;
+  --t60: #f59e0b; --t50: #fbbf24; --t40: #fcd34d; --t30: #fde68a;
+  --t20: #fef3c7; --t10: #fffbeb; --t0: #fffff0;
+}
+.neutral-swatches {
+  --t100: #09090b; --t90: #18181b; --t80: #27272a; --t70: #3f3f46;
+  --t60: #52525b; --t50: #71717a; --t40: #a1a1aa; --t30: #d4d4d8;
+  --t20: #e4e4e7; --t10: #f4f4f5; --t0: #fafafa;
+}
+.error-swatches {
+  --t100: #450a0a; --t90: #7f1d1d; --t80: #991b1b; --t70: #b91c1c;
+  --t60: #dc2626; --t50: #ef4444; --t40: #f87171; --t30: #fca5a5;
+  --t20: #fecaca; --t10: #fee2e2; --t0: #fff5f5;
+}
+
+/* Legend */
+.legend {
+  display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap;
+}
+.legend-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; color: #71717a;
+}
+.legend-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 1.5px solid #7c3aed;
+}
+.legend-badge {
+  background: rgba(0,0,0,.5); border-radius: 3px;
+  padding: 1px 5px; font-size: 9px; color: rgba(255,255,255,.7);
+  border: 1px solid rgba(255,255,255,.1);
+}
+
+/* Change tags */
+.changes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.change-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 10px; border-radius: 8px;
+  font-size: 11px; border: 1px solid;
+}
+.change-tag.fix { background: rgba(239,68,68,.08); border-color: rgba(239,68,68,.2); color: #fca5a5; }
+.change-tag.new { background: rgba(34,197,94,.08); border-color: rgba(34,197,94,.2); color: #86efac; }
+.change-tag.improve { background: rgba(59,130,246,.08); border-color: rgba(59,130,246,.2); color: #93c5fd; }
+</style>
+</head>
+<body>
+
+<h1>Section 02 — Palette</h1>
+<p class="subtitle">Les ramps de tons brutes (0→100) par famille. La "DNA" du thème — actuellement enterrée dans les accordéons du TokenGallery, ici promue en section centrale.</p>
+
+<div class="section-wrap">
+
+  <div class="section-header">
+    <span class="eyebrow">02 —</span>
+    <span class="section-title">Palette</span>
+  </div>
+  <p class="section-desc">Chaque famille génère 11 tons (0 = blanc pur → 100 = noir pur). Hover sur un ton pour voir où il est utilisé dans les tokens.</p>
+
+  <!-- PRIMARY -->
+  <div class="palette-family primary-swatches">
+    <div class="family-header">
+      <div class="family-name">
+        <div style="width:10px;height:10px;border-radius:50%;background:#7c3aed;flex-shrink:0"></div>
+        Primary
+        <span class="family-source">hue 270° · chroma 84</span>
+      </div>
+      <span class="family-action">↗ Modifier →</span>
+    </div>
+    <div class="tone-row">
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t100)"></div><span class="tone-label">100</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t90)"></div><span class="tone-label">90</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t80)"></div><span class="tone-label">80</span></div>
+      <div class="tone-cell highlighted">
+        <div class="tone-swatch" style="background:var(--t70)">
+          <span class="used-badge">primary</span>
+        </div>
+        <span class="tone-label">70</span>
+      </div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t60)"></div><span class="tone-label">60</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t50)"></div><span class="tone-label">50</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t40)">
+        <span class="used-badge">container</span>
+      </div><span class="tone-label">40</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t30)"></div><span class="tone-label">30</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t20)"></div><span class="tone-label">20</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t10)"><span class="used-badge" style="color:#000">on-cont.</span></div><span class="tone-label">10</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t0)"><span class="used-badge" style="color:#000">on-prim.</span></div><span class="tone-label">0</span></div>
+    </div>
+  </div>
+
+  <!-- SECONDARY -->
+  <div class="palette-family secondary-swatches">
+    <div class="family-header">
+      <div class="family-name">
+        <div style="width:10px;height:10px;border-radius:50%;background:#059669;flex-shrink:0"></div>
+        Secondary
+        <span class="family-source">hue 158° · chroma 72</span>
+      </div>
+      <span class="family-action">↗ Modifier →</span>
+    </div>
+    <div class="tone-row">
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t100)"></div><span class="tone-label">100</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t90)"></div><span class="tone-label">90</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t80)"></div><span class="tone-label">80</span></div>
+      <div class="tone-cell highlighted"><div class="tone-swatch" style="background:var(--t70)"><span class="used-badge">secondary</span></div><span class="tone-label">70</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t60)"></div><span class="tone-label">60</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t50)"></div><span class="tone-label">50</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t40)"><span class="used-badge">container</span></div><span class="tone-label">40</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t30)"></div><span class="tone-label">30</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t20)"></div><span class="tone-label">20</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t10)"></div><span class="tone-label">10</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t0)"></div><span class="tone-label">0</span></div>
+    </div>
+  </div>
+
+  <!-- TERTIARY -->
+  <div class="palette-family tertiary-swatches">
+    <div class="family-header">
+      <div class="family-name">
+        <div style="width:10px;height:10px;border-radius:50%;background:#d97706;flex-shrink:0"></div>
+        Tertiary
+        <span class="family-source">hue 36° · chroma 80</span>
+      </div>
+      <span class="family-action">↗ Modifier →</span>
+    </div>
+    <div class="tone-row">
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t100)"></div><span class="tone-label">100</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t90)"></div><span class="tone-label">90</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t80)"></div><span class="tone-label">80</span></div>
+      <div class="tone-cell highlighted"><div class="tone-swatch" style="background:var(--t70)"><span class="used-badge">tertiary</span></div><span class="tone-label">70</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t60)"></div><span class="tone-label">60</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t50)"></div><span class="tone-label">50</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t40)"></div><span class="tone-label">40</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t30)"></div><span class="tone-label">30</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t20)"></div><span class="tone-label">20</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t10)"></div><span class="tone-label">10</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t0)"></div><span class="tone-label">0</span></div>
+    </div>
+  </div>
+
+  <!-- NEUTRAL (collapsed style) -->
+  <div class="palette-family neutral-swatches">
+    <div class="family-header">
+      <div class="family-name">
+        <div style="width:10px;height:10px;border-radius:50%;background:#52525b;flex-shrink:0"></div>
+        Neutral
+        <span class="family-source">auto-dérivé de primary</span>
+      </div>
+    </div>
+    <div class="tone-row">
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t100)"></div><span class="tone-label">100</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t90)"><span class="used-badge">surface</span></div><span class="tone-label">90</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t80)"><span class="used-badge">surf.dim</span></div><span class="tone-label">80</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t70)"></div><span class="tone-label">70</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t60)"></div><span class="tone-label">60</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t50)"></div><span class="tone-label">50</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t40)"></div><span class="tone-label">40</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t30)"><span class="used-badge" style="color:#000">on-surf.</span></div><span class="tone-label">30</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t20)"></div><span class="tone-label">20</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t10)"></div><span class="tone-label">10</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t0)"></div><span class="tone-label">0</span></div>
+    </div>
+  </div>
+
+  <!-- ERROR (compact) -->
+  <div class="palette-family error-swatches">
+    <div class="family-header">
+      <div class="family-name">
+        <div style="width:10px;height:10px;border-radius:50%;background:#dc2626;flex-shrink:0"></div>
+        Error
+      </div>
+    </div>
+    <div class="tone-row">
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t100)"></div><span class="tone-label">100</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t90)"></div><span class="tone-label">90</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t80)"></div><span class="tone-label">80</span></div>
+      <div class="tone-cell highlighted"><div class="tone-swatch" style="background:var(--t70)"><span class="used-badge">error</span></div><span class="tone-label">70</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t60)"></div><span class="tone-label">60</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t50)"></div><span class="tone-label">50</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t40)"></div><span class="tone-label">40</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t30)"></div><span class="tone-label">30</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t20)"></div><span class="tone-label">20</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t10)"></div><span class="tone-label">10</span></div>
+      <div class="tone-cell"><div class="tone-swatch" style="background:var(--t0)"></div><span class="tone-label">0</span></div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot"></div> Ton actif (annoté)</div>
+    <div class="legend-item"><span class="legend-badge">primary</span> Badge = token sémantique mappé sur ce ton</div>
+    <div class="legend-item" style="color:#52525b">→ Hover sur un ton = tooltip avec tous ses tokens</div>
+    <div class="legend-item" style="color:#52525b">→ Click sur "Modifier" = ouvre le ColorPicker de cette palette</div>
+  </div>
+
+</div>
+
+<div class="changes">
+  <div class="change-tag new">🟢 Section dédiée — plus dans un accordéon</div>
+  <div class="change-tag new">🟢 HCT source visible (hue + chroma)</div>
+  <div class="change-tag new">🟢 Badge tokens sémantiques sur les tons utilisés</div>
+  <div class="change-tag improve">🔵 Lien direct → ouvre le picker de la palette</div>
+  <div class="change-tag improve">🔵 "auto-dérivé" indique les palettes calculées</div>
+  <div class="change-tag fix">🔴 PaletteToneRow sorti du TokenGallery</div>
+</div>
+
+<script>
+const s = document.createElement('script');
+s.src = '/helper.js';
+document.head.appendChild(s);
+</script>
+</body>
+</html>

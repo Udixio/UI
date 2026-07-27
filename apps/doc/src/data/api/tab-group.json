@@ -20,7 +20,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<TabGroupInterface> | undefined"
+            "name": "string | ClassNameComponent<TabGroupInterface>"
           },
           "defaultValue": null
         },
@@ -29,7 +29,7 @@
           "description": "Controlled index of the selected tab.",
           "required": false,
           "type": {
-            "name": "number | null | undefined"
+            "name": "number"
           },
           "defaultValue": null
         },
@@ -38,7 +38,7 @@
           "description": "Index selected on mount when the group is uncontrolled.",
           "required": false,
           "type": {
-            "name": "number | undefined"
+            "name": "number"
           },
           "defaultValue": {
             "value": "0"

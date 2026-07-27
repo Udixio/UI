@@ -109,6 +109,7 @@ export const AnchorPositioner = ({
         }
       };
     }
+    return undefined;
   }, [supportsAnchor, anchorRef, anchorName]);
 
   if (supportsAnchor) {

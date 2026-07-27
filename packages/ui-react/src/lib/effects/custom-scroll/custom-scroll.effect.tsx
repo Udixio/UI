@@ -88,6 +88,8 @@ export const CustomScroll = ({
     scrollSize,
     draggable,
     throttleDuration,
+    scroll,
+    setScroll,
   });
 
   const isVertical = orientation === 'vertical';

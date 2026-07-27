@@ -112,7 +112,7 @@ const PhoneMockup = () => (
 
     {/* Filter chips */}
     <div className="shrink-0 flex gap-2 px-4 pb-3">
-      <Chip label="All" variant="elevated" activated />
+      <Chip label="All" variant="elevated" selected />
       <Chip label="Active" variant="outlined" />
       <Chip label="Done" variant="outlined" />
     </div>
@@ -225,7 +225,7 @@ const TabletMockup = () => (
         </div>
         {/* Filter chips */}
         <div className="flex gap-2 px-3 py-2 shrink-0">
-          <Chip label="All" variant="elevated" activated />
+          <Chip label="All" variant="elevated" selected />
           <Chip label="Starred" variant="outlined" icon={iStar} />
         </div>
         {/* Note items */}
@@ -369,7 +369,7 @@ const DesktopMockup = () => (
                     <Chip
                       label={status}
                       variant={active ? 'elevated' : 'outlined'}
-                      activated={active}
+                      selected={active}
                     />
                   </div>
                   <ProgressIndicator variant="linear-determinate" value={progress} />

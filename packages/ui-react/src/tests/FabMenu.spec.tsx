@@ -3,14 +3,16 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { vi } from 'vitest';
-import { faFile, faPlus, faShare } from '@fortawesome/free-solid-svg-icons';
+import { iAdd } from '@udixio/icons-rounded-400/add';
+import { iDescription } from '@udixio/icons-rounded-400/description';
+import { iShare } from '@udixio/icons-rounded-400/share';
 import { FabMenu, type FabMenuAction } from '../lib/index.js';
 
 expect.extend(toHaveNoViolations);
 
 const actions: FabMenuAction[] = [
-  { id: 'document', label: 'Document', icon: faFile },
-  { id: 'share', label: 'Share', icon: faShare, href: '/share' },
+  { id: 'document', label: 'Document', icon: iDescription },
+  { id: 'share', label: 'Share', icon: iShare, href: '/share' },
 ];
 
 describe('FabMenu', () => {
@@ -19,7 +21,7 @@ describe('FabMenu', () => {
       .spyOn(console, 'error')
       .mockImplementation(() => {});
     const { container } = render(
-      <FabMenu label="" icon={faPlus} actions={actions} />,
+      <FabMenu label="" icon={iAdd} actions={actions} />,
     );
 
     expect(container).toBeEmptyDOMElement();
@@ -28,7 +30,7 @@ describe('FabMenu', () => {
   });
 
   it('exposes a controlled disclosure relationship', () => {
-    render(<FabMenu label="Create" icon={faPlus} actions={actions} />);
+    render(<FabMenu label="Create" icon={iAdd} actions={actions} />);
     const trigger = screen.getByRole('button', { name: 'Create' });
 
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
@@ -37,7 +39,7 @@ describe('FabMenu', () => {
   });
 
   it('opens, labels the action group, and focuses the first action', async () => {
-    render(<FabMenu label="Create" icon={faPlus} actions={actions} />);
+    render(<FabMenu label="Create" icon={iAdd} actions={actions} />);
     fireEvent.click(screen.getByRole('button', { name: 'Create' }));
 
     expect(screen.getByRole('group', { name: 'Create actions' })).toBeVisible();
@@ -54,7 +56,7 @@ describe('FabMenu', () => {
     render(
       <FabMenu
         label="Create"
-        icon={faPlus}
+        icon={iAdd}
         actions={actions}
         onActionSelect={onActionSelect}
       />,
@@ -71,7 +73,7 @@ describe('FabMenu', () => {
 
   it('closes on Escape and restores trigger focus', async () => {
     render(
-      <FabMenu label="Create" icon={faPlus} actions={actions} defaultOpen />,
+      <FabMenu label="Create" icon={iAdd} actions={actions} defaultOpen />,
     );
     await waitFor(() =>
       expect(screen.getByRole('button', { name: 'Document' })).toHaveFocus(),
@@ -87,7 +89,7 @@ describe('FabMenu', () => {
   it('closes on an outside press', () => {
     render(
       <div>
-        <FabMenu label="Create" icon={faPlus} actions={actions} defaultOpen />
+        <FabMenu label="Create" icon={iAdd} actions={actions} defaultOpen />
         <button>Outside</button>
       </div>,
     );
@@ -100,7 +102,7 @@ describe('FabMenu', () => {
     render(
       <FabMenu
         label="Create"
-        icon={faPlus}
+        icon={iAdd}
         actions={actions}
         open={false}
         onOpenChange={onOpenChange}
@@ -113,7 +115,7 @@ describe('FabMenu', () => {
   });
 
   it('does not open while disabled', () => {
-    render(<FabMenu label="Create" icon={faPlus} actions={actions} disabled />);
+    render(<FabMenu label="Create" icon={iAdd} actions={actions} disabled />);
     const trigger = screen.getByRole('button', { name: 'Create' });
     expect(trigger).toBeDisabled();
     fireEvent.click(trigger);
@@ -122,7 +124,7 @@ describe('FabMenu', () => {
 
   it('has no automated accessibility violations', async () => {
     const { container } = render(
-      <FabMenu label="Create" icon={faPlus} actions={actions} defaultOpen />,
+      <FabMenu label="Create" icon={iAdd} actions={actions} defaultOpen />,
     );
     expect(await axe(container)).toHaveNoViolations();
   });

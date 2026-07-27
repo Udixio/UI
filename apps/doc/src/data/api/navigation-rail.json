@@ -19,7 +19,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<NavigationRailInterface> | undefined"
+            "name": "string | ClassNameComponent<NavigationRailInterface>"
           },
           "defaultValue": null
         },
@@ -28,7 +28,7 @@
           "description": "",
           "required": false,
           "type": {
-            "name": "\"standard\" | \"modal\" | undefined"
+            "name": "\"standard\" | \"modal\""
           },
           "defaultValue": {
             "value": "'standard'"
@@ -39,7 +39,7 @@
           "description": "Controlled index of the selected item.",
           "required": false,
           "type": {
-            "name": "number | null | undefined"
+            "name": "number"
           },
           "defaultValue": null
         },
@@ -48,7 +48,7 @@
           "description": "Controlled extended state of the rail.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": null
         },
@@ -57,7 +57,7 @@
           "description": "",
           "required": false,
           "type": {
-            "name": "\"middle\" | \"top\" | undefined"
+            "name": "\"middle\" | \"top\""
           },
           "defaultValue": {
             "value": "'top'"
@@ -68,10 +68,10 @@
           "description": "",
           "required": false,
           "type": {
-            "name": "{ closed: MenuState; opened: MenuState; } | undefined"
+            "name": "{ closed: MenuState; opened: MenuState; }"
           },
           "defaultValue": {
-            "value": "{\n    closed: {\n      icon: faBars,\n      label: 'Open menu',\n    },\n    opened: {\n      icon: faXmark,\n      label: 'Close menu',\n    },\n  }"
+            "value": "{\n    closed: {\n      icon: iMenu,\n      label: 'Open menu',\n    },\n    opened: {\n      icon: iClose,\n      label: 'Close menu',\n    },\n  }"
           }
         }
       }

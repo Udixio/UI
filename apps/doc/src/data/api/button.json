@@ -20,7 +20,7 @@
           "description": "Motion transition shared by every framework for shape changes.",
           "required": false,
           "type": {
-            "name": "Transition | undefined"
+            "name": "Transition"
           },
           "defaultValue": null
         },
@@ -29,7 +29,7 @@
           "description": "An optional icon to display in the button (agnostic Icon data).",
           "required": false,
           "type": {
-            "name": "Icon | undefined"
+            "name": "Icon"
           },
           "defaultValue": null
         },
@@ -38,7 +38,7 @@
           "description": "The HTML button type attribute. Only applies when rendered as `<button>`.",
           "required": false,
           "type": {
-            "name": "\"button\" | \"submit\" | \"reset\" | undefined"
+            "name": "\"button\" | \"submit\" | \"reset\""
           },
           "defaultValue": {
             "value": "'button'"
@@ -49,7 +49,7 @@
           "description": "Logical icon position. The `left` and `right` aliases are retained for\ncompatibility and resolve to `start` and `end` respectively.",
           "required": false,
           "type": {
-            "name": "ButtonIconPosition | ButtonIconPositionAlias | undefined"
+            "name": "ButtonIconPosition | ButtonIconPositionAlias"
           },
           "defaultValue": {
             "value": "'start'"
@@ -60,7 +60,7 @@
           "description": "Visual size; every option retains a 48px touch target.",
           "required": false,
           "type": {
-            "name": "\"xSmall\" | \"small\" | \"medium\" | \"large\" | \"xLarge\" | undefined"
+            "name": "\"xSmall\" | \"small\" | \"medium\" | \"large\" | \"xLarge\""
           },
           "defaultValue": {
             "value": "'medium'"
@@ -71,7 +71,7 @@
           "description": "The button variant determines the style of the button.\nAliases: 'primary' maps to 'filled', 'secondary' maps to 'tonal'",
           "required": false,
           "type": {
-            "name": "ButtonVariant | ButtonVariantAlias | undefined"
+            "name": "ButtonVariant | ButtonVariantAlias"
           },
           "defaultValue": {
             "value": "'filled'"
@@ -82,7 +82,7 @@
           "description": "Disables the button if set to true.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "false"
@@ -93,7 +93,7 @@
           "description": "Aligns text-button content with the surrounding inline edge.\nOnly applies to `text` variant buttons.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "true"
@@ -104,7 +104,7 @@
           "description": "Blocks interaction and exposes the busy state while preserving the label.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "false"
@@ -115,7 +115,7 @@
           "description": "The shape of the button defines whether it is squared or rounded.",
           "required": false,
           "type": {
-            "name": "\"squared\" | \"rounded\" | undefined"
+            "name": "\"squared\" | \"rounded\""
           },
           "defaultValue": {
             "value": "'rounded'"
@@ -126,7 +126,7 @@
           "description": "Shape feedback shown for accepted press and toggle interactions.",
           "required": false,
           "type": {
-            "name": "ButtonShapeFeedback | undefined"
+            "name": "ButtonShapeFeedback"
           },
           "defaultValue": {
             "value": "'morph'"
@@ -137,7 +137,7 @@
           "description": "Enables the semantic pressed state and its visual treatment.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "false"
@@ -148,7 +148,7 @@
           "description": "Controlled pressed state. Framework adapters expose the matching change\nevent (`onPressedChange` in React, `pressedChange` in Angular).",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": null
         },
@@ -157,7 +157,7 @@
           "description": "Initial pressed state when `pressed` is not controlled.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "false"
@@ -168,7 +168,7 @@
           "description": "Visible text content. Do not combine with `children`.",
           "required": false,
           "type": {
-            "name": "string | undefined"
+            "name": "string"
           },
           "defaultValue": null
         },
@@ -177,7 +177,7 @@
           "description": "Custom visible content. Use `aria-label` when it has no accessible text.",
           "required": false,
           "type": {
-            "name": "((ReactButtonChildren | undefined) & ReactButtonChildren) | undefined"
+            "name": "ReactButtonChildren"
           },
           "defaultValue": null
         },
@@ -186,7 +186,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<ButtonInterface> | undefined"
+            "name": "string | ClassNameComponent<ButtonInterface>"
           },
           "defaultValue": null
         },
@@ -195,7 +195,7 @@
           "description": "Notifies an accepted toggle-state request.",
           "required": false,
           "type": {
-            "name": "((pressed: boolean) => void) | undefined"
+            "name": "(pressed: boolean) => void"
           },
           "defaultValue": null
         },
@@ -204,7 +204,7 @@
           "description": "Navigation destination; switches the native element from button to link.",
           "required": false,
           "type": {
-            "name": "string | undefined"
+            "name": "string"
           },
           "defaultValue": null
         },
@@ -213,7 +213,7 @@
           "description": "Ref forwarded to the native button element.\nRef forwarded to the native anchor element.",
           "required": false,
           "type": {
-            "name": "((instance: HTMLButtonElement | null) => void | (() => VoidOrUndefinedOnly)) | RefObject<HTMLButtonElement | null> | ((instance: HTMLAnchorElement | null) => void | (() => VoidOrUndefinedOnly)) | RefObject<...> | null | undefined"
+            "name": "Ref<HTMLButtonElement> | Ref<HTMLAnchorElement>"
           },
           "defaultValue": null
         },
@@ -222,7 +222,7 @@
           "description": "Handles clicks accepted by the button interaction contract.\nHandles clicks accepted by the link interaction contract.",
           "required": false,
           "type": {
-            "name": "MouseEventHandler<HTMLButtonElement> | MouseEventHandler<HTMLAnchorElement> | undefined"
+            "name": "MouseEventHandler<HTMLButtonElement> | MouseEventHandler<HTMLAnchorElement>"
           },
           "defaultValue": null
         }

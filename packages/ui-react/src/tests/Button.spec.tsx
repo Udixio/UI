@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { Button } from '../lib/index.js';
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { iAdd } from '@udixio/icons-rounded-400/add';
 import { axe, toHaveNoViolations } from 'jest-axe';
 
 expect.extend(toHaveNoViolations);
@@ -56,7 +56,7 @@ describe('Button', () => {
   });
 
   it('renders with an icon when icon prop is provided', () => {
-    render(<Button label="Test Button" icon={faPlus} />);
+    render(<Button label="Test Button" icon={iAdd} />);
 
     const button = screen.getByText('Test Button').closest('button');
     expect(button).toBeInTheDocument();
@@ -367,14 +367,14 @@ describe('Button', () => {
 
   it('uses logical icon positions while preserving physical aliases', () => {
     const { rerender } = render(
-      <Button label="Add" icon={faPlus} iconPosition="start" />,
+      <Button label="Add" icon={iAdd} iconPosition="start" />,
     );
     let label = screen.getByText('Add');
-    expect(label.previousElementSibling?.tagName).toBe('svg');
+    expect(label.previousElementSibling).toHaveAttribute('aria-hidden', 'true');
 
-    rerender(<Button label="Add" icon={faPlus} iconPosition="right" />);
+    rerender(<Button label="Add" icon={iAdd} iconPosition="right" />);
     label = screen.getByText('Add');
-    expect(label.nextElementSibling?.tagName).toBe('svg');
+    expect(label.nextElementSibling).toHaveAttribute('aria-hidden', 'true');
   });
 
   it('aligns text buttons to the surrounding edge by default', () => {

@@ -19,7 +19,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<TooltipInterface> | undefined"
+            "name": "string | ClassNameComponent<TooltipInterface>"
           },
           "defaultValue": null
         },
@@ -28,7 +28,7 @@
           "description": "",
           "required": false,
           "type": {
-            "name": "TooltipVariant | undefined"
+            "name": "TooltipVariant"
           },
           "defaultValue": {
             "value": "'plain'"
@@ -39,7 +39,7 @@
           "description": "Headline of a rich tooltip.",
           "required": false,
           "type": {
-            "name": "string | undefined"
+            "name": "string"
           },
           "defaultValue": null
         },
@@ -48,7 +48,7 @@
           "description": "Supporting text for the tooltip.",
           "required": false,
           "type": {
-            "name": "string | undefined"
+            "name": "string"
           },
           "defaultValue": null
         },
@@ -57,7 +57,7 @@
           "description": "",
           "required": false,
           "type": {
-            "name": "TooltipTrigger | TooltipTrigger[] | undefined"
+            "name": "TooltipTrigger | TooltipTrigger[]"
           },
           "defaultValue": {
             "value": "['hover', 'focus']"
@@ -68,7 +68,7 @@
           "description": "Delay in milliseconds before showing the tooltip. Default: 400ms",
           "required": false,
           "type": {
-            "name": "number | undefined"
+            "name": "number"
           },
           "defaultValue": {
             "value": "400"
@@ -79,7 +79,7 @@
           "description": "Delay in milliseconds before hiding the tooltip. Default: 150ms",
           "required": false,
           "type": {
-            "name": "number | undefined"
+            "name": "number"
           },
           "defaultValue": {
             "value": "150"
@@ -90,7 +90,7 @@
           "description": "Controlled mode: explicitly control whether the tooltip is open",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": null
         },
@@ -99,7 +99,7 @@
           "description": "Uncontrolled mode: default open state",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "false"
@@ -110,7 +110,7 @@
           "description": "Callback when the open state changes",
           "required": false,
           "type": {
-            "name": "((open: boolean) => void) | undefined"
+            "name": "(open: boolean) => void"
           },
           "defaultValue": null
         },
@@ -119,7 +119,7 @@
           "description": "Custom ID for accessibility linking. Auto-generated if not provided.",
           "required": false,
           "type": {
-            "name": "string | undefined"
+            "name": "string"
           },
           "defaultValue": null
         },
@@ -128,7 +128,7 @@
           "description": "Custom anchor for positioning. Defaults to the trigger element.",
           "required": false,
           "type": {
-            "name": "RefObject<HTMLElement> | undefined"
+            "name": "RefObject<HTMLElement>"
           },
           "defaultValue": null
         }

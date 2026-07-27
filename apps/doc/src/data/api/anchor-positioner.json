@@ -14,7 +14,7 @@
           "description": "",
           "required": false,
           "type": {
-            "name": "Position | undefined"
+            "name": "Position"
           },
           "defaultValue": {
             "value": "'bottom'"

@@ -310,4 +310,5 @@ export const BlockScroll: React.FC<BlockScrollProps> = ({
       // el.removeEventListener('scroll', onScrollEvent as EventListener);
     };
   }, [onScroll]);
+  return null;
 };

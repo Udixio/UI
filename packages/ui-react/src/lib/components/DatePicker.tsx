@@ -7,11 +7,9 @@ import {
   type ReactProps,
 } from '@udixio/core';
 import { createUseStyle } from '../utils/create-use-style';
-import {
-  faChevronDown,
-  faChevronLeft,
-  faChevronRight,
-} from '@fortawesome/free-solid-svg-icons';
+import { iKeyboardArrowDown } from '@udixio/icons-rounded-400/keyboard_arrow_down';
+import { iChevronLeft } from '@udixio/icons-rounded-400/chevron_left';
+import { iChevronRight } from '@udixio/icons-rounded-400/chevron_right';
 import { Button } from './Button';
 import { IconButton } from './IconButton';
 import { AnimatePresence, motion } from 'motion/react';
@@ -297,7 +295,7 @@ export const DatePicker = ({
               : viewDate.getFullYear()}
           </span>
           <Icon
-            icon={faChevronDown}
+            icon={iKeyboardArrowDown}
             className={classNames(
               'w-3 h-3 transition-transform duration-200 inline',
               viewMode === 'year' && 'rotate-180',
@@ -311,14 +309,14 @@ export const DatePicker = ({
               size={'xSmall'}
               shapeFeedback="none"
               onClick={handlePrevMonth}
-              icon={faChevronLeft}
+              icon={iChevronLeft}
               label="Previous month"
             />
             <IconButton
               size={'xSmall'}
               shapeFeedback="none"
               onClick={handleNextMonth}
-              icon={faChevronRight}
+              icon={iChevronRight}
               label="Next month"
             />
           </div>

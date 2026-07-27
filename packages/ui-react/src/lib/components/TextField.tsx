@@ -9,17 +9,15 @@ import React, {
   type ReactNode,
 } from 'react';
 import { Icon } from '../icon';
-import {
-  faCalendarDays,
-  faChevronDown,
-  faChevronUp,
-  faCircleExclamation,
-} from '@fortawesome/free-solid-svg-icons';
+import { iCalendarToday } from '@udixio/icons-rounded-400/calendar_today';
+import { iError } from '@udixio/icons-rounded-400/error';
+import { iKeyboardArrowDown } from '@udixio/icons-rounded-400/keyboard_arrow_down';
+import { iKeyboardArrowUp } from '@udixio/icons-rounded-400/keyboard_arrow_up';
 import { motion } from 'motion/react';
 import { DatePicker } from './DatePicker';
 import { Button } from './Button';
 import { Menu } from './Menu';
-import { MenuItem } from './MenuItem';
+import { MenuItem, type ReactMenuItemProps } from './MenuItem';
 import { Divider } from './Divider';
 import { MenuHeadline } from './MenuHeadline';
 
@@ -145,6 +143,7 @@ export const TextField = ({
       });
       return () => window.cancelAnimationFrame(rafId);
     }
+    return undefined;
   }, [autoFocus, disabled, inputRef, type]);
 
   useEffect(() => {
@@ -331,8 +330,8 @@ export const TextField = ({
 
   const effectiveTrailingIcon = useMemo(() => {
     if (trailingIcon) return trailingIcon;
-    if (isDateInput) return faCalendarDays;
-    if (isSelectInput) return showMenu ? faChevronUp : faChevronDown;
+    if (isDateInput) return iCalendarToday;
+    if (isSelectInput) return showMenu ? iKeyboardArrowUp : iKeyboardArrowDown;
     return undefined;
   }, [trailingIcon, isDateInput, isSelectInput, showMenu]);
 
@@ -519,7 +518,7 @@ export const TextField = ({
           >
             <Icon
               className={'h-5 text-error'}
-              icon={faCircleExclamation}
+              icon={iError}
             ></Icon>
           </div>
         )}
@@ -579,15 +578,21 @@ export const TextField = ({
               {children
                 ? React.Children.map(children, (child) => {
                     if (
-                      React.isValidElement(child) &&
+                      React.isValidElement<ReactMenuItemProps>(child) &&
                       child.type === MenuItem
                     ) {
                       return React.cloneElement(child, {
-                        onClick: (e: React.MouseEvent) => {
+                        onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
                           if (child.props.onClick) {
                             child.props.onClick(e);
                           }
-                          handleSelectOption(child.props.value ?? '');
+                          const optionValue = child.props.value;
+                          handleSelectOption(
+                            typeof optionValue === 'string' ||
+                              typeof optionValue === 'number'
+                              ? optionValue
+                              : '',
+                          );
                         },
                       } as any);
                     }

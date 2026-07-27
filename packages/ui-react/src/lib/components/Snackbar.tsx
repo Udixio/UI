@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { iClose } from '@udixio/icons-rounded-400/close';
 import {
   type MotionProps,
   type SnackbarInterface,
@@ -28,7 +28,7 @@ export const Snackbar = ({
   message,
   className,
   duration,
-  closeIcon = faXmark,
+  closeIcon = iClose,
   onClose,
   ...restProps
 }: ReactSnackbarProps) => {

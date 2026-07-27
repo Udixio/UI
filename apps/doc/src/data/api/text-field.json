@@ -19,7 +19,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<TextFieldInterface> | undefined"
+            "name": "string | ClassNameComponent<TextFieldInterface>"
           },
           "defaultValue": null
         },
@@ -28,7 +28,7 @@
           "description": "",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "false"
@@ -39,7 +39,7 @@
           "description": "",
           "required": false,
           "type": {
-            "name": "TextFieldVariant | undefined"
+            "name": "TextFieldVariant"
           },
           "defaultValue": {
             "value": "'filled'"
@@ -50,7 +50,7 @@
           "description": "",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "false"
@@ -61,7 +61,7 @@
           "description": "",
           "required": false,
           "type": {
-            "name": "\"number\" | \"text\" | \"password\" | \"date\" | \"select\" | undefined"
+            "name": "\"number\" | \"text\" | \"password\" | \"date\" | \"select\""
           },
           "defaultValue": {
             "value": "'text'"
@@ -72,7 +72,7 @@
           "description": "",
           "required": false,
           "type": {
-            "name": "string | undefined"
+            "name": "string"
           },
           "defaultValue": {
             "value": "'on'"

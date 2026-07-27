@@ -17,7 +17,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<MenuItemInterface> | undefined"
+            "name": "string | ClassNameComponent<MenuItemInterface>"
           },
           "defaultValue": null
         },
@@ -26,7 +26,7 @@
           "description": "Injected by the parent menu.",
           "required": false,
           "type": {
-            "name": "MenuItemVariant | undefined"
+            "name": "MenuItemVariant"
           },
           "defaultValue": {
             "value": "'standard'"
@@ -37,7 +37,7 @@
           "description": "",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "false"

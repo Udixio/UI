@@ -38,7 +38,7 @@
           "description": "Visual color treatment.",
           "required": false,
           "type": {
-            "name": "FabVariant | undefined"
+            "name": "FabVariant"
           },
           "defaultValue": {
             "value": "'primary'"
@@ -49,7 +49,7 @@
           "description": "Visual size.",
           "required": false,
           "type": {
-            "name": "FabSize | undefined"
+            "name": "FabSize"
           },
           "defaultValue": {
             "value": "'medium'"
@@ -60,7 +60,7 @@
           "description": "Displays the visible text label beside the icon.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "false"
@@ -71,7 +71,7 @@
           "description": "Disables interaction.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "false"
@@ -82,7 +82,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<FabInterface> | undefined"
+            "name": "string | ClassNameComponent<FabInterface>"
           },
           "defaultValue": null
         }

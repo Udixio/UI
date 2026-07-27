@@ -19,7 +19,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<SliderInterface> | undefined"
+            "name": "string | ClassNameComponent<SliderInterface>"
           },
           "defaultValue": null
         },
@@ -28,7 +28,7 @@
           "description": "",
           "required": false,
           "type": {
-            "name": "number | undefined"
+            "name": "number"
           },
           "defaultValue": {
             "value": "0"
@@ -39,7 +39,7 @@
           "description": "",
           "required": false,
           "type": {
-            "name": "number | undefined"
+            "name": "number"
           },
           "defaultValue": {
             "value": "10"
@@ -50,7 +50,7 @@
           "description": "",
           "required": false,
           "type": {
-            "name": "number | undefined"
+            "name": "number"
           },
           "defaultValue": {
             "value": "0"
@@ -61,7 +61,7 @@
           "description": "",
           "required": false,
           "type": {
-            "name": "number | undefined"
+            "name": "number"
           },
           "defaultValue": {
             "value": "100"

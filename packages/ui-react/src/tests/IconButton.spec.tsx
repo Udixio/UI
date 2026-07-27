@@ -3,7 +3,9 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { vi } from 'vitest';
-import { faPlus, faStar, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { iAdd } from '@udixio/icons-rounded-400/add';
+import { iClose } from '@udixio/icons-rounded-400/close';
+import { iStar } from '@udixio/icons-rounded-400/star';
 import { IconButton } from '../lib/index.js';
 
 expect.extend(toHaveNoViolations);
@@ -13,7 +15,7 @@ describe('IconButton', () => {
     const consoleError = vi
       .spyOn(console, 'error')
       .mockImplementation(() => {});
-    const { container } = render(<IconButton label="" icon={faPlus} />);
+    const { container } = render(<IconButton label="" icon={iAdd} />);
 
     expect(container).toBeEmptyDOMElement();
     expect(consoleError).toHaveBeenCalled();
@@ -21,7 +23,7 @@ describe('IconButton', () => {
   });
 
   it('renders one named native button with safe form defaults', () => {
-    render(<IconButton label="Add item" icon={faPlus} />);
+    render(<IconButton label="Add item" icon={iAdd} />);
 
     const button = screen.getByRole('button', { name: 'Add item' });
     expect(button).toHaveAttribute('type', 'button');
@@ -36,7 +38,7 @@ describe('IconButton', () => {
       <IconButton
         ref={ref}
         label="Submit"
-        icon={faPlus}
+        icon={iAdd}
         type="submit"
         data-testid="submit"
       />,
@@ -48,7 +50,7 @@ describe('IconButton', () => {
 
   it('calls action callbacks once', () => {
     const onClick = vi.fn();
-    render(<IconButton label="Add" icon={faPlus} onClick={onClick} />);
+    render(<IconButton label="Add" icon={iAdd} onClick={onClick} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Add' }));
     expect(onClick).toHaveBeenCalledTimes(1);
@@ -56,7 +58,7 @@ describe('IconButton', () => {
 
   it('blocks disabled action callbacks', () => {
     const onClick = vi.fn();
-    render(<IconButton label="Add" icon={faPlus} disabled onClick={onClick} />);
+    render(<IconButton label="Add" icon={iAdd} disabled onClick={onClick} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Add' }));
     expect(onClick).not.toHaveBeenCalled();
@@ -67,8 +69,8 @@ describe('IconButton', () => {
     const { container } = render(
       <IconButton
         label="Favorite"
-        icon={faStar}
-        pressedIcon={faXmark}
+        icon={iStar}
+        pressedIcon={iClose}
         toggleable
         defaultPressed
         onPressedChange={onPressedChange}
@@ -91,7 +93,7 @@ describe('IconButton', () => {
     render(
       <IconButton
         label="Favorite"
-        icon={faStar}
+        icon={iStar}
         toggleable
         pressed={false}
         onPressedChange={onPressedChange}
@@ -105,7 +107,7 @@ describe('IconButton', () => {
   });
 
   it('does not expose pressed semantics without toggleable', () => {
-    render(<IconButton label="Add" icon={faPlus} defaultPressed />);
+    render(<IconButton label="Add" icon={iAdd} defaultPressed />);
     expect(screen.getByRole('button', { name: 'Add' })).not.toHaveAttribute(
       'aria-pressed',
     );
@@ -115,7 +117,7 @@ describe('IconButton', () => {
     render(
       <IconButton
         label="Documentation"
-        icon={faPlus}
+        icon={iAdd}
         href="/docs"
         toggleable
         defaultPressed
@@ -134,7 +136,7 @@ describe('IconButton', () => {
     render(
       <IconButton
         label="Disabled documentation"
-        icon={faPlus}
+        icon={iAdd}
         href="/docs"
         disabled
         onClick={onClick}
@@ -154,7 +156,7 @@ describe('IconButton', () => {
   it.each(['Enter', ' '])('preserves native %s keyboard activation', (key) => {
     const onClick = vi.fn();
     render(
-      <IconButton label="Keyboard action" icon={faPlus} onClick={onClick} />,
+      <IconButton label="Keyboard action" icon={iAdd} onClick={onClick} />,
     );
     const button = screen.getByRole('button', { name: 'Keyboard action' });
 
@@ -173,7 +175,7 @@ describe('IconButton', () => {
 
   it('connects pointer feedback and cleans it up', () => {
     const { unmount } = render(
-      <IconButton label="Pointer action" icon={faPlus} />,
+      <IconButton label="Pointer action" icon={iAdd} />,
     );
     const button = screen.getByRole('button', { name: 'Pointer action' });
 
@@ -192,7 +194,7 @@ describe('IconButton', () => {
     render(
       <IconButton
         label="Static shape"
-        icon={faPlus}
+        icon={iAdd}
         toggleable
         defaultPressed
         shapeFeedback="none"
@@ -205,12 +207,12 @@ describe('IconButton', () => {
   });
 
   it('has no automated accessibility violations as an action or link', async () => {
-    const action = render(<IconButton label="Add item" icon={faPlus} />);
+    const action = render(<IconButton label="Add item" icon={iAdd} />);
     expect(await axe(action.container)).toHaveNoViolations();
     action.unmount();
 
     const link = render(
-      <IconButton label="Documentation" icon={faPlus} href="/docs" />,
+      <IconButton label="Documentation" icon={iAdd} href="/docs" />,
     );
     expect(await axe(link.container)).toHaveNoViolations();
   });

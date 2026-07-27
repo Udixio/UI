@@ -2,7 +2,7 @@ import { type ReactNode, useEffect, useState } from 'react';
 import type { Transition } from 'motion';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'motion/react';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { iClose } from '@udixio/icons-rounded-400/close';
 import {
   type ReactProps,
   type SideSheetInterface,
@@ -42,7 +42,7 @@ export const SideSheet = ({
   extended,
   divider,
   onExtendedChange,
-  closeIcon = faXmark,
+  closeIcon = iClose,
   transition,
   ...rest
 }: ReactSideSheetProps) => {

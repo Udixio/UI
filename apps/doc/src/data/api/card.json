@@ -20,7 +20,7 @@
           "description": "Visual container treatment.",
           "required": false,
           "type": {
-            "name": "CardVariant | undefined"
+            "name": "CardVariant"
           },
           "defaultValue": {
             "value": "'outlined'"
@@ -31,7 +31,7 @@
           "description": "Enables the actionable treatment: state layer, pointer cursor, and a\nvisible focus outline. Framework adapters also apply it whenever `href`\nis provided.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "false"
@@ -51,7 +51,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<CardInterface> | undefined"
+            "name": "string | ClassNameComponent<CardInterface>"
           },
           "defaultValue": null
         },
@@ -60,7 +60,7 @@
           "description": "Navigation destination; switches the native element from div to link.",
           "required": false,
           "type": {
-            "name": "string | undefined"
+            "name": "string"
           },
           "defaultValue": null
         },
@@ -69,7 +69,7 @@
           "description": "Ref forwarded to the native div element.\nRef forwarded to the native anchor element.",
           "required": false,
           "type": {
-            "name": "((instance: HTMLDivElement | null) => void | (() => VoidOrUndefinedOnly)) | RefObject<HTMLDivElement | null> | ((instance: HTMLAnchorElement | null) => void | (() => VoidOrUndefinedOnly)) | RefObject<...> | null | undefined"
+            "name": "Ref<HTMLDivElement> | Ref<HTMLAnchorElement>"
           },
           "defaultValue": null
         }

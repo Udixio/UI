@@ -19,7 +19,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<TabsInterface> | undefined"
+            "name": "string | ClassNameComponent<TabsInterface>"
           },
           "defaultValue": null
         },
@@ -28,7 +28,7 @@
           "description": "",
           "required": false,
           "type": {
-            "name": "TabsVariant | undefined"
+            "name": "TabsVariant"
           },
           "defaultValue": {
             "value": "'primary'"
@@ -39,7 +39,7 @@
           "description": "Enables horizontal scrolling and auto-centering of the selected tab.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "false"
@@ -50,7 +50,7 @@
           "description": "Controlled index of the selected tab.",
           "required": false,
           "type": {
-            "name": "number | null | undefined"
+            "name": "number"
           },
           "defaultValue": null
         }

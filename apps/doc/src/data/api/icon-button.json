@@ -38,7 +38,7 @@
           "description": "Optional icon shown while a toggle icon button is pressed.",
           "required": false,
           "type": {
-            "name": "Icon | undefined"
+            "name": "Icon"
           },
           "defaultValue": null
         },
@@ -47,7 +47,7 @@
           "description": "Visual style.",
           "required": false,
           "type": {
-            "name": "IconButtonVariant | undefined"
+            "name": "IconButtonVariant"
           },
           "defaultValue": {
             "value": "'standard'"
@@ -58,7 +58,7 @@
           "description": "Visual size; every option retains at least a 48px touch target.",
           "required": false,
           "type": {
-            "name": "IconButtonSize | undefined"
+            "name": "IconButtonSize"
           },
           "defaultValue": {
             "value": "'medium'"
@@ -69,7 +69,7 @@
           "description": "Horizontal container width.",
           "required": false,
           "type": {
-            "name": "IconButtonWidth | undefined"
+            "name": "IconButtonWidth"
           },
           "defaultValue": {
             "value": "'default'"
@@ -80,7 +80,7 @@
           "description": "Disables interaction.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "false"
@@ -91,7 +91,7 @@
           "description": "Resting container shape.",
           "required": false,
           "type": {
-            "name": "\"squared\" | \"rounded\" | undefined"
+            "name": "\"squared\" | \"rounded\""
           },
           "defaultValue": {
             "value": "'rounded'"
@@ -102,7 +102,7 @@
           "description": "Shape feedback shown for accepted press and toggle interactions.",
           "required": false,
           "type": {
-            "name": "ButtonShapeFeedback | undefined"
+            "name": "ButtonShapeFeedback"
           },
           "defaultValue": {
             "value": "'morph'"
@@ -113,7 +113,7 @@
           "description": "Motion transition shared by every framework for shape changes.",
           "required": false,
           "type": {
-            "name": "Transition | undefined"
+            "name": "Transition"
           },
           "defaultValue": null
         },
@@ -122,7 +122,7 @@
           "description": "Enables semantic pressed state for action buttons.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "false"
@@ -133,7 +133,7 @@
           "description": "Controlled pressed state.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": null
         },
@@ -142,7 +142,7 @@
           "description": "Initial pressed state when `pressed` is not controlled.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "false"
@@ -153,7 +153,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<IconButtonInterface> | undefined"
+            "name": "string | ClassNameComponent<IconButtonInterface>"
           },
           "defaultValue": null
         },
@@ -162,7 +162,7 @@
           "description": "Notifies an accepted toggle-state request.",
           "required": false,
           "type": {
-            "name": "((pressed: boolean) => void) | undefined"
+            "name": "(pressed: boolean) => void"
           },
           "defaultValue": null
         }

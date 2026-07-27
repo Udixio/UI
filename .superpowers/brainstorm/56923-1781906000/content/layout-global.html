@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Theme Builder — Layout global</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #0f0f11; color: #e4e4e7; min-height: 100vh; padding: 24px; }
+
+  h1 { font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #71717a; margin-bottom: 28px; }
+
+  /* ── Builder shell ── */
+  .builder-shell {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 0;
+    height: 560px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #27272a;
+    box-shadow: 0 24px 64px rgba(0,0,0,.6);
+  }
+
+  /* ── Left panel ── */
+  .left-panel {
+    background: #18181b;
+    border-right: 1px solid #27272a;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .left-header {
+    padding: 16px;
+    border-bottom: 1px solid #27272a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .left-header-title {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #71717a;
+  }
+
+  .collapse-btn {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: #27272a;
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #a1a1aa;
+    font-size: 12px;
+  }
+
+  .left-section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #52525b;
+    padding: 14px 16px 6px;
+  }
+
+  .global-controls {
+    padding: 8px 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-bottom: 1px solid #27272a;
+    flex-shrink: 0;
+  }
+
+  .control-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+  }
+  .control-label { font-size: 13px; color: #d4d4d8; }
+  .mock-switch {
+    width: 40px; height: 22px; border-radius: 11px;
+    background: #6d28d9; position: relative;
+  }
+  .mock-switch::after {
+    content: ''; position: absolute; top: 3px; right: 3px;
+    width: 16px; height: 16px; border-radius: 50%; background: white;
+  }
+  .mock-slider {
+    flex: 1; margin-left: 16px; height: 4px; border-radius: 2px;
+    background: linear-gradient(to right, #6d28d9 60%, #3f3f46 60%);
+  }
+
+  .palette-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .palette-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .palette-row:hover { background: #27272a; }
+  .palette-row.active { background: #27272a; }
+
+  .palette-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,.3);
+    position: relative;
+  }
+  .palette-dot.overridden::after {
+    content: ''; position: absolute;
+    top: -2px; right: -2px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #6d28d9;
+    border: 2px solid #18181b;
+  }
+  .palette-name { font-size: 13px; color: #d4d4d8; flex: 1; }
+  .palette-hex { font-size: 11px; color: #52525b; font-family: monospace; }
+
+  /* Inline expanded picker preview */
+  .palette-row-expanded {
+    background: #27272a;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 2px;
+  }
+  .palette-row-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; cursor: pointer;
+  }
+  .picker-preview {
+    padding: 12px 14px;
+    border-top: 1px solid #3f3f46;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .hct-row {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .hct-label { font-size: 10px; color: #71717a; width: 40px; flex-shrink: 0; }
+  .hct-track {
+    flex: 1; height: 6px; border-radius: 3px;
+  }
+  .hct-value { font-size: 10px; color: #a1a1aa; font-family: monospace; width: 28px; text-align: right; }
+
+  /* ── Collapse state hint ── */
+  .collapsed-hint {
+    position: absolute;
+    top: 0; right: -40px;
+    width: 40px;
+    height: 100%;
+    background: #18181b;
+    border-right: 1px solid #27272a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 16px;
+    gap: 8px;
+  }
+
+  /* ── Right panel ── */
+  .right-panel {
+    background: #0f0f11;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Floating nav */
+  .floating-nav {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    gap: 2px;
+    background: rgba(24,24,27,.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid #27272a;
+    border-radius: 100px;
+    padding: 4px;
+  }
+
+  .nav-pill {
+    display: flex; align-items: center; gap: 5px;
+    padding: 5px 14px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #71717a;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .nav-pill.active {
+    background: #6d28d9;
+    color: white;
+  }
+  .nav-pill svg { width: 13px; height: 13px; }
+
+  /* Scroll sections */
+  .sections-scroll {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .section-block {
+    min-height: 200px;
+    padding: 52px 20px 20px;
+    border-bottom: 1px solid #1c1c1f;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .section-block:first-child { min-height: 220px; }
+
+  .section-eyebrow {
+    font-size: 10px; font-weight: 600;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: #52525b;
+  }
+  .section-title {
+    font-size: 16px; font-weight: 600; color: #e4e4e7;
+  }
+
+  /* Apercu mockup thumbnails */
+  .mockup-row {
+    display: flex; gap: 10px; margin-top: 4px;
+  }
+  .phone-thumb {
+    width: 72px; height: 128px; border-radius: 10px;
+    border: 2px solid #27272a;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    background: #18181b;
+    flex-shrink: 0;
+  }
+  .phone-top { height: 8px; background: #27272a; }
+  .phone-body { flex: 1; padding: 4px; display: flex; flex-direction: column; gap: 3px; }
+  .phone-row { height: 7px; border-radius: 3px; background: #3f3f46; }
+  .phone-row.purple { background: #6d28d9; width: 60%; }
+  .phone-row.short { width: 40%; }
+  .phone-card { height: 24px; border-radius: 4px; background: #27272a; }
+
+  .web-thumb {
+    flex: 1; height: 128px; border-radius: 10px;
+    border: 2px solid #27272a;
+    overflow: hidden;
+    background: #18181b;
+    display: flex; flex-direction: column;
+  }
+  .web-topbar { height: 16px; background: #27272a; display: flex; align-items: center; gap: 4px; padding: 0 8px; }
+  .web-dot { width: 5px; height: 5px; border-radius: 50%; background: #3f3f46; }
+  .web-body { flex: 1; display: grid; grid-template-columns: 40px 1fr; }
+  .web-sidebar { background: #1c1c1f; border-right: 1px solid #27272a; }
+  .web-content { padding: 6px; display: flex; flex-direction: column; gap: 4px; }
+  .web-row { height: 6px; border-radius: 3px; background: #3f3f46; }
+  .web-row.accent { background: #6d28d9; width: 50%; }
+
+  /* Palette tone grid preview */
+  .tone-grid {
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .tone-family { display: flex; gap: 2px; }
+  .tone-cell {
+    flex: 1; height: 16px; border-radius: 3px;
+  }
+
+  /* Token cards preview */
+  .token-mini-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+  }
+  .token-chip {
+    height: 28px; border-radius: 6px;
+    display: flex; align-items: flex-end;
+    padding: 3px 5px;
+    font-size: 8px; font-family: monospace; color: rgba(255,255,255,.6);
+  }
+
+  /* ── Annotations ── */
+  .annotation-layer {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 0;
+    font-size: 12px;
+  }
+  .ann-left { padding: 10px 16px; color: #71717a; }
+  .ann-right { padding: 10px 16px; color: #71717a; }
+  .ann-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: #1c1c1f; border: 1px solid #27272a;
+    border-radius: 6px; padding: 3px 8px;
+    margin: 2px 3px 2px 0;
+    font-size: 11px; color: #a1a1aa;
+  }
+</style>
+</head>
+<body>
+
+<h1>Theme Builder — Layout global (Approche 2)</h1>
+<p class="subtitle">Vue d'ensemble du redesign. Le panneau gauche reste sticky, la zone droite devient scrollable avec nav flottante.</p>
+
+<div class="builder-shell">
+
+  <!-- ── LEFT PANEL ── -->
+  <div class="left-panel">
+    <div class="left-header">
+      <span class="left-header-title">Theme</span>
+      <button class="collapse-btn">←</button>
+    </div>
+
+    <!-- Global controls -->
+    <div class="left-section-label">Global</div>
+    <div class="global-controls">
+      <div class="control-row">
+        <span class="control-label">Mode sombre</span>
+        <div class="mock-switch"></div>
+      </div>
+      <div class="control-row">
+        <span class="control-label">Contraste</span>
+        <div class="mock-slider" style="width:100px"></div>
+      </div>
+    </div>
+
+    <!-- Palette list -->
+    <div class="left-section-label">Palettes</div>
+    <div class="palette-list">
+
+      <!-- Expanded palette -->
+      <div class="palette-row-expanded">
+        <div class="palette-row-header">
+          <div class="palette-dot overridden" style="background: #7c3aed"></div>
+          <span class="palette-name">Primary</span>
+          <span class="palette-hex">#7C3AED</span>
+          <span style="font-size:10px;color:#52525b">▲</span>
+        </div>
+        <div class="picker-preview">
+          <div class="hct-row">
+            <span class="hct-label">Teinte</span>
+            <div class="hct-track" style="background: linear-gradient(to right,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00); opacity:.8"></div>
+            <span class="hct-value">270°</span>
+          </div>
+          <div class="hct-row">
+            <span class="hct-label">Chroma</span>
+            <div class="hct-track" style="background: linear-gradient(to right,#777,#7c3aed)"></div>
+            <span class="hct-value">84</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Collapsed palettes -->
+      <div class="palette-row">
+        <div class="palette-dot" style="background:#059669"></div>
+        <span class="palette-name">Secondary</span>
+        <span class="palette-hex">#059669</span>
+      </div>
+      <div class="palette-row">
+        <div class="palette-dot" style="background:#d97706"></div>
+        <span class="palette-name">Tertiary</span>
+        <span class="palette-hex">#D97706</span>
+      </div>
+      <div class="palette-row">
+        <div class="palette-dot" style="background:#dc2626"></div>
+        <span class="palette-name">Error</span>
+        <span class="palette-hex">#DC2626</span>
+      </div>
+      <div class="palette-row">
+        <div class="palette-dot" style="background:#6b7280"></div>
+        <span class="palette-name">Neutral</span>
+        <span class="palette-hex">#6B7280</span>
+      </div>
+      <div class="palette-row">
+        <div class="palette-dot" style="background:#8b5cf6"></div>
+        <span class="palette-name">Neutral Variant</span>
+        <span class="palette-hex">#8B5CF6</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── RIGHT PANEL ── -->
+  <div class="right-panel">
+
+    <!-- Floating nav -->
+    <div class="floating-nav">
+      <div class="nav-pill active">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99z"/></svg>
+        Aperçu
+      </div>
+      <div class="nav-pill">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+        Palette
+      </div>
+      <div class="nav-pill">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        Tokens
+      </div>
+    </div>
+
+    <div class="sections-scroll">
+
+      <!-- Section 1: Aperçu -->
+      <div class="section-block">
+        <div>
+          <div class="section-eyebrow">01 — Aperçu</div>
+          <div class="section-title">Preview en conditions réelles</div>
+        </div>
+        <div class="mockup-row">
+          <div class="phone-thumb">
+            <div class="phone-top"></div>
+            <div class="phone-body">
+              <div class="phone-row purple"></div>
+              <div class="phone-row short"></div>
+              <div class="phone-card"></div>
+              <div class="phone-card"></div>
+            </div>
+          </div>
+          <div class="phone-thumb">
+            <div class="phone-top"></div>
+            <div class="phone-body">
+              <div class="phone-row"></div>
+              <div class="phone-card"></div>
+              <div class="phone-row short"></div>
+              <div class="phone-card"></div>
+            </div>
+          </div>
+          <div class="web-thumb">
+            <div class="web-topbar">
+              <div class="web-dot"></div><div class="web-dot"></div><div class="web-dot"></div>
+            </div>
+            <div class="web-body">
+              <div class="web-sidebar"></div>
+              <div class="web-content">
+                <div class="web-row accent"></div>
+                <div class="web-row"></div>
+                <div class="web-row" style="width:70%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Palette -->
+      <div class="section-block">
+        <div>
+          <div class="section-eyebrow">02 — Palette</div>
+          <div class="section-title">Ramps de tons générées</div>
+        </div>
+        <div class="tone-grid">
+          <div class="tone-family">
+            <div class="tone-cell" style="background:#3b0764"></div>
+            <div class="tone-cell" style="background:#581c87"></div>
+            <div class="tone-cell" style="background:#6d28d9"></div>
+            <div class="tone-cell" style="background:#7c3aed"></div>
+            <div class="tone-cell" style="background:#8b5cf6"></div>
+            <div class="tone-cell" style="background:#a78bfa"></div>
+            <div class="tone-cell" style="background:#c4b5fd"></div>
+            <div class="tone-cell" style="background:#ddd6fe"></div>
+            <div class="tone-cell" style="background:#ede9fe"></div>
+            <div class="tone-cell" style="background:#f5f3ff"></div>
+            <div class="tone-cell" style="background:#faf5ff"></div>
+          </div>
+          <div class="tone-family">
+            <div class="tone-cell" style="background:#022c22"></div>
+            <div class="tone-cell" style="background:#064e3b"></div>
+            <div class="tone-cell" style="background:#065f46"></div>
+            <div class="tone-cell" style="background:#047857"></div>
+            <div class="tone-cell" style="background:#059669"></div>
+            <div class="tone-cell" style="background:#10b981"></div>
+            <div class="tone-cell" style="background:#34d399"></div>
+            <div class="tone-cell" style="background:#6ee7b7"></div>
+            <div class="tone-cell" style="background:#a7f3d0"></div>
+            <div class="tone-cell" style="background:#d1fae5"></div>
+            <div class="tone-cell" style="background:#ecfdf5"></div>
+          </div>
+          <div class="tone-family">
+            <div class="tone-cell" style="background:#78350f"></div>
+            <div class="tone-cell" style="background:#92400e"></div>
+            <div class="tone-cell" style="background:#b45309"></div>
+            <div class="tone-cell" style="background:#d97706"></div>
+            <div class="tone-cell" style="background:#f59e0b"></div>
+            <div class="tone-cell" style="background:#fbbf24"></div>
+            <div class="tone-cell" style="background:#fcd34d"></div>
+            <div class="tone-cell" style="background:#fde68a"></div>
+            <div class="tone-cell" style="background:#fef3c7"></div>
+            <div class="tone-cell" style="background:#fffbeb"></div>
+            <div class="tone-cell" style="background:#fffff0"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Tokens -->
+      <div class="section-block">
+        <div>
+          <div class="section-eyebrow">03 — Tokens</div>
+          <div class="section-title">Color tokens sémantiques</div>
+        </div>
+        <div class="token-mini-grid">
+          <div class="token-chip" style="background:#7c3aed">primary</div>
+          <div class="token-chip" style="background:#f5f3ff;color:#3b0764">on-primary</div>
+          <div class="token-chip" style="background:#ede9fe;color:#3b0764">primary-container</div>
+          <div class="token-chip" style="background:#6d28d9">on-primary-cont.</div>
+          <div class="token-chip" style="background:#1c1c1e">surface</div>
+          <div class="token-chip" style="background:#2c2c2e">surface-dim</div>
+          <div class="token-chip" style="background:#3a3a3c">surface-cont.</div>
+          <div class="token-chip" style="background:#48484a">surface-high</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Annotations -->
+<div class="annotation-layer">
+  <div class="ann-left">
+    <strong style="color:#a1a1aa;font-size:11px;">Panneau gauche — changements clés</strong><br><br>
+    <span class="ann-tag">← Collapse en icon strip</span>
+    <span class="ann-tag">Label sections "Global" / "Palettes"</span>
+    <span class="ann-tag">Couleur live visible sans ouvrir</span>
+    <span class="ann-tag">Picker HCT inline (sans Tone slider)</span>
+    <span class="ann-tag">Dot badge si palette overridée</span>
+  </div>
+  <div class="ann-right">
+    <strong style="color:#a1a1aa;font-size:11px;">Panneau droit — changements clés</strong><br><br>
+    <span class="ann-tag">Pill nav flottant = anchor scroll</span>
+    <span class="ann-tag">3 sections scrollables, toujours visibles</span>
+    <span class="ann-tag">Mockups interactifs (retirer z-50)</span>
+    <span class="ann-tag">+ Mockup web app en plus du mobile</span>
+    <span class="ann-tag">Tone matrix pleine largeur</span>
+    <span class="ann-tag">Tokens groupés par rôle sémantique</span>
+  </div>
+</div>
+
+<script>
+// inject helper script manually since we're a full HTML doc
+const s = document.createElement('script');
+s.src = '/helper.js';
+document.head.appendChild(s);
+</script>
+</body>
+</html>

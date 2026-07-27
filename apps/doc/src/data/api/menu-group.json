@@ -17,7 +17,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<MenuGroupInterface> | undefined"
+            "name": "string | ClassNameComponent<MenuGroupInterface>"
           },
           "defaultValue": null
         }

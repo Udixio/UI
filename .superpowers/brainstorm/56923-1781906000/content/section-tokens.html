@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Section Tokens</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #0f0f11; color: #e4e4e7;
+  min-height: 100vh; padding: 24px;
+}
+h1 { font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+.subtitle { font-size: 13px; color: #71717a; margin-bottom: 24px; }
+
+/* ── Section wrap ── */
+.section-wrap {
+  background: #18181b;
+  border: 1px solid #27272a;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+.eyebrow { font-size: 10px; font-weight: 700; letter-spacing:.12em; text-transform:uppercase; color:#52525b; }
+.section-title { font-size: 20px; font-weight: 700; color: #f4f4f5; }
+.section-desc { font-size: 13px; color: #71717a; margin-bottom: 20px; }
+
+/* ── Toolbar ── */
+.toolbar {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #27272a;
+}
+.search-bar {
+  display: flex; align-items: center; gap: 8px;
+  background: #27272a; border: 1px solid #3f3f46;
+  border-radius: 10px; padding: 7px 12px;
+  flex: 1; max-width: 280px;
+  font-size: 12px; color: #71717a;
+}
+.search-icon { opacity: .5; }
+.filter-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip {
+  padding: 4px 10px; border-radius: 100px;
+  font-size: 11px; font-weight: 500; cursor: pointer;
+  border: 1px solid #27272a; color: #71717a;
+  transition: all .12s;
+}
+.chip.active {
+  background: #7c3aed20; border-color: #7c3aed60; color: #c4b5fd;
+}
+
+/* ── Semantic group ── */
+.group { margin-bottom: 24px; }
+.group-header {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 10px;
+}
+.group-label {
+  font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: #52525b;
+}
+.group-desc {
+  font-size: 11px; color: #3f3f46;
+}
+.group-divider {
+  flex: 1; height: 1px; background: #27272a;
+}
+
+/* ── Token grid ── */
+.token-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 8px;
+}
+
+/* ── Token card ── */
+.token-card {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.05);
+  cursor: pointer;
+  transition: transform .12s, box-shadow .12s;
+  position: relative;
+}
+.token-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.4);
+}
+
+.token-swatch {
+  height: 72px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 6px 8px;
+  position: relative;
+}
+.token-name {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .01em;
+  line-height: 1.2;
+}
+.token-var {
+  font-size: 8.5px; font-family: monospace;
+  opacity: .65; margin-top: 1px;
+}
+
+.token-footer {
+  background: #1c1c1e;
+  padding: 6px 8px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.token-hex {
+  font-size: 9px; font-family: monospace; color: #71717a;
+}
+.token-usage {
+  font-size: 8.5px; color: #52525b;
+  font-style: italic;
+  text-align: right;
+  max-width: 80px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.copy-btns {
+  position: absolute; top: 6px; right: 6px;
+  display: none; gap: 3px;
+}
+.token-card:hover .copy-btns { display: flex; }
+.copy-btn {
+  padding: 2px 5px; border-radius: 4px;
+  font-size: 8px; font-weight: 700;
+  background: rgba(0,0,0,.4); color: rgba(255,255,255,.7);
+  border: 1px solid rgba(255,255,255,.1);
+  backdrop-filter: blur(4px);
+  cursor: pointer; letter-spacing: .04em;
+}
+
+/* ── On-pair indicator ── */
+.pair-line {
+  display: flex; gap: 4px; align-items: center;
+  margin-bottom: 6px;
+}
+.pair-badge {
+  font-size: 9px; padding: 1px 5px; border-radius: 3px;
+  background: rgba(255,255,255,.06); color: #71717a;
+  border: 1px solid rgba(255,255,255,.06);
+  font-family: monospace;
+}
+.pair-arrow { font-size: 9px; color: #3f3f46; }
+
+/* ── Change tags ── */
+.changes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.change-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 10px; border-radius: 8px;
+  font-size: 11px; border: 1px solid;
+}
+.change-tag.fix { background: rgba(239,68,68,.08); border-color: rgba(239,68,68,.2); color: #fca5a5; }
+.change-tag.new { background: rgba(34,197,94,.08); border-color: rgba(34,197,94,.2); color: #86efac; }
+.change-tag.improve { background: rgba(59,130,246,.08); border-color: rgba(59,130,246,.2); color: #93c5fd; }
+</style>
+</head>
+<body>
+
+<h1>Section 03 — Tokens</h1>
+<p class="subtitle">Les color tokens sémantiques groupés par rôle avec leur usage concret. Chaque token sait à quoi il sert.</p>
+
+<div class="section-wrap">
+
+  <div class="section-header">
+    <span class="eyebrow">03 —</span>
+    <span class="section-title">Tokens</span>
+  </div>
+  <p class="section-desc">Tokens groupés par rôle sémantique (Primary, Surface, Feedback…). Filtre live. Hover → copie HEX ou var().</p>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="search-bar">
+      <span class="search-icon">⌕</span>
+      <span>Rechercher un token…</span>
+    </div>
+    <div class="filter-chips">
+      <div class="chip active">Tous</div>
+      <div class="chip">Primary</div>
+      <div class="chip">Surface</div>
+      <div class="chip">Feedback</div>
+    </div>
+  </div>
+
+  <!-- GROUP: Primary -->
+  <div class="group">
+    <div class="group-header">
+      <span class="group-label">Primary</span>
+      <span class="group-desc">— Actions principales, boutons CTA, liens actifs</span>
+      <div class="group-divider"></div>
+    </div>
+
+    <!-- On-pair legend -->
+    <div class="pair-line">
+      <span class="pair-badge">primary</span>
+      <span class="pair-arrow">→ texte sur lui :</span>
+      <span class="pair-badge">on-primary</span>
+      <span style="font-size:9px;color:#3f3f46;margin-left:8px">même logique pour tous les containers</span>
+    </div>
+
+    <div class="token-grid">
+
+      <div class="token-card">
+        <div class="token-swatch" style="background:#7c3aed">
+          <div class="copy-btns">
+            <div class="copy-btn">HEX</div>
+            <div class="copy-btn">VAR</div>
+          </div>
+          <div class="token-name" style="color:#fff">primary</div>
+          <div class="token-var" style="color:rgba(255,255,255,.65)">--color-primary</div>
+        </div>
+        <div class="token-footer">
+          <span class="token-hex">#7C3AED</span>
+          <span class="token-usage">Boutons, FAB</span>
+        </div>
+      </div>
+
+      <div class="token-card">
+        <div class="token-swatch" style="background:#ffffff">
+          <div class="copy-btns">
+            <div class="copy-btn" style="background:rgba(0,0,0,.15);color:rgba(0,0,0,.6);border-color:rgba(0,0,0,.1)">HEX</div>
+            <div class="copy-btn" style="background:rgba(0,0,0,.15);color:rgba(0,0,0,.6);border-color:rgba(0,0,0,.1)">VAR</div>
+          </div>
+          <div class="token-name" style="color:#1f1f1f">on-primary</div>
+          <div class="token-var" style="color:rgba(0,0,0,.45)">--color-on-primary</div>
+        </div>
+        <div class="token-footer">
+          <span class="token-hex">#FFFFFF</span>
+          <span class="token-usage">Texte sur primary</span>
+        </div>
+      </div>
+
+      <div class="token-card">
+        <div class="token-swatch" style="background:#ede9fe">
+          <div class="copy-btns">
+            <div class="copy-btn" style="background:rgba(0,0,0,.1);color:rgba(0,0,0,.5);border-color:rgba(0,0,0,.08)">HEX</div>
+            <div class="copy-btn" style="background:rgba(0,0,0,.1);color:rgba(0,0,0,.5);border-color:rgba(0,0,0,.08)">VAR</div>
+          </div>
+          <div class="token-name" style="color:#3b0764">primary-container</div>
+          <div class="token-var" style="color:rgba(59,7,100,.45)">--color-primary-container</div>
+        </div>
+        <div class="token-footer">
+          <span class="token-hex">#EDE9FE</span>
+          <span class="token-usage">Chips, badges sélectionnés</span>
+        </div>
+      </div>
+
+      <div class="token-card">
+        <div class="token-swatch" style="background:#3b0764">
+          <div class="copy-btns">
+            <div class="copy-btn">HEX</div>
+            <div class="copy-btn">VAR</div>
+          </div>
+          <div class="token-name" style="color:#ede9fe">on-primary-container</div>
+          <div class="token-var" style="color:rgba(237,233,254,.65)">--color-on-primary-container</div>
+        </div>
+        <div class="token-footer">
+          <span class="token-hex">#3B0764</span>
+          <span class="token-usage">Texte dans container</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- GROUP: Surface -->
+  <div class="group">
+    <div class="group-header">
+      <span class="group-label">Surface</span>
+      <span class="group-desc">— Fonds d'écran, cartes, conteneurs</span>
+      <div class="group-divider"></div>
+    </div>
+    <div class="token-grid">
+
+      <div class="token-card">
+        <div class="token-swatch" style="background:#0f0f11;border:1px solid #27272a">
+          <div class="copy-btns">
+            <div class="copy-btn">HEX</div>
+            <div class="copy-btn">VAR</div>
+          </div>
+          <div class="token-name" style="color:#f4f4f5">surface</div>
+          <div class="token-var" style="color:rgba(244,244,245,.45)">--color-surface</div>
+        </div>
+        <div class="token-footer">
+          <span class="token-hex">#0F0F11</span>
+          <span class="token-usage">Fond principal</span>
+        </div>
+      </div>
+
+      <div class="token-card">
+        <div class="token-swatch" style="background:#18181b;border:1px solid #27272a">
+          <div class="copy-btns">
+            <div class="copy-btn">HEX</div>
+            <div class="copy-btn">VAR</div>
+          </div>
+          <div class="token-name" style="color:#f4f4f5">surface-container</div>
+          <div class="token-var" style="color:rgba(244,244,245,.45)">--color-surface-container</div>
+        </div>
+        <div class="token-footer">
+          <span class="token-hex">#18181B</span>
+          <span class="token-usage">Cartes, modales</span>
+        </div>
+      </div>
+
+      <div class="token-card">
+        <div class="token-swatch" style="background:#27272a;border:1px solid #3f3f46">
+          <div class="copy-btns">
+            <div class="copy-btn">HEX</div>
+            <div class="copy-btn">VAR</div>
+          </div>
+          <div class="token-name" style="color:#f4f4f5">surface-container-high</div>
+          <div class="token-var" style="color:rgba(244,244,245,.45)">--color-surface-container-high</div>
+        </div>
+        <div class="token-footer">
+          <span class="token-hex">#27272A</span>
+          <span class="token-usage">Inputs, sidebars</span>
+        </div>
+      </div>
+
+      <div class="token-card">
+        <div class="token-swatch" style="background:#f4f4f5">
+          <div class="copy-btns">
+            <div class="copy-btn" style="background:rgba(0,0,0,.1);color:rgba(0,0,0,.5)">HEX</div>
+            <div class="copy-btn" style="background:rgba(0,0,0,.1);color:rgba(0,0,0,.5)">VAR</div>
+          </div>
+          <div class="token-name" style="color:#0f0f11">on-surface</div>
+          <div class="token-var" style="color:rgba(15,15,17,.45)">--color-on-surface</div>
+        </div>
+        <div class="token-footer">
+          <span class="token-hex">#F4F4F5</span>
+          <span class="token-usage">Texte principal</span>
+        </div>
+      </div>
+
+      <div class="token-card">
+        <div class="token-swatch" style="background:#71717a">
+          <div class="copy-btns">
+            <div class="copy-btn">HEX</div>
+            <div class="copy-btn">VAR</div>
+          </div>
+          <div class="token-name" style="color:#fff">on-surface-variant</div>
+          <div class="token-var" style="color:rgba(255,255,255,.65)">--color-on-surface-variant</div>
+        </div>
+        <div class="token-footer">
+          <span class="token-hex">#71717A</span>
+          <span class="token-usage">Texte secondaire</span>
+        </div>
+      </div>
+
+      <div class="token-card">
+        <div class="token-swatch" style="background:#27272a">
+          <div class="copy-btns">
+            <div class="copy-btn">HEX</div>
+            <div class="copy-btn">VAR</div>
+          </div>
+          <div class="token-name" style="color:#71717a">outline-variant</div>
+          <div class="token-var" style="color:rgba(113,113,122,.65)">--color-outline-variant</div>
+        </div>
+        <div class="token-footer">
+          <span class="token-hex">#27272A</span>
+          <span class="token-usage">Bordures subtiles</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- GROUP: Feedback -->
+  <div class="group">
+    <div class="group-header">
+      <span class="group-label">Feedback</span>
+      <span class="group-desc">— États d'erreur, succès</span>
+      <div class="group-divider"></div>
+    </div>
+    <div class="token-grid">
+
+      <div class="token-card">
+        <div class="token-swatch" style="background:#dc2626">
+          <div class="copy-btns">
+            <div class="copy-btn">HEX</div>
+            <div class="copy-btn">VAR</div>
+          </div>
+          <div class="token-name" style="color:#fff">error</div>
+          <div class="token-var" style="color:rgba(255,255,255,.65)">--color-error</div>
+        </div>
+        <div class="token-footer">
+          <span class="token-hex">#DC2626</span>
+          <span class="token-usage">Champs invalides</span>
+        </div>
+      </div>
+
+      <div class="token-card">
+        <div class="token-swatch" style="background:#7f1d1d">
+          <div class="copy-btns">
+            <div class="copy-btn">HEX</div>
+            <div class="copy-btn">VAR</div>
+          </div>
+          <div class="token-name" style="color:#fca5a5">error-container</div>
+          <div class="token-var" style="color:rgba(252,165,165,.65)">--color-error-container</div>
+        </div>
+        <div class="token-footer">
+          <span class="token-hex">#7F1D1D</span>
+          <span class="token-usage">Fond messages d'erreur</span>
+        </div>
+      </div>
+
+      <div class="token-card">
+        <div class="token-swatch" style="background:#059669">
+          <div class="copy-btns">
+            <div class="copy-btn">HEX</div>
+            <div class="copy-btn">VAR</div>
+          </div>
+          <div class="token-name" style="color:#fff">success</div>
+          <div class="token-var" style="color:rgba(255,255,255,.65)">--color-success</div>
+        </div>
+        <div class="token-footer">
+          <span class="token-hex">#059669</span>
+          <span class="token-usage">Confirmations</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="changes">
+  <div class="change-tag new">🟢 Groupes sémantiques (Primary / Surface / Feedback…)</div>
+  <div class="change-tag new">🟢 Description d'usage sur chaque token</div>
+  <div class="change-tag new">🟢 Logique "on-pair" expliquée visuellement</div>
+  <div class="change-tag improve">🔵 Filtre par groupe en chip pills</div>
+  <div class="change-tag improve">🔵 Copie HEX / VAR au hover</div>
+  <div class="change-tag fix">🔴 Plus de TokenGallery fourre-tout sans contexte</div>
+</div>
+
+<script>
+const s = document.createElement('script');
+s.src = '/helper.js';
+document.head.appendChild(s);
+</script>
+</body>
+</html>

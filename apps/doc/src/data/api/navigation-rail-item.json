@@ -19,7 +19,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<NavigationRailItemInterface> | undefined"
+            "name": "string | ClassNameComponent<NavigationRailItemInterface>"
           },
           "defaultValue": null
         },
@@ -28,7 +28,7 @@
           "description": "Controlled selected state, used when no parent drives the selection.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "false"
@@ -39,7 +39,7 @@
           "description": "Injected by the parent NavigationRail: layout direction of the item.",
           "required": false,
           "type": {
-            "name": "\"vertical\" | \"horizontal\" | undefined"
+            "name": "\"vertical\" | \"horizontal\""
           },
           "defaultValue": {
             "value": "'vertical'"
@@ -50,7 +50,7 @@
           "description": "Injected by the parent NavigationRail: position of this item in the rail.",
           "required": false,
           "type": {
-            "name": "number | undefined"
+            "name": "number"
           },
           "defaultValue": null
         },
@@ -59,7 +59,7 @@
           "description": "Injected by the parent NavigationRail: index of the currently selected item.",
           "required": false,
           "type": {
-            "name": "number | null | undefined"
+            "name": "number"
           },
           "defaultValue": null
         },
@@ -68,7 +68,7 @@
           "description": "Injected by the parent NavigationRail: whether the rail is extended.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": null
         },
@@ -77,7 +77,7 @@
           "description": "Injected by the parent NavigationRail: hide the item while the rail is collapsed.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": null
         }
