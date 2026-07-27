@@ -5,10 +5,13 @@ export const ComponentNavigation = ({
 }: {
   componentApi: { id: string };
 }) => {
+  const overviewId =
+    componentApi.id === 'chips' ? 'chip' : componentApi.id;
+
   return (
     <Tabs variant={'secondary'} className={'bg-surface-container'}>
       <Tab
-        href={`/components/${componentApi.id}/overview`}
+        href={`/components/${overviewId}/overview`}
         label={'Overview'}
       />
       <Tab href={`/components/${componentApi.id}/api`} label={'Api'} />

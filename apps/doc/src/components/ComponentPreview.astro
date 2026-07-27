@@ -79,15 +79,16 @@ const { id } = Astro.props as PreviewProps;
     id === 'chip' && (
       <div class="flex flex-wrap gap-2">
         <Chip label="Chip" />
-        <Chip label="Selected" activated />
-        <Chip label="Input" variant="tonal" />
+        <Chip label="Selected" defaultSelected />
+        <Chip label="Input" variant="outlined" />
       </div>
     )
   }
   {
     id === 'chips' && (
       <Chips
-        items={[{ label: 'Design' }, { label: 'Research' }, { label: 'QA' }]}
+        label="Example chips"
+        items={[{ id: 'design', label: 'Design' }, { id: 'research', label: 'Research' }, { id: 'qa', label: 'QA' }]}
         onItemsChange={() => {}}
       />
     )

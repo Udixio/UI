@@ -9,27 +9,190 @@
       "tags": {
         "status": "beta",
         "category": "Action",
-        "devx": "- `editable` relies on contentEditable; label should be a string.\n- `onToggle` uses internal state; pair with `activated` for controlled usage.",
-        "a11y": "- Uses `aria-pressed` only when togglable.",
+        "devx": "- `editable` relies on contentEditable; label should be a string.\n- Use `selected` with `onSelectedChange` for controlled selection, or\n  `defaultSelected` for uncontrolled selection.",
+        "a11y": "- Uses `aria-pressed` only in selection mode.\n- Disabled links lose their navigation target and tab stop.",
         "limitations": "- Edit mode starts after a 1s focus delay (no prop to customize)."
       },
       "methods": [],
       "props": {
-        "className": {
-          "name": "className",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
-          "required": false,
-          "type": {
-            "name": "string | ClassNameComponent<ChipInterface> | undefined"
-          },
-          "defaultValue": null
-        },
         "label": {
           "name": "label",
           "description": "The label is the text that is displayed on the chip.",
           "required": false,
           "type": {
-            "name": "string | undefined"
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<ChipInterface>"
+          },
+          "defaultValue": null
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Disables the chip if set to true.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "draggable": {
+          "name": "draggable",
+          "description": "Enable native drag and drop on the chip.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "onChange": {
+          "name": "onChange",
+          "description": "Fires whenever the editable label changes.",
+          "required": false,
+          "type": {
+            "name": "(nextLabel: string) => void"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "The chip variant determines the style.",
+          "required": false,
+          "type": {
+            "name": "ChipVariant"
+          },
+          "defaultValue": {
+            "value": "'outlined'"
+          }
+        },
+        "icon": {
+          "name": "icon",
+          "description": "An optional icon to display in the chip.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "selected": {
+          "name": "selected",
+          "description": "Controlled selected state.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        },
+        "defaultSelected": {
+          "name": "defaultSelected",
+          "description": "Initial selected state when the chip is uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        },
+        "onSelectedChange": {
+          "name": "onSelectedChange",
+          "description": "Notifies selection requests in controlled and uncontrolled modes.",
+          "required": false,
+          "type": {
+            "name": "(selected: boolean) => void"
+          },
+          "defaultValue": null
+        },
+        "onRemove": {
+          "name": "onRemove",
+          "description": "Requests removal of this chip.",
+          "required": false,
+          "type": {
+            "name": "() => void"
+          },
+          "defaultValue": null
+        },
+        "href": {
+          "name": "href",
+          "description": "Optional navigation target.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "editable": {
+          "name": "editable",
+          "description": "Enables inline label editing, used by `Chips` in input mode.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        },
+        "editing": {
+          "name": "editing",
+          "description": "Controlled edition state (the resolved value lives in `states.isEditing`).",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        },
+        "onEditStart": {
+          "name": "onEditStart",
+          "description": "Requests editing, for example after a double-click, Enter, or F2.",
+          "required": false,
+          "type": {
+            "name": "() => void"
+          },
+          "defaultValue": null
+        },
+        "onEditCommit": {
+          "name": "onEditCommit",
+          "description": "Commits editing with the normalized label.",
+          "required": false,
+          "type": {
+            "name": "(nextLabel: string) => void"
+          },
+          "defaultValue": null
+        },
+        "onEditCancel": {
+          "name": "onEditCancel",
+          "description": "Cancels editing and restores the previous label.",
+          "required": false,
+          "type": {
+            "name": "() => void"
+          },
+          "defaultValue": null
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/chip/chip.ts",
+      "description": "A compact action, link, editable value, or selectable option.",
+      "tags": {
+        "status": "beta",
+        "category": "Action",
+        "devx": "Bind `selected` and `selectedChange` for controlled selection, or initialize with `defaultSelected`.",
+        "a11y": "Uses a native button or link and exposes `aria-pressed` only in selection mode. Backspace and Delete remove a removable chip.",
+        "limitations": "The delayed edit-on-focus behavior remains specific to the React adapter."
+      },
+      "inputs": {
+        "label": {
+          "name": "label",
+          "description": "The label is the text that is displayed on the chip.",
+          "required": true,
+          "type": {
+            "name": "string"
           },
           "defaultValue": null
         },
@@ -49,7 +212,7 @@
           "description": "Disables the chip if set to true.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "false"
@@ -64,21 +227,50 @@
           },
           "defaultValue": null
         },
-        "activated": {
-          "name": "activated",
-          "description": "Controlled selected state (the resolved value lives in `states.isActive`).",
+        "href": {
+          "name": "href",
+          "description": "Optional navigation target.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "selected": {
+          "name": "selected",
+          "description": "Controlled selected state.",
           "required": false,
           "type": {
             "name": "boolean | undefined"
           },
           "defaultValue": null
         },
+        "defaultSelected": {
+          "name": "defaultSelected",
+          "description": "Initial selected state when the chip is uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null
+        },
+        "removable": {
+          "name": "removable",
+          "description": "Shows a trailing action that requests removal through the `remove` output.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
         "draggable": {
           "name": "draggable",
           "description": "Enable native drag and drop on the chip.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "false"
@@ -86,12 +278,14 @@
         },
         "editable": {
           "name": "editable",
-          "description": "Enable label inline edition for this chip (used by Chips variant=\"input\").",
+          "description": "Enables inline label editing, used by `Chips` in input mode.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
-          "defaultValue": null
+          "defaultValue": {
+            "value": "false"
+          }
         },
         "editing": {
           "name": "editing",
@@ -102,39 +296,68 @@
           },
           "defaultValue": null
         },
-        "onEditStart": {
-          "name": "onEditStart",
-          "description": "Request to start editing (e.g., double-click, Enter/F2).",
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "(() => void) | undefined"
+            "name": "string | ClassNameComponent<ChipInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {
+        "selectedChange": {
+          "name": "selectedChange",
+          "description": "Notifies selection requests in controlled and uncontrolled modes.",
+          "required": false,
+          "type": {
+            "name": "boolean"
           },
           "defaultValue": null
         },
-        "onEditCommit": {
-          "name": "onEditCommit",
-          "description": "Commit edition with the new label.",
+        "remove": {
+          "name": "remove",
+          "description": "Requests removal of this chip.",
           "required": false,
           "type": {
-            "name": "((nextLabel: string) => void) | undefined"
+            "name": "void"
           },
           "defaultValue": null
         },
-        "onEditCancel": {
-          "name": "onEditCancel",
-          "description": "Cancel edition and restore previous label.",
+        "editStart": {
+          "name": "editStart",
+          "description": "Requests entry into inline editing mode.",
           "required": false,
           "type": {
-            "name": "(() => void) | undefined"
+            "name": "void"
           },
           "defaultValue": null
         },
-        "onChange": {
-          "name": "onChange",
-          "description": "Fired on each edit keystroke when content changes (only while editing).\nUseful for live formatting, suggestions, validation, etc.",
+        "editCommit": {
+          "name": "editCommit",
+          "description": "Commits inline editing with the normalized label.",
           "required": false,
           "type": {
-            "name": "((nextLabel: string) => void) | undefined"
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "editCancel": {
+          "name": "editCancel",
+          "description": "Cancels inline editing.",
+          "required": false,
+          "type": {
+            "name": "void"
+          },
+          "defaultValue": null
+        },
+        "valueChange": {
+          "name": "valueChange",
+          "description": "Emits every inline label change.",
+          "required": false,
+          "type": {
+            "name": "string"
           },
           "defaultValue": null
         }

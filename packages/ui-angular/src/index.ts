@@ -6,5 +6,7 @@ export * from './lib/fab/fab';
 export * from './lib/fab-menu/fab-menu';
 export * from './lib/icon/icon';
 export * from './lib/icon-button/icon-button';
+export * from './lib/chip/chip';
+export * from './lib/chips/chips';
 export * from './lib/state-layer/state-layer';
 export * from './lib/utils/create-controllable-state';

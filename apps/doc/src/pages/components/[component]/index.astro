@@ -1,5 +1,9 @@
 ---
 export const prerender = false;
 
-return Astro.redirect('overview');
+return Astro.redirect(
+  Astro.params.component === 'chips'
+    ? '/components/chip/overview'
+    : 'overview',
+);
 ---

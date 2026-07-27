@@ -1,8 +1,8 @@
 import { Icon } from '../icon';
 
-type ChipVariant = 'outlined' | 'elevated';
+export type ChipVariant = 'outlined' | 'elevated';
 
-type Props = {
+export type ChipProps = {
   /**
    * The label is the text that is displayed on the chip.
    */
@@ -23,21 +23,27 @@ type Props = {
    */
   icon?: Icon;
 
-  /**
-   * Controlled selected state (the resolved value lives in `states.isActive`).
-   */
-  activated?: boolean;
+  /** Controlled selected state. */
+  selected?: boolean;
 
-  onToggle?: (isActive: boolean) => void;
+  /** Initial selected state when the chip is uncontrolled. */
+  defaultSelected?: boolean;
 
+  /** Notifies selection requests in controlled and uncontrolled modes. */
+  onSelectedChange?: (selected: boolean) => void;
+
+  /** Requests removal of this chip. */
   onRemove?: () => void;
+
+  /** Optional navigation target. */
+  href?: string;
 
   /**
    * Enable native drag and drop on the chip.
    */
   draggable?: boolean;
 
-  /** Enable label inline edition for this chip (used by Chips variant="input"). */
+  /** Enables inline label editing, used by `Chips` in input mode. */
   editable?: boolean;
 
   /**
@@ -45,25 +51,24 @@ type Props = {
    */
   editing?: boolean;
 
-  /** Request to start editing (e.g., double-click, Enter/F2). */
+  /** Requests editing, for example after a double-click, Enter, or F2. */
   onEditStart?: () => void;
 
-  /** Commit edition with the new label. */
+  /** Commits editing with the normalized label. */
   onEditCommit?: (nextLabel: string) => void;
 
-  /** Cancel edition and restore previous label. */
+  /** Cancels editing and restores the previous label. */
   onEditCancel?: () => void;
 
   /**
-   * Fired on each edit keystroke when content changes (only while editing).
-   * Useful for live formatting, suggestions, validation, etc.
+   * Fires whenever the editable label changes.
    */
   onChange?: (nextLabel: string) => void;
 };
 
 export type ChipStates = {
-  /** Resolved selected state (controlled `activated` + internal toggle). */
-  isActive: boolean;
+  /** Resolved selected state. */
+  isSelected: boolean;
   /** The chip currently holds the focus. */
   isFocused: boolean;
   /** The chip reacts to user interaction (toggle, remove, click, link, edit). */
@@ -80,7 +85,7 @@ type Elements = ['chip', 'stateLayer', 'leadingIcon', 'trailingIcon', 'label'];
 
 export interface ChipInterface {
   type: 'button';
-  props: Props;
+  props: ChipProps;
   states: ChipStates;
   elements: Elements;
 }

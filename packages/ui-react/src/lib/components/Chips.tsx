@@ -20,12 +20,16 @@ export const useChipsStyle = createUseStyle(chipsStyle);
  * @category Input
  * @devx
  * - Works best as controlled: pass `items` + `onItemsChange`.
- * - Internal ids are derived from object identity; replace items carefully.
+ * - Prefer stable item ids; without one, ids follow object identity.
+ * @a11y
+ * - The collection has a configurable accessible label.
+ * - Arrow, Home, End, Backspace, and Delete keys are supported in input mode.
  * @limitations
  * - No virtualization; very large lists can be slow.
  */
 export const Chips = ({
   variant = 'input',
+  label = 'Chips',
   className,
   scrollable = true,
   draggable = false,
@@ -38,9 +42,10 @@ export const Chips = ({
 
   const [isFocused, setIsFocused] = React.useState<boolean>(false);
 
-  // Internal stable ids per item object (since ChipItem no longer exposes id)
+  // Fallback ids remain stable for item objects that do not expose an id.
   const idMapRef = React.useRef<WeakMap<ChipItem, string>>(new WeakMap());
   const getInternalId = React.useCallback((it: ChipItem) => {
+    if (it.id) return it.id;
     const map = idMapRef.current;
     let id = map.get(it);
     if (!id) {
@@ -81,6 +86,7 @@ export const Chips = ({
 
   const styles = useChipsStyle({
     variant,
+    label,
     scrollable,
     draggable,
     items,
@@ -124,10 +130,11 @@ export const Chips = ({
         (item) => getInternalId(item) === selectedChip,
       );
       if (index !== -1) {
-        const el = chipRefs.current[index] as any;
+        const el = chipRefs.current[index];
         el?.focus?.();
 
-        const chipsEl = ref.current!;
+        const chipsEl = ref.current;
+        if (!chipsEl || !el) return;
         const scrollLeft =
           el.offsetLeft + el.offsetWidth / 2 - chipsEl.offsetWidth / 2;
         chipsEl.scrollTo({ left: scrollLeft, behavior: 'smooth' });
@@ -145,7 +152,7 @@ export const Chips = ({
     <div
       ref={ref}
       role="list"
-      aria-label="Chips"
+      aria-label={label}
       className={styles.chips}
       tabIndex={variant === 'input' ? 0 : undefined}
       onFocus={(e) => {
@@ -174,6 +181,7 @@ export const Chips = ({
 
         if (key === 'ArrowLeft') {
           e.preventDefault();
+          if (list.length === 0) return;
           const nextIdx = focusedIndex > 0 ? focusedIndex - 1 : list.length - 1;
           const elId = getInternalId(list[nextIdx]);
           setSelectedChip(elId);
@@ -181,6 +189,7 @@ export const Chips = ({
         }
         if (key === 'ArrowRight') {
           e.preventDefault();
+          if (list.length === 0) return;
           const nextIdx =
             focusedIndex >= 0
               ? (focusedIndex + 1) % Math.max(1, list.length)
@@ -191,12 +200,14 @@ export const Chips = ({
         }
         if (key === 'Home') {
           e.preventDefault();
+          if (list.length === 0) return;
           const elId = getInternalId(list[0]);
           setSelectedChip(elId);
           return;
         }
         if (key === 'End') {
           e.preventDefault();
+          if (list.length === 0) return;
           const elId = getInternalId(list[list.length - 1]);
           setSelectedChip(elId);
           return;
@@ -221,11 +232,11 @@ export const Chips = ({
           ? {
               editable: true,
               editing: selectedChip === internalId,
-              onEditCommit: (next: string | undefined) => {
+              onEditCommit: (next: string) => {
                 setIsFocused(true);
                 updateItems((prev) =>
                   prev.map((it, i) =>
-                    i === index ? { ...it, label: next as any } : it,
+                    i === index ? { ...it, label: next } : it,
                   ),
                 );
               },
@@ -234,9 +245,13 @@ export const Chips = ({
               },
               onChange: () => {
                 if (chipRefs.current.length == index + 1) {
-                  const el = ref.current!;
+                  const el = ref.current;
+                  if (!el) return;
                   requestAnimationFrame(() => {
-                    el.scrollTo({ left: el.scrollWidth, behavior: 'smooth' });
+                    el.scrollTo({
+                      left: el.scrollWidth,
+                      behavior: 'smooth',
+                    });
                   });
                 }
               },
@@ -246,22 +261,24 @@ export const Chips = ({
         return (
           <Chip
             key={internalId}
-            ref={(el: any) => (chipRefs.current[index] = el)}
+            ref={(el: HTMLButtonElement | HTMLAnchorElement | null) => {
+              chipRefs.current[index] = el;
+            }}
             label={item.label ?? ''}
             icon={item.icon}
-            activated={item.activated}
+            selected={item.selected}
             disabled={item.disabled}
             variant={item.variant}
             href={item.href}
             draggable={draggable}
             {...editProps}
-            onToggle={
-              item.activated === undefined
+            onSelectedChange={
+              item.selected === undefined
                 ? undefined
                 : (next) =>
                     updateItems((prev) =>
                       prev.map((it, i) =>
-                        i === index ? { ...it, activated: next } : it,
+                        i === index ? { ...it, selected: next } : it,
                       ),
                     )
             }
@@ -271,7 +288,7 @@ export const Chips = ({
               }
             }}
             onRemove={
-              isInputVariant
+              isInputVariant || item.removable
                 ? () => {
                     setIsFocused(true);
                     removeAt(index);
@@ -313,12 +330,11 @@ export const Chips = ({
           editing={true}
           onChange={(v) => {
             v = v.replace(/(&nbsp;)+/g, ' ').trim();
-            console.log('Ghost chip onChange', v, !!v);
             if (v) {
               createAndStartEdit(v);
             } else {
               if (list.length > 0) {
-                const el = chipRefs.current[list.length - 1] as any;
+                const el = chipRefs.current[list.length - 1];
                 el?.focus?.();
               }
             }

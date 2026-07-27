@@ -19,6 +19,14 @@ export default defineConfig(async () => ({
   root: __dirname,
   base: './',
   cacheDir: '../../node_modules/.vite/packages/ui-react',
+  // Library artifacts must never depend on React's development-only JSX
+  // runtime, even when a caller has NODE_ENV=development in its shell.
+  oxc: {
+    jsx: {
+      runtime: 'automatic',
+      development: false,
+    },
+  },
   plugins: [
     await getUdixioVite(),
     react(),
@@ -73,6 +81,7 @@ export default defineConfig(async () => ({
         'throttle-debounce',
         'react-dom',
         'react/jsx-runtime',
+        'react/jsx-dev-runtime',
         'react-textarea-autosize',
         'tailwind-merge',
         'motion',

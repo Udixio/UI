@@ -1,8 +1,12 @@
-export default {
+module.exports = {
   displayName: 'ui-angular',
   preset: '../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   coverageDirectory: 'test-output/jest/coverage',
+  moduleNameMapper: {
+    '^@udixio/icons-rounded-400/(.*)$':
+      '<rootDir>/../icons/icons-rounded-400/src/$1.ts',
+  },
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

@@ -432,9 +432,6 @@ importers:
       '@astrojs/vercel':
         specifier: ^8.2.6
         version: 8.2.8(astro@5.14.1(@types/node@22.18.8)(@vercel/functions@2.2.13)(encoding@0.1.13)(jiti@2.6.1)(less@4.6.7)(lightningcss@1.33.0)(rollup@4.62.2)(sass-embedded@1.100.0)(sass@1.97.3)(terser@5.46.0)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.9.0))(encoding@0.1.13)(next@15.5.4(@babel/core@7.29.7)(babel-plugin-macros@3.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(sass@1.97.3))(react@19.2.0)(rollup@4.62.2)
-      '@fortawesome/free-solid-svg-icons':
-        specifier: ^7.2.0
-        version: 7.2.0
       '@nanostores/react':
         specifier: ^1.0.0
         version: 1.0.0(nanostores@1.0.1)(react@19.2.0)
@@ -875,15 +872,6 @@ importers:
       '@fortawesome/fontawesome-svg-core':
         specifier: ^7.0.0
         version: 7.1.0
-      '@fortawesome/free-regular-svg-icons':
-        specifier: ^7.0.0
-        version: 7.1.0
-      '@fortawesome/free-solid-svg-icons':
-        specifier: ^7.0.0
-        version: 7.1.0
-      '@fortawesome/react-fontawesome':
-        specifier: ^3.0.0
-        version: 3.1.0(@fortawesome/fontawesome-svg-core@7.1.0)(react@19.2.0)
       '@udixio/core':
         specifier: workspace:*
         version: link:../core

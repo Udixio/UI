@@ -2,29 +2,35 @@ import type { Icon } from '../icon';
 
 // Ce que Chips a besoin de connaître pour (re)construire un Chip
 export type ChipItem = {
+  /** Stable application id. Recommended when items can be reordered. */
+  id?: string;
   label: string;
   icon?: Icon;
-  activated?: boolean;
+  selected?: boolean;
+  removable?: boolean;
   disabled?: boolean;
   variant?: 'outlined' | 'elevated';
   href?: string;
 };
 
-type ChipsVariant = 'input';
+export type ChipsVariant = 'input';
 
-type Props = {
-  /** Style du conteneur de chips */
+export type ChipsProps = {
+  /** Accessible name for the chip collection. */
+  label?: string;
+  /** Enables inline input and removal behavior. */
   variant?: ChipsVariant;
 
-  /** Active/masse un comportement de container (si utile) */
+  /** Uses horizontal overflow instead of wrapping. */
   scrollable?: boolean;
 
-  draggable?: boolean; // optionnel
+  /** Enables native dragging on every chip. */
+  draggable?: boolean;
 
-  /** Mode contrôlé: la source de vérité */
+  /** Controlled source of truth for the collection. */
   items?: ChipItem[];
 
-  /** Notifie toute modification de la liste (remove, toggle, etc.) */
+  /** Notifies list changes caused by selection, editing, or removal. */
   onItemsChange?: (next: ChipItem[]) => void;
 };
 
@@ -32,7 +38,7 @@ type Elements = ['chips'];
 
 export interface ChipsInterface {
   type: 'div';
-  props: Props;
+  props: ChipsProps;
   // Pas d'état d'interaction. `object` (et non `Record<string, never>`) car ce
   // dernier rend la signature de style insatisfiable dans l'intersection.
   states: object;

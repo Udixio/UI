@@ -2,20 +2,23 @@ import {
   type ChipInterface,
   chipStyle,
   classNames,
+  getChipSelectionTransition,
   type ReactProps,
 } from '@udixio/core';
 import type { Transition } from 'motion';
 import { Icon } from '../icon';
 import { State } from '../effects';
 import React, { useEffect, useRef, useState } from 'react';
-import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { iCheck } from '@udixio/icons-rounded-400/check';
+import { iClose } from '@udixio/icons-rounded-400/close';
 import { createUseStyle } from '../utils/create-use-style';
+import { useControllableState } from '../utils/use-controllable-state';
 
-export type ReactChipProps = ReactProps<ChipInterface> & {
+export type ReactChipProps = Omit<ReactProps<ChipInterface>, 'ref'> & {
   // `children` sert de repli de `label` → typé string (comme l'ancien contrat)
   children?: string;
-  href?: string;
   transition?: Transition;
+  ref?: React.Ref<HTMLButtonElement | HTMLAnchorElement>;
 };
 
 export const useChipStyle = createUseStyle(chipStyle);
@@ -26,9 +29,11 @@ export const useChipStyle = createUseStyle(chipStyle);
  * @category Action
  * @devx
  * - `editable` relies on contentEditable; label should be a string.
- * - `onToggle` uses internal state; pair with `activated` for controlled usage.
+ * - Use `selected` with `onSelectedChange` for controlled selection, or
+ *   `defaultSelected` for uncontrolled selection.
  * @a11y
- * - Uses `aria-pressed` only when togglable.
+ * - Uses `aria-pressed` only in selection mode.
+ * - Disabled links lose their navigation target and tab stop.
  * @limitations
  * - Edit mode starts after a 1s focus delay (no prop to customize).
  */
@@ -40,8 +45,9 @@ export const Chip = ({
   label,
   className,
   onClick,
-  onToggle,
-  activated,
+  onSelectedChange,
+  selected,
+  defaultSelected,
   ref,
   onRemove,
   draggable = false,
@@ -72,43 +78,56 @@ export const Chip = ({
 
   const ElementType = href ? 'a' : 'button';
 
-  const defaultRef = useRef<HTMLButtonElement>(null);
+  const defaultRef = useRef<HTMLButtonElement | HTMLAnchorElement>(null);
   const resolvedRef = ref || defaultRef;
 
-  const [isActive, setIsActive] = React.useState(activated);
+  const [isSelected, setSelected] = useControllableState({
+    value: selected,
+    defaultValue: defaultSelected ?? false,
+    onChange: onSelectedChange,
+    componentName: 'Chip',
+    stateName: 'selected',
+  });
   const [isFocused, setIsFocused] = React.useState(false);
-  const [isEditing, setIsEditing] = useState<boolean>(!!editing && !!editable);
+  const [internalEditing, setInternalEditing] = useState(false);
+  const isEditing = !!editable && (editing ?? internalEditing);
   const [isDragging, setIsDragging] = React.useState(false);
   const [editValue, setEditValue] = React.useState<string>(
     typeof label === 'string' ? label : '',
   );
   const editSpanRef = React.useRef<HTMLSpanElement>(null);
   useEffect(() => {
-    setIsActive(activated);
-  }, [activated]);
-
-  useEffect(() => {
-    if (editing) {
-      setIsEditing(editing);
-    }
-    if (editable && isFocused) {
+    if (editable && isFocused && !isEditing) {
       // Délai de 1 seconde avant d'activer l'édition
       const timerId = setTimeout(() => {
         // Ignore l'édition si draggable et en cours de dragging
         if (draggable && isDragging) {
           return;
         }
-        setIsEditing(true);
+        if (editing === undefined) {
+          setInternalEditing(true);
+        }
+        onEditStart?.();
       }, 1000);
 
       // Cleanup: annule le timer si le focus est perdu avant 1 seconde
       return () => clearTimeout(timerId);
     } else if (!isFocused) {
       // Désactive l'édition immédiatement si le focus est perdu
-      setIsEditing(false);
+      if (editing === undefined) {
+        setInternalEditing(false);
+      }
     }
     return;
-  }, [isFocused, editable, isDragging, draggable, editValue]);
+  }, [
+    isFocused,
+    editable,
+    isDragging,
+    draggable,
+    isEditing,
+    editing,
+    onEditStart,
+  ]);
 
   // Sync edit value and focus caret when entering editing mode
   useEffect(() => {
@@ -134,20 +153,29 @@ export const Chip = ({
   const handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
     if (disabled) {
       e.preventDefault();
+      return;
     }
-    if (onToggle) {
-      setIsActive(!isActive);
-      onToggle(!isActive);
-    } else if (onClick) {
-      onClick(e);
+    if (isSelectable) {
+      const transition = getChipSelectionTransition({
+        disabled,
+        selected: isSelected,
+      });
+      if (transition.nextSelected !== undefined) {
+        setSelected(transition.nextSelected);
+      }
     }
+    onClick?.(e);
   };
 
+  const isSelectable =
+    selected !== undefined ||
+    defaultSelected !== undefined ||
+    onSelectedChange !== undefined;
   const isInteractive =
-    !!onToggle || !!onRemove || !!onClick || !!href || !!editable;
+    isSelectable || !!onRemove || !!onClick || !!href || !!editable;
 
-  if (activated) {
-    icon = faCheck;
+  if (isSelected) {
+    icon = iCheck;
   }
 
   const hasTrailingIcon = !!onRemove && !isEditing;
@@ -171,9 +199,11 @@ export const Chip = ({
     variant,
     disabled,
     icon,
-    activated: isActive,
-    onToggle,
+    selected,
+    defaultSelected,
+    onSelectedChange,
     onRemove,
+    href,
     draggable,
     editable,
     editing,
@@ -182,7 +212,7 @@ export const Chip = ({
     onEditCancel,
     onChange,
     // states
-    isActive: isActive ?? false,
+    isSelected,
     isFocused,
     isInteractive,
     isDragging,
@@ -195,6 +225,9 @@ export const Chip = ({
 
   const handleCommit = () => {
     const trimmed = (editValue ?? '').trim();
+    if (editing === undefined) {
+      setInternalEditing(false);
+    }
     if (!trimmed) {
       if (onRemove) {
         onRemove();
@@ -208,7 +241,6 @@ export const Chip = ({
     <ElementType
       contentEditable={false}
       ref={resolvedRef}
-      href={href}
       className={styles.chip}
       {...(restProps as any)}
       onClick={(e: React.MouseEvent<any>) => {
@@ -229,6 +261,9 @@ export const Chip = ({
       }}
       onDoubleClick={(e: React.MouseEvent<any>) => {
         if (!disabled && editable && !isEditing) {
+          if (editing === undefined) {
+            setInternalEditing(true);
+          }
           onEditStart?.();
           e.preventDefault();
           e.stopPropagation();
@@ -242,6 +277,9 @@ export const Chip = ({
         userOnFocus?.(e);
       }}
       onBlur={(e: React.FocusEvent<any>) => {
+        if (e.currentTarget.contains(e.relatedTarget as Node | null)) {
+          return;
+        }
         setIsFocused(false);
         userOnBlur?.(e);
       }}
@@ -255,6 +293,9 @@ export const Chip = ({
             handleCommit();
           } else if (key === 'Escape') {
             e.preventDefault();
+            if (editing === undefined) {
+              setInternalEditing(false);
+            }
             onEditCancel?.();
           } else if (
             onRemove &&
@@ -271,21 +312,28 @@ export const Chip = ({
         // Only handle keys when focused/selected and not disabled
         if (!disabled && isFocused) {
           // Start editing with F2 or Enter when editable and no toggle behavior
-          if (editable && !onToggle && (key === 'F2' || key === 'Enter')) {
+          if (editable && !isSelectable && (key === 'F2' || key === 'Enter')) {
             e.preventDefault();
+            if (editing === undefined) {
+              setInternalEditing(true);
+            }
             onEditStart?.();
             return;
           }
 
           // Toggle active state on Enter or Space when togglable
           if (
-            onToggle &&
+            isSelectable &&
             (key === 'Enter' || key === ' ' || key === 'Spacebar')
           ) {
             e.preventDefault();
-            const next = !isActive;
-            setIsActive(next);
-            onToggle(next);
+            const transition = getChipSelectionTransition({
+              disabled,
+              selected: isSelected,
+            });
+            if (transition.nextSelected !== undefined) {
+              setSelected(transition.nextSelected);
+            }
           }
 
           // Trigger remove on Backspace or Delete when removable
@@ -302,8 +350,14 @@ export const Chip = ({
         // Delegate to user handler last
         userOnKeyDown?.(e);
       }}
-      disabled={disabled}
-      aria-pressed={onToggle ? isActive : undefined}
+      {...(href
+        ? {
+            href: disabled ? undefined : href,
+            'aria-disabled': disabled || undefined,
+            tabIndex: disabled ? -1 : undefined,
+          }
+        : { disabled, type: 'button' })}
+      aria-pressed={isSelectable ? isSelected : undefined}
       style={{ transition: transition.duration + 's' }}
     >
       {isInteractive && !disabled && !isEditing && (
@@ -311,8 +365,8 @@ export const Chip = ({
           style={{ transition: transition.duration + 's' }}
           className={styles.stateLayer}
           colorName={classNames({
-            'on-surface-variant': !isActive,
-            'on-secondary-container': isActive,
+            'on-surface-variant': !isSelected,
+            'on-secondary-container': isSelected,
           })}
           stateClassName={'state-ripple-group-[chip]'}
         />
@@ -347,6 +401,9 @@ export const Chip = ({
           if (editable && isEditing && e.key === 'Escape') {
             e.preventDefault();
             e.stopPropagation();
+            if (editing === undefined) {
+              setInternalEditing(false);
+            }
             onEditCancel?.();
           }
         }}
@@ -354,12 +411,9 @@ export const Chip = ({
         {label}
       </span>
       {hasTrailingIcon && (
-        <Icon
-          icon={faXmark}
-          className={styles.trailingIcon}
-          // `Icon` ne déclare pas de handlers DOM mais les transmet au <svg>.
-          {...(trailingIconHandlers as any)}
-        />
+        <span className={styles.trailingIcon} {...trailingIconHandlers}>
+          <Icon icon={iClose} className="size-full" />
+        </span>
       )}
     </ElementType>
   );

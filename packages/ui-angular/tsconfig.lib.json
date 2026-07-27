@@ -19,6 +19,9 @@
   "references": [
     {
       "path": "../core/tsconfig.lib.json"
+    },
+    {
+      "path": "../icons/icons-rounded-400/tsconfig.lib.json"
     }
   ]
 }

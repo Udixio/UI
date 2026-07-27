@@ -9,7 +9,8 @@
       "tags": {
         "status": "beta",
         "category": "Input",
-        "devx": "- Works best as controlled: pass `items` + `onItemsChange`.\n- Internal ids are derived from object identity; replace items carefully.",
+        "devx": "- Works best as controlled: pass `items` + `onItemsChange`.\n- Prefer stable item ids; without one, ids follow object identity.",
+        "a11y": "- The collection has a configurable accessible label.\n- Arrow, Home, End, Backspace, and Delete keys are supported in input mode.",
         "limitations": "- No virtualization; very large lists can be slow."
       },
       "methods": [],
@@ -19,13 +20,99 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<ChipsInterface> | undefined"
+            "name": "string | ClassNameComponent<ChipsInterface>"
           },
           "defaultValue": null
         },
+        "label": {
+          "name": "label",
+          "description": "Accessible name for the chip collection.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "'Chips'"
+          }
+        },
         "variant": {
           "name": "variant",
-          "description": "Style du conteneur de chips",
+          "description": "Enables inline input and removal behavior.",
+          "required": false,
+          "type": {
+            "name": "\"input\""
+          },
+          "defaultValue": {
+            "value": "'input'"
+          }
+        },
+        "scrollable": {
+          "name": "scrollable",
+          "description": "Uses horizontal overflow instead of wrapping.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "true"
+          }
+        },
+        "draggable": {
+          "name": "draggable",
+          "description": "Enables native dragging on every chip.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "items": {
+          "name": "items",
+          "description": "Controlled source of truth for the collection.",
+          "required": false,
+          "type": {
+            "name": "ChipItem[]"
+          },
+          "defaultValue": null
+        },
+        "onItemsChange": {
+          "name": "onItemsChange",
+          "description": "Notifies list changes caused by selection, editing, or removal.",
+          "required": false,
+          "type": {
+            "name": "(next: ChipItem[]) => void"
+          },
+          "defaultValue": null
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/chips/chips.ts",
+      "description": "A labelled collection of selectable or editable chips.",
+      "tags": {
+        "status": "beta",
+        "category": "Input",
+        "devx": "Pass stable `ChipItem.id` values when the collection can be reordered and replace the list from `itemsChange`.",
+        "a11y": "Renders a labelled list; each chip retains its native button or link semantics.",
+        "limitations": "Does not virtualize large lists."
+      },
+      "inputs": {
+        "label": {
+          "name": "label",
+          "description": "Accessible name for the chip collection.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "'Chips'"
+          }
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Enables inline input and removal behavior.",
           "required": false,
           "type": {
             "name": "\"input\" | undefined"
@@ -34,12 +121,21 @@
             "value": "'input'"
           }
         },
+        "items": {
+          "name": "items",
+          "description": "Controlled source of truth for the collection.",
+          "required": true,
+          "type": {
+            "name": "readonly ChipItem[]"
+          },
+          "defaultValue": null
+        },
         "scrollable": {
           "name": "scrollable",
-          "description": "Active/masse un comportement de container (si utile)",
+          "description": "Uses horizontal overflow instead of wrapping.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "true"
@@ -47,30 +143,32 @@
         },
         "draggable": {
           "name": "draggable",
-          "description": "",
+          "description": "Enables native dragging on every chip.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "false"
           }
         },
-        "items": {
-          "name": "items",
-          "description": "Mode contrôlé: la source de vérité",
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "ChipItem[] | undefined"
+            "name": "string | ClassNameComponent<ChipsInterface>"
           },
           "defaultValue": null
-        },
-        "onItemsChange": {
-          "name": "onItemsChange",
-          "description": "Notifie toute modification de la liste (remove, toggle, etc.)",
+        }
+      },
+      "outputs": {
+        "itemsChange": {
+          "name": "itemsChange",
+          "description": "Notifies list changes caused by selection, editing, or removal.",
           "required": false,
           "type": {
-            "name": "((next: ChipItem[]) => void) | undefined"
+            "name": "ChipItem[]"
           },
           "defaultValue": null
         }
