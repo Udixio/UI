@@ -8,7 +8,11 @@
       "description": "MenuGroup renders a group of menu items with persistent styling.\nIt is primarily used to apply grouping logic or context to its children.",
       "tags": {
         "status": "beta",
-        "category": "Selection"
+        "category": "Selection",
+        "parent": "menu",
+        "devx": "Groups related MenuItem children and inherits the parent Menu variant.",
+        "a11y": "A visible `label` names the semantic group; an unlabeled group is presentational.",
+        "limitations": "Group labels are plain text."
       },
       "methods": [],
       "props": {
@@ -20,6 +24,82 @@
             "name": "string | ClassNameComponent<MenuGroupInterface>"
           },
           "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Overrides the color treatment inherited from the parent Menu.",
+          "required": false,
+          "type": {
+            "name": "MenuVariant"
+          },
+          "defaultValue": null
+        },
+        "label": {
+          "name": "label",
+          "description": "Visible and accessible label for the group.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "children": {
+          "name": "children",
+          "description": "Related MenuItem and MenuHeadline content.",
+          "required": false,
+          "type": {
+            "name": "ReactNode"
+          },
+          "defaultValue": null
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/menu/menu-group.ts",
+      "description": "Groups related MenuItem children under an optional visible label.",
+      "tags": {
+        "status": "beta",
+        "category": "Selection",
+        "parent": "menu",
+        "devx": "Projects MenuItem children and inherits the parent Menu variant.",
+        "a11y": "A visible `label` names the semantic group; an unlabeled group is presentational.",
+        "limitations": "Group labels are plain text."
+      },
+      "inputs": {
+        "variant": {
+          "name": "variant",
+          "description": "Overrides the color treatment inherited from the parent Menu.",
+          "required": false,
+          "type": {
+            "name": "MenuVariant | undefined"
+          },
+          "defaultValue": null
+        },
+        "label": {
+          "name": "label",
+          "description": "Visible and accessible label for the group.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<MenuGroupInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {},
+      "content": {
+        "default": {
+          "name": "default",
+          "selector": "*",
+          "description": "Default projected content."
         }
       }
     }

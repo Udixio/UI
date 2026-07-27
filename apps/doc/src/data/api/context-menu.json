@@ -5,18 +5,160 @@
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/ContextMenu.tsx",
-      "description": "",
-      "tags": {},
+      "description": "Opens a Menu at the pointer or keyboard context-menu position.",
+      "tags": {
+        "status": "beta",
+        "category": "Selection",
+        "parent": "menu",
+        "devx": "Project the trigger through `trigger` and Menu family elements as children.",
+        "a11y": "Supports native context-menu events and Shift+F10, focuses the first item, and restores trigger focus after Escape.",
+        "limitations": "The popup position is internally owned and is not controllable."
+      },
       "methods": [],
       "props": {
-        "className": {
-          "name": "className",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
+        "variant": {
+          "name": "variant",
+          "description": "Visual color treatment shared by the menu family.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<MenuInterface>"
+            "name": "MenuVariant"
+          },
+          "defaultValue": {
+            "value": "'standard'"
+          }
+        },
+        "accessibleLabel": {
+          "name": "accessibleLabel",
+          "description": "Accessible name used when no external labelled-by relationship exists.",
+          "required": false,
+          "type": {
+            "name": "string"
           },
           "defaultValue": null
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Prevents pointer and keyboard context-menu activation.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "trigger": {
+          "name": "trigger",
+          "description": "Element that receives pointer and Shift+F10 context-menu activation.",
+          "required": true,
+          "type": {
+            "name": "ReactNode"
+          },
+          "defaultValue": null
+        },
+        "children": {
+          "name": "children",
+          "description": "MenuItem, MenuGroup, and MenuHeadline content.",
+          "required": false,
+          "type": {
+            "name": "ReactNode"
+          },
+          "defaultValue": null
+        },
+        "onOpenChange": {
+          "name": "onOpenChange",
+          "description": "Notifies visibility changes caused by user interaction.",
+          "required": false,
+          "type": {
+            "name": "(open: boolean) => void"
+          },
+          "defaultValue": null
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes applied to the display-contents root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/context-menu/context-menu.ts",
+      "description": "Opens a Menu at the pointer or keyboard context-menu position.",
+      "tags": {
+        "status": "beta",
+        "category": "Selection",
+        "parent": "menu",
+        "devx": "Mark the projected trigger with `contextMenuTrigger`; project Menu family elements into the default slot.",
+        "a11y": "Supports native context-menu events and Shift+F10, focuses the first item, and restores trigger focus after Escape.",
+        "limitations": "The popup position is internally owned and is not controllable."
+      },
+      "inputs": {
+        "variant": {
+          "name": "variant",
+          "description": "Visual color treatment shared by the menu family.",
+          "required": false,
+          "type": {
+            "name": "MenuVariant"
+          },
+          "defaultValue": {
+            "value": "'standard'"
+          }
+        },
+        "accessibleLabel": {
+          "name": "accessibleLabel",
+          "description": "Accessible name used when no external labelled-by relationship exists.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Prevents pointer and keyboard context-menu activation.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes applied to the display-contents root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {
+        "openChange": {
+          "name": "openChange",
+          "description": "Notifies visibility changes caused by user interaction.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        }
+      },
+      "content": {
+        "slot1": {
+          "name": "slot1",
+          "selector": "[contextMenuTrigger]",
+          "description": "Projected content matching `[contextMenuTrigger]`."
+        },
+        "default": {
+          "name": "default",
+          "selector": "*",
+          "description": "Default projected content."
         }
       }
     }

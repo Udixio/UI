@@ -9,9 +9,9 @@
       "tags": {
         "status": "beta",
         "category": "Selection",
-        "limitations": "- Don’t use MenuGroup in scrollable menus",
-        "devx": "- Used internally by `TextField` for `type=\"select\"`.\n- Supports keyboard navigation and auto-scrolling to selected item.",
-        "a11y": "- `role=\"listbox\"` with `aria-selected` management."
+        "limitations": "- Nested submenus are not part of this component; compose another popup from an item trigger.",
+        "devx": "- Use `purpose=\"actions\"` for commands and `purpose=\"selection\"` for options.\n- Set `initialFocus` when the Menu is mounted inside a popup.\n- When using groups, render each related MenuHeadline inside its MenuGroup.",
+        "a11y": "- Implements wrapping Arrow Up/Down, Home, End, and type-ahead focus navigation.\n- Provide `accessibleLabel` unless an external `aria-labelledby` is forwarded."
       },
       "methods": [],
       "props": {
@@ -24,16 +24,128 @@
           },
           "defaultValue": null
         },
+        "children": {
+          "name": "children",
+          "description": "MenuItem children, or MenuGroup children containing their related MenuHeadline.",
+          "required": false,
+          "type": {
+            "name": "ReactNode"
+          },
+          "defaultValue": null
+        },
         "variant": {
           "name": "variant",
-          "description": "",
+          "description": "Visual color treatment shared by the menu family.",
           "required": false,
           "type": {
             "name": "MenuVariant"
           },
           "defaultValue": {
+            "value": "standard"
+          }
+        },
+        "purpose": {
+          "name": "purpose",
+          "description": "Selects action-menu or option-list semantics.",
+          "required": false,
+          "type": {
+            "name": "MenuPurpose"
+          },
+          "defaultValue": {
+            "value": "actions"
+          }
+        },
+        "accessibleLabel": {
+          "name": "accessibleLabel",
+          "description": "Accessible name used when no external labelled-by relationship exists.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "initialFocus": {
+          "name": "initialFocus",
+          "description": "Focus target applied when the menu is mounted in a popup.",
+          "required": false,
+          "type": {
+            "name": "MenuInitialFocus"
+          },
+          "defaultValue": {
+            "value": "none"
+          }
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/menu/menu.ts",
+      "description": "Displays commands or selectable options on a temporary surface.",
+      "tags": {
+        "status": "beta",
+        "category": "Selection",
+        "devx": "Use `purpose=\"actions\"` for commands and `purpose=\"selection\"` for options. Set `initialFocus` for popup usage. When using groups, project each related MenuHeadline inside its MenuGroup.",
+        "a11y": "Implements wrapping Arrow Up/Down, Home, End, and type-ahead focus navigation. Provide `accessibleLabel` unless the menu is labelled externally.",
+        "limitations": "Nested submenus are not part of this component; compose another popup from an item trigger."
+      },
+      "inputs": {
+        "variant": {
+          "name": "variant",
+          "description": "Visual color treatment shared by the menu family.",
+          "required": false,
+          "type": {
+            "name": "MenuVariant | undefined"
+          },
+          "defaultValue": {
             "value": "'standard'"
           }
+        },
+        "purpose": {
+          "name": "purpose",
+          "description": "Selects action-menu or option-list semantics.",
+          "required": false,
+          "type": {
+            "name": "MenuPurpose | undefined"
+          },
+          "defaultValue": {
+            "value": "'actions'"
+          }
+        },
+        "accessibleLabel": {
+          "name": "accessibleLabel",
+          "description": "Accessible name used when no external labelled-by relationship exists.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "initialFocus": {
+          "name": "initialFocus",
+          "description": "Focus target applied when the menu is mounted in a popup.",
+          "required": false,
+          "type": {
+            "name": "MenuInitialFocus | undefined"
+          },
+          "defaultValue": {
+            "value": "'none'"
+          }
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<MenuInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {},
+      "content": {
+        "default": {
+          "name": "default",
+          "selector": "*",
+          "description": "Default projected content."
         }
       }
     }

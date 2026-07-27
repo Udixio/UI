@@ -1,5 +1,9 @@
+import type { MenuVariant } from './menu.interface';
+
 export interface MenuGroupProps {
-  variant?: 'standard' | 'vibrant';
+  /** Overrides the color treatment inherited from the parent Menu. */
+  variant?: MenuVariant;
+  /** Visible and accessible label for the group. */
   label?: string;
 }
 

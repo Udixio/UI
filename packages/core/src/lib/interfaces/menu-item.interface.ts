@@ -1,25 +1,43 @@
 import { Icon } from '../icon';
+import type { MenuPurpose, MenuVariant } from './menu.interface';
 
-export type MenuItemVariant = 'standard' | 'vibrant';
+export type MenuItemVariant = MenuVariant;
+export type MenuItemSelectionType = 'none' | 'single' | 'multiple';
 
-type Props = {
+export type MenuItemProps = {
+  /** Text label used when an adapter does not project custom content. */
   label?: string;
+  /** Stable application value emitted or consumed by a parent selection surface. */
+  value?: string | number;
+  /** Optional icon displayed before the label. */
   leadingIcon?: Icon;
+  /** Optional icon displayed after the label. */
   trailingIcon?: Icon;
+  /** Prevents activation, selection changes, and keyboard focus. */
   disabled?: boolean;
-  /** Injected by the parent menu. */
+  /** Overrides the color treatment inherited from the parent Menu. */
   variant?: MenuItemVariant;
-  onToggle?: (activated: boolean) => void;
-  activated?: boolean;
+  /** Declares whether the item is an action, radio-like choice, or checkbox-like choice. */
+  selectionType?: MenuItemSelectionType;
+  /** Controlled selection state. */
+  selected?: boolean;
+  /** Initial selection state when uncontrolled. */
+  defaultSelected?: boolean;
+  /** Notifies each accepted selection transition exactly once. */
+  onSelectedChange?: (selected: boolean) => void;
 };
 
 export type MenuItemStates = {
-  isActive: boolean;
+  /** Resolved selection state. */
+  isSelected: boolean;
+  /** Semantic purpose inherited from the parent Menu. */
+  purpose: MenuPurpose;
 };
 
 type Elements = [
   'menuItem',
   'selectedItem',
+  'stateLayer',
   'itemLabel',
   'itemIcon',
   'leadingIcon',
@@ -28,7 +46,7 @@ type Elements = [
 
 export interface MenuItemInterface {
   type: 'button';
-  props: Props;
+  props: MenuItemProps;
   states: MenuItemStates;
   elements: Elements;
 }

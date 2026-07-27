@@ -1,19 +1,23 @@
-import React, { useRef, type ReactNode } from 'react';
-import {
-  classNames,
-  type MenuInterface,
-  menuStyle,
-  type ReactProps,
-} from '@udixio/core';
+import React, {
+  forwardRef,
+  useEffect,
+  useMemo,
+  useRef,
+  type ReactNode,
+} from 'react';
+import { type MenuInterface, menuStyle, type ReactProps } from '@udixio/core';
+import { createMenuController } from '@udixio/core/dom';
 import { createUseStyle } from '../utils/create-use-style';
-import { MenuItem } from './MenuItem';
-import { Divider } from './Divider';
-import { MenuHeadline } from './MenuHeadline';
 import { MenuGroup } from './MenuGroup';
+import { MenuContext } from './menu-context';
 
-export type { MenuVariant } from '@udixio/core';
+export type { MenuInitialFocus, MenuPurpose, MenuVariant } from '@udixio/core';
 
-export type ReactMenuProps = ReactProps<MenuInterface> & {
+export type ReactMenuProps = Omit<
+  ReactProps<MenuInterface>,
+  'aria-label' | 'role'
+> & {
+  /** MenuItem children, or MenuGroup children containing their related MenuHeadline. */
   children?: ReactNode;
 };
 
@@ -24,75 +28,68 @@ export const useMenuStyle = createUseStyle(menuStyle);
  * @status beta
  * @category Selection
  * @limitations
- * - Don’t use MenuGroup in scrollable menus
+ * - Nested submenus are not part of this component; compose another popup from an item trigger.
  * @devx
- * - Used internally by `TextField` for `type="select"`.
- * - Supports keyboard navigation and auto-scrolling to selected item.
+ * - Use `purpose="actions"` for commands and `purpose="selection"` for options.
+ * - Set `initialFocus` when the Menu is mounted inside a popup.
+ * - When using groups, render each related MenuHeadline inside its MenuGroup.
  * @a11y
- * - `role="listbox"` with `aria-selected` management.
+ * - Implements wrapping Arrow Up/Down, Home, End, and type-ahead focus navigation.
+ * - Provide `accessibleLabel` unless an external `aria-labelledby` is forwarded.
  */
-export const Menu = ({
-  children,
-  className,
-  variant = 'standard',
-  selected,
-  ...restProps
-}: ReactMenuProps) => {
-  const hasGroups = React.Children.toArray(children).some(
-    (child) => React.isValidElement(child) && child.type === MenuGroup,
-  );
-  const styles = useMenuStyle({
-    selected,
-    variant,
-    hasGroups,
-    className,
-  });
-
-  const listRef = useRef<HTMLDivElement>(null);
-
-  const renderChildren = (nodes: React.ReactNode): React.ReactNode => {
-    return React.Children.map(nodes, (child) => {
-      if (!React.isValidElement(child)) return child;
-
-      // Handle MenuGroup: add surface styles if grouped
-      if (child.type === MenuGroup) {
-        const groupChildren = renderChildren((child.props as any).children);
-        return React.cloneElement(child, {
-          children: groupChildren,
-          variant: variant,
-        } as any);
-      }
-
-      if (child.type === MenuItem) {
-        return React.cloneElement(child, {
-          variant: (child.props as any).variant ?? variant,
-        } as any);
-      }
-
-      if (child.type === MenuHeadline) {
-        return React.cloneElement(child, {
-          variant: variant,
-        } as any);
-      }
-
-      if (child.type === Divider) {
-        return React.cloneElement(child, {
-          className: classNames('my-1', (child.props as any).className),
-        } as any);
-      }
-
-      return child;
+export const Menu = forwardRef<HTMLDivElement, ReactMenuProps>(
+  (
+    {
+      children,
+      className,
+      variant = 'standard',
+      purpose = 'actions',
+      accessibleLabel,
+      initialFocus = 'none',
+      ...restProps
+    },
+    forwardedRef,
+  ) => {
+    const hasGroups = React.Children.toArray(children).some(
+      (child) => React.isValidElement(child) && child.type === MenuGroup,
+    );
+    const styles = useMenuStyle({
+      variant,
+      purpose,
+      accessibleLabel,
+      initialFocus,
+      hasGroups,
+      className,
     });
-  };
+    const menuRef = useRef<HTMLDivElement>(null);
 
-  return (
-    <div ref={listRef} className={styles.menu} role="listbox" {...restProps}>
-      {renderChildren(children)}
-      {React.Children.count(children) === 0 && (
-        <div className="px-4 py-3 text-on-surface-variant opacity-60 italic text-body-medium">
-          No options
+    useEffect(() => {
+      const menu = menuRef.current;
+      if (!menu) return;
+      const controller = createMenuController(menu, { initialFocus });
+      return () => controller.destroy();
+    }, [initialFocus]);
+
+    const context = useMemo(() => ({ purpose, variant }), [purpose, variant]);
+
+    return (
+      <MenuContext.Provider value={context}>
+        <div
+          {...restProps}
+          ref={(node) => {
+            menuRef.current = node;
+            if (typeof forwardedRef === 'function') forwardedRef(node);
+            else if (forwardedRef) forwardedRef.current = node;
+          }}
+          className={styles.menu}
+          role={purpose === 'selection' ? 'listbox' : 'menu'}
+          aria-label={accessibleLabel}
+        >
+          {children}
         </div>
-      )}
-    </div>
-  );
-};
+      </MenuContext.Provider>
+    );
+  },
+);
+
+Menu.displayName = 'Menu';

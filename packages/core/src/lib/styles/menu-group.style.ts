@@ -1,8 +1,4 @@
-import {
-  type ClassNameComponent,
-  cx,
-  defaultClassNames,
-} from '../utils';
+import { type ClassNameComponent, cx, defaultClassNames } from '../utils';
 import { MenuGroupInterface } from '../interfaces/menu-group.interface';
 
 const menuGroupConfig: ClassNameComponent<MenuGroupInterface> = ({
@@ -16,7 +12,7 @@ const menuGroupConfig: ClassNameComponent<MenuGroupInterface> = ({
       'bg-tertiary-container text-on-tertiary-container': variant === 'vibrant',
     },
   ),
-  groupLabel: cx('px-3 pt-2  text-label-small tracking-wide ', {
+  groupLabel: cx('px-3 pt-2 text-label-small tracking-wide', {
     'text-on-surface-variant': variant === 'standard',
     'text-on-tertiary-container opacity-80': variant === 'vibrant',
   }),

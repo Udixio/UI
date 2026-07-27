@@ -36,6 +36,9 @@ export default defineConfig({
     plugins: [tailwindcss(), vitePlugin()],
     resolve: {
       alias: {
+        '@udixio/ui-react': fileURLToPath(
+          new URL('../../packages/ui-react/src/index.ts', import.meta.url),
+        ),
         '@udixio/ui-angular': fileURLToPath(
           new URL('../../packages/ui-angular/src/index.ts', import.meta.url),
         ),

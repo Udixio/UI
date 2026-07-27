@@ -1,97 +1,137 @@
-import React, { useEffect, useRef, useState, type ReactNode } from 'react';
-import { AnchorPositioner } from './AnchorPositioner';
-import { Menu, type ReactMenuProps } from './Menu';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
+import type { ContextMenuProps } from '@udixio/core';
+import { createContextMenuController } from '@udixio/core/dom';
+import { Menu } from './Menu';
 
-export type ContextMenuProps = ReactMenuProps & {
-  trigger?: ReactNode;
-};
+export type ReactContextMenuProps = Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  'children' | 'className'
+> &
+  Omit<ContextMenuProps, 'onOpenChange'> & {
+    /** Element that receives pointer and Shift+F10 context-menu activation. */
+    trigger: ReactNode;
+    /** MenuItem, MenuGroup, and MenuHeadline content. */
+    children?: ReactNode;
+    /** Notifies visibility changes caused by user interaction. */
+    onOpenChange?: (open: boolean) => void;
+    /** Classes applied to the display-contents root. */
+    className?: string;
+  };
 
+/**
+ * Opens a Menu at the pointer or keyboard context-menu position.
+ * @status beta
+ * @category Selection
+ * @parent menu
+ * @devx Project the trigger through `trigger` and Menu family elements as children.
+ * @a11y Supports native context-menu events and Shift+F10, focuses the first item, and restores trigger focus after Escape.
+ * @limitations The popup position is internally owned and is not controllable.
+ */
 export const ContextMenu = ({
   trigger,
   children,
-  ...menuProps
-}: ContextMenuProps) => {
-  const [contextMenu, setContextMenu] = useState<{
-    mouseX: number;
-    mouseY: number;
-  } | null>(null);
-  const anchorRef = useRef<HTMLDivElement>(null);
+  variant = 'standard',
+  accessibleLabel,
+  disabled = false,
+  onOpenChange,
+  className,
+  ...restProps
+}: ReactContextMenuProps) => {
+  const [position, setPosition] = useState<{ x: number; y: number } | null>(
+    null,
+  );
+  const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLSpanElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const openRef = useRef(false);
 
-  const handleContextMenu = (event: React.MouseEvent) => {
-    event.preventDefault();
-    setContextMenu({
-      mouseX: event.clientX,
-      mouseY: event.clientY,
-    });
-  };
+  const close = useCallback(() => {
+    if (!openRef.current) return;
+    openRef.current = false;
+    setPosition(null);
+    onOpenChange?.(false);
+  }, [onOpenChange]);
 
-  const handleClose = () => {
-    setContextMenu(null);
-  };
-
-  const handleSelect = () => {
-    handleClose();
-  };
-
-  useEffect(() => {
-    if (!contextMenu) return;
-    const handleOutsideInteraction = () => setContextMenu(null);
-    window.addEventListener('click', handleOutsideInteraction);
-    window.addEventListener('scroll', handleOutsideInteraction, true);
-
-    return () => {
-      window.removeEventListener('click', handleOutsideInteraction);
-      window.removeEventListener('scroll', handleOutsideInteraction, true);
-    };
-  }, [contextMenu]);
-
-  // Clone trigger if valid element to attach onContextMenu, otherwise wrap
-  const triggerElement = React.isValidElement(trigger) ? (
-    React.cloneElement(
-      trigger as React.ReactElement,
-      {
-        onContextMenu: (e: React.MouseEvent) => {
-          handleContextMenu(e);
-          // Call original handler if exists
-          (trigger as React.ReactElement).props.onContextMenu?.(e);
-        },
-      } as any,
-    )
-  ) : (
-    <div onContextMenu={handleContextMenu} className="inline-block">
-      {trigger}
-    </div>
+  const openAt = useCallback(
+    (x: number, y: number) => {
+      if (disabled) return;
+      const wasOpen = openRef.current;
+      openRef.current = true;
+      setPosition({ x, y });
+      if (!wasOpen) onOpenChange?.(true);
+    },
+    [disabled, onOpenChange],
   );
 
+  useEffect(() => {
+    if (!position) return;
+    const root = rootRef.current;
+    const triggerHost = triggerRef.current;
+    const menu = menuRef.current;
+    const triggerElement =
+      triggerHost?.querySelector<HTMLElement>(
+        'button, a[href], input, select, textarea, [tabindex]',
+      ) ?? triggerHost;
+    if (!root || !triggerElement || !menu) return;
+    const controller = createContextMenuController({
+      root,
+      trigger: triggerElement,
+      menu,
+      onDismiss: close,
+    });
+    return () => controller.destroy();
+  }, [close, position]);
+
+  const handleContextMenu = (event: React.MouseEvent) => {
+    if (disabled) return;
+    event.preventDefault();
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    openAt(event.clientX || rect.left, event.clientY || rect.bottom);
+  };
+
   return (
-    <>
-      {triggerElement}
-
-      {/* Invisible anchor element positioned at cursor */}
-      <div
-        ref={anchorRef}
-        style={{
-          position: 'fixed',
-          top: contextMenu?.mouseY ?? 0,
-          left: contextMenu?.mouseX ?? 0,
-          width: 1,
-          height: 1,
-          pointerEvents: 'none',
-          visibility: 'hidden',
+    <div
+      {...restProps}
+      ref={rootRef}
+      className={className}
+      style={{ display: 'contents' }}
+    >
+      <span
+        ref={triggerRef}
+        style={{ display: 'contents' }}
+        onContextMenu={handleContextMenu}
+        onKeyDown={(event) => {
+          if (event.shiftKey && event.key === 'F10') {
+            event.preventDefault();
+            const rect = event.currentTarget.getBoundingClientRect();
+            openAt(rect.left, rect.bottom);
+          }
         }}
-      />
-
-      {contextMenu && (
-        <AnchorPositioner
-          anchorRef={anchorRef}
-          position="bottom right"
-          onClick={(e) => e.stopPropagation()}
+      >
+        {trigger}
+      </span>
+      {position && (
+        <div
+          className="fixed z-50"
+          style={{ top: position.y, left: position.x }}
         >
-          <Menu onClick={handleSelect} {...menuProps}>
+          <Menu
+            ref={menuRef}
+            purpose="actions"
+            variant={variant}
+            accessibleLabel={accessibleLabel}
+            onClick={close}
+          >
             {children}
           </Menu>
-        </AnchorPositioner>
+        </div>
       )}
-    </>
+    </div>
   );
 };

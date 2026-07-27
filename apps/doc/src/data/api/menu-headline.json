@@ -5,8 +5,15 @@
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/MenuHeadline.tsx",
-      "description": "",
-      "tags": {},
+      "description": "A non-interactive visual heading inside a Menu.",
+      "tags": {
+        "status": "beta",
+        "category": "Selection",
+        "parent": "menu",
+        "devx": "Use MenuGroup when the heading must also name a semantic group.",
+        "a11y": "Rendered as presentational text and excluded from menu keyboard navigation.",
+        "limitations": "Does not create a heading landmark or label neighboring items."
+      },
       "methods": [],
       "props": {
         "className": {
@@ -17,8 +24,68 @@
             "name": "string | ClassNameComponent<MenuHeadlineInterface>"
           },
           "defaultValue": null
+        },
+        "label": {
+          "name": "label",
+          "description": "Visible section heading.",
+          "required": true,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Overrides the color treatment inherited from the parent Menu.",
+          "required": false,
+          "type": {
+            "name": "MenuVariant"
+          },
+          "defaultValue": null
         }
       }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/menu/menu-headline.ts",
+      "description": "A non-interactive visual heading inside a Menu.",
+      "tags": {
+        "status": "beta",
+        "category": "Selection",
+        "parent": "menu",
+        "devx": "Use MenuGroup when the heading must also name a semantic group.",
+        "a11y": "Rendered as presentational text and excluded from menu keyboard navigation.",
+        "limitations": "Does not create a heading landmark or label neighboring items."
+      },
+      "inputs": {
+        "label": {
+          "name": "label",
+          "description": "Visible section heading.",
+          "required": true,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Overrides the color treatment inherited from the parent Menu.",
+          "required": false,
+          "type": {
+            "name": "MenuVariant | undefined"
+          },
+          "defaultValue": null
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<MenuHeadlineInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {}
     }
   }
 }

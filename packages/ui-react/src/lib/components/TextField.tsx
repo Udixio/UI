@@ -516,10 +516,7 @@ export const TextField = ({
               ' absolute right-0': !effectiveTrailingIcon,
             })}
           >
-            <Icon
-              className={'h-5 text-error'}
-              icon={iError}
-            ></Icon>
+            <Icon className={'h-5 text-error'} icon={iError}></Icon>
           </div>
         )}
       </fieldset>
@@ -574,14 +571,19 @@ export const TextField = ({
           style={{ width: textFieldRef.current?.offsetWidth }}
         >
           <div ref={menuRef}>
-            <Menu className={'max-w-full'} selected={value}>
+            <Menu
+              className="max-w-full"
+              purpose="selection"
+              accessibleLabel={label || 'Options'}
+            >
               {children
                 ? React.Children.map(children, (child) => {
                     if (
                       React.isValidElement<ReactMenuItemProps>(child) &&
                       child.type === MenuItem
                     ) {
-                      return React.cloneElement(child, {
+                      return React.cloneElement<ReactMenuItemProps>(child, {
+                        selected: child.props.value === value,
                         onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
                           if (child.props.onClick) {
                             child.props.onClick(e);
@@ -594,7 +596,7 @@ export const TextField = ({
                               : '',
                           );
                         },
-                      } as any);
+                      });
                     }
                     return child;
                   })
@@ -603,13 +605,17 @@ export const TextField = ({
                       return <Divider key={i} className="my-1" />;
                     }
                     if (opt.type === 'headline') {
-                      return <MenuHeadline key={i} label={opt.label} />;
+                      return opt.label ? (
+                        <MenuHeadline key={i} label={opt.label} />
+                      ) : null;
                     }
                     // `type` only tags the option kind, it is not a MenuItem prop
-                    const { type: _optionType, ...itemProps } = opt;
+                    const { type: optionType, ...itemProps } = opt;
+                    void optionType;
                     return (
                       <MenuItem
                         key={opt.value ?? i}
+                        selected={opt.value === value}
                         onClick={(e) => {
                           if (opt.onClick) {
                             opt.onClick(e);

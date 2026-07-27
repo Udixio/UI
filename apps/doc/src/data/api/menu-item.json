@@ -5,13 +5,35 @@
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/MenuItem.tsx",
-      "description": "Single item within a Menu.",
+      "description": "An action or selectable choice within a Menu.",
       "tags": {
         "status": "beta",
-        "category": "Selection"
+        "category": "Selection",
+        "parent": "menu",
+        "devx": "- Use `selectionType`, `selected`, and `onSelectedChange` for controlled selection.\n- Use `defaultSelected` when the item owns its initial selection state.",
+        "a11y": "- Resolves to `menuitem`, `menuitemradio`, `menuitemcheckbox`, or `option` from the parent Menu purpose.\n- Disabled links are removed from navigation and expose `aria-disabled`.",
+        "limitations": "- Nested submenus require a separate popup composition."
       },
       "methods": [],
       "props": {
+        "leadingIcon": {
+          "name": "leadingIcon",
+          "description": "Optional icon displayed before the label.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "trailingIcon": {
+          "name": "trailingIcon",
+          "description": "Optional icon displayed after the label.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
         "className": {
           "name": "className",
           "description": "Classes or state-aware element classes applied through the shared style contract.",
@@ -21,20 +43,18 @@
           },
           "defaultValue": null
         },
-        "variant": {
-          "name": "variant",
-          "description": "Injected by the parent menu.",
+        "children": {
+          "name": "children",
+          "description": "Custom visible label content; falls back to `label`.",
           "required": false,
           "type": {
-            "name": "MenuItemVariant"
+            "name": "ReactNode"
           },
-          "defaultValue": {
-            "value": "'standard'"
-          }
+          "defaultValue": null
         },
-        "activated": {
-          "name": "activated",
-          "description": "",
+        "disabled": {
+          "name": "disabled",
+          "description": "Prevents activation, selection changes, and keyboard focus.",
           "required": false,
           "type": {
             "name": "boolean"
@@ -42,6 +62,208 @@
           "defaultValue": {
             "value": "false"
           }
+        },
+        "value": {
+          "name": "value",
+          "description": "Stable application value emitted or consumed by a parent selection surface.",
+          "required": false,
+          "type": {
+            "name": "string | number"
+          },
+          "defaultValue": null
+        },
+        "label": {
+          "name": "label",
+          "description": "Text label used when an adapter does not project custom content.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Overrides the color treatment inherited from the parent Menu.",
+          "required": false,
+          "type": {
+            "name": "MenuVariant"
+          },
+          "defaultValue": null
+        },
+        "selectionType": {
+          "name": "selectionType",
+          "description": "Declares whether the item is an action, radio-like choice, or checkbox-like choice.",
+          "required": false,
+          "type": {
+            "name": "MenuItemSelectionType"
+          },
+          "defaultValue": null
+        },
+        "selected": {
+          "name": "selected",
+          "description": "Controlled selection state.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        },
+        "defaultSelected": {
+          "name": "defaultSelected",
+          "description": "Initial selection state when uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "onSelectedChange": {
+          "name": "onSelectedChange",
+          "description": "Notifies each accepted selection transition exactly once.",
+          "required": false,
+          "type": {
+            "name": "(selected: boolean) => void"
+          },
+          "defaultValue": null
+        },
+        "href": {
+          "name": "href",
+          "description": "Optional navigation target; disabled links omit the native href.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/menu/menu-item.ts",
+      "description": "An action or selectable choice within a Menu.",
+      "tags": {
+        "status": "beta",
+        "category": "Selection",
+        "parent": "menu",
+        "devx": "Use `selectionType`, `selected`, and `selectedChange` for controlled selection, or initialize with `defaultSelected`.",
+        "a11y": "Resolves to `menuitem`, `menuitemradio`, `menuitemcheckbox`, or `option`; disabled links are inert and removed from navigation.",
+        "limitations": "Nested submenus require a separate popup composition. Angular uses the required `label` input instead of projected item content."
+      },
+      "inputs": {
+        "label": {
+          "name": "label",
+          "description": "Text label used when an adapter does not project custom content.",
+          "required": true,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "value": {
+          "name": "value",
+          "description": "Stable application value emitted or consumed by a parent selection surface.",
+          "required": false,
+          "type": {
+            "name": "string | number | undefined"
+          },
+          "defaultValue": null
+        },
+        "leadingIcon": {
+          "name": "leadingIcon",
+          "description": "Optional icon displayed before the label.",
+          "required": false,
+          "type": {
+            "name": "Icon | undefined"
+          },
+          "defaultValue": null
+        },
+        "trailingIcon": {
+          "name": "trailingIcon",
+          "description": "Optional icon displayed after the label.",
+          "required": false,
+          "type": {
+            "name": "Icon | undefined"
+          },
+          "defaultValue": null
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Prevents activation, selection changes, and keyboard focus.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Overrides the color treatment inherited from the parent Menu.",
+          "required": false,
+          "type": {
+            "name": "MenuVariant | undefined"
+          },
+          "defaultValue": null
+        },
+        "selectionType": {
+          "name": "selectionType",
+          "description": "Declares whether the item is an action, radio-like choice, or checkbox-like choice.",
+          "required": false,
+          "type": {
+            "name": "MenuItemSelectionType | undefined"
+          },
+          "defaultValue": null
+        },
+        "selected": {
+          "name": "selected",
+          "description": "Controlled selection state.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null
+        },
+        "defaultSelected": {
+          "name": "defaultSelected",
+          "description": "Initial selection state when uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "href": {
+          "name": "href",
+          "description": "Optional navigation target; disabled links omit the native href.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<MenuItemInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {
+        "selectedChange": {
+          "name": "selectedChange",
+          "description": "Emits each accepted selected-state request and supports `[(selected)]`.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
         }
       }
     }

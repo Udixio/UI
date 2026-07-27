@@ -1,8 +1,4 @@
-import {
-  type ClassNameComponent,
-  cx,
-  defaultClassNames,
-} from '../utils';
+import { type ClassNameComponent, cx, defaultClassNames } from '../utils';
 import { MenuInterface } from '../interfaces';
 
 const menuConfig: ClassNameComponent<MenuInterface> = ({
@@ -10,15 +6,15 @@ const menuConfig: ClassNameComponent<MenuInterface> = ({
   hasGroups,
 }) => ({
   menu: cx(
-    'z-50 min-w-[112px] max-w-[280px] max-h-[300px] ',
-    'flex flex-col',
+    'z-50 min-w-[112px] max-w-[280px] max-h-[300px]',
+    'flex flex-col outline-none',
     { 'overflow-y-auto': !hasGroups },
     {
       'bg-surface-container': !variant || variant === 'standard',
       // Vibrant uses tertiary-container (approximated) or just colored surface
       'bg-tertiary-container text-on-tertiary-container': variant === 'vibrant',
       'py-0.5 shadow-2 px-1 rounded-2xl': !hasGroups,
-      'bg-transparent ': hasGroups,
+      'bg-transparent': hasGroups,
     },
   ),
 });
