@@ -3,5 +3,6 @@
   "dest": "../../dist/packages/ui-angular",
   "lib": {
     "entryFile": "src/index.ts"
-  }
+  },
+  "allowedNonPeerDependencies": ["@udixio/icons-rounded-400"]
 }

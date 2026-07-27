@@ -1,138 +1,138 @@
-import React, { useEffect, useId, useState } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import React, { forwardRef, useEffect, useId, useRef, useState } from 'react';
 import {
-  type CheckboxInterface,
   checkboxStyle,
-  classNames,
+  getCheckboxChangeTransition,
+  type CheckboxInterface,
   type ReactProps,
 } from '@udixio/core';
-import { createUseStyle } from '../utils/create-use-style';
-import { Icon } from '../icon';
-import { faCheck, faMinus } from '@fortawesome/free-solid-svg-icons';
+import { iCheck } from '@udixio/icons-rounded-400/check';
+import { iRemove } from '@udixio/icons-rounded-400/remove';
 import { State } from '../effects';
+import { Icon } from '../icon';
+import { createUseStyle } from '../utils/create-use-style';
+import { useControllableState } from '../utils/use-controllable-state';
 
 export type ReactCheckboxProps = Omit<
   ReactProps<CheckboxInterface>,
-  'onChange'
+  'aria-invalid' | 'onChange' | 'style' | 'type'
 > & {
-  /** Native change handler of the underlying input element. */
-  onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  /** Called once for each accepted checked-state transition. */
+  onCheckedChange?: (checked: boolean) => void;
+  /** Styles applied to the Checkbox touch target. */
+  style?: React.CSSProperties;
 };
 
 export const useCheckboxStyle = createUseStyle(checkboxStyle);
 
 /**
- * Checkboxes allow the user to select one or more items from a set.
+ * Checkboxes let people select one or more independent options.
  * @status beta
  * @category Selection
  * @devx
- * - Supports controlled (`checked`) and uncontrolled (`defaultChecked`) modes.
- * - Handles `indeterminate` state strictly as visual (updates UI, but underlying input is checked/unchecked based on logic).
+ * - Use `checked` with `onCheckedChange` for controlled state, or `defaultChecked` for uncontrolled state.
+ * - Use `indeterminate` only for a parent option whose child selection is mixed.
  * @a11y
- * - Uses native input for accessibility.
- * - Supports standard keyboard interaction.
+ * - Renders a native checkbox with standard keyboard and form behavior.
+ * - `invalid` sets `aria-invalid`; provide an accessible description with `aria-describedby` when explaining the error.
+ * @limitations
+ * - The component does not render a visible label; associate one with `id` and `<label htmlFor>`, or provide an ARIA name.
  */
-export const Checkbox = ({
-  checked: checkedProp,
-  defaultChecked,
-  indeterminate = false,
-  disabled = false,
-  error = false,
-  onChange,
-  id: idProp,
-  name,
-  value,
-  style,
-  className,
-  ...restProps
-}: ReactCheckboxProps) => {
-  const generatedId = useId();
-  const id = idProp || generatedId;
+export const Checkbox = forwardRef<HTMLInputElement, ReactCheckboxProps>(
+  (
+    {
+      checked,
+      defaultChecked = false,
+      indeterminate = false,
+      disabled = false,
+      invalid = false,
+      required = false,
+      onCheckedChange,
+      id: idProp,
+      className,
+      style,
+      onFocus,
+      onBlur,
+      ...inputProps
+    },
+    forwardedRef,
+  ) => {
+    const generatedId = useId();
+    const id = idProp ?? generatedId;
+    const [isFocused, setIsFocused] = useState(false);
+    const inputRef = useRef<HTMLInputElement | null>(null);
+    const [isChecked, setChecked] = useControllableState({
+      value: checked,
+      defaultValue: defaultChecked,
+      onChange: onCheckedChange,
+      componentName: 'Checkbox',
+      stateName: 'checked',
+    });
 
-  const isControlled = checkedProp !== undefined;
-  const [internalChecked, setInternalChecked] = useState(
-    defaultChecked ?? false,
-  );
-  const isChecked = isControlled ? checkedProp : internalChecked;
+    useEffect(() => {
+      if (inputRef.current) inputRef.current.indeterminate = indeterminate;
+    }, [indeterminate]);
 
-  const [isFocused, setIsFocused] = useState(false);
+    const styles = useCheckboxStyle({
+      checked,
+      defaultChecked,
+      indeterminate,
+      disabled,
+      invalid,
+      id,
+      name: inputProps.name,
+      value: inputProps.value as string | undefined,
+      required,
+      isChecked,
+      isFocused,
+      className,
+    });
 
-  const inputRef = React.useRef<HTMLInputElement>(null);
-
-  // Sync indeterminate state to input element for a11y
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.indeterminate = indeterminate;
-    }
-  }, [indeterminate]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (disabled) return;
-
-    if (!isControlled) {
-      setInternalChecked(e.target.checked);
-    }
-
-    if (onChange) {
-      onChange(e);
-    }
-  };
-
-  const styles = useCheckboxStyle({
-    checked: checkedProp,
-    defaultChecked,
-    indeterminate,
-    disabled,
-    error,
-    name,
-    id,
-    value,
-    isChecked: !!isChecked,
-    isFocused,
-    className,
-  });
-
-  return (
-    <div
-      className={classNames(styles.checkbox, 'group/checkbox')}
-      style={style}
-    >
-      <State
-        stateClassName={styles.stateLayer}
-        colorName={isChecked || indeterminate ? 'primary' : 'on-surface'}
-      >
+    return (
+      <div className={styles.checkbox} style={style}>
+        <State
+          stateClassName={styles.stateLayer}
+          colorName={isChecked || indeterminate ? 'primary' : 'on-surface'}
+        />
         <input
-          ref={inputRef}
+          {...inputProps}
+          ref={(node) => {
+            inputRef.current = node;
+            if (typeof forwardedRef === 'function') forwardedRef(node);
+            else if (forwardedRef) forwardedRef.current = node;
+          }}
           type="checkbox"
           id={id}
-          name={name}
-          value={value}
           checked={isChecked}
           disabled={disabled}
-          onChange={handleChange}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          required={required}
+          aria-invalid={invalid || undefined}
+          onChange={() => {
+            const transition = getCheckboxChangeTransition({
+              disabled,
+              isChecked,
+            });
+            if (!transition.blocked) setChecked(transition.nextChecked);
+          }}
+          onFocus={(event) => {
+            setIsFocused(true);
+            onFocus?.(event);
+          }}
+          onBlur={(event) => {
+            setIsFocused(false);
+            onBlur?.(event);
+          }}
           className={styles.input}
-          {...(restProps as any)}
         />
-        <div className={styles.box}></div>
-        <AnimatePresence>
-          {(isChecked || indeterminate) && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.5 }}
-              transition={{ duration: 0.15 }}
-              className={styles.icon}
-            >
-              <Icon
-                icon={indeterminate ? faMinus : faCheck}
-                className="size-3.5" // ~14px icon
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </State>
-    </div>
-  );
-};
+        <span aria-hidden="true" className={styles.box} />
+        {(isChecked || indeterminate) && (
+          <Icon
+            icon={indeterminate ? iRemove : iCheck}
+            className={styles.icon}
+          />
+        )}
+      </div>
+    );
+  },
+);
+
+Checkbox.displayName = 'Checkbox';

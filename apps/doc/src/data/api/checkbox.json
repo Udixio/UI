@@ -5,12 +5,13 @@
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/Checkbox.tsx",
-      "description": "Checkboxes allow the user to select one or more items from a set.",
+      "description": "Checkboxes let people select one or more independent options.",
       "tags": {
         "status": "beta",
         "category": "Selection",
-        "devx": "- Supports controlled (`checked`) and uncontrolled (`defaultChecked`) modes.\n- Handles `indeterminate` state strictly as visual (updates UI, but underlying input is checked/unchecked based on logic).",
-        "a11y": "- Uses native input for accessibility.\n- Supports standard keyboard interaction."
+        "devx": "- Use `checked` with `onCheckedChange` for controlled state, or `defaultChecked` for uncontrolled state.\n- Use `indeterminate` only for a parent option whose child selection is mixed.",
+        "a11y": "- Renders a native checkbox with standard keyboard and form behavior.\n- `invalid` sets `aria-invalid`; provide an accessible description with `aria-describedby` when explaining the error.",
+        "limitations": "- The component does not render a visible label; associate one with `id` and `<label htmlFor>`, or provide an ARIA name."
       },
       "methods": [],
       "props": {
@@ -19,25 +20,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<CheckboxInterface> | undefined"
-          },
-          "defaultValue": null
-        },
-        "defaultChecked": {
-          "name": "defaultChecked",
-          "description": "Uncontrolled mode: initial checked state.",
-          "required": false,
-          "type": {
-            "name": "boolean | undefined"
-          },
-          "defaultValue": null
-        },
-        "id": {
-          "name": "id",
-          "description": "Id of the underlying form control. Auto-generated if not provided.",
-          "required": false,
-          "type": {
-            "name": "string | undefined"
+            "name": "string | ClassNameComponent<CheckboxInterface>"
           },
           "defaultValue": null
         },
@@ -46,38 +29,16 @@
           "description": "Controlled mode: explicitly control whether the checkbox is checked.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": null
         },
-        "indeterminate": {
-          "name": "indeterminate",
-          "description": "Visually marks the checkbox as partially selected.",
-          "required": false,
-          "type": {
-            "name": "boolean | undefined"
-          },
-          "defaultValue": {
-            "value": "false"
-          }
-        },
         "disabled": {
           "name": "disabled",
-          "description": "",
+          "description": "Prevents interaction and form changes.",
           "required": false,
           "type": {
-            "name": "boolean | undefined"
-          },
-          "defaultValue": {
-            "value": "false"
-          }
-        },
-        "error": {
-          "name": "error",
-          "description": "Renders the checkbox with the error color role.",
-          "required": false,
-          "type": {
-            "name": "boolean | undefined"
+            "name": "boolean"
           },
           "defaultValue": {
             "value": "false"
@@ -88,7 +49,171 @@
           "description": "Name of the underlying form control.",
           "required": false,
           "type": {
-            "name": "string | undefined"
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "required": {
+          "name": "required",
+          "description": "Requires the checkbox to be selected before its form can submit.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "value": {
+          "name": "value",
+          "description": "Value submitted with the form when checked.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "defaultChecked": {
+          "name": "defaultChecked",
+          "description": "Uncontrolled mode: initial checked state.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "id": {
+          "name": "id",
+          "description": "Id of the underlying form control. Auto-generated if not provided.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "style": {
+          "name": "style",
+          "description": "Styles applied to the Checkbox touch target.",
+          "required": false,
+          "type": {
+            "name": "CSSProperties"
+          },
+          "defaultValue": null
+        },
+        "indeterminate": {
+          "name": "indeterminate",
+          "description": "Marks the checkbox as partially selected without changing its checked value.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "invalid": {
+          "name": "invalid",
+          "description": "Exposes the native invalid state and uses the error color role.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "onCheckedChange": {
+          "name": "onCheckedChange",
+          "description": "Called once for each accepted checked-state transition.",
+          "required": false,
+          "type": {
+            "name": "(checked: boolean) => void"
+          },
+          "defaultValue": null
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/checkbox/checkbox.ts",
+      "description": "Checkboxes let people select one or more independent options.",
+      "tags": {
+        "status": "beta",
+        "category": "Selection",
+        "devx": "- `checked` is controlled; `defaultChecked` initializes uncontrolled use.\n- `checkedChange` emits one accepted transition and supports `[(checked)]`.",
+        "a11y": "- Renders a native checkbox with standard keyboard and form behavior.\n- `invalid` sets `aria-invalid`; use `aria-describedby` for an error explanation.",
+        "limitations": "- Associate a visible `<label for>` or provide `aria-label`; this component does not render label text."
+      },
+      "inputs": {
+        "checked": {
+          "name": "checked",
+          "description": "Controlled mode: explicitly control whether the checkbox is checked.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null
+        },
+        "defaultChecked": {
+          "name": "defaultChecked",
+          "description": "Uncontrolled mode: initial checked state.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "indeterminate": {
+          "name": "indeterminate",
+          "description": "Marks the checkbox as partially selected without changing its checked value.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Prevents interaction and form changes.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "invalid": {
+          "name": "invalid",
+          "description": "Exposes the native invalid state and uses the error color role.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "name": {
+          "name": "name",
+          "description": "Name of the underlying form control.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "id": {
+          "name": "id",
+          "description": "Id of the underlying form control. Auto-generated if not provided.",
+          "required": false,
+          "type": {
+            "name": "string"
           },
           "defaultValue": null
         },
@@ -97,16 +222,58 @@
           "description": "Value submitted with the form when checked.",
           "required": false,
           "type": {
-            "name": "string | undefined"
+            "name": "string"
           },
           "defaultValue": null
         },
-        "onChange": {
-          "name": "onChange",
-          "description": "Native change handler of the underlying input element.",
+        "required": {
+          "name": "required",
+          "description": "Requires the checkbox to be selected before its form can submit.",
           "required": false,
           "type": {
-            "name": "ChangeEventHandler<HTMLInputElement> | undefined"
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "ariaLabel": {
+          "name": "ariaLabel",
+          "description": "Accessible-name override when no visible label is available.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null,
+          "alias": "aria-label"
+        },
+        "ariaDescribedBy": {
+          "name": "ariaDescribedBy",
+          "description": "Id reference for text that describes validation or usage.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null,
+          "alias": "aria-describedby"
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<CheckboxInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {
+        "checkedChange": {
+          "name": "checkedChange",
+          "description": "Called once for each accepted checked-state transition.",
+          "required": false,
+          "type": {
+            "name": "boolean"
           },
           "defaultValue": null
         }

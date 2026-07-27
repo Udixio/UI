@@ -1,53 +1,43 @@
-import {
-  type ClassNameComponent,
-  cx,
-  defaultClassNames,
-} from '../utils';
+import { type ClassNameComponent, cx, defaultClassNames } from '../utils';
 import { CheckboxInterface } from '../interfaces/checkbox.interface';
 
 const checkboxConfig: ClassNameComponent<CheckboxInterface> = ({
   isChecked,
   indeterminate,
   disabled,
-  error,
+  invalid,
 }) => ({
   checkbox: cx(
-    'inline-flex items-center justify-center relative size-4.5 ',
+    'group/checkbox relative inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary',
     {
       'pointer-events-none opacity-[0.38]': disabled,
     },
   ),
-  input: cx(
-    'absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer',
-  ),
-  container: cx(
-    'relative flex items-center justify-center w-[18px] h-[18px] ',
-  ),
+  input: cx('absolute inset-0 z-10 size-full cursor-pointer opacity-0'),
   box: cx(
-    'absolute left-1/2 top-1/2 -translate-1/2 to rounded-[2px] size-4 border-2 transition-colors duration-200',
+    'pointer-events-none absolute left-1/2 top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-[2px] border-2 transition-colors duration-200',
     // Unchecked state (Border only)
     !isChecked &&
       !indeterminate && {
-        'border-on-surface-variant': !error && !disabled,
-        'border-error': error && !disabled,
+        'border-on-surface-variant': !invalid && !disabled,
+        'border-error': invalid && !disabled,
         'border-on-surface': disabled,
       },
     // Checked or Indeterminate state (Filled)
     (isChecked || indeterminate) && {
-      'bg-primary border-primary': !error && !disabled,
-      'bg-error border-error': error && !disabled,
+      'bg-primary border-primary': !invalid && !disabled,
+      'bg-error border-error': invalid && !disabled,
       'bg-on-surface border-on-surface': disabled,
     },
   ),
   icon: cx(
-    'z-10 relative text-on-primary w-full h-full flex items-center justify-center pointer-events-none',
+    'pointer-events-none absolute left-1/2 top-1/2 z-20 flex size-4 -translate-x-1/2 -translate-y-1/2 items-center justify-center text-on-primary',
     {
-      'text-on-error': error && !disabled,
+      'text-on-error': invalid && !disabled,
       'text-surface': disabled, // Usually on-surface with opacity against on-surface bg? No, checked disabled is on-surface bg with surface icon usually.
     },
   ),
-  stateLayer:
-    'size-10 state-ripple-group-[checkbox] rounded-full cursor-pointer pointer-events-auto absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2',
+  stateLayer: 'state-ripple-group-[checkbox] rounded-full',
 });
 
 export const checkboxStyle = defaultClassNames<CheckboxInterface>(

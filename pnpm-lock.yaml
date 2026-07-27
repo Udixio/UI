@@ -859,6 +859,9 @@ importers:
       '@udixio/core':
         specifier: workspace:*
         version: link:../core
+      '@udixio/icons-rounded-400':
+        specifier: workspace:*
+        version: link:../icons/icons-rounded-400
     devDependencies:
       '@types/jest-axe':
         specifier: ^3.5.9
@@ -884,6 +887,9 @@ importers:
       '@udixio/core':
         specifier: workspace:*
         version: link:../core
+      '@udixio/icons-rounded-400':
+        specifier: workspace:*
+        version: link:../icons/icons-rounded-400
       clsx:
         specifier: ^1.1.1
         version: 1.2.1
