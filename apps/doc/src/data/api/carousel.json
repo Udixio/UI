@@ -9,7 +9,7 @@
       "tags": {
         "status": "beta",
         "category": "Layout",
-        "devx": "- Only `CarouselItem` children are rendered; other children are ignored.\n- Use `index` for controlled positioning; otherwise relies on internal scroll state.",
+        "devx": "- Only `CarouselItem` children are rendered; other children are ignored.\n- Use `index`/`onIndexChange` for controlled positioning, or `defaultIndex`\n  to seed the initial position of an uncontrolled carousel.",
         "a11y": "- The root is a `region` with `aria-roledescription=\"carousel\"`; provide an\n  accessible name via `aria-label` on the component.\n- Each item is a `group` with `aria-roledescription=\"slide\"` and an\n  `aria-label` of the form `\"n / total\"`.\n- Roving `tabIndex` keeps a single item in the tab order; Arrow/Home/End move\n  the selection and center the focused slide.",
         "limitations": "- Responsive behavior on mobile is not supported.\n- Only the `hero` variant is implemented. `center-aligned`, `multi-browse`,\n  `un-contained`, and `full-screen` are reserved in the type for future\n  Material 3 layout support and currently render as `hero`."
       },
@@ -70,10 +70,30 @@
         },
         "index": {
           "name": "index",
-          "description": "Controlled index for programmatic centering.",
+          "description": "Index of the centered item. A value other than `undefined` makes the\ncarousel controlled: it becomes the single source of truth and user\ninteraction only notifies via `onIndexChange` instead of moving the\ncarousel locally.",
           "required": false,
           "type": {
             "name": "number"
+          },
+          "defaultValue": null
+        },
+        "defaultIndex": {
+          "name": "defaultIndex",
+          "description": "Initial centered index for uncontrolled usage.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "0"
+          }
+        },
+        "onIndexChange": {
+          "name": "onIndexChange",
+          "description": "Called once for each accepted centered-index transition.",
+          "required": false,
+          "type": {
+            "name": "(index: number) => void"
           },
           "defaultValue": null
         },

@@ -21,15 +21,23 @@ beforeAll(() => {
   });
 });
 
-const renderCarousel = (count = 3) =>
+const renderCarousel = (
+  count = 3,
+  props: Partial<React.ComponentProps<typeof Carousel>> = {},
+) =>
   render(
-    <Carousel>
+    <Carousel {...props}>
       {Array.from({ length: count }, (_, i) => (
         <CarouselItem key={i}>
           <div>Slide {i + 1}</div>
         </CarouselItem>
       ))}
     </Carousel>,
+  );
+
+const tabIndexes = (getAllByRole: ReturnType<typeof render>['getAllByRole']) =>
+  getAllByRole('group', { hidden: true }).map((slide) =>
+    slide.getAttribute('tabindex'),
   );
 
 describe('Carousel', () => {
@@ -90,6 +98,16 @@ describe('Carousel', () => {
       fireEvent.keyDown(region, { key: 'Home' });
       fireEvent.keyDown(region, { key: 'End' });
     }).not.toThrow();
+  });
+
+  it('seeds the initial selection from defaultIndex when uncontrolled', () => {
+    const { getAllByRole } = renderCarousel(3, { defaultIndex: 2 });
+    expect(tabIndexes(getAllByRole)).toEqual(['-1', '-1', '0']);
+  });
+
+  it('renders the controlled index as the source of truth', () => {
+    const { getAllByRole } = renderCarousel(3, { index: 1 });
+    expect(tabIndexes(getAllByRole)).toEqual(['-1', '0', '-1']);
   });
 
   it('renders an empty carousel without throwing', () => {

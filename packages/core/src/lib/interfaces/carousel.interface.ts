@@ -29,9 +29,17 @@ type Props = {
   scrollSensitivity?: number;
   /** Min/max item width, in pixels. */
   outputRange?: [number, number];
-  /** Controlled index for programmatic centering. */
+  /**
+   * Index of the centered item. A value other than `undefined` makes the
+   * carousel controlled: it becomes the single source of truth and user
+   * interaction only notifies via `onIndexChange` instead of moving the
+   * carousel locally.
+   */
   index?: number;
-  onChange?: (index: number) => void;
+  /** Initial centered index for uncontrolled usage. */
+  defaultIndex?: number;
+  /** Called once for each accepted centered-index transition. */
+  onIndexChange?: (index: number) => void;
   /**
    * Receive live metrics to better control the carousel externally
    */

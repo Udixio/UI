@@ -18,6 +18,7 @@ import {
 
 import { CustomScroll } from '../effects';
 import { createUseStyle } from '../utils/create-use-style';
+import { useControllableState } from '../utils/use-controllable-state';
 import { CarouselItem, normalize } from './CarouselItem';
 
 export type ReactCarouselProps = ReactProps<CarouselInterface> & {
@@ -33,7 +34,8 @@ export const useCarouselStyle = createUseStyle(carouselStyle);
  * @category Layout
  * @devx
  * - Only `CarouselItem` children are rendered; other children are ignored.
- * - Use `index` for controlled positioning; otherwise relies on internal scroll state.
+ * - Use `index`/`onIndexChange` for controlled positioning, or `defaultIndex`
+ *   to seed the initial position of an uncontrolled carousel.
  * @a11y
  * - The root is a `region` with `aria-roledescription="carousel"`; provide an
  *   accessible name via `aria-label` on the component.
@@ -54,9 +56,10 @@ export const Carousel = ({
   ref: optionalRef,
   outputRange = [42, 300],
   gap = 8,
-  onChange,
+  onIndexChange,
   onMetricsChange,
   index,
+  defaultIndex = 0,
   scrollSensitivity = 1.25,
   ...restProps
 }: ReactCarouselProps) => {
@@ -79,7 +82,13 @@ export const Carousel = ({
   });
 
   const itemRefs = useRef<React.RefObject<HTMLDivElement | null>[]>([]).current;
-  const [selectedItem, setSelectedItem] = useState(0);
+  const [selectedItem, setSelectedItem] = useControllableState({
+    value: index,
+    defaultValue: defaultIndex,
+    onChange: onIndexChange,
+    componentName: 'Carousel',
+    stateName: 'index',
+  });
 
   // The controller reads these through accessors, so it always sees the current
   // prop values without being recreated when they change.
@@ -96,7 +105,8 @@ export const Carousel = ({
     scrollSensitivity,
     outputRange,
     index,
-    onChange,
+    defaultIndex,
+    onIndexChange,
     onMetricsChange,
     selectedIndex: selectedItem,
     className,
@@ -128,7 +138,18 @@ export const Carousel = ({
     });
 
     controllerRef.current = controller;
-    controller.update();
+    // Seed the spring at the resolved initial index (controlled `index` or
+    // uncontrolled `defaultIndex`) instead of an implicit progress of 0, so
+    // the controller's own update never overwrites it with a wrong value.
+    const initialProgress =
+      itemRefs.length > 1
+        ? normalize(
+            selectedItem / Math.max(1, itemRefs.length - 1),
+            [0, 1],
+            [0, 1],
+          )
+        : 0;
+    controller.setProgress(initialProgress, { animate: false });
 
     return () => {
       controller.destroy();
@@ -140,10 +161,6 @@ export const Carousel = ({
     controllerRef.current?.update();
   }, [items.length, gap, outputRange]);
 
-
-  useEffect(() => {
-    if (onChange) onChange(selectedItem);
-  }, [selectedItem, onChange]);
 
   // accessibility and interaction states
   const [focusedIndex, setFocusedIndex] = useState(0);
@@ -181,10 +198,21 @@ export const Carousel = ({
     return itemScrollXCenter;
   };
 
+  // Re-center only when a controlled `index` prop changes after mount (the
+  // initial position is already seeded by the controller above). Comparing
+  // against `selectedItem` here would fight free scrolling, since scroll
+  // updates `selectedItem` continuously.
+  const didMountRef = useRef(false);
   useEffect(() => {
-    if (typeof index === 'number' && items.length > 0 && index !== selectedItem) {
+    if (items.length === 0) return;
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+    if (typeof index === 'number') {
       centerOnIndex(index);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index, items.length]);
 
   const handleScroll = (args: {

@@ -21,17 +21,16 @@ import { Carousel, CarouselItem } from "@udixio/ui-react"
 ## Behavior and callbacks
 
 - `gap`: spacing between items.
-- `marginPourcent`: outer margins as a percentage of the viewport width.
 - `scrollSensitivity`: adjust scroll/drag responsiveness.
-- `onChange`: called with the active index.
+- `defaultIndex`: initial centered index for uncontrolled usage.
+- `onIndexChange`: called with the accepted centered-index transition.
 
 ```jsx
 <Carousel
   variant="hero"
   gap={16}
-  marginPourcent={12}
   scrollSensitivity={0.8}
-  onChange={(index) => console.log('Active slide:', index)}
+  onIndexChange={(index) => console.log('Active slide:', index)}
 >
   {Array.from({length: 15}, (_, i) => i + 1).map((i) => {
     const fmt = i % 3;
@@ -71,7 +70,7 @@ import { Carousel, CarouselItem } from "@udixio/ui-react"
         variant="hero"
         scrollSensitivity={0.8}
         index={index}
-        onChange={setIndex}
+        onIndexChange={setIndex}
         onMetricsChange={(m) => {
           setStep(m.stepHalf); // step equals half of visible items
           setVisible({ approx: m.visibleApprox, full: m.visibleFull });
