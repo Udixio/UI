@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   createCustomScrollController,
   type CustomScrollController,
@@ -6,6 +6,10 @@ import {
 import { CustomScrollInterface } from './custom-scroll.interface';
 import { customScrollStyle } from './custom-scroll.style';
 import { ReactProps } from '@udixio/core';
+
+export type ReactCustomScrollProps = ReactProps<CustomScrollInterface> & {
+  children?: ReactNode;
+};
 
 /**
  * Thin React binding over the shared CustomScroll controller. It renders the DOM
@@ -23,7 +27,7 @@ export const CustomScroll = ({
   throttleDuration = 75,
   scroll,
   setScroll,
-}: ReactProps<CustomScrollInterface>) => {
+}: ReactCustomScrollProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const controllerRef = useRef<CustomScrollController | null>(null);
@@ -81,7 +85,6 @@ export const CustomScroll = ({
 
   const styles = customScrollStyle({
     isDragging,
-    children,
     className,
     onScroll,
     orientation,
@@ -103,7 +106,11 @@ export const CustomScroll = ({
     <div className={styles.customScroll} ref={ref}>
       <div
         ref={contentRef}
-        style={isVertical ? { height: containerExtent || '100%' } : { width: containerExtent || '100%' }}
+        style={
+          isVertical
+            ? { height: containerExtent || '100%' }
+            : { width: containerExtent || '100%' }
+        }
         className={styles.track}
       >
         {children}

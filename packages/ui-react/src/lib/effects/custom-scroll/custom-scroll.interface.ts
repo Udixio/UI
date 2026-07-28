@@ -1,7 +1,4 @@
-import { ReactNode } from 'react';
-
 type Props = {
-  children: ReactNode;
   orientation?: 'vertical' | 'horizontal';
   scrollSize?: number;
   onScroll?: (args: {
