@@ -223,10 +223,10 @@
         }
       },
       "content": {
-        "default": {
-          "name": "default",
-          "selector": "*",
-          "description": "Default projected content."
+        "slot1": {
+          "name": "slot1",
+          "selector": "lib-carousel-item",
+          "description": "Projected content matching `lib-carousel-item`."
         }
       }
     }
