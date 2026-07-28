@@ -4,13 +4,28 @@
 import Code from '@/components/Code.astro';
 import FabMenuActionsReact from '@/examples/react/fab-menu-actions.tsx';
 import { FabMenuActionsAngular } from '@/examples/angular/fab-menu-actions.ts';
+import FabMenuPrimaryReact from '@/examples/react/fab-menu-primary.tsx';
+import { FabMenuPrimaryAngular } from '@/examples/angular/fab-menu-primary.ts';
+import FabMenuSecondaryReact from '@/examples/react/fab-menu-secondary.tsx';
+import { FabMenuSecondaryAngular } from '@/examples/angular/fab-menu-secondary.ts';
+import FabMenuTertiaryReact from '@/examples/react/fab-menu-tertiary.tsx';
+import { FabMenuTertiaryAngular } from '@/examples/angular/fab-menu-tertiary.ts';
 import fabMenuActionsReactSource from '@/examples/react/fab-menu-actions.tsx?raw';
 import fabMenuActionsAngularSource from '@/examples/angular/fab-menu-actions.ts?raw';
+import fabMenuPrimaryReactSource from '@/examples/react/fab-menu-primary.tsx?raw';
+import fabMenuPrimaryAngularSource from '@/examples/angular/fab-menu-primary.ts?raw';
+import fabMenuSecondaryReactSource from '@/examples/react/fab-menu-secondary.tsx?raw';
+import fabMenuSecondaryAngularSource from '@/examples/angular/fab-menu-secondary.ts?raw';
+import fabMenuTertiaryReactSource from '@/examples/react/fab-menu-tertiary.tsx?raw';
+import fabMenuTertiaryAngularSource from '@/examples/angular/fab-menu-tertiary.ts?raw';
 
 ## Usage
 
 `FabMenu` reveals a short group of related primary actions from one floating
-action button. Its `actions` model is shared by React and Angular.
+action button. Its `actions` model is shared by React and Angular. Use the
+external control below to replay the opening and closing choreography; the
+status region makes controlled state and selection observable without opening
+the browser console.
 
 <Code
   codes={{
@@ -22,7 +37,55 @@ action button. Its `actions` model is shared by React and Angular.
   <FabMenuActionsAngular slot="angular" client:load />
 </Code>
 
-## State and action events
+Open the menu with its trigger, then select an action or press Escape. Focus
+returns to the trigger when the menu closes.
+
+## Primary
+
+The default color family is appropriate for the screen's main creation flow.
+This large trigger keeps five related actions immediately available.
+
+<Code
+  codes={{
+    react: fabMenuPrimaryReactSource,
+    angular: fabMenuPrimaryAngularSource,
+  }}
+>
+  <FabMenuPrimaryReact slot="react" client:load />
+  <FabMenuPrimaryAngular slot="angular" client:load />
+</Code>
+
+## Secondary extended
+
+Use an extended trigger when its action benefits from a persistent visible
+label. Opening still contracts it to the medium close control.
+
+<Code
+  codes={{
+    react: fabMenuSecondaryReactSource,
+    angular: fabMenuSecondaryAngularSource,
+  }}
+>
+  <FabMenuSecondaryReact slot="react" client:load />
+  <FabMenuSecondaryAngular slot="angular" client:load />
+</Code>
+
+## Tertiary
+
+The tertiary family can distinguish a contextual action group while preserving
+the same five-action choreography and large closed trigger.
+
+<Code
+  codes={{
+    react: fabMenuTertiaryReactSource,
+    angular: fabMenuTertiaryAngularSource,
+  }}
+>
+  <FabMenuTertiaryReact slot="react" client:load />
+  <FabMenuTertiaryAngular slot="angular" client:load />
+</Code>
+
+## Controlled state and action events
 
 Use `open` with `onOpenChange` (React) or `openChange` (Angular) for controlled
 state. `defaultOpen` initializes uncontrolled state. Selection emits
@@ -30,6 +93,19 @@ state. `defaultOpen` initializes uncontrolled state. Selection emits
 `{ action, index }` in Angular before closing.
 
 Actions may be buttons or links and may include an icon or disabled state.
+
+## Motion
+
+Actions enter progressively from the trigger and collapse in reverse order.
+When the menu opens, an extended trigger contracts to its icon-only close
+control. The close control is always medium (56 px), including when the closed
+trigger is small or large, matching the original FabMenu choreography. The
+closed trigger keeps its layout footprint while the control remains anchored
+to its top-right corner. Its container also morphs from the container color to
+the selected color family; closing reverses these transitions.
+The choreography uses the framework-independent Motion JavaScript controller in
+`@udixio/core/dom`, so React and Angular share the same timing, interruption,
+cleanup, and reduced-motion behavior. No `motion/react` adapter is required.
 
 ## Accessibility and interaction
 
@@ -47,5 +123,5 @@ appropriate for the product language.
 | --------------------------------------- | ------------------------------------------------ |
 | `<FabMenu><Button>…</Button></FabMenu>` | `<FabMenu actions={[…]} />`                      |
 | child callbacks                         | `onActionSelect(action, index)` / `actionSelect` |
-| React-only transition choreography      | shared focus and dismissal behavior              |
+| React-only `motion/react` choreography  | shared Motion JavaScript, focus, and dismissal   |
 | explicit close child                    | `closeIcon` and `closeLabel`                     |

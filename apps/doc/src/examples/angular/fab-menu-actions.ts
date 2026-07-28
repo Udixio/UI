@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import {
+  Button,
   FabMenu,
   type FabMenuAction,
   type FabMenuActionSelectEvent,
@@ -11,27 +12,59 @@ import { iShare } from '@udixio/icons-rounded-400/share';
 @Component({
   selector: 'docs-fab-menu-actions-angular',
   standalone: true,
-  imports: [FabMenu],
+  imports: [Button, FabMenu],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex h-64 items-end">
-      <lib-fab-menu
-        label="Create"
-        [icon]="addIcon"
-        [actions]="actions"
-        (actionSelect)="handleAction($event)"
-      />
+    <div class="grid min-h-80 w-full content-between gap-8">
+      <div
+        class="rounded-xl border border-outline p-4"
+        role="status"
+        aria-live="polite"
+      >
+        <p class="text-title-medium">Menu: {{ open() ? 'open' : 'closed' }}</p>
+        <p class="text-body-medium text-on-surface-variant">
+          Last action: {{ lastAction() }}
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <lib-button
+          [label]="open() ? 'Close from owner' : 'Open from owner'"
+          variant="outlined"
+          (click)="toggleMenu()"
+        />
+        <lib-fab-menu
+          label="Create"
+          [icon]="addIcon"
+          [actions]="actions"
+          size="large"
+          extended
+          [open]="open()"
+          (openChange)="handleOpenChange($event)"
+          (actionSelect)="handleAction($event)"
+        />
+      </div>
     </div>
   `,
 })
 export class FabMenuActionsAngular {
   protected readonly addIcon = iAdd;
   protected readonly actions: FabMenuAction[] = [
-    { id: 'document', label: 'Document', icon: iEdit },
-    { id: 'share', label: 'Share', icon: iShare, href: '/share' },
+    { id: 'document', label: 'Edit document', icon: iEdit },
+    { id: 'share', label: 'Share document', icon: iShare },
   ];
+  protected readonly open = signal(false);
+  protected readonly lastAction = signal('None');
+
+  protected toggleMenu(): void {
+    this.open.update((current) => !current);
+  }
+
+  protected handleOpenChange(open: boolean): void {
+    this.open.set(open);
+  }
 
   protected handleAction(event: FabMenuActionSelectEvent): void {
-    console.log(event.action.id);
+    this.lastAction.set(event.action.label);
   }
 }

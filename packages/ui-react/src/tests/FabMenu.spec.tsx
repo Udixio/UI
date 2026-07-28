@@ -19,7 +19,7 @@ describe('FabMenu', () => {
   it('does not render an unnamed disclosure', () => {
     const consoleError = vi
       .spyOn(console, 'error')
-      .mockImplementation(() => {});
+      .mockImplementation(() => undefined);
     const { container } = render(
       <FabMenu label="" icon={iAdd} actions={actions} />,
     );
@@ -49,6 +49,39 @@ describe('FabMenu', () => {
     await waitFor(() =>
       expect(screen.getByRole('button', { name: 'Document' })).toHaveFocus(),
     );
+  });
+
+  it('contracts an extended container trigger into an icon-only color trigger', () => {
+    const { container } = render(
+      <FabMenu
+        label="Create"
+        icon={iAdd}
+        actions={actions}
+        variant="secondary"
+        size="large"
+        extended
+      />,
+    );
+    const closedTrigger = screen.getByRole('button', { name: 'Create' });
+    expect(closedTrigger).toHaveTextContent('Create');
+    expect(closedTrigger).toHaveClass('bg-secondary-container', 'p-[30px]');
+    const triggerSizer = container.querySelector(
+      '.invisible[aria-hidden="true"][inert]',
+    );
+    expect(triggerSizer).toBeInTheDocument();
+    expect(triggerSizer?.querySelector('button')).toHaveClass('p-[30px]');
+
+    fireEvent.click(closedTrigger);
+
+    const openTrigger = screen.getByRole('button', { name: 'Close Create' });
+    expect(openTrigger.querySelector('.label')).not.toBeInTheDocument();
+    expect(openTrigger).toHaveClass(
+      'bg-secondary',
+      'rounded-full',
+      'p-4',
+      'shadow-none',
+    );
+    expect(openTrigger).not.toHaveClass('p-[30px]');
   });
 
   it('selects an action, closes, and restores trigger focus', async () => {
@@ -112,6 +145,45 @@ describe('FabMenu', () => {
 
     expect(onOpenChange).toHaveBeenCalledWith(true);
     expect(screen.queryByRole('group')).not.toBeInTheDocument();
+  });
+
+  it('keeps focus in an open controlled group until its owner accepts closing', async () => {
+    const onOpenChange = vi.fn();
+    render(
+      <FabMenu
+        label="Create"
+        icon={iAdd}
+        actions={actions}
+        open
+        onOpenChange={onOpenChange}
+      />,
+    );
+    const action = await screen.findByRole('button', { name: 'Document' });
+    fireEvent.click(action);
+
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(
+      screen.getByRole('group', { name: 'Create actions' }),
+    ).toBeInTheDocument();
+    expect(action).toHaveFocus();
+  });
+
+  it('uses the action color family for its state layer', () => {
+    render(
+      <FabMenu
+        label="Create"
+        icon={iAdd}
+        actions={actions}
+        variant="secondary"
+        defaultOpen
+      />,
+    );
+
+    expect(
+      screen
+        .getByRole('button', { name: 'Document' })
+        .querySelector('.action-state-layer'),
+    ).toHaveClass('[--default-color:var(--color-on-secondary-container)]');
   });
 
   it('does not open while disabled', () => {

@@ -16,6 +16,9 @@ const actions: FabMenuAction[] = [
   { id: 'share', label: 'Share', href: '/share' },
 ];
 
+const getTrigger = (fixture: ComponentFixture<FabMenu>): HTMLButtonElement =>
+  fixture.nativeElement.querySelector('[aria-expanded]');
+
 describe('FabMenu (Angular, consuming @udixio/core)', () => {
   let fixture: ComponentFixture<FabMenu>;
 
@@ -31,12 +34,14 @@ describe('FabMenu (Angular, consuming @udixio/core)', () => {
 
   it('exposes a closed disclosure relationship', () => {
     fixture.detectChanges();
-    const trigger: HTMLButtonElement =
-      fixture.nativeElement.querySelector('button');
+    const trigger = getTrigger(fixture);
 
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
     expect(trigger.hasAttribute('aria-controls')).toBe(true);
-    expect(fixture.nativeElement.querySelector('[role="group"]')).toBeNull();
+    const group: HTMLElement =
+      fixture.nativeElement.querySelector('[role="group"]');
+    expect(group.getAttribute('aria-hidden')).toBe('true');
+    expect(group.hasAttribute('inert')).toBe(true);
   });
 
   it('keeps an empty-label disclosure out of the accessibility tree', () => {
@@ -46,25 +51,57 @@ describe('FabMenu (Angular, consuming @udixio/core)', () => {
 
     expect(root.hidden).toBe(true);
     expect(root.getAttribute('aria-hidden')).toBe('true');
-    expect(fixture.nativeElement.querySelector('button').disabled).toBe(true);
+    expect(getTrigger(fixture).disabled).toBe(true);
   });
 
   it('opens, labels the group, and focuses the first action', fakeAsync(() => {
     fixture.detectChanges();
-    fixture.nativeElement.querySelector('button').click();
+    getTrigger(fixture).click();
     fixture.detectChanges();
     tick();
 
     const group: HTMLElement =
       fixture.nativeElement.querySelector('[role="group"]');
-    const trigger: HTMLButtonElement =
-      fixture.nativeElement.querySelector('button');
+    const trigger = getTrigger(fixture);
     expect(group.getAttribute('aria-label')).toBe('Create actions');
     expect(trigger.getAttribute('aria-expanded')).toBe('true');
     expect((document.activeElement as HTMLElement).textContent?.trim()).toBe(
       'Document',
     );
   }));
+
+  it('contracts an extended container trigger into an icon-only color trigger', () => {
+    fixture.componentRef.setInput('variant', 'secondary');
+    fixture.componentRef.setInput('size', 'large');
+    fixture.componentRef.setInput('extended', true);
+    fixture.detectChanges();
+    const closedTrigger: HTMLButtonElement =
+      fixture.nativeElement.querySelector('[aria-expanded="false"]');
+    expect(closedTrigger.textContent?.trim()).toBe('Create');
+    expect(closedTrigger.className).toContain('bg-secondary-container');
+    expect(closedTrigger.className).toContain('p-[30px]');
+    const triggerSizer: HTMLElement = fixture.nativeElement.querySelector(
+      '.invisible[aria-hidden="true"][inert]',
+    );
+    expect(triggerSizer).not.toBeNull();
+    expect(triggerSizer.querySelector('button')?.className).toContain(
+      'p-[30px]',
+    );
+
+    closedTrigger.click();
+    fixture.detectChanges();
+
+    const openTrigger: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '[aria-expanded="true"]',
+    );
+    expect(openTrigger.getAttribute('aria-label')).toBe('Close Create');
+    expect(openTrigger.querySelector('.label')).toBeNull();
+    expect(openTrigger.className).toContain('bg-secondary');
+    expect(openTrigger.className).toContain('rounded-full');
+    expect(openTrigger.className).toContain('p-4');
+    expect(openTrigger.className).toContain('shadow-none');
+    expect(openTrigger.className).not.toContain('p-[30px]');
+  });
 
   it('selects an action, closes, and restores trigger focus', fakeAsync(() => {
     const selected: unknown[] = [];
@@ -83,10 +120,12 @@ describe('FabMenu (Angular, consuming @udixio/core)', () => {
     tick();
 
     expect(selected).toEqual([{ action: actions[0], index: 0 }]);
-    expect(fixture.nativeElement.querySelector('[role="group"]')).toBeNull();
-    expect(document.activeElement).toBe(
-      fixture.nativeElement.querySelector('button'),
-    );
+    expect(
+      fixture.nativeElement
+        .querySelector('[role="group"]')
+        .getAttribute('aria-hidden'),
+    ).toBe('true');
+    expect(document.activeElement).toBe(getTrigger(fixture));
   }));
 
   it('closes on Escape and restores focus', fakeAsync(() => {
@@ -100,10 +139,12 @@ describe('FabMenu (Angular, consuming @udixio/core)', () => {
     fixture.detectChanges();
     tick();
 
-    expect(fixture.nativeElement.querySelector('[role="group"]')).toBeNull();
-    expect(document.activeElement).toBe(
-      fixture.nativeElement.querySelector('button'),
-    );
+    expect(
+      fixture.nativeElement
+        .querySelector('[role="group"]')
+        .getAttribute('aria-hidden'),
+    ).toBe('true');
+    expect(document.activeElement).toBe(getTrigger(fixture));
   }));
 
   it('requests controlled changes without mutating state', () => {
@@ -113,23 +154,65 @@ describe('FabMenu (Angular, consuming @udixio/core)', () => {
       changes.push(open),
     );
     fixture.detectChanges();
-    fixture.nativeElement.querySelector('button').click();
+    getTrigger(fixture).click();
     fixture.detectChanges();
 
     expect(changes).toEqual([true]);
-    expect(fixture.nativeElement.querySelector('[role="group"]')).toBeNull();
+    expect(
+      fixture.nativeElement
+        .querySelector('[role="group"]')
+        .getAttribute('aria-hidden'),
+    ).toBe('true');
+  });
+
+  it('keeps focus in an open controlled group until its owner accepts closing', fakeAsync(() => {
+    const changes: boolean[] = [];
+    fixture.componentRef.setInput('open', true);
+    fixture.componentInstance.openChange.subscribe((open) =>
+      changes.push(open),
+    );
+    fixture.detectChanges();
+    tick();
+    const action: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '[role="group"] button',
+    );
+
+    action.click();
+    fixture.detectChanges();
+    tick();
+
+    expect(changes).toEqual([false]);
+    expect(
+      fixture.nativeElement
+        .querySelector('[role="group"]')
+        .hasAttribute('aria-hidden'),
+    ).toBe(false);
+    expect(document.activeElement).toBe(action);
+  }));
+
+  it('uses the action color family for its state layer', () => {
+    fixture.componentRef.setInput('variant', 'secondary');
+    fixture.componentRef.setInput('defaultOpen', true);
+    fixture.detectChanges();
+
+    expect(
+      fixture.nativeElement.querySelector('.action-state-layer').className,
+    ).toContain('[--default-color:var(--color-on-secondary-container)]');
   });
 
   it('does not open while disabled', () => {
     fixture.componentRef.setInput('disabled', true);
     fixture.detectChanges();
-    const trigger: HTMLButtonElement =
-      fixture.nativeElement.querySelector('button');
+    const trigger = getTrigger(fixture);
 
     expect(trigger.disabled).toBe(true);
     trigger.click();
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('[role="group"]')).toBeNull();
+    expect(
+      fixture.nativeElement
+        .querySelector('[role="group"]')
+        .getAttribute('aria-hidden'),
+    ).toBe('true');
   });
 
   it('has no automated accessibility violations', async () => {

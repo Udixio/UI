@@ -12,7 +12,7 @@ describe('Fab', () => {
   it('does not render an unnamed control', () => {
     const consoleError = vi
       .spyOn(console, 'error')
-      .mockImplementation(() => {});
+      .mockImplementation(() => undefined);
     const { container } = render(<Fab label="" icon={iAdd} />);
 
     expect(container).toBeEmptyDOMElement();

@@ -10,7 +10,7 @@
 - **icon-button:** require `label` and `icon`, remove text children and the implicit tooltip, and make disabled links inert.
 - **fab:** require `label` and `icon`, remove text children and implicit tooltip behavior, default actions to `type="button"`, and make disabled links inert.
 - **fab:** remove the React-only `transition` prop; FAB motion is now owned by shared component behavior and surrounding layout.
-- **fab-menu:** replace React-only `Button` children and transition choreography with the shared `actions` model, `onActionSelect` / `actionSelect`, and cross-framework focus and dismissal behavior.
+- **fab-menu:** replace React-only `Button` children with the shared `actions` model and `onActionSelect` / `actionSelect`; transition choreography, focus, and dismissal now use the cross-framework Motion JavaScript controller.
 
 No compatibility aliases are included. See each component overview migration table for consumer changes.
 

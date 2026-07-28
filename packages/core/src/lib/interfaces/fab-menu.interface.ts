@@ -31,9 +31,9 @@ export interface FabMenuProps {
   actionsLabel?: string;
   /** Trigger and action color family. @default 'primary' */
   variant?: FabMenuVariant;
-  /** Trigger size. @default 'medium' */
+  /** Closed trigger size; the open close control is always medium. @default 'medium' */
   size?: FabSize;
-  /** Shows the trigger text beside its icon. */
+  /** Shows the closed trigger text beside its icon. */
   extended?: boolean;
   /** Disables the trigger and every action. */
   disabled?: boolean;
@@ -47,5 +47,14 @@ export interface FabMenuInterface {
   type: 'div';
   props: FabMenuProps;
   states: { isOpen: boolean };
-  elements: ['fabMenu', 'fab', 'actions', 'action'];
+  elements: [
+    'fabMenu',
+    'triggerSizer',
+    'triggerPositioner',
+    'fab',
+    'actions',
+    'actionContainer',
+    'action',
+    'actionStateLayer',
+  ];
 }

@@ -1,21 +1,47 @@
 // @vitest-environment jsdom
 
+import { animate } from 'motion';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createFabMenuController } from './fab-menu.js';
 
+vi.mock('motion', () => ({ animate: vi.fn() }));
+
+function animationControls() {
+  return {
+    stop: vi.fn(),
+    then: (callback: () => void) => {
+      callback();
+      return Promise.resolve();
+    },
+  };
+}
+
+function getElement<T extends Element>(selector: string): T {
+  const element = document.querySelector<T>(selector);
+  if (!element) throw new Error(`Missing test element: ${selector}`);
+  return element;
+}
+
 describe('fab menu DOM controller', () => {
-  it('focuses the first enabled action and dismisses on Escape', async () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(animate).mockImplementation(() => animationControls() as never);
+    document.head.innerHTML = '';
+  });
+
+  it('focuses the first enabled action and restores focus after an accepted Escape dismissal', async () => {
     document.body.innerHTML = `
-      <div id="root">
+      <div id="root" data-open="true">
         <button id="trigger">Create</button>
         <div id="panel">
           <button disabled>Disabled</button>
-          <button id="action">Document</button>
+          <span data-fab-menu-action><button id="action">Document</button></span>
         </div>
       </div>
     `;
-    const root = document.querySelector<HTMLElement>('#root')!;
-    const trigger = document.querySelector<HTMLElement>('#trigger')!;
-    const panel = document.querySelector<HTMLElement>('#panel')!;
+    const root = getElement<HTMLElement>('#root');
+    const trigger = getElement<HTMLElement>('#trigger');
+    const panel = getElement<HTMLElement>('#panel');
     const onDismiss = vi.fn();
     const controller = createFabMenuController({
       root,
@@ -31,37 +57,187 @@ describe('fab menu DOM controller', () => {
     );
     expect(onDismiss).toHaveBeenCalledWith('escape');
     await Promise.resolve();
+    expect(document.activeElement).not.toBe(trigger);
+
+    root.dataset['open'] = 'false';
+    await Promise.resolve();
+    await Promise.resolve();
     expect(document.activeElement).toBe(trigger);
     controller.destroy();
   });
 
   it('dismisses outside presses and removes listeners on destroy', () => {
     document.body.innerHTML = `
-      <div id="root">
+      <div id="root" data-open="true">
         <button id="trigger">Create</button>
-        <div id="panel"><button>Document</button></div>
+        <div id="panel">
+          <span data-fab-menu-action><button>Document</button></span>
+        </div>
       </div>
       <button id="outside">Outside</button>
     `;
-    const root = document.querySelector<HTMLElement>('#root')!;
+    const root = getElement<HTMLElement>('#root');
     const onDismiss = vi.fn();
     const controller = createFabMenuController({
       root,
-      trigger: document.querySelector<HTMLElement>('#trigger')!,
-      panel: document.querySelector<HTMLElement>('#panel')!,
+      trigger: getElement<HTMLElement>('#trigger'),
+      panel: getElement<HTMLElement>('#panel'),
       onDismiss,
     });
 
-    document
-      .querySelector('#outside')!
-      .dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    getElement('#outside').dispatchEvent(
+      new Event('pointerdown', { bubbles: true }),
+    );
     expect(onDismiss).toHaveBeenCalledWith('outside');
 
     controller.destroy();
     onDismiss.mockClear();
-    document
-      .querySelector('#outside')!
-      .dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    getElement('#outside').dispatchEvent(
+      new Event('pointerdown', { bubbles: true }),
+    );
     expect(onDismiss).not.toHaveBeenCalled();
+  });
+
+  it('animates actions from the trigger outward and hides them after close', async () => {
+    document.body.innerHTML = `
+      <div id="root" data-open="false">
+        <button id="trigger">Create</button>
+        <div id="panel">
+          <span id="first" data-fab-menu-action><button>First</button></span>
+          <span id="last" data-fab-menu-action><button>Last</button></span>
+        </div>
+      </div>
+    `;
+    const root = getElement<HTMLElement>('#root');
+    const panel = getElement<HTMLElement>('#panel');
+    const controller = createFabMenuController({
+      root,
+      trigger: getElement<HTMLElement>('#trigger'),
+      panel,
+      onDismiss: vi.fn(),
+      reducedMotion: () => false,
+    });
+
+    expect(panel.hidden).toBe(true);
+    root.dataset['open'] = 'true';
+    await Promise.resolve();
+
+    expect(panel.hidden).toBe(false);
+    expect(panel.inert).toBe(false);
+    expect(animate).toHaveBeenNthCalledWith(
+      1,
+      document.querySelector('#first'),
+      expect.objectContaining({
+        clipPath: ['inset(0 0 0 100%)', 'inset(0 0 0 0%)'],
+      }),
+      expect.objectContaining({ delay: 0.06 }),
+    );
+    expect(animate).toHaveBeenNthCalledWith(
+      2,
+      document.querySelector('#first'),
+      expect.objectContaining({ opacity: [0, 1] }),
+      expect.objectContaining({ delay: 0.21 }),
+    );
+    expect(animate).toHaveBeenNthCalledWith(
+      3,
+      document.querySelector('#last'),
+      expect.objectContaining({
+        clipPath: ['inset(0 0 0 100%)', 'inset(0 0 0 0%)'],
+      }),
+      expect.objectContaining({ delay: 0 }),
+    );
+    expect(animate).toHaveBeenNthCalledWith(
+      4,
+      document.querySelector('#last'),
+      expect.objectContaining({ opacity: [0, 1] }),
+      expect.objectContaining({ delay: 0.15 }),
+    );
+
+    root.dataset['open'] = 'false';
+    await Promise.resolve();
+    expect(panel.inert).toBe(true);
+    expect(panel.style.opacity).toBe('1');
+    expect(animate).toHaveBeenNthCalledWith(
+      5,
+      document.querySelector('#first'),
+      expect.objectContaining({
+        clipPath: ['inset(0 0 0 0%)', 'inset(0 0 0 100%)'],
+      }),
+      expect.objectContaining({ delay: 0.06 }),
+    );
+    await vi.waitFor(() => expect(panel.hidden).toBe(true));
+    expect(panel.style.opacity).toBe('0');
+    controller.destroy();
+  });
+
+  it('animates an extended trigger to the exact compact circular radius', () => {
+    document.body.innerHTML = `
+      <div id="root" data-open="false">
+        <button id="trigger">Create</button>
+        <div id="panel">
+          <span data-fab-menu-action><button>Document</button></span>
+        </div>
+      </div>
+    `;
+    const root = getElement<HTMLElement>('#root');
+    const trigger = getElement<HTMLElement>('#trigger');
+    const panel = getElement<HTMLElement>('#panel');
+    let width = 160;
+    const height = 56;
+    const computedStyle = vi
+      .spyOn(window, 'getComputedStyle')
+      .mockReturnValue({ borderTopLeftRadius: '16px' } as CSSStyleDeclaration);
+    vi.spyOn(trigger, 'getBoundingClientRect').mockImplementation(
+      () => ({ width, height }) as DOMRect,
+    );
+    const controller = createFabMenuController({
+      root,
+      trigger,
+      panel,
+      onDismiss: vi.fn(),
+      reducedMotion: () => false,
+    });
+
+    width = 56;
+    controller.setOpen(true);
+
+    expect(animate).toHaveBeenCalledWith(
+      trigger,
+      {
+        width: ['160px', '56px'],
+        height: ['56px', '56px'],
+        borderRadius: ['16px', '28px'],
+      },
+      {
+        duration: 0.3,
+        ease: [0.2, 0, 0, 1],
+      },
+    );
+    controller.destroy();
+    computedStyle.mockRestore();
+  });
+
+  it('preserves visibility changes without animation for reduced motion', () => {
+    document.body.innerHTML = `
+      <div id="root" data-open="true">
+        <button id="trigger">Create</button>
+        <div id="panel">
+          <span data-fab-menu-action><button>Document</button></span>
+        </div>
+      </div>
+    `;
+    const panel = getElement<HTMLElement>('#panel');
+    const controller = createFabMenuController({
+      root: getElement<HTMLElement>('#root'),
+      trigger: getElement<HTMLElement>('#trigger'),
+      panel,
+      onDismiss: vi.fn(),
+      reducedMotion: () => true,
+    });
+
+    expect(panel.hidden).toBe(false);
+    expect(panel.inert).toBe(false);
+    expect(animate).not.toHaveBeenCalled();
+    controller.destroy();
   });
 });

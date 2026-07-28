@@ -11,15 +11,18 @@ import {
   type OnInit,
 } from '@angular/core';
 import {
-  classNames,
   DEFAULT_FAB_MENU_CLOSE_ICON,
   fabMenuStyle,
   type ClassNameComponent,
+  type ButtonInterface,
   type FabMenuAction,
   type FabMenuInterface,
   type FabMenuProps,
 } from '@udixio/core';
-import { createFabMenuController } from '@udixio/core/dom';
+import {
+  createFabMenuController,
+  type FabMenuController,
+} from '@udixio/core/dom';
 import { createControllableState } from '../utils/create-controllable-state';
 import { createStyle } from '../utils/create-style';
 import { Fab } from '../fab/fab';
@@ -41,10 +44,13 @@ export interface FabMenuActionSelectEvent {
  * @devx
  * - Uses the framework-independent `actions` input.
  * - `open` is controlled; `defaultOpen` initializes uncontrolled usage.
+ * - Opening contracts every trigger size to a medium icon-only close control while preserving the closed footprint.
+ * - Action choreography is implemented once with Motion JavaScript in `@udixio/core/dom`.
  * @a11y
  * - The trigger exposes `aria-expanded`/`aria-controls`.
  * - Opening focuses the first enabled action; Escape closes and restores trigger focus.
  * - Outside press and selection close the action group.
+ * - Reduced-motion preference keeps state changes immediate and fully perceivable.
  * @limitations
  * - Consumers own action-specific side effects through the `actionSelect` output.
  */
@@ -60,14 +66,27 @@ export interface FabMenuActionSelectEvent {
       [class]="styles()['fabMenu']"
       [hidden]="!hasAccessibleLabel()"
       [attr.aria-hidden]="!hasAccessibleLabel() || null"
+      [attr.data-open]="isOpen()"
     >
-      <span #triggerHost class="contents">
+      <span [class]="styles()['triggerSizer']" aria-hidden="true" inert>
+        <lib-fab
+          [label]="label()"
+          [icon]="icon()"
+          [variant]="closedTriggerVariant()"
+          [size]="size()"
+          [extended]="extended()"
+          disabled
+          [tabIndex]="-1"
+        />
+      </span>
+
+      <span #triggerHost [class]="styles()['triggerPositioner']">
         <lib-fab
           [label]="resolvedTriggerLabel()"
           [icon]="resolvedTriggerIcon()"
           [variant]="triggerVariant()"
-          [size]="size()"
-          [extended]="extended()"
+          [size]="isOpen() ? 'medium' : size()"
+          [extended]="extended() && !isOpen()"
           [disabled]="disabled() || !hasAccessibleLabel()"
           [className]="styles()['fab']"
           [aria-expanded]="isOpen()"
@@ -76,15 +95,17 @@ export interface FabMenuActionSelectEvent {
         />
       </span>
 
-      @if (isOpen() && hasAccessibleLabel()) {
-        <div
-          #panel
-          [id]="panelId()"
-          [class]="styles()['actions']"
-          role="group"
-          [attr.aria-label]="resolvedActionsLabel()"
-        >
-          @for (action of actions(); track action.id; let index = $index) {
+      <div
+        #panel
+        [id]="panelId()"
+        [class]="styles()['actions']"
+        role="group"
+        [attr.aria-label]="resolvedActionsLabel()"
+        [attr.aria-hidden]="!isOpen() || null"
+        [attr.inert]="!isOpen() ? '' : null"
+      >
+        @for (action of actions(); track action.id; let index = $index) {
+          <span [class]="styles()['actionContainer']" data-fab-menu-action>
             <lib-button
               [label]="action.label"
               [icon]="action.icon"
@@ -92,12 +113,12 @@ export interface FabMenuActionSelectEvent {
               [disabled]="disabled() || !!action.disabled"
               variant="filled"
               shape="rounded"
-              [className]="actionClassName()"
+              [className]="actionClassName"
               (click)="selectAction(action, index)"
             />
-          }
-        </div>
-      }
+          </span>
+        }
+      </div>
     </div>
   `,
 })
@@ -150,6 +171,16 @@ export class FabMenu implements OnInit {
   );
   protected readonly triggerVariant = computed(
     () =>
+      (this.isOpen() ? this.variant() : `${this.variant()}Container`) as
+        | 'primary'
+        | 'secondary'
+        | 'tertiary'
+        | 'primaryContainer'
+        | 'secondaryContainer'
+        | 'tertiaryContainer',
+  );
+  protected readonly closedTriggerVariant = computed(
+    () =>
       `${this.variant()}Container` as
         | 'primaryContainer'
         | 'secondaryContainer'
@@ -179,10 +210,10 @@ export class FabMenu implements OnInit {
   private readonly triggerHost =
     viewChild<ElementRef<HTMLElement>>('triggerHost');
   private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
+  private controller?: FabMenuController;
 
   constructor() {
     afterRenderEffect((onCleanup) => {
-      if (!this.isOpen() || !this.hasAccessibleLabel()) return;
       const root = this.root()?.nativeElement;
       const trigger =
         this.triggerHost()?.nativeElement.querySelector<HTMLElement>(
@@ -197,7 +228,17 @@ export class FabMenu implements OnInit {
         panel,
         onDismiss: () => this.openState.set(false),
       });
-      onCleanup(() => controller.destroy());
+      this.controller = controller;
+      onCleanup(() => {
+        controller.destroy();
+        if (this.controller === controller) {
+          this.controller = undefined;
+        }
+      });
+    });
+
+    afterRenderEffect(() => {
+      this.controller?.setOpen(this.isOpen());
     });
   }
 
@@ -205,16 +246,11 @@ export class FabMenu implements OnInit {
     this.openState.initialize();
   }
 
-  protected readonly actionClassName = () =>
-    classNames(
-      this.styles()['action'],
-      this.variant() === 'primary' &&
-        'bg-primary-container text-on-primary-container',
-      this.variant() === 'secondary' &&
-        'bg-secondary-container text-on-secondary-container',
-      this.variant() === 'tertiary' &&
-        'bg-tertiary-container text-on-tertiary-container',
-    );
+  protected readonly actionClassName: ClassNameComponent<ButtonInterface> =
+    () => ({
+      button: this.styles()['action'],
+      stateLayer: this.styles()['actionStateLayer'],
+    });
 
   protected toggle(): void {
     if (!this.disabled() && this.hasAccessibleLabel()) {
@@ -225,11 +261,7 @@ export class FabMenu implements OnInit {
   protected selectAction(action: FabMenuAction, index: number): void {
     if (this.disabled() || action.disabled) return;
     this.actionSelect.emit({ action, index });
+    this.controller?.restoreFocusOnClose();
     this.openState.set(false);
-    queueMicrotask(() =>
-      this.triggerHost()
-        ?.nativeElement.querySelector<HTMLElement>('button, a')
-        ?.focus(),
-    );
   }
 }

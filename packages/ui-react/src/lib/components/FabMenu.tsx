@@ -1,6 +1,5 @@
-import { useEffect, useId, useRef, type HTMLAttributes, type Ref } from 'react';
+import { useId, useEffect, useRef, type HTMLAttributes, type Ref } from 'react';
 import {
-  classNames,
   DEFAULT_FAB_MENU_CLOSE_ICON,
   fabMenuStyle,
   type ComponentClassName,
@@ -8,7 +7,10 @@ import {
   type FabMenuInterface,
   type FabMenuProps,
 } from '@udixio/core';
-import { createFabMenuController } from '@udixio/core/dom';
+import {
+  createFabMenuController,
+  type FabMenuController,
+} from '@udixio/core/dom';
 import { createUseStyle } from '../utils/create-use-style';
 import { useControllableState } from '../utils/use-controllable-state';
 import { Fab } from './Fab';
@@ -42,10 +44,13 @@ export const useFabMenuStyle = createUseStyle(fabMenuStyle);
  * @devx
  * - Uses the framework-independent `actions` model instead of framework-specific children.
  * - `open` is controlled; `defaultOpen` initializes uncontrolled usage.
+ * - Opening contracts every trigger size to a medium icon-only close control while preserving the closed footprint.
+ * - Action choreography is implemented once with Motion JavaScript in `@udixio/core/dom`.
  * @a11y
  * - The trigger exposes `aria-expanded`/`aria-controls`.
  * - Opening focuses the first enabled action; Escape closes and restores trigger focus.
  * - Outside press and selection close the group without applying false ARIA menu semantics.
+ * - Reduced-motion preference keeps state changes immediate and fully perceivable.
  * @limitations
  * - Consumers own action-specific side effects through `onActionSelect`.
  */
@@ -79,6 +84,7 @@ export const FabMenu = (props: ReactFabMenuProps) => {
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const controllerRef = useRef<FabMenuController>(null);
   const panelId = `fab-menu-${useId().replace(/:/g, '')}`;
   const hasAccessibleLabel = label.trim() !== '';
   const styles = useFabMenuStyle({
@@ -101,7 +107,6 @@ export const FabMenu = (props: ReactFabMenuProps) => {
   useEffect(() => {
     if (
       !hasAccessibleLabel ||
-      !open ||
       !rootRef.current ||
       !triggerRef.current ||
       !panelRef.current
@@ -109,22 +114,30 @@ export const FabMenu = (props: ReactFabMenuProps) => {
       return;
     }
 
-    return createFabMenuController({
+    const controller = createFabMenuController({
       root: rootRef.current,
       trigger: triggerRef.current,
       panel: panelRef.current,
       onDismiss: () => setOpen(false),
-    }).destroy;
-  }, [hasAccessibleLabel, open, setOpen]);
+    });
+    controllerRef.current = controller;
+    return () => {
+      controller.destroy();
+      if (controllerRef.current === controller) {
+        controllerRef.current = null;
+      }
+    };
+  }, [hasAccessibleLabel, setOpen]);
 
-  const restoreTriggerFocus = () => {
-    queueMicrotask(() => triggerRef.current?.focus());
-  };
+  useEffect(() => {
+    controllerRef.current?.setOpen(open);
+  }, [open]);
+
   const selectAction = (action: FabMenuAction, index: number) => {
     if (disabled || action.disabled) return;
     onActionSelect?.(action, index);
+    controllerRef.current?.restoreFocusOnClose();
     setOpen(false);
-    restoreTriggerFocus();
   };
   const triggerVariant = `${variant}Container` as const;
 
@@ -149,68 +162,81 @@ export const FabMenu = (props: ReactFabMenuProps) => {
         else if (ref) ref.current = node;
       }}
       className={styles.fabMenu}
+      data-open={open}
     >
-      <Fab
-        ref={triggerRef}
-        label={open ? closeLabel : label}
-        icon={open ? closeIcon : icon}
-        variant={triggerVariant}
-        size={size}
-        extended={extended}
-        disabled={disabled}
-        className={styles.fab}
-        aria-expanded={open}
-        aria-controls={panelId}
-        onClick={() => setOpen(!open)}
-      />
+      <span className={styles.triggerSizer} aria-hidden="true" inert>
+        <Fab
+          label={label}
+          icon={icon}
+          variant={triggerVariant}
+          size={size}
+          extended={extended}
+          disabled
+          tabIndex={-1}
+        />
+      </span>
 
-      {open && (
-        <div
-          ref={panelRef}
-          id={panelId}
-          className={styles.actions}
-          role="group"
-          aria-label={actionsLabel}
-        >
-          {actions.map((action, index) => {
-            const actionClassName = () => ({
-              button: classNames(
-                styles.action,
-                variant === 'primary' &&
-                  'bg-primary-container text-on-primary-container',
-                variant === 'secondary' &&
-                  'bg-secondary-container text-on-secondary-container',
-                variant === 'tertiary' &&
-                  'bg-tertiary-container text-on-tertiary-container',
-              ),
-            });
-            const sharedActionProps = {
-              label: action.label,
-              icon: action.icon,
-              disabled: disabled || action.disabled,
-              variant: 'filled' as const,
-              shape: 'rounded' as const,
-              className: actionClassName,
-              'data-fab-menu-action': '',
-            };
+      <span className={styles.triggerPositioner}>
+        <Fab
+          ref={triggerRef}
+          label={open ? closeLabel : label}
+          icon={open ? closeIcon : icon}
+          variant={open ? variant : triggerVariant}
+          size={open ? 'medium' : size}
+          extended={extended && !open}
+          disabled={disabled}
+          className={styles.fab}
+          aria-expanded={open}
+          aria-controls={panelId}
+          onClick={() => setOpen(!open)}
+        />
+      </span>
 
-            return action.href ? (
-              <Button
-                key={action.id}
-                {...sharedActionProps}
-                href={action.href}
-                onClick={() => selectAction(action, index)}
-              />
-            ) : (
-              <Button
-                key={action.id}
-                {...sharedActionProps}
-                onClick={() => selectAction(action, index)}
-              />
-            );
-          })}
-        </div>
-      )}
+      <div
+        ref={panelRef}
+        id={panelId}
+        className={styles.actions}
+        role="group"
+        aria-label={actionsLabel}
+        aria-hidden={!open}
+        inert={!open}
+      >
+        {actions.map((action, index) => {
+          const actionClassName = () => ({
+            button: styles.action,
+            stateLayer: styles.actionStateLayer,
+          });
+          const sharedActionProps = {
+            label: action.label,
+            icon: action.icon,
+            disabled: disabled || action.disabled,
+            variant: 'filled' as const,
+            shape: 'rounded' as const,
+            className: actionClassName,
+          };
+
+          return (
+            <span
+              key={action.id}
+              className={styles.actionContainer}
+              data-fab-menu-action=""
+            >
+              {action.href ? (
+                <Button
+                  {...sharedActionProps}
+                  href={action.href}
+                  onClick={() => selectAction(action, index)}
+                />
+              ) : (
+                <Button
+                  {...sharedActionProps}
+                  onClick={() => selectAction(action, index)}
+                />
+              )}
+            </span>
+          );
+        })}
+      </div>
     </div>
   );
 };
