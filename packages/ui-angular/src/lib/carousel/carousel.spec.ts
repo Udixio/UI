@@ -38,6 +38,20 @@ class CarouselTestHost {
   readonly indexChanges: number[] = [];
 }
 
+@Component({
+  standalone: true,
+  imports: [Carousel, CarouselItem],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <lib-carousel>
+      <lib-carousel-item>Real slide</lib-carousel-item>
+      <div>Not a slide</div>
+      not-a-slide-text
+    </lib-carousel>
+  `,
+})
+class CarouselStrayContentHost {}
+
 const tabIndexes = (fixture: ComponentFixture<CarouselTestHost>) =>
   Array.from(
     fixture.nativeElement.querySelectorAll('[role="group"]'),
@@ -65,6 +79,16 @@ describe('Carousel (Angular, consuming @udixio/core)', () => {
     fixture.detectChanges();
     const groups = fixture.nativeElement.querySelectorAll('[role="group"]');
     expect(groups.length).toBe(3);
+  });
+
+  it('ignores projected content that is not lib-carousel-item', () => {
+    const strayFixture = TestBed.createComponent(CarouselStrayContentHost);
+    strayFixture.detectChanges();
+    const root: HTMLElement = strayFixture.nativeElement;
+    expect(root.textContent).toContain('Real slide');
+    expect(root.textContent).not.toContain('Not a slide');
+    expect(root.textContent).not.toContain('not-a-slide-text');
+    expect(root.querySelectorAll('[role="group"]').length).toBe(1);
   });
 
   it('gives each slide a group role and an "n / total" accessible name', () => {

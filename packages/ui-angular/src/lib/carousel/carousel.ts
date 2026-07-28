@@ -66,7 +66,7 @@ const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
             [style.gap.px]="gap()"
             style="will-change: transform"
           >
-            <ng-content />
+            <ng-content select="lib-carousel-item" />
           </div>
         </div>
 
