@@ -1,29 +1,6 @@
 export type DateRange = [Date | null, Date | null];
 
-type Props = {
-  /**
-   * Selection mode: 'single' for one date, 'range' for start/end period.
-   * @default 'single'
-   */
-  mode?: 'single' | 'range';
-
-  /**
-   * The currently selected date(s).
-   * Date for single mode, [start, end] tuple for range mode.
-   */
-  value?: Date | DateRange | null;
-
-  /**
-   * Default selected date(s) for uncontrolled usage.
-   */
-  defaultValue?: Date | DateRange | null;
-
-  /**
-   * Callback fired when selection changes.
-   * Returns Date in single mode, DateRange in range mode.
-   */
-  onChange?: (value: any) => void;
-
+export type DatePickerSharedProps = {
   /**
    * Minimum selectable date.
    */
@@ -51,6 +28,66 @@ type Props = {
   weekStartDay?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
 };
 
+export type DatePickerSingleProps = DatePickerSharedProps & {
+  /**
+   * Selects one date.
+   * @default 'single'
+   */
+  mode?: 'single';
+
+  /**
+   * The currently selected date.
+   */
+  value?: Date | null;
+
+  /**
+   * Default selected date for uncontrolled usage.
+   */
+  defaultValue?: Date | null;
+
+  /**
+   * Called once for each accepted selection transition.
+   */
+  onChange?: (value: Date | null) => void;
+};
+
+export type DatePickerRangeProps = DatePickerSharedProps & {
+  /**
+   * Selects a start/end date period.
+   */
+  mode: 'range';
+
+  /**
+   * The currently selected [start, end] period.
+   */
+  value?: DateRange | null;
+
+  /**
+   * Default selected [start, end] period for uncontrolled usage.
+   */
+  defaultValue?: DateRange | null;
+
+  /**
+   * Called once for each accepted selection transition.
+   */
+  onChange?: (value: DateRange | null) => void;
+};
+
+/**
+ * `mode` discriminates the shape of `value`/`defaultValue`/`onChange`: a
+ * consumer cannot pass a `DateRange` under `mode="single"` or a `Date` under
+ * `mode="range"` without a compile error.
+ */
+export type DatePickerProps = DatePickerSingleProps | DatePickerRangeProps;
+
+/**
+ * Runtime union of every value shape the component can carry, regardless of
+ * `mode`. Framework adapters whose input model cannot express a discriminated
+ * union (for example Angular's independent `input()` bindings) type their
+ * `value`/`defaultValue` inputs with this alias instead.
+ */
+export type DatePickerValue = Date | DateRange | null;
+
 export type DatePickerStates = {
   /** Computed: whether a date (or range start) is currently selected. */
   hasSelected: boolean;
@@ -70,7 +107,7 @@ type Elements = [
 
 export interface DatePickerInterface {
   type: 'div';
-  props: Props;
+  props: DatePickerProps;
   states: DatePickerStates;
   elements: Elements;
 }

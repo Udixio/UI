@@ -9,7 +9,9 @@
       "tags": {
         "status": "beta",
         "category": "Layout",
-        "devx": "- Renders a semantic `<hr>`; use `orientation` for vertical dividers."
+        "devx": "- Renders a semantic `<hr>`; use `orientation` for vertical dividers.",
+        "a11y": "- Renders a native `<hr>`, exposing the implicit `separator` role without extra ARIA.\n- Sets `aria-orientation=\"vertical\"` when `orientation=\"vertical\"`, since the implicit default for `separator` is horizontal.",
+        "limitations": "- Purely decorative; there is no `decorative`/`aria-hidden` escape hatch, so every divider is announced as a separator to assistive technology."
       },
       "methods": [],
       "props": {
@@ -24,7 +26,7 @@
         },
         "orientation": {
           "name": "orientation",
-          "description": "",
+          "description": "Visual and semantic axis of the dividing line.",
           "required": false,
           "type": {
             "name": "\"vertical\" | \"horizontal\""
@@ -34,6 +36,40 @@
           }
         }
       }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/divider/divider.ts",
+      "description": "Dividers are thin lines that group content in lists or other containers",
+      "tags": {
+        "status": "beta",
+        "category": "Layout",
+        "devx": "- Renders a semantic `<hr>`; use `orientation` for vertical dividers.",
+        "a11y": "- Renders a native `<hr>`, exposing the implicit `separator` role without extra ARIA.\n- Sets `aria-orientation=\"vertical\"` when `orientation=\"vertical\"`, since the implicit default for `separator` is horizontal.",
+        "limitations": "- Purely decorative; there is no `decorative`/`aria-hidden` escape hatch, so every divider is announced as a separator to assistive technology."
+      },
+      "inputs": {
+        "orientation": {
+          "name": "orientation",
+          "description": "Visual and semantic axis of the dividing line.",
+          "required": false,
+          "type": {
+            "name": "\"vertical\" | \"horizontal\" | undefined"
+          },
+          "defaultValue": {
+            "value": "'horizontal'"
+          }
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<DividerInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {}
     }
   }
 }

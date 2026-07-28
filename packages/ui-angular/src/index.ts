@@ -2,6 +2,7 @@ export * from './lib/ui-angular/ui-angular';
 export * from './lib/button/button';
 export * from './lib/card/card';
 export * from './lib/checkbox/checkbox';
+export * from './lib/divider/divider';
 export * from './lib/fab/fab';
 export * from './lib/fab-menu/fab-menu';
 export * from './lib/icon/icon';

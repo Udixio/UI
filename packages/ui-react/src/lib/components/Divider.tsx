@@ -15,6 +15,11 @@ export const useDividerStyle = createUseStyle(dividerStyle);
  * @category Layout
  * @devx
  * - Renders a semantic `<hr>`; use `orientation` for vertical dividers.
+ * @a11y
+ * - Renders a native `<hr>`, exposing the implicit `separator` role without extra ARIA.
+ * - Sets `aria-orientation="vertical"` when `orientation="vertical"`, since the implicit default for `separator` is horizontal.
+ * @limitations
+ * - Purely decorative; there is no `decorative`/`aria-hidden` escape hatch, so every divider is announced as a separator to assistive technology.
  */
 export const Divider = ({
   orientation = 'horizontal',
@@ -23,5 +28,11 @@ export const Divider = ({
 }: ReactDividerProps) => {
   const styles = useDividerStyle({ orientation, className });
 
-  return <hr className={styles.divider} {...restProps} />;
+  return (
+    <hr
+      className={styles.divider}
+      aria-orientation={orientation === 'vertical' ? 'vertical' : undefined}
+      {...restProps}
+    />
+  );
 };

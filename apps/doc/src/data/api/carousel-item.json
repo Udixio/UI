@@ -34,6 +34,45 @@
           "defaultValue": null
         }
       }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/carousel/carousel-item.ts",
+      "description": "A single slide inside a `lib-carousel`. Its width is driven by the\ncarousel's scroll position; it simply projects its content.",
+      "tags": {
+        "status": "beta",
+        "parent": "Carousel",
+        "devx": "Intended for use inside `lib-carousel`, which stamps sizing and slide semantics on this component's host element.",
+        "a11y": "Rendered inside `lib-carousel` as a `group` with `aria-roledescription=\"slide\"` and an accessible name; used standalone it is a plain container with no slide role.",
+        "limitations": "Sizing (`outputRange`) is provided by the parent carousel; used on its own the item has no min/max width."
+      },
+      "inputs": {
+        "outputRange": {
+          "name": "outputRange",
+          "description": "Min/max item width in px, provided by the parent `Carousel`.",
+          "required": false,
+          "type": {
+            "name": "[number, number]"
+          },
+          "defaultValue": null
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<CarouselItemInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {},
+      "content": {
+        "default": {
+          "name": "default",
+          "selector": "*",
+          "description": "Default projected content."
+        }
+      }
     }
   }
 }

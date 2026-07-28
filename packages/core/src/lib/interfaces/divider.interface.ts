@@ -1,7 +1,13 @@
+export interface DividerProps {
+  /**
+   * Visual and semantic axis of the dividing line.
+   * @default 'horizontal'
+   */
+  orientation?: 'vertical' | 'horizontal';
+}
+
 export interface DividerInterface {
   type: 'hr';
-  props: {
-    orientation?: 'vertical' | 'horizontal';
-  };
+  props: DividerProps;
   elements: ['divider'];
 }
