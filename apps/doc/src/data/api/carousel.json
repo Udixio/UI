@@ -107,6 +107,128 @@
           "defaultValue": null
         }
       }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/carousel/carousel.ts",
+      "description": "Carousels show a collection of items that can be scrolled on and off the screen.",
+      "tags": {
+        "status": "beta",
+        "category": "Layout",
+        "devx": "Project `lib-carousel-item` children; use `index`/`indexChange` for controlled positioning, or `defaultIndex` to seed the initial position of an uncontrolled carousel.",
+        "a11y": "The root is a `region` with `aria-roledescription=\"carousel\"` (set `accessibleLabel` for a name); each slide is a `group` with `aria-roledescription=\"slide\"` and an `\"n / total\"` label. Roving `tabindex` keeps a single slide in the tab order; Arrow/Home/End move the selection.",
+        "limitations": "Responsive behavior on mobile is not supported. Only the `hero` variant is implemented; `center-aligned`, `multi-browse`, `un-contained`, and `full-screen` are reserved in the type for future Material 3 layout support and currently render as `hero`."
+      },
+      "inputs": {
+        "variant": {
+          "name": "variant",
+          "description": "Carousel layout variant. Only `hero` is implemented today; the other\nMaterial 3 arrangements are reserved and will be supported in the future.",
+          "required": false,
+          "type": {
+            "name": "\"hero\" | \"center-aligned\" | \"multi-browse\" | \"un-contained\" | \"full-screen\" | undefined"
+          },
+          "defaultValue": {
+            "value": "'hero'"
+          }
+        },
+        "gap": {
+          "name": "gap",
+          "description": "Gap between items, in pixels.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "8"
+          }
+        },
+        "scrollSensitivity": {
+          "name": "scrollSensitivity",
+          "description": "Adjusts scroll/drag responsiveness.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "1.25"
+          }
+        },
+        "outputRange": {
+          "name": "outputRange",
+          "description": "Min/max item width, in pixels.",
+          "required": false,
+          "type": {
+            "name": "[number, number]"
+          },
+          "defaultValue": {
+            "value": "[42, 300]"
+          }
+        },
+        "index": {
+          "name": "index",
+          "description": "Index of the centered item. A value other than `undefined` makes the\ncarousel controlled: it becomes the single source of truth and user\ninteraction only notifies via `onIndexChange` instead of moving the\ncarousel locally.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
+        "defaultIndex": {
+          "name": "defaultIndex",
+          "description": "Initial centered index for uncontrolled usage.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "0"
+          }
+        },
+        "accessibleLabel": {
+          "name": "accessibleLabel",
+          "description": "Accessible name for the carousel region.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<CarouselInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {
+        "indexChange": {
+          "name": "indexChange",
+          "description": "Emits an accepted centered-index transition.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
+        "metricsChange": {
+          "name": "metricsChange",
+          "description": "Receives live metrics to better control the carousel externally.",
+          "required": false,
+          "type": {
+            "name": "CarouselMetrics"
+          },
+          "defaultValue": null
+        }
+      },
+      "content": {
+        "default": {
+          "name": "default",
+          "selector": "*",
+          "description": "Default projected content."
+        }
+      }
     }
   }
 }

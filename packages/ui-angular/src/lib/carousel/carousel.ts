@@ -84,6 +84,7 @@ export class Carousel implements OnInit {
   readonly outputRange = input<[number, number]>([42, 300]);
   readonly index = input<number>();
   readonly defaultIndex = input(0);
+  /** Accessible name for the carousel region. */
   readonly accessibleLabel = input<string>();
   readonly className = input<string | ClassNameComponent<CarouselInterface>>();
 
