@@ -12,7 +12,7 @@ export interface CarouselMetrics {
   gap: number;
 }
 
-type Props = {
+export type CarouselProps = {
   /**
    * Carousel layout variant. Only `hero` is implemented today; the other
    * Material 3 arrangements are reserved and will be supported in the future.
@@ -55,7 +55,7 @@ type Elements = ['carousel', 'track'];
 
 export interface CarouselInterface {
   type: 'div';
-  props: Props;
+  props: CarouselProps;
   states: CarouselStates;
   elements: Elements;
 }
