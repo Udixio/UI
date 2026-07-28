@@ -3,9 +3,11 @@ import {
   createCustomScrollController,
   type CustomScrollController,
 } from '@udixio/core/dom';
-import { CustomScrollInterface } from './custom-scroll.interface';
-import { customScrollStyle } from './custom-scroll.style';
-import { ReactProps } from '@udixio/core';
+import {
+  customScrollStyle,
+  type CustomScrollInterface,
+  type ReactProps,
+} from '@udixio/core';
 
 export type ReactCustomScrollProps = ReactProps<CustomScrollInterface> & {
   children?: ReactNode;
