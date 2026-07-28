@@ -1,54 +1,58 @@
 ---
 ---
 
+import Code from '@/components/Code.astro';
+import DividerOrientationReact from '@/examples/react/divider-orientation.tsx';
+import { DividerOrientationAngular } from '@/examples/angular/divider-orientation.ts';
+import DividerSpacingReact from '@/examples/react/divider-spacing.tsx';
+import { DividerSpacingAngular } from '@/examples/angular/divider-spacing.ts';
+import dividerOrientationReactSource from '@/examples/react/divider-orientation.tsx?raw';
+import dividerOrientationAngularSource from '@/examples/angular/divider-orientation.ts?raw';
+import dividerSpacingReactSource from '@/examples/react/divider-spacing.tsx?raw';
+import dividerSpacingAngularSource from '@/examples/angular/divider-spacing.ts?raw';
+
 ## Usage
 
-Use Divider to separate content sections.
-
-```bash
-import { Divider } from "@udixio/ui-react"
-```
-
-```tsx
-<Divider />
-```
+Divider renders a thin line that separates content in lists or other
+containers. Import `Divider` from `@udixio/ui-react` or `@udixio/ui-angular`.
 
 ## Orientation
 
-Use `orientation` to switch between horizontal and vertical.
+Use `orientation` to switch between a full-width horizontal line (default) and
+a vertical line that stretches to fill its container's height.
 
-```jsx
-<div className="flex items-center gap-4">
-  <div>
-    <p>Section A</p>
-    <Divider />
-    <p>Section B</p>
-  </div>
-  <Divider orientation="vertical" className="h-12" />
-  <div>
-    <p>Section C</p>
-  </div>
-</div>
-```
+<Code
+  codes={{
+    react: dividerOrientationReactSource,
+    angular: dividerOrientationAngularSource,
+  }}
+>
+  <DividerOrientationReact slot="react" client:load />
+  <DividerOrientationAngular slot="angular" client:load />
+</Code>
 
 ## Spacing and sizing
 
-Control spacing and length with your utility classes.
+Divider has no built-in margin or length; control spacing and size with your
+own utility classes through `className`.
 
-```jsx
-<div className="space-y-6">
-  <div>
-    <p className="mb-2">Tight spacing</p>
-    <Divider className="my-1" />
-  </div>
-  <div>
-    <p className="mb-2">Wide spacing</p>
-    <Divider className="my-6" />
-  </div>
-  <div className="flex items-center gap-4">
-    <span>Left</span>
-    <Divider orientation="vertical" className="h-8" />
-    <span>Right</span>
-  </div>
-</div>
-```
+<Code
+  codes={{
+    react: dividerSpacingReactSource,
+    angular: dividerSpacingAngularSource,
+  }}
+>
+  <DividerSpacingReact slot="react" client:load />
+  <DividerSpacingAngular slot="angular" client:load />
+</Code>
+
+## Accessibility
+
+Divider renders a native `<hr>`, which carries the implicit `separator` role
+without any extra ARIA. Because the default `aria-orientation` for that role
+is horizontal, the component sets `aria-orientation="vertical"` whenever
+`orientation="vertical"`, so assistive technology matches the visible layout.
+
+Divider is purely decorative in this component set: there is no
+`decorative`/`aria-hidden` escape hatch, so every instance is announced as a
+separator to assistive technology.
