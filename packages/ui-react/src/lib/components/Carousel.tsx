@@ -43,7 +43,9 @@ export const useCarouselStyle = createUseStyle(carouselStyle);
  *   the selection and center the focused slide.
  * @limitations
  * - Responsive behavior on mobile is not supported.
- * - Only the default (hero) variant is supported.
+ * - Only the `hero` variant is implemented. `center-aligned`, `multi-browse`,
+ *   `un-contained`, and `full-screen` are reserved in the type for future
+ *   Material 3 layout support and currently render as `hero`.
  */
 export const Carousel = ({
   variant = 'hero',
