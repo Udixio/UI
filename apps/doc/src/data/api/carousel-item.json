@@ -43,7 +43,7 @@
         "parent": "Carousel",
         "devx": "Intended for use inside `lib-carousel`, which stamps sizing and slide semantics on this component's host element.",
         "a11y": "Rendered inside `lib-carousel` as a `group` with `aria-roledescription=\"slide\"` and an accessible name; used standalone it is a plain container with no slide role.",
-        "limitations": "Sizing (`outputRange`) is provided by the parent carousel; used on its own the item has no min/max width."
+        "limitations": "Sizing (`outputRange`) is inherited from the parent carousel; used on its own the item has no min/max width unless `outputRange` is set explicitly."
       },
       "inputs": {
         "outputRange": {

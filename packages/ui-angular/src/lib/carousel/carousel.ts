@@ -5,6 +5,7 @@ import {
   ElementRef,
   computed,
   contentChildren,
+  forwardRef,
   input,
   output,
   signal,
@@ -27,6 +28,7 @@ import {
 } from '@udixio/core/dom';
 import { createControllableState } from '../utils/create-controllable-state';
 import { createStyle } from '../utils/create-style';
+import { CAROUSEL_CONTEXT } from './carousel-context';
 import { CarouselItem } from './carousel-item';
 
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
@@ -44,6 +46,9 @@ const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
   selector: 'lib-carousel',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    { provide: CAROUSEL_CONTEXT, useExisting: forwardRef(() => Carousel) },
+  ],
   host: { style: 'display: contents' },
   template: `
     <div

@@ -107,6 +107,25 @@ describe('Carousel (Angular, consuming @udixio/core)', () => {
     expect(tabIndexes(fixture)).toEqual(['0', '-1', '-1']);
   });
 
+  it('sizes the slide element itself, not a wrapper div', () => {
+    // Regression test: CarouselItem previously hosted `display: contents`
+    // wrapping a separate styled div, so the parent's DOM controller (which
+    // queries contentChildren host elements) wrote --carousel-item-width and
+    // display onto a transparent element instead of the real flex item,
+    // corrupting the flex layout while leaving DOM attributes looking fine.
+    fixture.detectChanges();
+    const slide = fixture.nativeElement.querySelector(
+      '[role="group"]',
+    ) as HTMLElement;
+    expect(slide.style.getPropertyValue('--carousel-item-width')).toMatch(
+      /px$/,
+    );
+    expect(slide.style.maxWidth).toBe('300px');
+    expect(slide.style.minWidth).toBe('42px');
+    expect(slide.querySelector('div')).toBeNull();
+    expect(slide.textContent?.trim()).toBe('Slide 1');
+  });
+
   it('does not expose aria-selected on slides', () => {
     fixture.detectChanges();
     const groups: HTMLElement[] = Array.from(
