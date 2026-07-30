@@ -1,11 +1,14 @@
 import {
+  afterNextRender,
   afterRenderEffect,
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
   computed,
   contentChildren,
   forwardRef,
+  inject,
   input,
   output,
   signal,
@@ -158,11 +161,22 @@ export class Carousel implements OnInit {
   );
 
   constructor() {
-    // Create both shared controllers once the DOM exists, and seed the
-    // spring at the resolved initial index instead of an implicit progress
-    // of 0 (a nonzero controlled/default index must render correctly from
-    // the very first frame, not be corrected a tick later).
-    afterRenderEffect((onCleanup) => {
+    const destroyRef = inject(DestroyRef);
+
+    // Create both shared controllers exactly once, when the DOM first
+    // exists, and seed the spring at the resolved initial index instead of
+    // an implicit progress of 0 (a nonzero controlled/default index must
+    // render correctly from the very first frame, not be corrected a tick
+    // later). This intentionally uses afterNextRender, not
+    // afterRenderEffect: it must run once and never again, regardless of
+    // which signals it happens to read. An effect-based version that reads
+    // items()/selectedIndex() (even transitively, e.g. through viewChild
+    // re-evaluation) re-runs on later content/selection/resize activity,
+    // tearing down and recreating both controllers each time -- which
+    // re-triggers notifyInitial()'s setProgress(0) side effect against a
+    // controller that had already settled elsewhere, producing a permanent
+    // create/destroy oscillation between the initial and resting index.
+    afterNextRender(() => {
       const root = this.root()?.nativeElement;
       const container = this.scrollContainer()?.nativeElement;
       const content = this.scrollContent()?.nativeElement;
@@ -213,7 +227,7 @@ export class Carousel implements OnInit {
       customScrollController.notifyInitial();
       carouselController.setProgress(initialProgress, { animate: false });
 
-      onCleanup(() => {
+      destroyRef.onDestroy(() => {
         customScrollController.destroy();
         carouselController?.destroy();
         this.customScrollController = undefined;

@@ -1,5 +1,11 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  TestBed,
+  fakeAsync,
+  tick,
+} from '@angular/core/testing';
+import * as coreDom from '@udixio/core/dom';
 import { Carousel } from './carousel';
 import { CarouselItem } from './carousel-item';
 
@@ -172,4 +178,112 @@ describe('Carousel (Angular, consuming @udixio/core)', () => {
     fixture.componentInstance.slides.set([]);
     expect(() => fixture.detectChanges()).not.toThrow();
   });
+});
+
+describe('Carousel resize/mount stability', () => {
+  // Regression test: the controller-creation effect used to be an
+  // afterRenderEffect that (transitively, through viewChild/contentChildren
+  // re-evaluation) re-ran whenever the ResizeObserver reported the
+  // container's real dimensions. Each re-run destroyed and recreated both
+  // controllers, and notifyInitial()'s setProgress(0) side effect fought
+  // whatever index the previous (still-live) controller had already
+  // settled at -- producing, in a real browser, an unbounded
+  // indexChange(0), indexChange(N), indexChange(0), ... loop and a carousel
+  // that could never be scrolled away from its start. NoopObserver in the
+  // specs above never actually invokes its callback, so it could not catch
+  // this; this fires a realistic async resize to reproduce the real
+  // environment, and asserts on controller creation/destruction directly
+  // rather than on emitted values, since exactly which index a recreated
+  // controller happens to settle on is incidental to the real defect.
+  class ControllableObserver {
+    constructor(private cb: ResizeObserverCallback) {}
+    observe(target: Element) {
+      queueMicrotask(() => {
+        this.cb(
+          [
+            {
+              target,
+              contentRect: { width: 1216, height: 400 },
+            } as ResizeObserverEntry,
+          ],
+          this as unknown as ResizeObserver,
+        );
+      });
+    }
+    unobserve() {}
+    disconnect() {}
+    takeRecords() {
+      return [];
+    }
+  }
+
+  @Component({
+    standalone: true,
+    imports: [Carousel, CarouselItem],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `
+      <lib-carousel (indexChange)="log.push($event)">
+        @for (i of items; track i) {
+          <lib-carousel-item>Slide {{ i }}</lib-carousel-item>
+        }
+      </lib-carousel>
+    `,
+  })
+  class ResizingGalleryHost {
+    readonly items = Array.from({ length: 15 }, (_, i) => i + 1);
+    readonly log: number[] = [];
+  }
+
+  let originalResizeObserver: typeof ResizeObserver;
+
+  beforeEach(() => {
+    originalResizeObserver = globalThis.ResizeObserver;
+    (globalThis as any).ResizeObserver = ControllableObserver;
+  });
+
+  afterEach(() => {
+    globalThis.ResizeObserver = originalResizeObserver;
+  });
+
+  it('creates the shared controllers exactly once despite repeated resize activity', fakeAsync(() => {
+    const createCarouselSpy = jest.spyOn(coreDom, 'createCarouselController');
+    const createScrollSpy = jest.spyOn(coreDom, 'createCustomScrollController');
+
+    TestBed.configureTestingModule({
+      imports: [ResizingGalleryHost],
+    }).compileComponents();
+    const fixture: ComponentFixture<ResizingGalleryHost> =
+      TestBed.createComponent(ResizingGalleryHost);
+    fixture.detectChanges();
+
+    const root: HTMLElement =
+      fixture.nativeElement.querySelector('[role="region"]');
+    Object.defineProperty(root, 'clientWidth', {
+      value: 1216,
+      configurable: true,
+    });
+    const container = root.querySelector(':scope > div') as HTMLElement;
+    Object.defineProperty(container, 'clientWidth', {
+      value: 1216,
+      configurable: true,
+    });
+
+    // Let the async ResizeObserver firing (and anything it triggers) settle
+    // over many change-detection cycles, matching sustained real-world
+    // activity rather than a single tick.
+    for (let i = 0; i < 20; i++) {
+      tick(100);
+      fixture.detectChanges();
+    }
+
+    expect(createCarouselSpy).toHaveBeenCalledTimes(1);
+    expect(createScrollSpy).toHaveBeenCalledTimes(1);
+    // A settled, uncontrolled carousel resting at its own initial index
+    // never needs to notify -- any emission here would mean something
+    // (re)triggered the resolved index away from its starting value.
+    expect(fixture.componentInstance.log).toEqual([]);
+
+    createCarouselSpy.mockRestore();
+    createScrollSpy.mockRestore();
+  }));
 });
