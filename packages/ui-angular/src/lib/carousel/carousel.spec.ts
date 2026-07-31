@@ -287,3 +287,69 @@ describe('Carousel resize/mount stability', () => {
     createScrollSpy.mockRestore();
   }));
 });
+
+describe('Carousel controlled index echo', () => {
+  // Regression test for a real "with navigation buttons" style usage: the
+  // consumer feeds indexChange straight back into index (`[index]="index()"`
+  // + `(indexChange)="index.set($event)"`), which is the ordinary way to
+  // controll a carousel. The scroll-driven index change previously could
+  // not be told apart from a genuine external "jump to N" request, so
+  // every step of a free scroll re-triggered an instant, unrequested
+  // scrollTo against the position the user was still actively dragging
+  // through -- visible as a periodic freeze/snap during any scroll.
+  @Component({
+    standalone: true,
+    imports: [Carousel, CarouselItem],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    template: `
+      <lib-carousel [index]="index()" (indexChange)="index.set($event)">
+        @for (i of items; track i) {
+          <lib-carousel-item>Slide {{ i }}</lib-carousel-item>
+        }
+      </lib-carousel>
+    `,
+  })
+  class EchoingControlledHost {
+    readonly items = Array.from({ length: 15 }, (_, i) => i + 1);
+    readonly index = signal(0);
+  }
+
+  it('does not re-scroll when a scroll-driven index is echoed back through the controlled input', () => {
+    const createCarouselSpy = jest.spyOn(coreDom, 'createCarouselController');
+    const createScrollSpy = jest.spyOn(coreDom, 'createCustomScrollController');
+
+    TestBed.configureTestingModule({
+      imports: [EchoingControlledHost],
+    }).compileComponents();
+    const fixture: ComponentFixture<EchoingControlledHost> =
+      TestBed.createComponent(EchoingControlledHost);
+    fixture.detectChanges();
+
+    const scrollController = createScrollSpy.mock.results[0].value;
+    const scrollToSpy = jest.spyOn(scrollController, 'scrollTo');
+    const onSelectedIndexChange =
+      createCarouselSpy.mock.calls[0][0].onSelectedIndexChange!;
+
+    // Simulate the DOM controller detecting that free scrolling arrived at
+    // index 4 -- this notifies the owner, which (per the template above)
+    // echoes it straight back as the new `index` input.
+    onSelectedIndexChange(4);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.index()).toBe(4);
+    expect(scrollToSpy).not.toHaveBeenCalled();
+
+    // A genuinely external request (e.g. a "Next" button setting an index
+    // the carousel did not just report itself) must still work.
+    fixture.componentInstance.index.set(9);
+    fixture.detectChanges();
+
+    expect(scrollToSpy).toHaveBeenCalledTimes(1);
+    expect(scrollToSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ orientation: 'horizontal' }),
+    );
+
+    createCarouselSpy.mockRestore();
+    createScrollSpy.mockRestore();
+  });
+});

@@ -130,6 +130,9 @@ export class Carousel implements OnInit {
   private scrollVisible = 0;
   private lastMetrics: CarouselMetrics | null = null;
   private didMount = false;
+  // Index last reported by the DOM controller itself (i.e. the outcome of
+  // the user's own scroll/drag), as opposed to one requested externally.
+  private lastReportedSelectedIndex: number | undefined;
 
   protected readonly styles = createStyle(carouselStyle, () => ({
     variant: this.variant(),
@@ -209,7 +212,10 @@ export class Carousel implements OnInit {
         gap: () => this.gap(),
         minItemWidth: () => this.outputRange()[0],
         maxItemWidth: () => this.outputRange()[1],
-        onSelectedIndexChange: (i) => this.indexState.set(i),
+        onSelectedIndexChange: (i) => {
+          this.lastReportedSelectedIndex = i;
+          this.indexState.set(i);
+        },
       });
 
       this.customScrollController = customScrollController;
@@ -269,10 +275,16 @@ export class Carousel implements OnInit {
       });
     });
 
-    // Re-center only when the controlled `index` input changes after mount
-    // (the initial position is already seeded above). Reading the resolved
-    // `selectedIndex` here instead of the raw input would fight free
-    // scrolling, since scroll updates it continuously.
+    // Re-center only when the controlled `index` input changes to a value
+    // the carousel didn't itself just report (the initial position is
+    // already seeded above). In controlled usage, our own scroll-driven
+    // onSelectedIndexChange notifies the owner, which typically feeds the
+    // same value straight back through `index` -- comparing against the
+    // resolved `selectedIndex` wouldn't catch that echo (it's already
+    // updated too), so a genuine external "jump to N" request was
+    // indistinguishable from our own scroll confirming it arrived at N,
+    // and every step of a free scroll re-triggered an instant scrollTo
+    // against the position the user was still actively dragging through.
     afterRenderEffect(() => {
       const idx = this.index();
       const count = this.items().length;
@@ -281,7 +293,7 @@ export class Carousel implements OnInit {
         this.didMount = true;
         return;
       }
-      if (typeof idx === 'number') {
+      if (typeof idx === 'number' && idx !== this.lastReportedSelectedIndex) {
         this.centerOnIndex(idx);
       }
     });

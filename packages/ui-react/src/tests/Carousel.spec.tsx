@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { act } from 'react';
 import { fireEvent, render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
+import * as coreDom from '@udixio/core/dom';
 import { Carousel, CarouselItem } from '../lib/index.js';
 
 // jsdom lacks these; CustomScroll and Motion's scroll() need them to mount.
@@ -112,5 +113,51 @@ describe('Carousel', () => {
 
   it('renders an empty carousel without throwing', () => {
     expect(() => render(<Carousel>{null}</Carousel>)).not.toThrow();
+  });
+
+  it('does not re-scroll when a scroll-driven index is echoed back through the controlled input', () => {
+    const createCarouselSpy = vi.spyOn(coreDom, 'createCarouselController');
+
+    function ControlledHost() {
+      const [index, setIndex] = React.useState(0);
+      return (
+        <>
+          <button onClick={() => setIndex(9)}>Jump</button>
+          <Carousel index={index} onIndexChange={setIndex}>
+            {Array.from({ length: 15 }, (_, i) => (
+              <CarouselItem key={i}>
+                <div>Slide {i + 1}</div>
+              </CarouselItem>
+            ))}
+          </Carousel>
+        </>
+      );
+    }
+
+    const { getByText } = render(<ControlledHost />);
+
+    // centerOnIndex re-scrolls by dispatching this DOM event; observing it
+    // directly avoids depending on which internal method ends up handling it.
+    const recenterEvents: CustomEvent[] = [];
+    document.addEventListener('udx:customScroll:set', (e) => {
+      recenterEvents.push(e as CustomEvent);
+    });
+
+    const onSelectedIndexChange =
+      createCarouselSpy.mock.calls[0][0].onSelectedIndexChange!;
+
+    // Simulate the controller reporting an index reached via scroll/drag,
+    // which the app echoes straight back through the controlled `index` prop.
+    act(() => {
+      onSelectedIndexChange(4);
+    });
+    expect(recenterEvents).toHaveLength(0);
+
+    // A genuine external jump (not an echo of our own report) must still work.
+    fireEvent.click(getByText('Jump'));
+    expect(recenterEvents).toHaveLength(1);
+    expect(recenterEvents[0].detail).toMatchObject({ orientation: 'horizontal' });
+
+    createCarouselSpy.mockRestore();
   });
 });

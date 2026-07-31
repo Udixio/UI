@@ -98,6 +98,9 @@ export const Carousel = ({
   outputRangeRef.current = outputRange;
 
   const controllerRef = useRef<CarouselController | null>(null);
+  // Index last reported by the DOM controller itself (i.e. the outcome of
+  // the user's own scroll/drag), as opposed to one requested externally.
+  const lastReportedIndexRef = useRef<number | undefined>(undefined);
 
   const styles = useCarouselStyle({
     variant,
@@ -134,7 +137,10 @@ export const Carousel = ({
       gap: () => gapRef.current,
       minItemWidth: () => outputRangeRef.current[0],
       maxItemWidth: () => outputRangeRef.current[1],
-      onSelectedIndexChange: setSelectedItem,
+      onSelectedIndexChange: (i) => {
+        lastReportedIndexRef.current = i;
+        setSelectedItem(i);
+      },
     });
 
     controllerRef.current = controller;
@@ -198,10 +204,16 @@ export const Carousel = ({
     return itemScrollXCenter;
   };
 
-  // Re-center only when a controlled `index` prop changes after mount (the
-  // initial position is already seeded by the controller above). Comparing
-  // against `selectedItem` here would fight free scrolling, since scroll
-  // updates `selectedItem` continuously.
+  // Re-center only when the controlled `index` prop changes to a value the
+  // carousel didn't itself just report (the initial position is already
+  // seeded by the controller above). In controlled usage, our own
+  // scroll-driven onSelectedIndexChange notifies the owner, which typically
+  // feeds the same value straight back through `index` -- comparing
+  // against `selectedItem` wouldn't catch that echo (it's already updated
+  // too), so a genuine external "jump to N" request was indistinguishable
+  // from our own scroll confirming it arrived at N, and every step of a
+  // free scroll re-triggered an instant centerOnIndex against the position
+  // the user was still actively dragging through.
   const didMountRef = useRef(false);
   useEffect(() => {
     if (items.length === 0) return;
@@ -209,7 +221,7 @@ export const Carousel = ({
       didMountRef.current = true;
       return;
     }
-    if (typeof index === 'number') {
+    if (typeof index === 'number' && index !== lastReportedIndexRef.current) {
       centerOnIndex(index);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
