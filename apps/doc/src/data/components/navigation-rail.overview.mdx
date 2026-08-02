@@ -1,140 +1,138 @@
 ---
 ---
 
+import Code from '@/components/Code.astro';
+import NavigationRailBasicReact from '@/examples/react/navigation-rail-basic.tsx';
+import navigationRailBasicReactSource from '@/examples/react/navigation-rail-basic.tsx?raw';
+import { NavigationRailBasicAngular } from '@/examples/angular/navigation-rail-basic.ts';
+import navigationRailBasicAngularSource from '@/examples/angular/navigation-rail-basic.ts?raw';
+import NavigationRailAlignmentReact from '@/examples/react/navigation-rail-alignment.tsx';
+import navigationRailAlignmentReactSource from '@/examples/react/navigation-rail-alignment.tsx?raw';
+import { NavigationRailAlignmentAngular } from '@/examples/angular/navigation-rail-alignment.ts';
+import navigationRailAlignmentAngularSource from '@/examples/angular/navigation-rail-alignment.ts?raw';
+import NavigationRailExtendedReact from '@/examples/react/navigation-rail-extended.tsx';
+import navigationRailExtendedReactSource from '@/examples/react/navigation-rail-extended.tsx?raw';
+import { NavigationRailExtendedAngular } from '@/examples/angular/navigation-rail-extended.ts';
+import navigationRailExtendedAngularSource from '@/examples/angular/navigation-rail-extended.ts?raw';
+import NavigationRailSelectionReact from '@/examples/react/navigation-rail-selection.tsx';
+import navigationRailSelectionReactSource from '@/examples/react/navigation-rail-selection.tsx?raw';
+import { NavigationRailSelectionAngular } from '@/examples/angular/navigation-rail-selection.ts';
+import navigationRailSelectionAngularSource from '@/examples/angular/navigation-rail-selection.ts?raw';
+import NavigationRailFooterReact from '@/examples/react/navigation-rail-footer.tsx';
+import navigationRailFooterReactSource from '@/examples/react/navigation-rail-footer.tsx?raw';
+import { NavigationRailFooterAngular } from '@/examples/angular/navigation-rail-footer.ts';
+import navigationRailFooterAngularSource from '@/examples/angular/navigation-rail-footer.ts?raw';
 
-import { CodePreview } from '@/components/CodePreview.js';
-import { iNotifications } from '@udixio/icons-rounded-400/notifications';
-import { iCalendarMonth } from '@udixio/icons-rounded-400/calendar_month';
-import { iShowChart } from '@udixio/icons-rounded-400/show_chart';
-import { iSchedule } from '@udixio/icons-rounded-400/schedule';
-import { iHourglass } from '@udixio/icons-rounded-400/hourglass';
-import { iMusicNote } from '@udixio/icons-rounded-400/music_note';
-import { iAdd } from '@udixio/icons-rounded-400/add';
-import { iTimer } from '@udixio/icons-rounded-400/timer';
+## One family, one doc
 
-## Usage
+`NavigationRail`, `NavigationRailItem`, and `NavigationRailSection` form a
+single family. This page is their shared documentation; each component keeps
+its own API reference:
 
-NavigationRail provides primary navigation for an app. Use NavigationRail with NavigationRailItem children. Optionally include a Fab and sections.
+- [`NavigationRail`](/components/navigation-rail/api)
+- [`NavigationRailItem`](/components/navigation-rail-item/api)
+- [`NavigationRailSection`](/components/navigation-rail-section/api)
 
-```bash
-import { NavigationRail, NavigationRailItem, NavigationRailSection, Fab } from "@udixio/ui-react"
-```
+`NavigationRail` provides primary navigation for an app on mid-sized devices.
+Compose it with `NavigationRailItem` children; optionally include a `Fab` and
+`NavigationRailSection` labels.
 
-```tsx
-<NavigationRail>
-  <NavigationRailItem icon={iNotifications} iconSelected={iNotifications} selected>
-    Alarm
-  </NavigationRailItem>
-  <NavigationRailItem icon={iSchedule} iconSelected={iSchedule}>
-    Clock
-  </NavigationRailItem>
-  <NavigationRailItem icon={iHourglass} iconSelected={iHourglass}>
-    Timer
-  </NavigationRailItem>
-  <NavigationRailItem icon={iTimer} iconSelected={iTimer}>
-    Stopwatch
-  </NavigationRailItem>
-</NavigationRail>
-```
+<Code
+  center={false}
+  codes={{
+    react: navigationRailBasicReactSource,
+    angular: navigationRailBasicAngularSource,
+  }}
+>
+  <NavigationRailBasicReact slot="react" client:load />
+  <NavigationRailBasicAngular slot="angular" client:load />
+</Code>
 
 ## Alignment
 
-alignment: "top" (default) | "middle"
+`alignment` distributes items either from the top (`"top"`, default) or
+spread across the rail's full height (`"middle"`).
 
-<CodePreview
+<Code
   center={false}
-  client:load
-  code={`<div class="h-[750px] flex gap-8">
-   <NavigationRail className="bg-surface-container-highest" alignment="top">
-        <NavigationRailItem icon={iNotifications}  iconSelected={iNotifications} selected >Alarm</NavigationRailItem>
-        <NavigationRailItem icon={iSchedule}  iconSelected={iSchedule} >Clock</NavigationRailItem>
-        <NavigationRailItem icon={iHourglass}  iconSelected={iHourglass} >Timer</NavigationRailItem>
-        <NavigationRailItem icon={iTimer}  iconSelected={iTimer} >Stopwatch</NavigationRailItem>
-  </NavigationRail>
-  <NavigationRail className="bg-surface-container-highest" alignment="middle">
-        <NavigationRailItem icon={iNotifications}  iconSelected={iNotifications} label="Alarm" selected />
-        <NavigationRailItem icon={iSchedule}  iconSelected={iSchedule} label="Clock" />
-        <NavigationRailItem icon={iHourglass}  iconSelected={iHourglass} label="Timer" />
-        <NavigationRailItem icon={iTimer}  iconSelected={iTimer} label="Stopwatch" />
-  </NavigationRail>
-</div>
-`}
-  scope={{ iNotifications, iSchedule, iHourglass, iTimer, iAdd }}
-/>
+  codes={{
+    react: navigationRailAlignmentReactSource,
+    angular: navigationRailAlignmentAngularSource,
+  }}
+>
+  <NavigationRailAlignmentReact slot="react" client:load />
+  <NavigationRailAlignmentAngular slot="angular" client:load />
+</Code>
 
 ## Extended rail
 
-Toggle the extended mode to reveal labels and optional sections. You can control it with the `extended` and `onExtendedChange` props.
+Toggling the extended mode reveals labels and any `NavigationRailSection`.
+Control it with `extended`/`onExtendedChange` (`extendedChange` in Angular),
+or leave it uncontrolled with `defaultExtended`. A `Fab` placed as a direct
+child is hoisted into the rail's header; Angular does not clone it, so pass
+its `extended` state explicitly.
 
-    <CodePreview
-      center={false}
-      client:load
-      code={`
-    function Example() {
-    const [extended, setExtended] = React.useState(true)
-    return (
-    <NavigationRail className="bg-surface-container-highest h-[750px]" extended={extended}
-
-onExtendedChange={setExtended}>
-
-<Fab label="Add Timer" icon={iAdd} />
-  <NavigationRailItem icon={iNotifications} iconSelected={iNotifications} label="Alarm" />
-  <NavigationRailItem icon={iSchedule} iconSelected={iSchedule} label="Clock" />
-  <NavigationRailItem icon={iHourglass} iconSelected={iHourglass} label="Timer" />
-  <NavigationRailItem icon={iTimer} iconSelected={iTimer} label="Stopwatch" />
-  <NavigationRailSection label="Sleep well" />
-  <NavigationRailItem label="Schedule" icon={iCalendarMonth} iconSelected={iCalendarMonth} />
-  <NavigationRailItem label="Stats" icon={iShowChart} iconSelected={iShowChart} />
-  <NavigationRailItem label="Sleep sound" icon={iMusicNote} iconSelected={iMusicNote} />
-</NavigationRail>
-)
-}
-`}
-  scope={{
-    iNotifications,
-    iSchedule,
-    iHourglass,
-    iTimer,
-    iAdd,
-    iCalendarMonth,
-    iShowChart,
-    iMusicNote,
+<Code
+  center={false}
+  codes={{
+    react: navigationRailExtendedReactSource,
+    angular: navigationRailExtendedAngularSource,
   }}
-/>
+>
+  <NavigationRailExtendedReact slot="react" client:load />
+  <NavigationRailExtendedAngular slot="angular" client:load />
+</Code>
 
 ## Controlled selection
 
-Use `selectedItem` and `setSelectedItem` to control the selected item. `onItemSelected` notifies with index, label, and icon.
+Use `selectedItem` to control the selected item. React exposes a raw
+`setSelectedItem` dispatcher; Angular follows this repository's output
+convention with `selectedItemChange` (`[(selectedItem)]` also works).
+`onItemSelected`/`itemSelected` notifies with the resulting index, label, and
+icon.
 
-<CodePreview
-  client:load
+<Code
   center={false}
-  code={`
-function Example() {
-  const [index, setIndex] = React.useState(0)
-  return (
-    <NavigationRail className="bg-surface-container-highest h-[750px]" selectedItem={index} setSelectedItem={setIndex}>
-      <Fab label="Add Timer" icon={iAdd} />
-      <NavigationRailItem icon={iNotifications} iconSelected={iNotifications} label="Alarm" />
-      <NavigationRailItem icon={iSchedule} iconSelected={iSchedule} label="Clock" />
-      <NavigationRailItem icon={iHourglass} iconSelected={iHourglass} label="Timer" />
-      <NavigationRailItem icon={iTimer} iconSelected={iTimer} label="Stopwatch" />
-      <NavigationRailSection label="Sleep well" />
-      <NavigationRailItem label="Schedule" icon={iCalendarMonth} iconSelected={iCalendarMonth} />
-      <NavigationRailItem label="Stats" icon={iShowChart} iconSelected={iShowChart} />
-      <NavigationRailItem label="Sleep sound" icon={iMusicNote} iconSelected={iMusicNote} />
-    </NavigationRail>
-  )
-}
-`}
-  scope={{
-    iNotifications,
-    iSchedule,
-    iHourglass,
-    iTimer,
-    iAdd,
-    iCalendarMonth,
-    iShowChart,
-    iMusicNote,
+  codes={{
+    react: navigationRailSelectionReactSource,
+    angular: navigationRailSelectionAngularSource,
   }}
-/>
+>
+  <NavigationRailSelectionReact slot="react" client:load />
+  <NavigationRailSelectionAngular slot="angular" client:load />
+</Code>
+
+## Footer content
+
+`footer` pins arbitrary content — an account menu, a sign-out button — below
+the item list, without wrapping `NavigationRail` in a custom layout. In
+Angular, add a `footer` attribute to the projected element.
+
+<Code
+  center={false}
+  codes={{
+    react: navigationRailFooterReactSource,
+    angular: navigationRailFooterAngularSource,
+  }}
+>
+  <NavigationRailFooterReact slot="react" client:load />
+  <NavigationRailFooterAngular slot="angular" client:load />
+</Code>
+
+## Composition
+
+- `NavigationRailItem` is a single destination; it renders a link when
+  `href` is set, otherwise a button. The selected item exposes
+  `aria-current="page"`.
+- `NavigationRailSection` is a non-interactive label that groups the items
+  following it; it, and any item placed after it, only render while the rail
+  is extended.
+- A `Fab` placed as a direct child is hoisted into the rail's header and
+  collapses/expands with the rail.
+
+## Angular differences
+
+- `NavigationRailItem`'s label reveal (width/height + opacity) is driven by a
+  shared `@udixio/core/dom` Motion controller, identical in both frameworks.
+- Angular does not clone the projected `Fab`; bind its `extended` input
+  explicitly from the same state driving the rail (see the example above).

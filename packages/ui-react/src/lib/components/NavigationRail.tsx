@@ -7,12 +7,12 @@ import {
   type ReactElement,
   type ReactNode,
   type SetStateAction,
-  useEffect,
   useRef,
   useState,
 } from 'react';
 import type { Transition } from 'motion';
 import {
+  getNextNavigationRailExtended,
   type NavigationRailInterface,
   navigationRailStyle,
   type ReactProps,
@@ -20,17 +20,20 @@ import {
 import {
   NavigationRailItem,
   type NavigationRailItemSelectedEvent,
-  NavigationRailSection,
   type ReactNavigationRailItemProps,
 } from './NavigationRailItem';
+import { NavigationRailSection } from './NavigationRailSection';
 import { Fab, type ReactFabProps } from './Fab';
 import { createUseStyle } from '../utils/create-use-style';
+import { useControllableState } from '../utils/use-controllable-state';
 import { iClose } from '@udixio/icons-rounded-400/close';
 import { iMenu } from '@udixio/icons-rounded-400/menu';
 import { IconButton } from './IconButton';
 
 export type ReactNavigationRailProps = ReactProps<NavigationRailInterface> & {
   children?: ReactNode;
+  /** Content pinned below the item list (e.g. an account or sign-out action). */
+  footer?: ReactNode;
   transition?: Transition;
   setSelectedItem?: Dispatch<SetStateAction<number | null>>;
   onItemSelected?: (args: NavigationRailItemSelectedEvent) => void;
@@ -45,17 +48,23 @@ export const useNavigationRailStyle = createUseStyle(navigationRailStyle);
  * @devx
  * - Treats `NavigationRailItem`, `NavigationRailSection`, and `Fab` specially.
  * - Selection is index-based; provide `selectedItem` for controlled usage.
+ * - `footer` pins arbitrary content (e.g. a sign-out button) below the items,
+ *   without needing to wrap the rail in a custom layout.
+ * @a11y
+ * - The menu toggle button exposes its open/closed label via `menu.opened`/
+ *   `menu.closed`; there is no additional live region for the extended state.
  * @limitations
- * - `extended` is not fully controlled (prop changes after mount aren’t synced).
  * - Keyboard navigation/roving tabindex is not implemented.
  */
 export const NavigationRail = ({
   variant = 'standard',
   onItemSelected,
   children,
+  footer,
   className,
   selectedItem: externalSelectedItem,
   extended,
+  defaultExtended,
   alignment = 'top',
   menu = {
     closed: {
@@ -76,7 +85,13 @@ export const NavigationRail = ({
     number | null
   >(null);
 
-  const [isExtended, setIsExtended] = useState(extended ?? false);
+  const [isExtended, setIsExtended] = useControllableState({
+    value: extended,
+    defaultValue: defaultExtended ?? false,
+    onChange: onExtendedChange,
+    componentName: 'NavigationRail',
+    stateName: 'extended',
+  });
 
   let selectedIndex: number | null;
   if (externalSelectedItem == 0 || externalSelectedItem != undefined) {
@@ -118,6 +133,7 @@ export const NavigationRail = ({
     variant,
     selectedItem: externalSelectedItem,
     extended,
+    defaultExtended,
     onExtendedChange,
     alignment,
     menu,
@@ -129,10 +145,6 @@ export const NavigationRail = ({
   const extendedOnly = useRef(false);
   extendedOnly.current = false;
 
-  useEffect(() => {
-    onExtendedChange?.(isExtended);
-  }, [isExtended]);
-
   return (
     <div
       style={{ transition: transition.duration + 's', ...style }}
@@ -141,7 +153,7 @@ export const NavigationRail = ({
     >
       <div className={styles.header}>
         <IconButton
-          onClick={() => setIsExtended(!isExtended)}
+          onClick={() => setIsExtended(getNextNavigationRailExtended(isExtended))}
           label={isExtended ? menu?.opened.label : menu?.closed.label}
           className={styles.menuIcon}
           icon={!isExtended ? menu?.closed.icon : menu.opened.icon}
@@ -156,12 +168,18 @@ export const NavigationRail = ({
       <div className={styles.segments}>
         {(() => {
           let itemIndex = 0;
-          return childrenArray.map((child) => {
+          return childrenArray.map((child, arrIndex) => {
             if (isValidElement(child) && child.type === NavigationRailItem) {
               return cloneElement(
                 child as ReactElement<ReactNavigationRailItemProps>,
                 {
-                  key: itemIndex,
+                  // La clé React doit être unique parmi TOUS les enfants de
+                  // segments (items + sections) : arrIndex l'est toujours,
+                  // alors qu'itemIndex (compteur dédié aux seuls items) peut
+                  // entrer en collision avec l'arrIndex d'une section placée
+                  // plus tôt, provoquant une réconciliation incorrecte (ex:
+                  // le texte d'une NavigationRailSection dupliqué après clic).
+                  key: arrIndex,
                   index: itemIndex++, // Utilise et incrémente le compteur dédié
                   variant: isExtended ? 'horizontal' : 'vertical',
                   selectedItem: selectedIndex,
@@ -179,13 +197,15 @@ export const NavigationRail = ({
             if (isValidElement(child) && child.type === NavigationRailSection) {
               extendedOnly.current = true;
               if (!isExtended) return null;
-              return cloneElement(child as ReactElement<{ label: string }>, {});
+              return cloneElement(child as ReactElement<{ label: string }>, {
+                key: arrIndex,
+              });
             }
             return child;
           });
         })()}
       </div>
-      <div className={'flex-1 max-h-[160px]'}></div>
+      <div className={styles.footer}>{footer}</div>
     </div>
   );
 };

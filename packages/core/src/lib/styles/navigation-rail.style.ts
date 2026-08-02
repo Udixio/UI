@@ -21,6 +21,10 @@ const navigationRailConfig: ClassNameComponent<NavigationRailInterface> = ({
     'w-full': !isExtended,
     'w-fit  items-start': isExtended,
   }),
+  footer: cx('flex-1 max-h-[160px] flex flex-col justify-end mx-5 mb-2', {
+    'items-center': !isExtended,
+    'items-start': isExtended,
+  }),
 });
 
 export const navigationRailStyle = defaultClassNames<NavigationRailInterface>(

@@ -27,6 +27,7 @@ export * from './TabPanels';
 export * from './TabPanel';
 export * from './TextField';
 export * from './NavigationRailItem';
+export * from './NavigationRailSection';
 export * from './NavigationRail';
 export * from './Tooltip';
 export * from './DatePicker';

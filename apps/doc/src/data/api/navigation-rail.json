@@ -9,8 +9,9 @@
       "tags": {
         "status": "beta",
         "category": "Navigation",
-        "devx": "- Treats `NavigationRailItem`, `NavigationRailSection`, and `Fab` specially.\n- Selection is index-based; provide `selectedItem` for controlled usage.",
-        "limitations": "- `extended` is not fully controlled (prop changes after mount aren’t synced).\n- Keyboard navigation/roving tabindex is not implemented."
+        "devx": "- Treats `NavigationRailItem`, `NavigationRailSection`, and `Fab` specially.\n- Selection is index-based; provide `selectedItem` for controlled usage.\n- `footer` pins arbitrary content (e.g. a sign-out button) below the items,\n  without needing to wrap the rail in a custom layout.",
+        "a11y": "- The menu toggle button exposes its open/closed label via `menu.opened`/\n  `menu.closed`; there is no additional live region for the extended state.",
+        "limitations": "- Keyboard navigation/roving tabindex is not implemented."
       },
       "methods": [],
       "props": {
@@ -25,7 +26,7 @@
         },
         "variant": {
           "name": "variant",
-          "description": "",
+          "description": "Visual density of the rail; `modal` is meant for a temporary overlay presentation.",
           "required": false,
           "type": {
             "name": "\"standard\" | \"modal\""
@@ -52,9 +53,18 @@
           },
           "defaultValue": null
         },
+        "defaultExtended": {
+          "name": "defaultExtended",
+          "description": "Initial extended state when uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        },
         "alignment": {
           "name": "alignment",
-          "description": "",
+          "description": "Vertical distribution of items: `top`-anchored or `middle` of the rail.",
           "required": false,
           "type": {
             "name": "\"middle\" | \"top\""
@@ -65,14 +75,164 @@
         },
         "menu": {
           "name": "menu",
-          "description": "",
+          "description": "Icon and label shown by the menu toggle button in each extended/closed state.",
           "required": false,
           "type": {
-            "name": "{ closed: MenuState; opened: MenuState; }"
+            "name": "{ closed: NavigationRailMenuState; opened: NavigationRailMenuState; }"
           },
           "defaultValue": {
             "value": "{\n    closed: {\n      icon: iMenu,\n      label: 'Open menu',\n    },\n    opened: {\n      icon: iClose,\n      label: 'Close menu',\n    },\n  }"
           }
+        },
+        "footer": {
+          "name": "footer",
+          "description": "Content pinned below the item list (e.g. an account or sign-out action).",
+          "required": false,
+          "type": {
+            "name": "ReactNode"
+          },
+          "defaultValue": null
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/navigation-rail/navigation-rail.ts",
+      "description": "Navigation rails let people switch between UI views on mid-sized devices.",
+      "tags": {
+        "status": "beta",
+        "category": "Navigation",
+        "devx": "- Project `lib-navigation-rail-item`, `lib-navigation-rail-section`, and\n  a `lib-fab` as children; the FAB is hoisted into the header.\n- `footer` content is projected via `<div footer>`/an element with a\n  `footer` attribute, pinned below the item list.\n- Selection is index-based; use `selectedItem`/`selectedItemChange` for\n  controlled usage, or `defaultSelectedItem` uncontrolled.",
+        "a11y": "- The menu toggle button exposes its open/closed label via `menu.opened`/\n  `menu.closed`.",
+        "limitations": "- Keyboard navigation/roving tabindex is not implemented.\n- Angular's `selectedItem`/`selectedItemChange` follow this repository's\n  output-naming convention; React instead exposes a raw\n  `setSelectedItem` dispatcher (an intentional platform difference, not a\n  parity gap)."
+      },
+      "inputs": {
+        "variant": {
+          "name": "variant",
+          "description": "Visual density of the rail; `modal` is meant for a temporary overlay presentation.",
+          "required": false,
+          "type": {
+            "name": "\"standard\" | \"modal\" | undefined"
+          },
+          "defaultValue": {
+            "value": "'standard'"
+          }
+        },
+        "alignment": {
+          "name": "alignment",
+          "description": "Vertical distribution of items: `top`-anchored or `middle` of the rail.",
+          "required": false,
+          "type": {
+            "name": "\"top\" | \"middle\" | undefined"
+          },
+          "defaultValue": {
+            "value": "'top'"
+          }
+        },
+        "menu": {
+          "name": "menu",
+          "description": "Icon and label shown by the menu toggle button in each extended/closed state.",
+          "required": false,
+          "type": {
+            "name": "{ closed: NavigationRailMenuState; opened: NavigationRailMenuState; }"
+          },
+          "defaultValue": {
+            "value": "DEFAULT_MENU"
+          }
+        },
+        "extended": {
+          "name": "extended",
+          "description": "Controlled extended state of the rail.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        },
+        "defaultExtended": {
+          "name": "defaultExtended",
+          "description": "Initial extended state when uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "selectedItem": {
+          "name": "selectedItem",
+          "description": "Controlled index of the selected item.",
+          "required": false,
+          "type": {
+            "name": "number | null"
+          },
+          "defaultValue": null
+        },
+        "defaultSelectedItem": {
+          "name": "defaultSelectedItem",
+          "description": "Initial selected index when uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "number | null"
+          },
+          "defaultValue": {
+            "value": "null"
+          }
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<NavigationRailInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {
+        "extendedChange": {
+          "name": "extendedChange",
+          "description": "Emits each accepted extended-state request and supports `[(extended)]`.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        },
+        "selectedItemChange": {
+          "name": "selectedItemChange",
+          "description": "Emits each accepted selection request and supports `[(selectedItem)]`.",
+          "required": false,
+          "type": {
+            "name": "number | null"
+          },
+          "defaultValue": null
+        },
+        "itemSelected": {
+          "name": "itemSelected",
+          "description": "Emits once whenever the resolved selection settles on a given item.",
+          "required": false,
+          "type": {
+            "name": "NavigationRailItemSelectedEvent"
+          },
+          "defaultValue": null
+        }
+      },
+      "content": {
+        "slot1": {
+          "name": "slot1",
+          "selector": "lib-fab",
+          "description": "Projected content matching `lib-fab`."
+        },
+        "slot2": {
+          "name": "slot2",
+          "selector": "lib-navigation-rail-item, lib-navigation-rail-section",
+          "description": "Projected content matching `lib-navigation-rail-item, lib-navigation-rail-section`."
+        },
+        "slot3": {
+          "name": "slot3",
+          "selector": "[footer]",
+          "description": "Projected content matching `[footer]`."
         }
       }
     }

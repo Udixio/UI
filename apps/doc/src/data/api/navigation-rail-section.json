@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 2,
+  "displayName": "NavigationRailSection",
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/NavigationRailSection.tsx",
+      "description": "A non-interactive label that groups the `NavigationRailItem`s following it.",
+      "tags": {
+        "status": "beta",
+        "parent": "NavigationRail",
+        "devx": "- Section labels only render when the rail is extended.",
+        "a11y": "- Renders as plain text with no role or heading semantics; it is announced\n  like any other static text, not as a group label for assistive tech.",
+        "limitations": "- Purely visual: it does not group its items in an ARIA sense (no\n  `role=\"group\"`/`aria-labelledby` wiring)."
+      },
+      "methods": [],
+      "props": {}
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/navigation-rail/navigation-rail-section.ts",
+      "description": "A non-interactive label that groups the `lib-navigation-rail-item`s\nfollowing it.",
+      "tags": {
+        "status": "beta",
+        "parent": "NavigationRail",
+        "devx": "- Section labels, and any item placed after one, only render while the\n  rail is extended.",
+        "a11y": "- Renders as plain text with no role or heading semantics.",
+        "limitations": "- Purely visual: it does not group its items in an ARIA sense (no\n  `role=\"group\"`/`aria-labelledby` wiring)."
+      },
+      "inputs": {
+        "label": {
+          "name": "label",
+          "description": "Text of the group label.",
+          "required": true,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {}
+    }
+  }
+}

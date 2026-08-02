@@ -1,6 +1,6 @@
 import { Icon } from '../icon';
 
-type Props = {
+export type NavigationRailItemProps = {
   label?: string;
   icon: Icon;
   iconSelected: Icon;
@@ -32,7 +32,7 @@ type Elements = [
 
 export interface NavigationRailItemInterface {
   type: 'button';
-  props: Props;
+  props: NavigationRailItemProps;
   states: NavigationRailItemStates;
   elements: Elements;
 }

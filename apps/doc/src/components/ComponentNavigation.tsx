@@ -1,3 +1,4 @@
+import { kebabCase } from 'change-case';
 import { Tab, Tabs } from '@udixio/ui-react';
 
 export const ComponentNavigation = ({
@@ -12,9 +13,15 @@ export const ComponentNavigation = ({
     };
   };
 }) => {
-  const overviewId =
-    componentApi.data?.frameworks?.react?.tags?.parent ??
-    (componentApi.id === 'chips' ? 'chip' : componentApi.id);
+  // `@parent` is authored as the component's display name (e.g. `NavigationRail`),
+  // not as the route slug docgen derives from it (`navigation-rail`) — normalize
+  // it the same way docgen names the generated API file.
+  const parent = componentApi.data?.frameworks?.react?.tags?.parent;
+  const overviewId = parent
+    ? kebabCase(parent)
+    : componentApi.id === 'chips'
+      ? 'chip'
+      : componentApi.id;
 
   return (
     <Tabs variant={'secondary'} className={'bg-surface-container'}>

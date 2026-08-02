@@ -5,12 +5,13 @@
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/NavigationRailItem.tsx",
-      "description": "",
+      "description": "A single destination inside a `NavigationRail`; renders as a link when\n`href` is provided, otherwise as a button.",
       "tags": {
         "status": "beta",
         "parent": "NavigationRail",
-        "devx": "- Selection is index-based and provided by the parent rail.\n- `extendedOnly` hides items when the rail is collapsed.",
-        "a11y": "- Uses `role=\"tab\"` but no roving tabindex or aria-controls wiring."
+        "devx": "- Selection is index-based and provided by the parent rail.\n- `extendedOnly` hides items when the rail is collapsed.\n- The label reveal (width/height + opacity, on `extended` changes) is\n  driven by a shared `@udixio/core/dom` Motion controller, the same one\n  the Angular adapter uses.",
+        "a11y": "- Exposes `aria-current=\"page\"` when selected, since the rail is a\n  navigation landmark rather than a tabbed panel switcher.",
+        "limitations": "- No arrow-key navigation between items; relies on the native sequential\n  tab order (a roving tabindex is only required for `tablist`/`listbox`\n  widgets, which this is not)."
       },
       "methods": [],
       "props": {
@@ -82,6 +83,76 @@
           "defaultValue": null
         }
       }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/navigation-rail/navigation-rail-item.ts",
+      "description": "A single destination inside a `lib-navigation-rail`; renders as a link\nwhen `href` is provided, otherwise as a button.",
+      "tags": {
+        "status": "beta",
+        "parent": "NavigationRail",
+        "devx": "- Selection is index-based and resolved from the parent rail; standalone\n  usage falls back to `selected`.\n- An item placed after a `lib-navigation-rail-section` only renders while\n  the rail is extended.\n- The label reveal (width/height + opacity, on `extended` changes) is\n  driven by a shared `@udixio/core/dom` Motion controller, the same one\n  the React adapter uses.",
+        "a11y": "- Exposes `aria-current=\"page\"` when selected, since the rail is a\n  navigation landmark rather than a tabbed panel switcher.",
+        "limitations": "- No arrow-key navigation between items; relies on the native sequential\n  tab order."
+      },
+      "inputs": {
+        "label": {
+          "name": "label",
+          "description": "Text shown alongside (or as the accessible name for) the icon.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "icon": {
+          "name": "icon",
+          "description": "Icon shown while the item is not selected.",
+          "required": false,
+          "type": {
+            "name": "IconType"
+          },
+          "defaultValue": null
+        },
+        "iconSelected": {
+          "name": "iconSelected",
+          "description": "Icon shown while the item is selected.",
+          "required": false,
+          "type": {
+            "name": "IconType"
+          },
+          "defaultValue": null
+        },
+        "selected": {
+          "name": "selected",
+          "description": "Controlled selected state, used when no parent drives the selection.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "href": {
+          "name": "href",
+          "description": "Navigation destination; switches the inner element to a native link.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<NavigationRailItemInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {}
     }
   }
 }

@@ -8,6 +8,8 @@ type Props = {
   id?: string;
   'data-code'?: string;
   'data-language'?: string;
+  /** Centers the preview area; set false for layouts meant to hug an edge (e.g. a sidebar rail). */
+  center?: boolean;
   [key: string]: unknown;
 };
 
@@ -16,6 +18,7 @@ const {
   id,
   'data-code': dataCode,
   'data-language': dataLanguage,
+  center = true,
   ...htmlProps
 } = Astro.props as Props;
 
@@ -80,7 +83,7 @@ const code =
             data-example-panel
             data-framework="react"
             data-view="preview"
-            class="flex min-h-32 items-center justify-center p-8"
+            class={`flex min-h-32 p-8 ${center ? 'items-center justify-center' : 'items-start justify-start'}`}
           >
             <slot name="react" />
           </section>
@@ -106,7 +109,7 @@ const code =
             data-framework="angular"
             data-view="preview"
             hidden={frameworks[0] !== 'angular'}
-            class="flex min-h-32 items-center justify-center p-8"
+            class={`flex min-h-32 p-8 ${center ? 'items-center justify-center' : 'items-start justify-start'}`}
           >
             <slot name="angular" />
           </section>
