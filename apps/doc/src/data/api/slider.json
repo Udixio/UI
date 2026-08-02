@@ -5,12 +5,13 @@
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/Slider.tsx",
-      "description": "Sliders let users make selections from a range of values",
+      "description": "Sliders let users make selections from a range of values.",
       "tags": {
         "status": "beta",
         "category": "Input",
-        "devx": "- `value` is treated as the initial value; component is uncontrolled after mount.\n- `onChange` receives the numeric value (not the DOM event).",
-        "a11y": "- Provides slider role/aria values, but no label prop."
+        "devx": "- `value`/`onChange` are controlled; use `defaultValue` for uncontrolled usage. Choose one mode for the component's lifetime.\n- `onChange` receives the numeric value (not the DOM event) and fires once per accepted transition.\n- Use `-Infinity`/`Infinity` on `min`/`max`, with a matching `marks` entry, for an open-ended range.",
+        "a11y": "- Renders `role=\"slider\"` with `aria-valuemin`/`aria-valuemax`/`aria-valuenow`/`aria-valuetext`.\n- Focusable and responds to ArrowLeft/ArrowRight/ArrowUp/ArrowDown/Home/End; `disabled` removes it from the tab order.\n- Provide `aria-label` or `aria-labelledby`; this component does not render label text.",
+        "limitations": "- Single-thumb only; there is no dual-thumb range-selection mode.\n- Horizontal orientation only."
       },
       "methods": [],
       "props": {
@@ -25,7 +26,16 @@
         },
         "value": {
           "name": "value",
-          "description": "",
+          "description": "Controlled value. Providing it makes the slider controlled for its lifetime.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
+        "defaultValue": {
+          "name": "defaultValue",
+          "description": "Initial value for uncontrolled usage.",
           "required": false,
           "type": {
             "name": "number"
@@ -34,20 +44,56 @@
             "value": "0"
           }
         },
+        "onChange": {
+          "name": "onChange",
+          "description": "Called once for each accepted value transition (drag, click, or keyboard).",
+          "required": false,
+          "type": {
+            "name": "(value: number) => void"
+          },
+          "defaultValue": null
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Prevents interaction and form submission.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "name": {
+          "name": "name",
+          "description": "Name of the underlying hidden form control.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "valueFormatter": {
+          "name": "valueFormatter",
+          "description": "Formats the value shown in the drag indicator and `aria-valuetext`.",
+          "required": false,
+          "type": {
+            "name": "(value: number) => string | number"
+          },
+          "defaultValue": null
+        },
         "step": {
           "name": "step",
-          "description": "",
+          "description": "Snapping increment. Defaults to 10 when neither `step` nor `marks` is\ngiven; explicit `marks` without `step` snaps to those marks instead.",
           "required": false,
           "type": {
             "name": "number"
           },
-          "defaultValue": {
-            "value": "10"
-          }
+          "defaultValue": null
         },
         "min": {
           "name": "min",
-          "description": "",
+          "description": "Minimum value. Use `-Infinity` for an open lower end.",
           "required": false,
           "type": {
             "name": "number"
@@ -58,7 +104,7 @@
         },
         "max": {
           "name": "max",
-          "description": "",
+          "description": "Maximum value. Use `Infinity` for an open upper end.",
           "required": false,
           "type": {
             "name": "number"
@@ -66,6 +112,157 @@
           "defaultValue": {
             "value": "100"
           }
+        },
+        "marks": {
+          "name": "marks",
+          "description": "Labeled positions along the track. Snapped to when `step` is not given;\nshown for reference alongside a numeric `step` otherwise.",
+          "required": false,
+          "type": {
+            "name": "SliderMark[]"
+          },
+          "defaultValue": null
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/slider/slider.ts",
+      "description": "Sliders let users make selections from a range of values.",
+      "tags": {
+        "status": "beta",
+        "category": "Input",
+        "devx": "- `value`/`valueChange` are controlled; use `defaultValue` for uncontrolled usage and `[(value)]` for two-way binding. Choose one mode for the component's lifetime.\n- `valueChange` fires once per accepted transition.\n- Use `-Infinity`/`Infinity` on `min`/`max`, with a matching `marks` entry, for an open-ended range.",
+        "a11y": "- Renders `role=\"slider\"` with `aria-valuemin`/`aria-valuemax`/`aria-valuenow`/`aria-valuetext`.\n- Focusable and responds to ArrowLeft/ArrowRight/ArrowUp/ArrowDown/Home/End; `disabled` removes it from the tab order.\n- Provide `aria-label`/`aria-labelledby`; this component does not render label text.",
+        "limitations": "- Single-thumb only; there is no dual-thumb range-selection mode.\n- Horizontal orientation only."
+      },
+      "inputs": {
+        "value": {
+          "name": "value",
+          "description": "Controlled value. Providing it makes the slider controlled for its lifetime.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
+        "defaultValue": {
+          "name": "defaultValue",
+          "description": "Initial value for uncontrolled usage.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "0"
+          }
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Prevents interaction and form submission.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "name": {
+          "name": "name",
+          "description": "Name of the underlying hidden form control.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "step": {
+          "name": "step",
+          "description": "Snapping increment. Defaults to 10 when neither `step` nor `marks` is\ngiven; explicit `marks` without `step` snaps to those marks instead.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
+        "min": {
+          "name": "min",
+          "description": "Minimum value. Use `-Infinity` for an open lower end.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "0"
+          }
+        },
+        "max": {
+          "name": "max",
+          "description": "Maximum value. Use `Infinity` for an open upper end.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "100"
+          }
+        },
+        "marks": {
+          "name": "marks",
+          "description": "Labeled positions along the track. Snapped to when `step` is not given;\nshown for reference alongside a numeric `step` otherwise.",
+          "required": false,
+          "type": {
+            "name": "SliderMark[]"
+          },
+          "defaultValue": null
+        },
+        "valueFormatter": {
+          "name": "valueFormatter",
+          "description": "Formats the value shown in the drag indicator and `aria-valuetext`.",
+          "required": false,
+          "type": {
+            "name": "(value: number) => string | number"
+          },
+          "defaultValue": null
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<SliderInterface>"
+          },
+          "defaultValue": null
+        },
+        "ariaLabel": {
+          "name": "ariaLabel",
+          "description": "Accessible-name override when no visible label is available.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null,
+          "alias": "aria-label"
+        },
+        "ariaLabelledBy": {
+          "name": "ariaLabelledBy",
+          "description": "Id reference for visible text that names the slider.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null,
+          "alias": "aria-labelledby"
+        }
+      },
+      "outputs": {
+        "valueChange": {
+          "name": "valueChange",
+          "description": "Emits once for each accepted value transition.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
         }
       }
     }

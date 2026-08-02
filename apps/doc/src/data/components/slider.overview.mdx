@@ -1,64 +1,116 @@
 ---
 ---
 
+import Code from '@/components/Code.astro';
+import SliderBasicReact from '@/examples/react/slider-basic.tsx';
+import { SliderBasicAngular } from '@/examples/angular/slider-basic.ts';
+import sliderBasicReactSource from '@/examples/react/slider-basic.tsx?raw';
+import sliderBasicAngularSource from '@/examples/angular/slider-basic.ts?raw';
+import SliderControlledReact from '@/examples/react/slider-controlled.tsx';
+import { SliderControlledAngular } from '@/examples/angular/slider-controlled.ts';
+import sliderControlledReactSource from '@/examples/react/slider-controlled.tsx?raw';
+import sliderControlledAngularSource from '@/examples/angular/slider-controlled.ts?raw';
+import SliderMarksReact from '@/examples/react/slider-marks.tsx';
+import { SliderMarksAngular } from '@/examples/angular/slider-marks.ts';
+import sliderMarksReactSource from '@/examples/react/slider-marks.tsx?raw';
+import sliderMarksAngularSource from '@/examples/angular/slider-marks.ts?raw';
+import SliderOpenEndedReact from '@/examples/react/slider-open-ended.tsx';
+import { SliderOpenEndedAngular } from '@/examples/angular/slider-open-ended.ts';
+import sliderOpenEndedReactSource from '@/examples/react/slider-open-ended.tsx?raw';
+import sliderOpenEndedAngularSource from '@/examples/angular/slider-open-ended.ts?raw';
+import SliderDisabledReact from '@/examples/react/slider-disabled.tsx';
+import { SliderDisabledAngular } from '@/examples/angular/slider-disabled.ts';
+import sliderDisabledReactSource from '@/examples/react/slider-disabled.tsx?raw';
+import sliderDisabledAngularSource from '@/examples/angular/slider-disabled.ts?raw';
+
 ## Usage
 
-Use Slider for selecting a value or range along a track.
+Slider lets people select a numeric value from a range along a track by
+dragging the handle, clicking the track, or using the keyboard. Use
+`defaultValue` for uncontrolled usage; the component owns its value from then
+on and only notifies changes.
 
-```bash
-import { Slider } from "@udixio/ui-react"
-```
+<Code
+  codes={{
+    react: sliderBasicReactSource,
+    angular: sliderBasicAngularSource,
+  }}
+>
+  <SliderBasicReact slot="react" client:load />
+  <SliderBasicAngular slot="angular" client:load />
+</Code>
 
-```tsx
-<Slider name="volume" value={30} step={5} />
-```
+## Controlled usage
 
-## Step and marks
+Use `value` with `onChange` in React, or `[(value)]` in Angular. A controlled
+Slider requests a transition but does not change until its owner supplies the
+new value. Choose one mode (controlled or uncontrolled) for the component's
+lifetime.
 
-- Provide `step` for incremental movement.
-- Or use `marks` to snap to labeled positions; omit `step` to only allow marks.
+<Code
+  codes={{
+    react: sliderControlledReactSource,
+    angular: sliderControlledAngularSource,
+  }}
+>
+  <SliderControlledReact slot="react" client:load />
+  <SliderControlledAngular slot="angular" client:load />
+</Code>
 
-```jsx
-<div className="space-y-6">
-  <Slider name="percent" value={50} step={10} />
-  <Slider
-    name="percent"
-    value={25}
-    step={null}
-    marks={[
-      { value: 0, label: '0' },
-      { value: 25, label: '25' },
-      { value: 50, label: '50' },
-      { value: 75, label: '75' },
-      { value: 100, label: '100' },
-    ]}
-  />
-</div>
-```
+## Marks
 
-## Min and max
+Provide `marks` to snap to labeled positions instead of a fixed increment;
+omitting `step` alongside `marks` uses the marks as the only valid stops. When
+both are provided, `step` wins and `marks` are shown for reference only. With
+neither, the slider defaults to a step of 10.
 
-The slider supports finite and infinite ends. Use -Infinity/Infinity to make the first/last marks open ended.
+<Code
+  codes={{
+    react: sliderMarksReactSource,
+    angular: sliderMarksAngularSource,
+  }}
+>
+  <SliderMarksReact slot="react" client:load />
+  <SliderMarksAngular slot="angular" client:load />
+</Code>
 
-```jsx
-<Slider
-  name="range"
-  value={0}
-  min={-Infinity}
-  max={Infinity}
-  marks={[
-    { value: -Infinity, label: 'Min' },
-    { value: 0, label: '0' },
-    { value: 100, label: '100' },
-    { value: Infinity, label: 'Max' },
-  ]}
-/>
-```
+## Open-ended range
 
-## Keyboard and change events
+`min`/`max` accept `-Infinity`/`Infinity` for an open-ended range. Pair the
+open end with a matching `marks` entry (also `-Infinity`/`Infinity`) so it has
+a label and a reachable position; the nearest finite marks resolve the
+interpolation range under the hood.
 
-The slider is focusable and responds to ArrowLeft/ArrowRight. Listen to `onChange` for value updates.
+<Code
+  codes={{
+    react: sliderOpenEndedReactSource,
+    angular: sliderOpenEndedAngularSource,
+  }}
+>
+  <SliderOpenEndedReact slot="react" client:load />
+  <SliderOpenEndedAngular slot="angular" client:load />
+</Code>
 
-```jsx
-<Slider name="brightness" value={70} step={10} onChange={(v) => console.log('value', v)} />
-```
+## Disabled
+
+`disabled` prevents interaction, removes the slider from the tab order, and
+excludes its value from form submission.
+
+<Code
+  codes={{
+    react: sliderDisabledReactSource,
+    angular: sliderDisabledAngularSource,
+  }}
+>
+  <SliderDisabledReact slot="react" client:load />
+  <SliderDisabledAngular slot="angular" client:load />
+</Code>
+
+## Accessibility
+
+The track renders `role="slider"` with `aria-valuemin`/`aria-valuemax`
+(omitted on an open end) and `aria-valuenow`/`aria-valuetext`. It is focusable
+and responds to ArrowLeft/ArrowRight/ArrowUp/ArrowDown (one step, or one mark
+when using `marks` without `step`) and Home/End (jump to the bounds).
+`disabled` sets `aria-disabled` and removes it from the tab order. Provide
+`aria-label` or `aria-labelledby`; this component does not render label text.

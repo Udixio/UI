@@ -1,128 +1,175 @@
-import { AnimatePresence, motion } from 'motion/react';
 import {
   classNames,
+  getSliderKeyboardTransition,
+  getSliderPercentFromValue,
+  SLIDER_KEYBOARD_INDICATOR_TIMEOUT_MS,
   type ReactProps,
   type SliderInterface,
   sliderStyle,
 } from '@udixio/core';
+import {
+  createSliderIndicatorController,
+  createSliderPointerController,
+  type SliderIndicatorController,
+  type SliderPointerController,
+} from '@udixio/core/dom';
 import { useEffect, useRef, useState } from 'react';
 import { createUseStyle } from '../utils/create-use-style';
+import { useControllableState } from '../utils/use-controllable-state';
 
 export type ReactSliderProps = ReactProps<SliderInterface>;
 
 export const useSliderStyle = createUseStyle(sliderStyle);
 
 /**
- * Sliders let users make selections from a range of values
+ * Sliders let users make selections from a range of values.
  * @status beta
  * @category Input
  * @devx
- * - `value` is treated as the initial value; component is uncontrolled after mount.
- * - `onChange` receives the numeric value (not the DOM event).
+ * - `value`/`onChange` are controlled; use `defaultValue` for uncontrolled usage. Choose one mode for the component's lifetime.
+ * - `onChange` receives the numeric value (not the DOM event) and fires once per accepted transition.
+ * - Use `-Infinity`/`Infinity` on `min`/`max`, with a matching `marks` entry, for an open-ended range.
  * @a11y
- * - Provides slider role/aria values, but no label prop.
+ * - Renders `role="slider"` with `aria-valuemin`/`aria-valuemax`/`aria-valuenow`/`aria-valuetext`.
+ * - Focusable and responds to ArrowLeft/ArrowRight/ArrowUp/ArrowDown/Home/End; `disabled` removes it from the tab order.
+ * - Provide `aria-label` or `aria-labelledby`; this component does not render label text.
+ * @limitations
+ * - Single-thumb only; there is no dual-thumb range-selection mode.
+ * - Horizontal orientation only.
  */
 export const Slider = ({
   className,
   valueFormatter,
-  step = 10,
+  step,
   name,
-  value: defaultValue = 0,
+  value,
+  defaultValue = 0,
+  disabled = false,
   min = 0,
   max = 100,
   marks,
-  ref,
+  ref: optionalRef,
   onChange,
   ...restProps
 }: ReactSliderProps) => {
-  const resolvedMarks = marks ?? [
-    { value: min === -Infinity ? 0 : min, label: String(min === -Infinity ? 0 : min) },
-    { value: max === Infinity ? 100 : max, label: String(max === Infinity ? 100 : max) },
-  ];
+  // A discrete step is the default only when the caller didn't opt into
+  // mark-based snapping instead; explicit `marks` without `step` snaps to
+  // those marks, matching the mental model "marks replace the default step".
+  const resolvedStep = step ?? (marks ? undefined : 10);
+  const resolvedMarks =
+    marks ?? [
+      {
+        value: min === -Infinity ? 0 : min,
+        label: String(min === -Infinity ? 0 : min),
+      },
+      {
+        value: max === Infinity ? 100 : max,
+        label: String(max === Infinity ? 100 : max),
+      },
+    ];
 
-  const getpercentFromValue = (value: number) => {
-    const min = getMin();
-    const max = getMax();
+  // Tracked separately so a keyboard-driven hide-timeout can never cut off
+  // an in-progress drag, and vice versa.
+  const [isDragging, setIsDragging] = useState(false);
+  const [isKeyboardActive, setIsKeyboardActive] = useState(false);
+  const isChanging = isDragging || isKeyboardActive;
+  const keyboardIndicatorTimeoutRef = useRef<
+    ReturnType<typeof setTimeout> | undefined
+  >(undefined);
 
-    if (value === Infinity) {
-      return 100;
-    } else if (value === -Infinity) {
-      return 0;
-    }
-    return ((value - min) / (max - min)) * 100;
-  };
+  useEffect(() => {
+    return () => clearTimeout(keyboardIndicatorTimeoutRef.current);
+  }, []);
 
-  const getMax = (isInfinity = false) => {
-    if (isInfinity) {
-      return max;
-    }
-    return max == Infinity ? resolvedMarks[resolvedMarks.length - 1].value : max;
-  };
-  const getMin = (isInfinity = false) => {
-    if (isInfinity) {
-      return min;
-    }
-    return min == -Infinity ? resolvedMarks[0].value : min;
-  };
-
-  const getValueFrompercent = (percent: number) => {
-    const min = getMin(false);
-    const max = getMax(false);
-    return ((max - min) * percent) / 100 + min;
-  };
-
-  const [isChanging, setIsChanging] = useState(false);
   const defaultRef = useRef<HTMLDivElement>(null);
-  const resolvedRef: React.RefObject<any> | React.ForwardedRef<any> =
-    ref || defaultRef;
+  const ref = optionalRef || defaultRef;
 
-  const [value, setValue] = useState(defaultValue);
-  const [percent, setpercent] = useState(getpercentFromValue(defaultValue));
-  const [mouseDown, setMouseDown] = useState(false);
+  const [resolvedValue, setValue] = useControllableState({
+    value,
+    defaultValue,
+    onChange,
+    componentName: 'Slider',
+    stateName: 'value',
+  });
 
-  useEffect(() => {
-    setValue(defaultValue);
-    setpercent(getpercentFromValue(defaultValue));
-  }, [defaultValue]);
+  const percent = getSliderPercentFromValue(resolvedValue, {
+    min,
+    max,
+    marks: resolvedMarks,
+  });
 
-  const handleMouseDown = (e: any) => {
-    setMouseDown(true);
-    setIsChanging(true);
-    handleChange(e);
+  // Kept live for the pointer controller and the keydown handler, which are
+  // wired once and must never read a stale min/max/step/marks/disabled.
+  const liveRef = useRef({
+    min,
+    max,
+    step: resolvedStep,
+    marks: resolvedMarks,
+    disabled,
+    setValue,
+  });
+  liveRef.current = {
+    min,
+    max,
+    step: resolvedStep,
+    marks: resolvedMarks,
+    disabled,
+    setValue,
   };
 
-  const handleMouseUp = () => {
-    setMouseDown(false);
-    setIsChanging(false);
-  };
   useEffect(() => {
-    if (mouseDown) {
-      // Add mouse events
-      window.addEventListener('mouseup', handleMouseUp);
-      window.addEventListener('mousemove', handleChange);
-      // Add touch events
-      window.addEventListener('touchend', handleMouseUp);
-      window.addEventListener('touchmove', handleChange);
-    } else {
-      // Remove mouse events
-      window.removeEventListener('mouseup', handleMouseUp);
-      window.removeEventListener('mousemove', handleChange);
-      // Remove touch events
-      window.removeEventListener('touchend', handleMouseUp);
-      window.removeEventListener('touchmove', handleChange);
-    }
+    const track = ref.current;
+    if (!track) return;
 
+    const controller: SliderPointerController = createSliderPointerController(
+      {
+        track,
+        min: () => liveRef.current.min,
+        max: () => liveRef.current.max,
+        step: () => liveRef.current.step,
+        marks: () => liveRef.current.marks,
+        disabled: () => liveRef.current.disabled,
+        onValueChange: (next) => liveRef.current.setValue(next),
+        onDraggingChange: setIsDragging,
+      },
+    );
+
+    return () => controller.destroy();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const indicatorRef = useRef<HTMLDivElement>(null);
+  const indicatorControllerRef = useRef<SliderIndicatorController>(undefined);
+
+  useEffect(() => {
+    const indicator = indicatorRef.current;
+    if (!indicator) return;
+    const controller = createSliderIndicatorController({ indicator });
+    indicatorControllerRef.current = controller;
     return () => {
-      // Cleanup - remove both mouse, touch and drag events
-      window.removeEventListener('mouseup', handleMouseUp);
-      window.removeEventListener('mousemove', handleChange);
-      window.removeEventListener('touchend', handleMouseUp);
-      window.removeEventListener('touchmove', handleChange);
+      controller.destroy();
+      indicatorControllerRef.current = undefined;
     };
-  }, [mouseDown]);
+  }, []);
+
+  useEffect(() => {
+    indicatorControllerRef.current?.setVisible(isChanging);
+  }, [isChanging]);
+
+  const [sliderWidth, setSliderWidth] = useState(0);
+  useEffect(() => {
+    const track = ref.current;
+    if (!track) return;
+    const updateSliderWidth = () => setSliderWidth(track.offsetWidth);
+    updateSliderWidth();
+    window.addEventListener('resize', updateSliderWidth);
+    return () => window.removeEventListener('resize', updateSliderWidth);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const styles = useSliderStyle({
     className,
+    disabled,
     isChanging,
     marks,
     max,
@@ -130,210 +177,73 @@ export const Slider = ({
     name,
     step,
     value,
+    defaultValue,
     valueFormatter,
     onChange,
   });
-  const handleChange = (event: any) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    const current = resolvedRef?.current;
-    if (current) {
-      const refPosition = current.getBoundingClientRect().left;
 
-      const clientX =
-        event.type === 'touchmove' || event.type === 'touchstart'
-          ? event.touches[0].clientX
-          : event.clientX;
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    const transition = getSliderKeyboardTransition({
+      key: event.key,
+      value: resolvedValue,
+      min,
+      max,
+      step: resolvedStep,
+      marks: resolvedMarks,
+      disabled,
+    });
+    if (transition.blocked) return;
+    event.preventDefault();
+    setValue(transition.nextValue);
 
-      const percent = ((clientX - refPosition) / current.offsetWidth) * 100;
-
-      updateSliderValues({ percent });
-    }
+    setIsKeyboardActive(true);
+    clearTimeout(keyboardIndicatorTimeoutRef.current);
+    keyboardIndicatorTimeoutRef.current = setTimeout(
+      () => setIsKeyboardActive(false),
+      SLIDER_KEYBOARD_INDICATOR_TIMEOUT_MS,
+    );
   };
-  const updateSliderValues = ({
-    percent,
-    value,
-  }: {
-    percent?: number;
-    value?: number;
-  }) => {
-    if (percent) {
-      if (percent >= 100) {
-        setValue(getMax(true));
-        setpercent(100);
-        return;
-      }
-      if (percent <= 0) {
-        setValue(getMin(true));
-        setpercent(0);
-        return;
-      }
 
-      value = getValueFrompercent(percent);
-      if (value == getMin()) {
-        value = getMin(true);
-      }
-      if (value == getMax()) {
-        value = getMax(true);
-      }
-    } else if (value != undefined) {
-      if (value >= getMax()) {
-        setValue(getMax(true));
-        setpercent(100);
-        return;
-      }
-      if (value <= getMin()) {
-        setValue(getMin(true));
-        setpercent(0);
-        return;
-      }
-      percent = getpercentFromValue(value);
-    } else {
-      return;
-    }
-    if (step != null) {
-      value = Math.round((value - getMin()) / step) * step + getMin();
-    } else if (resolvedMarks) {
-      value = resolvedMarks.reduce((prev, curr, currentIndex) => {
-        let currDiff =
-          curr.value === Infinity
-            ? getMax()
-            : curr.value === -Infinity
-              ? getMin()
-              : curr.value;
-        let prevDiff =
-          prev.value === Infinity
-            ? getMax()
-            : prev.value === -Infinity
-              ? getMin()
-              : prev.value;
-        currDiff = Math.abs(currDiff - value!);
-        prevDiff = Math.abs(prevDiff - value!);
-
-        return currDiff < prevDiff ? curr : prev;
-      }).value;
-    }
-
-    if (value >= getMax()) {
-      value = getMax(true);
-    }
-    if (value <= getMin()) {
-      value = getMin(true);
-    }
-
-    percent = getpercentFromValue(value);
-
-    setValue(value);
-    setpercent(percent);
-    if (onChange) {
-      onChange(value);
-    }
+  const handleBlur = () => {
+    clearTimeout(keyboardIndicatorTimeoutRef.current);
+    setIsKeyboardActive(false);
   };
-  const [sliderWidth, setSliderWidth] = useState(0);
-  useEffect(() => {
-    const updateSliderWidth = () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
-      if (resolvedRef.current) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        setSliderWidth(resolvedRef.current.offsetWidth);
-      }
-    };
 
-    updateSliderWidth(); // Initial setup
-    window.addEventListener('resize', updateSliderWidth);
-
-    // Clean up
-    return () => {
-      window.removeEventListener('resize', updateSliderWidth);
-    };
-  }, []);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Check which key is pressed
-    switch (e.key) {
-      case 'ArrowRight':
-        if (step) {
-          updateSliderValues({ value: value + step });
-        } else if (marks) {
-          // Find the next mark (greater than the current value)
-          const nextMark = marks.find((mark) => mark.value > value);
-          if (nextMark) {
-            // If one exists, update the value to the mark's value
-            updateSliderValues({ value: nextMark.value });
-          }
-        }
-        break;
-
-      case 'ArrowLeft':
-        if (step) {
-          updateSliderValues({ value: value - step });
-        } else if (marks) {
-          // Find the previous mark (less than the current value)
-          const previousMark = marks
-            .slice(0)
-            .reverse()
-            .find((mark, index, array) => {
-              if (value === Infinity) {
-                // If value is Infinity, take the second-to-last mark
-                return index === 1;
-              }
-              return mark.value < value;
-            });
-
-          if (previousMark) {
-            // If one exists, update the value to the mark's value
-            updateSliderValues({ value: previousMark.value });
-          }
-        }
-        break;
-      default:
-        return;
-    }
-  };
   return (
     <div
-      tabIndex={0} // Make the slider focusable
-      onKeyDown={handleKeyDown} // Attach the keydown event
-      role="slider" // Inform assistive technologies about the type of the component
-      aria-valuemin={getMin(true)} // Inform about the minimum value
-      aria-valuemax={getMax(true)} // Inform about the maximum value
-      aria-valuenow={value} // Inform about the current value
-      aria-valuetext={value.toString()} // Textual representation of the value
+      tabIndex={disabled ? -1 : 0}
+      onKeyDown={handleKeyDown}
+      onBlur={handleBlur}
+      role="slider"
+      aria-valuemin={min === -Infinity ? undefined : min}
+      aria-valuemax={max === Infinity ? undefined : max}
+      aria-valuenow={resolvedValue}
+      aria-valuetext={resolvedValue.toString()}
+      aria-disabled={disabled || undefined}
       className={styles.slider}
-      onMouseDown={handleMouseDown}
-      onClick={handleChange}
-      ref={resolvedRef}
-      onTouchStart={handleMouseDown}
-      onDragStart={(e) => e.preventDefault()}
+      ref={ref}
       {...restProps}
     >
-      <input type="hidden" name={name} value={value} />
-      <div className={styles.activeTrack} style={{ flex: percent / 100 }}></div>
+      <input
+        type="hidden"
+        name={name}
+        value={resolvedValue}
+        disabled={disabled}
+      />
+      <div
+        className={styles.activeTrack}
+        style={{ flex: percent / 100 }}
+      ></div>
       <div className={styles.handle}>
-        <AnimatePresence>
-          {isChanging && (
-            <motion.div
-              className={styles.valueIndicator}
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-              style={{
-                translate: '-50%',
-                transformOrigin: 'center bottom',
-                textWrap: 'nowrap',
-              }}
-              variants={{
-                visible: { opacity: 1, scale: 1 },
-                hidden: { opacity: 1, scale: 0 },
-              }}
-              transition={{ duration: 0.1 }}
-            >
-              {valueFormatter ? valueFormatter(value) : value}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div className="absolute bottom-[calc(100%+4px)] left-1/2 -translate-x-1/2 transform">
+          <div
+            ref={indicatorRef}
+            className={styles.valueIndicator}
+            style={{ transform: 'scale(0)' }}
+          >
+            {valueFormatter ? valueFormatter(resolvedValue) : resolvedValue}
+          </div>
+        </div>
       </div>
       <div
         className={styles.inactiveTrack}
@@ -344,34 +254,35 @@ export const Slider = ({
           'w-[calc(100%-12px)] h-full absolute -translate-x-1/2 transform left-1/2'
         }
       >
-        {resolvedMarks &&
-          resolvedMarks.map((mark, index) => {
-            let isUnderActiveTrack = null;
+        {resolvedMarks.map((mark, index) => {
+          let isUnderActiveTrack = null;
 
-            const handleAndGapPercent =
-              ((isChanging ? 9 : 10) / sliderWidth) * 100;
-            const markPercent = getpercentFromValue(mark.value);
+          const handleAndGapPercent = ((isChanging ? 9 : 10) / sliderWidth) * 100;
+          const markPercent = getSliderPercentFromValue(mark.value, {
+            min,
+            max,
+            marks: resolvedMarks,
+          });
 
-            if (markPercent <= percent - handleAndGapPercent) {
-              isUnderActiveTrack = true;
-            } else if (markPercent >= percent + handleAndGapPercent) {
-              isUnderActiveTrack = false;
-            }
-            return (
-              <div
-                key={index}
-                className={classNames(styles.dot, {
-                  'bg-primary-container':
-                    isUnderActiveTrack != null && isUnderActiveTrack,
-                  'bg-primary':
-                    isUnderActiveTrack != null && !isUnderActiveTrack,
-                })}
-                style={{
-                  left: `${getpercentFromValue(mark.value)}%`,
-                }}
-              ></div>
-            );
-          })}
+          if (markPercent <= percent - handleAndGapPercent) {
+            isUnderActiveTrack = true;
+          } else if (markPercent >= percent + handleAndGapPercent) {
+            isUnderActiveTrack = false;
+          }
+          return (
+            <div
+              key={index}
+              className={classNames(styles.dot, {
+                'bg-primary-container':
+                  isUnderActiveTrack != null && isUnderActiveTrack,
+                'bg-primary': isUnderActiveTrack != null && !isUnderActiveTrack,
+              })}
+              style={{
+                left: `${markPercent}%`,
+              }}
+            ></div>
+          );
+        })}
       </div>
     </div>
   );

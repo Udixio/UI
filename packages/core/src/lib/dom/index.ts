@@ -6,4 +6,5 @@ export * from './linear-indeterminate.js';
 export * from './menu.js';
 export * from './navigation-rail-item.js';
 export * from './progress-visibility.js';
+export * from './slider.js';
 export * from './state-layer.js';
