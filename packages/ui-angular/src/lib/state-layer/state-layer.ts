@@ -26,14 +26,14 @@ import { createStyle } from '../utils/create-style';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents; border-radius: inherit' },
   template: `
-    <div
+    <span
       #layer
       aria-hidden="true"
       [class]="styles()['stateLayer']"
       [style.--state-color]="
         'var(--default-color, var(--color-' + colorName() + '))'
       "
-    ></div>
+    ></span>
   `,
 })
 export class StateLayer {

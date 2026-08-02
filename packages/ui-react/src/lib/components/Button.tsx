@@ -2,6 +2,7 @@ import type {
   AnchorHTMLAttributes,
   ButtonHTMLAttributes,
   ComponentProps,
+  CSSProperties,
   MouseEventHandler,
   ReactNode,
   Ref,
@@ -281,7 +282,7 @@ export const Button = (props: ReactButtonProps) => {
 
   const content = (
     <>
-      <div className={styles.touchTarget}></div>
+      <span className={styles.touchTarget}></span>
       <State
         shapeTransition={shapeTransition}
         className={styles.stateLayer}
@@ -295,7 +296,7 @@ export const Button = (props: ReactButtonProps) => {
 
       {resolvedIconPosition === 'start' && iconElement}
       {loading && (
-        <div
+        <span
           aria-hidden="true"
           className={
             '!absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2'
@@ -304,19 +305,28 @@ export const Button = (props: ReactButtonProps) => {
           <ProgressIndicator
             className={() => ({
               progressIndicator: 'h-6 w-6',
+              // `activeIndicator` always carries its own `stroke-primary`
+              // class, which wins over an inherited `stroke` value from an
+              // ancestor's inline style. Overriding it directly (with
+              // `!important`) through a CSS variable is what actually lets
+              // the color apply, matching the `--state-color` pattern used
+              // by the shared state layer.
+              activeIndicator: '!stroke-[var(--button-progress-color)]',
             })}
             aria-hidden="true"
-            style={{
-              stroke: getButtonProgressColor({
-                variant,
-                disabled,
-                toggleable: isToggleButton,
-                isPressed,
-              }),
-            }}
+            style={
+              {
+                '--button-progress-color': getButtonProgressColor({
+                  variant,
+                  disabled,
+                  toggleable: isToggleButton,
+                  isPressed,
+                }),
+              } as CSSProperties
+            }
             variant={'circular-indeterminate'}
           />
-        </div>
+        </span>
       )}
       <span className={styles.label}>{resolvedLabel}</span>
       {resolvedIconPosition === 'end' && iconElement}

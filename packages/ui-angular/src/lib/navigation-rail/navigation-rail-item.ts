@@ -79,7 +79,7 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
     }
 
     <ng-template #content>
-      <div [class]="styles()['container']" [style.transition]="containerTransition()">
+      <span [class]="styles()['container']" [style.transition]="containerTransition()">
         <lib-state-layer
           [className]="styles()['stateLayer']"
           [colorName]="isSelected() ? 'on-secondary-container' : 'on-surface'"
@@ -98,7 +98,7 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
           [style]="initialHorizontalStyle"
           >{{ label() }}</span
         >
-      </div>
+      </span>
       <span
         #verticalLabel
         [class]="styles()['label']"

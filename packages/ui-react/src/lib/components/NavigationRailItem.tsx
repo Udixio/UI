@@ -212,7 +212,7 @@ export const NavigationRailItem = ({
       onClick={handleClick}
       style={{ transition: transition.duration + 's', ...style }}
     >
-      <div
+      <span
         style={{
           transition:
             variant == 'horizontal'
@@ -246,7 +246,7 @@ export const NavigationRailItem = ({
         >
           {label}
         </span>
-      </div>
+      </span>
       <span
         ref={verticalLabelRef}
         className={styles.label}

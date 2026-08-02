@@ -94,7 +94,7 @@ describe('Checkbox', () => {
     render(<NamedCheckbox defaultChecked />);
     const checkbox = screen.getByRole('checkbox');
     const icon = checkbox.parentElement?.querySelector(
-      'div[aria-hidden="true"] svg',
+      'span[aria-hidden="true"] svg',
     );
 
     expect(icon).toHaveAttribute('viewBox', '0 -960 960 960');

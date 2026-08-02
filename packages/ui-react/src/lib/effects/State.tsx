@@ -26,7 +26,7 @@ export const State = ({
   children,
   className,
 }: ReactStateLayerProps) => {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLSpanElement>(null);
   const controllerRef = useRef<StateLayerController>(null);
   const shapeTransitionRef = useRef(shapeTransition);
   shapeTransitionRef.current = shapeTransition;
@@ -69,7 +69,7 @@ export const State = ({
   }, [shapeTransition]);
 
   return (
-    <div
+    <span
       ref={ref}
       aria-hidden="true"
       className={styles.stateLayer}
@@ -79,7 +79,7 @@ export const State = ({
       }}
     >
       {children}
-    </div>
+    </span>
   );
 };
 
