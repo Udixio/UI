@@ -36,7 +36,13 @@ export function createCircularProgressController({
     ),
     animate(
       circle,
-      { pathLength: [0.1, 0.9, 0.1] },
+      // `rotate` turns the circle a full extra turn during the shrink half
+      // so the trailing edge catches up to the leading edge instead of the
+      // leading edge retreating — without it the arc visibly reverses
+      // direction every time it shrinks. A circle is rotationally
+      // symmetric, so this is equivalent to (and, unlike `pathOffset`,
+      // loops back cleanly across) advancing the draw start point.
+      { pathLength: [0.1, 0.9, 0.1], rotate: [0, 0, 360] },
       { duration: duration * 2, repeat: Infinity, ease: 'easeInOut' },
     ),
   ];

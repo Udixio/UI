@@ -5,12 +5,12 @@
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/ProgressIndicator.tsx",
-      "description": "",
+      "description": "Progress indicators express an unspecified wait time or display the length\nof a process.",
       "tags": {
         "status": "beta",
         "category": "Communication",
         "devx": "- `value` is clamped to 0–100; indeterminate variants ignore it.",
-        "a11y": "- Missing `role=\"progressbar\"` and aria-* attributes.",
+        "a11y": "- Renders `role=\"progressbar\"` with `aria-valuemin`/`aria-valuemax`; determinate\n  variants also expose `aria-valuenow`.\n- Provide `aria-label` or `aria-labelledby`; this component does not infer an\n  accessible name.",
         "limitations": "- Visibility auto-hides at 100% (no controlled open prop)."
       },
       "methods": [],
@@ -67,6 +67,91 @@
           "defaultValue": null
         }
       }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/progress-indicator/progress-indicator.ts",
+      "description": "Progress indicators express an unspecified wait time or display the length\nof a process.",
+      "tags": {
+        "status": "beta",
+        "category": "Communication",
+        "devx": "- `value` is clamped to 0–100; indeterminate variants ignore it.",
+        "a11y": "- Renders `role=\"progressbar\"` with `aria-valuemin`/`aria-valuemax`; determinate\n  variants also expose `aria-valuenow`.\n- Provide `aria-label`/`aria-labelledby`; this component does not infer an\n  accessible name.",
+        "limitations": "- Visibility auto-hides at 100% (no controlled open prop)."
+      },
+      "inputs": {
+        "variant": {
+          "name": "variant",
+          "description": "The variant of the ProgressIndicator.",
+          "required": false,
+          "type": {
+            "name": "ProgressIndicatorVariant"
+          },
+          "defaultValue": {
+            "value": "'linear-determinate'"
+          }
+        },
+        "value": {
+          "name": "value",
+          "description": "The percentage of the progress completed.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "0"
+          }
+        },
+        "transitionDuration": {
+          "name": "transitionDuration",
+          "description": "The duration of the transition animation in milliseconds.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "1000"
+          }
+        },
+        "minHeight": {
+          "name": "minHeight",
+          "description": "The minimum height of the line used to draw the linear indicator.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<ProgressIndicatorInterface>"
+          },
+          "defaultValue": null
+        },
+        "ariaLabel": {
+          "name": "ariaLabel",
+          "description": "Accessible-name override; this component does not infer one.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null,
+          "alias": "aria-label"
+        },
+        "ariaLabelledBy": {
+          "name": "ariaLabelledBy",
+          "description": "Id reference for text that names the indicator.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null,
+          "alias": "aria-labelledby"
+        }
+      },
+      "outputs": {}
     }
   }
 }

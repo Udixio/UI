@@ -14,6 +14,7 @@ export * from './lib/menu/menu-item';
 export * from './lib/menu/menu-group';
 export * from './lib/menu/menu-headline';
 export * from './lib/context-menu/context-menu';
+export * from './lib/progress-indicator/progress-indicator';
 export * from './lib/chip/chip';
 export * from './lib/chips/chips';
 export * from './lib/state-layer/state-layer';

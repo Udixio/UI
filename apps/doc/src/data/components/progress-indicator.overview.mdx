@@ -1,55 +1,46 @@
 ---
 ---
 
-## Usage
+import Code from '@/components/Code.astro';
+import ProgressIndicatorDeterminateReact from '@/examples/react/progress-indicator-determinate.tsx';
+import { ProgressIndicatorDeterminateAngular } from '@/examples/angular/progress-indicator-determinate.ts';
+import progressIndicatorDeterminateReactSource from '@/examples/react/progress-indicator-determinate.tsx?raw';
+import progressIndicatorDeterminateAngularSource from '@/examples/angular/progress-indicator-determinate.ts?raw';
+import ProgressIndicatorIndeterminateReact from '@/examples/react/progress-indicator-indeterminate.tsx';
+import { ProgressIndicatorIndeterminateAngular } from '@/examples/angular/progress-indicator-indeterminate.ts';
+import progressIndicatorIndeterminateReactSource from '@/examples/react/progress-indicator-indeterminate.tsx?raw';
+import progressIndicatorIndeterminateAngularSource from '@/examples/angular/progress-indicator-indeterminate.ts?raw';
 
-Import ProgressIndicator to show operation progress.
+Use ProgressIndicator to show the progress of an operation, either as a
+determinate value or as an unspecified wait time.
 
-```bash
-import { ProgressIndicator } from "@udixio/ui-react"
-```
-
-```tsx
-<ProgressIndicator variant="linear-determinate" value={40} />
-```
+<Code
+  codes={{
+    react: progressIndicatorDeterminateReactSource,
+    angular: progressIndicatorDeterminateAngularSource,
+  }}
+>
+  <ProgressIndicatorDeterminateReact slot="react" client:load />
+  <ProgressIndicatorDeterminateAngular slot="angular" client:load />
+</Code>
 
 ## Variants
 
-- linear-determinate
-- linear-indeterminate
-- circular-determinate
-- circular-indeterminate
+- `linear-determinate` / `circular-determinate`: reflect a known `value` (0–100).
+- `linear-indeterminate` / `circular-indeterminate`: an unbounded animation; `value` is ignored.
 
-```jsx
-  () => {
-      const [value, setValue] = React.useState(0);
-      const [resetKey, setResetKey] = React.useState(0);
+<Code
+  codes={{
+    react: progressIndicatorIndeterminateReactSource,
+    angular: progressIndicatorIndeterminateAngularSource,
+  }}
+>
+  <ProgressIndicatorIndeterminateReact slot="react" client:load />
+  <ProgressIndicatorIndeterminateAngular slot="angular" client:load />
+</Code>
 
-      React.useEffect(() => {
-        const interval = setInterval(() => {
-          setValue((prev) => {
-            const newValue = prev >= 10 ? 0 : prev + 3;
-            // Si la valeur retourne à 0, on incrémente la clé de réinitialisation
-            if (newValue === 0 && prev > 0) {
-              setResetKey(prevKey => prevKey + 1);
-            }
-            return newValue;
-          });
-        }, 1500);
+## Accessibility
 
-        return () => clearInterval(interval);
-      }, []);
-
-      return <div className="flex flex-col gap-6">
-          <div className="flex items-center gap-6">
-            <ProgressIndicator transitionDuration={300} key={resetKey} variant="linear-determinate" value={value * 10} className="w-48" />
-            <ProgressIndicator transitionDuration={300} variant="circular-determinate" value={value * 10} />
-          </div>
-          <div className="flex items-center gap-6">
-             <ProgressIndicator variant="linear-indeterminate" className="w-48" />
-             <ProgressIndicator variant="circular-indeterminate" />
-          </div>
-       </div>
-    }
-
-```
+Every variant renders `role="progressbar"` with `aria-valuemin`/`aria-valuemax`;
+determinate variants also expose `aria-valuenow`. Provide `aria-label` or
+`aria-labelledby` — the component does not infer an accessible name.

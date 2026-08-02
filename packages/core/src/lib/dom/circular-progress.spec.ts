@@ -34,6 +34,12 @@ it('runs and cleans up the shared circular progress animations', () => {
     { rotate: [-90, 270] },
     { duration: 1.5, repeat: Infinity, ease: 'linear' },
   );
+  expect(animate).toHaveBeenNthCalledWith(
+    2,
+    circle,
+    { pathLength: [0.1, 0.9, 0.1], rotate: [0, 0, 360] },
+    { duration: 3, repeat: Infinity, ease: 'easeInOut' },
+  );
   cleanup();
   expect(stopRotation).toHaveBeenCalled();
   expect(stopPath).toHaveBeenCalled();

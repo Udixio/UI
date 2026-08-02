@@ -1,12 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import {
+  clampProgressValue,
+  isDeterminateVariant,
   type ProgressIndicatorInterface,
   progressIndicatorStyle,
   type ReactProps,
 } from '@udixio/core';
 
-import { motion } from 'motion/react';
-import { createCircularProgressController } from '@udixio/core/dom';
+import {
+  createCircularProgressController,
+  createLinearIndeterminateController,
+  createProgressVisibilityController,
+} from '@udixio/core/dom';
 import { createUseStyle } from '../utils/create-use-style';
 
 export type ReactProgressIndicatorProps =
@@ -15,12 +20,18 @@ export type ReactProgressIndicatorProps =
 export const useProgressIndicatorStyle = createUseStyle(progressIndicatorStyle);
 
 /**
+ * Progress indicators express an unspecified wait time or display the length
+ * of a process.
+ *
  * @status beta
  * @category Communication
  * @devx
  * - `value` is clamped to 0–100; indeterminate variants ignore it.
  * @a11y
- * - Missing `role="progressbar"` and aria-* attributes.
+ * - Renders `role="progressbar"` with `aria-valuemin`/`aria-valuemax`; determinate
+ *   variants also expose `aria-valuenow`.
+ * - Provide `aria-label` or `aria-labelledby`; this component does not infer an
+ *   accessible name.
  * @limitations
  * - Visibility auto-hides at 100% (no controlled open prop).
  */
@@ -32,35 +43,24 @@ export const ProgressIndicator = ({
   className,
   ...restProps
 }: ReactProgressIndicatorProps): any => {
-  const [completedPercentage, setCompletedPercentage] = useState(value);
+  const completedPercentage = clampProgressValue(value);
   const indeterminateSvgRef = useRef<SVGSVGElement>(null);
   const indeterminateCircleRef = useRef<SVGCircleElement>(null);
+  const leadingBarRef = useRef<HTMLDivElement>(null);
+  const gapTrackRef = useRef<HTMLDivElement>(null);
+  const trailingBarRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (value > 100) {
-      value = 100;
-    }
-    if (value < 0) {
-      value = 0;
-    }
-    setCompletedPercentage(value);
-  }, [value]);
+  const [isVisible, setIsVisible] = useState(() => completedPercentage < 100);
 
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    if (completedPercentage >= 100) {
-      const timeoutId = setTimeout(() => {
-        setIsVisible(false);
-      }, transitionDuration);
-      return () => {
-        clearTimeout(timeoutId);
-      };
-    } else {
-      setIsVisible(true);
-    }
-    return;
-  }, [completedPercentage, transitionDuration]);
+  useEffect(
+    () =>
+      createProgressVisibilityController({
+        completedPercentage,
+        transitionDuration,
+        onVisibilityChange: setIsVisible,
+      }),
+    [completedPercentage, transitionDuration],
+  );
 
   useEffect(() => {
     if (
@@ -77,6 +77,23 @@ export const ProgressIndicator = ({
     });
   }, [variant]);
 
+  useEffect(() => {
+    if (
+      variant !== 'linear-indeterminate' ||
+      !leadingBarRef.current ||
+      !gapTrackRef.current ||
+      !trailingBarRef.current
+    ) {
+      return;
+    }
+
+    return createLinearIndeterminateController({
+      leadingBar: leadingBarRef.current,
+      gapTrack: gapTrackRef.current,
+      trailingBar: trailingBarRef.current,
+    });
+  }, [variant]);
+
   const styles = useProgressIndicatorStyle({
     className,
     variant,
@@ -86,39 +103,39 @@ export const ProgressIndicator = ({
     isVisible,
   });
 
+  const circularRadius = isVisible ? 22 : 24;
+  const circumference = 2 * Math.PI * circularRadius;
+  const strokeDashoffset = circumference * (1 - completedPercentage / 100);
+
+  const progressBarProps = {
+    role: 'progressbar' as const,
+    'aria-valuemin': 0,
+    'aria-valuemax': 100,
+    'aria-valuenow': isDeterminateVariant(variant)
+      ? completedPercentage
+      : undefined,
+  };
+
   return (
     <>
       {variant === 'linear-indeterminate' && (
-        <div className={styles.progressIndicator} {...restProps}>
-          <motion.div
-            animate={{
-              width: ['0%', '0%', '0%', '20%'],
-              marginLeft: ['0px', '0px', '6px', '6px'],
-              marginRight: ['0px', '0px', '6px', '6px'],
-            }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              ease: 'easeInOut',
-              times: [0, 0.499, 0.5, 1],
-            }}
+        <div
+          className={styles.progressIndicator}
+          {...progressBarProps}
+          {...restProps}
+        >
+          <div
+            ref={leadingBarRef}
             style={{ flexShrink: 0 }}
             className={styles.activeIndicator}
           />
-          <motion.div
-            animate={{ width: ['0%', '40%', '100%'] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+          <div
+            ref={gapTrackRef}
             style={{ flexShrink: 0 }}
             className={styles.firstTrack}
           />
-          <motion.div
-            animate={{ width: ['20%', '60%', '20%'] }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              ease: 'easeInOut',
-              times: [0, 0.5, 1],
-            }}
+          <div
+            ref={trailingBarRef}
             style={{ flexShrink: 0, marginLeft: '6px' }}
             className={styles.activeIndicator}
           />
@@ -126,7 +143,11 @@ export const ProgressIndicator = ({
         </div>
       )}
       {variant === 'linear-determinate' && (
-        <div className={styles.progressIndicator} {...restProps}>
+        <div
+          className={styles.progressIndicator}
+          {...progressBarProps}
+          {...restProps}
+        >
           <div
             style={{
               width: `${completedPercentage}%`,
@@ -157,6 +178,7 @@ export const ProgressIndicator = ({
           height="48"
           viewBox="0 0 48 48"
           className={styles.progressIndicator}
+          {...progressBarProps}
           {...(restProps as any)}
         >
           <circle
@@ -170,41 +192,28 @@ export const ProgressIndicator = ({
         </svg>
       )}
       {variant === 'circular-determinate' && (
-        <motion.svg
-          key="static"
+        <svg
           width="48"
           height="48"
           viewBox="0 0 48 48"
-          initial={{ rotate: -90 }}
-          animate={{ rotate: -90 }}
-          transition={{ duration: transitionDuration / 1000 }}
+          style={{ transform: 'rotate(-90deg)' }}
           className={styles.progressIndicator}
+          {...progressBarProps}
           {...(restProps as any)}
         >
-          <motion.circle
+          <circle
             cx="50%"
             cy="50%"
-            r={isVisible ? 'calc(50% - 2px)' : '50%'}
+            r={circularRadius}
             style={{
               strokeLinecap: 'round',
+              strokeDasharray: circumference,
+              strokeDashoffset,
+              transition: `stroke-dashoffset ${transitionDuration}ms ease-in-out`,
             }}
-            initial="determinate"
-            animate="determinate"
             className={styles.activeIndicator}
-            variants={{
-              determinate: {
-                pathLength: completedPercentage / 100,
-              },
-            }}
-            transition={{
-              pathLength: {
-                type: 'tween',
-                ease: 'easeInOut',
-                duration: transitionDuration / 1000,
-              },
-            }}
           />
-        </motion.svg>
+        </svg>
       )}
     </>
   );

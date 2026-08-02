@@ -7,3 +7,4 @@ export * from './date-picker.behavior';
 export * from './fab-menu.behavior';
 export * from './icon-button.behavior';
 export * from './menu-item.behavior';
+export * from './progress-indicator.behavior';
