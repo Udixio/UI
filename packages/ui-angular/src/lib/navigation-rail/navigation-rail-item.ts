@@ -94,14 +94,16 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
         <span
           #horizontalLabel
           [class]="styles()['label']"
-          style="overflow: hidden"
+          [attr.aria-hidden]="resolvedVariant() !== 'horizontal'"
+          [style]="initialHorizontalStyle"
           >{{ label() }}</span
         >
       </div>
       <span
         #verticalLabel
         [class]="styles()['label']"
-        style="overflow: hidden"
+        [attr.aria-hidden]="resolvedVariant() !== 'vertical'"
+        [style]="initialVerticalStyle"
         >{{ label() }}</span
       >
     </ng-template>
@@ -181,6 +183,18 @@ export class NavigationRailItem {
   private horizontalController?: NavigationRailItemLabelController;
   private verticalController?: NavigationRailItemLabelController;
 
+  // Captured once, from whichever variant this component actually mounted
+  // with, and never updated afterward -- it exists only so server-rendered/
+  // first-paint markup is already correct before hydration, instead of both
+  // labels being visible until afterRenderEffect runs. If this were a
+  // computed() re-evaluated on every resolvedVariant() change, it would
+  // race the Motion controller: Angular would jump the style straight to
+  // the new target before the effect's animate() call ever reads a "from"
+  // value to animate from, i.e. every transition would silently become a
+  // no-op snap.
+  protected readonly initialHorizontalStyle: Record<string, string>;
+  protected readonly initialVerticalStyle: Record<string, string>;
+
   constructor() {
     // The label is always mounted in both positions (horizontal, inside the
     // container; vertical, after it); the shared `@udixio/core/dom`
@@ -188,6 +202,16 @@ export class NavigationRailItem {
     // this component never has to coordinate an exit-animation-before-
     // removal sequence with `@if`.
     const destroyRef = inject(DestroyRef);
+
+    const initialVariant = this.resolvedVariant();
+    this.initialHorizontalStyle =
+      initialVariant === 'horizontal'
+        ? { overflow: 'hidden' }
+        : { width: '0px', opacity: '0', overflow: 'hidden' };
+    this.initialVerticalStyle =
+      initialVariant === 'vertical'
+        ? { overflow: 'hidden' }
+        : { height: '0px', opacity: '0', overflow: 'hidden' };
 
     afterRenderEffect(() => {
       const horizontalEl = this.horizontalLabel()?.nativeElement;

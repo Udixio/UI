@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useLayoutEffect,
   useRef,
+  useState,
 } from 'react';
 import type { Transition } from 'motion';
 
@@ -112,6 +113,27 @@ export const NavigationRailItem = ({
   // container; vertical, after it); a shared `@udixio/core/dom` controller
   // animates whichever one matches the current variant, so neither adapter
   // has to coordinate an exit-animation-before-unmount sequence.
+  //
+  // The resting width/height/opacity below is captured once (lazy useState
+  // initializer, matching the variant this component actually mounted
+  // with) and never updated by React afterward -- it exists only so
+  // server-rendered/first-paint markup is already correct before
+  // hydration, instead of both labels being visible until the layout
+  // effect runs. If this were recomputed reactively on every render, it
+  // would race the Motion controller: React would jump the style straight
+  // to the new target before the effect's animate() call ever reads a
+  // "from" value to animate from, i.e. every transition would silently
+  // become a no-op snap.
+  const [initialHorizontalStyle] = useState<React.CSSProperties>(() =>
+    variant === 'horizontal'
+      ? { overflow: 'hidden' }
+      : { width: 0, opacity: 0, overflow: 'hidden' },
+  );
+  const [initialVerticalStyle] = useState<React.CSSProperties>(() =>
+    variant === 'vertical'
+      ? { overflow: 'hidden' }
+      : { height: 0, opacity: 0, overflow: 'hidden' },
+  );
   const variantRef = useRef(variant);
   variantRef.current = variant;
   const horizontalLabelRef = useRef<HTMLSpanElement | null>(null);
@@ -219,7 +241,8 @@ export const NavigationRailItem = ({
         <span
           ref={horizontalLabelRef}
           className={styles.label}
-          style={{ overflow: 'hidden' }}
+          aria-hidden={variant !== 'horizontal'}
+          style={initialHorizontalStyle}
         >
           {label}
         </span>
@@ -227,7 +250,8 @@ export const NavigationRailItem = ({
       <span
         ref={verticalLabelRef}
         className={styles.label}
-        style={{ overflow: 'hidden' }}
+        aria-hidden={variant !== 'vertical'}
+        style={initialVerticalStyle}
       >
         {label}
       </span>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -256,5 +257,60 @@ describe('NavigationRailItem', () => {
 
     expect(horizontalLabel).toHaveAttribute('aria-hidden', 'false');
     expect(verticalLabel).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('only exposes one label in server-rendered markup, before any effect runs', () => {
+    // Regression test: the label's resting width/height/opacity/aria-hidden
+    // used to be set entirely by a useLayoutEffect, which never runs during
+    // SSR. The server-rendered (and pre-hydration first-paint) markup had
+    // neither label styled, so both showed simultaneously until hydration
+    // caught up -- exactly the "doubled labels that fix themselves a
+    // moment later" the collapsed default was reported to look like.
+    // renderToStaticMarkup never runs effects, so it reproduces that
+    // pre-hydration snapshot directly.
+    const collapsedHtml = renderToStaticMarkup(
+      <NavigationRailItem icon={iAlarm} iconSelected={iAlarm} label="Alarm" />,
+    );
+    const collapsedSpans = [
+      ...collapsedHtml.matchAll(/<span[^>]*>Alarm<\/span>/g),
+    ].map((m) => m[0]);
+    expect(collapsedSpans).toHaveLength(2);
+    const collapsedHidden = collapsedSpans.filter((span) =>
+      span.includes('aria-hidden="true"'),
+    );
+    const collapsedVisible = collapsedSpans.filter((span) =>
+      span.includes('aria-hidden="false"'),
+    );
+    expect(collapsedHidden).toHaveLength(1);
+    expect(collapsedVisible).toHaveLength(1);
+    // The hidden label must already be visually collapsed (width/opacity 0),
+    // not just marked aria-hidden -- otherwise it would still render at
+    // full size, which is the actual "doubled labels" symptom.
+    expect(collapsedHidden[0]).toMatch(/style="[^"]*width:0/);
+    expect(collapsedHidden[0]).toMatch(/style="[^"]*opacity:0/);
+    expect(collapsedVisible[0]).not.toMatch(/opacity:0/);
+
+    const extendedHtml = renderToStaticMarkup(
+      <NavigationRailItem
+        icon={iAlarm}
+        iconSelected={iAlarm}
+        label="Alarm"
+        variant="horizontal"
+      />,
+    );
+    const extendedSpans = [
+      ...extendedHtml.matchAll(/<span[^>]*>Alarm<\/span>/g),
+    ].map((m) => m[0]);
+    const extendedHidden = extendedSpans.filter((span) =>
+      span.includes('aria-hidden="true"'),
+    );
+    const extendedVisible = extendedSpans.filter((span) =>
+      span.includes('aria-hidden="false"'),
+    );
+    expect(extendedHidden).toHaveLength(1);
+    expect(extendedVisible).toHaveLength(1);
+    expect(extendedHidden[0]).toMatch(/style="[^"]*height:0/);
+    expect(extendedHidden[0]).toMatch(/style="[^"]*opacity:0/);
+    expect(extendedVisible[0]).not.toMatch(/opacity:0/);
   });
 });

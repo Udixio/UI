@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import * as coreDom from '@udixio/core/dom';
 import { NavigationRail } from './navigation-rail';
 import { NavigationRailItem } from './navigation-rail-item';
@@ -242,5 +243,52 @@ describe('NavigationRailItem label controller lifecycle', () => {
     fixture.detectChanges();
 
     expect(spy).toHaveBeenCalledTimes(2);
+  });
+
+  it('renders only one visible label immediately, with a resting style frozen at construction', () => {
+    // Regression test: the label's resting width/height/opacity/aria-hidden
+    // used to be set entirely by the afterRenderEffect that wires the
+    // Motion controller. Angular's SSR (and the first client render before
+    // that effect flushes) never runs it, so both labels rendered fully
+    // visible until the effect caught up -- the "labels visible regardless
+    // of extended, doubled until the rail settles" symptom. The fix
+    // computes the resting style once in the constructor instead, so it is
+    // part of the initial render output itself, not an effect side effect.
+    TestBed.configureTestingModule({ imports: [SingleItemTestHost] });
+    const fixture = TestBed.createComponent(SingleItemTestHost);
+    fixture.detectChanges();
+
+    const item = fixture.debugElement.query(
+      By.directive(NavigationRailItem),
+    ).componentInstance as NavigationRailItem;
+    const initialHorizontal = (item as any).initialHorizontalStyle;
+    const initialVertical = (item as any).initialVerticalStyle;
+
+    // Collapsed by default: horizontal hidden, vertical visible.
+    expect(initialHorizontal).toEqual({
+      width: '0px',
+      opacity: '0',
+      overflow: 'hidden',
+    });
+    expect(initialVertical).toEqual({ overflow: 'hidden' });
+
+    const spans = fixture.nativeElement.querySelectorAll('span.label');
+    const hidden = Array.from(spans).find(
+      (el) => (el as HTMLElement).getAttribute('aria-hidden') === 'true',
+    ) as HTMLElement;
+    const visible = Array.from(spans).find(
+      (el) => (el as HTMLElement).getAttribute('aria-hidden') === 'false',
+    ) as HTMLElement;
+    expect(hidden.style.width).toBe('0px');
+    expect(hidden.style.opacity).toBe('0');
+    expect(visible.style.opacity).not.toBe('0');
+
+    // Must stay frozen (same object) across later resolvedVariant() changes
+    // -- a reactive computed() here would race the Motion controller and
+    // silently turn every transition into a same-value no-op snap.
+    fixture.componentInstance.extended.set(true);
+    fixture.detectChanges();
+    expect((item as any).initialHorizontalStyle).toBe(initialHorizontal);
+    expect((item as any).initialVerticalStyle).toBe(initialVertical);
   });
 });

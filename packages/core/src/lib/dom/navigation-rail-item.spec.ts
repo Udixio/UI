@@ -30,7 +30,6 @@ describe('navigation rail item label controller', () => {
     expect(animate).not.toHaveBeenCalled();
     expect(label.style.width).toBe('auto');
     expect(label.style.opacity).toBe('1');
-    expect(label.getAttribute('aria-hidden')).toBe('false');
   });
 
   it('animates width when the horizontal axis becomes visible after mount', () => {
@@ -73,7 +72,7 @@ describe('navigation rail item label controller', () => {
     );
   });
 
-  it('animates back to 0 and marks aria-hidden when no longer visible', () => {
+  it('animates back to 0 when no longer visible', () => {
     const label = document.createElement('span');
     let visible = true;
     const controller = createNavigationRailItemLabelController({
@@ -91,7 +90,6 @@ describe('navigation rail item label controller', () => {
       { width: 0, opacity: 0 },
       expect.anything(),
     );
-    expect(label.getAttribute('aria-hidden')).toBe('true');
   });
 
   it('does not re-animate when neither axis nor visibility changed', () => {

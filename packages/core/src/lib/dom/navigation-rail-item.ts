@@ -30,6 +30,13 @@ function systemPrefersReducedMotion(): boolean {
  * mount lifecycle wiring; the label element itself is always present in the
  * DOM so neither adapter needs to coordinate an exit-animation-before-unmount
  * sequence.
+ *
+ * This controller only owns the *transition*. Each adapter renders the
+ * correct resting width/height/opacity/`aria-hidden` declaratively (from the
+ * same resolved axis/visible state) so the initial server-rendered and
+ * first-paint markup is already correct -- this controller's own first call
+ * is a same-value no-op in that case, and only takes over once a later call
+ * requests an actual change.
  */
 export function createNavigationRailItemLabelController({
   label,
@@ -53,8 +60,6 @@ export function createNavigationRailItemLabelController({
     isFirstApply = false;
     lastAxis = currentAxis;
     lastVisible = currentVisible;
-
-    label.setAttribute('aria-hidden', String(!currentVisible));
 
     animation?.stop();
     const sizeProperty = currentAxis === 'horizontal' ? 'width' : 'height';
