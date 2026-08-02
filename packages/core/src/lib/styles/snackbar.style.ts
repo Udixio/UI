@@ -6,7 +6,7 @@ import {
 import { SnackbarInterface } from '../interfaces';
 
 const snackbarConfig: ClassNameComponent<SnackbarInterface> = () => ({
-  snackbar: cx(' rounded bg-inverse-surface '),
+  snackbar: cx('rounded bg-inverse-surface overflow-hidden'),
   container: cx(
     'pl-4 pr-2 max-w-full py-1 flex items-center flex-wrap',
   ),

@@ -1,37 +1,72 @@
 ---
 ---
 
-
-
-import { iCheck } from '@udixio/icons-rounded-400/check';
-import { CodePreview } from '@/components/CodePreview.js';
+import Code from '@/components/Code.astro';
+import SnackbarBasicReact from '@/examples/react/snackbar-basic.tsx';
+import { SnackbarBasicAngular } from '@/examples/angular/snackbar-basic.ts';
+import SnackbarAutoDismissReact from '@/examples/react/snackbar-auto-dismiss.tsx';
+import { SnackbarAutoDismissAngular } from '@/examples/angular/snackbar-auto-dismiss.ts';
+import SnackbarCustomIconReact from '@/examples/react/snackbar-custom-icon.tsx';
+import { SnackbarCustomIconAngular } from '@/examples/angular/snackbar-custom-icon.ts';
+import snackbarBasicReactSource from '@/examples/react/snackbar-basic.tsx?raw';
+import snackbarBasicAngularSource from '@/examples/angular/snackbar-basic.ts?raw';
+import snackbarAutoDismissReactSource from '@/examples/react/snackbar-auto-dismiss.tsx?raw';
+import snackbarAutoDismissAngularSource from '@/examples/angular/snackbar-auto-dismiss.ts?raw';
+import snackbarCustomIconReactSource from '@/examples/react/snackbar-custom-icon.tsx?raw';
+import snackbarCustomIconAngularSource from '@/examples/angular/snackbar-custom-icon.ts?raw';
 
 ## Usage
 
-Snackbars display brief messages about app processes. They appear above other elements and disappear automatically.
+Snackbars show a brief, non-blocking status message about an app process.
+They render in normal document flow at the call site: fixed/bottom
+positioning, stacking, and queueing multiple snackbars are the caller's
+responsibility.
 
 ```bash
 import { Snackbar } from "@udixio/ui-react"
 ```
 
-```tsx
-<Snackbar message="Message sent" />
-```
+<Code
+  codes={{
+    react: snackbarBasicReactSource,
+    angular: snackbarBasicAngularSource,
+  }}
+>
+  <SnackbarBasicReact slot="react" client:load />
+  <SnackbarBasicAngular slot="angular" client:load />
+</Code>
 
 ## Auto dismiss
 
-Use `duration` (ms) to auto-close the snackbar; pass `onClose` to be notified.
+Use `duration` (ms) to auto-close the snackbar; pass `onOpenChange` (React) or
+`openChange` (Angular) to be notified.
 
-```jsx
-<Snackbar message="Saved" duration={3000} onClose={() => console.log('closed')} />
-```
+<Code
+  codes={{
+    react: snackbarAutoDismissReactSource,
+    angular: snackbarAutoDismissAngularSource,
+  }}
+>
+  <SnackbarAutoDismissReact slot="react" client:load />
+  <SnackbarAutoDismissAngular slot="angular" client:load />
+</Code>
 
 ## Custom close icon
 
-Provide a custom FontAwesome icon via `closeIcon`.
+Provide a custom icon via `closeIcon`.
 
-<CodePreview client:load
-             code={`
-  <Snackbar message="Done" closeIcon={iCheck} />
-`} scope={{ iCheck }}
-/>
+<Code
+  codes={{
+    react: snackbarCustomIconReactSource,
+    angular: snackbarCustomIconAngularSource,
+  }}
+>
+  <SnackbarCustomIconReact slot="react" client:load />
+  <SnackbarCustomIconAngular slot="angular" client:load />
+</Code>
+
+## Controlled state
+
+Use `open` with `onOpenChange` (React) or `openChange` (Angular) for
+controlled state; `defaultOpen` initializes uncontrolled state and defaults to
+`true`.

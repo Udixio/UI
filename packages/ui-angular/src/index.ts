@@ -19,6 +19,7 @@ export * from './lib/navigation-rail/navigation-rail-item';
 export * from './lib/navigation-rail/navigation-rail-section';
 export * from './lib/progress-indicator/progress-indicator';
 export * from './lib/slider/slider';
+export * from './lib/snackbar/snackbar';
 export * from './lib/chip/chip';
 export * from './lib/chips/chips';
 export * from './lib/state-layer/state-layer';
