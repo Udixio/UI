@@ -1,0 +1,91 @@
+---
+---
+
+import Code from '@/components/Code.astro';
+import SideSheetStandardReact from '@/examples/react/side-sheet-standard.tsx';
+import { SideSheetStandardAngular } from '@/examples/angular/side-sheet-standard.ts';
+import SideSheetModalReact from '@/examples/react/side-sheet-modal.tsx';
+import { SideSheetModalAngular } from '@/examples/angular/side-sheet-modal.ts';
+import sideSheetStandardReactSource from '@/examples/react/side-sheet-standard.tsx?raw';
+import sideSheetStandardAngularSource from '@/examples/angular/side-sheet-standard.ts?raw';
+import sideSheetModalReactSource from '@/examples/react/side-sheet-modal.tsx?raw';
+import sideSheetModalAngularSource from '@/examples/angular/side-sheet-modal.ts?raw';
+
+## Usage
+
+`SideSheet` shows secondary content anchored to the left or right edge of the
+screen. `variant="standard"` renders persistent layout chrome next to page
+content; `variant="modal"` renders a dismissible overlay above it.
+
+## Standard
+
+The standard variant is always part of the layout. It defaults to open and has
+no dismissal affordance beyond its own close button, since it does not block
+the rest of the page.
+
+<Code
+  codes={{
+    react: sideSheetStandardReactSource,
+    angular: sideSheetStandardAngularSource,
+  }}
+>
+  <SideSheetStandardReact slot="react" client:load />
+  <SideSheetStandardAngular slot="angular" client:load />
+</Code>
+
+## Modal
+
+The modal variant renders a backdrop above the page and behaves like a
+dialog: it traps focus, closes on Escape or a backdrop click, and restores
+focus to the element that opened it.
+
+<Code
+  codes={{
+    react: sideSheetModalReactSource,
+    angular: sideSheetModalAngularSource,
+  }}
+>
+  <SideSheetModalReact slot="react" client:load />
+  <SideSheetModalAngular slot="angular" client:load />
+</Code>
+
+## Controlled state
+
+Use `open` with `onOpenChange` (React) or `openChange` (Angular) for
+controlled state; `defaultOpen` initializes uncontrolled state and defaults to
+`true`. `title` labels the header and, through `aria-labelledby`, the modal
+dialog itself. `divider` shows the trailing divider for the standard variant
+(defaulting to `true`) and is ignored for the modal variant, which never
+renders one. `container` redirects the modal's portal target away from
+`document.body` — useful for confining a demo to a bounded box.
+
+## Motion
+
+The panel and, for the modal variant, the backdrop are always present; opening
+and closing animates the panel's width and the backdrop's opacity rather than
+mounting and unmounting them. The choreography is implemented once with Motion
+JavaScript in `@udixio/core/dom`, so React and Angular share the same timing,
+cleanup, and reduced-motion behavior — no `motion/react` is used, and Angular
+is not a static, unanimated adapter. Pass `transition` to override the default
+duration; reduced-motion preference applies the end state immediately.
+
+## Accessibility
+
+The modal variant renders `role="dialog"` and `aria-modal`. Opening it makes
+every other `document.body` (or `container`) child `inert` — removing it from
+the tab order and accessibility tree — locks body scroll, and moves focus into
+the panel. Escape and the backdrop close it and restore focus to the
+previously focused element. Whichever variant, the panel is `inert` and
+`aria-hidden` while closed. The standard variant never renders a dialog role,
+focus trap, or Escape handling.
+
+Both adapters share this behavior, plus the same focus/backdrop/scroll-lock
+implementation, through the framework-independent `@udixio/core/dom`
+controller.
+
+## Migrating to 3.0
+
+| Before                    | 3.0                                       |
+| -------------------------- | ------------------------------------------ |
+| `extended` / `defaultExtended` (missing) | `open` / `defaultOpen`      |
+| `onExtendedChange`          | `onExtendedChange` → `onOpenChange` (React), `openChange` (Angular) |

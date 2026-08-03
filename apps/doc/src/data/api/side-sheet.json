@@ -5,13 +5,13 @@
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/SideSheet.tsx",
-      "description": "Side sheets show secondary content anchored to the side of the screen",
+      "description": "Side sheets show secondary content anchored to the side of the screen.",
       "tags": {
         "status": "beta",
         "category": "Layout",
-        "devx": "- Controlled via `extended`/`onExtendedChange` or internal state.\n- `variant=\"modal\"` renders into a portal on `document.body`.",
-        "a11y": "- No focus trap, Escape handling, or `aria-modal` attributes.",
-        "limitations": "- No body scroll lock when open."
+        "devx": "- `open` is controlled; `defaultOpen` initializes uncontrolled usage. Defaults to `true`.\n- `variant=\"modal\"` renders into a portal on `document.body` by default; pass `container` to\n  portal elsewhere (for example to confine a demo to a bounded box). It renders nothing on the\n  server and during the first client render, then portals once mounted.\n- `divider` is ignored for `variant=\"modal\"`, which never renders one.\n- The open/close width and backdrop transitions are implemented once with Motion JavaScript in\n  `@udixio/core/dom`, so React and Angular share the same timing, reduced-motion behavior, and\n  cleanup. No `motion/react` is used.",
+        "a11y": "- `variant=\"modal\"` renders `role=\"dialog\"` and `aria-modal`, traps focus by making every other\n  child of `document.body` (or `container`) inert while open, moves initial focus into the panel,\n  closes on Escape, restores focus to the previously focused element on close, and locks body\n  scroll.\n- Whichever variant, the panel is `inert` and `aria-hidden` while closed, and reduced-motion\n  preference keeps state changes immediate and fully perceivable.\n- `variant=\"standard\"` is persistent layout chrome: no dialog role, focus trap, or Escape handling.\n- `title`, when provided, labels the panel through `aria-labelledby`.",
+        "limitations": "- `children` stay mounted while closed, since the panel is always present for its open/close\n  animation; expensive subtrees are not torn down until the `SideSheet` itself unmounts.\n- The open/close animation transitions `width`, not a transform, so it can be less smooth for a\n  very large panel or on a low-powered device."
       },
       "methods": [],
       "props": {
@@ -26,7 +26,7 @@
         },
         "variant": {
           "name": "variant",
-          "description": "",
+          "description": "Rendering mode: `'standard'` for persistent layout chrome, `'modal'` for a dismissible overlay.",
           "required": false,
           "type": {
             "name": "SideSheetVariant"
@@ -46,7 +46,7 @@
         },
         "position": {
           "name": "position",
-          "description": "",
+          "description": "Edge of the screen the panel is anchored to.",
           "required": false,
           "type": {
             "name": "SideSheetPosition"
@@ -55,27 +55,29 @@
             "value": "'right'"
           }
         },
-        "extended": {
-          "name": "extended",
-          "description": "Controlled mode: explicitly control whether the side sheet is extended.",
+        "open": {
+          "name": "open",
+          "description": "Controlled open state.",
           "required": false,
           "type": {
             "name": "boolean"
           },
           "defaultValue": null
         },
-        "onExtendedChange": {
-          "name": "onExtendedChange",
-          "description": "Callback when the extended state changes.",
+        "defaultOpen": {
+          "name": "defaultOpen",
+          "description": "Initial open state when uncontrolled.",
           "required": false,
           "type": {
-            "name": "(extended: boolean) => void"
+            "name": "boolean"
           },
-          "defaultValue": null
+          "defaultValue": {
+            "value": "true"
+          }
         },
         "closeIcon": {
           "name": "closeIcon",
-          "description": "",
+          "description": "Icon for the built-in close button.",
           "required": false,
           "type": {
             "name": "Icon"
@@ -86,12 +88,168 @@
         },
         "divider": {
           "name": "divider",
-          "description": "Show the trailing divider. Defaults to `true` for the standard variant.",
+          "description": "Show the trailing divider. Defaults to `true` for the standard variant.\nIgnored for `variant=\"modal\"`, which never renders a divider.",
           "required": false,
           "type": {
             "name": "boolean"
           },
           "defaultValue": null
+        },
+        "transition": {
+          "name": "transition",
+          "description": "Motion transition shared by every framework for the open/close width and opacity animation.",
+          "required": false,
+          "type": {
+            "name": "Transition"
+          },
+          "defaultValue": null
+        },
+        "onOpenChange": {
+          "name": "onOpenChange",
+          "description": "Notifies an accepted open-state request.",
+          "required": false,
+          "type": {
+            "name": "(open: boolean) => void"
+          },
+          "defaultValue": null
+        },
+        "container": {
+          "name": "container",
+          "description": "Portal target for `variant=\"modal\"`. Defaults to `document.body`.",
+          "required": false,
+          "type": {
+            "name": "Element"
+          },
+          "defaultValue": null
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/side-sheet/side-sheet.ts",
+      "description": "Side sheets show secondary content anchored to the side of the screen.",
+      "tags": {
+        "status": "beta",
+        "category": "Layout",
+        "devx": "- `open` is controlled; `defaultOpen` initializes uncontrolled usage. Defaults to `true`.\n- `variant=\"modal\"` moves its host to `document.body` while connected, escaping any ancestor\n  that would otherwise break `position: fixed`. Pass `container` to move it elsewhere instead\n  (for example to confine a demo to a bounded box).\n- `divider` is ignored for `variant=\"modal\"`, which never renders one.\n- The open/close width and backdrop transitions are implemented once with Motion JavaScript in\n  `@udixio/core/dom`, so Angular and React share the same timing, reduced-motion behavior, and\n  cleanup.",
+        "a11y": "- `variant=\"modal\"` renders `role=\"dialog\"` and `aria-modal`, traps focus by making every other\n  `document.body` child `inert` while open, moves initial focus into the panel, closes on Escape,\n  restores focus to the previously focused element on close, and locks body scroll.\n- Whichever variant, the panel is `inert` and `aria-hidden` while closed, and reduced-motion\n  preference keeps state changes immediate and fully perceivable.\n- `variant=\"standard\"` is persistent layout chrome: no dialog role, focus trap, or Escape handling.\n- `title`, when provided, labels the panel through `aria-labelledby`.",
+        "limitations": "- Projected content stays mounted while closed, since the panel is always present for its\n  open/close animation; expensive subtrees are not torn down until the `SideSheet` itself\n  is destroyed.\n- The open/close animation transitions `width`, not a transform, so it can be less smooth for a\n  very large panel or on a low-powered device."
+      },
+      "inputs": {
+        "variant": {
+          "name": "variant",
+          "description": "Rendering mode: `'standard'` for persistent layout chrome, `'modal'` for a dismissible overlay.",
+          "required": false,
+          "type": {
+            "name": "SideSheetVariant | undefined"
+          },
+          "defaultValue": {
+            "value": "'standard'"
+          }
+        },
+        "title": {
+          "name": "title",
+          "description": "Headline displayed in the side sheet header.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null
+        },
+        "position": {
+          "name": "position",
+          "description": "Edge of the screen the panel is anchored to.",
+          "required": false,
+          "type": {
+            "name": "SideSheetPosition | undefined"
+          },
+          "defaultValue": {
+            "value": "'right'"
+          }
+        },
+        "open": {
+          "name": "open",
+          "description": "Controlled open state.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null
+        },
+        "defaultOpen": {
+          "name": "defaultOpen",
+          "description": "Initial open state when uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "true"
+          }
+        },
+        "closeIcon": {
+          "name": "closeIcon",
+          "description": "Icon for the built-in close button.",
+          "required": false,
+          "type": {
+            "name": "string | IconDefinition | SvgImport"
+          },
+          "defaultValue": {
+            "value": "iClose"
+          }
+        },
+        "divider": {
+          "name": "divider",
+          "description": "Show the trailing divider. Defaults to `true` for the standard variant.\nIgnored for `variant=\"modal\"`, which never renders a divider.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<SideSheetInterface>"
+          },
+          "defaultValue": null
+        },
+        "container": {
+          "name": "container",
+          "description": "Portal target for `variant=\"modal\"`. Defaults to `document.body`.",
+          "required": false,
+          "type": {
+            "name": "Element | null | undefined"
+          },
+          "defaultValue": null
+        },
+        "transition": {
+          "name": "transition",
+          "description": "Motion transition shared by every framework for the open/close width and opacity animation.",
+          "required": false,
+          "type": {
+            "name": "Transition | undefined"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {
+        "openChange": {
+          "name": "openChange",
+          "description": "Emits an accepted open-state request and supports `[(open)]`.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        }
+      },
+      "content": {
+        "default": {
+          "name": "default",
+          "selector": "*",
+          "description": "Default projected content."
         }
       }
     }

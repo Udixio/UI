@@ -1,14 +1,18 @@
-import { type ReactNode, useEffect, useState } from 'react';
-import type { Transition } from 'motion';
+import { type ReactNode, useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { AnimatePresence, motion } from 'motion/react';
 import { iClose } from '@udixio/icons-rounded-400/close';
 import {
   type ReactProps,
   type SideSheetInterface,
   sideSheetStyle,
 } from '@udixio/core';
+import {
+  createSideSheetController,
+  createSideSheetTransitionController,
+  type SideSheetTransitionController,
+} from '@udixio/core/dom';
 import { createUseStyle } from '../utils/create-use-style';
+import { useControllableState } from '../utils/use-controllable-state';
 import { Divider } from './Divider';
 import { IconButton } from './IconButton';
 
@@ -16,22 +20,41 @@ export type { SideSheetPosition, SideSheetVariant } from '@udixio/core';
 
 export type ReactSideSheetProps = ReactProps<SideSheetInterface> & {
   children?: ReactNode;
-  transition?: Transition;
+  /** Notifies an accepted open-state request. */
+  onOpenChange?: (open: boolean) => void;
+  /** Portal target for `variant="modal"`. Defaults to `document.body`. */
+  container?: Element | null;
 };
 
 export const useSideSheetStyle = createUseStyle(sideSheetStyle);
 
 /**
- * Side sheets show secondary content anchored to the side of the screen
+ * Side sheets show secondary content anchored to the side of the screen.
  * @status beta
  * @category Layout
  * @devx
- * - Controlled via `extended`/`onExtendedChange` or internal state.
- * - `variant="modal"` renders into a portal on `document.body`.
+ * - `open` is controlled; `defaultOpen` initializes uncontrolled usage. Defaults to `true`.
+ * - `variant="modal"` renders into a portal on `document.body` by default; pass `container` to
+ *   portal elsewhere (for example to confine a demo to a bounded box). It renders nothing on the
+ *   server and during the first client render, then portals once mounted.
+ * - `divider` is ignored for `variant="modal"`, which never renders one.
+ * - The open/close width and backdrop transitions are implemented once with Motion JavaScript in
+ *   `@udixio/core/dom`, so React and Angular share the same timing, reduced-motion behavior, and
+ *   cleanup. No `motion/react` is used.
  * @a11y
- * - No focus trap, Escape handling, or `aria-modal` attributes.
+ * - `variant="modal"` renders `role="dialog"` and `aria-modal`, traps focus by making every other
+ *   child of `document.body` (or `container`) inert while open, moves initial focus into the panel,
+ *   closes on Escape, restores focus to the previously focused element on close, and locks body
+ *   scroll.
+ * - Whichever variant, the panel is `inert` and `aria-hidden` while closed, and reduced-motion
+ *   preference keeps state changes immediate and fully perceivable.
+ * - `variant="standard"` is persistent layout chrome: no dialog role, focus trap, or Escape handling.
+ * - `title`, when provided, labels the panel through `aria-labelledby`.
  * @limitations
- * - No body scroll lock when open.
+ * - `children` stay mounted while closed, since the panel is always present for its open/close
+ *   animation; expensive subtrees are not torn down until the `SideSheet` itself unmounts.
+ * - The open/close animation transitions `width`, not a transform, so it can be less smooth for a
+ *   very large panel or on a low-powered device.
  */
 export const SideSheet = ({
   variant = 'standard',
@@ -39,106 +62,141 @@ export const SideSheet = ({
   children,
   title,
   position = 'right',
-  extended,
+  open: openProp,
+  defaultOpen = true,
   divider,
-  onExtendedChange,
+  onOpenChange,
   closeIcon = iClose,
   transition,
+  container,
   ...rest
 }: ReactSideSheetProps) => {
-  transition = { duration: 0.3, ...transition };
+  const isModal = variant === 'modal';
 
-  const [isExtended, setIsExtended] = useState(extended ?? true);
-
-  const styles = useSideSheetStyle({
-    title,
-    position,
-    closeIcon,
-    className,
-    onExtendedChange,
-    divider,
-    isExtended,
-    extended: isExtended,
-    variant,
+  const [isOpen, setOpen] = useControllableState({
+    value: openProp,
+    defaultValue: defaultOpen,
+    onChange: onOpenChange,
+    componentName: 'SideSheet',
+    stateName: 'open',
   });
 
+  const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
-    onExtendedChange?.(isExtended ?? false);
-  }, [isExtended]);
+    setIsMounted(true);
+  }, []);
+
+  const panelRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const rawTitleId = useId();
+  const titleId = `side-sheet-title-${rawTitleId.replace(/:/g, '')}`;
+
+  const styles = useSideSheetStyle({
+    variant,
+    title,
+    position,
+    open: openProp,
+    defaultOpen,
+    closeIcon,
+    divider,
+    transition,
+    isOpen,
+    className,
+  });
+
+  const transitionControllerRef = useRef<SideSheetTransitionController | null>(
+    null,
+  );
+  const skipNextOpenEffectRef = useRef(true);
 
   useEffect(() => {
-    if (extended != undefined) {
-      setIsExtended(extended);
+    if (isModal && !isMounted) return;
+    if (!panelRef.current) return;
+    const controller = createSideSheetTransitionController({
+      container: panelRef.current,
+      overlay: overlayRef.current,
+      transition,
+    });
+    transitionControllerRef.current = controller;
+    controller.setOpen(isOpen, true);
+    return () => {
+      controller.destroy();
+      if (transitionControllerRef.current === controller) {
+        transitionControllerRef.current = null;
+      }
+    };
+  }, [isModal, isMounted, transition]);
+
+  useEffect(() => {
+    if (skipNextOpenEffectRef.current) {
+      skipNextOpenEffectRef.current = false;
+      return;
     }
-  }, [extended]);
+    transitionControllerRef.current?.setOpen(isOpen);
+  }, [isOpen]);
 
-  const variants = {
-    close: {
-      width: 0,
-    },
-    open: {
-      width: 'auto',
-    },
-  };
+  useEffect(() => {
+    if (!isModal || !isOpen || !panelRef.current) return;
+    const controller = createSideSheetController({
+      panel: panelRef.current,
+      overlay: overlayRef.current,
+      container: container ?? document.body,
+      onDismiss: () => setOpen(false),
+    });
+    return () => controller.destroy();
+  }, [isModal, isOpen, isMounted, container, setOpen]);
+
+  const showDivider = isModal ? false : (divider ?? true);
 
   const render = () => (
     <>
-      <AnimatePresence>
-        {variant == 'modal' && isExtended && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={transition}
-            onClick={() => setIsExtended(false)}
-            className={styles.overlay}
-          ></motion.div>
-        )}
-      </AnimatePresence>
-      <AnimatePresence>
-        {isExtended && (
-          <div
-            {...rest}
-            className={styles.sideSheet}
-            style={{ transition: transition.duration + 's' }}
-          >
-            <motion.div
-              variants={variants}
-              initial={extended === false ? 'open' : 'close'}
-              animate={'open'}
-              exit={'close'}
-              className={styles.container}
-            >
-              <div className={styles.header}>
-                {title && <p className={styles.title}>{title}</p>}
-                <IconButton
-                  size={'small'}
-                  label={'close'}
-                  icon={closeIcon}
-                  onClick={() => setIsExtended(false)}
-                  className={styles.closeButton}
-                ></IconButton>
-              </div>
-              <div
-                className={styles.content}
-                style={{ transition: transition.duration + 's' }}
-              >
-                {children}
-              </div>
-            </motion.div>
-            {(divider == undefined && variant == 'standard'
-              ? true
-              : divider) && (
-              <Divider className={styles.divider} orientation="vertical" />
+      {isModal && (
+        <div
+          ref={overlayRef}
+          onClick={() => setOpen(false)}
+          aria-hidden="true"
+          inert={!isOpen}
+          className={styles.overlay}
+        />
+      )}
+      <div
+        {...rest}
+        ref={panelRef}
+        className={styles.sideSheet}
+        role={isModal ? 'dialog' : undefined}
+        aria-modal={isModal ? true : undefined}
+        aria-labelledby={title ? titleId : undefined}
+        aria-hidden={!isOpen}
+        inert={!isOpen}
+      >
+        <div className={styles.container}>
+          <div className={styles.header}>
+            {title && (
+              <p id={titleId} className={styles.title}>
+                {title}
+              </p>
             )}
+            <IconButton
+              size={'small'}
+              label={title ? `Close ${title}` : 'Close'}
+              icon={closeIcon}
+              onClick={() => setOpen(false)}
+              className={styles.closeButton}
+            ></IconButton>
           </div>
+          <div className={styles.content}>{children}</div>
+        </div>
+        {showDivider && (
+          <Divider className={styles.divider} orientation="vertical" />
         )}
-      </AnimatePresence>
+      </div>
     </>
   );
 
-  if (variant == 'modal') {
-    return createPortal(render(), document.body);
+  if (isModal) {
+    return isMounted
+      ? createPortal(render(), container ?? document.body)
+      : null;
   }
 
   return render();
