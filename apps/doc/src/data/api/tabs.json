@@ -9,8 +9,9 @@
       "tags": {
         "status": "beta",
         "category": "Navigation",
-        "devx": "- Can be controlled via `selectedTab`/`setSelectedTab` or through `TabGroup`.",
-        "a11y": "- No keyboard navigation or roving tabindex."
+        "devx": "- Only `Tab` children are rendered; other children are ignored.\n- Use `selectedTab`/`onSelectedTabChange` for controlled selection, or\n  `defaultSelectedTab` (defaults to `0`) when uncontrolled.\n- Wrapping in a `TabGroup` shares its selection automatically; do not also\n  pass `selectedTab` directly to `Tabs` in that case, or the two owners\n  fight over selection.",
+        "a11y": "- `role=\"tablist\"` with a shared sliding indicator driven by a\n  `@udixio/core/dom` Motion controller, the same one the Angular adapter\n  uses.\n- Roving `tabIndex`: ArrowLeft/ArrowRight move focus and selection between\n  enabled tabs (wrapping), Home/End jump to the first/last enabled tab.",
+        "limitations": "- Horizontal orientation only."
       },
       "methods": [],
       "props": {
@@ -25,7 +26,7 @@
         },
         "variant": {
           "name": "variant",
-          "description": "",
+          "description": "Visual style: `primary` (icon above label) or `secondary` (icon beside label).",
           "required": false,
           "type": {
             "name": "TabsVariant"
@@ -53,6 +54,108 @@
             "name": "number"
           },
           "defaultValue": null
+        },
+        "defaultSelectedTab": {
+          "name": "defaultSelectedTab",
+          "description": "Index selected on mount when the tab list is uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "0"
+          }
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/tabs/tabs.ts",
+      "description": "Tabs organize content across different screens and views.",
+      "tags": {
+        "status": "beta",
+        "category": "Navigation",
+        "devx": "- Project `lib-tab` children; other content is ignored.\n- Use `selectedTab`/`selectedTabChange` for controlled selection, or\n  `defaultSelectedTab` (defaults to `0`) when uncontrolled.\n- Wrapping in a `lib-tab-group` shares its selection automatically; do not\n  also bind `selectedTab` directly on `lib-tabs` in that case, or the two\n  owners fight over selection.",
+        "a11y": "- `role=\"tablist\"` with a shared sliding indicator driven by a\n  `@udixio/core/dom` Motion controller, the same one the React adapter\n  uses.\n- Roving `tabIndex`: ArrowLeft/ArrowRight move focus and selection between\n  enabled tabs (wrapping), Home/End jump to the first/last enabled tab.",
+        "limitations": "- Horizontal orientation only."
+      },
+      "inputs": {
+        "variant": {
+          "name": "variant",
+          "description": "Visual style: `primary` (icon above label) or `secondary` (icon beside label).",
+          "required": false,
+          "type": {
+            "name": "TabsVariant"
+          },
+          "defaultValue": {
+            "value": "'primary'"
+          }
+        },
+        "scrollable": {
+          "name": "scrollable",
+          "description": "Enables horizontal scrolling and auto-centering of the selected tab.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "selectedTab": {
+          "name": "selectedTab",
+          "description": "Controlled index of the selected tab.",
+          "required": false,
+          "type": {
+            "name": "number | null"
+          },
+          "defaultValue": null
+        },
+        "defaultSelectedTab": {
+          "name": "defaultSelectedTab",
+          "description": "Index selected on mount when the tab list is uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "number | null"
+          },
+          "defaultValue": {
+            "value": "0"
+          }
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<TabsInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {
+        "selectedTabChange": {
+          "name": "selectedTabChange",
+          "description": "Emits each accepted selection request and supports `[(selectedTab)]`.",
+          "required": false,
+          "type": {
+            "name": "number | null"
+          },
+          "defaultValue": null
+        },
+        "tabSelected": {
+          "name": "tabSelected",
+          "description": "Emits once whenever the resolved selection settles on a given tab.",
+          "required": false,
+          "type": {
+            "name": "TabSelectedEvent"
+          },
+          "defaultValue": null
+        }
+      },
+      "content": {
+        "slot1": {
+          "name": "slot1",
+          "selector": "lib-tab",
+          "description": "Projected content matching `lib-tab`."
         }
       }
     }

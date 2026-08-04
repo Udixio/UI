@@ -5,12 +5,13 @@
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/TabGroup.tsx",
-      "description": "TabGroup provides shared state for Tabs and TabPanels",
+      "description": "TabGroup shares selection state between a `Tabs` tablist and a `TabPanels`\nplaced anywhere in its subtree.",
       "tags": {
         "status": "beta",
         "parent": "Tabs",
         "category": "Navigation",
-        "devx": "- Provides selection + slide direction for Tabs/TabPanels.",
+        "devx": "- Wrap `Tabs` and `TabPanels` in a `TabGroup` to connect them; `Tabs` alone\n  (no `TabGroup`) is enough for a navigation-only tab list with no panels.\n- Use `selectedTab`/`onSelectedTabChange` for controlled selection, or\n  `defaultSelectedTab` (defaults to `0`) when uncontrolled.",
+        "a11y": "- Renders no DOM element and no ARIA role itself; the `tablist`/`tab`/\n  `tabpanel` roles live on the connected `Tabs`/`Tab`/`TabPanel`.",
         "limitations": "- No URL/hash syncing or persistence built in."
       },
       "methods": [],
@@ -33,8 +34,8 @@
           },
           "defaultValue": null
         },
-        "defaultTab": {
-          "name": "defaultTab",
+        "defaultSelectedTab": {
+          "name": "defaultSelectedTab",
           "description": "Index selected on mount when the group is uncontrolled.",
           "required": false,
           "type": {
@@ -43,6 +44,58 @@
           "defaultValue": {
             "value": "0"
           }
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/tabs/tab-group.ts",
+      "description": "TabGroup shares selection state between a `lib-tabs` tablist and a\n`lib-tab-panels` placed anywhere in its subtree.",
+      "tags": {
+        "status": "beta",
+        "category": "Navigation",
+        "parent": "Tabs",
+        "devx": "- Project `lib-tabs` and `lib-tab-panels`; wrap them in a `lib-tab-group`\n  to connect them. `lib-tabs` alone (no group) is enough for a\n  navigation-only tab list with no panels.\n- Use `selectedTab`/`selectedTabChange` for controlled selection, or\n  `defaultSelectedTab` (defaults to `0`) when uncontrolled.",
+        "a11y": "- Renders `display: contents` and no ARIA role itself; the `tablist`/\n  `tab`/`tabpanel` roles live on the connected `lib-tabs`/`lib-tab`/\n  `lib-tab-panel`.",
+        "limitations": "- No URL/hash syncing or persistence built in."
+      },
+      "inputs": {
+        "selectedTab": {
+          "name": "selectedTab",
+          "description": "Controlled index of the selected tab.",
+          "required": false,
+          "type": {
+            "name": "number | null"
+          },
+          "defaultValue": null
+        },
+        "defaultSelectedTab": {
+          "name": "defaultSelectedTab",
+          "description": "Index selected on mount when the group is uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "number | null"
+          },
+          "defaultValue": {
+            "value": "0"
+          }
+        }
+      },
+      "outputs": {
+        "selectedTabChange": {
+          "name": "selectedTabChange",
+          "description": "Emits each accepted selection request and supports `[(selectedTab)]`.",
+          "required": false,
+          "type": {
+            "name": "number | null"
+          },
+          "defaultValue": null
+        }
+      },
+      "content": {
+        "default": {
+          "name": "default",
+          "selector": "*",
+          "description": "Default projected content."
         }
       }
     }

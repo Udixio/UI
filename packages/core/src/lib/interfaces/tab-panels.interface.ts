@@ -5,13 +5,16 @@ export interface TabPanelsInterface {
   elements: ['tabPanels'];
 }
 
-export type TabPanelStates = {
-  isSelected: boolean;
+type TabPanelProps = {
+  /** Injected by the parent TabPanels: position of this panel in the list. */
+  index?: number;
+  /** Injected by the parent TabPanels: identifier shared by every tab and panel of the group. */
+  tabsId?: string;
 };
 
 export interface TabPanelInterface {
   type: 'div';
-  props: object;
-  states: TabPanelStates;
+  props: TabPanelProps;
+  states: object;
   elements: ['tabPanel'];
 }

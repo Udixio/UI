@@ -521,6 +521,18 @@ export const generateApiDocs = async ({ requestedComponent } = {}) => {
       .find((candidate) => candidate.displayName === displayName);
     if (!component) continue;
 
+    // A file can export a non-component value (a context object, a plain
+    // constant) that happens to match the displayName the parser looks for.
+    // react-docgen-typescript still "finds" it but extracts no real
+    // description, tags, or props from it -- skip generating a doc page
+    // that could never carry genuine content instead of writing a stub that
+    // fails the required-tags schema.
+    const hasDocumentableContent =
+      Boolean(component.description?.trim()) ||
+      Object.keys(component.tags ?? {}).length > 0 ||
+      Object.keys(component.props ?? {}).length > 0;
+    if (!hasDocumentableContent) continue;
+
     const runtimeDefaults = extractReactRuntimeDefaults(
       await readFile(componentPath, 'utf8'),
       displayName,

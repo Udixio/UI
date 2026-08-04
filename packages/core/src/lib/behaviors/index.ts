@@ -10,3 +10,4 @@ export * from './menu-item.behavior';
 export * from './navigation-rail.behavior';
 export * from './progress-indicator.behavior';
 export * from './slider.behavior';
+export * from './tabs.behavior';

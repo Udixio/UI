@@ -23,8 +23,15 @@ export const ComponentNavigation = ({
       ? 'chip'
       : componentApi.id;
 
+  const isApiPage =
+    typeof window !== 'undefined' && window.location.pathname.endsWith('/api');
+
   return (
-    <Tabs variant={'secondary'} className={'bg-surface-container'}>
+    <Tabs
+      variant={'secondary'}
+      className={'bg-surface-container'}
+      selectedTab={isApiPage ? 1 : 0}
+    >
       <Tab href={`/components/${overviewId}/overview`} label={'Overview'} />
       <Tab href={`/components/${componentApi.id}/api`} label={'Api'} />
     </Tabs>

@@ -5,12 +5,14 @@
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/TabPanel.tsx",
-      "description": "TabPanel contains the content for a single tab\nMust be used within TabPanels",
+      "description": "TabPanel holds the content for a single tab. Its parent `TabPanels` only\never mounts the active panel.",
       "tags": {
         "status": "beta",
         "parent": "Tabs",
         "category": "Navigation",
-        "devx": "- Should be rendered inside `TabPanels` for animations and aria wiring."
+        "devx": "- Must be rendered inside a `TabPanels`, itself inside a `TabGroup`.",
+        "a11y": "- Exposes `role=\"tabpanel\"`, an `id`/`aria-labelledby` pair matching the\n  connected `Tab`, and `tabIndex={0}` so keyboard users can move focus\n  into the panel content.",
+        "limitations": "- Unmounts when it stops being the active panel; scroll position, form\n  input, and focus inside it are not preserved across a switch."
       },
       "methods": [],
       "props": {
@@ -23,16 +25,54 @@
           },
           "defaultValue": null
         },
-        "isSelected": {
-          "name": "isSelected",
-          "description": "Injected by the parent TabPanels: whether this panel is the visible one.",
+        "index": {
+          "name": "index",
+          "description": "Injected by the parent TabPanels: position of this panel in the list.",
           "required": false,
           "type": {
-            "name": "boolean"
+            "name": "number"
           },
-          "defaultValue": {
-            "value": "false"
-          }
+          "defaultValue": null
+        },
+        "tabsId": {
+          "name": "tabsId",
+          "description": "Injected by the parent TabPanels: identifier shared by every tab and panel of the group.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/tabs/tab-panel.ts",
+      "description": "TabPanel holds the content for a single tab. `lib-tab-panels` keeps every\npanel's Angular component instance and state alive and hides the inactive\nones with the native `hidden` attribute, unlike the React adapter which\nonly ever mounts the active panel -- Angular content projection has no\ncheap equivalent to conditionally mounting projected children, so this is\nan intentional, documented platform difference. Both remove inactive\npanels from the accessibility tree and the tab order identically.",
+      "tags": {
+        "status": "beta",
+        "category": "Navigation",
+        "parent": "Tabs",
+        "devx": "- Must be rendered inside a `lib-tab-panels`, itself inside a `lib-tab-group`.",
+        "a11y": "- Exposes `role=\"tabpanel\"`, an `id`/`aria-labelledby` pair matching the\n  connected `lib-tab`, and `tabIndex={0}` while active so keyboard users\n  can move focus into the panel content.",
+        "limitations": "- Unlike React, scroll position and focus inside an inactive panel are\n  preserved (its component instance stays alive, only hidden) -- do not\n  rely on either behavior for cross-framework parity."
+      },
+      "inputs": {
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<TabPanelInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {},
+      "content": {
+        "default": {
+          "name": "default",
+          "selector": "*",
+          "description": "Default projected content."
         }
       }
     }

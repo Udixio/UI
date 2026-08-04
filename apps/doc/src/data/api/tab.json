@@ -5,12 +5,13 @@
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/Tab.tsx",
-      "description": "",
+      "description": "A single tab inside a `Tabs` tablist; renders as a link when `href` is\nprovided, otherwise as a button.",
       "tags": {
         "status": "beta",
         "parent": "Tabs",
-        "devx": "- `label` can come from string children; selection is index-based.\n- Use `TabGroup` to sync selection with panels/animations.",
-        "a11y": "- No keyboard navigation or `aria-controls` wiring."
+        "devx": "- `label` can come from string children; selection is index-based and\n  owned by the parent `Tabs` -- there is no standalone `selected` prop.",
+        "a11y": "- Exposes `id`, roving `tabIndex` (`0` on the selected or fallback tab,\n  `-1` otherwise), and `aria-controls` pointing at the matching\n  `TabPanel` when the tab list is connected to a `TabPanels`.\n- `disabled` sets the native `disabled` attribute for a button tab, or\n  `aria-disabled` and a blocked click for a link tab.",
+        "limitations": "- Horizontal layout only; there is no vertical tablist orientation.\n- A truncated label has no built-in tooltip."
       },
       "methods": [],
       "props": {
@@ -23,6 +24,35 @@
           },
           "defaultValue": null
         },
+        "label": {
+          "name": "label",
+          "description": "Text shown for this tab; can also come from a string child.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "icon": {
+          "name": "icon",
+          "description": "Icon shown alongside the label.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Disables pointer, keyboard, and roving-tabindex focus for this tab.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
         "variant": {
           "name": "variant",
           "description": "Injected by the parent Tabs.",
@@ -32,17 +62,6 @@
           },
           "defaultValue": {
             "value": "'primary'"
-          }
-        },
-        "selected": {
-          "name": "selected",
-          "description": "Controlled selected state, used when no parent drives the selection.",
-          "required": false,
-          "type": {
-            "name": "boolean"
-          },
-          "defaultValue": {
-            "value": "false"
           }
         },
         "index": {
@@ -65,14 +84,115 @@
         },
         "tabsId": {
           "name": "tabsId",
-          "description": "Injected by the parent Tabs: identifier shared by every tab of the group.",
+          "description": "Injected by the parent Tabs: identifier shared by every tab and panel of the group.",
           "required": false,
           "type": {
             "name": "string"
           },
           "defaultValue": null
+        },
+        "href": {
+          "name": "href",
+          "description": "Navigation destination; switches the inner element to a native link.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "isFocusable": {
+          "name": "isFocusable",
+          "description": "Injected by the parent Tabs: this tab is the roving-tabindex stop while nothing is selected.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "hasPanels": {
+          "name": "hasPanels",
+          "description": "Injected by the parent Tabs: whether a connected TabPanels exists (wires aria-controls).",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "onTabSelect": {
+          "name": "onTabSelect",
+          "description": "Injected by the parent Tabs: requests this tab becomes selected.",
+          "required": false,
+          "type": {
+            "name": "(index: number) => void"
+          },
+          "defaultValue": null
         }
       }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/tabs/tab.ts",
+      "description": "A single tab inside a `lib-tabs` tablist; renders as a link when `href` is\nprovided, otherwise as a button.",
+      "tags": {
+        "status": "beta",
+        "parent": "Tabs",
+        "devx": "- `label` and `icon` are the tab's content; selection is index-based and\n  owned by the parent `lib-tabs` -- there is no standalone `selected` input.",
+        "a11y": "- Exposes `id`, roving `tabIndex` (`0` on the selected or fallback tab,\n  `-1` otherwise), and `aria-controls` pointing at the matching\n  `lib-tab-panel` when the tab list is connected to a `lib-tab-panels`.\n- `disabled` sets the native `disabled` attribute for a button tab, or\n  `aria-disabled` and a blocked click for a link tab.",
+        "limitations": "- Horizontal layout only; there is no vertical tablist orientation.\n- A truncated label has no built-in tooltip."
+      },
+      "inputs": {
+        "label": {
+          "name": "label",
+          "description": "Text shown for this tab.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "icon": {
+          "name": "icon",
+          "description": "Icon shown alongside the label.",
+          "required": false,
+          "type": {
+            "name": "IconType"
+          },
+          "defaultValue": null
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Disables pointer, keyboard, and roving-tabindex focus for this tab.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "href": {
+          "name": "href",
+          "description": "Navigation destination; switches the inner element to a native link.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<TabInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {}
     }
   }
 }

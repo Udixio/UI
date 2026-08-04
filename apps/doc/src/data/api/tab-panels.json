@@ -5,13 +5,14 @@
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/TabPanels.tsx",
-      "description": "TabPanels renders the content panels with slide animation\nMust be used within a TabGroup",
+      "description": "TabPanels renders the panel for the selected tab, sliding it in from the\ndirection the selection moved. The slide is driven by a shared\n`@udixio/core/dom` Motion controller, the same one the Angular adapter\nuses.",
       "tags": {
         "status": "beta",
         "parent": "Tabs",
         "category": "Navigation",
-        "devx": "- Requires `TabGroup` context; otherwise it renders nothing.",
-        "limitations": "- Only renders the active panel (no offscreen preservation)."
+        "devx": "- Requires a `TabGroup` ancestor; otherwise it renders nothing (and warns).",
+        "a11y": "- Renders a plain wrapper `div`; the `tabpanel` role and its `id`/\n  `aria-labelledby` pair live on the connected `TabPanel`.",
+        "limitations": "- Only the active panel is mounted; there is no offscreen preservation of\n  the other panels' state."
       },
       "methods": [],
       "props": {
@@ -23,6 +24,37 @@
             "name": "string | ClassNameComponent<TabPanelsInterface>"
           },
           "defaultValue": null
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/tabs/tab-panels.ts",
+      "description": "TabPanels hosts every projected `lib-tab-panel`; each panel resolves its\nown active/hidden state from the shared `lib-tab-group` selection.",
+      "tags": {
+        "status": "beta",
+        "category": "Navigation",
+        "parent": "Tabs",
+        "devx": "- Requires a `lib-tab-group` ancestor; otherwise it warns and every panel\n  stays hidden.",
+        "a11y": "- Renders a plain wrapper `div`; the `tabpanel` role and its `id`/\n  `aria-labelledby` pair live on the connected `lib-tab-panel`.",
+        "limitations": "- Unlike React, every projected `lib-tab-panel` keeps its component\n  instance alive; inactive panels are hidden with the native `hidden`\n  attribute instead of being unmounted."
+      },
+      "inputs": {
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<TabPanelsInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {},
+      "content": {
+        "slot1": {
+          "name": "slot1",
+          "selector": "lib-tab-panel",
+          "description": "Projected content matching `lib-tab-panel`."
         }
       }
     }

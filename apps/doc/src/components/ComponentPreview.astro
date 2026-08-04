@@ -160,7 +160,7 @@ const { id } = Astro.props as PreviewProps;
   {id === 'switch' && <Switch selected />}
   {
     (id === 'tabs' || id === 'tab-group' || id === 'tab-panels') && (
-      <TabGroup defaultTab={0}>
+      <TabGroup defaultSelectedTab={0}>
         <Tabs>
           <Tab label="Overview" />
           <Tab label="Details" />

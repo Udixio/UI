@@ -1,17 +1,14 @@
-import { motion } from 'motion/react';
 import React, {
-  type Dispatch,
   type ReactNode,
   type RefObject,
-  type SetStateAction,
   useEffect,
   useRef,
-  useState,
 } from 'react';
 
 import { Icon } from '../icon';
 import {
   type ReactProps,
+  resolveTabSelection,
   type TabInterface,
   tabStyle,
 } from '@udixio/core';
@@ -26,21 +23,38 @@ export type TabSelectedEvent = Pick<TabInterface['props'], 'label' | 'icon'> & {
 
 export type ReactTabProps = ReactProps<TabInterface> & {
   children?: ReactNode;
+  /** Navigation destination; switches the inner element to a native link. */
   href?: string;
-  setSelectedTab?: Dispatch<SetStateAction<number | null>>;
+  /** Injected by the parent Tabs: this tab is the roving-tabindex stop while nothing is selected. */
+  isFocusable?: boolean;
+  /** Injected by the parent Tabs: whether a connected TabPanels exists (wires aria-controls). */
+  hasPanels?: boolean;
+  /** Injected by the parent Tabs: requests this tab becomes selected. */
+  onTabSelect?: (index: number) => void;
+  /** Injected by the parent Tabs: reports this tab's icon+label content element, which the sliding indicator measures for the `primary` variant. */
+  contentRef?: (element: HTMLSpanElement | null) => void;
   onTabSelected?: (args: TabSelectedEvent) => void;
 };
 
 export const useTabStyle = createUseStyle(tabStyle);
 
 /**
+ * A single tab inside a `Tabs` tablist; renders as a link when `href` is
+ * provided, otherwise as a button.
  * @status beta
  * @parent Tabs
  * @devx
- * - `label` can come from string children; selection is index-based.
- * - Use `TabGroup` to sync selection with panels/animations.
+ * - `label` can come from string children; selection is index-based and
+ *   owned by the parent `Tabs` -- there is no standalone `selected` prop.
  * @a11y
- * - No keyboard navigation or `aria-controls` wiring.
+ * - Exposes `id`, roving `tabIndex` (`0` on the selected or fallback tab,
+ *   `-1` otherwise), and `aria-controls` pointing at the matching
+ *   `TabPanel` when the tab list is connected to a `TabPanels`.
+ * - `disabled` sets the native `disabled` attribute for a button tab, or
+ *   `aria-disabled` and a blocked click for a link tab.
+ * @limitations
+ * - Horizontal layout only; there is no vertical tablist orientation.
+ * - A truncated label has no built-in tooltip.
  */
 export const Tab = ({
   className,
@@ -49,12 +63,15 @@ export const Tab = ({
   variant = 'primary',
   href,
   icon,
+  disabled = false,
   selectedTab,
-  setSelectedTab,
+  isFocusable = false,
+  hasPanels = false,
   tabsId,
   index,
+  onTabSelect,
+  contentRef,
   onTabSelected,
-  selected = false,
   children,
   ref,
   ...restProps
@@ -66,43 +83,38 @@ export const Tab = ({
   const label =
     labelProp ?? (typeof children === 'string' ? children : undefined);
 
-  const [isSelected, setIsSelected] = useState<boolean>(selected);
+  const isSelected = resolveTabSelection({ selectedTab, index });
 
   useEffect(() => {
-    if (selected && selectedTab == null) {
-      setIsSelected(true);
-    } else {
-      setIsSelected(selectedTab == index && index != null);
-    }
-  }, [selectedTab]);
-
-  useEffect(() => {
-    if (selectedTab == index && onTabSelected) {
+    if (isSelected && onTabSelected) {
       onTabSelected({
         ref: resolvedRef as any,
-        index: index || 0,
+        index: index ?? 0,
         label,
         icon,
       });
     }
-  }, [selectedTab]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSelected]);
 
   const ElementType = href ? 'a' : 'button';
 
   const handleClick = (e: React.MouseEvent<any>) => {
-    if (setSelectedTab) {
-      setSelectedTab(index ?? null);
+    if (disabled) {
+      if (href) e.preventDefault();
+      return;
     }
-    if (onClick) {
-      onClick(e);
+    if (index != null) {
+      onTabSelect?.(index);
     }
+    onClick?.(e);
   };
 
   const styles = useTabStyle({
     label,
     icon,
     variant,
-    selected,
+    disabled,
     index,
     selectedTab,
     tabsId,
@@ -110,10 +122,22 @@ export const Tab = ({
     className,
   });
 
+  const domId =
+    tabsId != null && index != null ? `tab-${tabsId}-${index}` : undefined;
+  const panelId =
+    hasPanels && tabsId != null && index != null
+      ? `tabpanel-${tabsId}-${index}`
+      : undefined;
+
   return (
     <ElementType
       role="tab"
+      id={domId}
       aria-selected={isSelected}
+      aria-controls={panelId}
+      aria-disabled={href && disabled ? true : undefined}
+      disabled={!href && disabled ? true : undefined}
+      tabIndex={disabled ? -1 : isSelected || isFocusable ? 0 : -1}
       ref={resolvedRef as any}
       href={href}
       className={styles.tab}
@@ -128,16 +152,9 @@ export const Tab = ({
         }
         stateClassName={'state-ripple-group-[tab]'}
       />
-      <span className={styles.content}>
+      <span ref={contentRef} className={styles.content}>
         {icon && <Icon icon={icon} className={styles.icon} />}
         <span className={styles.label}>{label}</span>
-        {isSelected && (
-          <motion.span
-            layoutId={`underline-${tabsId}`}
-            className={styles.underline}
-            transition={{ duration: 0.3 }}
-          />
-        )}
       </span>
     </ElementType>
   );

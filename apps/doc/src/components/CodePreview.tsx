@@ -191,7 +191,7 @@ const LegacyCodePreview = ({
       )}
       variant={'filled'}
     >
-      <UI.TabGroup defaultTab={preview ? 0 : 1}>
+      <UI.TabGroup defaultSelectedTab={preview ? 0 : 1}>
         <div
           className={classNames('flex pr-2 items-center', {
             'bg-surface-container-high relative': preview,
@@ -203,7 +203,6 @@ const LegacyCodePreview = ({
               <UI.Tab
                 className={'bg-surface-container-high'}
                 label={'Preview'}
-                selected
               ></UI.Tab>
               <UI.Tab
                 className={'bg-surface-container-high'}

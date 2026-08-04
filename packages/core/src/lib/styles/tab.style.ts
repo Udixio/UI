@@ -10,9 +10,11 @@ const tabConfig: ClassNameComponent<TabInterface> = ({
   icon,
   label,
   variant,
+  disabled,
 }) => ({
   tab: cx(
-    'flex-1 group/tab outline-none flex px-4 justify-center items-center cursor-pointer',
+    'flex-1 group/tab outline-none flex px-4 justify-center items-center',
+    disabled ? 'cursor-default' : 'cursor-pointer',
     { 'z-10': isSelected },
     Boolean(icon && label) && variant === 'primary' && 'h-16',
     !(Boolean(icon && label) && variant === 'primary') && 'h-12',
@@ -31,9 +33,6 @@ const tabConfig: ClassNameComponent<TabInterface> = ({
   content: cx(
     'flex  gap-0.5 h-full justify-center',
     {
-      relative: variant == 'primary',
-    },
-    {
       '': Boolean(label && !icon),
     },
 
@@ -45,30 +44,31 @@ const tabConfig: ClassNameComponent<TabInterface> = ({
   ),
   icon: cx(
     'h-6 w-6 p-0.5 !box-border',
-    variant === 'primary' && {
-      'text-on-surface-variant': !isSelected,
-      'text-primary': isSelected,
-    },
-    variant === 'secondary' && {
-      'text-on-surface-variant': !isSelected,
-      'text-on-surface': isSelected,
-    },
+    disabled && 'text-on-surface/[0.38]',
+    !disabled &&
+      variant === 'primary' && {
+        'text-on-surface-variant': !isSelected,
+        'text-primary': isSelected,
+      },
+    !disabled &&
+      variant === 'secondary' && {
+        'text-on-surface-variant': !isSelected,
+        'text-on-surface': isSelected,
+      },
   ),
   label: cx(
     'text-title-small  text-nowrap',
-    variant === 'primary' && {
-      'text-on-surface-variant': !isSelected,
-      'text-primary': isSelected,
-    },
-    variant === 'secondary' && {
-      'text-on-surface-variant': !isSelected,
-      'text-on-surface': isSelected,
-    },
-  ),
-  underline: cx(
-    'bg-primary  absolute w-full left-0 bottom-0',
-    variant === 'primary' && 'h-[3px] rounded-t',
-    variant === 'secondary' && 'h-0.5',
+    disabled && 'text-on-surface/[0.38]',
+    !disabled &&
+      variant === 'primary' && {
+        'text-on-surface-variant': !isSelected,
+        'text-primary': isSelected,
+      },
+    !disabled &&
+      variant === 'secondary' && {
+        'text-on-surface-variant': !isSelected,
+        'text-on-surface': isSelected,
+      },
   ),
 });
 

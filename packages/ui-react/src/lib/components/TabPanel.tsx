@@ -8,30 +8,52 @@ import { createUseStyle } from '../utils/create-use-style';
 
 export type ReactTabPanelProps = ReactProps<TabPanelInterface> & {
   children?: ReactNode;
-  /** Injected by the parent TabPanels: whether this panel is the visible one. */
-  isSelected?: boolean;
 };
 
 export const useTabPanelStyle = createUseStyle(tabPanelStyle);
 
 /**
- * TabPanel contains the content for a single tab
- * Must be used within TabPanels
+ * TabPanel holds the content for a single tab. Its parent `TabPanels` only
+ * ever mounts the active panel.
  * @status beta
  * @parent Tabs
  * @category Navigation
  * @devx
- * - Should be rendered inside `TabPanels` for animations and aria wiring.
+ * - Must be rendered inside a `TabPanels`, itself inside a `TabGroup`.
+ * @a11y
+ * - Exposes `role="tabpanel"`, an `id`/`aria-labelledby` pair matching the
+ *   connected `Tab`, and `tabIndex={0}` so keyboard users can move focus
+ *   into the panel content.
+ * @limitations
+ * - Unmounts when it stops being the active panel; scroll position, form
+ *   input, and focus inside it are not preserved across a switch.
  */
 export const TabPanel = ({
   children,
   className,
-  isSelected = false,
+  index,
+  tabsId,
+  ref,
 }: ReactTabPanelProps) => {
-  const styles = useTabPanelStyle({
-    className,
-    isSelected,
-  });
+  const styles = useTabPanelStyle({ index, tabsId, className });
 
-  return <div className={styles.tabPanel}>{children}</div>;
+  const domId =
+    tabsId != null && index != null
+      ? `tabpanel-${tabsId}-${index}`
+      : undefined;
+  const labelledBy =
+    tabsId != null && index != null ? `tab-${tabsId}-${index}` : undefined;
+
+  return (
+    <div
+      ref={ref as any}
+      id={domId}
+      role="tabpanel"
+      aria-labelledby={labelledBy}
+      tabIndex={0}
+      className={styles.tabPanel}
+    >
+      {children}
+    </div>
+  );
 };

@@ -24,7 +24,7 @@ export const ThemePreviewTabs = () => {
   return (
     <div className="relative w-full">
       <div className="w-full">
-        <TabGroup defaultTab={0}>
+        <TabGroup defaultSelectedTab={0}>
           <Tabs
             variant="secondary"
             className="mb-4 bg-transparent border-b border-outline-variant rounded-none"

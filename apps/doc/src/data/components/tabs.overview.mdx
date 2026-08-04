@@ -1,173 +1,154 @@
 ---
 ---
 
-
-
-
-
-import { CodePreview } from '@/components/CodePreview.js';
-import { iSettings } from '@udixio/icons-rounded-400/settings';
-import { iHome } from '@udixio/icons-rounded-400/home';
-import { iPerson } from '@udixio/icons-rounded-400/person';
+import Code from '@/components/Code.astro';
+import TabsBasicReact from '@/examples/react/tabs-basic.tsx';
+import { TabsBasicAngular } from '@/examples/angular/tabs-basic.ts';
+import TabsPanelsReact from '@/examples/react/tabs-panels.tsx';
+import { TabsPanelsAngular } from '@/examples/angular/tabs-panels.ts';
+import TabsControlledReact from '@/examples/react/tabs-controlled.tsx';
+import { TabsControlledAngular } from '@/examples/angular/tabs-controlled.ts';
+import tabsBasicReactSource from '@/examples/react/tabs-basic.tsx?raw';
+import tabsBasicAngularSource from '@/examples/angular/tabs-basic.ts?raw';
+import tabsPanelsReactSource from '@/examples/react/tabs-panels.tsx?raw';
+import tabsPanelsAngularSource from '@/examples/angular/tabs-panels.ts?raw';
+import tabsControlledReactSource from '@/examples/react/tabs-controlled.tsx?raw';
+import tabsControlledAngularSource from '@/examples/angular/tabs-controlled.ts?raw';
+import TabsVariantsReact from '@/examples/react/tabs-variants.tsx';
+import { TabsVariantsAngular } from '@/examples/angular/tabs-variants.ts';
+import tabsVariantsReactSource from '@/examples/react/tabs-variants.tsx?raw';
+import tabsVariantsAngularSource from '@/examples/angular/tabs-variants.ts?raw';
 
 ## Usage
 
-Tabs organize content across different views. Use Tabs with Tab children.
+`Tabs` organizes navigation across views. It is one component family split
+across a few pieces that only make sense together: `Tab` is a single tab,
+`TabGroup` shares selection between a tab list and its content, and
+`TabPanels`/`TabPanel` render the content for the selected tab. Only `Tab`
+children are rendered; other children are ignored.
 
 ```bash
-import { Tabs, Tab } from "@udixio/ui-react"
+import { Tab, Tabs } from "@udixio/ui-react"
 ```
 
-<CodePreview client:load
-             code={`
-  <Tabs>
-    <Tab label="Home" icon={iHome} selected />
-    <Tab label="Settings" icon={iSettings} />
-    <Tab label="Profile" icon={iPerson} />
-  </Tabs>
-`}
-             scope={{ iHome, iSettings, iPerson }}
-/>
+<Code
+  codes={{
+    react: tabsBasicReactSource,
+    angular: tabsBasicAngularSource,
+  }}
+>
+  <TabsBasicReact slot="react" client:load />
+  <TabsBasicAngular slot="angular" client:load />
+</Code>
+
+`disabled` removes a tab from the roving tab order and blocks selection.
 
 ## Variants
 
-- primary (default)
-- secondary
+`variant` is `primary` (default, icon above the label, with a thicker 3px
+indicator) or `secondary` (icon beside the label, with a thinner 2px
+indicator).
 
-```jsx
-<div class={"space-y-2"}>
-  <Tabs variant="primary">
-    <Tab label="One" selected />
-    <Tab label="Two" />
-  </Tabs>
-  <Tabs variant="secondary">
-    <Tab label="One" selected/>
-    <Tab label="Two" />
-  </Tabs>
-</div>
+<Code
+  codes={{
+    react: tabsVariantsReactSource,
+    angular: tabsVariantsAngularSource,
+  }}
+>
+  <TabsVariantsReact slot="react" client:load />
+  <TabsVariantsAngular slot="angular" client:load />
+</Code>
 
-```
+## Connecting tabs to panels
 
-## Controlled selection and scrollable
-
-Use `selectedTab` and `setSelectedTab` for controlled state. Set `scrollable` to true to enable horizontal scroll with automatic centering of the selected tab.
-
-```jsx
-function Example() {
-  const [tab, setTab] = React.useState(0)
-  return (
-    <Tabs selectedTab={tab} setSelectedTab={setTab} scrollable>
-      <Tab label="Overview" />
-      <Tab label="Activity" />
-      <Tab label="Settings" />
-      <Tab label="Billing" />
-      <Tab label="Advanced" />
-    </Tabs>
-  )
-}
-```
-
-## Tab panels with TabGroup
-
-Use `TabGroup` to connect `Tabs` with `TabPanels`. This provides flexibility to place panels anywhere and includes a slide animation.
+Wrap `Tabs` and `TabPanels` in a `TabGroup` to connect them; this lets you
+place the tab list and its panels anywhere in the layout, and drives the
+panel's slide animation. `Tabs` alone (no `TabGroup`) is enough for a
+navigation-only tab list with no panels, as in the example above.
 
 ```bash
 import { TabGroup, Tabs, Tab, TabPanels, TabPanel } from "@udixio/ui-react"
 ```
 
-```jsx
-<TabGroup defaultTab={0}>
-  <Tabs>
-    <Tab>Profile</Tab>
-    <Tab>Settings</Tab>
-    <Tab>Notifications</Tab>
-  </Tabs>
-  <TabPanels>
-    <TabPanel>
-      <div className="p-4">
-        <h3 className="text-title-medium">Profile Content</h3>
-        <p>This is the profile panel content.</p>
-      </div>
-    </TabPanel>
-    <TabPanel>
-      <div className="p-4">
-        <h3 className="text-title-medium">Settings Content</h3>
-        <p>Configure your preferences here.</p>
-      </div>
-    </TabPanel>
-    <TabPanel>
-      <div className="p-4">
-        <h3 className="text-title-medium">Notifications</h3>
-        <p>Manage your notification settings.</p>
-      </div>
-    </TabPanel>
-  </TabPanels>
-</TabGroup>
-```
+<Code
+  codes={{
+    react: tabsPanelsReactSource,
+    angular: tabsPanelsAngularSource,
+  }}
+>
+  <TabsPanelsReact slot="react" client:load />
+  <TabsPanelsAngular slot="angular" client:load />
+</Code>
 
-## Flexible layout with TabGroup
+Only the active `TabPanel` is mounted by the React adapter; on Angular, every
+projected `lib-tab-panel` keeps its component instance and state alive and
+the inactive ones are hidden with the native `hidden` attribute instead —
+Angular content projection has no cheap equivalent to conditionally mounting
+projected children. Both remove inactive panels from the accessibility tree
+and the tab order identically.
 
-Since `TabGroup` uses context, you can place `Tabs` and `TabPanels` anywhere within the group.
+## Controlled selection and scrollable
 
-```jsx
-<TabGroup>
-  <div className="flex gap-4">
-    <Tabs>
-      <Tab>One</Tab>
-      <Tab>Two</Tab>
-    </Tabs>
-    <div className="flex-1">
-      <TabPanels>
-        <TabPanel>Content for tab one</TabPanel>
-        <TabPanel>Content for tab two</TabPanel>
-      </TabPanels>
-    </div>
-  </div>
-</TabGroup>
-```
+Use `selectedTab`/`onSelectedTabChange` (React) or `selectedTab`/
+`selectedTabChange` (Angular) for controlled selection on `Tabs` or
+`TabGroup`; `defaultSelectedTab` (defaults to `0`) seeds the initial
+selection when uncontrolled. Set `scrollable` to `true` to enable horizontal
+scroll with automatic centering of the selected tab.
 
-## Controlled TabGroup
+Do not bind `selectedTab` directly on `Tabs` when it is also wrapped in a
+`TabGroup` — the `TabGroup` is the single source of truth in that case, and
+the two owners would fight over the selection.
 
-Control the selected tab externally via `selectedTab` and `setSelectedTab` props on `TabGroup`.
-
-```jsx
-function Example() {
-  const [tab, setTab] = React.useState(0)
-  return (
-    <TabGroup selectedTab={tab} setSelectedTab={setTab}>
-      <Tabs>
-        <Tab>First</Tab>
-        <Tab>Second</Tab>
-      </Tabs>
-      <TabPanels>
-        <TabPanel>First panel</TabPanel>
-        <TabPanel>Second panel</TabPanel>
-      </TabPanels>
-    </TabGroup>
-  )
-}
-```
-
-## Children as label
-
-You can use `children` as an alternative to the `label` prop when providing a string.
-
-```jsx
-<Tabs>
-  <Tab selected>Home</Tab>
-  <Tab>Settings</Tab>
-  <Tab>Profile</Tab>
-</Tabs>
-```
+<Code
+  codes={{
+    react: tabsControlledReactSource,
+    angular: tabsControlledAngularSource,
+  }}
+>
+  <TabsControlledReact slot="react" client:load />
+  <TabsControlledAngular slot="angular" client:load />
+</Code>
 
 ## Link or action
 
-If the `href` prop is provided on a Tab, it renders an `<a>` link; otherwise it renders a `<button>`.
+If the `href` prop is provided on a `Tab`, it renders an `<a>` link;
+otherwise it renders a `<button>`. `label` can come from a string child as an
+alternative to the `label` prop.
 
 ```jsx
 <Tabs>
-  <Tab label="Dashboard" selected />
+  <Tab label="Dashboard" />
   <Tab label="Documentation" href="/docs" />
   <Tab label="External" href="https://udixio.dev" />
 </Tabs>
 ```
+
+## Motion
+
+The sliding tab indicator and the panel's enter transition are implemented
+once with Motion JavaScript in `@udixio/core/dom`
+(`createTabsIndicatorController`, `animateTabPanelEnter`), so React and
+Angular share the same timing and reduced-motion behavior — neither adapter
+implements its own version of either effect.
+
+## Accessibility
+
+`Tabs` renders `role="tablist"`; each `Tab` renders `role="tab"` with a
+roving `tabIndex` (`0` on the selected tab, or the first enabled tab when
+nothing is selected, `-1` on the rest). ArrowLeft/ArrowRight move focus and
+selection between enabled tabs and wrap at the ends; Home/End jump to the
+first/last enabled tab. When a `TabGroup` connects a `TabPanels`, each `Tab`
+exposes `id`/`aria-controls` matched to its `TabPanel`'s `id`/
+`aria-labelledby`, and the panel is in the tab order (`tabIndex={0}`) so
+keyboard users can move focus into its content.
+
+## Migrating to 3.0
+
+| Before                                             | 3.0                                                              |
+| --------------------------------------------------- | ----------------------------------------------------------------- |
+| `Tab` `selected` (standalone, per-tab)               | `Tabs`/`TabGroup` `defaultSelectedTab` (single source of truth)   |
+| `Tabs`/`TabGroup` `setSelectedTab` (raw dispatcher)  | `onSelectedTabChange` (React), `selectedTabChange` (Angular)      |
+| `TabGroup` `defaultTab`                              | `defaultSelectedTab`                                              |
+| No keyboard navigation                               | Roving tabIndex, ArrowLeft/ArrowRight/Home/End                    |
+| No `disabled` on `Tab`                               | `disabled` input/prop                                             |
+| No Angular adapter                                   | Full Angular parity (`lib-tabs`, `lib-tab`, `lib-tab-group`, `lib-tab-panels`, `lib-tab-panel`) |

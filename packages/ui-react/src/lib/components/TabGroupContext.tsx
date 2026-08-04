@@ -1,16 +1,18 @@
-import { createContext, Dispatch, SetStateAction } from 'react';
+import { createContext } from 'react';
 
 /**
- * Shared state container for Tabs and TabPanels.
+ * Shared selection state connecting a `Tabs` tablist with a `TabPanels`
+ * placed anywhere in the same `TabGroup` subtree.
  * @parent Tabs
  * @internal
  */
 export interface TabGroupContextValue {
   selectedTab: number | null;
-  setSelectedTab: Dispatch<SetStateAction<number | null>>;
-  previousTab: number | null;
   direction: number;
   tabsId: string;
+  select(index: number | null): void;
 }
 
-export const TabGroupContext = createContext<TabGroupContextValue | null>(null);
+export const TabGroupContext = createContext<TabGroupContextValue | null>(
+  null,
+);
