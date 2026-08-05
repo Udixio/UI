@@ -1,42 +1,58 @@
 ---
 ---
 
-
-
-
-
-import { CodePreview } from '@/components/CodePreview.js';
-import { iDarkMode } from '@udixio/icons-rounded-400/dark_mode';
-import { iLightMode } from '@udixio/icons-rounded-400/light_mode';
+import Code from '@/components/Code.astro';
+import SwitchStatesReact from '@/examples/react/switch-states.tsx';
+import { SwitchStatesAngular } from '@/examples/angular/switch-states.ts';
+import SwitchIconsReact from '@/examples/react/switch-icons.tsx';
+import { SwitchIconsAngular } from '@/examples/angular/switch-icons.ts';
+import switchStatesReactSource from '@/examples/react/switch-states.tsx?raw';
+import switchStatesAngularSource from '@/examples/angular/switch-states.ts?raw';
+import switchIconsReactSource from '@/examples/react/switch-icons.tsx?raw';
+import switchIconsAngularSource from '@/examples/angular/switch-icons.ts?raw';
 
 ## Usage
 
-Switch toggles a single setting on or off.
+Switch toggles a single setting on or off. It renders `role="switch"`, not a
+native form control, so associate an accessible name with `aria-label` or
+`aria-labelledby`.
 
-```bash
-import { Switch } from "@udixio/ui-react"
-```
+## Checked and disabled states
 
-```tsx
-<Switch selected={false} onChange={(v) => console.log('selected:', v)} />
-```
+Use `checked` with `onCheckedChange` in React, or `[(checked)]` in Angular.
+`defaultChecked` captures the initial uncontrolled state. A controlled switch
+emits a request but does not change until its owner supplies the new value.
+Use `disabled` to prevent interaction.
+
+<Code
+  codes={{
+    react: switchStatesReactSource,
+    angular: switchStatesAngularSource,
+  }}
+>
+  <SwitchStatesReact slot="react" client:load />
+  <SwitchStatesAngular slot="angular" client:load />
+</Code>
 
 ## With icons
 
-Provide `activeIcon` and/or `inactiveIcon` to display inside the thumb.
+Provide `activeIcon` and/or `inactiveIcon` to display inside the thumb. The
+thumb slide between positions is driven by a shared `@udixio/core/dom` Motion
+controller, so React and Angular animate identically.
 
-<CodePreview client:load
-             code={`
-  <div className="flex items-center gap-6">
-    <Switch selected inactiveIcon={iDarkMode} activeIcon={iLightMode} />
-    <Switch inactiveIcon={iDarkMode} activeIcon={iLightMode} />
-  </div>
-`}
-             scope={{ iDarkMode, iLightMode }}
-/>
+<Code
+  codes={{
+    react: switchIconsReactSource,
+    angular: switchIconsAngularSource,
+  }}
+>
+  <SwitchIconsReact slot="react" client:load />
+  <SwitchIconsAngular slot="angular" client:load />
+</Code>
 
-## Disabled
+## Accessibility
 
-```jsx
-<Switch disabled selected />
-```
+Switch exposes `aria-checked` and toggles with a click or with Space/Enter
+when focused. It never renders a visible label on its own; pair it with
+`aria-label`, `aria-labelledby`, or a visible label element referencing it
+through your own markup.

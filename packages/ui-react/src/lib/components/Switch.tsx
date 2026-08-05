@@ -1,110 +1,158 @@
-import React, { useEffect, useRef, useState } from 'react';
-
+import React, { useLayoutEffect, useRef } from 'react';
+import {
+  getSwitchChangeTransition,
+  getSwitchHandleOffset,
+  switchStyle,
+  type ReactProps,
+  type SwitchInterface,
+} from '@udixio/core';
+import {
+  createSwitchThumbController,
+  type SwitchThumbController,
+} from '@udixio/core/dom';
 import { Icon } from '../icon';
-import { motion } from 'motion/react';
-import { type MotionProps, switchStyle, type SwitchInterface } from '@udixio/core';
+import { State } from '../effects';
 import { createUseStyle } from '../utils/create-use-style';
+import { useControllableState } from '../utils/use-controllable-state';
 
-export type ReactSwitchProps = MotionProps<SwitchInterface>;
+export type ReactSwitchProps = Omit<ReactProps<SwitchInterface>, 'onChange'> & {
+  /** Called once for each accepted checked-state transition. */
+  onCheckedChange?: (checked: boolean) => void;
+};
 
 export const useSwitchStyle = createUseStyle(switchStyle);
 
 /**
- * Switches toggle the selection of an item on or off
+ * Switches toggle the selection of a single item on or off.
  * @status beta
  * @category Input
  * @devx
- * - `selected` is used as initial state only; prop changes won’t sync.
+ * - Use `checked` with `onCheckedChange` for controlled state, or `defaultChecked` for uncontrolled state.
+ * - The thumb slide is driven by a shared `@udixio/core/dom` Anime.js tween controller, the same one the Angular
+ *   adapter uses -- an accepted exception to the rest of `@udixio/core/dom`, which uses Motion.
  * @a11y
- * - Uses `role="switch"` but no label prop is exposed here.
+ * - Renders `role="switch"` with `aria-checked` and standard Space/Enter activation.
+ * @limitations
+ * - The component does not render a visible label; provide one with `aria-label` or `aria-labelledby`.
  */
 export const Switch = ({
-  selected = false,
+  checked,
+  defaultChecked = false,
   className,
   activeIcon,
   disabled = false,
   inactiveIcon,
-  onChange,
+  onCheckedChange,
   onClick,
   onKeyDown,
   ref,
   ...restProps
 }: ReactSwitchProps) => {
-  const [isSelected, setIsSelected] = useState(selected);
+  const [isChecked, setChecked] = useControllableState({
+    value: checked,
+    defaultValue: defaultChecked,
+    onChange: onCheckedChange,
+    componentName: 'Switch',
+    stateName: 'checked',
+  });
 
-  useEffect(() => {
-    setIsSelected(selected);
-  }, [selected]);
+  const handleToggle = () => {
+    const transition = getSwitchChangeTransition({ disabled, isChecked });
+    if (!transition.blocked) setChecked(transition.nextChecked);
+  };
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (disabled) return;
-    toggleSwitchState();
-    if (onClick) {
-      onClick(event);
-    }
+    handleToggle();
+    onClick?.(event);
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (disabled) return;
     if (event.key === ' ' || event.key === 'Enter') {
       event.preventDefault();
-      toggleSwitchState();
+      handleToggle();
     }
-    if (onKeyDown) {
-      onKeyDown(event);
-    }
+    onKeyDown?.(event);
   };
 
-  const toggleSwitchState = () => {
-    setIsSelected(!isSelected);
-    onChange?.(!isSelected);
-  };
   const styles = useSwitchStyle({
     className,
-    isSelected,
+    isChecked,
     activeIcon,
     inactiveIcon,
     disabled,
-    selected: isSelected,
-    onChange,
+    checked,
+    defaultChecked,
   });
 
   const defaultRef = useRef<HTMLDivElement>(null);
   const resolvedRef: React.RefObject<any> | React.ForwardedRef<any> =
     ref || defaultRef;
 
+  const handleContainerRef = useRef<HTMLDivElement>(null);
+  const controllerRef = useRef<SwitchThumbController | null>(null);
+  const isFirstUpdateRef = useRef(true);
+
+  useLayoutEffect(() => {
+    const root = handleContainerRef.current;
+    if (!root) return;
+
+    isFirstUpdateRef.current = true;
+    const controller = createSwitchThumbController({ root });
+    controllerRef.current = controller;
+
+    return () => {
+      controller.destroy();
+      if (controllerRef.current === controller) {
+        controllerRef.current = null;
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useLayoutEffect(() => {
+    // This effect also fires once on mount (React runs every effect on
+    // first render, dependency array or not) -- animating then would slide
+    // the handle in from the *other* resting offset, as if it had just been
+    // toggled, even though it rendered at the right spot the whole time.
+    // Only real `isChecked` transitions after mount should ever animate.
+    if (isFirstUpdateRef.current) {
+      isFirstUpdateRef.current = false;
+      return;
+    }
+    controllerRef.current?.update(
+      getSwitchHandleOffset(!isChecked),
+      getSwitchHandleOffset(isChecked),
+    );
+  }, [isChecked]);
+
+  const resolvedIcon = isChecked ? activeIcon : inactiveIcon;
+
   return (
-    <motion.div
+    <div
+      {...restProps}
       role="switch"
-      aria-checked={isSelected}
+      aria-checked={isChecked}
+      aria-disabled={disabled || undefined}
       tabIndex={disabled ? -1 : 0}
       onKeyDown={handleKeyDown}
       onClick={handleClick}
       ref={resolvedRef}
       className={styles.switch}
-      {...restProps}
     >
-      <input type="hidden" value={isSelected ? '1' : '0'} />
-      <motion.div
-        layout
-        style={{ translate: isSelected ? '50%' : '-50%' }}
-        transition={{
-          type: 'spring',
-          stiffness: 700,
-          damping: 30,
-        }}
+      <div
+        ref={handleContainerRef}
+        style={{ translate: `${getSwitchHandleOffset(isChecked)}px` }}
         className={styles.handleContainer}
       >
+        <State
+          stateClassName="state-ripple-group-[switch]"
+          className={styles.stateLayer}
+          colorName={isChecked ? 'primary' : 'on-surface'}
+        />
         <div className={styles.handle}>
-          {(isSelected ? activeIcon : inactiveIcon) && (
-            <Icon
-              className={styles.icon}
-              icon={isSelected ? activeIcon! : inactiveIcon!}
-            ></Icon>
-          )}
+          {resolvedIcon && <Icon className={styles.icon} icon={resolvedIcon} />}
         </div>
-        <div className={styles.handleStateLayer} />
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 };

@@ -10,4 +10,5 @@ export * from './side-sheet.js';
 export * from './snackbar.js';
 export * from './slider.js';
 export * from './state-layer.js';
+export * from './switch.js';
 export * from './tabs.js';

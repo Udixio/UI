@@ -209,41 +209,49 @@ const TocSidebar = () => {
   const title = headings.find((h) => h.level === 1)?.text;
   const sections = headings.filter((h) => h.level === 2);
 
-  if (headings.length === 0) return null;
-
+  // The shell (and its width) renders unconditionally, even before headings
+  // are known -- `headings` only populates once a post-mount effect scans
+  // the page, and gating the whole `<aside>` on that left no space reserved
+  // for it in the initial paint. That reserved 200px popping in ~1s later
+  // shifted the entire centered content column left by 100px out from under
+  // anything already mounted below it (e.g. a Switch mid-FLIP-baseline).
   return (
     <aside className="sticky top-0 h-screen p-4 pt-16 w-[200px]">
-      <div className="text-title-small text-on-surface-variant">
-        On this page
-      </div>
-      {title && <p className="mt-2 text-title-large">{title}</p>}
-      <nav className="flex flex-col mt-2 gap-1 w-fit">
-        {sections.map((h) => (
-          <div key={h.id} className="relative -mx-4">
-            <Button
-              size="small"
-              variant="text"
-              className={classNames(
-                'text-on-surface-variant w-full justify-start',
-                {
-                  'text-primary': h.id === activeId,
-                },
-              )}
-              aria-current={h.id === activeId ? 'location' : undefined}
-              href={`#${h.id}`}
-              onClick={(e) => handleClick(e, h.id)}
-            >
-              {h.text}
-            </Button>
-            {h.id === activeId && (
-              <motion.div
-                layoutId="doc-sidebar-button"
-                className="absolute pointer-events-none h-full w-full border border-outline-variant top-0 left-0 rounded-xl"
-              />
-            )}
+      {headings.length > 0 && (
+        <>
+          <div className="text-title-small text-on-surface-variant">
+            On this page
           </div>
-        ))}
-      </nav>
+          {title && <p className="mt-2 text-title-large">{title}</p>}
+          <nav className="flex flex-col mt-2 gap-1 w-fit">
+            {sections.map((h) => (
+              <div key={h.id} className="relative -mx-4">
+                <Button
+                  size="small"
+                  variant="text"
+                  className={classNames(
+                    'text-on-surface-variant w-full justify-start',
+                    {
+                      'text-primary': h.id === activeId,
+                    },
+                  )}
+                  aria-current={h.id === activeId ? 'location' : undefined}
+                  href={`#${h.id}`}
+                  onClick={(e) => handleClick(e, h.id)}
+                >
+                  {h.text}
+                </Button>
+                {h.id === activeId && (
+                  <motion.div
+                    layoutId="doc-sidebar-button"
+                    className="absolute pointer-events-none h-full w-full border border-outline-variant top-0 left-0 rounded-xl"
+                  />
+                )}
+              </div>
+            ))}
+          </nav>
+        </>
+      )}
     </aside>
   );
 };

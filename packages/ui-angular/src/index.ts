@@ -24,6 +24,7 @@ export * from './lib/snackbar/snackbar';
 export * from './lib/chip/chip';
 export * from './lib/chips/chips';
 export * from './lib/state-layer/state-layer';
+export * from './lib/switch/switch';
 export * from './lib/tabs/tab';
 export * from './lib/tabs/tabs';
 export * from './lib/tabs/tab-group';
