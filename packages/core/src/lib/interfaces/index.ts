@@ -1,3 +1,4 @@
+export * from './anchor-positioner.interface';
 export * from './button.interface';
 export * from './card.interface';
 export * from './carousel-item.interface';

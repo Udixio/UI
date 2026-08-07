@@ -5,20 +5,85 @@
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/AnchorPositioner.tsx",
-      "description": "",
-      "tags": {},
+      "description": "Floats `children` next to an anchor element using native CSS Anchor\nPositioning where supported, falling back to a `position: fixed` element\ntracked against the anchor's rect. The positioning math is implemented\nonce in `@udixio/core/dom` and shared with the Angular adapter.",
+      "tags": {
+        "status": "beta",
+        "category": "Communication",
+        "devx": "- Internal building block for `Tooltip`; not yet documented as a\n  standalone public component.\n- Portals `children` to `document.body`.",
+        "a11y": "- Renders no semantics of its own; the caller's content and `Tooltip`'s\n  own `role=\"tooltip\"` carry accessibility meaning.",
+        "limitations": "- Falls back to tracking `getBoundingClientRect()` on scroll and resize\n  in browsers without native CSS Anchor Positioning support."
+      },
       "methods": [],
       "props": {
         "position": {
           "name": "position",
-          "description": "",
+          "description": "Placement of the floating element relative to its anchor. Defaults to `bottom`.",
           "required": false,
           "type": {
-            "name": "Position"
+            "name": "AnchorPosition"
           },
           "defaultValue": {
             "value": "'bottom'"
           }
+        },
+        "anchorRef": {
+          "name": "anchorRef",
+          "description": "The element the floating content is positioned relative to.",
+          "required": true,
+          "type": {
+            "name": "RefObject<HTMLElement>"
+          },
+          "defaultValue": null
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/anchor-positioner/anchor-positioner.ts",
+      "description": "Floats projected content next to an anchor element using native CSS\nAnchor Positioning where supported, falling back to a `position: fixed`\nelement tracked against the anchor's rect. The positioning math is\nimplemented once in `@udixio/core/dom` and shared with the React adapter.",
+      "tags": {
+        "status": "beta",
+        "category": "Communication",
+        "devx": "- Internal building block for `Tooltip`; not yet documented as a\n  standalone public component.\n- Portals its content to `document.body`.",
+        "a11y": "- Renders no semantics of its own; the caller's content and `Tooltip`'s\n  own `role=\"tooltip\"` carry accessibility meaning.",
+        "limitations": "- Falls back to tracking `getBoundingClientRect()` on scroll and resize\n  in browsers without native CSS Anchor Positioning support."
+      },
+      "inputs": {
+        "anchor": {
+          "name": "anchor",
+          "description": "The element the floating content is positioned relative to.",
+          "required": true,
+          "type": {
+            "name": "HTMLElement | ElementRef<HTMLElement>"
+          },
+          "defaultValue": null
+        },
+        "position": {
+          "name": "position",
+          "description": "Placement of the floating element relative to its anchor. Defaults to `bottom`.",
+          "required": false,
+          "type": {
+            "name": "AnchorPosition"
+          },
+          "defaultValue": {
+            "value": "'bottom'"
+          }
+        },
+        "className": {
+          "name": "className",
+          "description": "Class applied to the floating (portaled) wrapper element.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {},
+      "content": {
+        "default": {
+          "name": "default",
+          "selector": "*",
+          "description": "Default projected content."
         }
       }
     }

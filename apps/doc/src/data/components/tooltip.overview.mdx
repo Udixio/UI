@@ -1,159 +1,110 @@
 ---
 ---
 
-
-
-
-
-
-
-import { CodePreview } from '@/components/CodePreview.js';
+import Code from '@/components/Code.astro';
+import TooltipBasicReact from '@/examples/react/tooltip-basic.tsx';
+import { TooltipBasicAngular } from '@/examples/angular/tooltip-basic.ts';
+import TooltipRichReact from '@/examples/react/tooltip-rich.tsx';
+import { TooltipRichAngular } from '@/examples/angular/tooltip-rich.ts';
+import TooltipControlledReact from '@/examples/react/tooltip-controlled.tsx';
+import { TooltipControlledAngular } from '@/examples/angular/tooltip-controlled.ts';
+import tooltipBasicReactSource from '@/examples/react/tooltip-basic.tsx?raw';
+import tooltipBasicAngularSource from '@/examples/angular/tooltip-basic.ts?raw';
+import tooltipRichReactSource from '@/examples/react/tooltip-rich.tsx?raw';
+import tooltipRichAngularSource from '@/examples/angular/tooltip-rich.ts?raw';
+import tooltipControlledReactSource from '@/examples/react/tooltip-controlled.tsx?raw';
+import tooltipControlledAngularSource from '@/examples/angular/tooltip-controlled.ts?raw';
 
 ## Usage
 
-Tooltip displays informative text when users hover, focus, or click a target.
+`Tooltip` displays informative text when users hover, focus, or click a
+target. React wraps a single trigger child directly; Angular has no
+equivalent to cloning an arbitrary projected element, so its `target` input
+(pointing at the trigger element) is always required.
 
 ```bash
-import { Tooltip, Button } from "@udixio/ui-react"
+import { Tooltip } from "@udixio/ui-react"
 ```
 
-<CodePreview client:load
-             code={`
-  <Tooltip text="Copy to clipboard">
-    <Button label="Hover me" />
-  </Tooltip>
-`}
-/>
+Use `trigger` ("hover", "focus", "click", or an array of these) to control
+how the tooltip appears, and `position` to place it relative to its target.
 
-## Content
-
-Use `content` to render fully custom tooltip content (Markdown, rich text, or components). When `content` is provided, `title`, `text`, and `buttons` are ignored.
-
-```jsx
-<Tooltip
-  variant="rich"
-  content={
-    <div>
-      <strong>Shortcuts</strong>
-      <p>Press ⌘K to open the command palette.</p>
-    </div>
-  }
+<Code
+  codes={{
+    react: tooltipBasicReactSource,
+    angular: tooltipBasicAngularSource,
+  }}
 >
-  <Button label="Help" />
-</Tooltip>
-```
+  <TooltipBasicReact slot="react" client:load />
+  <TooltipBasicAngular slot="angular" client:load />
+</Code>
 
-## Variants
+## Rich content
 
-Plain is a small text bubble. Rich is card-like with title, text, and actions.
+`variant="rich"` renders a card-like surface with a `title`, `text`, and
+optional `buttons`. Project custom content instead -- via `content` in React,
+or `<ng-content>` in Angular -- to replace that built-in layout entirely; it
+only renders when `title`, `text`, and `buttons` are all unset.
 
-```jsx
-<div className="flex gap-6">
-  <Tooltip text="Plain tooltip">
-    <Button label="Plain" />
-  </Tooltip>
-  <Tooltip variant="rich" title="Saved" text="Item added to favorites" buttons={[{ label: 'Undo', variant: 'text' }] }>
-    <Button label="Rich" />
-  </Tooltip>
-</div>
-```
-
-## Triggers
-
-Control how the tooltip appears using `trigger`: "hover", "focus", "click" or an array of these.
-
-```jsx
-<Tooltip text="Opens on click" trigger="click">
-  <Button label="Click" />
-</Tooltip>
-```
-
-## Guidelines (M3 aligned)
-
-Use plain tooltips to label icon-only controls; rich tooltips are for longer explanations and optional actions.
-
-```jsx
-<div className="flex gap-6">
-  <Tooltip text="Present now">
-    <Button label="🎥" />
-  </Tooltip>
-  <Tooltip
-    variant="rich"
-    title="New setting"
-    text="Choose who can see your activity status."
-    buttons={[{ label: 'Learn more', variant: 'text' }]}
-  >
-    <Button label="Privacy" />
-  </Tooltip>
-</div>
-```
-
-Avoid hiding critical info inside a tooltip; use a dialog for destructive or required decisions.
-
-```jsx
-<Tooltip
-  variant="rich"
-  title="Delete project"
-  text="This action is permanent."
-  buttons={[{ label: 'Learn more', variant: 'text' }]}
+<Code
+  codes={{
+    react: tooltipRichReactSource,
+    angular: tooltipRichAngularSource,
+  }}
 >
-  <Button label="Delete" />
-</Tooltip>
-```
+  <TooltipRichReact slot="react" client:load />
+  <TooltipRichAngular slot="angular" client:load />
+</Code>
+
+## Controlled state
+
+Use `open` with `onOpenChange` (React) or `openChange` (Angular) to fully
+control visibility; `defaultOpen` initializes uncontrolled state.
+
+<Code
+  codes={{
+    react: tooltipControlledReactSource,
+    angular: tooltipControlledAngularSource,
+  }}
+>
+  <TooltipControlledReact slot="react" client:load />
+  <TooltipControlledAngular slot="angular" client:load />
+</Code>
 
 ## Delays
 
-Use `openDelay` and `closeDelay` (ms) to tune the hover/focus behavior. Defaults: `openDelay={400}`, `closeDelay={150}`.
+Use `openDelay` and `closeDelay` (ms) to tune the hover/focus behavior.
+Defaults: `openDelay={400}`, `closeDelay={150}`. Focus and click transitions
+are always immediate; only hover in/out is delayed.
 
-```jsx
-<Tooltip text="Slightly slower open" openDelay={600} closeDelay={100}>
-  <Button label="Hover" />
-</Tooltip>
-```
+## Motion
 
-## Controlled open state
-
-Use `isOpen` with `onOpenChange` to fully control the visibility. Use `defaultOpen` for uncontrolled initial state.
-
-```jsx
-function ControlledTooltip() {
-  const [open, setOpen] = React.useState(false);
-  return (
-    <Tooltip text="Controlled" isOpen={open} onOpenChange={setOpen}>
-      <Button label={open ? 'Hide' : 'Show'} onClick={() => setOpen(!open)} />
-    </Tooltip>
-  );
-}
-```
+The open/close opacity and scale transition is implemented once with
+Anime.js in `@udixio/core/dom` (`createTooltipTransitionController`), so
+React and Angular share identical timing, reduced-motion behavior, and
+cleanup. Neither adapter implements its own version of this effect, and
+neither depends on `motion/react`. Override timing with `transition`
+(`{ duration, ease }`).
 
 ## Position
 
-Provide an explicit `position` or let it auto-place based on target position.
-
-```jsx
-<Tooltip text="Top left" variant="rich" position="top-left">
-  <Button label="Positioned" />
-</Tooltip>
-```
-
-## Behavior
-
-On desktop, tooltips open on hover or focus. Use `trigger="click"` for persistent rich tooltips that stay open until another interaction.
-
-```jsx
-<Tooltip variant="rich" text="Persistent tooltip" trigger="click">
-  <Button label="Click to toggle" />
-</Tooltip>
-```
+`Tooltip` renders through `AnchorPositioner`, which uses native CSS Anchor
+Positioning where supported and falls back to tracking the target's
+`getBoundingClientRect()` otherwise. `position` accepts `top`, `bottom`,
+`left`, `right`, `top-left`, `top-right`, `bottom-left`, or `bottom-right`;
+it defaults to `bottom-right` for `variant="rich"` and `bottom` otherwise.
 
 ## Keyboard
 
 | Keys | Actions |
 | --- | --- |
-| Tab | Focus lands on button, if available |
-| Space or Enter | Activates the focused element |
+| Tab | Focus lands on the target element, if focusable |
+| Escape | Closes an open tooltip |
 
 ## Accessibility
 
-- The tooltip uses `role="tooltip"` and links to its trigger via `aria-describedby` when open.
-- Press `Escape` to close an open tooltip.
+- Provides `role="tooltip"` and links to its target via `aria-describedby`
+  when open.
+- The tooltip surface stays mounted at all times, hidden with `inert` and
+  `aria-hidden` rather than unmounted, so it can animate out; expensive
+  custom content is not torn down until `Tooltip` itself unmounts.

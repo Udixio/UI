@@ -1,4 +1,5 @@
 export * from './lib/ui-angular/ui-angular';
+export * from './lib/anchor-positioner/anchor-positioner';
 export * from './lib/button/button';
 export * from './lib/card/card';
 export * from './lib/carousel/carousel';
@@ -30,4 +31,5 @@ export * from './lib/tabs/tabs';
 export * from './lib/tabs/tab-group';
 export * from './lib/tabs/tab-panels';
 export * from './lib/tabs/tab-panel';
+export * from './lib/tooltip/tooltip';
 export * from './lib/utils/create-controllable-state';

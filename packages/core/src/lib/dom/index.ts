@@ -1,3 +1,4 @@
+export * from './anchor-positioner.js';
 export * from './carousel.js';
 export * from './circular-progress.js';
 export * from './custom-scroll.js';
@@ -12,3 +13,4 @@ export * from './slider.js';
 export * from './state-layer.js';
 export * from './switch.js';
 export * from './tabs.js';
+export * from './tooltip.js';

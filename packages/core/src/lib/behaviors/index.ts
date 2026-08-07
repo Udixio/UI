@@ -12,3 +12,4 @@ export * from './progress-indicator.behavior';
 export * from './slider.behavior';
 export * from './switch.behavior';
 export * from './tabs.behavior';
+export * from './tooltip.behavior';

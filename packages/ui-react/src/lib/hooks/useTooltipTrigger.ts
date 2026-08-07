@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import {
+  resolveTooltipInteraction,
+  type TooltipInteractionState,
+  type TooltipTriggerKind,
+} from '@udixio/core';
 
-type Trigger = 'hover' | 'click' | 'focus' | null;
-
-type TooltipState = 'hidden' | 'hovered' | 'focused' | 'clicked';
+type Trigger = TooltipTriggerKind | null;
 
 export interface UseTooltipTriggerOptions {
   trigger?: Trigger | Trigger[];
-  isOpen?: boolean;
+  open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   openDelay?: number;
@@ -32,22 +35,19 @@ export interface UseTooltipTriggerReturn {
     onMouseLeave: () => void;
   };
   isOpen: boolean;
-  state: TooltipState;
+  state: TooltipInteractionState;
 }
 
 /**
- * Hook to manage tooltip trigger state machine, events, and accessibility props.
- *
- * State Machine:
- * - States: hidden | hovered | focused | clicked
- * - Priority: clicked > focused > hovered > hidden
- * - Focus takes priority over hover (don't close on mouse leave if focused)
- * - Escape key closes tooltip from any open state
- * - Click toggles for 'click' trigger
+ * Owns the tooltip trigger's timers, DOM event wiring, and accessibility
+ * props. The interaction decision itself -- whether an event opens, closes,
+ * or is a no-op -- is delegated to `resolveTooltipInteraction`, the pure
+ * function shared with the Angular adapter, so the state machine's rules
+ * live in exactly one place.
  */
 export function useTooltipTrigger({
   trigger = ['hover', 'focus'],
-  isOpen: isOpenProp,
+  open: openProp,
   defaultOpen = false,
   onOpenChange,
   openDelay = 400,
@@ -57,23 +57,19 @@ export function useTooltipTrigger({
   const generatedId = useId();
   const tooltipId = idProp ?? `tooltip-${generatedId}`;
 
-  // Normalize trigger to array
-  const triggers = Array.isArray(trigger) ? trigger : [trigger];
-
-  // Controlled vs uncontrolled state
-  const isControlled = typeof isOpenProp === 'boolean';
-  const [internalState, setInternalState] = useState<TooltipState>(
-    defaultOpen ? 'hovered' : 'hidden',
+  const triggers = (Array.isArray(trigger) ? trigger : [trigger]).filter(
+    (value): value is TooltipTriggerKind => value != null,
   );
 
-  // Track if tooltip content is being hovered (for pointer intent)
-  const [isTooltipHovered, setIsTooltipHovered] = useState(false);
+  const isControlled = typeof openProp === 'boolean';
+  const [internalState, setInternalState] = useState<TooltipInteractionState>(
+    defaultOpen ? 'hovered' : 'hidden',
+  );
+  const [isSurfaceHovered, setIsSurfaceHovered] = useState(false);
 
-  // Timeout refs for delayed open/close
   const openTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Clear all timeouts
   const clearTimeouts = useCallback(() => {
     if (openTimeoutRef.current) {
       clearTimeout(openTimeoutRef.current);
@@ -85,167 +81,87 @@ export function useTooltipTrigger({
     }
   }, []);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => clearTimeouts();
-  }, [clearTimeouts]);
+  useEffect(() => clearTimeouts, [clearTimeouts]);
 
-  // State transition function
-  const transition = useCallback(
-    (newState: TooltipState) => {
-      if (isControlled) {
-        // In controlled mode, notify parent of desired state change
-        const shouldBeOpen = newState !== 'hidden';
-        onOpenChange?.(shouldBeOpen);
-      } else {
-        setInternalState(newState);
-        const shouldBeOpen = newState !== 'hidden';
-        onOpenChange?.(shouldBeOpen);
-      }
+  const state: TooltipInteractionState = isControlled
+    ? openProp
+      ? 'hovered'
+      : 'hidden'
+    : internalState;
+  const isOpen = state !== 'hidden';
+
+  const commit = useCallback(
+    (next: TooltipInteractionState) => {
+      if (!isControlled) setInternalState(next);
+      onOpenChange?.(next !== 'hidden');
     },
     [isControlled, onOpenChange],
   );
 
-  // Compute actual state and isOpen
-  const state = isControlled
-    ? isOpenProp
-      ? 'hovered' // Simplified: in controlled mode, we just track open/closed
-      : 'hidden'
-    : internalState;
-
-  const isOpen = state !== 'hidden';
-
-  // Get state priority for comparison
-  const getStatePriority = (s: TooltipState): number => {
-    switch (s) {
-      case 'hidden':
-        return 0;
-      case 'hovered':
-        return 1;
-      case 'focused':
-        return 2;
-      case 'clicked':
-        return 3;
-      default:
-        return 0;
-    }
-  };
-
-  // Schedule opening with delay
-  const scheduleOpen = useCallback(
-    (targetState: TooltipState) => {
+  const request = useCallback(
+    (
+      event: Parameters<typeof resolveTooltipInteraction>[1],
+      delayMs = 0,
+    ) => {
+      const next = resolveTooltipInteraction(
+        { state, triggers, isSurfaceHovered },
+        event,
+      );
+      if (next === null) return;
       clearTimeouts();
-
-      // Only transition if new state has higher priority
-      if (getStatePriority(targetState) <= getStatePriority(state)) {
-        return;
+      if (delayMs > 0) {
+        const ref = next === 'hidden' ? closeTimeoutRef : openTimeoutRef;
+        ref.current = setTimeout(() => commit(next), delayMs);
+      } else {
+        commit(next);
       }
-
-      openTimeoutRef.current = setTimeout(() => {
-        transition(targetState);
-      }, openDelay);
     },
-    [clearTimeouts, openDelay, state, transition],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [state, triggers.join(','), isSurfaceHovered, commit, clearTimeouts],
   );
 
-  // Schedule closing with delay
-  const scheduleClose = useCallback(
-    (fromState: TooltipState) => {
-      clearTimeouts();
-
-      closeTimeoutRef.current = setTimeout(() => {
-        // Only close if we're still in the same state (or lower priority)
-        if (
-          !isControlled &&
-          getStatePriority(internalState) <= getStatePriority(fromState)
-        ) {
-          transition('hidden');
-        } else if (isControlled) {
-          transition('hidden');
-        }
-      }, closeDelay);
-    },
-    [clearTimeouts, closeDelay, internalState, isControlled, transition],
+  const handleMouseEnter = useCallback(
+    () => request('pointerEnter', openDelay),
+    [request, openDelay],
   );
-
-  // Event handlers for trigger element
-  const handleMouseEnter = useCallback(() => {
-    if (!triggers.includes('hover')) return;
-    scheduleOpen('hovered');
-  }, [triggers, scheduleOpen]);
-
-  const handleMouseLeave = useCallback(() => {
-    if (!triggers.includes('hover')) return;
-
-    // Don't close if focused (focus has higher priority)
-    if (state === 'focused' || state === 'clicked') return;
-
-    // Don't close immediately if tooltip itself is hovered
-    if (isTooltipHovered) return;
-
-    scheduleClose('hovered');
-  }, [triggers, state, isTooltipHovered, scheduleClose]);
-
-  const handleFocus = useCallback(() => {
-    if (!triggers.includes('focus')) return;
-    clearTimeouts();
-    transition('focused');
-  }, [triggers, clearTimeouts, transition]);
-
+  const handleMouseLeave = useCallback(
+    () => request('pointerLeave', closeDelay),
+    [request, closeDelay],
+  );
+  const handleFocus = useCallback(() => request('focus'), [request]);
   const handleBlur = useCallback(() => {
-    if (!triggers.includes('focus')) return;
-
-    // Don't close if clicked (clicked has higher priority)
-    if (state === 'clicked') return;
-
-    // If also hovering, transition to hovered state
-    if (triggers.includes('hover') && isTooltipHovered) {
-      transition('hovered');
-      return;
-    }
-
-    scheduleClose('focused');
-  }, [triggers, state, isTooltipHovered, scheduleClose, transition]);
-
-  const handleClick = useCallback(() => {
-    if (!triggers.includes('click')) return;
-
+    const next = resolveTooltipInteraction(
+      { state, triggers, isSurfaceHovered },
+      'blur',
+    );
+    if (next === null) return;
     clearTimeouts();
-
-    // Toggle behavior for click trigger
-    if (state === 'clicked') {
-      transition('hidden');
+    if (next === 'hidden') {
+      closeTimeoutRef.current = setTimeout(() => commit(next), closeDelay);
     } else {
-      transition('clicked');
+      commit(next);
     }
-  }, [triggers, state, clearTimeouts, transition]);
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state, triggers.join(','), isSurfaceHovered, commit, clearTimeouts, closeDelay]);
+  const handleClick = useCallback(() => request('click'), [request]);
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
-      // Escape closes tooltip from any open state
       if (event.key === 'Escape' && isOpen) {
-        clearTimeouts();
-        transition('hidden');
+        request('escape');
         event.preventDefault();
       }
     },
-    [isOpen, clearTimeouts, transition],
+    [request, isOpen],
   );
 
-  // Event handlers for tooltip element (pointer intent)
   const handleTooltipMouseEnter = useCallback(() => {
-    setIsTooltipHovered(true);
+    setIsSurfaceHovered(true);
     clearTimeouts();
   }, [clearTimeouts]);
-
   const handleTooltipMouseLeave = useCallback(() => {
-    setIsTooltipHovered(false);
-
-    // If trigger includes hover and we're in hover state, schedule close
-    if (triggers.includes('hover') && state === 'hovered') {
-      scheduleClose('hovered');
-    }
-  }, [triggers, state, scheduleClose]);
+    setIsSurfaceHovered(false);
+    request('surfaceLeave', closeDelay);
+  }, [request, closeDelay]);
 
   return {
     triggerProps: {

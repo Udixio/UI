@@ -1,7 +1,6 @@
 import { JSX } from 'react/jsx-runtime';
 import React from 'react';
 import { ComponentClassName, HTMLElements } from './component-helper';
-import { HTMLMotionProps } from 'motion/react';
 
 export type ReactProps<T extends ComponentInterface> = Omit<
   JSX.IntrinsicElements[T['type']],
@@ -10,9 +9,6 @@ export type ReactProps<T extends ComponentInterface> = Omit<
   ComponentClassName<T> & {
     ref?: React.RefObject<HTMLElements[T['type']] | null>;
   } & T['props'];
-
-export type MotionProps<T extends ComponentInterface> = ReactProps<T> &
-  HTMLMotionProps<T['type']>;
 
 export interface LinkInterface<Props> {
   type: 'a';

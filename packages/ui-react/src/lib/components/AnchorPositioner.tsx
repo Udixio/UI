@@ -1,186 +1,98 @@
 import React, {
-  CSSProperties,
-  RefObject,
-  useId,
-  useLayoutEffect,
+  type CSSProperties,
+  type ReactNode,
+  type RefObject,
+  useEffect,
+  useRef,
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
-import { SyncedFixedWrapper } from '../effects';
+import type { AnchorPositionerProps as CoreAnchorPositionerProps } from '@udixio/core';
+import {
+  createAnchorPositionerController,
+  type AnchorPositionerController,
+} from '@udixio/core/dom';
 import IntrinsicElements = React.JSX.IntrinsicElements;
 
-export type PositionKeyword =
-  | 'left'
-  | 'center'
-  | 'right'
-  | 'span-left'
-  | 'span-right'
-  | 'x-start'
-  | 'x-end'
-  | 'span-x-start'
-  | 'span-x-end'
-  | 'self-x-start'
-  | 'self-x-end'
-  | 'span-self-x-start'
-  | 'span-self-x-end'
-  | 'top'
-  | 'bottom'
-  | 'span-top'
-  | 'span-bottom'
-  | 'y-start'
-  | 'y-end'
-  | 'span-y-start'
-  | 'span-y-end'
-  | 'self-y-start'
-  | 'self-y-end'
-  | 'span-self-y-start'
-  | 'span-self-y-end'
-  | 'block-start'
-  | 'block-end'
-  | 'span-block-start'
-  | 'span-block-end'
-  | 'inline-start'
-  | 'inline-end'
-  | 'span-inline-start'
-  | 'span-inline-end'
-  | 'self-block-start'
-  | 'self-block-end'
-  | 'span-self-block-start'
-  | 'span-self-block-end'
-  | 'self-inline-start'
-  | 'self-inline-end'
-  | 'span-self-inline-start'
-  | 'span-self-inline-end'
-  | 'start'
-  | 'end'
-  | 'span-start'
-  | 'span-end'
-  | 'self-start'
-  | 'self-end'
-  | 'span-self-start'
-  | 'span-self-end'
-  | 'span-all';
+export type { AnchorPosition } from '@udixio/core';
 
-export type Position =
-  | PositionKeyword
-  | `${PositionKeyword} ${PositionKeyword}`
-  | 'top-left'
-  | 'top-right'
-  | 'bottom-left'
-  | 'bottom-right'
-  | 'right-start'
-  | 'right-end'
-  | 'left-start'
-  | 'left-end';
-
-export interface AnchorPositionerProps {
+export type ReactAnchorPositionerProps = CoreAnchorPositionerProps & {
+  /** The element the floating content is positioned relative to. */
   anchorRef: RefObject<HTMLElement | null>;
-  position?: Position;
-  children: React.ReactNode;
+  children: ReactNode;
   style?: CSSProperties;
-  className?: string; // Optional if we want to wrap in a class
-}
+  className?: string;
+};
 
+/**
+ * Floats `children` next to an anchor element using native CSS Anchor
+ * Positioning where supported, falling back to a `position: fixed` element
+ * tracked against the anchor's rect. The positioning math is implemented
+ * once in `@udixio/core/dom` and shared with the Angular adapter.
+ * @status beta
+ * @category Communication
+ * @devx
+ * - Internal building block for `Tooltip`; not yet documented as a
+ *   standalone public component.
+ * - Portals `children` to `document.body`.
+ * @a11y
+ * - Renders no semantics of its own; the caller's content and `Tooltip`'s
+ *   own `role="tooltip"` carry accessibility meaning.
+ * @limitations
+ * - Falls back to tracking `getBoundingClientRect()` on scroll and resize
+ *   in browsers without native CSS Anchor Positioning support.
+ */
 export const AnchorPositioner = ({
   anchorRef,
   position = 'bottom',
   children,
   style,
+  className,
   ...restProps
-}: AnchorPositionerProps & IntrinsicElements['div']) => {
-  const uniqueId = useId();
-  const anchorName = `--anchor-${uniqueId.replace(/:/g, '')}`;
-  const [supportsAnchor, setSupportsAnchor] = useState(false);
-
-  useLayoutEffect(() => {
-    if (typeof CSS !== 'undefined' && CSS.supports('anchor-name', '--a')) {
-      setSupportsAnchor(true);
-    }
+}: ReactAnchorPositionerProps &
+  Omit<IntrinsicElements['div'], 'style' | 'className' | 'children'>) => {
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
   }, []);
 
-  useLayoutEffect(() => {
-    if (supportsAnchor && anchorRef.current) {
-      const el = anchorRef.current;
-      // Apply anchor name to the reference element
-      (el.style as any).anchorName = anchorName;
-      return () => {
-        if (anchorRef.current) {
-          (anchorRef.current.style as any).anchorName = '';
-        }
-      };
-    }
-    return undefined;
-  }, [supportsAnchor, anchorRef, anchorName]);
+  const [floating, setFloating] = useState<HTMLDivElement | null>(null);
+  const controllerRef = useRef<AnchorPositionerController | null>(null);
+  const positionRef = useRef(position);
+  positionRef.current = position;
 
-  if (supportsAnchor) {
-    const floatingStyles: CSSProperties = {
-      position: 'fixed',
-      margin: 0,
-      zIndex: 9999,
-      positionAnchor: anchorName,
-      positionArea: position,
-      positionTryFallbacks: 'flip-block, flip-inline', // Correct CSS prop
-      ...style,
-    } as any;
+  useEffect(() => {
+    const anchor = anchorRef.current;
+    if (!anchor || !floating) return undefined;
 
-    return createPortal(
-      <div style={floatingStyles} {...restProps}>
-        {children}
-      </div>,
-      document.body,
-    );
-  }
+    const controller = createAnchorPositionerController({
+      anchor,
+      floating,
+      position: () => positionRef.current,
+    });
+    controllerRef.current = controller;
 
-  const fallbackStyles: CSSProperties = {
-    position: 'absolute',
-    pointerEvents: 'auto',
-    ...style,
-  };
+    return () => {
+      controller.destroy();
+      controllerRef.current = null;
+    };
+  }, [anchorRef, floating]);
 
-  switch (position) {
-    case 'top':
-      fallbackStyles.bottom = '100%';
-      fallbackStyles.left = '50%';
-      fallbackStyles.transform = 'translateX(-50%)';
-      break;
-    case 'top-left':
-      fallbackStyles.bottom = '100%';
-      fallbackStyles.left = 0;
-      break;
-    case 'top-right':
-      fallbackStyles.bottom = '100%';
-      fallbackStyles.right = 0;
-      break;
-    case 'bottom':
-      fallbackStyles.top = '100%';
-      fallbackStyles.left = '50%';
-      fallbackStyles.transform = 'translateX(-50%)';
-      break;
-    case 'bottom-left':
-      fallbackStyles.top = '100%';
-      fallbackStyles.left = 0;
-      break;
-    case 'bottom-right':
-      fallbackStyles.top = '100%';
-      fallbackStyles.right = 0;
-      break;
-    case 'left':
-      fallbackStyles.right = '100%';
-      fallbackStyles.top = '50%';
-      fallbackStyles.transform = 'translateY(-50%)';
-      break;
-    case 'right':
-      fallbackStyles.left = '100%';
-      fallbackStyles.top = '50%';
-      fallbackStyles.transform = 'translateY(-50%)';
-      break;
-  }
+  useEffect(() => {
+    controllerRef.current?.update();
+  }, [position]);
 
-  return (
-    <SyncedFixedWrapper targetRef={anchorRef}>
-      <div style={fallbackStyles} {...restProps}>
-        {children}
-      </div>
-    </SyncedFixedWrapper>
+  if (!isMounted) return null;
+
+  return createPortal(
+    <div
+      ref={setFloating}
+      style={{ zIndex: 50, ...style }}
+      className={className}
+      {...restProps}
+    >
+      {children}
+    </div>,
+    document.body,
   );
 };
