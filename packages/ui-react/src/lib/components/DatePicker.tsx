@@ -1,28 +1,57 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  addDays,
+  addMonthsClamped,
   classNames,
+  type ButtonVariant,
   type DatePickerInterface,
   datePickerStyle,
+  type DatePickerValue,
   type DateRange,
+  formatMonthLabel,
+  getCalendarWeeks,
+  getDaySelectionState,
+  getStartOfWeek,
+  getWeekDayLabels,
+  getYearRange,
+  isDateDisabled,
+  resolveDatePickerSelection,
   type ReactProps,
 } from '@udixio/core';
+import { createMonthTransitionController } from '@udixio/core/dom';
 import { createUseStyle } from '../utils/create-use-style';
+import { useControllableState } from '../utils/use-controllable-state';
 import { iKeyboardArrowDown } from '@udixio/icons-rounded-400/keyboard_arrow_down';
 import { iChevronLeft } from '@udixio/icons-rounded-400/chevron_left';
 import { iChevronRight } from '@udixio/icons-rounded-400/chevron_right';
 import { Button } from './Button';
 import { IconButton } from './IconButton';
-import { AnimatePresence, motion } from 'motion/react';
 import { Icon } from '../icon';
 
 export type ReactDatePickerProps = ReactProps<DatePickerInterface>;
 
 export const useDatePickerStyle = createUseStyle(datePickerStyle);
 
+function extractAnchorDate(value: DatePickerValue | undefined): Date | null {
+  if (value instanceof Date) return value;
+  if (Array.isArray(value) && value[0]) return value[0];
+  return null;
+}
+
 /**
  * DatePickers let users select a date, or a range of dates.
  * @status beta
  * @category Selection
+ * @devx
+ * - `mode="range"` discriminates `value`/`defaultValue`/`onChange` to `DateRange` at the type level; `mode="single"` (the default) discriminates them to `Date`.
+ * - `value`/`onChange` are controlled; `defaultValue` initializes uncontrolled usage.
+ * - `minDate`/`maxDate`/`shouldDisableDate` are compared at day granularity: a boundary carrying a time-of-day (e.g. `new Date()`) never disables its own day.
+ * @a11y
+ * - The day grid uses the composite `grid`/`row`/`gridcell` pattern with one roving `tabIndex` per visible month; Arrow keys move focus by day/week, Home/End jump to the visible week's boundaries, PageUp/PageDown change month (Shift for year).
+ * - The selected day's `gridcell` carries `aria-selected`; its focusable day button carries `aria-current="date"` when it is today. Unavailable days stay focusable with `aria-disabled` instead of the native `disabled` attribute, so keyboard users can still traverse past them.
+ * @limitations
+ * - Does not render its own text input or popup positioning; combine with `TextField`/`IconButton` and your own overlay for a popup picker.
+ * - The year picker view is a plain scrollable button list without virtualization.
  */
 export const DatePicker = ({
   value: valueProp,
@@ -38,215 +67,155 @@ export const DatePicker = ({
   mode = 'single',
   ...restProps
 }: ReactDatePickerProps) => {
-  // State for the currently displayed month (always set to the 1st of the month)
-  const [viewDate, setViewDate] = useState(() => {
-    // Try to find a valid start date from value to focus
-    const extractDate = (v: any): Date | null => {
-      if (v instanceof Date) return v;
-      if (Array.isArray(v) && v[0]) return v[0];
-      return null;
-    };
-    const start =
-      extractDate(valueProp) || extractDate(defaultValue) || new Date();
-    return new Date(start.getFullYear(), start.getMonth(), 1);
+  const [value, setValue] = useControllableState<DatePickerValue>({
+    value: valueProp,
+    defaultValue: defaultValue ?? null,
+    onChange: onChange as (value: DatePickerValue) => void,
+    componentName: 'DatePicker',
+    stateName: 'value',
   });
 
-  const [direction, setDirection] = useState(0);
-  const [viewMode, setViewMode] = useState<'day' | 'year'>('day');
-
-  // State for selected date
-  const isControlled = valueProp !== undefined;
-  const [internalValue, setInternalValue] = useState<Date | DateRange | null>(
-    defaultValue || null,
+  const [viewDate, setViewDate] = useState(() => {
+    const anchor = extractAnchorDate(valueProp) ?? extractAnchorDate(defaultValue) ?? new Date();
+    return new Date(anchor.getFullYear(), anchor.getMonth(), 1);
+  });
+  const [focusedDate, setFocusedDate] = useState(
+    () => extractAnchorDate(valueProp) ?? extractAnchorDate(defaultValue) ?? new Date(),
   );
-  const selectedValue = isControlled ? valueProp || null : internalValue;
-
-  // Calendar generation logic
-  const daysInMonth = (year: number, month: number) =>
-    new Date(year, month + 1, 0).getDate();
-
-  const calendarDays = useMemo(() => {
-    const year = viewDate.getFullYear();
-    const month = viewDate.getMonth();
-    const daysCount = daysInMonth(year, month);
-    const startDay = new Date(year, month, 1).getDay(); // 0=Sun (Fixed JS getDay)
-
-    // Adjust start index based on weekStartDay
-    // shift: logic to map standard JS Day (0=Sun) to our week start
-    // If weekStart=1 (Mon): Sun(0) -> 6, Mon(1) -> 0, Tue(2) -> 1
-    const startIndex = (startDay - weekStartDay + 7) % 7;
-
-    const days: Array<{ date: Date; isCurrentMonth: boolean }> = [];
-
-    // Prev month
-    const prevMonthDaysCount = daysInMonth(year, month - 1);
-    for (let i = startIndex - 1; i >= 0; i--) {
-      days.push({
-        date: new Date(year, month - 1, prevMonthDaysCount - i),
-        isCurrentMonth: false,
-      });
-    }
-
-    // Current month
-    for (let i = 1; i <= daysCount; i++) {
-      days.push({ date: new Date(year, month, i), isCurrentMonth: true });
-    }
-
-    // Next month padding - Ensure always 42 days (6 rows) for fixed height animation
-    const currentLen = days.length;
-    const remaining = 42 - currentLen;
-    for (let i = 1; i <= remaining; i++) {
-      days.push({
-        date: new Date(year, month + 1, i),
-        isCurrentMonth: false,
-      });
-    }
-
-    return days;
-  }, [viewDate, weekStartDay]);
-
-  const years = useMemo(() => {
-    const currentYear = new Date().getFullYear();
-    const start = currentYear - 100;
-    const end = currentYear + 100;
-    const list = [];
-    for (let i = start; i <= end; i++) {
-      list.push(i);
-    }
-    return list;
-  }, []);
-
+  const [viewMode, setViewMode] = useState<'day' | 'year'>('day');
+  const shouldFocusDayRef = useRef(false);
+  const gridRef = useRef<HTMLDivElement>(null);
   const yearsContainerRef = useRef<HTMLDivElement>(null);
+  const weeksContainerRef = useRef<HTMLDivElement>(null);
+  const monthTransitionRef =
+    useRef<ReturnType<typeof createMonthTransitionController>>(null);
+  const previousViewDateRef = useRef(viewDate);
 
-  // Scroll to selected year when opening year view
+  const weeks = useMemo(
+    () => getCalendarWeeks(viewDate, weekStartDay),
+    [viewDate, weekStartDay],
+  );
+  const weekDayLabels = useMemo(
+    () => getWeekDayLabels(locale, weekStartDay),
+    [locale, weekStartDay],
+  );
+  const monthLabel = useMemo(
+    () => formatMonthLabel(viewDate, locale),
+    [viewDate, locale],
+  );
+  const years = useMemo(() => getYearRange(new Date().getFullYear()), []);
+
   useEffect(() => {
     if (viewMode === 'year' && yearsContainerRef.current) {
       const selectedYearBtn = yearsContainerRef.current.querySelector(
         '[data-selected="true"]',
       );
-      if (selectedYearBtn) {
-        selectedYearBtn.scrollIntoView({ block: 'center' });
-      }
+      selectedYearBtn?.scrollIntoView({ block: 'center' });
     }
   }, [viewMode]);
 
-  // Formatters
-  const monthFormatter = useMemo(
-    () => new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }),
-    [locale],
-  );
-  const weekDayFormatter = useMemo(
-    () => new Intl.DateTimeFormat(locale, { weekday: 'narrow' }),
-    [locale],
-  );
+  useEffect(() => {
+    if (!shouldFocusDayRef.current) return;
+    shouldFocusDayRef.current = false;
+    const key = focusedDate.toDateString();
+    const target = gridRef.current?.querySelector<HTMLButtonElement>(
+      `[data-date="${key}"]`,
+    );
+    target?.focus();
+  }, [focusedDate, viewDate]);
 
-  const weekDays = useMemo(() => {
-    const baseDate = new Date(2023, 0, 1 + weekStartDay); // Jan 1 2023 was Sun. Jan (1+1)=2 is Mon.
-    return Array.from({ length: 7 }).map((_, i) => {
-      const d = new Date(baseDate);
-      d.setDate(baseDate.getDate() + i);
-      return weekDayFormatter.format(d).charAt(0).toUpperCase();
+  useEffect(() => {
+    if (!weeksContainerRef.current) return;
+    const controller = createMonthTransitionController({
+      container: weeksContainerRef.current,
     });
-  }, [weekDayFormatter, weekStartDay]);
+    monthTransitionRef.current = controller;
+    return () => controller.destroy();
+  }, []);
 
-  // Handlers
-  const handlePrevMonth = () => {
-    setDirection(-1);
-    setViewDate((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
+  useEffect(() => {
+    const previous = previousViewDateRef.current;
+    previousViewDateRef.current = viewDate;
+    const direction =
+      viewDate.getTime() === previous.getTime()
+        ? 0
+        : viewDate > previous
+          ? 1
+          : -1;
+    monthTransitionRef.current?.play(direction);
+  }, [viewDate]);
+
+  const goToDate = (next: Date) => {
+    shouldFocusDayRef.current = true;
+    setFocusedDate(next);
+    if (
+      next.getFullYear() !== viewDate.getFullYear() ||
+      next.getMonth() !== viewDate.getMonth()
+    ) {
+      setViewDate(new Date(next.getFullYear(), next.getMonth(), 1));
+    }
   };
-  const handleNextMonth = () => {
-    setDirection(1);
-    setViewDate((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
-  };
+
+  const handlePrevMonth = () =>
+    setViewDate((d) => addMonthsClamped(d, -1));
+  const handleNextMonth = () =>
+    setViewDate((d) => addMonthsClamped(d, 1));
 
   const handleYearSelect = (year: number) => {
     setViewDate((d) => new Date(year, d.getMonth(), 1));
     setViewMode('day');
   };
 
-  const isSameDay = (d1: Date | null | undefined, d2: Date) => {
-    if (!d1) return false;
-    return (
-      d1.getDate() === d2.getDate() &&
-      d1.getMonth() === d2.getMonth() &&
-      d1.getFullYear() === d2.getFullYear()
-    );
-  };
-
-  const isToday = (date: Date) => isSameDay(new Date(), date);
-
   const handleDateClick = (date: Date) => {
-    let newValue: Date | DateRange | null = date;
-
-    if (mode === 'single') {
-      newValue = date;
-      // Single mode always sets date
-    } else {
-      // Range mode
-      const current = selectedValue as DateRange | null;
-      const [start, end] = Array.isArray(current) ? current : [null, null];
-
-      if (!start || (start && end)) {
-        // Start new range (if was simple date or full range)
-        newValue = [date, null];
-      } else {
-        // Complete range
-        if (date < start) {
-          newValue = [date, start];
-        } else {
-          newValue = [start, date];
-        }
-      }
-    }
-
-    if (!isControlled) {
-      setInternalValue(newValue);
-    }
-    if (onChange) {
-      onChange(newValue);
-    }
+    if (isDateDisabled(date, { minDate, maxDate, shouldDisableDate })) return;
+    goToDate(date);
+    setValue(resolveDatePickerSelection(mode, value, date));
   };
 
-  const checkSelection = (date: Date) => {
-    if (mode === 'single') {
-      return {
-        isSelected: isSameDay(selectedValue as Date, date),
-        isStart: false,
-        isEnd: false,
-        isInRange: false,
-      };
+  const handleDayKeyDown = (
+    event: React.KeyboardEvent<HTMLButtonElement>,
+    date: Date,
+  ) => {
+    let next: Date | undefined;
+    switch (event.key) {
+      case 'ArrowLeft':
+        next = addDays(date, -1);
+        break;
+      case 'ArrowRight':
+        next = addDays(date, 1);
+        break;
+      case 'ArrowUp':
+        next = addDays(date, -7);
+        break;
+      case 'ArrowDown':
+        next = addDays(date, 7);
+        break;
+      case 'Home':
+        next = getStartOfWeek(date, weekStartDay);
+        break;
+      case 'End':
+        next = addDays(getStartOfWeek(date, weekStartDay), 6);
+        break;
+      case 'PageUp':
+        next = addMonthsClamped(date, event.shiftKey ? -12 : -1);
+        break;
+      case 'PageDown':
+        next = addMonthsClamped(date, event.shiftKey ? 12 : 1);
+        break;
+      default:
+        return;
     }
-    const safeRange = Array.isArray(selectedValue)
-      ? selectedValue
-      : [selectedValue, null];
-    const [start, end] = safeRange as DateRange;
-    const isStart = isSameDay(start, date);
-    const isEnd = isSameDay(end, date);
+    event.preventDefault();
+    goToDate(next);
+  };
 
-    // Check range
-    let isInRange = false;
-    if (start && end) {
-      // Simple range check (ignore time components for safety)
-      // Normalize to midnight for strict day comparison
-      const s = new Date(
-        start.getFullYear(),
-        start.getMonth(),
-        start.getDate(),
-      ).getTime();
-      const e = new Date(
-        end.getFullYear(),
-        end.getMonth(),
-        end.getDate(),
-      ).getTime();
-      const d = new Date(
-        date.getFullYear(),
-        date.getMonth(),
-        date.getDate(),
-      ).getTime();
-      isInRange = d > s && d < e;
-    }
-
-    return { isSelected: isStart || isEnd, isStart, isEnd, isInRange };
+  const isToday = (date: Date) => {
+    const today = new Date();
+    return (
+      date.getFullYear() === today.getFullYear() &&
+      date.getMonth() === today.getMonth() &&
+      date.getDate() === today.getDate()
+    );
   };
 
   const styles = useDatePickerStyle({
@@ -259,61 +228,51 @@ export const DatePicker = ({
     shouldDisableDate,
     locale,
     weekStartDay,
-    hasSelected: !!selectedValue,
+    hasSelected: value !== null,
     className,
-  });
-
-  const variants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? '100%' : '-100%',
-      opacity: 0,
-    }),
-    center: {
-      x: 0,
-      opacity: 1,
-    },
-    exit: (direction: number) => ({
-      x: direction < 0 ? '100%' : '-100%',
-      opacity: 0,
-    }),
-  };
+    // `DatePickerProps` is a mode-discriminated union so consumers can't mix
+    // `mode`/`value`/`onChange` shapes; the shared style-hook signature wants
+    // one flat `props & states` bag, so the merged runtime state is widened
+    // back for this call only. It is never a public contract.
+  } as unknown as Parameters<typeof useDatePickerStyle>[0]);
 
   return (
-    <div className={styles.datePicker} style={style} {...(restProps as any)}>
-      {/* Header */}
+    <div className={styles.datePicker} style={style} {...(restProps as object)}>
       <div className={styles.header}>
         <Button
           variant="text"
           edgeAligned={false}
           size="small"
           onClick={() => setViewMode((m) => (m === 'day' ? 'year' : 'day'))}
-          className="text-label-large font-bold capitalize text-on-surface hover:bg-surface-container-highest"
+          aria-live="polite"
+          className={classNames(
+            styles.monthLabel,
+            'hover:bg-surface-container-highest',
+          )}
         >
           <span className="mr-2">
-            {viewMode === 'day'
-              ? monthFormatter.format(viewDate)
-              : viewDate.getFullYear()}
+            {viewMode === 'day' ? monthLabel : viewDate.getFullYear()}
           </span>
           <Icon
             icon={iKeyboardArrowDown}
             className={classNames(
-              'w-3 h-3 transition-transform duration-200 inline',
+              'w-3 h-3 transition-transform duration-200',
               viewMode === 'year' && 'rotate-180',
             )}
           />
         </Button>
 
         {viewMode === 'day' && (
-          <div className="flex items-center">
+          <div className={styles.monthNav}>
             <IconButton
-              size={'xSmall'}
+              size="xSmall"
               shapeFeedback="none"
               onClick={handlePrevMonth}
               icon={iChevronLeft}
               label="Previous month"
             />
             <IconButton
-              size={'xSmall'}
+              size="xSmall"
               shapeFeedback="none"
               onClick={handleNextMonth}
               icon={iChevronRight}
@@ -330,12 +289,13 @@ export const DatePicker = ({
         >
           {years.map((year) => (
             <Button
-              size={'small'}
+              size="small"
               key={year}
               variant={year === viewDate.getFullYear() ? 'filled' : 'text'}
+              edgeAligned={false}
               onClick={() => handleYearSelect(year)}
               data-selected={year === viewDate.getFullYear()}
-              className={classNames('w-full', {
+              className={classNames('!w-full', {
                 'text-on-surface': year !== viewDate.getFullYear(),
               })}
               label={year.toString()}
@@ -343,94 +303,98 @@ export const DatePicker = ({
           ))}
         </div>
       ) : (
-        <>
-          {/* Week Days */}
-          <div className={styles.weekDays}>
-            {weekDays.map((day, i) => (
-              <div key={i} className={styles.weekDay}>
+        <div
+          role="grid"
+          aria-label={monthLabel}
+          className="flex flex-col gap-y-2"
+          ref={gridRef}
+        >
+          <div role="row" className={styles.weekDays}>
+            {weekDayLabels.map((day, i) => (
+              <div key={i} role="columnheader" className={styles.weekDay}>
                 {day}
               </div>
             ))}
           </div>
 
-          {/* Days Grid */}
-          <div className="overflow-hidden relative min-h-[240px]">
-            <AnimatePresence
-              mode="popLayout"
-              initial={false}
-              custom={direction}
-            >
-              <motion.div
-                key={viewDate.toISOString()}
-                custom={direction}
-                variants={variants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
-                className={styles.daysGrid}
-              >
-                {calendarDays.map((item, index) => {
-                  if (!item.isCurrentMonth) {
-                    return <div key={index} className={styles.dayCell} />;
+          <div role="rowgroup" ref={weeksContainerRef}>
+            {weeks.map((week, weekIndex) => (
+              <div role="row" className={styles.daysGrid} key={weekIndex}>
+                {week.map((day, dayIndex) => {
+                  if (!day.isCurrentMonth) {
+                    return (
+                      <div
+                        key={dayIndex}
+                        role="gridcell"
+                        aria-hidden="true"
+                        className={styles.dayCell}
+                      />
+                    );
                   }
 
                   const { isSelected, isStart, isEnd, isInRange } =
-                    checkSelection(item.date);
-                  const isTodayDate = isToday(item.date);
-                  const isDisabled =
-                    (minDate && item.date < minDate) ||
-                    (maxDate && item.date > maxDate) ||
-                    shouldDisableDate?.(item.date);
+                    getDaySelectionState(mode, value, day.date);
+                  const isTodayDate = isToday(day.date);
+                  const isDisabledDay = isDateDisabled(day.date, {
+                    minDate,
+                    maxDate,
+                    shouldDisableDate,
+                  });
+                  const isFocusTarget =
+                    day.date.toDateString() === focusedDate.toDateString();
+                  const variant: ButtonVariant = isSelected
+                    ? 'filled'
+                    : isTodayDate
+                      ? 'outlined'
+                      : 'text';
 
                   return (
                     <div
-                      key={index}
+                      key={dayIndex}
+                      role="gridcell"
+                      aria-selected={isSelected}
                       className={classNames(
                         styles.dayCell,
-                        // Range background styles applied to the cell wrapper
                         isInRange && 'bg-primary/20',
                         isStart &&
-                          (selectedValue as DateRange)?.[1] &&
+                          (value as DateRange)?.[1] &&
                           'bg-gradient-to-r from-transparent to-primary/20',
                         isEnd &&
-                          (selectedValue as DateRange)?.[0] &&
+                          (value as DateRange)?.[0] &&
                           'bg-gradient-to-l from-transparent to-primary/20',
                       )}
                     >
                       <Button
                         className={() => ({
-                          button: classNames('aspect-square h-[40px] p-0', {
+                          button: classNames(styles.dayButton, 'p-0', {
                             'text-on-surface': !isSelected && !isTodayDate,
-                            'opacity-50': isDisabled,
+                            'opacity-50': isDisabledDay,
                           }),
                           stateLayer: classNames({
-                            '!bg-transparent': isDisabled,
+                            '!bg-transparent': isDisabledDay,
                           }),
                         })}
                         size="small"
                         shapeFeedback="none"
-                        variant={
-                          classNames({
-                            filled: isSelected,
-                            outlined: isTodayDate,
-                            text: !isSelected && !isTodayDate,
-                          }) as any
+                        variant={variant}
+                        label={day.date.getDate().toString()}
+                        onClick={() => handleDateClick(day.date)}
+                        onKeyDown={(event) =>
+                          handleDayKeyDown(event, day.date)
                         }
-                        label={item.date.getDate().toString()}
-                        onClick={() => handleDateClick(item.date)}
-                        disabled={isDisabled}
+                        data-date={day.date.toDateString()}
+                        tabIndex={isFocusTarget ? 0 : -1}
+                        aria-current={isTodayDate ? 'date' : undefined}
+                        aria-disabled={isDisabledDay || undefined}
                       />
                     </div>
                   );
                 })}
-              </motion.div>
-            </AnimatePresence>
+              </div>
+            ))}
           </div>
-        </>
+        </div>
       )}
     </div>
   );
 };
-
-// Helper for generic check - removed unused

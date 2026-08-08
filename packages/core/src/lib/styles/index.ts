@@ -10,6 +10,7 @@ export * from './date-picker.style';
 export * from './divider.style';
 export * from './fab.style';
 export * from './fab-menu.style';
+export * from './icon.style';
 export * from './icon-button.style';
 export * from './menu.style';
 export * from './menu-group.style';

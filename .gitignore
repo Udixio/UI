@@ -57,3 +57,6 @@ vitest.config.*.timestamp*
 .angular
 
 test-output
+
+# personal Claude Code settings (permissions, local prefs)
+.claude/settings.local.json

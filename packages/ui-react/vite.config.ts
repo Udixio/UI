@@ -82,7 +82,6 @@ export default defineConfig(async () => ({
         'react-dom',
         'react/jsx-runtime',
         'react/jsx-dev-runtime',
-        'react-textarea-autosize',
         'tailwind-merge',
         'motion',
         '@udixio/core/dom',

@@ -20,7 +20,7 @@ const iconButtonConfig: ClassNameComponent<IconButtonInterface> = ({
 
   return {
     iconButton: cx(
-      'relative inline-flex min-h-12 min-w-12 items-center justify-center overflow-visible outline-none group/icon-button',
+      'relative inline-flex items-center justify-center overflow-visible outline-none group/icon-button',
       'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current',
       disabled ? 'cursor-default' : 'cursor-pointer',
       !usesSquaredShape && {
@@ -59,7 +59,7 @@ const iconButtonConfig: ClassNameComponent<IconButtonInterface> = ({
       disabled && 'text-on-surface/[0.38]',
     ),
     touchTarget: cx(
-      'pointer-events-none absolute left-1/2 top-1/2 h-12 min-w-12 w-full -translate-x-1/2 -translate-y-1/2',
+      'absolute left-1/2 top-1/2 h-12 w-full -translate-x-1/2 -translate-y-1/2',
     ),
     stateLayer: cx('overflow-hidden'),
     icon: cx(

@@ -6,6 +6,22 @@ import IconButtonStatesReact from '@/examples/react/icon-button-states.tsx';
 import { IconButtonStatesAngular } from '@/examples/angular/icon-button-states.ts';
 import iconButtonStatesReactSource from '@/examples/react/icon-button-states.tsx?raw';
 import iconButtonStatesAngularSource from '@/examples/angular/icon-button-states.ts?raw';
+import IconButtonVariantsReact from '@/examples/react/icon-button-variants.tsx';
+import { IconButtonVariantsAngular } from '@/examples/angular/icon-button-variants.ts';
+import iconButtonVariantsReactSource from '@/examples/react/icon-button-variants.tsx?raw';
+import iconButtonVariantsAngularSource from '@/examples/angular/icon-button-variants.ts?raw';
+import IconButtonSizesReact from '@/examples/react/icon-button-sizes.tsx';
+import { IconButtonSizesAngular } from '@/examples/angular/icon-button-sizes.ts';
+import iconButtonSizesReactSource from '@/examples/react/icon-button-sizes.tsx?raw';
+import iconButtonSizesAngularSource from '@/examples/angular/icon-button-sizes.ts?raw';
+import IconButtonShapesReact from '@/examples/react/icon-button-shapes.tsx';
+import { IconButtonShapesAngular } from '@/examples/angular/icon-button-shapes.ts';
+import iconButtonShapesReactSource from '@/examples/react/icon-button-shapes.tsx?raw';
+import iconButtonShapesAngularSource from '@/examples/angular/icon-button-shapes.ts?raw';
+import IconButtonToggleReact from '@/examples/react/icon-button-toggle.tsx';
+import { IconButtonToggleAngular } from '@/examples/angular/icon-button-toggle.ts';
+import iconButtonToggleReactSource from '@/examples/react/icon-button-toggle.tsx?raw';
+import iconButtonToggleAngularSource from '@/examples/angular/icon-button-toggle.ts?raw';
 
 ## Usage
 
@@ -23,15 +39,50 @@ the icon stays decorative while the stable label names the native control.
   <IconButtonStatesAngular slot="angular" client:load />
 </Code>
 
-## Variants, sizes, and shape
+## Variants
 
-Variants are `standard`, `filled`, `tonal`, and `outlined`. Sizes range from
-`xSmall` to `xLarge`; widths are `narrow`, `default`, and `wide`. Every
-combination retains at least a 48 px target.
+Variants are `standard`, `filled`, `tonal`, and `outlined`.
 
-`shape` selects the rounded or squared resting shape. The shared Motion
-controller morphs the shape on accepted presses by default. Set
-`shapeFeedback="none"` to keep it static.
+<Code
+  codes={{
+    react: iconButtonVariantsReactSource,
+    angular: iconButtonVariantsAngularSource,
+  }}
+>
+  <IconButtonVariantsReact slot="react" client:load />
+  <IconButtonVariantsAngular slot="angular" client:load />
+</Code>
+
+## Sizes
+
+Sizes range from `xSmall` to `xLarge`. Every size retains at least a 48 px
+touch target regardless of the visible icon size.
+
+<Code
+  codes={{
+    react: iconButtonSizesReactSource,
+    angular: iconButtonSizesAngularSource,
+  }}
+>
+  <IconButtonSizesReact slot="react" client:load />
+  <IconButtonSizesAngular slot="angular" client:load />
+</Code>
+
+## Shape and width
+
+`shape` selects the rounded or squared resting shape; `width` is `narrow`,
+`default`, or `wide`. The shared Motion controller morphs the shape on
+accepted presses by default. Set `shapeFeedback="none"` to keep it static.
+
+<Code
+  codes={{
+    react: iconButtonShapesReactSource,
+    angular: iconButtonShapesAngularSource,
+  }}
+>
+  <IconButtonShapesReact slot="react" client:load />
+  <IconButtonShapesAngular slot="angular" client:load />
+</Code>
 
 ## Toggle buttons
 
@@ -42,6 +93,16 @@ replaces the resting icon while pressed.
 
 Navigation links ignore toggle state. Use `aria-current` for the current
 destination instead.
+
+<Code
+  codes={{
+    react: iconButtonToggleReactSource,
+    angular: iconButtonToggleAngularSource,
+  }}
+>
+  <IconButtonToggleReact slot="react" client:load />
+  <IconButtonToggleAngular slot="angular" client:load />
+</Code>
 
 ## Accessibility
 

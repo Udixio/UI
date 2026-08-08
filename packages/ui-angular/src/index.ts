@@ -5,6 +5,7 @@ export * from './lib/card/card';
 export * from './lib/carousel/carousel';
 export * from './lib/carousel/carousel-item';
 export * from './lib/checkbox/checkbox';
+export * from './lib/date-picker/date-picker';
 export * from './lib/divider/divider';
 export * from './lib/fab/fab';
 export * from './lib/fab-menu/fab-menu';

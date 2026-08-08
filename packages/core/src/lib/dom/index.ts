@@ -2,6 +2,7 @@ export * from './anchor-positioner.js';
 export * from './carousel.js';
 export * from './circular-progress.js';
 export * from './custom-scroll.js';
+export * from './date-picker.js';
 export * from './fab-menu.js';
 export * from './linear-indeterminate.js';
 export * from './menu.js';

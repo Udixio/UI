@@ -13,12 +13,8 @@ const datePickerConfig: ClassNameComponent<DatePickerInterface> = ({
     'min-w-[320px]',
   ),
   header: cx('flex items-center justify-between h-12 mb-2 px-2'),
-  monthNav: cx(
-    'flex items-center justify-center w-10 h-10 rounded-full text-on-surface-variant hover:bg-on-surface-variant/8 transition-colors cursor-pointer',
-  ),
-  monthLabel: cx(
-    'text-label-large text-on-surface font-bold capitalize',
-  ),
+  monthNav: cx('flex items-center'),
+  monthLabel: cx('text-label-large text-on-surface font-bold capitalize'),
   weekDays: cx('grid grid-cols-7 mb-2'),
   weekDay: cx(
     'h-10 flex items-center justify-center text-body-small text-on-surface-variant',

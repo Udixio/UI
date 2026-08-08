@@ -7,12 +7,13 @@ import {
 } from '@angular/core';
 import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
 import {
-  classNames,
+  iconStyle,
+  resolveIconKind,
   type Icon as IconType,
   type SvgImport,
 } from '@udixio/core';
+import { createStyle } from '../utils/create-style';
 
-type IconKind = 'raw' | 'image' | 'fontawesome';
 type FontAwesomeIcon = Exclude<IconType, string | SvgImport>;
 
 @Component({
@@ -25,7 +26,7 @@ type FontAwesomeIcon = Exclude<IconType, string | SvgImport>;
       @case ('raw') {
         <span
           aria-hidden="true"
-          [class]="classes(true)"
+          [class]="styles()['icon']"
           [style.color]="colors()[0] || null"
           [innerHTML]="rawSvg()"
         ></span>
@@ -34,10 +35,13 @@ type FontAwesomeIcon = Exclude<IconType, string | SvgImport>;
         <img
           alt=""
           aria-hidden="true"
-          [class]="classes(false)"
+          [class]="styles()['icon']"
           [src]="svgImport().src"
           [width]="svgImport().width"
           [height]="svgImport().height"
+          [style.filter]="
+            colors()[0] ? 'brightness(0) saturate(100%) invert(1)' : null
+          "
         />
       }
       @case ('fontawesome') {
@@ -45,7 +49,7 @@ type FontAwesomeIcon = Exclude<IconType, string | SvgImport>;
           xmlns="http://www.w3.org/2000/svg"
           role="img"
           aria-hidden="true"
-          [class]="classes(false)"
+          [class]="styles()['icon']"
           [attr.viewBox]="viewBox()"
           [style.color]="colors()[0] || null"
           [style.--fa-primary-color]="colors()[0] || null"
@@ -64,11 +68,7 @@ export class Icon {
   readonly colors = input<readonly string[]>([]);
   readonly className = input<string>();
 
-  protected readonly kind = computed<IconKind>(() => {
-    const icon = this.icon();
-    if (typeof icon === 'string') return 'raw';
-    return 'src' in icon ? 'image' : 'fontawesome';
-  });
+  protected readonly kind = computed(() => resolveIconKind(this.icon()));
 
   private readonly sanitizer = inject(DomSanitizer);
 
@@ -92,7 +92,9 @@ export class Icon {
   });
 
   protected readonly svgImport = computed(() => this.icon() as SvgImport);
-  private readonly fontAwesome = computed(() => this.icon() as FontAwesomeIcon);
+  private readonly fontAwesome = computed(
+    () => this.icon() as FontAwesomeIcon,
+  );
   protected readonly viewBox = computed(() => {
     const [width, height] = this.fontAwesome().icon;
     return `0 0 ${width} ${height}`;
@@ -102,11 +104,9 @@ export class Icon {
     return typeof pathData === 'string' ? [pathData] : pathData;
   });
 
-  protected classes(raw: boolean): string {
-    return classNames(
-      'size-5 box-content',
-      raw && 'inline-flex fill-current',
-      this.className(),
-    );
-  }
+  protected readonly styles = createStyle(iconStyle, () => ({
+    icon: this.icon(),
+    colors: this.colors(),
+    className: this.className(),
+  }));
 }

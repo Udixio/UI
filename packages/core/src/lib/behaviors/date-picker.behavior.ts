@@ -174,3 +174,35 @@ export function getYearRange(centerYear: number, span = 100): number[] {
   for (let year = start; year <= end; year++) years.push(year);
   return years;
 }
+
+/** Adds (or subtracts) whole days. Used by keyboard grid navigation. */
+export function addDays(date: Date, amount: number): Date {
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate() + amount,
+  );
+}
+
+/**
+ * Adds (or subtracts) whole months, clamping the day-of-month to the target
+ * month's last day (Jan 31 + 1 month -> Feb 28/29, never rolls into March).
+ */
+export function addMonthsClamped(date: Date, amount: number): Date {
+  const targetMonth = date.getMonth() + amount;
+  const lastDayOfTargetMonth = daysInMonth(
+    date.getFullYear() + Math.floor(targetMonth / 12),
+    ((targetMonth % 12) + 12) % 12,
+  );
+  return new Date(
+    date.getFullYear(),
+    targetMonth,
+    Math.min(date.getDate(), lastDayOfTargetMonth),
+  );
+}
+
+/** First day of the calendar week containing `date`, given `weekStartDay`. */
+export function getStartOfWeek(date: Date, weekStartDay: number): Date {
+  const offset = (date.getDay() - weekStartDay + 7) % 7;
+  return addDays(date, -offset);
+}

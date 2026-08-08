@@ -8,7 +8,10 @@
       "description": "DatePickers let users select a date, or a range of dates.",
       "tags": {
         "status": "beta",
-        "category": "Selection"
+        "category": "Selection",
+        "devx": "- `mode=\"range\"` discriminates `value`/`defaultValue`/`onChange` to `DateRange` at the type level; `mode=\"single\"` (the default) discriminates them to `Date`.\n- `value`/`onChange` are controlled; `defaultValue` initializes uncontrolled usage.\n- `minDate`/`maxDate`/`shouldDisableDate` are compared at day granularity: a boundary carrying a time-of-day (e.g. `new Date()`) never disables its own day.",
+        "a11y": "- The day grid uses the composite `grid`/`row`/`gridcell` pattern with one roving `tabIndex` per visible month; Arrow keys move focus by day/week, Home/End jump to the visible week's boundaries, PageUp/PageDown change month (Shift for year).\n- The selected day's `gridcell` carries `aria-selected`; its focusable day button carries `aria-current=\"date\"` when it is today. Unavailable days stay focusable with `aria-disabled` instead of the native `disabled` attribute, so keyboard users can still traverse past them.",
+        "limitations": "- Does not render its own text input or popup positioning; combine with `TextField`/`IconButton` and your own overlay for a popup picker.\n- The year picker view is a plain scrollable button list without virtualization."
       },
       "methods": [],
       "props": {
@@ -21,9 +24,58 @@
           },
           "defaultValue": null
         },
+        "minDate": {
+          "name": "minDate",
+          "description": "Minimum selectable date.",
+          "required": false,
+          "type": {
+            "name": "Date"
+          },
+          "defaultValue": null
+        },
+        "maxDate": {
+          "name": "maxDate",
+          "description": "Maximum selectable date.",
+          "required": false,
+          "type": {
+            "name": "Date"
+          },
+          "defaultValue": null
+        },
+        "shouldDisableDate": {
+          "name": "shouldDisableDate",
+          "description": "Disables specific dates.",
+          "required": false,
+          "type": {
+            "name": "(date: Date) => boolean"
+          },
+          "defaultValue": null
+        },
+        "locale": {
+          "name": "locale",
+          "description": "Locale for formatting dates.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "'default'"
+          }
+        },
+        "weekStartDay": {
+          "name": "weekStartDay",
+          "description": "First day of the week (0=Sunday, 1=Monday).",
+          "required": false,
+          "type": {
+            "name": "0 | 1 | 2 | 3 | 4 | 5 | 6"
+          },
+          "defaultValue": {
+            "value": "0"
+          }
+        },
         "mode": {
           "name": "mode",
-          "description": "Selection mode: 'single' for one date, 'range' for start/end period.",
+          "description": "Selects one date.\nSelects a start/end date period.",
           "required": false,
           "type": {
             "name": "\"single\" | \"range\""
@@ -34,7 +86,7 @@
         },
         "value": {
           "name": "value",
-          "description": "The currently selected date(s).\nDate for single mode, [start, end] tuple for range mode.",
+          "description": "The currently selected date.\nThe currently selected [start, end] period.",
           "required": false,
           "type": {
             "name": "Date | DateRange"
@@ -43,7 +95,7 @@
         },
         "defaultValue": {
           "name": "defaultValue",
-          "description": "Default selected date(s) for uncontrolled usage.",
+          "description": "Default selected date for uncontrolled usage.\nDefault selected [start, end] period for uncontrolled usage.",
           "required": false,
           "type": {
             "name": "Date | DateRange"
@@ -52,12 +104,56 @@
         },
         "onChange": {
           "name": "onChange",
-          "description": "Callback fired when selection changes.\nReturns Date in single mode, DateRange in range mode.",
+          "description": "Called once for each accepted selection transition.",
           "required": false,
           "type": {
-            "name": "(value: any) => void"
+            "name": "((value: Date) => void) | ((value: DateRange) => void)"
           },
           "defaultValue": null
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/date-picker/date-picker.ts",
+      "description": "DatePickers let users select a date, or a range of dates.",
+      "tags": {
+        "status": "beta",
+        "category": "Selection",
+        "devx": "- `mode=\"range\"` switches `value`/`defaultValue`/`valueChange` to `DateRange`; `mode=\"single\"` (the default) uses `Date`. Angular's independent `input()`/`output()` bindings cannot express the mode/value coupling at the type level the way React's discriminated props do; pass a value matching the current `mode`.\n- `value`/`valueChange` are controlled and support `[(value)]`; `defaultValue` initializes uncontrolled usage.\n- `minDate`/`maxDate`/`shouldDisableDate` are compared at day granularity: a boundary carrying a time-of-day never disables its own day.",
+        "a11y": "- The day grid uses the composite `grid`/`row`/`gridcell` pattern with one roving `tabIndex` per visible month; Arrow keys move focus by day/week, Home/End jump to the visible week's boundaries, PageUp/PageDown change month (Shift for year).\n- The selected day's `gridcell` carries `aria-selected`; its focusable day button carries `aria-current=\"date\"` when it is today. Unavailable days stay focusable with `aria-disabled` instead of the native `disabled` attribute, so keyboard users can still traverse past them.",
+        "limitations": "- Does not render its own text input or popup positioning; combine with `Button`/`IconButton` and your own overlay for a popup picker.\n- The year picker view is a plain scrollable button list without virtualization."
+      },
+      "inputs": {
+        "mode": {
+          "name": "mode",
+          "description": "Selects one date.\nSelects a start/end date period.",
+          "required": false,
+          "type": {
+            "name": "\"single\" | \"range\""
+          },
+          "defaultValue": {
+            "value": "'single'"
+          }
+        },
+        "value": {
+          "name": "value",
+          "description": "The currently selected date.\nThe currently selected [start, end] period.",
+          "required": false,
+          "type": {
+            "name": "DatePickerValue"
+          },
+          "defaultValue": null
+        },
+        "defaultValue": {
+          "name": "defaultValue",
+          "description": "Default selected date for uncontrolled usage.\nDefault selected [start, end] period for uncontrolled usage.",
+          "required": false,
+          "type": {
+            "name": "DatePickerValue"
+          },
+          "defaultValue": {
+            "value": "null"
+          }
         },
         "minDate": {
           "name": "minDate",
@@ -107,6 +203,26 @@
           "defaultValue": {
             "value": "0"
           }
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<DatePickerInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {
+        "valueChange": {
+          "name": "valueChange",
+          "description": "Emits an accepted selection request and supports `[(value)]`.",
+          "required": false,
+          "type": {
+            "name": "DatePickerValue"
+          },
+          "defaultValue": null
         }
       }
     }

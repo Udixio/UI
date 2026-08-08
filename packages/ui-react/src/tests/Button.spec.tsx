@@ -85,9 +85,16 @@ describe('Button', () => {
       'aria-busy',
       'true',
     );
-    expect(button?.querySelector('svg')).toHaveStyle({
-      stroke: 'var(--color-on-primary)',
+    const svg = button?.querySelector('svg');
+    expect(svg).toHaveStyle({
+      '--button-progress-color': 'var(--color-on-primary)',
     });
+    // Regression: the circle carries its own `stroke-primary` class, which
+    // wins over an inherited `stroke` set on the parent `svg` — the color
+    // must be forced on the circle itself via `!stroke-[var(...)]`.
+    expect(svg?.querySelector('circle')?.getAttribute('class')).toContain(
+      '!stroke-[var(--button-progress-color)]',
+    );
   });
 
   it('blocks action events while loading', () => {
@@ -361,7 +368,7 @@ describe('Button', () => {
     );
 
     expect(screen.getByRole('button').querySelector('svg')).toHaveStyle({
-      stroke: 'var(--color-on-secondary)',
+      '--button-progress-color': 'var(--color-on-secondary)',
     });
   });
 

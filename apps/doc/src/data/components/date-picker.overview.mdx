@@ -1,130 +1,122 @@
 ---
 ---
 
-
-
-
-import { iCalendarMonth } from '@udixio/icons-rounded-400/calendar_month';
-import { CodePreview } from '@/components/CodePreview.js';
+import Code from '@/components/Code.astro';
+import DatePickerBasicReact from '@/examples/react/date-picker-basic.tsx';
+import { DatePickerBasicAngular } from '@/examples/angular/date-picker-basic.ts';
+import datePickerBasicReactSource from '@/examples/react/date-picker-basic.tsx?raw';
+import datePickerBasicAngularSource from '@/examples/angular/date-picker-basic.ts?raw';
+import DatePickerRangeReact from '@/examples/react/date-picker-range.tsx';
+import { DatePickerRangeAngular } from '@/examples/angular/date-picker-range.ts';
+import datePickerRangeReactSource from '@/examples/react/date-picker-range.tsx?raw';
+import datePickerRangeAngularSource from '@/examples/angular/date-picker-range.ts?raw';
+import DatePickerUncontrolledReact from '@/examples/react/date-picker-uncontrolled.tsx';
+import { DatePickerUncontrolledAngular } from '@/examples/angular/date-picker-uncontrolled.ts';
+import datePickerUncontrolledReactSource from '@/examples/react/date-picker-uncontrolled.tsx?raw';
+import datePickerUncontrolledAngularSource from '@/examples/angular/date-picker-uncontrolled.ts?raw';
+import DatePickerConstraintsReact from '@/examples/react/date-picker-constraints.tsx';
+import { DatePickerConstraintsAngular } from '@/examples/angular/date-picker-constraints.ts';
+import datePickerConstraintsReactSource from '@/examples/react/date-picker-constraints.tsx?raw';
+import datePickerConstraintsAngularSource from '@/examples/angular/date-picker-constraints.ts?raw';
+import DatePickerLocalizationReact from '@/examples/react/date-picker-localization.tsx';
+import { DatePickerLocalizationAngular } from '@/examples/angular/date-picker-localization.ts';
+import datePickerLocalizationReactSource from '@/examples/react/date-picker-localization.tsx?raw';
+import datePickerLocalizationAngularSource from '@/examples/angular/date-picker-localization.ts?raw';
 
 ## Usage
 
-DatePicker allow users to select a date or a range of dates.
+DatePicker lets people select a date, or a range of dates, from a month grid.
+`mode="range"` discriminates `value`/`defaultValue`/`onChange` (React) or the
+inputs bound to `value`/`defaultValue`/`valueChange` (Angular) to a
+`[start, end]` `DateRange` instead of a single `Date`.
 
-```bash
-import { DatePicker } from "@udixio/ui-react"
-```
+## Controlled selection
 
-## Basic usage
+Use `value` with `onChange` in React, or `[(value)]` in Angular. A controlled
+DatePicker emits a request but does not change until its owner supplies the
+new value.
 
-```jsx
-function Example() {
-  const [date, setDate] = React.useState(new Date());
-
-  return (
-    <div className="flex flex-col items-center">
-      <DatePicker value={date} onChange={setDate} />
-      <p className="mt-4 text-body-medium">
-        Selected: {date.toLocaleDateString()}
-      </p>
-    </div>
-  );
-}
-```
-
-## Select a range
-
-Use `mode="range"` to select a date range.
-
-```jsx
-function Example() {
-  const [range, setRange] = React.useState([
-    new Date(2023, 5, 1),
-    new Date(2023, 5, 10),
-  ]);
-
-  return (
-    <div className="flex flex-col items-center">
-      <DatePicker mode="range" value={range} onChange={setRange} />
-      <p className="mt-4 text-body-medium text-center">
-        Start: {range[0]?.toLocaleDateString() || '-'} <br />
-        End: {range[1]?.toLocaleDateString() || '-'}
-      </p>
-    </div>
-  );
-}
-```
-
-## Uncontrolled
-
-You can use `defaultValue` for uncontrolled usage.
-
-```jsx
-<DatePicker
-  defaultValue={new Date(2023, 5, 15)}
-  onChange={(date) => console.log('Selected:', date)}
-/>
-```
-
-## Min and Max dates
-
-Limit the selectable range.
-
-```jsx
-<DatePicker
-  minDate={new Date(2023, 0, 1)}
-  maxDate={new Date(2023, 11, 31)}
-  defaultValue={new Date(2023, 5, 1)}
-/>
-```
-
-
-## With Input Field
-
-Combine with TextField and IconButton for a popup picker.
-
-<CodePreview
-  client:load
-  code={`
-
-  function Example() {
-
-  return (
-    <div className="relative max-w-xs">
-      <TextField
-              type="date"
-              label="Date"
-              onFocus={() => console.log('focused')} onBlur={() => console.log('blurred')}
-            />
-    </div>
-  );
-  } `} scope={{ iCalendarMonth }}
-/>
-
-
-## Disable specific dates
-
-Disable weekends for example.
-
-```jsx
-<DatePicker
-  shouldDisableDate={(date) => {
-    const day = date.getDay();
-    return day === 0 || day === 6; // Disable Sunday and Saturday
+<Code
+  codes={{
+    react: datePickerBasicReactSource,
+    angular: datePickerBasicAngularSource,
   }}
-  defaultValue={new Date()}
-/>
-```
+>
+  <DatePickerBasicReact slot="react" client:load />
+  <DatePickerBasicAngular slot="angular" client:load />
+</Code>
+
+## Selecting a range
+
+Set `mode="range"`. The first click starts a new range; the second completes
+it in chronological order regardless of click order, and a third click after
+completion starts a new range.
+
+<Code
+  codes={{
+    react: datePickerRangeReactSource,
+    angular: datePickerRangeAngularSource,
+  }}
+>
+  <DatePickerRangeReact slot="react" client:load />
+  <DatePickerRangeAngular slot="angular" client:load />
+</Code>
+
+## Uncontrolled usage
+
+`defaultValue` captures the initial value once; the component then owns its
+own selection and only notifies changes.
+
+<Code
+  codes={{
+    react: datePickerUncontrolledReactSource,
+    angular: datePickerUncontrolledAngularSource,
+  }}
+>
+  <DatePickerUncontrolledReact slot="react" client:load />
+  <DatePickerUncontrolledAngular slot="angular" client:load />
+</Code>
+
+## Constraining selectable dates
+
+`minDate`/`maxDate` and `shouldDisableDate` are compared at day granularity, so
+a boundary carrying a time-of-day (for example `new Date()`) never disables
+its own day. Blocked days stay visible and focusable, but cannot be selected.
+
+<Code
+  codes={{
+    react: datePickerConstraintsReactSource,
+    angular: datePickerConstraintsAngularSource,
+  }}
+>
+  <DatePickerConstraintsReact slot="react" client:load />
+  <DatePickerConstraintsAngular slot="angular" client:load />
+</Code>
 
 ## Localization
 
-Use `locale` to format the calendar.
+`locale` formats the month label and weekday headers; `weekStartDay` shifts
+which day begins each row.
 
-```jsx
-<div className="flex flex-wrap gap-8">
-  {/* Default (English) */}
-  <DatePicker locale="en-US" defaultValue={new Date()} />
-  {/* French (Monday start) */}
-  <DatePicker locale="fr-FR" weekStartDay={1} defaultValue={new Date()} />
-</div>
-```
+<Code
+  codes={{
+    react: datePickerLocalizationReactSource,
+    angular: datePickerLocalizationAngularSource,
+  }}
+>
+  <DatePickerLocalizationReact slot="react" client:load />
+  <DatePickerLocalizationAngular slot="angular" client:load />
+</Code>
+
+## Accessibility
+
+The day grid uses the composite `grid`/`row`/`gridcell` pattern with one
+roving `tabIndex` per visible month. Arrow keys move focus by day or week,
+Home/End jump to the visible week's boundaries, and PageUp/PageDown change
+month (Shift for year). The selected day's `gridcell` carries `aria-selected`;
+its focusable day button carries `aria-current="date"` when it is today.
+Unavailable days stay focusable with `aria-disabled` instead of the native
+`disabled` attribute, so keyboard users can still traverse past them.
+
+DatePicker does not render its own text input or popup positioning; combine it
+with `TextField`/`IconButton` and your own overlay to build a popup picker.

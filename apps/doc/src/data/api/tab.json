@@ -130,6 +130,15 @@
             "name": "(index: number) => void"
           },
           "defaultValue": null
+        },
+        "contentRef": {
+          "name": "contentRef",
+          "description": "Injected by the parent Tabs: reports this tab's icon+label content element, which the sliding indicator measures for the `primary` variant.",
+          "required": false,
+          "type": {
+            "name": "(element: HTMLSpanElement) => void"
+          },
+          "defaultValue": null
         }
       }
     },

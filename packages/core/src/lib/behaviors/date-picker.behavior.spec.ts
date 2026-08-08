@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
+  addDays,
+  addMonthsClamped,
   formatMonthLabel,
   getCalendarWeeks,
   getDaySelectionState,
+  getStartOfWeek,
   getWeekDayLabels,
   getYearRange,
   isDateDisabled,
@@ -215,5 +218,54 @@ describe('getYearRange', () => {
   it('centers the list on centerYear with the given span', () => {
     const years = getYearRange(2024, 2);
     expect(years).toEqual([2022, 2023, 2024, 2025, 2026]);
+  });
+});
+
+describe('addDays', () => {
+  it('adds and subtracts days across month/year boundaries', () => {
+    expect(addDays(new Date(2024, 0, 31), 1)).toEqual(new Date(2024, 1, 1));
+    expect(addDays(new Date(2024, 0, 1), -1)).toEqual(new Date(2023, 11, 31));
+  });
+});
+
+describe('addMonthsClamped', () => {
+  it('adds whole months', () => {
+    expect(addMonthsClamped(new Date(2024, 0, 15), 1)).toEqual(
+      new Date(2024, 1, 15),
+    );
+  });
+
+  it('clamps to the last day instead of rolling into the next month', () => {
+    expect(addMonthsClamped(new Date(2024, 0, 31), 1)).toEqual(
+      new Date(2024, 1, 29), // 2024 is a leap year
+    );
+  });
+
+  it('crosses a year boundary', () => {
+    expect(addMonthsClamped(new Date(2024, 11, 15), 1)).toEqual(
+      new Date(2025, 0, 15),
+    );
+    expect(addMonthsClamped(new Date(2024, 0, 15), -1)).toEqual(
+      new Date(2023, 11, 15),
+    );
+  });
+});
+
+describe('getStartOfWeek', () => {
+  it('returns the same date when it is already the week start', () => {
+    // June 10 2024 is a Monday.
+    expect(getStartOfWeek(new Date(2024, 5, 10), 1)).toEqual(
+      new Date(2024, 5, 10),
+    );
+  });
+
+  it('walks back to the configured week start day', () => {
+    // June 13 2024 is a Thursday.
+    expect(getStartOfWeek(new Date(2024, 5, 13), 1)).toEqual(
+      new Date(2024, 5, 10),
+    );
+    expect(getStartOfWeek(new Date(2024, 5, 13), 0)).toEqual(
+      new Date(2024, 5, 9),
+    );
   });
 });
