@@ -1,101 +1,182 @@
 ---
 ---
 
-
-
-
-
-
-
-
-import { CodePreview } from '@/components/CodePreview.js';
-import { iSearch } from '@udixio/icons-rounded-400/search';
+import Code from '@/components/Code.astro';
+import TextFieldVariantsReact from '@/examples/react/text-field-variants.tsx';
+import { TextFieldVariantsAngular } from '@/examples/angular/text-field-variants.ts';
+import TextFieldIconsReact from '@/examples/react/text-field-icons.tsx';
+import { TextFieldIconsAngular } from '@/examples/angular/text-field-icons.ts';
+import TextFieldMultilineReact from '@/examples/react/text-field-multiline.tsx';
+import { TextFieldMultilineAngular } from '@/examples/angular/text-field-multiline.ts';
+import TextFieldValidationReact from '@/examples/react/text-field-validation.tsx';
+import { TextFieldValidationAngular } from '@/examples/angular/text-field-validation.ts';
+import TextFieldControlledReact from '@/examples/react/text-field-controlled.tsx';
+import { TextFieldControlledAngular } from '@/examples/angular/text-field-controlled.ts';
+import TextFieldSelectReact from '@/examples/react/text-field-select.tsx';
+import { TextFieldSelectAngular } from '@/examples/angular/text-field-select.ts';
+import TextFieldDateReact from '@/examples/react/text-field-date.tsx';
+import { TextFieldDateAngular } from '@/examples/angular/text-field-date.ts';
+import TextFieldMaskReact from '@/examples/react/text-field-mask.tsx';
+import { TextFieldMaskAngular } from '@/examples/angular/text-field-mask.ts';
+import textFieldVariantsReactSource from '@/examples/react/text-field-variants.tsx?raw';
+import textFieldVariantsAngularSource from '@/examples/angular/text-field-variants.ts?raw';
+import textFieldIconsReactSource from '@/examples/react/text-field-icons.tsx?raw';
+import textFieldIconsAngularSource from '@/examples/angular/text-field-icons.ts?raw';
+import textFieldMultilineReactSource from '@/examples/react/text-field-multiline.tsx?raw';
+import textFieldMultilineAngularSource from '@/examples/angular/text-field-multiline.ts?raw';
+import textFieldValidationReactSource from '@/examples/react/text-field-validation.tsx?raw';
+import textFieldValidationAngularSource from '@/examples/angular/text-field-validation.ts?raw';
+import textFieldControlledReactSource from '@/examples/react/text-field-controlled.tsx?raw';
+import textFieldControlledAngularSource from '@/examples/angular/text-field-controlled.ts?raw';
+import textFieldSelectReactSource from '@/examples/react/text-field-select.tsx?raw';
+import textFieldSelectAngularSource from '@/examples/angular/text-field-select.ts?raw';
+import textFieldDateReactSource from '@/examples/react/text-field-date.tsx?raw';
+import textFieldDateAngularSource from '@/examples/angular/text-field-date.ts?raw';
+import textFieldMaskReactSource from '@/examples/react/text-field-mask.tsx?raw';
+import textFieldMaskAngularSource from '@/examples/angular/text-field-mask.ts?raw';
 
 ## Usage
 
-TextField allows users to enter and edit text. It supports both controlled
-(`value`) and uncontrolled (`defaultValue`) usage.
-
-```bash
-import { TextField } from "@udixio/ui-react"
-```
-
-```tsx
-<TextField label="Email" name="email" type="email" placeholder="you@company.com" />
-```
+TextField lets users enter and edit text. It supports controlled (`value`)
+and uncontrolled (`defaultValue`) usage, and switches to a multiline
+textarea, a date picker, or a select menu depending on `multiline`/`type`.
 
 ## Variants
 
-- filled (default)
-- outlined
+- `filled` (default)
+- `outlined`
 
-```jsx
-<div className="flex items-end gap-6">
-  <TextField label="Name" name="name" variant="filled" />
-  <TextField label="Name" name="name2" variant="outlined" />
-</div>
-```
+<Code
+  codes={{
+    react: textFieldVariantsReactSource,
+    angular: textFieldVariantsAngularSource,
+  }}
+>
+  <TextFieldVariantsReact slot="react" client:load />
+  <TextFieldVariantsAngular slot="angular" client:load />
+</Code>
 
 ## Leading/trailing icon and suffix
 
 Use `leadingIcon`, `trailingIcon`, or `suffix` for extra affordances.
+Both are agnostic `Icon` data, rendered identically in both frameworks; there
+is no escape hatch for an arbitrary interactive node.
 
-<CodePreview client:load
-             code={`
-  <div className="flex flex-col gap-4">
-    <TextField label="Search" name="q" leadingIcon={iSearch} />
-    <TextField label="Amount" name="amount" suffix="kg" />
-    <TextField label="Search" name="q2" trailingIcon={<button aria-label="clear"><i className="fa-solid fa-xmark" /></button>} />
-  </div>
-`}
-             scope={{ iSearch }}
-/>
+<Code
+  codes={{
+    react: textFieldIconsReactSource,
+    angular: textFieldIconsAngularSource,
+  }}
+>
+  <TextFieldIconsReact slot="react" client:load />
+  <TextFieldIconsAngular slot="angular" client:load />
+</Code>
 
 ## Multi-line
 
-Set `multiline` for an auto-growing textarea.
+Set `multiline` for an auto-growing textarea. The auto-grow behavior is
+implemented once as a shared `@udixio/core/dom` controller, so both
+adapters resize identically.
 
-```jsx
-<div className="space-y-4">
-  <TextField label="Description" name="desc1" multiline />
-  <TextField label="Notes" name="desc2" multiline defaultValue="Initial content" />
-</div>
-```
+<Code
+  codes={{
+    react: textFieldMultilineReactSource,
+    angular: textFieldMultilineAngularSource,
+  }}
+>
+  <TextFieldMultilineReact slot="react" client:load />
+  <TextFieldMultilineAngular slot="angular" client:load />
+</Code>
 
 ## Error and supporting text
 
 Show validation and helper text with `errorText` and `supportingText`.
 
-```jsx
-<div className="space-y-2">
-  <TextField label="Username" name="u1" supportingText="Use 3–16 characters" />
-  <TextField label="Password" name="p1" errorText="Password is too short" />
-</div>
-```
+<Code
+  codes={{
+    react: textFieldValidationReactSource,
+    angular: textFieldValidationAngularSource,
+  }}
+>
+  <TextFieldValidationReact slot="react" client:load />
+  <TextFieldValidationAngular slot="angular" client:load />
+</Code>
 
 ## Controlled vs uncontrolled
 
-```jsx
-function Example() {
-  const [value, setValue] = React.useState('hello');
-  return (
-    <div className="space-y-3">
-      <TextField
-        label="Controlled"
-        name="c1"
-        value={value}
-        onChange={(event) => setValue(event.target.value)}
-      />
-      <TextField label="Uncontrolled" name="u2" defaultValue="Initial value" />
-    </div>
-  );
-}
-```
+Use `value` with `onChange` in React, or `[(value)]` in Angular.
+`defaultValue` initializes uncontrolled usage.
 
-## Autofocus
+<Code
+  codes={{
+    react: textFieldControlledReactSource,
+    angular: textFieldControlledAngularSource,
+  }}
+>
+  <TextFieldControlledReact slot="react" client:load />
+  <TextFieldControlledAngular slot="angular" client:load />
+</Code>
 
-Use the `autoFocus` prop to automatically focus the `TextField` on mount.
+## Select mode
 
-```jsx
-<TextField label="Search" name="q" autoFocus  />
-```
+`type="select"` opens a menu of `options` instead of a native input. React
+additionally accepts projected `MenuItem` children in place of `options`;
+Angular only supports `options`.
+
+<Code
+  codes={{
+    react: textFieldSelectReactSource,
+    angular: textFieldSelectAngularSource,
+  }}
+>
+  <TextFieldSelectReact slot="react" client:load />
+  <TextFieldSelectAngular slot="angular" client:load />
+</Code>
+
+## Date mode
+
+`type="date"` opens a `DatePicker` popover and stores the selection as an
+ISO `YYYY-MM-DD` string. The field stays directly typable in that same
+format; only `select` mode is read-only.
+
+<Code
+  codes={{
+    react: textFieldDateReactSource,
+    angular: textFieldDateAngularSource,
+  }}
+>
+  <TextFieldDateReact slot="react" client:load />
+  <TextFieldDateAngular slot="angular" client:load />
+</Code>
+
+## Custom mask
+
+Pass `mask` to transform typed or pasted input on every keystroke -- for any
+format an app needs, not just dates: a phone number, a card number, a
+multi-group ID. It defaults to the built-in `YYYY-MM-DD` mask for
+`type="date"`; providing one always overrides it, for that type or any other.
+
+The field is controlled, so `mask` receives its own previous output back as
+`raw` on every subsequent keystroke -- it must be idempotent
+(`mask(mask(x)) === mask(x)`). Inserted separators the user never typed (a
+space, a dash) are safe, since a naive filter already excludes them from the
+next pass -- but a literal that contains digits (a `+33` country code, a
+fixed digit group) will be mistaken for freshly typed input on the next call
+unless you strip it back out first.
+
+<Code
+  codes={{
+    react: textFieldMaskReactSource,
+    angular: textFieldMaskAngularSource,
+  }}
+>
+  <TextFieldMaskReact slot="react" client:load />
+  <TextFieldMaskAngular slot="angular" client:load />
+</Code>
+
+## Accessibility
+
+`aria-describedby` links the supporting text/error row to the input, and
+`aria-invalid` reflects `errorText`. The date/select trailing icon renders as
+a real `<button>` so it stays reachable by keyboard, independent of the
+field's own click-to-open behavior.

@@ -1,11 +1,11 @@
 import React, {
   useEffect,
   useId,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
   type CSSProperties,
-  type ReactElement,
   type ReactNode,
 } from 'react';
 import { Icon } from '../icon';
@@ -13,64 +13,71 @@ import { iCalendarToday } from '@udixio/icons-rounded-400/calendar_today';
 import { iError } from '@udixio/icons-rounded-400/error';
 import { iKeyboardArrowDown } from '@udixio/icons-rounded-400/keyboard_arrow_down';
 import { iKeyboardArrowUp } from '@udixio/icons-rounded-400/keyboard_arrow_up';
-import { motion } from 'motion/react';
 import { DatePicker } from './DatePicker';
 import { Button } from './Button';
 import { Menu } from './Menu';
 import { MenuItem, type ReactMenuItemProps } from './MenuItem';
 import { Divider } from './Divider';
 import { MenuHeadline } from './MenuHeadline';
-
-import TextareaAutosize from 'react-textarea-autosize';
 import {
   classNames,
+  formatTextFieldIsoDate,
+  parseTextFieldIsoDate,
+  resolveTextFieldFloating,
+  resolveTextFieldTrailingIcon,
+  sanitizeTextFieldDateInput,
   textFieldStyle,
-  type MenuItemInterface,
   type TextFieldInterface,
+  type TextFieldOption,
   type ReactProps,
 } from '@udixio/core';
+import {
+  createTextFieldLabelController,
+  createTextareaAutosizeController,
+  type TextFieldLabelController,
+  type TextareaAutosizeController,
+} from '@udixio/core/dom';
 import { createUseStyle } from '../utils/create-use-style';
+import { useControllableState } from '../utils/use-controllable-state';
 import { AnchorPositioner } from './AnchorPositioner';
 
-export type ReactTextFieldProps = ReactProps<TextFieldInterface> & {
+export type ReactTextFieldOption = TextFieldOption & {
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+};
+
+export type ReactTextFieldProps = Omit<
+  ReactProps<TextFieldInterface>,
+  'ref' | 'options'
+> & {
   children?: ReactNode;
-  placeholder?: string;
-  name?: string;
-  label: string;
-  supportingText?: string;
-  trailingIcon?: ReactElement | Icon;
-  leadingIcon?: ReactElement | Icon;
-  onChange?: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>;
-  showSupportingText?: boolean;
-  defaultValue?: string;
-  id?: string;
   style?: CSSProperties;
-  options?: Array<
-    {
-      value: string | number;
-      type?: 'divider' | 'headline';
-      onClick?: React.MouseEventHandler<HTMLButtonElement>;
-    } & MenuItemInterface['props']
-  >;
-  type?: 'text' | 'password' | 'number' | 'date' | 'select';
-  autoComplete?: 'on' | 'off' | string;
-  autoFocus?: boolean;
-  onFocus?: () => void;
-  onBlur?: () => void;
+  ref?: React.Ref<HTMLInputElement | HTMLTextAreaElement>;
+  options?: ReactTextFieldOption[];
 };
 
 export const useTextFieldStyle = createUseStyle(textFieldStyle);
 
 /**
- * Text fields let users enter text into a UI
+ * Text fields let users enter text into a UI.
  * @status beta
  * @category Input
  * @devx
  * - Supports controlled (`value`) and uncontrolled (`defaultValue`) usage.
- * - `multiline` switches to textarea mode.
- * - `type="select" ` switches to select mode with `options`
+ * - `multiline` switches to an auto-growing textarea.
+ * - `type="select"` switches to select mode with `options` or projected `MenuItem` children.
+ * - `type="date"` switches to date-picker mode; the field stays typable (`YYYY-MM-DD`).
+ * - `mask` transforms typed/pasted input on every keystroke (a card number, a phone number, an
+ *   ID); it defaults to the built-in `YYYY-MM-DD` mask for `type="date"`, and providing one
+ *   overrides it.
+ * - The outlined variant's legend notch uses one `@udixio/core/dom` Anime.js Layout controller,
+ *   shared with the Angular adapter -- an accepted exception to the rest of `@udixio/core/dom`,
+ *   which uses Motion; Motion has no free equivalent to `width: auto` layout diffing. The floating
+ *   label itself is a plain CSS transition.
  * @a11y
- * - `aria-describedby` links supporting text/error to input.
+ * - `aria-describedby` links supporting text/error to the input.
+ * - `aria-invalid` reflects `errorText`.
+ * @limitations
+ * - `ref` targets the underlying `<input>`/`<textarea>`, not the field's root element.
  */
 export const TextField = ({
   variant = 'filled',
@@ -98,6 +105,7 @@ export const TextField = ({
   onFocus,
   onBlur,
   options,
+  mask,
   children,
   ...restProps
 }: ReactTextFieldProps) => {
@@ -105,19 +113,27 @@ export const TextField = ({
   const id = idProp || generatedId;
   const helperTextId = `${id}-helper`;
 
-  const isControlled = valueProp !== undefined;
-  const [internalValue, setInternalValue] = useState(defaultValue ?? '');
-  const value = isControlled ? valueProp : internalValue;
+  const [value, setValue] = useControllableState({
+    value: valueProp,
+    defaultValue: defaultValue ?? '',
+    onChange,
+    componentName: 'TextField',
+    stateName: 'value',
+  });
 
   const [isFocused, setIsFocused] = useState(false);
   const [showErrorIcon, setShowErrorIcon] = useState(!!errorText?.length);
 
-  const internalRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-  const inputRef = (ref as any) || internalRef;
-
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
   const textFieldRef = useRef<HTMLDivElement>(null);
-  const calendarTriggerRef = useRef<HTMLDivElement>(null);
+  const legendRef = useRef<HTMLLegendElement>(null);
+  const calendarTriggerRef = useRef<HTMLButtonElement>(null);
   const datePickerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (typeof ref === 'function') ref(inputRef.current);
+    else if (ref) ref.current = inputRef.current;
+  }, [ref]);
 
   const hasSupportingText =
     showSupportingText ?? (!!errorText?.length || !!supportingText?.length);
@@ -129,7 +145,7 @@ export const TextField = ({
   const focusInput = () => {
     if (inputRef.current && !isFocused && !disabled) {
       if (type !== 'select') {
-        inputRef.current.focus();
+        inputRef.current.focus({ preventScroll: true });
       }
     }
   };
@@ -144,9 +160,16 @@ export const TextField = ({
       return () => window.cancelAnimationFrame(rafId);
     }
     return undefined;
-  }, [autoFocus, disabled, inputRef, type]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoFocus, disabled, type]);
+
+  const isFirstFocusEffectRef = useRef(true);
 
   useEffect(() => {
+    if (isFirstFocusEffectRef.current) {
+      isFirstFocusEffectRef.current = false;
+      return;
+    }
     if (isFocused) {
       setShowErrorIcon(false);
       onFocus?.();
@@ -156,22 +179,18 @@ export const TextField = ({
       }
       onBlur?.();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFocused]);
+
+  const effectiveMask =
+    mask ?? (type === 'date' ? sanitizeTextFieldDateInput : undefined);
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const newValue = event.target.value;
-
-    if (!isControlled) {
-      setInternalValue(newValue);
-    }
-
+    setValue(effectiveMask ? effectiveMask(newValue) : newValue);
     setShowErrorIcon(false);
-
-    if (onChange) {
-      onChange(event);
-    }
   };
 
   // Date Picker Logic
@@ -179,13 +198,10 @@ export const TextField = ({
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [tempDate, setTempDate] = useState<Date | null>(null);
 
-  const initialDateValue = useMemo(() => {
-    const val = String(value);
-    if (!val) return null;
-    const [y, m, d] = val.split('-').map(Number);
-    if (y && m && d) return new Date(y, m - 1, d);
-    return null;
-  }, [value]);
+  const initialDateValue = useMemo(
+    () => parseTextFieldIsoDate(String(value)),
+    [value],
+  );
 
   const handleDatePickerToggle = () => {
     if (disabled) return;
@@ -203,6 +219,7 @@ export const TextField = ({
     } else if (!isSelectInput || !showMenu) {
       setIsFocused(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showDatePicker]);
 
   useEffect(() => {
@@ -249,22 +266,7 @@ export const TextField = ({
   }, [showDatePicker]);
 
   const handleDateConfirm = () => {
-    const newValue = tempDate ? tempDate.toLocaleDateString('en-CA') : '';
-
-    if (!isControlled) {
-      setInternalValue(newValue);
-    }
-
-    if (onChange) {
-      const event = {
-        target: {
-          value: newValue,
-          name,
-          type,
-        },
-      } as React.ChangeEvent<HTMLInputElement>;
-      onChange(event);
-    }
+    setValue(formatTextFieldIsoDate(tempDate));
     setShowDatePicker(false);
   };
 
@@ -278,7 +280,7 @@ export const TextField = ({
       const selectedOption = options.find(
         (o) => String(o.value) === String(value),
       );
-      return selectedOption ? selectedOption.label : value;
+      return selectedOption ? String(selectedOption.label) : value;
     }
     return value;
   }, [value, isSelectInput, options]);
@@ -290,20 +292,7 @@ export const TextField = ({
   };
 
   const handleSelectOption = (optionValue: string | number) => {
-    if (!isControlled) {
-      setInternalValue(String(optionValue));
-    }
-
-    if (onChange) {
-      const event = {
-        target: {
-          value: String(optionValue),
-          name,
-          type,
-        },
-      } as React.ChangeEvent<HTMLInputElement>;
-      onChange(event);
-    }
+    setValue(String(optionValue));
     setShowMenu(false);
     setIsFocused(false);
   };
@@ -328,55 +317,125 @@ export const TextField = ({
     };
   }, [showMenu]);
 
-  const effectiveTrailingIcon = useMemo(() => {
-    if (trailingIcon) return trailingIcon;
-    if (isDateInput) return iCalendarToday;
-    if (isSelectInput) return showMenu ? iKeyboardArrowUp : iKeyboardArrowDown;
-    return undefined;
-  }, [trailingIcon, isDateInput, isSelectInput, showMenu]);
-
-  // Enhance styles for date input or select
-  const inputSpecialClass =
-    isDateInput || isSelectInput
-      ? '[&::-webkit-calendar-picker-indicator]:hidden cursor-pointer selection:bg-transparent'
-      : '';
-
-  const leadingIconInteractive = React.isValidElement(leadingIcon);
-  const trailingIconInteractive = React.isValidElement(effectiveTrailingIcon);
-
-  const styles = useTextFieldStyle({
-    showSupportingText: hasSupportingText,
-    isFocused,
-    showErrorIcon,
-    disabled,
-    className,
-    leadingIconInteractive,
-    trailingIconInteractive,
-    variant,
-    errorText,
-    value: String(displayValue),
-    suffix,
-    multiline,
+  const effectiveTrailingIcon = resolveTextFieldTrailingIcon({
+    type,
+    trailingIcon,
+    isMenuOpen: showMenu,
+    dateIcon: iCalendarToday,
+    menuOpenIcon: iKeyboardArrowUp,
+    menuClosedIcon: iKeyboardArrowDown,
   });
 
-  const TextComponent = multiline ? TextareaAutosize : 'input';
-  // For select, we want the input to be readOnly but still focusable?
-  // Actually, for better UX, standard select inputs are often readOnly text fields.
+  // Select's value only ever comes from picking an option, never typing.
+  const inputSpecialClass = isSelectInput
+    ? 'cursor-pointer selection:bg-transparent'
+    : '';
+
+  const isFloating = resolveTextFieldFloating({
+    isFocused,
+    hasValue: typeof displayValue === 'string' && displayValue.length > 0,
+    type,
+    isMenuOpen: showMenu,
+  });
+
+  const styles = useTextFieldStyle({
+    label,
+    variant,
+    type,
+    multiline,
+    value,
+    defaultValue,
+    onChange,
+    disabled,
+    name,
+    id,
+    placeholder,
+    autoComplete,
+    autoFocus,
+    onFocus,
+    onBlur,
+    leadingIcon,
+    trailingIcon,
+    suffix,
+    supportingText,
+    errorText,
+    showSupportingText,
+    options,
+    mask,
+    showErrorIcon,
+    isFocused,
+    isFloating,
+    hasSupportingText,
+    className,
+  });
+
+  const TextComponent = multiline ? 'textarea' : 'input';
   const textComponentProps = multiline
     ? {}
     : {
-        type: isSelectInput ? 'text' : type,
+        // A native `type="date"` control would show its own browser date
+        // picker alongside the shared `DatePicker` popover, so date mode
+        // still uses plain text -- but stays typable (`YYYY-MM-DD`), unlike
+        // select mode, whose value only ever comes from picking an option.
+        type: isSelectInput || isDateInput ? 'text' : type,
         readOnly: isSelectInput,
       };
 
-  const isFloating =
-    isFocused ||
-    (typeof value === 'string' && value.length > 0) ||
-    type == 'date' ||
-    (isSelectInput && showMenu);
+  // Outlined legend notch: shared Anime.js Layout controller, scoped to the
+  // legend alone -- it is the only element with a genuine `width: auto`
+  // animation problem CSS cannot solve. Rooting this any wider (e.g. at
+  // `.content`) would also catch that fieldset's own unrelated CSS
+  // transitions (the active indicator's width, the outlined border's
+  // width/color on focus) in the same Layout diff, fighting them and
+  // producing a visible flash/jump -- the same class of bug documented on
+  // `createSwitchThumbController`'s `.handle-container` scoping.
+  const labelControllerRef = useRef<TextFieldLabelController | null>(null);
+  const isFirstLabelUpdateRef = useRef(true);
 
-  const showLegend = isFloating && variant === 'outlined';
-  const showLabel = !showLegend;
+  useLayoutEffect(() => {
+    const root = legendRef.current;
+    if (!root) return;
+
+    isFirstLabelUpdateRef.current = true;
+    const controller = createTextFieldLabelController({ root });
+    labelControllerRef.current = controller;
+
+    return () => {
+      controller.destroy();
+      if (labelControllerRef.current === controller) {
+        labelControllerRef.current = null;
+      }
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    if (isFirstLabelUpdateRef.current) {
+      isFirstLabelUpdateRef.current = false;
+      return;
+    }
+    labelControllerRef.current?.update();
+  }, [isFloating, variant]);
+
+  // Multiline autosize: shared controller, no framework-specific package.
+  const autosizeControllerRef = useRef<TextareaAutosizeController | null>(null);
+
+  useLayoutEffect(() => {
+    if (!multiline) return undefined;
+    const textarea = inputRef.current as HTMLTextAreaElement | null;
+    if (!textarea) return undefined;
+
+    const controller = createTextareaAutosizeController({ textarea });
+    autosizeControllerRef.current = controller;
+
+    return () => {
+      controller.destroy();
+      autosizeControllerRef.current = null;
+    };
+  }, [multiline]);
+
+  useLayoutEffect(() => {
+    autosizeControllerRef.current?.update();
+  }, [displayValue]);
 
   return (
     <div ref={textFieldRef} className={styles.textField} style={style}>
@@ -391,75 +450,34 @@ export const TextField = ({
         <div className={styles.stateLayer}></div>
         {leadingIcon && (
           <div className={styles.leadingIcon}>
-            {React.isValidElement(leadingIcon) ? (
-              leadingIcon
-            ) : (
-              <Icon className={'w-5 h-5'} icon={leadingIcon}></Icon>
-            )}
+            <Icon className={'w-5 h-5'} icon={leadingIcon}></Icon>
           </div>
         )}
 
-        <motion.legend
-          aria-hidden="true"
-          variants={{
-            hidden: { width: 0, padding: 0 },
-            visible: { width: 'auto', padding: '0 8px' },
-          }}
-          initial={showLegend ? 'visible' : 'hidden'}
-          animate={showLegend ? 'visible' : 'hidden'}
-          className={
-            'max-w-full ml-2 px-2 text-body-small h-0 overflow-hidden whitespace-nowrap'
-          }
-          transition={{ duration: 0.2 }}
-        >
-          <span className={'transform inline-flex -translate-y-1/2 opacity-0'}>
+        <legend ref={legendRef} aria-hidden="true" className={styles.legend}>
+          <span className={'inline-flex -translate-y-1/2 opacity-0'}>
             {label}
           </span>
-        </motion.legend>
+        </legend>
 
         <div className={'flex-1 relative'}>
-          {showLabel && (
-            <motion.label
-              htmlFor={id}
-              className={classNames(
-                'absolute left-4  transition-all duration-300 pointer-events-none',
-                {
-                  'text-body-small top-2': variant == 'filled' && isFloating,
-                  'text-body-large top-1/2 transform -translate-y-1/2': !(
-                    variant == 'filled' && isFloating
-                  ),
-                },
-              )}
-              transition={{ duration: 0.3 }}
-              layoutId={variant === 'outlined' ? `${id}-label` : undefined}
-            >
-              <span className={styles.label}>{label}</span>
-            </motion.label>
-          )}
-
-          {showLegend && (
-            <motion.label
-              htmlFor={id}
-              className={classNames(
-                'absolute left-2 -top-3 px-1 text-body-small z-10',
-                styles.label,
-              )}
-              layoutId={`${id}-label`}
-              transition={{ duration: 0.3 }}
-            >
-              {label}
-            </motion.label>
-          )}
+          <label htmlFor={id} className={styles.label}>
+            {label}
+          </label>
 
           <TextComponent
             {...(restProps as any)}
             ref={inputRef as any}
-            value={displayValue} // Use displayValue for select
+            value={displayValue}
             onChange={handleChange}
             className={classNames(styles.input, inputSpecialClass)}
             id={id}
             name={name}
-            placeholder={isFocused ? (placeholder ?? undefined) : ''}
+            placeholder={
+              isFocused
+                ? (placeholder ?? (isDateInput ? 'YYYY-MM-DD' : undefined))
+                : ''
+            }
             onFocus={() => {
               if (!isSelectInput) setIsFocused(true);
             }}
@@ -469,6 +487,8 @@ export const TextField = ({
             }}
             disabled={disabled}
             autoComplete={autoComplete}
+            inputMode={isDateInput ? 'numeric' : undefined}
+            maxLength={isDateInput ? 10 : undefined}
             aria-invalid={!!errorText?.length}
             aria-describedby={hasSupportingText ? helperTextId : undefined}
             {...textComponentProps}
@@ -479,31 +499,32 @@ export const TextField = ({
 
         {!showErrorIcon && (
           <>
-            {effectiveTrailingIcon && (
-              <div
-                ref={isDateInput ? calendarTriggerRef : undefined}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  if (isDateInput) handleDatePickerToggle();
-                  if (isSelectInput) handleSelectToggle();
-                }}
-                className={classNames(
-                  styles.trailingIcon,
-                  (isDateInput || isSelectInput) && 'cursor-pointer',
-                )}
-              >
-                <div className="flex items-center justify-center w-full h-full">
-                  {React.isValidElement(effectiveTrailingIcon) ? (
-                    effectiveTrailingIcon
-                  ) : (
-                    <Icon
-                      className={'h-5'}
-                      icon={effectiveTrailingIcon as any}
-                    />
-                  )}
+            {effectiveTrailingIcon &&
+              (isDateInput || isSelectInput ? (
+                <button
+                  ref={isDateInput ? calendarTriggerRef : undefined}
+                  type="button"
+                  disabled={disabled}
+                  aria-label={isDateInput ? 'Choose date' : 'Show options'}
+                  aria-expanded={isDateInput ? showDatePicker : showMenu}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    if (isDateInput) handleDatePickerToggle();
+                    if (isSelectInput) handleSelectToggle();
+                  }}
+                  className={classNames(styles.trailingIcon, 'cursor-pointer')}
+                >
+                  <span className="flex items-center justify-center w-full h-full">
+                    <Icon className={'h-5'} icon={effectiveTrailingIcon} />
+                  </span>
+                </button>
+              ) : (
+                <div className={styles.trailingIcon}>
+                  <div className="flex items-center justify-center w-full h-full">
+                    <Icon className={'h-5'} icon={effectiveTrailingIcon} />
+                  </div>
                 </div>
-              </div>
-            )}
+              ))}
             {!effectiveTrailingIcon && suffix && (
               <span className={styles.suffix}>{suffix}</span>
             )}
@@ -527,7 +548,7 @@ export const TextField = ({
             ? errorText
             : supportingText?.length
               ? supportingText
-              : '\u00A0'}
+              : ' '}
         </p>
       )}
 
@@ -609,12 +630,13 @@ export const TextField = ({
                         <MenuHeadline key={i} label={opt.label} />
                       ) : null;
                     }
-                    // `type` only tags the option kind, it is not a MenuItem prop
-                    const { type: optionType, ...itemProps } = opt;
-                    void optionType;
                     return (
                       <MenuItem
                         key={opt.value ?? i}
+                        label={opt.label}
+                        leadingIcon={opt.leadingIcon}
+                        trailingIcon={opt.trailingIcon}
+                        disabled={opt.disabled}
                         selected={opt.value === value}
                         onClick={(e) => {
                           if (opt.onClick) {
@@ -622,7 +644,6 @@ export const TextField = ({
                           }
                           handleSelectOption(opt.value ?? '');
                         }}
-                        {...itemProps}
                       >
                         {opt.label}
                       </MenuItem>

@@ -5,15 +5,72 @@
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/TextField.tsx",
-      "description": "Text fields let users enter text into a UI",
+      "description": "Text fields let users enter text into a UI.",
       "tags": {
         "status": "beta",
         "category": "Input",
-        "devx": "- Supports controlled (`value`) and uncontrolled (`defaultValue`) usage.\n- `multiline` switches to textarea mode.\n- `type=\"select\" ` switches to select mode with `options`",
-        "a11y": "- `aria-describedby` links supporting text/error to input."
+        "devx": "- Supports controlled (`value`) and uncontrolled (`defaultValue`) usage.\n- `multiline` switches to an auto-growing textarea.\n- `type=\"select\"` switches to select mode with `options` or projected `MenuItem` children.\n- `type=\"date\"` switches to date-picker mode; the field stays typable (`YYYY-MM-DD`).\n- `mask` transforms typed/pasted input on every keystroke (a card number, a phone number, an\n  ID); it defaults to the built-in `YYYY-MM-DD` mask for `type=\"date\"`, and providing one\n  overrides it.\n- The outlined variant's legend notch uses one `@udixio/core/dom` Anime.js Layout controller,\n  shared with the Angular adapter -- an accepted exception to the rest of `@udixio/core/dom`,\n  which uses Motion; Motion has no free equivalent to `width: auto` layout diffing. The floating\n  label itself is a plain CSS transition.",
+        "a11y": "- `aria-describedby` links supporting text/error to the input.\n- `aria-invalid` reflects `errorText`.",
+        "limitations": "- `ref` targets the underlying `<input>`/`<textarea>`, not the field's root element."
       },
       "methods": [],
       "props": {
+        "label": {
+          "name": "label",
+          "description": "Field label, floated above the value or notched into the outlined legend.",
+          "required": true,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "supportingText": {
+          "name": "supportingText",
+          "description": "Message shown below the field.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "leadingIcon": {
+          "name": "leadingIcon",
+          "description": "Optional icon shown before the value.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "trailingIcon": {
+          "name": "trailingIcon",
+          "description": "Optional icon shown after the value. Defaults to a calendar indicator\nfor `type=\"date\"` and a chevron indicator for `type=\"select\"`.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "suffix": {
+          "name": "suffix",
+          "description": "Static text appended after the value, for example a unit. Hidden while an error icon is shown.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "type": {
+          "name": "type",
+          "description": "Native input kind, or a UI mode: `'date'` opens a date picker and\n`'select'` opens a menu of `options`.",
+          "required": false,
+          "type": {
+            "name": "TextFieldType"
+          },
+          "defaultValue": {
+            "value": "'text'"
+          }
+        },
         "className": {
           "name": "className",
           "description": "Classes or state-aware element classes applied through the shared style contract.",
@@ -23,20 +80,63 @@
           },
           "defaultValue": null
         },
-        "disabled": {
-          "name": "disabled",
-          "description": "",
+        "defaultValue": {
+          "name": "defaultValue",
+          "description": "Initial value for uncontrolled usage.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "autoFocus": {
+          "name": "autoFocus",
+          "description": "Focuses the field once, on mount.",
           "required": false,
           "type": {
             "name": "boolean"
           },
-          "defaultValue": {
-            "value": "false"
-          }
+          "defaultValue": null
+        },
+        "id": {
+          "name": "id",
+          "description": "Id of the underlying form control. Auto-generated if not provided.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "onFocus": {
+          "name": "onFocus",
+          "description": "Fires when the underlying control gains focus.",
+          "required": false,
+          "type": {
+            "name": "() => void"
+          },
+          "defaultValue": null
+        },
+        "onBlur": {
+          "name": "onBlur",
+          "description": "Fires when the underlying control loses focus.",
+          "required": false,
+          "type": {
+            "name": "() => void"
+          },
+          "defaultValue": null
+        },
+        "onChange": {
+          "name": "onChange",
+          "description": "Called once for each accepted value transition.",
+          "required": false,
+          "type": {
+            "name": "(value: string) => void"
+          },
+          "defaultValue": null
         },
         "variant": {
           "name": "variant",
-          "description": "",
+          "description": "Visual style.",
           "required": false,
           "type": {
             "name": "TextFieldVariant"
@@ -47,7 +147,7 @@
         },
         "multiline": {
           "name": "multiline",
-          "description": "",
+          "description": "Switches to an auto-growing multiline textarea.",
           "required": false,
           "type": {
             "name": "boolean"
@@ -56,20 +156,47 @@
             "value": "false"
           }
         },
-        "type": {
-          "name": "type",
-          "description": "",
+        "value": {
+          "name": "value",
+          "description": "Controlled value. Providing it makes the field controlled for its lifetime.",
           "required": false,
           "type": {
-            "name": "\"number\" | \"text\" | \"password\" | \"date\" | \"select\""
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Prevents interaction and form submission.",
+          "required": false,
+          "type": {
+            "name": "boolean"
           },
           "defaultValue": {
-            "value": "'text'"
+            "value": "false"
           }
+        },
+        "name": {
+          "name": "name",
+          "description": "Name of the underlying form control.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "placeholder": {
+          "name": "placeholder",
+          "description": "Placeholder shown only while the field is focused and empty.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
         },
         "autoComplete": {
           "name": "autoComplete",
-          "description": "",
+          "description": "Native autocomplete hint.",
           "required": false,
           "type": {
             "name": "string"
@@ -77,6 +204,280 @@
           "defaultValue": {
             "value": "'on'"
           }
+        },
+        "errorText": {
+          "name": "errorText",
+          "description": "Error message. Also switches the field to its error color treatment and shows an error icon.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "showSupportingText": {
+          "name": "showSupportingText",
+          "description": "Forces the supporting text row.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "computed from `errorText`/`supportingText`"
+          }
+        },
+        "mask": {
+          "name": "mask",
+          "description": "Transforms typed or pasted input into the value, on every keystroke --\nfor example inserting separators as digits accumulate, or rejecting\ncharacters outside an expected format (a card number, a phone number,\nan ID). Defaults to the built-in `YYYY-MM-DD` mask\n(`sanitizeTextFieldDateInput`) for `type=\"date\"`; unset for every other\ntype. Providing one for `type=\"date\"` replaces the built-in mask.\n\nMust be idempotent (`mask(mask(x)) === mask(x)`): the field is\ncontrolled, so `mask` receives its own previous output back as `raw` on\nevery subsequent keystroke. A literal you inject (a `+33` country code,\na fixed digit group) will be mistaken for freshly typed input on the\nnext call unless you strip it back out first -- inserted separators\nthat aren't valid data characters (a `-`, a space) don't need this,\nsince a naive filter already excludes them.",
+          "required": false,
+          "type": {
+            "name": "(raw: string) => string"
+          },
+          "defaultValue": null
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/text-field/text-field.ts",
+      "description": "Text fields let users enter text into a UI.",
+      "tags": {
+        "status": "beta",
+        "category": "Input",
+        "devx": "- `value`/`valueChange` are controlled and support `[(value)]`; `defaultValue` initializes uncontrolled usage.\n- `multiline` switches to an auto-growing textarea.\n- `type=\"select\"` switches to select mode with `options`; Angular has no equivalent to React's projected `MenuItem` children, so `options` is the only way to populate the menu.\n- `type=\"date\"` switches to date-picker mode; the field stays typable (`YYYY-MM-DD`).\n- `mask` transforms typed/pasted input on every keystroke (a card number, a phone number, an\n  ID); it defaults to the built-in `YYYY-MM-DD` mask for `type=\"date\"`, and providing one\n  overrides it.\n- The outlined variant's legend notch uses one `@udixio/core/dom` Anime.js Layout controller, shared with the React adapter -- an accepted exception to the rest of `@udixio/core/dom`, which uses Motion; Motion has no free equivalent to `width: auto` layout diffing. The floating label itself is a plain CSS transition.",
+        "a11y": "- `aria-describedby` links supporting text/error to the input.\n- `aria-invalid` reflects `errorText`.\n- The date/select trailing icon is a real `<button>` so it stays keyboard reachable.",
+        "limitations": "- Does not support projecting custom `MenuItem` content the way the React adapter does; use `options`."
+      },
+      "inputs": {
+        "label": {
+          "name": "label",
+          "description": "Field label, floated above the value or notched into the outlined legend.",
+          "required": true,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Visual style.",
+          "required": false,
+          "type": {
+            "name": "TextFieldVariant | undefined"
+          },
+          "defaultValue": {
+            "value": "'filled'"
+          }
+        },
+        "type": {
+          "name": "type",
+          "description": "Native input kind, or a UI mode: `'date'` opens a date picker and\n`'select'` opens a menu of `options`.",
+          "required": false,
+          "type": {
+            "name": "\"number\" | \"text\" | \"date\" | \"password\" | \"email\" | \"tel\" | \"url\" | \"select\""
+          },
+          "defaultValue": {
+            "value": "'text'"
+          }
+        },
+        "multiline": {
+          "name": "multiline",
+          "description": "Switches to an auto-growing multiline textarea.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "value": {
+          "name": "value",
+          "description": "Controlled value. Providing it makes the field controlled for its lifetime.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "defaultValue": {
+          "name": "defaultValue",
+          "description": "Initial value for uncontrolled usage.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Prevents interaction and form submission.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "name": {
+          "name": "name",
+          "description": "Name of the underlying form control.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "id": {
+          "name": "id",
+          "description": "Id of the underlying form control. Auto-generated if not provided.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "placeholder": {
+          "name": "placeholder",
+          "description": "Placeholder shown only while the field is focused and empty.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "autoComplete": {
+          "name": "autoComplete",
+          "description": "Native autocomplete hint.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "'on'"
+          }
+        },
+        "autoFocus": {
+          "name": "autoFocus",
+          "description": "Focuses the field once, on mount.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "leadingIcon": {
+          "name": "leadingIcon",
+          "description": "Optional icon shown before the value.",
+          "required": false,
+          "type": {
+            "name": "IconType"
+          },
+          "defaultValue": null
+        },
+        "trailingIcon": {
+          "name": "trailingIcon",
+          "description": "Optional icon shown after the value. Defaults to a calendar indicator\nfor `type=\"date\"` and a chevron indicator for `type=\"select\"`.",
+          "required": false,
+          "type": {
+            "name": "IconType"
+          },
+          "defaultValue": null
+        },
+        "suffix": {
+          "name": "suffix",
+          "description": "Static text appended after the value, for example a unit. Hidden while an error icon is shown.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "supportingText": {
+          "name": "supportingText",
+          "description": "Message shown below the field.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "errorText": {
+          "name": "errorText",
+          "description": "Error message. Also switches the field to its error color treatment and shows an error icon.",
+          "required": false,
+          "type": {
+            "name": "string | null"
+          },
+          "defaultValue": null
+        },
+        "showSupportingText": {
+          "name": "showSupportingText",
+          "description": "Forces the supporting text row.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null
+        },
+        "options": {
+          "name": "options",
+          "description": "Selectable options for `type=\"select\"`.",
+          "required": false,
+          "type": {
+            "name": "TextFieldOption[]"
+          },
+          "defaultValue": {
+            "value": "[]"
+          }
+        },
+        "mask": {
+          "name": "mask",
+          "description": "Transforms typed or pasted input into the value, on every keystroke.\nDefaults to the built-in `YYYY-MM-DD` mask for `type=\"date\"`; unset for\nevery other type. Providing one for `type=\"date\"` replaces the\nbuilt-in mask.\n\nMust be idempotent (`mask(mask(x)) === mask(x)`): the field is\ncontrolled, so `mask` receives its own previous output back as `raw` on\nevery subsequent keystroke. A literal you inject (a `+33` country code,\na fixed digit group) will be mistaken for freshly typed input on the\nnext call unless you strip it back out first.",
+          "required": false,
+          "type": {
+            "name": "(raw: string) => string"
+          },
+          "defaultValue": null
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<TextFieldInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {
+        "valueChange": {
+          "name": "valueChange",
+          "description": "Emits an accepted value transition and supports `[(value)]`.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "focus": {
+          "name": "focus",
+          "description": "Fires when the underlying control gains focus.",
+          "required": false,
+          "type": {
+            "name": "void"
+          },
+          "defaultValue": null
+        },
+        "blur": {
+          "name": "blur",
+          "description": "Fires when the underlying control loses focus.",
+          "required": false,
+          "type": {
+            "name": "void"
+          },
+          "defaultValue": null
         }
       }
     }

@@ -13,4 +13,6 @@ export * from './slider.js';
 export * from './state-layer.js';
 export * from './switch.js';
 export * from './tabs.js';
+export * from './text-field.js';
+export * from './text-field-autosize.js';
 export * from './tooltip.js';

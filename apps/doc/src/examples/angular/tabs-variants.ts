@@ -7,7 +7,7 @@ import { Tab, Tabs } from '@udixio/ui-angular';
   imports: [Tabs, Tab],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="space-y-2 w-full">
+    <div class="flex flex-col gap-2 w-full">
       <lib-tabs variant="primary" [defaultSelectedTab]="0">
         <lib-tab label="One" />
         <lib-tab label="Two" />
