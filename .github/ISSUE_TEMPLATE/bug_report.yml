@@ -1,0 +1,54 @@
+name: Bug report
+description: Report a bug in one of the Udixio UI packages
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: package
+    attributes:
+      label: Package
+      options:
+        - "@udixio/ui-react"
+        - "@udixio/ui-angular"
+        - "@udixio/core"
+        - "@udixio/theme"
+        - "@udixio/tailwind"
+        - "@udixio/mcp"
+        - "@udixio/icons-*"
+        - Other / not sure
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Package version
+      placeholder: "e.g. 2.11.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear description of the bug, including what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: Steps to reproduce, or a link to a minimal repro (StackBlitz, CodeSandbox, repo).
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: |
+        - Framework: React 19 / Angular 21
+        - Browser:
+        - OS:
+    validations:
+      required: false

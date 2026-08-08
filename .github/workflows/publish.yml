@@ -7,6 +7,13 @@ on:
     types:
       - closed
 
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   publish:
     if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/v')
@@ -32,6 +39,9 @@ jobs:
 
       - name: Update npm
         run: npm install -g npm@latest
+
+      - name: Set release version
+        run: echo "VERSION=${GITHUB_HEAD_REF#release/v}" >> "$GITHUB_ENV"
 
       - name: Publish packages
         run: npx nx release publish --verbose

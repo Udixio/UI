@@ -12,6 +12,10 @@ on:
       - 'pnpm-workspace.yaml'
   workflow_dispatch:
 
+concurrency:
+  group: deploy-doc-vercel-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
     name: Deploy to Vercel (apps/doc)

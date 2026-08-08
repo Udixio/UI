@@ -5,6 +5,13 @@ on:
     branches: [ develop, main ]
     types: [ opened, synchronize, reopened ]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-validation-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
