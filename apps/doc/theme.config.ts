@@ -8,5 +8,9 @@ export default defineConfig({
   subThemes: {
     warning: '#ffcc00',
   },
+  fontFamily: {
+    expressive: ['var(--font-montserrat)', 'sans-serif'],
+    neutral: ['var(--font-roboto)', 'sans-serif'],
+  },
   outFile: 'src/styles/udixio.generated.css',
 });

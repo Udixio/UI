@@ -1,6 +1,6 @@
 // @ts-check
 import { fileURLToPath } from 'node:url';
-import { defineConfig } from 'astro/config';
+import { defineConfig, fontProviders } from 'astro/config';
 import pagefind from 'astro-pagefind';
 import tailwindcss from '@tailwindcss/vite';
 
@@ -10,6 +10,10 @@ import angular from '@analogjs/astro-angular';
 import { vitePlugin } from '@udixio/theme';
 
 import astroExpressiveCode from 'astro-expressive-code';
+import sitemap from '@astrojs/sitemap';
+import robotsTxt from 'astro-robots-txt';
+import compress from 'astro-compress';
+import compressor from 'astro-compressor';
 
 import vercel from '@astrojs/vercel';
 
@@ -30,7 +34,24 @@ const mixedFrameworkJsxCompatibility = {
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://ui.udixio.fr/',
   output: 'static',
+  compressHTML: true,
+
+  fonts: [
+    {
+      provider: fontProviders.google(),
+      name: 'Roboto',
+      cssVariable: '--font-roboto',
+      weights: [400, 500],
+    },
+    {
+      provider: fontProviders.google(),
+      name: 'Montserrat',
+      cssVariable: '--font-montserrat',
+      weights: [400, 500],
+    },
+  ],
 
   vite: {
     plugins: [tailwindcss(), vitePlugin()],
@@ -89,6 +110,10 @@ export default defineConfig({
     }),
     mixedFrameworkJsxCompatibility,
     pagefind(),
+    sitemap(),
+    robotsTxt(),
+    compress(),
+    compressor(),
   ],
 
   adapter: vercel(),
