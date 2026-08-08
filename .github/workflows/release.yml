@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag pour la publication"
+        description: "npm dist-tag. Vide = release stable (passe par une PR vers main). beta/next = publication directe, sans PR."
         required: false
         default: ""
         type: choice
@@ -23,6 +23,9 @@ jobs:
     permissions:
       contents: write
       id-token: write
+      pull-requests: write
+    env:
+      TAG: ${{ github.event.inputs.tag }}
     steps:
       - name: Get Token
         uses: actions/create-github-app-token@v1
@@ -54,15 +57,17 @@ jobs:
         run: |
           corepack prepare npm@latest --activate
           npm -v
-      
 
       - name: Set Git Identity
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-      - name: Release packages
-        run: pnpm dlx nx release --skip-publish --verbose
+      - name: Create working branch
+        run: git checkout -b "release/wip-${{ github.run_id }}"
+
+      - name: Version packages
+        run: pnpm dlx nx release --skip-publish --git-push=false --verbose
         env:
           NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
@@ -70,13 +75,30 @@ jobs:
       - name: Install dependencies
         run: pnpm i
 
-      - name: Publish packages
+      - name: Rename branch to release/v<ui-react version>[-tag] and push
+        id: release-branch
         run: |
-          if [ "${{ github.event.inputs.tag }}" != "" ]; then
-            npx nx release publish --tag ${{ github.event.inputs.tag }} --verbose;
-          else
-            npx nx release publish --verbose;
-          fi
+          VERSION=$(node -p "require('./packages/ui-react/package.json').version")
+          BRANCH="release/v${VERSION}${TAG:+-$TAG}"
+          git branch -m "$BRANCH"
+          git push origin "$BRANCH" --follow-tags
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Publish prerelease directly (beta/next only)
+        if: env.TAG != ''
+        run: npx nx release publish --tag "$TAG" --verbose
         env:
           NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Open release PR to main (stable only)
+        if: env.TAG == ''
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh pr create \
+            --base main \
+            --head "${{ steps.release-branch.outputs.branch }}" \
+            --title "Release ${{ steps.release-branch.outputs.branch }}" \
+            --body "Automated release PR (triggered from \`${{ github.ref_name }}\`). Merging this publishes to npm as \`latest\` and merges the version bump back into \`develop\`."

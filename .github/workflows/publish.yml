@@ -16,6 +16,9 @@ concurrency:
 
 jobs:
   publish:
+    # Only release.yml's stable path (empty tag) opens a PR to main, so any
+    # merge reaching here is always a "latest" release — beta/next publish
+    # directly from release.yml and never touch main.
     if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/v')
     runs-on: ubuntu-latest
     steps:
@@ -40,11 +43,8 @@ jobs:
       - name: Update npm
         run: npm install -g npm@latest
 
-      - name: Set release version
-        run: echo "VERSION=${GITHUB_HEAD_REF#release/v}" >> "$GITHUB_ENV"
-
       - name: Publish packages
-        run: npx nx release publish --verbose
+        run: npx nx release publish --tag latest --verbose
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -54,5 +54,5 @@ jobs:
           git config --global user.email "actions@github.com"
           git fetch origin develop
           git checkout develop
-          git merge --no-ff main -m "Merge main back to develop after release v${{ env.VERSION }}"
+          git merge --no-ff main -m "Merge main back to develop after ${{ github.event.pull_request.head.ref }}"
           git push origin develop
