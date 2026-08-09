@@ -1,0 +1,58 @@
+---
+title: Agents IA — utiliser Udixio UI avec un agent
+description: Comment connecter Claude Code, Codex ou tout agent IA à Udixio UI pour un usage correct des composants React et Angular.
+---
+
+# Agents IA
+
+Trois façons de brancher un agent IA sur Udixio UI, du zéro-configuration au plus intégré.
+
+## 1. Sans rien installer
+
+Chaque page de cette doc existe aussi en markdown brut, à la même URL suffixée `.md` :
+
+- Guide d'un composant : `https://ui.udixio.fr/components/<composant>/overview.md` (ex. [`.../components/switch/overview.md`](https://ui.udixio.fr/components/switch/overview.md)) — usage et exemples de code complets
+- API d'un composant : `https://ui.udixio.fr/components/<composant>/api.md` (ex. [`.../components/switch/api.md`](https://ui.udixio.fr/components/switch/api.md)) — props, inputs et outputs
+- Catalogue complet : [`.../components.md`](https://ui.udixio.fr/components.md) — tous les composants avec slug, catégorie, statut et frameworks disponibles, pour trouver le bon avant d'aller le lire
+- Toute autre page : ajoutez `.md` à son URL (ex. [`.../theme/introduction.md`](https://ui.udixio.fr/theme/introduction.md))
+
+Un composant entier en une seule requête (guide + API) : `https://ui.udixio.fr/components/<composant>.md` (ex. [`.../components/switch.md`](https://ui.udixio.fr/components/switch.md)).
+
+Par défaut ces documents couvrent React **et** Angular. Insérez `.react` ou `.angular` avant le `.md` pour n'obtenir qu'un seul framework — utile pour éviter qu'un agent mélange les deux API :
+
+- [`.../components/switch/overview.angular.md`](https://ui.udixio.fr/components/switch/overview.angular.md)
+- [`.../components/switch.react.md`](https://ui.udixio.fr/components/switch.react.md)
+
+N'importe quel agent capable de faire une requête HTTP peut lire ça directement — aucune installation requise.
+
+## 2. Plugin Claude Code / Codex (recommandé)
+
+Le plugin `udixio-ui-usage` résout l'API exacte du composant tel qu'installé chez vous (à partir du TSDoc livré avec le package `@udixio/ui-react`/`@udixio/ui-angular`) et va chercher les patterns d'usage sur cette doc en ligne, pour React et Angular.
+
+Il contient trois skills :
+
+| Skill | Rôle |
+|-------|------|
+| `consume-component` | Écrire du nouveau code : résout l'API installée, puis applique les conventions React/Angular |
+| `review-usage` | Vérifier du code existant : props inexistantes, mauvais sélecteur Angular, mélange contrôlé/non-contrôlé, accessibilité manquante |
+| `migrate-to-udixio` | Convertir du code existant (Material UI, Bootstrap, Tailwind maison…) vers Udixio UI et les tokens de thème |
+
+**Claude Code**
+
+```bash
+claude plugin marketplace add https://github.com/Udixio/UI
+claude plugin install udixio-ui-usage@udixio-ui
+```
+
+**Codex**
+
+```bash
+codex plugin marketplace add Udixio/UI
+codex plugin add udixio-ui-usage@udixio-ui
+```
+
+Vérifiez avec `claude plugin list` / `codex plugin list`. Les skills sont ensuite invocables via `udixio-ui-usage:<nom-du-skill>`.
+
+## 3. Serveur MCP — déprécié
+
+`@udixio/mcp` existait pour ce même usage, mais il embarque un instantané figé de la documentation et du thème au moment de son build — il se périme à chaque évolution de la librairie. Il est déprécié au profit des deux options ci-dessus, qui lisent toujours des données à jour (l'API réellement installée, ou cette doc en ligne). Détails sur [la page dédiée](/mcp).

@@ -1,5 +1,11 @@
 # @udixio/mcp
 
+> **Deprecated.** This package bundles a snapshot of the docs and theme taken at build time, so it
+> drifts every time the library evolves. For connecting an AI agent to Udixio UI, use the
+> [`udixio-ui-usage` Claude Code/Codex plugin, or the plain-markdown doc mirror](https://ui.udixio.fr/agents)
+> instead — both always read current data. This package is kept for MCP-only clients with no other
+> integration option, but is no longer actively developed.
+
 Model Context Protocol (MCP) server for the Udixio UI Design System. This package exposes tools and resources to interact with the UI library documentation and theme tokens.
 
 > **Note:** This package is currently in beta. Use the `@beta` tag when installing.
