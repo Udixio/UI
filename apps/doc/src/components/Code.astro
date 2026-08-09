@@ -50,19 +50,52 @@ const slotHtml =
 const langFromClass = slotHtml.match(/<code[^>]*class="[^"]*language-([\w-]+)/)?.[1];
 const language = dataLanguage ?? langFromClass ?? 'text';
 
-// Code source : priorité à la prop `data-code`, sinon on extrait le texte du <code>
-// et on décode les entités HTML pour récupérer le source brut attendu par react-live.
-const code =
-  dataCode ??
-  slotHtml
-    .replace(/^[\s\S]*?<code[^>]*>/, '')
-    .replace(/<\/code>[\s\S]*$/, '')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&amp;/g, '&')
-    .replace(/\n$/, '');
+// Décodage en UNE passe : `&amp;#x3C;` doit redonner `&#x3C;`, pas `<`.
+const namedEntities: Record<string, string> = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  nbsp: ' ',
+};
+const decodeEntities = (value: string) =>
+  value.replace(
+    /&(?:#x([0-9a-fA-F]+)|#(\d+)|([a-zA-Z]+));/g,
+    (match, hex, dec, name) => {
+      if (hex) return String.fromCodePoint(parseInt(hex, 16));
+      if (dec) return String.fromCodePoint(parseInt(dec, 10));
+      return namedEntities[name] ?? match;
+    },
+  );
+const stripTags = (value: string) => value.replace(/<[^>]*>/g, '');
+// Les balises sont retirées AVANT le décodage : le `<` d'un JSX arrive encodé
+// (`&#x3C;`) dans le slot, le décoder d'abord le rendrait indissociable d'une
+// vraie balise et `stripTags` l'avalerait.
+const toSource = (value: string) => decodeEntities(stripTags(value));
+
+// expressive-code ne rend pas `<code>texte</code>` mais son propre markup, où
+// chaque ligne source est un `<div class="ec-line">` de spans colorés. Pris tel
+// quel, ce markup s'afficherait littéralement à la place du code : on reconstruit
+// donc la source à partir du texte de ces lignes.
+const ecLines = slotHtml
+  .split(/<div class="[^"]*\bec-line\b[^"]*"[^>]*>/)
+  .slice(1);
+
+const codeFromSlot = ecLines.length
+  ? ecLines
+      // Le découpage laisse les retours à la ligne inter-éléments en fin de
+      // morceau ; l'indentation (espaces) doit en revanche être préservée.
+      .map((line) => toSource(line).replace(/^\n+|\n+$/g, ''))
+      .join('\n')
+  : toSource(
+      slotHtml
+        .replace(/^[\s\S]*?<code[^>]*>/, '')
+        .replace(/<\/code>[\s\S]*$/, ''),
+    ).replace(/\n$/, '');
+
+// Code source : priorité à la prop `data-code`, sinon la source reconstruite.
+const code = dataCode ?? codeFromSlot;
 ---
 {isMultiFramework ? (
   <div
@@ -131,7 +164,7 @@ const code =
     </div>
   </div>
 ) : code != null && code !== '' ? (
-  <CodePreview client:load code={code} preview={language == 'jsx' || language == 'tsx'}>
+  <CodePreview client:load code={code} language={language}>
     <Code
       code={code}
       lang={language ?? 'text'}
@@ -144,6 +177,22 @@ const code =
 <style is:global>
   pre {
     text-wrap: auto;
+  }
+
+  /* Un bloc ``` est d'abord rendu par expressive-code ; `components={{ pre: Code }}`
+     n'en remplace que le <pre>, si bien que notre carte se retrouve emboîtée dans
+     le <figure class="frame"> d'EC (double cadre + en-tête, et un second bouton
+     copier). On efface la boîte d'EC pour ne garder que la carte, à l'identique
+     des exemples multi-framework qui, eux, n'ont jamais de wrapper EC.
+     Le `:has()` garde intacts les blocs EC natifs (homepage, `del=`/`mark=`). */
+  .expressive-code:has(.card-code),
+  .expressive-code:has(.card-code) > figure.frame {
+    display: contents;
+  }
+
+  .expressive-code:has(.card-code) figcaption.header,
+  .expressive-code:has(.card-code) .copy {
+    display: none;
   }
 
   .card-code [hidden] {
