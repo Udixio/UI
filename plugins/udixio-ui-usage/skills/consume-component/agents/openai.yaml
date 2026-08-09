@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Consume Component'
+  short_description: 'Use a Udixio UI component correctly in your app'
+  default_prompt: 'Use $consume-component to add or fix a Udixio UI component in this project.'

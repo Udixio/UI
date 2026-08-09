@@ -1,0 +1,18 @@
+{
+  "name": "udixio-ui-usage",
+  "version": "0.1.0",
+  "description": "Help agents correctly consume, review and migrate to @udixio/ui-react and @udixio/ui-angular components in a downstream project.",
+  "author": {
+    "name": "Udixio"
+  },
+  "homepage": "https://github.com/Udixio/UI",
+  "repository": "https://github.com/Udixio/UI",
+  "license": "Apache-2.0",
+  "keywords": [
+    "angular",
+    "react",
+    "component-usage",
+    "design-system",
+    "material-design"
+  ]
+}

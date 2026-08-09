@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Migrate to Udixio'
+  short_description: 'Convert existing UI code to Udixio UI components'
+  default_prompt: 'Use $migrate-to-udixio to convert this screen to Udixio UI components.'

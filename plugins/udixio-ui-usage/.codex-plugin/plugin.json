@@ -1,0 +1,35 @@
+{
+  "name": "udixio-ui-usage",
+  "version": "0.1.0",
+  "description": "Help agents correctly consume, review and migrate to @udixio/ui-react and @udixio/ui-angular components in a downstream project.",
+  "author": {
+    "name": "Udixio"
+  },
+  "repository": "https://github.com/Udixio/UI",
+  "license": "Apache-2.0",
+  "keywords": [
+    "angular",
+    "react",
+    "component-usage",
+    "design-system",
+    "material-design"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Udixio UI Usage",
+    "shortDescription": "Use Udixio UI components correctly in your app.",
+    "longDescription": "Resolves the exact installed API of a Udixio UI component from its shipped TSDoc, cross-references current usage patterns from the live documentation, and applies the right React or Angular conventions before writing code. Also reviews existing component usage against the installed API, and converts UI built with another library over to Udixio components and theme tokens.",
+    "developerName": "Udixio",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Add a Udixio Switch to this form with a controlled checked state.",
+      "Wire up the Udixio DatePicker for a date range selection.",
+      "Review how this project uses Udixio UI components.",
+      "Convert this screen from Material UI to Udixio UI."
+    ]
+  }
+}

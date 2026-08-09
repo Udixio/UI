@@ -8,6 +8,7 @@
     }
   },
   "enabledPlugins": {
-    "udixio-ui-governance@udixio-ui": true
+    "udixio-ui-governance@udixio-ui": true,
+    "udixio-ui-usage@udixio-ui": true
   }
 }

@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Review Usage'
+  short_description: 'Check existing code against the installed Udixio UI API'
+  default_prompt: 'Use $review-usage to review how this project uses Udixio UI components.'
