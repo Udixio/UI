@@ -43,6 +43,7 @@
     "astro-expressive-code": "^0.44.0",
     "astro-pagefind": "^1.8.5",
     "astro-robots-txt": "^1.0.0",
+    "astro-seo": "^1.1.0",
     "case": "^1.6.3",
     "change-case": "^5.4.4",
     "motion": "^12.23.3",

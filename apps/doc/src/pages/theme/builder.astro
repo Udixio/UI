@@ -5,7 +5,10 @@ import Layout from '@/layouts/layout.astro';
 import { Sidebar, THEME_SECTIONS } from '@/components/Sidebar';
 import { Card, Divider } from '@udixio/ui-react';
 ---
-<Layout>
+<Layout
+  title="Theme Builder"
+  description="Customize your Material Design 3 theme colors and preview Udixio UI components live."
+>
   <Fragment slot="sidebar">
     <Sidebar
       client:load

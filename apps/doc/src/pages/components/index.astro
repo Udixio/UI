@@ -51,7 +51,11 @@ const categories = Object.keys(componentsByCategory).sort((a, b) =>
 );
 ---
 
-<Layout docSidebar>
+<Layout
+  docSidebar
+  title="Components"
+  description="Browse all Udixio UI components — buttons, inputs, navigation, feedback and more — available for React and Angular."
+>
   <Fragment slot="sidebar">
     <Sidebar
       client:load

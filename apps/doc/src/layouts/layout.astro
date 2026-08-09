@@ -8,13 +8,26 @@ import { ClientRouter } from 'astro:transitions';
 import { Sidebar } from '@/components/Sidebar';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
 import { Font } from 'astro:assets';
+import { SEO } from 'astro-seo';
 
 const apis = await getCollection('api');
 
 const pathName = Astro.url.pathname;
 
 
-const {docSidebar} = Astro.props
+interface Props {
+  docSidebar?: boolean;
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+}
+
+const {
+  docSidebar,
+  title,
+  description = 'Udixio UI is a framework-agnostic Material Design 3 component library with first-class React and Angular support.',
+  noindex,
+} = Astro.props
 ---
 
 <html lang="en">
@@ -22,7 +35,14 @@ const {docSidebar} = Astro.props
   <meta charset="utf-8" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <meta name="viewport" content="width=device-width" />
-  <title>Astro</title>
+  <SEO
+    title={title}
+    titleTemplate="%s — Udixio UI"
+    titleDefault="Udixio UI — Material Design 3 components for React & Angular"
+    description={description}
+    noindex={noindex}
+    twitter={{ card: 'summary' }}
+  />
   <Font cssVariable="--font-roboto" preload />
   <Font cssVariable="--font-montserrat" preload />
   <ClientRouter />
