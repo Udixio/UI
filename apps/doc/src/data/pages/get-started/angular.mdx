@@ -1,0 +1,78 @@
+---
+title: Get started — Angular
+description: Install @udixio/ui-angular, wire the theme build step, and render your first Material Design 3 component.
+---
+
+# Angular
+
+## Installation
+
+```bash
+npm install @udixio/ui-angular @udixio/theme @udixio/tailwind
+```
+
+`@udixio/theme` and `@udixio/tailwind` power the color/typography engine — install them alongside `@udixio/ui-angular`. Theming is framework-agnostic: it's the same CSS build step used by the React package, no Angular-specific setup.
+
+## 1. Define your theme
+
+Create `theme.config.ts` at your project root:
+
+```ts
+// theme.config.ts
+import { defineConfig, FontPlugin } from '@udixio/theme';
+import { TailwindPlugin } from '@udixio/tailwind';
+
+export default defineConfig({
+  sourceColor: '#6750A4',
+  plugins: [
+    new FontPlugin({}),
+    new TailwindPlugin({ outFile: 'src/udixio.generated.css' }),
+  ],
+});
+```
+
+`defineConfig` only requires `sourceColor`. `outFile` is where the static color/typography CSS gets written at build time.
+
+## 2. Wire the build plugin
+
+Tailwind needs the generated tokens available at build time to produce utility classes like `bg-primary`. `@udixio/theme` exports `esbuildPlugin`, `webpackPlugin` and `rollupPlugin` for non-Vite toolchains — pick the one matching your Angular builder (see the [plugin system](/theme/advanced/plugins) for the full API).
+
+## 3. Import the generated CSS
+
+Add to your global styles file (`src/styles.css`, referenced from `angular.json`):
+
+```css
+@import 'tailwindcss';
+@import './udixio.generated.css';
+
+/* lets Tailwind see the utility classes used inside the component library */
+@source '../node_modules/@udixio/ui-angular';
+```
+
+## 4. Render a component
+
+Components are standalone — import and use them directly, no provider needed:
+
+```ts
+import { Component } from '@angular/core';
+import { Button } from '@udixio/ui-angular';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [Button],
+  template: `<lib-button label="Filled" variant="filled" />`,
+})
+export class AppComponent {}
+```
+
+## Live theme changes
+
+Unlike React's `ThemeProvider`, there's no ready-made Angular helper yet for recomputing the theme at runtime (e.g. a live theme switcher). The static CSS from step 2 already covers a fixed light/dark theme via the `darkMode`/`darkSelector` options. For runtime color changes, use `@udixio/theme`'s [`loader()`](/theme/advanced/loader) API directly and inject the resulting CSS yourself.
+
+## Next steps
+
+| Page | What you'll learn |
+|------|-------------------|
+| [Theme — Introduction](/theme/introduction) | Dark mode, sub-themes, custom palettes (React-flavored, but the config API is shared) |
+| [Components](/components) | Browse the full component catalog |

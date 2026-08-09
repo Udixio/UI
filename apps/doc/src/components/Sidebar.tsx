@@ -311,3 +311,20 @@ export const THEME_SECTIONS: NavSection[] = [
     ],
   },
 ];
+
+// ─── Get started nav data ─────────────────────────────────────────────────────
+
+export const GETSTARTED_SECTIONS: NavSection[] = [
+  {
+    category: 'Getting started',
+    pages: [
+      { slug: 'introduction', label: 'Introduction' },
+      { slug: 'react', label: 'React' },
+      { slug: 'angular', label: 'Angular' },
+    ],
+  },
+  {
+    category: 'AI agents',
+    pages: [{ slug: 'agents', label: 'Overview', href: '/agents' }],
+  },
+];

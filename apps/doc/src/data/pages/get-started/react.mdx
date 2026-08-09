@@ -1,0 +1,81 @@
+---
+title: Get started — React
+description: Install @udixio/ui-react, wire the theme build step, and render your first Material Design 3 component.
+---
+
+# React
+
+## Installation
+
+```bash
+npm install @udixio/ui-react @udixio/theme @udixio/tailwind
+```
+
+`@udixio/theme` and `@udixio/tailwind` power the color/typography engine `@udixio/ui-react` builds on — install them alongside it.
+
+## 1. Define your theme
+
+Create `theme.config.ts` at your project root:
+
+```ts
+// theme.config.ts
+import { defineConfig } from '@udixio/ui-react';
+
+export default defineConfig({
+  sourceColor: '#6750A4',
+  outFile: 'src/udixio.generated.css',
+});
+```
+
+`defineConfig` only requires `sourceColor` — it wires `TailwindPlugin` and `FontPlugin` for you. `outFile` is where the static color/typography CSS gets written at build time.
+
+## 2. Wire the build plugin
+
+Tailwind needs the generated tokens available at build time to produce utility classes like `bg-primary`. Add the matching plugin for your bundler — Vite here, `webpackPlugin`/`esbuildPlugin`/`rollupPlugin` are also exported from `@udixio/theme` (see the [plugin system](/theme/advanced/plugins)):
+
+```ts
+// vite.config.ts
+import { defineConfig } from 'vite';
+import tailwindcss from '@tailwindcss/vite';
+import { vitePlugin } from '@udixio/theme';
+
+export default defineConfig({
+  plugins: [tailwindcss(), vitePlugin()],
+});
+```
+
+## 3. Import the generated CSS
+
+```css
+/* src/global.css */
+@import 'tailwindcss';
+@import './udixio.generated.css';
+
+/* lets Tailwind see the utility classes used inside the component library */
+@source '../node_modules/@udixio/ui-react';
+```
+
+## 4. Mount ThemeProvider and render a component
+
+`ThemeProvider` recomputes and injects the *dynamic* layer (live color/dark-mode changes) at runtime — mount it once near your root:
+
+```tsx
+import { ThemeProvider, Button } from '@udixio/ui-react';
+import themeConfig from '../theme.config';
+
+export default function App() {
+  return (
+    <>
+      <ThemeProvider config={themeConfig} />
+      <Button label="Filled" variant="filled" />
+    </>
+  );
+}
+```
+
+## Next steps
+
+| Page | What you'll learn |
+|------|-------------------|
+| [Theme — Introduction](/theme/introduction) | Dark mode, sub-themes, custom palettes |
+| [Components](/components) | Browse the full component catalog |

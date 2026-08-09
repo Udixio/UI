@@ -19,7 +19,7 @@ export const Navigation = () => {
         label="Search"
       />
       <NavigationRailItem
-        href={'/theme/introduction'}
+        href={'/get-started/introduction'}
         icon={iHourglass}
         iconSelected={iHourglassFilled}
       >
