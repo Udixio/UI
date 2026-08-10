@@ -9,9 +9,10 @@ description: Install @udixio/ui-react, wire the theme build step, and render you
 
 ```bash
 npm install @udixio/ui-react @udixio/theme @udixio/tailwind
+npm install -D tailwindcss @tailwindcss/vite
 ```
 
-`@udixio/theme` and `@udixio/tailwind` power the color/typography engine `@udixio/ui-react` builds on — install them alongside it.
+`@udixio/theme` and `@udixio/tailwind` are the color/typography engine `@udixio/ui-react` builds on — install them alongside it. `tailwindcss` and its Vite integration compile the tokens into utility classes.
 
 ## 1. Define your theme
 
@@ -27,11 +28,13 @@ export default defineConfig({
 });
 ```
 
-`defineConfig` only requires `sourceColor` — it wires `TailwindPlugin` and `FontPlugin` for you. `outFile` is where the static color/typography CSS gets written at build time.
+`sourceColor` is the only required option — `defineConfig` wires `TailwindPlugin` and `FontPlugin` for you. `outFile` is where the generated stylesheet is written; the generator also adds it to a sibling `.gitignore`, since it's a build artifact.
+
+Every other option (custom palettes, sub-themes, fonts, dark mode, contrast) is covered in [Theme — Configuration](/theme/configuration).
 
 ## 2. Wire the build plugin
 
-Tailwind needs the generated tokens available at build time to produce utility classes like `bg-primary`. Add the matching plugin for your bundler — Vite here, `webpackPlugin`/`esbuildPlugin`/`rollupPlugin` are also exported from `@udixio/theme` (see the [plugin system](/theme/advanced/plugins)):
+`vitePlugin` is what actually runs the generator. It loads `theme.config.ts` at the start of every build, and in dev it watches the file: change your source color and the stylesheet is regenerated and the page reloaded.
 
 ```ts
 // vite.config.ts
@@ -44,6 +47,15 @@ export default defineConfig({
 });
 ```
 
+It takes two options, both optional:
+
+| Option | Default | |
+|---|---|---|
+| `configPath` | `'./theme.config'` | Path to your config, without the extension |
+| `verbose` | `false` | Logs each theme load and config change |
+
+`@udixio/theme` exports `webpackPlugin`, `esbuildPlugin` and `rollupPlugin` with the same signature (see the [plugin system](/theme/advanced/plugins)). If your toolchain doesn't accept a bundler plugin, run the generator from an npm script instead — that's the approach the [Angular guide](/get-started/angular) uses.
+
 ## 3. Import the generated CSS
 
 ```css
@@ -53,11 +65,14 @@ export default defineConfig({
 
 /* lets Tailwind see the utility classes used inside the component library */
 @source '../node_modules/@udixio/ui-react';
+@source '../node_modules/@udixio/core';
 ```
 
-## 4. Mount ThemeProvider and render a component
+Both `@source` lines are required: components are split between `@udixio/ui-react` and the framework-agnostic `@udixio/core`, and Tailwind only emits classes it can find in scanned files.
 
-`ThemeProvider` recomputes and injects the *dynamic* layer (live color/dark-mode changes) at runtime — mount it once near your root:
+## 4. Render a component
+
+Add `dynamic` to an element wrapping your app, then mount `ThemeProvider` once near the root:
 
 ```tsx
 import { ThemeProvider, Button } from '@udixio/ui-react';
@@ -65,17 +80,22 @@ import themeConfig from '../theme.config';
 
 export default function App() {
   return (
-    <>
+    <div className="dynamic">
       <ThemeProvider config={themeConfig} />
       <Button label="Filled" variant="filled" />
-    </>
+    </div>
   );
 }
 ```
+
+The generated stylesheet has two layers: a static one Tailwind compiles at build time, and a dynamic one scoped to `.dynamic` that `ThemeProvider` recomputes at runtime. Without the class, the dynamic layer never applies — so a runtime theme switcher would have no visible effect.
+
+If your theme never changes at runtime, you can drop `ThemeProvider` and keep the static layer alone. See [Theme — Dark mode](/theme/dark-mode) for both setups.
 
 ## Next steps
 
 | Page | What you'll learn |
 |------|-------------------|
-| [Theme — Introduction](/theme/introduction) | Dark mode, sub-themes, custom palettes |
+| [Theme — Configuration](/theme/configuration) | Every `defineConfig` option |
+| [Theme — Dark mode](/theme/dark-mode) | `darkMode`, `darkSelector`, runtime toggling |
 | [Components](/components) | Browse the full component catalog |

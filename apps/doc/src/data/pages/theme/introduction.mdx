@@ -10,10 +10,10 @@ Udixio's theme system generates a complete set of color and typography tokens fr
 ## Installation
 
 ```bash
-npm install @udixio/ui-react
+npm install @udixio/ui-react @udixio/theme @udixio/tailwind
 ```
 
-`@udixio/ui-react` re-exports everything you need — no separate theme package required for standard usage.
+`@udixio/ui-react` re-exports the theming API you use in app code — `defineConfig`, `ThemeProvider` — so you rarely import from `@udixio/theme` directly. You still install it: it carries the generator that turns your config into CSS, which you wire into your build (`vitePlugin` and friends). See [Get started — React](/get-started/react) for the full build setup this page assumes.
 
 ## Quick setup
 

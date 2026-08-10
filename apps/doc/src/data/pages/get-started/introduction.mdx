@@ -7,24 +7,36 @@ description: Install Udixio UI and render your first Material Design 3 component
 
 Udixio UI is a framework-agnostic Material Design 3 component library: the same color/typography engine and component behavior ship as first-class packages for both **React** and **Angular**, on top of **Tailwind CSS v4**.
 
+## How theming works
+
+Everything visual comes from a single file you write, `theme.config.ts`. Udixio turns it into a CSS stylesheet — every color token, the type scale, state layers, shadows — which Tailwind then compiles into the utility classes the components use (`bg-primary`, `text-body-medium`, …).
+
+That stylesheet has to be regenerated whenever `theme.config.ts` changes, so the setup below always wires one of two generators:
+
+- a **bundler plugin** (`vitePlugin`, `webpackPlugin`, `esbuildPlugin`, `rollupPlugin`) — it regenerates on build and watches the config in dev, reloading the page on change;
+- the **`udixio-theme` CLI** — the same generator, driven from an npm script, for toolchains that don't let you add a bundler plugin (Angular CLI, for instance).
+
+Pick whichever fits your build; the output is identical.
+
 ## Prerequisites
 
-- Node.js ≥ 18
-- Tailwind CSS v4 (`tailwindcss` `^4`) — Udixio's theme engine generates tokens that plug into Tailwind's CSS-first `@theme`
-- A bundler Tailwind already integrates with (Vite, webpack, esbuild, Rollup) — used to generate the theme's static CSS at build time
+- Node.js ≥ 20 (required by Tailwind CSS v4)
+- `tailwindcss@^4` and its integration for your bundler — Udixio's tokens plug into Tailwind's CSS-first `@theme`
+- React `>19`, or Angular `^21` — the peer dependency of `@udixio/ui-react` / `@udixio/ui-angular`
 
 ## Pick your framework
 
 | | |
 |---|---|
-| [**React**](/get-started/react) | Install `@udixio/ui-react`, mount `ThemeProvider`, render your first component |
-| [**Angular**](/get-started/angular) | Install `@udixio/ui-angular`, wire the generated stylesheet, render your first component |
+| [**React**](/get-started/react) | Install `@udixio/ui-react`, wire `vitePlugin`, mount `ThemeProvider`, render your first component |
+| [**Angular**](/get-started/angular) | Install `@udixio/ui-angular`, wire the `udixio-theme` CLI, render your first component |
 
 ## Where to go next
 
 | Page | What you'll learn |
 |------|-------------------|
-| [Theme — Introduction](/theme/introduction) | Dive deeper into `defineConfig`, dark mode, sub-themes and custom palettes |
+| [Theme — Configuration](/theme/configuration) | Every `defineConfig` option: palettes, sub-themes, typography, contrast |
+| [Theme — Dark mode](/theme/dark-mode) | `darkMode`, `darkSelector`, the `.dynamic` selector, runtime toggling |
 | [Components](/components) | Browse the full component catalog with live previews and API references |
 | [Animations](/animations) | Motion primitives and scroll-triggered effects |
 | [AI agents](/agents) | Use Udixio UI's Claude Code/Codex plugin or markdown docs mirror from an AI coding agent |
