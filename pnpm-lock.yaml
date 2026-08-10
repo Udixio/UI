@@ -777,7 +777,7 @@ importers:
         specifier: ^1.20.2
         version: 1.30.0(zod@4.4.3)
       '@udixio/theme':
-        specifier: 3.0.0
+        specifier: 4.0.0
         version: link:../theme
       express:
         specifier: ^5.1.0
@@ -808,7 +808,7 @@ importers:
   packages/tailwind:
     dependencies:
       '@udixio/theme':
-        specifier: 3.0.0
+        specifier: 4.0.0
         version: link:../theme
       pathe:
         specifier: ^2.0.3
@@ -900,10 +900,10 @@ importers:
         specifier: 0.2.0
         version: link:../icons/icons-rounded-400
       '@udixio/tailwind':
-        specifier: 3.0.0
+        specifier: 4.0.0
         version: link:../tailwind
       '@udixio/theme':
-        specifier: 3.0.0
+        specifier: 4.0.0
         version: link:../theme
       clsx:
         specifier: ^1.1.1

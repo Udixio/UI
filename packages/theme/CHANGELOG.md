@@ -1,3 +1,18 @@
+# 4.0.0 (2026-08-10)
+
+### 🩹 Fixes
+
+- **theme:** let inverseOnSurface derive its tone from contrast alone ([54d79b89](https://github.com/Udixio/UI/commit/54d79b89))
+- **theme:** stop double-applying the neutral chroma factor ([b1904fef](https://github.com/Udixio/UI/commit/b1904fef))
+- **theme:** match camelCase role names in the awkward-zone guard ([237ae30a](https://github.com/Udixio/UI/commit/237ae30a))
+- **theme:** use the spec 2025 contrast curve for the 1.5 ratio ([490418f8](https://github.com/Udixio/UI/commit/490418f8))
+- **theme:** honour exact tone delta on *FixedDim roles ([0ce617d8](https://github.com/Udixio/UI/commit/0ce617d8))
+
+### ❤️ Thank You
+
+- Claude Opus 5
+- Joël VIGREUX
+
 # 3.0.0 (2026-08-10)
 
 This was a version bump only for @udixio/theme to align it with other projects, there were no code changes.
