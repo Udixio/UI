@@ -36,7 +36,6 @@ export const PaletteToneRow: React.FC<Props> = ({ api, group }) => {
 
   const palette = useMemo(() => {
     if (!api || !group) return null;
-    console.log('palette', api.palettes.get(group as any));
     try {
       return api.palettes.get(group as any);
     } catch {
