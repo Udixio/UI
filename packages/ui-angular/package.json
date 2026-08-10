@@ -1,6 +1,10 @@
 {
   "name": "@udixio/ui-angular",
   "version": "0.0.1",
+  "publishConfig": {
+    "provenance": true,
+    "access": "public"
+  },
   "peerDependencies": {
     "@angular/common": "^21.0.0",
     "@angular/core": "^21.0.0",

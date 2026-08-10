@@ -1,7 +1,10 @@
 {
   "name": "@udixio/core",
   "version": "0.0.1",
-  "private": true,
+  "publishConfig": {
+    "provenance": true,
+    "access": "public"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
