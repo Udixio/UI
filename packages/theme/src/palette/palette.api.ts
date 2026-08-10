@@ -1,7 +1,6 @@
 import { PaletteManager } from './palette.manager';
 import { Palette, PaletteCallback } from './palette';
-import { Hct } from '../material-color-utilities/htc';
-import { argbFromHex } from '@material/material-color-utilities';
+import { Color } from '../color/color';
 
 export type AddPaletteOptions = Record<string, PaletteCallback>;
 
@@ -14,10 +13,7 @@ export class PaletteApi {
   add(args: Record<string, PaletteCallback | string>): void {
     Object.entries(args).forEach(([key, callback]) => {
       if (typeof callback === 'string') {
-        this.paletteManager.addCustomPalette(
-          key,
-          Hct.fromInt(argbFromHex(callback)),
-        );
+        this.paletteManager.addCustomPalette(key, Color.fromHex(callback));
       } else {
         this.paletteManager.addCustomPalette(key, callback);
       }
@@ -27,7 +23,7 @@ export class PaletteApi {
   override(args: Record<string, PaletteCallback | string>): void {
     Object.entries(args).forEach(([key, callback]) => {
       if (typeof callback === 'string') {
-        this.paletteManager.override(key, Hct.fromInt(argbFromHex(callback)));
+        this.paletteManager.override(key, Color.fromHex(callback));
       } else {
         this.paletteManager.override(key, callback);
       }
@@ -36,7 +32,9 @@ export class PaletteApi {
 
   getSerializableState(): Record<string, { hue: number; chroma: number }> {
     const result: Record<string, { hue: number; chroma: number }> = {};
-    for (const [key, palette] of Object.entries(this.paletteManager._palettes)) {
+    for (const [key, palette] of Object.entries(
+      this.paletteManager._palettes,
+    )) {
       result[key] = { hue: palette.hue, chroma: palette.chroma };
     }
     return result;
@@ -53,13 +51,7 @@ export class PaletteApi {
   }
 
   get(
-    key:
-      | 'primary'
-      | 'secondary'
-      | 'tertiary'
-      | 'neutral'
-      | 'error'
-      | string,
+    key: 'primary' | 'secondary' | 'tertiary' | 'neutral' | 'error' | string,
   ): Palette {
     return this.paletteManager.get(key);
   }

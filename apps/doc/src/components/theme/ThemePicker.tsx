@@ -8,7 +8,6 @@ import { ColorPicker } from './ColorPicker';
 import { Card, Divider, Slider, Switch } from '@udixio/ui-react';
 import { iDarkMode } from '@udixio/icons-rounded-400/dark_mode';
 import { iLightMode } from '@udixio/icons-rounded-400/light_mode';
-import { hexFromArgb } from '@material/material-color-utilities';
 import { AnimatePresence, motion } from 'motion/react';
 
 const PALETTES = [
@@ -28,7 +27,7 @@ export const ThemePicker: React.FC = () => {
   const getPaletteHex = (key: string): string => {
     if (!$themeService) return '#888888';
     try {
-      return hexFromArgb($themeService.palettes.get(key as any).tone(40));
+      return $themeService.palettes.get(key as any).getColor(40).hex;
     } catch {
       return '#888888';
     }
@@ -38,7 +37,10 @@ export const ThemePicker: React.FC = () => {
     if (typeof document !== 'undefined') {
       const isActuallyDark = document.body.classList.contains('dark');
       if (isActuallyDark !== themeConfigStore.get().isDark) {
-        themeConfigStore.set({ ...themeConfigStore.get(), isDark: isActuallyDark });
+        themeConfigStore.set({
+          ...themeConfigStore.get(),
+          isDark: isActuallyDark,
+        });
       }
     }
   }, []);
@@ -69,7 +71,10 @@ export const ThemePicker: React.FC = () => {
             inactiveIcon={iLightMode}
             onChange={(value) => {
               if (typeof value === 'boolean') {
-                themeConfigStore.set({ ...themeConfigStore.get(), isDark: value });
+                themeConfigStore.set({
+                  ...themeConfigStore.get(),
+                  isDark: value,
+                });
                 if (typeof document !== 'undefined') {
                   document.body.classList.toggle('dark', value);
                 }

@@ -1,5 +1,5 @@
 import { Context } from '../context';
-import { Hct } from '../material-color-utilities/htc';
+import { Color } from '../color/color';
 
 export type PaletteCallback = (context: Context) => {
   hue: number;
@@ -21,7 +21,7 @@ export class Palette {
     this.update([]);
   }
 
-  static fromVariant(name: string, color: Hct, ctx: Context): Palette {
+  static fromVariant(name: string, color: Color, ctx: Context): Palette {
     const callback: PaletteCallback = (context) => {
       return context.variant.customPalettes(context, color);
     };
@@ -85,10 +85,10 @@ export class Palette {
 
     let argb = this.cache.get(tone);
     if (argb === undefined) {
-      if (tone == 99 && Hct.isYellow(hue)) {
+      if (tone == 99 && Color.isYellow(hue)) {
         argb = this.averageArgb(this.tone(98), this.tone(100));
       } else {
-        argb = Hct.from(hue, chroma, tone).toInt();
+        argb = Color.from({ hue, chroma, tone }).argb;
       }
       this.cache.set(tone, argb);
     }
@@ -97,10 +97,10 @@ export class Palette {
 
   /**
    * @param tone HCT tone.
-   * @return HCT representation of a color with that tone.
+   * @return La couleur correspondant à ce ton.
    */
-  getHct(tone: number): Hct {
-    return Hct.fromInt(this.tone(tone));
+  getColor(tone: number): Color {
+    return Color.fromArgb(this.tone(tone));
   }
 
   get hue(): number {
@@ -158,7 +158,7 @@ export class Palette {
 //    *
 //    * @return Key color [Hct]
 //    */
-//   create(): Hct {
+//   create(): Color {
 //     // Pivot around T50 because T50 has the most chroma available, on
 //     // average. Thus it is most likely to have a direct answer.
 //     const pivotTone = 50;

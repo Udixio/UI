@@ -1,10 +1,9 @@
-import {
-  loader,
-  getVariantByName,
-  Hct,
-  FontPlugin,
+import { loader, getVariantByName, Color, FontPlugin } from '@udixio/theme';
+import type {
+  API,
+  FontPluginOptions,
+  ThemeContextSnapshot,
 } from '@udixio/theme';
-import type { API, FontPluginOptions, ThemeContextSnapshot } from '@udixio/theme';
 import { TailwindPlugin } from '@udixio/tailwind';
 import type { TailwindPluginOptions } from '@udixio/tailwind';
 
@@ -45,15 +44,14 @@ async function processLatest() {
       // Initialisation unique — coût amorti sur tous les messages suivants
       workerApi = await loader(
         {
-          sourceColor: Hct.from(
-            snapshot.sourceColor.hue,
-            snapshot.sourceColor.chroma,
-            snapshot.sourceColor.tone,
-          ),
+          sourceColor: Color.from(snapshot.sourceColor),
           isDark: snapshot.isDark,
           contrastLevel: snapshot.contrastLevel,
           variant: getVariantByName(snapshot.variantName),
-          plugins: [new FontPlugin(fontOptions), new TailwindPlugin(tailwindOptions)],
+          plugins: [
+            new FontPlugin(fontOptions),
+            new TailwindPlugin(tailwindOptions),
+          ],
         },
         false,
       );
@@ -63,11 +61,7 @@ async function processLatest() {
       workerApi.context.update({
         isDark: snapshot.isDark,
         contrastLevel: snapshot.contrastLevel,
-        sourceColor: Hct.from(
-          snapshot.sourceColor.hue,
-          snapshot.sourceColor.chroma,
-          snapshot.sourceColor.tone,
-        ),
+        sourceColor: Color.from(snapshot.sourceColor),
         variant: getVariantByName(snapshot.variantName),
       });
       workerApi.palettes.sync(palettesCallbacks);
@@ -79,7 +73,9 @@ async function processLatest() {
 
     await workerApi.load();
 
-    const css = workerApi.plugins.getPlugin(TailwindPlugin).getInstance().outputCss;
+    const css = workerApi.plugins
+      .getPlugin(TailwindPlugin)
+      .getInstance().outputCss;
     self.postMessage({ id: msg.id, css } satisfies WorkerOutboundMessage);
   } catch (e) {
     console.error('[Worker] error during processLatest:', e);

@@ -1,12 +1,12 @@
 import { AddColorsOptions } from '../color';
-import { Hct } from '../material-color-utilities/htc';
+import { Color } from '../color/color';
 import { PluginAbstract } from '../plugin';
 import { Variant } from '../variant/variant';
 import { PaletteCallback } from '../palette/palette';
 import { Context } from '../context';
 
 export interface ConfigInterface {
-  sourceColor: string | Hct | ((context: Context) => string | Hct);
+  sourceColor: string | Color | ((context: Context) => string | Color);
   contrastLevel?: number;
   isDark?: boolean;
   variant?: Variant;

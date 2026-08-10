@@ -1,5 +1,5 @@
 import { clampDouble, Contrast } from '@material/material-color-utilities';
-import { Hct } from '../material-color-utilities/htc';
+import { Color } from './color';
 import { ContrastCurve } from '../material-color-utilities/contrastCurve';
 import { Palette } from '../palette/palette';
 
@@ -110,13 +110,13 @@ export function findBestToneForChroma(
   byDecreasingTone: boolean,
 ): number {
   let answer = tone;
-  let bestCandidate = Hct.from(hue, chroma, answer);
+  let bestCandidate = Color.from({ hue, chroma, tone: answer });
   while (bestCandidate.chroma < chroma) {
     if (tone < 0 || tone > 100) {
       break;
     }
     tone += byDecreasingTone ? -1.0 : 1.0;
-    const newCandidate = Hct.from(hue, chroma, tone);
+    const newCandidate = Color.from({ hue, chroma, tone });
     if (bestCandidate.chroma < newCandidate.chroma) {
       bestCandidate = newCandidate;
       answer = tone;

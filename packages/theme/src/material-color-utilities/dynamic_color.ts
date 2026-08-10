@@ -22,7 +22,7 @@ import {
 } from '@material/material-color-utilities';
 import { ContrastCurve } from './contrastCurve';
 import { Scheme } from '../theme/scheme';
-import { Hct } from './htc';
+import { Color } from '../color/color';
 
 /**
  * @param name The name of the dynamic color. Defaults to empty.
@@ -170,7 +170,7 @@ export class DynamicColor {
   //   if (background === undefined) {
   //     return 50;
   //   }
-  //   return (background() ? background()!.getTone() : 50);
+  //   return (background() ? background()!.tone : 50);
   // }
 
   /**
@@ -277,7 +277,7 @@ export class DynamicColor {
    *     contrast level is.
    */
   getArgb(scheme: Scheme): number {
-    return this.getHct(scheme).toInt();
+    return this.getColor(scheme).argb;
   }
 
   /**
@@ -288,7 +288,7 @@ export class DynamicColor {
    *     whether or not it is dark mode or light mode, and what the desired
    *     contrast level is.
    */
-  getHct(scheme: Scheme): Hct {
+  getColor(scheme: Scheme): Color {
     const palette = this.palette(scheme);
     const tone = this.getTone(scheme);
     const hue = palette.hue;
@@ -296,7 +296,7 @@ export class DynamicColor {
       palette.chroma *
       (this.chromaMultiplier ? this.chromaMultiplier(scheme) : 1);
 
-    return Hct.from(hue, chroma, tone);
+    return Color.from({ hue, chroma, tone });
   }
 
   /**

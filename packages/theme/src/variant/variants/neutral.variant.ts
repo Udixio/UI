@@ -1,45 +1,39 @@
 import { getPiecewiseHue, getRotatedHue, variant, Variant } from '../variant';
-import { TonalPalette } from '@material/material-color-utilities';
-import { Hct } from '../../material-color-utilities/htc';
+import { Color } from '../../color/color';
 import { defaultColors } from '../../color';
 
 export const neutralVariant: Variant = variant({
   name: 'neutral',
   palettes: {
-    primary: ({ sourceColor }) =>
-      TonalPalette.fromHueAndChroma(
-        sourceColor.hue,
-        Hct.isBlue(sourceColor.hue) ? 12 : 8,
+    primary: ({ sourceColor }) => ({
+      hue: sourceColor.hue,
+      chroma: Color.isBlue(sourceColor.hue) ? 12 : 8,
+    }),
+    secondary: ({ sourceColor }) => ({
+      hue: sourceColor.hue,
+      chroma: Color.isBlue(sourceColor.hue) ? 6 : 4,
+    }),
+    tertiary: ({ sourceColor }) => ({
+      hue: getRotatedHue(
+        sourceColor,
+        [0, 38, 105, 161, 204, 278, 333, 360],
+        [-32, 26, 10, -39, 24, -15, -32],
       ),
-    secondary: ({ sourceColor }) =>
-      TonalPalette.fromHueAndChroma(
-        sourceColor.hue,
-        Hct.isBlue(sourceColor.hue) ? 6 : 4,
-      ),
-    tertiary: ({ sourceColor }) =>
-      TonalPalette.fromHueAndChroma(
-        getRotatedHue(
-          sourceColor,
-          [0, 38, 105, 161, 204, 278, 333, 360],
-          [-32, 26, 10, -39, 24, -15, -32],
-        ),
-        20,
-      ),
-    neutral: ({ sourceColor }) =>
-      TonalPalette.fromHueAndChroma(sourceColor.hue, 1.4),
+      chroma: 20,
+    }),
+    neutral: ({ sourceColor }) => ({ hue: sourceColor.hue, chroma: 1.4 }),
     error: ({ sourceColor }) => {
       const errorHue = getPiecewiseHue(
         sourceColor,
         [0, 3, 13, 23, 33, 43, 153, 273, 360],
         [12, 22, 32, 12, 22, 32, 22, 12],
       );
-      return TonalPalette.fromHueAndChroma(errorHue, 50);
+      return { hue: errorHue, chroma: 50 };
     },
   },
-  customPalettes: (_, colorHct) =>
-    TonalPalette.fromHueAndChroma(
-      colorHct.hue,
-      Hct.isBlue(colorHct.hue) ? 6 : 4,
-    ),
+  customPalettes: (_, colorHct) => ({
+    hue: colorHct.hue,
+    chroma: Color.isBlue(colorHct.hue) ? 6 : 4,
+  }),
   colors: defaultColors,
 });

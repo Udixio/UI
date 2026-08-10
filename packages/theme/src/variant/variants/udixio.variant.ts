@@ -6,7 +6,6 @@ import {
   tMaxC,
   tMinC,
 } from '../../color/color.utils';
-import { Hct } from '../../material-color-utilities/htc';
 import {
   AddColorsOptions,
   capitalizeFirstLetter,
@@ -50,7 +49,7 @@ const surfaceContainerTone = (
   if (api.context.isDark) {
     return t * 1.5;
   } else {
-    if (Hct.isYellow(api.palettes.get('neutral').hue)) {
+    if (Color.isYellow(api.palettes.get('neutral').hue)) {
       return 100 - t - surfaceContainerToneDelta;
     }
     return 100 - t;
@@ -89,8 +88,8 @@ export const createMinContrastToneAdjuster = (
       : normalize(ctx.contrastLevel, [-1, 0], [0, 3]);
 
   const referenceTone = referenceKey
-    ? colors.get(referenceKey).getTone()
-    : highestSurface(ctx, colors).getTone();
+    ? colors.get(referenceKey).tone
+    : highestSurface(ctx, colors).tone;
 
   // On part du tone "source" défini dans les options (comme ton code `primary`).
   const baseTone = (colors.get(selfKey) as ColorFromPalette).options.tone;
@@ -173,7 +172,7 @@ export const udixioVariant: Variant = variant({
       [colorKey]: {
         palette: () => palettes.get(colorKey),
         tone: () => {
-          return colors.get('primary').getTone();
+          return colors.get('primary').tone;
           // return ctx.isDark ? 80 : tMaxC(palettes.get(colorKey));
         },
         isBackground: true,
@@ -247,7 +246,7 @@ export const udixioVariant: Variant = variant({
       //   tone: () => {
       //     return ctx.temp({ isDark: false, contrastLevel: 0 }, () => {
       //       const color = colors.get(colorContainerKey);
-      //       return color.getTone();
+      //       return color.tone;
       //     });
       //   },
       //   isBackground: true,
@@ -257,7 +256,7 @@ export const udixioVariant: Variant = variant({
       // },
       // [colorFixedDimKey]: {
       //   palette: () => palettes.get(colorKey),
-      //   tone: () => colors.get(colorFixedKey).getTone(),
+      //   tone: () => colors.get(colorFixedKey).tone,
       //   isBackground: true,
       //   adjustTone: () =>
       //     toneDeltaPair(
@@ -411,7 +410,7 @@ export const udixioVariant: Variant = variant({
       },
       inverseSurface: {
         palette: () => palettes.get('neutral'),
-        tone: () => 100 - colors.get('surface').getTone(),
+        tone: () => 100 - colors.get('surface').tone,
         isBackground: true,
       },
       inverseOnSurface: {
@@ -503,7 +502,7 @@ export const udixioVariant: Variant = variant({
       //       },
       //       () => {
       //         const color = getColor('primaryContainer');
-      //         return color.getTone();
+      //         return color.tone;
       //       },
       //     );
       //   },
@@ -514,7 +513,7 @@ export const udixioVariant: Variant = variant({
 
       // primaryFixedDim: {
       //   palette: () => palettes.get('primary'),
-      //   tone: () => colors.get('primaryFixed').getTone(),
+      //   tone: () => colors.get('primaryFixed').tone,
       //   isBackground: true,
       //   adjustTone: () =>
       //     toneDeltaPair(
@@ -551,7 +550,7 @@ export const udixioVariant: Variant = variant({
       secondary: {
         palette: () => palettes.get('secondary'),
         tone: () => {
-          return colors.get('primary').getTone();
+          return colors.get('primary').tone;
         },
         isBackground: true,
         // background: () => highestSurface(ctx, colors),
@@ -630,7 +629,7 @@ export const udixioVariant: Variant = variant({
       //       },
       //       () => {
       //         const color = getColor('secondaryContainer');
-      //         return color.getTone();
+      //         return color.tone;
       //       },
       //     );
       //   },
@@ -641,7 +640,7 @@ export const udixioVariant: Variant = variant({
 
       // secondaryFixedDim: {
       //   palette: () => palettes.get('secondary'),
-      //   tone: () => getColor('secondaryFixed').getTone(),
+      //   tone: () => getColor('secondaryFixed').tone,
       //   isBackground: true,
       //   adjustTone: () =>
       //     toneDeltaPair(
@@ -672,7 +671,7 @@ export const udixioVariant: Variant = variant({
       tertiary: {
         palette: () => palettes.get('tertiary'),
         tone: () => {
-          const tone = colors.get('primary').getTone();
+          const tone = colors.get('primary').tone;
           return Math.max(20, Math.min(80, tone));
         },
         isBackground: true,
@@ -750,7 +749,7 @@ export const udixioVariant: Variant = variant({
       //       },
       //       () => {
       //         const color = getColor('tertiaryContainer');
-      //         return color.getTone();
+      //         return color.tone;
       //       },
       //     );
       //   },
@@ -761,7 +760,7 @@ export const udixioVariant: Variant = variant({
 
       // tertiaryFixedDim: {
       //   palette: () => palettes.get('tertiary'),
-      //   tone: () => getColor('tertiaryFixed').getTone(),
+      //   tone: () => getColor('tertiaryFixed').tone,
       //   isBackground: true,
       //   adjustTone: () =>
       //     toneDeltaPair(

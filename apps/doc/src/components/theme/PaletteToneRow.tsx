@@ -1,7 +1,6 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { useStore } from '@nanostores/react';
 import { API } from '@udixio/theme';
-import { hexFromArgb } from '@material/material-color-utilities';
 import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
 import { themeConfigStore } from '@/stores/themeConfigStore.ts';
 
@@ -16,11 +15,11 @@ function makeGradient(
   fromTone: number,
   toTone: number,
 ) {
-  if (fromTone === toTone) return hexFromArgb(palette.tone(fromTone));
+  if (fromTone === toTone) return palette.getColor(fromTone).hex;
   const steps = Math.max(2, Math.round(Math.abs(fromTone - toTone) / 5) + 1);
   const stops = Array.from({ length: steps }, (_, i) => {
     const t = fromTone + (toTone - fromTone) * (i / (steps - 1));
-    return hexFromArgb(palette.tone(Math.round(t)));
+    return palette.getColor(Math.round(t)).hex;
   });
   return `linear-gradient(to right, ${stops.join(', ')})`;
 }
@@ -73,8 +72,8 @@ export const PaletteToneRow: React.FC<Props> = ({ api, group }) => {
 
   const leftGrad = makeGradient(palette, 100, tone);
   const rightGrad = makeGradient(palette, tone, 0);
-  const indHex = hexFromArgb(palette.tone(tone));
-  const contrastHex = hexFromArgb(palette.tone(tone >= 50 ? 0 : 100));
+  const indHex = palette.getColor(tone).hex;
+  const contrastHex = palette.getColor(tone >= 50 ? 0 : 100).hex;
 
   const clampX = (x: number) =>
     Math.max(IND_W / 2 + GAP, Math.min(cwRef.current - IND_W / 2 - GAP, x));
@@ -119,9 +118,7 @@ export const PaletteToneRow: React.FC<Props> = ({ api, group }) => {
   };
 
   const handleClick = () => {
-    navigator.clipboard
-      .writeText(hexFromArgb(palette.tone(tone)))
-      .catch(() => {});
+    navigator.clipboard.writeText(palette.getColor(tone).hex).catch(() => {});
     setCopied(true);
     setTimeout(() => setCopied(false), 1200);
   };

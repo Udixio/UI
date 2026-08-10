@@ -1,10 +1,9 @@
-import { argbFromHex } from '@material/material-color-utilities';
-import { Hct } from '../material-color-utilities/htc';
+import { Color } from '../color/color';
 import { Variant } from '../variant/variant';
 import { ConfigInterface } from '../config';
 
 export interface ContextOptions {
-  sourceColor: ConfigInterface['sourceColor'] | Hct;
+  sourceColor: ConfigInterface['sourceColor'] | Color;
   contrastLevel: number;
   isDark: boolean;
   variant: Variant;
@@ -64,7 +63,7 @@ export class Context {
       return this.update(options);
     }
     if (typeof options.sourceColor === 'string') {
-      options.sourceColor = Hct.fromInt(argbFromHex(options.sourceColor));
+      options.sourceColor = Color.fromHex(options.sourceColor);
     }
 
     const changed: (keyof Context)[] = [];
@@ -85,7 +84,7 @@ export class Context {
       throw new Error('Options not found');
     }
     if (typeof args.sourceColor === 'string') {
-      args.sourceColor = Hct.fromInt(argbFromHex(args.sourceColor));
+      args.sourceColor = Color.fromHex(args.sourceColor);
     }
 
     // compute changed keys
@@ -134,16 +133,16 @@ export class Context {
     return this.getOptions().contrastLevel;
   }
 
-  set sourceColor(sourceColor: string) {
+  set sourceColor(sourceColor: string | Color) {
     this.update({ sourceColor });
   }
-  get sourceColor(): Hct {
+  get sourceColor(): Color {
     let sourceColor = this.getOptions().sourceColor;
     if (typeof sourceColor == 'function') {
       sourceColor = sourceColor(this);
     }
     if (typeof sourceColor === 'string') {
-      sourceColor = Hct.fromInt(argbFromHex(sourceColor));
+      sourceColor = Color.fromHex(sourceColor);
     }
     return sourceColor;
   }

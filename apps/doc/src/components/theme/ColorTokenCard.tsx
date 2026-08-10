@@ -22,8 +22,8 @@ export const ColorTokenCard: React.FC<Props> = ({
 }) => {
   const [copied, setCopied] = useState(false);
 
-  const hex = color.getHex();
-  const tone = Math.round(color.getTone());
+  const hex = color.hex;
+  const tone = Math.round(color.tone);
   const cssVar = `--color-${kebabCase(name)}`;
 
   const textColor = tone > 60 ? 'black' : 'white';

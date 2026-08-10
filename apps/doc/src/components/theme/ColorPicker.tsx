@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { argbFromHex, hexFromArgb } from '@material/material-color-utilities';
-import { themeConfigStore, themeServiceStore } from '@/stores/themeConfigStore.ts';
+import {
+  themeConfigStore,
+  themeServiceStore,
+} from '@/stores/themeConfigStore.ts';
 import { useStore } from '@nanostores/react';
 import { Button, TextField } from '@udixio/ui-react';
 import { HexColorPicker } from 'react-colorful';
 import { AnimatePresence, motion } from 'motion/react';
-import { Hct } from '@udixio/theme';
+import { Color } from '@udixio/theme';
 
 interface ColorPickerProps {
   paletteKey?: string;
@@ -24,16 +26,15 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
           if (api) {
             try {
               const toneSource = api.context.sourceColor.tone;
-              return hexFromArgb(
-                api.palettes.get(paletteKey as any).tone(toneSource),
-              );
+              return api.palettes.get(paletteKey as any).getColor(toneSource)
+                .hex;
             } catch {}
           }
           return '#888888';
         })()
       : (themeConfigStore.get().sourceColor as string);
-    const hct = Hct.fromInt(argbFromHex(hex));
-    return { hex, hue: hct.hue, chroma: hct.chroma, tone: hct.tone };
+    const color = Color.fromHex(hex);
+    return { hex, hue: color.hue, chroma: color.chroma, tone: color.tone };
   });
 
   const [showPicker, setShowPicker] = useState(false);
@@ -46,12 +47,12 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
   const [maxChroma, setMaxChroma] = useState(200);
 
   useEffect(() => {
-    const maxChroma = Hct.from(hue, 200, 50).chroma;
+    const maxChroma = Color.maxChroma(hue, 50);
     setMaxChroma(maxChroma);
   }, [tone, hue]);
 
-  const currentColor = Hct.from(hue, chroma, tone);
-  const hexColor = hexFromArgb(currentColor.toInt());
+  const currentColor = Color.from({ hue, chroma, tone });
+  const hexColor = currentColor.hex;
 
   const normalizeHex = (val: string) => {
     const trimmed = val.trim();
@@ -63,9 +64,7 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
   const hueGradient = useMemo(() => {
     const colors = [];
     for (let h = 0; h <= 360; h += 30) {
-      const color = Hct.from(h, chroma, 50);
-      const hex = hexFromArgb(color.toInt());
-      colors.push(hex);
+      colors.push(Color.from({ hue: h, chroma, tone: 50 }).hex);
     }
     return `linear-gradient(to right, ${colors.join(', ')})`;
   }, [chroma, tone]);
@@ -73,9 +72,7 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
   const chromaGradient = useMemo(() => {
     const colors = [];
     for (let c = 0; c <= maxChroma; c += maxChroma / 10) {
-      const color = Hct.from(hue, c, 50);
-      const hex = hexFromArgb(color.toInt());
-      colors.push(hex);
+      colors.push(Color.from({ hue, chroma: c, tone: 50 }).hex);
     }
     return `linear-gradient(to right, ${colors.join(', ')})`;
   }, [hue, tone, maxChroma]);
@@ -83,9 +80,7 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
   const toneGradient = useMemo(() => {
     const colors = [];
     for (let t = 0; t <= 100; t += 10) {
-      const color = Hct.from(hue, chroma, t);
-      const hex = hexFromArgb(color.toInt());
-      colors.push(hex);
+      colors.push(Color.from({ hue, chroma, tone: t }).hex);
     }
     return `linear-gradient(to right, ${colors.join(', ')})`;
   }, [hue, chroma]);
@@ -93,10 +88,10 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
   const updateCurrentFromHex = useCallback((hex: string) => {
     const normalized = normalizeHex(hex);
     if (!normalized) return;
-    const hct = Hct.fromInt(argbFromHex(normalized));
-    setHue(hct.hue);
-    setChroma(hct.chroma);
-    setTone(hct.tone);
+    const color = Color.fromHex(normalized);
+    setHue(color.hue);
+    setChroma(color.chroma);
+    setTone(color.tone);
   }, []);
 
   const updateThemeFromHex = useCallback(
@@ -111,14 +106,14 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
             sourceColor: hex,
           });
         } else {
-          const hct = Hct.fromInt(argbFromHex(hex));
+          const color = Color.fromHex(hex);
           themeConfigStore.set({
             ...themeConfigStore.get(),
             palettes: {
               ...themeConfigStore.get().palettes,
               [paletteKey]: () => ({
-                hue: hct.hue,
-                chroma: hct.chroma,
+                hue: color.hue,
+                chroma: color.chroma,
               }),
             },
           });
@@ -138,9 +133,9 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
     if ($themeService) {
       const toneSource = $themeService.context.sourceColor.tone;
       try {
-        return hexFromArgb(
-          $themeService.palettes.get(paletteKey as any).tone(toneSource),
-        );
+        return $themeService.palettes
+          .get(paletteKey as any)
+          .getColor(toneSource).hex;
       } catch {}
     }
     return initialState.hex;
@@ -165,7 +160,7 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
       const variantPalette = api.context.variant.palettes[paletteKey];
       if (variantPalette) {
         const toneSource = api.context.sourceColor.tone;
-        const defaultHex = hexFromArgb(variantPalette.tone(toneSource));
+        const defaultHex = variantPalette.getColor(toneSource).hex;
         updateCurrentFromHex(defaultHex);
       }
     }

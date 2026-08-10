@@ -8,6 +8,7 @@ export * from './tonal-spot.variant';
 export * from './vibrant.variant';
 export * from './expressive.variant';
 export * from './neutral.variant';
+export * from './udixio.variant';
 
 export const Variants = {
   Expressive: expressiveVariant,
@@ -17,10 +18,16 @@ export const Variants = {
   Udixio: udixioVariant,
 };
 
-export function getVariantByName(name: string): (typeof Variants)[keyof typeof Variants] {
+export function getVariantByName(
+  name: string,
+): (typeof Variants)[keyof typeof Variants] {
   const found = Object.values(Variants).find((v) => v.name === name);
   if (!found) {
-    throw new Error(`Unknown variant: "${name}". Known: ${Object.values(Variants).map((v) => v.name).join(', ')}`);
+    throw new Error(
+      `Unknown variant: "${name}". Known: ${Object.values(Variants)
+        .map((v) => v.name)
+        .join(', ')}`,
+    );
   }
   return found;
 }

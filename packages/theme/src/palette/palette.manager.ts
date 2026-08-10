@@ -1,6 +1,6 @@
 import { Context } from 'src/context';
 import { Palette, PaletteCallback } from './palette';
-import { Hct } from '../material-color-utilities/htc';
+import { Color } from '../color/color';
 import { ColorApi } from '../color';
 
 export class PaletteManager {
@@ -26,9 +26,9 @@ export class PaletteManager {
     );
   }
 
-  addCustomPalette(key: string, args: Hct | PaletteCallback): void {
+  addCustomPalette(key: string, args: Color | PaletteCallback): void {
     let palette: Palette;
-    if (args instanceof Hct) {
+    if (args instanceof Color) {
       palette = Palette.fromVariant(key, args, this.context);
     } else {
       palette = new Palette(key, args, this.context);
@@ -47,13 +47,7 @@ export class PaletteManager {
   }
 
   get(
-    key:
-      | 'primary'
-      | 'secondary'
-      | 'tertiary'
-      | 'neutral'
-      | 'error'
-      | string,
+    key: 'primary' | 'secondary' | 'tertiary' | 'neutral' | 'error' | string,
   ): Palette {
     const palette = this.palettes[key];
     if (!palette) {
@@ -82,9 +76,9 @@ export class PaletteManager {
     delete this._palettes[key];
   }
 
-  override(key: string, args: Hct | PaletteCallback): void {
+  override(key: string, args: Color | PaletteCallback): void {
     const callback: PaletteCallback =
-      args instanceof Hct
+      args instanceof Color
         ? (context) => context.variant.customPalettes(context, args)
         : args;
 

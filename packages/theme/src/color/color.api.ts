@@ -178,7 +178,7 @@ export class ColorApi {
         tone: () => {
           return ctx.temp({ isDark: false, contrastLevel: 0 }, () => {
             const color = this.get(colorContainerKey);
-            return color.getTone();
+            return color.tone;
           });
         },
         isBackground: true,
@@ -188,8 +188,10 @@ export class ColorApi {
       },
       [colorFixedDimKey]: {
         palette: () => palettes.get(colorKey),
-        tone: () => this.get(colorFixedKey).getTone(),
+        tone: () => this.get(colorFixedKey).tone,
         isBackground: true,
+        // Les couleurs accent fixed-dim ne doivent pas être écartées de la zone médiane.
+        clampTone: false,
         adjustTone: () =>
           toneDeltaPair(
             this.get(colorFixedDimKey),

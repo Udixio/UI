@@ -30,7 +30,7 @@ import {
   sanitizeDegreesDouble,
   signum,
   ViewingConditions,
-  yFromLstar
+  yFromLstar,
 } from '@material/material-color-utilities';
 
 /**
@@ -533,4 +533,15 @@ export class HctSolver {
     }
     return 0;
   }
+}
+
+/**
+ * Résout un triplet HCT vers la couleur ARGB la plus proche représentable en sRGB.
+ *
+ * Le chroma demandé peut être réduit silencieusement : son maximum diffère pour
+ * chaque couple (hue, tone). Utiliser `Color.maxChroma(hue, tone)` pour connaître
+ * la borne atteignable.
+ */
+export function solveToArgb(hue: number, chroma: number, tone: number): number {
+  return HctSolver.solveToInt(hue, chroma, tone);
 }

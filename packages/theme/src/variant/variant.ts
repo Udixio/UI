@@ -1,12 +1,12 @@
 import { sanitizeDegreesDouble } from '@material/material-color-utilities';
-import { Hct } from '../material-color-utilities/htc';
+import { Color } from '../color/color';
 import { Palette } from '../palette/palette';
 import { AddColorsOptions } from '../color';
 import { Context } from '../context';
 import { AddPaletteOptions } from '../palette/palette.api';
 
 export const getPiecewiseHue = (
-  sourceColor: Hct,
+  sourceColor: Color,
   hueBreakpoints: number[],
   hues: number[],
 ): number => {
@@ -21,7 +21,7 @@ export const getPiecewiseHue = (
 };
 
 export const getRotatedHue = (
-  sourceColor: Hct,
+  sourceColor: Color,
   hueBreakpoints: number[],
   rotations: number[],
 ): number => {
@@ -37,7 +37,7 @@ export interface VariantOptions {
   palettes: AddPaletteOptions;
   customPalettes: (
     args: Context,
-    color: Hct,
+    color: Color,
   ) => {
     hue: number;
     chroma: number;

@@ -99,7 +99,7 @@ class ToneDeltaPair {
         ? -this.delta
         : this.delta;
 
-    const amRoleA = color.name === roleA.name;
+    const amRoleA = color === roleA;
     const selfRole = amRoleA ? roleA : roleB;
     const refRole = amRoleA ? roleB : roleA;
 
@@ -108,7 +108,7 @@ class ToneDeltaPair {
     }
 
     let selfTone = selfRole.options.tone;
-    const refTone = refRole.getTone();
+    const refTone = refRole.tone;
     const relativeDelta = absoluteDelta * (amRoleA ? 1 : -1);
 
     if (constraint === 'exact') {
@@ -142,7 +142,7 @@ class ToneDeltaPair {
         if (background && contrastCurve) {
           // Adjust the tones for contrast, if background and contrast curve
           // are defined.
-          const bgTone = background.getTone();
+          const bgTone = background.tone;
           const selfContrast = contrastCurve.get(ctx.contrastLevel);
           selfTone =
             Contrast.ratioOfTones(bgTone, selfTone) >= selfContrast &&

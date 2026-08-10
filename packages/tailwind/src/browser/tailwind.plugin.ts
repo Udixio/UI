@@ -1,9 +1,9 @@
-import { FontPlugin, PluginAbstract, PluginImplAbstract } from '@udixio/theme';
 import {
-  argbFromHex,
-  Hct,
-  hexFromArgb,
-} from '@material/material-color-utilities';
+  Color,
+  FontPlugin,
+  PluginAbstract,
+  PluginImplAbstract,
+} from '@udixio/theme';
 import { fontCss } from '../emit/font.css';
 import { stateCss } from '../emit/state.css';
 import { shadowCss } from '../emit/shadow.css';
@@ -14,7 +14,14 @@ export interface TailwindPluginOptions {
   darkSelector?: string;
   responsiveBreakPoints?: Record<string, number>;
   outFile?: string;
-  subThemes?: Record<string, string>;
+  /**
+   * Thèmes dérivés, appliqués via `.theme-{nom}`.
+   *
+   * Seule la **teinte** de chaque valeur est utilisée : le chroma et le ton
+   * proviennent toujours de `sourceColor`, pour que tous les sous-thèmes
+   * restent harmonisés entre eux.
+   */
+  subThemes?: Record<string, string | Color | number>;
   /**
    * Force browser-compatible CSS output (pure CSS variables, no @plugin/@theme directives,
    * no filesystem writes). Set automatically by `generateThemeCss()` for SSR use cases.
@@ -174,10 +181,14 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
     const originalRawSourceColor = this.api.context.rawSourceColor;
 
     for (const [key, value] of Object.entries(this.options.subThemes ?? {})) {
-      const newHue = Hct.fromInt(argbFromHex(value)).hue;
-      const newColor = Hct.from(newHue, sourceColor.chroma, sourceColor.tone);
+      const hue =
+        typeof value === 'number'
+          ? value
+          : typeof value === 'string'
+            ? Color.fromHex(value).hue
+            : value.hue;
 
-      this.api.context.sourceColor = hexFromArgb(newColor.toInt());
+      this.api.context.sourceColor = sourceColor.withHue(hue);
       const colors = this.getColors();
       this.outputCss += `
 @layer theme {
@@ -215,7 +226,7 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
         if (!colors[newKey]) {
           colors[newKey] = { light: '', dark: '' };
         }
-        colors[newKey][isDark ? 'dark' : 'light'] = value.getHex();
+        colors[newKey][isDark ? 'dark' : 'light'] = value.hex;
       });
     });
     return colors;
@@ -255,7 +266,9 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
       '\n' +
       fontCss({
         fontStyles,
-        responsiveBreakPoints: this.options.responsiveBreakPoints ?? { lg: 1.125 },
+        responsiveBreakPoints: this.options.responsiveBreakPoints ?? {
+          lg: 1.125,
+        },
         fontFamily,
       });
     this.outputCss += `\n@theme {\n  ${Object.entries(fontFamily)

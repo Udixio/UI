@@ -1,23 +1,32 @@
 import {
   argbFromHex,
+  Cam16,
   clampDouble,
   Contrast,
   hexFromArgb,
+  lstarFromArgb,
+  sanitizeDegreesDouble,
 } from '@material/material-color-utilities';
 import { ContrastCurve, DynamicColor } from '../material-color-utilities';
-import { Hct } from '../material-color-utilities/htc';
+import { solveToArgb } from './hct-math';
 import { ColorManager } from './color.manager';
-import { Palette } from '../palette/palette';
-import { Context } from 'src/context';
+import type { Palette } from '../palette/palette';
+import type { Context } from '../context';
+
+/** Les trois coordonnées perceptuelles qui définissent une couleur. */
+export type ColorValue = {
+  /** Teinte, en degrés. 0 <= hue < 360. */
+  hue: number;
+  /** Colorfulness. Le maximum atteignable dépend de `hue` et `tone`. */
+  chroma: number;
+  /** Luminosité perceptuelle. 0 <= tone <= 100. */
+  tone: number;
+};
 
 export type ColorOptions =
   | FromPaletteOptions
-  | {
-      hex: string;
-    }
-  | {
-      alias: string;
-    };
+  | { hex: string }
+  | { alias: string };
 
 function argbToRgb(argb: number): { r: number; g: number; b: number } {
   return {
@@ -31,105 +40,227 @@ export function getInitialToneFromBackground(background?: Color): number {
   if (background === undefined) {
     return 50;
   }
-  return background.getTone();
+  return background.tone;
 }
 
+/**
+ * Une couleur, quelle que soit sa provenance : valeur figée, hexadécimal,
+ * alias, ou dérivée d'une palette avec résolution de contraste.
+ *
+ * Une `Color` se lit comme une valeur — `.hue`, `.tone`, `.hex` sont résolus au
+ * moment de l'accès. Les dérivations (`.withHue()`, `.rotate()`…) figent le
+ * résultat : elles retournent toujours une couleur statique.
+ */
 export abstract class Color {
+  ////////////////////////////////////////////////////////////////
+  // Construction                                               //
+  ////////////////////////////////////////////////////////////////
+
+  /**
+   * Construit une couleur à partir de ses coordonnées perceptuelles.
+   *
+   * Le chroma demandé peut être réduit : son maximum diffère pour chaque couple
+   * (hue, tone). Voir `Color.maxChroma()`.
+   */
+  static from({ hue, chroma, tone }: ColorValue): Color {
+    return new ColorStatic(solveToArgb(hue, chroma, tone));
+  }
+
+  static fromHex(hex: string): Color {
+    return new ColorStatic(argbFromHex(hex));
+  }
+
+  static fromArgb(argb: number): Color {
+    return new ColorStatic(argb);
+  }
+
+  ////////////////////////////////////////////////////////////////
+  // Utilitaires                                                //
+  ////////////////////////////////////////////////////////////////
+
+  /** Le chroma maximal atteignable pour une teinte et un ton donnés. */
   static maxChroma(hue: number, tone = 50): number {
-    return Hct.from(hue, 200, tone).chroma;
+    return Color.from({ hue, chroma: 200, tone }).chroma;
   }
 
-  abstract getHct(): Hct;
-
-  protected constructor(public readonly name: string) {}
-
-  getHex(): string {
-    return hexFromArgb(this.getArgb());
+  static isBlue(hue: number): boolean {
+    return hue >= 250 && hue < 270;
   }
 
-  getArgb() {
-    return this.getHct().toInt();
+  static isYellow(hue: number): boolean {
+    return hue >= 105 && hue < 125;
   }
 
-  getRgb() {
-    return argbToRgb(this.getArgb());
+  static isCyan(hue: number): boolean {
+    return hue >= 170 && hue < 207;
   }
-  getTone(): number {
-    return this.getHct().tone;
+
+  ////////////////////////////////////////////////////////////////
+  // Lecture                                                    //
+  ////////////////////////////////////////////////////////////////
+
+  /** Le seul membre que les stratégies doivent fournir. */
+  abstract get argb(): number;
+
+  private _cam?: Cam16;
+  private _camArgb?: number;
+
+  /** Cam16 mémoïsé, recalculé uniquement si l'ARGB résolu a changé. */
+  private get cam(): Cam16 {
+    const argb = this.argb;
+    if (this._cam === undefined || this._camArgb !== argb) {
+      this._cam = Cam16.fromInt(argb);
+      this._camArgb = argb;
+    }
+    return this._cam;
+  }
+
+  get hue(): number {
+    return this.cam.hue;
+  }
+
+  get chroma(): number {
+    return this.cam.chroma;
+  }
+
+  get tone(): number {
+    return lstarFromArgb(this.argb);
+  }
+
+  get hex(): string {
+    return hexFromArgb(this.argb);
+  }
+
+  get rgb(): { r: number; g: number; b: number } {
+    return argbToRgb(this.argb);
+  }
+
+  /** Les trois coordonnées d'un coup, pratique pour destructurer. */
+  get value(): ColorValue {
+    return { hue: this.hue, chroma: this.chroma, tone: this.tone };
+  }
+
+  ////////////////////////////////////////////////////////////////
+  // Dérivation                                                 //
+  ////////////////////////////////////////////////////////////////
+
+  /** Forme générale : remplace les coordonnées fournies, conserve les autres. */
+  with(partial: Partial<ColorValue>): Color {
+    return Color.from({
+      hue: partial.hue ?? this.hue,
+      chroma: partial.chroma ?? this.chroma,
+      tone: partial.tone ?? this.tone,
+    });
+  }
+
+  /** Remplace la teinte, conserve chroma et tone. */
+  withHue(hue: number): Color {
+    return this.with({ hue });
+  }
+
+  withChroma(chroma: number): Color {
+    return this.with({ chroma });
+  }
+
+  withTone(tone: number): Color {
+    return this.with({ tone });
+  }
+
+  /** Décale la teinte, normalisée sur 360°. */
+  rotate(degrees: number): Color {
+    return this.with({ hue: sanitizeDegreesDouble(this.hue + degrees) });
+  }
+
+  scaleChroma(factor: number): Color {
+    return this.with({ chroma: this.chroma * factor });
+  }
+
+  /** Ratio de contraste WCAG entre cette couleur et une autre. */
+  contrastWith(other: Color): number {
+    return Contrast.ratioOfTones(this.tone, other.tone);
+  }
+
+  toString(): string {
+    return `Color(h=${this.hue.toFixed(0)}, c=${this.chroma.toFixed(0)}, t=${this.tone.toFixed(0)})`;
   }
 }
 
-export class ColorAlias extends Color {
-  getHct(): Hct {
-    return this.colorService.get(this.as).getHct();
+/** Une couleur figée. Ce que produisent `Color.from()` et les dérivations. */
+export class ColorStatic extends Color {
+  constructor(private readonly _argb: number) {
+    super();
   }
 
-  constructor(
-    name: string,
-    public as: string,
-    public colorService: ColorManager,
-  ) {
-    super(name);
-  }
-
-  color() {
-    return this.colorService.get(this.as) as ColorFromPalette;
+  get argb(): number {
+    return this._argb;
   }
 }
 
+/** Une couleur définie par un hexadécimal, modifiable après coup. */
 export class ColorFromHex extends Color {
-  getHct(): Hct {
-    return Hct.fromInt(argbFromHex(this.getHex()));
+  constructor(
+    public readonly name: string,
+    private _hex: string,
+  ) {
+    super();
   }
 
-  override getHex(): string {
+  get argb(): number {
+    return argbFromHex(this._hex);
+  }
+
+  /** Retourne l'hexadécimal tel qu'il a été fourni, sans normalisation. */
+  override get hex(): string {
     return this._hex;
   }
 
   setHex(hex: string) {
     this._hex = hex;
   }
+}
 
+/** Une couleur qui reflète en permanence celle d'une autre clé du registre. */
+export class ColorAlias extends Color {
   constructor(
-    name: string,
-    private _hex: string,
+    public readonly name: string,
+    public as: string,
+    public colorManager: ColorManager,
   ) {
-    super(name);
-    this._hex = _hex;
+    super();
+  }
+
+  get argb(): number {
+    return this.colorManager.get(this.as).argb;
+  }
+
+  color() {
+    return this.colorManager.get(this.as) as ColorFromPalette;
   }
 }
 
 /**
- * @param name The name of the dynamic color. Defaults to empty.
- * @param palette Function that provides a TonalPalette given DynamicScheme. A
- *     TonalPalette is defined by a hue and chroma, so this replaces the need to
- *     specify hue/chroma. By providing a tonal palette, when contrast
- *     adjustments are made, intended chroma can be preserved.
- * @param tone Function that provides a tone given DynamicScheme. When not
- *     provided, the tone is same as the background tone or 50, when no
- *     background is provided.
- * @param chromaMultiplier A factor that multiplies the chroma for this color.
- *     Default to 1.
- * @param isBackground Whether this dynamic color is a background, with some
- *     other color as the foreground. Defaults to false.
- * @param background The background of the dynamic color (as a function of a
- *     `DynamicScheme`), if it exists.
- * @param secondBackground A second background of the dynamic color (as a
- *     function of a `DynamicScheme`), if it exists.
- * @param contrastCurve A `ContrastCurve` object specifying how its contrast
- *     against its background should behave in various contrast levels options.
- *     Must used together with `background`. When not provided or resolved as
- *     undefined, the contrast curve is calculated based on other constraints.
- * @param adjustTone A `AdjustTone` object specifying a tone delta
- *     constraint between two colors. One of them must be the color being
- *     constructed. When not provided or resolved as undefined, the tone is
- *     calculated based on other constraints.
+ * @param palette Palette source, qui fournit la teinte et le chroma. La passer
+ *     plutôt qu'un hue/chroma permet de préserver le chroma voulu lorsque le
+ *     contraste est ajusté.
+ * @param tone Ton de base. À défaut, le ton du fond, ou 50 sans fond.
+ * @param chromaMultiplier Facteur appliqué au chroma de la palette. Défaut 1.
+ * @param isBackground Indique que cette couleur sert de fond à d'autres.
+ * @param clampTone Écarte le ton résolu de la zone médiane (57–65) pour éviter
+ *     les tons ingrats sur les fonds. Défaut : la valeur de `isBackground`.
+ * @param background Le fond sur lequel cette couleur est posée.
+ * @param secondBackground Un second fond, quand la couleur doit contraster
+ *     avec deux fonds à la fois.
+ * @param contrastCurve Comment le contraste avec le fond doit évoluer selon le
+ *     niveau de contraste global. Obligatoire dès que `background` est fourni.
+ * @param adjustTone Contrainte d'écart de ton avec une autre couleur. Prend le
+ *     pas sur la résolution par contraste.
  */
 export type FromPaletteOptions = {
   palette: () => Palette;
   tone?: () => number;
   chromaMultiplier?: () => number | undefined;
   isBackground?: boolean;
+  clampTone?: boolean;
   background?: () => Color | undefined;
   secondBackground?: () => Color | undefined;
   contrastCurve?: () => ContrastCurve | undefined;
@@ -141,6 +272,7 @@ export type FromPalette = {
   tone: number;
   chromaMultiplier: number;
   isBackground?: boolean;
+  clampTone: boolean;
   background?: Color;
   secondBackground?: Color;
   contrastCurve?: ContrastCurve;
@@ -166,19 +298,20 @@ export class ColorFromPalette extends Color {
       ...options,
       chromaMultiplier: options.chromaMultiplier ?? 1,
       tone: options.tone ?? getInitialToneFromBackground(options.background),
+      clampTone: options.clampTone ?? options.isBackground ?? false,
     };
   }
 
   constructor(
-    name: string,
+    public readonly name: string,
     private _options: FromPaletteOptions,
     private context: Context,
   ) {
-    super(name);
+    super();
     this.validateOption();
   }
 
-  update(args: Partial<ColorOptions>) {
+  update(args: Partial<FromPaletteOptions>) {
     this._options = { ...this._options, ...args };
     this.validateOption();
   }
@@ -207,45 +340,43 @@ export class ColorFromPalette extends Color {
     }
   }
 
-  getHct(): Hct {
+  get argb(): number {
     const option = this.options;
 
     const palette = option.palette;
-    const tone = this.getTone();
+    const tone = this.tone;
     const hue = palette.hue;
     const chroma = palette.chroma * option.chromaMultiplier;
-    return Hct.from(hue, chroma, tone);
+    return solveToArgb(hue, chroma, tone);
   }
 
-  override getTone(): number {
+  override get tone(): number {
     const context = this.context;
 
     const options = this.options;
 
     const adjustTone = options.adjustTone;
 
-    // Case 0: tone delta constraint.
+    // Cas 0 : contrainte d'écart de ton.
     if (adjustTone) {
       return adjustTone({ context, color: this });
     } else {
-      // Case 1: No tone delta pair; just solve for itself.
+      // Cas 1 : pas de contrainte d'écart ; on résout pour soi-même.
       let answer = options.tone;
       if (!options.background || !options.contrastCurve) {
-        return answer; // No adjustment for colors with no background.
+        return answer; // Aucun ajustement pour les couleurs sans fond.
       }
-      const bgTone = options.background.getTone();
+      const bgTone = options.background.tone;
       const desiredRatio = options.contrastCurve.get(context.contrastLevel);
-      // Recalculate the tone from desired contrast ratio if the current
-      // contrast ratio is not enough or desired contrast level is decreasing
-      // (<0).
+      // On recalcule le ton depuis le ratio voulu si le ratio actuel est
+      // insuffisant, ou si le niveau de contraste demandé décroît (<0).
       answer =
         Contrast.ratioOfTones(bgTone, answer) >= desiredRatio &&
         context.contrastLevel >= 0
           ? answer
           : DynamicColor.foregroundTone(bgTone, desiredRatio);
-      // This can avoid the awkward tones for background colors including the
-      // access fixed colors. Accent fixed dim colors should not be adjusted.
-      if (options.isBackground && !this.name.endsWith('FixedDim')) {
+      // Évite les tons ingrats pour les couleurs de fond.
+      if (options.clampTone) {
         if (answer >= 57) {
           answer = clampDouble(65, 100, answer);
         } else {
@@ -255,9 +386,9 @@ export class ColorFromPalette extends Color {
       if (!options.secondBackground) {
         return answer;
       }
-      // Case 2: Adjust for dual backgrounds.
+      // Cas 2 : ajustement pour deux fonds.
       const [bg1, bg2] = [options.background, options.secondBackground];
-      const [bgTone1, bgTone2] = [bg1.getTone(), bg2.getTone()];
+      const [bgTone1, bgTone2] = [bg1.tone, bg2.tone];
       const [upper, lower] = [
         Math.max(bgTone1, bgTone2),
         Math.min(bgTone1, bgTone2),
@@ -268,14 +399,12 @@ export class ColorFromPalette extends Color {
       ) {
         return answer;
       }
-      // The darkest light tone that satisfies the desired ratio,
-      // or -1 if such ratio cannot be reached.
+      // Le ton clair le plus sombre qui satisfait le ratio, ou -1.
       const lightOption = Contrast.lighter(upper, desiredRatio);
 
-      // The lightest dark tone that satisfies the desired ratio,
-      // or -1 if such ratio cannot be reached.
+      // Le ton sombre le plus clair qui satisfait le ratio, ou -1.
       const darkOption = Contrast.darker(lower, desiredRatio);
-      // Tones suitable for the foreground.
+      // Tons utilisables en premier plan.
       const availables = [];
       if (lightOption !== -1) availables.push(lightOption);
       if (darkOption !== -1) availables.push(darkOption);

@@ -1,7 +1,6 @@
 import { toneDeltaPair } from '../material-color-utilities';
 import { ColorManager } from './color.manager';
 import { AddColorsOptions, ColorApi } from './color.api';
-import { Hct } from '../material-color-utilities/htc';
 import { Color, getInitialToneFromBackground } from './color';
 
 import { DynamicColorKey, getCurve, tMaxC, tMinC } from './color.utils';
@@ -41,7 +40,7 @@ export const defaultColors: AddColorsOptions = ({
         if (c.isDark) {
           return 4;
         } else {
-          if (Hct.isYellow(palettes.get('neutral').hue)) {
+          if (Color.isYellow(palettes.get('neutral').hue)) {
             return 99;
           } else if (c.variant.name === 'vibrant') {
             return 97;
@@ -58,7 +57,7 @@ export const defaultColors: AddColorsOptions = ({
         if (c.isDark) {
           return 4;
         } else {
-          if (Hct.isYellow(palettes.get('neutral').hue)) {
+          if (Color.isYellow(palettes.get('neutral').hue)) {
             return 90;
           } else if (c.variant.name === 'vibrant') {
             return 85;
@@ -75,7 +74,7 @@ export const defaultColors: AddColorsOptions = ({
           } else if (c.variant.name === 'tonalSpot') {
             return 1.7;
           } else if (c.variant.name === 'expressive') {
-            return Hct.isYellow(palettes.get('neutral').hue) ? 2.7 : 1.75;
+            return Color.isYellow(palettes.get('neutral').hue) ? 2.7 : 1.75;
           } else if (c.variant.name === 'vibrant') {
             return 1.36;
           }
@@ -89,7 +88,7 @@ export const defaultColors: AddColorsOptions = ({
         if (c.isDark) {
           return 18;
         } else {
-          if (Hct.isYellow(palettes.get('neutral').hue)) {
+          if (Color.isYellow(palettes.get('neutral').hue)) {
             return 99;
           } else if (c.variant.name === 'vibrant') {
             return 97;
@@ -106,7 +105,7 @@ export const defaultColors: AddColorsOptions = ({
           } else if (c.variant.name === 'tonalSpot') {
             return 1.7;
           } else if (c.variant.name === 'expressive') {
-            return Hct.isYellow(palettes.get('neutral').hue) ? 2.7 : 1.75;
+            return Color.isYellow(palettes.get('neutral').hue) ? 2.7 : 1.75;
           } else if (c.variant.name === 'vibrant') {
             return 1.36;
           }
@@ -125,7 +124,7 @@ export const defaultColors: AddColorsOptions = ({
         if (c.isDark) {
           return 6;
         } else {
-          if (Hct.isYellow(palettes.get('neutral').hue)) {
+          if (Color.isYellow(palettes.get('neutral').hue)) {
             return 98;
           } else if (c.variant.name === 'vibrant') {
             return 95;
@@ -141,7 +140,7 @@ export const defaultColors: AddColorsOptions = ({
         } else if (c.variant.name === 'tonalSpot') {
           return 1.25;
         } else if (c.variant.name === 'expressive') {
-          return Hct.isYellow(palettes.get('neutral').hue) ? 1.3 : 1.15;
+          return Color.isYellow(palettes.get('neutral').hue) ? 1.3 : 1.15;
         } else if (c.variant.name === 'vibrant') {
           return 1.08;
         }
@@ -154,7 +153,7 @@ export const defaultColors: AddColorsOptions = ({
         if (c.isDark) {
           return 9;
         } else {
-          if (Hct.isYellow(palettes.get('neutral').hue)) {
+          if (Color.isYellow(palettes.get('neutral').hue)) {
             return 96;
           } else if (c.variant.name === 'vibrant') {
             return 92;
@@ -170,7 +169,7 @@ export const defaultColors: AddColorsOptions = ({
         } else if (c.variant.name === 'tonalSpot') {
           return 1.4;
         } else if (c.variant.name === 'expressive') {
-          return Hct.isYellow(palettes.get('neutral').hue) ? 1.6 : 1.3;
+          return Color.isYellow(palettes.get('neutral').hue) ? 1.6 : 1.3;
         } else if (c.variant.name === 'vibrant') {
           return 1.15;
         }
@@ -183,7 +182,7 @@ export const defaultColors: AddColorsOptions = ({
         if (c.isDark) {
           return 12;
         } else {
-          if (Hct.isYellow(palettes.get('neutral').hue)) {
+          if (Color.isYellow(palettes.get('neutral').hue)) {
             return 94;
           } else if (c.variant.name === 'vibrant') {
             return 90;
@@ -199,7 +198,7 @@ export const defaultColors: AddColorsOptions = ({
         } else if (c.variant.name === 'tonalSpot') {
           return 1.5;
         } else if (c.variant.name === 'expressive') {
-          return Hct.isYellow(palettes.get('neutral').hue) ? 1.95 : 1.45;
+          return Color.isYellow(palettes.get('neutral').hue) ? 1.95 : 1.45;
         } else if (c.variant.name === 'vibrant') {
           return 1.22;
         }
@@ -212,7 +211,7 @@ export const defaultColors: AddColorsOptions = ({
         if (c.isDark) {
           return 15;
         } else {
-          if (Hct.isYellow(palettes.get('neutral').hue)) {
+          if (Color.isYellow(palettes.get('neutral').hue)) {
             return 92;
           } else if (c.variant.name === 'vibrant') {
             return 88;
@@ -228,7 +227,7 @@ export const defaultColors: AddColorsOptions = ({
         } else if (c.variant.name === 'tonalSpot') {
           return 1.7;
         } else if (c.variant.name === 'expressive') {
-          return Hct.isYellow(palettes.get('neutral').hue) ? 2.3 : 1.6;
+          return Color.isYellow(palettes.get('neutral').hue) ? 2.3 : 1.6;
         } else if (c.variant.name === 'vibrant') {
           return 1.29;
         } else {
@@ -254,7 +253,7 @@ export const defaultColors: AddColorsOptions = ({
         } else if (c.variant.name === 'tonalSpot') {
           return 1.7;
         } else if (c.variant.name === 'expressive') {
-          return Hct.isYellow(palettes.get('neutral').hue)
+          return Color.isYellow(palettes.get('neutral').hue)
             ? c.isDark
               ? 3.0
               : 2.3
@@ -274,7 +273,7 @@ export const defaultColors: AddColorsOptions = ({
         } else if (c.variant.name === 'tonalSpot') {
           return 1.7;
         } else if (c.variant.name === 'expressive') {
-          return Hct.isYellow(palettes.get('neutral').hue)
+          return Color.isYellow(palettes.get('neutral').hue)
             ? c.isDark
               ? 3.0
               : 2.3
@@ -293,7 +292,7 @@ export const defaultColors: AddColorsOptions = ({
         } else if (c.variant.name === 'tonalSpot') {
           return 1.7;
         } else if (c.variant.name === 'expressive') {
-          return Hct.isYellow(palettes.get('neutral').hue)
+          return Color.isYellow(palettes.get('neutral').hue)
             ? c.isDark
               ? 3.0
               : 2.3
@@ -312,7 +311,7 @@ export const defaultColors: AddColorsOptions = ({
         } else if (c.variant.name === 'tonalSpot') {
           return 1.7;
         } else if (c.variant.name === 'expressive') {
-          return Hct.isYellow(palettes.get('neutral').hue)
+          return Color.isYellow(palettes.get('neutral').hue)
             ? c.isDark
               ? 3.0
               : 2.3
@@ -352,9 +351,9 @@ export const defaultColors: AddColorsOptions = ({
           return tMaxC(
             palettes.get('primary'),
             0,
-            Hct.isYellow(palettes.get('primary').hue)
+            Color.isYellow(palettes.get('primary').hue)
               ? 25
-              : Hct.isCyan(palettes.get('primary').hue)
+              : Color.isCyan(palettes.get('primary').hue)
                 ? 88
                 : 98,
           );
@@ -362,7 +361,7 @@ export const defaultColors: AddColorsOptions = ({
           return tMaxC(
             palettes.get('primary'),
             0,
-            Hct.isCyan(palettes.get('primary').hue) ? 88 : 98,
+            Color.isCyan(palettes.get('primary').hue) ? 88 : 98,
           );
         }
       },
@@ -423,7 +422,7 @@ export const defaultColors: AddColorsOptions = ({
             : tMaxC(
                 palettes.get('primary'),
                 78,
-                Hct.isCyan(palettes.get('primary').hue) ? 88 : 90,
+                Color.isCyan(palettes.get('primary').hue) ? 88 : 90,
               );
         }
         // VIBRANT
@@ -432,7 +431,7 @@ export const defaultColors: AddColorsOptions = ({
           : tMaxC(
               palettes.get('primary'),
               66,
-              Hct.isCyan(palettes.get('primary').hue) ? 88 : 93,
+              Color.isCyan(palettes.get('primary').hue) ? 88 : 93,
             );
       },
       isBackground: true,
@@ -455,7 +454,7 @@ export const defaultColors: AddColorsOptions = ({
           },
           () => {
             const color = getColor('primaryContainer');
-            return color.getTone();
+            return color.tone;
           },
         );
       },
@@ -466,8 +465,10 @@ export const defaultColors: AddColorsOptions = ({
 
     primaryFixedDim: {
       palette: () => palettes.get('primary'),
-      tone: () => colors.get('primaryFixed').getTone(),
+      tone: () => colors.get('primaryFixed').tone,
       isBackground: true,
+      // Les couleurs accent fixed-dim ne doivent pas être écartées de la zone médiane.
+      clampTone: false,
       adjustTone: () =>
         toneDeltaPair(
           getColor('primaryFixedDim'),
@@ -588,7 +589,7 @@ export const defaultColors: AddColorsOptions = ({
           },
           () => {
             const color = getColor('secondaryContainer');
-            return color.getTone();
+            return color.tone;
           },
         );
       },
@@ -599,8 +600,10 @@ export const defaultColors: AddColorsOptions = ({
 
     secondaryFixedDim: {
       palette: () => palettes.get('secondary'),
-      tone: () => getColor('secondaryFixed').getTone(),
+      tone: () => getColor('secondaryFixed').tone,
       isBackground: true,
+      // Les couleurs accent fixed-dim ne doivent pas être écartées de la zone médiane.
+      clampTone: false,
       adjustTone: () =>
         toneDeltaPair(
           getColor('secondaryFixedDim'),
@@ -634,7 +637,11 @@ export const defaultColors: AddColorsOptions = ({
           return tMaxC(
             palettes.get('tertiary'),
             0,
-            Hct.isCyan(palettes.get('tertiary').hue) ? 88 : c.isDark ? 98 : 100,
+            Color.isCyan(palettes.get('tertiary').hue)
+              ? 88
+              : c.isDark
+                ? 98
+                : 100,
           );
         } else {
           // NEUTRAL and TONAL_SPOT
@@ -696,7 +703,11 @@ export const defaultColors: AddColorsOptions = ({
           return tMaxC(
             palettes.get('tertiary'),
             75,
-            Hct.isCyan(palettes.get('tertiary').hue) ? 88 : c.isDark ? 93 : 100,
+            Color.isCyan(palettes.get('tertiary').hue)
+              ? 88
+              : c.isDark
+                ? 93
+                : 100,
           );
         } else {
           // VIBRANT
@@ -726,7 +737,7 @@ export const defaultColors: AddColorsOptions = ({
           },
           () => {
             const color = getColor('tertiaryContainer');
-            return color.getTone();
+            return color.tone;
           },
         );
       },
@@ -737,8 +748,10 @@ export const defaultColors: AddColorsOptions = ({
 
     tertiaryFixedDim: {
       palette: () => palettes.get('tertiary'),
-      tone: () => getColor('tertiaryFixed').getTone(),
+      tone: () => getColor('tertiaryFixed').tone,
       isBackground: true,
+      // Les couleurs accent fixed-dim ne doivent pas être écartées de la zone médiane.
+      clampTone: false,
       adjustTone: () =>
         toneDeltaPair(
           getColor('tertiaryFixedDim'),
