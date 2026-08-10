@@ -1,3 +1,7 @@
+# 3.0.0 (2026-08-10)
+
+This was a version bump only for @udixio/theme to align it with other projects, there were no code changes.
+
 ## 2.1.22 (2026-04-11)
 
 ### 🚀 Features

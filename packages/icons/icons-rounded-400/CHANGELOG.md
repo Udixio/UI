@@ -1,3 +1,27 @@
+## 0.2.0 (2026-08-10)
+
+### 🚀 Features
+
+- ⚠️  **icon-button,fab,fab-menu:** stabilize cross-framework API ([e387c06c](https://github.com/Udixio/UI/commit/e387c06c))
+
+### ⚠️  Breaking Changes
+
+- **icon-button,fab,fab-menu:** stabilize cross-framework API  ([e387c06c](https://github.com/Udixio/UI/commit/e387c06c))
+  IconButton renames iconSelected to pressedIcon,
+  activated to pressed, onToggle to onPressedChange, and replaces
+  allowShapeTransformation with shapeFeedback; label and icon are now
+  required, and semantic toggling requires the new toggleable prop. Fab
+  and FabMenu now require label. FabMenu takes a declarative actions array
+  instead of framework-specific children, and no longer accepts
+  onOpenChange. Exported state types (IconButtonStates, FabMenuStates,
+  Elements) are removed in favour of the interface members, and the
+  IconButton state isActive is renamed isPressed.
+
+### ❤️ Thank You
+
+- Claude Opus 4.8
+- Joël VIGREUX
+
 ## 0.1.2 (2026-04-11)
 
 This was a version bump only for @udixio/icons-rounded-400 to align it with other projects, there were no code changes.
