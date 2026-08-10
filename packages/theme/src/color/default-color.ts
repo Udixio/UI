@@ -331,7 +331,6 @@ export const defaultColors: AddColorsOptions = ({
     },
     inverseOnSurface: {
       palette: () => palettes.get('neutral'),
-      tone: () => (c.isDark ? 20 : 95),
       background: () => colors.get('inverseSurface'),
       contrastCurve: () => getCurve(7),
     },
