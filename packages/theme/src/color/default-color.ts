@@ -267,7 +267,7 @@ export const defaultColors: AddColorsOptions = ({
       contrastCurve: () => (c.isDark ? getCurve(11) : getCurve(9)),
     },
     onSurfaceVariant: {
-      palette: () => palettes.get('neutralVariant'),
+      palette: () => palettes.get('neutral'),
       chromaMultiplier: () => {
         if (c.variant.name === 'neutral') {
           return 2.2;
@@ -286,7 +286,7 @@ export const defaultColors: AddColorsOptions = ({
       contrastCurve: () => (c.isDark ? getCurve(6) : getCurve(4.5)),
     },
     outline: {
-      palette: () => palettes.get('neutralVariant'),
+      palette: () => palettes.get('neutral'),
       chromaMultiplier: () => {
         if (c.variant.name === 'neutral') {
           return 2.2;
@@ -305,7 +305,7 @@ export const defaultColors: AddColorsOptions = ({
       contrastCurve: () => getCurve(3),
     },
     outlineVariant: {
-      palette: () => palettes.get('neutralVariant'),
+      palette: () => palettes.get('neutral'),
       chromaMultiplier: () => {
         if (c.variant.name === 'neutral') {
           return 2.2;
