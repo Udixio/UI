@@ -58,7 +58,6 @@ export class PaletteApi {
       | 'secondary'
       | 'tertiary'
       | 'neutral'
-      | 'neutralVariant'
       | 'error'
       | string,
   ): Palette {

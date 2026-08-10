@@ -134,13 +134,6 @@ export const udixioVariant: Variant = variant({
         chroma: 5,
       };
     },
-    neutralVariant: ({ sourceColor }) => {
-      const neutral = 5;
-      return {
-        hue: sourceColor.hue,
-        chroma: neutral * 1.7,
-      };
-    },
     error: ({ sourceColor }) => {
       const errorHue = getPiecewiseHue(
         sourceColor,

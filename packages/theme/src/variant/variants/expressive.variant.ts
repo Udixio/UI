@@ -49,20 +49,6 @@ export const expressiveVariant = variant({
         getExpressiveNeutralHue(sourceColor),
         getExpressiveNeutralChroma(sourceColor, isDark),
       ),
-    neutralVariant: ({ sourceColor, isDark }) => {
-      const expressiveNeutralHue = getExpressiveNeutralHue(sourceColor);
-      const expressiveNeutralChroma = getExpressiveNeutralChroma(
-        sourceColor,
-        isDark,
-      );
-      return TonalPalette.fromHueAndChroma(
-        expressiveNeutralHue,
-        expressiveNeutralChroma *
-          (expressiveNeutralHue >= 105 && expressiveNeutralHue < 125
-            ? 1.6
-            : 2.3),
-      );
-    },
     error: ({ sourceColor }) => {
       const errorHue = getPiecewiseHue(
         sourceColor,

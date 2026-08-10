@@ -20,8 +20,6 @@ export const tonalSpotVariant: Variant = variant({
       ),
     neutral: ({ sourceColor }) =>
       TonalPalette.fromHueAndChroma(sourceColor.hue, 5),
-    neutralVariant: ({ sourceColor }) =>
-      TonalPalette.fromHueAndChroma(sourceColor.hue, 5 * 1.7),
     error: ({ sourceColor }) => {
       const errorHue = getPiecewiseHue(
         sourceColor,

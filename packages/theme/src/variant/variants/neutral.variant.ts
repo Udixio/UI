@@ -27,8 +27,6 @@ export const neutralVariant: Variant = variant({
       ),
     neutral: ({ sourceColor }) =>
       TonalPalette.fromHueAndChroma(sourceColor.hue, 1.4),
-    neutralVariant: ({ sourceColor }) =>
-      TonalPalette.fromHueAndChroma(sourceColor.hue, 1.4 * 2.2),
     error: ({ sourceColor }) => {
       const errorHue = getPiecewiseHue(
         sourceColor,

@@ -43,14 +43,6 @@ export const vibrantVariant: Variant = variant({
         getVibrantNeutralHue(sourceColor),
         getVibrantNeutralChroma(sourceColor),
       ),
-    neutralVariant: ({ sourceColor }) => {
-      const vibrantNeutralHue = getVibrantNeutralHue(sourceColor);
-      const vibrantNeutralChroma = getVibrantNeutralChroma(sourceColor);
-      return TonalPalette.fromHueAndChroma(
-        vibrantNeutralHue,
-        vibrantNeutralChroma * 1.29,
-      );
-    },
     error: ({ sourceColor }) => {
       const errorHue = getPiecewiseHue(
         sourceColor,

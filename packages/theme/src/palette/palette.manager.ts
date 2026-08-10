@@ -52,7 +52,6 @@ export class PaletteManager {
       | 'secondary'
       | 'tertiary'
       | 'neutral'
-      | 'neutralVariant'
       | 'error'
       | string,
   ): Palette {
