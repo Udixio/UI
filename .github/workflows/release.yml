@@ -118,6 +118,7 @@ jobs:
         run: npx nx release publish --tag "$TAG" --verbose
         env:
           NPM_CONFIG_PROVENANCE: true
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       - name: Open release PR to main (stable only)
