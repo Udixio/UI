@@ -1,3 +1,33 @@
+# 3.0.0 (2026-08-10)
+
+### 🚀 Features
+
+- ⚠️  **tailwind:** migrate consumers to explicit udixio.generated.css import ([ba252ad5](https://github.com/Udixio/UI/commit/ba252ad5))
+- **tailwind:** state utilities as pure CSS helper ([ea5a70ec](https://github.com/Udixio/UI/commit/ea5a70ec))
+- **tailwind:** typography utilities as pure CSS helper ([9a22ed04](https://github.com/Udixio/UI/commit/9a22ed04))
+- **tailwind:** shadow utilities as pure CSS helper ([1959648f](https://github.com/Udixio/UI/commit/1959648f))
+
+### 🩹 Fixes
+
+- **tailwind:** restore named state-group utilities as a plugin ([ebd4e078](https://github.com/Udixio/UI/commit/ebd4e078))
+
+### ⚠️  Breaking Changes
+
+- **tailwind:** migrate consumers to explicit udixio.generated.css import  ([ba252ad5](https://github.com/Udixio/UI/commit/ba252ad5))
+  @udixio/tailwind no longer scans the filesystem or injects an
+  @import into the user's CSS. Consumers must import the generated file explicitly
+  (@import "./udixio.generated.css") and set TailwindPlugin({ outFile }). The
+  generated file is gitignored and rebuilt each run.
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 2.2.0
+
+### ❤️ Thank You
+
+- Claude Opus 4.8
+- Joël VIGREUX
+
 ## 2.5.0 (2026-04-11)
 
 ### 🚀 Features
