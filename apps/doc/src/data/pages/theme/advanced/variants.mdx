@@ -5,7 +5,7 @@ description: Create custom palette derivation algorithms with variant() — getP
 
 # Variants API
 
-A `Variant` defines how `primary`, `secondary`, `tertiary`, `neutral`, `neutralVariant`, and `error` palettes are derived from `sourceColor`. The five built-in variants cover most use cases — this page is for building your own.
+A `Variant` defines how the `primary`, `secondary`, `tertiary`, `neutral`, and `error` palettes are derived from `sourceColor`. The five built-in variants cover most use cases — this page is for building your own.
 
 ## `variant(options)`
 
@@ -56,10 +56,6 @@ export const complementaryVariant = variant({
     neutral: ({ sourceColor }) => ({
       hue: sourceColor.hue,
       chroma: 4,
-    }),
-    neutralVariant: ({ sourceColor }) => ({
-      hue: sourceColor.hue,
-      chroma: 8,
     }),
     error: () => ({ hue: 25, chroma: 84 }),
   },

@@ -17,7 +17,6 @@ const PALETTES = [
   { key: 'tertiary', label: 'Tertiary' },
   { key: 'error', label: 'Error' },
   { key: 'neutral', label: 'Neutral' },
-  { key: 'neutralVariant', label: 'Neutral Variant' },
 ] as const;
 
 export const ThemePicker: React.FC = () => {

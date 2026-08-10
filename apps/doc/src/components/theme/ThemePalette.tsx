@@ -11,7 +11,6 @@ const FAMILIES = [
   { key: 'secondary', label: 'Secondary' },
   { key: 'tertiary', label: 'Tertiary' },
   { key: 'neutral', label: 'Neutral' },
-  { key: 'neutralVariant', label: 'Neutral Variant' },
 ] as const;
 
 export const ThemePalette: React.FC = () => {
