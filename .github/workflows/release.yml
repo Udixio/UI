@@ -63,6 +63,31 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
+      - name: Verify every publishable package is public
+        run: |
+          node -e '
+            const fs = require("fs");
+            const path = require("path");
+            const roots = ["packages", "packages/icons"];
+            const files = roots.flatMap((root) =>
+              fs.readdirSync(root, { withFileTypes: true })
+                .filter((entry) => entry.isDirectory())
+                .map((entry) => path.join(root, entry.name, "package.json"))
+                .filter((f) => fs.existsSync(f))
+            );
+            const missing = files.filter((f) => {
+              const pkg = JSON.parse(fs.readFileSync(f, "utf8"));
+              if (pkg.private) return false;
+              return pkg.publishConfig?.access !== "public";
+            });
+            if (missing.length > 0) {
+              console.error("Missing publishConfig.access: \"public\" (required for a new scoped package to publish with provenance):");
+              missing.forEach((f) => console.error(`  - ${f}`));
+              process.exit(1);
+            }
+            console.log(`Checked ${files.length} packages, all publishable ones declare public access.`);
+          '
+
       - name: Version packages
         run: npx nx release --skip-publish --verbose
         env:
