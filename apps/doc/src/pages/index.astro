@@ -8,7 +8,11 @@ import { iPalette } from '@udixio/icons-rounded-400/palette';
 import { iCode } from '@udixio/icons-rounded-400/code';
 import { iSettings } from '@udixio/icons-rounded-400/settings';
 import { iWidgets } from '@udixio/icons-rounded-400/widgets';
-import { Code } from 'astro-expressive-code/components';
+import { Code } from 'astro:components';
+import {
+  transformerDiffLines,
+  transformerMarkWords,
+} from '@/lib/code-annotations';
 
 const tailwindExample = `
 <div class="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-8 flex flex-col gap-6">
@@ -264,7 +268,12 @@ import { iPalette } from "@udixio/icons-rounded-400/palette";
             </div>
 
             <div class="[&>figure]:!m-0 [&>figure]:!rounded-none border-t border-outline-variant/20 flex-1 overflow-hidden">
-              <Code code={tailwindExample} lang="tsx" del="3-5" />
+              <Code
+                code={tailwindExample}
+                lang="tsx"
+                theme="css-variables"
+                transformers={[transformerDiffLines({ del: '3-5' })]}
+              />
             </div>
           </Card>
 
@@ -290,7 +299,22 @@ import { iPalette } from "@udixio/icons-rounded-400/palette";
             </div>
 
             <div class="[&>figure]:!m-0 [&>figure]:!rounded-none border-t border-outline-variant/20 flex-1 overflow-hidden relative z-10">
-              <Code code={udixioExample} lang="tsx" ins="4,6,15" meta="mark='text-headline-small' mark='text-on-surface' mark='text-body-large' mark='text-on-surface-variant' mark='bg-primary-container' mark='text-on-primary-container'" />
+              <Code
+                code={udixioExample}
+                lang="tsx"
+                theme="css-variables"
+                transformers={[
+                  transformerDiffLines({ ins: '4,6,15' }),
+                  transformerMarkWords([
+                    'text-headline-small',
+                    'text-on-surface-variant',
+                    'text-on-surface',
+                    'text-body-large',
+                    'bg-primary-container',
+                    'text-on-primary-container',
+                  ]),
+                ]}
+              />
             </div>
               <div
                 class="mt-8 p-4 rounded-xl bg-surface-container border border-outline-variant/30 flex flex-col gap-2"

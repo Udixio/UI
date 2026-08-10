@@ -9,7 +9,6 @@ import react from '@astrojs/react';
 import angular from '@analogjs/astro-angular';
 import { vitePlugin } from '@udixio/theme';
 
-import astroExpressiveCode from 'astro-expressive-code';
 import sitemap from '@astrojs/sitemap';
 import robotsTxt from 'astro-robots-txt';
 import compress from 'astro-compress';
@@ -85,26 +84,6 @@ export default defineConfig({
   },
 
   integrations: [
-    astroExpressiveCode({
-      // `components={{ pre: Code }}` remplace le <pre> d'expressive-code par
-      // notre carte React (Tailwind). Le reset `all: revert` d'EC, de spécificité
-      // (0,1,1), écrase les utilitaires Tailwind (0,1,0) de cette carte — le
-      // bouton copier perdait `size-5 p-1.5` et son <svg>, exclu du reset,
-      // gonflait à 100% d'un parent sans contrainte. Le reset ne protège plus que
-      // du markup que nous ne rendons plus.
-      useStyleReset: false,
-      frames: {
-        // EC sort le commentaire de tête (`// theme.config.ts`) du code pour en
-        // faire le titre de son cadre. Comme ce cadre est masqué autour de nos
-        // cartes, l'info disparaîtrait : on garde le commentaire dans le code.
-        extractFileNameFromCode: false,
-      },
-      styleOverrides: {
-        borderRadius: '1rem', // Match Card styling
-        codeFontFamily:
-          'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-      },
-    }),
     mdx({
       remarkPlugins: [],
       rehypePlugins: [],

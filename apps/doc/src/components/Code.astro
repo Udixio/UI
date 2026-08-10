@@ -1,6 +1,11 @@
 ---
 import { Code } from 'astro:components';
-import { CodePreview } from '@/components/CodePreview';
+import {
+  CodePreview,
+  codeCardClass,
+  codeBodyClass,
+  codePanelClass,
+} from '@/components/CodePreview';
 import type { ExampleFramework } from '@/stores/exampleFrameworkStore';
 
 type Props = {
@@ -36,63 +41,30 @@ const frameworks = frameworkOrder.filter(
 const isMultiFramework = frameworks.length > 0;
 const rootId = id ?? `code-example-${crypto.randomUUID()}`;
 
-// Les blocs de code fenced sont rendus par Astro/MDX en `<pre><code class="language-XXX">code</code></pre>`,
-// sans que `data-code`/`data-language` ne soient injectés en props (le transformer Shiki `pre()`
-// n'est pas appelé dans ce projet, et expressive-code ne transmet pas le code au composant mappé
-// via `components={{ pre: Code }}`). On reconstruit donc la langue et le code source à partir du slot.
+// Astro rend un bloc ``` en `<pre data-code="…" data-language="…"><code>…</code></pre>` :
+// le transformer Shiki de `astro.config.ts` attache la source brute en prop, donc
+// rien à reconstruire. Le repli sur le slot ne sert qu'aux appels sans transformer
+// (ex. `<Code>` utilisé directement dans un .astro).
 const slotHtml =
   (!isMultiFramework &&
+    !dataCode &&
     Astro.slots.has('default') &&
     (await Astro.slots.render('default'))) ||
   '';
 
-// Langue : priorité à la prop, sinon extraite de la classe `language-XXX` du <code>.
 const langFromClass = slotHtml.match(/<code[^>]*class="[^"]*language-([\w-]+)/)?.[1];
 const language = dataLanguage ?? langFromClass ?? 'text';
 
-// Décodage en UNE passe : `&amp;#x3C;` doit redonner `&#x3C;`, pas `<`.
-const namedEntities: Record<string, string> = {
-  amp: '&',
-  lt: '<',
-  gt: '>',
-  quot: '"',
-  apos: "'",
-  nbsp: ' ',
-};
-const decodeEntities = (value: string) =>
-  value.replace(
-    /&(?:#x([0-9a-fA-F]+)|#(\d+)|([a-zA-Z]+));/g,
-    (match, hex, dec, name) => {
-      if (hex) return String.fromCodePoint(parseInt(hex, 16));
-      if (dec) return String.fromCodePoint(parseInt(dec, 10));
-      return namedEntities[name] ?? match;
-    },
-  );
-const stripTags = (value: string) => value.replace(/<[^>]*>/g, '');
-// Les balises sont retirées AVANT le décodage : le `<` d'un JSX arrive encodé
-// (`&#x3C;`) dans le slot, le décoder d'abord le rendrait indissociable d'une
-// vraie balise et `stripTags` l'avalerait.
-const toSource = (value: string) => decodeEntities(stripTags(value));
-
-// expressive-code ne rend pas `<code>texte</code>` mais son propre markup, où
-// chaque ligne source est un `<div class="ec-line">` de spans colorés. Pris tel
-// quel, ce markup s'afficherait littéralement à la place du code : on reconstruit
-// donc la source à partir du texte de ces lignes.
-const ecLines = slotHtml
-  .split(/<div class="[^"]*\bec-line\b[^"]*"[^>]*>/)
-  .slice(1);
-
-const codeFromSlot = ecLines.length
-  ? ecLines
-      // Le découpage laisse les retours à la ligne inter-éléments en fin de
-      // morceau ; l'indentation (espaces) doit en revanche être préservée.
-      .map((line) => toSource(line).replace(/^\n+|\n+$/g, ''))
-      .join('\n')
-  : toSource(
-      slotHtml
-        .replace(/^[\s\S]*?<code[^>]*>/, '')
-        .replace(/<\/code>[\s\S]*$/, ''),
-    ).replace(/\n$/, '');
+const codeFromSlot = slotHtml
+  .replace(/^[\s\S]*?<code[^>]*>/, '')
+  .replace(/<\/code>[\s\S]*$/, '')
+  .replace(/<[^>]*>/g, '')
+  .replace(/&(?:#x([0-9a-fA-F]+)|#(\d+)|([a-zA-Z]+));/g, (match, hex, dec, name) => {
+    if (hex) return String.fromCodePoint(parseInt(hex, 16));
+    if (dec) return String.fromCodePoint(parseInt(dec, 10));
+    return { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' }[name] ?? match;
+  })
+  .replace(/\n$/, '');
 
 // Code source : priorité à la prop `data-code`, sinon la source reconstruite.
 const code = dataCode ?? codeFromSlot;
@@ -100,7 +72,7 @@ const code = dataCode ?? codeFromSlot;
 {isMultiFramework ? (
   <div
     id={rootId}
-    class="not-prose card-code mt-4 overflow-hidden rounded-2xl bg-surface-container-low"
+    class={codeCardClass}
   >
     <CodePreview
       client:load
@@ -109,7 +81,7 @@ const code = dataCode ?? codeFromSlot;
       frameworks={frameworks}
       sources={codes ?? {}}
     />
-    <div class="min-h-32 bg-surface-bright">
+    <div class={codeBodyClass}>
       {frameworks.includes('react') && (
         <>
           <section
@@ -125,7 +97,7 @@ const code = dataCode ?? codeFromSlot;
             data-framework="react"
             data-view="code"
             hidden
-            class="code-source overflow-auto p-4"
+            class={codePanelClass}
           >
             <Code
               code={codes?.react ?? ''}
@@ -151,7 +123,7 @@ const code = dataCode ?? codeFromSlot;
             data-framework="angular"
             data-view="code"
             hidden
-            class="code-source overflow-auto p-4"
+            class={codePanelClass}
           >
             <Code
               code={codes?.angular ?? ''}
@@ -164,35 +136,24 @@ const code = dataCode ?? codeFromSlot;
     </div>
   </div>
 ) : code != null && code !== '' ? (
-  <CodePreview client:load code={code} language={language}>
-    <Code
-      code={code}
-      lang={language ?? 'text'}
-      theme="css-variables"
-    />
-  </CodePreview>
+  <div class={codeCardClass}>
+    <CodePreview client:load code={code} language={language} />
+    <div class={codeBodyClass}>
+      <section class={codePanelClass}>
+        <Code
+          code={code}
+          lang={language ?? 'text'}
+          theme="css-variables"
+        />
+      </section>
+    </div>
+  </div>
 ) : (
   <pre {...htmlProps}><slot /></pre>
 )}
 <style is:global>
   pre {
     text-wrap: auto;
-  }
-
-  /* Un bloc ``` est d'abord rendu par expressive-code ; `components={{ pre: Code }}`
-     n'en remplace que le <pre>, si bien que notre carte se retrouve emboîtée dans
-     le <figure class="frame"> d'EC (double cadre + en-tête, et un second bouton
-     copier). On efface la boîte d'EC pour ne garder que la carte, à l'identique
-     des exemples multi-framework qui, eux, n'ont jamais de wrapper EC.
-     Le `:has()` garde intacts les blocs EC natifs (homepage, `del=`/`mark=`). */
-  .expressive-code:has(.card-code),
-  .expressive-code:has(.card-code) > figure.frame {
-    display: contents;
-  }
-
-  .expressive-code:has(.card-code) figcaption.header,
-  .expressive-code:has(.card-code) .copy {
-    display: none;
   }
 
   .card-code [hidden] {
