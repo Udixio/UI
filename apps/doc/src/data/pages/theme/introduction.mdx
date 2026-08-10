@@ -68,10 +68,12 @@ The CSS it generates has two layers:
 
 ## What `defineConfig` does
 
-`defineConfig` from `@udixio/ui-react` is a thin wrapper that:
+`defineConfig` is a thin wrapper that:
 - Sets `Variants.Udixio` as the default variant
 - Wires `TailwindPlugin` and `FontPlugin` automatically with the options you pass
 - Merges `TailwindPluginOptions` and `FontPluginOptions` into a **flat** config object
+
+It lives in `@udixio/tailwind` — the lowest package that can see both plugins — and is framework-agnostic. `@udixio/ui-react` re-exports it, so React examples on this site import it from either package interchangeably; Angular imports it from `@udixio/tailwind`.
 
 You never instantiate plugins manually — just pass their options directly:
 

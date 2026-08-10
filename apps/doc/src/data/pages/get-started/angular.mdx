@@ -30,19 +30,17 @@ Create `theme.config.ts` at your project root:
 
 ```ts
 // theme.config.ts
-import { defineConfig, FontPlugin } from '@udixio/theme';
-import { TailwindPlugin } from '@udixio/tailwind';
+import { defineConfig } from '@udixio/tailwind';
 
 export default defineConfig({
   sourceColor: '#6750A4',
-  plugins: [
-    new FontPlugin({}),
-    new TailwindPlugin({ outFile: 'src/udixio.generated.css' }),
-  ],
+  outFile: 'src/udixio.generated.css',
 });
 ```
 
-`sourceColor` is the only required option. Unlike React — where `defineConfig` from `@udixio/ui-react` wires them for you — the two plugins are declared explicitly here. `outFile` is where the generated stylesheet is written; the generator also adds it to a sibling `.gitignore`, since it's a build artifact.
+`sourceColor` is the only required option — `defineConfig` wires `TailwindPlugin` and `FontPlugin` for you, and takes their options flat. `outFile` is where the generated stylesheet is written; the generator also adds it to a sibling `.gitignore`, since it's a build artifact.
+
+This is the same `defineConfig` React uses: it lives in `@udixio/tailwind`, the lowest package that sees both plugins, and `@udixio/ui-react` merely re-exports it. Nothing here is framework-specific.
 
 Every other option (custom palettes, sub-themes, fonts, dark mode, contrast) is covered in [Theme — Configuration](/theme/configuration).
 

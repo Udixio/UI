@@ -19,8 +19,9 @@ Use `@udixio/theme` when you need to:
 | Package | Responsibility |
 |---------|---------------|
 | `@udixio/theme` | Core engine — `loader()`, `variant()`, `Hct`, `Palette`, `Color`, plugin base classes |
-| `@udixio/tailwind` | `TailwindPlugin` — generates Tailwind CSS from tokens |
-| `@udixio/ui-react` | `defineConfig`, `ThemeProvider` — React DX layer, auto-wires plugins |
+| `@udixio/tailwind` | `TailwindPlugin` — generates Tailwind CSS from tokens — and `defineConfig`, which auto-wires it alongside `FontPlugin` |
+| `@udixio/ui-react` | `ThemeProvider` — React runtime layer; re-exports `defineConfig` for convenience |
+| `@udixio/ui-angular` | Angular components. Theming goes through `@udixio/tailwind` directly — there is no Angular runtime layer |
 
 ## Architecture
 
