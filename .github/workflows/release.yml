@@ -67,7 +67,7 @@ jobs:
         run: git checkout -b "release/wip-${{ github.run_id }}"
 
       - name: Version packages
-        run: pnpm dlx nx release --skip-publish --verbose
+        run: npx nx release --skip-publish --verbose
         env:
           NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
