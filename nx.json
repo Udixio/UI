@@ -149,10 +149,7 @@
     },
     "changelog": {
       "projectChangelogs": true,
-      "automaticFromRef": true,
-      "workspaceChangelog": {
-        "createRelease": "github"
-      }
+      "automaticFromRef": true
     }
   },
   "generators": {
