@@ -894,7 +894,7 @@ importers:
         specifier: ^7.0.0
         version: 7.3.1
       '@udixio/core':
-        specifier: 0.1.0
+        specifier: 0.1.1
         version: link:../core
       '@udixio/icons-rounded-400':
         specifier: 0.2.0

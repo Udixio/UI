@@ -1,3 +1,9 @@
+## 3.0.1 (2026-08-10)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/core to 0.1.1
+
 ## 3.0.0 (Unreleased)
 
 ### 💥 Breaking Changes
