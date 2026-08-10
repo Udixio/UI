@@ -245,7 +245,7 @@ export class ColorFromPalette extends Color {
           : DynamicColor.foregroundTone(bgTone, desiredRatio);
       // This can avoid the awkward tones for background colors including the
       // access fixed colors. Accent fixed dim colors should not be adjusted.
-      if (options.isBackground && !this.name.endsWith('_fixed_dim')) {
+      if (options.isBackground && !this.name.endsWith('FixedDim')) {
         if (answer >= 57) {
           answer = clampDouble(65, 100, answer);
         } else {
