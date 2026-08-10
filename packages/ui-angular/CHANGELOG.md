@@ -1,3 +1,18 @@
+## 0.1.1 (2026-08-10)
+
+### 🩹 Fixes
+
+- **release:** make @udixio/core and @udixio/ui-angular publishable ([95a1af3a](https://github.com/Udixio/UI/commit/95a1af3a))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/core to 0.1.1
+
+### ❤️ Thank You
+
+- Claude Sonnet 5
+- Joël VIGREUX
+
 ## 0.1.0 (2026-08-10)
 
 ### 🚀 Features
