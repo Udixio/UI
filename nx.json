@@ -144,7 +144,8 @@
     },
     "version": {
       "preVersionCommand": "npm run build",
-      "conventionalCommits": true
+      "conventionalCommits": true,
+      "fallbackCurrentVersionResolver": "disk"
     },
     "changelog": {
       "projectChangelogs": true,
