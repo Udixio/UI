@@ -154,7 +154,9 @@ class ToneDeltaPair {
 
       // This can avoid the awkward tones for background colors including the
       // access fixed colors. Accent fixed dim colors should not be adjusted.
-      if (color.options.isBackground && !color.name.endsWith('_fixed_dim')) {
+      // Note: upstream names its roles in snake_case ('primary_fixed_dim');
+      // ours are camelCase, so the suffix has to match our own convention.
+      if (color.options.isBackground && !color.name.endsWith('FixedDim')) {
         if (selfTone >= 57) {
           selfTone = clampDouble(65, 100, selfTone);
         } else {
