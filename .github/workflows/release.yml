@@ -63,9 +63,6 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-      - name: Create working branch
-        run: git checkout -b "release/wip-${{ github.run_id }}"
-
       - name: Version packages
         run: npx nx release --skip-publish --verbose
         env:
@@ -75,15 +72,21 @@ jobs:
       - name: Install dependencies
         run: pnpm i
 
-      - name: Rename branch to release/v<ui-react version>[-tag] and push
+      - name: Push version bump to the source branch
         id: release-branch
         run: |
           VERSION=$(node -p "require('./packages/ui-react/package.json').version")
-          BRANCH="release/v${VERSION}${TAG:+-$TAG}"
-          git branch -m "$BRANCH"
-          git push origin "$BRANCH" --follow-tags
-          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          git push origin "HEAD:refs/heads/${{ github.ref_name }}" --follow-tags
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Create release branch for the PR (stable only)
+        if: env.TAG == ''
+        id: release-pr-branch
+        run: |
+          BRANCH="release/v${{ steps.release-branch.outputs.version }}"
+          git branch "$BRANCH"
+          git push origin "$BRANCH"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
 
       - name: Publish prerelease directly (beta/next only)
         if: env.TAG != ''
@@ -99,6 +102,6 @@ jobs:
         run: |
           gh pr create \
             --base main \
-            --head "${{ steps.release-branch.outputs.branch }}" \
-            --title "Release ${{ steps.release-branch.outputs.branch }}" \
+            --head "${{ steps.release-pr-branch.outputs.branch }}" \
+            --title "Release ${{ steps.release-pr-branch.outputs.branch }}" \
             --body "Automated release PR (triggered from \`${{ github.ref_name }}\`). Merging this publishes to npm as \`latest\` and merges the version bump back into \`develop\`."
