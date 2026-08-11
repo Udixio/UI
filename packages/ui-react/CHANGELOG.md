@@ -1,3 +1,10 @@
+# 4.0.0 (2026-08-10)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 4.0.0
+- Updated @udixio/theme to 4.0.0
+
 ## 3.0.1 (2026-08-10)
 
 ### 🧱 Updated Dependencies
