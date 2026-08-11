@@ -56,27 +56,49 @@ export type DynamicColorKey =
   | 'onTertiaryFixed'
   | 'onTertiaryFixedVariant';
 
-export function getCurve(defaultContrast: number): ContrastCurve {
-  if (defaultContrast === 1.5) {
-    return new ContrastCurve(1.5, 1.5, 3, 5.5);
-  } else if (defaultContrast === 3) {
-    return new ContrastCurve(3, 3, 4.5, 7);
-  } else if (defaultContrast === 4.5) {
-    return new ContrastCurve(4.5, 4.5, 7, 11);
-  } else if (defaultContrast === 6) {
-    return new ContrastCurve(6, 6, 7, 11);
-  } else if (defaultContrast === 7) {
-    return new ContrastCurve(7, 7, 11, 21);
-  } else if (defaultContrast === 9) {
-    return new ContrastCurve(9, 9, 11, 21);
-  } else if (defaultContrast === 11) {
-    return new ContrastCurve(11, 11, 21, 21);
-  } else if (defaultContrast === 21) {
-    return new ContrastCurve(21, 21, 21, 21);
-  } else {
-    // Shouldn't happen.
-    return new ContrastCurve(defaultContrast, defaultContrast, 7, 21);
+/**
+ * Les ratios de contraste pour lesquels Material définit une courbe standard.
+ *
+ * Le domaine est volontairement clos : `getCurve()` est une table, pas une
+ * formule. Pour toute autre courbe, construis-la directement avec
+ * `new ContrastCurve(low, normal, medium, high)`.
+ */
+export type StandardContrastRatio = 1.5 | 3 | 4.5 | 6 | 7 | 9 | 11 | 21;
+
+/**
+ * Courbes standard de Material, indexées par leur ratio au niveau de contraste
+ * normal. Chaque entrée donne les ratios visés aux niveaux -1, 0, 0.5 et 1.
+ */
+const STANDARD_CURVES: Record<
+  StandardContrastRatio,
+  readonly [number, number, number, number]
+> = {
+  1.5: [1.5, 1.5, 3, 5.5],
+  3: [3, 3, 4.5, 7],
+  4.5: [4.5, 4.5, 7, 11],
+  6: [6, 6, 7, 11],
+  7: [7, 7, 11, 21],
+  9: [9, 9, 11, 21],
+  11: [11, 11, 21, 21],
+  21: [21, 21, 21, 21],
+};
+
+/**
+ * La courbe standard de Material pour un ratio donné.
+ *
+ * @throws si le ratio ne figure pas dans la table — mieux vaut échouer que
+ *     rendre une courbe que personne n'a dessinée.
+ */
+export function getCurve(ratio: StandardContrastRatio): ContrastCurve {
+  const curve = STANDARD_CURVES[ratio];
+  if (!curve) {
+    throw new Error(
+      `getCurve() ne connaît que les ratios standard de Material ` +
+        `(${Object.keys(STANDARD_CURVES).join(', ')}), reçu : ${ratio}. ` +
+        `Pour toute autre courbe : new ContrastCurve(low, normal, medium, high).`,
+    );
   }
+  return new ContrastCurve(...curve);
 }
 
 export function tMaxC(

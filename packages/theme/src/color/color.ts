@@ -36,9 +36,30 @@ function argbToRgb(argb: number): { r: number; g: number; b: number } {
   };
 }
 
+/**
+ * Bande de tons qu'une couleur de fond doit éviter : entre `darkCeiling` et
+ * `lightFloor`, aucun premier plan — clair ou sombre — n'atteint un contraste
+ * suffisant. Un ton qui tombe dedans est repoussé vers le bord le plus proche,
+ * la bascule se faisant à `pivot`.
+ *
+ * Ces valeurs viennent de la spécification Material ; les modifier fait sortir
+ * le thème de la conformité.
+ */
+export const BACKGROUND_TONE_GAP = {
+  /** Au-dessus, on repousse vers le clair ; en dessous, vers le sombre. */
+  pivot: 57,
+  /** Ton minimal du côté clair. */
+  lightFloor: 65,
+  /** Ton maximal du côté sombre. */
+  darkCeiling: 49,
+} as const;
+
+/** Ton d'une couleur qui n'a ni ton explicite ni fond dont hériter. */
+export const DEFAULT_TONE = 50;
+
 export function getInitialToneFromBackground(background?: Color): number {
   if (background === undefined) {
-    return 50;
+    return DEFAULT_TONE;
   }
   return background.tone;
 }
@@ -245,7 +266,7 @@ export class ColorAlias extends Color {
  * @param tone Ton de base. À défaut, le ton du fond, ou 50 sans fond.
  * @param chromaMultiplier Facteur appliqué au chroma de la palette. Défaut 1.
  * @param isBackground Indique que cette couleur sert de fond à d'autres. Son
- *     ton est alors écarté de la zone médiane (57–65), où aucun premier plan
+ *     ton est alors écarté de `BACKGROUND_TONE_GAP`, où aucun premier plan
  *     n'obtient un contraste suffisant — sauf si `adjustTone` l'a fixé par un
  *     écart `exact`, qu'il serait absurde de violer juste après l'avoir posé.
  * @param background Le fond sur lequel cette couleur est posée.
