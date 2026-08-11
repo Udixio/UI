@@ -1,4 +1,6 @@
 import {
+  type ColorRef,
+  type ToneAdjuster,
   applyToneDelta,
   avoidBackgroundGap,
   backgroundGapTone,
@@ -24,10 +26,6 @@ import { Context } from '../../context';
 import { API } from '../../API';
 
 const surfaceContainerToneDelta = 2.5;
-
-const inverseTone = (tone: number) => {
-  return 100 - tone;
-};
 
 export const normalize = (
   value: number,
@@ -74,39 +72,44 @@ const highestSurface = (
   }
 };
 
-// Permet de réutiliser la logique "si contraste < minContrast, pousser le tone vers l'inverse"
-// pour n'importe quelle couleur (pas seulement `primary`), et avec une référence configurable.
-export const createMinContrastToneAdjuster = (
-  ctx: Context,
-  colors: ColorManager | ColorApi,
-  options: {
-    baseTone: number;
-    referenceKey?: DynamicColorKey; // par défaut: la surface la plus "haute"
-  },
-) => {
-  const { baseTone, referenceKey } = options;
-  const minContrast =
-    ctx.contrastLevel >= 0
-      ? normalize(ctx.contrastLevel, [0, 1], [3, 7])
-      : normalize(ctx.contrastLevel, [-1, 0], [0, 3]);
+/**
+ * Pousse le ton vers le blanc ou le noir — selon le mode — jusqu'à atteindre un
+ * contraste minimal avec une couleur de référence.
+ *
+ * Le seuil suit le niveau de contraste global : de 3:1 à 7:1 quand il monte de
+ * 0 à 1, et il se relâche jusqu'à 0 dans les niveaux négatifs. C'est ce qui
+ * distingue le variant `udixio` du contraste par courbe des variants standard.
+ *
+ * @param reference La couleur à contraster. Par défaut, la surface la plus
+ *     haute du mode courant.
+ */
+export const minContrastTone =
+  (reference?: ColorRef): ToneAdjuster =>
+  ({ context, colors, tone }) => {
+    const minContrast =
+      context.contrastLevel >= 0
+        ? normalize(context.contrastLevel, [0, 1], [3, 7])
+        : normalize(context.contrastLevel, [-1, 0], [0, 3]);
 
-  const referenceTone = referenceKey
-    ? colors.get(referenceKey).tone
-    : highestSurface(ctx, colors).tone;
+    const referenceTone = reference
+      ? resolveColorRef(reference, colors).tone
+      : highestSurface(context, colors).tone;
 
-  let selfTone = baseTone;
-  if (Contrast.ratioOfTones(referenceTone, selfTone) < minContrast) {
+    if (Contrast.ratioOfTones(referenceTone, tone) >= minContrast) {
+      return tone;
+    }
     const ratio = calculateToneAdjustmentPercentage(
       referenceTone,
-      selfTone,
+      tone,
       minContrast,
     );
-    const inverseT = ctx.isDark ? 100 : 0;
-    selfTone = selfTone + (inverseT - selfTone) * ratio;
-  }
+    const inverseT = context.isDark ? 100 : 0;
+    return tone + (inverseT - tone) * ratio;
+  };
 
-  return selfTone;
-};
+/** `minContrastTone` n'a besoin que du registre, pas de l'API entière. */
+const resolveColorRef = (reference: ColorRef, colors: ColorApi): Color =>
+  typeof reference === 'string' ? colors.get(reference) : (reference as Color);
 
 export const udixioVariant: Variant = variant({
   name: 'udixio',
@@ -408,10 +411,7 @@ export const udixioVariant: Variant = variant({
         tone: () => {
           return ctx.sourceColor.tone;
         },
-        adjustTone: (args) =>
-          createMinContrastToneAdjuster(args.context, args.colors, {
-            baseTone: args.tone,
-          }),
+        adjustTone: minContrastTone(),
       },
       // primaryDim: {
       //   palette: () => palettes.get('primary'),
