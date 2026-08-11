@@ -63,7 +63,7 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-      - name: Verify every publishable package is public
+      - name: Verify every publishable package is ready for provenance
         run: |
           node -e '
             const fs = require("fs");
@@ -75,17 +75,23 @@ jobs:
                 .map((entry) => path.join(root, entry.name, "package.json"))
                 .filter((f) => fs.existsSync(f))
             );
-            const missing = files.filter((f) => {
+            const problems = [];
+            for (const f of files) {
               const pkg = JSON.parse(fs.readFileSync(f, "utf8"));
-              if (pkg.private) return false;
-              return pkg.publishConfig?.access !== "public";
-            });
-            if (missing.length > 0) {
-              console.error("Missing publishConfig.access: \"public\" (required for a new scoped package to publish with provenance):");
-              missing.forEach((f) => console.error(`  - ${f}`));
+              if (pkg.private) continue;
+              if (pkg.publishConfig?.access !== "public") {
+                problems.push(`${f}: missing publishConfig.access: "public"`);
+              }
+              if (pkg.repository?.url !== "https://github.com/Udixio/UI.git") {
+                problems.push(`${f}: repository.url must be "https://github.com/Udixio/UI.git" (sigstore provenance verification matches against it)`);
+              }
+            }
+            if (problems.length > 0) {
+              console.error("New or misconfigured packages found:");
+              problems.forEach((p) => console.error(`  - ${p}`));
               process.exit(1);
             }
-            console.log(`Checked ${files.length} packages, all publishable ones declare public access.`);
+            console.log(`Checked ${files.length} packages, all publishable ones are ready for provenance.`);
           '
 
       - name: Run package tests
