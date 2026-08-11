@@ -272,11 +272,11 @@ exports[`new emitter equivalence > resolved CSS matches the characterization gol
     --color-surface-container-high: #211e26;
     --color-surface-container-highest: #27242d;
     --color-on-surface: #eae3ef;
-    --color-on-surface-variant: #afa8bd;
-    --color-outline: #797286;
-    --color-outline-variant: #4b4557;
+    --color-on-surface-variant: #aea9b4;
+    --color-outline: #78737e;
+    --color-outline-variant: #4a4650;
     --color-inverse-surface: #fdf7fe;
-    --color-inverse-on-surface: #322f34;
+    --color-inverse-on-surface: #575459;
     --color-primary: #cdc0ec;
     --color-primary-dim: #bfb2de;
     --color-on-primary: #443a5f;
