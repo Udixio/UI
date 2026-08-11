@@ -1,23 +1,9 @@
 import { clampDouble, Contrast } from '@material/material-color-utilities';
-import { DynamicColor } from '../material-color-utilities';
+import { ContrastCurve, DynamicColor } from '../material-color-utilities';
+import { getCurve, StandardContrastRatio } from './color.utils';
+import type { API } from '../API';
 import type { Context } from '../context';
-import type { Palette } from '../palette/palette';
 import type { Color } from './color';
-
-/**
- * Ajuste le ton par défaut d'une couleur.
- *
- * Reçoit le ton déclaré par l'option `tone` et rend celui à retenir. Il n'y a
- * pas d'étape appliquée avant ni après : le corps compose ce qu'il veut — les
- * helpers de ce module, du code maison, ou les deux.
- */
-export type ToneAdjuster = (args: {
-  context: Context;
-  /** Le ton déclaré par l'option `tone`, avant tout ajustement. */
-  tone: number;
-  /** La palette de la couleur, pratique pour `tMaxC` / `tMinC`. */
-  palette: Palette;
-}) => number;
 
 /**
  * Bande de tons qu'une couleur de fond doit éviter : entre `darkCeiling` et
@@ -37,36 +23,43 @@ export const BACKGROUND_TONE_GAP = {
   darkCeiling: 49,
 } as const;
 
-/** Ton d'une couleur qui n'a ni ton explicite ni fond dont hériter. */
+/** Ton d'une couleur qui n'a ni ton explicite ni ajusteur. */
 export const DEFAULT_TONE = 50;
 
 /**
- * Sens de l'écart, décrit **depuis la couleur qui le déclare**.
+ * Ajuste le ton d'une couleur.
  *
- * `relative_darker` et `relative_lighter` suivent la tendance des surfaces :
- * vers le blanc en mode clair, vers le noir en mode sombre.
+ * Reçoit l'API entière — `colors`, `palettes`, `context` — plus le ton laissé
+ * par l'étape précédente, et rend le ton suivant. Une couleur en déclare un,
+ * ou plusieurs à enchaîner.
  */
+export type ToneAdjuster = (args: API & { tone: number }) => number;
+
+/** Une couleur, désignée par sa clé dans le registre ou directement. */
+export type ColorRef = string | Color | ((api: API) => Color);
+
+/**
+ * Le contraste visé : un ratio standard, une courbe sur mesure, ou une
+ * fonction quand il dépend du contexte.
+ */
+export type ContrastSpec =
+  | StandardContrastRatio
+  | ContrastCurve
+  | ((context: Context) => ContrastCurve | undefined);
+
+/** Sens de l'écart, décrit **depuis la couleur qui le déclare**. */
 export type TonePolarity =
   | 'darker'
   | 'lighter'
-  | 'relative_darker'
-  | 'relative_lighter';
+  | 'relativeDarker'
+  | 'relativeLighter';
 
 /** Comment satisfaire la contrainte d'écart. */
 export type DeltaConstraint = 'exact' | 'nearer' | 'farther';
 
-/**
- * Contrainte d'écart de ton vis-à-vis d'une autre couleur, quand les deux
- * doivent rester visuellement distinctes sans être dans une relation
- * fond / premier plan.
- *
- * `{ relativeTo: primaryContainer, delta: 5, polarity: 'relative_darker',
- * constraint: 'farther' }` se lit : « je dois être au moins 5 plus sombre que
- * `primaryContainer` ».
- */
 export type ToneDelta = {
-  /** L'autre couleur, dont le ton est déjà résolu. */
-  relativeTo: Color;
+  /** L'autre couleur de la paire, dont le ton est déjà résolu. */
+  relativeTo: ColorRef;
   /** Écart requis, en valeur absolue. */
   delta: number;
   polarity: TonePolarity;
@@ -74,56 +67,56 @@ export type ToneDelta = {
   constraint: DeltaConstraint;
 };
 
-/**
- * Impose un écart de ton vis-à-vis d'une autre couleur.
- *
- * Avec `constraint: 'exact'`, le ton rendu vaut exactement celui de l'autre
- * couleur décalé de `delta` : n'enchaîne pas sur {@link avoidBackgroundGap}
- * après coup, tu violerais la contrainte que tu viens de poser.
- */
-export function applyToneDelta(
-  tone: number,
-  { relativeTo, delta, polarity, constraint }: ToneDelta,
-  isDark: boolean,
-): number {
-  const signed =
-    polarity === 'darker' ||
-    (polarity === 'relative_lighter' && isDark) ||
-    (polarity === 'relative_darker' && !isDark)
-      ? -delta
-      : delta;
+function resolveColor(ref: ColorRef, api: API): Color {
+  if (typeof ref === 'string') return api.colors.get(ref);
+  if (typeof ref === 'function') return ref(api);
+  return ref;
+}
 
-  const reference = relativeTo.tone;
-
-  if (constraint === 'exact') {
-    return clampDouble(0, 100, reference + signed);
-  }
-  if (constraint === 'nearer') {
-    return signed > 0
-      ? clampDouble(0, 100, clampDouble(reference, reference + signed, tone))
-      : clampDouble(0, 100, clampDouble(reference + signed, reference, tone));
-  }
-  return signed > 0
-    ? clampDouble(reference + signed, 100, tone)
-    : clampDouble(0, reference + signed, tone);
+function resolveCurve(
+  spec: ContrastSpec,
+  context: Context,
+): ContrastCurve | undefined {
+  if (typeof spec === 'number') return getCurve(spec);
+  if (typeof spec === 'function') return spec(context);
+  return spec;
 }
 
 /**
- * Pousse le ton jusqu'à ce qu'il contraste au moins de `ratio` avec `background`.
+ * Le ton d'un premier plan posé sur `background` : part du ton du fond et le
+ * pousse jusqu'à atteindre le contraste visé.
  *
- * Le ton est laissé tel quel s'il satisfait déjà le ratio — sauf en contraste
- * négatif, où l'on recalcule pour pouvoir le réduire.
+ * C'est la forme des tokens `on*`. Seul ajusteur à **ignorer le ton entrant** —
+ * il n'a donc de sens qu'en première position.
  */
-export function contrastAgainst(
+export function onColor(
+  background: ColorRef,
+  contrast: ContrastSpec,
+): ToneAdjuster {
+  return (args) => {
+    const on = resolveColor(background, args);
+    return contrastTone(on.tone, on, contrast, args);
+  };
+}
+
+/**
+ * Le cœur de {@link contrastAgainst} et {@link onColor}, sur un ton nu.
+ * Exporté parce qu'il se teste et se réutilise seul.
+ */
+export function contrastTone(
   tone: number,
-  background: Color,
-  ratio: number,
-  contrastLevel: number,
+  background: ColorRef,
+  contrast: ContrastSpec,
+  api: API,
 ): number {
-  const backgroundTone = background.tone;
+  const curve = resolveCurve(contrast, api.context);
+  if (!curve) return tone;
+
+  const backgroundTone = resolveColor(background, api).tone;
+  const ratio = curve.get(api.context.contrastLevel);
   if (
     Contrast.ratioOfTones(backgroundTone, tone) >= ratio &&
-    contrastLevel >= 0
+    api.context.contrastLevel >= 0
   ) {
     return tone;
   }
@@ -131,53 +124,115 @@ export function contrastAgainst(
 }
 
 /**
- * Écarte le ton de la bande où aucun premier plan n'obtient un contraste
- * suffisant. À n'appliquer qu'aux couleurs qui servent de fond.
+ * Pousse le ton entrant jusqu'à ce qu'il contraste assez avec `background`.
+ *
+ * Le ton est laissé tel quel s'il satisfait déjà le ratio — sauf en contraste
+ * négatif, où l'on recalcule pour pouvoir le réduire. Sans effet si le
+ * contraste résout à `undefined`.
  */
-export function avoidBackgroundGap(tone: number): number {
+export function contrastAgainst(
+  background: ColorRef,
+  contrast: ContrastSpec,
+): ToneAdjuster {
+  return (args) => contrastTone(args.tone, background, contrast, args);
+}
+
+/**
+ * Écarte le ton de la bande où aucun premier plan n'obtient un contraste
+ * suffisant. À ne mettre que sur les couleurs qui servent de fond — et jamais
+ * après un écart `exact`, qu'il défferait.
+ */
+export function avoidBackgroundGap(): ToneAdjuster {
+  return ({ tone }) => backgroundGapTone(tone);
+}
+
+/**
+ * Le cœur de {@link avoidBackgroundGap}, sur un ton nu. Exporté pour les
+ * couleurs dont le clamp est conditionnel et qui composent à la main.
+ */
+export function backgroundGapTone(tone: number): number {
   const { pivot, lightFloor, darkCeiling } = BACKGROUND_TONE_GAP;
   return tone >= pivot
     ? clampDouble(lightFloor, 100, tone)
     : clampDouble(0, darkCeiling, tone);
 }
 
+/** Impose un écart de ton vis-à-vis d'une autre couleur. */
+export function applyToneDelta({
+  relativeTo,
+  delta,
+  polarity,
+  constraint,
+}: ToneDelta): ToneAdjuster {
+  return (args) => {
+    const { tone, context } = args;
+    const signed =
+      polarity === 'darker' ||
+      (polarity === 'relativeLighter' && context.isDark) ||
+      (polarity === 'relativeDarker' && !context.isDark)
+        ? -delta
+        : delta;
+
+    const reference = resolveColor(relativeTo, args).tone;
+
+    if (constraint === 'exact') {
+      return clampDouble(0, 100, reference + signed);
+    }
+    if (constraint === 'nearer') {
+      return signed > 0
+        ? clampDouble(0, 100, clampDouble(reference, reference + signed, tone))
+        : clampDouble(0, 100, clampDouble(reference + signed, reference, tone));
+    }
+    return signed > 0
+      ? clampDouble(reference + signed, 100, tone)
+      : clampDouble(0, reference + signed, tone);
+  };
+}
+
 /**
- * Cherche un ton qui contraste d'au moins `ratio` avec deux fonds à la fois.
- * Rend le ton inchangé s'il satisfait déjà les deux.
+ * Cherche un ton qui contraste assez avec deux fonds à la fois. Laisse le ton
+ * inchangé s'il satisfait déjà les deux.
  */
 export function arbitrateBackgrounds(
-  tone: number,
-  background: Color,
-  secondBackground: Color,
-  ratio: number,
-): number {
-  const [toneA, toneB] = [background.tone, secondBackground.tone];
-  const [upper, lower] = [Math.max(toneA, toneB), Math.min(toneA, toneB)];
+  first: ColorRef,
+  second: ColorRef,
+  contrast: ContrastSpec,
+): ToneAdjuster {
+  return (args) => {
+    const { tone, context } = args;
+    const curve = resolveCurve(contrast, context);
+    if (!curve) return tone;
 
-  if (
-    Contrast.ratioOfTones(upper, tone) >= ratio &&
-    Contrast.ratioOfTones(lower, tone) >= ratio
-  ) {
-    return tone;
-  }
+    const ratio = curve.get(context.contrastLevel);
+    const toneA = resolveColor(first, args).tone;
+    const toneB = resolveColor(second, args).tone;
+    const [upper, lower] = [Math.max(toneA, toneB), Math.min(toneA, toneB)];
 
-  // Le ton clair le plus sombre qui satisfait le ratio, ou -1.
-  const lightOption = Contrast.lighter(upper, ratio);
-  // Le ton sombre le plus clair qui satisfait le ratio, ou -1.
-  const darkOption = Contrast.darker(lower, ratio);
+    if (
+      Contrast.ratioOfTones(upper, tone) >= ratio &&
+      Contrast.ratioOfTones(lower, tone) >= ratio
+    ) {
+      return tone;
+    }
 
-  const prefersLight =
-    DynamicColor.tonePrefersLightForeground(toneA) ||
-    DynamicColor.tonePrefersLightForeground(toneB);
-  if (prefersLight) {
-    return lightOption < 0 ? 100 : lightOption;
-  }
+    // Le ton clair le plus sombre qui satisfait le ratio, ou -1.
+    const lightOption = Contrast.lighter(upper, ratio);
+    // Le ton sombre le plus clair qui satisfait le ratio, ou -1.
+    const darkOption = Contrast.darker(lower, ratio);
 
-  const availables = [];
-  if (lightOption !== -1) availables.push(lightOption);
-  if (darkOption !== -1) availables.push(darkOption);
-  if (availables.length === 1) {
-    return availables[0];
-  }
-  return darkOption < 0 ? 0 : darkOption;
+    const prefersLight =
+      DynamicColor.tonePrefersLightForeground(toneA) ||
+      DynamicColor.tonePrefersLightForeground(toneB);
+    if (prefersLight) {
+      return lightOption < 0 ? 100 : lightOption;
+    }
+
+    const availables = [];
+    if (lightOption !== -1) availables.push(lightOption);
+    if (darkOption !== -1) availables.push(darkOption);
+    if (availables.length === 1) {
+      return availables[0];
+    }
+    return darkOption < 0 ? 0 : darkOption;
+  };
 }

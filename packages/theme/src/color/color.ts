@@ -10,8 +10,8 @@ import { solveToArgb } from './hct-math';
 import { ColorManager } from './color.manager';
 import { DEFAULT_TONE } from './tone-adjusters';
 import type { ToneAdjuster } from './tone-adjusters';
+import type { API } from '../API';
 import type { Palette } from '../palette/palette';
-import type { Context } from '../context';
 
 /** Les trois coordonnées perceptuelles qui définissent une couleur. */
 export type ColorValue = {
@@ -245,7 +245,7 @@ export class ColorAlias extends Color {
 export type FromPaletteOptions = {
   palette: () => Palette;
   tone?: () => number;
-  adjustTone?: ToneAdjuster;
+  adjustTone?: ToneAdjuster | ToneAdjuster[];
   chromaMultiplier?: () => number | undefined;
 };
 
@@ -268,7 +268,7 @@ export class ColorFromPalette extends Color {
   constructor(
     public readonly name: string,
     private _options: FromPaletteOptions,
-    private context: Context,
+    private getApi: () => API,
   ) {
     super();
   }
@@ -283,14 +283,22 @@ export class ColorFromPalette extends Color {
     return solveToArgb(palette.hue, chroma, this.tone);
   }
 
+  /**
+   * Le ton par défaut, passé à chaque ajusteur à la suite : le premier reçoit
+   * la valeur déclarée, chacun des suivants ce que le précédent a rendu.
+   */
   override get tone(): number {
-    const tone = this._options.tone?.() ?? DEFAULT_TONE;
-    const adjust = this._options.adjustTone;
-    if (!adjust) return tone;
-    return adjust({
-      context: this.context,
-      tone,
-      palette: this._options.palette(),
-    });
+    const adjusters = this._options.adjustTone;
+    const api = this.getApi();
+    let tone = this._options.tone?.() ?? DEFAULT_TONE;
+    if (!adjusters) return tone;
+    // `Object.create` plutôt qu'un spread : l'API est une classe, ses méthodes
+    // doivent rester atteignables depuis un ajusteur maison.
+    const args = Object.create(api) as API & { tone: number };
+    for (const adjust of Array.isArray(adjusters) ? adjusters : [adjusters]) {
+      args.tone = tone;
+      tone = adjust(args);
+    }
+    return tone;
   }
 }

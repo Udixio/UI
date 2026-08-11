@@ -1,11 +1,14 @@
 import {
   applyToneDelta,
   avoidBackgroundGap,
+  backgroundGapTone,
   contrastAgainst,
+  contrastTone,
+  onColor,
 } from './tone-adjusters';
 import { Color, ColorOptions } from './color';
 import { ColorManager } from './color.manager';
-import { DynamicColorKey, getCurve, tMaxC, tMinC } from './color.utils';
+import { DynamicColorKey, tMaxC, tMinC } from './color.utils';
 import { API } from '../API';
 
 import { Context } from 'src/context';
@@ -114,26 +117,19 @@ export class ColorApi {
             return ctx.isDark ? 80 : tMaxC(palettes.get(colorKey));
           }
         },
-        adjustTone: ({ context, tone }) => {
-            let answer = tone;
-            answer = applyToneDelta(
-            answer,
-            {
-              relativeTo: colors.get(colorContainerKey),
-              delta: 5,
-              polarity: 'relative_darker',
-              constraint: 'farther',
-            },
-            context.isDark,
-          );
-            const curve = getCurve(4.5);
-            if (curve) {
-              const ratio = curve.get(context.contrastLevel);
-              answer = contrastAgainst(answer, highestSurface(ctx, this), ratio, context.contrastLevel);
-            }
-            answer = avoidBackgroundGap(answer);
-            return answer;
-          },
+        adjustTone: [
+          applyToneDelta({
+            relativeTo: colorContainerKey,
+            delta: 5,
+            polarity: 'relativeDarker',
+            constraint: 'farther',
+          }),
+          contrastAgainst(
+            (api) => highestSurface(api.context, api.colors),
+            4.5,
+          ),
+          avoidBackgroundGap(),
+        ],
       },
       [colorDimKey]: {
         palette: () => palettes.get(colorKey),
@@ -144,37 +140,20 @@ export class ColorApi {
             return tMaxC(palettes.get(colorKey), 0, 90);
           }
         },
-        adjustTone: ({ context, tone }) => {
-            let answer = tone;
-            answer = applyToneDelta(
-            answer,
-            {
-              relativeTo: this.get(colorDimKey),
-              delta: 5,
-              polarity: 'lighter',
-              constraint: 'farther',
-            },
-            context.isDark,
-          );
-            const curve = getCurve(4.5);
-            if (curve) {
-              const ratio = curve.get(context.contrastLevel);
-              answer = contrastAgainst(answer, this.get('surfaceContainerHigh'), ratio, context.contrastLevel);
-            }
-            answer = avoidBackgroundGap(answer);
-            return answer;
-          },
+        adjustTone: [
+          applyToneDelta({
+            relativeTo: colorDimKey,
+            delta: 5,
+            polarity: 'lighter',
+            constraint: 'farther',
+          }),
+          contrastAgainst('surfaceContainerHigh', 4.5),
+          avoidBackgroundGap(),
+        ],
       },
       [onColorKey]: {
         palette: () => palettes.get(colorKey),
-        tone: () => this.get(colorKey).tone,
-        adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          this.get(colorKey),
-          getCurve(6).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+        adjustTone: onColor(colorKey, 6),
       },
       [colorContainerKey]: {
         palette: () => palettes.get(colorKey),
@@ -189,27 +168,23 @@ export class ColorApi {
             return ctx.isDark ? 25 : 90;
           }
         },
-        adjustTone: ({ context, tone }) => {
-            let answer = tone;
-            const curve = ctx.contrastLevel > 0 ? getCurve(1.5) : undefined;
-            if (curve) {
-              const ratio = curve.get(context.contrastLevel);
-              answer = contrastAgainst(answer, highestSurface(ctx, this), ratio, context.contrastLevel);
-              answer = avoidBackgroundGap(answer);
-            }
-            return answer;
-          },
+        adjustTone: (args) =>
+          // La courbe ne vaut rien en contraste nul ou négatif ; sans passe de
+          // contraste, un fond n'est pas écarté de la zone médiane non plus.
+          args.context.contrastLevel > 0
+            ? backgroundGapTone(
+                contrastTone(
+                  args.tone,
+                  (api) => highestSurface(api.context, api.colors),
+                  1.5,
+                  args,
+                ),
+              )
+            : args.tone,
       },
       [onColorContainerKey]: {
         palette: () => palettes.get(colorKey),
-        tone: () => this.get(colorContainerKey).tone,
-        adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          this.get(colorContainerKey),
-          getCurve(6).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+        adjustTone: onColor(colorContainerKey, 6),
       },
       [colorFixedKey]: {
         palette: () => palettes.get(colorKey),
@@ -219,56 +194,37 @@ export class ColorApi {
             return color.tone;
           });
         },
-        adjustTone: ({ context, tone }) => {
-            let answer = tone;
-            const curve = ctx.contrastLevel > 0 ? getCurve(1.5) : undefined;
-            if (curve) {
-              const ratio = curve.get(context.contrastLevel);
-              answer = contrastAgainst(answer, highestSurface(ctx, this), ratio, context.contrastLevel);
-              answer = avoidBackgroundGap(answer);
-            }
-            return answer;
-          },
+        adjustTone: (args) =>
+          // La courbe ne vaut rien en contraste nul ou négatif ; sans passe de
+          // contraste, un fond n'est pas écarté de la zone médiane non plus.
+          args.context.contrastLevel > 0
+            ? backgroundGapTone(
+                contrastTone(
+                  args.tone,
+                  (api) => highestSurface(api.context, api.colors),
+                  1.5,
+                  args,
+                ),
+              )
+            : args.tone,
       },
       [colorFixedDimKey]: {
         palette: () => palettes.get(colorKey),
         tone: () => this.get(colorFixedKey).tone,
-        adjustTone: ({ context, tone }) => {
-            let answer = tone;
-            answer = applyToneDelta(
-            answer,
-            {
-              relativeTo: this.get(colorFixedDimKey),
-              delta: 5,
-              polarity: 'lighter',
-              constraint: 'exact',
-            },
-            context.isDark,
-          );
-            return answer;
-          },
+        adjustTone: applyToneDelta({
+          relativeTo: colorFixedDimKey,
+          delta: 5,
+          polarity: 'lighter',
+          constraint: 'exact',
+        }),
       },
       [onColorFixedKey]: {
         palette: () => palettes.get(colorKey),
-        tone: () => this.get(colorFixedDimKey).tone,
-        adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          this.get(colorFixedDimKey),
-          getCurve(7).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+        adjustTone: onColor(colorFixedDimKey, 7),
       },
       [onColorFixedVariantKey]: {
         palette: () => palettes.get(colorKey),
-        tone: () => this.get(colorFixedDimKey).tone,
-        adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          this.get(colorFixedDimKey),
-          getCurve(4.5).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+        adjustTone: onColor(colorFixedDimKey, 4.5),
       },
     });
 

@@ -5,15 +5,15 @@ import {
   ColorFromPalette,
   ColorOptions,
 } from './color';
-import { Context } from '../context';
+import type { API } from '../API';
 
 export class ColorManager {
   private colorMap = new Map<string, Color>();
-  private readonly context: Context;
 
-  constructor(args: { context: Context }) {
-    this.context = args.context;
-  }
+  /** Posée par `API` à sa construction, avant que la moindre couleur soit lue. */
+  api!: API;
+
+  constructor() {}
 
   createOrUpdate(key: string, args: ColorOptions): Color {
     let colorEntity = this.colorMap.get(key);
@@ -26,7 +26,7 @@ export class ColorManager {
         if (colorEntity instanceof ColorFromPalette) {
           colorEntity.update(args);
         } else {
-          colorEntity = new ColorFromPalette(key, args, this.context);
+          colorEntity = new ColorFromPalette(key, args, () => this.api);
         }
       } catch (e) {
         console.error(e);

@@ -1,7 +1,10 @@
 import {
   applyToneDelta,
   avoidBackgroundGap,
+  backgroundGapTone,
   contrastAgainst,
+  contrastTone,
+  onColor,
 } from './tone-adjusters';
 import { ColorManager } from './color.manager';
 import { AddColorsOptions, ColorApi } from './color.api';
@@ -258,15 +261,10 @@ export const defaultColors: AddColorsOptions = ({
           return highestSurface(c, colors).tone;
         }
       },
-      adjustTone: ({ context, tone }) => {
-          let answer = tone;
-          const curve = (c.isDark ? getCurve(11) : getCurve(9));
-          if (curve) {
-            const ratio = curve.get(context.contrastLevel);
-            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
-          }
-          return answer;
-        },
+      adjustTone: contrastAgainst(
+        (api) => highestSurface(api.context, api.colors),
+        (context) => (context.isDark ? getCurve(11) : getCurve(9)),
+      ),
     },
     onSurfaceVariant: {
       palette: () => palettes.get('neutral'),
@@ -284,14 +282,10 @@ export const defaultColors: AddColorsOptions = ({
         }
         return 1;
       },
-      tone: () => highestSurface(c, colors).tone,
-      adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          highestSurface(c, colors),
-          (c.isDark ? getCurve(6) : getCurve(4.5)).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+      adjustTone: onColor(
+        (api) => highestSurface(api.context, api.colors),
+        (context) => (context.isDark ? getCurve(6) : getCurve(4.5)),
+      ),
     },
     outline: {
       palette: () => palettes.get('neutral'),
@@ -309,14 +303,7 @@ export const defaultColors: AddColorsOptions = ({
         }
         return 1;
       },
-      tone: () => highestSurface(c, colors).tone,
-      adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          highestSurface(c, colors),
-          getCurve(3).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+      adjustTone: onColor((api) => highestSurface(api.context, api.colors), 3),
     },
     outlineVariant: {
       palette: () => palettes.get('neutral'),
@@ -335,14 +322,10 @@ export const defaultColors: AddColorsOptions = ({
 
         return 1;
       },
-      tone: () => highestSurface(c, colors).tone,
-      adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          highestSurface(c, colors),
-          getCurve(1.5).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+      adjustTone: onColor(
+        (api) => highestSurface(api.context, api.colors),
+        1.5,
+      ),
     },
     inverseSurface: {
       palette: () => palettes.get('neutral'),
@@ -350,14 +333,7 @@ export const defaultColors: AddColorsOptions = ({
     },
     inverseOnSurface: {
       palette: () => palettes.get('neutral'),
-      tone: () => colors.get('inverseSurface').tone,
-      adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          colors.get('inverseSurface'),
-          getCurve(7).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+      adjustTone: onColor('inverseSurface', 7),
     },
     ////////////////////////////////////////////////////////////////
     // Primaries [P]                                              //
@@ -391,26 +367,16 @@ export const defaultColors: AddColorsOptions = ({
           );
         }
       },
-      adjustTone: ({ context, tone }) => {
-          let answer = tone;
-          answer = applyToneDelta(
-          answer,
-          {
-            relativeTo: colors.get('primaryContainer'),
-            delta: 5,
-            polarity: 'relative_darker',
-            constraint: 'farther',
-          },
-          context.isDark,
-        );
-          const curve = getCurve(4.5);
-          if (curve) {
-            const ratio = curve.get(context.contrastLevel);
-            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
-          }
-          answer = avoidBackgroundGap(answer);
-          return answer;
-        },
+      adjustTone: [
+        applyToneDelta({
+          relativeTo: 'primaryContainer',
+          delta: 5,
+          polarity: 'relativeDarker',
+          constraint: 'farther',
+        }),
+        contrastAgainst((api) => highestSurface(api.context, api.colors), 4.5),
+        avoidBackgroundGap(),
+      ],
     },
     primaryDim: {
       palette: () => palettes.get('primary'),
@@ -423,37 +389,20 @@ export const defaultColors: AddColorsOptions = ({
           return tMaxC(palettes.get('primary'));
         }
       },
-      adjustTone: ({ context, tone }) => {
-          let answer = tone;
-          answer = applyToneDelta(
-          answer,
-          {
-            relativeTo: colors.get('primary'),
-            delta: 5,
-            polarity: 'darker',
-            constraint: 'farther',
-          },
-          context.isDark,
-        );
-          const curve = getCurve(4.5);
-          if (curve) {
-            const ratio = curve.get(context.contrastLevel);
-            answer = contrastAgainst(answer, getColor('surfaceContainerHigh'), ratio, context.contrastLevel);
-          }
-          answer = avoidBackgroundGap(answer);
-          return answer;
-        },
+      adjustTone: [
+        applyToneDelta({
+          relativeTo: 'primary',
+          delta: 5,
+          polarity: 'darker',
+          constraint: 'farther',
+        }),
+        contrastAgainst('surfaceContainerHigh', 4.5),
+        avoidBackgroundGap(),
+      ],
     },
     onPrimary: {
       palette: () => palettes.get('primary'),
-      tone: () => colors.get('primary').tone,
-      adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          colors.get('primary'),
-          getCurve(6).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+      adjustTone: onColor('primary', 6),
     },
     primaryContainer: {
       palette: () => palettes.get('primary'),
@@ -482,31 +431,26 @@ export const defaultColors: AddColorsOptions = ({
               Color.isCyan(palettes.get('primary').hue) ? 88 : 93,
             );
       },
-      adjustTone: ({ context, tone }) => {
-          let answer = tone;
-          const curve = (c.contrastLevel > 0 ? getCurve(1.5) : undefined);
-          if (curve) {
-            const ratio = curve.get(context.contrastLevel);
-            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
-            answer = avoidBackgroundGap(answer);
-          }
-          return answer;
-        },
+      adjustTone: (args) =>
+        // La courbe ne vaut rien en contraste nul ou négatif ; sans passe de
+        // contraste, un fond n'est pas écarté de la zone médiane non plus.
+        args.context.contrastLevel > 0
+          ? backgroundGapTone(
+              contrastTone(
+                args.tone,
+                (api) => highestSurface(api.context, api.colors),
+                1.5,
+                args,
+              ),
+            )
+          : args.tone,
     },
     onPrimaryContainer: {
       palette: () => palettes.get('primary'),
-      tone: () => colors.get('primaryContainer').tone,
-      adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          colors.get('primaryContainer'),
-          getCurve(6).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+      adjustTone: onColor('primaryContainer', 6),
     },
 
     primaryFixed: {
-
       palette: () => palettes.get('primary'),
 
       tone: () => {
@@ -522,120 +466,52 @@ export const defaultColors: AddColorsOptions = ({
         );
       },
 
-      adjustTone: ({ context, tone }) => {
-
-          let answer = tone;
-
-          const curve = (c.contrastLevel > 0 ? getCurve(1.5) : undefined);
-
-          if (curve) {
-
-            const ratio = curve.get(context.contrastLevel);
-
-            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
-
-            answer = avoidBackgroundGap(answer);
-
-          }
-
-          return answer;
-
-        },
-
+      adjustTone: (args) =>
+        // La courbe ne vaut rien en contraste nul ou négatif ; sans passe de
+        // contraste, un fond n'est pas écarté de la zone médiane non plus.
+        args.context.contrastLevel > 0
+          ? backgroundGapTone(
+              contrastTone(
+                args.tone,
+                (api) => highestSurface(api.context, api.colors),
+                1.5,
+                args,
+              ),
+            )
+          : args.tone,
     },
 
     primaryFixedDim: {
-
       palette: () => palettes.get('primary'),
 
       tone: () => colors.get('primaryFixed').tone,
 
-      adjustTone: ({ context, tone }) => {
-
-          let answer = tone;
-
-          answer = applyToneDelta(
-
-          answer,
-
-          {
-
-            relativeTo: getColor('primaryFixed'),
-
-            delta: 5,
-
-            polarity: 'darker',
-
-            constraint: 'exact',
-
-          },
-
-          context.isDark,
-
-        );
-
-          return answer;
-
-        },
-
+      adjustTone: applyToneDelta({
+        relativeTo: 'primaryFixed',
+        delta: 5,
+        polarity: 'darker',
+        constraint: 'exact',
+      }),
     },
 
     onPrimaryFixed: {
-
       palette: () => palettes.get('primary'),
 
-      tone: () => colors.get('primaryFixedDim').tone,
-
-      adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          colors.get('primaryFixedDim'),
-          getCurve(7).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
-
+      adjustTone: onColor('primaryFixedDim', 7),
     },
 
     onPrimaryFixedVariant: {
-
       palette: () => palettes.get('primary'),
 
-      tone: () => colors.get('primaryFixedDim').tone,
-
-      adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          colors.get('primaryFixedDim'),
-          getCurve(4.5).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
-
+      adjustTone: onColor('primaryFixedDim', 4.5),
     },
 
     inversePrimary: {
-
       palette: () => palettes.get('primary'),
 
       tone: () => tMaxC(palettes.get('primary')),
 
-      adjustTone: ({ context, tone }) => {
-
-          let answer = tone;
-
-          const curve = getCurve(6);
-
-          if (curve) {
-
-            const ratio = curve.get(context.contrastLevel);
-
-            answer = contrastAgainst(answer, colors.get('inverseSurface'), ratio, context.contrastLevel);
-
-          }
-
-          return answer;
-
-        },
-
+      adjustTone: contrastAgainst('inverseSurface', 6),
     },
     ////////////////////////////////////////////////////////////////
     // Secondaries [Q]                                            //
@@ -654,26 +530,16 @@ export const defaultColors: AddColorsOptions = ({
           return c.isDark ? 80 : tMaxC(palettes.get('secondary'));
         }
       },
-      adjustTone: ({ context, tone }) => {
-          let answer = tone;
-          answer = applyToneDelta(
-          answer,
-          {
-            relativeTo: getColor('secondaryContainer'),
-            delta: 5,
-            polarity: 'relative_darker',
-            constraint: 'farther',
-          },
-          context.isDark,
-        );
-          const curve = getCurve(4.5);
-          if (curve) {
-            const ratio = curve.get(context.contrastLevel);
-            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
-          }
-          answer = avoidBackgroundGap(answer);
-          return answer;
-        },
+      adjustTone: [
+        applyToneDelta({
+          relativeTo: 'secondaryContainer',
+          delta: 5,
+          polarity: 'relativeDarker',
+          constraint: 'farther',
+        }),
+        contrastAgainst((api) => highestSurface(api.context, api.colors), 4.5),
+        avoidBackgroundGap(),
+      ],
     },
     secondaryDim: {
       palette: () => palettes.get('secondary'),
@@ -684,37 +550,20 @@ export const defaultColors: AddColorsOptions = ({
           return tMaxC(palettes.get('secondary'), 0, 90);
         }
       },
-      adjustTone: ({ context, tone }) => {
-          let answer = tone;
-          answer = applyToneDelta(
-          answer,
-          {
-            relativeTo: getColor('secondary'),
-            delta: 5,
-            polarity: 'darker',
-            constraint: 'farther',
-          },
-          context.isDark,
-        );
-          const curve = getCurve(4.5);
-          if (curve) {
-            const ratio = curve.get(context.contrastLevel);
-            answer = contrastAgainst(answer, getColor('surfaceContainerHigh'), ratio, context.contrastLevel);
-          }
-          answer = avoidBackgroundGap(answer);
-          return answer;
-        },
+      adjustTone: [
+        applyToneDelta({
+          relativeTo: 'secondary',
+          delta: 5,
+          polarity: 'darker',
+          constraint: 'farther',
+        }),
+        contrastAgainst('surfaceContainerHigh', 4.5),
+        avoidBackgroundGap(),
+      ],
     },
     onSecondary: {
       palette: () => palettes.get('secondary'),
-      tone: () => getColor('secondary').tone,
-      adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          getColor('secondary'),
-          getCurve(6).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+      adjustTone: onColor('secondary', 6),
     },
     secondaryContainer: {
       palette: () => palettes.get('secondary'),
@@ -729,31 +578,26 @@ export const defaultColors: AddColorsOptions = ({
           return c.isDark ? 25 : 90;
         }
       },
-      adjustTone: ({ context, tone }) => {
-          let answer = tone;
-          const curve = (c.contrastLevel > 0 ? getCurve(1.5) : undefined);
-          if (curve) {
-            const ratio = curve.get(context.contrastLevel);
-            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
-            answer = avoidBackgroundGap(answer);
-          }
-          return answer;
-        },
+      adjustTone: (args) =>
+        // La courbe ne vaut rien en contraste nul ou négatif ; sans passe de
+        // contraste, un fond n'est pas écarté de la zone médiane non plus.
+        args.context.contrastLevel > 0
+          ? backgroundGapTone(
+              contrastTone(
+                args.tone,
+                (api) => highestSurface(api.context, api.colors),
+                1.5,
+                args,
+              ),
+            )
+          : args.tone,
     },
     onSecondaryContainer: {
       palette: () => palettes.get('secondary'),
-      tone: () => getColor('secondaryContainer').tone,
-      adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          getColor('secondaryContainer'),
-          getCurve(6).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+      adjustTone: onColor('secondaryContainer', 6),
     },
 
     secondaryFixed: {
-
       palette: () => palettes.get('secondary'),
 
       tone: () => {
@@ -769,94 +613,44 @@ export const defaultColors: AddColorsOptions = ({
         );
       },
 
-      adjustTone: ({ context, tone }) => {
-
-          let answer = tone;
-
-          const curve = (c.contrastLevel > 0 ? getCurve(1.5) : undefined);
-
-          if (curve) {
-
-            const ratio = curve.get(context.contrastLevel);
-
-            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
-
-            answer = avoidBackgroundGap(answer);
-
-          }
-
-          return answer;
-
-        },
-
+      adjustTone: (args) =>
+        // La courbe ne vaut rien en contraste nul ou négatif ; sans passe de
+        // contraste, un fond n'est pas écarté de la zone médiane non plus.
+        args.context.contrastLevel > 0
+          ? backgroundGapTone(
+              contrastTone(
+                args.tone,
+                (api) => highestSurface(api.context, api.colors),
+                1.5,
+                args,
+              ),
+            )
+          : args.tone,
     },
 
     secondaryFixedDim: {
-
       palette: () => palettes.get('secondary'),
 
       tone: () => getColor('secondaryFixed').tone,
 
-      adjustTone: ({ context, tone }) => {
-
-          let answer = tone;
-
-          answer = applyToneDelta(
-
-          answer,
-
-          {
-
-            relativeTo: getColor('secondaryFixed'),
-
-            delta: 5,
-
-            polarity: 'darker',
-
-            constraint: 'exact',
-
-          },
-
-          context.isDark,
-
-        );
-
-          return answer;
-
-        },
-
+      adjustTone: applyToneDelta({
+        relativeTo: 'secondaryFixed',
+        delta: 5,
+        polarity: 'darker',
+        constraint: 'exact',
+      }),
     },
 
     onSecondaryFixed: {
-
       palette: () => palettes.get('secondary'),
 
-      tone: () => getColor('secondaryFixedDim').tone,
-
-      adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          getColor('secondaryFixedDim'),
-          getCurve(7).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
-
+      adjustTone: onColor('secondaryFixedDim', 7),
     },
 
     onSecondaryFixedVariant: {
-
       palette: () => palettes.get('secondary'),
 
-      tone: () => getColor('secondaryFixedDim').tone,
-
-      adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          getColor('secondaryFixedDim'),
-          getCurve(4.5).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
-
+      adjustTone: onColor('secondaryFixedDim', 4.5),
     },
 
     ////////////////////////////////////////////////////////////////
@@ -882,26 +676,16 @@ export const defaultColors: AddColorsOptions = ({
             : tMaxC(palettes.get('tertiary'));
         }
       },
-      adjustTone: ({ context, tone }) => {
-          let answer = tone;
-          answer = applyToneDelta(
-          answer,
-          {
-            relativeTo: getColor('tertiaryContainer'),
-            delta: 5,
-            polarity: 'relative_darker',
-            constraint: 'farther',
-          },
-          context.isDark,
-        );
-          const curve = getCurve(4.5);
-          if (curve) {
-            const ratio = curve.get(context.contrastLevel);
-            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
-          }
-          answer = avoidBackgroundGap(answer);
-          return answer;
-        },
+      adjustTone: [
+        applyToneDelta({
+          relativeTo: 'tertiaryContainer',
+          delta: 5,
+          polarity: 'relativeDarker',
+          constraint: 'farther',
+        }),
+        contrastAgainst((api) => highestSurface(api.context, api.colors), 4.5),
+        avoidBackgroundGap(),
+      ],
     },
     tertiaryDim: {
       palette: () => palettes.get('tertiary'),
@@ -912,37 +696,20 @@ export const defaultColors: AddColorsOptions = ({
           return tMaxC(palettes.get('tertiary'));
         }
       },
-      adjustTone: ({ context, tone }) => {
-          let answer = tone;
-          answer = applyToneDelta(
-          answer,
-          {
-            relativeTo: getColor('tertiary'),
-            delta: 5,
-            polarity: 'darker',
-            constraint: 'farther',
-          },
-          context.isDark,
-        );
-          const curve = getCurve(4.5);
-          if (curve) {
-            const ratio = curve.get(context.contrastLevel);
-            answer = contrastAgainst(answer, getColor('surfaceContainerHigh'), ratio, context.contrastLevel);
-          }
-          answer = avoidBackgroundGap(answer);
-          return answer;
-        },
+      adjustTone: [
+        applyToneDelta({
+          relativeTo: 'tertiary',
+          delta: 5,
+          polarity: 'darker',
+          constraint: 'farther',
+        }),
+        contrastAgainst('surfaceContainerHigh', 4.5),
+        avoidBackgroundGap(),
+      ],
     },
     onTertiary: {
       palette: () => palettes.get('tertiary'),
-      tone: () => getColor('tertiary').tone,
-      adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          getColor('tertiary'),
-          getCurve(6).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+      adjustTone: onColor('tertiary', 6),
     },
     tertiaryContainer: {
       palette: () => palettes.get('tertiary'),
@@ -970,31 +737,26 @@ export const defaultColors: AddColorsOptions = ({
             : tMaxC(palettes.get('tertiary'), 72, 100);
         }
       },
-      adjustTone: ({ context, tone }) => {
-          let answer = tone;
-          const curve = (c.contrastLevel > 0 ? getCurve(1.5) : undefined);
-          if (curve) {
-            const ratio = curve.get(context.contrastLevel);
-            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
-            answer = avoidBackgroundGap(answer);
-          }
-          return answer;
-        },
+      adjustTone: (args) =>
+        // La courbe ne vaut rien en contraste nul ou négatif ; sans passe de
+        // contraste, un fond n'est pas écarté de la zone médiane non plus.
+        args.context.contrastLevel > 0
+          ? backgroundGapTone(
+              contrastTone(
+                args.tone,
+                (api) => highestSurface(api.context, api.colors),
+                1.5,
+                args,
+              ),
+            )
+          : args.tone,
     },
     onTertiaryContainer: {
       palette: () => palettes.get('tertiary'),
-      tone: () => getColor('tertiaryContainer').tone,
-      adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          getColor('tertiaryContainer'),
-          getCurve(6).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+      adjustTone: onColor('tertiaryContainer', 6),
     },
 
     tertiaryFixed: {
-
       palette: () => palettes.get('tertiary'),
 
       tone: () => {
@@ -1010,94 +772,44 @@ export const defaultColors: AddColorsOptions = ({
         );
       },
 
-      adjustTone: ({ context, tone }) => {
-
-          let answer = tone;
-
-          const curve = (c.contrastLevel > 0 ? getCurve(1.5) : undefined);
-
-          if (curve) {
-
-            const ratio = curve.get(context.contrastLevel);
-
-            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
-
-            answer = avoidBackgroundGap(answer);
-
-          }
-
-          return answer;
-
-        },
-
+      adjustTone: (args) =>
+        // La courbe ne vaut rien en contraste nul ou négatif ; sans passe de
+        // contraste, un fond n'est pas écarté de la zone médiane non plus.
+        args.context.contrastLevel > 0
+          ? backgroundGapTone(
+              contrastTone(
+                args.tone,
+                (api) => highestSurface(api.context, api.colors),
+                1.5,
+                args,
+              ),
+            )
+          : args.tone,
     },
 
     tertiaryFixedDim: {
-
       palette: () => palettes.get('tertiary'),
 
       tone: () => getColor('tertiaryFixed').tone,
 
-      adjustTone: ({ context, tone }) => {
-
-          let answer = tone;
-
-          answer = applyToneDelta(
-
-          answer,
-
-          {
-
-            relativeTo: getColor('tertiaryFixed'),
-
-            delta: 5,
-
-            polarity: 'darker',
-
-            constraint: 'exact',
-
-          },
-
-          context.isDark,
-
-        );
-
-          return answer;
-
-        },
-
+      adjustTone: applyToneDelta({
+        relativeTo: 'tertiaryFixed',
+        delta: 5,
+        polarity: 'darker',
+        constraint: 'exact',
+      }),
     },
 
     onTertiaryFixed: {
-
       palette: () => palettes.get('tertiary'),
 
-      tone: () => getColor('tertiaryFixedDim').tone,
-
-      adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          getColor('tertiaryFixedDim'),
-          getCurve(7).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
-
+      adjustTone: onColor('tertiaryFixedDim', 7),
     },
 
     onTertiaryFixedVariant: {
-
       palette: () => palettes.get('tertiary'),
 
-      tone: () => getColor('tertiaryFixedDim').tone,
-
-      adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          getColor('tertiaryFixedDim'),
-          getCurve(4.5).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
-
+      adjustTone: onColor('tertiaryFixedDim', 4.5),
     },
 
     ////////////////////////////////////////////////////////////////
@@ -1105,7 +817,6 @@ export const defaultColors: AddColorsOptions = ({
     ////////////////////////////////////////////////////////////////
 
     error: {
-
       palette: () => palettes.get('error'),
 
       tone: () => {
@@ -1114,81 +825,36 @@ export const defaultColors: AddColorsOptions = ({
           : tMaxC(palettes.get('error'));
       },
 
-      adjustTone: ({ context, tone }) => {
+      adjustTone: [
+        applyToneDelta({
+          relativeTo: 'errorContainer',
+          delta: 5,
+          polarity: 'relativeDarker',
+          constraint: 'farther',
+        }),
 
-          let answer = tone;
+        contrastAgainst((api) => highestSurface(api.context, api.colors), 4.5),
 
-          answer = applyToneDelta(
-
-          answer,
-
-          {
-
-            relativeTo: colors.get('errorContainer'),
-
-            delta: 5,
-
-            polarity: 'relative_darker',
-
-            constraint: 'farther',
-
-          },
-
-          context.isDark,
-
-        );
-
-          const curve = getCurve(4.5);
-
-          if (curve) {
-
-            const ratio = curve.get(context.contrastLevel);
-
-            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
-
-          }
-
-          answer = avoidBackgroundGap(answer);
-
-          return answer;
-
-        },
-
+        avoidBackgroundGap(),
+      ],
     },
     errorDim: {
       palette: () => palettes.get('error'),
       tone: () => tMinC(palettes.get('error')),
-      adjustTone: ({ context, tone }) => {
-          let answer = tone;
-          answer = applyToneDelta(
-          answer,
-          {
-            relativeTo: getColor('error'),
-            delta: 5,
-            polarity: 'darker',
-            constraint: 'farther',
-          },
-          context.isDark,
-        );
-          const curve = getCurve(4.5);
-          if (curve) {
-            const ratio = curve.get(context.contrastLevel);
-            answer = contrastAgainst(answer, getColor('surfaceContainerHigh'), ratio, context.contrastLevel);
-          }
-          answer = avoidBackgroundGap(answer);
-          return answer;
-        },
+      adjustTone: [
+        applyToneDelta({
+          relativeTo: 'error',
+          delta: 5,
+          polarity: 'darker',
+          constraint: 'farther',
+        }),
+        contrastAgainst('surfaceContainerHigh', 4.5),
+        avoidBackgroundGap(),
+      ],
     },
     onError: {
       palette: () => palettes.get('error'),
-      tone: () => colors.get('error').tone,
-      adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          colors.get('error'),
-          getCurve(6).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+      adjustTone: onColor('error', 6),
     },
     errorContainer: {
       palette: () => palettes.get('error'),
@@ -1197,27 +863,23 @@ export const defaultColors: AddColorsOptions = ({
           ? tMinC(palettes.get('error'), 30, 93)
           : tMaxC(palettes.get('error'), 0, 90);
       },
-      adjustTone: ({ context, tone }) => {
-          let answer = tone;
-          const curve = (c.contrastLevel > 0 ? getCurve(1.5) : undefined);
-          if (curve) {
-            const ratio = curve.get(context.contrastLevel);
-            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
-            answer = avoidBackgroundGap(answer);
-          }
-          return answer;
-        },
+      adjustTone: (args) =>
+        // La courbe ne vaut rien en contraste nul ou négatif ; sans passe de
+        // contraste, un fond n'est pas écarté de la zone médiane non plus.
+        args.context.contrastLevel > 0
+          ? backgroundGapTone(
+              contrastTone(
+                args.tone,
+                (api) => highestSurface(api.context, api.colors),
+                1.5,
+                args,
+              ),
+            )
+          : args.tone,
     },
     onErrorContainer: {
       palette: () => palettes.get('error'),
-      tone: () => colors.get('errorContainer').tone,
-      adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          colors.get('errorContainer'),
-          getCurve(4.5).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+      adjustTone: onColor('errorContainer', 4.5),
     },
 
     /////////////////////////////////////////////////////////////////

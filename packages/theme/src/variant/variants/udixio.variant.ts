@@ -1,22 +1,23 @@
 import {
   applyToneDelta,
   avoidBackgroundGap,
+  backgroundGapTone,
   contrastAgainst,
+  contrastTone,
+  onColor,
 } from '../../color/tone-adjusters';
 import { getPiecewiseHue, getRotatedHue, variant, Variant } from '../variant';
 import {
-  calculateToneAdjustmentPercentage,
-  DynamicColorKey,
-  getCurve,
-  tMaxC,
-  tMinC,
-} from '../../color/color.utils';
-import {
   AddColorsOptions,
+  calculateToneAdjustmentPercentage,
   capitalizeFirstLetter,
   Color,
   ColorApi,
   ColorManager,
+  DynamicColorKey,
+  getCurve,
+  tMaxC,
+  tMinC,
 } from '../../color';
 import { Contrast } from '@material/material-color-utilities';
 import { Context } from '../../context';
@@ -199,14 +200,7 @@ export const udixioVariant: Variant = variant({
       // },
       [onColorKey]: {
         palette: () => palettes.get(colorKey),
-        tone: () => colors.get(colorKey).tone,
-        adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          colors.get(colorKey),
-          getCurve(6).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+        adjustTone: onColor(colorKey, 6),
       },
       [colorContainerKey]: {
         palette: () => palettes.get(colorKey),
@@ -215,37 +209,24 @@ export const udixioVariant: Variant = variant({
             ? tMinC(palettes.get(colorKey), 35, 93)
             : tMaxC(palettes.get(colorKey), 0, 90);
         },
-        adjustTone: ({ context, tone }) => {
-            let answer = tone;
-            answer = applyToneDelta(
-            answer,
-            {
-              relativeTo: colors.get(colorKey),
-              delta: 15,
-              polarity: 'relative_lighter',
-              constraint: 'farther',
-            },
-            context.isDark,
-          );
-            const curve = ctx.contrastLevel > 0 ? getCurve(1.5) : undefined;
-            if (curve) {
-              const ratio = curve.get(context.contrastLevel);
-              answer = contrastAgainst(answer, highestSurface(ctx, colors), ratio, context.contrastLevel);
-            }
-            answer = avoidBackgroundGap(answer);
-            return answer;
-          },
+        adjustTone: [
+          applyToneDelta({
+            relativeTo: colorKey,
+            delta: 15,
+            polarity: 'relativeLighter',
+            constraint: 'farther',
+          }),
+          contrastAgainst(
+            (api) => highestSurface(api.context, api.colors),
+            (context) =>
+              context.contrastLevel > 0 ? getCurve(1.5) : undefined,
+          ),
+          avoidBackgroundGap(),
+        ],
       },
       [onColorContainerKey]: {
         palette: () => palettes.get(colorKey),
-        tone: () => colors.get(colorContainerKey).tone,
-        adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          colors.get(colorContainerKey),
-          getCurve(6).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+        adjustTone: onColor(colorContainerKey, 6),
       },
       // [colorFixedKey]: {
       //   palette: () => palettes.get(colorKey),
@@ -289,10 +270,6 @@ export const udixioVariant: Variant = variant({
     return colors;
   },
   colors: ({ colors, context: ctx, palettes }) => {
-    const getColor = (key: DynamicColorKey) => {
-      return colors.get(key);
-    };
-
     return {
       ////////////////////////////////////////////////////////////////
       // Surfaces [S]                                               //
@@ -379,28 +356,19 @@ export const udixioVariant: Variant = variant({
         tone: () => {
           return highestSurface(ctx, colors).tone;
         },
-        adjustTone: ({ context, tone }) => {
-            let answer = tone;
-            const curve = (ctx.isDark ? getCurve(11) : getCurve(9));
-            if (curve) {
-              const ratio = curve.get(context.contrastLevel);
-              answer = contrastAgainst(answer, highestSurface(ctx, colors), ratio, context.contrastLevel);
-            }
-            return answer;
-          },
+        adjustTone: contrastAgainst(
+          (api) => highestSurface(api.context, api.colors),
+          (context) => (context.isDark ? getCurve(11) : getCurve(9)),
+        ),
       },
       onSurfaceVariant: {
         palette: () => palettes.get('neutral'),
         chromaMultiplier: () => {
           return 1.7;
         },
-        tone: () => highestSurface(ctx, colors).tone,
-        adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          highestSurface(ctx, colors),
-          (ctx.isDark ? getCurve(6) : getCurve(4.5)).get(context.contrastLevel),
-          context.contrastLevel,
+        adjustTone: onColor(
+          (api) => highestSurface(api.context, api.colors),
+          (context) => (context.isDark ? getCurve(6) : getCurve(4.5)),
         ),
       },
       outline: {
@@ -408,13 +376,9 @@ export const udixioVariant: Variant = variant({
         chromaMultiplier: () => {
           return 1.7;
         },
-        tone: () => highestSurface(ctx, colors).tone,
-        adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          highestSurface(ctx, colors),
-          getCurve(3).get(context.contrastLevel),
-          context.contrastLevel,
+        adjustTone: onColor(
+          (api) => highestSurface(api.context, api.colors),
+          3,
         ),
       },
       outlineVariant: {
@@ -422,13 +386,9 @@ export const udixioVariant: Variant = variant({
         chromaMultiplier: () => {
           return 1.7;
         },
-        tone: () => highestSurface(ctx, colors).tone,
-        adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          highestSurface(ctx, colors),
-          getCurve(1.5).get(context.contrastLevel),
-          context.contrastLevel,
+        adjustTone: onColor(
+          (api) => highestSurface(api.context, api.colors),
+          1.5,
         ),
       },
       inverseSurface: {
@@ -438,15 +398,7 @@ export const udixioVariant: Variant = variant({
       inverseOnSurface: {
         palette: () => palettes.get('neutral'),
         tone: () => (ctx.isDark ? 20 : 95),
-        adjustTone: ({ context, tone }) => {
-            let answer = tone;
-            const curve = getCurve(7);
-            if (curve) {
-              const ratio = curve.get(context.contrastLevel);
-              answer = contrastAgainst(answer, colors.get('inverseSurface'), ratio, context.contrastLevel);
-            }
-            return answer;
-          },
+        adjustTone: contrastAgainst('inverseSurface', 7),
       },
       ////////////////////////////////////////////////////////////////
       // Primaries [P]                                              //
@@ -456,11 +408,10 @@ export const udixioVariant: Variant = variant({
         tone: () => {
           return ctx.sourceColor.tone;
         },
-        adjustTone: ({ context, tone }) => {
-          return createMinContrastToneAdjuster(ctx, colors, {
-            baseTone: tone,
-          });
-        },
+        adjustTone: (args) =>
+          createMinContrastToneAdjuster(args.context, args.colors, {
+            baseTone: args.tone,
+          }),
       },
       // primaryDim: {
       //   palette: () => palettes.get('primary'),
@@ -488,14 +439,7 @@ export const udixioVariant: Variant = variant({
       // },
       onPrimary: {
         palette: () => palettes.get('primary'),
-        tone: () => colors.get('primary').tone,
-        adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          colors.get('primary'),
-          getCurve(6).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+        adjustTone: onColor('primary', 6),
       },
       primaryContainer: {
         palette: () => palettes.get('primary'),
@@ -504,37 +448,24 @@ export const udixioVariant: Variant = variant({
             ? tMinC(palettes.get('primary'), 35, 93)
             : tMaxC(palettes.get('primary'), 0, 90);
         },
-        adjustTone: ({ context, tone }) => {
-            let answer = tone;
-            answer = applyToneDelta(
-            answer,
-            {
-              relativeTo: colors.get('primary'),
-              delta: 15,
-              polarity: 'relative_lighter',
-              constraint: 'farther',
-            },
-            context.isDark,
-          );
-            const curve = ctx.contrastLevel > 0 ? getCurve(1.5) : undefined;
-            if (curve) {
-              const ratio = curve.get(context.contrastLevel);
-              answer = contrastAgainst(answer, highestSurface(ctx, colors), ratio, context.contrastLevel);
-            }
-            answer = avoidBackgroundGap(answer);
-            return answer;
-          },
+        adjustTone: [
+          applyToneDelta({
+            relativeTo: 'primary',
+            delta: 15,
+            polarity: 'relativeLighter',
+            constraint: 'farther',
+          }),
+          contrastAgainst(
+            (api) => highestSurface(api.context, api.colors),
+            (context) =>
+              context.contrastLevel > 0 ? getCurve(1.5) : undefined,
+          ),
+          avoidBackgroundGap(),
+        ],
       },
       onPrimaryContainer: {
         palette: () => palettes.get('primary'),
-        tone: () => colors.get('primaryContainer').tone,
-        adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          colors.get('primaryContainer'),
-          getCurve(6).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+        adjustTone: onColor('primaryContainer', 6),
       },
 
       // primaryFixed: {
@@ -584,29 +515,11 @@ export const udixioVariant: Variant = variant({
       // },
 
       inversePrimary: {
-
         palette: () => palettes.get('primary'),
 
         tone: () => tMaxC(palettes.get('primary')),
 
-        adjustTone: ({ context, tone }) => {
-
-            let answer = tone;
-
-            const curve = getCurve(6);
-
-            if (curve) {
-
-              const ratio = curve.get(context.contrastLevel);
-
-              answer = contrastAgainst(answer, colors.get('inverseSurface'), ratio, context.contrastLevel);
-
-            }
-
-            return answer;
-
-          },
-
+        adjustTone: contrastAgainst('inverseSurface', 6),
       },
       ////////////////////////////////////////////////////////////////
       // Secondaries [Q]                                            //
@@ -641,14 +554,7 @@ export const udixioVariant: Variant = variant({
       // },
       onSecondary: {
         palette: () => palettes.get('secondary'),
-        tone: () => getColor('secondary').tone,
-        adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          getColor('secondary'),
-          getCurve(6).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+        adjustTone: onColor('secondary', 6),
       },
       secondaryContainer: {
         palette: () => palettes.get('secondary'),
@@ -657,37 +563,24 @@ export const udixioVariant: Variant = variant({
             ? tMinC(palettes.get('secondary'), 35, 93)
             : tMaxC(palettes.get('secondary'), 0, 90);
         },
-        adjustTone: ({ context, tone }) => {
-            let answer = tone;
-            answer = applyToneDelta(
-            answer,
-            {
-              relativeTo: colors.get('secondary'),
-              delta: 15,
-              polarity: 'relative_lighter',
-              constraint: 'farther',
-            },
-            context.isDark,
-          );
-            const curve = ctx.contrastLevel > 0 ? getCurve(1.5) : undefined;
-            if (curve) {
-              const ratio = curve.get(context.contrastLevel);
-              answer = contrastAgainst(answer, highestSurface(ctx, colors), ratio, context.contrastLevel);
-            }
-            answer = avoidBackgroundGap(answer);
-            return answer;
-          },
+        adjustTone: [
+          applyToneDelta({
+            relativeTo: 'secondary',
+            delta: 15,
+            polarity: 'relativeLighter',
+            constraint: 'farther',
+          }),
+          contrastAgainst(
+            (api) => highestSurface(api.context, api.colors),
+            (context) =>
+              context.contrastLevel > 0 ? getCurve(1.5) : undefined,
+          ),
+          avoidBackgroundGap(),
+        ],
       },
       onSecondaryContainer: {
         palette: () => palettes.get('secondary'),
-        tone: () => getColor('secondaryContainer').tone,
-        adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          getColor('secondaryContainer'),
-          getCurve(6).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+        adjustTone: onColor('secondaryContainer', 6),
       },
 
       // secondaryFixed: {
@@ -770,51 +663,31 @@ export const udixioVariant: Variant = variant({
       // },
       onTertiary: {
         palette: () => palettes.get('tertiary'),
-        tone: () => getColor('tertiary').tone,
-        adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          getColor('tertiary'),
-          getCurve(6).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+        adjustTone: onColor('tertiary', 6),
       },
       tertiaryContainer: {
         palette: () => palettes.get('tertiary'),
         tone: () => {
           return tMaxC(palettes.get('tertiary'), 0, ctx.isDark ? 93 : 100);
         },
-        adjustTone: ({ context, tone }) => {
-            let answer = tone;
-            answer = applyToneDelta(
-            answer,
-            {
-              relativeTo: colors.get('tertiary'),
-              delta: 15,
-              polarity: 'relative_lighter',
-              constraint: 'farther',
-            },
-            context.isDark,
-          );
-            const curve = ctx.contrastLevel > 0 ? getCurve(1.5) : undefined;
-            if (curve) {
-              const ratio = curve.get(context.contrastLevel);
-              answer = contrastAgainst(answer, highestSurface(ctx, colors), ratio, context.contrastLevel);
-            }
-            answer = avoidBackgroundGap(answer);
-            return answer;
-          },
+        adjustTone: [
+          applyToneDelta({
+            relativeTo: 'tertiary',
+            delta: 15,
+            polarity: 'relativeLighter',
+            constraint: 'farther',
+          }),
+          contrastAgainst(
+            (api) => highestSurface(api.context, api.colors),
+            (context) =>
+              context.contrastLevel > 0 ? getCurve(1.5) : undefined,
+          ),
+          avoidBackgroundGap(),
+        ],
       },
       onTertiaryContainer: {
         palette: () => palettes.get('tertiary'),
-        tone: () => getColor('tertiaryContainer').tone,
-        adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          getColor('tertiaryContainer'),
-          getCurve(6).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+        adjustTone: onColor('tertiaryContainer', 6),
       },
 
       // tertiaryFixed: {
@@ -868,7 +741,6 @@ export const udixioVariant: Variant = variant({
       ////////////////////////////////////////////////////////////////
 
       error: {
-
         palette: () => palettes.get('error'),
 
         tone: () => {
@@ -877,46 +749,21 @@ export const udixioVariant: Variant = variant({
             : tMaxC(palettes.get('error'));
         },
 
-        adjustTone: ({ context, tone }) => {
+        adjustTone: [
+          applyToneDelta({
+            relativeTo: 'errorContainer',
+            delta: 5,
+            polarity: 'relativeDarker',
+            constraint: 'farther',
+          }),
 
-            let answer = tone;
+          contrastAgainst(
+            (api) => highestSurface(api.context, api.colors),
+            4.5,
+          ),
 
-            answer = applyToneDelta(
-
-            answer,
-
-            {
-
-              relativeTo: colors.get('errorContainer'),
-
-              delta: 5,
-
-              polarity: 'relative_darker',
-
-              constraint: 'farther',
-
-            },
-
-            context.isDark,
-
-          );
-
-            const curve = getCurve(4.5);
-
-            if (curve) {
-
-              const ratio = curve.get(context.contrastLevel);
-
-              answer = contrastAgainst(answer, highestSurface(ctx, colors), ratio, context.contrastLevel);
-
-            }
-
-            answer = avoidBackgroundGap(answer);
-
-            return answer;
-
-          },
-
+          avoidBackgroundGap(),
+        ],
       },
       // errorDim: {
       //   palette: () => palettes.get('error'),
@@ -936,14 +783,7 @@ export const udixioVariant: Variant = variant({
       // },
       onError: {
         palette: () => palettes.get('error'),
-        tone: () => colors.get('error').tone,
-        adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          colors.get('error'),
-          getCurve(6).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+        adjustTone: onColor('error', 6),
       },
       errorContainer: {
         palette: () => palettes.get('error'),
@@ -952,27 +792,23 @@ export const udixioVariant: Variant = variant({
             ? tMinC(palettes.get('error'), 30, 93)
             : tMaxC(palettes.get('error'), 0, 90);
         },
-        adjustTone: ({ context, tone }) => {
-            let answer = tone;
-            const curve = ctx.contrastLevel > 0 ? getCurve(1.5) : undefined;
-            if (curve) {
-              const ratio = curve.get(context.contrastLevel);
-              answer = contrastAgainst(answer, highestSurface(ctx, colors), ratio, context.contrastLevel);
-              answer = avoidBackgroundGap(answer);
-            }
-            return answer;
-          },
+        adjustTone: (args) =>
+          // La courbe ne vaut rien en contraste nul ou négatif ; sans passe de
+          // contraste, un fond n'est pas écarté de la zone médiane non plus.
+          args.context.contrastLevel > 0
+            ? backgroundGapTone(
+                contrastTone(
+                  args.tone,
+                  (api) => highestSurface(api.context, api.colors),
+                  1.5,
+                  args,
+                ),
+              )
+            : args.tone,
       },
       onErrorContainer: {
         palette: () => palettes.get('error'),
-        tone: () => colors.get('errorContainer').tone,
-        adjustTone: ({ context, tone }) =>
-        contrastAgainst(
-          tone,
-          colors.get('errorContainer'),
-          getCurve(4.5).get(context.contrastLevel),
-          context.contrastLevel,
-        ),
+        adjustTone: onColor('errorContainer', 4.5),
       },
 
       /////////////////////////////////////////////////////////////////
