@@ -9,21 +9,21 @@ import { Card } from '@udixio/ui-angular';
   template: `
     <div class="flex w-full flex-col items-center gap-3">
       <div class="flex w-full flex-wrap gap-4">
-        <lib-card
+        <udx-card
           href="/components/card/overview"
           variant="elevated"
           className="flex h-40 min-w-48 flex-1 items-center justify-center"
         >
           <p>Navigate to the Card page</p>
-        </lib-card>
-        <lib-card
+        </udx-card>
+        <udx-card
           interactive
           variant="filled"
           className="flex h-40 min-w-48 flex-1 items-center justify-center"
           (click)="message.set('Card activated')"
         >
           <p>Run an action</p>
-        </lib-card>
+        </udx-card>
       </div>
       <p aria-live="polite" class="text-body-medium">{{ message() }}</p>
     </div>

@@ -15,7 +15,7 @@ const marks = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="w-72">
-      <lib-slider
+      <udx-slider
         name="range"
         [defaultValue]="0"
         [min]="minValue"

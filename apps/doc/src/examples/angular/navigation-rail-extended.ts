@@ -20,21 +20,21 @@ import { iAdd } from '@udixio/icons-rounded-400/add';
   imports: [NavigationRail, NavigationRailItem, NavigationRailSection, Fab],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-navigation-rail
+    <udx-navigation-rail
       [className]="'bg-surface-container-highest h-[750px]'"
       [extended]="extended()"
       (extendedChange)="extended.set($event)"
     >
-      <lib-fab label="Add Timer" [icon]="iAdd" [extended]="extended()" />
-      <lib-navigation-rail-item [icon]="iNotifications" [iconSelected]="iNotifications" label="Alarm" />
-      <lib-navigation-rail-item [icon]="iSchedule" [iconSelected]="iSchedule" label="Clock" />
-      <lib-navigation-rail-item [icon]="iHourglass" [iconSelected]="iHourglass" label="Timer" />
-      <lib-navigation-rail-item [icon]="iTimer" [iconSelected]="iTimer" label="Stopwatch" />
-      <lib-navigation-rail-section label="Sleep well" />
-      <lib-navigation-rail-item [icon]="iCalendarMonth" [iconSelected]="iCalendarMonth" label="Schedule" />
-      <lib-navigation-rail-item [icon]="iShowChart" [iconSelected]="iShowChart" label="Stats" />
-      <lib-navigation-rail-item [icon]="iMusicNote" [iconSelected]="iMusicNote" label="Sleep sound" />
-    </lib-navigation-rail>
+      <udx-fab label="Add Timer" [icon]="iAdd" [extended]="extended()" />
+      <udx-navigation-rail-item [icon]="iNotifications" [iconSelected]="iNotifications" label="Alarm" />
+      <udx-navigation-rail-item [icon]="iSchedule" [iconSelected]="iSchedule" label="Clock" />
+      <udx-navigation-rail-item [icon]="iHourglass" [iconSelected]="iHourglass" label="Timer" />
+      <udx-navigation-rail-item [icon]="iTimer" [iconSelected]="iTimer" label="Stopwatch" />
+      <udx-navigation-rail-section label="Sleep well" />
+      <udx-navigation-rail-item [icon]="iCalendarMonth" [iconSelected]="iCalendarMonth" label="Schedule" />
+      <udx-navigation-rail-item [icon]="iShowChart" [iconSelected]="iShowChart" label="Stats" />
+      <udx-navigation-rail-item [icon]="iMusicNote" [iconSelected]="iMusicNote" label="Sleep sound" />
+    </udx-navigation-rail>
   `,
 })
 export class NavigationRailExtendedAngular {

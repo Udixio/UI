@@ -40,7 +40,7 @@ jest.mock('@udixio/core/dom', () => ({
   imports: [Tooltip],
   template: `
     <button #triggerEl>Trigger</button>
-    <lib-tooltip
+    <udx-tooltip
       [target]="triggerRef()"
       text="Copy"
       [openDelay]="openDelay"
@@ -212,8 +212,8 @@ describe('Tooltip (Angular) targeting a display:contents component host', () => 
     standalone: true,
     imports: [Tooltip, Button],
     template: `
-      <lib-button #buttonHost label="Trigger" />
-      <lib-tooltip [target]="hostRef()" text="Copy" />
+      <udx-button #buttonHost label="Trigger" />
+      <udx-tooltip [target]="hostRef()" text="Copy" />
     `,
   })
   class ButtonTargetHarness {
@@ -239,7 +239,7 @@ describe('Tooltip (Angular) targeting a display:contents component host', () => 
   it('opens on hover even though the target element renders no box of its own', fakeAsync(() => {
     fixture.detectChanges();
     const hostElement: HTMLElement = fixture.nativeElement.querySelector(
-      'lib-button',
+      'udx-button',
     );
     const innerButton = hostElement.querySelector('button') as HTMLElement;
     const getTooltip = () =>

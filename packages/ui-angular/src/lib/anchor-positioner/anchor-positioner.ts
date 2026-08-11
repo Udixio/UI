@@ -36,7 +36,7 @@ import {
  *   in browsers without native CSS Anchor Positioning support.
  */
 @Component({
-  selector: 'lib-anchor-positioner',
+  selector: 'udx-anchor-positioner',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },

@@ -120,14 +120,14 @@ describe('SideSheet (Angular, consuming @udixio/core)', () => {
       imports: [SideSheet],
       template: `
         <button (click)="open = true">Open</button>
-        <lib-side-sheet
+        <udx-side-sheet
           variant="modal"
           title="Details"
           [open]="open"
           (openChange)="open = $event"
         >
           Body
-        </lib-side-sheet>
+        </udx-side-sheet>
       `,
     })
     class Harness {

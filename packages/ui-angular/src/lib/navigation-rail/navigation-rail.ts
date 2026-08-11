@@ -46,8 +46,8 @@ const DEFAULT_MENU: { closed: NavigationRailMenuState; opened: NavigationRailMen
  * @status beta
  * @category Navigation
  * @devx
- * - Project `lib-navigation-rail-item`, `lib-navigation-rail-section`, and
- *   a `lib-fab` as children; the FAB is hoisted into the header.
+ * - Project `udx-navigation-rail-item`, `udx-navigation-rail-section`, and
+ *   a `udx-fab` as children; the FAB is hoisted into the header.
  * - `footer` content is projected via `<div footer>`/an element with a
  *   `footer` attribute, pinned below the item list.
  * - Selection is index-based; use `selectedItem`/`selectedItemChange` for
@@ -63,7 +63,7 @@ const DEFAULT_MENU: { closed: NavigationRailMenuState; opened: NavigationRailMen
  *   parity gap).
  */
 @Component({
-  selector: 'lib-navigation-rail',
+  selector: 'udx-navigation-rail',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IconButton],
@@ -77,20 +77,20 @@ const DEFAULT_MENU: { closed: NavigationRailMenuState; opened: NavigationRailMen
   template: `
     <div [class]="styles()['navigationRail']" style="transition: 0.3s">
       <div [class]="styles()['header']">
-        <lib-icon-button
+        <udx-icon-button
           [label]="isExtended() ? menu().opened.label : menu().closed.label"
           [icon]="isExtended() ? menu().opened.icon : menu().closed.icon"
           [className]="styles()['menuIcon']"
           (click)="toggleExtended()"
         />
         <div class="mx-5 [&_.fab]:!shadow-none">
-          <ng-content select="lib-fab" />
+          <ng-content select="udx-fab" />
         </div>
       </div>
 
       <div [class]="styles()['segments']">
         <ng-content
-          select="lib-navigation-rail-item, lib-navigation-rail-section"
+          select="udx-navigation-rail-item, udx-navigation-rail-section"
         />
       </div>
 

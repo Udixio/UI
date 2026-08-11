@@ -13,18 +13,18 @@ import { Button, Tooltip } from '@udixio/ui-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-wrap items-center gap-6 p-8">
-      <lib-button #hoverButton label="Hover me" />
-      <lib-tooltip [target]="hoverTrigger()" text="Copy to clipboard" />
+      <udx-button #hoverButton label="Hover me" />
+      <udx-tooltip [target]="hoverTrigger()" text="Copy to clipboard" />
 
-      <lib-button #clickButton label="Click me" />
-      <lib-tooltip
+      <udx-button #clickButton label="Click me" />
+      <udx-tooltip
         [target]="clickTrigger()"
         text="Opens on click"
         trigger="click"
       />
 
-      <lib-button #topButton label="Top" />
-      <lib-tooltip
+      <udx-button #topButton label="Top" />
+      <udx-tooltip
         [target]="topTrigger()"
         text="Top placement"
         position="top"

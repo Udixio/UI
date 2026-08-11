@@ -9,7 +9,7 @@ import { iAdd } from '@udixio/icons-rounded-400/add';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex min-h-[28rem] w-full items-end justify-center">
-      <lib-fab-menu
+      <udx-fab-menu
         label="Add content"
         [icon]="addIcon"
         [actions]="actions"

@@ -8,7 +8,7 @@ import {
 import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
 
 /**
- * A non-interactive label that groups the `lib-navigation-rail-item`s
+ * A non-interactive label that groups the `udx-navigation-rail-item`s
  * following it.
  * @status beta
  * @parent NavigationRail
@@ -22,7 +22,7 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
  *   `role="group"`/`aria-labelledby` wiring).
  */
 @Component({
-  selector: 'lib-navigation-rail-section',
+  selector: 'udx-navigation-rail-section',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },

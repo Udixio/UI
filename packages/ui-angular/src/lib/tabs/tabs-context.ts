@@ -7,10 +7,10 @@ export interface TabsContext {
   readonly focusableIndex: Signal<number>;
   readonly variant: Signal<TabsVariant>;
   readonly tabsId: Signal<string>;
-  /** Whether a connected `lib-tab-panels` exists (wires `aria-controls`). */
+  /** Whether a connected `udx-tab-panels` exists (wires `aria-controls`). */
   readonly hasPanels: Signal<boolean>;
   select(index: number): void;
-  /** This tab's position among `lib-tab` siblings, or `undefined` if untracked. */
+  /** This tab's position among `udx-tab` siblings, or `undefined` if untracked. */
   indexOf(tab: object): number | undefined;
 }
 

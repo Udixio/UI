@@ -12,27 +12,27 @@ import { iSettings } from '@udixio/icons-rounded-400/settings';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-wrap items-start justify-center gap-6">
-      <lib-menu accessibleLabel="Standard actions">
-        <lib-menu-headline label="Standard" />
-        <lib-menu-item label="Copy" [leadingIcon]="copyIcon" />
-        <lib-menu-item
+      <udx-menu accessibleLabel="Standard actions">
+        <udx-menu-headline label="Standard" />
+        <udx-menu-item label="Copy" [leadingIcon]="copyIcon" />
+        <udx-menu-item
           label="Settings"
           [leadingIcon]="settingsIcon"
           [trailingIcon]="chevronRightIcon"
         />
-        <lib-menu-item label="Delete" [leadingIcon]="deleteIcon" disabled />
-      </lib-menu>
+        <udx-menu-item label="Delete" [leadingIcon]="deleteIcon" disabled />
+      </udx-menu>
 
-      <lib-menu accessibleLabel="Vibrant actions" variant="vibrant">
-        <lib-menu-headline label="Vibrant" />
-        <lib-menu-item label="Copy" [leadingIcon]="copyIcon" />
-        <lib-menu-item
+      <udx-menu accessibleLabel="Vibrant actions" variant="vibrant">
+        <udx-menu-headline label="Vibrant" />
+        <udx-menu-item label="Copy" [leadingIcon]="copyIcon" />
+        <udx-menu-item
           label="Settings"
           [leadingIcon]="settingsIcon"
           [trailingIcon]="chevronRightIcon"
         />
-        <lib-menu-item label="Delete" [leadingIcon]="deleteIcon" disabled />
-      </lib-menu>
+        <udx-menu-item label="Delete" [leadingIcon]="deleteIcon" disabled />
+      </udx-menu>
     </div>
   `,
 })

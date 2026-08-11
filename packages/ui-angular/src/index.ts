@@ -1,4 +1,3 @@
-export * from './lib/ui-angular/ui-angular';
 export * from './lib/anchor-positioner/anchor-positioner';
 export * from './lib/button/button';
 export * from './lib/card/card';

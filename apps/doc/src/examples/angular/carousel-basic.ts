@@ -7,17 +7,17 @@ import { Carousel, CarouselItem } from '@udixio/ui-angular';
   imports: [Carousel, CarouselItem],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-carousel variant="hero" [gap]="8">
-      <lib-carousel-item>
+    <udx-carousel variant="hero" [gap]="8">
+      <udx-carousel-item>
         <div class="p-6 bg-surface rounded-xl">Slide 1</div>
-      </lib-carousel-item>
-      <lib-carousel-item>
+      </udx-carousel-item>
+      <udx-carousel-item>
         <div class="p-6 bg-surface rounded-xl">Slide 2</div>
-      </lib-carousel-item>
-      <lib-carousel-item>
+      </udx-carousel-item>
+      <udx-carousel-item>
         <div class="p-6 bg-surface rounded-xl">Slide 3</div>
-      </lib-carousel-item>
-    </lib-carousel>
+      </udx-carousel-item>
+    </udx-carousel>
   `,
 })
 export class CarouselBasicAngular {}

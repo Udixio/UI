@@ -8,7 +8,7 @@ expect.extend(toHaveNoViolations);
 // The real Anime.js tween controller needs WAAPI (`Element.prototype.animate`),
 // which jsdom does not implement -- mock the factory (preserving every other
 // `@udixio/core/dom` export, e.g. `createStateLayerController` used by
-// `lib-state-layer`) so tests exercise the component's wiring, not Anime.js
+// `udx-state-layer`) so tests exercise the component's wiring, not Anime.js
 // internals against a fake DOM.
 jest.mock('@udixio/core/dom', () => ({
   ...jest.requireActual('@udixio/core/dom'),
@@ -22,7 +22,7 @@ jest.mock('@udixio/core/dom', () => ({
   standalone: true,
   imports: [Switch],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<lib-switch aria-label="Wi-Fi" [(checked)]="checked" />`,
+  template: `<udx-switch aria-label="Wi-Fi" [(checked)]="checked" />`,
 })
 class ControlledSwitchHost {
   checked = false;

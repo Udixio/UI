@@ -13,8 +13,8 @@ import { Button, Tooltip } from '@udixio/ui-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-wrap items-center gap-6 p-8">
-      <lib-button #savedButton label="Rich tooltip" />
-      <lib-tooltip
+      <udx-button #savedButton label="Rich tooltip" />
+      <udx-tooltip
         [target]="savedTrigger()"
         variant="rich"
         title="Saved"
@@ -22,11 +22,11 @@ import { Button, Tooltip } from '@udixio/ui-angular';
         [buttons]="{ label: 'Undo' }"
       />
 
-      <lib-button #customButton label="Custom content" />
-      <lib-tooltip [target]="customTrigger()" variant="rich">
+      <udx-button #customButton label="Custom content" />
+      <udx-tooltip [target]="customTrigger()" variant="rich">
         <strong class="text-title-small">Shortcuts</strong>
         <p class="text-body-medium">Press Cmd+K to open the command palette.</p>
-      </lib-tooltip>
+      </udx-tooltip>
     </div>
   `,
 })

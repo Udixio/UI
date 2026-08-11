@@ -20,7 +20,7 @@ const slides = Array.from({ length: total }, (_, i) => i + 1).map((id) => {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="w-full">
-      <lib-carousel
+      <udx-carousel
         variant="hero"
         [scrollSensitivity]="0.8"
         [index]="index()"
@@ -28,7 +28,7 @@ const slides = Array.from({ length: total }, (_, i) => i + 1).map((id) => {
         (metricsChange)="handleMetricsChange($event)"
       >
         @for (slide of slides; track slide.id) {
-          <lib-carousel-item>
+          <udx-carousel-item>
             <div class="bg-surface rounded-xl h-full flex flex-col">
               <div class="flex-1 min-h-0">
                 <img
@@ -48,17 +48,17 @@ const slides = Array.from({ length: total }, (_, i) => i + 1).map((id) => {
               </div>
               <p class="text-title-large m-8 text-nowrap">Slide {{ slide.id }}</p>
             </div>
-          </lib-carousel-item>
+          </udx-carousel-item>
         }
-      </lib-carousel>
+      </udx-carousel>
       <div class="w-full mt-3 flex items-center justify-between gap-3">
         <div class="text-on-surface-variant text-body-small">
           Visible ≈ {{ visible().approx.toFixed(2) }} (full {{ visible().full }}), step:
           {{ step() }}
         </div>
         <div class="flex gap-3">
-          <lib-button variant="text" label="Previous" (click)="prev()" />
-          <lib-button variant="filled" label="Next" (click)="next()" />
+          <udx-button variant="text" label="Previous" (click)="prev()" />
+          <udx-button variant="filled" label="Next" (click)="next()" />
         </div>
       </div>
     </div>

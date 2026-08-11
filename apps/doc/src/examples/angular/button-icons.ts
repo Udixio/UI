@@ -9,8 +9,8 @@ import { Button } from '@udixio/ui-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-wrap justify-center gap-3">
-      <lib-button label="Add" [icon]="addIcon" />
-      <lib-button label="Next" [icon]="addIcon" iconPosition="end" />
+      <udx-button label="Add" [icon]="addIcon" />
+      <udx-button label="Next" [icon]="addIcon" iconPosition="end" />
     </div>
   `,
 })

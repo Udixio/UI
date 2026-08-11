@@ -34,7 +34,7 @@ import { createStyle } from '../utils/create-style';
  * @limitations The delayed edit-on-focus behavior remains specific to the React adapter.
  */
 @Component({
-  selector: 'lib-chip',
+  selector: 'udx-chip',
   standalone: true,
   imports: [Icon, StateLayer, NgTemplateOutlet],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -79,14 +79,14 @@ import { createStyle } from '../utils/create-style';
 
     <ng-template #content>
       @if (interactive() && !disabled() && !isEditing()) {
-        <lib-state-layer
+        <udx-state-layer
           [className]="styles()['stateLayer']"
           [colorName]="stateColor()"
           stateClassName="state-ripple-group-[chip]"
         />
       }
       @if (resolvedIcon()) {
-        <lib-icon
+        <udx-icon
           [icon]="resolvedIcon()!"
           [className]="styles()['leadingIcon']"
         />
@@ -107,7 +107,7 @@ import { createStyle } from '../utils/create-style';
           (mousedown)="$event.preventDefault(); $event.stopPropagation()"
           (click)="requestRemoval($event)"
         >
-          <lib-icon [icon]="removeIcon" className="size-full" />
+          <udx-icon [icon]="removeIcon" className="size-full" />
         </span>
       }
     </ng-template>

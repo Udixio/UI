@@ -32,7 +32,7 @@ import { StateLayer } from '../state-layer/state-layer';
  * - An actionable card is one action target: do not nest interactive elements inside it; compose inner controls in a non-interactive card instead.
  */
 @Component({
-  selector: 'lib-card',
+  selector: 'udx-card',
   standalone: true,
   imports: [NgTemplateOutlet, StateLayer],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -40,7 +40,7 @@ import { StateLayer } from '../state-layer/state-layer';
   template: `
     <ng-template #content>
       @if (isInteractive()) {
-        <lib-state-layer
+        <udx-state-layer
           [className]="styles()['stateLayer']"
           colorName="on-surface"
           stateClassName="state-ripple-group-[card]"

@@ -8,7 +8,7 @@ import { Slider } from '@udixio/ui-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="w-72">
-      <lib-slider
+      <udx-slider
         name="volume"
         [defaultValue]="40"
         [step]="10"

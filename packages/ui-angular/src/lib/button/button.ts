@@ -51,7 +51,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
  * - Navigation links ignore toggle state; use `aria-current` for the current destination.
  */
 @Component({
-  selector: 'lib-button',
+  selector: 'udx-button',
   standalone: true,
   imports: [NgTemplateOutlet, Icon, StateLayer, ButtonLoadingIndicator],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -59,21 +59,21 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
   template: `
     <ng-template #content>
       @if (resolvedIconPosition() === 'start' && icon(); as leadingIcon) {
-        <lib-icon [icon]="leadingIcon" [className]="styles()['icon']" />
+        <udx-icon [icon]="leadingIcon" [className]="styles()['icon']" />
       }
       @if (loading()) {
         <span
           aria-hidden="true"
           class="!absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
         >
-          <lib-button-loading-indicator [color]="progressColor()" />
+          <udx-button-loading-indicator [color]="progressColor()" />
         </span>
       }
       <span #labelContent [class]="styles()['label']">
         <ng-content>{{ label() }}</ng-content>
       </span>
       @if (resolvedIconPosition() === 'end' && icon(); as trailingIcon) {
-        <lib-icon [icon]="trailingIcon" [className]="styles()['icon']" />
+        <udx-icon [icon]="trailingIcon" [className]="styles()['icon']" />
       }
     </ng-template>
 
@@ -96,7 +96,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         (click)="handleClick($event)"
       >
         <span [class]="styles()['touchTarget']"></span>
-        <lib-state-layer
+        <udx-state-layer
           [className]="styles()['stateLayer']"
           [colorName]="stateColor()"
           [shapeTransition]="shapeTransition()"
@@ -119,7 +119,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         (click)="handleClick($event)"
       >
         <span [class]="styles()['touchTarget']"></span>
-        <lib-state-layer
+        <udx-state-layer
           [className]="styles()['stateLayer']"
           [colorName]="stateColor()"
           [shapeTransition]="shapeTransition()"

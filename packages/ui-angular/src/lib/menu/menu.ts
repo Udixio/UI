@@ -29,7 +29,7 @@ import { MenuGroup } from './menu-group';
  * @limitations Nested submenus are not part of this component; compose another popup from an item trigger.
  */
 @Component({
-  selector: 'lib-menu',
+  selector: 'udx-menu',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [{ provide: MENU_CONTEXT, useExisting: forwardRef(() => Menu) }],

@@ -9,7 +9,7 @@ import { Chip } from '@udixio/ui-angular';
   template: `
     <div class="flex flex-wrap gap-2">
       @for (tag of tags(); track tag) {
-        <lib-chip [label]="tag" removable (remove)="removeTag(tag)" />
+        <udx-chip [label]="tag" removable (remove)="removeTag(tag)" />
       }
     </div>
   `,

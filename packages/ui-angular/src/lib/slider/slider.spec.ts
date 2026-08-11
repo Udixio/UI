@@ -25,7 +25,7 @@ function stubTrackWidth(track: HTMLElement, width = 200) {
   standalone: true,
   imports: [Slider],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<lib-slider
+  template: `<udx-slider
     name="volume"
     [(value)]="value"
     [step]="10"

@@ -14,14 +14,14 @@ import { ProgressIndicator } from '@udixio/ui-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex items-center gap-6">
-      <lib-progress-indicator
+      <udx-progress-indicator
         variant="linear-determinate"
         [value]="value()"
         [transitionDuration]="300"
         aria-label="Download progress"
         className="w-48"
       />
-      <lib-progress-indicator
+      <udx-progress-indicator
         variant="circular-determinate"
         [value]="value()"
         [transitionDuration]="300"

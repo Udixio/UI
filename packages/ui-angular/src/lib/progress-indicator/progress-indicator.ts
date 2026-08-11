@@ -40,7 +40,7 @@ import { createStyle } from '../utils/create-style';
  * - Visibility auto-hides at 100% (no controlled open prop).
  */
 @Component({
-  selector: 'lib-progress-indicator',
+  selector: 'udx-progress-indicator',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },

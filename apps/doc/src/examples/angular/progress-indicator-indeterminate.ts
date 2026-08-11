@@ -8,12 +8,12 @@ import { ProgressIndicator } from '@udixio/ui-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex items-center gap-6">
-      <lib-progress-indicator
+      <udx-progress-indicator
         variant="linear-indeterminate"
         aria-label="Loading"
         className="w-48"
       />
-      <lib-progress-indicator
+      <udx-progress-indicator
         variant="circular-indeterminate"
         aria-label="Loading"
       />

@@ -29,11 +29,11 @@ import { Button, SideSheet } from '@udixio/ui-angular';
         </div>
 
         <div class="flex justify-end">
-          <lib-button label="Open details" (click)="open = true" />
+          <udx-button label="Open details" (click)="open = true" />
         </div>
       </div>
 
-      <lib-side-sheet
+      <udx-side-sheet
         variant="modal"
         title="Details"
         [open]="open"
@@ -44,7 +44,7 @@ import { Button, SideSheet } from '@udixio/ui-angular';
           Modal content. Press Escape, click the backdrop, or use the close
           button to dismiss it.
         </p>
-      </lib-side-sheet>
+      </udx-side-sheet>
     </div>
   `,
 })

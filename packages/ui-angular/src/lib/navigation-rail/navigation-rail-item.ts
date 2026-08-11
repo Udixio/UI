@@ -28,14 +28,14 @@ import { createStyle } from '../utils/create-style';
 import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
 
 /**
- * A single destination inside a `lib-navigation-rail`; renders as a link
+ * A single destination inside a `udx-navigation-rail`; renders as a link
  * when `href` is provided, otherwise as a button.
  * @status beta
  * @parent NavigationRail
  * @devx
  * - Selection is index-based and resolved from the parent rail; standalone
  *   usage falls back to `selected`.
- * - An item placed after a `lib-navigation-rail-section` only renders while
+ * - An item placed after a `udx-navigation-rail-section` only renders while
  *   the rail is extended.
  * - The label reveal (width/height + opacity, on `extended` changes) is
  *   driven by a shared `@udixio/core/dom` Motion controller, the same one
@@ -48,7 +48,7 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
  *   tab order.
  */
 @Component({
-  selector: 'lib-navigation-rail-item',
+  selector: 'udx-navigation-rail-item',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgTemplateOutlet, Icon, StateLayer],
@@ -80,13 +80,13 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
 
     <ng-template #content>
       <span [class]="styles()['container']" [style.transition]="containerTransition()">
-        <lib-state-layer
+        <udx-state-layer
           [className]="styles()['stateLayer']"
           [colorName]="isSelected() ? 'on-secondary-container' : 'on-surface'"
           stateClassName="state-ripple-group-[navigation-rail-item]"
         />
         @if (icon()) {
-          <lib-icon
+          <udx-icon
             [icon]="(isSelected() ? iconSelected() : icon())!"
             [className]="styles()['icon']"
           />

@@ -8,8 +8,8 @@ import { TextField } from '@udixio/ui-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col gap-3">
-      <lib-text-field label="Controlled" name="c1" [(value)]="value" />
-      <lib-text-field
+      <udx-text-field label="Controlled" name="c1" [(value)]="value" />
+      <udx-text-field
         label="Uncontrolled"
         name="u2"
         defaultValue="Initial value"

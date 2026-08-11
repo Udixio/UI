@@ -41,12 +41,12 @@ const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
  *
  * @status beta
  * @category Layout
- * @devx Project `lib-carousel-item` children; use `index`/`indexChange` for controlled positioning, or `defaultIndex` to seed the initial position of an uncontrolled carousel.
+ * @devx Project `udx-carousel-item` children; use `index`/`indexChange` for controlled positioning, or `defaultIndex` to seed the initial position of an uncontrolled carousel.
  * @a11y The root is a `region` with `aria-roledescription="carousel"` (set `accessibleLabel` for a name); each slide is a `group` with `aria-roledescription="slide"` and an `"n / total"` label. Roving `tabindex` keeps a single slide in the tab order; Arrow/Home/End move the selection.
  * @limitations Responsive behavior on mobile is not supported. Only the `hero` variant is implemented; `center-aligned`, `multi-browse`, `un-contained`, and `full-screen` are reserved in the type for future Material 3 layout support and currently render as `hero`.
  */
 @Component({
-  selector: 'lib-carousel',
+  selector: 'udx-carousel',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
@@ -74,7 +74,7 @@ const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
             [style.gap.px]="gap()"
             style="will-change: transform"
           >
-            <ng-content select="lib-carousel-item" />
+            <ng-content select="udx-carousel-item" />
           </div>
         </div>
 

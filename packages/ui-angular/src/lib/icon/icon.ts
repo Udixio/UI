@@ -17,7 +17,7 @@ import { createStyle } from '../utils/create-style';
 type FontAwesomeIcon = Exclude<IconType, string | SvgImport>;
 
 @Component({
-  selector: 'lib-icon',
+  selector: 'udx-icon',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },

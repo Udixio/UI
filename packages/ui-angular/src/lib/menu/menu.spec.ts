@@ -14,13 +14,13 @@ expect.extend(toHaveNoViolations);
   imports: [Menu, MenuGroup, MenuHeadline, MenuItem, ContextMenu],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-menu [purpose]="purpose()" accessibleLabel="Actions">
-      <lib-menu-group label="Editing">
-        <lib-menu-headline label="Clipboard" />
-        <lib-menu-item label="Copy" />
-        <lib-menu-item label="Paste" disabled />
-      </lib-menu-group>
-    </lib-menu>
+    <udx-menu [purpose]="purpose()" accessibleLabel="Actions">
+      <udx-menu-group label="Editing">
+        <udx-menu-headline label="Clipboard" />
+        <udx-menu-item label="Copy" />
+        <udx-menu-item label="Paste" disabled />
+      </udx-menu-group>
+    </udx-menu>
   `,
 })
 class MenuTestHost {
@@ -50,7 +50,7 @@ describe('Menu family', () => {
         .getAttribute('aria-labelledby'),
     ).toBeTruthy();
     const group: HTMLElement =
-      fixture.nativeElement.querySelector('lib-menu-group');
+      fixture.nativeElement.querySelector('udx-menu-group');
     expect(group.classList.contains('mb-0.5')).toBe(true);
     expect(group.classList.contains('rounded-lg')).toBe(true);
     expect(group.classList.contains('first:rounded-t-2xl')).toBe(true);
@@ -69,7 +69,7 @@ describe('Menu family', () => {
     expect(disabledItem.classList.contains('bg-secondary-container')).toBe(
       false,
     );
-    expect(disabledItem.querySelector('lib-state-layer')).toBeNull();
+    expect(disabledItem.querySelector('udx-state-layer')).toBeNull();
     expect(
       fixture.nativeElement.querySelector('[role="presentation"]').textContent,
     ).toContain('Clipboard');
@@ -174,13 +174,13 @@ describe('MenuItem state', () => {
   standalone: true,
   imports: [ContextMenu, MenuItem],
   template: `
-    <lib-context-menu
+    <udx-context-menu
       accessibleLabel="Document actions"
       (openChange)="changes.push($event)"
     >
       <button contextMenuTrigger>Document</button>
-      <lib-menu-item label="Rename" />
-    </lib-context-menu>
+      <udx-menu-item label="Rename" />
+    </udx-context-menu>
   `,
 })
 class ContextMenuTestHost {

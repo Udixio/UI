@@ -18,7 +18,7 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/navigation-rail/navigation-rail-section.ts",
-      "description": "A non-interactive label that groups the `lib-navigation-rail-item`s\nfollowing it.",
+      "description": "A non-interactive label that groups the `udx-navigation-rail-item`s\nfollowing it.",
       "tags": {
         "status": "beta",
         "parent": "NavigationRail",

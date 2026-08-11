@@ -10,11 +10,11 @@ import { iPerson } from '@udixio/icons-rounded-400/person';
   imports: [Tabs, Tab],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-tabs [defaultSelectedTab]="0">
-      <lib-tab label="Home" [icon]="iHome" />
-      <lib-tab label="Settings" [icon]="iSettings" />
-      <lib-tab label="Profile" [icon]="iPerson" />
-    </lib-tabs>
+    <udx-tabs [defaultSelectedTab]="0">
+      <udx-tab label="Home" [icon]="iHome" />
+      <udx-tab label="Settings" [icon]="iSettings" />
+      <udx-tab label="Profile" [icon]="iPerson" />
+    </udx-tabs>
   `,
 })
 export class TabsBasicAngular {

@@ -45,7 +45,7 @@ function findButtonByText(root: HTMLElement, text: string): HTMLButtonElement {
   standalone: true,
   imports: [TextField],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<lib-text-field label="Email" [(value)]="value" />`,
+  template: `<udx-text-field label="Email" [(value)]="value" />`,
 })
 class ControlledTextFieldHost {
   value = '';

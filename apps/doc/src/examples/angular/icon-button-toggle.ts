@@ -10,7 +10,7 @@ import { iStarFilled } from '@udixio/icons-rounded-400/filled/star';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-wrap items-center gap-3">
-      <lib-icon-button
+      <udx-icon-button
         label="Favorite (uncontrolled)"
         [icon]="starIcon"
         [pressedIcon]="starFilledIcon"
@@ -18,7 +18,7 @@ import { iStarFilled } from '@udixio/icons-rounded-400/filled/star';
         toggleable
         defaultPressed
       />
-      <lib-icon-button
+      <udx-icon-button
         label="Favorite (controlled)"
         [icon]="starIcon"
         [pressedIcon]="starFilledIcon"

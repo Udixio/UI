@@ -41,7 +41,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
  * - Navigation links ignore toggle state; use `aria-current` for the current destination.
  */
 @Component({
-  selector: 'lib-icon-button',
+  selector: 'udx-icon-button',
   standalone: true,
   imports: [NgTemplateOutlet, Icon, StateLayer],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,13 +49,13 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
   template: `
     <ng-template #content>
       <span [class]="styles()['touchTarget']"></span>
-      <lib-state-layer
+      <udx-state-layer
         [className]="styles()['stateLayer']"
         [colorName]="stateColor()"
         [shapeTransition]="shapeTransition()"
         stateClassName="state-ripple-group-[icon-button]"
       />
-      <lib-icon [icon]="resolvedIcon()" [className]="styles()['icon']" />
+      <udx-icon [icon]="resolvedIcon()" [className]="styles()['icon']" />
     </ng-template>
 
     @if (href() !== undefined) {

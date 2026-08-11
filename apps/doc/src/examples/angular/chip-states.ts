@@ -6,7 +6,7 @@ import { Chip } from '@udixio/ui-angular';
   standalone: true,
   imports: [Chip],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<lib-chip
+  template: `<udx-chip
     label="Photos"
     [selected]="selected()"
     (selectedChange)="selected.set($event)"

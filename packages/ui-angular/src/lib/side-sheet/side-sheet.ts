@@ -68,7 +68,7 @@ let nextSideSheetId = 0;
  *   very large panel or on a low-powered device.
  */
 @Component({
-  selector: 'lib-side-sheet',
+  selector: 'udx-side-sheet',
   standalone: true,
   imports: [IconButton, Divider],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -100,7 +100,7 @@ let nextSideSheetId = 0;
                 {{ title() }}
               </p>
             }
-            <lib-icon-button
+            <udx-icon-button
               size="small"
               [label]="closeLabel()"
               [icon]="closeIcon()"
@@ -113,7 +113,7 @@ let nextSideSheetId = 0;
           </div>
         </div>
         @if (showDivider()) {
-          <lib-divider [class]="styles()['divider']" orientation="vertical" />
+          <udx-divider [class]="styles()['divider']" orientation="vertical" />
         }
       </div>
     </div>

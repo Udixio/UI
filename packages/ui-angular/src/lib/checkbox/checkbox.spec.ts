@@ -11,7 +11,7 @@ expect.extend(toHaveNoViolations);
   imports: [Checkbox],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-checkbox id="updates" [(checked)]="checked" />
+    <udx-checkbox id="updates" [(checked)]="checked" />
     <label for="updates">Product updates</label>
   `,
 })

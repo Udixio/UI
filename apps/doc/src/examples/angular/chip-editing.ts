@@ -7,7 +7,7 @@ import { Chip } from '@udixio/ui-angular';
   imports: [Chip],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-chip [label]="label()" editable (editCommit)="label.set($event)" />
+    <udx-chip [label]="label()" editable (editCommit)="label.set($event)" />
   `,
 })
 export class ChipEditingAngular {

@@ -9,19 +9,19 @@ import { Checkbox } from '@udixio/ui-angular';
   template: `
     <div class="grid gap-3 sm:grid-cols-2">
       <div class="flex items-center gap-3">
-        <lib-checkbox id="checkbox-angular-controlled" [(checked)]="checked" />
+        <udx-checkbox id="checkbox-angular-controlled" [(checked)]="checked" />
         <label for="checkbox-angular-controlled">Controlled</label>
       </div>
       <div class="flex items-center gap-3">
-        <lib-checkbox id="checkbox-angular-default" defaultChecked />
+        <udx-checkbox id="checkbox-angular-default" defaultChecked />
         <label for="checkbox-angular-default">Default checked</label>
       </div>
       <div class="flex items-center gap-3">
-        <lib-checkbox id="checkbox-angular-disabled" disabled />
+        <udx-checkbox id="checkbox-angular-disabled" disabled />
         <label for="checkbox-angular-disabled">Disabled</label>
       </div>
       <div class="flex items-center gap-3">
-        <lib-checkbox
+        <udx-checkbox
           id="checkbox-angular-disabled-checked"
           defaultChecked
           disabled

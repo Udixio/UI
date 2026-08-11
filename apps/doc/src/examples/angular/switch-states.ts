@@ -8,10 +8,10 @@ import { Switch } from '@udixio/ui-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-wrap items-center gap-6">
-      <lib-switch aria-label="Controlled" [(checked)]="checked" />
-      <lib-switch aria-label="Default checked" defaultChecked />
-      <lib-switch aria-label="Disabled" disabled />
-      <lib-switch aria-label="Disabled and checked" defaultChecked disabled />
+      <udx-switch aria-label="Controlled" [(checked)]="checked" />
+      <udx-switch aria-label="Default checked" defaultChecked />
+      <udx-switch aria-label="Disabled" disabled />
+      <udx-switch aria-label="Disabled and checked" defaultChecked disabled />
     </div>
   `,
 })

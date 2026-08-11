@@ -11,8 +11,8 @@ expect.extend(toHaveNoViolations);
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <main>
-      <lib-divider />
-      <lib-divider orientation="vertical" />
+      <udx-divider />
+      <udx-divider orientation="vertical" />
     </main>
   `,
 })

@@ -8,8 +8,8 @@ import { TextField } from '@udixio/ui-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-wrap items-end gap-6">
-      <lib-text-field label="Name" name="name" variant="filled" />
-      <lib-text-field label="Name" name="name2" variant="outlined" />
+      <udx-text-field label="Name" name="name" variant="filled" />
+      <udx-text-field label="Name" name="name2" variant="outlined" />
     </div>
   `,
 })

@@ -7,7 +7,7 @@ import { Button, Card } from '@udixio/ui-angular';
   imports: [Button, Card],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-card variant="filled" className="w-full max-w-96">
+    <udx-card variant="filled" className="w-full max-w-96">
       <img
         class="h-40 w-full object-cover"
         src="https://picsum.photos/640/240"
@@ -19,8 +19,8 @@ import { Button, Card } from '@udixio/ui-angular';
           Last updated 2 days ago
         </p>
         <div class="flex gap-2 pt-2">
-          <lib-button label="Open" size="small" variant="filled" />
-          <lib-button
+          <udx-button label="Open" size="small" variant="filled" />
+          <udx-button
             label="Share"
             size="small"
             variant="text"
@@ -28,7 +28,7 @@ import { Button, Card } from '@udixio/ui-angular';
           />
         </div>
       </div>
-    </lib-card>
+    </udx-card>
   `,
 })
 export class CardCompositionAngular {}

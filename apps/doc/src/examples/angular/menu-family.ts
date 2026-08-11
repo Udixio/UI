@@ -7,21 +7,21 @@ import { Menu, MenuGroup, MenuHeadline, MenuItem } from '@udixio/ui-angular';
   imports: [Menu, MenuGroup, MenuHeadline, MenuItem],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-menu accessibleLabel="Editor actions">
-      <lib-menu-group>
-        <lib-menu-headline label="Document" />
-        <lib-menu-item label="Copy" />
-        <lib-menu-item label="Paste" disabled />
-      </lib-menu-group>
-      <lib-menu-group label="View">
-        <lib-menu-item
+    <udx-menu accessibleLabel="Editor actions">
+      <udx-menu-group>
+        <udx-menu-headline label="Document" />
+        <udx-menu-item label="Copy" />
+        <udx-menu-item label="Paste" disabled />
+      </udx-menu-group>
+      <udx-menu-group label="View">
+        <udx-menu-item
           label="Compact mode"
           selectionType="multiple"
           [selected]="compact()"
           (selectedChange)="compact.set($event)"
         />
-      </lib-menu-group>
-    </lib-menu>
+      </udx-menu-group>
+    </udx-menu>
   `,
 })
 export class MenuFamilyAngular {

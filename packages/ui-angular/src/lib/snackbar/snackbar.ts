@@ -51,7 +51,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
  * - No built-in queue/stacking for multiple simultaneous snackbars.
  */
 @Component({
-  selector: 'lib-snackbar',
+  selector: 'udx-snackbar',
   standalone: true,
   imports: [IconButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -67,7 +67,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
     >
       <div [class]="styles()['container']">
         <p [class]="styles()['supportingText']">{{ message() }}</p>
-        <lib-icon-button
+        <udx-icon-button
           label="Close the snackbar"
           [icon]="closeIcon()"
           [className]="styles()['icon']"

@@ -55,7 +55,7 @@ export interface FabMenuActionSelectEvent {
  * - Consumers own action-specific side effects through the `actionSelect` output.
  */
 @Component({
-  selector: 'lib-fab-menu',
+  selector: 'udx-fab-menu',
   standalone: true,
   imports: [Fab, Button],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -69,7 +69,7 @@ export interface FabMenuActionSelectEvent {
       [attr.data-open]="isOpen()"
     >
       <span [class]="styles()['triggerSizer']" aria-hidden="true" inert>
-        <lib-fab
+        <udx-fab
           [label]="label()"
           [icon]="icon()"
           [variant]="closedTriggerVariant()"
@@ -81,7 +81,7 @@ export interface FabMenuActionSelectEvent {
       </span>
 
       <span #triggerHost [class]="styles()['triggerPositioner']">
-        <lib-fab
+        <udx-fab
           [label]="resolvedTriggerLabel()"
           [icon]="resolvedTriggerIcon()"
           [variant]="triggerVariant()"
@@ -106,7 +106,7 @@ export interface FabMenuActionSelectEvent {
       >
         @for (action of actions(); track action.id; let index = $index) {
           <span [class]="styles()['actionContainer']" data-fab-menu-action>
-            <lib-button
+            <udx-button
               [label]="action.label"
               [icon]="action.icon"
               [href]="action.href"

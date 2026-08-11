@@ -8,12 +8,12 @@ import { DatePicker } from '@udixio/ui-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col items-center gap-8">
-      <lib-date-picker
+      <udx-date-picker
         [minDate]="minDate"
         [maxDate]="maxDate"
         [defaultValue]="defaultDate"
       />
-      <lib-date-picker
+      <udx-date-picker
         [shouldDisableDate]="isWeekend"
         [defaultValue]="defaultDate"
       />

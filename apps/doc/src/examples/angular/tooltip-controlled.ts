@@ -14,12 +14,12 @@ import { Button, Tooltip } from '@udixio/ui-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex items-center gap-6 p-8">
-      <lib-button
+      <udx-button
         #triggerButton
         [label]="open() ? 'Hide' : 'Show'"
         (click)="open.set(!open())"
       />
-      <lib-tooltip
+      <udx-tooltip
         [target]="trigger()"
         text="Controlled tooltip"
         [open]="open()"

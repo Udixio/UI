@@ -8,9 +8,9 @@ import { Chip } from '@udixio/ui-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-wrap gap-2">
-      <lib-chip label="Près de moi" />
-      <lib-chip label="Ouvert maintenant" variant="elevated" />
-      <lib-chip label="4★ et +" />
+      <udx-chip label="Près de moi" />
+      <udx-chip label="Ouvert maintenant" variant="elevated" />
+      <udx-chip label="4★ et +" />
     </div>
   `,
 })

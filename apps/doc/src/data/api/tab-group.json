@@ -49,13 +49,13 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/tabs/tab-group.ts",
-      "description": "TabGroup shares selection state between a `lib-tabs` tablist and a\n`lib-tab-panels` placed anywhere in its subtree.",
+      "description": "TabGroup shares selection state between a `udx-tabs` tablist and a\n`udx-tab-panels` placed anywhere in its subtree.",
       "tags": {
         "status": "beta",
         "category": "Navigation",
         "parent": "Tabs",
-        "devx": "- Project `lib-tabs` and `lib-tab-panels`; wrap them in a `lib-tab-group`\n  to connect them. `lib-tabs` alone (no group) is enough for a\n  navigation-only tab list with no panels.\n- Use `selectedTab`/`selectedTabChange` for controlled selection, or\n  `defaultSelectedTab` (defaults to `0`) when uncontrolled.",
-        "a11y": "- Renders `display: contents` and no ARIA role itself; the `tablist`/\n  `tab`/`tabpanel` roles live on the connected `lib-tabs`/`lib-tab`/\n  `lib-tab-panel`.",
+        "devx": "- Project `udx-tabs` and `udx-tab-panels`; wrap them in a `udx-tab-group`\n  to connect them. `udx-tabs` alone (no group) is enough for a\n  navigation-only tab list with no panels.\n- Use `selectedTab`/`selectedTabChange` for controlled selection, or\n  `defaultSelectedTab` (defaults to `0`) when uncontrolled.",
+        "a11y": "- Renders `display: contents` and no ARIA role itself; the `tablist`/\n  `tab`/`tabpanel` roles live on the connected `udx-tabs`/`udx-tab`/\n  `udx-tab-panel`.",
         "limitations": "- No URL/hash syncing or persistence built in."
       },
       "inputs": {

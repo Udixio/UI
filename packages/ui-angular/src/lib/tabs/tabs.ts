@@ -42,11 +42,11 @@ export interface TabSelectedEvent {
  * @status beta
  * @category Navigation
  * @devx
- * - Project `lib-tab` children; other content is ignored.
+ * - Project `udx-tab` children; other content is ignored.
  * - Use `selectedTab`/`selectedTabChange` for controlled selection, or
  *   `defaultSelectedTab` (defaults to `0`) when uncontrolled.
- * - Wrapping in a `lib-tab-group` shares its selection automatically; do not
- *   also bind `selectedTab` directly on `lib-tabs` in that case, or the two
+ * - Wrapping in a `udx-tab-group` shares its selection automatically; do not
+ *   also bind `selectedTab` directly on `udx-tabs` in that case, or the two
  *   owners fight over selection.
  * @a11y
  * - `role="tablist"` with a shared sliding indicator driven by a
@@ -58,7 +58,7 @@ export interface TabSelectedEvent {
  * - Horizontal orientation only.
  */
 @Component({
-  selector: 'lib-tabs',
+  selector: 'udx-tabs',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
@@ -72,7 +72,7 @@ export interface TabSelectedEvent {
       [class]="styles()['tabs']"
       (keydown)="handleKeyDown($event)"
     >
-      <ng-content select="lib-tab" />
+      <ng-content select="udx-tab" />
       <span #indicator [class]="styles()['indicator']"></span>
     </div>
   `,

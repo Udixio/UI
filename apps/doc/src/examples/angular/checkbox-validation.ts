@@ -13,7 +13,7 @@ import { Button, Checkbox } from '@udixio/ui-angular';
       (submit)="submit($event)"
     >
       <div class="flex items-center gap-3">
-        <lib-checkbox
+        <udx-checkbox
           id="checkbox-angular-terms"
           name="terms"
           value="accepted"
@@ -32,7 +32,7 @@ import { Button, Checkbox } from '@udixio/ui-angular';
       >
         {{ invalid ? 'You must accept the terms.' : 'Required to continue.' }}
       </p>
-      <lib-button type="submit" label="Continue" />
+      <udx-button type="submit" label="Continue" />
     </form>
   `,
 })

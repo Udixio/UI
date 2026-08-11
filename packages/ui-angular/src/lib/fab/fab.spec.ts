@@ -25,7 +25,7 @@ describe('Fab (Angular, consuming @udixio/core)', () => {
 
     expect(button.type).toBe('button');
     expect(button.getAttribute('aria-label')).toBe('Create');
-    expect(button.querySelector('lib-icon svg')).not.toBeNull();
+    expect(button.querySelector('udx-icon svg')).not.toBeNull();
     expect(button.querySelector('.touch-target')).not.toBeNull();
     expect(button.querySelector('.state-layer')).not.toBeNull();
   });

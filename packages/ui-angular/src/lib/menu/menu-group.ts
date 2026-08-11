@@ -24,7 +24,7 @@ import { MENU_CONTEXT } from './menu-context';
  * @limitations Group labels are plain text.
  */
 @Component({
-  selector: 'lib-menu-group',
+  selector: 'udx-menu-group',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

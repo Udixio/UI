@@ -87,7 +87,7 @@ import { Button } from '@udixio/ui-angular';
 
 @Component({
   imports: [Button],
-  template: `<lib-button label="Send" variant="filled" />`,
+  template: `<udx-button label="Send" variant="filled" />`,
 })
 export class AppComponent {}
 ```

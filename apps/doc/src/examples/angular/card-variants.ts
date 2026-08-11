@@ -8,23 +8,23 @@ import { Card } from '@udixio/ui-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex w-full flex-wrap gap-4">
-      <lib-card
+      <udx-card
         className="flex h-40 min-w-48 flex-1 items-center justify-center"
       >
         <p>Outlined</p>
-      </lib-card>
-      <lib-card
+      </udx-card>
+      <udx-card
         variant="elevated"
         className="flex h-40 min-w-48 flex-1 items-center justify-center"
       >
         <p>Elevated</p>
-      </lib-card>
-      <lib-card
+      </udx-card>
+      <udx-card
         variant="filled"
         className="flex h-40 min-w-48 flex-1 items-center justify-center"
       >
         <p>Filled</p>
-      </lib-card>
+      </udx-card>
     </div>
   `,
 })

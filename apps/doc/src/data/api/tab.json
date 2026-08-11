@@ -144,12 +144,12 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/tabs/tab.ts",
-      "description": "A single tab inside a `lib-tabs` tablist; renders as a link when `href` is\nprovided, otherwise as a button.",
+      "description": "A single tab inside a `udx-tabs` tablist; renders as a link when `href` is\nprovided, otherwise as a button.",
       "tags": {
         "status": "beta",
         "parent": "Tabs",
-        "devx": "- `label` and `icon` are the tab's content; selection is index-based and\n  owned by the parent `lib-tabs` -- there is no standalone `selected` input.",
-        "a11y": "- Exposes `id`, roving `tabIndex` (`0` on the selected or fallback tab,\n  `-1` otherwise), and `aria-controls` pointing at the matching\n  `lib-tab-panel` when the tab list is connected to a `lib-tab-panels`.\n- `disabled` sets the native `disabled` attribute for a button tab, or\n  `aria-disabled` and a blocked click for a link tab.",
+        "devx": "- `label` and `icon` are the tab's content; selection is index-based and\n  owned by the parent `udx-tabs` -- there is no standalone `selected` input.",
+        "a11y": "- Exposes `id`, roving `tabIndex` (`0` on the selected or fallback tab,\n  `-1` otherwise), and `aria-controls` pointing at the matching\n  `udx-tab-panel` when the tab list is connected to a `udx-tab-panels`.\n- `disabled` sets the native `disabled` attribute for a button tab, or\n  `aria-disabled` and a blocked click for a link tab.",
         "limitations": "- Horizontal layout only; there is no vertical tablist orientation.\n- A truncated label has no built-in tooltip."
       },
       "inputs": {

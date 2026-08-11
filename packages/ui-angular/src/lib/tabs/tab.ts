@@ -23,17 +23,17 @@ import { createStyle } from '../utils/create-style';
 import { TABS_CONTEXT } from './tabs-context';
 
 /**
- * A single tab inside a `lib-tabs` tablist; renders as a link when `href` is
+ * A single tab inside a `udx-tabs` tablist; renders as a link when `href` is
  * provided, otherwise as a button.
  * @status beta
  * @parent Tabs
  * @devx
  * - `label` and `icon` are the tab's content; selection is index-based and
- *   owned by the parent `lib-tabs` -- there is no standalone `selected` input.
+ *   owned by the parent `udx-tabs` -- there is no standalone `selected` input.
  * @a11y
  * - Exposes `id`, roving `tabIndex` (`0` on the selected or fallback tab,
  *   `-1` otherwise), and `aria-controls` pointing at the matching
- *   `lib-tab-panel` when the tab list is connected to a `lib-tab-panels`.
+ *   `udx-tab-panel` when the tab list is connected to a `udx-tab-panels`.
  * - `disabled` sets the native `disabled` attribute for a button tab, or
  *   `aria-disabled` and a blocked click for a link tab.
  * @limitations
@@ -41,7 +41,7 @@ import { TABS_CONTEXT } from './tabs-context';
  * - A truncated label has no built-in tooltip.
  */
 @Component({
-  selector: 'lib-tab',
+  selector: 'udx-tab',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgTemplateOutlet, Icon, StateLayer],
@@ -80,7 +80,7 @@ import { TABS_CONTEXT } from './tabs-context';
     }
 
     <ng-template #content>
-      <lib-state-layer
+      <udx-state-layer
         style="transition: 0.3s"
         [className]="styles()['stateLayer']"
         [colorName]="
@@ -90,7 +90,7 @@ import { TABS_CONTEXT } from './tabs-context';
       />
       <span #contentEl [class]="styles()['content']">
         @if (icon()) {
-          <lib-icon [icon]="icon()!" [className]="styles()['icon']" />
+          <udx-icon [icon]="icon()!" [className]="styles()['icon']" />
         }
         <span [class]="styles()['label']">{{ label() }}</span>
       </span>
@@ -161,13 +161,13 @@ export class Tab {
   private readonly contentElementRef =
     viewChild<ElementRef<HTMLSpanElement>>('contentEl');
 
-  /** Read by the parent `lib-tabs` to focus and measure this tab. */
+  /** Read by the parent `udx-tabs` to focus and measure this tab. */
   get nativeElement(): HTMLElement | null {
     return this.tabElement()?.nativeElement ?? null;
   }
 
   /**
-   * Read by the parent `lib-tabs`: the icon+label content element, which the
+   * Read by the parent `udx-tabs`: the icon+label content element, which the
    * sliding indicator measures for the `primary` variant instead of the
    * full tab (`secondary` measures the tab itself).
    */

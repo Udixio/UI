@@ -8,8 +8,8 @@ import { DatePicker } from '@udixio/ui-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-wrap justify-center gap-8">
-      <lib-date-picker locale="en-US" [defaultValue]="defaultDate" />
-      <lib-date-picker
+      <udx-date-picker locale="en-US" [defaultValue]="defaultDate" />
+      <udx-date-picker
         locale="fr-FR"
         [weekStartDay]="1"
         [defaultValue]="defaultDate"

@@ -151,7 +151,7 @@ describe('DatePicker (Angular)', () => {
     const prevMonth: HTMLElement = fixture.nativeElement.querySelector(
       '[aria-label="Previous month"]',
     );
-    // prevMonth's DOM parent is <lib-icon-button>'s own host element; the
+    // prevMonth's DOM parent is <udx-icon-button>'s own host element; the
     // monthNav container is one level further up.
     const monthNav = prevMonth.parentElement?.parentElement;
     expect(monthNav?.className).toContain('flex');
@@ -271,8 +271,8 @@ describe('DatePicker (Angular)', () => {
     expect(playMonthTransition).toHaveBeenCalledWith(-1);
   });
 
-  it('scrolls the selected year list to the year button, not the <lib-button> host', async () => {
-    // Regression: `data-selected` lives on <lib-button>, whose host renders
+  it('scrolls the selected year list to the year button, not the <udx-button> host', async () => {
+    // Regression: `data-selected` lives on <udx-button>, whose host renders
     // with `display: contents` and has no box; scrollIntoView must target
     // its native <button> descendant or the call is a silent no-op.
     // jsdom does not implement scrollIntoView; stub it before spying.

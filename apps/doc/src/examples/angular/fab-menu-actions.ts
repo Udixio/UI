@@ -28,12 +28,12 @@ import { iShare } from '@udixio/icons-rounded-400/share';
       </div>
 
       <div class="flex flex-wrap items-end justify-between gap-4">
-        <lib-button
+        <udx-button
           [label]="open() ? 'Close from owner' : 'Open from owner'"
           variant="outlined"
           (click)="toggleMenu()"
         />
-        <lib-fab-menu
+        <udx-fab-menu
           label="Create"
           [icon]="addIcon"
           [actions]="actions"

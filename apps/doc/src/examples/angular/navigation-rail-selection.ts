@@ -12,17 +12,17 @@ import { iAdd } from '@udixio/icons-rounded-400/add';
   imports: [NavigationRail, NavigationRailItem, Fab],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-navigation-rail
+    <udx-navigation-rail
       [className]="'bg-surface-container-highest h-[750px]'"
       [selectedItem]="index()"
       (selectedItemChange)="index.set($event)"
     >
-      <lib-fab label="Add Timer" [icon]="iAdd" />
-      <lib-navigation-rail-item [icon]="iNotifications" [iconSelected]="iNotifications" label="Alarm" />
-      <lib-navigation-rail-item [icon]="iSchedule" [iconSelected]="iSchedule" label="Clock" />
-      <lib-navigation-rail-item [icon]="iHourglass" [iconSelected]="iHourglass" label="Timer" />
-      <lib-navigation-rail-item [icon]="iTimer" [iconSelected]="iTimer" label="Stopwatch" />
-    </lib-navigation-rail>
+      <udx-fab label="Add Timer" [icon]="iAdd" />
+      <udx-navigation-rail-item [icon]="iNotifications" [iconSelected]="iNotifications" label="Alarm" />
+      <udx-navigation-rail-item [icon]="iSchedule" [iconSelected]="iSchedule" label="Clock" />
+      <udx-navigation-rail-item [icon]="iHourglass" [iconSelected]="iHourglass" label="Timer" />
+      <udx-navigation-rail-item [icon]="iTimer" [iconSelected]="iTimer" label="Stopwatch" />
+    </udx-navigation-rail>
   `,
 })
 export class NavigationRailSelectionAngular {

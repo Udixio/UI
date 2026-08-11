@@ -8,7 +8,7 @@ import { DatePicker } from '@udixio/ui-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col items-center gap-4">
-      <lib-date-picker [(value)]="date" />
+      <udx-date-picker [(value)]="date" />
       <p class="text-body-medium">
         Selected: {{ date ? date.toLocaleDateString() : '-' }}
       </p>

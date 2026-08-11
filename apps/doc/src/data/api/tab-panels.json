@@ -29,14 +29,14 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/tabs/tab-panels.ts",
-      "description": "TabPanels hosts every projected `lib-tab-panel`; each panel resolves its\nown active/hidden state from the shared `lib-tab-group` selection.",
+      "description": "TabPanels hosts every projected `udx-tab-panel`; each panel resolves its\nown active/hidden state from the shared `udx-tab-group` selection.",
       "tags": {
         "status": "beta",
         "category": "Navigation",
         "parent": "Tabs",
-        "devx": "- Requires a `lib-tab-group` ancestor; otherwise it warns and every panel\n  stays hidden.",
-        "a11y": "- Renders a plain wrapper `div`; the `tabpanel` role and its `id`/\n  `aria-labelledby` pair live on the connected `lib-tab-panel`.",
-        "limitations": "- Unlike React, every projected `lib-tab-panel` keeps its component\n  instance alive; inactive panels are hidden with the native `hidden`\n  attribute instead of being unmounted."
+        "devx": "- Requires a `udx-tab-group` ancestor; otherwise it warns and every panel\n  stays hidden.",
+        "a11y": "- Renders a plain wrapper `div`; the `tabpanel` role and its `id`/\n  `aria-labelledby` pair live on the connected `udx-tab-panel`.",
+        "limitations": "- Unlike React, every projected `udx-tab-panel` keeps its component\n  instance alive; inactive panels are hidden with the native `hidden`\n  attribute instead of being unmounted."
       },
       "inputs": {
         "className": {
@@ -53,8 +53,8 @@
       "content": {
         "slot1": {
           "name": "slot1",
-          "selector": "lib-tab-panel",
-          "description": "Projected content matching `lib-tab-panel`."
+          "selector": "udx-tab-panel",
+          "description": "Projected content matching `udx-tab-panel`."
         }
       }
     }

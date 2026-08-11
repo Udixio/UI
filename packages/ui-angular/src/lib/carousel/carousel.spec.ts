@@ -26,15 +26,15 @@ class NoopObserver {
   imports: [Carousel, CarouselItem],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-carousel
+    <udx-carousel
       [index]="index()"
       [defaultIndex]="defaultIndex()"
       (indexChange)="indexChanges.push($event)"
     >
       @for (label of slides(); track label) {
-        <lib-carousel-item>{{ label }}</lib-carousel-item>
+        <udx-carousel-item>{{ label }}</udx-carousel-item>
       }
-    </lib-carousel>
+    </udx-carousel>
   `,
 })
 class CarouselTestHost {
@@ -49,11 +49,11 @@ class CarouselTestHost {
   imports: [Carousel, CarouselItem],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-carousel>
-      <lib-carousel-item>Real slide</lib-carousel-item>
+    <udx-carousel>
+      <udx-carousel-item>Real slide</udx-carousel-item>
       <div>Not a slide</div>
       not-a-slide-text
-    </lib-carousel>
+    </udx-carousel>
   `,
 })
 class CarouselStrayContentHost {}
@@ -81,13 +81,13 @@ describe('Carousel (Angular, consuming @udixio/core)', () => {
     expect(region.getAttribute('aria-roledescription')).toBe('carousel');
   });
 
-  it('renders only lib-carousel-item children', () => {
+  it('renders only udx-carousel-item children', () => {
     fixture.detectChanges();
     const groups = fixture.nativeElement.querySelectorAll('[role="group"]');
     expect(groups.length).toBe(3);
   });
 
-  it('ignores projected content that is not lib-carousel-item', () => {
+  it('ignores projected content that is not udx-carousel-item', () => {
     const strayFixture = TestBed.createComponent(CarouselStrayContentHost);
     strayFixture.detectChanges();
     const root: HTMLElement = strayFixture.nativeElement;
@@ -222,11 +222,11 @@ describe('Carousel resize/mount stability', () => {
     imports: [Carousel, CarouselItem],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-      <lib-carousel (indexChange)="log.push($event)">
+      <udx-carousel (indexChange)="log.push($event)">
         @for (i of items; track i) {
-          <lib-carousel-item>Slide {{ i }}</lib-carousel-item>
+          <udx-carousel-item>Slide {{ i }}</udx-carousel-item>
         }
-      </lib-carousel>
+      </udx-carousel>
     `,
   })
   class ResizingGalleryHost {
@@ -302,11 +302,11 @@ describe('Carousel controlled index echo', () => {
     imports: [Carousel, CarouselItem],
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-      <lib-carousel [index]="index()" (indexChange)="index.set($event)">
+      <udx-carousel [index]="index()" (indexChange)="index.set($event)">
         @for (i of items; track i) {
-          <lib-carousel-item>Slide {{ i }}</lib-carousel-item>
+          <udx-carousel-item>Slide {{ i }}</udx-carousel-item>
         }
-      </lib-carousel>
+      </udx-carousel>
     `,
   })
   class EchoingControlledHost {

@@ -18,7 +18,7 @@ import { TAB_GROUP_CONTEXT } from './tab-group-context';
 import { TAB_PANELS_CONTEXT } from './tab-panels-context';
 
 /**
- * TabPanel holds the content for a single tab. `lib-tab-panels` keeps every
+ * TabPanel holds the content for a single tab. `udx-tab-panels` keeps every
  * panel's Angular component instance and state alive and hides the inactive
  * ones with the native `hidden` attribute, unlike the React adapter which
  * only ever mounts the active panel -- Angular content projection has no
@@ -29,10 +29,10 @@ import { TAB_PANELS_CONTEXT } from './tab-panels-context';
  * @parent Tabs
  * @category Navigation
  * @devx
- * - Must be rendered inside a `lib-tab-panels`, itself inside a `lib-tab-group`.
+ * - Must be rendered inside a `udx-tab-panels`, itself inside a `udx-tab-group`.
  * @a11y
  * - Exposes `role="tabpanel"`, an `id`/`aria-labelledby` pair matching the
- *   connected `lib-tab`, and `tabIndex={0}` while active so keyboard users
+ *   connected `udx-tab`, and `tabIndex={0}` while active so keyboard users
  *   can move focus into the panel content.
  * @limitations
  * - Unlike React, scroll position and focus inside an inactive panel are
@@ -40,7 +40,7 @@ import { TAB_PANELS_CONTEXT } from './tab-panels-context';
  *   rely on either behavior for cross-framework parity.
  */
 @Component({
-  selector: 'lib-tab-panel',
+  selector: 'udx-tab-panel',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

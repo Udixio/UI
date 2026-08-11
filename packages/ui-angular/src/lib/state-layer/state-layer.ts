@@ -21,7 +21,7 @@ import {
 import { createStyle } from '../utils/create-style';
 
 @Component({
-  selector: 'lib-state-layer',
+  selector: 'udx-state-layer',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents; border-radius: inherit' },

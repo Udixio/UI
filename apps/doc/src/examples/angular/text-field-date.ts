@@ -6,6 +6,6 @@ import { TextField } from '@udixio/ui-angular';
   standalone: true,
   imports: [TextField],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<lib-text-field label="Birthday" name="birthday" type="date" />`,
+  template: `<udx-text-field label="Birthday" name="birthday" type="date" />`,
 })
 export class TextFieldDateAngular {}

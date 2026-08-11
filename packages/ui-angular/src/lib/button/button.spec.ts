@@ -10,9 +10,9 @@ expect.extend(toHaveNoViolations);
   imports: [Button],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-button label="Fallback label">
+    <udx-button label="Fallback label">
       <strong>Projected label</strong>
-    </lib-button>
+    </udx-button>
   `,
 })
 class ProjectedButtonHost {}
@@ -22,7 +22,7 @@ class ProjectedButtonHost {}
   imports: [Button],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-button
+    <udx-button
       label="Documentation"
       href="/docs"
       aria-label="Documentation link"
@@ -41,7 +41,7 @@ class AccessibleLinkButtonHost {}
   imports: [Button],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-button
+    <udx-button
       label="Toggle"
       toggleable
       (click)="actions += 1"
@@ -95,7 +95,7 @@ describe('Button (Angular, consuming @udixio/core)', () => {
     expect(button.textContent?.trim()).toBe('Envoyer');
     expect(button.querySelector('.touch-target')).not.toBeNull();
     const stateLayerHost: HTMLElement | null =
-      button.querySelector('lib-state-layer');
+      button.querySelector('udx-state-layer');
     const stateLayer: HTMLElement | null = button.querySelector('.state-layer');
     expect(stateLayer).not.toBeNull();
     expect(button.style.borderRadius).toBe('40px');
@@ -115,13 +115,13 @@ describe('Button (Angular, consuming @udixio/core)', () => {
 
     const button: HTMLButtonElement =
       fixture.nativeElement.querySelector('button');
-    expect(button.querySelector('lib-icon svg')).not.toBeNull();
+    expect(button.querySelector('udx-icon svg')).not.toBeNull();
 
     fixture.componentRef.setInput('loading', true);
     fixture.detectChanges();
 
     const loadingIndicator: SVGElement | null = button.querySelector(
-      'lib-button-loading-indicator svg',
+      'udx-button-loading-indicator svg',
     );
     expect(loadingIndicator).not.toBeNull();
     expect(loadingIndicator?.style.stroke).toBe('var(--color-on-primary)');
@@ -147,7 +147,7 @@ describe('Button (Angular, consuming @udixio/core)', () => {
     expect(button.textContent).not.toContain('Fallback label');
     expect(button.getAttribute('aria-label')).toBeNull();
     expect(
-      hostFixture.nativeElement.querySelector('lib-button').style.display,
+      hostFixture.nativeElement.querySelector('udx-button').style.display,
     ).toBe('contents');
   });
 
@@ -251,7 +251,7 @@ describe('Button (Angular, consuming @udixio/core)', () => {
     fixture.detectChanges();
 
     const indicator: SVGElement = fixture.nativeElement.querySelector(
-      'lib-button-loading-indicator svg',
+      'udx-button-loading-indicator svg',
     );
     expect(indicator.style.stroke).toBe('var(--color-on-secondary)');
   });
@@ -354,13 +354,13 @@ describe('Button (Angular, consuming @udixio/core)', () => {
 
     let label: HTMLElement = fixture.nativeElement.querySelector('.label');
     expect(label.previousElementSibling?.tagName.toLowerCase()).toBe(
-      'lib-icon',
+      'udx-icon',
     );
 
     fixture.componentRef.setInput('iconPosition', 'right');
     fixture.detectChanges();
     label = fixture.nativeElement.querySelector('.label');
-    expect(label.nextElementSibling?.tagName.toLowerCase()).toBe('lib-icon');
+    expect(label.nextElementSibling?.tagName.toLowerCase()).toBe('udx-icon');
   });
 
   it('aligns text buttons to the surrounding edge by default', () => {

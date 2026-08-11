@@ -78,13 +78,13 @@ let nextTooltipId = 0;
  *   resize in browsers without native CSS Anchor Positioning support.
  */
 @Component({
-  selector: 'lib-tooltip',
+  selector: 'udx-tooltip',
   standalone: true,
   imports: [AnchorPositioner, Button],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
-    <lib-anchor-positioner [anchor]="target()" [position]="effectivePosition()">
+    <udx-anchor-positioner [anchor]="target()" [position]="effectivePosition()">
       <div
         #surface
         [id]="tooltipId()"
@@ -107,7 +107,7 @@ let nextTooltipId = 0;
             @if (buttonList().length) {
               <div [class]="styles()['actions']">
                 @for (button of buttonList(); track button.label) {
-                  <lib-button
+                  <udx-button
                     size="small"
                     variant="text"
                     [label]="button.label"
@@ -123,7 +123,7 @@ let nextTooltipId = 0;
           }
         </div>
       </div>
-    </lib-anchor-positioner>
+    </udx-anchor-positioner>
   `,
 })
 export class Tooltip implements OnInit, OnDestroy {

@@ -10,9 +10,9 @@ expect.extend(toHaveNoViolations);
   imports: [Card],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-card interactive (click)="actions = actions + 1">
+    <udx-card interactive (click)="actions = actions + 1">
       <p>Open project</p>
-    </lib-card>
+    </udx-card>
   `,
 })
 class InteractiveCardHost {
@@ -24,9 +24,9 @@ class InteractiveCardHost {
   imports: [Card],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-card href="/projects/aurora" target="_blank" rel="noreferrer">
+    <udx-card href="/projects/aurora" target="_blank" rel="noreferrer">
       <p>Project Aurora</p>
-    </lib-card>
+    </udx-card>
   `,
 })
 class LinkCardHost {}
@@ -37,9 +37,9 @@ class LinkCardHost {}
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <main>
-      <lib-card><p>Static content</p></lib-card>
-      <lib-card interactive><p>Actionable content</p></lib-card>
-      <lib-card href="/somewhere"><p>Linked content</p></lib-card>
+      <udx-card><p>Static content</p></udx-card>
+      <udx-card interactive><p>Actionable content</p></udx-card>
+      <udx-card href="/somewhere"><p>Linked content</p></udx-card>
     </main>
   `,
 })

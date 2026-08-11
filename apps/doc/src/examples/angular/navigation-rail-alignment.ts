@@ -12,18 +12,18 @@ import { iTimer } from '@udixio/icons-rounded-400/timer';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="h-[500px] flex gap-8">
-      <lib-navigation-rail [className]="'bg-surface-container-highest'" alignment="top">
-        <lib-navigation-rail-item [icon]="iNotifications" [iconSelected]="iNotifications" label="Alarm" selected />
-        <lib-navigation-rail-item [icon]="iSchedule" [iconSelected]="iSchedule" label="Clock" />
-        <lib-navigation-rail-item [icon]="iHourglass" [iconSelected]="iHourglass" label="Timer" />
-        <lib-navigation-rail-item [icon]="iTimer" [iconSelected]="iTimer" label="Stopwatch" />
-      </lib-navigation-rail>
-      <lib-navigation-rail [className]="'bg-surface-container-highest'" alignment="middle">
-        <lib-navigation-rail-item [icon]="iNotifications" [iconSelected]="iNotifications" label="Alarm" selected />
-        <lib-navigation-rail-item [icon]="iSchedule" [iconSelected]="iSchedule" label="Clock" />
-        <lib-navigation-rail-item [icon]="iHourglass" [iconSelected]="iHourglass" label="Timer" />
-        <lib-navigation-rail-item [icon]="iTimer" [iconSelected]="iTimer" label="Stopwatch" />
-      </lib-navigation-rail>
+      <udx-navigation-rail [className]="'bg-surface-container-highest'" alignment="top">
+        <udx-navigation-rail-item [icon]="iNotifications" [iconSelected]="iNotifications" label="Alarm" selected />
+        <udx-navigation-rail-item [icon]="iSchedule" [iconSelected]="iSchedule" label="Clock" />
+        <udx-navigation-rail-item [icon]="iHourglass" [iconSelected]="iHourglass" label="Timer" />
+        <udx-navigation-rail-item [icon]="iTimer" [iconSelected]="iTimer" label="Stopwatch" />
+      </udx-navigation-rail>
+      <udx-navigation-rail [className]="'bg-surface-container-highest'" alignment="middle">
+        <udx-navigation-rail-item [icon]="iNotifications" [iconSelected]="iNotifications" label="Alarm" selected />
+        <udx-navigation-rail-item [icon]="iSchedule" [iconSelected]="iSchedule" label="Clock" />
+        <udx-navigation-rail-item [icon]="iHourglass" [iconSelected]="iHourglass" label="Timer" />
+        <udx-navigation-rail-item [icon]="iTimer" [iconSelected]="iTimer" label="Stopwatch" />
+      </udx-navigation-rail>
     </div>
   `,
 })

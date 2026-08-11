@@ -10,21 +10,21 @@ import { iAdd } from '@udixio/icons-rounded-400/add';
   template: `
     <div class="flex flex-col gap-4">
       <div class="flex flex-wrap items-center gap-3">
-        <lib-icon-button
+        <udx-icon-button
           variant="filled"
           label="Narrow"
           [icon]="addIcon"
           shape="rounded"
           width="narrow"
         />
-        <lib-icon-button
+        <udx-icon-button
           variant="filled"
           label="Default"
           [icon]="addIcon"
           shape="rounded"
           width="default"
         />
-        <lib-icon-button
+        <udx-icon-button
           variant="filled"
           label="Wide"
           [icon]="addIcon"
@@ -33,21 +33,21 @@ import { iAdd } from '@udixio/icons-rounded-400/add';
         />
       </div>
       <div class="flex flex-wrap items-center gap-3">
-        <lib-icon-button
+        <udx-icon-button
           variant="filled"
           label="Narrow"
           [icon]="addIcon"
           shape="squared"
           width="narrow"
         />
-        <lib-icon-button
+        <udx-icon-button
           variant="filled"
           label="Default"
           [icon]="addIcon"
           shape="squared"
           width="default"
         />
-        <lib-icon-button
+        <udx-icon-button
           variant="filled"
           label="Wide"
           [icon]="addIcon"

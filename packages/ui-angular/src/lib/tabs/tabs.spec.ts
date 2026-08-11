@@ -11,15 +11,15 @@ import { TabPanel } from './tab-panel';
   imports: [Tabs, Tab],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-tabs
+    <udx-tabs
       [selectedTab]="selectedTab()"
       [defaultSelectedTab]="defaultSelectedTab()"
       (selectedTabChange)="selectedTabChanges.push($event)"
     >
-      <lib-tab label="One" />
-      <lib-tab label="Two" [disabled]="twoDisabled()" />
-      <lib-tab label="Three" />
-    </lib-tabs>
+      <udx-tab label="One" />
+      <udx-tab label="Two" [disabled]="twoDisabled()" />
+      <udx-tab label="Three" />
+    </udx-tabs>
   `,
 })
 class TabsTestHost {
@@ -163,9 +163,9 @@ describe('Tabs (Angular, consuming @udixio/core)', () => {
   imports: [Tabs, Tab],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-tabs [variant]="variant()">
-      <lib-tab label="One" />
-    </lib-tabs>
+    <udx-tabs [variant]="variant()">
+      <udx-tab label="One" />
+    </udx-tabs>
   `,
 })
 class TabsVariantTestHost {
@@ -244,20 +244,20 @@ describe('Tabs indicator width source per variant (Angular)', () => {
   imports: [Tab, Tabs, TabGroup, TabPanels, TabPanel],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-tab-group
+    <udx-tab-group
       [selectedTab]="selectedTab()"
       [defaultSelectedTab]="defaultSelectedTab()"
       (selectedTabChange)="selectedTabChanges.push($event)"
     >
-      <lib-tabs>
-        <lib-tab label="One" />
-        <lib-tab label="Two" />
-      </lib-tabs>
-      <lib-tab-panels>
-        <lib-tab-panel>First content</lib-tab-panel>
-        <lib-tab-panel>Second content</lib-tab-panel>
-      </lib-tab-panels>
-    </lib-tab-group>
+      <udx-tabs>
+        <udx-tab label="One" />
+        <udx-tab label="Two" />
+      </udx-tabs>
+      <udx-tab-panels>
+        <udx-tab-panel>First content</udx-tab-panel>
+        <udx-tab-panel>Second content</udx-tab-panel>
+      </udx-tab-panels>
+    </udx-tab-group>
   `,
 })
 class TabGroupTestHost {

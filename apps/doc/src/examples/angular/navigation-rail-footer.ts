@@ -15,12 +15,12 @@ import { iLogout } from '@udixio/icons-rounded-400/logout';
   imports: [NavigationRail, NavigationRailItem, IconButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-navigation-rail [className]="'bg-surface-container-highest h-[500px]'">
-      <lib-icon-button footer [icon]="iLogout" label="Sign out" />
-      <lib-navigation-rail-item [icon]="iNotifications" [iconSelected]="iNotifications" label="Alarm" selected />
-      <lib-navigation-rail-item [icon]="iSchedule" [iconSelected]="iSchedule" label="Clock" />
-      <lib-navigation-rail-item [icon]="iHourglass" [iconSelected]="iHourglass" label="Timer" />
-    </lib-navigation-rail>
+    <udx-navigation-rail [className]="'bg-surface-container-highest h-[500px]'">
+      <udx-icon-button footer [icon]="iLogout" label="Sign out" />
+      <udx-navigation-rail-item [icon]="iNotifications" [iconSelected]="iNotifications" label="Alarm" selected />
+      <udx-navigation-rail-item [icon]="iSchedule" [iconSelected]="iSchedule" label="Clock" />
+      <udx-navigation-rail-item [icon]="iHourglass" [iconSelected]="iHourglass" label="Timer" />
+    </udx-navigation-rail>
   `,
 })
 export class NavigationRailFooterAngular {

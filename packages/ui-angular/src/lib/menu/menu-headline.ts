@@ -24,7 +24,7 @@ import { MENU_CONTEXT } from './menu-context';
  * @limitations Does not create a heading landmark or label neighboring items.
  */
 @Component({
-  selector: 'lib-menu-headline',
+  selector: 'udx-menu-headline',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

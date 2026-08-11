@@ -9,7 +9,7 @@ import { Switch } from '@udixio/ui-angular';
   imports: [Switch],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-switch
+    <udx-switch
       aria-label="Theme"
       [(checked)]="checked"
       [activeIcon]="lightIcon"

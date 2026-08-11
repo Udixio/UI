@@ -11,7 +11,7 @@ type Channel = 'email' | 'sms';
   template: `
     <div class="flex flex-col gap-3">
       <div class="flex items-center gap-3">
-        <lib-checkbox
+        <udx-checkbox
           id="checkbox-angular-notifications"
           [checked]="allChecked"
           [indeterminate]="someChecked && !allChecked"
@@ -21,7 +21,7 @@ type Channel = 'email' | 'sms';
       </div>
       <div class="ml-6 flex flex-col gap-3">
         <div class="flex items-center gap-3">
-          <lib-checkbox
+          <udx-checkbox
             id="checkbox-angular-email"
             [checked]="channels.email"
             (checkedChange)="setChannel('email', $event)"
@@ -29,7 +29,7 @@ type Channel = 'email' | 'sms';
           <label for="checkbox-angular-email">Email</label>
         </div>
         <div class="flex items-center gap-3">
-          <lib-checkbox
+          <udx-checkbox
             id="checkbox-angular-sms"
             [checked]="channels.sms"
             (checkedChange)="setChannel('sms', $event)"

@@ -101,7 +101,7 @@
       "tags": {
         "status": "beta",
         "category": "Navigation",
-        "devx": "- Project `lib-navigation-rail-item`, `lib-navigation-rail-section`, and\n  a `lib-fab` as children; the FAB is hoisted into the header.\n- `footer` content is projected via `<div footer>`/an element with a\n  `footer` attribute, pinned below the item list.\n- Selection is index-based; use `selectedItem`/`selectedItemChange` for\n  controlled usage, or `defaultSelectedItem` uncontrolled.",
+        "devx": "- Project `udx-navigation-rail-item`, `udx-navigation-rail-section`, and\n  a `udx-fab` as children; the FAB is hoisted into the header.\n- `footer` content is projected via `<div footer>`/an element with a\n  `footer` attribute, pinned below the item list.\n- Selection is index-based; use `selectedItem`/`selectedItemChange` for\n  controlled usage, or `defaultSelectedItem` uncontrolled.",
         "a11y": "- The menu toggle button exposes its open/closed label via `menu.opened`/\n  `menu.closed`.",
         "limitations": "- Keyboard navigation/roving tabindex is not implemented.\n- Angular's `selectedItem`/`selectedItemChange` follow this repository's\n  output-naming convention; React instead exposes a raw\n  `setSelectedItem` dispatcher (an intentional platform difference, not a\n  parity gap)."
       },
@@ -221,13 +221,13 @@
       "content": {
         "slot1": {
           "name": "slot1",
-          "selector": "lib-fab",
-          "description": "Projected content matching `lib-fab`."
+          "selector": "udx-fab",
+          "description": "Projected content matching `udx-fab`."
         },
         "slot2": {
           "name": "slot2",
-          "selector": "lib-navigation-rail-item, lib-navigation-rail-section",
-          "description": "Projected content matching `lib-navigation-rail-item, lib-navigation-rail-section`."
+          "selector": "udx-navigation-rail-item, udx-navigation-rail-section",
+          "description": "Projected content matching `udx-navigation-rail-item, udx-navigation-rail-section`."
         },
         "slot3": {
           "name": "slot3",

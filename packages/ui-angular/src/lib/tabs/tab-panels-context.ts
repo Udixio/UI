@@ -1,7 +1,7 @@
 import { InjectionToken } from '@angular/core';
 
 export interface TabPanelsContext {
-  /** This panel's position among `lib-tab-panel` siblings, or `undefined` if untracked. */
+  /** This panel's position among `udx-tab-panel` siblings, or `undefined` if untracked. */
   indexOf(panel: object): number | undefined;
 }
 

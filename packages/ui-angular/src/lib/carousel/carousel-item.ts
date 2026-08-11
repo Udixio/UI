@@ -14,17 +14,17 @@ import { createStyle } from '../utils/create-style';
 import { CAROUSEL_CONTEXT } from './carousel-context';
 
 /**
- * A single slide inside a `lib-carousel`. Its width is driven by the
+ * A single slide inside a `udx-carousel`. Its width is driven by the
  * carousel's scroll position; it simply projects its content.
  *
  * @status beta
  * @parent Carousel
- * @devx Intended for use inside `lib-carousel`, which stamps sizing and slide semantics on this component's host element.
- * @a11y Rendered inside `lib-carousel` as a `group` with `aria-roledescription="slide"` and an accessible name; used standalone it is a plain container with no slide role.
+ * @devx Intended for use inside `udx-carousel`, which stamps sizing and slide semantics on this component's host element.
+ * @a11y Rendered inside `udx-carousel` as a `group` with `aria-roledescription="slide"` and an accessible name; used standalone it is a plain container with no slide role.
  * @limitations Sizing (`outputRange`) is inherited from the parent carousel; used on its own the item has no min/max width unless `outputRange` is set explicitly.
  */
 @Component({
-  selector: 'lib-carousel-item',
+  selector: 'udx-carousel-item',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {

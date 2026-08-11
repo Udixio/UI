@@ -31,7 +31,7 @@ import { StateLayer } from '../state-layer/state-layer';
  * - Disabled links are inert and removed from the tab order.
  */
 @Component({
-  selector: 'lib-fab',
+  selector: 'udx-fab',
   standalone: true,
   imports: [NgTemplateOutlet, Icon, StateLayer],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,12 +39,12 @@ import { StateLayer } from '../state-layer/state-layer';
   template: `
     <ng-template #content>
       <span [class]="styles()['touchTarget']"></span>
-      <lib-state-layer
+      <udx-state-layer
         [className]="styles()['stateLayer']"
         [colorName]="stateColor()"
         stateClassName="state-ripple-group-[fab]"
       />
-      <lib-icon [icon]="icon()" [className]="styles()['icon']" />
+      <udx-icon [icon]="icon()" [className]="styles()['icon']" />
       @if (extended()) {
         <span [class]="styles()['label']">{{ label() }}</span>
       }

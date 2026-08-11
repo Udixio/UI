@@ -37,7 +37,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
  * @limitations Nested submenus require a separate popup composition. Angular uses the required `label` input instead of projected item content.
  */
 @Component({
-  selector: 'lib-menu-item',
+  selector: 'udx-menu-item',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
@@ -74,7 +74,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
 
     <ng-template #content>
       @if (!disabled()) {
-        <lib-state-layer
+        <udx-state-layer
           [className]="styles()['stateLayer']"
           [colorName]="stateColor()"
           stateClassName="state-ripple-group-[menu-item]"
@@ -90,7 +90,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
             ' z-10 relative'
           "
         >
-          <lib-icon [icon]="resolvedLeadingIcon()!" />
+          <udx-icon [icon]="resolvedLeadingIcon()!" />
         </span>
       }
       <span [class]="styles()['itemLabel'] + ' z-10 relative'">
@@ -106,7 +106,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
             ' z-10 relative'
           "
         >
-          <lib-icon [icon]="trailingIcon()!" />
+          <udx-icon [icon]="trailingIcon()!" />
         </span>
       }
     </ng-template>

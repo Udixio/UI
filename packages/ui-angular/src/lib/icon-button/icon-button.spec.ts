@@ -14,7 +14,7 @@ const closeIcon =
   imports: [IconButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-icon-button
+    <udx-icon-button
       label="Favorite"
       [icon]="icon"
       [pressedIcon]="pressedIcon"
@@ -50,7 +50,7 @@ describe('IconButton (Angular, consuming @udixio/core)', () => {
 
     expect(button.type).toBe('button');
     expect(button.getAttribute('aria-label')).toBe('Add item');
-    expect(button.querySelector('lib-icon svg')).not.toBeNull();
+    expect(button.querySelector('udx-icon svg')).not.toBeNull();
     expect(button.querySelector('.touch-target')).not.toBeNull();
     expect(button.querySelector('.state-layer')).not.toBeNull();
   });

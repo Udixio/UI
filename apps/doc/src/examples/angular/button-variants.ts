@@ -8,11 +8,11 @@ import { Button } from '@udixio/ui-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-wrap justify-center gap-3">
-      <lib-button label="Filled" variant="filled" />
-      <lib-button label="Elevated" variant="elevated" />
-      <lib-button label="Tonal" variant="tonal" />
-      <lib-button label="Outlined" variant="outlined" />
-      <lib-button label="Text" variant="text" />
+      <udx-button label="Filled" variant="filled" />
+      <udx-button label="Elevated" variant="elevated" />
+      <udx-button label="Tonal" variant="tonal" />
+      <udx-button label="Outlined" variant="outlined" />
+      <udx-button label="Text" variant="text" />
     </div>
   `,
 })

@@ -8,14 +8,14 @@ import { Tab, Tabs } from '@udixio/ui-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col gap-2 w-full">
-      <lib-tabs variant="primary" [defaultSelectedTab]="0">
-        <lib-tab label="One" />
-        <lib-tab label="Two" />
-      </lib-tabs>
-      <lib-tabs variant="secondary" [defaultSelectedTab]="0">
-        <lib-tab label="One" />
-        <lib-tab label="Two" />
-      </lib-tabs>
+      <udx-tabs variant="primary" [defaultSelectedTab]="0">
+        <udx-tab label="One" />
+        <udx-tab label="Two" />
+      </udx-tabs>
+      <udx-tabs variant="secondary" [defaultSelectedTab]="0">
+        <udx-tab label="One" />
+        <udx-tab label="Two" />
+      </udx-tabs>
     </div>
   `,
 })

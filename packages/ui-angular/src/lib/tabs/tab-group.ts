@@ -11,26 +11,26 @@ import { createControllableState } from '../utils/create-controllable-state';
 import { TAB_GROUP_CONTEXT, type TabGroupContext } from './tab-group-context';
 
 /**
- * TabGroup shares selection state between a `lib-tabs` tablist and a
- * `lib-tab-panels` placed anywhere in its subtree.
+ * TabGroup shares selection state between a `udx-tabs` tablist and a
+ * `udx-tab-panels` placed anywhere in its subtree.
  * @status beta
  * @parent Tabs
  * @category Navigation
  * @devx
- * - Project `lib-tabs` and `lib-tab-panels`; wrap them in a `lib-tab-group`
- *   to connect them. `lib-tabs` alone (no group) is enough for a
+ * - Project `udx-tabs` and `udx-tab-panels`; wrap them in a `udx-tab-group`
+ *   to connect them. `udx-tabs` alone (no group) is enough for a
  *   navigation-only tab list with no panels.
  * - Use `selectedTab`/`selectedTabChange` for controlled selection, or
  *   `defaultSelectedTab` (defaults to `0`) when uncontrolled.
  * @a11y
  * - Renders `display: contents` and no ARIA role itself; the `tablist`/
- *   `tab`/`tabpanel` roles live on the connected `lib-tabs`/`lib-tab`/
- *   `lib-tab-panel`.
+ *   `tab`/`tabpanel` roles live on the connected `udx-tabs`/`udx-tab`/
+ *   `udx-tab-panel`.
  * @limitations
  * - No URL/hash syncing or persistence built in.
  */
 @Component({
-  selector: 'lib-tab-group',
+  selector: 'udx-tab-group',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [

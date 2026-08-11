@@ -24,7 +24,7 @@ import { createStyle } from '../utils/create-style';
  * @limitations Does not virtualize large lists.
  */
 @Component({
-  selector: 'lib-chips',
+  selector: 'udx-chips',
   standalone: true,
   imports: [Chip],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,7 +32,7 @@ import { createStyle } from '../utils/create-style';
   template: `
     <div role="list" [attr.aria-label]="label()" [class]="styles()['chips']">
       @for (item of items(); track item.id ?? $index) {
-        <lib-chip
+        <udx-chip
           role="listitem"
           [label]="item.label"
           [icon]="item.icon"

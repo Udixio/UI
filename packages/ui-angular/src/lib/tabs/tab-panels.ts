@@ -18,24 +18,24 @@ import { TAB_PANELS_CONTEXT, type TabPanelsContext } from './tab-panels-context'
 import { TabPanel } from './tab-panel';
 
 /**
- * TabPanels hosts every projected `lib-tab-panel`; each panel resolves its
- * own active/hidden state from the shared `lib-tab-group` selection.
+ * TabPanels hosts every projected `udx-tab-panel`; each panel resolves its
+ * own active/hidden state from the shared `udx-tab-group` selection.
  * @status beta
  * @parent Tabs
  * @category Navigation
  * @devx
- * - Requires a `lib-tab-group` ancestor; otherwise it warns and every panel
+ * - Requires a `udx-tab-group` ancestor; otherwise it warns and every panel
  *   stays hidden.
  * @a11y
  * - Renders a plain wrapper `div`; the `tabpanel` role and its `id`/
- *   `aria-labelledby` pair live on the connected `lib-tab-panel`.
+ *   `aria-labelledby` pair live on the connected `udx-tab-panel`.
  * @limitations
- * - Unlike React, every projected `lib-tab-panel` keeps its component
+ * - Unlike React, every projected `udx-tab-panel` keeps its component
  *   instance alive; inactive panels are hidden with the native `hidden`
  *   attribute instead of being unmounted.
  */
 @Component({
-  selector: 'lib-tab-panels',
+  selector: 'udx-tab-panels',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
@@ -44,7 +44,7 @@ import { TabPanel } from './tab-panel';
   host: { style: 'display: contents' },
   template: `
     <div [class]="styles()['tabPanels']">
-      <ng-content select="lib-tab-panel" />
+      <ng-content select="udx-tab-panel" />
     </div>
   `,
 })
@@ -67,7 +67,7 @@ export class TabPanels implements TabPanelsContext {
     afterRenderEffect(() => {
       if (this.groupContext || this.warned) return;
       this.warned = true;
-      console.warn('lib-tab-panels must be used within a lib-tab-group');
+      console.warn('udx-tab-panels must be used within a udx-tab-group');
     });
   }
 

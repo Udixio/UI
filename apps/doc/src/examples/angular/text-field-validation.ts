@@ -8,12 +8,12 @@ import { TextField } from '@udixio/ui-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col gap-2">
-      <lib-text-field
+      <udx-text-field
         label="Username"
         name="u1"
         supportingText="Use 3–16 characters"
       />
-      <lib-text-field
+      <udx-text-field
         label="Password"
         name="p1"
         type="password"

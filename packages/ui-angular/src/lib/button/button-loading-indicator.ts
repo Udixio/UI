@@ -9,7 +9,7 @@ import {
 import { createCircularProgressController } from '@udixio/core/dom';
 
 @Component({
-  selector: 'lib-button-loading-indicator',
+  selector: 'udx-button-loading-indicator',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },

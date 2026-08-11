@@ -8,7 +8,7 @@ import type { TextFieldOption } from '@udixio/core';
   imports: [TextField],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-text-field
+    <udx-text-field
       label="Country"
       name="country"
       type="select"

@@ -46,7 +46,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
  * - The component does not render a visible label; provide one with `aria-label` or `aria-labelledby`.
  */
 @Component({
-  selector: 'lib-switch',
+  selector: 'udx-switch',
   standalone: true,
   imports: [Icon, StateLayer],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -68,14 +68,14 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         [class]="styles()['handleContainer']"
         [style.translate.px]="handleOffset()"
       >
-        <lib-state-layer
+        <udx-state-layer
           [className]="styles()['stateLayer']"
           [colorName]="isChecked() ? 'primary' : 'on-surface'"
           stateClassName="state-ripple-group-[switch]"
         />
         <div [class]="styles()['handle']">
           @if (resolvedIcon()) {
-            <lib-icon [icon]="resolvedIcon()!" [className]="styles()['icon']" />
+            <udx-icon [icon]="resolvedIcon()!" [className]="styles()['icon']" />
           }
         </div>
       </div>

@@ -25,7 +25,7 @@ import { Menu } from '../menu/menu';
  * @limitations The popup position is internally owned and is not controllable.
  */
 @Component({
-  selector: 'lib-context-menu',
+  selector: 'udx-context-menu',
   standalone: true,
   imports: [Menu],
   providers: [
@@ -54,13 +54,13 @@ import { Menu } from '../menu/menu';
           [style.left.px]="point.x"
           (click)="close()"
         >
-          <lib-menu
+          <udx-menu
             purpose="actions"
             [variant]="variant()"
             [accessibleLabel]="accessibleLabel()"
           >
             <ng-content />
-          </lib-menu>
+          </udx-menu>
         </div>
       }
     </div>

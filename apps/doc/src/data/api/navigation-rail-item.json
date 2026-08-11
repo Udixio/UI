@@ -86,11 +86,11 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/navigation-rail/navigation-rail-item.ts",
-      "description": "A single destination inside a `lib-navigation-rail`; renders as a link\nwhen `href` is provided, otherwise as a button.",
+      "description": "A single destination inside a `udx-navigation-rail`; renders as a link\nwhen `href` is provided, otherwise as a button.",
       "tags": {
         "status": "beta",
         "parent": "NavigationRail",
-        "devx": "- Selection is index-based and resolved from the parent rail; standalone\n  usage falls back to `selected`.\n- An item placed after a `lib-navigation-rail-section` only renders while\n  the rail is extended.\n- The label reveal (width/height + opacity, on `extended` changes) is\n  driven by a shared `@udixio/core/dom` Motion controller, the same one\n  the React adapter uses.",
+        "devx": "- Selection is index-based and resolved from the parent rail; standalone\n  usage falls back to `selected`.\n- An item placed after a `udx-navigation-rail-section` only renders while\n  the rail is extended.\n- The label reveal (width/height + opacity, on `extended` changes) is\n  driven by a shared `@udixio/core/dom` Motion controller, the same one\n  the React adapter uses.",
         "a11y": "- Exposes `aria-current=\"page\"` when selected, since the rail is a\n  navigation landmark rather than a tabbed panel switcher.",
         "limitations": "- No arrow-key navigation between items; relies on the native sequential\n  tab order."
       },

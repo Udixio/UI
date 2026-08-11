@@ -25,7 +25,7 @@ import { createStyle } from '../utils/create-style';
  * - Purely decorative; there is no `decorative`/`aria-hidden` escape hatch, so every divider is announced as a separator to assistive technology.
  */
 @Component({
-  selector: 'lib-divider',
+  selector: 'udx-divider',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },

@@ -69,7 +69,7 @@ function extractAnchorDate(
  * - The year picker view is a plain scrollable button list without virtualization.
  */
 @Component({
-  selector: 'lib-date-picker',
+  selector: 'udx-date-picker',
   standalone: true,
   imports: [Button, IconButton, Icon, StateLayer],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -77,7 +77,7 @@ function extractAnchorDate(
   template: `
     <div [class]="styles()['datePicker']">
       <div [class]="styles()['header']">
-        <lib-button
+        <udx-button
           variant="text"
           [edgeAligned]="false"
           size="small"
@@ -88,25 +88,25 @@ function extractAnchorDate(
           <span class="mr-2">{{
             viewMode() === 'day' ? monthLabel() : viewDate().getFullYear()
           }}</span>
-          <lib-icon
+          <udx-icon
             [icon]="chevronDownIcon"
             [className]="
               'w-3 h-3 transition-transform duration-200' +
               (viewMode() === 'year' ? ' rotate-180' : '')
             "
           />
-        </lib-button>
+        </udx-button>
 
         @if (viewMode() === 'day') {
           <div [class]="styles()['monthNav']">
-            <lib-icon-button
+            <udx-icon-button
               size="xSmall"
               shapeFeedback="none"
               (click)="handlePrevMonth()"
               [icon]="chevronLeftIcon"
               label="Previous month"
             />
-            <lib-icon-button
+            <udx-icon-button
               size="xSmall"
               shapeFeedback="none"
               (click)="handleNextMonth()"
@@ -123,7 +123,7 @@ function extractAnchorDate(
           class="h-[280px] overflow-y-auto grid grid-cols-3 gap-2 p-2 scrollbar-hide"
         >
           @for (year of years; track year) {
-            <lib-button
+            <udx-button
               size="small"
               [variant]="year === viewDate().getFullYear() ? 'filled' : 'text'"
               [edgeAligned]="false"
@@ -185,7 +185,7 @@ function extractAnchorDate(
                         (keydown)="handleDayKeyDown($event, day.date)"
                       >
                         <span [class]="dayStyles['touchTarget']"></span>
-                        <lib-state-layer
+                        <udx-state-layer
                           [className]="dayStyles['stateLayer']"
                           [colorName]="
                             dayStateColor(selection.isSelected, isTodayDay)
@@ -349,7 +349,7 @@ export class DatePicker implements OnInit {
 
   private scrollSelectedYearIntoView(): boolean {
     const container = this.yearsContainer()?.nativeElement;
-    // `data-selected` sits on <lib-button>, whose host renders with
+    // `data-selected` sits on <udx-button>, whose host renders with
     // `display: contents` and therefore has no box of its own; scrolling
     // must target its actual native <button> descendant instead.
     const selected = container

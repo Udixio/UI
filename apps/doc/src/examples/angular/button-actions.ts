@@ -9,8 +9,8 @@ import { Button } from '@udixio/ui-angular';
   template: `
     <div class="flex flex-col items-center gap-3">
       <div class="flex flex-wrap justify-center gap-3">
-        <lib-button label="Run action" (click)="message.set('Action run')" />
-        <lib-button
+        <udx-button label="Run action" (click)="message.set('Action run')" />
+        <udx-button
           label="Button documentation"
           href="/components/button/overview"
           aria-current="page"

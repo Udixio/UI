@@ -8,7 +8,7 @@ import { Slider } from '@udixio/ui-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex w-72 flex-col gap-4">
-      <lib-slider
+      <udx-slider
         name="brightness"
         [(value)]="value"
         [step]="10"

@@ -81,7 +81,7 @@ import { TabGroup, Tabs, Tab, TabPanels, TabPanel } from "@udixio/ui-react"
 </Code>
 
 Only the active `TabPanel` is mounted by the React adapter; on Angular, every
-projected `lib-tab-panel` keeps its component instance and state alive and
+projected `udx-tab-panel` keeps its component instance and state alive and
 the inactive ones are hidden with the native `hidden` attribute instead —
 Angular content projection has no cheap equivalent to conditionally mounting
 projected children. Both remove inactive panels from the accessibility tree
@@ -151,4 +151,4 @@ keyboard users can move focus into its content.
 | `TabGroup` `defaultTab`                              | `defaultSelectedTab`                                              |
 | No keyboard navigation                               | Roving tabIndex, ArrowLeft/ArrowRight/Home/End                    |
 | No `disabled` on `Tab`                               | `disabled` input/prop                                             |
-| No Angular adapter                                   | Full Angular parity (`lib-tabs`, `lib-tab`, `lib-tab-group`, `lib-tab-panels`, `lib-tab-panel`) |
+| No Angular adapter                                   | Full Angular parity (`udx-tabs`, `udx-tab`, `udx-tab-group`, `udx-tab-panels`, `udx-tab-panel`) |

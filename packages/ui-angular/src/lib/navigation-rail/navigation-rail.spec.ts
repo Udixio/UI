@@ -14,7 +14,7 @@ const iAlarm = 'M0 0h24v24H0z';
   imports: [NavigationRail, NavigationRailItem, NavigationRailSection],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-navigation-rail
+    <udx-navigation-rail
       [extended]="extended()"
       [defaultExtended]="defaultExtended()"
       [selectedItem]="selectedItem()"
@@ -23,11 +23,11 @@ const iAlarm = 'M0 0h24v24H0z';
       (itemSelected)="itemSelections.push($event)"
     >
       <div footer><button>Sign out</button></div>
-      <lib-navigation-rail-item [icon]="iAlarm" [iconSelected]="iAlarm" label="Alarm" />
-      <lib-navigation-rail-item [icon]="iAlarm" [iconSelected]="iAlarm" label="Clock" />
-      <lib-navigation-rail-section label="Sleep well" />
-      <lib-navigation-rail-item [icon]="iAlarm" [iconSelected]="iAlarm" label="Schedule" />
-    </lib-navigation-rail>
+      <udx-navigation-rail-item [icon]="iAlarm" [iconSelected]="iAlarm" label="Alarm" />
+      <udx-navigation-rail-item [icon]="iAlarm" [iconSelected]="iAlarm" label="Clock" />
+      <udx-navigation-rail-section label="Sleep well" />
+      <udx-navigation-rail-item [icon]="iAlarm" [iconSelected]="iAlarm" label="Schedule" />
+    </udx-navigation-rail>
   `,
 })
 class NavigationRailTestHost {
@@ -212,9 +212,9 @@ describe('NavigationRail (Angular, consuming @udixio/core)', () => {
   imports: [NavigationRail, NavigationRailItem],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-navigation-rail [extended]="extended()">
-      <lib-navigation-rail-item [icon]="iAlarm" [iconSelected]="iAlarm" label="Alarm" />
-    </lib-navigation-rail>
+    <udx-navigation-rail [extended]="extended()">
+      <udx-navigation-rail-item [icon]="iAlarm" [iconSelected]="iAlarm" label="Alarm" />
+    </udx-navigation-rail>
   `,
 })
 class SingleItemTestHost {

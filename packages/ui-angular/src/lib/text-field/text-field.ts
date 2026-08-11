@@ -76,7 +76,7 @@ let nextTextFieldId = 0;
  * - Does not support projecting custom `MenuItem` content the way the React adapter does; use `options`.
  */
 @Component({
-  selector: 'lib-text-field',
+  selector: 'udx-text-field',
   standalone: true,
   imports: [
     AnchorPositioner,
@@ -101,7 +101,7 @@ let nextTextFieldId = 0;
 
         @if (leadingIcon()) {
           <div [class]="styles()['leadingIcon']">
-            <lib-icon [icon]="leadingIcon()!" className="w-5 h-5" />
+            <udx-icon [icon]="leadingIcon()!" className="w-5 h-5" />
           </div>
         }
 
@@ -182,13 +182,13 @@ let nextTextFieldId = 0;
                 (click)="handleTrailingClick($event)"
               >
                 <span class="flex items-center justify-center w-full h-full">
-                  <lib-icon [icon]="trailing" className="h-5" />
+                  <udx-icon [icon]="trailing" className="h-5" />
                 </span>
               </button>
             } @else {
               <div [class]="styles()['trailingIcon']">
                 <div class="flex items-center justify-center w-full h-full">
-                  <lib-icon [icon]="trailing" className="h-5" />
+                  <udx-icon [icon]="trailing" className="h-5" />
                 </div>
               </div>
             }
@@ -203,7 +203,7 @@ let nextTextFieldId = 0;
               })
             "
           >
-            <lib-icon [icon]="errorIcon" className="h-5 text-error" />
+            <udx-icon [icon]="errorIcon" className="h-5 text-error" />
           </div>
         }
       </fieldset>
@@ -215,23 +215,23 @@ let nextTextFieldId = 0;
       }
 
       @if (isDateInput() && showDatePicker()) {
-        <lib-anchor-positioner [anchor]="rootElement()!" position="bottom">
+        <udx-anchor-positioner [anchor]="rootElement()!" position="bottom">
           <div
             #datePickerPopup
             class="z-50 shadow-xl rounded-[28px] bg-surface-container-high overflow-hidden"
           >
-            <lib-date-picker
+            <udx-date-picker
               [value]="tempDate()"
               (valueChange)="handleDatePickerChange($event)"
             />
             <div class="flex justify-end gap-2 p-4 pt-0">
-              <lib-button
+              <udx-button
                 variant="text"
                 size="small"
                 label="Cancel"
                 (click)="showDatePicker.set(false)"
               />
-              <lib-button
+              <udx-button
                 variant="filled"
                 size="small"
                 label="OK"
@@ -239,25 +239,25 @@ let nextTextFieldId = 0;
               />
             </div>
           </div>
-        </lib-anchor-positioner>
+        </udx-anchor-positioner>
       }
 
       @if (isSelectInput() && showMenu()) {
-        <lib-anchor-positioner [anchor]="rootElement()!" position="bottom">
+        <udx-anchor-positioner [anchor]="rootElement()!" position="bottom">
           <div #menuPopup class="max-w-full" [style.width.px]="rootWidth()">
-            <lib-menu
+            <udx-menu
               purpose="selection"
               [accessibleLabel]="label() || 'Options'"
             >
               @for (opt of options(); track opt.value ?? $index) {
                 @if (opt.type === 'divider') {
-                  <lib-divider class="my-1" />
+                  <udx-divider class="my-1" />
                 } @else if (opt.type === 'headline') {
                   @if (opt.label) {
-                    <lib-menu-headline [label]="opt.label" />
+                    <udx-menu-headline [label]="opt.label" />
                   }
                 } @else {
-                  <lib-menu-item
+                  <udx-menu-item
                     [label]="opt.label ?? ''"
                     [leadingIcon]="opt.leadingIcon"
                     [trailingIcon]="opt.trailingIcon"
@@ -267,9 +267,9 @@ let nextTextFieldId = 0;
                   />
                 }
               }
-            </lib-menu>
+            </udx-menu>
           </div>
-        </lib-anchor-positioner>
+        </udx-anchor-positioner>
       }
     </div>
   `,

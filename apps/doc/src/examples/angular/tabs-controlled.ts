@@ -7,17 +7,17 @@ import { Tab, Tabs } from '@udixio/ui-angular';
   imports: [Tabs, Tab],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-tabs
+    <udx-tabs
       [selectedTab]="tab()"
       [scrollable]="true"
       (selectedTabChange)="tab.set($event)"
     >
-      <lib-tab label="Overview" />
-      <lib-tab label="Activity" />
-      <lib-tab label="Settings" />
-      <lib-tab label="Billing" />
-      <lib-tab label="Advanced" />
-    </lib-tabs>
+      <udx-tab label="Overview" />
+      <udx-tab label="Activity" />
+      <udx-tab label="Settings" />
+      <udx-tab label="Billing" />
+      <udx-tab label="Advanced" />
+    </udx-tabs>
   `,
 })
 export class TabsControlledAngular {

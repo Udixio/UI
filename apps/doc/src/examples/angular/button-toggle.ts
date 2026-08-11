@@ -7,7 +7,7 @@ import { Button } from '@udixio/ui-angular';
   imports: [Button],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-button
+    <udx-button
       label="Notifications"
       toggleable
       [pressed]="pressed()"

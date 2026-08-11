@@ -32,7 +32,7 @@ function maskFrenchPhone(raw: string): string {
   standalone: true,
   imports: [TextField],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: ` <lib-text-field label="Phone" [mask]="mask" /> `,
+  template: ` <udx-text-field label="Phone" [mask]="mask" /> `,
 })
 export class TextFieldMaskAngular {
   protected readonly mask = maskFrenchPhone;

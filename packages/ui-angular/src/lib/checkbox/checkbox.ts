@@ -43,14 +43,14 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
  * - Associate a visible `<label for>` or provide `aria-label`; this component does not render label text.
  */
 @Component({
-  selector: 'lib-checkbox',
+  selector: 'udx-checkbox',
   standalone: true,
   imports: [Icon, StateLayer],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
     <div [class]="styles()['checkbox']">
-      <lib-state-layer
+      <udx-state-layer
         [className]="styles()['stateLayer']"
         [colorName]="stateColor()"
         stateClassName="state-ripple-group-[checkbox]"
@@ -75,7 +75,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
       />
       <span aria-hidden="true" [class]="styles()['box']"></span>
       @if (isChecked() || indeterminate()) {
-        <lib-icon
+        <udx-icon
           aria-hidden="true"
           [icon]="indeterminate() ? minusIcon : checkIcon"
           [className]="styles()['icon']"

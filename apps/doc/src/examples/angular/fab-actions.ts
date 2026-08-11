@@ -13,22 +13,22 @@ import { iShare } from '@udixio/icons-rounded-400/share';
       <section class="grid gap-3">
         <h3 class="text-title-medium">Color families</h3>
         <div class="flex flex-wrap items-end gap-4">
-          <lib-fab label="Primary" [icon]="addIcon" variant="primary" />
-          <lib-fab label="Secondary" [icon]="shareIcon" variant="secondary" />
-          <lib-fab label="Tertiary" [icon]="addIcon" variant="tertiary" />
-          <lib-fab
+          <udx-fab label="Primary" [icon]="addIcon" variant="primary" />
+          <udx-fab label="Secondary" [icon]="shareIcon" variant="secondary" />
+          <udx-fab label="Tertiary" [icon]="addIcon" variant="tertiary" />
+          <udx-fab
             label="Primary container"
             [icon]="addIcon"
             variant="primaryContainer"
             extended
           />
-          <lib-fab
+          <udx-fab
             label="Secondary container"
             [icon]="shareIcon"
             variant="secondaryContainer"
             extended
           />
-          <lib-fab
+          <udx-fab
             label="Tertiary container"
             [icon]="addIcon"
             variant="tertiaryContainer"
@@ -40,10 +40,10 @@ import { iShare } from '@udixio/icons-rounded-400/share';
       <section class="grid gap-3">
         <h3 class="text-title-medium">Sizes and states</h3>
         <div class="flex flex-wrap items-end gap-4">
-          <lib-fab label="Small" [icon]="addIcon" size="small" />
-          <lib-fab label="Medium" [icon]="addIcon" size="medium" />
-          <lib-fab label="Large" [icon]="addIcon" size="large" />
-          <lib-fab label="Disabled action" [icon]="addIcon" disabled extended />
+          <udx-fab label="Small" [icon]="addIcon" size="small" />
+          <udx-fab label="Medium" [icon]="addIcon" size="medium" />
+          <udx-fab label="Large" [icon]="addIcon" size="large" />
+          <udx-fab label="Disabled action" [icon]="addIcon" disabled extended />
         </div>
       </section>
     </div>

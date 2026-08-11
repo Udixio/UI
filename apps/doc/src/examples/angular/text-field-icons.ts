@@ -10,9 +10,9 @@ import { iClose } from '@udixio/icons-rounded-400/close';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col gap-4">
-      <lib-text-field label="Search" name="q" [leadingIcon]="iSearch" />
-      <lib-text-field label="Amount" name="amount" suffix="kg" />
-      <lib-text-field label="Search" name="q2" [trailingIcon]="iClose" />
+      <udx-text-field label="Search" name="q" [leadingIcon]="iSearch" />
+      <udx-text-field label="Amount" name="amount" suffix="kg" />
+      <udx-text-field label="Search" name="q2" [trailingIcon]="iClose" />
     </div>
   `,
 })

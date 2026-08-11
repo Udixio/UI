@@ -9,8 +9,8 @@ import { Button, Snackbar } from '@udixio/ui-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col items-start gap-4">
-      <lib-button label="Show" (click)="open = true" />
-      <lib-snackbar
+      <udx-button label="Show" (click)="open = true" />
+      <udx-snackbar
         message="Done"
         [closeIcon]="closeIcon"
         [open]="open"

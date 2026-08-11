@@ -19,9 +19,9 @@ class NoopResizeObserver {
   imports: [AnchorPositioner],
   template: `
     <button #anchorEl>Anchor</button>
-    <lib-anchor-positioner [anchor]="anchorRef()" [position]="position">
+    <udx-anchor-positioner [anchor]="anchorRef()" [position]="position">
       <div class="content">Floating</div>
-    </lib-anchor-positioner>
+    </udx-anchor-positioner>
   `,
 })
 class Harness {

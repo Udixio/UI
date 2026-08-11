@@ -8,20 +8,20 @@ import { Menu, MenuHeadline, MenuItem } from '@udixio/ui-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-wrap items-start justify-center gap-6">
-      <lib-menu accessibleLabel="Component documentation">
-        <lib-menu-headline label="Documentation" />
-        <lib-menu-item label="Button" href="/components/button/overview" />
-        <lib-menu-item label="Card" href="/components/card/overview" />
-        <lib-menu-item label="Checkbox" href="/components/checkbox/overview" />
-        <lib-menu-item label="Unavailable page" href="/unavailable" disabled />
-      </lib-menu>
+      <udx-menu accessibleLabel="Component documentation">
+        <udx-menu-headline label="Documentation" />
+        <udx-menu-item label="Button" href="/components/button/overview" />
+        <udx-menu-item label="Card" href="/components/card/overview" />
+        <udx-menu-item label="Checkbox" href="/components/checkbox/overview" />
+        <udx-menu-item label="Unavailable page" href="/unavailable" disabled />
+      </udx-menu>
 
-      <lib-menu accessibleLabel="Recent documents">
-        <lib-menu-headline label="Recent documents" />
+      <udx-menu accessibleLabel="Recent documents">
+        <udx-menu-headline label="Recent documents" />
         @for (document of recentDocuments; track document) {
-          <lib-menu-item [label]="document" />
+          <udx-menu-item [label]="document" />
         }
-      </lib-menu>
+      </udx-menu>
     </div>
   `,
 })

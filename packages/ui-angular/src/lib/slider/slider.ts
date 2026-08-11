@@ -49,7 +49,7 @@ import { createStyle } from '../utils/create-style';
  * - Horizontal orientation only.
  */
 @Component({
-  selector: 'lib-slider',
+  selector: 'udx-slider',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },

@@ -7,7 +7,7 @@ import { iAdd } from '@udixio/icons-rounded-400/add';
   standalone: true,
   imports: [Chip],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<lib-chip label="Ajouter" [icon]="addIcon" />`,
+  template: `<udx-chip label="Ajouter" [icon]="addIcon" />`,
 })
 export class ChipIconAngular {
   protected readonly addIcon = iAdd;

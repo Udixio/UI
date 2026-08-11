@@ -17,14 +17,14 @@ const slides = Array.from({ length: 15 }, (_, i) => i + 1).map((id) => {
   imports: [Carousel, CarouselItem],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <lib-carousel
+    <udx-carousel
       variant="hero"
       [gap]="16"
       [scrollSensitivity]="0.8"
       (indexChange)="logIndex($event)"
     >
       @for (slide of slides; track slide.id) {
-        <lib-carousel-item>
+        <udx-carousel-item>
           <div class="bg-surface rounded-xl h-full flex flex-col">
             <div class="flex-1 min-h-0">
               <img
@@ -44,9 +44,9 @@ const slides = Array.from({ length: 15 }, (_, i) => i + 1).map((id) => {
             </div>
             <p class="text-title-large m-8 text-nowrap">Slide {{ slide.id }}</p>
           </div>
-        </lib-carousel-item>
+        </udx-carousel-item>
       }
-    </lib-carousel>
+    </udx-carousel>
   `,
 })
 export class CarouselGalleryAngular {

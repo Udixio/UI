@@ -9,10 +9,10 @@ import { iAdd } from '@udixio/icons-rounded-400/add';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-wrap items-center gap-3">
-      <lib-icon-button label="Standard" [icon]="addIcon" variant="standard" />
-      <lib-icon-button label="Filled" [icon]="addIcon" variant="filled" />
-      <lib-icon-button label="Tonal" [icon]="addIcon" variant="tonal" />
-      <lib-icon-button label="Outlined" [icon]="addIcon" variant="outlined" />
+      <udx-icon-button label="Standard" [icon]="addIcon" variant="standard" />
+      <udx-icon-button label="Filled" [icon]="addIcon" variant="filled" />
+      <udx-icon-button label="Tonal" [icon]="addIcon" variant="tonal" />
+      <udx-icon-button label="Outlined" [icon]="addIcon" variant="outlined" />
     </div>
   `,
 })

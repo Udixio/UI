@@ -18,11 +18,11 @@ import { SideSheet } from '@udixio/ui-angular';
           way this documentation site's own navigation sidebar does.
         </p>
       </div>
-      <lib-side-sheet title="Details" position="right">
+      <udx-side-sheet title="Details" position="right">
         <p class="p-4 text-body-medium text-on-surface-variant">
           Side content
         </p>
-      </lib-side-sheet>
+      </udx-side-sheet>
     </div>
   `,
 })
