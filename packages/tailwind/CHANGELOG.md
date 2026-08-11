@@ -1,3 +1,31 @@
+# 5.0.0 (2026-08-11)
+
+### 🚀 Features
+
+- **tailwind:** make the Tailwind palette reset opt-out ([dddd7229](https://github.com/Udixio/UI/commit/dddd7229))
+- ⚠️  **theme:** fold Hct into Color as the single color type ([64637405](https://github.com/Udixio/UI/commit/64637405))
+
+### ⚠️  Breaking Changes
+
+- **theme:** fold Hct into Color as the single color type  ([64637405](https://github.com/Udixio/UI/commit/64637405))
+  Hct is removed. Use Color.from({ hue, chroma, tone }) instead
+  of Hct.from(h, c, t), Color.fromHex(hex) instead of Hct.fromInt(argbFromHex(hex)),
+  and the .hue/.chroma/.tone/.hex/.argb/.rgb getters instead of getHct(),
+  getHex(), getArgb(), getRgb() and getTone(). Palette.getHct(tone) is now
+  Palette.getColor(tone).
+  Verified behaviour-identical: 8928 generated colors (5 variants x 4 source
+  colors x light/dark x 4 contrast levels, custom palette included) compared
+  against HEAD — zero differences.
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 5.0.0
+
+### ❤️ Thank You
+
+- Claude Opus 5
+- Joël VIGREUX
+
 # 4.0.0 (2026-08-10)
 
 ### 🧱 Updated Dependencies

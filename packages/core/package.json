@@ -1,6 +1,6 @@
 {
   "name": "@udixio/core",
-  "version": "4.0.0",
+  "version": "0.2.0",
   "publishConfig": {
     "provenance": true,
     "access": "public"

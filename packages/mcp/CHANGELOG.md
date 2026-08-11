@@ -1,3 +1,18 @@
+## 0.7.0 (2026-08-11)
+
+### 🩹 Fixes
+
+- **mcp:** make constructor mocks instantiable with new ([092e5745](https://github.com/Udixio/UI/commit/092e5745))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 5.0.0
+
+### ❤️ Thank You
+
+- Claude Sonnet 5
+- Joël VIGREUX
+
 ## 0.6.0 (2026-08-10)
 
 ### 🧱 Updated Dependencies
