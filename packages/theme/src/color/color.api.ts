@@ -1,3 +1,9 @@
+import {
+  applyToneDelta,
+  avoidBackgroundGap,
+  contrastAgainst,
+  onColor,
+} from './tone-adjusters';
 import { Color, ColorOptions } from './color';
 import { ColorManager } from './color.manager';
 import { DynamicColorKey, getCurve, tMaxC, tMinC } from './color.utils';
@@ -109,16 +115,26 @@ export class ColorApi {
             return ctx.isDark ? 80 : tMaxC(palettes.get(colorKey));
           }
         },
-        isBackground: true,
-        background: () => highestSurface(ctx, this),
-        contrastCurve: () => getCurve(4.5),
-        adjustTone: () => ({
-          roleA: colors.get(colorContainerKey),
-          roleB: colors.get(colorKey),
-          delta: 5,
-          polarity: 'relative_lighter',
-          constraint: 'farther',
-        }),
+        adjustTone: ({ context, tone }) => {
+            let answer = tone;
+            answer = applyToneDelta(
+            answer,
+            {
+              relativeTo: colors.get(colorContainerKey),
+              delta: 5,
+              polarity: 'relative_darker',
+              constraint: 'farther',
+            },
+            context.isDark,
+          );
+            const curve = getCurve(4.5);
+            if (curve) {
+              const ratio = curve.get(context.contrastLevel);
+              answer = contrastAgainst(answer, highestSurface(ctx, this), ratio, context.contrastLevel);
+            }
+            answer = avoidBackgroundGap(answer);
+            return answer;
+          },
       },
       [colorDimKey]: {
         palette: () => palettes.get(colorKey),
@@ -129,21 +145,34 @@ export class ColorApi {
             return tMaxC(palettes.get(colorKey), 0, 90);
           }
         },
-        isBackground: true,
-        background: () => this.get('surfaceContainerHigh'),
-        contrastCurve: () => getCurve(4.5),
-        adjustTone: () => ({
-          roleA: this.get(colorDimKey),
-          roleB: this.get(colorKey),
-          delta: 5,
-          polarity: 'darker',
-          constraint: 'farther',
-        }),
+        adjustTone: ({ context, tone }) => {
+            let answer = tone;
+            answer = applyToneDelta(
+            answer,
+            {
+              relativeTo: this.get(colorDimKey),
+              delta: 5,
+              polarity: 'lighter',
+              constraint: 'farther',
+            },
+            context.isDark,
+          );
+            const curve = getCurve(4.5);
+            if (curve) {
+              const ratio = curve.get(context.contrastLevel);
+              answer = contrastAgainst(answer, this.get('surfaceContainerHigh'), ratio, context.contrastLevel);
+            }
+            answer = avoidBackgroundGap(answer);
+            return answer;
+          },
       },
       [onColorKey]: {
         palette: () => palettes.get(colorKey),
-        background: () => this.get(colorKey),
-        contrastCurve: () => getCurve(6),
+        tone: () => this.get(colorKey).tone,
+        adjustTone: onColor(
+          () => this.get(colorKey),
+          () => getCurve(6),
+        ),
       },
       [colorContainerKey]: {
         palette: () => palettes.get(colorKey),
@@ -158,16 +187,24 @@ export class ColorApi {
             return ctx.isDark ? 25 : 90;
           }
         },
-        isBackground: true,
-        background: () => highestSurface(ctx, this),
-        adjustTone: () => undefined,
-        contrastCurve: () =>
-          ctx.contrastLevel > 0 ? getCurve(1.5) : undefined,
+        adjustTone: ({ context, tone }) => {
+            let answer = tone;
+            const curve = ctx.contrastLevel > 0 ? getCurve(1.5) : undefined;
+            if (curve) {
+              const ratio = curve.get(context.contrastLevel);
+              answer = contrastAgainst(answer, highestSurface(ctx, this), ratio, context.contrastLevel);
+              answer = avoidBackgroundGap(answer);
+            }
+            return answer;
+          },
       },
       [onColorContainerKey]: {
         palette: () => palettes.get(colorKey),
-        background: () => this.get(colorContainerKey),
-        contrastCurve: () => getCurve(6),
+        tone: () => this.get(colorContainerKey).tone,
+        adjustTone: onColor(
+          () => this.get(colorContainerKey),
+          () => getCurve(6),
+        ),
       },
       [colorFixedKey]: {
         palette: () => palettes.get(colorKey),
@@ -177,34 +214,50 @@ export class ColorApi {
             return color.tone;
           });
         },
-        isBackground: true,
-        background: () => highestSurface(ctx, this),
-        contrastCurve: () =>
-          ctx.contrastLevel > 0 ? getCurve(1.5) : undefined,
+        adjustTone: ({ context, tone }) => {
+            let answer = tone;
+            const curve = ctx.contrastLevel > 0 ? getCurve(1.5) : undefined;
+            if (curve) {
+              const ratio = curve.get(context.contrastLevel);
+              answer = contrastAgainst(answer, highestSurface(ctx, this), ratio, context.contrastLevel);
+              answer = avoidBackgroundGap(answer);
+            }
+            return answer;
+          },
       },
       [colorFixedDimKey]: {
         palette: () => palettes.get(colorKey),
         tone: () => this.get(colorFixedKey).tone,
-        isBackground: true,
-        // Les couleurs accent fixed-dim ne doivent pas être écartées de la zone médiane.
-        clampTone: false,
-        adjustTone: () => ({
-          roleA: this.get(colorFixedDimKey),
-          roleB: this.get(colorFixedKey),
-          delta: 5,
-          polarity: 'darker',
-          constraint: 'exact',
-        }),
+        adjustTone: ({ context, tone }) => {
+            let answer = tone;
+            answer = applyToneDelta(
+            answer,
+            {
+              relativeTo: this.get(colorFixedDimKey),
+              delta: 5,
+              polarity: 'lighter',
+              constraint: 'exact',
+            },
+            context.isDark,
+          );
+            return answer;
+          },
       },
       [onColorFixedKey]: {
         palette: () => palettes.get(colorKey),
-        background: () => this.get(colorFixedDimKey),
-        contrastCurve: () => getCurve(7),
+        tone: () => this.get(colorFixedDimKey).tone,
+        adjustTone: onColor(
+          () => this.get(colorFixedDimKey),
+          () => getCurve(7),
+        ),
       },
       [onColorFixedVariantKey]: {
         palette: () => palettes.get(colorKey),
-        background: () => this.get(colorFixedDimKey),
-        contrastCurve: () => getCurve(4.5),
+        tone: () => this.get(colorFixedDimKey).tone,
+        adjustTone: onColor(
+          () => this.get(colorFixedDimKey),
+          () => getCurve(4.5),
+        ),
       },
     });
 

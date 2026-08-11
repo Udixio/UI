@@ -1,6 +1,12 @@
+import {
+  applyToneDelta,
+  avoidBackgroundGap,
+  contrastAgainst,
+  onColor,
+} from './tone-adjusters';
 import { ColorManager } from './color.manager';
 import { AddColorsOptions, ColorApi } from './color.api';
-import { Color, getInitialToneFromBackground } from './color';
+import { Color } from './color';
 
 import { DynamicColorKey, getCurve, tMaxC, tMinC } from './color.utils';
 import { Context } from '../context';
@@ -48,24 +54,9 @@ export const defaultColors: AddColorsOptions = ({
           }
         }
       },
-      isBackground: true,
     },
     surfaceDim: {
       palette: () => palettes.get('neutral'),
-      tone: () => {
-        if (c.isDark) {
-          return 4;
-        } else {
-          if (Color.isYellow(palettes.get('neutral').hue)) {
-            return 90;
-          } else if (c.variant.name === 'vibrant') {
-            return 85;
-          } else {
-            return 87;
-          }
-        }
-      },
-      isBackground: true,
       chromaMultiplier: () => {
         if (!c.isDark) {
           if (c.variant.name === 'neutral') {
@@ -80,23 +71,22 @@ export const defaultColors: AddColorsOptions = ({
         }
         return 1;
       },
-    },
-    surfaceBright: {
-      palette: () => palettes.get('neutral'),
       tone: () => {
         if (c.isDark) {
-          return 18;
+          return 4;
         } else {
           if (Color.isYellow(palettes.get('neutral').hue)) {
-            return 99;
+            return 90;
           } else if (c.variant.name === 'vibrant') {
-            return 97;
+            return 85;
           } else {
-            return 98;
+            return 87;
           }
         }
       },
-      isBackground: true,
+    },
+    surfaceBright: {
+      palette: () => palettes.get('neutral'),
       chromaMultiplier: () => {
         if (c.isDark) {
           if (c.variant.name === 'neutral') {
@@ -111,14 +101,38 @@ export const defaultColors: AddColorsOptions = ({
         }
         return 1;
       },
+      tone: () => {
+        if (c.isDark) {
+          return 18;
+        } else {
+          if (Color.isYellow(palettes.get('neutral').hue)) {
+            return 99;
+          } else if (c.variant.name === 'vibrant') {
+            return 97;
+          } else {
+            return 98;
+          }
+        }
+      },
     },
     surfaceContainerLowest: {
       palette: () => palettes.get('neutral'),
       tone: () => (c.isDark ? 0 : 100),
-      isBackground: true,
     },
     surfaceContainerLow: {
       palette: () => palettes.get('neutral'),
+      chromaMultiplier: () => {
+        if (c.variant.name === 'neutral') {
+          return 1.3;
+        } else if (c.variant.name === 'tonalSpot') {
+          return 1.25;
+        } else if (c.variant.name === 'expressive') {
+          return Color.isYellow(palettes.get('neutral').hue) ? 1.3 : 1.15;
+        } else if (c.variant.name === 'vibrant') {
+          return 1.08;
+        }
+        return 1;
+      },
       tone: () => {
         if (c.isDark) {
           return 6;
@@ -132,22 +146,21 @@ export const defaultColors: AddColorsOptions = ({
           }
         }
       },
-      isBackground: true,
-      chromaMultiplier: () => {
-        if (c.variant.name === 'neutral') {
-          return 1.3;
-        } else if (c.variant.name === 'tonalSpot') {
-          return 1.25;
-        } else if (c.variant.name === 'expressive') {
-          return Color.isYellow(palettes.get('neutral').hue) ? 1.3 : 1.15;
-        } else if (c.variant.name === 'vibrant') {
-          return 1.08;
-        }
-        return 1;
-      },
     },
     surfaceContainer: {
       palette: () => palettes.get('neutral'),
+      chromaMultiplier: () => {
+        if (c.variant.name === 'neutral') {
+          return 1.6;
+        } else if (c.variant.name === 'tonalSpot') {
+          return 1.4;
+        } else if (c.variant.name === 'expressive') {
+          return Color.isYellow(palettes.get('neutral').hue) ? 1.6 : 1.3;
+        } else if (c.variant.name === 'vibrant') {
+          return 1.15;
+        }
+        return 1;
+      },
       tone: () => {
         if (c.isDark) {
           return 9;
@@ -161,22 +174,21 @@ export const defaultColors: AddColorsOptions = ({
           }
         }
       },
-      isBackground: true,
-      chromaMultiplier: () => {
-        if (c.variant.name === 'neutral') {
-          return 1.6;
-        } else if (c.variant.name === 'tonalSpot') {
-          return 1.4;
-        } else if (c.variant.name === 'expressive') {
-          return Color.isYellow(palettes.get('neutral').hue) ? 1.6 : 1.3;
-        } else if (c.variant.name === 'vibrant') {
-          return 1.15;
-        }
-        return 1;
-      },
     },
     surfaceContainerHigh: {
       palette: () => palettes.get('neutral'),
+      chromaMultiplier: () => {
+        if (c.variant.name === 'neutral') {
+          return 1.9;
+        } else if (c.variant.name === 'tonalSpot') {
+          return 1.5;
+        } else if (c.variant.name === 'expressive') {
+          return Color.isYellow(palettes.get('neutral').hue) ? 1.95 : 1.45;
+        } else if (c.variant.name === 'vibrant') {
+          return 1.22;
+        }
+        return 1;
+      },
       tone: () => {
         if (c.isDark) {
           return 12;
@@ -190,36 +202,9 @@ export const defaultColors: AddColorsOptions = ({
           }
         }
       },
-      isBackground: true,
-      chromaMultiplier: () => {
-        if (c.variant.name === 'neutral') {
-          return 1.9;
-        } else if (c.variant.name === 'tonalSpot') {
-          return 1.5;
-        } else if (c.variant.name === 'expressive') {
-          return Color.isYellow(palettes.get('neutral').hue) ? 1.95 : 1.45;
-        } else if (c.variant.name === 'vibrant') {
-          return 1.22;
-        }
-        return 1;
-      },
     },
     surfaceContainerHighest: {
       palette: () => palettes.get('neutral'),
-      tone: () => {
-        if (c.isDark) {
-          return 15;
-        } else {
-          if (Color.isYellow(palettes.get('neutral').hue)) {
-            return 92;
-          } else if (c.variant.name === 'vibrant') {
-            return 88;
-          } else {
-            return 90;
-          }
-        }
-      },
-      isBackground: true,
       chromaMultiplier: () => {
         if (c.variant.name === 'neutral') {
           return 2.2;
@@ -234,18 +219,22 @@ export const defaultColors: AddColorsOptions = ({
           return 1;
         }
       },
+      tone: () => {
+        if (c.isDark) {
+          return 15;
+        } else {
+          if (Color.isYellow(palettes.get('neutral').hue)) {
+            return 92;
+          } else if (c.variant.name === 'vibrant') {
+            return 88;
+          } else {
+            return 90;
+          }
+        }
+      },
     },
     onSurface: {
       palette: () => palettes.get('neutral'),
-      tone: () => {
-        if (c.variant.name === 'vibrant') {
-          return tMaxC(palettes.get('neutral'), 0, 100, 1.1);
-        } else {
-          // For all other variants, the initial tone should be the default
-          // tone, which is the same as the background color.
-          return getInitialToneFromBackground(highestSurface(c, colors));
-        }
-      },
       chromaMultiplier: () => {
         if (c.variant.name === 'neutral') {
           return 2.2;
@@ -261,8 +250,24 @@ export const defaultColors: AddColorsOptions = ({
 
         return 1;
       },
-      background: () => highestSurface(c, colors),
-      contrastCurve: () => (c.isDark ? getCurve(11) : getCurve(9)),
+      tone: () => {
+        if (c.variant.name === 'vibrant') {
+          return tMaxC(palettes.get('neutral'), 0, 100, 1.1);
+        } else {
+          // For all other variants, the initial tone should be the default
+          // tone, which is the same as the background color.
+          return highestSurface(c, colors).tone;
+        }
+      },
+      adjustTone: ({ context, tone }) => {
+          let answer = tone;
+          const curve = (c.isDark ? getCurve(11) : getCurve(9));
+          if (curve) {
+            const ratio = curve.get(context.contrastLevel);
+            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
+          }
+          return answer;
+        },
     },
     onSurfaceVariant: {
       palette: () => palettes.get('neutral'),
@@ -280,8 +285,11 @@ export const defaultColors: AddColorsOptions = ({
         }
         return 1;
       },
-      background: () => highestSurface(c, colors),
-      contrastCurve: () => (c.isDark ? getCurve(6) : getCurve(4.5)),
+      tone: () => highestSurface(c, colors).tone,
+      adjustTone: onColor(
+        () => highestSurface(c, colors),
+        () => (c.isDark ? getCurve(6) : getCurve(4.5)),
+      ),
     },
     outline: {
       palette: () => palettes.get('neutral'),
@@ -299,8 +307,11 @@ export const defaultColors: AddColorsOptions = ({
         }
         return 1;
       },
-      background: () => highestSurface(c, colors),
-      contrastCurve: () => getCurve(3),
+      tone: () => highestSurface(c, colors).tone,
+      adjustTone: onColor(
+        () => highestSurface(c, colors),
+        () => getCurve(3),
+      ),
     },
     outlineVariant: {
       palette: () => palettes.get('neutral'),
@@ -319,18 +330,23 @@ export const defaultColors: AddColorsOptions = ({
 
         return 1;
       },
-      background: () => highestSurface(c, colors),
-      contrastCurve: () => getCurve(1.5),
+      tone: () => highestSurface(c, colors).tone,
+      adjustTone: onColor(
+        () => highestSurface(c, colors),
+        () => getCurve(1.5),
+      ),
     },
     inverseSurface: {
       palette: () => palettes.get('neutral'),
       tone: () => (c.isDark ? 98 : 4),
-      isBackground: true,
     },
     inverseOnSurface: {
       palette: () => palettes.get('neutral'),
-      background: () => colors.get('inverseSurface'),
-      contrastCurve: () => getCurve(7),
+      tone: () => colors.get('inverseSurface').tone,
+      adjustTone: onColor(
+        () => colors.get('inverseSurface'),
+        () => getCurve(7),
+      ),
     },
     ////////////////////////////////////////////////////////////////
     // Primaries [P]                                              //
@@ -364,16 +380,26 @@ export const defaultColors: AddColorsOptions = ({
           );
         }
       },
-      isBackground: true,
-      background: () => highestSurface(c, colors),
-      contrastCurve: () => getCurve(4.5),
-      adjustTone: () => ({
-          roleA: colors.get('primaryContainer'),
-          roleB: colors.get('primary'),
-          delta: 5,
-          polarity: 'relative_lighter',
-          constraint: 'farther',
-        }),
+      adjustTone: ({ context, tone }) => {
+          let answer = tone;
+          answer = applyToneDelta(
+          answer,
+          {
+            relativeTo: colors.get('primaryContainer'),
+            delta: 5,
+            polarity: 'relative_darker',
+            constraint: 'farther',
+          },
+          context.isDark,
+        );
+          const curve = getCurve(4.5);
+          if (curve) {
+            const ratio = curve.get(context.contrastLevel);
+            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
+          }
+          answer = avoidBackgroundGap(answer);
+          return answer;
+        },
     },
     primaryDim: {
       palette: () => palettes.get('primary'),
@@ -386,21 +412,34 @@ export const defaultColors: AddColorsOptions = ({
           return tMaxC(palettes.get('primary'));
         }
       },
-      isBackground: true,
-      background: () => getColor('surfaceContainerHigh'),
-      contrastCurve: () => getCurve(4.5),
-      adjustTone: () => ({
-          roleA: colors.get('primaryDim'),
-          roleB: colors.get('primary'),
-          delta: 5,
-          polarity: 'darker',
-          constraint: 'farther',
-        }),
+      adjustTone: ({ context, tone }) => {
+          let answer = tone;
+          answer = applyToneDelta(
+          answer,
+          {
+            relativeTo: colors.get('primary'),
+            delta: 5,
+            polarity: 'darker',
+            constraint: 'farther',
+          },
+          context.isDark,
+        );
+          const curve = getCurve(4.5);
+          if (curve) {
+            const ratio = curve.get(context.contrastLevel);
+            answer = contrastAgainst(answer, getColor('surfaceContainerHigh'), ratio, context.contrastLevel);
+          }
+          answer = avoidBackgroundGap(answer);
+          return answer;
+        },
     },
     onPrimary: {
       palette: () => palettes.get('primary'),
-      background: () => colors.get('primary'),
-      contrastCurve: () => getCurve(6),
+      tone: () => colors.get('primary').tone,
+      adjustTone: onColor(
+        () => colors.get('primary'),
+        () => getCurve(6),
+      ),
     },
     primaryContainer: {
       palette: () => palettes.get('primary'),
@@ -429,18 +468,30 @@ export const defaultColors: AddColorsOptions = ({
               Color.isCyan(palettes.get('primary').hue) ? 88 : 93,
             );
       },
-      isBackground: true,
-      background: () => highestSurface(c, colors),
-      contrastCurve: () => (c.contrastLevel > 0 ? getCurve(1.5) : undefined),
+      adjustTone: ({ context, tone }) => {
+          let answer = tone;
+          const curve = (c.contrastLevel > 0 ? getCurve(1.5) : undefined);
+          if (curve) {
+            const ratio = curve.get(context.contrastLevel);
+            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
+            answer = avoidBackgroundGap(answer);
+          }
+          return answer;
+        },
     },
     onPrimaryContainer: {
       palette: () => palettes.get('primary'),
-      background: () => colors.get('primaryContainer'),
-      contrastCurve: () => getCurve(6),
+      tone: () => colors.get('primaryContainer').tone,
+      adjustTone: onColor(
+        () => colors.get('primaryContainer'),
+        () => getCurve(6),
+      ),
     },
 
     primaryFixed: {
+
       palette: () => palettes.get('primary'),
+
       tone: () => {
         return c.temp(
           {
@@ -453,43 +504,121 @@ export const defaultColors: AddColorsOptions = ({
           },
         );
       },
-      isBackground: true,
-      background: () => highestSurface(c, colors),
-      contrastCurve: () => (c.contrastLevel > 0 ? getCurve(1.5) : undefined),
+
+      adjustTone: ({ context, tone }) => {
+
+          let answer = tone;
+
+          const curve = (c.contrastLevel > 0 ? getCurve(1.5) : undefined);
+
+          if (curve) {
+
+            const ratio = curve.get(context.contrastLevel);
+
+            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
+
+            answer = avoidBackgroundGap(answer);
+
+          }
+
+          return answer;
+
+        },
+
     },
 
     primaryFixedDim: {
+
       palette: () => palettes.get('primary'),
+
       tone: () => colors.get('primaryFixed').tone,
-      isBackground: true,
-      // Les couleurs accent fixed-dim ne doivent pas être écartées de la zone médiane.
-      clampTone: false,
-      adjustTone: () => ({
-          roleA: getColor('primaryFixedDim'),
-          roleB: getColor('primaryFixed'),
-          delta: 5,
-          polarity: 'darker',
-          constraint: 'exact',
-        }),
+
+      adjustTone: ({ context, tone }) => {
+
+          let answer = tone;
+
+          answer = applyToneDelta(
+
+          answer,
+
+          {
+
+            relativeTo: getColor('primaryFixed'),
+
+            delta: 5,
+
+            polarity: 'darker',
+
+            constraint: 'exact',
+
+          },
+
+          context.isDark,
+
+        );
+
+          return answer;
+
+        },
+
     },
 
     onPrimaryFixed: {
+
       palette: () => palettes.get('primary'),
-      background: () => colors.get('primaryFixedDim'),
-      contrastCurve: () => getCurve(7),
+
+      tone: () => colors.get('primaryFixedDim').tone,
+
+      adjustTone: onColor(
+
+        () => colors.get('primaryFixedDim'),
+
+        () => getCurve(7),
+
+      ),
+
     },
 
     onPrimaryFixedVariant: {
+
       palette: () => palettes.get('primary'),
-      background: () => colors.get('primaryFixedDim'),
-      contrastCurve: () => getCurve(4.5),
+
+      tone: () => colors.get('primaryFixedDim').tone,
+
+      adjustTone: onColor(
+
+        () => colors.get('primaryFixedDim'),
+
+        () => getCurve(4.5),
+
+      ),
+
     },
 
     inversePrimary: {
+
       palette: () => palettes.get('primary'),
+
       tone: () => tMaxC(palettes.get('primary')),
-      background: () => colors.get('inverseSurface'),
-      contrastCurve: () => getCurve(6),
+
+      adjustTone: ({ context, tone }) => {
+
+          let answer = tone;
+
+          const curve = getCurve(6);
+
+          if (curve) {
+
+            const ratio = curve.get(context.contrastLevel);
+
+            answer = contrastAgainst(answer, colors.get('inverseSurface'), ratio, context.contrastLevel);
+
+          }
+
+          return answer;
+
+        },
+
     },
     ////////////////////////////////////////////////////////////////
     // Secondaries [Q]                                            //
@@ -508,16 +637,26 @@ export const defaultColors: AddColorsOptions = ({
           return c.isDark ? 80 : tMaxC(palettes.get('secondary'));
         }
       },
-      isBackground: true,
-      background: () => highestSurface(c, colors),
-      contrastCurve: () => getCurve(4.5),
-      adjustTone: () => ({
-          roleA: getColor('secondaryContainer'),
-          roleB: getColor('secondary'),
-          delta: 5,
-          polarity: 'relative_lighter',
-          constraint: 'farther',
-        }),
+      adjustTone: ({ context, tone }) => {
+          let answer = tone;
+          answer = applyToneDelta(
+          answer,
+          {
+            relativeTo: getColor('secondaryContainer'),
+            delta: 5,
+            polarity: 'relative_darker',
+            constraint: 'farther',
+          },
+          context.isDark,
+        );
+          const curve = getCurve(4.5);
+          if (curve) {
+            const ratio = curve.get(context.contrastLevel);
+            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
+          }
+          answer = avoidBackgroundGap(answer);
+          return answer;
+        },
     },
     secondaryDim: {
       palette: () => palettes.get('secondary'),
@@ -528,21 +667,34 @@ export const defaultColors: AddColorsOptions = ({
           return tMaxC(palettes.get('secondary'), 0, 90);
         }
       },
-      isBackground: true,
-      background: () => getColor('surfaceContainerHigh'),
-      contrastCurve: () => getCurve(4.5),
-      adjustTone: () => ({
-          roleA: getColor('secondaryDim'),
-          roleB: getColor('secondary'),
-          delta: 5,
-          polarity: 'darker',
-          constraint: 'farther',
-        }),
+      adjustTone: ({ context, tone }) => {
+          let answer = tone;
+          answer = applyToneDelta(
+          answer,
+          {
+            relativeTo: getColor('secondary'),
+            delta: 5,
+            polarity: 'darker',
+            constraint: 'farther',
+          },
+          context.isDark,
+        );
+          const curve = getCurve(4.5);
+          if (curve) {
+            const ratio = curve.get(context.contrastLevel);
+            answer = contrastAgainst(answer, getColor('surfaceContainerHigh'), ratio, context.contrastLevel);
+          }
+          answer = avoidBackgroundGap(answer);
+          return answer;
+        },
     },
     onSecondary: {
       palette: () => palettes.get('secondary'),
-      background: () => getColor('secondary'),
-      contrastCurve: () => getCurve(6),
+      tone: () => getColor('secondary').tone,
+      adjustTone: onColor(
+        () => getColor('secondary'),
+        () => getCurve(6),
+      ),
     },
     secondaryContainer: {
       palette: () => palettes.get('secondary'),
@@ -557,19 +709,30 @@ export const defaultColors: AddColorsOptions = ({
           return c.isDark ? 25 : 90;
         }
       },
-      isBackground: true,
-      background: () => highestSurface(c, colors),
-      adjustTone: () => undefined,
-      contrastCurve: () => (c.contrastLevel > 0 ? getCurve(1.5) : undefined),
+      adjustTone: ({ context, tone }) => {
+          let answer = tone;
+          const curve = (c.contrastLevel > 0 ? getCurve(1.5) : undefined);
+          if (curve) {
+            const ratio = curve.get(context.contrastLevel);
+            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
+            answer = avoidBackgroundGap(answer);
+          }
+          return answer;
+        },
     },
     onSecondaryContainer: {
       palette: () => palettes.get('secondary'),
-      background: () => getColor('secondaryContainer'),
-      contrastCurve: () => getCurve(6),
+      tone: () => getColor('secondaryContainer').tone,
+      adjustTone: onColor(
+        () => getColor('secondaryContainer'),
+        () => getCurve(6),
+      ),
     },
 
     secondaryFixed: {
+
       palette: () => palettes.get('secondary'),
+
       tone: () => {
         return c.temp(
           {
@@ -582,36 +745,95 @@ export const defaultColors: AddColorsOptions = ({
           },
         );
       },
-      isBackground: true,
-      background: () => highestSurface(c, colors),
-      contrastCurve: () => (c.contrastLevel > 0 ? getCurve(1.5) : undefined),
+
+      adjustTone: ({ context, tone }) => {
+
+          let answer = tone;
+
+          const curve = (c.contrastLevel > 0 ? getCurve(1.5) : undefined);
+
+          if (curve) {
+
+            const ratio = curve.get(context.contrastLevel);
+
+            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
+
+            answer = avoidBackgroundGap(answer);
+
+          }
+
+          return answer;
+
+        },
+
     },
 
     secondaryFixedDim: {
+
       palette: () => palettes.get('secondary'),
+
       tone: () => getColor('secondaryFixed').tone,
-      isBackground: true,
-      // Les couleurs accent fixed-dim ne doivent pas être écartées de la zone médiane.
-      clampTone: false,
-      adjustTone: () => ({
-          roleA: getColor('secondaryFixedDim'),
-          roleB: getColor('secondaryFixed'),
-          delta: 5,
-          polarity: 'darker',
-          constraint: 'exact',
-        }),
+
+      adjustTone: ({ context, tone }) => {
+
+          let answer = tone;
+
+          answer = applyToneDelta(
+
+          answer,
+
+          {
+
+            relativeTo: getColor('secondaryFixed'),
+
+            delta: 5,
+
+            polarity: 'darker',
+
+            constraint: 'exact',
+
+          },
+
+          context.isDark,
+
+        );
+
+          return answer;
+
+        },
+
     },
 
     onSecondaryFixed: {
+
       palette: () => palettes.get('secondary'),
-      background: () => getColor('secondaryFixedDim'),
-      contrastCurve: () => getCurve(7),
+
+      tone: () => getColor('secondaryFixedDim').tone,
+
+      adjustTone: onColor(
+
+        () => getColor('secondaryFixedDim'),
+
+        () => getCurve(7),
+
+      ),
+
     },
 
     onSecondaryFixedVariant: {
+
       palette: () => palettes.get('secondary'),
-      background: () => getColor('secondaryFixedDim'),
-      contrastCurve: () => getCurve(4.5),
+
+      tone: () => getColor('secondaryFixedDim').tone,
+
+      adjustTone: onColor(
+
+        () => getColor('secondaryFixedDim'),
+
+        () => getCurve(4.5),
+
+      ),
+
     },
 
     ////////////////////////////////////////////////////////////////
@@ -637,16 +859,26 @@ export const defaultColors: AddColorsOptions = ({
             : tMaxC(palettes.get('tertiary'));
         }
       },
-      isBackground: true,
-      background: () => highestSurface(c, colors),
-      contrastCurve: () => getCurve(4.5),
-      adjustTone: () => ({
-          roleA: getColor('tertiaryContainer'),
-          roleB: getColor('tertiary'),
-          delta: 5,
-          polarity: 'relative_lighter',
-          constraint: 'farther',
-        }),
+      adjustTone: ({ context, tone }) => {
+          let answer = tone;
+          answer = applyToneDelta(
+          answer,
+          {
+            relativeTo: getColor('tertiaryContainer'),
+            delta: 5,
+            polarity: 'relative_darker',
+            constraint: 'farther',
+          },
+          context.isDark,
+        );
+          const curve = getCurve(4.5);
+          if (curve) {
+            const ratio = curve.get(context.contrastLevel);
+            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
+          }
+          answer = avoidBackgroundGap(answer);
+          return answer;
+        },
     },
     tertiaryDim: {
       palette: () => palettes.get('tertiary'),
@@ -657,21 +889,34 @@ export const defaultColors: AddColorsOptions = ({
           return tMaxC(palettes.get('tertiary'));
         }
       },
-      isBackground: true,
-      background: () => getColor('surfaceContainerHigh'),
-      contrastCurve: () => getCurve(4.5),
-      adjustTone: () => ({
-          roleA: getColor('tertiaryDim'),
-          roleB: getColor('tertiary'),
-          delta: 5,
-          polarity: 'darker',
-          constraint: 'farther',
-        }),
+      adjustTone: ({ context, tone }) => {
+          let answer = tone;
+          answer = applyToneDelta(
+          answer,
+          {
+            relativeTo: getColor('tertiary'),
+            delta: 5,
+            polarity: 'darker',
+            constraint: 'farther',
+          },
+          context.isDark,
+        );
+          const curve = getCurve(4.5);
+          if (curve) {
+            const ratio = curve.get(context.contrastLevel);
+            answer = contrastAgainst(answer, getColor('surfaceContainerHigh'), ratio, context.contrastLevel);
+          }
+          answer = avoidBackgroundGap(answer);
+          return answer;
+        },
     },
     onTertiary: {
       palette: () => palettes.get('tertiary'),
-      background: () => getColor('tertiary'),
-      contrastCurve: () => getCurve(6),
+      tone: () => getColor('tertiary').tone,
+      adjustTone: onColor(
+        () => getColor('tertiary'),
+        () => getCurve(6),
+      ),
     },
     tertiaryContainer: {
       palette: () => palettes.get('tertiary'),
@@ -699,19 +944,30 @@ export const defaultColors: AddColorsOptions = ({
             : tMaxC(palettes.get('tertiary'), 72, 100);
         }
       },
-      isBackground: true,
-      background: () => highestSurface(c, colors),
-      adjustTone: () => undefined,
-      contrastCurve: () => (c.contrastLevel > 0 ? getCurve(1.5) : undefined),
+      adjustTone: ({ context, tone }) => {
+          let answer = tone;
+          const curve = (c.contrastLevel > 0 ? getCurve(1.5) : undefined);
+          if (curve) {
+            const ratio = curve.get(context.contrastLevel);
+            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
+            answer = avoidBackgroundGap(answer);
+          }
+          return answer;
+        },
     },
     onTertiaryContainer: {
       palette: () => palettes.get('tertiary'),
-      background: () => getColor('tertiaryContainer'),
-      contrastCurve: () => getCurve(6),
+      tone: () => getColor('tertiaryContainer').tone,
+      adjustTone: onColor(
+        () => getColor('tertiaryContainer'),
+        () => getCurve(6),
+      ),
     },
 
     tertiaryFixed: {
+
       palette: () => palettes.get('tertiary'),
+
       tone: () => {
         return c.temp(
           {
@@ -724,36 +980,95 @@ export const defaultColors: AddColorsOptions = ({
           },
         );
       },
-      isBackground: true,
-      background: () => highestSurface(c, colors),
-      contrastCurve: () => (c.contrastLevel > 0 ? getCurve(1.5) : undefined),
+
+      adjustTone: ({ context, tone }) => {
+
+          let answer = tone;
+
+          const curve = (c.contrastLevel > 0 ? getCurve(1.5) : undefined);
+
+          if (curve) {
+
+            const ratio = curve.get(context.contrastLevel);
+
+            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
+
+            answer = avoidBackgroundGap(answer);
+
+          }
+
+          return answer;
+
+        },
+
     },
 
     tertiaryFixedDim: {
+
       palette: () => palettes.get('tertiary'),
+
       tone: () => getColor('tertiaryFixed').tone,
-      isBackground: true,
-      // Les couleurs accent fixed-dim ne doivent pas être écartées de la zone médiane.
-      clampTone: false,
-      adjustTone: () => ({
-          roleA: getColor('tertiaryFixedDim'),
-          roleB: getColor('tertiaryFixed'),
-          delta: 5,
-          polarity: 'darker',
-          constraint: 'exact',
-        }),
+
+      adjustTone: ({ context, tone }) => {
+
+          let answer = tone;
+
+          answer = applyToneDelta(
+
+          answer,
+
+          {
+
+            relativeTo: getColor('tertiaryFixed'),
+
+            delta: 5,
+
+            polarity: 'darker',
+
+            constraint: 'exact',
+
+          },
+
+          context.isDark,
+
+        );
+
+          return answer;
+
+        },
+
     },
 
     onTertiaryFixed: {
+
       palette: () => palettes.get('tertiary'),
-      background: () => getColor('tertiaryFixedDim'),
-      contrastCurve: () => getCurve(7),
+
+      tone: () => getColor('tertiaryFixedDim').tone,
+
+      adjustTone: onColor(
+
+        () => getColor('tertiaryFixedDim'),
+
+        () => getCurve(7),
+
+      ),
+
     },
 
     onTertiaryFixedVariant: {
+
       palette: () => palettes.get('tertiary'),
-      background: () => getColor('tertiaryFixedDim'),
-      contrastCurve: () => getCurve(4.5),
+
+      tone: () => getColor('tertiaryFixedDim').tone,
+
+      adjustTone: onColor(
+
+        () => getColor('tertiaryFixedDim'),
+
+        () => getCurve(4.5),
+
+      ),
+
     },
 
     ////////////////////////////////////////////////////////////////
@@ -761,41 +1076,87 @@ export const defaultColors: AddColorsOptions = ({
     ////////////////////////////////////////////////////////////////
 
     error: {
+
       palette: () => palettes.get('error'),
+
       tone: () => {
         return c.isDark
           ? tMinC(palettes.get('error'), 0, 98)
           : tMaxC(palettes.get('error'));
       },
-      isBackground: true,
-      background: () => highestSurface(c, colors),
-      contrastCurve: () => getCurve(4.5),
-      adjustTone: () => ({
-          roleA: colors.get('errorContainer'),
-          roleB: colors.get('error'),
-          delta: 5,
-          polarity: 'relative_lighter',
-          constraint: 'farther',
-        }),
+
+      adjustTone: ({ context, tone }) => {
+
+          let answer = tone;
+
+          answer = applyToneDelta(
+
+          answer,
+
+          {
+
+            relativeTo: colors.get('errorContainer'),
+
+            delta: 5,
+
+            polarity: 'relative_darker',
+
+            constraint: 'farther',
+
+          },
+
+          context.isDark,
+
+        );
+
+          const curve = getCurve(4.5);
+
+          if (curve) {
+
+            const ratio = curve.get(context.contrastLevel);
+
+            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
+
+          }
+
+          answer = avoidBackgroundGap(answer);
+
+          return answer;
+
+        },
+
     },
     errorDim: {
       palette: () => palettes.get('error'),
       tone: () => tMinC(palettes.get('error')),
-      isBackground: true,
-      background: () => getColor('surfaceContainerHigh'),
-      contrastCurve: () => getCurve(4.5),
-      adjustTone: () => ({
-          roleA: getColor('errorDim'),
-          roleB: getColor('error'),
-          delta: 5,
-          polarity: 'darker',
-          constraint: 'farther',
-        }),
+      adjustTone: ({ context, tone }) => {
+          let answer = tone;
+          answer = applyToneDelta(
+          answer,
+          {
+            relativeTo: getColor('error'),
+            delta: 5,
+            polarity: 'darker',
+            constraint: 'farther',
+          },
+          context.isDark,
+        );
+          const curve = getCurve(4.5);
+          if (curve) {
+            const ratio = curve.get(context.contrastLevel);
+            answer = contrastAgainst(answer, getColor('surfaceContainerHigh'), ratio, context.contrastLevel);
+          }
+          answer = avoidBackgroundGap(answer);
+          return answer;
+        },
     },
     onError: {
       palette: () => palettes.get('error'),
-      background: () => colors.get('error'),
-      contrastCurve: () => getCurve(6),
+      tone: () => colors.get('error').tone,
+      adjustTone: onColor(
+        () => colors.get('error'),
+        () => getCurve(6),
+      ),
     },
     errorContainer: {
       palette: () => palettes.get('error'),
@@ -804,15 +1165,24 @@ export const defaultColors: AddColorsOptions = ({
           ? tMinC(palettes.get('error'), 30, 93)
           : tMaxC(palettes.get('error'), 0, 90);
       },
-      isBackground: true,
-      background: () => highestSurface(c, colors),
-      adjustTone: () => undefined,
-      contrastCurve: () => (c.contrastLevel > 0 ? getCurve(1.5) : undefined),
+      adjustTone: ({ context, tone }) => {
+          let answer = tone;
+          const curve = (c.contrastLevel > 0 ? getCurve(1.5) : undefined);
+          if (curve) {
+            const ratio = curve.get(context.contrastLevel);
+            answer = contrastAgainst(answer, highestSurface(c, colors), ratio, context.contrastLevel);
+            answer = avoidBackgroundGap(answer);
+          }
+          return answer;
+        },
     },
     onErrorContainer: {
       palette: () => palettes.get('error'),
-      background: () => colors.get('errorContainer'),
-      contrastCurve: () => getCurve(4.5),
+      tone: () => colors.get('errorContainer').tone,
+      adjustTone: onColor(
+        () => colors.get('errorContainer'),
+        () => getCurve(4.5),
+      ),
     },
 
     /////////////////////////////////////////////////////////////////
