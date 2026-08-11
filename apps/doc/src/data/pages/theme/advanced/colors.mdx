@@ -1,50 +1,38 @@
 ---
 title: Colors API
-description: api.colors.get(), AddColorsOptions, FromPaletteOptions, contrastCurve, toneDeltaPair — custom semantic tokens.
+description: api.colors.get(), AddColorsOptions, tone adjusters — contrastAgainst, onColor, applyToneDelta, avoidBackgroundGap — custom semantic tokens.
 ---
 
 # Colors API
 
-`ColorApi` resolves semantic color tokens — the named values like `primary`, `surface`, `onPrimary` — from palette tones. Each token is a `Color` instance that computes its HCT value at read time, respecting the current contrast level and dark mode.
+`ColorApi` resolves semantic color tokens — the named values like `primary`, `surface`, `onPrimary` — from palette tones. Each token is a `Color` that computes its value at read time, respecting the current contrast level and dark mode.
 
 ## `api.colors.get(key)`
 
-Returns the `Color` instance for a semantic token. Available after the first `api.load()`.
+Returns the `Color` for a semantic token. Available after the first `api.load()`.
 
 ```ts
 const primary = api.colors.get('primary');
 
-console.log(primary.getTone());  // e.g. 40 (light) or 80 (dark)
-console.log(primary.getHex());   // e.g. "#6750A4"
-
-const hct = primary.getHct();
-console.log(hct.hue, hct.chroma, hct.tone);
+primary.tone;    // 40 in light mode, 80 in dark
+primary.hex;     // "#6750a4"
+primary.hue;     // 279.6
+primary.chroma;  // 41.9
 ```
 
-### `Color` methods
-
-| Method | Return | Description |
-|--------|--------|-------------|
-| `getHct()` | `Hct` | Full HCT value |
-| `getHex()` | `string` | CSS hex string (`#rrggbb`) |
-| `getArgb()` | `number` | ARGB integer |
-| `getRgb()` | `{ r, g, b }` | RGB components |
-| `getTone()` | `number` | Perceptual tone (0–100) |
+See [Color](/theme/colors) for the full reading and derivation surface.
 
 ## `api.colors.getAll()`
 
-Returns a read-only map of all registered color tokens:
+A read-only map of every registered token:
 
 ```ts
-const all = api.colors.getAll();
-for (const [key, color] of Object.entries(all)) {
-  console.log(key, color.getHex());
+for (const [key, color] of api.colors.getAll()) {
+  console.log(key, color.hex);
 }
 ```
 
-## Adding custom tokens
-
-### Via `AddColorsOptions`
+## Adding tokens
 
 ```ts
 type AddColorsOptions =
@@ -52,9 +40,9 @@ type AddColorsOptions =
   | ((api: API) => Record<string, ColorOptions>);
 ```
 
-Pass to `loader()` via the `colors` key, or call `api.colors.addColors()` directly.
+Pass it to `loader()` under `colors`, or call `api.colors.addColors()` directly. A token is defined one of three ways.
 
-### Simple hex token
+### A fixed hex
 
 ```ts
 api.colors.addColors({
@@ -62,9 +50,9 @@ api.colors.addColors({
 });
 ```
 
-This creates a static color — it does not adapt to dark mode or contrast level.
+Static — it does not follow dark mode or contrast level.
 
-### Alias token
+### An alias
 
 ```ts
 api.colors.addColors({
@@ -72,101 +60,185 @@ api.colors.addColors({
 });
 ```
 
-`ctaBackground` mirrors whatever `primary` resolves to.
+`ctaBackground` mirrors whatever `primary` resolves to, always.
 
-### Dynamic token from palette
+### From a palette
 
-`FromPaletteOptions` is the full form — the token adapts to dark mode, contrast level, and tone delta constraints:
+The full form. The token takes its hue and chroma from a palette, and resolves its tone itself:
 
 ```ts
-api.colors.addColors(({ palettes, colors }) => ({
-  highlight: {
-    palette: () => palettes.get('primary'),
-    tone: () => 70,                         // fixed tone
-    isBackground: true,
-    background: () => colors.get('surface'),
-    contrastCurve: () => getCurve(3),       // min 3:1 contrast ratio
+type FromPaletteOptions = {
+  palette: () => Palette;
+  tone?: () => number;
+  adjustTone?: ToneAdjuster | ToneAdjuster[];
+  chromaMultiplier?: () => number | undefined;
+};
+```
+
+| Property | Description |
+|----------|-------------|
+| `palette` | Source palette, providing hue and chroma. Passing the palette rather than raw numbers preserves the intended chroma when the tone moves. |
+| `tone` | The default tone. Defaults to `DEFAULT_TONE` (50). |
+| `adjustTone` | One adjuster, or a list applied in order. Nothing runs before or after them. |
+| `chromaMultiplier` | Multiplies the palette chroma. Default `1`. |
+
+## Tone adjusters
+
+An adjuster takes the tone the previous step left and returns the next one:
+
+```ts
+type ToneAdjuster = (args: API & { tone: number }) => number;
+```
+
+It receives the whole API, so it can reach `colors`, `palettes` and `context` without closing over them. The built-in adjusters are factories: you give them what identifies the step, they give you the adjuster.
+
+### `onColor(background, contrast)`
+
+The shape of every `on*` token. Starts from the background's own tone and pushes it until it meets the contrast — so it **ignores the incoming tone**, and only makes sense first in a chain.
+
+```ts
+onBrand: {
+  palette: () => palettes.get('brand'),
+  adjustTone: onColor('brand', 6),
+},
+```
+
+### `contrastAgainst(background, contrast)`
+
+Pushes the incoming tone until it contrasts with `background`. The tone is left alone if it already clears the ratio — except at a negative contrast level, where it is recomputed so it can be lowered.
+
+```ts
+adjustTone: contrastAgainst('surface', 4.5),
+```
+
+`background` is a `ColorRef`: a token key, a `Color`, or a function of the API when it depends on the context.
+
+```ts
+contrastAgainst((api) => (api.context.isDark ? api.colors.get('surfaceBright') : api.colors.get('surfaceDim')), 4.5),
+```
+
+`contrast` is a `ContrastSpec`. A number selects one of Material's standard curves — `1.5`, `3`, `4.5`, `6`, `7`, `9`, `11`, `21`. Note it is a *curve*, not a fixed ratio: `4.5` means 4.5:1 at contrast level 0, rising to 11:1 at level 1. For anything else, build a `ContrastCurve` yourself, or pass a function when the curve depends on the context:
+
+```ts
+contrastAgainst('surface', new ContrastCurve(2, 3, 4.5, 8)),
+contrastAgainst('surface', (context) => (context.contrastLevel > 0 ? getCurve(1.5) : undefined)),
+```
+
+Returning `undefined` leaves the tone untouched.
+
+### `avoidBackgroundGap()`
+
+Pushes the tone out of the band where no foreground — light or dark — reaches sufficient contrast. Put it on tokens that act as backgrounds, and never after an `exact` tone delta, which it would undo.
+
+```ts
+adjustTone: [contrastAgainst('surface', 4.5), avoidBackgroundGap()],
+```
+
+The band is exported as `BACKGROUND_TONE_GAP` (`{ pivot: 57, lightFloor: 65, darkCeiling: 49 }`). These are Material spec values; changing them takes the theme out of conformance.
+
+### `applyToneDelta(delta)`
+
+Keeps two tokens a given distance apart, for cases where they must stay distinct without being in a background/foreground relationship.
+
+```ts
+adjustTone: applyToneDelta({
+  relativeTo: 'brandContainer',
+  delta: 5,
+  polarity: 'relativeDarker',
+  constraint: 'farther',
+}),
+```
+
+The polarity is read **from the token declaring it** — the example says "I must be at least 5 darker than `brandContainer`".
+
+| Polarity | Meaning |
+|----------|---------|
+| `darker` / `lighter` | Absolute direction. |
+| `relativeDarker` / `relativeLighter` | Follows the surface trend: toward white in light mode, toward black in dark mode. |
+
+| Constraint | Meaning |
+|------------|---------|
+| `exact` | Pins the tone at exactly `delta` away. |
+| `nearer` | Keeps it within `delta`. |
+| `farther` | Keeps it at least `delta` away. |
+
+### `arbitrateBackgrounds(first, second, contrast)`
+
+Finds a tone clearing the contrast against two backgrounds at once. Leaves the tone alone when it already clears both.
+
+## Chaining
+
+A list applies in order, each step receiving what the previous returned:
+
+```ts
+api.colors.addColors(({ palettes }) => ({
+  brand: {
+    palette: () => palettes.get('brand'),
+    tone: () => 70,
+    adjustTone: [
+      applyToneDelta({ relativeTo: 'brandContainer', delta: 5, polarity: 'relativeDarker', constraint: 'farther' }),
+      contrastAgainst('surface', 4.5),
+      avoidBackgroundGap(),
+    ],
   },
-  onHighlight: {
-    palette: () => palettes.get('primary'),
-    background: () => colors.get('highlight'),
-    contrastCurve: () => getCurve(4.5),     // min 4.5:1 contrast ratio
+  onBrand: {
+    palette: () => palettes.get('brand'),
+    adjustTone: onColor('brand', 6),
   },
 }));
 ```
 
-### `FromPaletteOptions` reference
+There is no hidden pipeline: what you list is what runs.
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `palette` | `() => Palette` | Source palette for hue+chroma |
-| `tone` | `() => number` | Base tone (0–100). Defaults to background tone or 50 |
-| `isBackground` | `boolean` | Whether this token is a background (affects clamping) |
-| `background` | `() => Color \| undefined` | The background this token sits on |
-| `secondBackground` | `() => Color \| undefined` | Second background (for dual-background contrast) |
-| `contrastCurve` | `() => ContrastCurve \| undefined` | Required when `background` is set |
-| `adjustTone` | `() => AdjustTone \| undefined` | Tone delta constraint relative to another token |
-| `chromaMultiplier` | `() => number \| undefined` | Multiplies palette chroma. Default `1` |
+## Writing your own adjuster
 
-### `getCurve(ratio)`
-
-Constructs a `ContrastCurve` targeting the given minimum contrast ratio at normal contrast level (`contrastLevel = 0`):
+An adjuster is any function of the same shape, so a custom step is just another element of the list:
 
 ```ts
-import { getCurve } from '@udixio/theme';
-
-getCurve(3);    // 3:1 minimum (AA large text)
-getCurve(4.5);  // 4.5:1 minimum (AA normal text)
-getCurve(7);    // 7:1 minimum (AAA)
+adjustTone: [
+  contrastAgainst('surface', 4.5),
+  ({ context, palettes, tone }) =>
+    context.isDark ? Math.min(tone, palettes.get('brand').chroma) : tone,
+],
 ```
 
-### `toneDeltaPair`
+Two pure helpers are exported for hand composition, when a step is conditional and a flat list cannot express it:
 
-Constrains two tokens to maintain a minimum tone distance — used when tokens must remain visually distinct regardless of contrast level:
+- `contrastTone(tone, background, contrast, api)` — the core of `contrastAgainst` and `onColor`.
+- `backgroundGapTone(tone)` — the core of `avoidBackgroundGap`.
 
 ```ts
-import { toneDeltaPair } from '@udixio/theme';
-
-adjustTone: () =>
-  toneDeltaPair(
-    colors.get('surfaceContainer'),
-    colors.get('surface'),
-    5,               // minimum tone delta
-    'relativeLighter',
-    true,
-    'farther',
-  ),
+adjustTone: (args) =>
+  args.context.contrastLevel > 0
+    ? backgroundGapTone(contrastTone(args.tone, 'surface', 1.5, args))
+    : args.tone,
 ```
 
-## Example: custom `highlight` token pair
+## Example: a `highlight` pair
 
 ```ts
 import { loader } from '@udixio/theme';
-import { getCurve } from '@udixio/theme';
+import { contrastAgainst, onColor, avoidBackgroundGap } from '@udixio/theme';
 import { TailwindPlugin } from '@udixio/tailwind';
 import { FontPlugin } from '@udixio/ui-react';
 
 const api = await loader({
   sourceColor: '#6750A4',
-  colors: ({ palettes, colors }) => ({
+  colors: ({ palettes }) => ({
     highlight: {
       palette: () => palettes.get('tertiary'),
       tone: () => 70,
-      isBackground: true,
-      background: () => colors.get('surface'),
-      contrastCurve: () => getCurve(3),
+      adjustTone: [contrastAgainst('surface', 3), avoidBackgroundGap()],
     },
     onHighlight: {
       palette: () => palettes.get('tertiary'),
-      background: () => colors.get('highlight'),
-      contrastCurve: () => getCurve(4.5),
+      adjustTone: onColor('highlight', 4.5),
     },
   }),
   plugins: [new FontPlugin(), new TailwindPlugin()],
 });
 
 // TailwindPlugin generates:
-// --color-highlight: …
-// --color-on-highlight: …
-// .bg-highlight, .text-on-highlight, etc.
+// --color-highlight, --color-on-highlight
+// .bg-highlight, .text-on-highlight, …
 ```
