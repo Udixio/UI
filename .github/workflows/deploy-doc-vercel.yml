@@ -10,6 +10,7 @@ on:
       - 'pnpm-lock.yaml'
       - 'package.json'
       - 'pnpm-workspace.yaml'
+      - 'packages/**'
   workflow_dispatch:
 
 concurrency:
