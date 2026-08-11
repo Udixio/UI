@@ -88,6 +88,9 @@ jobs:
             console.log(`Checked ${files.length} packages, all publishable ones declare public access.`);
           '
 
+      - name: Run package tests
+        run: npx nx run-many --target=test --all --parallel=3
+
       - name: Version packages
         run: npx nx release --skip-publish --verbose
         env:
