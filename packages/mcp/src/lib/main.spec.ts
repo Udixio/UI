@@ -12,14 +12,18 @@ const { mockConnect, mockStdioTransport, mockListen, mockPost, mockUse } =
   });
 
 vi.mock('@modelcontextprotocol/sdk/server/mcp.js', () => ({
-  McpServer: vi.fn().mockImplementation((opts: unknown) => ({
-    opts,
-    connect: mockConnect,
-  })),
+  McpServer: vi.fn().mockImplementation(function (opts: unknown) {
+    return {
+      opts,
+      connect: mockConnect,
+    };
+  }),
 }));
 
 vi.mock('@modelcontextprotocol/sdk/server/stdio.js', () => ({
-  StdioServerTransport: vi.fn().mockReturnValue(mockStdioTransport),
+  StdioServerTransport: vi.fn().mockImplementation(function () {
+    return mockStdioTransport;
+  }),
 }));
 
 vi.mock('./mcp', () => ({
