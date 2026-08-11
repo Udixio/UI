@@ -40,4 +40,37 @@ describe('node TailwindPlugin', () => {
       rmSync(dir, { recursive: true, force: true });
     }
   });
+
+  describe('resetColors', () => {
+    async function emit(options: { resetColors?: boolean }) {
+      const root = join(__dirname, '..', '..', '.tmp-test');
+      mkdirSync(root, { recursive: true });
+      const dir = mkdtempSync(join(root, 'reset-'));
+      try {
+        const outFile = join(dir, 'udixio.generated.css');
+        const config = defineConfig({
+          sourceColor: '#6750A4',
+          plugins: [
+            new FontPlugin({}),
+            new TailwindPlugin({ outFile, ...options }),
+          ],
+        });
+        const api = await loader(config, false);
+        await api.load();
+        return readFileSync(outFile, 'utf8');
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
+    }
+
+    it('resets the default Tailwind palette by default', async () => {
+      expect(await emit({})).toContain('--color-*: initial;');
+    });
+
+    it('keeps the default Tailwind palette when disabled', async () => {
+      const css = await emit({ resetColors: false });
+      expect(css).not.toContain('--color-*: initial;');
+      expect(css).toContain('--color-primary:');
+    });
+  });
 });

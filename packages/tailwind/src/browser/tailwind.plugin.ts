@@ -23,6 +23,16 @@ export interface TailwindPluginOptions {
    */
   subThemes?: Record<string, string | Color | number>;
   /**
+   * Émet `--color-*: initial;` dans le bloc `@theme`, ce qui supprime toute la
+   * palette de couleurs par défaut de Tailwind pour ne garder que celle du thème.
+   *
+   * Passer `false` pour conserver les couleurs Tailwind (`red-500`, `slate-200`, …)
+   * à côté des couleurs générées.
+   *
+   * @default true
+   */
+  resetColors?: boolean;
+  /**
    * Force browser-compatible CSS output (pure CSS variables, no @plugin/@theme directives,
    * no filesystem writes). Set automatically by `generateThemeCss()` for SSR use cases.
    */
@@ -130,6 +140,7 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
       darkMode: 'class',
       darkSelector: '.dark',
       dynamicSelector: '.dynamic',
+      resetColors: true,
       ...this.options,
     };
   }
@@ -156,12 +167,12 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
   }
 }`;
     } else {
+      const resetColors = this.options.resetColors ?? true;
       this.outputCss += `
 @theme {
-  --color-*: initial;
-  ${Object.entries(colors)
-    .map(([key, value]) => `--color-${key}: ${value.light};`)
-    .join('\n  ')}
+${resetColors ? '  --color-*: initial;\n' : ''}  ${Object.entries(colors)
+        .map(([key, value]) => `--color-${key}: ${value.light};`)
+        .join('\n  ')}
 }`;
     }
 
