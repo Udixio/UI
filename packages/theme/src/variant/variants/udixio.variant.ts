@@ -2,7 +2,6 @@ import {
   applyToneDelta,
   avoidBackgroundGap,
   contrastAgainst,
-  onColor,
 } from '../../color/tone-adjusters';
 import { getPiecewiseHue, getRotatedHue, variant, Variant } from '../variant';
 import {
@@ -201,9 +200,12 @@ export const udixioVariant: Variant = variant({
       [onColorKey]: {
         palette: () => palettes.get(colorKey),
         tone: () => colors.get(colorKey).tone,
-        adjustTone: onColor(
-          () => colors.get(colorKey),
-          () => getCurve(6),
+        adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          colors.get(colorKey),
+          getCurve(6).get(context.contrastLevel),
+          context.contrastLevel,
         ),
       },
       [colorContainerKey]: {
@@ -237,9 +239,12 @@ export const udixioVariant: Variant = variant({
       [onColorContainerKey]: {
         palette: () => palettes.get(colorKey),
         tone: () => colors.get(colorContainerKey).tone,
-        adjustTone: onColor(
-          () => colors.get(colorContainerKey),
-          () => getCurve(6),
+        adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          colors.get(colorContainerKey),
+          getCurve(6).get(context.contrastLevel),
+          context.contrastLevel,
         ),
       },
       // [colorFixedKey]: {
@@ -390,9 +395,12 @@ export const udixioVariant: Variant = variant({
           return 1.7;
         },
         tone: () => highestSurface(ctx, colors).tone,
-        adjustTone: onColor(
-          () => highestSurface(ctx, colors),
-          () => (ctx.isDark ? getCurve(6) : getCurve(4.5)),
+        adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          highestSurface(ctx, colors),
+          (ctx.isDark ? getCurve(6) : getCurve(4.5)).get(context.contrastLevel),
+          context.contrastLevel,
         ),
       },
       outline: {
@@ -401,9 +409,12 @@ export const udixioVariant: Variant = variant({
           return 1.7;
         },
         tone: () => highestSurface(ctx, colors).tone,
-        adjustTone: onColor(
-          () => highestSurface(ctx, colors),
-          () => getCurve(3),
+        adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          highestSurface(ctx, colors),
+          getCurve(3).get(context.contrastLevel),
+          context.contrastLevel,
         ),
       },
       outlineVariant: {
@@ -412,9 +423,12 @@ export const udixioVariant: Variant = variant({
           return 1.7;
         },
         tone: () => highestSurface(ctx, colors).tone,
-        adjustTone: onColor(
-          () => highestSurface(ctx, colors),
-          () => getCurve(1.5),
+        adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          highestSurface(ctx, colors),
+          getCurve(1.5).get(context.contrastLevel),
+          context.contrastLevel,
         ),
       },
       inverseSurface: {
@@ -475,9 +489,12 @@ export const udixioVariant: Variant = variant({
       onPrimary: {
         palette: () => palettes.get('primary'),
         tone: () => colors.get('primary').tone,
-        adjustTone: onColor(
-          () => colors.get('primary'),
-          () => getCurve(6),
+        adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          colors.get('primary'),
+          getCurve(6).get(context.contrastLevel),
+          context.contrastLevel,
         ),
       },
       primaryContainer: {
@@ -511,9 +528,12 @@ export const udixioVariant: Variant = variant({
       onPrimaryContainer: {
         palette: () => palettes.get('primary'),
         tone: () => colors.get('primaryContainer').tone,
-        adjustTone: onColor(
-          () => colors.get('primaryContainer'),
-          () => getCurve(6),
+        adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          colors.get('primaryContainer'),
+          getCurve(6).get(context.contrastLevel),
+          context.contrastLevel,
         ),
       },
 
@@ -622,9 +642,12 @@ export const udixioVariant: Variant = variant({
       onSecondary: {
         palette: () => palettes.get('secondary'),
         tone: () => getColor('secondary').tone,
-        adjustTone: onColor(
-          () => getColor('secondary'),
-          () => getCurve(6),
+        adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          getColor('secondary'),
+          getCurve(6).get(context.contrastLevel),
+          context.contrastLevel,
         ),
       },
       secondaryContainer: {
@@ -658,9 +681,12 @@ export const udixioVariant: Variant = variant({
       onSecondaryContainer: {
         palette: () => palettes.get('secondary'),
         tone: () => getColor('secondaryContainer').tone,
-        adjustTone: onColor(
-          () => getColor('secondaryContainer'),
-          () => getCurve(6),
+        adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          getColor('secondaryContainer'),
+          getCurve(6).get(context.contrastLevel),
+          context.contrastLevel,
         ),
       },
 
@@ -745,9 +771,12 @@ export const udixioVariant: Variant = variant({
       onTertiary: {
         palette: () => palettes.get('tertiary'),
         tone: () => getColor('tertiary').tone,
-        adjustTone: onColor(
-          () => getColor('tertiary'),
-          () => getCurve(6),
+        adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          getColor('tertiary'),
+          getCurve(6).get(context.contrastLevel),
+          context.contrastLevel,
         ),
       },
       tertiaryContainer: {
@@ -779,9 +808,12 @@ export const udixioVariant: Variant = variant({
       onTertiaryContainer: {
         palette: () => palettes.get('tertiary'),
         tone: () => getColor('tertiaryContainer').tone,
-        adjustTone: onColor(
-          () => getColor('tertiaryContainer'),
-          () => getCurve(6),
+        adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          getColor('tertiaryContainer'),
+          getCurve(6).get(context.contrastLevel),
+          context.contrastLevel,
         ),
       },
 
@@ -905,9 +937,12 @@ export const udixioVariant: Variant = variant({
       onError: {
         palette: () => palettes.get('error'),
         tone: () => colors.get('error').tone,
-        adjustTone: onColor(
-          () => colors.get('error'),
-          () => getCurve(6),
+        adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          colors.get('error'),
+          getCurve(6).get(context.contrastLevel),
+          context.contrastLevel,
         ),
       },
       errorContainer: {
@@ -931,9 +966,12 @@ export const udixioVariant: Variant = variant({
       onErrorContainer: {
         palette: () => palettes.get('error'),
         tone: () => colors.get('errorContainer').tone,
-        adjustTone: onColor(
-          () => colors.get('errorContainer'),
-          () => getCurve(4.5),
+        adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          colors.get('errorContainer'),
+          getCurve(4.5).get(context.contrastLevel),
+          context.contrastLevel,
         ),
       },
 

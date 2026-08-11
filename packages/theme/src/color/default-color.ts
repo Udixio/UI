@@ -2,7 +2,6 @@ import {
   applyToneDelta,
   avoidBackgroundGap,
   contrastAgainst,
-  onColor,
 } from './tone-adjusters';
 import { ColorManager } from './color.manager';
 import { AddColorsOptions, ColorApi } from './color.api';
@@ -286,10 +285,13 @@ export const defaultColors: AddColorsOptions = ({
         return 1;
       },
       tone: () => highestSurface(c, colors).tone,
-      adjustTone: onColor(
-        () => highestSurface(c, colors),
-        () => (c.isDark ? getCurve(6) : getCurve(4.5)),
-      ),
+      adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          highestSurface(c, colors),
+          (c.isDark ? getCurve(6) : getCurve(4.5)).get(context.contrastLevel),
+          context.contrastLevel,
+        ),
     },
     outline: {
       palette: () => palettes.get('neutral'),
@@ -308,10 +310,13 @@ export const defaultColors: AddColorsOptions = ({
         return 1;
       },
       tone: () => highestSurface(c, colors).tone,
-      adjustTone: onColor(
-        () => highestSurface(c, colors),
-        () => getCurve(3),
-      ),
+      adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          highestSurface(c, colors),
+          getCurve(3).get(context.contrastLevel),
+          context.contrastLevel,
+        ),
     },
     outlineVariant: {
       palette: () => palettes.get('neutral'),
@@ -331,10 +336,13 @@ export const defaultColors: AddColorsOptions = ({
         return 1;
       },
       tone: () => highestSurface(c, colors).tone,
-      adjustTone: onColor(
-        () => highestSurface(c, colors),
-        () => getCurve(1.5),
-      ),
+      adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          highestSurface(c, colors),
+          getCurve(1.5).get(context.contrastLevel),
+          context.contrastLevel,
+        ),
     },
     inverseSurface: {
       palette: () => palettes.get('neutral'),
@@ -343,10 +351,13 @@ export const defaultColors: AddColorsOptions = ({
     inverseOnSurface: {
       palette: () => palettes.get('neutral'),
       tone: () => colors.get('inverseSurface').tone,
-      adjustTone: onColor(
-        () => colors.get('inverseSurface'),
-        () => getCurve(7),
-      ),
+      adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          colors.get('inverseSurface'),
+          getCurve(7).get(context.contrastLevel),
+          context.contrastLevel,
+        ),
     },
     ////////////////////////////////////////////////////////////////
     // Primaries [P]                                              //
@@ -436,10 +447,13 @@ export const defaultColors: AddColorsOptions = ({
     onPrimary: {
       palette: () => palettes.get('primary'),
       tone: () => colors.get('primary').tone,
-      adjustTone: onColor(
-        () => colors.get('primary'),
-        () => getCurve(6),
-      ),
+      adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          colors.get('primary'),
+          getCurve(6).get(context.contrastLevel),
+          context.contrastLevel,
+        ),
     },
     primaryContainer: {
       palette: () => palettes.get('primary'),
@@ -482,10 +496,13 @@ export const defaultColors: AddColorsOptions = ({
     onPrimaryContainer: {
       palette: () => palettes.get('primary'),
       tone: () => colors.get('primaryContainer').tone,
-      adjustTone: onColor(
-        () => colors.get('primaryContainer'),
-        () => getCurve(6),
-      ),
+      adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          colors.get('primaryContainer'),
+          getCurve(6).get(context.contrastLevel),
+          context.contrastLevel,
+        ),
     },
 
     primaryFixed: {
@@ -569,13 +586,13 @@ export const defaultColors: AddColorsOptions = ({
 
       tone: () => colors.get('primaryFixedDim').tone,
 
-      adjustTone: onColor(
-
-        () => colors.get('primaryFixedDim'),
-
-        () => getCurve(7),
-
-      ),
+      adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          colors.get('primaryFixedDim'),
+          getCurve(7).get(context.contrastLevel),
+          context.contrastLevel,
+        ),
 
     },
 
@@ -585,13 +602,13 @@ export const defaultColors: AddColorsOptions = ({
 
       tone: () => colors.get('primaryFixedDim').tone,
 
-      adjustTone: onColor(
-
-        () => colors.get('primaryFixedDim'),
-
-        () => getCurve(4.5),
-
-      ),
+      adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          colors.get('primaryFixedDim'),
+          getCurve(4.5).get(context.contrastLevel),
+          context.contrastLevel,
+        ),
 
     },
 
@@ -691,10 +708,13 @@ export const defaultColors: AddColorsOptions = ({
     onSecondary: {
       palette: () => palettes.get('secondary'),
       tone: () => getColor('secondary').tone,
-      adjustTone: onColor(
-        () => getColor('secondary'),
-        () => getCurve(6),
-      ),
+      adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          getColor('secondary'),
+          getCurve(6).get(context.contrastLevel),
+          context.contrastLevel,
+        ),
     },
     secondaryContainer: {
       palette: () => palettes.get('secondary'),
@@ -723,10 +743,13 @@ export const defaultColors: AddColorsOptions = ({
     onSecondaryContainer: {
       palette: () => palettes.get('secondary'),
       tone: () => getColor('secondaryContainer').tone,
-      adjustTone: onColor(
-        () => getColor('secondaryContainer'),
-        () => getCurve(6),
-      ),
+      adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          getColor('secondaryContainer'),
+          getCurve(6).get(context.contrastLevel),
+          context.contrastLevel,
+        ),
     },
 
     secondaryFixed: {
@@ -810,13 +833,13 @@ export const defaultColors: AddColorsOptions = ({
 
       tone: () => getColor('secondaryFixedDim').tone,
 
-      adjustTone: onColor(
-
-        () => getColor('secondaryFixedDim'),
-
-        () => getCurve(7),
-
-      ),
+      adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          getColor('secondaryFixedDim'),
+          getCurve(7).get(context.contrastLevel),
+          context.contrastLevel,
+        ),
 
     },
 
@@ -826,13 +849,13 @@ export const defaultColors: AddColorsOptions = ({
 
       tone: () => getColor('secondaryFixedDim').tone,
 
-      adjustTone: onColor(
-
-        () => getColor('secondaryFixedDim'),
-
-        () => getCurve(4.5),
-
-      ),
+      adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          getColor('secondaryFixedDim'),
+          getCurve(4.5).get(context.contrastLevel),
+          context.contrastLevel,
+        ),
 
     },
 
@@ -913,10 +936,13 @@ export const defaultColors: AddColorsOptions = ({
     onTertiary: {
       palette: () => palettes.get('tertiary'),
       tone: () => getColor('tertiary').tone,
-      adjustTone: onColor(
-        () => getColor('tertiary'),
-        () => getCurve(6),
-      ),
+      adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          getColor('tertiary'),
+          getCurve(6).get(context.contrastLevel),
+          context.contrastLevel,
+        ),
     },
     tertiaryContainer: {
       palette: () => palettes.get('tertiary'),
@@ -958,10 +984,13 @@ export const defaultColors: AddColorsOptions = ({
     onTertiaryContainer: {
       palette: () => palettes.get('tertiary'),
       tone: () => getColor('tertiaryContainer').tone,
-      adjustTone: onColor(
-        () => getColor('tertiaryContainer'),
-        () => getCurve(6),
-      ),
+      adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          getColor('tertiaryContainer'),
+          getCurve(6).get(context.contrastLevel),
+          context.contrastLevel,
+        ),
     },
 
     tertiaryFixed: {
@@ -1045,13 +1074,13 @@ export const defaultColors: AddColorsOptions = ({
 
       tone: () => getColor('tertiaryFixedDim').tone,
 
-      adjustTone: onColor(
-
-        () => getColor('tertiaryFixedDim'),
-
-        () => getCurve(7),
-
-      ),
+      adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          getColor('tertiaryFixedDim'),
+          getCurve(7).get(context.contrastLevel),
+          context.contrastLevel,
+        ),
 
     },
 
@@ -1061,13 +1090,13 @@ export const defaultColors: AddColorsOptions = ({
 
       tone: () => getColor('tertiaryFixedDim').tone,
 
-      adjustTone: onColor(
-
-        () => getColor('tertiaryFixedDim'),
-
-        () => getCurve(4.5),
-
-      ),
+      adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          getColor('tertiaryFixedDim'),
+          getCurve(4.5).get(context.contrastLevel),
+          context.contrastLevel,
+        ),
 
     },
 
@@ -1153,10 +1182,13 @@ export const defaultColors: AddColorsOptions = ({
     onError: {
       palette: () => palettes.get('error'),
       tone: () => colors.get('error').tone,
-      adjustTone: onColor(
-        () => colors.get('error'),
-        () => getCurve(6),
-      ),
+      adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          colors.get('error'),
+          getCurve(6).get(context.contrastLevel),
+          context.contrastLevel,
+        ),
     },
     errorContainer: {
       palette: () => palettes.get('error'),
@@ -1179,10 +1211,13 @@ export const defaultColors: AddColorsOptions = ({
     onErrorContainer: {
       palette: () => palettes.get('error'),
       tone: () => colors.get('errorContainer').tone,
-      adjustTone: onColor(
-        () => colors.get('errorContainer'),
-        () => getCurve(4.5),
-      ),
+      adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          colors.get('errorContainer'),
+          getCurve(4.5).get(context.contrastLevel),
+          context.contrastLevel,
+        ),
     },
 
     /////////////////////////////////////////////////////////////////

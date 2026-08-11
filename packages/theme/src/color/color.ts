@@ -238,7 +238,7 @@ export class ColorAlias extends Color {
  * @param tone Le ton par défaut. À défaut, {@link DEFAULT_TONE}.
  * @param adjustTone Ajuste ce ton par défaut. Rien n'est appliqué avant ni
  *     après : compose ce que tu veux — `contrastAgainst`, `avoidBackgroundGap`,
- *     `applyToneDelta`, `arbitrateBackgrounds`, le sucre `onColor`, ou ton
+ *     `applyToneDelta`, `arbitrateBackgrounds`, ou ton
  *     propre calcul.
  * @param chromaMultiplier Facteur appliqué au chroma de la palette. Défaut 1.
  */

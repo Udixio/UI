@@ -1,5 +1,5 @@
 import { clampDouble, Contrast } from '@material/material-color-utilities';
-import { ContrastCurve, DynamicColor } from '../material-color-utilities';
+import { DynamicColor } from '../material-color-utilities';
 import type { Context } from '../context';
 import type { Palette } from '../palette/palette';
 import type { Color } from './color';
@@ -180,33 +180,4 @@ export function arbitrateBackgrounds(
     return availables[0];
   }
   return darkOption < 0 ? 0 : darkOption;
-}
-
-/**
- * Le ton d'un premier plan posé sur `background` : part du ton du fond et le
- * pousse jusqu'à atteindre `ratio`.
- *
- * C'est la forme de tous les tokens `on*`. Équivaut à écrire à la main :
- *
- * ```ts
- * tone: ({ context }) => {
- *   const on = colors.get('primary');
- *   return contrastAgainst(on.tone, on, getCurve(6).get(context.contrastLevel), context.contrastLevel);
- * }
- * ```
- */
-export function onColor(
-  background: () => Color,
-  curve: ContrastCurve | (() => ContrastCurve | undefined),
-): ToneAdjuster {
-  return ({ context, tone }) => {
-    const resolved = typeof curve === 'function' ? curve() : curve;
-    if (!resolved) return tone;
-    return contrastAgainst(
-      tone,
-      background(),
-      resolved.get(context.contrastLevel),
-      context.contrastLevel,
-    );
-  };
 }

@@ -16,17 +16,10 @@ import {
   avoidBackgroundGap,
   BACKGROUND_TONE_GAP,
   contrastAgainst,
-  onColor,
 } from '../src/color/tone-adjusters.js';
-import { getCurve } from '../src/color/color.utils.js';
-import type { Context } from '../src/context/context.js';
 
 /** A neutral colour pinned at a known tone. */
 const at = (tone: number) => Color.from({ hue: 0, chroma: 0, tone });
-
-/** Enough of a Context for the adjusters, which only read these two fields. */
-const ctx = (contrastLevel = 0, isDark = false) =>
-  ({ contrastLevel, isDark }) as Context;
 
 describe('contrastAgainst', () => {
   it('leaves a tone that already meets the ratio', () => {
@@ -94,10 +87,18 @@ describe('applyToneDelta', () => {
   const reference = at(50);
 
   it('pins the tone exactly, ignoring the incoming value', () => {
-    const base = { relativeTo: reference, delta: 5, constraint: 'exact' } as const;
+    const base = {
+      relativeTo: reference,
+      delta: 5,
+      constraint: 'exact',
+    } as const;
 
-    expect(applyToneDelta(80, { ...base, polarity: 'darker' }, false)).toBeCloseTo(45, 1);
-    expect(applyToneDelta(10, { ...base, polarity: 'lighter' }, false)).toBeCloseTo(55, 1);
+    expect(
+      applyToneDelta(80, { ...base, polarity: 'darker' }, false),
+    ).toBeCloseTo(45, 1);
+    expect(
+      applyToneDelta(10, { ...base, polarity: 'lighter' }, false),
+    ).toBeCloseTo(55, 1);
   });
 
   it('flips relative polarities with dark mode', () => {
@@ -146,14 +147,24 @@ describe('applyToneDelta', () => {
     expect(
       applyToneDelta(
         0,
-        { relativeTo: at(2), delta: 20, polarity: 'darker', constraint: 'exact' },
+        {
+          relativeTo: at(2),
+          delta: 20,
+          polarity: 'darker',
+          constraint: 'exact',
+        },
         false,
       ),
     ).toBe(0);
     expect(
       applyToneDelta(
         100,
-        { relativeTo: at(98), delta: 20, polarity: 'lighter', constraint: 'exact' },
+        {
+          relativeTo: at(98),
+          delta: 20,
+          polarity: 'lighter',
+          constraint: 'exact',
+        },
         false,
       ),
     ).toBe(100);
@@ -171,35 +182,11 @@ describe('arbitrateBackgrounds', () => {
     const lower = at(60);
     const answer = arbitrateBackgrounds(70, upper, lower, 4.5);
 
-    expect(
-      Contrast.ratioOfTones(upper.tone, answer),
-    ).toBeGreaterThanOrEqual(4.5 - 0.05);
-    expect(
-      Contrast.ratioOfTones(lower.tone, answer),
-    ).toBeGreaterThanOrEqual(4.5 - 0.05);
-  });
-});
-
-describe('onColor', () => {
-  it('contrasts the background tone against the background itself', () => {
-    const background = at(40);
-    const adjuster = onColor(() => background, getCurve(6));
-    const answer = adjuster({
-      context: ctx(),
-      tone: background.tone,
-      palette: undefined as never,
-    });
-
-    expect(
-      Contrast.ratioOfTones(background.tone, answer),
-    ).toBeGreaterThanOrEqual(6 - 0.05);
-  });
-
-  it('returns the incoming tone when the curve resolves to undefined', () => {
-    const adjuster = onColor(() => at(40), () => undefined);
-
-    expect(
-      adjuster({ context: ctx(), tone: 33, palette: undefined as never }),
-    ).toBe(33);
+    expect(Contrast.ratioOfTones(upper.tone, answer)).toBeGreaterThanOrEqual(
+      4.5 - 0.05,
+    );
+    expect(Contrast.ratioOfTones(lower.tone, answer)).toBeGreaterThanOrEqual(
+      4.5 - 0.05,
+    );
   });
 });

@@ -2,7 +2,6 @@ import {
   applyToneDelta,
   avoidBackgroundGap,
   contrastAgainst,
-  onColor,
 } from './tone-adjusters';
 import { Color, ColorOptions } from './color';
 import { ColorManager } from './color.manager';
@@ -169,9 +168,12 @@ export class ColorApi {
       [onColorKey]: {
         palette: () => palettes.get(colorKey),
         tone: () => this.get(colorKey).tone,
-        adjustTone: onColor(
-          () => this.get(colorKey),
-          () => getCurve(6),
+        adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          this.get(colorKey),
+          getCurve(6).get(context.contrastLevel),
+          context.contrastLevel,
         ),
       },
       [colorContainerKey]: {
@@ -201,9 +203,12 @@ export class ColorApi {
       [onColorContainerKey]: {
         palette: () => palettes.get(colorKey),
         tone: () => this.get(colorContainerKey).tone,
-        adjustTone: onColor(
-          () => this.get(colorContainerKey),
-          () => getCurve(6),
+        adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          this.get(colorContainerKey),
+          getCurve(6).get(context.contrastLevel),
+          context.contrastLevel,
         ),
       },
       [colorFixedKey]: {
@@ -246,17 +251,23 @@ export class ColorApi {
       [onColorFixedKey]: {
         palette: () => palettes.get(colorKey),
         tone: () => this.get(colorFixedDimKey).tone,
-        adjustTone: onColor(
-          () => this.get(colorFixedDimKey),
-          () => getCurve(7),
+        adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          this.get(colorFixedDimKey),
+          getCurve(7).get(context.contrastLevel),
+          context.contrastLevel,
         ),
       },
       [onColorFixedVariantKey]: {
         palette: () => palettes.get(colorKey),
         tone: () => this.get(colorFixedDimKey).tone,
-        adjustTone: onColor(
-          () => this.get(colorFixedDimKey),
-          () => getCurve(4.5),
+        adjustTone: ({ context, tone }) =>
+        contrastAgainst(
+          tone,
+          this.get(colorFixedDimKey),
+          getCurve(4.5).get(context.contrastLevel),
+          context.contrastLevel,
         ),
       },
     });
