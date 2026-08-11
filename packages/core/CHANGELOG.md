@@ -1,3 +1,14 @@
+## 0.2.1 (2026-08-11)
+
+### 🩹 Fixes
+
+- **release:** add repository field so provenance verification passes ([60834f4d](https://github.com/Udixio/UI/commit/60834f4d))
+
+### ❤️ Thank You
+
+- Claude Sonnet 5
+- Joël VIGREUX
+
 ## 0.2.0 (2026-08-11)
 
 This was a version bump only for @udixio/core to align it with other projects, there were no code changes.
