@@ -8,9 +8,9 @@ carousels, date pickers — that read their colours from the generated theme
 rather than carrying their own, so the whole set follows your source colour,
 dark mode and contrast level.
 
-> **Early days.** This package is at `0.0.1` and its API is still moving. It
-> mirrors [`@udixio/ui-react`](https://www.npmjs.com/package/@udixio/ui-react),
-> which is the mature one; components arrive here as they reach parity.
+It mirrors [`@udixio/ui-react`](https://www.npmjs.com/package/@udixio/ui-react)
+component for component, on the same shared contract in `@udixio/core`, and the
+two are released in step.
 
 ## Using an AI coding agent?
 
