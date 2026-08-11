@@ -184,22 +184,27 @@ colorsFromCustomPalette: (key) => ({
 }),
 ```
 
-## Reusing a built-in variant
+## Starting from an existing variant
 
-There is no way to extend one today. `Variant.palettes` returns the palettes
-once instantiated — and throws `Variant not initialized` before that — while
-the callbacks themselves stay private to the variant. So a variant cannot be
-spread into another:
+`paletteCallbacks` exposes the callbacks as declared, so the shortest route to
+a small change is to spread one variant into another:
 
 ```ts
-// Does not work: throws, and would give Palette instances rather than callbacks
-palettes: { ...Variants.TonalSpot.palettes }
+import { Variants, variant, defaultColors } from '@udixio/theme';
+
+export const warmer = variant({
+  name: 'warmer',
+  palettes: {
+    ...Variants.TonalSpot.paletteCallbacks,
+    neutral: ({ sourceColor }) => sourceColor.rotate(20).withChroma(8),
+  },
+  customPalettes: Variants.TonalSpot.customPalettes,
+  colors: defaultColors,
+});
 ```
 
-Copy the callbacks from the source instead. Each built-in variant is a single
-`variant()` call of about forty lines, and all of them are exported —
-`tonalSpotVariant`, `neutralVariant`, `vibrantVariant`, `expressiveVariant`,
-`udixioVariant` — so the file is the reference.
+Note it is `paletteCallbacks`, not `palettes`: the latter returns the palettes
+already instantiated for a given context, through `palettesFor(context)`.
 
 `udixioVariant` is the one worth reading first: it departs furthest from the
 spec, resolving accents through `minContrastTone()`, a threshold that scales

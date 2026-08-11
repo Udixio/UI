@@ -10,7 +10,7 @@ export class PaletteManager {
 
   get palettes(): Readonly<Record<string, Palette>> {
     return {
-      ...this.context.variant.palettes,
+      ...this.context.variant.palettesFor(this.context),
       ...this._palettes,
     };
   }
@@ -87,7 +87,8 @@ export class PaletteManager {
     } else {
       const palette = new Palette(key, callback, this.context);
       this.set(key, palette);
-      const isVariantPalette = !!this.context.variant.palettes[key];
+      const isVariantPalette =
+        !!this.context.variant.palettesFor(this.context)[key];
       if (!isVariantPalette) {
         this.colorApi.addFromCustomPalette(key);
       }

@@ -47,37 +47,66 @@ export interface VariantOptions {
 }
 
 export class Variant {
-  public _palettes?: Record<string, Palette>;
+  public readonly name: string;
   public readonly customPalettes: VariantOptions['customPalettes'];
   public readonly colorsFromCustomPalette?: (key: string) => AddColorsOptions;
   public readonly colors: AddColorsOptions;
-  public readonly name: string;
-  private context?: Context;
 
-  constructor(private options: VariantOptions) {
-    this.customPalettes = options.customPalettes;
-    this.colors = options.colors || {};
+  /**
+   * Les callbacks de palette tels que déclarés.
+   *
+   * C'est par là qu'on repart d'un variant existant :
+   *
+   * ```ts
+   * variant({
+   *   name: 'warmer',
+   *   palettes: {
+   *     ...Variants.TonalSpot.paletteCallbacks,
+   *     neutral: ({ sourceColor }) => sourceColor.rotate(20).withChroma(8),
+   *   },
+   *   customPalettes: Variants.TonalSpot.customPalettes,
+   *   colors: defaultColors,
+   * });
+   * ```
+   */
+  public readonly paletteCallbacks: AddPaletteOptions;
+
+  /**
+   * Les palettes instanciées, une série par contexte.
+   *
+   * Un variant est une description partagée — `Variants.TonalSpot` est un
+   * singleton de module. Deux thèmes construits dans le même processus s'en
+   * servent donc tous les deux, et chacun doit avoir ses propres `Palette`,
+   * sans quoi le second écraserait celles du premier.
+   */
+  private readonly byContext = new WeakMap<Context, Record<string, Palette>>();
+
+  constructor(options: VariantOptions) {
     this.name = options.name;
+    this.customPalettes = options.customPalettes;
     this.colorsFromCustomPalette = options.colorsFromCustomPalette;
+    this.colors = options.colors ?? {};
+    this.paletteCallbacks = options.palettes;
   }
 
-  get palettes() {
-    if (!this._palettes) {
-      throw new Error('Variant not initialized');
+  /** Les palettes de ce variant pour ce contexte, instanciées à la demande. */
+  palettesFor(context: Context): Record<string, Palette> {
+    let palettes = this.byContext.get(context);
+    if (!palettes) {
+      palettes = Object.fromEntries(
+        Object.entries(this.paletteCallbacks).map(([key, callback]) => [
+          key,
+          new Palette(key, callback, context),
+        ]),
+      );
+      this.byContext.set(context, palettes);
     }
-    return this._palettes;
+    return palettes;
   }
 
+  /** Prépare les palettes d'un contexte. `palettesFor` le fait aussi, à la demande. */
   init(context: Context) {
-    if (this.context) return;
-    this.context = context;
-    this._palettes = Object.entries(this.options.palettes).reduce(
-      (acc, [key, callback]) => ({
-        ...acc,
-        [key]: new Palette(key, callback, context),
-      }),
-      {},
-    );
+    this.palettesFor(context);
   }
 }
 
