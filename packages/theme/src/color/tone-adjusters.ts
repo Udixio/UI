@@ -3,6 +3,7 @@ import { ContrastCurve, DynamicColor } from '../material-color-utilities';
 import { getCurve, StandardContrastRatio } from './color.utils';
 import type { API } from '../API';
 import type { Context } from '../context';
+import type { Palette } from '../palette/palette';
 import type { Color } from './color';
 
 /**
@@ -38,6 +39,9 @@ export type ToneAdjuster = (args: API & { tone: number }) => number;
 /** Une couleur, désignée par sa clé dans le registre ou directement. */
 export type ColorRef = string | Color | ((api: API) => Color);
 
+/** Une palette, désignée par sa clé dans le registre ou directement. */
+export type PaletteRef = string | Palette | ((api: API) => Palette);
+
 /**
  * Le contraste visé : un ratio standard, une courbe sur mesure, ou une
  * fonction quand il dépend du contexte.
@@ -69,6 +73,12 @@ export type ToneDelta = {
 
 function resolveColor(ref: ColorRef, api: API): Color {
   if (typeof ref === 'string') return api.colors.get(ref);
+  if (typeof ref === 'function') return ref(api);
+  return ref;
+}
+
+export function resolvePalette(ref: PaletteRef, api: API): Palette {
+  if (typeof ref === 'string') return api.palettes.get(ref);
   if (typeof ref === 'function') return ref(api);
   return ref;
 }

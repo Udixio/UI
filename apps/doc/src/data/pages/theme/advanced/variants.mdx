@@ -146,7 +146,7 @@ To define them all yourself, see [Colors API](/theme/advanced/colors) for the ad
 
 ```ts
 primary: {
-  palette: () => palettes.get('primary'),
+  palette: 'primary',
   tone: () => tMaxC(palettes.get('primary')),
   adjustTone: [contrastAgainst('surface', 4.5), avoidBackgroundGap()],
 },
@@ -173,12 +173,12 @@ Optional. When set, it decides which tokens a custom palette generates. Without 
 ```ts
 colorsFromCustomPalette: (key) => ({
   [key]: {
-    palette: () => palettes.get(key),
+    palette: key,
     tone: () => 50,
     adjustTone: [contrastAgainst('surface', 4.5), avoidBackgroundGap()],
   },
   [`on${key[0].toUpperCase()}${key.slice(1)}`]: {
-    palette: () => palettes.get(key),
+    palette: key,
     adjustTone: onColor(key, 6),
   },
 }),

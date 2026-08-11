@@ -9,7 +9,8 @@ import {
 import { solveToArgb } from './hct-math';
 import { ColorManager } from './color.manager';
 import { DEFAULT_TONE } from './tone-adjusters';
-import type { ToneAdjuster } from './tone-adjusters';
+import { resolvePalette } from './tone-adjusters';
+import type { PaletteRef, ToneAdjuster } from './tone-adjusters';
 import type { API } from '../API';
 import type { Palette } from '../palette/palette';
 
@@ -232,9 +233,9 @@ export class ColorAlias extends Color {
 }
 
 /**
- * @param palette Palette source, qui fournit la teinte et le chroma. La passer
- *     plutôt qu'un hue/chroma permet de préserver le chroma voulu lorsque le
- *     ton bouge.
+ * @param palette Palette source, qui fournit la teinte et le chroma. Désignée
+ *     par sa clé — `'neutral'` — ou directement. La passer plutôt qu'un couple
+ *     hue/chroma permet de préserver le chroma voulu quand le ton bouge.
  * @param tone Le ton par défaut. À défaut, {@link DEFAULT_TONE}.
  * @param adjustTone Ajuste ce ton par défaut. Rien n'est appliqué avant ni
  *     après : compose ce que tu veux — `contrastAgainst`, `avoidBackgroundGap`,
@@ -243,7 +244,7 @@ export class ColorAlias extends Color {
  * @param chromaMultiplier Facteur appliqué au chroma de la palette. Défaut 1.
  */
 export type FromPaletteOptions = {
-  palette: () => Palette;
+  palette: PaletteRef;
   tone?: () => number;
   adjustTone?: ToneAdjuster | ToneAdjuster[];
   chromaMultiplier?: () => number | undefined;
@@ -253,14 +254,16 @@ export type FromPaletteOptions = {
 export type FromPalette = {
   palette: Palette;
   tone: number;
-  chromaMultiplier: number;
+  /** Le chroma effectivement appliqué : celui de la palette, multiplié. */
+  chroma: number;
 };
 
 export class ColorFromPalette extends Color {
   get options(): FromPalette {
+    const palette = resolvePalette(this._options.palette, this.getApi());
     return {
-      palette: this._options.palette(),
-      chromaMultiplier: this._options.chromaMultiplier?.() ?? 1,
+      palette,
+      chroma: palette.chroma * (this._options.chromaMultiplier?.() ?? 1),
       tone: this.tone,
     };
   }
@@ -278,9 +281,8 @@ export class ColorFromPalette extends Color {
   }
 
   get argb(): number {
-    const palette = this._options.palette();
-    const chroma = palette.chroma * (this._options.chromaMultiplier?.() ?? 1);
-    return solveToArgb(palette.hue, chroma, this.tone);
+    const { palette, chroma, tone } = this.options;
+    return solveToArgb(palette.hue, chroma, tone);
   }
 
   /**

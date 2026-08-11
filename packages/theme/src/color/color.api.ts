@@ -105,7 +105,7 @@ export class ColorApi {
       'FixedVariant') as DynamicColorKey;
     const colors: AddColorsOptions = ({ palettes, colors, context: ctx }) => ({
       [colorKey]: {
-        palette: () => palettes.get(colorKey),
+        palette: colorKey,
         tone: () => {
           if (ctx.variant.name === 'neutral') {
             return ctx.isDark
@@ -132,7 +132,7 @@ export class ColorApi {
         ],
       },
       [colorDimKey]: {
-        palette: () => palettes.get(colorKey),
+        palette: colorKey,
         tone: () => {
           if (ctx.variant.name === 'neutral') {
             return 85;
@@ -152,11 +152,11 @@ export class ColorApi {
         ],
       },
       [onColorKey]: {
-        palette: () => palettes.get(colorKey),
+        palette: colorKey,
         adjustTone: onColor(colorKey, 6),
       },
       [colorContainerKey]: {
-        palette: () => palettes.get(colorKey),
+        palette: colorKey,
         tone: () => {
           if (ctx.variant.name === 'vibrant') {
             return ctx.isDark
@@ -183,11 +183,11 @@ export class ColorApi {
             : args.tone,
       },
       [onColorContainerKey]: {
-        palette: () => palettes.get(colorKey),
+        palette: colorKey,
         adjustTone: onColor(colorContainerKey, 6),
       },
       [colorFixedKey]: {
-        palette: () => palettes.get(colorKey),
+        palette: colorKey,
         tone: () => {
           return ctx.temp({ isDark: false, contrastLevel: 0 }, () => {
             const color = this.get(colorContainerKey);
@@ -209,7 +209,7 @@ export class ColorApi {
             : args.tone,
       },
       [colorFixedDimKey]: {
-        palette: () => palettes.get(colorKey),
+        palette: colorKey,
         tone: () => this.get(colorFixedKey).tone,
         adjustTone: applyToneDelta({
           relativeTo: colorFixedDimKey,
@@ -219,11 +219,11 @@ export class ColorApi {
         }),
       },
       [onColorFixedKey]: {
-        palette: () => palettes.get(colorKey),
+        palette: colorKey,
         adjustTone: onColor(colorFixedDimKey, 7),
       },
       [onColorFixedVariantKey]: {
-        palette: () => palettes.get(colorKey),
+        palette: colorKey,
         adjustTone: onColor(colorFixedDimKey, 4.5),
       },
     });

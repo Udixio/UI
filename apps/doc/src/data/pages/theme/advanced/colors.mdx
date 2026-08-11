@@ -69,7 +69,7 @@ The full form. The token takes its hue and chroma from a palette, and resolves i
 
 ```ts
 type FromPaletteOptions = {
-  palette: () => Palette;
+  palette: PaletteRef;
   tone?: () => number;
   adjustTone?: ToneAdjuster | ToneAdjuster[];
   chromaMultiplier?: () => number | undefined;
@@ -78,10 +78,10 @@ type FromPaletteOptions = {
 
 | Property | Description |
 |----------|-------------|
-| `palette` | Source palette, providing hue and chroma. Passing the palette rather than raw numbers preserves the intended chroma when the tone moves. |
+| `palette` | Source palette, providing hue and chroma. A `PaletteRef`: a key — `'neutral'` — a `Palette`, or a function of the API. Passing the palette rather than raw numbers preserves the intended chroma when the tone moves. |
 | `tone` | The default tone. Defaults to `DEFAULT_TONE` (50). |
 | `adjustTone` | One adjuster, or a list applied in order. Nothing runs before or after them. |
-| `chromaMultiplier` | Multiplies the palette chroma. Default `1`. |
+| `chromaMultiplier` | Multiplies the palette chroma. Default `1`. Read the applied result back as `color.options.chroma`. |
 
 ## Tone adjusters
 
@@ -99,7 +99,7 @@ The shape of every `on*` token. Starts from the background's own tone and pushes
 
 ```ts
 onBrand: {
-  palette: () => palettes.get('brand'),
+  palette: 'brand',
   adjustTone: onColor('brand', 6),
 },
 ```
@@ -174,7 +174,7 @@ A list applies in order, each step receiving what the previous returned:
 ```ts
 api.colors.addColors(({ palettes }) => ({
   brand: {
-    palette: () => palettes.get('brand'),
+    palette: 'brand',
     tone: () => 70,
     adjustTone: [
       applyToneDelta({ relativeTo: 'brandContainer', delta: 5, polarity: 'relativeDarker', constraint: 'farther' }),
@@ -183,7 +183,7 @@ api.colors.addColors(({ palettes }) => ({
     ],
   },
   onBrand: {
-    palette: () => palettes.get('brand'),
+    palette: 'brand',
     adjustTone: onColor('brand', 6),
   },
 }));
@@ -227,12 +227,12 @@ const api = await loader({
   sourceColor: '#6750A4',
   colors: ({ palettes }) => ({
     highlight: {
-      palette: () => palettes.get('tertiary'),
+      palette: 'tertiary',
       tone: () => 70,
       adjustTone: [contrastAgainst('surface', 3), avoidBackgroundGap()],
     },
     onHighlight: {
-      palette: () => palettes.get('tertiary'),
+      palette: 'tertiary',
       adjustTone: onColor('highlight', 4.5),
     },
   }),

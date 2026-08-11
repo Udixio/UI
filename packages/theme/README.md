@@ -94,12 +94,12 @@ import { contrastAgainst, avoidBackgroundGap, onColor } from '@udixio/theme';
 
 colors: ({ palettes }) => ({
   highlight: {
-    palette: () => palettes.get('tertiary'),
+    palette: 'tertiary',
     tone: () => 70,
     adjustTone: [contrastAgainst('surface', 3), avoidBackgroundGap()],
   },
   onHighlight: {
-    palette: () => palettes.get('tertiary'),
+    palette: 'tertiary',
     adjustTone: onColor('highlight', 4.5),
   },
 }),

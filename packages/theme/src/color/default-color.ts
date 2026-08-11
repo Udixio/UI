@@ -42,7 +42,7 @@ export const defaultColors: AddColorsOptions = ({
     // Surfaces [S]                                               //
     ////////////////////////////////////////////////////////////////
     surface: {
-      palette: () => palettes.get('neutral'),
+      palette: 'neutral',
       tone: () => {
         if (c.isDark) {
           return 4;
@@ -58,7 +58,7 @@ export const defaultColors: AddColorsOptions = ({
       },
     },
     surfaceDim: {
-      palette: () => palettes.get('neutral'),
+      palette: 'neutral',
       chromaMultiplier: () => {
         if (!c.isDark) {
           if (c.variant.name === 'neutral') {
@@ -88,7 +88,7 @@ export const defaultColors: AddColorsOptions = ({
       },
     },
     surfaceBright: {
-      palette: () => palettes.get('neutral'),
+      palette: 'neutral',
       chromaMultiplier: () => {
         if (c.isDark) {
           if (c.variant.name === 'neutral') {
@@ -118,11 +118,11 @@ export const defaultColors: AddColorsOptions = ({
       },
     },
     surfaceContainerLowest: {
-      palette: () => palettes.get('neutral'),
+      palette: 'neutral',
       tone: () => (c.isDark ? 0 : 100),
     },
     surfaceContainerLow: {
-      palette: () => palettes.get('neutral'),
+      palette: 'neutral',
       chromaMultiplier: () => {
         if (c.variant.name === 'neutral') {
           return 1.3;
@@ -150,7 +150,7 @@ export const defaultColors: AddColorsOptions = ({
       },
     },
     surfaceContainer: {
-      palette: () => palettes.get('neutral'),
+      palette: 'neutral',
       chromaMultiplier: () => {
         if (c.variant.name === 'neutral') {
           return 1.6;
@@ -178,7 +178,7 @@ export const defaultColors: AddColorsOptions = ({
       },
     },
     surfaceContainerHigh: {
-      palette: () => palettes.get('neutral'),
+      palette: 'neutral',
       chromaMultiplier: () => {
         if (c.variant.name === 'neutral') {
           return 1.9;
@@ -206,7 +206,7 @@ export const defaultColors: AddColorsOptions = ({
       },
     },
     surfaceContainerHighest: {
-      palette: () => palettes.get('neutral'),
+      palette: 'neutral',
       chromaMultiplier: () => {
         if (c.variant.name === 'neutral') {
           return 2.2;
@@ -236,7 +236,7 @@ export const defaultColors: AddColorsOptions = ({
       },
     },
     onSurface: {
-      palette: () => palettes.get('neutral'),
+      palette: 'neutral',
       chromaMultiplier: () => {
         if (c.variant.name === 'neutral') {
           return 2.2;
@@ -267,7 +267,7 @@ export const defaultColors: AddColorsOptions = ({
       ),
     },
     onSurfaceVariant: {
-      palette: () => palettes.get('neutral'),
+      palette: 'neutral',
       chromaMultiplier: () => {
         if (c.variant.name === 'neutral') {
           return 2.2;
@@ -288,7 +288,7 @@ export const defaultColors: AddColorsOptions = ({
       ),
     },
     outline: {
-      palette: () => palettes.get('neutral'),
+      palette: 'neutral',
       chromaMultiplier: () => {
         if (c.variant.name === 'neutral') {
           return 2.2;
@@ -306,7 +306,7 @@ export const defaultColors: AddColorsOptions = ({
       adjustTone: onColor((api) => highestSurface(api.context, api.colors), 3),
     },
     outlineVariant: {
-      palette: () => palettes.get('neutral'),
+      palette: 'neutral',
       chromaMultiplier: () => {
         if (c.variant.name === 'neutral') {
           return 2.2;
@@ -328,18 +328,18 @@ export const defaultColors: AddColorsOptions = ({
       ),
     },
     inverseSurface: {
-      palette: () => palettes.get('neutral'),
+      palette: 'neutral',
       tone: () => (c.isDark ? 98 : 4),
     },
     inverseOnSurface: {
-      palette: () => palettes.get('neutral'),
+      palette: 'neutral',
       adjustTone: onColor('inverseSurface', 7),
     },
     ////////////////////////////////////////////////////////////////
     // Primaries [P]                                              //
     ////////////////////////////////////////////////////////////////
     primary: {
-      palette: () => palettes.get('primary'),
+      palette: 'primary',
       tone: () => {
         if (c.variant.name === 'neutral') {
           return c.isDark ? 80 : 40;
@@ -379,7 +379,7 @@ export const defaultColors: AddColorsOptions = ({
       ],
     },
     primaryDim: {
-      palette: () => palettes.get('primary'),
+      palette: 'primary',
       tone: () => {
         if (c.variant.name === 'neutral') {
           return 85;
@@ -401,11 +401,11 @@ export const defaultColors: AddColorsOptions = ({
       ],
     },
     onPrimary: {
-      palette: () => palettes.get('primary'),
+      palette: 'primary',
       adjustTone: onColor('primary', 6),
     },
     primaryContainer: {
-      palette: () => palettes.get('primary'),
+      palette: 'primary',
       tone: () => {
         if (c.variant.name === 'neutral') {
           return c.isDark ? 30 : 90;
@@ -446,12 +446,12 @@ export const defaultColors: AddColorsOptions = ({
           : args.tone,
     },
     onPrimaryContainer: {
-      palette: () => palettes.get('primary'),
+      palette: 'primary',
       adjustTone: onColor('primaryContainer', 6),
     },
 
     primaryFixed: {
-      palette: () => palettes.get('primary'),
+      palette: 'primary',
 
       tone: () => {
         return c.temp(
@@ -482,7 +482,7 @@ export const defaultColors: AddColorsOptions = ({
     },
 
     primaryFixedDim: {
-      palette: () => palettes.get('primary'),
+      palette: 'primary',
 
       tone: () => colors.get('primaryFixed').tone,
 
@@ -495,19 +495,19 @@ export const defaultColors: AddColorsOptions = ({
     },
 
     onPrimaryFixed: {
-      palette: () => palettes.get('primary'),
+      palette: 'primary',
 
       adjustTone: onColor('primaryFixedDim', 7),
     },
 
     onPrimaryFixedVariant: {
-      palette: () => palettes.get('primary'),
+      palette: 'primary',
 
       adjustTone: onColor('primaryFixedDim', 4.5),
     },
 
     inversePrimary: {
-      palette: () => palettes.get('primary'),
+      palette: 'primary',
 
       tone: () => tMaxC(palettes.get('primary')),
 
@@ -517,7 +517,7 @@ export const defaultColors: AddColorsOptions = ({
     // Secondaries [Q]                                            //
     ////////////////////////////////////////////////////////////////
     secondary: {
-      palette: () => palettes.get('secondary'),
+      palette: 'secondary',
       tone: () => {
         if (c.variant.name === 'neutral') {
           return c.isDark
@@ -542,7 +542,7 @@ export const defaultColors: AddColorsOptions = ({
       ],
     },
     secondaryDim: {
-      palette: () => palettes.get('secondary'),
+      palette: 'secondary',
       tone: () => {
         if (c.variant.name === 'neutral') {
           return 85;
@@ -562,11 +562,11 @@ export const defaultColors: AddColorsOptions = ({
       ],
     },
     onSecondary: {
-      palette: () => palettes.get('secondary'),
+      palette: 'secondary',
       adjustTone: onColor('secondary', 6),
     },
     secondaryContainer: {
-      palette: () => palettes.get('secondary'),
+      palette: 'secondary',
       tone: () => {
         if (c.variant.name === 'vibrant') {
           return c.isDark
@@ -593,12 +593,12 @@ export const defaultColors: AddColorsOptions = ({
           : args.tone,
     },
     onSecondaryContainer: {
-      palette: () => palettes.get('secondary'),
+      palette: 'secondary',
       adjustTone: onColor('secondaryContainer', 6),
     },
 
     secondaryFixed: {
-      palette: () => palettes.get('secondary'),
+      palette: 'secondary',
 
       tone: () => {
         return c.temp(
@@ -629,7 +629,7 @@ export const defaultColors: AddColorsOptions = ({
     },
 
     secondaryFixedDim: {
-      palette: () => palettes.get('secondary'),
+      palette: 'secondary',
 
       tone: () => getColor('secondaryFixed').tone,
 
@@ -642,13 +642,13 @@ export const defaultColors: AddColorsOptions = ({
     },
 
     onSecondaryFixed: {
-      palette: () => palettes.get('secondary'),
+      palette: 'secondary',
 
       adjustTone: onColor('secondaryFixedDim', 7),
     },
 
     onSecondaryFixedVariant: {
-      palette: () => palettes.get('secondary'),
+      palette: 'secondary',
 
       adjustTone: onColor('secondaryFixedDim', 4.5),
     },
@@ -657,7 +657,7 @@ export const defaultColors: AddColorsOptions = ({
     // Tertiaries [T]                                             //
     ////////////////////////////////////////////////////////////////
     tertiary: {
-      palette: () => palettes.get('tertiary'),
+      palette: 'tertiary',
       tone: () => {
         if (c.variant.name === 'expressive' || c.variant.name === 'vibrant') {
           return tMaxC(
@@ -688,7 +688,7 @@ export const defaultColors: AddColorsOptions = ({
       ],
     },
     tertiaryDim: {
-      palette: () => palettes.get('tertiary'),
+      palette: 'tertiary',
       tone: () => {
         if (c.variant.name === 'tonalSpot') {
           return tMaxC(palettes.get('tertiary'), 0, 90);
@@ -708,11 +708,11 @@ export const defaultColors: AddColorsOptions = ({
       ],
     },
     onTertiary: {
-      palette: () => palettes.get('tertiary'),
+      palette: 'tertiary',
       adjustTone: onColor('tertiary', 6),
     },
     tertiaryContainer: {
-      palette: () => palettes.get('tertiary'),
+      palette: 'tertiary',
       tone: () => {
         if (c.variant.name === 'neutral') {
           return c.isDark
@@ -752,12 +752,12 @@ export const defaultColors: AddColorsOptions = ({
           : args.tone,
     },
     onTertiaryContainer: {
-      palette: () => palettes.get('tertiary'),
+      palette: 'tertiary',
       adjustTone: onColor('tertiaryContainer', 6),
     },
 
     tertiaryFixed: {
-      palette: () => palettes.get('tertiary'),
+      palette: 'tertiary',
 
       tone: () => {
         return c.temp(
@@ -788,7 +788,7 @@ export const defaultColors: AddColorsOptions = ({
     },
 
     tertiaryFixedDim: {
-      palette: () => palettes.get('tertiary'),
+      palette: 'tertiary',
 
       tone: () => getColor('tertiaryFixed').tone,
 
@@ -801,13 +801,13 @@ export const defaultColors: AddColorsOptions = ({
     },
 
     onTertiaryFixed: {
-      palette: () => palettes.get('tertiary'),
+      palette: 'tertiary',
 
       adjustTone: onColor('tertiaryFixedDim', 7),
     },
 
     onTertiaryFixedVariant: {
-      palette: () => palettes.get('tertiary'),
+      palette: 'tertiary',
 
       adjustTone: onColor('tertiaryFixedDim', 4.5),
     },
@@ -817,7 +817,7 @@ export const defaultColors: AddColorsOptions = ({
     ////////////////////////////////////////////////////////////////
 
     error: {
-      palette: () => palettes.get('error'),
+      palette: 'error',
 
       tone: () => {
         return c.isDark
@@ -839,7 +839,7 @@ export const defaultColors: AddColorsOptions = ({
       ],
     },
     errorDim: {
-      palette: () => palettes.get('error'),
+      palette: 'error',
       tone: () => tMinC(palettes.get('error')),
       adjustTone: [
         applyToneDelta({
@@ -853,11 +853,11 @@ export const defaultColors: AddColorsOptions = ({
       ],
     },
     onError: {
-      palette: () => palettes.get('error'),
+      palette: 'error',
       adjustTone: onColor('error', 6),
     },
     errorContainer: {
-      palette: () => palettes.get('error'),
+      palette: 'error',
       tone: () => {
         return c.isDark
           ? tMinC(palettes.get('error'), 30, 93)
@@ -878,7 +878,7 @@ export const defaultColors: AddColorsOptions = ({
           : args.tone,
     },
     onErrorContainer: {
-      palette: () => palettes.get('error'),
+      palette: 'error',
       adjustTone: onColor('errorContainer', 4.5),
     },
 
