@@ -5,6 +5,10 @@
     "provenance": true,
     "access": "public"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Udixio/UI.git"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
