@@ -40,7 +40,7 @@ palettes: {
 
 ```ts
 type PaletteCallback = (context: {
-  sourceColor: Hct;
+  sourceColor: Color;
 }) => { hue: number; chroma: number };
 ```
 
@@ -72,13 +72,10 @@ palettes: {
   accent: '#E91E63',
 }
 
-// Explicit equivalent
-import { Hct } from '@udixio/theme';
+// Callback form — a Color has `hue` and `chroma`, so returning one is enough
+import { Color } from '@udixio/theme';
 palettes: {
-  accent: () => {
-    const hct = Hct.fromInt(argbFromHex('#E91E63'));
-    return { hue: hct.hue, chroma: hct.chroma };
-  }
+  accent: () => Color.fromHex('#E91E63'),
 }
 ```
 
@@ -89,10 +86,7 @@ defineConfig({
   sourceColor: '#1565C0',
   variant: Variants.Udixio,
   palettes: {
-    secondary: ({ sourceColor }) => ({
-      hue: sourceColor.hue + 180,  // complementary color
-      chroma: sourceColor.chroma,
-    }),
+    secondary: ({ sourceColor }) => sourceColor.rotate(180),  // complementary
     accent: '#FF6D00',
   },
 })

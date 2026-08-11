@@ -35,16 +35,16 @@ const config = defineConfig({
 
 ### `sourceColor`
 
-The single color that drives the entire palette. Accepted as a hex string, an `Hct` object, or a dynamic function:
+The single color that drives the entire palette. Accepted as a hex string, a `Color`, or a dynamic function:
 
 ```ts
 sourceColor: '#6750A4'
 
-import { Hct } from '@udixio/theme';
-sourceColor: Hct.from(270, 36, 49)
+import { Color } from '@udixio/theme';
+sourceColor: Color.from({ hue: 270, chroma: 36, tone: 49 })
 
 // Re-evaluated on every context change
-sourceColor: (ctx) => ctx.isDark ? '#A08EC4' : '#6750A4'
+sourceColor: (ctx) => (ctx.isDark ? '#A08EC4' : '#6750A4')
 ```
 
 ### `contrastLevel`
@@ -79,14 +79,16 @@ Override standard palettes or add custom brand colors (Udixio variant only):
 
 ```ts
 palettes: {
-  // Shift the primary hue
-  primary: ({ sourceColor }) => ({
-    hue: sourceColor.hue + 30,
-    chroma: sourceColor.chroma,
-  }),
+  // Shift the primary hue. `rotate` normalises over 360°.
+  primary: ({ sourceColor }) => sourceColor.rotate(30),
+  // Soften the secondary
+  secondary: ({ sourceColor }) => sourceColor.rotate(5).scaleChroma(0.625),
   // Add a custom brand palette — generates brand/onBrand/brandContainer/onBrandContainer
   brand: '#FF5722',
 }
+
+A palette is a hue and a chroma, so the tone of a `Color` returned here is
+ignored.
 ```
 
 See [Custom palettes](/theme/palettes) for details.
@@ -130,6 +132,21 @@ Define named color variants that can be applied to any element via `.theme-{name
 subThemes: {
   ocean: '#006699',
   forest: '#2E7D32',
+}
+
+Only the **hue** of each value is used — the chroma and tone always come from
+`sourceColor`, so every sub-theme stays in step with the rest. A `Color` or a
+bare hue number works as well as a hex string:
+
+```ts
+import { Color } from '@udixio/theme';
+
+const sourceColor = Color.from({ hue: 280, chroma: 45, tone: 75 });
+
+subThemes: {
+  blue: sourceColor,
+  green: sourceColor.withHue(155),
+  cyan: 205,
 }
 ```
 

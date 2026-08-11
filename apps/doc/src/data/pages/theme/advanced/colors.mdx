@@ -12,12 +12,13 @@ description: api.colors.get(), AddColorsOptions, tone adjusters — contrastAgai
 Returns the `Color` for a semantic token. Available after the first `api.load()`.
 
 ```ts
+// With sourceColor '#6750A4' and the default variant:
 const primary = api.colors.get('primary');
 
-primary.tone;    // 40 in light mode, 80 in dark
-primary.hex;     // "#6750a4"
-primary.hue;     // 279.6
-primary.chroma;  // 41.9
+primary.tone;    // 40.3 in light mode, 80 in dark
+primary.hex;     // "#655789"
+primary.hue;     // 299.4
+primary.chroma;  // 32.2
 ```
 
 See [Color](/theme/colors) for the full reading and derivation surface.

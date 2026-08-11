@@ -132,32 +132,58 @@ With `variant: Variants.Udixio` and custom palettes, these tokens are generated 
 
 ## Adding custom tokens
 
-The `colors` option in `ConfigInterface` lets you define additional tokens:
+The `colors` option defines additional tokens. A token declares its default
+tone, then the adjusters that turn it into the final one:
 
 ```ts
 import type { AddColorsOptions } from '@udixio/theme';
+import { contrastAgainst, onColor, avoidBackgroundGap } from '@udixio/theme';
 
-const colors: AddColorsOptions = ({ palettes, colors, context }) => ({
+const colors: AddColorsOptions = ({ palettes, context }) => ({
   highlight: {
     palette: () => palettes.get('tertiary'),
-    tone: () => context.isDark ? 70 : 40,
-    isBackground: true,
+    tone: () => (context.isDark ? 70 : 40),
+    adjustTone: [contrastAgainst('surface', 3), avoidBackgroundGap()],
   },
   onHighlight: {
     palette: () => palettes.get('tertiary'),
-    background: () => colors.get('highlight'),
-    contrastCurve: () => getCurve(4.5),
+    adjustTone: onColor('highlight', 4.5),
   },
 });
 ```
 
+See [Colors API](/theme/advanced/colors) for every adjuster and how to write
+your own.
+
 ## Reading tokens from the API
+
+A token is a `Color`, read as a value — each access resolves against the
+current dark mode and contrast level:
 
 ```ts
 const api = await loader(config);
 await api.load();
 
+// With sourceColor '#6750A4' and the default variant:
 const primary = api.colors.get('primary');
-console.log(primary.getTone());   // e.g. 40 in light mode
-console.log(primary.toHex());     // e.g. "#6750A4"
+
+primary.hex;     // "#655789"
+primary.tone;    // 40.3 in light mode, 80 in dark
+primary.hue;     // 299.4
+primary.chroma;  // 32.2
+primary.rgb;     // { r: 101, g: 87, b: 137 }
+primary.argb;    // 4284831625
 ```
+
+Deriving from a token freezes the result — you get a static colour, not a
+token that keeps following the theme:
+
+```ts
+primary.withTone(90);   // the same hue and chroma, at tone 90
+primary.rotate(55);     // hue shifted by 55°, normalised over 360
+primary.scaleChroma(0.5);
+
+primary.contrastWith(api.colors.get('surface'));  // 6.08
+```
+
+See [Color](/theme/colors) for the constructors.

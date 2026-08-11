@@ -73,7 +73,7 @@ class MyPluginImpl extends PluginImplAbstract<MyPluginOptions> {
 
   onLoad() {
     const prefix = this.options.prefix ?? 'my';
-    const primary = this.api.colors.get('primary').toHex();
+    const primary = this.api.colors.get('primary').hex;
     this.output = `--${prefix}-primary: ${primary};`;
   }
 }

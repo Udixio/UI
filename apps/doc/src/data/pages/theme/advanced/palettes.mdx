@@ -10,15 +10,19 @@ description: PaletteCallback, api.palettes.get(), sync(), override() — direct 
 ## `PaletteCallback`
 
 ```ts
-type PaletteCallback = (context: { sourceColor: Hct }) => { hue: number; chroma: number };
+type PaletteCallback = (context: Context) => { hue: number; chroma: number };
 ```
 
-The callback is re-evaluated on every `api.load()`. It receives the current `sourceColor` as an `Hct` object.
+The callback is re-evaluated on every `api.load()`. It receives the current `Context`, whose `sourceColor` is a `Color`. A `Color` has `hue` and `chroma`, so returning one directly works — its tone is ignored, since a palette spans every tone.
 
 ```ts
-import { Hct } from '@udixio/theme';
+import { Color } from '@udixio/theme';
 
-const callback: PaletteCallback = ({ sourceColor }) => ({
+// Returning a Color — `rotate` normalises the hue over 360°
+const callback: PaletteCallback = ({ sourceColor }) => sourceColor.rotate(30);
+
+// Or a plain literal, when the maths does not map onto a derivation
+const capped: PaletteCallback = ({ sourceColor }) => ({
   hue: sourceColor.hue + 30,
   chroma: Math.min(sourceColor.chroma, 60),
 });
