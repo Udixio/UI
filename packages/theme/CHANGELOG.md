@@ -1,3 +1,50 @@
+# 5.0.0 (2026-08-11)
+
+### 🚀 Features
+
+- ⚠️  **theme:** make adjusters composable factories with the API injected ([75c7cfc8](https://github.com/Udixio/UI/commit/75c7cfc8))
+- ⚠️  **theme:** fold Hct into Color as the single color type ([64637405](https://github.com/Udixio/UI/commit/64637405))
+
+### 🩹 Fixes
+
+- ⚠️  **theme:** give each theme its own container, and expose a variant's callbacks ([6769bbe9](https://github.com/Udixio/UI/commit/6769bbe9))
+
+### ⚠️  Breaking Changes
+
+- **theme:** give each theme its own container, and expose a variant's callbacks  ([6769bbe9](https://github.com/Udixio/UI/commit/6769bbe9))
+  Variant.palettes is replaced by palettesFor(context), and the
+  raw callbacks are exposed as paletteCallbacks. loader() and bootstrap() now
+  return an isolated theme rather than a shared one — code calling loader() twice
+  expecting the second call to reconfigure the first must hold the first API and
+  update its context instead, which is what the React worker already does.
+  Verified: the four existing suites pass unchanged, plus three new tests that
+  fail on the previous behaviour.
+- **theme:** make adjusters composable factories with the API injected  ([75c7cfc8](https://github.com/Udixio/UI/commit/75c7cfc8))
+  the tone adjusters are now factories. contrastAgainst(tone,
+  background, ratio, level) becomes contrastAgainst(background, contrast);
+  avoidBackgroundGap(tone) becomes avoidBackgroundGap(); applyToneDelta(tone,
+  delta, isDark) becomes applyToneDelta(delta); arbitrateBackgrounds gains the
+  same treatment. ToneAdjuster is (args: API & { tone }) => number, and
+  adjustTone accepts ToneAdjuster | ToneAdjuster[]. ColorFromPalette's third
+  constructor argument is a () => API instead of a Context.
+  Verified: spec-2025-conformance (26520 values against upstream) and the udixio
+  grid snapshot pass unchanged, the snapshot file untouched. tone-adjusters.test
+  rewritten against the factory API — 17 unit tests, 23 passing overall.
+- **theme:** fold Hct into Color as the single color type  ([64637405](https://github.com/Udixio/UI/commit/64637405))
+  Hct is removed. Use Color.from({ hue, chroma, tone }) instead
+  of Hct.from(h, c, t), Color.fromHex(hex) instead of Hct.fromInt(argbFromHex(hex)),
+  and the .hue/.chroma/.tone/.hex/.argb/.rgb getters instead of getHct(),
+  getHex(), getArgb(), getRgb() and getTone(). Palette.getHct(tone) is now
+  Palette.getColor(tone).
+  Verified behaviour-identical: 8928 generated colors (5 variants x 4 source
+  colors x light/dark x 4 contrast levels, custom palette included) compared
+  against HEAD — zero differences.
+
+### ❤️ Thank You
+
+- Claude Opus 5
+- Joël VIGREUX
+
 # 4.0.0 (2026-08-10)
 
 ### 🩹 Fixes

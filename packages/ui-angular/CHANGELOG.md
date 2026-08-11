@@ -1,3 +1,19 @@
+## 0.2.0 (2026-08-11)
+
+### 🩹 Fixes
+
+- **release:** resolve workspace:* for ui-angular's dist manifest too ([7697a100](https://github.com/Udixio/UI/commit/7697a100))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/core to 0.2.0
+- Updated @udixio/icons-rounded-400 to 0.2.1
+
+### ❤️ Thank You
+
+- Claude Sonnet 5
+- Joël VIGREUX
+
 ## 0.1.1 (2026-08-10)
 
 ### 🩹 Fixes
