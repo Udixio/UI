@@ -1,23 +1,39 @@
 ---
 title: Variants API
-description: Create custom palette derivation algorithms with variant() — getPiecewiseHue, getRotatedHue, VariantOptions.
+description: variant(), palettes, customPalettes, colors, getRotatedHue, getPiecewiseHue — build your own palette derivation algorithm.
 ---
 
 # Variants API
 
-A `Variant` defines how the `primary`, `secondary`, `tertiary`, `neutral`, and `error` palettes are derived from `sourceColor`. The five built-in variants cover most use cases — this page is for building your own.
-
-## `variant(options)`
+A variant answers one question: given a single source colour, which palettes does the theme get, and what tone does each token take. The five built-in ones — `TonalSpot`, `Neutral`, `Vibrant`, `Expressive`, `Udixio` — are ordinary values built with the same `variant()` call you have access to. Nothing about them is privileged.
 
 ```ts
-import { variant } from '@udixio/theme';
+import { variant, defaultColors } from '@udixio/theme';
 
-const myVariant = variant({
-  name: 'myVariant',
-  palettes: { /* … */ },
-  customPalettes: (context, color) => ({ hue: color.hue, chroma: color.chroma }),
-  colorsFromCustomPalette: (key) => ({ /* AddColorsOptions */ }),
-  colors: { /* AddColorsOptions */ },
+export const myVariant = variant({
+  name: 'mine',
+  palettes: {
+    primary: ({ sourceColor }) => sourceColor,
+    secondary: ({ sourceColor }) => sourceColor.scaleChroma(0.5),
+    tertiary: ({ sourceColor }) => sourceColor.rotate(60),
+    neutral: ({ sourceColor }) => ({ hue: sourceColor.hue, chroma: 5 }),
+    neutralVariant: ({ sourceColor }) => ({ hue: sourceColor.hue, chroma: 8 }),
+    error: () => ({ hue: 25, chroma: 84 }),
+  },
+  customPalettes: ({ sourceColor }, color) => ({
+    hue: color.hue,
+    chroma: sourceColor.chroma,
+  }),
+  colors: defaultColors,
+});
+```
+
+Then use it:
+
+```ts
+defineConfig({
+  sourceColor: '#6750A4',
+  variant: myVariant,
 });
 ```
 
@@ -25,103 +41,170 @@ const myVariant = variant({
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `name` | `string` | ✓ | Unique identifier |
-| `palettes` | `Record<string, PaletteCallback>` | ✓ | Palette callbacks for each role |
-| `customPalettes` | `(context, color) => { hue, chroma }` | ✓ | How to derive an extra palette from a hex color (used by Udixio variant for `palettes.brand`) |
-| `colorsFromCustomPalette` | `(key) => AddColorsOptions` | — | Override which semantic tokens are generated for each custom palette key |
-| `colors` | `AddColorsOptions` | — | Extra semantic tokens added when this variant is active |
+| `name` | `string` | ✓ | Unique identifier. `getVariantByName()` resolves the built-ins by it. |
+| `palettes` | `Record<string, PaletteCallback>` | ✓ | One callback per palette role. |
+| `customPalettes` | `(context, color) => { hue, chroma } \| Color` | ✓ | How an extra palette declared in the config is derived from the colour given. |
+| `colorsFromCustomPalette` | `(key) => AddColorsOptions` | — | Which tokens each custom palette generates. Defaults to the `primary` recipes. |
+| `colors` | `AddColorsOptions` | — | The tokens themselves. Pass `defaultColors` for the full Material set. |
 
-## Minimal example
+## `palettes`
 
-A variant that uses the source hue for primary and shifts secondary by +60°:
+One callback per palette, each receiving the `Context` and returning a hue and a chroma. A `Color` has both, so returning one directly works — its tone is ignored, since a palette spans every tone.
 
 ```ts
-import { variant } from '@udixio/theme';
+palettes: {
+  // Derived from the source colour
+  primary: ({ sourceColor }) => sourceColor,
+  secondary: ({ sourceColor }) => sourceColor.rotate(5).scaleChroma(0.625),
 
-export const complementaryVariant = variant({
-  name: 'complementary',
-  palettes: {
-    primary: ({ sourceColor }) => ({
-      hue: sourceColor.hue,
-      chroma: sourceColor.chroma,
-    }),
-    secondary: ({ sourceColor }) => ({
-      hue: sourceColor.hue + 60,
-      chroma: sourceColor.chroma * 0.6,
-    }),
-    tertiary: ({ sourceColor }) => ({
-      hue: sourceColor.hue + 120,
-      chroma: sourceColor.chroma * 0.8,
-    }),
-    neutral: ({ sourceColor }) => ({
-      hue: sourceColor.hue,
-      chroma: 4,
-    }),
-    error: () => ({ hue: 25, chroma: 84 }),
-  },
-  customPalettes: (_ctx, color) => ({
-    hue: color.hue,
-    chroma: color.chroma,
+  // Reacting to dark mode
+  neutral: ({ sourceColor, isDark }) => ({
+    hue: sourceColor.hue,
+    chroma: isDark ? 6 : 4,
   }),
-});
+
+  // A fixed palette, ignoring the source entirely
+  error: () => ({ hue: 25, chroma: 84 }),
+}
 ```
 
-## `getPiecewiseHue`
+The engine expects `primary`, `secondary`, `tertiary`, `neutral`, `neutralVariant` and `error` if you reuse `defaultColors`, because those are the palettes it reads. Define fewer only if you also supply your own `colors`.
 
-Maps a source hue to a target hue based on hue breakpoints. Each breakpoint range maps to a fixed output hue — useful for "color harmonization" where you want certain source hues to produce a specific output.
+### Hue helpers
+
+Two helpers cover the hue maths the Material variants use.
+
+`getRotatedHue(sourceColor, breakpoints, rotations)` shifts the hue by a different amount depending on which band it falls in:
 
 ```ts
-import { getPiecewiseHue } from '@udixio/theme';
-
-// If sourceColor.hue is between 0°–60°, output 330°
-// If between 60°–120°, output 30°
-// Otherwise, pass through
-const hue = getPiecewiseHue(
-  sourceColor,
-  [0, 60, 120, 360],   // breakpoints
-  [330, 30, sourceColor.hue], // target hues per range
-);
+tertiary: ({ sourceColor }) => ({
+  hue: getRotatedHue(sourceColor, [0, 20, 71, 161, 333, 360], [-40, 48, -32, 40, -32]),
+  chroma: 28,
+}),
 ```
 
-## `getRotatedHue`
+A source hue of 30 falls in the `[20, 71)` band, so it is rotated by 48 to 78.
 
-Adds a rotation to the source hue, with the rotation amount determined by which breakpoint range the source hue falls in:
+`getPiecewiseHue(sourceColor, breakpoints, hues)` picks an absolute hue per band rather than a shift — used for `error`, so that a red-ish theme does not get an error colour indistinguishable from its primary:
 
 ```ts
-import { getRotatedHue } from '@udixio/theme';
-
-// +15° rotation when source is in 0°–120° range
-// +60° rotation when source is in 120°–240° range
-// +30° otherwise
-const hue = getRotatedHue(
-  sourceColor,
-  [0, 120, 240, 360],  // breakpoints
-  [15, 60, 30],        // rotations per range
-);
+error: ({ sourceColor }) => ({
+  hue: getPiecewiseHue(sourceColor, [0, 3, 13, 23, 33, 43, 153, 273, 360], [12, 22, 32, 12, 22, 32, 22, 12]),
+  chroma: 60,
+}),
 ```
 
-Both functions are used by the built-in variants (e.g. `TonalSpot` uses `getRotatedHue` for secondary and tertiary).
+Both leave the hue untouched when it falls outside every band.
 
-## Using a custom variant
+## `customPalettes`
 
-```ts
-import { loader } from '@udixio/theme';
-
-const api = await loader({
-  sourceColor: '#6750A4',
-  variant: complementaryVariant,
-  plugins: [/* … */],
-});
-```
-
-Or via `defineConfig`:
+Called when a user adds a palette of their own through the config:
 
 ```ts
-import { defineConfig } from '@udixio/tailwind';
-import { complementaryVariant } from './my-variant';
-
 defineConfig({
-  sourceColor: '#6750A4',
-  variant: complementaryVariant,
-})
+  variant: myVariant,
+  palettes: { brand: '#FF5722' },
+});
 ```
+
+It receives the `Context` and the `Color` the user gave, and decides how much of that colour to honour. Taking the hue but imposing the theme's chroma keeps custom palettes in step with the rest:
+
+```ts
+customPalettes: ({ sourceColor }, color) => ({
+  hue: color.hue,
+  chroma: sourceColor.chroma,
+}),
+```
+
+Taking both keeps the user's colour exactly:
+
+```ts
+customPalettes: (_, color) => color,
+```
+
+## `colors`
+
+The tokens themselves. Passing `defaultColors` gives you the full Material set, resolved against your palettes — which is what the four standard variants do, differing only in their palettes.
+
+To change a few tokens, spread the defaults and override:
+
+```ts
+import { defaultColors, contrastAgainst, avoidBackgroundGap } from '@udixio/theme';
+
+colors: (api) => ({
+  ...(typeof defaultColors === 'function' ? defaultColors(api) : defaultColors),
+
+  // A flatter surface than Material's
+  surface: {
+    palette: () => api.palettes.get('neutral'),
+    tone: () => (api.context.isDark ? 6 : 99),
+  },
+}),
+```
+
+To define them all yourself, see [Colors API](/theme/advanced/colors) for the adjusters. The shape of a token is always the same:
+
+```ts
+primary: {
+  palette: () => palettes.get('primary'),
+  tone: () => tMaxC(palettes.get('primary')),
+  adjustTone: [contrastAgainst('surface', 4.5), avoidBackgroundGap()],
+},
+```
+
+### Tone helpers
+
+`tMaxC(palette, lowerBound?, upperBound?, chromaMultiplier?)` finds the tone at which a palette reaches its most saturated point, clamped to the bounds. `tMinC(palette, lowerBound?, upperBound?)` does the opposite. They are how the standard variants pick an accent tone without hard-coding a number that only works for some hues:
+
+```ts
+tone: () => tMaxC(palettes.get('primary'), 0, 90),
+```
+
+`Color.isYellow(hue)`, `Color.isCyan(hue)` and `Color.isBlue(hue)` mark the hue ranges that need special handling — yellows go washed out at high tones, cyans cannot reach high chroma at all:
+
+```ts
+tone: () => tMaxC(palettes.get('primary'), 0, Color.isCyan(palettes.get('primary').hue) ? 88 : 98),
+```
+
+## `colorsFromCustomPalette`
+
+Optional. When set, it decides which tokens a custom palette generates. Without it, a palette named `brand` produces `brand`, `onBrand`, `brandContainer`, `onBrandContainer` and the fixed roles, following the same recipes as `primary`.
+
+```ts
+colorsFromCustomPalette: (key) => ({
+  [key]: {
+    palette: () => palettes.get(key),
+    tone: () => 50,
+    adjustTone: [contrastAgainst('surface', 4.5), avoidBackgroundGap()],
+  },
+  [`on${key[0].toUpperCase()}${key.slice(1)}`]: {
+    palette: () => palettes.get(key),
+    adjustTone: onColor(key, 6),
+  },
+}),
+```
+
+## Reusing a built-in variant
+
+There is no way to extend one today. `Variant.palettes` returns the palettes
+once instantiated — and throws `Variant not initialized` before that — while
+the callbacks themselves stay private to the variant. So a variant cannot be
+spread into another:
+
+```ts
+// Does not work: throws, and would give Palette instances rather than callbacks
+palettes: { ...Variants.TonalSpot.palettes }
+```
+
+Copy the callbacks from the source instead. Each built-in variant is a single
+`variant()` call of about forty lines, and all of them are exported —
+`tonalSpotVariant`, `neutralVariant`, `vibrantVariant`, `expressiveVariant`,
+`udixioVariant` — so the file is the reference.
+
+`udixioVariant` is the one worth reading first: it departs furthest from the
+spec, resolving accents through `minContrastTone()`, a threshold that scales
+with the contrast level rather than through Material's contrast curves.
+
+## Registering it
+
+`getVariantByName()` resolves the built-ins by name, which is how the React worker rebuilds a theme from a serialised snapshot. It does not know about yours, so pass your variant by value rather than by name if you serialise a theme.
