@@ -5,7 +5,7 @@ description: When and why to use @udixio/theme directly — architecture, packag
 
 # @udixio/theme
 
-`@udixio/theme` is the low-level engine that powers all Udixio theming. Most developers never need it directly — `@udixio/ui-react` wraps it and handles everything through `defineConfig` and `ThemeProvider`.
+`@udixio/theme` is the low-level engine that powers all Udixio theming. Most developers use `defineConfig` from `@udixio/tailwind` and the runtime adapter appropriate to their framework, such as `ThemeProvider` from `@udixio/ui-react`.
 
 Use `@udixio/theme` when you need to:
 
@@ -20,7 +20,7 @@ Use `@udixio/theme` when you need to:
 |---------|---------------|
 | `@udixio/theme` | Core engine — `loader()`, `variant()`, `Hct`, `Palette`, `Color`, plugin base classes |
 | `@udixio/tailwind` | `TailwindPlugin` — generates Tailwind CSS from tokens — and `defineConfig`, which auto-wires it alongside `FontPlugin` |
-| `@udixio/ui-react` | `ThemeProvider` — React runtime layer; re-exports `defineConfig` for convenience |
+| `@udixio/ui-react` | `ThemeProvider` — React runtime layer |
 | `@udixio/ui-angular` | Angular components. Theming goes through `@udixio/tailwind` directly — there is no Angular runtime layer |
 
 ## Architecture

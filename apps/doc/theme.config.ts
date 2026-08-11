@@ -1,4 +1,4 @@
-import { defineConfig } from '@udixio/ui-react';
+import { defineConfig } from '@udixio/tailwind';
 
 export default defineConfig({
   sourceColor: '#D0BCFE',

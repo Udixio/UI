@@ -40,7 +40,7 @@ export default defineConfig({
 
 `sourceColor` is the only required option — `defineConfig` wires `TailwindPlugin` and `FontPlugin` for you, and takes their options flat. `outFile` is where the generated stylesheet is written; the generator also adds it to a sibling `.gitignore`, since it's a build artifact.
 
-This is the same `defineConfig` React uses: it lives in `@udixio/tailwind`, the lowest package that sees both plugins, and `@udixio/ui-react` merely re-exports it. Nothing here is framework-specific.
+This is the same `defineConfig` React uses: it lives in `@udixio/tailwind`, the lowest package that sees both plugins. Nothing here is framework-specific.
 
 Every other option (custom palettes, sub-themes, fonts, dark mode, contrast) is covered in [Theme — Configuration](/theme/configuration).
 

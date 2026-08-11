@@ -13,13 +13,13 @@ Udixio's theme system generates a complete set of color and typography tokens fr
 npm install @udixio/ui-react @udixio/theme @udixio/tailwind
 ```
 
-`@udixio/ui-react` re-exports the theming API you use in app code — `defineConfig`, `ThemeProvider` — so you rarely import from `@udixio/theme` directly. You still install it: it carries the generator that turns your config into CSS, which you wire into your build (`vitePlugin` and friends). See [Get started — React](/get-started/react) for the full build setup this page assumes.
+The theming API is split by responsibility: import framework-agnostic configuration helpers such as `defineConfig` from `@udixio/tailwind`, and React runtime components such as `ThemeProvider` from `@udixio/ui-react`. `@udixio/theme` carries the generator that turns your config into CSS, which you wire into your build (`vitePlugin` and friends). See [Get started — React](/get-started/react) for the full build setup this page assumes.
 
 ## Quick setup
 
 ```tsx
 // theme.config.ts
-import { defineConfig } from '@udixio/ui-react';
+import { defineConfig } from '@udixio/tailwind';
 
 export const themeConfig = defineConfig({
   sourceColor: '#6750A4',
