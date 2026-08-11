@@ -244,9 +244,10 @@ export class ColorAlias extends Color {
  *     contraste est ajusté.
  * @param tone Ton de base. À défaut, le ton du fond, ou 50 sans fond.
  * @param chromaMultiplier Facteur appliqué au chroma de la palette. Défaut 1.
- * @param isBackground Indique que cette couleur sert de fond à d'autres.
- * @param clampTone Écarte le ton résolu de la zone médiane (57–65) pour éviter
- *     les tons ingrats sur les fonds. Défaut : la valeur de `isBackground`.
+ * @param isBackground Indique que cette couleur sert de fond à d'autres. Son
+ *     ton est alors écarté de la zone médiane (57–65), où aucun premier plan
+ *     n'obtient un contraste suffisant — sauf si `adjustTone` l'a fixé par un
+ *     écart `exact`, qu'il serait absurde de violer juste après l'avoir posé.
  * @param background Le fond sur lequel cette couleur est posée.
  * @param secondBackground Un second fond, quand la couleur doit contraster
  *     avec deux fonds à la fois.
@@ -260,11 +261,10 @@ export type FromPaletteOptions = {
   tone?: () => number;
   chromaMultiplier?: () => number | undefined;
   isBackground?: boolean;
-  clampTone?: boolean;
   background?: () => Color | undefined;
   secondBackground?: () => Color | undefined;
   contrastCurve?: () => ContrastCurve | undefined;
-  adjustTone?: () => AdjustTone | undefined;
+  adjustTone?: () => ToneDelta | ToneResolver | undefined;
 };
 
 export type FromPalette = {
@@ -272,14 +272,96 @@ export type FromPalette = {
   tone: number;
   chromaMultiplier: number;
   isBackground?: boolean;
-  clampTone: boolean;
   background?: Color;
   secondBackground?: Color;
   contrastCurve?: ContrastCurve;
-  adjustTone?: AdjustTone;
+  adjustTone?: ToneDelta | ToneResolver;
 };
 
-export type AdjustTone = (args: { context: Context; color: Color }) => number;
+/**
+ * Sens de l'écart entre `roleA` et `roleB`.
+ *
+ * `relative_darker` et `relative_lighter` suivent la tendance des surfaces :
+ * vers le blanc en mode clair, vers le noir en mode sombre.
+ */
+export type TonePolarity =
+  | 'darker'
+  | 'lighter'
+  | 'nearer'
+  | 'farther'
+  | 'relative_darker'
+  | 'relative_lighter';
+
+/** Comment satisfaire la contrainte d'écart. */
+export type DeltaConstraint = 'exact' | 'nearer' | 'farther';
+
+/**
+ * Échappatoire : calcule le ton de toutes pièces, au lieu de le décrire.
+ *
+ * Le ton rendu est **final** — ni le contraste ni l'écartement de la zone
+ * médiane ne s'appliquent ensuite. À réserver aux cas qu'une `ToneDelta` ne
+ * sait pas exprimer, comme un seuil de contraste calculé autrement.
+ */
+export type ToneResolver = (args: {
+  context: Context;
+  color: Color;
+}) => number;
+
+/**
+ * Contrainte d'écart de ton entre deux couleurs, quand elles doivent rester
+ * visuellement distinctes sans être dans une relation fond / premier plan.
+ *
+ * La polarité décrit `roleA` **par rapport à** `roleB` : `{ delta: 15,
+ * polarity: 'darker', constraint: 'exact' }` signifie que le ton de `roleA`
+ * doit valoir exactement 15 de moins que celui de `roleB`.
+ *
+ * `relative_darker` et `relative_lighter` suivent le sens des surfaces : en
+ * mode clair elles vont vers le blanc, en mode sombre vers le noir.
+ */
+export type ToneDelta = {
+  roleA: Color;
+  roleB: Color;
+  /** Écart requis, en valeur absolue. */
+  delta: number;
+  polarity: TonePolarity;
+  /** `exact` fige le ton ; `nearer` et `farther` le bornent. */
+  constraint: DeltaConstraint;
+};
+
+/**
+ * Applique une contrainte d'écart au ton de `self`, en fonction du ton déjà
+ * résolu de l'autre couleur de la paire.
+ */
+function applyToneDelta(
+  tone: number,
+  { roleA, roleB, delta, polarity, constraint }: ToneDelta,
+  self: Color,
+  context: Context,
+): number {
+  const signedDelta =
+    polarity === 'darker' ||
+    (polarity === 'relative_lighter' && context.isDark) ||
+    (polarity === 'relative_darker' && !context.isDark)
+      ? -delta
+      : delta;
+
+  const amRoleA = self === roleA;
+  const refTone = (amRoleA ? roleB : roleA).tone;
+  const relativeDelta = signedDelta * (amRoleA ? 1 : -1);
+
+  if (constraint === 'exact') {
+    return clampDouble(0, 100, refTone + relativeDelta);
+  }
+  if (constraint === 'nearer') {
+    return relativeDelta > 0
+      ? clampDouble(0, 100, clampDouble(refTone, refTone + relativeDelta, tone))
+      : clampDouble(0, 100, clampDouble(refTone + relativeDelta, refTone, tone));
+  }
+  // 'farther'
+  return relativeDelta > 0
+    ? clampDouble(refTone + relativeDelta, 100, tone)
+    : clampDouble(0, refTone + relativeDelta, tone);
+}
 
 export class ColorFromPalette extends Color {
   get options(): FromPalette {
@@ -298,7 +380,6 @@ export class ColorFromPalette extends Color {
       ...options,
       chromaMultiplier: options.chromaMultiplier ?? 1,
       tone: options.tone ?? getInitialToneFromBackground(options.background),
-      clampTone: options.clampTone ?? options.isBackground ?? false,
     };
   }
 
@@ -350,24 +431,39 @@ export class ColorFromPalette extends Color {
     return solveToArgb(hue, chroma, tone);
   }
 
+  /**
+   * Résout le ton en une seule passe, chaque étape s'appliquant à la sortie de
+   * la précédente :
+   *
+   *   1. ton de base (`tone`)
+   *   2. contrainte d'écart avec la couleur appairée (`adjustTone`)
+   *   3. contraste avec le ou les fonds (`background` + `contrastCurve`)
+   *   4. écartement de la zone médiane (`isBackground`)
+   *
+   * Aucune étape n'en court-circuite une autre : une couleur qui déclare à la
+   * fois un écart et un fond obtient bien les deux.
+   */
   override get tone(): number {
     const context = this.context;
-
     const options = this.options;
 
-    const adjustTone = options.adjustTone;
+    let answer = options.tone;
 
-    // Cas 0 : contrainte d'écart de ton.
-    if (adjustTone) {
-      return adjustTone({ context, color: this });
-    } else {
-      // Cas 1 : pas de contrainte d'écart ; on résout pour soi-même.
-      let answer = options.tone;
-      if (!options.background || !options.contrastCurve) {
-        return answer; // Aucun ajustement pour les couleurs sans fond.
-      }
+    // 1-2. Écart avec la couleur appairée, ou résolveur maison.
+    const adjust = options.adjustTone;
+    if (typeof adjust === 'function') {
+      // Un résolveur maison a le dernier mot : il calcule déjà son propre ton.
+      return adjust({ context, color: this });
+    }
+    if (adjust) {
+      answer = applyToneDelta(answer, adjust, this, context);
+    }
+
+    // 3. Contraste avec le fond.
+    let desiredRatio: number | undefined;
+    if (options.background && options.contrastCurve) {
       const bgTone = options.background.tone;
-      const desiredRatio = options.contrastCurve.get(context.contrastLevel);
+      desiredRatio = options.contrastCurve.get(context.contrastLevel);
       // On recalcule le ton depuis le ratio voulu si le ratio actuel est
       // insuffisant, ou si le niveau de contraste demandé décroît (<0).
       answer =
@@ -375,50 +471,59 @@ export class ColorFromPalette extends Color {
         context.contrastLevel >= 0
           ? answer
           : DynamicColor.foregroundTone(bgTone, desiredRatio);
-      // Évite les tons ingrats pour les couleurs de fond.
-      if (options.clampTone) {
-        if (answer >= 57) {
-          answer = clampDouble(65, 100, answer);
-        } else {
-          answer = clampDouble(0, 49, answer);
-        }
-      }
-      if (!options.secondBackground) {
-        return answer;
-      }
-      // Cas 2 : ajustement pour deux fonds.
-      const [bg1, bg2] = [options.background, options.secondBackground];
-      const [bgTone1, bgTone2] = [bg1.tone, bg2.tone];
-      const [upper, lower] = [
-        Math.max(bgTone1, bgTone2),
-        Math.min(bgTone1, bgTone2),
-      ];
-      if (
-        Contrast.ratioOfTones(upper, answer) >= desiredRatio &&
-        Contrast.ratioOfTones(lower, answer) >= desiredRatio
-      ) {
-        return answer;
-      }
-      // Le ton clair le plus sombre qui satisfait le ratio, ou -1.
-      const lightOption = Contrast.lighter(upper, desiredRatio);
-
-      // Le ton sombre le plus clair qui satisfait le ratio, ou -1.
-      const darkOption = Contrast.darker(lower, desiredRatio);
-      // Tons utilisables en premier plan.
-      const availables = [];
-      if (lightOption !== -1) availables.push(lightOption);
-      if (darkOption !== -1) availables.push(darkOption);
-
-      const prefersLight =
-        DynamicColor.tonePrefersLightForeground(bgTone1) ||
-        DynamicColor.tonePrefersLightForeground(bgTone2);
-      if (prefersLight) {
-        return lightOption < 0 ? 100 : lightOption;
-      }
-      if (availables.length === 1) {
-        return availables[0];
-      }
-      return darkOption < 0 ? 0 : darkOption;
+    } else if (!adjust) {
+      // Sans fond ni courbe, et sans écart à respecter, le ton de base fait
+      // foi — un fond n'est alors pas écarté de la zone médiane. C'est le cas
+      // des `*Container`, dont la `contrastCurve` résout à `undefined` dès que
+      // le niveau de contraste est nul ou négatif.
+      return answer;
     }
+
+    // 4. Les fonds évitent la zone médiane, où aucun premier plan n'obtient
+    // un contraste suffisant. Un ton posé par un écart `exact` en est exempt :
+    // le déplacer violerait la contrainte qu'on vient tout juste d'appliquer.
+    if (options.isBackground && adjust?.constraint !== 'exact') {
+      answer = answer >= 57 ? clampDouble(65, 100, answer) : clampDouble(0, 49, answer);
+    }
+
+    if (!options.background || !options.secondBackground || desiredRatio === undefined) {
+      return answer;
+    }
+
+    // 5. Arbitrage entre deux fonds : on cherche un ton qui contraste
+    // suffisamment avec les deux à la fois.
+    const [bgTone1, bgTone2] = [
+      options.background.tone,
+      options.secondBackground.tone,
+    ];
+    const [upper, lower] = [
+      Math.max(bgTone1, bgTone2),
+      Math.min(bgTone1, bgTone2),
+    ];
+    if (
+      Contrast.ratioOfTones(upper, answer) >= desiredRatio &&
+      Contrast.ratioOfTones(lower, answer) >= desiredRatio
+    ) {
+      return answer;
+    }
+    // Le ton clair le plus sombre qui satisfait le ratio, ou -1.
+    const lightOption = Contrast.lighter(upper, desiredRatio);
+    // Le ton sombre le plus clair qui satisfait le ratio, ou -1.
+    const darkOption = Contrast.darker(lower, desiredRatio);
+
+    const availables = [];
+    if (lightOption !== -1) availables.push(lightOption);
+    if (darkOption !== -1) availables.push(darkOption);
+
+    const prefersLight =
+      DynamicColor.tonePrefersLightForeground(bgTone1) ||
+      DynamicColor.tonePrefersLightForeground(bgTone2);
+    if (prefersLight) {
+      return lightOption < 0 ? 100 : lightOption;
+    }
+    if (availables.length === 1) {
+      return availables[0];
+    }
+    return darkOption < 0 ? 0 : darkOption;
   }
 }

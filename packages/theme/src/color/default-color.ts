@@ -1,4 +1,3 @@
-import { toneDeltaPair } from '../material-color-utilities';
 import { ColorManager } from './color.manager';
 import { AddColorsOptions, ColorApi } from './color.api';
 import { Color, getInitialToneFromBackground } from './color';
@@ -368,15 +367,13 @@ export const defaultColors: AddColorsOptions = ({
       isBackground: true,
       background: () => highestSurface(c, colors),
       contrastCurve: () => getCurve(4.5),
-      adjustTone: () =>
-        toneDeltaPair(
-          colors.get('primaryContainer'),
-          colors.get('primary'),
-          5,
-          'relative_lighter',
-          true,
-          'farther',
-        ),
+      adjustTone: () => ({
+          roleA: colors.get('primaryContainer'),
+          roleB: colors.get('primary'),
+          delta: 5,
+          polarity: 'relative_lighter',
+          constraint: 'farther',
+        }),
     },
     primaryDim: {
       palette: () => palettes.get('primary'),
@@ -392,15 +389,13 @@ export const defaultColors: AddColorsOptions = ({
       isBackground: true,
       background: () => getColor('surfaceContainerHigh'),
       contrastCurve: () => getCurve(4.5),
-      adjustTone: () =>
-        toneDeltaPair(
-          colors.get('primaryDim'),
-          colors.get('primary'),
-          5,
-          'darker',
-          true,
-          'farther',
-        ),
+      adjustTone: () => ({
+          roleA: colors.get('primaryDim'),
+          roleB: colors.get('primary'),
+          delta: 5,
+          polarity: 'darker',
+          constraint: 'farther',
+        }),
     },
     onPrimary: {
       palette: () => palettes.get('primary'),
@@ -469,15 +464,13 @@ export const defaultColors: AddColorsOptions = ({
       isBackground: true,
       // Les couleurs accent fixed-dim ne doivent pas être écartées de la zone médiane.
       clampTone: false,
-      adjustTone: () =>
-        toneDeltaPair(
-          getColor('primaryFixedDim'),
-          getColor('primaryFixed'),
-          5,
-          'darker',
-          true,
-          'exact',
-        ),
+      adjustTone: () => ({
+          roleA: getColor('primaryFixedDim'),
+          roleB: getColor('primaryFixed'),
+          delta: 5,
+          polarity: 'darker',
+          constraint: 'exact',
+        }),
     },
 
     onPrimaryFixed: {
@@ -518,15 +511,13 @@ export const defaultColors: AddColorsOptions = ({
       isBackground: true,
       background: () => highestSurface(c, colors),
       contrastCurve: () => getCurve(4.5),
-      adjustTone: () =>
-        toneDeltaPair(
-          getColor('secondaryContainer'),
-          getColor('secondary'),
-          5,
-          'relative_lighter',
-          true,
-          'farther',
-        ),
+      adjustTone: () => ({
+          roleA: getColor('secondaryContainer'),
+          roleB: getColor('secondary'),
+          delta: 5,
+          polarity: 'relative_lighter',
+          constraint: 'farther',
+        }),
     },
     secondaryDim: {
       palette: () => palettes.get('secondary'),
@@ -540,15 +531,13 @@ export const defaultColors: AddColorsOptions = ({
       isBackground: true,
       background: () => getColor('surfaceContainerHigh'),
       contrastCurve: () => getCurve(4.5),
-      adjustTone: () =>
-        toneDeltaPair(
-          getColor('secondaryDim'),
-          getColor('secondary'),
-          5,
-          'darker',
-          true,
-          'farther',
-        ),
+      adjustTone: () => ({
+          roleA: getColor('secondaryDim'),
+          roleB: getColor('secondary'),
+          delta: 5,
+          polarity: 'darker',
+          constraint: 'farther',
+        }),
     },
     onSecondary: {
       palette: () => palettes.get('secondary'),
@@ -604,15 +593,13 @@ export const defaultColors: AddColorsOptions = ({
       isBackground: true,
       // Les couleurs accent fixed-dim ne doivent pas être écartées de la zone médiane.
       clampTone: false,
-      adjustTone: () =>
-        toneDeltaPair(
-          getColor('secondaryFixedDim'),
-          getColor('secondaryFixed'),
-          5,
-          'darker',
-          true,
-          'exact',
-        ),
+      adjustTone: () => ({
+          roleA: getColor('secondaryFixedDim'),
+          roleB: getColor('secondaryFixed'),
+          delta: 5,
+          polarity: 'darker',
+          constraint: 'exact',
+        }),
     },
 
     onSecondaryFixed: {
@@ -653,15 +640,13 @@ export const defaultColors: AddColorsOptions = ({
       isBackground: true,
       background: () => highestSurface(c, colors),
       contrastCurve: () => getCurve(4.5),
-      adjustTone: () =>
-        toneDeltaPair(
-          getColor('tertiaryContainer'),
-          getColor('tertiary'),
-          5,
-          'relative_lighter',
-          true,
-          'farther',
-        ),
+      adjustTone: () => ({
+          roleA: getColor('tertiaryContainer'),
+          roleB: getColor('tertiary'),
+          delta: 5,
+          polarity: 'relative_lighter',
+          constraint: 'farther',
+        }),
     },
     tertiaryDim: {
       palette: () => palettes.get('tertiary'),
@@ -675,15 +660,13 @@ export const defaultColors: AddColorsOptions = ({
       isBackground: true,
       background: () => getColor('surfaceContainerHigh'),
       contrastCurve: () => getCurve(4.5),
-      adjustTone: () =>
-        toneDeltaPair(
-          getColor('tertiaryDim'),
-          getColor('tertiary'),
-          5,
-          'darker',
-          true,
-          'farther',
-        ),
+      adjustTone: () => ({
+          roleA: getColor('tertiaryDim'),
+          roleB: getColor('tertiary'),
+          delta: 5,
+          polarity: 'darker',
+          constraint: 'farther',
+        }),
     },
     onTertiary: {
       palette: () => palettes.get('tertiary'),
@@ -752,15 +735,13 @@ export const defaultColors: AddColorsOptions = ({
       isBackground: true,
       // Les couleurs accent fixed-dim ne doivent pas être écartées de la zone médiane.
       clampTone: false,
-      adjustTone: () =>
-        toneDeltaPair(
-          getColor('tertiaryFixedDim'),
-          getColor('tertiaryFixed'),
-          5,
-          'darker',
-          true,
-          'exact',
-        ),
+      adjustTone: () => ({
+          roleA: getColor('tertiaryFixedDim'),
+          roleB: getColor('tertiaryFixed'),
+          delta: 5,
+          polarity: 'darker',
+          constraint: 'exact',
+        }),
     },
 
     onTertiaryFixed: {
@@ -789,15 +770,13 @@ export const defaultColors: AddColorsOptions = ({
       isBackground: true,
       background: () => highestSurface(c, colors),
       contrastCurve: () => getCurve(4.5),
-      adjustTone: () =>
-        toneDeltaPair(
-          colors.get('errorContainer'),
-          colors.get('error'),
-          5,
-          'relative_lighter',
-          true,
-          'farther',
-        ),
+      adjustTone: () => ({
+          roleA: colors.get('errorContainer'),
+          roleB: colors.get('error'),
+          delta: 5,
+          polarity: 'relative_lighter',
+          constraint: 'farther',
+        }),
     },
     errorDim: {
       palette: () => palettes.get('error'),
@@ -805,15 +784,13 @@ export const defaultColors: AddColorsOptions = ({
       isBackground: true,
       background: () => getColor('surfaceContainerHigh'),
       contrastCurve: () => getCurve(4.5),
-      adjustTone: () =>
-        toneDeltaPair(
-          getColor('errorDim'),
-          getColor('error'),
-          5,
-          'darker',
-          true,
-          'farther',
-        ),
+      adjustTone: () => ({
+          roleA: getColor('errorDim'),
+          roleB: getColor('error'),
+          delta: 5,
+          polarity: 'darker',
+          constraint: 'farther',
+        }),
     },
     onError: {
       palette: () => palettes.get('error'),

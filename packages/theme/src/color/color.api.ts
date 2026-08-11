@@ -2,7 +2,7 @@ import { Color, ColorOptions } from './color';
 import { ColorManager } from './color.manager';
 import { DynamicColorKey, getCurve, tMaxC, tMinC } from './color.utils';
 import { API } from '../API';
-import { toneDeltaPair } from '../material-color-utilities';
+
 import { Context } from 'src/context';
 import { highestSurface } from './default-color';
 
@@ -112,15 +112,13 @@ export class ColorApi {
         isBackground: true,
         background: () => highestSurface(ctx, this),
         contrastCurve: () => getCurve(4.5),
-        adjustTone: () =>
-          toneDeltaPair(
-            colors.get(colorContainerKey),
-            colors.get(colorKey),
-            5,
-            'relative_lighter',
-            true,
-            'farther',
-          ),
+        adjustTone: () => ({
+          roleA: colors.get(colorContainerKey),
+          roleB: colors.get(colorKey),
+          delta: 5,
+          polarity: 'relative_lighter',
+          constraint: 'farther',
+        }),
       },
       [colorDimKey]: {
         palette: () => palettes.get(colorKey),
@@ -134,15 +132,13 @@ export class ColorApi {
         isBackground: true,
         background: () => this.get('surfaceContainerHigh'),
         contrastCurve: () => getCurve(4.5),
-        adjustTone: () =>
-          toneDeltaPair(
-            this.get(colorDimKey),
-            this.get(colorKey),
-            5,
-            'darker',
-            true,
-            'farther',
-          ),
+        adjustTone: () => ({
+          roleA: this.get(colorDimKey),
+          roleB: this.get(colorKey),
+          delta: 5,
+          polarity: 'darker',
+          constraint: 'farther',
+        }),
       },
       [onColorKey]: {
         palette: () => palettes.get(colorKey),
@@ -192,15 +188,13 @@ export class ColorApi {
         isBackground: true,
         // Les couleurs accent fixed-dim ne doivent pas être écartées de la zone médiane.
         clampTone: false,
-        adjustTone: () =>
-          toneDeltaPair(
-            this.get(colorFixedDimKey),
-            this.get(colorFixedKey),
-            5,
-            'darker',
-            true,
-            'exact',
-          ),
+        adjustTone: () => ({
+          roleA: this.get(colorFixedDimKey),
+          roleB: this.get(colorFixedKey),
+          delta: 5,
+          polarity: 'darker',
+          constraint: 'exact',
+        }),
       },
       [onColorFixedKey]: {
         palette: () => palettes.get(colorKey),

@@ -16,7 +16,6 @@ import {
   getInitialToneFromBackground,
 } from '../../color';
 import { Contrast } from '@material/material-color-utilities';
-import { toneDeltaPair } from '../../material-color-utilities';
 import { Context } from '../../context';
 import { API } from '../../API';
 
@@ -224,15 +223,13 @@ export const udixioVariant: Variant = variant({
         },
         isBackground: true,
         background: () => highestSurface(ctx, colors),
-        adjustTone: () =>
-          toneDeltaPair(
-            colors.get(colorKey),
-            colors.get(colorContainerKey),
-            15,
-            'relative_darker',
-            true,
-            'farther',
-          ),
+        adjustTone: () => ({
+            roleA: colors.get(colorKey),
+            roleB: colors.get(colorContainerKey),
+            delta: 15,
+            polarity: 'relative_darker',
+            constraint: 'farther',
+          }),
         contrastCurve: () =>
           ctx.contrastLevel > 0 ? getCurve(1.5) : undefined,
       },
@@ -474,15 +471,13 @@ export const udixioVariant: Variant = variant({
         },
         isBackground: true,
         background: () => highestSurface(ctx, colors),
-        adjustTone: () =>
-          toneDeltaPair(
-            colors.get('primary'),
-            colors.get('primaryContainer'),
-            15,
-            'relative_darker',
-            true,
-            'farther',
-          ),
+        adjustTone: () => ({
+            roleA: colors.get('primary'),
+            roleB: colors.get('primaryContainer'),
+            delta: 15,
+            polarity: 'relative_darker',
+            constraint: 'farther',
+          }),
         contrastCurve: () =>
           ctx.contrastLevel > 0 ? getCurve(1.5) : undefined,
       },
@@ -601,15 +596,13 @@ export const udixioVariant: Variant = variant({
         },
         isBackground: true,
         background: () => highestSurface(ctx, colors),
-        adjustTone: () =>
-          toneDeltaPair(
-            colors.get('secondary'),
-            colors.get('secondaryContainer'),
-            15,
-            'relative_darker',
-            true,
-            'farther',
-          ),
+        adjustTone: () => ({
+            roleA: colors.get('secondary'),
+            roleB: colors.get('secondaryContainer'),
+            delta: 15,
+            polarity: 'relative_darker',
+            constraint: 'farther',
+          }),
         contrastCurve: () =>
           ctx.contrastLevel > 0 ? getCurve(1.5) : undefined,
       },
@@ -721,15 +714,13 @@ export const udixioVariant: Variant = variant({
         },
         isBackground: true,
         background: () => highestSurface(ctx, colors),
-        adjustTone: () =>
-          toneDeltaPair(
-            colors.get('tertiary'),
-            colors.get('tertiaryContainer'),
-            15,
-            'relative_darker',
-            true,
-            'farther',
-          ),
+        adjustTone: () => ({
+            roleA: colors.get('tertiary'),
+            roleB: colors.get('tertiaryContainer'),
+            delta: 15,
+            polarity: 'relative_darker',
+            constraint: 'farther',
+          }),
         contrastCurve: () =>
           ctx.contrastLevel > 0 ? getCurve(1.5) : undefined,
       },
@@ -799,15 +790,13 @@ export const udixioVariant: Variant = variant({
         isBackground: true,
         background: () => highestSurface(ctx, colors),
         contrastCurve: () => getCurve(4.5),
-        adjustTone: () =>
-          toneDeltaPair(
-            colors.get('errorContainer'),
-            colors.get('error'),
-            5,
-            'relative_lighter',
-            true,
-            'farther',
-          ),
+        adjustTone: () => ({
+            roleA: colors.get('errorContainer'),
+            roleB: colors.get('error'),
+            delta: 5,
+            polarity: 'relative_lighter',
+            constraint: 'farther',
+          }),
       },
       // errorDim: {
       //   palette: () => palettes.get('error'),
