@@ -29,7 +29,7 @@
     "text-case": "^1.2.9",
     "tailwindcss": "^4.1.12",
     "pathe": "^2.0.3",
-    "@udixio/theme": "4.0.0",
+    "@udixio/theme": "workspace:*",
     "tslib": "^2.3.0"
   },
   "repository": {
