@@ -7,6 +7,7 @@ const textFieldConfig: ClassNameComponent<TextFieldInterface> = ({
   errorText,
   isFocused,
   isFloating,
+  leadingIcon,
   suffix,
   multiline,
 }) => {
@@ -61,7 +62,14 @@ const textFieldConfig: ClassNameComponent<TextFieldInterface> = ({
       { 'text-error': !!errorText?.length },
       { 'text-primary': !errorText?.length && isFocused },
       showLegend
-        ? 'left-2 -top-3 px-1 text-body-small z-10'
+        ? cx(
+            '-top-3 px-1 text-body-small z-10',
+            // The label is positioned from the input wrapper, which starts
+            // after the leading icon. The legend notch is positioned from
+            // the fieldset edge, so cancel the icon's 32px footprint
+            // (ml-3 + the 20px icon) while the outlined label is floating.
+            leadingIcon ? '-left-6' : 'left-2',
+          )
         : variant === 'filled' && isFloating
           ? 'left-4 top-2 text-body-small'
           : 'left-4 top-1/2 -translate-y-1/2 text-body-large',

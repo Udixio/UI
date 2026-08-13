@@ -115,6 +115,21 @@ describe('TextField', () => {
     expect(lastCall).toMatchObject({ isFloating: true, isFocused: false });
   });
 
+  it('aligns an outlined floating label with its legend when a leading icon is present', () => {
+    render(
+      <TextField
+        label="Search"
+        variant="outlined"
+        defaultValue="query"
+        leadingIcon="<svg></svg>"
+      />,
+    );
+
+    const label = screen.getByText('Search', { selector: 'label' });
+    expect(label).toHaveClass('-left-6');
+    expect(label).not.toHaveClass('left-2');
+  });
+
   it('opens a menu of options and selects one', () => {
     const onChange = vi.fn();
     render(

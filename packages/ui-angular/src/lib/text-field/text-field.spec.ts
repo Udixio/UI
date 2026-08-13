@@ -143,6 +143,18 @@ describe('TextField (Angular)', () => {
     expect(blurEvents.length).toBe(1);
   });
 
+  it('aligns an outlined floating label with its legend when a leading icon is present', () => {
+    fixture.componentRef.setInput('variant', 'outlined');
+    fixture.componentRef.setInput('defaultValue', 'query');
+    fixture.componentRef.setInput('leadingIcon', '<svg></svg>');
+    fixture.detectChanges();
+
+    const label: HTMLLabelElement =
+      fixture.nativeElement.querySelector('label');
+    expect(label.classList.contains('-left-6')).toBe(true);
+    expect(label.classList.contains('left-2')).toBe(false);
+  });
+
   it('opens a menu of options and selects one', () => {
     const changes: string[] = [];
     fixture.componentRef.setInput('type', 'select');

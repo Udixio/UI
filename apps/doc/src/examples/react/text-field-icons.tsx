@@ -8,6 +8,13 @@ export default function TextFieldIconsReact() {
       <TextField label="Search" name="q" leadingIcon={iSearch} />
       <TextField label="Amount" name="amount" suffix="kg" />
       <TextField label="Search" name="q2" trailingIcon={iClose} />
+      <TextField
+        label="Search"
+        name="q3"
+        variant="outlined"
+        leadingIcon={iSearch}
+        trailingIcon={iClose}
+      />
     </div>
   );
 }

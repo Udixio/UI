@@ -13,6 +13,13 @@ import { iClose } from '@udixio/icons-rounded-400/close';
       <udx-text-field label="Search" name="q" [leadingIcon]="iSearch" />
       <udx-text-field label="Amount" name="amount" suffix="kg" />
       <udx-text-field label="Search" name="q2" [trailingIcon]="iClose" />
+      <udx-text-field
+        label="Search"
+        name="q3"
+        variant="outlined"
+        [leadingIcon]="iSearch"
+        [trailingIcon]="iClose"
+      />
     </div>
   `,
 })
