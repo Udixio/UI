@@ -1,6 +1,6 @@
 {
   "name": "@udixio/ui-react",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -22,7 +22,7 @@
     "react-dom": ">19.0.0"
   },
   "dependencies": {
-    "@udixio/core": "0.2.0",
+    "@udixio/core": "0.2.1",
     "@udixio/icons-rounded-400": "0.2.1",
     "@udixio/tailwind": "5.0.0",
     "@udixio/theme": "5.0.0",

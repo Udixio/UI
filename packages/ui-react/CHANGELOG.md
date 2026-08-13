@@ -1,3 +1,9 @@
+## 5.0.1 (2026-08-11)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/core to 0.2.1
+
 # 5.0.0 (2026-08-11)
 
 ### 🚀 Features
