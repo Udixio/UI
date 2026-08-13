@@ -9,7 +9,7 @@ export type TooltipPosition = AnchorPosition;
 
 /** Anime.js opacity/scale open-close timing, shared by every framework. */
 export interface TooltipTransition {
-  /** Duration in milliseconds. Default: 150ms */
+  /** Duration in milliseconds. Default: 300ms */
   duration?: number;
   /** Anime.js easing name or function. Default: 'outCubic' */
   ease?: string;

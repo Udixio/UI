@@ -92,12 +92,14 @@ function systemPrefersReducedMotion(): boolean {
 }
 
 const DEFAULT_TRANSITION: Required<TooltipTransition> = {
-  duration: 150,
+  duration: 300,
   ease: 'outCubic',
 };
 
+const CLOSED_HEIGHT = 16;
+
 /**
- * Connects the shared Anime.js opacity/scale choreography for `Tooltip`.
+ * Connects the shared Anime.js opacity/height choreography for `Tooltip`.
  * Every adapter uses this single controller so React and Angular animate
  * identically; neither implements its own version of this effect and no
  * `motion/react` is involved. The tooltip surface stays mounted at all
@@ -116,13 +118,21 @@ export function createTooltipTransitionController({
     setOpen(open, instant = false) {
       current?.pause();
       const skipAnimation = instant || reducedMotion();
+      const openHeight = Math.max(element.scrollHeight, CLOSED_HEIGHT);
+      element.style.overflow = 'hidden';
       current = animate(element, {
         opacity: open ? 1 : 0,
-        scale: open ? 1 : 0.8,
+        height: open ? `${openHeight}px` : `${CLOSED_HEIGHT}px`,
         duration: skipAnimation
           ? 0
           : (transition.duration ?? DEFAULT_TRANSITION.duration),
         ease: transition.ease ?? DEFAULT_TRANSITION.ease,
+        onComplete: () => {
+          if (open) {
+            element.style.height = 'auto';
+            element.style.overflow = 'visible';
+          }
+        },
       });
     },
     destroy() {

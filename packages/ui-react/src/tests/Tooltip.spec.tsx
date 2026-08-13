@@ -40,6 +40,23 @@ function mockTransitionController() {
   return { setOpen: vi.fn(), destroy: vi.fn() };
 }
 
+function dispatchPointerEvent(
+  element: Element,
+  type: string,
+  init: Partial<PointerEvent> & { pointerType: string; pointerId: number },
+) {
+  const event = new MouseEvent(type, {
+    bubbles: true,
+    clientX: init.clientX,
+    clientY: init.clientY,
+  });
+  Object.defineProperties(event, {
+    pointerType: { value: init.pointerType },
+    pointerId: { value: init.pointerId },
+  });
+  fireEvent(element, event);
+}
+
 describe('Tooltip', () => {
   beforeEach(() => {
     vi.mocked(createTooltipTransitionController).mockReturnValue(
@@ -107,6 +124,58 @@ describe('Tooltip', () => {
     );
   });
 
+  it('cancels stale openings while rapidly hovering a list of triggers', () => {
+    render(
+      <>
+        <Tooltip text="First" openDelay={400}>
+          <Button label="First trigger" />
+        </Tooltip>
+        <Tooltip text="Second" openDelay={400}>
+          <Button label="Second trigger" />
+        </Tooltip>
+        <Tooltip text="Last" openDelay={400}>
+          <Button label="Last trigger" />
+        </Tooltip>
+      </>,
+    );
+    const first = screen.getByRole('button', { name: 'First trigger' });
+    const second = screen.getByRole('button', { name: 'Second trigger' });
+    const last = screen.getByRole('button', { name: 'Last trigger' });
+
+    fireEvent.mouseEnter(first);
+    act(() => vi.advanceTimersByTime(100));
+    fireEvent.mouseLeave(first);
+    fireEvent.mouseEnter(second);
+    act(() => vi.advanceTimersByTime(100));
+    fireEvent.mouseLeave(second);
+    fireEvent.mouseEnter(last);
+
+    act(() => vi.advanceTimersByTime(399));
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    act(() => vi.advanceTimersByTime(1));
+
+    expect(screen.getAllByRole('tooltip')).toHaveLength(1);
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Last');
+  });
+
+  it('animates the first opening after the hidden surface is connected', () => {
+    const controller = mockTransitionController();
+    vi.mocked(createTooltipTransitionController).mockReturnValue(controller);
+    render(
+      <Tooltip text="Copy" openDelay={400}>
+        <Button label="Trigger" />
+      </Tooltip>,
+    );
+
+    expect(controller.setOpen).toHaveBeenCalledWith(false, true);
+    controller.setOpen.mockClear();
+
+    fireEvent.mouseEnter(screen.getByRole('button', { name: 'Trigger' }));
+    act(() => vi.advanceTimersByTime(400));
+
+    expect(controller.setOpen).toHaveBeenCalledExactlyOnceWith(true);
+  });
+
   it('opens on focus immediately, without waiting for openDelay', () => {
     render(
       <Tooltip text="Copy" openDelay={400}>
@@ -116,6 +185,87 @@ describe('Tooltip', () => {
     fireEvent.focus(screen.getByRole('button', { name: 'Trigger' }));
 
     expect(screen.getByRole('tooltip')).toHaveAttribute('aria-hidden', 'false');
+  });
+
+  it('keeps a long-press tooltip visible for 1.5s after touch release', () => {
+    render(
+      <Tooltip text="Copy">
+        <Button label="Trigger" />
+      </Tooltip>,
+    );
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+    dispatchPointerEvent(trigger, 'pointerdown', {
+      pointerType: 'touch',
+      pointerId: 7,
+      clientX: 20,
+      clientY: 30,
+    });
+    expect(fireEvent.contextMenu(trigger)).toBe(false);
+    act(() => vi.advanceTimersByTime(499));
+    expect(screen.getByRole('tooltip', { hidden: true })).toHaveAttribute(
+      'aria-hidden',
+      'true',
+    );
+
+    act(() => vi.advanceTimersByTime(1));
+    expect(screen.getByRole('tooltip')).toHaveAttribute('aria-hidden', 'false');
+
+    dispatchPointerEvent(trigger, 'pointerup', {
+      pointerType: 'touch',
+      pointerId: 7,
+    });
+    act(() => vi.advanceTimersByTime(1499));
+    expect(screen.getByRole('tooltip')).toHaveAttribute('aria-hidden', 'false');
+    act(() => vi.advanceTimersByTime(1));
+    expect(screen.getByRole('tooltip', { hidden: true })).toHaveAttribute(
+      'aria-hidden',
+      'true',
+    );
+  });
+
+  it('does not open for a short touch or a moved touch', () => {
+    render(
+      <Tooltip text="Copy">
+        <Button label="Trigger" />
+      </Tooltip>,
+    );
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+    dispatchPointerEvent(trigger, 'pointerdown', {
+      pointerType: 'touch',
+      pointerId: 3,
+      clientX: 0,
+      clientY: 0,
+    });
+    act(() => vi.advanceTimersByTime(200));
+    dispatchPointerEvent(trigger, 'pointerup', {
+      pointerType: 'touch',
+      pointerId: 3,
+    });
+    act(() => vi.advanceTimersByTime(500));
+    expect(screen.getByRole('tooltip', { hidden: true })).toHaveAttribute(
+      'aria-hidden',
+      'true',
+    );
+
+    dispatchPointerEvent(trigger, 'pointerdown', {
+      pointerType: 'touch',
+      pointerId: 4,
+      clientX: 0,
+      clientY: 0,
+    });
+    dispatchPointerEvent(trigger, 'pointermove', {
+      pointerType: 'touch',
+      pointerId: 4,
+      clientX: 20,
+      clientY: 0,
+    });
+    act(() => vi.advanceTimersByTime(500));
+    expect(screen.getByRole('tooltip', { hidden: true })).toHaveAttribute(
+      'aria-hidden',
+      'true',
+    );
   });
 
   it('can remain visual without duplicating the target accessible name', () => {

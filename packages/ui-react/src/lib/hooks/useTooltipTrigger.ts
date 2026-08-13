@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import {
   resolveTooltipInteraction,
+  TOOLTIP_LONG_PRESS_DELAY,
+  TOOLTIP_TOUCH_HIDE_DELAY,
+  TOOLTIP_TOUCH_MOVE_TOLERANCE,
   type TooltipInteractionState,
   type TooltipTriggerKind,
 } from '@udixio/core';
@@ -27,6 +30,11 @@ export interface UseTooltipTriggerReturn {
     'aria-describedby': string | undefined;
     onMouseEnter: () => void;
     onMouseLeave: () => void;
+    onPointerDown: (event: React.PointerEvent) => void;
+    onPointerMove: (event: React.PointerEvent) => void;
+    onPointerUp: (event: React.PointerEvent) => void;
+    onPointerCancel: (event: React.PointerEvent) => void;
+    onContextMenu: (event: React.MouseEvent) => void;
     onFocus: () => void;
     onBlur: () => void;
     onClick: () => void;
@@ -66,6 +74,7 @@ export function useTooltipTrigger({
   const triggers = (Array.isArray(trigger) ? trigger : [trigger]).filter(
     (value): value is TooltipTriggerKind => value != null,
   );
+  const hasHoverTrigger = triggers.includes('hover');
 
   const isControlled = typeof openProp === 'boolean';
   const [internalState, setInternalState] = useState<TooltipInteractionState>(
@@ -76,6 +85,16 @@ export function useTooltipTrigger({
 
   const openTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const touchPointerRef = useRef<{
+    id: number;
+    x: number;
+    y: number;
+  } | null>(null);
+  const touchLongPressOpenedRef = useRef(false);
+  const suppressTouchCompatibilityEventsRef = useRef(false);
+  const compatibilityTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   const clearTimeouts = useCallback(() => {
     if (openTimeoutRef.current) {
@@ -85,6 +104,10 @@ export function useTooltipTrigger({
     if (closeTimeoutRef.current) {
       clearTimeout(closeTimeoutRef.current);
       closeTimeoutRef.current = null;
+    }
+    if (compatibilityTimeoutRef.current) {
+      clearTimeout(compatibilityTimeoutRef.current);
+      compatibilityTimeoutRef.current = null;
     }
   }, []);
 
@@ -147,15 +170,23 @@ export function useTooltipTrigger({
     [state, triggers.join(','), isSurfaceHovered, commit, clearTimeouts],
   );
 
-  const handleMouseEnter = useCallback(
-    () => request('pointerEnter', openDelay),
-    [request, openDelay],
-  );
-  const handleMouseLeave = useCallback(
-    () => request('pointerLeave', closeDelay),
-    [request, closeDelay],
-  );
-  const handleFocus = useCallback(() => request('focus'), [request]);
+  const handleMouseEnter = useCallback(() => {
+    if (!suppressTouchCompatibilityEventsRef.current) {
+      request('pointerEnter', openDelay);
+    }
+  }, [request, openDelay]);
+  const handleMouseLeave = useCallback(() => {
+    if (!suppressTouchCompatibilityEventsRef.current) {
+      if (openTimeoutRef.current) {
+        clearTimeout(openTimeoutRef.current);
+        openTimeoutRef.current = null;
+      }
+      request('pointerLeave', closeDelay);
+    }
+  }, [request, closeDelay]);
+  const handleFocus = useCallback(() => {
+    if (!suppressTouchCompatibilityEventsRef.current) request('focus');
+  }, [request]);
   const handleBlur = useCallback(() => {
     const next = resolveTooltipInteraction(
       { state, triggers, isSurfaceHovered },
@@ -177,7 +208,82 @@ export function useTooltipTrigger({
     clearTimeouts,
     closeDelay,
   ]);
-  const handleClick = useCallback(() => request('click'), [request]);
+  const handleClick = useCallback(() => {
+    if (!touchLongPressOpenedRef.current) request('click');
+  }, [request]);
+
+  const finishTouch = useCallback(
+    (event: React.PointerEvent) => {
+      if (touchPointerRef.current?.id !== event.pointerId) return;
+      touchPointerRef.current = null;
+      if (openTimeoutRef.current) {
+        clearTimeout(openTimeoutRef.current);
+        openTimeoutRef.current = null;
+      }
+      if (touchLongPressOpenedRef.current) {
+        if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+        closeTimeoutRef.current = setTimeout(() => {
+          touchLongPressOpenedRef.current = false;
+          suppressTouchCompatibilityEventsRef.current = false;
+          commit('hidden');
+        }, TOOLTIP_TOUCH_HIDE_DELAY);
+      } else {
+        compatibilityTimeoutRef.current = setTimeout(() => {
+          suppressTouchCompatibilityEventsRef.current = false;
+        }, 0);
+      }
+    },
+    [commit],
+  );
+
+  const handlePointerDown = useCallback(
+    (event: React.PointerEvent) => {
+      if (event.pointerType !== 'touch' || !hasHoverTrigger) return;
+      clearTimeouts();
+      touchPointerRef.current = {
+        id: event.pointerId,
+        x: event.clientX,
+        y: event.clientY,
+      };
+      touchLongPressOpenedRef.current = false;
+      suppressTouchCompatibilityEventsRef.current = true;
+      openTimeoutRef.current = setTimeout(() => {
+        touchLongPressOpenedRef.current = true;
+        commit('hovered');
+      }, TOOLTIP_LONG_PRESS_DELAY);
+    },
+    [clearTimeouts, commit, hasHoverTrigger],
+  );
+
+  const handlePointerMove = useCallback((event: React.PointerEvent) => {
+    const touch = touchPointerRef.current;
+    if (
+      !touch ||
+      touch.id !== event.pointerId ||
+      touchLongPressOpenedRef.current
+    ) {
+      return;
+    }
+    if (
+      Math.hypot(event.clientX - touch.x, event.clientY - touch.y) <=
+      TOOLTIP_TOUCH_MOVE_TOLERANCE
+    ) {
+      return;
+    }
+    touchPointerRef.current = null;
+    if (openTimeoutRef.current) {
+      clearTimeout(openTimeoutRef.current);
+      openTimeoutRef.current = null;
+    }
+    compatibilityTimeoutRef.current = setTimeout(() => {
+      suppressTouchCompatibilityEventsRef.current = false;
+    }, 0);
+  }, []);
+  const handleContextMenu = useCallback((event: React.MouseEvent) => {
+    if (touchPointerRef.current || touchLongPressOpenedRef.current) {
+      event.preventDefault();
+    }
+  }, []);
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
       if (event.key === 'Escape' && isOpen) {
@@ -202,6 +308,11 @@ export function useTooltipTrigger({
       'aria-describedby': isOpen && describeTarget ? tooltipId : undefined,
       onMouseEnter: handleMouseEnter,
       onMouseLeave: handleMouseLeave,
+      onPointerDown: handlePointerDown,
+      onPointerMove: handlePointerMove,
+      onPointerUp: finishTouch,
+      onPointerCancel: finishTouch,
+      onContextMenu: handleContextMenu,
       onFocus: handleFocus,
       onBlur: handleBlur,
       onClick: handleClick,

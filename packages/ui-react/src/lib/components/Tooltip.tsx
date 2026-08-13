@@ -58,8 +58,10 @@ export const useTooltipStyle = createUseStyle(tooltipStyle);
  * @devx
  * - `content` overrides `title`/`text`/`buttons` for fully custom content.
  * - Supports controlled `open` plus `openDelay`/`closeDelay`.
+ * - A touch long press opens after 500ms and remains visible for 1.5s after
+ *   release, following Material 3 guidance.
  * - Opening one tooltip closes the currently visible tooltip in the document.
- * - The open/close opacity/scale transition is implemented once with
+ * - The open/close opacity/height transition is implemented once with
  *   Anime.js in `@udixio/core/dom`, so React and Angular share the same
  *   timing, reduced-motion behavior, and cleanup. No `motion/react` is used.
  * - The tooltip surface stays mounted at all times (hidden via `inert` and
@@ -149,6 +151,26 @@ export const Tooltip = ({
             triggerProps.onMouseLeave();
             (children.props as any)?.onMouseLeave?.(e);
           },
+          onPointerDown: (e: React.PointerEvent) => {
+            triggerProps.onPointerDown(e);
+            (children.props as any)?.onPointerDown?.(e);
+          },
+          onPointerMove: (e: React.PointerEvent) => {
+            triggerProps.onPointerMove(e);
+            (children.props as any)?.onPointerMove?.(e);
+          },
+          onPointerUp: (e: React.PointerEvent) => {
+            triggerProps.onPointerUp(e);
+            (children.props as any)?.onPointerUp?.(e);
+          },
+          onPointerCancel: (e: React.PointerEvent) => {
+            triggerProps.onPointerCancel(e);
+            (children.props as any)?.onPointerCancel?.(e);
+          },
+          onContextMenu: (e: React.MouseEvent) => {
+            triggerProps.onContextMenu(e);
+            (children.props as any)?.onContextMenu?.(e);
+          },
           onFocus: (e: React.FocusEvent) => {
             triggerProps.onFocus();
             (children.props as any)?.onFocus?.(e);
@@ -179,6 +201,16 @@ export const Tooltip = ({
     const handleClick = () => triggerProps.onClick();
     const handleKeyDown = (event: KeyboardEvent) =>
       triggerProps.onKeyDown(event as unknown as React.KeyboardEvent);
+    const handlePointerDown = (event: PointerEvent) =>
+      triggerProps.onPointerDown(event as unknown as React.PointerEvent);
+    const handlePointerMove = (event: PointerEvent) =>
+      triggerProps.onPointerMove(event as unknown as React.PointerEvent);
+    const handlePointerUp = (event: PointerEvent) =>
+      triggerProps.onPointerUp(event as unknown as React.PointerEvent);
+    const handlePointerCancel = (event: PointerEvent) =>
+      triggerProps.onPointerCancel(event as unknown as React.PointerEvent);
+    const handleContextMenu = (event: MouseEvent) =>
+      triggerProps.onContextMenu(event as unknown as React.MouseEvent);
 
     // `mouseenter`/`mouseleave` never fire on an element that renders no box
     // of its own (for example a `display: contents` wrapper); go through
@@ -192,6 +224,11 @@ export const Tooltip = ({
     element.addEventListener('blur', handleBlur, true);
     element.addEventListener('click', handleClick);
     element.addEventListener('keydown', handleKeyDown);
+    element.addEventListener('pointerdown', handlePointerDown);
+    element.addEventListener('pointermove', handlePointerMove);
+    element.addEventListener('pointerup', handlePointerUp);
+    element.addEventListener('pointercancel', handlePointerCancel);
+    element.addEventListener('contextmenu', handleContextMenu);
 
     const updateDescription = (includeTooltip: boolean) => {
       const ids = (element.getAttribute('aria-describedby') ?? '')
@@ -215,6 +252,11 @@ export const Tooltip = ({
       element.removeEventListener('blur', handleBlur, true);
       element.removeEventListener('click', handleClick);
       element.removeEventListener('keydown', handleKeyDown);
+      element.removeEventListener('pointerdown', handlePointerDown);
+      element.removeEventListener('pointermove', handlePointerMove);
+      element.removeEventListener('pointerup', handlePointerUp);
+      element.removeEventListener('pointercancel', handlePointerCancel);
+      element.removeEventListener('contextmenu', handleContextMenu);
     };
   }, [describeTarget, targetRef, tooltipProps.id, triggerProps]);
 
@@ -239,7 +281,6 @@ export const Tooltip = ({
   const transitionControllerRef = useRef<TooltipTransitionController | null>(
     null,
   );
-  const skipNextOpenEffectRef = useRef(true);
 
   useEffect(() => {
     if (!surface) return undefined;
@@ -249,7 +290,6 @@ export const Tooltip = ({
     });
     transitionControllerRef.current = controller;
     controller.setOpen(isOpen, true);
-    skipNextOpenEffectRef.current = true;
     return () => {
       controller.destroy();
       transitionControllerRef.current = null;
@@ -258,10 +298,6 @@ export const Tooltip = ({
   }, [surface, transition?.duration, transition?.ease]);
 
   useEffect(() => {
-    if (skipNextOpenEffectRef.current) {
-      skipNextOpenEffectRef.current = false;
-      return;
-    }
     transitionControllerRef.current?.setOpen(isOpen);
   }, [isOpen]);
 

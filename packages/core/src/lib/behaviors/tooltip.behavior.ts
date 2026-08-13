@@ -1,11 +1,24 @@
 export type TooltipTriggerKind = 'hover' | 'click' | 'focus';
 
+/** Material 3 long-press recognition delay for touch tooltips. */
+export const TOOLTIP_LONG_PRESS_DELAY = 500;
+
+/** Material 3 duration a touch tooltip remains visible after release. */
+export const TOOLTIP_TOUCH_HIDE_DELAY = 1500;
+
+/** Movement tolerated before a pending touch long press is cancelled. */
+export const TOOLTIP_TOUCH_MOVE_TOLERANCE = 10;
+
 /**
  * Internal interaction state, ordered by priority (`clicked` > `focused` >
  * `hovered` > `hidden`): a lower-priority source (for example a mouse leave)
  * never closes a tooltip kept open by a higher-priority one (a click).
  */
-export type TooltipInteractionState = 'hidden' | 'hovered' | 'focused' | 'clicked';
+export type TooltipInteractionState =
+  | 'hidden'
+  | 'hovered'
+  | 'focused'
+  | 'clicked';
 
 export type TooltipInteractionEvent =
   | 'pointerEnter'

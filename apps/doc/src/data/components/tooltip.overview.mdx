@@ -75,11 +75,13 @@ control visibility; `defaultOpen` initializes uncontrolled state.
 
 Use `openDelay` and `closeDelay` (ms) to tune the hover/focus behavior.
 Defaults: `openDelay={400}`, `closeDelay={150}`. Focus and click transitions
-are always immediate; only hover in/out is delayed.
+are immediate. On touch, a long press opens the tooltip after 500ms; after
+release or cancellation, it remains visible for 1.5 seconds as specified by
+Material 3.
 
 ## Motion
 
-The open/close opacity and scale transition is implemented once with
+The open/close opacity and vertical height transition is implemented once with
 Anime.js in `@udixio/core/dom` (`createTooltipTransitionController`), so
 React and Angular share identical timing, reduced-motion behavior, and
 cleanup. Neither adapter implements its own version of this effect, and

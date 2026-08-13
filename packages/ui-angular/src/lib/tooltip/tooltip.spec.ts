@@ -6,6 +6,7 @@ import {
   tick,
 } from '@angular/core/testing';
 import { axe, toHaveNoViolations } from 'jest-axe';
+import * as coreDom from '@udixio/core/dom';
 import { Tooltip } from './tooltip';
 import { Button } from '../button/button';
 
@@ -23,17 +24,10 @@ class NoopResizeObserver {
 }
 (globalThis as any).ResizeObserver ??= NoopResizeObserver;
 
-// The real Anime.js animation needs WAAPI (`Element.prototype.animate`),
-// which jsdom does not implement -- mock the factory (preserving every
-// other `@udixio/core/dom` export) so tests exercise the component's
-// wiring, not Anime.js internals against a fake DOM.
-jest.mock('@udixio/core/dom', () => ({
-  ...jest.requireActual('@udixio/core/dom'),
-  createTooltipTransitionController: jest.fn(() => ({
-    setOpen: jest.fn(),
-    destroy: jest.fn(),
-  })),
-}));
+const mockTooltipTransitionController = {
+  setOpen: jest.fn(),
+  destroy: jest.fn(),
+};
 
 @Component({
   standalone: true,
@@ -85,12 +79,36 @@ class ExclusiveHarness {
     viewChild.required<ElementRef<HTMLButtonElement>>('second');
 }
 
+@Component({
+  standalone: true,
+  imports: [Tooltip],
+  template: `
+    <button #first>First trigger</button>
+    <udx-tooltip [target]="firstRef()" text="First" [openDelay]="400" />
+    <button #second>Second trigger</button>
+    <udx-tooltip [target]="secondRef()" text="Second" [openDelay]="400" />
+    <button #last>Last trigger</button>
+    <udx-tooltip [target]="lastRef()" text="Last" [openDelay]="400" />
+  `,
+})
+class RapidHoverHarness {
+  readonly firstRef =
+    viewChild.required<ElementRef<HTMLButtonElement>>('first');
+  readonly secondRef =
+    viewChild.required<ElementRef<HTMLButtonElement>>('second');
+  readonly lastRef = viewChild.required<ElementRef<HTMLButtonElement>>('last');
+}
+
 describe('Tooltip (Angular)', () => {
   let fixture: ComponentFixture<Harness>;
 
   beforeEach(async () => {
+    jest.clearAllMocks();
+    jest
+      .spyOn(coreDom, 'createTooltipTransitionController')
+      .mockReturnValue(mockTooltipTransitionController);
     await TestBed.configureTestingModule({
-      imports: [Harness, ExclusiveHarness],
+      imports: [Harness, ExclusiveHarness, RapidHoverHarness],
     }).compileComponents();
     fixture = TestBed.createComponent(Harness);
   });
@@ -105,6 +123,17 @@ describe('Tooltip (Angular)', () => {
 
   function getTooltip(): HTMLElement {
     return document.querySelector('[role="tooltip"]') as HTMLElement;
+  }
+
+  function pointerEvent(
+    type: string,
+    init: Partial<PointerEvent> & { pointerType: string; pointerId: number },
+  ): Event {
+    const event = new Event(type, { bubbles: true });
+    Object.entries(init).forEach(([key, value]) =>
+      Object.defineProperty(event, key, { value }),
+    );
+    return event;
   }
 
   it('starts hidden and hides the surface from assistive tech', () => {
@@ -164,6 +193,149 @@ describe('Tooltip (Angular)', () => {
 
     expect(getTooltip().getAttribute('aria-hidden')).toBe('false');
   });
+
+  it('cancels stale openings while rapidly hovering a list of triggers', fakeAsync(() => {
+    const rapid = TestBed.createComponent(RapidHoverHarness);
+    rapid.detectChanges();
+    const [first, second, last] = Array.from(
+      rapid.nativeElement.querySelectorAll<HTMLButtonElement>('button'),
+    );
+    const enter = (target: HTMLElement) =>
+      target.dispatchEvent(
+        new MouseEvent('mouseover', {
+          bubbles: true,
+          relatedTarget: document.body,
+        }),
+      );
+    const leave = (target: HTMLElement) =>
+      target.dispatchEvent(
+        new MouseEvent('mouseout', {
+          bubbles: true,
+          relatedTarget: document.body,
+        }),
+      );
+
+    enter(first);
+    tick(100);
+    leave(first);
+    enter(second);
+    tick(100);
+    leave(second);
+    enter(last);
+
+    tick(399);
+    rapid.detectChanges();
+    expect(
+      Array.from(document.querySelectorAll('[role="tooltip"]')).filter(
+        (tooltip) => tooltip.getAttribute('aria-hidden') === 'false',
+      ),
+    ).toHaveLength(0);
+    tick(1);
+    rapid.detectChanges();
+
+    const visible = Array.from(
+      document.querySelectorAll<HTMLElement>('[role="tooltip"]'),
+    ).filter((tooltip) => tooltip.getAttribute('aria-hidden') === 'false');
+    expect(visible).toHaveLength(1);
+    expect(visible[0].textContent).toContain('Last');
+    rapid.destroy();
+  }));
+
+  it('animates the first opening after the hidden surface is connected', fakeAsync(() => {
+    fixture.detectChanges();
+    TestBed.tick();
+    fixture.detectChanges();
+
+    expect(mockTooltipTransitionController.setOpen).toHaveBeenCalledWith(
+      false,
+      true,
+    );
+    mockTooltipTransitionController.setOpen.mockClear();
+
+    getTrigger().dispatchEvent(new FocusEvent('focus'));
+    fixture.detectChanges();
+    TestBed.tick();
+    fixture.detectChanges();
+
+    expect(mockTooltipTransitionController.setOpen).toHaveBeenCalledWith(true);
+  }));
+
+  it('keeps a long-press tooltip visible for 1.5s after touch release', fakeAsync(() => {
+    fixture.detectChanges();
+    const trigger = getTrigger();
+
+    trigger.dispatchEvent(
+      pointerEvent('pointerdown', {
+        pointerType: 'touch',
+        pointerId: 7,
+        clientX: 20,
+        clientY: 30,
+      }),
+    );
+    const contextMenu = new MouseEvent('contextmenu', {
+      bubbles: true,
+      cancelable: true,
+    });
+    expect(trigger.dispatchEvent(contextMenu)).toBe(false);
+    tick(499);
+    fixture.detectChanges();
+    expect(getTooltip().getAttribute('aria-hidden')).toBe('true');
+
+    tick(1);
+    fixture.detectChanges();
+    expect(getTooltip().getAttribute('aria-hidden')).toBe('false');
+
+    trigger.dispatchEvent(
+      pointerEvent('pointerup', { pointerType: 'touch', pointerId: 7 }),
+    );
+    tick(1499);
+    fixture.detectChanges();
+    expect(getTooltip().getAttribute('aria-hidden')).toBe('false');
+    tick(1);
+    fixture.detectChanges();
+    expect(getTooltip().getAttribute('aria-hidden')).toBe('true');
+  }));
+
+  it('does not open for a short touch or a moved touch', fakeAsync(() => {
+    fixture.detectChanges();
+    const trigger = getTrigger();
+
+    trigger.dispatchEvent(
+      pointerEvent('pointerdown', {
+        pointerType: 'touch',
+        pointerId: 3,
+        clientX: 0,
+        clientY: 0,
+      }),
+    );
+    tick(200);
+    trigger.dispatchEvent(
+      pointerEvent('pointerup', { pointerType: 'touch', pointerId: 3 }),
+    );
+    tick(500);
+    fixture.detectChanges();
+    expect(getTooltip().getAttribute('aria-hidden')).toBe('true');
+
+    trigger.dispatchEvent(
+      pointerEvent('pointerdown', {
+        pointerType: 'touch',
+        pointerId: 4,
+        clientX: 0,
+        clientY: 0,
+      }),
+    );
+    trigger.dispatchEvent(
+      pointerEvent('pointermove', {
+        pointerType: 'touch',
+        pointerId: 4,
+        clientX: 20,
+        clientY: 0,
+      }),
+    );
+    tick(500);
+    fixture.detectChanges();
+    expect(getTooltip().getAttribute('aria-hidden')).toBe('true');
+  }));
 
   it('can remain visual without duplicating the target accessible name', () => {
     fixture.componentInstance.describeTarget = false;

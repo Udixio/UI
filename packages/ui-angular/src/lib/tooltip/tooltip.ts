@@ -15,6 +15,9 @@ import {
 } from '@angular/core';
 import {
   resolveTooltipInteraction,
+  TOOLTIP_LONG_PRESS_DELAY,
+  TOOLTIP_TOUCH_HIDE_DELAY,
+  TOOLTIP_TOUCH_MOVE_TOLERANCE,
   tooltipStyle,
   type ClassNameComponent,
   type TooltipInteractionEvent,
@@ -62,8 +65,10 @@ let nextTooltipId = 0;
  * - Provide `title`/`text`/`buttons`, or project custom content instead --
  *   projected content is only rendered when none of those three are set.
  * - Supports controlled `open` plus `openDelay`/`closeDelay`.
+ * - A touch long press opens after 500ms and remains visible for 1.5s after
+ *   release, following Material 3 guidance.
  * - Opening one tooltip closes the currently visible tooltip in the document.
- * - The open/close opacity/scale transition is implemented once with
+ * - The open/close opacity/height transition is implemented once with
  *   Anime.js in `@udixio/core/dom`, so Angular and React share the same
  *   timing, reduced-motion behavior, and cleanup. No framework-specific
  *   animation library is used.
@@ -192,6 +197,10 @@ export class Tooltip implements OnInit, OnDestroy {
   private isSurfaceHovered = false;
   private openTimer?: ReturnType<typeof setTimeout>;
   private closeTimer?: ReturnType<typeof setTimeout>;
+  private touchPointer?: { id: number; x: number; y: number };
+  private touchLongPressOpened = false;
+  private suppressTouchCompatibilityEvents = false;
+  private compatibilityTimer?: ReturnType<typeof setTimeout>;
 
   protected readonly resolvedState = computed<TooltipInteractionState>(() =>
     this.isControlled()
@@ -258,15 +267,27 @@ export class Tooltip implements OnInit, OnDestroy {
       const target = this.resolveElement(targetInput);
       if (!target) return;
 
-      const onMouseEnter = () =>
-        this.request('pointerEnter', untracked(this.openDelay));
-      const onMouseLeave = () =>
-        this.request('pointerLeave', untracked(this.closeDelay));
+      const onMouseEnter = () => {
+        if (!this.suppressTouchCompatibilityEvents) {
+          this.request('pointerEnter', untracked(this.openDelay));
+        }
+      };
+      const onMouseLeave = () => {
+        if (!this.suppressTouchCompatibilityEvents) {
+          if (this.openTimer) {
+            clearTimeout(this.openTimer);
+            this.openTimer = undefined;
+          }
+          this.request('pointerLeave', untracked(this.closeDelay));
+        }
+      };
       const removeHoverListener = addPointerEnterLeaveListener(target, {
         onEnter: onMouseEnter,
         onLeave: onMouseLeave,
       });
-      const onFocus = () => this.request('focus');
+      const onFocus = () => {
+        if (!this.suppressTouchCompatibilityEvents) this.request('focus');
+      };
       const onBlur = () => {
         const next = resolveTooltipInteraction(
           {
@@ -287,7 +308,20 @@ export class Tooltip implements OnInit, OnDestroy {
           this.commit(next);
         }
       };
-      const onClick = () => this.request('click');
+      const onClick = () => {
+        if (!this.touchLongPressOpened) this.request('click');
+      };
+      const onPointerDown = (event: PointerEvent) =>
+        this.handlePointerDown(event);
+      const onPointerMove = (event: PointerEvent) =>
+        this.handlePointerMove(event);
+      const onPointerUp = (event: PointerEvent) => this.finishTouch(event);
+      const onPointerCancel = (event: PointerEvent) => this.finishTouch(event);
+      const onContextMenu = (event: MouseEvent) => {
+        if (this.touchPointer || this.touchLongPressOpened) {
+          event.preventDefault();
+        }
+      };
       const onKeyDown = (event: KeyboardEvent) => {
         if (event.key === 'Escape' && untracked(this.resolvedOpen)) {
           this.request('escape');
@@ -299,6 +333,11 @@ export class Tooltip implements OnInit, OnDestroy {
       target.addEventListener('blur', onBlur, true);
       target.addEventListener('click', onClick);
       target.addEventListener('keydown', onKeyDown);
+      target.addEventListener('pointerdown', onPointerDown);
+      target.addEventListener('pointermove', onPointerMove);
+      target.addEventListener('pointerup', onPointerUp);
+      target.addEventListener('pointercancel', onPointerCancel);
+      target.addEventListener('contextmenu', onContextMenu);
 
       onCleanup(() => {
         removeHoverListener();
@@ -306,6 +345,11 @@ export class Tooltip implements OnInit, OnDestroy {
         target.removeEventListener('blur', onBlur, true);
         target.removeEventListener('click', onClick);
         target.removeEventListener('keydown', onKeyDown);
+        target.removeEventListener('pointerdown', onPointerDown);
+        target.removeEventListener('pointermove', onPointerMove);
+        target.removeEventListener('pointerup', onPointerUp);
+        target.removeEventListener('pointercancel', onPointerCancel);
+        target.removeEventListener('contextmenu', onContextMenu);
       });
     });
 
@@ -395,6 +439,73 @@ export class Tooltip implements OnInit, OnDestroy {
     if (this.closeTimer) {
       clearTimeout(this.closeTimer);
       this.closeTimer = undefined;
+    }
+    if (this.compatibilityTimer) {
+      clearTimeout(this.compatibilityTimer);
+      this.compatibilityTimer = undefined;
+    }
+  }
+
+  private handlePointerDown(event: PointerEvent): void {
+    if (
+      event.pointerType !== 'touch' ||
+      !untracked(this.triggers).includes('hover')
+    ) {
+      return;
+    }
+    this.clearTimers();
+    this.touchPointer = {
+      id: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+    };
+    this.touchLongPressOpened = false;
+    this.suppressTouchCompatibilityEvents = true;
+    this.openTimer = setTimeout(() => {
+      this.touchLongPressOpened = true;
+      this.commit('hovered');
+    }, TOOLTIP_LONG_PRESS_DELAY);
+  }
+
+  private handlePointerMove(event: PointerEvent): void {
+    const touch = this.touchPointer;
+    if (
+      !touch ||
+      touch.id !== event.pointerId ||
+      this.touchLongPressOpened ||
+      Math.hypot(event.clientX - touch.x, event.clientY - touch.y) <=
+        TOOLTIP_TOUCH_MOVE_TOLERANCE
+    ) {
+      return;
+    }
+    this.touchPointer = undefined;
+    if (this.openTimer) {
+      clearTimeout(this.openTimer);
+      this.openTimer = undefined;
+    }
+    this.compatibilityTimer = setTimeout(() => {
+      this.suppressTouchCompatibilityEvents = false;
+    }, 0);
+  }
+
+  private finishTouch(event: PointerEvent): void {
+    if (this.touchPointer?.id !== event.pointerId) return;
+    this.touchPointer = undefined;
+    if (this.openTimer) {
+      clearTimeout(this.openTimer);
+      this.openTimer = undefined;
+    }
+    if (this.touchLongPressOpened) {
+      if (this.closeTimer) clearTimeout(this.closeTimer);
+      this.closeTimer = setTimeout(() => {
+        this.touchLongPressOpened = false;
+        this.suppressTouchCompatibilityEvents = false;
+        this.commit('hidden');
+      }, TOOLTIP_TOUCH_HIDE_DELAY);
+    } else {
+      this.compatibilityTimer = setTimeout(() => {
+        this.suppressTouchCompatibilityEvents = false;
+      }, 0);
     }
   }
 

@@ -44,10 +44,11 @@ describe('tooltip transition controller', () => {
     vi.clearAllMocks();
   });
 
-  it('animates opacity and scale to the open state with the default transition', () => {
+  it('animates opacity and height to the open state with the default transition', () => {
     const instance = animationInstance();
     vi.mocked(animate).mockReturnValue(instance as never);
     const element = document.createElement('div');
+    Object.defineProperty(element, 'scrollHeight', { value: 48 });
 
     const controller = createTooltipTransitionController({
       element,
@@ -59,14 +60,15 @@ describe('tooltip transition controller', () => {
       element,
       expect.objectContaining({
         opacity: 1,
-        scale: 1,
-        duration: 150,
+        height: '48px',
+        duration: 300,
         ease: 'outCubic',
+        onComplete: expect.any(Function),
       }),
     );
   });
 
-  it('animates opacity and scale to the closed state', () => {
+  it('animates opacity and height to the closed state', () => {
     const instance = animationInstance();
     vi.mocked(animate).mockReturnValue(instance as never);
     const element = document.createElement('div');
@@ -79,8 +81,26 @@ describe('tooltip transition controller', () => {
 
     expect(animate).toHaveBeenCalledWith(
       element,
-      expect.objectContaining({ opacity: 0, scale: 0.8 }),
+      expect.objectContaining({ opacity: 0, height: '16px' }),
     );
+  });
+
+  it('restores natural height after the opening animation', () => {
+    const instance = animationInstance();
+    vi.mocked(animate).mockReturnValue(instance as never);
+    const element = document.createElement('div');
+    Object.defineProperty(element, 'scrollHeight', { value: 40 });
+
+    const controller = createTooltipTransitionController({
+      element,
+      reducedMotion: () => false,
+    });
+    controller.setOpen(true);
+    const options = vi.mocked(animate).mock.calls[0][1];
+    (options.onComplete as () => void)();
+
+    expect(element.style.height).toBe('auto');
+    expect(element.style.overflow).toBe('visible');
   });
 
   it('uses a zero duration when instant is requested', () => {
