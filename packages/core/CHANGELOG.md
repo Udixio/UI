@@ -1,3 +1,18 @@
+## 0.2.2-next.0 (2026-08-13)
+
+### 🚀 Features
+
+- **icon-button:** restore accessible default tooltips ([9bfe6917](https://github.com/Udixio/UI/commit/9bfe6917))
+
+### 🩹 Fixes
+
+- **tooltip:** restore Material interaction and motion ([090d4eb6](https://github.com/Udixio/UI/commit/090d4eb6))
+- **text-field:** align outlined label with leading icon ([0dc1fb1d](https://github.com/Udixio/UI/commit/0dc1fb1d))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.2.1 (2026-08-11)
 
 ### 🩹 Fixes
