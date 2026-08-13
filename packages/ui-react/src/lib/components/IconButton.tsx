@@ -5,7 +5,7 @@ import type {
   Ref,
   SyntheticEvent,
 } from 'react';
-import { useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import {
   getIconButtonPressTransition,
   getIconButtonShapeTransition,
@@ -19,6 +19,7 @@ import { createUseStyle } from '../utils/create-use-style';
 import { useControllableState } from '../utils/use-controllable-state';
 import { Icon } from '../icon';
 import { State } from '../effects';
+import { Tooltip } from './Tooltip';
 
 export type {
   IconButtonSize,
@@ -70,6 +71,7 @@ export const useIconButtonStyle = createUseStyle(iconButtonStyle);
  * @category Action
  * @devx
  * - Requires `label` and `icon`; arbitrary children are not accepted.
+ * - Shows `label` in a tooltip by default; `tooltip` overrides or disables it.
  * - `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.
  * - `toggleable` enables `aria-pressed` and `onPressedChange` on action buttons.
  * @a11y
@@ -77,7 +79,6 @@ export const useIconButtonStyle = createUseStyle(iconButtonStyle);
  * @limitations
  * - Disabled links are inert and removed from the tab order.
  * - Navigation links ignore toggle state; use `aria-current` for the current destination.
- * - Compose an explicit Tooltip when visual hover/focus help is required.
  */
 export const IconButton = (props: ReactIconButtonProps) => {
   const {
@@ -85,6 +86,7 @@ export const IconButton = (props: ReactIconButtonProps) => {
     disabled = false,
     label,
     icon,
+    tooltip,
     pressedIcon,
     size = 'medium',
     width = 'default',
@@ -106,6 +108,21 @@ export const IconButton = (props: ReactIconButtonProps) => {
     stateName: 'pressed',
   });
   const isPressed = isToggleButton && pressedState;
+  const tooltipText =
+    tooltip === false ? undefined : (tooltip ?? props.title ?? label);
+  const tooltipTargetRef = useRef<HTMLButtonElement | HTMLAnchorElement>(null);
+  const forwardedRef = props.ref;
+  const setTargetRef = useCallback(
+    (element: HTMLButtonElement | HTMLAnchorElement | null) => {
+      tooltipTargetRef.current = element;
+      if (typeof forwardedRef === 'function') {
+        forwardedRef(element as never);
+      } else if (forwardedRef) {
+        forwardedRef.current = element as never;
+      }
+    },
+    [forwardedRef],
+  );
   const shapeTransition = useMemo(
     () =>
       getIconButtonShapeTransition({
@@ -121,6 +138,7 @@ export const IconButton = (props: ReactIconButtonProps) => {
   const styles = useIconButtonStyle({
     label,
     icon,
+    tooltip,
     pressedIcon,
     size,
     width,
@@ -199,6 +217,7 @@ export const IconButton = (props: ReactIconButtonProps) => {
       onPressedChange: _onPressedChange,
       pressed: _pressed,
       pressedIcon: _pressedIcon,
+      tooltip: _tooltip,
       ref,
       shape: _shape,
       shapeFeedback: _shapeFeedback,
@@ -207,6 +226,7 @@ export const IconButton = (props: ReactIconButtonProps) => {
       transition: _transition,
       variant: _variant,
       width: _width,
+      title: _title,
       ...nativeProps
     } = props;
     void {
@@ -218,6 +238,7 @@ export const IconButton = (props: ReactIconButtonProps) => {
       _onPressedChange,
       _pressed,
       _pressedIcon,
+      _tooltip,
       _shape,
       _shapeFeedback,
       _size,
@@ -225,12 +246,14 @@ export const IconButton = (props: ReactIconButtonProps) => {
       _transition,
       _variant,
       _width,
+      _title,
+      ref,
     };
 
-    return (
+    const element = (
       <a
         {...nativeProps}
-        ref={ref}
+        ref={setTargetRef}
         className={styles.iconButton}
         href={disabled ? undefined : props.href}
         aria-label={label}
@@ -244,6 +267,19 @@ export const IconButton = (props: ReactIconButtonProps) => {
         {content}
       </a>
     );
+    return tooltipText ? (
+      <>
+        {element}
+        <Tooltip
+          targetRef={tooltipTargetRef}
+          text={tooltipText}
+          trigger={disabled ? null : undefined}
+          describeTarget={tooltipText !== label}
+        />
+      </>
+    ) : (
+      element
+    );
   }
 
   const {
@@ -256,6 +292,7 @@ export const IconButton = (props: ReactIconButtonProps) => {
     onPressedChange: _onPressedChange,
     pressed: _pressed,
     pressedIcon: _pressedIcon,
+    tooltip: _tooltip,
     ref,
     shape: _shape,
     shapeFeedback: _shapeFeedback,
@@ -264,6 +301,7 @@ export const IconButton = (props: ReactIconButtonProps) => {
     transition: _transition,
     variant: _variant,
     width: _width,
+    title: _title,
     type = 'button',
     ...nativeProps
   } = props;
@@ -276,6 +314,7 @@ export const IconButton = (props: ReactIconButtonProps) => {
     _onPressedChange,
     _pressed,
     _pressedIcon,
+    _tooltip,
     _shape,
     _shapeFeedback,
     _size,
@@ -283,12 +322,14 @@ export const IconButton = (props: ReactIconButtonProps) => {
     _transition,
     _variant,
     _width,
+    _title,
+    ref,
   };
 
-  return (
+  const element = (
     <button
       {...nativeProps}
-      ref={ref}
+      ref={setTargetRef}
       type={type}
       disabled={disabled}
       className={styles.iconButton}
@@ -300,5 +341,18 @@ export const IconButton = (props: ReactIconButtonProps) => {
     >
       {content}
     </button>
+  );
+  return tooltipText ? (
+    <>
+      {element}
+      <Tooltip
+        targetRef={tooltipTargetRef}
+        text={tooltipText}
+        trigger={disabled ? null : undefined}
+        describeTarget={tooltipText !== label}
+      />
+    </>
+  ) : (
+    element
   );
 };

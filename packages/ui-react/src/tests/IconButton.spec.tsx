@@ -10,6 +10,29 @@ import { IconButton } from '../lib/index.js';
 
 expect.extend(toHaveNoViolations);
 
+class NoopResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+  takeRecords() {
+    return [];
+  }
+}
+Object.assign(globalThis, {
+  ResizeObserver: (globalThis as any).ResizeObserver ?? NoopResizeObserver,
+});
+
+vi.mock('@udixio/core/dom', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@udixio/core/dom')>();
+  return {
+    ...actual,
+    createTooltipTransitionController: vi.fn(() => ({
+      setOpen: vi.fn(),
+      destroy: vi.fn(),
+    })),
+  };
+});
+
 describe('IconButton', () => {
   it('does not render an unnamed control', () => {
     const consoleError = vi
@@ -30,6 +53,44 @@ describe('IconButton', () => {
     expect(button.querySelector('svg')).toBeInTheDocument();
     expect(button.querySelector('.touch-target')).toBeInTheDocument();
     expect(button.querySelector('.state-layer')).toBeInTheDocument();
+  });
+
+  it('shows its accessible label in a tooltip on focus by default', () => {
+    render(<IconButton label="Add item" icon={iAdd} />);
+    const button = screen.getByRole('button', { name: 'Add item' });
+
+    fireEvent.focus(button);
+
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Add item');
+    expect(button).not.toHaveAttribute('aria-describedby');
+  });
+
+  it('supports custom tooltip text and explicit tooltip suppression', () => {
+    const custom = render(
+      <IconButton label="Add item" icon={iAdd} tooltip="Create a new item" />,
+    );
+    const button = screen.getByRole('button', { name: 'Add item' });
+    fireEvent.focus(button);
+    const tooltip = screen.getByRole('tooltip');
+
+    expect(tooltip).toHaveTextContent('Create a new item');
+    expect(button).toHaveAttribute('aria-describedby', tooltip.id);
+    custom.unmount();
+
+    render(<IconButton label="Close" icon={iClose} tooltip={false} />);
+    expect(
+      screen.queryByRole('tooltip', { hidden: true }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('keeps container padding separate from the icon dimensions', () => {
+    render(<IconButton label="Add item" icon={iAdd} size="small" />);
+
+    const button = screen.getByRole('button', { name: 'Add item' });
+    const icon = button.querySelector('.icon');
+    expect(button).toHaveClass('shrink-0', 'p-2');
+    expect(icon).toHaveClass('size-6');
+    expect(icon).not.toHaveClass('p-2');
   });
 
   it('forwards native button properties and refs', () => {

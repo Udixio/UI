@@ -17,6 +17,36 @@ export interface TooltipTransitionController {
   destroy(): void;
 }
 
+const TOOLTIP_CLAIM_EVENT = 'udx:tooltip:claim';
+
+/** Claims the single visible tooltip slot for one document. */
+export function claimTooltipVisibility(
+  ownerDocument: Document,
+  tooltipId: string,
+): void {
+  const EventConstructor = ownerDocument.defaultView?.CustomEvent;
+  if (!EventConstructor) return;
+  ownerDocument.dispatchEvent(
+    new EventConstructor<string>(TOOLTIP_CLAIM_EVENT, { detail: tooltipId }),
+  );
+}
+
+/** Notifies a tooltip when another tooltip claims the visible slot. */
+export function listenForTooltipVisibilityClaims(
+  ownerDocument: Document,
+  tooltipId: string,
+  onClaimedByPeer: () => void,
+): () => void {
+  const handleClaim = (event: Event) => {
+    if ((event as CustomEvent<string>).detail !== tooltipId) {
+      onClaimedByPeer();
+    }
+  };
+  ownerDocument.addEventListener(TOOLTIP_CLAIM_EVENT, handleClaim);
+  return () =>
+    ownerDocument.removeEventListener(TOOLTIP_CLAIM_EVENT, handleClaim);
+}
+
 function isWithin(root: HTMLElement, node: EventTarget | null): boolean {
   return node instanceof Node && root.contains(node);
 }

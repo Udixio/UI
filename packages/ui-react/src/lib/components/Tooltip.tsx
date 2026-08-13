@@ -58,6 +58,7 @@ export const useTooltipStyle = createUseStyle(tooltipStyle);
  * @devx
  * - `content` overrides `title`/`text`/`buttons` for fully custom content.
  * - Supports controlled `open` plus `openDelay`/`closeDelay`.
+ * - Opening one tooltip closes the currently visible tooltip in the document.
  * - The open/close opacity/scale transition is implemented once with
  *   Anime.js in `@udixio/core/dom`, so React and Angular share the same
  *   timing, reduced-motion behavior, and cleanup. No `motion/react` is used.
@@ -86,6 +87,7 @@ export const Tooltip = ({
   targetRef,
   ref,
   trigger = ['hover', 'focus'],
+  describeTarget = true,
   transition,
   openDelay = 400,
   closeDelay = 150,
@@ -116,6 +118,7 @@ export const Tooltip = ({
   // Use the trigger hook for state management and accessibility
   const { triggerProps, tooltipProps, isOpen } = useTooltipTrigger({
     trigger,
+    describeTarget,
     open: openProp,
     defaultOpen,
     onOpenChange,
@@ -130,6 +133,13 @@ export const Tooltip = ({
       ? cloneElement(children, {
           ref: internalRef,
           ...triggerProps,
+          'aria-describedby':
+            [
+              (children.props as any)?.['aria-describedby'],
+              triggerProps['aria-describedby'],
+            ]
+              .filter(Boolean)
+              .join(' ') || undefined,
           // Merge event handlers if the child already has them
           onMouseEnter: (e: React.MouseEvent) => {
             triggerProps.onMouseEnter();
@@ -183,23 +193,30 @@ export const Tooltip = ({
     element.addEventListener('click', handleClick);
     element.addEventListener('keydown', handleKeyDown);
 
-    if (triggerProps['aria-describedby']) {
-      element.setAttribute(
-        'aria-describedby',
-        triggerProps['aria-describedby'],
-      );
-    } else {
-      element.removeAttribute('aria-describedby');
+    const updateDescription = (includeTooltip: boolean) => {
+      const ids = (element.getAttribute('aria-describedby') ?? '')
+        .split(/\s+/)
+        .filter((value) => value && value !== tooltipProps.id);
+      if (includeTooltip) ids.push(tooltipProps.id);
+      if (ids.length) {
+        element.setAttribute('aria-describedby', ids.join(' '));
+      } else {
+        element.removeAttribute('aria-describedby');
+      }
+    };
+    if (describeTarget) {
+      updateDescription(Boolean(triggerProps['aria-describedby']));
     }
 
     return () => {
+      if (describeTarget) updateDescription(false);
       removeHoverListener();
       element.removeEventListener('focus', handleFocus, true);
       element.removeEventListener('blur', handleBlur, true);
       element.removeEventListener('click', handleClick);
       element.removeEventListener('keydown', handleKeyDown);
     };
-  }, [targetRef, triggerProps]);
+  }, [describeTarget, targetRef, tooltipProps.id, triggerProps]);
 
   const styles = useTooltipStyle({
     variant,
@@ -207,6 +224,7 @@ export const Tooltip = ({
     text,
     position: effectivePosition,
     trigger,
+    describeTarget,
     openDelay,
     closeDelay,
     open: openProp,
@@ -265,9 +283,7 @@ export const Tooltip = ({
             ) : (
               <>
                 {title && <div className={styles.subHead}>{title}</div>}
-                {text && (
-                  <div className={styles.supportingText}>{text}</div>
-                )}
+                {text && <div className={styles.supportingText}>{text}</div>}
                 {buttonList && (
                   <div className={styles.actions}>
                     {buttonList.map((buttonArgs, index) => (

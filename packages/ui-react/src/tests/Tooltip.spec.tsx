@@ -62,9 +62,9 @@ describe('Tooltip', () => {
     const tooltip = screen.getByRole('tooltip', { hidden: true });
     expect(tooltip).toHaveAttribute('aria-hidden', 'true');
     expect(tooltip).toHaveAttribute('inert');
-    expect(
-      screen.getByRole('button', { name: 'Trigger' }),
-    ).not.toHaveAttribute('aria-describedby');
+    expect(screen.getByRole('button', { name: 'Trigger' })).not.toHaveAttribute(
+      'aria-describedby',
+    );
   });
 
   it('starts open when defaultOpen is true', () => {
@@ -118,6 +118,57 @@ describe('Tooltip', () => {
     expect(screen.getByRole('tooltip')).toHaveAttribute('aria-hidden', 'false');
   });
 
+  it('can remain visual without duplicating the target accessible name', () => {
+    render(
+      <Tooltip text="Copy" describeTarget={false}>
+        <Button label="Copy" />
+      </Tooltip>,
+    );
+    const trigger = screen.getByRole('button', { name: 'Copy' });
+
+    fireEvent.focus(trigger);
+
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Copy');
+    expect(trigger).not.toHaveAttribute('aria-describedby');
+  });
+
+  it('keeps only the most recently claimed tooltip visible', () => {
+    render(
+      <>
+        <Tooltip text="First" open>
+          <Button label="First trigger" />
+        </Tooltip>
+        <Tooltip text="Second" open>
+          <Button label="Second trigger" />
+        </Tooltip>
+      </>,
+    );
+
+    expect(screen.getAllByRole('tooltip')).toHaveLength(1);
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Second');
+
+    fireEvent.focus(screen.getByRole('button', { name: 'First trigger' }));
+
+    expect(screen.getAllByRole('tooltip')).toHaveLength(1);
+    expect(screen.getByRole('tooltip')).toHaveTextContent('First');
+  });
+
+  it('preserves an existing target description', () => {
+    render(
+      <>
+        <span id="existing-description">Existing</span>
+        <Tooltip text="Copy" describeTarget={false}>
+          <Button label="Copy" aria-describedby="existing-description" />
+        </Tooltip>
+      </>,
+    );
+    const trigger = screen.getByRole('button', { name: 'Copy' });
+
+    fireEvent.focus(trigger);
+
+    expect(trigger).toHaveAttribute('aria-describedby', 'existing-description');
+  });
+
   it('closes on Escape from the open state', () => {
     render(
       <Tooltip text="Copy" defaultOpen>
@@ -162,7 +213,12 @@ describe('Tooltip', () => {
   it('requests a controlled transition without mutating the rendered value', () => {
     const onOpenChange = vi.fn();
     render(
-      <Tooltip text="Copy" open={false} onOpenChange={onOpenChange} trigger="click">
+      <Tooltip
+        text="Copy"
+        open={false}
+        onOpenChange={onOpenChange}
+        trigger="click"
+      >
         <Button label="Trigger" />
       </Tooltip>,
     );

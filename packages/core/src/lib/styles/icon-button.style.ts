@@ -20,9 +20,27 @@ const iconButtonConfig: ClassNameComponent<IconButtonInterface> = ({
 
   return {
     iconButton: cx(
-      'relative inline-flex items-center justify-center overflow-visible outline-none group/icon-button',
+      'relative inline-flex shrink-0 items-center justify-center overflow-visible outline-none group/icon-button',
       'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current',
       disabled ? 'cursor-default' : 'cursor-pointer',
+      size === 'xSmall' && 'p-1.5',
+      size === 'small' && 'p-2',
+      size === 'medium' && 'p-4',
+      size === 'large' && 'p-8',
+      size === 'xLarge' && 'p-12',
+      width === 'narrow' && {
+        'px-1': size === 'xSmall' || size === 'small',
+        'px-3': size === 'medium',
+        'px-4': size === 'large',
+        'px-8': size === 'xLarge',
+      },
+      width === 'wide' && {
+        'px-2.5': size === 'xSmall',
+        'px-3.5': size === 'small',
+        'px-6': size === 'medium',
+        'px-12': size === 'large',
+        'px-[72px]': size === 'xLarge',
+      },
       !usesSquaredShape && {
         'rounded-[30px]': size === 'xSmall' || size === 'small',
         'rounded-[40px]': size === 'medium',
@@ -64,24 +82,10 @@ const iconButtonConfig: ClassNameComponent<IconButtonInterface> = ({
     stateLayer: cx('overflow-hidden'),
     icon: cx(
       'pointer-events-none',
-      size === 'xSmall' && 'size-5 p-1.5',
-      size === 'small' && 'size-6 p-2',
-      size === 'medium' && 'size-6 p-4',
-      size === 'large' && 'size-8 p-8',
-      size === 'xLarge' && 'size-10 p-12',
-      width === 'narrow' && {
-        'px-1': size === 'xSmall' || size === 'small',
-        'px-3': size === 'medium',
-        'px-4': size === 'large',
-        'px-8': size === 'xLarge',
-      },
-      width === 'wide' && {
-        'px-2.5': size === 'xSmall',
-        'px-3.5': size === 'small',
-        'px-6': size === 'medium',
-        'px-12': size === 'large',
-        'px-[72px]': size === 'xLarge',
-      },
+      size === 'xSmall' && 'size-5',
+      (size === 'small' || size === 'medium') && 'size-6',
+      size === 'large' && 'size-8',
+      size === 'xLarge' && 'size-10',
     ),
   };
 };

@@ -9,7 +9,7 @@
       "tags": {
         "status": "beta",
         "category": "Communication",
-        "devx": "- `content` overrides `title`/`text`/`buttons` for fully custom content.\n- Supports controlled `open` plus `openDelay`/`closeDelay`.\n- The open/close opacity/scale transition is implemented once with\n  Anime.js in `@udixio/core/dom`, so React and Angular share the same\n  timing, reduced-motion behavior, and cleanup. No `motion/react` is used.\n- The tooltip surface stays mounted at all times (hidden via `inert` and\n  `aria-hidden`) rather than mounting only while open, so it can animate\n  out; expensive `content` subtrees are not torn down until the `Tooltip`\n  itself unmounts.",
+        "devx": "- `content` overrides `title`/`text`/`buttons` for fully custom content.\n- Supports controlled `open` plus `openDelay`/`closeDelay`.\n- Opening one tooltip closes the currently visible tooltip in the document.\n- The open/close opacity/scale transition is implemented once with\n  Anime.js in `@udixio/core/dom`, so React and Angular share the same\n  timing, reduced-motion behavior, and cleanup. No `motion/react` is used.\n- The tooltip surface stays mounted at all times (hidden via `inert` and\n  `aria-hidden`) rather than mounting only while open, so it can animate\n  out; expensive `content` subtrees are not torn down until the `Tooltip`\n  itself unmounts.",
         "a11y": "- Provides `role=\"tooltip\"` and `aria-describedby` when open.",
         "limitations": "- `children` stay mounted while closed, since the surface is always present\n  for its open/close animation; expensive content is not torn down until\n  the `Tooltip` itself unmounts.\n- `position` falls back to tracking `getBoundingClientRect()` on scroll and\n  resize in browsers without native CSS Anchor Positioning support."
       },
@@ -71,6 +71,17 @@
           },
           "defaultValue": {
             "value": "['hover', 'focus']"
+          }
+        },
+        "describeTarget": {
+          "name": "describeTarget",
+          "description": "Whether the open tooltip describes its target through `aria-describedby`.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "true"
           }
         },
         "openDelay": {
@@ -159,7 +170,7 @@
       "tags": {
         "status": "beta",
         "category": "Communication",
-        "devx": "- `target` is required and points at the trigger element -- including a\n  `display: contents` component host (`Button`, `IconButton`, `Chip`, ...):\n  hover is detected via bubbling `mouseover`/`mouseout`, not `mouseenter`/\n  `mouseleave`, specifically so it keeps working through such a host.\n- Provide `title`/`text`/`buttons`, or project custom content instead --\n  projected content is only rendered when none of those three are set.\n- Supports controlled `open` plus `openDelay`/`closeDelay`.\n- The open/close opacity/scale transition is implemented once with\n  Anime.js in `@udixio/core/dom`, so Angular and React share the same\n  timing, reduced-motion behavior, and cleanup. No framework-specific\n  animation library is used.\n- The tooltip surface stays mounted at all times (hidden via `inert` and\n  `aria-hidden`) rather than mounting only while open, so it can animate\n  out; expensive projected content is not torn down until `Tooltip`\n  itself is destroyed.",
+        "devx": "- `target` is required and points at the trigger element -- including a\n  `display: contents` component host (`Button`, `IconButton`, `Chip`, ...):\n  hover is detected via bubbling `mouseover`/`mouseout`, not `mouseenter`/\n  `mouseleave`, specifically so it keeps working through such a host.\n- Provide `title`/`text`/`buttons`, or project custom content instead --\n  projected content is only rendered when none of those three are set.\n- Supports controlled `open` plus `openDelay`/`closeDelay`.\n- Opening one tooltip closes the currently visible tooltip in the document.\n- The open/close opacity/scale transition is implemented once with\n  Anime.js in `@udixio/core/dom`, so Angular and React share the same\n  timing, reduced-motion behavior, and cleanup. No framework-specific\n  animation library is used.\n- The tooltip surface stays mounted at all times (hidden via `inert` and\n  `aria-hidden`) rather than mounting only while open, so it can animate\n  out; expensive projected content is not torn down until `Tooltip`\n  itself is destroyed.",
         "a11y": "- Provides `role=\"tooltip\"` and `aria-describedby` on `target` when open.",
         "limitations": "- Projected content stays mounted while closed, since the surface is\n  always present for its open/close animation; expensive content is not\n  torn down until `Tooltip` itself is destroyed.\n- `position` falls back to tracking `getBoundingClientRect()` on scroll and\n  resize in browsers without native CSS Anchor Positioning support."
       },
@@ -220,6 +231,17 @@
           },
           "defaultValue": {
             "value": "['hover', 'focus']"
+          }
+        },
+        "describeTarget": {
+          "name": "describeTarget",
+          "description": "Whether the open tooltip describes its target through `aria-describedby`.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "true"
           }
         },
         "openDelay": {

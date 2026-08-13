@@ -111,8 +111,9 @@ switches to a native link. Disabled links lose their destination, receive
 `aria-disabled`, and leave the tab order. Focus is visible and icons are
 decorative.
 
-No tooltip is created implicitly. Compose `Tooltip` explicitly when visual
-hover/focus help is useful.
+The accessible `label` is also shown in a tooltip on hover and keyboard focus.
+Set `tooltip` to a string to show different supporting text, or set it to
+`false` when the surrounding interface already makes the action explicit.
 
 ## Migrating to 3.0
 
@@ -123,4 +124,4 @@ hover/focus help is useful.
 | `onToggle`                            | `toggleable` plus `onPressedChange` / `pressedChange` |
 | `allowShapeTransformation={false}`    | `shapeFeedback="none"`                                |
 | text `children` as the label          | required `label` and `icon`                           |
-| implicit tooltip from `title`/`label` | compose `Tooltip` explicitly                          |
+| implicit tooltip from `title`/`label` | automatic `label`; customize or hide with `tooltip`   |

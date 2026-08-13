@@ -6,6 +6,8 @@ import {
   computed,
   input,
   output,
+  viewChild,
+  ElementRef,
   type OnInit,
 } from '@angular/core';
 import {
@@ -16,11 +18,13 @@ import {
   type ClassNameComponent,
   type IconButtonInterface,
   type IconButtonProps,
+  type TooltipProps,
 } from '@udixio/core';
 import { createControllableState } from '../utils/create-controllable-state';
 import { createStyle } from '../utils/create-style';
 import { Icon } from '../icon/icon';
 import { StateLayer } from '../state-layer/state-layer';
+import { Tooltip } from '../tooltip/tooltip';
 
 const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
   value === undefined ? undefined : booleanAttribute(value);
@@ -32,6 +36,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
  * @category Action
  * @devx
  * - Requires the `label` and `icon` inputs.
+ * - Shows `label` in a tooltip by default; `tooltip` overrides or disables it.
  * - `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.
  * - `toggleable` enables `aria-pressed` and the `pressedChange` output.
  * @a11y
@@ -43,7 +48,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
 @Component({
   selector: 'udx-icon-button',
   standalone: true,
-  imports: [NgTemplateOutlet, Icon, StateLayer],
+  imports: [NgTemplateOutlet, Icon, StateLayer, Tooltip],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
@@ -60,6 +65,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
 
     @if (href() !== undefined) {
       <a
+        #interactiveElement
         [hidden]="!hasAccessibleLabel()"
         [class]="styles()['iconButton']"
         [attr.href]="disabled() ? null : href()"
@@ -70,7 +76,6 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         [attr.tabindex]="disabled() || !hasAccessibleLabel() ? -1 : tabIndex()"
         [attr.target]="target()"
         [attr.rel]="rel()"
-        [attr.title]="title()"
         [attr.role]="disabled() || !hasAccessibleLabel() ? 'link' : null"
         (click)="handleClick($event)"
       >
@@ -78,6 +83,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
       </a>
     } @else {
       <button
+        #interactiveElement
         [hidden]="!hasAccessibleLabel()"
         [class]="styles()['iconButton']"
         [attr.type]="type()"
@@ -86,17 +92,29 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         [attr.aria-label]="label()"
         [attr.aria-pressed]="isToggleButton() ? isPressed() : null"
         [attr.tabindex]="tabIndex()"
-        [attr.title]="title()"
         (click)="handleClick($event)"
       >
         <ng-container [ngTemplateOutlet]="content" />
       </button>
+    }
+
+    @if (tooltipText(); as text) {
+      @if (interactiveElement(); as target) {
+        <udx-tooltip
+          [target]="target"
+          [text]="text"
+          [trigger]="disabled() ? null : tooltipTriggers"
+          [describeTarget]="text !== label()"
+        />
+      }
     }
   `,
 })
 export class IconButton implements OnInit {
   readonly label = input.required<string>();
   readonly icon = input.required<IconButtonProps['icon']>();
+  /** Visual tooltip text. Defaults to `label`; set to `false` to hide it. */
+  readonly tooltip = input<IconButtonProps['tooltip']>();
   readonly pressedIcon = input<IconButtonProps['pressedIcon']>();
   readonly variant = input<IconButtonProps['variant']>('standard');
   readonly size = input<IconButtonProps['size']>('medium');
@@ -123,7 +141,7 @@ export class IconButton implements OnInit {
   readonly rel = input<string>();
   /** Tab order override applied to the inner interactive element. */
   readonly tabIndex = input<number>();
-  /** Optional native advisory title; no tooltip is generated implicitly. */
+  /** Optional legacy tooltip text; `tooltip` takes precedence. */
   readonly title = input<string>();
   /** Native action button type. */
   readonly type = input<'button' | 'submit' | 'reset'>('button');
@@ -134,6 +152,15 @@ export class IconButton implements OnInit {
 
   /** Emits an accepted pressed-state request and supports `[(pressed)]`. */
   readonly pressedChange = output<boolean>();
+
+  protected readonly interactiveElement =
+    viewChild<ElementRef<HTMLButtonElement | HTMLAnchorElement>>(
+      'interactiveElement',
+    );
+  protected readonly tooltipTriggers: NonNullable<TooltipProps['trigger']> = [
+    'hover',
+    'focus',
+  ];
 
   private readonly pressedState = createControllableState({
     value: this.pressed,
@@ -148,6 +175,11 @@ export class IconButton implements OnInit {
   );
   protected readonly hasAccessibleLabel = computed(
     () => this.label().trim() !== '',
+  );
+  protected readonly tooltipText = computed(() =>
+    this.tooltip() === false
+      ? undefined
+      : (this.tooltip() ?? this.title() ?? this.label()),
   );
   protected readonly isPressed = computed(
     () => this.isToggleButton() && this.pressedState.value(),
@@ -175,6 +207,7 @@ export class IconButton implements OnInit {
   protected readonly styles = createStyle(iconButtonStyle, () => ({
     label: this.label(),
     icon: this.icon(),
+    tooltip: this.tooltip(),
     pressedIcon: this.pressedIcon(),
     variant: this.variant(),
     size: this.size(),

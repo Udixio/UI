@@ -4,10 +4,36 @@ import { animate } from 'animejs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   addPointerEnterLeaveListener,
+  claimTooltipVisibility,
   createTooltipTransitionController,
+  listenForTooltipVisibilityClaims,
 } from './tooltip.js';
 
 vi.mock('animejs', () => ({ animate: vi.fn() }));
+
+describe('tooltip visibility coordination', () => {
+  it('notifies every tooltip except the one claiming visibility', () => {
+    const firstDismissed = vi.fn();
+    const secondDismissed = vi.fn();
+    const removeFirst = listenForTooltipVisibilityClaims(
+      document,
+      'first',
+      firstDismissed,
+    );
+    const removeSecond = listenForTooltipVisibilityClaims(
+      document,
+      'second',
+      secondDismissed,
+    );
+
+    claimTooltipVisibility(document, 'second');
+
+    expect(firstDismissed).toHaveBeenCalledOnce();
+    expect(secondDismissed).not.toHaveBeenCalled();
+    removeFirst();
+    removeSecond();
+  });
+});
 
 function animationInstance() {
   return { pause: vi.fn() };
@@ -112,7 +138,9 @@ describe('tooltip transition controller', () => {
   it('pauses the in-flight animation before starting a new one', () => {
     const first = animationInstance();
     const second = animationInstance();
-    vi.mocked(animate).mockReturnValueOnce(first as never).mockReturnValueOnce(second as never);
+    vi.mocked(animate)
+      .mockReturnValueOnce(first as never)
+      .mockReturnValueOnce(second as never);
     const element = document.createElement('div');
 
     const controller = createTooltipTransitionController({
@@ -142,12 +170,18 @@ describe('tooltip transition controller', () => {
 });
 
 describe('addPointerEnterLeaveListener', () => {
-  function fireMouseOver(target: EventTarget, relatedTarget: EventTarget | null) {
+  function fireMouseOver(
+    target: EventTarget,
+    relatedTarget: EventTarget | null,
+  ) {
     target.dispatchEvent(
       new MouseEvent('mouseover', { bubbles: true, relatedTarget }),
     );
   }
-  function fireMouseOut(target: EventTarget, relatedTarget: EventTarget | null) {
+  function fireMouseOut(
+    target: EventTarget,
+    relatedTarget: EventTarget | null,
+  ) {
     target.dispatchEvent(
       new MouseEvent('mouseout', { bubbles: true, relatedTarget }),
     );

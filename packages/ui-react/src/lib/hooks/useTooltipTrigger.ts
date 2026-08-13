@@ -4,11 +4,16 @@ import {
   type TooltipInteractionState,
   type TooltipTriggerKind,
 } from '@udixio/core';
+import {
+  claimTooltipVisibility,
+  listenForTooltipVisibilityClaims,
+} from '@udixio/core/dom';
 
 type Trigger = TooltipTriggerKind | null;
 
 export interface UseTooltipTriggerOptions {
   trigger?: Trigger | Trigger[];
+  describeTarget?: boolean;
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -47,6 +52,7 @@ export interface UseTooltipTriggerReturn {
  */
 export function useTooltipTrigger({
   trigger = ['hover', 'focus'],
+  describeTarget = true,
   open: openProp,
   defaultOpen = false,
   onOpenChange,
@@ -66,6 +72,7 @@ export function useTooltipTrigger({
     defaultOpen ? 'hovered' : 'hidden',
   );
   const [isSurfaceHovered, setIsSurfaceHovered] = useState(false);
+  const [suppressedByPeer, setSuppressedByPeer] = useState(false);
 
   const openTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -88,21 +95,41 @@ export function useTooltipTrigger({
       ? 'hovered'
       : 'hidden'
     : internalState;
-  const isOpen = state !== 'hidden';
+  const isStateOpen = state !== 'hidden';
+  const isOpen = isStateOpen && !suppressedByPeer;
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return undefined;
+    return listenForTooltipVisibilityClaims(document, tooltipId, () => {
+      if (!isStateOpen || suppressedByPeer) return;
+      setSuppressedByPeer(true);
+      if (!isControlled) setInternalState('hidden');
+      onOpenChange?.(false);
+    });
+  }, [isControlled, isStateOpen, onOpenChange, suppressedByPeer, tooltipId]);
+
+  useEffect(() => {
+    if (isOpen && typeof document !== 'undefined') {
+      claimTooltipVisibility(document, tooltipId);
+    }
+  }, [isOpen, tooltipId]);
 
   const commit = useCallback(
     (next: TooltipInteractionState) => {
       if (!isControlled) setInternalState(next);
+      if (next !== 'hidden') {
+        setSuppressedByPeer(false);
+        if (typeof document !== 'undefined') {
+          claimTooltipVisibility(document, tooltipId);
+        }
+      }
       onOpenChange?.(next !== 'hidden');
     },
-    [isControlled, onOpenChange],
+    [isControlled, onOpenChange, tooltipId],
   );
 
   const request = useCallback(
-    (
-      event: Parameters<typeof resolveTooltipInteraction>[1],
-      delayMs = 0,
-    ) => {
+    (event: Parameters<typeof resolveTooltipInteraction>[1], delayMs = 0) => {
       const next = resolveTooltipInteraction(
         { state, triggers, isSurfaceHovered },
         event,
@@ -142,7 +169,14 @@ export function useTooltipTrigger({
       commit(next);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state, triggers.join(','), isSurfaceHovered, commit, clearTimeouts, closeDelay]);
+  }, [
+    state,
+    triggers.join(','),
+    isSurfaceHovered,
+    commit,
+    clearTimeouts,
+    closeDelay,
+  ]);
   const handleClick = useCallback(() => request('click'), [request]);
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
@@ -165,7 +199,7 @@ export function useTooltipTrigger({
 
   return {
     triggerProps: {
-      'aria-describedby': isOpen ? tooltipId : undefined,
+      'aria-describedby': isOpen && describeTarget ? tooltipId : undefined,
       onMouseEnter: handleMouseEnter,
       onMouseLeave: handleMouseLeave,
       onFocus: handleFocus,

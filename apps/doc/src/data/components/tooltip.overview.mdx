@@ -96,12 +96,15 @@ it defaults to `bottom-right` for `variant="rich"` and `bottom` otherwise.
 
 ## Keyboard
 
-| Keys | Actions |
-| --- | --- |
-| Tab | Focus lands on the target element, if focusable |
-| Escape | Closes an open tooltip |
+| Keys   | Actions                                         |
+| ------ | ----------------------------------------------- |
+| Tab    | Focus lands on the target element, if focusable |
+| Escape | Closes an open tooltip                          |
 
 ## Accessibility
+
+Only one tooltip is visible at a time. Opening a tooltip dismisses the
+previously visible tooltip, including when controlled tooltips are used.
 
 - Provides `role="tooltip"` and links to its target via `aria-describedby`
   when open.

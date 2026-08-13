@@ -26,6 +26,8 @@ export interface TooltipProps {
   position?: TooltipPosition;
   /** Interaction(s) that open the tooltip. */
   trigger?: TooltipTrigger | TooltipTrigger[];
+  /** Whether the open tooltip describes its target through `aria-describedby`. @default true */
+  describeTarget?: boolean;
   /** Delay in milliseconds before showing the tooltip. Default: 400ms */
   openDelay?: number;
   /** Delay in milliseconds before hiding the tooltip. Default: 150ms */

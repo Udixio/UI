@@ -25,7 +25,9 @@ import {
 } from '@udixio/core';
 import {
   addPointerEnterLeaveListener,
+  claimTooltipVisibility,
   createTooltipTransitionController,
+  listenForTooltipVisibilityClaims,
   type TooltipTransitionController,
 } from '@udixio/core/dom';
 import { createStyle } from '../utils/create-style';
@@ -60,6 +62,7 @@ let nextTooltipId = 0;
  * - Provide `title`/`text`/`buttons`, or project custom content instead --
  *   projected content is only rendered when none of those three are set.
  * - Supports controlled `open` plus `openDelay`/`closeDelay`.
+ * - Opening one tooltip closes the currently visible tooltip in the document.
  * - The open/close opacity/scale transition is implemented once with
  *   Anime.js in `@udixio/core/dom`, so Angular and React share the same
  *   timing, reduced-motion behavior, and cleanup. No framework-specific
@@ -139,6 +142,8 @@ export class Tooltip implements OnInit, OnDestroy {
   readonly position = input<TooltipProps['position']>();
   /** Interaction(s) that open the tooltip. */
   readonly trigger = input<TooltipProps['trigger']>(['hover', 'focus']);
+  /** Whether the open tooltip describes its target through `aria-describedby`. */
+  readonly describeTarget = input(true, { transform: booleanAttribute });
   /** Delay in milliseconds before showing the tooltip. Default: 400ms */
   readonly openDelay = input(400);
   /** Delay in milliseconds before hiding the tooltip. Default: 150ms */
@@ -163,7 +168,9 @@ export class Tooltip implements OnInit, OnDestroy {
   protected readonly tooltipId = computed(() => this.id() ?? this.generatedId);
 
   protected readonly effectivePosition = computed(
-    () => this.position() ?? (this.variant() === 'rich' ? 'bottom-right' : 'bottom'),
+    () =>
+      this.position() ??
+      (this.variant() === 'rich' ? 'bottom-right' : 'bottom'),
   );
   protected readonly buttonList = computed<TooltipButtonAction[]>(() => {
     const value = this.buttons();
@@ -181,14 +188,24 @@ export class Tooltip implements OnInit, OnDestroy {
   });
   private readonly isControlled = computed(() => this.open() !== undefined);
   private readonly interactionState = signal<TooltipInteractionState>('hidden');
+  private readonly suppressedByPeer = signal(false);
   private isSurfaceHovered = false;
   private openTimer?: ReturnType<typeof setTimeout>;
   private closeTimer?: ReturnType<typeof setTimeout>;
 
   protected readonly resolvedState = computed<TooltipInteractionState>(() =>
-    this.isControlled() ? (this.open() ? 'hovered' : 'hidden') : this.interactionState(),
+    this.isControlled()
+      ? this.open()
+        ? 'hovered'
+        : 'hidden'
+      : this.interactionState(),
   );
-  protected readonly resolvedOpen = computed(() => this.resolvedState() !== 'hidden');
+  private readonly stateOpen = computed(
+    () => this.resolvedState() !== 'hidden',
+  );
+  protected readonly resolvedOpen = computed(
+    () => this.stateOpen() && !this.suppressedByPeer(),
+  );
 
   protected readonly styles = createStyle(tooltipStyle, () => ({
     variant: this.variant(),
@@ -196,6 +213,7 @@ export class Tooltip implements OnInit, OnDestroy {
     text: this.text(),
     position: this.effectivePosition(),
     trigger: this.trigger(),
+    describeTarget: this.describeTarget(),
     openDelay: this.openDelay(),
     closeDelay: this.closeDelay(),
     open: this.open(),
@@ -211,6 +229,30 @@ export class Tooltip implements OnInit, OnDestroy {
   private hasAppliedInitialTransition = false;
 
   constructor() {
+    afterRenderEffect((onCleanup) => {
+      const target = this.resolveElement(this.target());
+      if (!target) return;
+      const ownerDocument = target.ownerDocument;
+      const removeListener = listenForTooltipVisibilityClaims(
+        ownerDocument,
+        this.tooltipId(),
+        () => {
+          if (!untracked(this.stateOpen) || untracked(this.suppressedByPeer)) {
+            return;
+          }
+          this.suppressedByPeer.set(true);
+          if (!untracked(this.isControlled)) {
+            this.interactionState.set('hidden');
+          }
+          this.openChange.emit(false);
+        },
+      );
+      if (this.resolvedOpen()) {
+        claimTooltipVisibility(ownerDocument, this.tooltipId());
+      }
+      onCleanup(removeListener);
+    });
+
     afterRenderEffect((onCleanup) => {
       const targetInput = this.target();
       const target = this.resolveElement(targetInput);
@@ -267,14 +309,11 @@ export class Tooltip implements OnInit, OnDestroy {
       });
     });
 
-    afterRenderEffect(() => {
+    afterRenderEffect((onCleanup) => {
       const target = this.resolveElement(this.target());
-      if (!target) return;
-      if (this.resolvedOpen()) {
-        target.setAttribute('aria-describedby', this.tooltipId());
-      } else {
-        target.removeAttribute('aria-describedby');
-      }
+      if (!target || !this.describeTarget()) return;
+      this.updateTargetDescription(target, this.resolvedOpen());
+      onCleanup(() => this.updateTargetDescription(target, false));
     });
 
     afterRenderEffect((onCleanup) => {
@@ -332,6 +371,22 @@ export class Tooltip implements OnInit, OnDestroy {
     return value instanceof ElementRef ? value.nativeElement : value;
   }
 
+  private updateTargetDescription(
+    target: HTMLElement,
+    includeTooltip: boolean,
+  ): void {
+    const tooltipId = this.tooltipId();
+    const ids = (target.getAttribute('aria-describedby') ?? '')
+      .split(/\s+/)
+      .filter((value) => value && value !== tooltipId);
+    if (includeTooltip) ids.push(tooltipId);
+    if (ids.length) {
+      target.setAttribute('aria-describedby', ids.join(' '));
+    } else {
+      target.removeAttribute('aria-describedby');
+    }
+  }
+
   private clearTimers(): void {
     if (this.openTimer) {
       clearTimeout(this.openTimer);
@@ -346,6 +401,13 @@ export class Tooltip implements OnInit, OnDestroy {
   private commit(next: TooltipInteractionState): void {
     if (!untracked(this.isControlled)) {
       this.interactionState.set(next);
+    }
+    if (next !== 'hidden') {
+      this.suppressedByPeer.set(false);
+      const target = this.resolveElement(this.target());
+      if (target) {
+        claimTooltipVisibility(target.ownerDocument, this.tooltipId());
+      }
     }
     this.openChange.emit(next !== 'hidden');
   }

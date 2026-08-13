@@ -46,6 +46,7 @@ jest.mock('@udixio/core/dom', () => ({
       [openDelay]="openDelay"
       [closeDelay]="closeDelay"
       [trigger]="trigger"
+      [describeTarget]="describeTarget"
       [open]="open"
       [defaultOpen]="defaultOpen"
       (openChange)="openChange($event)"
@@ -53,12 +54,12 @@ jest.mock('@udixio/core/dom', () => ({
   `,
 })
 class Harness {
-  readonly triggerRef = viewChild.required<ElementRef<HTMLButtonElement>>(
-    'triggerEl',
-  );
+  readonly triggerRef =
+    viewChild.required<ElementRef<HTMLButtonElement>>('triggerEl');
   openDelay = 400;
   closeDelay = 150;
   trigger: ('hover' | 'click' | 'focus')[] = ['hover', 'focus'];
+  describeTarget = true;
   open: boolean | undefined = undefined;
   defaultOpen = false;
   changes: boolean[] = [];
@@ -67,12 +68,29 @@ class Harness {
   }
 }
 
+@Component({
+  standalone: true,
+  imports: [Tooltip],
+  template: `
+    <button #first>First trigger</button>
+    <udx-tooltip [target]="firstRef()" text="First" [open]="true" />
+    <button #second>Second trigger</button>
+    <udx-tooltip [target]="secondRef()" text="Second" [open]="true" />
+  `,
+})
+class ExclusiveHarness {
+  readonly firstRef =
+    viewChild.required<ElementRef<HTMLButtonElement>>('first');
+  readonly secondRef =
+    viewChild.required<ElementRef<HTMLButtonElement>>('second');
+}
+
 describe('Tooltip (Angular)', () => {
   let fixture: ComponentFixture<Harness>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Harness],
+      imports: [Harness, ExclusiveHarness],
     }).compileComponents();
     fixture = TestBed.createComponent(Harness);
   });
@@ -110,7 +128,10 @@ describe('Tooltip (Angular)', () => {
     const trigger = getTrigger();
 
     trigger.dispatchEvent(
-      new MouseEvent('mouseover', { bubbles: true, relatedTarget: document.body }),
+      new MouseEvent('mouseover', {
+        bubbles: true,
+        relatedTarget: document.body,
+      }),
     );
     tick(399);
     fixture.detectChanges();
@@ -123,7 +144,10 @@ describe('Tooltip (Angular)', () => {
     expect(trigger.getAttribute('aria-describedby')).toBe(tooltip.id);
 
     trigger.dispatchEvent(
-      new MouseEvent('mouseout', { bubbles: true, relatedTarget: document.body }),
+      new MouseEvent('mouseout', {
+        bubbles: true,
+        relatedTarget: document.body,
+      }),
     );
     tick(149);
     fixture.detectChanges();
@@ -141,13 +165,49 @@ describe('Tooltip (Angular)', () => {
     expect(getTooltip().getAttribute('aria-hidden')).toBe('false');
   });
 
+  it('can remain visual without duplicating the target accessible name', () => {
+    fixture.componentInstance.describeTarget = false;
+    fixture.detectChanges();
+    getTrigger().setAttribute('aria-describedby', 'existing-description');
+
+    getTrigger().dispatchEvent(new FocusEvent('focus'));
+    fixture.detectChanges();
+
+    expect(getTooltip().getAttribute('aria-hidden')).toBe('false');
+    expect(getTrigger().getAttribute('aria-describedby')).toBe(
+      'existing-description',
+    );
+  });
+
+  it('keeps only the most recently claimed tooltip visible', () => {
+    const exclusive = TestBed.createComponent(ExclusiveHarness);
+    exclusive.detectChanges();
+    exclusive.detectChanges();
+
+    const visibleTooltips = () =>
+      Array.from(
+        document.querySelectorAll<HTMLElement>('[role="tooltip"]'),
+      ).filter((tooltip) => tooltip.getAttribute('aria-hidden') === 'false');
+
+    expect(visibleTooltips()).toHaveLength(1);
+    expect(visibleTooltips()[0].textContent).toContain('Second');
+
+    exclusive.nativeElement
+      .querySelectorAll('button')[0]
+      .dispatchEvent(new FocusEvent('focus'));
+    exclusive.detectChanges();
+    exclusive.detectChanges();
+
+    expect(visibleTooltips()).toHaveLength(1);
+    expect(visibleTooltips()[0].textContent).toContain('First');
+    exclusive.destroy();
+  });
+
   it('closes on Escape from the open state', () => {
     fixture.componentInstance.defaultOpen = true;
     fixture.detectChanges();
 
-    getTrigger().dispatchEvent(
-      new KeyboardEvent('keydown', { key: 'Escape' }),
-    );
+    getTrigger().dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
     fixture.detectChanges();
 
     expect(getTooltip().getAttribute('aria-hidden')).toBe('true');
@@ -159,7 +219,10 @@ describe('Tooltip (Angular)', () => {
     const trigger = getTrigger();
 
     trigger.dispatchEvent(
-      new MouseEvent('mouseover', { bubbles: true, relatedTarget: document.body }),
+      new MouseEvent('mouseover', {
+        bubbles: true,
+        relatedTarget: document.body,
+      }),
     );
     tick(1000);
     expect(getTooltip().getAttribute('aria-hidden')).toBe('true');
@@ -238,9 +301,8 @@ describe('Tooltip (Angular) targeting a display:contents component host', () => 
 
   it('opens on hover even though the target element renders no box of its own', fakeAsync(() => {
     fixture.detectChanges();
-    const hostElement: HTMLElement = fixture.nativeElement.querySelector(
-      'udx-button',
-    );
+    const hostElement: HTMLElement =
+      fixture.nativeElement.querySelector('udx-button');
     const innerButton = hostElement.querySelector('button') as HTMLElement;
     const getTooltip = () =>
       document.querySelector('[role="tooltip"]') as HTMLElement;
@@ -251,7 +313,10 @@ describe('Tooltip (Angular) targeting a display:contents component host', () => 
     // the pointer actually entered (the inner <button>); it bubbles up
     // through the display:contents host to Tooltip's listener.
     innerButton.dispatchEvent(
-      new MouseEvent('mouseover', { bubbles: true, relatedTarget: document.body }),
+      new MouseEvent('mouseover', {
+        bubbles: true,
+        relatedTarget: document.body,
+      }),
     );
     tick(400);
     fixture.detectChanges();

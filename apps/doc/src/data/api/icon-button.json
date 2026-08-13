@@ -9,9 +9,9 @@
       "tags": {
         "status": "stable",
         "category": "Action",
-        "devx": "- Requires `label` and `icon`; arbitrary children are not accepted.\n- `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.\n- `toggleable` enables `aria-pressed` and `onPressedChange` on action buttons.",
+        "devx": "- Requires `label` and `icon`; arbitrary children are not accepted.\n- Shows `label` in a tooltip by default; `tooltip` overrides or disables it.\n- `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.\n- `toggleable` enables `aria-pressed` and `onPressedChange` on action buttons.",
         "a11y": "- Uses native button/link semantics, a stable accessible name, a 48px target, and visible focus.",
-        "limitations": "- Disabled links are inert and removed from the tab order.\n- Navigation links ignore toggle state; use `aria-current` for the current destination.\n- Compose an explicit Tooltip when visual hover/focus help is required."
+        "limitations": "- Disabled links are inert and removed from the tab order.\n- Navigation links ignore toggle state; use `aria-current` for the current destination."
       },
       "methods": [],
       "props": {
@@ -30,6 +30,15 @@
           "required": true,
           "type": {
             "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "tooltip": {
+          "name": "tooltip",
+          "description": "Visual tooltip text. Defaults to `label`; set to `false` to hide it.",
+          "required": false,
+          "type": {
+            "name": "string | false"
           },
           "defaultValue": null
         },
@@ -174,7 +183,7 @@
       "tags": {
         "status": "stable",
         "category": "Action",
-        "devx": "- Requires the `label` and `icon` inputs.\n- `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.\n- `toggleable` enables `aria-pressed` and the `pressedChange` output.",
+        "devx": "- Requires the `label` and `icon` inputs.\n- Shows `label` in a tooltip by default; `tooltip` overrides or disables it.\n- `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.\n- `toggleable` enables `aria-pressed` and the `pressedChange` output.",
         "a11y": "- Uses native button/link semantics, a stable accessible name, a 48px target, and visible focus.",
         "limitations": "- Disabled links are inert and removed from the tab order.\n- Navigation links ignore toggle state; use `aria-current` for the current destination."
       },
@@ -194,6 +203,15 @@
           "required": true,
           "type": {
             "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "tooltip": {
+          "name": "tooltip",
+          "description": "Visual tooltip text. Defaults to `label`; set to `false` to hide it.",
+          "required": false,
+          "type": {
+            "name": "string | false | undefined"
           },
           "defaultValue": null
         },
@@ -359,7 +377,7 @@
         },
         "title": {
           "name": "title",
-          "description": "Optional native advisory title; no tooltip is generated implicitly.",
+          "description": "Optional legacy tooltip text; `tooltip` takes precedence.",
           "required": false,
           "type": {
             "name": "string"

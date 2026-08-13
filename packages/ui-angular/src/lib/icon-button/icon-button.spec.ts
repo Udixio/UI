@@ -5,6 +5,24 @@ import { IconButton } from './icon-button';
 
 expect.extend(toHaveNoViolations);
 
+class NoopResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+  takeRecords() {
+    return [];
+  }
+}
+(globalThis as any).ResizeObserver ??= NoopResizeObserver;
+
+jest.mock('@udixio/core/dom', () => ({
+  ...jest.requireActual('@udixio/core/dom'),
+  createTooltipTransitionController: jest.fn(() => ({
+    setOpen: jest.fn(),
+    destroy: jest.fn(),
+  })),
+}));
+
 const addIcon = '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>';
 const closeIcon =
   '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></svg>';
@@ -55,6 +73,50 @@ describe('IconButton (Angular, consuming @udixio/core)', () => {
     expect(button.querySelector('.state-layer')).not.toBeNull();
   });
 
+  it('shows its accessible label in a tooltip on focus by default', () => {
+    fixture.detectChanges();
+    const button: HTMLButtonElement =
+      fixture.nativeElement.querySelector('button');
+
+    button.dispatchEvent(new FocusEvent('focus'));
+    fixture.detectChanges();
+
+    const tooltip = document.querySelector('[role="tooltip"]') as HTMLElement;
+    expect(tooltip.textContent).toContain('Add item');
+    expect(tooltip.getAttribute('aria-hidden')).toBe('false');
+    expect(button.hasAttribute('aria-describedby')).toBe(false);
+  });
+
+  it('supports custom tooltip text and explicit tooltip suppression', () => {
+    fixture.componentRef.setInput('tooltip', 'Create a new item');
+    fixture.detectChanges();
+    const button: HTMLButtonElement =
+      fixture.nativeElement.querySelector('button');
+    button.dispatchEvent(new FocusEvent('focus'));
+    fixture.detectChanges();
+    const tooltip = document.querySelector('[role="tooltip"]') as HTMLElement;
+
+    expect(tooltip.textContent).toContain('Create a new item');
+    expect(button.getAttribute('aria-describedby')).toBe(tooltip.id);
+
+    fixture.componentRef.setInput('tooltip', false);
+    fixture.detectChanges();
+    expect(document.querySelector('[role="tooltip"]')).toBeNull();
+  });
+
+  it('keeps container padding separate from the icon dimensions', () => {
+    fixture.componentRef.setInput('size', 'small');
+    fixture.detectChanges();
+    const button: HTMLButtonElement =
+      fixture.nativeElement.querySelector('button');
+    const icon: HTMLElement = button.querySelector('.icon')!;
+
+    expect(button.classList).toContain('shrink-0');
+    expect(button.classList).toContain('p-2');
+    expect(icon.classList).toContain('size-6');
+    expect(icon.classList).not.toContain('p-2');
+  });
+
   it('keeps an empty-label control out of rendering and the accessibility tree', () => {
     fixture.componentRef.setInput('label', '');
     fixture.detectChanges();
@@ -66,7 +128,7 @@ describe('IconButton (Angular, consuming @udixio/core)', () => {
     expect(button.getAttribute('aria-hidden')).toBe('true');
   });
 
-  it('forwards button type, tabindex, title, and classes', () => {
+  it('forwards button type, tabindex, title as tooltip text, and classes', () => {
     fixture.componentRef.setInput('type', 'submit');
     fixture.componentRef.setInput('tabIndex', 2);
     fixture.componentRef.setInput('title', 'Add a new item');
@@ -77,7 +139,12 @@ describe('IconButton (Angular, consuming @udixio/core)', () => {
 
     expect(button.type).toBe('submit');
     expect(button.tabIndex).toBe(2);
-    expect(button.title).toBe('Add a new item');
+    button.dispatchEvent(new FocusEvent('focus'));
+    fixture.detectChanges();
+    expect(button.title).toBe('');
+    expect(
+      (document.querySelector('[role="tooltip"]') as HTMLElement).textContent,
+    ).toContain('Add a new item');
     expect(button.className).toContain('consumer-class');
   });
 

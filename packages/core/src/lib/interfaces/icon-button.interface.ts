@@ -11,6 +11,8 @@ export interface IconButtonProps {
   label: string;
   /** Icon shown in the resting state. */
   icon: Icon;
+  /** Visual tooltip text. Defaults to `label`; set to `false` to hide it. */
+  tooltip?: string | false;
   /** Optional icon shown while a toggle icon button is pressed. */
   pressedIcon?: Icon;
   /** Visual style. @default 'standard' */
