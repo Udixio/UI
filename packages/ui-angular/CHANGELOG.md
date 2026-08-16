@@ -1,3 +1,19 @@
+## 0.2.2-next.1 (2026-08-16)
+
+### 🩹 Fixes
+
+- **ui-angular:** pin local dependency versions so the package can be published ([b73420d3](https://github.com/Udixio/UI/commit/b73420d3))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/core to 0.2.2-next.1
+- Updated @udixio/icons-rounded-400 to 0.2.2-next.0
+
+### ❤️ Thank You
+
+- Claude Opus 5
+- Joël VIGREUX
+
 ## 0.2.2-next.0 (2026-08-13)
 
 ### 🚀 Features
