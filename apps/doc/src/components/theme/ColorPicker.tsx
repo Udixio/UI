@@ -180,9 +180,9 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
             label={paletteKey ? 'Couleur' : 'Couleur source'}
             name="color"
             placeholder={'#AABBCC'}
-            onChange={(e) => {
-              setInputValue(e.target.value);
-              updateCurrentFromHex(e.target.value);
+            onChange={(value) => {
+              setInputValue(value);
+              updateCurrentFromHex(value);
             }}
           />
         </div>
