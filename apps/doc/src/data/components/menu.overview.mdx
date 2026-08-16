@@ -19,7 +19,9 @@ import { MenuLinksScrollAngular } from '@/examples/angular/menu-links-scroll.ts'
 import menuLinksScrollReactSource from '@/examples/react/menu-links-scroll.tsx?raw';
 import menuLinksScrollAngularSource from '@/examples/angular/menu-links-scroll.ts?raw';
 import MenuSelectFieldReact from '@/examples/react/menu-select-field.tsx';
+import { MenuSelectFieldAngular } from '@/examples/angular/menu-select-field.ts';
 import menuSelectFieldReactSource from '@/examples/react/menu-select-field.tsx?raw';
+import menuSelectFieldAngularSource from '@/examples/angular/menu-select-field.ts?raw';
 import ContextMenuReact from '@/examples/react/context-menu.tsx';
 import { ContextMenuAngular } from '@/examples/angular/context-menu.ts';
 import contextMenuReactSource from '@/examples/react/context-menu.tsx?raw';
@@ -143,15 +145,23 @@ navigation au clavier.
 
 ## Menu exposé dans un champ de sélection
 
-L’adaptateur React de `TextField` peut composer directement les options avec
-`MenuItem`. Il contrôle la valeur sélectionnée, ouvre une surface
-`purpose="selection"` et referme celle-ci après le choix.
+`TextField` avec `type="select"` ouvre une surface `purpose="selection"`,
+contrôle la valeur sélectionnée et referme le menu après le choix. Les deux
+adaptateurs partagent ce comportement ; seule la façon de déclarer les options
+diffère :
 
-Cette intégration n’est pas affichée sous un onglet Angular : `TextField`
-n’existe pas encore dans `@udixio/ui-angular`.
+- en React, composez directement des `MenuItem` enfants, ou passez `options` ;
+- en Angular, `options` est le seul moyen de peupler le menu : l’adaptateur ne
+  projette pas de `MenuItem` personnalisés.
 
-<Code codes={{ react: menuSelectFieldReactSource }}>
+<Code
+  codes={{
+    react: menuSelectFieldReactSource,
+    angular: menuSelectFieldAngularSource,
+  }}
+>
   <MenuSelectFieldReact slot="react" client:load />
+  <MenuSelectFieldAngular slot="angular" client:load />
 </Code>
 
 ## Menu contextuel

@@ -276,14 +276,30 @@ export const TextField = ({
   const menuRef = useRef<HTMLDivElement>(null);
 
   const displayValue = useMemo(() => {
-    if (isSelectInput && options) {
+    if (!isSelectInput) return value;
+    if (options) {
       const selectedOption = options.find(
         (o) => String(o.value) === String(value),
       );
       return selectedOption ? String(selectedOption.label) : value;
     }
-    return value;
-  }, [value, isSelectInput, options]);
+    // Projected MenuItem children carry the label the field must display,
+    // exactly like `options` entries do.
+    let selectedLabel: string | undefined;
+    React.Children.forEach(children, (child) => {
+      if (
+        selectedLabel === undefined &&
+        React.isValidElement<ReactMenuItemProps>(child) &&
+        child.type === MenuItem &&
+        child.props.value !== undefined &&
+        String(child.props.value) === String(value) &&
+        typeof child.props.label === 'string'
+      ) {
+        selectedLabel = child.props.label;
+      }
+    });
+    return selectedLabel ?? value;
+  }, [value, isSelectInput, options, children]);
 
   const handleSelectToggle = () => {
     if (disabled) return;

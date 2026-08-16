@@ -10,7 +10,7 @@ export default function MenuSelectFieldReact() {
         type="select"
         label="Favorite fruit"
         value={fruit}
-        onChange={(event) => setFruit(event.target.value)}
+        onChange={setFruit}
       >
         <MenuItem label="Apple" value="apple" />
         <MenuItem label="Banana" value="banana" />

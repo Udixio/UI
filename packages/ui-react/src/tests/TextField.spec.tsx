@@ -3,7 +3,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { beforeAll, beforeEach, vi } from 'vitest';
-import { TextField } from '../lib/index.js';
+import { MenuItem, TextField } from '../lib/index.js';
 import {
   createTextFieldLabelController,
   createTextareaAutosizeController,
@@ -150,6 +150,33 @@ describe('TextField', () => {
 
     expect(onChange).toHaveBeenCalledWith('de');
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+  });
+
+  it('selects from projected MenuItem children like it does from options', () => {
+    const onChange = vi.fn();
+    render(
+      <TextField
+        label="Country"
+        type="select"
+        defaultValue="fr"
+        onChange={onChange}
+      >
+        <MenuItem label="France" value="fr" />
+        <MenuItem label="Germany" value="de" />
+      </TextField>,
+    );
+
+    const input = screen.getByLabelText('Country');
+    expect(input).toHaveValue('France');
+
+    fireEvent.click(input);
+    const menu = screen.getByRole('listbox', { name: 'Country' });
+    fireEvent.click(within(menu).getByText('Germany'));
+
+    expect(onChange).toHaveBeenCalledWith('de');
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    // The field shows the item's label, not the raw value -- like `options` does.
+    expect(input).toHaveValue('Germany');
   });
 
   it('opens a date picker and confirms a selection', () => {
