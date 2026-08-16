@@ -13,10 +13,10 @@
     "@angular/common": "^21.0.0",
     "@angular/core": "^21.0.0",
     "@angular/platform-browser": "^21.0.0",
-    "@udixio/core": "workspace:*"
+    "@udixio/core": "0.2.2-next.0"
   },
   "dependencies": {
-    "@udixio/icons-rounded-400": "workspace:*"
+    "@udixio/icons-rounded-400": "0.2.1"
   },
   "devDependencies": {
     "@types/jest-axe": "^3.5.9",
