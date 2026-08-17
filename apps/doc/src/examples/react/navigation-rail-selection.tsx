@@ -11,7 +11,7 @@ import { iTimer } from '@udixio/icons-rounded-400/timer';
 import { iAdd } from '@udixio/icons-rounded-400/add';
 
 export default function NavigationRailSelectionReact() {
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState<number | null>(0);
 
   return (
     <NavigationRail

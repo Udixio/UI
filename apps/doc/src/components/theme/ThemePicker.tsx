@@ -69,18 +69,16 @@ export const ThemePicker: React.FC = () => {
           <Switch
             activeIcon={iDarkMode}
             inactiveIcon={iLightMode}
-            onChange={(value) => {
-              if (typeof value === 'boolean') {
-                themeConfigStore.set({
-                  ...themeConfigStore.get(),
-                  isDark: value,
-                });
-                if (typeof document !== 'undefined') {
-                  document.body.classList.toggle('dark', value);
-                }
+            onCheckedChange={(checked) => {
+              themeConfigStore.set({
+                ...themeConfigStore.get(),
+                isDark: checked,
+              });
+              if (typeof document !== 'undefined') {
+                document.body.classList.toggle('dark', checked);
               }
             }}
-            selected={$config.isDark}
+            checked={$config.isDark ?? false}
           />
         </label>
 

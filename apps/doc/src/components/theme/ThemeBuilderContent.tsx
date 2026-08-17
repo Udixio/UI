@@ -5,7 +5,6 @@ import { ThemePalette } from './ThemePalette';
 import { ThemeTokens } from './ThemeTokens';
 
 const SectionHeader: React.FC<{ title: string; desc: string }> = ({
-  eyebrow,
   title,
   desc,
 }) => (

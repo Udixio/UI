@@ -157,7 +157,8 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
   const handleReset = () => {
     const api = themeServiceStore.get();
     if (api && paletteKey) {
-      const variantPalette = api.context.variant.palettes[paletteKey];
+      const variantPalette =
+        api.context.variant.palettesFor(api.context)[paletteKey];
       if (variantPalette) {
         const toneSource = api.context.sourceColor.tone;
         const defaultHex = variantPalette.getColor(toneSource).hex;

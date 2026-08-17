@@ -65,10 +65,8 @@ export const ThemeQuickEdit = () => {
         <Switch
           activeIcon={iDarkMode}
           inactiveIcon={iLightMode}
-          onChange={(value) => {
-            if (typeof value === 'boolean') toggleDark(value);
-          }}
-          selected={$config.isDark}
+          onCheckedChange={toggleDark}
+          checked={$config.isDark ?? false}
         />
       </div>
     </Card>
