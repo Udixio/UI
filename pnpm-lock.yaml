@@ -759,7 +759,7 @@ importers:
         specifier: ^1.20.2
         version: 1.30.0(zod@4.4.3)
       '@udixio/theme':
-        specifier: 5.0.0
+        specifier: 5.0.1-next.0
         version: link:../theme
       express:
         specifier: ^5.1.0
@@ -790,7 +790,7 @@ importers:
   packages/tailwind:
     dependencies:
       '@udixio/theme':
-        specifier: 5.0.0
+        specifier: 5.0.1-next.0
         version: link:../theme
       pathe:
         specifier: ^2.0.3
@@ -858,10 +858,10 @@ importers:
         version: 21.2.18(@angular/animations@21.2.19)(@angular/common@21.2.18)(@angular/core@21.2.18)
       '@udixio/core':
         specifier: 0.2.2-next.0
-        version: link:../core
+        version: 0.2.2-next.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.8)(react@19.2.8)
       '@udixio/icons-rounded-400':
         specifier: 0.2.1
-        version: link:../icons/icons-rounded-400
+        version: 0.2.1
     devDependencies:
       '@types/jest-axe':
         specifier: ^3.5.9
@@ -876,16 +876,16 @@ importers:
         specifier: ^7.0.0
         version: 7.3.1
       '@udixio/core':
-        specifier: 0.2.2-next.0
+        specifier: 0.2.2-next.1
         version: link:../core
       '@udixio/icons-rounded-400':
-        specifier: 0.2.1
+        specifier: 0.2.2-next.0
         version: link:../icons/icons-rounded-400
       '@udixio/tailwind':
-        specifier: 5.0.0
+        specifier: 5.0.1-next.0
         version: link:../tailwind
       '@udixio/theme':
-        specifier: 5.0.0
+        specifier: 5.0.1-next.0
         version: link:../theme
       clsx:
         specifier: ^1.1.1
@@ -11979,6 +11979,28 @@ packages:
     dependencies:
       '@typescript-eslint/types': 8.67.0
       eslint-visitor-keys: 5.0.1
+
+  /@udixio/core@0.2.2-next.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.8)(react@19.2.8):
+    resolution: {integrity: sha512-JtQTM9PUI2QJXBTaJLSiaQStFGMfhANjoMTgi+E8vLF3JX+ANPZvcqm+Os7ovXUCcFKGymWBPnimscJ6rmdh2w==}
+    peerDependencies:
+      react: '>19.0.0'
+    dependencies:
+      '@fortawesome/fontawesome-svg-core': 7.3.1
+      animejs: 4.5.0
+      clsx: 2.1.1
+      motion: 12.43.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.8)(react@19.2.8)
+      react: 19.2.8
+      tailwind-merge: 3.6.0
+    transitivePeerDependencies:
+      - '@emotion/is-prop-valid'
+      - '@types/three'
+      - react-dom
+      - three
+    dev: false
+
+  /@udixio/icons-rounded-400@0.2.1:
+    resolution: {integrity: sha512-UYikMnvRX0LoAKBjk7c+iiAoA+9Vb7SZ1BvWWuZoRALKslZUo2Sh9xGHsBptgo04OISqfwA+WLIXD4DuN/a0bA==}
+    dev: false
 
   /@ungap/structured-clone@1.3.3:
     resolution: {integrity: sha512-60YRaenCQcVjYEKOcG824+DRGGIQ3VKErcBoAEDJZz5bKIs2ZG+X/H9Nk+Q6EVkwJk5QNApxbrc5QtBSwtrXAg==}

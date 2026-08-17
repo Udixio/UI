@@ -1,6 +1,6 @@
 {
   "name": "@udixio/tailwind",
-  "version": "5.0.0",
+  "version": "5.0.1-next.0",
   "type": "module",
   "main": "./dist/node.js",
   "module": "./dist/node.js",
@@ -29,7 +29,7 @@
     "text-case": "^1.2.9",
     "tailwindcss": "^4.1.12",
     "pathe": "^2.0.3",
-    "@udixio/theme": "5.0.0",
+    "@udixio/theme": "5.0.1-next.0",
     "tslib": "^2.3.0"
   },
   "repository": {

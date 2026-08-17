@@ -1,3 +1,21 @@
+## 5.1.0-next.1 (2026-08-16)
+
+### 🩹 Fixes
+
+- **text-field:** resolve select label from projected MenuItem children ([72dad289](https://github.com/Udixio/UI/commit/72dad289))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 5.0.1-next.0
+- Updated @udixio/theme to 5.0.1-next.0
+- Updated @udixio/core to 0.2.2-next.1
+- Updated @udixio/icons-rounded-400 to 0.2.2-next.0
+
+### ❤️ Thank You
+
+- Claude Opus 5
+- Joël VIGREUX
+
 ## 5.1.0-next.0 (2026-08-13)
 
 ### 🚀 Features
