@@ -5,6 +5,7 @@ import {
   booleanAttribute,
   computed,
   input,
+  type InputSignal,
   output,
   viewChild,
   ElementRef,
@@ -123,7 +124,9 @@ export class IconButton implements OnInit {
   readonly shape = input<IconButtonProps['shape']>('rounded');
   readonly shapeFeedback =
     input<NonNullable<IconButtonProps['shapeFeedback']>>('morph');
-  readonly transition = input<IconButtonProps['transition']>();
+  readonly transition: InputSignal<IconButtonProps['transition']> = input<
+    IconButtonProps['transition']
+  >();
   readonly toggleable = input(false, { transform: booleanAttribute });
   readonly pressed = input<boolean | undefined, unknown>(undefined, {
     transform: optionalBooleanAttribute,

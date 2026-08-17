@@ -320,7 +320,7 @@ export class TextField implements OnInit {
   /** Fires when the underlying control loses focus. */
   readonly blur = output<void>();
 
-  protected readonly classNames = classNames;
+  protected readonly classNames: typeof classNames = classNames;
   protected readonly errorIcon = iError;
 
   private readonly generatedId = `text-field-${nextTextFieldId++}`;

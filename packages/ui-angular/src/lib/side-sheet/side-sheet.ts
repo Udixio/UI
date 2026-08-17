@@ -9,6 +9,7 @@ import {
   computed,
   inject,
   input,
+  type InputSignal,
   output,
   untracked,
   viewChild,
@@ -138,7 +139,9 @@ export class SideSheet implements OnInit, OnDestroy {
   /** Portal target for `variant="modal"`. Defaults to `document.body`. */
   readonly container = input<Element | null | undefined>(undefined);
   /** Motion transition shared by every framework for the open/close width and opacity animation. */
-  readonly transition = input<SideSheetProps['transition']>();
+  readonly transition: InputSignal<SideSheetProps['transition']> = input<
+    SideSheetProps['transition']
+  >();
 
   /** Emits an accepted open-state request and supports `[(open)]`. */
   readonly openChange = output<boolean>();

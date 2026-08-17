@@ -6,6 +6,7 @@ import {
   computed,
   effect,
   input,
+  type InputSignal,
   output,
   signal,
   type OnInit,
@@ -142,7 +143,9 @@ export class Button implements OnInit {
   readonly shape = input<ButtonProps['shape']>('rounded');
   readonly shapeFeedback =
     input<NonNullable<ButtonProps['shapeFeedback']>>('morph');
-  readonly transition = input<ButtonProps['transition']>();
+  readonly transition: InputSignal<ButtonProps['transition']> = input<
+    ButtonProps['transition']
+  >();
   readonly toggleable = input(false, { transform: booleanAttribute });
   readonly pressed = input<boolean | undefined, unknown>(undefined, {
     transform: optionalBooleanAttribute,

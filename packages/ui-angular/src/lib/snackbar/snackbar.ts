@@ -5,6 +5,7 @@ import {
   afterRenderEffect,
   booleanAttribute,
   input,
+  type InputSignal,
   output,
   untracked,
   viewChild,
@@ -85,7 +86,9 @@ export class Snackbar implements OnInit {
   readonly defaultOpen = input(true, { transform: booleanAttribute });
   readonly duration = input<SnackbarProps['duration']>();
   readonly closeIcon = input<NonNullable<SnackbarProps['closeIcon']>>(iClose);
-  readonly transition = input<SnackbarProps['transition']>();
+  readonly transition: InputSignal<SnackbarProps['transition']> = input<
+    SnackbarProps['transition']
+  >();
   /** Classes or state-aware element classes applied through the shared style contract. */
   readonly className = input<string | ClassNameComponent<SnackbarInterface>>();
 
