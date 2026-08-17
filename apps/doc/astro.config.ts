@@ -39,16 +39,26 @@ export default defineConfig({
 
   fonts: [
     {
-      provider: fontProviders.google(),
+      provider: fontProviders.local(),
       name: 'Roboto',
       cssVariable: '--font-roboto',
-      weights: [400, 500],
+      options: {
+        variants: [
+          { src: ['@fontsource/roboto/files/roboto-latin-400-normal.woff2'], weight: 400 },
+          { src: ['@fontsource/roboto/files/roboto-latin-500-normal.woff2'], weight: 500 },
+        ],
+      },
     },
     {
-      provider: fontProviders.google(),
+      provider: fontProviders.local(),
       name: 'Montserrat',
       cssVariable: '--font-montserrat',
-      weights: [400, 500],
+      options: {
+        variants: [
+          { src: ['@fontsource/montserrat/files/montserrat-latin-400-normal.woff2'], weight: 400 },
+          { src: ['@fontsource/montserrat/files/montserrat-latin-500-normal.woff2'], weight: 500 },
+        ],
+      },
     },
   ],
 
