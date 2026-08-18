@@ -5,12 +5,17 @@ import { classNames } from './classnames';
 /**
  * Forces every key of `T` to be passed explicitly while still allowing
  * `undefined` as a value, so a style function can never read a silently absent
- * prop. Mapping over `keyof Required<T>` rather than using the `-?` modifier is
- * deliberate: `-?` strips `undefined` from the value type, even when the union
- * spells it out.
+ * prop.
+ *
+ * The `& PropertyKey` is what makes that possible. A mapped type written
+ * directly over `keyof T` is *homomorphic*, and TypeScript then treats `-?` as
+ * removing `undefined` from the value type as well as removing the `?` — so
+ * `T[K] | undefined` collapses back to `T[K]`. Mapping over `keyof Required<T>`
+ * has exactly the same effect. Intersecting the key type breaks the
+ * homomorphic link, leaving `-?` to do only what it says.
  */
 type RequiredNullable<T> = {
-  [K in keyof Required<T>]: T[K] | undefined;
+  [K in keyof T & PropertyKey]-?: T[K] | undefined;
 };
 
 export interface StyleProps<T extends ComponentInterface> {
@@ -67,8 +72,10 @@ export const defaultClassNames = <T extends ComponentInterface>(
   defaultClassName: ClassNameComponent<T> | string,
 ) => {
   return (
+    // No `& T['props']` here: intersecting the mapped type with the original
+    // props re-imposes the non-optional value types, cancelling out the
+    // `| undefined` that lets a caller pass a prop it has not resolved yet.
     states: RequiredNullable<T['props']> &
-      T['props'] &
       T['states'] & {
         className: ClassNameComponent<T> | string | undefined;
       },

@@ -1,4 +1,3 @@
-import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Button } from '../lib/index.js';
 import '@testing-library/jest-dom';

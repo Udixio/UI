@@ -1,4 +1,4 @@
-import React, { act } from 'react';
+import { act } from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { axe, toHaveNoViolations } from 'jest-axe';

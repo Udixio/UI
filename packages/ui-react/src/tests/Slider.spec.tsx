@@ -1,4 +1,3 @@
-import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { animate } from 'motion';
 import { Slider } from '../lib/index.js';

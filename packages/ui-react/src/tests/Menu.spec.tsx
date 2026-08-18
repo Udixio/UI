@@ -1,8 +1,7 @@
-import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { vi } from 'vitest';
+import { expect, vi } from 'vitest';
 import {
   ContextMenu,
   Menu,

@@ -1,8 +1,8 @@
-import React, { act } from 'react';
+import { act } from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { vi } from 'vitest';
+import { expect, vi } from 'vitest';
 import { Snackbar } from '../lib/index.js';
 
 expect.extend(toHaveNoViolations);

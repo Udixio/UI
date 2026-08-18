@@ -29,25 +29,30 @@ export type {
   TooltipVariant,
 } from '@udixio/core';
 
-export type ReactTooltipProps<T extends HTMLElement = HTMLElement> =
-  ReactProps<TooltipInterface> & {
-    /** Custom content slot that replaces title/text/buttons when provided */
-    content?: ReactNode;
-    buttons?: ReactButtonProps | ReactButtonProps[];
-    /** Custom anchor for positioning. Defaults to the trigger element. */
-    anchorRef?: RefObject<HTMLElement | null>;
-    /** Notifies an accepted open-state request. */
-    onOpenChange?: (open: boolean) => void;
-  } & (
-      | {
-          children?: never;
-          targetRef: RefObject<T | null>;
-        }
-      | {
-          children: ReactNode;
-          targetRef?: never;
-        }
-    );
+// `content` is omitted from the DOM attributes on purpose: React types the
+// global microdata `content` attribute as `string`, which would intersect with
+// the slot below and leave `string & ReactNode`.
+export type ReactTooltipProps<T extends HTMLElement = HTMLElement> = Omit<
+  ReactProps<TooltipInterface>,
+  'content'
+> & {
+  /** Custom content slot that replaces title/text/buttons when provided */
+  content?: ReactNode;
+  buttons?: ReactButtonProps | ReactButtonProps[];
+  /** Custom anchor for positioning. Defaults to the trigger element. */
+  anchorRef?: RefObject<HTMLElement | null>;
+  /** Notifies an accepted open-state request. */
+  onOpenChange?: (open: boolean) => void;
+} & (
+    | {
+        children?: never;
+        targetRef: RefObject<T | null>;
+      }
+    | {
+        children: ReactNode;
+        targetRef?: never;
+      }
+  );
 
 export const useTooltipStyle = createUseStyle(tooltipStyle);
 

@@ -1,8 +1,8 @@
-import React, { act, useRef } from 'react';
+import { act, useRef } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { vi } from 'vitest';
+import { expect, vi } from 'vitest';
 import { Button, Tooltip } from '../lib/index.js';
 import { createTooltipTransitionController } from '@udixio/core/dom';
 

@@ -23,7 +23,7 @@ export default defineConfig(async () => ({
   // runtime, even when a caller has NODE_ENV=development in its shell.
   oxc: {
     jsx: {
-      runtime: 'automatic',
+      runtime: 'automatic' as const,
       development: false,
     },
   },
