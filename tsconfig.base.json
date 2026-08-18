@@ -18,9 +18,12 @@
     "target": "es2022",
     "customConditions": ["development"],
     "paths": {
-      "@udixio/ui-angular": ["./packages/ui-angular/src/index.ts"],
-      "@udixio/core": ["./packages/core/src/index.ts"],
-      "@udixio/core/dom": ["./packages/core/src/dom.ts"]
+      // ng-packagr generates `@udixio/ui-angular`'s manifest at build time, so its
+      // source package.json has no `exports` to resolve through the `development`
+      // condition. Every other package must stay out of this map: vite-plugin-dts
+      // rewrites `paths` aliases into relative source paths, emitting broken
+      // specifiers like `../../../packages/core/src/index.ts` in the .d.ts files.
+      "@udixio/ui-angular": ["./packages/ui-angular/src/index.ts"]
     }
   }
 }

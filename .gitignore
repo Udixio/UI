@@ -58,5 +58,8 @@ vitest.config.*.timestamp*
 
 test-output
 
+# scratch emit from the spec tsconfigs (outDir: ./out-tsc)
+out-tsc
+
 # personal Claude Code settings (permissions, local prefs)
 .claude/settings.local.json
