@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { buttonStyle } from './button.style';
 import { cardStyle } from './card.style';
 import { iconButtonStyle } from './icon-button.style';
-import type { ButtonInterface } from '../interfaces';
 import type { CardInterface } from '../interfaces';
 
 /**
@@ -11,13 +10,17 @@ import type { CardInterface } from '../interfaces';
  * refactor: any drift in the resolved class strings fails here.
  */
 describe('class engine characterization', () => {
-  const buttonState = (extra: Partial<ButtonInterface['props']> = {}) =>
+  // Style functions take every prop key explicitly, so derive the state shape
+  // from the function itself rather than restating it here.
+  type ButtonState = Parameters<typeof buttonStyle>[0];
+
+  const buttonState = (extra: Partial<ButtonState> = {}) =>
     ({
       variant: 'filled',
       size: 'medium',
       shape: 'rounded',
       ...extra,
-    }) as ButtonInterface['props'] & { className?: any };
+    }) as ButtonState;
 
   it('button: filled medium rounded', () => {
     expect(buttonStyle(buttonState())).toMatchInlineSnapshot(`

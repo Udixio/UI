@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createAnchorPositionerController } from './anchor-positioner.js';
 
 class NoopResizeObserver {
-  constructor(private cb: ResizeObserverCallback) {}
+  constructor(_cb: ResizeObserverCallback) {}
   observe() {}
   unobserve() {}
   disconnect() {}

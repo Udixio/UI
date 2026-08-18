@@ -7,7 +7,7 @@ import {
 } from './custom-scroll.js';
 
 class NoopResizeObserver {
-  constructor(private cb: ResizeObserverCallback) {}
+  constructor(_cb: ResizeObserverCallback) {}
   observe() {}
   unobserve() {}
   disconnect() {}
