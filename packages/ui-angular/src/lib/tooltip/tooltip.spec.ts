@@ -198,7 +198,9 @@ describe('Tooltip (Angular)', () => {
     const rapid = TestBed.createComponent(RapidHoverHarness);
     rapid.detectChanges();
     const [first, second, last] = Array.from(
-      rapid.nativeElement.querySelectorAll<HTMLButtonElement>('button'),
+      (rapid.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>(
+        'button',
+      ),
     );
     const enter = (target: HTMLElement) =>
       target.dispatchEvent(
@@ -452,7 +454,7 @@ describe('Tooltip (Angular) targeting a display:contents component host', () => 
     `,
   })
   class ButtonTargetHarness {
-    readonly hostRef = viewChild.required<ElementRef<HTMLElement>>(
+    readonly hostRef = viewChild.required<unknown, ElementRef<HTMLElement>>(
       'buttonHost',
       { read: ElementRef },
     );

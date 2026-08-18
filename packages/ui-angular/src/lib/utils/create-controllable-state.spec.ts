@@ -1,5 +1,4 @@
 import { signal } from '@angular/core';
-import { jest } from '@jest/globals';
 import { createControllableState } from './create-controllable-state';
 
 describe('createControllableState', () => {

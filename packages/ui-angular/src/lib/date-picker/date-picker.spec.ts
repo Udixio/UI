@@ -20,7 +20,7 @@ function dayButton(
   day: number,
 ): HTMLButtonElement {
   const buttons = Array.from(
-    fixture.nativeElement.querySelectorAll<HTMLButtonElement>(
+    (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>(
       '[role="gridcell"] button',
     ),
   );
@@ -291,7 +291,9 @@ describe('DatePicker (Angular)', () => {
     await new Promise((resolve) => setTimeout(resolve));
 
     expect(scrollIntoView).toHaveBeenCalled();
-    const target = scrollIntoView.mock.instances[0] as HTMLElement;
+    // `scrollIntoView` declares no `this`, so jest types the recorded
+    // instances as `void`; the call target really is the element.
+    const target = scrollIntoView.mock.instances[0] as unknown as HTMLElement;
     expect(target.tagName).toBe('BUTTON');
     expect(target.textContent?.trim()).toBe('2024');
 

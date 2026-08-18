@@ -19,8 +19,10 @@
     "@udixio/icons-rounded-400": "0.2.1"
   },
   "devDependencies": {
+    "@fortawesome/fontawesome-svg-core": "^7.0.0",
     "@types/jest-axe": "^3.5.9",
-    "jest-axe": "^10.0.0"
+    "jest-axe": "^10.0.0",
+    "motion": "^12.23.0"
   },
   "sideEffects": false
 }

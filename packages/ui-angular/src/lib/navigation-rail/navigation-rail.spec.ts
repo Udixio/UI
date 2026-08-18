@@ -134,8 +134,8 @@ describe('NavigationRail (Angular, consuming @udixio/core)', () => {
     fixture.detectChanges();
 
     const buttons: HTMLElement[] = Array.from(
-      fixture.nativeElement.querySelectorAll('button'),
-    ).filter((el) => (el as HTMLElement).textContent?.includes('Clock'));
+      (fixture.nativeElement as HTMLElement).querySelectorAll('button'),
+    ).filter((el) => el.textContent?.includes('Clock'));
     (buttons[0] as HTMLButtonElement).click();
     fixture.detectChanges();
 
