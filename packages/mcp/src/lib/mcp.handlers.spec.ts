@@ -96,7 +96,10 @@ type ResourceHandler = (
   params: Record<string, unknown>,
 ) => Promise<{ contents: { uri: string; mimeType?: string; text: string }[] }>;
 
-class TestServer implements Partial<McpServer> {
+// Narrow stand-in: it only records what the handlers register, and is cast to
+// `McpServer` at the call site. Declaring `implements Partial<McpServer>` would
+// demand the SDK's full overload set on both register methods.
+class TestServer {
   public tools = new Map<string, { config: unknown; handler: ToolHandler }>();
   public resources = new Map<
     string,

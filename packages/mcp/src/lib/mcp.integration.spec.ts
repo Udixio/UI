@@ -8,60 +8,6 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import type { ThemeSnapshot } from './loaders/theme';
 
-// ── Mock data ──────────────────────────────────────────────
-
-const mockComponentsIndex = {
-  count: 3,
-  components: [
-    { name: 'Button', file: 'components/Button.tsx' },
-    { name: 'Card', file: 'components/Card.tsx' },
-    { name: 'Dialog', file: 'components/Dialog.tsx' },
-  ],
-};
-
-const mockThemeSnapshot: ThemeSnapshot = {
-  config: {
-    sourceColor: '#6750A4',
-    contrastLevel: 0,
-    isDark: false,
-    variant: 'TONAL_SPOT',
-  },
-  palettes: {
-    primary: { hue: 271.6, chroma: 56.2 },
-    secondary: { hue: 271.6, chroma: 16.0 },
-    tertiary: { hue: 331.6, chroma: 32.0 },
-    neutral: { hue: 271.6, chroma: 4.0 },
-    error: { hue: 25.0, chroma: 84.0 },
-  },
-  colors: {
-    light: {
-      primary: { hex: '#6750A4', tone: 40 },
-      onPrimary: { hex: '#FFFFFF', tone: 100 },
-      surface: { hex: '#FFFBFE', tone: 99 },
-    },
-    dark: {
-      primary: { hex: '#D0BCFF', tone: 80 },
-      onPrimary: { hex: '#381E72', tone: 20 },
-      surface: { hex: '#1C1B1F', tone: 6 },
-    },
-  },
-  customPalettes: [],
-};
-
-const mockDocContent = `---
-title: Button Component
----
-
-# Button
-
-The Button component handles user interactions.
-
-## Props
-
-- variant: primary | secondary
-- size: sm | md | lg
-`;
-
 // ── Mock loaders (file I/O only) ───────────────────────────
 
 vi.mock('./loaders/components', () => ({

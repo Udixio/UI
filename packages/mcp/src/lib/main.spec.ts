@@ -31,12 +31,16 @@ vi.mock('./mcp', () => ({
 }));
 
 vi.mock('express', () => {
-  const expressFn = vi.fn(() => ({
-    use: mockUse,
-    post: mockPost,
-    listen: mockListen,
-  }));
-  expressFn.json = vi.fn();
+  // `express` is callable *and* carries `express.json`; assigning the property
+  // onto the bare mock does not widen its type, so build the pair up front.
+  const expressFn = Object.assign(
+    vi.fn(() => ({
+      use: mockUse,
+      post: mockPost,
+      listen: mockListen,
+    })),
+    { json: vi.fn() },
+  );
   return { default: expressFn };
 });
 
