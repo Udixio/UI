@@ -41,7 +41,7 @@ const chipConfig: ClassNameComponent<ChipInterface> = ({
   ),
 
   stateLayer: cx('rounded-lg overflow-hidden', {}),
-  label: cx('outline-none text-nowrap', {
+  label: cx('text-label-large outline-none text-nowrap', {
     'opacity-[0.38]': disabled,
   }),
   leadingIcon: cx('text-primary size-[18px]', {

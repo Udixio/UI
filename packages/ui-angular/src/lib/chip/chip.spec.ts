@@ -38,6 +38,16 @@ describe('Chip', () => {
     expect(fixture.nativeElement.firstElementChild.tagName).toBe('BUTTON');
   });
 
+  it('applies Material label-large typography to the label', () => {
+    fixture.detectChanges();
+
+    const label: HTMLSpanElement = Array.from<HTMLSpanElement>(
+      fixture.nativeElement.querySelectorAll('span'),
+    ).find((span) => span.textContent === 'Filter')!;
+    expect(label).toBeTruthy();
+    expect(label.className).toContain('text-label-large');
+  });
+
   it('uses the shared Udixio selected icon and state-layer color', () => {
     fixture.componentRef.setInput(
       'icon',
