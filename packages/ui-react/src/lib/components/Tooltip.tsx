@@ -29,19 +29,19 @@ export type {
   TooltipVariant,
 } from '@udixio/core';
 
-export type ReactTooltipProps<T extends HTMLElement = any> =
+export type ReactTooltipProps<T extends HTMLElement = HTMLElement> =
   ReactProps<TooltipInterface> & {
     /** Custom content slot that replaces title/text/buttons when provided */
     content?: ReactNode;
     buttons?: ReactButtonProps | ReactButtonProps[];
     /** Custom anchor for positioning. Defaults to the trigger element. */
-    anchorRef?: RefObject<HTMLElement>;
+    anchorRef?: RefObject<HTMLElement | null>;
     /** Notifies an accepted open-state request. */
     onOpenChange?: (open: boolean) => void;
   } & (
       | {
           children?: never;
-          targetRef: RefObject<T>;
+          targetRef: RefObject<T | null>;
         }
       | {
           children: ReactNode;
