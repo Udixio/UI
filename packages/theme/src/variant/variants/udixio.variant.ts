@@ -162,8 +162,6 @@ export const udixioVariant: Variant = variant({
     const onColorContainerKey = ('on' +
       ColorKey +
       'Container') as DynamicColorKey;
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
     // const inverseColorKey = ('inverse' + ColorKey) as DynamicColorKey;
     // const colorFixedKey = (colorKey + 'Fixed') as DynamicColorKey;
     // const colorFixedDimKey = (colorKey + 'FixedDim') as DynamicColorKey;

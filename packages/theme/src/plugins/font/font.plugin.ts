@@ -66,7 +66,7 @@ class FontPluginImpl extends PluginImplAbstract<FontPluginOptions> {
     };
   }
 
-  onInit(): void {
+  override onInit(): void {
     this.fontFamily = {
       expressive: this.options?.fontFamily?.expressive ?? [
         'Roboto',

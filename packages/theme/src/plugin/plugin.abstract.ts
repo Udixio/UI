@@ -50,7 +50,12 @@ export abstract class PluginImplAbstract<Options extends object> {
     this.onInit?.();
   }
 
-  abstract onInit?(): void;
+  /**
+   * Crochets de cycle de vie, tous deux facultatifs : ils sont appelés en
+   * `?.()`, et une implémentation n'en fournit souvent qu'un seul. Les
+   * déclarer `abstract` forcerait chaque plugin à écrire les deux.
+   */
+  onInit?(): void;
 
-  abstract onLoad?(): void;
+  onLoad?(): void | Promise<void>;
 }

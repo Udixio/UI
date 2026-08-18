@@ -21,7 +21,8 @@ const createUnpluginTheme = async () => {
     let resolvedConfigPath: string;
 
     // Skip pendant la génération du graph NX
-    if (global.NX_GRAPH_CREATION) {
+    // NX_GRAPH_CREATION est posé sur le global par Nx, hors de tout typage.
+    if ((globalThis as Record<string, unknown>)['NX_GRAPH_CREATION']) {
       return {
         name: 'udixio-theme',
       };
@@ -86,6 +87,8 @@ const createUnpluginTheme = async () => {
             // Retourner [] pour stopper le traitement HMR par défaut
             return [];
           }
+          // Sinon, laisser Vite appliquer son traitement HMR par défaut.
+          return undefined;
         },
       },
 
