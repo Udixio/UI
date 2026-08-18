@@ -1,3 +1,9 @@
+# pnpm 10 defaults this to false, which resolves the internal `@udixio/*`
+# dependencies from the registry even though the workspace builds them. The
+# packages depend on each other by exact version rather than `workspace:*`, and
+# the `development` export condition only reaches real sources through a
+# workspace link, so this has to stay on.
+linkWorkspacePackages: true
 ignoredBuiltDependencies:
   - 'core-js-pure'
   - 'sharp'

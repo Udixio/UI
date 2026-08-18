@@ -763,7 +763,7 @@ importers:
         version: 1.26.0(zod@4.3.6)
       '@udixio/theme':
         specifier: 5.0.1-next.0
-        version: 5.0.1-next.0
+        version: link:../theme
       express:
         specifier: ^5.1.0
         version: 5.2.1
@@ -794,7 +794,7 @@ importers:
     dependencies:
       '@udixio/theme':
         specifier: 5.0.1-next.0
-        version: 5.0.1-next.0
+        version: link:../theme
       pathe:
         specifier: ^2.0.3
         version: 2.0.3
@@ -860,11 +860,11 @@ importers:
         specifier: ^21.0.0
         version: 21.2.18(@angular/animations@21.2.20(@angular/core@21.2.18(@angular/compiler@21.2.18)(rxjs@7.8.2)(zone.js@0.16.2)))(@angular/common@21.2.18(@angular/core@21.2.18(@angular/compiler@21.2.18)(rxjs@7.8.2)(zone.js@0.16.2))(rxjs@7.8.2))(@angular/core@21.2.18(@angular/compiler@21.2.18)(rxjs@7.8.2)(zone.js@0.16.2))
       '@udixio/core':
-        specifier: 0.2.2-next.0
-        version: 0.2.2-next.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        specifier: 0.2.2-next.1
+        version: link:../core
       '@udixio/icons-rounded-400':
-        specifier: 0.2.1
-        version: 0.2.1
+        specifier: 0.2.2-next.0
+        version: link:../icons/icons-rounded-400
     devDependencies:
       '@fortawesome/fontawesome-svg-core':
         specifier: ^7.0.0
@@ -886,16 +886,16 @@ importers:
         version: 7.3.1
       '@udixio/core':
         specifier: 0.2.2-next.1
-        version: 0.2.2-next.1(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        version: link:../core
       '@udixio/icons-rounded-400':
         specifier: 0.2.2-next.0
-        version: 0.2.2-next.0
+        version: link:../icons/icons-rounded-400
       '@udixio/tailwind':
         specifier: 5.0.1-next.0
-        version: 5.0.1-next.0
+        version: link:../tailwind
       '@udixio/theme':
         specifier: 5.0.1-next.0
-        version: 5.0.1-next.0
+        version: link:../theme
       clsx:
         specifier: ^1.1.1
         version: 1.2.1
@@ -6623,29 +6623,6 @@ packages:
   '@typescript-eslint/visitor-keys@8.67.0':
     resolution: {integrity: sha512-fkv8dHRDqfGtTHuJeebdrQ7cX6Ad4WAS00rgHh9UGvMycF1mjBfsxry1XsLIFhWZ6Judlh6UdzK+TYlbpCXgnA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
-  '@udixio/core@0.2.2-next.0':
-    resolution: {integrity: sha512-JtQTM9PUI2QJXBTaJLSiaQStFGMfhANjoMTgi+E8vLF3JX+ANPZvcqm+Os7ovXUCcFKGymWBPnimscJ6rmdh2w==}
-    peerDependencies:
-      react: '>19.0.0'
-
-  '@udixio/core@0.2.2-next.1':
-    resolution: {integrity: sha512-Od6CE8IMcP8uGZWzyfuFHiPRcL00q7agzGvu7F9VqgEkmaDYyPmyhokhq1T50qrxR4+Ybks8T5ixHoPiydrtQw==}
-    peerDependencies:
-      react: '>19.0.0'
-
-  '@udixio/icons-rounded-400@0.2.1':
-    resolution: {integrity: sha512-UYikMnvRX0LoAKBjk7c+iiAoA+9Vb7SZ1BvWWuZoRALKslZUo2Sh9xGHsBptgo04OISqfwA+WLIXD4DuN/a0bA==}
-
-  '@udixio/icons-rounded-400@0.2.2-next.0':
-    resolution: {integrity: sha512-cpW1fx5yPyUVQBV2uL3LMWZt1DudD+vHpycODsz8ZK5iIsZO66MNc3UPhBNHN24v920a7eRPvQzkcKcTIH3ZxQ==}
-
-  '@udixio/tailwind@5.0.1-next.0':
-    resolution: {integrity: sha512-qBLgbqNlcar+2/+YvYh7fd+Sx0qTGEFmY1Sw+9P5muvetyAEMTk6Rrmr60GwmmaKuUBuBx+/Nuarlb3LIWjS7g==}
-
-  '@udixio/theme@5.0.1-next.0':
-    resolution: {integrity: sha512-x7nPNh0Pt+0/1h3lH5AIHMGyTB9wnvuCevqRY9OwhPNQ41apvCsvEF4MAdetIZ9rA21vkqnUVui44MAZqs4vlQ==}
-    hasBin: true
 
   '@ungap/structured-clone@1.3.3':
     resolution: {integrity: sha512-60YRaenCQcVjYEKOcG824+DRGGIQ3VKErcBoAEDJZz5bKIs2ZG+X/H9Nk+Q6EVkwJk5QNApxbrc5QtBSwtrXAg==}
@@ -22571,7 +22548,7 @@ snapshots:
 
   '@typescript-eslint/utils@5.62.0(eslint@8.57.1)(typescript@5.9.3)':
     dependencies:
-      '@eslint-community/eslint-utils': 4.10.1(eslint@8.57.1)
+      '@eslint-community/eslint-utils': 4.10.1(eslint@9.39.5(jiti@2.4.2))
       '@types/json-schema': 7.0.15
       '@types/semver': 7.8.0
       '@typescript-eslint/scope-manager': 5.62.0
@@ -22635,60 +22612,6 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.67.0
       eslint-visitor-keys: 5.0.1
-
-  '@udixio/core@0.2.2-next.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
-    dependencies:
-      '@fortawesome/fontawesome-svg-core': 7.3.1
-      animejs: 4.5.0
-      clsx: 2.1.1
-      motion: 12.43.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      react: 19.2.8
-      tailwind-merge: 3.6.0
-    transitivePeerDependencies:
-      - '@emotion/is-prop-valid'
-      - '@types/three'
-      - react-dom
-      - three
-
-  '@udixio/core@0.2.2-next.1(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
-    dependencies:
-      '@fortawesome/fontawesome-svg-core': 7.3.1
-      animejs: 4.5.0
-      clsx: 2.1.1
-      motion: 12.43.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      react: 19.2.8
-      tailwind-merge: 3.6.0
-    transitivePeerDependencies:
-      - '@emotion/is-prop-valid'
-      - '@types/three'
-      - react-dom
-      - three
-
-  '@udixio/icons-rounded-400@0.2.1': {}
-
-  '@udixio/icons-rounded-400@0.2.2-next.0': {}
-
-  '@udixio/tailwind@5.0.1-next.0':
-    dependencies:
-      '@udixio/theme': 5.0.1-next.0
-      pathe: 2.0.3
-      tailwindcss: 4.3.3
-      text-case: 1.2.11
-      tslib: 2.8.1
-
-  '@udixio/theme@5.0.1-next.0':
-    dependencies:
-      '@material/material-color-utilities': 0.3.0
-      awilix: 12.1.1
-      chalk: 5.6.2
-      chokidar: 4.0.3
-      commander: 14.0.3
-      jiti: 2.7.0
-      mri: 1.2.0
-      pathe: 2.0.3
-      replace-in-file: 8.4.0
-      tailwindcss: 4.3.3
-      unplugin: 2.3.11
 
   '@ungap/structured-clone@1.3.3': {}
 
