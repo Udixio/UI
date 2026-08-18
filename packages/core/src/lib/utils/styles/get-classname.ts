@@ -2,8 +2,15 @@ import { ComponentInterface } from '../component';
 import { convertToKebabCase } from '../string';
 import { classNames } from './classnames';
 
+/**
+ * Forces every key of `T` to be passed explicitly while still allowing
+ * `undefined` as a value, so a style function can never read a silently absent
+ * prop. Mapping over `keyof Required<T>` rather than using the `-?` modifier is
+ * deliberate: `-?` strips `undefined` from the value type, even when the union
+ * spells it out.
+ */
 type RequiredNullable<T> = {
-  [K in keyof T]-?: any;
+  [K in keyof Required<T>]: T[K] | undefined;
 };
 
 export interface StyleProps<T extends ComponentInterface> {
