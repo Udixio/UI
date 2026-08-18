@@ -9,8 +9,7 @@
       "node",
       "vitest"
     ],
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
+    "lib": ["es2022", "dom", "dom.iterable"],
     "forceConsistentCasingInFileNames": true
   },
   "include": [

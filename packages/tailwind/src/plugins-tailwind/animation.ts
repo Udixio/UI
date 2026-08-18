@@ -5,6 +5,42 @@ export interface AnimationPluginOptions {
   prefix?: string;
 }
 
+/** Les huit directions d'où une entrée `slide` peut venir. */
+type SlideDirection =
+  | 'from-top'
+  | 'from-bottom'
+  | 'from-left'
+  | 'from-right'
+  | 'from-top-left'
+  | 'from-top-right'
+  | 'from-bottom-left'
+  | 'from-bottom-right';
+
+/**
+ * Alias utilisateur -> direction d'origine. Les alias directionnels nomment la
+ * destination (`up` monte), donc l'origine est l'opposé.
+ *
+ * L'ordre des clés fixe l'ordre d'émission des utilitaires.
+ */
+const SLIDE_DIRECTION_BY_ALIAS: Record<string, SlideDirection> = {
+  up: 'from-bottom',
+  down: 'from-top',
+  left: 'from-right',
+  right: 'from-left',
+  'from-top': 'from-top',
+  'from-bottom': 'from-bottom',
+  'from-left': 'from-left',
+  'from-right': 'from-right',
+  'from-top-left': 'from-top-left',
+  'from-top-right': 'from-top-right',
+  'from-bottom-left': 'from-bottom-left',
+  'from-bottom-right': 'from-bottom-right',
+  'up-left': 'from-bottom-right',
+  'up-right': 'from-bottom-left',
+  'down-left': 'from-top-right',
+  'down-right': 'from-top-left',
+};
+
 const createAnimationFunc =
   ({
     addBase,
@@ -116,7 +152,7 @@ const createAnimationFunc =
 // - prefixed utilities for animation properties: {prefix}-duration-*, {prefix}-delay-*, {prefix}-ease-*, {prefix}-fill-*, {prefix}-direction-*, {prefix}-repeat
 // - usage: compose triggers ({prefix}-in|{prefix}-out or {prefix}-view*) + effects (fade/scale/slide/spin) + params
 export const animation = plugin.withOptions(
-  ({ prefix = 'anim' }: AnimationPluginOptions) => {
+  ({ prefix = 'anim' }: AnimationPluginOptions = {}) => {
     return ({ addBase, matchUtilities, addUtilities, theme }: PluginAPI) => {
       const animationNames: Set<string> = new Set();
 
@@ -324,106 +360,60 @@ export const animation = plugin.withOptions(
           },
         },
         ({ name, variableName, dependencies }) => {
-          [
-            'up',
-            'down',
-            'left',
-            'right',
-            'from-top',
-            'from-bottom',
-            'from-left',
-            'from-right',
-            'from-top-left',
-            'from-top-right',
-            'from-bottom-left',
-            'from-bottom-right',
-            'up-left',
-            'up-right',
-            'down-left',
-            'down-right',
-          ].forEach((directionAlias) => {
-            let direction:
-              | 'from-top'
-              | 'from-bottom'
-              | 'from-left'
-              | 'from-right'
-              | 'from-top-left'
-              | 'from-top-right'
-              | 'from-bottom-left'
-              | 'from-bottom-right' = '';
-
-            if (directionAlias.startsWith('from-')) {
-              direction = directionAlias;
-            } else if (directionAlias === 'up') {
-              direction = 'from-bottom';
-            } else if (directionAlias === 'down') {
-              direction = 'from-top';
-            } else if (directionAlias === 'left') {
-              direction = 'from-right';
-            } else if (directionAlias === 'right') {
-              direction = 'from-left';
-            } else if (directionAlias === 'up-left') {
-              direction = 'from-bottom-right';
-            } else if (directionAlias === 'up-right') {
-              direction = 'from-bottom-left';
-            } else if (directionAlias === 'down-left') {
-              direction = 'from-top-right';
-            } else if (directionAlias === 'down-right') {
-              direction = 'from-top-left';
-            }
-            if (!direction) {
-              throw new Error(`Invalid direction: ${directionAlias}`);
-            }
-
-            const dxdy: Record<typeof direction, { dx: string; dy: string }> = {
-              'from-top': { dx: '0', dy: '-1' },
-              'from-bottom': { dx: '0', dy: '1' },
-              'from-left': { dx: '-1', dy: '0' },
-              'from-right': { dx: '1', dy: '0' },
-              'from-top-left': { dx: '-1', dy: '-1' },
-              'from-top-right': { dx: '1', dy: '-1' },
-              'from-bottom-left': { dx: '-1', dy: '1' },
-              'from-bottom-right': { dx: '1', dy: '1' },
-            } as const;
-            const { dx, dy } = dxdy[direction];
-
-            addUtilities({
-              [`.${prefix}-${name}-${directionAlias}, .${prefix}-${name}-in-${directionAlias}, .${prefix}-${name}-out-${directionAlias}`]:
+          Object.entries(SLIDE_DIRECTION_BY_ALIAS).forEach(
+            ([directionAlias, direction]) => {
+              const dxdy: Record<typeof direction, { dx: string; dy: string }> =
                 {
-                  [`--${prefix}-name-${name}-${directionAlias}`]: `${prefix}-${name}`,
+                  'from-top': { dx: '0', dy: '-1' },
+                  'from-bottom': { dx: '0', dy: '1' },
+                  'from-left': { dx: '-1', dy: '0' },
+                  'from-right': { dx: '1', dy: '0' },
+                  'from-top-left': { dx: '-1', dy: '-1' },
+                  'from-top-right': { dx: '1', dy: '-1' },
+                  'from-bottom-left': { dx: '-1', dy: '1' },
+                  'from-bottom-right': { dx: '1', dy: '1' },
+                } as const;
+              const { dx, dy } = dxdy[direction];
+
+              addUtilities({
+                [`.${prefix}-${name}-${directionAlias}, .${prefix}-${name}-in-${directionAlias}, .${prefix}-${name}-out-${directionAlias}`]:
+                  {
+                    [`--${prefix}-name-${name}-${directionAlias}`]: `${prefix}-${name}`,
+                    [`--${prefix}-name-${name}`]: `${prefix}-${name}`,
+                    [`--${prefix}-dependencies-${name}`]:
+                      dependencies.join(', '),
+
+                    animationDuration: `var(--${prefix}-duration, 300ms)`,
+                    animationDelay: `var(--${prefix}-delay, 0)`,
+                    animationTimingFunction: `var(--${prefix}-eases, cubic-bezier(0.4, 0, 0.2, 1))`,
+                    animationFillMode: 'both',
+
+                    [variableName('dx')]: dx,
+                    [variableName('dy')]: dy,
+                  },
+                [`.${prefix}-${name}-${directionAlias}, .${prefix}-${name}-in-${directionAlias}`]:
+                  {
+                    [`--${prefix}-play-state-${name}`]: `var(--${prefix}-in-state, paused)`,
+                  },
+                [`.${prefix}-${name}-out-${directionAlias}`]: {
+                  [`--${prefix}-play-state-${name}`]: `var(--${prefix}-out-state, paused)`,
+                },
+              });
+
+              addUtilities({
+                [`.${prefix}-${name}-scroll-${directionAlias}`]: {
                   [`--${prefix}-name-${name}`]: `${prefix}-${name}`,
                   [`--${prefix}-dependencies-${name}`]: dependencies.join(', '),
-
-                  animationDuration: `var(--${prefix}-duration, 300ms)`,
-                  animationDelay: `var(--${prefix}-delay, 0)`,
-                  animationTimingFunction: `var(--${prefix}-eases, cubic-bezier(0.4, 0, 0.2, 1))`,
+                  [`--${prefix}-timeline-${name}`]: `var(--${prefix}-timeline, view())`,
+                  [`--${prefix}-range-${name}`]: `var(--${prefix}-range-start, entry 20%) var(--${prefix}-range-end, cover 50%)`,
                   animationFillMode: 'both',
 
                   [variableName('dx')]: dx,
                   [variableName('dy')]: dy,
                 },
-              [`.${prefix}-${name}-${directionAlias}, .${prefix}-${name}-in-${directionAlias}`]:
-                {
-                  [`--${prefix}-play-state-${name}`]: `var(--${prefix}-in-state, paused)`,
-                },
-              [`.${prefix}-${name}-out-${directionAlias}`]: {
-                [`--${prefix}-play-state-${name}`]: `var(--${prefix}-out-state, paused)`,
-              },
-            });
-
-            addUtilities({
-              [`.${prefix}-${name}-scroll-${directionAlias}`]: {
-                [`--${prefix}-name-${name}`]: `${prefix}-${name}`,
-                [`--${prefix}-dependencies-${name}`]: dependencies.join(', '),
-                [`--${prefix}-timeline-${name}`]: `var(--${prefix}-timeline, view())`,
-                [`--${prefix}-range-${name}`]: `var(--${prefix}-range-start, entry 20%) var(--${prefix}-range-end, cover 50%)`,
-                animationFillMode: 'both',
-
-                [variableName('dx')]: dx,
-                [variableName('dy')]: dy,
-              },
-            });
-          });
+              });
+            },
+          );
         },
       );
 

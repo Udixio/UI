@@ -129,7 +129,7 @@ export class TailwindPlugin extends PluginAbstract<
 export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPluginOptions> {
   public outputCss = '';
 
-  onInit() {
+  override onInit() {
     this.options.responsiveBreakPoints ??= {
       lg: 1.125,
     };
@@ -243,7 +243,7 @@ ${resetColors ? '  --color-*: initial;\n' : ''}  ${Object.entries(colors)
     return colors;
   }
 
-  async onLoad() {
+  override async onLoad() {
     this.outputCss = '';
     // this.getColors();
 
