@@ -1,3 +1,36 @@
+## 0.2.2-next.2 (2026-08-19)
+
+### 🚀 Features
+
+- **fab:** name the icon in a tooltip by default while compact ([18e7d702](https://github.com/Udixio/UI/commit/18e7d702))
+- **ui-angular:** add tsconfig references to icons and core packages ([391fff6b](https://github.com/Udixio/UI/commit/391fff6b))
+- ⚠️  **fab:** restore the extended label transition and realign the sizes ([2884e56e](https://github.com/Udixio/UI/commit/2884e56e))
+
+### 🩹 Fixes
+
+- **chip:** apply Material label-large typography to the chip label ([03834784](https://github.com/Udixio/UI/commit/03834784))
+- **repo:** link @udixio/* from the workspace, not the registry ([8330b682](https://github.com/Udixio/UI/commit/8330b682))
+- **ui-angular:** typecheck the specs against the real module graph ([38652d61](https://github.com/Udixio/UI/commit/38652d61))
+- **ui-react:** emit declarations that resolve to @udixio/core ([48620ec3](https://github.com/Udixio/UI/commit/48620ec3))
+- **ui-angular:** annotate types that TS cannot name across pnpm links ([0a4b344b](https://github.com/Udixio/UI/commit/0a4b344b))
+
+### ⚠️  Breaking Changes
+
+- **fab:** restore the extended label transition and realign the sizes  ([2884e56e](https://github.com/Udixio/UI/commit/2884e56e))
+  every fab size changes. `small` goes from 40 to 56, `medium`
+  from 56 to 80, `large` keeps 96 but its corner grows from 16 to 20 on
+  `medium`. Layouts that assumed the previous dimensions need to be revisited.
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/core to 0.2.2-next.2
+- Updated @udixio/icons-rounded-400 to 0.2.2-next.1
+
+### ❤️ Thank You
+
+- Claude Opus 5
+- Joël VIGREUX
+
 ## 0.2.2-next.1 (2026-08-16)
 
 ### 🩹 Fixes

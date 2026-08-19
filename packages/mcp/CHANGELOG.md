@@ -1,3 +1,18 @@
+## 0.7.1-next.1 (2026-08-19)
+
+### 🩹 Fixes
+
+- **mcp:** stop the spec config from resolving a second SDK copy ([88b99efd](https://github.com/Udixio/UI/commit/88b99efd))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 5.0.1-next.1
+
+### ❤️ Thank You
+
+- Claude Opus 5
+- Joël VIGREUX
+
 ## 0.7.1-next.0 (2026-08-16)
 
 ### 🧱 Updated Dependencies

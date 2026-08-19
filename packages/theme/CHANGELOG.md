@@ -1,3 +1,14 @@
+## 5.0.1-next.1 (2026-08-19)
+
+### 🩹 Fixes
+
+- **theme:** drop the Scheme-based half of DynamicColor ([4ad095dd](https://github.com/Udixio/UI/commit/4ad095dd))
+
+### ❤️ Thank You
+
+- Claude Opus 5
+- Joël VIGREUX
+
 ## 5.0.1-next.0 (2026-08-16)
 
 This was a version bump only for @udixio/theme to align it with other projects, there were no code changes.

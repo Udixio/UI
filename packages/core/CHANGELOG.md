@@ -1,3 +1,29 @@
+## 0.2.2-next.2 (2026-08-19)
+
+### 🚀 Features
+
+- **fab:** name the icon in a tooltip by default while compact ([18e7d702](https://github.com/Udixio/UI/commit/18e7d702))
+- ⚠️  **fab:** restore the extended label transition and realign the sizes ([2884e56e](https://github.com/Udixio/UI/commit/2884e56e))
+
+### 🩹 Fixes
+
+- **chip:** apply Material label-large typography to the chip label ([03834784](https://github.com/Udixio/UI/commit/03834784))
+- **ui-react:** make RequiredNullable actually keep undefined ([7c02d63f](https://github.com/Udixio/UI/commit/7c02d63f))
+- **core:** make the spec tsconfig match how vitest resolves ([911092e1](https://github.com/Udixio/UI/commit/911092e1))
+- **core:** keep style prop types instead of widening them to any ([8a4d2735](https://github.com/Udixio/UI/commit/8a4d2735))
+
+### ⚠️  Breaking Changes
+
+- **fab:** restore the extended label transition and realign the sizes  ([2884e56e](https://github.com/Udixio/UI/commit/2884e56e))
+  every fab size changes. `small` goes from 40 to 56, `medium`
+  from 56 to 80, `large` keeps 96 but its corner grows from 16 to 20 on
+  `medium`. Layouts that assumed the previous dimensions need to be revisited.
+
+### ❤️ Thank You
+
+- Claude Opus 5
+- Joël VIGREUX
+
 ## 0.2.2-next.1 (2026-08-16)
 
 This was a version bump only for @udixio/core to align it with other projects, there were no code changes.

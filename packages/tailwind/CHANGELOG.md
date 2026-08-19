@@ -1,3 +1,18 @@
+## 5.0.1-next.1 (2026-08-19)
+
+### 🩹 Fixes
+
+- **tailwind:** restore the es2022 and dom.iterable libs ([2b0a6a24](https://github.com/Udixio/UI/commit/2b0a6a24))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 5.0.1-next.1
+
+### ❤️ Thank You
+
+- Claude Opus 5
+- Joël VIGREUX
+
 ## 5.0.1-next.0 (2026-08-16)
 
 ### 🧱 Updated Dependencies

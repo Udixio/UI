@@ -1,3 +1,7 @@
+## 0.2.2-next.1 (2026-08-19)
+
+This was a version bump only for @udixio/icons-outlined-500 to align it with other projects, there were no code changes.
+
 ## 0.2.2-next.0 (2026-08-16)
 
 This was a version bump only for @udixio/icons-outlined-500 to align it with other projects, there were no code changes.

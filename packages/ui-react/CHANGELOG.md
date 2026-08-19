@@ -1,3 +1,34 @@
+## 5.1.0-next.2 (2026-08-19)
+
+### 🚀 Features
+
+- **fab:** name the icon in a tooltip by default while compact ([18e7d702](https://github.com/Udixio/UI/commit/18e7d702))
+- ⚠️  **fab:** restore the extended label transition and realign the sizes ([2884e56e](https://github.com/Udixio/UI/commit/2884e56e))
+
+### 🩹 Fixes
+
+- **ui-react:** make RequiredNullable actually keep undefined ([7c02d63f](https://github.com/Udixio/UI/commit/7c02d63f))
+- **ui-react:** accept React 19 nullable refs on Tooltip ([e6f9a2b5](https://github.com/Udixio/UI/commit/e6f9a2b5))
+
+### ⚠️  Breaking Changes
+
+- **fab:** restore the extended label transition and realign the sizes  ([2884e56e](https://github.com/Udixio/UI/commit/2884e56e))
+  every fab size changes. `small` goes from 40 to 56, `medium`
+  from 56 to 80, `large` keeps 96 but its corner grows from 16 to 20 on
+  `medium`. Layouts that assumed the previous dimensions need to be revisited.
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 5.0.1-next.1
+- Updated @udixio/theme to 5.0.1-next.1
+- Updated @udixio/core to 0.2.2-next.2
+- Updated @udixio/icons-rounded-400 to 0.2.2-next.1
+
+### ❤️ Thank You
+
+- Claude Opus 5
+- Joël VIGREUX
+
 ## 5.1.0-next.1 (2026-08-16)
 
 ### 🩹 Fixes
