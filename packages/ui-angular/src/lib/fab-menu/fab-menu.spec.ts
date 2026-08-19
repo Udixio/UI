@@ -142,16 +142,19 @@ describe('FabMenu (Angular, consuming @udixio/core)', () => {
     expect(document.activeElement).toBe(getTrigger(fixture));
   }));
 
-  it('closes on Escape and restores focus', fakeAsync(() => {
+  it('closes on Escape and restores focus', async () => {
+    // The controller restores focus from a `queueMicrotask` scheduled by a
+    // document listener it registers outside the Angular zone, so `tick()`
+    // never flushes it; a real microtask turn does.
     fixture.componentRef.setInput('defaultOpen', true);
     fixture.detectChanges();
-    tick();
+    await Promise.resolve();
 
     document.dispatchEvent(
       new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
     );
     fixture.detectChanges();
-    tick();
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(
       fixture.nativeElement
@@ -159,7 +162,7 @@ describe('FabMenu (Angular, consuming @udixio/core)', () => {
         .getAttribute('aria-hidden'),
     ).toBe('true');
     expect(document.activeElement).toBe(getTrigger(fixture));
-  }));
+  });
 
   it('requests controlled changes without mutating state', () => {
     const changes: boolean[] = [];

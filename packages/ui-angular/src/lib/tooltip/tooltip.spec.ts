@@ -84,14 +84,15 @@ class ExclusiveHarness {
   imports: [Tooltip],
   template: `
     <button #first>First trigger</button>
-    <udx-tooltip [target]="firstRef()" text="First" [openDelay]="400" />
+    <udx-tooltip [target]="firstRef()" text="First" [openDelay]="openDelay" />
     <button #second>Second trigger</button>
-    <udx-tooltip [target]="secondRef()" text="Second" [openDelay]="400" />
+    <udx-tooltip [target]="secondRef()" text="Second" [openDelay]="openDelay" />
     <button #last>Last trigger</button>
-    <udx-tooltip [target]="lastRef()" text="Last" [openDelay]="400" />
+    <udx-tooltip [target]="lastRef()" text="Last" [openDelay]="openDelay" />
   `,
 })
 class RapidHoverHarness {
+  openDelay = 60;
   readonly firstRef =
     viewChild.required<ElementRef<HTMLButtonElement>>('first');
   readonly secondRef =
@@ -116,6 +117,15 @@ describe('Tooltip (Angular)', () => {
   afterEach(() => {
     document.querySelectorAll('[role="tooltip"]').forEach((el) => el.remove());
   });
+
+  // These four transitions are driven by timers started from DOM listeners the
+  // component registers in an `afterRenderEffect`. Angular runs that phase
+  // outside the Angular zone and zone.js binds a listener to its registration
+  // zone, so those timers land in the root zone -- `fakeAsync`'s `tick()`
+  // cannot reach them. They are therefore exercised against real timers, with
+  // the delays shortened through the harness inputs wherever they are inputs.
+  const wait = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
 
   function getTrigger(): HTMLButtonElement {
     return fixture.nativeElement.querySelector('button');
@@ -152,7 +162,9 @@ describe('Tooltip (Angular)', () => {
     expect(getTooltip().getAttribute('aria-hidden')).toBe('false');
   });
 
-  it('opens on hover after openDelay and links aria-describedby, closes after closeDelay', fakeAsync(() => {
+  it('opens on hover after openDelay and links aria-describedby, closes after closeDelay', async () => {
+    fixture.componentInstance.openDelay = 60;
+    fixture.componentInstance.closeDelay = 60;
     fixture.detectChanges();
     const trigger = getTrigger();
 
@@ -162,11 +174,11 @@ describe('Tooltip (Angular)', () => {
         relatedTarget: document.body,
       }),
     );
-    tick(399);
+    await wait(15);
     fixture.detectChanges();
     expect(getTooltip().getAttribute('aria-hidden')).toBe('true');
 
-    tick(1);
+    await wait(90);
     fixture.detectChanges();
     const tooltip = getTooltip();
     expect(tooltip.getAttribute('aria-hidden')).toBe('false');
@@ -178,13 +190,13 @@ describe('Tooltip (Angular)', () => {
         relatedTarget: document.body,
       }),
     );
-    tick(149);
+    await wait(15);
     fixture.detectChanges();
     expect(getTooltip().getAttribute('aria-hidden')).toBe('false');
-    tick(1);
+    await wait(90);
     fixture.detectChanges();
     expect(getTooltip().getAttribute('aria-hidden')).toBe('true');
-  }));
+  });
 
   it('opens on focus immediately, without waiting for openDelay', () => {
     fixture.detectChanges();
@@ -194,7 +206,7 @@ describe('Tooltip (Angular)', () => {
     expect(getTooltip().getAttribute('aria-hidden')).toBe('false');
   });
 
-  it('cancels stale openings while rapidly hovering a list of triggers', fakeAsync(() => {
+  it('cancels stale openings while rapidly hovering a list of triggers', async () => {
     const rapid = TestBed.createComponent(RapidHoverHarness);
     rapid.detectChanges();
     const [first, second, last] = Array.from(
@@ -218,21 +230,21 @@ describe('Tooltip (Angular)', () => {
       );
 
     enter(first);
-    tick(100);
+    await wait(15);
     leave(first);
     enter(second);
-    tick(100);
+    await wait(15);
     leave(second);
     enter(last);
 
-    tick(399);
+    await wait(15);
     rapid.detectChanges();
     expect(
       Array.from(document.querySelectorAll('[role="tooltip"]')).filter(
         (tooltip) => tooltip.getAttribute('aria-hidden') === 'false',
       ),
     ).toHaveLength(0);
-    tick(1);
+    await wait(90);
     rapid.detectChanges();
 
     const visible = Array.from(
@@ -241,7 +253,7 @@ describe('Tooltip (Angular)', () => {
     expect(visible).toHaveLength(1);
     expect(visible[0].textContent).toContain('Last');
     rapid.destroy();
-  }));
+  });
 
   it('animates the first opening after the hidden surface is connected', fakeAsync(() => {
     fixture.detectChanges();
@@ -262,7 +274,7 @@ describe('Tooltip (Angular)', () => {
     expect(mockTooltipTransitionController.setOpen).toHaveBeenCalledWith(true);
   }));
 
-  it('keeps a long-press tooltip visible for 1.5s after touch release', fakeAsync(() => {
+  it('keeps a long-press tooltip visible for 1.5s after touch release', async () => {
     fixture.detectChanges();
     const trigger = getTrigger();
 
@@ -279,24 +291,24 @@ describe('Tooltip (Angular)', () => {
       cancelable: true,
     });
     expect(trigger.dispatchEvent(contextMenu)).toBe(false);
-    tick(499);
+    await wait(400);
     fixture.detectChanges();
     expect(getTooltip().getAttribute('aria-hidden')).toBe('true');
 
-    tick(1);
+    await wait(150);
     fixture.detectChanges();
     expect(getTooltip().getAttribute('aria-hidden')).toBe('false');
 
     trigger.dispatchEvent(
       pointerEvent('pointerup', { pointerType: 'touch', pointerId: 7 }),
     );
-    tick(1499);
+    await wait(1400);
     fixture.detectChanges();
     expect(getTooltip().getAttribute('aria-hidden')).toBe('false');
-    tick(1);
+    await wait(150);
     fixture.detectChanges();
     expect(getTooltip().getAttribute('aria-hidden')).toBe('true');
-  }));
+  });
 
   it('does not open for a short touch or a moved touch', fakeAsync(() => {
     fixture.detectChanges();
@@ -473,7 +485,7 @@ describe('Tooltip (Angular) targeting a display:contents component host', () => 
     document.querySelectorAll('[role="tooltip"]').forEach((el) => el.remove());
   });
 
-  it('opens on hover even though the target element renders no box of its own', fakeAsync(() => {
+  it('opens on hover even though the target element renders no box of its own', async () => {
     fixture.detectChanges();
     const hostElement: HTMLElement =
       fixture.nativeElement.querySelector('udx-button');
@@ -492,9 +504,9 @@ describe('Tooltip (Angular) targeting a display:contents component host', () => 
         relatedTarget: document.body,
       }),
     );
-    tick(400);
+    await new Promise((resolve) => setTimeout(resolve, 450));
     fixture.detectChanges();
 
     expect(getTooltip().getAttribute('aria-hidden')).toBe('false');
-  }));
+  });
 });
