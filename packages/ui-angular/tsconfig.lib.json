@@ -15,5 +15,12 @@
     "jest.config.cts"
   ],
   "include": ["src/**/*.ts"],
-  "references": []
+  "references": [
+    {
+      "path": "../icons/icons-rounded-400/tsconfig.lib.json"
+    },
+    {
+      "path": "../core/tsconfig.lib.json"
+    }
+  ]
 }
