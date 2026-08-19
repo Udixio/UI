@@ -2,17 +2,90 @@
 ---
 
 import Code from '@/components/Code.astro';
+import FabVariantsReact from '@/examples/react/fab-variants.tsx';
+import FabSizesReact from '@/examples/react/fab-sizes.tsx';
+import FabExtendedReact from '@/examples/react/fab-extended.tsx';
 import FabActionsReact from '@/examples/react/fab-actions.tsx';
+import FabStatesReact from '@/examples/react/fab-states.tsx';
+import { FabVariantsAngular } from '@/examples/angular/fab-variants.ts';
+import { FabSizesAngular } from '@/examples/angular/fab-sizes.ts';
+import { FabExtendedAngular } from '@/examples/angular/fab-extended.ts';
 import { FabActionsAngular } from '@/examples/angular/fab-actions.ts';
+import { FabStatesAngular } from '@/examples/angular/fab-states.ts';
+import fabVariantsReactSource from '@/examples/react/fab-variants.tsx?raw';
+import fabSizesReactSource from '@/examples/react/fab-sizes.tsx?raw';
+import fabExtendedReactSource from '@/examples/react/fab-extended.tsx?raw';
 import fabActionsReactSource from '@/examples/react/fab-actions.tsx?raw';
+import fabStatesReactSource from '@/examples/react/fab-states.tsx?raw';
+import fabVariantsAngularSource from '@/examples/angular/fab-variants.ts?raw';
+import fabSizesAngularSource from '@/examples/angular/fab-sizes.ts?raw';
+import fabExtendedAngularSource from '@/examples/angular/fab-extended.ts?raw';
 import fabActionsAngularSource from '@/examples/angular/fab-actions.ts?raw';
+import fabStatesAngularSource from '@/examples/angular/fab-states.ts?raw';
 
 ## Usage
 
 `Fab` represents the single primary action on a screen. Import it from
-`@udixio/ui-react` or `@udixio/ui-angular`; `label` and `icon` are required.
-The preview covers every color family, every supported size, extended labels,
-and the disabled state.
+`@udixio/ui-react` or `@udixio/ui-angular`; `label` and `icon` are both
+required, and arbitrary children are not accepted.
+
+Positioning is owned by the surrounding layout: the component never places
+itself. Each size keeps a 48 px touch target and a visible focus treatment.
+
+## Color families
+
+Six treatments are available: `primary`, `secondary` and `tertiary`, plus their
+`primaryContainer`, `secondaryContainer` and `tertiaryContainer` counterparts.
+The family is independent of every other property — any of them can be compact
+or extended, at any size.
+
+<Code
+  codes={{
+    react: fabVariantsReactSource,
+    angular: fabVariantsAngularSource,
+  }}
+>
+  <FabVariantsReact slot="react" client:load />
+  <FabVariantsAngular slot="angular" client:load />
+</Code>
+
+## Sizes
+
+`small`, `medium` (the default) and `large` give 56, 80 and 96 px containers
+with 24, 28 and 36 px icons. A compact fab is always square; an extended one
+keeps the height of its size and takes its width from the label.
+
+<Code codes={{ react: fabSizesReactSource, angular: fabSizesAngularSource }}>
+  <FabSizesReact slot="react" client:load />
+  <FabSizesAngular slot="angular" client:load />
+</Code>
+
+## Extended and compact
+
+`extended` reveals the label beside the icon. Toggling it animates the pill open
+and closed: a shared controller diffs the label's width and opacity with
+Anime.js Layout while the container's padding and gap transition alongside it,
+on the same duration and easing. Under `prefers-reduced-motion` the change is
+applied instantly instead.
+
+In compact mode, `label` remains the accessible name without creating visible
+text. The label element stays mounted, collapsed to zero width and hidden from
+assistive technology, so the transition never has to unmount anything. Compose
+`Tooltip` explicitly if a compact fab needs additional visual help.
+
+<Code
+  codes={{ react: fabExtendedReactSource, angular: fabExtendedAngularSource }}
+>
+  <FabExtendedReact slot="react" client:load />
+  <FabExtendedAngular slot="angular" client:load />
+</Code>
+
+## Link or action
+
+Without `href`, the component renders a native button and defaults to
+`type="button"`, so it never submits a surrounding form by accident. With
+`href`, it renders a native link, where `aria-current` marks the destination
+already open.
 
 <Code
   codes={{ react: fabActionsReactSource, angular: fabActionsAngularSource }}
@@ -21,24 +94,17 @@ and the disabled state.
   <FabActionsAngular slot="angular" client:load />
 </Code>
 
-## Variants and sizes
+## Disabled
 
-Color families are `primary`, `secondary`, and `tertiary`, plus their
-`primaryContainer`, `secondaryContainer`, and `tertiaryContainer` treatments.
-Sizes are `small`, `medium`, and `large`.
+`disabled` applies to both renderings. A disabled button uses the native
+attribute; a disabled link drops its `href`, carries `aria-disabled`, leaves
+the tab order, and swallows clicks — a native anchor has no disabled state of
+its own.
 
-`extended` reveals the label beside the icon. In compact mode, `label` remains
-the accessible name without creating visible text.
-
-## Link or action
-
-Without `href`, the component renders a native button and defaults to
-`type="button"`. With `href`, it renders a native link. Disabled links are
-inert, receive `aria-disabled`, and leave the tab order.
-
-Every size retains a 48 px target and a visible focus treatment. Positioning is
-owned by the surrounding layout. Compose `Tooltip` explicitly if a compact FAB
-needs additional visual help.
+<Code codes={{ react: fabStatesReactSource, angular: fabStatesAngularSource }}>
+  <FabStatesReact slot="react" client:load />
+  <FabStatesAngular slot="angular" client:load />
+</Code>
 
 ## Migrating to 3.0
 

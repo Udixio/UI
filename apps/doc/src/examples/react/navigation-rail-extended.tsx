@@ -23,7 +23,7 @@ export default function NavigationRailExtendedReact() {
       extended={extended}
       onExtendedChange={setExtended}
     >
-      <Fab label="Add Timer" icon={iAdd} />
+      <Fab label="Add Timer" icon={iAdd} extended={extended} />
       <NavigationRailItem icon={iNotifications} iconSelected={iNotifications} label="Alarm" />
       <NavigationRailItem icon={iSchedule} iconSelected={iSchedule} label="Clock" />
       <NavigationRailItem icon={iHourglass} iconSelected={iHourglass} label="Timer" />
