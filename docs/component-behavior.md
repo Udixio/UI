@@ -80,6 +80,23 @@ rayon : ils partagent ainsi, à chaque frame, une seule valeur géométrique.
 Une implémentation `motion/react` et une réécriture Angular équivalente sont
 interdites pour un même effet : elles dériveraient inévitablement.
 
+#### Exception : diff de layout avec Anime.js
+
+Un seul cas justifie de sortir de Motion : une transition dont une borne est
+`width: auto` (ou toute autre valeur calculée par le layout). Elle n'est pas
+transitionnable en CSS, et le diff avant/après de Motion (`animateLayout`) est
+une fonctionnalité payante de Motion+. Ces effets utilisent le moteur Layout
+d'Anime.js via `createAutoLayoutController`, partagé lui aussi entre les deux
+frameworks : `createTextFieldLabelController` (l'encoche du `<legend>`),
+`createFabLabelController` (le label étendu du FAB) et, pour un tween simple,
+`createSwitchThumbController`.
+
+La racine du Layout reste aussi étroite que l'effet l'exige : Anime.js remesure
+et réanime tous les descendants sous cette racine, et coupe leur `transition`
+inline pendant le diff. Les propriétés dont les deux bornes sont concrètes
+(padding, gap, opacité) restent donc en CSS — sauf sur la racine elle-même, où
+elles seraient neutralisées et doivent passer par un tween Anime.js.
+
 ## 5. Matrice de tests obligatoire
 
 Chaque état interactif doit avoir les mêmes scénarios dans les deux packages :

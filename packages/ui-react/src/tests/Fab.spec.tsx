@@ -4,9 +4,30 @@ import '@testing-library/jest-dom';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { vi } from 'vitest';
 import { iAdd } from '@udixio/icons-rounded-400/add';
+import { createFabLabelController } from '@udixio/core/dom';
 import { Fab } from '../lib/index.js';
 
 expect.extend(toHaveNoViolations);
+
+// Mocking `animejs` directly (a transitive dependency of `@udixio/core/dom`)
+// corrupts the sibling `@udixio/core` entry's exports under Vite's
+// dependency pre-bundling in this workspace -- mocking the already-isolated
+// controller factory instead avoids that (see Switch.spec.tsx).
+vi.mock('@udixio/core/dom', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@udixio/core/dom')>();
+  return { ...actual, createFabLabelController: vi.fn() };
+});
+
+function mockController() {
+  return { update: vi.fn(), destroy: vi.fn() };
+}
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  vi.mocked(createFabLabelController).mockImplementation(
+    () => mockController() as never,
+  );
+});
 
 describe('Fab', () => {
   it('does not render an unnamed control', () => {
@@ -30,15 +51,58 @@ describe('Fab', () => {
     expect(button.querySelector('.state-layer')).toBeInTheDocument();
   });
 
-  it('renders the visible label only when extended', () => {
+  it('keeps the label mounted but collapsed until the fab is extended', () => {
+    // The label element is always rendered so the shared Anime.js Layout
+    // controller can diff its width open and closed; the compact state
+    // renders it zero-width and hides it from the accessibility tree instead
+    // of unmounting it.
     const { rerender } = render(<Fab label="Create" icon={iAdd} />);
-    expect(screen.queryByText('Create')).not.toBeInTheDocument();
+    const label = screen.getByText('Create');
+    expect(label).toHaveStyle({ width: '0px', opacity: '0' });
+    expect(label).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.getByRole('button', { name: 'Create' })).toHaveAttribute(
+      'aria-label',
+      'Create',
+    );
 
     rerender(<Fab label="Create" icon={iAdd} extended />);
-    expect(screen.getByText('Create')).toBeInTheDocument();
+    expect(screen.getByText('Create')).not.toHaveAttribute('aria-hidden');
     expect(screen.getByRole('button', { name: 'Create' })).not.toHaveAttribute(
       'aria-label',
     );
+  });
+
+  it('renders a fab that mounts extended with its label already open', () => {
+    // The resting style is captured once, at mount: from then on the label's
+    // width and opacity belong to the controller, so React must not keep
+    // rewriting them behind its back.
+    render(<Fab label="Edit" icon={iAdd} extended />);
+
+    expect(screen.getByText('Edit')).toHaveStyle({
+      width: 'auto',
+      opacity: '1',
+    });
+  });
+
+  it('wires the label controller once and updates it on every extended change', () => {
+    // Recreating the controller would reset its "first apply is instant"
+    // bookkeeping and re-record the Layout baseline, so a toggle would replay
+    // as a fresh mount and silently never animate.
+    const controller = mockController();
+    vi.mocked(createFabLabelController).mockReturnValue(controller as never);
+
+    const { rerender } = render(<Fab label="Create" icon={iAdd} />);
+    expect(createFabLabelController).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(createFabLabelController).mock.calls[0][0].label).toBe(
+      screen.getByText('Create'),
+    );
+
+    rerender(<Fab label="Create" icon={iAdd} extended />);
+    rerender(<Fab label="Create" icon={iAdd} />);
+
+    expect(createFabLabelController).toHaveBeenCalledTimes(1);
+    // One no-op call on mount, then one per transition.
+    expect(controller.update).toHaveBeenCalledTimes(3);
   });
 
   it('forwards native action attributes and refs', () => {

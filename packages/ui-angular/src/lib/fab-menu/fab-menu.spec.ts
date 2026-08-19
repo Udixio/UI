@@ -10,6 +10,18 @@ import type { FabMenuAction } from '@udixio/core';
 
 expect.extend(toHaveNoViolations);
 
+// The real Anime.js Layout controller behind the Fab label needs WAAPI, which
+// jsdom does not have. Mock that factory (preserving every other
+// `@udixio/core/dom` export) so these tests exercise the component's wiring,
+// matching the Switch/TextField specs.
+jest.mock('@udixio/core/dom', () => ({
+  ...jest.requireActual('@udixio/core/dom'),
+  createFabLabelController: jest.fn(() => ({
+    update: jest.fn(),
+    destroy: jest.fn(),
+  })),
+}));
+
 const addIcon = '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>';
 const actions: FabMenuAction[] = [
   { id: 'document', label: 'Document' },
@@ -79,14 +91,12 @@ describe('FabMenu (Angular, consuming @udixio/core)', () => {
       fixture.nativeElement.querySelector('[aria-expanded="false"]');
     expect(closedTrigger.textContent?.trim()).toBe('Create');
     expect(closedTrigger.className).toContain('bg-secondary-container');
-    expect(closedTrigger.className).toContain('p-[30px]');
+    expect(closedTrigger.className).toContain('h-24');
     const triggerSizer: HTMLElement = fixture.nativeElement.querySelector(
       '.invisible[aria-hidden="true"][inert]',
     );
     expect(triggerSizer).not.toBeNull();
-    expect(triggerSizer.querySelector('button')?.className).toContain(
-      'p-[30px]',
-    );
+    expect(triggerSizer.querySelector('button')?.className).toContain('h-24');
 
     closedTrigger.click();
     fixture.detectChanges();
@@ -95,12 +105,16 @@ describe('FabMenu (Angular, consuming @udixio/core)', () => {
       '[aria-expanded="true"]',
     );
     expect(openTrigger.getAttribute('aria-label')).toBe('Close Create');
-    expect(openTrigger.querySelector('.label')).toBeNull();
+    // The Fab keeps its label mounted so the shared controller can collapse
+    // it; the compact trigger hides it from the accessibility tree rather
+    // than unmounting it.
+    const openLabel = openTrigger.querySelector<HTMLElement>('.label')!;
+    expect(openLabel.getAttribute('aria-hidden')).toBe('true');
     expect(openTrigger.className).toContain('bg-secondary');
     expect(openTrigger.className).toContain('rounded-full');
-    expect(openTrigger.className).toContain('p-4');
+    expect(openTrigger.className).toContain('h-20');
     expect(openTrigger.className).toContain('shadow-none');
-    expect(openTrigger.className).not.toContain('p-[30px]');
+    expect(openTrigger.className).not.toContain('h-24');
   });
 
   it('selects an action, closes, and restores trigger focus', fakeAsync(() => {

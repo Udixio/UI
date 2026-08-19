@@ -1,15 +1,21 @@
 import type {
   AnchorHTMLAttributes,
   ButtonHTMLAttributes,
+  CSSProperties,
   MouseEventHandler,
   Ref,
 } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import {
   fabStyle,
   type ComponentClassName,
   type FabInterface,
   type FabProps,
 } from '@udixio/core';
+import {
+  createFabLabelController,
+  type FabLabelController,
+} from '@udixio/core/dom';
 import { createUseStyle } from '../utils/create-use-style';
 import { Icon } from '../icon';
 import { State } from '../effects';
@@ -80,6 +86,51 @@ export const Fab = (props: ReactFabProps) => {
     className,
   });
   const hasAccessibleLabel = label.trim() !== '';
+
+  // The label stays mounted in both states; the shared `@udixio/core/dom`
+  // controller animates its width and opacity, so this adapter never has to
+  // coordinate an exit-animation-before-unmount sequence.
+  //
+  // That controller also owns both values from its first call onward, so the
+  // resting style below is captured once (lazy useState initializer, matching
+  // the `extended` value this component actually mounted with) and never
+  // updated by React afterward -- it exists only so server-rendered and
+  // first-paint markup is already correct before hydration. If React kept
+  // rewriting it on every render it would race the controller, jumping the
+  // width straight to its target before Anime.js Layout can diff the two, so
+  // every transition would silently become a snap.
+  const [initialLabelStyle] = useState<CSSProperties>(() =>
+    extended ? { width: 'auto', opacity: 1 } : { width: 0, opacity: 0 },
+  );
+  const extendedRef = useRef(extended);
+  extendedRef.current = extended;
+  const labelRef = useRef<HTMLSpanElement | null>(null);
+  const labelControllerRef = useRef<FabLabelController | null>(null);
+
+  useLayoutEffect(() => {
+    const labelElement = labelRef.current;
+    if (!labelElement) return;
+
+    const controller = createFabLabelController({
+      label: labelElement,
+      extended: () => extendedRef.current,
+    });
+    labelControllerRef.current = controller;
+
+    return () => {
+      controller.destroy();
+      if (labelControllerRef.current === controller) {
+        labelControllerRef.current = null;
+      }
+    };
+  }, [hasAccessibleLabel]);
+
+  // The controller ignores a call that does not change `extended`, so the
+  // one this fires on mount is a no-op and only later transitions animate.
+  useLayoutEffect(() => {
+    labelControllerRef.current?.update();
+  }, [extended]);
+
   const content = (
     <>
       <span className={styles.touchTarget} />
@@ -101,7 +152,14 @@ export const Fab = (props: ReactFabProps) => {
         stateClassName="state-ripple-group-[fab]"
       />
       <Icon icon={icon} className={styles.icon} />
-      {extended && <span className={styles.label}>{label}</span>}
+      <span
+        ref={labelRef}
+        className={styles.label}
+        aria-hidden={!extended || undefined}
+        style={initialLabelStyle}
+      >
+        {label}
+      </span>
     </>
   );
 

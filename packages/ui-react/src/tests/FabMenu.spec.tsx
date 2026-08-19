@@ -1,4 +1,3 @@
-import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -9,6 +8,23 @@ import { iShare } from '@udixio/icons-rounded-400/share';
 import { FabMenu, type FabMenuAction } from '../lib/index.js';
 
 expect.extend(toHaveNoViolations);
+
+// The trigger is a `Fab`, whose label controller drives Anime.js Layout --
+// WAAPI-based, so unusable under jsdom. Mocking the already-isolated
+// controller factory (rather than `animejs`, which corrupts the sibling
+// `@udixio/core` entry under Vite's dependency pre-bundling) keeps this suite
+// about the menu itself; the label transition is covered in Fab.spec.tsx and
+// in the core controller's own spec.
+vi.mock('@udixio/core/dom', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@udixio/core/dom')>();
+  return {
+    ...actual,
+    createFabLabelController: vi.fn(() => ({
+      update: vi.fn(),
+      destroy: vi.fn(),
+    })),
+  };
+});
 
 const actions: FabMenuAction[] = [
   { id: 'document', label: 'Document', icon: iDescription },
@@ -64,24 +80,30 @@ describe('FabMenu', () => {
     );
     const closedTrigger = screen.getByRole('button', { name: 'Create' });
     expect(closedTrigger).toHaveTextContent('Create');
-    expect(closedTrigger).toHaveClass('bg-secondary-container', 'p-[30px]');
+    expect(closedTrigger).toHaveClass('bg-secondary-container', 'h-24');
     const triggerSizer = container.querySelector(
       '.invisible[aria-hidden="true"][inert]',
     );
     expect(triggerSizer).toBeInTheDocument();
-    expect(triggerSizer?.querySelector('button')).toHaveClass('p-[30px]');
+    expect(triggerSizer?.querySelector('button')).toHaveClass('h-24');
 
     fireEvent.click(closedTrigger);
 
     const openTrigger = screen.getByRole('button', { name: 'Close Create' });
-    expect(openTrigger.querySelector('.label')).not.toBeInTheDocument();
+    // The Fab keeps its label mounted so the shared controller can collapse
+    // it; the compact trigger hides it from the accessibility tree rather
+    // than unmounting it.
+    expect(openTrigger.querySelector('.label')).toHaveAttribute(
+      'aria-hidden',
+      'true',
+    );
     expect(openTrigger).toHaveClass(
       'bg-secondary',
       'rounded-full',
-      'p-4',
+      'h-20',
       'shadow-none',
     );
-    expect(openTrigger).not.toHaveClass('p-[30px]');
+    expect(openTrigger).not.toHaveClass('h-24');
   });
 
   it('selects an action, closes, and restores trigger focus', async () => {

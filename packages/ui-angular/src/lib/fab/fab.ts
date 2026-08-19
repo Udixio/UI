@@ -2,9 +2,14 @@ import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  ElementRef,
+  afterRenderEffect,
   booleanAttribute,
   computed,
+  inject,
   input,
+  viewChild,
 } from '@angular/core';
 import {
   fabStyle,
@@ -12,6 +17,10 @@ import {
   type FabInterface,
   type FabProps,
 } from '@udixio/core';
+import {
+  createFabLabelController,
+  type FabLabelController,
+} from '@udixio/core/dom';
 import { createStyle } from '../utils/create-style';
 import { Icon } from '../icon/icon';
 import { StateLayer } from '../state-layer/state-layer';
@@ -45,9 +54,13 @@ import { StateLayer } from '../state-layer/state-layer';
         stateClassName="state-ripple-group-[fab]"
       />
       <udx-icon [icon]="icon()" [className]="styles()['icon']" />
-      @if (extended()) {
-        <span [class]="styles()['label']">{{ label() }}</span>
-      }
+      <span
+        #labelEl
+        [class]="styles()['label']"
+        [attr.aria-hidden]="extended() ? null : true"
+        [style]="initialLabelStyle"
+        >{{ label() }}</span
+      >
     </ng-template>
 
     @if (href() !== undefined) {
@@ -125,6 +138,61 @@ export class Fab {
   protected readonly hasAccessibleLabel = computed(
     () => this.label().trim() !== '',
   );
+
+  private readonly labelEl = viewChild<ElementRef<HTMLElement>>('labelEl');
+  private wiredLabelEl?: HTMLElement;
+  private labelController?: FabLabelController;
+
+  // Captured once, from the `extended` value this component actually mounted
+  // with, and never updated afterward: the controller owns the label's width
+  // and opacity from its first call onward, and this only exists so the first
+  // rendered markup is already correct before the effects below run. A
+  // computed() re-evaluated on every extended() change would race the
+  // controller, jumping the width straight to its target before Anime.js
+  // Layout can diff the two, so every transition would silently become a
+  // snap.
+  protected readonly initialLabelStyle: Record<string, string>;
+
+  constructor() {
+    // The label is always mounted; the shared `@udixio/core/dom` controller
+    // animates its width and opacity, so this component never has to
+    // coordinate an exit-animation-before-removal sequence with `@if`.
+    const destroyRef = inject(DestroyRef);
+
+    this.initialLabelStyle = this.extended()
+      ? { width: 'auto', opacity: '1' }
+      : { width: '0px', opacity: '0' };
+
+    afterRenderEffect(() => {
+      const labelEl = this.labelEl()?.nativeElement;
+      if (!labelEl) return;
+
+      // Guarding on the *native element* -- not on the query signal firing --
+      // is what keeps this effect from tearing down and recreating the
+      // controller on every render: that would reset its "first apply is
+      // instant" bookkeeping, so every extend/collapse would be replayed as a
+      // fresh mount and silently never animate.
+      if (labelEl === this.wiredLabelEl) return;
+
+      this.labelController?.destroy();
+      this.wiredLabelEl = labelEl;
+      this.labelController = createFabLabelController({
+        label: labelEl,
+        extended: () => this.extended(),
+      });
+    });
+
+    destroyRef.onDestroy(() => {
+      this.labelController?.destroy();
+    });
+
+    // The controller ignores a call that does not change `extended`, so the
+    // one this fires on mount is a no-op and only later transitions animate.
+    afterRenderEffect(() => {
+      this.extended();
+      this.labelController?.update();
+    });
+  }
 
   protected readonly styles = createStyle(fabStyle, () => ({
     label: this.label(),
