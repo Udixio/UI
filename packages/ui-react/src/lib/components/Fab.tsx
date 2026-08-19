@@ -3,9 +3,10 @@ import type {
   ButtonHTMLAttributes,
   CSSProperties,
   MouseEventHandler,
+  ReactElement,
   Ref,
 } from 'react';
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import {
   fabStyle,
   type ComponentClassName,
@@ -18,6 +19,7 @@ import {
 } from '@udixio/core/dom';
 import { createUseStyle } from '../utils/create-use-style';
 import { Icon } from '../icon';
+import { Tooltip } from './Tooltip';
 import { State } from '../effects';
 
 export type { FabSize, FabVariant } from '@udixio/core';
@@ -59,12 +61,14 @@ export const useFabStyle = createUseStyle(fabStyle);
  * @devx
  * - Requires `label` and `icon`; arbitrary children are not accepted.
  * - `type` defaults to `'button'` to prevent accidental form submissions.
+ * - Shows `label` in a tooltip while compact; `tooltip` overrides or disables it.
  * @a11y
  * - Uses native button/link semantics, a stable accessible name, a 48px target, and visible focus.
+ * - A compact fab names its icon in a tooltip on hover and focus, as Material 3 requires; it only
+ *   describes the target when its text says something the accessible name does not.
  * @limitations
  * - No built-in positioning; placement is handled by layout.
  * - Disabled links are inert and removed from the tab order.
- * - Compose an explicit Tooltip for non-extended FABs when visual help is required.
  */
 export const Fab = (props: ReactFabProps) => {
   const {
@@ -73,6 +77,7 @@ export const Fab = (props: ReactFabProps) => {
     variant = 'primary',
     size = 'medium',
     icon,
+    tooltip,
     extended = false,
     disabled = false,
   } = props;
@@ -80,12 +85,49 @@ export const Fab = (props: ReactFabProps) => {
     variant,
     label,
     icon,
+    tooltip,
     size,
     extended,
     disabled,
     className,
   });
   const hasAccessibleLabel = label.trim() !== '';
+
+  // Material 3 asks a fab to name its icon in a tooltip on hover; an extended
+  // one already shows that text, so only a compact fab gets one. It describes
+  // the target only when it says something the accessible name does not,
+  // which keeps a screen reader from announcing the same string twice.
+  const tooltipText =
+    extended || tooltip === false
+      ? undefined
+      : (tooltip ?? props.title ?? label);
+  const tooltipTargetRef = useRef<HTMLButtonElement | HTMLAnchorElement>(null);
+  const forwardedRef = props.ref;
+  const setTargetRef = useCallback(
+    (element: HTMLButtonElement | HTMLAnchorElement | null) => {
+      tooltipTargetRef.current = element;
+      if (typeof forwardedRef === 'function') {
+        forwardedRef(element as never);
+      } else if (forwardedRef) {
+        forwardedRef.current = element as never;
+      }
+    },
+    [forwardedRef],
+  );
+  const withTooltip = (element: ReactElement) =>
+    tooltipText ? (
+      <>
+        {element}
+        <Tooltip
+          targetRef={tooltipTargetRef}
+          text={tooltipText}
+          trigger={disabled ? null : undefined}
+          describeTarget={tooltipText !== label}
+        />
+      </>
+    ) : (
+      element
+    );
 
   // The label stays mounted in both states; the shared `@udixio/core/dom`
   // controller animates its width and opacity, so this adapter never has to
@@ -183,8 +225,9 @@ export const Fab = (props: ReactFabProps) => {
       icon: _icon,
       label: _label,
       onClick,
-      ref,
+      ref: _ref,
       size: _size,
+      tooltip: _tooltip,
       variant: _variant,
       ...nativeProps
     } = props;
@@ -194,13 +237,15 @@ export const Fab = (props: ReactFabProps) => {
       _extended,
       _icon,
       _label,
+      _ref,
       _size,
+      _tooltip,
       _variant,
     };
-    return (
+    return withTooltip(
       <a
         {...nativeProps}
-        ref={ref}
+        ref={setTargetRef}
         className={styles.fab}
         href={disabled ? undefined : props.href}
         aria-label={extended ? undefined : label}
@@ -217,7 +262,7 @@ export const Fab = (props: ReactFabProps) => {
         }}
       >
         {content}
-      </a>
+      </a>,
     );
   }
 
@@ -228,8 +273,9 @@ export const Fab = (props: ReactFabProps) => {
     icon: _icon,
     label: _label,
     onClick,
-    ref,
+    ref: _ref,
     size: _size,
+    tooltip: _tooltip,
     variant: _variant,
     type = 'button',
     ...nativeProps
@@ -240,13 +286,15 @@ export const Fab = (props: ReactFabProps) => {
     _extended,
     _icon,
     _label,
+    _ref,
     _size,
+    _tooltip,
     _variant,
   };
-  return (
+  return withTooltip(
     <button
       {...nativeProps}
-      ref={ref}
+      ref={setTargetRef}
       type={type}
       disabled={disabled}
       className={styles.fab}
@@ -254,6 +302,6 @@ export const Fab = (props: ReactFabProps) => {
       onClick={onClick}
     >
       {content}
-    </button>
+    </button>,
   );
 };

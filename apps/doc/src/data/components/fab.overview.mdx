@@ -70,8 +70,16 @@ applied instantly instead.
 
 In compact mode, `label` remains the accessible name without creating visible
 text. The label element stays mounted, collapsed to zero width and hidden from
-assistive technology, so the transition never has to unmount anything. Compose
-`Tooltip` explicitly if a compact fab needs additional visual help.
+assistive technology, so the transition never has to unmount anything.
+
+A compact fab also names its icon in a tooltip on hover and focus, which
+Material 3 requires of every fab on the web — you get it without asking. Since
+that text repeats the accessible name, the tooltip does not also describe the
+target, so a screen reader announces it once. `tooltip` takes over when the
+hint should say more than the label (`tooltip="Create a note (N)"`, which then
+does describe the target), and `tooltip={false}` removes it — an accessibility
+exception worth justifying. An extended fab never shows one: its label is
+already visible.
 
 <Code
   codes={{ react: fabExtendedReactSource, angular: fabExtendedAngularSource }}

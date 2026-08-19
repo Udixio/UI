@@ -18,6 +18,12 @@ export interface FabProps {
   variant?: FabVariant;
   /** Visual size. @default 'medium' */
   size?: FabSize;
+  /**
+   * Visual tooltip text, shown while the fab is compact. Defaults to `label`;
+   * set to `false` to hide it. An extended fab never shows one, its label
+   * already being visible.
+   */
+  tooltip?: string | false;
   /** Displays the visible text label beside the icon. */
   extended?: boolean;
   /** Disables interaction. */

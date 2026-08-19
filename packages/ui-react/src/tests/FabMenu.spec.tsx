@@ -9,6 +9,21 @@ import { FabMenu, type FabMenuAction } from '../lib/index.js';
 
 expect.extend(toHaveNoViolations);
 
+// A compact trigger composes a Tooltip, which positions itself through the
+// anchor positioner; jsdom has no ResizeObserver (same preamble as
+// IconButton.spec.tsx).
+class NoopResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+  takeRecords() {
+    return [];
+  }
+}
+Object.assign(globalThis, {
+  ResizeObserver: (globalThis as any).ResizeObserver ?? NoopResizeObserver,
+});
+
 // The trigger is a `Fab`, whose label controller drives Anime.js Layout --
 // WAAPI-based, so unusable under jsdom. Mocking the already-isolated
 // controller factory (rather than `animejs`, which corrupts the sibling
@@ -21,6 +36,10 @@ vi.mock('@udixio/core/dom', async (importOriginal) => {
     ...actual,
     createFabLabelController: vi.fn(() => ({
       update: vi.fn(),
+      destroy: vi.fn(),
+    })),
+    createTooltipTransitionController: vi.fn(() => ({
+      setOpen: vi.fn(),
       destroy: vi.fn(),
     })),
   };

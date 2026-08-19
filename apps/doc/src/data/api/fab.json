@@ -9,9 +9,9 @@
       "tags": {
         "status": "stable",
         "category": "Action",
-        "devx": "- Requires `label` and `icon`; arbitrary children are not accepted.\n- `type` defaults to `'button'` to prevent accidental form submissions.",
-        "a11y": "- Uses native button/link semantics, a stable accessible name, a 48px target, and visible focus.",
-        "limitations": "- No built-in positioning; placement is handled by layout.\n- Disabled links are inert and removed from the tab order.\n- Compose an explicit Tooltip for non-extended FABs when visual help is required."
+        "devx": "- Requires `label` and `icon`; arbitrary children are not accepted.\n- `type` defaults to `'button'` to prevent accidental form submissions.\n- Shows `label` in a tooltip while compact; `tooltip` overrides or disables it.",
+        "a11y": "- Uses native button/link semantics, a stable accessible name, a 48px target, and visible focus.\n- A compact fab names its icon in a tooltip on hover and focus, as Material 3 requires; it only\n  describes the target when its text says something the accessible name does not.",
+        "limitations": "- No built-in positioning; placement is handled by layout.\n- Disabled links are inert and removed from the tab order."
       },
       "methods": [],
       "props": {
@@ -55,6 +55,15 @@
             "value": "'medium'"
           }
         },
+        "tooltip": {
+          "name": "tooltip",
+          "description": "Visual tooltip text, shown while the fab is compact. Defaults to `label`;\nset to `false` to hide it. An extended fab never shows one, its label\nalready being visible.",
+          "required": false,
+          "type": {
+            "name": "string | false"
+          },
+          "defaultValue": null
+        },
         "extended": {
           "name": "extended",
           "description": "Displays the visible text label beside the icon.",
@@ -94,8 +103,8 @@
       "tags": {
         "status": "stable",
         "category": "Action",
-        "devx": "- Requires the `label` and `icon` inputs.\n- `type` defaults to `'button'` to prevent accidental form submissions.",
-        "a11y": "- Uses native button/link semantics, a stable accessible name, a 48px target, and visible focus.",
+        "devx": "- Requires the `label` and `icon` inputs.\n- `type` defaults to `'button'` to prevent accidental form submissions.\n- Shows `label` in a tooltip while compact; `tooltip` overrides or disables it.",
+        "a11y": "- Uses native button/link semantics, a stable accessible name, a 48px target, and visible focus.\n- A compact fab names its icon in a tooltip on hover and focus, as Material 3 requires; it only\n  describes the target when its text says something the accessible name does not.",
         "limitations": "- No built-in positioning; placement is handled by layout.\n- Disabled links are inert and removed from the tab order."
       },
       "inputs": {
@@ -149,6 +158,15 @@
           "defaultValue": {
             "value": "false"
           }
+        },
+        "tooltip": {
+          "name": "tooltip",
+          "description": "Visual tooltip text, shown while the fab is compact. Defaults to `label`;\nset to `false` to hide it.",
+          "required": false,
+          "type": {
+            "name": "string | false | undefined"
+          },
+          "defaultValue": null
         },
         "disabled": {
           "name": "disabled",

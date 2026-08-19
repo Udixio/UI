@@ -16,6 +16,10 @@ jest.mock('@udixio/core/dom', () => ({
     update: jest.fn(),
     destroy: jest.fn(),
   })),
+  createTooltipTransitionController: jest.fn(() => ({
+    setOpen: jest.fn(),
+    destroy: jest.fn(),
+  })),
 }));
 
 const addIcon = '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>';
@@ -76,6 +80,51 @@ describe('Fab (Angular, consuming @udixio/core)', () => {
     expect(button.textContent?.trim()).toBe('Create');
     expect(button.hasAttribute('aria-label')).toBe(false);
     expect(extendedLabel.hasAttribute('aria-hidden')).toBe(false);
+  });
+
+  it('names its icon in a tooltip while compact, without describing itself twice', () => {
+    // Material 3 asks a fab to show its icon's text label on hover; the label
+    // is already the accessible name, so the tooltip must not also describe
+    // the target.
+    fixture.detectChanges();
+    const button: HTMLButtonElement =
+      fixture.nativeElement.querySelector('button');
+
+    button.dispatchEvent(new FocusEvent('focus'));
+    fixture.detectChanges();
+
+    const tooltip = document.querySelector('[role="tooltip"]') as HTMLElement;
+    expect(tooltip.textContent).toContain('Create');
+    expect(button.hasAttribute('aria-describedby')).toBe(false);
+  });
+
+  it('drops the tooltip once extended, its label being visible', () => {
+    fixture.componentRef.setInput('extended', true);
+    fixture.detectChanges();
+    const button: HTMLButtonElement =
+      fixture.nativeElement.querySelector('button');
+
+    button.dispatchEvent(new FocusEvent('focus'));
+    fixture.detectChanges();
+
+    expect(document.querySelector('[role="tooltip"]')).toBeNull();
+  });
+
+  it('supports custom tooltip text and explicit tooltip suppression', () => {
+    fixture.componentRef.setInput('tooltip', 'Create a new item');
+    fixture.detectChanges();
+    const button: HTMLButtonElement =
+      fixture.nativeElement.querySelector('button');
+    button.dispatchEvent(new FocusEvent('focus'));
+    fixture.detectChanges();
+    const tooltip = document.querySelector('[role="tooltip"]') as HTMLElement;
+
+    expect(tooltip.textContent).toContain('Create a new item');
+    expect(button.getAttribute('aria-describedby')).toBe(tooltip.id);
+
+    fixture.componentRef.setInput('tooltip', false);
+    fixture.detectChanges();
+    expect(document.querySelector('[role="tooltip"]')).toBeNull();
   });
 
   it('forwards native action attributes and shared classes', () => {

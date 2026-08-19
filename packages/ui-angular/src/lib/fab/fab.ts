@@ -16,6 +16,7 @@ import {
   type ClassNameComponent,
   type FabInterface,
   type FabProps,
+  type TooltipProps,
 } from '@udixio/core';
 import {
   createFabLabelController,
@@ -24,6 +25,7 @@ import {
 import { createStyle } from '../utils/create-style';
 import { Icon } from '../icon/icon';
 import { StateLayer } from '../state-layer/state-layer';
+import { Tooltip } from '../tooltip/tooltip';
 
 /**
  * Floating action buttons expose the primary action on a screen.
@@ -33,8 +35,11 @@ import { StateLayer } from '../state-layer/state-layer';
  * @devx
  * - Requires the `label` and `icon` inputs.
  * - `type` defaults to `'button'` to prevent accidental form submissions.
+ * - Shows `label` in a tooltip while compact; `tooltip` overrides or disables it.
  * @a11y
  * - Uses native button/link semantics, a stable accessible name, a 48px target, and visible focus.
+ * - A compact fab names its icon in a tooltip on hover and focus, as Material 3 requires; it only
+ *   describes the target when its text says something the accessible name does not.
  * @limitations
  * - No built-in positioning; placement is handled by layout.
  * - Disabled links are inert and removed from the tab order.
@@ -42,7 +47,7 @@ import { StateLayer } from '../state-layer/state-layer';
 @Component({
   selector: 'udx-fab',
   standalone: true,
-  imports: [NgTemplateOutlet, Icon, StateLayer],
+  imports: [NgTemplateOutlet, Icon, StateLayer, Tooltip],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
@@ -65,6 +70,7 @@ import { StateLayer } from '../state-layer/state-layer';
 
     @if (href() !== undefined) {
       <a
+        #interactiveElement
         [hidden]="!hasAccessibleLabel()"
         [class]="styles()['fab']"
         [attr.href]="disabled() ? null : href()"
@@ -85,6 +91,7 @@ import { StateLayer } from '../state-layer/state-layer';
       </a>
     } @else {
       <button
+        #interactiveElement
         [hidden]="!hasAccessibleLabel()"
         [class]="styles()['fab']"
         [attr.type]="type()"
@@ -99,6 +106,17 @@ import { StateLayer } from '../state-layer/state-layer';
         <ng-container [ngTemplateOutlet]="content" />
       </button>
     }
+
+    @if (tooltipText(); as text) {
+      @if (interactiveElement(); as target) {
+        <udx-tooltip
+          [target]="target"
+          [text]="text"
+          [trigger]="disabled() ? null : tooltipTriggers"
+          [describeTarget]="text !== label()"
+        />
+      }
+    }
   `,
 })
 export class Fab {
@@ -107,6 +125,11 @@ export class Fab {
   readonly variant = input<FabProps['variant']>('primary');
   readonly size = input<FabProps['size']>('medium');
   readonly extended = input(false, { transform: booleanAttribute });
+  /**
+   * Visual tooltip text, shown while the fab is compact. Defaults to `label`;
+   * set to `false` to hide it.
+   */
+  readonly tooltip = input<FabProps['tooltip']>();
   readonly disabled = input(false, { transform: booleanAttribute });
   /** Classes or state-aware element classes applied through the shared style contract. */
   readonly className = input<string | ClassNameComponent<FabInterface>>();
@@ -137,6 +160,23 @@ export class Fab {
 
   protected readonly hasAccessibleLabel = computed(
     () => this.label().trim() !== '',
+  );
+
+  protected readonly interactiveElement =
+    viewChild<ElementRef<HTMLButtonElement | HTMLAnchorElement>>(
+      'interactiveElement',
+    );
+  protected readonly tooltipTriggers: NonNullable<TooltipProps['trigger']> = [
+    'hover',
+    'focus',
+  ];
+
+  // Material 3 asks a fab to name its icon in a tooltip on hover; an extended
+  // one already shows that text, so only a compact fab gets one.
+  protected readonly tooltipText = computed(() =>
+    this.extended() || this.tooltip() === false
+      ? undefined
+      : (this.tooltip() ?? this.title() ?? this.label()),
   );
 
   private readonly labelEl = viewChild<ElementRef<HTMLElement>>('labelEl');
@@ -199,6 +239,7 @@ export class Fab {
     icon: this.icon(),
     variant: this.variant(),
     size: this.size(),
+    tooltip: this.tooltip(),
     extended: this.extended(),
     disabled: this.disabled(),
     className: this.className(),
