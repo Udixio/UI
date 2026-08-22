@@ -1,21 +1,21 @@
 import { NgTemplateOutlet } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  ElementRef,
   afterRenderEffect,
   booleanAttribute,
+  ChangeDetectionStrategy,
+  Component,
   computed,
+  DestroyRef,
+  ElementRef,
   inject,
   input,
   viewChild,
 } from '@angular/core';
 import {
-  fabStyle,
   type ClassNameComponent,
   type FabInterface,
   type FabProps,
+  fabStyle,
   type TooltipProps,
 } from '@udixio/core';
 import {
@@ -123,7 +123,7 @@ export class Fab {
   readonly label = input.required<string>();
   readonly icon = input.required<FabProps['icon']>();
   readonly variant = input<FabProps['variant']>('primary');
-  readonly size = input<FabProps['size']>('medium');
+  readonly size = input<FabProps['size']>('small');
   readonly extended = input(false, { transform: booleanAttribute });
   /**
    * Visual tooltip text, shown while the fab is compact. Defaults to `label`;

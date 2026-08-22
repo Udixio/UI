@@ -1,23 +1,23 @@
 import {
   afterRenderEffect,
+  booleanAttribute,
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
-  booleanAttribute,
   computed,
+  ElementRef,
   input,
+  type OnInit,
   output,
   viewChild,
-  type OnInit,
 } from '@angular/core';
 import {
-  DEFAULT_FAB_MENU_CLOSE_ICON,
-  fabMenuStyle,
-  type ClassNameComponent,
   type ButtonInterface,
+  type ClassNameComponent,
+  DEFAULT_FAB_MENU_CLOSE_ICON,
   type FabMenuAction,
   type FabMenuInterface,
   type FabMenuProps,
+  fabMenuStyle,
 } from '@udixio/core';
 import {
   createFabMenuController,
@@ -44,7 +44,7 @@ export interface FabMenuActionSelectEvent {
  * @devx
  * - Uses the framework-independent `actions` input.
  * - `open` is controlled; `defaultOpen` initializes uncontrolled usage.
- * - Opening contracts every trigger size to a medium icon-only close control while preserving the closed footprint.
+ * - Opening contracts every trigger size to a small icon-only close control while preserving the closed footprint.
  * - Action choreography is implemented once with Motion JavaScript in `@udixio/core/dom`.
  * @a11y
  * - The trigger exposes `aria-expanded`/`aria-controls`.
@@ -130,7 +130,7 @@ export class FabMenu implements OnInit {
   readonly closeLabel = input<string>();
   readonly actionsLabel = input<string>();
   readonly variant = input<FabMenuProps['variant']>('primary');
-  readonly size = input<FabMenuProps['size']>('medium');
+  readonly size = input<FabMenuProps['size']>('small');
   readonly extended = input(false, { transform: booleanAttribute });
   readonly disabled = input(false, { transform: booleanAttribute });
   readonly open = input<boolean | undefined, unknown>(undefined, {
@@ -182,9 +182,7 @@ export class FabMenu implements OnInit {
   protected readonly closedTriggerVariant = computed(
     () =>
       `${this.variant()}Container` as
-        | 'primaryContainer'
-        | 'secondaryContainer'
-        | 'tertiaryContainer',
+        'primaryContainer' | 'secondaryContainer' | 'tertiaryContainer',
   );
   protected readonly panelId = computed(() => `fab-menu-${this.instanceId}`);
   protected readonly styles = createStyle(fabMenuStyle, () => ({

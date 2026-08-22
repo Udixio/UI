@@ -8,10 +8,10 @@ import type {
 } from 'react';
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import {
-  fabStyle,
   type ComponentClassName,
   type FabInterface,
   type FabProps,
+  fabStyle,
 } from '@udixio/core';
 import {
   createFabLabelController,
@@ -75,7 +75,7 @@ export const Fab = (props: ReactFabProps) => {
     className,
     label,
     variant = 'primary',
-    size = 'medium',
+    size = 'small',
     icon,
     tooltip,
     extended = false,

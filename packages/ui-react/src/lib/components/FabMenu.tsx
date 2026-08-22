@@ -1,11 +1,11 @@
-import { useId, useEffect, useRef, type HTMLAttributes, type Ref } from 'react';
+import { type HTMLAttributes, type Ref, useEffect, useId, useRef } from 'react';
 import {
-  DEFAULT_FAB_MENU_CLOSE_ICON,
-  fabMenuStyle,
   type ComponentClassName,
+  DEFAULT_FAB_MENU_CLOSE_ICON,
   type FabMenuAction,
   type FabMenuInterface,
   type FabMenuProps,
+  fabMenuStyle,
 } from '@udixio/core';
 import {
   createFabMenuController,
@@ -44,7 +44,7 @@ export const useFabMenuStyle = createUseStyle(fabMenuStyle);
  * @devx
  * - Uses the framework-independent `actions` model instead of framework-specific children.
  * - `open` is controlled; `defaultOpen` initializes uncontrolled usage.
- * - Opening contracts every trigger size to a medium icon-only close control while preserving the closed footprint.
+ * - Opening contracts every trigger size to a small icon-only close control while preserving the closed footprint.
  * - Action choreography is implemented once with Motion JavaScript in `@udixio/core/dom`.
  * @a11y
  * - The trigger exposes `aria-expanded`/`aria-controls`.
@@ -63,7 +63,7 @@ export const FabMenu = (props: ReactFabMenuProps) => {
     closeLabel = `Close ${label}`,
     actionsLabel = `${label} actions`,
     variant = 'primary',
-    size = 'medium',
+    size = 'small',
     extended = false,
     disabled = false,
     open: openProp,
