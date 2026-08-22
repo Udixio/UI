@@ -1,8 +1,11 @@
 import { PaletteManager } from './palette.manager';
 import { Palette, PaletteCallback } from './palette';
-import { Color } from '../color/color';
+import { Color } from '../color/color.base';
+import type { ColorValueInput } from '../color/color.types';
 
 export type AddPaletteOptions = Record<string, PaletteCallback>;
+export type PaletteValue = ColorValueInput | PaletteCallback;
+export type PaletteOptions = Record<string, PaletteValue>;
 
 export class PaletteApi {
   private readonly paletteManager: PaletteManager;
@@ -10,22 +13,22 @@ export class PaletteApi {
     this.paletteManager = paletteManager;
   }
 
-  add(args: Record<string, PaletteCallback | string>): void {
-    Object.entries(args).forEach(([key, callback]) => {
-      if (typeof callback === 'string') {
-        this.paletteManager.addCustomPalette(key, Color.fromHex(callback));
+  add(args: PaletteOptions): void {
+    Object.entries(args).forEach(([key, value]) => {
+      if (typeof value === 'string') {
+        this.paletteManager.addCustomPalette(key, Color.fromHex(value));
       } else {
-        this.paletteManager.addCustomPalette(key, callback);
+        this.paletteManager.addCustomPalette(key, value);
       }
     });
   }
 
-  override(args: Record<string, PaletteCallback | string>): void {
-    Object.entries(args).forEach(([key, callback]) => {
-      if (typeof callback === 'string') {
-        this.paletteManager.override(key, Color.fromHex(callback));
+  override(args: PaletteOptions): void {
+    Object.entries(args).forEach(([key, value]) => {
+      if (typeof value === 'string') {
+        this.paletteManager.override(key, Color.fromHex(value));
       } else {
-        this.paletteManager.override(key, callback);
+        this.paletteManager.override(key, value);
       }
     });
   }
@@ -40,7 +43,7 @@ export class PaletteApi {
     return result;
   }
 
-  sync(args: Record<string, PaletteCallback | string> | undefined): void {
+  sync(args: PaletteOptions | undefined): void {
     const incoming = new Set(Object.keys(args ?? {}));
     Object.keys(this.paletteManager._palettes).forEach((key) => {
       if (!incoming.has(key)) {

@@ -1,5 +1,5 @@
 import { clampDouble, Contrast } from '@material/material-color-utilities';
-import { Color } from './color';
+import { Color } from './color.base';
 import { ContrastCurve } from '../material-color-utilities/contrastCurve';
 import { Palette } from '../palette/palette';
 

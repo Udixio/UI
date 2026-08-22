@@ -1,5 +1,5 @@
 import { sanitizeDegreesDouble } from '@material/material-color-utilities';
-import { Color } from '../color/color';
+import type { Color } from '../color/color.base';
 import { Palette } from '../palette/palette';
 import { AddColorsOptions } from '../color';
 import { Context } from '../context';

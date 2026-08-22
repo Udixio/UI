@@ -35,23 +35,43 @@ for (const [key, color] of api.colors.getAll()) {
 
 ## Adding tokens
 
+The `colors` option in `ConfigInterface` separates direct values from palette-based
+definitions:
+
 ```ts
-type AddColorsOptions =
-  | Record<string, ColorOptions>
-  | ((api: API) => Record<string, ColorOptions>);
+type ColorsConfig = {
+  static?: ColorConfigRecord<string | Color | { alias: string }>;
+  fromPalette?: ColorConfigRecord<FromPaletteOptions>;
+};
+
+type ColorConfigRecord<Value> =
+  | Record<string, Value>
+  | ((api: API) => Record<string, Value>);
 ```
 
-Pass it to `loader()` under `colors`, or call `api.colors.addColors()` directly. A token is defined one of three ways.
+The runtime method `api.colors.addColors()` keeps its flat `AddColorsOptions`
+form. The configuration form makes the static or dynamic nature of each token
+explicit.
 
-### A fixed hex
+### A fixed color
 
 ```ts
 api.colors.addColors({
-  brandOrange: { hex: '#FF5722' },
+  brandOrange: '#FF5722',
 });
 ```
 
-Static — it does not follow dark mode or contrast level.
+In `defineConfig`, the same value belongs under `colors.static`:
+
+```ts
+colors: {
+  static: {
+    brandOrange: '#FF5722',
+  },
+}
+```
+
+Static — it does not follow dark mode or contrast level. `Color.fromHex(...)` is also accepted when the value is already available as a `Color`.
 
 ### An alias
 
@@ -225,17 +245,19 @@ import { FontPlugin } from '@udixio/ui-react';
 
 const api = await loader({
   sourceColor: '#6750A4',
-  colors: ({ palettes }) => ({
-    highlight: {
-      palette: 'tertiary',
-      tone: () => 70,
-      adjustTone: [contrastAgainst('surface', 3), avoidBackgroundGap()],
-    },
-    onHighlight: {
-      palette: 'tertiary',
-      adjustTone: onColor('highlight', 4.5),
-    },
-  }),
+  colors: {
+    fromPalette: ({ palettes }) => ({
+      highlight: {
+        palette: 'tertiary',
+        tone: () => 70,
+        adjustTone: [contrastAgainst('surface', 3), avoidBackgroundGap()],
+      },
+      onHighlight: {
+        palette: 'tertiary',
+        adjustTone: onColor('highlight', 4.5),
+      },
+    }),
+  },
   plugins: [new FontPlugin(), new TailwindPlugin()],
 });
 

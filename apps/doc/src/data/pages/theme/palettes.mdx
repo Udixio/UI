@@ -64,18 +64,31 @@ For `brand`, the system generates:
 - `--color-brand-container` / `.bg-brand-container`
 - `--color-on-brand-container` / `.text-on-brand-container`
 
-## Hex color as a palette
+## Simple palette values
+
+Configuration and runtime palette arguments accept a hex string, a `Color`, or a callback. Hex strings are the shortest form for a fixed palette:
 
 ```ts
-// Short form (hex string)
 palettes: {
   accent: '#E91E63',
 }
+```
 
-// Callback form — a Color has `hue` and `chroma`, so returning one is enough
+For an advanced configuration, pass a `Color` directly. Its tone is ignored because a palette spans every tone:
+
+```ts
 import { Color } from '@udixio/theme';
+
 palettes: {
-  accent: () => Color.fromHex('#E91E63'),
+  accent: Color.fromHex('#E91E63'),
+}
+```
+
+The callback form remains useful when the palette depends on the current context:
+
+```ts
+palettes: {
+  accent: ({ sourceColor }) => sourceColor.rotate(30),
 }
 ```
 

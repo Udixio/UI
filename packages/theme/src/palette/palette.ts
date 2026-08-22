@@ -1,5 +1,5 @@
 import { Context } from '../context';
-import { Color } from '../color/color';
+import { Color } from '../color/color.base';
 
 export type PaletteCallback = (context: Context) => {
   hue: number;

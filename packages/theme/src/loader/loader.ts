@@ -25,8 +25,11 @@ export const loader = async (config: ConfigInterface, load = true) => {
     if (palettes) {
       api.palettes.add(palettes);
     }
-    if (colors) {
-      api.colors.addColors(colors);
+    if (colors?.static) {
+      api.colors.addColors(colors.static);
+    }
+    if (colors?.fromPalette) {
+      api.colors.addColors(colors.fromPalette);
     }
     if (plugins) {
       plugins.forEach((plugin) => {

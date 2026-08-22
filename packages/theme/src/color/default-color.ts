@@ -8,7 +8,7 @@ import {
 } from './tone-adjusters';
 import { ColorManager } from './color.manager';
 import { AddColorsOptions, ColorApi } from './color.api';
-import { Color } from './color';
+import { Color } from './color.base';
 
 import { DynamicColorKey, getCurve, tMaxC, tMinC } from './color.utils';
 import { Context } from '../context';

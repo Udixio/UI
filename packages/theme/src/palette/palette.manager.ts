@@ -1,6 +1,6 @@
 import { Context } from 'src/context';
 import { Palette, PaletteCallback } from './palette';
-import { Color } from '../color/color';
+import { Color } from '../color/color.base';
 import { ColorApi } from '../color';
 
 export class PaletteManager {

@@ -1,5 +1,5 @@
 import { getPiecewiseHue, getRotatedHue, variant } from '../variant';
-import { Color } from '../../color/color';
+import { Color } from '../../color/color.base';
 import { defaultColors } from '../../color';
 
 const getExpressiveNeutralHue = (sourceColor: Color): number => {

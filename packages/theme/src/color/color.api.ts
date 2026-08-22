@@ -6,7 +6,8 @@ import {
   contrastTone,
   onColor,
 } from './tone-adjusters';
-import { Color, ColorOptions } from './color';
+import type { Color } from './color.base';
+import type { ColorOptions } from './color.types';
 import { ColorManager } from './color.manager';
 import { DynamicColorKey, tMaxC, tMinC } from './color.utils';
 import { API } from '../API';

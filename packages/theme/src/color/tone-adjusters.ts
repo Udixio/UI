@@ -4,7 +4,7 @@ import { getCurve, StandardContrastRatio } from './color.utils';
 import type { API } from '../API';
 import type { Context } from '../context';
 import type { Palette } from '../palette/palette';
-import type { Color } from './color';
+import type { Color } from './color.base';
 
 /**
  * Bande de tons qu'une couleur de fond doit éviter : entre `darkCeiling` et

@@ -1,10 +1,8 @@
-import {
-  Color,
-  ColorAlias,
-  ColorFromHex,
-  ColorFromPalette,
-  ColorOptions,
-} from './color';
+import { Color } from './color.base';
+import { ColorAlias } from './color.alias';
+import { ColorFromHex } from './color.from-hex';
+import { ColorFromPalette } from './color.from-palette';
+import type { ColorOptions } from './color.types';
 import type { API } from '../API';
 
 export class ColorManager {
@@ -17,10 +15,12 @@ export class ColorManager {
 
   createOrUpdate(key: string, args: ColorOptions): Color {
     let colorEntity = this.colorMap.get(key);
-    if ('alias' in args) {
+    if (args instanceof Color) {
+      colorEntity = args;
+    } else if (typeof args === 'string') {
+      colorEntity = new ColorFromHex(key, args);
+    } else if ('alias' in args) {
       colorEntity = new ColorAlias(key, args.alias, this);
-    } else if ('hex' in args) {
-      colorEntity = new ColorFromHex(key, args.hex);
     } else {
       try {
         if (colorEntity instanceof ColorFromPalette) {

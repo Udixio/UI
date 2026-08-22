@@ -136,20 +136,22 @@ The `colors` option defines additional tokens. A token declares its default
 tone, then the adjusters that turn it into the final one:
 
 ```ts
-import type { AddColorsOptions } from '@udixio/theme';
+import type { ColorsConfig } from '@udixio/theme';
 import { contrastAgainst, onColor, avoidBackgroundGap } from '@udixio/theme';
 
-const colors: AddColorsOptions = ({ palettes, context }) => ({
-  highlight: {
-    palette: 'tertiary',
-    tone: () => (context.isDark ? 70 : 40),
-    adjustTone: [contrastAgainst('surface', 3), avoidBackgroundGap()],
-  },
-  onHighlight: {
-    palette: 'tertiary',
-    adjustTone: onColor('highlight', 4.5),
-  },
-});
+const colors: ColorsConfig = {
+  fromPalette: ({ palettes, context }) => ({
+    highlight: {
+      palette: 'tertiary',
+      tone: () => (context.isDark ? 70 : 40),
+      adjustTone: [contrastAgainst('surface', 3), avoidBackgroundGap()],
+    },
+    onHighlight: {
+      palette: 'tertiary',
+      adjustTone: onColor('highlight', 4.5),
+    },
+  }),
+};
 ```
 
 See [Colors API](/theme/advanced/colors) for every adjuster and how to write

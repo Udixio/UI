@@ -1,9 +1,9 @@
-import { Color } from '../color/color';
-import { Variant } from '../variant/variant';
-import { ConfigInterface } from '../config';
+import { Color } from '../color/color.base';
+import type { Variant } from '../variant/variant';
+import type { SourceColor } from '../config';
 
 export interface ContextOptions {
-  sourceColor: ConfigInterface['sourceColor'] | Color;
+  sourceColor: SourceColor;
   contrastLevel: number;
   isDark: boolean;
   variant: Variant;
@@ -62,16 +62,17 @@ export class Context {
     if (this._options) {
       return this.update(options);
     }
-    if (typeof options.sourceColor === 'string') {
-      options.sourceColor = Color.fromHex(options.sourceColor);
-    }
 
+    const normalizedOptions =
+      typeof options.sourceColor === 'string'
+        ? { ...options, sourceColor: Color.fromHex(options.sourceColor) }
+        : options;
     const changed: (keyof Context)[] = [];
-    for (const key of Object.keys(options) as (keyof ContextOptions)[]) {
+    for (const key of Object.keys(normalizedOptions) as (keyof ContextOptions)[]) {
       changed.push(key);
     }
 
-    this._options = options;
+    this._options = normalizedOptions;
 
     if (changed.length > 0) {
       this.updateCallbacks.forEach((callback) => callback(changed));
@@ -83,21 +84,23 @@ export class Context {
     if (!options) {
       throw new Error('Options not found');
     }
-    if (typeof args.sourceColor === 'string') {
-      args.sourceColor = Color.fromHex(args.sourceColor);
-    }
+
+    const normalizedArgs =
+      typeof args.sourceColor === 'string'
+        ? { ...args, sourceColor: Color.fromHex(args.sourceColor) }
+        : args;
 
     // compute changed keys
     const changed: (keyof Context)[] = [];
-    for (const key of Object.keys(args) as (keyof ContextOptions)[]) {
-      if ((args as any)[key] !== (options as any)[key]) {
+    for (const key of Object.keys(normalizedArgs) as (keyof ContextOptions)[]) {
+      if ((normalizedArgs as any)[key] !== (options as any)[key]) {
         changed.push(key);
       }
     }
 
     this._options = {
       ...options,
-      ...args,
+      ...normalizedArgs,
     };
 
     // notify listeners with changed keys (if any)
@@ -133,18 +136,14 @@ export class Context {
     return this.getOptions().contrastLevel;
   }
 
-  set sourceColor(sourceColor: string | Color) {
+  set sourceColor(sourceColor: SourceColor) {
     this.update({ sourceColor });
   }
   get sourceColor(): Color {
-    let sourceColor = this.getOptions().sourceColor;
-    if (typeof sourceColor == 'function') {
-      sourceColor = sourceColor(this);
-    }
-    if (typeof sourceColor === 'string') {
-      sourceColor = Color.fromHex(sourceColor);
-    }
-    return sourceColor;
+    const sourceColor = this.getOptions().sourceColor;
+    const resolved =
+      typeof sourceColor === 'function' ? sourceColor(this) : sourceColor;
+    return typeof resolved === 'string' ? Color.fromHex(resolved) : resolved;
   }
   get rawSourceColor(): ContextOptions['sourceColor'] {
     return this.getOptions().sourceColor;

@@ -92,17 +92,19 @@ one. There is no hidden pipeline — what you list is what runs:
 ```ts
 import { contrastAgainst, avoidBackgroundGap, onColor } from '@udixio/theme';
 
-colors: ({ palettes }) => ({
-  highlight: {
-    palette: 'tertiary',
-    tone: () => 70,
-    adjustTone: [contrastAgainst('surface', 3), avoidBackgroundGap()],
-  },
-  onHighlight: {
-    palette: 'tertiary',
-    adjustTone: onColor('highlight', 4.5),
-  },
-}),
+colors: {
+  fromPalette: ({ palettes }) => ({
+    highlight: {
+      palette: 'tertiary',
+      tone: () => 70,
+      adjustTone: [contrastAgainst('surface', 3), avoidBackgroundGap()],
+    },
+    onHighlight: {
+      palette: 'tertiary',
+      adjustTone: onColor('highlight', 4.5),
+    },
+  }),
+},
 ```
 
 Full reference: [Colors API](https://ui.udixio.fr/theme/advanced/colors),
