@@ -13,16 +13,16 @@ interface ColorPickerProps {
 
 const COLOR_FIELD_SIZE = 128;
 const MAX_CHROMA_TONE_STEPS = 1000;
-const CONTRAST_CURVE_STEPS = 64;
+const CONTRAST_CURVE_STEPS = 128;
 const CONTRAST_RATIOS = [3, 4.5, 7] as const;
 
 const CONTRAST_CURVE_STYLES: Record<
   (typeof CONTRAST_RATIOS)[number],
-  { color: string; dash?: string }
+  { color: string; opacity: number; width: number }
 > = {
-  3: { color: '#ffffff', dash: '2 1.5' },
-  4.5: { color: '#ffe082' },
-  7: { color: '#ff8a80', dash: '5 2' },
+  3: { color: '#ffffff', opacity: 0.32, width: 1 },
+  4.5: { color: '#ffffff', opacity: 1, width: 1.6 },
+  7: { color: '#ffffff', opacity: 0.32, width: 1 },
 };
 
 const clamp = (value: number, min: number, max: number) =>
@@ -32,6 +32,70 @@ interface MaxChromaPoint {
   tone: number;
   chroma: number;
 }
+
+interface FieldPoint {
+  x: number;
+  y: number;
+}
+
+const createSmoothPath = (points: FieldPoint[]) => {
+  if (!points.length) return '';
+
+  const smoothedPoints = points.map((point, index) => {
+    if (index === 0 || index === points.length - 1) return point;
+
+    const start = Math.max(0, index - 2);
+    const end = Math.min(points.length - 1, index + 2);
+    const count = end - start + 1;
+    const totals = points.slice(start, end + 1).reduce(
+      (accumulator, current) => ({
+        x: accumulator.x + current.x,
+        y: accumulator.y + current.y,
+      }),
+      { x: 0, y: 0 },
+    );
+
+    return {
+      x: totals.x / count,
+      y: totals.y / count,
+    };
+  });
+  const pathPoints = smoothedPoints.filter(
+    (_, index) => index % 4 === 0 || index === smoothedPoints.length - 1,
+  );
+  const formatPathNumber = (value: number) =>
+    String(Math.round(value * 1000) / 1000);
+  const commands = [
+    `M ${formatPathNumber(pathPoints[0].x)} ${formatPathNumber(
+      pathPoints[0].y,
+    )}`,
+  ];
+
+  for (let index = 0; index < pathPoints.length - 1; index += 1) {
+    const current = pathPoints[index];
+    const next = pathPoints[index + 1];
+    const previous = pathPoints[index - 1] ?? current;
+    const following = pathPoints[index + 2] ?? next;
+    const controlOne = {
+      x: current.x + (next.x - previous.x) / 6,
+      y: current.y + (next.y - previous.y) / 6,
+    };
+    const controlTwo = {
+      x: next.x - (following.x - current.x) / 6,
+      y: next.y - (following.y - current.y) / 6,
+    };
+
+    commands.push(
+      `C ${formatPathNumber(controlOne.x)} ${formatPathNumber(
+        controlOne.y,
+      )} ${formatPathNumber(controlTwo.x)} ${formatPathNumber(
+        controlTwo.y,
+      )} ${formatPathNumber(next.x)} ${formatPathNumber(next.y)}`,
+    );
+  }
+
+  return commands.join(' ');
+};
 
 const getMaxChromaPoint = (hue: number): MaxChromaPoint => {
   let maximum: MaxChromaPoint = { tone: 50, chroma: 0 };
@@ -47,6 +111,15 @@ const getMaxChromaPoint = (hue: number): MaxChromaPoint => {
   return maximum;
 };
 
+/**
+ * Maps the square to the HCT gamut while keeping the useful picker corners:
+ * white, black, and the global maximum chroma for the selected hue.
+ *
+ * The upper part follows the gamut boundary from white to the maximum-chroma
+ * point. The lower part follows that boundary back towards tone 0. Chroma is
+ * normalized against the maximum available at the resulting tone, so every
+ * point produced here is displayable in sRGB.
+ */
 const getFieldHct = (
   hue: number,
   x: number,
@@ -267,7 +340,7 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
 
       if (targetLuminance < 0 || targetLuminance > 1) return [];
 
-      const points = Array.from(
+      const curvePoints = Array.from(
         { length: CONTRAST_CURVE_STEPS + 1 },
         (_, index) => {
           const chromaRatio = index / CONTRAST_CURVE_STEPS;
@@ -281,24 +354,18 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
             candidateTone,
             maxChromaPoint,
           );
-          return `${fieldPosition.x * 100},${fieldPosition.y * 100}`;
+          return {
+            x: fieldPosition.x * 100,
+            y: fieldPosition.y * 100,
+          };
         },
-      ).join(' ');
-
-      const labelTone = findToneForLuminance(1, targetLuminance);
-      const labelPosition = getFieldPosition(
-        hue,
-        Color.maxChroma(hue, labelTone),
-        labelTone,
-        maxChromaPoint,
       );
 
       return [
         {
           ratio,
-          labelX: labelPosition.x * 100,
-          labelY: labelPosition.y * 100,
-          points,
+          labelY: curvePoints[0].y,
+          path: createSmoothPath(curvePoints),
         },
       ];
     });
@@ -535,115 +602,115 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
   return (
     <div className="space-y-6">
       <div className="grid items-start gap-5 sm:grid-cols-[minmax(0,1.15fr)_minmax(10rem,0.85fr)]">
-        <div
-          className="relative aspect-square w-full touch-none select-none"
-          role="slider"
-          tabIndex={0}
-          aria-label="Sélection de la chroma et du ton avec courbes de contraste par rapport à surface : 3:1, 4.5:1 et 7:1"
-          aria-valuemin={0}
-          aria-valuemax={Math.round(maxChroma * 10) / 10}
-          aria-valuenow={Math.round(boundedChroma * 10) / 10}
-          aria-valuetext={`Chroma ${formatCoordinate(
-            boundedChroma,
-          )}, ton ${formatCoordinate(tone)}`}
-          onKeyDown={handleFieldKeyDown}
-          onPointerDown={(event) => {
-            event.currentTarget.setPointerCapture(event.pointerId);
-            updateFieldFromPoint(
-              event.clientX,
-              event.clientY,
-              event.currentTarget,
-            );
-          }}
-          onPointerMove={(event) => {
-            if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        <div className="grid min-w-0 grid-cols-[1.5rem_minmax(0,1fr)] items-stretch gap-1">
+          <div className="relative min-w-0">
+            {contrastCurves.map((curve) => {
+              const curveStyle = CONTRAST_CURVE_STYLES[curve.ratio];
+
+              return (
+                <span
+                  key={curve.ratio}
+                  className="absolute right-0 -translate-y-1/2 whitespace-nowrap text-[10px] font-medium text-on-surface-variant"
+                  style={{
+                    top: `${curve.labelY}%`,
+                    opacity: curveStyle.opacity > 0.5 ? 1 : 0.55,
+                  }}
+                >
+                  {curve.ratio}
+                </span>
+              );
+            })}
+          </div>
+          <div
+            className="relative aspect-square w-full touch-none select-none"
+            role="slider"
+            tabIndex={0}
+            aria-label="Sélection HCT de la chroma et du ton avec courbes de contraste par rapport à surface : 3:1, 4.5:1 et 7:1"
+            aria-valuemin={0}
+            aria-valuemax={Math.round(maxChroma * 10) / 10}
+            aria-valuenow={Math.round(boundedChroma * 10) / 10}
+            aria-valuetext={`Chroma ${formatCoordinate(
+              boundedChroma,
+            )}, ton ${formatCoordinate(tone)}`}
+            onKeyDown={handleFieldKeyDown}
+            onPointerDown={(event) => {
+              event.currentTarget.setPointerCapture(event.pointerId);
               updateFieldFromPoint(
                 event.clientX,
                 event.clientY,
                 event.currentTarget,
               );
-            }
-          }}
-          onPointerUp={(event) => {
-            if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-              event.currentTarget.releasePointerCapture(event.pointerId);
-            }
-          }}
-          onPointerCancel={(event) => {
-            if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-              event.currentTarget.releasePointerCapture(event.pointerId);
-            }
-          }}
-        >
-          <div
-            className="absolute inset-0 overflow-hidden rounded-2xl ring-1 ring-inset ring-outline-variant shadow-sm"
-            style={{ backgroundColor: hexColor }}
-            aria-hidden="true"
-            >
-            <canvas
-              ref={colorFieldCanvasRef}
-              width={COLOR_FIELD_SIZE}
-              height={COLOR_FIELD_SIZE}
-              className="block size-full"
-              aria-hidden="true"
-            />
-            <svg
-              className="pointer-events-none absolute inset-0 size-full"
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
+            }}
+            onPointerMove={(event) => {
+              if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+                updateFieldFromPoint(
+                  event.clientX,
+                  event.clientY,
+                  event.currentTarget,
+                );
+              }
+            }}
+            onPointerUp={(event) => {
+              if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+                event.currentTarget.releasePointerCapture(event.pointerId);
+              }
+            }}
+            onPointerCancel={(event) => {
+              if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+                event.currentTarget.releasePointerCapture(event.pointerId);
+              }
+            }}
+          >
+            <div
+              className="absolute inset-0 overflow-hidden rounded-2xl ring-1 ring-inset ring-outline-variant shadow-sm"
+              style={{ backgroundColor: hexColor }}
               aria-hidden="true"
             >
+              <canvas
+                ref={colorFieldCanvasRef}
+                width={COLOR_FIELD_SIZE}
+                height={COLOR_FIELD_SIZE}
+                className="block size-full"
+                aria-hidden="true"
+              />
+              <svg
+                className="pointer-events-none absolute inset-0 size-full"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+                shapeRendering="geometricPrecision"
+                aria-hidden="true"
+              >
               {contrastCurves.map((curve) => {
                 const curveStyle = CONTRAST_CURVE_STYLES[curve.ratio];
-                const labelX = clamp(curve.labelX - 1, 4, 96);
-                const labelY = clamp(curve.labelY - 2, 4, 96);
 
                 return (
                   <g key={curve.ratio}>
-                    <polyline
-                      points={curve.points}
-                      fill="none"
-                      stroke="rgba(0, 0, 0, 0.72)"
-                      strokeWidth="2.4"
-                      vectorEffect="non-scaling-stroke"
-                    />
-                    <polyline
-                      points={curve.points}
+                    <path
+                      d={curve.path}
                       fill="none"
                       stroke={curveStyle.color}
-                      strokeWidth="1.1"
-                      strokeDasharray={curveStyle.dash}
+                      strokeOpacity={curveStyle.opacity}
+                      strokeWidth={curveStyle.width}
                       strokeLinecap="round"
-                      vectorEffect="non-scaling-stroke"
-                    />
-                    <text
-                      x={labelX}
-                      y={labelY}
-                      fill={curveStyle.color}
-                      fontSize="3.2"
-                      fontWeight="700"
-                      textAnchor="end"
-                      stroke="rgba(0, 0, 0, 0.72)"
-                      strokeWidth="1"
-                      paintOrder="stroke"
-                    >
-                      {curve.ratio}:1
-                    </text>
-                  </g>
-                );
-              })}
-            </svg>
+                      strokeLinejoin="round"
+                        vectorEffect="non-scaling-stroke"
+                      />
+                    </g>
+                  );
+                })}
+              </svg>
+            </div>
+            <span
+              className="pointer-events-none absolute size-5 rounded-full border-2 border-white shadow-[0_1px_5px_rgb(0_0_0/45%)]"
+              style={{
+                backgroundColor: hexColor,
+                left: `${chromaPosition}%`,
+                top: `${tonePosition}%`,
+                transform: 'translate(-50%, -50%)',
+              }}
+              aria-hidden="true"
+            />
           </div>
-          <span
-            className="pointer-events-none absolute size-5 rounded-full border-2 border-white shadow-[0_1px_5px_rgb(0_0_0/45%)]"
-            style={{
-              backgroundColor: hexColor,
-              left: `${chromaPosition}%`,
-              top: `${tonePosition}%`,
-              transform: 'translate(-50%, -50%)',
-            }}
-            aria-hidden="true"
-          />
         </div>
 
         <div className="grid gap-3">
