@@ -10,7 +10,6 @@ import {
 } from '../../color/tone-adjusters';
 import { getPiecewiseHue, getRotatedHue, variant, Variant } from '../variant';
 import {
-  AddColorsOptions,
   calculateToneAdjustmentPercentage,
   capitalizeFirstLetter,
   Color,
@@ -21,6 +20,7 @@ import {
   tMaxC,
   tMinC,
 } from '../../color';
+import type { ColorsConfig } from '../../color/color.types';
 import { Contrast } from '@material/material-color-utilities';
 import { Context } from '../../context';
 import { API } from '../../API';
@@ -108,8 +108,11 @@ export const minContrastTone =
   };
 
 /** `minContrastTone` n'a besoin que du registre, pas de l'API entière. */
-const resolveColorRef = (reference: ColorRef, colors: ColorApi): Color =>
-  typeof reference === 'string' ? colors.get(reference) : (reference as Color);
+const resolveColorRef = (reference: ColorRef, colors: ColorApi): Color => {
+  if (typeof reference === 'string') return colors.get(reference);
+  if (typeof reference === 'function') return reference();
+  return reference;
+};
 
 export const udixioVariant: Variant = variant({
   name: 'udixio',
@@ -169,14 +172,13 @@ export const udixioVariant: Variant = variant({
     // const onColorFixedVariantKey = ('on' +
     //   ColorKey +
     //   'FixedVariant') as DynamicColorKey;
-    const colors: AddColorsOptions = ({ palettes, colors, context: ctx }) => ({
-      [colorKey]: {
-        palette: colorKey,
+    const colors: ColorsConfig = ({ palettes, colors, context: ctx }) => ({
+      [colorKey]: Color.fromPalette(colorKey, {
         tone: () => {
           return colors.get('primary').tone;
           // return ctx.isDark ? 80 : tMaxC(palettes.get(colorKey));
         },
-      },
+      }),
       // [colorDimKey]: {
       //   palette: colorKey,
       //   tone: () => {
@@ -199,12 +201,10 @@ export const udixioVariant: Variant = variant({
       //       'farther',
       //     ),
       // },
-      [onColorKey]: {
-        palette: colorKey,
+      [onColorKey]: Color.fromPalette(colorKey, {
         adjustTone: onColor(colorKey, 6),
-      },
-      [colorContainerKey]: {
-        palette: colorKey,
+      }),
+      [colorContainerKey]: Color.fromPalette(colorKey, {
         tone: () => {
           return ctx.isDark
             ? tMinC(palettes.get(colorKey), 35, 93)
@@ -218,17 +218,15 @@ export const udixioVariant: Variant = variant({
             constraint: 'farther',
           }),
           contrastAgainst(
-            (api) => highestSurface(api.context, api.colors),
-            (context) =>
-              context.contrastLevel > 0 ? getCurve(1.5) : undefined,
+            () => highestSurface(ctx, colors),
+            () => (ctx.contrastLevel > 0 ? getCurve(1.5) : undefined),
           ),
           avoidBackgroundGap(),
         ],
-      },
-      [onColorContainerKey]: {
-        palette: colorKey,
+      }),
+      [onColorContainerKey]: Color.fromPalette(colorKey, {
         adjustTone: onColor(colorContainerKey, 6),
-      },
+      }),
       // [colorFixedKey]: {
       //   palette: colorKey,
       //   tone: () => {
@@ -275,8 +273,7 @@ export const udixioVariant: Variant = variant({
       ////////////////////////////////////////////////////////////////
       // Surfaces [S]                                               //
       ////////////////////////////////////////////////////////////////
-      surface: {
-        palette: 'neutral',
+      surface: Color.fromPalette('neutral', {
         tone: () => {
           if (ctx.isDark) {
             return 2;
@@ -284,9 +281,8 @@ export const udixioVariant: Variant = variant({
             return 99;
           }
         },
-      },
-      surfaceDim: {
-        palette: 'neutral',
+      }),
+      surfaceDim: Color.fromPalette('neutral', {
         chromaMultiplier: () => {
           if (!ctx.isDark) {
             return 1.7;
@@ -300,9 +296,8 @@ export const udixioVariant: Variant = variant({
             return surfaceContainerTone(5, { palettes, context: ctx });
           }
         },
-      },
-      surfaceBright: {
-        palette: 'neutral',
+      }),
+      surfaceBright: Color.fromPalette('neutral', {
         chromaMultiplier: () => {
           if (ctx.isDark) {
             return 1.7;
@@ -316,41 +311,35 @@ export const udixioVariant: Variant = variant({
             return surfaceContainerTone(0.5, { palettes, context: ctx });
           }
         },
-      },
-      surfaceContainerLowest: {
-        palette: 'neutral',
+      }),
+      surfaceContainerLowest: Color.fromPalette('neutral', {
         tone: () => surfaceContainerTone(0, { palettes, context: ctx }),
-      },
-      surfaceContainerLow: {
-        palette: 'neutral',
+      }),
+      surfaceContainerLow: Color.fromPalette('neutral', {
         chromaMultiplier: () => {
           return 1.25;
         },
         tone: () => surfaceContainerTone(1, { palettes, context: ctx }),
-      },
-      surfaceContainer: {
-        palette: 'neutral',
+      }),
+      surfaceContainer: Color.fromPalette('neutral', {
         chromaMultiplier: () => {
           return 1.4;
         },
         tone: () => surfaceContainerTone(2, { palettes, context: ctx }),
-      },
-      surfaceContainerHigh: {
-        palette: 'neutral',
+      }),
+      surfaceContainerHigh: Color.fromPalette('neutral', {
         chromaMultiplier: () => {
           return 1.5;
         },
         tone: () => surfaceContainerTone(3, { palettes, context: ctx }),
-      },
-      surfaceContainerHighest: {
-        palette: 'neutral',
+      }),
+      surfaceContainerHighest: Color.fromPalette('neutral', {
         chromaMultiplier: () => {
           return 1.7;
         },
         tone: () => surfaceContainerTone(4, { palettes, context: ctx }),
-      },
-      onSurface: {
-        palette: 'neutral',
+      }),
+      onSurface: Color.fromPalette('neutral', {
         chromaMultiplier: () => {
           return 1.7;
         },
@@ -358,59 +347,47 @@ export const udixioVariant: Variant = variant({
           return highestSurface(ctx, colors).tone;
         },
         adjustTone: contrastAgainst(
-          (api) => highestSurface(api.context, api.colors),
-          (context) => (context.isDark ? getCurve(11) : getCurve(9)),
+          () => highestSurface(ctx, colors),
+          () => (ctx.isDark ? getCurve(11) : getCurve(9)),
         ),
-      },
-      onSurfaceVariant: {
-        palette: 'neutral',
+      }),
+      onSurfaceVariant: Color.fromPalette('neutral', {
         chromaMultiplier: () => {
           return 1.7;
         },
         adjustTone: onColor(
-          (api) => highestSurface(api.context, api.colors),
-          (context) => (context.isDark ? getCurve(6) : getCurve(4.5)),
+          () => highestSurface(ctx, colors),
+          () => (ctx.isDark ? getCurve(6) : getCurve(4.5)),
         ),
-      },
-      outline: {
-        palette: 'neutral',
+      }),
+      outline: Color.fromPalette('neutral', {
         chromaMultiplier: () => {
           return 1.7;
         },
-        adjustTone: onColor(
-          (api) => highestSurface(api.context, api.colors),
-          3,
-        ),
-      },
-      outlineVariant: {
-        palette: 'neutral',
+        adjustTone: onColor(() => highestSurface(ctx, colors), 3),
+      }),
+      outlineVariant: Color.fromPalette('neutral', {
         chromaMultiplier: () => {
           return 1.7;
         },
-        adjustTone: onColor(
-          (api) => highestSurface(api.context, api.colors),
-          1.5,
-        ),
-      },
-      inverseSurface: {
-        palette: 'neutral',
+        adjustTone: onColor(() => highestSurface(ctx, colors), 1.5),
+      }),
+      inverseSurface: Color.fromPalette('neutral', {
         tone: () => 100 - colors.get('surface').tone,
-      },
-      inverseOnSurface: {
-        palette: 'neutral',
+      }),
+      inverseOnSurface: Color.fromPalette('neutral', {
         tone: () => (ctx.isDark ? 20 : 95),
         adjustTone: contrastAgainst('inverseSurface', 7),
-      },
+      }),
       ////////////////////////////////////////////////////////////////
       // Primaries [P]                                              //
       ////////////////////////////////////////////////////////////////
-      primary: {
-        palette: 'primary',
+      primary: Color.fromPalette('primary', {
         tone: () => {
           return ctx.sourceColor.tone;
         },
         adjustTone: minContrastTone(),
-      },
+      }),
       // primaryDim: {
       //   palette: 'primary',
       //   tone: () => {
@@ -435,12 +412,10 @@ export const udixioVariant: Variant = variant({
       //       'farther',
       //     ),
       // },
-      onPrimary: {
-        palette: 'primary',
+      onPrimary: Color.fromPalette('primary', {
         adjustTone: onColor('primary', 6),
-      },
-      primaryContainer: {
-        palette: 'primary',
+      }),
+      primaryContainer: Color.fromPalette('primary', {
         tone: () => {
           return ctx.isDark
             ? tMinC(palettes.get('primary'), 35, 93)
@@ -454,17 +429,15 @@ export const udixioVariant: Variant = variant({
             constraint: 'farther',
           }),
           contrastAgainst(
-            (api) => highestSurface(api.context, api.colors),
-            (context) =>
-              context.contrastLevel > 0 ? getCurve(1.5) : undefined,
+            () => highestSurface(ctx, colors),
+            () => (ctx.contrastLevel > 0 ? getCurve(1.5) : undefined),
           ),
           avoidBackgroundGap(),
         ],
-      },
-      onPrimaryContainer: {
-        palette: 'primary',
+      }),
+      onPrimaryContainer: Color.fromPalette('primary', {
         adjustTone: onColor('primaryContainer', 6),
-      },
+      }),
 
       // primaryFixed: {
       //   palette: 'primary',
@@ -512,22 +485,19 @@ export const udixioVariant: Variant = variant({
       //   contrastCurve: () => getCurve(4.5),
       // },
 
-      inversePrimary: {
-        palette: 'primary',
-
+      inversePrimary: Color.fromPalette('primary', {
         tone: () => tMaxC(palettes.get('primary')),
 
         adjustTone: contrastAgainst('inverseSurface', 6),
-      },
+      }),
       ////////////////////////////////////////////////////////////////
       // Secondaries [Q]                                            //
       ////////////////////////////////////////////////////////////////
-      secondary: {
-        palette: 'secondary',
+      secondary: Color.fromPalette('secondary', {
         tone: () => {
           return colors.get('primary').tone;
         },
-      },
+      }),
       // secondaryDim: {
       //   palette: 'secondary',
       //   tone: () => {
@@ -550,12 +520,10 @@ export const udixioVariant: Variant = variant({
       //       'farther',
       //     ),
       // },
-      onSecondary: {
-        palette: 'secondary',
+      onSecondary: Color.fromPalette('secondary', {
         adjustTone: onColor('secondary', 6),
-      },
-      secondaryContainer: {
-        palette: 'secondary',
+      }),
+      secondaryContainer: Color.fromPalette('secondary', {
         tone: () => {
           return ctx.isDark
             ? tMinC(palettes.get('secondary'), 35, 93)
@@ -569,17 +537,15 @@ export const udixioVariant: Variant = variant({
             constraint: 'farther',
           }),
           contrastAgainst(
-            (api) => highestSurface(api.context, api.colors),
-            (context) =>
-              context.contrastLevel > 0 ? getCurve(1.5) : undefined,
+            () => highestSurface(ctx, colors),
+            () => (ctx.contrastLevel > 0 ? getCurve(1.5) : undefined),
           ),
           avoidBackgroundGap(),
         ],
-      },
-      onSecondaryContainer: {
-        palette: 'secondary',
+      }),
+      onSecondaryContainer: Color.fromPalette('secondary', {
         adjustTone: onColor('secondaryContainer', 6),
-      },
+      }),
 
       // secondaryFixed: {
       //   palette: 'secondary',
@@ -630,13 +596,12 @@ export const udixioVariant: Variant = variant({
       ////////////////////////////////////////////////////////////////
       // Tertiaries [T]                                             //
       ////////////////////////////////////////////////////////////////
-      tertiary: {
-        palette: 'tertiary',
+      tertiary: Color.fromPalette('tertiary', {
         tone: () => {
           const tone = colors.get('primary').tone;
           return Math.max(20, Math.min(80, tone));
         },
-      },
+      }),
       // tertiaryDim: {
       //   palette: 'tertiary',
       //   tone: () => {
@@ -659,12 +624,10 @@ export const udixioVariant: Variant = variant({
       //       'farther',
       //     ),
       // },
-      onTertiary: {
-        palette: 'tertiary',
+      onTertiary: Color.fromPalette('tertiary', {
         adjustTone: onColor('tertiary', 6),
-      },
-      tertiaryContainer: {
-        palette: 'tertiary',
+      }),
+      tertiaryContainer: Color.fromPalette('tertiary', {
         tone: () => {
           return tMaxC(palettes.get('tertiary'), 0, ctx.isDark ? 93 : 100);
         },
@@ -676,17 +639,15 @@ export const udixioVariant: Variant = variant({
             constraint: 'farther',
           }),
           contrastAgainst(
-            (api) => highestSurface(api.context, api.colors),
-            (context) =>
-              context.contrastLevel > 0 ? getCurve(1.5) : undefined,
+            () => highestSurface(ctx, colors),
+            () => (ctx.contrastLevel > 0 ? getCurve(1.5) : undefined),
           ),
           avoidBackgroundGap(),
         ],
-      },
-      onTertiaryContainer: {
-        palette: 'tertiary',
+      }),
+      onTertiaryContainer: Color.fromPalette('tertiary', {
         adjustTone: onColor('tertiaryContainer', 6),
-      },
+      }),
 
       // tertiaryFixed: {
       //   palette: 'tertiary',
@@ -738,9 +699,7 @@ export const udixioVariant: Variant = variant({
       // Errors [E]                                                 //
       ////////////////////////////////////////////////////////////////
 
-      error: {
-        palette: 'error',
-
+      error: Color.fromPalette('error', {
         tone: () => {
           return ctx.isDark
             ? tMinC(palettes.get('error'), 0, 98)
@@ -755,14 +714,11 @@ export const udixioVariant: Variant = variant({
             constraint: 'farther',
           }),
 
-          contrastAgainst(
-            (api) => highestSurface(api.context, api.colors),
-            4.5,
-          ),
+          contrastAgainst(() => highestSurface(ctx, colors), 4.5),
 
           avoidBackgroundGap(),
         ],
-      },
+      }),
       // errorDim: {
       //   palette: 'error',
       //   tone: () => tMinC(palettes.get('error')),
@@ -779,12 +735,10 @@ export const udixioVariant: Variant = variant({
       //       'farther',
       //     ),
       // },
-      onError: {
-        palette: 'error',
+      onError: Color.fromPalette('error', {
         adjustTone: onColor('error', 6),
-      },
-      errorContainer: {
-        palette: 'error',
+      }),
+      errorContainer: Color.fromPalette('error', {
         tone: () => {
           return ctx.isDark
             ? tMinC(palettes.get('error'), 30, 93)
@@ -797,33 +751,24 @@ export const udixioVariant: Variant = variant({
             ? backgroundGapTone(
                 contrastTone(
                   args.tone,
-                  (api) => highestSurface(api.context, api.colors),
+                  () => highestSurface(ctx, colors),
                   1.5,
                   args,
                 ),
               )
             : args.tone,
-      },
-      onErrorContainer: {
-        palette: 'error',
+      }),
+      onErrorContainer: Color.fromPalette('error', {
         adjustTone: onColor('errorContainer', 4.5),
-      },
+      }),
 
       /////////////////////////////////////////////////////////////////
       // Remapped Colors                                             //
       /////////////////////////////////////////////////////////////////
-      surfaceVariant: {
-        alias: 'surfaceContainerHighest',
-      },
-      surfaceTint: {
-        alias: 'primary',
-      },
-      background: {
-        alias: 'surface',
-      },
-      onBackground: {
-        alias: 'onSurface',
-      },
+      surfaceVariant: Color.alias('surfaceContainerHighest'),
+      surfaceTint: Color.alias('primary'),
+      background: Color.alias('surface'),
+      onBackground: Color.alias('onSurface'),
     };
   },
 });

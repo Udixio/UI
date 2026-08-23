@@ -53,6 +53,12 @@ export type ReactTextFieldProps = Omit<
   style?: CSSProperties;
   ref?: React.Ref<HTMLInputElement | HTMLTextAreaElement>;
   options?: ReactTextFieldOption[];
+  /** Native lower bound forwarded to the underlying input. */
+  min?: number | string;
+  /** Native upper bound forwarded to the underlying input. */
+  max?: number | string;
+  /** Native increment forwarded to the underlying input. */
+  step?: number | string;
 };
 
 export const useTextFieldStyle = createUseStyle(textFieldStyle);

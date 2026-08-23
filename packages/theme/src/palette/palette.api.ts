@@ -1,10 +1,10 @@
 import { PaletteManager } from './palette.manager';
 import { Palette, PaletteCallback } from './palette';
 import { Color } from '../color/color.base';
-import type { ColorValueInput } from '../color/color.types';
+import type { ColorInput } from '../color/color.types';
 
 export type AddPaletteOptions = Record<string, PaletteCallback>;
-export type PaletteValue = ColorValueInput | PaletteCallback;
+export type PaletteValue = ColorInput | PaletteCallback;
 export type PaletteOptions = Record<string, PaletteValue>;
 
 export class PaletteApi {

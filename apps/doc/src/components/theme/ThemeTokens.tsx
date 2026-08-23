@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useStore } from '@nanostores/react';
 import { themeConfigStore, themeServiceStore } from '@/stores/themeConfigStore.ts';
-import { ColorAlias, ColorFromPalette } from '@udixio/theme';
+import type { Color } from '@udixio/theme';
 import ColorTokenCard from './ColorTokenCard';
 
 type TokenDef = { name: string; usage: string };
@@ -85,13 +85,10 @@ export const ThemeTokens: React.FC = () => {
   const [activeGroup, setActiveGroup] = useState('all');
 
   const colorMap = useMemo(() => {
-    if (!$api) return new Map<string, ColorFromPalette>();
-    const map = new Map<string, ColorFromPalette>();
+    if (!$api) return new Map<string, Color>();
+    const map = new Map<string, Color>();
     for (const [name, color] of $api.colors.getAll()) {
-      const resolved = color instanceof ColorAlias ? color.color() : color;
-      if (resolved instanceof ColorFromPalette) {
-        map.set(name, resolved);
-      }
+      map.set(name, color);
     }
     return map;
   }, [$api]);

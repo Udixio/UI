@@ -6,8 +6,8 @@
  * between, one at a time.
  *
  * Each adjuster is a factory: it takes what it needs to know, and returns a
- * function of `API & { tone }`. So the tests build both — the factory with its
- * arguments, then a minimal API to run it against.
+ * function of the minimal tone-adjustment context. So the tests build both —
+ * the factory with its arguments, then a minimal context to run it against.
  */
 import { Contrast } from '@material/material-color-utilities';
 import { describe, expect, it } from 'vitest';
@@ -23,8 +23,9 @@ import {
   contrastTone,
   onColor,
   type ToneAdjuster,
+  type ToneAdjusterArgs,
 } from '../src/color/tone-adjusters.js';
-import type { API } from '../src/API.js';
+import { getCurve } from '../src/color/color.utils.js';
 
 /** A neutral colour pinned at a known tone. */
 const at = (tone: number) => Color.from({ hue: 0, chroma: 0, tone });
@@ -43,11 +44,15 @@ const stub = (
       isDark: options.isDark ?? false,
     },
     colors: { get: (key: string) => options.colors?.[key] },
-  }) as unknown as API;
+    palettes: { get: () => undefined },
+  }) as unknown as ToneAdjusterArgs;
 
 /** Runs an adjuster on a tone. */
-const run = (adjuster: ToneAdjuster, tone: number, api: API = stub()): number =>
-  adjuster({ ...api, tone } as API & { tone: number });
+const run = (
+  adjuster: ToneAdjuster,
+  tone: number,
+  args: ToneAdjusterArgs = stub(),
+): number => adjuster({ ...args, tone });
 
 describe('contrastTone', () => {
   it('leaves a tone that already meets the ratio', () => {
@@ -95,6 +100,21 @@ describe('contrastAgainst', () => {
     expect(Contrast.ratioOfTones(100, answer)).toBeGreaterThanOrEqual(
       4.5 - 0.05,
     );
+  });
+
+  it('resolves a background and a contrast curve lazily without an API argument', () => {
+    const api = stub({ colors: { surface: at(100) } });
+    const expected = run(contrastAgainst('surface', 4.5), 95, api);
+    const answer = run(
+      contrastAgainst(
+        () => at(100),
+        () => getCurve(4.5),
+      ),
+      95,
+      api,
+    );
+
+    expect(answer).toBe(expected);
   });
 });
 

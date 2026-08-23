@@ -1,8 +1,5 @@
 import { Color } from './color.base';
-import { ColorAlias } from './color.alias';
-import { ColorFromHex } from './color.from-hex';
-import { ColorFromPalette } from './color.from-palette';
-import type { ColorOptions } from './color.types';
+import type { ColorInput } from './color.types';
 import type { API } from '../API';
 
 export class ColorManager {
@@ -13,28 +10,19 @@ export class ColorManager {
 
   constructor() {}
 
-  createOrUpdate(key: string, args: ColorOptions): Color {
-    let colorEntity = this.colorMap.get(key);
+  createOrUpdate(key: string, args: ColorInput): Color {
+    let colorEntity: Color;
     if (args instanceof Color) {
       colorEntity = args;
     } else if (typeof args === 'string') {
-      colorEntity = new ColorFromHex(key, args);
-    } else if ('alias' in args) {
-      colorEntity = new ColorAlias(key, args.alias, this);
+      colorEntity = Color.fromHex(args);
     } else {
-      try {
-        if (colorEntity instanceof ColorFromPalette) {
-          colorEntity.update(args);
-        } else {
-          colorEntity = new ColorFromPalette(key, args, () => this.api);
-        }
-      } catch (e) {
-        console.error(e);
-        throw new Error(`Invalid color options provided for ${key}`);
-      }
+      throw new Error(`Invalid color input provided for ${key}`);
     }
-    this.colorMap.set(key, colorEntity);
-    return colorEntity;
+
+    const initializedColor = colorEntity.init(this.api);
+    this.colorMap.set(key, initializedColor);
+    return initializedColor;
   }
 
   public remove(key: string) {

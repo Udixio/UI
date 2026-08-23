@@ -5,6 +5,8 @@ import type { API } from '../API';
 import type { Context } from '../context';
 import type { Palette } from '../palette/palette';
 import type { Color } from './color.base';
+import type { ColorApi } from './color.api';
+import type { PaletteApi } from '../palette/palette.api';
 
 /**
  * Bande de tons qu'une couleur de fond doit éviter : entre `darkCeiling` et
@@ -30,33 +32,46 @@ export const DEFAULT_TONE = 50;
 /**
  * Ajuste le ton d'une couleur.
  *
- * Reçoit l'API entière — `colors`, `palettes`, `context` — plus le ton laissé
- * par l'étape précédente, et rend le ton suivant. Une couleur en déclare un,
- * ou plusieurs à enchaîner.
+ * Contexte minimal reçu par un ajusteur au moment de la résolution.
+ *
+ * L'API complète n'est pas exposée : les ajusteurs de ton ont uniquement
+ * besoin du ton courant, du contexte du thème et des registres de couleurs et
+ * de palettes.
  */
-export type ToneAdjuster = (args: API & { tone: number }) => number;
+export type ToneAdjusterArgs = {
+  /** Ton laissé par l'étape précédente de la chaîne. */
+  tone: number;
+  /** État dynamique du thème : mode sombre, contraste, variant, etc. */
+  context: Context;
+  /** Registre des couleurs résolues du thème courant. */
+  colors: ColorApi;
+  /** Registre des palettes résolues du thème courant. */
+  palettes: PaletteApi;
+};
 
-/** Une couleur, désignée par sa clé dans le registre ou directement. */
-export type ColorRef = string | Color | ((api: API) => Color);
+/** Un ajusteur reçoit le contexte minimal et rend le ton suivant. */
+export type ToneAdjuster = (args: ToneAdjusterArgs) => number;
+
+/**
+ * Une couleur, désignée par sa clé, directement ou par une résolution différée.
+ * Le callback est évalué au moment de l'ajustement et peut fermer sur le
+ * contexte dans lequel la couleur a été déclarée.
+ */
+export type ColorRef = string | Color | (() => Color);
 
 /** Une palette, désignée par sa clé dans le registre ou directement. */
 export type PaletteRef = string | Palette | ((api: API) => Palette);
 
 /**
  * Le contraste visé : un ratio standard, une courbe sur mesure, ou une
- * fonction quand il dépend du contexte.
+ * fonction sans argument quand il dépend du contexte.
  */
 export type ContrastSpec =
-  | StandardContrastRatio
-  | ContrastCurve
-  | ((context: Context) => ContrastCurve | undefined);
+  StandardContrastRatio | ContrastCurve | (() => ContrastCurve | undefined);
 
 /** Sens de l'écart, décrit **depuis la couleur qui le déclare**. */
 export type TonePolarity =
-  | 'darker'
-  | 'lighter'
-  | 'relativeDarker'
-  | 'relativeLighter';
+  'darker' | 'lighter' | 'relativeDarker' | 'relativeLighter';
 
 /** Comment satisfaire la contrainte d'écart. */
 export type DeltaConstraint = 'exact' | 'nearer' | 'farther';
@@ -71,9 +86,9 @@ export type ToneDelta = {
   constraint: DeltaConstraint;
 };
 
-function resolveColor(ref: ColorRef, api: API): Color {
-  if (typeof ref === 'string') return api.colors.get(ref);
-  if (typeof ref === 'function') return ref(api);
+function resolveColor(ref: ColorRef, args: ToneAdjusterArgs): Color {
+  if (typeof ref === 'string') return args.colors.get(ref);
+  if (typeof ref === 'function') return ref();
   return ref;
 }
 
@@ -83,12 +98,9 @@ export function resolvePalette(ref: PaletteRef, api: API): Palette {
   return ref;
 }
 
-function resolveCurve(
-  spec: ContrastSpec,
-  context: Context,
-): ContrastCurve | undefined {
+function resolveCurve(spec: ContrastSpec): ContrastCurve | undefined {
   if (typeof spec === 'number') return getCurve(spec);
-  if (typeof spec === 'function') return spec(context);
+  if (typeof spec === 'function') return spec();
   return spec;
 }
 
@@ -117,16 +129,16 @@ export function contrastTone(
   tone: number,
   background: ColorRef,
   contrast: ContrastSpec,
-  api: API,
+  args: ToneAdjusterArgs,
 ): number {
-  const curve = resolveCurve(contrast, api.context);
+  const curve = resolveCurve(contrast);
   if (!curve) return tone;
 
-  const backgroundTone = resolveColor(background, api).tone;
-  const ratio = curve.get(api.context.contrastLevel);
+  const backgroundTone = resolveColor(background, args).tone;
+  const ratio = curve.get(args.context.contrastLevel);
   if (
     Contrast.ratioOfTones(backgroundTone, tone) >= ratio &&
-    api.context.contrastLevel >= 0
+    args.context.contrastLevel >= 0
   ) {
     return tone;
   }
@@ -210,7 +222,7 @@ export function arbitrateBackgrounds(
 ): ToneAdjuster {
   return (args) => {
     const { tone, context } = args;
-    const curve = resolveCurve(contrast, context);
+    const curve = resolveCurve(contrast);
     if (!curve) return tone;
 
     const ratio = curve.get(context.contrastLevel);

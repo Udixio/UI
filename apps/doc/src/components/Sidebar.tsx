@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Card, classNames, SideSheet } from '@udixio/ui-react';
+import { Button, classNames, Divider, SideSheet } from '@udixio/ui-react';
 import { motion } from 'motion/react';
 
 // ─── Nav mode ─────────────────────────────────────────────────────────────────
@@ -45,52 +45,59 @@ const NavSidebar = ({
 
   return (
     <SideSheet position="left" className="bg-surface-dim" title={title}>
-      <nav className="flex flex-col p-2 h-full overflow-y-auto custom-scrollbar">
+      <nav className="flex flex-col gap-4 p-2 h-full overflow-y-auto custom-scrollbar">
         {sections.map(({ category, pages, groups }) => {
           const normalizedGroups: NavGroup[] =
             groups ?? (pages ? [{ pages }] : []);
 
           return (
-            <div key={category} className="mb-4">
-              <div className="flex flex-col gap-1 rounded-3xl overflow-hidden">
-                {normalizedGroups.map((group, groupIndex) => (
-                  <Card
-                    key={group.subCategory ?? groupIndex}
-                    variant={'filled'}
-                    className="rounded-lg overflow-hidden bg-surface-container-low pt-1"
-                  >
-                    {groupIndex === 0 && (
-                      <div className="px-3 pt-2 pb-1 text-label-small text-outline">
-                        {category}
+            <>
+              <div key={category}>
+                <div className="flex flex-col gap-1 rounded-3xl overflow-hidden">
+                  {normalizedGroups.map((group, groupIndex) => (
+                    <div
+                      key={group.subCategory ?? groupIndex}
+                      className=" overflow-hidden pt-1"
+                    >
+                      {groupIndex === 0 && (
+                        <div className="px-3 pt-2 pb-1 text-label-small text-outline">
+                          {category}
+                        </div>
+                      )}
+                      {group.subCategory && (
+                        <div className="px-3 pt-2 pb-1 text-label-small text-outline-variant">
+                          {group.subCategory}
+                        </div>
+                      )}
+                      <div className={classNames('flex flex-col gap-1 ')}>
+                        {group.pages.map(({ slug, label, href }) => (
+                          <Button
+                            key={slug}
+                            size="small"
+                            href={href ?? `${basePath}/${slug}`}
+                            className={classNames(
+                              'text-secondary justify-start w-full',
+                              {
+                                'bg-transparent shadow-none!':
+                                  slug !== activePage,
+                              },
+                            )}
+                            label={label}
+                            aria-current={
+                              slug === activePage ? 'page' : undefined
+                            }
+                            onClick={() => setActivePage(slug)}
+                            variant="text"
+                            edgeAligned={false}
+                          />
+                        ))}
                       </div>
-                    )}
-                    {group.subCategory && (
-                      <div className="px-3 pt-2 pb-1 text-label-small text-outline-variant">
-                        {group.subCategory}
-                      </div>
-                    )}
-                    <div className={classNames('flex flex-col gap-1 p-1')}>
-                      {group.pages.map(({ slug, label, href }) => (
-                        <Button
-                          key={slug}
-                          size="small"
-                          href={href ?? `${basePath}/${slug}`}
-                          className={classNames('justify-start w-full', {
-                            'bg-transparent shadow-none!': slug !== activePage,
-                          })}
-                          label={label}
-                          aria-current={
-                            slug === activePage ? 'page' : undefined
-                          }
-                          onClick={() => setActivePage(slug)}
-                          variant="tonal"
-                        />
-                      ))}
                     </div>
-                  </Card>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+              <Divider />
+            </>
           );
         })}
       </nav>

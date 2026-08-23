@@ -1,7 +1,7 @@
 import { sanitizeDegreesDouble } from '@material/material-color-utilities';
 import type { Color } from '../color/color.base';
 import { Palette } from '../palette/palette';
-import { AddColorsOptions } from '../color';
+import type { ColorsConfig } from '../color/color.types';
 import { Context } from '../context';
 import { AddPaletteOptions } from '../palette/palette.api';
 
@@ -42,15 +42,15 @@ export interface VariantOptions {
     hue: number;
     chroma: number;
   };
-  colorsFromCustomPalette?: (key: string) => AddColorsOptions;
-  colors?: AddColorsOptions;
+  colorsFromCustomPalette?: (key: string) => ColorsConfig;
+  colors?: ColorsConfig;
 }
 
 export class Variant {
   public readonly name: string;
   public readonly customPalettes: VariantOptions['customPalettes'];
-  public readonly colorsFromCustomPalette?: (key: string) => AddColorsOptions;
-  public readonly colors: AddColorsOptions;
+  public readonly colorsFromCustomPalette?: (key: string) => ColorsConfig;
+  public readonly colors: ColorsConfig;
 
   /**
    * Les callbacks de palette tels que déclarés.

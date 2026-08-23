@@ -29,7 +29,13 @@ export class PaletteManager {
   addCustomPalette(key: string, args: Color | PaletteCallback): void {
     let palette: Palette;
     if (args instanceof Color) {
-      palette = Palette.fromVariant(key, args, this.context);
+      const api = this.colorApi.api;
+      if (!api) {
+        throw new Error(
+          'The API is not initialized. Please call bootstrap() before adding a color palette.',
+        );
+      }
+      palette = Palette.fromVariant(key, args.init(api), this.context);
     } else {
       palette = new Palette(key, args, this.context);
     }
@@ -77,10 +83,22 @@ export class PaletteManager {
   }
 
   override(key: string, args: Color | PaletteCallback): void {
-    const callback: PaletteCallback =
+    const color =
       args instanceof Color
-        ? (context) => context.variant.customPalettes(context, args)
-        : args;
+        ? (() => {
+            const api = this.colorApi.api;
+            if (!api) {
+              throw new Error(
+                'The API is not initialized. Please call bootstrap() before overriding a color palette.',
+              );
+            }
+            return args.init(api);
+          })()
+        : undefined;
+    const callback: PaletteCallback =
+      color
+        ? (context) => context.variant.customPalettes(context, color)
+        : (args as PaletteCallback);
 
     if (this._palettes[key]) {
       this.update(key, callback);

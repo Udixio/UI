@@ -38,14 +38,17 @@ import { TailwindPlugin } from '@udixio/tailwind';
 
 const api = await loader({
   sourceColor: '#6750A4',
-  plugins: [new FontPlugin({}), new TailwindPlugin({ outFile: 'src/theme.css' })],
+  plugins: [
+    new FontPlugin({}),
+    new TailwindPlugin({ outFile: 'src/theme.css' }),
+  ],
 });
 
-api.colors.get('primary').hex;   // "#655789"
-api.colors.get('primary').tone;  // 40.3
+api.colors.get('primary').hex; // "#655789"
+api.colors.get('primary').tone; // 40.3
 
 api.context.darkMode = true;
-api.colors.get('primary').hex;   // recomputed
+api.colors.get('primary').hex; // recomputed
 ```
 
 Every token is a `Color`, read as a value — each access resolves against the
@@ -72,14 +75,14 @@ npx udixio-theme build -c ./path/to/theme.config
 
 ## What it exposes
 
-| | |
-|---|---|
-| `Color` | The single colour type. `Color.from({ hue, chroma, tone })`, `.fromHex()`, the `.hue`/`.chroma`/`.tone`/`.hex`/`.rgb`/`.argb` getters, and derivations `.withHue()`, `.rotate()`, `.scaleChroma()`, `.contrastWith()`. |
-| `Palette` | A hue and a chroma, spanning every tone. `palette.getColor(40)`. |
-| `variant()` | How palettes are derived from the source colour. Five built-ins: `TonalSpot`, `Neutral`, `Vibrant`, `Expressive`, `Udixio`. |
-| Tone adjusters | `contrastAgainst`, `onColor`, `avoidBackgroundGap`, `applyToneDelta`, `arbitrateBackgrounds` — how a token resolves its tone. |
-| `PluginAbstract` | The plugin base class. `FontPlugin` ships here; `TailwindPlugin` lives in `@udixio/tailwind`. |
-| `serializeThemeContext` | A snapshot of the context and palettes, for rebuilding a theme elsewhere — a worker, an SSR pass. |
+|                         |                                                                                                                                                                                                                                                    |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Color`                 | The single colour type. `Color.from({ hue, chroma, tone })`, `.fromHex()`, the `.hue`/`.chroma`/`.tone`/`.hex`/`.rgb`/`.argb` getters, derivations such as `.withHue()`, `.rotate()`, `.scaleChroma()`, and the `.afterResolution()` phase switch. |
+| `Palette`               | A hue and a chroma, spanning every tone. `palette.getColor(40)`.                                                                                                                                                                                   |
+| `variant()`             | How palettes are derived from the source colour. Five built-ins: `TonalSpot`, `Neutral`, `Vibrant`, `Expressive`, `Udixio`.                                                                                                                        |
+| Tone adjusters          | `contrastAgainst`, `onColor`, `avoidBackgroundGap`, `applyToneDelta`, `arbitrateBackgrounds` — how a token resolves its tone.                                                                                                                      |
+| `PluginAbstract`        | The plugin base class. `FontPlugin` ships here; `TailwindPlugin` lives in `@udixio/tailwind`.                                                                                                                                                      |
+| `serializeThemeContext` | A snapshot of the context and palettes, for rebuilding a theme elsewhere — a worker, an SSR pass.                                                                                                                                                  |
 
 Nothing is kept internal: the helpers the built-in variants use are the same
 ones you get, so a variant of your own is not a second-class citizen.
@@ -87,23 +90,38 @@ ones you get, so a variant of your own is not a second-class citizen.
 ## Customising
 
 A token declares its default tone and the adjusters that turn it into the final
-one. There is no hidden pipeline — what you list is what runs:
+one. A callback in `colors` customises the base color first; palette rules then
+apply `chromaMultiplier` and `adjustTone`:
 
 ```ts
-import { contrastAgainst, avoidBackgroundGap, onColor } from '@udixio/theme';
+import {
+  Color,
+  contrastAgainst,
+  avoidBackgroundGap,
+  onColor,
+} from '@udixio/theme';
 
 colors: {
-  fromPalette: ({ palettes }) => ({
-    highlight: {
-      palette: 'tertiary',
+  highlight: Color.fromPalette('tertiary', {
       tone: () => 70,
       adjustTone: [contrastAgainst('surface', 3), avoidBackgroundGap()],
-    },
-    onHighlight: {
-      palette: 'tertiary',
-      adjustTone: onColor('highlight', 4.5),
-    },
   }),
+  onHighlight: Color.fromPalette('tertiary', {
+      adjustTone: onColor('highlight', 4.5),
+  }),
+  surface: (color) => color.withTone(Math.min(100, color.tone + 2)),
+},
+```
+
+When a transformation must target the final resolved value, switch phase
+explicitly with `afterResolution()`:
+
+```ts
+colors: {
+  surface: (color) =>
+    color.afterResolution((resolved) =>
+      resolved.withTone(Math.min(100, resolved.tone + 2)),
+    ),
 },
 ```
 

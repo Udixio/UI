@@ -8,7 +8,7 @@ description: variant(), palettes, customPalettes, colors, getRotatedHue, getPiec
 A variant answers one question: given a single source colour, which palettes does the theme get, and what tone does each token take. The five built-in ones — `TonalSpot`, `Neutral`, `Vibrant`, `Expressive`, `Udixio` — are ordinary values built with the same `variant()` call you have access to. Nothing about them is privileged.
 
 ```ts
-import { variant, defaultColors } from '@udixio/theme';
+import { Color, variant, defaultColors } from '@udixio/theme';
 
 export const myVariant = variant({
   name: 'mine',
@@ -39,13 +39,13 @@ defineConfig({
 
 ### `VariantOptions`
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | `string` | ✓ | Unique identifier. `getVariantByName()` resolves the built-ins by it. |
-| `palettes` | `Record<string, PaletteCallback>` | ✓ | One callback per palette role. |
-| `customPalettes` | `(context, color) => { hue, chroma } \| Color` | ✓ | How an extra palette declared in the config is derived from the colour given. |
-| `colorsFromCustomPalette` | `(key) => AddColorsOptions` | — | Which tokens each custom palette generates. Defaults to the `primary` recipes. |
-| `colors` | `AddColorsOptions` | — | The tokens themselves. Pass `defaultColors` for the full Material set. |
+| Field                     | Type                                  | Required | Description                                                                    |
+| ------------------------- | ------------------------------------- | -------- | ------------------------------------------------------------------------------ |
+| `name`                    | `string`                              | ✓        | Unique identifier. `getVariantByName()` resolves the built-ins by it.          |
+| `palettes`                | `Record<string, PaletteCallback>`     | ✓        | One callback per palette role.                                                 |
+| `customPalettes`          | `(context, color) => { hue, chroma }` | ✓        | How an extra palette declared in the config is derived from the colour given.  |
+| `colorsFromCustomPalette` | `(key) => ColorsConfig`               | —        | Which tokens each custom palette generates. Defaults to the `primary` recipes. |
+| `colors`                  | `ColorsConfig`                        | —        | The tokens themselves. Pass `defaultColors` for the full Material set.         |
 
 ## `palettes`
 
@@ -124,32 +124,30 @@ customPalettes: (_, color) => color,
 
 ## `colors`
 
-The tokens themselves. Passing `defaultColors` gives you the full Material set, resolved against your palettes — which is what the four standard variants do, differing only in their palettes.
+The tokens themselves. Passing `defaultColors` gives you the full Material set, resolved against your palettes — which is what the four standard variants do, differing only in their palettes. Each value follows the same `ColorsConfig` contract as the theme configuration: a hex string, a `Color`, or a transformation of an existing colour.
 
 To change a few tokens, spread the defaults and override:
 
 ```ts
-import { defaultColors, contrastAgainst, avoidBackgroundGap } from '@udixio/theme';
+import { Color, defaultColors, contrastAgainst, avoidBackgroundGap } from '@udixio/theme';
 
 colors: (api) => ({
   ...(typeof defaultColors === 'function' ? defaultColors(api) : defaultColors),
 
   // A flatter surface than Material's
-  surface: {
-    palette: () => api.palettes.get('neutral'),
+  surface: Color.fromPalette('neutral', {
     tone: () => (api.context.isDark ? 6 : 99),
-  },
+  }),
 }),
 ```
 
 To define them all yourself, see [Colors API](/theme/advanced/colors) for the adjusters. The shape of a token is always the same:
 
 ```ts
-primary: {
-  palette: 'primary',
+primary: Color.fromPalette('primary', {
   tone: () => tMaxC(palettes.get('primary')),
   adjustTone: [contrastAgainst('surface', 4.5), avoidBackgroundGap()],
-},
+}),
 ```
 
 ### Tone helpers
@@ -172,15 +170,13 @@ Optional. When set, it decides which tokens a custom palette generates. Without 
 
 ```ts
 colorsFromCustomPalette: (key) => ({
-  [key]: {
-    palette: key,
+  [key]: Color.fromPalette(key, {
     tone: () => 50,
     adjustTone: [contrastAgainst('surface', 4.5), avoidBackgroundGap()],
-  },
-  [`on${key[0].toUpperCase()}${key.slice(1)}`]: {
-    palette: key,
+  }),
+  [`on${key[0].toUpperCase()}${key.slice(1)}`]: Color.fromPalette(key, {
     adjustTone: onColor(key, 6),
-  },
+  }),
 }),
 ```
 

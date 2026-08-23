@@ -28,70 +28,70 @@ Tokens are exposed as CSS variables and Tailwind utility classes:
 
 Surfaces form the layers of the interface. They range from darkest (`surfaceContainerLowest`) to lightest (`surfaceContainerHighest`) in light mode, and inversely in dark mode.
 
-| Token | Tailwind class | Usage |
-|-------|----------------|-------|
-| `surface` | `bg-surface` | Main background |
-| `surfaceDim` | `bg-surface-dim` | Slightly dimmed surface |
-| `surfaceBright` | `bg-surface-bright` | Slightly brightened surface |
-| `surfaceContainerLowest` | `bg-surface-container-lowest` | Layer 0 (lowest) |
-| `surfaceContainerLow` | `bg-surface-container-low` | Layer 1 |
-| `surfaceContainer` | `bg-surface-container` | Layer 2 (cards, dialogs) |
-| `surfaceContainerHigh` | `bg-surface-container-high` | Layer 3 |
-| `surfaceContainerHighest` | `bg-surface-container-highest` | Layer 4 (highest) |
-| `onSurface` | `text-on-surface` | Primary text on surface |
-| `onSurfaceVariant` | `text-on-surface-variant` | Secondary text on surface |
-| `outline` | `border-outline` | Visible borders |
-| `outlineVariant` | `border-outline-variant` | Subtle dividers |
-| `inverseSurface` | `bg-inverse-surface` | Inverted surface (snackbar, tooltip) |
-| `inverseOnSurface` | `text-inverse-on-surface` | Text on inverted surface |
+| Token                     | Tailwind class                 | Usage                                |
+| ------------------------- | ------------------------------ | ------------------------------------ |
+| `surface`                 | `bg-surface`                   | Main background                      |
+| `surfaceDim`              | `bg-surface-dim`               | Slightly dimmed surface              |
+| `surfaceBright`           | `bg-surface-bright`            | Slightly brightened surface          |
+| `surfaceContainerLowest`  | `bg-surface-container-lowest`  | Layer 0 (lowest)                     |
+| `surfaceContainerLow`     | `bg-surface-container-low`     | Layer 1                              |
+| `surfaceContainer`        | `bg-surface-container`         | Layer 2 (cards, dialogs)             |
+| `surfaceContainerHigh`    | `bg-surface-container-high`    | Layer 3                              |
+| `surfaceContainerHighest` | `bg-surface-container-highest` | Layer 4 (highest)                    |
+| `onSurface`               | `text-on-surface`              | Primary text on surface              |
+| `onSurfaceVariant`        | `text-on-surface-variant`      | Secondary text on surface            |
+| `outline`                 | `border-outline`               | Visible borders                      |
+| `outlineVariant`          | `border-outline-variant`       | Subtle dividers                      |
+| `inverseSurface`          | `bg-inverse-surface`           | Inverted surface (snackbar, tooltip) |
+| `inverseOnSurface`        | `text-inverse-on-surface`      | Text on inverted surface             |
 
 ### Primary
 
-| Token | Tailwind class | Usage |
-|-------|----------------|-------|
-| `primary` | `bg-primary` | Main actions, CTAs |
-| `onPrimary` | `text-on-primary` | Text on `primary` |
-| `primaryContainer` | `bg-primary-container` | Soft colored areas |
+| Token                | Tailwind class              | Usage                      |
+| -------------------- | --------------------------- | -------------------------- |
+| `primary`            | `bg-primary`                | Main actions, CTAs         |
+| `onPrimary`          | `text-on-primary`           | Text on `primary`          |
+| `primaryContainer`   | `bg-primary-container`      | Soft colored areas         |
 | `onPrimaryContainer` | `text-on-primary-container` | Text on `primaryContainer` |
-| `inversePrimary` | `text-inverse-primary` | Link on inverted surface |
+| `inversePrimary`     | `text-inverse-primary`      | Link on inverted surface   |
 
 ### Secondary
 
-| Token | Tailwind class | Usage |
-|-------|----------------|-------|
-| `secondary` | `bg-secondary` | Secondary accents |
-| `onSecondary` | `text-on-secondary` | Text on `secondary` |
-| `secondaryContainer` | `bg-secondary-container` | Chips, badges |
+| Token                  | Tailwind class                | Usage                        |
+| ---------------------- | ----------------------------- | ---------------------------- |
+| `secondary`            | `bg-secondary`                | Secondary accents            |
+| `onSecondary`          | `text-on-secondary`           | Text on `secondary`          |
+| `secondaryContainer`   | `bg-secondary-container`      | Chips, badges                |
 | `onSecondaryContainer` | `text-on-secondary-container` | Text on `secondaryContainer` |
 
 ### Tertiary
 
-| Token | Tailwind class | Usage |
-|-------|----------------|-------|
-| `tertiary` | `bg-tertiary` | Additional accents |
-| `onTertiary` | `text-on-tertiary` | Text on `tertiary` |
-| `tertiaryContainer` | `bg-tertiary-container` | Soft tertiary areas |
+| Token                 | Tailwind class               | Usage                       |
+| --------------------- | ---------------------------- | --------------------------- |
+| `tertiary`            | `bg-tertiary`                | Additional accents          |
+| `onTertiary`          | `text-on-tertiary`           | Text on `tertiary`          |
+| `tertiaryContainer`   | `bg-tertiary-container`      | Soft tertiary areas         |
 | `onTertiaryContainer` | `text-on-tertiary-container` | Text on `tertiaryContainer` |
 
 ### Error
 
-| Token | Tailwind class | Usage |
-|-------|----------------|-------|
-| `error` | `bg-error` | Error state |
-| `onError` | `text-on-error` | Text on error |
-| `errorContainer` | `bg-error-container` | Soft error area |
+| Token              | Tailwind class            | Usage                    |
+| ------------------ | ------------------------- | ------------------------ |
+| `error`            | `bg-error`                | Error state              |
+| `onError`          | `text-on-error`           | Text on error            |
+| `errorContainer`   | `bg-error-container`      | Soft error area          |
 | `onErrorContainer` | `text-on-error-container` | Text on `errorContainer` |
 
 ### Aliases
 
 These tokens are aliases for Material Design compatibility:
 
-| Alias | Points to |
-|-------|-----------|
-| `background` | `surface` |
-| `onBackground` | `onSurface` |
+| Alias            | Points to                 |
+| ---------------- | ------------------------- |
+| `background`     | `surface`                 |
+| `onBackground`   | `onSurface`               |
 | `surfaceVariant` | `surfaceContainerHighest` |
-| `surfaceTint` | `primary` |
+| `surfaceTint`    | `primary`                 |
 
 ## Raw CSS variables
 
@@ -99,16 +99,16 @@ Variables are generated as `--color-{token}` with camelCase converted to kebab-c
 
 ```css
 :root {
-  --color-primary: #6750A4;
-  --color-on-primary: #FFFFFF;
-  --color-primary-container: #EADDFF;
-  --color-surface: #FEF7FF;
+  --color-primary: #6750a4;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #eaddff;
+  --color-surface: #fef7ff;
   /* … */
 }
 
 .dark {
-  --color-primary: #D0BCFF;
-  --color-on-primary: #381E72;
+  --color-primary: #d0bcff;
+  --color-on-primary: #381e72;
   /* … */
 }
 ```
@@ -137,20 +137,22 @@ tone, then the adjusters that turn it into the final one:
 
 ```ts
 import type { ColorsConfig } from '@udixio/theme';
-import { contrastAgainst, onColor, avoidBackgroundGap } from '@udixio/theme';
+import {
+  Color,
+  contrastAgainst,
+  onColor,
+  avoidBackgroundGap,
+} from '@udixio/theme';
 
 const colors: ColorsConfig = {
-  fromPalette: ({ palettes, context }) => ({
-    highlight: {
-      palette: 'tertiary',
-      tone: () => (context.isDark ? 70 : 40),
-      adjustTone: [contrastAgainst('surface', 3), avoidBackgroundGap()],
-    },
-    onHighlight: {
-      palette: 'tertiary',
-      adjustTone: onColor('highlight', 4.5),
-    },
+  highlight: Color.fromPalette('tertiary', {
+    tone: () => 40,
+    adjustTone: [contrastAgainst('surface', 3), avoidBackgroundGap()],
   }),
+  onHighlight: Color.fromPalette('tertiary', {
+    adjustTone: onColor('highlight', 4.5),
+  }),
+  surface: (color) => color.withTone(Math.min(100, color.tone + 2)),
 };
 ```
 
@@ -169,23 +171,23 @@ await api.load();
 // With sourceColor '#6750A4' and the default variant:
 const primary = api.colors.get('primary');
 
-primary.hex;     // "#655789"
-primary.tone;    // 40.3 in light mode, 80 in dark
-primary.hue;     // 299.4
-primary.chroma;  // 32.2
-primary.rgb;     // { r: 101, g: 87, b: 137 }
-primary.argb;    // 4284831625
+primary.hex; // "#655789"
+primary.tone; // 40.3 in light mode, 80 in dark
+primary.hue; // 299.4
+primary.chroma; // 32.2
+primary.rgb; // { r: 101, g: 87, b: 137 }
+primary.argb; // 4284831625
 ```
 
-Deriving from a token freezes the result — you get a static colour, not a
-token that keeps following the theme:
+Derivations remain dynamic. They are evaluated again when the source token is
+resolved for another context or variant:
 
 ```ts
-primary.withTone(90);   // the same hue and chroma, at tone 90
-primary.rotate(55);     // hue shifted by 55°, normalised over 360
+primary.withTone(90); // the same hue and chroma, at tone 90
+primary.rotate(55); // hue shifted by 55°, normalised over 360
 primary.scaleChroma(0.5);
 
-primary.contrastWith(api.colors.get('surface'));  // 6.08
+primary.contrastWith(api.colors.get('surface')); // 6.08
 ```
 
 See [Color](/theme/colors) for the constructors.

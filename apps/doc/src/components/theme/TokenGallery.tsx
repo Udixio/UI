@@ -4,7 +4,7 @@ import {
   themeConfigStore,
   themeServiceStore,
 } from '@/stores/themeConfigStore.ts';
-import { ColorAlias, ColorFromPalette } from '@udixio/theme';
+import type { Color } from '@udixio/theme';
 import { Card, Icon, TextField } from '@udixio/ui-react';
 import PaletteToneRow from './PaletteToneRow';
 import ColorTokenCard from './ColorTokenCard';
@@ -50,16 +50,9 @@ export const TokenGallery: React.FC = () => {
   }, [tokens, query]);
 
   const groups = useMemo(() => {
-    const map = new Map<string, { name: string; color: ColorFromPalette }[]>();
+    const map = new Map<string, { name: string; color: Color }[]>();
     for (const t of filtered) {
-      if (t[1] instanceof ColorAlias) {
-        t[1] = t[1].color();
-      }
-      if (!(t[1] instanceof ColorFromPalette)) {
-        console.error(t[1]);
-        throw new Error('Invalid color type');
-      }
-      const fam = t[1].options.palette.name;
+      const fam = t[1].options?.palette.name ?? 'others';
       if (!map.has(fam)) map.set(fam, []);
       map.get(fam)!.push({
         name: t[0],

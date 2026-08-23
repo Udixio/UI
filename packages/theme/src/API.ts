@@ -28,6 +28,7 @@ export class API {
     colorManager.api = this;
 
     this.context = context;
+    this.context.init(this);
     this.plugins = pluginApi;
     this.colors = colorApi;
     this.palettes = paletteApi;

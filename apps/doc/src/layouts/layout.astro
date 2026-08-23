@@ -16,18 +16,20 @@ const pathName = Astro.url.pathname;
 
 
 interface Props {
-  docSidebar?: boolean;
   title?: string;
   description?: string;
   noindex?: boolean;
 }
 
 const {
-  docSidebar,
+
   title,
   description = 'Udixio UI is a framework-agnostic Material Design 3 component library with first-class React and Angular support.',
   noindex,
 } = Astro.props
+
+const hasSidebar = Astro.slots.has('sidebar');
+
 ---
 
 <html lang="en">
@@ -51,7 +53,7 @@ const {
 <main class="mx-auto flex justify-between">
   <div class="flex sticky top-0 h-screen">
     <Navigation  client:load  transition:name="navigation" transition:persist/>
-    {!docSidebar && <Divider orientation="vertical" />}
+    {!hasSidebar && <Divider orientation="vertical" />}
     <slot name="sidebar" />
   </div>
   <div class=" flex flex-1 gap-8 bg-surface-container">
@@ -64,7 +66,7 @@ const {
 
   </div>
   <div>
-    {docSidebar && <Sidebar client:load mode="toc" />}
+    {hasSidebar && <Sidebar client:load mode="toc" />}
   </div>
 </main>
 <script >

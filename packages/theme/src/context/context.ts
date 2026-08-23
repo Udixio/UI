@@ -1,4 +1,5 @@
 import { Color } from '../color/color.base';
+import type { API } from '../API';
 import type { Variant } from '../variant/variant';
 import type { SourceColor } from '../config';
 
@@ -12,6 +13,7 @@ export interface ContextOptions {
 export class Context {
   private _options?: ContextOptions;
   private _temOptions: ContextOptions | null = null;
+  private api?: API;
   private readonly updateCallbacks: Array<
     (changed: (keyof Context)[]) => void
   > = [];
@@ -58,15 +60,37 @@ export class Context {
     return { result, dependencies: Array.from(dependencies) };
   }
 
+  /** Fournit le contexte d'exécution aux couleurs utilisées comme source. */
+  init(api: API): void {
+    this.api = api;
+    const options = this._options;
+    if (options?.sourceColor instanceof Color) {
+      this._options = {
+        ...options,
+        sourceColor: options.sourceColor.init(api),
+      };
+    }
+  }
+
+  private normalizeSourceColor(sourceColor: SourceColor): SourceColor {
+    if (typeof sourceColor === 'string') {
+      return Color.fromHex(sourceColor);
+    }
+    if (sourceColor instanceof Color && this.api) {
+      return sourceColor.init(this.api);
+    }
+    return sourceColor;
+  }
+
   set(options: ContextOptions) {
     if (this._options) {
       return this.update(options);
     }
 
-    const normalizedOptions =
-      typeof options.sourceColor === 'string'
-        ? { ...options, sourceColor: Color.fromHex(options.sourceColor) }
-        : options;
+    const normalizedOptions = {
+      ...options,
+      sourceColor: this.normalizeSourceColor(options.sourceColor),
+    };
     const changed: (keyof Context)[] = [];
     for (const key of Object.keys(normalizedOptions) as (keyof ContextOptions)[]) {
       changed.push(key);
@@ -85,10 +109,12 @@ export class Context {
       throw new Error('Options not found');
     }
 
-    const normalizedArgs =
-      typeof args.sourceColor === 'string'
-        ? { ...args, sourceColor: Color.fromHex(args.sourceColor) }
-        : args;
+    const normalizedArgs = args.sourceColor === undefined
+      ? args
+      : {
+          ...args,
+          sourceColor: this.normalizeSourceColor(args.sourceColor),
+        };
 
     // compute changed keys
     const changed: (keyof Context)[] = [];
@@ -143,7 +169,8 @@ export class Context {
     const sourceColor = this.getOptions().sourceColor;
     const resolved =
       typeof sourceColor === 'function' ? sourceColor(this) : sourceColor;
-    return typeof resolved === 'string' ? Color.fromHex(resolved) : resolved;
+    if (typeof resolved === 'string') return Color.fromHex(resolved);
+    return this.api ? resolved.init(this.api) : resolved;
   }
   get rawSourceColor(): ContextOptions['sourceColor'] {
     return this.getOptions().sourceColor;

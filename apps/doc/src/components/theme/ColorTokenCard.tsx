@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ColorFromPalette } from '@udixio/theme';
+import type { Color } from '@udixio/theme';
 import { kebabCase } from 'change-case';
 import { Card, Icon } from '@udixio/ui-react';
 import { iContentCopy } from '@udixio/icons-rounded-400/content_copy';
@@ -7,9 +7,9 @@ import { iContentCopyFilled } from '@udixio/icons-rounded-400/filled/content_cop
 
 type Props = {
   name: string;
-  color: ColorFromPalette;
-  onColor?: ColorFromPalette; // Unused
-  onSelect?: (name: string, color: ColorFromPalette) => void;
+  color: Color;
+  onColor?: Color; // Unused
+  onSelect?: (name: string, color: Color) => void;
   onHoverEnd?: () => void;
   usage?: string;
 };
