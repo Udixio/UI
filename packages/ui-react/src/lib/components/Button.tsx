@@ -8,23 +8,23 @@ import type {
   Ref,
   SyntheticEvent,
 } from 'react';
+import { useMemo } from 'react';
 import {
+  type ButtonInterface,
+  type ButtonProps,
   buttonStyle,
-  getButtonProgressColor,
+  type ComponentClassName,
   getButtonPressTransition,
+  getButtonProgressColor,
   getButtonShapeTransition,
   getButtonStateColor,
   resolveButtonIconPosition,
-  type ButtonProps,
-  type ButtonInterface,
-  type ComponentClassName,
 } from '@udixio/core';
 import { createUseStyle } from '../utils/create-use-style';
 import { useControllableState } from '../utils/use-controllable-state';
 import { Icon } from '../icon';
 import { ProgressIndicator } from './ProgressIndicator';
 import { State } from '../effects';
-import { useMemo } from 'react';
 
 /** React content accepted as the button's sole visible-content source. */
 export type ReactButtonChildren = Exclude<
@@ -175,7 +175,7 @@ export const Button = (props: ReactButtonProps) => {
     icon,
     href,
     label,
-    edgeAligned = true,
+    edgeAligned = false,
     className,
     iconPosition = 'start',
     loading = false,

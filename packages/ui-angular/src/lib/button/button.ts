@@ -1,28 +1,28 @@
 import {
+  booleanAttribute,
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
-  booleanAttribute,
   computed,
   effect,
+  ElementRef,
   input,
   type InputSignal,
+  type OnInit,
   output,
   signal,
-  type OnInit,
   viewChild,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import {
+  type ButtonInterface,
+  type ButtonProps,
   buttonStyle,
-  getButtonProgressColor,
+  type ClassNameComponent,
   getButtonPressTransition,
+  getButtonProgressColor,
   getButtonShapeTransition,
   getButtonStateColor,
   resolveButtonIconPosition,
-  type ButtonProps,
-  type ClassNameComponent,
-  type ButtonInterface,
 } from '@udixio/core';
 import { createControllableState } from '../utils/create-controllable-state';
 import { createStyle } from '../utils/create-style';
@@ -138,14 +138,13 @@ export class Button implements OnInit {
   readonly icon = input<ButtonProps['icon']>();
   readonly iconPosition = input<ButtonProps['iconPosition']>('start');
   readonly disabled = input(false, { transform: booleanAttribute });
-  readonly edgeAligned = input(true, { transform: booleanAttribute });
+  readonly edgeAligned = input(false, { transform: booleanAttribute });
   readonly loading = input(false, { transform: booleanAttribute });
   readonly shape = input<ButtonProps['shape']>('rounded');
   readonly shapeFeedback =
     input<NonNullable<ButtonProps['shapeFeedback']>>('morph');
-  readonly transition: InputSignal<ButtonProps['transition']> = input<
-    ButtonProps['transition']
-  >();
+  readonly transition: InputSignal<ButtonProps['transition']> =
+    input<ButtonProps['transition']>();
   readonly toggleable = input(false, { transform: booleanAttribute });
   readonly pressed = input<boolean | undefined, unknown>(undefined, {
     transform: optionalBooleanAttribute,
