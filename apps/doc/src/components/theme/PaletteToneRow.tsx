@@ -44,7 +44,10 @@ export const PaletteToneRow: React.FC<Props> = ({ api, group }) => {
 
   const fullGradient = useMemo(
     () => (palette ? makeGradient(palette, 100, 0) : ''),
-    [palette],
+    // Palette instances are updated in place by ThemeProvider. Subscribe to
+    // the config snapshot as well so the cached gradient is rebuilt when the
+    // dynamic theme changes.
+    [palette, themeConfig],
   );
 
   // ── MotionValues ──────────────────────────────────────────────────────────
@@ -125,7 +128,7 @@ export const PaletteToneRow: React.FC<Props> = ({ api, group }) => {
 
   return (
     <div
-      className="relative w-full h-12 cursor-crosshair"
+      className="relative w-full h-12 cursor-none overflow-hidden rounded-full"
       onMouseEnter={handleMouseEnter}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
