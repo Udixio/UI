@@ -8,7 +8,7 @@ description: variant(), palettes, customPalettes, colors, getRotatedHue, getPiec
 A variant answers one question: given a single source colour, which palettes does the theme get, and what tone does each token take. The five built-in ones — `TonalSpot`, `Neutral`, `Vibrant`, `Expressive`, `Udixio` — are ordinary values built with the same `variant()` call you have access to. Nothing about them is privileged.
 
 ```ts
-import { Color, variant, defaultColors } from '@udixio/theme';
+import { variant, Variants } from '@udixio/theme';
 
 export const myVariant = variant({
   name: 'mine',
@@ -24,7 +24,7 @@ export const myVariant = variant({
     hue: color.hue,
     chroma: sourceColor.chroma,
   }),
-  colors: defaultColors,
+  colors: Variants.TonalSpot.colors,
 });
 ```
 
@@ -39,13 +39,13 @@ defineConfig({
 
 ### `VariantOptions`
 
-| Field                     | Type                                  | Required | Description                                                                    |
-| ------------------------- | ------------------------------------- | -------- | ------------------------------------------------------------------------------ |
-| `name`                    | `string`                              | ✓        | Unique identifier. `getVariantByName()` resolves the built-ins by it.          |
-| `palettes`                | `Record<string, PaletteCallback>`     | ✓        | One callback per palette role.                                                 |
-| `customPalettes`          | `(context, color) => { hue, chroma }` | ✓        | How an extra palette declared in the config is derived from the colour given.  |
-| `colorsFromCustomPalette` | `(key) => ColorsConfig`               | —        | Which tokens each custom palette generates. Defaults to the `primary` recipes. |
-| `colors`                  | `ColorsConfig`                        | —        | The tokens themselves. Pass `defaultColors` for the full Material set.         |
+| Field                     | Type                                  | Required | Description                                                                      |
+| ------------------------- | ------------------------------------- | -------- | -------------------------------------------------------------------------------- |
+| `name`                    | `string`                              | ✓        | Unique identifier. `getVariantByName()` resolves the built-ins by it.            |
+| `palettes`                | `Record<string, PaletteCallback>`     | ✓        | One callback per palette role.                                                   |
+| `customPalettes`          | `(context, color) => { hue, chroma }` | ✓        | How an extra palette declared in the config is derived from the colour given.    |
+| `colorsFromCustomPalette` | `(key) => ColorsConfig`               | —        | Which tokens each custom palette generates. Defaults to the `primary` recipes.   |
+| `colors`                  | `ColorsConfig`                        | —        | The tokens themselves. Reuse a built-in set such as `Variants.TonalSpot.colors`. |
 
 ## `palettes`
 
@@ -68,7 +68,7 @@ palettes: {
 }
 ```
 
-The engine expects `primary`, `secondary`, `tertiary`, `neutral`, `neutralVariant` and `error` if you reuse `defaultColors`, because those are the palettes it reads. Define fewer only if you also supply your own `colors`.
+The engine expects `primary`, `secondary`, `tertiary`, `neutral`, `neutralVariant` and `error` if you reuse `Variants.TonalSpot.colors`, because those are the palettes it reads. Define fewer only if you also supply your own `colors`.
 
 ### Hue helpers
 
@@ -124,15 +124,17 @@ customPalettes: (_, color) => color,
 
 ## `colors`
 
-The tokens themselves. Passing `defaultColors` gives you the full Material set, resolved against your palettes — which is what the four standard variants do, differing only in their palettes. Each value follows the same `ColorsConfig` contract as the theme configuration: a hex string, a `Color`, or a transformation of an existing colour.
+The tokens themselves. Each built-in standard variant carries its own full Material token set, resolved against that variant's palettes. To start a custom variant from one of them, reuse for example `Variants.TonalSpot.colors`. Each value follows the same `ColorsConfig` contract as the theme configuration: a hex string, a `Color`, or a transformation of an existing colour.
 
 To change a few tokens, spread the defaults and override:
 
 ```ts
-import { Color, defaultColors, contrastAgainst, avoidBackgroundGap } from '@udixio/theme';
+import { Color, Variants, contrastAgainst, avoidBackgroundGap } from '@udixio/theme';
 
 colors: (api) => ({
-  ...(typeof defaultColors === 'function' ? defaultColors(api) : defaultColors),
+  ...(typeof Variants.TonalSpot.colors === 'function'
+    ? Variants.TonalSpot.colors(api)
+    : Variants.TonalSpot.colors),
 
   // A flatter surface than Material's
   surface: Color.fromPalette('neutral', {
@@ -186,7 +188,7 @@ colorsFromCustomPalette: (key) => ({
 a small change is to spread one variant into another:
 
 ```ts
-import { Variants, variant, defaultColors } from '@udixio/theme';
+import { Variants, variant } from '@udixio/theme';
 
 export const warmer = variant({
   name: 'warmer',
@@ -195,7 +197,7 @@ export const warmer = variant({
     neutral: ({ sourceColor }) => sourceColor.rotate(20).withChroma(8),
   },
   customPalettes: Variants.TonalSpot.customPalettes,
-  colors: defaultColors,
+  colors: Variants.TonalSpot.colors,
 });
 ```
 

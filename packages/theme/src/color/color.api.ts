@@ -13,7 +13,12 @@ import { DynamicColorKey, tMaxC, tMinC } from './color.utils';
 import { API } from '../API';
 
 import { Context } from 'src/context';
-import { highestSurface } from './default-color';
+
+function highestSurface(context: Context, colors: ColorApi): Color {
+  return context.isDark
+    ? colors.get('surfaceBright')
+    : colors.get('surfaceDim');
+}
 
 export function capitalizeFirstLetter(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);

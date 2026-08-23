@@ -13,7 +13,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { defaultColors, loader, variant } from '../src/index.js';
+import { loader, variant } from '../src/index.js';
 import { Variants } from '../src/variant/variants/index.js';
 
 describe('variant isolation', () => {
@@ -61,14 +61,17 @@ describe('extending a variant', () => {
         neutral: ({ sourceColor }) => sourceColor.rotate(20).withChroma(8),
       },
       customPalettes: Variants.TonalSpot.customPalettes,
-      colors: defaultColors,
+      colors: Variants.TonalSpot.colors,
     });
 
     const base = await loader(
       { sourceColor: '#6750A4', variant: Variants.TonalSpot },
       false,
     );
-    const api = await loader({ sourceColor: '#6750A4', variant: warmer }, false);
+    const api = await loader(
+      { sourceColor: '#6750A4', variant: warmer },
+      false,
+    );
 
     // The overridden palette moved…
     expect(api.palettes.get('neutral').hue).toBeCloseTo(

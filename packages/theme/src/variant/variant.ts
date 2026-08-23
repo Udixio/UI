@@ -65,7 +65,7 @@ export class Variant {
    *     neutral: ({ sourceColor }) => sourceColor.rotate(20).withChroma(8),
    *   },
    *   customPalettes: Variants.TonalSpot.customPalettes,
-   *   colors: defaultColors,
+   *   colors: Variants.TonalSpot.colors,
    * });
    * ```
    */
