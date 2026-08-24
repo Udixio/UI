@@ -8,7 +8,11 @@ import {
 import type { Color } from '@udixio/theme';
 import ColorTokenCard from './ColorTokenCard';
 
-type TokenDef = { name: string; usage: string };
+type TokenDef = {
+  name: string;
+  usage: string;
+  onColorName?: string;
+};
 type GroupDef = {
   key: string;
   label: string;
@@ -22,10 +26,16 @@ const GROUPS: GroupDef[] = [
     label: 'Primary',
 
     tokens: [
-      { name: 'primary', usage: 'Boutons CTA, FAB' },
-      { name: 'onPrimary', usage: 'Texte sur primary' },
-      { name: 'primaryContainer', usage: 'Chips, badges sélectionnés' },
-      { name: 'onPrimaryContainer', usage: 'Texte dans container' },
+      {
+        name: 'primary',
+        onColorName: 'onPrimary',
+        usage: 'Boutons CTA, FAB',
+      },
+      {
+        name: 'primaryContainer',
+        onColorName: 'onPrimaryContainer',
+        usage: 'Chips, badges sélectionnés',
+      },
     ],
   },
   {
@@ -33,10 +43,16 @@ const GROUPS: GroupDef[] = [
     label: 'Secondary',
 
     tokens: [
-      { name: 'secondary', usage: 'Actions secondaires, filtres' },
-      { name: 'onSecondary', usage: 'Texte sur secondary' },
-      { name: 'secondaryContainer', usage: 'Chips non sélectionnés' },
-      { name: 'onSecondaryContainer', usage: 'Texte dans container' },
+      {
+        name: 'secondary',
+        onColorName: 'onSecondary',
+        usage: 'Actions secondaires, filtres',
+      },
+      {
+        name: 'secondaryContainer',
+        onColorName: 'onSecondaryContainer',
+        usage: 'Chips non sélectionnés',
+      },
     ],
   },
   {
@@ -44,10 +60,16 @@ const GROUPS: GroupDef[] = [
     label: 'Tertiary',
 
     tokens: [
-      { name: 'tertiary', usage: 'Accents, highlights' },
-      { name: 'onTertiary', usage: 'Texte sur tertiary' },
-      { name: 'tertiaryContainer', usage: 'Badges décoratifs' },
-      { name: 'onTertiaryContainer', usage: 'Texte dans container' },
+      {
+        name: 'tertiary',
+        onColorName: 'onTertiary',
+        usage: 'Accents, highlights',
+      },
+      {
+        name: 'tertiaryContainer',
+        onColorName: 'onTertiaryContainer',
+        usage: 'Badges décoratifs',
+      },
     ],
   },
   {
@@ -55,13 +77,42 @@ const GROUPS: GroupDef[] = [
     label: 'Surface',
 
     tokens: [
-      { name: 'surface', usage: 'Fond principal des écrans' },
+      {
+        name: 'surface',
+        onColorName: 'onSurface',
+        usage: 'Fond principal des écrans',
+      },
+      { name: 'surfaceDim', usage: 'Surface légèrement assombrie' },
+      { name: 'surfaceBright', usage: 'Surface légèrement éclaircie' },
+      {
+        name: 'surfaceContainerLowest',
+        usage: 'Couche 0, niveau le plus bas',
+      },
+      { name: 'surfaceContainerLow', usage: 'Couche 1' },
       { name: 'surfaceContainer', usage: 'Cartes, modales' },
       { name: 'surfaceContainerHigh', usage: 'Inputs, sidebars' },
-      { name: 'onSurface', usage: 'Texte principal' },
-      { name: 'onSurfaceVariant', usage: 'Texte secondaire, placeholders' },
+      {
+        name: 'surfaceContainerHighest',
+        usage: 'Couche 4, niveau le plus haut',
+      },
+      {
+        name: 'surfaceVariant',
+        onColorName: 'onSurfaceVariant',
+        usage: 'Surface secondaire, alias de la couche la plus haute',
+      },
       { name: 'outline', usage: 'Bordures visibles' },
       { name: 'outlineVariant', usage: 'Bordures subtiles, diviseurs' },
+      {
+        name: 'inverseSurface',
+        onColorName: 'inverseOnSurface',
+        usage: 'Surface inversée, snackbars, tooltips',
+      },
+      {
+        name: 'background',
+        onColorName: 'onBackground',
+        usage: 'Alias de la surface principale',
+      },
+      { name: 'surfaceTint', usage: 'Teinte de surface, alias de primary' },
     ],
   },
   {
@@ -69,10 +120,16 @@ const GROUPS: GroupDef[] = [
     label: 'Feedback',
 
     tokens: [
-      { name: 'error', usage: 'Champs invalides, alertes' },
-      { name: 'onError', usage: 'Texte sur error' },
-      { name: 'errorContainer', usage: "Fond messages d'erreur" },
-      { name: 'onErrorContainer', usage: 'Texte dans error container' },
+      {
+        name: 'error',
+        onColorName: 'onError',
+        usage: 'Champs invalides, alertes',
+      },
+      {
+        name: 'errorContainer',
+        onColorName: 'onErrorContainer',
+        usage: "Fond messages d'erreur",
+      },
     ],
   },
 ];
@@ -104,6 +161,13 @@ export const ThemeTokens: React.FC = () => {
   }, [$api, themeServiceVersion]);
 
   const q = query.trim().toLowerCase();
+  const matchesToken = (name: string) =>
+    !q ||
+    name.toLowerCase().includes(q) ||
+    `--color-${name
+      .toLowerCase()
+      .replace(/([a-z])([A-Z])/g, '$1-$2')
+      .toLowerCase()}`.includes(q);
 
   const visibleGroups = GROUPS.filter(
     (g) => activeGroup === 'all' || g.key === activeGroup,
@@ -140,16 +204,11 @@ export const ThemeTokens: React.FC = () => {
 
       {/* Groups */}
       {visibleGroups.map((group) => {
-        const tokens = group.tokens.filter((t) => {
-          if (!q) return true;
-          return (
-            t.name.toLowerCase().includes(q) ||
-            `--color-${t.name
-              .toLowerCase()
-              .replace(/([a-z])([A-Z])/g, '$1-$2')
-              .toLowerCase()}`.includes(q)
-          );
-        });
+        const tokens = group.tokens.filter(
+          (t) =>
+            matchesToken(t.name) ||
+            (t.onColorName ? matchesToken(t.onColorName) : false),
+        );
         if (tokens.length === 0) return null;
 
         return (
@@ -164,11 +223,16 @@ export const ThemeTokens: React.FC = () => {
               {tokens.map((t) => {
                 const color = colorMap.get(t.name);
                 if (!color) return null;
+                const onColor = t.onColorName
+                  ? colorMap.get(t.onColorName)
+                  : undefined;
                 return (
                   <ColorTokenCard
                     key={t.name}
                     name={t.name}
                     color={color}
+                    onColor={onColor}
+                    onColorName={t.onColorName}
                     usage={t.usage}
                   />
                 );
@@ -178,10 +242,12 @@ export const ThemeTokens: React.FC = () => {
         );
       })}
 
-      {visibleGroups.every(
-        (g) =>
-          g.tokens.filter((t) => !q || t.name.toLowerCase().includes(q))
-            .length === 0,
+      {visibleGroups.every((g) =>
+        g.tokens.every(
+          (t) =>
+            !matchesToken(t.name) &&
+            (!t.onColorName || !matchesToken(t.onColorName)),
+        ),
       ) && (
         <div className="text-center py-12 text-on-surface-variant text-body-large">
           Aucun token trouvé pour « {query} »

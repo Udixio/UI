@@ -25,8 +25,6 @@ import { Contrast } from '@material/material-color-utilities';
 import { Context } from '../../context';
 import { API } from '../../API';
 
-const surfaceContainerToneDelta = 2.5;
-
 export const normalize = (
   value: number,
   inputRange: [number, number],
@@ -42,19 +40,52 @@ export const normalize = (
   return outputMin + normalizedValue * (outputMax - outputMin);
 };
 
+const clampTone = (tone: number) => Math.max(0, Math.min(100, tone));
+
+/**
+ * Computes a continuous distance from the mode edge for any surface layer.
+ *
+ * Dark surfaces separate quickly from black, then progress by three tones per
+ * layer. Light surfaces use a four-tone first layer, two tones afterwards,
+ * and gain one additional tone of depth beyond the highest container layer.
+ */
+const surfaceLayerDepth = (layer: number, isDark: boolean) => {
+  const normalizedLayer = Math.max(0, layer);
+
+  if (isDark) {
+    return Math.min(normalizedLayer * 8, normalizedLayer * 3 + 3);
+  }
+
+  return (
+    normalizedLayer * 2 +
+    Math.min(normalizedLayer * 2, 2) +
+    Math.max(0, normalizedLayer - 4)
+  );
+};
+
+/** Keeps yellow surfaces perceptually lighter without changing the base scale. */
+const yellowSurfaceLift = (layer: number) => {
+  const normalizedLayer = Math.max(0, layer);
+  return Math.min(normalizedLayer * 2, 2) + Math.max(0, normalizedLayer - 4);
+};
+
+/**
+ * Maps a continuous surface layer to a tone. The base scale is independent of
+ * hue; yellow only receives a light-mode perceptual lift.
+ */
 const surfaceContainerTone = (
   layer: number,
   api: Pick<API, 'palettes' | 'context'>,
 ) => {
-  const t = surfaceContainerToneDelta * layer * (1 + api.context.contrastLevel);
-  if (api.context.isDark) {
-    return t * 1.5;
-  } else {
-    if (Color.isYellow(api.palettes.get('neutral').hue)) {
-      return 100 - t - surfaceContainerToneDelta;
-    }
-    return 100 - t;
+  const { context } = api;
+  let depth = surfaceLayerDepth(layer, context.isDark);
+
+  if (!context.isDark && Color.isYellow(api.palettes.get('neutral').hue)) {
+    depth -= yellowSurfaceLift(layer);
   }
+
+  const contrastedDepth = depth * (1 + context.contrastLevel);
+  return clampTone(context.isDark ? contrastedDepth : 100 - contrastedDepth);
 };
 
 const highestSurface = (
@@ -274,13 +305,7 @@ export const udixioVariant: Variant = variant({
       // Surfaces [S]                                               //
       ////////////////////////////////////////////////////////////////
       surface: Color.fromPalette('neutral', {
-        tone: () => {
-          if (ctx.isDark) {
-            return 2;
-          } else {
-            return 99;
-          }
-        },
+        tone: () => surfaceContainerTone(0.5, { palettes, context: ctx }),
       }),
       surfaceDim: Color.fromPalette('neutral', {
         chromaMultiplier: () => {
@@ -289,13 +314,10 @@ export const udixioVariant: Variant = variant({
           }
           return 1;
         },
-        tone: () => {
-          if (ctx.isDark) {
-            return surfaceContainerTone(0.5, { palettes, context: ctx });
-          } else {
-            return surfaceContainerTone(5, { palettes, context: ctx });
-          }
-        },
+        tone: () =>
+          ctx.isDark
+            ? surfaceContainerTone(0.5, { palettes, context: ctx })
+            : surfaceContainerTone(5, { palettes, context: ctx }),
       }),
       surfaceBright: Color.fromPalette('neutral', {
         chromaMultiplier: () => {
@@ -304,13 +326,10 @@ export const udixioVariant: Variant = variant({
           }
           return 1;
         },
-        tone: () => {
-          if (ctx.isDark) {
-            return surfaceContainerTone(5, { palettes, context: ctx });
-          } else {
-            return surfaceContainerTone(0.5, { palettes, context: ctx });
-          }
-        },
+        tone: () =>
+          ctx.isDark
+            ? surfaceContainerTone(5, { palettes, context: ctx })
+            : surfaceContainerTone(0.5, { palettes, context: ctx }),
       }),
       surfaceContainerLowest: Color.fromPalette('neutral', {
         tone: () => surfaceContainerTone(0, { palettes, context: ctx }),
