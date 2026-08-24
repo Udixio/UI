@@ -110,7 +110,9 @@ See [Variants](/theme/variants) for the built-in algorithms and
 ### `palettes`
 
 Adds custom palettes or overrides a standard palette. A palette callback
-receives the current `Context` and returns its `hue` and `chroma`:
+receives the current `Context` and returns its `hue` and `chroma`. When it
+overrides an existing palette, its optional second argument is the inherited
+palette recipe for the current context:
 
 ```ts
 // theme.config.ts
@@ -123,6 +125,10 @@ export default defineConfig({
       hue: sourceColor.hue + 30,
       chroma: 60,
     }),
+    tertiary: (_context, base) => ({
+      ...base!,
+      chroma: base!.chroma + 10,
+    }),
     neutral: () => ({
       hue: 200,
       chroma: 6,
@@ -133,7 +139,9 @@ export default defineConfig({
 ```
 
 The tone of a color supplied to a palette is ignored: a palette spans all
-tones. Hex strings are the simple form; callbacks are the advanced form.
+tones. Hex strings are the simple form; callbacks are the advanced form. The
+inherited base follows source-color and variant changes, while a string or
+`Color` remains an absolute palette replacement.
 
 ### `colors`
 

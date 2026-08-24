@@ -52,7 +52,7 @@ useful when defining a reusable variant or color layer.
 
 ## `palettes`
 
-One callback per palette, each receiving the `Context` and returning a hue and a chroma. A `Color` has both, so returning one directly works — its tone is ignored, since a palette spans every tone.
+One callback per palette, each receiving the `Context` and returning a hue and a chroma. A `Color` has both, so returning one directly works — its tone is ignored, since a palette spans every tone. The optional `base` argument is supplied when the same callback shape is used to override a palette in theme configuration; variant callbacks themselves define the base recipe and do not receive one.
 
 ```ts
 palettes: {

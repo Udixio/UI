@@ -146,6 +146,81 @@ describe('theme configuration', () => {
     );
   });
 
+  it('composes palette overrides with the active variant base', async () => {
+    const api = await loader(
+      defineConfig({
+        sourceColor: '#6750A4',
+        palettes: {
+          tertiary: (_context, base) => {
+            if (!base) throw new Error('Expected an inherited palette base');
+            return { ...base, chroma: base.chroma + 10 };
+          },
+        },
+      }),
+      false,
+    );
+
+    const inheritedBefore = api.context.variant.palettesFor(api.context)
+      .tertiary;
+    expect(api.palettes.get('tertiary').hue).toBeCloseTo(
+      inheritedBefore.hue,
+      8,
+    );
+    expect(api.palettes.get('tertiary').chroma).toBeCloseTo(
+      inheritedBefore.chroma + 10,
+      8,
+    );
+
+    api.context.update({ sourceColor: '#B3261E' });
+
+    const inheritedAfter = api.context.variant.palettesFor(api.context)
+      .tertiary;
+    expect(api.palettes.get('tertiary').hue).toBeCloseTo(
+      inheritedAfter.hue,
+      8,
+    );
+    expect(api.palettes.get('tertiary').chroma).toBeCloseTo(
+      inheritedAfter.chroma + 10,
+      8,
+    );
+
+    api.palettes.override({
+      tertiary: (_context, base) => {
+        if (!base) throw new Error('Expected an inherited palette base');
+        return { ...base, chroma: base.chroma + 20 };
+      },
+    });
+
+    expect(api.palettes.get('tertiary').chroma).toBeCloseTo(
+      inheritedAfter.chroma + 20,
+      8,
+    );
+
+    api.context.update({ variant: Variants.Vibrant });
+
+    const inheritedVibrant = api.context.variant.palettesFor(api.context)
+      .tertiary;
+    expect(api.palettes.get('tertiary').hue).toBeCloseTo(
+      inheritedVibrant.hue,
+      8,
+    );
+    expect(api.palettes.get('tertiary').chroma).toBeCloseTo(
+      inheritedVibrant.chroma + 20,
+      8,
+    );
+
+    api.palettes.sync(undefined);
+
+    expect(api.palettes.get('tertiary').hue).toBeCloseTo(
+      inheritedVibrant.hue,
+      8,
+    );
+    expect(api.palettes.get('tertiary').chroma).toBeCloseTo(
+      inheritedVibrant.chroma,
+      8,
+    );
+  });
+
   it('modifies an existing dynamic color without freezing its source', async () => {
     const api = await loader(
       defineConfig({

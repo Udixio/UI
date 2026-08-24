@@ -1,15 +1,30 @@
 import { Context } from '../context';
 import { Color } from '../color/color.base';
 
-export type PaletteCallback = (context: Context) => {
+export type PaletteCoordinates = {
   hue: number;
   chroma: number;
 };
+
+/**
+ * Résout une palette pour un contexte.
+ *
+ * Lorsqu'un callback remplace une palette existante, `base` contient la
+ * recette héritée recalculée pour le contexte courant. Les callbacks d'un
+ * variant et les nouvelles palettes n'ont pas de base et doivent donc
+ * retourner les deux coordonnées.
+ */
+export type PaletteCallback = (
+  context: Context,
+  base?: PaletteCoordinates,
+) => PaletteCoordinates;
 
 export class Palette {
   private readonly cache = new Map<number, number>();
   private hueCache: number | null = null;
   private chromaCache: number | null = null;
+  private readonly baseCallback: PaletteCallback;
+  private overrideCallback: PaletteCallback | null;
 
   private dependencies: (keyof Context)[] | null = null;
 
@@ -17,7 +32,10 @@ export class Palette {
     public name: string,
     public callback: PaletteCallback,
     public context: Context,
+    baseCallback?: PaletteCallback,
   ) {
+    this.baseCallback = baseCallback ?? callback;
+    this.overrideCallback = baseCallback ? callback : null;
     this.update([]);
   }
 
@@ -29,14 +47,11 @@ export class Palette {
   }
 
   update(change: Partial<keyof Context>[]): void {
-    let result: {
-      hue: number;
-      chroma: number;
-    } | null = null;
+    let result: PaletteCoordinates | null = null;
 
     if (this.dependencies == null) {
       const trackDependencies = Context.trackDependencies(this.context, (ctx) =>
-        this.callback(ctx),
+        this.resolve(ctx),
       );
       this.dependencies = trackDependencies.dependencies;
       result = trackDependencies.result;
@@ -44,7 +59,7 @@ export class Palette {
       change.length > 0 &&
       change.some((c) => this.dependencies?.includes(c))
     ) {
-      result = this.callback(this.context);
+      result = this.resolve(this.context);
     }
 
     if (
@@ -59,11 +74,19 @@ export class Palette {
 
   setCallback(callback: PaletteCallback): void {
     this.callback = callback;
+    this.overrideCallback = callback;
     this.dependencies = null;
     this.cache.clear();
     this.hueCache = null;
     this.chromaCache = null;
     this.update([]);
+  }
+
+  private resolve(context: Context): PaletteCoordinates {
+    const override = this.overrideCallback;
+    if (!override) return this.baseCallback(context);
+
+    return override(context, this.baseCallback(context));
   }
 
   private clearCache() {

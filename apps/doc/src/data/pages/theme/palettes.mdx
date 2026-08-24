@@ -29,7 +29,8 @@ relationships.
 
 The `palettes` key in `theme.config.ts` can replace a standard palette or add
 a custom one. A callback receives the current `Context` and returns a hue and
-chroma:
+chroma. When it replaces an existing palette, its second argument is the
+inherited palette recipe for the current context:
 
 ```ts
 // theme.config.ts
@@ -41,6 +42,10 @@ export default defineConfig({
     primary: ({ sourceColor }) => ({
       hue: sourceColor.hue + 30,
       chroma: 60,
+    }),
+    tertiary: (_context, base) => ({
+      ...base!,
+      chroma: base!.chroma + 10,
     }),
     neutral: () => ({
       hue: 200,
@@ -57,15 +62,17 @@ not used for palette generation.
 ### `PaletteCallback`
 
 ```ts
-type PaletteCallback = (context: Context) => {
-  hue: number;
-  chroma: number;
-};
+type PaletteCallback = (
+  context: Context,
+  base?: { hue: number; chroma: number },
+) => { hue: number; chroma: number };
 ```
 
 The `Context` exposes `sourceColor`, `isDark`, `contrastLevel` and
 `variant`. The callbacks used by the built-in variants are ordinary
-`PaletteCallback` values.
+`PaletteCallback` values and do not receive a base. For a standard palette
+override, `base` is recalculated from the active variant whenever the context
+changes. Return both coordinates when no inherited base exists.
 
 ## Custom palettes (Udixio variant)
 

@@ -10,12 +10,16 @@ description: PaletteCallback, api.palettes.get(), sync(), override() — direct 
 ## `PaletteCallback`
 
 ```ts
-type PaletteCallback = (context: Context) => { hue: number; chroma: number };
+type PaletteCallback = (
+  context: Context,
+  base?: { hue: number; chroma: number },
+) => { hue: number; chroma: number };
 ```
 
 The callback receives the current `Context`, whose `sourceColor` is a `Color`.
 It is evaluated once and then again when one of the context properties it read
-changes. Return the palette's hue and chroma; its tone is not part of a
+changes. For an override, `base` is the active variant's palette recipe for the
+same context. Return the palette's hue and chroma; its tone is not part of a
 palette, which spans every tone.
 
 ```ts
@@ -24,6 +28,17 @@ const capped: PaletteCallback = ({ sourceColor }) => ({
   hue: sourceColor.hue + 30,
   chroma: Math.min(sourceColor.chroma, 60),
 });
+```
+
+To change only one coordinate of an existing standard palette, transform the
+inherited base. It is recomputed when the source color or variant changes, so
+the hue does not need to be duplicated:
+
+```ts
+const moreTertiaryChroma: PaletteCallback = (_context, base) => {
+  if (!base) throw new Error('This callback requires an inherited palette');
+  return { ...base, chroma: base.chroma + 10 };
+};
 ```
 
 ## `api.palettes.get(key)`
@@ -62,7 +77,10 @@ Overrides specific palettes without removing others. Existing palettes not inclu
 
 ```ts
 api.palettes.override({
-  primary: ({ sourceColor }) => ({ hue: sourceColor.hue, chroma: 80 }),
+  primary: (_context, base) => {
+    if (!base) throw new Error('This callback requires an inherited palette');
+    return { ...base, chroma: 80 };
+  },
 });
 await api.load();
 ```
