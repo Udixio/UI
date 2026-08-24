@@ -8,6 +8,10 @@
     "version": {
       "manifestRootsToUpdate": [
         {
+          "path": "{projectRoot}",
+          "preserveLocalDependencyProtocols": false
+        },
+        {
           "path": "dist/{projectRoot}",
           "preserveLocalDependencyProtocols": false
         }

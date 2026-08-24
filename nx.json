@@ -158,6 +158,9 @@
         }
       }
     },
+    "releaseTag": {
+      "checkAllBranchesWhen": true
+    },
     "version": {
       "preVersionCommand": "npm run build",
       "conventionalCommits": true,

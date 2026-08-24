@@ -25,7 +25,9 @@ It performs:
 
 ### Release Process (`release.yml`)
 
-This workflow is manually triggered to create a new release from the `develop` branch.
+This workflow is manually triggered from the branch whose changes should be
+released. Stable releases should start from `develop`; prereleases may start
+from a feature branch.
 
 To start a release:
 1. Go to the "Actions" tab in GitHub
@@ -35,9 +37,15 @@ To start a release:
 5. Choose whether to run in dry-run mode
 
 The workflow will:
-1. Create a release branch from `develop`
-2. Update versions and generate changelogs
-3. Create a pull request to `main`
+1. Update versions and generate changelogs on the selected source branch
+2. Push the release commit and tags back to that branch
+3. Publish a prerelease directly, or open a stable release pull request to `main`
+
+Prerelease version resolution checks matching Git tags across every branch, so
+a release started from a different feature branch still continues the existing
+`next` or `beta` sequence. Release runs are serialized across branches, and the
+release commit and Git tags are pushed atomically. A failed run can therefore
+be rerun without leaving a tag detached from its release commit.
 
 ### Publish Packages (`publish.yml`)
 

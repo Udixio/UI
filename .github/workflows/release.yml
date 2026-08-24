@@ -14,7 +14,10 @@ on:
           - beta
 
 concurrency:
-  group: release-${{ github.ref }}
+  # Every branch publishes the same packages and therefore shares the same
+  # version namespace. Serialise all releases to prevent two branches from
+  # resolving and tagging the same version concurrently.
+  group: release
   cancel-in-progress: false
 
 jobs:
@@ -115,7 +118,10 @@ jobs:
         id: release-branch
         run: |
           VERSION=$(node -p "require('./packages/ui-react/package.json').version")
-          git push origin "HEAD:refs/heads/${{ github.ref_name }}" --follow-tags
+          # Keep the release commit and its tags inseparable. If the source
+          # branch moved while tests/builds ran, neither ref is pushed and a
+          # rerun can safely recompute the release from the new branch head.
+          git push --atomic origin "HEAD:refs/heads/${{ github.ref_name }}" --follow-tags
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Create release branch for the PR (stable only)
