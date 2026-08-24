@@ -1,0 +1,589 @@
+{
+  "schemaVersion": 2,
+  "displayName": "Search",
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/Search.tsx",
+      "description": "Search lets people enter a query and optionally browse projected suggestions\nor results in a projected Material 3 results surface.",
+      "tags": {
+        "status": "beta",
+        "category": "Input",
+        "devx": "- `query` is controlled; `defaultQuery` initializes uncontrolled usage.\n- `expanded` is controlled; `defaultExpanded` initializes uncontrolled usage.\n- Search is layout-neutral. Use a `SideSheet`, dialog, or another surface primitive to decide\n  where the search and its projected results are presented.\n- Use `trailingActions` for one or two interactive trailing controls, normally `IconButton`\n  instances. Do not pass a bare `Icon`; a trailing icon shown in the Search bar is an action.\n- When the built-in clear action is visible, it occupies one of Material 3's two trailing\n  action slots; provide at most one additional trailing action in that state.\n- Project suggestions or results as children. For listbox semantics, give each selectable child\n  `role=\"option\"` and a `tabIndex` of `-1`.\n- `onSearch` receives the current query when the user presses Enter or the search IME action.",
+        "a11y": "- Uses a `search` landmark and `input[type=\"search\"]` with a required accessible name.\n- When projected content exists, the input becomes a WAI-ARIA combobox linked to the results\n  surface; Arrow Up/Down, Enter, and Escape preserve the shared focus model.\n- The clear and leading controls have explicit accessible names and retain 48 px touch targets.",
+        "limitations": "- The component does not filter or render result data itself; consumers own the projected result\n  content and should provide `role=\"option\"` children when using the default listbox role.\n- The component does not own modal layout or responsive presentation. Compose it with `SideSheet`\n  or another surface when the surrounding feature must block and inert the rest of the application."
+      },
+      "methods": [],
+      "props": {
+        "leadingIcon": {
+          "name": "leadingIcon",
+          "description": "Icon shown at the leading edge; the search icon is used by default.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<SearchInterface>"
+          },
+          "defaultValue": null
+        },
+        "autoFocus": {
+          "name": "autoFocus",
+          "description": "Focuses the input once, on mount.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        },
+        "id": {
+          "name": "id",
+          "description": "Id of the search input. Auto-generated if not provided.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "spellCheck": {
+          "name": "spellCheck",
+          "description": "Native spell-check preference.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "true"
+          }
+        },
+        "inputMode": {
+          "name": "inputMode",
+          "description": "Native input mode hint.",
+          "required": false,
+          "type": {
+            "name": "SearchInputMode"
+          },
+          "defaultValue": null
+        },
+        "label": {
+          "name": "label",
+          "description": "Accessible name for the native search input.",
+          "required": true,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "query": {
+          "name": "query",
+          "description": "Controlled query. Providing it makes the search controlled for its lifetime.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "defaultQuery": {
+          "name": "defaultQuery",
+          "description": "Initial query for uncontrolled usage.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "onQueryChange": {
+          "name": "onQueryChange",
+          "description": "Called once for each accepted query transition.",
+          "required": false,
+          "type": {
+            "name": "(query: string) => void"
+          },
+          "defaultValue": null
+        },
+        "expanded": {
+          "name": "expanded",
+          "description": "Controlled expanded state. Providing it makes the state controlled for its lifetime.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        },
+        "defaultExpanded": {
+          "name": "defaultExpanded",
+          "description": "Initial expanded state for uncontrolled usage.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "onExpandedChange": {
+          "name": "onExpandedChange",
+          "description": "Called once for each accepted expanded-state transition.",
+          "required": false,
+          "type": {
+            "name": "(expanded: boolean) => void"
+          },
+          "defaultValue": null
+        },
+        "onSearch": {
+          "name": "onSearch",
+          "description": "Called when the user submits the current query with the search action.",
+          "required": false,
+          "type": {
+            "name": "(query: string) => void"
+          },
+          "defaultValue": null
+        },
+        "placeholder": {
+          "name": "placeholder",
+          "description": "Hint displayed while the query is empty.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "'Search'"
+          }
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Prevents query editing and activation.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "clearable": {
+          "name": "clearable",
+          "description": "Clears the query when the clear action is activated.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "true"
+          }
+        },
+        "name": {
+          "name": "name",
+          "description": "Native form name forwarded to the search input.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "autoComplete": {
+          "name": "autoComplete",
+          "description": "Native autocomplete hint.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "'off'"
+          }
+        },
+        "maxLength": {
+          "name": "maxLength",
+          "description": "Native maximum query length.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
+        "minLength": {
+          "name": "minLength",
+          "description": "Native minimum query length.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
+        "required": {
+          "name": "required",
+          "description": "Requires a non-empty query when the input participates in a form.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        },
+        "readOnly": {
+          "name": "readOnly",
+          "description": "Prevents editing while preserving the search value and semantics.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        },
+        "resultsRole": {
+          "name": "resultsRole",
+          "description": "Role used by the projected results surface.",
+          "required": false,
+          "type": {
+            "name": "SearchResultsRole"
+          },
+          "defaultValue": {
+            "value": "'listbox'"
+          }
+        },
+        "resultsLabel": {
+          "name": "resultsLabel",
+          "description": "Accessible name for the projected results surface.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "'Search suggestions'"
+          }
+        },
+        "clearLabel": {
+          "name": "clearLabel",
+          "description": "Accessible name of the clear action.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "'Clear search'"
+          }
+        },
+        "trailingActions": {
+          "name": "trailingActions",
+          "description": "Interactive trailing controls, normally one or two `IconButton` instances.",
+          "required": false,
+          "type": {
+            "name": "ReactNode"
+          },
+          "defaultValue": null
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/search/search.ts",
+      "description": "Search lets people enter a query and optionally browse projected suggestions\nor results in a projected Material 3 results surface.",
+      "tags": {
+        "status": "beta",
+        "category": "Input",
+        "devx": "`query`/`defaultQuery` and `expanded`/`defaultExpanded` mirror the React adapter; use the\n`queryChange`, `expandedChange`, and `searchSubmit` outputs for Angular bindings. Search is\nlayout-neutral: compose it with `SideSheet`, a dialog, or another surface primitive when the\nsurrounding feature owns modal presentation. Project one or two interactive trailing controls,\nnormally `udx-icon-button[search-trailing]`; do not project a bare icon. The built-in clear\naction occupies one of Material 3's two trailing action slots while it is visible. Project\nselectable results with `role=\"option\"` when using the default listbox results role.",
+        "a11y": "Renders a `search` landmark and a named `input[type=\"search\"]`; projected listbox\nresults share Arrow Up/Down, Enter, and Escape focus behavior with React.",
+        "limitations": "Search does not filter or render result data itself and does not own modal layout\nor responsive presentation."
+      },
+      "inputs": {
+        "label": {
+          "name": "label",
+          "description": "Accessible name for the native search input.",
+          "required": true,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "query": {
+          "name": "query",
+          "description": "Controlled query. Providing it makes the search controlled for its lifetime.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null
+        },
+        "defaultQuery": {
+          "name": "defaultQuery",
+          "description": "Initial query for uncontrolled usage.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "expanded": {
+          "name": "expanded",
+          "description": "Controlled expanded state. Providing it makes the state controlled for its lifetime.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null
+        },
+        "defaultExpanded": {
+          "name": "defaultExpanded",
+          "description": "Initial expanded state for uncontrolled usage.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "placeholder": {
+          "name": "placeholder",
+          "description": "Hint displayed while the query is empty.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "'Search'"
+          }
+        },
+        "leadingIcon": {
+          "name": "leadingIcon",
+          "description": "Icon shown at the leading edge; the search icon is used by default.",
+          "required": false,
+          "type": {
+            "name": "Icon | undefined"
+          },
+          "defaultValue": null
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Prevents query editing and activation.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "clearable": {
+          "name": "clearable",
+          "description": "Clears the query when the clear action is activated.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "true"
+          }
+        },
+        "name": {
+          "name": "name",
+          "description": "Native form name forwarded to the search input.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "id": {
+          "name": "id",
+          "description": "Id of the search input. Auto-generated if not provided.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "autoComplete": {
+          "name": "autoComplete",
+          "description": "Native autocomplete hint.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "'off'"
+          }
+        },
+        "autoFocus": {
+          "name": "autoFocus",
+          "description": "Focuses the input once, on mount.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "inputMode": {
+          "name": "inputMode",
+          "description": "Native input mode hint.",
+          "required": false,
+          "type": {
+            "name": "SearchInputMode | undefined"
+          },
+          "defaultValue": null
+        },
+        "maxLength": {
+          "name": "maxLength",
+          "description": "Native maximum query length.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
+        "minLength": {
+          "name": "minLength",
+          "description": "Native minimum query length.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
+        "required": {
+          "name": "required",
+          "description": "Requires a non-empty query when the input participates in a form.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "readOnly": {
+          "name": "readOnly",
+          "description": "Prevents editing while preserving the search value and semantics.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "spellCheck": {
+          "name": "spellCheck",
+          "description": "Native spell-check preference.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "true"
+          }
+        },
+        "resultsRole": {
+          "name": "resultsRole",
+          "description": "Role used by the projected results surface.",
+          "required": false,
+          "type": {
+            "name": "SearchResultsRole | undefined"
+          },
+          "defaultValue": {
+            "value": "'listbox'"
+          }
+        },
+        "resultsLabel": {
+          "name": "resultsLabel",
+          "description": "Accessible name for the projected results surface.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "'Search suggestions'"
+          }
+        },
+        "clearLabel": {
+          "name": "clearLabel",
+          "description": "Accessible name of the clear action.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "'Clear search'"
+          }
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<SearchInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {
+        "queryChange": {
+          "name": "queryChange",
+          "description": "Emits each accepted query transition and supports `[(query)]`.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "expandedChange": {
+          "name": "expandedChange",
+          "description": "Emits each accepted expanded-state transition and supports `[(expanded)]`.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        },
+        "searchSubmit": {
+          "name": "searchSubmit",
+          "description": "Emits the current query when the user submits the search action.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "focused": {
+          "name": "focused",
+          "description": "Emits when the search input gains focus.",
+          "required": false,
+          "type": {
+            "name": "void"
+          },
+          "defaultValue": null
+        },
+        "blurred": {
+          "name": "blurred",
+          "description": "Emits when the search input loses focus.",
+          "required": false,
+          "type": {
+            "name": "void"
+          },
+          "defaultValue": null
+        }
+      },
+      "content": {
+        "slot1": {
+          "name": "slot1",
+          "selector": "[search-trailing]",
+          "description": "Projected content matching `[search-trailing]`."
+        },
+        "default": {
+          "name": "default",
+          "selector": "*",
+          "description": "Default projected content."
+        }
+      }
+    }
+  }
+}

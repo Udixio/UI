@@ -30,5 +30,6 @@ export * from './tabs.interface';
 export * from './tab-group.interface';
 export * from './tab-panels.interface';
 export * from './text-field.interface';
+export * from './search.interface';
 export * from './navigation-rail-item.interface';
 export * from './tooltip.interface';

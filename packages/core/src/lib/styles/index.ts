@@ -28,4 +28,5 @@ export * from './tab.style';
 export * from './tabs.style';
 export * from './tab-panels.style';
 export * from './text-field.style';
+export * from './search.style';
 export * from './tooltip.style';

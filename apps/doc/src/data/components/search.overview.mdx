@@ -1,0 +1,288 @@
+---
+---
+
+import Code from '@/components/Code.astro';
+import SearchBasicReact from '@/examples/react/search-basic.tsx';
+import { SearchBasicAngular } from '@/examples/angular/search-basic.ts';
+import searchBasicReactSource from '@/examples/react/search-basic.tsx?raw';
+import searchBasicAngularSource from '@/examples/angular/search-basic.ts?raw';
+import SearchCompositionReact from '@/examples/react/search-composition.tsx';
+import { SearchCompositionAngular } from '@/examples/angular/search-composition.ts';
+import searchCompositionReactSource from '@/examples/react/search-composition.tsx?raw';
+import searchCompositionAngularSource from '@/examples/angular/search-composition.ts?raw';
+import SearchUncontrolledReact from '@/examples/react/search-uncontrolled.tsx';
+import { SearchUncontrolledAngular } from '@/examples/angular/search-uncontrolled.ts';
+import searchUncontrolledReactSource from '@/examples/react/search-uncontrolled.tsx?raw';
+import searchUncontrolledAngularSource from '@/examples/angular/search-uncontrolled.ts?raw';
+import SearchStatesReact from '@/examples/react/search-states.tsx';
+import { SearchStatesAngular } from '@/examples/angular/search-states.ts';
+import searchStatesReactSource from '@/examples/react/search-states.tsx?raw';
+import searchStatesAngularSource from '@/examples/angular/search-states.ts?raw';
+import SearchIconsReact from '@/examples/react/search-icons.tsx';
+import { SearchIconsAngular } from '@/examples/angular/search-icons.ts';
+import searchIconsReactSource from '@/examples/react/search-icons.tsx?raw';
+import searchIconsAngularSource from '@/examples/angular/search-icons.ts?raw';
+import SearchResultsReact from '@/examples/react/search-results.tsx';
+import { SearchResultsAngular } from '@/examples/angular/search-results.ts';
+import searchResultsReactSource from '@/examples/react/search-results.tsx?raw';
+import searchResultsAngularSource from '@/examples/angular/search-results.ts?raw';
+import SearchDialogReact from '@/examples/react/search-dialog.tsx';
+import { SearchDialogAngular } from '@/examples/angular/search-dialog.ts';
+import searchDialogReactSource from '@/examples/react/search-dialog.tsx?raw';
+import searchDialogAngularSource from '@/examples/angular/search-dialog.ts?raw';
+import SearchFormReact from '@/examples/react/search-form.tsx';
+import { SearchFormAngular } from '@/examples/angular/search-form.ts';
+import searchFormReactSource from '@/examples/react/search-form.tsx?raw';
+import searchFormAngularSource from '@/examples/angular/search-form.ts?raw';
+import SearchAutofocusReact from '@/examples/react/search-autofocus.tsx';
+import { SearchAutofocusAngular } from '@/examples/angular/search-autofocus.ts';
+import searchAutofocusReactSource from '@/examples/react/search-autofocus.tsx?raw';
+import searchAutofocusAngularSource from '@/examples/angular/search-autofocus.ts?raw';
+
+## Usage
+
+Search is a layout-neutral Material 3 search field with an optional projected
+results surface. Use it when users need to find content, navigate
+documentation, or filter a known collection. The implementation follows the
+[Material 3 Search specification](https://m3.material.io/components/search/specs)
+and its [interaction guidelines](https://m3.material.io/components/search/guidelines).
+
+Search owns the query, clear action, submit event, input semantics, and local
+results visibility. It does not choose a docked, full-screen, dialog, or side
+sheet layout. Compose it with the surface primitive that owns that presentation
+when search should become modal; results are still projected by the consumer,
+so filtering and selection remain in application code.
+
+<Code
+  codes={{
+    react: searchBasicReactSource,
+    angular: searchBasicAngularSource,
+  }}
+>
+  <SearchBasicReact slot="react" client:load />
+  <SearchBasicAngular slot="angular" client:load />
+</Code>
+
+## Material 3 anatomy
+
+The component exposes the Material 3 Search bar anatomy through its public
+props: the leading icon, supporting placeholder text, interactive trailing
+actions, and a clear action when the query is non-empty. The container uses the
+Search bar's rounded shape and touch-sized action buttons. When expanded, it
+reuses the same input and exposes a labeled projected results surface below the
+header.
+
+The parent layout decides where that surface lives. An inline search can render
+it in normal page flow, while a modal search can be placed inside `SideSheet`
+or another dialog/surface primitive.
+
+The result content is deliberately consumer-owned. This keeps the component
+usable with local filtering, remote search, recent searches, command palettes,
+and custom result designs while leaving loading, errors, empty states, and
+selection behavior in the feature that owns the data.
+
+## Compose Search with `SideSheet`
+
+`Search` does not import or control `SideSheet`. The owning feature composes the
+two primitives when search needs a modal presentation. `SideSheet` owns the
+scrim, anchoring and width policy, portal, focus trap, inert background, scroll
+lock, and dismissal behavior; `Search` remains responsible for the field and
+its local results surface. Adapt the side sheet's position and width classes
+for compact or expanded windows; Search does not need a breakpoint prop.
+The example uses a full-width compact panel and a constrained `sm` width to
+make that composition explicit.
+
+The example shows both usages: an inline search and the same kind of search
+embedded in a modal side sheet.
+
+<Code
+  codes={{
+    react: searchCompositionReactSource,
+    angular: searchCompositionAngularSource,
+  }}
+>
+  <SearchCompositionReact slot="react" client:load />
+  <SearchCompositionAngular slot="angular" client:load />
+</Code>
+
+## Uncontrolled defaults
+
+Use `defaultQuery` and `defaultExpanded` when the Search component should own
+its state. `defaultExpanded` controls the initial visibility of the projected
+local results surface; it does not open or close a surrounding `SideSheet` or
+dialog. This example still observes `onQueryChange` and `onSearch` so an
+application can react to user input without turning the field into a fully
+controlled component.
+
+<Code
+  codes={{
+    react: searchUncontrolledReactSource,
+    angular: searchUncontrolledAngularSource,
+  }}
+>
+  <SearchUncontrolledReact slot="react" client:load />
+  <SearchUncontrolledAngular slot="angular" client:load />
+</Code>
+
+## Controlled and uncontrolled state
+
+Use `query` with `onQueryChange` in React, or `[(query)]` in Angular, when the
+owning feature controls the query. `defaultQuery` initializes uncontrolled
+usage. The same pattern applies to `expanded`/`onExpandedChange` and
+`defaultExpanded`; those callbacks control only Search's local results
+visibility. If Search is inside a modal surface, control that surface with its
+own `open` API.
+
+`onSearch` (React) or `(searchSubmit)` (Angular) receives the current query when the
+user presses Enter or invokes the search action from an input method editor.
+
+## Disabled, read-only, and clearable states
+
+`disabled` prevents interaction and native input focus. `readOnly` keeps the
+value visible while preventing edits, and `clearable={false}` removes the
+automatic clear action without preventing the user from editing the query.
+The focus and blur callbacks remain available for integrating surrounding
+feature state.
+
+<Code
+  codes={{
+    react: searchStatesReactSource,
+    angular: searchStatesAngularSource,
+  }}
+>
+  <SearchStatesReact slot="react" client:load />
+  <SearchStatesAngular slot="angular" client:load />
+</Code>
+
+## Leading icon and trailing actions
+
+`leadingIcon` accepts the search or navigation icon shown at the start of the
+field. The leading control is owned by Search and focuses the input. For the
+right side, use `trailingActions` in React or project one or two
+`udx-icon-button[search-trailing]` controls in Angular. These are real
+interactive actions, not bare `Icon` definitions. Use them for additional
+search modes such as voice search, filters, settings, or another high-level
+action.
+
+Dans la terminologie Material 3, « icon » décrit l'élément visuel ; lorsqu'il
+déclenche une interaction, son conteneur est un `IconButton`. `Search` reçoit
+donc des contrôles d'action et laisse leur `Icon` interne à `IconButton`.
+
+Material 3 allows one or two trailing icons or icon buttons. Search's built-in
+clear action counts as one while it is visible, so combine it with at most one
+custom trailing action. Set `clearable={false}` when two custom trailing
+actions must remain visible. Modal or side-sheet close actions remain owned by
+the surrounding surface.
+
+<Code
+  codes={{
+    react: searchIconsReactSource,
+    angular: searchIconsAngularSource,
+  }}
+>
+  <SearchIconsReact slot="react" client:load />
+  <SearchIconsAngular slot="angular" client:load />
+</Code>
+
+## Results, empty, loading, and error states
+
+Search does not fetch or filter data itself. Update the projected content from
+the owning feature and expose an appropriate empty, loading, or error state.
+When Search is inside a `SideSheet`, the side sheet owns the modal surface while
+Search continues to own the labeled local results surface inside it.
+Selectable results should use `role="option"`, `aria-selected`, and
+`tabIndex={-1}` (or `tabindex="-1"` in Angular); a status message can use
+`aria-live` when its content changes.
+
+<Code
+  codes={{
+    react: searchResultsReactSource,
+    angular: searchResultsAngularSource,
+  }}
+>
+  <SearchResultsReact slot="react" client:load />
+  <SearchResultsAngular slot="angular" client:load />
+</Code>
+
+## Rich result content with `resultsRole="dialog"`
+
+Use `resultsRole="dialog"` when the expanded surface contains actions or a
+rich layout rather than a list of selectable options. The component provides
+the labeled results surface, but the consumer remains responsible for the
+dialog content's focus order, keyboard behavior, and action semantics.
+
+<Code
+  codes={{
+    react: searchDialogReactSource,
+    angular: searchDialogAngularSource,
+  }}
+>
+  <SearchDialogReact slot="react" client:load />
+  <SearchDialogAngular slot="angular" client:load />
+</Code>
+
+## Native form integration and input attributes
+
+The native search input forwards `id`, `name`, `required`, `maxLength`,
+`autoComplete`, `inputMode`, `spellCheck`, and the other standard input
+attributes. `onSearch`/`(searchSubmit)` handles Enter from the search field;
+the surrounding form can still be submitted with a separate native submit
+button.
+
+<Code
+  codes={{
+    react: searchFormReactSource,
+    angular: searchFormAngularSource,
+  }}
+>
+  <SearchFormReact slot="react" client:load />
+  <SearchFormAngular slot="angular" client:load />
+</Code>
+
+## Auto-focus and focus events
+
+Set `autoFocus` only when the feature intentionally owns the initial focus,
+such as after opening a search panel. `onFocus`/`onBlur` in React and
+`(focused)`/`(blurred)` in Angular expose native focus transitions for status
+or surrounding UI updates. When a modal surface is used, let that surface own
+the panel focus lifecycle and use `autoFocus` only when it is compatible with
+that lifecycle. The example mounts the component from a button so the focus
+behavior can be tested without stealing focus on page load.
+
+<Code
+  codes={{
+    react: searchAutofocusReactSource,
+    angular: searchAutofocusAngularSource,
+  }}
+>
+  <SearchAutofocusReact slot="react" client:load />
+  <SearchAutofocusAngular slot="angular" client:load />
+</Code>
+
+## Results and keyboard behavior
+
+Project suggestions or results as children. With the default
+`resultsRole="listbox"`, give selectable children `role="option"`,
+`aria-selected`, and `tabIndex={-1}` (or `tabindex="-1"` in Angular). Search shares the menu
+navigation model: Arrow Down/Up opens the local results surface and moves focus
+to the first or last option, Enter submits the query, and Escape closes the
+expanded local results surface and restores focus to the input. A surrounding
+modal surface handles its own Escape and dismissal behavior.
+
+Set `resultsRole="dialog"` when the projected content is a richer search view
+rather than a list of options. In that mode, the consumer owns the dialog
+content semantics and focus management inside it.
+
+## Accessibility
+
+`label` is required and names the native `input[type="search"]`. When results
+are present, the input exposes the combobox relationship to the labeled
+results surface. The clear action has a configurable accessible name through
+`clearLabel`, and Search keeps the Material 3 48&nbsp;px touch target for its
+field actions. If Search is composed inside `SideSheet`, the side sheet owns
+the modal dialog semantics, close action, focus trap, and background inertness.
+
+The input forwards native form attributes such as `name`, `required`,
+`readOnly`, `autoComplete`, and `inputMode`. The component does not filter or
+announce result data itself: applications should update the projected content
+and provide an appropriate empty state when no match exists.

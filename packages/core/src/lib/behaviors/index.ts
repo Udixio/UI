@@ -13,4 +13,5 @@ export * from './slider.behavior';
 export * from './switch.behavior';
 export * from './tabs.behavior';
 export * from './text-field.behavior';
+export * from './search.behavior';
 export * from './tooltip.behavior';
