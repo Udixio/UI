@@ -100,7 +100,7 @@
           "description": "Resting container shape.",
           "required": false,
           "type": {
-            "name": "\"squared\" | \"rounded\""
+            "name": "\"rounded\" | \"squared\""
           },
           "defaultValue": {
             "value": "'rounded'"

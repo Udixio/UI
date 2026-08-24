@@ -156,15 +156,16 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
     }
 
     const colors = this.getColors();
+    const dynamicRootSelector = dynamicSelector ?? ':root';
 
     if (isDynamic) {
+      // Runtime values must override the build-time @theme layer, regardless
+      // of the order in which the two style sheets are attached.
       this.outputCss += `
-@layer theme {
-  .dynamic {
+${dynamicRootSelector} {
     ${Object.entries(colors)
       .map(([key, value]) => `--color-${key}: ${value.light};`)
       .join('\n  ')}
-  }
 }`;
     } else {
       const resetColors = this.options.resetColors ?? true;
@@ -176,17 +177,17 @@ ${resetColors ? '  --color-*: initial;\n' : ''}  ${Object.entries(colors)
 }`;
     }
 
-    this.outputCss += `
-@layer theme {
-  ${darkStyle({
-    selectors: [dynamicSelector],
-    mode: darkMode,
-    darkSelector: darkSelector ?? '',
-    styles: Object.entries(colors)
-      .map(([key, value]) => `--color-${key}: ${value.dark};`)
-      .join('\n    '),
-  })} 
-}`;
+    const darkCss = darkStyle({
+      selectors: [isDynamic ? dynamicRootSelector : dynamicSelector],
+      mode: darkMode,
+      darkSelector: darkSelector ?? '',
+      styles: Object.entries(colors)
+        .map(([key, value]) => `--color-${key}: ${value.dark};`)
+        .join('\n    '),
+    });
+    this.outputCss += isDynamic
+      ? `\n${darkCss}`
+      : `\n@layer theme {\n  ${darkCss}\n}`;
 
     const sourceColor = this.api.context.sourceColor;
     const originalRawSourceColor = this.api.context.rawSourceColor;
@@ -201,27 +202,41 @@ ${resetColors ? '  --color-*: initial;\n' : ''}  ${Object.entries(colors)
 
       this.api.context.sourceColor = sourceColor.withHue(hue);
       const colors = this.getColors();
-      this.outputCss += `
+      const subThemeSelector = createFlexibleSelector(
+        isDynamic ? dynamicRootSelector : dynamicSelector,
+        '.theme-' + key,
+      );
+      const subThemeStyles = Object.entries(colors)
+        .map(([key, value]) => `--color-${key}: ${value.light};`)
+        .join('\n    ');
+      this.outputCss += isDynamic
+        ? `
+${subThemeSelector} {
+    ${subThemeStyles}
+}
+`
+        : `
 @layer theme {
-  ${createFlexibleSelector(dynamicSelector, '.theme-' + key)} {
-    ${Object.entries(colors)
-      .map(([key, value]) => `--color-${key}: ${value.light};`)
-      .join('\n    ')}
-    }
+  ${subThemeSelector} {
+    ${subThemeStyles}
+  }
 }
 `;
 
-      this.outputCss += `
-@layer theme {
-  ${darkStyle({
-    selectors: [dynamicSelector, '.theme-' + key],
-    mode: darkMode,
-    darkSelector: darkSelector ?? '',
-    styles: Object.entries(colors)
-      .map(([key, value]) => `--color-${key}: ${value.dark};`)
-      .join('\n    '),
-  })}
-}`;
+      const subThemeDarkCss = darkStyle({
+        selectors: [
+          isDynamic ? dynamicRootSelector : dynamicSelector,
+          '.theme-' + key,
+        ],
+        mode: darkMode,
+        darkSelector: darkSelector ?? '',
+        styles: Object.entries(colors)
+          .map(([key, value]) => `--color-${key}: ${value.dark};`)
+          .join('\n    '),
+      });
+      this.outputCss += isDynamic
+        ? `\n${subThemeDarkCss}`
+        : `\n@layer theme {\n  ${subThemeDarkCss}\n}`;
     }
     // Restore original sourceColor after processing subThemes
     this.api.context.update({ sourceColor: originalRawSourceColor });

@@ -20,43 +20,46 @@ The theme system generates the full Material Design 3 type scale as Tailwind uti
 
 ### Full reference
 
-| Class | Font size | Line height | Weight |
-|-------|-----------|-------------|--------|
-| `text-display-lg` | 57px | 64px | 400 |
-| `text-display-md` | 45px | 52px | 400 |
-| `text-display-sm` | 36px | 44px | 400 |
-| `text-headline-lg` | 32px | 40px | 400 |
-| `text-headline-md` | 28px | 36px | 400 |
-| `text-headline-sm` | 24px | 32px | 400 |
-| `text-title-lg` | 22px | 28px | 400 |
-| `text-title-md` | 16px | 24px | 500 |
-| `text-title-sm` | 14px | 20px | 500 |
-| `text-label-lg` | 14px | 20px | 500 |
-| `text-label-md` | 12px | 16px | 500 |
-| `text-label-sm` | 11px | 16px | 500 |
-| `text-body-lg` | 16px | 25px | 400 |
-| `text-body-md` | 14px | 20px | 400 |
-| `text-body-sm` | 12px | 16px | 400 |
+| Class              | Font size | Line height | Weight |
+| ------------------ | --------- | ----------- | ------ |
+| `text-display-lg`  | 57px      | 64px        | 400    |
+| `text-display-md`  | 45px      | 52px        | 400    |
+| `text-display-sm`  | 36px      | 44px        | 400    |
+| `text-headline-lg` | 32px      | 40px        | 400    |
+| `text-headline-md` | 28px      | 36px        | 400    |
+| `text-headline-sm` | 24px      | 32px        | 400    |
+| `text-title-lg`    | 22px      | 28px        | 400    |
+| `text-title-md`    | 16px      | 24px        | 500    |
+| `text-title-sm`    | 14px      | 20px        | 500    |
+| `text-label-lg`    | 14px      | 20px        | 500    |
+| `text-label-md`    | 12px      | 16px        | 500    |
+| `text-label-sm`    | 11px      | 16px        | 500    |
+| `text-body-lg`     | 16px      | 25px        | 400    |
+| `text-body-md`     | 14px      | 20px        | 400    |
+| `text-body-sm`     | 12px      | 16px        | 400    |
 
 ## Font families
 
 Two conceptual families map to different roles:
 
-| Family | Applied to | Default |
-|--------|-----------|---------|
-| `expressive` | `display`, `headline` | `Roboto, sans-serif` |
-| `neutral` | `title`, `label`, `body` | `Roboto, sans-serif` |
+| Family       | Applied to               | Default              |
+| ------------ | ------------------------ | -------------------- |
+| `expressive` | `display`, `headline`    | `Roboto, sans-serif` |
+| `neutral`    | `title`, `label`, `body` | `Roboto, sans-serif` |
 
 Override them in `defineConfig`:
 
 ```ts
-defineConfig({
+// theme.config.ts
+import { defineConfig } from '@udixio/tailwind';
+
+export default defineConfig({
   sourceColor: '#6750A4',
   fontFamily: {
     expressive: ['Playfair Display', 'Georgia', 'serif'],
     neutral: ['Inter', 'system-ui', 'sans-serif'],
   },
-})
+});
 ```
 
 Values are used directly as CSS `font-family` — include fallbacks at the end.
@@ -86,12 +89,16 @@ Or via CSS:
 Use `fontStyles` in `defineConfig` to override any role/size combination. Only the properties you specify are changed — everything else stays at the Material Design defaults.
 
 ```ts
-defineConfig({
+// theme.config.ts
+import { defineConfig } from '@udixio/tailwind';
+
+export default defineConfig({
+  sourceColor: '#6750A4',
   fontStyles: {
     display: {
       large: {
-        fontSize: 4,         // rem
-        lineHeight: 4.5,     // rem
+        fontSize: 4, // rem
+        lineHeight: 4.5, // rem
         fontWeight: 300,
         letterSpacing: -0.02,
       },
@@ -103,16 +110,16 @@ defineConfig({
       large: { lineHeight: 1.75 },
     },
   },
-})
+});
 ```
 
 ### `FontStyle` properties
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `fontSize` | `number` | Size in `rem` |
-| `lineHeight` | `number` | Height in `rem` |
-| `fontWeight` | `number` | CSS font-weight |
+| Property        | Type                | Description      |
+| --------------- | ------------------- | ---------------- |
+| `fontSize`      | `number`            | Size in `rem`    |
+| `lineHeight`    | `number`            | Height in `rem`  |
+| `fontWeight`    | `number`            | CSS font-weight  |
 | `letterSpacing` | `number` (optional) | Spacing in `rem` |
 
 ## Using `text-*` with color tokens

@@ -4,9 +4,14 @@ import type { API } from '../API';
 
 export class ColorManager {
   private colorMap = new Map<string, Color>();
+  private _version = 0;
 
   /** Posée par `API` à sa construction, avant que la moindre couleur soit lue. */
   api!: API;
+
+  get version(): number {
+    return this._version;
+  }
 
   constructor() {}
 
@@ -22,15 +27,21 @@ export class ColorManager {
 
     const initializedColor = colorEntity.init(this.api);
     this.colorMap.set(key, initializedColor);
+    this._version += 1;
     return initializedColor;
   }
 
   public remove(key: string) {
-    return this.colorMap.delete(key);
+    const removed = this.colorMap.delete(key);
+    if (removed) this._version += 1;
+    return removed;
   }
 
   public clear() {
-    this.colorMap.clear();
+    if (this.colorMap.size > 0) {
+      this.colorMap.clear();
+      this._version += 1;
+    }
   }
 
   public get(key: string): Color {

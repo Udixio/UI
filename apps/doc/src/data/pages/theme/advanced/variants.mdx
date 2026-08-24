@@ -17,7 +17,6 @@ export const myVariant = variant({
     secondary: ({ sourceColor }) => sourceColor.scaleChroma(0.5),
     tertiary: ({ sourceColor }) => sourceColor.rotate(60),
     neutral: ({ sourceColor }) => ({ hue: sourceColor.hue, chroma: 5 }),
-    neutralVariant: ({ sourceColor }) => ({ hue: sourceColor.hue, chroma: 8 }),
     error: () => ({ hue: 25, chroma: 84 }),
   },
   customPalettes: ({ sourceColor }, color) => ({
@@ -38,6 +37,10 @@ defineConfig({
 ```
 
 ### `VariantOptions`
+
+`ColorsConfig` is exported by `@udixio/theme`. In an application, prefer
+putting `colors` directly in `theme.config.ts`; the named type is mainly
+useful when defining a reusable variant or color layer.
 
 | Field                     | Type                                  | Required | Description                                                                      |
 | ------------------------- | ------------------------------------- | -------- | -------------------------------------------------------------------------------- |
@@ -68,7 +71,7 @@ palettes: {
 }
 ```
 
-The engine expects `primary`, `secondary`, `tertiary`, `neutral`, `neutralVariant` and `error` if you reuse `Variants.TonalSpot.colors`, because those are the palettes it reads. Define fewer only if you also supply your own `colors`.
+The engine expects `primary`, `secondary`, `tertiary`, `neutral` and `error` if you reuse `Variants.TonalSpot.colors`, because those are the palettes it reads. Define fewer only if you also supply your own `colors`.
 
 ### Hue helpers
 

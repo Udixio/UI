@@ -9,7 +9,7 @@
       "tags": {
         "status": "stable",
         "category": "Action",
-        "devx": "- Uses the framework-independent `actions` model instead of framework-specific children.\n- `open` is controlled; `defaultOpen` initializes uncontrolled usage.\n- Opening contracts every trigger size to a medium icon-only close control while preserving the closed footprint.\n- Action choreography is implemented once with Motion JavaScript in `@udixio/core/dom`.",
+        "devx": "- Uses the framework-independent `actions` model instead of framework-specific children.\n- `open` is controlled; `defaultOpen` initializes uncontrolled usage.\n- Opening contracts every trigger size to a small icon-only close control while preserving the closed footprint.\n- Action choreography is implemented once with Motion JavaScript in `@udixio/core/dom`.",
         "a11y": "- The trigger exposes `aria-expanded`/`aria-controls`.\n- Opening focuses the first enabled action; Escape closes and restores trigger focus.\n- Outside press and selection close the group without applying false ARIA menu semantics.\n- Reduced-motion preference keeps state changes immediate and fully perceivable.",
         "limitations": "- Consumers own action-specific side effects through `onActionSelect`."
       },
@@ -94,7 +94,7 @@
             "name": "FabSize"
           },
           "defaultValue": {
-            "value": "'medium'"
+            "value": "'small'"
           }
         },
         "extended": {
@@ -174,7 +174,7 @@
       "tags": {
         "status": "stable",
         "category": "Action",
-        "devx": "- Uses the framework-independent `actions` input.\n- `open` is controlled; `defaultOpen` initializes uncontrolled usage.\n- Opening contracts every trigger size to a medium icon-only close control while preserving the closed footprint.\n- Action choreography is implemented once with Motion JavaScript in `@udixio/core/dom`.",
+        "devx": "- Uses the framework-independent `actions` input.\n- `open` is controlled; `defaultOpen` initializes uncontrolled usage.\n- Opening contracts every trigger size to a small icon-only close control while preserving the closed footprint.\n- Action choreography is implemented once with Motion JavaScript in `@udixio/core/dom`.",
         "a11y": "- The trigger exposes `aria-expanded`/`aria-controls`.\n- Opening focuses the first enabled action; Escape closes and restores trigger focus.\n- Outside press and selection close the action group.\n- Reduced-motion preference keeps state changes immediate and fully perceivable.",
         "limitations": "- Consumers own action-specific side effects through the `actionSelect` output."
       },
@@ -252,7 +252,7 @@
             "name": "FabSize | undefined"
           },
           "defaultValue": {
-            "value": "'medium'"
+            "value": "'small'"
           }
         },
         "extended": {

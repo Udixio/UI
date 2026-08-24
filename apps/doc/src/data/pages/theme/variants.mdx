@@ -10,10 +10,14 @@ A variant defines the algorithm that derives the `primary`, `secondary`, `tertia
 ## Importing variants
 
 ```ts
+import { defineConfig } from '@udixio/tailwind';
 import { Variants } from '@udixio/theme';
 
-// In ConfigInterface:
-variant: Variants.TonalSpot
+// theme.config.ts
+export default defineConfig({
+  sourceColor: '#6750A4',
+  variant: Variants.TonalSpot,
+});
 ```
 
 ## The 5 variants
@@ -21,7 +25,7 @@ variant: Variants.TonalSpot
 ### `TonalSpot` (Material Design 3 default)
 
 ```ts
-variant: Variants.TonalSpot
+variant: Variants.TonalSpot;
 ```
 
 The reference Material Design 3 variant. Secondary and tertiary have slightly rotated hues from the source color, with moderate chroma. Neutral is heavily desaturated.
@@ -33,7 +37,7 @@ The reference Material Design 3 variant. Secondary and tertiary have slightly ro
 ### `Expressive`
 
 ```ts
-variant: Variants.Expressive
+variant: Variants.Expressive;
 ```
 
 More pronounced hue rotations between primary, secondary, and tertiary — up to +120° and +240°. More expressive and visually contrasted palettes.
@@ -45,7 +49,7 @@ More pronounced hue rotations between primary, secondary, and tertiary — up to
 ### `Neutral`
 
 ```ts
-variant: Variants.Neutral
+variant: Variants.Neutral;
 ```
 
 Very low chroma across all palettes. The interface remains monochromatic regardless of `sourceColor`. Only primary accents have noticeable color.
@@ -57,7 +61,7 @@ Very low chroma across all palettes. The interface remains monochromatic regardl
 ### `Vibrant`
 
 ```ts
-variant: Variants.Vibrant
+variant: Variants.Vibrant;
 ```
 
 Maximum chroma on all palettes. Colors are intense and saturated. Use sparingly on surface-level backgrounds.
@@ -69,7 +73,7 @@ Maximum chroma on all palettes. Colors are intense and saturated. Use sparingly 
 ### `Udixio`
 
 ```ts
-variant: Variants.Udixio
+variant: Variants.Udixio;
 ```
 
 Udixio's in-house variant. It extends Material Design 3 with:
@@ -94,7 +98,7 @@ const [variant, setVariant] = useState(Variants.TonalSpot);
     sourceColor: '#6750A4',
     variant,
   })}
-/>
+/>;
 ```
 
 ## Creating a custom variant

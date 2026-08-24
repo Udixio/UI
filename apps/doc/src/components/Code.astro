@@ -73,6 +73,7 @@ const code = dataCode ?? codeFromSlot;
   <div
     id={rootId}
     class={codeCardClass}
+    data-pagefind-ignore
   >
     <CodePreview
       client:load
@@ -136,7 +137,7 @@ const code = dataCode ?? codeFromSlot;
     </div>
   </div>
 ) : code != null && code !== '' ? (
-  <div class={codeCardClass}>
+  <div class={codeCardClass} data-pagefind-ignore>
     <CodePreview client:load code={code} language={language} />
     <div class={codeBodyClass}>
       <section class={codePanelClass}>
@@ -149,7 +150,7 @@ const code = dataCode ?? codeFromSlot;
     </div>
   </div>
 ) : (
-  <pre {...htmlProps}><slot /></pre>
+  <pre data-pagefind-ignore {...htmlProps}><slot /></pre>
 )}
 <style is:global>
   pre {

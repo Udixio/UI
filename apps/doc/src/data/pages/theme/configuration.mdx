@@ -1,33 +1,54 @@
 ---
 title: Configuration
-description: All defineConfig options — sourceColor, isDark, contrastLevel, variant, palettes, darkMode, subThemes, fontFamily.
+description: Configure a theme from theme.config.ts with @udixio/tailwind — sourceColor, variant, palettes, colors, dark mode, sub-themes and typography.
 ---
 
 # Configuration
 
-All options are passed as a flat object to `defineConfig`. `TailwindPlugin` and `FontPlugin` options live at the same level as the core theme options — no nesting required.
+The application theme is normally declared in a root `theme.config.ts` file.
+Import `defineConfig` from `@udixio/tailwind`: it combines the core theme
+options with the Tailwind and typography options, then wires the required
+plugins for you.
 
 ```ts
+// theme.config.ts
 import { defineConfig } from '@udixio/tailwind';
+import { Variants } from '@udixio/theme';
 
-const config = defineConfig({
-  // ── Core ──────────────────────────────────────
+export default defineConfig({
   sourceColor: '#6750A4',
-  contrastLevel: 0,
   variant: Variants.Udixio,
-  palettes: {},
+  contrastLevel: 0,
 
-  // ── Dark mode (TailwindPlugin) ─────────────────
   darkMode: 'class',
   darkSelector: '.dark',
   dynamicSelector: '.dynamic',
 
-  // ── Sub-themes (TailwindPlugin) ────────────────
-  subThemes: {},
+  palettes: {
+    brand: '#FF5722',
+  },
 
-  // ── Typography (FontPlugin) ────────────────────
-  fontFamily: { expressive: ['Roboto'], neutral: ['Roboto'] },
-  fontStyles: {},
+  subThemes: {
+    ocean: '#006699',
+  },
+
+  fontFamily: {
+    expressive: ['Playfair Display', 'Georgia', 'serif'],
+    neutral: ['Inter', 'system-ui', 'sans-serif'],
+  },
+});
+```
+
+The generated stylesheet is written to `udixio.generated.css` by default. Set
+`outFile` when you want it at another path:
+
+```ts
+// theme.config.ts
+import { defineConfig } from '@udixio/tailwind';
+
+export default defineConfig({
+  sourceColor: '#6750A4',
+  outFile: 'src/styles/udixio.generated.css',
 });
 ```
 
@@ -35,151 +56,221 @@ const config = defineConfig({
 
 ### `sourceColor`
 
-The single color that drives the entire palette. Accepted as a hex string, a `Color`, or a dynamic function:
+The required source of the theme. A hex string is the recommended configuration
+form. Advanced code can pass a `Color` or resolve the value from the current
+context:
 
 ```ts
-sourceColor: '#6750A4'
+// theme.config.ts
+import { defineConfig } from '@udixio/tailwind';
 
+export default defineConfig({
+  sourceColor: (context) => (context.isDark ? '#A08EC4' : '#6750A4'),
+});
+```
+
+For direct HCT construction, import `Color` from `@udixio/theme`:
+
+```ts
 import { Color } from '@udixio/theme';
-sourceColor: Color.from({ hue: 270, chroma: 36, tone: 49 })
 
-// Re-evaluated on every context change
-sourceColor: (ctx) => (ctx.isDark ? '#A08EC4' : '#6750A4')
+const sourceColor = Color.from({ hue: 270, chroma: 36, tone: 49 });
 ```
 
 ### `contrastLevel`
 
-Adjusts contrast globally between `−1` and `+1`.
+Adjusts the contrast curves used by semantic tokens. The accepted range is
+`-1` to `1`.
 
-| Value | Effect |
-|-------|--------|
-| `-1` | Minimum contrast |
-| `0` | Material Design standard (default) |
-| `0.5` | Medium contrast |
-| `1` | Maximum — WCAG AAA |
+| Value | Effect                             |
+| ----- | ---------------------------------- |
+| `-1`  | Minimum contrast                   |
+| `0`   | Material Design standard (default) |
+| `0.5` | Medium contrast                    |
+| `1`   | Maximum contrast                   |
 
 ### `variant`
 
-Selects the palette derivation algorithm. `Variants.Udixio` is the default when using `defineConfig`.
+Selects the palette and token derivation algorithm. `defineConfig` uses
+`Variants.Udixio` by default.
 
 ```ts
+import { defineConfig } from '@udixio/tailwind';
 import { Variants } from '@udixio/theme';
-variant: Variants.Udixio      // default
-variant: Variants.TonalSpot
-variant: Variants.Expressive
-variant: Variants.Neutral
-variant: Variants.Vibrant
+
+export default defineConfig({
+  sourceColor: '#6750A4',
+  variant: Variants.TonalSpot,
+});
 ```
 
-See [Variants](/theme/variants) for a side-by-side comparison.
+See [Variants](/theme/variants) for the built-in algorithms and
+[Variants API](/theme/advanced/variants) for custom variants.
 
 ### `palettes`
 
-Override standard palettes or add custom brand colors (Udixio variant only):
+Adds custom palettes or overrides a standard palette. A palette callback
+receives the current `Context` and returns its `hue` and `chroma`:
 
 ```ts
-palettes: {
-  // Shift the primary hue. `rotate` normalises over 360°.
-  primary: ({ sourceColor }) => sourceColor.rotate(30),
-  // Soften the secondary
-  secondary: ({ sourceColor }) => sourceColor.rotate(5).scaleChroma(0.625),
-  // Add a custom brand palette — generates brand/onBrand/brandContainer/onBrandContainer
-  brand: '#FF5722',
-}
+// theme.config.ts
+import { defineConfig } from '@udixio/tailwind';
 
-A palette is a hue and a chroma, so the tone of a `Color` returned here is
-ignored.
+export default defineConfig({
+  sourceColor: '#6750A4',
+  palettes: {
+    primary: ({ sourceColor }) => ({
+      hue: sourceColor.hue + 30,
+      chroma: 60,
+    }),
+    neutral: () => ({
+      hue: 200,
+      chroma: 6,
+    }),
+    brand: '#FF5722',
+  },
+});
 ```
 
-See [Custom palettes](/theme/palettes) for details.
+The tone of a color supplied to a palette is ignored: a palette spans all
+tones. Hex strings are the simple form; callbacks are the advanced form.
 
-## Dark mode options
+### `colors`
 
-### `darkMode`
+Adds or transforms semantic color tokens. The definitions belong directly in
+`theme.config.ts`; there is no need to declare a separate `ColorsConfig`
+variable for a normal application configuration:
 
 ```ts
-darkMode: 'class'   // default — toggle via a CSS class
-darkMode: 'media'   // automatic via prefers-color-scheme
+// theme.config.ts
+import { defineConfig } from '@udixio/tailwind';
+import {
+  Color,
+  avoidBackgroundGap,
+  contrastAgainst,
+  onColor,
+} from '@udixio/theme';
+
+export default defineConfig({
+  sourceColor: '#6750A4',
+  colors: {
+    highlight: Color.fromPalette('tertiary', {
+      tone: () => 40,
+      adjustTone: [contrastAgainst('surface', 3), avoidBackgroundGap()],
+    }),
+    onHighlight: Color.fromPalette('tertiary', {
+      adjustTone: onColor('highlight', 4.5),
+    }),
+    surface: (color) => color.withTone(Math.min(100, color.tone + 2)),
+  },
+});
 ```
 
-### `darkSelector`
+A callback transforms the token already supplied by the active variant. It is
+re-evaluated when the theme context changes. See [Colors API](/theme/advanced/colors)
+for palette colors and tone adjusters.
 
-The CSS class that activates dark mode when `darkMode: 'class'` (default: `'.dark'`).
+## Tailwind options
+
+These options are provided by `@udixio/tailwind` and are available at the same
+level as the core options.
+
+### `darkMode`, `darkSelector` and `dynamicSelector`
 
 ```ts
-darkSelector: '.dark'     // <html class="dark"> or <body class="dark">
-darkSelector: '[data-theme="dark"]'
+export default defineConfig({
+  sourceColor: '#6750A4',
+  darkMode: 'class', // 'class' (default) or 'media'
+  darkSelector: '.dark', // default: '.dark'
+  dynamicSelector: '.dynamic', // default: '.dynamic'
+});
 ```
 
-See [Dark mode](/theme/dark-mode) for runtime toggle examples.
-
-### `dynamicSelector`
-
-The CSS selector that receives the live variables (default: `'.dynamic'`). Elements without this ancestor use the static `@theme` values from build time.
-
-```ts
-dynamicSelector: '.dynamic'   // default
-dynamicSelector: '.my-app'
-```
-
-## Sub-themes
+`darkMode: 'class'` uses `darkSelector` on an ancestor. `darkMode: 'media'`
+uses `prefers-color-scheme: dark` instead. The dynamic selector scopes CSS
+variables that can be updated at runtime by React's `ThemeProvider`.
 
 ### `subThemes`
 
-Define named color variants that can be applied to any element via `.theme-{name}`:
+Defines named themes activated with `.theme-{name}`. A hex value is the usual
+form; the plugin uses its hue while keeping the main theme's visual structure:
 
 ```ts
-subThemes: {
-  ocean: '#006699',
-  forest: '#2E7D32',
-}
+export default defineConfig({
+  sourceColor: '#6750A4',
+  subThemes: {
+    ocean: '#006699',
+    forest: '#2E7D32',
+  },
+});
+```
 
-Only the **hue** of each value is used — the chroma and tone always come from
-`sourceColor`, so every sub-theme stays in step with the rest. A `Color` or a
-bare hue number works as well as a hex string:
+See [Sub-themes](/theme/sub-themes) for the generated selectors and nesting.
+
+### `responsiveBreakPoints`
+
+Adds responsive breakpoints to the generated Tailwind CSS:
 
 ```ts
-import { Color } from '@udixio/theme';
-
-const sourceColor = Color.from({ hue: 280, chroma: 45, tone: 75 });
-
-subThemes: {
-  blue: sourceColor,
-  green: sourceColor.withHue(155),
-  cyan: 205,
-}
+export default defineConfig({
+  sourceColor: '#6750A4',
+  responsiveBreakPoints: {
+    tablet: 768,
+    '3xl': 1920,
+  },
+});
 ```
 
-```html
-<section class="theme-ocean">
-  <button class="bg-primary text-on-primary">Ocean button</button>
-</section>
-```
+### `resetColors`
 
-See [Sub-themes](/theme/sub-themes) for the full feature reference.
+Defaults to `true` and removes Tailwind's default color namespace before the
+theme colors are emitted. Set it to `false` to keep utilities such as
+`red-500` alongside the Udixio tokens.
+
+### `outFile`
+
+Controls where the Node/CLI build writes the generated CSS. Relative paths are
+resolved from the current working directory. The default is
+`udixio.generated.css`.
 
 ## Typography options
 
 ### `fontFamily`
 
-Override the two conceptual font families:
+Overrides the two conceptual font families:
 
 ```ts
-fontFamily: {
-  expressive: ['Playfair Display', 'Georgia', 'serif'],  // display, headline
-  neutral: ['Inter', 'system-ui', 'sans-serif'],          // title, label, body
-}
+export default defineConfig({
+  sourceColor: '#6750A4',
+  fontFamily: {
+    expressive: ['Playfair Display', 'Georgia', 'serif'],
+    neutral: ['Inter', 'system-ui', 'sans-serif'],
+  },
+});
 ```
 
 ### `fontStyles`
 
-Fine-tune any role/size combination:
+Overrides selected role/size values while preserving the rest of the Material
+type scale:
 
 ```ts
-fontStyles: {
-  display: { large: { fontSize: 4, fontWeight: 300 } },
-  body: { large: { lineHeight: 1.75 } },
-}
+export default defineConfig({
+  sourceColor: '#6750A4',
+  fontStyles: {
+    display: {
+      large: {
+        fontSize: 4,
+        lineHeight: 4.5,
+        fontWeight: 300,
+        letterSpacing: -0.02,
+      },
+    },
+    body: {
+      large: { lineHeight: 1.75 },
+    },
+  },
+});
 ```
 
-See [Typography](/theme/typography) for the full type scale reference.
+See [Typography](/theme/typography) for the generated `text-*` utilities.

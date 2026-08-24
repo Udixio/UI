@@ -52,6 +52,10 @@ export class ColorApi {
     });
   }
 
+  get version(): number {
+    return this.colorManager.version;
+  }
+
   getAll() {
     return this.colorManager.getAll();
   }

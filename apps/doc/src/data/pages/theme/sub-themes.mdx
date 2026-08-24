@@ -10,10 +10,11 @@ Sub-themes let you apply a different color palette to any section of your page �
 ## Setup
 
 ```ts
+// theme.config.ts
 import { defineConfig } from '@udixio/tailwind';
 
-export const config = defineConfig({
-  sourceColor: '#6750A4',   // purple — main theme
+export default defineConfig({
+  sourceColor: '#6750A4', // purple — main theme
   darkMode: 'class',
   darkSelector: '.dark',
   subThemes: {
@@ -70,9 +71,9 @@ For each sub-theme, the plugin generates a scoped block:
 @layer theme {
   .dynamic.theme-ocean,
   .dynamic .theme-ocean {
-    --color-primary: #006E99;
-    --color-on-primary: #FFFFFF;
-    --color-surface: #F5FAFE;
+    --color-primary: #006e99;
+    --color-on-primary: #ffffff;
+    --color-surface: #f5fafe;
     /* … all tokens */
   }
 }
@@ -82,8 +83,8 @@ For each sub-theme, the plugin generates a scoped block:
   .dark .dynamic.theme-ocean,
   .dark .dynamic .theme-ocean,
   .dark.dynamic .theme-ocean {
-    --color-primary: #65D3FF;
-    --color-surface: #001E2B;
+    --color-primary: #65d3ff;
+    --color-surface: #001e2b;
     /* … */
   }
 }
@@ -138,12 +139,17 @@ subThemes: {
 ### Side-by-side theme preview
 
 ```tsx
-{Object.keys(config.subThemes).map(name => (
-  <div key={name} className={`theme-${name} bg-surface-container p-4 rounded-xl`}>
-    <div className="bg-primary h-8 rounded" />
-    <p className="text-on-surface text-body-sm mt-2">{name}</p>
-  </div>
-))}
+{
+  Object.keys(config.subThemes).map((name) => (
+    <div
+      key={name}
+      className={`theme-${name} bg-surface-container p-4 rounded-xl`}
+    >
+      <div className="bg-primary h-8 rounded" />
+      <p className="text-on-surface text-body-sm mt-2">{name}</p>
+    </div>
+  ));
+}
 ```
 
 ## Dark mode compatibility

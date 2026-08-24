@@ -1,6 +1,6 @@
 ---
 title: TailwindPlugin internals
-description: TailwindPlugin reference — CSS generation, .dynamic selector mechanism, darkMode, responsiveBreakPoints, styleFilePath.
+description: TailwindPlugin reference — CSS generation, .dynamic selector mechanism, darkMode, responsiveBreakPoints and outFile.
 ---
 
 # TailwindPlugin
@@ -12,12 +12,15 @@ When using `defineConfig` from `@udixio/tailwind`, `TailwindPlugin` is wired aut
 ## Direct instantiation
 
 ```ts
-import { loader } from '@udixio/theme';
+import { FontPlugin, loader } from '@udixio/theme';
 import { TailwindPlugin } from '@udixio/tailwind';
 
 const api = await loader({
   sourceColor: '#6750A4',
-  plugins: [new TailwindPlugin({ darkMode: 'class', darkSelector: '.dark' })],
+  plugins: [
+    new FontPlugin(),
+    new TailwindPlugin({ darkMode: 'class', darkSelector: '.dark' }),
+  ],
 });
 await api.load();
 
@@ -26,14 +29,16 @@ const css = api.plugins.getPlugin(TailwindPlugin).getInstance().outputCss;
 
 ## Options reference
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `darkMode` | `'class' \| 'media'` | `'class'` | Dark mode strategy |
-| `darkSelector` | `string` | `'.dark'` | CSS class/selector that activates dark mode |
-| `dynamicSelector` | `string` | `'.dynamic'` | Selector that receives live CSS variables |
-| `subThemes` | `Record<string, string>` | — | Named color variants (see [Sub-themes](/theme/sub-themes)) |
-| `responsiveBreakPoints` | `Record<string, number>` | `{ lg: 1.125 }` | Additional Tailwind breakpoints |
-| `styleFilePath` | `string` | — | Path to an existing CSS file (node/build mode) |
+| Option                  | Type                                        | Default                | Description                                                           |
+| ----------------------- | ------------------------------------------- | ---------------------- | --------------------------------------------------------------------- |
+| `darkMode`              | `'class' \| 'media'`                        | `'class'`              | Dark mode strategy                                                    |
+| `darkSelector`          | `string`                                    | `'.dark'`              | CSS class/selector that activates dark mode                           |
+| `dynamicSelector`       | `string`                                    | `'.dynamic'`           | Selector that receives live CSS variables                             |
+| `subThemes`             | `Record<string, string \| Color \| number>` | —                      | Named color variants (see [Sub-themes](/theme/sub-themes))            |
+| `responsiveBreakPoints` | `Record<string, number>`                    | `{ lg: 1.125 }`        | Additional Tailwind breakpoints                                       |
+| `outFile`               | `string`                                    | `udixio.generated.css` | Output path for the generated stylesheet in Node/CLI mode             |
+| `resetColors`           | `boolean`                                   | `true`                 | Reset Tailwind's default color namespace before emitting theme colors |
+| `ssr`                   | `boolean`                                   | `false`                | Emit browser-compatible CSS without filesystem writes                 |
 
 ## CSS structure
 
@@ -42,16 +47,16 @@ The plugin generates three distinct blocks on every `api.load()`:
 ```css
 /* 1. Static — Tailwind build-time values */
 @theme {
-  --color-primary: #6750A4;
-  --color-surface: #FFFBFE;
+  --color-primary: #6750a4;
+  --color-surface: #fffbfe;
   /* … all tokens */
 }
 
 /* 2. Dynamic light — runtime, scoped to .dynamic */
 @layer theme {
   .dynamic {
-    --color-primary: #6750A4;
-    --color-surface: #FFFBFE;
+    --color-primary: #6750a4;
+    --color-surface: #fffbfe;
   }
 }
 
@@ -59,8 +64,8 @@ The plugin generates three distinct blocks on every `api.load()`:
 @layer theme {
   .dark .dynamic,
   .dark.dynamic {
-    --color-primary: #D0BCFF;
-    --color-surface: #1C1B1F;
+    --color-primary: #d0bcff;
+    --color-surface: #1c1b1f;
   }
 }
 ```
@@ -72,7 +77,7 @@ For `darkMode: 'media'`, block 3 uses `@media (prefers-color-scheme: dark)` inst
 The dynamic selector is the scope boundary for runtime updates. Only elements inside `.dynamic` (or whatever value you configure) receive live variable updates when `ThemeProvider` reinjects the `<style>` tag.
 
 ```ts
-new TailwindPlugin({ dynamicSelector: '.my-app' })
+new TailwindPlugin({ dynamicSelector: '.my-app' });
 ```
 
 ```html
@@ -93,17 +98,19 @@ new TailwindPlugin({
     '3xl': 1920,
     tablet: 768,
   },
-})
+});
 ```
 
-## `styleFilePath`
+## `outFile`
 
-In non-browser environments (Vite plugin, build script), you can point `TailwindPlugin` at an existing CSS file. The plugin appends the generated blocks to that file:
+In non-browser environments, `outFile` controls where the generated stylesheet is
+written. Relative paths are resolved from the current working directory. The
+plugin writes the generated file; it does not append to an existing stylesheet.
 
 ```ts
 new TailwindPlugin({
-  styleFilePath: './src/styles/theme.css',
-})
+  outFile: './src/styles/udixio.generated.css',
+});
 ```
 
 ## Accessing output from `onLoad`

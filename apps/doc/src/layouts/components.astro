@@ -109,12 +109,14 @@ const componentSections: NavSection[] = Object.entries(
       <div class="p-8">
         <slot name="header" />
       </div>
-      <ComponentNavigation
-        client:load
-        transition:name="component-navigation"
-        transition:persist
-        componentApi={componentApi}
-      />
+      <div data-pagefind-ignore>
+        <ComponentNavigation
+          client:load
+          transition:name="component-navigation"
+          transition:persist
+          componentApi={componentApi}
+        />
+      </div>
     </Card>
     <ComponentDocumentationNotes
       client:load

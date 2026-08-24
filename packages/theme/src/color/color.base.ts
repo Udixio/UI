@@ -47,6 +47,16 @@ type ResolutionState = {
   resolvedArgb?: number;
 };
 
+type ResolutionVersion = {
+  context: number;
+  palettes: number;
+  colors: number;
+};
+
+type ResolutionCache = ResolutionVersion & {
+  state: ResolutionState;
+};
+
 type AppliedTransforms = {
   color: Color;
   deferredAfterTransforms: ColorTransform[];
@@ -81,6 +91,8 @@ export class Color {
     private readonly phase: ResolutionPhase = 'before',
     private readonly toneOverride?: number,
   ) {}
+
+  private resolutionCache?: ResolutionCache;
 
   /** Construit une couleur figée à partir de coordonnées HCT. */
   static from({ hue, chroma, tone }: ColorValue): Color {
@@ -290,6 +302,11 @@ export class Color {
   }
 
   private resolve(): ResolutionState {
+    const initialVersion = this.getResolutionVersion();
+    if (initialVersion && this.isCachedFor(initialVersion)) {
+      return this.resolutionCache!.state;
+    }
+
     let state = this.resolveBase();
 
     // Une personnalisation classique intervient sur la couleur de base. Pour
@@ -341,11 +358,37 @@ export class Color {
       ...this.afterTransforms,
     ]);
 
-    return {
+    const resolved = {
       ...state,
       color: after.color,
       resolvedArgb,
     };
+
+    const finalVersion = this.getResolutionVersion();
+    if (finalVersion) {
+      this.resolutionCache = { ...finalVersion, state: resolved };
+    }
+
+    return resolved;
+  }
+
+  private getResolutionVersion(): ResolutionVersion | undefined {
+    if (!this.api) return undefined;
+    return {
+      context: this.api.context.version,
+      palettes: this.api.palettes.version,
+      colors: this.api.colors.version,
+    };
+  }
+
+  private isCachedFor(version: ResolutionVersion): boolean {
+    const cache = this.resolutionCache;
+    return (
+      cache !== undefined &&
+      cache.context === version.context &&
+      cache.palettes === version.palettes &&
+      cache.colors === version.colors
+    );
   }
 
   get argb(): number {

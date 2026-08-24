@@ -1,107 +1,134 @@
 ---
 title: Theme — Introduction
-description: Set up dynamic theming in a React app with ThemeProvider and defineConfig in under 5 minutes.
+description: Configure the shared theme.config.ts used by React and Angular applications.
 ---
 
 # Theme
 
-Udixio's theme system generates a complete set of color and typography tokens from a single source color. Drop in `ThemeProvider`, call `defineConfig`, and every component on your page adapts automatically.
+Udixio's theme starts with one shared `theme.config.ts` file. React and Angular
+use the same configuration contract: a source color is converted into color,
+typography and state tokens, then emitted as a stylesheet for Tailwind CSS.
 
-## Installation
+## Packages
+
+The responsibilities are deliberately separated:
+
+- `@udixio/tailwind` exposes `defineConfig` and `TailwindPlugin`.
+- `@udixio/theme` contains the color engine, palettes, variants, loader and
+  build integrations.
+- `@udixio/ui-react` and `@udixio/ui-angular` provide the framework components.
+
+Install the shared theme packages in either application:
 
 ```bash
-npm install @udixio/ui-react @udixio/theme @udixio/tailwind
+npm install @udixio/theme @udixio/tailwind
 ```
 
-The theming API is split by responsibility: import framework-agnostic configuration helpers such as `defineConfig` from `@udixio/tailwind`, and React runtime components such as `ThemeProvider` from `@udixio/ui-react`. `@udixio/theme` carries the generator that turns your config into CSS, which you wire into your build (`vitePlugin` and friends). See [Get started — React](/get-started/react) for the full build setup this page assumes.
+Then install the component package for your framework:
 
-## Quick setup
+```bash
+# React
+npm install @udixio/ui-react
 
-```tsx
+# Angular
+npm install @udixio/ui-angular
+```
+
+See [Get started — React](/get-started/react) or [Get started — Angular](/get-started/angular) for the build integration.
+
+## The shared `theme.config.ts`
+
+Create this file at the root of the project. The content is the same for
+React and Angular:
+
+```ts
 // theme.config.ts
 import { defineConfig } from '@udixio/tailwind';
+import { Variants } from '@udixio/theme';
 
-export const themeConfig = defineConfig({
+export default defineConfig({
   sourceColor: '#6750A4',
+  variant: Variants.Udixio,
+  contrastLevel: 0,
+
   darkMode: 'class',
   darkSelector: '.dark',
+
+  palettes: {
+    brand: '#FF5722',
+  },
+
+  colors: {
+    highlight: '#FFB300',
+  },
+
+  fontFamily: {
+    expressive: ['Playfair Display', 'Georgia', 'serif'],
+    neutral: ['Inter', 'system-ui', 'sans-serif'],
+  },
 });
 ```
 
-```tsx
-// App.tsx (or your root layout)
-import { ThemeProvider } from '@udixio/ui-react';
-import { themeConfig } from './theme.config';
+`defineConfig` combines the core theme options with the Tailwind and
+typography options. It also wires `TailwindPlugin` and `FontPlugin`, so an
+application normally does not instantiate those plugins itself.
 
-export default function App() {
+## Build output
+
+The Node/CLI build writes `udixio.generated.css` by default. Configure the
+path when the stylesheet belongs in a specific source directory:
+
+```ts
+// theme.config.ts
+import { defineConfig } from '@udixio/tailwind';
+
+export default defineConfig({
+  sourceColor: '#6750A4',
+  outFile: 'src/styles/udixio.generated.css',
+});
+```
+
+The React and Angular guides use different build commands, but both consume
+this same generated stylesheet:
+
+| Framework | Build integration                               | Runtime requirement                                                 |
+| --------- | ----------------------------------------------- | ------------------------------------------------------------------- |
+| React     | `vitePlugin` or another bundler plugin          | No provider for static themes; `ThemeProvider` for live web changes |
+| Angular   | `udixio-theme` CLI or a compatible build plugin | No runtime provider is required for generated CSS                   |
+
+## Dynamic themes on the web (React)
+
+For a static light/dark theme, the generated CSS is enough. On the web, a
+React application can additionally use `ThemeProvider` when it must regenerate
+the dynamic layer after changing the theme configuration at runtime:
+
+```tsx
+import { ThemeProvider } from '@udixio/ui-react';
+import themeConfig from './theme.config';
+
+export function App() {
   return (
-    <body className="dynamic dark">
+    <div className="dynamic">
       <ThemeProvider config={themeConfig} />
-      {/* rest of your app */}
-    </body>
+      {/* application */}
+    </div>
   );
 }
 ```
 
-That's it. Every element inside `.dynamic` now inherits live color variables. Removing `.dark` switches to light mode.
-
-## What `ThemeProvider` does
-
-`ThemeProvider` renders a single `<style>` tag. It recalculates and reinjects that tag whenever `config` changes — the rest of the DOM is untouched.
-
-The CSS it generates has two layers:
-
-```css
-/* Static layer — used by Tailwind at build time */
-@theme {
-  --color-primary: #6750A4;
-  --color-surface: #FFFBFE;
-  /* … all tokens */
-}
-
-/* Dynamic layer — updated at runtime, scoped to .dynamic */
-@layer theme {
-  .dynamic { --color-primary: #6750A4; /* … */ }
-  .dark .dynamic { --color-primary: #D0BCFF; /* … */ }
-}
-```
-
-## What `defineConfig` does
-
-`defineConfig` is a thin wrapper that:
-- Sets `Variants.Udixio` as the default variant
-- Wires `TailwindPlugin` and `FontPlugin` automatically with the options you pass
-- Merges `TailwindPluginOptions` and `FontPluginOptions` into a **flat** config object
-
-It lives in `@udixio/tailwind` — the lowest package that can see both plugins — and is framework-agnostic. `@udixio/ui-react` re-exports it, so React examples on this site import it from either package interchangeably; Angular imports it from `@udixio/tailwind`.
-
-You never instantiate plugins manually — just pass their options directly:
-
-```ts
-defineConfig({
-  sourceColor: '#6750A4',
-
-  // TailwindPlugin options — flat
-  darkMode: 'class',
-  darkSelector: '.dark',
-  subThemes: { ocean: '#006699' },
-
-  // FontPlugin options — flat
-  fontFamily: {
-    expressive: ['Playfair Display', 'serif'],
-    neutral: ['Inter', 'sans-serif'],
-  },
-})
-```
+`ThemeProvider` is a React runtime adapter; it is not part of the shared
+configuration contract and is not needed by Angular to consume the generated
+stylesheet. It does not toggle the `.dark` selector itself: your application
+still controls that class or uses `darkMode: 'media'`.
 
 ## Next steps
 
-| Page | What you'll learn |
-|------|-------------------|
-| [Configuration](/theme/configuration) | All `defineConfig` options |
-| [Colors & Surfaces](/theme/colors) | Tailwind classes for color tokens |
-| [Dark mode](/theme/dark-mode) | Strategies, `.dynamic`, runtime toggle |
-| [Sub-themes](/theme/sub-themes) | Multiple color schemes on one page |
-| [Typography](/theme/typography) | `text-display-lg`, font family setup |
-| [Variants](/theme/variants) | Change the visual flavor |
-| [Custom palettes](/theme/palettes) | Add brand colors |
+| Page                                  | What you'll learn                            |
+| ------------------------------------- | -------------------------------------------- |
+| [Configuration](/theme/configuration) | All `defineConfig` options                   |
+| [Colors & Surfaces](/theme/colors)    | Tailwind classes and semantic color tokens   |
+| [Dark mode](/theme/dark-mode)         | Class/media strategies and runtime web usage |
+| [Sub-themes](/theme/sub-themes)       | Multiple color schemes on one page           |
+| [Typography](/theme/typography)       | `text-display-lg`, font family setup         |
+| [Variants](/theme/variants)           | Change the visual flavor                     |
+| [Custom palettes](/theme/palettes)    | Add brand colors                             |

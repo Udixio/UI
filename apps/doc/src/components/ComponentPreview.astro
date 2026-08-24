@@ -16,6 +16,7 @@ import {
   NavigationRail,
   NavigationRailItem,
   ProgressIndicator,
+  Search,
   SideSheet,
   Slider,
   Snackbar,
@@ -45,7 +46,7 @@ type PreviewProps = {
 const { id } = Astro.props as PreviewProps;
 ---
 
-<div class="w-full flex items-center justify-center gap-4 pointer-events-none">
+<div data-pagefind-ignore class="w-full flex items-center justify-center gap-4 pointer-events-none">
   {
     id === 'button' && (
       <div class="flex flex-wrap gap-2">
@@ -156,6 +157,7 @@ const { id } = Astro.props as PreviewProps;
     )
   }
   {id === 'slider' && <Slider value={70} onChange={() => {}} />}
+  {id === 'search' && <Search label="Search" />}
   {id === 'snackbar' && <Snackbar message="Message sent" />}
   {id === 'switch' && <Switch selected />}
   {
@@ -224,6 +226,7 @@ const { id } = Astro.props as PreviewProps;
       id === 'progress-indicator' ||
       id === 'side-sheet' ||
       id === 'slider' ||
+      id === 'search' ||
       id === 'snackbar' ||
       id === 'switch' ||
       id === 'tabs' ||

@@ -18,6 +18,10 @@ function isValidHexColor(hexColorString: string) {
   return regex.test(hexColorString);
 }
 
+type ThemeChange = Partial<ContextOptions> & {
+  palettes?: ConfigInterface['palettes'];
+};
+
 export const ThemeProvider = ({
   config,
   throttleDelay = 100,
@@ -39,13 +43,37 @@ export const ThemeProvider = ({
 
   const workerRef = useRef<Worker | null>(null);
   const generationRef = useRef(0);
+  const changeGenerationRef = useRef(0);
   const lastAppliedIdRef = useRef(0);
   const themeApiRef = useRef<API | null>(null);
   const firstLoadDoneRef = useRef(false);
+  const previousConfigRef = useRef<Readonly<ConfigInterface> | null>(null);
   const onLoadRef = useRef(onLoad);
   useEffect(() => {
     onLoadRef.current = onLoad;
   }, [onLoad]);
+
+  const loadThemeOnMainThread = async (api: API, changeGeneration: number) => {
+    await api.load();
+    if (changeGeneration !== changeGenerationRef.current) return;
+
+    const css = api.plugins.getPlugin(TailwindPlugin).getInstance().outputCss;
+    setOutputCss(css);
+    firstLoadDoneRef.current = true;
+    onLoadRef.current?.(api);
+  };
+
+  const handleWorkerFailure = () => {
+    const api = themeApiRef.current;
+    if (!api) return;
+
+    workerRef.current?.terminate();
+    workerRef.current = null;
+    firstLoadDoneRef.current = false;
+
+    const changeGeneration = ++changeGenerationRef.current;
+    void loadThemeOnMainThread(api, changeGeneration);
+  };
 
   // Initialisation de l'API et du Worker
   useEffect(() => {
@@ -58,13 +86,19 @@ export const ThemeProvider = ({
       themeApiRef.current = api;
       setThemeApi(api);
 
-      const worker = new Worker(
-        new URL('./theme.worker.ts', import.meta.url),
-        { type: 'module' },
-      );
+      const worker = new Worker(new URL('./theme.worker.ts', import.meta.url), {
+        type: 'module',
+      });
       workerRef.current = worker;
 
       worker.onmessage = (e: MessageEvent<WorkerOutboundMessage>) => {
+        if (e.data.id < generationRef.current) return;
+        if (e.data.error) {
+          handleWorkerFailure();
+          return;
+        }
+        if (!e.data.css) return;
+
         if (e.data.id > lastAppliedIdRef.current) {
           lastAppliedIdRef.current = e.data.id;
           firstLoadDoneRef.current = true;
@@ -72,6 +106,8 @@ export const ThemeProvider = ({
           onLoadRef.current?.(themeApiRef.current!);
         }
       };
+      worker.onerror = handleWorkerFailure;
+      worker.onmessageerror = handleWorkerFailure;
     })();
 
     return () => {
@@ -84,20 +120,49 @@ export const ThemeProvider = ({
   // Throttle avec exécution en tête (leading) et en fin (trailing)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastExecTimeRef = useRef<number>(0);
-  const lastArgsRef = useRef<Partial<ContextOptions> | null>(null);
+  const lastArgsRef = useRef<ThemeChange | null>(null);
 
   useEffect(() => {
     if (!themeApi) return;
 
-    const ctx: Partial<ContextOptions> = {
-      ...config,
-      sourceColor: config.sourceColor,
-    };
+    const previousConfig = previousConfigRef.current;
+    const contextArgs: Partial<ContextOptions> = {};
+
+    if (!previousConfig || previousConfig.sourceColor !== config.sourceColor) {
+      contextArgs.sourceColor = config.sourceColor;
+    }
+    if (
+      config.contrastLevel !== undefined &&
+      (!previousConfig || previousConfig.contrastLevel !== config.contrastLevel)
+    ) {
+      contextArgs.contrastLevel = config.contrastLevel;
+    }
+    if (
+      config.isDark !== undefined &&
+      (!previousConfig || previousConfig.isDark !== config.isDark)
+    ) {
+      contextArgs.isDark = config.isDark;
+    }
+    if (
+      config.variant !== undefined &&
+      (!previousConfig || previousConfig.variant !== config.variant)
+    ) {
+      contextArgs.variant = config.variant;
+    }
+
+    const palettesChanged =
+      !previousConfig || previousConfig.palettes !== config.palettes;
+    const ctx: ThemeChange = palettesChanged
+      ? { ...contextArgs, palettes: config.palettes }
+      : contextArgs;
+
+    previousConfigRef.current = config;
+    if (Object.keys(ctx).length === 0) return;
 
     const now = Date.now();
     const timeSinceLast = now - lastExecTimeRef.current;
 
-    const invoke = async (args: Partial<ContextOptions>) => {
+    const invoke = async (args: ThemeChange) => {
       await applyThemeChange(args);
     };
 
@@ -106,11 +171,19 @@ export const ThemeProvider = ({
         clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
       }
+      const pendingArgs = lastArgsRef.current;
       lastArgsRef.current = null;
       lastExecTimeRef.current = now;
-      void invoke(ctx);
+      void invoke(pendingArgs ? { ...pendingArgs, ...ctx } : ctx);
     } else {
-      lastArgsRef.current = ctx;
+      // Plusieurs changements de configuration peuvent arriver pendant le
+      // délai : chaque événement ne contient que ses champs modifiés, il faut
+      // donc les fusionner pour ne pas perdre un override de palette lorsque
+      // le champ source change juste après.
+      lastArgsRef.current = {
+        ...(lastArgsRef.current ?? {}),
+        ...ctx,
+      };
       if (!timeoutRef.current) {
         const remaining = Math.max(0, throttleDelay - timeSinceLast);
         timeoutRef.current = setTimeout(async () => {
@@ -128,27 +201,32 @@ export const ThemeProvider = ({
     return () => {};
   }, [config, throttleDelay, themeApi]);
 
-  const applyThemeChange = async (ctx: Partial<ContextOptions>) => {
-    if (typeof ctx.sourceColor === 'string' && !isValidHexColor(ctx.sourceColor)) {
+  const applyThemeChange = async (ctx: ThemeChange) => {
+    if (
+      typeof ctx.sourceColor === 'string' &&
+      !isValidHexColor(ctx.sourceColor)
+    ) {
       throw new Error('Invalid hex color');
     }
 
     const api = themeApiRef.current;
     if (!api) return;
 
+    const changeGeneration = ++changeGenerationRef.current;
+
+    const { palettes, ...contextArgs } = ctx;
+
     // Toujours évaluer sur le main thread (rapide)
-    api.context.update(ctx);
-    api.palettes.sync((ctx as any).palettes);
+    api.context.update(contextArgs);
+    if ('palettes' in ctx) {
+      api.palettes.sync(palettes);
+    }
 
     const worker = workerRef.current;
 
     // Fallback synchrone : premier rendu ou Worker pas encore prêt
     if (!worker || !firstLoadDoneRef.current) {
-      await api.load();
-      const css = api.plugins.getPlugin(TailwindPlugin).getInstance().outputCss;
-      setOutputCss(css);
-      firstLoadDoneRef.current = true;
-      onLoad?.(api);
+      await loadThemeOnMainThread(api, changeGeneration);
       return;
     }
 

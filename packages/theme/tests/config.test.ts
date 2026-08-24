@@ -89,6 +89,63 @@ describe('theme configuration', () => {
     );
   });
 
+  it('invalidates dynamic colors when a palette is overridden', async () => {
+    const api = await loader(
+      defineConfig({
+        sourceColor: '#6750A4',
+        palettes: { accent: '#E91E63' },
+        colors: {
+          highlight: Color.fromPalette('accent', { tone: () => 50 }),
+        },
+      }),
+      false,
+    );
+    const highlight = api.colors.get('highlight');
+    const before = highlight.hex;
+
+    api.palettes.override({ accent: Color.fromHex('#00A896') });
+
+    expect(highlight.hex).not.toBe(before);
+  });
+
+  it('invalidates generated variant colors when the source changes', async () => {
+    const api = await loader(defineConfig({ sourceColor: '#6750A4' }), false);
+    const primary = api.colors.get('primary');
+    const primaryPalette = api.palettes.get('primary');
+    const before = primary.hex;
+
+    api.context.update({ sourceColor: '#B3261E' });
+
+    expect(primaryPalette.hue).not.toBeCloseTo(Color.fromHex('#6750A4').hue, 0);
+    expect(primary.hex).not.toBe(before);
+  });
+
+  it('keeps a variant palette current while an override hides it', async () => {
+    const greenSource = '#A7D292';
+    const redSource = '#FFB3AA';
+    const blueOverride = '#9CCAFB';
+    const api = await loader(
+      defineConfig({
+        sourceColor: greenSource,
+        palettes: { primary: blueOverride },
+      }),
+      false,
+    );
+
+    expect(api.palettes.get('primary').hue).toBeCloseTo(
+      Color.fromHex(blueOverride).hue,
+      0,
+    );
+
+    api.context.update({ sourceColor: redSource });
+    api.palettes.sync(undefined);
+
+    expect(api.palettes.get('primary').hue).toBeCloseTo(
+      Color.fromHex(redSource).hue,
+      0,
+    );
+  });
+
   it('modifies an existing dynamic color without freezing its source', async () => {
     const api = await loader(
       defineConfig({

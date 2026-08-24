@@ -233,6 +233,33 @@
             "name": "(raw: string) => string"
           },
           "defaultValue": null
+        },
+        "min": {
+          "name": "min",
+          "description": "Native lower bound forwarded to the underlying input.",
+          "required": false,
+          "type": {
+            "name": "string | number"
+          },
+          "defaultValue": null
+        },
+        "max": {
+          "name": "max",
+          "description": "Native upper bound forwarded to the underlying input.",
+          "required": false,
+          "type": {
+            "name": "string | number"
+          },
+          "defaultValue": null
+        },
+        "step": {
+          "name": "step",
+          "description": "Native increment forwarded to the underlying input.",
+          "required": false,
+          "type": {
+            "name": "string | number"
+          },
+          "defaultValue": null
         }
       }
     },
@@ -272,7 +299,7 @@
           "description": "Native input kind, or a UI mode: `'date'` opens a date picker and\n`'select'` opens a menu of `options`.",
           "required": false,
           "type": {
-            "name": "\"number\" | \"text\" | \"date\" | \"password\" | \"email\" | \"tel\" | \"url\" | \"select\""
+            "name": "\"number\" | \"text\" | \"date\" | \"tel\" | \"url\" | \"email\" | \"password\" | \"select\""
           },
           "defaultValue": {
             "value": "'text'"

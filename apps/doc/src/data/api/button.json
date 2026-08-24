@@ -15,15 +15,6 @@
       },
       "methods": [],
       "props": {
-        "transition": {
-          "name": "transition",
-          "description": "Motion transition shared by every framework for shape changes.",
-          "required": false,
-          "type": {
-            "name": "Transition"
-          },
-          "defaultValue": null
-        },
         "icon": {
           "name": "icon",
           "description": "An optional icon to display in the button (agnostic Icon data).",
@@ -38,7 +29,7 @@
           "description": "The HTML button type attribute. Only applies when rendered as `<button>`.",
           "required": false,
           "type": {
-            "name": "\"button\" | \"submit\" | \"reset\""
+            "name": "\"button\" | \"reset\" | \"submit\""
           },
           "defaultValue": {
             "value": "'button'"
@@ -60,7 +51,7 @@
           "description": "Visual size; every option retains a 48px touch target.",
           "required": false,
           "type": {
-            "name": "\"xSmall\" | \"small\" | \"medium\" | \"large\" | \"xLarge\""
+            "name": "\"small\" | \"xSmall\" | \"medium\" | \"large\" | \"xLarge\""
           },
           "defaultValue": {
             "value": "'medium'"
@@ -96,7 +87,7 @@
             "name": "boolean"
           },
           "defaultValue": {
-            "value": "true"
+            "value": "false"
           }
         },
         "loading": {
@@ -115,7 +106,7 @@
           "description": "The shape of the button defines whether it is squared or rounded.",
           "required": false,
           "type": {
-            "name": "\"squared\" | \"rounded\""
+            "name": "\"rounded\" | \"squared\""
           },
           "defaultValue": {
             "value": "'rounded'"
@@ -131,6 +122,15 @@
           "defaultValue": {
             "value": "'morph'"
           }
+        },
+        "transition": {
+          "name": "transition",
+          "description": "Motion transition shared by every framework for shape changes.",
+          "required": false,
+          "type": {
+            "name": "Transition"
+          },
+          "defaultValue": null
         },
         "toggleable": {
           "name": "toggleable",
@@ -311,7 +311,7 @@
             "name": "boolean"
           },
           "defaultValue": {
-            "value": "true"
+            "value": "false"
           }
         },
         "loading": {

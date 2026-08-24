@@ -10,8 +10,7 @@ description: Headless theme generation with loader() — Node scripts, Vite plug
 ```ts
 import { loader } from '@udixio/theme';
 import { TailwindPlugin } from '@udixio/tailwind';
-import { FontPlugin } from '@udixio/ui-react';
-import { Variants } from '@udixio/theme';
+import { FontPlugin, Variants } from '@udixio/theme';
 
 const api = await loader({
   sourceColor: '#6750A4',
@@ -31,10 +30,10 @@ const css = api.plugins.getPlugin(TailwindPlugin).getInstance().outputCss;
 loader(config: ConfigInterface, load?: boolean): Promise<API>
 ```
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `config` | `ConfigInterface` | — | Theme configuration |
-| `load` | `boolean` | `true` | Call `api.load()` immediately after initialization |
+| Parameter | Type              | Default | Description                                        |
+| --------- | ----------------- | ------- | -------------------------------------------------- |
+| `config`  | `ConfigInterface` | —       | Theme configuration                                |
+| `load`    | `boolean`         | `true`  | Call `api.load()` immediately after initialization |
 
 Pass `load: false` to initialize without running the first computation — useful when you want to set up listeners before the first load.
 
@@ -73,12 +72,12 @@ await api.load();
 
 ### Context properties
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `sourceColor` | `string \| Color \| (ctx) => string \| Color` | Drives all palette generation |
-| `isDark` | `boolean` | Current dark/light state |
-| `contrastLevel` | `number` | −1 to +1 |
-| `variant` | `Variant` | Palette derivation algorithm |
+| Property        | Type                                          | Description                   |
+| --------------- | --------------------------------------------- | ----------------------------- |
+| `sourceColor`   | `string \| Color \| (ctx) => string \| Color` | Drives all palette generation |
+| `isDark`        | `boolean`                                     | Current dark/light state      |
+| `contrastLevel` | `number`                                      | −1 to +1                      |
+| `variant`       | `Variant`                                     | Palette derivation algorithm  |
 
 ## Generating CSS in a Vite plugin
 
@@ -86,7 +85,7 @@ await api.load();
 // vite-plugin-theme.ts
 import { loader } from '@udixio/theme';
 import { TailwindPlugin } from '@udixio/tailwind';
-import { FontPlugin } from '@udixio/ui-react';
+import { FontPlugin } from '@udixio/theme';
 import fs from 'node:fs';
 
 export function themePlugin() {
@@ -111,7 +110,7 @@ export function themePlugin() {
 
 ```ts
 const api = await loader({
-  sourceColor: (ctx) => ctx.isDark ? '#A08EC4' : '#6750A4',
+  sourceColor: (ctx) => (ctx.isDark ? '#A08EC4' : '#6750A4'),
   // …
 });
 
@@ -121,10 +120,11 @@ await api.load(); // sourceColor re-evaluates → dark palette
 
 ## Node entrypoint
 
-`@udixio/theme` ships a dedicated Node build that avoids browser-only globals:
+`@udixio/theme` selects its Node entry automatically in Node-based tooling:
 
 ```ts
-import { loader } from '@udixio/theme/node';
+import { loader } from '@udixio/theme';
 ```
 
-Use this in scripts that run outside a browser environment.
+Use this in scripts that run outside a browser environment; the package's
+Node export is selected by the runtime.

@@ -13,6 +13,10 @@ export class PaletteApi {
     this.paletteManager = paletteManager;
   }
 
+  get version(): number {
+    return this.paletteManager.version;
+  }
+
   add(args: PaletteOptions): void {
     Object.entries(args).forEach(([key, value]) => {
       if (typeof value === 'string') {

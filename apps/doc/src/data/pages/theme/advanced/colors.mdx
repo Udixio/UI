@@ -38,21 +38,24 @@ for (const [key, color] of api.colors.getAll()) {
 The `colors` option accepts one flat collection of values. A hex string is the
 simple static form; a `Color` can keep a dynamic relationship with a palette;
 and a callback can transform the token already supplied by the variant.
-Palette definitions are initialized by the theme engine with the current `API`
-before they are read:
+
+`ColorsConfig` is the public type exported by `@udixio/theme` through its
+configuration barrel. Most applications do not need to name that type: put
+the collection directly in `theme.config.ts` and let `defineConfig` infer it.
+The type is useful when a library exposes a reusable color layer:
 
 ```ts
-type ColorConfigRecord<Value> =
-  Record<string, Value> | ((api: API) => Record<string, Value>);
+import type { ColorsConfig } from '@udixio/theme';
 
-type ColorsConfig = ColorConfigRecord<
-  string | Color | ((current: Color) => Color)
->;
+export const reusableColors: ColorsConfig = {
+  brandOrange: '#FF5722',
+};
 ```
 
-The runtime method `api.colors.addColors()` also accepts this flat collection.
-When a value is a function, it receives the current token and is reapplied
-lazily whenever the source color changes.
+The runtime method `api.colors.addColors()` accepts the same collection. A
+top-level function receives the `API` and returns the collection; a function
+used as a token value receives the current token. Both forms are initialized
+and reapplied by the theme engine when the relevant context changes.
 
 ### A fixed color
 
@@ -62,12 +65,17 @@ api.colors.addColors({
 });
 ```
 
-In `defineConfig`, the same value belongs directly under `colors`:
+In `theme.config.ts`, the same value belongs directly under `colors`:
 
 ```ts
-colors: {
-  brandOrange: '#FF5722',
-}
+import { defineConfig } from '@udixio/tailwind';
+
+export default defineConfig({
+  sourceColor: '#6750A4',
+  colors: {
+    brandOrange: '#FF5722',
+  },
+});
 ```
 
 Static — it does not follow dark mode or contrast level. `Color.fromHex(...)` is also accepted when the value is already available as a `Color`.
@@ -80,11 +88,16 @@ lazily, so the source remains dynamic across dark mode, contrast and variant
 changes:
 
 ```ts
-colors: {
-  surface: (color) =>
-    color.withTone(Math.min(100, color.tone + 2)),
-  surfaceContainer: (color) => color.scaleChroma(0.9),
-}
+// theme.config.ts
+import { defineConfig } from '@udixio/tailwind';
+
+export default defineConfig({
+  sourceColor: '#6750A4',
+  colors: {
+    surface: (color) => color.withTone(Math.min(100, color.tone + 2)),
+    surfaceContainer: (color) => color.scaleChroma(0.9),
+  },
+});
 ```
 
 `withTone`, `withHue`, `withChroma`, `rotate` and `scaleChroma` are regular
@@ -127,18 +140,28 @@ palette. The `Color` stores the recipe and resolves it with the current theme
 API:
 
 ```ts
-const highlight = Color.fromPalette('tertiary', {
-  tone: () => 70,
-  adjustTone: [contrastAgainst('surface', 3), avoidBackgroundGap()],
-});
+// theme.config.ts
+import { defineConfig } from '@udixio/tailwind';
+import {
+  Color,
+  avoidBackgroundGap,
+  contrastAgainst,
+  onColor,
+} from '@udixio/theme';
 
-const colors: ColorsConfig = {
-  highlight,
-  onHighlight: Color.fromPalette('tertiary', {
-    adjustTone: onColor('highlight', 4.5),
-  }),
-  surface: (color) => color.withTone(Math.min(100, color.tone + 2)),
-};
+export default defineConfig({
+  sourceColor: '#6750A4',
+  colors: {
+    highlight: Color.fromPalette('tertiary', {
+      tone: () => 70,
+      adjustTone: [contrastAgainst('surface', 3), avoidBackgroundGap()],
+    }),
+    onHighlight: Color.fromPalette('tertiary', {
+      adjustTone: onColor('highlight', 4.5),
+    }),
+    surface: (color) => color.withTone(Math.min(100, color.tone + 2)),
+  },
+});
 ```
 
 | Property           | Description                                                                                                                                                                                                           |
@@ -146,7 +169,7 @@ const colors: ColorsConfig = {
 | `palette`          | Source palette, providing hue and chroma. A `PaletteRef`: a key — `'neutral'` — a `Palette`, or a function of the API. Passing the palette rather than raw numbers preserves the intended chroma when the tone moves. |
 | `tone`             | The default tone. Defaults to `DEFAULT_TONE` (50).                                                                                                                                                                    |
 | `adjustTone`       | One adjuster, or a list applied in order after the default color customizations.                                                                                                                                      |
-| `chromaMultiplier` | Multiplies the palette chroma after the default color customizations. Default `1`. Read the applied result back as `color.options.chroma`.                                                                            |
+| `chromaMultiplier` | Multiplies the palette chroma after the default color customizations. Default `1`. The resolved palette parameters are available through `color.options`.                                                             |
 
 ## Tone adjusters
 
@@ -186,23 +209,29 @@ Pushes the incoming tone until it contrasts with `background`. The tone is left 
 adjustTone: contrastAgainst('surface', 4.5),
 ```
 
-`background` is a `ColorRef`: a token key, a `Color`, or a function without
-arguments when the reference depends on the current context. The function is
-evaluated lazily, so it can close over the `context` and `colors` available
-when the configuration is declared:
+`background` is a `ColorRef`: a token key, a `Color`, or a zero-argument
+function returning a `Color`. The function is evaluated lazily, so it can
+close over the `context` and `colors` available in a `colors` configuration
+callback:
 
 ```ts
-colors: ({ context, colors }) => ({
-  highlight: Color.fromPalette('tertiary', {
-    adjustTone: contrastAgainst(
-      () =>
-        context.isDark
-          ? colors.get('surfaceBright')
-          : colors.get('surfaceDim'),
-      4.5,
-    ),
+import { defineConfig } from '@udixio/tailwind';
+import { Color, contrastAgainst } from '@udixio/theme';
+
+export default defineConfig({
+  sourceColor: '#6750A4',
+  colors: ({ context, colors }) => ({
+    highlight: Color.fromPalette('tertiary', {
+      adjustTone: contrastAgainst(
+        () =>
+          context.isDark
+            ? colors.get('surfaceBright')
+            : colors.get('surfaceDim'),
+        4.5,
+      ),
+    }),
   }),
-}),
+});
 ```
 
 `contrast` is a `ContrastSpec`. A number selects one of Material's standard curves — `1.5`, `3`, `4.5`, `6`, `7`, `9`, `11`, `21`. Note it is a _curve_, not a fixed ratio: `4.5` means 4.5:1 at contrast level 0, rising to 11:1 at level 1. For anything else, build a `ContrastCurve` yourself, or pass a function when the curve depends on the context:
@@ -300,7 +329,7 @@ Color.fromPalette('brand', {
   adjustTone: [
     contrastAgainst('surface', 4.5),
     ({ context, palettes, tone }) =>
-      context.isDark ? Math.min(tone, palettes.get('brand').chroma) : tone,
+      context.isDark ? Math.min(tone, 80) : Math.max(tone, 20),
   ],
 });
 ```
@@ -320,15 +349,15 @@ adjustTone: (args) =>
 ## Example: a `highlight` pair
 
 ```ts
-import { loader } from '@udixio/theme';
 import {
+  avoidBackgroundGap,
   Color,
   contrastAgainst,
+  FontPlugin,
+  loader,
   onColor,
-  avoidBackgroundGap,
 } from '@udixio/theme';
 import { TailwindPlugin } from '@udixio/tailwind';
-import { FontPlugin } from '@udixio/ui-react';
 
 const api = await loader({
   sourceColor: '#6750A4',

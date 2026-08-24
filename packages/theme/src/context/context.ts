@@ -13,6 +13,7 @@ export interface ContextOptions {
 export class Context {
   private _options?: ContextOptions;
   private _temOptions: ContextOptions | null = null;
+  private _version = 0;
   private api?: API;
   private readonly updateCallbacks: Array<
     (changed: (keyof Context)[]) => void
@@ -92,13 +93,16 @@ export class Context {
       sourceColor: this.normalizeSourceColor(options.sourceColor),
     };
     const changed: (keyof Context)[] = [];
-    for (const key of Object.keys(normalizedOptions) as (keyof ContextOptions)[]) {
+    for (const key of Object.keys(
+      normalizedOptions,
+    ) as (keyof ContextOptions)[]) {
       changed.push(key);
     }
 
     this._options = normalizedOptions;
 
     if (changed.length > 0) {
+      this._version += 1;
       this.updateCallbacks.forEach((callback) => callback(changed));
     }
   }
@@ -109,12 +113,13 @@ export class Context {
       throw new Error('Options not found');
     }
 
-    const normalizedArgs = args.sourceColor === undefined
-      ? args
-      : {
-          ...args,
-          sourceColor: this.normalizeSourceColor(args.sourceColor),
-        };
+    const normalizedArgs =
+      args.sourceColor === undefined
+        ? args
+        : {
+            ...args,
+            sourceColor: this.normalizeSourceColor(args.sourceColor),
+          };
 
     // compute changed keys
     const changed: (keyof Context)[] = [];
@@ -131,8 +136,19 @@ export class Context {
 
     // notify listeners with changed keys (if any)
     if (changed.length > 0) {
+      this._version += 1;
       this.updateCallbacks.forEach((callback) => callback(changed));
     }
+  }
+
+  /**
+   * Version monotone utilisée par les résolutions mémoïsées.
+   *
+   * Elle change avant les callbacks afin qu'une couleur lue pendant un
+   * callback observe déjà la nouvelle génération du contexte.
+   */
+  get version(): number {
+    return this._version;
   }
 
   private getOptions(): ContextOptions {
@@ -185,13 +201,17 @@ export class Context {
 
   temp<T>(args: Partial<ContextOptions>, callback: () => T): T {
     const previousOptions = this.getOptions();
+    this._version += 1;
     this._temOptions = {
       ...previousOptions,
       ...args,
     };
-    const result = callback();
-    this._temOptions = null;
-    return result;
+    try {
+      return callback();
+    } finally {
+      this._temOptions = null;
+      this._version += 1;
+    }
   }
 
   onUpdate(callback: (changed: (keyof Context)[]) => void): void {

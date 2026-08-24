@@ -13,7 +13,7 @@ When using `defineConfig` from `@udixio/tailwind`, `FontPlugin` is wired automat
 
 ```ts
 import { loader } from '@udixio/theme';
-import { FontPlugin } from '@udixio/ui-react';
+import { FontPlugin } from '@udixio/theme';
 
 const api = await loader({
   sourceColor: '#6750A4',
@@ -50,8 +50,8 @@ new FontPlugin({
 
 ```ts
 type FontStyle = {
-  fontSize: number;       // rem
-  lineHeight: number;     // rem
+  fontSize: number; // rem
+  lineHeight: number; // rem
   fontWeight: number;
   letterSpacing?: number; // rem (optional)
   fontFamily: FontFamily; // 'expressive' | 'neutral' — auto-assigned, can be overridden
@@ -64,9 +64,9 @@ type FontStyle = {
 
 ```ts
 plugins: [
-  new FontPlugin(fontOptions),   // 1. generates typography tokens
+  new FontPlugin(fontOptions), // 1. generates typography tokens
   new TailwindPlugin(twOptions), // 2. reads tokens, generates CSS
-]
+];
 ```
 
 `defineConfig` enforces this order automatically.

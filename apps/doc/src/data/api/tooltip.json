@@ -24,6 +24,24 @@
           },
           "defaultValue": null
         },
+        "id": {
+          "name": "id",
+          "description": "Custom ID for accessibility linking. Auto-generated if not provided.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "title": {
+          "name": "title",
+          "description": "Headline of a rich tooltip.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
         "variant": {
           "name": "variant",
           "description": "`'plain'` is a small text bubble; `'rich'` is a card-like surface with title/text/actions.",
@@ -34,15 +52,6 @@
           "defaultValue": {
             "value": "'plain'"
           }
-        },
-        "title": {
-          "name": "title",
-          "description": "Headline of a rich tooltip.",
-          "required": false,
-          "type": {
-            "name": "string"
-          },
-          "defaultValue": null
         },
         "text": {
           "name": "text",
@@ -126,21 +135,21 @@
             "value": "false"
           }
         },
-        "id": {
-          "name": "id",
-          "description": "Custom ID for accessibility linking. Auto-generated if not provided.",
-          "required": false,
-          "type": {
-            "name": "string"
-          },
-          "defaultValue": null
-        },
         "transition": {
           "name": "transition",
           "description": "Anime.js opacity/scale open-close timing. Shared by every framework, no `motion/react`.",
           "required": false,
           "type": {
             "name": "TooltipTransition"
+          },
+          "defaultValue": null
+        },
+        "content": {
+          "name": "content",
+          "description": "Custom content slot that replaces title/text/buttons when provided",
+          "required": false,
+          "type": {
+            "name": "ReactNode"
           },
           "defaultValue": null
         },

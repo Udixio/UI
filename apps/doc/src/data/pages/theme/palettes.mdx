@@ -1,72 +1,108 @@
 ---
 title: Color palettes
-description: Standard palettes, overrides and custom palettes — PaletteCallback, hue, chroma.
+description: Standard palettes, overrides and custom palettes — PaletteCallback, hue and chroma.
 ---
 
 # Palettes
 
-A palette is a hue + chroma function. It generates a continuous range of tones (0–100) in HCT space. **Semantic color tokens** (surface, primary…) then pick the appropriate tone from that palette.
+A palette is a hue/chroma recipe. It generates a continuous range of tones
+(0–100) in HCT space. Semantic color tokens such as `primary` and `surface`
+then choose a tone from that palette.
 
 ## Standard palettes
 
-Each variant automatically derives these 6 palettes from `sourceColor`:
+Each built-in variant derives these five palettes from `sourceColor`:
 
-| Palette | Role |
-|---------|------|
-| `primary` | Main brand color |
-| `secondary` | Complementary accent |
-| `tertiary` | Additional accent with a stronger hue rotation |
-| `neutral` | Surfaces and backgrounds, plus borders and secondary text (via a chroma multiplier) |
-| `error` | Error states |
+| Palette     | Role                                                         |
+| ----------- | ------------------------------------------------------------ |
+| `primary`   | Main brand color                                             |
+| `secondary` | Complementary accent                                         |
+| `tertiary`  | Additional accent with a variant-specific hue transformation |
+| `neutral`   | Surfaces, backgrounds, borders and secondary text            |
+| `error`     | Error states                                                 |
+
+The standard variants choose the hue and chroma differently. Leave these
+palettes untouched when you want the selected variant to retain its intended
+relationships.
 
 ## Overriding a standard palette
 
-The `palettes` key in `ConfigInterface` accepts a `PaletteCallback` to replace the palette computed by the variant:
+The `palettes` key in `theme.config.ts` can replace a standard palette or add
+a custom one. A callback receives the current `Context` and returns a hue and
+chroma:
 
 ```ts
-palettes: {
-  primary: ({ sourceColor }) => ({
-    hue: sourceColor.hue + 30,   // hue shift
-    chroma: 60,                  // fixed saturation
-  }),
-  neutral: () => ({
-    hue: 200,   // always blue-grey neutral
-    chroma: 6,
-  }),
-}
+// theme.config.ts
+import { defineConfig } from '@udixio/tailwind';
+
+export default defineConfig({
+  sourceColor: '#6750A4',
+  palettes: {
+    primary: ({ sourceColor }) => ({
+      hue: sourceColor.hue + 30,
+      chroma: 60,
+    }),
+    neutral: () => ({
+      hue: 200,
+      chroma: 6,
+    }),
+  },
+});
 ```
+
+The callback is evaluated again when a context property it reads changes. A
+palette has no tone of its own: the tone of a `Color` returned by a callback is
+not used for palette generation.
 
 ### `PaletteCallback`
 
 ```ts
-type PaletteCallback = (context: {
-  sourceColor: Color;
-}) => { hue: number; chroma: number };
+type PaletteCallback = (context: Context) => {
+  hue: number;
+  chroma: number;
+};
 ```
 
-The callback receives the current context. It is re-evaluated on every `sourceColor` change.
+The `Context` exposes `sourceColor`, `isDark`, `contrastLevel` and
+`variant`. The callbacks used by the built-in variants are ordinary
+`PaletteCallback` values.
 
 ## Custom palettes (Udixio variant)
 
-With the `Udixio` variant, every palette added in `palettes` automatically generates a group of 4 semantic color tokens:
+With the `Udixio` variant, a palette added under a custom key automatically
+generates semantic tokens for that key:
 
 ```ts
-variant: Variants.Udixio,
-palettes: {
-  brand: '#FF5722',   // hex → converted to HCT automatically
-  info: ({ sourceColor }) => ({ hue: 220, chroma: 50 }),
-}
+// theme.config.ts
+import { defineConfig } from '@udixio/tailwind';
+import { Variants } from '@udixio/theme';
+
+export default defineConfig({
+  sourceColor: '#6750A4',
+  variant: Variants.Udixio,
+  palettes: {
+    brand: '#FF5722',
+    info: ({ sourceColor }) => ({
+      hue: sourceColor.hue + 90,
+      chroma: 50,
+    }),
+  },
+});
 ```
 
 For `brand`, the system generates:
+
 - `--color-brand` / `.bg-brand`
 - `--color-on-brand` / `.text-on-brand`
 - `--color-brand-container` / `.bg-brand-container`
 - `--color-on-brand-container` / `.text-on-brand-container`
 
+The fixed roles are generated too. See [Color tokens](/theme/colors) for the
+available token names.
+
 ## Simple palette values
 
-Configuration and runtime palette arguments accept a hex string, a `Color`, or a callback. Hex strings are the shortest form for a fixed palette:
+A fixed custom palette can be a hex string:
 
 ```ts
 palettes: {
@@ -74,7 +110,8 @@ palettes: {
 }
 ```
 
-For an advanced configuration, pass a `Color` directly. Its tone is ignored because a palette spans every tone:
+At the lower level, `Color` is also accepted as a palette input. Its tone is
+ignored because a palette spans every tone:
 
 ```ts
 import { Color } from '@udixio/theme';
@@ -84,27 +121,40 @@ palettes: {
 }
 ```
 
-The callback form remains useful when the palette depends on the current context:
+Use a callback when the palette depends on the current context:
 
 ```ts
 palettes: {
-  accent: ({ sourceColor }) => sourceColor.rotate(30),
+  accent: ({ sourceColor }) => ({
+    hue: sourceColor.hue + 30,
+    chroma: sourceColor.chroma,
+  }),
 }
 ```
+
+These snippets are fragments of the `palettes` field; place them in
+`theme.config.ts` as shown above.
 
 ## Example: two-color theme
 
 ```ts
-defineConfig({
+// theme.config.ts
+import { defineConfig } from '@udixio/tailwind';
+import { Variants } from '@udixio/theme';
+
+export default defineConfig({
   sourceColor: '#1565C0',
   variant: Variants.Udixio,
   palettes: {
-    secondary: ({ sourceColor }) => sourceColor.rotate(180),  // complementary
+    secondary: ({ sourceColor }) => ({
+      hue: sourceColor.hue + 180,
+      chroma: sourceColor.chroma,
+    }),
     accent: '#FF6D00',
   },
-})
+});
 ```
 
-## Advanced palette API
-
-For direct palette manipulation via `api.palettes.get()`, `api.palettes.sync()`, or to understand how tones are generated, see [Palettes API](/theme/advanced/palettes) in the advanced section.
+For direct palette manipulation through `api.palettes.get()`,
+`api.palettes.sync()` or `api.palettes.override()`, see
+[Palettes API](/theme/advanced/palettes).

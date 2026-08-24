@@ -52,7 +52,7 @@
             "name": "FabSize"
           },
           "defaultValue": {
-            "value": "'medium'"
+            "value": "'small'"
           }
         },
         "tooltip": {
@@ -145,7 +145,7 @@
             "name": "FabSize | undefined"
           },
           "defaultValue": {
-            "value": "'medium'"
+            "value": "'small'"
           }
         },
         "extended": {

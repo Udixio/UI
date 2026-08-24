@@ -1,8 +1,4 @@
-import {
-  type ClassNameComponent,
-  cx,
-  defaultClassNames,
-} from '../utils';
+import { type ClassNameComponent, cx, defaultClassNames } from '../utils';
 import { NavigationRailInterface } from '../interfaces/navigation-rail.interface';
 
 const navigationRailConfig: ClassNameComponent<NavigationRailInterface> = ({
@@ -21,7 +17,7 @@ const navigationRailConfig: ClassNameComponent<NavigationRailInterface> = ({
     'w-full': !isExtended,
     'w-fit  items-start': isExtended,
   }),
-  footer: cx('flex-1 max-h-[160px] flex flex-col justify-end mx-5 mb-2', {
+  footer: cx('mt-auto max-h-[160px] flex flex-col justify-end mx-5 mb-4', {
     'items-center': !isExtended,
     'items-start': isExtended,
   }),

@@ -95,10 +95,12 @@ These tokens are aliases for Material Design compatibility:
 
 ## Raw CSS variables
 
-Variables are generated as `--color-{token}` with camelCase converted to kebab-case:
+Variables are generated as `--color-{token}` with camelCase converted to
+kebab-case. The build output registers them in Tailwind's `@theme` block;
+the runtime layer scopes live values to the configured dynamic selector:
 
 ```css
-:root {
+@theme {
   --color-primary: #6750a4;
   --color-on-primary: #ffffff;
   --color-primary-container: #eaddff;
@@ -106,10 +108,18 @@ Variables are generated as `--color-{token}` with camelCase converted to kebab-c
   /* … */
 }
 
-.dark {
-  --color-primary: #d0bcff;
-  --color-on-primary: #381e72;
-  /* … */
+@layer theme {
+  .dynamic {
+    --color-primary: #6750a4;
+    --color-on-primary: #ffffff;
+    /* … */
+  }
+
+  .dark .dynamic {
+    --color-primary: #d0bcff;
+    --color-on-primary: #381e72;
+    /* … */
+  }
 }
 ```
 
@@ -132,11 +142,13 @@ With `variant: Variants.Udixio` and custom palettes, these tokens are generated 
 
 ## Adding custom tokens
 
-The `colors` option defines additional tokens. A token declares its default
-tone, then the adjusters that turn it into the final one:
+Add custom semantic tokens directly to `theme.config.ts`. A token can be a
+static hex value, a dynamic `Color`, or a transformation of the token already
+provided by the active variant:
 
 ```ts
-import type { ColorsConfig } from '@udixio/theme';
+// theme.config.ts
+import { defineConfig } from '@udixio/tailwind';
 import {
   Color,
   contrastAgainst,
@@ -144,16 +156,19 @@ import {
   avoidBackgroundGap,
 } from '@udixio/theme';
 
-const colors: ColorsConfig = {
-  highlight: Color.fromPalette('tertiary', {
-    tone: () => 40,
-    adjustTone: [contrastAgainst('surface', 3), avoidBackgroundGap()],
-  }),
-  onHighlight: Color.fromPalette('tertiary', {
-    adjustTone: onColor('highlight', 4.5),
-  }),
-  surface: (color) => color.withTone(Math.min(100, color.tone + 2)),
-};
+export default defineConfig({
+  sourceColor: '#6750A4',
+  colors: {
+    highlight: Color.fromPalette('tertiary', {
+      tone: () => 40,
+      adjustTone: [contrastAgainst('surface', 3), avoidBackgroundGap()],
+    }),
+    onHighlight: Color.fromPalette('tertiary', {
+      adjustTone: onColor('highlight', 4.5),
+    }),
+    surface: (color) => color.withTone(Math.min(100, color.tone + 2)),
+  },
+});
 ```
 
 See [Colors API](/theme/advanced/colors) for every adjuster and how to write

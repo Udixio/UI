@@ -16,12 +16,12 @@ Use `@udixio/theme` when you need to:
 
 ## Package responsibilities
 
-| Package | Responsibility |
-|---------|---------------|
-| `@udixio/theme` | Core engine — `loader()`, `variant()`, `Color`, `Palette`, the tone adjusters, plugin base classes |
-| `@udixio/tailwind` | `TailwindPlugin` — generates Tailwind CSS from tokens — and `defineConfig`, which auto-wires it alongside `FontPlugin` |
-| `@udixio/ui-react` | `ThemeProvider` — React runtime layer |
-| `@udixio/ui-angular` | Angular components. Theming goes through `@udixio/tailwind` directly — there is no Angular runtime layer |
+| Package              | Responsibility                                                                                                         |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `@udixio/theme`      | Core engine — `loader()`, `variant()`, `Color`, `Palette`, the tone adjusters, plugin base classes                     |
+| `@udixio/tailwind`   | `TailwindPlugin` — generates Tailwind CSS from tokens — and `defineConfig`, which auto-wires it alongside `FontPlugin` |
+| `@udixio/ui-react`   | `ThemeProvider` — React runtime layer                                                                                  |
+| `@udixio/ui-angular` | Angular components. Theming goes through `@udixio/tailwind` directly — there is no Angular runtime layer               |
 
 ## Architecture
 
@@ -34,7 +34,10 @@ ColorApi     — resolves semantic tokens (primary, surface…) from Palette ton
 PluginApi    — executes plugins in order, each reading from ColorApi
 ```
 
-Everything is re-evaluated top-down on every `api.load()` call.
+Context-dependent palettes and colors are refreshed when their dependencies
+change; plugins consume the current values when `api.load()` runs. Most
+`Color` values therefore remain lazy until a property such as `hex` or `tone`
+is read.
 
 ## `loader()`
 
@@ -46,17 +49,17 @@ import { loader } from '@udixio/theme';
 const api = await loader(config, load);
 ```
 
-- `config` — same `ConfigInterface` used by `defineConfig`, minus `fontFamily`/`fontStyles`
+- `config` — the core `@udixio/theme` `ConfigInterface`; unlike `defineConfig`, it does not accept the flat Tailwind or typography options
 - `load` — boolean, default `true` — pass `false` to initialize without running the first load
 
 See [Using loader()](/theme/advanced/loader) for full usage examples.
 
 ## Advanced pages
 
-| Page | What you'll learn |
-|------|-------------------|
+| Page                                     | What you'll learn                                             |
+| ---------------------------------------- | ------------------------------------------------------------- |
 | [Using loader()](/theme/advanced/loader) | Headless usage, Node/Vite integration, `api.context.update()` |
-| [Variants API](/theme/advanced/variants) | `variant()` function, custom palette derivation |
-| [Palettes API](/theme/advanced/palettes) | `api.palettes.get()`, `sync()`, `PaletteCallback` |
-| [Colors API](/theme/advanced/colors) | `api.colors.get()`, `Color.fromPalette()`, `contrastCurve` |
-| [Plugin system](/theme/advanced/plugins) | `PluginAbstract`, `PluginImplAbstract`, custom plugins |
+| [Variants API](/theme/advanced/variants) | `variant()` function, custom palette derivation               |
+| [Palettes API](/theme/advanced/palettes) | `api.palettes.get()`, `sync()`, `PaletteCallback`             |
+| [Colors API](/theme/advanced/colors)     | `api.colors.get()`, `Color.fromPalette()`, `contrastCurve`    |
+| [Plugin system](/theme/advanced/plugins) | `PluginAbstract`, `PluginImplAbstract`, custom plugins        |

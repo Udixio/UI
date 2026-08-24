@@ -8,7 +8,11 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "development": "./src/index.node.ts",
+      "development": {
+        "browser": "./src/index.browser.ts",
+        "node": "./src/index.node.ts",
+        "default": "./src/index.browser.ts"
+      },
       "types": "./dist/index.node.d.ts",
       "browser": {
         "import": "./dist/browser.js",

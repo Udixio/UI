@@ -16,13 +16,14 @@ const pathName = Astro.url.pathname;
 
 
 interface Props {
+  docSidebar?: boolean;
   title?: string;
   description?: string;
   noindex?: boolean;
 }
 
 const {
-
+  docSidebar = false,
   title,
   description = 'Udixio UI is a framework-agnostic Material Design 3 component library with first-class React and Angular support.',
   noindex,
@@ -51,12 +52,15 @@ const hasSidebar = Astro.slots.has('sidebar');
 </head>
 <body class="dark dynamic bg-surface text-on-surface" data-udx-color-keys="surface surface-dim surface-bright surface-container-lowest surface-container-low surface-container surface-container-high surface-container-highest on-surface on-surface-variant outline outline-variant inverse-surface inverse-on-surface primary primary-dim on-primary primary-container on-primary-container primary-fixed primary-fixed-dim on-primary-fixed on-primary-fixed-variant inverse-primary secondary secondary-dim on-secondary secondary-container on-secondary-container secondary-fixed secondary-fixed-dim on-secondary-fixed on-secondary-fixed-variant tertiary tertiary-dim on-tertiary tertiary-container on-tertiary-container tertiary-fixed tertiary-fixed-dim on-tertiary-fixed on-tertiary-fixed-variant error error-dim on-error error-container on-error-container surface-variant surface-tint background on-background success success-dim on-success success-container on-success-container success-fixed success-fixed-dim on-success-fixed on-success-fixed-variant">
 <main class="mx-auto flex justify-between">
-  <div class="flex sticky top-0 h-screen">
+  <div class="flex sticky top-0 h-screen" data-pagefind-ignore>
     <Navigation  client:load  transition:name="navigation" transition:persist/>
     {!hasSidebar && <Divider orientation="vertical" />}
     <slot name="sidebar" />
   </div>
-  <div class=" flex flex-1 gap-8 bg-surface-container">
+  <div
+    id="doc-content"
+    class="relative flex min-h-screen min-w-0 flex-1 gap-8 bg-surface-container [contain:layout]"
+  >
 
     <div class="flex-1">
 
@@ -65,8 +69,8 @@ const hasSidebar = Astro.slots.has('sidebar');
     </div>
 
   </div>
-  <div>
-    {hasSidebar && <Sidebar client:load mode="toc" />}
+  <div data-pagefind-ignore>
+    {docSidebar && <Sidebar client:load mode="toc" />}
   </div>
 </main>
 <script >

@@ -5,7 +5,7 @@ description: Plugin architecture — PluginAbstract, PluginImplAbstract, lifecyc
 
 # Plugin system
 
-Plugins transform computed tokens into concrete outputs (CSS, JSON, etc.). They are initialized once and updated on every theme change. Two plugins are included by default: [TailwindPlugin](/theme/advanced/plugins/tailwind) and [FontPlugin](/theme/advanced/plugins/font).
+Plugins transform computed tokens into concrete outputs (CSS, JSON, etc.). They are initialized once, and their `onLoad()` hook runs when `api.load()` is called. `defineConfig` wires two plugins for the standard Tailwind setup: [TailwindPlugin](/theme/advanced/plugins/tailwind) and [FontPlugin](/theme/advanced/plugins/font).
 
 ## Architecture
 
@@ -33,8 +33,8 @@ abstract class PluginImplAbstract<Options> {
   protected api: API;
   protected options: Options;
 
-  onInit?(): void;   // called on initialization
-  onLoad?(): void;   // called on every api.load()
+  onInit?(): void; // called on initialization
+  onLoad?(): void; // called on every api.load()
 }
 ```
 
@@ -44,9 +44,9 @@ Plugins execute in the order declared in `plugins: []`. If a plugin declares `de
 
 ```ts
 plugins: [
-  new FontPlugin(),       // initialized first
-  new TailwindPlugin(),   // can access FontPlugin via this.api.plugins
-]
+  new FontPlugin(), // initialized first
+  new TailwindPlugin(), // can access FontPlugin via this.api.plugins
+];
 ```
 
 ## `toSerializable()`
@@ -86,6 +86,8 @@ export class MyPlugin extends PluginAbstract<MyPluginImpl, MyPluginOptions> {
 ```
 
 ```ts
+import { loader } from '@udixio/theme';
+
 const api = await loader({
   sourceColor: '#6750A4',
   plugins: [new MyPlugin({ prefix: 'app' })],
@@ -98,9 +100,9 @@ console.log(api.plugins.getPlugin(MyPlugin).getInstance().output);
 
 ### Available API in `onLoad`
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `this.api.context` | `Context` | `isDark`, `contrastLevel`, `variant`, `sourceColor` |
-| `this.api.palettes` | `PaletteApi` | Computed palettes (`get`, `sync`) |
-| `this.api.colors` | `ColorApi` | Semantic tokens (`get`, `toHex`, `getTone`) |
-| `this.api.plugins` | `PluginApi` | Access other plugins (`getPlugin`) |
+| Property            | Type         | Description                                                |
+| ------------------- | ------------ | ---------------------------------------------------------- |
+| `this.api.context`  | `Context`    | `isDark`, `contrastLevel`, `variant`, `sourceColor`        |
+| `this.api.palettes` | `PaletteApi` | Computed palettes (`get`, `add`, `override`, `sync`)       |
+| `this.api.colors`   | `ColorApi`   | Semantic tokens (`get`, `getAll`, `addColor`, `addColors`) |
+| `this.api.plugins`  | `PluginApi`  | Access other plugins (`getPlugin`)                         |

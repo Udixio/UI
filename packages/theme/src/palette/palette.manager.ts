@@ -5,8 +5,13 @@ import { ColorApi } from '../color';
 
 export class PaletteManager {
   _palettes: Record<string, Palette> = {};
+  private _version = 0;
   context: Context;
   colorApi: ColorApi;
+
+  get version(): number {
+    return this._version;
+  }
 
   get palettes(): Readonly<Record<string, Palette>> {
     return {
@@ -19,11 +24,17 @@ export class PaletteManager {
     this.colorApi = args.colorApi;
     this.context = args.context;
 
-    this.context.onUpdate((changed) =>
-      Object.entries(this.palettes).forEach(([key, value]) => {
-        value.update(changed);
-      }),
-    );
+    this.context.onUpdate((changed) => {
+      // Variant palettes hidden by an override still need to follow the
+      // context. Otherwise removing the override reveals the palette state
+      // from before the latest source-color update.
+      Object.values(this.context.variant.palettesFor(this.context)).forEach(
+        (palette) => palette.update(changed),
+      );
+      Object.values(this._palettes).forEach((palette) =>
+        palette.update(changed),
+      );
+    });
   }
 
   addCustomPalette(key: string, args: Color | PaletteCallback): void {
@@ -64,6 +75,7 @@ export class PaletteManager {
 
   private set(key: string, palette: Palette) {
     this._palettes[key] = palette;
+    this._version += 1;
   }
 
   update(key: string, args: PaletteCallback | Palette): void {
@@ -75,11 +87,15 @@ export class PaletteManager {
       this.set(key, args);
     } else {
       existing.setCallback(args);
+      this._version += 1;
     }
   }
 
   remove(key: string): void {
-    delete this._palettes[key];
+    if (this._palettes[key]) {
+      delete this._palettes[key];
+      this._version += 1;
+    }
   }
 
   override(key: string, args: Color | PaletteCallback): void {
@@ -95,18 +111,18 @@ export class PaletteManager {
             return args.init(api);
           })()
         : undefined;
-    const callback: PaletteCallback =
-      color
-        ? (context) => context.variant.customPalettes(context, color)
-        : (args as PaletteCallback);
+    const callback: PaletteCallback = color
+      ? (context) => context.variant.customPalettes(context, color)
+      : (args as PaletteCallback);
 
     if (this._palettes[key]) {
       this.update(key, callback);
     } else {
       const palette = new Palette(key, callback, this.context);
       this.set(key, palette);
-      const isVariantPalette =
-        !!this.context.variant.palettesFor(this.context)[key];
+      const isVariantPalette = !!this.context.variant.palettesFor(this.context)[
+        key
+      ];
       if (!isVariantPalette) {
         this.colorApi.addFromCustomPalette(key);
       }
