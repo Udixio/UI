@@ -286,6 +286,7 @@ export class Button implements OnInit {
     defaultPressed: this.defaultPressed(),
     label: this.label(),
     isPressed: this.isToggleButton() && this.isPressed(),
+    hasHref: this.href() !== undefined,
     className: this.className(),
   }));
 

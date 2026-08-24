@@ -262,6 +262,7 @@ export const Button = (props: ReactButtonProps) => {
     pressed,
     defaultPressed,
     label,
+    hasHref: href !== undefined,
   });
 
   if (!hasVisibleLabel) {
