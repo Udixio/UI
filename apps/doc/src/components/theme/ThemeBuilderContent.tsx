@@ -10,7 +10,7 @@ const SectionHeader: React.FC<{ title: string; desc: string }> = ({
 }) => (
   <div className="px-6 pt-8 pb-2">
     <div className="flex items-baseline gap-3 mb-1">
-      <h2 className="text-headline-small font-bold text-on-surface">{title}</h2>
+      <h2 className="text-headline-small text-on-surface">{title}</h2>
     </div>
     <p className="text-body-medium text-on-surface-variant">{desc}</p>
     <div className="mt-4 h-px bg-outline-variant" />

@@ -103,9 +103,9 @@ const PhoneMockup = () => (
 
     {/* Top app bar */}
     <div className="h-14 shrink-0 bg-surface flex items-center px-4 gap-2">
-      <span className="flex-1 text-title-large text-on-surface font-medium">Focus</span>
+      <span className="flex-1 text-title-large text-on-surface">Focus</span>
       <IconButton icon={iNotifications} variant="standard" label="Notifications" />
-      <div className="h-9 w-9 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary-container text-label-large font-bold shrink-0">
+      <div className="h-9 w-9 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary-container text-label-large shrink-0">
         AL
       </div>
     </div>
@@ -125,7 +125,7 @@ const PhoneMockup = () => (
         <div className="p-3 flex items-center gap-4">
           <ProgressIndicator variant="circular-determinate" value={67} />
           <div>
-            <p className="text-title-small text-on-surface font-semibold">Daily Goal</p>
+            <p className="text-title-small text-on-surface">Daily Goal</p>
             <p className="text-body-small text-on-surface-variant">4 of 6 completed</p>
           </div>
         </div>
@@ -134,7 +134,7 @@ const PhoneMockup = () => (
       {/* Task list */}
       <Card variant="filled">
         <div className="p-3 space-y-2">
-          <p className="text-label-medium text-primary font-semibold">Work</p>
+          <p className="text-label-medium text-primary">Work</p>
           {[
             { task: 'Finalize Q3 report', done: true },
             { task: 'Review pull request', done: false },
@@ -155,7 +155,7 @@ const PhoneMockup = () => (
         <div className="p-3 flex items-center gap-3">
           <Icon icon={iFlag} className="size-5 text-error shrink-0" />
           <div className="min-w-0">
-            <p className="text-body-small text-on-surface font-medium">Submit expense report</p>
+            <p className="text-body-small text-on-surface">Submit expense report</p>
             <p className="text-label-small text-error">Overdue · 2 days</p>
           </div>
         </div>
@@ -220,7 +220,7 @@ const TabletMockup = () => (
       {/* Notes list */}
       <div className="w-48 shrink-0 border-r border-outline-variant bg-surface overflow-hidden flex flex-col">
         <div className="flex items-center justify-between p-3 border-b border-outline-variant shrink-0">
-          <span className="text-label-large text-on-surface font-semibold">Notes</span>
+          <span className="text-label-large text-on-surface">Notes</span>
           <IconButton icon={iAdd} variant="tonal" label="New note" size="xSmall" />
         </div>
         {/* Filter chips */}
@@ -240,7 +240,7 @@ const TabletMockup = () => (
             className={`px-3 py-3 border-b border-outline-variant cursor-pointer ${i === 0 ? 'bg-secondary-container/40' : ''}`}
           >
             <div className="flex items-start gap-1 mb-0.5">
-              <span className="text-label-medium text-on-surface font-medium flex-1 leading-tight">{note.title}</span>
+              <span className="text-label-medium text-on-surface flex-1">{note.title}</span>
               {note.starred && <Icon icon={iStarFilled} className="size-4 text-tertiary shrink-0 mt-0.5" />}
             </div>
             <p className="text-body-small text-on-surface-variant truncate">{note.excerpt}</p>
@@ -252,20 +252,20 @@ const TabletMockup = () => (
       {/* Note detail */}
       <div className="flex-1 flex flex-col min-w-0 bg-surface">
         <div className="flex-1 p-5 overflow-hidden">
-          <h2 className="text-headline-small text-on-surface font-bold mb-2">Design system</h2>
+          <h2 className="text-headline-small text-on-surface mb-2">Design system</h2>
           <div className="flex items-center gap-2 mb-4 flex-wrap">
             <span className="text-label-small text-on-surface-variant">Jun 23, 2026</span>
             <Chip label="Design" variant="outlined" />
             <Chip label="Tokens" variant="outlined" />
           </div>
-          <p className="text-body-medium text-on-surface-variant leading-relaxed">
+          <p className="text-body-medium text-on-surface-variant">
             Revised the token structure for color and typography. Primary palette uses HCT-based generation. All semantic tokens updated to Material 3 spec…
           </p>
           {/* Linear progress */}
           <div className="mt-5">
             <div className="flex items-center justify-between mb-2">
               <span className="text-label-small text-on-surface-variant">Document progress</span>
-              <span className="text-label-small text-primary font-semibold">40%</span>
+              <span className="text-label-small text-primary">40%</span>
             </div>
             <ProgressIndicator variant="linear-determinate" value={40} />
           </div>
@@ -327,7 +327,7 @@ const DesktopMockup = () => (
         {/* Top bar: tonal + filled Button side by side */}
         <div className="shrink-0 flex items-center gap-3 px-5 py-4 bg-surface border-b border-outline-variant">
           <div>
-            <h2 className="text-title-large text-on-surface font-semibold">Dashboard</h2>
+            <h2 className="text-title-large text-on-surface">Dashboard</h2>
             <p className="text-body-small text-on-surface-variant">Mon, Jun 23</p>
           </div>
           <div className="flex-1" />
@@ -345,7 +345,7 @@ const DesktopMockup = () => (
             <Card key={label} variant="filled">
               <div className={`p-4 ${color} rounded-xl`}>
                 <p className="text-label-small opacity-70 mb-1">{label}</p>
-                <p className="text-headline-small font-bold mb-3">{value}</p>
+                <p className="text-headline-small mb-3">{value}</p>
                 <ProgressIndicator variant="linear-determinate" value={progress} />
               </div>
             </Card>
@@ -354,7 +354,7 @@ const DesktopMockup = () => (
 
         {/* Projects grid: elevated cards with Chip status */}
         <div className="px-5 pb-4">
-          <h3 className="text-title-medium text-on-surface font-semibold mb-3">Active Projects</h3>
+          <h3 className="text-title-medium text-on-surface mb-3">Active Projects</h3>
           <div className="grid grid-cols-2 gap-3">
             {[
               { name: 'Design System', status: 'Active', progress: 82, due: 'Aug 30', active: true },
@@ -365,7 +365,7 @@ const DesktopMockup = () => (
               <Card key={name} variant="elevated">
                 <div className="p-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-label-large text-on-surface font-semibold flex-1">{name}</span>
+                    <span className="text-label-large text-on-surface flex-1">{name}</span>
                     <Chip
                       label={status}
                       variant={active ? 'elevated' : 'outlined'}

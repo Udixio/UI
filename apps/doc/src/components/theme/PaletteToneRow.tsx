@@ -2,7 +2,10 @@ import React, { useMemo, useRef, useState } from 'react';
 import { useStore } from '@nanostores/react';
 import { API } from '@udixio/theme';
 import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
-import { themeConfigStore } from '@/stores/themeConfigStore.ts';
+import {
+  themeConfigStore,
+  themeServiceVersionStore,
+} from '@/stores/themeConfigStore.ts';
 
 type Props = { api: API | null | undefined; group: string };
 
@@ -32,6 +35,7 @@ export const PaletteToneRow: React.FC<Props> = ({ api, group }) => {
   const [copied, setCopied] = useState(false);
 
   const themeConfig = useStore(themeConfigStore);
+  const themeServiceVersion = useStore(themeServiceVersionStore);
 
   const palette = useMemo(() => {
     if (!api || !group) return null;
@@ -40,14 +44,14 @@ export const PaletteToneRow: React.FC<Props> = ({ api, group }) => {
     } catch {
       return null;
     }
-  }, [api, group, themeConfig]);
+  }, [api, group, themeConfig, themeServiceVersion]);
 
   const fullGradient = useMemo(
     () => (palette ? makeGradient(palette, 100, 0) : ''),
     // Palette instances are updated in place by ThemeProvider. Subscribe to
     // the config snapshot as well so the cached gradient is rebuilt when the
     // dynamic theme changes.
-    [palette, themeConfig],
+    [palette, themeConfig, themeServiceVersion],
   );
 
   // ── MotionValues ──────────────────────────────────────────────────────────

@@ -3,6 +3,7 @@ import { useStore } from '@nanostores/react';
 import {
   themeConfigStore,
   themeServiceStore,
+  themeServiceVersionStore,
 } from '@/stores/themeConfigStore.ts';
 import PaletteToneRow from './PaletteToneRow';
 
@@ -16,6 +17,7 @@ const FAMILIES = [
 export const ThemePalette: React.FC = () => {
   const $api = useStore(themeServiceStore);
   useStore(themeConfigStore);
+  useStore(themeServiceVersionStore);
 
   return (
     <div className="space-y-5 px-6 pb-6">

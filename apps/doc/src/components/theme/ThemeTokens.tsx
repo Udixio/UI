@@ -1,17 +1,26 @@
 import React, { useMemo, useState } from 'react';
 import { useStore } from '@nanostores/react';
-import { themeConfigStore, themeServiceStore } from '@/stores/themeConfigStore.ts';
+import {
+  themeConfigStore,
+  themeServiceStore,
+  themeServiceVersionStore,
+} from '@/stores/themeConfigStore.ts';
 import type { Color } from '@udixio/theme';
 import ColorTokenCard from './ColorTokenCard';
 
 type TokenDef = { name: string; usage: string };
-type GroupDef = { key: string; label: string; hint: string; tokens: TokenDef[] };
+type GroupDef = {
+  key: string;
+  label: string;
+
+  tokens: TokenDef[];
+};
 
 const GROUPS: GroupDef[] = [
   {
     key: 'primary',
     label: 'Primary',
-    hint: 'primary → texte sur lui : on-primary  ·  même logique pour container',
+
     tokens: [
       { name: 'primary', usage: 'Boutons CTA, FAB' },
       { name: 'onPrimary', usage: 'Texte sur primary' },
@@ -22,7 +31,7 @@ const GROUPS: GroupDef[] = [
   {
     key: 'secondary',
     label: 'Secondary',
-    hint: 'secondary → texte sur lui : on-secondary',
+
     tokens: [
       { name: 'secondary', usage: 'Actions secondaires, filtres' },
       { name: 'onSecondary', usage: 'Texte sur secondary' },
@@ -33,7 +42,7 @@ const GROUPS: GroupDef[] = [
   {
     key: 'tertiary',
     label: 'Tertiary',
-    hint: 'tertiary → texte sur lui : on-tertiary',
+
     tokens: [
       { name: 'tertiary', usage: 'Accents, highlights' },
       { name: 'onTertiary', usage: 'Texte sur tertiary' },
@@ -44,7 +53,7 @@ const GROUPS: GroupDef[] = [
   {
     key: 'surface',
     label: 'Surface',
-    hint: 'surface = fond  ·  on-surface = texte principal',
+
     tokens: [
       { name: 'surface', usage: 'Fond principal des écrans' },
       { name: 'surfaceContainer', usage: 'Cartes, modales' },
@@ -58,11 +67,11 @@ const GROUPS: GroupDef[] = [
   {
     key: 'feedback',
     label: 'Feedback',
-    hint: 'error pour invalide  ·  success pour confirmation',
+
     tokens: [
       { name: 'error', usage: 'Champs invalides, alertes' },
       { name: 'onError', usage: 'Texte sur error' },
-      { name: 'errorContainer', usage: 'Fond messages d\'erreur' },
+      { name: 'errorContainer', usage: "Fond messages d'erreur" },
       { name: 'onErrorContainer', usage: 'Texte dans error container' },
     ],
   },
@@ -81,6 +90,7 @@ const CHIP_LABELS: Record<string, string> = {
 export const ThemeTokens: React.FC = () => {
   const $api = useStore(themeServiceStore);
   useStore(themeConfigStore);
+  const themeServiceVersion = useStore(themeServiceVersionStore);
   const [query, setQuery] = useState('');
   const [activeGroup, setActiveGroup] = useState('all');
 
@@ -91,11 +101,13 @@ export const ThemeTokens: React.FC = () => {
       map.set(name, color);
     }
     return map;
-  }, [$api]);
+  }, [$api, themeServiceVersion]);
 
   const q = query.trim().toLowerCase();
 
-  const visibleGroups = GROUPS.filter((g) => activeGroup === 'all' || g.key === activeGroup);
+  const visibleGroups = GROUPS.filter(
+    (g) => activeGroup === 'all' || g.key === activeGroup,
+  );
 
   return (
     <div className="space-y-6 p-6">
@@ -130,7 +142,13 @@ export const ThemeTokens: React.FC = () => {
       {visibleGroups.map((group) => {
         const tokens = group.tokens.filter((t) => {
           if (!q) return true;
-          return t.name.toLowerCase().includes(q) || `--color-${t.name.toLowerCase().replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()}`.includes(q);
+          return (
+            t.name.toLowerCase().includes(q) ||
+            `--color-${t.name
+              .toLowerCase()
+              .replace(/([a-z])([A-Z])/g, '$1-$2')
+              .toLowerCase()}`.includes(q)
+          );
         });
         if (tokens.length === 0) return null;
 
@@ -138,10 +156,8 @@ export const ThemeTokens: React.FC = () => {
           <div key={group.key}>
             {/* Group header */}
             <div className="flex items-center gap-3 mb-3">
-              <span className="text-label-large font-bold text-on-surface uppercase tracking-wider">{group.label}</span>
-              <div className="flex-1 h-px bg-outline-variant" />
+              <span className="text-title-medium">{group.label}</span>
             </div>
-            <p className="text-body-small text-on-surface-variant mb-3 font-mono">{group.hint}</p>
 
             {/* Token grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -162,8 +178,10 @@ export const ThemeTokens: React.FC = () => {
         );
       })}
 
-      {visibleGroups.every((g) =>
-        g.tokens.filter((t) => !q || t.name.toLowerCase().includes(q)).length === 0,
+      {visibleGroups.every(
+        (g) =>
+          g.tokens.filter((t) => !q || t.name.toLowerCase().includes(q))
+            .length === 0,
       ) && (
         <div className="text-center py-12 text-on-surface-variant text-body-large">
           Aucun token trouvé pour « {query} »

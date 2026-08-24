@@ -3,6 +3,7 @@ import { useStore } from '@nanostores/react';
 import {
   themeConfigStore,
   themeServiceStore,
+  themeServiceVersionStore,
 } from '@/stores/themeConfigStore.ts';
 import type { Color } from '@udixio/theme';
 import { Card, Icon, TextField } from '@udixio/ui-react';
@@ -26,6 +27,7 @@ export const TokenGallery: React.FC = () => {
   const $themeApi = useStore(themeServiceStore);
 
   useStore(themeConfigStore); // re-render on theme change
+  const themeServiceVersion = useStore(themeServiceVersionStore);
   const [query, setQuery] = useState('');
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
     { Primary: true },
@@ -36,7 +38,7 @@ export const TokenGallery: React.FC = () => {
       return null;
     }
     return Array.from($themeApi.colors.getAll().entries());
-  }, [$themeApi]);
+  }, [$themeApi, themeServiceVersion]);
 
   const filtered = useMemo(() => {
     if (!tokens) return [];
@@ -96,9 +98,7 @@ export const TokenGallery: React.FC = () => {
             name={'token-search'}
             label="Search tokens"
             placeholder="e.g. primary, surface, container..."
-            supportingText={
-              'Explore all color tokens available in the theme.'
-            }
+            supportingText={'Explore all color tokens available in the theme.'}
             value={query}
             onChange={setQuery}
             className="w-full"
@@ -141,7 +141,11 @@ export const TokenGallery: React.FC = () => {
                 <div className="flex items-center gap-2 text-label-medium text-on-surface-variant">
                   {expandedGroups[group] ? 'Hide' : 'Show'}
                   <Icon
-                    icon={expandedGroups[group] ? iKeyboardArrowUp : iKeyboardArrowDown}
+                    icon={
+                      expandedGroups[group]
+                        ? iKeyboardArrowUp
+                        : iKeyboardArrowDown
+                    }
                     className="text-xs"
                   />
                 </div>
@@ -159,10 +163,7 @@ export const TokenGallery: React.FC = () => {
                   >
                     <div className="p-4 space-y-4 border-t border-outline-variant">
                       <div className="bg-surface rounded-lg p-2 border border-outline-variant">
-                        <PaletteToneRow
-                          api={$themeApi}
-                          group={group as any}
-                        />
+                        <PaletteToneRow api={$themeApi} group={group as any} />
                       </div>
 
                       <motion.div
@@ -175,11 +176,12 @@ export const TokenGallery: React.FC = () => {
                         {groups.get(group)!.map((t) => {
                           const name = t.name;
                           return (
-                            <motion.div key={name} variants={itemVariants} layout>
-                                <ColorTokenCard
-                                name={name}
-                                color={t.color}
-                              />
+                            <motion.div
+                              key={name}
+                              variants={itemVariants}
+                              layout
+                            >
+                              <ColorTokenCard name={name} color={t.color} />
                             </motion.div>
                           );
                         })}
