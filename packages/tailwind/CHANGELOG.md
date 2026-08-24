@@ -1,3 +1,17 @@
+## 5.0.1-next.2 (2026-08-24)
+
+### 🩹 Fixes
+
+- **theme:** synchronize dynamic palette overrides ([3072edb1](https://github.com/Udixio/UI/commit/3072edb1))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 5.0.1-next.2
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 5.0.1-next.0 (2026-08-16)
 
 ### 🧱 Updated Dependencies

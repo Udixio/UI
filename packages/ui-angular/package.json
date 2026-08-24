@@ -1,6 +1,6 @@
 {
   "name": "@udixio/ui-angular",
-  "version": "4.0.0",
+  "version": "0.2.2-next.3",
   "publishConfig": {
     "provenance": true,
     "access": "public"
@@ -13,10 +13,10 @@
     "@angular/common": "^21.0.0",
     "@angular/core": "^21.0.0",
     "@angular/platform-browser": "^21.0.0",
-    "@udixio/core": "0.2.2-next.1"
+    "@udixio/core": "0.2.2-next.3"
   },
   "dependencies": {
-    "@udixio/icons-rounded-400": "0.2.2-next.0"
+    "@udixio/icons-rounded-400": "0.2.2-next.2"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.0.0",

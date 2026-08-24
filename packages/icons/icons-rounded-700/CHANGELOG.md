@@ -1,3 +1,7 @@
+## 0.2.2-next.2 (2026-08-24)
+
+This was a version bump only for @udixio/icons-rounded-700 to align it with other projects, there were no code changes.
+
 ## 0.2.2-next.0 (2026-08-16)
 
 This was a version bump only for @udixio/icons-rounded-700 to align it with other projects, there were no code changes.

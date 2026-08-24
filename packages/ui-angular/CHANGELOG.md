@@ -1,3 +1,26 @@
+## 0.2.2-next.3 (2026-08-24)
+
+### 🚀 Features
+
+- **release:** enhance release process with atomic tagging and flexible branch support ([fb5791ca](https://github.com/Udixio/UI/commit/fb5791ca))
+- **button:** add support for `hasHref` to adjust display style based on link presence ([6a08df79](https://github.com/Udixio/UI/commit/6a08df79))
+- **search:** add cross-framework Search component ([1a8b15a4](https://github.com/Udixio/UI/commit/1a8b15a4))
+
+### 🩹 Fixes
+
+- **button:** align edgeAligned tests and docs ([3b088d81](https://github.com/Udixio/UI/commit/3b088d81))
+- **button:** set `edgeAligned` default to `false` in React and Angular ([b213761a](https://github.com/Udixio/UI/commit/b213761a))
+- **fab:** update default size to "small" in Angular and React implementations ([a318d0bf](https://github.com/Udixio/UI/commit/a318d0bf))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/core to 0.2.2-next.3
+- Updated @udixio/icons-rounded-400 to 0.2.2-next.2
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.2.2-next.1 (2026-08-16)
 
 ### 🩹 Fixes
