@@ -385,10 +385,13 @@ describe('Button', () => {
     expect(label.nextElementSibling).toHaveAttribute('aria-hidden', 'true');
   });
 
-  it('aligns text buttons to the surrounding edge by default', () => {
+  it('keeps text buttons in their layout box by default', () => {
     const { rerender } = render(
       <Button label="Text" variant="text" size="medium" />,
     );
+    expect(screen.getByRole('button').className).not.toContain('-mx-6');
+
+    rerender(<Button label="Text" variant="text" size="medium" edgeAligned />);
     expect(screen.getByRole('button').className).toContain('-mx-6');
 
     rerender(

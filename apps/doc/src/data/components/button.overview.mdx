@@ -105,8 +105,9 @@ Set `shapeFeedback="none"` in React or Angular to keep a static shape, or pass a
 Motion `transition` to customize the `morph` feedback. Reduced-motion
 preferences keep the feedback but remove the movement.
 
-Text buttons use negative inline margins for edge alignment by default. Set
-`edgeAligned={false}` / `[edgeAligned]="false"` to keep their full layout box.
+Text buttons keep their full layout box by default. Set `edgeAligned` /
+`[edgeAligned]="true"` when the button should align to the surrounding inline
+edge with negative inline margins.
 
 ## Icons
 
@@ -159,6 +160,6 @@ consumers before adopting the next major release:
 | `onToggle`                             | `toggleable` plus `onPressedChange` / `pressedChange` |
 | React `label` together with `children` | Choose one; add `aria-label` for non-text children    |
 
-`edgeAligned` and `shapeFeedback` default to `true` and `morph`, preserving the
-previous default appearance. Toggle state now follows the controlled and
-uncontrolled contract described above, and action events remain independent.
+`edgeAligned` defaults to `false` and `shapeFeedback` to `morph`. Toggle state
+now follows the controlled and uncontrolled contract described above, and
+action events remain independent.

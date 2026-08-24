@@ -363,12 +363,16 @@ describe('Button (Angular, consuming @udixio/core)', () => {
     expect(label.nextElementSibling?.tagName.toLowerCase()).toBe('udx-icon');
   });
 
-  it('aligns text buttons to the surrounding edge by default', () => {
+  it('keeps text buttons in their layout box by default', () => {
     fixture.componentRef.setInput('label', 'Text');
     fixture.componentRef.setInput('variant', 'text');
     fixture.detectChanges();
     const button: HTMLButtonElement =
       fixture.nativeElement.querySelector('button');
+    expect(button.className).not.toContain('-mx-6');
+
+    fixture.componentRef.setInput('edgeAligned', true);
+    fixture.detectChanges();
     expect(button.className).toContain('-mx-6');
 
     fixture.componentRef.setInput('edgeAligned', false);
