@@ -7,7 +7,6 @@ const buttonConfig: ClassNameComponent<ButtonInterface> = (state) => {
   const {
     edgeAligned,
     disabled,
-    hasHref,
     isPressed,
     loading,
     shape,
@@ -22,8 +21,7 @@ const buttonConfig: ClassNameComponent<ButtonInterface> = (state) => {
 
   return {
     button: cx(
-      hasHref ? 'block' : 'inline-flex',
-      'w-fit cursor-pointer items-center justify-center group/button outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current',
+      'inline-flex w-fit cursor-pointer items-center justify-center group/button outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current',
       size === 'xSmall' && 'text-label-large px-3 py-1.5 gap-1',
       size === 'small' && 'text-label-large px-4 py-2.5 gap-2',
       size === 'medium' && 'text-title-medium px-6 py-4 gap-2',

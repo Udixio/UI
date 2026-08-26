@@ -524,7 +524,6 @@ export class DatePicker implements OnInit {
       defaultPressed: false,
       label: day.date.getDate().toString(),
       isPressed: false,
-      hasHref: false,
       className: () => ({
         button: classNames(this.styles()['dayButton'], 'p-0', {
           'text-on-surface': !isSelected && !isTodayDay,

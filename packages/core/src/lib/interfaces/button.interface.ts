@@ -90,6 +90,6 @@ type Elements = ['button', 'touchTarget', 'stateLayer', 'icon', 'label'];
 export interface ButtonInterface {
   type: 'button';
   props: ButtonProps;
-  states: { isPressed: boolean; hasHref: boolean };
+  states: { isPressed: boolean };
   elements: Elements;
 }

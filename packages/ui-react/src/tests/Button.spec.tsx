@@ -69,8 +69,6 @@ describe('Button', () => {
 
     const link = screen.getByText('Test Button').closest('a');
     expect(link).toHaveAttribute('href', 'https://example.com');
-    expect(link).toHaveClass('block');
-    expect(link).not.toHaveClass('inline-flex');
   });
 
   it('shows loading indicator when loading prop is true', () => {

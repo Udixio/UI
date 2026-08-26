@@ -19,7 +19,6 @@ describe('class engine characterization', () => {
       variant: 'filled',
       size: 'medium',
       shape: 'rounded',
-      hasHref: false,
       ...extra,
     }) as ButtonState;
 
@@ -53,13 +52,6 @@ describe('class engine characterization', () => {
         "touchTarget": "touch-target absolute left-1/2 top-1/2 h-12 w-full min-w-12 -translate-x-1/2 -translate-y-1/2",
       }
     `);
-  });
-
-  it('button: link uses block display', () => {
-    const button = buttonStyle(buttonState({ hasHref: true })).button;
-
-    expect(button).toContain('block');
-    expect(button).not.toContain('inline-flex');
   });
 
   it('button: disabled elevated large', () => {

@@ -413,8 +413,6 @@ describe('Button (Angular, consuming @udixio/core)', () => {
 
     const link: HTMLAnchorElement = fixture.nativeElement.querySelector('a');
     expect(link.getAttribute('href')).toBe('/docs');
-    expect(link.className).toContain('block');
-    expect(link.className).not.toContain('inline-flex');
 
     fixture.componentRef.setInput('loading', true);
     fixture.detectChanges();
