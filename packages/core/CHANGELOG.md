@@ -1,3 +1,18 @@
+## 0.2.2-next.3 (2026-08-24)
+
+### 🚀 Features
+
+- **button:** add support for `hasHref` to adjust display style based on link presence ([6a08df79](https://github.com/Udixio/UI/commit/6a08df79))
+- **search:** add cross-framework Search component ([1a8b15a4](https://github.com/Udixio/UI/commit/1a8b15a4))
+
+### 🩹 Fixes
+
+- **theme:** synchronize dynamic palette overrides ([3072edb1](https://github.com/Udixio/UI/commit/3072edb1))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.2.2-next.1 (2026-08-16)
 
 This was a version bump only for @udixio/core to align it with other projects, there were no code changes.

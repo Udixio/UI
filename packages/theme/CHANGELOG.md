@@ -1,3 +1,18 @@
+## 5.0.1-next.2 (2026-08-24)
+
+### 🚀 Features
+
+- **theme:** refine surfaces and pair on-color tokens ([e7416358](https://github.com/Udixio/UI/commit/e7416358))
+- **theme:** add compositional palette overrides with inherited base ([8bafa2ea](https://github.com/Udixio/UI/commit/8bafa2ea))
+
+### 🩹 Fixes
+
+- **theme:** synchronize dynamic palette overrides ([3072edb1](https://github.com/Udixio/UI/commit/3072edb1))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 5.0.1-next.0 (2026-08-16)
 
 This was a version bump only for @udixio/theme to align it with other projects, there were no code changes.
