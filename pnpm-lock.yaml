@@ -860,7 +860,7 @@ importers:
         specifier: ^21.0.0
         version: 21.2.18(@angular/animations@21.2.21)(@angular/common@21.2.18)(@angular/core@21.2.18)
       '@udixio/core':
-        specifier: 0.2.2-next.3
+        specifier: 0.2.2-next.4
         version: link:../core
       '@udixio/icons-rounded-400':
         specifier: 0.2.2-next.2
@@ -885,7 +885,7 @@ importers:
         specifier: ^7.0.0
         version: 7.3.1
       '@udixio/core':
-        specifier: 0.2.2-next.3
+        specifier: 0.2.2-next.4
         version: link:../core
       '@udixio/icons-rounded-400':
         specifier: 0.2.2-next.2
