@@ -1,3 +1,13 @@
+## 0.2.2-next.6 (2026-08-27)
+
+### 🩹 Fixes
+
+- **search:** hide empty Angular results surface ([5d6f694d](https://github.com/Udixio/UI/commit/5d6f694d))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.2.2-next.5 (2026-08-27)
 
 ### 🩹 Fixes
