@@ -1,3 +1,13 @@
+## 0.2.2-next.5 (2026-08-27)
+
+### 🩹 Fixes
+
+- **fab-menu:** restore synchronized trigger motion ([ff2566b7](https://github.com/Udixio/UI/commit/ff2566b7))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.2.2-next.4 (2026-08-26)
 
 ### 🩹 Fixes
