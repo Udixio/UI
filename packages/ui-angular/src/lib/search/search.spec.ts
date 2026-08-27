@@ -120,6 +120,22 @@ describe('Search (Angular)', () => {
     expect(changes).toEqual(['material']);
   });
 
+  it('keeps an empty results surface hidden when the input receives focus', () => {
+    const input = fixture.nativeElement.querySelector(
+      'input',
+    ) as HTMLInputElement;
+    const results = fixture.nativeElement.querySelector(
+      '[id$="-results"]',
+    ) as HTMLDivElement;
+
+    input.focus();
+    fixture.detectChanges();
+
+    expect(results.hasAttribute('hidden')).toBe(true);
+    expect(results.getAttribute('aria-hidden')).toBe('true');
+    expect(results.getAttribute('role')).toBeNull();
+  });
+
   it('requests controlled query and expanded changes without mutating local state', () => {
     const hostFixture = TestBed.createComponent(ControlledSearchHost);
     hostFixture.detectChanges();

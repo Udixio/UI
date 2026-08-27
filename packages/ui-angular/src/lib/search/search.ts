@@ -130,10 +130,10 @@ let nextSearchId = 0;
           #results
           [id]="resultsId()"
           [class]="styles()['results']"
-          [hidden]="!isExpanded()"
+          [hidden]="!isExpanded() || !hasResults()"
           [attr.role]="hasResults() ? resultsRole() : null"
           [attr.aria-label]="hasResults() ? resultsLabel() : null"
-          [attr.aria-hidden]="isExpanded() ? null : 'true'"
+          [attr.aria-hidden]="isExpanded() && hasResults() ? null : 'true'"
         >
           <ng-content />
         </div>
