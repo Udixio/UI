@@ -83,6 +83,8 @@ export const FabMenu = (props: ReactFabMenuProps) => {
   });
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const closedTriggerRef = useRef<HTMLButtonElement>(null);
+  const openTriggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const controllerRef = useRef<FabMenuController>(null);
   const panelId = `fab-menu-${useId().replace(/:/g, '')}`;
@@ -109,6 +111,8 @@ export const FabMenu = (props: ReactFabMenuProps) => {
       !hasAccessibleLabel ||
       !rootRef.current ||
       !triggerRef.current ||
+      !closedTriggerRef.current ||
+      !openTriggerRef.current ||
       !panelRef.current
     ) {
       return;
@@ -117,6 +121,8 @@ export const FabMenu = (props: ReactFabMenuProps) => {
     const controller = createFabMenuController({
       root: rootRef.current,
       trigger: triggerRef.current,
+      closedTrigger: closedTriggerRef.current,
+      openTrigger: openTriggerRef.current,
       panel: panelRef.current,
       onDismiss: () => setOpen(false),
     });
@@ -166,6 +172,7 @@ export const FabMenu = (props: ReactFabMenuProps) => {
     >
       <span className={styles.triggerSizer} aria-hidden="true" inert>
         <Fab
+          ref={closedTriggerRef}
           label={label}
           icon={icon}
           variant={triggerVariant}
@@ -174,6 +181,17 @@ export const FabMenu = (props: ReactFabMenuProps) => {
           disabled
           tabIndex={-1}
         />
+        <span className={styles.triggerPositioner}>
+          <Fab
+            ref={openTriggerRef}
+            label={closeLabel}
+            icon={closeIcon}
+            variant={variant}
+            size="small"
+            disabled
+            tabIndex={-1}
+          />
+        </span>
       </span>
 
       <span className={styles.triggerPositioner}>
@@ -182,7 +200,7 @@ export const FabMenu = (props: ReactFabMenuProps) => {
           label={open ? closeLabel : label}
           icon={open ? closeIcon : icon}
           variant={open ? variant : triggerVariant}
-          size={open ? 'medium' : size}
+          size={open ? 'small' : size}
           extended={extended && !open}
           disabled={disabled}
           className={styles.fab}

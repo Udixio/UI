@@ -2,6 +2,10 @@
 
 import { animate } from 'motion';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  FAB_MOTION_DURATION_SECONDS,
+  FAB_MOTION_EASING,
+} from '../fab-motion.js';
 import { createFabMenuController } from './fab-menu.js';
 
 vi.mock('motion', () => ({ animate: vi.fn() }));
@@ -170,10 +174,12 @@ describe('fab menu DOM controller', () => {
     controller.destroy();
   });
 
-  it('animates an extended trigger to the exact compact circular radius', () => {
+  it('animates between stable target geometries while the visible Fab is changing', () => {
     document.body.innerHTML = `
       <div id="root" data-open="false">
         <button id="trigger">Create</button>
+        <button id="closed-target">Create</button>
+        <button id="open-target">Close Create</button>
         <div id="panel">
           <span data-fab-menu-action><button>Document</button></span>
         </div>
@@ -181,24 +187,35 @@ describe('fab menu DOM controller', () => {
     `;
     const root = getElement<HTMLElement>('#root');
     const trigger = getElement<HTMLElement>('#trigger');
+    const closedTrigger = getElement<HTMLElement>('#closed-target');
+    const openTrigger = getElement<HTMLElement>('#open-target');
     const panel = getElement<HTMLElement>('#panel');
-    let width = 160;
     const height = 56;
     const computedStyle = vi
       .spyOn(window, 'getComputedStyle')
       .mockReturnValue({ borderTopLeftRadius: '16px' } as CSSStyleDeclaration);
-    vi.spyOn(trigger, 'getBoundingClientRect').mockImplementation(
-      () => ({ width, height }) as DOMRect,
-    );
+    vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({
+      width: 118,
+      height: 68,
+    } as DOMRect);
+    vi.spyOn(closedTrigger, 'getBoundingClientRect').mockReturnValue({
+      width: 160,
+      height,
+    } as DOMRect);
+    vi.spyOn(openTrigger, 'getBoundingClientRect').mockReturnValue({
+      width: 56,
+      height,
+    } as DOMRect);
     const controller = createFabMenuController({
       root,
       trigger,
+      closedTrigger,
+      openTrigger,
       panel,
       onDismiss: vi.fn(),
       reducedMotion: () => false,
     });
 
-    width = 56;
     controller.setOpen(true);
 
     expect(animate).toHaveBeenCalledWith(
@@ -209,8 +226,8 @@ describe('fab menu DOM controller', () => {
         borderRadius: ['16px', '28px'],
       },
       {
-        duration: 0.3,
-        ease: [0.2, 0, 0, 1],
+        duration: FAB_MOTION_DURATION_SECONDS,
+        ease: FAB_MOTION_EASING,
       },
     );
     controller.destroy();

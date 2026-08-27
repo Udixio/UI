@@ -112,7 +112,7 @@ describe('FabMenu (Angular, consuming @udixio/core)', () => {
     expect(openLabel.getAttribute('aria-hidden')).toBe('true');
     expect(openTrigger.className).toContain('bg-secondary');
     expect(openTrigger.className).toContain('rounded-full');
-    expect(openTrigger.className).toContain('h-20');
+    expect(openTrigger.className).toContain('h-14');
     expect(openTrigger.className).toContain('shadow-none');
     expect(openTrigger.className).not.toContain('h-24');
   });

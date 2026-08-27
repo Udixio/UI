@@ -1,9 +1,15 @@
 import { animate, type AnimationPlaybackControlsWithThen } from 'motion';
 import type { FabMenuDismissReason } from '../behaviors/fab-menu.behavior.js';
+import {
+  FAB_MOTION_DURATION_SECONDS,
+  FAB_MOTION_EASING,
+} from '../fab-motion.js';
 
 export interface FabMenuControllerOptions {
   root: HTMLElement;
   trigger: HTMLElement;
+  closedTrigger?: HTMLElement;
+  openTrigger?: HTMLElement;
   panel: HTMLElement;
   onDismiss: (reason: FabMenuDismissReason) => void;
   reducedMotion?: () => boolean;
@@ -19,7 +25,6 @@ const ACTION_DURATION = 0.3;
 const ACTION_OPEN_OPACITY_DURATION = 0.15;
 const ACTION_CLOSE_OPACITY_DURATION = 0.2;
 const ACTION_STAGGER = 0.06;
-const TRIGGER_DURATION = 0.3;
 
 function getEffectiveBorderRadius(element: HTMLElement, rect: DOMRect): number {
   const computedRadius =
@@ -47,6 +52,8 @@ function systemPrefersReducedMotion(): boolean {
 export function createFabMenuController({
   root,
   trigger,
+  closedTrigger = trigger,
+  openTrigger = trigger,
   panel,
   onDismiss,
   reducedMotion = systemPrefersReducedMotion,
@@ -70,8 +77,11 @@ export function createFabMenuController({
   let destroyed = false;
   let isOpen = root.dataset['open'] === 'true';
   let restoreFocusOnClose = false;
-  let triggerRect = trigger.getBoundingClientRect();
-  let triggerRadius = getEffectiveBorderRadius(trigger, triggerRect);
+  const initialTarget = isOpen ? openTrigger : closedTrigger;
+  let triggerRect = initialTarget.getBoundingClientRect();
+  let triggerRadius = isOpen
+    ? Math.min(triggerRect.width, triggerRect.height) / 2
+    : getEffectiveBorderRadius(initialTarget, triggerRect);
 
   const getActions = () =>
     Array.from(panel.querySelectorAll<HTMLElement>('[data-fab-menu-action]'));
@@ -116,6 +126,7 @@ export function createFabMenuController({
   };
 
   const animateTriggerSize = (
+    target: HTMLElement,
     nextRect: DOMRect,
     nextOpen: boolean,
     generation: number,
@@ -125,7 +136,7 @@ export function createFabMenuController({
     trigger.style.borderRadius = '';
     const nextRadius = nextOpen
       ? Math.min(nextRect.width, nextRect.height) / 2
-      : getEffectiveBorderRadius(trigger, nextRect);
+      : getEffectiveBorderRadius(target, nextRect);
     triggerRect = nextRect;
     triggerRadius = nextRadius;
     if (
@@ -152,8 +163,8 @@ export function createFabMenuController({
         borderRadius: [`${previousRadius}px`, `${nextRadius}px`],
       },
       {
-        duration: TRIGGER_DURATION,
-        ease: [0.2, 0, 0, 1],
+        duration: FAB_MOTION_DURATION_SECONDS,
+        ease: FAB_MOTION_EASING,
       },
     );
     animation.then(() => {
@@ -173,8 +184,10 @@ export function createFabMenuController({
     const generation = animationGeneration;
     const actions = getActions();
     rememberActionStyles(actions);
+    const targetTrigger = nextOpen ? openTrigger : closedTrigger;
     const triggerAnimation = animateTriggerSize(
-      trigger.getBoundingClientRect(),
+      targetTrigger,
+      targetTrigger.getBoundingClientRect(),
       nextOpen,
       generation,
     );

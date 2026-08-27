@@ -68,7 +68,12 @@ export interface FabMenuActionSelectEvent {
       [attr.aria-hidden]="!hasAccessibleLabel() || null"
       [attr.data-open]="isOpen()"
     >
-      <span [class]="styles()['triggerSizer']" aria-hidden="true" inert>
+      <span
+        #closedTriggerHost
+        [class]="styles()['triggerSizer']"
+        aria-hidden="true"
+        inert
+      >
         <udx-fab
           [label]="label()"
           [icon]="icon()"
@@ -78,6 +83,16 @@ export interface FabMenuActionSelectEvent {
           disabled
           [tabIndex]="-1"
         />
+        <span #openTriggerHost [class]="styles()['triggerPositioner']">
+          <udx-fab
+            [label]="closeLabel() ?? 'Close ' + label()"
+            [icon]="closeIcon() || defaultCloseIcon"
+            [variant]="variant()"
+            size="small"
+            disabled
+            [tabIndex]="-1"
+          />
+        </span>
       </span>
 
       <span #triggerHost [class]="styles()['triggerPositioner']">
@@ -85,7 +100,7 @@ export interface FabMenuActionSelectEvent {
           [label]="resolvedTriggerLabel()"
           [icon]="resolvedTriggerIcon()"
           [variant]="triggerVariant()"
-          [size]="isOpen() ? 'medium' : size()"
+          [size]="isOpen() ? 'small' : size()"
           [extended]="extended() && !isOpen()"
           [disabled]="disabled() || !hasAccessibleLabel()"
           [className]="styles()['fab']"
@@ -185,6 +200,7 @@ export class FabMenu implements OnInit {
         'primaryContainer' | 'secondaryContainer' | 'tertiaryContainer',
   );
   protected readonly panelId = computed(() => `fab-menu-${this.instanceId}`);
+  protected readonly defaultCloseIcon = DEFAULT_FAB_MENU_CLOSE_ICON;
   protected readonly styles = createStyle(fabMenuStyle, () => ({
     label: this.label(),
     icon: this.icon(),
@@ -207,6 +223,10 @@ export class FabMenu implements OnInit {
   private readonly root = viewChild<ElementRef<HTMLElement>>('root');
   private readonly triggerHost =
     viewChild<ElementRef<HTMLElement>>('triggerHost');
+  private readonly closedTriggerHost =
+    viewChild<ElementRef<HTMLElement>>('closedTriggerHost');
+  private readonly openTriggerHost =
+    viewChild<ElementRef<HTMLElement>>('openTriggerHost');
   private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
   private controller?: FabMenuController;
 
@@ -217,12 +237,22 @@ export class FabMenu implements OnInit {
         this.triggerHost()?.nativeElement.querySelector<HTMLElement>(
           'button, a',
         );
+      const closedTrigger =
+        this.closedTriggerHost()?.nativeElement.querySelector<HTMLElement>(
+          'button, a',
+        );
+      const openTrigger =
+        this.openTriggerHost()?.nativeElement.querySelector<HTMLElement>(
+          'button, a',
+        );
       const panel = this.panel()?.nativeElement;
-      if (!root || !trigger || !panel) return;
+      if (!root || !trigger || !closedTrigger || !openTrigger || !panel) return;
 
       const controller = createFabMenuController({
         root,
         trigger,
+        closedTrigger,
+        openTrigger,
         panel,
         onDismiss: () => this.openState.set(false),
       });

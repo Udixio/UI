@@ -1,4 +1,5 @@
 import { cubicBezier } from 'animejs';
+import { FAB_MOTION_DURATION_MS, FAB_MOTION_EASING } from '../fab-motion.js';
 import {
   createAutoLayoutController,
   type AutoLayoutController,
@@ -10,7 +11,7 @@ import {
  * far more abruptly -- three quarters of the travel in the first third of the
  * duration -- and reads as a snap rather than a reveal.
  */
-const FAB_LABEL_EASE = cubicBezier(0, 0, 0.58, 1);
+const FAB_LABEL_EASE = cubicBezier(...FAB_MOTION_EASING);
 
 export interface FabLabelControllerOptions {
   /**
@@ -67,7 +68,7 @@ export function createFabLabelController({
   label,
   extended,
   reducedMotion,
-  duration = 300,
+  duration = FAB_MOTION_DURATION_MS,
 }: FabLabelControllerOptions): FabLabelController {
   const layout = createAutoLayoutController({
     root: label,

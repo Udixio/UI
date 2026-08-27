@@ -119,7 +119,7 @@ describe('FabMenu', () => {
     expect(openTrigger).toHaveClass(
       'bg-secondary',
       'rounded-full',
-      'h-20',
+      'h-14',
       'shadow-none',
     );
     expect(openTrigger).not.toHaveClass('h-24');

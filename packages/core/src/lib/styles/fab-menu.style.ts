@@ -1,5 +1,6 @@
 import { type ClassNameComponent, cx, defaultClassNames } from '../utils';
 import type { FabMenuInterface } from '../interfaces/fab-menu.interface';
+import { FAB_MOTION_TIMING_CLASS } from '../fab-motion';
 
 const fabMenuConfig: ClassNameComponent<FabMenuInterface> = ({
   disabled,
@@ -10,7 +11,8 @@ const fabMenuConfig: ClassNameComponent<FabMenuInterface> = ({
   triggerSizer: cx('invisible pointer-events-none'),
   triggerPositioner: cx('absolute right-0 top-0'),
   fab: cx(
-    'transition-[background-color,color] duration-300 ease-[cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none',
+    'transition-[background-color,color]',
+    FAB_MOTION_TIMING_CLASS,
     disabled && 'pointer-events-none',
     isOpen && 'rounded-full shadow-none hover:shadow-none',
   ),

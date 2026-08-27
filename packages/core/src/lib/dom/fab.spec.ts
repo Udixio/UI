@@ -2,6 +2,7 @@
 
 import { createLayout, cubicBezier } from 'animejs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { FAB_MOTION_DURATION_MS, FAB_MOTION_EASING } from '../fab-motion.js';
 import { createFabLabelController } from './fab.js';
 
 vi.mock('animejs', () => ({
@@ -11,9 +12,7 @@ vi.mock('animejs', () => ({
 
 // The easing constant is built once, when the module under test is imported,
 // so the call has already happened by the time any beforeEach clears it.
-const easeCalls = vi
-  .mocked(cubicBezier)
-  .mock.calls.map((call) => [...call]);
+const easeCalls = vi.mocked(cubicBezier).mock.calls.map((call) => [...call]);
 
 function layoutInstance() {
   return {
@@ -97,7 +96,10 @@ describe('fab label controller', () => {
     expect(label.style.width).toBe('auto');
     expect(label.style.opacity).toBe('1');
     expect(layout.animate).toHaveBeenCalledWith(
-      expect.objectContaining({ duration: 300, ease: 'ease-fn' }),
+      expect.objectContaining({
+        duration: FAB_MOTION_DURATION_MS,
+        ease: 'ease-fn',
+      }),
     );
   });
 
@@ -119,7 +121,7 @@ describe('fab label controller', () => {
   });
 
   it('uses the easing Motion applied by default before this moved to Anime.js', () => {
-    expect(easeCalls).toEqual([[0, 0, 0.58, 1]]);
+    expect(easeCalls).toEqual([[...FAB_MOTION_EASING]]);
   });
 
   it('honours a custom duration', () => {

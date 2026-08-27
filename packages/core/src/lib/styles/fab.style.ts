@@ -1,9 +1,6 @@
-import {
-  type ClassNameComponent,
-  cx,
-  defaultClassNames,
-} from '../utils';
+import { type ClassNameComponent, cx, defaultClassNames } from '../utils';
 import type { FabInterface } from '../interfaces/fab.interface';
+import { FAB_MOTION_TIMING_CLASS } from '../fab-motion';
 
 const fabConfig: ClassNameComponent<FabInterface> = ({
   size,
@@ -19,7 +16,8 @@ const fabConfig: ClassNameComponent<FabInterface> = ({
     // controller's duration and easing (Motion's default tween curve, which
     // this transition used before it moved to Anime.js) so the pill grows as
     // one shape.
-    'transition-[padding,column-gap] duration-300 ease-[cubic-bezier(0,0,0.58,1)] motion-reduce:transition-none',
+    'transition-[padding,column-gap]',
+    FAB_MOTION_TIMING_CLASS,
     'shadow-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current',
     disabled ? 'cursor-default shadow-none' : 'cursor-pointer hover:shadow-4',
     // Sizes follow the current Material 3 scale (Compose's `Fab*Tokens` and
