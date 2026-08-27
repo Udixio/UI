@@ -1,3 +1,13 @@
+## 0.2.2-next.4 (2026-08-26)
+
+### 🩹 Fixes
+
+- **button:** keep flex display for links ([73e7f252](https://github.com/Udixio/UI/commit/73e7f252))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.2.2-next.3 (2026-08-24)
 
 ### 🚀 Features
