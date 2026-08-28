@@ -1,3 +1,17 @@
+## 0.2.2-next.7 (2026-08-28)
+
+### 🩹 Fixes
+
+- **search:** align contained results and dismissal ([ccc7c2de](https://github.com/Udixio/UI/commit/ccc7c2de))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/core to 0.2.2-next.6
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.2.2-next.6 (2026-08-27)
 
 ### 🩹 Fixes
