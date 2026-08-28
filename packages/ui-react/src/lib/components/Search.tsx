@@ -1,4 +1,5 @@
 import React, {
+  useCallback,
   useEffect,
   useId,
   useRef,
@@ -17,9 +18,17 @@ import {
   type ReactProps,
   type SearchInterface,
 } from '@udixio/core';
-import { createMenuController, type MenuController } from '@udixio/core/dom';
+import {
+  createMenuController,
+  createSearchOutsideDismissController,
+  createSearchResultsTransitionController,
+  type MenuController,
+  type SearchOutsideDismissController,
+  type SearchResultsTransitionController,
+} from '@udixio/core/dom';
 import { createUseStyle } from '../utils/create-use-style';
 import { useControllableState } from '../utils/use-controllable-state';
+import { State } from '../effects';
 import { Icon } from '../icon';
 
 export type ReactSearchProps = Omit<
@@ -47,15 +56,22 @@ export const useSearchStyle = createUseStyle(searchStyle);
 
 /**
  * Search lets people enter a query and optionally browse projected suggestions
- * or results in a projected Material 3 results surface.
+ * or results in an inline Material 3 contained results surface.
  *
  * @status beta
  * @category Input
  * @devx
  * - `query` is controlled; `defaultQuery` initializes uncontrolled usage.
  * - `expanded` is controlled; `defaultExpanded` initializes uncontrolled usage.
- * - Search is layout-neutral. Use a `SideSheet`, dialog, or another surface primitive to decide
- *   where the search and its projected results are presented.
+ * - Search renders the inline contained variant. Use a `SideSheet`, dialog, or another surface
+ *   primitive when the surrounding feature needs a modal presentation; those primitives own the
+ *   docked/full-screen layout.
+ * - `leadingIcon` is decorative and is not a button. Navigation or dismissal belongs to the
+ *   surrounding `SideSheet` or surface; use `trailingActions` for interactive Search actions.
+ * - The inline results surface uses one shared Anime.js height/opacity transition. Reduced motion
+ *   applies the final state immediately.
+ * - When projected results are expanded, a pointer outside Search closes the local results surface;
+ *   surrounding modal dismissal remains owned by `SideSheet` or the parent surface.
  * - Use `trailingActions` for one or two interactive trailing controls, normally `IconButton`
  *   instances. Do not pass a bare `Icon`; a trailing icon shown in the Search bar is an action.
  * - When the built-in clear action is visible, it occupies one of Material 3's two trailing
@@ -67,7 +83,8 @@ export const useSearchStyle = createUseStyle(searchStyle);
  * - Uses a `search` landmark and `input[type="search"]` with a required accessible name.
  * - When projected content exists, the input becomes a WAI-ARIA combobox linked to the results
  *   surface; Arrow Up/Down, Enter, and Escape preserve the shared focus model.
- * - The clear and leading controls have explicit accessible names and retain 48 px touch targets.
+ * - The leading icon is hidden from assistive technology because it is decorative. The clear and
+ *   trailing controls remain native actions with explicit accessible names and 48 px targets.
  * @limitations
  * - The component does not filter or render result data itself; consumers own the projected result
  *   content and should provide `role="option"` children when using the default listbox role.
@@ -133,14 +150,26 @@ export const Search = ({
     stateName: 'expanded',
   });
   const [isFocused, setIsFocused] = useState(false);
+  const hasClearAction = clearable && query.length > 0;
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const resultsRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const initialHasResultsRef = useRef(hasResults);
+  const expandedRef = useRef(isExpanded);
+  const [resultsElement, setResultsElement] = useState<HTMLDivElement | null>(
+    null,
+  );
   const forwardedInputRef = useRef(ref);
   const menuControllerRef = useRef<MenuController | null>(null);
+  const dismissControllerRef = useRef<SearchOutsideDismissController | null>(
+    null,
+  );
+  const resultsTransitionControllerRef =
+    useRef<SearchResultsTransitionController | null>(null);
   const pendingFocusRef = useRef<'first' | 'last' | null>(null);
   const suppressExpandOnFocusRef = useRef(false);
 
+  expandedRef.current = isExpanded;
   forwardedInputRef.current = ref;
 
   useEffect(() => {
@@ -150,7 +179,7 @@ export const Search = ({
   }, [ref]);
 
   useEffect(() => {
-    const results = resultsRef.current;
+    const results = resultsElement;
     if (!results || !isExpanded || !hasResults || resultsRole !== 'listbox') {
       menuControllerRef.current?.destroy();
       menuControllerRef.current = null;
@@ -179,7 +208,33 @@ export const Search = ({
         menuControllerRef.current = null;
       }
     };
-  }, [hasResults, isExpanded, resultsRole, setExpanded]);
+  }, [hasResults, isExpanded, resultsElement, resultsRole, setExpanded]);
+
+  useEffect(() => {
+    if (!resultsElement) return undefined;
+
+    const currentExpanded = expandedRef.current;
+    const animateOnConnect = currentExpanded && !initialHasResultsRef.current;
+    const controller = createSearchResultsTransitionController({
+      element: resultsElement,
+      open: animateOnConnect ? false : currentExpanded,
+    });
+    resultsTransitionControllerRef.current = controller;
+    if (animateOnConnect) controller.setOpen(true);
+
+    return () => {
+      controller.destroy();
+      if (resultsTransitionControllerRef.current === controller) {
+        resultsTransitionControllerRef.current = null;
+      }
+    };
+    // The controller is connected to the element once. State changes are
+    // synchronized by the effect below so an exit can finish before hiding.
+  }, [resultsElement]);
+
+  useEffect(() => {
+    resultsTransitionControllerRef.current?.setOpen(isExpanded);
+  }, [isExpanded]);
 
   const styles = useSearchStyle({
     label,
@@ -216,14 +271,39 @@ export const Search = ({
     className,
   });
 
-  const requestExpansion = (nextExpanded: boolean): void => {
-    const transition = getSearchExpansionTransition({
-      disabled,
-      isExpanded,
-      nextExpanded,
+  const requestExpansion = useCallback(
+    (nextExpanded: boolean): void => {
+      const transition = getSearchExpansionTransition({
+        disabled,
+        isExpanded,
+        nextExpanded,
+      });
+      if (!transition.blocked) setExpanded(transition.nextExpanded);
+    },
+    [disabled, isExpanded, setExpanded],
+  );
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root || !hasResults || !isExpanded) {
+      dismissControllerRef.current?.destroy();
+      dismissControllerRef.current = null;
+      return undefined;
+    }
+
+    const controller = createSearchOutsideDismissController({
+      root,
+      onDismiss: () => requestExpansion(false),
     });
-    if (!transition.blocked) setExpanded(transition.nextExpanded);
-  };
+    dismissControllerRef.current = controller;
+
+    return () => {
+      controller.destroy();
+      if (dismissControllerRef.current === controller) {
+        dismissControllerRef.current = null;
+      }
+    };
+  }, [hasResults, isExpanded, requestExpansion]);
 
   const handleFocus = (): void => {
     if (disabled) return;
@@ -278,9 +358,14 @@ export const Search = ({
     onKeyDown?.(event as unknown as KeyboardEvent<HTMLElement>);
   };
 
-  const handleLeadingClick = (): void => {
+  const handleInputFieldClick = (
+    event: React.MouseEvent<HTMLDivElement>,
+  ): void => {
     if (disabled) return;
-    requestExpansion(true);
+    const target = event.target;
+    if (target instanceof Element && target.closest('button, input, a')) {
+      return;
+    }
     inputRef.current?.focus();
   };
 
@@ -295,6 +380,7 @@ export const Search = ({
   return (
     <div
       {...restProps}
+      ref={rootRef}
       className={styles.search}
       style={style}
       aria-label={label}
@@ -302,16 +388,19 @@ export const Search = ({
       onClick={(event) => onClick?.(event)}
     >
       <div className={styles.container}>
-        <div className={styles.inputField}>
-          <button
-            type="button"
-            className={styles.leadingIcon}
-            aria-label={label}
-            disabled={disabled}
-            onClick={handleLeadingClick}
-          >
+        <div
+          className={styles.inputField}
+          aria-disabled={disabled || undefined}
+          onClick={handleInputFieldClick}
+        >
+          <State
+            className={styles.stateLayer}
+            colorName="on-surface"
+            stateClassName="state-ripple-group-[search-input]"
+          />
+          <span className={styles.leadingIcon} aria-hidden="true">
             <Icon icon={resolvedLeadingIcon} className="size-6" />
-          </button>
+          </span>
 
           <input
             ref={inputRef}
@@ -346,30 +435,39 @@ export const Search = ({
             onKeyDown={handleInputKeyDown}
           />
 
-          {clearable && query.length > 0 && (
-            <button
-              type="button"
-              className={styles.clearButton}
-              aria-label={clearLabel}
-              disabled={disabled}
-              onClick={handleClear}
-            >
-              <Icon icon={iClose} className="size-6" />
-            </button>
-          )}
-
-          {hasTrailingActions && (
-            <div className={styles.trailingActions}>{trailingActions}</div>
+          {(hasClearAction || hasTrailingActions) && (
+            <div className={styles.trailingActions}>
+              {hasClearAction && (
+                <button
+                  type="button"
+                  className={styles.clearButton}
+                  aria-label={clearLabel}
+                  disabled={disabled}
+                  onClick={handleClear}
+                >
+                  <State
+                    className={styles.stateLayer}
+                    colorName="on-surface"
+                    stateClassName="state-ripple-group-[search-clear]"
+                  />
+                  <Icon icon={iClose} className="size-6" />
+                </button>
+              )}
+              {trailingActions}
+            </div>
           )}
         </div>
 
-        {hasResults && isExpanded && (
+        {hasResults && (
           <div
-            ref={resultsRef}
+            ref={setResultsElement}
             id={resultsId}
             className={styles.results}
             role={resultsRole}
             aria-label={resultsLabel}
+            aria-hidden={!isExpanded}
+            inert={!isExpanded}
+            style={{ height: 0, opacity: 0 }}
           >
             {resultChildren}
           </div>

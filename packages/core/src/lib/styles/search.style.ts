@@ -5,53 +5,45 @@ const searchConfig: ClassNameComponent<SearchInterface> = ({
   disabled,
   clearable,
   isFocused,
+  isExpanded,
   hasQuery,
   hasResults,
 }) => ({
-  search: cx('relative block w-full max-w-[720px]'),
+  search: cx('relative block w-full min-w-[min(360px,100%)] max-w-[720px]'),
   container: cx(
-    'group/search relative flex w-full flex-col overflow-hidden rounded-[28px] bg-surface-container-high text-on-surface shadow-2',
-    'transition-[border-radius,box-shadow] duration-300 motion-reduce:transition-none',
-    'focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary',
+    'group/search relative flex w-full flex-col rounded-[28px] bg-surface-container-high text-on-surface outline outline-[3px] outline-offset-2 transition-[outline-color] duration-200 ease-out motion-reduce:transition-none',
+    isExpanded && hasResults ? 'gap-0.5' : 'gap-0',
+    isFocused && !disabled ? 'outline-secondary' : 'outline-transparent',
     {
       'opacity-[.38]': disabled,
     },
   ),
   inputField: cx(
-    'flex min-h-14 w-full shrink-0 items-center gap-1 px-3',
+    'group/search-input relative flex min-h-14 w-full shrink-0 items-center gap-1 rounded-full px-6',
     {
       'cursor-not-allowed': disabled,
       'cursor-text': !disabled,
     },
-    isFocused && !disabled && 'bg-on-surface/[0.04]',
   ),
   input: cx(
-    'min-w-0 flex-1 bg-transparent px-2 text-body-large text-on-surface outline-none',
+    'min-w-0 flex-1 bg-transparent px-0 text-body-large !text-[1rem] !leading-6 text-on-surface outline-none',
     'placeholder:text-on-surface-variant disabled:cursor-not-allowed',
     '[&::-webkit-search-cancel-button]:appearance-none',
   ),
   leadingIcon: cx(
-    'inline-flex size-12 shrink-0 items-center justify-center rounded-full',
-    'text-on-surface-variant outline-none transition-colors duration-200 motion-reduce:transition-none',
-    'hover:bg-on-surface/[0.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-current',
+    'pointer-events-none inline-flex size-12 shrink-0 items-center justify-center text-on-surface',
   ),
-  trailingActions: cx(
-    'flex shrink-0 items-center gap-1',
-  ),
+  trailingActions: cx('flex shrink-0 items-center gap-0 empty:hidden'),
   clearButton: cx(
-    'inline-flex size-12 shrink-0 items-center justify-center rounded-full',
-    'text-on-surface-variant outline-none transition-colors duration-200 motion-reduce:transition-none',
-    'hover:bg-on-surface/[0.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-current',
+    'group/search-clear relative inline-flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full outline outline-[3px] outline-offset-2 outline-transparent transition-[outline-color] duration-200 ease-out motion-reduce:transition-none',
+    'text-on-surface-variant focus-visible:outline-secondary',
     { hidden: !clearable || !hasQuery },
   ),
   results: cx(
-    'min-h-0 max-h-[min(40rem,66dvh)] flex-1 overflow-y-auto px-2 pb-4',
-    'border-outline-variant bg-surface-container-high',
-    {
-      'border-t': hasResults,
-      'max-h-[min(40rem,66dvh)]': true,
-    },
+    'min-h-0 overflow-hidden rounded-xl bg-surface-container-high px-2',
+    isExpanded && hasResults ? 'pb-4' : 'pb-0',
   ),
+  stateLayer: cx('overflow-hidden motion-reduce:transition-none'),
 });
 
 export const searchStyle = defaultClassNames<SearchInterface>(

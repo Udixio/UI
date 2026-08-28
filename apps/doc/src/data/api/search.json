@@ -5,19 +5,19 @@
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/Search.tsx",
-      "description": "Search lets people enter a query and optionally browse projected suggestions\nor results in a projected Material 3 results surface.",
+      "description": "Search lets people enter a query and optionally browse projected suggestions\nor results in an inline Material 3 contained results surface.",
       "tags": {
         "status": "beta",
         "category": "Input",
-        "devx": "- `query` is controlled; `defaultQuery` initializes uncontrolled usage.\n- `expanded` is controlled; `defaultExpanded` initializes uncontrolled usage.\n- Search is layout-neutral. Use a `SideSheet`, dialog, or another surface primitive to decide\n  where the search and its projected results are presented.\n- Use `trailingActions` for one or two interactive trailing controls, normally `IconButton`\n  instances. Do not pass a bare `Icon`; a trailing icon shown in the Search bar is an action.\n- When the built-in clear action is visible, it occupies one of Material 3's two trailing\n  action slots; provide at most one additional trailing action in that state.\n- Project suggestions or results as children. For listbox semantics, give each selectable child\n  `role=\"option\"` and a `tabIndex` of `-1`.\n- `onSearch` receives the current query when the user presses Enter or the search IME action.",
-        "a11y": "- Uses a `search` landmark and `input[type=\"search\"]` with a required accessible name.\n- When projected content exists, the input becomes a WAI-ARIA combobox linked to the results\n  surface; Arrow Up/Down, Enter, and Escape preserve the shared focus model.\n- The clear and leading controls have explicit accessible names and retain 48 px touch targets.",
+        "devx": "- `query` is controlled; `defaultQuery` initializes uncontrolled usage.\n- `expanded` is controlled; `defaultExpanded` initializes uncontrolled usage.\n- Search renders the inline contained variant. Use a `SideSheet`, dialog, or another surface\n  primitive when the surrounding feature needs a modal presentation; those primitives own the\n  docked/full-screen layout.\n- `leadingIcon` is decorative and is not a button. Navigation or dismissal belongs to the\n  surrounding `SideSheet` or surface; use `trailingActions` for interactive Search actions.\n- The inline results surface uses one shared Anime.js height/opacity transition. Reduced motion\n  applies the final state immediately.\n- When projected results are expanded, a pointer outside Search closes the local results surface;\n  surrounding modal dismissal remains owned by `SideSheet` or the parent surface.\n- Use `trailingActions` for one or two interactive trailing controls, normally `IconButton`\n  instances. Do not pass a bare `Icon`; a trailing icon shown in the Search bar is an action.\n- When the built-in clear action is visible, it occupies one of Material 3's two trailing\n  action slots; provide at most one additional trailing action in that state.\n- Project suggestions or results as children. For listbox semantics, give each selectable child\n  `role=\"option\"` and a `tabIndex` of `-1`.\n- `onSearch` receives the current query when the user presses Enter or the search IME action.",
+        "a11y": "- Uses a `search` landmark and `input[type=\"search\"]` with a required accessible name.\n- When projected content exists, the input becomes a WAI-ARIA combobox linked to the results\n  surface; Arrow Up/Down, Enter, and Escape preserve the shared focus model.\n- The leading icon is hidden from assistive technology because it is decorative. The clear and\n  trailing controls remain native actions with explicit accessible names and 48 px targets.",
         "limitations": "- The component does not filter or render result data itself; consumers own the projected result\n  content and should provide `role=\"option\"` children when using the default listbox role.\n- The component does not own modal layout or responsive presentation. Compose it with `SideSheet`\n  or another surface when the surrounding feature must block and inert the rest of the application."
       },
       "methods": [],
       "props": {
         "leadingIcon": {
           "name": "leadingIcon",
-          "description": "Icon shown at the leading edge; the search icon is used by default.",
+          "description": "Decorative icon shown at the leading edge; the search icon is used by default.",
           "required": false,
           "type": {
             "name": "Icon"
@@ -282,12 +282,12 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/search/search.ts",
-      "description": "Search lets people enter a query and optionally browse projected suggestions\nor results in a projected Material 3 results surface.",
+      "description": "Search lets people enter a query and optionally browse projected suggestions\nor results in an inline Material 3 contained results surface.",
       "tags": {
         "status": "beta",
         "category": "Input",
-        "devx": "`query`/`defaultQuery` and `expanded`/`defaultExpanded` mirror the React adapter; use the\n`queryChange`, `expandedChange`, and `searchSubmit` outputs for Angular bindings. Search is\nlayout-neutral: compose it with `SideSheet`, a dialog, or another surface primitive when the\nsurrounding feature owns modal presentation. Project one or two interactive trailing controls,\nnormally `udx-icon-button[search-trailing]`; do not project a bare icon. The built-in clear\naction occupies one of Material 3's two trailing action slots while it is visible. Project\nselectable results with `role=\"option\"` when using the default listbox results role.",
-        "a11y": "Renders a `search` landmark and a named `input[type=\"search\"]`; projected listbox\nresults share Arrow Up/Down, Enter, and Escape focus behavior with React.",
+        "devx": "`query`/`defaultQuery` and `expanded`/`defaultExpanded` mirror the React adapter; use the\n`queryChange`, `expandedChange`, and `searchSubmit` outputs for Angular bindings. Search renders\nthe inline contained variant; compose it with `SideSheet`, a dialog, or another surface primitive\nwhen the surrounding feature owns modal presentation and docked/full-screen layout. Project one\nor two interactive trailing controls, normally `udx-icon-button[search-trailing]`; do not project\na bare icon. `leadingIcon` is decorative; navigation and dismissal belong to the surrounding\n`SideSheet` or surface. The built-in clear action occupies one of Material 3's two trailing\naction slots while it is visible. Project selectable results with `role=\"option\"` when using the\ndefault listbox results role. The inline results surface uses one shared Anime.js height/opacity\ntransition; reduced motion applies the final state immediately. A pointer outside Search closes\nthe local results surface when expanded; surrounding modal dismissal remains owned by `SideSheet`\nor the parent surface.",
+        "a11y": "Renders a `search` landmark and a named `input[type=\"search\"]`; the leading icon is\ndecorative and hidden from assistive technology, while projected listbox results share\nArrow Up/Down, Enter, and Escape focus behavior with React.",
         "limitations": "Search does not filter or render result data itself and does not own modal layout\nor responsive presentation."
       },
       "inputs": {
@@ -353,7 +353,7 @@
         },
         "leadingIcon": {
           "name": "leadingIcon",
-          "description": "Icon shown at the leading edge; the search icon is used by default.",
+          "description": "Decorative icon shown at the leading edge; the search icon is used by default.",
           "required": false,
           "type": {
             "name": "Icon | undefined"

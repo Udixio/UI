@@ -9,6 +9,7 @@ import {
   output,
   signal,
   type OnInit,
+  untracked,
   viewChild,
 } from '@angular/core';
 import {
@@ -19,12 +20,20 @@ import {
   type SearchInterface,
   type SearchProps,
 } from '@udixio/core';
-import { createMenuController, type MenuController } from '@udixio/core/dom';
+import {
+  createMenuController,
+  createSearchOutsideDismissController,
+  createSearchResultsTransitionController,
+  type MenuController,
+  type SearchOutsideDismissController,
+  type SearchResultsTransitionController,
+} from '@udixio/core/dom';
 import { iClose } from '@udixio/icons-rounded-400/close';
 import { iSearch } from '@udixio/icons-rounded-400/search';
 import { Icon } from '../icon/icon';
 import { createControllableState } from '../utils/create-controllable-state';
 import { createStyle } from '../utils/create-style';
+import { StateLayer } from '../state-layer/state-layer';
 
 const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
   value === undefined ? undefined : booleanAttribute(value);
@@ -33,29 +42,32 @@ let nextSearchId = 0;
 
 /**
  * Search lets people enter a query and optionally browse projected suggestions
- * or results in a projected Material 3 results surface.
+ * or results in an inline Material 3 contained results surface.
  *
  * @status beta
  * @category Input
  * @devx `query`/`defaultQuery` and `expanded`/`defaultExpanded` mirror the React adapter; use the
- * `queryChange`, `expandedChange`, and `searchSubmit` outputs for Angular bindings. Search is
- * layout-neutral: compose it with `SideSheet`, a dialog, or another surface primitive when the
- * surrounding feature owns modal presentation. Project one or two interactive trailing controls,
- * normally `udx-icon-button[search-trailing]`; do not project a bare icon. The built-in clear
- * action occupies one of Material 3's two trailing action slots while it is visible. Project
- * selectable results with `role="option"` when using the default listbox results role.
- * @a11y Renders a `search` landmark and a named `input[type="search"]`; projected listbox
- * results share Arrow Up/Down, Enter, and Escape focus behavior with React.
+ * `queryChange`, `expandedChange`, and `searchSubmit` outputs for Angular bindings. Search renders
+ * the inline contained variant; compose it with `SideSheet`, a dialog, or another surface primitive
+ * when the surrounding feature owns modal presentation and docked/full-screen layout. Project one
+ * or two interactive trailing controls, normally `udx-icon-button[search-trailing]`; do not project
+ * a bare icon. `leadingIcon` is decorative; navigation and dismissal belong to the surrounding
+ * `SideSheet` or surface. The built-in clear action occupies one of Material 3's two trailing
+ * action slots while it is visible. Project selectable results with `role="option"` when using the
+ * default listbox results role. The inline results surface uses one shared Anime.js height/opacity
+ * transition; reduced motion applies the final state immediately. A pointer outside Search closes
+ * the local results surface when expanded; surrounding modal dismissal remains owned by `SideSheet`
+ * or the parent surface.
+ * @a11y Renders a `search` landmark and a named `input[type="search"]`; the leading icon is
+ * decorative and hidden from assistive technology, while projected listbox results share
+ * Arrow Up/Down, Enter, and Escape focus behavior with React.
  * @limitations Search does not filter or render result data itself and does not own modal layout
  * or responsive presentation.
  */
 @Component({
-  // The package's public selector prefix is `udx-`; the shared Angular lint
-  // configuration still expects its generated `lib-` prefix.
-  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'udx-search',
   standalone: true,
-  imports: [Icon],
+  imports: [Icon, StateLayer],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
@@ -67,17 +79,19 @@ let nextSearchId = 0;
       (keydown)="handleRootKeyDown($event)"
     >
       <div [class]="styles()['container']">
-        <div [class]="styles()['inputField']">
-          <button
-            #leadingButton
-            type="button"
-            [class]="styles()['leadingIcon']"
-            [attr.aria-label]="label()"
-            [disabled]="disabled()"
-            (click)="handleLeadingClick()"
-          >
+        <div
+          [class]="styles()['inputField']"
+          [attr.aria-disabled]="disabled() ? 'true' : null"
+          (click)="handleInputFieldClick($event)"
+        >
+          <udx-state-layer
+            [className]="styles()['stateLayer']"
+            colorName="on-surface"
+            stateClassName="state-ripple-group-[search-input]"
+          />
+          <span [class]="styles()['leadingIcon']" aria-hidden="true">
             <udx-icon [icon]="resolvedLeadingIcon()" className="size-6" />
-          </button>
+          </span>
 
           <input
             #inputElement
@@ -109,19 +123,23 @@ let nextSearchId = 0;
             (keydown)="handleInputKeyDown($event)"
           />
 
-          @if (clearable() && hasQuery()) {
-            <button
-              type="button"
-              [class]="styles()['clearButton']"
-              [attr.aria-label]="clearLabel()"
-              [disabled]="disabled()"
-              (click)="handleClear()"
-            >
-              <udx-icon [icon]="clearIcon" className="size-6" />
-            </button>
-          }
-
           <div [class]="styles()['trailingActions']">
+            @if (clearable() && hasQuery()) {
+              <button
+                type="button"
+                [class]="styles()['clearButton']"
+                [attr.aria-label]="clearLabel()"
+                [disabled]="disabled()"
+                (click)="handleClear()"
+              >
+                <udx-state-layer
+                  [className]="styles()['stateLayer']"
+                  colorName="on-surface"
+                  stateClassName="state-ripple-group-[search-clear]"
+                />
+                <udx-icon [icon]="clearIcon" className="size-6" />
+              </button>
+            }
             <ng-content select="[search-trailing]" />
           </div>
         </div>
@@ -130,10 +148,12 @@ let nextSearchId = 0;
           #results
           [id]="resultsId()"
           [class]="styles()['results']"
-          [hidden]="!isExpanded() || !hasResults()"
+          [hidden]="!hasResults()"
           [attr.role]="hasResults() ? resultsRole() : null"
           [attr.aria-label]="hasResults() ? resultsLabel() : null"
           [attr.aria-hidden]="isExpanded() && hasResults() ? null : 'true'"
+          [attr.inert]="isExpanded() && hasResults() ? null : ''"
+          style="height: 0; opacity: 0"
         >
           <ng-content />
         </div>
@@ -183,9 +203,15 @@ export class Search implements OnInit {
   private readonly fallbackId = `search-${nextSearchId++}`;
   private readonly inputElement =
     viewChild.required<ElementRef<HTMLInputElement>>('inputElement');
+  private readonly root =
+    viewChild.required<ElementRef<HTMLDivElement>>('root');
   private readonly results =
     viewChild.required<ElementRef<HTMLDivElement>>('results');
   private menuControllerInstance: MenuController | null = null;
+  private dismissControllerInstance: SearchOutsideDismissController | null =
+    null;
+  private resultsTransitionControllerInstance: SearchResultsTransitionController | null =
+    null;
   private readonly pendingFocus = signal<'first' | 'last' | null>(null);
   private readonly suppressExpandOnFocus = signal(false);
   private autoFocusApplied = false;
@@ -215,6 +241,8 @@ export class Search implements OnInit {
     () => this.queryState.value().length > 0,
   );
   protected readonly hasResults = signal(false);
+  private initialProjectedContentResolved = false;
+  private initialProjectedContentPresent = false;
   protected readonly resolvedId = computed(() => this.id() ?? this.fallbackId);
   protected readonly resultsId = computed(() => `${this.resolvedId()}-results`);
   protected readonly resolvedLeadingIcon = computed(
@@ -258,18 +286,40 @@ export class Search implements OnInit {
   constructor() {
     afterRenderEffect((onCleanup) => {
       const results = this.results().nativeElement;
-      const hasProjectedContent =
-        results.children.length > 0 || Boolean(results.textContent?.trim());
-      if (this.hasResults() !== hasProjectedContent) {
-        this.hasResults.set(hasProjectedContent);
-      }
+      const updateProjectedContent = (): void => {
+        const hasProjectedContent =
+          results.children.length > 0 || Boolean(results.textContent?.trim());
+        if (!this.initialProjectedContentResolved) {
+          this.initialProjectedContentResolved = true;
+          this.initialProjectedContentPresent = hasProjectedContent;
+        }
+        if (this.hasResults() !== hasProjectedContent) {
+          this.hasResults.set(hasProjectedContent);
+        }
+      };
+      updateProjectedContent();
 
-      const currentController = this.menuControllerInstance;
-      currentController?.destroy();
-      this.menuControllerInstance = null;
+      const MutationObserverConstructor =
+        results.ownerDocument.defaultView?.MutationObserver ??
+        globalThis.MutationObserver;
+      if (MutationObserverConstructor) {
+        const observer = new MutationObserverConstructor(
+          updateProjectedContent,
+        );
+        observer.observe(results, {
+          childList: true,
+          characterData: true,
+          subtree: true,
+        });
+        onCleanup(() => observer.disconnect());
+      }
+    });
+
+    afterRenderEffect((onCleanup) => {
+      const results = this.results().nativeElement;
 
       if (
-        !hasProjectedContent ||
+        !this.hasResults() ||
         !this.isExpanded() ||
         this.resultsRole() !== 'listbox'
       ) {
@@ -293,6 +343,50 @@ export class Search implements OnInit {
         if (focus === 'first') controller.focusFirst();
         else controller.focusLast();
       }
+    });
+
+    afterRenderEffect((onCleanup) => {
+      const results = this.results().nativeElement;
+      if (!this.hasResults()) return;
+
+      const currentExpanded = untracked(() => this.isExpanded());
+      const animateOnConnect =
+        currentExpanded && !this.initialProjectedContentPresent;
+      const controller = createSearchResultsTransitionController({
+        element: results,
+        open: animateOnConnect ? false : currentExpanded,
+      });
+      this.resultsTransitionControllerInstance = controller;
+      onCleanup(() => {
+        controller.destroy();
+        if (!this.hasResults()) results.hidden = true;
+        if (this.resultsTransitionControllerInstance === controller) {
+          this.resultsTransitionControllerInstance = null;
+        }
+      });
+      if (animateOnConnect) controller.setOpen(true);
+    });
+
+    afterRenderEffect(() => {
+      if (!this.hasResults()) return;
+      this.resultsTransitionControllerInstance?.setOpen(this.isExpanded());
+    });
+
+    afterRenderEffect((onCleanup) => {
+      const root = this.root().nativeElement;
+      if (!this.hasResults() || !this.isExpanded()) return;
+
+      const controller = createSearchOutsideDismissController({
+        root,
+        onDismiss: () => this.requestExpansion(false),
+      });
+      this.dismissControllerInstance = controller;
+      onCleanup(() => {
+        controller.destroy();
+        if (this.dismissControllerInstance === controller) {
+          this.dismissControllerInstance = null;
+        }
+      });
     });
 
     afterRenderEffect(() => {
@@ -370,9 +464,12 @@ export class Search implements OnInit {
     this.closeAndRestoreFocus();
   }
 
-  protected handleLeadingClick(): void {
+  protected handleInputFieldClick(event: MouseEvent): void {
     if (this.disabled()) return;
-    this.requestExpansion(true);
+    const target = event.target;
+    if (target instanceof Element && target.closest('button, input, a')) {
+      return;
+    }
     this.inputElement().nativeElement.focus();
   }
 

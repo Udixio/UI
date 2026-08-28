@@ -41,17 +41,17 @@ import searchAutofocusAngularSource from '@/examples/angular/search-autofocus.ts
 
 ## Usage
 
-Search is a layout-neutral Material 3 search field with an optional projected
-results surface. Use it when users need to find content, navigate
-documentation, or filter a known collection. The implementation follows the
-[Material 3 Search specification](https://m3.material.io/components/search/specs)
-and its [interaction guidelines](https://m3.material.io/components/search/guidelines).
+Search is an inline Material 3 contained search field with an optional projected
+results surface. Use it when users need to find content, navigate documentation,
+or filter a known collection. The implementation follows the contained Search bar
+[specification](https://m3.material.io/components/search/specs) and its
+[interaction guidelines](https://m3.material.io/components/search/guidelines).
 
-Search owns the query, clear action, submit event, input semantics, and local
-results visibility. It does not choose a docked, full-screen, dialog, or side
-sheet layout. Compose it with the surface primitive that owns that presentation
-when search should become modal; results are still projected by the consumer,
-so filtering and selection remain in application code.
+Search owns the query, clear action, submit event, input semantics, and inline
+results visibility. It does not implement docked or full-screen presentation.
+Compose it with `SideSheet` or another surface primitive when search should become
+modal; results are still projected by the consumer, so filtering and selection
+remain in application code.
 
 <Code
   codes={{
@@ -65,16 +65,18 @@ so filtering and selection remain in application code.
 
 ## Material 3 anatomy
 
-The component exposes the Material 3 Search bar anatomy through its public
-props: the leading icon, supporting placeholder text, interactive trailing
-actions, and a clear action when the query is non-empty. The container uses the
-Search bar's rounded shape and touch-sized action buttons. When expanded, it
-reuses the same input and exposes a labeled projected results surface below the
-header.
+The component exposes the Material 3 contained Search bar anatomy through its
+public props: the decorative leading icon, supporting placeholder text, interactive
+trailing actions, and a clear action when the query is non-empty. The container uses the
+Search bar's persistent filled surface, rounded shape, and touch-sized action
+buttons without a default shadow. When expanded, it reuses the same input and
+exposes a labeled projected results surface below the header without a baseline
+divider. Its focus indicator fades in briefly instead of appearing abruptly, and
+the results surface uses a restrained height/opacity reveal.
 
-The parent layout decides where that surface lives. An inline search can render
-it in normal page flow, while a modal search can be placed inside `SideSheet`
-or another dialog/surface primitive.
+The inline results stay in normal page flow. A modal search can place the same
+`Search` inside `SideSheet` or another dialog/surface primitive; that surrounding
+primitive owns the modal presentation.
 
 The result content is deliberately consumer-owned. This keeps the component
 usable with local filtering, remote search, recent searches, command palettes,
@@ -156,9 +158,10 @@ feature state.
 
 ## Leading icon and trailing actions
 
-`leadingIcon` accepts the search or navigation icon shown at the start of the
-field. The leading control is owned by Search and focuses the input. For the
-right side, use `trailingActions` in React or project one or two
+`leadingIcon` accepts the search icon, or another decorative icon, shown at the
+start of the field. It is not a button: clicking the field still focuses the
+input, while navigation/back/close belongs to the surrounding `SideSheet` or
+surface. For the right side, use `trailingActions` in React or project one or two
 `udx-icon-button[search-trailing]` controls in Angular. These are real
 interactive actions, not bare `Icon` definitions. Use them for additional
 search modes such as voice search, filters, settings, or another high-level
@@ -188,6 +191,11 @@ the surrounding surface.
 
 Search does not fetch or filter data itself. Update the projected content from
 the owning feature and expose an appropriate empty, loading, or error state.
+When the expanded state changes, Search animates this inline surface with a
+short Anime.js height/opacity transition; the transition is skipped when
+reduced motion is requested.
+When the local results surface is expanded, a pointer outside Search closes it;
+modal dismissal remains owned by the surrounding `SideSheet` or surface.
 When Search is inside a `SideSheet`, the side sheet owns the modal surface while
 Search continues to own the labeled local results surface inside it.
 Selectable results should use `role="option"`, `aria-selected`, and
@@ -275,8 +283,9 @@ content semantics and focus management inside it.
 
 ## Accessibility
 
-`label` is required and names the native `input[type="search"]`. When results
-are present, the input exposes the combobox relationship to the labeled
+`label` is required and names the native `input[type="search"]`. The leading
+icon is decorative and hidden from assistive technology; interactive actions
+belong to the clear control or trailing buttons. When results are present, the input exposes the combobox relationship to the labeled
 results surface. The clear action has a configurable accessible name through
 `clearLabel`, and Search keeps the Material 3 48&nbsp;px touch target for its
 field actions. If Search is composed inside `SideSheet`, the side sheet owns

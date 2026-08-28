@@ -1,8 +1,14 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { animate } from 'animejs';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { vi } from 'vitest';
 import { IconButton, Search } from '../lib/index.js';
+
+vi.mock('animejs', async (importOriginal) => ({
+  ...(await importOriginal()),
+  animate: vi.fn(),
+}));
 
 expect.extend(toHaveNoViolations);
 
@@ -93,6 +99,34 @@ describe('Search', () => {
     );
   });
 
+  it('uses the shared M3 focus indicator and state layers for built-in actions', () => {
+    render(<Search label="Search" defaultQuery="Material" />);
+
+    const search = screen.getByRole('search');
+    const container = search.querySelector('.container');
+    const input = screen.getByRole('searchbox', { name: 'Search' });
+    const leading = search.querySelector('span[aria-hidden="true"].size-12');
+    const clear = screen.getByRole('button', { name: 'Clear search' });
+
+    expect(leading).toHaveAttribute('aria-hidden', 'true');
+    expect(leading).toHaveClass('pointer-events-none', 'size-12');
+    expect(leading).not.toHaveAttribute('role');
+    expect(leading?.querySelector('.state-layer')).not.toBeInTheDocument();
+    expect(search.querySelector('button[aria-label="Search"]')).toBeNull();
+    expect(clear).toHaveClass('group/search-clear');
+    expect(clear.querySelector('.state-layer')).toBeInTheDocument();
+
+    if (!leading) throw new Error('The decorative leading icon is missing.');
+    fireEvent.click(leading);
+    expect(input).toHaveFocus();
+    fireEvent.focus(input);
+    expect(container).toHaveClass(
+      'outline-[3px]',
+      'outline-offset-2',
+      'outline-secondary',
+    );
+  });
+
   it('renders interactive trailing actions instead of decorative icons', () => {
     const onClick = vi.fn();
     render(
@@ -134,6 +168,9 @@ describe('Search', () => {
     expect(
       screen.getByRole('listbox', { name: 'Search suggestions' }),
     ).toBeVisible();
+    const results = screen.getByRole('listbox', {
+      name: 'Search suggestions',
+    });
     fireEvent.keyDown(input, { key: 'ArrowDown' });
     expect(options[0]).toHaveFocus();
     fireEvent.keyDown(options[0], { key: 'ArrowDown' });
@@ -141,7 +178,65 @@ describe('Search', () => {
     fireEvent.keyDown(options[1], { key: 'Escape' });
 
     await waitFor(() => expect(input).toHaveFocus());
+    expect(results).toHaveAttribute('aria-hidden', 'true');
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+  });
+
+  it('closes the results surface on an outside pointer without closing inside the Search', async () => {
+    const onExpandedChange = vi.fn();
+    const { container } = render(
+      <Search
+        label="Search"
+        defaultExpanded
+        onExpandedChange={onExpandedChange}
+      >
+        <div role="option" tabIndex={-1}>
+          Alpha
+        </div>
+      </Search>,
+    );
+    const input = screen.getByRole('combobox', { name: 'Search' });
+    const outside = document.createElement('button');
+    document.body.append(outside);
+
+    fireEvent.pointerDown(input);
+    expect(onExpandedChange).not.toHaveBeenCalled();
+
+    fireEvent.pointerDown(outside);
+    await waitFor(() =>
+      expect(onExpandedChange).toHaveBeenLastCalledWith(false),
+    );
+    expect(container.querySelector('[role="listbox"]')).toHaveAttribute(
+      'aria-hidden',
+      'true',
+    );
+
+    outside.remove();
+  });
+
+  it('animates suggestions that arrive after an expanded search is mounted', async () => {
+    const animation = { pause: vi.fn() };
+    vi.mocked(animate).mockReset();
+    vi.mocked(animate).mockReturnValue(animation as never);
+    const { rerender } = render(<Search label="Search" defaultExpanded />);
+
+    rerender(
+      <Search label="Search" defaultExpanded>
+        <div role="option" tabIndex={-1}>
+          Alpha
+        </div>
+      </Search>,
+    );
+
+    const results = await screen.findByRole('listbox', {
+      name: 'Search suggestions',
+    });
+    await waitFor(() =>
+      expect(animate).toHaveBeenCalledWith(
+        results,
+        expect.objectContaining({ opacity: 1, duration: 250 }),
+      ),
+    );
   });
 
   it('does not expose an expanded popup while disabled', () => {

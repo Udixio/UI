@@ -25,7 +25,7 @@ export type SearchProps = {
   onSearch?: (query: string) => void;
   /** Hint displayed while the query is empty. @default 'Search' */
   placeholder?: string;
-  /** Icon shown at the leading edge; the search icon is used by default. */
+  /** Decorative icon shown at the leading edge; the search icon is used by default. */
   leadingIcon?: Icon;
   /** Prevents query editing and activation. */
   disabled?: boolean;
@@ -87,5 +87,6 @@ export interface SearchInterface {
     'trailingActions',
     'clearButton',
     'results',
+    'stateLayer',
   ];
 }
