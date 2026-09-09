@@ -58,6 +58,17 @@ dont le dépôt migre. `@udixio/core/dom` est déjà sur anime.js (`auto-layout`
 `NavigationRail`, `NavigationRailItem`, `SideSheet`. Le plugin prescrit donc aujourd'hui la
 direction abandonnée.
 
+### Cause 5 — Le générateur de documentation API ne connaît qu'une seule forme Angular
+
+La page `/components/<name>/api` ne souffre pas du problème d'interface commune : `apps/doc/src/data/api/tooltip.json` est déjà partitionné à 100 % par framework (`frameworks.react.props`, `frameworks.angular.inputs/outputs/content`), sans aucune section partagée, et `src/components/api/ComponentApiReference.tsx` rend des sections Angular inputs/outputs qu'une directive alimente aussi bien qu'un composant. Le modèle de données est donc déjà compatible avec la doctrine visée.
+
+Le couplage est ailleurs, dans `apps/doc/scripts/docgen.js` :
+
+1. `getComponentDecorator` (l. 373-381) ne filtre que sur le décorateur `Component`. Une classe `@Directive` fait retourner `undefined` à `extractAngularComponent`, la clé `frameworks.angular` disparaît du JSON, et comme la disponibilité d'un framework est dérivée des payloads non vides, l'onglet Angular disparaît de la page API sans erreur ni avertissement. C'est le risque principal, et il est silencieux.
+2. Le sélecteur n'est jamais extrait. Pour un composant, le point d'attache est devinable depuis `displayName` ; pour une directive à inputs préfixés, la page listerait des inputs sans jamais dire sur quoi les poser. `validate_api_docs.py` connaît un champ `selector`, mais seulement à l'intérieur de `content` pour les slots ; l'ajouter au niveau du framework impose un bump de `schemaVersion`.
+3. `getReactFallbackDescription` (l. 296) résout les descriptions par correspondance **exacte** de nom avec les props React. Un input renommé selon l'idiome Angular perd sa description. L'échec est bruyant — le validateur exige une description non vide — mais le mécanisme incarne « React est la source » au niveau des noms, précisément le couplage que cette révision desserre.
+4. `extractProjectedContent` (l. 314) lit `metadata.template`. Une directive n'en a pas ; un contenu passé par `TemplateRef` n'est documentable que comme un input ordinaire.
+
 ## Décisions
 
 Prises explicitement au cours du design :
@@ -165,6 +176,16 @@ Dans `skills/audit-documentation/SKILL.md`, ajouter : lorsqu'un composant porte 
 `platform-shape`, l'overview MDX doit énoncer explicitement la forme de chaque framework. Une doc
 qui laisse croire à une API unique alors que les vecteurs diffèrent est un défaut `DOCS-*`.
 
+### 7. L'extraction API doit reconnaître toutes les formes
+
+Dans `skills/audit-documentation/SKILL.md`, deux règles.
+
+**Couverture des formes.** L'extraction de l'API doit reconnaître toute forme Angular publique — composant, directive, service, pipe — et non le seul décorateur `Component`. Un adapter Angular exporté par le barrel dont le payload API est absent du JSON généré est un défaut `DOCS-*` de sévérité `blocker`, **jamais** une indisponibilité de framework. Cette règle existe pour rendre bruyant l'échec silencieux décrit en cause 5 : la disponibilité d'un framework se dérive des payloads non vides, ce qui transforme une forme non reconnue en « Angular non supporté ».
+
+**Point d'attache et indépendance des noms.** Quand un composant porte un verdict `platform-shape`, la page API doit exposer le point d'attache de chaque forme — sélecteur d'élément ou d'attribut — et pas seulement la liste des membres. Par ailleurs, aucun mécanisme d'extraction ne doit dépendre d'une correspondance de noms React↔Angular pour produire une description : c'est le corollaire documentaire de la règle « le vocabulaire est invariant, la forme ne l'est pas ». Un adapter qui adopte un préfixe idiomatique documente ses propres membres.
+
+Les modifications de `apps/doc/scripts/docgen.js`, du schéma généré et de `validate_api_docs.py` qu'impliquent ces règles relèvent du pilote Tooltip, pas de ce document. Ce qui est fixé ici est le critère d'acceptation qu'elles devront satisfaire.
+
 ## Fichiers touchés
 
 | Fichier | Changement |
@@ -176,7 +197,7 @@ qui laisse croire à une API unique alors que les vecteurs diffèrent est un dé
 | `skills/audit-parity/SKILL.md` | Étape 0 ; verdict `platform-shape` ; matrice comparant les concepts core ; interdiction de signaler une forme idiomatique comme drift. |
 | `skills/audit-multiframework/SKILL.md` | Ownership élargi ; seuil des ~50 lignes ; `MULTI-OWNERSHIP-*` ; vocabulaire Motion. |
 | `skills/sync-angular-component/SKILL.md` | Étape « choisir la forme » ; interdiction du rejeu de `ref` ; vocabulaire Motion. |
-| `skills/audit-documentation/SKILL.md` | Obligation de documenter la forme sous verdict `platform-shape`. |
+| `skills/audit-documentation/SKILL.md` | Obligation de documenter la forme sous verdict `platform-shape` ; couverture obligatoire de toutes les formes Angular par l'extraction API, payload manquant = `blocker` ; exposition du point d'attache ; interdiction de dériver une description d'une correspondance de noms React↔Angular. |
 | `skills/audit-public-api/SKILL.md` | Renvoi vers la section « trois couches ». |
 | `.claude-plugin/plugin.json` | Bump de version. |
 
@@ -191,9 +212,11 @@ Conformément à `skills/evolve-governance/SKILL.md` :
 - exécuter `claude plugin validate` ;
 - forward-tester la nouvelle doctrine sur un composant réel.
 
-Le forward-test est le cas Tooltip : un `audit-parity` sur `Tooltip` doit désormais produire un
+Le forward-test est le cas Tooltip. Un `audit-parity` sur `Tooltip` doit désormais produire un
 `FORM-*` sur `target` plutôt qu'un verdict de conformité, et un `MULTI-OWNERSHIP-*` sur
-`useTooltipTrigger`. Tant que ces deux findings ne sortent pas, la révision n'a pas mordu.
+`useTooltipTrigger`. Un `audit-documentation` doit produire un `DOCS-*` sur l'incapacité du
+générateur à extraire une forme Angular autre qu'un `@Component`. Tant que ces trois findings ne
+sortent pas, la révision n'a pas mordu.
 
 ## Hors périmètre
 
@@ -204,6 +227,11 @@ timers, long-press tactile et synchro ARIA ; `useTooltipTrigger` ramené à ~80 
 supprimé sans alias, ce qu'autorise `@udixio/ui-angular@0.2.2-next.6` avec Tooltip en
 `@status beta`. Le point de risque connu est côté React : le mode `children` fait aujourd'hui un
 `cloneElement` avec des handlers, et devra fusionner une `ref` sur l'enfant cloné.
+
+Sont aussi hors périmètre les modifications de code qu'appellent les règles de la section 7 —
+reconnaissance des décorateurs dans `apps/doc/scripts/docgen.js`, extraction du sélecteur, bump de
+`schemaVersion` et `allowed_fields` de `plugins/udixio-ui-governance/scripts/validate_api_docs.py`
+— qui appartiennent au pilote Tooltip.
 
 Le réaudit des autres composants Angular à la recherche d'une meilleure forme est également hors
 périmètre.
