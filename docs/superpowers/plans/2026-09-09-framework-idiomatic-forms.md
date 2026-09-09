@@ -351,7 +351,7 @@ comparing anything."
 
 **Interfaces:**
 - Consumes: le vocabulaire anime.js fixé dans les Global Constraints.
-- Produces: le finding `MULTI-OWNERSHIP-<AREA>-NNN`, attendu par la tâche 9.
+- Produces: le finding `MULTI-OWNERSHIP-NNN` (convention `MULTI-<AREA>-NNN`, area `OWNERSHIP`), attendu par la tâche 9.
 
 - [ ] **Step 1: Corriger la description du frontmatter**
 
@@ -393,9 +393,10 @@ reactive adapter. Animated effects use anime.js, chosen because it is plain Java
 therefore consumable identically by React and Angular.
 
 A React hook holding more than roughly fifty lines of non-render logic is presumed to be a missing
-core controller: report `MULTI-OWNERSHIP-<AREA>-NNN`. The threshold triggers an inspection, never a
-verdict on its own — confirm that the logic is genuinely shareable, and that the second adapter
-either duplicates it today or would have to, before concluding.
+core controller: report `MULTI-OWNERSHIP-NNN`, the file's `MULTI-<AREA>-NNN` convention with
+`OWNERSHIP` as the area. The threshold triggers an inspection, never a verdict on its own — confirm
+that the logic is genuinely shareable, and that the second adapter either duplicates it today or
+would have to, before concluding.
 ```
 
 - [ ] **Step 4: Étendre la distinction parité/syntaxe à la forme**
