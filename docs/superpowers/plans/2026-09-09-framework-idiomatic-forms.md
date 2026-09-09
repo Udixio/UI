@@ -477,11 +477,14 @@ par :
    stop before editing Angular. Do not obtain parity by propagating the defect or adding an alias.
 4. Audit core and React enough to establish that the source behavior is valid. Fix confirmed source
    defects before conversion.
-5. Choose the Angular delivery shape before translating the contract. The deciding question: does
-   the React component **render** content it owns (component), or does it **attach** behavior to an
-   element the consumer already owns (directive)? A service fits behavior with no host; a pipe fits
-   a pure transformation. When the answer is not the source adapter's shape, emit `FORM-*` and stop
-   for the user's decision, as
+5. Choose the Angular delivery shape before translating the contract. The deciding question is
+   attachment, not rendering: does the component's primary behavior **attach** to an element the
+   consumer already owns? If it does, the shape is a directive, even when the component also
+   renders a surface of its own — a directive can instantiate that surface dynamically, so owning
+   rendered content never disqualifies it. Only when nothing is attached to a foreign host, and the
+   component owns every element it needs, is a component the right shape. A service fits behavior
+   with no host; a pipe fits a pure transformation. When the answer is not the source adapter's
+   shape, emit `FORM-*` and stop for the user's decision, as
    [the public API standard](../../references/public-api-standard.md#propose-a-delivery-shape-before-adopting-it)
    requires.
 6. Write a parity matrix for API, defaults, state ownership, events, DOM semantics, styles,
@@ -940,7 +943,7 @@ La révision n'a mordu que si l'audit produit **les trois** :
 | Finding attendu | Preuve à exiger dans le rapport |
 | --- | --- |
 | `FORM-*` sur l'input `target` | `packages/ui-angular/src/lib/tooltip/tooltip.ts:139` — un input requis qui rejoue `targetRef`, alors qu'une directive injecterait son `ElementRef` |
-| `MULTI-OWNERSHIP-*` sur `useTooltipTrigger` | `packages/ui-react/src/lib/hooks/useTooltipTrigger.ts` fait 331 lignes de logique non-rendu ; `packages/ui-angular/src/lib/tooltip/tooltip.ts:198-547` la duplique à la main |
+| `MULTI-OWNERSHIP-*` sur `useTooltipTrigger` | `packages/ui-react/src/lib/hooks/useTooltipTrigger.ts` fait 331 lignes de logique non-rendu ; `packages/ui-angular/src/lib/tooltip/tooltip.ts:240-547` la duplique à la main |
 | `DOCS-*` sur l'extraction API | `apps/doc/scripts/docgen.js:373-381` — `getComponentDecorator` ne reconnaît que le décorateur `Component` |
 
 Si un seul des trois manque, la règle correspondante est trop faible ou mal placée : **revenir à la tâche concernée et la renforcer**, puis rejouer cette tâche. Ne pas consigner un forward-test partiel comme un succès.
