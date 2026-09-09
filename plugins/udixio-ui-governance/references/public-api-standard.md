@@ -4,6 +4,26 @@ Treat every public prop, input, output, method, slot, default, and type as a pro
 is the default implementation source, not an automatic design authority. Audit its contract before
 copying anything to core, Angular, examples, or documentation.
 
+## Separate concept, vocabulary, and delivery shape
+
+A public contract has three layers. Conflating them is what turns a faithful port into a bad API.
+
+| Layer | Tooltip example | Cross-framework status |
+| --- | --- | --- |
+| Concept — the core interface | `variant`, `position`, `trigger`, `openDelay`, controlled `open` | Invariant. Identical everywhere. |
+| Vocabulary — public names | `openChange` / `onOpenChange` | Invariant, apart from binding idiom. |
+| Delivery shape — how a consumer reaches the concept | component `udx-tooltip` / directive `[udxTooltip]` / hook | Free per framework, chosen by idiom. |
+
+A framework-specific mechanism is never a contract concept: `cloneElement`, `targetRef`, a
+`RefObject`, render props, and `children` used as a trigger belong to React, not to the product.
+Never promote one into core and never transliterate one into another adapter. Its counterpart is
+the target framework's equivalent mechanism, not its transcription.
+
+Angular's equivalent of a React component is not always a component. A directive attaches behavior
+to a host the consumer already owns and injects its own `ElementRef`; a service fits behavior with
+no host; a pipe fits a pure transformation. Choosing the shape is a design act that precedes
+naming.
+
 ## Review vocabulary before implementation
 
 For every new or touched public member, verify that its name:
@@ -15,7 +35,9 @@ For every new or touched public member, verify that its name:
   terminology, except established platform contracts such as `disabled`;
 - remains accurate if internal markup, spacing, animation, or state ownership changes;
 - uses one framework-neutral canonical concept while allowing idiomatic binding syntax such as
-  React `onPressedChange` and Angular `pressedChange`;
+  React `onPressedChange` and Angular `pressedChange`, and while allowing a different delivery
+  shape as defined above — an attribute-selector directive may prefix its inputs when the host
+  element is not its own, provided each prefixed input maps to one canonical concept;
 - is consistent with neighboring stable components without copying an existing defect;
 - has a predictable type, default, controlled/uncontrolled model, and event payload.
 
@@ -41,6 +63,22 @@ editing adapters. Include:
 Stop and request the user's choice when alternatives express materially different product intent.
 Proceed without a choice only when one result is unambiguously required by an already approved,
 stable repository convention. Never synchronize a questionable React name merely to obtain parity.
+
+## Propose a delivery shape before adopting it
+
+A shape that differs from the source adapter's is legitimate, but never silent. Before writing the
+target adapter, emit a blocking `FORM-<AREA>-NNN` finding containing:
+
+1. the source adapter's shape and the concept it serves;
+2. the proposed shape for the target framework and the idiom that justifies it;
+3. the invariants preserved — core contract, observable behavior, accessibility, styles, tests;
+4. what the new shape can no longer express, or an evidence-backed statement that nothing is lost;
+5. migration, documentation, and test impact.
+
+Emit the finding, then stop and request the user's decision. Default severity is `major`; use
+`blocker` when the current shape makes a primary interaction unreachable. Never adopt a different
+shape merely because it is shorter, and never keep the source shape merely to make a parity table
+line up.
 
 ## Protect stability without preserving accidental debt
 
