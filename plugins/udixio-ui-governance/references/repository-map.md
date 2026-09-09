@@ -25,11 +25,12 @@ the repository can evolve.
 | Framework preference     | `apps/doc/src/stores/exampleFrameworkStore.ts`              | One preference shared by examples, code, and API pages               |
 
 Shared animated effects are implemented once in `@udixio/core/dom` with **anime.js**, chosen because
-it is plain JavaScript and therefore consumable identically by React and Angular. `motion/react` is
-a residual dependency under migration in exactly four React components — `Chip`, `NavigationRail`,
-`NavigationRailItem`, `SideSheet` — and is debt to retire, never a pattern to reproduce. Touching one
-of them for an unrelated reason does not require migrating it, but **adding** an animated effect
-requires moving that effect down into `core/dom`.
+it is plain JavaScript and therefore consumable identically by React and Angular. The `motion` package survives only as residue to retire, not as a pattern to reproduce: three
+type-only `Transition` imports in `Chip`, `NavigationRail` and `NavigationRailItem`, which are
+erased at compile time, and two runtime `animate` imports in the React and Angular Slider specs. No
+runtime `motion/react` import remains in either adapter. Touching one of those files for an
+unrelated reason does not require migrating it, but **adding** an animated effect requires moving
+that effect down into `core/dom`.
 
 Read `docs/component-authoring.md` and `docs/component-behavior.md` before making architectural
 judgments. Repository documentation outranks this reference when it is newer and internally

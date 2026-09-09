@@ -49,7 +49,7 @@ Two finding families stop an audit and require the user's decision instead of an
 | Finding | Emitted by | Meaning |
 | --- | --- | --- |
 | `API-DESIGN-*` | `audit-public-api`, `audit-parity`, `sync-angular-component` | A public name or contract is ambiguous, negative, or implementation-shaped |
-| `FORM-*` | `audit-parity`, `sync-angular-component` | An adapter should deliver the concept through a different shape — directive, service, pipe — than the source adapter |
+| `FORM-*` | `sync-angular-component` | An adapter should deliver the concept through a different shape — directive, service, pipe — than the source adapter |
 
 `MULTI-OWNERSHIP-*`, emitted by `audit-multiframework`, is not blocking: it reports shared imperative
 logic that belongs in `@udixio/core/dom` rather than in a framework hook.

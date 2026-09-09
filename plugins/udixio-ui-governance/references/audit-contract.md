@@ -37,8 +37,7 @@ Give every finding a stable identifier: `<CHECKER>-<AREA>-<NNN>`, for example
 Do not inflate severity. Absence of evidence is not a pass.
 
 A `FORM-*` finding is `major` by default and `blocker` when the current shape makes a primary
-interaction unreachable or forces the consumer to manage a reference that the target framework
-resolves natively.
+interaction unreachable.
 
 ## Acceptance policy
 
