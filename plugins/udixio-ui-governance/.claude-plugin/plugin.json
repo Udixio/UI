@@ -1,6 +1,6 @@
 {
   "name": "udixio-ui-governance",
-  "version": "0.1.0+codex.20260722135539",
+  "version": "0.2.0+codex.20260909101404",
   "description": "Audit, synchronize, and create Udixio UI components across React, Angular, core behavior, accessibility, and documentation.",
   "author": {
     "name": "Udixio"

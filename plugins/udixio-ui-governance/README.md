@@ -42,6 +42,18 @@ Verify with `claude plugin list`. Skills are then invocable as
 | `sync-angular-component` | Create or update an Angular component from its React source |
 | `evolve-governance` | Update this plugin when repository architecture or standards change |
 
+## Blocking findings
+
+Two finding families stop an audit and require the user's decision instead of an automatic fix.
+
+| Finding | Emitted by | Meaning |
+| --- | --- | --- |
+| `API-DESIGN-*` | `audit-public-api`, `audit-parity`, `sync-angular-component` | A public name or contract is ambiguous, negative, or implementation-shaped |
+| `FORM-*` | `audit-parity`, `sync-angular-component` | An adapter should deliver the concept through a different shape — directive, service, pipe — than the source adapter |
+
+`MULTI-OWNERSHIP-*`, emitted by `audit-multiframework`, is not blocking: it reports shared imperative
+logic that belongs in `@udixio/core/dom` rather than in a framework hook.
+
 ## Layout
 
 ```
