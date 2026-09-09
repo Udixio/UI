@@ -15,11 +15,14 @@ description: Create or update an Udixio Angular component from the default React
    stop before editing Angular. Do not obtain parity by propagating the defect or adding an alias.
 4. Audit core and React enough to establish that the source behavior is valid. Fix confirmed source
    defects before conversion.
-5. Choose the Angular delivery shape before translating the contract. The deciding question: does
-   the React component **render** content it owns (component), or does it **attach** behavior to an
-   element the consumer already owns (directive)? A service fits behavior with no host; a pipe fits
-   a pure transformation. When the answer is not the source adapter's shape, emit `FORM-*` and stop
-   for the user's decision, as
+5. Choose the Angular delivery shape before translating the contract. The deciding question is
+   attachment, not rendering: does the component's primary behavior **attach** to an element the
+   consumer already owns? If it does, the shape is a directive, even when the component also
+   renders a surface of its own — a directive can instantiate that surface dynamically, so owning
+   rendered content never disqualifies it. Only when nothing is attached to a foreign host, and the
+   component owns every element it needs, is a component the right shape. A service fits behavior
+   with no host; a pipe fits a pure transformation. When the answer is not the source adapter's
+   shape, emit `FORM-*` and stop for the user's decision, as
    [the public API standard](../../references/public-api-standard.md#propose-a-delivery-shape-before-adopting-it)
    requires.
 6. Write a parity matrix for API, defaults, state ownership, events, DOM semantics, styles,
