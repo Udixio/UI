@@ -36,13 +36,22 @@ Give every finding a stable identifier: `<CHECKER>-<AREA>-<NNN>`, for example
 
 Do not inflate severity. Absence of evidence is not a pass.
 
+A `FORM-*` finding is `major` by default and `blocker` when the current shape makes a primary
+interaction unreachable or forces the consumer to manage a reference that the target framework
+resolves natively.
+
 ## Acceptance policy
 
 - React is the default source adapter. Shared contracts, styles, behavior, and DOM controllers in
   core outrank framework implementation details. React is not presumed to have a sound public API.
 - Apply [the public API standard](public-api-standard.md) before implementation or synchronization.
   A questionable public contract is a major `API-DESIGN-*` finding and blocks propagation.
-- An intentional framework difference must have a platform reason, a test, and documentation.
+- An intentional framework difference must have a platform reason, a test, and documentation. A
+  difference in delivery shape — component, directive, service, pipe, hook — is legitimate when the
+  core contract and the observable behavior are preserved, but it requires an accepted
+  `FORM-*` finding as defined in [the public API standard](public-api-standard.md). Adopting a
+  different shape without that decision is itself a defect; so is reporting an idiomatic shape as
+  drift.
 - Never accept silent duplication, `any`, disabled lint rules, skipped tests, compatibility shims
   without removal criteria, or a second animation/state engine as a fix.
 - Preserve unrelated user changes. Protect released compatibility, but do not create deprecation
