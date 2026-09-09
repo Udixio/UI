@@ -13,7 +13,6 @@ import {
   tooltipStyle,
 } from '@udixio/core';
 import {
-  addPointerEnterLeaveListener,
   createTooltipTransitionController,
   type TooltipTransitionController,
 } from '@udixio/core/dom';
@@ -118,12 +117,9 @@ export const Tooltip = ({
       : [buttons]
     : undefined;
 
-  const internalRef = useRef<HTMLElement | null>(null);
-  const resolvedRef = targetRef || internalRef;
-  const positioningRef = anchorRef || resolvedRef;
-
   // Use the trigger hook for state management and accessibility
-  const { triggerProps, tooltipProps, isOpen } = useTooltipTrigger({
+  const { triggerRef, tooltipProps, isOpen } = useTooltipTrigger({
+    targetRef,
     trigger,
     describeTarget,
     open: openProp,
@@ -134,136 +130,15 @@ export const Tooltip = ({
     id,
   });
 
-  // Apply trigger props to the target element
+  const positioningRef = anchorRef || triggerRef;
+
+  // The controller attaches native listeners to whatever `triggerRef` lands
+  // on, so the child only needs the ref: its own React handlers keep working
+  // alongside, with nothing to merge.
   const enhancedChildren =
     !targetRef && isValidElement(children)
-      ? cloneElement(children, {
-          ref: internalRef,
-          ...triggerProps,
-          'aria-describedby':
-            [
-              (children.props as any)?.['aria-describedby'],
-              triggerProps['aria-describedby'],
-            ]
-              .filter(Boolean)
-              .join(' ') || undefined,
-          // Merge event handlers if the child already has them
-          onMouseEnter: (e: React.MouseEvent) => {
-            triggerProps.onMouseEnter();
-            (children.props as any)?.onMouseEnter?.(e);
-          },
-          onMouseLeave: (e: React.MouseEvent) => {
-            triggerProps.onMouseLeave();
-            (children.props as any)?.onMouseLeave?.(e);
-          },
-          onPointerDown: (e: React.PointerEvent) => {
-            triggerProps.onPointerDown(e);
-            (children.props as any)?.onPointerDown?.(e);
-          },
-          onPointerMove: (e: React.PointerEvent) => {
-            triggerProps.onPointerMove(e);
-            (children.props as any)?.onPointerMove?.(e);
-          },
-          onPointerUp: (e: React.PointerEvent) => {
-            triggerProps.onPointerUp(e);
-            (children.props as any)?.onPointerUp?.(e);
-          },
-          onPointerCancel: (e: React.PointerEvent) => {
-            triggerProps.onPointerCancel(e);
-            (children.props as any)?.onPointerCancel?.(e);
-          },
-          onContextMenu: (e: React.MouseEvent) => {
-            triggerProps.onContextMenu(e);
-            (children.props as any)?.onContextMenu?.(e);
-          },
-          onFocus: (e: React.FocusEvent) => {
-            triggerProps.onFocus();
-            (children.props as any)?.onFocus?.(e);
-          },
-          onBlur: (e: React.FocusEvent) => {
-            triggerProps.onBlur();
-            (children.props as any)?.onBlur?.(e);
-          },
-          onClick: (e: React.MouseEvent) => {
-            triggerProps.onClick();
-            (children.props as any)?.onClick?.(e);
-          },
-          onKeyDown: (e: React.KeyboardEvent) => {
-            triggerProps.onKeyDown(e);
-            (children.props as any)?.onKeyDown?.(e);
-          },
-        } as any)
+      ? cloneElement(children, { ref: triggerRef } as never)
       : children;
-
-  // Attach trigger handlers when using targetRef (no direct child to clone)
-  useEffect(() => {
-    if (!targetRef) return;
-    const element = targetRef.current;
-    if (!element) return;
-
-    const handleFocus = () => triggerProps.onFocus();
-    const handleBlur = () => triggerProps.onBlur();
-    const handleClick = () => triggerProps.onClick();
-    const handleKeyDown = (event: KeyboardEvent) =>
-      triggerProps.onKeyDown(event as unknown as React.KeyboardEvent);
-    const handlePointerDown = (event: PointerEvent) =>
-      triggerProps.onPointerDown(event as unknown as React.PointerEvent);
-    const handlePointerMove = (event: PointerEvent) =>
-      triggerProps.onPointerMove(event as unknown as React.PointerEvent);
-    const handlePointerUp = (event: PointerEvent) =>
-      triggerProps.onPointerUp(event as unknown as React.PointerEvent);
-    const handlePointerCancel = (event: PointerEvent) =>
-      triggerProps.onPointerCancel(event as unknown as React.PointerEvent);
-    const handleContextMenu = (event: MouseEvent) =>
-      triggerProps.onContextMenu(event as unknown as React.MouseEvent);
-
-    // `mouseenter`/`mouseleave` never fire on an element that renders no box
-    // of its own (for example a `display: contents` wrapper); go through
-    // the bubbling-safe `mouseover`/`mouseout` equivalent instead, so a
-    // `targetRef` pointed at such a wrapper still gets working hover.
-    const removeHoverListener = addPointerEnterLeaveListener(element, {
-      onEnter: () => triggerProps.onMouseEnter(),
-      onLeave: () => triggerProps.onMouseLeave(),
-    });
-    element.addEventListener('focus', handleFocus, true);
-    element.addEventListener('blur', handleBlur, true);
-    element.addEventListener('click', handleClick);
-    element.addEventListener('keydown', handleKeyDown);
-    element.addEventListener('pointerdown', handlePointerDown);
-    element.addEventListener('pointermove', handlePointerMove);
-    element.addEventListener('pointerup', handlePointerUp);
-    element.addEventListener('pointercancel', handlePointerCancel);
-    element.addEventListener('contextmenu', handleContextMenu);
-
-    const updateDescription = (includeTooltip: boolean) => {
-      const ids = (element.getAttribute('aria-describedby') ?? '')
-        .split(/\s+/)
-        .filter((value) => value && value !== tooltipProps.id);
-      if (includeTooltip) ids.push(tooltipProps.id);
-      if (ids.length) {
-        element.setAttribute('aria-describedby', ids.join(' '));
-      } else {
-        element.removeAttribute('aria-describedby');
-      }
-    };
-    if (describeTarget) {
-      updateDescription(Boolean(triggerProps['aria-describedby']));
-    }
-
-    return () => {
-      if (describeTarget) updateDescription(false);
-      removeHoverListener();
-      element.removeEventListener('focus', handleFocus, true);
-      element.removeEventListener('blur', handleBlur, true);
-      element.removeEventListener('click', handleClick);
-      element.removeEventListener('keydown', handleKeyDown);
-      element.removeEventListener('pointerdown', handlePointerDown);
-      element.removeEventListener('pointermove', handlePointerMove);
-      element.removeEventListener('pointerup', handlePointerUp);
-      element.removeEventListener('pointercancel', handlePointerCancel);
-      element.removeEventListener('contextmenu', handleContextMenu);
-    };
-  }, [describeTarget, targetRef, tooltipProps.id, triggerProps]);
 
   const styles = useTooltipStyle({
     variant,

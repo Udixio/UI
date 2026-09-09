@@ -1,20 +1,21 @@
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
-import {
-  resolveTooltipInteraction,
-  TOOLTIP_LONG_PRESS_DELAY,
-  TOOLTIP_TOUCH_HIDE_DELAY,
-  TOOLTIP_TOUCH_MOVE_TOLERANCE,
-  type TooltipInteractionState,
-  type TooltipTriggerKind,
+import { useEffect, useId, useRef, useState, type RefObject } from 'react';
+import type {
+  TooltipInteractionState,
+  TooltipTriggerKind,
 } from '@udixio/core';
 import {
-  claimTooltipVisibility,
-  listenForTooltipVisibilityClaims,
+  createTooltipTriggerController,
+  type TooltipTriggerController,
 } from '@udixio/core/dom';
 
 type Trigger = TooltipTriggerKind | null;
 
 export interface UseTooltipTriggerOptions {
+  /**
+   * The trigger element, when the caller already owns a ref to it. Omitted,
+   * the hook creates its own and returns it as `triggerRef`.
+   */
+  targetRef?: RefObject<HTMLElement | null>;
   trigger?: Trigger | Trigger[];
   describeTarget?: boolean;
   open?: boolean;
@@ -26,20 +27,8 @@ export interface UseTooltipTriggerOptions {
 }
 
 export interface UseTooltipTriggerReturn {
-  triggerProps: {
-    'aria-describedby': string | undefined;
-    onMouseEnter: () => void;
-    onMouseLeave: () => void;
-    onPointerDown: (event: React.PointerEvent) => void;
-    onPointerMove: (event: React.PointerEvent) => void;
-    onPointerUp: (event: React.PointerEvent) => void;
-    onPointerCancel: (event: React.PointerEvent) => void;
-    onContextMenu: (event: React.MouseEvent) => void;
-    onFocus: () => void;
-    onBlur: () => void;
-    onClick: () => void;
-    onKeyDown: (event: React.KeyboardEvent) => void;
-  };
+  /** Put this on the trigger element. Equals `targetRef` when one was given. */
+  triggerRef: RefObject<HTMLElement | null>;
   tooltipProps: {
     id: string;
     role: 'tooltip';
@@ -52,13 +41,21 @@ export interface UseTooltipTriggerReturn {
 }
 
 /**
- * Owns the tooltip trigger's timers, DOM event wiring, and accessibility
- * props. The interaction decision itself -- whether an event opens, closes,
- * or is a no-op -- is delegated to `resolveTooltipInteraction`, the pure
- * function shared with the Angular adapter, so the state machine's rules
- * live in exactly one place.
+ * Reactive React adapter over `createTooltipTriggerController`.
+ *
+ * The orchestration -- timers, pointer/keyboard/touch wiring, the touch long
+ * press, `aria-describedby`, and cross-tooltip arbitration -- lives once in
+ * `@udixio/core/dom` and is shared with the Angular adapter. This hook only
+ * mirrors the controller's state into React and hands back a ref to attach.
+ *
+ * @remarks
+ * Since `@udixio/ui-react@5.2.0` this hook returns `triggerRef` instead of the
+ * former `triggerProps` handler bag: the controller attaches native listeners
+ * itself, so there are no props to spread. Move `{...triggerProps}` on your
+ * trigger to `ref={triggerRef}`.
  */
 export function useTooltipTrigger({
+  targetRef,
   trigger = ['hover', 'focus'],
   describeTarget = true,
   open: openProp,
@@ -71,259 +68,86 @@ export function useTooltipTrigger({
   const generatedId = useId();
   const tooltipId = idProp ?? `tooltip-${generatedId}`;
 
-  const triggers = (Array.isArray(trigger) ? trigger : [trigger]).filter(
-    (value): value is TooltipTriggerKind => value != null,
-  );
-  const hasHoverTrigger = triggers.includes('hover');
+  const internalRef = useRef<HTMLElement | null>(null);
+  const triggerRef = targetRef ?? internalRef;
 
   const isControlled = typeof openProp === 'boolean';
   const [internalState, setInternalState] = useState<TooltipInteractionState>(
     defaultOpen ? 'hovered' : 'hidden',
   );
-  const [isSurfaceHovered, setIsSurfaceHovered] = useState(false);
   const [suppressedByPeer, setSuppressedByPeer] = useState(false);
-
-  const openTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const touchPointerRef = useRef<{
-    id: number;
-    x: number;
-    y: number;
-  } | null>(null);
-  const touchLongPressOpenedRef = useRef(false);
-  const suppressTouchCompatibilityEventsRef = useRef(false);
-  const compatibilityTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null,
-  );
-
-  const clearTimeouts = useCallback(() => {
-    if (openTimeoutRef.current) {
-      clearTimeout(openTimeoutRef.current);
-      openTimeoutRef.current = null;
-    }
-    if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current);
-      closeTimeoutRef.current = null;
-    }
-    if (compatibilityTimeoutRef.current) {
-      clearTimeout(compatibilityTimeoutRef.current);
-      compatibilityTimeoutRef.current = null;
-    }
-  }, []);
-
-  useEffect(() => clearTimeouts, [clearTimeouts]);
 
   const state: TooltipInteractionState = isControlled
     ? openProp
       ? 'hovered'
       : 'hidden'
     : internalState;
-  const isStateOpen = state !== 'hidden';
-  const isOpen = isStateOpen && !suppressedByPeer;
+  const isOpen = state !== 'hidden' && !suppressedByPeer;
 
-  useEffect(() => {
-    if (typeof document === 'undefined') return undefined;
-    return listenForTooltipVisibilityClaims(document, tooltipId, () => {
-      if (!isStateOpen || suppressedByPeer) return;
-      setSuppressedByPeer(true);
-      if (!isControlled) setInternalState('hidden');
-      onOpenChange?.(false);
-    });
-  }, [isControlled, isStateOpen, onOpenChange, suppressedByPeer, tooltipId]);
-
-  useEffect(() => {
-    if (isOpen && typeof document !== 'undefined') {
-      claimTooltipVisibility(document, tooltipId);
-    }
-  }, [isOpen, tooltipId]);
-
-  const commit = useCallback(
-    (next: TooltipInteractionState) => {
-      if (!isControlled) setInternalState(next);
-      if (next !== 'hidden') {
-        setSuppressedByPeer(false);
-        if (typeof document !== 'undefined') {
-          claimTooltipVisibility(document, tooltipId);
-        }
-      }
-      onOpenChange?.(next !== 'hidden');
-    },
-    [isControlled, onOpenChange, tooltipId],
-  );
-
-  const request = useCallback(
-    (event: Parameters<typeof resolveTooltipInteraction>[1], delayMs = 0) => {
-      const next = resolveTooltipInteraction(
-        { state, triggers, isSurfaceHovered },
-        event,
-      );
-      if (next === null) return;
-      clearTimeouts();
-      if (delayMs > 0) {
-        const ref = next === 'hidden' ? closeTimeoutRef : openTimeoutRef;
-        ref.current = setTimeout(() => commit(next), delayMs);
-      } else {
-        commit(next);
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [state, triggers.join(','), isSurfaceHovered, commit, clearTimeouts],
-  );
-
-  const handleMouseEnter = useCallback(() => {
-    if (!suppressTouchCompatibilityEventsRef.current) {
-      request('pointerEnter', openDelay);
-    }
-  }, [request, openDelay]);
-  const handleMouseLeave = useCallback(() => {
-    if (!suppressTouchCompatibilityEventsRef.current) {
-      if (openTimeoutRef.current) {
-        clearTimeout(openTimeoutRef.current);
-        openTimeoutRef.current = null;
-      }
-      request('pointerLeave', closeDelay);
-    }
-  }, [request, closeDelay]);
-  const handleFocus = useCallback(() => {
-    if (!suppressTouchCompatibilityEventsRef.current) request('focus');
-  }, [request]);
-  const handleBlur = useCallback(() => {
-    const next = resolveTooltipInteraction(
-      { state, triggers, isSurfaceHovered },
-      'blur',
-    );
-    if (next === null) return;
-    clearTimeouts();
-    if (next === 'hidden') {
-      closeTimeoutRef.current = setTimeout(() => commit(next), closeDelay);
-    } else {
-      commit(next);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    state,
-    triggers.join(','),
-    isSurfaceHovered,
-    commit,
-    clearTimeouts,
+  // The controller reads its options lazily, so every changing value goes
+  // through one ref instead of tearing the listeners down on each render.
+  const latest = useRef({
+    triggers: [] as TooltipTriggerKind[],
+    describeTarget,
+    isControlled,
+    openDelay,
     closeDelay,
-  ]);
-  const handleClick = useCallback(() => {
-    if (!touchLongPressOpenedRef.current) request('click');
-  }, [request]);
+    onOpenChange,
+  });
+  latest.current = {
+    triggers: (Array.isArray(trigger) ? trigger : [trigger]).filter(
+      (value): value is TooltipTriggerKind => value != null,
+    ),
+    describeTarget,
+    isControlled,
+    openDelay,
+    closeDelay,
+    onOpenChange,
+  };
 
-  const finishTouch = useCallback(
-    (event: React.PointerEvent) => {
-      if (touchPointerRef.current?.id !== event.pointerId) return;
-      touchPointerRef.current = null;
-      if (openTimeoutRef.current) {
-        clearTimeout(openTimeoutRef.current);
-        openTimeoutRef.current = null;
-      }
-      if (touchLongPressOpenedRef.current) {
-        if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
-        closeTimeoutRef.current = setTimeout(() => {
-          touchLongPressOpenedRef.current = false;
-          suppressTouchCompatibilityEventsRef.current = false;
-          commit('hidden');
-        }, TOOLTIP_TOUCH_HIDE_DELAY);
-      } else {
-        compatibilityTimeoutRef.current = setTimeout(() => {
-          suppressTouchCompatibilityEventsRef.current = false;
-        }, 0);
-      }
-    },
-    [commit],
-  );
+  const controllerRef = useRef<TooltipTriggerController | null>(null);
 
-  const handlePointerDown = useCallback(
-    (event: React.PointerEvent) => {
-      if (event.pointerType !== 'touch' || !hasHoverTrigger) return;
-      clearTimeouts();
-      touchPointerRef.current = {
-        id: event.pointerId,
-        x: event.clientX,
-        y: event.clientY,
-      };
-      touchLongPressOpenedRef.current = false;
-      suppressTouchCompatibilityEventsRef.current = true;
-      openTimeoutRef.current = setTimeout(() => {
-        touchLongPressOpenedRef.current = true;
-        commit('hovered');
-      }, TOOLTIP_LONG_PRESS_DELAY);
-    },
-    [clearTimeouts, commit, hasHoverTrigger],
-  );
+  useEffect(() => {
+    const element = triggerRef.current;
+    if (!element) return undefined;
 
-  const handlePointerMove = useCallback((event: React.PointerEvent) => {
-    const touch = touchPointerRef.current;
-    if (
-      !touch ||
-      touch.id !== event.pointerId ||
-      touchLongPressOpenedRef.current
-    ) {
-      return;
-    }
-    if (
-      Math.hypot(event.clientX - touch.x, event.clientY - touch.y) <=
-      TOOLTIP_TOUCH_MOVE_TOLERANCE
-    ) {
-      return;
-    }
-    touchPointerRef.current = null;
-    if (openTimeoutRef.current) {
-      clearTimeout(openTimeoutRef.current);
-      openTimeoutRef.current = null;
-    }
-    compatibilityTimeoutRef.current = setTimeout(() => {
-      suppressTouchCompatibilityEventsRef.current = false;
-    }, 0);
-  }, []);
-  const handleContextMenu = useCallback((event: React.MouseEvent) => {
-    if (touchPointerRef.current || touchLongPressOpenedRef.current) {
-      event.preventDefault();
-    }
-  }, []);
-  const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent) => {
-      if (event.key === 'Escape' && isOpen) {
-        request('escape');
-        event.preventDefault();
-      }
-    },
-    [request, isOpen],
-  );
+    const controller = createTooltipTriggerController({
+      target: element,
+      tooltipId,
+      triggers: () => latest.current.triggers,
+      openDelay: () => latest.current.openDelay,
+      closeDelay: () => latest.current.closeDelay,
+      describeTarget: () => latest.current.describeTarget,
+      isControlled: () => latest.current.isControlled,
+      onStateChange: (next, suppressed) => {
+        if (!latest.current.isControlled) setInternalState(next);
+        setSuppressedByPeer(suppressed);
+        latest.current.onOpenChange?.(next !== 'hidden');
+      },
+    });
+    controllerRef.current = controller;
 
-  const handleTooltipMouseEnter = useCallback(() => {
-    setIsSurfaceHovered(true);
-    clearTimeouts();
-  }, [clearTimeouts]);
-  const handleTooltipMouseLeave = useCallback(() => {
-    setIsSurfaceHovered(false);
-    request('surfaceLeave', closeDelay);
-  }, [request, closeDelay]);
+    return () => {
+      controller.destroy();
+      controllerRef.current = null;
+    };
+  }, [tooltipId, triggerRef]);
+
+  // Mirror the resolved state back into the controller. In controlled mode
+  // this is how the machine learns the adapter's answer; uncontrolled it is a
+  // no-op echo of what the controller just decided.
+  useEffect(() => {
+    controllerRef.current?.setControlledState(state);
+  }, [state]);
 
   return {
-    triggerProps: {
-      'aria-describedby': isOpen && describeTarget ? tooltipId : undefined,
-      onMouseEnter: handleMouseEnter,
-      onMouseLeave: handleMouseLeave,
-      onPointerDown: handlePointerDown,
-      onPointerMove: handlePointerMove,
-      onPointerUp: finishTouch,
-      onPointerCancel: finishTouch,
-      onContextMenu: handleContextMenu,
-      onFocus: handleFocus,
-      onBlur: handleBlur,
-      onClick: handleClick,
-      onKeyDown: handleKeyDown,
-    },
+    triggerRef,
     tooltipProps: {
       id: tooltipId,
       role: 'tooltip',
       'aria-hidden': !isOpen,
-      onMouseEnter: handleTooltipMouseEnter,
-      onMouseLeave: handleTooltipMouseLeave,
+      onMouseEnter: () => controllerRef.current?.setSurfaceHovered(true),
+      onMouseLeave: () => controllerRef.current?.setSurfaceHovered(false),
     },
     isOpen,
     state,
