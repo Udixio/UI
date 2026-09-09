@@ -51,7 +51,7 @@ future plausible implementations before accepting a name.
 
 ## Make proposals before synchronization
 
-When a public name or contract is ambiguous, emit a blocking `API-DESIGN-<AREA>-NNN` finding before
+When a public name or contract is ambiguous, emit a blocking `API-DESIGN-NNN` finding before
 editing adapters. Include:
 
 1. the current contract and the intent inferred from evidence;
