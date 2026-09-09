@@ -54,9 +54,19 @@ jamais été envisagée : sans contrôleur partagé, elle imposait un troisième
 Le plugin écrit « Motion » (majuscule) dans sept fichiers. `references/repository-map.md` prescrit
 « Motion JavaScript when animated ». Ce n'est pas le concept d'animation, c'est la bibliothèque
 dont le dépôt migre. `@udixio/core/dom` est déjà sur anime.js (`auto-layout`, `fab`, `search`,
-`switch`, `text-field`, `tooltip`) ; il reste quatre composants React sur `motion/react` : `Chip`,
-`NavigationRail`, `NavigationRailItem`, `SideSheet`. Le plugin prescrit donc aujourd'hui la
-direction abandonnée.
+`switch`, `text-field`, `tooltip`). Le plugin prescrit donc aujourd'hui la direction abandonnée.
+
+Correction apportée après vérification en cours d'exécution : une première rédaction de cette
+section affirmait qu'il restait « quatre composants React sur `motion/react` » (`Chip`,
+`NavigationRail`, `NavigationRailItem`, `SideSheet`). C'était faux, et l'erreur a été recopiée dans
+`repository-map.md` avant d'être rattrapée par la revue finale. Les faits vérifiés : **aucun import
+runtime de `motion/react` n'existe** dans `packages/ui-react/src` ni `packages/ui-angular/src`. Ce
+qui subsiste du paquet `motion` est trois imports de type seulement — `import type { Transition }
+from 'motion'` dans `Chip.tsx:8`, `NavigationRail.tsx:13`, `NavigationRailItem.tsx:10`, effacés à la
+compilation — et deux imports runtime `animate` confinés aux specs du Slider
+(`ui-react/src/tests/Slider.spec.tsx:2`, `ui-angular/src/lib/slider/slider.spec.ts:4`). `SideSheet`
+et `Tooltip` ne contiennent aucun import, seulement des mentions en TSDoc. La cause de l'erreur est
+un `grep` qui mélangeait import de type, import runtime et mention en commentaire.
 
 ### Cause 5 — Le générateur de documentation API ne connaît qu'une seule forme Angular
 
@@ -149,9 +159,11 @@ cible. Texte de référence à placer dans `references/repository-map.md` :
 
 > Les effets animés partagés sont implémentés une fois dans `@udixio/core/dom` avec **anime.js**,
 > choisi parce qu'il est en JavaScript natif et donc consommable identiquement par React et
-> Angular. `motion/react` est un reliquat en cours de migration (`Chip`, `NavigationRail`,
-> `NavigationRailItem`, `SideSheet`) : c'est de la dette à résorber, jamais un motif à reproduire.
-> Toucher un de ces composants pour une autre raison n'oblige pas à le migrer, mais y **ajouter**
+> Angular. Le paquet `motion` ne subsiste que comme résidu à résorber, jamais comme motif à
+> reproduire : trois imports de type seulement (`Chip`, `NavigationRail`, `NavigationRailItem`),
+> effacés à la compilation, et deux imports runtime `animate` dans les specs du Slider React et
+> Angular. Aucun import runtime de `motion/react` ne subsiste dans l'un ou l'autre adapter.
+> Toucher un de ces fichiers pour une autre raison n'oblige pas à le migrer, mais y **ajouter**
 > un effet animé impose de descendre dans `core/dom`.
 
 Cette correction rend la doctrine auto-cohérente : `sync-angular-component` interdit déjà de
