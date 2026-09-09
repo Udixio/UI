@@ -26,6 +26,14 @@ description: Audit, repair, or validate Udixio component documentation, TSDoc-de
 - Verify the generator extracts descriptions, props, defaults, and documentation tags for every
   available framework. Shared/core API may be represented once, but React-only bindings and
   Angular inputs, outputs, aliases, projection, and templates must remain framework-specific.
+- Require the extraction to recognize every public Angular shape — component, directive, service,
+  pipe — not the `Component` decorator alone. An Angular adapter exported by the package barrel
+  whose API payload is missing from the generated artifact is a `blocker` `DOCS-*` defect, never a
+  framework unavailability. This rule exists because framework availability is derived from
+  non-empty payloads, which silently turns an unrecognized shape into "Angular not supported".
+- Never derive a member description from a React-to-Angular name match. An adapter that adopts an
+  idiomatic prefix documents its own members; a name-matching fallback re-couples the two adapters
+  through vocabulary and contradicts the delivery-shape rule.
 - Inspect the generated API JSON as an artifact, not as authority. It must identify which framework
   API payloads actually exist and must not relabel React data as Angular data.
 - Prove `@devx`, `@a11y`, and `@limitations` are rendered in the built documentation. Successful
@@ -41,6 +49,10 @@ description: Audit, repair, or validate Udixio component documentation, TSDoc-de
 - Ensure React and Angular examples demonstrate equivalent semantics while remaining idiomatic.
 - Verify overview routes, API pages, component navigation, and public exports.
 - Record intentional framework differences and migration/breaking changes explicitly.
+- When a component carries a `platform-shape` verdict, state each framework's shape in the MDX
+  overview and expose each shape's attachment point — element or attribute selector — on the API
+  page, not only its member list. Documentation that implies a single API while the delivery vectors
+  differ is a `DOCS-*` defect.
 
 ## Prove generated API freshness
 
