@@ -49,7 +49,7 @@ Aucun script Python n'est modifié. La tâche 1 le **prouve** par une fixture pl
 
 **Files:**
 - Modify: `plugins/udixio-ui-governance/references/public-api-standard.md`
-- Test: `/tmp/form-finding-fixture.json` (fixture jetable, non commitée)
+- Test: `.superpowers/sdd/2026-09-09-framework-idiomatic-forms/form-finding-fixture.json` (fixture jetable, répertoire git-ignoré, non commitée)
 
 **Interfaces:**
 - Consumes: rien.
@@ -61,7 +61,7 @@ Aucun script Python n'est modifié. La tâche 1 le **prouve** par une fixture pl
 Créer la fixture. Elle sert à vérifier qu'aucun script Python n'a besoin d'évoluer pour le nouvel identifiant.
 
 ```bash
-cat > /tmp/form-finding-fixture.json <<'JSON'
+cat > .superpowers/sdd/2026-09-09-framework-idiomatic-forms/form-finding-fixture.json <<'JSON'
 {
   "checker": "audit-parity",
   "component": "tooltip",
@@ -90,7 +90,7 @@ JSON
 
 - [ ] **Step 2: Exécuter le validateur de rapport sur la fixture**
 
-Run: `python3 plugins/udixio-ui-governance/scripts/validate_audit_report.py /tmp/form-finding-fixture.json`
+Run: `python3 plugins/udixio-ui-governance/scripts/validate_audit_report.py .superpowers/sdd/2026-09-09-framework-idiomatic-forms/form-finding-fixture.json`
 
 Expected: PASS. Si le validateur rejette la fixture pour une raison **structurelle** (champ manquant), corriger la fixture. S'il la rejette parce que `FORM-API-001` ne satisfait pas `FINDING_ID`, **arrêter** : le plan suppose l'inverse et doit être révisé avant de continuer.
 
@@ -172,7 +172,7 @@ Expected: `2` pour la première commande (chaque titre une seule fois), au moins
 - [ ] **Step 7: Commit**
 
 ```bash
-rm -f /tmp/form-finding-fixture.json
+rm -f .superpowers/sdd/2026-09-09-framework-idiomatic-forms/form-finding-fixture.json
 git add plugins/udixio-ui-governance/references/public-api-standard.md
 git commit -m "docs(governance): separate concept, vocabulary and delivery shape
 
@@ -328,7 +328,8 @@ Run:
 grep -n "platform-shape" plugins/udixio-ui-governance/skills/audit-parity/SKILL.md
 grep -n "\bMotion\b" plugins/udixio-ui-governance/skills/audit-parity/SKILL.md
 ```
-Expected: au moins 3 lignes pour `platform-shape` ; **aucune** ligne pour `Motion`.
+Expected: exactement 2 lignes pour `platform-shape` (la ligne de classification et la puce de
+définition) ; **aucune** ligne pour `Motion`.
 
 - [ ] **Step 6: Commit**
 
