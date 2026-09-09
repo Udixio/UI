@@ -924,7 +924,7 @@ git commit -m "docs(governance): document blocking findings and release 0.2.0"
 - Create: `docs/superpowers/reports/2026-09-09-tooltip-forward-test.md`
 
 **Interfaces:**
-- Consumes: `FORM-<AREA>-NNN` (tâche 1), `platform-shape` (tâche 3), `MULTI-OWNERSHIP-<AREA>-NNN` (tâche 4), la règle de couverture des formes (tâche 6).
+- Consumes: `FORM-<AREA>-NNN` (tâche 1), `platform-shape` (tâche 3), `MULTI-OWNERSHIP-NNN` (tâche 4), la règle de couverture des formes (tâche 6).
 - Produces: la preuve d'acceptation exigée par `skills/evolve-governance/SKILL.md`.
 
 **Ce test est un audit en lecture seule. Ne modifier aucun fichier de `packages/` ni de `apps/`.**
