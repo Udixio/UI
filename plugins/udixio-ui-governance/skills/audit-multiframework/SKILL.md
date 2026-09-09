@@ -29,7 +29,8 @@ reactive adapter. Animated effects use anime.js, chosen because it is plain Java
 therefore consumable identically by React and Angular.
 
 A React hook holding more than roughly fifty lines of non-render logic is presumed to be a missing
-core controller: report `MULTI-OWNERSHIP-<AREA>-NNN`. The threshold triggers an inspection, never a
+core controller: report `MULTI-OWNERSHIP-NNN`, the file's `MULTI-<AREA>-NNN` convention with
+`OWNERSHIP` as the area. The threshold triggers an inspection, never a
 verdict on its own — confirm that the logic is genuinely shareable, and that the second adapter
 either duplicates it today or would have to, before concluding.
 
