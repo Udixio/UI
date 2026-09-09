@@ -23,11 +23,15 @@ from another library. Translate the specification into the repository's shared c
 2. Review public vocabulary with [the public API standard](public-api-standard.md), record rejected
    alternatives, and resolve ambiguous product intent before scaffolding adapters.
 3. Write the framework-agnostic contract and resolved states in core.
-4. Add pure behavior and a single shared DOM/Motion controller when imperative effects are needed.
+4. Add pure behavior and a single shared controller in `@udixio/core/dom` when imperative effects
+   are needed — timers, listeners, ARIA synchronization, cross-instance coordination, animation.
+   Animated effects use anime.js.
 5. Implement and test React as the default source adapter.
-6. Synchronize Angular from the resolved contract, not by transliterating JSX.
+6. Choose the Angular delivery shape — component, directive, service, pipe — then synchronize from
+   the resolved contract, not by transliterating JSX.
 7. Add direct-source React and Angular examples and MDX documentation.
 8. Run the complete quality gates and a parity audit.
 
 Reject invented variants, hollow props, framework types in core, duplicated animations, CSS-only
-reimplementations of shared Motion behavior, and documentation examples that cannot compile.
+reimplementations of shared animated behavior, transliterated framework mechanisms, and
+documentation examples that cannot compile.

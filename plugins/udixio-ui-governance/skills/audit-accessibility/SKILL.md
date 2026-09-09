@@ -21,7 +21,7 @@ description: Audit, repair, or strictly validate accessibility for a Udixio Reac
 - Verify keyboard, pointer, focus-visible, loading, disabled, controlled/uncontrolled, and error
   paths from implementation and tests.
 - Inspect DOM prop forwarding for invalid or leaked internal attributes.
-- Verify Motion/reduced-motion behavior and state-layer geometry without relying on screenshots
+- Verify animation and reduced-motion behavior and state-layer geometry without relying on screenshots
   alone.
 - Check token-resolved contrast when tooling is available; never infer it from semantic token names.
 

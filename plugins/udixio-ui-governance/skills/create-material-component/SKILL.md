@@ -1,6 +1,6 @@
 ---
 name: create-material-component
-description: Create a complete Udixio Material 3 component from current official specifications, including core contract/style/behavior, React source, Angular adapter, accessibility, Motion/DOM effects, tests, exports, and direct-source documentation examples. Use when adding a new Material 3 component or completing a missing cross-framework component slice.
+description: Create a complete Udixio Material 3 component from current official specifications, including core contract/style/behavior, React source, Angular adapter, accessibility, DOM and animation effects, tests, exports, and direct-source documentation examples. Use when adding a new Material 3 component or completing a missing cross-framework component slice.
 ---
 
 # Create a Material 3 component
@@ -21,7 +21,7 @@ description: Create a complete Udixio Material 3 component from current official
 
 ## Implement vertically
 
-1. Add core interface, resolved states, pure style, pure behavior, and shared DOM/Motion controller
+1. Add core interface, resolved states, pure style, pure behavior, and shared DOM/animation controller
    only when required.
 2. Add core tests for every semantic transition and imperative controller boundary.
 3. Implement React as the default source adapter with native semantics and focused behavior tests.

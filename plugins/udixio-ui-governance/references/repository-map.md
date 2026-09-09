@@ -10,7 +10,7 @@ the repository can evolve.
 | Shared public contract   | `packages/core/src/lib/interfaces/`                         | Framework-agnostic props and resolved states                         |
 | Shared styling           | `packages/core/src/lib/styles/`                             | Pure class computation, no runtime framework                         |
 | Shared behavior          | `packages/core/src/lib/behaviors/`                          | Pure state transitions and semantic decisions                        |
-| Shared DOM effects       | `packages/core/src/lib/dom/`                                | One imperative implementation, Motion JavaScript when animated       |
+| Shared DOM effects       | `packages/core/src/lib/dom/`                                | One imperative implementation, anime.js when animated                |
 | React source adapter     | `packages/ui-react/src/lib/components/`                     | Default product source when no exception is documented               |
 | Angular adapter          | `packages/ui-angular/src/lib/<component>/`                  | Thin Angular binding over the shared contract                        |
 | React tests              | `packages/ui-react/src/tests/`                              | User-visible behavior and DOM contract                               |
@@ -24,6 +24,13 @@ the repository can evolve.
 | API renderer             | `apps/doc/src/pages/components/[component]/api.astro`       | Render only API payloads that exist for the selected framework       |
 | Framework preference     | `apps/doc/src/stores/exampleFrameworkStore.ts`              | One preference shared by examples, code, and API pages               |
 
+Shared animated effects are implemented once in `@udixio/core/dom` with **anime.js**, chosen because
+it is plain JavaScript and therefore consumable identically by React and Angular. `motion/react` is
+a residual dependency under migration in exactly four React components — `Chip`, `NavigationRail`,
+`NavigationRailItem`, `SideSheet` — and is debt to retire, never a pattern to reproduce. Touching one
+of them for an unrelated reason does not require migrating it, but **adding** an animated effect
+requires moving that effect down into `core/dom`.
+
 Read `docs/component-authoring.md` and `docs/component-behavior.md` before making architectural
 judgments. Repository documentation outranks this reference when it is newer and internally
 consistent. Report contradictions instead of guessing.
@@ -33,12 +40,16 @@ consistent. Report contradictions instead of guessing.
 - Component symbol: `ProgressIndicator`.
 - File stem and route: `progress-indicator`.
 - React file: `ProgressIndicator.tsx`.
-- Angular selector: `lib-progress-indicator`.
+- Angular component selector: `udx-progress-indicator`. Verify the prefix against neighboring
+  components before assuming it; this reference is not a substitute for reading the source.
+- Angular attribute-directive selector: `[udxProgressIndicator]`, with inputs prefixed the same way
+  (`udxProgressIndicatorValue`) because the host element is not the directive's own. The prefix is
+  the exception that a directive's shape justifies, not a general naming rule.
 - Core files: `progress-indicator.interface.ts`, `progress-indicator.style.ts`, and an optional
   `progress-indicator.behavior.ts`.
 - React public props: `ReactProgressIndicatorProps`.
-- Angular inputs use contract names; outputs drop React's `on` prefix (`onValueChange` maps to
-  `valueChange`).
+- Angular inputs otherwise use contract names; outputs drop React's `on` prefix (`onValueChange`
+  maps to `valueChange`).
 
 ## Discovery
 

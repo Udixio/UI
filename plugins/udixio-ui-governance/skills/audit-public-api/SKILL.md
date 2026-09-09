@@ -28,14 +28,19 @@ or semantic validator of the component API.
 ## Judge for long-term use
 
 For every public member, ask whether a developer can understand the intent without reading the
-implementation and whether the contract remains truthful if markup, CSS, Motion, or internal state
-changes. Review naming, polarity, type shape, defaults, optionality, event semantics, controlled
+implementation and whether the contract remains truthful if markup, CSS, animation, delivery shape,
+or internal state changes. Review naming, polarity, type shape, defaults, optionality, event semantics, controlled
 state, framework neutrality, composability, and consistency.
 
 React is the default implementation source, not the design authority. Existing parity does not pass
 this checker when both adapters expose the same weak contract. For example, `disableTextMargins`
 must be challenged because it is negative and names a spacing mechanism rather than the user-facing
 layout intent; inspect behavior before recommending the final replacement.
+
+Judge the concept, the vocabulary, and the delivery shape as three separate layers, as
+[the public API standard](../../references/public-api-standard.md#separate-concept-vocabulary-and-delivery-shape)
+defines them. A member that exists only to carry a foreign framework's mechanism fails this checker
+even when both adapters expose it.
 
 ## Propose before changing
 
