@@ -18,9 +18,17 @@ import tooltipControlledAngularSource from '@/examples/angular/tooltip-controlle
 ## Usage
 
 `Tooltip` displays informative text when users hover, focus, or click a
-target. React wraps a single trigger child directly; Angular has no
-equivalent to cloning an arbitrary projected element, so its `target` input
-(pointing at the trigger element) is always required.
+trigger. The two frameworks deliver it in the shape each one is built for:
+
+- **React** exports a `Tooltip` **component** that wraps a single trigger
+  child, or targets one through `targetRef`.
+- **Angular** exports a `Tooltip` **directive**, `[udxTooltip]`, that you put
+  directly on the trigger. It injects its own `ElementRef`, so there is no
+  target to hand over. Its inputs are prefixed `udxTooltip*` because the host
+  element is not the directive's own.
+
+The concept, the vocabulary, the behavior and the accessibility are identical;
+only the way you reach them differs.
 
 ```bash
 import { Tooltip } from "@udixio/ui-react"
@@ -42,9 +50,10 @@ how the tooltip appears, and `position` to place it relative to its target.
 ## Rich content
 
 `variant="rich"` renders a card-like surface with a `title`, `text`, and
-optional `buttons`. Project custom content instead -- via `content` in React,
-or `<ng-content>` in Angular -- to replace that built-in layout entirely; it
-only renders when `title`, `text`, and `buttons` are all unset.
+optional `buttons`. Supply custom content instead -- `content` in React, a
+`TemplateRef` passed to `udxTooltipContent` in Angular -- to replace that
+built-in layout entirely; the layout only renders when no custom content is
+given.
 
 <Code
   codes={{
@@ -58,8 +67,9 @@ only renders when `title`, `text`, and `buttons` are all unset.
 
 ## Controlled state
 
-Use `open` with `onOpenChange` (React) or `openChange` (Angular) to fully
-control visibility; `defaultOpen` initializes uncontrolled state.
+Use `open` with `onOpenChange` (React), or `udxTooltipOpen` with
+`udxTooltipOpenChange` (Angular), to fully control visibility. `defaultOpen`
+initializes uncontrolled state.
 
 <Code
   codes={{
@@ -71,22 +81,49 @@ control visibility; `defaultOpen` initializes uncontrolled state.
   <TooltipControlledAngular slot="angular" client:load />
 </Code>
 
+## Migrating from `<udx-tooltip>`
+
+The Angular adapter was a `udx-tooltip` component taking a required `target`
+input. It is removed, with no compatibility alias. Move it onto the trigger
+and drop the target:
+
+```html
+<!-- before -->
+<udx-button #trigger label="Save" />
+<udx-tooltip [target]="triggerRef()" text="Save the draft" />
+
+<!-- after -->
+<udx-button label="Save" udxTooltip="Save the draft" />
+```
+
+Every other input keeps its meaning under a `udxTooltip*` alias, and
+`<ng-content>` becomes a `TemplateRef` on `udxTooltipContent`. The `viewChild`
+and `ElementRef` plumbing the old form required disappears entirely.
+
 ## Delays
 
-Use `openDelay` and `closeDelay` (ms) to tune the hover/focus behavior.
-Defaults: `openDelay={400}`, `closeDelay={150}`. Focus and click transitions
+Use `openDelay` and `closeDelay` (ms) to tune the hover/focus behavior --
+`udxTooltipOpenDelay` and `udxTooltipCloseDelay` in Angular. Defaults: 400ms
+and 150ms. Focus and click transitions
 are immediate. On touch, a long press opens the tooltip after 500ms; after
 release or cancellation, it remains visible for 1.5 seconds as specified by
 Material 3.
 
-## Motion
+## One shared implementation
 
-The open/close opacity and vertical height transition is implemented once with
-Anime.js in `@udixio/core/dom` (`createTooltipTransitionController`), so
-React and Angular share identical timing, reduced-motion behavior, and
-cleanup. Neither adapter implements its own version of this effect, and
-neither depends on `motion/react`. Override timing with `transition`
-(`{ duration, ease }`).
+Two controllers in `@udixio/core/dom` carry the behavior, and both adapters
+drive them rather than reimplementing anything:
+
+- `createTooltipTriggerController` owns the timers, the pointer, keyboard and
+  touch wiring, the touch long press, `aria-describedby`, and the arbitration
+  that closes one tooltip when another opens.
+- `createTooltipTransitionController` owns the open/close opacity and height
+  transition, with Anime.js.
+
+React and Angular therefore share identical timing, reduced-motion behavior,
+interruption handling and cleanup, by construction rather than by discipline.
+Override the transition timing with `transition` (`udxTooltipTransition`),
+taking `{ duration, ease }`.
 
 ## Position
 

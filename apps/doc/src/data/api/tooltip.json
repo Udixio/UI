@@ -175,35 +175,25 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/tooltip/tooltip.ts",
-      "description": "Tooltips display brief labels or messages.\n\nUnlike React, which can clone an arbitrary projected child to attach\ntrigger handlers to it, Angular has no equivalent primitive: `target`\nis therefore always required, mirroring React's `targetRef` mode. There\nis no `children`-wrapping convenience mode.",
-      "selector": "udx-tooltip",
+      "description": "Tooltips display brief labels or messages.\n\nAngular delivers this as a **directive**, where React delivers a wrapping\ncomponent. The concept, the vocabulary and the observable behavior are the\nsame; only the way a consumer reaches them differs. A directive attaches to\nthe trigger the consumer already owns and injects its own `ElementRef`, so\nthere is nothing to hand over.",
+      "selector": "[udxTooltip]",
       "tags": {
         "status": "beta",
         "category": "Communication",
-        "devx": "- `target` is required and points at the trigger element -- including a\n  `display: contents` component host (`Button`, `IconButton`, `Chip`, ...):\n  hover is detected via bubbling `mouseover`/`mouseout`, not `mouseenter`/\n  `mouseleave`, specifically so it keeps working through such a host.\n- Provide `title`/`text`/`buttons`, or project custom content instead --\n  projected content is only rendered when none of those three are set.\n- Supports controlled `open` plus `openDelay`/`closeDelay`.\n- A touch long press opens after 500ms and remains visible for 1.5s after\n  release, following Material 3 guidance.\n- Opening one tooltip closes the currently visible tooltip in the document.\n- The open/close opacity/height transition is implemented once with\n  Anime.js in `@udixio/core/dom`, so Angular and React share the same\n  timing, reduced-motion behavior, and cleanup. No framework-specific\n  animation library is used.\n- The tooltip surface stays mounted at all times (hidden via `inert` and\n  `aria-hidden`) rather than mounting only while open, so it can animate\n  out; expensive projected content is not torn down until `Tooltip`\n  itself is destroyed.",
-        "a11y": "- Provides `role=\"tooltip\"` and `aria-describedby` on `target` when open.",
-        "limitations": "- Projected content stays mounted while closed, since the surface is\n  always present for its open/close animation; expensive content is not\n  torn down until `Tooltip` itself is destroyed.\n- `position` falls back to tracking `getBoundingClientRect()` on scroll and\n  resize in browsers without native CSS Anchor Positioning support."
+        "devx": "- Put it on the trigger: `<udx-button udxTooltip=\"Copy\" />`. Inputs are\n  prefixed `udxTooltip*` because the host element is not the directive's own;\n  the member names stay the shared contract's vocabulary.\n- Provide `udxTooltip` (the supporting text), `udxTooltipTitle` and\n  `udxTooltipButtons`, or pass a `TemplateRef` to `udxTooltipContent` for\n  fully custom content.\n- Supports controlled `udxTooltipOpen` plus the two delays.\n- A touch long press opens after 500ms and stays visible for 1.5s after\n  release, following Material 3 guidance.\n- Opening one tooltip closes the currently visible tooltip in the document.\n- The trigger's timers, pointer/keyboard/touch wiring, ARIA synchronization\n  and cross-tooltip arbitration all come from one controller in\n  `@udixio/core/dom`, shared with React. The open/close transition is\n  Anime.js, likewise shared.",
+        "a11y": "- Provides `role=\"tooltip\"` on the panel and `aria-describedby` on the host\n  while open.",
+        "limitations": "- The panel stays mounted while closed so it can animate out; expensive\n  `udxTooltipContent` is not torn down until the directive is destroyed.\n- `udxTooltipPosition` falls back to tracking `getBoundingClientRect()` on\n  scroll and resize where CSS Anchor Positioning is unavailable."
       },
       "inputs": {
-        "target": {
-          "name": "target",
-          "description": "The element the tooltip is triggered by and positioned against.",
-          "required": true,
-          "type": {
-            "name": "HTMLElement | ElementRef<HTMLElement>"
-          },
-          "defaultValue": null
-        },
-        "variant": {
-          "name": "variant",
-          "description": "`'plain'` is a small text bubble; `'rich'` is a card-like surface with title/text/actions.",
+        "text": {
+          "name": "text",
+          "description": "Supporting text. The directive's own binding carries it.",
           "required": false,
           "type": {
-            "name": "TooltipVariant | undefined"
+            "name": "string | undefined"
           },
-          "defaultValue": {
-            "value": "'plain'"
-          }
+          "defaultValue": null,
+          "alias": "udxTooltip"
         },
         "title": {
           "name": "title",
@@ -212,25 +202,30 @@
           "type": {
             "name": "string | undefined"
           },
-          "defaultValue": null
+          "defaultValue": null,
+          "alias": "udxTooltipTitle"
         },
-        "text": {
-          "name": "text",
-          "description": "Supporting text for the tooltip.",
+        "variant": {
+          "name": "variant",
+          "description": "`'plain'` is a small text bubble; `'rich'` is a card-like surface.",
           "required": false,
           "type": {
-            "name": "string | undefined"
+            "name": "TooltipVariant | undefined"
           },
-          "defaultValue": null
+          "defaultValue": {
+            "value": "'plain'"
+          },
+          "alias": "udxTooltipVariant"
         },
         "position": {
           "name": "position",
-          "description": "Placement relative to the target. Defaults to `bottom-right` for `variant=\"rich\"`, `bottom` otherwise.",
+          "description": "Placement relative to the host. Defaults to `bottom-right` for `rich`.",
           "required": false,
           "type": {
             "name": "AnchorPosition | undefined"
           },
-          "defaultValue": null
+          "defaultValue": null,
+          "alias": "udxTooltipPosition"
         },
         "trigger": {
           "name": "trigger",
@@ -241,18 +236,20 @@
           },
           "defaultValue": {
             "value": "['hover', 'focus']"
-          }
+          },
+          "alias": "udxTooltipTrigger"
         },
         "describeTarget": {
           "name": "describeTarget",
-          "description": "Whether the open tooltip describes its target through `aria-describedby`.",
+          "description": "Whether the open tooltip describes its host through `aria-describedby`.",
           "required": false,
           "type": {
             "name": "boolean"
           },
           "defaultValue": {
             "value": "true"
-          }
+          },
+          "alias": "udxTooltipDescribeTarget"
         },
         "openDelay": {
           "name": "openDelay",
@@ -263,7 +260,8 @@
           },
           "defaultValue": {
             "value": "400"
-          }
+          },
+          "alias": "udxTooltipOpenDelay"
         },
         "closeDelay": {
           "name": "closeDelay",
@@ -274,16 +272,18 @@
           },
           "defaultValue": {
             "value": "150"
-          }
+          },
+          "alias": "udxTooltipCloseDelay"
         },
         "open": {
           "name": "open",
-          "description": "Controlled open state.",
+          "description": "Controlled open state. Leave unset to let the directive own it.",
           "required": false,
           "type": {
             "name": "boolean | undefined"
           },
-          "defaultValue": null
+          "defaultValue": null,
+          "alias": "udxTooltipOpen"
         },
         "defaultOpen": {
           "name": "defaultOpen",
@@ -294,25 +294,48 @@
           },
           "defaultValue": {
             "value": "false"
-          }
+          },
+          "alias": "udxTooltipDefaultOpen"
         },
-        "id": {
-          "name": "id",
+        "tooltipId": {
+          "name": "tooltipId",
           "description": "Custom ID for accessibility linking. Auto-generated if not provided.",
           "required": false,
           "type": {
-            "name": "string"
+            "name": "string | undefined"
           },
-          "defaultValue": null
+          "defaultValue": null,
+          "alias": "udxTooltipId"
         },
         "buttons": {
           "name": "buttons",
-          "description": "Small text-variant action button(s) rendered in the built-in rich layout.",
+          "description": "Small text-variant action button(s) in the built-in rich layout.",
           "required": false,
           "type": {
             "name": "TooltipButtonAction | TooltipButtonAction[]"
           },
-          "defaultValue": null
+          "defaultValue": null,
+          "alias": "udxTooltipButtons"
+        },
+        "content": {
+          "name": "content",
+          "description": "Custom content, replacing title/text/buttons when provided.",
+          "required": false,
+          "type": {
+            "name": "TemplateRef<unknown> | undefined"
+          },
+          "defaultValue": null,
+          "alias": "udxTooltipContent"
+        },
+        "anchor": {
+          "name": "anchor",
+          "description": "Anchor used for positioning. Defaults to the host element.",
+          "required": false,
+          "type": {
+            "name": "HTMLElement | ElementRef<HTMLElement> | undefined"
+          },
+          "defaultValue": null,
+          "alias": "udxTooltipAnchor"
         },
         "transition": {
           "name": "transition",
@@ -321,34 +344,30 @@
           "type": {
             "name": "TooltipTransition | undefined"
           },
-          "defaultValue": null
+          "defaultValue": null,
+          "alias": "udxTooltipTransition"
         },
         "className": {
           "name": "className",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "description": "Classes or state-aware element classes through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<TooltipInterface>"
+            "name": "string | ClassNameComponent<TooltipInterface> | undefined"
           },
-          "defaultValue": null
+          "defaultValue": null,
+          "alias": "udxTooltipClass"
         }
       },
       "outputs": {
         "openChange": {
           "name": "openChange",
-          "description": "Emits an accepted open-state request and supports `[(open)]`.",
+          "description": "Emits an accepted open-state request.",
           "required": false,
           "type": {
             "name": "boolean"
           },
-          "defaultValue": null
-        }
-      },
-      "content": {
-        "default": {
-          "name": "default",
-          "selector": "*",
-          "description": "Default projected content."
+          "defaultValue": null,
+          "alias": "udxTooltipOpenChange"
         }
       }
     }

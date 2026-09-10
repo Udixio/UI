@@ -47,7 +47,7 @@ const api = defineCollection({
   }),
   schema: z
     .object({
-      schemaVersion: z.literal(2),
+      schemaVersion: z.literal(3),
       displayName: z.string(),
       defaultFramework: z.literal('react'),
       frameworks: z
@@ -62,6 +62,9 @@ const api = defineCollection({
           angular: z
             .object({
               ...frameworkBase,
+              // Where the members attach: `udx-tooltip` for a component,
+              // `[udxTooltip]` for an attribute directive.
+              selector: z.string(),
               inputs: z.record(z.string(), apiMember),
               outputs: z.record(z.string(), apiMember),
               content: z

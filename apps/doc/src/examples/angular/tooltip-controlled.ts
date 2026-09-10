@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { Button, Tooltip } from '@udixio/ui-angular';
 
 @Component({
@@ -15,23 +9,15 @@ import { Button, Tooltip } from '@udixio/ui-angular';
   template: `
     <div class="flex items-center gap-6 p-8">
       <udx-button
-        #triggerButton
         [label]="open() ? 'Hide' : 'Show'"
         (click)="open.set(!open())"
-      />
-      <udx-tooltip
-        [target]="trigger()"
-        text="Controlled tooltip"
-        [open]="open()"
-        (openChange)="open.set($event)"
+        udxTooltip="Controlled tooltip"
+        [udxTooltipOpen]="open()"
+        (udxTooltipOpenChange)="open.set($event)"
       />
     </div>
   `,
 })
 export class TooltipControlledAngular {
-  protected readonly trigger = viewChild.required<ElementRef<HTMLElement>>(
-    'triggerButton',
-    { read: ElementRef },
-  );
   protected readonly open = signal(false);
 }

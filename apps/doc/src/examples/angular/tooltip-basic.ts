@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  viewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Button, Tooltip } from '@udixio/ui-angular';
 
 @Component({
@@ -13,36 +8,20 @@ import { Button, Tooltip } from '@udixio/ui-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-wrap items-center gap-6 p-8">
-      <udx-button #hoverButton label="Hover me" />
-      <udx-tooltip [target]="hoverTrigger()" text="Copy to clipboard" />
+      <udx-button label="Hover me" udxTooltip="Copy to clipboard" />
 
-      <udx-button #clickButton label="Click me" />
-      <udx-tooltip
-        [target]="clickTrigger()"
-        text="Opens on click"
-        trigger="click"
+      <udx-button
+        label="Click me"
+        udxTooltip="Opens on click"
+        udxTooltipTrigger="click"
       />
 
-      <udx-button #topButton label="Top" />
-      <udx-tooltip
-        [target]="topTrigger()"
-        text="Top placement"
-        position="top"
+      <udx-button
+        label="Top"
+        udxTooltip="Top placement"
+        udxTooltipPosition="top"
       />
     </div>
   `,
 })
-export class TooltipBasicAngular {
-  protected readonly hoverTrigger = viewChild.required<ElementRef<HTMLElement>>(
-    'hoverButton',
-    { read: ElementRef },
-  );
-  protected readonly clickTrigger = viewChild.required<ElementRef<HTMLElement>>(
-    'clickButton',
-    { read: ElementRef },
-  );
-  protected readonly topTrigger = viewChild.required<ElementRef<HTMLElement>>(
-    'topButton',
-    { read: ElementRef },
-  );
-}
+export class TooltipBasicAngular {}
