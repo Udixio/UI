@@ -54,6 +54,9 @@ let nextTooltipId = 0;
  * - Put it on the trigger: `<udx-button udxTooltip="Copy" />`. Inputs are
  *   prefixed `udxTooltip*` because the host element is not the directive's own;
  *   the member names stay the shared contract's vocabulary.
+ * - `udxTooltip`, `udxTooltipTitle` and `udxTooltipContent` each activate it on
+ *   their own, so a title-only or template-only tooltip needs no placeholder
+ *   text. The other inputs only configure an already-activated directive.
  * - Provide `udxTooltip` (the supporting text), `udxTooltipTitle` and
  *   `udxTooltipButtons`, or pass a `TemplateRef` to `udxTooltipContent` for
  *   fully custom content.
@@ -74,7 +77,13 @@ let nextTooltipId = 0;
  * - `udxTooltipPosition` falls back to tracking `getBoundingClientRect()` on
  *   scroll and resize where CSS Anchor Positioning is unavailable.
  */
-@Directive({ selector: '[udxTooltip]', standalone: true })
+// Any of the three content-bearing attributes activates the directive. Binding
+// only `udxTooltipContent` or only `udxTooltipTitle` is a legitimate way to use
+// it, and neither should require a dummy `udxTooltip` to switch it on.
+@Directive({
+  selector: '[udxTooltip], [udxTooltipTitle], [udxTooltipContent]',
+  standalone: true,
+})
 export class Tooltip implements OnDestroy {
   /** Supporting text. The directive's own binding carries it. */
   readonly text = input<TooltipProps['text']>(undefined, {

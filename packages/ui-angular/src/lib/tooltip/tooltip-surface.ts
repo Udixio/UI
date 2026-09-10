@@ -70,6 +70,7 @@ export interface TooltipButtonAction {
                   <udx-button
                     size="small"
                     variant="text"
+                    edgeAligned
                     [label]="button.label"
                     (click)="button.onClick?.()"
                   />

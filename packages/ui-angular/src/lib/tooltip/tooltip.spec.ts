@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import * as coreDom from '@udixio/core/dom';
 import { Tooltip } from './tooltip';
+import { Button } from '../button/button';
 
 expect.extend(toHaveNoViolations);
 
@@ -257,6 +258,117 @@ describe('Tooltip directive with nothing to show', () => {
     expect(document.querySelector('[role="tooltip"]')).not.toBeNull();
     fixture.destroy();
     document.querySelectorAll('[role="tooltip"]').forEach((el) => el.remove());
+  });
+});
+
+describe('Tooltip directive rich actions', () => {
+  @Component({
+    standalone: true,
+    imports: [Tooltip],
+    template: `
+      <button
+        udxTooltip="Item added to favorites"
+        udxTooltipVariant="rich"
+        udxTooltipTitle="Saved"
+        [udxTooltipButtons]="[{ label: 'Undo' }, { label: 'Dismiss' }]"
+        udxTooltipDefaultOpen
+      >
+        Trigger
+      </button>
+    `,
+  })
+  class RichActionsHarness {}
+
+  afterEach(() => {
+    document.querySelectorAll('[role="tooltip"]').forEach((el) => el.remove());
+  });
+
+  it('edge-aligns the action labels and spaces them without a chasm', () => {
+    const fixture = TestBed.createComponent(RichActionsHarness);
+    fixture.detectChanges();
+
+    const action = Array.from(document.querySelectorAll('button')).find((el) =>
+      el.textContent?.includes('Undo'),
+    );
+    expect(action).toBeDefined();
+    // `edgeAligned` cancels a small text button's own px-4, so the label sits on
+    // the tooltip container's 16px edge, level with the supporting text.
+    expect(action!.className).toContain('-mx-4');
+
+    const actions = document.querySelector('[role="tooltip"] .actions, [role="tooltip"] [class*="gap-2"]');
+    expect(actions?.className).toContain('gap-2');
+    expect(actions?.className).not.toContain('gap-10');
+    fixture.destroy();
+  });
+});
+
+describe('Tooltip directive activation', () => {
+  @Component({
+    standalone: true,
+    imports: [Tooltip],
+    template: `
+      <ng-template #body><span data-testid="only-content">Body</span></ng-template>
+      <button [udxTooltipContent]="body">Content only</button>
+    `,
+  })
+  class ContentOnlyHarness {}
+
+  @Component({
+    standalone: true,
+    imports: [Tooltip],
+    template: `<button udxTooltipTitle="Heading">Title only</button>`,
+  })
+  class TitleOnlyHarness {}
+
+  afterEach(() => {
+    document.querySelectorAll('[role="tooltip"]').forEach((el) => el.remove());
+  });
+
+  it('activates on udxTooltipContent alone, with no text to show', () => {
+    const fixture = TestBed.createComponent(ContentOnlyHarness);
+    fixture.detectChanges();
+
+    const surface = document.querySelector('[role="tooltip"]');
+    expect(surface).not.toBeNull();
+    expect(surface?.querySelector('[data-testid="only-content"]')).not.toBeNull();
+    fixture.destroy();
+  });
+
+  // Mirrors the documented rich example exactly: the directive sits on a
+  // `udx-button`, whose host renders `display: contents`, and carries only a
+  // variant and a template -- no `udxTooltip` text to switch it on.
+  @Component({
+    standalone: true,
+    imports: [Button, Tooltip],
+    template: `
+      <ng-template #shortcuts><span data-testid="shortcuts">Cmd+K</span></ng-template>
+      <udx-button
+        label="Custom content"
+        udxTooltipVariant="rich"
+        [udxTooltipContent]="shortcuts"
+      />
+    `,
+  })
+  class DocumentedRichHarness {}
+
+  it('activates on a display:contents component host with content only', () => {
+    const fixture = TestBed.createComponent(DocumentedRichHarness);
+    fixture.detectChanges();
+
+    const surface = document.querySelector('[role="tooltip"]');
+    expect(surface).not.toBeNull();
+    expect(surface?.querySelector('[data-testid="shortcuts"]')).not.toBeNull();
+    fixture.destroy();
+  });
+
+  it('activates on udxTooltipTitle alone', () => {
+    const fixture = TestBed.createComponent(TitleOnlyHarness);
+    fixture.detectChanges();
+
+    expect(document.querySelector('[role="tooltip"]')?.textContent).toContain(
+      'Heading',
+    );
+    fixture.destroy();
   });
 });
 
