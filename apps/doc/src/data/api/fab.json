@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "Fab",
   "defaultFramework": "react",
   "frameworks": {
@@ -100,6 +100,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/fab/fab.ts",
       "description": "Floating action buttons expose the primary action on a screen.",
+      "selector": "udx-fab",
       "tags": {
         "status": "stable",
         "category": "Action",

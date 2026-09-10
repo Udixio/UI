@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "IconButton",
   "defaultFramework": "react",
   "frameworks": {
@@ -180,6 +180,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/icon-button/icon-button.ts",
       "description": "Icon buttons expose a frequent action through one unambiguous icon.",
+      "selector": "udx-icon-button",
       "tags": {
         "status": "stable",
         "category": "Action",

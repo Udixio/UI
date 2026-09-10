@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "Menu",
   "defaultFramework": "react",
   "frameworks": {
@@ -80,6 +80,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/menu/menu.ts",
       "description": "Displays commands or selectable options on a temporary surface.",
+      "selector": "udx-menu",
       "tags": {
         "status": "beta",
         "category": "Selection",

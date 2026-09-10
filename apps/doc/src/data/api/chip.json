@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "Chip",
   "defaultFramework": "react",
   "frameworks": {
@@ -179,6 +179,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/chip/chip.ts",
       "description": "A compact action, link, editable value, or selectable option.",
+      "selector": "udx-chip",
       "tags": {
         "status": "beta",
         "category": "Action",

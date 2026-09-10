@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "Checkbox",
   "defaultFramework": "react",
   "frameworks": {
@@ -138,6 +138,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/checkbox/checkbox.ts",
       "description": "Checkboxes let people select one or more independent options.",
+      "selector": "udx-checkbox",
       "tags": {
         "status": "beta",
         "category": "Selection",

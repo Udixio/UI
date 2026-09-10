@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "SideSheet",
   "defaultFramework": "react",
   "frameworks": {
@@ -127,6 +127,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/side-sheet/side-sheet.ts",
       "description": "Side sheets show secondary content anchored to the side of the screen.",
+      "selector": "udx-side-sheet",
       "tags": {
         "status": "beta",
         "category": "Layout",

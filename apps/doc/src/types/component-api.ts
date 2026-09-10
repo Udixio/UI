@@ -41,6 +41,8 @@ export interface ReactComponentApi {
 export interface AngularComponentApi {
   filePath: string;
   description: string;
+  /** Where the members below attach: `udx-tooltip`, or `[udxTooltip]`. */
+  selector: string;
   tags: ComponentTags;
   inputs: Record<string, ApiMember>;
   outputs: Record<string, ApiMember>;
@@ -48,7 +50,7 @@ export interface AngularComponentApi {
 }
 
 export interface ComponentApiData {
-  schemaVersion: 2;
+  schemaVersion: 3;
   displayName: string;
   defaultFramework: 'react';
   frameworks: {

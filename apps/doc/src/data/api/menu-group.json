@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "MenuGroup",
   "defaultFramework": "react",
   "frameworks": {
@@ -57,6 +57,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/menu/menu-group.ts",
       "description": "Groups related MenuItem children under an optional visible label.",
+      "selector": "udx-menu-group",
       "tags": {
         "status": "beta",
         "category": "Selection",

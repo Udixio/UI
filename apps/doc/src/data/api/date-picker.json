@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "DatePicker",
   "defaultFramework": "react",
   "frameworks": {
@@ -116,6 +116,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/date-picker/date-picker.ts",
       "description": "DatePickers let users select a date, or a range of dates.",
+      "selector": "udx-date-picker",
       "tags": {
         "status": "beta",
         "category": "Selection",

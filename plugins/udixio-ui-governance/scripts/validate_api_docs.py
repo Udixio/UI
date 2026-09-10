@@ -120,6 +120,7 @@ def validate_framework(name: str, payload: Any) -> list[str]:
         allowed_fields = {
             "filePath",
             "description",
+            "selector",
             "tags",
             "inputs",
             "outputs",
@@ -128,7 +129,12 @@ def validate_framework(name: str, payload: Any) -> list[str]:
     unexpected = sorted(set(payload) - allowed_fields)
     if unexpected:
         errors.append(f"{path} contains unsupported fields: {', '.join(unexpected)}")
-    for field in ("filePath", "description"):
+    required_fields = ("filePath", "description")
+    if name == "angular":
+        # A directive and a component are reached differently; the page has to
+        # say which attachment point the members belong to.
+        required_fields += ("selector",)
+    for field in required_fields:
         if not non_empty_string(payload.get(field)):
             errors.append(f"{path}.{field} must be a non-empty string")
 
@@ -167,8 +173,8 @@ def validate_document(document: Any) -> list[str]:
     unexpected = sorted(set(document) - ROOT_FIELDS)
     if unexpected:
         errors.append(f"document root contains unsupported fields: {', '.join(unexpected)}")
-    if document.get("schemaVersion") != 2:
-        errors.append("schemaVersion must equal 2")
+    if document.get("schemaVersion") != 3:
+        errors.append("schemaVersion must equal 3")
     if not non_empty_string(document.get("displayName")):
         errors.append("displayName must be a non-empty string")
 

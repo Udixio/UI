@@ -34,7 +34,7 @@ def api_tags() -> dict[str, str]:
 
 def valid_document() -> dict[str, object]:
     return {
-        "schemaVersion": 2,
+        "schemaVersion": 3,
         "displayName": "Button",
         "defaultFramework": "react",
         "frameworks": {
@@ -48,6 +48,7 @@ def valid_document() -> dict[str, object]:
             "angular": {
                 "filePath": "packages/ui-angular/src/lib/button/button.ts",
                 "description": "Buttons prompt actions.",
+                "selector": "udx-button",
                 "tags": api_tags(),
                 "inputs": {"disabled": api_item("disabled")},
                 "outputs": {},
@@ -99,10 +100,28 @@ class ValidateApiDocsTest(unittest.TestCase):
             validate_document(document),
         )
 
+    def test_rejects_angular_payload_without_a_selector(self) -> None:
+        document = valid_document()
+        del document["frameworks"]["angular"]["selector"]  # type: ignore[index]
+        self.assertIn(
+            "frameworks.angular.selector must be a non-empty string",
+            validate_document(document),
+        )
+
+    def test_accepts_an_attribute_directive_selector(self) -> None:
+        document = valid_document()
+        document["frameworks"]["angular"]["selector"] = "[udxTooltip]"  # type: ignore[index]
+        self.assertEqual(validate_document(document), [])
+
+    def test_rejects_the_previous_schema_version(self) -> None:
+        document = valid_document()
+        document["schemaVersion"] = 2
+        self.assertIn("schemaVersion must equal 3", validate_document(document))
+
     def test_rejects_duplicate_json_keys_before_schema_validation(self) -> None:
         with self.assertRaises(DuplicateKeyError):
             json.loads(
-                '{"schemaVersion": 2, "schemaVersion": 2}',
+                '{"schemaVersion": 3, "schemaVersion": 3}',
                 object_pairs_hook=object_without_duplicate_keys,
             )
 

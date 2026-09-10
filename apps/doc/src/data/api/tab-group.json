@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "TabGroup",
   "defaultFramework": "react",
   "frameworks": {
@@ -50,6 +50,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/tabs/tab-group.ts",
       "description": "TabGroup shares selection state between a `udx-tabs` tablist and a\n`udx-tab-panels` placed anywhere in its subtree.",
+      "selector": "udx-tab-group",
       "tags": {
         "status": "beta",
         "category": "Navigation",

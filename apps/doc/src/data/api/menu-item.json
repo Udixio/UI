@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "MenuItem",
   "defaultFramework": "react",
   "frameworks": {
@@ -142,6 +142,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/menu/menu-item.ts",
       "description": "An action or selectable choice within a Menu.",
+      "selector": "udx-menu-item",
       "tags": {
         "status": "beta",
         "category": "Selection",

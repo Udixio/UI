@@ -220,6 +220,19 @@ export function ComponentApiReference({ api }: { api: ComponentApiData }) {
         activeFramework={activeFramework}
         frameworks={availableFrameworks}
       />
+      <section aria-labelledby="angular-selector-title">
+        <h2 id="angular-selector-title" className="mb-4 text-headline-medium">
+          Selector
+        </h2>
+        <p className="text-body-medium text-on-surface-variant">
+          {angularApi.selector.startsWith('[')
+            ? 'An attribute directive. Put it, and the inputs below, on the element it should enhance.'
+            : 'A component. Render it, and set the inputs below on it.'}
+        </p>
+        <code className="mt-2 inline-block rounded-sm bg-surface-container px-2 py-1 text-body-medium">
+          {angularApi.selector}
+        </code>
+      </section>
       <section aria-labelledby="angular-inputs-title">
         <h2 id="angular-inputs-title" className="mb-4 text-headline-medium">
           Inputs

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "Card",
   "defaultFramework": "react",
   "frameworks": {
@@ -78,6 +78,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/card/card.ts",
       "description": "Cards display content and actions about a single subject",
+      "selector": "udx-card",
       "tags": {
         "status": "stable",
         "category": "Layout",

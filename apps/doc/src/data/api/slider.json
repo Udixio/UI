@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "Slider",
   "defaultFramework": "react",
   "frameworks": {
@@ -127,6 +127,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/slider/slider.ts",
       "description": "Sliders let users make selections from a range of values.",
+      "selector": "udx-slider",
       "tags": {
         "status": "beta",
         "category": "Input",

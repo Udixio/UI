@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "Tab",
   "defaultFramework": "react",
   "frameworks": {
@@ -145,6 +145,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/tabs/tab.ts",
       "description": "A single tab inside a `udx-tabs` tablist; renders as a link when `href` is\nprovided, otherwise as a button.",
+      "selector": "udx-tab",
       "tags": {
         "status": "beta",
         "parent": "Tabs",

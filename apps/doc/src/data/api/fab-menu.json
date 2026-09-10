@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "FabMenu",
   "defaultFramework": "react",
   "frameworks": {
@@ -171,6 +171,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/fab-menu/fab-menu.ts",
       "description": "FabMenu exposes related primary actions from one toggleable FAB.",
+      "selector": "udx-fab-menu",
       "tags": {
         "status": "stable",
         "category": "Action",

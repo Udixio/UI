@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "Carousel",
   "defaultFramework": "react",
   "frameworks": {
@@ -111,6 +111,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/carousel/carousel.ts",
       "description": "Carousels show a collection of items that can be scrolled on and off the screen.",
+      "selector": "udx-carousel",
       "tags": {
         "status": "beta",
         "category": "Layout",

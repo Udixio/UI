@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "Chips",
   "defaultFramework": "react",
   "frameworks": {
@@ -91,6 +91,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/chips/chips.ts",
       "description": "A labelled collection of selectable or editable chips.",
+      "selector": "udx-chips",
       "tags": {
         "status": "beta",
         "category": "Input",

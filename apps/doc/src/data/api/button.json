@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "Button",
   "defaultFramework": "react",
   "frameworks": {
@@ -29,7 +29,7 @@
           "description": "The HTML button type attribute. Only applies when rendered as `<button>`.",
           "required": false,
           "type": {
-            "name": "\"button\" | \"reset\" | \"submit\""
+            "name": "\"button\" | \"submit\" | \"reset\""
           },
           "defaultValue": {
             "value": "'button'"
@@ -231,6 +231,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/button/button.ts",
       "description": "Buttons prompt most actions in a UI.",
+      "selector": "udx-button",
       "tags": {
         "status": "stable",
         "category": "Action",

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "Switch",
   "defaultFramework": "react",
   "frameworks": {
@@ -87,6 +87,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/switch/switch.ts",
       "description": "Switches toggle the selection of a single item on or off.",
+      "selector": "udx-switch",
       "tags": {
         "status": "beta",
         "category": "Input",

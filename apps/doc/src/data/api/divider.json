@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "Divider",
   "defaultFramework": "react",
   "frameworks": {
@@ -40,6 +40,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/divider/divider.ts",
       "description": "Dividers are thin lines that group content in lists or other containers",
+      "selector": "udx-divider",
       "tags": {
         "status": "beta",
         "category": "Layout",

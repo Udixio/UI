@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "AnchorPositioner",
   "defaultFramework": "react",
   "frameworks": {
@@ -40,6 +40,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/anchor-positioner/anchor-positioner.ts",
       "description": "Floats projected content next to an anchor element using native CSS\nAnchor Positioning where supported, falling back to a `position: fixed`\nelement tracked against the anchor's rect. The positioning math is\nimplemented once in `@udixio/core/dom` and shared with the React adapter.",
+      "selector": "udx-anchor-positioner",
       "tags": {
         "status": "beta",
         "category": "Communication",

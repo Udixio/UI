@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "Tooltip",
   "defaultFramework": "react",
   "frameworks": {
@@ -176,6 +176,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/tooltip/tooltip.ts",
       "description": "Tooltips display brief labels or messages.\n\nUnlike React, which can clone an arbitrary projected child to attach\ntrigger handlers to it, Angular has no equivalent primitive: `target`\nis therefore always required, mirroring React's `targetRef` mode. There\nis no `children`-wrapping convenience mode.",
+      "selector": "udx-tooltip",
       "tags": {
         "status": "beta",
         "category": "Communication",

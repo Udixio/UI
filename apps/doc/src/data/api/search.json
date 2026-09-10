@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "Search",
   "defaultFramework": "react",
   "frameworks": {
@@ -283,6 +283,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/search/search.ts",
       "description": "Search lets people enter a query and optionally browse projected suggestions\nor results in an inline Material 3 contained results surface.",
+      "selector": "udx-search",
       "tags": {
         "status": "beta",
         "category": "Input",

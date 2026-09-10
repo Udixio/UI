@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "TextField",
   "defaultFramework": "react",
   "frameworks": {
@@ -266,6 +266,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/text-field/text-field.ts",
       "description": "Text fields let users enter text into a UI.",
+      "selector": "udx-text-field",
       "tags": {
         "status": "beta",
         "category": "Input",

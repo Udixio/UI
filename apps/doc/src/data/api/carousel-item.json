@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "CarouselItem",
   "defaultFramework": "react",
   "frameworks": {
@@ -38,6 +38,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/carousel/carousel-item.ts",
       "description": "A single slide inside a `udx-carousel`. Its width is driven by the\ncarousel's scroll position; it simply projects its content.",
+      "selector": "udx-carousel-item",
       "tags": {
         "status": "beta",
         "parent": "Carousel",

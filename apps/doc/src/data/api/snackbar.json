@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "Snackbar",
   "defaultFramework": "react",
   "frameworks": {
@@ -96,6 +96,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/snackbar/snackbar.ts",
       "description": "Snackbars show a brief, non-blocking status message about an app process.",
+      "selector": "udx-snackbar",
       "tags": {
         "status": "beta",
         "category": "Communication",

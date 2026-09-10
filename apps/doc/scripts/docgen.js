@@ -370,15 +370,53 @@ const extractProjectedContent = (componentDecorator, sourceFile) => {
   );
 };
 
-const getComponentDecorator = (classDeclaration, checker) =>
+// Every public Angular shape is documented, not only `@Component`. A shape the
+// extractor fails to recognize silently drops `frameworks.angular` from the
+// generated payload, and framework availability is derived from that payload --
+// so an unrecognized decorator reads as "Angular not supported".
+const ANGULAR_DECLARATION_DECORATORS = new Set([
+  'Component',
+  'Directive',
+  'Injectable',
+  'Pipe',
+]);
+
+const getAngularDecorator = (classDeclaration, checker) =>
   (ts.getDecorators(classDeclaration) ?? []).find((decorator) => {
     const expression = decorator.expression;
     return (
       ts.isCallExpression(expression) &&
       ts.isIdentifier(expression.expression) &&
-      getAngularCoreImportName(expression.expression, checker) === 'Component'
+      ANGULAR_DECLARATION_DECORATORS.has(
+        getAngularCoreImportName(expression.expression, checker),
+      )
     );
   });
+
+/**
+ * The attachment point a consumer writes: `udx-tooltip` for a component,
+ * `[udxTooltip]` for an attribute directive. A `@Pipe` names itself instead.
+ */
+const getAngularSelector = (decorator, sourceFile) => {
+  const metadata = decorator.expression.arguments[0];
+  if (!metadata || !ts.isObjectLiteralExpression(metadata)) return undefined;
+  for (const key of ['selector', 'name']) {
+    const property = metadata.properties.find(
+      (candidate) =>
+        ts.isPropertyAssignment(candidate) &&
+        getPropertyName(candidate, sourceFile) === key,
+    );
+    const initializer = property?.initializer;
+    if (
+      initializer &&
+      (ts.isStringLiteral(initializer) ||
+        ts.isNoSubstitutionTemplateLiteral(initializer))
+    ) {
+      return initializer.text;
+    }
+  }
+  return undefined;
+};
 
 export const extractAngularComponent = ({
   classDeclaration,
@@ -386,12 +424,18 @@ export const extractAngularComponent = ({
   reactComponent,
 }) => {
   const sourceFile = classDeclaration.getSourceFile();
-  const componentDecorator = getComponentDecorator(classDeclaration, checker);
+  const componentDecorator = getAngularDecorator(classDeclaration, checker);
   if (
     !componentDecorator ||
     !ts.isCallExpression(componentDecorator.expression)
   ) {
     return undefined;
+  }
+  const selector = getAngularSelector(componentDecorator, sourceFile);
+  if (!selector) {
+    throw new Error(
+      `Unable to read the Angular selector of ${classDeclaration.name?.text} in ${toProjectPath(sourceFile.fileName)}`,
+    );
   }
 
   const classDocumentation = getSymbolDocumentation(
@@ -447,6 +491,7 @@ export const extractAngularComponent = ({
   return {
     filePath: toProjectPath(sourceFile.fileName),
     description: classDocumentation.description || reactComponent.description,
+    selector,
     tags: {
       ...getSharedCatalogTags(reactComponent.tags),
       ...classDocumentation.tags,
@@ -490,7 +535,7 @@ const getAngularComponents = async () => {
       if (
         ts.isClassDeclaration(statement) &&
         statement.name &&
-        getComponentDecorator(statement, checker)
+        getAngularDecorator(statement, checker)
       ) {
         components.set(statement.name.text, {
           classDeclaration: statement,
@@ -550,7 +595,7 @@ export const generateApiDocs = async ({ requestedComponent } = {}) => {
         })
       : undefined;
     const document = {
-      schemaVersion: 2,
+      schemaVersion: 3,
       displayName,
       defaultFramework: 'react',
       frameworks: {

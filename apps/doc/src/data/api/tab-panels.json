@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "displayName": "TabPanels",
   "defaultFramework": "react",
   "frameworks": {
@@ -30,6 +30,7 @@
     "angular": {
       "filePath": "packages/ui-angular/src/lib/tabs/tab-panels.ts",
       "description": "TabPanels hosts every projected `udx-tab-panel`; each panel resolves its\nown active/hidden state from the shared `udx-tab-group` selection.",
+      "selector": "udx-tab-panels",
       "tags": {
         "status": "beta",
         "category": "Navigation",
