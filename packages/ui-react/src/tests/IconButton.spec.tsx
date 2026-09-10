@@ -10,17 +10,6 @@ import { IconButton } from '../lib/index.js';
 
 expect.extend(toHaveNoViolations);
 
-class NoopResizeObserver {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-  takeRecords() {
-    return [];
-  }
-}
-Object.assign(globalThis, {
-  ResizeObserver: (globalThis as any).ResizeObserver ?? NoopResizeObserver,
-});
 
 vi.mock('@udixio/core/dom', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@udixio/core/dom')>();

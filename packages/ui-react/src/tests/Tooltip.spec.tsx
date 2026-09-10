@@ -8,22 +8,6 @@ import { createTooltipTransitionController } from '@udixio/core/dom';
 
 expect.extend(toHaveNoViolations);
 
-// jsdom lacks ResizeObserver; AnchorPositioner's fallback controller needs it
-// to mount when the environment reports no CSS Anchor Positioning support.
-beforeAll(() => {
-  class NoopObserver {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-    takeRecords() {
-      return [];
-    }
-  }
-  Object.assign(globalThis, {
-    ResizeObserver: (globalThis as any).ResizeObserver ?? NoopObserver,
-  });
-});
-
 // Mocking `animejs` directly (a transitive dependency of `@udixio/core/dom`)
 // corrupts the sibling `@udixio/core` entry's exports under Vite's
 // dependency pre-bundling in this workspace -- mocking the already-isolated

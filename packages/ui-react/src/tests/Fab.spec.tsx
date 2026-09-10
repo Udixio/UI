@@ -9,20 +9,6 @@ import { Fab } from '../lib/index.js';
 
 expect.extend(toHaveNoViolations);
 
-// A compact fab composes a Tooltip, which positions itself through the anchor
-// positioner; jsdom has neither ResizeObserver nor the WAAPI its transition
-// needs (same preamble as IconButton.spec.tsx).
-class NoopResizeObserver {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-  takeRecords() {
-    return [];
-  }
-}
-Object.assign(globalThis, {
-  ResizeObserver: (globalThis as any).ResizeObserver ?? NoopResizeObserver,
-});
 
 // Mocking `animejs` directly (a transitive dependency of `@udixio/core/dom`)
 // corrupts the sibling `@udixio/core` entry's exports under Vite's

@@ -10,21 +10,6 @@ import {
 
 expect.extend(toHaveNoViolations);
 
-// jsdom lacks ResizeObserver; the date/select popover's AnchorPositioner needs it to mount.
-beforeAll(() => {
-  class NoopObserver {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-    takeRecords() {
-      return [];
-    }
-  }
-  Object.assign(globalThis, {
-    ResizeObserver: (globalThis as any).ResizeObserver ?? NoopObserver,
-  });
-});
-
 // Mocking `animejs` directly (a transitive dependency of `@udixio/core/dom`)
 // corrupts the sibling `@udixio/core` entry's exports under Vite's
 // dependency pre-bundling in this workspace -- mocking the already-isolated
