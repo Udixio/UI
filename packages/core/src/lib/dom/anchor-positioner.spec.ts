@@ -311,3 +311,50 @@ describe('the fallback places every position where position-area would', () => {
     },
   );
 });
+
+/**
+ * `window.innerWidth`/`innerHeight` include the scrollbars; CSS `right`/`bottom`
+ * resolve against the layout viewport, which does not. Measuring with the
+ * former puts every left- and top-anchored fallback off by the scrollbar width
+ * -- invisible in jsdom, which has no scrollbars, and confirmed in Chrome as a
+ * 15px gap against the native path.
+ */
+describe('the fallback measures the layout viewport, not the window', () => {
+  const SCROLLBAR = 15;
+
+  beforeEach(() => {
+    vi.stubGlobal('CSS', { supports: () => false });
+    Object.defineProperty(window, 'innerWidth', { value: 1000, configurable: true });
+    Object.defineProperty(window, 'innerHeight', { value: 800, configurable: true });
+    vi.spyOn(document.documentElement, 'clientWidth', 'get').mockReturnValue(
+      1000 - SCROLLBAR,
+    );
+    vi.spyOn(document.documentElement, 'clientHeight', 'get').mockReturnValue(
+      800 - SCROLLBAR,
+    );
+  });
+
+  it('pins a left placement to the layout width, so its right edge meets the anchor', () => {
+    const anchor = document.createElement('button');
+    const floating = document.createElement('div');
+    document.body.append(anchor, floating);
+    stubAnchorRect(anchor);
+
+    createAnchorPositionerController({ anchor, floating, position: () => 'left' });
+
+    // anchor.left is 200, so the right offset must be 985 - 200, not 1000 - 200.
+    expect(floating.style.right).toBe('785px');
+  });
+
+  it('pins a top placement to the layout height, so its bottom edge meets the anchor', () => {
+    const anchor = document.createElement('button');
+    const floating = document.createElement('div');
+    document.body.append(anchor, floating);
+    stubAnchorRect(anchor);
+
+    createAnchorPositionerController({ anchor, floating, position: () => 'top' });
+
+    // anchor.top is 100, so the bottom offset must be 785 - 100, not 800 - 100.
+    expect(floating.style.bottom).toBe('685px');
+  });
+});

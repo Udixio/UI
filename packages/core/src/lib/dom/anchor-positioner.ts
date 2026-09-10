@@ -111,6 +111,13 @@ export function createAnchorPositionerController({
 
   const update = () => {
     const rect = anchor.getBoundingClientRect();
+    // `innerWidth`/`innerHeight` include the scrollbars, while CSS `right` and
+    // `bottom` resolve against the layout viewport, which does not. Measuring
+    // with the window would offset every left- and top-anchored placement by
+    // the scrollbar width.
+    const root = anchor.ownerDocument.documentElement;
+    const viewportWidth = root.clientWidth || ownerWindow.innerWidth;
+    const viewportHeight = root.clientHeight || ownerWindow.innerHeight;
     floating.style.position = 'fixed';
     floating.style.margin = '0';
     floating.style.top = '';
@@ -121,7 +128,7 @@ export function createAnchorPositionerController({
 
     switch (position()) {
       case 'top':
-        floating.style.bottom = `${ownerWindow.innerHeight - rect.top}px`;
+        floating.style.bottom = `${viewportHeight - rect.top}px`;
         floating.style.left = `${rect.left + rect.width / 2}px`;
         floating.style.transform = 'translateX(-50%)';
         break;
@@ -131,11 +138,11 @@ export function createAnchorPositionerController({
       // these to an anchor edge instead would place the element differently
       // depending on whether the browser supports Anchor Positioning.
       case 'top-left':
-        floating.style.bottom = `${ownerWindow.innerHeight - rect.top}px`;
-        floating.style.right = `${ownerWindow.innerWidth - rect.left}px`;
+        floating.style.bottom = `${viewportHeight - rect.top}px`;
+        floating.style.right = `${viewportWidth - rect.left}px`;
         break;
       case 'top-right':
-        floating.style.bottom = `${ownerWindow.innerHeight - rect.top}px`;
+        floating.style.bottom = `${viewportHeight - rect.top}px`;
         floating.style.left = `${rect.right}px`;
         break;
       case 'bottom':
@@ -145,14 +152,14 @@ export function createAnchorPositionerController({
         break;
       case 'bottom-left':
         floating.style.top = `${rect.bottom}px`;
-        floating.style.right = `${ownerWindow.innerWidth - rect.left}px`;
+        floating.style.right = `${viewportWidth - rect.left}px`;
         break;
       case 'bottom-right':
         floating.style.top = `${rect.bottom}px`;
         floating.style.left = `${rect.right}px`;
         break;
       case 'left':
-        floating.style.right = `${ownerWindow.innerWidth - rect.left}px`;
+        floating.style.right = `${viewportWidth - rect.left}px`;
         floating.style.top = `${rect.top + rect.height / 2}px`;
         floating.style.transform = 'translateY(-50%)';
         break;
