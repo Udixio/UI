@@ -207,6 +207,7 @@ export const Tooltip = ({
                         key={index}
                         size={'small'}
                         variant={'text'}
+                        edgeAligned
                         {...buttonArgs}
                       />
                     ))}

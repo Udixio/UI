@@ -48,7 +48,7 @@ export interface ButtonProps {
   /**
    * Aligns text-button content with the surrounding inline edge.
    * Only applies to `text` variant buttons.
-   * @default true
+   * @default false
    */
   edgeAligned?: boolean;
 

@@ -24,7 +24,12 @@ const tooltipConfig: ClassNameComponent<TooltipInterface> = ({
     variant == 'rich' && 'px-4 pt-3 ',
     variant == 'plain' && 'px-2 py-1',
   ),
-  actions: cx('flex gap-10 px-1 mt-2', variant == 'plain' && 'hidden'),
+  // Material 3 gives the rich tooltip a single action slot, so it specifies no
+  // gap between two of them; accepting several is our own extension and 8px is
+  // our choice. The wrapper adds no horizontal padding of its own: the actions
+  // sit on the container's 16px edge, and `edgeAligned` on each button cancels
+  // its own padding so the label lines up with the supporting text.
+  actions: cx('flex gap-2 mt-2', variant == 'plain' && 'hidden'),
   subHead: cx('text-title-small mb-1', variant == 'plain' && 'hidden'),
   supportingText: cx(''),
   content: cx('w-full'),

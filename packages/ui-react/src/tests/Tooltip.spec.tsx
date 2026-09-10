@@ -462,4 +462,43 @@ describe('Tooltip', () => {
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
+
+  it('edge-aligns rich tooltip action labels with the supporting text', async () => {
+    render(
+      <Tooltip
+        variant="rich"
+        title="Saved"
+        text="Item added to favorites"
+        buttons={{ label: 'Undo' }}
+        defaultOpen
+      >
+        <button>Trigger</button>
+      </Tooltip>,
+    );
+
+    const action = screen.getByRole('button', { name: 'Undo' });
+    // `edgeAligned` cancels a small text button's own px-4, so the label sits
+    // on the tooltip container's 16px edge, level with the supporting text.
+    expect(action.className).toContain('-mx-4');
+  });
+
+  it('separates two rich tooltip actions without a chasm between them', async () => {
+    render(
+      <Tooltip
+        variant="rich"
+        title="Saved"
+        text="Item added to favorites"
+        buttons={[{ label: 'Undo' }, { label: 'Dismiss' }]}
+        defaultOpen
+      >
+        <button>Trigger</button>
+      </Tooltip>,
+    );
+
+    const actions = screen.getByRole('button', { name: 'Undo' })
+      .parentElement as HTMLElement;
+    expect(actions.className).toContain('gap-2');
+    expect(actions.className).not.toContain('gap-10');
+    expect(actions.className).not.toContain('px-1');
+  });
 });
