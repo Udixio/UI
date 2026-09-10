@@ -49,7 +49,7 @@ function resolveBoxElement(element: HTMLElement): HTMLElement {
  * hyphenated form straight through is an invalid custom-ident that browsers
  * silently ignore.
  */
-const POSITION_AREA: Record<AnchorPosition, string> = {
+export const POSITION_AREA: Record<AnchorPosition, string> = {
   top: 'top',
   bottom: 'bottom',
   left: 'left',
@@ -125,13 +125,18 @@ export function createAnchorPositionerController({
         floating.style.left = `${rect.left + rect.width / 2}px`;
         floating.style.transform = 'translateX(-50%)';
         break;
+      // The four corner positions name a cell of the 3x3 grid around the
+      // anchor: outside its box on BOTH axes, matching how the native
+      // `position-area: top left` keyword pair resolves. Anchoring one of
+      // these to an anchor edge instead would place the element differently
+      // depending on whether the browser supports Anchor Positioning.
       case 'top-left':
         floating.style.bottom = `${ownerWindow.innerHeight - rect.top}px`;
-        floating.style.left = `${rect.left}px`;
+        floating.style.right = `${ownerWindow.innerWidth - rect.left}px`;
         break;
       case 'top-right':
         floating.style.bottom = `${ownerWindow.innerHeight - rect.top}px`;
-        floating.style.right = `${ownerWindow.innerWidth - rect.right}px`;
+        floating.style.left = `${rect.right}px`;
         break;
       case 'bottom':
         floating.style.top = `${rect.bottom}px`;
@@ -140,11 +145,11 @@ export function createAnchorPositionerController({
         break;
       case 'bottom-left':
         floating.style.top = `${rect.bottom}px`;
-        floating.style.left = `${rect.left}px`;
+        floating.style.right = `${ownerWindow.innerWidth - rect.left}px`;
         break;
       case 'bottom-right':
         floating.style.top = `${rect.bottom}px`;
-        floating.style.right = `${ownerWindow.innerWidth - rect.right}px`;
+        floating.style.left = `${rect.right}px`;
         break;
       case 'left':
         floating.style.right = `${ownerWindow.innerWidth - rect.left}px`;

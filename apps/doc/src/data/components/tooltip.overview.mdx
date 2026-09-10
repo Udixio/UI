@@ -133,6 +133,13 @@ Positioning where supported and falls back to tracking the target's
 `left`, `right`, `top-left`, `top-right`, `bottom-left`, or `bottom-right`;
 it defaults to `bottom-right` for `variant="rich"` and `bottom` otherwise.
 
+The four single keywords sit on one side of the target and stay centred on the
+other axis. The four corners name a cell of the 3x3 grid around the target, so
+they sit diagonally outside its box on both axes: `bottom-right` places the
+tooltip below the target's bottom edge *and* past its right edge -- not below
+it, right-aligned. Both the native and the fallback path resolve them the same
+way.
+
 ## Keyboard
 
 | Keys   | Actions                                         |

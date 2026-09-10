@@ -1,7 +1,10 @@
 // @vitest-environment jsdom
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createAnchorPositionerController } from './anchor-positioner.js';
+import {
+  createAnchorPositionerController,
+  POSITION_AREA,
+} from './anchor-positioner.js';
 
 class NoopResizeObserver {
   constructor(_cb: ResizeObserverCallback) {}
@@ -188,23 +191,39 @@ describe('anchor positioner controller (fallback, no CSS Anchor Positioning supp
     expect(floating.style.transform).toBe('translateX(-50%)');
   });
 
-  it('positions the floating element for top-right without a translate', () => {
-    const anchor = document.createElement('button');
-    const floating = document.createElement('div');
-    document.body.append(anchor, floating);
-    stubAnchorRect(anchor);
-    Object.defineProperty(window, 'innerHeight', { value: 800, configurable: true });
-    Object.defineProperty(window, 'innerWidth', { value: 1000, configurable: true });
+  // The four corner positions are diagonal: they name a cell of the 3x3 grid
+  // around the anchor, outside its box on BOTH axes, exactly as the native
+  // `position-area: top left` keyword pair resolves. They are not an
+  // edge-aligned "below, right-aligned" placement. The anchor sits at
+  // top 100, bottom 140, left 200, right 280 in an 800x1000 viewport.
+  describe.each([
+    ['top-left', { bottom: '700px', right: '800px' }],
+    ['top-right', { bottom: '700px', left: '280px' }],
+    ['bottom-left', { top: '140px', right: '800px' }],
+    ['bottom-right', { top: '140px', left: '280px' }],
+  ] as const)('corner position %s', (position, expected) => {
+    it('sits diagonally outside the anchor box on both axes, without a translate', () => {
+      const anchor = document.createElement('button');
+      const floating = document.createElement('div');
+      document.body.append(anchor, floating);
+      stubAnchorRect(anchor);
+      Object.defineProperty(window, 'innerHeight', { value: 800, configurable: true });
+      Object.defineProperty(window, 'innerWidth', { value: 1000, configurable: true });
 
-    createAnchorPositionerController({
-      anchor,
-      floating,
-      position: () => 'top-right',
+      createAnchorPositionerController({ anchor, floating, position: () => position });
+
+      for (const [side, value] of Object.entries(expected)) {
+        expect(floating.style[side as 'top' | 'bottom' | 'left' | 'right']).toBe(value);
+      }
+      // The opposite sides stay unset, so the corner cell is what pins it.
+      const unset = ['top', 'bottom', 'left', 'right'].filter(
+        (side) => !(side in expected),
+      );
+      for (const side of unset) {
+        expect(floating.style[side as 'top' | 'bottom' | 'left' | 'right']).toBe('');
+      }
+      expect(floating.style.transform).toBe('');
     });
-
-    expect(floating.style.bottom).toBe('700px');
-    expect(floating.style.right).toBe('720px');
-    expect(floating.style.transform).toBe('');
   });
 
   it('recomputes on update() and reflects a new position', () => {
@@ -245,4 +264,50 @@ describe('anchor positioner controller (fallback, no CSS Anchor Positioning supp
     expect(removeSpy).toHaveBeenCalledWith('scroll', expect.any(Function), true);
     expect(removeSpy).toHaveBeenCalledWith('resize', expect.any(Function));
   });
+});
+
+/**
+ * The two code paths are separate implementations of one contract: native
+ * `position-area` where the browser supports Anchor Positioning, and computed
+ * `position: fixed` offsets everywhere else. They drifted apart once already --
+ * the corner positions were diagonal natively and edge-aligned in the fallback,
+ * so the same `position` rendered differently in Chrome and in Firefox. This
+ * derives the expected fallback sides from the real `POSITION_AREA` map rather
+ * than restating them, so the two cannot diverge again unnoticed.
+ */
+describe('the fallback places every position where position-area would', () => {
+  // A keyword names the grid band the element occupies, so it is pinned by the
+  // OPPOSITE side: `top` means "above the anchor", pinned via `bottom`.
+  const PINNED_BY: Record<string, 'top' | 'bottom' | 'left' | 'right'> = {
+    top: 'bottom',
+    bottom: 'top',
+    left: 'right',
+    right: 'left',
+  };
+
+  it.each(Object.entries(POSITION_AREA))(
+    '%s -> position-area "%s"',
+    (position, area) => {
+      vi.stubGlobal('CSS', { supports: () => false });
+      const anchor = document.createElement('button');
+      const floating = document.createElement('div');
+      document.body.append(anchor, floating);
+      stubAnchorRect(anchor);
+
+      createAnchorPositionerController({
+        anchor,
+        floating,
+        position: () => position as never,
+      });
+
+      const keywords = area.split(' ');
+      const expectedSides = keywords.map((keyword) => PINNED_BY[keyword]);
+      for (const side of expectedSides) {
+        expect(floating.style[side]).not.toBe('');
+      }
+      // A single keyword leaves the cross axis free, and the fallback centres
+      // it with a translate; a keyword pair pins both axes and needs none.
+      expect(floating.style.transform === '').toBe(keywords.length === 2);
+    },
+  );
 });
