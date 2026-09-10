@@ -404,8 +404,10 @@ export function createTooltipTriggerController({
 
   return {
     setControlledState(next) {
+      const wasOpen = isOpen();
       state = next;
       if (next !== 'hidden') suppressedByPeer = false;
+      if (isOpen() && !wasOpen) claimTooltipVisibility(ownerDocument, tooltipId);
       syncAria();
     },
     setSurfaceHovered(hovered) {

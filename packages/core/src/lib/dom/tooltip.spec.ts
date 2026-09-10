@@ -762,6 +762,34 @@ describe('tooltip trigger controller', () => {
     vi.useRealTimers();
   });
 
+  it('claims visibility when the adapter pushes an open controlled state', () => {
+    const peerDismissed = vi.fn();
+    const removePeer = listenForTooltipVisibilityClaims(
+      document,
+      'peer',
+      peerDismissed,
+    );
+    const { controller } = setup({ isControlled: () => true });
+
+    controller.setControlledState('hovered');
+
+    expect(peerDismissed).toHaveBeenCalledOnce();
+    removePeer();
+    controller.destroy();
+  });
+
+  it('describes the trigger when the adapter pushes an open controlled state', () => {
+    const { target, controller } = setup({ isControlled: () => true });
+
+    controller.setControlledState('hovered');
+    expect(target.getAttribute('aria-describedby')).toBe('tooltip-1');
+
+    controller.setControlledState('hidden');
+    expect(target.hasAttribute('aria-describedby')).toBe(false);
+
+    controller.destroy();
+  });
+
   it('stops listening to the trigger once destroyed', () => {
     vi.useFakeTimers();
     const { target, onStateChange, controller } = setup();
