@@ -71,6 +71,9 @@ import { Tooltip } from '../tooltip/tooltip';
     @if (href() !== undefined) {
       <a
         #interactiveElement
+        [udxTooltip]="tooltipText() || undefined"
+        [udxTooltipTrigger]="disabled() ? null : tooltipTriggers"
+        [udxTooltipDescribeTarget]="tooltipText() !== label()"
         [hidden]="!hasAccessibleLabel()"
         [class]="styles()['fab']"
         [attr.href]="disabled() ? null : href()"
@@ -92,6 +95,9 @@ import { Tooltip } from '../tooltip/tooltip';
     } @else {
       <button
         #interactiveElement
+        [udxTooltip]="tooltipText() || undefined"
+        [udxTooltipTrigger]="disabled() ? null : tooltipTriggers"
+        [udxTooltipDescribeTarget]="tooltipText() !== label()"
         [hidden]="!hasAccessibleLabel()"
         [class]="styles()['fab']"
         [attr.type]="type()"
@@ -107,16 +113,6 @@ import { Tooltip } from '../tooltip/tooltip';
       </button>
     }
 
-    @if (tooltipText(); as text) {
-      @if (interactiveElement(); as target) {
-        <udx-tooltip
-          [target]="target"
-          [text]="text"
-          [trigger]="disabled() ? null : tooltipTriggers"
-          [describeTarget]="text !== label()"
-        />
-      }
-    }
   `,
 })
 export class Fab {

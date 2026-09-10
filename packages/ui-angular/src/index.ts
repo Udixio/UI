@@ -34,4 +34,5 @@ export * from './lib/tabs/tab-panel';
 export * from './lib/text-field/text-field';
 export * from './lib/search/search';
 export * from './lib/tooltip/tooltip';
+export * from './lib/tooltip/tooltip-surface';
 export * from './lib/utils/create-controllable-state';
