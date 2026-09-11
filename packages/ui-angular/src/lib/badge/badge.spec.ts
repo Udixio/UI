@@ -29,6 +29,11 @@ describe('Badge (Angular)', () => {
   const badgeOf = (root: HTMLElement) =>
     root.querySelector('udx-badge span > span') as HTMLElement;
 
+  // The badge holds two texts: the visible label, and the visually hidden
+  // sentence the live region announces. Assertions must not confuse them.
+  const visibleTextOf = (root: HTMLElement) =>
+    (root.querySelector('udx-badge [aria-hidden="true"]')?.textContent ?? '').trim();
+
   it('wraps what it marks, so the anchor needs no positioning of its own', () => {
     const fixture = TestBed.createComponent(Harness);
     fixture.detectChanges();
@@ -45,7 +50,7 @@ describe('Badge (Angular)', () => {
     fixture.detectChanges();
 
     const badge = badgeOf(fixture.nativeElement);
-    expect(badge.textContent?.trim()).toBe('');
+    expect(visibleTextOf(fixture.nativeElement)).toBe('');
     expect(badge.className).toContain('size-1.5');
     expect(badge.className).not.toContain('h-4');
     fixture.destroy();
@@ -57,7 +62,7 @@ describe('Badge (Angular)', () => {
     fixture.detectChanges();
 
     const badge = badgeOf(fixture.nativeElement);
-    expect(badge.textContent?.trim()).toBe('3');
+    expect(visibleTextOf(fixture.nativeElement)).toBe('3');
     expect(badge.className).toContain('h-4');
     expect(badge.className).not.toContain('size-1.5');
     fixture.destroy();
@@ -69,7 +74,7 @@ describe('Badge (Angular)', () => {
     fixture.componentInstance.max = 99;
     fixture.detectChanges();
 
-    expect(badgeOf(fixture.nativeElement).textContent?.trim()).toBe('99+');
+    expect(visibleTextOf(fixture.nativeElement)).toBe('99+');
     fixture.destroy();
   });
 
@@ -79,7 +84,7 @@ describe('Badge (Angular)', () => {
     fixture.detectChanges();
 
     const badge = badgeOf(fixture.nativeElement);
-    expect(badge.textContent?.trim()).toBe('0');
+    expect(visibleTextOf(fixture.nativeElement)).toBe('0');
     expect(badge.className).toContain('h-4');
     fixture.destroy();
   });
@@ -103,8 +108,11 @@ describe('Badge (Angular)', () => {
     fixture.detectChanges();
 
     const badge = badgeOf(fixture.nativeElement);
+    // A live region announces its content, not its label, so the sentence is
+    // content and the element carries no aria-label.
     expect(badge.getAttribute('role')).toBe('status');
-    expect(badge.getAttribute('aria-label')).toBe('3 unread messages');
+    expect(badge.getAttribute('aria-label')).toBeNull();
+    expect(badge.textContent).toContain('3 unread messages');
     fixture.destroy();
   });
 
@@ -149,7 +157,7 @@ describe('Badge (Angular)', () => {
     fixture.detectChanges();
 
     const badge = badgeOf(fixture.nativeElement);
-    expect(badge.textContent?.trim()).toBe('BETA RELEASE');
+    expect(visibleTextOf(fixture.nativeElement)).toBe('BETA RELEASE');
     expect(badge.className).not.toContain('max-w-');
     expect(badge.querySelector('span')?.className).not.toContain('truncate');
     fixture.destroy();

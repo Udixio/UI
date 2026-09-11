@@ -30,7 +30,10 @@ import { createStyle } from '../utils/create-style';
  *   decision, so there is no input for it -- render it with `@if`.
  * @a11y
  * - `description` is what a screen reader announces. Give it the meaning, not
- *   the number: `3 unread messages`, not `3`.
+ *   the number: `3 unread messages`, not `3`. It is rendered as visually
+ *   hidden text inside a live region, so a changing count announces the whole
+ *   sentence rather than the bare digit, and the visible number is hidden from
+ *   assistive technology so it is not read twice.
  * - Without a `description` the badge is hidden from assistive technology
  *   rather than announced as a bare digit or as nothing at all.
  * @limitations
@@ -54,11 +57,13 @@ import { createStyle } from '../utils/create-style';
       <span
         [class]="styles()['badge']"
         [attr.role]="description() ? 'status' : null"
-        [attr.aria-label]="description() ?? null"
         [attr.aria-hidden]="description() ? null : true"
       >
         @if (resolvedLabel(); as text) {
-          <span [class]="styles()['label']">{{ text }}</span>
+          <span [class]="styles()['label']" aria-hidden="true">{{ text }}</span>
+        }
+        @if (description(); as announcement) {
+          <span [class]="styles()['announcement']">{{ announcement }}</span>
         }
       </span>
     </span>

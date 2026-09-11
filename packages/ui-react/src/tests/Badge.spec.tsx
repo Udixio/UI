@@ -9,6 +9,11 @@ expect.extend(toHaveNoViolations);
 const badgeOf = (root: HTMLElement) =>
   root.querySelector('span > span') as HTMLElement;
 
+// The badge now holds two texts: the visible label, and the visually hidden
+// sentence the live region announces. Assertions on one must not see the other.
+const visibleTextOf = (root: HTMLElement) =>
+  (root.querySelector('[aria-hidden="true"]')?.textContent ?? '').trim();
+
 describe('Badge', () => {
   it('wraps what it marks, so the anchor needs no positioning of its own', () => {
     const { container } = render(
@@ -25,7 +30,7 @@ describe('Badge', () => {
     const { container } = render(<Badge description="Unread" />);
 
     const badge = badgeOf(container);
-    expect(badge.textContent).toBe('');
+    expect(visibleTextOf(container)).toBe('');
     // Material's small badge is 6dp square; the large one is 16dp tall.
     expect(badge.className).toContain('size-1.5');
     expect(badge.className).not.toContain('h-4');
@@ -35,7 +40,7 @@ describe('Badge', () => {
     const { container } = render(<Badge label={3} description="3 unread" />);
 
     const badge = badgeOf(container);
-    expect(badge.textContent).toBe('3');
+    expect(visibleTextOf(container)).toBe('3');
     expect(badge.className).toContain('h-4');
     expect(badge.className).not.toContain('size-1.5');
   });
@@ -45,13 +50,13 @@ describe('Badge', () => {
       <Badge label={100} max={99} description="99+ unread" />,
     );
 
-    expect(badgeOf(container).textContent).toBe('99+');
+    expect(visibleTextOf(container)).toBe('99+');
   });
 
   it('shows a zero count rather than treating it as absent', () => {
     const { container } = render(<Badge label={0} description="No unread" />);
 
-    expect(badgeOf(container).textContent).toBe('0');
+    expect(visibleTextOf(container)).toBe('0');
     expect(badgeOf(container).className).toContain('h-4');
   });
 
@@ -75,10 +80,19 @@ describe('Badge', () => {
     expect(badge).not.toContain('right-[');
   });
 
-  it('announces the meaning, not the bare digit', () => {
-    render(<Badge label={3} description="3 unread messages" />);
+  // `status` does not take its name from its contents, so an `aria-label` was
+  // the only thing naming it -- and naming a live region is not what makes it
+  // announce. Duplicating the sentence into both would risk it being read
+  // twice, so the content alone carries it.
+  it('names the live region by its content rather than an aria-label', () => {
+    const { container } = render(
+      <Badge label={3} description="3 unread messages" />,
+    );
 
-    expect(screen.getByRole('status')).toHaveAccessibleName('3 unread messages');
+    const live = screen.getByRole('status');
+    expect(live).not.toHaveAttribute('aria-label');
+    expect(live.textContent).toContain('3 unread messages');
+    expect(visibleTextOf(container)).toBe('3');
   });
 
   // A bare "3", or an empty dot, is noise in a screen reader. Without a
@@ -117,7 +131,7 @@ describe('Badge', () => {
     );
 
     const badge = badgeOf(container);
-    expect(badge.textContent).toBe('999');
+    expect(visibleTextOf(container)).toBe('999');
     expect(badge.className).not.toContain('max-w-');
     expect(badge.querySelector('span')?.className).not.toContain('truncate');
   });
@@ -127,6 +141,53 @@ describe('Badge', () => {
       <Badge label="BETA RELEASE" description="Beta release" />,
     );
 
-    expect(badgeOf(container).textContent).toBe('BETA RELEASE');
+    expect(visibleTextOf(container)).toBe('BETA RELEASE');
+  });
+
+  // `role="status"` is a live region, and screen readers announce the CONTENT
+  // that changed, not the element's `aria-label`. With the description living
+  // only in the label, a count going 3 -> 4 announced "4" -- which is the very
+  // thing Material asks a badge to avoid, since the number alone says nothing.
+  it('carries the description as live-region content, not only as a label', () => {
+    render(<Badge label={3} description="3 unread messages" />);
+
+    const live = screen.getByRole('status');
+    expect(live.textContent).toContain('3 unread messages');
+  });
+
+  it('hides the visible digit from assistive tech, so it is not read twice', () => {
+    const { container } = render(<Badge label={3} description="3 unread messages" />);
+
+    const visible = container.querySelector('[aria-hidden="true"]');
+    expect(visible?.textContent).toBe('3');
+    expect(screen.getByRole('status')).toHaveTextContent('3 unread messages');
+  });
+
+  it('announces the small dot, which has no visible text at all', () => {
+    render(<Badge description="You have unread messages" />);
+
+    expect(screen.getByRole('status').textContent).toContain(
+      'You have unread messages',
+    );
+  });
+
+  it('applies a caller class to the element the string form targets', () => {
+    const { container } = render(
+      <Badge label={3} description="3 unread" className="mt-4" />,
+    );
+
+    expect(container.firstElementChild?.className).toContain('mt-4');
+  });
+
+  it('applies element classes through the state-aware form', () => {
+    const { container } = render(
+      <Badge
+        label={3}
+        description="3 unread"
+        className={() => ({ badge: 'ring-2' })}
+      />,
+    );
+
+    expect(badgeOf(container).className).toContain('ring-2');
   });
 });

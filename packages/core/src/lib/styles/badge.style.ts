@@ -27,6 +27,10 @@ const badgeConfig: ClassNameComponent<BadgeInterface> = ({ variant }) => ({
       'h-4 min-w-4 px-1 bottom-[calc(100%-14px)] start-[calc(100%-12px)]',
   ),
   label: cx('text-label-small leading-none'),
+  // `role="status"` is a live region, and a screen reader announces the content
+  // that changed rather than the element's label. The description therefore has
+  // to be content, not an `aria-label`, or a count going 3 -> 4 announces "4".
+  announcement: cx('sr-only'),
 });
 
 export const badgeStyle = defaultClassNames<BadgeInterface>(

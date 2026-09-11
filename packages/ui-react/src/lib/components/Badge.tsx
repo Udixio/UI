@@ -33,7 +33,10 @@ export const useBadgeStyle = createUseStyle(badgeStyle);
  *   decision, so there is no prop for it -- render it conditionally.
  * @a11y
  * - `description` is what a screen reader announces. Give it the meaning, not
- *   the number: `3 unread messages`, not `3`.
+ *   the number: `3 unread messages`, not `3`. It is rendered as visually
+ *   hidden text inside a live region, so a changing count announces the whole
+ *   sentence rather than the bare digit, and the visible number is hidden from
+ *   assistive technology so it is not read twice.
  * - Without a `description` the badge is hidden from assistive technology
  *   rather than announced as a bare digit or as nothing at all.
  * @limitations
@@ -64,11 +67,15 @@ export const Badge = ({
       <span
         className={styles.badge}
         role={description ? 'status' : undefined}
-        aria-label={description}
         aria-hidden={description ? undefined : true}
       >
         {resolvedLabel !== undefined && (
-          <span className={styles.label}>{resolvedLabel}</span>
+          <span className={styles.label} aria-hidden="true">
+            {resolvedLabel}
+          </span>
+        )}
+        {description && (
+          <span className={styles.announcement}>{description}</span>
         )}
       </span>
     </span>

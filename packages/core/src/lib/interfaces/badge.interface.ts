@@ -42,5 +42,5 @@ export interface BadgeInterface {
   type: 'span';
   props: BadgeProps;
   states: BadgeStates;
-  elements: ['container', 'badge', 'label'];
+  elements: ['container', 'badge', 'label', 'announcement'];
 }
