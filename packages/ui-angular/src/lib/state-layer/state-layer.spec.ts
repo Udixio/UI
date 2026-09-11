@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import type { StateLayerShapeTransition } from '@udixio/core';
 import * as coreDom from '@udixio/core/dom';
 import { StateLayer } from './state-layer';
 
@@ -17,6 +18,7 @@ import { StateLayer } from './state-layer';
       <udx-state-layer
         [colorName]="colorName"
         [stateClassName]="stateClassName"
+        [shapeTransition]="shapeTransition"
       />
     </button>
   `,
@@ -24,6 +26,7 @@ import { StateLayer } from './state-layer';
 class Harness {
   colorName = 'on-primary';
   stateClassName = 'state-ripple-group-[button]';
+  shapeTransition: StateLayerShapeTransition | undefined = undefined;
 }
 
 @Component({
@@ -43,6 +46,24 @@ class Harness {
   `,
 })
 class NestedGroupHarness {}
+
+@Component({
+  standalone: true,
+  imports: [StateLayer],
+  template: `
+    <button class="group/button" disabled data-testid="trigger">
+      <udx-state-layer colorName="on-primary" stateClassName="state-ripple-group-[button]" />
+    </button>
+  `,
+})
+class DisabledHarness {}
+
+const shapeTransition = {
+  restingBorderRadius: '8px',
+  pressedBorderRadius: '4px',
+  enabled: true,
+  transition: { duration: 0.2 },
+};
 
 describe('StateLayer', () => {
   const controller = { updateShape: jest.fn(), destroy: jest.fn() };
@@ -142,17 +163,71 @@ describe('StateLayer', () => {
     fixture.destroy();
   });
 
-  // PARITY GAP (PARITY-API-001): React still exposes a `style` prop, used by
-  // Chip to share its transition duration. Angular has no equivalent, and
-  // adding one with no consumer would just be another hollow prop -- Chip's
-  // dynamic transition is a Chip finding. Recorded so the gap stays visible.
-  it('exposes no style input, unlike the React adapter', () => {
+  it('hands the controller the span it rendered as the layer', () => {
     const fixture = TestBed.createComponent(Harness);
     fixture.detectChanges();
 
-    const layer = layerOf(fixture.nativeElement);
-    expect(layer?.style.opacity).toBe('');
-    expect(layer?.children.length).toBe(0);
+    expect(createController.mock.calls[0][0].layer).toBe(
+      layerOf(fixture.nativeElement),
+    );
+    fixture.destroy();
+  });
+
+  // The controller suppresses the ripple through this predicate. Asserting the
+  // call alone would stay green with the predicate inverted, so it is invoked.
+  it('reports an enabled trigger as not disabled', () => {
+    const fixture = TestBed.createComponent(Harness);
+    fixture.detectChanges();
+
+    expect(createController.mock.calls[0][0].disabled()).toBe(false);
+    fixture.destroy();
+  });
+
+  it('reports the trigger as disabled only while it actually is', () => {
+    const fixture = TestBed.createComponent(DisabledHarness);
+    fixture.detectChanges();
+
+    expect(createController.mock.calls[0][0].disabled()).toBe(true);
+    fixture.destroy();
+  });
+
+  it('pushes the shape transition to the controller on connect', () => {
+    const fixture = TestBed.createComponent(Harness);
+    fixture.componentInstance.shapeTransition = shapeTransition;
+    fixture.detectChanges();
+
+    expect(controller.updateShape).toHaveBeenCalledWith(shapeTransition);
+    fixture.destroy();
+  });
+
+  it('pushes a later shape transition without recreating the controller', () => {
+    const fixture = TestBed.createComponent(Harness);
+    fixture.componentInstance.shapeTransition = shapeTransition;
+    fixture.detectChanges();
+    controller.updateShape.mockClear();
+
+    fixture.componentInstance.shapeTransition = {
+      ...shapeTransition,
+      pressedBorderRadius: '2px',
+    };
+    fixture.detectChanges();
+
+    expect(controller.updateShape).toHaveBeenCalledWith(
+      fixture.componentInstance.shapeTransition,
+    );
+    expect(createController).toHaveBeenCalledTimes(1);
+    fixture.destroy();
+  });
+
+  // The CSS-only mode wires no ripple, but the utility still has to reach the
+  // span -- that class is the entire contract in that mode.
+  it('still applies the CSS-only utility when no ripple is wired', () => {
+    const fixture = TestBed.createComponent(Harness);
+    fixture.componentInstance.stateClassName = 'state-layer';
+    fixture.detectChanges();
+
+    expect(layerOf(fixture.nativeElement)?.className).toContain('state-layer');
+    expect(createController).not.toHaveBeenCalled();
     fixture.destroy();
   });
 });

@@ -137,4 +137,94 @@ describe('StateLayer', () => {
     expect(layer?.children.length).toBe(0);
     expect(screen.queryByTestId('child')).toBeNull();
   });
+
+  it('hands the controller the span it rendered as the layer', () => {
+    renderInTrigger(<StateLayer colorName="on-primary" />);
+
+    const { layer } = (createController.mock.calls[0] as never[])[0] as {
+      layer: HTMLElement;
+    };
+    expect(layer).toBe(screen.getByTestId('trigger').querySelector('span'));
+  });
+
+  // The controller suppresses the ripple through this predicate. Asserting the
+  // call alone would stay green with the predicate inverted, so it is invoked.
+  it('reports the trigger as disabled only while it actually is', () => {
+    render(
+      <button className="group/button" data-testid="trigger" disabled>
+        <StateLayer colorName="on-primary" />
+      </button>,
+    );
+
+    const { disabled } = (createController.mock.calls[0] as never[])[0] as {
+      disabled: () => boolean;
+    };
+    expect(disabled()).toBe(true);
+  });
+
+  it('reports an enabled trigger as not disabled', () => {
+    renderInTrigger(<StateLayer colorName="on-primary" />);
+
+    const { disabled } = (createController.mock.calls[0] as never[])[0] as {
+      disabled: () => boolean;
+    };
+    expect(disabled()).toBe(false);
+  });
+
+  it('treats aria-disabled like a disabled attribute', () => {
+    render(
+      <a className="group/button" data-testid="trigger" aria-disabled="true">
+        <StateLayer colorName="on-primary" />
+      </a>,
+    );
+
+    const { disabled } = (createController.mock.calls[0] as never[])[0] as {
+      disabled: () => boolean;
+    };
+    expect(disabled()).toBe(true);
+  });
+
+  const shapeTransition = {
+    restingBorderRadius: '8px',
+    pressedBorderRadius: '4px',
+    enabled: true,
+    transition: { duration: 0.2 },
+  };
+
+  it('pushes the shape transition to the controller on connect', () => {
+    renderInTrigger(
+      <StateLayer colorName="on-primary" shapeTransition={shapeTransition} />,
+    );
+
+    expect(controller.updateShape).toHaveBeenCalledWith(shapeTransition);
+  });
+
+  it('pushes a later shape transition without recreating the controller', () => {
+    const { rerender } = renderInTrigger(
+      <StateLayer colorName="on-primary" shapeTransition={shapeTransition} />,
+    );
+    controller.updateShape.mockClear();
+    const next = { ...shapeTransition, pressedBorderRadius: '2px' };
+
+    rerender(
+      <button className="group/button" data-testid="trigger">
+        <StateLayer colorName="on-primary" shapeTransition={next} />
+      </button>,
+    );
+
+    expect(controller.updateShape).toHaveBeenCalledWith(next);
+    expect(createController).toHaveBeenCalledTimes(1);
+  });
+
+  // The CSS-only mode wires no ripple, but the utility still has to reach the
+  // span -- that class is the entire contract in that mode.
+  it('still applies the CSS-only utility when no ripple is wired', () => {
+    renderInTrigger(
+      <StateLayer colorName="on-primary" stateClassName="state-layer" />,
+    );
+
+    const layer = screen.getByTestId('trigger').querySelector('span');
+    expect(layer?.className).toContain('state-layer');
+    expect(createController).not.toHaveBeenCalled();
+  });
 });

@@ -46,16 +46,17 @@ import { createStyle } from '../utils/create-style';
  * @limitations
  * - The trigger is resolved by walking up to the outermost ancestor carrying
  *   the named Tailwind group, so the layer must be rendered inside it. An
- *   attribute directive placed on that ancestor would make the CSS group and
- *   the JavaScript trigger the same element by construction instead of by
- *   search, and that shape was considered and declined: unlike a component
- *   that asks for a reference to an element it does not own, this one is
- *   rendered inside its trigger, and in the common case the group is its
- *   direct parent. Half of its call sites render it from an `ng-template`
- *   projected into a different host, so the conversion would restructure those
- *   templates and turn their render conditions into inert bindings -- a large
- *   change to interaction feedback for a walk that is correct and covered by
- *   tests. Revisit it if the group ever stops being an ancestor of the layer.
+ *   attribute directive on that ancestor would make the CSS group and the
+ *   JavaScript trigger the same element by construction rather than by search.
+ *   That shape was considered and declined: unlike a component asking for a
+ *   reference to an element it does not own, this one is rendered inside its
+ *   trigger, and the walk crosses only this component's own `display: contents`
+ *   host before reaching the group. Half of its call sites render it from an
+ *   `ng-template` projected into two or three different hosts, so the
+ *   conversion would restructure those templates and turn their render
+ *   conditions into inert bindings -- a large change to interaction feedback
+ *   for a walk that is correct and covered by tests. Revisit it if the group
+ *   ever stops being an ancestor of the layer.
  * - The set of valid `colorName` tokens lives in `@udixio/theme`, which
  *   `@udixio/core` does not depend on, so the prop is typed as `string`.
  * - `className` accepts the state-aware function form, but this contract
