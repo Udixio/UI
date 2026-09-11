@@ -99,7 +99,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         <span [class]="styles()['touchTarget']"></span>
         <udx-state-layer
           [className]="styles()['stateLayer']"
-          [colorName]="stateColor()"
+          [colorName]="resolvedStateColor()"
           [shapeTransition]="shapeTransition()"
           stateClassName="state-ripple-group-[button]"
         />
@@ -122,7 +122,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         <span [class]="styles()['touchTarget']"></span>
         <udx-state-layer
           [className]="styles()['stateLayer']"
-          [colorName]="stateColor()"
+          [colorName]="resolvedStateColor()"
           [shapeTransition]="shapeTransition()"
           stateClassName="state-ripple-group-[button]"
         />
@@ -156,6 +156,13 @@ export class Button implements OnInit {
 
   /** Classes or state-aware element classes applied through the shared style contract. */
   readonly className = input<string | ClassNameComponent<ButtonInterface>>();
+
+  /**
+   * Colour token for the state layer, without the `--color-` prefix. Defaults
+   * to the token matching the resolved variant; set it when the surface has
+   * been restyled through `className`.
+   */
+  readonly stateColor = input<ButtonProps['stateColor']>();
 
   /** Navigation URL. When defined, the component renders a native link. */
   readonly href = input<string>();
@@ -243,12 +250,14 @@ export class Button implements OnInit {
   protected readonly interactionBlocked = computed(
     () => this.disabled() || this.loading() || !this.hasVisibleLabel(),
   );
-  protected readonly stateColor = computed(() =>
-    getButtonStateColor({
-      variant: this.variant(),
-      toggleable: this.isToggleButton(),
-      isPressed: this.isToggleButton() && this.isPressed(),
-    }),
+  protected readonly resolvedStateColor = computed(
+    () =>
+      this.stateColor() ??
+      getButtonStateColor({
+        variant: this.variant(),
+        toggleable: this.isToggleButton(),
+        isPressed: this.isToggleButton() && this.isPressed(),
+      }),
   );
   protected readonly progressColor = computed(() =>
     getButtonProgressColor({
@@ -280,6 +289,7 @@ export class Button implements OnInit {
     loading: this.loading(),
     shape: this.shape(),
     shapeFeedback: this.shapeFeedback(),
+    stateColor: this.stateColor(),
     transition: this.transition(),
     toggleable: this.isToggleButton(),
     pressed: this.pressed(),

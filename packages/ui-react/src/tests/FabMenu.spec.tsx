@@ -206,11 +206,16 @@ describe('FabMenu', () => {
       />,
     );
 
+    // The action is repainted onto a container surface, so its state layer must
+    // contrast with that. It used to arrive as a `--default-color` class
+    // smuggled through `className`, which silently overrode Button's required
+    // colorName; it is now a declared `stateColor` prop.
     expect(
       screen
         .getByRole('button', { name: 'Document' })
-        .querySelector('.action-state-layer'),
-    ).toHaveClass('[--default-color:var(--color-on-secondary-container)]');
+        .querySelector('span[style*="--state-color"]')
+        ?.getAttribute('style'),
+    ).toContain('var(--color-on-secondary-container');
   });
 
   it('does not open while disabled', () => {

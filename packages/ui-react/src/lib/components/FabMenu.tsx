@@ -222,7 +222,6 @@ export const FabMenu = (props: ReactFabMenuProps) => {
         {actions.map((action, index) => {
           const actionClassName = () => ({
             button: styles.action,
-            stateLayer: styles.actionStateLayer,
           });
           const sharedActionProps = {
             label: action.label,
@@ -231,6 +230,10 @@ export const FabMenu = (props: ReactFabMenuProps) => {
             variant: 'filled' as const,
             shape: 'rounded' as const,
             className: actionClassName,
+            // The action is repainted onto a container surface, so the state
+            // layer must contrast with that, not with the filled variant's
+            // own primary background.
+            stateColor: `on-${variant}-container`,
           };
 
           return (

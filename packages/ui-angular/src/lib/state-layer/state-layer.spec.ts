@@ -115,38 +115,38 @@ describe('StateLayer', () => {
     expect(controller.destroy).toHaveBeenCalledTimes(1);
   });
 
-  // CHARACTERISATION OF A KNOWN DEFECT (API-DESIGN-COLOR-001). The variable is
-  // named `--default-color` but is read FIRST, so a class smuggled in through
-  // `className` -- which is how FabMenu does it -- overrides the required
-  // `colorName` input. Pinned so that fixing it is a visible break.
-  it('reads --default-color ahead of colorName, letting it override the input', () => {
+  // The colour the caller asked for wins. There is no ambient variable read
+  // ahead of it any more: `--default-color` used to be read first, so a class
+  // smuggled through `className` silently overrode this required input.
+  it('resolves the state colour from colourName alone', () => {
     const fixture = TestBed.createComponent(Harness);
     fixture.detectChanges();
 
     expect(layerOf(fixture.nativeElement)?.style.getPropertyValue('--state-color')).toBe(
-      'var(--default-color, var(--color-on-primary))',
+      'var(--color-on-primary, var(--color-on-surface))',
     );
     fixture.destroy();
   });
 
-  // CHARACTERISATION OF A KNOWN DEFECT (API-DESIGN-COLOR-002). No final
-  // fallback: an unknown colour name yields an undefined custom property, and
-  // the hover/active utilities that read it have no fallback of their own.
-  it('emits an unresolvable custom property for an unknown colour name', () => {
+  // The hover and focus utilities read `--state-color` with no fallback of
+  // their own, so an unresolvable token used to remove the hover state while
+  // leaving the ripple visible. The final fallback makes it degrade instead.
+  it('falls back to on-surface for an unknown colour name', () => {
     const fixture = TestBed.createComponent(Harness);
     fixture.componentInstance.colorName = 'not-a-token';
     fixture.detectChanges();
 
     expect(layerOf(fixture.nativeElement)?.style.getPropertyValue('--state-color')).toBe(
-      'var(--default-color, var(--color-not-a-token))',
+      'var(--color-not-a-token, var(--color-on-surface))',
     );
     fixture.destroy();
   });
 
-  // PARITY GAP (PARITY-API-001): React exposes a `style` prop, used at three
-  // call sites there, and `children`. Angular exposes neither. Recorded here so
-  // the divergence is visible in the suite rather than only in an audit report.
-  it('exposes no style input and projects no content, unlike the React adapter', () => {
+  // PARITY GAP (PARITY-API-001): React still exposes a `style` prop, used by
+  // Chip to share its transition duration. Angular has no equivalent, and
+  // adding one with no consumer would just be another hollow prop -- Chip's
+  // dynamic transition is a Chip finding. Recorded so the gap stays visible.
+  it('exposes no style input, unlike the React adapter', () => {
     const fixture = TestBed.createComponent(Harness);
     fixture.detectChanges();
 

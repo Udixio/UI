@@ -55,6 +55,5 @@ export interface FabMenuInterface {
     'actions',
     'actionContainer',
     'action',
-    'actionStateLayer',
   ];
 }

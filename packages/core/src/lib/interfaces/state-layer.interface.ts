@@ -8,7 +8,18 @@ export interface StateLayerShapeTransition {
 }
 
 export interface StateLayerProps {
-  /** Semantic color token name, without the `--color-` prefix. */
+  /**
+   * Semantic color token name, without the `--color-` prefix -- `on-primary`,
+   * `on-surface-variant`, and so on.
+   *
+   * An unknown name falls back to `on-surface` rather than resolving to
+   * nothing: the Tailwind hover and focus utilities read `--state-color`
+   * without a fallback of their own, so an unresolvable token used to remove
+   * the hover state entirely while leaving the ripple visible.
+   *
+   * This is typed as `string` because the set of valid tokens lives in
+   * `@udixio/theme`, which `@udixio/core` does not depend on.
+   */
   colorName: string;
 
   /** Tailwind state utility selecting the interaction trigger. */
@@ -19,7 +30,7 @@ export interface StateLayerProps {
 }
 
 export interface StateLayerInterface {
-  type: 'div';
+  type: 'span';
   props: StateLayerProps;
   states: object;
   elements: ['stateLayer'];

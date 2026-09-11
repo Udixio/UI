@@ -52,6 +52,16 @@ export interface ButtonProps {
    */
   edgeAligned?: boolean;
 
+  /**
+   * Colour token for the state layer, without the `--color-` prefix.
+   *
+   * Defaults to the token matching the resolved `variant`. Set it when the
+   * surface has been restyled through `className` -- a filled button repainted
+   * onto a container needs `on-primary-container`, not the `on-primary` the
+   * variant implies -- so the hover and press feedback keeps contrasting.
+   */
+  stateColor?: string;
+
   /** Blocks interaction and exposes the busy state while preserving the label. */
   loading?: boolean;
 

@@ -129,6 +129,7 @@ export interface FabMenuActionSelectEvent {
               variant="filled"
               shape="rounded"
               [className]="actionClassName"
+              [stateColor]="actionStateColor()"
               (click)="selectAction(action, index)"
             />
           </span>
@@ -270,6 +271,12 @@ export class FabMenu implements OnInit {
     });
   }
 
+  // The action is repainted onto a container surface, so the state layer must
+  // contrast with that, not with the filled variant's own primary background.
+  protected readonly actionStateColor = computed(
+    () => `on-${this.variant()}-container`,
+  );
+
   ngOnInit(): void {
     this.openState.initialize();
   }
@@ -277,7 +284,6 @@ export class FabMenu implements OnInit {
   protected readonly actionClassName: ClassNameComponent<ButtonInterface> =
     () => ({
       button: this.styles()['action'],
-      stateLayer: this.styles()['actionStateLayer'],
     });
 
   protected toggle(): void {

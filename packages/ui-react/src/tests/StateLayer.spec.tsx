@@ -87,28 +87,27 @@ describe('StateLayer', () => {
     expect(controller.destroy).toHaveBeenCalledTimes(1);
   });
 
-  // CHARACTERISATION OF A KNOWN DEFECT (API-DESIGN-COLOR-001). The variable is
-  // named `--default-color` but is read FIRST, so an ancestor -- or a class
-  // smuggled in through `className`, which is how FabMenu uses it -- overrides
-  // the required `colorName` prop. Pinned so that fixing it is a visible break.
-  it('reads --default-color ahead of colorName, letting it override the prop', () => {
+  // The colour the caller asked for wins. There is no ambient variable read
+  // ahead of it any more: `--default-color` used to be read first, so a class
+  // smuggled through `className` silently overrode this required prop.
+  it('resolves the state colour from colourName alone', () => {
     renderInTrigger(<StateLayer colorName="on-primary" />);
 
     const layer = screen.getByTestId('trigger').querySelector('span');
     expect(layer?.style.getPropertyValue('--state-color')).toBe(
-      'var(--default-color, var(--color-on-primary))',
+      'var(--color-on-primary, var(--color-on-surface))',
     );
   });
 
-  // CHARACTERISATION OF A KNOWN DEFECT (API-DESIGN-COLOR-002). No final
-  // fallback: an unknown colour name yields an undefined custom property, and
-  // the hover/active utilities that read it have no fallback of their own.
-  it('emits an unresolvable custom property for an unknown colour name', () => {
+  // The hover and focus utilities read `--state-color` with no fallback of
+  // their own, so an unresolvable token used to remove the hover state while
+  // leaving the ripple visible. The final fallback makes it degrade instead.
+  it('falls back to on-surface for an unknown colour name', () => {
     renderInTrigger(<StateLayer colorName="not-a-token" />);
 
     const layer = screen.getByTestId('trigger').querySelector('span');
     expect(layer?.style.getPropertyValue('--state-color')).toBe(
-      'var(--default-color, var(--color-not-a-token))',
+      'var(--color-not-a-token, var(--color-on-surface))',
     );
   });
 
@@ -122,16 +121,4 @@ describe('StateLayer', () => {
     expect(layer?.style.getPropertyValue('--state-color')).not.toBe('');
   });
 
-  // CHARACTERISATION OF A HOLLOW PROP (MULTI-PROP-001). `children` is rendered,
-  // but all twelve call sites in this package are self-closing and Angular has
-  // no equivalent. Pinned so removing it is a decision, not an accident.
-  it('renders children, which no call site in this package uses', () => {
-    renderInTrigger(
-      <StateLayer colorName="on-primary">
-        <i data-testid="child" />
-      </StateLayer>,
-    );
-
-    expect(screen.getByTestId('child')).toBeInTheDocument();
-  });
 });

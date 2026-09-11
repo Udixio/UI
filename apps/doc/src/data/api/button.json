@@ -90,6 +90,15 @@
             "value": "false"
           }
         },
+        "stateColor": {
+          "name": "stateColor",
+          "description": "Colour token for the state layer, without the `--color-` prefix.\n\nDefaults to the token matching the resolved `variant`. Set it when the\nsurface has been restyled through `className` -- a filled button repainted\nonto a container needs `on-primary-container`, not the `on-primary` the\nvariant implies -- so the hover and press feedback keeps contrasting.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
         "loading": {
           "name": "loading",
           "description": "Blocks interaction and exposes the busy state while preserving the label.",
@@ -405,6 +414,15 @@
           "required": false,
           "type": {
             "name": "string | ClassNameComponent<ButtonInterface>"
+          },
+          "defaultValue": null
+        },
+        "stateColor": {
+          "name": "stateColor",
+          "description": "Colour token for the state layer, without the `--color-` prefix. Defaults\nto the token matching the resolved variant; set it when the surface has\nbeen restyled through `className`.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
           },
           "defaultValue": null
         },

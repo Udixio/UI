@@ -29,14 +29,6 @@ const fabMenuConfig: ClassNameComponent<FabMenuInterface> = ({
     variant === 'tertiary' &&
       'bg-tertiary-container text-on-tertiary-container',
   ),
-  actionStateLayer: cx(
-    variant === 'primary' &&
-      '[--default-color:var(--color-on-primary-container)]',
-    variant === 'secondary' &&
-      '[--default-color:var(--color-on-secondary-container)]',
-    variant === 'tertiary' &&
-      '[--default-color:var(--color-on-tertiary-container)]',
-  ),
 });
 
 export const fabMenuStyle = defaultClassNames<FabMenuInterface>(

@@ -114,6 +114,7 @@ function getNativeElementProps(props: ReactButtonProps) {
     shape: _shape,
     shapeFeedback: _shapeFeedback,
     size: _size,
+    stateColor: _stateColor,
     toggleable: _toggleable,
     transition: _transition,
     type: _type,
@@ -139,6 +140,7 @@ function getNativeElementProps(props: ReactButtonProps) {
     _shape,
     _shapeFeedback,
     _size,
+    _stateColor,
     _toggleable,
     _transition,
     _type,
@@ -186,6 +188,7 @@ export const Button = (props: ReactButtonProps) => {
     onPressedChange,
     size = 'medium',
     shapeFeedback = 'morph',
+    stateColor,
     transition,
     children,
   } = props;
@@ -249,6 +252,7 @@ export const Button = (props: ReactButtonProps) => {
     icon,
     iconPosition,
     shapeFeedback,
+    stateColor,
     transition,
     size,
     edgeAligned,
@@ -286,11 +290,14 @@ export const Button = (props: ReactButtonProps) => {
       <StateLayer
         shapeTransition={shapeTransition}
         className={styles.stateLayer}
-        colorName={getButtonStateColor({
-          variant,
-          toggleable: isToggleButton,
-          isPressed,
-        })}
+        colorName={
+          stateColor ??
+          getButtonStateColor({
+            variant,
+            toggleable: isToggleButton,
+            isPressed,
+          })
+        }
         stateClassName={'state-ripple-group-[button]'}
       />
 
