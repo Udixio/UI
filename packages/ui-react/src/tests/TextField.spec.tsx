@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { beforeAll, beforeEach, vi } from 'vitest';
+import { beforeEach, vi } from 'vitest';
 import { MenuItem, TextField } from '../lib/index.js';
 import {
   createTextFieldLabelController,

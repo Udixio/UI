@@ -48,6 +48,10 @@ import { createStyle } from '../utils/create-style';
  *   the named Tailwind group, so the layer must be rendered inside it.
  * - The set of valid `colorName` tokens lives in `@udixio/theme`, which
  *   `@udixio/core` does not depend on, so the prop is typed as `string`.
+ * - `className` accepts the state-aware function form, but this contract
+ *   resolves no interaction states: the function receives the props and an
+ *   empty state object, because hover, focus and press live entirely in the
+ *   Tailwind utilities rather than in JavaScript.
  */
 @Component({
   selector: 'udx-state-layer',

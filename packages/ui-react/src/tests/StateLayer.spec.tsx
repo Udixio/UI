@@ -121,4 +121,20 @@ describe('StateLayer', () => {
     expect(layer?.style.getPropertyValue('--state-color')).not.toBe('');
   });
 
+
+  // `children` was a hollow prop: rendered, but self-closing at all twelve call
+  // sites and absent from the Angular adapter. Removing it from the type left
+  // nothing to stop it coming back, and a `@ts-expect-error` guard is not
+  // dependable here -- `tsconfig.spec.json` includes only the spec files, so
+  // `../lib` resolves through a build artifact and the directive reads as
+  // unused whenever that artifact is stale. This asserts the rendered result
+  // instead, which holds whatever the type says.
+  it('renders no content of its own, even when children are forced in', () => {
+    const withChildren = { children: <i data-testid="child" /> };
+    renderInTrigger(<StateLayer colorName="on-primary" {...withChildren} />);
+
+    const layer = screen.getByTestId('trigger').querySelector('span');
+    expect(layer?.children.length).toBe(0);
+    expect(screen.queryByTestId('child')).toBeNull();
+  });
 });
