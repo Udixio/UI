@@ -1,9 +1,17 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { Search, SideSheet } from '@udixio/ui-react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
+import { Search } from '@udixio/ui-react';
 
 export interface DocumentationSearchProps {
+  /** Whether the hosting panel currently shows the search; focuses the input. */
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  /** Asks the hosting panel to close, after a result was chosen. */
+  onClose: () => void;
 }
 
 type SearchStatus = 'idle' | 'loading' | 'ready' | 'error';
@@ -94,15 +102,14 @@ const resultMessage = (message: string) => (
 );
 
 /**
- * Documentation search opened from the persistent navigation rail.
- * Pagefind remains the index/search engine; Udixio Search and SideSheet own
- * the interaction, responsive surface, and accessibility behavior.
+ * Documentation search shown inside the navigation rail's side panel.
+ * Pagefind remains the index/search engine; Udixio Search owns the
+ * interaction and accessibility behavior.
  */
 export const DocumentationSearch = ({
   open,
-  onOpenChange,
+  onClose,
 }: DocumentationSearchProps) => {
-  const [container, setContainer] = useState<Element | null>(null);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<DocumentationSearchResult[]>([]);
   const [status, setStatus] = useState<SearchStatus>('idle');
@@ -110,27 +117,12 @@ export const DocumentationSearch = ({
   const requestIdRef = useRef(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (typeof document === 'undefined') return undefined;
-
-    const updateContainer = () => {
-      setContainer(document.getElementById('doc-content'));
-    };
-
-    updateContainer();
-    document.addEventListener('astro:page-load', updateContainer);
-    return () =>
-      document.removeEventListener('astro:page-load', updateContainer);
-  }, []);
-
   const loadPagefind = useCallback((): Promise<PagefindApi> => {
     const cachedPagefind = pagefindPromiseRef.current;
     if (cachedPagefind) return cachedPagefind;
 
-    const bundleUrl = new URL(
-      '/pagefind/pagefind.js',
-      window.location.origin,
-    ).href;
+    const bundleUrl = new URL('/pagefind/pagefind.js', window.location.origin)
+      .href;
     const pagefindPromise = import(/* @vite-ignore */ bundleUrl)
       .then((module) => module as PagefindApi)
       .catch((error: unknown) => {
@@ -203,26 +195,22 @@ export const DocumentationSearch = ({
   }, [loadPagefind, query]);
 
   useEffect(() => {
-    if (!open) return undefined;
+    if (!open) {
+      requestIdRef.current += 1;
+      setQuery('');
+      setResults([]);
+      setStatus('idle');
+      return undefined;
+    }
 
+    // The panel is still sliding open; wait a frame so focus does not scroll
+    // the collapsed content.
     const focusTimer = window.setTimeout(() => {
       inputRef.current?.focus();
     }, 0);
 
     return () => window.clearTimeout(focusTimer);
   }, [open]);
-
-  const resetSearch = () => {
-    requestIdRef.current += 1;
-    setQuery('');
-    setResults([]);
-    setStatus('idle');
-  };
-
-  const handleOpenChange = (nextOpen: boolean) => {
-    onOpenChange(nextOpen);
-    if (!nextOpen) resetSearch();
-  };
 
   const handleQueryChange = (nextQuery: string) => {
     requestIdRef.current += 1;
@@ -256,7 +244,7 @@ export const DocumentationSearch = ({
           aria-selected={false}
           tabIndex={-1}
           className="block rounded-xl px-4 py-3 text-on-surface transition-colors hover:bg-on-surface/[0.08] focus-visible:bg-on-surface/[0.08] focus-visible:outline-none"
-          onClick={() => handleOpenChange(false)}
+          onClick={onClose}
         >
           <span className="block text-title-medium">{result.title}</span>
           {result.excerpt && (
@@ -270,29 +258,19 @@ export const DocumentationSearch = ({
   }
 
   return (
-    <SideSheet
-      variant="modal"
-      position="left"
-      title="Search documentation"
-      open={open}
-      onOpenChange={handleOpenChange}
-      container={container}
-      className="w-[calc(100%_-_2rem)] max-w-none sm:w-96"
-    >
-      <div className="p-4">
-        <Search
-          ref={inputRef}
-          label="Search documentation"
-          placeholder="Search documentation"
-          clearLabel="Clear search"
-          resultsLabel="Documentation search results"
-          query={query}
-          onQueryChange={handleQueryChange}
-          className="max-w-none"
-        >
-          {resultContent}
-        </Search>
-      </div>
-    </SideSheet>
+    <div className="p-4">
+      <Search
+        ref={inputRef}
+        label="Search documentation"
+        placeholder="Search documentation"
+        clearLabel="Clear search"
+        resultsLabel="Documentation search results"
+        query={query}
+        onQueryChange={handleQueryChange}
+        className="max-w-none"
+      >
+        {resultContent}
+      </Search>
+    </div>
   );
 };

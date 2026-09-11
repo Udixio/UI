@@ -3,8 +3,6 @@ import Layout from '@/layouts/layout.astro';
 import { getCollection } from 'astro:content';
 import { Card } from '@udixio/ui-react';
 
-import { Sidebar } from '@/components/Sidebar';
-import type { NavSection } from '@/components/Sidebar';
 import ComponentPreview from '@/components/ComponentPreview.astro';
 
 export const prerender = false;
@@ -56,27 +54,6 @@ const categories = Object.keys(componentsByCategory).sort((a, b) =>
   title="Components"
   description="Browse all Udixio UI components — buttons, inputs, navigation, feedback and more — available for React and Angular."
 >
-  <Fragment slot="sidebar">
-    <Sidebar
-      client:load
-      transition:name="component-sidebar"
-      transition:persist
-      mode="nav"
-      title="Components"
-      sections={Object.entries(componentsByCategory)
-        .sort(([a], [b]) => a.localeCompare(b))
-        .map(([category, items]): NavSection => ({
-          category,
-          pages: items.map(({ id, displayName }) => ({
-            slug: id,
-            label: displayName,
-            href: `/components/${id}/overview`,
-          })),
-        }))}
-      current={null}
-    />
-  </Fragment>
-
   <div class="max-w-screen-xl mx-auto px-6 py-10">
     <div class="mb-10">
       <h1 class="text-display-large">Components</h1>

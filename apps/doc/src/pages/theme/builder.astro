@@ -2,25 +2,12 @@
 import { ThemePicker } from '@/components/theme/ThemePicker';
 import { ThemeBuilderContent } from '@/components/theme/ThemeBuilderContent';
 import Layout from '@/layouts/layout.astro';
-import { Sidebar, THEME_SECTIONS } from '@/components/Sidebar';
 import { Card, Divider } from '@udixio/ui-react';
 ---
 <Layout
   title="Theme Builder"
   description="Customize your Material Design 3 theme colors and preview Udixio UI components live."
 >
-  <Fragment slot="sidebar">
-    <Sidebar
-      client:load
-      transition:name="theme-sidebar"
-      transition:persist
-      mode="nav"
-      title="Theme"
-      sections={THEME_SECTIONS}
-      basePath="/theme"
-      current="builder"
-    />
-  </Fragment>
   <section class="flex items-start bg-surface-container">
     <Card variant='filled' className="sticky top-0 p-8 h-screen max-w-lg flex-1 bg-surface-container overflow-auto">
       <ThemePicker client:load />

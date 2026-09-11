@@ -1,8 +1,6 @@
 ---
 import '@/styles/global.css';
 import { getCollection } from 'astro:content';
-import { Sidebar } from '@/components/Sidebar';
-import type { NavSection } from '@/components/Sidebar';
 import { ComponentNavigation } from '@/components/ComponentNavigation';
 import Layout from '@/layouts/layout.astro';
 import { Card } from '@udixio/ui-react';
@@ -11,10 +9,8 @@ import { ComponentDocumentationNotes } from '@/components/api/ComponentDocumenta
 import type { DocumentationNoteHtml } from '@/components/api/ComponentDocumentationNotes';
 
 const apis = await getCollection('api');
-const overviews = await getCollection('overviews');
 
-const pathName = Astro.url.pathname;
-const isApiPage = pathName.split('/').filter(Boolean).at(-1) === 'api';
+const isApiPage = Astro.url.pathname.split('/').filter(Boolean).at(-1) === 'api';
 const documentationTags = isApiPage
   ? (['devx', 'a11y', 'limitations'] as const)
   : (['limitations'] as const);
@@ -50,60 +46,8 @@ const documentationHtml = Object.fromEntries(
   }),
 ) as DocumentationNoteHtml;
 
-const overviewIds = new Set(
-  overviews.map((overview) => overview.id.replaceAll('overview', '')),
-);
-
-const components = apis
-  .map((api) => ({
-    entry: api,
-    data: api.data,
-  }))
-  .filter(({ data }) => !data.frameworks.react.tags.parent)
-  .filter(({ entry }) => overviewIds.has(entry.id))
-  .map(({ entry, data }) => ({
-    slug: entry.id,
-    displayName: data.displayName,
-    description: data.frameworks.react.description,
-    tags: data.frameworks.react.tags,
-  }))
-  .sort((a, b) => a.slug.localeCompare(b.slug));
-
-const componentSections: NavSection[] = Object.entries(
-  components.reduce(
-    (acc, c) => {
-      const cat = (c.tags as any).category || 'Other';
-      if (!acc[cat]) acc[cat] = [];
-      acc[cat].push(c);
-      return acc;
-    },
-    {} as Record<string, typeof components>,
-  ),
-)
-  .sort(([a], [b]) => a.localeCompare(b))
-  .map(([category, items]) => ({
-    category,
-    pages: items.map(({ slug, displayName }) => ({
-      slug,
-      label: displayName,
-      href: `/components/${slug}/overview`,
-    })),
-  }));
 ---
 <Layout >
-  <Fragment slot="sidebar">
-    <Sidebar
-      client:load
-      transition:name="component-sidebar"
-      transition:persist
-      mode="nav"
-      title="Components"
-      sections={componentSections}
-      current={pathName.startsWith('/components')
-        ? pathName.split('/').filter(Boolean)[1]
-        : null}
-    />
-  </Fragment>
   <div class="max-w-screen-xl mx-auto">
     <Card variant="filled" className="mt-8 bg-surface-container">
       <div class="p-8">

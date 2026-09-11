@@ -2,7 +2,6 @@
 import Layout from '@/layouts/layout.astro';
 import { getCollection, render } from 'astro:content';
 import Code from '@/components/Code.astro';
-import { Sidebar, THEME_SECTIONS, GETSTARTED_SECTIONS } from '@/components/Sidebar';
 
 export async function getStaticPaths() {
   const pages = await getCollection('pages');
@@ -22,49 +21,9 @@ export async function getStaticPaths() {
 const { page } = Astro.props;
 const { Content } = await render(page);
 
-const pathname = Astro.url.pathname;
-const isThemePage = pathname.startsWith('/theme/');
-const themeSlug = isThemePage ? pathname.replace(/^\/theme\//, '') : null;
-const isGetStartedPage =
-  pathname.startsWith('/get-started/') ||
-  pathname === '/agents' ||
-  pathname.startsWith('/agents/');
-const getStartedSlug = isGetStartedPage
-  ? pathname.startsWith('/get-started/')
-    ? pathname.replace(/^\/get-started\//, '')
-    : pathname.replace(/^\/agents\/?/, '') || 'agents'
-  : null;
 ---
 
 <Layout  title={page.data.title} description={page.data.description}>
-  {isThemePage && (
-    <Fragment slot="sidebar">
-      <Sidebar
-        client:load
-        transition:name="theme-sidebar"
-        transition:persist
-        mode="nav"
-        title="Theme"
-        sections={THEME_SECTIONS}
-        basePath="/theme"
-        current={themeSlug}
-      />
-    </Fragment>
-  )}
-  {isGetStartedPage && (
-    <Fragment slot="sidebar">
-      <Sidebar
-        client:load
-        transition:name="get-started-sidebar"
-        transition:persist
-        mode="nav"
-        title="Get started"
-        sections={GETSTARTED_SECTIONS}
-        basePath="/get-started"
-        current={getStartedSlug}
-      />
-    </Fragment>
-  )}
   <section class="px-8 py-10 max-w-screen-lg mx-auto">
     <div class="prose-markdown">
       <Content components={{ pre: Code }} />

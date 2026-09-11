@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Button, classNames, Divider, SideSheet } from '@udixio/ui-react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
+import { Button, classNames, Divider } from '@udixio/ui-react';
 import { motion } from 'motion/react';
 
 // ─── Nav mode ─────────────────────────────────────────────────────────────────
@@ -23,85 +23,122 @@ export type NavSection = {
   groups?: NavGroup[];
 };
 
-type NavSidebarProps = {
-  mode: 'nav';
-  title: string;
+export type NavSidebarProps = {
   sections: NavSection[];
   basePath?: string;
-  current?: string | null;
+  /** Pathname used to mark the current page; defaults to `window.location`. */
+  pathname?: string | null;
 };
 
-const NavSidebar = ({
-  title,
+function resolveHref(page: NavPage, basePath: string) {
+  return page.href ?? `${basePath}/${page.slug}`;
+}
+
+/**
+ * The page whose link matches `pathname`: an exact match, or — for
+ * `/overview` links — any sibling route of that section
+ * (`/components/button/api` belongs to `/components/button/overview`).
+ */
+export function findActivePage(
+  sections: NavSection[],
+  basePath: string,
+  pathname: string | null,
+): NavPage | null {
+  if (!pathname) return null;
+  for (const { pages, groups } of sections) {
+    const all = groups ? groups.flatMap((g) => g.pages) : (pages ?? []);
+    for (const page of all) {
+      const href = resolveHref(page, basePath);
+      if (pathname === href) return page;
+      if (
+        href.endsWith('/overview') &&
+        pathname.startsWith(href.slice(0, -'overview'.length))
+      ) {
+        return page;
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * The grouped page links of one documentation section; the panel that hosts
+ * them (and its title) belongs to the caller.
+ */
+export const NavSidebar = ({
   sections,
   basePath = '',
-  current = null,
-}: Omit<NavSidebarProps, 'mode'>) => {
-  const [activePage, setActivePage] = useState<string | null>(current);
+  pathname: pathnameProp,
+}: NavSidebarProps) => {
+  const [pathname, setPathname] = useState<string | null>(pathnameProp ?? null);
 
   useEffect(() => {
-    setActivePage(current);
-  }, [current]);
+    if (pathnameProp !== undefined) {
+      setPathname(pathnameProp);
+      return;
+    }
+    const sync = () => setPathname(window.location.pathname);
+    sync();
+    document.addEventListener('astro:page-load', sync);
+    return () => document.removeEventListener('astro:page-load', sync);
+  }, [pathnameProp]);
+
+  const activePage = findActivePage(sections, basePath, pathname);
 
   return (
-    <SideSheet position="left" className="bg-surface-dim" title={title}>
-      <nav className="flex flex-col gap-4 p-2 h-full overflow-y-auto custom-scrollbar">
-        {sections.map(({ category, pages, groups }) => {
-          const normalizedGroups: NavGroup[] =
-            groups ?? (pages ? [{ pages }] : []);
+    <nav className="flex flex-col gap-4 p-2">
+      {sections.map(({ category, pages, groups }) => {
+        const normalizedGroups: NavGroup[] =
+          groups ?? (pages ? [{ pages }] : []);
 
-          return (
-            <>
-              <div key={category}>
-                <div className="flex flex-col gap-1 rounded-3xl overflow-hidden">
-                  {normalizedGroups.map((group, groupIndex) => (
-                    <div
-                      key={group.subCategory ?? groupIndex}
-                      className=" overflow-hidden pt-1"
-                    >
-                      {groupIndex === 0 && (
-                        <div className="px-3 pt-2 pb-1 text-label-small text-outline">
-                          {category}
-                        </div>
-                      )}
-                      {group.subCategory && (
-                        <div className="px-3 pt-2 pb-1 text-label-small text-outline-variant">
-                          {group.subCategory}
-                        </div>
-                      )}
-                      <div className={classNames('flex flex-col gap-1 ')}>
-                        {group.pages.map(({ slug, label, href }) => (
+        return (
+          <Fragment key={category}>
+            <div>
+              <div className="flex flex-col gap-1 rounded-3xl overflow-hidden">
+                {normalizedGroups.map((group, groupIndex) => (
+                  <div
+                    key={group.subCategory ?? groupIndex}
+                    className=" overflow-hidden pt-1"
+                  >
+                    {groupIndex === 0 && (
+                      <div className="px-3 pt-2 pb-1 text-label-small text-outline">
+                        {category}
+                      </div>
+                    )}
+                    {group.subCategory && (
+                      <div className="px-3 pt-2 pb-1 text-label-small text-outline-variant">
+                        {group.subCategory}
+                      </div>
+                    )}
+                    <div className={classNames('flex flex-col gap-1 ')}>
+                      {group.pages.map((page) => {
+                        const isActive = page === activePage;
+                        return (
                           <Button
-                            key={slug}
+                            key={page.slug}
                             size="small"
-                            href={href ?? `${basePath}/${slug}`}
+                            href={resolveHref(page, basePath)}
                             className={classNames(
                               'text-secondary justify-start w-full',
-                              {
-                                'bg-transparent shadow-none!':
-                                  slug !== activePage,
-                              },
+                              { 'bg-transparent shadow-none!': !isActive },
                             )}
-                            label={label}
-                            aria-current={
-                              slug === activePage ? 'page' : undefined
-                            }
-                            onClick={() => setActivePage(slug)}
+                            label={page.label}
+                            aria-current={isActive ? 'page' : undefined}
                             variant="text"
                             edgeAligned={false}
                           />
-                        ))}
-                      </div>
+                        );
+                      })}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
-              <Divider />
-            </>
-          );
-        })}
-      </nav>
-    </SideSheet>
+            </div>
+            <Divider />
+          </Fragment>
+        );
+      })}
+    </nav>
   );
 };
 
@@ -265,15 +302,9 @@ const TocSidebar = () => {
 
 // ─── Unified export ───────────────────────────────────────────────────────────
 
-export type SidebarProps = NavSidebarProps | TocSidebarProps;
+export type SidebarProps = TocSidebarProps;
 
-export const Sidebar = (props: SidebarProps) => {
-  if (props.mode === 'nav') {
-    const { mode, ...rest } = props;
-    return <NavSidebar {...rest} />;
-  }
-  return <TocSidebar />;
-};
+export const Sidebar = (_props: SidebarProps) => <TocSidebar />;
 
 // ─── Theme nav data ───────────────────────────────────────────────────────────
 
