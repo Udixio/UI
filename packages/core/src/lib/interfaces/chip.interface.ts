@@ -3,7 +3,8 @@ import { Icon } from '../icon';
 export type ChipVariant = 'outlined' | 'elevated';
 
 /**
- * A compact action, link, editable value, or selectable option.
+ * Chips help people enter information, make selections, filter content, or
+ * trigger actions.
  */
 export type ChipProps = {
   /**

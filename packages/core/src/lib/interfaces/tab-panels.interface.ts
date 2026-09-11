@@ -1,6 +1,5 @@
 /**
- * Renders the panel for the selected tab, sliding it in from the direction
- * the selection moved.
+ * A tab panel set shows the content of the selected tab.
  */
 export interface TabPanelsInterface {
   type: 'div';
@@ -17,7 +16,7 @@ type TabPanelProps = {
 };
 
 /**
- * Holds the content for a single tab.
+ * A tab panel holds the content shown for a single tab.
  */
 export interface TabPanelInterface {
   type: 'div';

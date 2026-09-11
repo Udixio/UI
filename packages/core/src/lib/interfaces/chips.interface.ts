@@ -16,7 +16,7 @@ export type ChipItem = {
 export type ChipsVariant = 'input';
 
 /**
- * A labelled collection of selectable or editable chips.
+ * Chip sets group related chips into one input, filter, or selection list.
  */
 export type ChipsProps = {
   /** Accessible name for the chip collection. */

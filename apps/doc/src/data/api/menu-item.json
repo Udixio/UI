@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
   "displayName": "MenuItem",
-  "description": "An action or selectable choice within a Menu.",
+  "description": "Menu items are the individual choices a menu offers.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {

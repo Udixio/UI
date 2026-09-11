@@ -1,7 +1,8 @@
 import type { MenuProps } from './menu.interface';
 
 /**
- * Opens a Menu at the pointer or keyboard context-menu position.
+ * Context menus display a list of choices on a temporary surface, opened
+ * from the element they act on.
  */
 export type ContextMenuProps = Pick<
   MenuProps,

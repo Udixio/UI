@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
   "displayName": "Checkbox",
-  "description": "Checkboxes let people select one or more independent options.",
+  "description": "Checkboxes let people select one or more items from a list, or turn an item on or off.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {

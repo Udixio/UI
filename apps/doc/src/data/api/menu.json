@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
   "displayName": "Menu",
-  "description": "Displays commands or selectable options on a temporary surface.",
+  "description": "Menus display a list of choices on a temporary surface.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {

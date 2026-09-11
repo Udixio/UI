@@ -25,8 +25,7 @@ export type TabStates = {
 type Elements = ['tab', 'stateLayer', 'icon', 'label', 'content'];
 
 /**
- * A single tab inside a tabs tablist; renders as a link when `href` is
- * provided, otherwise as a button.
+ * A tab switches to one of the views its tab list offers.
  */
 export interface TabInterface {
   type: 'button';

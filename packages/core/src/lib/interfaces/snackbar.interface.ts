@@ -2,7 +2,8 @@ import type { Transition } from 'motion';
 import { Icon } from '../icon';
 
 /**
- * Snackbars show a brief, non-blocking status message about an app process.
+ * Snackbars show short updates about app processes at the bottom of the
+ * screen.
  */
 export interface SnackbarProps {
   /** Message announced through the snackbar. */

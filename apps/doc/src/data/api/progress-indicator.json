@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
   "displayName": "ProgressIndicator",
-  "description": "Progress indicators express an unspecified wait time or display the length of a process.",
+  "description": "Progress indicators show the status of a process in real time.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {

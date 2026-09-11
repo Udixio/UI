@@ -4,7 +4,7 @@ export type SliderMark = {
 };
 
 /**
- * Sliders let users make selections from a range of values.
+ * Sliders let people make selections from a range of values.
  */
 export type SliderProps = {
   /** Controlled value. Providing it makes the slider controlled for its lifetime. */

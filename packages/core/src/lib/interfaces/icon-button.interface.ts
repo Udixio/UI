@@ -7,7 +7,7 @@ export type IconButtonSize = 'xSmall' | 'small' | 'medium' | 'large' | 'xLarge';
 export type IconButtonWidth = 'default' | 'narrow' | 'wide';
 
 /**
- * Icon buttons expose a frequent action through one unambiguous icon.
+ * Icon buttons help people take actions with a single tap.
  */
 export interface IconButtonProps {
   /** Accessible name announced for the icon-only control. */

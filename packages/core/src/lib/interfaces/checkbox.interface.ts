@@ -1,5 +1,6 @@
 /**
- * Checkboxes let people select one or more independent options.
+ * Checkboxes let people select one or more items from a list, or turn an
+ * item on or off.
  */
 export type CheckboxProps = {
   /** Controlled mode: explicitly control whether the checkbox is checked. */

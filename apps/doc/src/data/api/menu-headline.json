@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
   "displayName": "MenuHeadline",
-  "description": "A non-interactive visual heading inside a Menu.",
+  "description": "Menu headlines label a menu or one of its groups.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {

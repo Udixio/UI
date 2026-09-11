@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
   "displayName": "StateLayer",
-  "description": "Paints the Material 3 state layer over its trigger, and drives the press ripple.",
+  "description": "State layers express an element's interaction state through a translucent overlay.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {

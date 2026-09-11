@@ -8,8 +8,8 @@ export interface StateLayerShapeTransition {
 }
 
 /**
- * Paints the Material 3 state layer over its trigger, and drives the press
- * ripple.
+ * State layers express an element's interaction state through a translucent
+ * overlay.
  */
 export interface StateLayerProps {
   /**

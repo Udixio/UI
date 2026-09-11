@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
   "displayName": "IconButton",
-  "description": "Icon buttons expose a frequent action through one unambiguous icon.",
+  "description": "Icon buttons help people take actions with a single tap.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {

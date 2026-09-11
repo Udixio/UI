@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
   "displayName": "NavigationRailSection",
-  "description": "A non-interactive label that groups the navigation rail items following it.",
+  "description": "Navigation rail sections label the destinations that follow them.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {

@@ -10,7 +10,7 @@ export type FabVariant =
 export type FabSize = 'small' | 'medium' | 'large';
 
 /**
- * Floating action buttons expose the primary action on a screen.
+ * Floating action buttons help people take primary actions.
  */
 export interface FabProps {
   /** Accessible name and extended visible text. */

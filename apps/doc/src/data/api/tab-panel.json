@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
   "displayName": "TabPanel",
-  "description": "Holds the content for a single tab.",
+  "description": "A tab panel holds the content shown for a single tab.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {

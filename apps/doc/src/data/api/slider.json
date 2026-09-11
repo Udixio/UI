@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
   "displayName": "Slider",
-  "description": "Sliders let users make selections from a range of values.",
+  "description": "Sliders let people make selections from a range of values.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {

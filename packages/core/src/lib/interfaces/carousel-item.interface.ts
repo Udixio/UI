@@ -1,6 +1,5 @@
 /**
- * A single slide inside a carousel. Its width is driven by the carousel's
- * scroll position; it simply projects its children.
+ * A single item in a carousel, sized by how far the carousel has scrolled.
  */
 export interface CarouselItemInterface {
   type: 'div';

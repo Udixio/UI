@@ -6,8 +6,7 @@ type Props = {
 };
 
 /**
- * TabGroup shares selection state between a tabs tablist and a tab panels
- * placed anywhere in its subtree.
+ * Tab groups share one selection between a tab list and its panels.
  */
 export interface TabGroupInterface {
   type: 'div';

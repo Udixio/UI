@@ -7,8 +7,7 @@ export type SearchInputMode =
 export type SearchResultsRole = 'listbox' | 'dialog';
 
 /**
- * Search lets people enter a query and optionally browse projected
- * suggestions or results in an inline Material 3 contained results surface.
+ * Search lets people enter a keyword or phrase to get relevant information.
  */
 export type SearchProps = {
   /** Accessible name for the native search input. */

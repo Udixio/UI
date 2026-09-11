@@ -5,7 +5,7 @@ export type MenuItemVariant = MenuVariant;
 export type MenuItemSelectionType = 'none' | 'single' | 'multiple';
 
 /**
- * An action or selectable choice within a Menu.
+ * Menu items are the individual choices a menu offers.
  */
 export type MenuItemProps = {
   /** Text label used when an adapter does not project custom content. */

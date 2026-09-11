@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
   "displayName": "Tab",
-  "description": "A single tab inside a tabs tablist; renders as a link when `href` is provided, otherwise as a button.",
+  "description": "A tab switches to one of the views its tab list offers.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
   "displayName": "FabMenu",
-  "description": "FabMenu exposes related primary actions from one toggleable FAB.",
+  "description": "The floating action button menu opens from a FAB to display multiple related actions.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {

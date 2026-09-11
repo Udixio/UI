@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
   "displayName": "TextField",
-  "description": "Text fields let users enter text into a UI.",
+  "description": "Text fields let people enter text into a UI.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {

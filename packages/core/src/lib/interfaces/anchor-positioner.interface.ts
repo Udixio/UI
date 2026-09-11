@@ -21,13 +21,8 @@ export type AnchorPosition =
   | 'bottom-right';
 
 /**
- * Floats content next to an anchor element, using native CSS Anchor
- * Positioning where the browser supports it and tracking the anchor's rect
- * otherwise.
- *
- * It has no variant-driven classes -- it only computes inline positioning
- * styles -- so unlike other core contracts it has no matching
- * `.style.ts`/`defaultClassNames` config.
+ * Floats content beside an anchor element and keeps it there as the page
+ * moves.
  */
 export interface AnchorPositionerProps {
   /** Placement of the floating element relative to its anchor. Defaults to `bottom`. */

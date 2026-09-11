@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
   "displayName": "TabPanels",
-  "description": "Renders the panel for the selected tab, sliding it in from the direction the selection moved.",
+  "description": "A tab panel set shows the content of the selected tab.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {

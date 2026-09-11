@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
   "displayName": "MenuGroup",
-  "description": "Groups related menu items under an optional visible label.",
+  "description": "Menu groups gather related choices under an optional label.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {

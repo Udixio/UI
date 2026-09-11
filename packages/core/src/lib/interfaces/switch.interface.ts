@@ -1,7 +1,7 @@
 import { Icon } from '../icon';
 
 /**
- * Switches toggle the selection of a single item on or off.
+ * Switches toggle the selection of an item on and off.
  */
 export type SwitchProps = {
   /** Controlled mode: explicitly control whether the switch is on. */

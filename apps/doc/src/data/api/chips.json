@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
   "displayName": "Chips",
-  "description": "A labelled collection of selectable or editable chips.",
+  "description": "Chip sets group related chips into one input, filter, or selection list.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {

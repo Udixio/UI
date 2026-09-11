@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
   "displayName": "Fab",
-  "description": "Floating action buttons expose the primary action on a screen.",
+  "description": "Floating action buttons help people take primary actions.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {

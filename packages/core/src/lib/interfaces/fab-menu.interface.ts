@@ -17,7 +17,8 @@ export interface FabMenuAction {
 }
 
 /**
- * FabMenu exposes related primary actions from one toggleable FAB.
+ * The floating action button menu opens from a FAB to display multiple
+ * related actions.
  */
 export interface FabMenuProps {
   /** Accessible name of the primary trigger. */

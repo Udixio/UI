@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
   "displayName": "Chip",
-  "description": "A compact action, link, editable value, or selectable option.",
+  "description": "Chips help people enter information, make selections, filter content, or trigger actions.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
   "displayName": "NavigationRailItem",
-  "description": "A single destination inside a navigation rail; renders as a link when `href` is provided, otherwise as a button.",
+  "description": "Navigation rail items are the destinations a navigation rail switches between.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {

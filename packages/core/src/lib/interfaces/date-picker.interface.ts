@@ -77,9 +77,7 @@ export type DatePickerRangeProps = DatePickerSharedProps & {
 };
 
 /**
- * `mode` discriminates the shape of `value`/`defaultValue`/`onChange`: a
- * consumer cannot pass a `DateRange` under `mode="single"` or a `Date` under
- * `mode="range"` without a compile error.
+ * Date pickers let people select a date, or a range of dates.
  */
 export type DatePickerProps = DatePickerSingleProps | DatePickerRangeProps;
 
