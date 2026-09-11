@@ -25,7 +25,6 @@ import { Contrast } from '@material/material-color-utilities';
 import { Context } from '../../context';
 import { API } from '../../API';
 import { normalize } from '../../utils';
-import { GAMUT_CHROMA_RANGE } from '../../color/gamut';
 
 const clampTone = (tone: number) => Math.max(0, Math.min(100, tone));
 
@@ -152,17 +151,14 @@ export const udixioVariant: Variant = variant({
       chroma: sourceColor.chroma,
     }),
     neutral: ({ sourceColor }) => {
-      // Le chroma de pointe varie selon la teinte (≈55 pour un bleu, ≈113
-      // pour un rouge). Le neutre en garde une proportion fixe : chromaMin à
-      // la borne basse du gamut, le même ratio à la borne haute.
-      const chromaMin = 5;
-      const [gamutMin, gamutMax] = GAMUT_CHROMA_RANGE;
+      // Le chroma maximal varie selon la teinte, et selon le ton. On situe la
+      // source entre la teinte la plus contrainte et la plus libre *à son
+      // ton*, et le neutre va de 5 (une pointe de teinte garantie) à 10 (la
+      // limite au-delà de laquelle une surface cesse d'être neutre).
+      const range = Color.chromaRangeAt(sourceColor.tone);
       return {
         hue: sourceColor.hue,
-        chroma: normalize(sourceColor.chroma, GAMUT_CHROMA_RANGE, [
-          chromaMin,
-          chromaMin * (gamutMax / gamutMin),
-        ]),
+        chroma: normalize(sourceColor.chroma, range, [5, 10]),
       };
     },
     error: ({ sourceColor }) => {

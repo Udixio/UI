@@ -188,6 +188,23 @@ export class Color {
   }
 
   /**
+   * L'étendue des chromas maximaux sur les 360 teintes à un ton donné : la
+   * teinte la plus contrainte par le gamut sRGB à ce ton et la plus libre.
+   * Autour du ton 50 c'est un cyan et un rouge ; au-dessus de 80 l'ordre
+   * s'inverse, le rouge devenant la teinte la plus contrainte.
+   */
+  static chromaRangeAt(tone: number): [number, number] {
+    let low = Infinity;
+    let high = 0;
+    for (let hue = 0; hue < 360; hue++) {
+      const chroma = Color.maxChroma(hue, tone);
+      low = Math.min(low, chroma);
+      high = Math.max(high, chroma);
+    }
+    return [low, high];
+  }
+
+  /**
    * L'étendue des chromas de pointe sur les 360 teintes : la teinte la plus
    * contrainte par le gamut sRGB et la plus libre.
    *
