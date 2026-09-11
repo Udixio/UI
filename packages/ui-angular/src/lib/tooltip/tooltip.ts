@@ -42,32 +42,23 @@ let nextTooltipId = 0;
 /**
  * Tooltips display brief labels or messages.
  *
- * Angular delivers this as a **directive**, where React delivers a wrapping
- * component. The concept, the vocabulary and the observable behavior are the
- * same; only the way a consumer reaches them differs. A directive attaches to
- * the trigger the consumer already owns and injects its own `ElementRef`, so
- * there is nothing to hand over.
- *
  * @status beta
  * @category Communication
  * @devx
  * - Put it on the trigger: `<udx-button udxTooltip="Copy" />`. Inputs are
  *   prefixed `udxTooltip*` because the host element is not the directive's own;
  *   the member names stay the shared contract's vocabulary.
- * - `udxTooltip`, `udxTooltipTitle` and `udxTooltipContent` each activate it on
- *   their own, so a title-only or template-only tooltip needs no placeholder
- *   text. The other inputs only configure an already-activated directive.
- * - Provide `udxTooltip` (the supporting text), `udxTooltipTitle` and
- *   `udxTooltipButtons`, or pass a `TemplateRef` to `udxTooltipContent` for
- *   fully custom content.
+ * - Content comes from `udxTooltip` (the supporting text), `udxTooltipTitle`
+ *   and `udxTooltipButtons`, or from a `TemplateRef` on `udxTooltipContent`.
+ *   Any one of the three activates the directive, so a title-only or
+ *   template-only tooltip needs no placeholder text; the rest only configure
+ *   an already-active directive.
  * - Supports controlled `udxTooltipOpen` plus the two delays.
  * - A touch long press opens after 500ms and stays visible for 1.5s after
  *   release, following Material 3 guidance.
  * - Opening one tooltip closes the currently visible tooltip in the document.
- * - The trigger's timers, pointer/keyboard/touch wiring, ARIA synchronization
- *   and cross-tooltip arbitration all come from one controller in
- *   `@udixio/core/dom`, shared with React. The open/close transition is
- *   Anime.js, likewise shared.
+ * - Timing, reduced-motion behaviour and interruption match React exactly:
+ *   both adapters drive the same controllers in `@udixio/core/dom`.
  * @a11y
  * - Provides `role="tooltip"` on the panel and `aria-describedby` on the host
  *   while open.

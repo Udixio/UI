@@ -19,7 +19,8 @@ import {
 import { CustomScroll } from '../effects';
 import { createUseStyle } from '../utils/create-use-style';
 import { useControllableState } from '../utils/use-controllable-state';
-import { CarouselItem, normalize } from './CarouselItem';
+import { CarouselItem } from './CarouselItem';
+import { normalize } from '@udixio/theme';
 
 export type ReactCarouselProps = ReactProps<CarouselInterface> & {
   children?: ReactNode;

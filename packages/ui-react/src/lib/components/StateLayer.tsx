@@ -39,14 +39,13 @@ export type ReactStateLayerProps = StateLayerProps &
  * - The press ripple honours the reduced-motion preference through the shared
  *   controller.
  * @limitations
- * - The trigger is resolved by walking up to the outermost ancestor carrying
- *   the named Tailwind group, so the layer must be rendered inside it.
- * - The set of valid `colorName` tokens lives in `@udixio/theme`, which
- *   `@udixio/core` does not depend on, so the prop is typed as `string`.
- * - `className` accepts the state-aware function form, but this contract
- *   resolves no interaction states: the function receives the props and an
- *   empty state object, because hover, focus and press live entirely in the
- *   Tailwind utilities rather than in JavaScript.
+ * - Must be rendered inside the element carrying the named Tailwind group,
+ *   which is the trigger it attaches to.
+ * - `colorName` is typed as `string`: the valid tokens are not visible from
+ *   here, so a typo degrades to `on-surface` instead of failing to compile.
+ * - `className` takes the state-aware function form, but it resolves no
+ *   interaction states -- hover, focus and press live in the Tailwind
+ *   utilities, not in JavaScript.
  */
 export const StateLayer = ({
   colorName,

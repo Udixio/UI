@@ -14,21 +14,6 @@ export type ReactCarouselItemProps = ReactProps<CarouselItemInterface> & {
 
 export const useCarouselItemStyle = createUseStyle(carouselItemStyle);
 
-export const normalize = (
-  value: number,
-  inputRange: [number, number],
-  outputRange: [number, number] = [0, 1],
-): number => {
-  const [inputMin, inputMax] = inputRange;
-  const [outputMin, outputMax] = outputRange;
-
-  const clampedValue = Math.max(inputMin, Math.min(value, inputMax));
-
-  const normalizedValue = (clampedValue - inputMin) / (inputMax - inputMin);
-
-  return outputMin + normalizedValue * (outputMax - outputMin);
-};
-
 /**
  * A single slide inside a `Carousel`. Its width is driven by the carousel's
  * scroll position; it simply projects its children.

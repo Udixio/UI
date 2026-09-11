@@ -44,25 +44,13 @@ import { createStyle } from '../utils/create-style';
  * - The press ripple honours the reduced-motion preference through the shared
  *   controller.
  * @limitations
- * - The trigger is resolved by walking up to the outermost ancestor carrying
- *   the named Tailwind group, so the layer must be rendered inside it. An
- *   attribute directive on that ancestor would make the CSS group and the
- *   JavaScript trigger the same element by construction rather than by search.
- *   That shape was considered and declined: unlike a component asking for a
- *   reference to an element it does not own, this one is rendered inside its
- *   trigger, and the walk crosses only this component's own `display: contents`
- *   host before reaching the group. Half of its call sites render it from an
- *   `ng-template` projected into two or three different hosts, so the
- *   conversion would restructure those templates and turn their render
- *   conditions into inert bindings -- a large change to interaction feedback
- *   for a walk that is correct and covered by tests. Revisit it if the group
- *   ever stops being an ancestor of the layer.
- * - The set of valid `colorName` tokens lives in `@udixio/theme`, which
- *   `@udixio/core` does not depend on, so the prop is typed as `string`.
- * - `className` accepts the state-aware function form, but this contract
- *   resolves no interaction states: the function receives the props and an
- *   empty state object, because hover, focus and press live entirely in the
- *   Tailwind utilities rather than in JavaScript.
+ * - Must be rendered inside the element carrying the named Tailwind group,
+ *   which is the trigger it attaches to.
+ * - `colorName` is typed as `string`: the valid tokens are not visible from
+ *   here, so a typo degrades to `on-surface` instead of failing to compile.
+ * - `classes` takes the state-aware function form, but it resolves no
+ *   interaction states -- hover, focus and press live in the Tailwind
+ *   utilities, not in JavaScript.
  */
 @Component({
   selector: 'udx-state-layer',
