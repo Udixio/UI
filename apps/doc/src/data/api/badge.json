@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 4,
+  "displayName": "Badge",
+  "description": "Badges show notifications, counts, or status information on navigation items and icons.",
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/Badge.tsx",
+      "tags": {
+        "status": "beta",
+        "category": "Communication",
+        "devx": "- Wrap what the badge marks: `<Badge label={3}><Icon icon={iInbox} /></Badge>`.\n  The wrapper provides the positioned container itself, so the anchoring\n  never depends on a `relative` the caller has to remember.\n- No `label` renders the small dot Material uses for an unread notification;\n  any label renders the large pill. The variant follows from the content, so\n  a small badge carrying a count cannot be expressed.\n- `max` caps a count the way Material spells it: `label={100} max={99}`\n  renders `99+`.\n- Hiding the badge once its destination is selected is the caller's\n  decision, so there is no prop for it -- render it conditionally.",
+        "a11y": "- `description` is what a screen reader announces. Give it the meaning, not\n  the number: `3 unread messages`, not `3`.\n- Without a `description` the badge is hidden from assistive technology\n  rather than announced as a bare digit or as nothing at all.",
+        "limitations": "- Material limits badge content to four characters including the `+`.\n  Nothing truncates: silently dropping a caller's text would hide data, and\n  `max` is the tool for the count case.\n- The badge is positioned against its own wrapper, so it marks whatever it\n  wraps rather than an arbitrary element elsewhere on the page."
+      },
+      "methods": [],
+      "props": {
+        "label": {
+          "name": "label",
+          "description": "Text shown inside the badge. Omitted, the badge renders as the small dot\nMaterial 3 uses for an unread notification.\n\nMaterial limits badge content to four characters including a `+`; use\n`max` to keep a count within that.",
+          "required": false,
+          "type": {
+            "name": "string | number"
+          },
+          "defaultValue": null
+        },
+        "max": {
+          "name": "max",
+          "description": "Caps a numeric `label`. A label of 100 with `max` 99 renders `99+`.\nIgnored when `label` is not a number.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
+        "description": {
+          "name": "description",
+          "description": "What assistive technology announces for the badge, such as\n`3 unread messages`.\n\nThe visible label is rarely enough on its own -- `3` says nothing about\nwhat there are three of -- and the small dot has no text at all, so this\nis the only way it reaches a screen reader.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<BadgeInterface>"
+          },
+          "defaultValue": null
+        },
+        "children": {
+          "name": "children",
+          "description": "The icon or item the badge is anchored to.",
+          "required": false,
+          "type": {
+            "name": "ReactNode"
+          },
+          "defaultValue": null
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/badge/badge.ts",
+      "selector": "udx-badge",
+      "tags": {
+        "status": "beta",
+        "category": "Communication",
+        "devx": "- Wrap what the badge marks: `<udx-badge [label]=\"3\"><udx-icon … /></udx-badge>`.\n  The wrapper provides the positioned container itself, so the anchoring\n  never depends on a `relative` the caller has to remember.\n- No `label` renders the small dot Material uses for an unread notification;\n  any label renders the large pill. The variant follows from the content, so\n  a small badge carrying a count cannot be expressed.\n- `max` caps a count the way Material spells it: `[label]=\"100\" [max]=\"99\"`\n  renders `99+`.\n- Hiding the badge once its destination is selected is the caller's\n  decision, so there is no input for it -- render it with `@if`.",
+        "a11y": "- `description` is what a screen reader announces. Give it the meaning, not\n  the number: `3 unread messages`, not `3`.\n- Without a `description` the badge is hidden from assistive technology\n  rather than announced as a bare digit or as nothing at all.",
+        "limitations": "- Material limits badge content to four characters including the `+`.\n  Nothing truncates: silently dropping a caller's text would hide data, and\n  `max` is the tool for the count case.\n- The badge is positioned against its own wrapper, so it marks whatever it\n  wraps rather than an arbitrary element elsewhere on the page."
+      },
+      "inputs": {
+        "label": {
+          "name": "label",
+          "description": "Text shown inside the badge. Omitted, it renders as the small dot.",
+          "required": false,
+          "type": {
+            "name": "string | number | undefined"
+          },
+          "defaultValue": null
+        },
+        "max": {
+          "name": "max",
+          "description": "Caps a numeric label: 100 with a max of 99 renders `99+`.",
+          "required": false,
+          "type": {
+            "name": "number | undefined"
+          },
+          "defaultValue": null
+        },
+        "description": {
+          "name": "description",
+          "description": "What assistive technology announces, such as `3 unread messages`.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Classes, or state-aware element classes, applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<BadgeInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {},
+      "content": {
+        "default": {
+          "name": "default",
+          "selector": "*",
+          "description": "Default projected content."
+        }
+      }
+    }
+  }
+}

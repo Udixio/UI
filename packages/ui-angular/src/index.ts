@@ -1,4 +1,10 @@
+// The Angular package re-exports the shared contract, so a consumer needs one
+// import for a component and the types of its inputs -- the React package has
+// always done this, and its absence here left `FabMenuAction` and friends
+// reachable only from `@udixio/core`.
+export * from '@udixio/core';
 export * from './lib/anchor-positioner/anchor-positioner';
+export * from './lib/badge/badge';
 export * from './lib/button/button';
 export * from './lib/card/card';
 export * from './lib/carousel/carousel';
@@ -36,3 +42,7 @@ export * from './lib/search/search';
 export * from './lib/tooltip/tooltip';
 export * from './lib/tooltip/tooltip-surface';
 export * from './lib/utils/create-controllable-state';
+
+// `Icon` exists both as a type in @udixio/core and as the Angular component in
+// ./lib/icon/icon; the component is the public API, as in the React package.
+export { Icon } from './lib/icon/icon';

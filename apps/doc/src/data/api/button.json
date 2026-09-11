@@ -51,7 +51,7 @@
           "description": "Visual size; every option retains a 48px touch target.",
           "required": false,
           "type": {
-            "name": "\"small\" | \"xSmall\" | \"medium\" | \"large\" | \"xLarge\""
+            "name": "\"small\" | \"large\" | \"xSmall\" | \"medium\" | \"xLarge\""
           },
           "defaultValue": {
             "value": "'medium'"

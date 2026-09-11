@@ -1,0 +1,74 @@
+---
+---
+
+import Code from '@/components/Code.astro';
+import { BadgeBasicReact } from '@/examples/react/badge-basic.tsx';
+import { BadgeBasicAngular } from '@/examples/angular/badge-basic.ts';
+import badgeBasicReactSource from '@/examples/react/badge-basic.tsx?raw';
+import badgeBasicAngularSource from '@/examples/angular/badge-basic.ts?raw';
+
+## Usage
+
+Badge marks the item it wraps with a notification, a count, or a short status.
+It provides its own positioned container, so the icon or control inside needs
+no positioning of its own.
+
+Material 3 describes two variants, and what separates them is only whether the
+badge carries text, so the variant follows from the content rather than from a
+prop: with no `label` the badge is the small dot that signals an unread
+notification, and any label makes it the large pill that carries a count. A
+small badge showing a count is not a state the design has, so it is not a state
+the API can express.
+
+<Code
+  codes={{
+    react: badgeBasicReactSource,
+    angular: badgeBasicAngularSource,
+  }}
+>
+  <BadgeBasicReact slot="react" client:load />
+  <BadgeBasicAngular slot="angular" client:load />
+</Code>
+
+## Counts
+
+`max` caps a numeric label the way Material spells it: `label={1000}` with
+`max={999}` renders `999+`. Material limits badge content to four characters
+including that `+`, which `999+` reaches exactly.
+
+Nothing truncates a label that exceeds it. Silently dropping a caller's text
+would hide data; `max` is the tool for the count case, and a longer string is
+a deliberate choice the component does not override.
+
+A count of `0` renders. Treating it as absent would turn an explicit "nothing
+unread" into the dot that means "something unread".
+
+## Placement
+
+The badge anchors inside the bounding box of what it wraps, at the upper
+trailing corner, using the distances Material specifies: 6×6dp for the small
+dot, 14×12dp for the large pill. The leading edge is what is pinned, so a
+widening count grows outward without the badge moving.
+
+Offsets are expressed with logical properties, so the badge moves to the upper
+leading corner in right-to-left languages, as the guidelines require.
+
+## Colour
+
+The container uses the `error` role and the label `on-error`. Material asks
+that the default mapping be kept -- the badge is meant to stand out against
+labels, icons and navigation items -- and that any substitute keep a contrast
+ratio of at least 3:1.
+
+## Accessibility
+
+`description` is what assistive technology announces, and it should carry the
+meaning rather than the figure: `3 unread messages`, not `3`. The small dot has
+no text at all, so `description` is its only way to exist for a screen reader.
+
+Without a `description` the badge is hidden from the accessibility tree. A bare
+digit, or an empty dot, announces noise rather than information.
+
+Hiding the badge once its destination is selected is the caller's decision --
+Material recommends it for the unread-notification case -- so there is no prop
+for it. Render the badge conditionally instead.

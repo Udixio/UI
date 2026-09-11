@@ -24,21 +24,21 @@
           },
           "defaultValue": null
         },
-        "supportingText": {
-          "name": "supportingText",
-          "description": "Message shown below the field.",
-          "required": false,
-          "type": {
-            "name": "string"
-          },
-          "defaultValue": null
-        },
         "leadingIcon": {
           "name": "leadingIcon",
           "description": "Optional icon shown before the value.",
           "required": false,
           "type": {
             "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "supportingText": {
+          "name": "supportingText",
+          "description": "Message shown below the field.",
+          "required": false,
+          "type": {
+            "name": "string"
           },
           "defaultValue": null
         },
