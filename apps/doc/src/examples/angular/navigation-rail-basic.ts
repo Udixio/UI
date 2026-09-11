@@ -11,7 +11,7 @@ import { iTimer } from '@udixio/icons-rounded-400/timer';
   imports: [NavigationRail, NavigationRailItem],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <udx-navigation-rail [className]="'bg-surface-container-highest h-[500px]'">
+    <udx-navigation-rail [classes]="'bg-surface-container-highest h-[500px]'">
       <udx-navigation-rail-item [icon]="iNotifications" [iconSelected]="iNotifications" label="Alarm" selected />
       <udx-navigation-rail-item [icon]="iSchedule" [iconSelected]="iSchedule" label="Clock" />
       <udx-navigation-rail-item [icon]="iHourglass" [iconSelected]="iHourglass" label="Timer" />

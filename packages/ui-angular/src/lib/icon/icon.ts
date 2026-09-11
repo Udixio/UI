@@ -66,7 +66,8 @@ type FontAwesomeIcon = Exclude<IconType, string | SvgImport>;
 export class Icon {
   readonly icon = input.required<IconType>();
   readonly colors = input<readonly string[]>([]);
-  readonly className = input<string>();
+  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  readonly classes = input<string>();
 
   protected readonly kind = computed(() => resolveIconKind(this.icon()));
 
@@ -107,6 +108,6 @@ export class Icon {
   protected readonly styles = createStyle(iconStyle, () => ({
     icon: this.icon(),
     colors: this.colors(),
-    className: this.className(),
+    className: this.classes(),
   }));
 }

@@ -131,9 +131,9 @@
             "value": "'none'"
           }
         },
-        "className": {
-          "name": "className",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
+        "classes": {
+          "name": "classes",
+          "description": "Classes, or state-aware element classes, applied through the shared style contract.",
           "required": false,
           "type": {
             "name": "string | ClassNameComponent<MenuInterface>"

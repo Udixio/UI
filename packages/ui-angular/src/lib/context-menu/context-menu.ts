@@ -37,7 +37,7 @@ import { Menu } from '../menu/menu';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
-    <div #root [class]="className()" style="display: contents">
+    <div #root [class]="classes()" style="display: contents">
       <span
         #trigger
         style="display: contents"
@@ -71,7 +71,7 @@ export class ContextMenu {
   readonly accessibleLabel = input<ContextMenuProps['accessibleLabel']>();
   readonly disabled = input(false, { transform: booleanAttribute });
   /** Classes applied to the display-contents root. */
-  readonly className = input<string>();
+  readonly classes = input<string>();
 
   /** Notifies visibility changes caused by user interaction. */
   readonly openChange = output<boolean>();

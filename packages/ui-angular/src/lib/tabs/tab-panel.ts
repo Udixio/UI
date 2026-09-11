@@ -55,7 +55,8 @@ import { TAB_PANELS_CONTEXT } from './tab-panels-context';
   template: `<ng-content />`,
 })
 export class TabPanel {
-  readonly className = input<string | ClassNameComponent<TabPanelInterface>>();
+  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  readonly classes = input<string | ClassNameComponent<TabPanelInterface>>();
 
   private readonly groupContext = inject(TAB_GROUP_CONTEXT, { optional: true });
   private readonly panelsContext = inject(TAB_PANELS_CONTEXT, {
@@ -86,7 +87,7 @@ export class TabPanel {
   protected readonly styles = createStyle(tabPanelStyle, () => ({
     index: this.resolvedIndex(),
     tabsId: this.groupContext?.tabsId(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   private animation?: ReturnType<typeof animateTabPanelEnter>;

@@ -12,14 +12,14 @@ import { Card } from '@udixio/ui-angular';
         <udx-card
           href="/components/card/overview"
           variant="elevated"
-          className="flex h-40 min-w-48 flex-1 items-center justify-center"
+          classes="flex h-40 min-w-48 flex-1 items-center justify-center"
         >
           <p>Navigate to the Card page</p>
         </udx-card>
         <udx-card
           interactive
           variant="filled"
-          className="flex h-40 min-w-48 flex-1 items-center justify-center"
+          classes="flex h-40 min-w-48 flex-1 items-center justify-center"
           (click)="message.set('Card activated')"
         >
           <p>Run an action</p>

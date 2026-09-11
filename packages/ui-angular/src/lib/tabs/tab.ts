@@ -82,7 +82,7 @@ import { TABS_CONTEXT } from './tabs-context';
     <ng-template #content>
       <udx-state-layer
         style="transition: 0.3s"
-        [className]="styles()['stateLayer']"
+        [classes]="styles()['stateLayer']"
         [colorName]="
           variant() === 'primary' && isSelected() ? 'primary' : 'on-surface'
         "
@@ -90,7 +90,7 @@ import { TABS_CONTEXT } from './tabs-context';
       />
       <span #contentEl [class]="styles()['content']">
         @if (icon()) {
-          <udx-icon [icon]="icon()!" [className]="styles()['icon']" />
+          <udx-icon [icon]="icon()!" [classes]="styles()['icon']" />
         }
         <span [class]="styles()['label']">{{ label() }}</span>
       </span>
@@ -106,7 +106,8 @@ export class Tab {
   readonly disabled = input(false, { transform: booleanAttribute });
   /** Navigation destination; switches the inner element to a native link. */
   readonly href = input<string>();
-  readonly className = input<string | ClassNameComponent<TabInterface>>();
+  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  readonly classes = input<string | ClassNameComponent<TabInterface>>();
 
   private readonly context = inject(TABS_CONTEXT, { optional: true });
 
@@ -153,7 +154,7 @@ export class Tab {
     selectedTab: this.context?.selectedIndex() ?? null,
     tabsId: this.context?.tabsId(),
     isSelected: this.isSelected(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   private readonly tabElement =

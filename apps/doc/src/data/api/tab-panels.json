@@ -40,9 +40,9 @@
         "limitations": "- Unlike React, every projected `udx-tab-panel` keeps its component\n  instance alive; inactive panels are hidden with the native `hidden`\n  attribute instead of being unmounted."
       },
       "inputs": {
-        "className": {
-          "name": "className",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
+        "classes": {
+          "name": "classes",
+          "description": "Classes, or state-aware element classes, applied through the shared style contract.",
           "required": false,
           "type": {
             "name": "string | ClassNameComponent<TabPanelsInterface>"

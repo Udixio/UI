@@ -49,7 +49,8 @@ import { TabPanel } from './tab-panel';
   `,
 })
 export class TabPanels implements TabPanelsContext {
-  readonly className = input<
+  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  readonly classes = input<
     string | ClassNameComponent<TabPanelsInterface>
   >();
 
@@ -60,7 +61,7 @@ export class TabPanels implements TabPanelsContext {
   private warned = false;
 
   protected readonly styles = createStyle(tabPanelsStyle, () => ({
-    className: this.className(),
+    className: this.classes(),
   }));
 
   constructor() {

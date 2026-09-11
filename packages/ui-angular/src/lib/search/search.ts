@@ -85,12 +85,12 @@ let nextSearchId = 0;
           (click)="handleInputFieldClick($event)"
         >
           <udx-state-layer
-            [className]="styles()['stateLayer']"
+            [classes]="styles()['stateLayer']"
             colorName="on-surface"
             stateClassName="state-ripple-group-[search-input]"
           />
           <span [class]="styles()['leadingIcon']" aria-hidden="true">
-            <udx-icon [icon]="resolvedLeadingIcon()" className="size-6" />
+            <udx-icon [icon]="resolvedLeadingIcon()" classes="size-6" />
           </span>
 
           <input
@@ -133,11 +133,11 @@ let nextSearchId = 0;
                 (click)="handleClear()"
               >
                 <udx-state-layer
-                  [className]="styles()['stateLayer']"
+                  [classes]="styles()['stateLayer']"
                   colorName="on-surface"
                   stateClassName="state-ripple-group-[search-clear]"
                 />
-                <udx-icon [icon]="clearIcon" className="size-6" />
+                <udx-icon [icon]="clearIcon" classes="size-6" />
               </button>
             }
             <ng-content select="[search-trailing]" />
@@ -186,7 +186,8 @@ export class Search implements OnInit {
   readonly resultsRole = input<SearchProps['resultsRole']>('listbox');
   readonly resultsLabel = input('Search suggestions');
   readonly clearLabel = input('Clear search');
-  readonly className = input<string | ClassNameComponent<SearchInterface>>();
+  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  readonly classes = input<string | ClassNameComponent<SearchInterface>>();
 
   /** Emits each accepted query transition and supports `[(query)]`. */
   readonly queryChange = output<string>();
@@ -280,7 +281,7 @@ export class Search implements OnInit {
     isExpanded: this.isExpanded(),
     hasQuery: this.hasQuery(),
     hasResults: this.hasResults(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   constructor() {

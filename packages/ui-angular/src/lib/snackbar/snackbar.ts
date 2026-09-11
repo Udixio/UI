@@ -71,7 +71,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         <udx-icon-button
           label="Close the snackbar"
           [icon]="closeIcon()"
-          [className]="styles()['icon']"
+          [classes]="styles()['icon']"
           (click)="close()"
         />
       </div>
@@ -90,7 +90,7 @@ export class Snackbar implements OnInit {
     SnackbarProps['transition']
   >();
   /** Classes or state-aware element classes applied through the shared style contract. */
-  readonly className = input<string | ClassNameComponent<SnackbarInterface>>();
+  readonly classes = input<string | ClassNameComponent<SnackbarInterface>>();
 
   /** Emits an accepted open-state request and supports `[(open)]`. */
   readonly openChange = output<boolean>();
@@ -112,7 +112,7 @@ export class Snackbar implements OnInit {
     closeIcon: this.closeIcon(),
     transition: this.transition(),
     isOpen: this.isOpen(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');

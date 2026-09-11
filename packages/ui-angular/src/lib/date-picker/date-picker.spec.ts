@@ -130,7 +130,7 @@ describe('DatePicker (Angular)', () => {
 
   it('exposes hasSelected to the className state contract', () => {
     const states: boolean[] = [];
-    fixture.componentRef.setInput('className', (state: { hasSelected: boolean }) => {
+    fixture.componentRef.setInput('classes', (state: { hasSelected: boolean }) => {
       states.push(state.hasSelected);
       return {};
     });

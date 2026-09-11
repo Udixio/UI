@@ -101,7 +101,7 @@ let nextTextFieldId = 0;
 
         @if (leadingIcon()) {
           <div [class]="styles()['leadingIcon']">
-            <udx-icon [icon]="leadingIcon()!" className="w-5 h-5" />
+            <udx-icon [icon]="leadingIcon()!" classes="w-5 h-5" />
           </div>
         }
 
@@ -182,13 +182,13 @@ let nextTextFieldId = 0;
                 (click)="handleTrailingClick($event)"
               >
                 <span class="flex items-center justify-center w-full h-full">
-                  <udx-icon [icon]="trailing" className="h-5" />
+                  <udx-icon [icon]="trailing" classes="h-5" />
                 </span>
               </button>
             } @else {
               <div [class]="styles()['trailingIcon']">
                 <div class="flex items-center justify-center w-full h-full">
-                  <udx-icon [icon]="trailing" className="h-5" />
+                  <udx-icon [icon]="trailing" classes="h-5" />
                 </div>
               </div>
             }
@@ -203,7 +203,7 @@ let nextTextFieldId = 0;
               })
             "
           >
-            <udx-icon [icon]="errorIcon" className="h-5 text-error" />
+            <udx-icon [icon]="errorIcon" classes="h-5 text-error" />
           </div>
         }
       </fieldset>
@@ -311,7 +311,8 @@ export class TextField implements OnInit {
    * next call unless you strip it back out first.
    */
   readonly mask = input<(raw: string) => string>();
-  readonly className = input<string | ClassNameComponent<TextFieldInterface>>();
+  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  readonly classes = input<string | ClassNameComponent<TextFieldInterface>>();
 
   /** Emits an accepted value transition and supports `[(value)]`. */
   readonly valueChange = output<string>();
@@ -433,7 +434,7 @@ export class TextField implements OnInit {
     isFocused: this.isFocused(),
     isFloating: this.isFloating(),
     hasSupportingText: this.hasSupportingText(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   protected readonly rootElement =

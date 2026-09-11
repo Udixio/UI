@@ -41,7 +41,7 @@ import { StateLayer } from '../state-layer/state-layer';
     <ng-template #content>
       @if (isInteractive()) {
         <udx-state-layer
-          [className]="styles()['stateLayer']"
+          [classes]="styles()['stateLayer']"
           colorName="on-surface"
           stateClassName="state-ripple-group-[card]"
         />
@@ -80,7 +80,7 @@ export class Card {
   readonly interactive = input(false, { transform: booleanAttribute });
 
   /** Classes or state-aware element classes applied through the shared style contract. */
-  readonly className = input<string | ClassNameComponent<CardInterface>>();
+  readonly classes = input<string | ClassNameComponent<CardInterface>>();
 
   /** Navigation URL. When defined, the component renders a native link. */
   readonly href = input<string>();
@@ -98,7 +98,7 @@ export class Card {
   protected readonly styles = createStyle(cardStyle, () => ({
     variant: this.variant(),
     interactive: this.isInteractive(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   protected handleKey(event: KeyboardEvent, phase: CardKeyPhase): void {

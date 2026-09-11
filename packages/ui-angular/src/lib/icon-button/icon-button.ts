@@ -56,12 +56,12 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
     <ng-template #content>
       <span [class]="styles()['touchTarget']"></span>
       <udx-state-layer
-        [className]="styles()['stateLayer']"
+        [classes]="styles()['stateLayer']"
         [colorName]="stateColor()"
         [shapeTransition]="shapeTransition()"
         stateClassName="state-ripple-group-[icon-button]"
       />
-      <udx-icon [icon]="resolvedIcon()" [className]="styles()['icon']" />
+      <udx-icon [icon]="resolvedIcon()" [classes]="styles()['icon']" />
     </ng-template>
 
     @if (href() !== undefined) {
@@ -129,7 +129,7 @@ export class IconButton implements OnInit {
   });
   readonly defaultPressed = input(false, { transform: booleanAttribute });
   /** Classes or state-aware element classes applied through the shared style contract. */
-  readonly className = input<
+  readonly classes = input<
     string | ClassNameComponent<IconButtonInterface>
   >();
   /** Navigation destination; switches the inner element to a native link. */
@@ -219,7 +219,7 @@ export class IconButton implements OnInit {
     pressed: this.pressed(),
     defaultPressed: this.defaultPressed(),
     isPressed: this.isPressed(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   ngOnInit(): void {

@@ -7,7 +7,7 @@ import { Button, Card } from '@udixio/ui-angular';
   imports: [Button, Card],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <udx-card variant="filled" className="w-full max-w-96">
+    <udx-card variant="filled" classes="w-full max-w-96">
       <img
         class="h-40 w-full object-cover"
         src="https://picsum.photos/640/240"

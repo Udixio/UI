@@ -118,7 +118,7 @@ describe('Snackbar (Angular, consuming @udixio/core)', () => {
 
   it('exposes the resolved open state to a state-aware className function', () => {
     fixture.componentRef.setInput(
-      'className',
+      'classes',
       (state: { isOpen: boolean }) => ({
         snackbar: state.isOpen ? 'is-open' : 'is-closed',
       }),

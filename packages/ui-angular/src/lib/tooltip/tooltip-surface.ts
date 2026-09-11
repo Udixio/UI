@@ -8,7 +8,7 @@ import {
   output,
   viewChild,
 } from '@angular/core';
-import type { TooltipProps } from '@udixio/core';
+import type { AnchorPosition, TooltipProps } from '@udixio/core';
 import { AnchorPositioner } from '../anchor-positioner/anchor-positioner';
 import { Button } from '../button/button';
 
@@ -86,7 +86,10 @@ export interface TooltipButtonAction {
 export class TooltipSurface {
   readonly anchor = input.required<ElementRef<HTMLElement> | HTMLElement>();
   readonly surfaceId = input.required<string>();
-  readonly position = input<TooltipProps['position']>('bottom');
+  // The directive always resolves a placement before pushing it, so the panel
+  // never sees `undefined` -- unlike `TooltipProps['position']`, which is
+  // optional because the directive's own input is.
+  readonly position = input<AnchorPosition>('bottom');
   readonly title = input<TooltipProps['title']>();
   readonly text = input<TooltipProps['text']>();
   readonly buttons = input<TooltipButtonAction | TooltipButtonAction[]>();

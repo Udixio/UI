@@ -36,7 +36,8 @@ import { MENU_CONTEXT } from './menu-context';
 export class MenuHeadline {
   readonly label = input.required<string>();
   readonly variant = input<MenuHeadlineProps['variant']>();
-  readonly className = input<
+  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  readonly classes = input<
     string | ClassNameComponent<MenuHeadlineInterface>
   >();
 
@@ -47,6 +48,6 @@ export class MenuHeadline {
   protected readonly styles = createStyle(menuHeadlineStyle, () => ({
     label: this.label(),
     variant: this.resolvedVariant(),
-    className: this.className(),
+    className: this.classes(),
   }));
 }

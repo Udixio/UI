@@ -87,7 +87,8 @@ export class StateLayer {
   readonly colorName = input.required<StateLayerProps['colorName']>();
   readonly stateClassName =
     input<NonNullable<StateLayerProps['stateClassName']>>('state-ripple-group');
-  readonly className = input<
+  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  readonly classes = input<
     string | ClassNameComponent<StateLayerInterface>
   >();
   readonly shapeTransition = input<StateLayerProps['shapeTransition']>();
@@ -102,7 +103,7 @@ export class StateLayer {
     stateClassName: this.stateClassName(),
     shapeTransition: this.shapeTransition(),
     transitionDuration: this.transitionDuration(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   constructor() {

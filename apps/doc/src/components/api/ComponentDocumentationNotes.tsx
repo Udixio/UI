@@ -1,6 +1,7 @@
 import type { ExampleFramework } from '@/stores/exampleFrameworkStore';
 import type { ComponentApiData } from '@/types/component-api';
 import { useActiveComponentApi } from './useActiveComponentApi';
+import { Card } from '@udixio/ui-react';
 
 export type DocumentationNoteHtml = Partial<
   Record<
@@ -36,13 +37,16 @@ export function ComponentDocumentationNotes({
       aria-label="API notes"
     >
       {visibleNotes.map((key) => (
-        <section key={key} className={`rounded-3xl p-6 ${NOTE_META[key].tone}`}>
+        <Card
+          key={key}
+          className={`bg-surface-container p-6 ${NOTE_META[key].tone}`}
+        >
           <h2 className="mb-3 text-title-medium">{NOTE_META[key].title}</h2>
           <div
             className="prose-markdown text-sm leading-6 [&_ul]:list-disc [&_ul]:pl-5"
             dangerouslySetInnerHTML={{ __html: notes[key] ?? '' }}
           />
-        </section>
+        </Card>
       ))}
     </aside>
   );

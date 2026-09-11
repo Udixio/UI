@@ -347,8 +347,8 @@
           "defaultValue": null,
           "alias": "udxTooltipTransition"
         },
-        "className": {
-          "name": "className",
+        "classes": {
+          "name": "classes",
           "description": "Classes or state-aware element classes through the shared style contract.",
           "required": false,
           "type": {

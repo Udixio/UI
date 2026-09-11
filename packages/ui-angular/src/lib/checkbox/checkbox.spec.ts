@@ -96,7 +96,7 @@ describe('Checkbox (Angular)', () => {
       focusStates.push(state.isFocused);
       return {};
     };
-    fixture.componentRef.setInput('className', className);
+    fixture.componentRef.setInput('classes', className);
     fixture.detectChanges();
     const checkbox: HTMLInputElement =
       fixture.nativeElement.querySelector('input');

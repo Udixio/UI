@@ -37,7 +37,8 @@ import { CAROUSEL_CONTEXT } from './carousel-context';
 })
 export class CarouselItem {
   readonly outputRange = input<[number, number]>();
-  readonly className = input<
+  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  readonly classes = input<
     string | ClassNameComponent<CarouselItemInterface>
   >();
 
@@ -54,6 +55,6 @@ export class CarouselItem {
 
   protected readonly styles = createStyle(carouselItemStyle, () => ({
     outputRange: this.resolvedOutputRange(),
-    className: this.className(),
+    className: this.classes(),
   }));
 }

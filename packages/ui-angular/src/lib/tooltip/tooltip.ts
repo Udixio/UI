@@ -146,7 +146,7 @@ export class Tooltip implements OnDestroy {
     alias: 'udxTooltipTransition',
   });
   /** Classes or state-aware element classes through the shared style contract. */
-  readonly className = input<
+  readonly classes = input<
     string | ClassNameComponent<TooltipInterface> | undefined
   >(undefined, { alias: 'udxTooltipClass' });
 
@@ -211,7 +211,7 @@ export class Tooltip implements OnDestroy {
     id: this.tooltipId(),
     transition: this.transition(),
     isOpen: this.resolvedOpen(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   private surfaceRef?: ComponentRef<TooltipSurface>;

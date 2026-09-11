@@ -88,7 +88,8 @@ export class Tabs implements OnInit, TabsContext {
   readonly selectedTab = input<number | null>();
   /** Index selected on mount when the tab list is uncontrolled. */
   readonly defaultSelectedTab = input<number | null>(0);
-  readonly className = input<string | ClassNameComponent<TabsInterface>>();
+  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  readonly classes = input<string | ClassNameComponent<TabsInterface>>();
 
   /** Emits each accepted selection request and supports `[(selectedTab)]`. */
   readonly selectedTabChange = output<number | null>();
@@ -143,7 +144,7 @@ export class Tabs implements OnInit, TabsContext {
     selectedTab: this.selectedTab(),
     defaultSelectedTab: this.defaultSelectedTab(),
     selectedIndex: this.selectedIndex(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   private readonly root = viewChild<ElementRef<HTMLElement>>('root');

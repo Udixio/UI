@@ -159,7 +159,8 @@ export class ProgressIndicator {
   readonly value = input<number>(0);
   readonly transitionDuration = input<number>(1000);
   readonly minHeight = input<number>();
-  readonly className = input<
+  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  readonly classes = input<
     string | ClassNameComponent<ProgressIndicatorInterface>
   >();
   /** Accessible-name override; this component does not infer one. */
@@ -223,7 +224,7 @@ export class ProgressIndicator {
   );
 
   protected readonly styles = createStyle(progressIndicatorStyle, () => ({
-    className: this.className(),
+    className: this.classes(),
     variant: this.variant(),
     value: this.value(),
     transitionDuration: this.transitionDuration(),

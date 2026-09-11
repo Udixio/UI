@@ -94,7 +94,8 @@ export class Carousel implements OnInit {
   readonly defaultIndex = input(0);
   /** Accessible name for the carousel region. */
   readonly accessibleLabel = input<string>();
-  readonly className = input<string | ClassNameComponent<CarouselInterface>>();
+  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  readonly classes = input<string | ClassNameComponent<CarouselInterface>>();
 
   /** Emits an accepted centered-index transition. */
   readonly indexChange = output<number>();
@@ -144,7 +145,7 @@ export class Carousel implements OnInit {
     onIndexChange: () => undefined,
     onMetricsChange: () => undefined,
     selectedIndex: this.selectedIndex(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   protected readonly scrollStyles = createStyle(customScrollStyle, () => ({

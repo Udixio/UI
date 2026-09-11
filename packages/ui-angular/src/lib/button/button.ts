@@ -60,7 +60,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
   template: `
     <ng-template #content>
       @if (resolvedIconPosition() === 'start' && icon(); as leadingIcon) {
-        <udx-icon [icon]="leadingIcon" [className]="styles()['icon']" />
+        <udx-icon [icon]="leadingIcon" [classes]="styles()['icon']" />
       }
       @if (loading()) {
         <span
@@ -74,7 +74,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         <ng-content>{{ label() }}</ng-content>
       </span>
       @if (resolvedIconPosition() === 'end' && icon(); as trailingIcon) {
-        <udx-icon [icon]="trailingIcon" [className]="styles()['icon']" />
+        <udx-icon [icon]="trailingIcon" [classes]="styles()['icon']" />
       }
     </ng-template>
 
@@ -98,7 +98,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
       >
         <span [class]="styles()['touchTarget']"></span>
         <udx-state-layer
-          [className]="styles()['stateLayer']"
+          [classes]="styles()['stateLayer']"
           [colorName]="resolvedStateColor()"
           [shapeTransition]="shapeTransition()"
           stateClassName="state-ripple-group-[button]"
@@ -121,7 +121,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
       >
         <span [class]="styles()['touchTarget']"></span>
         <udx-state-layer
-          [className]="styles()['stateLayer']"
+          [classes]="styles()['stateLayer']"
           [colorName]="resolvedStateColor()"
           [shapeTransition]="shapeTransition()"
           stateClassName="state-ripple-group-[button]"
@@ -155,7 +155,7 @@ export class Button implements OnInit {
   readonly label = input<string>('');
 
   /** Classes or state-aware element classes applied through the shared style contract. */
-  readonly className = input<string | ClassNameComponent<ButtonInterface>>();
+  readonly classes = input<string | ClassNameComponent<ButtonInterface>>();
 
   readonly stateColor = input<ButtonProps['stateColor']>();
 
@@ -291,7 +291,7 @@ export class Button implements OnInit {
     defaultPressed: this.defaultPressed(),
     label: this.label(),
     isPressed: this.isToggleButton() && this.isPressed(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   ngOnInit(): void {

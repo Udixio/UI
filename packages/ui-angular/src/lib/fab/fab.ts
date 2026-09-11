@@ -54,11 +54,11 @@ import { Tooltip } from '../tooltip/tooltip';
     <ng-template #content>
       <span [class]="styles()['touchTarget']"></span>
       <udx-state-layer
-        [className]="styles()['stateLayer']"
+        [classes]="styles()['stateLayer']"
         [colorName]="stateColor()"
         stateClassName="state-ripple-group-[fab]"
       />
-      <udx-icon [icon]="icon()" [className]="styles()['icon']" />
+      <udx-icon [icon]="icon()" [classes]="styles()['icon']" />
       <span
         #labelEl
         [class]="styles()['label']"
@@ -128,7 +128,7 @@ export class Fab {
   readonly tooltip = input<FabProps['tooltip']>();
   readonly disabled = input(false, { transform: booleanAttribute });
   /** Classes or state-aware element classes applied through the shared style contract. */
-  readonly className = input<string | ClassNameComponent<FabInterface>>();
+  readonly classes = input<string | ClassNameComponent<FabInterface>>();
   /** Navigation destination; switches the inner element to a native link. */
   readonly href = input<string>();
   /** Native link browsing-context target. */
@@ -238,7 +238,7 @@ export class Fab {
     tooltip: this.tooltip(),
     extended: this.extended(),
     disabled: this.disabled(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   protected readonly stateColor = () =>

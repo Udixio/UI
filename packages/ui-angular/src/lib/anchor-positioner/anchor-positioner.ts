@@ -41,7 +41,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
-    <div #floating [class]="className()" style="z-index: 50">
+    <div #floating [class]="classes()" style="z-index: 50">
       <ng-content />
     </div>
   `,
@@ -51,7 +51,7 @@ export class AnchorPositioner implements OnDestroy {
   readonly anchor = input.required<ElementRef<HTMLElement> | HTMLElement>();
   readonly position = input<AnchorPosition>('bottom');
   /** Class applied to the floating (portaled) wrapper element. */
-  readonly className = input<string>();
+  readonly classes = input<string>();
 
   private readonly document = inject(DOCUMENT);
   private readonly renderer = inject(Renderer2);

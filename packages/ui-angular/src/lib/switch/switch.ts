@@ -69,13 +69,13 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         [style.translate.px]="handleOffset()"
       >
         <udx-state-layer
-          [className]="styles()['stateLayer']"
+          [classes]="styles()['stateLayer']"
           [colorName]="isChecked() ? 'primary' : 'on-surface'"
           stateClassName="state-ripple-group-[switch]"
         />
         <div [class]="styles()['handle']">
           @if (resolvedIcon()) {
-            <udx-icon [icon]="resolvedIcon()!" [className]="styles()['icon']" />
+            <udx-icon [icon]="resolvedIcon()!" [classes]="styles()['icon']" />
           }
         </div>
       </div>
@@ -98,7 +98,8 @@ export class Switch implements OnInit {
   readonly ariaLabelledBy = input<string | undefined>(undefined, {
     alias: 'aria-labelledby',
   });
-  readonly className = input<string | ClassNameComponent<SwitchInterface>>();
+  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  readonly classes = input<string | ClassNameComponent<SwitchInterface>>();
 
   /** Emits an accepted checked-state request and supports `[(checked)]`. */
   readonly checkedChange = output<boolean>();
@@ -125,7 +126,7 @@ export class Switch implements OnInit {
     inactiveIcon: this.inactiveIcon(),
     disabled: this.disabled(),
     isChecked: this.isChecked(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   private readonly handleContainer =

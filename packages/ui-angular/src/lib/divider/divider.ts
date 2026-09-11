@@ -40,7 +40,7 @@ export class Divider {
   readonly orientation = input<DividerProps['orientation']>('horizontal');
 
   /** Classes or state-aware element classes applied through the shared style contract. */
-  readonly className = input<string | ClassNameComponent<DividerInterface>>();
+  readonly classes = input<string | ClassNameComponent<DividerInterface>>();
 
   protected readonly ariaOrientation = computed(() =>
     this.orientation() === 'vertical' ? 'vertical' : null,
@@ -48,6 +48,6 @@ export class Divider {
 
   protected readonly styles = createStyle(dividerStyle, () => ({
     orientation: this.orientation(),
-    className: this.className(),
+    className: this.classes(),
   }));
 }

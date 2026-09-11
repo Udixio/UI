@@ -81,14 +81,14 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
     <ng-template #content>
       <span [class]="styles()['container']" [style.transition]="containerTransition()">
         <udx-state-layer
-          [className]="styles()['stateLayer']"
+          [classes]="styles()['stateLayer']"
           [colorName]="isSelected() ? 'on-secondary-container' : 'on-surface'"
           stateClassName="state-ripple-group-[navigation-rail-item]"
         />
         @if (icon()) {
           <udx-icon
             [icon]="(isSelected() ? iconSelected() : icon())!"
-            [className]="styles()['icon']"
+            [classes]="styles()['icon']"
           />
         }
         <span
@@ -120,7 +120,8 @@ export class NavigationRailItem {
   readonly selected = input(false, { transform: booleanAttribute });
   /** Navigation destination; switches the inner element to a native link. */
   readonly href = input<string>();
-  readonly className = input<
+  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  readonly classes = input<
     string | ClassNameComponent<NavigationRailItemInterface>
   >();
 
@@ -166,7 +167,7 @@ export class NavigationRailItem {
     isExtended: this.context?.isExtended(),
     extendedOnly: this.context?.hasPrecedingSection(this),
     isSelected: this.isSelected(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   /** @internal Read by the parent rail to order this item relative to sections. */

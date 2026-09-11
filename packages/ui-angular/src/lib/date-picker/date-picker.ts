@@ -83,14 +83,14 @@ function extractAnchorDate(
           size="small"
           (click)="toggleViewMode()"
           aria-live="polite"
-          [className]="headerButtonClassName()"
+          [classes]="headerButtonClassName()"
         >
           <span class="mr-2">{{
             viewMode() === 'day' ? monthLabel() : viewDate().getFullYear()
           }}</span>
           <udx-icon
             [icon]="chevronDownIcon"
-            [className]="
+            [classes]="
               'w-3 h-3 transition-transform duration-200' +
               (viewMode() === 'year' ? ' rotate-180' : '')
             "
@@ -129,7 +129,7 @@ function extractAnchorDate(
               [edgeAligned]="false"
               (click)="handleYearSelect(year)"
               [attr.data-selected]="year === viewDate().getFullYear()"
-              [className]="yearButtonClassName(year)"
+              [classes]="yearButtonClassName(year)"
               [label]="year.toString()"
             />
           }
@@ -186,7 +186,7 @@ function extractAnchorDate(
                       >
                         <span [class]="dayStyles['touchTarget']"></span>
                         <udx-state-layer
-                          [className]="dayStyles['stateLayer']"
+                          [classes]="dayStyles['stateLayer']"
                           [colorName]="
                             dayStateColor(selection.isSelected, isTodayDay)
                           "
@@ -216,7 +216,8 @@ export class DatePicker implements OnInit {
   readonly shouldDisableDate = input<(date: Date) => boolean>();
   readonly locale = input('default');
   readonly weekStartDay = input<0 | 1 | 2 | 3 | 4 | 5 | 6>(0);
-  readonly className = input<string | ClassNameComponent<DatePickerInterface>>();
+  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  readonly classes = input<string | ClassNameComponent<DatePickerInterface>>();
 
   /** Emits an accepted selection request and supports `[(value)]`. */
   readonly valueChange = output<DatePickerValue>();
@@ -269,7 +270,7 @@ export class DatePicker implements OnInit {
     locale: this.locale(),
     weekStartDay: this.weekStartDay(),
     hasSelected: this.hasSelected(),
-    className: this.className(),
+    className: this.classes(),
     // `DatePickerProps` is a mode-discriminated union (see date-picker.ts's
     // TSDoc) so consumers can't mix `mode`/`value` shapes; the shared
     // style-hook signature wants one flat `props & states` bag, so the merged
@@ -518,6 +519,7 @@ export class DatePicker implements OnInit {
       loading: false,
       shape: 'rounded',
       shapeFeedback: 'none',
+      stateColor: undefined,
       transition: undefined,
       toggleable: false,
       pressed: undefined,

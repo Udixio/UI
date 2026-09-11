@@ -90,7 +90,7 @@ describe('Card (Angular, consuming @udixio/core)', () => {
   it('exposes the resolved state to a className function', () => {
     fixture.componentRef.setInput('interactive', true);
     fixture.componentRef.setInput(
-      'className',
+      'classes',
       ({ interactive }: { interactive?: boolean }) => ({
         card: interactive ? 'custom-actionable' : 'custom-static',
       }),

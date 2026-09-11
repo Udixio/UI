@@ -58,9 +58,9 @@
         "limitations": "- Unlike React, scroll position and focus inside an inactive panel are\n  preserved (its component instance stays alive, only hidden) -- do not\n  rely on either behavior for cross-framework parity."
       },
       "inputs": {
-        "className": {
-          "name": "className",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
+        "classes": {
+          "name": "classes",
+          "description": "Classes, or state-aware element classes, applied through the shared style contract.",
           "required": false,
           "type": {
             "name": "string | ClassNameComponent<TabPanelInterface>"

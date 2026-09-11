@@ -69,8 +69,8 @@
             "value": "'bottom'"
           }
         },
-        "className": {
-          "name": "className",
+        "classes": {
+          "name": "classes",
           "description": "Class applied to the floating (portaled) wrapper element.",
           "required": false,
           "type": {

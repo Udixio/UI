@@ -117,7 +117,8 @@ export class Slider implements OnInit {
   readonly max = input(100);
   readonly marks = input<SliderMark[]>();
   readonly valueFormatter = input<(value: number) => string | number>();
-  readonly className = input<string | ClassNameComponent<SliderInterface>>();
+  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  readonly classes = input<string | ClassNameComponent<SliderInterface>>();
   /** Accessible-name override when no visible label is available. */
   readonly ariaLabel = input<string | undefined>(undefined, {
     alias: 'aria-label',
@@ -208,7 +209,7 @@ export class Slider implements OnInit {
     valueFormatter: this.valueFormatter(),
     onChange: () => undefined,
     isChanging: this.isChanging(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   private indicatorController?: SliderIndicatorController;

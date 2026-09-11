@@ -75,7 +75,7 @@ describe('ProgressIndicator (Angular)', () => {
     fixture.componentRef.setInput('variant', 'linear-determinate');
     fixture.componentRef.setInput('value', 40);
     fixture.componentRef.setInput('transitionDuration', 500);
-    fixture.componentRef.setInput('className', className);
+    fixture.componentRef.setInput('classes', className);
     fixture.detectChanges();
     expect(visibilityStates.at(-1)).toBe(true);
 
@@ -102,7 +102,7 @@ describe('ProgressIndicator (Angular)', () => {
     fixture.componentRef.setInput('variant', 'linear-determinate');
     fixture.componentRef.setInput('value', 40);
     fixture.componentRef.setInput('transitionDuration', 500);
-    fixture.componentRef.setInput('className', className);
+    fixture.componentRef.setInput('classes', className);
     fixture.detectChanges();
 
     jest.advanceTimersByTime(500);
@@ -123,7 +123,7 @@ describe('ProgressIndicator (Angular)', () => {
     fixture.componentRef.setInput('variant', 'linear-determinate');
     fixture.componentRef.setInput('value', 40);
     fixture.componentRef.setInput('minHeight', 4);
-    fixture.componentRef.setInput('className', className);
+    fixture.componentRef.setInput('classes', className);
     fixture.detectChanges();
 
     expect(states.at(-1)).toEqual(

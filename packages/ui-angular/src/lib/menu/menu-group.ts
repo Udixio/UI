@@ -45,7 +45,8 @@ import { MENU_CONTEXT } from './menu-context';
 export class MenuGroup {
   readonly variant = input<MenuGroupProps['variant']>();
   readonly label = input<string>();
-  readonly className = input<string | ClassNameComponent<MenuGroupInterface>>();
+  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  readonly classes = input<string | ClassNameComponent<MenuGroupInterface>>();
 
   private static nextId = 0;
   protected readonly labelId = `menu-group-${MenuGroup.nextId++}`;
@@ -56,6 +57,6 @@ export class MenuGroup {
   protected readonly styles = createStyle(menuGroupStyle, () => ({
     variant: this.resolvedVariant(),
     label: this.label(),
-    className: this.className(),
+    className: this.classes(),
   }));
 }

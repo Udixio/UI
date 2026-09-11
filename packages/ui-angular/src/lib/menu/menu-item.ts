@@ -75,7 +75,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
     <ng-template #content>
       @if (!disabled()) {
         <udx-state-layer
-          [className]="styles()['stateLayer']"
+          [classes]="styles()['stateLayer']"
           [colorName]="stateColor()"
           stateClassName="state-ripple-group-[menu-item]"
         />
@@ -130,7 +130,8 @@ export class MenuItem implements OnInit {
   readonly defaultSelected = input(false, { transform: booleanAttribute });
   /** Optional navigation target; disabled links omit the native href. */
   readonly href = input<string>();
-  readonly className = input<string | ClassNameComponent<MenuItemInterface>>();
+  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  readonly classes = input<string | ClassNameComponent<MenuItemInterface>>();
 
   /** Emits each accepted selected-state request and supports `[(selected)]`. */
   readonly selectedChange = output<boolean>();
@@ -187,7 +188,7 @@ export class MenuItem implements OnInit {
     onSelectedChange: undefined,
     isSelected: this.isSelected(),
     purpose: this.purpose(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   ngOnInit(): void {

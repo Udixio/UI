@@ -82,7 +82,7 @@ import { createStyle } from '../utils/create-style';
     <ng-template #content>
       @if (interactive() && !disabled() && !isEditing()) {
         <udx-state-layer
-          [className]="styles()['stateLayer']"
+          [classes]="styles()['stateLayer']"
           [colorName]="stateColor()"
           [transitionDuration]="transitionDuration()"
           stateClassName="state-ripple-group-[chip]"
@@ -91,7 +91,7 @@ import { createStyle } from '../utils/create-style';
       @if (resolvedIcon()) {
         <udx-icon
           [icon]="resolvedIcon()!"
-          [className]="styles()['leadingIcon']"
+          [classes]="styles()['leadingIcon']"
         />
       }
       <span
@@ -110,7 +110,7 @@ import { createStyle } from '../utils/create-style';
           (mousedown)="$event.preventDefault(); $event.stopPropagation()"
           (click)="requestRemoval($event)"
         >
-          <udx-icon [icon]="removeIcon" className="size-full" />
+          <udx-icon [icon]="removeIcon" classes="size-full" />
         </span>
       }
     </ng-template>
@@ -132,7 +132,8 @@ export class Chip implements OnInit {
   readonly draggable = input(false, { transform: booleanAttribute });
   readonly editable = input(false, { transform: booleanAttribute });
   readonly editing = input<boolean | undefined>(undefined);
-  readonly className = input<string | ClassNameComponent<ChipInterface>>();
+  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  readonly classes = input<string | ClassNameComponent<ChipInterface>>();
   readonly transition = input<ChipProps['transition']>();
 
   /** Defaults to 0.3s, matching the React adapter. */
@@ -215,7 +216,7 @@ export class Chip implements OnInit {
     isDragging: this.isDragging(),
     isEditing: this.isEditing(),
     trailingIcon: this.removable() && !this.isEditing(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   ngOnInit(): void {

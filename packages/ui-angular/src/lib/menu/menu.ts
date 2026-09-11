@@ -50,7 +50,8 @@ export class Menu {
   readonly purpose = input<MenuProps['purpose']>('actions');
   readonly accessibleLabel = input<string>();
   readonly initialFocus = input<MenuProps['initialFocus']>('none');
-  readonly className = input<string | ClassNameComponent<MenuInterface>>();
+  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  readonly classes = input<string | ClassNameComponent<MenuInterface>>();
 
   private readonly root = viewChild<ElementRef<HTMLElement>>('root');
   private readonly groups = contentChildren(MenuGroup, {
@@ -63,7 +64,7 @@ export class Menu {
     accessibleLabel: this.accessibleLabel(),
     initialFocus: this.initialFocus(),
     hasGroups: this.hasGroups(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   constructor() {

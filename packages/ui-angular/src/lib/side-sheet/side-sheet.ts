@@ -105,7 +105,7 @@ let nextSideSheetId = 0;
               size="small"
               [label]="closeLabel()"
               [icon]="closeIcon()"
-              [className]="styles()['closeButton']"
+              [classes]="styles()['closeButton']"
               (click)="close()"
             />
           </div>
@@ -134,7 +134,7 @@ export class SideSheet implements OnInit, OnDestroy {
     transform: optionalBooleanAttribute,
   });
   /** Classes or state-aware element classes applied through the shared style contract. */
-  readonly className =
+  readonly classes =
     input<string | ClassNameComponent<SideSheetInterface>>();
   /** Portal target for `variant="modal"`. Defaults to `document.body`. */
   readonly container = input<Element | null | undefined>(undefined);
@@ -172,7 +172,7 @@ export class SideSheet implements OnInit, OnDestroy {
     divider: this.divider(),
     transition: this.transition(),
     isOpen: this.isOpen(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   protected readonly titleId = `side-sheet-title-${nextSideSheetId++}`;

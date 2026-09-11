@@ -427,7 +427,7 @@ describe('Button (Angular, consuming @udixio/core)', () => {
     fixture.componentRef.setInput('toggleable', true);
     fixture.componentRef.setInput('defaultPressed', true);
     fixture.componentRef.setInput(
-      'className',
+      'classes',
       (state: { variant?: string; isPressed?: boolean }) => ({
         button: `v-${state.variant} p-${state.isPressed}`,
       }),

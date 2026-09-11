@@ -53,7 +53,7 @@ describe('Divider (Angular, consuming @udixio/core)', () => {
   it('exposes the resolved state to a className function', () => {
     fixture.componentRef.setInput('orientation', 'vertical');
     fixture.componentRef.setInput(
-      'className',
+      'classes',
       ({ orientation }: { orientation?: string }) => ({
         divider:
           orientation === 'vertical' ? 'custom-vertical' : 'custom-horizontal',

@@ -57,7 +57,8 @@ export class Chips {
   readonly items = input.required<readonly ChipItem[]>();
   readonly scrollable = input(true, { transform: booleanAttribute });
   readonly draggable = input(false, { transform: booleanAttribute });
-  readonly className = input<string | ClassNameComponent<ChipsInterface>>();
+  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  readonly classes = input<string | ClassNameComponent<ChipsInterface>>();
 
   /** Notifies list changes caused by selection, editing, or removal. */
   readonly itemsChange = output<ChipItem[]>();
@@ -69,7 +70,7 @@ export class Chips {
     onItemsChange: () => undefined,
     scrollable: this.scrollable(),
     draggable: this.draggable(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   protected replaceSelection(index: number, selected: boolean): void {

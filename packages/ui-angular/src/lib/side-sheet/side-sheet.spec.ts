@@ -104,7 +104,7 @@ describe('SideSheet (Angular, consuming @udixio/core)', () => {
 
   it('exposes the resolved open state to a state-aware className function', () => {
     fixture.componentRef.setInput(
-      'className',
+      'classes',
       (state: { isOpen: boolean }) => ({
         sideSheet: state.isOpen ? 'is-open' : 'is-closed',
       }),

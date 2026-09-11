@@ -129,8 +129,8 @@
             "value": "false"
           }
         },
-        "className": {
-          "name": "className",
+        "classes": {
+          "name": "classes",
           "description": "Classes applied to the display-contents root.",
           "required": false,
           "type": {

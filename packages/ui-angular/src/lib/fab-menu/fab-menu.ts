@@ -103,7 +103,7 @@ export interface FabMenuActionSelectEvent {
           [size]="isOpen() ? 'small' : size()"
           [extended]="extended() && !isOpen()"
           [disabled]="disabled() || !hasAccessibleLabel()"
-          [className]="styles()['fab']"
+          [classes]="styles()['fab']"
           [aria-expanded]="isOpen()"
           [aria-controls]="panelId()"
           (click)="toggle()"
@@ -128,7 +128,7 @@ export interface FabMenuActionSelectEvent {
               [disabled]="disabled() || !!action.disabled"
               variant="filled"
               shape="rounded"
-              [className]="actionClassName"
+              [classes]="actionClassName"
               [stateColor]="actionStateColor()"
               (click)="selectAction(action, index)"
             />
@@ -154,7 +154,7 @@ export class FabMenu implements OnInit {
   });
   readonly defaultOpen = input(false, { transform: booleanAttribute });
   /** Classes or state-aware element classes applied through the shared style contract. */
-  readonly className = input<string | ClassNameComponent<FabMenuInterface>>();
+  readonly classes = input<string | ClassNameComponent<FabMenuInterface>>();
 
   /** Emits an accepted open-state request and supports `[(open)]`. */
   readonly openChange = output<boolean>();
@@ -216,7 +216,7 @@ export class FabMenu implements OnInit {
     open: this.open(),
     defaultOpen: this.defaultOpen(),
     isOpen: this.isOpen(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   private static nextId = 0;

@@ -51,7 +51,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
   template: `
     <div [class]="styles()['checkbox']">
       <udx-state-layer
-        [className]="styles()['stateLayer']"
+        [classes]="styles()['stateLayer']"
         [colorName]="stateColor()"
         stateClassName="state-ripple-group-[checkbox]"
       />
@@ -78,7 +78,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         <udx-icon
           aria-hidden="true"
           [icon]="indeterminate() ? minusIcon : checkIcon"
-          [className]="styles()['icon']"
+          [classes]="styles()['icon']"
         />
       }
     </div>
@@ -105,7 +105,8 @@ export class Checkbox implements OnInit {
   readonly ariaDescribedBy = input<string | undefined>(undefined, {
     alias: 'aria-describedby',
   });
-  readonly className = input<string | ClassNameComponent<CheckboxInterface>>();
+  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  readonly classes = input<string | ClassNameComponent<CheckboxInterface>>();
 
   readonly checkedChange = output<boolean>();
 
@@ -141,7 +142,7 @@ export class Checkbox implements OnInit {
     required: this.required(),
     isChecked: this.isChecked(),
     isFocused: this.isFocused(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   ngOnInit(): void {

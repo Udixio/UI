@@ -80,7 +80,7 @@ const DEFAULT_MENU: { closed: NavigationRailMenuState; opened: NavigationRailMen
         <udx-icon-button
           [label]="isExtended() ? menu().opened.label : menu().closed.label"
           [icon]="isExtended() ? menu().opened.icon : menu().closed.icon"
-          [className]="styles()['menuIcon']"
+          [classes]="styles()['menuIcon']"
           (click)="toggleExtended()"
         />
         <div class="mx-5 [&_.fab]:!shadow-none">
@@ -115,7 +115,8 @@ export class NavigationRail implements OnInit, NavigationRailContext {
   readonly selectedItem = input<number | null>();
   /** Initial selected index when uncontrolled. */
   readonly defaultSelectedItem = input<number | null>(null);
-  readonly className = input<
+  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  readonly classes = input<
     string | ClassNameComponent<NavigationRailInterface>
   >();
 
@@ -157,7 +158,7 @@ export class NavigationRail implements OnInit, NavigationRailContext {
     onExtendedChange: undefined,
     isExtended: this.isExtended(),
     selectedIndex: this.selectedIndex(),
-    className: this.className(),
+    className: this.classes(),
   }));
 
   private lastEmittedIndex: number | null = null;

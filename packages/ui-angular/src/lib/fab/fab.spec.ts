@@ -131,7 +131,7 @@ describe('Fab (Angular, consuming @udixio/core)', () => {
     fixture.componentRef.setInput('type', 'submit');
     fixture.componentRef.setInput('tabIndex', 2);
     fixture.componentRef.setInput('title', 'Create item');
-    fixture.componentRef.setInput('className', 'consumer-class');
+    fixture.componentRef.setInput('classes', 'consumer-class');
     fixture.detectChanges();
     const button: HTMLButtonElement =
       fixture.nativeElement.querySelector('button');
