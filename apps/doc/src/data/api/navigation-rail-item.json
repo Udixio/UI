@@ -9,7 +9,7 @@
       "tags": {
         "status": "beta",
         "parent": "NavigationRail",
-        "devx": "- Selection is index-based and provided by the parent rail.\n- `extendedOnly` hides items when the rail is collapsed.\n- The label reveal (width/height + opacity, on `extended` changes) is\n  driven by a shared `@udixio/core/dom` Motion controller, the same one\n  the Angular adapter uses.",
+        "devx": "- Selection is index-based and provided by the parent rail.\n- `extendedOnly` hides items when the rail is collapsed.\n- `badge` puts a `Badge` on the icon, the way Material shows notifications\n  on a destination; pass `undefined` once the destination is selected if\n  the notification is meant to clear.\n- The label reveal (width/height + opacity, on `extended` changes) is\n  driven by a shared `@udixio/core/dom` Motion controller, the same one\n  the Angular adapter uses.",
         "a11y": "- Exposes `aria-current=\"page\"` when selected, since the rail is a\n  navigation landmark rather than a tabbed panel switcher.",
         "limitations": "- No arrow-key navigation between items; relies on the native sequential\n  tab order (a roving tabindex is only required for `tablist`/`listbox`\n  widgets, which this is not)."
       },
@@ -21,6 +21,15 @@
           "required": false,
           "type": {
             "name": "string | ClassNameComponent<NavigationRailItemInterface>"
+          },
+          "defaultValue": null
+        },
+        "badge": {
+          "name": "badge",
+          "description": "A badge on the icon, the way Material 3 shows notifications on a\ndestination: `{}` is the small dot, `{ label: 3 }` the count. Material\nrecommends removing it once the destination has been viewed, which is\nthe caller's call -- pass `undefined` when the item is selected.",
+          "required": false,
+          "type": {
+            "name": "BadgeProps"
           },
           "defaultValue": null
         },
@@ -90,7 +99,7 @@
       "tags": {
         "status": "beta",
         "parent": "NavigationRail",
-        "devx": "- Selection is index-based and resolved from the parent rail; standalone\n  usage falls back to `selected`.\n- An item placed after a `udx-navigation-rail-section` only renders while\n  the rail is extended.\n- The label reveal (width/height + opacity, on `extended` changes) is\n  driven by a shared `@udixio/core/dom` Motion controller, the same one\n  the React adapter uses.",
+        "devx": "- Selection is index-based and resolved from the parent rail; standalone\n  usage falls back to `selected`.\n- An item placed after a `udx-navigation-rail-section` only renders while\n  the rail is extended.\n- `badge` puts a `[udxBadge]` on the icon, the way Material shows\n  notifications on a destination; leave it unset once the destination is\n  selected if the notification is meant to clear.\n- The label reveal (width/height + opacity, on `extended` changes) is\n  driven by a shared `@udixio/core/dom` Motion controller, the same one\n  the React adapter uses.",
         "a11y": "- Exposes `aria-current=\"page\"` when selected, since the rail is a\n  navigation landmark rather than a tabbed panel switcher.",
         "limitations": "- No arrow-key navigation between items; relies on the native sequential\n  tab order."
       },
@@ -119,6 +128,15 @@
           "required": false,
           "type": {
             "name": "IconType"
+          },
+          "defaultValue": null
+        },
+        "badge": {
+          "name": "badge",
+          "description": "A badge on the icon: `{}` is the dot, `{ label: 3 }` the count.",
+          "required": false,
+          "type": {
+            "name": "BadgeProps"
           },
           "defaultValue": null
         },

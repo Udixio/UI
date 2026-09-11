@@ -4,21 +4,23 @@
 import Code from '@/components/Code.astro';
 import { BadgeBasicReact } from '@/examples/react/badge-basic.tsx';
 import { BadgeBasicAngular } from '@/examples/angular/badge-basic.ts';
+import { BadgeIconReact } from '@/examples/react/badge-icon.tsx';
+import { BadgeIconAngular } from '@/examples/angular/badge-icon.ts';
 import badgeBasicReactSource from '@/examples/react/badge-basic.tsx?raw';
 import badgeBasicAngularSource from '@/examples/angular/badge-basic.ts?raw';
+import badgeIconReactSource from '@/examples/react/badge-icon.tsx?raw';
+import badgeIconAngularSource from '@/examples/angular/badge-icon.ts?raw';
 
 ## Usage
 
-Badge marks the item it wraps with a notification, a count, or a short status.
-It provides its own positioned container, so the icon or control inside needs
-no positioning of its own.
+Badges show notifications, counts, or status information on navigation items
+and icons. Material 3 places them on the destinations of a navigation rail or
+bar, and that is where `NavigationRailItem` puts one: its `badge` input takes
+the badge's own contract -- `{}` for the dot, `{ label: 3 }` for a count.
 
-Material 3 describes two variants, and what separates them is only whether the
-badge carries text, so the variant follows from the content rather than from a
-prop: with no `label` the badge is the small dot that signals an unread
-notification, and any label makes it the large pill that carries a count. A
-small badge showing a count is not a state the design has, so it is not a state
-the API can express.
+Material recommends clearing a badge once its destination has been viewed.
+That is the caller's decision, so there is no prop for it: the example drops
+the badge when its item is selected.
 
 <Code
   codes={{
@@ -28,6 +30,38 @@ the API can express.
 >
   <BadgeBasicReact slot="react" client:load />
   <BadgeBasicAngular slot="angular" client:load />
+</Code>
+
+Material 3 describes two variants, and what separates them is only whether the
+badge carries text, so the variant follows from the content rather than from a
+prop: with no `label` the badge is the small dot that signals an unread
+notification, and any label makes it the large pill that carries a count. A
+small badge showing a count is not a state the design has, so it is not a state
+the API can express.
+
+## On an icon
+
+Outside a rail, the badge marks an icon directly. The two frameworks deliver
+it in the shape each one is built for:
+
+- **React** exports a `Badge` **component** that wraps the icon and provides
+  the positioned container itself.
+- **Angular** exports a `Badge` **directive**, `[udxBadge]`, that you put on
+  the icon. It places the badge inside the element it sits on and makes that
+  element the containing block, so nothing is wrapped. Its inputs are prefixed
+  `udxBadge*` because the host element is not the directive's own.
+
+The contract, the measurements, the DOM the badge renders and the
+accessibility are identical; only the way you reach them differs.
+
+<Code
+  codes={{
+    react: badgeIconReactSource,
+    angular: badgeIconAngularSource,
+  }}
+>
+  <BadgeIconReact slot="react" client:load />
+  <BadgeIconAngular slot="angular" client:load />
 </Code>
 
 ## Counts
@@ -49,15 +83,21 @@ unread" into the dot that means "something unread".
 
 ## Placement
 
-The badge anchors inside the bounding box of what it wraps, at the upper
+The badge anchors inside the bounding box of what it marks, at the upper
 trailing corner, using the distances Material specifies: 6×6dp for the small
 dot, 14×12dp for the large pill. The leading edge is what is pinned, so a
 widening count grows outward without the badge moving.
 
-Wrap the icon, not a control around it. Material anchors badges inside the icon
+Mark the icon, not a control around it. Material anchors badges inside the icon
 bounding box, and a control with a large touch target -- an icon button carries
 56dp around a 24dp icon -- anchors the badge to that target instead, pushing it
 away from the icon by the padding.
+
+In Angular the badge lives inside the element it marks, so that element -- or,
+for a `display: contents` host such as `udx-icon`, the first box inside it --
+must accept children; an `<img>` or an `<input>` cannot carry one. The element
+is made `position: relative` only if it was static, and only that is undone
+when the directive goes away.
 
 Offsets are expressed with logical properties, so the badge moves to the upper
 leading corner in right-to-left languages, as the guidelines require.
@@ -80,4 +120,4 @@ digit, or an empty dot, announces noise rather than information.
 
 Hiding the badge once its destination is selected is the caller's decision --
 Material recommends it for the unread-notification case -- so there is no prop
-for it. Render the badge conditionally instead.
+for it. Render the badge conditionally instead, as the first example does.

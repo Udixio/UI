@@ -10,7 +10,7 @@
         "status": "beta",
         "category": "Communication",
         "devx": "- Wrap what the badge marks: `<Badge label={3}><Icon icon={iInbox} /></Badge>`.\n  The wrapper provides the positioned container itself, so the anchoring\n  never depends on a `relative` the caller has to remember.\n- No `label` renders the small dot Material uses for an unread notification;\n  any label renders the large pill. The variant follows from the content, so\n  a small badge carrying a count cannot be expressed.\n- `max` caps a count the way Material spells it: `label={100} max={99}`\n  renders `99+`.\n- Hiding the badge once its destination is selected is the caller's\n  decision, so there is no prop for it -- render it conditionally.",
-        "a11y": "- `description` is what a screen reader announces. Give it the meaning, not\n  the number: `3 unread messages`, not `3`.\n- Without a `description` the badge is hidden from assistive technology\n  rather than announced as a bare digit or as nothing at all.",
+        "a11y": "- `description` is what a screen reader announces. Give it the meaning, not\n  the number: `3 unread messages`, not `3`. It is rendered as visually\n  hidden text inside a live region, so a changing count announces the whole\n  sentence rather than the bare digit, and the visible number is hidden from\n  assistive technology so it is not read twice.\n- Without a `description` the badge is hidden from assistive technology\n  rather than announced as a bare digit or as nothing at all.",
         "limitations": "- Material limits badge content to four characters including the `+`.\n  Nothing truncates: silently dropping a caller's text would hide data, and\n  `max` is the tool for the count case.\n- The badge is positioned against its own wrapper, so it marks whatever it\n  wraps rather than an arbitrary element elsewhere on the page. Material\n  anchors badges inside the *icon* bounding box, so wrap the icon: wrapping a\n  control with a large touch target anchors to that target instead, pushing\n  the badge away from the icon by the padding around it."
       },
       "methods": [],
@@ -64,13 +64,13 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/badge/badge.ts",
-      "selector": "udx-badge",
+      "selector": "[udxBadge]",
       "tags": {
         "status": "beta",
         "category": "Communication",
-        "devx": "- Wrap what the badge marks: `<udx-badge [label]=\"3\"><udx-icon … /></udx-badge>`.\n  The wrapper provides the positioned container itself, so the anchoring\n  never depends on a `relative` the caller has to remember.\n- No `label` renders the small dot Material uses for an unread notification;\n  any label renders the large pill. The variant follows from the content, so\n  a small badge carrying a count cannot be expressed.\n- `max` caps a count the way Material spells it: `[label]=\"100\" [max]=\"99\"`\n  renders `99+`.\n- Hiding the badge once its destination is selected is the caller's\n  decision, so there is no input for it -- render it with `@if`.",
-        "a11y": "- `description` is what a screen reader announces. Give it the meaning, not\n  the number: `3 unread messages`, not `3`.\n- Without a `description` the badge is hidden from assistive technology\n  rather than announced as a bare digit or as nothing at all.",
-        "limitations": "- Material limits badge content to four characters including the `+`.\n  Nothing truncates: silently dropping a caller's text would hide data, and\n  `max` is the tool for the count case.\n- The badge is positioned against its own wrapper, so it marks whatever it\n  wraps rather than an arbitrary element elsewhere on the page. Material\n  anchors badges inside the *icon* bounding box, so wrap the icon: wrapping a\n  control with a large touch target anchors to that target instead, pushing\n  the badge away from the icon by the padding around it."
+        "devx": "- Put it on what the badge marks: `<udx-icon [icon]=\"iInbox\" udxBadge=\"3\" />`.\n  The directive places the badge inside the element it sits on and makes\n  that element the containing block, so nothing has to be wrapped and no\n  `relative` has to be remembered. Inputs are prefixed `udxBadge*` because\n  the host element is not the directive's own.\n- The bare attribute renders the small dot Material uses for an unread\n  notification; any label renders the large pill. The variant follows from\n  the content, so a small badge carrying a count cannot be expressed.\n- `udxBadgeMax` caps a count the way Material spells it:\n  `udxBadge=\"100\" udxBadgeMax=\"99\"` renders `99+`.\n- Hiding the badge once its destination is selected is the caller's\n  decision, so there is no input for it -- bind the attribute with `@if`,\n  or let `udx-navigation-rail-item` do it through its `badge` input.",
+        "a11y": "- `udxBadgeDescription` is what a screen reader announces. Give it the\n  meaning, not the number: `3 unread messages`, not `3`. It is rendered as\n  visually hidden text inside a live region, so a changing count announces\n  the whole sentence rather than the bare digit, and the visible number is\n  hidden from assistive technology so it is not read twice.\n- Without a description the badge is hidden from assistive technology\n  rather than announced as a bare digit or as nothing at all.",
+        "limitations": "- Material limits badge content to four characters including the `+`.\n  Nothing truncates: silently dropping a caller's text would hide data, and\n  `udxBadgeMax` is the tool for the count case.\n- The badge lives inside the marked element, so that element -- or, for a\n  `display: contents` host such as `udx-icon`, the first box inside it --\n  must accept children. An `<img>` or an `<input>` cannot carry one.\n- Material anchors badges inside the *icon* bounding box, so mark the icon:\n  marking a control with a large touch target anchors to that target\n  instead, pushing the badge away from the icon by the padding around it.\n- The `container` element of the shared style contract is the consumer's\n  own element here, so a `container` override in `udxBadgeClass` has no\n  target; style that element directly."
       },
       "inputs": {
         "label": {
@@ -80,7 +80,8 @@
           "type": {
             "name": "string | number | undefined"
           },
-          "defaultValue": null
+          "defaultValue": null,
+          "alias": "udxBadge"
         },
         "max": {
           "name": "max",
@@ -89,7 +90,8 @@
           "type": {
             "name": "number | undefined"
           },
-          "defaultValue": null
+          "defaultValue": null,
+          "alias": "udxBadgeMax"
         },
         "description": {
           "name": "description",
@@ -98,26 +100,21 @@
           "type": {
             "name": "string | undefined"
           },
-          "defaultValue": null
+          "defaultValue": null,
+          "alias": "udxBadgeDescription"
         },
         "classes": {
           "name": "classes",
           "description": "Classes, or state-aware element classes, applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<BadgeInterface>"
+            "name": "string | ClassNameComponent<BadgeInterface> | undefined"
           },
-          "defaultValue": null
+          "defaultValue": null,
+          "alias": "udxBadgeClass"
         }
       },
-      "outputs": {},
-      "content": {
-        "default": {
-          "name": "default",
-          "selector": "*",
-          "description": "Default projected content."
-        }
-      }
+      "outputs": {}
     }
   }
 }

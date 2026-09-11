@@ -74,7 +74,7 @@ import {
  * @devx Use projected content.
  * @a11y Has native semantics.
  */
-@NgComponent({ template: \`<ng-content />\` })
+@NgComponent({ selector: 'ng-example', template: \`<ng-content />\` })
 export class Example {
   private observer?: MutationObserver;
   readonly title = ngInput.required<string>({ alias: 'heading' });
@@ -112,7 +112,9 @@ export class Example {
     },
   });
 
-  assert.equal(result.description, 'Angular example.');
+  // The description is shared and read once from core; no adapter carries one.
+  assert.equal(result.description, undefined);
+  assert.equal(result.selector, 'ng-example');
   assert.deepEqual(result.tags, {
     status: 'beta',
     devx: 'Use projected content.',

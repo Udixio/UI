@@ -1,34 +1,70 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { Badge, Icon } from '@udixio/ui-angular';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { NavigationRail, NavigationRailItem } from '@udixio/ui-angular';
+import { iHome } from '@udixio/icons-rounded-400/home';
 import { iInbox } from '@udixio/icons-rounded-400/inbox';
+import { iChat } from '@udixio/icons-rounded-400/chat';
 import { iNotifications } from '@udixio/icons-rounded-400/notifications';
 
 @Component({
   selector: 'docs-badge-basic-angular',
   standalone: true,
-  imports: [Badge, Icon],
+  imports: [NavigationRail, NavigationRailItem],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex flex-wrap items-center gap-10 p-8">
-      <udx-badge description="Unread messages">
-        <udx-icon [icon]="inbox" />
-      </udx-badge>
-
-      <udx-badge [label]="3" description="3 unread messages">
-        <udx-icon [icon]="inbox" />
-      </udx-badge>
-
-      <udx-badge
-        [label]="1000"
-        [max]="999"
-        description="999 or more notifications"
-      >
-        <udx-icon [icon]="notifications" />
-      </udx-badge>
-    </div>
+    <udx-navigation-rail
+      [classes]="'bg-surface-container-highest h-[420px]'"
+      [selectedItem]="selected()"
+      (selectedItemChange)="view($event)"
+    >
+      <udx-navigation-rail-item [icon]="home" [iconSelected]="home" label="Home" />
+      <udx-navigation-rail-item
+        [icon]="inbox"
+        [iconSelected]="inbox"
+        label="Inbox"
+        [badge]="
+          unread().inbox
+            ? { label: unread().inbox, description: unread().inbox + ' unread messages' }
+            : undefined
+        "
+      />
+      <udx-navigation-rail-item
+        [icon]="chat"
+        [iconSelected]="chat"
+        label="Chat"
+        [badge]="unread().chat ? { description: 'New activity' } : undefined"
+      />
+      <udx-navigation-rail-item
+        [icon]="notifications"
+        [iconSelected]="notifications"
+        label="Alerts"
+        [badge]="
+          unread().notifications
+            ? {
+                label: unread().notifications,
+                max: 999,
+                description: '999 or more notifications',
+              }
+            : undefined
+        "
+      />
+    </udx-navigation-rail>
   `,
 })
 export class BadgeBasicAngular {
+  protected readonly home = iHome;
   protected readonly inbox = iInbox;
+  protected readonly chat = iChat;
   protected readonly notifications = iNotifications;
+
+  protected readonly selected = signal<number | null>(0);
+  // What each destination has waiting. Material recommends clearing a badge
+  // once its destination has been viewed, so selecting an item removes it.
+  protected readonly unread = signal({ inbox: 3, chat: true, notifications: 1000 });
+
+  protected view(index: number | null): void {
+    this.selected.set(index);
+    if (index === 1) this.unread.update((u) => ({ ...u, inbox: 0 }));
+    if (index === 2) this.unread.update((u) => ({ ...u, chat: false }));
+    if (index === 3) this.unread.update((u) => ({ ...u, notifications: 0 }));
+  }
 }
