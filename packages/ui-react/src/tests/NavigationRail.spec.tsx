@@ -216,6 +216,32 @@ describe('NavigationRailItem', () => {
     );
   });
 
+  it('puts a badge on its icon, and drops it when the caller withdraws it', () => {
+    const { rerender } = render(
+      <NavigationRailItem
+        icon={iAlarm}
+        iconSelected={iAlarm}
+        label="Alarm"
+        badge={{ label: 3, description: '3 alarms' }}
+      />,
+    );
+
+    const button = screen.getByRole('button', { name: /Alarm/ });
+    const badge = screen.getByRole('status');
+    expect(button.contains(badge)).toBe(true);
+    expect(badge).toHaveTextContent('3 alarms');
+    // The badge wraps the icon itself, not the destination's touch target.
+    const icon = button.querySelector('.icon')!;
+    expect(badge.parentElement).toBe(icon.parentElement);
+
+    rerender(
+      <NavigationRailItem icon={iAlarm} iconSelected={iAlarm} label="Alarm" />,
+    );
+
+    expect(screen.queryByRole('status')).toBeNull();
+    expect(button.querySelector('.icon')).not.toBeNull();
+  });
+
   it('renders as a native link when href is provided', () => {
     render(
       <NavigationRailItem

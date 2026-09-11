@@ -22,6 +22,7 @@ import {
   type NavigationRailItemLabelController,
 } from '@udixio/core/dom';
 import { createUseStyle } from '../utils/create-use-style';
+import { Badge } from './Badge';
 import { StateLayer } from './StateLayer';
 
 /** Payload emitted when an item becomes the selected one. */
@@ -55,6 +56,9 @@ export const useNavigationRailItemStyle = createUseStyle(
  * @devx
  * - Selection is index-based and provided by the parent rail.
  * - `extendedOnly` hides items when the rail is collapsed.
+ * - `badge` puts a `Badge` on the icon, the way Material shows notifications
+ *   on a destination; pass `undefined` once the destination is selected if
+ *   the notification is meant to clear.
  * - The label reveal (width/height + opacity, on `extended` changes) is
  *   driven by a shared `@udixio/core/dom` Motion controller, the same one
  *   the Angular adapter uses.
@@ -82,6 +86,7 @@ export const NavigationRailItem = ({
   transition,
   isExtended,
   iconSelected,
+  badge,
   style,
   extendedOnly,
   children,
@@ -188,6 +193,7 @@ export const NavigationRailItem = ({
     label,
     icon,
     iconSelected,
+    badge,
     selected,
     variant,
     index,
@@ -232,12 +238,20 @@ export const NavigationRailItem = ({
           })}
           stateClassName={'state-ripple-group-[navigation-rail-item]'}
         />
-        {icon && (
-          <Icon
-            icon={isSelected ? iconSelected : icon}
-            className={styles.icon}
-          />
-        )}
+        {icon &&
+          (badge ? (
+            <Badge {...badge}>
+              <Icon
+                icon={isSelected ? iconSelected : icon}
+                className={styles.icon}
+              />
+            </Badge>
+          ) : (
+            <Icon
+              icon={isSelected ? iconSelected : icon}
+              className={styles.icon}
+            />
+          ))}
         <span
           ref={horizontalLabelRef}
           className={styles.label}

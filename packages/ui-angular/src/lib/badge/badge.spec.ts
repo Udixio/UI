@@ -9,9 +9,12 @@ expect.extend(toHaveNoViolations);
   standalone: true,
   imports: [Badge],
   template: `
-    <udx-badge [label]="label" [max]="max" [description]="description">
-      <i data-testid="icon"></i>
-    </udx-badge>
+    <i
+      data-testid="icon"
+      [udxBadge]="label"
+      [udxBadgeMax]="max"
+      [udxBadgeDescription]="description"
+    ></i>
   `,
 })
 class Harness {
@@ -20,28 +23,111 @@ class Harness {
   description: string | undefined = 'Unread';
 }
 
+@Component({
+  standalone: true,
+  imports: [Badge],
+  template: `<i data-testid="icon" udxBadge="100" udxBadgeMax="99"></i>`,
+})
+class StaticHarness {}
+
+// `udx-icon` hosts itself with `display: contents` and re-renders its own
+// content when the icon changes; this stands in for it without pulling the
+// icon pipeline into the badge's tests.
+@Component({
+  standalone: true,
+  imports: [Badge],
+  template: `
+    <fake-icon style="display: contents" [udxBadge]="3">
+      <span data-testid="box" [innerHTML]="markup"></span>
+    </fake-icon>
+  `,
+})
+class ContentsHarness {
+  markup = '<b>first</b>';
+}
+
+@Component({
+  standalone: true,
+  imports: [Badge],
+  template: `
+    @if (marked) {
+      <i data-testid="icon" udxBadge></i>
+    } @else {
+      <i data-testid="icon"></i>
+    }
+  `,
+})
+class ToggleHarness {
+  marked = true;
+}
+
 /**
  * Mirrors packages/ui-react/src/tests/Badge.spec.tsx scenario for scenario:
  * the two adapters render the same contract, so they are held to the same
- * assertions.
+ * assertions. What differs is the delivery shape -- React wraps, Angular
+ * marks in place -- so the attachment itself is covered here on its own.
  */
 describe('Badge (Angular)', () => {
+  const iconOf = (root: HTMLElement) =>
+    root.querySelector('[data-testid="icon"]') as HTMLElement;
   const badgeOf = (root: HTMLElement) =>
-    root.querySelector('udx-badge span > span') as HTMLElement;
+    root.querySelector('udx-badge-surface > span') as HTMLElement;
 
   // The badge holds two texts: the visible label, and the visually hidden
   // sentence the live region announces. Assertions must not confuse them.
   const visibleTextOf = (root: HTMLElement) =>
-    (root.querySelector('udx-badge [aria-hidden="true"]')?.textContent ?? '').trim();
+    (
+      root.querySelector('udx-badge-surface [aria-hidden="true"]')?.textContent ??
+      ''
+    ).trim();
 
-  it('wraps what it marks, so the anchor needs no positioning of its own', () => {
+  it('marks the element it sits on, which needs no positioning of its own', () => {
     const fixture = TestBed.createComponent(Harness);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('[data-testid="icon"]')).not.toBeNull();
-    expect(
-      fixture.nativeElement.querySelector('udx-badge span')!.className,
-    ).toContain('relative');
+    const icon = iconOf(fixture.nativeElement);
+    const badge = badgeOf(fixture.nativeElement);
+    expect(badge).not.toBeNull();
+    expect(icon.contains(badge)).toBe(true);
+    expect(icon.style.position).toBe('relative');
+    fixture.destroy();
+  });
+
+  it('places the badge inside the first box of a display: contents host', () => {
+    const fixture = TestBed.createComponent(ContentsHarness);
+    fixture.detectChanges();
+
+    const box = fixture.nativeElement.querySelector('[data-testid="box"]');
+    const badge = badgeOf(fixture.nativeElement);
+    expect(box.contains(badge)).toBe(true);
+    expect(box.style.position).toBe('relative');
+    expect(fixture.nativeElement.querySelector('fake-icon').style.position).toBe('');
+    fixture.destroy();
+  });
+
+  it('puts the badge back when the marked element re-renders its content', () => {
+    const fixture = TestBed.createComponent(ContentsHarness);
+    fixture.detectChanges();
+    const box = fixture.nativeElement.querySelector('[data-testid="box"]');
+
+    fixture.componentInstance.markup = '<b>second</b>';
+    fixture.detectChanges();
+
+    expect(box.textContent).toContain('second');
+    expect(box.contains(badgeOf(fixture.nativeElement))).toBe(true);
+    fixture.destroy();
+  });
+
+  it('removes the badge and its positioning when the directive goes away', () => {
+    const fixture = TestBed.createComponent(ToggleHarness);
+    fixture.detectChanges();
+    expect(badgeOf(fixture.nativeElement)).not.toBeNull();
+
+    fixture.componentInstance.marked = false;
+    fixture.detectChanges();
+
+    expect(badgeOf(fixture.nativeElement)).toBeNull();
+    expect(iconOf(fixture.nativeElement).style.position).toBe('');
     fixture.destroy();
   });
 
@@ -72,6 +158,14 @@ describe('Badge (Angular)', () => {
     const fixture = TestBed.createComponent(Harness);
     fixture.componentInstance.label = 100;
     fixture.componentInstance.max = 99;
+    fixture.detectChanges();
+
+    expect(visibleTextOf(fixture.nativeElement)).toBe('99+');
+    fixture.destroy();
+  });
+
+  it('reads a static attribute as the count it spells', () => {
+    const fixture = TestBed.createComponent(StaticHarness);
     fixture.detectChanges();
 
     expect(visibleTextOf(fixture.nativeElement)).toBe('99+');

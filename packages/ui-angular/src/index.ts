@@ -5,6 +5,7 @@
 export * from '@udixio/core';
 export * from './lib/anchor-positioner/anchor-positioner';
 export * from './lib/badge/badge';
+export * from './lib/badge/badge-surface';
 export * from './lib/button/button';
 export * from './lib/card/card';
 export * from './lib/carousel/carousel';

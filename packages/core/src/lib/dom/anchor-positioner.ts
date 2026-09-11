@@ -31,8 +31,12 @@ function supportsCssAnchorPositioning(): boolean {
  * `anchor-name` set on it anchors nothing, and its `getBoundingClientRect()`
  * is always `(0, 0, 0, 0)`. Positioning needs a real box, so this walks into
  * the first element child until it finds one that generates one.
+ *
+ * Shared by everything that attaches to a host it does not own -- the anchor
+ * positioner and the badge -- so an adapter directive never has to know how a
+ * given component hosts itself.
  */
-function resolveBoxElement(element: HTMLElement): HTMLElement {
+export function resolveBoxElement(element: HTMLElement): HTMLElement {
   let current: Element = element;
   while (getComputedStyle(current).display === 'contents') {
     const child = current.firstElementChild;

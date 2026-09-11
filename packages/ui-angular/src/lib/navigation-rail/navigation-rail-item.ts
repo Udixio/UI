@@ -14,6 +14,7 @@ import {
 import {
   navigationRailItemStyle,
   resolveNavigationRailItemSelection,
+  type BadgeProps,
   type ClassNameComponent,
   type Icon as IconType,
   type NavigationRailItemInterface,
@@ -22,6 +23,7 @@ import {
   createNavigationRailItemLabelController,
   type NavigationRailItemLabelController,
 } from '@udixio/core/dom';
+import { Badge } from '../badge/badge';
 import { Icon } from '../icon/icon';
 import { StateLayer } from '../state-layer/state-layer';
 import { createStyle } from '../utils/create-style';
@@ -37,6 +39,9 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
  *   usage falls back to `selected`.
  * - An item placed after a `udx-navigation-rail-section` only renders while
  *   the rail is extended.
+ * - `badge` puts a `[udxBadge]` on the icon, the way Material shows
+ *   notifications on a destination; leave it unset once the destination is
+ *   selected if the notification is meant to clear.
  * - The label reveal (width/height + opacity, on `extended` changes) is
  *   driven by a shared `@udixio/core/dom` Motion controller, the same one
  *   the React adapter uses.
@@ -51,7 +56,7 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
   selector: 'udx-navigation-rail-item',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgTemplateOutlet, Icon, StateLayer],
+  imports: [NgTemplateOutlet, Badge, Icon, StateLayer],
   host: { style: 'display: contents' },
   template: `
     @if (!hidden()) {
@@ -86,10 +91,20 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
           stateClassName="state-ripple-group-[navigation-rail-item]"
         />
         @if (icon()) {
-          <udx-icon
-            [icon]="(isSelected() ? iconSelected() : icon())!"
-            [classes]="styles()['icon']"
-          />
+          @if (badge(); as badge) {
+            <udx-icon
+              [icon]="(isSelected() ? iconSelected() : icon())!"
+              [classes]="styles()['icon']"
+              [udxBadge]="badge.label"
+              [udxBadgeMax]="badge.max"
+              [udxBadgeDescription]="badge.description"
+            />
+          } @else {
+            <udx-icon
+              [icon]="(isSelected() ? iconSelected() : icon())!"
+              [classes]="styles()['icon']"
+            />
+          }
         }
         <span
           #horizontalLabel
@@ -116,6 +131,8 @@ export class NavigationRailItem {
   readonly icon = input<IconType>();
   /** Icon shown while the item is selected. */
   readonly iconSelected = input<IconType>();
+  /** A badge on the icon: `{}` is the dot, `{ label: 3 }` the count. */
+  readonly badge = input<BadgeProps>();
   /** Controlled selected state, used when no parent drives the selection. */
   readonly selected = input(false, { transform: booleanAttribute });
   /** Navigation destination; switches the inner element to a native link. */
@@ -160,6 +177,7 @@ export class NavigationRailItem {
     label: this.label(),
     icon: this.icon()!,
     iconSelected: this.iconSelected()!,
+    badge: this.badge(),
     selected: this.selected(),
     variant: this.resolvedVariant(),
     index: this.resolvedIndex(),

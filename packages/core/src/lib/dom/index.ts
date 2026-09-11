@@ -1,5 +1,6 @@
 export * from './anchor-positioner.js';
 export * from './auto-layout.js';
+export * from './badge.js';
 export * from './carousel.js';
 export * from './circular-progress.js';
 export * from './custom-scroll.js';

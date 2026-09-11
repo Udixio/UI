@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import type { BadgeProps } from '@udixio/core';
 import * as coreDom from '@udixio/core/dom';
 import { NavigationRail } from './navigation-rail';
 import { NavigationRailItem } from './navigation-rail-item';
@@ -23,7 +24,7 @@ const iAlarm = 'M0 0h24v24H0z';
       (itemSelected)="itemSelections.push($event)"
     >
       <div footer><button>Sign out</button></div>
-      <udx-navigation-rail-item [icon]="iAlarm" [iconSelected]="iAlarm" label="Alarm" />
+      <udx-navigation-rail-item [icon]="iAlarm" [iconSelected]="iAlarm" label="Alarm" [badge]="badge()" />
       <udx-navigation-rail-item [icon]="iAlarm" [iconSelected]="iAlarm" label="Clock" />
       <udx-navigation-rail-section label="Sleep well" />
       <udx-navigation-rail-item [icon]="iAlarm" [iconSelected]="iAlarm" label="Schedule" />
@@ -35,6 +36,7 @@ class NavigationRailTestHost {
   readonly extended = signal<boolean | undefined>(undefined);
   readonly defaultExtended = signal(false);
   readonly selectedItem = signal<number | null | undefined>(undefined);
+  readonly badge = signal<BadgeProps | undefined>(undefined);
   readonly extendedChanges: boolean[] = [];
   readonly selectedItemChanges: (number | null)[] = [];
   readonly itemSelections: NavigationRailItemSelectedEvent[] = [];
@@ -127,6 +129,26 @@ describe('NavigationRail (Angular, consuming @udixio/core)', () => {
     );
     expect(items.length).toBe(1);
     expect(items[0].textContent).toContain('Alarm');
+  });
+
+  it('puts a badge on its icon, and drops it when the caller withdraws it', () => {
+    fixture.componentInstance.badge.set({ label: 3, description: '3 alarms' });
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    const button = Array.from(root.querySelectorAll('button')).find((el) =>
+      el.textContent?.includes('Alarm'),
+    )!;
+    const badge = root.querySelector('[role="status"]') as HTMLElement;
+    expect(button.contains(badge)).toBe(true);
+    expect(badge.textContent).toContain('3 alarms');
+    expect(badge.closest('udx-icon')).not.toBeNull();
+
+    fixture.componentInstance.badge.set(undefined);
+    fixture.detectChanges();
+
+    expect(root.querySelector('[role="status"]')).toBeNull();
+    expect(button.querySelector('udx-icon')).not.toBeNull();
   });
 
   it('moves the selection when a different item is clicked', () => {
