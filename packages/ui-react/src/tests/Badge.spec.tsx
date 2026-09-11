@@ -107,4 +107,26 @@ describe('Badge', () => {
 
     expect(await axe(container)).toHaveNoViolations();
   });
+
+  // The contract says nothing truncates, and a `max-w` with `truncate` broke
+  // that in the browser before it broke any test: `999+` rendered as `99...`,
+  // one pixel over Material's 34dp, which is stated for their font not ours.
+  it('never clamps or truncates its label', () => {
+    const { container } = render(
+      <Badge label={999} max={999} description="999 unread" />,
+    );
+
+    const badge = badgeOf(container);
+    expect(badge.textContent).toBe('999');
+    expect(badge.className).not.toContain('max-w-');
+    expect(badge.querySelector('span')?.className).not.toContain('truncate');
+  });
+
+  it('keeps a long label whole rather than cutting it', () => {
+    const { container } = render(
+      <Badge label="BETA RELEASE" description="Beta release" />,
+    );
+
+    expect(badgeOf(container).textContent).toBe('BETA RELEASE');
+  });
 });

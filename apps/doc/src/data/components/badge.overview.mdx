@@ -36,7 +36,11 @@ the API can express.
 `max={999}` renders `999+`. Material limits badge content to four characters
 including that `+`, which `999+` reaches exactly.
 
-Nothing truncates a label that exceeds it. Silently dropping a caller's text
+Nothing truncates a label that exceeds it, and nothing clamps the width either.
+Material gives 34dp as the size a large badge reaches at four characters, in
+their own font; ours renders `999+` a pixel wider, so clamping to it cut the
+label to `99…`. The badge grows with its content instead, and the
+four-character limit stays guidance. Silently dropping a caller's text
 would hide data; `max` is the tool for the count case, and a longer string is
 a deliberate choice the component does not override.
 
@@ -49,6 +53,11 @@ The badge anchors inside the bounding box of what it wraps, at the upper
 trailing corner, using the distances Material specifies: 6×6dp for the small
 dot, 14×12dp for the large pill. The leading edge is what is pinned, so a
 widening count grows outward without the badge moving.
+
+Wrap the icon, not a control around it. Material anchors badges inside the icon
+bounding box, and a control with a large touch target -- an icon button carries
+56dp around a 24dp icon -- anchors the badge to that target instead, pushing it
+away from the icon by the padding.
 
 Offsets are expressed with logical properties, so the badge moves to the upper
 leading corner in right-to-left languages, as the guidelines require.

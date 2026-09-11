@@ -1,4 +1,4 @@
-import { Badge, Icon, IconButton } from '@udixio/ui-react';
+import { Badge, Icon } from '@udixio/ui-react';
 import { iInbox } from '@udixio/icons-rounded-400/inbox';
 import { iNotifications } from '@udixio/icons-rounded-400/notifications';
 
@@ -14,10 +14,6 @@ export const BadgeBasicReact = () => (
 
     <Badge label={1000} max={999} description="999 or more notifications">
       <Icon icon={iNotifications} />
-    </Badge>
-
-    <Badge label={7} description="7 unread messages">
-      <IconButton label="Inbox" icon={iInbox} />
     </Badge>
   </div>
 );

@@ -140,4 +140,18 @@ describe('Badge (Angular)', () => {
     expect(await axe(fixture.nativeElement)).toHaveNoViolations();
     fixture.destroy();
   });
+
+  // Mirrors the React guard: a `max-w` with `truncate` rendered `999+` as
+  // `99...` in the browser before any test noticed.
+  it('never clamps or truncates its label', () => {
+    const fixture = TestBed.createComponent(Harness);
+    fixture.componentInstance.label = 'BETA RELEASE';
+    fixture.detectChanges();
+
+    const badge = badgeOf(fixture.nativeElement);
+    expect(badge.textContent?.trim()).toBe('BETA RELEASE');
+    expect(badge.className).not.toContain('max-w-');
+    expect(badge.querySelector('span')?.className).not.toContain('truncate');
+    fixture.destroy();
+  });
 });

@@ -38,7 +38,10 @@ import { createStyle } from '../utils/create-style';
  *   Nothing truncates: silently dropping a caller's text would hide data, and
  *   `max` is the tool for the count case.
  * - The badge is positioned against its own wrapper, so it marks whatever it
- *   wraps rather than an arbitrary element elsewhere on the page.
+ *   wraps rather than an arbitrary element elsewhere on the page. Material
+ *   anchors badges inside the *icon* bounding box, so wrap the icon: wrapping a
+ *   control with a large touch target anchors to that target instead, pushing
+ *   the badge away from the icon by the padding around it.
  */
 @Component({
   selector: 'udx-badge',
