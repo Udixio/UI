@@ -4,9 +4,9 @@ Three suites, each answering a different question.
 
 | suite | question | a failure means |
 |---|---|---|
-| `spec-2025-conformance.test.ts` | does the output equal Material Design 3, spec 2025? | a bug — unless the fixture is being moved on purpose |
-| `contrast-invariants.test.ts` | is the output internally coherent? | a broken contract, in any variant including `udixio` |
-| `udixio-output.test.ts` | did the custom variant move? | maybe nothing — confirm it was intended, then `vitest -u` |
+| `spec-2025-conformance.spec.ts` | does the output equal Material Design 3, spec 2025? | a bug — unless the fixture is being moved on purpose |
+| `contrast-invariants.spec.ts` | is the output internally coherent? | a broken contract, in any variant including `udixio` |
+| `udixio-output.spec.ts` | did the custom variant move? | maybe nothing — confirm it was intended, then `vitest -u` |
 
 All three share the grid in `helpers/grid.ts`: 13 seeds × light/dark × 5 contrast
 levels. The seeds cover the hue circle plus the cases the spec special-cases
@@ -24,7 +24,7 @@ The fixture is that guarantee. Four bugs found in August 2026 were invisible on
 review — the code read like spec 2025 while computing spec 2021 values — and
 every one of them would have failed this suite immediately.
 
-Note the deliberate gaps in `contrast-invariants.test.ts`: the declared contrast
+Note the deliberate gaps in `contrast-invariants.spec.ts`: the declared contrast
 ratio is only a floor for roles solved from contrast alone, at contrast level 0
 and above. Roles carrying a tone delta pair are resolved by the pair first, and
 the T57-65 clamp runs afterwards and can undo the correction. Upstream behaves

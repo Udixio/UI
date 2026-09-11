@@ -1,12 +1,12 @@
 import {
-  type ColorRef,
-  type ToneAdjuster,
   applyToneDelta,
   avoidBackgroundGap,
   backgroundGapTone,
+  type ColorRef,
   contrastAgainst,
   contrastTone,
   onColor,
+  type ToneAdjuster,
 } from '../../color/tone-adjusters';
 import { getPiecewiseHue, getRotatedHue, variant, Variant } from '../variant';
 import {
@@ -24,21 +24,8 @@ import type { ColorsConfig } from '../../color/color.types';
 import { Contrast } from '@material/material-color-utilities';
 import { Context } from '../../context';
 import { API } from '../../API';
-
-export const normalize = (
-  value: number,
-  inputRange: [number, number],
-  outputRange: [number, number] = [0, 1],
-): number => {
-  const [inputMin, inputMax] = inputRange;
-  const [outputMin, outputMax] = outputRange;
-
-  const clampedValue = Math.max(inputMin, Math.min(value, inputMax));
-
-  const normalizedValue = (clampedValue - inputMin) / (inputMax - inputMin);
-
-  return outputMin + normalizedValue * (outputMax - outputMin);
-};
+import { normalize } from '../../utils';
+import { GAMUT_CHROMA_RANGE } from '../../color/gamut';
 
 const clampTone = (tone: number) => Math.max(0, Math.min(100, tone));
 
@@ -165,9 +152,17 @@ export const udixioVariant: Variant = variant({
       chroma: sourceColor.chroma,
     }),
     neutral: ({ sourceColor }) => {
+      // Le chroma de pointe varie selon la teinte (≈55 pour un bleu, ≈113
+      // pour un rouge). Le neutre en garde une proportion fixe : chromaMin à
+      // la borne basse du gamut, le même ratio à la borne haute.
+      const chromaMin = 5;
+      const [gamutMin, gamutMax] = GAMUT_CHROMA_RANGE;
       return {
         hue: sourceColor.hue,
-        chroma: 5,
+        chroma: normalize(sourceColor.chroma, GAMUT_CHROMA_RANGE, [
+          chromaMin,
+          chromaMin * (gamutMax / gamutMin),
+        ]),
       };
     },
     error: ({ sourceColor }) => {

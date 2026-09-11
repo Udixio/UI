@@ -158,9 +158,47 @@ export class Color {
     return source.transform(transform);
   }
 
-  /** Le chroma maximal atteignable pour une teinte et un ton donnés. */
-  static maxChroma(hue: number, tone = DEFAULT_TONE): number {
-    return Color.from({ hue, chroma: 200, tone }).chroma;
+  /**
+   * Le chroma maximal atteignable pour une teinte et un ton donnés.
+   *
+   * Accepte soit un couple `(hue, tone)`, soit directement une `Color` dont la
+   * teinte et le ton sont lus.
+   */
+  static maxChroma(color: Color): number;
+  static maxChroma(hue: number, tone?: number): number;
+  static maxChroma(hueOrColor: number | Color, tone = DEFAULT_TONE): number {
+    const { hue, tone: resolvedTone } =
+      typeof hueOrColor === 'number'
+        ? { hue: hueOrColor, tone }
+        : { hue: hueOrColor.hue, tone: hueOrColor.tone };
+    return Color.from({ hue, chroma: 200, tone: resolvedTone }).chroma;
+  }
+
+  /**
+   * Le chroma de pointe d'une teinte : le plus grand chroma affichable en
+   * parcourant tous les tons. Chaque teinte culmine à un ton différent (un
+   * rouge vers 53, un cyan vers 89).
+   */
+  static peakChroma(hue: number): number {
+    let peak = 0;
+    for (let tone = 0; tone <= 100; tone++) {
+      peak = Math.max(peak, Color.maxChroma(hue, tone));
+    }
+    return peak;
+  }
+
+  /**
+   * L'étendue des chromas de pointe sur les 360 teintes : la teinte la plus
+   * contrainte par le gamut sRGB et la plus libre.
+   *
+   * Le calcul parcourt 360 × 101 résolutions HCT ; il sert à établir des
+   * constantes, pas à être appelé à chaque rendu.
+   */
+  static gamutChromaRange(): [number, number] {
+    const peaks = Array.from({ length: 360 }, (_, hue) =>
+      Color.peakChroma(hue),
+    );
+    return [Math.min(...peaks), Math.max(...peaks)];
   }
 
   static isBlue(hue: number): boolean {

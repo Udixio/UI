@@ -5,3 +5,4 @@ export * from './color';
 export * from './color.utils';
 export * from './tone-adjusters';
 export * from './hct-math';
+export * from './gamut';
