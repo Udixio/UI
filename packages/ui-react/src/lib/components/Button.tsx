@@ -24,7 +24,7 @@ import { createUseStyle } from '../utils/create-use-style';
 import { useControllableState } from '../utils/use-controllable-state';
 import { Icon } from '../icon';
 import { ProgressIndicator } from './ProgressIndicator';
-import { State } from '../effects';
+import { StateLayer } from './StateLayer';
 
 /** React content accepted as the button's sole visible-content source. */
 export type ReactButtonChildren = Exclude<
@@ -283,7 +283,7 @@ export const Button = (props: ReactButtonProps) => {
   const content = (
     <>
       <span className={styles.touchTarget}></span>
-      <State
+      <StateLayer
         shapeTransition={shapeTransition}
         className={styles.stateLayer}
         colorName={getButtonStateColor({

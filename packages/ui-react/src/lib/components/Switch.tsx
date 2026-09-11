@@ -11,7 +11,7 @@ import {
   type SwitchThumbController,
 } from '@udixio/core/dom';
 import { Icon } from '../icon';
-import { State } from '../effects';
+import { StateLayer } from './StateLayer';
 import { createUseStyle } from '../utils/create-use-style';
 import { useControllableState } from '../utils/use-controllable-state';
 
@@ -144,7 +144,7 @@ export const Switch = ({
         style={{ translate: `${getSwitchHandleOffset(isChecked)}px` }}
         className={styles.handleContainer}
       >
-        <State
+        <StateLayer
           stateClassName="state-ripple-group-[switch]"
           className={styles.stateLayer}
           colorName={isChecked ? 'primary' : 'on-surface'}

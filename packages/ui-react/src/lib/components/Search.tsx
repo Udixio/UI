@@ -28,7 +28,7 @@ import {
 } from '@udixio/core/dom';
 import { createUseStyle } from '../utils/create-use-style';
 import { useControllableState } from '../utils/use-controllable-state';
-import { State } from '../effects';
+import { StateLayer } from './StateLayer';
 import { Icon } from '../icon';
 
 export type ReactSearchProps = Omit<
@@ -393,7 +393,7 @@ export const Search = ({
           aria-disabled={disabled || undefined}
           onClick={handleInputFieldClick}
         >
-          <State
+          <StateLayer
             className={styles.stateLayer}
             colorName="on-surface"
             stateClassName="state-ripple-group-[search-input]"
@@ -445,7 +445,7 @@ export const Search = ({
                   disabled={disabled}
                   onClick={handleClear}
                 >
-                  <State
+                  <StateLayer
                     className={styles.stateLayer}
                     colorName="on-surface"
                     stateClassName="state-ripple-group-[search-clear]"

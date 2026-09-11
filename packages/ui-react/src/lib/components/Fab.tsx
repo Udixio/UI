@@ -20,7 +20,7 @@ import {
 import { createUseStyle } from '../utils/create-use-style';
 import { Icon } from '../icon';
 import { Tooltip } from './Tooltip';
-import { State } from '../effects';
+import { StateLayer } from './StateLayer';
 
 export type { FabSize, FabVariant } from '@udixio/core';
 
@@ -176,7 +176,7 @@ export const Fab = (props: ReactFabProps) => {
   const content = (
     <>
       <span className={styles.touchTarget} />
-      <State
+      <StateLayer
         className={styles.stateLayer}
         colorName={
           variant === 'primary'

@@ -15,7 +15,7 @@ import {
   type ComponentClassName,
 } from '@udixio/core';
 import { createUseStyle } from '../utils/create-use-style';
-import { State } from '../effects';
+import { StateLayer } from './StateLayer';
 
 type ReactCardOwnProps = CardProps & {
   /** Custom card content; layout is fully owned by the consumer. */
@@ -71,7 +71,7 @@ export const Card = (props: ReactCardProps) => {
   });
 
   const stateLayer = isActionable ? (
-    <State
+    <StateLayer
       className={styles.stateLayer}
       colorName={'on-surface'}
       stateClassName={'state-ripple-group-[card]'}

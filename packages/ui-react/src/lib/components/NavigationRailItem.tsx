@@ -22,7 +22,7 @@ import {
   type NavigationRailItemLabelController,
 } from '@udixio/core/dom';
 import { createUseStyle } from '../utils/create-use-style';
-import { State } from '../effects';
+import { StateLayer } from './StateLayer';
 
 /** Payload emitted when an item becomes the selected one. */
 export type NavigationRailItemSelectedEvent = Pick<
@@ -223,7 +223,7 @@ export const NavigationRailItem = ({
         }}
         className={styles.container}
       >
-        <State
+        <StateLayer
           style={{ transition: transition.duration + 's' }}
           className={styles.stateLayer}
           colorName={classNames({

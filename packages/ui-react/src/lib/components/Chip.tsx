@@ -7,7 +7,7 @@ import {
 } from '@udixio/core';
 import type { Transition } from 'motion';
 import { Icon } from '../icon';
-import { State } from '../effects';
+import { StateLayer } from './StateLayer';
 import React, { useEffect, useRef, useState } from 'react';
 import { iCheck } from '@udixio/icons-rounded-400/check';
 import { iClose } from '@udixio/icons-rounded-400/close';
@@ -361,7 +361,7 @@ export const Chip = ({
       style={{ transition: transition.duration + 's' }}
     >
       {isInteractive && !disabled && !isEditing && (
-        <State
+        <StateLayer
           style={{ transition: transition.duration + 's' }}
           className={styles.stateLayer}
           colorName={classNames({

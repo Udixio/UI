@@ -13,7 +13,7 @@ import {
   tabStyle,
 } from '@udixio/core';
 import { createUseStyle } from '../utils/create-use-style';
-import { State } from '../effects';
+import { StateLayer } from './StateLayer';
 
 /** Payload emitted when a tab becomes the selected one. */
 export type TabSelectedEvent = Pick<TabInterface['props'], 'label' | 'icon'> & {
@@ -144,7 +144,7 @@ export const Tab = ({
       onClick={handleClick}
       {...(restProps as any)}
     >
-      <State
+      <StateLayer
         style={{ transition: 0.3 + 's' }}
         className={styles.stateLayer}
         colorName={

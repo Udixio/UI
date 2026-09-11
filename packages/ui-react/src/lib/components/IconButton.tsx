@@ -18,7 +18,7 @@ import {
 import { createUseStyle } from '../utils/create-use-style';
 import { useControllableState } from '../utils/use-controllable-state';
 import { Icon } from '../icon';
-import { State } from '../effects';
+import { StateLayer } from './StateLayer';
 import { Tooltip } from './Tooltip';
 
 export type {
@@ -177,7 +177,7 @@ export const IconButton = (props: ReactIconButtonProps) => {
   const content = (
     <>
       <span className={styles.touchTarget} />
-      <State
+      <StateLayer
         shapeTransition={shapeTransition}
         className={styles.stateLayer}
         colorName={getIconButtonStateColor({

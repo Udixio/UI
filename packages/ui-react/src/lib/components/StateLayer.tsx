@@ -18,7 +18,7 @@ export type ReactStateLayerProps = StateLayerProps &
     children?: ReactNode;
   };
 
-export const State = ({
+export const StateLayer = ({
   style,
   colorName,
   stateClassName = 'state-ripple-group',
@@ -30,7 +30,7 @@ export const State = ({
   const controllerRef = useRef<StateLayerController>(null);
   const shapeTransitionRef = useRef(shapeTransition);
   shapeTransitionRef.current = shapeTransition;
-  const styles = useStateStyle({
+  const styles = useStateLayerStyle({
     stateClassName,
     className,
     colorName,
@@ -83,4 +83,4 @@ export const State = ({
   );
 };
 
-export const useStateStyle = createUseStyle(stateLayerStyle);
+export const useStateLayerStyle = createUseStyle(stateLayerStyle);

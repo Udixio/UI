@@ -7,7 +7,7 @@ import {
 } from '@udixio/core';
 import { iCheck } from '@udixio/icons-rounded-400/check';
 import { iRemove } from '@udixio/icons-rounded-400/remove';
-import { State } from '../effects';
+import { StateLayer } from './StateLayer';
 import { Icon } from '../icon';
 import { createUseStyle } from '../utils/create-use-style';
 import { useControllableState } from '../utils/use-controllable-state';
@@ -89,7 +89,7 @@ export const Checkbox = forwardRef<HTMLInputElement, ReactCheckboxProps>(
 
     return (
       <div className={styles.checkbox} style={style}>
-        <State
+        <StateLayer
           stateClassName={styles.stateLayer}
           colorName={isChecked || indeterminate ? 'primary' : 'on-surface'}
         />
