@@ -1,5 +1,8 @@
 import type { MenuProps } from './menu.interface';
 
+/**
+ * Opens a Menu at the pointer or keyboard context-menu position.
+ */
 export type ContextMenuProps = Pick<
   MenuProps,
   'variant' | 'accessibleLabel'

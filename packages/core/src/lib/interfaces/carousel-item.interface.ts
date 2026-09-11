@@ -1,3 +1,7 @@
+/**
+ * A single slide inside a carousel. Its width is driven by the carousel's
+ * scroll position; it simply projects its children.
+ */
 export interface CarouselItemInterface {
   type: 'div';
   props: {

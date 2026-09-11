@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "TabPanels",
+  "description": "Renders the panel for the selected tab, sliding it in from the direction the selection moved.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/TabPanels.tsx",
-      "description": "TabPanels renders the panel for the selected tab, sliding it in from the\ndirection the selection moved. The slide is driven by a shared\n`@udixio/core/dom` Motion controller, the same one the Angular adapter\nuses.",
       "tags": {
         "status": "beta",
         "parent": "Tabs",
@@ -29,7 +29,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/tabs/tab-panels.ts",
-      "description": "TabPanels hosts every projected `udx-tab-panel`; each panel resolves its\nown active/hidden state from the shared `udx-tab-group` selection.",
       "selector": "udx-tab-panels",
       "tags": {
         "status": "beta",

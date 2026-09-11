@@ -12,6 +12,9 @@ export type ButtonIconPosition = 'start' | 'end';
 export type ButtonIconPositionAlias = 'left' | 'right';
 export type ButtonShapeFeedback = 'morph' | 'none';
 
+/**
+ * Buttons prompt most actions in a UI.
+ */
 export interface ButtonProps {
   /**
    * The HTML button type attribute. Only applies when rendered as `<button>`.

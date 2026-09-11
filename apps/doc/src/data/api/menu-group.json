@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "MenuGroup",
+  "description": "Groups related menu items under an optional visible label.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/MenuGroup.tsx",
-      "description": "MenuGroup renders a group of menu items with persistent styling.\nIt is primarily used to apply grouping logic or context to its children.",
       "tags": {
         "status": "beta",
         "category": "Selection",
@@ -56,7 +56,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/menu/menu-group.ts",
-      "description": "Groups related MenuItem children under an optional visible label.",
       "selector": "udx-menu-group",
       "tags": {
         "status": "beta",

@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "Menu",
+  "description": "Displays commands or selectable options on a temporary surface.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/Menu.tsx",
-      "description": "Menu displays a list of choices on a temporary surface.",
       "tags": {
         "status": "beta",
         "category": "Selection",
@@ -79,7 +79,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/menu/menu.ts",
-      "description": "Displays commands or selectable options on a temporary surface.",
       "selector": "udx-menu",
       "tags": {
         "status": "beta",

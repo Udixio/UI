@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "Carousel",
+  "description": "Carousels show a collection of items that can be scrolled on and off the screen.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/Carousel.tsx",
-      "description": "Carousels show a collection of items that can be scrolled on and off the screen",
       "tags": {
         "status": "beta",
         "category": "Layout",
@@ -110,7 +110,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/carousel/carousel.ts",
-      "description": "Carousels show a collection of items that can be scrolled on and off the screen.",
       "selector": "udx-carousel",
       "tags": {
         "status": "beta",

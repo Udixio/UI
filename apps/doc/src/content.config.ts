@@ -36,7 +36,6 @@ const apiMember = z
 
 const frameworkBase = {
   filePath: z.string(),
-  description: z.string(),
   tags: apiTags,
 };
 
@@ -47,8 +46,10 @@ const api = defineCollection({
   }),
   schema: z
     .object({
-      schemaVersion: z.literal(3),
+      schemaVersion: z.literal(4),
       displayName: z.string(),
+      // One description, from the shared contract -- never per adapter.
+      description: z.string(),
       defaultFramework: z.literal('react'),
       frameworks: z
         .object({

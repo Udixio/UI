@@ -5,6 +5,9 @@ export type NavigationRailMenuState = {
   label: string;
 };
 
+/**
+ * Navigation rails let people switch between UI views on mid-sized devices.
+ */
 export type NavigationRailProps = {
   /** Visual density of the rail; `modal` is meant for a temporary overlay presentation. */
   variant?: 'standard' | 'modal';

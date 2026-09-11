@@ -3,6 +3,9 @@ export type SliderMark = {
   label?: string;
 };
 
+/**
+ * Sliders let users make selections from a range of values.
+ */
 export type SliderProps = {
   /** Controlled value. Providing it makes the slider controlled for its lifetime. */
   value?: number;

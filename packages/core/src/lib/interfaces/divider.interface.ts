@@ -1,3 +1,6 @@
+/**
+ * Dividers are thin lines that group content in lists or other containers.
+ */
 export interface DividerProps {
   /**
    * Visual and semantic axis of the dividing line.

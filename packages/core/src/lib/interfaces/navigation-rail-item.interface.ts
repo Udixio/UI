@@ -1,5 +1,9 @@
 import { Icon } from '../icon';
 
+/**
+ * A single destination inside a navigation rail; renders as a link when
+ * `href` is provided, otherwise as a button.
+ */
 export type NavigationRailItemProps = {
   label?: string;
   icon: Icon;

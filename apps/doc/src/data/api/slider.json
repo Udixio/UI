@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "Slider",
+  "description": "Sliders let users make selections from a range of values.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/Slider.tsx",
-      "description": "Sliders let users make selections from a range of values.",
       "tags": {
         "status": "beta",
         "category": "Input",
@@ -126,7 +126,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/slider/slider.ts",
-      "description": "Sliders let users make selections from a range of values.",
       "selector": "udx-slider",
       "tags": {
         "status": "beta",

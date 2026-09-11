@@ -14,7 +14,13 @@ from typing import Any
 KNOWN_FRAMEWORKS = {"react", "angular"}
 REQUIRED_TAGS = ("devx", "a11y", "limitations")
 TAG_FIELDS = {"status", "category", "parent", *REQUIRED_TAGS}
-ROOT_FIELDS = {"schemaVersion", "displayName", "defaultFramework", "frameworks"}
+ROOT_FIELDS = {
+    "schemaVersion",
+    "displayName",
+    "description",
+    "defaultFramework",
+    "frameworks",
+}
 ITEM_FIELDS = {
     "name",
     "description",
@@ -111,7 +117,6 @@ def validate_framework(name: str, payload: Any) -> list[str]:
     if name == "react":
         allowed_fields = {
             "filePath",
-            "description",
             "tags",
             "methods",
             "props",
@@ -119,7 +124,6 @@ def validate_framework(name: str, payload: Any) -> list[str]:
     else:
         allowed_fields = {
             "filePath",
-            "description",
             "selector",
             "tags",
             "inputs",
@@ -129,7 +133,7 @@ def validate_framework(name: str, payload: Any) -> list[str]:
     unexpected = sorted(set(payload) - allowed_fields)
     if unexpected:
         errors.append(f"{path} contains unsupported fields: {', '.join(unexpected)}")
-    required_fields = ("filePath", "description")
+    required_fields = ("filePath",)
     if name == "angular":
         # A directive and a component are reached differently; the page has to
         # say which attachment point the members belong to.
@@ -173,8 +177,12 @@ def validate_document(document: Any) -> list[str]:
     unexpected = sorted(set(document) - ROOT_FIELDS)
     if unexpected:
         errors.append(f"document root contains unsupported fields: {', '.join(unexpected)}")
-    if document.get("schemaVersion") != 3:
-        errors.append("schemaVersion must equal 3")
+    if document.get("schemaVersion") != 4:
+        errors.append("schemaVersion must equal 4")
+    # One description, from the shared contract. Per-framework descriptions let
+    # the two adapters describe the same concept differently, and they did.
+    if not non_empty_string(document.get("description")):
+        errors.append("description must be a non-empty string")
     if not non_empty_string(document.get("displayName")):
         errors.append("displayName must be a non-empty string")
 

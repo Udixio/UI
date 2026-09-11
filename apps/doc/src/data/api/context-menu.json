@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "ContextMenu",
+  "description": "Opens a Menu at the pointer or keyboard context-menu position.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/ContextMenu.tsx",
-      "description": "Opens a Menu at the pointer or keyboard context-menu position.",
       "tags": {
         "status": "beta",
         "category": "Selection",
@@ -87,7 +87,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/context-menu/context-menu.ts",
-      "description": "Opens a Menu at the pointer or keyboard context-menu position.",
       "selector": "udx-context-menu",
       "tags": {
         "status": "beta",

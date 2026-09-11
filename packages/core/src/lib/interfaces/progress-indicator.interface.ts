@@ -7,6 +7,10 @@ export type ProgressIndicatorVariant =
   | 'circular-determinate'
   | 'circular-indeterminate';
 
+/**
+ * Progress indicators express an unspecified wait time or display the length
+ * of a process.
+ */
 export interface ProgressIndicatorInterface {
   type: 'div';
   props: {

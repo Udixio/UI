@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "Tab",
+  "description": "A single tab inside a tabs tablist; renders as a link when `href` is provided, otherwise as a button.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/Tab.tsx",
-      "description": "A single tab inside a `Tabs` tablist; renders as a link when `href` is\nprovided, otherwise as a button.",
       "tags": {
         "status": "beta",
         "parent": "Tabs",
@@ -144,7 +144,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/tabs/tab.ts",
-      "description": "A single tab inside a `udx-tabs` tablist; renders as a link when `href` is\nprovided, otherwise as a button.",
       "selector": "udx-tab",
       "tags": {
         "status": "beta",

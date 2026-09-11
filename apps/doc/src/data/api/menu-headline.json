@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "MenuHeadline",
+  "description": "A non-interactive visual heading inside a Menu.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/MenuHeadline.tsx",
-      "description": "A non-interactive visual heading inside a Menu.",
       "tags": {
         "status": "beta",
         "category": "Selection",
@@ -47,7 +47,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/menu/menu-headline.ts",
-      "description": "A non-interactive visual heading inside a Menu.",
       "selector": "udx-menu-headline",
       "tags": {
         "status": "beta",

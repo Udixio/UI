@@ -32,7 +32,6 @@ export interface AngularContentSlot {
 
 export interface ReactComponentApi {
   filePath: string;
-  description: string;
   tags: ComponentTags;
   methods: unknown[];
   props: Record<string, ApiMember>;
@@ -40,7 +39,6 @@ export interface ReactComponentApi {
 
 export interface AngularComponentApi {
   filePath: string;
-  description: string;
   /** Where the members below attach: `udx-tooltip`, or `[udxTooltip]`. */
   selector: string;
   tags: ComponentTags;
@@ -50,8 +48,10 @@ export interface AngularComponentApi {
 }
 
 export interface ComponentApiData {
-  schemaVersion: 3;
+  schemaVersion: 4;
   displayName: string;
+  /** The one description, read from the shared contract. */
+  description: string;
   defaultFramework: 'react';
   frameworks: {
     react: ReactComponentApi;

@@ -1,5 +1,8 @@
 export type CardVariant = 'outlined' | 'elevated' | 'filled';
 
+/**
+ * Cards display content and actions about a single subject.
+ */
 export interface CardProps {
   /**
    * Visual container treatment.

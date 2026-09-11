@@ -7,6 +7,10 @@ export interface StateLayerShapeTransition {
   transition: Transition;
 }
 
+/**
+ * Paints the Material 3 state layer over its trigger, and drives the press
+ * ripple.
+ */
 export interface StateLayerProps {
   /**
    * Semantic color token name, without the `--color-` prefix -- `on-primary`,

@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "SideSheet",
+  "description": "Side sheets show secondary content anchored to the side of the screen.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/SideSheet.tsx",
-      "description": "Side sheets show secondary content anchored to the side of the screen.",
       "tags": {
         "status": "beta",
         "category": "Layout",
@@ -126,7 +126,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/side-sheet/side-sheet.ts",
-      "description": "Side sheets show secondary content anchored to the side of the screen.",
       "selector": "udx-side-sheet",
       "tags": {
         "status": "beta",

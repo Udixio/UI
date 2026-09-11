@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "MenuItem",
+  "description": "An action or selectable choice within a Menu.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/MenuItem.tsx",
-      "description": "An action or selectable choice within a Menu.",
       "tags": {
         "status": "beta",
         "category": "Selection",
@@ -141,7 +141,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/menu/menu-item.ts",
-      "description": "An action or selectable choice within a Menu.",
       "selector": "udx-menu-item",
       "tags": {
         "status": "beta",

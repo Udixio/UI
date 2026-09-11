@@ -221,7 +221,7 @@ function renderTags(tags: ApiTags): string {
 }
 
 function renderReactSection(react: ApiData['frameworks']['react']): string {
-  const parts = ['### React', '', react.description];
+  const parts = ['### React'];
 
   const tagsMd = renderTags(react.tags);
   if (tagsMd) parts.push('', tagsMd);
@@ -234,7 +234,7 @@ function renderReactSection(react: ApiData['frameworks']['react']): string {
 function renderAngularSection(
   angular: NonNullable<ApiData['frameworks']['angular']>,
 ): string {
-  const parts = ['### Angular', '', angular.description];
+  const parts = ['### Angular'];
 
   const tagsMd = renderTags(angular.tags);
   if (tagsMd) parts.push('', tagsMd);
@@ -266,7 +266,9 @@ export function buildComponentMarkdown(
 ): string {
   const frameworks = options.frameworks ?? ALL_FRAMEWORKS;
   const wanted = options.sections ?? (['overview', 'api'] as const);
-  const sections: string[] = [`# ${api.displayName}`];
+  // One description for the component, from the shared contract, above the
+  // per-framework sections rather than repeated inside each of them.
+  const sections: string[] = [`# ${api.displayName}`, '', api.description];
 
   if (overviewBody && wanted.includes('overview')) {
     const cleaned = sanitizeOverviewBody(overviewBody, frameworks);

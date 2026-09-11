@@ -9,6 +9,9 @@ export type FabVariant =
   | 'tertiaryContainer';
 export type FabSize = 'small' | 'medium' | 'large';
 
+/**
+ * Floating action buttons expose the primary action on a screen.
+ */
 export interface FabProps {
   /** Accessible name and extended visible text. */
   label: string;

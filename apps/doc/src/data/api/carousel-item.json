@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "CarouselItem",
+  "description": "A single slide inside a carousel. Its width is driven by the carousel's scroll position; it simply projects its children.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/CarouselItem.tsx",
-      "description": "A single slide inside a `Carousel`. Its width is driven by the carousel's\nscroll position; it simply projects its children.",
       "tags": {
         "status": "beta",
         "parent": "Carousel",
@@ -37,7 +37,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/carousel/carousel-item.ts",
-      "description": "A single slide inside a `udx-carousel`. Its width is driven by the\ncarousel's scroll position; it simply projects its content.",
       "selector": "udx-carousel-item",
       "tags": {
         "status": "beta",

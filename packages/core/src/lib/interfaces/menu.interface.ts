@@ -3,6 +3,9 @@ export type MenuVariant = 'standard' | 'vibrant';
 export type MenuPurpose = 'actions' | 'selection';
 export type MenuInitialFocus = 'none' | 'first' | 'last';
 
+/**
+ * Displays commands or selectable options on a temporary surface.
+ */
 export type MenuProps = {
   /** Visual color treatment shared by the menu family. */
   variant?: MenuVariant;

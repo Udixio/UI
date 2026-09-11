@@ -6,6 +6,9 @@ export type IconButtonVariant = 'standard' | 'filled' | 'tonal' | 'outlined';
 export type IconButtonSize = 'xSmall' | 'small' | 'medium' | 'large' | 'xLarge';
 export type IconButtonWidth = 'default' | 'narrow' | 'wide';
 
+/**
+ * Icon buttons expose a frequent action through one unambiguous icon.
+ */
 export interface IconButtonProps {
   /** Accessible name announced for the icon-only control. */
   label: string;

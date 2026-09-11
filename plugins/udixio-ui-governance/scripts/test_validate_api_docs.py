@@ -34,20 +34,19 @@ def api_tags() -> dict[str, str]:
 
 def valid_document() -> dict[str, object]:
     return {
-        "schemaVersion": 3,
+        "schemaVersion": 4,
         "displayName": "Button",
+        "description": "Buttons prompt most actions in a UI.",
         "defaultFramework": "react",
         "frameworks": {
             "react": {
                 "filePath": "packages/ui-react/src/lib/components/Button.tsx",
-                "description": "Buttons prompt actions.",
                 "tags": api_tags(),
                 "methods": [],
                 "props": {"disabled": api_item("disabled")},
             },
             "angular": {
                 "filePath": "packages/ui-angular/src/lib/button/button.ts",
-                "description": "Buttons prompt actions.",
                 "selector": "udx-button",
                 "tags": api_tags(),
                 "inputs": {"disabled": api_item("disabled")},
@@ -115,13 +114,26 @@ class ValidateApiDocsTest(unittest.TestCase):
 
     def test_rejects_the_previous_schema_version(self) -> None:
         document = valid_document()
-        document["schemaVersion"] = 2
-        self.assertIn("schemaVersion must equal 3", validate_document(document))
+        document["schemaVersion"] = 3
+        self.assertIn("schemaVersion must equal 4", validate_document(document))
+
+    def test_rejects_a_document_without_a_shared_description(self) -> None:
+        document = valid_document()
+        del document["description"]
+        self.assertIn("description must be a non-empty string", validate_document(document))
+
+    def test_rejects_a_per_framework_description(self) -> None:
+        document = valid_document()
+        document["frameworks"]["react"]["description"] = "A second truth."  # type: ignore[index]
+        self.assertIn(
+            "frameworks.react contains unsupported fields: description",
+            validate_document(document),
+        )
 
     def test_rejects_duplicate_json_keys_before_schema_validation(self) -> None:
         with self.assertRaises(DuplicateKeyError):
             json.loads(
-                '{"schemaVersion": 3, "schemaVersion": 3}',
+                '{"schemaVersion": 4, "schemaVersion": 4}',
                 object_pairs_hook=object_without_duplicate_keys,
             )
 

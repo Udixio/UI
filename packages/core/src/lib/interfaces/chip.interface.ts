@@ -2,6 +2,9 @@ import { Icon } from '../icon';
 
 export type ChipVariant = 'outlined' | 'elevated';
 
+/**
+ * A compact action, link, editable value, or selectable option.
+ */
 export type ChipProps = {
   /**
    * Motion timing for the selection colour change. Defaults to 0.3s.

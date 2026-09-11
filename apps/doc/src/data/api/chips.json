@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "Chips",
+  "description": "A labelled collection of selectable or editable chips.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/Chips.tsx",
-      "description": "Chips group for input or selection lists",
       "tags": {
         "status": "beta",
         "category": "Input",
@@ -90,7 +90,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/chips/chips.ts",
-      "description": "A labelled collection of selectable or editable chips.",
       "selector": "udx-chips",
       "tags": {
         "status": "beta",

@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "NavigationRailItem",
+  "description": "A single destination inside a navigation rail; renders as a link when `href` is provided, otherwise as a button.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/NavigationRailItem.tsx",
-      "description": "A single destination inside a `NavigationRail`; renders as a link when\n`href` is provided, otherwise as a button.",
       "tags": {
         "status": "beta",
         "parent": "NavigationRail",
@@ -86,7 +86,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/navigation-rail/navigation-rail-item.ts",
-      "description": "A single destination inside a `udx-navigation-rail`; renders as a link\nwhen `href` is provided, otherwise as a button.",
       "selector": "udx-navigation-rail-item",
       "tags": {
         "status": "beta",

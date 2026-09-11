@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "NavigationRail",
+  "description": "Navigation rails let people switch between UI views on mid-sized devices.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/NavigationRail.tsx",
-      "description": "Navigation rails let people switch between UI views on mid-sized devices",
       "tags": {
         "status": "beta",
         "category": "Navigation",
@@ -97,7 +97,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/navigation-rail/navigation-rail.ts",
-      "description": "Navigation rails let people switch between UI views on mid-sized devices.",
       "selector": "udx-navigation-rail",
       "tags": {
         "status": "beta",

@@ -27,6 +27,9 @@ export type TextFieldOption = {
   disabled?: boolean;
 };
 
+/**
+ * Text fields let users enter text into a UI.
+ */
 export type TextFieldProps = {
   /** Field label, floated above the value or notched into the outlined legend. */
   label: string;

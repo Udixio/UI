@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "Fab",
+  "description": "Floating action buttons expose the primary action on a screen.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/Fab.tsx",
-      "description": "Floating action buttons expose the primary action on a screen.",
       "tags": {
         "status": "stable",
         "category": "Action",
@@ -99,7 +99,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/fab/fab.ts",
-      "description": "Floating action buttons expose the primary action on a screen.",
       "selector": "udx-fab",
       "tags": {
         "status": "stable",

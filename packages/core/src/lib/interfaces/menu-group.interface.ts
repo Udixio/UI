@@ -1,5 +1,8 @@
 import type { MenuVariant } from './menu.interface';
 
+/**
+ * Groups related menu items under an optional visible label.
+ */
 export interface MenuGroupProps {
   /** Overrides the color treatment inherited from the parent Menu. */
   variant?: MenuVariant;

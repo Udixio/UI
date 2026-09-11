@@ -18,6 +18,9 @@ export type TabsStates = {
 
 type Elements = ['tabs', 'indicator'];
 
+/**
+ * Tabs organize content across different screens and views.
+ */
 export interface TabsInterface {
   type: 'div';
   props: Props;

@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "IconButton",
+  "description": "Icon buttons expose a frequent action through one unambiguous icon.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/IconButton.tsx",
-      "description": "Icon buttons expose a frequent action through one unambiguous icon.",
       "tags": {
         "status": "stable",
         "category": "Action",
@@ -179,7 +179,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/icon-button/icon-button.ts",
-      "description": "Icon buttons expose a frequent action through one unambiguous icon.",
       "selector": "udx-icon-button",
       "tags": {
         "status": "stable",

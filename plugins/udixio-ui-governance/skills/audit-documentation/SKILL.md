@@ -31,6 +31,14 @@ description: Audit, repair, or validate Udixio component documentation, TSDoc-de
   whose API payload is missing from the generated artifact is a `blocker` `DOCS-*` defect, never a
   framework unavailability. This rule exists because framework availability is derived from
   non-empty payloads, which silently turns an unrecognized shape into "Angular not supported".
+- Require one description per component, read from its shared contract, not one
+  per adapter. A component's description says what it is for; that is the
+  concept, and the concept is invariant. Per-adapter descriptions let the two
+  frameworks describe the same thing differently, and an adapter that restates
+  the concept -- or fills the field with a platform-difference rationale -- is a
+  `DOCS-*` defect. Framework-specific guidance belongs in `@devx`, a platform
+  difference in `@limitations`, and a design decision in the commit that made
+  it.
 - Never derive a member description from a React-to-Angular name match. An adapter that adopts an
   idiomatic prefix documents its own members; a name-matching fallback re-couples the two adapters
   through vocabulary and contradicts the delivery-shape rule.

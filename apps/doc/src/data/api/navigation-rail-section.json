@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "NavigationRailSection",
+  "description": "A non-interactive label that groups the navigation rail items following it.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/NavigationRailSection.tsx",
-      "description": "A non-interactive label that groups the `NavigationRailItem`s following it.",
       "tags": {
         "status": "beta",
         "parent": "NavigationRail",
@@ -18,7 +18,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/navigation-rail/navigation-rail-section.ts",
-      "description": "A non-interactive label that groups the `udx-navigation-rail-item`s\nfollowing it.",
       "selector": "udx-navigation-rail-section",
       "tags": {
         "status": "beta",

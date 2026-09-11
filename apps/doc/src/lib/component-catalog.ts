@@ -38,7 +38,7 @@ function row(entry: ApiEntry): string {
     : `**${data.displayName}**`;
   const frameworks = availableFrameworks(data).join(', ');
 
-  return `| ${name} | \`${entry.id}\` | ${react.tags.status ?? '—'} | ${frameworks} | ${cell(summary(react.description))} |`;
+  return `| ${name} | \`${entry.id}\` | ${react.tags.status ?? '—'} | ${frameworks} | ${cell(summary(data.description))} |`;
 }
 
 /**

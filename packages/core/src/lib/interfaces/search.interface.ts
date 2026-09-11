@@ -6,6 +6,10 @@ export type SearchInputMode =
 /** Identifies the kind of popup used for projected suggestions or results. */
 export type SearchResultsRole = 'listbox' | 'dialog';
 
+/**
+ * Search lets people enter a query and optionally browse projected
+ * suggestions or results in an inline Material 3 contained results surface.
+ */
 export type SearchProps = {
   /** Accessible name for the native search input. */
   label: string;

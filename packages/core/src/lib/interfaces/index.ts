@@ -7,6 +7,7 @@ export * from './checkbox.interface';
 export * from './context-menu.interface';
 export * from './custom-scroll.interface';
 export * from './date-picker.interface';
+export * from './navigation-rail-section.interface';
 export * from './navigation-rail.interface';
 export * from './chip.interface';
 export * from './chips.interface';

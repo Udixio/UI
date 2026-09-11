@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "FabMenu",
+  "description": "FabMenu exposes related primary actions from one toggleable FAB.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/FabMenu.tsx",
-      "description": "FabMenu exposes related primary actions from one toggleable FAB.",
       "tags": {
         "status": "stable",
         "category": "Action",
@@ -170,7 +170,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/fab-menu/fab-menu.ts",
-      "description": "FabMenu exposes related primary actions from one toggleable FAB.",
       "selector": "udx-fab-menu",
       "tags": {
         "status": "stable",

@@ -16,6 +16,9 @@ export interface FabMenuAction {
   disabled?: boolean;
 }
 
+/**
+ * FabMenu exposes related primary actions from one toggleable FAB.
+ */
 export interface FabMenuProps {
   /** Accessible name of the primary trigger. */
   label: string;

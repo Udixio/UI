@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "Divider",
+  "description": "Dividers are thin lines that group content in lists or other containers.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/Divider.tsx",
-      "description": "Dividers are thin lines that group content in lists or other containers",
       "tags": {
         "status": "beta",
         "category": "Layout",
@@ -39,7 +39,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/divider/divider.ts",
-      "description": "Dividers are thin lines that group content in lists or other containers",
       "selector": "udx-divider",
       "tags": {
         "status": "beta",

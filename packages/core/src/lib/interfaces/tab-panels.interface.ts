@@ -1,3 +1,7 @@
+/**
+ * Renders the panel for the selected tab, sliding it in from the direction
+ * the selection moved.
+ */
 export interface TabPanelsInterface {
   type: 'div';
   props: object;
@@ -12,6 +16,9 @@ type TabPanelProps = {
   tabsId?: string;
 };
 
+/**
+ * Holds the content for a single tab.
+ */
 export interface TabPanelInterface {
   type: 'div';
   props: TabPanelProps;

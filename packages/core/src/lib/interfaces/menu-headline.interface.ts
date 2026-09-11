@@ -1,5 +1,8 @@
 import type { MenuVariant } from './menu.interface';
 
+/**
+ * A non-interactive visual heading inside a Menu.
+ */
 export interface MenuHeadlineProps {
   /** Visible section heading. */
   label: string;

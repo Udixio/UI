@@ -12,6 +12,10 @@ export interface CarouselMetrics {
   gap: number;
 }
 
+/**
+ * Carousels show a collection of items that can be scrolled on and off the
+ * screen.
+ */
 export type CarouselProps = {
   /**
    * Carousel layout variant. Only `hero` is implemented today; the other

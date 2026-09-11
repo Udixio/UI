@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "Switch",
+  "description": "Switches toggle the selection of a single item on or off.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/Switch.tsx",
-      "description": "Switches toggle the selection of a single item on or off.",
       "tags": {
         "status": "beta",
         "category": "Input",
@@ -86,7 +86,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/switch/switch.ts",
-      "description": "Switches toggle the selection of a single item on or off.",
       "selector": "udx-switch",
       "tags": {
         "status": "beta",

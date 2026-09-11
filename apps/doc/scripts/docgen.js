@@ -143,7 +143,7 @@ const normalizeReactComponent = (
   runtimeDefaults,
 ) => ({
   filePath: toProjectPath(componentPath),
-  description: component.description.trim(),
+
   tags: component.tags ?? {},
   methods: component.methods ?? [],
   props: Object.fromEntries(
@@ -490,7 +490,6 @@ export const extractAngularComponent = ({
   const content = extractProjectedContent(componentDecorator, sourceFile);
   return {
     filePath: toProjectPath(sourceFile.fileName),
-    description: classDocumentation.description || reactComponent.description,
     selector,
     tags: {
       ...getSharedCatalogTags(reactComponent.tags),
@@ -547,6 +546,59 @@ const getAngularComponents = async () => {
   return components;
 };
 
+const coreInterfacesRoot = path.resolve(
+  projectRoot,
+  'packages/core/src/lib/interfaces',
+);
+
+/**
+ * The one description a component gets, read from its shared contract.
+ *
+ * It used to be extracted per adapter, with Angular falling back to React's.
+ * Both adapters could therefore describe the same concept differently, and
+ * seventeen of thirty-five did -- six differing only by a full stop, six only
+ * by spelling the component's own name, one repeating another component's
+ * description, and two carrying a platform-difference essay. The concept is
+ * invariant, so its description belongs to the contract, not to an adapter.
+ */
+let coreInterfaceSources;
+
+const readSharedDescription = async (displayName) => {
+  // The contract is not always in a file named after the component: TabPanel's
+  // lives in tab-panels.interface.ts. Look for the declaration, not the path.
+  coreInterfaceSources ??= new Map(
+    await Promise.all(
+      (await glob(path.join(coreInterfacesRoot, '*.interface.ts')))
+        .sort()
+        .map(async (file) => [file, await readFile(file, 'utf8')]),
+    ),
+  );
+  const pattern = new RegExp(
+    // The comment body must not itself contain `*/`, or the match starts at the
+    // first doc comment in the file and swallows everything up to the export.
+    String.raw`/\*\*((?:(?!\*/)[\s\S])*?)\*/\s*\nexport (?:interface|type) ${displayName}(?:Props|Interface)\b`,
+  );
+  for (const [file, source] of coreInterfaceSources) {
+    const match = source.match(pattern);
+    if (!match) continue;
+    const text = match[1]
+      .split('\n')
+      .map((line) => line.replace(/^\s*\*/, '').trim())
+      .filter((line) => line && !line.startsWith('@'))
+      .join(' ')
+      .trim();
+    if (text) return text;
+    throw new Error(
+      `Empty description on ${displayName} in ${toProjectPath(file)}.`,
+    );
+  }
+  throw new Error(
+    `No description for ${displayName} in any shared contract. A component's ` +
+      `description belongs to ${displayName}Props or ${displayName}Interface in ` +
+      `packages/core/src/lib/interfaces, not to an adapter.`,
+  );
+};
+
 export const generateApiDocs = async ({ requestedComponent } = {}) => {
   const normalizedRequest = requestedComponent?.toLowerCase();
   const angularComponents = await getAngularComponents();
@@ -595,8 +647,9 @@ export const generateApiDocs = async ({ requestedComponent } = {}) => {
         })
       : undefined;
     const document = {
-      schemaVersion: 3,
+      schemaVersion: 4,
       displayName,
+      description: await readSharedDescription(displayName),
       defaultFramework: 'react',
       frameworks: {
         react,

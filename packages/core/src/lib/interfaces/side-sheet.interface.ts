@@ -5,6 +5,9 @@ export type SideSheetVariant = 'standard' | 'modal';
 
 export type SideSheetPosition = 'left' | 'right';
 
+/**
+ * Side sheets show secondary content anchored to the side of the screen.
+ */
 export interface SideSheetProps {
   /** Rendering mode: `'standard'` for persistent layout chrome, `'modal'` for a dismissible overlay. */
   variant?: SideSheetVariant;

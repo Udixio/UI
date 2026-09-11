@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "Button",
+  "description": "Buttons prompt most actions in a UI.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/Button.tsx",
-      "description": "Buttons prompt most actions in a UI",
       "tags": {
         "status": "stable",
         "category": "Action",
@@ -239,7 +239,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/button/button.ts",
-      "description": "Buttons prompt most actions in a UI.",
       "selector": "udx-button",
       "tags": {
         "status": "stable",

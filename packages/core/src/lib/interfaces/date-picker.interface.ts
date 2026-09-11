@@ -1,5 +1,8 @@
 export type DateRange = [Date | null, Date | null];
 
+/**
+ * DatePickers let users select a date, or a range of dates.
+ */
 export type DatePickerSharedProps = {
   /**
    * Minimum selectable date.

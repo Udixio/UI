@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "TextField",
+  "description": "Text fields let users enter text into a UI.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/TextField.tsx",
-      "description": "Text fields let users enter text into a UI.",
       "tags": {
         "status": "beta",
         "category": "Input",
@@ -265,7 +265,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/text-field/text-field.ts",
-      "description": "Text fields let users enter text into a UI.",
       "selector": "udx-text-field",
       "tags": {
         "status": "beta",

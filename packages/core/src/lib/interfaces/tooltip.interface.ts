@@ -15,6 +15,9 @@ export interface TooltipTransition {
   ease?: string;
 }
 
+/**
+ * Tooltips display brief labels or messages.
+ */
 export interface TooltipProps {
   /** `'plain'` is a small text bubble; `'rich'` is a card-like surface with title/text/actions. */
   variant?: TooltipVariant;

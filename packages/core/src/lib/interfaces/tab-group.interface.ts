@@ -5,6 +5,10 @@ type Props = {
   defaultSelectedTab?: number | null;
 };
 
+/**
+ * TabGroup shares selection state between a tabs tablist and a tab panels
+ * placed anywhere in its subtree.
+ */
 export interface TabGroupInterface {
   type: 'div';
   props: Props;

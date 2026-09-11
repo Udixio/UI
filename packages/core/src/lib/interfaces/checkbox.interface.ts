@@ -1,3 +1,6 @@
+/**
+ * Checkboxes let people select one or more independent options.
+ */
 export type CheckboxProps = {
   /** Controlled mode: explicitly control whether the checkbox is checked. */
   checked?: boolean;

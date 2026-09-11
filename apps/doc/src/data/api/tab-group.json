@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "TabGroup",
+  "description": "TabGroup shares selection state between a tabs tablist and a tab panels placed anywhere in its subtree.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/TabGroup.tsx",
-      "description": "TabGroup shares selection state between a `Tabs` tablist and a `TabPanels`\nplaced anywhere in its subtree.",
       "tags": {
         "status": "beta",
         "parent": "Tabs",
@@ -49,7 +49,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/tabs/tab-group.ts",
-      "description": "TabGroup shares selection state between a `udx-tabs` tablist and a\n`udx-tab-panels` placed anywhere in its subtree.",
       "selector": "udx-tab-group",
       "tags": {
         "status": "beta",

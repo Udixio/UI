@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "Tooltip",
+  "description": "Tooltips display brief labels or messages.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/Tooltip.tsx",
-      "description": "Tooltips display brief labels or messages",
       "tags": {
         "status": "beta",
         "category": "Communication",
@@ -175,7 +175,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/tooltip/tooltip.ts",
-      "description": "Tooltips display brief labels or messages.",
       "selector": "[udxTooltip], [udxTooltipTitle], [udxTooltipContent]",
       "tags": {
         "status": "beta",

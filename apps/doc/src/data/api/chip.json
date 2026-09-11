@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "Chip",
+  "description": "A compact action, link, editable value, or selectable option.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/Chip.tsx",
-      "description": "Chips prompt most actions in a UI",
       "tags": {
         "status": "beta",
         "category": "Action",
@@ -187,7 +187,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/chip/chip.ts",
-      "description": "A compact action, link, editable value, or selectable option.",
       "selector": "udx-chip",
       "tags": {
         "status": "beta",

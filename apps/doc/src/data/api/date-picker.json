@@ -1,11 +1,11 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "displayName": "DatePicker",
+  "description": "`mode` discriminates the shape of `value`/`defaultValue`/`onChange`: a consumer cannot pass a `DateRange` under `mode=\"single\"` or a `Date` under `mode=\"range\"` without a compile error.",
   "defaultFramework": "react",
   "frameworks": {
     "react": {
       "filePath": "packages/ui-react/src/lib/components/DatePicker.tsx",
-      "description": "DatePickers let users select a date, or a range of dates.",
       "tags": {
         "status": "beta",
         "category": "Selection",
@@ -115,7 +115,6 @@
     },
     "angular": {
       "filePath": "packages/ui-angular/src/lib/date-picker/date-picker.ts",
-      "description": "DatePickers let users select a date, or a range of dates.",
       "selector": "udx-date-picker",
       "tags": {
         "status": "beta",
