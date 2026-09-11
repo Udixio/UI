@@ -43,6 +43,7 @@ import { createStyle } from '../utils/create-style';
     @if (href()) {
       <a
         [class]="styles()['chip']"
+        [style.transition]="transitionDuration() + \'s\'"
         [attr.href]="disabled() ? null : href()"
         [attr.aria-disabled]="disabled() || null"
         [attr.aria-pressed]="selectable() ? isSelected() : null"
@@ -62,6 +63,7 @@ import { createStyle } from '../utils/create-style';
       <button
         type="button"
         [class]="styles()['chip']"
+        [style.transition]="transitionDuration() + \'s\'"
         [disabled]="disabled()"
         [attr.aria-pressed]="selectable() ? isSelected() : null"
         [attr.draggable]="!disabled() && draggable()"
@@ -82,6 +84,7 @@ import { createStyle } from '../utils/create-style';
         <udx-state-layer
           [className]="styles()['stateLayer']"
           [colorName]="stateColor()"
+          [transitionDuration]="transitionDuration()"
           stateClassName="state-ripple-group-[chip]"
         />
       }
@@ -130,6 +133,12 @@ export class Chip implements OnInit {
   readonly editable = input(false, { transform: booleanAttribute });
   readonly editing = input<boolean | undefined>(undefined);
   readonly className = input<string | ClassNameComponent<ChipInterface>>();
+  readonly transition = input<ChipProps['transition']>();
+
+  /** Defaults to 0.3s, matching the React adapter. */
+  protected readonly transitionDuration = computed(
+    () => this.transition()?.duration ?? 0.3,
+  );
 
   readonly selectedChange = output<boolean>();
   /** Requests removal of this chip. */
@@ -183,6 +192,7 @@ export class Chip implements OnInit {
   );
   protected readonly removeIcon = iClose;
   protected readonly styles = createStyle(chipStyle, () => ({
+    transition: this.transition(),
     label: this.label(),
     variant: this.variant(),
     disabled: this.disabled(),

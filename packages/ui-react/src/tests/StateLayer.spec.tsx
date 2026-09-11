@@ -111,13 +111,15 @@ describe('StateLayer', () => {
     );
   });
 
-  it('merges a caller style without dropping the state colour', () => {
-    renderInTrigger(
-      <StateLayer colorName="on-primary" style={{ opacity: '0.5' }} />,
-    );
+  // `style` was a React DOM passthrough with no Angular counterpart. Its only
+  // consumer wanted a transition duration, which is now a typed prop both
+  // adapters carry, so the escape hatch is gone rather than left unused.
+  it('renders no caller style, the escape hatch having been replaced', () => {
+    const withStyle = { style: { opacity: '0.5' } };
+    renderInTrigger(<StateLayer colorName="on-primary" {...withStyle} />);
 
     const layer = screen.getByTestId('trigger').querySelector('span');
-    expect(layer?.style.opacity).toBe('0.5');
+    expect(layer?.style.opacity).toBe('');
     expect(layer?.style.getPropertyValue('--state-color')).not.toBe('');
   });
 
@@ -226,5 +228,24 @@ describe('StateLayer', () => {
     const layer = screen.getByTestId('trigger').querySelector('span');
     expect(layer?.className).toContain('state-layer');
     expect(createController).not.toHaveBeenCalled();
+  });
+
+  // The colour change needs a duration, and Chip is the consumer. It used to
+  // arrive through a generic `style` passthrough -- a React DOM idiom with no
+  // Angular counterpart, which is why the Angular chip's selection snapped.
+  it('applies a transition duration to the layer', () => {
+    renderInTrigger(
+      <StateLayer colorName="on-primary" transitionDuration={0.3} />,
+    );
+
+    const layer = screen.getByTestId('trigger').querySelector('span');
+    expect(layer?.style.transition).toBe('0.3s');
+  });
+
+  it('sets no transition when no duration is given', () => {
+    renderInTrigger(<StateLayer colorName="on-primary" />);
+
+    const layer = screen.getByTestId('trigger').querySelector('span');
+    expect(layer?.style.transition).toBe('');
   });
 });

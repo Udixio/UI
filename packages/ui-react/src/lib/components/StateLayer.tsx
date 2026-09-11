@@ -9,13 +9,11 @@ import {
   findStateLayerTrigger,
   type StateLayerController,
 } from '@udixio/core/dom';
-import { useEffect, useRef, type CSSProperties } from 'react';
+import { useEffect, useRef } from 'react';
 import { createUseStyle } from '../utils/create-use-style';
 
 export type ReactStateLayerProps = StateLayerProps &
-  ComponentClassName<StateLayerInterface> & {
-    style?: CSSProperties;
-  };
+  ComponentClassName<StateLayerInterface>;
 
 /**
  * Paints the Material 3 state layer over its trigger, and drives the press
@@ -51,10 +49,10 @@ export type ReactStateLayerProps = StateLayerProps &
  *   Tailwind utilities rather than in JavaScript.
  */
 export const StateLayer = ({
-  style,
   colorName,
   stateClassName = 'state-ripple-group',
   shapeTransition,
+  transitionDuration,
   className,
 }: ReactStateLayerProps) => {
   const ref = useRef<HTMLSpanElement>(null);
@@ -66,6 +64,7 @@ export const StateLayer = ({
     className,
     colorName,
     shapeTransition,
+    transitionDuration,
   });
 
   useEffect(() => {
@@ -106,7 +105,9 @@ export const StateLayer = ({
       className={styles.stateLayer}
       style={{
         ['--state-color' as any]: `var(--color-${colorName}, var(--color-on-surface))`,
-        ...style,
+        ...(transitionDuration === undefined
+          ? {}
+          : { transition: `${transitionDuration}s` }),
       }}
     />
   );

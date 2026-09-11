@@ -67,4 +67,24 @@ describe('Chip', () => {
       fixture.componentInstance.icon(),
     );
   });
+
+  // React's chip transitions its selection colour on both the button and the
+  // state layer; Angular's snapped, because the prop lived only on the React
+  // adapter and never reached the shared contract.
+  it('transitions its selection colour by default, like the React adapter', () => {
+    fixture.detectChanges();
+
+    const button: HTMLElement =
+      fixture.nativeElement.querySelector('button, a');
+    expect(button.style.transition).toBe('0.3s');
+  });
+
+  it('honours a caller transition duration', () => {
+    fixture.componentRef.setInput('transition', { duration: 1.2 });
+    fixture.detectChanges();
+
+    const button: HTMLElement =
+      fixture.nativeElement.querySelector('button, a');
+    expect(button.style.transition).toBe('1.2s');
+  });
 });

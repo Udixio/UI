@@ -194,6 +194,7 @@ export const Chip = ({
   };
 
   const styles = useChipStyle({
+    transition,
     // props
     label,
     variant,
@@ -362,7 +363,7 @@ export const Chip = ({
     >
       {isInteractive && !disabled && !isEditing && (
         <StateLayer
-          style={{ transition: transition.duration + 's' }}
+          transitionDuration={transition.duration}
           className={styles.stateLayer}
           colorName={classNames({
             'on-surface-variant': !isSelected,

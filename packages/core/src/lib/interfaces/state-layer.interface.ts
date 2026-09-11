@@ -27,6 +27,16 @@ export interface StateLayerProps {
 
   /** Optional Motion animation applied to the state layer trigger. */
   shapeTransition?: StateLayerShapeTransition;
+
+  /**
+   * Seconds over which the layer transitions, for a surface whose colour
+   * changes -- a chip being selected, say. Omitted, the layer snaps.
+   *
+   * This is a typed prop rather than an inline-style passthrough so both
+   * adapters can express it: `style` is a React DOM idiom with no Angular
+   * counterpart, and routing it that way left the Angular chip snapping.
+   */
+  transitionDuration?: number;
 }
 
 export interface StateLayerInterface {

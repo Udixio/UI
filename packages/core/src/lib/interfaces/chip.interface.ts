@@ -4,6 +4,14 @@ export type ChipVariant = 'outlined' | 'elevated';
 
 export type ChipProps = {
   /**
+   * Motion timing for the selection colour change. Defaults to 0.3s.
+   *
+   * It lived only on the React adapter, so the Angular chip's selection
+   * snapped where React's faded.
+   */
+  transition?: { duration?: number };
+
+  /**
    * The label is the text that is displayed on the chip.
    */
   label?: string;

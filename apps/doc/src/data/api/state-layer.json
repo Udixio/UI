@@ -44,6 +44,15 @@
           },
           "defaultValue": null
         },
+        "transitionDuration": {
+          "name": "transitionDuration",
+          "description": "Seconds over which the layer transitions, for a surface whose colour\nchanges -- a chip being selected, say. Omitted, the layer snaps.\n\nThis is a typed prop rather than an inline-style passthrough so both\nadapters can express it: `style` is a React DOM idiom with no Angular\ncounterpart, and routing it that way left the Angular chip snapping.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
         "className": {
           "name": "className",
           "description": "Classes or state-aware element classes applied through the shared style contract.",
@@ -102,6 +111,15 @@
           "required": false,
           "type": {
             "name": "StateLayerShapeTransition | undefined"
+          },
+          "defaultValue": null
+        },
+        "transitionDuration": {
+          "name": "transitionDuration",
+          "description": "Seconds over which the layer transitions, for a surface whose colour\nchanges -- a chip being selected, say. Omitted, the layer snaps.\n\nThis is a typed prop rather than an inline-style passthrough so both\nadapters can express it: `style` is a React DOM idiom with no Angular\ncounterpart, and routing it that way left the Angular chip snapping.",
+          "required": false,
+          "type": {
+            "name": "number | undefined"
           },
           "defaultValue": null
         }

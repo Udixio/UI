@@ -77,6 +77,9 @@ import { createStyle } from '../utils/create-style';
       [style.--state-color]="
         'var(--color-' + colorName() + ', var(--color-on-surface))'
       "
+      [style.transition]="
+        transitionDuration() === undefined ? null : transitionDuration() + 's'
+      "
     ></span>
   `,
 })
@@ -88,6 +91,8 @@ export class StateLayer {
     string | ClassNameComponent<StateLayerInterface>
   >();
   readonly shapeTransition = input<StateLayerProps['shapeTransition']>();
+  readonly transitionDuration =
+    input<StateLayerProps['transitionDuration']>();
 
   private readonly layer = viewChild.required<ElementRef<HTMLElement>>('layer');
   private controller?: StateLayerController;
@@ -96,6 +101,7 @@ export class StateLayer {
     colorName: this.colorName(),
     stateClassName: this.stateClassName(),
     shapeTransition: this.shapeTransition(),
+    transitionDuration: this.transitionDuration(),
     className: this.className(),
   }));
 

@@ -224,7 +224,7 @@ export const NavigationRailItem = ({
         className={styles.container}
       >
         <StateLayer
-          style={{ transition: transition.duration + 's' }}
+          transitionDuration={transition.duration}
           className={styles.stateLayer}
           colorName={classNames({
             'on-surface': !isSelected,

@@ -64,6 +64,15 @@
           },
           "defaultValue": null
         },
+        "transition": {
+          "name": "transition",
+          "description": "Motion timing for the selection colour change. Defaults to 0.3s.\n\nIt lived only on the React adapter, so the Angular chip's selection\nsnapped where React's faded.",
+          "required": false,
+          "type": {
+            "name": "{ duration?: number; } & Transition"
+          },
+          "defaultValue": null
+        },
         "variant": {
           "name": "variant",
           "description": "The chip variant determines the style.",
@@ -303,6 +312,15 @@
           "required": false,
           "type": {
             "name": "string | ClassNameComponent<ChipInterface>"
+          },
+          "defaultValue": null
+        },
+        "transition": {
+          "name": "transition",
+          "description": "Motion timing for the selection colour change. Defaults to 0.3s.\n\nIt lived only on the React adapter, so the Angular chip's selection\nsnapped where React's faded.",
+          "required": false,
+          "type": {
+            "name": "{ duration?: number; } | undefined"
           },
           "defaultValue": null
         }

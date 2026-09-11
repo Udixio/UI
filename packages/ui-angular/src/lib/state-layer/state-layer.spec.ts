@@ -19,6 +19,7 @@ import { StateLayer } from './state-layer';
         [colorName]="colorName"
         [stateClassName]="stateClassName"
         [shapeTransition]="shapeTransition"
+        [transitionDuration]="transitionDuration"
       />
     </button>
   `,
@@ -27,6 +28,7 @@ class Harness {
   colorName = 'on-primary';
   stateClassName = 'state-ripple-group-[button]';
   shapeTransition: StateLayerShapeTransition | undefined = undefined;
+  transitionDuration: number | undefined = undefined;
 }
 
 @Component({
@@ -228,6 +230,26 @@ describe('StateLayer', () => {
 
     expect(layerOf(fixture.nativeElement)?.className).toContain('state-layer');
     expect(createController).not.toHaveBeenCalled();
+    fixture.destroy();
+  });
+
+  // The colour change needs a duration, and Chip is the consumer. It used to
+  // arrive through React's generic `style` passthrough, which has no Angular
+  // counterpart -- which is exactly why the Angular chip's selection snapped.
+  it('applies a transition duration to the layer', () => {
+    const fixture = TestBed.createComponent(Harness);
+    fixture.componentInstance.transitionDuration = 0.3;
+    fixture.detectChanges();
+
+    expect(layerOf(fixture.nativeElement)?.style.transition).toBe('0.3s');
+    fixture.destroy();
+  });
+
+  it('sets no transition when no duration is given', () => {
+    const fixture = TestBed.createComponent(Harness);
+    fixture.detectChanges();
+
+    expect(layerOf(fixture.nativeElement)?.style.transition).toBe('');
     fixture.destroy();
   });
 });
