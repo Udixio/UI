@@ -39,6 +39,10 @@ consommateur externe. Mérite sa propre spec.
 
 **Sévérité : major. Portée : toute session invoquant les skills de gouvernance.**
 
+> **Clos le 2026-09-12** — plugin mis à jour en `0.3.0` avec `--scope project` ; les
+> skills se chargent désormais depuis `plugins/udixio-ui-governance/`. Le premier
+> composant livré sous la doctrine active est le badge (ci-dessous).
+
 Preuves :
 
 - Plugin installé : `0.1.0+codex.20260722135539`. Dépôt : `0.2.0+codex.20260909101404`.
@@ -54,6 +58,35 @@ révision de doctrine est sans effet tant que le plugin n'est pas rafraîchi.
 **Remède** : `claude plugin update udixio-ui-governance`, puis redémarrage. Non exécuté
 ici : cela modifie l'environnement de l'utilisateur et n'aurait aucun effet dans la session
 courante.
+
+---
+
+## 3. Badge — `FORM-BADGE-001`, accepté et livré (2026-09-12)
+
+**Sévérité : major → `fixed`.** Le premier badge Angular était un composant enveloppant
+`udx-badge`, copie de la forme React. La règle d'attachement tranche pour la directive :
+le badge s'attache à un élément que le consommateur possède. Verdict `platform-shape`,
+accepté par l'utilisateur, consigné dans `badge.overview.mdx` (« On an icon »).
+
+Livré (`8d89131c`, `347c5973`, `efc55a0c`) :
+
+- `[udxBadge]` avec inputs `udxBadge*`, surface `BadgeSurface`, et
+  `createBadgeAnchorController` dans `@udixio/core/dom` (boîte résolue à travers
+  `display: contents`, containing block, ré-attachement après re-rendu de l'hôte).
+- `visible` / `udxBadgeVisible` et `createBadgeTransitionController` (anime.js) pour
+  l'apparition et la disparition ; `NavigationRailItem.badge` dans les deux frameworks.
+- `PARITY-BADGE-001` (`fixed`) : la forme chaîne de `udxBadgeClass` était inerte, le
+  conteneur étant l'élément marqué ; état dérivé `attached` dans le contrat de style et
+  synchronisation des classes conteneur sur l'élément marqué.
+
+Preuve : core 382, React 342, Angular 288 ; audit-parity `validate` sans finding ouvert
+(matrice de tests Angular alignée sur React : bord d'ancrage, point annoncé, formes de
+classes).
+
+Risque restant, documenté : l'animation n'a pas été observée dans Chrome — l'onglet
+d'automatisation était caché (`visibilityState: hidden`, aucun `requestAnimationFrame`,
+anime.js en pause). Le moteur réel a été exercé sous jsdom (tween sortant et entrant,
+`visibility: hidden` en fin de sortie).
 
 ---
 
