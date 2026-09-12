@@ -1,4 +1,5 @@
 import {
+  Fragment,
   useCallback,
   useDeferredValue,
   useEffect,
@@ -7,28 +8,38 @@ import {
   useState,
 } from 'react';
 import {
+  isBackgroundChromaPaletteOverride,
+  isDerivedPaletteOverride,
   isSecondaryHuePaletteOverride,
+  resolveSourceColor,
   themeConfigStore,
   themeServiceStore,
   themeServiceVersionStore,
 } from '@/stores/themeConfigStore.ts';
 import { useStore } from '@nanostores/react';
-import { Button, TextField } from '@udixio/ui-react';
+import { Button, IconButton, TextField, Tooltip } from '@udixio/ui-react';
+import { iInfo } from '@udixio/icons-rounded-400/info';
 import { Color } from '@udixio/theme';
 
 interface ColorPickerProps {
   paletteKey?: string;
-  showTone?: boolean;
 }
 
 const COLOR_FIELD_SIZE = 128;
 const COLOR_FIELD_DRAG_SIZE = 48;
 const MAX_CHROMA_LOOKUP_STEPS = 96;
 const MAX_CHROMA_REFINE_STEPS = 8;
-const CONTRAST_CURVE_STEPS = 64;
-const CONTRAST_TONE_ITERATIONS = 12;
+// 33 points and 10 bisections (tone to ±0.1): three curves cost ~20 ms
+// instead of ~100 ms, and they are only computed once the hue is settled.
+const CONTRAST_CURVE_STEPS = 32;
+const CONTRAST_TONE_ITERATIONS = 10;
 const CONTRAST_RATIOS = [3, 4.5, 7] as const;
 const THEME_UPDATE_INTERVAL = 250;
+/** WCAG 2 text contrast thresholds against the surface. */
+const CONTRAST_LEVELS = [
+  { label: 'AA', minimum: 4.5 },
+  { label: 'AAA', minimum: 7 },
+] as const;
 
 const CONTRAST_CURVE_STYLES: Record<
   (typeof CONTRAST_RATIOS)[number],
@@ -52,15 +63,21 @@ interface MaxChromaLookup {
   at: (tone: number) => number;
 }
 
-interface StoreColorState {
-  hex: string;
-  hue: number;
-  chroma: number;
-  tone: number;
-}
-
 const sameCoordinate = (left: number, right: number) =>
   Math.abs(left - right) < 0.05;
+
+/**
+ * Do two colors refer to the same palette recipe? Tone plays no part: a
+ * palette has none, it comes from the source color.
+ */
+const samePaletteRecipe = (left: Color, right: Color) =>
+  sameCoordinate(left.hue, right.hue) &&
+  sameCoordinate(left.chroma, right.chroma);
+
+const sameColor = (left: Color, right: Color) =>
+  left.hue === right.hue &&
+  left.chroma === right.chroma &&
+  left.tone === right.tone;
 
 interface FieldPoint {
   x: number;
@@ -263,66 +280,59 @@ const relativeLuminance = (color: Color) => {
   return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
 };
 
-export const ColorPicker = ({
-  paletteKey,
-  showTone = true,
-}: ColorPickerProps = {}) => {
+export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
   const $themeConfig = useStore(themeConfigStore);
   const $themeService = useStore(themeServiceStore);
   const themeServiceVersion = useStore(themeServiceVersionStore);
 
-  const [initialState] = useState(() => {
-    const hex = paletteKey
-      ? (() => {
-          const override = themeConfigStore.get().palettes?.[paletteKey];
-          if (typeof override === 'string') return override;
-          const api = themeServiceStore.get();
-          if (api) {
-            try {
-              const toneSource = api.context.sourceColor.tone;
-              if (typeof override === 'function') {
-                const { hue, chroma } = override(api.context);
-                return Color.from({ hue, chroma, tone: toneSource }).hex;
-              }
+  const [initialColor] = useState<Color>(() => {
+    if (!paletteKey)
+      return resolveSourceColor(themeConfigStore.get().sourceColor);
 
-              if (override instanceof Color) {
-                return override.init(api).hex;
-              }
+    const override = themeConfigStore.get().palettes?.[paletteKey];
+    if (typeof override === 'string') return Color.fromHex(override);
+    const api = themeServiceStore.get();
+    if (api) {
+      try {
+        const toneSource = api.context.sourceColor.tone;
+        // The background level override derives from the inherited recipe;
+        // only the palette resolved by the API knows that base.
+        if (isBackgroundChromaPaletteOverride(override)) {
+          return api.palettes.get(paletteKey).getColor(toneSource);
+        }
 
-              return (
-                api.context.variant
-                  .palettesFor(api.context)
-                  [paletteKey]?.getColor(toneSource).hex ?? '#888888'
-              );
-            } catch {
-              // Fall back to the neutral placeholder below when the palette is unavailable.
-            }
-          }
-          return '#888888';
-        })()
-      : (themeConfigStore.get().sourceColor as string);
-    const color = Color.fromHex(hex);
-    return { hex, hue: color.hue, chroma: color.chroma, tone: color.tone };
+        if (typeof override === 'function') {
+          const { hue, chroma } = override(api.context);
+          return Color.from({ hue, chroma, tone: toneSource });
+        }
+
+        if (override instanceof Color) {
+          return override.init(api);
+        }
+
+        const palette = api.context.variant.palettesFor(api.context)[
+          paletteKey
+        ];
+        if (palette) return palette.getColor(toneSource);
+      } catch {
+        // Fall back to the neutral placeholder below when the palette is unavailable.
+      }
+    }
+    return Color.fromHex('#888888');
   });
 
-  const [inputValue, setInputValue] = useState(initialState.hex);
-  const [chromaInputValue, setChromaInputValue] = useState(() =>
-    formatCoordinate(initialState.chroma),
-  );
-  const [toneInputValue, setToneInputValue] = useState(() =>
-    formatCoordinate(initialState.tone),
-  );
+  const [inputValue, setInputValue] = useState(initialColor.hex);
 
-  const [hue, setHue] = useState(initialState.hue);
-  const [chroma, setChroma] = useState(initialState.chroma);
-  const [tone, setTone] = useState(initialState.tone);
+  const [hue, setHue] = useState(initialColor.hue);
+  const [chroma, setChroma] = useState(initialColor.chroma);
+  const [tone, setTone] = useState(initialColor.tone);
   const [isHueInteracting, setIsHueInteracting] = useState(false);
   const colorFieldCanvasRef = useRef<HTMLCanvasElement>(null);
   const localEditPendingRef = useRef(false);
   // State setters are batched by React. Keep the last edited value available
   // synchronously so a blur/pointer-up event cannot publish the previous
   // render's color.
-  const latestHexRef = useRef(initialState.hex);
+  const latestColorRef = useRef<Color>(initialColor);
   const renderHue = useDeferredValue(hue);
 
   const maxChromaLookup = useMemo(
@@ -336,21 +346,39 @@ export const ColorPicker = ({
     (nextChroma: number) => {
       const boundedNextChroma = clamp(nextChroma, 0, maxChroma);
       localEditPendingRef.current = true;
-      latestHexRef.current = Color.from({
+      latestColorRef.current = Color.from({
         hue,
         chroma: boundedNextChroma,
         tone,
-      }).hex;
+      });
       setChroma(boundedNextChroma);
     },
     [hue, maxChroma, tone],
   );
+  // The requested chroma stays in the state and in the published color; the
+  // square and the ARGB clip to the gamut, the value comes back once the tone
+  // allows it.
   const currentColor = useMemo(
-    () => Color.from({ hue, chroma: boundedChroma, tone }),
-    [boundedChroma, hue, tone],
+    () => Color.from({ hue, chroma, tone }),
+    [chroma, hue, tone],
   );
   const hexColor = currentColor.hex;
-  latestHexRef.current = hexColor;
+
+  // The hue ramp is always at tone 50: that is where the gamut is widest and
+  // hues are most distinguishable. It follows the current chroma, floored at
+  // half the max chroma at that tone to stay readable when the color is
+  // nearly gray. Each hue clips to its own gamut.
+  const hueGradient = useMemo(() => {
+    const rampTone = 50;
+    const rampChroma = Math.max(chroma, Color.maxChroma(hue, rampTone) / 2);
+    const stops = Array.from(
+      { length: 13 },
+      (_, index) =>
+        Color.from({ hue: index * 30, chroma: rampChroma, tone: rampTone }).hex,
+    );
+    return `linear-gradient(to right, ${stops.join(', ')})`;
+  }, [chroma, hue]);
+  latestColorRef.current = currentColor;
 
   const surfaceLuminance = useMemo(() => {
     const fallback = Color.fromHex($themeConfig.isDark ? '#121212' : '#FFFBFE');
@@ -371,22 +399,17 @@ export const ColorPicker = ({
     themeServiceVersion,
   ]);
 
-  const hueGradient = useMemo(() => {
-    const colors = [];
-    for (let h = 0; h <= 360; h += 30) {
-      const hueMaxChroma = Color.maxChroma(h, tone);
-      colors.push(
-        Color.from({
-          hue: h,
-          chroma: Math.min(boundedChroma, hueMaxChroma),
-          tone,
-        }).hex,
-      );
-    }
-    return `linear-gradient(to right, ${colors.join(', ')})`;
-  }, [boundedChroma, tone]);
+  const contrastRatio = useMemo(() => {
+    const colorLuminance = relativeLuminance(currentColor);
+    const lighter = Math.max(colorLuminance, surfaceLuminance);
+    const darker = Math.min(colorLuminance, surfaceLuminance);
+    return (lighter + 0.05) / (darker + 0.05);
+  }, [currentColor, surfaceLuminance]);
 
   const contrastCurves = useMemo(() => {
+    // While dragging the hue, every step redraws the square; the curves wait
+    // for the release so they do not block the frame.
+    if (isHueInteracting) return [];
     const colorAt = (chromaRatio: number, candidateTone: number) => {
       const toneMaxChroma = maxChromaLookup.at(candidateTone);
       return Color.from({
@@ -463,85 +486,69 @@ export const ColorPicker = ({
       return [
         {
           ratio,
-          labelY: curvePoints[0].y,
           path: createSmoothPath(curvePoints),
         },
       ];
     });
-  }, [renderHue, maxChromaLookup, maxChromaPoint, surfaceLuminance]);
+  }, [
+    isHueInteracting,
+    renderHue,
+    maxChromaLookup,
+    maxChromaPoint,
+    surfaceLuminance,
+  ]);
 
-  const setColorFromHex = useCallback((hex: string) => {
-    const normalized = normalizeHex(hex);
-    if (!normalized) return false;
-    const color = Color.fromHex(normalized);
-    latestHexRef.current = color.hex;
+  const applyColor = useCallback((color: Color) => {
+    latestColorRef.current = color;
     setHue(color.hue);
     setChroma(color.chroma);
     setTone(color.tone);
-    return true;
   }, []);
 
   const updateCurrentFromHex = useCallback(
     (hex: string) => {
-      if (!normalizeHex(hex)) return;
+      const normalized = normalizeHex(hex);
+      if (!normalized) return;
       localEditPendingRef.current = true;
-      setColorFromHex(hex);
+      applyColor(Color.fromHex(normalized));
     },
-    [setColorFromHex],
+    [applyColor],
   );
 
-  const syncCurrentFromHex = useCallback(
-    (hex: string) => {
-      setColorFromHex(hex);
-    },
-    [setColorFromHex],
-  );
-
-  const updateThemeFromHex = useCallback(
-    (hex: string) => {
+  const updateTheme = useCallback(
+    (color: Color) => {
       if (paletteKey) {
-        const current = themeConfigStore.get().palettes?.[paletteKey];
-        if (typeof current === 'string' && current === hex) return;
-
-        const color = Color.fromHex(hex);
+        const { hue, chroma } = color;
         themeConfigStore.set({
           ...themeConfigStore.get(),
           palettes: {
             ...themeConfigStore.get().palettes,
-            [paletteKey]: () => ({
-              hue: color.hue,
-              chroma: color.chroma,
-            }),
+            [paletteKey]: () => ({ hue, chroma }),
           },
         });
       } else {
-        if (themeConfigStore.get().sourceColor === hex) return;
-        themeConfigStore.set({ ...themeConfigStore.get(), sourceColor: hex });
+        const current = themeConfigStore.get().sourceColor;
+        if (current instanceof Color && sameColor(current, color)) return;
+        themeConfigStore.set({ ...themeConfigStore.get(), sourceColor: color });
       }
     },
     [paletteKey],
   );
 
-  const currentStoreState = useMemo<StoreColorState>(() => {
-    const fromColor = (color: Color): StoreColorState => ({
-      hex: color.hex,
-      hue: color.hue,
-      chroma: color.chroma,
-      tone: color.tone,
-    });
-
-    if (!paletteKey) {
-      return fromColor(Color.fromHex($themeConfig.sourceColor as string));
-    }
+  const currentStoreColor = useMemo<Color>(() => {
+    if (!paletteKey) return resolveSourceColor($themeConfig.sourceColor);
 
     const val = $themeConfig.palettes?.[paletteKey];
-    if (typeof val === 'string') return fromColor(Color.fromHex(val));
+    if (typeof val === 'string') return Color.fromHex(val);
     if ($themeService) {
       const toneSource = $themeService.context.sourceColor.tone;
       try {
-        if (typeof val === 'function') {
+        if (
+          typeof val === 'function' &&
+          !isBackgroundChromaPaletteOverride(val)
+        ) {
           const { hue, chroma } = val($themeService.context);
-          return fromColor(Color.from({ hue, chroma, tone: toneSource }));
+          return Color.from({ hue, chroma, tone: toneSource });
         }
 
         const palette = val
@@ -549,13 +556,12 @@ export const ColorPicker = ({
           : $themeService.context.variant.palettesFor($themeService.context)[
               paletteKey
             ];
-        if (!palette) return fromColor(Color.fromHex(initialState.hex));
-        return fromColor(palette.getColor(toneSource));
+        if (palette) return palette.getColor(toneSource);
       } catch {
         // Fall back to the initial color when the palette is unavailable.
       }
     }
-    return fromColor(Color.fromHex(initialState.hex));
+    return initialColor;
   }, [
     $themeConfig.contrastLevel,
     $themeConfig.isDark,
@@ -564,11 +570,9 @@ export const ColorPicker = ({
     $themeConfig.variant,
     paletteKey,
     $themeService,
-    initialState.hex,
+    initialColor,
     themeServiceVersion,
   ]);
-
-  const currentStoreColor = currentStoreState.hex;
 
   const configuredPalette = paletteKey
     ? $themeConfig.palettes?.[paletteKey]
@@ -583,7 +587,7 @@ export const ColorPicker = ({
     paletteKey === 'tertiary' &&
     isSecondaryHuePaletteOverride(configuredPalette);
   const paletteHasManualOverride =
-    paletteHasOverride && !isSecondaryHuePaletteOverride(configuredPalette);
+    paletteHasOverride && !isDerivedPaletteOverride(configuredPalette);
   const getDefaultPaletteColor = useCallback(() => {
     if (!paletteKey) return null;
 
@@ -591,16 +595,8 @@ export const ColorPicker = ({
     if (!api) return null;
 
     const configuredSourceColor = themeConfigStore.get().sourceColor;
-    const configuredColor =
-      typeof configuredSourceColor === 'string'
-        ? Color.fromHex(configuredSourceColor)
-        : configuredSourceColor instanceof Color
-          ? configuredSourceColor.init(api)
-          : null;
-    if (
-      !configuredColor ||
-      api.context.sourceColor.hex !== configuredColor.hex
-    ) {
+    const configuredColor = resolveSourceColor(configuredSourceColor).init(api);
+    if (!sameColor(api.context.sourceColor, configuredColor)) {
       api.context.update({ sourceColor: configuredSourceColor });
     }
 
@@ -616,19 +612,20 @@ export const ColorPicker = ({
     null,
   );
   const lastThemeUpdateRef = useRef(0);
-  const lastPublishedThemeHexRef = useRef<string | null>(null);
-  const pendingThemeHexRef = useRef<string | null>(null);
+  const lastPublishedThemeColorRef = useRef<Color | null>(null);
+  const pendingThemeColorRef = useRef<Color | null>(null);
   const publishThemeUpdate = useCallback(
-    (hex: string) => {
-      lastPublishedThemeHexRef.current = hex;
-      updateThemeFromHex(hex);
+    (color: Color) => {
+      lastPublishedThemeColorRef.current = color;
+      updateTheme(color);
     },
-    [updateThemeFromHex],
+    [updateTheme],
   );
   const scheduleThemeUpdate = useCallback(
-    (hex: string) => {
-      if (lastPublishedThemeHexRef.current === hex) return;
-      pendingThemeHexRef.current = hex;
+    (color: Color) => {
+      const published = lastPublishedThemeColorRef.current;
+      if (published && sameColor(published, color)) return;
+      pendingThemeColorRef.current = color;
 
       const now = Date.now();
       const elapsed = now - lastThemeUpdateRef.current;
@@ -639,21 +636,21 @@ export const ColorPicker = ({
           clearTimeout(themeUpdateTimerRef.current);
           themeUpdateTimerRef.current = null;
         }
-        pendingThemeHexRef.current = null;
+        pendingThemeColorRef.current = null;
         lastThemeUpdateRef.current = now;
-        publishThemeUpdate(hex);
+        publishThemeUpdate(color);
         return;
       }
 
       if (!themeUpdateTimerRef.current) {
         themeUpdateTimerRef.current = setTimeout(() => {
           themeUpdateTimerRef.current = null;
-          const pendingHex = pendingThemeHexRef.current;
-          pendingThemeHexRef.current = null;
-          if (!pendingHex) return;
+          const pending = pendingThemeColorRef.current;
+          pendingThemeColorRef.current = null;
+          if (!pending) return;
 
           lastThemeUpdateRef.current = Date.now();
-          publishThemeUpdate(pendingHex);
+          publishThemeUpdate(pending);
         }, remaining);
       }
     },
@@ -665,8 +662,8 @@ export const ColorPicker = ({
       clearTimeout(themeUpdateTimerRef.current);
       themeUpdateTimerRef.current = null;
     }
-    pendingThemeHexRef.current = null;
-    lastPublishedThemeHexRef.current = null;
+    pendingThemeColorRef.current = null;
+    lastPublishedThemeColorRef.current = null;
   }, []);
 
   const flushThemeUpdate = useCallback(() => {
@@ -675,18 +672,18 @@ export const ColorPicker = ({
       themeUpdateTimerRef.current = null;
     }
 
-    const pendingHex = pendingThemeHexRef.current ?? latestHexRef.current;
-    pendingThemeHexRef.current = null;
+    const pending = pendingThemeColorRef.current ?? latestColorRef.current;
+    pendingThemeColorRef.current = null;
+    const published = lastPublishedThemeColorRef.current;
     if (
       !localEditPendingRef.current ||
-      !pendingHex ||
-      pendingHex === lastPublishedThemeHexRef.current
+      (published && sameColor(published, pending))
     ) {
       return;
     }
 
     lastThemeUpdateRef.current = Date.now();
-    publishThemeUpdate(pendingHex);
+    publishThemeUpdate(pending);
   }, [publishThemeUpdate]);
 
   useEffect(() => {
@@ -706,13 +703,13 @@ export const ColorPicker = ({
 
     cancelThemeUpdate();
     localEditPendingRef.current = false;
-    syncCurrentFromHex(defaultColor.hex);
+    applyColor(defaultColor);
   }, [
+    applyColor,
     cancelThemeUpdate,
     getDefaultPaletteColor,
     paletteHasOverride,
     paletteKey,
-    syncCurrentFromHex,
   ]);
 
   const updateFieldFromPoint = useCallback(
@@ -723,11 +720,11 @@ export const ColorPicker = ({
       const fieldHct = getFieldHct(x, y, maxChromaPoint, maxChromaLookup.at);
 
       localEditPendingRef.current = true;
-      latestHexRef.current = Color.from({
+      latestColorRef.current = Color.from({
         hue,
         chroma: fieldHct.chroma,
         tone: fieldHct.tone,
-      }).hex;
+      });
       setTone(fieldHct.tone);
       setChroma(fieldHct.chroma);
     },
@@ -737,19 +734,12 @@ export const ColorPicker = ({
   const updateFieldTone = useCallback(
     (nextTone: number) => {
       const boundedTone = clamp(nextTone, 0, 100);
-      const nextMaxChroma = Color.maxChroma(hue, boundedTone);
-      const nextChroma = Math.min(boundedChroma, nextMaxChroma);
 
       localEditPendingRef.current = true;
-      latestHexRef.current = Color.from({
-        hue,
-        chroma: nextChroma,
-        tone: boundedTone,
-      }).hex;
+      latestColorRef.current = Color.from({ hue, chroma, tone: boundedTone });
       setTone(boundedTone);
-      setChroma(nextChroma);
     },
-    [boundedChroma, hue],
+    [chroma, hue],
   );
 
   const handleFieldKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -781,53 +771,19 @@ export const ColorPicker = ({
     event.preventDefault();
   };
 
-  const handleChromaInputChange = (value: string) => {
-    setChromaInputValue(value);
-    if (!value.trim()) return;
-
-    const nextChroma = Number(value.replace(',', '.'));
-    if (Number.isFinite(nextChroma)) {
-      updateChromaValue(nextChroma);
-    }
-  };
-
-  const handleToneInputChange = (value: string) => {
-    setToneInputValue(value);
-    if (!value.trim()) return;
-
-    const nextTone = Number(value.replace(',', '.'));
-    if (Number.isFinite(nextTone)) {
-      updateFieldTone(nextTone);
-    }
-  };
-
   const handleHueChange = (nextHue: number) => {
     if (isHueLocked) return;
 
-    const nextMaxChroma = Color.maxChroma(nextHue, tone);
-    const nextChroma = Math.min(boundedChroma, nextMaxChroma);
-
     localEditPendingRef.current = true;
-    latestHexRef.current = Color.from({
-      hue: nextHue,
-      chroma: nextChroma,
-      tone,
-    }).hex;
+    latestColorRef.current = Color.from({ hue: nextHue, chroma, tone });
     setIsHueInteracting(true);
     setHue(nextHue);
-    setChroma(nextChroma);
   };
 
   const endHueInteraction = useCallback(() => {
     flushThemeUpdate();
     setIsHueInteracting(false);
   }, [flushThemeUpdate]);
-
-  useEffect(() => {
-    if (chroma !== boundedChroma) {
-      setChroma(boundedChroma);
-    }
-  }, [boundedChroma, chroma]);
 
   useEffect(() => {
     const canvas = colorFieldCanvasRef.current;
@@ -871,38 +827,34 @@ export const ColorPicker = ({
   useEffect(() => {
     const resolvedStoreColor =
       paletteKey && !paletteHasOverride
-        ? (getDefaultPaletteColor()?.hex ?? currentStoreColor)
+        ? (getDefaultPaletteColor() ?? currentStoreColor)
         : currentStoreColor;
-    const resolvedStoreState = Color.fromHex(resolvedStoreColor);
+    // A palette is replayed by the engine at the source's tone: compare its
+    // recipe. The source is stored as is: exact equality.
     const storeMatchesLocal = paletteKey
-      ? sameCoordinate(hue, resolvedStoreState.hue) &&
-        sameCoordinate(boundedChroma, resolvedStoreState.chroma)
-      : hexColor === resolvedStoreColor;
+      ? samePaletteRecipe(currentColor, resolvedStoreColor)
+      : sameColor(currentColor, resolvedStoreColor);
 
     if (storeMatchesLocal) {
       localEditPendingRef.current = false;
-      lastPublishedThemeHexRef.current = null;
+      lastPublishedThemeColorRef.current = null;
     } else if (localEditPendingRef.current) {
-      scheduleThemeUpdate(hexColor);
+      scheduleThemeUpdate(currentColor);
     } else {
       cancelThemeUpdate();
-      syncCurrentFromHex(resolvedStoreColor);
+      applyColor(resolvedStoreColor);
     }
     setInputValue(hexColor);
-    setChromaInputValue(formatCoordinate(boundedChroma));
-    setToneInputValue(formatCoordinate(tone));
   }, [
-    boundedChroma,
+    applyColor,
     cancelThemeUpdate,
+    currentColor,
     currentStoreColor,
     hexColor,
     getDefaultPaletteColor,
-    hue,
     paletteHasOverride,
     paletteKey,
     scheduleThemeUpdate,
-    syncCurrentFromHex,
-    tone,
     $themeConfig.palettes,
     $themeConfig.sourceColor,
   ]);
@@ -923,36 +875,20 @@ export const ColorPicker = ({
     cancelThemeUpdate();
     localEditPendingRef.current = false;
 
-    const defaultHex = getDefaultPaletteColor()?.hex;
+    const defaultColor = getDefaultPaletteColor();
     const palettes = { ...themeConfigStore.get().palettes };
     delete palettes[paletteKey];
     themeConfigStore.set({ ...themeConfigStore.get(), palettes });
 
-    if (defaultHex) {
-      syncCurrentFromHex(defaultHex);
+    if (defaultColor) {
+      applyColor(defaultColor);
     }
   };
 
   return (
     <div className="space-y-6">
-      <div className="grid items-start gap-5 sm:grid-cols-[minmax(0,1.15fr)_minmax(10rem,0.85fr)]">
-        <div className="grid min-w-0 grid-cols-[1.5rem_minmax(0,1fr)] items-stretch gap-1">
-          <div className="relative min-w-0">
-            {contrastCurves.map((curve) => {
-              return (
-                <span
-                  key={curve.ratio}
-                  className="absolute right-0 -translate-y-1/2 whitespace-nowrap text-label-small text-on-surface-variant"
-                  style={{
-                    top: `${curve.labelY}%`,
-                    opacity: 1,
-                  }}
-                >
-                  {curve.ratio}
-                </span>
-              );
-            })}
-          </div>
+      <div>
+        <div className="grid min-w-0 gap-3">
           <div
             className="relative aspect-square w-full touch-none select-none"
             role="slider"
@@ -1047,9 +983,97 @@ export const ColorPicker = ({
               aria-hidden="true"
             />
           </div>
-        </div>
-
-        <div className="grid gap-3">
+          <div className="grid gap-1">
+            <div className="relative h-7 overflow-hidden rounded-full ring-1 ring-inset ring-outline-variant">
+              <input
+                id={hueInputId}
+                type="range"
+                min="0"
+                max="360"
+                step="0.1"
+                value={hue}
+                disabled={isHueLocked}
+                aria-label="Teinte principale"
+                onChange={(event) =>
+                  handleHueChange(Number(event.target.value))
+                }
+                onPointerDown={() => setIsHueInteracting(true)}
+                onPointerUp={endHueInteraction}
+                onPointerCancel={endHueInteraction}
+                onKeyDown={() => setIsHueInteracting(true)}
+                onKeyUp={endHueInteraction}
+                onBlur={endHueInteraction}
+                className="slider h-full w-full cursor-pointer appearance-none"
+                style={{ background: hueGradient }}
+              />
+            </div>
+          </div>
+          <div className="flex items-center justify-between gap-3 text-label-medium">
+            <div className="flex items-center gap-3">
+              <p className="flex items-center gap-3" aria-live="polite">
+                {CONTRAST_LEVELS.map(({ label, minimum }) => {
+                  const passes = contrastRatio >= minimum;
+                  return (
+                    <span
+                      key={label}
+                      className={
+                        passes ? 'text-success' : 'text-error line-through'
+                      }
+                    >
+                      {label}
+                    </span>
+                  );
+                })}
+              </p>
+              <Tooltip
+                variant="rich"
+                content={
+                  <div className="grid gap-3">
+                    <div className="flex items-baseline justify-between gap-4">
+                      <span className="text-title-small">Contraste</span>
+                      <span className="text-title-medium tabular-nums">
+                        {Math.round(contrastRatio * 10) / 10}:1
+                      </span>
+                    </div>
+                    <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-body-small">
+                      {CONTRAST_LEVELS.map(({ label, minimum }) => {
+                        const passes = contrastRatio >= minimum;
+                        return (
+                          <Fragment key={label}>
+                            <dt
+                              className={
+                                passes
+                                  ? 'text-success'
+                                  : 'text-error line-through'
+                              }
+                            >
+                              {label}
+                            </dt>
+                            <dd className="text-on-surface-variant tabular-nums">
+                              ≥ {minimum}:1
+                            </dd>
+                          </Fragment>
+                        );
+                      })}
+                    </dl>
+                    <p className="text-body-small text-on-surface-variant">
+                      Par rapport à la surface du thème.
+                    </p>
+                  </div>
+                }
+              >
+                <IconButton
+                  icon={iInfo}
+                  variant="standard"
+                  size="xSmall"
+                  label="À propos du contraste"
+                />
+              </Tooltip>
+            </div>
+            <span className="tabular-nums text-on-surface-variant">
+              {formatCoordinate(hue)}°
+            </span>
+          </div>
           <TextField
             variant={'outlined'}
             value={inputValue}
@@ -1065,74 +1089,9 @@ export const ColorPicker = ({
               flushThemeUpdate();
             }}
           />
-          <TextField
-            variant="outlined"
-            type="number"
-            value={chromaInputValue}
-            label="Chroma"
-            name={`color-${paletteKey ?? 'source'}-chroma`}
-            min={0}
-            max={maxChroma}
-            step={0.1}
-            onChange={handleChromaInputChange}
-            onBlur={() => {
-              setChromaInputValue(formatCoordinate(boundedChroma));
-              flushThemeUpdate();
-            }}
-          />
-          {showTone && (
-            <TextField
-              variant="outlined"
-              type="number"
-              value={toneInputValue}
-              label="Tone"
-              name={`color-${paletteKey ?? 'source'}-tone`}
-              min={0}
-              max={100}
-              step={0.1}
-              onChange={handleToneInputChange}
-              onBlur={() => {
-                setToneInputValue(formatCoordinate(tone));
-                flushThemeUpdate();
-              }}
-            />
-          )}
         </div>
       </div>
 
-      <div>
-        <div className="mb-2 flex justify-between">
-          <label
-            htmlFor={hueInputId}
-            className="text-body-small text-on-surface-variant"
-          >
-            Teinte principale
-          </label>
-          <span className="text-body-small text-on-surface-variant">
-            {Math.round(hue)}°
-          </span>
-        </div>
-        <div className="relative h-7 overflow-hidden rounded-full ring-1 ring-inset ring-outline-variant">
-          <input
-            id={hueInputId}
-            type="range"
-            min="0"
-            max="360"
-            step="0.1"
-            value={hue}
-            disabled={isHueLocked}
-            onChange={(event) => handleHueChange(Number(event.target.value))}
-            onPointerDown={() => setIsHueInteracting(true)}
-            onPointerUp={endHueInteraction}
-            onPointerCancel={endHueInteraction}
-            onKeyDown={() => setIsHueInteracting(true)}
-            onKeyUp={endHueInteraction}
-            onBlur={endHueInteraction}
-            className="slider h-full w-full cursor-pointer appearance-none"
-            style={{ background: hueGradient }}
-          />
-        </div>
-      </div>
       {paletteKey && paletteHasManualOverride && (
         <div className="flex justify-end">
           <Button variant="text" size="small" onClick={handleReset}>

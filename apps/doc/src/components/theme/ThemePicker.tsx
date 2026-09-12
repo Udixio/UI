@@ -2,14 +2,28 @@ import React, { useEffect, useState } from 'react';
 import { useStore } from '@nanostores/react';
 import { Color } from '@udixio/theme';
 import {
-  isSecondaryHuePaletteOverride,
-  markSecondaryHuePaletteOverride,
+  createBackgroundChromaPaletteOverride,
+  createSurfaceLevelColors,
+  DEFAULT_SURFACE_LEVEL,
+  getBackgroundChromaPaletteOverride,
+  getSurfaceLevelColors,
+  isBackgroundChromaPaletteOverride,
+  isDerivedPaletteOverride,
+  resolveSourceColor,
+  surfaceLevelShift,
   themeConfigStore,
   themeServiceStore,
-  themeServiceVersionStore,
 } from '@/stores/themeConfigStore.ts';
 import { ColorPicker } from './ColorPicker';
-import { Button, Card, Divider, Slider } from '@udixio/ui-react';
+import {
+  Button,
+  Card,
+  IconButton,
+  Slider,
+  Switch,
+  Tooltip,
+} from '@udixio/ui-react';
+import { iInfo } from '@udixio/icons-rounded-400/info';
 import { AnimatePresence, motion } from 'motion/react';
 
 const PALETTES = [
@@ -34,54 +48,105 @@ const formatExportEntry = (key: string, value: string) => {
   ].join('\n');
 };
 
+interface SettingHeaderProps {
+  label: string;
+  value: React.ReactNode;
+  info: { title: string; text: string };
+}
+
+/** A slider's label, its value, and a tooltip explaining the setting. */
+const SettingHeader = ({ label, value, info }: SettingHeaderProps) => (
+  <div className="flex items-center justify-between gap-3 text-label-medium text-on-surface-variant">
+    <span className="flex items-center gap-1">
+      {label}
+      <Tooltip
+        variant="rich"
+        content={
+          <div className="grid gap-1">
+            <span className="text-title-small">{info.title}</span>
+            <p className="text-body-small text-on-surface-variant">
+              {info.text}
+            </p>
+          </div>
+        }
+      >
+        <IconButton
+          icon={iInfo}
+          variant="standard"
+          size="xSmall"
+          label={`À propos de ${label.toLowerCase()}`}
+        />
+      </Tooltip>
+    </span>
+    <span className="shrink-0 tabular-nums">{value}</span>
+  </div>
+);
+
+interface SettingsSectionProps {
+  id: string;
+  title: string;
+  description: string;
+  /** Always rendered, above the collapsible settings. */
+  children?: React.ReactNode;
+  /** Settings revealed by the title switch; without them, no switch. */
+  settings?: React.ReactNode;
+}
+
+const SettingsSection = ({
+  id,
+  title,
+  description,
+  children,
+  settings,
+}: SettingsSectionProps) => {
+  const [expanded, setExpanded] = useState(false);
+  const labelId = `theme-builder-${id}-title`;
+
+  return (
+    <div>
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div>
+          <span id={labelId} className="text-title-medium text-on-surface">
+            {title}
+          </span>
+          <p className="mt-1 text-body-medium text-on-surface-variant">
+            {description}
+          </p>
+        </div>
+        {settings && (
+          <Switch
+            checked={expanded}
+            onCheckedChange={setExpanded}
+            aria-labelledby={labelId}
+            aria-controls={`theme-builder-${id}-settings`}
+          />
+        )}
+      </div>
+      {children}
+      {settings && expanded && (
+        <div
+          id={`theme-builder-${id}-settings`}
+          className={`space-y-5${children ? ' mt-5' : ''}`}
+        >
+          {settings}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const ThemePicker: React.FC = () => {
   const $config = useStore(themeConfigStore);
   const $themeService = useStore(themeServiceStore);
-  const themeServiceVersion = useStore(themeServiceVersionStore);
 
   const [activePalette, setActivePalette] = useState<string | null>(null);
-  const [backgroundLevel, setBackgroundLevel] = useState(5);
+  const backgroundLevel =
+    getSurfaceLevelColors($config.colors) ?? DEFAULT_SURFACE_LEVEL;
+  const neutralOverride = $config.palettes?.neutral;
+  const backgroundChromaLevel =
+    getBackgroundChromaPaletteOverride(neutralOverride) ?? 0;
 
-  const sourceHct = Color.fromHex($config.sourceColor as string);
-  const tertiaryOverride = $config.palettes?.tertiary;
-  const isSecondaryHueOverridden =
-    isSecondaryHuePaletteOverride(tertiaryOverride);
-  const tertiarySourceHue = React.useMemo(() => {
-    const tertiary = $config.palettes?.tertiary;
-
-    if (typeof tertiary === 'string') {
-      return Color.fromHex(tertiary).hue;
-    }
-
-    if ($themeService) {
-      try {
-        if (typeof tertiary === 'function') {
-          return tertiary($themeService.context).hue;
-        }
-
-        return $themeService.context.variant.palettesFor($themeService.context)
-          .tertiary.hue;
-      } catch {
-        // Fall back to the source hue while the theme API is initializing.
-      }
-    }
-
-    return sourceHct.hue;
-  }, [$config.palettes, $themeService, sourceHct.hue, themeServiceVersion]);
-  const secondaryHueGradient = React.useMemo(() => {
-    const colors = [];
-    for (let hue = 0; hue <= 360; hue += 30) {
-      const hueMaxChroma = Color.maxChroma(hue, sourceHct.tone);
-      colors.push(
-        Color.from({
-          hue,
-          chroma: Math.min(sourceHct.chroma, hueMaxChroma),
-          tone: sourceHct.tone,
-        }).hex,
-      );
-    }
-    return `linear-gradient(to right, ${colors.join(', ')})`;
-  }, [sourceHct.chroma, sourceHct.tone]);
+  const sourceHct = resolveSourceColor($config.sourceColor);
 
   const getPaletteHex = (key: string): string => {
     if (!$themeService) return '#888888';
@@ -101,19 +166,65 @@ export const ThemePicker: React.FC = () => {
     });
   }, [brightness]);
 
-  const handleSecondaryHueChange = (nextHue: number) => {
-    const palettes = { ...themeConfigStore.get().palettes };
-    palettes.tertiary = markSecondaryHuePaletteOverride(() => ({
-      hue: nextHue,
-      chroma: sourceHct.chroma,
-    }));
-    themeConfigStore.set({ ...themeConfigStore.get(), palettes });
+  // The slider goes up to the hue's peak chroma across all tones: the maximum
+  // at the current tone is a display limit, not a configuration one.
+  const sourcePeakChroma = React.useMemo(
+    () => Color.peakChroma(sourceHct.hue),
+    [sourceHct.hue],
+  );
+
+  /**
+   * The tone closest to the current one at which the hue displays `chroma`;
+   * failing that (chroma above the peak), the peak's tone.
+   */
+  const nearestToneFor = (chroma: number, fromTone: number): number => {
+    if (Color.maxChroma(sourceHct.hue, fromTone) >= chroma) return fromTone;
+    let peak = { tone: fromTone, chroma: 0 };
+    for (let delta = 0.5; delta <= 100; delta += 0.5) {
+      for (const tone of [fromTone + delta, fromTone - delta]) {
+        if (tone < 0 || tone > 100) continue;
+        const max = Color.maxChroma(sourceHct.hue, tone);
+        if (max >= chroma) return tone;
+        if (max > peak.chroma) peak = { tone, chroma: max };
+      }
+    }
+    return peak.tone;
   };
 
-  const handleSecondaryHueReset = () => {
+  const updateSourceColor = (chroma: number, tone: number) => {
+    const next = Color.from({ hue: sourceHct.hue, chroma, tone });
+    if (
+      next.hue === sourceHct.hue &&
+      next.chroma === sourceHct.chroma &&
+      next.tone === sourceHct.tone
+    ) {
+      return;
+    }
+    themeConfigStore.set({ ...themeConfigStore.get(), sourceColor: next });
+  };
+
+  const handleBackgroundLevelChange = (nextLevel: number) => {
+    const config = themeConfigStore.get();
+    const { colors: _colors, ...rest } = config;
+
+    themeConfigStore.set(
+      nextLevel === DEFAULT_SURFACE_LEVEL
+        ? rest
+        : { ...rest, colors: createSurfaceLevelColors(nextLevel) },
+    );
+  };
+
+  const handleBackgroundChromaLevelChange = (nextLevel: number) => {
     const config = themeConfigStore.get();
     const palettes = { ...config.palettes };
-    delete palettes.tertiary;
+    const level = Math.round(nextLevel * 10) / 10;
+
+    if (level === 0) {
+      if (!isBackgroundChromaPaletteOverride(palettes.neutral)) return;
+      delete palettes.neutral;
+    } else {
+      palettes.neutral = createBackgroundChromaPaletteOverride(level);
+    }
     themeConfigStore.set({ ...config, palettes });
   };
 
@@ -156,6 +267,31 @@ export const ThemePicker: React.FC = () => {
       );
     }
 
+    const surfaceLevel = getSurfaceLevelColors(config.colors);
+    if (surfaceLevel !== null) {
+      const shift = surfaceLevelShift(surfaceLevel);
+      const layerCode = (base: number) =>
+        formatExportNumber(Math.max(0, base + shift));
+      const outer = (dark: number, light: number) =>
+        `surfaceContainerTone(api.context.isDark ? ${layerCode(dark)} : ${layerCode(light)}, api)`;
+      const surfaceEntries = [
+        `surface: (color) => color.withTone(surfaceContainerTone(${layerCode(0.5)}, api))`,
+        `surfaceDim: (color) => color.withTone(${outer(0.5, 5)})`,
+        `surfaceBright: (color) => color.withTone(${outer(5, 0.5)})`,
+        `surfaceContainerLowest: (color) => color.withTone(surfaceContainerTone(${layerCode(0)}, api))`,
+        `surfaceContainerLow: (color) => color.withTone(surfaceContainerTone(${layerCode(1)}, api))`,
+        `surfaceContainer: (color) => color.withTone(surfaceContainerTone(${layerCode(2)}, api))`,
+        `surfaceContainerHigh: (color) => color.withTone(surfaceContainerTone(${layerCode(3)}, api))`,
+        `surfaceContainerHighest: (color) => color.withTone(surfaceContainerTone(${layerCode(4)}, api))`,
+      ];
+      entries.push(
+        formatExportEntry(
+          'colors',
+          `(api) => ({\n${surfaceEntries.map((entry) => `  ${entry},`).join('\n')}\n})`,
+        ),
+      );
+    }
+
     const palettes = config.palettes;
     if (palettes && typeof palettes === 'object' && !Array.isArray(palettes)) {
       const configuredPalettes = palettes as Record<string, unknown>;
@@ -163,10 +299,19 @@ export const ThemePicker: React.FC = () => {
         const value = configuredPalettes[key];
         let valueCode: string | null = null;
 
+        const chromaLevel = getBackgroundChromaPaletteOverride(value);
+
         if (typeof value === 'string') {
           valueCode = JSON.stringify(value);
         } else if (value instanceof Color) {
           valueCode = JSON.stringify(value.hex);
+        } else if (chromaLevel !== null) {
+          valueCode = [
+            '(_context, base) => ({',
+            '  ...base,',
+            `  chroma: base.chroma * ${formatExportNumber(1 + chromaLevel)},`,
+            '})',
+          ].join('\n');
         } else if (typeof value === 'function' && $themeService) {
           try {
             const { hue, chroma } = value($themeService.context) as {
@@ -184,7 +329,7 @@ export const ThemePicker: React.FC = () => {
         }
 
         return valueCode
-          ? `${formatExportKey(key)}: ${valueCode}`
+          ? `${formatExportKey(key)}: ${valueCode.split('\n').join('\n  ')}`
           : [];
       });
 
@@ -200,6 +345,9 @@ export const ThemePicker: React.FC = () => {
 
     const fileContent = [
       "import { defineConfig } from '@udixio/tailwind';",
+      ...(surfaceLevel !== null
+        ? ["import { surfaceContainerTone } from '@udixio/theme';"]
+        : []),
       '',
       'export default defineConfig({',
       `${entries.join(',\n')},`,
@@ -220,176 +368,235 @@ export const ThemePicker: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 mt-4">
+    <>
       <div>
-        <div className="space-y-4 rounded-2xl bg-surface-container-highest p-4">
-          <div>
-            <div className="mb-4">
-              <span className="text-title-medium text-on-surface">
-                Couleur source
-              </span>
-              <p className="mt-1 text-body-medium text-on-surface-variant">
-                Génère la palette Primary
-              </p>
-            </div>
-            <ColorPicker />
-          </div>
-
-          <Divider />
-
-          <div className="space-y-5">
+        <SettingsSection
+          id="source"
+          title="Couleur source"
+          description="Génère la palette Primary"
+        >
+          <ColorPicker />
+          <div className="mt-5 space-y-5">
             <div>
-              <div className="mb-2 flex items-center justify-between gap-3">
-                <label
-                  htmlFor="theme-builder-secondary-source-hue"
-                  className="text-label-medium text-on-surface-variant"
-                >
-                  Teinte secondaire
-                </label>
-                <span className="text-label-medium text-on-surface-variant">
-                  {Math.round(tertiarySourceHue)}°
-                </span>
-              </div>
-              <div className="relative h-7 overflow-hidden rounded-full ring-1 ring-inset ring-outline-variant">
-                <input
-                  id="theme-builder-secondary-source-hue"
-                  type="range"
-                  min="0"
-                  max="360"
-                  step="1"
-                  value={tertiarySourceHue}
-                  onChange={(event) =>
-                    handleSecondaryHueChange(Number(event.target.value))
-                  }
-                  aria-label="Teinte secondaire"
-                  className="slider h-full w-full cursor-pointer appearance-none"
-                  style={{ background: secondaryHueGradient }}
+              <SettingHeader
+                label="Chroma"
+                value={<>{Math.round(sourceHct.chroma)}</>}
+                info={{
+                  title: 'Chroma',
+                  text: 'Intensité de la couleur source, de gris (0) au maximum que sa teinte permet à ce ton. Il se propage aux palettes Primary, Secondary et Tertiary.',
+                }}
+              />
+              <Slider
+                name="theme-builder-source-chroma"
+                value={sourceHct.chroma}
+                min={0}
+                max={Math.max(sourcePeakChroma, sourceHct.chroma)}
+                step={0.5}
+                aria-label="Chroma de la couleur source"
+                valueFormatter={(value) => Math.round(value)}
+                onChange={(value) =>
+                  // A chroma the current tone cannot display moves the tone
+                  // to the nearest one that can.
+                  updateSourceColor(
+                    value,
+                    nearestToneFor(value, sourceHct.tone),
+                  )
+                }
+              />
+            </div>
+
+            <div>
+              <SettingHeader
+                label="Tone"
+                value={<>{Math.round(sourceHct.tone)}</>}
+                info={{
+                  title: 'Tone',
+                  text: 'Luminosité de la couleur source, du noir (0) au blanc (100). Il sert de point de départ aux tons dérivés.',
+                }}
+              />
+              <Slider
+                name="theme-builder-source-tone"
+                value={sourceHct.tone}
+                min={0}
+                max={100}
+                step={0.5}
+                aria-label="Tone de la couleur source"
+                valueFormatter={(value) => Math.round(value)}
+                onChange={(value) =>
+                  // A tone that no longer displays the current chroma clips it
+                  // to its maximum: the configuration always stays displayable.
+                  updateSourceColor(
+                    Math.min(
+                      sourceHct.chroma,
+                      Color.maxChroma(sourceHct.hue, value),
+                    ),
+                    value,
+                  )
+                }
+              />
+            </div>
+          </div>
+        </SettingsSection>
+
+        <SettingsSection
+          id="background"
+          title="Fond et accessibilité"
+          description="Profondeur et teinte des fonds, contraste des couleurs"
+          settings={
+            <>
+              <div>
+                <SettingHeader
+                  label="Niveau de fond"
+                  value={<>{backgroundLevel}</>}
+                  info={{
+                    title: 'Niveau de fond',
+                    text: 'Profondeur des surfaces : 1 suit le variant, 0 ramène le fond vers le blanc, chaque cran au-dessus assombrit toutes les surfaces d’une couche.',
+                  }}
+                />
+                <Slider
+                  name="theme-builder-background-level"
+                  value={backgroundLevel}
+                  min={0}
+                  max={5}
+                  marks={[0, 1, 2, 3, 4, 5].map((value) => ({
+                    value,
+                    label: String(value),
+                  }))}
+                  aria-label="Niveau de fond"
+                  valueFormatter={(value) => value}
+                  onChange={handleBackgroundLevelChange}
                 />
               </div>
-              {isSecondaryHueOverridden && (
-                <div className="mt-1 flex justify-end">
-                  <Button
-                    variant="text"
-                    size="small"
-                    onClick={handleSecondaryHueReset}
-                  >
-                    Réinitialiser
-                  </Button>
-                </div>
-              )}
-            </div>
 
-            <div>
-              <div className=" flex items-center justify-between gap-3">
-                <span className="text-label-medium text-on-surface-variant">
-                  Niveau de fond
-                </span>
-                <span className="shrink-0 text-label-medium text-on-surface-variant">
-                  {backgroundLevel}
-                </span>
+              <div>
+                <SettingHeader
+                  label="Teinte de fond"
+                  value={
+                    <>
+                      {backgroundChromaLevel > 0 ? '+' : ''}{' '}
+                      {Math.round(backgroundChromaLevel * 10) / 10}
+                    </>
+                  }
+                  info={{
+                    title: 'Teinte de fond',
+                    text: 'Quantité de couleur dans les gris : 0 suit le variant, −1 donne des gris neutres, +1 double la teinte héritée de la couleur source.',
+                  }}
+                />
+                <Slider
+                  valueFormatter={(value) => {
+                    return Math.round(value * 10) / 10;
+                  }}
+                  name="theme-builder-background-chroma-level"
+                  value={backgroundChromaLevel}
+                  min={-1}
+                  step={0.1}
+                  max={1}
+                  aria-label="Teinte de fond"
+                  onChange={handleBackgroundChromaLevelChange}
+                />
               </div>
-              <Slider
-                name="theme-builder-background-level"
-                value={backgroundLevel}
-                min={0}
-                max={10}
-                step={1}
-                aria-label="Niveau de fond"
-                valueFormatter={(value) => value}
-                onChange={setBackgroundLevel}
-              />
-            </div>
 
-            <div>
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-label-medium text-on-surface-variant">
-                  Contraste
-                </span>
-                <span className="shrink-0 text-label-medium text-on-surface-variant">
-                  {brightness > 0 ? '+' : ''}
-                  {Math.round(brightness * 10) / 10}
-                </span>
+              <div>
+                <SettingHeader
+                  label="Contraste"
+                  value={
+                    <>
+                      {brightness > 0 ? '+' : ''}{' '}
+                      {Math.round(brightness * 10) / 10}
+                    </>
+                  }
+                  info={{
+                    title: 'Contraste',
+                    text: 'Écart de luminosité entre textes et fonds : 0 vise WCAG AA (4.5:1), +1 monte vers AAA (7:1), les valeurs négatives relâchent la contrainte.',
+                  }}
+                />
+                <Slider
+                  valueFormatter={(value) => {
+                    return Math.round(value * 10) / 10;
+                  }}
+                  name="brightness"
+                  value={brightness}
+                  min={-1}
+                  step={0.1}
+                  max={1}
+                  aria-label="Contraste"
+                  onChange={(v) => setBrightness(v)}
+                />
               </div>
-              <Slider
-                valueFormatter={(value) => {
-                  return Math.round(value * 10) / 10;
-                }}
-                name="brightness"
-                value={brightness}
-                min={-1}
-                step={0.1}
-                max={1}
-                aria-label="Contraste"
-                onChange={(v) => setBrightness(v)}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+            </>
+          }
+        />
 
-      <div>
-        <h3 className="text-title-medium mb-4 text-on-surface">
-          Couleurs de palette
-        </h3>
-        <div className="flex flex-col gap-2">
-          {PALETTES.map(({ key, label }) => {
-            const hex = getPaletteHex(key);
-            const isOpen = activePalette === key;
-            const isOverridden =
-              $config.palettes?.[key] !== undefined &&
-              !isSecondaryHuePaletteOverride($config.palettes?.[key]);
-            return (
-              <div
-                key={key}
-                className="overflow-hidden rounded-2xl bg-surface-container-highest"
-              >
-                <Card
-                  interactive
-                  variant="filled"
-                  onClick={() => setActivePalette(isOpen ? null : key)}
-                  className="flex items-center gap-3 p-2 rounded-2xl"
-                >
-                  <div
-                    className="size-10 rounded-full shadow-sm shrink-0 relative"
-                    style={{ background: `var(--color-${key})` }}
-                  >
-                    {isOverridden && (
-                      <div className="size-2.5 rounded-full bg-primary border-2 border-surface absolute -top-0.5 -right-0.5" />
-                    )}
-                  </div>
-                  <span className="text-title-medium flex-1">{label}</span>
-                  <motion.svg
-                    className="mr-2 text-on-surface-variant shrink-0"
-                    animate={{ rotate: isOpen ? 180 : 0 }}
-                    transition={{ duration: 0.2 }}
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path d="M7 10l5 5 5-5z" />
-                  </motion.svg>
-                </Card>
-
-                <AnimatePresence initial={false}>
-                  {isOpen && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25, ease: 'easeInOut' }}
-                      style={{ overflow: 'hidden' }}
+        <SettingsSection
+          id="palettes"
+          title="Palettes"
+          description="Oriente les palettes dérivées de la source"
+          settings={
+            <>
+              <div className="flex flex-col gap-2">
+                {PALETTES.map(({ key, label }) => {
+                  const hex = getPaletteHex(key);
+                  const isOpen = activePalette === key;
+                  const isOverridden =
+                    $config.palettes?.[key] !== undefined &&
+                    !isDerivedPaletteOverride($config.palettes?.[key]);
+                  return (
+                    <div
+                      key={key}
+                      className="overflow-hidden rounded-2xl bg-surface-container-highest"
                     >
-                      <div className="px-4 pt-6">
-                        <ColorPicker paletteKey={key} showTone={false} />
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                      <Card
+                        interactive
+                        variant="filled"
+                        onClick={() => setActivePalette(isOpen ? null : key)}
+                        className="flex items-center gap-3 p-2 rounded-2xl"
+                      >
+                        <div
+                          className="size-10 rounded-full shadow-sm shrink-0 relative"
+                          style={{ background: `var(--color-${key})` }}
+                        >
+                          {isOverridden && (
+                            <div className="size-2.5 rounded-full bg-primary border-2 border-surface absolute -top-0.5 -right-0.5" />
+                          )}
+                        </div>
+                        <span className="text-title-medium flex-1">
+                          {label}
+                        </span>
+                        <motion.svg
+                          className="mr-2 text-on-surface-variant shrink-0"
+                          animate={{ rotate: isOpen ? 180 : 0 }}
+                          transition={{ duration: 0.2 }}
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                        >
+                          <path d="M7 10l5 5 5-5z" />
+                        </motion.svg>
+                      </Card>
+
+                      <AnimatePresence initial={false}>
+                        {isOpen && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.25, ease: 'easeInOut' }}
+                            style={{ overflow: 'hidden' }}
+                          >
+                            <div className="px-4 pt-6">
+                              <ColorPicker paletteKey={key} />
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
-        </div>
+            </>
+          }
+        />
       </div>
 
       <div className="flex justify-end">
@@ -399,7 +606,7 @@ export const ThemePicker: React.FC = () => {
           onClick={handleExport}
         />
       </div>
-    </div>
+    </>
   );
 };
 

@@ -3,16 +3,24 @@ import { Card, Switch } from '@udixio/ui-react';
 import { iDarkMode } from '@udixio/icons-rounded-400/dark_mode';
 import { iLightMode } from '@udixio/icons-rounded-400/light_mode';
 import { useStore } from '@nanostores/react';
-import { themeConfigStore } from '@/stores/themeConfigStore.ts';
+import { Color } from '@udixio/theme';
+import {
+  resolveSourceColor,
+  themeConfigStore,
+} from '@/stores/themeConfigStore.ts';
 
 export const ThemeQuickEdit = () => {
   const $config = useStore(themeConfigStore);
+  const sourceHex = resolveSourceColor($config.sourceColor).hex;
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
       const isActuallyDark = document.body.classList.contains('dark');
       if (isActuallyDark !== themeConfigStore.get().isDark) {
-        themeConfigStore.set({ ...themeConfigStore.get(), isDark: isActuallyDark });
+        themeConfigStore.set({
+          ...themeConfigStore.get(),
+          isDark: isActuallyDark,
+        });
       }
     }
   }, []);
@@ -32,21 +40,26 @@ export const ThemeQuickEdit = () => {
       <div className="flex items-center gap-4 md:gap-6">
         <div
           className="relative w-12 h-12 rounded-full shadow-md border-2 border-outline-variant overflow-hidden shrink-0 transition-colors"
-          style={{ backgroundColor: $config.sourceColor as string }}
+          style={{ backgroundColor: sourceHex }}
         >
           <input
             title="Change Primary Color"
             type="color"
-            value={$config.sourceColor as string}
+            value={sourceHex}
             onChange={(e) =>
-              themeConfigStore.set({ ...themeConfigStore.get(), sourceColor: e.target.value })
+              themeConfigStore.set({
+                ...themeConfigStore.get(),
+                sourceColor: Color.fromHex(e.target.value),
+              })
             }
             className="absolute inset-0 w-[200%] h-[200%] -top-1/2 -left-1/2 opacity-0 cursor-pointer"
             aria-label="Change primary color"
           />
         </div>
         <div className="flex flex-col">
-          <span className="text-title-medium font-bold text-on-surface">Couleur de base</span>
+          <span className="text-title-medium font-bold text-on-surface">
+            Couleur de base
+          </span>
           <span className="text-label-medium text-on-surface-variant hidden md:block">
             Génère automatiquement toute la palette
           </span>
