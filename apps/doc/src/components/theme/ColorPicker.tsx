@@ -893,7 +893,7 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
             className="relative aspect-square w-full touch-none select-none"
             role="slider"
             tabIndex={0}
-            aria-label="Sélection HCT de la chroma et du ton avec courbes de contraste par rapport à surface : 3:1, 4.5:1 et 7:1"
+            aria-label="HCT chroma and tone picker with contrast curves against surface: 3:1, 4.5:1 and 7:1"
             aria-valuemin={0}
             aria-valuemax={Math.round(maxChroma * 10) / 10}
             aria-valuenow={Math.round(boundedChroma * 10) / 10}
@@ -993,7 +993,7 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
                 step="0.1"
                 value={hue}
                 disabled={isHueLocked}
-                aria-label="Teinte principale"
+                aria-label="Main hue"
                 onChange={(event) =>
                   handleHueChange(Number(event.target.value))
                 }
@@ -1057,7 +1057,7 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
                       })}
                     </dl>
                     <p className="text-body-small text-on-surface-variant">
-                      Par rapport à la surface du thème.
+                      Relative to the theme surface.
                     </p>
                   </div>
                 }
@@ -1066,7 +1066,7 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
                   icon={iInfo}
                   variant="standard"
                   size="xSmall"
-                  label="À propos du contraste"
+                  label="About contrast"
                 />
               </Tooltip>
             </div>
@@ -1095,7 +1095,7 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
       {paletteKey && paletteHasManualOverride && (
         <div className="flex justify-end">
           <Button variant="text" size="small" onClick={handleReset}>
-            Réinitialiser
+            Reset
           </Button>
         </div>
       )}

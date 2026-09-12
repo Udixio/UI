@@ -15,7 +15,7 @@ import { createUseStyle } from '../utils/create-use-style';
 import { useControllableState } from '../utils/use-controllable-state';
 
 export type ReactChipProps = Omit<ReactProps<ChipInterface>, 'ref'> & {
-  // `children` sert de repli de `label` → typé string (comme l'ancien contrat)
+  // `children` is the fallback for `label` → typed string (as in the former contract)
   children?: string;
   transition?: Transition;
   ref?: React.Ref<HTMLButtonElement | HTMLAnchorElement>;
@@ -59,7 +59,7 @@ export const Chip = ({
   transition,
   children,
   editing,
-  // Handlers utilisateur composés avec les handlers internes
+  // User handlers composed with the internal handlers
   onFocus: userOnFocus,
   onBlur: userOnBlur,
   onKeyDown: userOnKeyDown,
@@ -98,9 +98,9 @@ export const Chip = ({
   const editSpanRef = React.useRef<HTMLSpanElement>(null);
   useEffect(() => {
     if (editable && isFocused && !isEditing) {
-      // Délai de 1 seconde avant d'activer l'édition
+      // 1-second delay before enabling editing
       const timerId = setTimeout(() => {
-        // Ignore l'édition si draggable et en cours de dragging
+        // Skip editing when draggable and currently dragging
         if (draggable && isDragging) {
           return;
         }
@@ -110,10 +110,10 @@ export const Chip = ({
         onEditStart?.();
       }, 1000);
 
-      // Cleanup: annule le timer si le focus est perdu avant 1 seconde
+      // Cleanup: cancel the timer if focus is lost before 1 second
       return () => clearTimeout(timerId);
     } else if (!isFocused) {
-      // Désactive l'édition immédiatement si le focus est perdu
+      // Disable editing immediately when focus is lost
       if (editing === undefined) {
         setInternalEditing(false);
       }
@@ -182,7 +182,7 @@ export const Chip = ({
 
   const trailingIconHandlers = {
     onMouseDown: (e: React.MouseEvent) => {
-      e.preventDefault(); // ⬅️ clé
+      e.preventDefault(); // ⬅️ key point: keep focus on the chip
       e.stopPropagation();
     },
     onClick: (e: React.MouseEvent) => {

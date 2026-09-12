@@ -6,7 +6,7 @@ export class ColorManager {
   private colorMap = new Map<string, Color>();
   private _version = 0;
 
-  /** Posée par `API` à sa construction, avant que la moindre couleur soit lue. */
+  /** Set by `API` at construction, before any color is read. */
   api!: API;
 
   get version(): number {

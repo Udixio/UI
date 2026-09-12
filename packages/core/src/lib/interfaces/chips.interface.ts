@@ -1,6 +1,6 @@
 import type { Icon } from '../icon';
 
-// Ce que Chips a besoin de connaître pour (re)construire un Chip
+// What Chips needs to know to (re)build a Chip
 export type ChipItem = {
   /** Stable application id. Recommended when items can be reordered. */
   id?: string;
@@ -42,8 +42,8 @@ type Elements = ['chips'];
 export interface ChipsInterface {
   type: 'div';
   props: ChipsProps;
-  // Pas d'état d'interaction. `object` (et non `Record<string, never>`) car ce
-  // dernier rend la signature de style insatisfiable dans l'intersection.
+  // No interaction state. `object` (and not `Record<string, never>`) because
+  // the latter makes the style signature unsatisfiable in the intersection.
   states: object;
   elements: Elements;
 }

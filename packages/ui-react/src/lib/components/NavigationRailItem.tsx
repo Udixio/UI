@@ -36,7 +36,7 @@ export type NavigationRailItemSelectedEvent = Pick<
 
 export type ReactNavigationRailItemProps =
   ReactProps<NavigationRailItemInterface> & {
-    // `children` sert de repli de `label` → typé string (comme Fab / IconButton)
+    // `children` is the fallback for `label` → typed string (like Fab / IconButton)
     children?: string;
     href?: string;
     transition?: Transition;

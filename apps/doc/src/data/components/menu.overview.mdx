@@ -27,11 +27,11 @@ import { ContextMenuAngular } from '@/examples/angular/context-menu.ts';
 import contextMenuReactSource from '@/examples/react/context-menu.tsx?raw';
 import contextMenuAngularSource from '@/examples/angular/context-menu.ts?raw';
 
-## Une famille, une documentation
+## One family, one documentation
 
-`Menu`, `MenuItem`, `MenuGroup`, `MenuHeadline` et `ContextMenu` forment une
-seule famille. Cette page est leur documentation commune ; chaque composant
-conserve une référence API dédiée :
+`Menu`, `MenuItem`, `MenuGroup`, `MenuHeadline` and `ContextMenu` form a
+single family. This page is their shared documentation; each component keeps
+a dedicated API reference:
 
 - [`Menu`](/components/menu/api)
 - [`MenuItem`](/components/menu-item/api)
@@ -39,29 +39,29 @@ conserve une référence API dédiée :
 - [`MenuHeadline`](/components/menu-headline/api)
 - [`ContextMenu`](/components/context-menu/api)
 
-Les deux adaptateurs utilisent le même contrat core, les mêmes styles et le
-même moteur de navigation clavier.
+Both adapters use the same core contract, the same styles and the same
+keyboard navigation engine.
 
-## Choisir la bonne sémantique
+## Choosing the right semantics
 
-Utilisez `purpose="actions"` (valeur par défaut) pour des commandes. Le
-conteneur expose alors `menu` et ses éléments exposent `menuitem`,
-`menuitemradio` ou `menuitemcheckbox`.
+Use `purpose="actions"` (the default) for commands. The container then
+exposes `menu` and its items expose `menuitem`, `menuitemradio` or
+`menuitemcheckbox`.
 
-Utilisez `purpose="selection"` pour une liste d’options. Le conteneur devient
-un `listbox`, les éléments deviennent des `option` et leur état est annoncé
-avec `aria-selected`.
+Use `purpose="selection"` for a list of options. The container becomes a
+`listbox`, the items become `option`s and their state is announced with
+`aria-selected`.
 
-`accessibleLabel` nomme le menu lorsqu’aucun libellé externe ne lui est relié.
+`accessibleLabel` names the menu when no external label is linked to it.
 
 ## Composition
 
-- `MenuItem` représente une commande ou un choix.
-- `MenuGroup` regroupe des éléments et son `label` nomme le groupe.
-- `MenuHeadline` est un repère visuel non interactif. Il ne remplace pas le
-  libellé sémantique d’un `MenuGroup`. Dans un menu composé de groupes,
-  placez-le dans le `MenuGroup` concerné afin qu’il reste dans sa surface.
-- `ContextMenu` ouvre un menu d’actions à la position du pointeur ou via
+- `MenuItem` represents a command or a choice.
+- `MenuGroup` groups items and its `label` names the group.
+- `MenuHeadline` is a non-interactive visual marker. It does not replace the
+  semantic label of a `MenuGroup`. In a menu made of groups, place it inside
+  the relevant `MenuGroup` so it stays within its surface.
+- `ContextMenu` opens an actions menu at the pointer position or via
   `Shift+F10`.
 
 <Code
@@ -74,15 +74,15 @@ avec `aria-selected`.
   <MenuFamilyAngular slot="angular" client:load />
 </Code>
 
-## Variantes, icônes et états
+## Variants, icons and states
 
-`variant="standard"` utilise la surface neutre. `variant="vibrant"` applique la
-couleur de la famille à toute la composition. Les icônes de début et de fin
-restent optionnelles ; un élément désactivé conserve sa structure, mais ne
-reçoit aucune interaction ni couche d’état.
+`variant="standard"` uses the neutral surface. `variant="vibrant"` applies
+the family color to the whole composition. Leading and trailing icons remain
+optional; a disabled item keeps its structure but receives no interaction or
+state layer.
 
-Lorsqu’il n’y a pas de `MenuGroup`, un `MenuHeadline` peut être placé directement
-dans `Menu`.
+When there is no `MenuGroup`, a `MenuHeadline` can be placed directly inside
+`Menu`.
 
 <Code
   codes={{
@@ -94,27 +94,27 @@ dans `Menu`.
   <MenuVariantsAngular slot="angular" client:load />
 </Code>
 
-## Sélection contrôlée et non contrôlée
+## Controlled and uncontrolled selection
 
-Un élément sélectionnable déclare `selectionType="single"` ou
+A selectable item declares `selectionType="single"` or
 `selectionType="multiple"`.
 
-- En React, contrôlez-le avec `selected` et `onSelectedChange`.
-- En Angular, utilisez `selected` et `selectedChange`, y compris avec
+- In React, control it with `selected` and `onSelectedChange`.
+- In Angular, use `selected` and `selectedChange`, including with
   `[(selected)]`.
-- `defaultSelected` initialise un élément non contrôlé.
-- Un élément `single` déjà sélectionné ne se désélectionne pas seul ; le
-  propriétaire du groupe choisit la nouvelle valeur.
+- `defaultSelected` initializes an uncontrolled item.
+- An already selected `single` item does not deselect itself; the group's
+  owner picks the new value.
 
-Les anciens noms `activated` et `onToggle` ont été supprimés : ils mélangeaient
-état résolu et événement, et ne distinguaient pas sélection unique et multiple.
+The former names `activated` and `onToggle` were removed: they mixed resolved
+state with the event, and did not distinguish single from multiple selection.
 
-L’exemple suivant réunit les deux modèles :
+The following example brings both models together:
 
-- un menu d’actions avec des choix radio (`single`) et cases à cocher
-  (`multiple`) ;
-- une liste d’options avec `purpose="selection"` ;
-- des états contrôlés et un état initialisé avec `defaultSelected`.
+- an actions menu with radio choices (`single`) and checkboxes
+  (`multiple`);
+- a list of options with `purpose="selection"`;
+- controlled states and one state initialized with `defaultSelected`.
 
 <Code
   codes={{
@@ -126,12 +126,12 @@ L’exemple suivant réunit les deux modèles :
   <MenuSelectionAngular slot="angular" client:load />
 </Code>
 
-## Liens et contenu scrollable
+## Links and scrollable content
 
-Avec `href`, un `MenuItem` devient un lien natif. Un lien désactivé perd sa
-destination et sort de l’ordre de tabulation. Lorsque le contenu dépasse la
-hauteur maximale du menu, la surface devient scrollable sans modifier la
-navigation au clavier.
+With `href`, a `MenuItem` becomes a native link. A disabled link loses its
+destination and leaves the tab order. When the content exceeds the menu's
+maximum height, the surface becomes scrollable without changing keyboard
+navigation.
 
 <Code
   codes={{
@@ -143,16 +143,15 @@ navigation au clavier.
   <MenuLinksScrollAngular slot="angular" client:load />
 </Code>
 
-## Menu exposé dans un champ de sélection
+## Menu exposed in a select field
 
-`TextField` avec `type="select"` ouvre une surface `purpose="selection"`,
-contrôle la valeur sélectionnée et referme le menu après le choix. Les deux
-adaptateurs partagent ce comportement ; seule la façon de déclarer les options
-diffère :
+`TextField` with `type="select"` opens a `purpose="selection"` surface,
+controls the selected value and closes the menu after the choice. Both
+adapters share this behavior; only the way options are declared differs:
 
-- en React, composez directement des `MenuItem` enfants, ou passez `options` ;
-- en Angular, `options` est le seul moyen de peupler le menu : l’adaptateur ne
-  projette pas de `MenuItem` personnalisés.
+- in React, compose `MenuItem` children directly, or pass `options`;
+- in Angular, `options` is the only way to populate the menu: the adapter does
+  not project custom `MenuItem`s.
 
 <Code
   codes={{
@@ -164,12 +163,11 @@ diffère :
   <MenuSelectFieldAngular slot="angular" client:load />
 </Code>
 
-## Menu contextuel
+## Context menu
 
-Le menu contextuel s’ouvre au clic secondaire ou avec `Shift+F10`. Il place le
-focus sur le premier élément disponible. `Escape` ferme le popup et restaure
-le focus sur le déclencheur ; un clic extérieur ou un défilement le ferme
-également.
+The context menu opens on secondary click or with `Shift+F10`. It moves
+focus to the first available item. `Escape` closes the popup and restores
+focus to the trigger; an outside click or a scroll also closes it.
 
 <Code
   codes={{
@@ -181,11 +179,11 @@ le focus sur le déclencheur ; un clic extérieur ou un défilement le ferme
   <ContextMenuAngular slot="angular" client:load />
 </Code>
 
-## Navigation clavier
+## Keyboard navigation
 
-Dans un menu ouvert :
+In an open menu:
 
-- Flèche bas/haut déplace le focus et boucle aux extrémités.
-- Début/Fin va au premier/dernier élément disponible.
-- La saisie d’un caractère recherche le prochain libellé correspondant.
-- Les éléments désactivés sont ignorés.
+- Arrow down/up moves focus and wraps at both ends.
+- Home/End goes to the first/last available item.
+- Typing a character searches for the next matching label.
+- Disabled items are skipped.

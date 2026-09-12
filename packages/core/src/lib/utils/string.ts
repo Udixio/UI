@@ -7,12 +7,12 @@ export function convertToKebabCase(text: string) {
   if (cached !== undefined) return cached;
 
   const result = text
-    .replace(/([a-z])([A-Z])/g, '$1-$2') // Gérer les transitions camelCase (ajouter un tiret entre les lettres)
+    .replace(/([a-z])([A-Z])/g, '$1-$2') // Handle camelCase transitions (insert a dash between the letters)
     .toLowerCase() // Convertir tout en minuscules
-    .normalize('NFD') // Décomposer les caractères accentués
-    .replace(/[\u0300-\u036f]/g, '') // Supprimer les accents (diacritics)
-    .replace(/[^a-z0-9]+/g, '-') // Remplacer les caractères non-alphanumériques par des tirets
-    .replace(/^-+|-+$/g, ''); // Supprimer les tirets en début/fin
+    .normalize('NFD') // Decompose accented characters
+    .replace(/[\u0300-\u036f]/g, '') // Strip accents (diacritics)
+    .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric characters with dashes
+    .replace(/^-+|-+$/g, ''); // Strip leading/trailing dashes
 
   kebabCache.set(text, result);
   return result;

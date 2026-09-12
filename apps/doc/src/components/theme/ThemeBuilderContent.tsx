@@ -1,6 +1,6 @@
 import React from 'react';
 import { ThemeBuilderNav } from './ThemeBuilderNav';
-import { ThemeApercu } from './ThemeApercu';
+import { ThemePreview } from './ThemePreview';
 import { ThemePalette } from './ThemePalette';
 import { ThemeTokens } from './ThemeTokens';
 
@@ -22,18 +22,18 @@ export const ThemeBuilderContent: React.FC = () => {
     <div className="flex flex-col w-full">
       <ThemeBuilderNav />
 
-      <section id="section-apercu" className="scroll-mt-20">
+      <section id="section-preview" className="scroll-mt-20">
         <SectionHeader
-          title="Aperçu"
-          desc="Le thème appliqué sur des interfaces réelles. Modifie la couleur à gauche pour voir l'impact en direct."
+          title="Preview"
+          desc="The theme applied to real interfaces. Change the color on the left to see the impact live."
         />
-        <ThemeApercu />
+        <ThemePreview />
       </section>
 
       <section id="section-palette" className="scroll-mt-20">
         <SectionHeader
           title="Palette"
-          desc="Rampes de tons HCT 0 → 100 pour chaque famille de couleurs. La mécanique qui génère tout."
+          desc="HCT tone ramps from 0 to 100 for each color family. The machinery that generates everything."
         />
         <ThemePalette />
       </section>
@@ -41,7 +41,7 @@ export const ThemeBuilderContent: React.FC = () => {
       <section id="section-tokens" className="scroll-mt-20">
         <SectionHeader
           title="Tokens"
-          desc="Chaque token sait à quoi il sert. Hover → copie HEX ou var()."
+          desc="Every token knows what it is for. Hover → copy HEX or var()."
         />
         <ThemeTokens />
       </section>

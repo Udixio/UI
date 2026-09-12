@@ -43,45 +43,45 @@ import { ChipEditingAngular } from '@/examples/angular/chip-editing.ts';
 import chipEditingReactSource from '@/examples/react/chip-editing.tsx?raw';
 import chipEditingAngularSource from '@/examples/angular/chip-editing.ts?raw';
 
-## Chip — aperçu et usage
+## Chip — overview and usage
 
-Les Chips sont de petits composants interactifs qui représentent une action, un choix ou une entrée compacte. Ils suivent les principes de Material 3 et se déclinent en quatre grands types d’usage :
+Chips are small interactive components that represent an action, a choice or a compact input. They follow Material 3 principles and come in four main usage types:
 
-- Assist (déclenche une action rapide, proche d’un bouton)
-- Filter (sélection on/off ou multi‑sélection)
-- Input (représente une valeur saisie par l’utilisateur, ex. un tag)
-- Suggestion (propose des options contextuelles)
+- Assist (triggers a quick action, close to a button)
+- Filter (on/off or multi-selection)
+- Input (represents a value entered by the user, e.g. a tag)
+- Suggestion (offers contextual options)
 
-Cette page explique comment utiliser `Chip` dans Udixio, avec des exemples pratiques. Le code du composant pourra évoluer, mais les concepts et bonnes pratiques restent valables.
+This page explains how to use `Chip` in Udixio, with practical examples. The component code may evolve, but the concepts and best practices remain valid.
 
-## Installation et import
+## Installation and import
 
-React :
+React:
 
 ```tsx
 import { Chip } from '@udixio/ui-react';
 ```
 
-Angular :
+Angular:
 
 ```ts
 import { Chip } from '@udixio/ui-angular';
 ```
 
-## Exemple minimal
+## Minimal example
 
-Le libellé se passe avec `label` dans les deux frameworks. React accepte également une chaîne via `children`, raccourci qui n’existe pas dans l’adaptateur Angular.
+The label is passed with `label` in both frameworks. React also accepts a string via `children`, a shortcut that does not exist in the Angular adapter.
 
 <Code codes={{ react: chipBasicReactSource, angular: chipBasicAngularSource }}>
   <ChipBasicReact slot="react" client:load />
   <ChipBasicAngular slot="angular" client:load />
 </Code>
 
-## Types d’usage
+## Usage types
 
-### Assist chip (action rapide)
+### Assist chip (quick action)
 
-Un assist chip déclenche une action immédiate : ouvrir une vue, copier un texte, appliquer un filtre temporaire, etc.
+An assist chip triggers an immediate action: open a view, copy some text, apply a temporary filter, etc.
 
 <Code
   codes={{ react: chipAssistReactSource, angular: chipAssistAngularSource }}
@@ -90,9 +90,9 @@ Un assist chip déclenche une action immédiate : ouvrir une vue, copier un te
   <ChipAssistAngular slot="angular" client:load />
 </Code>
 
-### Filter chip (sélection)
+### Filter chip (selection)
 
-Rendez un chip sélectionnable avec `selected` et `onSelectedChange` en React, ou `selected` et `selectedChange` en Angular. Pour un état autonome, initialisez-le avec `defaultSelected`.
+Make a chip selectable with `selected` and `onSelectedChange` in React, or `selected` and `selectedChange` in Angular. For self-contained state, initialize it with `defaultSelected`.
 
 <Code
   codes={{ react: chipStatesReactSource, angular: chipStatesAngularSource }}
@@ -101,9 +101,9 @@ Rendez un chip sélectionnable avec `selected` et `onSelectedChange` en React, o
   <ChipStatesAngular slot="angular" client:load />
 </Code>
 
-### Suggestion chip (proposition)
+### Suggestion chip (proposal)
 
-Présentez des suggestions contextuelles (réponses rapides, filtres de recherche). Gardez des libellés courts (idéalement ≤ 20 caractères). Utilisez `outlined` sur un fond neutre et `elevated` quand une séparation visuelle supplémentaire est nécessaire.
+Present contextual suggestions (quick replies, search filters). Keep labels short (ideally ≤ 20 characters). Use `outlined` on a neutral background and `elevated` when extra visual separation is needed.
 
 <Code
   codes={{
@@ -115,27 +115,27 @@ Présentez des suggestions contextuelles (réponses rapides, filtres de recherch
   <ChipSuggestionsAngular slot="angular" client:load />
 </Code>
 
-### Input chip (valeur saisie)
+### Input chip (entered value)
 
-Représente des entrées d’utilisateur (ex. tags). L’ajout/retrait est géré par votre logique applicative.
+Represents user input (e.g. tags). Adding and removing is handled by your application logic.
 
 <Code codes={{ react: chipInputReactSource, angular: chipInputAngularSource }}>
   <ChipInputReact slot="react" client:load />
   <ChipInputAngular slot="angular" client:load />
 </Code>
 
-## Icône
+## Icon
 
-Vous pouvez afficher une icône du catalogue Udixio dans le chip. L’adaptateur Angular ne requiert pas Font Awesome.
+You can display an icon from the Udixio catalog inside the chip. The Angular adapter does not require Font Awesome.
 
 <Code codes={{ react: chipIconReactSource, angular: chipIconAngularSource }}>
   <ChipIconReact slot="react" client:load />
   <ChipIconAngular slot="angular" client:load />
 </Code>
 
-## Lien ou action
+## Link or action
 
-Si `href` est fourni, le composant peut se comporter comme un lien. Sinon, il agit comme un contrôle interactif (click/toggle).
+When `href` is provided, the component can behave as a link. Otherwise it acts as an interactive control (click/toggle).
 
 <Code
   codes={{ react: chipActionsReactSource, angular: chipActionsAngularSource }}
@@ -144,11 +144,11 @@ Si `href` est fourni, le composant peut se comporter comme un lien. Sinon, il ag
   <ChipActionsAngular slot="angular" client:load />
 </Code>
 
-## États et accessibilité
+## States and accessibility
 
-- `disabled` rend le chip inactif.
-- Les chips sélectionnables exposent `aria-pressed` automatiquement.
-- Conservez une cible tactile d’au moins 48 dp et un contraste suffisant selon le thème.
+- `disabled` makes the chip inactive.
+- Selectable chips expose `aria-pressed` automatically.
+- Keep a touch target of at least 48 dp and sufficient contrast for the theme.
 
 <Code
   codes={{ react: chipDisabledReactSource, angular: chipDisabledAngularSource }}
@@ -157,27 +157,27 @@ Si `href` est fourni, le composant peut se comporter comme un lien. Sinon, il ag
   <ChipDisabledAngular slot="angular" client:load />
 </Code>
 
-## Chips (liste)
+## Chips (list)
 
-Le composant conteneur `Chips` ne supporte pas le mode `children`. Il rend exclusivement une liste à partir de `items` et notifie les changements via `onItemsChange` en React ou `itemsChange` en Angular.
+The `Chips` container component does not support a `children` mode. It only renders a list from `items` and notifies changes via `onItemsChange` in React or `itemsChange` in Angular.
 
-Les contrats détaillés restent consultables séparément dans les références API de [`Chip`](/components/chip/api) et [`Chips`](/components/chips/api).
+The detailed contracts remain available separately in the [`Chip`](/components/chip/api) and [`Chips`](/components/chips/api) API references.
 
-Un `id` applicatif stable est recommandé, notamment si les items sont réordonnés. Sans `id`, `Chips` conserve un identifiant interne lié à l’objet en React et utilise sa position en Angular.
+A stable application `id` is recommended, especially when items get reordered. Without an `id`, `Chips` keeps an internal identifier tied to the object in React and uses its position in Angular.
 
 <Code codes={{ react: chipsListReactSource, angular: chipsListAngularSource }}>
   <ChipsListReact slot="react" client:load />
   <ChipsListAngular slot="angular" client:load />
 </Code>
 
-`selected` transforme un item en filtre contrôlé. `removable` ajoute l’action de retrait en fin de chip. Un item qui ne déclare aucune de ces capacités reste une action compacte. Utilisez `scrollable` lorsque le défilement horizontal est préférable au retour à la ligne.
+`selected` turns an item into a controlled filter. `removable` adds the remove action at the end of the chip. An item that declares neither capability stays a compact action. Use `scrollable` when horizontal scrolling is preferable to wrapping.
 
-## Édition (variant="input")
+## Editing (variant="input")
 
-- Double‑clic (ou F2/Enter quand le chip a le focus et n’est pas sélectionnable) met un chip en édition directement.
-- L’édition est inline via `contenteditable` (pas de champ d’entrée séparé). Appuyez sur Enter pour valider, Échap pour annuler, ou sortez du focus pour valider.
-- Si vous validez une étiquette vide sur un chip amovible, le chip est retiré.
-- Les raccourcis existants demeurent: Enter/Espace pour la sélection, Retour/Suppr pour `onRemove` quand le chip est sélectionné et non en édition.
+- Double-click (or F2/Enter when the chip has focus and is not selectable) puts a chip into editing directly.
+- Editing is inline via `contenteditable` (no separate input field). Press Enter to commit, Escape to cancel, or blur to commit.
+- Committing an empty label on a removable chip removes the chip.
+- The existing shortcuts remain: Enter/Space for selection, Backspace/Delete for `onRemove` when the chip is selected and not being edited.
 
 <Code
   codes={{ react: chipEditingReactSource, angular: chipEditingAngularSource }}
@@ -186,6 +186,6 @@ Un `id` applicatif stable est recommandé, notamment si les items sont réordonn
   <ChipEditingAngular slot="angular" client:load />
 </Code>
 
-Dans React, maintenir le focus pendant une seconde démarre également l’édition. Ce déclenchement différé n’existe pas dans Angular ; le double‑clic, F2 et Enter restent communs aux deux adaptateurs.
+In React, holding focus for one second also starts editing. This deferred trigger does not exist in Angular; double-click, F2 and Enter remain common to both adapters.
 
-Avec `Chips variant="input"`, React permet en plus de cliquer dans une zone vide du conteneur pour créer un chip. Angular ne propose pas encore ce raccourci de création : ajoutez l’item dans votre logique applicative avant de l’éditer.
+With `Chips variant="input"`, React additionally lets you click an empty area of the container to create a chip. Angular does not offer this creation shortcut yet: add the item in your application logic before editing it.

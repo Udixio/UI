@@ -53,9 +53,9 @@ export class Variant {
   public readonly colors: ColorsConfig;
 
   /**
-   * Les callbacks de palette tels que déclarés.
+   * The palette callbacks as declared.
    *
-   * C'est par là qu'on repart d'un variant existant :
+   * This is the starting point for building on an existing variant:
    *
    * ```ts
    * variant({
@@ -72,12 +72,12 @@ export class Variant {
   public readonly paletteCallbacks: AddPaletteOptions;
 
   /**
-   * Les palettes instanciées, une série par contexte.
+   * The instantiated palettes, one set per context.
    *
-   * Un variant est une description partagée — `Variants.TonalSpot` est un
-   * singleton de module. Deux thèmes construits dans le même processus s'en
-   * servent donc tous les deux, et chacun doit avoir ses propres `Palette`,
-   * sans quoi le second écraserait celles du premier.
+   * A variant is a shared description — `Variants.TonalSpot` is a module
+   * singleton. Two themes built in the same process therefore both use it,
+   * and each must have its own `Palette`s, otherwise the second would
+   * overwrite the first's.
    */
   private readonly byContext = new WeakMap<Context, Record<string, Palette>>();
 
@@ -89,7 +89,7 @@ export class Variant {
     this.paletteCallbacks = options.palettes;
   }
 
-  /** Les palettes de ce variant pour ce contexte, instanciées à la demande. */
+  /** This variant's palettes for this context, instantiated on demand. */
   palettesFor(context: Context): Record<string, Palette> {
     let palettes = this.byContext.get(context);
     if (!palettes) {
@@ -104,7 +104,7 @@ export class Variant {
     return palettes;
   }
 
-  /** Prépare les palettes d'un contexte. `palettesFor` le fait aussi, à la demande. */
+  /** Prepares a context's palettes. `palettesFor` also does it, on demand. */
   init(context: Context) {
     this.palettesFor(context);
   }

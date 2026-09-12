@@ -3,57 +3,56 @@ import type { PaletteRef, ToneAdjuster } from './tone-adjusters';
 import type { Color } from './color.base';
 import type { API } from '../API';
 
-/** Les trois coordonnées perceptuelles qui définissent une couleur. */
+/** The three perceptual coordinates that define a color. */
 export type ColorValue = {
-  /** Teinte, en degrés. 0 <= hue < 360. */
+  /** Hue, in degrees. 0 <= hue < 360. */
   hue: number;
-  /** Colorfulness. Le maximum atteignable dépend de `hue` et `tone`. */
+  /** Colorfulness. The reachable maximum depends on `hue` and `tone`. */
   chroma: number;
-  /** Luminosité perceptuelle. 0 <= tone <= 100. */
+  /** Perceptual lightness. 0 <= tone <= 100. */
   tone: number;
 };
 
 /**
- * Valeur de couleur acceptée à la frontière de configuration.
+ * Color value accepted at the configuration boundary.
  *
- * Les chaînes restent le raccourci prévu pour les configurations courantes ;
- * le moteur les transforme ensuite en `Color`.
+ * Strings remain the intended shortcut for everyday configurations; the
+ * engine then turns them into `Color`.
  */
 export type ColorInput = string | Color;
 
 /**
- * Transforme une couleur pendant sa résolution.
+ * Transforms a color during its resolution.
  *
- * Par défaut, le callback reçoit la couleur de base, avant les règles propres
- * à une couleur de palette. `afterResolution()` permet de cibler la valeur
- * finale.
+ * By default the callback receives the base color, before the rules specific
+ * to a palette color. `afterResolution()` targets the final value instead.
  */
 export type ColorTransform = (color: Color) => Color;
 
 /**
- * Définition acceptée dans la configuration : valeur directe ou
- * transformation de la couleur déjà fournie par le variant.
+ * Definition accepted in the configuration: a direct value or a transform of
+ * the color already provided by the variant.
  */
 export type ColorDefinition = ColorInput | ColorTransform;
 
-/** Une collection de définitions de couleurs, éventuellement calculée par l'API. */
+/** A collection of color definitions, optionally computed from the API. */
 export type ColorConfigRecord<Value> =
   Record<string, Value> | ((api: API) => Record<string, Value>);
 
-/** Contrat commun des couleurs de configuration et des variantes. */
+/** Common contract of configuration colors and variants. */
 export type ColorsConfig = ColorConfigRecord<ColorDefinition>;
 
 /**
- * @param palette Palette source, qui fournit la teinte et le chroma. Désignée
- *     par sa clé — `'neutral'` — ou directement. La passer plutôt qu'un couple
- *     hue/chroma permet de préserver le chroma voulu quand le ton bouge.
- * @param tone Le ton par défaut. À défaut, {@link DEFAULT_TONE}.
- * @param adjustTone Ajuste le ton après les personnalisations classiques de la
- *     couleur. Compose ce que tu veux — `contrastAgainst`,
- *     `avoidBackgroundGap`, `applyToneDelta`, `arbitrateBackgrounds`, ou ton
- *     propre calcul.
- * @param chromaMultiplier Facteur appliqué au chroma après les personnalisations
- *     classiques. Défaut 1.
+ * @param palette Source palette, which provides the hue and chroma. Referenced
+ *     by its key — `'neutral'` — or directly. Passing it rather than a
+ *     hue/chroma pair preserves the intended chroma when the tone moves.
+ * @param tone The default tone. Falls back to {@link DEFAULT_TONE}.
+ * @param adjustTone Adjusts the tone after the color's regular
+ *     customizations. Compose whatever you need — `contrastAgainst`,
+ *     `avoidBackgroundGap`, `applyToneDelta`, `arbitrateBackgrounds`, or your
+ *     own computation.
+ * @param chromaMultiplier Factor applied to the chroma after the regular
+ *     customizations. Defaults to 1.
  */
 export type PaletteColorOptions = {
   palette: PaletteRef;
@@ -62,20 +61,20 @@ export type PaletteColorOptions = {
   chromaMultiplier?: () => number | undefined;
 };
 
-/** Les mêmes options, une fois résolues. */
+/** The same options, once resolved. */
 export type ResolvedPaletteColor = {
   palette: Palette;
   tone: number;
-  /** Le chroma effectivement appliqué : celui de la palette, multiplié. */
+  /** The chroma actually applied: the palette's, multiplied. */
   chroma: number;
 };
 
 /**
- * Ancien nom de l'entrée directe du registre.
+ * Former name of the registry's direct entry.
  *
- * Les recettes de palette passent désormais par `Color.fromPalette()`.
+ * Palette recipes now go through `Color.fromPalette()`.
  */
 export type ColorOptions = ColorInput;
 
-/** Ancien nom d'une définition enregistrable. */
+/** Former name of a registrable definition. */
 export type ColorRegistration = ColorDefinition;

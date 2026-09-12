@@ -82,11 +82,11 @@ export default defineConfig({
     shikiConfig: {
       transformers: [
         {
-          // attache la source brute dans une propriété sur <pre>
+          // attach the raw source as a property on <pre>
           pre(hast) {
             hast.properties = hast.properties || {};
             hast.properties['data-code'] = this.source;
-            // tu peux aussi attacher metadata: hast.properties['data-meta'] = this.options.meta?.__raw
+            // metadata can also be attached: hast.properties['data-meta'] = this.options.meta?.__raw
           },
         },
       ],
@@ -97,7 +97,7 @@ export default defineConfig({
     mdx({
       remarkPlugins: [],
       rehypePlugins: [],
-      // Configuration des composants personnalisés
+      // Custom components configuration
     }),
     react(),
     angular({

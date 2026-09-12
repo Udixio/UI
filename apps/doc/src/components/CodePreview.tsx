@@ -15,7 +15,7 @@ import {
 type SingleSourceProps = {
   mode?: 'single';
   code?: string;
-  /** Langue du bloc, affichée dans la barre d'outils. */
+  /** Language of the block, shown in the toolbar. */
   language?: string;
   className?: string;
 };
@@ -34,12 +34,11 @@ const frameworkLabels: Record<ExampleFramework, string> = {
   angular: 'Angular',
 };
 
-// ─── Coque partagée ───────────────────────────────────────────────────────────
-// Ces classes sont l'unique définition de l'habillage d'un bloc de code : la
-// carte et le corps sont rendus côté Astro (les panneaux multiframework
-// contiennent des îlots React/Angular que React ne peut pas posséder), la barre
-// côté React. Code.astro les importe pour que les deux modes ne puissent pas
-// diverger.
+// ─── Shared shell ─────────────────────────────────────────────────────────────
+// These classes are the single definition of a code block's chrome: the card
+// and the body are rendered on the Astro side (the multi-framework panels hold
+// React/Angular islands that React cannot own), the toolbar on the React side.
+// Code.astro imports them so the two modes cannot diverge.
 export const codeCardClass =
   'not-prose card-code mt-4 overflow-hidden rounded-2xl bg-surface-container-low';
 export const codeBodyClass = 'bg-surface-bright';
@@ -48,7 +47,7 @@ export const codePanelClass = 'code-source overflow-auto p-4';
 const toolbarClass =
   'flex min-h-12 flex-wrap items-center justify-between gap-2 border-b border-outline-variant bg-surface-container-high px-2 py-1';
 
-/** Copie + annonce vocale, partagées par les deux barres d'outils. */
+/** Copy + screen-reader announcement, shared by both toolbars. */
 function useCopyToClipboard() {
   const [copied, setCopied] = useState(false);
   const liveRef = useRef<HTMLDivElement | null>(null);
@@ -84,7 +83,7 @@ function useCopyToClipboard() {
   return { copied, copy, liveRef };
 }
 
-/** Barre d'outils : `start` à gauche, `end` à droite, annonce vocale incluse. */
+/** Toolbar: `start` on the left, `end` on the right, announcement included. */
 const CodeToolbar = ({
   start,
   end,
@@ -213,9 +212,9 @@ const MultiFrameworkToolbar = ({
   );
 };
 
-// Une seule source : ni sélecteur de framework, ni bascule preview/code — il n'y
-// a rien à prévisualiser. La coque (carte, corps) est rendue par Code.astro,
-// exactement comme pour le multiframework.
+// A single source: no framework selector, no preview/code toggle — there is
+// nothing to preview. The shell (card, body) is rendered by Code.astro, exactly
+// as for the multi-framework case.
 const SingleSourceToolbar = ({ code, language }: SingleSourceProps) => {
   const { copied, copy, liveRef } = useCopyToClipboard();
 

@@ -100,15 +100,16 @@ const highestSurface = (
 };
 
 /**
- * Pousse le ton vers le blanc ou le noir — selon le mode — jusqu'à atteindre un
- * contraste minimal avec une couleur de référence.
+ * Pushes the tone toward white or black — depending on the mode — until it
+ * reaches a minimum contrast with a reference color.
  *
- * Le seuil suit le niveau de contraste global : de 3:1 à 7:1 quand il monte de
- * 0 à 1, et il se relâche jusqu'à 0 dans les niveaux négatifs. C'est ce qui
- * distingue le variant `udixio` du contraste par courbe des variants standard.
+ * The threshold follows the global contrast level: from 3:1 to 7:1 as it
+ * rises from 0 to 1, and it relaxes down to 0 in the negative levels. This
+ * is what sets the `udixio` variant apart from the curve-based contrast of
+ * the standard variants.
  *
- * @param reference La couleur à contraster. Par défaut, la surface la plus
- *     haute du mode courant.
+ * @param reference The color to contrast against. Defaults to the highest
+ *     surface of the current mode.
  */
 export const minContrastTone =
   (reference?: ColorRef): ToneAdjuster =>
@@ -134,7 +135,7 @@ export const minContrastTone =
     return tone + (inverseT - tone) * ratio;
   };
 
-/** `minContrastTone` n'a besoin que du registre, pas de l'API entière. */
+/** `minContrastTone` only needs the registry, not the whole API. */
 const resolveColorRef = (reference: ColorRef, colors: ColorApi): Color => {
   if (typeof reference === 'string') return colors.get(reference);
   if (typeof reference === 'function') return reference();
@@ -161,10 +162,10 @@ export const udixioVariant: Variant = variant({
       chroma: sourceColor.chroma,
     }),
     neutral: ({ sourceColor }) => {
-      // Le chroma maximal varie selon la teinte, et selon le ton. On situe la
-      // source entre la teinte la plus contrainte et la plus libre *à son
-      // ton*, et le neutre va de 5 (une pointe de teinte garantie) à 10 (la
-      // limite au-delà de laquelle une surface cesse d'être neutre).
+      // The maximum chroma varies with the hue, and with the tone. The source
+      // is placed between the most constrained and the freest hue *at its
+      // tone*, and the neutral goes from 5 (a guaranteed hint of hue) to 10
+      // (the limit beyond which a surface stops being neutral).
       const range = Color.chromaRangeAt(sourceColor.tone);
       return {
         hue: sourceColor.hue,
@@ -765,8 +766,8 @@ export const udixioVariant: Variant = variant({
             : tMaxC(palettes.get('error'), 0, 90);
         },
         adjustTone: (args) =>
-          // La courbe ne vaut rien en contraste nul ou négatif ; sans passe de
-          // contraste, un fond n'est pas écarté de la zone médiane non plus.
+          // The curve is worthless at zero or negative contrast; without a contrast
+          // pass, a background is not pushed out of the middle band either.
           args.context.contrastLevel > 0
             ? backgroundGapTone(
                 contrastTone(

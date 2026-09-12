@@ -9,25 +9,30 @@ import { stateCss } from '../emit/state.css';
 import { shadowCss } from '../emit/shadow.css';
 
 export interface TailwindPluginOptions {
+  /**
+   * `class`: dark mode is enabled by `darkSelector`; `media`: by
+   * `prefers-color-scheme`. In both cases `darkSelector` and
+   * `lightSelector` remain usable to force a subtree.
+   */
   darkMode?: 'class' | 'media';
   dynamicSelector?: string;
+  /** Class that forces dark mode on a subtree. @default '.dark' */
   darkSelector?: string;
   responsiveBreakPoints?: Record<string, number>;
   outFile?: string;
   /**
-   * Thèmes dérivés, appliqués via `.theme-{nom}`.
+   * Derived themes, applied via `.theme-{name}`.
    *
-   * Seule la **teinte** de chaque valeur est utilisée : le chroma et le ton
-   * proviennent toujours de `sourceColor`, pour que tous les sous-thèmes
-   * restent harmonisés entre eux.
+   * Only the **hue** of each value is used: chroma and tone always come from
+   * `sourceColor`, so that all sub-themes stay harmonized with each other.
    */
   subThemes?: Record<string, string | Color | number>;
   /**
-   * Émet `--color-*: initial;` dans le bloc `@theme`, ce qui supprime toute la
-   * palette de couleurs par défaut de Tailwind pour ne garder que celle du thème.
+   * Emits `--color-*: initial;` in the `@theme` block, which removes
+   * Tailwind's entire default color palette to keep only the theme's.
    *
-   * Passer `false` pour conserver les couleurs Tailwind (`red-500`, `slate-200`, …)
-   * à côté des couleurs générées.
+   * Pass `false` to keep the Tailwind colors (`red-500`, `slate-200`, …)
+   * alongside the generated ones.
    *
    * @default true
    */
@@ -44,13 +49,13 @@ function createFlexibleSelector(...classes: (string | undefined)[]): string {
   if (classes.length === 0) return '';
   if (classes.length === 1 && classes[0]) return classes[0];
 
-  // Approche plus simple : générer les cas les plus courants
+  // Simpler approach: generate the most common cases
   const selectors: string[] = [];
 
-  // 1. Toutes les classes sur le même élément
+  // 1. All classes on the same element
   selectors.push(classes.join(''));
 
-  // 2. Chaque classe comme ancêtre des autres
+  // 2. Each class as an ancestor of the others
   for (let i = 0; i < classes.length; i++) {
     const ancestor = classes[i];
     const descendants = classes.filter(
@@ -61,14 +66,14 @@ function createFlexibleSelector(...classes: (string | undefined)[]): string {
       selectors.push(`${ancestor} ${descendants[0]}`);
     } else if (descendants.length > 1) {
       selectors.push(`${ancestor} ${descendants.join('')}`);
-      // Aussi les descendants séparés
+      // Also the descendants separately
       for (const desc of descendants) {
         selectors.push(`${ancestor} ${desc}`);
       }
     }
   }
 
-  // 3. Permutations adjacentes (A B, B A)
+  // 3. Adjacent permutations (A B, B A)
   for (let i = 0; i < classes.length; i++) {
     for (let j = i + 1; j < classes.length; j++) {
       selectors.push(`${classes[i]} ${classes[j]}`);
@@ -76,7 +81,7 @@ function createFlexibleSelector(...classes: (string | undefined)[]): string {
     }
   }
 
-  // Supprimer les doublons
+  // Remove duplicates
   const uniqueSelectors = [...new Set(selectors)];
 
   return `:is(${uniqueSelectors.join(', ')})`;

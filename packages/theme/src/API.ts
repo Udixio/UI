@@ -24,7 +24,7 @@ export class API {
     context: Context;
   }) {
     colorApi.api = this;
-    // Les ajusteurs de ton reçoivent l'API entière ; le manager la leur passe.
+    // Tone adjusters receive the whole API; the manager hands it to them.
     colorManager.api = this;
 
     this.context = context;

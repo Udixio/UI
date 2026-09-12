@@ -2,13 +2,13 @@ import type { ShikiTransformer } from 'shiki';
 import type { ElementContent } from 'hast';
 
 /**
- * Transformers Shiki reprenant les annotations qu'apportait expressive-code
- * (`del` / `ins` / `mark`). Les styles sont posés en classes Tailwind directement
- * dans le hast : elles apparaissent en littéral dans ce fichier, donc le scanner
- * Tailwind les voit et aucune feuille CSS n'est nécessaire.
+ * Shiki transformers reproducing the annotations expressive-code provided
+ * (`del` / `ins` / `mark`). Styles are set as Tailwind classes directly in the
+ * hast: they appear literally in this file, so the Tailwind scanner sees them
+ * and no stylesheet is needed.
  */
 
-/** `'3-5'` ou `'4,6,15'` → `[3,4,5]` / `[4,6,15]`. */
+/** `'3-5'` or `'4,6,15'` → `[3,4,5]` / `[4,6,15]`. */
 export function parseLines(spec: string): number[] {
   const lines: number[] = [];
 
@@ -25,7 +25,7 @@ export function parseLines(spec: string): number[] {
   return lines;
 }
 
-/** Surligne des lignes entières : rouge barré pour `del`, vert pour `ins`. */
+/** Highlights whole lines: red strikethrough for `del`, green for `ins`. */
 export function transformerDiffLines(spec: {
   del?: string;
   ins?: string;
@@ -46,24 +46,24 @@ export function transformerDiffLines(spec: {
 }
 
 /**
- * Surligne des mots à l'intérieur des tokens. Un token Shiki comme
- * `"text-headline-small font-bold"` est un seul nœud texte : on le redécoupe pour
- * n'encadrer que le mot visé.
+ * Highlights words inside tokens. A Shiki token such as
+ * `"text-headline-small font-bold"` is a single text node: it is split again so
+ * that only the targeted word gets wrapped.
  */
 export function transformerMarkWords(words: string[]): ShikiTransformer {
   const escaped = words
     .map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-    // Le plus long d'abord, sinon `text-on-surface` capterait le début de
-    // `text-on-surface-variant` et le suffixe resterait en clair.
+    // Longest first, otherwise `text-on-surface` would capture the start of
+    // `text-on-surface-variant` and the suffix would stay unhighlighted.
     .sort((a, b) => b.length - a.length);
 
   return {
     name: 'udixio:mark-words',
     span(node, _line, _col, _lineElement, token) {
-      // Un token peut contenir plusieurs mots visés (`class="… bg-primary-container
-      // text-on-primary-container …"`), d'où un découpage global plutôt qu'un
-      // seul `find`. Le groupe capturant conserve les séparateurs dans le split :
-      // les index impairs sont les correspondances.
+      // A token can hold several targeted words (`class="… bg-primary-container
+      // text-on-primary-container …"`), hence a global split rather than a
+      // single `find`. The capturing group keeps the separators in the split:
+      // odd indexes are the matches.
       const parts = token.content.split(new RegExp(`(${escaped.join('|')})`, 'g'));
       if (parts.length < 2) return;
 

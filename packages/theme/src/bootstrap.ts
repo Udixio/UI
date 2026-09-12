@@ -2,12 +2,12 @@ import { AppContainer } from './app.container';
 import { API } from './API';
 
 /**
- * Construit un thème isolé.
+ * Builds an isolated theme.
  *
- * Chaque appel obtient son propre conteneur, donc son propre `Context`, ses
- * propres couleurs et ses propres palettes. Sans quoi deux thèmes vivant dans
- * le même processus — le worker de `ui-react`, un rendu SSR, une suite de
- * tests — se partageraient tout, et le second écraserait le premier.
+ * Each call gets its own container, hence its own `Context`, its own colors
+ * and its own palettes. Otherwise two themes living in the same process — the
+ * `ui-react` worker, an SSR render, a test suite — would share everything,
+ * and the second would overwrite the first.
  */
 export function bootstrap(): API {
   return AppContainer({ fresh: true }).resolve<API>('api');

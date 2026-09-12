@@ -34,13 +34,13 @@ import { iAnalytics } from '@udixio/icons-rounded-400/analytics';
 import { iAnalyticsFilled } from '@udixio/icons-rounded-400/analytics.filled';
 
 /*
-  Chaque device a son propre zoom pour simuler son écran réel :
-  - Phone   0.75 → ~200 dp virtual (phone réel ~390 dp)
-  - Tablet  0.60 → ~720 dp virtual (tablette réelle ~768 dp)
-  - Desktop 0.50 → ~1152 dp virtual (desktop standard ~1280 dp)
+  Each device has its own zoom to simulate its real screen:
+  - Phone   0.75 → ~200 dp virtual (real phone ~390 dp)
+  - Tablet  0.60 → ~720 dp virtual (real tablet ~768 dp)
+  - Desktop 0.50 → ~1152 dp virtual (standard desktop ~1280 dp)
 
-  Breakpoints calculés pour que les devices remplissent exactement
-  la largeur du container au seuil d'apparition.
+  Breakpoints computed so the devices fill exactly the container width at
+  the threshold where they appear.
 */
 const PHONE_ZOOM = 0.75;
 const TABLET_ZOOM = 0.60;
@@ -49,8 +49,8 @@ const DESKTOP_ZOOM = 0.50;
 /* ─────────────────────────────────────────
    Device frame — h-full w-full, no aspect-ratio
    (sizing handled by parent wrapper)
-   Le contenu est positionné en absolu avec zoom pour
-   simuler un grand écran à l'échelle 1.
+   Content is absolutely positioned with zoom to simulate
+   a large screen at scale 1.
 ───────────────────────────────────────── */
 const DeviceFrame = ({
   children,
@@ -69,7 +69,7 @@ const DeviceFrame = ({
       className={`relative h-full w-full border-[6px] border-outline shadow-xl overflow-hidden bg-surface ${className}`}
       style={{ borderRadius }}
     >
-      {/* Contenu à l'échelle 1, zoomé pour tenir dans le frame */}
+      {/* Content at scale 1, zoomed to fit inside the frame */}
       <div
         className="absolute top-0 left-0 flex flex-col"
         style={{ zoom, width: inv, height: inv }}
@@ -94,7 +94,7 @@ const StatusBar = ({ light = false }: { light?: boolean }) => (
 );
 
 /* ─── Phone ── Focus task tracker
-   Montre : Card (elevated / filled / outlined), Checkbox, Chip (filter),
+   Shows: Card (elevated / filled / outlined), Checkbox, Chip (filter),
             ProgressIndicator circular, Fab tertiary extended, IconButton
 ─────────────────────────────────────────── */
 const PhoneMockup = () => (
@@ -182,9 +182,9 @@ const PhoneMockup = () => (
     </div>
 
     {/*
-      FAB positionné en dehors du div overflow-hidden, comme enfant direct
-      du zoom wrapper (position:absolute = contexte de positionnement).
-      bottom-24 (96dp) = 16dp au-dessus de la barre de nav (h-20 = 80dp).
+      FAB placed outside the overflow-hidden div, as a direct child of the
+      zoom wrapper (position:absolute = positioning context).
+      bottom-24 (96dp) = 16dp above the nav bar (h-20 = 80dp).
     */}
     <div className="absolute bottom-24 right-4">
       <Fab icon={iAdd} variant="tertiary" label="New task" extended />
@@ -193,7 +193,7 @@ const PhoneMockup = () => (
 );
 
 /* ─── Tablet ── Notes writer
-   Montre : NavigationRail, Chip (filter + tag), ProgressIndicator linear,
+   Shows: NavigationRail, Chip (filter + tag), ProgressIndicator linear,
             Button (filled / outlined), Switch, IconButton tonal
 ─────────────────────────────────────────── */
 const TabletMockup = () => (
@@ -285,7 +285,7 @@ const TabletMockup = () => (
 );
 
 /* ─── Desktop ── Projects dashboard
-   Montre : Button (tonal + filled), Card (filled / elevated), Chip (statuts),
+   Shows: Button (tonal + filled), Card (filled / elevated), Chip (statuses),
             ProgressIndicator linear, NavigationRail
 ─────────────────────────────────────────── */
 const DesktopMockup = () => (
@@ -388,29 +388,29 @@ const DesktopMockup = () => (
 /* ─────────────────────────────────────────
    Export
 
-   Les breakpoints correspondent aux zooms par device :
-   le tablet n'apparaît que quand il y a la place pour
-   son frame × (1/TABLET_ZOOM) en contenu, idem pour desktop.
+   The breakpoints match the per-device zooms:
+   the tablet only appears once there is room for
+   its frame × (1/TABLET_ZOOM) of content, same for desktop.
 
-   Hauteurs : les devices remplissent exactement la largeur du container.
-   Phone seul    : h-[min(80cqw,400px)]
+   Heights: the devices fill exactly the container width.
+   Phone only    : h-[min(80cqw,400px)]
    Phone + tablet: @[650px]  h-[54cqw]   — (0.462+1.333) × 54cqw ≈ 97cqw ≈ 650px
-   Tous les 3    : @[1200px] h-[27cqw]   — (0.462+1.333+1.778) × 27cqw ≈ 97cqw ≈ 1200px
+   All three     : @[1200px] h-[27cqw]   — (0.462+1.333+1.778) × 27cqw ≈ 97cqw ≈ 1200px
 ───────────────────────────────────────── */
-export const ThemeApercu: React.FC = () => (
+export const ThemePreview: React.FC = () => (
   <div className="@container p-6">
     <div className="flex gap-4 items-end h-[min(80cqw,400px)] @[650px]:h-[54cqw] @[1200px]:h-[27cqw]">
-      {/* Phone — toujours visible, centré quand seul */}
+      {/* Phone — always visible, centered when alone */}
       <div className="h-full aspect-[9/19.5] shrink-0 mx-auto @[650px]:mx-0">
         <PhoneMockup />
       </div>
 
-      {/* Tablet — à partir de 650px de conteneur */}
+      {/* Tablet — from a 650px container */}
       <div className="hidden @[650px]:block h-full aspect-[4/3] shrink-0">
         <TabletMockup />
       </div>
 
-      {/* Desktop — à partir de 1200px de conteneur */}
+      {/* Desktop — from a 1200px container */}
       <div className="hidden @[1200px]:block h-full aspect-[16/9] shrink-0">
         <DesktopMockup />
       </div>

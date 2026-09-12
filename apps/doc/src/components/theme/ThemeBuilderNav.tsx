@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Tab, Tabs } from '@udixio/ui-react';
 
 const SECTIONS = [
-  { id: 'section-apercu', label: 'Aperçu' },
+  { id: 'section-preview', label: 'Preview' },
   { id: 'section-palette', label: 'Palette' },
   { id: 'section-tokens', label: 'Tokens' },
 ] as const;

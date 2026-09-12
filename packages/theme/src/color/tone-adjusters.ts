@@ -9,80 +9,79 @@ import type { ColorApi } from './color.api';
 import type { PaletteApi } from '../palette/palette.api';
 
 /**
- * Bande de tons qu'une couleur de fond doit éviter : entre `darkCeiling` et
- * `lightFloor`, aucun premier plan — clair ou sombre — n'atteint un contraste
- * suffisant. Un ton qui tombe dedans est repoussé vers le bord le plus proche,
- * la bascule se faisant à `pivot`.
+ * Band of tones a background color must avoid: between `darkCeiling` and
+ * `lightFloor`, no foreground — light or dark — reaches sufficient contrast.
+ * A tone that falls inside it is pushed to the nearest edge, switching sides
+ * at `pivot`.
  *
- * Ces valeurs viennent de la spécification Material ; les modifier fait sortir
- * le thème de la conformité.
+ * These values come from the Material specification; changing them takes the
+ * theme out of compliance.
  */
 export const BACKGROUND_TONE_GAP = {
-  /** Au-dessus, on repousse vers le clair ; en dessous, vers le sombre. */
+  /** Above, push toward light; below, toward dark. */
   pivot: 57,
-  /** Ton minimal du côté clair. */
+  /** Minimum tone on the light side. */
   lightFloor: 65,
-  /** Ton maximal du côté sombre. */
+  /** Maximum tone on the dark side. */
   darkCeiling: 49,
 } as const;
 
-/** Ton d'une couleur qui n'a ni ton explicite ni ajusteur. */
+/** Tone of a color that has neither an explicit tone nor an adjuster. */
 export const DEFAULT_TONE = 50;
 
 /**
- * Ajuste le ton d'une couleur.
+ * Adjusts the tone of a color.
  *
- * Contexte minimal reçu par un ajusteur au moment de la résolution.
+ * Minimal context received by an adjuster at resolution time.
  *
- * L'API complète n'est pas exposée : les ajusteurs de ton ont uniquement
- * besoin du ton courant, du contexte du thème et des registres de couleurs et
- * de palettes.
+ * The full API is not exposed: tone adjusters only need the current tone, the
+ * theme context and the color and palette registries.
  */
 export type ToneAdjusterArgs = {
-  /** Ton laissé par l'étape précédente de la chaîne. */
+  /** Tone left by the previous step of the chain. */
   tone: number;
-  /** État dynamique du thème : mode sombre, contraste, variant, etc. */
+  /** Dynamic theme state: dark mode, contrast, variant, etc. */
   context: Context;
-  /** Registre des couleurs résolues du thème courant. */
+  /** Registry of the current theme's resolved colors. */
   colors: ColorApi;
-  /** Registre des palettes résolues du thème courant. */
+  /** Registry of the current theme's resolved palettes. */
   palettes: PaletteApi;
 };
 
-/** Un ajusteur reçoit le contexte minimal et rend le ton suivant. */
+/** An adjuster receives the minimal context and returns the next tone. */
 export type ToneAdjuster = (args: ToneAdjusterArgs) => number;
 
 /**
- * Une couleur, désignée par sa clé, directement ou par une résolution différée.
- * Le callback est évalué au moment de l'ajustement et peut fermer sur le
- * contexte dans lequel la couleur a été déclarée.
+ * A color, referenced by its key, directly, or through a deferred resolution.
+ * The callback is evaluated at adjustment time and may close over the context
+ * in which the color was declared.
  */
 export type ColorRef = string | Color | (() => Color);
 
-/** Une palette, désignée par sa clé dans le registre ou directement. */
+/** A palette, referenced by its key in the registry or directly. */
 export type PaletteRef = string | Palette | ((api: API) => Palette);
 
 /**
- * Le contraste visé : un ratio standard, une courbe sur mesure, ou une
- * fonction sans argument quand il dépend du contexte.
+ * The target contrast: a standard ratio, a custom curve, or a zero-argument
+ * function when it depends on the context.
  */
 export type ContrastSpec =
   StandardContrastRatio | ContrastCurve | (() => ContrastCurve | undefined);
 
-/** Sens de l'écart, décrit **depuis la couleur qui le déclare**. */
+/** Direction of the delta, described **from the color that declares it**. */
 export type TonePolarity =
   'darker' | 'lighter' | 'relativeDarker' | 'relativeLighter';
 
-/** Comment satisfaire la contrainte d'écart. */
+/** How to satisfy the delta constraint. */
 export type DeltaConstraint = 'exact' | 'nearer' | 'farther';
 
 export type ToneDelta = {
-  /** L'autre couleur de la paire, dont le ton est déjà résolu. */
+  /** The other color of the pair, whose tone is already resolved. */
   relativeTo: ColorRef;
-  /** Écart requis, en valeur absolue. */
+  /** Required delta, as an absolute value. */
   delta: number;
   polarity: TonePolarity;
-  /** `exact` fige le ton ; `nearer` et `farther` le bornent. */
+  /** `exact` pins the tone; `nearer` and `farther` bound it. */
   constraint: DeltaConstraint;
 };
 
@@ -105,11 +104,11 @@ function resolveCurve(spec: ContrastSpec): ContrastCurve | undefined {
 }
 
 /**
- * Le ton d'un premier plan posé sur `background` : part du ton du fond et le
- * pousse jusqu'à atteindre le contraste visé.
+ * The tone of a foreground placed on `background`: starts from the background
+ * tone and pushes it until the target contrast is reached.
  *
- * C'est la forme des tokens `on*`. Seul ajusteur à **ignorer le ton entrant** —
- * il n'a donc de sens qu'en première position.
+ * This is the shape of the `on*` tokens. The only adjuster that **ignores the
+ * incoming tone** — so it only makes sense in first position.
  */
 export function onColor(
   background: ColorRef,
@@ -122,8 +121,8 @@ export function onColor(
 }
 
 /**
- * Le cœur de {@link contrastAgainst} et {@link onColor}, sur un ton nu.
- * Exporté parce qu'il se teste et se réutilise seul.
+ * The core of {@link contrastAgainst} and {@link onColor}, on a bare tone.
+ * Exported because it is tested and reused on its own.
  */
 export function contrastTone(
   tone: number,
@@ -146,11 +145,11 @@ export function contrastTone(
 }
 
 /**
- * Pousse le ton entrant jusqu'à ce qu'il contraste assez avec `background`.
+ * Pushes the incoming tone until it contrasts enough with `background`.
  *
- * Le ton est laissé tel quel s'il satisfait déjà le ratio — sauf en contraste
- * négatif, où l'on recalcule pour pouvoir le réduire. Sans effet si le
- * contraste résout à `undefined`.
+ * The tone is left as is when it already satisfies the ratio — except under
+ * negative contrast, where it is recomputed so it can be reduced. No effect if
+ * the contrast resolves to `undefined`.
  */
 export function contrastAgainst(
   background: ColorRef,
@@ -160,17 +159,17 @@ export function contrastAgainst(
 }
 
 /**
- * Écarte le ton de la bande où aucun premier plan n'obtient un contraste
- * suffisant. À ne mettre que sur les couleurs qui servent de fond — et jamais
- * après un écart `exact`, qu'il défferait.
+ * Moves the tone out of the band where no foreground gets sufficient
+ * contrast. Only for colors that serve as backgrounds — and never after an
+ * `exact` delta, which it would break.
  */
 export function avoidBackgroundGap(): ToneAdjuster {
   return ({ tone }) => backgroundGapTone(tone);
 }
 
 /**
- * Le cœur de {@link avoidBackgroundGap}, sur un ton nu. Exporté pour les
- * couleurs dont le clamp est conditionnel et qui composent à la main.
+ * The core of {@link avoidBackgroundGap}, on a bare tone. Exported for colors
+ * whose clamp is conditional and that compose it by hand.
  */
 export function backgroundGapTone(tone: number): number {
   const { pivot, lightFloor, darkCeiling } = BACKGROUND_TONE_GAP;
@@ -179,7 +178,7 @@ export function backgroundGapTone(tone: number): number {
     : clampDouble(0, darkCeiling, tone);
 }
 
-/** Impose un écart de ton vis-à-vis d'une autre couleur. */
+/** Enforces a tone delta relative to another color. */
 export function applyToneDelta({
   relativeTo,
   delta,
@@ -212,8 +211,8 @@ export function applyToneDelta({
 }
 
 /**
- * Cherche un ton qui contraste assez avec deux fonds à la fois. Laisse le ton
- * inchangé s'il satisfait déjà les deux.
+ * Looks for a tone that contrasts enough with two backgrounds at once. Leaves
+ * the tone unchanged when it already satisfies both.
  */
 export function arbitrateBackgrounds(
   first: ColorRef,
@@ -237,9 +236,9 @@ export function arbitrateBackgrounds(
       return tone;
     }
 
-    // Le ton clair le plus sombre qui satisfait le ratio, ou -1.
+    // The darkest light tone that satisfies the ratio, or -1.
     const lightOption = Contrast.lighter(upper, ratio);
-    // Le ton sombre le plus clair qui satisfait le ratio, ou -1.
+    // The lightest dark tone that satisfies the ratio, or -1.
     const darkOption = Contrast.darker(lower, ratio);
 
     const prefersLight =

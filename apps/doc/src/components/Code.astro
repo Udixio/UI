@@ -41,10 +41,10 @@ const frameworks = frameworkOrder.filter(
 const isMultiFramework = frameworks.length > 0;
 const rootId = id ?? `code-example-${crypto.randomUUID()}`;
 
-// Astro rend un bloc ``` en `<pre data-code="…" data-language="…"><code>…</code></pre>` :
-// le transformer Shiki de `astro.config.ts` attache la source brute en prop, donc
-// rien à reconstruire. Le repli sur le slot ne sert qu'aux appels sans transformer
-// (ex. `<Code>` utilisé directement dans un .astro).
+// Astro renders a ``` block as `<pre data-code="…" data-language="…"><code>…</code></pre>`:
+// the Shiki transformer in `astro.config.ts` attaches the raw source as a prop, so
+// there is nothing to rebuild. The slot fallback only serves calls without the
+// transformer (e.g. `<Code>` used directly in an .astro file).
 const slotHtml =
   (!isMultiFramework &&
     !dataCode &&
@@ -66,7 +66,7 @@ const codeFromSlot = slotHtml
   })
   .replace(/\n$/, '');
 
-// Code source : priorité à la prop `data-code`, sinon la source reconstruite.
+// Source code: the `data-code` prop first, otherwise the rebuilt source.
 const code = dataCode ?? codeFromSlot;
 ---
 {isMultiFramework ? (

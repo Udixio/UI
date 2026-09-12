@@ -1,44 +1,44 @@
 ---
-title: MCP — Utiliser le package @udixio/mcp
-description: Guide pour installer, lancer et connecter le serveur MCP de la lib UI Udixio.
+title: MCP — Using the @udixio/mcp package
+description: Guide to install, run and connect the MCP server of the Udixio UI library.
 ---
 
 
-# MCP — Utiliser le package `@udixio/mcp`
+# MCP — Using the `@udixio/mcp` package
 
-> **Déprécié.** `@udixio/mcp` embarque un instantané figé de la doc et du thème au moment de son
-> build, qui se périme à chaque évolution de la librairie. Pour connecter un agent IA à Udixio UI
-> aujourd'hui, utilisez plutôt le [plugin Claude Code/Codex ou la doc en markdown](/agents), qui
-> lisent toujours des données à jour. Ce guide reste disponible pour les clients MCP qui n'ont pas
-> d'autre option d'intégration.
+> **Deprecated.** `@udixio/mcp` embeds a frozen snapshot of the docs and theme taken at build
+> time, which goes stale with every evolution of the library. To connect an AI agent to Udixio UI
+> today, use the [Claude Code/Codex plugin or the markdown docs](/agents) instead, which always
+> read up-to-date data. This guide remains available for MCP clients that have no other
+> integration option.
 
-Ce guide explique comment utiliser le serveur MCP pour exposer aux assistants IA (Claude Desktop, Cursor, MCP Inspector, etc.) les informations de la librairie UI :
+This guide explains how to use the MCP server to expose the UI library's information to AI assistants (Claude Desktop, Cursor, MCP Inspector, etc.):
 
-- Liste des composants du design system
-- Recherche dans la documentation (MD/MDX)
-- Tokens de thème (couleurs, espaces, etc.)
-- Accès à des fichiers de doc via une resource `doc://{path}`
+- List of the design system's components
+- Search in the documentation (MD/MDX)
+- Theme tokens (colors, spacing, etc.)
+- Access to doc files through a `doc://{path}` resource
 
-Le serveur MCP est publié sous le nom npm public `@udixio/mcp` et expose un binaire `udixio-mcp`.
+The MCP server is published under the public npm name `@udixio/mcp` and exposes a `udixio-mcp` binary.
 
 
-## Prérequis
+## Prerequisites
 
 - Node.js ≥ 18
 
-Le package `@udixio/mcp` est auto‑contenu: il embarque un instantané (docs, thème, index des composants) et fonctionne sans aucune configuration.
+The `@udixio/mcp` package is self-contained: it embeds a snapshot (docs, theme, component index) and works without any configuration.
 
-## Utilisation (zéro setup)
+## Usage (zero setup)
 
 ```bash
-# Installer le binaire globalement
+# Install the binary globally
 npm i -g @udixio/mcp
 
-# Lancer le serveur MCP (utilise les données embarquées)
+# Start the MCP server (uses the embedded data)
 udixio-mcp
 ```
 
-Intégration côté client (ex. Claude Desktop):
+Client-side integration (e.g. Claude Desktop):
 
 ```json
 {
@@ -49,16 +49,16 @@ Intégration côté client (ex. Claude Desktop):
 ```
 
 
-## Outils MCP exposés (Tools)
+## Exposed MCP tools
 
-Le serveur enregistre plusieurs « tools » accessibles côté client MCP :
+The server registers several "tools" available to the MCP client:
 
-- `listComponents` — retourne la liste des composants et leurs fichiers source relatifs (données embarquées).
-- `getComponentDoc` — prend `{ name: string }` et renvoie des chemins de doc/story correspondants (données embarquées).
-- `searchDocs` — prend `{ query: string, limit?: number }` et effectue une recherche plein texte dans la documentation embarquée.
-- `getThemeTokens` — renvoie l’objet de thème issu du snapshot embarqué.
+- `listComponents` — returns the list of components and their relative source files (embedded data).
+- `getComponentDoc` — takes `{ name: string }` and returns the matching doc/story paths (embedded data).
+- `searchDocs` — takes `{ query: string, limit?: number }` and runs a full-text search in the embedded documentation.
+- `getThemeTokens` — returns the theme object from the embedded snapshot.
 
-Exemple d’appel (depuis un client MCP) :
+Example call (from an MCP client):
 
 ```json
 {
@@ -68,17 +68,17 @@ Exemple d’appel (depuis un client MCP) :
 ```
 
 
-## Resources MCP
+## MCP resources
 
-Une resource est enregistrée pour lire directement des fichiers de doc par chemin relatif à `apps/doc/src` :
+A resource is registered to read doc files directly by path relative to `apps/doc/src`:
 
 - Template: `doc://{path}`
-- Exemple: `doc://components/button.mdx`
+- Example: `doc://components/button.mdx`
 
 
-## Intégration avec un client MCP (Claude Desktop)
+## Integration with an MCP client (Claude Desktop)
 
-Ajoutez/éditez votre configuration utilisateur pour déclarer le serveur MCP. Exemple minimal :
+Add or edit your user configuration to declare the MCP server. Minimal example:
 
 ```json
 {
@@ -90,9 +90,9 @@ Ajoutez/éditez votre configuration utilisateur pour déclarer le serveur MCP. E
 }
 ```
 
-Ensuite, dans le client, demandez par exemple :
+Then, in the client, ask for example:
 
-- « Appelle `listComponents` »
-- « Recherche dans la doc: `searchDocs` avec query=`colors` »
-- « Donne-moi les tokens de thème via `getThemeTokens` »
-- « Ouvre la resource `doc://path/vers/un/fichier.mdx` »
+- "Call `listComponents`"
+- "Search the docs: `searchDocs` with query=`colors`"
+- "Give me the theme tokens via `getThemeTokens`"
+- "Open the resource `doc://path/to/a/file.mdx`"

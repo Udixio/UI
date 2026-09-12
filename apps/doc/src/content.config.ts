@@ -1,10 +1,10 @@
-// 1. Importer des utilitaires depuis `astro:content`
+// 1. Import utilities from `astro:content`
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
-// 2. Importer un ou plusieurs chargeurs
+// 2. Import one or more loaders
 
-// 3. Définir votre/vos collection(s)
+// 3. Define your collection(s)
 const overviews = defineCollection({
   loader: glob({
     pattern: '**/*.overview.{md,mdx}',
@@ -89,7 +89,7 @@ const api = defineCollection({
     .strict(),
 });
 
-// Collection dédiée aux pages de contenu (MD/MDX) avec sous-dossiers
+// Collection dedicated to content pages (MD/MDX) with subfolders
 const pages = defineCollection({
   loader: glob({
     pattern: '**/*.{md,mdx}',

@@ -536,11 +536,11 @@ export class HctSolver {
 }
 
 /**
- * Résout un triplet HCT vers la couleur ARGB la plus proche représentable en sRGB.
+ * Solves an HCT triplet to the closest ARGB color representable in sRGB.
  *
- * Le chroma demandé peut être réduit silencieusement : son maximum diffère pour
- * chaque couple (hue, tone). Utiliser `Color.maxChroma(hue, tone)` pour connaître
- * la borne atteignable.
+ * The requested chroma may be silently reduced: its maximum differs for each
+ * (hue, tone) pair. Use `Color.maxChroma(hue, tone)` to know the reachable
+ * bound.
  */
 export function solveToArgb(hue: number, chroma: number, tone: number): number {
   return HctSolver.solveToInt(hue, chroma, tone);

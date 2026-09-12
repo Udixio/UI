@@ -51,9 +51,9 @@ export abstract class PluginImplAbstract<Options extends object> {
   }
 
   /**
-   * Crochets de cycle de vie, tous deux facultatifs : ils sont appelés en
-   * `?.()`, et une implémentation n'en fournit souvent qu'un seul. Les
-   * déclarer `abstract` forcerait chaque plugin à écrire les deux.
+   * Lifecycle hooks, both optional: they are called with `?.()`, and an
+   * implementation often provides only one of them. Declaring them
+   * `abstract` would force every plugin to write both.
    */
   onInit?(): void;
 

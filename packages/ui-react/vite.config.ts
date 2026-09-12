@@ -70,7 +70,7 @@ export default defineConfig(async () => ({
     },
     rollupOptions: {
       output: {
-        // Worker JS emis sans hash pour que la référence dans dist/index.js soit stable
+        // Worker JS emitted without a hash so the reference in dist/index.js stays stable
         assetFileNames: '[name][extname]',
         chunkFileNames: '[name].js',
       },

@@ -7,12 +7,11 @@ export type PaletteCoordinates = {
 };
 
 /**
- * Résout une palette pour un contexte.
+ * Resolves a palette for a context.
  *
- * Lorsqu'un callback remplace une palette existante, `base` contient la
- * recette héritée recalculée pour le contexte courant. Les callbacks d'un
- * variant et les nouvelles palettes n'ont pas de base et doivent donc
- * retourner les deux coordonnées.
+ * When a callback replaces an existing palette, `base` holds the inherited
+ * recipe recomputed for the current context. A variant's callbacks and new
+ * palettes have no base and must therefore return both coordinates.
  */
 export type PaletteCallback = (
   context: Context,
@@ -120,7 +119,7 @@ export class Palette {
 
   /**
    * @param tone HCT tone.
-   * @return La couleur correspondant à ce ton.
+   * @return The color at that tone.
    */
   getColor(tone: number): Color {
     return Color.fromArgb(this.tone(tone));

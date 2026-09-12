@@ -28,7 +28,7 @@ async function processLatest() {
     } satisfies WorkerOutboundMessage);
   } finally {
     processing = false;
-    // Traite le prochain message s'il est arrivé pendant le traitement
+    // Process the next message if one arrived during processing
     processLatest();
   }
 }

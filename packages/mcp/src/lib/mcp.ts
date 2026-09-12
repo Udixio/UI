@@ -21,12 +21,12 @@ function toJsonText(value: unknown): string {
 export function registerToolsAndResources(server: McpServer) {
   // ============ COMPONENTS TOOLS ============
 
-  // Tool: lister les composants
+  // Tool: list components
   server.registerTool(
     'listComponents',
     {
       title: 'List Components',
-      description: 'Liste tous les composants UI disponibles',
+      description: 'Lists all available UI components',
       inputSchema: {},
     },
     async () => {
@@ -42,14 +42,14 @@ export function registerToolsAndResources(server: McpServer) {
     },
   );
 
-  // Tool: récupérer doc d'un composant
+  // Tool: get a component's doc
   server.registerTool(
     'getComponentDoc',
     {
       title: 'Get Component Doc',
-      description: "Récupère la doc d'un composant (props, exemples, liens)",
+      description: "Gets a component's doc (props, examples, links)",
       inputSchema: {
-        name: z.string().describe('Nom du composant'),
+        name: z.string().describe('Component name'),
       },
     },
     async ({ name }) => {
@@ -67,12 +67,12 @@ export function registerToolsAndResources(server: McpServer) {
 
   // ============ DOCS TOOLS ============
 
-  // Tool: rechercher dans la doc Astro
+  // Tool: search the Astro docs
   server.registerTool(
     'searchDocs',
     {
       title: 'Search Docs',
-      description: 'Recherche plein texte dans la documentation',
+      description: 'Full-text search in the documentation',
       inputSchema: {
         query: z.string(),
         limit: z.number().optional().default(10),
@@ -93,13 +93,13 @@ export function registerToolsAndResources(server: McpServer) {
 
   // ============ THEME TOOLS ============
 
-  // Tool: récupérer tous les tokens de thème
+  // Tool: get all theme tokens
   server.registerTool(
     'getThemeTokens',
     {
       title: 'Get Theme Tokens',
       description:
-        'Récupère tous les tokens de thème (config, couleurs light/dark, palettes)',
+        'Gets all theme tokens (config, light/dark colors, palettes)',
       inputSchema: {},
     },
     async () => {
@@ -115,13 +115,13 @@ export function registerToolsAndResources(server: McpServer) {
     },
   );
 
-  // Tool: récupérer la configuration du thème
+  // Tool: get the theme configuration
   server.registerTool(
     'getThemeConfig',
     {
       title: 'Get Theme Config',
       description:
-        'Récupère la configuration du thème (sourceColor, contrastLevel, variant)',
+        'Gets the theme configuration (sourceColor, contrastLevel, variant)',
       inputSchema: {},
     },
     async () => {
@@ -137,18 +137,18 @@ export function registerToolsAndResources(server: McpServer) {
     },
   );
 
-  // Tool: lister les couleurs disponibles
+  // Tool: list available colors
   server.registerTool(
     'listColors',
     {
       title: 'List Colors',
-      description: 'Liste toutes les couleurs disponibles dans le thème',
+      description: 'Lists all colors available in the theme',
       inputSchema: {
         mode: z
           .enum(['light', 'dark'])
           .optional()
           .default('light')
-          .describe('Mode de couleur (light ou dark)'),
+          .describe('Color mode (light or dark)'),
       },
     },
     async ({ mode = 'light' }) => {
@@ -164,20 +164,20 @@ export function registerToolsAndResources(server: McpServer) {
     },
   );
 
-  // Tool: récupérer une couleur spécifique
+  // Tool: get a specific color
   server.registerTool(
     'getColor',
     {
       title: 'Get Color',
       description:
-        "Récupère les détails d'une couleur spécifique (hex, tone) en mode light ou dark",
+        'Gets the details of a specific color (hex, tone) in light or dark mode',
       inputSchema: {
-        name: z.string().describe('Nom de la couleur (ex: primary, surface)'),
+        name: z.string().describe('Color name (e.g. primary, surface)'),
         mode: z
           .enum(['light', 'dark'])
           .optional()
           .default('light')
-          .describe('Mode de couleur'),
+          .describe('Color mode'),
       },
     },
     async ({ name, mode = 'light' }) => {
@@ -203,12 +203,12 @@ export function registerToolsAndResources(server: McpServer) {
     },
   );
 
-  // Tool: lister les palettes
+  // Tool: list palettes
   server.registerTool(
     'listPalettes',
     {
       title: 'List Palettes',
-      description: 'Liste toutes les palettes de couleurs (hue, chroma)',
+      description: 'Lists all color palettes (hue, chroma)',
       inputSchema: {},
     },
     async () => {
@@ -224,15 +224,15 @@ export function registerToolsAndResources(server: McpServer) {
     },
   );
 
-  // Tool: comparer une couleur en light et dark mode
+  // Tool: compare a color in light and dark mode
   server.registerTool(
     'compareColor',
     {
       title: 'Compare Color',
       description:
-        'Compare une couleur entre les modes light et dark pour voir les différences',
+        'Compares a color between light and dark modes to see the differences',
       inputSchema: {
-        name: z.string().describe('Nom de la couleur à comparer'),
+        name: z.string().describe('Name of the color to compare'),
       },
     },
     async ({ name }) => {
@@ -265,13 +265,13 @@ export function registerToolsAndResources(server: McpServer) {
 
   // ============ RESOURCES ============
 
-  // Resource: exposer un fichier de doc par chemin (nouvelle API)
+  // Resource: expose a doc file by path (new API)
   server.registerResource(
     'doc',
     new ResourceTemplate('doc://{path}', { list: undefined }),
     {
       title: 'Doc Resource',
-      description: 'Lit un fichier de doc relatif à apps/doc',
+      description: 'Reads a doc file relative to apps/doc',
     },
     async (uri, { path }) => {
       const pathStr = Array.isArray(path) ? path.join('/') : path;
@@ -288,13 +288,13 @@ export function registerToolsAndResources(server: McpServer) {
     },
   );
 
-  // Resource: exposer les tokens de thème
+  // Resource: expose the theme tokens
   server.registerResource(
     'theme',
     new ResourceTemplate('theme://tokens', { list: undefined }),
     {
       title: 'Theme Tokens Resource',
-      description: 'Accès aux tokens de thème complets',
+      description: 'Access to the full theme tokens',
     },
     async (uri) => {
       const tokens = await loadThemeTokens();

@@ -173,14 +173,14 @@ export const NavigationRail = ({
               return cloneElement(
                 child as ReactElement<ReactNavigationRailItemProps>,
                 {
-                  // La clé React doit être unique parmi TOUS les enfants de
-                  // segments (items + sections) : arrIndex l'est toujours,
-                  // alors qu'itemIndex (compteur dédié aux seuls items) peut
-                  // entrer en collision avec l'arrIndex d'une section placée
-                  // plus tôt, provoquant une réconciliation incorrecte (ex:
-                  // le texte d'une NavigationRailSection dupliqué après clic).
+                  // The React key must be unique among ALL children of
+                  // segments (items + sections): arrIndex always is, whereas
+                  // itemIndex (a counter dedicated to items only) can collide
+                  // with the arrIndex of a section placed earlier, causing an
+                  // incorrect reconciliation (e.g. a NavigationRailSection's
+                  // text duplicated after a click).
                   key: arrIndex,
-                  index: itemIndex++, // Utilise et incrémente le compteur dédié
+                  index: itemIndex++, // Use and increment the dedicated counter
                   variant: isExtended ? 'horizontal' : 'vertical',
                   selectedItem: selectedIndex,
                   setSelectedItem: setSelectedItem,

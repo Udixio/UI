@@ -58,10 +58,10 @@ export const ThemeQuickEdit = () => {
         </div>
         <div className="flex flex-col">
           <span className="text-title-medium font-bold text-on-surface">
-            Couleur de base
+            Base color
           </span>
           <span className="text-label-medium text-on-surface-variant hidden md:block">
-            Génère automatiquement toute la palette
+            Automatically generates the whole palette
           </span>
         </div>
       </div>
@@ -73,7 +73,7 @@ export const ThemeQuickEdit = () => {
           className="text-title-medium font-bold text-on-surface cursor-pointer select-none"
           onClick={() => toggleDark(!$config.isDark)}
         >
-          Mode Sombre
+          Dark mode
         </span>
         <Switch
           activeIcon={iDarkMode}

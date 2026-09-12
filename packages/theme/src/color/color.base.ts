@@ -71,12 +71,12 @@ function argbToRgb(argb: number): { r: number; g: number; b: number } {
 }
 
 /**
- * La valeur couleur unique du moteur.
+ * The engine's single color value.
  *
- * Une couleur peut être une valeur figée, une résolution depuis une palette ou
- * un alias. Les transformations restent dans la définition et
- * sont évaluées au moment de la résolution. Cela permet à une même couleur
- * dynamique d'être réutilisée dans plusieurs thèmes et contextes.
+ * A color can be a fixed value, a resolution from a palette, or an alias.
+ * Transforms stay in the definition and are evaluated at resolution time.
+ * This lets the same dynamic color be reused across several themes and
+ * contexts.
  */
 export class Color {
   ////////////////////////////////////////////////////////////////
@@ -125,7 +125,11 @@ export class Color {
     return new Color({ kind: 'value', argb });
   }
 
-  /** Valeur HCT interne dont le ton demandé doit rester lisible tel quel. */
+  /**
+   * Internal HCT value of a derived color: only the requested tone stays
+   * readable as is. Hue and chroma are read back from the ARGB, as Material
+   * does at every step — that is what keeps the variants compliant.
+   */
   private static fromResolved({ hue, chroma, tone }: ColorValue): Color {
     return new Color(
       { kind: 'value', argb: solveToArgb(hue, chroma, tone) },
@@ -162,21 +166,21 @@ export class Color {
     return new Color({ kind: 'palette', options: paletteOptions });
   }
 
-  /** Construit un alias résolu à la lecture depuis le registre de couleurs. */
+  /** Builds an alias resolved on read from the color registry. */
   static alias(alias: string | (() => Color)): Color {
     return new Color({ kind: 'alias', alias });
   }
 
-  /** Construit une couleur qui réapplique une transformation à chaque lecture. */
+  /** Builds a color that reapplies a transform on every read. */
   static transform(source: Color, transform: ColorTransform): Color {
     return source.transform(transform);
   }
 
   /**
-   * Le chroma maximal atteignable pour une teinte et un ton donnés.
+   * The maximum chroma reachable for a given hue and tone.
    *
-   * Accepte soit un couple `(hue, tone)`, soit directement une `Color` dont la
-   * teinte et le ton sont lus.
+   * Accepts either a `(hue, tone)` pair, or directly a `Color` whose hue and
+   * tone are read.
    */
   static maxChroma(color: Color): number;
   static maxChroma(hue: number, tone?: number): number;
@@ -203,10 +207,10 @@ export class Color {
   }
 
   /**
-   * L'étendue des chromas maximaux sur les 360 teintes à un ton donné : la
-   * teinte la plus contrainte par le gamut sRGB à ce ton et la plus libre.
-   * Autour du ton 50 c'est un cyan et un rouge ; au-dessus de 80 l'ordre
-   * s'inverse, le rouge devenant la teinte la plus contrainte.
+   * The range of maximum chromas over the 360 hues at a given tone: the hue
+   * most constrained by the sRGB gamut at that tone and the freest one.
+   * Around tone 50 that is a cyan and a red; above 80 the order flips, red
+   * becoming the most constrained hue.
    */
   static chromaRangeAt(tone: number): [number, number] {
     let low = Infinity;
@@ -220,11 +224,11 @@ export class Color {
   }
 
   /**
-   * L'étendue des chromas de pointe sur les 360 teintes : la teinte la plus
-   * contrainte par le gamut sRGB et la plus libre.
+   * The range of peak chromas over the 360 hues: the hue most constrained by
+   * the sRGB gamut and the freest one.
    *
-   * Le calcul parcourt 360 × 101 résolutions HCT ; il sert à établir des
-   * constantes, pas à être appelé à chaque rendu.
+   * The computation walks 360 × 101 HCT resolutions; it is meant to establish
+   * constants, not to be called on every render.
    */
   static gamutChromaRange(): [number, number] {
     const peaks = Array.from({ length: 360 }, (_, hue) =>
@@ -246,15 +250,15 @@ export class Color {
   }
 
   ////////////////////////////////////////////////////////////////
-  // Résolution                                                 //
+  // Resolution                                                 //
   ////////////////////////////////////////////////////////////////
 
   /**
-   * Lie une définition de couleur au contexte d'un thème.
+   * Binds a color definition to a theme's context.
    *
-   * Les définitions peuvent être partagées entre plusieurs thèmes. `init`
-   * retourne donc une instance liée à cette API au lieu de muter la définition
-   * originale. Une couleur déjà initialisée pour la même API est réutilisée.
+   * Definitions may be shared between several themes, so `init` returns an
+   * instance bound to this API instead of mutating the original definition.
+   * A color already initialized for the same API is reused.
    */
   init(api: API): Color {
     if (this.api === api) return this;
@@ -379,9 +383,8 @@ export class Color {
 
     let state = this.resolveBase();
 
-    // Une personnalisation classique intervient sur la couleur de base. Pour
-    // une couleur de palette, cela se produit avant le multiplicateur de
-    // chroma et les ajusteurs de ton.
+    // A regular customization acts on the base color. For a palette color,
+    // that happens before the chroma multiplier and the tone adjusters.
     const before = this.applyTransforms(
       state.color,
       this.beforeTransforms,
@@ -473,22 +476,22 @@ export class Color {
   }
 
   /**
-   * Les paramètres effectivement résolus pour une couleur issue d'une
-   * palette. Les personnalisations conservent cette relation afin que les
-   * outils puissent toujours identifier la palette d'origine.
+   * The parameters actually resolved for a color derived from a palette.
+   * Customizations keep this relationship so tools can always identify the
+   * originating palette.
    */
   get options(): ResolvedPaletteColor | undefined {
     return this.resolve().palette;
   }
 
   ////////////////////////////////////////////////////////////////
-  // Lecture                                                    //
+  // Reading                                                    //
   ////////////////////////////////////////////////////////////////
 
   private _cam?: Cam16;
   private _camArgb?: number;
 
-  /** Cam16 mémoïsé, recalculé uniquement si l'ARGB résolu a changé. */
+  /** Memoized Cam16, recomputed only when the resolved ARGB has changed. */
   private get cam(): Cam16 {
     const argb = this.argb;
     if (this._cam === undefined || this._camArgb !== argb) {
@@ -562,16 +565,16 @@ export class Color {
     return argbToRgb(this.argb);
   }
 
-  /** Les trois coordonnées d'un coup, pratique pour destructurer. */
+  /** All three coordinates at once, handy for destructuring. */
   get value(): ColorValue {
     return { hue: this.hue, chroma: this.chroma, tone: this.tone };
   }
 
   ////////////////////////////////////////////////////////////////
-  // Dérivation                                                 //
+  // Derivation                                                 //
   ////////////////////////////////////////////////////////////////
 
-  /** Remplace les coordonnées fournies au moment de la résolution. */
+  /** Replaces the given coordinates at resolution time. */
   with(partial: Partial<ColorValue>): Color {
     return this.addTransform((color) =>
       Color.fromResolved({
@@ -582,7 +585,7 @@ export class Color {
     );
   }
 
-  /** Remplace la teinte, conserve chroma et tone. */
+  /** Replaces the hue, keeps chroma and tone. */
   withHue(hue: number): Color {
     return this.with({ hue });
   }
@@ -595,7 +598,7 @@ export class Color {
     return this.with({ tone });
   }
 
-  /** Décale la teinte, normalisée sur 360°. */
+  /** Shifts the hue, normalized to 360°. */
   rotate(degrees: number): Color {
     return this.addTransform((color) =>
       Color.fromResolved({
@@ -617,21 +620,21 @@ export class Color {
   }
 
   /**
-   * Compose une transformation réévaluée lorsque la source change.
-   * Par défaut, elle intervient avant les règles de résolution d'une palette.
+   * Composes a transform re-evaluated whenever the source changes.
+   * By default it runs before a palette's resolution rules.
    */
   transform(transform: ColorTransform): Color {
     return this.addTransform(transform);
   }
 
-  /** Ajoute explicitement une transformation avant les règles de résolution. */
+  /** Explicitly adds a transform before the resolution rules. */
   beforeResolution(transform: ColorTransform): Color {
     return this.addTransform(transform, 'before');
   }
 
   /**
-   * Bascule les dérivations suivantes après les règles de résolution.
-   * Peut aussi recevoir directement une transformation finale.
+   * Switches the following derivations to after the resolution rules.
+   * Can also receive a final transform directly.
    */
   afterResolution(): Color;
   afterResolution(transform: ColorTransform): Color;

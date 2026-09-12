@@ -5,10 +5,10 @@ import type { PaletteOptions } from '../palette/palette.api';
 import type { Context } from '../context';
 
 /**
- * Couleur source du thème, résolue directement ou à partir du contexte.
+ * The theme's source color, resolved directly or from the context.
  *
- * Une chaîne hexadécimale est la forme courte destinée à la configuration.
- * Elle est normalisée en `Color` dès qu'elle entre dans le moteur.
+ * A hex string is the short form meant for configuration. It is normalized
+ * to a `Color` as soon as it enters the engine.
  */
 export type SourceColor = ColorInput | ((context: Context) => ColorInput);
 

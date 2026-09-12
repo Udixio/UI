@@ -17,7 +17,7 @@ type ScrollIntent =
     };
 
 type BlockScrollProps = {
-  onScroll?: (evt: ScrollIntent) => void; // log des intentions + du scroll via scrollbar
+  onScroll?: (evt: ScrollIntent) => void; // logs intents + scrollbar-driven scroll
   touch?: boolean;
   el: HTMLElement;
 };
@@ -207,10 +207,10 @@ export const BlockScroll: React.FC<BlockScrollProps> = ({
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.defaultPrevented) return;
 
-      // Garder les comportements natifs pour les éléments interactifs
+      // Keep native behavior for interactive elements
       const target = e.target as HTMLElement | null;
       if (isEditableOrInteractive(target) || hasInteractiveAncestor(target)) {
-        return; // ne pas empêcher
+        return; // do not prevent
       }
 
       const line = 40;
@@ -237,18 +237,18 @@ export const BlockScroll: React.FC<BlockScrollProps> = ({
           dy = Number.POSITIVE_INFINITY;
           break;
         case ' ': {
-          // Espace: laisser passer sur boutons/inputs/etc. déjà filtrés ci-dessus
+          // Space: let it through on buttons/inputs/etc., already filtered above
           dy = e.shiftKey ? -page : page;
           break;
         }
         default:
-          return; // ne pas gérer, laisser natif
+          return; // not handled, leave native
       }
 
-      // Si un ancêtre (≠ el) peut scroller dans ce sens, laisser le natif
+      // If an ancestor (≠ el) can scroll in that direction, leave it native
       if (canAncestorScroll(target, dy)) return;
 
-      // Ne gérer que si focus est sur body/html ou dans el
+      // Only handle when focus is on body/html or inside el
       const ae = document.activeElement as HTMLElement | null;
       const focusInsideEl =
         ae &&
@@ -257,7 +257,7 @@ export const BlockScroll: React.FC<BlockScrollProps> = ({
           el.contains(ae));
       if (!focusInsideEl) return;
 
-      // OK on prend en charge: empêcher le natif et émettre l’intention
+      // We take over: prevent native and emit the intent
       e.preventDefault();
       emitIntent({
         type: 'intent',

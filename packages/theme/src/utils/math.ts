@@ -1,14 +1,13 @@
 /**
- * Projette linéairement `value` depuis `inputRange` vers `outputRange`.
+ * Linearly maps `value` from `inputRange` to `outputRange`.
  *
- * La valeur est d'abord bornée à `inputRange`, puis interpolée : le minimum
- * d'entrée devient le minimum de sortie, le maximum d'entrée le maximum de
- * sortie. Sans `outputRange`, le résultat est la position normalisée dans
- * `[0, 1]`.
+ * The value is first clamped to `inputRange`, then interpolated: the input
+ * minimum becomes the output minimum, the input maximum the output maximum.
+ * Without `outputRange`, the result is the normalized position in `[0, 1]`.
  *
  * @example
  * normalize(0.5, [0, 1], [3, 7]); // 5
- * normalize(150, [0, 100]);       // 1 (borné)
+ * normalize(150, [0, 100]);       // 1 (clamped)
  */
 export const normalize = (
   value: number,

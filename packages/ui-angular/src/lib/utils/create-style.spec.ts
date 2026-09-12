@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { createStyle } from './create-style';
 
 describe('createStyle', () => {
-  it('calcule le résultat de la fonction de style et recalcule au changement de signal', () => {
+  it('computes the result of the style function and recomputes when a signal changes', () => {
     const n = signal(1);
     const styles = createStyle(
       (s: { n: number }) => ({ root: String(s.n) }),

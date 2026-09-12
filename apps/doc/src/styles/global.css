@@ -52,8 +52,8 @@ body {
         }
     }
 
-    /* `before/after:content-none` retire les backticks littéraux ajoutés par
-       @tailwindcss/typography autour du code inline, redondants avec le fond. */
+    /* `before/after:content-none` removes the literal backticks added by
+       @tailwindcss/typography around inline code, redundant with the background. */
     code:not(.card code):not(.not-prose *) {
         @apply text-on-surface bg-surface-container-highest p-1 mx-1 rounded text-body-medium before:content-none after:content-none;
     }

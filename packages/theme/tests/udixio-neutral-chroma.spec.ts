@@ -4,8 +4,8 @@ import { Color } from '../src/color/color.base.js';
 import { Context } from '../src/context/context.js';
 import { Variants } from '../src/variant/variants/index.js';
 
-// Le callback ne lit que `hue`, `chroma` et `tone` ; une source brute évite le
-// rabattement au gamut qu'appliquerait `Color.from` sur un chroma de pointe.
+// The callback only reads `hue`, `chroma` and `tone`; a raw source avoids the
+// gamut clipping `Color.from` would apply to a peak chroma.
 const neutralChromaFor = (chroma: number, tone: number): number => {
   const sourceColor = { hue: 25, chroma, tone };
   const context = { sourceColor } as unknown as Context;
@@ -23,7 +23,7 @@ describe('udixio neutral palette chroma', () => {
   });
 
   it('reads the range at the source tone, not a global one', () => {
-    // Même chroma : jugé plus vif à un ton sombre, où le gamut est plus étroit.
+    // Same chroma: judged more vivid at a dark tone, where the gamut is narrower.
     expect(neutralChromaFor(60, 30)).toBeGreaterThan(neutralChromaFor(60, 50));
   });
 

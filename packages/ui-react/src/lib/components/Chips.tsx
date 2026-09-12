@@ -142,7 +142,7 @@ export const Chips = ({
     }
   }, [selectedChip, list, getInternalId]);
 
-  // MODE ITEMS (source de vérité locale ou contrôlée)
+  // ITEMS MODE (local or controlled source of truth)
 
   const ghostChipRef = useRef<HTMLButtonElement>(null);
 

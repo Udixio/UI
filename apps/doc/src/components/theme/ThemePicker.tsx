@@ -74,7 +74,7 @@ const SettingHeader = ({ label, value, info }: SettingHeaderProps) => (
           icon={iInfo}
           variant="standard"
           size="xSmall"
-          label={`À propos de ${label.toLowerCase()}`}
+          label={`About ${label.toLowerCase()}`}
         />
       </Tooltip>
     </span>
@@ -372,8 +372,8 @@ export const ThemePicker: React.FC = () => {
       <div>
         <SettingsSection
           id="source"
-          title="Couleur source"
-          description="Génère la palette Primary"
+          title="Source color"
+          description="Generates the Primary palette"
         >
           <ColorPicker />
           <div className="mt-5 space-y-5">
@@ -383,7 +383,7 @@ export const ThemePicker: React.FC = () => {
                 value={<>{Math.round(sourceHct.chroma)}</>}
                 info={{
                   title: 'Chroma',
-                  text: 'Intensité de la couleur source, de gris (0) au maximum que sa teinte permet à ce ton. Il se propage aux palettes Primary, Secondary et Tertiary.',
+                  text: 'Intensity of the source color, from gray (0) to the maximum its hue allows at this tone. It propagates to the Primary, Secondary and Tertiary palettes.',
                 }}
               />
               <Slider
@@ -392,7 +392,7 @@ export const ThemePicker: React.FC = () => {
                 min={0}
                 max={Math.max(sourcePeakChroma, sourceHct.chroma)}
                 step={0.5}
-                aria-label="Chroma de la couleur source"
+                aria-label="Source color chroma"
                 valueFormatter={(value) => Math.round(value)}
                 onChange={(value) =>
                   // A chroma the current tone cannot display moves the tone
@@ -411,7 +411,7 @@ export const ThemePicker: React.FC = () => {
                 value={<>{Math.round(sourceHct.tone)}</>}
                 info={{
                   title: 'Tone',
-                  text: 'Luminosité de la couleur source, du noir (0) au blanc (100). Il sert de point de départ aux tons dérivés.',
+                  text: 'Lightness of the source color, from black (0) to white (100). It is the starting point for the derived tones.',
                 }}
               />
               <Slider
@@ -420,7 +420,7 @@ export const ThemePicker: React.FC = () => {
                 min={0}
                 max={100}
                 step={0.5}
-                aria-label="Tone de la couleur source"
+                aria-label="Source color tone"
                 valueFormatter={(value) => Math.round(value)}
                 onChange={(value) =>
                   // A tone that no longer displays the current chroma clips it
@@ -440,17 +440,17 @@ export const ThemePicker: React.FC = () => {
 
         <SettingsSection
           id="background"
-          title="Fond et accessibilité"
-          description="Profondeur et teinte des fonds, contraste des couleurs"
+          title="Background and accessibility"
+          description="Depth and tint of backgrounds, color contrast"
           settings={
             <>
               <div>
                 <SettingHeader
-                  label="Niveau de fond"
+                  label="Background level"
                   value={<>{backgroundLevel}</>}
                   info={{
-                    title: 'Niveau de fond',
-                    text: 'Profondeur des surfaces : 1 suit le variant, 0 ramène le fond vers le blanc, chaque cran au-dessus assombrit toutes les surfaces d’une couche.',
+                    title: 'Background level',
+                    text: 'Depth of the surfaces: 1 follows the variant, 0 brings the background toward white, each step above darkens every surface by one layer.',
                   }}
                 />
                 <Slider
@@ -462,7 +462,7 @@ export const ThemePicker: React.FC = () => {
                     value,
                     label: String(value),
                   }))}
-                  aria-label="Niveau de fond"
+                  aria-label="Background level"
                   valueFormatter={(value) => value}
                   onChange={handleBackgroundLevelChange}
                 />
@@ -470,7 +470,7 @@ export const ThemePicker: React.FC = () => {
 
               <div>
                 <SettingHeader
-                  label="Teinte de fond"
+                  label="Background tint"
                   value={
                     <>
                       {backgroundChromaLevel > 0 ? '+' : ''}{' '}
@@ -478,8 +478,8 @@ export const ThemePicker: React.FC = () => {
                     </>
                   }
                   info={{
-                    title: 'Teinte de fond',
-                    text: 'Quantité de couleur dans les gris : 0 suit le variant, −1 donne des gris neutres, +1 double la teinte héritée de la couleur source.',
+                    title: 'Background tint',
+                    text: 'Amount of color in the grays: 0 follows the variant, −1 gives neutral grays, +1 doubles the tint inherited from the source color.',
                   }}
                 />
                 <Slider
@@ -491,14 +491,14 @@ export const ThemePicker: React.FC = () => {
                   min={-1}
                   step={0.1}
                   max={1}
-                  aria-label="Teinte de fond"
+                  aria-label="Background tint"
                   onChange={handleBackgroundChromaLevelChange}
                 />
               </div>
 
               <div>
                 <SettingHeader
-                  label="Contraste"
+                  label="Contrast"
                   value={
                     <>
                       {brightness > 0 ? '+' : ''}{' '}
@@ -506,8 +506,8 @@ export const ThemePicker: React.FC = () => {
                     </>
                   }
                   info={{
-                    title: 'Contraste',
-                    text: 'Écart de luminosité entre textes et fonds : 0 vise WCAG AA (4.5:1), +1 monte vers AAA (7:1), les valeurs négatives relâchent la contrainte.',
+                    title: 'Contrast',
+                    text: 'Lightness gap between text and backgrounds: 0 targets WCAG AA (4.5:1), +1 goes toward AAA (7:1), negative values relax the constraint.',
                   }}
                 />
                 <Slider
@@ -519,7 +519,7 @@ export const ThemePicker: React.FC = () => {
                   min={-1}
                   step={0.1}
                   max={1}
-                  aria-label="Contraste"
+                  aria-label="Contrast"
                   onChange={(v) => setBrightness(v)}
                 />
               </div>
@@ -530,7 +530,7 @@ export const ThemePicker: React.FC = () => {
         <SettingsSection
           id="palettes"
           title="Palettes"
-          description="Oriente les palettes dérivées de la source"
+          description="Steers the palettes derived from the source"
           settings={
             <>
               <div className="flex flex-col gap-2">
@@ -602,7 +602,7 @@ export const ThemePicker: React.FC = () => {
       <div className="flex justify-end">
         <Button
           variant="outlined"
-          label="Exporter theme.config.ts"
+          label="Export theme.config.ts"
           onClick={handleExport}
         />
       </div>

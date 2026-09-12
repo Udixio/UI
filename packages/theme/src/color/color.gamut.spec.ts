@@ -4,7 +4,7 @@ import { Color } from './color.base';
 
 describe('Color gamut helpers', () => {
   it('peaks at a different tone for each hue', () => {
-    // Le cyan culmine bien plus haut que ce que le ton 50 laisse voir.
+    // Cyan peaks far higher than what tone 50 lets on.
     expect(Color.peakChroma(200)).toBeGreaterThan(Color.maxChroma(200, 50));
     expect(Color.peakChroma(200)).toBeCloseTo(Color.maxChroma(200, 89), 1);
   });
@@ -16,8 +16,8 @@ describe('Color gamut helpers', () => {
   });
 
   it('inverts which hue is most constrained above tone 80', () => {
-    // Autour du ton 50 le cyan plafonne et le rouge est libre ; au ton 90
-    // c'est le rouge qui s'effondre tandis que le vert tient.
+    // Around tone 50 cyan caps out and red is free; at tone 90 it is red
+    // that collapses while green holds.
     const [lowMid] = Color.chromaRangeAt(50);
     const [lowLight, highLight] = Color.chromaRangeAt(90);
     expect(lowMid).toBeCloseTo(Color.maxChroma(200, 50), 0);

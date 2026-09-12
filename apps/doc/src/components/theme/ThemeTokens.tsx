@@ -29,12 +29,12 @@ const GROUPS: GroupDef[] = [
       {
         name: 'primary',
         onColorName: 'onPrimary',
-        usage: 'Boutons CTA, FAB',
+        usage: 'CTA buttons, FAB',
       },
       {
         name: 'primaryContainer',
         onColorName: 'onPrimaryContainer',
-        usage: 'Chips, badges sélectionnés',
+        usage: 'Selected chips and badges',
       },
     ],
   },
@@ -46,12 +46,12 @@ const GROUPS: GroupDef[] = [
       {
         name: 'secondary',
         onColorName: 'onSecondary',
-        usage: 'Actions secondaires, filtres',
+        usage: 'Secondary actions, filters',
       },
       {
         name: 'secondaryContainer',
         onColorName: 'onSecondaryContainer',
-        usage: 'Chips non sélectionnés',
+        usage: 'Unselected chips',
       },
     ],
   },
@@ -68,7 +68,7 @@ const GROUPS: GroupDef[] = [
       {
         name: 'tertiaryContainer',
         onColorName: 'onTertiaryContainer',
-        usage: 'Badges décoratifs',
+        usage: 'Decorative badges',
       },
     ],
   },
@@ -80,39 +80,39 @@ const GROUPS: GroupDef[] = [
       {
         name: 'surface',
         onColorName: 'onSurface',
-        usage: 'Fond principal des écrans',
+        usage: 'Main screen background',
       },
-      { name: 'surfaceDim', usage: 'Surface légèrement assombrie' },
-      { name: 'surfaceBright', usage: 'Surface légèrement éclaircie' },
+      { name: 'surfaceDim', usage: 'Slightly darkened surface' },
+      { name: 'surfaceBright', usage: 'Slightly lightened surface' },
       {
         name: 'surfaceContainerLowest',
-        usage: 'Couche 0, niveau le plus bas',
+        usage: 'Layer 0, lowest level',
       },
-      { name: 'surfaceContainerLow', usage: 'Couche 1' },
-      { name: 'surfaceContainer', usage: 'Cartes, modales' },
+      { name: 'surfaceContainerLow', usage: 'Layer 1' },
+      { name: 'surfaceContainer', usage: 'Cards, modals' },
       { name: 'surfaceContainerHigh', usage: 'Inputs, sidebars' },
       {
         name: 'surfaceContainerHighest',
-        usage: 'Couche 4, niveau le plus haut',
+        usage: 'Layer 4, highest level',
       },
       {
         name: 'surfaceVariant',
         onColorName: 'onSurfaceVariant',
-        usage: 'Surface secondaire, alias de la couche la plus haute',
+        usage: 'Secondary surface, alias of the highest layer',
       },
-      { name: 'outline', usage: 'Bordures visibles' },
-      { name: 'outlineVariant', usage: 'Bordures subtiles, diviseurs' },
+      { name: 'outline', usage: 'Visible borders' },
+      { name: 'outlineVariant', usage: 'Subtle borders, dividers' },
       {
         name: 'inverseSurface',
         onColorName: 'inverseOnSurface',
-        usage: 'Surface inversée, snackbars, tooltips',
+        usage: 'Inverted surface, snackbars, tooltips',
       },
       {
         name: 'background',
         onColorName: 'onBackground',
-        usage: 'Alias de la surface principale',
+        usage: 'Alias of the main surface',
       },
-      { name: 'surfaceTint', usage: 'Teinte de surface, alias de primary' },
+      { name: 'surfaceTint', usage: 'Surface tint, alias of primary' },
     ],
   },
   {
@@ -123,12 +123,12 @@ const GROUPS: GroupDef[] = [
       {
         name: 'error',
         onColorName: 'onError',
-        usage: 'Champs invalides, alertes',
+        usage: 'Invalid fields, alerts',
       },
       {
         name: 'errorContainer',
         onColorName: 'onErrorContainer',
-        usage: "Fond messages d'erreur",
+        usage: 'Error message background',
       },
     ],
   },
@@ -179,7 +179,7 @@ export const ThemeTokens: React.FC = () => {
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
         <input
           type="search"
-          placeholder="Rechercher un token…"
+          placeholder="Search for a token…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="flex-1 max-w-xs bg-surface-container border border-outline-variant rounded-xl px-4 py-2 text-body-medium text-on-surface placeholder:text-on-surface-variant outline-none focus:border-primary transition-colors"
@@ -250,7 +250,7 @@ export const ThemeTokens: React.FC = () => {
         ),
       ) && (
         <div className="text-center py-12 text-on-surface-variant text-body-large">
-          Aucun token trouvé pour « {query} »
+          No token found for “{query}”
         </div>
       )}
     </div>

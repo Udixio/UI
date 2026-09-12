@@ -1,8 +1,8 @@
 /**
- * Point d'entrée historique des couleurs.
+ * Historical entry point for colors.
  *
- * Ce fichier conserve le chemin d'import historique (`./color`) et ré-exporte
- * l'entité couleur unique ainsi que ses types.
+ * This file keeps the historical import path (`./color`) and re-exports the
+ * single color entity along with its types.
  */
 export * from './color.base';
 export * from './color.types';

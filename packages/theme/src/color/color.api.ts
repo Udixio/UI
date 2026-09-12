@@ -219,8 +219,8 @@ export class ColorApi {
           }
         },
         adjustTone: (args) =>
-          // La courbe ne vaut rien en contraste nul ou négatif ; sans passe de
-          // contraste, un fond n'est pas écarté de la zone médiane non plus.
+          // The curve is worthless at zero or negative contrast; without a contrast
+          // pass, a background is not pushed out of the middle band either.
           args.context.contrastLevel > 0
             ? backgroundGapTone(
                 contrastTone(
@@ -243,8 +243,8 @@ export class ColorApi {
           });
         },
         adjustTone: (args) =>
-          // La courbe ne vaut rien en contraste nul ou négatif ; sans passe de
-          // contraste, un fond n'est pas écarté de la zone médiane non plus.
+          // The curve is worthless at zero or negative contrast; without a contrast
+          // pass, a background is not pushed out of the middle band either.
           args.context.contrastLevel > 0
             ? backgroundGapTone(
                 contrastTone(

@@ -5,7 +5,7 @@ export interface UdixioThemeOptions {
   verbose?: boolean;
 }
 
-// Instance lazy-loadée
+// Lazily loaded instance
 let unpluginInstance: any = null;
 
 const createUnpluginTheme = async () => {
@@ -20,8 +20,8 @@ const createUnpluginTheme = async () => {
 
     let resolvedConfigPath: string;
 
-    // Skip pendant la génération du graph NX
-    // NX_GRAPH_CREATION est posé sur le global par Nx, hors de tout typage.
+    // Skip during Nx graph creation
+    // NX_GRAPH_CREATION is set on the global by Nx, outside of any typing.
     if ((globalThis as Record<string, unknown>)['NX_GRAPH_CREATION']) {
       return {
         name: 'udixio-theme',
@@ -49,29 +49,29 @@ const createUnpluginTheme = async () => {
     return {
       name: 'udixio-theme',
 
-      // Hook appelé au début du build (tous les bundlers)
+      // Hook called at build start (all bundlers)
       buildStart: async function () {
         await loadTheme();
-        // Indique au bundler (Rollup/Vite) de surveiller le fichier config
+        // Tell the bundler (Rollup/Vite) to watch the config file
         if (resolvedConfigPath) {
           this.addWatchFile(resolvedConfigPath);
         }
       },
 
-      // Hook appelé pendant la génération (Rollup/Vite)
+      // Hook called during bundle generation (Rollup/Vite)
       generateBundle: async () => {
         await loadTheme();
       },
 
-      // Support spécifique Vite pour HMR
+      // Vite-specific HMR support
       vite: {
         configureServer: async (server) => {
-          // Résoudre le chemin du config si pas encore fait
+          // Resolve the config path if not done yet
           if (!resolvedConfigPath) {
             const result = await loadFromPath(configPath);
             resolvedConfigPath = result?.filePath || '';
           }
-          // Enregistrer explicitement le fichier config dans le watcher de Vite
+          // Explicitly register the config file in Vite's watcher
           if (resolvedConfigPath) {
             server.watcher.add(resolvedConfigPath);
           }
@@ -84,15 +84,15 @@ const createUnpluginTheme = async () => {
             }
             await loadTheme();
             server.ws.send({ type: 'full-reload', path: '*' });
-            // Retourner [] pour stopper le traitement HMR par défaut
+            // Return [] to stop the default HMR handling
             return [];
           }
-          // Sinon, laisser Vite appliquer son traitement HMR par défaut.
+          // Otherwise, let Vite apply its default HMR handling.
           return undefined;
         },
       },
 
-      // Support spécifique Webpack pour HMR
+      // Webpack-specific HMR support
       webpack: (compiler) => {
         if (compiler.options.mode === 'development') {
           compiler.hooks.watchRun.tapAsync(
@@ -117,7 +117,7 @@ const createUnpluginTheme = async () => {
         }
       },
 
-      // Support spécifique Rollup
+      // Rollup-specific support
       rollup: {
         watchChange: async (id) => {
           if (!resolvedConfigPath) {
@@ -139,7 +139,7 @@ const createUnpluginTheme = async () => {
   return unpluginInstance;
 };
 
-// Exports avec lazy loading
+// Lazily loaded exports
 export const vitePlugin = async (options?: UdixioThemeOptions) => {
   const plugin = await createUnpluginTheme();
   return plugin.vite(options);
@@ -160,7 +160,7 @@ export const esbuildPlugin = async (options?: UdixioThemeOptions) => {
   return plugin.esbuild(options);
 };
 
-// Export principal avec lazy loading
+// Main export, lazily loaded
 export const unpluginUdixioTheme = {
   vite: vitePlugin,
   webpack: webpackPlugin,
@@ -168,5 +168,5 @@ export const unpluginUdixioTheme = {
   esbuild: esbuildPlugin,
 };
 
-// Export par défaut
+// Default export
 export default unpluginUdixioTheme;

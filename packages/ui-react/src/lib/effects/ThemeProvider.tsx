@@ -76,7 +76,7 @@ export const ThemeProvider = ({
     void loadThemeOnMainThread(api, changeGeneration);
   };
 
-  // Initialisation de l'API et du Worker
+  // API and Worker initialization
   useEffect(() => {
     let cancelled = false;
 
@@ -118,7 +118,7 @@ export const ThemeProvider = ({
     };
   }, []);
 
-  // Throttle avec exécution en tête (leading) et en fin (trailing)
+  // Throttle with leading and trailing execution
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastExecTimeRef = useRef<number>(0);
   const lastArgsRef = useRef<ThemeChange | null>(null);
@@ -181,10 +181,10 @@ export const ThemeProvider = ({
       lastExecTimeRef.current = now;
       void invoke(pendingArgs ? { ...pendingArgs, ...ctx } : ctx);
     } else {
-      // Plusieurs changements de configuration peuvent arriver pendant le
-      // délai : chaque événement ne contient que ses champs modifiés, il faut
-      // donc les fusionner pour ne pas perdre un override de palette lorsque
-      // le champ source change juste après.
+      // Several configuration changes can arrive during the delay: each
+      // event only carries its changed fields, so they must be merged to
+      // avoid losing a palette override when the source field changes right
+      // after.
       lastArgsRef.current = {
         ...(lastArgsRef.current ?? {}),
         ...ctx,

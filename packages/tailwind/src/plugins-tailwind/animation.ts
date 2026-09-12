@@ -5,7 +5,7 @@ export interface AnimationPluginOptions {
   prefix?: string;
 }
 
-/** Les huit directions d'où une entrée `slide` peut venir. */
+/** The eight directions a `slide` entrance can come from. */
 type SlideDirection =
   | 'from-top'
   | 'from-bottom'
@@ -17,10 +17,10 @@ type SlideDirection =
   | 'from-bottom-right';
 
 /**
- * Alias utilisateur -> direction d'origine. Les alias directionnels nomment la
- * destination (`up` monte), donc l'origine est l'opposé.
+ * User alias -> origin direction. Directional aliases name the destination
+ * (`up` moves up), so the origin is the opposite.
  *
- * L'ordre des clés fixe l'ordre d'émission des utilitaires.
+ * The key order sets the emission order of the utilities.
  */
 const SLIDE_DIRECTION_BY_ALIAS: Record<string, SlideDirection> = {
   up: 'from-bottom',
@@ -179,7 +179,7 @@ export const animation = plugin.withOptions(
         },
       });
 
-      // Triggers (unifiés): in/out + view*
+      // Triggers (unified): in/out + view*
       addUtilities({
         // in/out
         // run/pause state
@@ -334,8 +334,8 @@ export const animation = plugin.withOptions(
       const slideValues = {
         DEFAULT: '2rem',
         values: {
-          ...theme('spacing'), // échelle spacing
-          full: '100%', // ajout de "full"
+          ...theme('spacing'), // spacing scale
+          full: '100%', // adds "full"
           '1/2': '50%', // (optionnel) fractions
           '1/3': '33.333333%',
           '2/3': '66.666667%',
@@ -417,7 +417,7 @@ export const animation = plugin.withOptions(
         },
       );
 
-      // Paramètres (propriétés CSS) sous le même prefix
+      // Parameters (CSS properties) under the same prefix
       matchUtilities(
         {
           [`${prefix}-duration`]: (value) => ({

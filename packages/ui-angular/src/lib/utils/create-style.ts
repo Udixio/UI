@@ -1,8 +1,8 @@
 import { computed, type Signal } from '@angular/core';
 
 /**
- * Primitive Angular : enveloppe une fonction de style pure de @udixio/core
- * dans un `computed`, qui mémoïse nativement sur les signaux lus par `state`.
+ * Angular primitive: wraps a pure @udixio/core style function in a
+ * `computed`, which natively memoizes on the signals read by `state`.
  */
 export function createStyle<S>(
   styleFn: (state: S) => Record<string, string>,

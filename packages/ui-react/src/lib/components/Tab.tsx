@@ -79,7 +79,7 @@ export const Tab = ({
   const defaultRef = useRef(null);
   const resolvedRef = ref || defaultRef;
 
-  // children (string) peut être utilisé comme alternative à label prop
+  // children (string) can be used as an alternative to the label prop
   const label =
     labelProp ?? (typeof children === 'string' ? children : undefined);
 

@@ -10,16 +10,16 @@ import ClassNamePreview from '../components/ClassNamePreview';
     <section class="relative overflow-hidden">
       <div class="container mx-auto px-6 py-16 lg:py-24">
         <h1 class="anim-fade anim-slide-from-top anim-duration-700 text-4xl md:text-6xl font-extrabold tracking-tight text-on-surface">
-          Animate on Scroll — Démo
+          Animate on Scroll — Demo
         </h1>
         <p class="anim-fade anim-slide-from-bottom anim-duration-700 anim-delay-200 mt-4 max-w-2xl text-lg/8 text-on-surface-variant">
-          Cette page présente deux façons de déclencher les animations : via <strong>anim-in/anim-out</strong> (JS)
-          ou via <strong>anim-view</strong> (Scroll‑Driven CSS). Choisissez l’un <em>ou</em> l’autre : les entrées <code>anim-in</code>
-          ne sont pas compatibles avec <code>anim-view</code>. Avec <code>anim-view</code>, les paramètres <code>duration</code>
-          et <code>delay</code> n’ont pas d’effet car la progression est entièrement synchronisée au pourcentage de scroll.
+          This page shows two ways to trigger animations: via <strong>anim-in/anim-out</strong> (JS)
+          or via <strong>anim-view</strong> (scroll-driven CSS). Pick one <em>or</em> the other: <code>anim-in</code> entrances
+          are not compatible with <code>anim-view</code>. With <code>anim-view</code>, the <code>duration</code>
+          and <code>delay</code> parameters have no effect since progress is fully synchronized to the scroll percentage.
         </p>
         <div class="anim-fade anim-slide-from-bottom anim-duration-700 anim-delay-300 mt-8 flex items-center gap-3">
-          <Button variant="filled">Commencer</Button>
+          <Button variant="filled">Get started</Button>
           <Button variant="outlined">Documentation</Button>
         </div>
       </div>
@@ -28,32 +28,32 @@ import ClassNamePreview from '../components/ClassNamePreview';
     <Divider className="my-10" />
 
     <section class="container mx-auto px-6">
-      <h2 class="text-2xl font-bold">Déclencheurs et effets disponibles</h2>
+      <h2 class="text-2xl font-bold">Available triggers and effects</h2>
       <p class="mt-2 text-on-surface-variant">
-        Il existe 3 déclencheurs: <strong>in</strong> (entrée), <strong>out</strong> (sortie), et <strong>scroll</strong> (anim-view).
-        Chaque déclencheur peut utiliser les effets suivants: <code>fade</code>, <code>scale</code>, <code>slide</code>.
-        Vous pouvez combiner plusieurs effets, par exemple <code>anim-fade</code> + <code>anim-slide-from-bottom</code> + <code>anim-scale</code>.
+        There are 3 triggers: <strong>in</strong> (entrance), <strong>out</strong> (exit), and <strong>scroll</strong> (anim-view).
+        Each trigger can use the following effects: <code>fade</code>, <code>scale</code>, <code>slide</code>.
+        You can combine several effects, for example <code>anim-fade</code> + <code>anim-slide-from-bottom</code> + <code>anim-scale</code>.
       </p>
       <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
         <ClassNamePreview className="anim-fade anim-slide-from-bottom anim-duration-500">
           <h3 class="text-title-large font-semibold">Trigger: in</h3>
-          <p class="mt-2 text-on-surface-variant">Démarre à l'entrée dans le viewport.</p>
+          <p class="mt-2 text-on-surface-variant">Starts when entering the viewport.</p>
         </ClassNamePreview>
         <ClassNamePreview className="anim-fade-out anim-slide-out-from-top anim-duration-500">
           <h3 class="text-title-large font-semibold">Trigger: out</h3>
-          <p class="mt-2 text-on-surface-variant">Se joue à la sortie du viewport.</p>
+          <p class="mt-2 text-on-surface-variant">Plays when leaving the viewport.</p>
         </ClassNamePreview>
         <ClassNamePreview className="anim-fade-scroll anim-slide-scroll-from-bottom anim-scroll">
           <h3 class="text-title-large font-semibold">Trigger: scroll (anim-view)</h3>
-          <p class="mt-2 text-on-surface-variant">Synchronisé au défilement, sans duration ni delay.</p>
+          <p class="mt-2 text-on-surface-variant">Synchronized to scrolling, without duration or delay.</p>
         </ClassNamePreview>
       </div>
       <div class="mt-6 text-on-surface-variant text-sm">
-        <p>Effets disponibles:</p>
+        <p>Available effects:</p>
         <ul class="list-disc pl-6">
-          <li><code>fade</code> — transparence via <code>anim-fade</code> (+ option <code>anim-fade-50</code>...).</li>
-          <li><code>scale</code> — zoom via <code>anim-scale</code>, ou axes <code>anim-scale-x-*</code>/<code>anim-scale-y-*</code>.</li>
-          <li><code>slide</code> — déplacement via <code>anim-slide-from-*</code> avec distances (<code>anim-slide-8</code>, <code>anim-slide-full</code>...).</li>
+          <li><code>fade</code> — opacity via <code>anim-fade</code> (+ option <code>anim-fade-50</code>...).</li>
+          <li><code>scale</code> — zoom via <code>anim-scale</code>, or per axis <code>anim-scale-x-*</code>/<code>anim-scale-y-*</code>.</li>
+          <li><code>slide</code> — movement via <code>anim-slide-from-*</code> with distances (<code>anim-slide-8</code>, <code>anim-slide-full</code>...).</li>
         </ul>
       </div>
     </section>
@@ -61,39 +61,39 @@ import ClassNamePreview from '../components/ClassNamePreview';
     <Divider className="my-16" />
 
     <section class="container mx-auto px-6">
-      <h2 class="text-2xl font-bold">Exemples basiques (JS — anim-in)</h2>
+      <h2 class="text-2xl font-bold">Basic examples (JS — anim-in)</h2>
       <p class="mt-2 text-on-surface-variant">
-        Variantes de base côté JS : fade-in, anim-slide-from-top/bottom/left/right, scale-in et scale-out.
+        Basic JS-side variants: fade-in, anim-slide-from-top/bottom/left/right, scale-in and scale-out.
       </p>
 
       <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <ClassNamePreview className="anim-fade-in anim-fade anim-fade-50">
           <h3 class="text-title-large font-semibold">Fade</h3>
-          <p class="mt-2 text-on-surface-variant">Apparition progressive.</p>
+          <p class="mt-2 text-on-surface-variant">Gradual appearance.</p>
         </ClassNamePreview>
         <ClassNamePreview className="anim-fade anim-slide-from-bottom anim-duration-700 ">
           <h3 class="text-title-large font-semibold">Fade Up</h3>
-          <p class="mt-2 text-on-surface-variant">Glisse vers le haut.</p>
+          <p class="mt-2 text-on-surface-variant">Slides up.</p>
         </ClassNamePreview>
         <ClassNamePreview className="anim-fade anim-slide-left anim-slide-full anim-duration-700 ">
           <h3 class="text-title-large font-semibold">Fade Down</h3>
-          <p class="mt-2 text-on-surface-variant">Glisse vers le bas.</p>
+          <p class="mt-2 text-on-surface-variant">Slides down.</p>
         </ClassNamePreview>
         <ClassNamePreview className="anim-in-fade anim-slide-from-left anim-duration-700 ">
           <h3 class="text-title-large font-semibold">Fade Left</h3>
-          <p class="mt-2 text-on-surface-variant">Glisse depuis la gauche.</p>
+          <p class="mt-2 text-on-surface-variant">Slides in from the left.</p>
         </ClassNamePreview>
         <ClassNamePreview className="anim-fade anim-slide-from-right anim-duration-700 ">
           <h3 class="text-title-large font-semibold">Fade Right</h3>
-          <p class="mt-2 text-on-surface-variant">Glisse depuis la droite.</p>
+          <p class="mt-2 text-on-surface-variant">Slides in from the right.</p>
         </ClassNamePreview>
         <ClassNamePreview className="anim-scale-in anim-duration-700 ">
           <h3 class="text-title-large font-semibold">scale In</h3>
-          <p class="mt-2 text-on-surface-variant">scale avant léger.</p>
+          <p class="mt-2 text-on-surface-variant">Slight scale in.</p>
         </ClassNamePreview>
         <ClassNamePreview className="anim-scale-out  anim-duration-700  sm:col-span-2 lg:col-span-1">
           <h3 class="text-title-large font-semibold">scale Out</h3>
-          <p class="mt-2 text-on-surface-variant">scale arrière léger.</p>
+          <p class="mt-2 text-on-surface-variant">Slight scale out.</p>
         </ClassNamePreview>
       </div>
     </section>
@@ -103,13 +103,13 @@ import ClassNamePreview from '../components/ClassNamePreview';
     <section class="container mx-auto px-6">
       <h2 class="text-2xl font-bold">Scroll‑Driven (anim-view)</h2>
       <p class="mt-2 text-on-surface-variant">
-        Ces éléments utilisent <code>anim-view</code> et une timeline CSS scroll‑driven. Ils sont synchronisés au scroll :
-        <strong>pas de duration ni de delay</strong> (ces valeurs sont ignorées).
+        These elements use <code>anim-view</code> and a scroll-driven CSS timeline. They are synchronized to scrolling:
+        <strong>no duration or delay</strong> (those values are ignored).
       </p>
       <div class="mt-8 h-screen relative flex items-end ">
         <ClassNamePreview className="anim-slide-scroll-from-bottom-right anim-scale-scroll anim-scale-150 anim-fade anim-duration-[2s] anim-slide-full anim-scroll w-fit sticky bottom-0 anim-scroll-end-cover-3/4">
           <h3 class="text-title-large font-semibold">Scroll — Fade</h3>
-          <p class="mt-2 text-on-surface-variant">Progression liée au scroll.</p>
+          <p class="mt-2 text-on-surface-variant">Progress tied to scrolling.</p>
         </ClassNamePreview>
       </div>
     </section>
@@ -117,35 +117,35 @@ import ClassNamePreview from '../components/ClassNamePreview';
     <Divider className="my-16" />
 
     <section class="container mx-auto px-6">
-      <h2 class="text-2xl font-bold">Durées & Easing (JS — anim-in)</h2>
+      <h2 class="text-2xl font-bold">Durations & easing (JS — anim-in)</h2>
       <p class="mt-2 text-on-surface-variant">
-        Contrôlez la vitesse et l’interpolation avec les utilitaires : anim-duration-*, anim-ease-*, anim-delay-*.
+        Control speed and interpolation with the utilities: anim-duration-*, anim-ease-*, anim-delay-*.
       </p>
 
       <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <ClassNamePreview className="anim-fade anim-slide-from-bottom anim-duration-300 anim-ease-linear ">
-          <h3 class="text-title-large font-semibold">Rapide (300ms, linear)</h3>
-          <p class="mt-2 text-on-surface-variant">Idéal pour des micro-transitions.</p>
+          <h3 class="text-title-large font-semibold">Fast (300ms, linear)</h3>
+          <p class="mt-2 text-on-surface-variant">Ideal for micro-transitions.</p>
         </ClassNamePreview>
         <ClassNamePreview className="anim-fade anim-slide-from-bottom anim-duration-700 anim-ease-out ">
           <h3 class="text-title-large font-semibold">Standard (700ms, ease-out)</h3>
-          <p class="mt-2 text-on-surface-variant">Courbe douce vers la fin.</p>
+          <p class="mt-2 text-on-surface-variant">Soft curve toward the end.</p>
         </ClassNamePreview>
         <ClassNamePreview className="anim-fade anim-slide-from-bottom anim-duration-[1200ms] anim-ease-out ">
-          <h3 class="text-title-large font-semibold">Lent (1200ms)</h3>
-          <p class="mt-2 text-on-surface-variant">Accentue la sensation de fluidité.</p>
+          <h3 class="text-title-large font-semibold">Slow (1200ms)</h3>
+          <p class="mt-2 text-on-surface-variant">Emphasizes the feeling of smoothness.</p>
         </ClassNamePreview>
         <ClassNamePreview className="anim-fade anim-slide-from-right anim-duration-700 anim-delay-150 ">
           <h3 class="text-title-large font-semibold">Delay 150ms</h3>
-          <p class="mt-2 text-on-surface-variant">Différer l’entrée pour rythmer.</p>
+          <p class="mt-2 text-on-surface-variant">Defer the entrance to set a rhythm.</p>
         </ClassNamePreview>
         <ClassNamePreview className="anim-fade anim-slide-from-right anim-duration-700 anim-delay-300 ">
           <h3 class="text-title-large font-semibold">Delay 300ms</h3>
-          <p class="mt-2 text-on-surface-variant">Utilisez des décalages en série.</p>
+          <p class="mt-2 text-on-surface-variant">Use staggered offsets.</p>
         </ClassNamePreview>
         <ClassNamePreview className="anim-fade anim-slide-from-right anim-duration-700 anim-delay-500 ">
           <h3 class="text-title-large font-semibold">Delay 500ms</h3>
-          <p class="mt-2 text-on-surface-variant">Pour une chorégraphie plus marquée.</p>
+          <p class="mt-2 text-on-surface-variant">For a more pronounced choreography.</p>
         </ClassNamePreview>
       </div>
     </section>
@@ -153,34 +153,34 @@ import ClassNamePreview from '../components/ClassNamePreview';
     <Divider className="my-16" />
 
     <section class="container mx-auto px-6">
-      <h2 class="text-2xl font-bold">Listes en cascade (JS — anim-in)</h2>
+      <h2 class="text-2xl font-bold">Cascading lists (JS — anim-in)</h2>
       <p class="mt-2 text-on-surface-variant">
-        Appliquez des délais croissants pour simuler un effet de cascade.
+        Apply increasing delays to simulate a cascade effect.
       </p>
 
       <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <ClassNamePreview className="anim-fade anim-slide-from-bottom anim-duration-700">
-          <h3 class="font-semibold">Élément 1</h3>
+          <h3 class="font-semibold">Item 1</h3>
           <p class="text-on-surface-variant">anim-delay-0</p>
         </ClassNamePreview>
         <ClassNamePreview className="anim-fade anim-slide-from-bottom anim-duration-700 anim-delay-150">
-          <h3 class="font-semibold">Élément 2</h3>
+          <h3 class="font-semibold">Item 2</h3>
           <p class="text-on-surface-variant">anim-delay-150</p>
         </ClassNamePreview>
         <ClassNamePreview className="anim-fade anim-slide-from-bottom anim-duration-700 anim-delay-300">
-          <h3 class="font-semibold">Élément 3</h3>
+          <h3 class="font-semibold">Item 3</h3>
           <p class="text-on-surface-variant">anim-delay-300</p>
         </ClassNamePreview>
         <ClassNamePreview className="anim-fade anim-slide-from-bottom anim-duration-700 anim-delay-500">
-          <h3 class="font-semibold">Élément 4</h3>
+          <h3 class="font-semibold">Item 4</h3>
           <p class="text-on-surface-variant">anim-delay-500</p>
         </ClassNamePreview>
         <ClassNamePreview className="anim-fade anim-slide-from-bottom anim-duration-700 anim-delay-[700ms]">
-          <h3 class="font-semibold">Élément 5</h3>
+          <h3 class="font-semibold">Item 5</h3>
           <p class="text-on-surface-variant">anim-delay-700ms</p>
         </ClassNamePreview>
         <ClassNamePreview className="anim-fade anim-slide-from-bottom anim-duration-700 anim-delay-[900ms]">
-          <h3 class="font-semibold">Élément 6</h3>
+          <h3 class="font-semibold">Item 6</h3>
           <p class="text-on-surface-variant">anim-delay-900ms</p>
         </ClassNamePreview>
       </div>
@@ -189,9 +189,9 @@ import ClassNamePreview from '../components/ClassNamePreview';
     <Divider className="my-16" />
 
     <section class="container mx-auto px-6 pb-24">
-      <h2 class="text-2xl font-bold">Paramètres visuels — exemples</h2>
+      <h2 class="text-2xl font-bold">Visual parameters — examples</h2>
       <p class="mt-2 text-on-surface-variant">
-        Chaque effet accepte des paramètres. Voici des aperçus concrets pour les régler visuellement.
+        Each effect accepts parameters. Here are concrete previews to tune them visually.
       </p>
       <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <ClassNamePreview className="anim-scale anim-scale-125 anim-duration-700">
@@ -220,31 +220,31 @@ import ClassNamePreview from '../components/ClassNamePreview';
         </ClassNamePreview>
       </div>
       <div class="mt-6 text-sm text-on-surface-variant">
-        <p>Astuce: combinez plusieurs effets. Exemple: <code>anim-fade</code> + <code>anim-slide-from-bottom</code> + <code>anim-scale-105</code>.</p>
+        <p>Tip: combine several effects. Example: <code>anim-fade</code> + <code>anim-slide-from-bottom</code> + <code>anim-scale-105</code>.</p>
       </div>
     </section>
 
     <Divider className="my-16" />
 
     <section class="container mx-auto px-6 pb-24">
-      <h2 class="text-2xl font-bold">Combinaisons (JS — anim-in)</h2>
+      <h2 class="text-2xl font-bold">Combinations (JS — anim-in)</h2>
       <p class="mt-2 text-on-surface-variant">
-        Combinez les variantes pour des mises en scène plus riches.
+        Combine the variants for richer staging.
       </p>
 
       <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-6">
           <div class="anim-fade anim-slide-from-top anim-duration-700">
-            <h3 class="text-title-large font-semibold">Bloc A</h3>
-            <p class="mt-1 text-on-surface-variant">Titre en fade-down</p>
+            <h3 class="text-title-large font-semibold">Block A</h3>
+            <p class="mt-1 text-on-surface-variant">Title in fade-down</p>
           </div>
           <div class="anim-fade anim-slide-from-bottom anim-duration-[1000ms] anim-delay-200 mt-4">
             <p>
-              Contenu en fade-up plus lent, avec un léger délai. Idéal pour raconter une histoire lors du défilement.
+              Slower fade-up content, with a slight delay. Ideal for telling a story while scrolling.
             </p>
           </div>
           <div class="anim-scale-in anim-duration-700 anim-delay-400 mt-6">
-            <Button variant="filled">Action principale</Button>
+            <Button variant="filled">Main action</Button>
           </div>
         </Card>
 
@@ -274,24 +274,24 @@ import ClassNamePreview from '../components/ClassNamePreview';
     <Divider className="my-16" />
 
     <section class="container mx-auto px-6">
-      <h2 class="text-2xl font-bold">Entrées JS (sans anim-view)</h2>
+      <h2 class="text-2xl font-bold">JS entrances (without anim-view)</h2>
       <p class="mt-2 text-on-surface-variant">
-        Ces éléments n’utilisent <strong>pas</strong> anim-view. Ils sont déclenchés en JavaScript via IntersectionObserver
-        par le composant <code>AnimateOnScroll</code> et démarrent quand ils entrent dans le viewport.
+        These elements do <strong>not</strong> use anim-view. They are triggered in JavaScript via IntersectionObserver
+        by the <code>AnimateOnScroll</code> component and start when they enter the viewport.
       </p>
 
       <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <ClassNamePreview className="anim-fade-50 anim-slide-from-bottom anim-duration-700 p-6">
           <h3 class="text-title-large font-semibold">JS — Fade Up</h3>
-          <p class="mt-2 text-on-surface-variant">Sans anim-view, déclenché à l’entrée.</p>
+          <p class="mt-2 text-on-surface-variant">Without anim-view, triggered on entrance.</p>
         </ClassNamePreview>
         <ClassNamePreview className="anim-fade anim-slide-from-left anim-duration-700 p-6">
           <h3 class="text-title-large font-semibold">JS — Fade Left</h3>
-          <p class="mt-2 text-on-surface-variant">Purement via observer JS.</p>
+          <p class="mt-2 text-on-surface-variant">Purely via the JS observer.</p>
         </ClassNamePreview>
         <ClassNamePreview className="anim-scale-in anim-duration-700 p-6">
           <h3 class="text-title-large font-semibold">JS — scale In</h3>
-          <p class="mt-2 text-on-surface-variant">Aucune timeline CSS; déclencheur JS.</p>
+          <p class="mt-2 text-on-surface-variant">No CSS timeline; JS trigger.</p>
         </ClassNamePreview>
       </div>
     </section>
@@ -299,26 +299,26 @@ import ClassNamePreview from '../components/ClassNamePreview';
     <Divider className="my-16" />
 
     <section class="container mx-auto px-6 pb-32">
-      <h2 class="text-2xl font-bold">Sorties JS (anim-out)</h2>
+      <h2 class="text-2xl font-bold">JS exits (anim-out)</h2>
       <p class="mt-2 text-on-surface-variant">
-        Ces éléments emploient <code>anim-out</code>. Ils jouent leur animation lorsque vous <em>quittez</em> leur zone
-        de vue (en les faisant sortir du viewport). Faites défiler doucement pour voir l’effet.
+        These elements use <code>anim-out</code>. They play their animation when you <em>leave</em> their
+        viewing area (by scrolling them out of the viewport). Scroll slowly to see the effect.
       </p>
 
       <div class="mt-8 space-y-8">
         <Card className="anim-fade-out anim-slide-out-from-bottom anim-duration-700 p-6">
-          <h3 class="text-title-large font-semibold">JS — Exit vers le bas</h3>
-          <p class="mt-2 text-on-surface-variant">Se joue lorsque la carte sort de l’écran.</p>
+          <h3 class="text-title-large font-semibold">JS — Exit downward</h3>
+          <p class="mt-2 text-on-surface-variant">Plays when the card leaves the screen.</p>
         </Card>
         <div class="h-32"></div>
         <Card className="anim-fade-out anim-slide-out-from-top anim-duration-700 p-6">
-          <h3 class="text-title-large font-semibold">JS — Exit vers le haut</h3>
-          <p class="mt-2 text-on-surface-variant">Se joue en remontant, quand la carte quitte le viewport.</p>
+          <h3 class="text-title-large font-semibold">JS — Exit upward</h3>
+          <p class="mt-2 text-on-surface-variant">Plays when scrolling back up, as the card leaves the viewport.</p>
         </Card>
         <div class="h-32"></div>
         <Card className="anim-scale-out anim-scale-90 anim-duration-700 p-6">
           <h3 class="text-title-large font-semibold">JS — Scale Out</h3>
-          <p class="mt-2 text-on-surface-variant">Effet de sortie en scale arrière.</p>
+          <p class="mt-2 text-on-surface-variant">Scale-out exit effect.</p>
         </Card>
       </div>
     </section>

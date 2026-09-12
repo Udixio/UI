@@ -61,7 +61,7 @@ export class Context {
     return { result, dependencies: Array.from(dependencies) };
   }
 
-  /** Fournit le contexte d'exécution aux couleurs utilisées comme source. */
+  /** Provides the execution context to colors used as a source. */
   init(api: API): void {
     this.api = api;
     const options = this._options;
@@ -142,10 +142,10 @@ export class Context {
   }
 
   /**
-   * Version monotone utilisée par les résolutions mémoïsées.
+   * Monotonic version used by memoized resolutions.
    *
-   * Elle change avant les callbacks afin qu'une couleur lue pendant un
-   * callback observe déjà la nouvelle génération du contexte.
+   * It changes before the callbacks so that a color read during a callback
+   * already observes the new generation of the context.
    */
   get version(): number {
     return this._version;

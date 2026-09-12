@@ -279,8 +279,8 @@ export const expressiveColors: ColorsConfig = ({
             );
       },
       adjustTone: (args) =>
-        // La courbe ne vaut rien en contraste nul ou négatif ; sans passe de
-        // contraste, un fond n'est pas écarté de la zone médiane non plus.
+        // The curve is worthless at zero or negative contrast; without a contrast
+        // pass, a background is not pushed out of the middle band either.
         args.context.contrastLevel > 0
           ? backgroundGapTone(
               contrastTone(
@@ -309,8 +309,8 @@ export const expressiveColors: ColorsConfig = ({
         );
       },
       adjustTone: (args) =>
-        // La courbe ne vaut rien en contraste nul ou négatif ; sans passe de
-        // contraste, un fond n'est pas écarté de la zone médiane non plus.
+        // The curve is worthless at zero or negative contrast; without a contrast
+        // pass, a background is not pushed out of the middle band either.
         args.context.contrastLevel > 0
           ? backgroundGapTone(
               contrastTone(
@@ -382,8 +382,8 @@ export const expressiveColors: ColorsConfig = ({
         return c.isDark ? 15 : tMaxC(palettes.get('secondary'), 90, 95);
       },
       adjustTone: (args) =>
-        // La courbe ne vaut rien en contraste nul ou négatif ; sans passe de
-        // contraste, un fond n'est pas écarté de la zone médiane non plus.
+        // The curve is worthless at zero or negative contrast; without a contrast
+        // pass, a background is not pushed out of the middle band either.
         args.context.contrastLevel > 0
           ? backgroundGapTone(
               contrastTone(
@@ -412,8 +412,8 @@ export const expressiveColors: ColorsConfig = ({
         );
       },
       adjustTone: (args) =>
-        // La courbe ne vaut rien en contraste nul ou négatif ; sans passe de
-        // contraste, un fond n'est pas écarté de la zone médiane non plus.
+        // The curve is worthless at zero or negative contrast; without a contrast
+        // pass, a background is not pushed out of the middle band either.
         args.context.contrastLevel > 0
           ? backgroundGapTone(
               contrastTone(
@@ -489,8 +489,8 @@ export const expressiveColors: ColorsConfig = ({
         );
       },
       adjustTone: (args) =>
-        // La courbe ne vaut rien en contraste nul ou négatif ; sans passe de
-        // contraste, un fond n'est pas écarté de la zone médiane non plus.
+        // The curve is worthless at zero or negative contrast; without a contrast
+        // pass, a background is not pushed out of the middle band either.
         args.context.contrastLevel > 0
           ? backgroundGapTone(
               contrastTone(
@@ -519,8 +519,8 @@ export const expressiveColors: ColorsConfig = ({
         );
       },
       adjustTone: (args) =>
-        // La courbe ne vaut rien en contraste nul ou négatif ; sans passe de
-        // contraste, un fond n'est pas écarté de la zone médiane non plus.
+        // The curve is worthless at zero or negative contrast; without a contrast
+        // pass, a background is not pushed out of the middle band either.
         args.context.contrastLevel > 0
           ? backgroundGapTone(
               contrastTone(
@@ -590,8 +590,8 @@ export const expressiveColors: ColorsConfig = ({
           : tMaxC(palettes.get('error'), 0, 90);
       },
       adjustTone: (args) =>
-        // La courbe ne vaut rien en contraste nul ou négatif ; sans passe de
-        // contraste, un fond n'est pas écarté de la zone médiane non plus.
+        // The curve is worthless at zero or negative contrast; without a contrast
+        // pass, a background is not pushed out of the middle band either.
         args.context.contrastLevel > 0
           ? backgroundGapTone(
               contrastTone(

@@ -61,17 +61,17 @@ export type DynamicColorKey =
   | 'onTertiaryFixedVariant';
 
 /**
- * Les ratios de contraste pour lesquels Material définit une courbe standard.
+ * The contrast ratios for which Material defines a standard curve.
  *
- * Le domaine est volontairement clos : `getCurve()` est une table, pas une
- * formule. Pour toute autre courbe, construis-la directement avec
+ * The domain is deliberately closed: `getCurve()` is a table, not a formula.
+ * For any other curve, build it directly with
  * `new ContrastCurve(low, normal, medium, high)`.
  */
 export type StandardContrastRatio = 1.5 | 3 | 4.5 | 6 | 7 | 9 | 11 | 21;
 
 /**
- * Courbes standard de Material, indexées par leur ratio au niveau de contraste
- * normal. Chaque entrée donne les ratios visés aux niveaux -1, 0, 0.5 et 1.
+ * Material's standard curves, indexed by their ratio at the normal contrast
+ * level. Each entry gives the target ratios at levels -1, 0, 0.5 and 1.
  */
 const STANDARD_CURVES: Record<
   StandardContrastRatio,
@@ -159,35 +159,35 @@ export function findBestToneForChroma(
 }
 
 /**
- * Calcule le pourcentage des tons à ajuster pour atteindre un ratio de contraste.
+ * Computes the percentage of tone adjustment needed to reach a contrast ratio.
  *
- * @param toneA Le premier ton (par exemple, tone de surface).
- * @param toneB Le ton cible à ajuster.
- * @param desiredRatio Le ratio de contraste requis (ex : 3, 4.5, 7).
- * @returns Un pourcentage (entre 0 et 100) indiquant l'effort nécessaire :
- * - 0% si `toneB` est au bon ratio.
- * - Un pourcentage positif ou négatif en fonction de la distance à ajuster.
+ * @param toneA The first tone (for example, a surface tone).
+ * @param toneB The target tone to adjust.
+ * @param desiredRatio The required contrast ratio (e.g. 3, 4.5, 7).
+ * @returns A percentage (between 0 and 100) indicating the effort needed:
+ * - 0% if `toneB` already meets the ratio.
+ * - A positive or negative percentage depending on the distance to adjust.
  */
 export function calculateToneAdjustmentPercentage(
   toneA: number,
   toneB: number,
   desiredRatio: number,
 ): number {
-  // Vérification du ratio actuel
+  // Check the current ratio
   const currentRatio = Contrast.ratioOfTones(toneA, toneB);
 
-  // Si le ratio est déjà atteint, inutile de changer
+  // If the ratio is already met, nothing to change
   if (currentRatio >= desiredRatio) {
     return 0;
   }
 
-  // Calcul pour déterminer le ton minimal plus clair qui respecte le ratio
+  // Find the lowest lighter tone that meets the ratio
   const lighterTone = Contrast.lighter(toneA, desiredRatio);
 
-  // Calcul pour déterminer le ton maximal plus sombre qui respecte le ratio
+  // Find the highest darker tone that meets the ratio
   const darkerTone = Contrast.darker(toneA, desiredRatio);
 
-  // Vérifie quelle direction est atteignable et compare à toneB
+  // Check which direction is reachable and compare against toneB
   if (lighterTone !== -1 && toneB < lighterTone) {
     const percentageToAdjust = (toneB - lighterTone) / (toneA - lighterTone);
     return clampDouble(0, 1, percentageToAdjust);
@@ -198,6 +198,6 @@ export function calculateToneAdjustmentPercentage(
     return clampDouble(0, 1, percentageToAdjust);
   }
 
-  // Si aucun ajustement n'est possible ou nécessaire
+  // No adjustment possible or needed
   return 0;
 }
