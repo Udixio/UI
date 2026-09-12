@@ -83,10 +83,11 @@ Preuve : core 382, React 342, Angular 288 ; audit-parity `validate` sans finding
 (matrice de tests Angular alignée sur React : bord d'ancrage, point annoncé, formes de
 classes).
 
-Risque restant, documenté : l'animation n'a pas été observée dans Chrome — l'onglet
-d'automatisation était caché (`visibilityState: hidden`, aucun `requestAnimationFrame`,
-anime.js en pause). Le moteur réel a été exercé sous jsdom (tween sortant et entrant,
-`visibility: hidden` en fin de sortie).
+Observé dans Chrome (onglet visible, 35 frames / 300 ms), sortie puis retour, Angular et
+React : opacité et scale 1 → 0.5 → 0.1 → 0, `visibility: hidden` en fin de sortie ; puis
+0 → 0.5 → 0.9 → 1 avec `role="status"` rétabli. La première mesure, faite sur un onglet
+caché (`visibilityState: hidden`, zéro `requestAnimationFrame`), ne prouvait rien : anime.js
+se met en pause sur document caché.
 
 ---
 

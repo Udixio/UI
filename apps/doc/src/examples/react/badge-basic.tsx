@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Fab, NavigationRail, NavigationRailItem } from '@udixio/ui-react';
 import { iAdd } from '@udixio/icons-rounded-400/add';
 import { iHome } from '@udixio/icons-rounded-400/home';
@@ -15,18 +15,18 @@ export const BadgeBasicReact = () => {
   const [selected, setSelected] = useState<number | null>(0);
   const [unread, setUnread] = useState(initialUnread);
 
-  const view = (index: number) => {
-    if (index === 1) setUnread((u) => ({ ...u, inbox: 0 }));
-    if (index === 2) setUnread((u) => ({ ...u, chat: false }));
-    if (index === 3) setUnread((u) => ({ ...u, notifications: 0 }));
-  };
+  // Viewing a destination clears what it had waiting.
+  useEffect(() => {
+    if (selected === 1) setUnread((u) => ({ ...u, inbox: 0 }));
+    if (selected === 2) setUnread((u) => ({ ...u, chat: false }));
+    if (selected === 3) setUnread((u) => ({ ...u, notifications: 0 }));
+  }, [selected]);
 
   return (
     <NavigationRail
       className="bg-surface-container-highest h-[420px]"
       selectedItem={selected}
       setSelectedItem={setSelected}
-      onItemSelected={({ index }) => view(index)}
     >
       <Fab
         label="New message"
