@@ -89,20 +89,34 @@ export class Color {
     private readonly beforeTransforms: readonly ColorTransform[] = [],
     private readonly afterTransforms: readonly ColorTransform[] = [],
     private readonly phase: ResolutionPhase = 'before',
-    private readonly toneOverride?: number,
+    /**
+     * The coordinates requested when constructing a value color.
+     * ARGB is an 8-bit-per-channel grid bounded by the sRGB gamut: reading
+     * hue, chroma and tone back from it shifts them by a few tenths, and
+     * clips the chroma as soon as it exceeds what the tone allows. The color
+     * stays faithful to what was asked of it — it is the configuration — and
+     * `argb`/`hex` say what is displayed. A clipped chroma can be read with
+     * `Color.maxChroma(color)`.
+     */
+    private readonly requested?: Partial<ColorValue>,
   ) {}
 
   private resolutionCache?: ResolutionCache;
 
-  /** Construit une couleur figée à partir de coordonnées HCT. */
-  static from({ hue, chroma, tone }: ColorValue): Color {
-    return new Color({
-      kind: 'value',
-      argb: solveToArgb(hue, chroma, tone),
-    });
+  /** Builds a fixed color from HCT coordinates. */
+  static from(value: ColorValue): Color {
+    const { hue, chroma, tone } = value;
+    return new Color(
+      { kind: 'value', argb: solveToArgb(hue, chroma, tone) },
+      undefined,
+      [],
+      [],
+      'before',
+      { hue, chroma, tone },
+    );
   }
 
-  /** Construit une couleur figée à partir d'un hexadécimal. */
+  /** Builds a fixed color from a hex string. */
   static fromHex(hex: string): Color {
     return new Color({ kind: 'value', argb: argbFromHex(hex) });
   }
@@ -119,15 +133,15 @@ export class Color {
       [],
       [],
       'before',
-      tone,
+      { tone },
     );
   }
 
   /**
-   * Construit une couleur dont la teinte et le chroma viennent d'une palette.
+   * Builds a color whose hue and chroma come from a palette.
    *
-   * La couleur n'est pas encore liée à une API. Le `ColorManager` l'initialise
-   * automatiquement lorsqu'il l'enregistre dans un thème.
+   * The color is not bound to an API yet. The `ColorManager` initializes it
+   * automatically when registering it in a theme.
    */
   static fromPalette(options: PaletteColorOptions): Color;
   static fromPalette(
@@ -171,13 +185,14 @@ export class Color {
       typeof hueOrColor === 'number'
         ? { hue: hueOrColor, tone }
         : { hue: hueOrColor.hue, tone: hueOrColor.tone };
-    return Color.from({ hue, chroma: 200, tone: resolvedTone }).chroma;
+    // Read the ARGB, not the color: `Color.from` would keep the requested 200.
+    return Cam16.fromInt(solveToArgb(hue, 200, resolvedTone)).chroma;
   }
 
   /**
-   * Le chroma de pointe d'une teinte : le plus grand chroma affichable en
-   * parcourant tous les tons. Chaque teinte culmine à un ton différent (un
-   * rouge vers 53, un cyan vers 89).
+   * The peak chroma of a hue: the largest displayable chroma across all
+   * tones. Each hue peaks at a different tone (a red around 53, a cyan around
+   * 89).
    */
   static peakChroma(hue: number): number {
     let peak = 0;
@@ -256,7 +271,7 @@ export class Color {
       this.beforeTransforms,
       this.afterTransforms,
       this.phase,
-      this.toneOverride,
+      this.requested,
     );
   }
 
@@ -342,7 +357,7 @@ export class Color {
           transformed.beforeTransforms,
           [],
           'before',
-          transformed.toneOverride,
+          transformed.requested,
         );
         const initialized = this.api ? beforeOnly.init(this.api) : beforeOnly;
         current = initialized.resolve().color;
@@ -483,12 +498,32 @@ export class Color {
     return this._cam;
   }
 
+  /** The bare value color whose request is authoritative, if there is one. */
+  private get plainValue(): Color | undefined {
+    if (
+      this.source.kind === 'value' &&
+      this.beforeTransforms.length === 0 &&
+      this.afterTransforms.length === 0
+    ) {
+      return this;
+    }
+    const resolved = this.resolve().color;
+    if (
+      resolved.source.kind === 'value' &&
+      resolved.beforeTransforms.length === 0 &&
+      resolved.afterTransforms.length === 0
+    ) {
+      return resolved;
+    }
+    return undefined;
+  }
+
   get hue(): number {
-    return this.cam.hue;
+    return this.plainValue?.requested?.hue ?? this.cam.hue;
   }
 
   get chroma(): number {
-    return this.cam.chroma;
+    return this.plainValue?.requested?.chroma ?? this.cam.chroma;
   }
 
   get tone(): number {
@@ -497,7 +532,7 @@ export class Color {
       this.beforeTransforms.length === 0 &&
       this.afterTransforms.length === 0
     ) {
-      return this.toneOverride ?? lstarFromArgb(this.source.argb);
+      return this.requested?.tone ?? lstarFromArgb(this.source.argb);
     }
     const state = this.resolve();
     if (
@@ -512,7 +547,9 @@ export class Color {
       state.color.beforeTransforms.length === 0 &&
       state.color.afterTransforms.length === 0
     ) {
-      return state.color.toneOverride ?? lstarFromArgb(state.color.source.argb);
+      return (
+        state.color.requested?.tone ?? lstarFromArgb(state.color.source.argb)
+      );
     }
     return state.color.tone;
   }
@@ -605,7 +642,7 @@ export class Color {
       this.beforeTransforms,
       this.afterTransforms,
       'after',
-      this.toneOverride,
+      this.requested,
     );
     return transform ? after.transform(transform) : after;
   }
@@ -624,11 +661,11 @@ export class Color {
         ? [...this.afterTransforms, transform]
         : this.afterTransforms,
       this.phase,
-      this.toneOverride,
+      this.requested,
     );
   }
 
-  /** Ratio de contraste WCAG entre cette couleur et une autre. */
+  /** WCAG contrast ratio between this color and another. */
   contrastWith(other: Color): number {
     return Contrast.ratioOfTones(this.tone, other.tone);
   }

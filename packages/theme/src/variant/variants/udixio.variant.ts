@@ -58,8 +58,18 @@ const yellowSurfaceLift = (layer: number) => {
 /**
  * Maps a continuous surface layer to a tone. The base scale is independent of
  * hue; yellow only receives a light-mode perceptual lift.
+ *
+ * The variant's surfaces sit on layers 0 (`surfaceContainerLowest`) to 5
+ * (`surfaceDim` in light mode, `surfaceBright` in dark mode), with `surface`
+ * at 0.5. Exposed so a configuration can move a surface along the same scale:
+ *
+ * ```ts
+ * colors: (api) => ({
+ *   surface: (color) => color.withTone(surfaceContainerTone(1, api)),
+ * }),
+ * ```
  */
-const surfaceContainerTone = (
+export const surfaceContainerTone = (
   layer: number,
   api: Pick<API, 'palettes' | 'context'>,
 ) => {

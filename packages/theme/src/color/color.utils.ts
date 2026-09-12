@@ -1,5 +1,9 @@
-import { clampDouble, Contrast } from '@material/material-color-utilities';
-import { Color } from './color.base';
+import {
+  Cam16,
+  clampDouble,
+  Contrast,
+} from '@material/material-color-utilities';
+import { solveToArgb } from './hct-math';
 import { ContrastCurve } from '../material-color-utilities/contrastCurve';
 import { Palette } from '../palette/palette';
 
@@ -84,18 +88,18 @@ const STANDARD_CURVES: Record<
 };
 
 /**
- * La courbe standard de Material pour un ratio donné.
+ * Material's standard curve for a given ratio.
  *
- * @throws si le ratio ne figure pas dans la table — mieux vaut échouer que
- *     rendre une courbe que personne n'a dessinée.
+ * @throws if the ratio is not in the table — better to fail than to return a
+ *     curve nobody drew.
  */
 export function getCurve(ratio: StandardContrastRatio): ContrastCurve {
   const curve = STANDARD_CURVES[ratio];
   if (!curve) {
     throw new Error(
-      `getCurve() ne connaît que les ratios standard de Material ` +
-        `(${Object.keys(STANDARD_CURVES).join(', ')}), reçu : ${ratio}. ` +
-        `Pour toute autre courbe : new ContrastCurve(low, normal, medium, high).`,
+      `getCurve() only knows Material's standard ratios ` +
+        `(${Object.keys(STANDARD_CURVES).join(', ')}), received: ${ratio}. ` +
+        `For any other curve: new ContrastCurve(low, normal, medium, high).`,
     );
   }
   return new ContrastCurve(...curve);
@@ -131,16 +135,22 @@ export function findBestToneForChroma(
   tone: number,
   byDecreasingTone: boolean,
 ): number {
+  // Read the chroma back from the ARGB, not from `Color.from`, which would
+  // keep the request: the tone-by-tone walk relies on sRGB quantization, as
+  // in Material.
+  const displayedChroma = (candidateTone: number) =>
+    Cam16.fromInt(solveToArgb(hue, chroma, candidateTone)).chroma;
+
   let answer = tone;
-  let bestCandidate = Color.from({ hue, chroma, tone: answer });
-  while (bestCandidate.chroma < chroma) {
+  let bestChroma = displayedChroma(answer);
+  while (bestChroma < chroma) {
     if (tone < 0 || tone > 100) {
       break;
     }
     tone += byDecreasingTone ? -1.0 : 1.0;
-    const newCandidate = Color.from({ hue, chroma, tone });
-    if (bestCandidate.chroma < newCandidate.chroma) {
-      bestCandidate = newCandidate;
+    const newChroma = displayedChroma(tone);
+    if (bestChroma < newChroma) {
+      bestChroma = newChroma;
       answer = tone;
     }
   }

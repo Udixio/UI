@@ -69,6 +69,14 @@ export class ThemeWorkerProcessor {
       }
 
       this.api.palettes.sync(palettesCallbacks);
+      const colorKeys = Object.keys(snapshot.colors ?? {});
+      this.api.colors.syncConfiguredColors(
+        colorKeys.length
+          ? Object.fromEntries(
+              colorKeys.map((key) => [key, Color.from(snapshot.colors[key])]),
+            )
+          : undefined,
+      );
       await this.api.load();
 
       return this.api.plugins.getPlugin(TailwindPlugin).getInstance().outputCss;

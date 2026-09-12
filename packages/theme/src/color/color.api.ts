@@ -80,10 +80,36 @@ export class ColorApi {
     }
   }
 
-  /** Enregistre une couche de configuration à reconstruire avec le variant. */
+  /** Registers a configuration layer to rebuild along with the variant. */
   addConfiguredColors(args: ColorsConfig): void {
     this.configuredColorLayers.push(args);
     this.addColors(args);
+  }
+
+  /**
+   * Replaces the configured layers with the given one — or removes them all —
+   * then rebuilds the colors from the variant. Counterpart of `palettes.sync`
+   * for a configuration that changes at runtime.
+   */
+  syncConfiguredColors(args: ColorsConfig | undefined): void {
+    this.configuredColorLayers.length = 0;
+    if (args) this.configuredColorLayers.push(args);
+    this.rebuild();
+  }
+
+  /**
+   * The keys touched by the configured layers. Used to serialize their
+   * resolved value to a context that cannot receive the callbacks.
+   */
+  getConfiguredColorKeys(): string[] {
+    if (!this.api) return [];
+    const api = this.api;
+    const keys = new Set<string>();
+    this.configuredColorLayers.forEach((layer) => {
+      const record = typeof layer === 'function' ? layer(api) : layer;
+      Object.keys(record ?? {}).forEach((key) => keys.add(key));
+    });
+    return [...keys];
   }
 
   get(key: DynamicColorKey | string): Color {

@@ -20,6 +20,7 @@ function isValidHexColor(hexColorString: string) {
 
 type ThemeChange = Partial<ContextOptions> & {
   palettes?: ConfigInterface['palettes'];
+  colors?: ConfigInterface['colors'];
 };
 
 export const ThemeProvider = ({
@@ -152,9 +153,13 @@ export const ThemeProvider = ({
 
     const palettesChanged =
       !previousConfig || previousConfig.palettes !== config.palettes;
-    const ctx: ThemeChange = palettesChanged
-      ? { ...contextArgs, palettes: config.palettes }
-      : contextArgs;
+    const colorsChanged =
+      !previousConfig || previousConfig.colors !== config.colors;
+    const ctx: ThemeChange = {
+      ...contextArgs,
+      ...(palettesChanged ? { palettes: config.palettes } : {}),
+      ...(colorsChanged ? { colors: config.colors } : {}),
+    };
 
     previousConfigRef.current = config;
     if (Object.keys(ctx).length === 0) return;
@@ -214,23 +219,26 @@ export const ThemeProvider = ({
 
     const changeGeneration = ++changeGenerationRef.current;
 
-    const { palettes, ...contextArgs } = ctx;
+    const { palettes, colors, ...contextArgs } = ctx;
 
-    // Toujours évaluer sur le main thread (rapide)
+    // Always evaluate on the main thread (fast)
     api.context.update(contextArgs);
     if ('palettes' in ctx) {
       api.palettes.sync(palettes);
     }
+    if ('colors' in ctx) {
+      api.colors.syncConfiguredColors(colors);
+    }
 
     const worker = workerRef.current;
 
-    // Fallback synchrone : premier rendu ou Worker pas encore prêt
+    // Synchronous fallback: first render or Worker not ready yet
     if (!worker || !firstLoadDoneRef.current) {
       await loadThemeOnMainThread(api, changeGeneration);
       return;
     }
 
-    // Offload au Worker
+    // Offload to the Worker
     const id = ++generationRef.current;
     worker.postMessage({
       id,

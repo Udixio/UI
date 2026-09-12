@@ -297,3 +297,25 @@ describe('theme configuration', () => {
     expect(api.colors.get('callbackAfter').tone).toBeCloseTo(70, 0);
   });
 });
+
+describe('colors.syncConfiguredColors', () => {
+  it('replaces the configured layer instead of stacking it', async () => {
+    const api = await loader({
+      sourceColor: '#6750A4',
+      colors: { surface: (color) => color.withTone(90) },
+    });
+    expect(api.colors.get('surface').tone).toBeCloseTo(90, 0);
+
+    api.colors.syncConfiguredColors({
+      surface: (color) => color.withTone(80),
+    });
+    expect(api.colors.get('surface').tone).toBeCloseTo(80, 0);
+
+    api.colors.syncConfiguredColors(undefined);
+    const fresh = await loader({ sourceColor: '#6750A4' });
+    expect(api.colors.get('surface').tone).toBeCloseTo(
+      fresh.colors.get('surface').tone,
+      3,
+    );
+  });
+});
