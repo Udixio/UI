@@ -247,6 +247,38 @@ describe('NavigationRailItem', () => {
     expect(button.querySelector('.icon')).not.toBeNull();
   });
 
+  it('does not re-notify while it stays selected, even with an inline callback', () => {
+    const calls: number[] = [];
+    const Harness = ({ label }: { label: string }) => (
+      <NavigationRail
+        selectedItem={0}
+        onItemSelected={({ index }) => calls.push(index)}
+      >
+        <NavigationRailItem icon={iAlarm} iconSelected={iAlarm} label={label} />
+      </NavigationRail>
+    );
+    const { rerender } = render(<Harness label="Alarm" />);
+    rerender(<Harness label="Alarm" />);
+    rerender(<Harness label="Alarms" />);
+
+    expect(calls).toEqual([0]);
+  });
+
+  it('notifies again when the item is selected anew', () => {
+    const onItemSelected = vi.fn();
+    const Harness = ({ selected }: { selected: number }) => (
+      <NavigationRail selectedItem={selected} onItemSelected={onItemSelected}>
+        <NavigationRailItem icon={iAlarm} iconSelected={iAlarm} label="Alarm" />
+        <NavigationRailItem icon={iAlarm} iconSelected={iAlarm} label="Clock" />
+      </NavigationRail>
+    );
+    const { rerender } = render(<Harness selected={0} />);
+    rerender(<Harness selected={1} />);
+    rerender(<Harness selected={0} />);
+
+    expect(onItemSelected.mock.calls.map(([e]) => e.index)).toEqual([0, 1, 0]);
+  });
+
   it('renders as a native link when href is provided', () => {
     render(
       <NavigationRailItem

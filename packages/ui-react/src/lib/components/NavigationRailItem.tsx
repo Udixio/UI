@@ -109,16 +109,26 @@ export const NavigationRailItem = ({
     selected,
   });
 
+  // Notifies once per selection, the way the Angular rail does: only when
+  // this item *becomes* the selected one. The callback and the payload are
+  // read through refs so an inline closure, or a label change, never
+  // re-fires it -- a parent clearing a badge in the callback would otherwise
+  // have it wiped again on every render.
+  const latest = useRef({ onItemSelected, label, icon });
+  latest.current = { onItemSelected, label, icon };
+  const wasSelectedRef = useRef(false);
   useEffect(() => {
-    if (selectedItem == index && onItemSelected) {
-      onItemSelected({
+    const isNowSelected = selectedItem == index;
+    if (isNowSelected && !wasSelectedRef.current) {
+      latest.current.onItemSelected?.({
         ref: resolvedRef as any,
         index: index || 0,
-        label,
-        icon,
+        label: latest.current.label,
+        icon: latest.current.icon,
       });
     }
-  }, [selectedItem, index, onItemSelected, label, icon, resolvedRef]);
+    wasSelectedRef.current = isNowSelected;
+  }, [selectedItem, index, resolvedRef]);
 
   // The label is always mounted in both positions (horizontal, inside the
   // container; vertical, after it); a shared `@udixio/core/dom` controller
