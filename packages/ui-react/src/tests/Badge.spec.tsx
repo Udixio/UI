@@ -1,10 +1,30 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { createBadgeTransitionController } from '@udixio/core/dom';
 import { Badge } from '../lib/index.js';
 
 expect.extend(toHaveNoViolations);
+
+// Mocking `animejs` directly corrupts the sibling `@udixio/core` entry under
+// Vite's pre-bundling here; mocking the isolated factory is what the Tooltip
+// spec does too.
+vi.mock('@udixio/core/dom', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@udixio/core/dom')>();
+  return { ...actual, createBadgeTransitionController: vi.fn() };
+});
+
+const mockTransitionController = () => ({
+  setVisible: vi.fn(),
+  destroy: vi.fn(),
+});
+
+beforeEach(() => {
+  vi.mocked(createBadgeTransitionController).mockImplementation(() =>
+    mockTransitionController(),
+  );
+});
 
 const badgeOf = (root: HTMLElement) =>
   root.querySelector('span > span') as HTMLElement;
@@ -189,5 +209,60 @@ describe('Badge', () => {
     );
 
     expect(badgeOf(container).className).toContain('ring-2');
+  });
+
+  it('connects the shared show/hide transition, instantly on first paint', () => {
+    const controller = mockTransitionController();
+    vi.mocked(createBadgeTransitionController).mockReturnValue(controller);
+    const { container, rerender } = render(
+      <Badge label={3} description="3 unread" transition={{ duration: 50 }} />,
+    );
+
+    expect(createBadgeTransitionController).toHaveBeenCalledWith(
+      expect.objectContaining({
+        element: badgeOf(container),
+        transition: { duration: 50 },
+      }),
+    );
+    expect(controller.setVisible).toHaveBeenCalledWith(true, true);
+
+    rerender(
+      <Badge
+        label={3}
+        description="3 unread"
+        transition={{ duration: 50 }}
+        visible={false}
+      />,
+    );
+    expect(controller.setVisible).toHaveBeenLastCalledWith(false);
+    expect(controller.setVisible).toHaveBeenCalledTimes(2);
+  });
+
+  it('stays mounted but leaves the accessibility tree while not visible', () => {
+    const { container, rerender } = render(
+      <Badge label={3} description="3 unread" visible={false} />,
+    );
+
+    const badge = badgeOf(container);
+    // First paint already matches `visible`, before the controller runs.
+    expect(badge.style.visibility).toBe('hidden');
+    expect(badge.getAttribute('role')).toBeNull();
+    expect(badge.getAttribute('aria-hidden')).toBe('true');
+    expect(badge.querySelector('span')?.textContent).toBe('3');
+
+    rerender(<Badge label={3} description="3 unread" visible />);
+    expect(badge.getAttribute('role')).toBe('status');
+    // The controller owns visibility from here; React must not fight it.
+    expect(badge.style.visibility).toBe('hidden');
+  });
+
+  it('tears the transition down on unmount', () => {
+    const controller = mockTransitionController();
+    vi.mocked(createBadgeTransitionController).mockReturnValue(controller);
+    const { unmount } = render(<Badge label={3} description="3 unread" />);
+
+    unmount();
+
+    expect(controller.destroy).toHaveBeenCalledOnce();
   });
 });

@@ -1,3 +1,11 @@
+/** Anime.js opacity/scale show-hide timing, shared by every framework. */
+export interface BadgeTransition {
+  /** Duration in milliseconds. Default: 200ms */
+  duration?: number;
+  /** Anime.js easing name or function. Default: 'outCubic' */
+  ease?: string;
+}
+
 /**
  * Badges show notifications, counts, or status information on navigation
  * items and icons.
@@ -27,6 +35,19 @@ export interface BadgeProps {
    * is the only way it reaches a screen reader.
    */
   description?: string;
+
+  /**
+   * Whether the badge is shown. Default: `true`.
+   *
+   * Set it to `false` rather than unmounting the badge, so it can animate
+   * out; it stays in the DOM, invisible and hidden from assistive technology,
+   * until it is shown again. Material recommends clearing a badge once its
+   * destination has been viewed.
+   */
+  visible?: boolean;
+
+  /** Anime.js show-hide timing. */
+  transition?: BadgeTransition;
 }
 
 export interface BadgeStates {

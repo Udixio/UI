@@ -131,7 +131,7 @@ describe('NavigationRail (Angular, consuming @udixio/core)', () => {
     expect(items[0].textContent).toContain('Alarm');
   });
 
-  it('puts a badge on its icon, and drops it when the caller withdraws it', () => {
+  it('puts a badge on its icon, and hides it when the caller withdraws it', () => {
     fixture.componentInstance.badge.set({ label: 3, description: '3 alarms' });
     fixture.detectChanges();
 
@@ -147,7 +147,12 @@ describe('NavigationRail (Angular, consuming @udixio/core)', () => {
     fixture.componentInstance.badge.set(undefined);
     fixture.detectChanges();
 
+    // Withdrawn, the badge stays mounted with its last content so it can
+    // animate out, but it has left the accessibility tree.
     expect(root.querySelector('[role="status"]')).toBeNull();
+    expect(badge.isConnected).toBe(true);
+    expect(badge.getAttribute('aria-hidden')).toBe('true');
+    expect(badge.textContent).toContain('3');
     expect(button.querySelector('udx-icon')).not.toBeNull();
   });
 

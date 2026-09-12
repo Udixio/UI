@@ -9,6 +9,7 @@ import {
   computed,
   inject,
   input,
+  linkedSignal,
   viewChild,
 } from '@angular/core';
 import {
@@ -40,8 +41,9 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
  * - An item placed after a `udx-navigation-rail-section` only renders while
  *   the rail is extended.
  * - `badge` puts a `[udxBadge]` on the icon, the way Material shows
- *   notifications on a destination; leave it unset once the destination is
- *   selected if the notification is meant to clear.
+ *   notifications on a destination; set it back to `undefined` once the
+ *   destination is selected if the notification is meant to clear, and the
+ *   badge animates out.
  * - The label reveal (width/height + opacity, on `extended` changes) is
  *   driven by a shared `@udixio/core/dom` Motion controller, the same one
  *   the React adapter uses.
@@ -91,13 +93,15 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
           stateClassName="state-ripple-group-[navigation-rail-item]"
         />
         @if (icon()) {
-          @if (badge(); as badge) {
+          @if (lastBadge(); as badge) {
             <udx-icon
               [icon]="(isSelected() ? iconSelected() : icon())!"
               [classes]="styles()['icon']"
               [udxBadge]="badge.label"
               [udxBadgeMax]="badge.max"
               [udxBadgeDescription]="badge.description"
+              [udxBadgeVisible]="this.badge() !== undefined"
+              [udxBadgeTransition]="badge.transition"
             />
           } @else {
             <udx-icon
@@ -133,6 +137,15 @@ export class NavigationRailItem {
   readonly iconSelected = input<IconType>();
   /** A badge on the icon: `{}` is the dot, `{ label: 3 }` the count. */
   readonly badge = input<BadgeProps>();
+  // A withdrawn badge stays mounted with its last content so it can animate
+  // out; it only ever leaves with the item.
+  protected readonly lastBadge = linkedSignal<
+    BadgeProps | undefined,
+    BadgeProps | undefined
+  >({
+    source: this.badge,
+    computation: (badge, previous) => badge ?? previous?.value,
+  });
   /** Controlled selected state, used when no parent drives the selection. */
   readonly selected = input(false, { transform: booleanAttribute });
   /** Navigation destination; switches the inner element to a native link. */

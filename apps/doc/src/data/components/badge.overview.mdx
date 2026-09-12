@@ -19,8 +19,10 @@ bar, and that is where `NavigationRailItem` puts one: its `badge` input takes
 the badge's own contract -- `{}` for the dot, `{ label: 3 }` for a count.
 
 Material recommends clearing a badge once its destination has been viewed.
-That is the caller's decision, so there is no prop for it: the example drops
-the badge when its item is selected.
+That is the caller's decision: the example drops the badge when its item is
+selected, and the *New message* action brings it back. Both ends are animated
+-- the badge scales and fades in from nothing and back out -- by one anime.js
+controller in `@udixio/core/dom` that both frameworks connect.
 
 <Code
   codes={{
@@ -119,5 +121,15 @@ Without a `description` the badge is hidden from the accessibility tree. A bare
 digit, or an empty dot, announces noise rather than information.
 
 Hiding the badge once its destination is selected is the caller's decision --
-Material recommends it for the unread-notification case -- so there is no prop
-for it. Render the badge conditionally instead, as the first example does.
+Material recommends it for the unread-notification case. Set `visible` to
+`false` (`udxBadgeVisible` in Angular) rather than unmounting it: the badge
+animates out, stays in the DOM with its last content, and leaves the
+accessibility tree until it is shown again. `NavigationRailItem` does exactly
+that when its `badge` goes back to `undefined`.
+
+## Motion
+
+Showing and hiding scale and fade the badge, 200ms `outCubic` by default;
+`transition` (`udxBadgeTransition`) changes the duration and easing. A
+`prefers-reduced-motion` user gets the end state at once, and so does the
+first paint, so a page never opens with badges popping in.

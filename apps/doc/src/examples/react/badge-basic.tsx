@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { NavigationRail, NavigationRailItem } from '@udixio/ui-react';
+import { Fab, NavigationRail, NavigationRailItem } from '@udixio/ui-react';
+import { iAdd } from '@udixio/icons-rounded-400/add';
 import { iHome } from '@udixio/icons-rounded-400/home';
 import { iInbox } from '@udixio/icons-rounded-400/inbox';
 import { iChat } from '@udixio/icons-rounded-400/chat';
 import { iNotifications } from '@udixio/icons-rounded-400/notifications';
 
 // What each destination has waiting. Material recommends clearing a badge
-// once its destination has been viewed, so selecting an item removes it.
+// once its destination has been viewed, so selecting an item removes it; the
+// badge animates out, and back in when a message arrives.
 const initialUnread = { inbox: 3, chat: true, notifications: 1000 };
 
 export const BadgeBasicReact = () => {
@@ -26,6 +28,11 @@ export const BadgeBasicReact = () => {
       setSelectedItem={setSelected}
       onItemSelected={({ index }) => view(index)}
     >
+      <Fab
+        label="New message"
+        icon={iAdd}
+        onClick={() => setUnread((u) => ({ ...u, inbox: u.inbox + 1 }))}
+      />
       <NavigationRailItem icon={iHome} iconSelected={iHome} label="Home" />
       <NavigationRailItem
         icon={iInbox}

@@ -1,3 +1,5 @@
+import { animate, type JSAnimation } from 'animejs';
+import type { BadgeTransition } from '../interfaces/badge.interface.js';
 import { resolveBoxElement } from './anchor-positioner.js';
 
 export interface BadgeAnchorOptions {
@@ -72,5 +74,69 @@ export function createBadgeAnchorController({
     },
     update: attach,
     destroy: detach,
+  };
+}
+
+export interface BadgeTransitionOptions {
+  /** The badge element itself; the adapter owns rendering it. */
+  element: HTMLElement;
+  transition?: BadgeTransition;
+  /** Overridable for tests; defaults to the system `prefers-reduced-motion`. */
+  reducedMotion?: () => boolean;
+}
+
+export interface BadgeTransitionController {
+  /** Shows or hides the badge; `instant` skips the animation (first paint). */
+  setVisible(visible: boolean, instant?: boolean): void;
+  destroy(): void;
+}
+
+function systemPrefersReducedMotion(): boolean {
+  return (
+    typeof globalThis.matchMedia === 'function' &&
+    globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
+}
+
+const DEFAULT_TRANSITION: Required<BadgeTransition> = {
+  duration: 200,
+  ease: 'outCubic',
+};
+
+/**
+ * Connects the shared show-hide effect for a badge: it scales and fades in
+ * from nothing when it appears and back to nothing when it goes, the way
+ * Material's badges enter and exit. Once hidden the element is also
+ * `visibility: hidden`, so a hidden badge is neither painted nor hit-tested;
+ * reduced motion jumps straight to either end state. Both React and Angular
+ * connect this single controller with anime.js.
+ */
+export function createBadgeTransitionController({
+  element,
+  transition = DEFAULT_TRANSITION,
+  reducedMotion = systemPrefersReducedMotion,
+}: BadgeTransitionOptions): BadgeTransitionController {
+  let current: JSAnimation | undefined;
+
+  return {
+    setVisible(visible, instant = false) {
+      current?.pause();
+      const skipAnimation = instant || reducedMotion();
+      if (visible) element.style.visibility = '';
+      current = animate(element, {
+        opacity: visible ? 1 : 0,
+        scale: visible ? 1 : 0,
+        duration: skipAnimation
+          ? 0
+          : (transition.duration ?? DEFAULT_TRANSITION.duration),
+        ease: transition.ease ?? DEFAULT_TRANSITION.ease,
+        onComplete: () => {
+          if (!visible) element.style.visibility = 'hidden';
+        },
+      });
+    },
+    destroy() {
+      current?.pause();
+    },
   };
 }

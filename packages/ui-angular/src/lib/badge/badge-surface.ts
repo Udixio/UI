@@ -5,6 +5,7 @@ import {
   computed,
   inject,
   input,
+  viewChild,
 } from '@angular/core';
 import {
   badgeStyle,
@@ -27,9 +28,12 @@ import { createStyle } from '../utils/create-style';
  *   directly.
  * - Renders the dot or the pill from the same shared contract React renders
  *   from, so the DOM the two frameworks produce is identical.
+ * - Exposes its badge element so the directive can connect the shared
+ *   anime.js show/hide scale-and-fade from `@udixio/core/dom`.
  * @a11y
  * - Carries the live region and the visually hidden `description`; hides
- *   itself from assistive technology when there is no description.
+ *   itself from assistive technology when there is no description, and when
+ *   it is not `visible`.
  * @limitations
  * - Positions itself against its parent, and relies on the directive to have
  *   made that parent a containing block.
@@ -41,9 +45,10 @@ import { createStyle } from '../utils/create-style';
   host: { style: 'display: contents' },
   template: `
     <span
+      #badge
       [class]="styles()['badge']"
-      [attr.role]="description() ? 'status' : null"
-      [attr.aria-hidden]="description() ? null : true"
+      [attr.role]="announced() ? 'status' : null"
+      [attr.aria-hidden]="announced() ? null : true"
     >
       @if (resolvedLabel(); as text) {
         <span [class]="styles()['label']" aria-hidden="true">{{ text }}</span>
@@ -61,6 +66,10 @@ export class BadgeSurface {
   readonly max = input<BadgeProps['max']>();
   /** What assistive technology announces, such as `3 unread messages`. */
   readonly description = input<BadgeProps['description']>();
+  /** Whether the badge is shown; `false` animates it out and keeps it mounted. */
+  readonly visible = input<boolean>(true);
+  /** Anime.js show-hide timing. */
+  readonly transition = input<BadgeProps['transition']>();
   /** Classes, or state-aware element classes, applied through the shared style contract. */
   readonly classes = input<string | ClassNameComponent<BadgeInterface>>();
 
@@ -71,6 +80,13 @@ export class BadgeSurface {
     return this.elementRef.nativeElement;
   }
 
+  /** The badge element itself; the directive connects the show/hide transition to it. */
+  readonly badgeElement = viewChild<ElementRef<HTMLElement>>('badge');
+
+  protected readonly announced = computed(
+    () => this.visible() && !!this.description(),
+  );
+
   protected readonly resolvedLabel = computed(() =>
     resolveBadgeLabel({ label: this.label(), max: this.max() }),
   );
@@ -79,6 +95,8 @@ export class BadgeSurface {
     label: this.label(),
     max: this.max(),
     description: this.description(),
+    visible: this.visible(),
+    transition: this.transition(),
     variant: resolveBadgeVariant(this.resolvedLabel()),
     className: this.classes(),
   }));

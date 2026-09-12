@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { NavigationRail, NavigationRailItem } from '@udixio/ui-angular';
+import { Fab, NavigationRail, NavigationRailItem } from '@udixio/ui-angular';
+import { iAdd } from '@udixio/icons-rounded-400/add';
 import { iHome } from '@udixio/icons-rounded-400/home';
 import { iInbox } from '@udixio/icons-rounded-400/inbox';
 import { iChat } from '@udixio/icons-rounded-400/chat';
@@ -8,7 +9,7 @@ import { iNotifications } from '@udixio/icons-rounded-400/notifications';
 @Component({
   selector: 'docs-badge-basic-angular',
   standalone: true,
-  imports: [NavigationRail, NavigationRailItem],
+  imports: [Fab, NavigationRail, NavigationRailItem],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <udx-navigation-rail
@@ -16,6 +17,7 @@ import { iNotifications } from '@udixio/icons-rounded-400/notifications';
       [selectedItem]="selected()"
       (selectedItemChange)="view($event)"
     >
+      <udx-fab label="New message" [icon]="add" (click)="receive()" />
       <udx-navigation-rail-item [icon]="home" [iconSelected]="home" label="Home" />
       <udx-navigation-rail-item
         [icon]="inbox"
@@ -51,6 +53,7 @@ import { iNotifications } from '@udixio/icons-rounded-400/notifications';
   `,
 })
 export class BadgeBasicAngular {
+  protected readonly add = iAdd;
   protected readonly home = iHome;
   protected readonly inbox = iInbox;
   protected readonly chat = iChat;
@@ -58,8 +61,13 @@ export class BadgeBasicAngular {
 
   protected readonly selected = signal<number | null>(0);
   // What each destination has waiting. Material recommends clearing a badge
-  // once its destination has been viewed, so selecting an item removes it.
+  // once its destination has been viewed, so selecting an item removes it;
+  // the badge animates out, and back in when a message arrives.
   protected readonly unread = signal({ inbox: 3, chat: true, notifications: 1000 });
+
+  protected receive(): void {
+    this.unread.update((u) => ({ ...u, inbox: u.inbox + 1 }));
+  }
 
   protected view(index: number | null): void {
     this.selected.set(index);

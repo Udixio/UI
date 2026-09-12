@@ -58,7 +58,7 @@ export const useNavigationRailItemStyle = createUseStyle(
  * - `extendedOnly` hides items when the rail is collapsed.
  * - `badge` puts a `Badge` on the icon, the way Material shows notifications
  *   on a destination; pass `undefined` once the destination is selected if
- *   the notification is meant to clear.
+ *   the notification is meant to clear, and the badge animates out.
  * - The label reveal (width/height + opacity, on `extended` changes) is
  *   driven by a shared `@udixio/core/dom` Motion controller, the same one
  *   the Angular adapter uses.
@@ -93,6 +93,12 @@ export const NavigationRailItem = ({
   ...restProps
 }: ReactNavigationRailItemProps) => {
   if (children) label = children;
+
+  // A withdrawn badge stays mounted with its last content so it can animate
+  // out; it only ever unmounts with the item.
+  const lastBadgeRef = useRef(badge);
+  if (badge !== undefined) lastBadgeRef.current = badge;
+  const lastBadge = lastBadgeRef.current;
 
   const defaultRef = useRef<any>(null);
   const resolvedRef = ref || defaultRef;
@@ -239,8 +245,8 @@ export const NavigationRailItem = ({
           stateClassName={'state-ripple-group-[navigation-rail-item]'}
         />
         {icon &&
-          (badge ? (
-            <Badge {...badge}>
+          (lastBadge ? (
+            <Badge {...lastBadge} visible={badge !== undefined}>
               <Icon
                 icon={isSelected ? iconSelected : icon}
                 className={styles.icon}

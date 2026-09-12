@@ -216,7 +216,7 @@ describe('NavigationRailItem', () => {
     );
   });
 
-  it('puts a badge on its icon, and drops it when the caller withdraws it', () => {
+  it('puts a badge on its icon, and hides it when the caller withdraws it', () => {
     const { rerender } = render(
       <NavigationRailItem
         icon={iAlarm}
@@ -238,7 +238,12 @@ describe('NavigationRailItem', () => {
       <NavigationRailItem icon={iAlarm} iconSelected={iAlarm} label="Alarm" />,
     );
 
+    // Withdrawn, the badge stays mounted with its last content so it can
+    // animate out, but it has left the accessibility tree.
     expect(screen.queryByRole('status')).toBeNull();
+    expect(badge).toBeInTheDocument();
+    expect(badge).toHaveAttribute('aria-hidden', 'true');
+    expect(badge).toHaveTextContent('3');
     expect(button.querySelector('.icon')).not.toBeNull();
   });
 

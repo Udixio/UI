@@ -1,9 +1,22 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { axe, toHaveNoViolations } from 'jest-axe';
+import * as coreDom from '@udixio/core/dom';
 import { Badge } from './badge';
 
 expect.extend(toHaveNoViolations);
+
+const mockTransitionController = () => ({
+  setVisible: jest.fn(),
+  destroy: jest.fn(),
+});
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  jest
+    .spyOn(coreDom, 'createBadgeTransitionController')
+    .mockImplementation(() => mockTransitionController());
+});
 
 @Component({
   standalone: true,
@@ -14,6 +27,8 @@ expect.extend(toHaveNoViolations);
       [udxBadge]="label"
       [udxBadgeMax]="max"
       [udxBadgeDescription]="description"
+      [udxBadgeVisible]="visible"
+      [udxBadgeTransition]="transition"
     ></i>
   `,
 })
@@ -21,6 +36,8 @@ class Harness {
   label: string | number | undefined = undefined;
   max: number | undefined = undefined;
   description: string | undefined = 'Unread';
+  visible = true;
+  transition: { duration?: number } | undefined = undefined;
 }
 
 @Component({
@@ -254,6 +271,51 @@ describe('Badge (Angular)', () => {
     expect(visibleTextOf(fixture.nativeElement)).toBe('BETA RELEASE');
     expect(badge.className).not.toContain('max-w-');
     expect(badge.querySelector('span')?.className).not.toContain('truncate');
+    fixture.destroy();
+  });
+
+  it('connects the shared show/hide transition, instantly on first paint', () => {
+    const controller = mockTransitionController();
+    jest
+      .spyOn(coreDom, 'createBadgeTransitionController')
+      .mockReturnValue(controller);
+    const fixture = TestBed.createComponent(Harness);
+    fixture.componentInstance.label = 3;
+    fixture.componentInstance.transition = { duration: 50 };
+    fixture.detectChanges();
+
+    expect(coreDom.createBadgeTransitionController).toHaveBeenCalledWith(
+      expect.objectContaining({
+        element: badgeOf(fixture.nativeElement),
+        transition: { duration: 50 },
+      }),
+    );
+    expect(controller.setVisible).toHaveBeenCalledWith(true, true);
+
+    fixture.componentInstance.visible = false;
+    fixture.detectChanges();
+
+    expect(controller.setVisible).toHaveBeenLastCalledWith(false);
+    expect(controller.setVisible).toHaveBeenCalledTimes(2);
+    fixture.destroy();
+    expect(controller.destroy).toHaveBeenCalled();
+  });
+
+  it('stays mounted but leaves the accessibility tree while not visible', () => {
+    const fixture = TestBed.createComponent(Harness);
+    fixture.componentInstance.label = 3;
+    fixture.componentInstance.description = '3 unread';
+    fixture.componentInstance.visible = false;
+    fixture.detectChanges();
+
+    const badge = badgeOf(fixture.nativeElement);
+    expect(badge.getAttribute('role')).toBeNull();
+    expect(badge.getAttribute('aria-hidden')).toBe('true');
+    expect(badge.querySelector('span')?.textContent).toBe('3');
+
+    fixture.componentInstance.visible = true;
+    fixture.detectChanges();
+    expect(badge.getAttribute('role')).toBe('status');
     fixture.destroy();
   });
 });

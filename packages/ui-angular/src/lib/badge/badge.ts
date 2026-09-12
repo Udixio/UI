@@ -3,17 +3,22 @@ import {
   ElementRef,
   ViewContainerRef,
   afterEveryRender,
+  afterRenderEffect,
+  booleanAttribute,
   effect,
   inject,
   input,
   numberAttribute,
+  untracked,
   type ComponentRef,
   type OnDestroy,
 } from '@angular/core';
 import type { BadgeInterface, BadgeProps, ClassNameComponent } from '@udixio/core';
 import {
   createBadgeAnchorController,
+  createBadgeTransitionController,
   type BadgeAnchorController,
+  type BadgeTransitionController,
 } from '@udixio/core/dom';
 import { BadgeSurface } from './badge-surface';
 
@@ -51,8 +56,11 @@ const optionalNumberAttribute = (value: unknown): number | undefined =>
  * - `udxBadgeMax` caps a count the way Material spells it:
  *   `udxBadge="100" udxBadgeMax="99"` renders `99+`.
  * - Hiding the badge once its destination is selected is the caller's
- *   decision, so there is no input for it -- bind the attribute with `@if`,
- *   or let `udx-navigation-rail-item` do it through its `badge` input.
+ *   decision: set `udxBadgeVisible` to `false` rather than removing the
+ *   attribute, so it can animate out -- or let `udx-navigation-rail-item` do
+ *   it through its `badge` input. The show/hide scale-and-fade is implemented
+ *   once with anime.js in `@udixio/core/dom`; `udxBadgeTransition` tunes it,
+ *   and reduced motion skips it.
  * @a11y
  * - `udxBadgeDescription` is what a screen reader announces. Give it the
  *   meaning, not the number: `3 unread messages`, not `3`. It is rendered as
@@ -60,7 +68,8 @@ const optionalNumberAttribute = (value: unknown): number | undefined =>
  *   the whole sentence rather than the bare digit, and the visible number is
  *   hidden from assistive technology so it is not read twice.
  * - Without a description the badge is hidden from assistive technology
- *   rather than announced as a bare digit or as nothing at all.
+ *   rather than announced as a bare digit or as nothing at all; so is a
+ *   badge that is not visible.
  * @limitations
  * - Material limits badge content to four characters including the `+`.
  *   Nothing truncates: silently dropping a caller's text would hide data, and
@@ -94,6 +103,15 @@ export class Badge implements OnDestroy {
   readonly description = input<BadgeProps['description']>(undefined, {
     alias: 'udxBadgeDescription',
   });
+  /** Whether the badge is shown; `false` animates it out and keeps it mounted. */
+  readonly visible = input(true, {
+    alias: 'udxBadgeVisible',
+    transform: booleanAttribute,
+  });
+  /** Anime.js show-hide timing. */
+  readonly transition = input<BadgeProps['transition']>(undefined, {
+    alias: 'udxBadgeTransition',
+  });
   /** Classes, or state-aware element classes, applied through the shared style contract. */
   readonly classes = input<
     string | ClassNameComponent<BadgeInterface> | undefined
@@ -104,6 +122,9 @@ export class Badge implements OnDestroy {
 
   private surfaceRef?: ComponentRef<BadgeSurface>;
   private anchorController?: BadgeAnchorController;
+  private transitionController?: BadgeTransitionController;
+  private wiredElement?: HTMLElement;
+  private hasAppliedInitialVisibility = false;
 
   constructor() {
     // The surface is created eagerly: unlike a tooltip, an attribute with no
@@ -115,6 +136,8 @@ export class Badge implements OnDestroy {
       surface.setInput('label', this.label());
       surface.setInput('max', this.max());
       surface.setInput('description', this.description());
+      surface.setInput('visible', this.visible());
+      surface.setInput('transition', this.transition());
       surface.setInput('classes', this.classes());
       surface.changeDetectorRef.detectChanges();
     });
@@ -131,9 +154,41 @@ export class Badge implements OnDestroy {
         badge,
       })).update();
     });
+
+    // The transition lives here rather than in the surface: the directive's
+    // own inputs are what change, and tracking them from the surface's inputs
+    // -- fed through `setInput` -- does not re-run a render effect under
+    // zoneless change detection. Guarded on the native element, not the query
+    // signal, so a refreshed wrapper never rebuilds the controller and resets
+    // the "first apply is instant" bookkeeping. The instant first apply runs
+    // after render but before paint, so a badge created hidden never shows.
+    afterRenderEffect(() => {
+      const element = this.surfaceRef?.instance.badgeElement()?.nativeElement;
+      if (!element || element === this.wiredElement) return;
+      this.transitionController?.destroy();
+      this.wiredElement = element;
+      const controller = createBadgeTransitionController({
+        element,
+        transition: untracked(this.transition),
+      });
+      this.transitionController = controller;
+      controller.setVisible(untracked(this.visible), true);
+      this.hasAppliedInitialVisibility = false;
+    });
+
+    afterRenderEffect(() => {
+      const visible = this.visible();
+      if (!this.hasAppliedInitialVisibility) {
+        this.hasAppliedInitialVisibility = true;
+        return;
+      }
+      this.transitionController?.setVisible(visible);
+    });
   }
 
   ngOnDestroy(): void {
+    this.transitionController?.destroy();
+    this.transitionController = undefined;
     this.anchorController?.destroy();
     this.anchorController = undefined;
     this.surfaceRef?.destroy();
