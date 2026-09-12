@@ -92,6 +92,27 @@ describe('badge anchor controller', () => {
     expect(first.style.position).toBe('');
   });
 
+  it('keeps the container classes on the box, and takes them back on destroy', () => {
+    const host = document.createElement('span');
+    host.className = 'own';
+    document.body.appendChild(host);
+    let classes = 'relative mt-4';
+    const controller = createBadgeAnchorController({
+      host,
+      badge: badgeElement(),
+      className: () => classes,
+    });
+
+    expect(host.className).toBe('own relative mt-4');
+
+    classes = 'relative ring-2';
+    controller.update();
+    expect(host.className).toBe('own relative ring-2');
+
+    controller.destroy();
+    expect(host.className).toBe('own');
+  });
+
   it('removes the badge and restores the box on destroy', () => {
     const host = document.createElement('span');
     document.body.appendChild(host);

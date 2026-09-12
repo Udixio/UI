@@ -80,9 +80,9 @@ const optionalNumberAttribute = (value: unknown): number | undefined =>
  * - Material anchors badges inside the *icon* bounding box, so mark the icon:
  *   marking a control with a large touch target anchors to that target
  *   instead, pushing the badge away from the icon by the padding around it.
- * - The `container` element of the shared style contract is the consumer's
- *   own element here, so a `container` override in `udxBadgeClass` has no
- *   target; style that element directly.
+ * - The `container` element of the shared style contract is the marked
+ *   element itself, so the string form of `udxBadgeClass`, and a `container`
+ *   override, land on it.
  */
 @Directive({
   selector: '[udxBadge]',
@@ -152,6 +152,7 @@ export class Badge implements OnDestroy {
       (this.anchorController ??= createBadgeAnchorController({
         host: this.host.nativeElement,
         badge,
+        className: () => this.surfaceRef?.instance.containerClass() ?? '',
       })).update();
     });
 

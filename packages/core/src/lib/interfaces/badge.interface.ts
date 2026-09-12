@@ -57,6 +57,14 @@ export interface BadgeStates {
    * and `small` with a label cannot be expressed.
    */
   variant: 'small' | 'large';
+  /**
+   * Whether the badge is attached to an element the consumer owns (the
+   * Angular directive) rather than wrapping it in a container of its own
+   * (the React component). The container only shrink-wraps in the second
+   * case; in the first it *is* the consumer's element, and only receives
+   * the positioning and the caller's `container` classes.
+   */
+  attached: boolean;
 }
 
 export interface BadgeInterface {

@@ -17,8 +17,13 @@ import { type ClassNameComponent, cx, defaultClassNames } from '../utils';
  * widen with its count without moving, and using logical properties is what
  * flips it for right-to-left, which the guidelines require.
  */
-const badgeConfig: ClassNameComponent<BadgeInterface> = ({ variant }) => ({
-  container: cx('relative inline-flex w-fit'),
+const badgeConfig: ClassNameComponent<BadgeInterface> = ({
+  variant,
+  attached,
+}) => ({
+  // Wrapping, the container is an extra box that must shrink to its child;
+  // attached, it is the child, and only needs to be the containing block.
+  container: cx('relative', !attached && 'inline-flex w-fit'),
   badge: cx(
     'absolute z-10 flex items-center justify-center rounded-full',
     'bg-error text-on-error pointer-events-none',

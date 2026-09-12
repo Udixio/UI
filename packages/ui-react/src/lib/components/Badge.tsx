@@ -78,6 +78,7 @@ export const Badge = ({
     visible,
     transition,
     variant,
+    attached: false,
     className,
   });
   const announced = visible && !!description;

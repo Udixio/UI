@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { axe, toHaveNoViolations } from 'jest-axe';
+import type { BadgeInterface, ClassNameComponent } from '@udixio/core';
 import * as coreDom from '@udixio/core/dom';
 import { Badge } from './badge';
 
@@ -46,6 +47,17 @@ class Harness {
   template: `<i data-testid="icon" udxBadge="100" udxBadgeMax="99"></i>`,
 })
 class StaticHarness {}
+
+@Component({
+  standalone: true,
+  imports: [Badge],
+  template: `
+    <i data-testid="icon" udxBadge="3" udxBadgeDescription="3 unread" [udxBadgeClass]="classes"></i>
+  `,
+})
+class ClassHarness {
+  classes: string | ClassNameComponent<BadgeInterface> = 'mt-4';
+}
 
 // `udx-icon` hosts itself with `display: contents` and re-renders its own
 // content when the icon changes; this stands in for it without pulling the
@@ -209,6 +221,50 @@ describe('Badge (Angular)', () => {
     expect(badge).toContain('start-[calc(100%-12px)]');
     expect(badge).not.toContain('left-[');
     expect(badge).not.toContain('right-[');
+    fixture.destroy();
+  });
+
+  it('anchors to the leading edge so a widening count does not move it', () => {
+    const narrow = TestBed.createComponent(Harness);
+    narrow.componentInstance.label = 1;
+    narrow.detectChanges();
+    const wide = TestBed.createComponent(Harness);
+    wide.componentInstance.label = 999;
+    wide.detectChanges();
+
+    // Both are pinned by the same logical start offset; only the width grows.
+    expect(badgeOf(narrow.nativeElement).className).toContain('start-[calc(100%-12px)]');
+    expect(badgeOf(wide.nativeElement).className).toContain('start-[calc(100%-12px)]');
+    narrow.destroy();
+    wide.destroy();
+  });
+
+  it('announces the small dot, which has no visible text at all', () => {
+    const fixture = TestBed.createComponent(Harness);
+    fixture.componentInstance.description = 'You have unread messages';
+    fixture.detectChanges();
+
+    const badge = badgeOf(fixture.nativeElement);
+    expect(badge.getAttribute('role')).toBe('status');
+    expect(badge.textContent).toContain('You have unread messages');
+    fixture.destroy();
+  });
+
+  it('applies a caller class to the marked element, which the string form targets', () => {
+    const fixture = TestBed.createComponent(ClassHarness);
+    fixture.detectChanges();
+
+    // The marked element is the container in this shape, so it also carries
+    // the positioning class the wrapper carries in React.
+    const icon = iconOf(fixture.nativeElement);
+    expect(icon.className).toContain('mt-4');
+    expect(icon.className).toContain('relative');
+    expect(icon.className).not.toContain('w-fit');
+
+    fixture.componentInstance.classes = () => ({ badge: 'ring-2' });
+    fixture.detectChanges();
+    expect(badgeOf(fixture.nativeElement).className).toContain('ring-2');
+    expect(icon.className).not.toContain('mt-4');
     fixture.destroy();
   });
 

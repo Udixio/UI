@@ -10,6 +10,12 @@ export interface BadgeAnchorOptions {
   host: HTMLElement;
   /** The badge element, already built by the adapter. */
   badge: HTMLElement;
+  /**
+   * The resolved `container` classes, read on every `update()` and kept in
+   * sync on the box: the caller's `container` overrides land on the element
+   * the badge marks, since that element is the container in this shape.
+   */
+  className?: () => string;
 }
 
 export interface BadgeAnchorController {
@@ -39,13 +45,27 @@ export interface BadgeAnchorController {
 export function createBadgeAnchorController({
   host,
   badge,
+  className = () => '',
 }: BadgeAnchorOptions): BadgeAnchorController {
   let anchor: HTMLElement | undefined;
   let positionedByUs = false;
+  let appliedClasses: string[] = [];
+
+  function syncClasses(): void {
+    const next = className().split(/\s+/).filter(Boolean);
+    const stale = appliedClasses.filter((token) => !next.includes(token));
+    if (stale.length) anchor!.classList.remove(...stale);
+    if (next.length) anchor!.classList.add(...next);
+    appliedClasses = next;
+  }
 
   function detach(): void {
-    if (anchor && positionedByUs) anchor.style.position = '';
+    if (anchor) {
+      if (positionedByUs) anchor.style.position = '';
+      if (appliedClasses.length) anchor.classList.remove(...appliedClasses);
+    }
     positionedByUs = false;
+    appliedClasses = [];
     badge.remove();
     anchor = undefined;
   }
@@ -63,6 +83,7 @@ export function createBadgeAnchorController({
         positionedByUs = true;
       }
     }
+    syncClasses();
     if (badge.parentElement !== anchor) anchor!.appendChild(badge);
   }
 

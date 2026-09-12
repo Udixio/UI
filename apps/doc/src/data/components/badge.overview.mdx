@@ -54,7 +54,11 @@ it in the shape each one is built for:
   `udxBadge*` because the host element is not the directive's own.
 
 The contract, the measurements, the DOM the badge renders and the
-accessibility are identical; only the way you reach them differs.
+accessibility are identical; only the way you reach them differs. That holds
+for classes too: the `container` element of the style contract is the
+wrapper in React and the marked element in Angular, so the string form --
+`className="mt-4"`, `udxBadgeClass="mt-4"` -- lands on the wrapper in one and
+on the icon in the other, and a `container` override does the same.
 
 <Code
   codes={{

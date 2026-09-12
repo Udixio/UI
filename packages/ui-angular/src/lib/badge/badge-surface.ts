@@ -98,6 +98,10 @@ export class BadgeSurface {
     visible: this.visible(),
     transition: this.transition(),
     variant: resolveBadgeVariant(this.resolvedLabel()),
+    attached: true,
     className: this.classes(),
   }));
+
+  /** The container classes; the directive keeps them on the marked element. */
+  readonly containerClass = computed(() => this.styles()['container']);
 }
