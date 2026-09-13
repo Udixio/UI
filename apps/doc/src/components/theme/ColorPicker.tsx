@@ -261,6 +261,86 @@ const formatCoordinate = (value: number) => {
   return String(rounded);
 };
 
+/**
+ * The tone closest to `fromTone` at which `hue` displays `chroma`; failing
+ * that (chroma above the hue's peak), the tone of that peak.
+ */
+const nearestToneFor = (hue: number, chroma: number, fromTone: number) => {
+  if (Color.maxChroma(hue, fromTone) >= chroma) return fromTone;
+  let peak = { tone: fromTone, chroma: 0 };
+  for (let delta = 0.5; delta <= 100; delta += 0.5) {
+    for (const tone of [fromTone + delta, fromTone - delta]) {
+      if (tone < 0 || tone > 100) continue;
+      const max = Color.maxChroma(hue, tone);
+      if (max >= chroma) return tone;
+      if (max > peak.chroma) peak = { tone, chroma: max };
+    }
+  }
+  return peak.tone;
+};
+
+/**
+ * One HCT coordinate as a narrow numeric field. The map and the hue ramp
+ * already show where the color sits; this is where an exact value is typed
+ * (or nudged with the arrow keys). The draft is local so a half-typed number
+ * never moves the color; it commits on every valid number and re-syncs with
+ * the color on blur.
+ */
+const CoordinateField = ({
+  label,
+  name,
+  value,
+  min,
+  max,
+  disabled,
+  onCommit,
+  onBlur,
+}: {
+  label: string;
+  name: string;
+  value: number;
+  min: number;
+  max: number;
+  disabled?: boolean;
+  onCommit: (value: number) => void;
+  onBlur: () => void;
+}) => {
+  const [draft, setDraft] = useState(String(Math.round(value)));
+  const [isEditing, setIsEditing] = useState(false);
+  // Whole numbers at rest: the decimals the map produces are noise here, and
+  // the field is too narrow for them. The stored value keeps its precision.
+  const shown = isEditing ? draft : String(Math.round(value));
+
+  return (
+    <TextField
+      variant="outlined"
+      type="number"
+      label={label}
+      name={name}
+      value={shown}
+      disabled={disabled}
+      className="coordinate-field min-w-0 flex-1"
+      min={min}
+      max={max}
+      step={1}
+      onFocus={() => {
+        setDraft(String(Math.round(value)));
+        setIsEditing(true);
+      }}
+      onChange={(next) => {
+        setDraft(next);
+        const parsed = Number(next);
+        if (next.trim() === '' || Number.isNaN(parsed)) return;
+        onCommit(clamp(parsed, min, max));
+      }}
+      onBlur={() => {
+        setIsEditing(false);
+        onBlur();
+      }}
+    />
+  );
+};
+
 const normalizeHex = (value: string) => {
   const trimmed = value.trim();
   const match = trimmed.match(/^#?([0-9a-fA-F]{6})$/);
@@ -341,6 +421,9 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
   );
   const maxChromaPoint = maxChromaLookup.maxPoint;
   const maxChroma = useMemo(() => Color.maxChroma(hue, tone), [hue, tone]);
+  // The field accepts up to the hue's peak across all tones: the maximum at
+  // the current tone is a display limit, not a configuration one.
+  const peakChroma = useMemo(() => Color.peakChroma(hue), [hue]);
   const boundedChroma = clamp(chroma, 0, maxChroma);
   const updateChromaValue = useCallback(
     (nextChroma: number) => {
@@ -1008,87 +1091,139 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
               />
             </div>
           </div>
-          <div className="flex items-center justify-between gap-3 text-label-medium">
-            <div className="flex items-center gap-3">
-              <p className="flex items-center gap-3" aria-live="polite">
-                {CONTRAST_LEVELS.map(({ label, minimum }) => {
-                  const passes = contrastRatio >= minimum;
-                  return (
-                    <span
-                      key={label}
-                      className={
-                        passes ? 'text-success' : 'text-error line-through'
-                      }
-                    >
-                      {label}
+          <div className="flex items-center gap-3 text-label-medium">
+            <p className="flex items-center gap-3" aria-live="polite">
+              {CONTRAST_LEVELS.map(({ label, minimum }) => {
+                const passes = contrastRatio >= minimum;
+                return (
+                  <span
+                    key={label}
+                    className={
+                      passes ? 'text-success' : 'text-error line-through'
+                    }
+                  >
+                    {label}
+                  </span>
+                );
+              })}
+            </p>
+            <Tooltip
+              variant="rich"
+              content={
+                <div className="grid gap-3">
+                  <div className="flex items-baseline justify-between gap-4">
+                    <span className="text-title-small">Contraste</span>
+                    <span className="text-title-medium tabular-nums">
+                      {Math.round(contrastRatio * 10) / 10}:1
                     </span>
-                  );
-                })}
-              </p>
-              <Tooltip
-                variant="rich"
-                content={
-                  <div className="grid gap-3">
-                    <div className="flex items-baseline justify-between gap-4">
-                      <span className="text-title-small">Contraste</span>
-                      <span className="text-title-medium tabular-nums">
-                        {Math.round(contrastRatio * 10) / 10}:1
-                      </span>
-                    </div>
-                    <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-body-small">
-                      {CONTRAST_LEVELS.map(({ label, minimum }) => {
-                        const passes = contrastRatio >= minimum;
-                        return (
-                          <Fragment key={label}>
-                            <dt
-                              className={
-                                passes
-                                  ? 'text-success'
-                                  : 'text-error line-through'
-                              }
-                            >
-                              {label}
-                            </dt>
-                            <dd className="text-on-surface-variant tabular-nums">
-                              ≥ {minimum}:1
-                            </dd>
-                          </Fragment>
-                        );
-                      })}
-                    </dl>
-                    <p className="text-body-small text-on-surface-variant">
-                      Relative to the theme surface.
-                    </p>
                   </div>
-                }
-              >
-                <IconButton
-                  icon={iInfo}
-                  variant="standard"
-                  size="xSmall"
-                  label="About contrast"
-                />
-              </Tooltip>
-            </div>
-            <span className="tabular-nums text-on-surface-variant">
-              {formatCoordinate(hue)}°
-            </span>
+                  <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-body-small">
+                    {CONTRAST_LEVELS.map(({ label, minimum }) => {
+                      const passes = contrastRatio >= minimum;
+                      return (
+                        <Fragment key={label}>
+                          <dt
+                            className={
+                              passes
+                                ? 'text-success'
+                                : 'text-error line-through'
+                            }
+                          >
+                            {label}
+                          </dt>
+                          <dd className="text-on-surface-variant tabular-nums">
+                            ≥ {minimum}:1
+                          </dd>
+                        </Fragment>
+                      );
+                    })}
+                  </dl>
+                  <p className="text-body-small text-on-surface-variant">
+                    Relative to the theme surface.
+                  </p>
+                </div>
+              }
+            >
+              <IconButton
+                icon={iInfo}
+                variant="standard"
+                size="xSmall"
+                label="About contrast"
+              />
+            </Tooltip>
           </div>
-          <TextField
-            variant={'outlined'}
-            value={inputValue}
-            label="Hex"
-            name={`color-${paletteKey ?? 'source'}-hex`}
-            placeholder={'#AABBCC'}
-            onChange={(value) => {
-              setInputValue(value);
-              updateCurrentFromHex(value);
-            }}
-            onBlur={() => {
-              setInputValue(hexColor);
-              flushThemeUpdate();
-            }}
-          />
+          {/* Hex first (what gets pasted and copied), then the three HCT
+              coordinates the map and the ramp already display, as exact
+              numbers. Chroma may exceed what the current tone shows: the
+              tone then moves to the nearest one that displays it, and a tone
+              that no longer displays the chroma clips it, so the color always
+              stays displayable. */}
+          <div className="flex gap-2">
+            <TextField
+              variant={'outlined'}
+              value={inputValue}
+              label="Hex"
+              name={`color-${paletteKey ?? 'source'}-hex`}
+              placeholder={'#AABBCC'}
+              className="min-w-0 flex-[1.5]"
+              onChange={(value) => {
+                setInputValue(value);
+                updateCurrentFromHex(value);
+              }}
+              onBlur={() => {
+                setInputValue(hexColor);
+                flushThemeUpdate();
+              }}
+            />
+            <CoordinateField
+              label="Hue"
+              name={`color-${paletteKey ?? 'source'}-hue`}
+              value={hue}
+              min={0}
+              max={360}
+              disabled={isHueLocked}
+              onCommit={(next) => handleHueChange(next % 360)}
+              onBlur={endHueInteraction}
+            />
+            <CoordinateField
+              label="Chroma"
+              name={`color-${paletteKey ?? 'source'}-chroma`}
+              value={boundedChroma}
+              min={0}
+              max={peakChroma}
+              onCommit={(next) => {
+                localEditPendingRef.current = true;
+                const nextTone = nearestToneFor(hue, next, tone);
+                latestColorRef.current = Color.from({
+                  hue,
+                  chroma: next,
+                  tone: nextTone,
+                });
+                setChroma(next);
+                setTone(nextTone);
+              }}
+              onBlur={flushThemeUpdate}
+            />
+            <CoordinateField
+              label="Tone"
+              name={`color-${paletteKey ?? 'source'}-tone`}
+              value={tone}
+              min={0}
+              max={100}
+              onCommit={(next) => {
+                localEditPendingRef.current = true;
+                const nextChroma = Math.min(chroma, Color.maxChroma(hue, next));
+                latestColorRef.current = Color.from({
+                  hue,
+                  chroma: nextChroma,
+                  tone: next,
+                });
+                setChroma(nextChroma);
+                setTone(next);
+              }}
+              onBlur={flushThemeUpdate}
+            />
+          </div>
         </div>
       </div>
 
@@ -1100,6 +1235,17 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
         </div>
       )}
       <style>{`
+        /* The spinner would eat a third of these narrow fields; the arrow
+           keys still step the value. */
+        .coordinate-field input[type='number'] {
+          -moz-appearance: textfield;
+          appearance: textfield;
+        }
+        .coordinate-field input[type='number']::-webkit-inner-spin-button,
+        .coordinate-field input[type='number']::-webkit-outer-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
         .slider {
           -webkit-appearance: none;
           appearance: none;

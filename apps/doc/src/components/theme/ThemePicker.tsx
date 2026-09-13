@@ -9,7 +9,6 @@ import {
   getSurfaceLevelColors,
   isBackgroundChromaPaletteOverride,
   isDerivedPaletteOverride,
-  resolveSourceColor,
   surfaceLevelShift,
   themeConfigStore,
   themeServiceStore,
@@ -146,8 +145,6 @@ export const ThemePicker: React.FC = () => {
   const backgroundChromaLevel =
     getBackgroundChromaPaletteOverride(neutralOverride) ?? 0;
 
-  const sourceHct = resolveSourceColor($config.sourceColor);
-
   const getPaletteHex = (key: string): string => {
     if (!$themeService) return '#888888';
     try {
@@ -165,43 +162,6 @@ export const ThemePicker: React.FC = () => {
       contrastLevel: brightness,
     });
   }, [brightness]);
-
-  // The slider goes up to the hue's peak chroma across all tones: the maximum
-  // at the current tone is a display limit, not a configuration one.
-  const sourcePeakChroma = React.useMemo(
-    () => Color.peakChroma(sourceHct.hue),
-    [sourceHct.hue],
-  );
-
-  /**
-   * The tone closest to the current one at which the hue displays `chroma`;
-   * failing that (chroma above the peak), the peak's tone.
-   */
-  const nearestToneFor = (chroma: number, fromTone: number): number => {
-    if (Color.maxChroma(sourceHct.hue, fromTone) >= chroma) return fromTone;
-    let peak = { tone: fromTone, chroma: 0 };
-    for (let delta = 0.5; delta <= 100; delta += 0.5) {
-      for (const tone of [fromTone + delta, fromTone - delta]) {
-        if (tone < 0 || tone > 100) continue;
-        const max = Color.maxChroma(sourceHct.hue, tone);
-        if (max >= chroma) return tone;
-        if (max > peak.chroma) peak = { tone, chroma: max };
-      }
-    }
-    return peak.tone;
-  };
-
-  const updateSourceColor = (chroma: number, tone: number) => {
-    const next = Color.from({ hue: sourceHct.hue, chroma, tone });
-    if (
-      next.hue === sourceHct.hue &&
-      next.chroma === sourceHct.chroma &&
-      next.tone === sourceHct.tone
-    ) {
-      return;
-    }
-    themeConfigStore.set({ ...themeConfigStore.get(), sourceColor: next });
-  };
 
   const handleBackgroundLevelChange = (nextLevel: number) => {
     const config = themeConfigStore.get();
@@ -376,66 +336,6 @@ export const ThemePicker: React.FC = () => {
           description="Generates the Primary palette"
         >
           <ColorPicker />
-          <div className="mt-5 space-y-5">
-            <div>
-              <SettingHeader
-                label="Chroma"
-                value={<>{Math.round(sourceHct.chroma)}</>}
-                info={{
-                  title: 'Chroma',
-                  text: 'Intensity of the source color, from gray (0) to the maximum its hue allows at this tone. It propagates to the Primary, Secondary and Tertiary palettes.',
-                }}
-              />
-              <Slider
-                name="theme-builder-source-chroma"
-                value={sourceHct.chroma}
-                min={0}
-                max={Math.max(sourcePeakChroma, sourceHct.chroma)}
-                step={0.5}
-                aria-label="Source color chroma"
-                valueFormatter={(value) => Math.round(value)}
-                onChange={(value) =>
-                  // A chroma the current tone cannot display moves the tone
-                  // to the nearest one that can.
-                  updateSourceColor(
-                    value,
-                    nearestToneFor(value, sourceHct.tone),
-                  )
-                }
-              />
-            </div>
-
-            <div>
-              <SettingHeader
-                label="Tone"
-                value={<>{Math.round(sourceHct.tone)}</>}
-                info={{
-                  title: 'Tone',
-                  text: 'Lightness of the source color, from black (0) to white (100). It is the starting point for the derived tones.',
-                }}
-              />
-              <Slider
-                name="theme-builder-source-tone"
-                value={sourceHct.tone}
-                min={0}
-                max={100}
-                step={0.5}
-                aria-label="Source color tone"
-                valueFormatter={(value) => Math.round(value)}
-                onChange={(value) =>
-                  // A tone that no longer displays the current chroma clips it
-                  // to its maximum: the configuration always stays displayable.
-                  updateSourceColor(
-                    Math.min(
-                      sourceHct.chroma,
-                      Color.maxChroma(sourceHct.hue, value),
-                    ),
-                    value,
-                  )
-                }
-              />
-            </div>
-          </div>
         </SettingsSection>
 
         <SettingsSection
