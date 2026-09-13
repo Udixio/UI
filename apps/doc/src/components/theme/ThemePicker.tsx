@@ -6,6 +6,7 @@ import {
   createSurfaceLevelColors,
   DEFAULT_SURFACE_LEVEL,
   getBackgroundChromaPaletteOverride,
+  getPartialPaletteOverride,
   getSurfaceLevelColors,
   isBackgroundChromaPaletteOverride,
   isDerivedPaletteOverride,
@@ -260,6 +261,7 @@ export const ThemePicker: React.FC = () => {
         let valueCode: string | null = null;
 
         const chromaLevel = getBackgroundChromaPaletteOverride(value);
+        const partial = getPartialPaletteOverride(value);
 
         if (typeof value === 'string') {
           valueCode = JSON.stringify(value);
@@ -270,6 +272,19 @@ export const ThemePicker: React.FC = () => {
             '(_context, base) => ({',
             '  ...base,',
             `  chroma: base.chroma * ${formatExportNumber(1 + chromaLevel)},`,
+            '})',
+          ].join('\n');
+        } else if (partial) {
+          const pinned = (['hue', 'chroma'] as const).filter(
+            (key) => partial[key] !== undefined,
+          );
+          valueCode = [
+            '(_context, base) => ({',
+            '  ...base,',
+            ...pinned.map(
+              (key) =>
+                `  ${key}: ${formatExportNumber(partial[key] as number)},`,
+            ),
             '})',
           ].join('\n');
         } else if (typeof value === 'function' && $themeService) {
@@ -484,7 +499,7 @@ export const ThemePicker: React.FC = () => {
                             transition={{ duration: 0.25, ease: 'easeInOut' }}
                             style={{ overflow: 'hidden' }}
                           >
-                            <div className="px-4 pt-6">
+                            <div className="px-4 pt-4 pb-2">
                               <ColorPicker paletteKey={key} />
                             </div>
                           </motion.div>

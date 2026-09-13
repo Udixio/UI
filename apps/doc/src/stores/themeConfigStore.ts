@@ -6,6 +6,7 @@ import {
   type ColorsConfig,
   type ConfigInterface,
   type PaletteCallback,
+  type PaletteCoordinates,
   surfaceContainerTone,
 } from '@udixio/theme';
 
@@ -79,6 +80,35 @@ export const getBackgroundChromaPaletteOverride = (
 
 export const isBackgroundChromaPaletteOverride = (value: unknown): boolean =>
   getBackgroundChromaPaletteOverride(value) !== null;
+
+const partialPaletteOverrides = new WeakMap<
+  PaletteCallback,
+  Partial<PaletteCoordinates>
+>();
+
+/**
+ * Builds a palette override that pins only the coordinates the picker
+ * actually edited and inherits the others from the variant's recipe, so a
+ * palette whose hue was changed keeps following the source color's chroma.
+ * The edited coordinates stay readable on the callback for the export.
+ */
+export const createPartialPaletteOverride = (
+  edited: Partial<PaletteCoordinates>,
+): PaletteCallback => {
+  const callback: PaletteCallback = (_context, base) => {
+    if (!base) throw new Error('A partial override needs the inherited palette');
+    return { ...base, ...edited };
+  };
+  partialPaletteOverrides.set(callback, edited);
+  return callback;
+};
+
+export const getPartialPaletteOverride = (
+  value: unknown,
+): Partial<PaletteCoordinates> | null =>
+  typeof value === 'function'
+    ? (partialPaletteOverrides.get(value as PaletteCallback) ?? null)
+    : null;
 
 /** The overrides set by the builder's sliders, as opposed to a manual edit. */
 export const isDerivedPaletteOverride = (value: unknown): boolean =>

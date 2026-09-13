@@ -3,7 +3,7 @@ import { defineConfig } from '@udixio/tailwind';
 export default defineConfig({
   sourceColor: '#D0BCFE',
   palettes: {
-    success: '#339900',
+    success: () => ({ chroma: 75, hue: 139 }),
   },
   subThemes: {
     warning: '#ffcc00',

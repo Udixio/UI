@@ -8,7 +8,7 @@ import {
   useState,
 } from 'react';
 import {
-  isBackgroundChromaPaletteOverride,
+  createPartialPaletteOverride,
   isDerivedPaletteOverride,
   isSecondaryHuePaletteOverride,
   resolveSourceColor,
@@ -19,7 +19,12 @@ import {
 import { useStore } from '@nanostores/react';
 import { Button, IconButton, TextField, Tooltip } from '@udixio/ui-react';
 import { iInfo } from '@udixio/icons-rounded-400/info';
-import { Color } from '@udixio/theme';
+import {
+  type API,
+  Color,
+  type PaletteCallback,
+  type PaletteCoordinates,
+} from '@udixio/theme';
 
 interface ColorPickerProps {
   paletteKey?: string;
@@ -78,6 +83,34 @@ const sameColor = (left: Color, right: Color) =>
   left.hue === right.hue &&
   left.chroma === right.chroma &&
   left.tone === right.tone;
+
+/**
+ * The hue and chroma a palette resolves to: the variant's recipe for the
+ * configured source color, then the override on top of it when there is one.
+ * Read from the recipe rather than from a tone of the palette, so the
+ * coordinates keep their precision and a chroma the source tone cannot
+ * display is not silently clipped.
+ */
+const resolvePaletteCoordinates = (
+  api: API,
+  paletteKey: string,
+  override: unknown,
+): PaletteCoordinates | null => {
+  const configuredSourceColor = themeConfigStore.get().sourceColor;
+  const configuredColor = resolveSourceColor(configuredSourceColor).init(api);
+  if (!sameColor(api.context.sourceColor, configuredColor)) {
+    api.context.update({ sourceColor: configuredSourceColor });
+  }
+
+  const palette = api.context.variant.palettesFor(api.context)[paletteKey];
+  if (!palette) return null;
+  palette.update(['sourceColor']);
+  const base = { hue: palette.hue, chroma: palette.chroma };
+
+  return typeof override === 'function'
+    ? (override as PaletteCallback)(api.context, base)
+    : base;
+};
 
 interface FieldPoint {
   x: number;
@@ -374,26 +407,21 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
     const api = themeServiceStore.get();
     if (api) {
       try {
-        const toneSource = api.context.sourceColor.tone;
-        // The background level override derives from the inherited recipe;
-        // only the palette resolved by the API knows that base.
-        if (isBackgroundChromaPaletteOverride(override)) {
-          return api.palettes.get(paletteKey).getColor(toneSource);
-        }
-
-        if (typeof override === 'function') {
-          const { hue, chroma } = override(api.context);
-          return Color.from({ hue, chroma, tone: toneSource });
-        }
-
         if (override instanceof Color) {
           return override.init(api);
         }
 
-        const palette = api.context.variant.palettesFor(api.context)[
-          paletteKey
-        ];
-        if (palette) return palette.getColor(toneSource);
+        const coordinates = resolvePaletteCoordinates(
+          api,
+          paletteKey,
+          override,
+        );
+        if (coordinates) {
+          return Color.from({
+            ...coordinates,
+            tone: api.context.sourceColor.tone,
+          });
+        }
       } catch {
         // Fall back to the neutral placeholder below when the palette is unavailable.
       }
@@ -420,6 +448,7 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
     [renderHue],
   );
   const maxChromaPoint = maxChromaLookup.maxPoint;
+  const isPalette = Boolean(paletteKey);
   const maxChroma = useMemo(() => Color.maxChroma(hue, tone), [hue, tone]);
   // The field accepts up to the hue's peak across all tones: the maximum at
   // the current tone is a display limit, not a configuration one.
@@ -593,21 +622,68 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
       const normalized = normalizeHex(hex);
       if (!normalized) return;
       localEditPendingRef.current = true;
-      applyColor(Color.fromHex(normalized));
+      const typed = Color.fromHex(normalized);
+      // A palette has no tone of its own: the hex only contributes its hue
+      // and chroma, the tone stays the source color's.
+      applyColor(
+        isPalette
+          ? Color.from({ hue: typed.hue, chroma: typed.chroma, tone })
+          : typed,
+      );
     },
-    [applyColor],
+    [applyColor, isPalette, tone],
   );
+
+  // A palette's chroma is a recipe, not a display value: it may exceed what
+  // the source tone shows, up to the hue's peak. The swatch and the hex clip.
+  const setPaletteChroma = useCallback(
+    (next: number) => {
+      const bounded = clamp(next, 0, peakChroma);
+      localEditPendingRef.current = true;
+      latestColorRef.current = Color.from({ hue, chroma: bounded, tone });
+      setChroma(bounded);
+    },
+    [hue, peakChroma, tone],
+  );
+
+  const chromaGradient = useMemo(() => {
+    const stops = Array.from(
+      { length: 13 },
+      (_, index) =>
+        Color.from({ hue, chroma: (index / 12) * peakChroma, tone }).hex,
+    );
+    return `linear-gradient(to right, ${stops.join(', ')})`;
+  }, [hue, peakChroma, tone]);
 
   const updateTheme = useCallback(
     (color: Color) => {
       if (paletteKey) {
-        const { hue, chroma } = color;
+        // Pin only what moved away from the variant's recipe, so the other
+        // coordinate keeps following the source color; nothing moved means
+        // no override at all.
+        const api = themeServiceStore.get();
+        const base = api
+          ? resolvePaletteCoordinates(api, paletteKey, undefined)
+          : null;
+        const edited: Partial<PaletteCoordinates> = {};
+        if (!base || !sameCoordinate(color.hue, base.hue)) {
+          edited.hue = color.hue;
+        }
+        if (!base || !sameCoordinate(color.chroma, base.chroma)) {
+          edited.chroma = color.chroma;
+        }
+
+        const { [paletteKey]: _previous, ...otherPalettes } =
+          themeConfigStore.get().palettes ?? {};
         themeConfigStore.set({
           ...themeConfigStore.get(),
-          palettes: {
-            ...themeConfigStore.get().palettes,
-            [paletteKey]: () => ({ hue, chroma }),
-          },
+          palettes:
+            Object.keys(edited).length === 0
+              ? otherPalettes
+              : {
+                  ...otherPalettes,
+                  [paletteKey]: createPartialPaletteOverride(edited),
+                },
         });
       } else {
         const current = themeConfigStore.get().sourceColor;
@@ -624,22 +700,20 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
     const val = $themeConfig.palettes?.[paletteKey];
     if (typeof val === 'string') return Color.fromHex(val);
     if ($themeService) {
-      const toneSource = $themeService.context.sourceColor.tone;
       try {
-        if (
-          typeof val === 'function' &&
-          !isBackgroundChromaPaletteOverride(val)
-        ) {
-          const { hue, chroma } = val($themeService.context);
-          return Color.from({ hue, chroma, tone: toneSource });
-        }
+        if (val instanceof Color) return val.init($themeService);
 
-        const palette = val
-          ? $themeService.palettes.get(paletteKey)
-          : $themeService.context.variant.palettesFor($themeService.context)[
-              paletteKey
-            ];
-        if (palette) return palette.getColor(toneSource);
+        const coordinates = resolvePaletteCoordinates(
+          $themeService,
+          paletteKey,
+          val,
+        );
+        if (coordinates) {
+          return Color.from({
+            ...coordinates,
+            tone: $themeService.context.sourceColor.tone,
+          });
+        }
       } catch {
         // Fall back to the initial color when the palette is unavailable.
       }
@@ -677,17 +751,9 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
     const api = themeServiceStore.get();
     if (!api) return null;
 
-    const configuredSourceColor = themeConfigStore.get().sourceColor;
-    const configuredColor = resolveSourceColor(configuredSourceColor).init(api);
-    if (!sameColor(api.context.sourceColor, configuredColor)) {
-      api.context.update({ sourceColor: configuredSourceColor });
-    }
-
-    const palette = api.context.variant.palettesFor(api.context)[paletteKey];
-    if (!palette) return null;
-
-    palette.update(['sourceColor']);
-    return palette.getColor(api.context.sourceColor.tone);
+    const base = resolvePaletteCoordinates(api, paletteKey, undefined);
+    if (!base) return null;
+    return Color.from({ ...base, tone: api.context.sourceColor.tone });
   }, [paletteKey]);
   const previousPaletteOverrideRef = useRef(paletteHasOverride);
 
@@ -971,102 +1037,108 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
   return (
     <div className="space-y-6">
       <div>
-        <div className="grid min-w-0 gap-3">
-          <div
-            className="relative aspect-square w-full touch-none select-none"
-            role="slider"
-            tabIndex={0}
-            aria-label="HCT chroma and tone picker with contrast curves against surface: 3:1, 4.5:1 and 7:1"
-            aria-valuemin={0}
-            aria-valuemax={Math.round(maxChroma * 10) / 10}
-            aria-valuenow={Math.round(boundedChroma * 10) / 10}
-            aria-valuetext={`Chroma ${formatCoordinate(
-              boundedChroma,
-            )}, ton ${formatCoordinate(tone)}`}
-            onKeyDown={handleFieldKeyDown}
-            onPointerDown={(event) => {
-              event.currentTarget.setPointerCapture(event.pointerId);
-              updateFieldFromPoint(
-                event.clientX,
-                event.clientY,
-                event.currentTarget,
-              );
-            }}
-            onPointerMove={(event) => {
-              if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        <div
+          className={isPalette ? 'grid min-w-0 gap-5' : 'grid min-w-0 gap-3'}
+        >
+          {/* A palette is only a hue and a chroma; its tone comes from the
+              source color. The map (chroma × tone) is for the source only. */}
+          {!isPalette && (
+            <div
+              className="relative aspect-square w-full touch-none select-none"
+              role="slider"
+              tabIndex={0}
+              aria-label="HCT chroma and tone picker with contrast curves against surface: 3:1, 4.5:1 and 7:1"
+              aria-valuemin={0}
+              aria-valuemax={Math.round(maxChroma * 10) / 10}
+              aria-valuenow={Math.round(boundedChroma * 10) / 10}
+              aria-valuetext={`Chroma ${formatCoordinate(
+                boundedChroma,
+              )}, ton ${formatCoordinate(tone)}`}
+              onKeyDown={handleFieldKeyDown}
+              onPointerDown={(event) => {
+                event.currentTarget.setPointerCapture(event.pointerId);
                 updateFieldFromPoint(
                   event.clientX,
                   event.clientY,
                   event.currentTarget,
                 );
-              }
-            }}
-            onPointerUp={(event) => {
-              if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-                event.currentTarget.releasePointerCapture(event.pointerId);
-              }
-            }}
-            onPointerCancel={(event) => {
-              if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-                event.currentTarget.releasePointerCapture(event.pointerId);
-              }
-            }}
-          >
-            <div
-              className="absolute inset-0 overflow-hidden rounded-2xl ring-1 ring-inset ring-outline-variant shadow-sm"
-              style={{ backgroundColor: hexColor }}
-              aria-hidden="true"
+              }}
+              onPointerMove={(event) => {
+                if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+                  updateFieldFromPoint(
+                    event.clientX,
+                    event.clientY,
+                    event.currentTarget,
+                  );
+                }
+              }}
+              onPointerUp={(event) => {
+                if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+                  event.currentTarget.releasePointerCapture(event.pointerId);
+                }
+              }}
+              onPointerCancel={(event) => {
+                if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+                  event.currentTarget.releasePointerCapture(event.pointerId);
+                }
+              }}
             >
-              <canvas
-                ref={colorFieldCanvasRef}
-                width={
-                  isHueInteracting ? COLOR_FIELD_DRAG_SIZE : COLOR_FIELD_SIZE
-                }
-                height={
-                  isHueInteracting ? COLOR_FIELD_DRAG_SIZE : COLOR_FIELD_SIZE
-                }
-                className="block size-full"
-                aria-hidden="true"
-              />
-              <svg
-                className="pointer-events-none absolute inset-0 size-full"
-                viewBox="0 0 100 100"
-                preserveAspectRatio="none"
-                shapeRendering="geometricPrecision"
+              <div
+                className="absolute inset-0 overflow-hidden rounded-2xl ring-1 ring-inset ring-outline-variant shadow-sm"
+                style={{ backgroundColor: hexColor }}
                 aria-hidden="true"
               >
-                {contrastCurves.map((curve) => {
-                  const curveStyle = CONTRAST_CURVE_STYLES[curve.ratio];
+                <canvas
+                  ref={colorFieldCanvasRef}
+                  width={
+                    isHueInteracting ? COLOR_FIELD_DRAG_SIZE : COLOR_FIELD_SIZE
+                  }
+                  height={
+                    isHueInteracting ? COLOR_FIELD_DRAG_SIZE : COLOR_FIELD_SIZE
+                  }
+                  className="block size-full"
+                  aria-hidden="true"
+                />
+                <svg
+                  className="pointer-events-none absolute inset-0 size-full"
+                  viewBox="0 0 100 100"
+                  preserveAspectRatio="none"
+                  shapeRendering="geometricPrecision"
+                  aria-hidden="true"
+                >
+                  {contrastCurves.map((curve) => {
+                    const curveStyle = CONTRAST_CURVE_STYLES[curve.ratio];
 
-                  return (
-                    <g key={curve.ratio}>
-                      <path
-                        d={curve.path}
-                        fill="none"
-                        stroke={curveStyle.color}
-                        strokeOpacity={curveStyle.opacity}
-                        strokeWidth={curveStyle.width}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        vectorEffect="non-scaling-stroke"
-                      />
-                    </g>
-                  );
-                })}
-              </svg>
+                    return (
+                      <g key={curve.ratio}>
+                        <path
+                          d={curve.path}
+                          fill="none"
+                          stroke={curveStyle.color}
+                          strokeOpacity={curveStyle.opacity}
+                          strokeWidth={curveStyle.width}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          vectorEffect="non-scaling-stroke"
+                        />
+                      </g>
+                    );
+                  })}
+                </svg>
+              </div>
+              <span
+                className="pointer-events-none absolute size-5 rounded-full border-2 border-white shadow-[0_1px_5px_rgb(0_0_0/45%)]"
+                style={{
+                  backgroundColor: hexColor,
+                  left: `${chromaPosition}%`,
+                  top: `${tonePosition}%`,
+                  transform: 'translate(-50%, -50%)',
+                }}
+                aria-hidden="true"
+              />
             </div>
-            <span
-              className="pointer-events-none absolute size-5 rounded-full border-2 border-white shadow-[0_1px_5px_rgb(0_0_0/45%)]"
-              style={{
-                backgroundColor: hexColor,
-                left: `${chromaPosition}%`,
-                top: `${tonePosition}%`,
-                transform: 'translate(-50%, -50%)',
-              }}
-              aria-hidden="true"
-            />
-          </div>
-          <div className="grid gap-1">
+          )}
+          <div className={isPalette ? 'grid gap-2' : 'grid gap-1'}>
             <div className="relative h-7 overflow-hidden rounded-full ring-1 ring-inset ring-outline-variant">
               <input
                 id={hueInputId}
@@ -1090,68 +1162,93 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
                 style={{ background: hueGradient }}
               />
             </div>
+            {isPalette && (
+              <div className="relative h-7 overflow-hidden rounded-full ring-1 ring-inset ring-outline-variant">
+                <input
+                  type="range"
+                  min="0"
+                  max={peakChroma}
+                  step="0.1"
+                  value={Math.min(chroma, peakChroma)}
+                  aria-label="Chroma"
+                  onChange={(event) =>
+                    setPaletteChroma(Number(event.target.value))
+                  }
+                  onPointerUp={flushThemeUpdate}
+                  onPointerCancel={flushThemeUpdate}
+                  onKeyUp={flushThemeUpdate}
+                  onBlur={flushThemeUpdate}
+                  className="slider h-full w-full cursor-pointer appearance-none"
+                  style={{ background: chromaGradient }}
+                />
+              </div>
+            )}
           </div>
-          <div className="flex items-center gap-3 text-label-medium">
-            <p className="flex items-center gap-3" aria-live="polite">
-              {CONTRAST_LEVELS.map(({ label, minimum }) => {
-                const passes = contrastRatio >= minimum;
-                return (
-                  <span
-                    key={label}
-                    className={
-                      passes ? 'text-success' : 'text-error line-through'
-                    }
-                  >
-                    {label}
-                  </span>
-                );
-              })}
-            </p>
-            <Tooltip
-              variant="rich"
-              content={
-                <div className="grid gap-3">
-                  <div className="flex items-baseline justify-between gap-4">
-                    <span className="text-title-small">Contraste</span>
-                    <span className="text-title-medium tabular-nums">
-                      {Math.round(contrastRatio * 10) / 10}:1
+          {/* Contrast against the surface is a property of a colour at a
+              tone; a palette has no tone, so no badge for it. */}
+          {!isPalette && (
+            <div className="flex items-center gap-3 text-label-medium">
+              <p className="flex items-center gap-3" aria-live="polite">
+                {CONTRAST_LEVELS.map(({ label, minimum }) => {
+                  const passes = contrastRatio >= minimum;
+                  return (
+                    <span
+                      key={label}
+                      className={
+                        passes ? 'text-success' : 'text-error line-through'
+                      }
+                    >
+                      {label}
                     </span>
+                  );
+                })}
+              </p>
+              <Tooltip
+                variant="rich"
+                content={
+                  <div className="grid gap-3">
+                    <div className="flex items-baseline justify-between gap-4">
+                      <span className="text-title-small">Contraste</span>
+                      <span className="text-title-medium tabular-nums">
+                        {Math.round(contrastRatio * 10) / 10}:1
+                      </span>
+                    </div>
+                    <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-body-small">
+                      {CONTRAST_LEVELS.map(({ label, minimum }) => {
+                        const passes = contrastRatio >= minimum;
+                        return (
+                          <Fragment key={label}>
+                            <dt
+                              className={
+                                passes
+                                  ? 'text-success'
+                                  : 'text-error line-through'
+                              }
+                            >
+                              {label}
+                            </dt>
+                            <dd className="text-on-surface-variant tabular-nums">
+                              ≥ {minimum}:1
+                            </dd>
+                          </Fragment>
+                        );
+                      })}
+                    </dl>
+                    <p className="text-body-small text-on-surface-variant">
+                      Relative to the theme surface.
+                    </p>
                   </div>
-                  <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-body-small">
-                    {CONTRAST_LEVELS.map(({ label, minimum }) => {
-                      const passes = contrastRatio >= minimum;
-                      return (
-                        <Fragment key={label}>
-                          <dt
-                            className={
-                              passes
-                                ? 'text-success'
-                                : 'text-error line-through'
-                            }
-                          >
-                            {label}
-                          </dt>
-                          <dd className="text-on-surface-variant tabular-nums">
-                            ≥ {minimum}:1
-                          </dd>
-                        </Fragment>
-                      );
-                    })}
-                  </dl>
-                  <p className="text-body-small text-on-surface-variant">
-                    Relative to the theme surface.
-                  </p>
-                </div>
-              }
-            >
-              <IconButton
-                icon={iInfo}
-                variant="standard"
-                size="xSmall"
-                label="About contrast"
-              />
-            </Tooltip>
-          </div>
+                }
+              >
+                <IconButton
+                  icon={iInfo}
+                  variant="standard"
+                  size="xSmall"
+                  label="About contrast"
+                />
+              </Tooltip>
+            </div>
+          )}
           {/* Hex first (what gets pasted and copied), then the three HCT
               coordinates the map and the ramp already display, as exact
               numbers. Chroma may exceed what the current tone shows: the
@@ -1188,10 +1285,14 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
             <CoordinateField
               label="Chroma"
               name={`color-${paletteKey ?? 'source'}-chroma`}
-              value={boundedChroma}
+              value={isPalette ? chroma : boundedChroma}
               min={0}
               max={peakChroma}
               onCommit={(next) => {
+                if (isPalette) {
+                  setPaletteChroma(next);
+                  return;
+                }
                 localEditPendingRef.current = true;
                 const nextTone = nearestToneFor(hue, next, tone);
                 latestColorRef.current = Color.from({
@@ -1204,25 +1305,30 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
               }}
               onBlur={flushThemeUpdate}
             />
-            <CoordinateField
-              label="Tone"
-              name={`color-${paletteKey ?? 'source'}-tone`}
-              value={tone}
-              min={0}
-              max={100}
-              onCommit={(next) => {
-                localEditPendingRef.current = true;
-                const nextChroma = Math.min(chroma, Color.maxChroma(hue, next));
-                latestColorRef.current = Color.from({
-                  hue,
-                  chroma: nextChroma,
-                  tone: next,
-                });
-                setChroma(nextChroma);
-                setTone(next);
-              }}
-              onBlur={flushThemeUpdate}
-            />
+            {!isPalette && (
+              <CoordinateField
+                label="Tone"
+                name={`color-${paletteKey ?? 'source'}-tone`}
+                value={tone}
+                min={0}
+                max={100}
+                onCommit={(next) => {
+                  localEditPendingRef.current = true;
+                  const nextChroma = Math.min(
+                    chroma,
+                    Color.maxChroma(hue, next),
+                  );
+                  latestColorRef.current = Color.from({
+                    hue,
+                    chroma: nextChroma,
+                    tone: next,
+                  });
+                  setChroma(nextChroma);
+                  setTone(next);
+                }}
+                onBlur={flushThemeUpdate}
+              />
+            )}
           </div>
         </div>
       </div>
