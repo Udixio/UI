@@ -4,6 +4,7 @@ import {
   backgroundGapTone,
   type ColorRef,
   contrastAgainst,
+  type ContrastSpec,
   contrastTone,
   onColor,
   type ToneAdjuster,
@@ -154,6 +155,21 @@ export const minContrastTone =
     return context.isDark ? 100 : 0;
   };
 
+/**
+ * `onColor` started from the inverse of the background's tone rather than
+ * from the background itself, so an accent near an extreme gets the opposite
+ * one instead of the nearest tone that merely reaches the ratio.
+ */
+const onInverse =
+  (background: string, contrast: ContrastSpec): ToneAdjuster =>
+  (args) =>
+    contrastTone(
+      100 - resolveColorRef(background, args.colors).tone,
+      background,
+      contrast,
+      args,
+    );
+
 /** `minContrastTone` only needs the registry, not the whole API. */
 const resolveColorRef = (reference: ColorRef, colors: ColorApi): Color => {
   if (typeof reference === 'string') return colors.get(reference);
@@ -254,7 +270,7 @@ export const udixioVariant: Variant = variant({
       //     ),
       // },
       [onColorKey]: Color.fromPalette(colorKey, {
-        adjustTone: onColor(colorKey, 6),
+        adjustTone: onInverse(colorKey, 6),
       }),
       [colorContainerKey]: Color.fromPalette(colorKey, {
         tone: () => {
@@ -277,7 +293,7 @@ export const udixioVariant: Variant = variant({
         ],
       }),
       [onColorContainerKey]: Color.fromPalette(colorKey, {
-        adjustTone: onColor(colorContainerKey, 6),
+        adjustTone: onInverse(colorContainerKey, 6),
       }),
       // [colorFixedKey]: {
       //   palette: colorKey,
@@ -453,7 +469,7 @@ export const udixioVariant: Variant = variant({
       //     ),
       // },
       onPrimary: Color.fromPalette('primary', {
-        adjustTone: onColor('primary', 6),
+        adjustTone: onInverse('primary', 6),
       }),
       primaryContainer: Color.fromPalette('primary', {
         tone: () => {
@@ -476,7 +492,7 @@ export const udixioVariant: Variant = variant({
         ],
       }),
       onPrimaryContainer: Color.fromPalette('primary', {
-        adjustTone: onColor('primaryContainer', 6),
+        adjustTone: onInverse('primaryContainer', 6),
       }),
 
       // primaryFixed: {
@@ -561,7 +577,7 @@ export const udixioVariant: Variant = variant({
       //     ),
       // },
       onSecondary: Color.fromPalette('secondary', {
-        adjustTone: onColor('secondary', 6),
+        adjustTone: onInverse('secondary', 6),
       }),
       secondaryContainer: Color.fromPalette('secondary', {
         tone: () => {
@@ -584,7 +600,7 @@ export const udixioVariant: Variant = variant({
         ],
       }),
       onSecondaryContainer: Color.fromPalette('secondary', {
-        adjustTone: onColor('secondaryContainer', 6),
+        adjustTone: onInverse('secondaryContainer', 6),
       }),
 
       // secondaryFixed: {
@@ -665,7 +681,7 @@ export const udixioVariant: Variant = variant({
       //     ),
       // },
       onTertiary: Color.fromPalette('tertiary', {
-        adjustTone: onColor('tertiary', 6),
+        adjustTone: onInverse('tertiary', 6),
       }),
       tertiaryContainer: Color.fromPalette('tertiary', {
         tone: () => {
@@ -686,7 +702,7 @@ export const udixioVariant: Variant = variant({
         ],
       }),
       onTertiaryContainer: Color.fromPalette('tertiary', {
-        adjustTone: onColor('tertiaryContainer', 6),
+        adjustTone: onInverse('tertiaryContainer', 6),
       }),
 
       // tertiaryFixed: {
@@ -776,7 +792,7 @@ export const udixioVariant: Variant = variant({
       //     ),
       // },
       onError: Color.fromPalette('error', {
-        adjustTone: onColor('error', 6),
+        adjustTone: onInverse('error', 6),
       }),
       errorContainer: Color.fromPalette('error', {
         tone: () => {
@@ -799,7 +815,7 @@ export const udixioVariant: Variant = variant({
             : args.tone,
       }),
       onErrorContainer: Color.fromPalette('error', {
-        adjustTone: onColor('errorContainer', 4.5),
+        adjustTone: onInverse('errorContainer', 4.5),
       }),
 
       /////////////////////////////////////////////////////////////////

@@ -57,3 +57,27 @@ describe('udixio primary across modes', () => {
     expect(tone).toBeLessThan(85);
   });
 });
+
+describe('udixio on-colors', () => {
+  it('answers a white or black accent with the opposite extreme', async () => {
+    expect((await build('#000000', true)).get('onPrimary').tone).toBe(0);
+    expect(
+      (await build('#FFFFFF', false)).get('onPrimary').tone,
+    ).toBeGreaterThan(95);
+  });
+
+  it('starts from the inverse tone and only then asks for contrast', async () => {
+    // T80 → T20 already exceeds 6:1; T30 → T70 does not and gets pushed.
+    expect((await build('#D0BCFE', true)).get('onPrimary').tone).toBeCloseTo(
+      20,
+      0,
+    );
+    const light = await build('#D0BCFE', false);
+    expect(
+      Contrast.ratioOfTones(
+        light.get('primary').tone,
+        light.get('onPrimary').tone,
+      ),
+    ).toBeGreaterThanOrEqual(6 - 0.05);
+  });
+});
