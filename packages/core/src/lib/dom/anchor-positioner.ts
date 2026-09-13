@@ -35,32 +35,66 @@ const isSubThemeClass = (name: string) => name.startsWith('theme-');
 /**
  * Copies the anchor's enclosing theme classes onto `floating`, so a portaled
  * surface resolves the same theme variables as the element it belongs to.
- * Returns a function that removes what was added.
+ * Scopes set on `body` or `html` are skipped: the floating element already
+ * lives under them and inherits them live, whereas a copy would freeze the
+ * scheme at the moment the controller was created and miss a later toggle.
+ * The islands actually mirrored are observed so a class change on them is
+ * mirrored again. Returns a function that removes what was added.
  */
 export function mirrorThemeScope(
   anchor: HTMLElement,
   floating: HTMLElement,
 ): () => void {
-  let scheme: string | undefined;
-  let dynamic: string | undefined;
-  let subTheme: string | undefined;
-  for (
-    let current: HTMLElement | null = anchor;
-    current && current !== anchor.ownerDocument.documentElement;
-    current = current.parentElement
-  ) {
-    for (const name of current.classList) {
-      if (!scheme && isSchemeClass(name)) scheme = name;
-      else if (!dynamic && isDynamicClass(name)) dynamic = name;
-      else if (!subTheme && isSubThemeClass(name)) subTheme = name;
+  const root = anchor.ownerDocument.documentElement;
+  const body = anchor.ownerDocument.body;
+  let added: string[] = [];
+  const scopes = new Set<HTMLElement>();
+
+  const collect = () => {
+    let scheme: string | undefined;
+    let dynamic: string | undefined;
+    let subTheme: string | undefined;
+    scopes.clear();
+    for (
+      let current: HTMLElement | null = anchor;
+      current && current !== body && current !== root;
+      current = current.parentElement
+    ) {
+      for (const name of current.classList) {
+        if (!scheme && isSchemeClass(name)) scheme = name;
+        else if (!dynamic && isDynamicClass(name)) dynamic = name;
+        else if (!subTheme && isSubThemeClass(name)) subTheme = name;
+        else continue;
+        scopes.add(current);
+      }
+      if (scheme && dynamic && subTheme) break;
     }
-    if (scheme && dynamic && subTheme) break;
-  }
-  const added = [scheme, dynamic, subTheme].filter(
-    (name): name is string => !!name && !floating.classList.contains(name),
+    return [scheme, dynamic, subTheme].filter((name): name is string => !!name);
+  };
+
+  const apply = () => {
+    const next = collect().filter(
+      (name) => added.includes(name) || !floating.classList.contains(name),
+    );
+    floating.classList.remove(...added.filter((name) => !next.includes(name)));
+    floating.classList.add(...next);
+    added = next;
+  };
+
+  apply();
+  const observer =
+    typeof MutationObserver === 'function'
+      ? new MutationObserver(apply)
+      : undefined;
+  scopes.forEach((scope) =>
+    observer?.observe(scope, { attributes: true, attributeFilter: ['class'] }),
   );
-  floating.classList.add(...added);
-  return () => floating.classList.remove(...added);
+
+  return () => {
+    observer?.disconnect();
+    floating.classList.remove(...added);
+    added = [];
+  };
 }
 
 function supportsCssAnchorPositioning(): boolean {

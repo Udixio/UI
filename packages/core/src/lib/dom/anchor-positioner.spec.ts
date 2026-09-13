@@ -457,6 +457,28 @@ describe('anchor positioner controller (theme scope)', () => {
     expect(floating.classList.contains('surface')).toBe(true);
   });
 
+  it('does not mirror a scheme set on body or html: the floating element inherits it live', () => {
+    document.body.className = 'dark';
+    const anchor = document.createElement('button');
+    document.body.append(anchor);
+    const floating = document.createElement('div');
+    document.body.append(floating);
+    createAnchorPositionerController({ anchor, floating });
+
+    expect(floating.classList.contains('dark')).toBe(false);
+  });
+
+  it('follows a class change on the mirrored island', async () => {
+    const { anchor, floating } = mount();
+    createAnchorPositionerController({ anchor, floating });
+    const island = anchor.parentElement!;
+    island.classList.replace('light', 'dark');
+    await Promise.resolve();
+
+    expect(floating.classList.contains('dark')).toBe(true);
+    expect(floating.classList.contains('light')).toBe(false);
+  });
+
   it('can be opted out', () => {
     const { anchor, floating } = mount();
     createAnchorPositionerController({
