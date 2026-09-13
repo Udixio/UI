@@ -10,7 +10,6 @@ import {
 } from '../../color/tone-adjusters';
 import { getPiecewiseHue, getRotatedHue, variant, Variant } from '../variant';
 import {
-  calculateToneAdjustmentPercentage,
   capitalizeFirstLetter,
   Color,
   ColorApi,
@@ -100,13 +99,15 @@ const highestSurface = (
 };
 
 /**
- * Pushes the tone toward white or black — depending on the mode — until it
- * reaches a minimum contrast with a reference color.
+ * Keeps a tone that is accessible against a reference color, and otherwise
+ * picks one on the far side of it.
  *
- * The threshold follows the global contrast level: from 3:1 to 7:1 as it
- * rises from 0 to 1, and it relaxes down to 0 in the negative levels. This
- * is what sets the `udixio` variant apart from the curve-based contrast of
- * the standard variants.
+ * Two ratios scale with the contrast level, relaxing to 0 in the negative
+ * levels: the minimum (3:1 to 7:1) that a tone must reach to be kept as is,
+ * and the target (4.5:1 to 7:1, Material's for an accent over the highest
+ * surface). A chosen tone keeps the contrast the source has against the
+ * reference in the other mode — a mirror, so black and white swap — moved
+ * toward the target as the source gets more coloured for its hue.
  *
  * @param reference The color to contrast against. Defaults to the highest
  *     surface of the current mode.
@@ -114,25 +115,43 @@ const highestSurface = (
 export const minContrastTone =
   (reference?: ColorRef): ToneAdjuster =>
   ({ context, colors, tone }) => {
+    const { contrastLevel } = context;
     const minContrast =
-      context.contrastLevel >= 0
-        ? normalize(context.contrastLevel, [0, 1], [3, 7])
-        : normalize(context.contrastLevel, [-1, 0], [0, 3]);
+      contrastLevel >= 0
+        ? normalize(contrastLevel, [0, 1], [3, 7])
+        : normalize(contrastLevel, [-1, 0], [0, 3]);
+    const targetContrast =
+      contrastLevel >= 0
+        ? normalize(contrastLevel, [0, 1], [4.5, 7])
+        : normalize(contrastLevel, [-1, 0], [0, 4.5]);
 
-    const referenceTone = reference
-      ? resolveColorRef(reference, colors).tone
-      : highestSurface(context, colors).tone;
+    const referenceTone = () =>
+      reference
+        ? resolveColorRef(reference, colors).tone
+        : highestSurface(context, colors).tone;
 
-    if (Contrast.ratioOfTones(referenceTone, tone) >= minContrast) {
+    if (Contrast.ratioOfTones(referenceTone(), tone) >= minContrast) {
       return tone;
     }
-    const ratio = calculateToneAdjustmentPercentage(
-      referenceTone,
-      tone,
-      minContrast,
+
+    const mirrored = context.temp({ isDark: !context.isDark }, () =>
+      Contrast.ratioOfTones(referenceTone(), tone),
     );
-    const inverseT = context.isDark ? 100 : 0;
-    return tone + (inverseT - tone) * ratio;
+    const { sourceColor } = context;
+    const colourfulness = Math.min(
+      1,
+      sourceColor.chroma / Color.peakChroma(sourceColor.hue),
+    );
+    const contrast = Math.max(
+      targetContrast,
+      mirrored + (targetContrast - mirrored) * colourfulness,
+    );
+
+    const chosen = context.isDark
+      ? Contrast.lighter(referenceTone(), contrast)
+      : Contrast.darker(referenceTone(), contrast);
+    if (chosen !== -1) return chosen;
+    return context.isDark ? 100 : 0;
   };
 
 /** `minContrastTone` only needs the registry, not the whole API. */

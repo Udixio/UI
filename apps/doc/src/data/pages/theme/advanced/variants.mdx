@@ -209,7 +209,8 @@ already instantiated for a given context, through `palettesFor(context)`.
 
 `udixioVariant` is the one worth reading first: it departs furthest from the
 spec, resolving accents through `minContrastTone()`, a threshold that scales
-with the contrast level rather than through Material's contrast curves.
+with the contrast level rather than through Material's contrast curves: the
+source tone is kept where it is accessible, and re-chosen where it is not.
 
 ## Registering it
 
