@@ -127,6 +127,11 @@ export function createTooltipTransitionController({
     setOpen(open, instant = false) {
       current?.pause();
       const skipAnimation = instant || reducedMotion();
+      // A closed surface is only invisible; it still has layout and, being
+      // positioned against its anchor, it can sit on top of neighbouring
+      // controls. `inert` alone does not let pointer events through in
+      // Chromium, so the surface must also stop hit-testing while closed.
+      element.style.pointerEvents = open ? '' : 'none';
       const openHeight = Math.max(element.scrollHeight, CLOSED_HEIGHT);
       element.style.overflow = 'hidden';
       current = animate(element, {

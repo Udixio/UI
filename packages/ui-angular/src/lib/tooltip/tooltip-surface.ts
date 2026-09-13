@@ -40,7 +40,14 @@ export interface TooltipButtonAction {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
-    <udx-anchor-positioner [anchor]="anchor()" [position]="position()">
+    <!-- The positioner's box is only a carrier: it must never catch a pointer,
+         or its transparent area covers whatever sits under the anchor. The
+         surface opts back in with pointer-events-auto. -->
+    <udx-anchor-positioner
+      [anchor]="anchor()"
+      [position]="position()"
+      classes="pointer-events-none"
+    >
       <div
         #surface
         [id]="surfaceId()"

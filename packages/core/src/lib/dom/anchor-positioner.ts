@@ -6,6 +6,13 @@ export interface AnchorPositionerOptions {
   /** The floating element being positioned. The adapter owns portaling it. */
   floating: HTMLElement;
   position?: () => AnchorPosition;
+  /**
+   * Whether `floating` mirrors the theme scope of its anchor. Adapters portal
+   * the floating element to the document body, out of any `.light`/`.dark`/
+   * `.theme-*` ancestor the anchor sits in; mirroring those classes keeps a
+   * tooltip opened from a light island light on a dark page. On by default.
+   */
+  inheritThemeScope?: boolean;
 }
 
 export interface AnchorPositionerController {
@@ -15,6 +22,46 @@ export interface AnchorPositionerController {
 }
 
 let nextAnchorId = 0;
+
+/**
+ * The classes the Tailwind plugin uses as theme boundaries: a colour scheme
+ * (`light`/`dark`), the dynamic root (`dynamic`), and a derived theme
+ * (`theme-{name}`). One of each kind is mirrored, the nearest to the anchor.
+ */
+const isSchemeClass = (name: string) => name === 'light' || name === 'dark';
+const isDynamicClass = (name: string) => name === 'dynamic';
+const isSubThemeClass = (name: string) => name.startsWith('theme-');
+
+/**
+ * Copies the anchor's enclosing theme classes onto `floating`, so a portaled
+ * surface resolves the same theme variables as the element it belongs to.
+ * Returns a function that removes what was added.
+ */
+export function mirrorThemeScope(
+  anchor: HTMLElement,
+  floating: HTMLElement,
+): () => void {
+  let scheme: string | undefined;
+  let dynamic: string | undefined;
+  let subTheme: string | undefined;
+  for (
+    let current: HTMLElement | null = anchor;
+    current && current !== anchor.ownerDocument.documentElement;
+    current = current.parentElement
+  ) {
+    for (const name of current.classList) {
+      if (!scheme && isSchemeClass(name)) scheme = name;
+      else if (!dynamic && isDynamicClass(name)) dynamic = name;
+      else if (!subTheme && isSubThemeClass(name)) subTheme = name;
+    }
+    if (scheme && dynamic && subTheme) break;
+  }
+  const added = [scheme, dynamic, subTheme].filter(
+    (name): name is string => !!name && !floating.classList.contains(name),
+  );
+  floating.classList.add(...added);
+  return () => floating.classList.remove(...added);
+}
 
 function supportsCssAnchorPositioning(): boolean {
   return (
@@ -78,9 +125,13 @@ export function createAnchorPositionerController({
   anchor: givenAnchor,
   floating,
   position = () => 'bottom',
+  inheritThemeScope = true,
 }: AnchorPositionerOptions): AnchorPositionerController {
   let destroyed = false;
   const anchor = resolveBoxElement(givenAnchor);
+  const unmirrorThemeScope = inheritThemeScope
+    ? mirrorThemeScope(givenAnchor, floating)
+    : () => {};
 
   if (supportsCssAnchorPositioning()) {
     const anchorName = `--udx-anchor-${nextAnchorId++}`;
@@ -103,6 +154,7 @@ export function createAnchorPositionerController({
       destroy() {
         if (destroyed) return;
         destroyed = true;
+        unmirrorThemeScope();
         anchor.style.removeProperty('anchor-name');
         floating.style.removeProperty('position-anchor');
         floating.style.removeProperty('position-area');
@@ -186,6 +238,7 @@ export function createAnchorPositionerController({
     destroy() {
       if (destroyed) return;
       destroyed = true;
+      unmirrorThemeScope();
       resizeObserver.disconnect();
       ownerWindow.removeEventListener('scroll', update, true);
       ownerWindow.removeEventListener('resize', update);

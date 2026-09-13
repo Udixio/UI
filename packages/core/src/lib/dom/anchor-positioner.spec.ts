@@ -53,13 +53,20 @@ describe('anchor positioner controller (native CSS Anchor Positioning)', () => {
     const anchorSetProperty = vi.spyOn(anchor.style, 'setProperty');
     const floatingSetProperty = vi.spyOn(floating.style, 'setProperty');
 
-    createAnchorPositionerController({ anchor, floating, position: () => 'bottom' });
+    createAnchorPositionerController({
+      anchor,
+      floating,
+      position: () => 'bottom',
+    });
 
     const [propertyName, anchorName] = anchorSetProperty.mock.calls[0];
     expect(propertyName).toBe('anchor-name');
     expect(anchorName).toMatch(/^--udx-anchor-/);
     expect(floating.style.position).toBe('fixed');
-    expect(floatingSetProperty).toHaveBeenCalledWith('position-anchor', anchorName);
+    expect(floatingSetProperty).toHaveBeenCalledWith(
+      'position-anchor',
+      anchorName,
+    );
     expect(floatingSetProperty).toHaveBeenCalledWith(
       'position-try-fallbacks',
       'flip-block, flip-inline',
@@ -78,7 +85,10 @@ describe('anchor positioner controller (native CSS Anchor Positioning)', () => {
       position: () => 'top-left',
     });
 
-    expect(floatingSetProperty).toHaveBeenCalledWith('position-area', 'top left');
+    expect(floatingSetProperty).toHaveBeenCalledWith(
+      'position-area',
+      'top left',
+    );
   });
 
   it('recomputes position-area on update() from a live position getter', () => {
@@ -93,11 +103,17 @@ describe('anchor positioner controller (native CSS Anchor Positioning)', () => {
       floating,
       position: () => position,
     });
-    expect(floatingSetProperty).toHaveBeenLastCalledWith('position-area', 'bottom');
+    expect(floatingSetProperty).toHaveBeenLastCalledWith(
+      'position-area',
+      'bottom',
+    );
 
     position = 'top';
     controller.update();
-    expect(floatingSetProperty).toHaveBeenLastCalledWith('position-area', 'top');
+    expect(floatingSetProperty).toHaveBeenLastCalledWith(
+      'position-area',
+      'top',
+    );
   });
 
   it('removes every applied property on destroy', () => {
@@ -117,7 +133,9 @@ describe('anchor positioner controller (native CSS Anchor Positioning)', () => {
     expect(anchorRemoveProperty).toHaveBeenCalledWith('anchor-name');
     expect(floatingRemoveProperty).toHaveBeenCalledWith('position-anchor');
     expect(floatingRemoveProperty).toHaveBeenCalledWith('position-area');
-    expect(floatingRemoveProperty).toHaveBeenCalledWith('position-try-fallbacks');
+    expect(floatingRemoveProperty).toHaveBeenCalledWith(
+      'position-try-fallbacks',
+    );
   });
 });
 
@@ -148,8 +166,14 @@ describe('anchor positioner controller (display:contents anchor)', () => {
       position: () => 'bottom',
     });
 
-    expect(hostSetProperty).not.toHaveBeenCalledWith('anchor-name', expect.anything());
-    expect(buttonSetProperty).toHaveBeenCalledWith('anchor-name', expect.stringMatching(/^--udx-anchor-/));
+    expect(hostSetProperty).not.toHaveBeenCalledWith(
+      'anchor-name',
+      expect.anything(),
+    );
+    expect(buttonSetProperty).toHaveBeenCalledWith(
+      'anchor-name',
+      expect.stringMatching(/^--udx-anchor-/),
+    );
   });
 
   it('measures the real inner element rect, not the (0,0,0,0) display:contents host (fallback path)', () => {
@@ -183,7 +207,11 @@ describe('anchor positioner controller (fallback, no CSS Anchor Positioning supp
     document.body.append(anchor, floating);
     stubAnchorRect(anchor);
 
-    createAnchorPositionerController({ anchor, floating, position: () => 'bottom' });
+    createAnchorPositionerController({
+      anchor,
+      floating,
+      position: () => 'bottom',
+    });
 
     expect(floating.style.position).toBe('fixed');
     expect(floating.style.top).toBe('140px');
@@ -207,20 +235,34 @@ describe('anchor positioner controller (fallback, no CSS Anchor Positioning supp
       const floating = document.createElement('div');
       document.body.append(anchor, floating);
       stubAnchorRect(anchor);
-      Object.defineProperty(window, 'innerHeight', { value: 800, configurable: true });
-      Object.defineProperty(window, 'innerWidth', { value: 1000, configurable: true });
+      Object.defineProperty(window, 'innerHeight', {
+        value: 800,
+        configurable: true,
+      });
+      Object.defineProperty(window, 'innerWidth', {
+        value: 1000,
+        configurable: true,
+      });
 
-      createAnchorPositionerController({ anchor, floating, position: () => position });
+      createAnchorPositionerController({
+        anchor,
+        floating,
+        position: () => position,
+      });
 
       for (const [side, value] of Object.entries(expected)) {
-        expect(floating.style[side as 'top' | 'bottom' | 'left' | 'right']).toBe(value);
+        expect(
+          floating.style[side as 'top' | 'bottom' | 'left' | 'right'],
+        ).toBe(value);
       }
       // The opposite sides stay unset, so the corner cell is what pins it.
       const unset = ['top', 'bottom', 'left', 'right'].filter(
         (side) => !(side in expected),
       );
       for (const side of unset) {
-        expect(floating.style[side as 'top' | 'bottom' | 'left' | 'right']).toBe('');
+        expect(
+          floating.style[side as 'top' | 'bottom' | 'left' | 'right'],
+        ).toBe('');
       }
       expect(floating.style.transform).toBe('');
     });
@@ -261,7 +303,11 @@ describe('anchor positioner controller (fallback, no CSS Anchor Positioning supp
     });
     controller.destroy();
 
-    expect(removeSpy).toHaveBeenCalledWith('scroll', expect.any(Function), true);
+    expect(removeSpy).toHaveBeenCalledWith(
+      'scroll',
+      expect.any(Function),
+      true,
+    );
     expect(removeSpy).toHaveBeenCalledWith('resize', expect.any(Function));
   });
 });
@@ -324,8 +370,14 @@ describe('the fallback measures the layout viewport, not the window', () => {
 
   beforeEach(() => {
     vi.stubGlobal('CSS', { supports: () => false });
-    Object.defineProperty(window, 'innerWidth', { value: 1000, configurable: true });
-    Object.defineProperty(window, 'innerHeight', { value: 800, configurable: true });
+    Object.defineProperty(window, 'innerWidth', {
+      value: 1000,
+      configurable: true,
+    });
+    Object.defineProperty(window, 'innerHeight', {
+      value: 800,
+      configurable: true,
+    });
     vi.spyOn(document.documentElement, 'clientWidth', 'get').mockReturnValue(
       1000 - SCROLLBAR,
     );
@@ -340,7 +392,11 @@ describe('the fallback measures the layout viewport, not the window', () => {
     document.body.append(anchor, floating);
     stubAnchorRect(anchor);
 
-    createAnchorPositionerController({ anchor, floating, position: () => 'left' });
+    createAnchorPositionerController({
+      anchor,
+      floating,
+      position: () => 'left',
+    });
 
     // anchor.left is 200, so the right offset must be 985 - 200, not 1000 - 200.
     expect(floating.style.right).toBe('785px');
@@ -352,9 +408,63 @@ describe('the fallback measures the layout viewport, not the window', () => {
     document.body.append(anchor, floating);
     stubAnchorRect(anchor);
 
-    createAnchorPositionerController({ anchor, floating, position: () => 'top' });
+    createAnchorPositionerController({
+      anchor,
+      floating,
+      position: () => 'top',
+    });
 
     // anchor.top is 100, so the bottom offset must be 785 - 100, not 800 - 100.
     expect(floating.style.bottom).toBe('685px');
+  });
+});
+
+describe('anchor positioner controller (theme scope)', () => {
+  beforeEach(() => {
+    vi.stubGlobal('CSS', { supports: () => true });
+  });
+
+  function mount() {
+    document.body.className = 'dark';
+    const island = document.createElement('div');
+    island.className = 'light theme-warning';
+    const anchor = document.createElement('button');
+    island.append(anchor);
+    document.body.append(island);
+    const floating = document.createElement('div');
+    document.body.append(floating);
+    return { anchor, floating };
+  }
+
+  it('mirrors the nearest light/dark and theme-* classes of the anchor onto the floating element', () => {
+    const { anchor, floating } = mount();
+    createAnchorPositionerController({ anchor, floating });
+
+    expect(floating.classList.contains('light')).toBe(true);
+    expect(floating.classList.contains('theme-warning')).toBe(true);
+    // The body's `dark` is further away than the island's `light`.
+    expect(floating.classList.contains('dark')).toBe(false);
+  });
+
+  it('removes the mirrored classes on destroy and leaves pre-existing ones alone', () => {
+    const { anchor, floating } = mount();
+    floating.className = 'light surface';
+    const controller = createAnchorPositionerController({ anchor, floating });
+    controller.destroy();
+
+    expect(floating.classList.contains('light')).toBe(true);
+    expect(floating.classList.contains('theme-warning')).toBe(false);
+    expect(floating.classList.contains('surface')).toBe(true);
+  });
+
+  it('can be opted out', () => {
+    const { anchor, floating } = mount();
+    createAnchorPositionerController({
+      anchor,
+      floating,
+      inheritThemeScope: false,
+    });
+
+    expect(floating.className).toBe('');
   });
 });

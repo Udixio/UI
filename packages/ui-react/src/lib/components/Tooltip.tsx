@@ -184,7 +184,14 @@ export const Tooltip = ({
   return (
     <>
       {enhancedChildren}
-      <AnchorPositioner anchorRef={positioningRef} position={effectivePosition}>
+      {/* The positioner's box is only a carrier: it must never catch a
+          pointer, or its transparent area covers whatever sits under the
+          anchor. The surface opts back in with `pointer-events-auto`. */}
+      <AnchorPositioner
+        anchorRef={positioningRef}
+        position={effectivePosition}
+        style={{ pointerEvents: 'none' }}
+      >
         <div
           ref={setSurface}
           style={{ opacity: 0 }}

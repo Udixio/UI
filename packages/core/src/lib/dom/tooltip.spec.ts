@@ -88,6 +88,22 @@ describe('tooltip transition controller', () => {
     );
   });
 
+  it('stops hit-testing while closed and resumes when opening', () => {
+    const instance = animationInstance();
+    vi.mocked(animate).mockReturnValue(instance as never);
+    const element = document.createElement('div');
+
+    const controller = createTooltipTransitionController({
+      element,
+      reducedMotion: () => false,
+    });
+    controller.setOpen(false);
+    expect(element.style.pointerEvents).toBe('none');
+
+    controller.setOpen(true);
+    expect(element.style.pointerEvents).toBe('');
+  });
+
   it('restores natural height after the opening animation', () => {
     const instance = animationInstance();
     vi.mocked(animate).mockReturnValue(instance as never);
