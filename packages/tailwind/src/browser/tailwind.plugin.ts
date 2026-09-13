@@ -18,6 +18,16 @@ export interface TailwindPluginOptions {
   dynamicSelector?: string;
   /** Class that forces dark mode on a subtree. @default '.dark' */
   darkSelector?: string;
+  /**
+   * Class that forces light mode on a subtree, including under
+   * `darkSelector`. Nesting is unlimited (`dark → light → dark → …`): each
+   * boundary re-reads the nearest inherited toggle.
+   *
+   * Pass `false` to not emit it.
+   *
+   * @default '.light'
+   */
+  lightSelector?: string | false;
   responsiveBreakPoints?: Record<string, number>;
   outFile?: string;
   /**
@@ -87,39 +97,39 @@ function createFlexibleSelector(...classes: (string | undefined)[]): string {
   return `:is(${uniqueSelectors.join(', ')})`;
 }
 
-function darkStyle({
-  selectors,
-  mode,
-  darkSelector,
-  styles,
-}: {
-  selectors: (string | undefined)[];
-  darkSelector: string;
-  styles: string;
-  mode: 'class' | 'media';
-}): string {
-  selectors = selectors.filter((classeName) => !!classeName);
+/**
+ * Mode switching is a "space toggle": `--udx-on-dark` is either empty (valid,
+ * dark) or `initial` (invalid, light). Every colour is resolved through it:
+ *
+ *   --udx-x-dark-on: var(--udx-on-dark) var(--udx-dark-x);   →  " #hex" or invalid
+ *   --color-x:       var(--udx-x-dark-on, var(--udx-light-x));
+ *
+ * The palette is written once per theme, `.dark`/`.light` are one line each,
+ * and the aliases are re-resolved on every boundary element, so the nearest
+ * ancestor wins at any nesting depth.
+ */
+const TOGGLE = '--udx-on-dark';
 
-  if (mode === 'media') {
-    if (selectors.length !== 0) {
-      return `@media (prefers-color-scheme: dark) {
-    ${createFlexibleSelector(...selectors)} {
-      ${styles}
-    }
-  }
-`;
-    } else {
-      return `@media (prefers-color-scheme: dark) {
-    ${styles}
-  }
-`;
-    }
-  } else {
-    return `${createFlexibleSelector(...selectors, darkSelector)} {
-    ${styles}
-  }
-`;
-  }
+function paletteStyles(colors: Record<string, { light: string; dark: string }>) {
+  return Object.entries(colors)
+    .flatMap(([key, value]) => [
+      `--udx-light-${key}: ${value.light};`,
+      `--udx-dark-${key}: ${value.dark};`,
+    ])
+    .join('\n    ');
+}
+
+function aliasStyles(keys: string[]) {
+  return keys
+    .flatMap((key) => [
+      `--udx-${key}-dark-on: var(${TOGGLE}) var(--udx-dark-${key});`,
+      `--color-${key}: var(--udx-${key}-dark-on, var(--udx-light-${key}));`,
+    ])
+    .join('\n    ');
+}
+
+function block(selector: string, styles: string) {
+  return `${selector} {\n    ${styles}\n  }\n`;
 }
 
 export class TailwindPlugin extends PluginAbstract<
@@ -144,6 +154,7 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
       },
       darkMode: 'class',
       darkSelector: '.dark',
+      lightSelector: '.light',
       dynamicSelector: '.dynamic',
       resetColors: true,
       ...this.options,
@@ -151,48 +162,54 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
   }
 
   loadColor({ isDynamic }: { isDynamic: boolean }) {
-    let { dynamicSelector, darkSelector } = this.options;
+    let { dynamicSelector } = this.options;
+    const { lightSelector } = this.options;
+    const darkSelector = this.options.darkSelector ?? '';
     if (!isDynamic) {
       dynamicSelector = undefined;
     }
     const darkMode = this.options.darkMode ?? 'class';
-    if (darkMode == 'media') {
-      darkSelector = undefined;
-    }
 
     const colors = this.getColors();
+    const keys = Object.keys(colors);
     const dynamicRootSelector = dynamicSelector ?? ':root';
+    const rootSelector = isDynamic ? dynamicRootSelector : ':root';
+    // Runtime values must override the build-time @theme layer, regardless
+    // of the order in which the two style sheets are attached: the dynamic
+    // output stays out of `@layer theme`.
+    const emit = (css: string) => {
+      this.outputCss += isDynamic ? `\n${css}` : `\n@layer theme {\n  ${css}}`;
+    };
 
-    if (isDynamic) {
-      // Runtime values must override the build-time @theme layer, regardless
-      // of the order in which the two style sheets are attached.
-      this.outputCss += `
-${dynamicRootSelector} {
-    ${Object.entries(colors)
-      .map(([key, value]) => `--color-${key}: ${value.light};`)
-      .join('\n  ')}
-}`;
-    } else {
+    if (!isDynamic) {
       const resetColors = this.options.resetColors ?? true;
       this.outputCss += `
 @theme {
-${resetColors ? '  --color-*: initial;\n' : ''}  ${Object.entries(colors)
-        .map(([key, value]) => `--color-${key}: ${value.light};`)
+${resetColors ? '  --color-*: initial;\n' : ''}  ${keys
+        .map(
+          (key) =>
+            `--color-${key}: var(--udx-${key}-dark-on, var(--udx-light-${key}));`,
+        )
         .join('\n  ')}
 }`;
     }
 
-    const darkCss = darkStyle({
-      selectors: [isDynamic ? dynamicRootSelector : dynamicSelector],
-      mode: darkMode,
-      darkSelector: darkSelector ?? '',
-      styles: Object.entries(colors)
-        .map(([key, value]) => `--color-${key}: ${value.dark};`)
-        .join('\n    '),
-    });
-    this.outputCss += isDynamic
-      ? `\n${darkCss}`
-      : `\n@layer theme {\n  ${darkCss}\n}`;
+    emit(block(rootSelector, paletteStyles(colors)));
+
+    const boundaries = [rootSelector];
+    if (darkMode === 'media') {
+      emit(
+        `@media (prefers-color-scheme: dark) {\n    ${block(rootSelector, `${TOGGLE}: ;`).replace(/\n/g, '\n  ')}}\n`,
+      );
+    }
+    if (darkSelector) {
+      emit(block(darkSelector, `${TOGGLE}: ;`));
+      boundaries.push(darkSelector);
+    }
+    if (lightSelector) {
+      emit(block(lightSelector, `${TOGGLE}: initial;`));
+      boundaries.push(lightSelector);
+    }
 
     const sourceColor = this.api.context.sourceColor;
     const originalRawSourceColor = this.api.context.rawSourceColor;
@@ -206,45 +223,19 @@ ${resetColors ? '  --color-*: initial;\n' : ''}  ${Object.entries(colors)
             : value.hue;
 
       this.api.context.sourceColor = sourceColor.withHue(hue);
-      const colors = this.getColors();
       const subThemeSelector = createFlexibleSelector(
         isDynamic ? dynamicRootSelector : dynamicSelector,
         '.theme-' + key,
       );
-      const subThemeStyles = Object.entries(colors)
-        .map(([key, value]) => `--color-${key}: ${value.light};`)
-        .join('\n    ');
-      this.outputCss += isDynamic
-        ? `
-${subThemeSelector} {
-    ${subThemeStyles}
-}
-`
-        : `
-@layer theme {
-  ${subThemeSelector} {
-    ${subThemeStyles}
-  }
-}
-`;
-
-      const subThemeDarkCss = darkStyle({
-        selectors: [
-          isDynamic ? dynamicRootSelector : dynamicSelector,
-          '.theme-' + key,
-        ],
-        mode: darkMode,
-        darkSelector: darkSelector ?? '',
-        styles: Object.entries(colors)
-          .map(([key, value]) => `--color-${key}: ${value.dark};`)
-          .join('\n    '),
-      });
-      this.outputCss += isDynamic
-        ? `\n${subThemeDarkCss}`
-        : `\n@layer theme {\n  ${subThemeDarkCss}\n}`;
+      emit(block(subThemeSelector, paletteStyles(this.getColors())));
+      boundaries.push('.theme-' + key);
     }
     // Restore original sourceColor after processing subThemes
     this.api.context.update({ sourceColor: originalRawSourceColor });
+
+    // Last, so an element carrying both a palette and a toggle resolves once
+    // with both already declared.
+    emit(block(`:is(${boundaries.join(', ')})`, aliasStyles(keys)));
   }
 
   getColors() {

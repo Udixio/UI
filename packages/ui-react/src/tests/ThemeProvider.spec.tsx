@@ -14,8 +14,10 @@ import {
   type WorkerOutboundMessage,
 } from '../lib/effects/theme.worker.processor';
 
+// The hex values live in the light/dark palette; `--color-primary` is the
+// mode-resolved alias.
 const primaryDeclaration = (css: string) =>
-  css.match(/--color-primary:\s*(#[0-9a-f]{6});/)?.[1];
+  css.match(/--udx-light-primary:\s*(#[0-9a-f]{6});/)?.[1];
 
 class ThemeWorkerMock {
   onmessage: ((event: MessageEvent<WorkerOutboundMessage>) => void) | null =

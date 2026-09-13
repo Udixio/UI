@@ -1,21 +1,22 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`new emitter equivalence > resolved CSS matches the characterization golden 1`] = `
-"/*! tailwindcss v4.1.14 | MIT License | https://tailwindcss.com */
+"/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
 @layer properties;
 @layer theme, base, components, utilities;
 @layer theme {
   :root, :host {
-    --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
-      "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+      "Noto Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+      "Segoe UI Symbol", "Noto Color Emoji";
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
       "Courier New", monospace;
     --default-transition-duration: 150ms;
     --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     --default-font-family: var(--font-sans);
     --default-mono-font-family: var(--font-mono);
-    --color-on-surface: #34313a;
-    --color-primary: #655789;
+    --color-on-surface: var(--udx-on-surface-dark-on, var(--udx-light-on-surface));
+    --color-primary: var(--udx-primary-dark-on, var(--udx-light-primary));
   }
 }
 @layer base {
@@ -29,7 +30,7 @@ exports[`new emitter equivalence > resolved CSS matches the characterization gol
     line-height: 1.5;
     -webkit-text-size-adjust: 100%;
     tab-size: 4;
-    font-family: var(--default-font-family, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
+    font-family: var(--default-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
     font-feature-settings: var(--default-font-feature-settings, normal);
     font-variation-settings: var(--default-font-variation-settings, normal);
     -webkit-tap-highlight-color: transparent;
@@ -81,7 +82,7 @@ exports[`new emitter equivalence > resolved CSS matches the characterization gol
     border-color: inherit;
     border-collapse: collapse;
   }
-  :-moz-focusring {
+  :-moz-focusring:where(:not(iframe)) {
     outline: auto;
   }
   progress {
@@ -194,13 +195,13 @@ exports[`new emitter equivalence > resolved CSS matches the characterization gol
     --tw-duration: 150ms;
     transition-duration: 150ms;
     &:disabled {
-      color: color-mix(in srgb, #34313a 38%, transparent);
+      color: var(--color-on-surface);
       @supports (color: color-mix(in lab, red, red)) {
         color: color-mix(in oklab, var(--color-on-surface) 38%, transparent);
       }
     }
     &:disabled {
-      background-color: color-mix(in srgb, #34313a 10%, transparent);
+      background-color: var(--color-on-surface);
       @supports (color: color-mix(in lab, red, red)) {
         background-color: color-mix(in oklab, var(--color-on-surface) 10%, transparent);
       }
@@ -240,21 +241,21 @@ exports[`new emitter equivalence > resolved CSS matches the characterization gol
   .state-primary {
     --state-color: var(--color-primary);
   }
-  .hover\\:shadow-2 {
-    &:hover {
-      @media (hover: hover) {
-        box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
-      }
+  @media (hover: hover) {
+    .hover\\:shadow-2:hover {
+      box-shadow: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
     }
   }
-  .lg\\:text-display-large {
-    @media (width >= 64rem) {
+  @media (width >= 64rem) {
+    .lg\\:text-display-large {
       font-size: 3.5625rem;
       font-weight: 400;
       line-height: 4rem;
       letter-spacing: -0.015625rem;
       font-family: "Roboto", "sans-serif";
-      @media (min-width: 64rem) {
+    }
+    @media (min-width: 64rem) {
+      .lg\\:text-display-large {
         font-size: 4.0078125rem;
         line-height: 4.5rem;
       }
@@ -262,58 +263,219 @@ exports[`new emitter equivalence > resolved CSS matches the characterization gol
   }
 }
 @layer theme {
+  :root {
+    --udx-light-surface: #fdf7fe;
+    --udx-dark-surface: #0f0d12;
+    --udx-light-surface-dim: #ded8e4;
+    --udx-dark-surface-dim: #0f0d12;
+    --udx-light-surface-bright: #fdf7fe;
+    --udx-dark-surface-bright: #2e2b34;
+    --udx-light-surface-container-lowest: #ffffff;
+    --udx-dark-surface-container-lowest: #000000;
+    --udx-light-surface-container-low: #f8f1fa;
+    --udx-dark-surface-container-low: #141218;
+    --udx-light-surface-container: #f2ecf5;
+    --udx-dark-surface-container: #1b181f;
+    --udx-light-surface-container-high: #ece6f0;
+    --udx-dark-surface-container-high: #211e26;
+    --udx-light-surface-container-highest: #e7e0ec;
+    --udx-dark-surface-container-highest: #27242d;
+    --udx-light-on-surface: #34313a;
+    --udx-dark-on-surface: #eae3ef;
+    --udx-light-on-surface-variant: #615d68;
+    --udx-dark-on-surface-variant: #aea9b4;
+    --udx-light-outline: #7d7983;
+    --udx-dark-outline: #78737e;
+    --udx-light-outline-variant: #b5b0bb;
+    --udx-dark-outline-variant: #4a4650;
+    --udx-light-inverse-surface: #0f0d12;
+    --udx-dark-inverse-surface: #fdf7fe;
+    --udx-light-inverse-on-surface: #a09ba1;
+    --udx-dark-inverse-on-surface: #575459;
+    --udx-light-primary: #655789;
+    --udx-dark-primary: #cdc0ec;
+    --udx-light-primary-dim: #594b7c;
+    --udx-dark-primary-dim: #bfb2de;
+    --udx-light-on-primary: #fdf7ff;
+    --udx-dark-on-primary: #443a5f;
+    --udx-light-primary-container: #d4c3fd;
+    --udx-dark-primary-container: #574d72;
+    --udx-light-on-primary-container: #493c6c;
+    --udx-dark-on-primary-container: #e9deff;
+    --udx-light-primary-fixed: #d4c3fd;
+    --udx-dark-primary-fixed: #ded0fe;
+    --udx-light-primary-fixed-dim: #c6b6ee;
+    --udx-dark-primary-fixed-dim: #d0c3ef;
+    --udx-light-on-primary-fixed: #352857;
+    --udx-dark-on-primary-fixed: #3c3256;
+    --udx-light-on-primary-fixed-variant: #524576;
+    --udx-dark-on-primary-fixed-variant: #594e74;
+    --udx-light-inverse-primary: #d4c3fd;
+    --udx-dark-inverse-primary: #645980;
+    --udx-light-secondary: #625c71;
+    --udx-dark-secondary: #cbc2db;
+    --udx-light-secondary-dim: #565065;
+    --udx-dark-secondary-dim: #beb5cd;
+    --udx-light-on-secondary: #fdf7ff;
+    --udx-dark-on-secondary: #433d51;
+    --udx-light-secondary-container: #e8def8;
+    --udx-dark-secondary-container: #3e384c;
+    --udx-light-on-secondary-container: #554f63;
+    --udx-dark-on-secondary-container: #c4bbd4;
+    --udx-light-secondary-fixed: #e8def8;
+    --udx-dark-secondary-fixed: #e8def8;
+    --udx-light-secondary-fixed-dim: #dad0ea;
+    --udx-dark-secondary-fixed-dim: #dad0ea;
+    --udx-light-on-secondary-fixed: #423c50;
+    --udx-dark-on-secondary-fixed: #423c50;
+    --udx-light-on-secondary-fixed-variant: #5f586e;
+    --udx-dark-on-secondary-fixed-variant: #5f586e;
+    --udx-light-tertiary: #7b5270;
+    --udx-dark-tertiary: #ffcfef;
+    --udx-light-tertiary-dim: #6e4664;
+    --udx-dark-tertiary-dim: #f4bfe3;
+    --udx-light-on-tertiary: #fff7f9;
+    --udx-dark-on-tertiary: #69415f;
+    --udx-light-tertiary-container: #f4bfe3;
+    --udx-dark-tertiary-container: #f4bfe3;
+    --udx-light-on-tertiary-container: #5f3956;
+    --udx-dark-on-tertiary-container: #5f3956;
+    --udx-light-tertiary-fixed: #f4bfe3;
+    --udx-dark-tertiary-fixed: #f4bfe3;
+    --udx-light-tertiary-fixed-dim: #e5b2d5;
+    --udx-dark-tertiary-fixed-dim: #e5b2d5;
+    --udx-light-on-tertiary-fixed: #4a2642;
+    --udx-dark-on-tertiary-fixed: #4a2642;
+    --udx-light-on-tertiary-fixed-variant: #694260;
+    --udx-dark-on-tertiary-fixed-variant: #694260;
+    --udx-light-error: #a8364b;
+    --udx-dark-error: #f97386;
+    --udx-light-error-dim: #6b0221;
+    --udx-dark-error-dim: #c44b5f;
+    --udx-light-on-error: #fff7f7;
+    --udx-dark-on-error: #490013;
+    --udx-light-error-container: #f97386;
+    --udx-dark-error-container: #871c34;
+    --udx-light-on-error-container: #6e0523;
+    --udx-dark-on-error-container: #ff97a3;
+    --udx-light-surface-variant: #e7e0ec;
+    --udx-dark-surface-variant: #27242d;
+    --udx-light-surface-tint: #655789;
+    --udx-dark-surface-tint: #cdc0ec;
+    --udx-light-background: #fdf7fe;
+    --udx-dark-background: #0f0d12;
+    --udx-light-on-background: #34313a;
+    --udx-dark-on-background: #eae3ef;
+  }
   .dark {
-    --color-surface: #0f0d12;
-    --color-surface-dim: #0f0d12;
-    --color-surface-bright: #2e2b34;
-    --color-surface-container-lowest: #000000;
-    --color-surface-container-low: #141218;
-    --color-surface-container: #1b181f;
-    --color-surface-container-high: #211e26;
-    --color-surface-container-highest: #27242d;
-    --color-on-surface: #eae3ef;
-    --color-on-surface-variant: #aea9b4;
-    --color-outline: #78737e;
-    --color-outline-variant: #4a4650;
-    --color-inverse-surface: #fdf7fe;
-    --color-inverse-on-surface: #575459;
-    --color-primary: #cdc0ec;
-    --color-primary-dim: #bfb2de;
-    --color-on-primary: #443a5f;
-    --color-primary-container: #574d72;
-    --color-on-primary-container: #e9deff;
-    --color-primary-fixed: #ded0fe;
-    --color-primary-fixed-dim: #d0c3ef;
-    --color-on-primary-fixed: #3c3256;
-    --color-on-primary-fixed-variant: #594e74;
-    --color-inverse-primary: #645980;
-    --color-secondary: #cbc2db;
-    --color-secondary-dim: #beb5cd;
-    --color-on-secondary: #433d51;
-    --color-secondary-container: #3e384c;
-    --color-on-secondary-container: #c4bbd4;
-    --color-secondary-fixed: #e8def8;
-    --color-secondary-fixed-dim: #dad0ea;
-    --color-on-secondary-fixed: #423c50;
-    --color-on-secondary-fixed-variant: #5f586e;
-    --color-tertiary: #ffcfef;
-    --color-tertiary-dim: #f4bfe3;
-    --color-on-tertiary: #69415f;
-    --color-tertiary-container: #f4bfe3;
-    --color-on-tertiary-container: #5f3956;
-    --color-tertiary-fixed: #f4bfe3;
-    --color-tertiary-fixed-dim: #e5b2d5;
-    --color-on-tertiary-fixed: #4a2642;
-    --color-on-tertiary-fixed-variant: #694260;
-    --color-error: #f97386;
-    --color-error-dim: #c44b5f;
-    --color-on-error: #490013;
-    --color-error-container: #871c34;
-    --color-on-error-container: #ff97a3;
-    --color-surface-variant: #27242d;
-    --color-surface-tint: #cdc0ec;
-    --color-background: #0f0d12;
-    --color-on-background: #eae3ef;
+    --udx-on-dark: ;
+  }
+  .light {
+    --udx-on-dark: initial;
+  }
+  :is(:root, .dark, .light) {
+    --udx-surface-dark-on: var(--udx-on-dark) var(--udx-dark-surface);
+    --color-surface: var(--udx-surface-dark-on, var(--udx-light-surface));
+    --udx-surface-dim-dark-on: var(--udx-on-dark) var(--udx-dark-surface-dim);
+    --color-surface-dim: var(--udx-surface-dim-dark-on, var(--udx-light-surface-dim));
+    --udx-surface-bright-dark-on: var(--udx-on-dark) var(--udx-dark-surface-bright);
+    --color-surface-bright: var(--udx-surface-bright-dark-on, var(--udx-light-surface-bright));
+    --udx-surface-container-lowest-dark-on: var(--udx-on-dark) var(--udx-dark-surface-container-lowest);
+    --color-surface-container-lowest: var(--udx-surface-container-lowest-dark-on, var(--udx-light-surface-container-lowest));
+    --udx-surface-container-low-dark-on: var(--udx-on-dark) var(--udx-dark-surface-container-low);
+    --color-surface-container-low: var(--udx-surface-container-low-dark-on, var(--udx-light-surface-container-low));
+    --udx-surface-container-dark-on: var(--udx-on-dark) var(--udx-dark-surface-container);
+    --color-surface-container: var(--udx-surface-container-dark-on, var(--udx-light-surface-container));
+    --udx-surface-container-high-dark-on: var(--udx-on-dark) var(--udx-dark-surface-container-high);
+    --color-surface-container-high: var(--udx-surface-container-high-dark-on, var(--udx-light-surface-container-high));
+    --udx-surface-container-highest-dark-on: var(--udx-on-dark) var(--udx-dark-surface-container-highest);
+    --color-surface-container-highest: var(--udx-surface-container-highest-dark-on, var(--udx-light-surface-container-highest));
+    --udx-on-surface-dark-on: var(--udx-on-dark) var(--udx-dark-on-surface);
+    --color-on-surface: var(--udx-on-surface-dark-on, var(--udx-light-on-surface));
+    --udx-on-surface-variant-dark-on: var(--udx-on-dark) var(--udx-dark-on-surface-variant);
+    --color-on-surface-variant: var(--udx-on-surface-variant-dark-on, var(--udx-light-on-surface-variant));
+    --udx-outline-dark-on: var(--udx-on-dark) var(--udx-dark-outline);
+    --color-outline: var(--udx-outline-dark-on, var(--udx-light-outline));
+    --udx-outline-variant-dark-on: var(--udx-on-dark) var(--udx-dark-outline-variant);
+    --color-outline-variant: var(--udx-outline-variant-dark-on, var(--udx-light-outline-variant));
+    --udx-inverse-surface-dark-on: var(--udx-on-dark) var(--udx-dark-inverse-surface);
+    --color-inverse-surface: var(--udx-inverse-surface-dark-on, var(--udx-light-inverse-surface));
+    --udx-inverse-on-surface-dark-on: var(--udx-on-dark) var(--udx-dark-inverse-on-surface);
+    --color-inverse-on-surface: var(--udx-inverse-on-surface-dark-on, var(--udx-light-inverse-on-surface));
+    --udx-primary-dark-on: var(--udx-on-dark) var(--udx-dark-primary);
+    --color-primary: var(--udx-primary-dark-on, var(--udx-light-primary));
+    --udx-primary-dim-dark-on: var(--udx-on-dark) var(--udx-dark-primary-dim);
+    --color-primary-dim: var(--udx-primary-dim-dark-on, var(--udx-light-primary-dim));
+    --udx-on-primary-dark-on: var(--udx-on-dark) var(--udx-dark-on-primary);
+    --color-on-primary: var(--udx-on-primary-dark-on, var(--udx-light-on-primary));
+    --udx-primary-container-dark-on: var(--udx-on-dark) var(--udx-dark-primary-container);
+    --color-primary-container: var(--udx-primary-container-dark-on, var(--udx-light-primary-container));
+    --udx-on-primary-container-dark-on: var(--udx-on-dark) var(--udx-dark-on-primary-container);
+    --color-on-primary-container: var(--udx-on-primary-container-dark-on, var(--udx-light-on-primary-container));
+    --udx-primary-fixed-dark-on: var(--udx-on-dark) var(--udx-dark-primary-fixed);
+    --color-primary-fixed: var(--udx-primary-fixed-dark-on, var(--udx-light-primary-fixed));
+    --udx-primary-fixed-dim-dark-on: var(--udx-on-dark) var(--udx-dark-primary-fixed-dim);
+    --color-primary-fixed-dim: var(--udx-primary-fixed-dim-dark-on, var(--udx-light-primary-fixed-dim));
+    --udx-on-primary-fixed-dark-on: var(--udx-on-dark) var(--udx-dark-on-primary-fixed);
+    --color-on-primary-fixed: var(--udx-on-primary-fixed-dark-on, var(--udx-light-on-primary-fixed));
+    --udx-on-primary-fixed-variant-dark-on: var(--udx-on-dark) var(--udx-dark-on-primary-fixed-variant);
+    --color-on-primary-fixed-variant: var(--udx-on-primary-fixed-variant-dark-on, var(--udx-light-on-primary-fixed-variant));
+    --udx-inverse-primary-dark-on: var(--udx-on-dark) var(--udx-dark-inverse-primary);
+    --color-inverse-primary: var(--udx-inverse-primary-dark-on, var(--udx-light-inverse-primary));
+    --udx-secondary-dark-on: var(--udx-on-dark) var(--udx-dark-secondary);
+    --color-secondary: var(--udx-secondary-dark-on, var(--udx-light-secondary));
+    --udx-secondary-dim-dark-on: var(--udx-on-dark) var(--udx-dark-secondary-dim);
+    --color-secondary-dim: var(--udx-secondary-dim-dark-on, var(--udx-light-secondary-dim));
+    --udx-on-secondary-dark-on: var(--udx-on-dark) var(--udx-dark-on-secondary);
+    --color-on-secondary: var(--udx-on-secondary-dark-on, var(--udx-light-on-secondary));
+    --udx-secondary-container-dark-on: var(--udx-on-dark) var(--udx-dark-secondary-container);
+    --color-secondary-container: var(--udx-secondary-container-dark-on, var(--udx-light-secondary-container));
+    --udx-on-secondary-container-dark-on: var(--udx-on-dark) var(--udx-dark-on-secondary-container);
+    --color-on-secondary-container: var(--udx-on-secondary-container-dark-on, var(--udx-light-on-secondary-container));
+    --udx-secondary-fixed-dark-on: var(--udx-on-dark) var(--udx-dark-secondary-fixed);
+    --color-secondary-fixed: var(--udx-secondary-fixed-dark-on, var(--udx-light-secondary-fixed));
+    --udx-secondary-fixed-dim-dark-on: var(--udx-on-dark) var(--udx-dark-secondary-fixed-dim);
+    --color-secondary-fixed-dim: var(--udx-secondary-fixed-dim-dark-on, var(--udx-light-secondary-fixed-dim));
+    --udx-on-secondary-fixed-dark-on: var(--udx-on-dark) var(--udx-dark-on-secondary-fixed);
+    --color-on-secondary-fixed: var(--udx-on-secondary-fixed-dark-on, var(--udx-light-on-secondary-fixed));
+    --udx-on-secondary-fixed-variant-dark-on: var(--udx-on-dark) var(--udx-dark-on-secondary-fixed-variant);
+    --color-on-secondary-fixed-variant: var(--udx-on-secondary-fixed-variant-dark-on, var(--udx-light-on-secondary-fixed-variant));
+    --udx-tertiary-dark-on: var(--udx-on-dark) var(--udx-dark-tertiary);
+    --color-tertiary: var(--udx-tertiary-dark-on, var(--udx-light-tertiary));
+    --udx-tertiary-dim-dark-on: var(--udx-on-dark) var(--udx-dark-tertiary-dim);
+    --color-tertiary-dim: var(--udx-tertiary-dim-dark-on, var(--udx-light-tertiary-dim));
+    --udx-on-tertiary-dark-on: var(--udx-on-dark) var(--udx-dark-on-tertiary);
+    --color-on-tertiary: var(--udx-on-tertiary-dark-on, var(--udx-light-on-tertiary));
+    --udx-tertiary-container-dark-on: var(--udx-on-dark) var(--udx-dark-tertiary-container);
+    --color-tertiary-container: var(--udx-tertiary-container-dark-on, var(--udx-light-tertiary-container));
+    --udx-on-tertiary-container-dark-on: var(--udx-on-dark) var(--udx-dark-on-tertiary-container);
+    --color-on-tertiary-container: var(--udx-on-tertiary-container-dark-on, var(--udx-light-on-tertiary-container));
+    --udx-tertiary-fixed-dark-on: var(--udx-on-dark) var(--udx-dark-tertiary-fixed);
+    --color-tertiary-fixed: var(--udx-tertiary-fixed-dark-on, var(--udx-light-tertiary-fixed));
+    --udx-tertiary-fixed-dim-dark-on: var(--udx-on-dark) var(--udx-dark-tertiary-fixed-dim);
+    --color-tertiary-fixed-dim: var(--udx-tertiary-fixed-dim-dark-on, var(--udx-light-tertiary-fixed-dim));
+    --udx-on-tertiary-fixed-dark-on: var(--udx-on-dark) var(--udx-dark-on-tertiary-fixed);
+    --color-on-tertiary-fixed: var(--udx-on-tertiary-fixed-dark-on, var(--udx-light-on-tertiary-fixed));
+    --udx-on-tertiary-fixed-variant-dark-on: var(--udx-on-dark) var(--udx-dark-on-tertiary-fixed-variant);
+    --color-on-tertiary-fixed-variant: var(--udx-on-tertiary-fixed-variant-dark-on, var(--udx-light-on-tertiary-fixed-variant));
+    --udx-error-dark-on: var(--udx-on-dark) var(--udx-dark-error);
+    --color-error: var(--udx-error-dark-on, var(--udx-light-error));
+    --udx-error-dim-dark-on: var(--udx-on-dark) var(--udx-dark-error-dim);
+    --color-error-dim: var(--udx-error-dim-dark-on, var(--udx-light-error-dim));
+    --udx-on-error-dark-on: var(--udx-on-dark) var(--udx-dark-on-error);
+    --color-on-error: var(--udx-on-error-dark-on, var(--udx-light-on-error));
+    --udx-error-container-dark-on: var(--udx-on-dark) var(--udx-dark-error-container);
+    --color-error-container: var(--udx-error-container-dark-on, var(--udx-light-error-container));
+    --udx-on-error-container-dark-on: var(--udx-on-dark) var(--udx-dark-on-error-container);
+    --color-on-error-container: var(--udx-on-error-container-dark-on, var(--udx-light-on-error-container));
+    --udx-surface-variant-dark-on: var(--udx-on-dark) var(--udx-dark-surface-variant);
+    --color-surface-variant: var(--udx-surface-variant-dark-on, var(--udx-light-surface-variant));
+    --udx-surface-tint-dark-on: var(--udx-on-dark) var(--udx-dark-surface-tint);
+    --color-surface-tint: var(--udx-surface-tint-dark-on, var(--udx-light-surface-tint));
+    --udx-background-dark-on: var(--udx-on-dark) var(--udx-dark-background);
+    --color-background: var(--udx-background-dark-on, var(--udx-light-background));
+    --udx-on-background-dark-on: var(--udx-on-dark) var(--udx-dark-on-background);
+    --color-on-background: var(--udx-on-background-dark-on, var(--udx-light-on-background));
   }
 }
 @layer base {
@@ -329,8 +491,6 @@ exports[`new emitter equivalence > resolved CSS matches the characterization gol
       transform: translate3d(var(--anim-exit-translate-x, 0), var(--anim-exit-translate-y, 0), 0) scale3d(var(--anim-exit-scale, 1), var(--anim-exit-scale, 1), var(--anim-exit-scale, 1)) rotate(var(--anim-exit-rotate, 0));
     }
   }
-}
-@layer base {
   [data-anim-in-run] {
     --anim-in-state: running;
   }
@@ -343,22 +503,16 @@ exports[`new emitter equivalence > resolved CSS matches the characterization gol
   [data-anim-out-paused] {
     --anim-out-state: paused;
   }
-}
-@layer base {
   @keyframes anim-fade {
     from {
       opacity: var(--anim-opacity , 0);
     }
   }
-}
-@layer base {
   @keyframes anim-scale {
     from {
       scale: var(--anim-scale-x , var(--anim-scale , .95)) var(--anim-scale-y , var(--anim-scale , .95));
     }
   }
-}
-@layer base {
   @keyframes anim-slide {
     from {
       translate: calc(var(--anim-distance , 2rem) * var(--anim-dx )) calc(var(--anim-distance , 2rem) * var(--anim-dy ));;
@@ -367,15 +521,11 @@ exports[`new emitter equivalence > resolved CSS matches the characterization gol
       translate: var(--tw-translate-x, 0) var(--tw-translate-y, 0);
     }
   }
-}
-@layer base {
   [class*="anim-"] {
     animation-name: var(--anim-name-fade, noop), var(--anim-name-scale, noop), var(--anim-name-slide, noop);
     will-change: var(--anim-dependencies-fade, noop), var(--anim-dependencies-scale, noop), var(--anim-dependencies-slide, noop);
     animation-play-state: var(--anim-play-state-fade, running), var(--anim-play-state-scale, running), var(--anim-play-state-slide, running);
   }
-}
-@layer base {
   [class*="anim-"][class*="-scroll"] {
     animation-timeline: var(--anim-timeline-fade, auto), var(--anim-timeline-scale, auto), var(--anim-timeline-slide, auto);
     animation-range: var(--anim-range-fade, normal), var(--anim-range-scale, normal), var(--anim-range-slide, normal);
