@@ -60,7 +60,7 @@ export function mirrorThemeScope(
       current && current !== body && current !== root;
       current = current.parentElement
     ) {
-      for (const name of current.classList) {
+      for (const name of Array.from(current.classList)) {
         if (!scheme && isSchemeClass(name)) scheme = name;
         else if (!dynamic && isDynamicClass(name)) dynamic = name;
         else if (!subTheme && isSubThemeClass(name)) subTheme = name;
