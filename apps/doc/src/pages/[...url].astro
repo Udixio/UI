@@ -23,7 +23,7 @@ const { Content } = await render(page);
 
 ---
 
-<Layout  title={page.data.title} description={page.data.description}>
+<Layout docSidebar title={page.data.title} description={page.data.description}>
   <section class="px-8 py-10 max-w-screen-lg mx-auto">
     <div class="prose-markdown">
       <Content components={{ pre: Code }} />

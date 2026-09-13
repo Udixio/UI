@@ -2,6 +2,7 @@
 import { Code } from 'astro:components';
 import {
   CodePreview,
+  codePreviewClass,
   codeCardClass,
   codeBodyClass,
   codePanelClass,
@@ -89,7 +90,7 @@ const code = dataCode ?? codeFromSlot;
             data-example-panel
             data-framework="react"
             data-view="preview"
-            class={`flex min-h-32 p-8 ${center ? 'items-center justify-center' : 'items-start justify-start'}`}
+            class={`${codePreviewClass} ${center ? 'items-center justify-center' : 'items-start justify-start'}`}
           >
             <slot name="react" />
           </section>
@@ -115,7 +116,7 @@ const code = dataCode ?? codeFromSlot;
             data-framework="angular"
             data-view="preview"
             hidden={frameworks[0] !== 'angular'}
-            class={`flex min-h-32 p-8 ${center ? 'items-center justify-center' : 'items-start justify-start'}`}
+            class={`${codePreviewClass} ${center ? 'items-center justify-center' : 'items-start justify-start'}`}
           >
             <slot name="angular" />
           </section>

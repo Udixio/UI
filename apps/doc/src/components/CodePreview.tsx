@@ -5,11 +5,11 @@ import { classNames } from '@udixio/core';
 import { iContentCopy } from '@udixio/icons-rounded-400/content_copy';
 import { iContentCopyFilled } from '@udixio/icons-rounded-400/filled/content_copy';
 import {
+  type ExampleFramework,
   initializeExampleFrameworkPreference,
   preferredExampleFrameworkStore,
   resolveExampleFramework,
   setPreferredExampleFramework,
-  type ExampleFramework,
 } from '@/stores/exampleFrameworkStore';
 
 type SingleSourceProps = {
@@ -42,6 +42,10 @@ const frameworkLabels: Record<ExampleFramework, string> = {
 export const codeCardClass =
   'not-prose card-code mt-4 overflow-hidden rounded-2xl bg-surface-container-low';
 export const codeBodyClass = 'bg-surface-bright';
+// Live renders are always in light mode, whatever the doc's mode: `light`
+// switches the theme variables back, `bg-surface` paints the background.
+export const codePreviewClass =
+  'light flex min-h-32 bg-surface-bright p-8 text-on-surface';
 export const codePanelClass = 'code-source overflow-auto p-4';
 
 const toolbarClass =
