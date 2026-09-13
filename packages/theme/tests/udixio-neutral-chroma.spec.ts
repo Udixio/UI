@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import { Color } from '../src/color/color.base.js';
+import { defineConfig } from '../src/config/index.js';
 import { Context } from '../src/context/context.js';
+import { loader } from '../src/loader/loader.js';
 import { Variants } from '../src/variant/variants/index.js';
 
 // The callback only reads `hue`, `chroma` and `tone`; a raw source avoids the
@@ -31,4 +33,17 @@ describe('udixio neutral palette chroma', () => {
     expect(neutralChromaFor(0, 50)).toBe(5);
     expect(neutralChromaFor(200, 50)).toBe(10);
   });
+
+  it.each(['#000000', '#FFFFFF'])(
+    'stays a real grey for a %s source, where the gamut has no width',
+    async (sourceColor) => {
+      const api = await loader(
+        defineConfig({ sourceColor, isDark: false, variant: Variants.Udixio }),
+        false,
+      );
+      await api.load();
+      expect(api.palettes.get('neutral').chroma).toBeCloseTo(5, 5);
+      expect(api.colors.get('surface').hex).not.toBe('#000000');
+    },
+  );
 });

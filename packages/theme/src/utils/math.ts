@@ -4,6 +4,7 @@
  * The value is first clamped to `inputRange`, then interpolated: the input
  * minimum becomes the output minimum, the input maximum the output maximum.
  * Without `outputRange`, the result is the normalized position in `[0, 1]`.
+ * An empty input range maps to the output minimum rather than to `NaN`.
  *
  * @example
  * normalize(0.5, [0, 1], [3, 7]); // 5
@@ -16,6 +17,8 @@ export const normalize = (
 ): number => {
   const [inputMin, inputMax] = inputRange;
   const [outputMin, outputMax] = outputRange;
+
+  if (inputMax === inputMin) return outputMin;
 
   const clampedValue = Math.max(inputMin, Math.min(value, inputMax));
 
