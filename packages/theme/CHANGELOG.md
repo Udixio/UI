@@ -1,3 +1,30 @@
+## 5.0.1-next.3 (2026-09-13)
+
+### 🚀 Features
+
+- ⚠️  **theme:** start the udixio on-colors from the inverse tone of their accent ([d7031013](https://github.com/Udixio/UI/commit/d7031013))
+- ⚠️  **theme:** mirror the udixio accent's contrast across modes instead of projecting its tone ([e9fc8fdb](https://github.com/Udixio/UI/commit/e9fc8fdb))
+- ⚠️  **theme:** let a value Color keep the HCT it was asked for, and sync configured colors ([bdd0f7b3](https://github.com/Udixio/UI/commit/bdd0f7b3))
+- ⚠️  **theme:** judge the udixio neutral chroma at the source colour's own tone ([7bbe1fa7](https://github.com/Udixio/UI/commit/7bbe1fa7))
+- ⚠️  **theme:** scale the udixio neutral chroma to the source, against the gamut ([3323d86d](https://github.com/Udixio/UI/commit/3323d86d))
+
+### 🩹 Fixes
+
+- **theme:** keep real surfaces for a black or white source ([#000000](https://github.com/Udixio/UI/issues/000000))
+
+### ⚠️  Breaking Changes
+
+- **theme:** start the udixio on-colors from the inverse tone of their accent  ([d7031013](https://github.com/Udixio/UI/commit/d7031013))
+- **theme:** mirror the udixio accent's contrast across modes instead of projecting its tone  ([e9fc8fdb](https://github.com/Udixio/UI/commit/e9fc8fdb))
+- **theme:** let a value Color keep the HCT it was asked for, and sync configured colors  ([bdd0f7b3](https://github.com/Udixio/UI/commit/bdd0f7b3))
+- **theme:** judge the udixio neutral chroma at the source colour's own tone  ([7bbe1fa7](https://github.com/Udixio/UI/commit/7bbe1fa7))
+- **theme:** scale the udixio neutral chroma to the source, against the gamut  ([3323d86d](https://github.com/Udixio/UI/commit/3323d86d))
+
+### ❤️ Thank You
+
+- Claude Opus 5
+- Joël VIGREUX
+
 ## 5.0.1-next.2 (2026-08-24)
 
 ### 🚀 Features

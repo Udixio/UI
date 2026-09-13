@@ -1,3 +1,49 @@
+## 0.2.2-next.8 (2026-09-13)
+
+### 🚀 Features
+
+- **badge:** animate showing and hiding with anime.js ([347c5973](https://github.com/Udixio/UI/commit/347c5973))
+- ⚠️  **badge:** deliver the Angular badge as a directive, and put it on rail items ([8d89131c](https://github.com/Udixio/UI/commit/8d89131c))
+- **badge:** add the Material 3 badge to both frameworks ([0e241b3b](https://github.com/Udixio/UI/commit/0e241b3b))
+- ⚠️  **tooltip:** deliver the Angular tooltip as a directive ([992627ca](https://github.com/Udixio/UI/commit/992627ca))
+
+### 🩹 Fixes
+
+- ⚠️  **tooltip:** let a closed surface pass pointers, inherit the anchor's theme, and follow the M3 tokens ([d18d8864](https://github.com/Udixio/UI/commit/d18d8864))
+- **badge:** give the Angular string-form classes a target ([efc55a0c](https://github.com/Udixio/UI/commit/efc55a0c))
+- **badge:** announce the description as live-region content, not a name ([4db7e989](https://github.com/Udixio/UI/commit/4db7e989))
+- **badge:** stop clamping the label, and anchor the examples to icons ([fc758c92](https://github.com/Udixio/UI/commit/fc758c92))
+- ⚠️  **chip:** give Angular the selection transition React always had ([1c08bdb6](https://github.com/Udixio/UI/commit/1c08bdb6))
+- **state-layer:** guard the removed prop, and stop documenting a dead capability ([8ebd7e99](https://github.com/Udixio/UI/commit/8ebd7e99))
+- ⚠️  **state-layer:** let the colour prop win, and stop failing silently ([b876b659](https://github.com/Udixio/UI/commit/b876b659))
+- **tooltip:** activate the Angular directive on any content-bearing input ([dbd1214f](https://github.com/Udixio/UI/commit/dbd1214f))
+
+### ⚠️  Breaking Changes
+
+- **tooltip:** let a closed surface pass pointers, inherit the anchor's theme, and follow the M3 tokens  ([d18d8864](https://github.com/Udixio/UI/commit/d18d8864))
+- **badge:** deliver the Angular badge as a directive, and put it on rail items  ([8d89131c](https://github.com/Udixio/UI/commit/8d89131c))
+  `udx-badge` is removed in favour of `[udxBadge]`.
+- **chip:** give Angular the selection transition React always had  ([1c08bdb6](https://github.com/Udixio/UI/commit/1c08bdb6))
+  `StateLayer` no longer accepts `style` in
+  @udixio/ui-react; pass `transitionDuration` for the case it served.
+- **state-layer:** let the colour prop win, and stop failing silently  ([b876b659](https://github.com/Udixio/UI/commit/b876b659))
+  `StateLayer` no longer accepts `children` in
+  @udixio/ui-react. Components restyling a Button's surface must declare
+  `stateColor`; the `--default-color` CSS variable is no longer read.
+- **tooltip:** deliver the Angular tooltip as a directive  ([992627ca](https://github.com/Udixio/UI/commit/992627ca))
+  `udx-tooltip` is removed with no alias. Move it onto the
+  trigger as `[udxTooltip]` and drop the `target` input.
+  Angular suite: 246 passing across 26 suites; ngc template typecheck clean.
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/core to 0.2.2-next.7
+
+### ❤️ Thank You
+
+- Claude Opus 5
+- Joël VIGREUX
+
 ## 0.2.2-next.7 (2026-08-28)
 
 ### 🩹 Fixes

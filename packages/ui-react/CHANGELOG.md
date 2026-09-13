@@ -1,3 +1,54 @@
+## 5.1.0-next.7 (2026-09-13)
+
+### 🚀 Features
+
+- ⚠️  **tailwind:** switch light and dark with a toggle, nestable without limit ([721586f4](https://github.com/Udixio/UI/commit/721586f4))
+- ⚠️  **theme:** let a value Color keep the HCT it was asked for, and sync configured colors ([bdd0f7b3](https://github.com/Udixio/UI/commit/bdd0f7b3))
+- **badge:** animate showing and hiding with anime.js ([347c5973](https://github.com/Udixio/UI/commit/347c5973))
+- ⚠️  **badge:** deliver the Angular badge as a directive, and put it on rail items ([8d89131c](https://github.com/Udixio/UI/commit/8d89131c))
+- **badge:** add the Material 3 badge to both frameworks ([0e241b3b](https://github.com/Udixio/UI/commit/0e241b3b))
+
+### 🩹 Fixes
+
+- ⚠️  **tooltip:** let a closed surface pass pointers, inherit the anchor's theme, and follow the M3 tokens ([d18d8864](https://github.com/Udixio/UI/commit/d18d8864))
+- **navigation-rail:** notify a selection once, whatever the callback identity ([e58203fc](https://github.com/Udixio/UI/commit/e58203fc))
+- **badge:** give the Angular string-form classes a target ([efc55a0c](https://github.com/Udixio/UI/commit/efc55a0c))
+- **badge:** announce the description as live-region content, not a name ([4db7e989](https://github.com/Udixio/UI/commit/4db7e989))
+- **badge:** stop clamping the label, and anchor the examples to icons ([fc758c92](https://github.com/Udixio/UI/commit/fc758c92))
+- ⚠️  **chip:** give Angular the selection transition React always had ([1c08bdb6](https://github.com/Udixio/UI/commit/1c08bdb6))
+- **state-layer:** guard the removed prop, and stop documenting a dead capability ([8ebd7e99](https://github.com/Udixio/UI/commit/8ebd7e99))
+- ⚠️  **state-layer:** let the colour prop win, and stop failing silently ([b876b659](https://github.com/Udixio/UI/commit/b876b659))
+- **tooltip:** align rich tooltip action labels with the supporting text ([656511aa](https://github.com/Udixio/UI/commit/656511aa))
+
+### ⚠️  Breaking Changes
+
+- **tailwind:** switch light and dark with a toggle, nestable without limit  ([721586f4](https://github.com/Udixio/UI/commit/721586f4))
+  the emitted CSS no longer contains hex values on
+  `--color-*`; anything parsing them must read `--udx-light-*` /
+  `--udx-dark-*`. The goldens also absorb the pending Tailwind 4.3 drift.
+- **tooltip:** let a closed surface pass pointers, inherit the anchor's theme, and follow the M3 tokens  ([d18d8864](https://github.com/Udixio/UI/commit/d18d8864))
+- **theme:** let a value Color keep the HCT it was asked for, and sync configured colors  ([bdd0f7b3](https://github.com/Udixio/UI/commit/bdd0f7b3))
+- **badge:** deliver the Angular badge as a directive, and put it on rail items  ([8d89131c](https://github.com/Udixio/UI/commit/8d89131c))
+  `udx-badge` is removed in favour of `[udxBadge]`.
+- **chip:** give Angular the selection transition React always had  ([1c08bdb6](https://github.com/Udixio/UI/commit/1c08bdb6))
+  `StateLayer` no longer accepts `style` in
+  @udixio/ui-react; pass `transitionDuration` for the case it served.
+- **state-layer:** let the colour prop win, and stop failing silently  ([b876b659](https://github.com/Udixio/UI/commit/b876b659))
+  `StateLayer` no longer accepts `children` in
+  @udixio/ui-react. Components restyling a Button's surface must declare
+  `stateColor`; the `--default-color` CSS variable is no longer read.
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 5.0.1-next.3
+- Updated @udixio/theme to 5.0.1-next.3
+- Updated @udixio/core to 0.2.2-next.7
+
+### ❤️ Thank You
+
+- Claude Opus 5
+- Joël VIGREUX
+
 ## 5.1.0-next.6 (2026-08-28)
 
 ### 🩹 Fixes

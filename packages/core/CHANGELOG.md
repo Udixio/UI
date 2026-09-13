@@ -1,3 +1,49 @@
+## 0.2.2-next.7 (2026-09-13)
+
+### 🚀 Features
+
+- **badge:** animate showing and hiding with anime.js ([347c5973](https://github.com/Udixio/UI/commit/347c5973))
+- ⚠️  **badge:** deliver the Angular badge as a directive, and put it on rail items ([8d89131c](https://github.com/Udixio/UI/commit/8d89131c))
+- **badge:** add the Material 3 badge to both frameworks ([0e241b3b](https://github.com/Udixio/UI/commit/0e241b3b))
+- ⚠️  **doc:** give each component one description, from its shared contract ([37c1b5a7](https://github.com/Udixio/UI/commit/37c1b5a7))
+- **core:** add a shared tooltip trigger controller ([f6ddcc36](https://github.com/Udixio/UI/commit/f6ddcc36))
+
+### 🩹 Fixes
+
+- **core:** iterate classList via Array.from so ui-angular compiles ([5d24f18f](https://github.com/Udixio/UI/commit/5d24f18f))
+- **anchor-positioner:** mirror only island theme scopes, and follow their changes ([d8d15489](https://github.com/Udixio/UI/commit/d8d15489))
+- ⚠️  **tooltip:** let a closed surface pass pointers, inherit the anchor's theme, and follow the M3 tokens ([d18d8864](https://github.com/Udixio/UI/commit/d18d8864))
+- **badge:** give the Angular string-form classes a target ([efc55a0c](https://github.com/Udixio/UI/commit/efc55a0c))
+- **badge:** announce the description as live-region content, not a name ([4db7e989](https://github.com/Udixio/UI/commit/4db7e989))
+- **badge:** stop clamping the label, and anchor the examples to icons ([fc758c92](https://github.com/Udixio/UI/commit/fc758c92))
+- ⚠️  **chip:** give Angular the selection transition React always had ([1c08bdb6](https://github.com/Udixio/UI/commit/1c08bdb6))
+- ⚠️  **state-layer:** let the colour prop win, and stop failing silently ([b876b659](https://github.com/Udixio/UI/commit/b876b659))
+- **core:** measure the layout viewport in the anchor fallback ([19ada95c](https://github.com/Udixio/UI/commit/19ada95c))
+- **core:** make the anchor fallback place corners where position-area does ([c52f7ade](https://github.com/Udixio/UI/commit/c52f7ade))
+- **tooltip:** align rich tooltip action labels with the supporting text ([656511aa](https://github.com/Udixio/UI/commit/656511aa))
+- **core:** claim tooltip visibility on a controlled open ([b9fe7b62](https://github.com/Udixio/UI/commit/b9fe7b62))
+
+### ⚠️  Breaking Changes
+
+- **tooltip:** let a closed surface pass pointers, inherit the anchor's theme, and follow the M3 tokens  ([d18d8864](https://github.com/Udixio/UI/commit/d18d8864))
+- **badge:** deliver the Angular badge as a directive, and put it on rail items  ([8d89131c](https://github.com/Udixio/UI/commit/8d89131c))
+  `udx-badge` is removed in favour of `[udxBadge]`.
+- **doc:** give each component one description, from its shared contract  ([37c1b5a7](https://github.com/Udixio/UI/commit/37c1b5a7))
+  generated API documents move `description` from each
+  framework payload to the document root, and require schemaVersion 4.
+- **chip:** give Angular the selection transition React always had  ([1c08bdb6](https://github.com/Udixio/UI/commit/1c08bdb6))
+  `StateLayer` no longer accepts `style` in
+  @udixio/ui-react; pass `transitionDuration` for the case it served.
+- **state-layer:** let the colour prop win, and stop failing silently  ([b876b659](https://github.com/Udixio/UI/commit/b876b659))
+  `StateLayer` no longer accepts `children` in
+  @udixio/ui-react. Components restyling a Button's surface must declare
+  `stateColor`; the `--default-color` CSS variable is no longer read.
+
+### ❤️ Thank You
+
+- Claude Opus 5
+- Joël VIGREUX
+
 ## 0.2.2-next.6 (2026-08-28)
 
 ### 🩹 Fixes

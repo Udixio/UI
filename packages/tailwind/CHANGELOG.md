@@ -1,3 +1,25 @@
+## 5.0.1-next.3 (2026-09-13)
+
+### 🚀 Features
+
+- ⚠️  **tailwind:** switch light and dark with a toggle, nestable without limit ([721586f4](https://github.com/Udixio/UI/commit/721586f4))
+
+### ⚠️  Breaking Changes
+
+- **tailwind:** switch light and dark with a toggle, nestable without limit  ([721586f4](https://github.com/Udixio/UI/commit/721586f4))
+  the emitted CSS no longer contains hex values on
+  `--color-*`; anything parsing them must read `--udx-light-*` /
+  `--udx-dark-*`. The goldens also absorb the pending Tailwind 4.3 drift.
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 5.0.1-next.3
+
+### ❤️ Thank You
+
+- Claude Opus 5
+- Joël VIGREUX
+
 ## 5.0.1-next.2 (2026-08-24)
 
 ### 🩹 Fixes
