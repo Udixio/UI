@@ -1,18 +1,18 @@
 ---
 import {
+  Badge,
   Button,
   Card,
-  Carousel,
-  CarouselItem,
   Checkbox,
   Chip,
-  Chips,
   DatePicker,
   Divider,
   Fab,
   FabMenu,
+  Icon,
   IconButton,
   Menu,
+  MenuItem,
   NavigationRail,
   NavigationRailItem,
   ProgressIndicator,
@@ -21,222 +21,375 @@ import {
   Slider,
   Snackbar,
   Switch,
-  Tab,
-  TabGroup,
-  TabPanel,
-  TabPanels,
-  Tabs,
   TextField,
-  Tooltip,
-  AnchorPositioner,
-  MenuItem,
-  MenuHeadline,
 } from '@udixio/ui-react';
 import { iNotifications } from '@udixio/icons-rounded-400/notifications';
-import { iSettings } from '@udixio/icons-rounded-400/settings';
 import { iHome } from '@udixio/icons-rounded-400/home';
 import { iAdd } from '@udixio/icons-rounded-400/add';
-import { iStar } from '@udixio/icons-rounded-400/star';
-import { iKeyboardArrowDown } from '@udixio/icons-rounded-400/keyboard_arrow_down';
+import { iMail } from '@udixio/icons-rounded-400/mail';
+import { iEdit } from '@udixio/icons-rounded-400/edit';
+import { iContentCopy } from '@udixio/icons-rounded-400/content_copy';
+import { iDelete } from '@udixio/icons-rounded-400/delete';
+import { iChat } from '@udixio/icons-rounded-400/chat';
+import { iPerson } from '@udixio/icons-rounded-400/person';
+import { iPlayArrow } from '@udixio/icons-rounded-400/play_arrow';
+import { iSkipNext } from '@udixio/icons-rounded-400/skip_next';
+import { iSkipPrevious } from '@udixio/icons-rounded-400/skip_previous';
+import { iFavorite } from '@udixio/icons-rounded-400/favorite';
+import { iInbox } from '@udixio/icons-rounded-400/inbox';
+import { iVolumeUp } from '@udixio/icons-rounded-400/volume_up';
+import { iUpload } from '@udixio/icons-rounded-400/upload';
+import { iFolder } from '@udixio/icons-rounded-400/folder';
+
+import Stage from './preview/Stage.astro';
+import Ph from './preview/Ph.astro';
+import { TabsScene } from './preview/TabsScene';
+import { CarouselScene } from './preview/CarouselScene';
+import { TooltipScene } from './preview/TooltipScene';
 
 type PreviewProps = {
   id: string;
 };
 
 const { id } = Astro.props as PreviewProps;
+
+// Every id with a scene below. Anything else falls back to the
+// "Preview pending" pill so a newly documented component is never a blank tile.
+const PREVIEWED = new Set([
+  'badge',
+  'button',
+  'card',
+  'carousel',
+  'checkbox',
+  'chip',
+  'chips',
+  'date-picker',
+  'divider',
+  'fab',
+  'fab-menu',
+  'icon-button',
+  'menu',
+  'navigation-rail',
+  'progress-indicator',
+  'search',
+  'side-sheet',
+  'slider',
+  'snackbar',
+  'switch',
+  'tab-group',
+  'tab-panels',
+  'tabs',
+  'text-field',
+  'tooltip',
+]);
+
 ---
 
-<div data-pagefind-ignore class="w-full flex items-center justify-center gap-4 pointer-events-none">
+{/*
+  One component per tile, large, with just enough context to read its job —
+  the way m3.material.io/components illustrates them: a FAB on the corner of
+  a surface, a badge on a bottom bar, a divider between two paragraphs — never
+  a whole app screen. Everything is the real component rendered on the
+  server; only Carousel and Tooltip are hydrated, because their layout is
+  computed by a DOM controller and they render nothing useful without it.
+  The tile clips overflow and is a containing block for `fixed` descendants
+  (transform on the parent), so previews that position themselves stay inside.
+*/}
+<div
+  data-pagefind-ignore
+  class="pointer-events-none flex h-full w-full items-center justify-center select-none"
+>
+  {
+    id === 'badge' && (
+      <Stage surface class="items-end">
+        <div class="flex w-full items-center justify-around px-2 py-4">
+          <Icon icon={iHome} className="size-7" />
+          <Badge label={3} description="3 unread messages">
+            <Icon icon={iChat} className="size-7 text-primary" />
+          </Badge>
+          <Badge description="New notifications">
+            <Icon icon={iNotifications} className="size-7" />
+          </Badge>
+          <Icon icon={iPerson} className="size-7" />
+        </div>
+      </Stage>
+    )
+  }
   {
     id === 'button' && (
-      <div class="flex flex-wrap gap-2">
-        <Button label="Primary" />
-        <Button label="Outlined" variant="outlined" />
-        <Button label="Tonal" variant="tonal" />
-      </div>
+      <Stage>
+        <div class="flex gap-3">
+          <Button label="Cancel" variant="outlined" />
+          <Button label="Save" />
+        </div>
+      </Stage>
     )
   }
   {
     id === 'card' && (
-      <Card className="p-4">
-        <div class="h-4 w-1/2 rounded bg-surface-variant" />
-        <div class="mt-3 h-3 w-full rounded bg-surface-variant/60" />
-        <div class="mt-2 h-3 w-5/6 rounded bg-surface-variant/60" />
-      </Card>
+      <Stage>
+        <Card variant="elevated" className="w-52 overflow-hidden p-0">
+          <Ph variant="image" class="h-24 w-full bg-tertiary-container" />
+          <div class="flex flex-col gap-2 p-4">
+            <Ph variant="title" class="w-2/3" />
+            <Ph class="w-full" />
+          </div>
+        </Card>
+      </Stage>
     )
   }
   {
     id === 'carousel' && (
-      <Carousel gap={12} outputRange={[120, 160]} inputRange={[0.1, 0.8]}>
-        {[0, 1, 2, 3].map((index) => (
-          <CarouselItem index={index} width={140} outputRange={[120, 160]}>
-            <Card className="p-4">Item {index + 1}</Card>
-          </CarouselItem>
-        ))}
-      </Carousel>
+      <Stage>
+        <div class="h-40 w-full">
+          <CarouselScene client:visible />
+        </div>
+      </Stage>
     )
   }
   {
-    id === 'chip' && (
-      <div class="flex flex-wrap gap-2">
-        <Chip label="Chip" />
-        <Chip label="Selected" defaultSelected />
-        <Chip label="Input" variant="outlined" />
-      </div>
+    id === 'checkbox' && (
+      <Stage>
+        <ul class="flex flex-col gap-1">
+          {[
+            ['Comments', true],
+            ['Mentions', true],
+            ['Digest', false],
+          ].map(([label, checked]) => (
+            <li class="flex items-center gap-3">
+              <Checkbox checked={checked as boolean} onChange={() => {}} />
+              <span class="text-body-large">{label}</span>
+            </li>
+          ))}
+        </ul>
+      </Stage>
     )
   }
   {
-    id === 'chips' && (
-      <Chips
-        label="Example chips"
-        items={[{ id: 'design', label: 'Design' }, { id: 'research', label: 'Research' }, { id: 'qa', label: 'QA' }]}
-        onItemsChange={() => {}}
-      />
+    (id === 'chip' || id === 'chips') && (
+      <Stage>
+        <div class="flex gap-2">
+          <Chip label="Open now" defaultSelected />
+          <Chip label="Delivery" />
+          <Chip label="Vegan" />
+        </div>
+      </Stage>
+    )
+  }
+  {
+    id === 'date-picker' && (
+      <Stage surface class="items-start">
+        <div class="origin-top scale-[0.8]">
+          <DatePicker defaultValue={new Date()} />
+        </div>
+      </Stage>
     )
   }
   {
     id === 'divider' && (
-      <div class="flex items-center gap-4">
-        <Divider className="flex-1" />
-        <span class="text-label-small text-on-surface-variant">OR</span>
-        <Divider className="flex-1" />
-      </div>
+      <Stage>
+        <div class="flex w-56 flex-col gap-4">
+          <Ph variant="title" class="w-2/3" />
+          <Ph class="w-full" />
+          <Divider />
+          <Ph variant="title" class="w-1/2" />
+          <Ph class="w-5/6" />
+        </div>
+      </Stage>
     )
   }
   {
     id === 'fab' && (
-      <div class="flex items-center gap-3">
-        <Fab label="Create" icon={iAdd} />
-        <Fab label="Add" extended icon={iAdd} />
-      </div>
+      <Stage surface>
+        <div class="absolute top-6 left-6 flex w-40 flex-col gap-3">
+          <Ph variant="title" class="w-2/3" />
+          <Ph class="w-full" />
+          <Ph class="w-5/6" />
+        </div>
+        <div class="absolute right-5 bottom-5">
+          <Fab label="Compose" icon={iEdit} />
+        </div>
+      </Stage>
     )
   }
   {
     id === 'fab-menu' && (
-      <FabMenu
-        icon={iAdd}
-        label="Create"
-        defaultOpen={true}
-        actions={[
-          { id: 'document', label: 'New doc' },
-          { id: 'upload', label: 'Upload' },
-        ]}
-      />
+      <Stage surface>
+        <div class="absolute right-5 bottom-5">
+          <FabMenu
+            icon={iAdd}
+            label="Create"
+            defaultOpen
+            actions={[
+              { id: 'upload', label: 'Upload', icon: iUpload },
+              { id: 'folder', label: 'New folder', icon: iFolder },
+            ]}
+          />
+        </div>
+      </Stage>
     )
   }
   {
     id === 'icon-button' && (
-      <div class="flex gap-2">
-        <IconButton label="Favorite" icon={iStar} />
-        <IconButton label="Star" icon={iStar} variant="outlined" />
-      </div>
-    )
-  }
-  {
-    id === 'navigation-rail' && (
-      <NavigationRail>
-        <NavigationRailItem label="Home" icon={iHome} />
-        <NavigationRailItem label="Updates" icon={iNotifications} />
-        <NavigationRailItem label="Settings" icon={iSettings} />
-      </NavigationRail>
-    )
-  }
-  {
-    id === 'progress-indicator' && (
-      <div class="flex items-center gap-4">
-        <ProgressIndicator variant="linear-determinate" value={70} />
-        <ProgressIndicator variant="circular-indeterminate" />
-      </div>
-    )
-  }
-  {
-    id === 'side-sheet' && (
-      <SideSheet title="Details" open variant="standard">
-        <p class="text-body-small text-on-surface-variant">Side content</p>
-      </SideSheet>
-    )
-  }
-  {id === 'slider' && <Slider value={70} onChange={() => {}} />}
-  {id === 'search' && <Search label="Search" />}
-  {id === 'snackbar' && <Snackbar message="Message sent" />}
-  {id === 'switch' && <Switch selected />}
-  {
-    (id === 'tabs' || id === 'tab-group' || id === 'tab-panels') && (
-      <TabGroup defaultSelectedTab={0}>
-        <Tabs>
-          <Tab label="Overview" />
-          <Tab label="Details" />
-          <Tab label="Settings" />
-        </Tabs>
-        <TabPanels>
-          <TabPanel>Overview content</TabPanel>
-          <TabPanel>Details content</TabPanel>
-          <TabPanel>Settings content</TabPanel>
-        </TabPanels>
-      </TabGroup>
-    )
-  }
-  {
-    id === 'text-field' && (
-      <TextField label="Label" value="Type here" onChange={() => {}} />
+      <Stage>
+        <div class="flex items-center gap-3">
+          <IconButton label="Previous" icon={iSkipPrevious} />
+          <IconButton label="Play" icon={iPlayArrow} variant="filled" width="wide" />
+          <IconButton label="Next" icon={iSkipNext} />
+          <IconButton label="Favorite" icon={iFavorite} variant="tonal" />
+        </div>
+      </Stage>
     )
   }
   {
     id === 'menu' && (
-      <TextField
-        type="select"
-        label="Select"
-        defaultValue="option1"
-        className="min-w-[150px]"
-      >
-        <MenuItem value="option1">Option 1</MenuItem>
-        <MenuItem value="option2">Option 2</MenuItem>
-      </TextField>
+      <Stage>
+        <div class="w-44">
+          <Menu accessibleLabel="Actions">
+            <MenuItem label="Rename" leadingIcon={iEdit} />
+            <MenuItem label="Duplicate" leadingIcon={iContentCopy} />
+            <MenuItem label="Delete" leadingIcon={iDelete} />
+          </Menu>
+        </div>
+      </Stage>
+    )
+  }
+  {
+    id === 'navigation-rail' && (
+      <Stage surface class="justify-start">
+        <NavigationRail
+          alignment="top"
+          className={() => ({
+            navigationRail: 'shrink-0 pt-3',
+            segments: 'mt-4 overflow-hidden',
+          })}
+        >
+          <NavigationRailItem
+            label="Home"
+            icon={iHome}
+            iconSelected={iHome}
+            selected
+          />
+          <NavigationRailItem label="Inbox" icon={iInbox} />
+        </NavigationRail>
+      </Stage>
+    )
+  }
+  {
+    id === 'progress-indicator' && (
+      <Stage>
+        <div class="flex w-56 flex-col items-center gap-8">
+          <ProgressIndicator variant="linear-determinate" value={65} />
+          <ProgressIndicator variant="circular-indeterminate" />
+        </div>
+      </Stage>
+    )
+  }
+  {
+    id === 'search' && (
+      <Stage>
+        <div class="w-64">
+          <Search label="Search" defaultQuery="Material" />
+        </div>
+      </Stage>
+    )
+  }
+  {
+    id === 'side-sheet' && (
+      <Stage surface class="justify-end">
+        <div class="absolute top-6 left-6 flex w-24 flex-col gap-3">
+          <Ph variant="title" class="w-full" />
+          <Ph class="w-full" />
+          <Ph class="w-4/5" />
+        </div>
+        <SideSheet
+          title="Filters"
+          open
+          variant="standard"
+          position="right"
+          className="w-40 shrink-0 bg-surface-container-low"
+        >
+          <div class="flex flex-col gap-3 px-4">
+            <Ph class="w-full" />
+            <Ph class="w-3/4" />
+            <Ph class="w-5/6" />
+          </div>
+        </SideSheet>
+      </Stage>
+    )
+  }
+  {
+    id === 'slider' && (
+      <Stage>
+        <div class="flex w-56 items-center gap-4">
+          <Icon icon={iVolumeUp} className="size-6 text-on-surface-variant" />
+          <div class="flex-1">
+            <Slider value={60} onChange={() => {}} />
+          </div>
+        </div>
+      </Stage>
+    )
+  }
+  {
+    id === 'snackbar' && (
+      <Stage>
+        <div class="w-64">
+          <Snackbar message="Photo archived" />
+        </div>
+      </Stage>
+    )
+  }
+  {
+    id === 'switch' && (
+      <Stage>
+        <div class="flex flex-col gap-4">
+          <div class="flex w-48 items-center justify-between">
+            <span class="text-body-large">Wi-Fi</span>
+            <Switch selected />
+          </div>
+          <div class="flex w-48 items-center justify-between">
+            <span class="text-body-large">Dark theme</span>
+            <Switch selected={false} />
+          </div>
+        </div>
+      </Stage>
+    )
+  }
+  {
+    (id === 'tabs' || id === 'tab-group' || id === 'tab-panels') && (
+      <Stage>
+        <div class="w-64 overflow-hidden rounded-xl bg-surface">
+          <TabsScene />
+        </div>
+      </Stage>
+    )
+  }
+  {
+    id === 'text-field' && (
+      <Stage>
+        <div class="w-64">
+          <TextField
+            label="Email"
+            type="email"
+            variant="outlined"
+            leadingIcon={iMail}
+            value="alice@mail.com"
+            onChange={() => {}}
+          />
+        </div>
+      </Stage>
     )
   }
   {
     id === 'tooltip' && (
-      <Tooltip text="Tooltip text">
-        <Button label="Hover me" />
-      </Tooltip>
-    )
-  }
-  {id === 'checkbox' && <Checkbox checked onChange={() => {}} />}
-  {
-    id === 'date-picker' && (
-      <div class="scale-75 origin-top">
-        <DatePicker defaultValue={new Date()} />
-      </div>
+      <Stage class="items-end pb-10">
+        <TooltipScene client:visible />
+      </Stage>
     )
   }
   {
-    !(
-      id === 'button' ||
-      id === 'card' ||
-      id === 'carousel' ||
-      id === 'chip' ||
-      id === 'chips' ||
-      id === 'checkbox' ||
-      id === 'date-picker' ||
-      id === 'divider' ||
-      id === 'fab' ||
-      id === 'fab-menu' ||
-      id === 'icon-button' ||
-      id === 'navigation-rail' ||
-      id === 'progress-indicator' ||
-      id === 'side-sheet' ||
-      id === 'slider' ||
-      id === 'search' ||
-      id === 'snackbar' ||
-      id === 'switch' ||
-      id === 'tabs' ||
-      id === 'tab-group' ||
-      id === 'tab-panels' ||
-      id === 'text-field' ||
-      id === 'menu' ||
-      id === 'tooltip'
-    ) && (
-      <span class="inline-flex items-center rounded-full bg-surface-variant px-3 py-1 text-label-small text-on-surface-variant">
+    !PREVIEWED.has(id) && (
+      <span class="inline-flex items-center rounded-full bg-surface-container-highest px-3 py-1 text-label-small text-on-surface-variant">
         Preview pending
       </span>
     )

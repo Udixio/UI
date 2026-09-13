@@ -1,0 +1,16 @@
+---
+/** Text and image placeholders for the parts of a scene that are not a component. */
+type Props = {
+  variant?: 'title' | 'text' | 'image' | 'avatar';
+  class?: string;
+};
+const { variant = 'text', class: className = '' } = Astro.props;
+const base = {
+  title: 'h-3 rounded-full bg-on-surface/70',
+  text: 'h-2 rounded-full bg-on-surface-variant/40',
+  image: 'bg-primary-container',
+  avatar: 'size-8 shrink-0 rounded-full bg-secondary-container',
+}[variant];
+---
+
+<div class:list={[base, className]}></div>

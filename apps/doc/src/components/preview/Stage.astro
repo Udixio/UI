@@ -1,0 +1,23 @@
+---
+/**
+ * The fixed 300×225 canvas a preview is composed on. The whole stage is scaled
+ * down in steps when the tile (a container) is narrower, so a scene never
+ * reflows differently between column counts. `surface` paints a cropped white
+ * panel behind the content for components that only make sense on a surface
+ * (a FAB, a bottom bar, a sheet); everything else sits straight on the tint.
+ */
+type Props = { class?: string; surface?: boolean };
+const { class: className = '', surface = false } = Astro.props;
+---
+
+<div
+  class:list={[
+    'relative flex h-[225px] w-[300px] shrink-0 items-center justify-center',
+    '@max-[340px]:scale-[0.9] @max-[300px]:scale-[0.8] @max-[260px]:scale-[0.68] @max-[220px]:scale-[0.56]',
+    surface &&
+      'overflow-hidden rounded-[20px] bg-surface text-on-surface shadow-1',
+    className,
+  ]}
+>
+  <slot />
+</div>

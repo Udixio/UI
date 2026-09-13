@@ -1,8 +1,6 @@
 ---
 import Layout from '@/layouts/layout.astro';
 import { getCollection } from 'astro:content';
-import { Card } from '@udixio/ui-react';
-
 import ComponentPreview from '@/components/ComponentPreview.astro';
 
 export const prerender = false;
@@ -28,7 +26,6 @@ const components = apis
     return {
       id: entry.id,
       displayName: data.displayName,
-      description: frameworkApi.description,
       category: tags.category ?? 'Other',
     };
   })
@@ -72,33 +69,23 @@ const categories = Object.keys(componentsByCategory).sort((a, b) =>
             </span>
           </div>
 
-          <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
             {componentsByCategory[category].map((component) => (
               <a
                 href={`/components/${component.id}/overview`}
                 class="group block no-underline"
               >
-                <Card
-                  client:visible
-                  isInteractive
-                  variant="filled"
-                  className="flex h-full rounded-3xl flex-col overflow-hidden p-0 transition-all duration-200 y"
-                >
-                  <div class="relative rounded-3xl flex min-h-[200px] flex-1 items-center justify-center overflow-hidden bg-surface-container-high p-4">
-                    <div class="pointer-events-none scale-100">
-                      <ComponentPreview id={component.id} />
-                    </div>
+                <div class="light @container relative aspect-[4/3] w-full overflow-hidden rounded-[28px] bg-surface-container-low text-on-surface transition-colors duration-200 group-hover:bg-surface-container group-focus-visible:bg-surface-container transform-gpu">
+                  <div
+                    class="absolute inset-0 flex items-center justify-center p-6"
+                    inert
+                  >
+                    <ComponentPreview id={component.id} />
                   </div>
-
-                  <div class="flex flex-col gap-1 p-4 ">
-                    <h3 class="text-title-large">
-                      {component.displayName}
-                    </h3>
-                    <p class="text-body-medium text-on-surface-variant">
-                      {component.description}
-                    </p>
-                  </div>
-                </Card>
+                </div>
+                <h3 class="text-title-medium mt-3 px-1 text-on-surface">
+                  {component.displayName}
+                </h3>
               </a>
             ))}
           </div>
