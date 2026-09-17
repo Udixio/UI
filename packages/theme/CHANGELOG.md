@@ -1,3 +1,14 @@
+## 5.0.1-next.4 (2026-09-17)
+
+### 🚀 Features
+
+- **tailwind:** add generateStaticThemeCss, shebang on udixio-theme bin ([e2cbfe9f](https://github.com/Udixio/UI/commit/e2cbfe9f))
+
+### ❤️ Thank You
+
+- Claude Opus 5
+- Joël VIGREUX
+
 ## 5.0.1-next.2 (2026-08-24)
 
 ### 🚀 Features
