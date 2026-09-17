@@ -13,3 +13,16 @@ packages:
   - 'packages/*'
   - 'packages/icons/*'
   - 'apps/*'
+
+# pnpm >= 10 blocks dependency build scripts unless approved (pnpm 11 fails
+# the install). These are the ones that ran under pnpm 8: native/binary
+# downloads for esbuild, swc and the nx daemon stack.
+allowBuilds:
+  '@parcel/watcher': true
+  '@swc/core': true
+  esbuild: true
+  less: true
+  lmdb: true
+  msgpackr-extract: true
+  nx: true
+  unrs-resolver: true
