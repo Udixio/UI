@@ -1,3 +1,9 @@
+## 5.1.0-next.8 (2026-09-17)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/core to 0.2.2-next.8
+
 ## 5.1.0-next.6 (2026-08-28)
 
 ### 🩹 Fixes

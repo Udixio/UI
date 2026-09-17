@@ -1,3 +1,15 @@
+## 0.2.2-next.8 (2026-09-17)
+
+### 🚀 Features
+
+- **core:** add mergeClassNames to compose className values in order ([1645093c](https://github.com/Udixio/UI/commit/1645093c))
+- **core:** accept a static per-element object as className ([f4991e07](https://github.com/Udixio/UI/commit/f4991e07))
+
+### ❤️ Thank You
+
+- Claude Opus 5
+- Joël VIGREUX
+
 ## 0.2.2-next.6 (2026-08-28)
 
 ### 🩹 Fixes

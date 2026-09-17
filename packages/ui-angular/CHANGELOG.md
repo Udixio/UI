@@ -1,3 +1,34 @@
+## 0.2.2-next.9 (2026-09-17)
+
+### 🚀 Features
+
+- ⚠️  **ui-angular:** alias native class onto every component root ([ae40bbe3](https://github.com/Udixio/UI/commit/ae40bbe3))
+- ⚠️  **ui-angular:** alias native class on TabPanel, whose host is the root ([9f4cac3e](https://github.com/Udixio/UI/commit/9f4cac3e))
+- ⚠️  **ui-angular:** alias native class onto the Button root, narrow classes to elements ([a1e56b6d](https://github.com/Udixio/UI/commit/a1e56b6d))
+
+### 🩹 Fixes
+
+- **ui-angular:** correct the class-binding limitation docs after the alias sweep ([a505801f](https://github.com/Udixio/UI/commit/a505801f))
+
+### ⚠️  Breaking Changes
+
+- **ui-angular:** alias native class onto every component root  ([ae40bbe3](https://github.com/Udixio/UI/commit/ae40bbe3))
+  the `classes` input of every @udixio/ui-angular component
+  no longer accepts a string. Use `class` / `[class]` for the root, and
+  `[classes]` with an object or a function for internal elements.
+  Directive inputs `udxBadgeClass` and `udxTooltipClass` are unchanged.
+- **ui-angular:** alias native class on TabPanel, whose host is the root  ([9f4cac3e](https://github.com/Udixio/UI/commit/9f4cac3e))
+- **ui-angular:** alias native class onto the Button root, narrow classes to elements  ([a1e56b6d](https://github.com/Udixio/UI/commit/a1e56b6d))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/core to 0.2.2-next.8
+
+### ❤️ Thank You
+
+- Claude Opus 5
+- Joël VIGREUX
+
 ## 0.2.2-next.7 (2026-08-28)
 
 ### 🩹 Fixes
