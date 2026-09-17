@@ -17,10 +17,10 @@
       "props": {
         "className": {
           "name": "className",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "description": "Root classes (string), static element classes (object), or state-aware element classes (function).",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<DatePickerInterface>"
+            "name": "string | Partial<Record<\"header\" | \"datePicker\" | \"monthNav\" | \"monthLabel\" | \"weekDays\" | \"weekDay\" | \"daysGrid\" | \"dayCell\" | \"dayButton\", string>> | ClassNameComponent<...>"
           },
           "defaultValue": null
         },
@@ -121,7 +121,7 @@
         "category": "Selection",
         "devx": "- `mode=\"range\"` switches `value`/`defaultValue`/`valueChange` to `DateRange`; `mode=\"single\"` (the default) uses `Date`. Angular's independent `input()`/`output()` bindings cannot express the mode/value coupling at the type level the way React's discriminated props do; pass a value matching the current `mode`.\n- `value`/`valueChange` are controlled and support `[(value)]`; `defaultValue` initializes uncontrolled usage.\n- `minDate`/`maxDate`/`shouldDisableDate` are compared at day granularity: a boundary carrying a time-of-day never disables its own day.",
         "a11y": "- The day grid uses the composite `grid`/`row`/`gridcell` pattern with one roving `tabIndex` per visible month; Arrow keys move focus by day/week, Home/End jump to the visible week's boundaries, PageUp/PageDown change month (Shift for year).\n- The selected day's `gridcell` carries `aria-selected`; its focusable day button carries `aria-current=\"date\"` when it is today. Unavailable days stay focusable with `aria-disabled` instead of the native `disabled` attribute, so keyboard users can still traverse past them.",
-        "limitations": "- Does not render its own text input or popup positioning; combine with `Button`/`IconButton` and your own overlay for a popup picker.\n- The year picker view is a plain scrollable button list without virtualization."
+        "limitations": "- Does not render its own text input or popup positioning; combine with `Button`/`IconButton` and your own overlay for a popup picker.\n- The year picker view is a plain scrollable button list without virtualization.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`."
       },
       "inputs": {
         "mode": {
@@ -198,18 +198,30 @@
           "description": "First day of the week (0=Sunday, 1=Monday).",
           "required": false,
           "type": {
-            "name": "0 | 2 | 1 | 3 | 4 | 5 | 6"
+            "name": "0 | 4 | 5 | 2 | 1 | 3 | 6"
           },
           "defaultValue": {
             "value": "0"
           }
         },
-        "classes": {
-          "name": "classes",
-          "description": "Classes, or state-aware element classes, applied through the shared style contract.",
+        "hostClass": {
+          "name": "hostClass",
+          "description": "Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<DatePickerInterface>"
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          },
+          "alias": "class"
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"datePicker\" | \"header\" | \"monthNav\" | \"monthLabel\" | \"weekDays\" | \"weekDay\" | \"daysGrid\" | \"dayCell\" | \"dayButton\", string>> | ClassNameComponent<DatePickerInterface>"
           },
           "defaultValue": null
         }

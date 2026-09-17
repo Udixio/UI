@@ -195,7 +195,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<ButtonInterface>"
+            "name": "string | ClassNameComponent<ButtonInterface> | Partial<Record<\"button\" | \"label\" | \"stateLayer\" | \"touchTarget\" | \"icon\", string>>"
           },
           "defaultValue": null
         },
@@ -245,7 +245,7 @@
         "category": "Action",
         "devx": "- Requires the `label` input or projected visible content.\n- Projected non-text content requires an explicit `aria-label`.\n- `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.\n- `toggleable` enables `aria-pressed` and the `pressedChange` output on action buttons.\n- `type` defaults to `'button'` to prevent accidental form submissions.",
         "a11y": "- Uses native button/link semantics and preserves its accessible name while loading.\n- Provides a 48px touch target and a visible `:focus-visible` outline.",
-        "limitations": "- When `href` is set with `disabled`, the link is made inert with `aria-disabled` and removed from the tab order.\n- Navigation links ignore toggle state; use `aria-current` for the current destination."
+        "limitations": "- When `href` is set with `disabled`, the link is made inert with `aria-disabled` and removed from the tab order.\n- Navigation links ignore toggle state; use `aria-current` for the current destination.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`."
       },
       "inputs": {
         "type": {
@@ -407,12 +407,24 @@
             "value": "''"
           }
         },
-        "classes": {
-          "name": "classes",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
+        "hostClass": {
+          "name": "hostClass",
+          "description": "Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<ButtonInterface>"
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          },
+          "alias": "class"
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"label\" | \"button\" | \"icon\" | \"touchTarget\" | \"stateLayer\", string>> | ClassNameComponent<ButtonInterface>"
           },
           "defaultValue": null
         },

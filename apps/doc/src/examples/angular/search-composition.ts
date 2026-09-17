@@ -23,7 +23,7 @@ const filters = ['Components', 'Guides', 'API reference'];
         title="Search documentation"
         [open]="open"
         (openChange)="open = $event"
-        classes="w-[calc(100vw-2rem)] max-w-none sm:w-96"
+        class="w-[calc(100vw-2rem)] max-w-none sm:w-96"
       >
         <div class="p-4">
           <udx-search label="Filter documentation" defaultExpanded>

@@ -17,10 +17,10 @@
       "props": {
         "className": {
           "name": "className",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "description": "Root classes (string), static element classes (object), or state-aware element classes (function).",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<CheckboxInterface>"
+            "name": "string | Partial<Record<\"box\" | \"input\" | \"stateLayer\" | \"icon\" | \"checkbox\", string>> | ClassNameComponent<CheckboxInterface>"
           },
           "defaultValue": null
         },
@@ -143,7 +143,7 @@
         "category": "Selection",
         "devx": "- `checked` is controlled; `defaultChecked` initializes uncontrolled use.\n- `checkedChange` emits one accepted transition and supports `[(checked)]`.",
         "a11y": "- Renders a native checkbox with standard keyboard and form behavior.\n- `invalid` sets `aria-invalid`; use `aria-describedby` for an error explanation.",
-        "limitations": "- Associate a visible `<label for>` or provide `aria-label`; this component does not render label text."
+        "limitations": "- Associate a visible `<label for>` or provide `aria-label`; this component does not render label text.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`."
       },
       "inputs": {
         "checked": {
@@ -257,12 +257,24 @@
           "defaultValue": null,
           "alias": "aria-describedby"
         },
-        "classes": {
-          "name": "classes",
-          "description": "Classes, or state-aware element classes, applied through the shared style contract.",
+        "hostClass": {
+          "name": "hostClass",
+          "description": "Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<CheckboxInterface>"
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          },
+          "alias": "class"
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"icon\" | \"stateLayer\" | \"checkbox\" | \"input\" | \"box\", string>> | ClassNameComponent<CheckboxInterface>"
           },
           "defaultValue": null
         }

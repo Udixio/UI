@@ -73,10 +73,10 @@
         },
         "className": {
           "name": "className",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "description": "Root classes (string), static element classes (object), or state-aware element classes (function).",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<TextFieldInterface>"
+            "name": "string | Partial<Record<\"content\" | \"input\" | \"label\" | \"legend\" | \"stateLayer\" | \"activeIndicator\" | \"leadingIcon\" | \"supportingText\" | \"textField\" | \"trailingIcon\" | \"suffix\", string>> | ClassNameComponent<...>"
           },
           "defaultValue": null
         },
@@ -271,7 +271,7 @@
         "category": "Input",
         "devx": "- `value`/`valueChange` are controlled and support `[(value)]`; `defaultValue` initializes uncontrolled usage.\n- `multiline` switches to an auto-growing textarea.\n- `type=\"select\"` switches to select mode with `options`; Angular has no equivalent to React's projected `MenuItem` children, so `options` is the only way to populate the menu.\n- `type=\"date\"` switches to date-picker mode; the field stays typable (`YYYY-MM-DD`).\n- `mask` transforms typed/pasted input on every keystroke (a card number, a phone number, an\n  ID); it defaults to the built-in `YYYY-MM-DD` mask for `type=\"date\"`, and providing one\n  overrides it.\n- The outlined variant's legend notch uses one `@udixio/core/dom` Anime.js Layout controller, shared with the React adapter -- an accepted exception to the rest of `@udixio/core/dom`, which uses Motion; Motion has no free equivalent to `width: auto` layout diffing. The floating label itself is a plain CSS transition.",
         "a11y": "- `aria-describedby` links supporting text/error to the input.\n- `aria-invalid` reflects `errorText`.\n- The date/select trailing icon is a real `<button>` so it stays keyboard reachable.",
-        "limitations": "- Does not support projecting custom `MenuItem` content the way the React adapter does; use `options`."
+        "limitations": "- Does not support projecting custom `MenuItem` content the way the React adapter does; use `options`.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`."
       },
       "inputs": {
         "label": {
@@ -468,12 +468,24 @@
           },
           "defaultValue": null
         },
-        "classes": {
-          "name": "classes",
-          "description": "Classes, or state-aware element classes, applied through the shared style contract.",
+        "hostClass": {
+          "name": "hostClass",
+          "description": "Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<TextFieldInterface>"
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          },
+          "alias": "class"
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"label\" | \"content\" | \"stateLayer\" | \"input\" | \"leadingIcon\" | \"trailingIcon\" | \"activeIndicator\" | \"supportingText\" | \"textField\" | \"legend\" | \"suffix\", string>> | ClassNameComponent<TextFieldInterface>"
           },
           "defaultValue": null
         }

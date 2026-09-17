@@ -12,13 +12,13 @@ import { iTimer } from '@udixio/icons-rounded-400/timer';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="h-[500px] flex gap-8">
-      <udx-navigation-rail [classes]="'bg-surface-container-highest'" alignment="top">
+      <udx-navigation-rail class="bg-surface-container-highest" alignment="top">
         <udx-navigation-rail-item [icon]="iNotifications" [iconSelected]="iNotifications" label="Alarm" selected />
         <udx-navigation-rail-item [icon]="iSchedule" [iconSelected]="iSchedule" label="Clock" />
         <udx-navigation-rail-item [icon]="iHourglass" [iconSelected]="iHourglass" label="Timer" />
         <udx-navigation-rail-item [icon]="iTimer" [iconSelected]="iTimer" label="Stopwatch" />
       </udx-navigation-rail>
-      <udx-navigation-rail [classes]="'bg-surface-container-highest'" alignment="middle">
+      <udx-navigation-rail class="bg-surface-container-highest" alignment="middle">
         <udx-navigation-rail-item [icon]="iNotifications" [iconSelected]="iNotifications" label="Alarm" selected />
         <udx-navigation-rail-item [icon]="iSchedule" [iconSelected]="iSchedule" label="Clock" />
         <udx-navigation-rail-item [icon]="iHourglass" [iconSelected]="iHourglass" label="Timer" />

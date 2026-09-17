@@ -11,7 +11,7 @@ import { ProgressIndicator } from '@udixio/ui-angular';
       <udx-progress-indicator
         variant="linear-indeterminate"
         aria-label="Loading"
-        classes="w-48"
+        class="w-48"
       />
       <udx-progress-indicator
         variant="circular-indeterminate"

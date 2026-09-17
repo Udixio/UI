@@ -18,10 +18,10 @@
       "props": {
         "className": {
           "name": "className",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "description": "Root classes (string), static element classes (object), or state-aware element classes (function).",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<TabPanelsInterface>"
+            "name": "string | Partial<Record<\"tabPanels\", string>> | ClassNameComponent<TabPanelsInterface>"
           },
           "defaultValue": null
         }
@@ -36,15 +36,27 @@
         "parent": "Tabs",
         "devx": "- Requires a `udx-tab-group` ancestor; otherwise it warns and every panel\n  stays hidden.",
         "a11y": "- Renders a plain wrapper `div`; the `tabpanel` role and its `id`/\n  `aria-labelledby` pair live on the connected `udx-tab-panel`.",
-        "limitations": "- Unlike React, every projected `udx-tab-panel` keeps its component\n  instance alive; inactive panels are hidden with the native `hidden`\n  attribute instead of being unmounted."
+        "limitations": "- Unlike React, every projected `udx-tab-panel` keeps its component\n  instance alive; inactive panels are hidden with the native `hidden`\n  attribute instead of being unmounted.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`."
       },
       "inputs": {
-        "classes": {
-          "name": "classes",
-          "description": "Classes, or state-aware element classes, applied through the shared style contract.",
+        "hostClass": {
+          "name": "hostClass",
+          "description": "Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<TabPanelsInterface>"
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          },
+          "alias": "class"
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"tabPanels\", string>> | ClassNameComponent<TabPanelsInterface>"
           },
           "defaultValue": null
         }

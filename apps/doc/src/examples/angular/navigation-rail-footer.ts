@@ -15,7 +15,7 @@ import { iLogout } from '@udixio/icons-rounded-400/logout';
   imports: [NavigationRail, NavigationRailItem, IconButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <udx-navigation-rail [classes]="'bg-surface-container-highest h-[500px]'">
+    <udx-navigation-rail class="bg-surface-container-highest h-[500px]">
       <udx-icon-button footer [icon]="iLogout" label="Sign out" />
       <udx-navigation-rail-item [icon]="iNotifications" [iconSelected]="iNotifications" label="Alarm" selected />
       <udx-navigation-rail-item [icon]="iSchedule" [iconSelected]="iSchedule" label="Clock" />

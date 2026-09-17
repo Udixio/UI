@@ -17,10 +17,10 @@
       "props": {
         "className": {
           "name": "className",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "description": "Root classes (string), static element classes (object), or state-aware element classes (function).",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<TabsInterface>"
+            "name": "string | Partial<Record<\"tabs\" | \"indicator\", string>> | ClassNameComponent<TabsInterface>"
           },
           "defaultValue": null
         },
@@ -76,7 +76,7 @@
         "category": "Navigation",
         "devx": "- Project `udx-tab` children; other content is ignored.\n- Use `selectedTab`/`selectedTabChange` for controlled selection, or\n  `defaultSelectedTab` (defaults to `0`) when uncontrolled.\n- Wrapping in a `udx-tab-group` shares its selection automatically; do not\n  also bind `selectedTab` directly on `udx-tabs` in that case, or the two\n  owners fight over selection.",
         "a11y": "- `role=\"tablist\"` with a shared sliding indicator driven by a\n  `@udixio/core/dom` Motion controller, the same one the React adapter\n  uses.\n- Roving `tabIndex`: ArrowLeft/ArrowRight move focus and selection between\n  enabled tabs (wrapping), Home/End jump to the first/last enabled tab.",
-        "limitations": "- Horizontal orientation only."
+        "limitations": "- Horizontal orientation only.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`."
       },
       "inputs": {
         "variant": {
@@ -121,12 +121,24 @@
             "value": "0"
           }
         },
-        "classes": {
-          "name": "classes",
-          "description": "Classes, or state-aware element classes, applied through the shared style contract.",
+        "hostClass": {
+          "name": "hostClass",
+          "description": "Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<TabsInterface>"
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          },
+          "alias": "class"
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"tabs\" | \"indicator\", string>> | ClassNameComponent<TabsInterface>"
           },
           "defaultValue": null
         }

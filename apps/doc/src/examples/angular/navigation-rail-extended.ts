@@ -21,7 +21,7 @@ import { iAdd } from '@udixio/icons-rounded-400/add';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <udx-navigation-rail
-      [classes]="'bg-surface-container-highest h-[750px]'"
+      class="bg-surface-container-highest h-[750px]"
       [extended]="extended()"
       (extendedChange)="extended.set($event)"
     >

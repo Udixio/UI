@@ -29,7 +29,7 @@
 | --- | --- |
 | `packages/core/src/lib/utils/styles/get-classname.ts` | Modify: `ElementClasses<T>`, widen `StyleProps.className`, object branch in `getClassNames`, `mergeClassNames`. |
 | `packages/core/src/lib/utils/styles/get-classname.spec.ts` | Create: unit tests for the object form, precedence, `mergeClassNames`. |
-| `packages/ui-angular/src/lib/<component>/<component>.ts` (33 components) | Modify: `hostClass` + narrowed `classes`, `mergeClassNames` in the style state, `@limitations` line. |
+| `packages/ui-angular/src/lib/<component>/<component>.ts` (34 components) | Modify: `hostClass` + narrowed `classes`, `mergeClassNames` in the style state, `@limitations` line. |
 | `packages/ui-angular/src/lib/button/button.spec.ts`, `tabs/tabs.spec.ts` | Modify: behavioural tests on a `display: contents` host and a root-host component. |
 | `packages/ui-angular/src/lib/class-alias.spec.ts` | Create: matrix test — every component exposes `hostClass` aliased `class`. |
 | `packages/ui-react/src/tests/TextField.spec.tsx` | Modify: lock the object form in React. |
@@ -50,7 +50,7 @@
 **Interfaces:**
 - Produces: `export type ElementClasses<T extends ComponentInterface> = Partial<Record<T['elements'][number], string>>`; `StyleProps<T>['className']` becomes `string | ElementClasses<T> | ClassNameComponent<T>`; `getClassNames.classNameList` accepts the same union. `ClassNameComponent<T>` now returns `ElementClasses<T>` (structurally identical to today).
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 // packages/core/src/lib/utils/styles/get-classname.spec.ts
@@ -116,12 +116,12 @@ describe('getClassNames — static element object', () => {
 });
 ```
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `npx nx test @udixio/core -- get-classname.spec.ts`
 Expected: FAIL — the object is neither `string` nor callable; `classNameComponent(args.states)` throws `TypeError: classNameComponent is not a function`, and `ElementClasses` is not exported (type error).
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 In `packages/core/src/lib/utils/styles/get-classname.ts`, replace lines 21-28 and the `forEach` body:
 
@@ -190,16 +190,16 @@ export const defaultClassNames = <T extends ComponentInterface>(
 };
 ```
 
-- [ ] **Step 4: Run tests**
+- [x] **Step 4: Run tests**
 
 Run: `npx nx test @udixio/core`
 Expected: PASS, including `class-engine.characterization.spec.ts` unchanged (no existing output may drift).
 
-- [ ] **Step 5: Verify the export**
+- [x] **Step 5: Verify the export**
 
 Run: `grep -n "ElementClasses" packages/core/src/lib/utils/styles/get-classname.ts && node -e "import('./packages/core/src/index.ts').catch(()=>{})"` is not meaningful for types; instead run `npx nx build @udixio/core` and check `grep -c "ElementClasses" dist/packages/core/index.d.ts` (or wherever `types` resolves) → `≥ 1`. `styles/index.ts` already re-exports `./get-classname`, so no index edit is needed.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add packages/core/src/lib/utils/styles/get-classname.ts packages/core/src/lib/utils/styles/get-classname.spec.ts
@@ -220,7 +220,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 - Consumes: `ElementClasses<T>`, `ClassNameComponent<T>` from Task 1.
 - Produces: `export const mergeClassNames = <T extends ComponentInterface>(defaultElement: T['elements'][0], ...items: (string | ElementClasses<T> | ClassNameComponent<T> | undefined | null)[]) => ClassNameComponent<T> | undefined`. A string item is routed to `defaultElement`. Returns `undefined` when every item is empty, so a component passing nothing keeps `className: undefined`.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```ts
 describe('mergeClassNames', () => {
@@ -258,12 +258,12 @@ describe('mergeClassNames', () => {
 });
 ```
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `npx nx test @udixio/core -- get-classname.spec.ts`
 Expected: FAIL — `mergeClassNames` is not exported.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Append to `get-classname.ts`:
 
@@ -312,12 +312,12 @@ export const mergeClassNames = <T extends ComponentInterface>(
 };
 ```
 
-- [ ] **Step 4: Run tests**
+- [x] **Step 4: Run tests**
 
 Run: `npx nx test @udixio/core`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add packages/core/src/lib/utils/styles/get-classname.ts packages/core/src/lib/utils/styles/get-classname.spec.ts
@@ -345,7 +345,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
   ```
   where `<defaultElement>` is `XInterface['elements'][0]` (for Button: `'button'`).
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `button.spec.ts`, inside the main `describe('Button', …)` block where `fixture` is a `ComponentFixture<Button>`:
 
@@ -421,12 +421,12 @@ class ClassAliasHost {
   });
 ```
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `npx nx test ui-angular -- button.spec.ts`
 Expected: FAIL — `setInput('hostClass', …)` throws `NG0303` (unknown input); the `ClassAliasHost` test finds neither `mt-4` nor `shadow-1` on the inner `<button>`.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 In `button.ts`:
 
@@ -464,17 +464,17 @@ Add to the `@limitations` block (line 50-53):
  * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
 ```
 
-- [ ] **Step 4: Run tests**
+- [x] **Step 4: Run tests**
 
 Run: `npx nx test ui-angular -- button.spec.ts`
 Expected: PASS.
 
-- [ ] **Step 5: Type gate**
+- [x] **Step 5: Type gate**
 
 Run: `npx nx build ui-angular --skip-sync 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | grep -c 'error TS'`
 Expected: `0`. (Other components still compile: their `classes` inputs are untouched and `mergeClassNames` is additive.)
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add packages/ui-angular/src/lib/button/button.ts packages/ui-angular/src/lib/button/button.spec.ts
@@ -495,7 +495,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 - Consumes: the canonical shape from Task 3.
 - Produces: proof that a component with `'[class]': 'styles()["x"]'` in `host` needs no special case.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tabs.spec.ts` (imports: reuse the existing `TabGroup`/`Tabs`/`Tab`/`TabPanels`/`TabPanel` host setup in that file; add a host component):
 
@@ -531,23 +531,23 @@ describe('TabPanel class alias (host is the root)', () => {
 });
 ```
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `npx nx test ui-angular -- tabs.spec.ts`
 Expected: FAIL — without the alias, Angular unions the static `absolute` with the bound `relative`; both are present and the `not.toContain('relative')` assertion fails.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Same edit as Task 3 in `tab-panel.ts`: import `ElementClasses`, `mergeClassNames`; replace the `classes` input with the `hostClass` + narrowed `classes` pair; replace `className: this.classes()` (line 90) with `className: mergeClassNames<TabPanelInterface>('tabPanel', this.classes(), this.hostClass())`. No `host` change: `'[class]': 'styles()["tabPanel"]'` stays and now emits the merged string.
 
 Do **not** add the `[class.x]` limitation line to TabPanel, MenuGroup or MenuHeadline: their host is the root, so `[class.x]` works there.
 
-- [ ] **Step 4: Run tests**
+- [x] **Step 4: Run tests**
 
 Run: `npx nx test ui-angular -- tabs.spec.ts`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add packages/ui-angular/src/lib/tabs/tab-panel.ts packages/ui-angular/src/lib/tabs/tabs.spec.ts
@@ -558,10 +558,10 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 ---
 
-### Task 5: Angular sweep — the remaining 31 components + matrix test
+### Task 5: Angular sweep — the remaining 32 components + matrix test
 
 **Files:**
-- Modify (canonical shape, exactly as Task 3): `anchor-positioner/anchor-positioner.ts`, `badge/badge-surface.ts`, `card/card.ts`, `carousel/carousel-item.ts`, `carousel/carousel.ts`, `checkbox/checkbox.ts`, `chip/chip.ts`, `chips/chips.ts`, `context-menu/context-menu.ts`, `date-picker/date-picker.ts`, `divider/divider.ts`, `fab/fab.ts`, `fab-menu/fab-menu.ts`, `icon-button/icon-button.ts`, `icon/icon.ts`, `menu/menu-group.ts`, `menu/menu-headline.ts`, `menu/menu-item.ts`, `menu/menu.ts`, `navigation-rail/navigation-rail-item.ts`, `navigation-rail/navigation-rail.ts`, `progress-indicator/progress-indicator.ts`, `search/search.ts`, `slider/slider.ts`, `snackbar/snackbar.ts`, `state-layer/state-layer.ts`, `switch/switch.ts`, `tabs/tab-panels.ts`, `tabs/tabs.ts`, `tabs/tab.ts`, `text-field/text-field.ts` — all under `packages/ui-angular/src/lib/`.
+- Modify (canonical shape, exactly as Task 3): `anchor-positioner/anchor-positioner.ts`, `badge/badge-surface.ts`, `card/card.ts`, `carousel/carousel-item.ts`, `carousel/carousel.ts`, `checkbox/checkbox.ts`, `chip/chip.ts`, `chips/chips.ts`, `context-menu/context-menu.ts`, `date-picker/date-picker.ts`, `divider/divider.ts`, `fab/fab.ts`, `fab-menu/fab-menu.ts`, `icon-button/icon-button.ts`, `icon/icon.ts`, `menu/menu-group.ts`, `menu/menu-headline.ts`, `menu/menu-item.ts`, `menu/menu.ts`, `navigation-rail/navigation-rail-item.ts`, `navigation-rail/navigation-rail.ts`, `progress-indicator/progress-indicator.ts`, `search/search.ts`, `side-sheet/side-sheet.ts`, `slider/slider.ts`, `snackbar/snackbar.ts`, `state-layer/state-layer.ts`, `switch/switch.ts`, `tabs/tab-panels.ts`, `tabs/tabs.ts`, `tabs/tab.ts`, `text-field/text-field.ts` — all under `packages/ui-angular/src/lib/`.
 - Modify (directives, different rule): `badge/badge.ts:116-118`, `tooltip/tooltip.ts:139-142`.
 - Create: `packages/ui-angular/src/lib/class-alias.spec.ts`
 
@@ -569,7 +569,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 - Consumes: canonical shape from Task 3.
 - Produces: every `udx-*` component exposes an input with `propName: 'hostClass'`, `templateName: 'class'`.
 
-- [ ] **Step 1: Write the failing matrix test**
+- [x] **Step 1: Write the failing matrix test**
 
 ```ts
 // packages/ui-angular/src/lib/class-alias.spec.ts
@@ -635,12 +635,12 @@ describe('native class alias', () => {
 
 Adjust import names to the actual exported class names (`grep -n "^export class" packages/ui-angular/src/lib/**/*.ts`).
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `npx nx test ui-angular -- class-alias.spec.ts`
 Expected: FAIL for every component except `Button` and `TabPanel`.
 
-- [ ] **Step 3: Apply the canonical shape to the 31 components**
+- [x] **Step 3: Apply the canonical shape to the 32 components**
 
 For each file, the three edits from Task 3, with the component's own interface and default element (`XInterface['elements'][0]`; read it from `packages/core/src/lib/interfaces/<x>.interface.ts`). Add the `[class.x]` limitation line to every component whose `host` has `style: 'display: contents'`; skip it for `MenuGroup` and `MenuHeadline` (host is the root).
 
@@ -670,12 +670,12 @@ Existing specs calling `setInput('classes', '<string>')` (`fab.spec.ts:134`, `ic
 
 Directives — `badge/badge.ts:116-118` and `tooltip/tooltip.ts:139-142`: **keep** the existing input name `classes`, alias `udxBadgeClass` / `udxTooltipClass`, and widen the type to `string | ElementClasses<XInterface> | ClassNameComponent<XInterface>`. Update their TSDoc to: `/** Classes for the detached surface: a root string, static element classes, or a state-aware function. */`. Do not add `hostClass`.
 
-- [ ] **Step 4: Run the whole Angular suite**
+- [x] **Step 4: Run the whole Angular suite**
 
 Run: `npx nx test ui-angular`
 Expected: PASS. Any existing spec that did `setInput('classes', 'some-string')` now fails at runtime (a string reaches `mergeClassNames` in the object slot and is routed as a root string — it still works, but the test documents the old contract). Migrate such calls to `setInput('hostClass', …)`. Find them: `grep -rn "setInput('classes', '" packages/ui-angular/src`.
 
-- [ ] **Step 5: Type gate — positive and negative**
+- [x] **Step 5: Type gate — positive and negative**
 
 Run: `npx nx build ui-angular --skip-sync 2>&1 | sed 's/\x1b\[[0-9;]*m//g' | grep -c 'error TS'` → `0`.
 
@@ -690,7 +690,7 @@ export class Negative {}
 
 Run the same build; expect `≥ 1` error mentioning `classes` and `string`. Then `rm packages/ui-angular/src/lib/__negative__.ts` and rebuild to `0`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add packages/ui-angular/src
@@ -714,7 +714,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 **Interfaces:**
 - Consumes: widened `StyleProps.className` from Task 1 (no React code change).
 
-- [ ] **Step 1: Write the test**
+- [x] **Step 1: Write the test**
 
 ```tsx
   it('accepts a static element object as className', () => {
@@ -733,12 +733,12 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 Adapt the selectors to how the existing TextField spec locates the label and supporting text (read the top of the file first).
 
-- [ ] **Step 2: Run**
+- [x] **Step 2: Run**
 
 Run: `npx nx test @udixio/ui-react -- TextField.spec.tsx`
 Expected: PASS on first run (the core already handles the object). If TypeScript rejects the prop, `@udixio/ui-react` is resolving a stale built core — run `npx nx build @udixio/core` and check `pnpm install --frozen-lockfile` ([[ui-angular-core-link-drift]]).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add packages/ui-react/src/tests/TextField.spec.tsx
@@ -758,7 +758,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 - Modify: `apps/doc/src/data/pages/get-started/angular.mdx`
 - Regenerate: `apps/doc/src/data/api/*.json`
 
-- [ ] **Step 1: Migrate every string call site**
+- [x] **Step 1: Migrate every string call site**
 
 ```bash
 cd apps/doc/src/examples/angular
@@ -771,7 +771,7 @@ sed -i -E "s/\[classes\]=\"'([^']*)'\"/class=\"\1\"/g; s/\bclasses=\"/class=\"/g
 
 Verify: `grep -rn "classes=\"\|\[classes\]=\"'" apps/doc/src --include=*.ts --include=*.mdx | grep -v "styles()"` → no output.
 
-- [ ] **Step 2: Create the element-classes example**
+- [x] **Step 2: Create the element-classes example**
 
 ```tsx
 // apps/doc/src/examples/react/text-field-element-classes.tsx
@@ -817,7 +817,7 @@ import { TextField } from '@udixio/ui-angular';
 export class TextFieldElementClassesAngular {}
 ```
 
-- [ ] **Step 3: Wire it in the MDX**
+- [x] **Step 3: Wire it in the MDX**
 
 In `text-field.overview.mdx`, add the four imports next to the existing ones:
 
@@ -852,7 +852,7 @@ utilities override cleanly.
 </Code>
 ```
 
-- [ ] **Step 4: Document the Angular limitation**
+- [x] **Step 4: Document the Angular limitation**
 
 In `apps/doc/src/data/pages/get-started/angular.mdx`, add before "## Live theme changes":
 
@@ -879,17 +879,17 @@ Most components render their host with `display: contents`, so `[class.x]` and
 them. Put conditional classes in `[class]` or `[classes]` instead.
 ```
 
-- [ ] **Step 5: Regenerate the API data and check it**
+- [x] **Step 5: Regenerate the API data and check it**
 
 Run: `pnpm --filter apps-doc docgen && pnpm --filter apps-doc docgen:check && pnpm --filter apps-doc docgen:test`
 Expected: all three succeed; `grep -c '"alias": "class"' apps/doc/src/data/api/button.json` → `1`; the `classes` entry for `button.json` no longer mentions `string`.
 
-- [ ] **Step 6: Build the doc site**
+- [x] **Step 6: Build the doc site**
 
 Run: `pnpm --filter apps-doc build 2>&1 | tail -5`
 Expected: build succeeds. Then open the TextField page in the dev server (`pnpm --filter apps-doc dev`) and confirm the new example renders `uppercase` on the input in both tabs.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add apps/doc/src/examples apps/doc/src/data

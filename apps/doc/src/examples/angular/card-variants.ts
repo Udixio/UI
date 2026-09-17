@@ -9,19 +9,19 @@ import { Card } from '@udixio/ui-angular';
   template: `
     <div class="flex w-full flex-wrap gap-4">
       <udx-card
-        classes="flex h-40 min-w-48 flex-1 items-center justify-center"
+        class="flex h-40 min-w-48 flex-1 items-center justify-center"
       >
         <p>Outlined</p>
       </udx-card>
       <udx-card
         variant="elevated"
-        classes="flex h-40 min-w-48 flex-1 items-center justify-center"
+        class="flex h-40 min-w-48 flex-1 items-center justify-center"
       >
         <p>Elevated</p>
       </udx-card>
       <udx-card
         variant="filled"
-        classes="flex h-40 min-w-48 flex-1 items-center justify-center"
+        class="flex h-40 min-w-48 flex-1 items-center justify-center"
       >
         <p>Filled</p>
       </udx-card>

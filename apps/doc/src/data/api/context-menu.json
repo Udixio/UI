@@ -94,7 +94,7 @@
         "parent": "menu",
         "devx": "Mark the projected trigger with `contextMenuTrigger`; project Menu family elements into the default slot.",
         "a11y": "Supports native context-menu events and Shift+F10, focuses the first item, and restores trigger focus after Escape.",
-        "limitations": "The popup position is internally owned and is not controllable."
+        "limitations": "- The popup position is internally owned and is not controllable.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class` or `[class]`."
       },
       "inputs": {
         "variant": {
@@ -128,14 +128,17 @@
             "value": "false"
           }
         },
-        "classes": {
-          "name": "classes",
-          "description": "Classes applied to the display-contents root.",
+        "hostClass": {
+          "name": "hostClass",
+          "description": "Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes.",
           "required": false,
           "type": {
             "name": "string"
           },
-          "defaultValue": null
+          "defaultValue": {
+            "value": "''"
+          },
+          "alias": "class"
         }
       },
       "outputs": {

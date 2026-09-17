@@ -4,6 +4,8 @@
 import Code from '@/components/Code.astro';
 import TextFieldVariantsReact from '@/examples/react/text-field-variants.tsx';
 import { TextFieldVariantsAngular } from '@/examples/angular/text-field-variants.ts';
+import TextFieldElementClassesReact from '@/examples/react/text-field-element-classes.tsx';
+import { TextFieldElementClassesAngular } from '@/examples/angular/text-field-element-classes.ts';
 import TextFieldIconsReact from '@/examples/react/text-field-icons.tsx';
 import { TextFieldIconsAngular } from '@/examples/angular/text-field-icons.ts';
 import TextFieldMultilineReact from '@/examples/react/text-field-multiline.tsx';
@@ -20,6 +22,8 @@ import TextFieldMaskReact from '@/examples/react/text-field-mask.tsx';
 import { TextFieldMaskAngular } from '@/examples/angular/text-field-mask.ts';
 import textFieldVariantsReactSource from '@/examples/react/text-field-variants.tsx?raw';
 import textFieldVariantsAngularSource from '@/examples/angular/text-field-variants.ts?raw';
+import textFieldElementClassesReactSource from '@/examples/react/text-field-element-classes.tsx?raw';
+import textFieldElementClassesAngularSource from '@/examples/angular/text-field-element-classes.ts?raw';
 import textFieldIconsReactSource from '@/examples/react/text-field-icons.tsx?raw';
 import textFieldIconsAngularSource from '@/examples/angular/text-field-icons.ts?raw';
 import textFieldMultilineReactSource from '@/examples/react/text-field-multiline.tsx?raw';
@@ -54,6 +58,26 @@ textarea, a date picker, or a select menu depending on `multiline`/`type`.
 >
   <TextFieldVariantsReact slot="react" client:load />
   <TextFieldVariantsAngular slot="angular" client:load />
+</Code>
+
+## Styling the root and internal elements
+
+A string targets the root: `className` in React, the native `class` attribute in
+Angular. To reach an internal element (`input`, `label`, `supportingText`, …), pass
+an object keyed by element name — `className={{ … }}` in React, `[classes]="{ … }"`
+in Angular. A function receiving the resolved props and states is also accepted for
+the rare cases that depend on what only the component knows. Consumer classes are
+merged after the defaults with `tailwind-merge`, so `bg-*`, `text-*` and similar
+utilities override cleanly.
+
+<Code
+  codes={{
+    react: textFieldElementClassesReactSource,
+    angular: textFieldElementClassesAngularSource,
+  }}
+>
+  <TextFieldElementClassesReact slot="react" client:load />
+  <TextFieldElementClassesAngular slot="angular" client:load />
 </Code>
 
 ## Leading/trailing icon and suffix

@@ -64,10 +64,10 @@
         },
         "className": {
           "name": "className",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "description": "Root classes (string), static element classes (object), or state-aware element classes (function).",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<BadgeInterface>"
+            "name": "string | Partial<Record<\"container\" | \"label\" | \"badge\" | \"announcement\", string>> | ClassNameComponent<BadgeInterface>"
           },
           "defaultValue": null
         },
@@ -147,10 +147,10 @@
         },
         "classes": {
           "name": "classes",
-          "description": "Classes, or state-aware element classes, applied through the shared style contract.",
+          "description": "Classes for the detached surface: a root string, static element classes, or a state-aware function.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<BadgeInterface> | undefined"
+            "name": "string | Partial<Record<\"label\" | \"container\" | \"badge\" | \"announcement\", string>> | ClassNameComponent<BadgeInterface> | undefined"
           },
           "defaultValue": null,
           "alias": "udxBadgeClass"

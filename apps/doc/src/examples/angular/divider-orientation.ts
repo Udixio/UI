@@ -13,7 +13,7 @@ import { Divider } from '@udixio/ui-angular';
         <udx-divider />
         <p>Section B</p>
       </div>
-      <udx-divider orientation="vertical" classes="h-12" />
+      <udx-divider orientation="vertical" class="h-12" />
       <div>
         <p>Section C</p>
       </div>

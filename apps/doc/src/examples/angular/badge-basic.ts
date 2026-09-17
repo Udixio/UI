@@ -13,7 +13,7 @@ import { iNotifications } from '@udixio/icons-rounded-400/notifications';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <udx-navigation-rail
-      [classes]="'bg-surface-container-highest h-[420px]'"
+      class="bg-surface-container-highest h-[420px]"
       [selectedItem]="selected()"
       (selectedItemChange)="view($event)"
     >

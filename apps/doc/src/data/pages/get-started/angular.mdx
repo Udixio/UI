@@ -95,6 +95,27 @@ import { Button } from '@udixio/ui-angular';
 export class AppComponent {}
 ```
 
+## Styling a component
+
+Use the native `class` attribute or `[class]` binding on any `udx-*` element: the
+string is routed to the component's root element and merged with its own classes
+through `tailwind-merge`, so your utilities win on conflicts.
+
+```html
+<udx-button class="mt-4 w-full" label="Save" />
+<udx-button [class]="dense() ? 'py-1' : 'py-3'" label="Save" />
+```
+
+To style an internal element, bind `[classes]` to an object keyed by element name:
+
+```html
+<udx-text-field label="Code" [classes]="{ input: 'uppercase', label: 'font-bold' }" />
+```
+
+Most components render their host with `display: contents`, so `[class.x]` and
+`[ngClass]` — which Angular always applies to the host — have no visible effect on
+them. Put conditional classes in `[class]` or `[classes]` instead.
+
 ## Live theme changes
 
 The generated stylesheet covers a fixed light/dark theme through the `darkMode` and `darkSelector` options — see [Theme — Dark mode](/theme/dark-mode).

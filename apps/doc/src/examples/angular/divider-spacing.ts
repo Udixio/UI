@@ -10,15 +10,15 @@ import { Divider } from '@udixio/ui-angular';
     <div class="space-y-6">
       <div>
         <p class="mb-2">Tight spacing</p>
-        <udx-divider classes="my-1" />
+        <udx-divider class="my-1" />
       </div>
       <div>
         <p class="mb-2">Wide spacing</p>
-        <udx-divider classes="my-6" />
+        <udx-divider class="my-6" />
       </div>
       <div class="flex items-center gap-4">
         <span>Left</span>
-        <udx-divider orientation="vertical" classes="h-8" />
+        <udx-divider orientation="vertical" class="h-8" />
         <span>Right</span>
       </div>
     </div>

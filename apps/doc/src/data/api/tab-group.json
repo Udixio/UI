@@ -18,10 +18,10 @@
       "props": {
         "className": {
           "name": "className",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "description": "Root classes (string), static element classes (object), or state-aware element classes (function).",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<TabGroupInterface>"
+            "name": "string | Partial<Record<\"tabGroup\", string>> | ClassNameComponent<TabGroupInterface>"
           },
           "defaultValue": null
         },

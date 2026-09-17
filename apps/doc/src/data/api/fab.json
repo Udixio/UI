@@ -91,7 +91,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<FabInterface>"
+            "name": "string | ClassNameComponent<FabInterface> | Partial<Record<\"label\" | \"stateLayer\" | \"fab\" | \"touchTarget\" | \"icon\", string>>"
           },
           "defaultValue": null
         }
@@ -105,7 +105,7 @@
         "category": "Action",
         "devx": "- Requires the `label` and `icon` inputs.\n- `type` defaults to `'button'` to prevent accidental form submissions.\n- Shows `label` in a tooltip while compact; `tooltip` overrides or disables it.",
         "a11y": "- Uses native button/link semantics, a stable accessible name, a 48px target, and visible focus.\n- A compact fab names its icon in a tooltip on hover and focus, as Material 3 requires; it only\n  describes the target when its text says something the accessible name does not.",
-        "limitations": "- No built-in positioning; placement is handled by layout.\n- Disabled links are inert and removed from the tab order."
+        "limitations": "- No built-in positioning; placement is handled by layout.\n- Disabled links are inert and removed from the tab order.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`."
       },
       "inputs": {
         "label": {
@@ -179,12 +179,24 @@
             "value": "false"
           }
         },
-        "classes": {
-          "name": "classes",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
+        "hostClass": {
+          "name": "hostClass",
+          "description": "Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<FabInterface>"
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          },
+          "alias": "class"
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"label\" | \"icon\" | \"touchTarget\" | \"stateLayer\" | \"fab\", string>> | ClassNameComponent<FabInterface>"
           },
           "defaultValue": null
         },

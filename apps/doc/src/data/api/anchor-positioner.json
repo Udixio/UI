@@ -45,7 +45,7 @@
         "category": "Communication",
         "devx": "- Internal building block for `Tooltip`; not yet documented as a\n  standalone public component.\n- Portals its content to `document.body`.",
         "a11y": "- Renders no semantics of its own; the caller's content and `Tooltip`'s\n  own `role=\"tooltip\"` carry accessibility meaning.",
-        "limitations": "- Falls back to tracking `getBoundingClientRect()` on scroll and resize\n  in browsers without native CSS Anchor Positioning support."
+        "limitations": "- Falls back to tracking `getBoundingClientRect()` on scroll and resize\n  in browsers without native CSS Anchor Positioning support.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class` or `[class]`."
       },
       "inputs": {
         "anchor": {
@@ -68,14 +68,17 @@
             "value": "'bottom'"
           }
         },
-        "classes": {
-          "name": "classes",
-          "description": "Class applied to the floating (portaled) wrapper element.",
+        "hostClass": {
+          "name": "hostClass",
+          "description": "Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes.",
           "required": false,
           "type": {
             "name": "string"
           },
-          "defaultValue": null
+          "defaultValue": {
+            "value": "''"
+          },
+          "alias": "class"
         }
       },
       "outputs": {},

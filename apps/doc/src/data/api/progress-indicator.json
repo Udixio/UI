@@ -17,10 +17,10 @@
       "props": {
         "className": {
           "name": "className",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "description": "Root classes (string), static element classes (object), or state-aware element classes (function).",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<ProgressIndicatorInterface>"
+            "name": "string | Partial<Record<\"stop\" | \"progressIndicator\" | \"activeIndicator\" | \"lastTrack\" | \"firstTrack\", string>> | ClassNameComponent<ProgressIndicatorInterface>"
           },
           "defaultValue": null
         },
@@ -76,7 +76,7 @@
         "category": "Communication",
         "devx": "- `value` is clamped to 0–100; indeterminate variants ignore it.",
         "a11y": "- Renders `role=\"progressbar\"` with `aria-valuemin`/`aria-valuemax`; determinate\n  variants also expose `aria-valuenow`.\n- Provide `aria-label`/`aria-labelledby`; this component does not infer an\n  accessible name.",
-        "limitations": "- Visibility auto-hides at 100% (no controlled open prop)."
+        "limitations": "- Visibility auto-hides at 100% (no controlled open prop).\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`."
       },
       "inputs": {
         "variant": {
@@ -121,12 +121,24 @@
           },
           "defaultValue": null
         },
-        "classes": {
-          "name": "classes",
-          "description": "Classes, or state-aware element classes, applied through the shared style contract.",
+        "hostClass": {
+          "name": "hostClass",
+          "description": "Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<ProgressIndicatorInterface>"
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          },
+          "alias": "class"
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"progressIndicator\" | \"stop\" | \"activeIndicator\" | \"lastTrack\" | \"firstTrack\", string>> | ClassNameComponent<ProgressIndicatorInterface>"
           },
           "defaultValue": null
         },

@@ -17,10 +17,10 @@
       "props": {
         "className": {
           "name": "className",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "description": "Root classes (string), static element classes (object), or state-aware element classes (function).",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<NavigationRailItemInterface>"
+            "name": "string | Partial<Record<\"container\" | \"label\" | \"stateLayer\" | \"icon\" | \"navigationRailItem\", string>> | ClassNameComponent<NavigationRailItemInterface>"
           },
           "defaultValue": null
         },
@@ -101,7 +101,7 @@
         "parent": "NavigationRail",
         "devx": "- Selection is index-based and resolved from the parent rail; standalone\n  usage falls back to `selected`.\n- An item placed after a `udx-navigation-rail-section` only renders while\n  the rail is extended.\n- `badge` puts a `[udxBadge]` on the icon, the way Material shows\n  notifications on a destination; set it back to `undefined` once the\n  destination is selected if the notification is meant to clear, and the\n  badge animates out.\n- The label reveal (width/height + opacity, on `extended` changes) is\n  driven by a shared `@udixio/core/dom` Motion controller, the same one\n  the React adapter uses.",
         "a11y": "- Exposes `aria-current=\"page\"` when selected, since the rail is a\n  navigation landmark rather than a tabbed panel switcher.",
-        "limitations": "- No arrow-key navigation between items; relies on the native sequential\n  tab order."
+        "limitations": "- No arrow-key navigation between items; relies on the native sequential\n  tab order.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`."
       },
       "inputs": {
         "label": {
@@ -160,12 +160,24 @@
           },
           "defaultValue": null
         },
-        "classes": {
-          "name": "classes",
-          "description": "Classes, or state-aware element classes, applied through the shared style contract.",
+        "hostClass": {
+          "name": "hostClass",
+          "description": "Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<NavigationRailItemInterface>"
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          },
+          "alias": "class"
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"label\" | \"container\" | \"icon\" | \"stateLayer\" | \"navigationRailItem\", string>> | ClassNameComponent<NavigationRailItemInterface>"
           },
           "defaultValue": null
         }

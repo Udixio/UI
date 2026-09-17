@@ -51,7 +51,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<CardInterface>"
+            "name": "string | ClassNameComponent<CardInterface> | Partial<Record<\"card\" | \"stateLayer\", string>>"
           },
           "defaultValue": null
         },
@@ -83,7 +83,7 @@
         "category": "Layout",
         "devx": "- `href` renders the card as a native link and always applies the interactive treatment.\n- `interactive` without `href` renders `role=\"button\"` with `tabindex=\"0\"` and Enter/Space activation; bind the action with `(click)`.",
         "a11y": "- Actionable cards are focusable, expose native link or button semantics, and show a visible focus outline.\n- The accessible name of an actionable card comes from its projected content; keep meaningful text inside it.",
-        "limitations": "- No built-in header/actions slots; layout is fully custom via projected content.\n- An actionable card is one action target: do not nest interactive elements inside it; compose inner controls in a non-interactive card instead."
+        "limitations": "- No built-in header/actions slots; layout is fully custom via projected content.\n- An actionable card is one action target: do not nest interactive elements inside it; compose inner controls in a non-interactive card instead.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`."
       },
       "inputs": {
         "variant": {
@@ -108,12 +108,24 @@
             "value": "false"
           }
         },
-        "classes": {
-          "name": "classes",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
+        "hostClass": {
+          "name": "hostClass",
+          "description": "Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<CardInterface>"
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          },
+          "alias": "class"
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"stateLayer\" | \"card\", string>> | ClassNameComponent<CardInterface>"
           },
           "defaultValue": null
         },

@@ -26,10 +26,10 @@
         },
         "className": {
           "name": "className",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "description": "Root classes (string), static element classes (object), or state-aware element classes (function).",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<SearchInterface>"
+            "name": "string | Partial<Record<\"container\" | \"search\" | \"input\" | \"stateLayer\" | \"inputField\" | \"leadingIcon\" | \"trailingActions\" | \"clearButton\" | \"results\", string>> | ClassNameComponent<...>"
           },
           "defaultValue": null
         },
@@ -288,7 +288,7 @@
         "category": "Input",
         "devx": "`query`/`defaultQuery` and `expanded`/`defaultExpanded` mirror the React adapter; use the\n`queryChange`, `expandedChange`, and `searchSubmit` outputs for Angular bindings. Search renders\nthe inline contained variant; compose it with `SideSheet`, a dialog, or another surface primitive\nwhen the surrounding feature owns modal presentation and docked/full-screen layout. Project one\nor two interactive trailing controls, normally `udx-icon-button[search-trailing]`; do not project\na bare icon. `leadingIcon` is decorative; navigation and dismissal belong to the surrounding\n`SideSheet` or surface. The built-in clear action occupies one of Material 3's two trailing\naction slots while it is visible. Project selectable results with `role=\"option\"` when using the\ndefault listbox results role. The inline results surface uses one shared Anime.js height/opacity\ntransition; reduced motion applies the final state immediately. A pointer outside Search closes\nthe local results surface when expanded; surrounding modal dismissal remains owned by `SideSheet`\nor the parent surface.",
         "a11y": "Renders a `search` landmark and a named `input[type=\"search\"]`; the leading icon is\ndecorative and hidden from assistive technology, while projected listbox results share\nArrow Up/Down, Enter, and Escape focus behavior with React.",
-        "limitations": "Search does not filter or render result data itself and does not own modal layout\nor responsive presentation."
+        "limitations": "- Search does not filter or render result data itself and does not own modal layout\n  or responsive presentation.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`."
       },
       "inputs": {
         "label": {
@@ -515,12 +515,24 @@
             "value": "'Clear search'"
           }
         },
-        "classes": {
-          "name": "classes",
-          "description": "Classes, or state-aware element classes, applied through the shared style contract.",
+        "hostClass": {
+          "name": "hostClass",
+          "description": "Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<SearchInterface>"
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          },
+          "alias": "class"
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"container\" | \"search\" | \"stateLayer\" | \"input\" | \"leadingIcon\" | \"inputField\" | \"trailingActions\" | \"clearButton\" | \"results\", string>> | ClassNameComponent<SearchInterface>"
           },
           "defaultValue": null
         }

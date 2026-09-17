@@ -19,7 +19,7 @@ import { ProgressIndicator } from '@udixio/ui-angular';
         [value]="value()"
         [transitionDuration]="300"
         aria-label="Download progress"
-        classes="w-48"
+        class="w-48"
       />
       <udx-progress-indicator
         variant="circular-determinate"

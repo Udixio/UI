@@ -55,10 +55,10 @@
         },
         "className": {
           "name": "className",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "description": "Root classes (string), static element classes (object), or state-aware element classes (function).",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<StateLayerInterface>"
+            "name": "string | Partial<Record<\"stateLayer\", string>> | ClassNameComponent<StateLayerInterface>"
           },
           "defaultValue": null
         }
@@ -72,7 +72,7 @@
         "category": "Interaction",
         "devx": "- Building block used by every interactive component (`Button`, `Chip`, `Switch`, ...); it is\n  rendered inside the element it decorates, never standalone.\n- `colorName` is a theme token without the `--color-` prefix, and it is the\n  content colour of the surface being decorated -- `on-primary` on a filled\n  button, `on-primary-container` once that button is repainted onto a\n  container. An unknown token degrades to `on-surface`.\n- `stateClassName` selects the Tailwind utility driving the CSS states. The\n  `state-ripple-group-[name]` form pairs with a `group/name` class on the\n  trigger, and the layer attaches its ripple to that same element, so the\n  CSS states and the JavaScript gesture always agree on what the trigger is.\n- `state-layer` (the non-group form) is CSS-only: no ripple is wired.",
         "a11y": "- Decorative only: the layer carries `aria-hidden` and takes no pointer\n  events, so it never reaches the accessibility tree nor intercepts input.\n- The press ripple honours the reduced-motion preference through the shared\n  controller.",
-        "limitations": "- Must be rendered inside the element carrying the named Tailwind group,\n  which is the trigger it attaches to.\n- `colorName` is typed as `string`: the valid tokens are not visible from\n  here, so a typo degrades to `on-surface` instead of failing to compile.\n- `classes` takes the state-aware function form, but it resolves no\n  interaction states -- hover, focus and press live in the Tailwind\n  utilities, not in JavaScript."
+        "limitations": "- Must be rendered inside the element carrying the named Tailwind group,\n  which is the trigger it attaches to.\n- `colorName` is typed as `string`: the valid tokens are not visible from\n  here, so a typo degrades to `on-surface` instead of failing to compile.\n- `classes` takes the state-aware function form, but it resolves no\n  interaction states -- hover, focus and press live in the Tailwind\n  utilities, not in JavaScript.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`."
       },
       "inputs": {
         "colorName": {
@@ -95,12 +95,24 @@
             "value": "'state-ripple-group'"
           }
         },
-        "classes": {
-          "name": "classes",
-          "description": "Classes, or state-aware element classes, applied through the shared style contract.",
+        "hostClass": {
+          "name": "hostClass",
+          "description": "Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<StateLayerInterface>"
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          },
+          "alias": "class"
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"stateLayer\", string>> | ClassNameComponent<StateLayerInterface>"
           },
           "defaultValue": null
         },

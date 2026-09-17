@@ -18,10 +18,10 @@
       "props": {
         "className": {
           "name": "className",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "description": "Root classes (string), static element classes (object), or state-aware element classes (function).",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<TabPanelInterface>"
+            "name": "string | Partial<Record<\"tabPanel\", string>> | ClassNameComponent<TabPanelInterface>"
           },
           "defaultValue": null
         },
@@ -57,12 +57,24 @@
         "limitations": "- Unlike React, scroll position and focus inside an inactive panel are\n  preserved (its component instance stays alive, only hidden) -- do not\n  rely on either behavior for cross-framework parity."
       },
       "inputs": {
-        "classes": {
-          "name": "classes",
-          "description": "Classes, or state-aware element classes, applied through the shared style contract.",
+        "hostClass": {
+          "name": "hostClass",
+          "description": "Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<TabPanelInterface>"
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          },
+          "alias": "class"
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"tabPanel\", string>> | ClassNameComponent<TabPanelInterface>"
           },
           "defaultValue": null
         }

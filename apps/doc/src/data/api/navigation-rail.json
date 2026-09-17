@@ -17,10 +17,10 @@
       "props": {
         "className": {
           "name": "className",
-          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "description": "Root classes (string), static element classes (object), or state-aware element classes (function).",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<NavigationRailInterface>"
+            "name": "string | Partial<Record<\"footer\" | \"header\" | \"navigationRail\" | \"menuIcon\" | \"segments\", string>> | ClassNameComponent<NavigationRailInterface>"
           },
           "defaultValue": null
         },
@@ -103,7 +103,7 @@
         "category": "Navigation",
         "devx": "- Project `udx-navigation-rail-item`, `udx-navigation-rail-section`, and\n  a `udx-fab` as children; the FAB is hoisted into the header.\n- `footer` content is projected via `<div footer>`/an element with a\n  `footer` attribute, pinned below the item list.\n- Selection is index-based; use `selectedItem`/`selectedItemChange` for\n  controlled usage, or `defaultSelectedItem` uncontrolled.",
         "a11y": "- The menu toggle button exposes its open/closed label via `menu.opened`/\n  `menu.closed`.",
-        "limitations": "- Keyboard navigation/roving tabindex is not implemented.\n- Angular's `selectedItem`/`selectedItemChange` follow this repository's\n  output-naming convention; React instead exposes a raw\n  `setSelectedItem` dispatcher (an intentional platform difference, not a\n  parity gap)."
+        "limitations": "- Keyboard navigation/roving tabindex is not implemented.\n- Angular's `selectedItem`/`selectedItemChange` follow this repository's\n  output-naming convention; React instead exposes a raw\n  `setSelectedItem` dispatcher (an intentional platform difference, not a\n  parity gap).\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`."
       },
       "inputs": {
         "variant": {
@@ -179,12 +179,24 @@
             "value": "null"
           }
         },
-        "classes": {
-          "name": "classes",
-          "description": "Classes, or state-aware element classes, applied through the shared style contract.",
+        "hostClass": {
+          "name": "hostClass",
+          "description": "Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<NavigationRailInterface>"
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          },
+          "alias": "class"
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"header\" | \"navigationRail\" | \"menuIcon\" | \"segments\" | \"footer\", string>> | ClassNameComponent<NavigationRailInterface>"
           },
           "defaultValue": null
         }
