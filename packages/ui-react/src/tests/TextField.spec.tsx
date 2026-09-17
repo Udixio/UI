@@ -282,4 +282,19 @@ describe('TextField', () => {
     );
     expect(await axe(container)).toHaveNoViolations();
   });
+
+  it('accepts a static element object as className', () => {
+    render(
+      <TextField
+        label="Name"
+        name="name"
+        className={{ label: 'uppercase', supportingText: 'italic' }}
+        supportingText="Required"
+      />,
+    );
+    expect(screen.getByText('Name', { selector: 'label' }).className).toContain(
+      'uppercase',
+    );
+    expect(screen.getByText('Required').className).toContain('italic');
+  });
 });
