@@ -27,6 +27,20 @@ await api.load();
 const css = api.plugins.getPlugin(TailwindPlugin).getInstance().outputCss;
 ```
 
+## Generating the static CSS programmatically
+
+`generateStaticThemeCss(config)` returns, as a string, exactly what the `udixio-theme` CLI and the bundler plugins write to `udixio.generated.css` — without touching the filesystem. Use it from your own build script when neither fits (custom pipelines, several themes emitted at once):
+
+```ts
+import { writeFileSync } from 'node:fs';
+import { generateStaticThemeCss } from '@udixio/tailwind';
+import config from './theme.config';
+
+writeFileSync('src/udixio.generated.css', await generateStaticThemeCss(config));
+```
+
+An optional second argument `(api) => void` runs before the load, for palette or context overrides. For the colors-only CSS used at runtime / SSR, use `generateThemeCss` from `@udixio/ui-react` instead.
+
 ## Options reference
 
 | Option                  | Type                                        | Default                | Description                                                           |

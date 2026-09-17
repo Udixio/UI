@@ -52,6 +52,12 @@ export default defineConfig(() => ({
     rollupOptions: {
       // External packages that should not be bundled into your library.
       external: ['pathe', 'jiti', 'commander', 'unplugin', 'chokidar'],
+      output: {
+        // `dist/bin.js` is the `udixio-theme` CLI: the shebang lets npm's bin
+        // shim run it directly instead of going through a `node` wrapper.
+        banner: (chunk) =>
+          chunk.isEntry && chunk.name === 'bin' ? '#!/usr/bin/env node\n' : '',
+      },
     },
   },
   test: {
