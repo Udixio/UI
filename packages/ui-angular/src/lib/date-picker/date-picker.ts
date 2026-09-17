@@ -278,9 +278,12 @@ export class DatePicker implements OnInit {
     // contract.
   }) as unknown as Parameters<typeof datePickerStyle>[0]);
 
-  protected readonly headerButtonClassName = computed(() =>
-    classNames(this.styles()['monthLabel'], 'hover:bg-surface-container-highest'),
-  );
+  protected readonly headerButtonClassName = computed(() => ({
+    button: classNames(
+      this.styles()['monthLabel'],
+      'hover:bg-surface-container-highest',
+    ),
+  }));
 
   constructor() {
     afterRenderEffect(() => {
@@ -536,9 +539,11 @@ export class DatePicker implements OnInit {
     });
   }
 
-  protected yearButtonClassName(year: number): string {
-    return classNames('!w-full', {
-      'text-on-surface': year !== this.viewDate().getFullYear(),
-    });
+  protected yearButtonClassName(year: number): { button: string } {
+    return {
+      button: classNames('!w-full', {
+        'text-on-surface': year !== this.viewDate().getFullYear(),
+      }),
+    };
   }
 }

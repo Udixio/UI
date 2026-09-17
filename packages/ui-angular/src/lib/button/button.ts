@@ -18,10 +18,12 @@ import {
   type ButtonProps,
   buttonStyle,
   type ClassNameComponent,
+  type ElementClasses,
   getButtonPressTransition,
   getButtonProgressColor,
   getButtonShapeTransition,
   getButtonStateColor,
+  mergeClassNames,
   resolveButtonIconPosition,
 } from '@udixio/core';
 import { createControllableState } from '../utils/create-controllable-state';
@@ -50,6 +52,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
  * @limitations
  * - When `href` is set with `disabled`, the link is made inert with `aria-disabled` and removed from the tab order.
  * - Navigation links ignore toggle state; use `aria-current` for the current destination.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-button',
@@ -154,8 +157,13 @@ export class Button implements OnInit {
   /** Visible text fallback when no content is projected. */
   readonly label = input<string>('');
 
-  /** Classes or state-aware element classes applied through the shared style contract. */
-  readonly classes = input<string | ClassNameComponent<ButtonInterface>>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<ButtonInterface> | ClassNameComponent<ButtonInterface>
+  >();
 
   readonly stateColor = input<ButtonProps['stateColor']>();
 
@@ -291,7 +299,11 @@ export class Button implements OnInit {
     defaultPressed: this.defaultPressed(),
     label: this.label(),
     isPressed: this.isToggleButton() && this.isPressed(),
-    className: this.classes(),
+    className: mergeClassNames<ButtonInterface>(
+      'button',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   ngOnInit(): void {

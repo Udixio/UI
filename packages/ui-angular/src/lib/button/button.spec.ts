@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { Button } from './button';
@@ -52,6 +52,16 @@ class AccessibleLinkButtonHost {}
 class InteractiveButtonHost {
   actions = 0;
   pressed = false;
+}
+
+@Component({
+  standalone: true,
+  imports: [Button],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `<udx-button label="Go" class="mt-4" [class]="extra()" />`,
+})
+class ClassAliasHost {
+  readonly extra = signal('shadow-1');
 }
 
 describe('Button (Angular, consuming @udixio/core)', () => {
@@ -445,5 +455,60 @@ describe('Button (Angular, consuming @udixio/core)', () => {
 
     const results = await axe(fixture.nativeElement);
     expect(results).toHaveNoViolations();
+  });
+
+  it('routes the native class attribute to the root button, not the host', () => {
+    fixture.componentRef.setInput('class', 'mt-4');
+    fixture.detectChanges();
+    const button: HTMLButtonElement =
+      fixture.nativeElement.querySelector('button');
+    expect(button.className).toContain('mt-4');
+  });
+
+  it('lets a class string override a style default on the root through twMerge', () => {
+    fixture.componentRef.setInput('variant', 'filled'); // default sets bg-primary
+    fixture.componentRef.setInput('class', 'bg-secondary');
+    fixture.detectChanges();
+    const button: HTMLButtonElement =
+      fixture.nativeElement.querySelector('button');
+    expect(button.className).toContain('bg-secondary');
+    expect(button.className).not.toContain('bg-primary ');
+    expect(button.className).not.toMatch(/bg-primary$/);
+  });
+
+  it('applies a static element object to the named element only', () => {
+    fixture.componentRef.setInput('classes', { label: 'uppercase' });
+    fixture.componentRef.setInput('label', 'Save');
+    fixture.detectChanges();
+    const label: HTMLElement = fixture.nativeElement.querySelector('.label');
+    const button: HTMLButtonElement =
+      fixture.nativeElement.querySelector('button');
+    expect(label.className).toContain('uppercase');
+    expect(button.className).not.toContain('uppercase');
+  });
+
+  it('gives the class string precedence over the classes object on the root', () => {
+    fixture.componentRef.setInput('classes', { button: 'bg-tertiary' });
+    fixture.componentRef.setInput('class', 'bg-secondary');
+    fixture.detectChanges();
+    const button: HTMLButtonElement =
+      fixture.nativeElement.querySelector('button');
+    expect(button.className).toContain('bg-secondary');
+    expect(button.className).not.toContain('bg-tertiary');
+  });
+});
+
+describe('Button class alias', () => {
+  it('forwards static and bound class to the root button', () => {
+    const f = TestBed.createComponent(ClassAliasHost);
+    f.detectChanges();
+    const tokens = (): string[] =>
+      f.nativeElement.querySelector('button').className.split(/\s+/);
+    expect(tokens()).toContain('mt-4');
+    expect(tokens()).toContain('shadow-1');
+    f.componentInstance.extra.set('shadow-2');
+    f.detectChanges();
+    expect(tokens()).toContain('shadow-2');
+    expect(tokens()).not.toContain('shadow-1');
   });
 });
