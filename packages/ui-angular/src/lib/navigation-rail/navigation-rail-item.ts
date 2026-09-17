@@ -17,6 +17,8 @@ import {
   resolveNavigationRailItemSelection,
   type BadgeProps,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
   type Icon as IconType,
   type NavigationRailItemInterface,
 } from '@udixio/core';
@@ -53,6 +55,7 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
  * @limitations
  * - No arrow-key navigation between items; relies on the native sequential
  *   tab order.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-navigation-rail-item',
@@ -88,7 +91,7 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
     <ng-template #content>
       <span [class]="styles()['container']" [style.transition]="containerTransition()">
         <udx-state-layer
-          [classes]="styles()['stateLayer']"
+          [class]="styles()['stateLayer']"
           [colorName]="isSelected() ? 'on-secondary-container' : 'on-surface'"
           stateClassName="state-ripple-group-[navigation-rail-item]"
         />
@@ -96,7 +99,7 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
           @if (lastBadge(); as badge) {
             <udx-icon
               [icon]="(isSelected() ? iconSelected() : icon())!"
-              [classes]="styles()['icon']"
+              [class]="styles()['icon']"
               [udxBadge]="badge.label"
               [udxBadgeMax]="badge.max"
               [udxBadgeDescription]="badge.description"
@@ -106,7 +109,7 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
           } @else {
             <udx-icon
               [icon]="(isSelected() ? iconSelected() : icon())!"
-              [classes]="styles()['icon']"
+              [class]="styles()['icon']"
             />
           }
         }
@@ -150,9 +153,12 @@ export class NavigationRailItem {
   readonly selected = input(false, { transform: booleanAttribute });
   /** Navigation destination; switches the inner element to a native link. */
   readonly href = input<string>();
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
   readonly classes = input<
-    string | ClassNameComponent<NavigationRailItemInterface>
+    ElementClasses<NavigationRailItemInterface> | ClassNameComponent<NavigationRailItemInterface>
   >();
 
   private readonly context = inject(NAVIGATION_RAIL_CONTEXT, {
@@ -198,7 +204,11 @@ export class NavigationRailItem {
     isExtended: this.context?.isExtended(),
     extendedOnly: this.context?.hasPrecedingSection(this),
     isSelected: this.isSelected(),
-    className: this.classes(),
+    className: mergeClassNames<NavigationRailItemInterface>(
+      'navigationRailItem',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   /** @internal Read by the parent rail to order this item relative to sections. */

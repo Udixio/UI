@@ -14,6 +14,8 @@ import {
   getMenuItemSelectionTransition,
   menuItemStyle,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
   type MenuItemInterface,
   type MenuItemProps,
 } from '@udixio/core';
@@ -34,7 +36,9 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
  * @parent menu
  * @devx Use `selectionType`, `selected`, and `selectedChange` for controlled selection, or initialize with `defaultSelected`.
  * @a11y Resolves to `menuitem`, `menuitemradio`, `menuitemcheckbox`, or `option`; disabled links are inert and removed from navigation.
- * @limitations Nested submenus require a separate popup composition. Angular uses the required `label` input instead of projected item content.
+ * @limitations
+ * - Nested submenus require a separate popup composition. Angular uses the required `label` input instead of projected item content.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-menu-item',
@@ -75,7 +79,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
     <ng-template #content>
       @if (!disabled()) {
         <udx-state-layer
-          [classes]="styles()['stateLayer']"
+          [class]="styles()['stateLayer']"
           [colorName]="stateColor()"
           stateClassName="state-ripple-group-[menu-item]"
         />
@@ -130,8 +134,13 @@ export class MenuItem implements OnInit {
   readonly defaultSelected = input(false, { transform: booleanAttribute });
   /** Optional navigation target; disabled links omit the native href. */
   readonly href = input<string>();
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
-  readonly classes = input<string | ClassNameComponent<MenuItemInterface>>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<MenuItemInterface> | ClassNameComponent<MenuItemInterface>
+  >();
 
   /** Emits each accepted selected-state request and supports `[(selected)]`. */
   readonly selectedChange = output<boolean>();
@@ -188,7 +197,11 @@ export class MenuItem implements OnInit {
     onSelectedChange: undefined,
     isSelected: this.isSelected(),
     purpose: this.purpose(),
-    className: this.classes(),
+    className: mergeClassNames<MenuItemInterface>(
+      'menuItem',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   ngOnInit(): void {

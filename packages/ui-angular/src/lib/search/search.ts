@@ -17,6 +17,8 @@ import {
   getSearchKeyboardTransition,
   searchStyle,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
   type SearchInterface,
   type SearchProps,
 } from '@udixio/core';
@@ -61,8 +63,10 @@ let nextSearchId = 0;
  * @a11y Renders a `search` landmark and a named `input[type="search"]`; the leading icon is
  * decorative and hidden from assistive technology, while projected listbox results share
  * Arrow Up/Down, Enter, and Escape focus behavior with React.
- * @limitations Search does not filter or render result data itself and does not own modal layout
- * or responsive presentation.
+ * @limitations
+ * - Search does not filter or render result data itself and does not own modal layout
+ *   or responsive presentation.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-search',
@@ -85,12 +89,12 @@ let nextSearchId = 0;
           (click)="handleInputFieldClick($event)"
         >
           <udx-state-layer
-            [classes]="styles()['stateLayer']"
+            [class]="styles()['stateLayer']"
             colorName="on-surface"
             stateClassName="state-ripple-group-[search-input]"
           />
           <span [class]="styles()['leadingIcon']" aria-hidden="true">
-            <udx-icon [icon]="resolvedLeadingIcon()" classes="size-6" />
+            <udx-icon [icon]="resolvedLeadingIcon()" class="size-6" />
           </span>
 
           <input
@@ -133,11 +137,11 @@ let nextSearchId = 0;
                 (click)="handleClear()"
               >
                 <udx-state-layer
-                  [classes]="styles()['stateLayer']"
+                  [class]="styles()['stateLayer']"
                   colorName="on-surface"
                   stateClassName="state-ripple-group-[search-clear]"
                 />
-                <udx-icon [icon]="clearIcon" classes="size-6" />
+                <udx-icon [icon]="clearIcon" class="size-6" />
               </button>
             }
             <ng-content select="[search-trailing]" />
@@ -186,8 +190,13 @@ export class Search implements OnInit {
   readonly resultsRole = input<SearchProps['resultsRole']>('listbox');
   readonly resultsLabel = input('Search suggestions');
   readonly clearLabel = input('Clear search');
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
-  readonly classes = input<string | ClassNameComponent<SearchInterface>>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<SearchInterface> | ClassNameComponent<SearchInterface>
+  >();
 
   /** Emits each accepted query transition and supports `[(query)]`. */
   readonly queryChange = output<string>();
@@ -281,7 +290,11 @@ export class Search implements OnInit {
     isExpanded: this.isExpanded(),
     hasQuery: this.hasQuery(),
     hasResults: this.hasResults(),
-    className: this.classes(),
+    className: mergeClassNames<SearchInterface>(
+      'search',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   constructor() {

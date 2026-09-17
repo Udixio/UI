@@ -12,6 +12,8 @@ import {
 import {
   menuStyle,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
   type MenuInterface,
   type MenuProps,
 } from '@udixio/core';
@@ -26,7 +28,9 @@ import { MenuGroup } from './menu-group';
  * @category Selection
  * @devx Use `purpose="actions"` for commands and `purpose="selection"` for options. Set `initialFocus` for popup usage. When using groups, project each related MenuHeadline inside its MenuGroup.
  * @a11y Implements wrapping Arrow Up/Down, Home, End, and type-ahead focus navigation. Provide `accessibleLabel` unless the menu is labelled externally.
- * @limitations Nested submenus are not part of this component; compose another popup from an item trigger.
+ * @limitations
+ * - Nested submenus are not part of this component; compose another popup from an item trigger.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-menu',
@@ -50,8 +54,13 @@ export class Menu {
   readonly purpose = input<MenuProps['purpose']>('actions');
   readonly accessibleLabel = input<string>();
   readonly initialFocus = input<MenuProps['initialFocus']>('none');
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
-  readonly classes = input<string | ClassNameComponent<MenuInterface>>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<MenuInterface> | ClassNameComponent<MenuInterface>
+  >();
 
   private readonly root = viewChild<ElementRef<HTMLElement>>('root');
   private readonly groups = contentChildren(MenuGroup, {
@@ -64,7 +73,11 @@ export class Menu {
     accessibleLabel: this.accessibleLabel(),
     initialFocus: this.initialFocus(),
     hasGroups: this.hasGroups(),
-    className: this.classes(),
+    className: mergeClassNames<MenuInterface>(
+      'menu',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   constructor() {

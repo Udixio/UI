@@ -23,6 +23,8 @@ import {
   sanitizeTextFieldDateInput,
   textFieldStyle,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
   type DatePickerValue,
   type Icon as IconType,
   type TextFieldInterface,
@@ -74,6 +76,7 @@ let nextTextFieldId = 0;
  * - The date/select trailing icon is a real `<button>` so it stays keyboard reachable.
  * @limitations
  * - Does not support projecting custom `MenuItem` content the way the React adapter does; use `options`.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-text-field',
@@ -101,7 +104,7 @@ let nextTextFieldId = 0;
 
         @if (leadingIcon()) {
           <div [class]="styles()['leadingIcon']">
-            <udx-icon [icon]="leadingIcon()!" classes="w-5 h-5" />
+            <udx-icon [icon]="leadingIcon()!" class="w-5 h-5" />
           </div>
         }
 
@@ -182,13 +185,13 @@ let nextTextFieldId = 0;
                 (click)="handleTrailingClick($event)"
               >
                 <span class="flex items-center justify-center w-full h-full">
-                  <udx-icon [icon]="trailing" classes="h-5" />
+                  <udx-icon [icon]="trailing" class="h-5" />
                 </span>
               </button>
             } @else {
               <div [class]="styles()['trailingIcon']">
                 <div class="flex items-center justify-center w-full h-full">
-                  <udx-icon [icon]="trailing" classes="h-5" />
+                  <udx-icon [icon]="trailing" class="h-5" />
                 </div>
               </div>
             }
@@ -203,7 +206,7 @@ let nextTextFieldId = 0;
               })
             "
           >
-            <udx-icon [icon]="errorIcon" classes="h-5 text-error" />
+            <udx-icon [icon]="errorIcon" class="h-5 text-error" />
           </div>
         }
       </fieldset>
@@ -311,8 +314,13 @@ export class TextField implements OnInit {
    * next call unless you strip it back out first.
    */
   readonly mask = input<(raw: string) => string>();
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
-  readonly classes = input<string | ClassNameComponent<TextFieldInterface>>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<TextFieldInterface> | ClassNameComponent<TextFieldInterface>
+  >();
 
   /** Emits an accepted value transition and supports `[(value)]`. */
   readonly valueChange = output<string>();
@@ -434,7 +442,11 @@ export class TextField implements OnInit {
     isFocused: this.isFocused(),
     isFloating: this.isFloating(),
     hasSupportingText: this.hasSupportingText(),
-    className: this.classes(),
+    className: mergeClassNames<TextFieldInterface>(
+      'textField',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   protected readonly rootElement =

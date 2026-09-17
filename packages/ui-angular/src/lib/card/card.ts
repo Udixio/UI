@@ -13,6 +13,8 @@ import {
   type CardKeyPhase,
   type CardProps,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
 } from '@udixio/core';
 import { createStyle } from '../utils/create-style';
 import { StateLayer } from '../state-layer/state-layer';
@@ -30,6 +32,7 @@ import { StateLayer } from '../state-layer/state-layer';
  * @limitations
  * - No built-in header/actions slots; layout is fully custom via projected content.
  * - An actionable card is one action target: do not nest interactive elements inside it; compose inner controls in a non-interactive card instead.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-card',
@@ -41,7 +44,7 @@ import { StateLayer } from '../state-layer/state-layer';
     <ng-template #content>
       @if (isInteractive()) {
         <udx-state-layer
-          [classes]="styles()['stateLayer']"
+          [class]="styles()['stateLayer']"
           colorName="on-surface"
           stateClassName="state-ripple-group-[card]"
         />
@@ -79,8 +82,13 @@ export class Card {
   readonly variant = input<CardProps['variant']>('outlined');
   readonly interactive = input(false, { transform: booleanAttribute });
 
-  /** Classes or state-aware element classes applied through the shared style contract. */
-  readonly classes = input<string | ClassNameComponent<CardInterface>>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<CardInterface> | ClassNameComponent<CardInterface>
+  >();
 
   /** Navigation URL. When defined, the component renders a native link. */
   readonly href = input<string>();
@@ -98,7 +106,11 @@ export class Card {
   protected readonly styles = createStyle(cardStyle, () => ({
     variant: this.variant(),
     interactive: this.isInteractive(),
-    className: this.classes(),
+    className: mergeClassNames<CardInterface>(
+      'card',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   protected handleKey(event: KeyboardEvent, phase: CardKeyPhase): void {

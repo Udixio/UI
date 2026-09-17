@@ -13,6 +13,8 @@ import {
   isDeterminateVariant,
   progressIndicatorStyle,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
   type ProgressIndicatorInterface,
   type ProgressIndicatorVariant,
 } from '@udixio/core';
@@ -38,6 +40,7 @@ import { createStyle } from '../utils/create-style';
  *   accessible name.
  * @limitations
  * - Visibility auto-hides at 100% (no controlled open prop).
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-progress-indicator',
@@ -159,9 +162,12 @@ export class ProgressIndicator {
   readonly value = input<number>(0);
   readonly transitionDuration = input<number>(1000);
   readonly minHeight = input<number>();
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
   readonly classes = input<
-    string | ClassNameComponent<ProgressIndicatorInterface>
+    ElementClasses<ProgressIndicatorInterface> | ClassNameComponent<ProgressIndicatorInterface>
   >();
   /** Accessible-name override; this component does not infer one. */
   readonly ariaLabel = input<string | undefined>(undefined, {
@@ -224,7 +230,11 @@ export class ProgressIndicator {
   );
 
   protected readonly styles = createStyle(progressIndicatorStyle, () => ({
-    className: this.classes(),
+    className: mergeClassNames<ProgressIndicatorInterface>(
+      'progressIndicator',
+      this.classes(),
+      this.hostClass(),
+    ),
     variant: this.variant(),
     value: this.value(),
     transitionDuration: this.transitionDuration(),

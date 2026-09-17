@@ -13,6 +13,8 @@ import {
   resolveTabSelection,
   tabStyle,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
   type Icon as IconType,
   type TabInterface,
   type TabsVariant,
@@ -39,6 +41,7 @@ import { TABS_CONTEXT } from './tabs-context';
  * @limitations
  * - Horizontal layout only; there is no vertical tablist orientation.
  * - A truncated label has no built-in tooltip.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-tab',
@@ -82,7 +85,7 @@ import { TABS_CONTEXT } from './tabs-context';
     <ng-template #content>
       <udx-state-layer
         style="transition: 0.3s"
-        [classes]="styles()['stateLayer']"
+        [class]="styles()['stateLayer']"
         [colorName]="
           variant() === 'primary' && isSelected() ? 'primary' : 'on-surface'
         "
@@ -90,7 +93,7 @@ import { TABS_CONTEXT } from './tabs-context';
       />
       <span #contentEl [class]="styles()['content']">
         @if (icon()) {
-          <udx-icon [icon]="icon()!" [classes]="styles()['icon']" />
+          <udx-icon [icon]="icon()!" [class]="styles()['icon']" />
         }
         <span [class]="styles()['label']">{{ label() }}</span>
       </span>
@@ -106,8 +109,13 @@ export class Tab {
   readonly disabled = input(false, { transform: booleanAttribute });
   /** Navigation destination; switches the inner element to a native link. */
   readonly href = input<string>();
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
-  readonly classes = input<string | ClassNameComponent<TabInterface>>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<TabInterface> | ClassNameComponent<TabInterface>
+  >();
 
   private readonly context = inject(TABS_CONTEXT, { optional: true });
 
@@ -154,7 +162,11 @@ export class Tab {
     selectedTab: this.context?.selectedIndex() ?? null,
     tabsId: this.context?.tabsId(),
     isSelected: this.isSelected(),
-    className: this.classes(),
+    className: mergeClassNames<TabInterface>(
+      'tab',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   private readonly tabElement =

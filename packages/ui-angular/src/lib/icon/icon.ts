@@ -7,7 +7,11 @@ import {
 } from '@angular/core';
 import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
 import {
+  type ClassNameComponent,
+  type ElementClasses,
+  type IconInterface,
   iconStyle,
+  mergeClassNames,
   resolveIconKind,
   type Icon as IconType,
   type SvgImport,
@@ -16,6 +20,10 @@ import { createStyle } from '../utils/create-style';
 
 type FontAwesomeIcon = Exclude<IconType, string | SvgImport>;
 
+/**
+ * @limitations
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
+ */
 @Component({
   selector: 'udx-icon',
   standalone: true,
@@ -66,8 +74,13 @@ type FontAwesomeIcon = Exclude<IconType, string | SvgImport>;
 export class Icon {
   readonly icon = input.required<IconType>();
   readonly colors = input<readonly string[]>([]);
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
-  readonly classes = input<string>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<IconInterface> | ClassNameComponent<IconInterface>
+  >();
 
   protected readonly kind = computed(() => resolveIconKind(this.icon()));
 
@@ -108,6 +121,10 @@ export class Icon {
   protected readonly styles = createStyle(iconStyle, () => ({
     icon: this.icon(),
     colors: this.colors(),
-    className: this.classes(),
+    className: mergeClassNames<IconInterface>(
+      'icon',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 }

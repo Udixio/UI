@@ -20,6 +20,8 @@ import {
   SLIDER_KEYBOARD_INDICATOR_TIMEOUT_MS,
   sliderStyle,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
   type SliderInterface,
   type SliderMark,
 } from '@udixio/core';
@@ -47,6 +49,7 @@ import { createStyle } from '../utils/create-style';
  * @limitations
  * - Single-thumb only; there is no dual-thumb range-selection mode.
  * - Horizontal orientation only.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-slider',
@@ -117,8 +120,13 @@ export class Slider implements OnInit {
   readonly max = input(100);
   readonly marks = input<SliderMark[]>();
   readonly valueFormatter = input<(value: number) => string | number>();
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
-  readonly classes = input<string | ClassNameComponent<SliderInterface>>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<SliderInterface> | ClassNameComponent<SliderInterface>
+  >();
   /** Accessible-name override when no visible label is available. */
   readonly ariaLabel = input<string | undefined>(undefined, {
     alias: 'aria-label',
@@ -209,7 +217,11 @@ export class Slider implements OnInit {
     valueFormatter: this.valueFormatter(),
     onChange: () => undefined,
     isChanging: this.isChanging(),
-    className: this.classes(),
+    className: mergeClassNames<SliderInterface>(
+      'slider',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   private indicatorController?: SliderIndicatorController;

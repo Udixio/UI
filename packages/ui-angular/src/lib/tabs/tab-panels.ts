@@ -10,6 +10,8 @@ import {
 import {
   tabPanelsStyle,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
   type TabPanelsInterface,
 } from '@udixio/core';
 import { createStyle } from '../utils/create-style';
@@ -33,6 +35,7 @@ import { TabPanel } from './tab-panel';
  * - Unlike React, every projected `udx-tab-panel` keeps its component
  *   instance alive; inactive panels are hidden with the native `hidden`
  *   attribute instead of being unmounted.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-tab-panels',
@@ -49,9 +52,12 @@ import { TabPanel } from './tab-panel';
   `,
 })
 export class TabPanels implements TabPanelsContext {
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
   readonly classes = input<
-    string | ClassNameComponent<TabPanelsInterface>
+    ElementClasses<TabPanelsInterface> | ClassNameComponent<TabPanelsInterface>
   >();
 
   private readonly groupContext = inject(TAB_GROUP_CONTEXT, {
@@ -61,7 +67,11 @@ export class TabPanels implements TabPanelsContext {
   private warned = false;
 
   protected readonly styles = createStyle(tabPanelsStyle, () => ({
-    className: this.classes(),
+    className: mergeClassNames<TabPanelsInterface>(
+      'tabPanels',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   constructor() {

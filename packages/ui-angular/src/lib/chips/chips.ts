@@ -11,6 +11,8 @@ import {
   type ChipsInterface,
   type ChipsProps,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
 } from '@udixio/core';
 import { Chip } from '../chip/chip';
 import { createStyle } from '../utils/create-style';
@@ -21,7 +23,9 @@ import { createStyle } from '../utils/create-style';
  * @category Input
  * @devx Pass stable `ChipItem.id` values when the collection can be reordered and replace the list from `itemsChange`.
  * @a11y Renders a labelled list; each chip retains its native button or link semantics.
- * @limitations Does not virtualize large lists.
+ * @limitations
+ * - Does not virtualize large lists.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-chips',
@@ -57,8 +61,13 @@ export class Chips {
   readonly items = input.required<readonly ChipItem[]>();
   readonly scrollable = input(true, { transform: booleanAttribute });
   readonly draggable = input(false, { transform: booleanAttribute });
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
-  readonly classes = input<string | ClassNameComponent<ChipsInterface>>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<ChipsInterface> | ClassNameComponent<ChipsInterface>
+  >();
 
   /** Notifies list changes caused by selection, editing, or removal. */
   readonly itemsChange = output<ChipItem[]>();
@@ -70,7 +79,11 @@ export class Chips {
     onItemsChange: () => undefined,
     scrollable: this.scrollable(),
     draggable: this.draggable(),
-    className: this.classes(),
+    className: mergeClassNames<ChipsInterface>(
+      'chips',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   protected replaceSelection(index: number, selected: boolean): void {

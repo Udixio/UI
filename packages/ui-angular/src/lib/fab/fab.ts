@@ -13,6 +13,8 @@ import {
 } from '@angular/core';
 import {
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
   type FabInterface,
   type FabProps,
   fabStyle,
@@ -43,6 +45,7 @@ import { Tooltip } from '../tooltip/tooltip';
  * @limitations
  * - No built-in positioning; placement is handled by layout.
  * - Disabled links are inert and removed from the tab order.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-fab',
@@ -54,11 +57,11 @@ import { Tooltip } from '../tooltip/tooltip';
     <ng-template #content>
       <span [class]="styles()['touchTarget']"></span>
       <udx-state-layer
-        [classes]="styles()['stateLayer']"
+        [class]="styles()['stateLayer']"
         [colorName]="stateColor()"
         stateClassName="state-ripple-group-[fab]"
       />
-      <udx-icon [icon]="icon()" [classes]="styles()['icon']" />
+      <udx-icon [icon]="icon()" [class]="styles()['icon']" />
       <span
         #labelEl
         [class]="styles()['label']"
@@ -127,8 +130,13 @@ export class Fab {
    */
   readonly tooltip = input<FabProps['tooltip']>();
   readonly disabled = input(false, { transform: booleanAttribute });
-  /** Classes or state-aware element classes applied through the shared style contract. */
-  readonly classes = input<string | ClassNameComponent<FabInterface>>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<FabInterface> | ClassNameComponent<FabInterface>
+  >();
   /** Navigation destination; switches the inner element to a native link. */
   readonly href = input<string>();
   /** Native link browsing-context target. */
@@ -238,7 +246,11 @@ export class Fab {
     tooltip: this.tooltip(),
     extended: this.extended(),
     disabled: this.disabled(),
-    className: this.classes(),
+    className: mergeClassNames<FabInterface>(
+      'fab',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   protected readonly stateColor = () =>

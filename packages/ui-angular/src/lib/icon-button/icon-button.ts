@@ -17,6 +17,8 @@ import {
   getIconButtonStateColor,
   iconButtonStyle,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
   type IconButtonInterface,
   type IconButtonProps,
   type TooltipProps,
@@ -45,6 +47,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
  * @limitations
  * - Disabled links are inert and removed from the tab order.
  * - Navigation links ignore toggle state; use `aria-current` for the current destination.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-icon-button',
@@ -56,12 +59,12 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
     <ng-template #content>
       <span [class]="styles()['touchTarget']"></span>
       <udx-state-layer
-        [classes]="styles()['stateLayer']"
+        [class]="styles()['stateLayer']"
         [colorName]="stateColor()"
         [shapeTransition]="shapeTransition()"
         stateClassName="state-ripple-group-[icon-button]"
       />
-      <udx-icon [icon]="resolvedIcon()" [classes]="styles()['icon']" />
+      <udx-icon [icon]="resolvedIcon()" [class]="styles()['icon']" />
     </ng-template>
 
     @if (href() !== undefined) {
@@ -128,9 +131,12 @@ export class IconButton implements OnInit {
     transform: optionalBooleanAttribute,
   });
   readonly defaultPressed = input(false, { transform: booleanAttribute });
-  /** Classes or state-aware element classes applied through the shared style contract. */
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
   readonly classes = input<
-    string | ClassNameComponent<IconButtonInterface>
+    ElementClasses<IconButtonInterface> | ClassNameComponent<IconButtonInterface>
   >();
   /** Navigation destination; switches the inner element to a native link. */
   readonly href = input<string>();
@@ -219,7 +225,11 @@ export class IconButton implements OnInit {
     pressed: this.pressed(),
     defaultPressed: this.defaultPressed(),
     isPressed: this.isPressed(),
-    className: this.classes(),
+    className: mergeClassNames<IconButtonInterface>(
+      'iconButton',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   ngOnInit(): void {

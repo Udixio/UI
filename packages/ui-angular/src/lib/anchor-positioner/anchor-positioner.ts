@@ -34,6 +34,7 @@ import {
  * @limitations
  * - Falls back to tracking `getBoundingClientRect()` on scroll and resize
  *   in browsers without native CSS Anchor Positioning support.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-anchor-positioner',
@@ -41,7 +42,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
-    <div #floating [class]="classes()" style="z-index: 50">
+    <div #floating [class]="hostClass()" style="z-index: 50">
       <ng-content />
     </div>
   `,
@@ -50,8 +51,8 @@ export class AnchorPositioner implements OnDestroy {
   /** The element the floating content is positioned relative to. */
   readonly anchor = input.required<ElementRef<HTMLElement> | HTMLElement>();
   readonly position = input<AnchorPosition>('bottom');
-  /** Class applied to the floating (portaled) wrapper element. */
-  readonly classes = input<string>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
 
   private readonly document = inject(DOCUMENT);
   private readonly renderer = inject(Renderer2);

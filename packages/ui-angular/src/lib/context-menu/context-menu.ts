@@ -22,7 +22,9 @@ import { Menu } from '../menu/menu';
  * @parent menu
  * @devx Mark the projected trigger with `contextMenuTrigger`; project Menu family elements into the default slot.
  * @a11y Supports native context-menu events and Shift+F10, focuses the first item, and restores trigger focus after Escape.
- * @limitations The popup position is internally owned and is not controllable.
+ * @limitations
+ * - The popup position is internally owned and is not controllable.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-context-menu',
@@ -37,7 +39,7 @@ import { Menu } from '../menu/menu';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
-    <div #root [class]="classes()" style="display: contents">
+    <div #root [class]="hostClass()" style="display: contents">
       <span
         #trigger
         style="display: contents"
@@ -70,8 +72,8 @@ export class ContextMenu {
   readonly variant = input<MenuVariant>('standard');
   readonly accessibleLabel = input<ContextMenuProps['accessibleLabel']>();
   readonly disabled = input(false, { transform: booleanAttribute });
-  /** Classes applied to the display-contents root. */
-  readonly classes = input<string>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
 
   /** Notifies visibility changes caused by user interaction. */
   readonly openChange = output<boolean>();

@@ -6,6 +6,8 @@ import {
 } from '@angular/core';
 import {
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
   type DividerInterface,
   type DividerProps,
   dividerStyle,
@@ -23,6 +25,7 @@ import { createStyle } from '../utils/create-style';
  * - Sets `aria-orientation="vertical"` when `orientation="vertical"`, since the implicit default for `separator` is horizontal.
  * @limitations
  * - Purely decorative; there is no `decorative`/`aria-hidden` escape hatch, so every divider is announced as a separator to assistive technology.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-divider',
@@ -39,8 +42,13 @@ import { createStyle } from '../utils/create-style';
 export class Divider {
   readonly orientation = input<DividerProps['orientation']>('horizontal');
 
-  /** Classes or state-aware element classes applied through the shared style contract. */
-  readonly classes = input<string | ClassNameComponent<DividerInterface>>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<DividerInterface> | ClassNameComponent<DividerInterface>
+  >();
 
   protected readonly ariaOrientation = computed(() =>
     this.orientation() === 'vertical' ? 'vertical' : null,
@@ -48,6 +56,10 @@ export class Divider {
 
   protected readonly styles = createStyle(dividerStyle, () => ({
     orientation: this.orientation(),
-    className: this.classes(),
+    className: mergeClassNames<DividerInterface>(
+      'divider',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 }

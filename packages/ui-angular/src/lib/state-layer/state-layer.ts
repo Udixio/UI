@@ -10,6 +10,8 @@ import {
 import {
   stateLayerStyle,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
   type StateLayerInterface,
   type StateLayerProps,
 } from '@udixio/core';
@@ -51,6 +53,7 @@ import { createStyle } from '../utils/create-style';
  * - `classes` takes the state-aware function form, but it resolves no
  *   interaction states -- hover, focus and press live in the Tailwind
  *   utilities, not in JavaScript.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-state-layer',
@@ -75,9 +78,12 @@ export class StateLayer {
   readonly colorName = input.required<StateLayerProps['colorName']>();
   readonly stateClassName =
     input<NonNullable<StateLayerProps['stateClassName']>>('state-ripple-group');
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
   readonly classes = input<
-    string | ClassNameComponent<StateLayerInterface>
+    ElementClasses<StateLayerInterface> | ClassNameComponent<StateLayerInterface>
   >();
   readonly shapeTransition = input<StateLayerProps['shapeTransition']>();
   readonly transitionDuration =
@@ -91,7 +97,11 @@ export class StateLayer {
     stateClassName: this.stateClassName(),
     shapeTransition: this.shapeTransition(),
     transitionDuration: this.transitionDuration(),
-    className: this.classes(),
+    className: mergeClassNames<StateLayerInterface>(
+      'stateLayer',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   constructor() {

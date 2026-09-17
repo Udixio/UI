@@ -17,6 +17,8 @@ import {
   type ChipInterface,
   type ChipProps,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
 } from '@udixio/core';
 import { iCheck } from '@udixio/icons-rounded-400/check';
 import { iClose } from '@udixio/icons-rounded-400/close';
@@ -31,7 +33,9 @@ import { createStyle } from '../utils/create-style';
  * @category Action
  * @devx Bind `selected` and `selectedChange` for controlled selection, or initialize with `defaultSelected`.
  * @a11y Uses a native button or link and exposes `aria-pressed` only in selection mode. Backspace and Delete remove a removable chip.
- * @limitations The delayed edit-on-focus behavior remains specific to the React adapter.
+ * @limitations
+ * - The delayed edit-on-focus behavior remains specific to the React adapter.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-chip',
@@ -82,7 +86,7 @@ import { createStyle } from '../utils/create-style';
     <ng-template #content>
       @if (interactive() && !disabled() && !isEditing()) {
         <udx-state-layer
-          [classes]="styles()['stateLayer']"
+          [class]="styles()['stateLayer']"
           [colorName]="stateColor()"
           [transitionDuration]="transitionDuration()"
           stateClassName="state-ripple-group-[chip]"
@@ -91,7 +95,7 @@ import { createStyle } from '../utils/create-style';
       @if (resolvedIcon()) {
         <udx-icon
           [icon]="resolvedIcon()!"
-          [classes]="styles()['leadingIcon']"
+          [class]="styles()['leadingIcon']"
         />
       }
       <span
@@ -110,7 +114,7 @@ import { createStyle } from '../utils/create-style';
           (mousedown)="$event.preventDefault(); $event.stopPropagation()"
           (click)="requestRemoval($event)"
         >
-          <udx-icon [icon]="removeIcon" classes="size-full" />
+          <udx-icon [icon]="removeIcon" class="size-full" />
         </span>
       }
     </ng-template>
@@ -132,8 +136,13 @@ export class Chip implements OnInit {
   readonly draggable = input(false, { transform: booleanAttribute });
   readonly editable = input(false, { transform: booleanAttribute });
   readonly editing = input<boolean | undefined>(undefined);
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
-  readonly classes = input<string | ClassNameComponent<ChipInterface>>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<ChipInterface> | ClassNameComponent<ChipInterface>
+  >();
   readonly transition = input<ChipProps['transition']>();
 
   /** Defaults to 0.3s, matching the React adapter. */
@@ -216,7 +225,11 @@ export class Chip implements OnInit {
     isDragging: this.isDragging(),
     isEditing: this.isEditing(),
     trailingIcon: this.removable() && !this.isEditing(),
-    className: this.classes(),
+    className: mergeClassNames<ChipInterface>(
+      'chip',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   ngOnInit(): void {

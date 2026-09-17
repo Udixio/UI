@@ -28,6 +28,8 @@ import {
   type ButtonVariant,
   type CalendarDay,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
   type DatePickerInterface,
   type DatePickerProps,
   type DatePickerValue,
@@ -67,6 +69,7 @@ function extractAnchorDate(
  * @limitations
  * - Does not render its own text input or popup positioning; combine with `Button`/`IconButton` and your own overlay for a popup picker.
  * - The year picker view is a plain scrollable button list without virtualization.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-date-picker',
@@ -83,14 +86,14 @@ function extractAnchorDate(
           size="small"
           (click)="toggleViewMode()"
           aria-live="polite"
-          [classes]="headerButtonClassName()"
+          [class]="headerButtonClassName()"
         >
           <span class="mr-2">{{
             viewMode() === 'day' ? monthLabel() : viewDate().getFullYear()
           }}</span>
           <udx-icon
             [icon]="chevronDownIcon"
-            [classes]="
+            [class]="
               'w-3 h-3 transition-transform duration-200' +
               (viewMode() === 'year' ? ' rotate-180' : '')
             "
@@ -129,7 +132,7 @@ function extractAnchorDate(
               [edgeAligned]="false"
               (click)="handleYearSelect(year)"
               [attr.data-selected]="year === viewDate().getFullYear()"
-              [classes]="yearButtonClassName(year)"
+              [class]="yearButtonClassName(year)"
               [label]="year.toString()"
             />
           }
@@ -186,7 +189,7 @@ function extractAnchorDate(
                       >
                         <span [class]="dayStyles['touchTarget']"></span>
                         <udx-state-layer
-                          [classes]="dayStyles['stateLayer']"
+                          [class]="dayStyles['stateLayer']"
                           [colorName]="
                             dayStateColor(selection.isSelected, isTodayDay)
                           "
@@ -216,8 +219,13 @@ export class DatePicker implements OnInit {
   readonly shouldDisableDate = input<(date: Date) => boolean>();
   readonly locale = input('default');
   readonly weekStartDay = input<0 | 1 | 2 | 3 | 4 | 5 | 6>(0);
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
-  readonly classes = input<string | ClassNameComponent<DatePickerInterface>>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<DatePickerInterface> | ClassNameComponent<DatePickerInterface>
+  >();
 
   /** Emits an accepted selection request and supports `[(value)]`. */
   readonly valueChange = output<DatePickerValue>();
@@ -270,7 +278,11 @@ export class DatePicker implements OnInit {
     locale: this.locale(),
     weekStartDay: this.weekStartDay(),
     hasSelected: this.hasSelected(),
-    className: this.classes(),
+    className: mergeClassNames<DatePickerInterface>(
+      'datePicker',
+      this.classes(),
+      this.hostClass(),
+    ),
     // `DatePickerProps` is a mode-discriminated union (see date-picker.ts's
     // TSDoc) so consumers can't mix `mode`/`value` shapes; the shared
     // style-hook signature wants one flat `props & states` bag, so the merged
@@ -278,12 +290,9 @@ export class DatePicker implements OnInit {
     // contract.
   }) as unknown as Parameters<typeof datePickerStyle>[0]);
 
-  protected readonly headerButtonClassName = computed(() => ({
-    button: classNames(
-      this.styles()['monthLabel'],
-      'hover:bg-surface-container-highest',
-    ),
-  }));
+  protected readonly headerButtonClassName = computed(() =>
+    classNames(this.styles()['monthLabel'], 'hover:bg-surface-container-highest'),
+  );
 
   constructor() {
     afterRenderEffect(() => {
@@ -539,11 +548,9 @@ export class DatePicker implements OnInit {
     });
   }
 
-  protected yearButtonClassName(year: number): { button: string } {
-    return {
-      button: classNames('!w-full', {
-        'text-on-surface': year !== this.viewDate().getFullYear(),
-      }),
-    };
+  protected yearButtonClassName(year: number): string {
+    return classNames('!w-full', {
+      'text-on-surface': year !== this.viewDate().getFullYear(),
+    });
   }
 }

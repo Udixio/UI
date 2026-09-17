@@ -8,6 +8,8 @@ import {
 import {
   menuGroupStyle,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
   type MenuGroupInterface,
   type MenuGroupProps,
 } from '@udixio/core';
@@ -45,8 +47,13 @@ import { MENU_CONTEXT } from './menu-context';
 export class MenuGroup {
   readonly variant = input<MenuGroupProps['variant']>();
   readonly label = input<string>();
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
-  readonly classes = input<string | ClassNameComponent<MenuGroupInterface>>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<MenuGroupInterface> | ClassNameComponent<MenuGroupInterface>
+  >();
 
   private static nextId = 0;
   protected readonly labelId = `menu-group-${MenuGroup.nextId++}`;
@@ -57,6 +64,10 @@ export class MenuGroup {
   protected readonly styles = createStyle(menuGroupStyle, () => ({
     variant: this.resolvedVariant(),
     label: this.label(),
-    className: this.classes(),
+    className: mergeClassNames<MenuGroupInterface>(
+      'menuGroup',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 }

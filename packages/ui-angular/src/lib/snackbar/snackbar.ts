@@ -14,6 +14,8 @@ import {
 import {
   snackbarStyle,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
   type SnackbarInterface,
   type SnackbarProps,
 } from '@udixio/core';
@@ -50,6 +52,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
  *   instead of unmounting, so the live region is reliably present before it announces.
  * @limitations
  * - No built-in queue/stacking for multiple simultaneous snackbars.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-snackbar',
@@ -71,7 +74,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         <udx-icon-button
           label="Close the snackbar"
           [icon]="closeIcon()"
-          [classes]="styles()['icon']"
+          [class]="styles()['icon']"
           (click)="close()"
         />
       </div>
@@ -89,8 +92,13 @@ export class Snackbar implements OnInit {
   readonly transition: InputSignal<SnackbarProps['transition']> = input<
     SnackbarProps['transition']
   >();
-  /** Classes or state-aware element classes applied through the shared style contract. */
-  readonly classes = input<string | ClassNameComponent<SnackbarInterface>>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<SnackbarInterface> | ClassNameComponent<SnackbarInterface>
+  >();
 
   /** Emits an accepted open-state request and supports `[(open)]`. */
   readonly openChange = output<boolean>();
@@ -112,7 +120,11 @@ export class Snackbar implements OnInit {
     closeIcon: this.closeIcon(),
     transition: this.transition(),
     isOpen: this.isOpen(),
-    className: this.classes(),
+    className: mergeClassNames<SnackbarInterface>(
+      'snackbar',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');

@@ -12,6 +12,8 @@ import {
   getNextNavigationRailExtended,
   navigationRailStyle,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
   type Icon,
   type NavigationRailInterface,
   type NavigationRailMenuState,
@@ -61,6 +63,7 @@ const DEFAULT_MENU: { closed: NavigationRailMenuState; opened: NavigationRailMen
  *   output-naming convention; React instead exposes a raw
  *   `setSelectedItem` dispatcher (an intentional platform difference, not a
  *   parity gap).
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-navigation-rail',
@@ -80,7 +83,7 @@ const DEFAULT_MENU: { closed: NavigationRailMenuState; opened: NavigationRailMen
         <udx-icon-button
           [label]="isExtended() ? menu().opened.label : menu().closed.label"
           [icon]="isExtended() ? menu().opened.icon : menu().closed.icon"
-          [classes]="styles()['menuIcon']"
+          [class]="styles()['menuIcon']"
           (click)="toggleExtended()"
         />
         <div class="mx-5 [&_.fab]:!shadow-none">
@@ -115,9 +118,12 @@ export class NavigationRail implements OnInit, NavigationRailContext {
   readonly selectedItem = input<number | null>();
   /** Initial selected index when uncontrolled. */
   readonly defaultSelectedItem = input<number | null>(null);
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
   readonly classes = input<
-    string | ClassNameComponent<NavigationRailInterface>
+    ElementClasses<NavigationRailInterface> | ClassNameComponent<NavigationRailInterface>
   >();
 
   /** Emits each accepted extended-state request and supports `[(extended)]`. */
@@ -158,7 +164,11 @@ export class NavigationRail implements OnInit, NavigationRailContext {
     onExtendedChange: undefined,
     isExtended: this.isExtended(),
     selectedIndex: this.selectedIndex(),
-    className: this.classes(),
+    className: mergeClassNames<NavigationRailInterface>(
+      'navigationRail',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   private lastEmittedIndex: number | null = null;

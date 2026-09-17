@@ -9,6 +9,8 @@ import {
   carouselItemStyle,
   type CarouselItemInterface,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
 } from '@udixio/core';
 import { createStyle } from '../utils/create-style';
 import { CAROUSEL_CONTEXT } from './carousel-context';
@@ -21,7 +23,9 @@ import { CAROUSEL_CONTEXT } from './carousel-context';
  * @parent Carousel
  * @devx Intended for use inside `udx-carousel`, which stamps sizing and slide semantics on this component's host element.
  * @a11y Rendered inside `udx-carousel` as a `group` with `aria-roledescription="slide"` and an accessible name; used standalone it is a plain container with no slide role.
- * @limitations Sizing (`outputRange`) is inherited from the parent carousel; used on its own the item has no min/max width unless `outputRange` is set explicitly.
+ * @limitations
+ * - Sizing (`outputRange`) is inherited from the parent carousel; used on its own the item has no min/max width unless `outputRange` is set explicitly.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-carousel-item',
@@ -37,9 +41,12 @@ import { CAROUSEL_CONTEXT } from './carousel-context';
 })
 export class CarouselItem {
   readonly outputRange = input<[number, number]>();
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
   readonly classes = input<
-    string | ClassNameComponent<CarouselItemInterface>
+    ElementClasses<CarouselItemInterface> | ClassNameComponent<CarouselItemInterface>
   >();
 
   // The carousel's DOM controller writes --carousel-item-width and
@@ -55,6 +62,10 @@ export class CarouselItem {
 
   protected readonly styles = createStyle(carouselItemStyle, () => ({
     outputRange: this.resolvedOutputRange(),
-    className: this.classes(),
+    className: mergeClassNames<CarouselItemInterface>(
+      'carouselItem',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 }

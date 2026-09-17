@@ -18,6 +18,7 @@ import {
 import {
   tooltipStyle,
   type ClassNameComponent,
+  type ElementClasses,
   type TooltipInteractionState,
   type TooltipInterface,
   type TooltipProps,
@@ -136,9 +137,12 @@ export class Tooltip implements OnDestroy {
   readonly transition = input<TooltipProps['transition']>(undefined, {
     alias: 'udxTooltipTransition',
   });
-  /** Classes or state-aware element classes through the shared style contract. */
+  /** Classes for the detached surface: a root string, static element classes, or a state-aware function. */
   readonly classes = input<
-    string | ClassNameComponent<TooltipInterface> | undefined
+    | string
+    | ElementClasses<TooltipInterface>
+    | ClassNameComponent<TooltipInterface>
+    | undefined
   >(undefined, { alias: 'udxTooltipClass' });
 
   /** Emits an accepted open-state request. */

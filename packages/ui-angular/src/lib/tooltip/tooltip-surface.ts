@@ -46,7 +46,7 @@ export interface TooltipButtonAction {
     <udx-anchor-positioner
       [anchor]="anchor()"
       [position]="position()"
-      classes="pointer-events-none"
+      class="pointer-events-none"
     >
       <div
         #surface

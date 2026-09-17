@@ -15,6 +15,8 @@ import {
   getCheckboxChangeTransition,
   type CheckboxInterface,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
 } from '@udixio/core';
 import { iCheck } from '@udixio/icons-rounded-400/check';
 import { iRemove } from '@udixio/icons-rounded-400/remove';
@@ -41,6 +43,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
  * - `invalid` sets `aria-invalid`; use `aria-describedby` for an error explanation.
  * @limitations
  * - Associate a visible `<label for>` or provide `aria-label`; this component does not render label text.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-checkbox',
@@ -51,7 +54,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
   template: `
     <div [class]="styles()['checkbox']">
       <udx-state-layer
-        [classes]="styles()['stateLayer']"
+        [class]="styles()['stateLayer']"
         [colorName]="stateColor()"
         stateClassName="state-ripple-group-[checkbox]"
       />
@@ -78,7 +81,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         <udx-icon
           aria-hidden="true"
           [icon]="indeterminate() ? minusIcon : checkIcon"
-          [classes]="styles()['icon']"
+          [class]="styles()['icon']"
         />
       }
     </div>
@@ -105,8 +108,13 @@ export class Checkbox implements OnInit {
   readonly ariaDescribedBy = input<string | undefined>(undefined, {
     alias: 'aria-describedby',
   });
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
-  readonly classes = input<string | ClassNameComponent<CheckboxInterface>>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<CheckboxInterface> | ClassNameComponent<CheckboxInterface>
+  >();
 
   readonly checkedChange = output<boolean>();
 
@@ -142,7 +150,11 @@ export class Checkbox implements OnInit {
     required: this.required(),
     isChecked: this.isChecked(),
     isFocused: this.isFocused(),
-    className: this.classes(),
+    className: mergeClassNames<CheckboxInterface>(
+      'checkbox',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   ngOnInit(): void {

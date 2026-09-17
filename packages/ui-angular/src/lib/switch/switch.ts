@@ -15,6 +15,8 @@ import {
   getSwitchHandleOffset,
   switchStyle,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
   type Icon as IconType,
   type SwitchInterface,
 } from '@udixio/core';
@@ -44,6 +46,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
  * - Renders `role="switch"` with `aria-checked` and standard Space/Enter activation.
  * @limitations
  * - The component does not render a visible label; provide one with `aria-label` or `aria-labelledby`.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-switch',
@@ -69,13 +72,13 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         [style.translate.px]="handleOffset()"
       >
         <udx-state-layer
-          [classes]="styles()['stateLayer']"
+          [class]="styles()['stateLayer']"
           [colorName]="isChecked() ? 'primary' : 'on-surface'"
           stateClassName="state-ripple-group-[switch]"
         />
         <div [class]="styles()['handle']">
           @if (resolvedIcon()) {
-            <udx-icon [icon]="resolvedIcon()!" [classes]="styles()['icon']" />
+            <udx-icon [icon]="resolvedIcon()!" [class]="styles()['icon']" />
           }
         </div>
       </div>
@@ -98,8 +101,13 @@ export class Switch implements OnInit {
   readonly ariaLabelledBy = input<string | undefined>(undefined, {
     alias: 'aria-labelledby',
   });
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
-  readonly classes = input<string | ClassNameComponent<SwitchInterface>>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<SwitchInterface> | ClassNameComponent<SwitchInterface>
+  >();
 
   /** Emits an accepted checked-state request and supports `[(checked)]`. */
   readonly checkedChange = output<boolean>();
@@ -126,7 +134,11 @@ export class Switch implements OnInit {
     inactiveIcon: this.inactiveIcon(),
     disabled: this.disabled(),
     isChecked: this.isChecked(),
-    className: this.classes(),
+    className: mergeClassNames<SwitchInterface>(
+      'switch',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   private readonly handleContainer =

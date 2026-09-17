@@ -22,6 +22,8 @@ import {
   type CarouselMetrics,
   type CarouselProps,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
 } from '@udixio/core';
 import {
   createCarouselController,
@@ -43,7 +45,9 @@ const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
  * @category Layout
  * @devx Project `udx-carousel-item` children; use `index`/`indexChange` for controlled positioning, or `defaultIndex` to seed the initial position of an uncontrolled carousel.
  * @a11y The root is a `region` with `aria-roledescription="carousel"` (set `accessibleLabel` for a name); each slide is a `group` with `aria-roledescription="slide"` and an `"n / total"` label. Roving `tabindex` keeps a single slide in the tab order; Arrow/Home/End move the selection.
- * @limitations Responsive behavior on mobile is not supported. Only the `hero` variant is implemented; `center-aligned`, `multi-browse`, `un-contained`, and `full-screen` are reserved in the type for future Material 3 layout support and currently render as `hero`.
+ * @limitations
+ * - Responsive behavior on mobile is not supported. Only the `hero` variant is implemented; `center-aligned`, `multi-browse`, `un-contained`, and `full-screen` are reserved in the type for future Material 3 layout support and currently render as `hero`.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-carousel',
@@ -94,8 +98,13 @@ export class Carousel implements OnInit {
   readonly defaultIndex = input(0);
   /** Accessible name for the carousel region. */
   readonly accessibleLabel = input<string>();
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
-  readonly classes = input<string | ClassNameComponent<CarouselInterface>>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<CarouselInterface> | ClassNameComponent<CarouselInterface>
+  >();
 
   /** Emits an accepted centered-index transition. */
   readonly indexChange = output<number>();
@@ -145,7 +154,11 @@ export class Carousel implements OnInit {
     onIndexChange: () => undefined,
     onMetricsChange: () => undefined,
     selectedIndex: this.selectedIndex(),
-    className: this.classes(),
+    className: mergeClassNames<CarouselInterface>(
+      'carousel',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   protected readonly scrollStyles = createStyle(customScrollStyle, () => ({

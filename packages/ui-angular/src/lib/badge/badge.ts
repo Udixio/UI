@@ -13,7 +13,12 @@ import {
   type ComponentRef,
   type OnDestroy,
 } from '@angular/core';
-import type { BadgeInterface, BadgeProps, ClassNameComponent } from '@udixio/core';
+import type {
+  BadgeInterface,
+  BadgeProps,
+  ClassNameComponent,
+  ElementClasses,
+} from '@udixio/core';
 import {
   createBadgeAnchorController,
   createBadgeTransitionController,
@@ -112,9 +117,12 @@ export class Badge implements OnDestroy {
   readonly transition = input<BadgeProps['transition']>(undefined, {
     alias: 'udxBadgeTransition',
   });
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  /** Classes for the detached surface: a root string, static element classes, or a state-aware function. */
   readonly classes = input<
-    string | ClassNameComponent<BadgeInterface> | undefined
+    | string
+    | ElementClasses<BadgeInterface>
+    | ClassNameComponent<BadgeInterface>
+    | undefined
   >(undefined, { alias: 'udxBadgeClass' });
 
   private readonly host = inject(ElementRef<HTMLElement>);
@@ -138,7 +146,12 @@ export class Badge implements OnDestroy {
       surface.setInput('description', this.description());
       surface.setInput('visible', this.visible());
       surface.setInput('transition', this.transition());
-      surface.setInput('classes', this.classes());
+      // A string targets the surface root; anything else is element classes.
+      // Both slots are written so switching form clears the other one.
+      const value = this.classes();
+      const isRootString = typeof value === 'string';
+      surface.setInput('class', isRootString ? value : '');
+      surface.setInput('classes', isRootString ? undefined : value);
       surface.changeDetectorRef.detectChanges();
     });
 

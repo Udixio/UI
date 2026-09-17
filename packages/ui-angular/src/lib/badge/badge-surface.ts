@@ -14,6 +14,8 @@ import {
   type BadgeInterface,
   type BadgeProps,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
 } from '@udixio/core';
 import { createStyle } from '../utils/create-style';
 
@@ -37,6 +39,7 @@ import { createStyle } from '../utils/create-style';
  * @limitations
  * - Positions itself against its parent, and relies on the directive to have
  *   made that parent a containing block.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-badge-surface',
@@ -70,8 +73,13 @@ export class BadgeSurface {
   readonly visible = input<boolean>(true);
   /** Anime.js show-hide timing. */
   readonly transition = input<BadgeProps['transition']>();
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
-  readonly classes = input<string | ClassNameComponent<BadgeInterface>>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<BadgeInterface> | ClassNameComponent<BadgeInterface>
+  >();
 
   private readonly elementRef = inject(ElementRef<HTMLElement>);
 
@@ -99,7 +107,11 @@ export class BadgeSurface {
     transition: this.transition(),
     variant: resolveBadgeVariant(this.resolvedLabel()),
     attached: true,
-    className: this.classes(),
+    className: mergeClassNames<BadgeInterface>(
+      'container',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   /** The container classes; the directive keeps them on the marked element. */

@@ -13,6 +13,8 @@ import {
 import {
   type ButtonInterface,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
   DEFAULT_FAB_MENU_CLOSE_ICON,
   type FabMenuAction,
   type FabMenuInterface,
@@ -53,6 +55,7 @@ export interface FabMenuActionSelectEvent {
  * - Reduced-motion preference keeps state changes immediate and fully perceivable.
  * @limitations
  * - Consumers own action-specific side effects through the `actionSelect` output.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-fab-menu',
@@ -103,7 +106,7 @@ export interface FabMenuActionSelectEvent {
           [size]="isOpen() ? 'small' : size()"
           [extended]="extended() && !isOpen()"
           [disabled]="disabled() || !hasAccessibleLabel()"
-          [classes]="styles()['fab']"
+          [class]="styles()['fab']"
           [aria-expanded]="isOpen()"
           [aria-controls]="panelId()"
           (click)="toggle()"
@@ -153,8 +156,13 @@ export class FabMenu implements OnInit {
     transform: optionalBooleanAttribute,
   });
   readonly defaultOpen = input(false, { transform: booleanAttribute });
-  /** Classes or state-aware element classes applied through the shared style contract. */
-  readonly classes = input<string | ClassNameComponent<FabMenuInterface>>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<FabMenuInterface> | ClassNameComponent<FabMenuInterface>
+  >();
 
   /** Emits an accepted open-state request and supports `[(open)]`. */
   readonly openChange = output<boolean>();
@@ -216,7 +224,11 @@ export class FabMenu implements OnInit {
     open: this.open(),
     defaultOpen: this.defaultOpen(),
     isOpen: this.isOpen(),
-    className: this.classes(),
+    className: mergeClassNames<FabMenuInterface>(
+      'fabMenu',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   private static nextId = 0;

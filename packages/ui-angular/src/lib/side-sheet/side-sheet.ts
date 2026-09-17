@@ -19,6 +19,8 @@ import {
 import {
   sideSheetStyle,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
   type SideSheetInterface,
   type SideSheetProps,
 } from '@udixio/core';
@@ -67,6 +69,7 @@ let nextSideSheetId = 0;
  *   is destroyed.
  * - The open/close animation transitions `width`, not a transform, so it can be less smooth for a
  *   very large panel or on a low-powered device.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-side-sheet',
@@ -105,7 +108,7 @@ let nextSideSheetId = 0;
               size="small"
               [label]="closeLabel()"
               [icon]="closeIcon()"
-              [classes]="styles()['closeButton']"
+              [class]="styles()['closeButton']"
               (click)="close()"
             />
           </div>
@@ -133,9 +136,13 @@ export class SideSheet implements OnInit, OnDestroy {
   readonly divider = input<boolean | undefined, unknown>(undefined, {
     transform: optionalBooleanAttribute,
   });
-  /** Classes or state-aware element classes applied through the shared style contract. */
-  readonly classes =
-    input<string | ClassNameComponent<SideSheetInterface>>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<SideSheetInterface> | ClassNameComponent<SideSheetInterface>
+  >();
   /** Portal target for `variant="modal"`. Defaults to `document.body`. */
   readonly container = input<Element | null | undefined>(undefined);
   /** Motion transition shared by every framework for the open/close width and opacity animation. */
@@ -172,7 +179,11 @@ export class SideSheet implements OnInit, OnDestroy {
     divider: this.divider(),
     transition: this.transition(),
     isOpen: this.isOpen(),
-    className: this.classes(),
+    className: mergeClassNames<SideSheetInterface>(
+      'sideSheet',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   protected readonly titleId = `side-sheet-title-${nextSideSheetId++}`;

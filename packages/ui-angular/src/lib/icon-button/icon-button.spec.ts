@@ -132,7 +132,7 @@ describe('IconButton (Angular, consuming @udixio/core)', () => {
     fixture.componentRef.setInput('type', 'submit');
     fixture.componentRef.setInput('tabIndex', 2);
     fixture.componentRef.setInput('title', 'Add a new item');
-    fixture.componentRef.setInput('classes', 'consumer-class');
+    fixture.componentRef.setInput('class', 'consumer-class');
     fixture.detectChanges();
     const button: HTMLButtonElement =
       fixture.nativeElement.querySelector('button');

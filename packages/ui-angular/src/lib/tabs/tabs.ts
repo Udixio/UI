@@ -17,6 +17,8 @@ import {
   getNextTabIndex,
   tabsStyle,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
   type TabsInterface,
   type TabsVariant,
 } from '@udixio/core';
@@ -56,6 +58,7 @@ export interface TabSelectedEvent {
  *   enabled tabs (wrapping), Home/End jump to the first/last enabled tab.
  * @limitations
  * - Horizontal orientation only.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
   selector: 'udx-tabs',
@@ -88,8 +91,13 @@ export class Tabs implements OnInit, TabsContext {
   readonly selectedTab = input<number | null>();
   /** Index selected on mount when the tab list is uncontrolled. */
   readonly defaultSelectedTab = input<number | null>(0);
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
-  readonly classes = input<string | ClassNameComponent<TabsInterface>>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<TabsInterface> | ClassNameComponent<TabsInterface>
+  >();
 
   /** Emits each accepted selection request and supports `[(selectedTab)]`. */
   readonly selectedTabChange = output<number | null>();
@@ -144,7 +152,11 @@ export class Tabs implements OnInit, TabsContext {
     selectedTab: this.selectedTab(),
     defaultSelectedTab: this.defaultSelectedTab(),
     selectedIndex: this.selectedIndex(),
-    className: this.classes(),
+    className: mergeClassNames<TabsInterface>(
+      'tabs',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   private readonly root = viewChild<ElementRef<HTMLElement>>('root');

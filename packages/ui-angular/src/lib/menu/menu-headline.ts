@@ -8,6 +8,8 @@ import {
 import {
   menuHeadlineStyle,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
   type MenuHeadlineInterface,
   type MenuHeadlineProps,
 } from '@udixio/core';
@@ -36,9 +38,12 @@ import { MENU_CONTEXT } from './menu-context';
 export class MenuHeadline {
   readonly label = input.required<string>();
   readonly variant = input<MenuHeadlineProps['variant']>();
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
   readonly classes = input<
-    string | ClassNameComponent<MenuHeadlineInterface>
+    ElementClasses<MenuHeadlineInterface> | ClassNameComponent<MenuHeadlineInterface>
   >();
 
   private readonly context = inject(MENU_CONTEXT, { optional: true });
@@ -48,6 +53,10 @@ export class MenuHeadline {
   protected readonly styles = createStyle(menuHeadlineStyle, () => ({
     label: this.label(),
     variant: this.resolvedVariant(),
-    className: this.classes(),
+    className: mergeClassNames<MenuHeadlineInterface>(
+      'headline',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 }

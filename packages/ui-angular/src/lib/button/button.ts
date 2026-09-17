@@ -63,7 +63,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
   template: `
     <ng-template #content>
       @if (resolvedIconPosition() === 'start' && icon(); as leadingIcon) {
-        <udx-icon [icon]="leadingIcon" [classes]="styles()['icon']" />
+        <udx-icon [icon]="leadingIcon" [class]="styles()['icon']" />
       }
       @if (loading()) {
         <span
@@ -77,7 +77,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         <ng-content>{{ label() }}</ng-content>
       </span>
       @if (resolvedIconPosition() === 'end' && icon(); as trailingIcon) {
-        <udx-icon [icon]="trailingIcon" [classes]="styles()['icon']" />
+        <udx-icon [icon]="trailingIcon" [class]="styles()['icon']" />
       }
     </ng-template>
 
@@ -101,7 +101,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
       >
         <span [class]="styles()['touchTarget']"></span>
         <udx-state-layer
-          [classes]="styles()['stateLayer']"
+          [class]="styles()['stateLayer']"
           [colorName]="resolvedStateColor()"
           [shapeTransition]="shapeTransition()"
           stateClassName="state-ripple-group-[button]"
@@ -124,7 +124,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
       >
         <span [class]="styles()['touchTarget']"></span>
         <udx-state-layer
-          [classes]="styles()['stateLayer']"
+          [class]="styles()['stateLayer']"
           [colorName]="resolvedStateColor()"
           [shapeTransition]="shapeTransition()"
           stateClassName="state-ripple-group-[button]"
