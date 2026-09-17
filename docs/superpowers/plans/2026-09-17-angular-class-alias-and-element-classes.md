@@ -902,7 +902,7 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
 
 ### Task 8: Full verification
 
-- [ ] **Step 1: Run every affected suite**
+- [x] **Step 1: Run every affected suite**
 
 ```bash
 npx nx test @udixio/core && npx nx test ui-angular && npx nx test @udixio/ui-react
@@ -912,7 +912,7 @@ pnpm --filter apps-doc docgen:check
 
 Expected: tests PASS; error count `0`; docgen clean.
 
-- [ ] **Step 2: Residual grep**
+- [x] **Step 2: Residual grep**
 
 ```bash
 grep -rn "readonly classes = input<string" packages/ui-angular/src/lib   # → nothing
@@ -920,7 +920,7 @@ grep -rn "readonly classes = input<$" -A2 packages/ui-angular/src/lib | grep "st
 grep -rn "classes=\"\|\[classes\]=\"'" apps/doc/src | grep -v "styles()"  # → nothing
 ```
 
-- [ ] **Step 3: Characterization unchanged**
+- [x] **Step 3: Characterization unchanged**
 
 `git diff HEAD~8 -- packages/core/src/lib/styles/class-engine.characterization.spec.ts` → empty. The engine's output for existing inputs must not have moved.
 
