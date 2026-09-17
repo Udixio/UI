@@ -63,3 +63,6 @@ out-tsc
 
 # personal Claude Code settings (permissions, local prefs)
 .claude/settings.local.json
+
+# Claude Code worktrees
+.claude/worktrees/
