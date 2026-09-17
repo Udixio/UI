@@ -19,32 +19,44 @@ type RequiredNullable<T> = {
 };
 
 export interface StyleProps<T extends ComponentInterface> {
-  /** Classes or state-aware element classes applied through the shared style contract. */
-  className?: string | ClassNameComponent<T>;
+  /** Root classes (string), static element classes (object), or state-aware element classes (function). */
+  className?: string | ElementClasses<T> | ClassNameComponent<T>;
 }
+
+/** Static classes per element, keyed by the interface's `elements` tuple. */
+export type ElementClasses<T extends ComponentInterface> = Partial<
+  Record<T['elements'][number], string>
+>;
 
 export type ClassNameComponent<T extends ComponentInterface> = (
   states: T['states'] & T['props'],
-) => Partial<Record<T['elements'][number], string>>;
+) => ElementClasses<T>;
 
 export const getClassNames = <T extends ComponentInterface>(args: {
-  classNameList: (ClassNameComponent<T> | string | undefined)[];
+  classNameList: (
+    | ClassNameComponent<T>
+    | ElementClasses<T>
+    | string
+    | undefined
+  )[];
   default: T['elements'][0];
   states: T['states'] & T['props'];
 }): Record<T['elements'][number], string> => {
   const buckets: Partial<Record<T['elements'][number], string[]>> = {};
   args.classNameList.forEach((classNameComponent) => {
-    if (classNameComponent) {
-      if (typeof classNameComponent == 'string') {
-        (buckets[args.default] ??= []).push(classNameComponent);
-      } else {
-        const result = classNameComponent(args.states);
-        Object.entries(result).map((argsElement) => {
-          const [key, value] = argsElement as [T['elements'][number], string];
-          (buckets[key] ??= []).push(value);
-        });
-      }
+    if (!classNameComponent) return;
+    if (typeof classNameComponent == 'string') {
+      (buckets[args.default] ??= []).push(classNameComponent);
+      return;
     }
+    const result =
+      typeof classNameComponent == 'function'
+        ? classNameComponent(args.states)
+        : classNameComponent;
+    Object.entries(result).forEach((argsElement) => {
+      const [key, value] = argsElement as [T['elements'][number], string];
+      (buckets[key] ??= []).push(value);
+    });
   });
 
   const result = buckets as unknown as Record<T['elements'][number], string>;
@@ -69,7 +81,7 @@ export const getClassNames = <T extends ComponentInterface>(args: {
 
 export const defaultClassNames = <T extends ComponentInterface>(
   element: T['elements'][0],
-  defaultClassName: ClassNameComponent<T> | string,
+  defaultClassName: ClassNameComponent<T> | ElementClasses<T> | string,
 ) => {
   return (
     // No `& T['props']` here: intersecting the mapped type with the original
@@ -77,7 +89,7 @@ export const defaultClassNames = <T extends ComponentInterface>(
     // `| undefined` that lets a caller pass a prop it has not resolved yet.
     states: RequiredNullable<T['props']> &
       T['states'] & {
-        className: ClassNameComponent<T> | string | undefined;
+        className: ClassNameComponent<T> | ElementClasses<T> | string | undefined;
       },
   ) =>
     getClassNames({
