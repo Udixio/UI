@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   defaultClassNames,
   getClassNames,
+  mergeClassNames,
   type ClassNameComponent,
   type ElementClasses,
 } from './get-classname';
@@ -56,5 +57,39 @@ describe('getClassNames — static element object', () => {
       className: { label: 'text-primary' },
     });
     expect(result.label).toBe('label text-primary');
+  });
+});
+
+describe('mergeClassNames', () => {
+  it('returns undefined when nothing is given', () => {
+    expect(mergeClassNames<Sample>('root', undefined, '', null)).toBeUndefined();
+  });
+
+  it('composes strings, objects and functions in the order received', () => {
+    const merged = mergeClassNames<Sample>(
+      'root',
+      () => ({ label: 'a' }),
+      { label: 'b', icon: 'i' },
+      'root-class',
+    );
+    const result = getClassNames<Sample>({
+      classNameList: [merged],
+      default: 'root',
+      states,
+    });
+    // twMerge keeps both `a` and `b` (no conflict); order is preserved.
+    expect(result.label).toBe('label a b');
+    expect(result.icon).toBe('icon i');
+    expect(result.root).toBe('root relative root-class');
+  });
+
+  it('lets a later string override an earlier object on the root through twMerge', () => {
+    const merged = mergeClassNames<Sample>('root', { root: 'bg-surface' }, 'bg-primary');
+    const result = getClassNames<Sample>({
+      classNameList: [merged],
+      default: 'root',
+      states,
+    });
+    expect(result.root).toBe('root relative bg-primary');
   });
 });

@@ -79,6 +79,49 @@ export const getClassNames = <T extends ComponentInterface>(args: {
   return result;
 };
 
+/**
+ * Composes several `className` values into one state-aware function, in the
+ * order received. Later items win on conflicts because `getClassNames` runs
+ * `twMerge` once per element over the concatenation. A string is routed to
+ * `defaultElement`, exactly as a bare string `className` is.
+ *
+ * Returns `undefined` when every item is empty so a caller with nothing to
+ * add keeps `className: undefined`.
+ */
+export const mergeClassNames = <T extends ComponentInterface>(
+  defaultElement: T['elements'][0],
+  ...items: (
+    | string
+    | ElementClasses<T>
+    | ClassNameComponent<T>
+    | undefined
+    | null
+  )[]
+): ClassNameComponent<T> | undefined => {
+  const present = items.filter(
+    (item): item is string | ElementClasses<T> | ClassNameComponent<T> =>
+      item != null && item !== '',
+  );
+  if (present.length === 0) return undefined;
+  return (states) => {
+    const out: Record<string, string[]> = {};
+    present.forEach((item) => {
+      const resolved: ElementClasses<T> =
+        typeof item == 'string'
+          ? ({ [defaultElement]: item } as ElementClasses<T>)
+          : typeof item == 'function'
+            ? item(states)
+            : item;
+      Object.entries(resolved).forEach(([key, value]) => {
+        if (value) (out[key] ??= []).push(value as string);
+      });
+    });
+    return Object.fromEntries(
+      Object.entries(out).map(([key, values]) => [key, values.join(' ')]),
+    ) as ElementClasses<T>;
+  };
+};
+
 export const defaultClassNames = <T extends ComponentInterface>(
   element: T['elements'][0],
   defaultClassName: ClassNameComponent<T> | ElementClasses<T> | string,
