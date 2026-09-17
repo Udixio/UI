@@ -10,6 +10,8 @@ import {
 import {
   tabPanelStyle,
   type ClassNameComponent,
+  type ElementClasses,
+  mergeClassNames,
   type TabPanelInterface,
 } from '@udixio/core';
 import { animateTabPanelEnter } from '@udixio/core/dom';
@@ -55,8 +57,13 @@ import { TAB_PANELS_CONTEXT } from './tab-panels-context';
   template: `<ng-content />`,
 })
 export class TabPanel {
-  /** Classes, or state-aware element classes, applied through the shared style contract. */
-  readonly classes = input<string | ClassNameComponent<TabPanelInterface>>();
+  /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
+  readonly hostClass = input<string>('', { alias: 'class' });
+
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  readonly classes = input<
+    ElementClasses<TabPanelInterface> | ClassNameComponent<TabPanelInterface>
+  >();
 
   private readonly groupContext = inject(TAB_GROUP_CONTEXT, { optional: true });
   private readonly panelsContext = inject(TAB_PANELS_CONTEXT, {
@@ -87,7 +94,11 @@ export class TabPanel {
   protected readonly styles = createStyle(tabPanelStyle, () => ({
     index: this.resolvedIndex(),
     tabsId: this.groupContext?.tabsId(),
-    className: this.classes(),
+    className: mergeClassNames<TabPanelInterface>(
+      'tabPanel',
+      this.classes(),
+      this.hostClass(),
+    ),
   }));
 
   private animation?: ReturnType<typeof animateTabPanelEnter>;

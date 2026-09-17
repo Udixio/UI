@@ -322,3 +322,33 @@ describe('TabGroup + Tabs + TabPanels (Angular)', () => {
     expect(visiblePanel.textContent).toContain('First content');
   });
 });
+
+@Component({
+  standalone: true,
+  imports: [TabGroup, Tabs, Tab, TabPanels, TabPanel],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <udx-tab-group [defaultSelectedTab]="0">
+      <udx-tabs><udx-tab label="A" /></udx-tabs>
+      <udx-tab-panels>
+        <udx-tab-panel class="p-8 absolute">Panel A</udx-tab-panel>
+      </udx-tab-panels>
+    </udx-tab-group>
+  `,
+})
+class TabPanelClassHost {}
+
+describe('TabPanel class alias (host is the root)', () => {
+  it('merges the consumer class into the host [class] binding through twMerge', () => {
+    TestBed.configureTestingModule({ imports: [TabPanelClassHost] });
+    const f = TestBed.createComponent(TabPanelClassHost);
+    f.detectChanges();
+    const panel: HTMLElement = f.nativeElement.querySelector('udx-tab-panel');
+    expect(panel.className).toContain('tab-panel');
+    expect(panel.className).toContain('p-8');
+    // The style default is `relative` (getClassNames unshifts it on the root).
+    // Through twMerge the consumer's `absolute` must replace it, not sit beside it.
+    expect(panel.className).toContain('absolute');
+    expect(panel.className.split(/\s+/)).not.toContain('relative');
+  });
+});
