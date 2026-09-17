@@ -21,6 +21,8 @@ import { createStyle } from '../utils/create-style';
 type FontAwesomeIcon = Exclude<IconType, string | SvgImport>;
 
 /**
+ * Renders a raw SVG string, an `@udixio/icons-*` import, or a Font Awesome icon definition as a decorative, inline icon.
+ *
  * @limitations
  * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */

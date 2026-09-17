@@ -24,7 +24,7 @@ import { Menu } from '../menu/menu';
  * @a11y Supports native context-menu events and Shift+F10, focuses the first item, and restores trigger focus after Escape.
  * @limitations
  * - The popup position is internally owned and is not controllable.
- * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class` or `[class]`.
  */
 @Component({
   selector: 'udx-context-menu',

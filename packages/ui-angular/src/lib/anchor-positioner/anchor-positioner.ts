@@ -34,7 +34,7 @@ import {
  * @limitations
  * - Falls back to tracking `getBoundingClientRect()` on scroll and resize
  *   in browsers without native CSS Anchor Positioning support.
- * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
+ * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class` or `[class]`.
  */
 @Component({
   selector: 'udx-anchor-positioner',

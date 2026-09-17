@@ -23,9 +23,7 @@ import { CAROUSEL_CONTEXT } from './carousel-context';
  * @parent Carousel
  * @devx Intended for use inside `udx-carousel`, which stamps sizing and slide semantics on this component's host element.
  * @a11y Rendered inside `udx-carousel` as a `group` with `aria-roledescription="slide"` and an accessible name; used standalone it is a plain container with no slide role.
- * @limitations
- * - Sizing (`outputRange`) is inherited from the parent carousel; used on its own the item has no min/max width unless `outputRange` is set explicitly.
- * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
+ * @limitations Sizing (`outputRange`) is inherited from the parent carousel; used on its own the item has no min/max width unless `outputRange` is set explicitly.
  */
 @Component({
   selector: 'udx-carousel-item',
