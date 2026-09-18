@@ -8,6 +8,7 @@
     "emitDeclarationOnly": true,
     "forceConsistentCasingInFileNames": true,
     "lib": ["es2022", "dom", "dom.iterable"],
+    "customConditions": ["development", "node"],
     "types": [
       "node",
       "vite/client"

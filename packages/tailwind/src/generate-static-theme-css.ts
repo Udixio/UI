@@ -1,5 +1,33 @@
-import { type API, type ConfigInterface, loader } from '@udixio/theme';
-import { TailwindPlugin } from './tailwind.plugin';
+import {
+  type API,
+  type ConfigInterface,
+  loader,
+  type PluginAbstract,
+} from '@udixio/theme';
+import {
+  TailwindImplPluginBrowser,
+  type TailwindPluginOptions,
+} from './browser/tailwind.plugin';
+
+type AnyTailwindPlugin = PluginAbstract<
+  TailwindImplPluginBrowser,
+  TailwindPluginOptions
+>;
+
+/**
+ * The config's TailwindPlugin, whichever build (node or browser) produced it:
+ * both implementations derive from `TailwindImplPluginBrowser`, which owns
+ * `emitStaticCss()`.
+ */
+export function findTailwindPlugin(
+  config: ConfigInterface,
+): AnyTailwindPlugin | undefined {
+  return config.plugins?.find(
+    (plugin): plugin is AnyTailwindPlugin =>
+      plugin.pluginClass === TailwindImplPluginBrowser ||
+      plugin.pluginClass?.prototype instanceof TailwindImplPluginBrowser,
+  );
+}
 
 /**
  * Generates the full **static** theme CSS as a string — the exact content the
@@ -15,6 +43,8 @@ import { TailwindPlugin } from './tailwind.plugin';
  * Accepts the output of `defineConfig()` — TailwindPlugin and FontPlugin must
  * already be wired (which `defineConfig` does automatically). The caller's
  * plugin options are left untouched.
+ *
+ * Available from the browser build as well: nothing here reaches Node.
  *
  * The optional `onApi` callback runs after initialization but before the first
  * load, allowing palette overrides, context updates, or any other API
@@ -35,9 +65,7 @@ export async function generateStaticThemeCss(
 ): Promise<string> {
   // Run the load in SSR mode so the node plugin skips its file write (and
   // .gitignore edit), then rebuild the full static CSS from the loaded state.
-  const tailwind = config.plugins?.find(
-    (plugin): plugin is TailwindPlugin => plugin instanceof TailwindPlugin,
-  );
+  const tailwind = findTailwindPlugin(config);
   if (!tailwind) {
     throw new Error(
       'generateStaticThemeCss: config has no TailwindPlugin — use defineConfig() or add `new TailwindPlugin()` to `plugins`.',
@@ -49,7 +77,7 @@ export async function generateStaticThemeCss(
     const api = await loader(config, false);
     await onApi?.(api);
     await api.load();
-    const instance = api.plugins.getPlugin(TailwindPlugin).getInstance();
+    const instance = tailwind.getInstance();
     instance.emitStaticCss();
     return instance.outputCss;
   } finally {

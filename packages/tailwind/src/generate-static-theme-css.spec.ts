@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { defineConfig, FontPlugin } from '@udixio/theme';
-import { TailwindPlugin } from './tailwind.plugin';
+import { TailwindPlugin } from './node/tailwind.plugin';
 import { generateStaticThemeCss } from './generate-static-theme-css';
 
 describe('generateStaticThemeCss', () => {
@@ -27,7 +27,6 @@ describe('generateStaticThemeCss', () => {
   it('never writes to the filesystem, even when outFile is set', async () => {
     const outFile = join(
       __dirname,
-      '..',
       '..',
       '.tmp-test',
       `never-written-${Date.now()}.css`,

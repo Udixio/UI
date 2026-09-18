@@ -38,20 +38,26 @@ export default defineConfig({
 
 `sourceColor` is the only required option. The variant defaults to `Udixio`.
 
-**2 — Run the generator.** `@udixio/theme` ships bundler plugins that load the
-config and regenerate the stylesheet, watching it in dev:
+**2 — Run the generator.** The Vite plugin loads the config and regenerates
+the stylesheet, watching it in dev:
 
 ```ts
 // vite.config.ts
 import tailwindcss from '@tailwindcss/vite';
-import { vitePlugin } from '@udixio/theme';
+import udixio from '@udixio/tailwind/vite';
 
-export default defineConfig({ plugins: [tailwindcss(), vitePlugin()] });
+export default defineConfig({ plugins: [tailwindcss(), udixio()] });
 ```
 
-`webpackPlugin`, `esbuildPlugin` and `rollupPlugin` have the same signature. If
-your toolchain takes none of them, `npx udixio-theme build --watch` does the
-same from a script.
+It takes `configPath` (`'./theme.config'` by default) and `verbose`. Or pass
+the config itself — `udixio({ config })`, with `import config from
+'./theme.config'` — and Vite restarts on changes by itself, the config being
+an import of the Vite config.
+
+For other bundlers, `@udixio/theme` ships `webpackPlugin`, `esbuildPlugin` and
+`rollupPlugin` (and `vitePlugin`, the same generator without the browser
+build below). If your toolchain takes none of them, `npx udixio-theme build
+--watch` does the same from a script.
 
 **3 — Import what it wrote.**
 
@@ -116,6 +122,30 @@ layer and motion utilities the component libraries rely on.
 Two entry points. The node build writes `outFile` to disk; the browser build
 does everything except touch the filesystem, which is what SSR and the live
 theme editor use. Your bundler picks the right one.
+
+`generateStaticThemeCss(config)` — the full stylesheet as a string, exactly
+what the generator writes to `outFile` — is available from both.
+
+### The Vite plugin in the browser
+
+`@udixio/tailwind/vite` has a browser build too, for bundlers that run Vite
+plugins outside Node — a preview engine bundling `vite.config.js` in the
+browser, say. Resolved through the `browser` export condition, it reaches no
+`fs`, `process` or config loader, so:
+
+- `config` is required: `udixio({ config })`, with the config imported from
+  `theme.config.ts` by the Vite config;
+- the stylesheet is served in memory instead of written: an import of the
+  `outFile` basename (`./udixio.generated.css` by default) and the id
+  `virtual:udixio/theme.css` both resolve to the generated CSS through
+  `resolveId`/`load` — so a stylesheet that `@import`s the generated file
+  needs no change between Node and browser, provided the engine resolves CSS
+  imports through the plugins (Vite itself does not; under Vite, import the
+  file the node build writes);
+- `plugin.tailwind` carries the JavaScript modules behind the generated CSS's
+  `@plugin` directives — `{ '@udixio/tailwind': <the Tailwind plugin> }` —
+  for a Tailwind that cannot resolve them from `node_modules`;
+- there are no dev-server hooks (`configureServer`, `handleHotUpdate`).
 
 ## Development
 

@@ -27,6 +27,35 @@
       "import": "./dist/node.js",
       "require": "./dist/node.cjs",
       "default": "./dist/node.js"
+    },
+    "./vite": {
+      "development": {
+        "browser": "./src/vite/index.browser.ts",
+        "node": "./src/vite/index.node.ts",
+        "default": "./src/vite/index.browser.ts"
+      },
+      "types": "./dist/vite/index.node.d.ts",
+      "browser": {
+        "import": "./dist/vite.browser.js",
+        "require": "./dist/vite.browser.cjs",
+        "default": "./dist/vite.browser.js"
+      },
+      "node": {
+        "import": "./dist/vite.node.js",
+        "require": "./dist/vite.node.cjs",
+        "default": "./dist/vite.node.js"
+      },
+      "import": "./dist/vite.node.js",
+      "require": "./dist/vite.node.cjs",
+      "default": "./dist/vite.node.js"
+    }
+  },
+  "peerDependencies": {
+    "vite": ">=5"
+  },
+  "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
     }
   },
   "dependencies": {

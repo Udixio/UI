@@ -38,6 +38,9 @@ export default defineConfig(() => ({
       entry: {
         node: 'src/index.node.ts',
         browser: 'src/index.browser.ts',
+        // `@udixio/tailwind/vite`: the Vite plugin, one build per runtime
+        'vite.node': 'src/vite/index.node.ts',
+        'vite.browser': 'src/vite/index.browser.ts',
       },
       name: '@udixio/tailwind',
       fileName: (format, entryName) =>
@@ -48,7 +51,7 @@ export default defineConfig(() => ({
     },
     rollupOptions: {
       // External packages that should not be bundled into your library.
-      external: ['tailwindcss', '@udixio/theme', 'pathe'],
+      external: ['tailwindcss', '@udixio/theme', 'pathe', 'vite'],
     },
   },
   test: {
