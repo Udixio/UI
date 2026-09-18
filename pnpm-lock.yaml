@@ -762,7 +762,7 @@ importers:
         specifier: ^1.20.2
         version: 1.30.0(supports-color@8.1.1)(zod@4.6.2)
       '@udixio/theme':
-        specifier: 5.0.1-next.4
+        specifier: 5.0.1-next.5
         version: link:../theme
       express:
         specifier: ^5.1.0
@@ -793,7 +793,7 @@ importers:
   packages/tailwind:
     dependencies:
       '@udixio/theme':
-        specifier: 5.0.1-next.4
+        specifier: 5.0.1-next.5
         version: link:../theme
       pathe:
         specifier: ^2.0.3
@@ -863,10 +863,10 @@ importers:
         specifier: ^21.0.0
         version: 21.2.18(@angular/animations@21.2.23(@angular/core@21.2.18(@angular/compiler@21.2.18)(rxjs@7.8.2)(zone.js@0.16.2)))(@angular/common@21.2.18(@angular/core@21.2.18(@angular/compiler@21.2.18)(rxjs@7.8.2)(zone.js@0.16.2))(rxjs@7.8.2))(@angular/core@21.2.18(@angular/compiler@21.2.18)(rxjs@7.8.2)(zone.js@0.16.2))
       '@udixio/core':
-        specifier: 0.2.2-next.8
+        specifier: 0.2.2-next.9
         version: link:../core
       '@udixio/icons-rounded-400':
-        specifier: 0.2.2-next.2
+        specifier: 0.2.2-next.3
         version: link:../icons/icons-rounded-400
     devDependencies:
       '@fortawesome/fontawesome-svg-core':
@@ -888,16 +888,16 @@ importers:
         specifier: ^7.0.0
         version: 7.3.1
       '@udixio/core':
-        specifier: 0.2.2-next.8
+        specifier: 0.2.2-next.9
         version: link:../core
       '@udixio/icons-rounded-400':
-        specifier: 0.2.2-next.2
+        specifier: 0.2.2-next.3
         version: link:../icons/icons-rounded-400
       '@udixio/tailwind':
-        specifier: 5.0.1-next.4
+        specifier: 5.0.1-next.5
         version: link:../tailwind
       '@udixio/theme':
-        specifier: 5.0.1-next.4
+        specifier: 5.0.1-next.5
         version: link:../theme
       clsx:
         specifier: ^1.1.1

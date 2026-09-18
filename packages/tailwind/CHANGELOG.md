@@ -1,3 +1,18 @@
+## 5.0.1-next.5 (2026-09-18)
+
+### 🚀 Features
+
+- **tailwind:** `@udixio/tailwind/vite` — the Vite plugin, with a browser build ([eddcabce](https://github.com/Udixio/UI/commit/eddcabce))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 5.0.1-next.5
+
+### ❤️ Thank You
+
+- Claude Opus 5
+- Joël VIGREUX
+
 ## 5.0.1-next.4 (2026-09-17)
 
 ### 🚀 Features

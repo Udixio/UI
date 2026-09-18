@@ -1,3 +1,10 @@
+## 0.2.2-next.10 (2026-09-18)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/core to 0.2.2-next.9
+- Updated @udixio/icons-rounded-400 to 0.2.2-next.3
+
 ## 0.2.2-next.9 (2026-09-17)
 
 ### 🚀 Features

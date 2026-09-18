@@ -1,3 +1,12 @@
+## 5.1.0-next.10 (2026-09-18)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 5.0.1-next.5
+- Updated @udixio/theme to 5.0.1-next.5
+- Updated @udixio/core to 0.2.2-next.9
+- Updated @udixio/icons-rounded-400 to 0.2.2-next.3
+
 ## 5.1.0-next.9 (2026-09-17)
 
 ### 🧱 Updated Dependencies
