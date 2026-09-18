@@ -24,40 +24,72 @@ export default defineConfig(() => ({
   // worker: {
   //  plugins: [ nxViteTsPaths() ],
   // },
-  // Configuration for building your library.
+  // Library build, one environment per runtime. The node environment keeps
+  // its dependencies external; the browser one bundles everything (awilix,
+  // material-color-utilities) so that `dist/browser.js` is self-contained for
+  // bundlers that fetch npm packages whole and resolve nothing further.
   // See: https://vitejs.dev/guide/build.html#library-mode
   build: {
-    ssr: true,
     outDir: './dist',
-    emptyOutDir: true,
     reportCompressedSize: true,
+    // the node build too (Vite leaves server builds unminified by default);
+    // library mode keeps the whitespace of ES output, so it stays readable
+    minify: true,
     commonjsOptions: {
       transformMixedEsModules: true,
     },
     lib: {
-      // Could also be a dictionary or array of multiple entry points.
-      entry: {
-        node: 'src/index.node.ts',
-        bin: 'bin/main.ts',
-        browser: 'src/index.browser.ts',
-      },
-
+      // entries are per environment, below
+      entry: {},
       name: '@udixio/theme',
       fileName: (format, entryName) =>
         `${entryName}.${format === 'es' ? 'js' : 'cjs'}`,
-      // Change this to the formats you want to support.
-      // Don't forget to update your package.json as well.
       formats: ['es' as const, 'cjs' as const],
     },
-    rollupOptions: {
-      // External packages that should not be bundled into your library.
-      external: ['pathe', 'jiti', 'commander', 'unplugin', 'chokidar'],
-      output: {
-        // `dist/bin.js` is the `udixio-theme` CLI: the shebang lets npm's bin
-        // shim run it directly instead of going through a `node` wrapper.
-        banner: (chunk) =>
-          chunk.isEntry && chunk.name === 'bin' ? '#!/usr/bin/env node\n' : '',
+  },
+  environments: {
+    ssr: {
+      build: {
+        emptyOutDir: true,
+        lib: {
+          entry: {
+            node: 'src/index.node.ts',
+            bin: 'bin/main.ts',
+          },
+        },
+        rollupOptions: {
+          // External packages that should not be bundled into the node build.
+          external: ['pathe', 'jiti', 'commander', 'unplugin', 'chokidar'],
+          output: {
+            // `dist/bin.js` is the `udixio-theme` CLI: the shebang lets npm's bin
+            // shim run it directly instead of going through a `node` wrapper.
+            banner: (chunk) =>
+              chunk.isEntry && chunk.name === 'bin'
+                ? '#!/usr/bin/env node\n'
+                : '',
+          },
+        },
       },
+    },
+    client: {
+      build: {
+        // built after the node environment, into the same directory
+        emptyOutDir: false,
+        lib: {
+          entry: {
+            browser: 'src/index.browser.ts',
+          },
+        },
+        rollupOptions: {
+          external: [],
+        },
+      },
+    },
+  },
+  builder: {
+    buildApp: async (builder) => {
+      await builder.build(builder.environments.ssr);
+      await builder.build(builder.environments.client);
     },
   },
   test: {

@@ -6,6 +6,7 @@
     "outDir": "dist",
     "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
     "emitDeclarationOnly": true,
+    "declarationMap": false,
     "forceConsistentCasingInFileNames": true,
     "types": [
       "node",

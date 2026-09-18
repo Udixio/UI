@@ -23,35 +23,67 @@ export default defineConfig(() => ({
   // worker: {
   //  plugins: [ nxViteTsPaths() ],
   // },
-  // Configuration for building your library.
+  // Library build, one environment per runtime. The node environment keeps
+  // its dependencies external; the browser one bundles everything but
+  // `@udixio/theme` (its own browser build), so that `dist/browser.js` and
+  // `dist/vite.browser.js` are self-contained for bundlers that fetch npm
+  // packages whole and resolve nothing further.
   // See: https://vitejs.dev/guide/build.html#library-mode
   build: {
-    ssr: true,
     outDir: './dist',
-    emptyOutDir: true,
     reportCompressedSize: true,
+    // the node build too (Vite leaves server builds unminified by default);
+    // library mode keeps the whitespace of ES output, so it stays readable
+    minify: true,
     commonjsOptions: {
       transformMixedEsModules: true,
     },
     lib: {
-      // Could also be a dictionary or array of multiple entry points.
-      entry: {
-        node: 'src/index.node.ts',
-        browser: 'src/index.browser.ts',
-        // `@udixio/tailwind/vite`: the Vite plugin, one build per runtime
-        'vite.node': 'src/vite/index.node.ts',
-        'vite.browser': 'src/vite/index.browser.ts',
-      },
+      // entries are per environment, below
+      entry: {},
       name: '@udixio/tailwind',
       fileName: (format, entryName) =>
         `${entryName}.${format === 'es' ? 'js' : 'cjs'}`,
-      // Change this to the formats you want to support.
-      // Don't forget to update your package.json as well.
       formats: ['es' as const, 'cjs' as const],
     },
-    rollupOptions: {
-      // External packages that should not be bundled into your library.
-      external: ['tailwindcss', '@udixio/theme', 'pathe', 'vite'],
+  },
+  environments: {
+    ssr: {
+      build: {
+        emptyOutDir: true,
+        lib: {
+          entry: {
+            node: 'src/index.node.ts',
+            // `@udixio/tailwind/vite`: the Vite plugin
+            'vite.node': 'src/vite/index.node.ts',
+          },
+        },
+        rollupOptions: {
+          // External packages that should not be bundled into the node build.
+          external: ['tailwindcss', '@udixio/theme', 'pathe', 'vite'],
+        },
+      },
+    },
+    client: {
+      build: {
+        // built after the node environment, into the same directory
+        emptyOutDir: false,
+        lib: {
+          entry: {
+            browser: 'src/index.browser.ts',
+            'vite.browser': 'src/vite/index.browser.ts',
+          },
+        },
+        rollupOptions: {
+          external: ['@udixio/theme'],
+        },
+      },
+    },
+  },
+  builder: {
+    buildApp: async (builder) => {
+      await builder.build(builder.environments.ssr);
+      await builder.build(builder.environments.client);
     },
   },
   test: {
