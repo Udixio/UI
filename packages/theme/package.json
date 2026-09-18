@@ -4,7 +4,7 @@
   "type": "module",
   "main": "./dist/node.js",
   "module": "./dist/node.js",
-  "types": "./dist/node.d.ts",
+  "types": "./dist/index.node.d.ts",
   "files": [
     "dist",
     "README.md",

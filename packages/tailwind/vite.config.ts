@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import * as path from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
+import { copyFileSync } from 'node:fs';
 
 export default defineConfig(() => ({
   root: __dirname,
@@ -12,6 +13,18 @@ export default defineConfig(() => ({
       entryRoot: 'src',
       tsconfigPath: path.join(__dirname, 'tsconfig.lib.json'),
     }),
+    {
+      // the tarball ships `dist/LICENSE`: copied by this build, so that a
+      // package build alone (not only the root `npm run build`) is publishable
+      name: 'udixio:license',
+      applyToEnvironment: (env) => env.name === 'client',
+      closeBundle() {
+        copyFileSync(
+          path.join(__dirname, '../../LICENSE'),
+          path.join(this.environment.config.build.outDir, 'LICENSE'),
+        );
+      },
+    },
     visualizer({
       filename: '../../stats/tailwind.html',
       open: false,
