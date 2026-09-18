@@ -1,3 +1,14 @@
+## 5.0.1-next.7 (2026-09-18)
+
+### 🩹 Fixes
+
+- **theme,tailwind:** no identifier mangling in the node build ([ec9582db](https://github.com/Udixio/UI/commit/ec9582db))
+
+### ❤️ Thank You
+
+- Claude Opus 5
+- Joël VIGREUX
+
 ## 5.0.1-next.6 (2026-09-18)
 
 ### 🩹 Fixes
