@@ -1,3 +1,18 @@
+## 5.0.1-next.6 (2026-09-18)
+
+### 🩹 Fixes
+
+- **theme,tailwind:** correct the types pointer, copy LICENSE from the package build ([b44eb4cf](https://github.com/Udixio/UI/commit/b44eb4cf))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 5.0.1-next.6
+
+### ❤️ Thank You
+
+- Claude Opus 5
+- Joël VIGREUX
+
 ## 5.0.1-next.5 (2026-09-18)
 
 ### 🚀 Features

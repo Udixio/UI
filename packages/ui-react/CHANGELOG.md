@@ -1,3 +1,10 @@
+## 5.1.0-next.11 (2026-09-18)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 5.0.1-next.6
+- Updated @udixio/theme to 5.0.1-next.6
+
 ## 5.1.0-next.10 (2026-09-18)
 
 ### 🧱 Updated Dependencies
