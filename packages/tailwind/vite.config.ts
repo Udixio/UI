@@ -45,9 +45,6 @@ export default defineConfig(() => ({
   build: {
     outDir: './dist',
     reportCompressedSize: true,
-    // the node build too (Vite leaves server builds unminified by default);
-    // library mode keeps the whitespace of ES output, so it stays readable
-    minify: true,
     commonjsOptions: {
       transformMixedEsModules: true,
     },
@@ -64,6 +61,10 @@ export default defineConfig(() => ({
     ssr: {
       build: {
         emptyOutDir: true,
+        // No identifier mangling for the node build: the WebContainer engine
+        // resolved `class e { … new e() }` to a same-named import (`import {
+        // InjectionMode as e } from "awilix"`) in the load-from-path chunk.
+        minify: false,
         lib: {
           entry: {
             node: 'src/index.node.ts',
