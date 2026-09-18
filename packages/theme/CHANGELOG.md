@@ -1,3 +1,7 @@
+## 5.0.1-next.5 (2026-09-18)
+
+This was a version bump only for @udixio/theme to align it with other projects, there were no code changes.
+
 ## 5.0.1-next.4 (2026-09-17)
 
 ### 🚀 Features
