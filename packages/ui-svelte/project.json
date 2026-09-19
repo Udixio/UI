@@ -21,7 +21,7 @@
       ],
       "options": {
         "cwd": "packages/ui-svelte",
-        "command": "svelte-package -i src -o dist && cp ../../LICENSE dist/"
+        "command": "svelte-package -i src -o dist --tsconfig tsconfig.package.json && cp ../../LICENSE dist/"
       }
     },
     "typecheck": {

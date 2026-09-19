@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.lib.json",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": true,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
+    "incremental": false,
+    "tsBuildInfoFile": null,
+    "customConditions": [],
+    "noEmitOnError": false,
+    "noUnusedLocals": false,
+    "types": ["svelte", "node", "vite/client", "vitest/globals", "vitest/importMeta"]
+  },
+  "references": []
+}

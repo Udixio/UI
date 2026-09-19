@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from 'vitest';
 import { flushSync } from 'svelte';
 import { createStyle } from './create-style.svelte';
 

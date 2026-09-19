@@ -3,6 +3,7 @@
  * `packages/ui-react/src/tests/setup.ts`: the shared DOM controllers construct
  * `ResizeObserver`, which jsdom does not ship.
  */
+import { expect } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { toHaveNoViolations } from 'jest-axe';
 

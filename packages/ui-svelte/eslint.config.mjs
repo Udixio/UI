@@ -5,6 +5,7 @@ import svelteConfig from './svelte.config.js';
 
 export default [
   ...baseConfig,
+  { ignores: ['.svelte-kit/**'] },
   {
     files: ['**/*.json'],
     rules: {
@@ -15,6 +16,7 @@ export default [
             '{projectRoot}/eslint.config.{js,cjs,mjs,ts,cts,mts}',
             '{projectRoot}/vite.config.ts',
             '{projectRoot}/svelte.config.js',
+            '{projectRoot}/tsconfig.*.json',
             '{projectRoot}/src/tests/**',
             '{projectRoot}/**/*.spec.ts',
             '{projectRoot}/**/*.spec.svelte.ts',

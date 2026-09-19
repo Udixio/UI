@@ -963,13 +963,13 @@ importers:
       '@udixio/core':
         specifier: 0.2.2-next.9
         version: link:../core
-      '@udixio/icons-rounded-400':
-        specifier: 0.2.2-next.3
-        version: link:../icons/icons-rounded-400
       svelte:
         specifier: ^5.46.4
         version: 5.57.1(@typescript-eslint/types@8.70.0)
     devDependencies:
+      '@fortawesome/fontawesome-svg-core':
+        specifier: ^7.0.0
+        version: 7.3.1
       '@types/jest-axe':
         specifier: ^3.5.9
         version: 3.5.9
