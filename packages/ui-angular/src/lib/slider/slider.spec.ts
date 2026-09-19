@@ -75,6 +75,19 @@ describe('Slider (Angular)', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('uses valueFormatter for the accessible value text and indicator', async () => {
+    fixture = await createFixture();
+    fixture.componentRef.setInput('name', 'volume');
+    fixture.componentRef.setInput('defaultValue', 30);
+    fixture.componentRef.setInput('valueFormatter', (value: number) => `${value}%`);
+    fixture.componentRef.setInput('aria-label', 'Volume');
+    fixture.detectChanges();
+
+    const track: HTMLElement = fixture.nativeElement.querySelector('[role="slider"]');
+    expect(track.getAttribute('aria-valuetext')).toBe('30%');
+    expect(track.querySelector('.value-indicator')?.textContent?.trim()).toBe('30%');
+  });
+
   it('owns uncontrolled state and drags to a snapped value', async () => {
     fixture = await createFixture();
     fixture.componentRef.setInput('name', 'volume');

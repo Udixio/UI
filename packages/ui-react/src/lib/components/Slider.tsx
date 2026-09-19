@@ -218,7 +218,11 @@ export const Slider = ({
       aria-valuemin={min === -Infinity ? undefined : min}
       aria-valuemax={max === Infinity ? undefined : max}
       aria-valuenow={resolvedValue}
-      aria-valuetext={resolvedValue.toString()}
+      aria-valuetext={
+        valueFormatter
+          ? String(valueFormatter(resolvedValue))
+          : resolvedValue.toString()
+      }
       aria-disabled={disabled || undefined}
       className={styles.slider}
       ref={ref}

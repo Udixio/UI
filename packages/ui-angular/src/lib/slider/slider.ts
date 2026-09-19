@@ -64,7 +64,7 @@ import { createStyle } from '../utils/create-style';
       [attr.aria-valuemin]="ariaValueMin()"
       [attr.aria-valuemax]="ariaValueMax()"
       [attr.aria-valuenow]="resolvedValue()"
-      [attr.aria-valuetext]="resolvedValue().toString()"
+      [attr.aria-valuetext]="formattedValue()"
       [attr.aria-disabled]="disabled() || null"
       [attr.aria-label]="ariaLabel()"
       [attr.aria-labelledby]="ariaLabelledBy()"

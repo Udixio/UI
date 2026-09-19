@@ -4,24 +4,34 @@
 import Code from '@/components/Code.astro';
 import SliderBasicReact from '@/examples/react/slider-basic.tsx';
 import { SliderBasicAngular } from '@/examples/angular/slider-basic.ts';
+import SliderBasicSvelte from '@/examples/svelte/slider-basic.svelte';
 import sliderBasicReactSource from '@/examples/react/slider-basic.tsx?raw';
 import sliderBasicAngularSource from '@/examples/angular/slider-basic.ts?raw';
+import sliderBasicSvelteSource from '@/examples/svelte/slider-basic.svelte?raw';
 import SliderControlledReact from '@/examples/react/slider-controlled.tsx';
 import { SliderControlledAngular } from '@/examples/angular/slider-controlled.ts';
+import SliderControlledSvelte from '@/examples/svelte/slider-controlled.svelte';
 import sliderControlledReactSource from '@/examples/react/slider-controlled.tsx?raw';
 import sliderControlledAngularSource from '@/examples/angular/slider-controlled.ts?raw';
+import sliderControlledSvelteSource from '@/examples/svelte/slider-controlled.svelte?raw';
 import SliderMarksReact from '@/examples/react/slider-marks.tsx';
 import { SliderMarksAngular } from '@/examples/angular/slider-marks.ts';
+import SliderMarksSvelte from '@/examples/svelte/slider-marks.svelte';
 import sliderMarksReactSource from '@/examples/react/slider-marks.tsx?raw';
 import sliderMarksAngularSource from '@/examples/angular/slider-marks.ts?raw';
+import sliderMarksSvelteSource from '@/examples/svelte/slider-marks.svelte?raw';
 import SliderOpenEndedReact from '@/examples/react/slider-open-ended.tsx';
 import { SliderOpenEndedAngular } from '@/examples/angular/slider-open-ended.ts';
+import SliderOpenEndedSvelte from '@/examples/svelte/slider-open-ended.svelte';
 import sliderOpenEndedReactSource from '@/examples/react/slider-open-ended.tsx?raw';
 import sliderOpenEndedAngularSource from '@/examples/angular/slider-open-ended.ts?raw';
+import sliderOpenEndedSvelteSource from '@/examples/svelte/slider-open-ended.svelte?raw';
 import SliderDisabledReact from '@/examples/react/slider-disabled.tsx';
 import { SliderDisabledAngular } from '@/examples/angular/slider-disabled.ts';
+import SliderDisabledSvelte from '@/examples/svelte/slider-disabled.svelte';
 import sliderDisabledReactSource from '@/examples/react/slider-disabled.tsx?raw';
 import sliderDisabledAngularSource from '@/examples/angular/slider-disabled.ts?raw';
+import sliderDisabledSvelteSource from '@/examples/svelte/slider-disabled.svelte?raw';
 
 ## Usage
 
@@ -34,27 +44,31 @@ on and only notifies changes.
   codes={{
     react: sliderBasicReactSource,
     angular: sliderBasicAngularSource,
+    svelte: sliderBasicSvelteSource,
   }}
 >
   <SliderBasicReact slot="react" client:load />
   <SliderBasicAngular slot="angular" client:load />
+  <SliderBasicSvelte slot="svelte" client:load />
 </Code>
 
 ## Controlled usage
 
-Use `value` with `onChange` in React, or `[(value)]` in Angular. A controlled
-Slider requests a transition but does not change until its owner supplies the
-new value. Choose one mode (controlled or uncontrolled) for the component's
-lifetime.
+Use `value` with `onChange` in React, `[(value)]` in Angular, or `bind:value`
+in Svelte. A controlled Slider requests a transition but does not change until
+its owner supplies the new value. Choose one mode (controlled or uncontrolled)
+for the component's lifetime.
 
 <Code
   codes={{
     react: sliderControlledReactSource,
     angular: sliderControlledAngularSource,
+    svelte: sliderControlledSvelteSource,
   }}
 >
   <SliderControlledReact slot="react" client:load />
   <SliderControlledAngular slot="angular" client:load />
+  <SliderControlledSvelte slot="svelte" client:load />
 </Code>
 
 ## Marks
@@ -68,10 +82,12 @@ neither, the slider defaults to a step of 10.
   codes={{
     react: sliderMarksReactSource,
     angular: sliderMarksAngularSource,
+    svelte: sliderMarksSvelteSource,
   }}
 >
   <SliderMarksReact slot="react" client:load />
   <SliderMarksAngular slot="angular" client:load />
+  <SliderMarksSvelte slot="svelte" client:load />
 </Code>
 
 ## Open-ended range
@@ -85,10 +101,12 @@ interpolation range under the hood.
   codes={{
     react: sliderOpenEndedReactSource,
     angular: sliderOpenEndedAngularSource,
+    svelte: sliderOpenEndedSvelteSource,
   }}
 >
   <SliderOpenEndedReact slot="react" client:load />
   <SliderOpenEndedAngular slot="angular" client:load />
+  <SliderOpenEndedSvelte slot="svelte" client:load />
 </Code>
 
 ## Disabled
@@ -100,10 +118,12 @@ excludes its value from form submission.
   codes={{
     react: sliderDisabledReactSource,
     angular: sliderDisabledAngularSource,
+    svelte: sliderDisabledSvelteSource,
   }}
 >
   <SliderDisabledReact slot="react" client:load />
   <SliderDisabledAngular slot="angular" client:load />
+  <SliderDisabledSvelte slot="svelte" client:load />
 </Code>
 
 ## Accessibility

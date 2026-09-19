@@ -37,6 +37,21 @@ describe('Slider', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('uses valueFormatter for the accessible value text and indicator', () => {
+    render(
+      <Slider
+        name="volume"
+        defaultValue={30}
+        valueFormatter={(value) => `${value}%`}
+        aria-label="Volume"
+      />,
+    );
+    const slider = screen.getByRole('slider', { name: 'Volume' });
+
+    expect(slider).toHaveAttribute('aria-valuetext', '30%');
+    expect(slider.querySelector('.value-indicator')).toHaveTextContent('30%');
+  });
+
   it('owns uncontrolled state and drags to a snapped value', () => {
     const onChange = vi.fn();
     render(<Slider name="volume" defaultValue={0} step={10} onChange={onChange} />);

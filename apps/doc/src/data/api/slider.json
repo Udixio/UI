@@ -277,6 +277,155 @@
           "defaultValue": null
         }
       }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/slider/Slider.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Input",
+        "devx": "- `value` is bindable (`bind:value`); `defaultValue` initializes uncontrolled use. To reject a\n  change, bind with a function binding whose setter decides.\n- `valueFormatter` formats both the drag indicator and `aria-valuetext`.\n- Use `-Infinity`/`Infinity` on `min`/`max`, with a matching `marks` entry, for an open-ended range.",
+        "a11y": "- Renders `role=\"slider\"` with `aria-valuemin`/`aria-valuemax`/`aria-valuenow`/`aria-valuetext`.\n- Focusable and responds to ArrowLeft/ArrowRight/ArrowUp/ArrowDown/Home/End; `disabled` removes it from the tab order.\n- Provide `aria-label` or `aria-labelledby`; this component does not render label text.",
+        "limitations": "- Single-thumb only; there is no dual-thumb range-selection mode.\n- Horizontal orientation only."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes applied to the root element, merged with the component's own classes.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"slider\" | \"activeTrack\" | \"handle\" | \"inactiveTrack\" | \"valueIndicator\" | \"dot\", string>> | ClassNameComponent<SliderInterface>"
+          },
+          "defaultValue": null
+        },
+        "onkeydown": {
+          "name": "onkeydown",
+          "description": "Handles keyboard input after slider transitions have been processed.",
+          "required": false,
+          "type": {
+            "name": "(event: KeyboardEvent & { currentTarget: EventTarget & HTMLDivElement; }) => void"
+          },
+          "defaultValue": null
+        },
+        "onblur": {
+          "name": "onblur",
+          "description": "Handles focus leaving the slider after its indicator is hidden.",
+          "required": false,
+          "type": {
+            "name": "(event: FocusEvent & { currentTarget: EventTarget & HTMLDivElement; }) => void"
+          },
+          "defaultValue": null
+        },
+        "value": {
+          "name": "value",
+          "description": "Controlled value. Providing it makes the slider controlled for its lifetime.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null,
+          "bindable": true
+        },
+        "defaultValue": {
+          "name": "defaultValue",
+          "description": "Initial value for uncontrolled usage.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "0"
+          }
+        },
+        "onChange": {
+          "name": "onChange",
+          "description": "Called once for each accepted value transition (drag, click, or keyboard).",
+          "required": false,
+          "type": {
+            "name": "(value: number) => void"
+          },
+          "defaultValue": null
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Prevents interaction and form submission.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "name": {
+          "name": "name",
+          "description": "Name of the underlying hidden form control.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "valueFormatter": {
+          "name": "valueFormatter",
+          "description": "Formats the value shown in the drag indicator and `aria-valuetext`.",
+          "required": false,
+          "type": {
+            "name": "(value: number) => string | number"
+          },
+          "defaultValue": null
+        },
+        "step": {
+          "name": "step",
+          "description": "Snapping increment. Defaults to 10 when neither `step` nor `marks` is\ngiven; explicit `marks` without `step` snaps to those marks instead.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
+        "min": {
+          "name": "min",
+          "description": "Minimum value. Use `-Infinity` for an open lower end.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "0"
+          }
+        },
+        "max": {
+          "name": "max",
+          "description": "Maximum value. Use `Infinity` for an open upper end.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "100"
+          }
+        },
+        "marks": {
+          "name": "marks",
+          "description": "Labeled positions along the track. Snapped to when `step` is not given;\nshown for reference alongside a numeric `step` otherwise.",
+          "required": false,
+          "type": {
+            "name": "SliderMark[]"
+          },
+          "defaultValue": null
+        }
+      }
     }
   }
 }

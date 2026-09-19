@@ -25,3 +25,5 @@ export { default as StateLayer } from './lib/state-layer/StateLayer.svelte';
 export type { SvelteStateLayerProps } from './lib/state-layer/state-layer.types';
 export { default as Switch } from './lib/switch/Switch.svelte';
 export type { SvelteSwitchProps } from './lib/switch/switch.types';
+export { default as Slider } from './lib/slider/Slider.svelte';
+export type { SvelteSliderProps } from './lib/slider/slider.types';

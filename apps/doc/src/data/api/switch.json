@@ -224,7 +224,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"icon\" | \"stateLayer\" | \"switch\" | \"handleContainer\" | \"handle\", string>> | ClassNameComponent<SwitchInterface>"
+            "name": "Partial<Record<\"icon\" | \"stateLayer\" | \"handle\" | \"switch\" | \"handleContainer\", string>> | ClassNameComponent<SwitchInterface>"
           },
           "defaultValue": null
         },
