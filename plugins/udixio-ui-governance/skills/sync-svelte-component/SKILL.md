@@ -34,9 +34,10 @@ description: Create or update an Udixio Svelte 5 component from the default Reac
 
 - Map framework-agnostic props to the `Svelte<Xxx>Props` interface read through `$props()`, with
   defaults in the destructuring. Keep React `onXChange` callback props under the same name.
-- Declare every controllable value `$bindable()` in addition to its callback, and route both
-  through the core controllable-state primitive: `bind:` never bypasses a blocked transition or
-  silences `onXChange`.
+- Declare every controllable value `$bindable()` next to its callback and route both through the
+  core controllable-state primitive. In controlled mode an accepted transition calls `onXChange`
+  and assigns the prop; the owner rejects through a function binding. Never try to detect whether
+  the prop is bound, and never let `bind:` bypass a blocked transition.
 - Map `children` and render props to snippets typed with the state they receive. Never emit
   `<slot>`.
 - Spread typed rest props on the root element; there is no host element to account for, so the

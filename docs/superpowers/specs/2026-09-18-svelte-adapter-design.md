@@ -39,10 +39,18 @@ component. React remains the default product source; core stays framework-agnost
   Svelte 5 lowercased DOM handlers (`onclick`) are forwarded to the host element via rest props;
   they are not the component API.
 - **Controlled / uncontrolled**: the core controllable-state primitive is the authority. A
-  controllable value is additionally exposed with `$bindable()` so `bind:value` works, but binding
-  never bypasses the pure core transition, blocked states or the `onXChange` callback.
+  controllable value is `$bindable()`; `default*` seeds uncontrolled use. In controlled mode every
+  accepted transition calls `onXChange(next)` **and assigns the prop** (`value = next`): with
+  `bind:` the owner's variable follows, with a Svelte 5 function binding
+  (`bind:value={() => v, (next) => { if (ok) v = next }}`) the owner's setter decides. A child
+  cannot detect whether a prop is bound, so the function binding is the controlled surface —
+  a `platform-adaptation`, not a shape difference. Binding never bypasses the pure core
+  transition or blocked states.
 - **Content**: snippets (`children?: Snippet`, typed `Snippet<[state]>` for render props). Never
   legacy `<slot>`.
+- **Customization**: `class` (string, root element) + `classes`
+  (`ElementClasses<I> | ClassNameComponent<I>`), merged with `mergeClassNames` — the split Angular
+  already made; `class` as a function is not HTML idiom.
 - **Styles**: `$derived(xxxStyle({ …props, …states, className }))`; no style logic in Svelte.
 - **DOM / animation**: `@udixio/core/dom` controllers created in `$effect`, destroyed in its
   cleanup. `onMount` is reserved for one-shot, prop-independent setup.

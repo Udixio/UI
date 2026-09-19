@@ -1,6 +1,6 @@
 {
   "name": "udixio-ui-usage",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Help agents correctly consume, review and migrate to @udixio/ui-react, @udixio/ui-angular and @udixio/ui-svelte components in a downstream project.",
   "author": {
     "name": "Udixio"

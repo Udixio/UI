@@ -28,15 +28,18 @@ Target: **Svelte 5, runes only**. `export let`, `$:`, `<slot>`, `createEventDisp
 - Callback props keep the contract names: `onValueChange`, not `onvaluechange`, not a
   `CustomEvent`. The lowercased form is Svelte's DOM-event idiom and stays reserved for native
   events forwarded through rest props.
-- A controllable value is additionally declared `$bindable()` so `bind:value` works. Binding is an
-  ergonomic surface, not a second state engine: the core controllable-state primitive still decides
-  every transition, blocked states still block, and `onValueChange` still fires. Controlled usage
-  (owner passes `value` and handles `onValueChange` without binding) must keep working.
+- A controllable value is declared `$bindable()`; `default*` seeds uncontrolled use. The core
+  controllable-state primitive decides every transition; in controlled mode an accepted transition
+  calls `onValueChange(next)` **and assigns the prop** (`value = next`). With `bind:` the owner's
+  variable follows; with a Svelte 5 function binding
+  (`bind:value={() => v, (next) => { if (ok) v = next }}`) the owner's setter decides. A child
+  cannot detect whether a prop is bound, so the function binding is the controlled surface — a
+  `platform-adaptation`. Mode is fixed for the component lifetime; switching logs the shared error.
 - Content: `children?: Snippet`, and `Snippet<[state]>` for what React expresses as a render prop.
   Name slots after the contract concept (`leadingIcon`), not after their position.
-- `class` is the consumer-facing name of what React calls `className`; it accepts the same
-  `string | ClassNameComponent<XxxInterface>` union and is forwarded to the core style function
-  unchanged.
+- Customization is split as in Angular: `class` (string, applied to the root element) and
+  `classes` (`ElementClasses<I> | ClassNameComponent<I>`), merged with `mergeClassNames` from
+  `@udixio/core`. `class` is never a function.
 
 ## Reactivity and DOM
 
@@ -57,5 +60,5 @@ Target: **Svelte 5, runes only**. `export let`, `$:`, `<slot>`, `createEventDisp
 ## Tests
 
 vitest + `@testing-library/svelte` in jsdom, same semantic scenario matrix as React and Angular,
-plus `bind:` round-trips for every `$bindable` prop and action `destroy` cleanup where an action
-exists. `svelte-check` is part of the typecheck gate because vitest does not prove template types.
+plus, for every `$bindable` prop, a `bind:` round-trip and a rejecting function binding (the
+controlled-rejection scenario), and action `destroy` cleanup where an action exists. `svelte-check` is part of the typecheck gate because vitest does not prove template types.

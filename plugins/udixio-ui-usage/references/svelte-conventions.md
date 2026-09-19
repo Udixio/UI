@@ -9,9 +9,9 @@
 ## Props
 
 - The public props type is exported as `Svelte<Component>Props` (e.g. `SvelteButtonProps`) next to the component; read it from the shipped `.d.ts` rather than the `.svelte` file's script block when both exist.
-- `class` is the customization prop (what React calls `className`). It accepts a plain string or a `ClassNameComponent<XInterface>` map for state-aware classes.
+- `class` is a plain string applied to the root element; `classes` takes the state-aware `ClassNameComponent<XInterface>` map (or a per-element record) — the same split as Angular.
 - Callback props keep the React names: `onValueChange`, `onPressedChange`, `onCheckedChange`… They are plain callback props, **not** Svelte custom events — there is no `on:valuechange`, no `event.detail`.
-- Controlled state: a value prop (`checked`, `value`, `pressed`) is also `$bindable`, so `bind:checked` is the idiomatic way to keep it in sync; `default*` props initialize uncontrolled use. Pass the value prop plus its `on*Change` callback only when you need to intercept or reject a change. Never combine `bind:` with the same prop's `default*` counterpart on one instance.
+- Controlled state: a value prop (`checked`, `value`, `pressed`) is `$bindable`, so `bind:checked` keeps it in sync; `default*` props initialize uncontrolled use. To intercept or reject a change, use a function binding: `bind:checked={() => checked, (next) => { if (allowed) checked = next }}` — passing a plain value without `bind:` does not reject anything. Never combine `bind:` with the same prop's `default*` counterpart on one instance.
 - Boolean props are plain booleans: `disabled={true}` or the shorthand `disabled` — there is no attribute coercion beyond Svelte's own.
 
 ## Content and DOM
