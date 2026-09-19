@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "IconButton",
   "description": "Icon buttons help people take actions with a single tap.",
   "defaultFramework": "react",

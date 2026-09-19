@@ -34,6 +34,9 @@ const apiMember = z
   })
   .strict();
 
+// Only a Svelte prop can be `$bindable`.
+const svelteApiMember = apiMember.extend({ bindable: z.literal(true).optional() }).strict();
+
 const frameworkBase = {
   filePath: z.string(),
   tags: apiTags,
@@ -46,7 +49,7 @@ const api = defineCollection({
   }),
   schema: z
     .object({
-      schemaVersion: z.literal(4),
+      schemaVersion: z.literal(5),
       displayName: z.string(),
       // One description, from the shared contract -- never per adapter.
       description: z.string(),
@@ -76,6 +79,25 @@ const api = defineCollection({
                       name: z.string(),
                       selector: z.string(),
                       description: z.string(),
+                    })
+                    .strict(),
+                )
+                .optional(),
+            })
+            .strict()
+            .optional(),
+          svelte: z
+            .object({
+              ...frameworkBase,
+              props: z.record(z.string(), svelteApiMember),
+              snippets: z
+                .record(
+                  z.string(),
+                  z
+                    .object({
+                      name: z.string(),
+                      description: z.string(),
+                      parameters: z.string().optional(),
                     })
                     .strict(),
                 )

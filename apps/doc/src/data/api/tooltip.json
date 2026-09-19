@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "Tooltip",
   "description": "Tooltips display brief labels or messages.",
   "defaultFramework": "react",

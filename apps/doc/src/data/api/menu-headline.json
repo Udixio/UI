@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "MenuHeadline",
   "description": "Menu headlines label a menu or one of its groups.",
   "defaultFramework": "react",

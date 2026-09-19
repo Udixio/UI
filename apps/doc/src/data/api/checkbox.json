@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "Checkbox",
   "description": "Checkboxes let people select one or more items from a list, or turn an item on or off.",
   "defaultFramework": "react",

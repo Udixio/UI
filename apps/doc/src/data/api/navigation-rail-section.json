@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "NavigationRailSection",
   "description": "Navigation rail sections label the destinations that follow them.",
   "defaultFramework": "react",

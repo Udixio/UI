@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "Divider",
   "description": "Dividers are thin lines that group content in lists or other containers.",
   "defaultFramework": "react",

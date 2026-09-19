@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "SideSheet",
   "description": "Side sheets show secondary content anchored to the side of the screen.",
   "defaultFramework": "react",

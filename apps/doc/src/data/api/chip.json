@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "Chip",
   "description": "Chips help people enter information, make selections, filter content, or trigger actions.",
   "defaultFramework": "react",

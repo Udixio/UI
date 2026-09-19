@@ -34,7 +34,7 @@ def api_tags() -> dict[str, str]:
 
 def valid_document() -> dict[str, object]:
     return {
-        "schemaVersion": 4,
+        "schemaVersion": 5,
         "displayName": "Button",
         "description": "Buttons prompt most actions in a UI.",
         "defaultFramework": "react",
@@ -57,6 +57,22 @@ def valid_document() -> dict[str, object]:
                         "selector": "*",
                         "description": "Visible label content.",
                     }
+                },
+            },
+            "svelte": {
+                "filePath": "packages/ui-svelte/src/lib/button/Button.svelte",
+                "tags": api_tags(),
+                "props": {
+                    "disabled": api_item("disabled"),
+                    "pressed": {**api_item("pressed"), "defaultValue": None, "bindable": True},
+                },
+                "snippets": {
+                    "children": {"name": "children", "description": "Default content."},
+                    "trailing": {
+                        "name": "trailing",
+                        "description": "Trailing content.",
+                        "parameters": "[{ active: boolean; }]",
+                    },
                 },
             },
         },
@@ -114,8 +130,50 @@ class ValidateApiDocsTest(unittest.TestCase):
 
     def test_rejects_the_previous_schema_version(self) -> None:
         document = valid_document()
-        document["schemaVersion"] = 3
-        self.assertIn("schemaVersion must equal 4", validate_document(document))
+        document["schemaVersion"] = 4
+        self.assertIn("schemaVersion must equal 5", validate_document(document))
+
+    def test_accepts_a_svelte_payload_without_snippets(self) -> None:
+        document = valid_document()
+        del document["frameworks"]["svelte"]["snippets"]  # type: ignore[index]
+        self.assertEqual(validate_document(document), [])
+
+    def test_rejects_a_false_bindable_marker(self) -> None:
+        document = valid_document()
+        document["frameworks"]["svelte"]["props"]["pressed"]["bindable"] = False  # type: ignore[index]
+        self.assertIn(
+            "frameworks.svelte.props.pressed.bindable must be true when present",
+            validate_document(document),
+        )
+
+    def test_rejects_bindable_outside_svelte(self) -> None:
+        document = valid_document()
+        document["frameworks"]["react"]["props"]["disabled"]["bindable"] = True  # type: ignore[index]
+        self.assertIn(
+            "frameworks.react.props.disabled contains unsupported fields: bindable",
+            validate_document(document),
+        )
+
+    def test_rejects_a_svelte_payload_without_props(self) -> None:
+        document = valid_document()
+        del document["frameworks"]["svelte"]["props"]  # type: ignore[index]
+        self.assertIn("frameworks.svelte.props must be an object", validate_document(document))
+
+    def test_rejects_a_snippet_name_different_from_its_key(self) -> None:
+        document = valid_document()
+        document["frameworks"]["svelte"]["snippets"]["children"]["name"] = "body"  # type: ignore[index]
+        self.assertIn(
+            "frameworks.svelte.snippets.children.name must equal its record key 'children'",
+            validate_document(document),
+        )
+
+    def test_rejects_an_angular_style_selector_on_svelte(self) -> None:
+        document = valid_document()
+        document["frameworks"]["svelte"]["selector"] = "udx-button"  # type: ignore[index]
+        self.assertIn(
+            "frameworks.svelte contains unsupported fields: selector",
+            validate_document(document),
+        )
 
     def test_rejects_a_document_without_a_shared_description(self) -> None:
         document = valid_document()

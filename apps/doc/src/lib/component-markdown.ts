@@ -21,7 +21,7 @@ const TAG_LABELS: Array<[key: keyof ApiTags, label: string]> = [
  * their sources can: overviews import them with `?raw` to feed `<Code>`, and
  * the same strings are re-emitted here as fenced code blocks.
  */
-const exampleSources = import.meta.glob('../examples/**/*.{ts,tsx}', {
+const exampleSources = import.meta.glob('../examples/**/*.{ts,tsx,svelte}', {
   query: '?raw',
   import: 'default',
   eager: true,
@@ -52,6 +52,7 @@ const CODES_ENTRY_RE = /([A-Za-z][\w$]*)\s*:\s*([A-Za-z_$][\w$]*)/g;
 function languageFor(specifier: string): string {
   if (specifier.endsWith('.tsx')) return 'tsx';
   if (specifier.endsWith('.ts')) return 'ts';
+  if (specifier.endsWith('.svelte')) return 'svelte';
   return 'text';
 }
 
@@ -191,7 +192,9 @@ function renderMembersTable(members: Record<string, ApiMember>): string {
   const rows = entries.map((member) => {
     const name = member.alias
       ? `\`${member.name}\` (alias: \`${member.alias}\`)`
-      : `\`${member.name}\``;
+      : member.bindable
+        ? `\`${member.name}\` (bindable)`
+        : `\`${member.name}\``;
     const type = `\`${escapeCell(member.type.name)}\``;
     const required = member.required ? 'Yes' : 'No';
     const defaultValue = member.defaultValue
@@ -246,6 +249,38 @@ function renderAngularSection(
   return parts.join('\n');
 }
 
+function renderSnippetsTable(
+  snippets: NonNullable<NonNullable<ApiData['frameworks']['svelte']>['snippets']>,
+): string {
+  const entries = Object.values(snippets);
+  if (entries.length === 0) return '_None._';
+
+  const header = '| Snippet | Parameters | Description |';
+  const divider = '|---------|------------|-------------|';
+  const rows = entries.map(
+    (snippet) =>
+      `| \`${snippet.name}\` | ${snippet.parameters ? `\`${escapeCell(snippet.parameters)}\`` : '—'} | ${escapeCell(snippet.description)} |`,
+  );
+
+  return [header, divider, ...rows].join('\n');
+}
+
+function renderSvelteSection(
+  svelte: NonNullable<ApiData['frameworks']['svelte']>,
+): string {
+  const parts = ['### Svelte'];
+
+  const tagsMd = renderTags(svelte.tags);
+  if (tagsMd) parts.push('', tagsMd);
+
+  parts.push('', '#### Props', '', renderMembersTable(svelte.props));
+  if (svelte.snippets) {
+    parts.push('', '#### Snippets', '', renderSnippetsTable(svelte.snippets));
+  }
+
+  return parts.join('\n');
+}
+
 export type MarkdownSection = 'overview' | 'api';
 
 export type ComponentMarkdownOptions = {
@@ -294,6 +329,9 @@ export function buildComponentMarkdown(
     }
     if (frameworks.includes('angular') && api.frameworks.angular) {
       apiParts.push('', renderAngularSection(api.frameworks.angular));
+    }
+    if (frameworks.includes('svelte') && api.frameworks.svelte) {
+      apiParts.push('', renderSvelteSection(api.frameworks.svelte));
     }
     sections.push('', apiParts.join('\n'));
   }

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "StateLayer",
   "description": "State layers express an element's interaction state through a translucent overlay.",
   "defaultFramework": "react",
@@ -136,6 +136,76 @@
         }
       },
       "outputs": {}
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/state-layer/StateLayer.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Interaction",
+        "devx": "- Building block used by every interactive component (`Button`, `Chip`, `Switch`, ...); it is\n  rendered inside the element it decorates, never standalone.\n- `colorName` is a theme token without the `--color-` prefix, and it is the\n  content colour of the surface being decorated -- `on-primary` on a filled\n  button, `on-primary-container` once that button is repainted onto a\n  container. An unknown token degrades to `on-surface`.\n- `stateClassName` selects the Tailwind utility driving the CSS states. The\n  `state-ripple-group-[name]` form pairs with a `group/name` class on the\n  trigger, and the layer attaches its ripple to that same element, so the\n  CSS states and the JavaScript gesture always agree on what the trigger is.\n- `state-layer` (the non-group form) is CSS-only: no ripple is wired.",
+        "a11y": "- Decorative only: the layer carries `aria-hidden` and takes no pointer\n  events, so it never reaches the accessibility tree nor intercepts input.\n- The press ripple honours the reduced-motion preference through the shared\n  controller.",
+        "limitations": "- Must be rendered inside the element carrying the named Tailwind group,\n  which is the trigger it attaches to.\n- `colorName` is typed as `string`: the valid tokens are not visible from\n  here, so a typo degrades to `on-surface` instead of failing to compile.\n- `classes` takes the state-aware function form, but it resolves no\n  interaction states -- hover, focus and press live in the Tailwind\n  utilities, not in JavaScript."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes applied to the root element, merged with the component's own classes.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"stateLayer\", string>> | ClassNameComponent<StateLayerInterface>"
+          },
+          "defaultValue": null
+        },
+        "colorName": {
+          "name": "colorName",
+          "description": "Semantic color token name, without the `--color-` prefix -- `on-primary`,\n`on-surface-variant`, and so on.\n\nAn unknown name falls back to `on-surface` rather than resolving to\nnothing: the Tailwind hover and focus utilities read `--state-color`\nwithout a fallback of their own, so an unresolvable token used to remove\nthe hover state entirely while leaving the ripple visible.\n\nThis is typed as `string` because the set of valid tokens lives in\n`@udixio/theme`, which `@udixio/core` does not depend on.",
+          "required": true,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "stateClassName": {
+          "name": "stateClassName",
+          "description": "Tailwind state utility selecting the interaction trigger.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "'state-ripple-group'"
+          }
+        },
+        "shapeTransition": {
+          "name": "shapeTransition",
+          "description": "Optional Motion animation applied to the state layer trigger.",
+          "required": false,
+          "type": {
+            "name": "StateLayerShapeTransition"
+          },
+          "defaultValue": null
+        },
+        "transitionDuration": {
+          "name": "transitionDuration",
+          "description": "Seconds over which the layer transitions, for a surface whose colour\nchanges -- a chip being selected, say. Omitted, the layer snaps.\n\nThis is a typed prop rather than an inline-style passthrough so both\nadapters can express it: `style` is a React DOM idiom with no Angular\ncounterpart, and routing it that way left the Angular chip snapping.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        }
+      }
     }
   }
 }

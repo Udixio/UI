@@ -1,4 +1,5 @@
 import { parseTemplate, TmplAstContent } from '@angular/compiler';
+import { parse as parseSvelte } from 'svelte/compiler';
 import { kebabCase } from 'change-case';
 import { glob } from 'glob';
 import { mkdir, readFile, readdir, unlink, writeFile } from 'node:fs/promises';
@@ -16,6 +17,8 @@ const reactComponentsRoot = path.join(
 );
 const angularRoot = path.join(projectRoot, 'packages/ui-angular');
 const angularSourceRoot = path.join(angularRoot, 'src/lib');
+const svelteRoot = path.join(projectRoot, 'packages/ui-svelte');
+const svelteSourceRoot = path.join(svelteRoot, 'src/lib');
 const outputDirectory = path.join(docRoot, 'src/data/api');
 
 const parser = withDefaultConfig({
@@ -501,6 +504,246 @@ export const extractAngularComponent = ({
   };
 };
 
+
+// ─── Svelte ──────────────────────────────────────────────────────────────────
+//
+// A Svelte adapter is `<dir>/<Name>.svelte` reading `Svelte<Name>Props` from
+// `<dir>/<name>.types.ts`. The interface owns the component TSDoc and the
+// member descriptions; the `.svelte` script owns what only runtime code can
+// say: destructuring defaults and which props are `$bindable`.
+
+const SVELTE_SNIPPET_TYPE = 'Snippet';
+
+/**
+ * Reads `let { a = 1, b = $bindable(), ...rest } = $props()` out of the
+ * component script. Returns per-prop defaults and the bindable set.
+ */
+export const extractSvelteRuntimeProps = (source, fileName) => {
+  const ast = parseSvelte(source, { filename: fileName, modern: true });
+  const instance = ast.instance;
+  if (!instance) return { defaults: {}, bindable: new Set() };
+
+  const script = source.slice(instance.content.start, instance.content.end);
+  const sourceFile = ts.createSourceFile(
+    `${fileName}.ts`,
+    script,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TS,
+  );
+
+  const defaults = {};
+  const bindable = new Set();
+  const visit = (node) => {
+    if (
+      ts.isVariableDeclaration(node) &&
+      ts.isObjectBindingPattern(node.name) &&
+      node.initializer &&
+      ts.isCallExpression(node.initializer) &&
+      ts.isIdentifier(node.initializer.expression) &&
+      node.initializer.expression.text === '$props'
+    ) {
+      for (const element of node.name.elements) {
+        if (element.dotDotDotToken || !ts.isIdentifier(element.name)) continue;
+        const name = element.propertyName
+          ? getPropertyName({ name: element.propertyName }, sourceFile)
+          : element.name.text;
+        if (!name || !element.initializer) continue;
+        const initializer = element.initializer;
+        if (
+          ts.isCallExpression(initializer) &&
+          ts.isIdentifier(initializer.expression) &&
+          initializer.expression.text === '$bindable'
+        ) {
+          bindable.add(name);
+          const fallback = initializer.arguments[0];
+          if (fallback && fallback.kind !== ts.SyntaxKind.UndefinedKeyword) {
+            defaults[name] = fallback.getText(sourceFile);
+          }
+          continue;
+        }
+        defaults[name] = initializer.getText(sourceFile);
+      }
+      return;
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return { defaults, bindable };
+};
+
+/**
+ * `Snippet` is an interface in `svelte`; TypeScript surfaces it as a type
+ * reference (`Snippet<[]>` when the default parameter list applies) or, once
+ * written with explicit arguments, through an alias symbol. `getNonNullableType`
+ * drops that information, so the raw union members are inspected.
+ */
+const findSnippetType = (type) =>
+  (type.isUnion() ? type.types : [type]).find(
+    (member) =>
+      (member.aliasSymbol ?? member.getSymbol())?.getName() ===
+      SVELTE_SNIPPET_TYPE,
+  );
+
+const snippetParameters = (snippetType, node, checker) => {
+  const [argument] =
+    snippetType.aliasTypeArguments ?? checker.getTypeArguments(snippetType);
+  if (!argument) return undefined;
+  const text = checker.typeToString(argument, node, typeFormatFlags);
+  return text === '[]' ? undefined : text;
+};
+
+const findSveltePropsInterface = (sourceFile, displayName) =>
+  sourceFile.statements.find(
+    (statement) =>
+      ts.isInterfaceDeclaration(statement) &&
+      statement.name.text === `Svelte${displayName}Props`,
+  );
+
+export const extractSvelteComponent = async ({
+  displayName,
+  svelteFilePath,
+  typesSourceFile,
+  checker,
+  reactComponent,
+}) => {
+  const propsInterface = findSveltePropsInterface(typesSourceFile, displayName);
+  if (!propsInterface) {
+    throw new Error(
+      `Unable to find Svelte${displayName}Props in ${toProjectPath(typesSourceFile.fileName)}. ` +
+        'A Svelte adapter declares its public props interface in its sibling .types.ts file.',
+    );
+  }
+
+  const runtime = extractSvelteRuntimeProps(
+    await readFile(svelteFilePath, 'utf8'),
+    path.basename(svelteFilePath),
+  );
+  const interfaceDocumentation = getSymbolDocumentation(
+    checker.getSymbolAtLocation(propsInterface.name),
+    checker,
+  );
+  const propsType = checker.getTypeAtLocation(propsInterface.name);
+  const props = {};
+  const snippets = {};
+
+  for (const member of checker.getPropertiesOfType(propsType)) {
+    const name = member.getName();
+    // Forwarded native attributes come from `svelte/elements`, not from the
+    // adapter: they are not part of the documented contract.
+    const declaration = member.valueDeclaration ?? member.declarations?.[0];
+    if (!declaration || declaration.getSourceFile().fileName.includes('node_modules')) {
+      continue;
+    }
+    const memberType = checker.getTypeOfSymbolAtLocation(member, declaration);
+    const nonNullable = checker.getNonNullableType(memberType);
+    const documentation = getSymbolDocumentation(member, checker);
+
+    const snippetType = findSnippetType(memberType);
+    if (snippetType) {
+      const parameters = snippetParameters(snippetType, declaration, checker);
+      snippets[name] = {
+        name,
+        description:
+          documentation.description ||
+          (name === 'children' ? 'Default content.' : ''),
+        ...(parameters ? { parameters } : {}),
+      };
+      continue;
+    }
+
+    // Svelte keeps the shared vocabulary verbatim -- `onValueChange` is
+    // `onValueChange` -- so a same-named React member documents the same
+    // concept. `children` is a snippet here and never reaches this branch.
+    const description =
+      documentation.description ||
+      reactComponent.props[name]?.description ||
+      '';
+    props[name] = {
+      ...normalizeApiMember(
+        {
+          name,
+          description,
+          required: !(member.flags & ts.SymbolFlags.Optional),
+          type: { name: checker.typeToString(nonNullable, declaration, typeFormatFlags) },
+          defaultValue: Object.hasOwn(runtime.defaults, name)
+            ? { value: runtime.defaults[name] }
+            : null,
+        },
+        description,
+      ),
+      ...(runtime.bindable.has(name) ? { bindable: true } : {}),
+    };
+  }
+
+  return {
+    filePath: toProjectPath(svelteFilePath),
+    tags: {
+      ...getSharedCatalogTags(reactComponent.tags),
+      ...interfaceDocumentation.tags,
+    },
+    props,
+    ...(Object.keys(snippets).length ? { snippets } : {}),
+  };
+};
+
+const createSvelteProgram = async () => {
+  const configPath = path.join(svelteRoot, 'tsconfig.lib.json');
+  const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
+  if (configFile.error) {
+    throw new Error(
+      ts.flattenDiagnosticMessageText(configFile.error.messageText, '\n'),
+    );
+  }
+  const config = ts.parseJsonConfigFileContent(
+    configFile.config,
+    ts.sys,
+    svelteRoot,
+    undefined,
+    configPath,
+  );
+  const typeFiles = await glob(path.join(svelteSourceRoot, '**/*.types.ts'));
+  return ts.createProgram({
+    rootNames: typeFiles.sort(),
+    options: config.options,
+  });
+};
+
+/** Maps a component display name to its `.svelte` file and `.types.ts` source. */
+const getSvelteComponents = async () => {
+  const components = new Map();
+  const svelteFiles = await glob(path.join(svelteSourceRoot, '**/*.svelte'));
+  const candidates = svelteFiles
+    .filter((file) => !file.endsWith('.fixture.svelte'))
+    .map((file) => ({
+      displayName: path.basename(file, '.svelte'),
+      svelteFilePath: file,
+      typesFilePath: path.join(
+        path.dirname(file),
+        `${kebabCase(path.basename(file, '.svelte'))}.types.ts`,
+      ),
+    }));
+  if (!candidates.length) return components;
+
+  const program = await createSvelteProgram();
+  const checker = program.getTypeChecker();
+  for (const candidate of candidates) {
+    const typesSourceFile = program.getSourceFile(candidate.typesFilePath);
+    if (!typesSourceFile) {
+      throw new Error(
+        `Svelte adapter ${toProjectPath(candidate.svelteFilePath)} has no sibling ` +
+          `${path.basename(candidate.typesFilePath)}; the props interface and its TSDoc live there.`,
+      );
+    }
+    components.set(candidate.displayName, {
+      ...candidate,
+      typesSourceFile,
+      checker,
+    });
+  }
+  return components;
+};
+
 const createAngularProgram = async () => {
   const configPath = path.join(angularRoot, 'tsconfig.lib.json');
   const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
@@ -602,6 +845,7 @@ const readSharedDescription = async (displayName) => {
 export const generateApiDocs = async ({ requestedComponent } = {}) => {
   const normalizedRequest = requestedComponent?.toLowerCase();
   const angularComponents = await getAngularComponents();
+  const svelteComponents = await getSvelteComponents();
   const componentPaths = (
     await glob(path.join(reactComponentsRoot, '**/*.tsx'))
   ).sort();
@@ -646,14 +890,22 @@ export const generateApiDocs = async ({ requestedComponent } = {}) => {
           reactComponent: react,
         })
       : undefined;
+    const svelteAdapter = svelteComponents.get(displayName);
+    const svelte = svelteAdapter
+      ? await extractSvelteComponent({
+          ...svelteAdapter,
+          reactComponent: react,
+        })
+      : undefined;
     const document = {
-      schemaVersion: 4,
+      schemaVersion: 5,
       displayName,
       description: await readSharedDescription(displayName),
       defaultFramework: 'react',
       frameworks: {
         react,
         ...(angular ? { angular } : {}),
+        ...(svelte ? { svelte } : {}),
       },
     };
     generated.set(

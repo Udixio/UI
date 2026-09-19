@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "Button",
   "description": "Buttons prompt most actions in a UI.",
   "defaultFramework": "react",
@@ -520,6 +520,256 @@
           "name": "default",
           "selector": "*",
           "description": "Default projected content."
+        }
+      }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/button/Button.svelte",
+      "tags": {
+        "status": "stable",
+        "category": "Action",
+        "devx": "- Requires exactly one visible-content source: `label` or the `children` snippet.\n- Custom non-text children require an explicit accessible name such as `aria-label`.\n- `pressed` is bindable (`bind:pressed`); `defaultPressed` initializes uncontrolled usage. To\n  reject a change, bind with a function binding whose setter decides.\n- `toggleable` enables `aria-pressed` and `onPressedChange` on action buttons.\n- `type` defaults to `'button'` to prevent accidental form submits.",
+        "a11y": "- Uses native button/link semantics and preserves its accessible name while loading.\n- Provides a 48px touch target and a visible `:focus-visible` outline.",
+        "limitations": "- When `href` is set with `disabled`, the link is made inert via `aria-disabled` and `tabindex=\"-1\"`.\n- Navigation links ignore toggle state; use `aria-current` for the current destination."
+      },
+      "props": {
+        "label": {
+          "name": "label",
+          "description": "Visible text content. Ignored when `children` is provided.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "class": {
+          "name": "class",
+          "description": "Classes applied to the root element, merged with the component's own classes.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"label\" | \"icon\" | \"button\" | \"touchTarget\" | \"stateLayer\", string>> | ClassNameComponent<ButtonInterface>"
+          },
+          "defaultValue": null
+        },
+        "onPressedChange": {
+          "name": "onPressedChange",
+          "description": "Notifies an accepted toggle-state request.",
+          "required": false,
+          "type": {
+            "name": "(pressed: boolean) => void"
+          },
+          "defaultValue": null
+        },
+        "href": {
+          "name": "href",
+          "description": "Navigation destination; switches the native element from button to link.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "target": {
+          "name": "target",
+          "description": "Native link browsing-context target.",
+          "required": false,
+          "type": {
+            "name": "HTMLAttributeAnchorTarget"
+          },
+          "defaultValue": null
+        },
+        "rel": {
+          "name": "rel",
+          "description": "Native link relationship tokens.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "onclick": {
+          "name": "onclick",
+          "description": "Handles clicks accepted by the button or link interaction contract.",
+          "required": false,
+          "type": {
+            "name": "(event: MouseEvent & { currentTarget: EventTarget & (HTMLButtonElement | HTMLAnchorElement); }) => void"
+          },
+          "defaultValue": null
+        },
+        "type": {
+          "name": "type",
+          "description": "The HTML button type attribute. Only applies when rendered as `<button>`.",
+          "required": false,
+          "type": {
+            "name": "\"button\" | \"submit\" | \"reset\""
+          },
+          "defaultValue": {
+            "value": "'button'"
+          }
+        },
+        "icon": {
+          "name": "icon",
+          "description": "An optional icon to display in the button (agnostic Icon data).",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "iconPosition": {
+          "name": "iconPosition",
+          "description": "Logical icon position. The `left` and `right` aliases are retained for\ncompatibility and resolve to `start` and `end` respectively.",
+          "required": false,
+          "type": {
+            "name": "ButtonIconPosition | ButtonIconPositionAlias"
+          },
+          "defaultValue": {
+            "value": "'start'"
+          }
+        },
+        "size": {
+          "name": "size",
+          "description": "Visual size; every option retains a 48px touch target.",
+          "required": false,
+          "type": {
+            "name": "\"xSmall\" | \"small\" | \"medium\" | \"large\" | \"xLarge\""
+          },
+          "defaultValue": {
+            "value": "'medium'"
+          }
+        },
+        "variant": {
+          "name": "variant",
+          "description": "The button variant determines the style of the button.\nAliases: 'primary' maps to 'filled', 'secondary' maps to 'tonal'",
+          "required": false,
+          "type": {
+            "name": "ButtonVariant | ButtonVariantAlias"
+          },
+          "defaultValue": {
+            "value": "'filled'"
+          }
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Disables the button if set to true.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "edgeAligned": {
+          "name": "edgeAligned",
+          "description": "Aligns text-button content with the surrounding inline edge.\nOnly applies to `text` variant buttons.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "stateColor": {
+          "name": "stateColor",
+          "description": "Colour token for the state layer, without the `--color-` prefix.\n\nDefaults to the token matching the resolved `variant`. Set it when the\nsurface has been restyled through `className` -- a filled button repainted\nonto a container needs `on-primary-container`, not the `on-primary` the\nvariant implies -- so the hover and press feedback keeps contrasting.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "loading": {
+          "name": "loading",
+          "description": "Blocks interaction and exposes the busy state while preserving the label.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "shape": {
+          "name": "shape",
+          "description": "The shape of the button defines whether it is squared or rounded.",
+          "required": false,
+          "type": {
+            "name": "\"squared\" | \"rounded\""
+          },
+          "defaultValue": {
+            "value": "'rounded'"
+          }
+        },
+        "shapeFeedback": {
+          "name": "shapeFeedback",
+          "description": "Shape feedback shown for accepted press and toggle interactions.",
+          "required": false,
+          "type": {
+            "name": "ButtonShapeFeedback"
+          },
+          "defaultValue": {
+            "value": "'morph'"
+          }
+        },
+        "transition": {
+          "name": "transition",
+          "description": "Motion transition shared by every framework for shape changes.",
+          "required": false,
+          "type": {
+            "name": "Transition"
+          },
+          "defaultValue": null
+        },
+        "toggleable": {
+          "name": "toggleable",
+          "description": "Enables the semantic pressed state and its visual treatment.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "pressed": {
+          "name": "pressed",
+          "description": "Controlled pressed state. Framework adapters expose the matching change\nevent (`onPressedChange` in React, `pressedChange` in Angular).",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null,
+          "bindable": true
+        },
+        "defaultPressed": {
+          "name": "defaultPressed",
+          "description": "Initial pressed state when `pressed` is not controlled.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        }
+      },
+      "snippets": {
+        "children": {
+          "name": "children",
+          "description": "Custom visible content. Use `aria-label` when it has no accessible text."
         }
       }
     }

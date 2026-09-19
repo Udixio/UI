@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "FabMenu",
   "description": "The floating action button menu opens from a FAB to display multiple related actions.",
   "defaultFramework": "react",

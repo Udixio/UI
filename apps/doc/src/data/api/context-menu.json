@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "ContextMenu",
   "description": "Context menus display a list of choices on a temporary surface, opened from the element they act on.",
   "defaultFramework": "react",

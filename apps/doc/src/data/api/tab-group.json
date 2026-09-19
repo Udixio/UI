@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "TabGroup",
   "description": "Tab groups share one selection between a tab list and its panels.",
   "defaultFramework": "react",

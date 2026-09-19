@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "CarouselItem",
   "description": "A single item in a carousel, sized by how far the carousel has scrolled.",
   "defaultFramework": "react",

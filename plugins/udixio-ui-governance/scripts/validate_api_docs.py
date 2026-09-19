@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 
-KNOWN_FRAMEWORKS = {"react", "angular"}
+KNOWN_FRAMEWORKS = {"react", "angular", "svelte"}
 REQUIRED_TAGS = ("devx", "a11y", "limitations")
 TAG_FIELDS = {"status", "category", "parent", *REQUIRED_TAGS}
 ROOT_FIELDS = {
@@ -29,6 +29,8 @@ ITEM_FIELDS = {
     "defaultValue",
     "alias",
 }
+# Only a Svelte prop can be `$bindable`; the marker is absent everywhere else.
+SVELTE_ITEM_FIELDS = ITEM_FIELDS | {"bindable"}
 
 
 class DuplicateKeyError(ValueError):
@@ -48,11 +50,13 @@ def non_empty_string(value: Any) -> bool:
     return isinstance(value, str) and bool(value.strip())
 
 
-def validate_item(path: str, key: str, item: Any) -> list[str]:
+def validate_item(
+    path: str, key: str, item: Any, allowed_fields: set[str] = ITEM_FIELDS
+) -> list[str]:
     errors: list[str] = []
     if not isinstance(item, dict):
         return [f"{path} must be an object"]
-    unexpected = sorted(set(item) - ITEM_FIELDS)
+    unexpected = sorted(set(item) - allowed_fields)
     if unexpected:
         errors.append(f"{path} contains unsupported fields: {', '.join(unexpected)}")
     if item.get("name") != key:
@@ -73,15 +77,45 @@ def validate_item(path: str, key: str, item: Any) -> list[str]:
         errors.append(f"{path}.defaultValue must be null or {{\"value\": <non-empty string>}}")
     if "alias" in item and not non_empty_string(item["alias"]):
         errors.append(f"{path}.alias must be a non-empty string when present")
+    if "bindable" in item and item["bindable"] is not True:
+        errors.append(f"{path}.bindable must be true when present")
     return errors
 
 
-def validate_record(path: str, value: Any) -> list[str]:
+def validate_record(
+    path: str, value: Any, allowed_fields: set[str] = ITEM_FIELDS
+) -> list[str]:
     if not isinstance(value, dict):
         return [f"{path} must be an object"]
     errors: list[str] = []
     for key, item in value.items():
-        errors.extend(validate_item(f"{path}.{key}", key, item))
+        errors.extend(validate_item(f"{path}.{key}", key, item, allowed_fields))
+    return errors
+
+
+def validate_snippets(path: str, value: Any) -> list[str]:
+    if not isinstance(value, dict):
+        return [f"{path} must be an object"]
+    errors: list[str] = []
+    fields = {"name", "description", "parameters"}
+    for key, snippet in value.items():
+        snippet_path = f"{path}.{key}"
+        if not isinstance(snippet, dict):
+            errors.append(f"{snippet_path} must be an object")
+            continue
+        unexpected = sorted(set(snippet) - fields)
+        if unexpected:
+            errors.append(
+                f"{snippet_path} contains unsupported fields: {', '.join(unexpected)}"
+            )
+        if snippet.get("name") != key:
+            errors.append(f"{snippet_path}.name must equal its record key {key!r}")
+        if not non_empty_string(snippet.get("description")):
+            errors.append(f"{snippet_path}.description must be a non-empty string")
+        if "parameters" in snippet and not non_empty_string(snippet["parameters"]):
+            errors.append(
+                f"{snippet_path}.parameters must be a non-empty string when present"
+            )
     return errors
 
 
@@ -120,6 +154,15 @@ def validate_framework(name: str, payload: Any) -> list[str]:
             "tags",
             "methods",
             "props",
+        }
+    elif name == "svelte":
+        # A Svelte component is reached by its import name; there is no
+        # selector. Snippets are the content surface, `bindable` the binding one.
+        allowed_fields = {
+            "filePath",
+            "tags",
+            "props",
+            "snippets",
         }
     else:
         allowed_fields = {
@@ -160,6 +203,12 @@ def validate_framework(name: str, payload: Any) -> list[str]:
         if not isinstance(methods, list):
             errors.append(f"{path}.methods must be an array")
         errors.extend(validate_record(f"{path}.props", payload.get("props")))
+    elif name == "svelte":
+        errors.extend(
+            validate_record(f"{path}.props", payload.get("props"), SVELTE_ITEM_FIELDS)
+        )
+        if "snippets" in payload:
+            errors.extend(validate_snippets(f"{path}.snippets", payload["snippets"]))
     elif name == "angular":
         errors.extend(validate_record(f"{path}.inputs", payload.get("inputs")))
         errors.extend(validate_record(f"{path}.outputs", payload.get("outputs")))
@@ -177,8 +226,8 @@ def validate_document(document: Any) -> list[str]:
     unexpected = sorted(set(document) - ROOT_FIELDS)
     if unexpected:
         errors.append(f"document root contains unsupported fields: {', '.join(unexpected)}")
-    if document.get("schemaVersion") != 4:
-        errors.append("schemaVersion must equal 4")
+    if document.get("schemaVersion") != 5:
+        errors.append("schemaVersion must equal 5")
     # One description, from the shared contract. Per-framework descriptions let
     # the two adapters describe the same concept differently, and they did.
     if not non_empty_string(document.get("description")):

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "Fab",
   "description": "Floating action buttons help people take primary actions.",
   "defaultFramework": "react",

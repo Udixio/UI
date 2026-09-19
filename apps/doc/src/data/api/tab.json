@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "Tab",
   "description": "A tab switches to one of the views its tab list offers.",
   "defaultFramework": "react",

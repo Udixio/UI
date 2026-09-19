@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "Card",
   "description": "Cards display content and actions about a single subject.",
   "defaultFramework": "react",

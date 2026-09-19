@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "TabPanels",
   "description": "A tab panel set shows the content of the selected tab.",
   "defaultFramework": "react",

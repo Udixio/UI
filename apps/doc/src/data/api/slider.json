@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "Slider",
   "description": "Sliders let people make selections from a range of values.",
   "defaultFramework": "react",

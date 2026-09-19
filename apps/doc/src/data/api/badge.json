@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "Badge",
   "description": "Badges show notifications, counts, or status information on navigation items and icons.",
   "defaultFramework": "react",

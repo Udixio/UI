@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "DatePicker",
   "description": "Date pickers let people select a date, or a range of dates.",
   "defaultFramework": "react",

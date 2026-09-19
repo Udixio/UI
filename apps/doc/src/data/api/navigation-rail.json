@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "NavigationRail",
   "description": "Navigation rails let people switch between UI views on mid-sized devices.",
   "defaultFramework": "react",

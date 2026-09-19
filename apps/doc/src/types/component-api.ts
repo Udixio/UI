@@ -22,6 +22,15 @@ export interface ApiMember {
   required: boolean;
   type: ApiType;
   alias?: string;
+  /** Svelte only: the prop is `$bindable`, so `bind:` works on it. */
+  bindable?: true;
+}
+
+export interface SvelteSnippet {
+  name: string;
+  description: string;
+  /** Tuple type of the snippet parameters, when it takes any. */
+  parameters?: string;
 }
 
 export interface AngularContentSlot {
@@ -47,8 +56,15 @@ export interface AngularComponentApi {
   content?: Record<string, AngularContentSlot>;
 }
 
+export interface SvelteComponentApi {
+  filePath: string;
+  tags: ComponentTags;
+  props: Record<string, ApiMember>;
+  snippets?: Record<string, SvelteSnippet>;
+}
+
 export interface ComponentApiData {
-  schemaVersion: 4;
+  schemaVersion: 5;
   displayName: string;
   /** The one description, read from the shared contract. */
   description: string;
@@ -56,10 +72,14 @@ export interface ComponentApiData {
   frameworks: {
     react: ReactComponentApi;
     angular?: AngularComponentApi;
+    svelte?: SvelteComponentApi;
   };
 }
 
-export type ComponentFrameworkApi = ReactComponentApi | AngularComponentApi;
+export type ComponentFrameworkApi =
+  | ReactComponentApi
+  | AngularComponentApi
+  | SvelteComponentApi;
 
 export interface ComponentSidebarItem {
   slug: string;

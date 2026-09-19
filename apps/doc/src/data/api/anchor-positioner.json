@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "AnchorPositioner",
   "description": "Floats content beside an anchor element and keeps it there as the page moves.",
   "defaultFramework": "react",

@@ -3,6 +3,7 @@ import type {
   ApiMember,
   ComponentApiData,
   ReactComponentApi,
+  SvelteComponentApi,
 } from '@/types/component-api';
 import { ApiFrameworkSelector } from './ApiFrameworkSelector';
 import { useActiveComponentApi } from './useActiveComponentApi';
@@ -40,7 +41,63 @@ function MemberName({
           Property: <code>{member.name}</code>
         </span>
       )}
+      {member.bindable && (
+        <span className="mt-1 block text-xs text-on-surface-variant">
+          Bindable: <code>bind:{member.name}</code>
+        </span>
+      )}
     </>
+  );
+}
+
+function SnippetTable({
+  snippets,
+}: {
+  snippets: SvelteComponentApi['snippets'];
+}) {
+  if (!snippets || Object.keys(snippets).length === 0) return null;
+
+  return (
+    <section aria-labelledby="svelte-snippets-title">
+      <h2 id="svelte-snippets-title" className="mb-4 text-headline-medium">
+        Snippets
+      </h2>
+      <div className="overflow-x-auto rounded-3xl bg-surface-container">
+        <table className="w-full min-w-[640px] border-collapse text-left">
+          <caption className="sr-only">Svelte snippets</caption>
+          <thead className="border-b border-outline-variant text-title-small text-on-surface-variant">
+            <tr>
+              <th className="px-4 py-3">Snippet</th>
+              <th className="px-4 py-3">Parameters</th>
+              <th className="px-4 py-3">Description</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-outline-variant">
+            {Object.values(snippets).map((snippet) => (
+              <tr key={snippet.name} className="align-top">
+                <td className="px-4 py-3">
+                  <code className="rounded bg-black/5 px-1.5 py-0.5">
+                    {snippet.name}
+                  </code>
+                </td>
+                <td className="px-4 py-3">
+                  {snippet.parameters ? (
+                    <code className="rounded bg-black/5 px-1.5 py-0.5">
+                      {snippet.parameters}
+                    </code>
+                  ) : (
+                    '—'
+                  )}
+                </td>
+                <td className="max-w-[36rem] px-4 py-3 text-sm leading-relaxed">
+                  {snippet.description || '—'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
   );
 }
 
@@ -209,6 +266,29 @@ export function ComponentApiReference({ api }: { api: ComponentApiData }) {
             <EmptyApi>This component exposes no React props.</EmptyApi>
           )}
         </section>
+      </div>
+    );
+  }
+
+  if (activeFramework === 'svelte') {
+    const svelteApi = activeApi as SvelteComponentApi;
+    return (
+      <div className="mt-10 space-y-8">
+        <ApiFrameworkSelector
+          activeFramework={activeFramework}
+          frameworks={availableFrameworks}
+        />
+        <section aria-labelledby="svelte-props-title">
+          <h2 id="svelte-props-title" className="mb-4 text-headline-medium">
+            Props
+          </h2>
+          {Object.keys(svelteApi.props).length > 0 ? (
+            <InputTable caption="Svelte props" members={svelteApi.props} />
+          ) : (
+            <EmptyApi>This component exposes no Svelte props.</EmptyApi>
+          )}
+        </section>
+        <SnippetTable snippets={svelteApi.snippets} />
       </div>
     );
   }

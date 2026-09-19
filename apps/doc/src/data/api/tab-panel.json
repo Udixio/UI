@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "TabPanel",
   "description": "A tab panel holds the content shown for a single tab.",
   "defaultFramework": "react",

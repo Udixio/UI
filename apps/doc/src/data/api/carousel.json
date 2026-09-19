@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "Carousel",
   "description": "Carousels show a collection of items that can be scrolled on and off the screen.",
   "defaultFramework": "react",

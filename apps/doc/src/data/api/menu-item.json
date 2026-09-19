@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "displayName": "MenuItem",
   "description": "Menu items are the individual choices a menu offers.",
   "defaultFramework": "react",
