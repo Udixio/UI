@@ -1,6 +1,8 @@
 export * from './lib/utils';
 export { default as Button } from './lib/button/Button.svelte';
 export type { SvelteButtonProps } from './lib/button/button.types';
+export { default as Divider } from './lib/divider/Divider.svelte';
+export type { SvelteDividerProps } from './lib/divider/divider.types';
 export { default as Icon } from './lib/icon/Icon.svelte';
 export type { SvelteIconProps } from './lib/icon/icon.types';
 export { default as ProgressIndicator } from './lib/progress-indicator/ProgressIndicator.svelte';

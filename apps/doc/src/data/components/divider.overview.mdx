@@ -4,12 +4,16 @@
 import Code from '@/components/Code.astro';
 import DividerOrientationReact from '@/examples/react/divider-orientation.tsx';
 import { DividerOrientationAngular } from '@/examples/angular/divider-orientation.ts';
+import DividerOrientationSvelte from '@/examples/svelte/divider-orientation.svelte';
 import DividerSpacingReact from '@/examples/react/divider-spacing.tsx';
 import { DividerSpacingAngular } from '@/examples/angular/divider-spacing.ts';
+import DividerSpacingSvelte from '@/examples/svelte/divider-spacing.svelte';
 import dividerOrientationReactSource from '@/examples/react/divider-orientation.tsx?raw';
 import dividerOrientationAngularSource from '@/examples/angular/divider-orientation.ts?raw';
+import dividerOrientationSvelteSource from '@/examples/svelte/divider-orientation.svelte?raw';
 import dividerSpacingReactSource from '@/examples/react/divider-spacing.tsx?raw';
 import dividerSpacingAngularSource from '@/examples/angular/divider-spacing.ts?raw';
+import dividerSpacingSvelteSource from '@/examples/svelte/divider-spacing.svelte?raw';
 
 ## Usage
 
@@ -25,10 +29,12 @@ a vertical line that stretches to fill its container's height.
   codes={{
     react: dividerOrientationReactSource,
     angular: dividerOrientationAngularSource,
+    svelte: dividerOrientationSvelteSource,
   }}
 >
   <DividerOrientationReact slot="react" client:load />
   <DividerOrientationAngular slot="angular" client:load />
+  <DividerOrientationSvelte slot="svelte" client:load />
 </Code>
 
 ## Spacing and sizing
@@ -41,10 +47,12 @@ own utility classes -- `className` in React, `classes` in Angular, where
   codes={{
     react: dividerSpacingReactSource,
     angular: dividerSpacingAngularSource,
+    svelte: dividerSpacingSvelteSource,
   }}
 >
   <DividerSpacingReact slot="react" client:load />
   <DividerSpacingAngular slot="angular" client:load />
+  <DividerSpacingSvelte slot="svelte" client:load />
 </Code>
 
 ## Accessibility

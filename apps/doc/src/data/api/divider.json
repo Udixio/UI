@@ -82,6 +82,49 @@
         }
       },
       "outputs": {}
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/divider/Divider.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Layout",
+        "devx": "- Renders a semantic `<hr>`; use `orientation` for vertical dividers.",
+        "a11y": "- Renders a native `<hr>`, exposing the implicit `separator` role without extra ARIA.\n- Sets `aria-orientation=\"vertical\"` when `orientation=\"vertical\"`, since the implicit default for `separator` is horizontal.",
+        "limitations": "- Purely decorative; there is no `decorative`/`aria-hidden` escape hatch, so every divider is announced as a separator to assistive technology."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes applied to the root element, merged with the component's own classes.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"divider\", string>> | ClassNameComponent<DividerInterface>"
+          },
+          "defaultValue": null
+        },
+        "orientation": {
+          "name": "orientation",
+          "description": "Visual and semantic axis of the dividing line.",
+          "required": false,
+          "type": {
+            "name": "\"vertical\" | \"horizontal\""
+          },
+          "defaultValue": {
+            "value": "'horizontal'"
+          }
+        }
+      }
     }
   }
 }
