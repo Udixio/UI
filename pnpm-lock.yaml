@@ -973,6 +973,9 @@ importers:
       '@types/jest-axe':
         specifier: ^3.5.9
         version: 3.5.9
+      '@udixio/icons-rounded-400':
+        specifier: 0.2.2-next.3
+        version: link:../icons/icons-rounded-400
       jest-axe:
         specifier: ^10.0.0
         version: 10.0.0

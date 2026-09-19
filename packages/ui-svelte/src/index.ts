@@ -1,5 +1,9 @@
 export * from './lib/utils';
+export { default as Button } from './lib/button/Button.svelte';
+export type { SvelteButtonProps } from './lib/button/button.types';
 export { default as Icon } from './lib/icon/Icon.svelte';
 export type { SvelteIconProps } from './lib/icon/icon.types';
+export { default as ProgressIndicator } from './lib/progress-indicator/ProgressIndicator.svelte';
+export type { SvelteProgressIndicatorProps } from './lib/progress-indicator/progress-indicator.types';
 export { default as StateLayer } from './lib/state-layer/StateLayer.svelte';
 export type { SvelteStateLayerProps } from './lib/state-layer/state-layer.types';

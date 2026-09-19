@@ -7,6 +7,7 @@ export default [
   {
     ignores: [
       '**/dist',
+      '**/.svelte-kit',
       '**/vite.config.*.timestamp*',
       '**/vitest.config.*.timestamp*',
       '**/*.stories.tsx',

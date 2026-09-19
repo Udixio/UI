@@ -5,7 +5,6 @@ import svelteConfig from './svelte.config.js';
 
 export default [
   ...baseConfig,
-  { ignores: ['.svelte-kit/**'] },
   {
     files: ['**/*.json'],
     rules: {
