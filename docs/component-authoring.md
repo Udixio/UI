@@ -73,6 +73,50 @@ protected styles = createStyle(xxxStyle, () => ({ /* toutes les props+states+cla
 Contenu via `<ng-content>` ; events via `output()` ; `href`/`as` = inputs Angular. Sélecteur
 préfixé `lib-…`.
 
+## 3 bis. Svelte (`@udixio/ui-svelte`)
+
+Svelte 5, runes uniquement. Deux fichiers par composant dans `src/lib/<xxx>/` :
+
+```ts
+// xxx.types.ts — le contrat public ET la TSDoc du composant (source du docgen)
+/** Description… @status … @category … @devx … @a11y … @limitations … */
+export interface SvelteXxxProps extends XxxProps {
+  children?: Snippet;                                     // contenu = snippets, jamais <slot>
+  class?: string;                                         // classe(s) de l'élément racine
+  classes?: ElementClasses<XxxInterface> | ClassNameComponent<XxxInterface>;
+  onSelectedChange?: (selected: boolean) => void;         // callbacks = noms du contrat
+}
+```
+
+```svelte
+<!-- Xxx.svelte -->
+<script lang="ts">
+  let { variant = '...', selected = $bindable(), defaultSelected = false,
+        class: hostClass = '', classes, children, ...rest }: SvelteXxxProps = $props();
+  const selectedState = createControllableState({
+    value: () => selected, defaultValue: () => defaultSelected,
+    onChange: onSelectedChange, assign: (next) => (selected = next),
+  });
+  const styles = createStyle(xxxStyle, () => ({ /* toutes les props+states */,
+    className: mergeClassNames('xxx', classes, hostClass) }));
+  $effect(() => { const c = createXxxController(...); return () => c.destroy(); });
+</script>
+<button {...rest} class={styles.current['xxx']}>{@render children?.()}</button>
+```
+
+- Pas d'élément hôte : l'élément racine du template porte la sémantique, `class` et les attributs
+  natifs (`...rest`, typé sur les attributs communs aux éléments racines possibles).
+- Valeur contrôlable = `$bindable()` ; en mode contrôlé, une transition acceptée appelle le
+  callback **et** assigne la prop. Le propriétaire refuse via un function binding
+  (`bind:selected={() => v, (next) => { if (ok) v = next }}`) — un enfant ne peut pas savoir si la
+  prop est liée. `default*` initialise le mode non contrôlé ; le mode est fixé pour la vie du
+  composant.
+- Specs colocalisées `xxx.spec.ts` (vitest + `@testing-library/svelte`, jsdom) ; une spec qui
+  utilise des runes s'appelle `xxx.spec.svelte.ts`. Un fixture `.fixture.svelte` exerce `bind:`,
+  le function binding qui refuse, et les snippets.
+- Gates : `nx test ui-svelte`, `nx typecheck ui-svelte` (svelte-check), `nx build ui-svelte`
+  (svelte-package), `nx lint ui-svelte`.
+
 ## 4. Personnalisation
 
 `className` accepte `string | (state) => Partial<Record<element, string>>`. La fonction reçoit
@@ -91,7 +135,9 @@ NX_IGNORE_UNSUPPORTED_TS_SETUP=true node_modules/.bin/tsc -p packages/ui-react/t
 
 sans erreur **sur son fichier** (l'appel `useXxxStyle({...})` doit ne contenir que les clés de
 `XxxProps` + `states` + `className` — ni binding React en trop, ni clé omise). Côté Angular,
-`nx build ui-angular` (ng-packagr) fait un vrai `tsc` : l'erreur est bloquante d'office.
+`nx build ui-angular` (ng-packagr) fait un vrai `tsc` : l'erreur est bloquante d'office. Côté
+Svelte, `nx typecheck ui-svelte` (svelte-check) est le gate de typage : `svelte-package` émet les
+déclarations sans bloquer sur les erreurs.
 
 > **Dette / fin de déroulé :** `ui-react` a des erreurs `tsc` pré-existantes (composants non
 > encore convertis + typage de rendu React). Un **gate CI `tsc --noEmit`** sur `ui-react` sera

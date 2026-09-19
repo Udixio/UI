@@ -43,7 +43,7 @@ We use [Conventional Commits](https://www.conventionalcommits.org/) to drive ver
 
 1. Fork/branch from `develop`.
 2. Make your changes, following the existing code style (`eslint` / `prettier` are enforced in CI).
-3. If you touch a component, keep the React and Angular implementations in parity — both live under `packages/ui-react` and `packages/ui-angular` on top of the shared `packages/core` contract.
+3. If you touch a component, keep the React, Angular and Svelte implementations in parity — they live under `packages/ui-react`, `packages/ui-angular` and `packages/ui-svelte` on top of the shared `packages/core` contract.
 4. Add or update tests and, if relevant, the docs in `apps/doc`.
 5. Ensure `npx nx affected --target=lint,test,build` passes locally.
 6. Open the PR against `develop` — the `PR Validation` workflow will run lint/test/build automatically.

@@ -5,13 +5,13 @@
 [![npm @udixio/ui-react](https://img.shields.io/npm/v/%40udixio%2Fui-react?label=%40udixio%2Fui-react)](https://www.npmjs.com/package/@udixio/ui-react)
 [![npm @udixio/ui-angular](https://img.shields.io/npm/v/%40udixio%2Fui-angular?label=%40udixio%2Fui-angular)](https://www.npmjs.com/package/@udixio/ui-angular)
 
-A dynamic **Material Design 3** component library for React and Angular, with runtime theming and native Tailwind CSS integration.
+A dynamic **Material Design 3** component library for React, Angular and Svelte, with runtime theming and native Tailwind CSS integration.
 
 `ThemeProvider` computes MD3 tonal palettes from a single source color and injects them as CSS custom properties at runtime — no build-time theme compilation, no `dark:` prefixes to manage by hand.
 
 - 📖 Documentation & live playground: https://ui.udixio.fr
 - 🎨 Built systematically from the official MD3 specifications
-- ⚛️ / 🅰️ Shared framework-agnostic core, with first-class React and Angular adapters
+- ⚛️ / 🅰️ / 🔥 Shared framework-agnostic core, with first-class React, Angular and Svelte adapters
 
 ## Packages
 
@@ -20,6 +20,7 @@ A dynamic **Material Design 3** component library for React and Angular, with ru
 | [`@udixio/core`](packages/core) | Framework-agnostic behaviors, style engine and shared interfaces |
 | [`@udixio/ui-react`](packages/ui-react) | React components (Button, TextField, DatePicker, Tabs, Switch, Tooltip, …) |
 | [`@udixio/ui-angular`](packages/ui-angular) | Angular adapters for the same component set |
+| [`@udixio/ui-svelte`](packages/ui-svelte) | Svelte 5 adapters for the same component set (in progress) |
 | [`@udixio/theme`](packages/theme) | Runtime MD3 theme engine (`ThemeProvider`, dynamic color) |
 | [`@udixio/tailwind`](packages/tailwind) | Tailwind CSS plugin exposing MD3 semantic tokens as utilities |
 | [`@udixio/mcp`](packages/mcp) | MCP server for AI-assisted development with Udixio UI |

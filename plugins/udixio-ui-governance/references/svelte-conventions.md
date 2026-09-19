@@ -19,9 +19,10 @@ Target: **Svelte 5, runes only**. `export let`, `$:`, `<slot>`, `createEventDisp
 
 ## Contract
 
-- `interface Svelte<Xxx>Props extends <Xxx>Props` in `<script lang="ts">`, declared with
-  `let { … }: Svelte<Xxx>Props = $props()`. It is the public API and the docgen source: TSDoc lives on
-  its members, defaults live in the destructuring only.
+- `interface Svelte<Xxx>Props extends <Xxx>Props` lives in the sibling `<xxx>.types.ts` and is
+  read with `let { … }: Svelte<Xxx>Props = $props()`. It is the public API and the docgen source:
+  the component TSDoc (`@status`, `@devx`, …) sits on the interface, member TSDoc on its members,
+  defaults in the destructuring only, `$bindable()` markers in the destructuring too.
 - Rest props (`...rest`) are typed with the native element's attributes
   (`HTMLButtonAttributes`, …) and spread on the root element, so consumers keep `class`, `onclick`,
   `aria-*`, and data attributes. Resolved states and internal props never reach the DOM.
@@ -46,14 +47,17 @@ Target: **Svelte 5, runes only**. `export let`, `$:`, `<slot>`, `createEventDisp
 - `$derived` computes the style record from the core style function with every prop, resolved
   state, and `class`. No class decision lives in Svelte.
 - `$effect` creates `@udixio/core/dom` controllers with `bind:this` element references and destroys
-  them in its cleanup. `onMount` is reserved for one-shot setup that reads no reactive prop.
+  them in its cleanup. `onMount` is reserved for one-shot setup that reads no reactive prop. A
+  connect effect reads its inputs through `$derived` values, not raw props: a parent that spreads
+  its props re-evaluates every prop on any update, and a raw read would re-create the controller.
 - Pure transitions come from core behavior; `$state` only holds what the component owns.
 - No `svelte/transition`, `svelte/animate`, or CSS-only reimplementation of an effect that core
   animates with anime.js.
 
 ## Naming
 
-- File `Xxx.svelte`, spec `xxx.spec.ts` beside it, action `xxx.action.ts`, barrel
+- File `Xxx.svelte`, contract `xxx.types.ts`, spec `xxx.spec.ts` (`xxx.spec.svelte.ts` when it
+  uses runes), fixture `xxx.fixture.svelte`, action `xxx.action.ts`, barrel
   `packages/ui-svelte/src/index.ts`.
 - Example stems `xxx-<case>.svelte` under `apps/doc/src/examples/svelte/`.
 

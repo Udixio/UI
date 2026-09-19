@@ -31,6 +31,8 @@ pnpm nx build @udixio/ui-react
 pnpm nx build ui-angular
 pnpm nx build ui-svelte
 pnpm nx typecheck ui-svelte
+pnpm nx lint ui-svelte
+node --test apps/doc/scripts/docgen.test.js
 pnpm --dir apps/doc docgen
 pnpm --dir apps/doc docgen:check
 python3 plugins/udixio-ui-governance/scripts/validate_api_docs.py --component <component>

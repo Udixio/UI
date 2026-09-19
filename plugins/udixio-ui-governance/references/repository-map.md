@@ -60,10 +60,13 @@ consistent. Report contradictions instead of guessing.
 - React public props: `ReactProgressIndicatorProps`.
 - Angular inputs otherwise use contract names; outputs drop React's `on` prefix (`onValueChange`
   maps to `valueChange`).
-- Svelte file: `ProgressIndicator.svelte`, colocated spec `progress-indicator.spec.ts`, public
-  props `SvelteProgressIndicatorProps`. Callback props keep the contract names (`onValueChange`);
-  a controllable value is additionally `$bindable()`. An action — the Svelte counterpart of an
-  Angular directive — is exported as `progressIndicator` from `progress-indicator.action.ts`.
+- Svelte files: `ProgressIndicator.svelte` next to `progress-indicator.types.ts`, which declares
+  `SvelteProgressIndicatorProps` and carries the component TSDoc (docgen reads it there), plus
+  the colocated spec `progress-indicator.spec.ts` (`.spec.svelte.ts` when it uses runes) and an
+  optional `progress-indicator.fixture.svelte`. Callback props keep the contract names
+  (`onValueChange`); a controllable value is `$bindable()`. An action — the Svelte counterpart of
+  an Angular directive — is exported as `progressIndicator` from
+  `progress-indicator.action.ts`.
 - Example stems: `progress-indicator-<case>.tsx`, `.ts`, `.svelte` under the framework directory.
 
 ## Discovery

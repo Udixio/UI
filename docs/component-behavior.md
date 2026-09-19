@@ -99,7 +99,8 @@ elles seraient neutralisées et doivent passer par un tween Anime.js.
 
 ## 5. Matrice de tests obligatoire
 
-Chaque état interactif doit avoir les mêmes scénarios dans les deux packages :
+Chaque état interactif doit avoir les mêmes scénarios dans chaque package adaptateur (React,
+Angular, Svelte) :
 
 1. initialisation et transition non contrôlées ;
 2. demande de transition contrôlée sans mutation locale ;
