@@ -18,7 +18,8 @@ export default defineConfig({
     watch: false,
     globals: true,
     environment: 'jsdom',
-    include: ['src/**/*.spec.ts'],
+    // Specs that use runes must be `.spec.svelte.ts` so the compiler processes them.
+    include: ['src/**/*.spec.ts', 'src/**/*.spec.svelte.ts'],
     setupFiles: ['./src/tests/setup.ts'],
     reporters: ['default'],
     coverage: {

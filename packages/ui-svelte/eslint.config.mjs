@@ -1,4 +1,3 @@
-import nx from '@nx/eslint-plugin';
 import svelte from 'eslint-plugin-svelte';
 import tseslint from 'typescript-eslint';
 import baseConfig from '../../eslint.config.mjs';
@@ -18,6 +17,7 @@ export default [
             '{projectRoot}/svelte.config.js',
             '{projectRoot}/src/tests/**',
             '{projectRoot}/**/*.spec.ts',
+            '{projectRoot}/**/*.spec.svelte.ts',
             '{projectRoot}/**/*.fixture.svelte',
           ],
           // Imports made inside `.svelte` files are invisible to the Nx
