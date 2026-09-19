@@ -429,6 +429,237 @@
           "defaultValue": null
         }
       }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/icon-button/IconButton.svelte",
+      "tags": {
+        "status": "stable",
+        "category": "Action",
+        "devx": "- Requires `label` and `icon`; arbitrary children are not accepted.\n- Shows `label` in a tooltip by default; `tooltip` overrides or disables it.\n- `pressed` is bindable (`bind:pressed`); `defaultPressed` initializes uncontrolled usage.\n- `toggleable` enables `aria-pressed` and `onPressedChange` on action buttons.",
+        "a11y": "- Uses native button/link semantics, a stable accessible name, a 48px target, and visible focus.",
+        "limitations": "- Disabled links are inert and removed from the tab order.\n- Navigation links ignore toggle state; use `aria-current` for the current destination."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes applied to the root element, merged with the component's own classes.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"icon\" | \"touchTarget\" | \"stateLayer\" | \"iconButton\", string>> | ClassNameComponent<IconButtonInterface>"
+          },
+          "defaultValue": null
+        },
+        "onPressedChange": {
+          "name": "onPressedChange",
+          "description": "Notifies an accepted toggle-state request.",
+          "required": false,
+          "type": {
+            "name": "(pressed: boolean) => void"
+          },
+          "defaultValue": null
+        },
+        "href": {
+          "name": "href",
+          "description": "Navigation destination; switches the native element from button to link.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "target": {
+          "name": "target",
+          "description": "Native link browsing-context target.",
+          "required": false,
+          "type": {
+            "name": "HTMLAttributeAnchorTarget"
+          },
+          "defaultValue": null
+        },
+        "rel": {
+          "name": "rel",
+          "description": "Native link relationship tokens.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "type": {
+          "name": "type",
+          "description": "The HTML button type attribute. Only applies when rendered as `<button>`.",
+          "required": false,
+          "type": {
+            "name": "\"button\" | \"submit\" | \"reset\""
+          },
+          "defaultValue": {
+            "value": "'button'"
+          }
+        },
+        "onclick": {
+          "name": "onclick",
+          "description": "Handles clicks accepted by the button or link interaction contract.",
+          "required": false,
+          "type": {
+            "name": "(event: MouseEvent & { currentTarget: EventTarget & (HTMLButtonElement | HTMLAnchorElement); }) => void"
+          },
+          "defaultValue": null
+        },
+        "label": {
+          "name": "label",
+          "description": "Accessible name announced for the icon-only control.",
+          "required": true,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "icon": {
+          "name": "icon",
+          "description": "Icon shown in the resting state.",
+          "required": true,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "tooltip": {
+          "name": "tooltip",
+          "description": "Visual tooltip text. Defaults to `label`; set to `false` to hide it.",
+          "required": false,
+          "type": {
+            "name": "string | false"
+          },
+          "defaultValue": null
+        },
+        "pressedIcon": {
+          "name": "pressedIcon",
+          "description": "Optional icon shown while a toggle icon button is pressed.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Visual style.",
+          "required": false,
+          "type": {
+            "name": "IconButtonVariant"
+          },
+          "defaultValue": {
+            "value": "'standard'"
+          }
+        },
+        "size": {
+          "name": "size",
+          "description": "Visual size; every option retains at least a 48px touch target.",
+          "required": false,
+          "type": {
+            "name": "IconButtonSize"
+          },
+          "defaultValue": {
+            "value": "'medium'"
+          }
+        },
+        "width": {
+          "name": "width",
+          "description": "Horizontal container width.",
+          "required": false,
+          "type": {
+            "name": "IconButtonWidth"
+          },
+          "defaultValue": {
+            "value": "'default'"
+          }
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Disables interaction.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "shape": {
+          "name": "shape",
+          "description": "Resting container shape.",
+          "required": false,
+          "type": {
+            "name": "\"squared\" | \"rounded\""
+          },
+          "defaultValue": {
+            "value": "'rounded'"
+          }
+        },
+        "shapeFeedback": {
+          "name": "shapeFeedback",
+          "description": "Shape feedback shown for accepted press and toggle interactions.",
+          "required": false,
+          "type": {
+            "name": "ButtonShapeFeedback"
+          },
+          "defaultValue": {
+            "value": "'morph'"
+          }
+        },
+        "transition": {
+          "name": "transition",
+          "description": "Motion transition shared by every framework for shape changes.",
+          "required": false,
+          "type": {
+            "name": "Transition"
+          },
+          "defaultValue": null
+        },
+        "toggleable": {
+          "name": "toggleable",
+          "description": "Enables semantic pressed state for action buttons.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "pressed": {
+          "name": "pressed",
+          "description": "Controlled pressed state.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null,
+          "bindable": true
+        },
+        "defaultPressed": {
+          "name": "defaultPressed",
+          "description": "Initial pressed state when `pressed` is not controlled.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        }
+      }
     }
   }
 }
