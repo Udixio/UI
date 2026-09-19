@@ -6,10 +6,12 @@ import { BadgeBasicReact } from '@/examples/react/badge-basic.tsx';
 import { BadgeBasicAngular } from '@/examples/angular/badge-basic.ts';
 import { BadgeIconReact } from '@/examples/react/badge-icon.tsx';
 import { BadgeIconAngular } from '@/examples/angular/badge-icon.ts';
+import BadgeIconSvelte from '@/examples/svelte/badge-icon.svelte';
 import badgeBasicReactSource from '@/examples/react/badge-basic.tsx?raw';
 import badgeBasicAngularSource from '@/examples/angular/badge-basic.ts?raw';
 import badgeIconReactSource from '@/examples/react/badge-icon.tsx?raw';
 import badgeIconAngularSource from '@/examples/angular/badge-icon.ts?raw';
+import badgeIconSvelteSource from '@/examples/svelte/badge-icon.svelte?raw';
 
 ## Usage
 
@@ -64,10 +66,12 @@ on the icon in the other, and a `container` override does the same.
   codes={{
     react: badgeIconReactSource,
     angular: badgeIconAngularSource,
+    svelte: badgeIconSvelteSource,
   }}
 >
   <BadgeIconReact slot="react" client:load />
   <BadgeIconAngular slot="angular" client:load />
+  <BadgeIconSvelte slot="svelte" client:load />
 </Code>
 
 ## Counts

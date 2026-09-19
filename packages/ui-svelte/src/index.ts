@@ -1,4 +1,6 @@
 export * from './lib/utils';
+export { default as Badge } from './lib/badge/Badge.svelte';
+export type { SvelteBadgeProps } from './lib/badge/badge.types';
 export { default as Button } from './lib/button/Button.svelte';
 export type { SvelteButtonProps } from './lib/button/button.types';
 export { default as Divider } from './lib/divider/Divider.svelte';
