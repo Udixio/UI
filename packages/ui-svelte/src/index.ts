@@ -3,6 +3,8 @@ export { default as Badge } from './lib/badge/Badge.svelte';
 export type { SvelteBadgeProps } from './lib/badge/badge.types';
 export { default as Button } from './lib/button/Button.svelte';
 export type { SvelteButtonProps } from './lib/button/button.types';
+export { default as Card } from './lib/card/Card.svelte';
+export type { SvelteCardProps } from './lib/card/card.types';
 export { default as Divider } from './lib/divider/Divider.svelte';
 export type { SvelteDividerProps } from './lib/divider/divider.types';
 export { default as Icon } from './lib/icon/Icon.svelte';

@@ -165,6 +165,93 @@
           "description": "Default projected content."
         }
       }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/card/Card.svelte",
+      "tags": {
+        "status": "stable",
+        "category": "Layout",
+        "devx": "- `href` renders the card as a native link and always applies the interactive treatment.\n- `interactive` without `href` renders `role=\"button\"` with `tabindex=\"0\"` and Enter/Space activation; provide the action with `onclick`.",
+        "a11y": "- Actionable cards are focusable, expose native link or button semantics, and show a visible focus outline.\n- The accessible name of an actionable card comes from its content; keep meaningful text inside it.",
+        "limitations": "- No built-in header/actions slots; layout is fully custom via the `children` snippet.\n- An actionable card is one action target: do not nest interactive elements inside it; compose inner controls in a non-interactive card instead."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes applied to the root element, merged with the component's own classes.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"stateLayer\" | \"card\", string>> | ClassNameComponent<CardInterface>"
+          },
+          "defaultValue": null
+        },
+        "href": {
+          "name": "href",
+          "description": "Navigation destination; switches the native element from div to link.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "target": {
+          "name": "target",
+          "description": "Native link browsing-context target.",
+          "required": false,
+          "type": {
+            "name": "HTMLAttributeAnchorTarget"
+          },
+          "defaultValue": null
+        },
+        "rel": {
+          "name": "rel",
+          "description": "Native link relationship tokens.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Visual container treatment.",
+          "required": false,
+          "type": {
+            "name": "CardVariant"
+          },
+          "defaultValue": {
+            "value": "'outlined'"
+          }
+        },
+        "interactive": {
+          "name": "interactive",
+          "description": "Enables the actionable treatment: state layer, pointer cursor, and a\nvisible focus outline. Framework adapters also apply it whenever `href`\nis provided.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        }
+      },
+      "snippets": {
+        "children": {
+          "name": "children",
+          "description": "Custom card content; layout is fully owned by the consumer."
+        }
+      }
     }
   }
 }

@@ -6,14 +6,20 @@ import CardVariantsReact from '@/examples/react/card-variants.tsx';
 import CardActionsReact from '@/examples/react/card-actions.tsx';
 import CardCompositionReact from '@/examples/react/card-composition.tsx';
 import { CardVariantsAngular } from '@/examples/angular/card-variants.ts';
+import CardVariantsSvelte from '@/examples/svelte/card-variants.svelte';
 import { CardActionsAngular } from '@/examples/angular/card-actions.ts';
+import CardActionsSvelte from '@/examples/svelte/card-actions.svelte';
 import { CardCompositionAngular } from '@/examples/angular/card-composition.ts';
+import CardCompositionSvelte from '@/examples/svelte/card-composition.svelte';
 import cardVariantsReactSource from '@/examples/react/card-variants.tsx?raw';
 import cardActionsReactSource from '@/examples/react/card-actions.tsx?raw';
 import cardCompositionReactSource from '@/examples/react/card-composition.tsx?raw';
 import cardVariantsAngularSource from '@/examples/angular/card-variants.ts?raw';
+import cardVariantsSvelteSource from '@/examples/svelte/card-variants.svelte?raw';
 import cardActionsAngularSource from '@/examples/angular/card-actions.ts?raw';
+import cardActionsSvelteSource from '@/examples/svelte/card-actions.svelte?raw';
 import cardCompositionAngularSource from '@/examples/angular/card-composition.ts?raw';
+import cardCompositionSvelteSource from '@/examples/svelte/card-composition.svelte?raw';
 
 ## Usage
 
@@ -28,10 +34,11 @@ passed as React children or Angular projected content.
 `filled`.
 
 <Code
-  codes={{ react: cardVariantsReactSource, angular: cardVariantsAngularSource }}
+  codes={{ react: cardVariantsReactSource, angular: cardVariantsAngularSource, svelte: cardVariantsSvelteSource }}
 >
   <CardVariantsReact slot="react" client:load />
   <CardVariantsAngular slot="angular" client:load />
+  <CardVariantsSvelte slot="svelte" client:load />
 </Code>
 
 ## Actionable cards
@@ -47,10 +54,11 @@ the shared state layer, a pointer cursor, and a visible focus outline.
   through the same click event.
 
 <Code
-  codes={{ react: cardActionsReactSource, angular: cardActionsAngularSource }}
+  codes={{ react: cardActionsReactSource, angular: cardActionsAngularSource, svelte: cardActionsSvelteSource }}
 >
   <CardActionsReact slot="react" client:load />
   <CardActionsAngular slot="angular" client:load />
+  <CardActionsSvelte slot="svelte" client:load />
 </Code>
 
 An actionable card is a single action target. Do not nest links or buttons
@@ -67,10 +75,12 @@ your own markup and other Udixio components.
   codes={{
     react: cardCompositionReactSource,
     angular: cardCompositionAngularSource,
+    svelte: cardCompositionSvelteSource,
   }}
 >
   <CardCompositionReact slot="react" client:load />
   <CardCompositionAngular slot="angular" client:load />
+  <CardCompositionSvelte slot="svelte" client:load />
 </Code>
 
 ## Accessibility
