@@ -8,17 +8,24 @@ import CheckboxMixedSelectionReact from '@/examples/react/checkbox-mixed-selecti
 import { CheckboxMixedSelectionAngular } from '@/examples/angular/checkbox-mixed-selection.ts';
 import CheckboxValidationReact from '@/examples/react/checkbox-validation.tsx';
 import { CheckboxValidationAngular } from '@/examples/angular/checkbox-validation.ts';
+import CheckboxStatesSvelte from '@/examples/svelte/checkbox-states.svelte';
+import CheckboxMixedSelectionSvelte from '@/examples/svelte/checkbox-mixed-selection.svelte';
+import CheckboxValidationSvelte from '@/examples/svelte/checkbox-validation.svelte';
 import checkboxStatesReactSource from '@/examples/react/checkbox-states.tsx?raw';
 import checkboxStatesAngularSource from '@/examples/angular/checkbox-states.ts?raw';
 import checkboxMixedSelectionReactSource from '@/examples/react/checkbox-mixed-selection.tsx?raw';
 import checkboxMixedSelectionAngularSource from '@/examples/angular/checkbox-mixed-selection.ts?raw';
 import checkboxValidationReactSource from '@/examples/react/checkbox-validation.tsx?raw';
 import checkboxValidationAngularSource from '@/examples/angular/checkbox-validation.ts?raw';
+import checkboxStatesSvelteSource from '@/examples/svelte/checkbox-states.svelte?raw';
+import checkboxMixedSelectionSvelteSource from '@/examples/svelte/checkbox-mixed-selection.svelte?raw';
+import checkboxValidationSvelteSource from '@/examples/svelte/checkbox-validation.svelte?raw';
 
 ## Usage
 
 Checkbox selects one or more independent options. Associate every instance with
-a visible `<label>` using `id` / `htmlFor` in React or `id` / `for` in Angular.
+a visible `<label>` using `id` / `htmlFor` in React, `id` / `for` in Angular, or
+`id` / `for` in Svelte.
 
 ## Checked and disabled states
 
@@ -31,10 +38,12 @@ Use `disabled` to prevent interaction and form changes.
   codes={{
     react: checkboxStatesReactSource,
     angular: checkboxStatesAngularSource,
+    svelte: checkboxStatesSvelteSource,
   }}
 >
   <CheckboxStatesReact slot="react" client:load />
   <CheckboxStatesAngular slot="angular" client:load />
+  <CheckboxStatesSvelte slot="svelte" client:load />
 </Code>
 
 ## Mixed selection
@@ -47,10 +56,12 @@ value derived from its children.
   codes={{
     react: checkboxMixedSelectionReactSource,
     angular: checkboxMixedSelectionAngularSource,
+    svelte: checkboxMixedSelectionSvelteSource,
   }}
 >
   <CheckboxMixedSelectionReact slot="react" client:load />
   <CheckboxMixedSelectionAngular slot="angular" client:load />
+  <CheckboxMixedSelectionSvelte slot="svelte" client:load />
 </Code>
 
 ## Form validation
@@ -63,10 +74,12 @@ and connect its explanation with `aria-describedby`.
   codes={{
     react: checkboxValidationReactSource,
     angular: checkboxValidationAngularSource,
+    svelte: checkboxValidationSvelteSource,
   }}
 >
   <CheckboxValidationReact slot="react" client:load />
   <CheckboxValidationAngular slot="angular" client:load />
+  <CheckboxValidationSvelte slot="svelte" client:load />
 </Code>
 
 ## Accessibility

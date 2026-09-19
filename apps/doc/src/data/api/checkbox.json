@@ -290,6 +290,166 @@
           "defaultValue": null
         }
       }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/checkbox/Checkbox.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Selection",
+        "devx": "- `checked` is bindable (`bind:checked`); `defaultChecked` initializes uncontrolled use. To\n  reject a change, bind with a function binding whose setter decides.\n- `indeterminate` marks a parent option whose child selection is mixed without changing its\n  checked value.",
+        "a11y": "- Renders a native checkbox with standard keyboard and form behavior, a 40px touch target, and\n  the native mixed state.\n- `invalid` sets `aria-invalid`; provide an accessible description with `aria-describedby` when\n  explaining the error.",
+        "limitations": "- The component does not render a visible label; associate one with `id` and `<label for>`, or\n  provide `aria-label`/`aria-labelledby`."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes applied to the root element, merged with the component's own classes.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "style": {
+          "name": "style",
+          "description": "Inline styles applied to the root touch target.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"icon\" | \"stateLayer\" | \"checkbox\" | \"input\" | \"box\", string>> | ClassNameComponent<CheckboxInterface>"
+          },
+          "defaultValue": null
+        },
+        "onCheckedChange": {
+          "name": "onCheckedChange",
+          "description": "Notifies an accepted checked-state request.",
+          "required": false,
+          "type": {
+            "name": "(checked: boolean) => void"
+          },
+          "defaultValue": null
+        },
+        "onfocus": {
+          "name": "onfocus",
+          "description": "Runs when the native checkbox receives focus.",
+          "required": false,
+          "type": {
+            "name": "(event: FocusEvent) => void"
+          },
+          "defaultValue": null
+        },
+        "onblur": {
+          "name": "onblur",
+          "description": "Runs when the native checkbox loses focus.",
+          "required": false,
+          "type": {
+            "name": "(event: FocusEvent) => void"
+          },
+          "defaultValue": null
+        },
+        "checked": {
+          "name": "checked",
+          "description": "Controlled mode: explicitly control whether the checkbox is checked.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null,
+          "bindable": true
+        },
+        "defaultChecked": {
+          "name": "defaultChecked",
+          "description": "Uncontrolled mode: initial checked state.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "indeterminate": {
+          "name": "indeterminate",
+          "description": "Marks the checkbox as partially selected without changing its checked value.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Prevents interaction and form changes.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "invalid": {
+          "name": "invalid",
+          "description": "Exposes the native invalid state and uses the error color role.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "name": {
+          "name": "name",
+          "description": "Name of the underlying form control.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "id": {
+          "name": "id",
+          "description": "Id of the underlying form control. Auto-generated if not provided.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "value": {
+          "name": "value",
+          "description": "Value submitted with the form when checked.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "required": {
+          "name": "required",
+          "description": "Requires the checkbox to be selected before its form can submit.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        }
+      }
     }
   }
 }

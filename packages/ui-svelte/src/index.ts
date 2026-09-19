@@ -7,6 +7,8 @@ export { default as Button } from './lib/button/Button.svelte';
 export type { SvelteButtonProps } from './lib/button/button.types';
 export { default as Card } from './lib/card/Card.svelte';
 export type { SvelteCardProps } from './lib/card/card.types';
+export { default as Checkbox } from './lib/checkbox/Checkbox.svelte';
+export type { SvelteCheckboxProps } from './lib/checkbox/checkbox.types';
 export { default as Divider } from './lib/divider/Divider.svelte';
 export type { SvelteDividerProps } from './lib/divider/divider.types';
 export { default as Fab } from './lib/fab/Fab.svelte';
