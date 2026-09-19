@@ -1,6 +1,6 @@
 ---
 name: sync-svelte-component
-description: Create or update an Udixio Svelte 5 component from the default React source while preserving the shared core contract and idiomatic runes-based Svelte design. Use for React-to-Svelte conversion, missing Svelte adapters, parity repairs, Svelte test generation, $bindable/snippet/action decisions, or synchronizing later React component changes.
+description: Create or update an Udixio Svelte 5 component from the default React source while preserving the shared core contract and idiomatic runes-based Svelte design. Use for React-to-Svelte conversion, missing Svelte adapters, parity repairs, Svelte test generation, $bindable/snippet/attachment decisions, or synchronizing later React component changes.
 ---
 
 # Synchronize Svelte from React
@@ -19,9 +19,9 @@ description: Create or update an Udixio Svelte 5 component from the default Reac
    or `API-DESIGN-*` decision recorded for Angular applies to Svelte unless Svelte idiom differs.
 5. Choose the Svelte delivery shape before translating the contract. The deciding question is
    attachment, not rendering: does the component's primary behavior **attach** to an element the
-   consumer already owns? If it does, the shape is an action (`use:xxx`) or an attachment, even
-   when the behavior also renders a surface of its own — an action can mount that surface
-   programmatically. Only when nothing is attached to a foreign host, and the component owns every
+   consumer already owns? If it does, the shape is an attachment (`{@attach xxx(() => options)}`),
+   even when the behavior also renders a surface of its own — an attachment can mount that
+   surface with `mount()`. Only when nothing is attached to a foreign host, and the component owns every
    element it needs, is a `.svelte` component the right shape. A function or store fits behavior
    with no host. When the answer is not the source adapter's shape, emit `FORM-*` and stop for the
    user's decision, as
@@ -45,8 +45,8 @@ description: Create or update an Udixio Svelte 5 component from the default Reac
 - Use shared core styles through `$derived`, pure behavior, and DOM controllers connected in
   `$effect` with cleanup; do not port React hooks, `useEffect` ordering, or `motion/react`
   concepts. Shared animated effects live once in `@udixio/core/dom` with anime.js.
-- Never introduce a prop whose only purpose is to replay a React `ref` or `targetRef`. An action
-  receives its node; a component uses `bind:this` on its own elements.
+- Never introduce a prop whose only purpose is to replay a React `ref` or `targetRef`. An
+  attachment receives its node; a component uses `bind:this` on its own elements.
 - Preserve idiomatic Svelte templates (`{#if}`, `{#each}`, `{@render}`) and avoid React-shaped
   APIs when Svelte has a semantic equivalent.
 
@@ -54,7 +54,8 @@ description: Create or update an Udixio Svelte 5 component from the default Reac
 
 Port the React semantic test matrix, not its test syntax, with `@testing-library/svelte`. Add
 Svelte-specific tests: `bind:` round-trip per bindable prop, controlled usage without binding,
-snippet rendering, action `update`/`destroy` where an action exists. Export the component from the
+snippet rendering, option updates without remount and surface teardown where an attachment
+exists. Export the component from the
 package barrel, add/update the Svelte direct-source docs example, then run Svelte tests,
 `svelte-check`, the package build, plus focused React/core and docs gates from
 [quality-gates.md](../../references/quality-gates.md). Finish with

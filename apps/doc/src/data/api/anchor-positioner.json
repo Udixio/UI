@@ -89,6 +89,44 @@
           "description": "Default projected content."
         }
       }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/anchor-positioner/AnchorPositioner.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Communication",
+        "devx": "- Internal building block for `tooltip`; not yet documented as a\n  standalone public component.\n- Portals `children` to `document.body`.",
+        "a11y": "- Renders no semantics of its own; the caller's content and the tooltip's\n  own `role=\"tooltip\"` carry accessibility meaning.",
+        "limitations": "- Falls back to tracking `getBoundingClientRect()` on scroll and resize\n  in browsers without native CSS Anchor Positioning support."
+      },
+      "props": {
+        "anchor": {
+          "name": "anchor",
+          "description": "The element the floating content is positioned relative to.",
+          "required": true,
+          "type": {
+            "name": "HTMLElement"
+          },
+          "defaultValue": null
+        },
+        "position": {
+          "name": "position",
+          "description": "Placement of the floating element relative to its anchor. Defaults to `bottom`.",
+          "required": false,
+          "type": {
+            "name": "AnchorPosition"
+          },
+          "defaultValue": {
+            "value": "'bottom'"
+          }
+        }
+      },
+      "snippets": {
+        "children": {
+          "name": "children",
+          "description": "Default content."
+        }
+      }
     }
   }
 }

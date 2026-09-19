@@ -58,6 +58,8 @@ export interface AngularComponentApi {
 
 export interface SvelteComponentApi {
   filePath: string;
+  /** Exported attachment function, when the adapter is `{@attach}`ed rather than rendered. */
+  attachment?: string;
   tags: ComponentTags;
   props: Record<string, ApiMember>;
   snippets?: Record<string, SvelteSnippet>;

@@ -9,11 +9,12 @@ Target: **Svelte 5, runes only**. `export let`, `$:`, `<slot>`, `createEventDisp
 ## Shape
 
 - A `.svelte` component when the component owns every element it needs.
-- An **action** (`use:x`) — or an attachment (`{@attach x()}`) when the behavior must react to
-  props of the consumer's element — when the primary behavior attaches to an element the consumer
-  already owns. This is the counterpart of an Angular directive: the action receives the host
-  `HTMLElement` itself and returns `update`/`destroy`. A plain function or store fits behavior with
-  no host. Choosing a shape that differs from React requires an accepted `FORM-*` finding.
+- An **attachment** (`{@attach x(() => options)}`) when the primary behavior attaches to an
+  element the consumer already owns. This is the counterpart of an Angular directive: the
+  attachment receives the host `HTMLElement` itself, runs inside an effect, and may mount its own
+  surface with `mount()`. Legacy actions (`use:x`) are not used. A plain function or store fits
+  behavior with no host. Choosing a shape that differs from React requires an accepted `FORM-*`
+  finding; an accepted Angular directive decision carries over.
 - A Svelte component has **no host element**. The template's root element is the semantic element;
   anything React puts on its root element goes there.
 
@@ -57,12 +58,15 @@ Target: **Svelte 5, runes only**. `export let`, `$:`, `<slot>`, `createEventDisp
 ## Naming
 
 - File `Xxx.svelte`, contract `xxx.types.ts`, spec `xxx.spec.ts` (`xxx.spec.svelte.ts` when it
-  uses runes), fixture `xxx.fixture.svelte`, action `xxx.action.ts`, barrel
-  `packages/ui-svelte/src/index.ts`.
+  uses runes), fixture `xxx.fixture.svelte`, attachment `xxx.attachment.svelte.ts` exporting
+  `xxx(options: () => SvelteXxxProps)`, barrel `packages/ui-svelte/src/index.ts`.
+- An attachment reads its options through a getter and keeps its trigger listeners and mounted
+  surface across option changes (child `$effect`s, `untrack` at setup); defaults it applies in
+  code are documented with `@default` on the options interface, which is where docgen reads them.
 - Example stems `xxx-<case>.svelte` under `apps/doc/src/examples/svelte/`.
 
 ## Tests
 
 vitest + `@testing-library/svelte` in jsdom, same semantic scenario matrix as React and Angular,
 plus, for every `$bindable` prop, a `bind:` round-trip and a rejecting function binding (the
-controlled-rejection scenario), and action `destroy` cleanup where an action exists. `svelte-check` is part of the typecheck gate because vitest does not prove template types.
+controlled-rejection scenario), and surface teardown on unmount where an attachment exists. `svelte-check` is part of the typecheck gate because vitest does not prove template types.

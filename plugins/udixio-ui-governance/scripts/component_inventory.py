@@ -96,7 +96,7 @@ def inventory(root: Path, component: str) -> dict[str, object]:
         for path in [
             *matching_files(svelte_lib, "*.svelte", slug),
             *matching_files(svelte_lib, "*.types.ts", slug),
-            *matching_files(svelte_lib, "*.action.ts", slug),
+            *matching_files(svelte_lib, "*.attachment.svelte.ts", slug),
         ]
         if not path.name.endswith(".fixture.svelte")
     ]

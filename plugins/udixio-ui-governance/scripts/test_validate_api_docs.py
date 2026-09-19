@@ -167,6 +167,16 @@ class ValidateApiDocsTest(unittest.TestCase):
             validate_document(document),
         )
 
+    def test_accepts_a_svelte_attachment_and_rejects_an_empty_one(self) -> None:
+        document = valid_document()
+        document["frameworks"]["svelte"]["attachment"] = "tooltip"  # type: ignore[index]
+        self.assertEqual(validate_document(document), [])
+        document["frameworks"]["svelte"]["attachment"] = ""  # type: ignore[index]
+        self.assertIn(
+            "frameworks.svelte.attachment must be a non-empty string when present",
+            validate_document(document),
+        )
+
     def test_rejects_an_angular_style_selector_on_svelte(self) -> None:
         document = valid_document()
         document["frameworks"]["svelte"]["selector"] = "udx-button"  # type: ignore[index]

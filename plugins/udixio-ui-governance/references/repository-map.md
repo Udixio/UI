@@ -64,9 +64,9 @@ consistent. Report contradictions instead of guessing.
   `SvelteProgressIndicatorProps` and carries the component TSDoc (docgen reads it there), plus
   the colocated spec `progress-indicator.spec.ts` (`.spec.svelte.ts` when it uses runes) and an
   optional `progress-indicator.fixture.svelte`. Callback props keep the contract names
-  (`onValueChange`); a controllable value is `$bindable()`. An action — the Svelte counterpart of
-  an Angular directive — is exported as `progressIndicator` from
-  `progress-indicator.action.ts`.
+  (`onValueChange`); a controllable value is `$bindable()`. An attachment — the Svelte counterpart
+  of an Angular directive — is exported as `progressIndicator` from
+  `progress-indicator.attachment.svelte.ts` and documented under `frameworks.svelte.attachment`.
 - Example stems: `progress-indicator-<case>.tsx`, `.ts`, `.svelte` under the framework directory.
 
 ## Discovery

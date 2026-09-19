@@ -4,21 +4,27 @@
 import Code from '@/components/Code.astro';
 import TooltipBasicReact from '@/examples/react/tooltip-basic.tsx';
 import { TooltipBasicAngular } from '@/examples/angular/tooltip-basic.ts';
+import TooltipBasicSvelte from '@/examples/svelte/tooltip-basic.svelte';
 import TooltipRichReact from '@/examples/react/tooltip-rich.tsx';
 import { TooltipRichAngular } from '@/examples/angular/tooltip-rich.ts';
+import TooltipRichSvelte from '@/examples/svelte/tooltip-rich.svelte';
 import TooltipControlledReact from '@/examples/react/tooltip-controlled.tsx';
 import { TooltipControlledAngular } from '@/examples/angular/tooltip-controlled.ts';
+import TooltipControlledSvelte from '@/examples/svelte/tooltip-controlled.svelte';
 import tooltipBasicReactSource from '@/examples/react/tooltip-basic.tsx?raw';
 import tooltipBasicAngularSource from '@/examples/angular/tooltip-basic.ts?raw';
+import tooltipBasicSvelteSource from '@/examples/svelte/tooltip-basic.svelte?raw';
 import tooltipRichReactSource from '@/examples/react/tooltip-rich.tsx?raw';
 import tooltipRichAngularSource from '@/examples/angular/tooltip-rich.ts?raw';
+import tooltipRichSvelteSource from '@/examples/svelte/tooltip-rich.svelte?raw';
 import tooltipControlledReactSource from '@/examples/react/tooltip-controlled.tsx?raw';
 import tooltipControlledAngularSource from '@/examples/angular/tooltip-controlled.ts?raw';
+import tooltipControlledSvelteSource from '@/examples/svelte/tooltip-controlled.svelte?raw';
 
 ## Usage
 
 `Tooltip` displays informative text when users hover, focus, or click a
-trigger. The two frameworks deliver it in the shape each one is built for:
+trigger. Each framework delivers it in the shape it is built for:
 
 - **React** exports a `Tooltip` **component** that wraps a single trigger
   child, or targets one through `targetRef`.
@@ -26,6 +32,10 @@ trigger. The two frameworks deliver it in the shape each one is built for:
   directly on the trigger. It injects its own `ElementRef`, so there is no
   target to hand over. Its inputs are prefixed `udxTooltip*` because the host
   element is not the directive's own.
+- **Svelte** exports a `tooltip` **attachment**, `{@attach tooltip(() => ({ … }))}`,
+  that you put directly on the trigger — the Svelte counterpart of the Angular
+  directive. Its options are read through a function, so a change updates the
+  open tooltip in place.
 
 The concept, the vocabulary, the behavior and the accessibility are identical;
 only the way you reach them differs.
@@ -41,17 +51,20 @@ how the tooltip appears, and `position` to place it relative to its target.
   codes={{
     react: tooltipBasicReactSource,
     angular: tooltipBasicAngularSource,
+    svelte: tooltipBasicSvelteSource,
   }}
 >
   <TooltipBasicReact slot="react" client:load />
   <TooltipBasicAngular slot="angular" client:load />
+  <TooltipBasicSvelte slot="svelte" client:load />
 </Code>
 
 ## Rich content
 
 `variant="rich"` renders a card-like surface with a `title`, `text`, and
 optional `buttons`. Supply custom content instead -- `content` in React, a
-`TemplateRef` passed to `udxTooltipContent` in Angular -- to replace that
+`TemplateRef` passed to `udxTooltipContent` in Angular, a snippet passed to
+`content` in Svelte -- to replace that
 built-in layout entirely; the layout only renders when no custom content is
 given.
 
@@ -59,15 +72,17 @@ given.
   codes={{
     react: tooltipRichReactSource,
     angular: tooltipRichAngularSource,
+    svelte: tooltipRichSvelteSource,
   }}
 >
   <TooltipRichReact slot="react" client:load />
   <TooltipRichAngular slot="angular" client:load />
+  <TooltipRichSvelte slot="svelte" client:load />
 </Code>
 
 ## Controlled state
 
-Use `open` with `onOpenChange` (React), or `udxTooltipOpen` with
+Use `open` with `onOpenChange` (React and Svelte), or `udxTooltipOpen` with
 `udxTooltipOpenChange` (Angular), to fully control visibility. `defaultOpen`
 initializes uncontrolled state.
 
@@ -75,10 +90,12 @@ initializes uncontrolled state.
   codes={{
     react: tooltipControlledReactSource,
     angular: tooltipControlledAngularSource,
+    svelte: tooltipControlledSvelteSource,
   }}
 >
   <TooltipControlledReact slot="react" client:load />
   <TooltipControlledAngular slot="angular" client:load />
+  <TooltipControlledSvelte slot="svelte" client:load />
 </Code>
 
 ## Migrating from `<udx-tooltip>`
@@ -120,7 +137,7 @@ drive them rather than reimplementing anything:
 - `createTooltipTransitionController` owns the open/close opacity and height
   transition, with Anime.js.
 
-React and Angular therefore share identical timing, reduced-motion behavior,
+React, Angular and Svelte therefore share identical timing, reduced-motion behavior,
 interruption handling and cleanup, by construction rather than by discipline.
 Override the transition timing with `transition` (`udxTooltipTransition`),
 taking `{ duration, ease }`.

@@ -160,6 +160,7 @@ def validate_framework(name: str, payload: Any) -> list[str]:
         # selector. Snippets are the content surface, `bindable` the binding one.
         allowed_fields = {
             "filePath",
+            "attachment",
             "tags",
             "props",
             "snippets",
@@ -204,6 +205,10 @@ def validate_framework(name: str, payload: Any) -> list[str]:
             errors.append(f"{path}.methods must be an array")
         errors.extend(validate_record(f"{path}.props", payload.get("props")))
     elif name == "svelte":
+        # An attachment is reached by its exported function, a component by its
+        # import name; the page has to say which when it is not a component.
+        if "attachment" in payload and not non_empty_string(payload["attachment"]):
+            errors.append(f"{path}.attachment must be a non-empty string when present")
         errors.extend(
             validate_record(f"{path}.props", payload.get("props"), SVELTE_ITEM_FIELDS)
         )

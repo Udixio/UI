@@ -278,9 +278,23 @@ export function ComponentApiReference({ api }: { api: ComponentApiData }) {
           activeFramework={activeFramework}
           frameworks={availableFrameworks}
         />
+        {svelteApi.attachment && (
+          <section aria-labelledby="svelte-attachment-title">
+            <h2 id="svelte-attachment-title" className="mb-4 text-headline-medium">
+              Attachment
+            </h2>
+            <p className="text-body-medium text-on-surface-variant">
+              An attachment. Put it on the element it should enhance; the props
+              below are the options it reads.
+            </p>
+            <code className="mt-2 inline-block rounded-sm bg-surface-container px-2 py-1 text-body-medium">
+              {`{@attach ${svelteApi.attachment}(() => ({ … }))}`}
+            </code>
+          </section>
+        )}
         <section aria-labelledby="svelte-props-title">
           <h2 id="svelte-props-title" className="mb-4 text-headline-medium">
-            Props
+            {svelteApi.attachment ? 'Options' : 'Props'}
           </h2>
           {Object.keys(svelteApi.props).length > 0 ? (
             <InputTable caption="Svelte props" members={svelteApi.props} />

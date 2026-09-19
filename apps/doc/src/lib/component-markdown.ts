@@ -273,7 +273,10 @@ function renderSvelteSection(
   const tagsMd = renderTags(svelte.tags);
   if (tagsMd) parts.push('', tagsMd);
 
-  parts.push('', '#### Props', '', renderMembersTable(svelte.props));
+  if (svelte.attachment) {
+    parts.push('', `Attachment: \`{@attach ${svelte.attachment}(() => ({ … }))}\``);
+  }
+  parts.push('', svelte.attachment ? '#### Options' : '#### Props', '', renderMembersTable(svelte.props));
   if (svelte.snippets) {
     parts.push('', '#### Snippets', '', renderSnippetsTable(svelte.snippets));
   }

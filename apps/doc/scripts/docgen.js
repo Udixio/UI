@@ -603,6 +603,7 @@ const findSveltePropsInterface = (sourceFile, displayName) =>
 export const extractSvelteComponent = async ({
   displayName,
   svelteFilePath,
+  attachment,
   typesSourceFile,
   checker,
   reactComponent,
@@ -615,10 +616,14 @@ export const extractSvelteComponent = async ({
     );
   }
 
-  const runtime = extractSvelteRuntimeProps(
-    await readFile(svelteFilePath, 'utf8'),
-    path.basename(svelteFilePath),
-  );
+  // An attachment has no `$props()`: its options are read from a function,
+  // so defaults and bindables only exist for components.
+  const runtime = attachment
+    ? { defaults: {}, bindable: new Set() }
+    : extractSvelteRuntimeProps(
+        await readFile(svelteFilePath, 'utf8'),
+        path.basename(svelteFilePath),
+      );
   const interfaceDocumentation = getSymbolDocumentation(
     checker.getSymbolAtLocation(propsInterface.name),
     checker,
@@ -666,9 +671,14 @@ export const extractSvelteComponent = async ({
           description,
           required: !(member.flags & ts.SymbolFlags.Optional),
           type: { name: checker.typeToString(nonNullable, declaration, typeFormatFlags) },
+          // A component's defaults are read from `$props()`; an attachment
+          // applies its defaults in code, so its interface documents them
+          // with `@default`, which also serves as the components' fallback.
           defaultValue: Object.hasOwn(runtime.defaults, name)
             ? { value: runtime.defaults[name] }
-            : null,
+            : documentation.tags.default
+              ? { value: documentation.tags.default }
+              : null,
         },
         description,
       ),
@@ -678,6 +688,9 @@ export const extractSvelteComponent = async ({
 
   return {
     filePath: toProjectPath(svelteFilePath),
+    // The attachment point a consumer writes, when the adapter is not a
+    // component: `{@attach tooltip(() => ({ ... }))}`.
+    ...(attachment ? { attachment } : {}),
     tags: {
       ...getSharedCatalogTags(reactComponent.tags),
       ...interfaceDocumentation.tags,
@@ -709,20 +722,49 @@ const createSvelteProgram = async () => {
   });
 };
 
-/** Maps a component display name to its `.svelte` file and `.types.ts` source. */
+const pascalCase = (stem) =>
+  stem
+    .split('-')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join('');
+const camelCase = (stem) => {
+  const pascal = pascalCase(stem);
+  return pascal.charAt(0).toLowerCase() + pascal.slice(1);
+};
+
+/**
+ * Maps a component display name to its Svelte adapter: a `.svelte` file, or an
+ * attachment in `<stem>.attachment.svelte.ts` -- the Svelte counterpart of an
+ * Angular directive -- exported under the stem's camelCase name. Both read
+ * their public props from the sibling `<stem>.types.ts`.
+ */
 const getSvelteComponents = async () => {
   const components = new Map();
   const svelteFiles = await glob(path.join(svelteSourceRoot, '**/*.svelte'));
-  const candidates = svelteFiles
-    .filter((file) => !file.endsWith('.fixture.svelte'))
-    .map((file) => ({
-      displayName: path.basename(file, '.svelte'),
-      svelteFilePath: file,
-      typesFilePath: path.join(
-        path.dirname(file),
-        `${kebabCase(path.basename(file, '.svelte'))}.types.ts`,
-      ),
-    }));
+  const attachmentFiles = await glob(
+    path.join(svelteSourceRoot, '**/*.attachment.svelte.ts'),
+  );
+  const candidates = [
+    ...svelteFiles
+      .filter((file) => !file.endsWith('.fixture.svelte'))
+      .map((file) => ({
+        displayName: path.basename(file, '.svelte'),
+        svelteFilePath: file,
+        typesFilePath: path.join(
+          path.dirname(file),
+          `${kebabCase(path.basename(file, '.svelte'))}.types.ts`,
+        ),
+      })),
+    ...attachmentFiles.map((file) => {
+      const stem = path.basename(file, '.attachment.svelte.ts');
+      return {
+        displayName: pascalCase(stem),
+        svelteFilePath: file,
+        attachment: camelCase(stem),
+        typesFilePath: path.join(path.dirname(file), `${stem}.types.ts`),
+      };
+    }),
+  ];
   if (!candidates.length) return components;
 
   const program = await createSvelteProgram();

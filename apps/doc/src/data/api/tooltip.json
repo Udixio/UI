@@ -369,6 +369,192 @@
           "alias": "udxTooltipOpenChange"
         }
       }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/tooltip/tooltip.attachment.svelte.ts",
+      "attachment": "tooltip",
+      "tags": {
+        "status": "beta",
+        "category": "Communication",
+        "devx": "- Attach it to the trigger: `<Button label=\"Copy\" {@attach tooltip(() => ({ text: 'Copy' }))} />`.\n  The options are read through a function so a change updates the open\n  tooltip in place instead of tearing it down.\n- `content` (a snippet) overrides `title`/`text`/`buttons` for fully custom content.\n- Supports controlled `open` plus `openDelay`/`closeDelay`; the owner updates\n  `open` from `onOpenChange`.\n- A touch long press opens after 500ms and remains visible for 1.5s after\n  release, following Material 3 guidance.\n- Opening one tooltip closes the currently visible tooltip in the document.\n- The open/close opacity/height transition is implemented once with\n  Anime.js in `@udixio/core/dom`, so every adapter shares the same timing,\n  reduced-motion behavior, and cleanup.\n- The tooltip surface stays mounted at all times (hidden via `inert` and\n  `aria-hidden`) rather than mounting only while open, so it can animate\n  out.",
+        "a11y": "- Provides `role=\"tooltip\"` and `aria-describedby` on the trigger when open.",
+        "limitations": "- The surface stays mounted while closed, since it is always present for\n  its open/close animation; expensive `content` is not torn down until the\n  trigger element is.\n- `position` falls back to tracking `getBoundingClientRect()` on scroll and\n  resize in browsers without native CSS Anchor Positioning support."
+      },
+      "props": {
+        "variant": {
+          "name": "variant",
+          "description": "`'plain'` is a small text bubble; `'rich'` is a card-like surface.",
+          "required": false,
+          "type": {
+            "name": "TooltipVariant"
+          },
+          "defaultValue": {
+            "value": "'plain'"
+          }
+        },
+        "position": {
+          "name": "position",
+          "description": "Placement relative to the trigger. Defaults to `bottom-right` for `rich`.",
+          "required": false,
+          "type": {
+            "name": "AnchorPosition"
+          },
+          "defaultValue": {
+            "value": "'bottom'"
+          }
+        },
+        "trigger": {
+          "name": "trigger",
+          "description": "Interaction(s) that open the tooltip.",
+          "required": false,
+          "type": {
+            "name": "\"hover\" | \"click\" | \"focus\" | TooltipTrigger[]"
+          },
+          "defaultValue": {
+            "value": "['hover', 'focus']"
+          }
+        },
+        "openDelay": {
+          "name": "openDelay",
+          "description": "Delay in milliseconds before showing the tooltip.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "400"
+          }
+        },
+        "closeDelay": {
+          "name": "closeDelay",
+          "description": "Delay in milliseconds before hiding the tooltip.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "150"
+          }
+        },
+        "defaultOpen": {
+          "name": "defaultOpen",
+          "description": "Initial open state when `open` is not controlled.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "buttons": {
+          "name": "buttons",
+          "description": "Small text-variant action button(s) in the built-in rich layout.",
+          "required": false,
+          "type": {
+            "name": "TooltipButtonAction | TooltipButtonAction[]"
+          },
+          "defaultValue": null
+        },
+        "anchor": {
+          "name": "anchor",
+          "description": "Custom anchor for positioning. Defaults to the trigger element.",
+          "required": false,
+          "type": {
+            "name": "HTMLElement"
+          },
+          "defaultValue": null
+        },
+        "onOpenChange": {
+          "name": "onOpenChange",
+          "description": "Notifies an accepted open-state request.",
+          "required": false,
+          "type": {
+            "name": "(open: boolean) => void"
+          },
+          "defaultValue": null
+        },
+        "class": {
+          "name": "class",
+          "description": "Classes applied to the surface root, merged with the component's own classes.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the surface's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"container\" | \"content\" | \"toolTip\" | \"subHead\" | \"supportingText\" | \"actions\", string>> | ClassNameComponent<TooltipInterface>"
+          },
+          "defaultValue": null
+        },
+        "title": {
+          "name": "title",
+          "description": "Headline of a rich tooltip.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "text": {
+          "name": "text",
+          "description": "Supporting text for the tooltip.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "describeTarget": {
+          "name": "describeTarget",
+          "description": "Whether the open tooltip describes its target through `aria-describedby`.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "true"
+          }
+        },
+        "open": {
+          "name": "open",
+          "description": "Controlled open state.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        },
+        "id": {
+          "name": "id",
+          "description": "Custom ID for accessibility linking. Auto-generated if not provided.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "transition": {
+          "name": "transition",
+          "description": "Anime.js opacity/scale open-close timing. Shared by every framework, no `motion/react`.",
+          "required": false,
+          "type": {
+            "name": "TooltipTransition"
+          },
+          "defaultValue": null
+        }
+      },
+      "snippets": {
+        "content": {
+          "name": "content",
+          "description": "Custom content snippet that replaces title/text/buttons when provided."
+        }
+      }
     }
   }
 }

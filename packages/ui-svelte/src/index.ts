@@ -1,4 +1,6 @@
 export * from './lib/utils';
+export { default as AnchorPositioner } from './lib/anchor-positioner/AnchorPositioner.svelte';
+export type { SvelteAnchorPositionerProps } from './lib/anchor-positioner/anchor-positioner.types';
 export { default as Badge } from './lib/badge/Badge.svelte';
 export type { SvelteBadgeProps } from './lib/badge/badge.types';
 export { default as Button } from './lib/button/Button.svelte';
@@ -11,5 +13,7 @@ export { default as Icon } from './lib/icon/Icon.svelte';
 export type { SvelteIconProps } from './lib/icon/icon.types';
 export { default as ProgressIndicator } from './lib/progress-indicator/ProgressIndicator.svelte';
 export type { SvelteProgressIndicatorProps } from './lib/progress-indicator/progress-indicator.types';
+export { tooltip } from './lib/tooltip/tooltip.attachment.svelte';
+export type { SvelteTooltipProps, TooltipButtonAction } from './lib/tooltip/tooltip.types';
 export { default as StateLayer } from './lib/state-layer/StateLayer.svelte';
 export type { SvelteStateLayerProps } from './lib/state-layer/state-layer.types';

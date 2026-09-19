@@ -89,6 +89,9 @@ const api = defineCollection({
           svelte: z
             .object({
               ...frameworkBase,
+              // The exported function to `{@attach}` when the adapter is not a
+              // component -- the Svelte counterpart of an Angular directive.
+              attachment: z.string().optional(),
               props: z.record(z.string(), svelteApiMember),
               snippets: z
                 .record(
