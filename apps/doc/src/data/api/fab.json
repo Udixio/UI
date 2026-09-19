@@ -288,6 +288,165 @@
         }
       },
       "outputs": {}
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/fab/Fab.svelte",
+      "tags": {
+        "status": "stable",
+        "category": "Action",
+        "devx": "- Requires `label` and `icon`; arbitrary children are not accepted.\n- `type` defaults to `'button'` to prevent accidental form submissions.\n- Shows `label` in a tooltip while compact; `tooltip` overrides or disables it.\n- `extended` keeps the label mounted while the shared controller animates its\n  width and opacity, so toggling the prop does not interrupt the exit state.",
+        "a11y": "- Uses native button/link semantics, a stable accessible name, a 48px target, and visible focus.\n- A compact fab names its icon in a tooltip on hover and focus, as Material 3 requires; it only\n  describes the target when its text says something the accessible name does not.",
+        "limitations": "- No built-in positioning; placement is handled by layout.\n- Disabled links are inert and removed from the tab order."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes applied to the root element, merged with the component's own classes.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"label\" | \"icon\" | \"touchTarget\" | \"stateLayer\" | \"fab\", string>> | ClassNameComponent<FabInterface>"
+          },
+          "defaultValue": null
+        },
+        "href": {
+          "name": "href",
+          "description": "Navigation destination; switches the native element from button to link.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "target": {
+          "name": "target",
+          "description": "Native link browsing-context target.",
+          "required": false,
+          "type": {
+            "name": "HTMLAttributeAnchorTarget"
+          },
+          "defaultValue": null
+        },
+        "rel": {
+          "name": "rel",
+          "description": "Native link relationship tokens.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "title": {
+          "name": "title",
+          "description": "Optional native advisory title; it also supplies the compact tooltip fallback.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "type": {
+          "name": "type",
+          "description": "Native action button type. Only applies when rendered as `<button>`.",
+          "required": false,
+          "type": {
+            "name": "\"button\" | \"submit\" | \"reset\""
+          },
+          "defaultValue": {
+            "value": "'button'"
+          }
+        },
+        "onclick": {
+          "name": "onclick",
+          "description": "Handles clicks accepted by the button or link interaction contract.",
+          "required": false,
+          "type": {
+            "name": "(event: MouseEvent & { currentTarget: EventTarget & (HTMLButtonElement | HTMLAnchorElement); }) => void"
+          },
+          "defaultValue": null
+        },
+        "label": {
+          "name": "label",
+          "description": "Accessible name and extended visible text.",
+          "required": true,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "icon": {
+          "name": "icon",
+          "description": "Icon representing the primary action.",
+          "required": true,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Visual color treatment.",
+          "required": false,
+          "type": {
+            "name": "FabVariant"
+          },
+          "defaultValue": {
+            "value": "'primary'"
+          }
+        },
+        "size": {
+          "name": "size",
+          "description": "Visual size.",
+          "required": false,
+          "type": {
+            "name": "FabSize"
+          },
+          "defaultValue": {
+            "value": "'small'"
+          }
+        },
+        "tooltip": {
+          "name": "tooltip",
+          "description": "Visual tooltip text, shown while the fab is compact. Defaults to `label`;\nset to `false` to hide it. An extended fab never shows one, its label\nalready being visible.",
+          "required": false,
+          "type": {
+            "name": "string | false"
+          },
+          "defaultValue": null
+        },
+        "extended": {
+          "name": "extended",
+          "description": "Displays the visible text label beside the icon.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Disables interaction.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        }
+      }
     }
   }
 }

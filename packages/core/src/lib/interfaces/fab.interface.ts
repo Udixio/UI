@@ -19,7 +19,7 @@ export interface FabProps {
   icon: Icon;
   /** Visual color treatment. @default 'primary' */
   variant?: FabVariant;
-  /** Visual size. @default 'medium' */
+  /** Visual size. @default 'small' */
   size?: FabSize;
   /**
    * Visual tooltip text, shown while the fab is compact. Defaults to `label`;

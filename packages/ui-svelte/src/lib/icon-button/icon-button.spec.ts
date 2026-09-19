@@ -136,6 +136,19 @@ describe('IconButton', () => {
     expect(onclick).not.toHaveBeenCalled();
   });
 
+  it('does not open a tooltip for a disabled link', async () => {
+    render(IconButton, {
+      props: { label: 'Disabled documentation', icon: iAdd, href: '/docs', disabled: true },
+    });
+    const link = screen.getByRole('link', { name: 'Disabled documentation' });
+
+    await fireEvent.mouseOver(link);
+    await fireEvent.focus(link);
+
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    expect(link).not.toHaveAttribute('aria-describedby');
+  });
+
   it('owns uncontrolled pressed state and swaps the icon', async () => {
     const onPressedChange = vi.fn();
     const { container } = render(IconButton, {

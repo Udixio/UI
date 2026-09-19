@@ -82,10 +82,7 @@
       "path": "./packages/core"
     },
     {
-      "path": "./packages/ui-angular"
-    },
-    {
-      "path": "./apps/doc"
+      "path": "./packages/ui-svelte"
     }
   ],
   "ts-node": {

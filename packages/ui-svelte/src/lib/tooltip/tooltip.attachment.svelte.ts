@@ -66,7 +66,10 @@ export function tooltip(options: () => SvelteTooltipProps): Attachment<HTMLEleme
         title: resolved.title,
         text: resolved.text,
         position: effectivePosition,
-        trigger: resolved.trigger ?? ['hover', 'focus'],
+        trigger:
+          resolved.trigger === undefined
+            ? ['hover', 'focus']
+            : resolved.trigger,
         describeTarget: resolved.describeTarget ?? true,
         openDelay: resolved.openDelay ?? 400,
         closeDelay: resolved.closeDelay ?? 150,
@@ -116,7 +119,8 @@ export function tooltip(options: () => SvelteTooltipProps): Attachment<HTMLEleme
         target,
         tooltipId: untrack(() => resolvedId),
         triggers: () => {
-          const value = untrack(() => resolved.trigger) ?? ['hover', 'focus'];
+          const value = untrack(() => resolved.trigger);
+          if (value === undefined) return ['hover', 'focus'];
           const list = Array.isArray(value) ? value : [value];
           return list.filter((item): item is TooltipTriggerKind => item != null);
         },

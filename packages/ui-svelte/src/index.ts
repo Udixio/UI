@@ -9,6 +9,8 @@ export { default as Card } from './lib/card/Card.svelte';
 export type { SvelteCardProps } from './lib/card/card.types';
 export { default as Divider } from './lib/divider/Divider.svelte';
 export type { SvelteDividerProps } from './lib/divider/divider.types';
+export { default as Fab } from './lib/fab/Fab.svelte';
+export type { SvelteFabProps } from './lib/fab/fab.types';
 export { default as IconButton } from './lib/icon-button/IconButton.svelte';
 export type { SvelteIconButtonProps } from './lib/icon-button/icon-button.types';
 export { default as Icon } from './lib/icon/Icon.svelte';

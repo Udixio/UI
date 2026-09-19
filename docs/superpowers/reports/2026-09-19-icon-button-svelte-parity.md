@@ -33,13 +33,17 @@ Même forme partout : aucun `FORM-*`.
 
 ## Findings
 
-Aucun défaut `PARITY-*`. Aucun `API-DESIGN-*` : le contrat public est déjà partagé
-par core, React et Angular. Les différences signalées sont des adaptations syntaxiques
-ou d’idiome Svelte, couvertes par des tests et documentées.
+| Finding | Severity / confidence | Evidence and impact | Remediation / disposition |
+| --- | --- | --- | --- |
+| `PARITY-A11Y-001` | minor / high | A disabled link passed `trigger: null` to the Svelte tooltip attachment, whose nullish fallback restored hover/focus triggers; this could expose a tooltip for an inert control. | Preserve explicit `null` as no trigger in `tooltip.attachment.svelte.ts`; add disabled-link regressions to `IconButton` and `Fab`. **fixed** |
+
+No `API-DESIGN-*` finding: the contract is already shared by core, React and Angular.
+The remaining differences are syntactic or idiomatic Svelte adaptations, covered by
+tests and documentation.
 
 ## Validation
 
-- 23 tests `IconButton` Svelte : succès.
+- 24 tests `IconButton` Svelte : succès.
 - `svelte-check` : 0 erreur, 0 warning.
 - `test`, `typecheck`, `lint`, `build` Nx de `ui-svelte` : succès.
 - docgen, `docgen:check`, validation API ciblée et `git diff --check` : succès.

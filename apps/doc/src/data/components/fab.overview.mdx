@@ -12,6 +12,11 @@ import { FabSizesAngular } from '@/examples/angular/fab-sizes.ts';
 import { FabExtendedAngular } from '@/examples/angular/fab-extended.ts';
 import { FabActionsAngular } from '@/examples/angular/fab-actions.ts';
 import { FabStatesAngular } from '@/examples/angular/fab-states.ts';
+import FabVariantsSvelte from '@/examples/svelte/fab-variants.svelte';
+import FabSizesSvelte from '@/examples/svelte/fab-sizes.svelte';
+import FabExtendedSvelte from '@/examples/svelte/fab-extended.svelte';
+import FabActionsSvelte from '@/examples/svelte/fab-actions.svelte';
+import FabStatesSvelte from '@/examples/svelte/fab-states.svelte';
 import fabVariantsReactSource from '@/examples/react/fab-variants.tsx?raw';
 import fabSizesReactSource from '@/examples/react/fab-sizes.tsx?raw';
 import fabExtendedReactSource from '@/examples/react/fab-extended.tsx?raw';
@@ -22,12 +27,17 @@ import fabSizesAngularSource from '@/examples/angular/fab-sizes.ts?raw';
 import fabExtendedAngularSource from '@/examples/angular/fab-extended.ts?raw';
 import fabActionsAngularSource from '@/examples/angular/fab-actions.ts?raw';
 import fabStatesAngularSource from '@/examples/angular/fab-states.ts?raw';
+import fabVariantsSvelteSource from '@/examples/svelte/fab-variants.svelte?raw';
+import fabSizesSvelteSource from '@/examples/svelte/fab-sizes.svelte?raw';
+import fabExtendedSvelteSource from '@/examples/svelte/fab-extended.svelte?raw';
+import fabActionsSvelteSource from '@/examples/svelte/fab-actions.svelte?raw';
+import fabStatesSvelteSource from '@/examples/svelte/fab-states.svelte?raw';
 
 ## Usage
 
 `Fab` represents the single primary action on a screen. Import it from
-`@udixio/ui-react` or `@udixio/ui-angular`; `label` and `icon` are both
-required, and arbitrary children are not accepted.
+`@udixio/ui-react`, `@udixio/ui-angular` or `@udixio/ui-svelte`; `label` and
+`icon` are both required, and arbitrary children are not accepted.
 
 Positioning is owned by the surrounding layout: the component never places
 itself. Each size keeps a 48 px touch target and a visible focus treatment.
@@ -43,10 +53,12 @@ or extended, at any size.
   codes={{
     react: fabVariantsReactSource,
     angular: fabVariantsAngularSource,
+    svelte: fabVariantsSvelteSource,
   }}
 >
   <FabVariantsReact slot="react" client:load />
   <FabVariantsAngular slot="angular" client:load />
+  <FabVariantsSvelte slot="svelte" client:load />
 </Code>
 
 ## Sizes
@@ -55,9 +67,16 @@ or extended, at any size.
 with 24, 28 and 36 px icons. A compact fab is always square; an extended one
 keeps the height of its size and takes its width from the label.
 
-<Code codes={{ react: fabSizesReactSource, angular: fabSizesAngularSource }}>
+<Code
+  codes={{
+    react: fabSizesReactSource,
+    angular: fabSizesAngularSource,
+    svelte: fabSizesSvelteSource,
+  }}
+>
   <FabSizesReact slot="react" client:load />
   <FabSizesAngular slot="angular" client:load />
+  <FabSizesSvelte slot="svelte" client:load />
 </Code>
 
 ## Extended and compact
@@ -82,10 +101,15 @@ exception worth justifying. An extended fab never shows one: its label is
 already visible.
 
 <Code
-  codes={{ react: fabExtendedReactSource, angular: fabExtendedAngularSource }}
+  codes={{
+    react: fabExtendedReactSource,
+    angular: fabExtendedAngularSource,
+    svelte: fabExtendedSvelteSource,
+  }}
 >
   <FabExtendedReact slot="react" client:load />
   <FabExtendedAngular slot="angular" client:load />
+  <FabExtendedSvelte slot="svelte" client:load />
 </Code>
 
 ## Link or action
@@ -96,10 +120,15 @@ Without `href`, the component renders a native button and defaults to
 already open.
 
 <Code
-  codes={{ react: fabActionsReactSource, angular: fabActionsAngularSource }}
+  codes={{
+    react: fabActionsReactSource,
+    angular: fabActionsAngularSource,
+    svelte: fabActionsSvelteSource,
+  }}
 >
   <FabActionsReact slot="react" client:load />
   <FabActionsAngular slot="angular" client:load />
+  <FabActionsSvelte slot="svelte" client:load />
 </Code>
 
 ## Disabled
@@ -109,9 +138,16 @@ attribute; a disabled link drops its `href`, carries `aria-disabled`, leaves
 the tab order, and swallows clicks — a native anchor has no disabled state of
 its own.
 
-<Code codes={{ react: fabStatesReactSource, angular: fabStatesAngularSource }}>
+<Code
+  codes={{
+    react: fabStatesReactSource,
+    angular: fabStatesAngularSource,
+    svelte: fabStatesSvelteSource,
+  }}
+>
   <FabStatesReact slot="react" client:load />
   <FabStatesAngular slot="angular" client:load />
+  <FabStatesSvelte slot="svelte" client:load />
 </Code>
 
 ## Migrating to 3.0
