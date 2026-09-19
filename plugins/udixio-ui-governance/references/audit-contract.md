@@ -41,8 +41,8 @@ interaction unreachable.
 
 ## Acceptance policy
 
-- React is the default source adapter. Shared contracts, styles, behavior, and DOM controllers in
-  core outrank framework implementation details. React is not presumed to have a sound public API.
+- React is the default source adapter; Angular and Svelte are target adapters. Shared contracts,
+  styles, behavior, and DOM controllers in core outrank framework implementation details. React is not presumed to have a sound public API.
 - Apply [the public API standard](public-api-standard.md) before implementation or synchronization.
   A questionable public contract is a major `API-DESIGN-*` finding and blocks propagation.
 - An intentional framework difference must have a platform reason, a test, and documentation. A

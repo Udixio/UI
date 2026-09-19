@@ -1,6 +1,6 @@
 ---
 name: audit-multiframework
-description: Audit, repair, or validate Udixio's framework-agnostic component architecture across core, React, and Angular. Use to check shared interfaces, styles, behavior, DOM and animation controllers, controlled state, exports, test matrices, or to remove duplicated framework logic and prevent cross-framework technical debt.
+description: Audit, repair, or validate Udixio's framework-agnostic component architecture across core, React, Angular, and Svelte. Use to check shared interfaces, styles, behavior, DOM and animation controllers, controlled state, exports, test matrices, or to remove duplicated framework logic and prevent cross-framework technical debt.
 ---
 
 # Audit multiframework architecture
@@ -16,22 +16,23 @@ For each prop, state, style decision, transition, DOM effect, and event, identif
 - core interface for framework-agnostic public data;
 - core style for pure visual class decisions;
 - core behavior for pure state transitions and semantics;
-- `@udixio/core/dom` for every imperative behavior both frameworks need — timers, pointer,
+- `@udixio/core/dom` for every imperative behavior more than one adapter needs — timers, pointer,
   keyboard and touch listeners, ARIA synchronization, cross-instance coordination, and animation;
-- framework adapter only for rendering, lifecycle, content, refs, inputs, and outputs.
+- framework adapter only for rendering, lifecycle, content, refs, inputs, outputs, and binding
+  surfaces such as Svelte `$bindable`.
 
 Flag hollow props, framework types in core, duplicated decisions, and behavior hidden in adapter-only
 CSS.
 
-Require one shared controller in `@udixio/core/dom` whenever both frameworks need the same
+Require one shared controller in `@udixio/core/dom` whenever more than one adapter needs the same
 imperative behavior. A React hook is never the owner of shared non-render logic; it is only its
 reactive adapter. Animated effects use anime.js, chosen because it is plain JavaScript and
-therefore consumable identically by React and Angular.
+therefore consumable identically by React, Angular, and Svelte.
 
 A React hook holding more than roughly fifty lines of non-render logic is presumed to be a missing
 core controller: report `MULTI-OWNERSHIP-NNN`, the file's `MULTI-<AREA>-NNN` convention with
 `OWNERSHIP` as the area. The threshold triggers an inspection, never a
-verdict on its own — confirm that the logic is genuinely shareable, and that the second adapter
+verdict on its own — confirm that the logic is genuinely shareable, and that another adapter
 either duplicates it today or would have to, before concluding.
 
 ## Review the source slice
@@ -42,18 +43,18 @@ either duplicates it today or would have to, before concluding.
 3. Validate interface props, resolved states, element keys, and `className` state exposure.
 4. Validate controlled/uncontrolled semantics and blocked transitions against shared pure behavior.
 5. Review React completely against the resolved core contract.
-6. Review Angular only after the React/core source contract is stable.
-7. Require the same scenario matrix in core, React, and Angular tests where applicable.
+6. Review Angular and Svelte only after the React/core source contract is stable.
+7. Require the same scenario matrix in core, React, Angular, and Svelte tests where applicable.
 
-Distinguish API parity from platform syntax and from delivery shape: `children`/`ng-content`,
-callbacks/outputs, and refs/view queries may differ while semantics remain equal, and an adapter may
+Distinguish API parity from platform syntax and from delivery shape: `children`/`ng-content`/snippets,
+callbacks/outputs/`bind:`, and refs/view queries/`bind:this` may differ while semantics remain equal, and an adapter may
 deliver the concept through a different vector entirely — see
 [the public API standard](../../references/public-api-standard.md#separate-concept-vocabulary-and-delivery-shape).
 Ownership is decided per concept, never per framework member.
 
 ## Repair and validate
 
-For `fix`, move each decision to its correct single owner, update React, then synchronize Angular.
+For `fix`, move each decision to its correct single owner, update React, then synchronize Angular and Svelte.
 Delete superseded implementations and tests; do not leave compatibility layers without explicit
 removal criteria. Run the relevant gates from [quality-gates.md](../../references/quality-gates.md)
 and report findings as `MULTI-<AREA>-NNN`.

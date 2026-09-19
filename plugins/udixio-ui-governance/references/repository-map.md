@@ -13,19 +13,28 @@ the repository can evolve.
 | Shared DOM effects       | `packages/core/src/lib/dom/`                                | One imperative implementation, anime.js when animated                |
 | React source adapter     | `packages/ui-react/src/lib/components/`                     | Default product source when no exception is documented               |
 | Angular adapter          | `packages/ui-angular/src/lib/<component>/`                  | Thin Angular binding over the shared contract                        |
+| Svelte adapter           | `packages/ui-svelte/src/lib/<component>/`                   | Thin Svelte 5 (runes) binding over the shared contract               |
 | React tests              | `packages/ui-react/src/tests/`                              | User-visible behavior and DOM contract                               |
 | Angular tests            | `packages/ui-angular/src/lib/<component>/`                  | Same scenario matrix as React                                        |
+| Svelte tests             | `packages/ui-svelte/src/lib/<component>/`                   | Same scenario matrix as React                                        |
 | Component overview       | `apps/doc/src/data/components/`                             | MDX overview and direct source imports                               |
-| Examples                 | `apps/doc/src/examples/{react,angular}/`                    | Compilable framework-native examples                                 |
-| API documentation source | Public React/Angular adapters and core contracts            | TSDoc/JSDoc descriptions, defaults, `@devx`, `@a11y`, `@limitations` |
+| Examples                 | `apps/doc/src/examples/{react,angular,svelte}/`             | Compilable framework-native examples                                 |
+| API documentation source | Public React/Angular/Svelte adapters and core contracts     | TSDoc/JSDoc descriptions, defaults, `@devx`, `@a11y`, `@limitations` |
 | API generator            | `apps/doc/scripts/docgen.js`                                | Extract shared and framework-native API without relabeling           |
 | Generated API data       | `apps/doc/src/data/api/<component>.json`                    | Versioned generated artifact; never the semantic authority           |
 | API schema validator     | `plugins/udixio-ui-governance/scripts/validate_api_docs.py` | Deterministic schema, availability, and normalized member checks     |
 | API renderer             | `apps/doc/src/pages/components/[component]/api.astro`       | Render only API payloads that exist for the selected framework       |
 | Framework preference     | `apps/doc/src/stores/exampleFrameworkStore.ts`              | One preference shared by examples, code, and API pages               |
 
+Every adapter — React, Angular, Svelte — is a thin binding over the same core. React is the default
+source adapter; the two others are synchronized from it with
+[sync-angular-component](../skills/sync-angular-component/SKILL.md) and
+[sync-svelte-component](../skills/sync-svelte-component/SKILL.md). Framework-specific idiom lives in
+[angular-conventions.md](angular-conventions.md) and [svelte-conventions.md](svelte-conventions.md);
+this map only says where things are.
+
 Shared animated effects are implemented once in `@udixio/core/dom` with **anime.js**, chosen because
-it is plain JavaScript and therefore consumable identically by React and Angular. The `motion` package survives only as residue to retire, not as a pattern to reproduce: three
+it is plain JavaScript and therefore consumable identically by every adapter. The `motion` package survives only as residue to retire, not as a pattern to reproduce: three
 type-only `Transition` imports in `Chip`, `NavigationRail` and `NavigationRailItem`, which are
 erased at compile time, and two runtime `animate` imports in the React and Angular Slider specs. No
 runtime `motion/react` import remains in either adapter. Touching one of those files for an
@@ -51,6 +60,11 @@ consistent. Report contradictions instead of guessing.
 - React public props: `ReactProgressIndicatorProps`.
 - Angular inputs otherwise use contract names; outputs drop React's `on` prefix (`onValueChange`
   maps to `valueChange`).
+- Svelte file: `ProgressIndicator.svelte`, colocated spec `progress-indicator.spec.ts`, public
+  props `SvelteProgressIndicatorProps`. Callback props keep the contract names (`onValueChange`);
+  a controllable value is additionally `$bindable()`. An action — the Svelte counterpart of an
+  Angular directive — is exported as `progressIndicator` from `progress-indicator.action.ts`.
+- Example stems: `progress-indicator-<case>.tsx`, `.ts`, `.svelte` under the framework directory.
 
 ## Discovery
 
@@ -61,7 +75,7 @@ python3 plugins/udixio-ui-governance/scripts/component_inventory.py <component> 
 ```
 
 Treat its result as path discovery, not semantic proof. `apiDocumentationSources` is the union of
-the discovered shared, React, and Angular public sources; inclusion does not prove that its comments
+the discovered shared, React, Angular, and Svelte public sources; inclusion does not prove that its comments
 are correct or selected by docgen. Inspect every reported candidate, generated artifact,
 documentation infrastructure file, and public barrel before concluding that an artifact is present
 or absent.

@@ -74,6 +74,7 @@ def inventory(root: Path, component: str) -> dict[str, object]:
     react_components = root / "packages/ui-react/src/lib/components"
     react_tests = root / "packages/ui-react/src/tests"
     angular_lib = root / "packages/ui-angular/src/lib"
+    svelte_lib = root / "packages/ui-svelte/src/lib"
     core = root / "packages/core/src/lib"
     docs = root / "apps/doc/src/data/components"
     api_docs = root / "apps/doc/src/data/api"
@@ -90,6 +91,18 @@ def inventory(root: Path, component: str) -> dict[str, object]:
         for path in angular_lib.rglob("*.spec.ts")
         if slug in kebab_case(str(path.relative_to(angular_lib)))
     ] if angular_lib.exists() else []
+    svelte_source = [
+        path
+        for path in [
+            *matching_files(svelte_lib, "*.svelte", slug),
+            *matching_files(svelte_lib, "*.action.ts", slug),
+        ]
+    ]
+    svelte_tests = [
+        path
+        for path in svelte_lib.rglob("*.spec.ts")
+        if slug in kebab_case(str(path.relative_to(svelte_lib)))
+    ] if svelte_lib.exists() else []
     react_test_files = [
         path
         for path in react_tests.rglob("*.ts*")
@@ -115,6 +128,7 @@ def inventory(root: Path, component: str) -> dict[str, object]:
         *shared_api_doc_sources,
         *react_source,
         *angular_source,
+        *svelte_source,
     ]
     documentation_infrastructure = [
         root / "apps/doc/scripts/docgen.js",
@@ -140,6 +154,7 @@ def inventory(root: Path, component: str) -> dict[str, object]:
         root / "packages/ui-react/src/lib/components/index.ts",
         root / "packages/ui-react/src/lib/index.ts",
         root / "packages/ui-angular/src/index.ts",
+        root / "packages/ui-svelte/src/index.ts",
     ]
     escaped_slug = re.escape(slug)
     escaped_symbol = re.escape(symbol)
@@ -151,7 +166,7 @@ def inventory(root: Path, component: str) -> dict[str, object]:
     ]
 
     result: dict[str, object] = {
-        "schemaVersion": 2,
+        "schemaVersion": 3,
         "component": component,
         "slug": slug,
         "symbol": symbol,
@@ -161,6 +176,8 @@ def inventory(root: Path, component: str) -> dict[str, object]:
             "reactTests": relative_paths(root, react_test_files),
             "angularSource": relative_paths(root, angular_source),
             "angularTests": relative_paths(root, angular_tests),
+            "svelteSource": relative_paths(root, svelte_source),
+            "svelteTests": relative_paths(root, svelte_tests),
             "coreInterface": relative_paths(root, artifact_patterns["core_interface"]),
             "coreStyle": relative_paths(root, artifact_patterns["core_style"]),
             "coreBehavior": relative_paths(root, artifact_patterns["core_behavior"]),
@@ -173,6 +190,7 @@ def inventory(root: Path, component: str) -> dict[str, object]:
             ),
             "reactApiDocumentationSources": relative_paths(root, react_source),
             "angularApiDocumentationSources": relative_paths(root, angular_source),
+            "svelteApiDocumentationSources": relative_paths(root, svelte_source),
             "apiDocumentationSources": relative_paths(root, api_doc_sources),
             "documentationInfrastructure": relative_paths(
                 root, documentation_infrastructure
@@ -182,6 +200,9 @@ def inventory(root: Path, component: str) -> dict[str, object]:
             ),
             "angularExamples": relative_paths(
                 root, matching_examples(examples / "angular", "*.ts", slug)
+            ),
+            "svelteExamples": relative_paths(
+                root, matching_examples(examples / "svelte", "*.svelte", slug)
             ),
             "publicBarrels": relative_paths(root, barrels),
         },
@@ -197,6 +218,8 @@ def missing_required(result: dict[str, object]) -> list[str]:
         "reactTests",
         "angularSource",
         "angularTests",
+        "svelteSource",
+        "svelteTests",
         "coreInterface",
         "coreStyle",
         "documentation",

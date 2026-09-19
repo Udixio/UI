@@ -27,9 +27,10 @@ from another library. Translate the specification into the repository's shared c
    are needed — timers, listeners, ARIA synchronization, cross-instance coordination, animation.
    Animated effects use anime.js.
 5. Implement and test React as the default source adapter.
-6. Choose the Angular delivery shape — component, directive, service, pipe — then synchronize from
-   the resolved contract, not by transliterating JSX.
-7. Add direct-source React and Angular examples and MDX documentation.
+6. Choose each target adapter's delivery shape — Angular component, directive, service, or pipe;
+   Svelte component, action, or function — then synchronize from the resolved contract, not by
+   transliterating JSX.
+7. Add direct-source React, Angular, and Svelte examples and MDX documentation.
 8. Run the complete quality gates and a parity audit.
 
 Reject invented variants, hollow props, framework types in core, duplicated animations, CSS-only

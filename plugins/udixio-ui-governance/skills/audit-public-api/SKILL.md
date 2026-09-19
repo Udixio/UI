@@ -1,6 +1,6 @@
 ---
 name: audit-public-api
-description: Review, redesign, or validate the long-lived public contract of an Udixio component by judging core TypeScript interfaces, React props and callbacks, Angular inputs and outputs, defaults, types, naming, and release stability. Use before implementing, synchronizing, documenting, or declaring a component API stable.
+description: Review, redesign, or validate the long-lived public contract of an Udixio component by judging core TypeScript interfaces, React props and callbacks, Angular inputs and outputs, Svelte props, bindables and snippets, defaults, types, naming, and release stability. Use before implementing, synchronizing, documenting, or declaring a component API stable.
 ---
 
 # Audit the source public API
@@ -19,8 +19,10 @@ Read the component's complete source slice:
    public ref behavior;
 3. Angular `input()`/`output()` declarations, aliases, transforms, defaults, content projection,
    and exported types;
-4. styles and behavior that reveal what each public member actually controls;
-5. tests, direct source examples, call sites, TSDoc, and migration history as supporting evidence.
+4. Svelte `Svelte<Xxx>Props` and `$props()` destructuring, `$bindable` members, snippet types,
+   rest-prop typing, action signatures, and exported types;
+5. styles and behavior that reveal what each public member actually controls;
+6. tests, direct source examples, call sites, TSDoc, and migration history as supporting evidence.
 
 Use generated API JSON only later to validate documentation extraction. Never use it as the source
 or semantic validator of the component API.
@@ -46,11 +48,11 @@ even when both adapters expose it.
 
 For every weak or ambiguous contract, emit a major `API-DESIGN-*` finding containing the current
 usage, inferred intent, future maintenance risk, two or three alternatives with trade-offs, one
-recommendation, React and Angular usage examples, and release/migration impact.
+recommendation, React, Angular, and Svelte usage examples, and release/migration impact.
 
 In `audit` or `validate`, report only. In `fix`, do not select among materially different product
 meanings without the user's decision. Once resolved, update the canonical core contract, React,
-Angular, tests, call sites, examples, TSDoc, and generated documentation as one coherent change.
+Angular, Svelte, tests, call sites, examples, TSDoc, and generated documentation as one coherent change.
 Never add a deprecated alias for unreleased code. For a released stable API, require explicit
 breaking-change authorization or a bounded, versioned migration plan.
 

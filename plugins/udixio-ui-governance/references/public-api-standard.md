@@ -12,17 +12,19 @@ A public contract has three layers. Conflating them is what turns a faithful por
 | --- | --- | --- |
 | Concept — the core interface | `variant`, `position`, `trigger`, `openDelay`, controlled `open` | Invariant. Identical everywhere. |
 | Vocabulary — public names | `openChange` / `onOpenChange` | Invariant, apart from binding idiom. |
-| Delivery shape — how a consumer reaches the concept | component `udx-tooltip` / directive `[udxTooltip]` / hook | Free per framework, chosen by idiom. |
+| Delivery shape — how a consumer reaches the concept | component `udx-tooltip` / directive `[udxTooltip]` / action `use:tooltip` / hook | Free per framework, chosen by idiom. |
 
 A framework-specific mechanism is never a contract concept: `cloneElement`, `targetRef`, a
 `RefObject`, render props, and `children` used as a trigger belong to React, not to the product.
 Never promote one into core and never transliterate one into another adapter. Its counterpart is
 the target framework's equivalent mechanism, not its transcription.
 
-Angular's equivalent of a React component is not always a component. A directive attaches behavior
-to a host the consumer already owns and injects its own `ElementRef`; a service fits behavior with
-no host; a pipe fits a pure transformation. Choosing the shape is a design act that precedes
-naming.
+A target adapter's equivalent of a React component is not always a component. In Angular a
+directive attaches behavior to a host the consumer already owns and injects its own `ElementRef`; a
+service fits behavior with no host; a pipe fits a pure transformation. In Svelte an action
+(`use:x`) or attachment (`{@attach x()}`) plays the directive's role and receives the host node
+itself; a plain function or store fits behavior with no host. Choosing the shape is a design act
+that precedes naming.
 
 ## Review vocabulary before implementation
 
@@ -30,12 +32,14 @@ For every new or touched public member, verify that its name:
 
 - expresses user intent or a domain concept rather than the current CSS, DOM, or implementation
   mechanism;
-- describes the `true` state positively and reads naturally in both JSX and an Angular binding;
+- describes the `true` state positively and reads naturally in JSX, in an Angular binding, and in
+  a Svelte attribute;
 - avoids imperative toggles such as `enableX` or `disableX`, double negatives, and stale historical
   terminology, except established platform contracts such as `disabled`;
 - remains accurate if internal markup, spacing, animation, or state ownership changes;
 - uses one framework-neutral canonical concept while allowing idiomatic binding syntax such as
-  React `onPressedChange` and Angular `pressedChange`, and while allowing a different delivery
+  React `onPressedChange`, Angular `pressedChange`, and Svelte `onPressedChange` plus
+  `bind:pressed`, and while allowing a different delivery
   shape as defined above — an attribute-selector directive may prefix its inputs when the host
   element is not its own, provided each prefixed input maps to one canonical concept;
 - is consistent with neighboring stable components without copying an existing defect;
@@ -57,7 +61,7 @@ editing adapters. Include:
 1. the current contract and the intent inferred from evidence;
 2. why the current name leaks an implementation detail, reads negatively, or will age poorly;
 3. two or three viable names with their trade-offs;
-4. one recommendation and React plus Angular usage examples;
+4. one recommendation and a usage example per adapter — React, Angular, Svelte;
 5. compatibility, release, documentation, and migration impact.
 
 Stop and request the user's choice when alternatives express materially different product intent.

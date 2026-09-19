@@ -1,12 +1,13 @@
 ---
 name: audit-component
-description: Orchestrate a complete Udixio UI component audit or repair across core, React, Angular, accessibility, React-Angular parity, framework quality, tests, exports, and documentation. Use for end-to-end component reviews, production-readiness checks, full component fixes, or validation before declaring a component complete.
+description: Orchestrate a complete Udixio UI component audit or repair across core, React, Angular, Svelte, accessibility, cross-adapter parity, framework quality, tests, exports, and documentation. Use for end-to-end component reviews, production-readiness checks, full component fixes, or validation before declaring a component complete.
 ---
 
 # Audit a component end to end
 
 Treat React as the default source adapter, but treat valid shared contracts in core as authoritative.
-Finish the React and core review before judging Angular parity.
+Finish the React and core review before judging Angular or Svelte parity. Audit every target
+adapter the package ships; a missing adapter is a `blocker` finding, not an absent step.
 
 ## Prepare
 
@@ -34,7 +35,10 @@ Read and apply these sibling skills in this exact order:
 5. [audit-parity](../audit-parity/SKILL.md): compare Angular with the resolved React/core source.
 6. Apply `audit-framework-quality` and `audit-accessibility` to Angular, including framework-specific
    and rendered-DOM concerns.
-7. [audit-documentation](../audit-documentation/SKILL.md): verify the public story only after the
+7. [audit-parity](../audit-parity/SKILL.md) again with Svelte as the target adapter, then apply
+   `audit-framework-quality` and `audit-accessibility` to Svelte, including runes, `bind:`
+   semantics, snippets, and root-element concerns.
+8. [audit-documentation](../audit-documentation/SKILL.md): verify the public story only after the
    implementation contract is resolved, including TSDoc truth, per-framework API extraction,
    generated-artifact freshness, and actual rendering.
 
@@ -48,12 +52,14 @@ For `fix`, audit first, then repair from foundations outward:
 1. shared interface, style, pure behavior, and DOM controller;
 2. React source and React regression tests;
 3. Angular synchronization and Angular regression tests;
-4. exports, examples, and documentation;
-5. integration validation.
+4. Svelte synchronization and Svelte regression tests;
+5. exports, examples, and documentation;
+6. integration validation.
 
-Never propagate a React defect to Angular for the sake of superficial parity. Correct React/core,
-then synchronize Angular. Use [sync-angular-component](../sync-angular-component/SKILL.md) for a
-substantial adapter gap.
+Never propagate a React defect to a target adapter for the sake of superficial parity. Correct
+React/core, then synchronize each target. Use
+[sync-angular-component](../sync-angular-component/SKILL.md) or
+[sync-svelte-component](../sync-svelte-component/SKILL.md) for a substantial adapter gap.
 
 ## Complete
 

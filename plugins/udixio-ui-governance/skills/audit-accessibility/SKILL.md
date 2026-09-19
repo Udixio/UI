@@ -1,6 +1,6 @@
 ---
 name: audit-accessibility
-description: Audit, repair, or strictly validate accessibility for a Udixio React or Angular component, including native semantics, ARIA, keyboard and focus behavior, disabled/loading states, contrast, motion, touch targets, RTL, and cross-framework equivalence. Use for accessibility reviews, a11y regressions, WCAG checks, or accessible component implementation.
+description: Audit, repair, or strictly validate accessibility for a Udixio React, Angular, or Svelte component, including native semantics, ARIA, keyboard and focus behavior, disabled/loading states, contrast, motion, touch targets, RTL, and cross-framework equivalence. Use for accessibility reviews, a11y regressions, WCAG checks, or accessible component implementation.
 ---
 
 # Audit component accessibility
@@ -12,7 +12,7 @@ description: Audit, repair, or strictly validate accessibility for a Udixio Reac
 2. Read [accessibility-standard.md](../../references/accessibility-standard.md).
 3. Identify the component's role, accessible name, values/states, keyboard model, focus behavior,
    and announcements before inspecting CSS details.
-4. Browse current primary W3C, ARIA APG, Material, React, or Angular sources for normative claims
+4. Browse current primary W3C, ARIA APG, Material, React, Angular, or Svelte sources for normative claims
    that are not already established by the repository.
 
 ## Inspect React first
@@ -25,16 +25,18 @@ description: Audit, repair, or strictly validate accessibility for a Udixio Reac
   alone.
 - Check token-resolved contrast when tooling is available; never infer it from semantic token names.
 
-## Inspect Angular and parity
+## Inspect each target adapter and parity
 
-Repeat the rendered-DOM and interaction audit. Account for component hosts, content projection,
-signal updates, event outputs, and cleanup. Require equivalent user semantics, not identical source
+Repeat the rendered-DOM and interaction audit for Angular and for Svelte. In Angular, account for
+component hosts, content projection, signal updates, event outputs, and cleanup. In Svelte, account
+for the absence of a host element, rest-prop spreading of `aria-*` and native handlers onto the
+root element, snippet-rendered content, `bind:` updates, and `$effect` cleanup. Require equivalent user semantics, not identical source
 syntax. Document only differences imposed by the platform.
 
 ## Repair and validate
 
 For `fix`, prefer native elements, repair the shared semantic contract before adapter work, and add
-equivalent regression scenarios to both frameworks. Do not add redundant ARIA or hide focus.
+equivalent regression scenarios to every shipped adapter. Do not add redundant ARIA or hide focus.
 
 Run focused behavior tests plus relevant gates from
 [quality-gates.md](../../references/quality-gates.md). Automated tools supplement but do not replace

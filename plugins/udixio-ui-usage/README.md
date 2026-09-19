@@ -1,6 +1,6 @@
 # Udixio UI Usage
 
-Agent plugin that helps agents correctly **consume** `@udixio/ui-react` and `@udixio/ui-angular`
+Agent plugin that helps agents correctly **consume** `@udixio/ui-react`, `@udixio/ui-angular` and `@udixio/ui-svelte`
 in a downstream project — as opposed to
 [`udixio-ui-governance`](../udixio-ui-governance), which is for maintaining the component
 library itself and is not meant for consumer projects.
@@ -19,7 +19,7 @@ For contributors working in this repository, the repository root declares a loca
 `.claude-plugin/marketplace.json`, and `.claude/settings.json` registers this plugin (alongside
 `udixio-ui-governance`) for everyone working here — nothing else to do.
 
-For a downstream project consuming `@udixio/ui-react` or `@udixio/ui-angular` — the plugin's
+For a downstream project consuming `@udixio/ui-react`, `@udixio/ui-angular` or `@udixio/ui-svelte` — the plugin's
 actual target audience — install it there explicitly:
 
 ```bash
@@ -33,7 +33,7 @@ Verify with `claude plugin list`. Skills are then invocable as `udixio-ui-usage:
 
 | Skill | Purpose |
 | --- | --- |
-| `consume-component` | Resolve a component's exact installed API (TSDoc) plus current usage patterns (live docs), then apply the right React/Angular conventions before writing code |
+| `consume-component` | Resolve a component's exact installed API (TSDoc) plus current usage patterns (live docs), then apply the right React/Angular/Svelte conventions before writing code |
 | `review-usage` | Check code that already uses Udixio UI against the installed API: invented props, wrong selectors, controlled/uncontrolled mistakes, unmet `@a11y`, violated `@limitations` |
 | `migrate-to-udixio` | Convert existing UI code (Material UI, Bootstrap, hand-rolled Tailwind…) to Udixio components and theme tokens, discovering equivalents from the live catalog |
 
@@ -59,7 +59,8 @@ plugins/udixio-ui-usage/
 ├── .codex-plugin/plugin.json            # Codex manifest
 ├── references/                          # conventions shared by every skill
 │   ├── react-conventions.md
-│   └── angular-conventions.md
+│   ├── angular-conventions.md
+│   └── svelte-conventions.md
 └── skills/<skill>/
     ├── SKILL.md
     └── agents/openai.yaml               # Codex agent binding

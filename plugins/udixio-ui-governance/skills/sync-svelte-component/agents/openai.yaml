@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Sync Svelte Component'
+  short_description: 'Synchronize Svelte 5 from the React source'
+  default_prompt: 'Use $sync-svelte-component to bring a Svelte component into parity with its React source.'

@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "udixio-ui-governance",
-      "description": "Audit, synchronize, and create Udixio UI components across React, Angular, core behavior, accessibility, and documentation.",
+      "description": "Audit, synchronize, and create Udixio UI components across React, Angular, Svelte, core behavior, accessibility, and documentation.",
       "author": {
         "name": "Udixio"
       },
@@ -20,7 +20,8 @@
         "component-governance",
         "material-design",
         "multiframework",
-        "react"
+        "react",
+        "svelte"
       ],
       "source": "./plugins/udixio-ui-governance",
       "homepage": "https://github.com/Udixio/UI",
@@ -28,7 +29,7 @@
     },
     {
       "name": "udixio-ui-usage",
-      "description": "Help agents correctly consume, review and migrate to @udixio/ui-react and @udixio/ui-angular components in a downstream project.",
+      "description": "Help agents correctly consume, review and migrate to @udixio/ui-react, @udixio/ui-angular and @udixio/ui-svelte components in a downstream project.",
       "author": {
         "name": "Udixio"
       },
@@ -36,6 +37,7 @@
       "keywords": [
         "angular",
         "react",
+        "svelte",
         "component-usage",
         "design-system",
         "material-design"

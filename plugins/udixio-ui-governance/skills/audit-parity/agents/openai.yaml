@@ -1,4 +1,4 @@
 interface:
-  display_name: 'Audit React Angular Parity'
-  short_description: 'Compare and repair React Angular parity'
-  default_prompt: 'Use $audit-parity to compare a React component with Angular and repair contract drift.'
+  display_name: 'Audit Adapter Parity'
+  short_description: 'Compare an Angular or Svelte adapter with its React source'
+  default_prompt: 'Use $audit-parity to compare the Angular or Svelte adapter of a component with its React source and repair contract drift.'

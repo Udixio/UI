@@ -1,7 +1,7 @@
 # Udixio UI Governance
 
 Agent plugin that audits, synchronizes, and creates Udixio UI components across React,
-Angular, core behavior, accessibility, and documentation.
+Angular, Svelte, core behavior, accessibility, and documentation.
 
 It ships as a plugin for two agent harnesses from the same source tree:
 
@@ -10,6 +10,15 @@ It ships as a plugin for two agent harnesses from the same source tree:
 
 The two manifests are separate files on purpose (no symlink), so the repository stays usable
 on filesystems without symlink support.
+
+## Install (Codex)
+
+```bash
+codex plugin marketplace add ./          # from the repository root, once
+codex plugin add udixio-ui-governance@udixio-ui
+```
+
+Verify with `codex plugin list`. Skills are then invocable as `$<skill-name>`.
 
 ## Install (Claude Code)
 
@@ -33,13 +42,14 @@ Verify with `claude plugin list`. Skills are then invocable as
 | --- | --- |
 | `audit-component` | End-to-end audit or repair of a component across every dimension below |
 | `audit-public-api` | Review and stabilize the long-lived public contract before implementing or documenting |
-| `audit-multiframework` | Check the framework-agnostic architecture shared by core, React, and Angular |
-| `audit-parity` | Compare an Angular component against its React source and core contract |
-| `audit-framework-quality` | Enforce React and Angular implementation conventions, typing, tests, and cleanup |
+| `audit-multiframework` | Check the framework-agnostic architecture shared by core, React, Angular, and Svelte |
+| `audit-parity` | Compare an Angular or Svelte adapter against its React source and core contract |
+| `audit-framework-quality` | Enforce React, Angular, and Svelte implementation conventions, typing, tests, and cleanup |
 | `audit-accessibility` | Validate semantics, ARIA, keyboard/focus, contrast, motion, touch targets, and RTL |
 | `audit-documentation` | Validate MDX overviews, TSDoc-derived API data, examples, and docgen freshness |
-| `create-material-component` | Create a complete Material 3 component slice for React and Angular |
+| `create-material-component` | Create a complete Material 3 component slice for React, Angular, and Svelte |
 | `sync-angular-component` | Create or update an Angular component from its React source |
+| `sync-svelte-component` | Create or update a Svelte 5 component from its React source |
 | `evolve-governance` | Update this plugin when repository architecture or standards change |
 
 ## Blocking findings
@@ -48,8 +58,8 @@ Two finding families stop an audit and require the user's decision instead of an
 
 | Finding | Emitted by | Meaning |
 | --- | --- | --- |
-| `API-DESIGN-*` | `audit-public-api`, `audit-parity`, `sync-angular-component` | A public name or contract is ambiguous, negative, or implementation-shaped |
-| `FORM-*` | `sync-angular-component` | An adapter should deliver the concept through a different shape — directive, service, pipe — than the source adapter |
+| `API-DESIGN-*` | `audit-public-api`, `audit-parity`, `sync-angular-component`, `sync-svelte-component` | A public name or contract is ambiguous, negative, or implementation-shaped |
+| `FORM-*` | `sync-angular-component`, `sync-svelte-component` | An adapter should deliver the concept through a different shape — directive, action, service, pipe — than the source adapter |
 
 `MULTI-OWNERSHIP-*`, emitted by `audit-multiframework`, is not blocking: it reports shared imperative
 logic that belongs in `@udixio/core/dom` rather than in a framework hook.
@@ -66,8 +76,8 @@ plugins/udixio-ui-governance/
 ```
 
 `references/` holds the rules the skills cite rather than restate: public API standard,
-accessibility standard, quality gates, audit report contract, Material 3 workflow, and the
-repository map.
+accessibility standard, quality gates, audit report contract, Material 3 workflow, the
+repository map, and one conventions page per target adapter (Angular, Svelte).
 
 ## Scripts
 

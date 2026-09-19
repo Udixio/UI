@@ -16,7 +16,7 @@ when a claim affects the public contract.
 - Reduced-motion handling that preserves meaning and completion.
 - High contrast/forced colors, zoom/reflow, text spacing, RTL, and localization where relevant.
 - Screen-reader-safe loading, progress, validation, and live-region behavior.
-- Equivalent semantics and interaction in React and Angular.
+- Equivalent semantics and interaction in every adapter: React, Angular, Svelte.
 
 Automated checks are evidence, not proof. Inspect rendered DOM and interaction logic, and add
 behavior tests for regressions. Do not add ARIA when a native element already supplies the correct

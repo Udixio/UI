@@ -1,6 +1,6 @@
 ---
 name: create-material-component
-description: Create a complete Udixio Material 3 component from current official specifications, including core contract/style/behavior, React source, Angular adapter, accessibility, DOM and animation effects, tests, exports, and direct-source documentation examples. Use when adding a new Material 3 component or completing a missing cross-framework component slice.
+description: Create a complete Udixio Material 3 component from current official specifications, including core contract/style/behavior, React source, Angular and Svelte adapters, accessibility, DOM and animation effects, tests, exports, and direct-source documentation examples. Use when adding a new Material 3 component or completing a missing cross-framework component slice.
 ---
 
 # Create a Material 3 component
@@ -27,7 +27,9 @@ description: Create a complete Udixio Material 3 component from current official
 3. Implement React as the default source adapter with native semantics and focused behavior tests.
 4. Follow [sync-angular-component](../sync-angular-component/SKILL.md) to implement Angular from the
    resolved contract.
-5. Add public exports, React and Angular direct-source examples, MDX overview, accessibility
+5. Follow [sync-svelte-component](../sync-svelte-component/SKILL.md) to implement Svelte from the
+   same resolved contract.
+6. Add public exports, React, Angular, and Svelte direct-source examples, MDX overview, accessibility
    guidance, and API coverage.
 
 ## Accept

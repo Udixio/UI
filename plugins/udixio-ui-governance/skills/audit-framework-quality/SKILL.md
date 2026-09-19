@@ -1,11 +1,11 @@
 ---
 name: audit-framework-quality
-description: Audit, repair, or validate React and Angular implementation quality for Udixio components, including framework best practices, naming, lifecycle, reactivity, typing, exports, tests, performance, cleanup, and technical debt. Use for code-quality reviews, convention enforcement, refactors, or production-maturity checks.
+description: Audit, repair, or validate React, Angular, and Svelte implementation quality for Udixio components, including framework best practices, naming, lifecycle, reactivity, typing, exports, tests, performance, cleanup, and technical debt. Use for code-quality reviews, convention enforcement, refactors, or production-maturity checks.
 ---
 
 # Audit framework quality
 
-Read current repository standards and use current official React/Angular documentation for claims
+Read current repository standards and use current official React/Angular/Svelte documentation for claims
 that may have changed. Apply [the audit contract](../../references/audit-contract.md) and
 [the public API standard](../../references/public-api-standard.md).
 
@@ -18,7 +18,7 @@ standalone framework-quality audit.
 
 For each questionable member, report an `API-DESIGN-*` finding with two or three alternatives, a
 recommendation, cross-framework usage examples, and release impact. Stop synchronization until the
-contract is resolved. Never silence the finding by copying the name to Angular or adding a
+contract is resolved. Never silence the finding by copying the name to a target adapter or adding a
 deprecated alias automatically.
 
 ## React
@@ -39,6 +39,21 @@ deprecated alias automatically.
 - Use native elements and content projection appropriately; avoid host elements that alter layout,
   inheritance, semantics, or clipping without tests.
 - Preserve Angular naming: `lib-` selectors, event outputs without `on`, and kebab-case paths.
+
+## Svelte
+
+- Svelte 5 runes only: `$props()` with defaults in the destructuring, `$state`, `$derived`,
+  `$effect` with cleanup, `$bindable` for controllable values, snippets for content. Legacy
+  syntax — `export let`, `$:`, `<slot>`, `createEventDispatcher`, `on:` — is a defect.
+- Typed rest props spread on the root element; no resolved state or internal prop reaches the DOM.
+- `bind:` routes through the core controllable-state primitive; a bindable prop that mutates
+  locally while the owner controls it is a state-ownership defect.
+- Clean up DOM controllers in `$effect` teardown; `onMount` only for prop-independent setup.
+- No `svelte/transition` or `svelte/animate` duplicating a core anime.js effect.
+- Preserve Svelte naming: `Xxx.svelte`, colocated `xxx.spec.ts`, callback props under contract
+  names, `class` for the customization prop. See
+  [svelte-conventions.md](../../references/svelte-conventions.md).
+- Require `svelte-check` on touched files because vitest does not type templates.
 
 ## Debt and naming
 

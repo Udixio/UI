@@ -8,12 +8,16 @@ that proves the change, then run integration gates for cross-package work.
 1. Core pure behavior and DOM-controller unit tests.
 2. React behavior tests and touched-file TypeScript diagnostics.
 3. Angular behavior tests and Angular package compilation.
-4. Equivalent controlled/uncontrolled, blocked, ARIA, keyboard, pointer, reduced-motion, and
-   cleanup scenarios where applicable.
-5. Documentation generation and a clean generated-API diff when docs, TSDoc, examples, exports, or
+4. Svelte behavior tests, `svelte-check` diagnostics, and Svelte package build.
+5. Equivalent controlled/uncontrolled, blocked, ARIA, keyboard, pointer, reduced-motion, and
+   cleanup scenarios in every adapter that ships the component, where applicable.
+6. Documentation generation and a clean generated-API diff when docs, TSDoc, examples, exports, or
    public APIs change.
-6. Documentation build and a rendered-page check for each available framework, including API tags.
-7. Formatting and `git diff --check`.
+7. Documentation build and a rendered-page check for each available framework, including API tags.
+8. Formatting and `git diff --check`.
+
+Gates 3 and 4 apply to an adapter only when the package ships the component. A missing adapter
+is reported as a `blocker` finding, never as a skipped gate.
 
 Typical commands in this repository include:
 
@@ -21,9 +25,12 @@ Typical commands in this repository include:
 pnpm nx test @udixio/core
 pnpm nx test @udixio/ui-react
 pnpm nx test ui-angular
+pnpm nx test ui-svelte
 pnpm nx build @udixio/core
 pnpm nx build @udixio/ui-react
 pnpm nx build ui-angular
+pnpm nx build ui-svelte
+pnpm nx typecheck ui-svelte
 pnpm --dir apps/doc docgen
 pnpm --dir apps/doc docgen:check
 python3 plugins/udixio-ui-governance/scripts/validate_api_docs.py --component <component>
@@ -40,7 +47,7 @@ changes are not misattributed. Never discard changes to manufacture a pass.
 For documentation/API changes, also verify deterministically that every generated file is valid
 JSON, its declared available frameworks have non-empty corresponding payloads, and no duplicate
 public member name exists within one framework member kind. Then exercise the built API route for
-React and Angular where available and confirm that `@devx`, `@a11y`, and `@limitations` are visible,
+every framework whose payload exists and confirm that `@devx`, `@a11y`, and `@limitations` are visible,
 not merely present in JSON. The browser/render check is required because extraction and rendering
 are separate failure domains.
 
@@ -56,20 +63,20 @@ arguments. Run `validate_api_docs.py --all` as an explicit repository-wide debt 
 components have migrated to complete TSDoc, findings from `--all` remain visible and actionable but
 do not block an unrelated component repair; never use that policy to waive a touched component.
 
-Before changing a public contract and after implementation, compare the core interfaces plus React
-and Angular declarations with an explicit release or branch baseline. Review each name, type,
+Before changing a public contract and after implementation, compare the core interfaces plus every
+adapter's declarations with an explicit release or branch baseline. Review each name, type,
 default, alias, event, slot, and semantic behavior. Any delta blocks an unreviewed sync: classify API
 maturity, explain the delta, and obtain authorization for stable breaking changes. Generated API
 artifacts validate documentation extraction only; they do not prove source-contract quality.
 
-Do not launch dependent Nx builds concurrently when they share output directories. If the full
-React typecheck contains known unrelated failures, capture the complete result, isolate diagnostics
+Do not launch dependent Nx builds concurrently when they share output directories. If a full
+package typecheck contains known unrelated failures, capture the complete result, isolate diagnostics
 for touched files, and never describe the full gate as passing.
 
 ## Definition of done
 
 - A test reproduces every repaired behavior defect.
-- Both adapters cover the same semantic scenario matrix.
+- Every shipped adapter covers the same semantic scenario matrix.
 - Public exports and package entry points resolve.
 - Public TSDoc claims are supported by code/tests, generated data is fresh, and every non-empty API
   framework payload is reachable through the shared framework preference.

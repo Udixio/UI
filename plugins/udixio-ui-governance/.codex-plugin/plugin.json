@@ -1,7 +1,7 @@
 {
   "name": "udixio-ui-governance",
-  "version": "0.3.0+codex.20260911164621",
-  "description": "Audit, synchronize, and create Udixio UI components across React, Angular, core behavior, accessibility, and documentation.",
+  "version": "0.4.0",
+  "description": "Audit, synchronize, and create Udixio UI components across React, Angular, Svelte, core behavior, accessibility, and documentation.",
   "author": {
     "name": "Udixio"
   },
@@ -13,13 +13,14 @@
     "component-governance",
     "material-design",
     "multiframework",
-    "react"
+    "react",
+    "svelte"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Udixio UI Governance",
-    "shortDescription": "Govern React and Angular components without drift.",
-    "longDescription": "Audits long-lived public API design, component quality, accessibility, shared contracts, React-Angular parity, tests, and documentation. It proposes durable contracts before repair or synchronization and can create complete Material 3 components.",
+    "shortDescription": "Govern React, Angular and Svelte components without drift.",
+    "longDescription": "Audits long-lived public API design, component quality, accessibility, shared contracts, React-Angular and React-Svelte parity, tests, and documentation. It proposes durable contracts before repair or synchronization and can create complete Material 3 components for all three adapters.",
     "developerName": "Udixio",
     "category": "Developer Tools",
     "capabilities": [
@@ -30,7 +31,8 @@
       "Audit Button end to end and fix every verified issue.",
       "Review a component public API and propose stable names before synchronization.",
       "Synchronize the Angular component from its React source.",
-      "Create a Material 3 component for React and Angular."
+      "Synchronize the Svelte component from its React source.",
+      "Create a Material 3 component for React, Angular and Svelte."
     ]
   }
 }

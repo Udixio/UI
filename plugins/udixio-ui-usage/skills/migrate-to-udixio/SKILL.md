@@ -1,6 +1,6 @@
 ---
 name: migrate-to-udixio
-description: Convert existing UI code — Material UI, Bootstrap, Ant Design, Chakra, hand-rolled Tailwind or plain HTML — over to Udixio UI components and theme tokens, discovering equivalents from the live component catalog rather than a fixed mapping table. Use to adopt Udixio UI in a project that already has its own UI, to replace a component library screen by screen, or to move hardcoded colors and typography onto theme tokens. Not for converting Udixio's own React components to Angular.
+description: Convert existing UI code — Material UI, Bootstrap, Ant Design, Chakra, hand-rolled Tailwind or plain HTML — over to Udixio UI components and theme tokens, discovering equivalents from the live component catalog rather than a fixed mapping table. Use to adopt Udixio UI in a project that already has its own UI, to replace a component library screen by screen, or to move hardcoded colors and typography onto theme tokens. Not for converting Udixio's own React components to Angular or Svelte.
 ---
 
 # Migrate existing UI to Udixio UI
@@ -9,8 +9,8 @@ Migration is incremental and verifiable. Convert one screen or component at a ti
 
 ## Confirm the target is ready
 
-1. Detect the target framework and check whether `@udixio/ui-react` or `@udixio/ui-angular` is already installed, along with `@udixio/theme` and `@udixio/tailwind`.
-2. If the theme build step isn't wired yet, set it up first — a converted component renders unstyled without it. Fetch the setup walkthrough for the detected framework: `https://ui.udixio.fr/get-started/react.md` or `https://ui.udixio.fr/get-started/angular.md`. The two differ substantially; don't assume React's steps apply to Angular.
+1. Detect the target framework and check whether `@udixio/ui-react`, `@udixio/ui-angular` or `@udixio/ui-svelte` is already installed, along with `@udixio/theme` and `@udixio/tailwind`.
+2. If the theme build step isn't wired yet, set it up first — a converted component renders unstyled without it. Fetch the setup walkthrough for the detected framework: `https://ui.udixio.fr/get-started/react.md`, `https://ui.udixio.fr/get-started/angular.md` or `https://ui.udixio.fr/get-started/svelte.md`. They differ substantially; don't assume React's steps apply to the others.
 3. Agree with the user on the migration scope before editing: which screen, which components, in what order.
 
 ## Discover equivalents from the live catalog
@@ -30,7 +30,7 @@ Say so and leave the original in place. A partial migration that keeps a few for
 
 Map deliberately, not mechanically:
 
-- **State** — the source's controlled/uncontrolled model onto Udixio's (`value`/`onValueChange`/`defaultValue`, or the Angular `[(value)]` equivalent). These rarely line up one to one.
+- **State** — the source's controlled/uncontrolled model onto Udixio's (`value`/`onValueChange`/`defaultValue`, or the Angular `[(value)]` / Svelte `bind:value` equivalents). These rarely line up one to one.
 - **Events** — a renamed callback is not an optional detail; find the real one in the typing.
 - **Accessibility** — carry over every label, `aria-*` attribute and keyboard behavior. Check the target's `@a11y` tag: Udixio components often require an accessible name the source library supplied implicitly.
 - **Form integration** — validation, submission and dirty-state wiring must keep working.
@@ -43,7 +43,8 @@ Replace hardcoded colors, font sizes and radii with theme tokens (`bg-primary`, 
 ## Apply framework conventions
 
 Load [react-conventions.md](../../references/react-conventions.md) or
-[angular-conventions.md](../../references/angular-conventions.md) before writing the converted code.
+[angular-conventions.md](../../references/angular-conventions.md) or
+[svelte-conventions.md](../../references/svelte-conventions.md) before writing the converted code.
 
 ## Verify each step
 
