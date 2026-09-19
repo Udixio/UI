@@ -7,7 +7,7 @@ import {
   codeBodyClass,
   codePanelClass,
 } from '@/components/CodePreview';
-import type { ExampleFramework } from '@/stores/exampleFrameworkStore';
+import { EXAMPLE_FRAMEWORKS, type ExampleFramework } from '@/stores/exampleFrameworkStore';
 
 type Props = {
   codes?: Partial<Record<ExampleFramework, string>>;
@@ -28,12 +28,12 @@ const {
   ...htmlProps
 } = Astro.props as Props;
 
-const frameworkLanguages: Record<ExampleFramework, 'tsx' | 'ts'> = {
+const frameworkLanguages: Record<ExampleFramework, 'tsx' | 'ts' | 'svelte'> = {
   react: 'tsx',
   angular: 'ts',
+  svelte: 'svelte',
 };
-const frameworkOrder: ExampleFramework[] = ['react', 'angular'];
-const frameworks = frameworkOrder.filter(
+const frameworks = EXAMPLE_FRAMEWORKS.filter(
   (framework) =>
     Astro.slots.has(framework) &&
     typeof codes?.[framework] === 'string' &&
@@ -130,6 +130,32 @@ const code = dataCode ?? codeFromSlot;
             <Code
               code={codes?.angular ?? ''}
               lang={frameworkLanguages.angular}
+              theme="css-variables"
+            />
+          </section>
+        </>
+      )}
+      {frameworks.includes('svelte') && (
+        <>
+          <section
+            data-example-panel
+            data-framework="svelte"
+            data-view="preview"
+            hidden={frameworks[0] !== 'svelte'}
+            class={`${codePreviewClass} ${center ? 'items-center justify-center' : 'items-start justify-start'}`}
+          >
+            <slot name="svelte" />
+          </section>
+          <section
+            data-example-panel
+            data-framework="svelte"
+            data-view="code"
+            hidden
+            class={codePanelClass}
+          >
+            <Code
+              code={codes?.svelte ?? ''}
+              lang={frameworkLanguages.svelte}
               theme="css-variables"
             />
           </section>

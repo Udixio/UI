@@ -7,6 +7,7 @@ import tailwindcss from '@tailwindcss/vite';
 import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
 import angular from '@analogjs/astro-angular';
+import svelte from '@astrojs/svelte';
 import { vitePlugin } from '@udixio/theme';
 
 import sitemap from '@astrojs/sitemap';
@@ -72,6 +73,9 @@ export default defineConfig({
         '@udixio/ui-angular': fileURLToPath(
           new URL('../../packages/ui-angular/src/index.ts', import.meta.url),
         ),
+        '@udixio/ui-svelte': fileURLToPath(
+          new URL('../../packages/ui-svelte/src/index.ts', import.meta.url),
+        ),
       },
     },
     optimizeDeps: {
@@ -110,6 +114,7 @@ export default defineConfig({
           id.includes('/packages/ui-angular/'),
       },
     }),
+    svelte(),
     mixedFrameworkJsxCompatibility,
     pagefind(),
     sitemap(),

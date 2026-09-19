@@ -32,6 +32,7 @@ type Props = SingleSourceProps | MultiFrameworkProps;
 const frameworkLabels: Record<ExampleFramework, string> = {
   react: 'React',
   angular: 'Angular',
+  svelte: 'Svelte',
 };
 
 // ─── Shared shell ─────────────────────────────────────────────────────────────

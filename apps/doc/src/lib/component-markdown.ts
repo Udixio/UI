@@ -1,11 +1,11 @@
 import type { CollectionEntry } from 'astro:content';
-import type { ExampleFramework } from '@/stores/exampleFrameworkStore';
+import { EXAMPLE_FRAMEWORKS, type ExampleFramework } from '@/stores/exampleFrameworkStore';
 
 type ApiData = CollectionEntry<'api'>['data'];
 type ApiTags = ApiData['frameworks']['react']['tags'];
 type ApiMember = ApiData['frameworks']['react']['props'][string];
 
-export const ALL_FRAMEWORKS: ExampleFramework[] = ['react', 'angular'];
+export const ALL_FRAMEWORKS: ExampleFramework[] = [...EXAMPLE_FRAMEWORKS];
 
 const TAG_LABELS: Array<[key: keyof ApiTags, label: string]> = [
   ['status', 'Status'],
@@ -42,6 +42,7 @@ const sourcesByExample = new Map(
 const FRAMEWORK_LABELS: Record<string, string> = {
   react: 'React',
   angular: 'Angular',
+  svelte: 'Svelte',
 };
 
 const RAW_IMPORT_RE = /^import\s+([A-Za-z_$][\w$]*)\s+from\s+['"]([^'"]+)\?raw['"]/;

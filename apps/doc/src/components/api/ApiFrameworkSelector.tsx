@@ -7,6 +7,7 @@ import {
 const LABELS: Record<ExampleFramework, string> = {
   react: 'React',
   angular: 'Angular',
+  svelte: 'Svelte',
 };
 
 export function ApiFrameworkSelector({

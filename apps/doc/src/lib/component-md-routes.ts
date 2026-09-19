@@ -1,5 +1,5 @@
 import type { CollectionEntry } from 'astro:content';
-import type { ExampleFramework } from '@/stores/exampleFrameworkStore';
+import { EXAMPLE_FRAMEWORKS, type ExampleFramework } from '@/stores/exampleFrameworkStore';
 
 type ApiData = CollectionEntry<'api'>['data'];
 
@@ -11,7 +11,7 @@ export type FrameworkVariant = {
 
 /** The frameworks a component actually ships; React is the guaranteed one. */
 export function availableFrameworks(api: ApiData): ExampleFramework[] {
-  return api.frameworks.angular ? ['react', 'angular'] : ['react'];
+  return EXAMPLE_FRAMEWORKS.filter((framework) => !!api.frameworks[framework]);
 }
 
 /**

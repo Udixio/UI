@@ -1,6 +1,9 @@
 import { atom } from 'nanostores';
 
-export type ExampleFramework = 'react' | 'angular';
+export type ExampleFramework = 'react' | 'angular' | 'svelte';
+
+/** Every framework the documentation can show, in display order. */
+export const EXAMPLE_FRAMEWORKS: readonly ExampleFramework[] = ['react', 'angular', 'svelte'];
 
 export const EXAMPLE_FRAMEWORK_STORAGE_KEY =
   'udixio:docs:preferred-example-framework';
@@ -10,7 +13,7 @@ export const preferredExampleFrameworkStore = atom<ExampleFramework>('react');
 let browserPreferenceInitialized = false;
 
 function isExampleFramework(value: unknown): value is ExampleFramework {
-  return value === 'react' || value === 'angular';
+  return (EXAMPLE_FRAMEWORKS as readonly unknown[]).includes(value);
 }
 
 function readStoredPreference(): ExampleFramework | undefined {

@@ -7,12 +7,15 @@ component and its raw source, then gives each available framework a named slot:
 import Code from '@/components/Code.astro';
 import ReactExample from '@/examples/react/example.tsx';
 import { AngularExample } from '@/examples/angular/example.ts';
+import SvelteExample from '@/examples/svelte/example.svelte';
 import reactSource from '@/examples/react/example.tsx?raw';
 import angularSource from '@/examples/angular/example.ts?raw';
+import svelteSource from '@/examples/svelte/example.svelte?raw';
 
-<Code codes={{ react: reactSource, angular: angularSource }}>
+<Code codes={{ react: reactSource, angular: angularSource, svelte: svelteSource }}>
   <ReactExample slot="react" client:load />
   <AngularExample slot="angular" client:load />
+  <SvelteExample slot="svelte" client:load />
 </Code>
 ```
 

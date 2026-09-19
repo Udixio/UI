@@ -5,6 +5,7 @@ import { ComponentNavigation } from '@/components/ComponentNavigation';
 import Layout from '@/layouts/layout.astro';
 import { Card } from '@udixio/ui-react';
 import { renderMarkdown } from '@/lib/markdown';
+import { EXAMPLE_FRAMEWORKS } from '@/stores/exampleFrameworkStore';
 import { ComponentDocumentationNotes } from '@/components/api/ComponentDocumentationNotes';
 import type { DocumentationNoteHtml } from '@/components/api/ComponentDocumentationNotes';
 
@@ -26,7 +27,7 @@ if (!componentApi) {
 const componentApiData = componentApi.data;
 
 const documentationHtml = Object.fromEntries(
-  (['react', 'angular'] as const).flatMap((framework) => {
+  EXAMPLE_FRAMEWORKS.flatMap((framework) => {
     const tags = componentApiData.frameworks[framework]?.tags;
     if (!tags) return [];
 

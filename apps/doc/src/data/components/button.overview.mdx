@@ -8,6 +8,12 @@ import ButtonToggleReact from '@/examples/react/button-toggle.tsx';
 import ButtonStatesReact from '@/examples/react/button-states.tsx';
 import ButtonIconsReact from '@/examples/react/button-icons.tsx';
 import ButtonActionsReact from '@/examples/react/button-actions.tsx';
+import ButtonVariantsSvelte from '@/examples/svelte/button-variants.svelte';
+import ButtonSizesSvelte from '@/examples/svelte/button-sizes.svelte';
+import ButtonToggleSvelte from '@/examples/svelte/button-toggle.svelte';
+import ButtonStatesSvelte from '@/examples/svelte/button-states.svelte';
+import ButtonIconsSvelte from '@/examples/svelte/button-icons.svelte';
+import ButtonActionsSvelte from '@/examples/svelte/button-actions.svelte';
 import { ButtonVariantsAngular } from '@/examples/angular/button-variants.ts';
 import { ButtonSizesAngular } from '@/examples/angular/button-sizes.ts';
 import { ButtonToggleAngular } from '@/examples/angular/button-toggle.ts';
@@ -20,6 +26,12 @@ import buttonToggleReactSource from '@/examples/react/button-toggle.tsx?raw';
 import buttonStatesReactSource from '@/examples/react/button-states.tsx?raw';
 import buttonIconsReactSource from '@/examples/react/button-icons.tsx?raw';
 import buttonActionsReactSource from '@/examples/react/button-actions.tsx?raw';
+import buttonVariantsSvelteSource from '@/examples/svelte/button-variants.svelte?raw';
+import buttonSizesSvelteSource from '@/examples/svelte/button-sizes.svelte?raw';
+import buttonToggleSvelteSource from '@/examples/svelte/button-toggle.svelte?raw';
+import buttonStatesSvelteSource from '@/examples/svelte/button-states.svelte?raw';
+import buttonIconsSvelteSource from '@/examples/svelte/button-icons.svelte?raw';
+import buttonActionsSvelteSource from '@/examples/svelte/button-actions.svelte?raw';
 import buttonVariantsAngularSource from '@/examples/angular/button-variants.ts?raw';
 import buttonSizesAngularSource from '@/examples/angular/button-sizes.ts?raw';
 import buttonToggleAngularSource from '@/examples/angular/button-toggle.ts?raw';
@@ -30,10 +42,11 @@ import buttonActionsAngularSource from '@/examples/angular/button-actions.ts?raw
 ## Usage
 
 Button triggers an action or navigates to a destination. Import `Button` from
-`@udixio/ui-react` or `@udixio/ui-angular`. Provide visible text with React
-children, Angular projected content, or the shared `label` property. React
-accepts exactly one of `label` and `children`, which keeps the visible and
-accessible labels from contradicting each other.
+`@udixio/ui-react`, `@udixio/ui-angular` or `@udixio/ui-svelte`. Provide visible
+text with React children, Angular projected content, a Svelte `children`
+snippet, or the shared `label` property. React accepts exactly one of `label`
+and `children`, which keeps the visible and accessible labels from contradicting
+each other.
 
 Action buttons render a native `<button>` and default to `type="button"`.
 Providing `href` renders a native `<a>` instead.
@@ -48,27 +61,33 @@ and `tonal`.
   codes={{
     react: buttonVariantsReactSource,
     angular: buttonVariantsAngularSource,
+    svelte: buttonVariantsSvelteSource,
   }}
 >
   <ButtonVariantsReact slot="react" client:load />
   <ButtonVariantsAngular slot="angular" client:load />
+  <ButtonVariantsSvelte slot="svelte" client:load />
 </Code>
 
 ## Toggle buttons
 
 `toggleable` enables toggle-button semantics. `pressed` is the controlled value;
 `defaultPressed` is captured once for uncontrolled usage. React emits
-`onPressedChange` and Angular emits `pressedChange`. `onClick` and `(click)`
-remain independent action events.
+`onPressedChange`, Angular emits `pressedChange`, and Svelte exposes
+`bind:pressed` next to `onPressedChange` — reject a change with a function
+binding whose setter decides. `onClick`, `(click)` and `onclick` remain
+independent action events.
 
 <Code
   codes={{
     react: buttonToggleReactSource,
     angular: buttonToggleAngularSource,
+    svelte: buttonToggleSvelteSource,
   }}
 >
   <ButtonToggleReact slot="react" client:load />
   <ButtonToggleAngular slot="angular" client:load />
+  <ButtonToggleSvelte slot="svelte" client:load />
 </Code>
 
 The visible label stays stable while `aria-pressed` communicates the state.
@@ -81,10 +100,15 @@ Sizes range from `xSmall` to `xLarge`. Every size includes a 48px pointer target
 including compact visual treatments.
 
 <Code
-  codes={{ react: buttonSizesReactSource, angular: buttonSizesAngularSource }}
+  codes={{
+    react: buttonSizesReactSource,
+    angular: buttonSizesAngularSource,
+    svelte: buttonSizesSvelteSource,
+  }}
 >
   <ButtonSizesReact slot="react" client:load />
   <ButtonSizesAngular slot="angular" client:load />
+  <ButtonSizesSvelte slot="svelte" client:load />
 </Code>
 
 ## States and shapes
@@ -94,14 +118,19 @@ sets `aria-busy` while keeping the label available as the accessible name.
 `shape` selects the rounded or squared resting shape.
 
 <Code
-  codes={{ react: buttonStatesReactSource, angular: buttonStatesAngularSource }}
+  codes={{
+    react: buttonStatesReactSource,
+    angular: buttonStatesAngularSource,
+    svelte: buttonStatesSvelteSource,
+  }}
 >
   <ButtonStatesReact slot="react" client:load />
   <ButtonStatesAngular slot="angular" client:load />
+  <ButtonStatesSvelte slot="svelte" client:load />
 </Code>
 
 By default, the shared Motion controller transforms the button shape on press.
-Set `shapeFeedback="none"` in React or Angular to keep a static shape, or pass a
+Set `shapeFeedback="none"` in any framework to keep a static shape, or pass a
 Motion `transition` to customize the `morph` feedback. Reduced-motion
 preferences keep the feedback but remove the movement.
 
@@ -116,27 +145,36 @@ the page direction in RTL layouts. The historical `left` and `right` aliases
 remain supported. Button icons are decorative; the text label names the action.
 
 <Code
-  codes={{ react: buttonIconsReactSource, angular: buttonIconsAngularSource }}
+  codes={{
+    react: buttonIconsReactSource,
+    angular: buttonIconsAngularSource,
+    svelte: buttonIconsSvelteSource,
+  }}
 >
   <ButtonIconsReact slot="react" client:load />
   <ButtonIconsAngular slot="angular" client:load />
+  <ButtonIconsSvelte slot="svelte" client:load />
 </Code>
 
 ## Link or action
 
 React forwards native button or anchor attributes. Angular exposes the common
 link attributes `target`, `rel`, `tabIndex`, `aria-label`, `aria-describedby`,
-and `aria-current` on the inner interactive element. A disabled or loading link
+and `aria-current` on the inner interactive element. Svelte spreads the
+attributes a button and a link share onto the root element, plus `target` and
+`rel`. A disabled or loading link
 has no `href`, receives `aria-disabled="true"`, and leaves the tab order.
 
 <Code
   codes={{
     react: buttonActionsReactSource,
     angular: buttonActionsAngularSource,
+    svelte: buttonActionsSvelteSource,
   }}
 >
   <ButtonActionsReact slot="react" client:load />
   <ButtonActionsAngular slot="angular" client:load />
+  <ButtonActionsSvelte slot="svelte" client:load />
 </Code>
 
 ## Accessibility
@@ -144,8 +182,8 @@ has no `href`, receives `aria-disabled="true"`, and leaves the tab order.
 Button relies on native button and link keyboard behavior. Toggle buttons expose
 `aria-pressed`; loading buttons expose `aria-busy`; and keyboard focus receives
 a visible two-pixel outline. Always provide a concise accessible name. When
-custom visual content has no accessible text, provide `aria-label` in both
-frameworks. Never provide a label that contradicts visible text.
+custom visual content has no accessible text, provide `aria-label` in every
+framework. Never provide a label that contradicts visible text.
 
 ## Migration to the next major
 
