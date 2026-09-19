@@ -27,3 +27,5 @@ export { default as Switch } from './lib/switch/Switch.svelte';
 export type { SvelteSwitchProps } from './lib/switch/switch.types';
 export { default as Slider } from './lib/slider/Slider.svelte';
 export type { SvelteSliderProps } from './lib/slider/slider.types';
+export { default as TextField } from './lib/text-field/TextField.svelte';
+export type { SvelteTextFieldProps } from './lib/text-field/text-field.types';

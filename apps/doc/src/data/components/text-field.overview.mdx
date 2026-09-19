@@ -4,46 +4,65 @@
 import Code from '@/components/Code.astro';
 import TextFieldVariantsReact from '@/examples/react/text-field-variants.tsx';
 import { TextFieldVariantsAngular } from '@/examples/angular/text-field-variants.ts';
+import TextFieldVariantsSvelte from '@/examples/svelte/text-field-variants.svelte';
 import TextFieldElementClassesReact from '@/examples/react/text-field-element-classes.tsx';
 import { TextFieldElementClassesAngular } from '@/examples/angular/text-field-element-classes.ts';
+import TextFieldElementClassesSvelte from '@/examples/svelte/text-field-element-classes.svelte';
 import TextFieldIconsReact from '@/examples/react/text-field-icons.tsx';
 import { TextFieldIconsAngular } from '@/examples/angular/text-field-icons.ts';
+import TextFieldIconsSvelte from '@/examples/svelte/text-field-icons.svelte';
 import TextFieldMultilineReact from '@/examples/react/text-field-multiline.tsx';
 import { TextFieldMultilineAngular } from '@/examples/angular/text-field-multiline.ts';
+import TextFieldMultilineSvelte from '@/examples/svelte/text-field-multiline.svelte';
 import TextFieldValidationReact from '@/examples/react/text-field-validation.tsx';
 import { TextFieldValidationAngular } from '@/examples/angular/text-field-validation.ts';
+import TextFieldValidationSvelte from '@/examples/svelte/text-field-validation.svelte';
 import TextFieldControlledReact from '@/examples/react/text-field-controlled.tsx';
 import { TextFieldControlledAngular } from '@/examples/angular/text-field-controlled.ts';
+import TextFieldControlledSvelte from '@/examples/svelte/text-field-controlled.svelte';
 import TextFieldSelectReact from '@/examples/react/text-field-select.tsx';
 import { TextFieldSelectAngular } from '@/examples/angular/text-field-select.ts';
+import TextFieldSelectSvelte from '@/examples/svelte/text-field-select.svelte';
 import TextFieldDateReact from '@/examples/react/text-field-date.tsx';
 import { TextFieldDateAngular } from '@/examples/angular/text-field-date.ts';
+import TextFieldDateSvelte from '@/examples/svelte/text-field-date.svelte';
 import TextFieldMaskReact from '@/examples/react/text-field-mask.tsx';
 import { TextFieldMaskAngular } from '@/examples/angular/text-field-mask.ts';
+import TextFieldMaskSvelte from '@/examples/svelte/text-field-mask.svelte';
 import textFieldVariantsReactSource from '@/examples/react/text-field-variants.tsx?raw';
 import textFieldVariantsAngularSource from '@/examples/angular/text-field-variants.ts?raw';
+import textFieldVariantsSvelteSource from '@/examples/svelte/text-field-variants.svelte?raw';
 import textFieldElementClassesReactSource from '@/examples/react/text-field-element-classes.tsx?raw';
 import textFieldElementClassesAngularSource from '@/examples/angular/text-field-element-classes.ts?raw';
+import textFieldElementClassesSvelteSource from '@/examples/svelte/text-field-element-classes.svelte?raw';
 import textFieldIconsReactSource from '@/examples/react/text-field-icons.tsx?raw';
 import textFieldIconsAngularSource from '@/examples/angular/text-field-icons.ts?raw';
+import textFieldIconsSvelteSource from '@/examples/svelte/text-field-icons.svelte?raw';
 import textFieldMultilineReactSource from '@/examples/react/text-field-multiline.tsx?raw';
 import textFieldMultilineAngularSource from '@/examples/angular/text-field-multiline.ts?raw';
+import textFieldMultilineSvelteSource from '@/examples/svelte/text-field-multiline.svelte?raw';
 import textFieldValidationReactSource from '@/examples/react/text-field-validation.tsx?raw';
 import textFieldValidationAngularSource from '@/examples/angular/text-field-validation.ts?raw';
+import textFieldValidationSvelteSource from '@/examples/svelte/text-field-validation.svelte?raw';
 import textFieldControlledReactSource from '@/examples/react/text-field-controlled.tsx?raw';
 import textFieldControlledAngularSource from '@/examples/angular/text-field-controlled.ts?raw';
+import textFieldControlledSvelteSource from '@/examples/svelte/text-field-controlled.svelte?raw';
 import textFieldSelectReactSource from '@/examples/react/text-field-select.tsx?raw';
 import textFieldSelectAngularSource from '@/examples/angular/text-field-select.ts?raw';
+import textFieldSelectSvelteSource from '@/examples/svelte/text-field-select.svelte?raw';
 import textFieldDateReactSource from '@/examples/react/text-field-date.tsx?raw';
 import textFieldDateAngularSource from '@/examples/angular/text-field-date.ts?raw';
+import textFieldDateSvelteSource from '@/examples/svelte/text-field-date.svelte?raw';
 import textFieldMaskReactSource from '@/examples/react/text-field-mask.tsx?raw';
 import textFieldMaskAngularSource from '@/examples/angular/text-field-mask.ts?raw';
+import textFieldMaskSvelteSource from '@/examples/svelte/text-field-mask.svelte?raw';
 
 ## Usage
 
 TextField lets users enter and edit text. It supports controlled (`value`)
 and uncontrolled (`defaultValue`) usage, and switches to a multiline
 textarea, a date picker, or a select menu depending on `multiline`/`type`.
+In Svelte, use `bind:value` for the bindable value surface.
 
 ## Variants
 
@@ -54,62 +73,71 @@ textarea, a date picker, or a select menu depending on `multiline`/`type`.
   codes={{
     react: textFieldVariantsReactSource,
     angular: textFieldVariantsAngularSource,
+    svelte: textFieldVariantsSvelteSource,
   }}
 >
   <TextFieldVariantsReact slot="react" client:load />
   <TextFieldVariantsAngular slot="angular" client:load />
+  <TextFieldVariantsSvelte slot="svelte" client:load />
 </Code>
 
 ## Styling the root and internal elements
 
 A string targets the root: `className` in React, the native `class` attribute in
-Angular. To reach an internal element (`input`, `label`, `supportingText`, …), pass
-an object keyed by element name — `className={{ … }}` in React, `[classes]="{ … }"`
-in Angular. A function receiving the resolved props and states is also accepted for
-the rare cases that depend on what only the component knows. Consumer classes are
-merged after the defaults with `tailwind-merge`, so `bg-*`, `text-*` and similar
-utilities override cleanly.
+Angular, or `class` in Svelte. To reach an internal element (`input`, `label`,
+`supportingText`, …), pass an object keyed by element name — `className={{ … }}` in
+React, `[classes]="{ … }"` in Angular, or `classes={{ … }}` in Svelte. A function
+receiving the resolved props and states is also accepted for the rare cases that
+depend on what only the component knows. Consumer classes are merged after the
+defaults with `tailwind-merge`, so `bg-*`, `text-*` and similar utilities override
+cleanly.
 
 <Code
   codes={{
     react: textFieldElementClassesReactSource,
     angular: textFieldElementClassesAngularSource,
+    svelte: textFieldElementClassesSvelteSource,
   }}
 >
   <TextFieldElementClassesReact slot="react" client:load />
   <TextFieldElementClassesAngular slot="angular" client:load />
+  <TextFieldElementClassesSvelte slot="svelte" client:load />
 </Code>
 
 ## Leading/trailing icon and suffix
 
 Use `leadingIcon`, `trailingIcon`, or `suffix` for extra affordances.
-Both are agnostic `Icon` data, rendered identically in both frameworks; there
+Both are agnostic `Icon` data, rendered identically in all three frameworks; there
 is no escape hatch for an arbitrary interactive node.
 
 <Code
   codes={{
     react: textFieldIconsReactSource,
     angular: textFieldIconsAngularSource,
+    svelte: textFieldIconsSvelteSource,
   }}
 >
   <TextFieldIconsReact slot="react" client:load />
   <TextFieldIconsAngular slot="angular" client:load />
+  <TextFieldIconsSvelte slot="svelte" client:load />
 </Code>
 
 ## Multi-line
 
 Set `multiline` for an auto-growing textarea. The auto-grow behavior is
-implemented once as a shared `@udixio/core/dom` controller, so both
+implemented once as a shared `@udixio/core/dom` controller, so all three
 adapters resize identically.
 
 <Code
   codes={{
     react: textFieldMultilineReactSource,
     angular: textFieldMultilineAngularSource,
+    svelte: textFieldMultilineSvelteSource,
   }}
 >
   <TextFieldMultilineReact slot="react" client:load />
   <TextFieldMultilineAngular slot="angular" client:load />
+  <TextFieldMultilineSvelte slot="svelte" client:load />
 </Code>
 
 ## Error and supporting text
@@ -120,57 +148,66 @@ Show validation and helper text with `errorText` and `supportingText`.
   codes={{
     react: textFieldValidationReactSource,
     angular: textFieldValidationAngularSource,
+    svelte: textFieldValidationSvelteSource,
   }}
 >
   <TextFieldValidationReact slot="react" client:load />
   <TextFieldValidationAngular slot="angular" client:load />
+  <TextFieldValidationSvelte slot="svelte" client:load />
 </Code>
 
 ## Controlled vs uncontrolled
 
-Use `value` with `onChange` in React, or `[(value)]` in Angular.
-`defaultValue` initializes uncontrolled usage.
+Use `value` with `onChange` in React, `[(value)]` in Angular, or `bind:value` in
+Svelte. `defaultValue` initializes uncontrolled usage.
 
 <Code
   codes={{
     react: textFieldControlledReactSource,
     angular: textFieldControlledAngularSource,
+    svelte: textFieldControlledSvelteSource,
   }}
 >
   <TextFieldControlledReact slot="react" client:load />
   <TextFieldControlledAngular slot="angular" client:load />
+  <TextFieldControlledSvelte slot="svelte" client:load />
 </Code>
 
 ## Select mode
 
 `type="select"` opens a menu of `options` instead of a native input. React
 additionally accepts projected `MenuItem` children in place of `options`;
-Angular only supports `options`.
+Angular and Svelte use `options`.
 
 <Code
   codes={{
     react: textFieldSelectReactSource,
     angular: textFieldSelectAngularSource,
+    svelte: textFieldSelectSvelteSource,
   }}
 >
   <TextFieldSelectReact slot="react" client:load />
   <TextFieldSelectAngular slot="angular" client:load />
+  <TextFieldSelectSvelte slot="svelte" client:load />
 </Code>
 
 ## Date mode
 
 `type="date"` opens a `DatePicker` popover and stores the selection as an
 ISO `YYYY-MM-DD` string. The field stays directly typable in that same
-format; only `select` mode is read-only.
+format; only `select` mode is read-only. Svelte owns the equivalent calendar
+surface inside `TextField` rather than exposing a separate `DatePicker` component.
 
 <Code
   codes={{
     react: textFieldDateReactSource,
     angular: textFieldDateAngularSource,
+    svelte: textFieldDateSvelteSource,
   }}
 >
   <TextFieldDateReact slot="react" client:load />
   <TextFieldDateAngular slot="angular" client:load />
+  <TextFieldDateSvelte slot="svelte" client:load />
 </Code>
 
 ## Custom mask
@@ -192,10 +229,12 @@ unless you strip it back out first.
   codes={{
     react: textFieldMaskReactSource,
     angular: textFieldMaskAngularSource,
+    svelte: textFieldMaskSvelteSource,
   }}
 >
   <TextFieldMaskReact slot="react" client:load />
   <TextFieldMaskAngular slot="angular" client:load />
+  <TextFieldMaskSvelte slot="svelte" client:load />
 </Code>
 
 ## Accessibility
@@ -203,4 +242,6 @@ unless you strip it back out first.
 `aria-describedby` links the supporting text/error row to the input, and
 `aria-invalid` reflects `errorText`. The date/select trailing icon renders as
 a real `<button>` so it stays reachable by keyboard, independent of the
-field's own click-to-open behavior.
+field's own click-to-open behavior. Svelte's select popup exposes
+`listbox`/`option` semantics and its calendar exposes the shared
+`grid`/`gridcell` structure.
