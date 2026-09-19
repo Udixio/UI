@@ -1,0 +1,29 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": "src",
+    "outDir": "dist",
+    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
+    "emitDeclarationOnly": true,
+    "forceConsistentCasingInFileNames": true,
+    "verbatimModuleSyntax": true,
+    "types": ["svelte", "node", "vite/client"],
+    "lib": ["es2022", "dom", "dom.iterable"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.svelte"],
+  "references": [
+    {
+      "path": "../core/tsconfig.lib.json"
+    },
+    {
+      "path": "../icons/icons-rounded-400/tsconfig.lib.json"
+    }
+  ],
+  "exclude": [
+    "vite.config.ts",
+    "src/**/*.spec.ts",
+    "src/**/*.fixture.svelte",
+    "src/tests/**"
+  ]
+}

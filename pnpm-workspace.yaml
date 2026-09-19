@@ -26,3 +26,6 @@ allowBuilds:
   msgpackr-extract: true
   nx: true
   unrs-resolver: true
+
+minimumReleaseAgeExclude:
+  - svelte@5.57.1

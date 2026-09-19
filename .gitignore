@@ -66,3 +66,6 @@ out-tsc
 
 # Claude Code worktrees
 .claude/worktrees/
+
+# svelte-package scratch
+.svelte-kit

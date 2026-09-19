@@ -1,0 +1,38 @@
+{
+  "name": "@udixio/ui-svelte",
+  "version": "0.1.0",
+  "type": "module",
+  "svelte": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.spec.*",
+    "!dist/tests"
+  ],
+  "sideEffects": false,
+  "peerDependencies": {
+    "@udixio/core": "0.2.2-next.9",
+    "svelte": "^5.46.4"
+  },
+  "devDependencies": {
+    "@types/jest-axe": "^3.5.9",
+    "jest-axe": "^10.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Udixio/UI.git"
+  },
+  "publishConfig": {
+    "provenance": true,
+    "access": "public"
+  },
+  "license": "Apache-2.0"
+}

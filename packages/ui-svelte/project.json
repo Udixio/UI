@@ -1,0 +1,48 @@
+{
+  "name": "ui-svelte",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/ui-svelte/src",
+  "projectType": "library",
+  "release": {
+    "version": {
+      "currentVersionResolver": "git-tag",
+      "fallbackCurrentVersionResolver": "disk"
+    }
+  },
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": [
+        "{projectRoot}/dist"
+      ],
+      "dependsOn": [
+        "^build"
+      ],
+      "options": {
+        "cwd": "packages/ui-svelte",
+        "command": "svelte-package -i src -o dist && cp ../../LICENSE dist/"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "packages/ui-svelte",
+        "command": "svelte-check --tsconfig ./tsconfig.lib.json --fail-on-warnings"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "outputs": [
+        "{projectRoot}/test-output/vitest/coverage"
+      ],
+      "options": {
+        "cwd": "packages/ui-svelte",
+        "command": "vitest run --config vite.config.ts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}
