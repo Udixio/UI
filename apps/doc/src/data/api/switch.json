@@ -197,6 +197,115 @@
           "defaultValue": null
         }
       }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/switch/Switch.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Input",
+        "devx": "- `checked` is bindable (`bind:checked`); `defaultChecked` initializes uncontrolled use. To\n  reject a change, bind with a function binding whose setter decides.\n- The thumb slide is driven by the shared `@udixio/core/dom` Anime.js tween controller, the same\n  controller used by React and Angular.",
+        "a11y": "- Renders `role=\"switch\"` with `aria-checked` and standard Space/Enter activation.",
+        "limitations": "- The component does not render a visible label; provide one with `aria-label` or\n  `aria-labelledby`."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes applied to the root element, merged with the component's own classes.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"icon\" | \"stateLayer\" | \"switch\" | \"handleContainer\" | \"handle\", string>> | ClassNameComponent<SwitchInterface>"
+          },
+          "defaultValue": null
+        },
+        "onCheckedChange": {
+          "name": "onCheckedChange",
+          "description": "Notifies an accepted checked-state request.",
+          "required": false,
+          "type": {
+            "name": "(checked: boolean) => void"
+          },
+          "defaultValue": null
+        },
+        "onclick": {
+          "name": "onclick",
+          "description": "Handles pointer activation after the state request.",
+          "required": false,
+          "type": {
+            "name": "(event: MouseEvent & { currentTarget: EventTarget & HTMLDivElement; }) => void"
+          },
+          "defaultValue": null
+        },
+        "onkeydown": {
+          "name": "onkeydown",
+          "description": "Handles keyboard input after Space/Enter activation has been processed.",
+          "required": false,
+          "type": {
+            "name": "(event: KeyboardEvent & { currentTarget: EventTarget & HTMLDivElement; }) => void"
+          },
+          "defaultValue": null
+        },
+        "checked": {
+          "name": "checked",
+          "description": "Controlled mode: explicitly control whether the switch is on.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null,
+          "bindable": true
+        },
+        "defaultChecked": {
+          "name": "defaultChecked",
+          "description": "Uncontrolled mode: initial checked state.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "activeIcon": {
+          "name": "activeIcon",
+          "description": "Icon shown inside the thumb while checked.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "inactiveIcon": {
+          "name": "inactiveIcon",
+          "description": "Icon shown inside the thumb while unchecked.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Prevents interaction.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        }
+      }
     }
   }
 }

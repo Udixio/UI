@@ -6,10 +6,14 @@ import SwitchStatesReact from '@/examples/react/switch-states.tsx';
 import { SwitchStatesAngular } from '@/examples/angular/switch-states.ts';
 import SwitchIconsReact from '@/examples/react/switch-icons.tsx';
 import { SwitchIconsAngular } from '@/examples/angular/switch-icons.ts';
+import SwitchStatesSvelte from '@/examples/svelte/switch-states.svelte';
+import SwitchIconsSvelte from '@/examples/svelte/switch-icons.svelte';
 import switchStatesReactSource from '@/examples/react/switch-states.tsx?raw';
 import switchStatesAngularSource from '@/examples/angular/switch-states.ts?raw';
 import switchIconsReactSource from '@/examples/react/switch-icons.tsx?raw';
 import switchIconsAngularSource from '@/examples/angular/switch-icons.ts?raw';
+import switchStatesSvelteSource from '@/examples/svelte/switch-states.svelte?raw';
+import switchIconsSvelteSource from '@/examples/svelte/switch-icons.svelte?raw';
 
 ## Usage
 
@@ -19,7 +23,8 @@ native form control, so associate an accessible name with `aria-label` or
 
 ## Checked and disabled states
 
-Use `checked` with `onCheckedChange` in React, or `[(checked)]` in Angular.
+Use `checked` with `onCheckedChange` in React, `[(checked)]` in Angular, or
+`bind:checked` in Svelte.
 `defaultChecked` captures the initial uncontrolled state. A controlled switch
 emits a request but does not change until its owner supplies the new value.
 Use `disabled` to prevent interaction.
@@ -28,26 +33,30 @@ Use `disabled` to prevent interaction.
   codes={{
     react: switchStatesReactSource,
     angular: switchStatesAngularSource,
+    svelte: switchStatesSvelteSource,
   }}
 >
   <SwitchStatesReact slot="react" client:load />
   <SwitchStatesAngular slot="angular" client:load />
+  <SwitchStatesSvelte slot="svelte" client:load />
 </Code>
 
 ## With icons
 
 Provide `activeIcon` and/or `inactiveIcon` to display inside the thumb. The
-thumb slide between positions is driven by a shared `@udixio/core/dom` Motion
-controller, so React and Angular animate identically.
+thumb slide between positions is driven by a shared `@udixio/core/dom` controller,
+so React, Angular and Svelte animate identically.
 
 <Code
   codes={{
     react: switchIconsReactSource,
     angular: switchIconsAngularSource,
+    svelte: switchIconsSvelteSource,
   }}
 >
   <SwitchIconsReact slot="react" client:load />
   <SwitchIconsAngular slot="angular" client:load />
+  <SwitchIconsSvelte slot="svelte" client:load />
 </Code>
 
 ## Accessibility

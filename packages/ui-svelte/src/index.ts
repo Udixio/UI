@@ -23,3 +23,5 @@ export { tooltip } from './lib/tooltip/tooltip.attachment.svelte';
 export type { SvelteTooltipProps, TooltipButtonAction } from './lib/tooltip/tooltip.types';
 export { default as StateLayer } from './lib/state-layer/StateLayer.svelte';
 export type { SvelteStateLayerProps } from './lib/state-layer/state-layer.types';
+export { default as Switch } from './lib/switch/Switch.svelte';
+export type { SvelteSwitchProps } from './lib/switch/switch.types';
