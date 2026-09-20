@@ -1,3 +1,20 @@
+## 5.1.0-next.13 (2026-09-20)
+
+### 🚀 Features
+
+- **ui-svelte:** add Slider ([27a76e61](https://github.com/Udixio/UI/commit/27a76e61))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 5.0.1-next.8
+- Updated @udixio/theme to 5.0.1-next.8
+- Updated @udixio/core to 0.2.2-next.10
+- Updated @udixio/icons-rounded-400 to 0.2.2-next.4
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 5.1.0-next.11 (2026-09-18)
 
 ### 🧱 Updated Dependencies

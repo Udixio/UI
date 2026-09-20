@@ -1,6 +1,6 @@
 {
   "name": "@udixio/ui-svelte",
-  "version": "0.1.0",
+  "version": "0.1.1-next.0",
   "type": "module",
   "svelte": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -19,13 +19,13 @@
   ],
   "sideEffects": false,
   "peerDependencies": {
-    "@udixio/core": "0.2.2-next.9",
+    "@udixio/core": "0.2.2-next.10",
     "svelte": "^5.46.4"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.0.0",
     "@types/jest-axe": "^3.5.9",
-    "@udixio/icons-rounded-400": "0.2.2-next.3",
+    "@udixio/icons-rounded-400": "0.2.2-next.4",
     "jest-axe": "^10.0.0"
   },
   "repository": {
