@@ -38,6 +38,38 @@
         }
       },
       "outputs": {}
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/navigation-rail/NavigationRailSection.svelte",
+      "tags": {
+        "status": "beta",
+        "parent": "NavigationRail",
+        "devx": "Place the section between destination items to name the following group.",
+        "a11y": "The section label is non-interactive and remains outside the destination focus order.",
+        "limitations": "It does not alter selection or keyboard navigation."
+      },
+      "props": {
+        "label": {
+          "name": "label",
+          "description": "Visible grouping label.",
+          "required": true,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "class": {
+          "name": "class",
+          "description": "Classes merged onto the section root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        }
+      }
     }
   }
 }

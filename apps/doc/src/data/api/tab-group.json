@@ -98,6 +98,55 @@
           "description": "Default projected content."
         }
       }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/tabs/TabGroup.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Navigation",
+        "parent": "Tabs",
+        "devx": "Wrap `Tabs` and `TabPanels`; `selectedTab` is bindable and `defaultSelectedTab` seeds uncontrolled use.",
+        "a11y": "Renders no DOM element or ARIA role itself.",
+        "limitations": "No URL/hash syncing or persistence is built in."
+      },
+      "props": {
+        "selectedTab": {
+          "name": "selectedTab",
+          "description": "Controlled index of the selected tab.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null,
+          "bindable": true
+        },
+        "defaultSelectedTab": {
+          "name": "defaultSelectedTab",
+          "description": "Index selected on mount when the group is uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "0"
+          }
+        },
+        "onSelectedTabChange": {
+          "name": "onSelectedTabChange",
+          "description": "Notifies an accepted selected-tab transition.",
+          "required": false,
+          "type": {
+            "name": "(index: number | null) => void"
+          },
+          "defaultValue": null
+        }
+      },
+      "snippets": {
+        "children": {
+          "name": "children",
+          "description": "Default content."
+        }
+      }
     }
   }
 }

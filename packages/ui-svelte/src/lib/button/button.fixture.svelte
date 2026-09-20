@@ -22,7 +22,13 @@
     childrenAriaHidden?: boolean;
   } = $props();
 
-  let pressed = $state(initialPressed);
+  let pressed = $state(false);
+  let initialized = false;
+  $effect.pre(() => {
+    if (initialized) return;
+    pressed = initialPressed;
+    initialized = true;
+  });
   export const readPressed = () => pressed;
 </script>
 

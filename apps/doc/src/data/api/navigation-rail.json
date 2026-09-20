@@ -247,6 +247,163 @@
           "description": "Projected content matching `[footer]`."
         }
       }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/navigation-rail/NavigationRail.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Navigation",
+        "devx": "Project `NavigationRailItem`, `NavigationRailSection`, and optionally `fab`/`footer` snippets.\n`selectedItem` and `extended` are bindable; the corresponding defaults seed uncontrolled use.",
+        "a11y": "The menu toggle exposes its open/closed label; selected destinations expose `aria-current=\"page\"`.",
+        "limitations": "Keyboard roving navigation between destinations is not implemented."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes merged onto the rail root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "style": {
+          "name": "style",
+          "description": "Inline style merged onto the rail root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "classes": {
+          "name": "classes",
+          "description": "State-aware classes for the rail elements.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"header\" | \"navigationRail\" | \"menuIcon\" | \"segments\" | \"footer\", string>> | ClassNameComponent<NavigationRailInterface>"
+          },
+          "defaultValue": null
+        },
+        "selectedItem": {
+          "name": "selectedItem",
+          "description": "Controlled index of the selected item.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null,
+          "bindable": true
+        },
+        "defaultSelectedItem": {
+          "name": "defaultSelectedItem",
+          "description": "Initial selected item for uncontrolled use.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "null"
+          }
+        },
+        "extended": {
+          "name": "extended",
+          "description": "Controlled extended state of the rail.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null,
+          "bindable": true
+        },
+        "onSelectedItemChange": {
+          "name": "onSelectedItemChange",
+          "description": "Notifies an accepted selected-item transition.",
+          "required": false,
+          "type": {
+            "name": "(index: number | null) => void"
+          },
+          "defaultValue": null
+        },
+        "onItemSelected": {
+          "name": "onItemSelected",
+          "description": "Notifies activation of an already selected destination.",
+          "required": false,
+          "type": {
+            "name": "(event: { index: number; label?: string; icon?: Icon; }) => void"
+          },
+          "defaultValue": null
+        },
+        "onExtendedChange": {
+          "name": "onExtendedChange",
+          "description": "Notifies an accepted extended-state transition.",
+          "required": false,
+          "type": {
+            "name": "(extended: boolean) => void"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Visual density of the rail; `modal` is meant for a temporary overlay presentation.",
+          "required": false,
+          "type": {
+            "name": "\"standard\" | \"modal\""
+          },
+          "defaultValue": {
+            "value": "'standard'"
+          }
+        },
+        "defaultExtended": {
+          "name": "defaultExtended",
+          "description": "Initial extended state when uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "alignment": {
+          "name": "alignment",
+          "description": "Vertical distribution of items: `top`-anchored or `middle` of the rail.",
+          "required": false,
+          "type": {
+            "name": "\"top\" | \"middle\""
+          },
+          "defaultValue": {
+            "value": "'top'"
+          }
+        },
+        "menu": {
+          "name": "menu",
+          "description": "Icon and label shown by the menu toggle button in each extended/closed state.",
+          "required": false,
+          "type": {
+            "name": "{ closed: NavigationRailMenuState; opened: NavigationRailMenuState; }"
+          },
+          "defaultValue": {
+            "value": "DEFAULT_MENU"
+          }
+        }
+      },
+      "snippets": {
+        "children": {
+          "name": "children",
+          "description": "Default content."
+        },
+        "footer": {
+          "name": "footer",
+          "description": "Content rendered in the rail footer."
+        },
+        "fab": {
+          "name": "fab",
+          "description": "Content rendered above the rail destinations."
+        }
+      }
     }
   }
 }

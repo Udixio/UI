@@ -278,6 +278,158 @@
           "defaultValue": null
         }
       }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/menu/MenuItem.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Selection",
+        "parent": "menu",
+        "devx": "Use `selectionType`, `selected`, and `onSelectedChange` for selectable items.",
+        "a11y": "Resolves to menuitem, menuitemradio, menuitemcheckbox, or option from the parent Menu.",
+        "limitations": "Nested submenus require a separate popup composition."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes merged onto the item root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "classes": {
+          "name": "classes",
+          "description": "State-aware classes for the item and its state layer.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"stateLayer\" | \"leadingIcon\" | \"trailingIcon\" | \"menuItem\" | \"selectedItem\" | \"itemLabel\" | \"itemIcon\", string>> | ClassNameComponent<MenuItemInterface>"
+          },
+          "defaultValue": null
+        },
+        "href": {
+          "name": "href",
+          "description": "Optional navigation target; disabled links omit the native href.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "selected": {
+          "name": "selected",
+          "description": "Controlled selection state.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null,
+          "bindable": true
+        },
+        "onSelectedChange": {
+          "name": "onSelectedChange",
+          "description": "Notifies each accepted selection transition exactly once.",
+          "required": false,
+          "type": {
+            "name": "(selected: boolean) => void"
+          },
+          "defaultValue": null
+        },
+        "onclick": {
+          "name": "onclick",
+          "description": "Native activation handler.",
+          "required": false,
+          "type": {
+            "name": "(event: MouseEvent & { currentTarget: EventTarget & (HTMLButtonElement | HTMLAnchorElement); }) => void"
+          },
+          "defaultValue": null
+        },
+        "label": {
+          "name": "label",
+          "description": "Text label used when an adapter does not project custom content.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "value": {
+          "name": "value",
+          "description": "Stable application value emitted or consumed by a parent selection surface.",
+          "required": false,
+          "type": {
+            "name": "string | number"
+          },
+          "defaultValue": null
+        },
+        "leadingIcon": {
+          "name": "leadingIcon",
+          "description": "Optional icon displayed before the label.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "trailingIcon": {
+          "name": "trailingIcon",
+          "description": "Optional icon displayed after the label.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Prevents activation, selection changes, and keyboard focus.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Overrides the color treatment inherited from the parent Menu.",
+          "required": false,
+          "type": {
+            "name": "MenuVariant"
+          },
+          "defaultValue": null
+        },
+        "selectionType": {
+          "name": "selectionType",
+          "description": "Declares whether the item is an action, radio-like choice, or checkbox-like choice.",
+          "required": false,
+          "type": {
+            "name": "MenuItemSelectionType"
+          },
+          "defaultValue": null
+        },
+        "defaultSelected": {
+          "name": "defaultSelected",
+          "description": "Initial selection state when uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        }
+      },
+      "snippets": {
+        "children": {
+          "name": "children",
+          "description": "String or snippet content used instead of `label`."
+        }
+      }
     }
   }
 }

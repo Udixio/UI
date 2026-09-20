@@ -488,7 +488,7 @@
           "description": "Static or state-aware classes for the surface's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"container\" | \"content\" | \"toolTip\" | \"subHead\" | \"supportingText\" | \"actions\", string>> | ClassNameComponent<TooltipInterface>"
+            "name": "Partial<Record<\"container\" | \"content\" | \"actions\" | \"supportingText\" | \"toolTip\" | \"subHead\", string>> | ClassNameComponent<TooltipInterface>"
           },
           "defaultValue": null
         },

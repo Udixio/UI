@@ -2,42 +2,62 @@
 ---
 
 import Code from '@/components/Code.astro';
+import ChipBasicSvelte from '@/examples/svelte/chip-basic.svelte';
+import chipBasicSvelteSource from '@/examples/svelte/chip-basic.svelte?raw';
 import ChipBasicReact from '@/examples/react/chip-basic.tsx';
 import { ChipBasicAngular } from '@/examples/angular/chip-basic.ts';
 import chipBasicReactSource from '@/examples/react/chip-basic.tsx?raw';
 import chipBasicAngularSource from '@/examples/angular/chip-basic.ts?raw';
+import ChipAssistSvelte from '@/examples/svelte/chip-assist.svelte';
+import chipAssistSvelteSource from '@/examples/svelte/chip-assist.svelte?raw';
 import ChipAssistReact from '@/examples/react/chip-assist.tsx';
 import { ChipAssistAngular } from '@/examples/angular/chip-assist.ts';
 import chipAssistReactSource from '@/examples/react/chip-assist.tsx?raw';
 import chipAssistAngularSource from '@/examples/angular/chip-assist.ts?raw';
+import ChipStatesSvelte from '@/examples/svelte/chip-states.svelte';
+import chipStatesSvelteSource from '@/examples/svelte/chip-states.svelte?raw';
 import ChipStatesReact from '@/examples/react/chip-states.tsx';
 import { ChipStatesAngular } from '@/examples/angular/chip-states.ts';
 import chipStatesReactSource from '@/examples/react/chip-states.tsx?raw';
 import chipStatesAngularSource from '@/examples/angular/chip-states.ts?raw';
+import ChipSuggestionsSvelte from '@/examples/svelte/chip-suggestions.svelte';
+import chipSuggestionsSvelteSource from '@/examples/svelte/chip-suggestions.svelte?raw';
 import ChipSuggestionsReact from '@/examples/react/chip-suggestions.tsx';
 import { ChipSuggestionsAngular } from '@/examples/angular/chip-suggestions.ts';
 import chipSuggestionsReactSource from '@/examples/react/chip-suggestions.tsx?raw';
 import chipSuggestionsAngularSource from '@/examples/angular/chip-suggestions.ts?raw';
+import ChipInputSvelte from '@/examples/svelte/chip-input.svelte';
+import chipInputSvelteSource from '@/examples/svelte/chip-input.svelte?raw';
 import ChipInputReact from '@/examples/react/chip-input.tsx';
 import { ChipInputAngular } from '@/examples/angular/chip-input.ts';
 import chipInputReactSource from '@/examples/react/chip-input.tsx?raw';
 import chipInputAngularSource from '@/examples/angular/chip-input.ts?raw';
+import ChipIconSvelte from '@/examples/svelte/chip-icon.svelte';
+import chipIconSvelteSource from '@/examples/svelte/chip-icon.svelte?raw';
 import ChipIconReact from '@/examples/react/chip-icon.tsx';
 import { ChipIconAngular } from '@/examples/angular/chip-icon.ts';
 import chipIconReactSource from '@/examples/react/chip-icon.tsx?raw';
 import chipIconAngularSource from '@/examples/angular/chip-icon.ts?raw';
+import ChipActionsSvelte from '@/examples/svelte/chip-actions.svelte';
+import chipActionsSvelteSource from '@/examples/svelte/chip-actions.svelte?raw';
 import ChipActionsReact from '@/examples/react/chip-actions.tsx';
 import { ChipActionsAngular } from '@/examples/angular/chip-actions.ts';
 import chipActionsReactSource from '@/examples/react/chip-actions.tsx?raw';
 import chipActionsAngularSource from '@/examples/angular/chip-actions.ts?raw';
+import ChipDisabledSvelte from '@/examples/svelte/chip-disabled.svelte';
+import chipDisabledSvelteSource from '@/examples/svelte/chip-disabled.svelte?raw';
 import ChipDisabledReact from '@/examples/react/chip-disabled.tsx';
 import { ChipDisabledAngular } from '@/examples/angular/chip-disabled.ts';
 import chipDisabledReactSource from '@/examples/react/chip-disabled.tsx?raw';
 import chipDisabledAngularSource from '@/examples/angular/chip-disabled.ts?raw';
+import ChipsListSvelte from '@/examples/svelte/chips-list.svelte';
+import chipsListSvelteSource from '@/examples/svelte/chips-list.svelte?raw';
 import ChipsListReact from '@/examples/react/chips-list.tsx';
 import { ChipsListAngular } from '@/examples/angular/chips-list.ts';
 import chipsListReactSource from '@/examples/react/chips-list.tsx?raw';
 import chipsListAngularSource from '@/examples/angular/chips-list.ts?raw';
+import ChipEditingSvelte from '@/examples/svelte/chip-editing.svelte';
+import chipEditingSvelteSource from '@/examples/svelte/chip-editing.svelte?raw';
 import ChipEditingReact from '@/examples/react/chip-editing.tsx';
 import { ChipEditingAngular } from '@/examples/angular/chip-editing.ts';
 import chipEditingReactSource from '@/examples/react/chip-editing.tsx?raw';
@@ -68,13 +88,22 @@ Angular:
 import { Chip } from '@udixio/ui-angular';
 ```
 
+Svelte:
+
+```svelte
+import { Chip } from '@udixio/ui-svelte';
+```
+
 ## Minimal example
 
-The label is passed with `label` in both frameworks. React also accepts a string via `children`, a shortcut that does not exist in the Angular adapter.
+The label is passed with `label` in all adapters. React also accepts a string
+via `children`; Svelte accepts a `children` snippet, while Angular uses the
+label input.
 
-<Code codes={{ react: chipBasicReactSource, angular: chipBasicAngularSource }}>
+<Code codes={{ react: chipBasicReactSource, angular: chipBasicAngularSource, svelte: chipBasicSvelteSource }}>
   <ChipBasicReact slot="react" client:load />
   <ChipBasicAngular slot="angular" client:load />
+  <ChipBasicSvelte slot="svelte" client:load />
 </Code>
 
 ## Usage types
@@ -84,21 +113,25 @@ The label is passed with `label` in both frameworks. React also accepts a string
 An assist chip triggers an immediate action: open a view, copy some text, apply a temporary filter, etc.
 
 <Code
-  codes={{ react: chipAssistReactSource, angular: chipAssistAngularSource }}
+  codes={{ react: chipAssistReactSource, angular: chipAssistAngularSource, svelte: chipAssistSvelteSource }}
 >
   <ChipAssistReact slot="react" client:load />
   <ChipAssistAngular slot="angular" client:load />
+  <ChipAssistSvelte slot="svelte" client:load />
 </Code>
 
 ### Filter chip (selection)
 
-Make a chip selectable with `selected` and `onSelectedChange` in React, or `selected` and `selectedChange` in Angular. For self-contained state, initialize it with `defaultSelected`.
+Make a chip selectable with `selected` and `onSelectedChange` in React,
+`selected` and `selectedChange` in Angular, or `bind:selected` in Svelte. For
+self-contained state, initialize it with `defaultSelected`.
 
 <Code
-  codes={{ react: chipStatesReactSource, angular: chipStatesAngularSource }}
+  codes={{ react: chipStatesReactSource, angular: chipStatesAngularSource, svelte: chipStatesSvelteSource }}
 >
   <ChipStatesReact slot="react" client:load />
   <ChipStatesAngular slot="angular" client:load />
+  <ChipStatesSvelte slot="svelte" client:load />
 </Code>
 
 ### Suggestion chip (proposal)
@@ -109,28 +142,32 @@ Present contextual suggestions (quick replies, search filters). Keep labels shor
   codes={{
     react: chipSuggestionsReactSource,
     angular: chipSuggestionsAngularSource,
+    svelte: chipSuggestionsSvelteSource,
   }}
 >
   <ChipSuggestionsReact slot="react" client:load />
   <ChipSuggestionsAngular slot="angular" client:load />
+  <ChipSuggestionsSvelte slot="svelte" client:load />
 </Code>
 
 ### Input chip (entered value)
 
 Represents user input (e.g. tags). Adding and removing is handled by your application logic.
 
-<Code codes={{ react: chipInputReactSource, angular: chipInputAngularSource }}>
+<Code codes={{ react: chipInputReactSource, angular: chipInputAngularSource, svelte: chipInputSvelteSource }}>
   <ChipInputReact slot="react" client:load />
   <ChipInputAngular slot="angular" client:load />
+  <ChipInputSvelte slot="svelte" client:load />
 </Code>
 
 ## Icon
 
 You can display an icon from the Udixio catalog inside the chip. The Angular adapter does not require Font Awesome.
 
-<Code codes={{ react: chipIconReactSource, angular: chipIconAngularSource }}>
+<Code codes={{ react: chipIconReactSource, angular: chipIconAngularSource, svelte: chipIconSvelteSource }}>
   <ChipIconReact slot="react" client:load />
   <ChipIconAngular slot="angular" client:load />
+  <ChipIconSvelte slot="svelte" client:load />
 </Code>
 
 ## Link or action
@@ -138,10 +175,11 @@ You can display an icon from the Udixio catalog inside the chip. The Angular ada
 When `href` is provided, the component can behave as a link. Otherwise it acts as an interactive control (click/toggle).
 
 <Code
-  codes={{ react: chipActionsReactSource, angular: chipActionsAngularSource }}
+  codes={{ react: chipActionsReactSource, angular: chipActionsAngularSource, svelte: chipActionsSvelteSource }}
 >
   <ChipActionsReact slot="react" client:load />
   <ChipActionsAngular slot="angular" client:load />
+  <ChipActionsSvelte slot="svelte" client:load />
 </Code>
 
 ## States and accessibility
@@ -151,23 +189,27 @@ When `href` is provided, the component can behave as a link. Otherwise it acts a
 - Keep a touch target of at least 48 dp and sufficient contrast for the theme.
 
 <Code
-  codes={{ react: chipDisabledReactSource, angular: chipDisabledAngularSource }}
+  codes={{ react: chipDisabledReactSource, angular: chipDisabledAngularSource, svelte: chipDisabledSvelteSource }}
 >
   <ChipDisabledReact slot="react" client:load />
   <ChipDisabledAngular slot="angular" client:load />
+  <ChipDisabledSvelte slot="svelte" client:load />
 </Code>
 
 ## Chips (list)
 
-The `Chips` container component does not support a `children` mode. It only renders a list from `items` and notifies changes via `onItemsChange` in React or `itemsChange` in Angular.
+The `Chips` container component does not support a `children` mode. It only
+renders a list from `items` and notifies changes via `onItemsChange` in React,
+`itemsChange` in Angular, or `onItemsChange`/`bind:items` in Svelte.
 
 The detailed contracts remain available separately in the [`Chip`](/components/chip/api) and [`Chips`](/components/chips/api) API references.
 
 A stable application `id` is recommended, especially when items get reordered. Without an `id`, `Chips` keeps an internal identifier tied to the object in React and uses its position in Angular.
 
-<Code codes={{ react: chipsListReactSource, angular: chipsListAngularSource }}>
+<Code codes={{ react: chipsListReactSource, angular: chipsListAngularSource, svelte: chipsListSvelteSource }}>
   <ChipsListReact slot="react" client:load />
   <ChipsListAngular slot="angular" client:load />
+  <ChipsListSvelte slot="svelte" client:load />
 </Code>
 
 `selected` turns an item into a controlled filter. `removable` adds the remove action at the end of the chip. An item that declares neither capability stays a compact action. Use `scrollable` when horizontal scrolling is preferable to wrapping.
@@ -180,10 +222,11 @@ A stable application `id` is recommended, especially when items get reordered. W
 - The existing shortcuts remain: Enter/Space for selection, Backspace/Delete for `onRemove` when the chip is selected and not being edited.
 
 <Code
-  codes={{ react: chipEditingReactSource, angular: chipEditingAngularSource }}
+  codes={{ react: chipEditingReactSource, angular: chipEditingAngularSource, svelte: chipEditingSvelteSource }}
 >
   <ChipEditingReact slot="react" client:load />
   <ChipEditingAngular slot="angular" client:load />
+  <ChipEditingSvelte slot="svelte" client:load />
 </Code>
 
 In React, holding focus for one second also starts editing. This deferred trigger does not exist in Angular; double-click, F2 and Enter remain common to both adapters.

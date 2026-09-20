@@ -69,6 +69,45 @@
           "description": "Projected content matching `udx-tab-panel`."
         }
       }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/tabs/TabPanels.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Navigation",
+        "parent": "Tabs",
+        "devx": "Wrap `TabPanel` children in the same order as the parent `Tabs`.",
+        "a11y": "Provides the panel region's structural container without adding a competing role.",
+        "limitations": "It must be used inside a `TabGroup` to connect panels to tabs."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes merged onto the panels root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "classes": {
+          "name": "classes",
+          "description": "State-aware classes for the panels container.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"tabPanels\", string>> | ClassNameComponent<TabPanelsInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "snippets": {
+        "children": {
+          "name": "children",
+          "description": "Default content."
+        }
+      }
     }
   }
 }

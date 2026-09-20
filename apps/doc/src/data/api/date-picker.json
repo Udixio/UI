@@ -237,6 +237,137 @@
           "defaultValue": null
         }
       }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/date-picker/DatePicker.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Selection",
+        "devx": "`value` is bindable; `defaultValue` initializes uncontrolled use. Use `mode=\"range\"` with a `[Date | null, Date | null]` value.",
+        "a11y": "The day grid uses roving tabindex, keyboard day/month navigation, and `aria-disabled` for unavailable dates.",
+        "limitations": "The picker does not render an input or popup; compose it with TextField and your own surface."
+      },
+      "props": {
+        "mode": {
+          "name": "mode",
+          "description": "Selects one date.\nSelects a start/end date period.",
+          "required": false,
+          "type": {
+            "name": "\"single\" | \"range\""
+          },
+          "defaultValue": {
+            "value": "'single'"
+          }
+        },
+        "value": {
+          "name": "value",
+          "description": "The currently selected date.\nThe currently selected [start, end] period.",
+          "required": false,
+          "type": {
+            "name": "Date | DateRange"
+          },
+          "defaultValue": null,
+          "bindable": true
+        },
+        "defaultValue": {
+          "name": "defaultValue",
+          "description": "Default selected date for uncontrolled usage.\nDefault selected [start, end] period for uncontrolled usage.",
+          "required": false,
+          "type": {
+            "name": "Date | DateRange"
+          },
+          "defaultValue": {
+            "value": "null"
+          }
+        },
+        "minDate": {
+          "name": "minDate",
+          "description": "Minimum selectable date.",
+          "required": false,
+          "type": {
+            "name": "Date"
+          },
+          "defaultValue": null
+        },
+        "maxDate": {
+          "name": "maxDate",
+          "description": "Maximum selectable date.",
+          "required": false,
+          "type": {
+            "name": "Date"
+          },
+          "defaultValue": null
+        },
+        "shouldDisableDate": {
+          "name": "shouldDisableDate",
+          "description": "Disables specific dates.",
+          "required": false,
+          "type": {
+            "name": "(date: Date) => boolean"
+          },
+          "defaultValue": null
+        },
+        "locale": {
+          "name": "locale",
+          "description": "Locale for formatting dates.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "'default'"
+          }
+        },
+        "weekStartDay": {
+          "name": "weekStartDay",
+          "description": "First day of the week (0=Sunday, 1=Monday).",
+          "required": false,
+          "type": {
+            "name": "0 | 4 | 5 | 2 | 1 | 3 | 6"
+          },
+          "defaultValue": {
+            "value": "0"
+          }
+        },
+        "class": {
+          "name": "class",
+          "description": "Classes merged onto the date-picker root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "style": {
+          "name": "style",
+          "description": "Inline style merged onto the date-picker root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "classes": {
+          "name": "classes",
+          "description": "State-aware classes for the calendar elements.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"datePicker\" | \"header\" | \"monthNav\" | \"monthLabel\" | \"weekDays\" | \"weekDay\" | \"daysGrid\" | \"dayCell\" | \"dayButton\", string>> | ClassNameComponent<DatePickerInterface>"
+          },
+          "defaultValue": null
+        },
+        "onChange": {
+          "name": "onChange",
+          "description": "Called once for each accepted selection transition.",
+          "required": false,
+          "type": {
+            "name": "(value: DatePickerValue) => void"
+          },
+          "defaultValue": null
+        }
+      }
     }
   }
 }

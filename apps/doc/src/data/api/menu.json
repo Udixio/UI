@@ -160,6 +160,86 @@
           "description": "Default projected content."
         }
       }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/menu/Menu.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Selection",
+        "devx": "Use `purpose=\"actions\"` for commands and `purpose=\"selection\"` for options; set\n`initialFocus` when mounting inside a popup.",
+        "a11y": "Implements Arrow, Home, End, Escape, and type-ahead focus navigation.",
+        "limitations": "Nested submenus are not included; compose another popup from an item trigger."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes merged onto the menu root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "classes": {
+          "name": "classes",
+          "description": "State-aware classes for the menu surface and items.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"menu\", string>> | ClassNameComponent<MenuInterface>"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Visual color treatment shared by the menu family.",
+          "required": false,
+          "type": {
+            "name": "MenuVariant"
+          },
+          "defaultValue": {
+            "value": "'standard'"
+          }
+        },
+        "purpose": {
+          "name": "purpose",
+          "description": "Selects action-menu or option-list semantics.",
+          "required": false,
+          "type": {
+            "name": "MenuPurpose"
+          },
+          "defaultValue": {
+            "value": "'actions'"
+          }
+        },
+        "accessibleLabel": {
+          "name": "accessibleLabel",
+          "description": "Accessible name used when no external labelled-by relationship exists.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "initialFocus": {
+          "name": "initialFocus",
+          "description": "Focus target applied when the menu is mounted in a popup.",
+          "required": false,
+          "type": {
+            "name": "MenuInitialFocus"
+          },
+          "defaultValue": {
+            "value": "'none'"
+          }
+        }
+      },
+      "snippets": {
+        "children": {
+          "name": "children",
+          "description": "Content rendered inside the menu surface."
+        }
+      }
     }
   }
 }

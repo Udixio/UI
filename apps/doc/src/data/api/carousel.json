@@ -241,6 +241,154 @@
           "description": "Projected content matching `udx-carousel-item`."
         }
       }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/carousel/Carousel.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Layout",
+        "devx": "Render `CarouselItem` children; `index` is bindable and `defaultIndex` seeds uncontrolled use.",
+        "a11y": "The region and each slide expose carousel/slide role descriptions and roving tabindex.",
+        "limitations": "Only the hero layout is implemented; other variant names are reserved."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes merged onto the carousel root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "style": {
+          "name": "style",
+          "description": "Inline style merged onto the carousel root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "classes": {
+          "name": "classes",
+          "description": "State-aware classes for the carousel and its track.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"carousel\" | \"track\", string>> | ClassNameComponent<CarouselInterface>"
+          },
+          "defaultValue": null
+        },
+        "accessibleLabel": {
+          "name": "accessibleLabel",
+          "description": "Accessible name for the carousel region.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "index": {
+          "name": "index",
+          "description": "Index of the centered item. A value other than `undefined` makes the\ncarousel controlled: it becomes the single source of truth and user\ninteraction only notifies via `onIndexChange` instead of moving the\ncarousel locally.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null,
+          "bindable": true
+        },
+        "defaultIndex": {
+          "name": "defaultIndex",
+          "description": "Initial centered index for uncontrolled usage.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "0"
+          }
+        },
+        "onIndexChange": {
+          "name": "onIndexChange",
+          "description": "Called once for each accepted centered-index transition.",
+          "required": false,
+          "type": {
+            "name": "(index: number) => void"
+          },
+          "defaultValue": null
+        },
+        "onMetricsChange": {
+          "name": "onMetricsChange",
+          "description": "Receive live metrics to better control the carousel externally",
+          "required": false,
+          "type": {
+            "name": "(metrics: CarouselMetrics) => void"
+          },
+          "defaultValue": null
+        },
+        "onkeydown": {
+          "name": "onkeydown",
+          "description": "Native keydown handler for the carousel region.",
+          "required": false,
+          "type": {
+            "name": "(event: KeyboardEvent) => void"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Carousel layout variant. Only `hero` is implemented today; the other\nMaterial 3 arrangements are reserved and will be supported in the future.",
+          "required": false,
+          "type": {
+            "name": "\"hero\" | \"center-aligned\" | \"multi-browse\" | \"un-contained\" | \"full-screen\""
+          },
+          "defaultValue": {
+            "value": "'hero'"
+          }
+        },
+        "gap": {
+          "name": "gap",
+          "description": "Gap between items, in pixels.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "8"
+          }
+        },
+        "scrollSensitivity": {
+          "name": "scrollSensitivity",
+          "description": "Adjusts scroll/drag responsiveness.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "1.25"
+          }
+        },
+        "outputRange": {
+          "name": "outputRange",
+          "description": "Min/max item width, in pixels.",
+          "required": false,
+          "type": {
+            "name": "[number, number]"
+          },
+          "defaultValue": {
+            "value": "[42, 300]"
+          }
+        }
+      },
+      "snippets": {
+        "children": {
+          "name": "children",
+          "description": "Default content."
+        }
+      }
     }
   }
 }

@@ -2,6 +2,10 @@
 ---
 
 import Code from '@/components/Code.astro';
+import FabMenuActionsSvelte from '@/examples/svelte/fab-menu-actions.svelte';
+import FabMenuPrimarySvelte from '@/examples/svelte/fab-menu-primary.svelte';
+import FabMenuSecondarySvelte from '@/examples/svelte/fab-menu-secondary.svelte';
+import FabMenuTertiarySvelte from '@/examples/svelte/fab-menu-tertiary.svelte';
 import FabMenuActionsReact from '@/examples/react/fab-menu-actions.tsx';
 import { FabMenuActionsAngular } from '@/examples/angular/fab-menu-actions.ts';
 import FabMenuPrimaryReact from '@/examples/react/fab-menu-primary.tsx';
@@ -18,11 +22,15 @@ import fabMenuSecondaryReactSource from '@/examples/react/fab-menu-secondary.tsx
 import fabMenuSecondaryAngularSource from '@/examples/angular/fab-menu-secondary.ts?raw';
 import fabMenuTertiaryReactSource from '@/examples/react/fab-menu-tertiary.tsx?raw';
 import fabMenuTertiaryAngularSource from '@/examples/angular/fab-menu-tertiary.ts?raw';
+import fabMenuActionsSvelteSource from '@/examples/svelte/fab-menu-actions.svelte?raw';
+import fabMenuPrimarySvelteSource from '@/examples/svelte/fab-menu-primary.svelte?raw';
+import fabMenuSecondarySvelteSource from '@/examples/svelte/fab-menu-secondary.svelte?raw';
+import fabMenuTertiarySvelteSource from '@/examples/svelte/fab-menu-tertiary.svelte?raw';
 
 ## Usage
 
 `FabMenu` reveals a short group of related primary actions from one floating
-action button. Its `actions` model is shared by React and Angular. Use the
+action button. Its `actions` model is shared by React, Angular, and Svelte. Use the
 external control below to replay the opening and closing choreography; the
 status region makes controlled state and selection observable without opening
 the browser console.
@@ -31,10 +39,12 @@ the browser console.
   codes={{
     react: fabMenuActionsReactSource,
     angular: fabMenuActionsAngularSource,
+    svelte: fabMenuActionsSvelteSource,
   }}
 >
   <FabMenuActionsReact slot="react" client:load />
   <FabMenuActionsAngular slot="angular" client:load />
+  <FabMenuActionsSvelte slot="svelte" client:load />
 </Code>
 
 Open the menu with its trigger, then select an action or press Escape. Focus
@@ -49,10 +59,12 @@ This large trigger keeps five related actions immediately available.
   codes={{
     react: fabMenuPrimaryReactSource,
     angular: fabMenuPrimaryAngularSource,
+    svelte: fabMenuPrimarySvelteSource,
   }}
 >
   <FabMenuPrimaryReact slot="react" client:load />
   <FabMenuPrimaryAngular slot="angular" client:load />
+  <FabMenuPrimarySvelte slot="svelte" client:load />
 </Code>
 
 ## Secondary extended
@@ -64,10 +76,12 @@ label. Opening still contracts it to the medium close control.
   codes={{
     react: fabMenuSecondaryReactSource,
     angular: fabMenuSecondaryAngularSource,
+    svelte: fabMenuSecondarySvelteSource,
   }}
 >
   <FabMenuSecondaryReact slot="react" client:load />
   <FabMenuSecondaryAngular slot="angular" client:load />
+  <FabMenuSecondarySvelte slot="svelte" client:load />
 </Code>
 
 ## Tertiary
@@ -79,18 +93,21 @@ the same five-action choreography and large closed trigger.
   codes={{
     react: fabMenuTertiaryReactSource,
     angular: fabMenuTertiaryAngularSource,
+    svelte: fabMenuTertiarySvelteSource,
   }}
 >
   <FabMenuTertiaryReact slot="react" client:load />
   <FabMenuTertiaryAngular slot="angular" client:load />
+  <FabMenuTertiarySvelte slot="svelte" client:load />
 </Code>
 
 ## Controlled state and action events
 
-Use `open` with `onOpenChange` (React) or `openChange` (Angular) for controlled
-state. `defaultOpen` initializes uncontrolled state. Selection emits
+Use `open` with `onOpenChange` (React), `openChange` (Angular), or `bind:open`
+(Svelte) for controlled state. `defaultOpen` initializes uncontrolled state. Selection emits
 `onActionSelect(action, index)` in React and `actionSelect` with
-`{ action, index }` in Angular before closing.
+`{ action, index }` in Angular; Svelte receives `(action, index)` in
+`onActionSelect` before closing.
 
 Actions may be buttons or links and may include an icon or disabled state.
 
@@ -104,7 +121,7 @@ closed trigger keeps its layout footprint while the control remains anchored
 to its top-right corner. Its container also morphs from the container color to
 the selected color family; closing reverses these transitions.
 The choreography uses the framework-independent Motion JavaScript controller in
-`@udixio/core/dom`, so React and Angular share the same timing, interruption,
+`@udixio/core/dom`, so React, Angular, and Svelte share the same timing, interruption,
 cleanup, and reduced-motion behavior. No `motion/react` adapter is required.
 
 ## Accessibility and interaction

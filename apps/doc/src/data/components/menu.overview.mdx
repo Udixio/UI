@@ -2,6 +2,12 @@
 ---
 
 import Code from '@/components/Code.astro';
+import MenuFamilySvelte from '@/examples/svelte/menu-family.svelte';
+import MenuVariantsSvelte from '@/examples/svelte/menu-variants.svelte';
+import MenuSelectionSvelte from '@/examples/svelte/menu-selection.svelte';
+import MenuLinksScrollSvelte from '@/examples/svelte/menu-links-scroll.svelte';
+import MenuSelectFieldSvelte from '@/examples/svelte/menu-select-field.svelte';
+import ContextMenuSvelte from '@/examples/svelte/context-menu.svelte';
 import MenuFamilyReact from '@/examples/react/menu-family.tsx';
 import { MenuFamilyAngular } from '@/examples/angular/menu-family.ts';
 import menuFamilyReactSource from '@/examples/react/menu-family.tsx?raw';
@@ -26,6 +32,12 @@ import ContextMenuReact from '@/examples/react/context-menu.tsx';
 import { ContextMenuAngular } from '@/examples/angular/context-menu.ts';
 import contextMenuReactSource from '@/examples/react/context-menu.tsx?raw';
 import contextMenuAngularSource from '@/examples/angular/context-menu.ts?raw';
+import menuFamilySvelteSource from '@/examples/svelte/menu-family.svelte?raw';
+import menuVariantsSvelteSource from '@/examples/svelte/menu-variants.svelte?raw';
+import menuSelectionSvelteSource from '@/examples/svelte/menu-selection.svelte?raw';
+import menuLinksScrollSvelteSource from '@/examples/svelte/menu-links-scroll.svelte?raw';
+import menuSelectFieldSvelteSource from '@/examples/svelte/menu-select-field.svelte?raw';
+import contextMenuSvelteSource from '@/examples/svelte/context-menu.svelte?raw';
 
 ## One family, one documentation
 
@@ -68,10 +80,12 @@ Use `purpose="selection"` for a list of options. The container becomes a
   codes={{
     react: menuFamilyReactSource,
     angular: menuFamilyAngularSource,
+    svelte: menuFamilySvelteSource,
   }}
 >
   <MenuFamilyReact slot="react" client:load />
   <MenuFamilyAngular slot="angular" client:load />
+  <MenuFamilySvelte slot="svelte" client:load />
 </Code>
 
 ## Variants, icons and states
@@ -88,10 +102,12 @@ When there is no `MenuGroup`, a `MenuHeadline` can be placed directly inside
   codes={{
     react: menuVariantsReactSource,
     angular: menuVariantsAngularSource,
+    svelte: menuVariantsSvelteSource,
   }}
 >
   <MenuVariantsReact slot="react" client:load />
   <MenuVariantsAngular slot="angular" client:load />
+  <MenuVariantsSvelte slot="svelte" client:load />
 </Code>
 
 ## Controlled and uncontrolled selection
@@ -102,6 +118,7 @@ A selectable item declares `selectionType="single"` or
 - In React, control it with `selected` and `onSelectedChange`.
 - In Angular, use `selected` and `selectedChange`, including with
   `[(selected)]`.
+- In Svelte, use `bind:selected` or `selected` with `onSelectedChange`.
 - `defaultSelected` initializes an uncontrolled item.
 - An already selected `single` item does not deselect itself; the group's
   owner picks the new value.
@@ -120,10 +137,12 @@ The following example brings both models together:
   codes={{
     react: menuSelectionReactSource,
     angular: menuSelectionAngularSource,
+    svelte: menuSelectionSvelteSource,
   }}
 >
   <MenuSelectionReact slot="react" client:load />
   <MenuSelectionAngular slot="angular" client:load />
+  <MenuSelectionSvelte slot="svelte" client:load />
 </Code>
 
 ## Links and scrollable content
@@ -137,10 +156,12 @@ navigation.
   codes={{
     react: menuLinksScrollReactSource,
     angular: menuLinksScrollAngularSource,
+    svelte: menuLinksScrollSvelteSource,
   }}
 >
   <MenuLinksScrollReact slot="react" client:load />
   <MenuLinksScrollAngular slot="angular" client:load />
+  <MenuLinksScrollSvelte slot="svelte" client:load />
 </Code>
 
 ## Menu exposed in a select field
@@ -152,15 +173,19 @@ adapters share this behavior; only the way options are declared differs:
 - in React, compose `MenuItem` children directly, or pass `options`;
 - in Angular, `options` is the only way to populate the menu: the adapter does
   not project custom `MenuItem`s.
+- in Svelte, `options` is also the select-field model; custom `MenuItem`
+  children are not projected by this mode.
 
 <Code
   codes={{
     react: menuSelectFieldReactSource,
     angular: menuSelectFieldAngularSource,
+    svelte: menuSelectFieldSvelteSource,
   }}
 >
   <MenuSelectFieldReact slot="react" client:load />
   <MenuSelectFieldAngular slot="angular" client:load />
+  <MenuSelectFieldSvelte slot="svelte" client:load />
 </Code>
 
 ## Context menu
@@ -173,10 +198,12 @@ focus to the trigger; an outside click or a scroll also closes it.
   codes={{
     react: contextMenuReactSource,
     angular: contextMenuAngularSource,
+    svelte: contextMenuSvelteSource,
   }}
 >
   <ContextMenuReact slot="react" client:load />
   <ContextMenuAngular slot="angular" client:load />
+  <ContextMenuSvelte slot="svelte" client:load />
 </Code>
 
 ## Keyboard navigation

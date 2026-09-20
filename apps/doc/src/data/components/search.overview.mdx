@@ -2,6 +2,15 @@
 ---
 
 import Code from '@/components/Code.astro';
+import SearchBasicSvelte from '@/examples/svelte/search-basic.svelte';
+import SearchCompositionSvelte from '@/examples/svelte/search-composition.svelte';
+import SearchUncontrolledSvelte from '@/examples/svelte/search-uncontrolled.svelte';
+import SearchStatesSvelte from '@/examples/svelte/search-states.svelte';
+import SearchIconsSvelte from '@/examples/svelte/search-icons.svelte';
+import SearchResultsSvelte from '@/examples/svelte/search-results.svelte';
+import SearchDialogSvelte from '@/examples/svelte/search-dialog.svelte';
+import SearchFormSvelte from '@/examples/svelte/search-form.svelte';
+import SearchAutofocusSvelte from '@/examples/svelte/search-autofocus.svelte';
 import SearchBasicReact from '@/examples/react/search-basic.tsx';
 import { SearchBasicAngular } from '@/examples/angular/search-basic.ts';
 import searchBasicReactSource from '@/examples/react/search-basic.tsx?raw';
@@ -38,6 +47,15 @@ import SearchAutofocusReact from '@/examples/react/search-autofocus.tsx';
 import { SearchAutofocusAngular } from '@/examples/angular/search-autofocus.ts';
 import searchAutofocusReactSource from '@/examples/react/search-autofocus.tsx?raw';
 import searchAutofocusAngularSource from '@/examples/angular/search-autofocus.ts?raw';
+import searchBasicSvelteSource from '@/examples/svelte/search-basic.svelte?raw';
+import searchCompositionSvelteSource from '@/examples/svelte/search-composition.svelte?raw';
+import searchUncontrolledSvelteSource from '@/examples/svelte/search-uncontrolled.svelte?raw';
+import searchStatesSvelteSource from '@/examples/svelte/search-states.svelte?raw';
+import searchIconsSvelteSource from '@/examples/svelte/search-icons.svelte?raw';
+import searchResultsSvelteSource from '@/examples/svelte/search-results.svelte?raw';
+import searchDialogSvelteSource from '@/examples/svelte/search-dialog.svelte?raw';
+import searchFormSvelteSource from '@/examples/svelte/search-form.svelte?raw';
+import searchAutofocusSvelteSource from '@/examples/svelte/search-autofocus.svelte?raw';
 
 ## Usage
 
@@ -57,10 +75,12 @@ remain in application code.
   codes={{
     react: searchBasicReactSource,
     angular: searchBasicAngularSource,
+    svelte: searchBasicSvelteSource,
   }}
 >
   <SearchBasicReact slot="react" client:load />
   <SearchBasicAngular slot="angular" client:load />
+  <SearchBasicSvelte slot="svelte" client:load />
 </Code>
 
 ## Material 3 anatomy
@@ -101,10 +121,12 @@ embedded in a modal side sheet.
   codes={{
     react: searchCompositionReactSource,
     angular: searchCompositionAngularSource,
+    svelte: searchCompositionSvelteSource,
   }}
 >
   <SearchCompositionReact slot="react" client:load />
   <SearchCompositionAngular slot="angular" client:load />
+  <SearchCompositionSvelte slot="svelte" client:load />
 </Code>
 
 ## Uncontrolled defaults
@@ -120,20 +142,25 @@ controlled component.
   codes={{
     react: searchUncontrolledReactSource,
     angular: searchUncontrolledAngularSource,
+    svelte: searchUncontrolledSvelteSource,
   }}
 >
   <SearchUncontrolledReact slot="react" client:load />
   <SearchUncontrolledAngular slot="angular" client:load />
+  <SearchUncontrolledSvelte slot="svelte" client:load />
 </Code>
 
 ## Controlled and uncontrolled state
 
-Use `query` with `onQueryChange` in React, or `[(query)]` in Angular, when the
+Use `query` with `onQueryChange` in React, `[(query)]` in Angular, or
+`bind:query` in Svelte, when the
 owning feature controls the query. `defaultQuery` initializes uncontrolled
 usage. The same pattern applies to `expanded`/`onExpandedChange` and
 `defaultExpanded`; those callbacks control only Search's local results
 visibility. If Search is inside a modal surface, control that surface with its
 own `open` API.
+
+Svelte renders projected results and trailing actions as snippets.
 
 `onSearch` (React) or `(searchSubmit)` (Angular) receives the current query when the
 user presses Enter or invokes the search action from an input method editor.
@@ -150,10 +177,12 @@ feature state.
   codes={{
     react: searchStatesReactSource,
     angular: searchStatesAngularSource,
+    svelte: searchStatesSvelteSource,
   }}
 >
   <SearchStatesReact slot="react" client:load />
   <SearchStatesAngular slot="angular" client:load />
+  <SearchStatesSvelte slot="svelte" client:load />
 </Code>
 
 ## Leading icon and trailing actions
@@ -181,10 +210,12 @@ the surrounding surface.
   codes={{
     react: searchIconsReactSource,
     angular: searchIconsAngularSource,
+    svelte: searchIconsSvelteSource,
   }}
 >
   <SearchIconsReact slot="react" client:load />
   <SearchIconsAngular slot="angular" client:load />
+  <SearchIconsSvelte slot="svelte" client:load />
 </Code>
 
 ## Results, empty, loading, and error states
@@ -206,10 +237,12 @@ Selectable results should use `role="option"`, `aria-selected`, and
   codes={{
     react: searchResultsReactSource,
     angular: searchResultsAngularSource,
+    svelte: searchResultsSvelteSource,
   }}
 >
   <SearchResultsReact slot="react" client:load />
   <SearchResultsAngular slot="angular" client:load />
+  <SearchResultsSvelte slot="svelte" client:load />
 </Code>
 
 ## Rich result content with `resultsRole="dialog"`
@@ -223,10 +256,12 @@ dialog content's focus order, keyboard behavior, and action semantics.
   codes={{
     react: searchDialogReactSource,
     angular: searchDialogAngularSource,
+    svelte: searchDialogSvelteSource,
   }}
 >
   <SearchDialogReact slot="react" client:load />
   <SearchDialogAngular slot="angular" client:load />
+  <SearchDialogSvelte slot="svelte" client:load />
 </Code>
 
 ## Native form integration and input attributes
@@ -241,10 +276,12 @@ button.
   codes={{
     react: searchFormReactSource,
     angular: searchFormAngularSource,
+    svelte: searchFormSvelteSource,
   }}
 >
   <SearchFormReact slot="react" client:load />
   <SearchFormAngular slot="angular" client:load />
+  <SearchFormSvelte slot="svelte" client:load />
 </Code>
 
 ## Auto-focus and focus events
@@ -261,10 +298,12 @@ behavior can be tested without stealing focus on page load.
   codes={{
     react: searchAutofocusReactSource,
     angular: searchAutofocusAngularSource,
+    svelte: searchAutofocusSvelteSource,
   }}
 >
   <SearchAutofocusReact slot="react" client:load />
   <SearchAutofocusAngular slot="angular" client:load />
+  <SearchAutofocusSvelte slot="svelte" client:load />
 </Code>
 
 ## Results and keyboard behavior

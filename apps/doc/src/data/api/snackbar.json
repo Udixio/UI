@@ -195,6 +195,115 @@
           "defaultValue": null
         }
       }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/snackbar/Snackbar.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Communication",
+        "devx": "`open` is bindable; `defaultOpen` initializes uncontrolled use. `duration` auto-dismisses in milliseconds.",
+        "a11y": "Renders a polite status live region and stays mounted while closed.",
+        "limitations": "Queueing and positioning multiple snackbars remain the caller's responsibility."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes merged onto the snackbar root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "style": {
+          "name": "style",
+          "description": "Inline style merged onto the snackbar root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "classes": {
+          "name": "classes",
+          "description": "State-aware classes for the snackbar elements.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"container\" | \"icon\" | \"snackbar\" | \"supportingText\", string>> | ClassNameComponent<SnackbarInterface>"
+          },
+          "defaultValue": null
+        },
+        "open": {
+          "name": "open",
+          "description": "Controlled open state.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null,
+          "bindable": true
+        },
+        "onOpenChange": {
+          "name": "onOpenChange",
+          "description": "Notifies an accepted open-state request.",
+          "required": false,
+          "type": {
+            "name": "(open: boolean) => void"
+          },
+          "defaultValue": null
+        },
+        "message": {
+          "name": "message",
+          "description": "Message announced through the snackbar.",
+          "required": true,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "defaultOpen": {
+          "name": "defaultOpen",
+          "description": "Initial open state when uncontrolled. Defaults to `true`.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "true"
+          }
+        },
+        "duration": {
+          "name": "duration",
+          "description": "Auto-dismiss delay in milliseconds. Omit to require an explicit close.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
+        "closeIcon": {
+          "name": "closeIcon",
+          "description": "Icon for the built-in close button.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": {
+            "value": "iClose"
+          }
+        },
+        "transition": {
+          "name": "transition",
+          "description": "Motion transition shared by every framework for the open/close height animation.",
+          "required": false,
+          "type": {
+            "name": "Transition"
+          },
+          "defaultValue": null
+        }
+      }
     }
   }
 }

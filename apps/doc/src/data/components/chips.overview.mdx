@@ -1,0 +1,56 @@
+---
+---
+
+import Code from '@/components/Code.astro';
+import ChipsListReact from '@/examples/react/chips-list.tsx';
+import { ChipsListAngular } from '@/examples/angular/chips-list.ts';
+import ChipsListSvelte from '@/examples/svelte/chips-list.svelte';
+import chipsListReactSource from '@/examples/react/chips-list.tsx?raw';
+import chipsListAngularSource from '@/examples/angular/chips-list.ts?raw';
+import chipsListSvelteSource from '@/examples/svelte/chips-list.svelte?raw';
+
+## Usage
+
+`Chips` renders a labelled collection from an `items` model. Each item can be
+selected, removed, disabled, linked, or given an icon. Use stable item `id`
+values when the collection can be reordered.
+
+React:
+
+```tsx
+import { Chips } from '@udixio/ui-react';
+```
+
+Angular:
+
+```ts
+import { Chips } from '@udixio/ui-angular';
+```
+
+Svelte:
+
+```svelte
+import { Chips } from '@udixio/ui-svelte';
+```
+
+## Controlled collection
+
+All adapters expose the collection as controlled state. React uses
+`items`/`onItemsChange`, Angular uses `[items]`/`(itemsChange)`, and Svelte uses
+`bind:items` or `items` with `onItemsChange`.
+
+<Code codes={{ react: chipsListReactSource, angular: chipsListAngularSource, svelte: chipsListSvelteSource }}>
+  <ChipsListReact slot="react" client:load />
+  <ChipsListAngular slot="angular" client:load />
+  <ChipsListSvelte slot="svelte" client:load />
+</Code>
+
+## Input variant
+
+Use `variant="input"` for editable tags. The component handles inline editing
+and removal, while the application remains the source of truth for `items`.
+Svelte projects update that model with a bindable `items` prop.
+
+`scrollable` prefers horizontal overflow to wrapping, and `draggable` enables
+native dragging for each chip. The individual [`Chip`](/components/chip/api)
+contract describes editing shortcuts and selection semantics.

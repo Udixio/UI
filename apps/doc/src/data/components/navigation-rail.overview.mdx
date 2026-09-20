@@ -2,6 +2,11 @@
 ---
 
 import Code from '@/components/Code.astro';
+import NavigationRailBasicSvelte from '@/examples/svelte/navigation-rail-basic.svelte';
+import NavigationRailAlignmentSvelte from '@/examples/svelte/navigation-rail-alignment.svelte';
+import NavigationRailExtendedSvelte from '@/examples/svelte/navigation-rail-extended.svelte';
+import NavigationRailSelectionSvelte from '@/examples/svelte/navigation-rail-selection.svelte';
+import NavigationRailFooterSvelte from '@/examples/svelte/navigation-rail-footer.svelte';
 import NavigationRailBasicReact from '@/examples/react/navigation-rail-basic.tsx';
 import navigationRailBasicReactSource from '@/examples/react/navigation-rail-basic.tsx?raw';
 import { NavigationRailBasicAngular } from '@/examples/angular/navigation-rail-basic.ts';
@@ -22,6 +27,11 @@ import NavigationRailFooterReact from '@/examples/react/navigation-rail-footer.t
 import navigationRailFooterReactSource from '@/examples/react/navigation-rail-footer.tsx?raw';
 import { NavigationRailFooterAngular } from '@/examples/angular/navigation-rail-footer.ts';
 import navigationRailFooterAngularSource from '@/examples/angular/navigation-rail-footer.ts?raw';
+import navigationRailBasicSvelteSource from '@/examples/svelte/navigation-rail-basic.svelte?raw';
+import navigationRailAlignmentSvelteSource from '@/examples/svelte/navigation-rail-alignment.svelte?raw';
+import navigationRailExtendedSvelteSource from '@/examples/svelte/navigation-rail-extended.svelte?raw';
+import navigationRailSelectionSvelteSource from '@/examples/svelte/navigation-rail-selection.svelte?raw';
+import navigationRailFooterSvelteSource from '@/examples/svelte/navigation-rail-footer.svelte?raw';
 
 ## One family, one doc
 
@@ -42,10 +52,12 @@ Compose it with `NavigationRailItem` children; optionally include a `Fab` and
   codes={{
     react: navigationRailBasicReactSource,
     angular: navigationRailBasicAngularSource,
+    svelte: navigationRailBasicSvelteSource,
   }}
 >
   <NavigationRailBasicReact slot="react" client:load />
   <NavigationRailBasicAngular slot="angular" client:load />
+  <NavigationRailBasicSvelte slot="svelte" client:load />
 </Code>
 
 ## Alignment
@@ -58,16 +70,19 @@ spread across the rail's full height (`"middle"`).
   codes={{
     react: navigationRailAlignmentReactSource,
     angular: navigationRailAlignmentAngularSource,
+    svelte: navigationRailAlignmentSvelteSource,
   }}
 >
   <NavigationRailAlignmentReact slot="react" client:load />
   <NavigationRailAlignmentAngular slot="angular" client:load />
+  <NavigationRailAlignmentSvelte slot="svelte" client:load />
 </Code>
 
 ## Extended rail
 
 Toggling the extended mode reveals labels and any `NavigationRailSection`.
-Control it with `extended`/`onExtendedChange` (`extendedChange` in Angular),
+Control it with `extended`/`onExtendedChange` (`extendedChange` in Angular, or
+`bind:extended` in Svelte),
 or leave it uncontrolled with `defaultExtended`. A `Fab` placed as a direct
 child is hoisted into the rail's header; Angular does not clone it, so pass
 its `extended` state explicitly.
@@ -77,10 +92,12 @@ its `extended` state explicitly.
   codes={{
     react: navigationRailExtendedReactSource,
     angular: navigationRailExtendedAngularSource,
+    svelte: navigationRailExtendedSvelteSource,
   }}
 >
   <NavigationRailExtendedReact slot="react" client:load />
   <NavigationRailExtendedAngular slot="angular" client:load />
+  <NavigationRailExtendedSvelte slot="svelte" client:load />
 </Code>
 
 ## Controlled selection
@@ -88,6 +105,8 @@ its `extended` state explicitly.
 Use `selectedItem` to control the selected item. React exposes a raw
 `setSelectedItem` dispatcher; Angular follows this repository's output
 convention with `selectedItemChange` (`[(selectedItem)]` also works).
+Svelte uses `bind:selectedItem` or `selectedItem` with
+`onSelectedItemChange`.
 `onItemSelected`/`itemSelected` notifies with the resulting index, label, and
 icon.
 
@@ -96,10 +115,12 @@ icon.
   codes={{
     react: navigationRailSelectionReactSource,
     angular: navigationRailSelectionAngularSource,
+    svelte: navigationRailSelectionSvelteSource,
   }}
 >
   <NavigationRailSelectionReact slot="react" client:load />
   <NavigationRailSelectionAngular slot="angular" client:load />
+  <NavigationRailSelectionSvelte slot="svelte" client:load />
 </Code>
 
 ## Footer content
@@ -113,10 +134,12 @@ Angular, add a `footer` attribute to the projected element.
   codes={{
     react: navigationRailFooterReactSource,
     angular: navigationRailFooterAngularSource,
+    svelte: navigationRailFooterSvelteSource,
   }}
 >
   <NavigationRailFooterReact slot="react" client:load />
   <NavigationRailFooterAngular slot="angular" client:load />
+  <NavigationRailFooterSvelte slot="svelte" client:load />
 </Code>
 
 ## Composition

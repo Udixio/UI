@@ -114,6 +114,63 @@
           "description": "Default projected content."
         }
       }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/menu/MenuGroup.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Selection",
+        "parent": "Menu",
+        "devx": "Use `label` for a visible group heading and place related `MenuItem` snippets inside.",
+        "a11y": "The group label is associated with the contained menu items when present.",
+        "limitations": "Groups do not provide nested submenu behavior."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes merged onto the group root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "classes": {
+          "name": "classes",
+          "description": "State-aware classes for the group.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"menuGroup\" | \"groupLabel\", string>> | ClassNameComponent<MenuGroupInterface>"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Overrides the color treatment inherited from the parent Menu.",
+          "required": false,
+          "type": {
+            "name": "MenuVariant"
+          },
+          "defaultValue": null
+        },
+        "label": {
+          "name": "label",
+          "description": "Visible and accessible label for the group.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        }
+      },
+      "snippets": {
+        "children": {
+          "name": "children",
+          "description": "Content rendered inside the group."
+        }
+      }
     }
   }
 }

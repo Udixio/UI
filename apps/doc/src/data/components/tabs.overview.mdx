@@ -2,6 +2,10 @@
 ---
 
 import Code from '@/components/Code.astro';
+import TabsBasicSvelte from '@/examples/svelte/tabs-basic.svelte';
+import TabsPanelsSvelte from '@/examples/svelte/tabs-panels.svelte';
+import TabsControlledSvelte from '@/examples/svelte/tabs-controlled.svelte';
+import TabsVariantsSvelte from '@/examples/svelte/tabs-variants.svelte';
 import TabsBasicReact from '@/examples/react/tabs-basic.tsx';
 import { TabsBasicAngular } from '@/examples/angular/tabs-basic.ts';
 import TabsPanelsReact from '@/examples/react/tabs-panels.tsx';
@@ -18,6 +22,10 @@ import TabsVariantsReact from '@/examples/react/tabs-variants.tsx';
 import { TabsVariantsAngular } from '@/examples/angular/tabs-variants.ts';
 import tabsVariantsReactSource from '@/examples/react/tabs-variants.tsx?raw';
 import tabsVariantsAngularSource from '@/examples/angular/tabs-variants.ts?raw';
+import tabsBasicSvelteSource from '@/examples/svelte/tabs-basic.svelte?raw';
+import tabsPanelsSvelteSource from '@/examples/svelte/tabs-panels.svelte?raw';
+import tabsControlledSvelteSource from '@/examples/svelte/tabs-controlled.svelte?raw';
+import tabsVariantsSvelteSource from '@/examples/svelte/tabs-variants.svelte?raw';
 
 ## Usage
 
@@ -35,10 +43,12 @@ import { Tab, Tabs } from "@udixio/ui-react"
   codes={{
     react: tabsBasicReactSource,
     angular: tabsBasicAngularSource,
+    svelte: tabsBasicSvelteSource,
   }}
 >
   <TabsBasicReact slot="react" client:load />
   <TabsBasicAngular slot="angular" client:load />
+  <TabsBasicSvelte slot="svelte" client:load />
 </Code>
 
 `disabled` removes a tab from the roving tab order and blocks selection.
@@ -53,10 +63,12 @@ indicator).
   codes={{
     react: tabsVariantsReactSource,
     angular: tabsVariantsAngularSource,
+    svelte: tabsVariantsSvelteSource,
   }}
 >
   <TabsVariantsReact slot="react" client:load />
   <TabsVariantsAngular slot="angular" client:load />
+  <TabsVariantsSvelte slot="svelte" client:load />
 </Code>
 
 ## Connecting tabs to panels
@@ -74,23 +86,26 @@ import { TabGroup, Tabs, Tab, TabPanels, TabPanel } from "@udixio/ui-react"
   codes={{
     react: tabsPanelsReactSource,
     angular: tabsPanelsAngularSource,
+    svelte: tabsPanelsSvelteSource,
   }}
 >
   <TabsPanelsReact slot="react" client:load />
   <TabsPanelsAngular slot="angular" client:load />
+  <TabsPanelsSvelte slot="svelte" client:load />
 </Code>
 
-Only the active `TabPanel` is mounted by the React adapter; on Angular, every
+Only the active `TabPanel` is mounted by the React and Svelte adapters; on Angular, every
 projected `udx-tab-panel` keeps its component instance and state alive and
 the inactive ones are hidden with the native `hidden` attribute instead —
 Angular content projection has no cheap equivalent to conditionally mounting
-projected children. Both remove inactive panels from the accessibility tree
+projected children. All three remove inactive panels from the accessibility tree
 and the tab order identically.
 
 ## Controlled selection and scrollable
 
-Use `selectedTab`/`onSelectedTabChange` (React) or `selectedTab`/
-`selectedTabChange` (Angular) for controlled selection on `Tabs` or
+Use `selectedTab`/`onSelectedTabChange` (React), `selectedTab`/
+`selectedTabChange` (Angular), or `bind:selectedTab` (Svelte) for controlled
+selection on `Tabs` or
 `TabGroup`; `defaultSelectedTab` (defaults to `0`) seeds the initial
 selection when uncontrolled. Set `scrollable` to `true` to enable horizontal
 scroll with automatic centering of the selected tab.
@@ -103,10 +118,12 @@ the two owners would fight over the selection.
   codes={{
     react: tabsControlledReactSource,
     angular: tabsControlledAngularSource,
+    svelte: tabsControlledSvelteSource,
   }}
 >
   <TabsControlledReact slot="react" client:load />
   <TabsControlledAngular slot="angular" client:load />
+  <TabsControlledSvelte slot="svelte" client:load />
 </Code>
 
 ## Link or action
@@ -127,8 +144,8 @@ alternative to the `label` prop.
 
 The sliding tab indicator and the panel's enter transition are implemented
 once with Motion JavaScript in `@udixio/core/dom`
-(`createTabsIndicatorController`, `animateTabPanelEnter`), so React and
-Angular share the same timing and reduced-motion behavior — neither adapter
+(`createTabsIndicatorController`, `animateTabPanelEnter`), so React, Angular,
+and Svelte share the same timing and reduced-motion behavior — neither adapter
 implements its own version of either effect.
 
 ## Accessibility

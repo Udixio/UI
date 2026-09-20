@@ -1,0 +1,51 @@
+---
+---
+
+import Code from '@/components/Code.astro';
+import ContextMenuReact from '@/examples/react/context-menu.tsx';
+import { ContextMenuAngular } from '@/examples/angular/context-menu.ts';
+import ContextMenuSvelte from '@/examples/svelte/context-menu.svelte';
+import contextMenuReactSource from '@/examples/react/context-menu.tsx?raw';
+import contextMenuAngularSource from '@/examples/angular/context-menu.ts?raw';
+import contextMenuSvelteSource from '@/examples/svelte/context-menu.svelte?raw';
+
+## Usage
+
+`ContextMenu` opens the Menu family at the pointer position after a native
+context-menu event. It also supports `Shift+F10`, focuses the first available
+item, and restores focus after dismissal.
+
+React:
+
+```tsx
+import { ContextMenu, MenuItem } from '@udixio/ui-react';
+```
+
+Angular:
+
+```ts
+import { ContextMenu, MenuItem } from '@udixio/ui-angular';
+```
+
+Svelte:
+
+```svelte
+import { ContextMenu, MenuItem } from '@udixio/ui-svelte';
+```
+
+## Trigger and actions
+
+The trigger is a normal focusable element. React passes it through `trigger`,
+Angular marks it with `contextMenuTrigger`, and Svelte supplies it with a
+`trigger` snippet. The popup content remains ordinary `MenuItem` composition
+in each framework.
+
+<Code codes={{ react: contextMenuReactSource, angular: contextMenuAngularSource, svelte: contextMenuSvelteSource }}>
+  <ContextMenuReact slot="react" client:load />
+  <ContextMenuAngular slot="angular" client:load />
+  <ContextMenuSvelte slot="svelte" client:load />
+</Code>
+
+The popup position and dismissal controller are internally owned. Use
+`accessibleLabel`, `variant`, and `disabled` to configure the public behavior;
+use `onOpenChange` only to observe visibility changes.

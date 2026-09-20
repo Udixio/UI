@@ -2,6 +2,9 @@
 ---
 
 import Code from '@/components/Code.astro';
+import CarouselBasicSvelte from '@/examples/svelte/carousel-basic.svelte';
+import CarouselGallerySvelte from '@/examples/svelte/carousel-gallery.svelte';
+import CarouselNavigationSvelte from '@/examples/svelte/carousel-navigation.svelte';
 import CarouselBasicReact from '@/examples/react/carousel-basic.tsx';
 import { CarouselBasicAngular } from '@/examples/angular/carousel-basic.ts';
 import carouselBasicReactSource from '@/examples/react/carousel-basic.tsx?raw';
@@ -14,6 +17,9 @@ import CarouselNavigationReact from '@/examples/react/carousel-navigation.tsx';
 import { CarouselNavigationAngular } from '@/examples/angular/carousel-navigation.ts';
 import carouselNavigationReactSource from '@/examples/react/carousel-navigation.tsx?raw';
 import carouselNavigationAngularSource from '@/examples/angular/carousel-navigation.ts?raw';
+import carouselBasicSvelteSource from '@/examples/svelte/carousel-basic.svelte?raw';
+import carouselGallerySvelteSource from '@/examples/svelte/carousel-gallery.svelte?raw';
+import carouselNavigationSvelteSource from '@/examples/svelte/carousel-navigation.svelte?raw';
 
 Use Carousel with CarouselItem children to create a horizontally scrollable showcase.
 
@@ -21,10 +27,12 @@ Use Carousel with CarouselItem children to create a horizontally scrollable show
   codes={{
     react: carouselBasicReactSource,
     angular: carouselBasicAngularSource,
+    svelte: carouselBasicSvelteSource,
   }}
 >
   <CarouselBasicReact slot="react" client:load />
   <CarouselBasicAngular slot="angular" client:load />
+  <CarouselBasicSvelte slot="svelte" client:load />
 </Code>
 
 ## Behavior and callbacks
@@ -34,14 +42,19 @@ Use Carousel with CarouselItem children to create a horizontally scrollable show
 - `defaultIndex`: initial centered index for uncontrolled usage.
 - `onIndexChange`: called with the accepted centered-index transition.
 
+Svelte uses `bind:index` for controlled selection and keeps `CarouselItem`
+content in the component's children snippet.
+
 <Code
   codes={{
     react: carouselGalleryReactSource,
     angular: carouselGalleryAngularSource,
+    svelte: carouselGallerySvelteSource,
   }}
 >
   <CarouselGalleryReact slot="react" client:load />
   <CarouselGalleryAngular slot="angular" client:load />
+  <CarouselGallerySvelte slot="svelte" client:load />
 </Code>
 
 ### With navigation buttons
@@ -49,13 +62,16 @@ Use Carousel with CarouselItem children to create a horizontally scrollable show
 `onMetricsChange`/`metricsChange` reports the currently visible item count, so
 external controls can step by a sensible amount and stay in sync with the
 carousel's own scroll position.
+Svelte receives the same metrics object through `onMetricsChange`.
 
 <Code
   codes={{
     react: carouselNavigationReactSource,
     angular: carouselNavigationAngularSource,
+    svelte: carouselNavigationSvelteSource,
   }}
 >
   <CarouselNavigationReact slot="react" client:load />
   <CarouselNavigationAngular slot="angular" client:load />
+  <CarouselNavigationSvelte slot="svelte" client:load />
 </Code>

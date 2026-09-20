@@ -164,6 +164,80 @@
           "description": "Default projected content."
         }
       }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/context-menu/ContextMenu.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Selection",
+        "parent": "menu",
+        "devx": "Provide `trigger` and Menu-family content snippets.",
+        "a11y": "Supports native context-menu events and Shift+F10, focuses the first item, and restores focus after Escape.",
+        "limitations": "Popup positioning is internally owned and not controllable."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes merged onto the context-menu host.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Visual color treatment shared by the menu family.",
+          "required": false,
+          "type": {
+            "name": "MenuVariant"
+          },
+          "defaultValue": {
+            "value": "'standard'"
+          }
+        },
+        "onOpenChange": {
+          "name": "onOpenChange",
+          "description": "Notifies visibility changes caused by user interaction.",
+          "required": false,
+          "type": {
+            "name": "(open: boolean) => void"
+          },
+          "defaultValue": null
+        },
+        "accessibleLabel": {
+          "name": "accessibleLabel",
+          "description": "Accessible name used when no external labelled-by relationship exists.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Prevents pointer and keyboard context-menu activation.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        }
+      },
+      "snippets": {
+        "trigger": {
+          "name": "trigger",
+          "description": "Snippet rendered as the context-menu trigger."
+        },
+        "children": {
+          "name": "children",
+          "description": "Snippet rendered as the popup content."
+        }
+      }
     }
   }
 }

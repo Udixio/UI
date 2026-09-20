@@ -264,6 +264,152 @@
           "description": "Default projected content."
         }
       }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/side-sheet/SideSheet.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Layout",
+        "devx": "`open` is bindable; `defaultOpen` initializes uncontrolled use. Modal sheets are moved to `container` or `document.body`.",
+        "a11y": "Modal sheets trap focus, lock body scroll, close on Escape, and restore focus.",
+        "limitations": "Children stay mounted while closed; width animation can be less smooth for very large panels."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes merged onto the side-sheet root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "style": {
+          "name": "style",
+          "description": "Inline style merged onto the side-sheet root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "classes": {
+          "name": "classes",
+          "description": "State-aware classes for the panel, overlay, and content.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"title\" | \"container\" | \"content\" | \"header\" | \"divider\" | \"sideSheet\" | \"closeButton\" | \"overlay\", string>> | ClassNameComponent<SideSheetInterface>"
+          },
+          "defaultValue": null
+        },
+        "open": {
+          "name": "open",
+          "description": "Controlled open state.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null,
+          "bindable": true
+        },
+        "onOpenChange": {
+          "name": "onOpenChange",
+          "description": "Notifies an accepted open-state request.",
+          "required": false,
+          "type": {
+            "name": "(open: boolean) => void"
+          },
+          "defaultValue": null
+        },
+        "container": {
+          "name": "container",
+          "description": "Portal target for `variant=\"modal\"`. Defaults to `document.body`.",
+          "required": false,
+          "type": {
+            "name": "Element"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Rendering mode: `'standard'` for persistent layout chrome, `'modal'` for a dismissible overlay.",
+          "required": false,
+          "type": {
+            "name": "SideSheetVariant"
+          },
+          "defaultValue": {
+            "value": "'standard'"
+          }
+        },
+        "title": {
+          "name": "title",
+          "description": "Headline displayed in the side sheet header.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "position": {
+          "name": "position",
+          "description": "Edge of the screen the panel is anchored to.",
+          "required": false,
+          "type": {
+            "name": "SideSheetPosition"
+          },
+          "defaultValue": {
+            "value": "'right'"
+          }
+        },
+        "defaultOpen": {
+          "name": "defaultOpen",
+          "description": "Initial open state when uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "true"
+          }
+        },
+        "closeIcon": {
+          "name": "closeIcon",
+          "description": "Icon for the built-in close button.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": {
+            "value": "iClose"
+          }
+        },
+        "divider": {
+          "name": "divider",
+          "description": "Show the trailing divider. Defaults to `true` for the standard variant.\nIgnored for `variant=\"modal\"`, which never renders a divider.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        },
+        "transition": {
+          "name": "transition",
+          "description": "Motion transition shared by every framework for the open/close width and opacity animation.",
+          "required": false,
+          "type": {
+            "name": "Transition"
+          },
+          "defaultValue": null
+        }
+      },
+      "snippets": {
+        "children": {
+          "name": "children",
+          "description": "Default content."
+        }
+      }
     }
   }
 }

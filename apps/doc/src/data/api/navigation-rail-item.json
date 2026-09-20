@@ -183,6 +183,172 @@
         }
       },
       "outputs": {}
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/navigation-rail/NavigationRailItem.svelte",
+      "tags": {
+        "status": "beta",
+        "parent": "NavigationRail",
+        "devx": "Selection is index-based and resolved from the parent rail; standalone usage falls back to `selected`.",
+        "a11y": "Exposes `aria-current=\"page\"` when selected.",
+        "limitations": "No arrow-key navigation between destinations."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes merged onto the destination root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "style": {
+          "name": "style",
+          "description": "Inline style merged onto the destination root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "classes": {
+          "name": "classes",
+          "description": "State-aware classes for the destination elements.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"label\" | \"container\" | \"icon\" | \"stateLayer\" | \"navigationRailItem\", string>> | ClassNameComponent<NavigationRailItemInterface>"
+          },
+          "defaultValue": null
+        },
+        "label": {
+          "name": "label",
+          "description": "Visible destination label.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "icon": {
+          "name": "icon",
+          "description": "Icon shown while the destination is not selected.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "iconSelected": {
+          "name": "iconSelected",
+          "description": "Optional icon shown while the destination is selected.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "badge": {
+          "name": "badge",
+          "description": "A badge on the icon, the way Material 3 shows notifications on a\ndestination: `{}` is the small dot, `{ label: 3 }` the count. Material\nrecommends removing it once the destination has been viewed, which is\nthe caller's call -- pass `undefined` when the item is selected.",
+          "required": false,
+          "type": {
+            "name": "BadgeProps"
+          },
+          "defaultValue": null
+        },
+        "href": {
+          "name": "href",
+          "description": "Navigation destination; switches the inner element to a native link.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "onclick": {
+          "name": "onclick",
+          "description": "Native activation handler.",
+          "required": false,
+          "type": {
+            "name": "(event: MouseEvent & { currentTarget: EventTarget & (HTMLButtonElement | HTMLAnchorElement); }) => void"
+          },
+          "defaultValue": null
+        },
+        "onItemSelected": {
+          "name": "onItemSelected",
+          "description": "Notifies activation of an already selected destination.",
+          "required": false,
+          "type": {
+            "name": "(event: { index: number; label?: string; icon?: Icon; }) => void"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Injected by the parent NavigationRail: layout direction of the item.",
+          "required": false,
+          "type": {
+            "name": "\"vertical\" | \"horizontal\""
+          },
+          "defaultValue": null
+        },
+        "index": {
+          "name": "index",
+          "description": "Injected by the parent NavigationRail: position of this item in the rail.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
+        "selected": {
+          "name": "selected",
+          "description": "Controlled selected state, used when no parent drives the selection.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "selectedItem": {
+          "name": "selectedItem",
+          "description": "Injected by the parent NavigationRail: index of the currently selected item.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
+        "isExtended": {
+          "name": "isExtended",
+          "description": "Injected by the parent NavigationRail: whether the rail is extended.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        },
+        "extendedOnly": {
+          "name": "extendedOnly",
+          "description": "Injected by the parent NavigationRail: hide the item while the rail is collapsed.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        }
+      },
+      "snippets": {
+        "children": {
+          "name": "children",
+          "description": "String or snippet content used as the visible label."
+        }
+      }
     }
   }
 }

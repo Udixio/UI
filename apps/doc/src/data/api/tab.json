@@ -214,6 +214,127 @@
         }
       },
       "outputs": {}
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/tabs/Tab.svelte",
+      "tags": {
+        "status": "beta",
+        "parent": "Tabs",
+        "devx": "Selection is index-based and owned by the parent; there is no standalone selected prop.",
+        "a11y": "Exposes roving tabindex and `aria-controls` when connected to TabPanels.",
+        "limitations": "Horizontal layout only."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes merged onto the tab root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "classes": {
+          "name": "classes",
+          "description": "State-aware classes for the tab and its indicator content.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"label\" | \"icon\" | \"stateLayer\" | \"content\" | \"tab\", string>> | ClassNameComponent<TabInterface>"
+          },
+          "defaultValue": null
+        },
+        "label": {
+          "name": "label",
+          "description": "Text shown for this tab; can also come from a string child.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "icon": {
+          "name": "icon",
+          "description": "Icon shown alongside the label.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Disables pointer, keyboard, and roving-tabindex focus for this tab.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "href": {
+          "name": "href",
+          "description": "Navigation destination; switches the inner element to a native link.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "onclick": {
+          "name": "onclick",
+          "description": "Native activation handler.",
+          "required": false,
+          "type": {
+            "name": "(event: MouseEvent & { currentTarget: EventTarget & (HTMLButtonElement | HTMLAnchorElement); }) => void"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Injected by the parent Tabs.",
+          "required": false,
+          "type": {
+            "name": "TabsVariant"
+          },
+          "defaultValue": null
+        },
+        "index": {
+          "name": "index",
+          "description": "Injected by the parent Tabs: position of this tab in the list.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
+        "selectedTab": {
+          "name": "selectedTab",
+          "description": "Injected by the parent Tabs: index of the currently selected tab.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
+        "tabsId": {
+          "name": "tabsId",
+          "description": "Injected by the parent Tabs: identifier shared by every tab and panel of the group.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        }
+      },
+      "snippets": {
+        "children": {
+          "name": "children",
+          "description": "Default content."
+        }
+      }
     }
   }
 }

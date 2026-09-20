@@ -555,7 +555,7 @@
           "description": "Static or state-aware classes for the component's internal elements.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"label\" | \"stateLayer\" | \"content\" | \"input\" | \"activeIndicator\" | \"leadingIcon\" | \"trailingIcon\" | \"suffix\" | \"supportingText\" | \"textField\" | \"legend\", string>> | ClassNameComponent<TextFieldInterface>"
+            "name": "Partial<Record<\"label\" | \"stateLayer\" | \"content\" | \"input\" | \"leadingIcon\" | \"trailingIcon\" | \"activeIndicator\" | \"supportingText\" | \"suffix\" | \"textField\" | \"legend\", string>> | ClassNameComponent<TextFieldInterface>"
           },
           "defaultValue": null
         },

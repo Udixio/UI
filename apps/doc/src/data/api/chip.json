@@ -392,6 +392,278 @@
           "defaultValue": null
         }
       }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/chip/Chip.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Action",
+        "devx": "- `selected` is bindable; `defaultSelected` initializes uncontrolled usage.\n- `editable` enables inline label editing and `onEditCommit` receives the trimmed value.",
+        "a11y": "- Uses native button or link semantics and exposes `aria-pressed` only in selection mode.\n- Backspace and Delete request removal when `onRemove` is provided.",
+        "limitations": "- Edit-on-focus starts after a one-second delay; double-click, Enter, and F2 start it directly."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "String class merged onto the root element.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "style": {
+          "name": "style",
+          "description": "Inline style merged onto the root element.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "classes": {
+          "name": "classes",
+          "description": "State-aware classes for the component's internal elements.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"label\" | \"stateLayer\" | \"chip\" | \"leadingIcon\" | \"trailingIcon\", string>> | ClassNameComponent<ChipInterface>"
+          },
+          "defaultValue": null
+        },
+        "selected": {
+          "name": "selected",
+          "description": "Bindable selected state.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null,
+          "bindable": true
+        },
+        "onSelectedChange": {
+          "name": "onSelectedChange",
+          "description": "Notifies an accepted selected-state transition.",
+          "required": false,
+          "type": {
+            "name": "(selected: boolean) => void"
+          },
+          "defaultValue": null
+        },
+        "onEditStart": {
+          "name": "onEditStart",
+          "description": "Called when editing starts.",
+          "required": false,
+          "type": {
+            "name": "() => void"
+          },
+          "defaultValue": null
+        },
+        "onEditCommit": {
+          "name": "onEditCommit",
+          "description": "Called with the normalized label when editing is committed.",
+          "required": false,
+          "type": {
+            "name": "(nextLabel: string) => void"
+          },
+          "defaultValue": null
+        },
+        "onEditCancel": {
+          "name": "onEditCancel",
+          "description": "Called when editing is cancelled.",
+          "required": false,
+          "type": {
+            "name": "() => void"
+          },
+          "defaultValue": null
+        },
+        "onChange": {
+          "name": "onChange",
+          "description": "Called for every editable label change.",
+          "required": false,
+          "type": {
+            "name": "(nextLabel: string) => void"
+          },
+          "defaultValue": null
+        },
+        "onRemove": {
+          "name": "onRemove",
+          "description": "Called when the trailing remove action is activated.",
+          "required": false,
+          "type": {
+            "name": "() => void"
+          },
+          "defaultValue": null
+        },
+        "onclick": {
+          "name": "onclick",
+          "description": "Native click handler.",
+          "required": false,
+          "type": {
+            "name": "(event: MouseEvent & { currentTarget: EventTarget & (HTMLButtonElement | HTMLAnchorElement); }) => void"
+          },
+          "defaultValue": null
+        },
+        "onfocus": {
+          "name": "onfocus",
+          "description": "Native focus handler.",
+          "required": false,
+          "type": {
+            "name": "(event: FocusEvent) => void"
+          },
+          "defaultValue": null
+        },
+        "onblur": {
+          "name": "onblur",
+          "description": "Native blur handler.",
+          "required": false,
+          "type": {
+            "name": "(event: FocusEvent) => void"
+          },
+          "defaultValue": null
+        },
+        "onkeydown": {
+          "name": "onkeydown",
+          "description": "Native key handler.",
+          "required": false,
+          "type": {
+            "name": "(event: KeyboardEvent) => void"
+          },
+          "defaultValue": null
+        },
+        "ondblclick": {
+          "name": "ondblclick",
+          "description": "Native double-click handler.",
+          "required": false,
+          "type": {
+            "name": "(event: MouseEvent) => void"
+          },
+          "defaultValue": null
+        },
+        "ondragstart": {
+          "name": "ondragstart",
+          "description": "Native drag-start handler.",
+          "required": false,
+          "type": {
+            "name": "(event: DragEvent) => void"
+          },
+          "defaultValue": null
+        },
+        "ondragend": {
+          "name": "ondragend",
+          "description": "Native drag-end handler.",
+          "required": false,
+          "type": {
+            "name": "(event: DragEvent) => void"
+          },
+          "defaultValue": null
+        },
+        "transition": {
+          "name": "transition",
+          "description": "Motion timing for the selection colour change. Defaults to 0.3s.\n\nIt lived only on the React adapter, so the Angular chip's selection\nsnapped where React's faded.",
+          "required": false,
+          "type": {
+            "name": "{ duration?: number; }"
+          },
+          "defaultValue": null
+        },
+        "label": {
+          "name": "label",
+          "description": "The label is the text that is displayed on the chip.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "The chip variant determines the style.",
+          "required": false,
+          "type": {
+            "name": "ChipVariant"
+          },
+          "defaultValue": {
+            "value": "'outlined'"
+          }
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Disables the chip if set to true.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "icon": {
+          "name": "icon",
+          "description": "An optional icon to display in the chip.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "defaultSelected": {
+          "name": "defaultSelected",
+          "description": "Initial selected state when the chip is uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        },
+        "href": {
+          "name": "href",
+          "description": "Optional navigation target.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "draggable": {
+          "name": "draggable",
+          "description": "Enable native drag and drop on the chip.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "editable": {
+          "name": "editable",
+          "description": "Enables inline label editing, used by `Chips` in input mode.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "editing": {
+          "name": "editing",
+          "description": "Controlled edition state (the resolved value lives in `states.isEditing`).",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        }
+      },
+      "snippets": {
+        "children": {
+          "name": "children",
+          "description": "String or snippet content used instead of `label`."
+        }
+      }
     }
   }
 }

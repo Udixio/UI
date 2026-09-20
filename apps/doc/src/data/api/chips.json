@@ -185,6 +185,103 @@
           "defaultValue": null
         }
       }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/chips/Chips.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Input",
+        "devx": "Pass stable `ChipItem.id` values and update `items` from `onItemsChange`.",
+        "a11y": "Renders a labelled list; each chip keeps native button or link semantics.",
+        "limitations": "Large collections are not virtualized."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes merged onto the collection root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "classes": {
+          "name": "classes",
+          "description": "State-aware classes for the collection root.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"chips\", string>> | ClassNameComponent<ChipsInterface>"
+          },
+          "defaultValue": null
+        },
+        "items": {
+          "name": "items",
+          "description": "Controlled source of truth for the collection.",
+          "required": false,
+          "type": {
+            "name": "ChipItem[]"
+          },
+          "defaultValue": {
+            "value": "[]"
+          },
+          "bindable": true
+        },
+        "onItemsChange": {
+          "name": "onItemsChange",
+          "description": "Notifies list changes caused by selection, editing, or removal.",
+          "required": false,
+          "type": {
+            "name": "(items: ChipItem[]) => void"
+          },
+          "defaultValue": null
+        },
+        "label": {
+          "name": "label",
+          "description": "Accessible name for the chip collection.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "'Chips'"
+          }
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Enables inline input and removal behavior.",
+          "required": false,
+          "type": {
+            "name": "\"input\""
+          },
+          "defaultValue": {
+            "value": "'input'"
+          }
+        },
+        "scrollable": {
+          "name": "scrollable",
+          "description": "Uses horizontal overflow instead of wrapping.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "true"
+          }
+        },
+        "draggable": {
+          "name": "draggable",
+          "description": "Enables native dragging on every chip.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        }
+      }
     }
   }
 }

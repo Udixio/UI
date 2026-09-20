@@ -98,6 +98,57 @@
         }
       },
       "outputs": {}
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/menu/MenuHeadline.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Selection",
+        "parent": "Menu",
+        "devx": "Place the headline before the commands or choices it labels.",
+        "a11y": "The headline is presentational and does not enter the menu focus order.",
+        "limitations": "It cannot receive selection or activation events."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes merged onto the headline root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "classes": {
+          "name": "classes",
+          "description": "State-aware classes for the headline.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"headline\", string>> | ClassNameComponent<MenuHeadlineInterface>"
+          },
+          "defaultValue": null
+        },
+        "label": {
+          "name": "label",
+          "description": "Visible section heading.",
+          "required": true,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Overrides the color treatment inherited from the parent Menu.",
+          "required": false,
+          "type": {
+            "name": "MenuVariant"
+          },
+          "defaultValue": null
+        }
+      }
     }
   }
 }

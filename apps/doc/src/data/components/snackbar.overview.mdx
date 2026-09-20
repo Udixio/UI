@@ -2,6 +2,9 @@
 ---
 
 import Code from '@/components/Code.astro';
+import SnackbarBasicSvelte from '@/examples/svelte/snackbar-basic.svelte';
+import SnackbarAutoDismissSvelte from '@/examples/svelte/snackbar-auto-dismiss.svelte';
+import SnackbarCustomIconSvelte from '@/examples/svelte/snackbar-custom-icon.svelte';
 import SnackbarBasicReact from '@/examples/react/snackbar-basic.tsx';
 import { SnackbarBasicAngular } from '@/examples/angular/snackbar-basic.ts';
 import SnackbarAutoDismissReact from '@/examples/react/snackbar-auto-dismiss.tsx';
@@ -14,6 +17,9 @@ import snackbarAutoDismissReactSource from '@/examples/react/snackbar-auto-dismi
 import snackbarAutoDismissAngularSource from '@/examples/angular/snackbar-auto-dismiss.ts?raw';
 import snackbarCustomIconReactSource from '@/examples/react/snackbar-custom-icon.tsx?raw';
 import snackbarCustomIconAngularSource from '@/examples/angular/snackbar-custom-icon.ts?raw';
+import snackbarBasicSvelteSource from '@/examples/svelte/snackbar-basic.svelte?raw';
+import snackbarAutoDismissSvelteSource from '@/examples/svelte/snackbar-auto-dismiss.svelte?raw';
+import snackbarCustomIconSvelteSource from '@/examples/svelte/snackbar-custom-icon.svelte?raw';
 
 ## Usage
 
@@ -30,25 +36,29 @@ import { Snackbar } from "@udixio/ui-react"
   codes={{
     react: snackbarBasicReactSource,
     angular: snackbarBasicAngularSource,
+    svelte: snackbarBasicSvelteSource,
   }}
 >
   <SnackbarBasicReact slot="react" client:load />
   <SnackbarBasicAngular slot="angular" client:load />
+  <SnackbarBasicSvelte slot="svelte" client:load />
 </Code>
 
 ## Auto dismiss
 
-Use `duration` (ms) to auto-close the snackbar; pass `onOpenChange` (React) or
-`openChange` (Angular) to be notified.
+Use `duration` (ms) to auto-close the snackbar; pass `onOpenChange` (React),
+`openChange` (Angular), or use `bind:open` (Svelte) to control it.
 
 <Code
   codes={{
     react: snackbarAutoDismissReactSource,
     angular: snackbarAutoDismissAngularSource,
+    svelte: snackbarAutoDismissSvelteSource,
   }}
 >
   <SnackbarAutoDismissReact slot="react" client:load />
   <SnackbarAutoDismissAngular slot="angular" client:load />
+  <SnackbarAutoDismissSvelte slot="svelte" client:load />
 </Code>
 
 ## Custom close icon
@@ -59,14 +69,17 @@ Provide a custom icon via `closeIcon`.
   codes={{
     react: snackbarCustomIconReactSource,
     angular: snackbarCustomIconAngularSource,
+    svelte: snackbarCustomIconSvelteSource,
   }}
 >
   <SnackbarCustomIconReact slot="react" client:load />
   <SnackbarCustomIconAngular slot="angular" client:load />
+  <SnackbarCustomIconSvelte slot="svelte" client:load />
 </Code>
 
 ## Controlled state
 
-Use `open` with `onOpenChange` (React) or `openChange` (Angular) for
+Use `open` with `onOpenChange` (React), `openChange` (Angular), or `bind:open`
+(Svelte) for
 controlled state; `defaultOpen` initializes uncontrolled state and defaults to
 `true`.

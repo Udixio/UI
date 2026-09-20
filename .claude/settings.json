@@ -1,4 +1,8 @@
 {
+  "enabledPlugins": {
+    "udixio-ui-usage@udixio-ui": true,
+    "udixio-ui-governance@udixio-ui": true
+  },
   "extraKnownMarketplaces": {
     "udixio-ui": {
       "source": {
@@ -6,9 +10,5 @@
         "path": "."
       }
     }
-  },
-  "enabledPlugins": {
-    "udixio-ui-governance@udixio-ui": true,
-    "udixio-ui-usage@udixio-ui": true
   }
 }

@@ -85,6 +85,53 @@
           "description": "Default projected content."
         }
       }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/carousel/CarouselItem.svelte",
+      "tags": {
+        "status": "beta",
+        "parent": "Carousel",
+        "devx": "Render this component as a child of `Carousel`; `outputRange` overrides the parent range.",
+        "a11y": "Exposes slide group semantics and a roving tabindex inside the carousel.",
+        "limitations": "Items do not implement independent navigation or selection."
+      },
+      "props": {
+        "outputRange": {
+          "name": "outputRange",
+          "description": "Minimum and maximum item width in pixels.",
+          "required": false,
+          "type": {
+            "name": "[number, number]"
+          },
+          "defaultValue": null
+        },
+        "class": {
+          "name": "class",
+          "description": "Classes merged onto the item root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "classes": {
+          "name": "classes",
+          "description": "State-aware classes for the item root.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"carouselItem\", string>> | ClassNameComponent<CarouselItemInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "snippets": {
+        "children": {
+          "name": "children",
+          "description": "Content rendered inside the slide."
+        }
+      }
     }
   }
 }

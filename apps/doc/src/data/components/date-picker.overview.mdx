@@ -2,22 +2,32 @@
 ---
 
 import Code from '@/components/Code.astro';
+import DatePickerBasicSvelte from '@/examples/svelte/date-picker-basic.svelte';
+import datePickerBasicSvelteSource from '@/examples/svelte/date-picker-basic.svelte?raw';
 import DatePickerBasicReact from '@/examples/react/date-picker-basic.tsx';
 import { DatePickerBasicAngular } from '@/examples/angular/date-picker-basic.ts';
 import datePickerBasicReactSource from '@/examples/react/date-picker-basic.tsx?raw';
 import datePickerBasicAngularSource from '@/examples/angular/date-picker-basic.ts?raw';
+import DatePickerRangeSvelte from '@/examples/svelte/date-picker-range.svelte';
+import datePickerRangeSvelteSource from '@/examples/svelte/date-picker-range.svelte?raw';
 import DatePickerRangeReact from '@/examples/react/date-picker-range.tsx';
 import { DatePickerRangeAngular } from '@/examples/angular/date-picker-range.ts';
 import datePickerRangeReactSource from '@/examples/react/date-picker-range.tsx?raw';
 import datePickerRangeAngularSource from '@/examples/angular/date-picker-range.ts?raw';
+import DatePickerUncontrolledSvelte from '@/examples/svelte/date-picker-uncontrolled.svelte';
+import datePickerUncontrolledSvelteSource from '@/examples/svelte/date-picker-uncontrolled.svelte?raw';
 import DatePickerUncontrolledReact from '@/examples/react/date-picker-uncontrolled.tsx';
 import { DatePickerUncontrolledAngular } from '@/examples/angular/date-picker-uncontrolled.ts';
 import datePickerUncontrolledReactSource from '@/examples/react/date-picker-uncontrolled.tsx?raw';
 import datePickerUncontrolledAngularSource from '@/examples/angular/date-picker-uncontrolled.ts?raw';
+import DatePickerConstraintsSvelte from '@/examples/svelte/date-picker-constraints.svelte';
+import datePickerConstraintsSvelteSource from '@/examples/svelte/date-picker-constraints.svelte?raw';
 import DatePickerConstraintsReact from '@/examples/react/date-picker-constraints.tsx';
 import { DatePickerConstraintsAngular } from '@/examples/angular/date-picker-constraints.ts';
 import datePickerConstraintsReactSource from '@/examples/react/date-picker-constraints.tsx?raw';
 import datePickerConstraintsAngularSource from '@/examples/angular/date-picker-constraints.ts?raw';
+import DatePickerLocalizationSvelte from '@/examples/svelte/date-picker-localization.svelte';
+import datePickerLocalizationSvelteSource from '@/examples/svelte/date-picker-localization.svelte?raw';
 import DatePickerLocalizationReact from '@/examples/react/date-picker-localization.tsx';
 import { DatePickerLocalizationAngular } from '@/examples/angular/date-picker-localization.ts';
 import datePickerLocalizationReactSource from '@/examples/react/date-picker-localization.tsx?raw';
@@ -26,13 +36,15 @@ import datePickerLocalizationAngularSource from '@/examples/angular/date-picker-
 ## Usage
 
 DatePicker lets people select a date, or a range of dates, from a month grid.
-`mode="range"` discriminates `value`/`defaultValue`/`onChange` (React) or the
-inputs bound to `value`/`defaultValue`/`valueChange` (Angular) to a
+`mode="range"` discriminates `value`/`defaultValue`/`onChange` (React),
+`bind:value`/`defaultValue`/`onChange` (Svelte), or the inputs bound to
+`value`/`defaultValue`/`valueChange` (Angular) to a
 `[start, end]` `DateRange` instead of a single `Date`.
 
 ## Controlled selection
 
-Use `value` with `onChange` in React, or `[(value)]` in Angular. A controlled
+Use `value` with `onChange` in React, `bind:value` in Svelte, or `[(value)]` in
+Angular. A controlled
 DatePicker emits a request but does not change until its owner supplies the
 new value.
 
@@ -40,10 +52,12 @@ new value.
   codes={{
     react: datePickerBasicReactSource,
     angular: datePickerBasicAngularSource,
+    svelte: datePickerBasicSvelteSource,
   }}
 >
   <DatePickerBasicReact slot="react" client:load />
   <DatePickerBasicAngular slot="angular" client:load />
+  <DatePickerBasicSvelte slot="svelte" client:load />
 </Code>
 
 ## Selecting a range
@@ -56,10 +70,12 @@ completion starts a new range.
   codes={{
     react: datePickerRangeReactSource,
     angular: datePickerRangeAngularSource,
+    svelte: datePickerRangeSvelteSource,
   }}
 >
   <DatePickerRangeReact slot="react" client:load />
   <DatePickerRangeAngular slot="angular" client:load />
+  <DatePickerRangeSvelte slot="svelte" client:load />
 </Code>
 
 ## Uncontrolled usage
@@ -71,10 +87,12 @@ own selection and only notifies changes.
   codes={{
     react: datePickerUncontrolledReactSource,
     angular: datePickerUncontrolledAngularSource,
+    svelte: datePickerUncontrolledSvelteSource,
   }}
 >
   <DatePickerUncontrolledReact slot="react" client:load />
   <DatePickerUncontrolledAngular slot="angular" client:load />
+  <DatePickerUncontrolledSvelte slot="svelte" client:load />
 </Code>
 
 ## Constraining selectable dates
@@ -87,10 +105,12 @@ its own day. Blocked days stay visible and focusable, but cannot be selected.
   codes={{
     react: datePickerConstraintsReactSource,
     angular: datePickerConstraintsAngularSource,
+    svelte: datePickerConstraintsSvelteSource,
   }}
 >
   <DatePickerConstraintsReact slot="react" client:load />
   <DatePickerConstraintsAngular slot="angular" client:load />
+  <DatePickerConstraintsSvelte slot="svelte" client:load />
 </Code>
 
 ## Localization
@@ -102,10 +122,12 @@ which day begins each row.
   codes={{
     react: datePickerLocalizationReactSource,
     angular: datePickerLocalizationAngularSource,
+    svelte: datePickerLocalizationSvelteSource,
   }}
 >
   <DatePickerLocalizationReact slot="react" client:load />
   <DatePickerLocalizationAngular slot="angular" client:load />
+  <DatePickerLocalizationSvelte slot="svelte" client:load />
 </Code>
 
 ## Accessibility

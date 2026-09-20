@@ -170,6 +170,114 @@
           "description": "Projected content matching `udx-tab`."
         }
       }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/tabs/Tabs.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Navigation",
+        "devx": "Use `selectedTab`/`onSelectedTabChange` for controlled selection, or `defaultSelectedTab` for uncontrolled use. A TabGroup shares the selection with TabPanels.",
+        "a11y": "Renders a tablist with roving tabindex and a shared sliding indicator.",
+        "limitations": "Horizontal orientation only."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes merged onto the tablist root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "classes": {
+          "name": "classes",
+          "description": "State-aware classes for the tablist and indicator.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"tabs\" | \"indicator\", string>> | ClassNameComponent<TabsInterface>"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Visual style: `primary` (icon above label) or `secondary` (icon beside label).",
+          "required": false,
+          "type": {
+            "name": "TabsVariant"
+          },
+          "defaultValue": {
+            "value": "'primary'"
+          }
+        },
+        "selectedTab": {
+          "name": "selectedTab",
+          "description": "Controlled index of the selected tab.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null,
+          "bindable": true
+        },
+        "defaultSelectedTab": {
+          "name": "defaultSelectedTab",
+          "description": "Index selected on mount when the tab list is uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "0"
+          }
+        },
+        "onSelectedTabChange": {
+          "name": "onSelectedTabChange",
+          "description": "Notifies an accepted selected-tab transition.",
+          "required": false,
+          "type": {
+            "name": "(index: number | null) => void"
+          },
+          "defaultValue": null
+        },
+        "onTabSelected": {
+          "name": "onTabSelected",
+          "description": "Notifies the selected tab with its resolved index and metadata.",
+          "required": false,
+          "type": {
+            "name": "(event: { index: number; label?: string; icon?: unknown; }) => void"
+          },
+          "defaultValue": null
+        },
+        "onkeydown": {
+          "name": "onkeydown",
+          "description": "Native keydown handler for tab navigation.",
+          "required": false,
+          "type": {
+            "name": "(event: KeyboardEvent) => void"
+          },
+          "defaultValue": null
+        },
+        "scrollable": {
+          "name": "scrollable",
+          "description": "Enables horizontal scrolling and auto-centering of the selected tab.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        }
+      },
+      "snippets": {
+        "children": {
+          "name": "children",
+          "description": "Default content."
+        }
+      }
     }
   }
 }
