@@ -7,6 +7,7 @@ import SearchCompositionSvelte from '@/examples/svelte/search-composition.svelte
 import SearchUncontrolledSvelte from '@/examples/svelte/search-uncontrolled.svelte';
 import SearchStatesSvelte from '@/examples/svelte/search-states.svelte';
 import SearchIconsSvelte from '@/examples/svelte/search-icons.svelte';
+import SearchAvatarSvelte from '@/examples/svelte/search-avatar.svelte';
 import SearchResultsSvelte from '@/examples/svelte/search-results.svelte';
 import SearchDialogSvelte from '@/examples/svelte/search-dialog.svelte';
 import SearchFormSvelte from '@/examples/svelte/search-form.svelte';
@@ -31,6 +32,10 @@ import SearchIconsReact from '@/examples/react/search-icons.tsx';
 import { SearchIconsAngular } from '@/examples/angular/search-icons.ts';
 import searchIconsReactSource from '@/examples/react/search-icons.tsx?raw';
 import searchIconsAngularSource from '@/examples/angular/search-icons.ts?raw';
+import SearchAvatarReact from '@/examples/react/search-avatar.tsx';
+import { SearchAvatarAngular } from '@/examples/angular/search-avatar.ts';
+import searchAvatarReactSource from '@/examples/react/search-avatar.tsx?raw';
+import searchAvatarAngularSource from '@/examples/angular/search-avatar.ts?raw';
 import SearchResultsReact from '@/examples/react/search-results.tsx';
 import { SearchResultsAngular } from '@/examples/angular/search-results.ts';
 import searchResultsReactSource from '@/examples/react/search-results.tsx?raw';
@@ -52,6 +57,7 @@ import searchCompositionSvelteSource from '@/examples/svelte/search-composition.
 import searchUncontrolledSvelteSource from '@/examples/svelte/search-uncontrolled.svelte?raw';
 import searchStatesSvelteSource from '@/examples/svelte/search-states.svelte?raw';
 import searchIconsSvelteSource from '@/examples/svelte/search-icons.svelte?raw';
+import searchAvatarSvelteSource from '@/examples/svelte/search-avatar.svelte?raw';
 import searchResultsSvelteSource from '@/examples/svelte/search-results.svelte?raw';
 import searchDialogSvelteSource from '@/examples/svelte/search-dialog.svelte?raw';
 import searchFormSvelteSource from '@/examples/svelte/search-form.svelte?raw';
@@ -87,9 +93,11 @@ remain in application code.
 
 The component exposes the Material 3 contained Search bar anatomy through its
 public props: the decorative leading icon, supporting placeholder text, interactive
-trailing actions, and a clear action when the query is non-empty. The container uses the
-Search bar's persistent filled surface, rounded shape, and touch-sized action
-buttons without a default shadow. When expanded, it reuses the same input and
+trailing actions, an optional avatar slot, and a clear action when the query is
+non-empty. The contained Search bar is capped at 360&nbsp;px wide and 56&nbsp;px
+high; its leading and trailing slots are 48&nbsp;px with a 4&nbsp;px inset. The
+container uses the Search bar's persistent filled surface, rounded shape, and
+touch-sized action buttons without a default shadow. When expanded, it reuses the same input and
 exposes a labeled projected results surface below the header without a baseline
 divider. Its focus indicator fades in briefly instead of appearing abruptly, and
 the results surface uses a restrained height/opacity reveal.
@@ -201,10 +209,10 @@ triggers an interaction, its container is an `IconButton`. `Search` therefore
 receives action controls and leaves their inner `Icon` to `IconButton`.
 
 Material 3 allows one or two trailing icons or icon buttons. Search's built-in
-clear action counts as one while it is visible, so combine it with at most one
-custom trailing action. Set `clearable={false}` when two custom trailing
-actions must remain visible. Modal or side-sheet close actions remain owned by
-the surrounding surface.
+clear action counts as one while it is visible, and the avatar slot also counts
+as one. Combine them with at most two total trailing slots; set
+`clearable={false}` when two custom trailing actions must remain visible. Modal
+or side-sheet close actions remain owned by the surrounding surface.
 
 <Code
   codes={{
@@ -216,6 +224,26 @@ the surrounding surface.
   <SearchIconsReact slot="react" client:load />
   <SearchIconsAngular slot="angular" client:load />
   <SearchIconsSvelte slot="svelte" client:load />
+</Code>
+
+## Avatar slot
+
+Use the optional `avatar` slot when the Search bar needs to identify the active
+user or workspace. The slot is intentionally non-interactive and reserves a
+50&nbsp;px trailing area around the 30&nbsp;px avatar shown in the Material 3
+variant. If the avatar needs to open an account menu, keep that action outside
+Search or provide it as an explicit trailing `IconButton`.
+
+<Code
+  codes={{
+    react: searchAvatarReactSource,
+    angular: searchAvatarAngularSource,
+    svelte: searchAvatarSvelteSource,
+  }}
+>
+  <SearchAvatarReact slot="react" client:load />
+  <SearchAvatarAngular slot="angular" client:load />
+  <SearchAvatarSvelte slot="svelte" client:load />
 </Code>
 
 ## Results, empty, loading, and error states

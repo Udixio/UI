@@ -40,6 +40,7 @@
     placeholder = 'Search',
     leadingIcon,
     trailingActions,
+    avatar,
     disabled = false,
     clearable = true,
     name,
@@ -291,7 +292,7 @@
         onblur={() => { isFocused = false; onBlur?.(); }}
         onkeydown={handleInputKeydown}
       />
-      {#if (clearable && hasQuery) || trailingActions}
+      {#if (clearable && hasQuery) || trailingActions || avatar}
         <div class={styles.current['trailingActions']}>
           {#if clearable && hasQuery}
             <button type="button" class={styles.current['clearButton']} aria-label={clearLabel} disabled={disabled} onclick={handleClear}>
@@ -300,6 +301,9 @@
             </button>
           {/if}
           {#if trailingActions}{@render trailingActions()}{/if}
+          {#if avatar}
+            <span class={styles.current['avatarSlot']}>{@render avatar()}</span>
+          {/if}
         </div>
       {/if}
     </div>

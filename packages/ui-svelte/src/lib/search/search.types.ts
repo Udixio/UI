@@ -7,7 +7,10 @@ import type {
 import type { HTMLAttributes, HTMLInputAttributes } from 'svelte/elements';
 import type { Snippet } from 'svelte';
 
-type ForwardedAttributes = Omit<HTMLAttributes<HTMLDivElement>, keyof SearchProps | 'class' | 'children' | 'style' | 'onclick' | 'onkeydown'>;
+type ForwardedAttributes = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  keyof SearchProps | 'class' | 'children' | 'style' | 'onclick' | 'onkeydown'
+>;
 
 /**
  * Search lets people enter a query and optionally browse projected results.
@@ -26,10 +29,13 @@ export interface SvelteSearchProps extends SearchProps, ForwardedAttributes {
   /** Inline style merged onto the search root. */
   style?: string;
   /** State-aware classes for the search elements. */
-  classes?: ElementClasses<SearchInterface> | ClassNameComponent<SearchInterface>;
+  classes?:
+    ElementClasses<SearchInterface> | ClassNameComponent<SearchInterface>;
   children?: Snippet;
   /** Additional content rendered at the trailing edge of the input. */
   trailingActions?: Snippet;
+  /** Optional non-interactive avatar rendered in one of the two trailing slots. */
+  avatar?: Snippet;
   query?: string;
   expanded?: boolean;
   onQueryChange?: (query: string) => void;

@@ -44,6 +44,8 @@ export type ReactSearchProps = Omit<
   children?: ReactNode;
   /** Interactive trailing controls, normally one or two `IconButton` instances. */
   trailingActions?: ReactNode;
+  /** Optional non-interactive avatar rendered in the trailing avatar slot. */
+  avatar?: ReactNode;
   style?: CSSProperties;
   ref?: React.Ref<HTMLInputElement>;
   onFocus?: () => void;
@@ -65,7 +67,7 @@ export const useSearchStyle = createUseStyle(searchStyle);
  * - `expanded` is controlled; `defaultExpanded` initializes uncontrolled usage.
  * - Search renders the inline contained variant. Use a `SideSheet`, dialog, or another surface
  *   primitive when the surrounding feature needs a modal presentation; those primitives own the
- *   docked/full-screen layout.
+ *   docked/full-screen composition.
  * - `leadingIcon` is decorative and is not a button. Navigation or dismissal belongs to the
  *   surrounding `SideSheet` or surface; use `trailingActions` for interactive Search actions.
  * - The inline results surface uses one shared Anime.js height/opacity transition. Reduced motion
@@ -74,6 +76,9 @@ export const useSearchStyle = createUseStyle(searchStyle);
  *   surrounding modal dismissal remains owned by `SideSheet` or the parent surface.
  * - Use `trailingActions` for one or two interactive trailing controls, normally `IconButton`
  *   instances. Do not pass a bare `Icon`; a trailing icon shown in the Search bar is an action.
+ * - Use `avatar` for the optional non-interactive avatar slot. It occupies the same trailing
+ *   area as an action, counts as one trailing slot, and should not be used for an interactive
+ *   account control.
  * - When the built-in clear action is visible, it occupies one of Material 3's two trailing
  *   action slots; provide at most one additional trailing action in that state.
  * - Project suggestions or results as children. For listbox semantics, give each selectable child
@@ -84,7 +89,8 @@ export const useSearchStyle = createUseStyle(searchStyle);
  * - When projected content exists, the input becomes a WAI-ARIA combobox linked to the results
  *   surface; Arrow Up/Down, Enter, and Escape preserve the shared focus model.
  * - The leading icon is hidden from assistive technology because it is decorative. The clear and
- *   trailing controls remain native actions with explicit accessible names and 48 px targets.
+ *   trailing controls remain native actions with explicit accessible names and 48 px targets;
+ *   the optional avatar slot is non-interactive.
  * @limitations
  * - The component does not filter or render result data itself; consumers own the projected result
  *   content and should provide `role="option"` children when using the default listbox role.
@@ -103,6 +109,7 @@ export const Search = ({
   placeholder = 'Search',
   leadingIcon,
   trailingActions,
+  avatar,
   disabled = false,
   clearable = true,
   name,
@@ -134,6 +141,7 @@ export const Search = ({
   const resultChildren = React.Children.toArray(children);
   const hasResults = resultChildren.length > 0;
   const hasTrailingActions = React.Children.count(trailingActions) > 0;
+  const hasAvatar = avatar !== undefined && avatar !== null;
 
   const [query, setQuery] = useControllableState({
     value: queryProp,
@@ -435,7 +443,7 @@ export const Search = ({
             onKeyDown={handleInputKeyDown}
           />
 
-          {(hasClearAction || hasTrailingActions) && (
+          {(hasClearAction || hasTrailingActions || hasAvatar) && (
             <div className={styles.trailingActions}>
               {hasClearAction && (
                 <button
@@ -454,6 +462,7 @@ export const Search = ({
                 </button>
               )}
               {trailingActions}
+              {hasAvatar && <span className={styles.avatarSlot}>{avatar}</span>}
             </div>
           )}
         </div>

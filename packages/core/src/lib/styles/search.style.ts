@@ -9,7 +9,7 @@ const searchConfig: ClassNameComponent<SearchInterface> = ({
   hasQuery,
   hasResults,
 }) => ({
-  search: cx('relative block w-full min-w-[min(360px,100%)] max-w-[720px]'),
+  search: cx('relative block w-full min-w-[min(360px,100%)] max-w-[360px]'),
   container: cx(
     'group/search relative flex w-full flex-col rounded-[28px] bg-surface-container-high text-on-surface outline outline-[3px] outline-offset-2 transition-[outline-color] duration-200 ease-out motion-reduce:transition-none',
     isExpanded && hasResults ? 'gap-0.5' : 'gap-0',
@@ -19,7 +19,7 @@ const searchConfig: ClassNameComponent<SearchInterface> = ({
     },
   ),
   inputField: cx(
-    'group/search-input relative flex min-h-14 w-full shrink-0 items-center gap-1 rounded-full px-6',
+    'group/search-input relative flex min-h-14 w-full shrink-0 items-center gap-1 rounded-full px-1',
     {
       'cursor-not-allowed': disabled,
       'cursor-text': !disabled,
@@ -34,6 +34,9 @@ const searchConfig: ClassNameComponent<SearchInterface> = ({
     'pointer-events-none inline-flex size-12 shrink-0 items-center justify-center text-on-surface',
   ),
   trailingActions: cx('flex shrink-0 items-center gap-0 empty:hidden'),
+  avatarSlot: cx(
+    'inline-flex h-12 w-[50px] shrink-0 items-center justify-center empty:hidden',
+  ),
   clearButton: cx(
     'group/search-clear relative inline-flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full outline outline-[3px] outline-offset-2 outline-transparent transition-[outline-color] duration-200 ease-out motion-reduce:transition-none',
     'text-on-surface-variant focus-visible:outline-secondary',

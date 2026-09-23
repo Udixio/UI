@@ -14,7 +14,7 @@ describe('searchStyle', () => {
     const styles = searchStyle(baseState);
 
     expect(styles.search).toContain('min-w-[min(360px,100%)]');
-    expect(styles.search).toContain('max-w-[720px]');
+    expect(styles.search).toContain('max-w-[360px]');
     expect(styles.container).toContain('rounded-[28px]');
     expect(styles.container).not.toContain('shadow-');
     expect(styles.container).toContain('outline-[3px]');
@@ -35,7 +35,7 @@ describe('searchStyle', () => {
     expect(styles.container).not.toContain('ring-inset');
     expect(styles.inputField).toContain('min-h-14');
     expect(styles.inputField).toContain('gap-1');
-    expect(styles.inputField).toContain('px-6');
+    expect(styles.inputField).toContain('px-1');
     expect(styles.inputField).toContain('group/search-input');
     expect(styles.input).toContain('px-0');
     expect(styles.leadingIcon).toContain('text-on-surface');
@@ -43,6 +43,9 @@ describe('searchStyle', () => {
     expect(styles.leadingIcon).toContain('size-12');
     expect(styles.leadingIcon).not.toContain('group/search-leading');
     expect(styles.leadingIcon).not.toContain('outline-transparent');
+    expect(styles.avatarSlot).toContain('h-12');
+    expect(styles.avatarSlot).toContain('w-[50px]');
+    expect(styles.avatarSlot).toContain('empty:hidden');
     expect(styles.clearButton).toContain('group/search-clear');
     expect(styles.clearButton).toContain('outline-transparent');
     expect(styles.clearButton).toContain('transition-[outline-color]');

@@ -86,6 +86,20 @@ class SearchTrailingActionsHost {
   imports: [Search],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    <udx-search label="Search">
+      <span search-avatar data-testid="search-avatar" aria-hidden="true"
+        >JD</span
+      >
+    </udx-search>
+  `,
+})
+class SearchAvatarHost {}
+
+@Component({
+  standalone: true,
+  imports: [Search],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
     <udx-search label="Search" [defaultExpanded]="true">
       @if (showResults()) {
         <div role="option" aria-selected="false" tabindex="-1">Alpha</div>
@@ -108,6 +122,7 @@ describe('Search (Angular)', () => {
         ControlledSearchHost,
         DefaultSearchHost,
         SearchTrailingActionsHost,
+        SearchAvatarHost,
         DynamicSearchHost,
       ],
     }).compileComponents();
@@ -181,6 +196,10 @@ describe('Search (Angular)', () => {
     expect(container.className).toContain('outline-[3px]');
     expect(container.className).toContain('outline-offset-2');
     expect(container.className).toContain('outline-secondary');
+    expect(root.className).toContain('max-w-[360px]');
+    expect(
+      fixture.nativeElement.querySelector('.input-field').className,
+    ).toContain('px-1');
 
     const queryFixture = TestBed.createComponent(DefaultSearchHost);
     queryFixture.detectChanges();
@@ -298,6 +317,21 @@ describe('Search (Angular)', () => {
 
     action.click();
     expect(hostFixture.componentInstance.actions).toBe(1);
+    hostFixture.destroy();
+  });
+
+  it('projects an optional non-interactive avatar into its dedicated slot', () => {
+    const hostFixture = TestBed.createComponent(SearchAvatarHost);
+    hostFixture.detectChanges();
+
+    const avatar = hostFixture.nativeElement.querySelector(
+      '[data-testid="search-avatar"]',
+    ) as HTMLElement;
+    const slot = avatar.parentElement as HTMLElement;
+
+    expect(slot.className).toContain('avatar-slot');
+    expect(slot.className).toContain('w-[50px]');
+    expect(avatar.getAttribute('aria-hidden')).toBe('true');
     hostFixture.destroy();
   });
 

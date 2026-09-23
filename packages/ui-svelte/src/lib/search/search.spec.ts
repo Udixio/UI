@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom/vitest';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
-import { flushSync } from 'svelte';
+import { createRawSnippet, flushSync } from 'svelte';
 import Search from './Search.svelte';
 
 describe('Search', () => {
@@ -10,7 +10,9 @@ describe('Search', () => {
   it('updates query, clears it, and submits with Enter', async () => {
     const onQueryChange = vi.fn();
     const onSearch = vi.fn();
-    render(Search, { props: { label: 'Search products', onQueryChange, onSearch } });
+    render(Search, {
+      props: { label: 'Search products', onQueryChange, onSearch },
+    });
     const input = screen.getByRole('searchbox', { name: 'Search products' });
     await fireEvent.input(input, { target: { value: 'chair' } });
     flushSync();
@@ -28,5 +30,21 @@ describe('Search', () => {
 
     const ids = screen.getAllByRole('searchbox').map((input) => input.id);
     expect(new Set(ids).size).toBe(2);
+  });
+
+  it('keeps the Figma Search bar geometry and accepts an avatar snippet', () => {
+    const avatar = createRawSnippet(() => ({
+      render: () =>
+        '<span data-testid="search-avatar" aria-hidden="true">JD</span>',
+    }));
+    render(Search, { props: { label: 'Search', avatar } });
+
+    const search = screen.getByRole('search');
+    expect(search).toHaveClass('max-w-[360px]');
+    expect(search.querySelector('.input-field')).toHaveClass('px-1');
+    expect(screen.getByTestId('search-avatar').parentElement).toHaveClass(
+      'avatar-slot',
+      'w-[50px]',
+    );
   });
 });

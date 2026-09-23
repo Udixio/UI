@@ -125,6 +125,27 @@ describe('Search', () => {
       'outline-offset-2',
       'outline-secondary',
     );
+    expect(search).toHaveClass('max-w-[360px]');
+    expect(search.querySelector('.input-field')).toHaveClass('px-1');
+  });
+
+  it('renders an optional non-interactive avatar in its dedicated trailing slot', () => {
+    render(
+      <Search
+        label="Search"
+        avatar={
+          <span data-testid="search-avatar" aria-hidden="true">
+            JD
+          </span>
+        }
+      />,
+    );
+
+    const avatar = screen.getByTestId('search-avatar');
+    const slot = avatar.parentElement;
+
+    expect(slot).toHaveClass('avatar-slot', 'h-12', 'w-[50px]');
+    expect(avatar).not.toHaveAttribute('role', 'button');
   });
 
   it('renders interactive trailing actions instead of decorative icons', () => {

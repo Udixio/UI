@@ -51,18 +51,19 @@ let nextSearchId = 0;
  * @devx `query`/`defaultQuery` and `expanded`/`defaultExpanded` mirror the React adapter; use the
  * `queryChange`, `expandedChange`, and `searchSubmit` outputs for Angular bindings. Search renders
  * the inline contained variant; compose it with `SideSheet`, a dialog, or another surface primitive
- * when the surrounding feature owns modal presentation and docked/full-screen layout. Project one
- * or two interactive trailing controls, normally `udx-icon-button[search-trailing]`; do not project
- * a bare icon. `leadingIcon` is decorative; navigation and dismissal belong to the surrounding
- * `SideSheet` or surface. The built-in clear action occupies one of Material 3's two trailing
- * action slots while it is visible. Project selectable results with `role="option"` when using the
+ * when the surrounding feature owns modal presentation and docked/full-screen composition. Project
+ * one or two interactive trailing controls, normally `udx-icon-button[search-trailing]`; do not
+ * project a bare icon. `leadingIcon` is decorative; navigation and dismissal belong to the
+ * surrounding `SideSheet` or surface. Project an optional non-interactive avatar with
+ * `[search-avatar]`. The built-in clear action occupies one of Material 3's two trailing action
+ * slots while it is visible, and the avatar slot counts as one as well. Project selectable results with `role="option"` when using the
  * default listbox results role. The inline results surface uses one shared Anime.js height/opacity
  * transition; reduced motion applies the final state immediately. A pointer outside Search closes
  * the local results surface when expanded; surrounding modal dismissal remains owned by `SideSheet`
  * or the parent surface.
  * @a11y Renders a `search` landmark and a named `input[type="search"]`; the leading icon is
  * decorative and hidden from assistive technology, while projected listbox results share
- * Arrow Up/Down, Enter, and Escape focus behavior with React.
+ * Arrow Up/Down, Enter, and Escape focus behavior with React. The avatar slot is non-interactive.
  * @limitations
  * - Search does not filter or render result data itself and does not own modal layout
  *   or responsive presentation.
@@ -145,6 +146,9 @@ let nextSearchId = 0;
               </button>
             }
             <ng-content select="[search-trailing]" />
+            <span [class]="styles()['avatarSlot']">
+              <ng-content select="[search-avatar]" />
+            </span>
           </div>
         </div>
 
