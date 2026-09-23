@@ -39,6 +39,7 @@ export * from './lib/tabs/tab-group';
 export * from './lib/tabs/tab-panels';
 export * from './lib/tabs/tab-panel';
 export * from './lib/text-field/text-field';
+export * from './lib/toolbar/toolbar';
 export * from './lib/search/search';
 export * from './lib/tooltip/tooltip';
 export * from './lib/tooltip/tooltip-surface';

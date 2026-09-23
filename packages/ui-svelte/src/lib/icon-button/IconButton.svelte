@@ -41,7 +41,11 @@
     ...rest
   }: SvelteIconButtonProps = $props();
 
+  let interactiveElement: HTMLButtonElement | HTMLAnchorElement | undefined = $state();
+  let isFloatingToolbarButton = $state(false);
+
   const isToggleButton = $derived(toggleable && href === undefined);
+  const effectiveShapeFeedback = $derived(isFloatingToolbarButton ? 'none' : shapeFeedback);
   const pressedState = createControllableState({
     value: () => pressed,
     defaultValue: () => defaultPressed,
@@ -55,7 +59,7 @@
   const hasAccessibleLabel = $derived(label.trim() !== '');
 
   const shapeTransition = $derived(
-    getIconButtonShapeTransition({ size, shape, shapeFeedback, isPressed, disabled, transition }),
+    getIconButtonShapeTransition({ size, shape, shapeFeedback: effectiveShapeFeedback, isPressed, disabled, transition }),
   );
   const styles = createStyle(iconButtonStyle, () => ({
     label,
@@ -67,7 +71,7 @@
     variant,
     disabled,
     shape,
-    shapeFeedback,
+    shapeFeedback: effectiveShapeFeedback,
     transition,
     toggleable: isToggleButton,
     pressed,
@@ -79,6 +83,13 @@
   $effect(() => {
     if (hasAccessibleLabel) return;
     console.error('Udixio UI: <IconButton> requires a non-empty `label`. Rendering nothing.');
+  });
+
+  $effect(() => {
+    const element = interactiveElement;
+    if (!element) return;
+    isFloatingToolbarButton =
+      element.closest('[data-udx-toolbar-variant="floating"]') !== null;
   });
 
   const handleClick = (
@@ -122,6 +133,7 @@
   <!-- No accessible name: render nothing, as React does. -->
 {:else if href !== undefined}
   <a
+    bind:this={interactiveElement}
     {...rest}
     {@attach tooltipAttachment(tooltipOptions)}
     class={styles.current['iconButton']}
@@ -138,6 +150,7 @@
   </a>
 {:else}
   <button
+    bind:this={interactiveElement}
     {...rest}
     {@attach tooltipAttachment(tooltipOptions)}
     {type}

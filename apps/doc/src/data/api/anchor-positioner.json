@@ -17,13 +17,24 @@
       "props": {
         "position": {
           "name": "position",
-          "description": "Placement of the floating element relative to its anchor. Defaults to `bottom`.",
+          "description": "Placement of the floating element relative to its anchor. `auto` chooses below/above or right/left from the anchor's viewport half. Defaults to `bottom`.",
           "required": false,
           "type": {
             "name": "AnchorPosition"
           },
           "defaultValue": {
             "value": "'bottom'"
+          }
+        },
+        "autoAxis": {
+          "name": "autoAxis",
+          "description": "Axis used by automatic placement. Defaults to `vertical`.",
+          "required": false,
+          "type": {
+            "name": "AnchorPositionAxis"
+          },
+          "defaultValue": {
+            "value": "'vertical'"
           }
         },
         "anchorRef": {
@@ -59,13 +70,24 @@
         },
         "position": {
           "name": "position",
-          "description": "Placement of the floating element relative to its anchor. Defaults to `bottom`.",
+          "description": "Placement of the floating element relative to its anchor. `auto` chooses below/above or right/left from the anchor's viewport half. Defaults to `bottom`.",
           "required": false,
           "type": {
             "name": "AnchorPosition"
           },
           "defaultValue": {
             "value": "'bottom'"
+          }
+        },
+        "autoAxis": {
+          "name": "autoAxis",
+          "description": "Axis used by automatic placement. Defaults to `vertical`.",
+          "required": false,
+          "type": {
+            "name": "AnchorPositionAxis"
+          },
+          "defaultValue": {
+            "value": "'vertical'"
           }
         },
         "hostClass": {
@@ -111,13 +133,24 @@
         },
         "position": {
           "name": "position",
-          "description": "Placement of the floating element relative to its anchor. Defaults to `bottom`.",
+          "description": "Placement of the floating element relative to its anchor. `auto` chooses below/above or right/left from the anchor's viewport half. Defaults to `bottom`.",
           "required": false,
           "type": {
             "name": "AnchorPosition"
           },
           "defaultValue": {
             "value": "'bottom'"
+          }
+        },
+        "autoAxis": {
+          "name": "autoAxis",
+          "description": "Axis used by automatic placement. Defaults to `vertical`.",
+          "required": false,
+          "type": {
+            "name": "AnchorPositionAxis"
+          },
+          "defaultValue": {
+            "value": "'vertical'"
           }
         }
       },

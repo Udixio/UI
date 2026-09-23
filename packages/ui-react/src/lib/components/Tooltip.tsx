@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react';
 import {
+  type AnchorPositionAxis,
   type ReactProps,
   type TooltipInterface,
   tooltipStyle,
@@ -90,6 +91,7 @@ export const Tooltip = ({
   text,
   content,
   position: positionProp,
+  autoAxis: autoAxisProp,
   targetRef,
   ref,
   trigger = ['hover', 'focus'],
@@ -104,9 +106,6 @@ export const Tooltip = ({
   anchorRef,
   ...props
 }: ReactTooltipProps) => {
-  const defaultPosition = variant === 'rich' ? 'bottom-right' : 'bottom';
-  const effectivePosition = positionProp || defaultPosition;
-
   if (!children && !targetRef) {
     throw new Error('Tooltip must have a child or a targetRef');
   }
@@ -131,6 +130,27 @@ export const Tooltip = ({
   });
 
   const positioningRef = anchorRef || triggerRef;
+  const [toolbarAutoAxis, setToolbarAutoAxis] = useState<
+    AnchorPositionAxis | undefined
+  >();
+
+  useEffect(() => {
+    const orientation = positioningRef.current
+      ?.closest<HTMLElement>('[data-udx-toolbar-orientation]')
+      ?.getAttribute('data-udx-toolbar-orientation');
+    setToolbarAutoAxis(
+      orientation === 'vertical'
+        ? 'horizontal'
+        : orientation === 'horizontal'
+          ? 'vertical'
+          : undefined,
+    );
+  }, [isOpen, positioningRef]);
+
+  const defaultPosition = variant === 'rich' ? 'bottom-right' : 'bottom';
+  const effectivePosition =
+    positionProp ?? (toolbarAutoAxis ? 'auto' : defaultPosition);
+  const effectiveAutoAxis = autoAxisProp ?? toolbarAutoAxis ?? 'vertical';
 
   // The controller attaches native listeners to whatever `triggerRef` lands
   // on, so the child only needs the ref: its own React handlers keep working
@@ -190,6 +210,7 @@ export const Tooltip = ({
       <AnchorPositioner
         anchorRef={positioningRef}
         position={effectivePosition}
+        autoAxis={effectiveAutoAxis}
         style={{ pointerEvents: 'none' }}
       >
         <div

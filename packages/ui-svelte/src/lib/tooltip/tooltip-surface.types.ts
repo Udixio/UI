@@ -1,4 +1,8 @@
-import type { AnchorPosition, TooltipProps } from '@udixio/core';
+import type {
+  AnchorPosition,
+  AnchorPositionAxis,
+  TooltipProps,
+} from '@udixio/core';
 import type { Snippet } from 'svelte';
 import type { TooltipButtonAction } from './tooltip.types';
 
@@ -21,6 +25,7 @@ export interface SvelteTooltipSurfaceProps {
   anchor: HTMLElement;
   surfaceId: string;
   position: AnchorPosition;
+  autoAxis: AnchorPositionAxis;
   title?: TooltipProps['title'];
   text?: TooltipProps['text'];
   buttons?: TooltipButtonAction | TooltipButtonAction[];

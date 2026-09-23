@@ -7,6 +7,9 @@ import {
   input,
   type InputSignal,
   output,
+  afterRenderEffect,
+  inject,
+  signal,
   viewChild,
   ElementRef,
   type OnInit,
@@ -80,6 +83,8 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         [attr.aria-disabled]="disabled() || !hasAccessibleLabel() || null"
         [attr.aria-hidden]="!hasAccessibleLabel() || null"
         [attr.aria-current]="ariaCurrent()"
+        [attr.aria-haspopup]="ariaHasPopup()"
+        [attr.aria-expanded]="ariaExpanded()"
         [attr.tabindex]="disabled() || !hasAccessibleLabel() ? -1 : tabIndex()"
         [attr.target]="target()"
         [attr.rel]="rel()"
@@ -101,13 +106,14 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         [attr.aria-hidden]="!hasAccessibleLabel() || null"
         [attr.aria-label]="label()"
         [attr.aria-pressed]="isToggleButton() ? isPressed() : null"
+        [attr.aria-haspopup]="ariaHasPopup()"
+        [attr.aria-expanded]="ariaExpanded()"
         [attr.tabindex]="tabIndex()"
         (click)="handleClick($event)"
       >
         <ng-container [ngTemplateOutlet]="content" />
       </button>
     }
-
   `,
 })
 export class IconButton implements OnInit {
@@ -123,9 +129,8 @@ export class IconButton implements OnInit {
   readonly shape = input<IconButtonProps['shape']>('rounded');
   readonly shapeFeedback =
     input<NonNullable<IconButtonProps['shapeFeedback']>>('morph');
-  readonly transition: InputSignal<IconButtonProps['transition']> = input<
-    IconButtonProps['transition']
-  >();
+  readonly transition: InputSignal<IconButtonProps['transition']> =
+    input<IconButtonProps['transition']>();
   readonly toggleable = input(false, { transform: booleanAttribute });
   readonly pressed = input<boolean | undefined, unknown>(undefined, {
     transform: optionalBooleanAttribute,
@@ -136,7 +141,8 @@ export class IconButton implements OnInit {
 
   /** Static or state-aware classes for the component's internal elements, keyed by element name. */
   readonly classes = input<
-    ElementClasses<IconButtonInterface> | ClassNameComponent<IconButtonInterface>
+    | ElementClasses<IconButtonInterface>
+    | ClassNameComponent<IconButtonInterface>
   >();
   /** Navigation destination; switches the inner element to a native link. */
   readonly href = input<string>();
@@ -154,6 +160,14 @@ export class IconButton implements OnInit {
   readonly ariaCurrent = input<
     boolean | 'page' | 'step' | 'location' | 'date' | 'time' | undefined
   >(undefined, { alias: 'aria-current' });
+  /** Popup relationship forwarded to the inner interactive element. */
+  readonly ariaHasPopup = input<
+    boolean | 'menu' | 'listbox' | 'tree' | 'grid' | 'dialog' | undefined
+  >(undefined, { alias: 'aria-haspopup' });
+  /** Expanded state forwarded to the inner interactive element. */
+  readonly ariaExpanded = input<boolean | undefined>(undefined, {
+    alias: 'aria-expanded',
+  });
 
   /** Emits an accepted pressed-state request and supports `[(pressed)]`. */
   readonly pressedChange = output<boolean>();
@@ -166,6 +180,21 @@ export class IconButton implements OnInit {
     'hover',
     'focus',
   ];
+
+  private readonly isFloatingToolbarButton = signal(false);
+  protected readonly effectiveShapeFeedback = computed(() =>
+    this.isFloatingToolbarButton() ? 'none' : this.shapeFeedback(),
+  );
+
+  constructor() {
+    const host = inject(ElementRef<HTMLElement>);
+    afterRenderEffect(() => {
+      this.isFloatingToolbarButton.set(
+        host.nativeElement.closest('[data-udx-toolbar-variant="floating"]') !==
+          null,
+      );
+    });
+  }
 
   private readonly pressedState = createControllableState({
     value: this.pressed,
@@ -203,7 +232,7 @@ export class IconButton implements OnInit {
     getIconButtonShapeTransition({
       size: this.size(),
       shape: this.shape(),
-      shapeFeedback: this.shapeFeedback(),
+      shapeFeedback: this.effectiveShapeFeedback(),
       isPressed: this.isPressed(),
       disabled: this.disabled() || !this.hasAccessibleLabel(),
       transition: this.transition(),
@@ -219,7 +248,7 @@ export class IconButton implements OnInit {
     width: this.width(),
     disabled: this.disabled(),
     shape: this.shape(),
-    shapeFeedback: this.shapeFeedback(),
+    shapeFeedback: this.effectiveShapeFeedback(),
     transition: this.transition(),
     toggleable: this.isToggleButton(),
     pressed: this.pressed(),

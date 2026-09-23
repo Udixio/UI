@@ -1,4 +1,7 @@
-import type { AnchorPosition } from './anchor-positioner.interface';
+import type {
+  AnchorPosition,
+  AnchorPositionAxis,
+} from './anchor-positioner.interface';
 
 export type TooltipVariant = 'plain' | 'rich';
 
@@ -25,8 +28,10 @@ export interface TooltipProps {
   title?: string;
   /** Supporting text for the tooltip. */
   text?: string;
-  /** Placement relative to the target. Defaults to `bottom-right` for `variant="rich"`, `bottom` otherwise. */
+  /** Placement relative to the target. Defaults to `bottom-right` for `variant="rich"`, `bottom` otherwise; tooltips inside a Toolbar use `auto`. */
   position?: TooltipPosition;
+  /** Axis used when `position="auto"`. Defaults to `vertical`; Toolbar descendants derive it from their orientation. */
+  autoAxis?: AnchorPositionAxis;
   /** Interaction(s) that open the tooltip. */
   trigger?: TooltipTrigger | TooltipTrigger[];
   /** Whether the open tooltip describes its target through `aria-describedby`. @default true */

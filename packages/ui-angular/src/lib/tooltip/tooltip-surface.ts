@@ -8,7 +8,11 @@ import {
   output,
   viewChild,
 } from '@angular/core';
-import type { AnchorPosition, TooltipProps } from '@udixio/core';
+import type {
+  AnchorPosition,
+  AnchorPositionAxis,
+  TooltipProps,
+} from '@udixio/core';
 import { AnchorPositioner } from '../anchor-positioner/anchor-positioner';
 import { Button } from '../button/button';
 
@@ -46,6 +50,7 @@ export interface TooltipButtonAction {
     <udx-anchor-positioner
       [anchor]="anchor()"
       [position]="position()"
+      [autoAxis]="autoAxis()"
       class="pointer-events-none"
     >
       <div
@@ -97,6 +102,7 @@ export class TooltipSurface {
   // never sees `undefined` -- unlike `TooltipProps['position']`, which is
   // optional because the directive's own input is.
   readonly position = input<AnchorPosition>('bottom');
+  readonly autoAxis = input<AnchorPositionAxis>('vertical');
   readonly title = input<TooltipProps['title']>();
   readonly text = input<TooltipProps['text']>();
   readonly buttons = input<TooltipButtonAction | TooltipButtonAction[]>();
@@ -118,5 +124,4 @@ export class TooltipSurface {
     if (!value) return [];
     return Array.isArray(value) ? value : [value];
   };
-
 }

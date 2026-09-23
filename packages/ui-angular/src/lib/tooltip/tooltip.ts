@@ -17,6 +17,7 @@ import {
 } from '@angular/core';
 import {
   tooltipStyle,
+  type AnchorPositionAxis,
   type ClassNameComponent,
   type ElementClasses,
   type TooltipInteractionState,
@@ -93,6 +94,10 @@ export class Tooltip implements OnDestroy {
   readonly position = input<TooltipProps['position']>(undefined, {
     alias: 'udxTooltipPosition',
   });
+  /** Axis used when `udxTooltipPosition="auto"`. Toolbar descendants derive it from their orientation. */
+  readonly autoAxis = input<TooltipProps['autoAxis']>(undefined, {
+    alias: 'udxTooltipAutoAxis',
+  });
   /** Interaction(s) that open the tooltip. */
   readonly trigger = input<TooltipProps['trigger']>(['hover', 'focus'], {
     alias: 'udxTooltipTrigger',
@@ -155,9 +160,29 @@ export class Tooltip implements OnDestroy {
   protected readonly resolvedId = computed(
     () => this.tooltipId() ?? this.generatedId,
   );
+  private readonly toolbarAutoAxis = computed<AnchorPositionAxis | undefined>(
+    () => {
+      const orientation = this.host.nativeElement
+        .closest<HTMLElement>('[data-udx-toolbar-orientation]')
+        ?.getAttribute('data-udx-toolbar-orientation');
+      return orientation === 'vertical'
+        ? 'horizontal'
+        : orientation === 'horizontal'
+          ? 'vertical'
+          : undefined;
+    },
+  );
   private readonly effectivePosition = computed(
     () =>
-      this.position() ?? (this.variant() === 'rich' ? 'bottom-right' : 'bottom'),
+      this.position() ??
+      (this.toolbarAutoAxis()
+        ? 'auto'
+        : this.variant() === 'rich'
+          ? 'bottom-right'
+          : 'bottom'),
+  );
+  private readonly effectiveAutoAxis = computed(
+    () => this.autoAxis() ?? this.toolbarAutoAxis() ?? 'vertical',
   );
 
   private readonly interactionState = signal<TooltipInteractionState>('hidden');
@@ -226,6 +251,7 @@ export class Tooltip implements OnDestroy {
       surface.setInput('anchor', this.anchor() ?? this.host.nativeElement);
       surface.setInput('surfaceId', this.resolvedId());
       surface.setInput('position', this.effectivePosition());
+      surface.setInput('autoAxis', this.effectiveAutoAxis());
       surface.setInput('title', this.title());
       surface.setInput('text', this.text());
       surface.setInput('buttons', this.buttons());
@@ -243,7 +269,9 @@ export class Tooltip implements OnDestroy {
         triggers: () => {
           const value = this.trigger();
           const list = Array.isArray(value) ? value : [value];
-          return list.filter((item): item is TooltipTriggerKind => item != null);
+          return list.filter(
+            (item): item is TooltipTriggerKind => item != null,
+          );
         },
         openDelay: () => untracked(this.openDelay),
         closeDelay: () => untracked(this.closeDelay),
@@ -306,6 +334,7 @@ export class Tooltip implements OnDestroy {
     const surface = this.viewContainer.createComponent(TooltipSurface);
     surface.setInput('anchor', this.host.nativeElement);
     surface.setInput('surfaceId', untracked(this.resolvedId));
+    surface.setInput('autoAxis', untracked(this.effectiveAutoAxis));
     surface.setInput('styles', untracked(this.styles));
     surface.instance.surfaceHovered.subscribe((hovered: boolean) =>
       this.triggerController?.setSurfaceHovered(hovered),

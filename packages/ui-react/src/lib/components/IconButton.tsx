@@ -5,7 +5,7 @@ import type {
   Ref,
   SyntheticEvent,
 } from 'react';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   getIconButtonPressTransition,
   getIconButtonShapeTransition,
@@ -59,8 +59,7 @@ type ReactIconButtonLinkProps = ReactIconButtonOwnProps &
   };
 
 export type ReactIconButtonProps =
-  | ReactIconButtonActionProps
-  | ReactIconButtonLinkProps;
+  ReactIconButtonActionProps | ReactIconButtonLinkProps;
 
 export const useIconButtonStyle = createUseStyle(iconButtonStyle);
 
@@ -111,6 +110,14 @@ export const IconButton = (props: ReactIconButtonProps) => {
   const tooltipText =
     tooltip === false ? undefined : (tooltip ?? props.title ?? label);
   const tooltipTargetRef = useRef<HTMLButtonElement | HTMLAnchorElement>(null);
+  const [isFloatingToolbarButton, setIsFloatingToolbarButton] = useState(false);
+  useEffect(() => {
+    setIsFloatingToolbarButton(
+      tooltipTargetRef.current?.closest(
+        '[data-udx-toolbar-variant="floating"]',
+      ) !== null,
+    );
+  }, []);
   const forwardedRef = props.ref;
   const setTargetRef = useCallback(
     (element: HTMLButtonElement | HTMLAnchorElement | null) => {
@@ -123,17 +130,20 @@ export const IconButton = (props: ReactIconButtonProps) => {
     },
     [forwardedRef],
   );
+  const effectiveShapeFeedback = isFloatingToolbarButton
+    ? 'none'
+    : shapeFeedback;
   const shapeTransition = useMemo(
     () =>
       getIconButtonShapeTransition({
         size,
         shape,
-        shapeFeedback,
+        shapeFeedback: effectiveShapeFeedback,
         isPressed,
         disabled,
         transition,
       }),
-    [disabled, isPressed, shape, shapeFeedback, size, transition],
+    [disabled, effectiveShapeFeedback, isPressed, shape, size, transition],
   );
   const styles = useIconButtonStyle({
     label,
@@ -145,7 +155,7 @@ export const IconButton = (props: ReactIconButtonProps) => {
     variant,
     disabled,
     shape,
-    shapeFeedback,
+    shapeFeedback: effectiveShapeFeedback,
     transition,
     toggleable: isToggleButton,
     pressed,

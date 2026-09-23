@@ -34,4 +34,5 @@ export * from './tab-panels.interface';
 export * from './tab.interface';
 export * from './tabs.interface';
 export * from './text-field.interface';
+export * from './toolbar.interface';
 export * from './tooltip.interface';

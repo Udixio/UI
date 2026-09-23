@@ -7,6 +7,7 @@
     anchor,
     surfaceId,
     position,
+    autoAxis,
     title,
     text,
     buttons,
@@ -34,7 +35,7 @@
 <!-- The positioner's box is only a carrier: it must never catch a pointer, or
      its transparent area covers whatever sits under the anchor. The surface
      opts back in with pointer-events-auto. -->
-<AnchorPositioner {anchor} {position} class="pointer-events-none">
+<AnchorPositioner {anchor} {position} {autoAxis} class="pointer-events-none">
   <div
     bind:this={surface}
     id={surfaceId}

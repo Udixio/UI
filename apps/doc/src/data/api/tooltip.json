@@ -64,10 +64,19 @@
         },
         "position": {
           "name": "position",
-          "description": "Placement relative to the target. Defaults to `bottom-right` for `variant=\"rich\"`, `bottom` otherwise.",
+          "description": "Placement relative to the target. Defaults to `bottom-right` for `variant=\"rich\"`, `bottom` otherwise; tooltips inside a Toolbar use `auto`.",
           "required": false,
           "type": {
             "name": "AnchorPosition"
+          },
+          "defaultValue": null
+        },
+        "autoAxis": {
+          "name": "autoAxis",
+          "description": "Axis used when `position=\"auto\"`. Defaults to `vertical`; Toolbar descendants derive it from their orientation.",
+          "required": false,
+          "type": {
+            "name": "AnchorPositionAxis"
           },
           "defaultValue": null
         },
@@ -225,6 +234,16 @@
           },
           "defaultValue": null,
           "alias": "udxTooltipPosition"
+        },
+        "autoAxis": {
+          "name": "autoAxis",
+          "description": "Axis used when `udxTooltipPosition=\"auto\"`. Toolbar descendants derive it from their orientation.",
+          "required": false,
+          "type": {
+            "name": "AnchorPositionAxis | undefined"
+          },
+          "defaultValue": null,
+          "alias": "udxTooltipAutoAxis"
         },
         "trigger": {
           "name": "trigger",
@@ -507,6 +526,15 @@
           "required": false,
           "type": {
             "name": "string"
+          },
+          "defaultValue": null
+        },
+        "autoAxis": {
+          "name": "autoAxis",
+          "description": "Axis used when `position=\"auto\"`. Defaults to `vertical`; Toolbar descendants derive it from their orientation.",
+          "required": false,
+          "type": {
+            "name": "AnchorPositionAxis"
           },
           "defaultValue": null
         },

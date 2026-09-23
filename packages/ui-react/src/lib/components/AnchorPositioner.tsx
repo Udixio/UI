@@ -44,6 +44,7 @@ export type ReactAnchorPositionerProps = CoreAnchorPositionerProps & {
  */
 export const AnchorPositioner = ({
   anchorRef,
+  autoAxis = 'vertical',
   position = 'bottom',
   children,
   style,
@@ -59,7 +60,9 @@ export const AnchorPositioner = ({
   const [floating, setFloating] = useState<HTMLDivElement | null>(null);
   const controllerRef = useRef<AnchorPositionerController | null>(null);
   const positionRef = useRef(position);
+  const autoAxisRef = useRef(autoAxis);
   positionRef.current = position;
+  autoAxisRef.current = autoAxis;
 
   useEffect(() => {
     const anchor = anchorRef.current;
@@ -69,6 +72,7 @@ export const AnchorPositioner = ({
       anchor,
       floating,
       position: () => positionRef.current,
+      autoAxis: () => autoAxisRef.current,
     });
     controllerRef.current = controller;
 
@@ -80,7 +84,7 @@ export const AnchorPositioner = ({
 
   useEffect(() => {
     controllerRef.current?.update();
-  }, [position]);
+  }, [autoAxis, position]);
 
   if (!isMounted) return null;
 

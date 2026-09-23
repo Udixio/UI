@@ -28,6 +28,7 @@ export * from './TabGroup';
 export * from './TabPanels';
 export * from './TabPanel';
 export * from './TextField';
+export * from './Toolbar';
 export * from './Search';
 export * from './NavigationRailItem';
 export * from './NavigationRailSection';

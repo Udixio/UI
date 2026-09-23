@@ -69,7 +69,7 @@ describe('anchor positioner controller (native CSS Anchor Positioning)', () => {
     );
     expect(floatingSetProperty).toHaveBeenCalledWith(
       'position-try-fallbacks',
-      'flip-block, flip-inline',
+      'none',
     );
   });
 
@@ -113,6 +113,46 @@ describe('anchor positioner controller (native CSS Anchor Positioning)', () => {
     expect(floatingSetProperty).toHaveBeenLastCalledWith(
       'position-area',
       'top',
+    );
+  });
+
+  it('chooses below for automatic vertical placement in the upper half', () => {
+    const anchor = document.createElement('button');
+    const floating = document.createElement('div');
+    document.body.append(anchor, floating);
+    const floatingSetProperty = vi.spyOn(floating.style, 'setProperty');
+
+    createAnchorPositionerController({
+      anchor,
+      floating,
+      position: () => 'auto',
+      autoAxis: () => 'vertical',
+    });
+
+    expect(floatingSetProperty).toHaveBeenCalledWith('position-area', 'bottom');
+    expect(floatingSetProperty).toHaveBeenCalledWith(
+      'position-try-fallbacks',
+      'none',
+    );
+  });
+
+  it('chooses right for automatic horizontal placement in the left half', () => {
+    const anchor = document.createElement('button');
+    const floating = document.createElement('div');
+    document.body.append(anchor, floating);
+    const floatingSetProperty = vi.spyOn(floating.style, 'setProperty');
+
+    createAnchorPositionerController({
+      anchor,
+      floating,
+      position: () => 'auto',
+      autoAxis: () => 'horizontal',
+    });
+
+    expect(floatingSetProperty).toHaveBeenCalledWith('position-area', 'right');
+    expect(floatingSetProperty).toHaveBeenCalledWith(
+      'position-try-fallbacks',
+      'none',
     );
   });
 
@@ -217,6 +257,78 @@ describe('anchor positioner controller (fallback, no CSS Anchor Positioning supp
     expect(floating.style.top).toBe('140px');
     expect(floating.style.left).toBe('240px');
     expect(floating.style.transform).toBe('translateX(-50%)');
+  });
+
+  it('chooses above for automatic vertical placement in the lower half', () => {
+    const anchor = document.createElement('button');
+    const floating = document.createElement('div');
+    document.body.append(anchor, floating);
+    vi.spyOn(anchor, 'getBoundingClientRect').mockReturnValue({
+      top: 650,
+      bottom: 690,
+      left: 200,
+      right: 280,
+      width: 80,
+      height: 40,
+      x: 200,
+      y: 650,
+      toJSON: () => ({}),
+    } as DOMRect);
+    Object.defineProperty(window, 'innerWidth', {
+      value: 1000,
+      configurable: true,
+    });
+    Object.defineProperty(window, 'innerHeight', {
+      value: 800,
+      configurable: true,
+    });
+
+    createAnchorPositionerController({
+      anchor,
+      floating,
+      position: () => 'auto',
+      autoAxis: () => 'vertical',
+    });
+
+    expect(floating.style.bottom).toBe('150px');
+    expect(floating.style.top).toBe('');
+    expect(floating.style.transform).toBe('translateX(-50%)');
+  });
+
+  it('chooses left for automatic horizontal placement in the right half', () => {
+    const anchor = document.createElement('button');
+    const floating = document.createElement('div');
+    document.body.append(anchor, floating);
+    vi.spyOn(anchor, 'getBoundingClientRect').mockReturnValue({
+      top: 100,
+      bottom: 140,
+      left: 850,
+      right: 930,
+      width: 80,
+      height: 40,
+      x: 850,
+      y: 100,
+      toJSON: () => ({}),
+    } as DOMRect);
+    Object.defineProperty(window, 'innerWidth', {
+      value: 1000,
+      configurable: true,
+    });
+    Object.defineProperty(window, 'innerHeight', {
+      value: 800,
+      configurable: true,
+    });
+
+    createAnchorPositionerController({
+      anchor,
+      floating,
+      position: () => 'auto',
+      autoAxis: () => 'horizontal',
+    });
+
+    expect(floating.style.right).toBe('150px');
+    expect(floating.style.left).toBe('');
+    expect(floating.style.transform).toBe('translateY(-50%)');
   });
 
   // The four corner positions are diagonal: they name a cell of the 3x3 grid

@@ -6,7 +6,7 @@
   } from '@udixio/core/dom';
   import type { SvelteAnchorPositionerProps } from './anchor-positioner.types';
 
-  let { anchor, position = 'bottom', children, ...rest }: SvelteAnchorPositionerProps = $props();
+  let { anchor, position = 'bottom', autoAxis = 'vertical', children, ...rest }: SvelteAnchorPositionerProps = $props();
 
   let floating: HTMLDivElement | undefined = $state();
   let controller: AnchorPositionerController | undefined;
@@ -27,6 +27,7 @@
       anchor: anchorElement,
       floating,
       position: () => untrack(() => position),
+      autoAxis: () => untrack(() => autoAxis),
     });
     controller = created;
     return () => {
@@ -37,6 +38,7 @@
 
   $effect(() => {
     void position;
+    void autoAxis;
     controller?.update();
   });
 </script>

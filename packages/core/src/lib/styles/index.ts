@@ -30,4 +30,5 @@ export * from './tab-panels.style';
 export * from './tab.style';
 export * from './tabs.style';
 export * from './text-field.style';
+export * from './toolbar.style';
 export * from './tooltip.style';

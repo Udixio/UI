@@ -11,6 +11,7 @@
  * it right-aligned.
  */
 export type AnchorPosition =
+  | 'auto'
   | 'top'
   | 'bottom'
   | 'left'
@@ -20,11 +21,16 @@ export type AnchorPosition =
   | 'bottom-left'
   | 'bottom-right';
 
+/** The axis used when `position="auto"`; vertical chooses above/below, horizontal chooses left/right. */
+export type AnchorPositionAxis = 'vertical' | 'horizontal';
+
 /**
  * Floats content beside an anchor element and keeps it there as the page
  * moves.
  */
 export interface AnchorPositionerProps {
-  /** Placement of the floating element relative to its anchor. Defaults to `bottom`. */
+  /** Placement of the floating element relative to its anchor. `auto` chooses below/above or right/left from the anchor's viewport half. Defaults to `bottom`. */
   position?: AnchorPosition;
+  /** Axis used by automatic placement. Defaults to `vertical`. */
+  autoAxis?: AnchorPositionAxis;
 }

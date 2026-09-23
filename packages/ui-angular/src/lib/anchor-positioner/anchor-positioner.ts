@@ -11,7 +11,7 @@ import {
   viewChild,
   type OnDestroy,
 } from '@angular/core';
-import type { AnchorPosition } from '@udixio/core';
+import type { AnchorPosition, AnchorPositionAxis } from '@udixio/core';
 import {
   createAnchorPositionerController,
   type AnchorPositionerController,
@@ -51,6 +51,7 @@ export class AnchorPositioner implements OnDestroy {
   /** The element the floating content is positioned relative to. */
   readonly anchor = input.required<ElementRef<HTMLElement> | HTMLElement>();
   readonly position = input<AnchorPosition>('bottom');
+  readonly autoAxis = input<AnchorPositionAxis>('vertical');
   /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
   readonly hostClass = input<string>('', { alias: 'class' });
 
@@ -82,6 +83,7 @@ export class AnchorPositioner implements OnDestroy {
         anchor,
         floating,
         position: () => untracked(this.position),
+        autoAxis: () => untracked(this.autoAxis),
       });
       this.controller = controller;
       onCleanup(() => {
@@ -94,6 +96,7 @@ export class AnchorPositioner implements OnDestroy {
 
     afterRenderEffect(() => {
       this.position();
+      this.autoAxis();
       this.controller?.update();
     });
   }

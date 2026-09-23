@@ -1,0 +1,259 @@
+---
+---
+
+import Code from '@/components/Code.astro';
+import ToolbarDockedReact from '@/examples/react/toolbar-docked.tsx';
+import { ToolbarDockedAngular } from '@/examples/angular/toolbar-docked.ts';
+import ToolbarDockedSvelte from '@/examples/svelte/toolbar-docked.svelte';
+import toolbarDockedReactSource from '@/examples/react/toolbar-docked.tsx?raw';
+import toolbarDockedAngularSource from '@/examples/angular/toolbar-docked.ts?raw';
+import toolbarDockedSvelteSource from '@/examples/svelte/toolbar-docked.svelte?raw';
+import ToolbarCombinedReact from '@/examples/react/toolbar-combined.tsx';
+import { ToolbarCombinedAngular } from '@/examples/angular/toolbar-combined.ts';
+import ToolbarCombinedSvelte from '@/examples/svelte/toolbar-combined.svelte';
+import toolbarCombinedReactSource from '@/examples/react/toolbar-combined.tsx?raw';
+import toolbarCombinedAngularSource from '@/examples/angular/toolbar-combined.ts?raw';
+import toolbarCombinedSvelteSource from '@/examples/svelte/toolbar-combined.svelte?raw';
+import ToolbarFloatingReact from '@/examples/react/toolbar-floating.tsx';
+import { ToolbarFloatingAngular } from '@/examples/angular/toolbar-floating.ts';
+import ToolbarFloatingSvelte from '@/examples/svelte/toolbar-floating.svelte';
+import toolbarFloatingReactSource from '@/examples/react/toolbar-floating.tsx?raw';
+import toolbarFloatingAngularSource from '@/examples/angular/toolbar-floating.ts?raw';
+import toolbarFloatingSvelteSource from '@/examples/svelte/toolbar-floating.svelte?raw';
+import ToolbarVibrantReact from '@/examples/react/toolbar-vibrant.tsx';
+import { ToolbarVibrantAngular } from '@/examples/angular/toolbar-vibrant.ts';
+import ToolbarVibrantSvelte from '@/examples/svelte/toolbar-vibrant.svelte';
+import toolbarVibrantReactSource from '@/examples/react/toolbar-vibrant.tsx?raw';
+import toolbarVibrantAngularSource from '@/examples/angular/toolbar-vibrant.ts?raw';
+import toolbarVibrantSvelteSource from '@/examples/svelte/toolbar-vibrant.svelte?raw';
+import ToolbarSlotsReact from '@/examples/react/toolbar-slots.tsx';
+import { ToolbarSlotsAngular } from '@/examples/angular/toolbar-slots.ts';
+import ToolbarSlotsSvelte from '@/examples/svelte/toolbar-slots.svelte';
+import toolbarSlotsReactSource from '@/examples/react/toolbar-slots.tsx?raw';
+import toolbarSlotsAngularSource from '@/examples/angular/toolbar-slots.ts?raw';
+import toolbarSlotsSvelteSource from '@/examples/svelte/toolbar-slots.svelte?raw';
+import ToolbarVerticalReact from '@/examples/react/toolbar-vertical.tsx';
+import { ToolbarVerticalAngular } from '@/examples/angular/toolbar-vertical.ts';
+import ToolbarVerticalSvelte from '@/examples/svelte/toolbar-vertical.svelte';
+import toolbarVerticalReactSource from '@/examples/react/toolbar-vertical.tsx?raw';
+import toolbarVerticalAngularSource from '@/examples/angular/toolbar-vertical.ts?raw';
+import toolbarVerticalSvelteSource from '@/examples/svelte/toolbar-vertical.svelte?raw';
+import ToolbarOverflowReact from '@/examples/react/toolbar-overflow.tsx';
+import { ToolbarOverflowAngular } from '@/examples/angular/toolbar-overflow.ts';
+import ToolbarOverflowSvelte from '@/examples/svelte/toolbar-overflow.svelte';
+import toolbarOverflowReactSource from '@/examples/react/toolbar-overflow.tsx?raw';
+import toolbarOverflowAngularSource from '@/examples/angular/toolbar-overflow.ts?raw';
+import toolbarOverflowSvelteSource from '@/examples/svelte/toolbar-overflow.svelte?raw';
+import ToolbarResponsiveReact from '@/examples/react/toolbar-responsive.tsx';
+import { ToolbarResponsiveAngular } from '@/examples/angular/toolbar-responsive.ts';
+import ToolbarResponsiveSvelte from '@/examples/svelte/toolbar-responsive.svelte';
+import toolbarResponsiveReactSource from '@/examples/react/toolbar-responsive.tsx?raw';
+import toolbarResponsiveAngularSource from '@/examples/angular/toolbar-responsive.ts?raw';
+import toolbarResponsiveSvelteSource from '@/examples/svelte/toolbar-responsive.svelte?raw';
+import ToolbarCustomOverflowReact from '@/examples/react/toolbar-custom-overflow.tsx';
+import { ToolbarCustomOverflowAngular } from '@/examples/angular/toolbar-custom-overflow.ts';
+import ToolbarCustomOverflowSvelte from '@/examples/svelte/toolbar-custom-overflow.svelte';
+import toolbarCustomOverflowReactSource from '@/examples/react/toolbar-custom-overflow.tsx?raw';
+import toolbarCustomOverflowAngularSource from '@/examples/angular/toolbar-custom-overflow.ts?raw';
+import toolbarCustomOverflowSvelteSource from '@/examples/svelte/toolbar-custom-overflow.svelte?raw';
+
+## Usage
+
+Toolbar groups related actions in a docked or floating container. It is a
+composition wrapper: put `Button`, `IconButton`, an image, or another
+appropriately labelled custom control inside it. The toolbar does not duplicate the action's state,
+tooltip, or keyboard behavior.
+
+## Docked toolbar
+
+Use a docked toolbar at the bottom of the current app surface. It can be paired
+with a FAB when the FAB represents the primary action; the screen owns the
+placement and the action state.
+
+<Code
+  codes={{
+    react: toolbarDockedReactSource,
+    angular: toolbarDockedAngularSource,
+    svelte: toolbarDockedSvelteSource,
+  }}
+>
+  <ToolbarDockedReact slot="react" client:load />
+  <ToolbarDockedAngular slot="angular" client:load />
+  <ToolbarDockedSvelte slot="svelte" client:load />
+</Code>
+
+## Combining toolbars
+
+Two toolbars can coexist when they serve separate responsibilities: this example
+uses a floating selection group over a docked document group. Keep enough space
+between the groups, and collapse one group into overflow in compact layouts.
+
+<Code
+  codes={{
+    react: toolbarCombinedReactSource,
+    angular: toolbarCombinedAngularSource,
+    svelte: toolbarCombinedSvelteSource,
+  }}
+>
+  <ToolbarCombinedReact slot="react" client:load />
+  <ToolbarCombinedAngular slot="angular" client:load />
+  <ToolbarCombinedSvelte slot="svelte" client:load />
+</Code>
+
+## Floating toolbar
+
+Use a floating toolbar when actions should remain visible in context. This
+example focuses on the default horizontal floating arrangement.
+
+<Code
+  codes={{
+    react: toolbarFloatingReactSource,
+    angular: toolbarFloatingAngularSource,
+    svelte: toolbarFloatingSvelteSource,
+  }}
+>
+  <ToolbarFloatingReact slot="react" client:load />
+  <ToolbarFloatingAngular slot="angular" client:load />
+  <ToolbarFloatingSvelte slot="svelte" client:load />
+</Code>
+
+## Vibrant toolbar
+
+Use `color="vibrant"` when the toolbar needs the expressive color treatment.
+This is a separate visual choice from the floating arrangement.
+
+<Code
+  codes={{
+    react: toolbarVibrantReactSource,
+    angular: toolbarVibrantAngularSource,
+    svelte: toolbarVibrantSvelteSource,
+  }}
+>
+  <ToolbarVibrantReact slot="react" client:load />
+  <ToolbarVibrantAngular slot="angular" client:load />
+  <ToolbarVibrantSvelte slot="svelte" client:load />
+</Code>
+
+## Flexible slots
+
+Toolbar is only a container, so its slots can hold buttons, icon buttons, images,
+or custom content. A filled button or filled icon button can give one action more
+emphasis without changing the toolbar itself.
+
+<Code
+  codes={{
+    react: toolbarSlotsReactSource,
+    angular: toolbarSlotsAngularSource,
+    svelte: toolbarSlotsSvelteSource,
+  }}
+>
+  <ToolbarSlotsReact slot="react" client:load />
+  <ToolbarSlotsAngular slot="angular" client:load />
+  <ToolbarSlotsSvelte slot="svelte" client:load />
+</Code>
+
+## Vertical toolbar
+
+Vertical floating toolbars suit spacious layouts with a secondary action group.
+Material 3 does not recommend this orientation in compact layouts; prefer an
+overflow action when width is limited.
+
+<Code
+  codes={{
+    react: toolbarVerticalReactSource,
+    angular: toolbarVerticalAngularSource,
+    svelte: toolbarVerticalSvelteSource,
+  }}
+>
+  <ToolbarVerticalReact slot="react" client:load />
+  <ToolbarVerticalAngular slot="angular" client:load />
+  <ToolbarVerticalSvelte slot="svelte" client:load />
+</Code>
+
+## Overflow actions
+
+Pass an `actions` model when the toolbar should manage visibility for you.
+`maxVisible` keeps the first actions visible and moves the rest into a generated
+menu; set `pinned: true` on an action that must remain visible. The example uses
+several editing actions so the generated menu has meaningful content.
+
+The generated menu uses automatic placement by default: it opens below a
+horizontal toolbar in the upper half of the viewport and above it in the lower
+half; vertical toolbars use the equivalent right/left rule. Use `morePosition`
+to force a specific placement when needed.
+
+<Code
+  codes={{
+    react: toolbarOverflowReactSource,
+    angular: toolbarOverflowAngularSource,
+    svelte: toolbarOverflowSvelteSource,
+  }}
+>
+  <ToolbarOverflowReact slot="react" client:load />
+  <ToolbarOverflowAngular slot="angular" client:load />
+  <ToolbarOverflowSvelte slot="svelte" client:load />
+</Code>
+
+## Responsive overflow
+
+Use `responsive` when the visible action count should follow the toolbar's
+actual width instead of a fixed `maxVisible` value. Resize the example to see
+actions move into or out of the generated overflow menu.
+
+<Code
+  codes={{
+    react: toolbarResponsiveReactSource,
+    angular: toolbarResponsiveAngularSource,
+    svelte: toolbarResponsiveSvelteSource,
+  }}
+>
+  <ToolbarResponsiveReact slot="react" client:load />
+  <ToolbarResponsiveAngular slot="angular" client:load />
+  <ToolbarResponsiveSvelte slot="svelte" client:load />
+</Code>
+
+## Custom overflow trigger
+
+The generated menu stays the same when its trigger needs a different treatment.
+Use `renderMore`, `moreTemplate`, or the equivalent framework-specific slot with a custom button to
+replace the default icon button while keeping the automatic action management.
+
+<Code
+  codes={{
+    react: toolbarCustomOverflowReactSource,
+    angular: toolbarCustomOverflowAngularSource,
+    svelte: toolbarCustomOverflowSvelteSource,
+  }}
+>
+  <ToolbarCustomOverflowReact slot="react" client:load />
+  <ToolbarCustomOverflowAngular slot="angular" client:load />
+  <ToolbarCustomOverflowSvelte slot="svelte" client:load />
+</Code>
+
+## Guidelines
+
+- Toolbars are 64dp high by default; use `IconButton size="small"` for the
+  48dp toolbar slots and keep every interactive child at or above that target.
+- Docked toolbars use 16dp edge padding and 8dp minimum spacing between actions;
+  compact widths distribute the actions evenly.
+- Floating toolbars use compact 8dp internal padding and 4dp between actions.
+- Keep a horizontal floating toolbar at least 16dp from surrounding edges and a
+  vertical floating toolbar at least 24dp away.
+- Docked toolbars belong at the bottom of the surface and should not be shown
+  simultaneously with a navigation bar.
+- Avoid multiple toolbars in compact layouts. Use overflow when actions do not
+  fit and keep the overflow action in its logical position in RTL layouts.
+
+## Accessibility
+
+The root exposes `role="toolbar"`. Provide `accessibleLabel`, or connect an
+external heading with `aria-labelledby`, so assistive technology can identify
+the action group. In `actions` mode, the generated trigger exposes its menu
+relationship and the menu items reuse each action's accessible label. In
+composition mode, children own focus, activation, pressed state, and labels. In
+particular, an `IconButton` should always receive a meaningful `label`.
+
+This wrapper intentionally does not implement roving focus or arrow-key
+navigation. If a product needs a composite keyboard model, use a dedicated
+interaction pattern around the child controls rather than assuming that every
+toolbar is a single composite widget.

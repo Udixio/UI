@@ -1,0 +1,495 @@
+{
+  "schemaVersion": 5,
+  "displayName": "Toolbar",
+  "description": "Toolbars group related actions in a docked or floating container.",
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/Toolbar.tsx",
+      "tags": {
+        "status": "beta",
+        "category": "Layout",
+        "devx": "- Compose `IconButton` children or pass `actions` for a data-driven action group.\n- `maxVisible` moves the remaining actions into an automatic overflow menu;\n  `responsive` derives the visible count from the toolbar width.\n- `more` customizes the default overflow trigger and `renderMore` replaces its\n  visual rendering while keeping the menu behavior.\n- The generated overflow menu chooses above/below or left/right from the\n  toolbar orientation and the trigger's viewport half; `morePosition` can\n  force a placement.\n- Descendant `IconButton` controls keep rounded press feedback in floating\n  toolbars.\n- Use `variant=\"floating\"` for a compact surface and\n  `orientation=\"vertical\"` for a vertical action group.",
+        "a11y": "- Renders `role=\"toolbar\"` and applies `aria-orientation=\"vertical\"` for\n  vertical layouts.\n- The overflow trigger has an accessible label and the generated menu uses\n  the labels from each action.\n- Provide `accessibleLabel` or an `aria-labelledby` reference to name the\n  toolbar; label each child control according to its own component API.",
+        "limitations": "- `actions` and `children` are alternative content modes; `actions` takes precedence.\n- The toolbar does not implement roving focus or arrow-key navigation for its\n  direct children. The overflow menu owns menu-item keyboard navigation.\n- Composition children remain consumer-owned; use `IconButton size=\"small\"`\n  for the 48dp toolbar slots shown in the Material 3 design."
+      },
+      "methods": [],
+      "props": {
+        "className": {
+          "name": "className",
+          "description": "Root classes (string), static element classes (object), or state-aware element classes (function).",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<ToolbarInterface> | Partial<Record<\"toolbar\", string>>"
+          },
+          "defaultValue": null
+        },
+        "color": {
+          "name": "color",
+          "description": "Container color treatment.",
+          "required": false,
+          "type": {
+            "name": "ToolbarColor"
+          },
+          "defaultValue": {
+            "value": "'standard'"
+          }
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Container presentation.",
+          "required": false,
+          "type": {
+            "name": "ToolbarVariant"
+          },
+          "defaultValue": {
+            "value": "'docked'"
+          }
+        },
+        "orientation": {
+          "name": "orientation",
+          "description": "Layout axis for the toolbar's children.",
+          "required": false,
+          "type": {
+            "name": "ToolbarOrientation"
+          },
+          "defaultValue": {
+            "value": "'horizontal'"
+          }
+        },
+        "accessibleLabel": {
+          "name": "accessibleLabel",
+          "description": "Accessible name applied to the toolbar container.\nPrefer this prop for cross-framework parity; `aria-labelledby` remains\navailable through the framework's native attributes.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "maxVisible": {
+          "name": "maxVisible",
+          "description": "Maximum number of non-pinned actions shown in the toolbar.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
+        "responsive": {
+          "name": "responsive",
+          "description": "Measures the toolbar and reserves one action slot for overflow when needed.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "itemWidth": {
+          "name": "itemWidth",
+          "description": "Estimated width of one action slot when `responsive` is enabled.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "48"
+          }
+        },
+        "more": {
+          "name": "more",
+          "description": "Presentation options for the automatically rendered overflow trigger.",
+          "required": false,
+          "type": {
+            "name": "ToolbarMoreProps"
+          },
+          "defaultValue": null
+        },
+        "morePosition": {
+          "name": "morePosition",
+          "description": "Position of the generated overflow menu relative to the More trigger. `auto` follows the toolbar orientation and the trigger's viewport half.",
+          "required": false,
+          "type": {
+            "name": "AnchorPosition"
+          },
+          "defaultValue": {
+            "value": "'auto'"
+          }
+        },
+        "onMoreOpenChange": {
+          "name": "onMoreOpenChange",
+          "description": "Notifies consumers when the generated overflow menu opens or closes.",
+          "required": false,
+          "type": {
+            "name": "(open: boolean) => void"
+          },
+          "defaultValue": null
+        },
+        "renderMore": {
+          "name": "renderMore",
+          "description": "Replaces the default overflow trigger while retaining the overflow menu.",
+          "required": false,
+          "type": {
+            "name": "(props: ReactToolbarMoreRenderProps) => ReactNode"
+          },
+          "defaultValue": null
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/toolbar/toolbar.ts",
+      "selector": "udx-toolbar",
+      "tags": {
+        "status": "beta",
+        "category": "Layout",
+        "devx": "- Compose `udx-icon-button` children or pass `actions` for a data-driven action group.\n- `maxVisible` moves the remaining actions into an automatic overflow menu;\n  `responsive` derives the visible count from the toolbar width.\n- `more` customizes the default overflow trigger and `moreTemplate` replaces\n  its visual rendering while keeping the menu behavior.\n- The generated overflow menu chooses above/below or left/right from the\n  toolbar orientation and the trigger's viewport half; `morePosition` can\n  force a placement.\n- Descendant `udx-icon-button` controls keep rounded press feedback in\n  floating toolbars.\n- Use `variant=\"floating\"` for a compact surface and\n  `orientation=\"vertical\"` for a vertical action group.",
+        "a11y": "- Renders `role=\"toolbar\"` and applies `aria-orientation=\"vertical\"` for\n  vertical layouts.\n- The overflow trigger has an accessible label and the generated menu uses\n  the labels from each action.\n- Provide `accessibleLabel` or an `aria-labelledby` reference to name the\n  toolbar; label each child control according to its own component API.",
+        "limitations": "- `actions` and projected children are alternative content modes; `actions`\n  takes precedence.\n- The toolbar does not implement roving focus or arrow-key navigation for its\n  direct children. The overflow menu owns menu-item keyboard navigation.\n- Composition children remain consumer-owned; use `size=\"small\"` on\n  `udx-icon-button` for the 48dp toolbar slots shown in Material 3.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have\n  no visible effect; use `class`, `[class]`, or `classes`."
+      },
+      "inputs": {
+        "variant": {
+          "name": "variant",
+          "description": "Container presentation.",
+          "required": false,
+          "type": {
+            "name": "ToolbarVariant | undefined"
+          },
+          "defaultValue": {
+            "value": "'docked'"
+          }
+        },
+        "color": {
+          "name": "color",
+          "description": "Container color treatment.",
+          "required": false,
+          "type": {
+            "name": "ToolbarColor | undefined"
+          },
+          "defaultValue": {
+            "value": "'standard'"
+          }
+        },
+        "orientation": {
+          "name": "orientation",
+          "description": "Layout axis for the toolbar's children.",
+          "required": false,
+          "type": {
+            "name": "ToolbarOrientation | undefined"
+          },
+          "defaultValue": {
+            "value": "'horizontal'"
+          }
+        },
+        "accessibleLabel": {
+          "name": "accessibleLabel",
+          "description": "Accessible name applied to the toolbar container.\nPrefer this prop for cross-framework parity; `aria-labelledby` remains\navailable through the framework's native attributes.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null
+        },
+        "ariaLabelledBy": {
+          "name": "ariaLabelledBy",
+          "description": "ID of an external element that labels the toolbar.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null,
+          "alias": "aria-labelledby"
+        },
+        "actions": {
+          "name": "actions",
+          "description": "Data-driven actions rendered as icon buttons with automatic overflow.",
+          "required": false,
+          "type": {
+            "name": "readonly AngularToolbarAction[]"
+          },
+          "defaultValue": null
+        },
+        "maxVisible": {
+          "name": "maxVisible",
+          "description": "Maximum number of non-pinned actions shown in the toolbar.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
+        "responsive": {
+          "name": "responsive",
+          "description": "Measures the toolbar and reserves one action slot for overflow when needed.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "itemWidth": {
+          "name": "itemWidth",
+          "description": "Estimated width of one action slot when `responsive` is enabled.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "48"
+          }
+        },
+        "more": {
+          "name": "more",
+          "description": "Presentation options for the default overflow trigger.",
+          "required": false,
+          "type": {
+            "name": "ToolbarMoreProps"
+          },
+          "defaultValue": null
+        },
+        "morePosition": {
+          "name": "morePosition",
+          "description": "Position of the generated overflow menu relative to the More trigger.",
+          "required": false,
+          "type": {
+            "name": "AnchorPosition"
+          },
+          "defaultValue": {
+            "value": "'auto'"
+          }
+        },
+        "moreTemplate": {
+          "name": "moreTemplate",
+          "description": "Template that replaces the default overflow trigger.",
+          "required": false,
+          "type": {
+            "name": "TemplateRef<ToolbarMoreContext>"
+          },
+          "defaultValue": null
+        },
+        "hostClass": {
+          "name": "hostClass",
+          "description": "Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          },
+          "alias": "class"
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"toolbar\", string>> | ClassNameComponent<ToolbarInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {
+        "moreOpenChange": {
+          "name": "moreOpenChange",
+          "description": "Notifies consumers when the generated overflow menu opens or closes.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        }
+      },
+      "content": {
+        "default": {
+          "name": "default",
+          "selector": "*",
+          "description": "Default projected content."
+        }
+      }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/toolbar/Toolbar.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Layout",
+        "devx": "- Compose `IconButton` children or other controls, or pass `actions` for a\n  data-driven action group.\n- `maxVisible` moves the remaining actions into an automatic overflow menu;\n  `responsive` derives the visible count from the toolbar width.\n- `more` customizes the default overflow trigger and `moreTemplate` replaces\n  its visual rendering while keeping the menu behavior.\n- The generated overflow menu chooses above/below or left/right from the\n  toolbar orientation and the trigger's viewport half; `morePosition` can\n  force a placement.\n- Descendant `IconButton` controls keep rounded press feedback in floating\n  toolbars.\n- Use `variant=\"floating\"` for a compact surface and\n  `orientation=\"vertical\"` for a vertical action group.",
+        "a11y": "- Renders `role=\"toolbar\"` and applies `aria-orientation=\"vertical\"` for\n  vertical layouts.\n- Provide `accessibleLabel` or an `aria-labelledby` reference to name the\n  toolbar; label each child control according to its own component API.",
+        "limitations": "- The toolbar is a layout wrapper and does not implement roving focus or\n  arrow-key navigation. Interactive children retain their native behavior.\n- Composition children remain consumer-owned; use `size=\"small\"` on\n  `IconButton` for the 48dp toolbar slots shown in Material 3."
+      },
+      "props": {
+        "actions": {
+          "name": "actions",
+          "description": "Data-driven actions rendered as icon buttons with automatic overflow.",
+          "required": false,
+          "type": {
+            "name": "readonly SvelteToolbarAction[]"
+          },
+          "defaultValue": null
+        },
+        "more": {
+          "name": "more",
+          "description": "Presentation options for the default overflow trigger.",
+          "required": false,
+          "type": {
+            "name": "ToolbarMoreProps"
+          },
+          "defaultValue": null
+        },
+        "onMoreOpenChange": {
+          "name": "onMoreOpenChange",
+          "description": "Notifies consumers when the generated overflow menu opens or closes.",
+          "required": false,
+          "type": {
+            "name": "(open: boolean) => void"
+          },
+          "defaultValue": null
+        },
+        "class": {
+          "name": "class",
+          "description": "Classes applied to the root element, merged with the component's own classes.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"toolbar\", string>> | ClassNameComponent<ToolbarInterface>"
+          },
+          "defaultValue": null
+        },
+        "aria-label": {
+          "name": "aria-label",
+          "description": "An alternative accessible name when `accessibleLabel` is not provided.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "aria-orientation": {
+          "name": "aria-orientation",
+          "description": "An explicit orientation override for the rendered toolbar semantics.",
+          "required": false,
+          "type": {
+            "name": "\"vertical\" | \"horizontal\""
+          },
+          "defaultValue": null
+        },
+        "onkeydown": {
+          "name": "onkeydown",
+          "description": "Optional native keyboard listener forwarded to the root element.",
+          "required": false,
+          "type": {
+            "name": "(event: KeyboardEvent) => void"
+          },
+          "defaultValue": null
+        },
+        "color": {
+          "name": "color",
+          "description": "Container color treatment.",
+          "required": false,
+          "type": {
+            "name": "ToolbarColor"
+          },
+          "defaultValue": {
+            "value": "'standard'"
+          }
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Container presentation.",
+          "required": false,
+          "type": {
+            "name": "ToolbarVariant"
+          },
+          "defaultValue": {
+            "value": "'docked'"
+          }
+        },
+        "orientation": {
+          "name": "orientation",
+          "description": "Layout axis for the toolbar's children.",
+          "required": false,
+          "type": {
+            "name": "ToolbarOrientation"
+          },
+          "defaultValue": {
+            "value": "'horizontal'"
+          }
+        },
+        "accessibleLabel": {
+          "name": "accessibleLabel",
+          "description": "Accessible name applied to the toolbar container.\nPrefer this prop for cross-framework parity; `aria-labelledby` remains\navailable through the framework's native attributes.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "maxVisible": {
+          "name": "maxVisible",
+          "description": "Maximum number of non-pinned actions shown in the toolbar.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": null
+        },
+        "responsive": {
+          "name": "responsive",
+          "description": "Measures the toolbar and reserves one action slot for overflow when needed.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "itemWidth": {
+          "name": "itemWidth",
+          "description": "Estimated width of one action slot when `responsive` is enabled.",
+          "required": false,
+          "type": {
+            "name": "number"
+          },
+          "defaultValue": {
+            "value": "48"
+          }
+        },
+        "morePosition": {
+          "name": "morePosition",
+          "description": "Position of the generated overflow menu relative to the More trigger. `auto` follows the toolbar orientation and the trigger's viewport half.",
+          "required": false,
+          "type": {
+            "name": "AnchorPosition"
+          },
+          "defaultValue": {
+            "value": "'auto'"
+          }
+        }
+      },
+      "snippets": {
+        "moreTemplate": {
+          "name": "moreTemplate",
+          "description": "Replaces the default overflow trigger while retaining the overflow menu.",
+          "parameters": "[SvelteToolbarMoreContext]"
+        },
+        "children": {
+          "name": "children",
+          "description": "Default content."
+        }
+      }
+    }
+  }
+}

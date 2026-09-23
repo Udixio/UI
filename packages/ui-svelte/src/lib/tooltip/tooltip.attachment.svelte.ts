@@ -2,6 +2,7 @@ import { mount, unmount, untrack } from 'svelte';
 import type { Attachment } from 'svelte/attachments';
 import {
   mergeClassNames,
+  type AnchorPositionAxis,
   tooltipStyle,
   type TooltipInteractionState,
   type TooltipInterface,
@@ -47,8 +48,26 @@ export function tooltip(options: () => SvelteTooltipProps): Attachment<HTMLEleme
     const resolved = $derived.by(options);
     const active = $derived(hasContent(resolved));
     const variant = $derived(resolved.variant ?? 'plain');
+    const toolbarAutoAxis = $derived.by<AnchorPositionAxis | undefined>(() => {
+      const orientation = target
+        .closest<HTMLElement>('[data-udx-toolbar-orientation]')
+        ?.getAttribute('data-udx-toolbar-orientation');
+      return orientation === 'vertical'
+        ? 'horizontal'
+        : orientation === 'horizontal'
+          ? 'vertical'
+          : undefined;
+    });
     const effectivePosition = $derived(
-      resolved.position ?? (variant === 'rich' ? 'bottom-right' : 'bottom'),
+      resolved.position ??
+        (toolbarAutoAxis
+          ? 'auto'
+          : variant === 'rich'
+            ? 'bottom-right'
+            : 'bottom'),
+    );
+    const effectiveAutoAxis = $derived(
+      resolved.autoAxis ?? toolbarAutoAxis ?? 'vertical',
     );
     const resolvedId = $derived(resolved.id ?? generatedId);
     const isControlled = $derived(resolved.open !== undefined);
@@ -90,6 +109,7 @@ export function tooltip(options: () => SvelteTooltipProps): Attachment<HTMLEleme
       anchor: target,
       surfaceId: generatedId,
       position: 'bottom',
+      autoAxis: 'vertical',
       isOpen: false,
       styles: {},
       onSurfaceHovered: (hovered) => triggerController?.setSurfaceHovered(hovered),
@@ -99,6 +119,7 @@ export function tooltip(options: () => SvelteTooltipProps): Attachment<HTMLEleme
       surfaceProps.anchor = resolved.anchor ?? target;
       surfaceProps.surfaceId = resolvedId;
       surfaceProps.position = effectivePosition;
+      surfaceProps.autoAxis = effectiveAutoAxis;
       surfaceProps.title = resolved.title;
       surfaceProps.text = resolved.text;
       surfaceProps.buttons = resolved.buttons;

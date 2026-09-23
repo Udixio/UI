@@ -20,7 +20,10 @@ export type { SvelteIconProps } from './lib/icon/icon.types';
 export { default as ProgressIndicator } from './lib/progress-indicator/ProgressIndicator.svelte';
 export type { SvelteProgressIndicatorProps } from './lib/progress-indicator/progress-indicator.types';
 export { tooltip } from './lib/tooltip/tooltip.attachment.svelte';
-export type { SvelteTooltipProps, TooltipButtonAction } from './lib/tooltip/tooltip.types';
+export type {
+  SvelteTooltipProps,
+  TooltipButtonAction,
+} from './lib/tooltip/tooltip.types';
 export { default as StateLayer } from './lib/state-layer/StateLayer.svelte';
 export type { SvelteStateLayerProps } from './lib/state-layer/state-layer.types';
 export { default as Switch } from './lib/switch/Switch.svelte';
@@ -29,6 +32,12 @@ export { default as Slider } from './lib/slider/Slider.svelte';
 export type { SvelteSliderProps } from './lib/slider/slider.types';
 export { default as TextField } from './lib/text-field/TextField.svelte';
 export type { SvelteTextFieldProps } from './lib/text-field/text-field.types';
+export { default as Toolbar } from './lib/toolbar/Toolbar.svelte';
+export type {
+  SvelteToolbarAction,
+  SvelteToolbarMoreContext,
+  SvelteToolbarProps,
+} from './lib/toolbar/toolbar.types';
 export { default as Chip } from './lib/chip/Chip.svelte';
 export type { SvelteChipProps } from './lib/chip/chip.types';
 export { default as Chips } from './lib/chips/Chips.svelte';

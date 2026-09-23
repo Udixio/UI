@@ -416,6 +416,26 @@
           },
           "defaultValue": null,
           "alias": "aria-current"
+        },
+        "ariaHasPopup": {
+          "name": "ariaHasPopup",
+          "description": "Popup relationship forwarded to the inner interactive element.",
+          "required": false,
+          "type": {
+            "name": "boolean | \"grid\" | \"menu\" | \"listbox\" | \"tree\" | \"dialog\" | undefined"
+          },
+          "defaultValue": null,
+          "alias": "aria-haspopup"
+        },
+        "ariaExpanded": {
+          "name": "ariaExpanded",
+          "description": "Expanded state forwarded to the inner interactive element.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null,
+          "alias": "aria-expanded"
         }
       },
       "outputs": {

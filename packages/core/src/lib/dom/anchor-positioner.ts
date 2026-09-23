@@ -1,4 +1,9 @@
-import type { AnchorPosition } from '../interfaces/anchor-positioner.interface.js';
+import type {
+  AnchorPosition,
+  AnchorPositionAxis,
+} from '../interfaces/anchor-positioner.interface.js';
+
+type ExplicitAnchorPosition = Exclude<AnchorPosition, 'auto'>;
 
 export interface AnchorPositionerOptions {
   /** The element the floating element is positioned relative to. */
@@ -6,6 +11,8 @@ export interface AnchorPositionerOptions {
   /** The floating element being positioned. The adapter owns portaling it. */
   floating: HTMLElement;
   position?: () => AnchorPosition;
+  /** Axis used when `position()` returns `auto`. */
+  autoAxis?: () => AnchorPositionAxis;
   /**
    * Whether `floating` mirrors the theme scope of its anchor. Adapters portal
    * the floating element to the document body, out of any `.light`/`.dark`/
@@ -134,7 +141,7 @@ export function resolveBoxElement(element: HTMLElement): HTMLElement {
  * hyphenated form straight through is an invalid custom-ident that browsers
  * silently ignore.
  */
-export const POSITION_AREA: Record<AnchorPosition, string> = {
+export const POSITION_AREA: Record<ExplicitAnchorPosition, string> = {
   top: 'top',
   bottom: 'bottom',
   left: 'left',
@@ -145,11 +152,34 @@ export const POSITION_AREA: Record<AnchorPosition, string> = {
   'bottom-right': 'bottom right',
 };
 
+function resolveAutoPosition(
+  anchorRect: DOMRect,
+  viewportWidth: number,
+  viewportHeight: number,
+  axis: AnchorPositionAxis,
+): ExplicitAnchorPosition {
+  // Keep the decision predictable while the anchor moves: toolbars are read
+  // as belonging to the upper/lower or left/right half of the viewport. This
+  // intentionally does not measure the floating surface's size. A toolbar
+  // near the bottom should open upward even when there is technically enough
+  // room below it, so the popup does not cover the controls around it.
+  const anchorCenter =
+    axis === 'vertical'
+      ? anchorRect.top + anchorRect.height / 2
+      : anchorRect.left + anchorRect.width / 2;
+  const viewportCenter =
+    axis === 'vertical' ? viewportHeight / 2 : viewportWidth / 2;
+
+  if (anchorCenter <= viewportCenter) {
+    return axis === 'vertical' ? 'bottom' : 'right';
+  }
+  return axis === 'vertical' ? 'top' : 'left';
+}
+
 /**
  * Connects the shared floating-position effect for `AnchorPositioner`. Uses
  * native CSS Anchor Positioning when the browser supports it (`anchor-name`
- * + `position-anchor` + `position-area`, with `flip-block`/`flip-inline`
- * fallbacks); otherwise falls back to tracking the anchor's
+ * + `position-anchor` + `position-area`); otherwise falls back to tracking the anchor's
  * `getBoundingClientRect()` on scroll/resize and positioning `floating` with
  * `position: fixed`. Both React and Angular adapters connect this single
  * controller and only own portaling `floating` into the DOM and its mount
@@ -159,6 +189,7 @@ export function createAnchorPositionerController({
   anchor: givenAnchor,
   floating,
   position = () => 'bottom',
+  autoAxis = () => 'vertical',
   inheritThemeScope = true,
 }: AnchorPositionerOptions): AnchorPositionerController {
   let destroyed = false;
@@ -166,6 +197,18 @@ export function createAnchorPositionerController({
   const unmirrorThemeScope = inheritThemeScope
     ? mirrorThemeScope(givenAnchor, floating)
     : () => {};
+  const ownerWindow = anchor.ownerDocument.defaultView ?? globalThis.window;
+  const getViewport = () => {
+    // `innerWidth`/`innerHeight` include the scrollbars, while CSS `right` and
+    // `bottom` resolve against the layout viewport, which does not. Measuring
+    // with the window would offset every left- and top-anchored placement by
+    // the scrollbar width.
+    const root = anchor.ownerDocument.documentElement;
+    return {
+      width: root.clientWidth || ownerWindow.innerWidth,
+      height: root.clientHeight || ownerWindow.innerHeight,
+    };
+  };
 
   if (supportsCssAnchorPositioning()) {
     const anchorName = `--udx-anchor-${nextAnchorId++}`;
@@ -173,15 +216,35 @@ export function createAnchorPositionerController({
     floating.style.position = 'fixed';
     floating.style.margin = '0';
     floating.style.setProperty('position-anchor', anchorName);
-    floating.style.setProperty(
-      'position-try-fallbacks',
-      'flip-block, flip-inline',
-    );
+    // `auto` is resolved by the shared midpoint rule below. Do not let the
+    // browser replace that decision with its own available-space heuristic.
+    floating.style.setProperty('position-try-fallbacks', 'none');
 
     const update = () => {
-      floating.style.setProperty('position-area', POSITION_AREA[position()]);
+      const requestedPosition = position();
+      const viewport = getViewport();
+      const resolvedPosition: ExplicitAnchorPosition =
+        requestedPosition === 'auto'
+          ? resolveAutoPosition(
+              anchor.getBoundingClientRect(),
+              viewport.width,
+              viewport.height,
+              autoAxis(),
+            )
+          : requestedPosition;
+      floating.style.setProperty(
+        'position-area',
+        POSITION_AREA[resolvedPosition],
+      );
     };
     update();
+    const resizeObserver =
+      typeof ResizeObserver === 'undefined'
+        ? undefined
+        : new ResizeObserver(update);
+    resizeObserver?.observe(anchor);
+    ownerWindow.addEventListener('scroll', update, true);
+    ownerWindow.addEventListener('resize', update);
 
     return {
       update,
@@ -193,21 +256,16 @@ export function createAnchorPositionerController({
         floating.style.removeProperty('position-anchor');
         floating.style.removeProperty('position-area');
         floating.style.removeProperty('position-try-fallbacks');
+        resizeObserver?.disconnect();
+        ownerWindow.removeEventListener('scroll', update, true);
+        ownerWindow.removeEventListener('resize', update);
       },
     };
   }
 
-  const ownerWindow = anchor.ownerDocument.defaultView ?? globalThis.window;
-
   const update = () => {
     const rect = anchor.getBoundingClientRect();
-    // `innerWidth`/`innerHeight` include the scrollbars, while CSS `right` and
-    // `bottom` resolve against the layout viewport, which does not. Measuring
-    // with the window would offset every left- and top-anchored placement by
-    // the scrollbar width.
-    const root = anchor.ownerDocument.documentElement;
-    const viewportWidth = root.clientWidth || ownerWindow.innerWidth;
-    const viewportHeight = root.clientHeight || ownerWindow.innerHeight;
+    const { width: viewportWidth, height: viewportHeight } = getViewport();
     floating.style.position = 'fixed';
     floating.style.margin = '0';
     floating.style.top = '';
@@ -216,7 +274,13 @@ export function createAnchorPositionerController({
     floating.style.right = '';
     floating.style.transform = '';
 
-    switch (position()) {
+    const requestedPosition = position();
+    const resolvedPosition: ExplicitAnchorPosition =
+      requestedPosition === 'auto'
+        ? resolveAutoPosition(rect, viewportWidth, viewportHeight, autoAxis())
+        : requestedPosition;
+
+    switch (resolvedPosition) {
       case 'top':
         floating.style.bottom = `${viewportHeight - rect.top}px`;
         floating.style.left = `${rect.left + rect.width / 2}px`;
