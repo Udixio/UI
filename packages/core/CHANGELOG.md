@@ -1,3 +1,17 @@
+## 0.2.2-next.11 (2026-09-23)
+
+### 🚀 Features
+
+- **ui:** add material toolbar ([f9232931](https://github.com/Udixio/UI/commit/f9232931))
+
+### 🩹 Fixes
+
+- **ui:** align search with material dimensions ([aee66244](https://github.com/Udixio/UI/commit/aee66244))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.2.2-next.9 (2026-09-18)
 
 This was a version bump only for @udixio/core to align it with other projects, there were no code changes.
