@@ -22,6 +22,7 @@ import {
   Snackbar,
   Switch,
   TextField,
+  Toolbar,
 } from '@udixio/ui-react';
 import { iNotifications } from '@udixio/icons-rounded-400/notifications';
 import { iHome } from '@udixio/icons-rounded-400/home';
@@ -40,6 +41,7 @@ import { iInbox } from '@udixio/icons-rounded-400/inbox';
 import { iVolumeUp } from '@udixio/icons-rounded-400/volume_up';
 import { iUpload } from '@udixio/icons-rounded-400/upload';
 import { iFolder } from '@udixio/icons-rounded-400/folder';
+import { iShare } from '@udixio/icons-rounded-400/share';
 
 import Stage from './preview/Stage.astro';
 import Ph from './preview/Ph.astro';
@@ -80,6 +82,7 @@ const PREVIEWED = new Set([
   'tab-panels',
   'tabs',
   'text-field',
+  'toolbar',
   'tooltip',
 ]);
 
@@ -377,6 +380,25 @@ const PREVIEWED = new Set([
             onChange={() => {}}
           />
         </div>
+      </Stage>
+    )
+  }
+  {
+    id === 'toolbar' && (
+      <Stage>
+        <Toolbar
+          variant="floating"
+          accessibleLabel="Selected document actions"
+        >
+          <IconButton size="small" label="Edit document" icon={iEdit} />
+          <IconButton
+            size="small"
+            label="Duplicate document"
+            icon={iContentCopy}
+          />
+          <IconButton size="small" label="Share document" icon={iShare} />
+          <IconButton size="small" label="Delete document" icon={iDelete} />
+        </Toolbar>
       </Stage>
     )
   }
