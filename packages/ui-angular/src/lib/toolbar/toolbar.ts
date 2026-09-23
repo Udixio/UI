@@ -122,7 +122,7 @@ export interface ToolbarMoreContext {
             [width]="action.width"
             [disabled]="action.disabled ?? false"
             [shape]="action.shape"
-            [shapeFeedback]="action.shapeFeedback"
+            [shapeFeedback]="action.shapeFeedback ?? 'morph'"
             [transition]="action.transition"
             [toggleable]="action.toggleable ?? false"
             [pressed]="action.pressed"
@@ -220,7 +220,7 @@ export class Toolbar {
   readonly moreOpenChange = output<boolean>();
 
   private readonly root = viewChild<ElementRef<HTMLElement>>('root');
-  private readonly moreTrigger =
+  protected readonly moreTrigger =
     viewChild<ElementRef<HTMLElement>>('moreTrigger');
   private readonly availableWidth = signal(Number.POSITIVE_INFINITY);
   protected readonly open = signal(false);
@@ -238,8 +238,12 @@ export class Toolbar {
       itemWidth: this.itemWidth(),
     }),
   );
-  protected readonly visibleActions = computed(() => this.split().visible);
-  protected readonly overflowActions = computed(() => this.split().overflow);
+  protected readonly visibleActions = computed(
+    () => this.split().visible as readonly AngularToolbarAction[],
+  );
+  protected readonly overflowActions = computed(
+    () => this.split().overflow as readonly AngularToolbarAction[],
+  );
   protected readonly moreLabel = computed(
     () => this.more()?.label ?? 'More actions',
   );

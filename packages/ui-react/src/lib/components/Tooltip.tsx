@@ -165,6 +165,7 @@ export const Tooltip = ({
     title,
     text,
     position: effectivePosition,
+    autoAxis: effectiveAutoAxis,
     trigger,
     describeTarget,
     openDelay,

@@ -162,8 +162,8 @@ export class Tooltip implements OnDestroy {
   );
   private readonly toolbarAutoAxis = computed<AnchorPositionAxis | undefined>(
     () => {
-      const orientation = this.host.nativeElement
-        .closest<HTMLElement>('[data-udx-toolbar-orientation]')
+      const orientation = (this.host.nativeElement as HTMLElement)
+        .closest('[data-udx-toolbar-orientation]')
         ?.getAttribute('data-udx-toolbar-orientation');
       return orientation === 'vertical'
         ? 'horizontal'
@@ -222,6 +222,7 @@ export class Tooltip implements OnDestroy {
     title: this.title(),
     text: this.text(),
     position: this.effectivePosition(),
+    autoAxis: this.effectiveAutoAxis(),
     trigger: this.trigger(),
     describeTarget: this.describeTarget(),
     openDelay: this.openDelay(),

@@ -85,6 +85,7 @@ export function tooltip(options: () => SvelteTooltipProps): Attachment<HTMLEleme
         title: resolved.title,
         text: resolved.text,
         position: effectivePosition,
+        autoAxis: effectiveAutoAxis,
         trigger:
           resolved.trigger === undefined
             ? ['hover', 'focus']
