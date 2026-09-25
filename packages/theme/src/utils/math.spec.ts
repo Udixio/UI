@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { normalize } from './math';
+import { normalize } from './math.js';
 
 describe('normalize', () => {
   it('maps a value across the ranges', () => {

@@ -69,6 +69,8 @@ export default defineConfig(() => ({
           entry: {
             node: 'src/index.node.ts',
             bin: 'bin/main.ts',
+            vite: 'src/vite.ts',
+            rollup: 'src/rollup.ts',
           },
         },
         rollupOptions: {

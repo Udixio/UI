@@ -31,6 +31,36 @@
       },
       "import": "./dist/node.js",
       "require": "./dist/node.cjs"
+    },
+    "./vite": {
+      "development": {
+        "node": "./src/vite.ts",
+        "default": "./src/vite.ts"
+      },
+      "types": "./dist/vite.d.ts",
+      "node": {
+        "import": "./dist/vite.js",
+        "require": "./dist/vite.cjs",
+        "default": "./dist/vite.js"
+      },
+      "import": "./dist/vite.js",
+      "require": "./dist/vite.cjs",
+      "default": "./dist/vite.js"
+    },
+    "./rollup": {
+      "development": {
+        "node": "./src/rollup.ts",
+        "default": "./src/rollup.ts"
+      },
+      "types": "./dist/rollup.d.ts",
+      "node": {
+        "import": "./dist/rollup.js",
+        "require": "./dist/rollup.cjs",
+        "default": "./dist/rollup.js"
+      },
+      "import": "./dist/rollup.js",
+      "require": "./dist/rollup.cjs",
+      "default": "./dist/rollup.js"
     }
   },
   "bin": {
@@ -72,6 +102,28 @@
         },
         "import": "./dist/node.js",
         "require": "./dist/node.cjs"
+      },
+      "./vite": {
+        "types": "./dist/vite.d.ts",
+        "node": {
+          "import": "./dist/vite.js",
+          "require": "./dist/vite.cjs",
+          "default": "./dist/vite.js"
+        },
+        "import": "./dist/vite.js",
+        "require": "./dist/vite.cjs",
+        "default": "./dist/vite.js"
+      },
+      "./rollup": {
+        "types": "./dist/rollup.d.ts",
+        "node": {
+          "import": "./dist/rollup.js",
+          "require": "./dist/rollup.cjs",
+          "default": "./dist/rollup.js"
+        },
+        "import": "./dist/rollup.js",
+        "require": "./dist/rollup.cjs",
+        "default": "./dist/rollup.js"
       }
     }
   }

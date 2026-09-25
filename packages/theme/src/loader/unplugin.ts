@@ -1,4 +1,5 @@
-import { loadFromPath } from './load-from-path';
+import type { UnpluginInstance } from 'unplugin';
+import { resolveConfigPath } from '../config/resolver-config';
 
 export interface UdixioThemeOptions {
   configPath?: string;
@@ -6,7 +7,7 @@ export interface UdixioThemeOptions {
 }
 
 // Lazily loaded instance
-let unpluginInstance: any = null;
+let unpluginInstance: UnpluginInstance<UdixioThemeOptions> | null = null;
 
 const createUnpluginTheme = async () => {
   if (unpluginInstance) {
@@ -18,7 +19,11 @@ const createUnpluginTheme = async () => {
   unpluginInstance = createUnplugin<UdixioThemeOptions>((options = {}) => {
     const { configPath = './theme.config', verbose = false } = options;
 
-    let resolvedConfigPath: string;
+    let resolvedConfigPath: string | undefined;
+    let resolvingConfigPath: Promise<string> | undefined;
+    let loadingTheme: Promise<void> | undefined;
+    let themeNeedsReload = true;
+    let themeRevision = 0;
 
     // Skip during Nx graph creation
     // NX_GRAPH_CREATION is set on the global by Nx, outside of any typing.
@@ -28,22 +33,67 @@ const createUnpluginTheme = async () => {
       };
     }
 
-    const loadTheme = async (): Promise<void> => {
-      try {
-        if (verbose) {
-          console.log(`🎨 Loading theme from: ${configPath}`);
-        }
-        const result = await loadFromPath(configPath);
-        if (!resolvedConfigPath && result?.filePath) {
-          resolvedConfigPath = result.filePath;
-        }
-        if (verbose) {
-          console.log(`✅ Theme loaded successfully!`);
-        }
-      } catch (error) {
-        console.error(`❌ Theme loading failed:`, error);
-        throw error;
+    const getConfigPath = async (): Promise<string> => {
+      if (resolvedConfigPath) {
+        return resolvedConfigPath;
       }
+
+      resolvingConfigPath ??= resolveConfigPath(configPath).then((filePath) => {
+        resolvedConfigPath = filePath;
+        return filePath;
+      });
+
+      try {
+        return await resolvingConfigPath;
+      } finally {
+        resolvingConfigPath = undefined;
+      }
+    };
+
+    const markThemeDirty = () => {
+      themeNeedsReload = true;
+      themeRevision += 1;
+    };
+
+    const loadTheme = async (): Promise<void> => {
+      if (loadingTheme) {
+        return loadingTheme;
+      }
+
+      const revisionBeingLoaded = themeRevision;
+      loadingTheme = (async () => {
+        try {
+          if (verbose) {
+            console.log(`🎨 Loading theme from: ${configPath}`);
+          }
+          // Keep the expensive theme engine and the user's config out of the
+          // plugin import path. The first build (or a real config change)
+          // loads them on demand.
+          const { loadFromPath } = await import('./load-from-path');
+          const result = await loadFromPath(configPath);
+          if (!resolvedConfigPath && result?.filePath) {
+            resolvedConfigPath = result.filePath;
+          }
+          // A config can change while an async import is in progress. Do not
+          // clear the dirty flag for that newer revision.
+          if (themeRevision === revisionBeingLoaded) {
+            themeNeedsReload = false;
+          }
+          if (verbose) {
+            console.log(`✅ Theme loaded successfully!`);
+          }
+        } catch (error) {
+          // Keep the dirty flag set so a subsequent build can retry after a
+          // transient config/import error.
+          themeNeedsReload = true;
+          console.error(`❌ Theme loading failed:`, error);
+          throw error;
+        } finally {
+          loadingTheme = undefined;
+        }
+      })();
+
+      return loadingTheme;
     };
 
     return {
@@ -51,30 +101,19 @@ const createUnpluginTheme = async () => {
 
       // Hook called at build start (all bundlers)
       buildStart: async function () {
-        await loadTheme();
-        // Tell the bundler (Rollup/Vite) to watch the config file
-        if (resolvedConfigPath) {
-          this.addWatchFile(resolvedConfigPath);
+        if (themeNeedsReload) {
+          await loadTheme();
         }
-      },
-
-      // Hook called during bundle generation (Rollup/Vite)
-      generateBundle: async () => {
-        await loadTheme();
+        // Tell the bundler (Rollup/Vite) to watch the config file
+        this.addWatchFile(await getConfigPath());
       },
 
       // Vite-specific HMR support
       vite: {
         configureServer: async (server) => {
-          // Resolve the config path if not done yet
-          if (!resolvedConfigPath) {
-            const result = await loadFromPath(configPath);
-            resolvedConfigPath = result?.filePath || '';
-          }
-          // Explicitly register the config file in Vite's watcher
-          if (resolvedConfigPath) {
-            server.watcher.add(resolvedConfigPath);
-          }
+          // Only resolve the path here. Loading the config bootstraps the
+          // complete colour engine and belongs to buildStart.
+          server.watcher.add(await getConfigPath());
         },
 
         handleHotUpdate: async ({ server, file }) => {
@@ -82,6 +121,7 @@ const createUnpluginTheme = async () => {
             if (verbose) {
               console.log(`🔄 Theme config changed: ${file}`);
             }
+            markThemeDirty();
             await loadTheme();
             server.ws.send({ type: 'full-reload', path: '*' });
             // Return [] to stop the default HMR handling
@@ -100,15 +140,13 @@ const createUnpluginTheme = async () => {
             async (compilation, callback) => {
               const changedFiles = compilation.modifiedFiles || new Set();
 
-              if (!resolvedConfigPath) {
-                const result = await loadFromPath(configPath);
-                resolvedConfigPath = result?.filePath || '';
-              }
+              const configFilePath = await getConfigPath();
 
-              if (changedFiles.has(resolvedConfigPath)) {
+              if (changedFiles.has(configFilePath)) {
                 if (verbose) {
-                  console.log(`🔄 Theme config changed: ${resolvedConfigPath}`);
+                  console.log(`🔄 Theme config changed: ${configFilePath}`);
                 }
+                markThemeDirty();
                 await loadTheme();
               }
               callback();
@@ -120,16 +158,15 @@ const createUnpluginTheme = async () => {
       // Rollup-specific support
       rollup: {
         watchChange: async (id) => {
-          if (!resolvedConfigPath) {
-            const result = await loadFromPath(configPath);
-            resolvedConfigPath = result?.filePath || '';
-          }
+          await getConfigPath();
 
           if (resolvedConfigPath === id) {
             if (verbose) {
               console.log(`🔄 Theme config changed: ${id}`);
             }
-            await loadTheme();
+            // Rollup calls buildStart immediately after watchChange. Marking
+            // the theme dirty there avoids doing the expensive work twice.
+            markThemeDirty();
           }
         },
       },
@@ -142,22 +179,22 @@ const createUnpluginTheme = async () => {
 // Lazily loaded exports
 export const vitePlugin = async (options?: UdixioThemeOptions) => {
   const plugin = await createUnpluginTheme();
-  return plugin.vite(options);
+  return plugin.vite(options ?? {});
 };
 
 export const webpackPlugin = async (options?: UdixioThemeOptions) => {
   const plugin = await createUnpluginTheme();
-  return plugin.webpack(options);
+  return plugin.webpack(options ?? {});
 };
 
 export const rollupPlugin = async (options?: UdixioThemeOptions) => {
   const plugin = await createUnpluginTheme();
-  return plugin.rollup(options);
+  return plugin.rollup(options ?? {});
 };
 
 export const esbuildPlugin = async (options?: UdixioThemeOptions) => {
   const plugin = await createUnpluginTheme();
-  return plugin.esbuild(options);
+  return plugin.esbuild(options ?? {});
 };
 
 // Main export, lazily loaded

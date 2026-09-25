@@ -8,7 +8,7 @@ import mdx from '@astrojs/mdx';
 import react from '@astrojs/react';
 import angular from '@analogjs/astro-angular';
 import svelte from '@astrojs/svelte';
-import { vitePlugin } from '@udixio/theme';
+import vitePlugin from '@udixio/theme/vite';
 
 import sitemap from '@astrojs/sitemap';
 import robotsTxt from 'astro-robots-txt';

@@ -10,8 +10,8 @@ const getUdixioVite = async () => {
   if (global.NX_GRAPH_CREATION) {
     return;
   } else {
-    const dynamicPath = '@udixio/theme';
-    return (await import(dynamicPath)).vitePlugin();
+    const dynamicPath = '@udixio/theme/vite';
+    return (await import(dynamicPath)).default();
   }
 };
 

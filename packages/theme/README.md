@@ -73,6 +73,24 @@ npx udixio-theme build --watch   # rebuild on change
 npx udixio-theme build -c ./path/to/theme.config
 ```
 
+For Vite and Rollup, import the bundler adapter from its lightweight
+subpath. It resolves and watches the config during startup, and loads the
+colour engine only when the first build needs it:
+
+```ts
+// vite.config.ts
+import { defineConfig } from 'vite';
+import vitePlugin from '@udixio/theme/vite';
+
+export default defineConfig(async () => ({
+  plugins: [await vitePlugin()],
+}));
+```
+
+Use `@udixio/theme/rollup` in the same way for Rollup. The existing
+`vitePlugin` and `rollupPlugin` exports from `@udixio/theme` remain available
+for compatibility.
+
 ## What it exposes
 
 |                         |                                                                                                                                                                                                                                                    |

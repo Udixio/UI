@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { Color } from './color.base';
+import { Color } from './color.base.js';
 
 describe('Color gamut helpers', () => {
   it('peaks at a different tone for each hue', () => {
