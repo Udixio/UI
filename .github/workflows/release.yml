@@ -102,22 +102,30 @@ jobs:
       - name: Run package tests
         run: npx nx run-many --target=test --all --parallel=3
 
-      - name: Version packages
+      - name: Version stable packages
+        if: env.TAG == ''
         run: |
-          if [ -n "$TAG" ]; then
-            npx nx release --skip-publish --preid="$TAG" --verbose
-          else
-            npx nx release --skip-publish --verbose
-          fi
+          npx nx release --skip-publish --verbose
         env:
           NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
-      - name: Install dependencies
-        run: pnpm i
+      - name: Version, push and publish prerelease packages
+        if: env.TAG != ''
+        run: |
+          node scripts/release-prerelease.mjs
+        env:
+          NPM_CONFIG_PROVENANCE: true
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Install dependencies after versioning
+        if: env.TAG == ''
+        run: pnpm install --frozen-lockfile
 
       - name: Push version bump to the source branch
         id: release-branch
+        if: env.TAG == ''
         run: |
           VERSION=$(node -p "require('./packages/ui-react/package.json').version")
           # Keep the release commit and its tags inseparable. If the source
@@ -134,14 +142,6 @@ jobs:
           git branch "$BRANCH"
           git push origin "$BRANCH"
           echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
-
-      - name: Publish prerelease directly (beta/next only)
-        if: env.TAG != ''
-        run: npx nx release publish --tag "$TAG" --verbose
-        env:
-          NPM_CONFIG_PROVENANCE: true
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
       - name: Open release PR to main (stable only)
         if: env.TAG == ''

@@ -68,7 +68,7 @@
     "text-case": "^1.2.9",
     "tailwindcss": "^4.1.12",
     "pathe": "^2.0.3",
-    "@udixio/theme": "5.0.1-next.6",
+    "@udixio/theme": "workspace:*",
     "tslib": "^2.3.0"
   },
   "repository": {

@@ -44,6 +44,7 @@
     },
     "test": {
       "executor": "@nx/jest:jest",
+      "dependsOn": ["^build"],
       "outputs": ["{projectRoot}/test-output/jest/coverage"],
       "options": {
         "jestConfig": "packages/ui-angular/jest.config.cjs",
