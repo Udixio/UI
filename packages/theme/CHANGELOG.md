@@ -1,3 +1,13 @@
+## 5.0.1-next.9 (2026-09-25)
+
+### 🩹 Fixes
+
+- **theme:** defer bundler theme loading ([a94ed4fc](https://github.com/Udixio/UI/commit/a94ed4fc))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 5.0.1-next.6 (2026-09-18)
 
 ### 🩹 Fixes

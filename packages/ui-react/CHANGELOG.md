@@ -1,3 +1,21 @@
+## 5.1.0-next.15 (2026-09-25)
+
+### 🩹 Fixes
+
+- **ci:** preserve Nx release selection for prereleases ([42a2f357](https://github.com/Udixio/UI/commit/42a2f357))
+- **theme:** defer bundler theme loading ([a94ed4fc](https://github.com/Udixio/UI/commit/a94ed4fc))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 5.0.1-next.9
+- Updated @udixio/theme to 5.0.1-next.9
+- Updated @udixio/core to 0.2.2-next.12
+- Updated @udixio/icons-rounded-400 to 0.2.2-next.5
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 5.1.0-next.14 (2026-09-23)
 
 ### 🚀 Features

@@ -1,3 +1,17 @@
+## 5.0.1-next.9 (2026-09-25)
+
+### 🩹 Fixes
+
+- **ci:** preserve Nx release selection for prereleases ([42a2f357](https://github.com/Udixio/UI/commit/42a2f357))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 5.0.1-next.9
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 5.0.1-next.6 (2026-09-18)
 
 ### 🩹 Fixes
