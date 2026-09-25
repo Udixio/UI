@@ -1,3 +1,13 @@
+## 5.0.1-next.10 (2026-09-25)
+
+### 🩹 Fixes
+
+- **theme:** reuse generated CSS before loading theme ([fd4ea61a](https://github.com/Udixio/UI/commit/fd4ea61a))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 5.0.1-next.9 (2026-09-25)
 
 ### 🩹 Fixes
