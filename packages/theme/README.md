@@ -74,8 +74,11 @@ npx udixio-theme build -c ./path/to/theme.config
 ```
 
 For Vite and Rollup, import the bundler adapter from its lightweight
-subpath. It resolves and watches the config during startup, and loads the
-colour engine only when the first build needs it:
+subpath. It resolves and watches the config during startup. When a configured
+plugin already has a generated build artifact (for example Tailwind's CSS),
+the artifact is reused immediately and the colour engine refreshes it in the
+background; without an artifact, the first build performs the normal initial
+load:
 
 ```ts
 // vite.config.ts

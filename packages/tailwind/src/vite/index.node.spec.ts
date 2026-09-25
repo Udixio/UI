@@ -3,7 +3,9 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readFileSync,
   rmSync,
+  writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
 import { defineConfig } from '../node/define-config';
@@ -50,6 +52,49 @@ describe('udixio() — node build', () => {
     expect(css).toContain('@plugin "@udixio/tailwind";');
     // generating the virtual CSS never writes the file
     expect(existsSync(join(dir, 'udixio.generated.css'))).toBe(false);
+  });
+
+  it('serves an existing generated CSS file without regenerating the virtual module first', async () => {
+    const generatedCss = join(dir, 'udixio.generated.css');
+    writeFileSync(generatedCss, '/* cached theme */');
+
+    const plugin = udixio({
+      config: defineConfig({ sourceColor: '#6750A4' }),
+    });
+
+    await expect(hooks(plugin).load(VIRTUAL_CSS_ID)).resolves.toBe(
+      '/* cached theme */',
+    );
+  });
+
+  it('notifies Vite after refreshing a cached CSS file in the background', async () => {
+    const generatedCss = join(dir, 'udixio.generated.css');
+    writeFileSync(generatedCss, '/* cached theme */');
+    const messages: unknown[] = [];
+    const plugin = udixio({
+      config: defineConfig({ sourceColor: '#6750A4' }),
+    });
+
+    const configureServer = plugin.configureServer as unknown as (server: {
+      watcher: { add(id: string): void };
+      ws: { send(message: unknown): void };
+    }) => Promise<void>;
+    await configureServer({
+      watcher: { add: () => undefined },
+      ws: { send: (message: unknown) => messages.push(message) },
+    });
+    await hooks(plugin).buildStart.call(context());
+
+    for (
+      let attempt = 0;
+      attempt < 100 && messages.length === 0;
+      attempt += 1
+    ) {
+      await new Promise((resolve) => setTimeout(resolve, 1));
+    }
+
+    expect(readFileSync(generatedCss, 'utf8')).toContain('@theme {');
+    expect(messages).toEqual([{ type: 'full-reload', path: '*' }]);
   });
 
   it('keeps the dev-server hooks and the Tailwind module', () => {

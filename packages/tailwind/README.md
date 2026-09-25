@@ -39,7 +39,8 @@ export default defineConfig({
 `sourceColor` is the only required option. The variant defaults to `Udixio`.
 
 **2 — Run the generator.** The Vite plugin loads the config and regenerates
-the stylesheet, watching it in dev:
+the stylesheet, watching it in dev. If `outFile` already exists, it is served
+immediately while the theme is refreshed in the background:
 
 ```ts
 // vite.config.ts

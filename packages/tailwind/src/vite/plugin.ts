@@ -39,6 +39,10 @@ export interface UdixioVitePlugin extends Plugin {
   tailwind: Record<string, unknown>;
 }
 
+type CachedCssLoader = (
+  config: ConfigInterface,
+) => string | null | Promise<string | null>;
+
 /** what `resolveId` claims for a given config: the virtual id, or `./<outFile basename>` */
 function matchesGeneratedCss(id: string, outFile: string | undefined) {
   if (id === VIRTUAL_CSS_ID) return true;
@@ -58,7 +62,13 @@ function matchesGeneratedCss(id: string, outFile: string | undefined) {
  */
 export function createUdixioPlugin(
   getConfig: () => ConfigInterface | Promise<ConfigInterface>,
-  { claimGeneratedFile }: { claimGeneratedFile: boolean },
+  {
+    claimGeneratedFile,
+    loadCachedCss,
+  }: {
+    claimGeneratedFile: boolean;
+    loadCachedCss?: CachedCssLoader;
+  },
 ): UdixioVitePlugin {
   const resolveOutFile = async () =>
     findTailwindPlugin(await getConfig())?.options.outFile;
@@ -69,7 +79,10 @@ export function createUdixioPlugin(
 
     async resolveId(id) {
       if (id === VIRTUAL_CSS_ID) return VIRTUAL_CSS_ID;
-      if (claimGeneratedFile && matchesGeneratedCss(id, await resolveOutFile())) {
+      if (
+        claimGeneratedFile &&
+        matchesGeneratedCss(id, await resolveOutFile())
+      ) {
         return VIRTUAL_CSS_ID;
       }
       return null;
@@ -77,7 +90,12 @@ export function createUdixioPlugin(
 
     async load(id) {
       if (id !== VIRTUAL_CSS_ID) return null;
-      return generateStaticThemeCss(await getConfig());
+      const config = await getConfig();
+      const cachedCss = await loadCachedCss?.(config);
+      if (cachedCss !== null && cachedCss !== undefined) {
+        return cachedCss;
+      }
+      return generateStaticThemeCss(config);
     },
   };
 }

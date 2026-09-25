@@ -1,9 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import {
-  mkdtempSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import vitePlugin from '../src/vite.js';
@@ -32,6 +28,13 @@ function themeConfig(contents: string): string {
   const filePath = join(directory, 'theme.config.ts');
   writeFileSync(filePath, contents);
   return filePath;
+}
+
+async function waitForFile(filePath: string): Promise<void> {
+  for (let attempt = 0; attempt < 100 && !existsSync(filePath); attempt += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 1));
+  }
+  expect(existsSync(filePath)).toBe(true);
 }
 
 afterEach(() => {
@@ -108,5 +111,57 @@ describe('bundler adapters', () => {
     ).resolves.toEqual([]);
 
     expect(messages).toEqual([{ type: 'full-reload', path: '*' }]);
+  });
+
+  it('does not block the first build when a generated artifact already exists', async () => {
+    const directory = mkdtempSync(join(tmpdir(), 'udixio-theme-cache-'));
+    temporaryDirectories.push(directory);
+
+    const artifactPath = join(directory, 'udixio.generated.css');
+    const startedPath = join(directory, 'load.started');
+    const releasePath = join(directory, 'load.release');
+    const completedPath = join(directory, 'load.completed');
+    const configPath = join(directory, 'theme.config.ts');
+
+    writeFileSync(artifactPath, '/* cached theme */');
+    writeFileSync(
+      configPath,
+      `
+        import { existsSync, writeFileSync } from 'node:fs';
+
+        const plugin = {
+          name: 'slow-artifact',
+          dependencies: [],
+          options: {},
+          getBuildArtifacts() {
+            return [{
+              kind: 'css',
+              path: ${JSON.stringify(artifactPath)},
+            }];
+          },
+          init() { return this; },
+          getInstance() { return this; },
+          async onLoad() {
+            writeFileSync(${JSON.stringify(startedPath)}, 'started');
+            while (!existsSync(${JSON.stringify(releasePath)})) {
+              await new Promise((resolve) => setTimeout(resolve, 1));
+            }
+            writeFileSync(${JSON.stringify(completedPath)}, 'completed');
+          },
+        };
+
+        export default {
+          sourceColor: '#6750A4',
+          plugins: [plugin],
+        };
+      `,
+    );
+
+    const plugin = await vitePlugin({ configPath });
+    await hooks(plugin).buildStart.call({ addWatchFile: vi.fn() });
+
+    expect(existsSync(completedPath)).toBe(false);
+    writeFileSync(releasePath, 'release');
+    await waitForFile(completedPath);
   });
 });

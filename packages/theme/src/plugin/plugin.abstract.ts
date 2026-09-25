@@ -1,4 +1,5 @@
 import { API } from '../API';
+import type { ThemeBuildArtifact } from './build-artifact';
 
 export type PluginConstructor<Plugin extends PluginImplAbstract<any>> = new (
   ...args: any
@@ -26,6 +27,14 @@ export abstract class PluginAbstract<
         typeof value === 'function' ? undefined : value,
       ),
     ) as Options;
+  }
+
+  /**
+   * Files that can be reused while the theme engine is refreshed in the
+   * background. Plugins that do not emit build artifacts have none.
+   */
+  public getBuildArtifacts(): readonly ThemeBuildArtifact[] {
+    return [];
   }
 
   public init(api: API) {

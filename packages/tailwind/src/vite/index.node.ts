@@ -1,4 +1,11 @@
-import { type ConfigInterface, loader, resolveConfig } from '@udixio/theme';
+import {
+  getThemeBuildArtifacts,
+  hasCachedThemeBuildArtifacts,
+  type ConfigInterface,
+  loader,
+  resolveConfig,
+} from '@udixio/theme';
+import { existsSync, readFileSync } from 'node:fs';
 import {
   createUdixioPlugin,
   type UdixioViteOptions,
@@ -34,6 +41,12 @@ export function udixio(options: UdixioViteOptions = {}): UdixioVitePlugin {
 
   let resolvedConfigPath: string | undefined;
   let loaded: ConfigInterface | undefined = config;
+  let loadingTheme: Promise<void> | undefined;
+  let themeNeedsReload = true;
+  let themeRevision = 0;
+  let themeHasLoaded = false;
+  let backgroundRefreshPending = false;
+  let sendFullReload: (() => void) | undefined;
 
   // The config: as passed in, or read from the file — again when `fresh`,
   // after a change.
@@ -48,27 +61,113 @@ export function udixio(options: UdixioViteOptions = {}): UdixioVitePlugin {
 
   // Loads the theme, which writes the CSS: the node TailwindPlugin does the
   // write as part of `api.load()`.
-  const loadTheme = async (fresh = false): Promise<void> => {
-    if (verbose) {
-      console.log(`🎨 Loading theme from: ${config ? 'config' : configPath}`);
-    }
-    await loader(await getConfig(fresh));
-    if (verbose) {
-      console.log('✅ Theme loaded successfully!');
-    }
+  const markThemeDirty = () => {
+    themeNeedsReload = true;
+    themeRevision += 1;
   };
 
-  const plugin = createUdixioPlugin(getConfig, { claimGeneratedFile: false });
+  const loadTheme = async (fresh = false): Promise<void> => {
+    if (loadingTheme) {
+      return loadingTheme;
+    }
+
+    loadingTheme = (async () => {
+      let nextFresh = fresh;
+
+      try {
+        do {
+          const revisionBeingLoaded = themeRevision;
+          const currentConfig = await getConfig(nextFresh);
+
+          if (verbose) {
+            console.log(
+              `🎨 Loading theme from: ${config ? 'config' : configPath}`,
+            );
+          }
+          await loader(currentConfig);
+          nextFresh = true;
+
+          // If the config changed while loading, immediately process the
+          // latest revision before allowing the next build to continue.
+          if (themeRevision === revisionBeingLoaded) {
+            themeNeedsReload = false;
+            themeHasLoaded = true;
+          }
+          if (verbose) {
+            console.log('✅ Theme loaded successfully!');
+          }
+        } while (themeNeedsReload);
+      } catch (error) {
+        themeNeedsReload = true;
+        console.error('❌ Theme loading failed:', error);
+        throw error;
+      } finally {
+        loadingTheme = undefined;
+      }
+    })();
+
+    return loadingTheme;
+  };
+
+  const refreshInBackground = () => {
+    backgroundRefreshPending = true;
+    void loadTheme()
+      .then(() => {
+        if (backgroundRefreshPending) {
+          sendFullReload?.();
+        }
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        backgroundRefreshPending = false;
+      });
+  };
+
+  const plugin = createUdixioPlugin(getConfig, {
+    claimGeneratedFile: false,
+    loadCachedCss: async (currentConfig) => {
+      const artifact = getThemeBuildArtifacts(currentConfig).find(
+        ({ kind }) => kind === 'css',
+      );
+      if (!artifact || !existsSync(artifact.path)) {
+        return null;
+      }
+
+      try {
+        return readFileSync(artifact.path, 'utf8');
+      } catch {
+        // The file may be replaced atomically while Vite is resolving it.
+        // Falling back to generation keeps the virtual module reliable.
+        return null;
+      }
+    },
+  });
 
   return {
     ...plugin,
 
     async buildStart() {
-      await loadTheme();
+      const currentConfig = await getConfig();
+      for (const artifact of getThemeBuildArtifacts(currentConfig)) {
+        this.addWatchFile(artifact.path);
+      }
+
+      if (themeNeedsReload) {
+        const isInitialLoad = !themeHasLoaded && themeRevision === 0;
+
+        if (isInitialLoad && hasCachedThemeBuildArtifacts(currentConfig)) {
+          // A generated CSS file is already available. Start the expensive
+          // theme load in the background so Vite can begin immediately.
+          refreshInBackground();
+        } else {
+          await loadTheme();
+        }
+      }
       if (resolvedConfigPath) this.addWatchFile(resolvedConfigPath);
     },
 
     async configureServer(server) {
+      sendFullReload = () => server.ws.send({ type: 'full-reload', path: '*' });
       if (config) return;
       if (!resolvedConfigPath) await getConfig();
       if (resolvedConfigPath) server.watcher.add(resolvedConfigPath);
@@ -77,6 +176,8 @@ export function udixio(options: UdixioViteOptions = {}): UdixioVitePlugin {
     async handleHotUpdate({ server, file }) {
       if (!resolvedConfigPath || resolvedConfigPath !== file) return undefined;
       if (verbose) console.log(`🔄 Theme config changed: ${file}`);
+      backgroundRefreshPending = false;
+      markThemeDirty();
       await loadTheme(true);
       server.ws.send({ type: 'full-reload', path: '*' });
       return [];
