@@ -1,3 +1,17 @@
+## 5.1.0-next.17 (2026-10-06)
+
+### 🚀 Features
+
+- **split-button:** add Material 3 SplitButton ([f73baa69](https://github.com/Udixio/UI/commit/f73baa69))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/core to 0.2.2-next.13
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 5.1.0-next.16 (2026-09-25)
 
 ### 🧱 Updated Dependencies
