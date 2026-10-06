@@ -65,13 +65,16 @@ describe('SplitButton (Angular)', () => {
     const primary = fixture.nativeElement.querySelector('.primary-button');
     expect(group.getAttribute('aria-label')).toBe('Save');
     expect(primary.getAttribute('aria-label')).toBe('Save');
-    expect(fixture.nativeElement.querySelector('.primary-label')).toBeNull();
+    const primaryLabel = fixture.nativeElement.querySelector('.primary-label');
+    expect(primaryLabel.textContent.trim()).toBe('Save');
+    expect(primaryLabel.classList).toContain('sr-only');
 
     fixture.componentRef.setInput('label', 'Save');
     fixture.componentRef.setInput('accessibleLabel', 'Different name');
     fixture.detectChanges();
     expect(group.getAttribute('aria-label')).toBe('Save');
     expect(primary.getAttribute('aria-label')).toBeNull();
+    expect(primaryLabel.classList).not.toContain('sr-only');
   });
 
   it('opens with ArrowDown and focuses the first menu action', async () => {
