@@ -19,6 +19,7 @@ export * from './MenuHeadline';
 export * from './ProgressIndicator';
 export * from './Slider';
 export * from './SideSheet';
+export * from './SplitButton';
 export * from './Snackbar';
 export * from './StateLayer';
 export * from './Switch';

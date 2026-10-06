@@ -91,7 +91,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<FabInterface> | Partial<Record<\"label\" | \"stateLayer\" | \"fab\" | \"touchTarget\" | \"icon\", string>>"
+            "name": "string | ClassNameComponent<FabInterface> | Partial<Record<\"label\" | \"icon\" | \"stateLayer\" | \"fab\" | \"touchTarget\", string>>"
           },
           "defaultValue": null
         }

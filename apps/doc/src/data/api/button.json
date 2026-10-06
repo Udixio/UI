@@ -195,7 +195,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<ButtonInterface> | Partial<Record<\"button\" | \"label\" | \"stateLayer\" | \"touchTarget\" | \"icon\", string>>"
+            "name": "string | ClassNameComponent<ButtonInterface> | Partial<Record<\"button\" | \"label\" | \"icon\" | \"stateLayer\" | \"touchTarget\", string>>"
           },
           "defaultValue": null
         },
@@ -427,6 +427,17 @@
             "name": "Partial<Record<\"label\" | \"button\" | \"icon\" | \"touchTarget\" | \"stateLayer\", string>> | ClassNameComponent<ButtonInterface>"
           },
           "defaultValue": null
+        },
+        "options": {
+          "name": "options",
+          "description": "Additional Button options; these take precedence over matching individual inputs.",
+          "required": false,
+          "type": {
+            "name": "Partial<Omit<ButtonProps, \"label\" | \"type\" | \"variant\" | \"size\" | \"icon\" | \"iconPosition\" | \"shape\" | \"shapeFeedback\" | \"disabled\" | \"toggleable\" | \"pressed\" | \"defaultPressed\">>"
+          },
+          "defaultValue": {
+            "value": "{}"
+          }
         },
         "stateColor": {
           "name": "stateColor",

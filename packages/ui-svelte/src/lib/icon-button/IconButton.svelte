@@ -23,6 +23,7 @@
     pressedIcon,
     size = 'medium',
     width = 'default',
+    stateColor,
     shape = 'rounded',
     shapeFeedback = 'morph',
     transition,
@@ -57,6 +58,9 @@
   const isPressed = $derived(isToggleButton && pressedState.current);
   const tooltipText = $derived(tooltip === false ? undefined : (tooltip ?? title ?? label));
   const hasAccessibleLabel = $derived(label.trim() !== '');
+  const resolvedStateColor = $derived(
+    stateColor ?? getIconButtonStateColor({ variant, toggleable: isToggleButton, isPressed }),
+  );
 
   const shapeTransition = $derived(
     getIconButtonShapeTransition({ size, shape, shapeFeedback: effectiveShapeFeedback, isPressed, disabled, transition }),
@@ -68,6 +72,7 @@
     pressedIcon,
     size,
     width,
+    stateColor,
     variant,
     disabled,
     shape,
@@ -123,7 +128,7 @@
   <StateLayer
     {shapeTransition}
     class={styles.current['stateLayer']}
-    colorName={getIconButtonStateColor({ variant, toggleable: isToggleButton, isPressed })}
+    colorName={resolvedStateColor}
     stateClassName="state-ripple-group-[icon-button]"
   />
   <Icon icon={isPressed && pressedIcon ? pressedIcon : icon} class={styles.current['icon']} />

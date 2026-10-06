@@ -20,7 +20,7 @@
           "description": "Root classes (string), static element classes (object), or state-aware element classes (function).",
           "required": false,
           "type": {
-            "name": "string | Partial<Record<\"slider\" | \"activeTrack\" | \"handle\" | \"inactiveTrack\" | \"valueIndicator\" | \"dot\", string>> | ClassNameComponent<SliderInterface>"
+            "name": "string | Partial<Record<\"dot\" | \"slider\" | \"activeTrack\" | \"handle\" | \"inactiveTrack\" | \"valueIndicator\", string>> | ClassNameComponent<SliderInterface>"
           },
           "defaultValue": null
         },

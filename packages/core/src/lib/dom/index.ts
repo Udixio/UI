@@ -13,6 +13,7 @@ export * from './navigation-rail-item.js';
 export * from './progress-visibility.js';
 export * from './search.js';
 export * from './side-sheet.js';
+export * from './split-button.js';
 export * from './snackbar.js';
 export * from './slider.js';
 export * from './state-layer.js';

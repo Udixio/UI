@@ -9,7 +9,7 @@
       "tags": {
         "status": "stable",
         "category": "Action",
-        "devx": "- Requires `label` and `icon`; arbitrary children are not accepted.\n- Shows `label` in a tooltip by default; `tooltip` overrides or disables it.\n- `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.\n- `toggleable` enables `aria-pressed` and `onPressedChange` on action buttons.",
+        "devx": "- Requires `label` and `icon`; arbitrary children are not accepted.\n- Shows `label` in a tooltip by default; `tooltip` overrides or disables it.\n- `stateColor` overrides the state-layer color when custom classes repaint the icon button.\n- `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.\n- `toggleable` enables `aria-pressed` and `onPressedChange` on action buttons.",
         "a11y": "- Uses native button/link semantics, a stable accessible name, a 48px target, and visible focus.",
         "limitations": "- Disabled links are inert and removed from the tab order.\n- Navigation links ignore toggle state; use `aria-current` for the current destination."
       },
@@ -83,6 +83,15 @@
           "defaultValue": {
             "value": "'default'"
           }
+        },
+        "stateColor": {
+          "name": "stateColor",
+          "description": "Colour token for the state layer, without the `--color-` prefix.\nDefaults to the token matching `variant`. Set it when custom classes\nrepaint the button so hover and press feedback keeps enough contrast.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
         },
         "disabled": {
           "name": "disabled",
@@ -162,7 +171,7 @@
           "description": "Classes or state-aware element classes applied through the shared style contract.",
           "required": false,
           "type": {
-            "name": "string | ClassNameComponent<IconButtonInterface> | Partial<Record<\"stateLayer\" | \"touchTarget\" | \"icon\" | \"iconButton\", string>>"
+            "name": "string | ClassNameComponent<IconButtonInterface> | Partial<Record<\"icon\" | \"stateLayer\" | \"touchTarget\" | \"iconButton\", string>>"
           },
           "defaultValue": null
         },
@@ -183,7 +192,7 @@
       "tags": {
         "status": "stable",
         "category": "Action",
-        "devx": "- Requires the `label` and `icon` inputs.\n- Shows `label` in a tooltip by default; `tooltip` overrides or disables it.\n- `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.\n- `toggleable` enables `aria-pressed` and the `pressedChange` output.",
+        "devx": "- Requires the `label` and `icon` inputs.\n- Shows `label` in a tooltip by default; `tooltip` overrides or disables it.\n- `stateColor` overrides the state-layer color when custom classes repaint the icon button.\n- `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.\n- `toggleable` enables `aria-pressed` and the `pressedChange` output.",
         "a11y": "- Uses native button/link semantics, a stable accessible name, a 48px target, and visible focus.",
         "limitations": "- Disabled links are inert and removed from the tab order.\n- Navigation links ignore toggle state; use `aria-current` for the current destination.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`."
       },
@@ -256,6 +265,15 @@
           "defaultValue": {
             "value": "'default'"
           }
+        },
+        "stateColor": {
+          "name": "stateColor",
+          "description": "Colour token for the state layer, without the `--color-` prefix.\nDefaults to the token matching `variant`. Set it when custom classes\nrepaint the button so hover and press feedback keeps enough contrast.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null
         },
         "disabled": {
           "name": "disabled",
@@ -351,6 +369,17 @@
           },
           "defaultValue": null
         },
+        "options": {
+          "name": "options",
+          "description": "Additional IconButton props for compositions; these override matching individual inputs.",
+          "required": false,
+          "type": {
+            "name": "Partial<Omit<IconButtonProps, \"label\" | \"variant\" | \"size\" | \"icon\" | \"shape\" | \"shapeFeedback\" | \"disabled\" | \"toggleable\" | \"pressed\" | \"defaultPressed\">>"
+          },
+          "defaultValue": {
+            "value": "{}"
+          }
+        },
         "href": {
           "name": "href",
           "description": "Navigation destination; switches the inner element to a native link.",
@@ -427,6 +456,16 @@
           "defaultValue": null,
           "alias": "aria-haspopup"
         },
+        "ariaControls": {
+          "name": "ariaControls",
+          "description": "Controls relationship forwarded to the inner interactive element.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null,
+          "alias": "aria-controls"
+        },
         "ariaExpanded": {
           "name": "ariaExpanded",
           "description": "Expanded state forwarded to the inner interactive element.",
@@ -455,7 +494,7 @@
       "tags": {
         "status": "stable",
         "category": "Action",
-        "devx": "- Requires `label` and `icon`; arbitrary children are not accepted.\n- Shows `label` in a tooltip by default; `tooltip` overrides or disables it.\n- `pressed` is bindable (`bind:pressed`); `defaultPressed` initializes uncontrolled usage.\n- `toggleable` enables `aria-pressed` and `onPressedChange` on action buttons.",
+        "devx": "- Requires `label` and `icon`; arbitrary children are not accepted.\n- Shows `label` in a tooltip by default; `tooltip` overrides or disables it.\n- `stateColor` overrides the state-layer color when custom classes repaint the icon button.\n- `pressed` is bindable (`bind:pressed`); `defaultPressed` initializes uncontrolled usage.\n- `toggleable` enables `aria-pressed` and `onPressedChange` on action buttons.",
         "a11y": "- Uses native button/link semantics, a stable accessible name, a 48px target, and visible focus.",
         "limitations": "- Disabled links are inert and removed from the tab order.\n- Navigation links ignore toggle state; use `aria-current` for the current destination."
       },
@@ -604,6 +643,15 @@
           "defaultValue": {
             "value": "'default'"
           }
+        },
+        "stateColor": {
+          "name": "stateColor",
+          "description": "Colour token for the state layer, without the `--color-` prefix.\nDefaults to the token matching `variant`. Set it when custom classes\nrepaint the button so hover and press feedback keeps enough contrast.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
         },
         "disabled": {
           "name": "disabled",

@@ -20,7 +20,7 @@
           "description": "Root classes (string), static element classes (object), or state-aware element classes (function).",
           "required": false,
           "type": {
-            "name": "string | Partial<Record<\"content\" | \"label\" | \"stateLayer\" | \"icon\" | \"tab\", string>> | ClassNameComponent<TabInterface>"
+            "name": "string | Partial<Record<\"content\" | \"label\" | \"icon\" | \"stateLayer\" | \"tab\", string>> | ClassNameComponent<TabInterface>"
           },
           "defaultValue": null
         },

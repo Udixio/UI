@@ -60,6 +60,8 @@ export { default as Snackbar } from './lib/snackbar/Snackbar.svelte';
 export type { SvelteSnackbarProps } from './lib/snackbar/snackbar.types';
 export { default as SideSheet } from './lib/side-sheet/SideSheet.svelte';
 export type { SvelteSideSheetProps } from './lib/side-sheet/side-sheet.types';
+export { default as SplitButton } from './lib/split-button/SplitButton.svelte';
+export type { SvelteSplitButtonProps } from './lib/split-button/split-button.types';
 export { default as NavigationRail } from './lib/navigation-rail/NavigationRail.svelte';
 export type { SvelteNavigationRailProps } from './lib/navigation-rail/navigation-rail.types';
 export { default as NavigationRailItem } from './lib/navigation-rail/NavigationRailItem.svelte';

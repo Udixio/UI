@@ -23,6 +23,7 @@ import {
   type ElementClasses,
   mergeClassNames,
   type IconButtonInterface,
+  type IconButtonAdditionalProps,
   type IconButtonProps,
   type TooltipProps,
 } from '@udixio/core';
@@ -43,6 +44,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
  * @devx
  * - Requires the `label` and `icon` inputs.
  * - Shows `label` in a tooltip by default; `tooltip` overrides or disables it.
+ * - `stateColor` overrides the state-layer color when custom classes repaint the icon button.
  * - `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.
  * - `toggleable` enables `aria-pressed` and the `pressedChange` output.
  * @a11y
@@ -63,7 +65,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
       <span [class]="styles()['touchTarget']"></span>
       <udx-state-layer
         [class]="styles()['stateLayer']"
-        [colorName]="stateColor()"
+        [colorName]="resolvedStateColor()"
         [shapeTransition]="shapeTransition()"
         stateClassName="state-ripple-group-[icon-button]"
       />
@@ -84,6 +86,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         [attr.aria-hidden]="!hasAccessibleLabel() || null"
         [attr.aria-current]="ariaCurrent()"
         [attr.aria-haspopup]="ariaHasPopup()"
+        [attr.aria-controls]="ariaControls()"
         [attr.aria-expanded]="ariaExpanded()"
         [attr.tabindex]="disabled() || !hasAccessibleLabel() ? -1 : tabIndex()"
         [attr.target]="target()"
@@ -107,6 +110,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         [attr.aria-label]="label()"
         [attr.aria-pressed]="isToggleButton() ? isPressed() : null"
         [attr.aria-haspopup]="ariaHasPopup()"
+        [attr.aria-controls]="ariaControls()"
         [attr.aria-expanded]="ariaExpanded()"
         [attr.tabindex]="tabIndex()"
         (click)="handleClick($event)"
@@ -125,6 +129,7 @@ export class IconButton implements OnInit {
   readonly variant = input<IconButtonProps['variant']>('standard');
   readonly size = input<IconButtonProps['size']>('medium');
   readonly width = input<IconButtonProps['width']>('default');
+  readonly stateColor = input<IconButtonProps['stateColor']>();
   readonly disabled = input(false, { transform: booleanAttribute });
   readonly shape = input<IconButtonProps['shape']>('rounded');
   readonly shapeFeedback =
@@ -144,6 +149,8 @@ export class IconButton implements OnInit {
     | ElementClasses<IconButtonInterface>
     | ClassNameComponent<IconButtonInterface>
   >();
+  /** Additional IconButton props for compositions; these override matching individual inputs. */
+  readonly options = input<IconButtonAdditionalProps>({});
   /** Navigation destination; switches the inner element to a native link. */
   readonly href = input<string>();
   /** Native link browsing-context target. */
@@ -164,6 +171,10 @@ export class IconButton implements OnInit {
   readonly ariaHasPopup = input<
     boolean | 'menu' | 'listbox' | 'tree' | 'grid' | 'dialog' | undefined
   >(undefined, { alias: 'aria-haspopup' });
+  /** Controls relationship forwarded to the inner interactive element. */
+  readonly ariaControls = input<string | undefined>(undefined, {
+    alias: 'aria-controls',
+  });
   /** Expanded state forwarded to the inner interactive element. */
   readonly ariaExpanded = input<boolean | undefined>(undefined, {
     alias: 'aria-expanded',
@@ -211,22 +222,37 @@ export class IconButton implements OnInit {
     () => this.label().trim() !== '',
   );
   protected readonly tooltipText = computed(() =>
-    this.tooltip() === false
+    this.resolvedTooltip() === false
       ? undefined
-      : (this.tooltip() ?? this.title() ?? this.label()),
+      : (this.resolvedTooltip() ?? this.title() ?? this.label()),
+  );
+  protected readonly resolvedTooltip = computed(
+    () => this.options().tooltip ?? this.tooltip(),
+  );
+  protected readonly resolvedPressedIcon = computed(
+    () => this.options().pressedIcon ?? this.pressedIcon(),
+  );
+  protected readonly resolvedWidth = computed(
+    () => this.options().width ?? this.width(),
+  );
+  protected readonly resolvedTransition = computed(
+    () => this.options().transition ?? this.transition(),
   );
   protected readonly isPressed = computed(
     () => this.isToggleButton() && this.pressedState.value(),
   );
   protected readonly resolvedIcon = computed(
-    () => (this.isPressed() && this.pressedIcon()) || this.icon(),
+    () => (this.isPressed() && this.resolvedPressedIcon()) || this.icon(),
   );
-  protected readonly stateColor = computed(() =>
-    getIconButtonStateColor({
-      variant: this.variant(),
-      toggleable: this.isToggleButton(),
-      isPressed: this.isPressed(),
-    }),
+  protected readonly resolvedStateColor = computed(
+    () =>
+      this.options().stateColor ??
+      this.stateColor() ??
+      getIconButtonStateColor({
+        variant: this.variant(),
+        toggleable: this.isToggleButton(),
+        isPressed: this.isPressed(),
+      }),
   );
   protected readonly shapeTransition = computed(() =>
     getIconButtonShapeTransition({
@@ -235,21 +261,22 @@ export class IconButton implements OnInit {
       shapeFeedback: this.effectiveShapeFeedback(),
       isPressed: this.isPressed(),
       disabled: this.disabled() || !this.hasAccessibleLabel(),
-      transition: this.transition(),
+      transition: this.resolvedTransition(),
     }),
   );
   protected readonly styles = createStyle(iconButtonStyle, () => ({
     label: this.label(),
     icon: this.icon(),
-    tooltip: this.tooltip(),
-    pressedIcon: this.pressedIcon(),
+    tooltip: this.resolvedTooltip(),
+    pressedIcon: this.resolvedPressedIcon(),
     variant: this.variant(),
     size: this.size(),
-    width: this.width(),
+    width: this.resolvedWidth(),
+    stateColor: this.options().stateColor ?? this.stateColor(),
     disabled: this.disabled(),
     shape: this.shape(),
     shapeFeedback: this.effectiveShapeFeedback(),
-    transition: this.transition(),
+    transition: this.resolvedTransition(),
     toggleable: this.isToggleButton(),
     pressed: this.pressed(),
     defaultPressed: this.defaultPressed(),

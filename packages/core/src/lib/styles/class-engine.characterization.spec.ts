@@ -25,7 +25,7 @@ describe('class engine characterization', () => {
   it('button: filled medium rounded', () => {
     expect(buttonStyle(buttonState())).toMatchInlineSnapshot(`
       {
-        "button": "button relative inline-flex w-fit cursor-pointer items-center justify-center group/button outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current text-title-medium px-6 py-4 gap-2 rounded-[40px] hover:shadow-1 bg-primary text-on-primary",
+        "button": "button relative inline-flex w-fit cursor-pointer items-center justify-center group/button outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current text-title-medium px-6 py-4 gap-2 rounded-[40px] bg-primary text-on-primary",
         "icon": "icon size-6",
         "label": "label",
         "stateLayer": "state-layer overflow-hidden",
@@ -81,7 +81,7 @@ describe('class engine characterization', () => {
           className: 'bg-red-500 px-2',
         } as any),
       ).button,
-    ).toMatchInlineSnapshot(`"button relative inline-flex w-fit cursor-pointer items-center justify-center group/button outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current text-title-medium py-4 gap-2 rounded-[40px] hover:shadow-1 text-on-primary bg-red-500 px-2"`);
+    ).toMatchInlineSnapshot(`"button relative inline-flex w-fit cursor-pointer items-center justify-center group/button outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current text-title-medium py-4 gap-2 rounded-[40px] text-on-primary bg-red-500 px-2"`);
   });
 
   it('button: user className function override per element', () => {
@@ -93,7 +93,7 @@ describe('class engine characterization', () => {
       ),
     ).toMatchInlineSnapshot(`
       {
-        "button": "button relative inline-flex w-fit cursor-pointer items-center justify-center group/button outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current text-title-medium px-6 py-4 gap-2 rounded-[40px] hover:shadow-1 text-on-primary bg-blue-500",
+        "button": "button relative inline-flex w-fit cursor-pointer items-center justify-center group/button outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current text-title-medium px-6 py-4 gap-2 rounded-[40px] text-on-primary bg-blue-500",
         "icon": "icon size-6",
         "label": "label text-red-500",
         "stateLayer": "state-layer overflow-hidden",

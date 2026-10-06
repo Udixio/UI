@@ -22,6 +22,7 @@ export * from './navigation-rail.style';
 export * from './progress-indicator.style';
 export * from './search.style';
 export * from './side-sheet.style';
+export * from './split-button.style';
 export * from './slider.style';
 export * from './snackbar.style';
 export * from './state-layer.style';

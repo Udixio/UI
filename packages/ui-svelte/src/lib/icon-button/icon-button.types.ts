@@ -19,6 +19,7 @@ type ForwardedAttributes = Omit<
  * @devx
  * - Requires `label` and `icon`; arbitrary children are not accepted.
  * - Shows `label` in a tooltip by default; `tooltip` overrides or disables it.
+ * - `stateColor` overrides the state-layer color when custom classes repaint the icon button.
  * - `pressed` is bindable (`bind:pressed`); `defaultPressed` initializes uncontrolled usage.
  * - `toggleable` enables `aria-pressed` and `onPressedChange` on action buttons.
  * @a11y
@@ -27,11 +28,14 @@ type ForwardedAttributes = Omit<
  * - Disabled links are inert and removed from the tab order.
  * - Navigation links ignore toggle state; use `aria-current` for the current destination.
  */
-export interface SvelteIconButtonProps extends IconButtonProps, ForwardedAttributes {
+export interface SvelteIconButtonProps
+  extends IconButtonProps, ForwardedAttributes {
   /** Classes applied to the root element, merged with the component's own classes. */
   class?: string;
   /** Static or state-aware classes for the component's internal elements, keyed by element name. */
-  classes?: ElementClasses<IconButtonInterface> | ClassNameComponent<IconButtonInterface>;
+  classes?:
+    | ElementClasses<IconButtonInterface>
+    | ClassNameComponent<IconButtonInterface>;
   /** Notifies an accepted toggle-state request. */
   onPressedChange?: (pressed: boolean) => void;
   /** Navigation destination; switches the native element from button to link. */
@@ -44,6 +48,8 @@ export interface SvelteIconButtonProps extends IconButtonProps, ForwardedAttribu
   type?: 'button' | 'submit' | 'reset';
   /** Handles clicks accepted by the button or link interaction contract. */
   onclick?: (
-    event: MouseEvent & { currentTarget: EventTarget & (HTMLButtonElement | HTMLAnchorElement) },
+    event: MouseEvent & {
+      currentTarget: EventTarget & (HTMLButtonElement | HTMLAnchorElement);
+    },
   ) => void;
 }

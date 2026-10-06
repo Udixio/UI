@@ -71,6 +71,7 @@ export const useIconButtonStyle = createUseStyle(iconButtonStyle);
  * @devx
  * - Requires `label` and `icon`; arbitrary children are not accepted.
  * - Shows `label` in a tooltip by default; `tooltip` overrides or disables it.
+ * - `stateColor` overrides the state-layer color when custom classes repaint the icon button.
  * - `pressed` is controlled; `defaultPressed` initializes uncontrolled usage.
  * - `toggleable` enables `aria-pressed` and `onPressedChange` on action buttons.
  * @a11y
@@ -92,6 +93,7 @@ export const IconButton = (props: ReactIconButtonProps) => {
     shape = 'rounded',
     shapeFeedback = 'morph',
     transition,
+    stateColor,
     toggleable = false,
     pressed,
     defaultPressed = false,
@@ -157,6 +159,7 @@ export const IconButton = (props: ReactIconButtonProps) => {
     shape,
     shapeFeedback: effectiveShapeFeedback,
     transition,
+    stateColor,
     toggleable: isToggleButton,
     pressed,
     defaultPressed,
@@ -190,11 +193,14 @@ export const IconButton = (props: ReactIconButtonProps) => {
       <StateLayer
         shapeTransition={shapeTransition}
         className={styles.stateLayer}
-        colorName={getIconButtonStateColor({
-          variant,
-          toggleable: isToggleButton,
-          isPressed,
-        })}
+        colorName={
+          stateColor ??
+          getIconButtonStateColor({
+            variant,
+            toggleable: isToggleButton,
+            isPressed,
+          })
+        }
         stateClassName="state-ripple-group-[icon-button]"
       />
       <Icon
@@ -232,6 +238,7 @@ export const IconButton = (props: ReactIconButtonProps) => {
       shape: _shape,
       shapeFeedback: _shapeFeedback,
       size: _size,
+      stateColor: _stateColor,
       toggleable: _toggleable,
       transition: _transition,
       variant: _variant,
@@ -252,6 +259,7 @@ export const IconButton = (props: ReactIconButtonProps) => {
       _shape,
       _shapeFeedback,
       _size,
+      _stateColor,
       _toggleable,
       _transition,
       _variant,
@@ -307,6 +315,7 @@ export const IconButton = (props: ReactIconButtonProps) => {
     shape: _shape,
     shapeFeedback: _shapeFeedback,
     size: _size,
+    stateColor: _stateColor,
     toggleable: _toggleable,
     transition: _transition,
     variant: _variant,
@@ -328,6 +337,7 @@ export const IconButton = (props: ReactIconButtonProps) => {
     _shape,
     _shapeFeedback,
     _size,
+    _stateColor,
     _toggleable,
     _transition,
     _variant,

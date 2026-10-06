@@ -20,7 +20,7 @@
           "description": "Root classes (string), static element classes (object), or state-aware element classes (function).",
           "required": false,
           "type": {
-            "name": "string | Partial<Record<\"container\" | \"label\" | \"stateLayer\" | \"icon\" | \"navigationRailItem\", string>> | ClassNameComponent<NavigationRailItemInterface>"
+            "name": "string | Partial<Record<\"container\" | \"label\" | \"icon\" | \"stateLayer\" | \"navigationRailItem\", string>> | ClassNameComponent<NavigationRailItemInterface>"
           },
           "defaultValue": null
         },

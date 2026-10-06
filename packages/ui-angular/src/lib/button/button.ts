@@ -15,6 +15,7 @@ import {
 import { NgTemplateOutlet } from '@angular/common';
 import {
   type ButtonInterface,
+  type ButtonAdditionalProps,
   type ButtonProps,
   buttonStyle,
   type ClassNameComponent,
@@ -65,7 +66,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
       @if (resolvedIconPosition() === 'start' && icon(); as leadingIcon) {
         <udx-icon [icon]="leadingIcon" [class]="styles()['icon']" />
       }
-      @if (loading()) {
+      @if (resolvedLoading()) {
         <span
           aria-hidden="true"
           class="!absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
@@ -89,7 +90,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         [attr.aria-disabled]="interactionBlocked() || null"
         [attr.aria-hidden]="!hasVisibleLabel() || null"
         [attr.aria-pressed]="isToggleButton() ? isPressed() : null"
-        [attr.aria-busy]="loading() || null"
+        [attr.aria-busy]="resolvedLoading() || null"
         [attr.aria-label]="ariaLabel()"
         [attr.aria-describedby]="ariaDescribedBy()"
         [attr.aria-current]="ariaCurrent()"
@@ -116,7 +117,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         [disabled]="interactionBlocked()"
         [attr.aria-hidden]="!hasVisibleLabel() || null"
         [attr.aria-pressed]="isToggleButton() ? isPressed() : null"
-        [attr.aria-busy]="loading() || null"
+        [attr.aria-busy]="resolvedLoading() || null"
         [attr.aria-label]="ariaLabel()"
         [attr.aria-describedby]="ariaDescribedBy()"
         [attr.tabindex]="tabIndex()"
@@ -164,6 +165,9 @@ export class Button implements OnInit {
   readonly classes = input<
     ElementClasses<ButtonInterface> | ClassNameComponent<ButtonInterface>
   >();
+
+  /** Additional Button options; these take precedence over matching individual inputs. */
+  readonly options = input<ButtonAdditionalProps>({});
 
   readonly stateColor = input<ButtonProps['stateColor']>();
 
@@ -250,11 +254,21 @@ export class Button implements OnInit {
   protected readonly isToggleButton = computed(
     () => this.toggleable() && this.href() === undefined,
   );
+  protected readonly resolvedLoading = computed(
+    () => this.options().loading ?? this.loading(),
+  );
+  protected readonly resolvedEdgeAligned = computed(
+    () => this.options().edgeAligned ?? this.edgeAligned(),
+  );
+  protected readonly resolvedTransition = computed(
+    () => this.options().transition ?? this.transition(),
+  );
   protected readonly interactionBlocked = computed(
-    () => this.disabled() || this.loading() || !this.hasVisibleLabel(),
+    () => this.disabled() || this.resolvedLoading() || !this.hasVisibleLabel(),
   );
   protected readonly resolvedStateColor = computed(
     () =>
+      this.options().stateColor ??
       this.stateColor() ??
       getButtonStateColor({
         variant: this.variant(),
@@ -276,8 +290,8 @@ export class Button implements OnInit {
       shape: this.shape(),
       shapeFeedback: this.shapeFeedback(),
       isPressed: this.isToggleButton() && this.isPressed(),
-      disabled: this.disabled() || this.loading(),
-      transition: this.transition(),
+      disabled: this.disabled() || this.resolvedLoading(),
+      transition: this.resolvedTransition(),
     }),
   );
 
@@ -288,12 +302,12 @@ export class Button implements OnInit {
     icon: this.icon(),
     iconPosition: this.iconPosition(),
     disabled: this.disabled(),
-    edgeAligned: this.edgeAligned(),
-    loading: this.loading(),
+    edgeAligned: this.resolvedEdgeAligned(),
+    loading: this.resolvedLoading(),
     shape: this.shape(),
     shapeFeedback: this.shapeFeedback(),
-    stateColor: this.stateColor(),
-    transition: this.transition(),
+    stateColor: this.resolvedStateColor(),
+    transition: this.resolvedTransition(),
     toggleable: this.isToggleButton(),
     pressed: this.pressed(),
     defaultPressed: this.defaultPressed(),
@@ -313,7 +327,7 @@ export class Button implements OnInit {
   protected handleClick(event: Event): void {
     const interaction = getButtonPressTransition({
       disabled: this.disabled(),
-      loading: this.loading(),
+      loading: this.resolvedLoading(),
       toggleable: this.isToggleButton(),
       isPressed: this.isToggleButton() && this.isPressed(),
     });

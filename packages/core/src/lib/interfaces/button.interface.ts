@@ -2,11 +2,7 @@ import { Icon } from '../icon';
 import type { Transition } from 'motion';
 
 export type ButtonVariant =
-  | 'filled'
-  | 'elevated'
-  | 'tonal'
-  | 'outlined'
-  | 'text';
+  'filled' | 'elevated' | 'tonal' | 'outlined' | 'text';
 export type ButtonVariantAlias = 'primary' | 'secondary';
 export type ButtonIconPosition = 'start' | 'end';
 export type ButtonIconPositionAlias = 'left' | 'right';
@@ -97,6 +93,25 @@ export interface ButtonProps {
   /** Visible text used when the framework adapter receives no custom content. */
   label?: string;
 }
+
+/** Additional Button props for compositions that own content and core state. */
+export type ButtonAdditionalProps = Partial<
+  Omit<
+    ButtonProps,
+    | 'type'
+    | 'label'
+    | 'icon'
+    | 'iconPosition'
+    | 'size'
+    | 'variant'
+    | 'disabled'
+    | 'shape'
+    | 'shapeFeedback'
+    | 'toggleable'
+    | 'pressed'
+    | 'defaultPressed'
+  >
+>;
 
 type Elements = ['button', 'touchTarget', 'stateLayer', 'icon', 'label'];
 

@@ -1,0 +1,536 @@
+{
+  "schemaVersion": 5,
+  "displayName": "SplitButton",
+  "description": "A primary action paired with a menu button for related actions.",
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/SplitButton.tsx",
+      "tags": {
+        "status": "beta",
+        "category": "Action",
+        "devx": "- Composes the shared `Button` and `IconButton` primitives for its two actions.\n- Provide `label` or an `icon` for the primary action; icon-only usage also requires `accessibleLabel`.\n- `menuLabel` names both the trailing menu button and its popup.\n- Both prop bags forward primitive-specific options. SplitButton supplies each part's content and coordinates size, variant, shape, and disabled state.\n- Each button morphs only its own inner corners on hover, focus-visible, and\n  press. While the menu is open, only the trailing button keeps its expanded\n  shape and selected state layer.\n- Each action has a unique, non-empty `id` and visible `label`; the action model is shared by all frameworks.\n- `open` is controlled; `defaultOpen` initializes uncontrolled use.",
+        "a11y": "- The trailing IconButton exposes `aria-haspopup=\"menu\"`, `aria-expanded`, and `aria-controls`.\n- Enter and Space open the menu; Arrow Down and Arrow Up open it at the first and last enabled actions.\n- The menu supports the shared Menu keyboard model. Escape closes it and restores focus to the menu button.\n- Both button parts keep a 48px minimum touch target and a visible focus outline.",
+        "limitations": "- The primary action is a button callback; use a separate Link for primary navigation.\n- Nested menu actions are not supported. Use a separate popup composition for submenus."
+      },
+      "methods": [],
+      "props": {
+        "label": {
+          "name": "label",
+          "description": "Visible label for the primary action. Provide `icon` for an icon-only action.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "icon": {
+          "name": "icon",
+          "description": "Optional icon shown before the primary action label.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "accessibleLabel": {
+          "name": "accessibleLabel",
+          "description": "Accessible-name override for the primary action when it has no visible label.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "menuLabel": {
+          "name": "menuLabel",
+          "description": "Accessible name shared by the trailing menu button and its menu.",
+          "required": true,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "actions": {
+          "name": "actions",
+          "description": "Related menu actions. Include at least one action with a unique, non-empty\n`id` and a non-empty `label` for each record.",
+          "required": true,
+          "type": {
+            "name": "readonly SplitButtonAction[]"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Visual treatment.",
+          "required": false,
+          "type": {
+            "name": "SplitButtonVariant"
+          },
+          "defaultValue": {
+            "value": "'filled'"
+          }
+        },
+        "size": {
+          "name": "size",
+          "description": "Visual size. Every size keeps a 48px touch target.",
+          "required": false,
+          "type": {
+            "name": "SplitButtonSize"
+          },
+          "defaultValue": {
+            "value": "'small'"
+          }
+        },
+        "primaryButtonProps": {
+          "name": "primaryButtonProps",
+          "description": "Additional Button options; shared SplitButton properties remain authoritative.",
+          "required": false,
+          "type": {
+            "name": "Partial<Omit<ButtonProps, \"label\" | \"icon\" | \"variant\" | \"size\" | \"disabled\" | \"type\" | \"iconPosition\" | \"shape\" | \"shapeFeedback\" | \"toggleable\" | \"pressed\" | \"defaultPressed\">>"
+          },
+          "defaultValue": null
+        },
+        "menuButtonProps": {
+          "name": "menuButtonProps",
+          "description": "Additional IconButton options; shared SplitButton properties remain authoritative.",
+          "required": false,
+          "type": {
+            "name": "Partial<Omit<IconButtonProps, \"label\" | \"icon\" | \"variant\" | \"size\" | \"disabled\" | \"shape\" | \"shapeFeedback\" | \"toggleable\" | \"pressed\" | \"defaultPressed\">>"
+          },
+          "defaultValue": null
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Disables the primary action, menu trigger, and every menu action.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "open": {
+          "name": "open",
+          "description": "Controlled visibility of the related-actions menu.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        },
+        "defaultOpen": {
+          "name": "defaultOpen",
+          "description": "Initial menu visibility when `open` is uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | ClassNameComponent<SplitButtonInterface> | Partial<Record<\"splitButton\" | \"primaryButton\" | \"primaryTouchTarget\" | \"primaryStateLayer\" | ... 6 more ... | \"menuSurface\", string>>"
+          },
+          "defaultValue": null
+        },
+        "onPrimaryAction": {
+          "name": "onPrimaryAction",
+          "description": "Runs the primary action.",
+          "required": false,
+          "type": {
+            "name": "() => void"
+          },
+          "defaultValue": null
+        },
+        "onActionSelect": {
+          "name": "onActionSelect",
+          "description": "Notifies selection before the menu closes.",
+          "required": false,
+          "type": {
+            "name": "(action: SplitButtonAction, index: number) => void"
+          },
+          "defaultValue": null
+        },
+        "onOpenChange": {
+          "name": "onOpenChange",
+          "description": "Notifies an accepted open-state request.",
+          "required": false,
+          "type": {
+            "name": "(open: boolean) => void"
+          },
+          "defaultValue": null
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/split-button/split-button.ts",
+      "selector": "udx-split-button",
+      "tags": {
+        "status": "beta",
+        "category": "Action",
+        "devx": "- Provide `label` or an `icon` for the primary action; icon-only usage also requires `accessibleLabel`.\n- `menuLabel` names both the trailing menu button and its popup.\n- Each action has a unique, non-empty `id` and visible `label`; the action model is shared by all frameworks.\n- Both prop bags forward primitive-specific options. SplitButton supplies each part's content and coordinates size, variant, shape, and disabled state.\n- Each button morphs only its own inner corners on hover, focus-visible, and\n  press. While the menu is open, only the trailing button keeps its expanded\n  shape and selected state layer.\n- `open` is controlled and supports `[(open)]`; `defaultOpen` initializes uncontrolled use.",
+        "a11y": "- Composes the shared Button and IconButton primitives; the trailing IconButton exposes `aria-haspopup=\"menu\"`, `aria-expanded`, and `aria-controls`.\n- Enter and Space open the menu; Arrow Down and Arrow Up open it at the first and last enabled actions.\n- The menu supports the shared Menu keyboard model. Escape closes it and restores focus to the menu button.\n- Both button parts keep a 48px minimum touch target and a visible focus outline.",
+        "limitations": "- The primary action is an output; use a separate Link for primary navigation.\n- Nested menu actions are not supported. Use a separate popup composition for submenus.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host; use `class`, `[class]`, or `classes`."
+      },
+      "inputs": {
+        "label": {
+          "name": "label",
+          "description": "Visible label for the primary action.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "icon": {
+          "name": "icon",
+          "description": "Optional leading icon for the primary action.",
+          "required": false,
+          "type": {
+            "name": "Icon | undefined"
+          },
+          "defaultValue": null
+        },
+        "accessibleLabel": {
+          "name": "accessibleLabel",
+          "description": "Accessible name used when the primary action has no visible label.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "menuLabel": {
+          "name": "menuLabel",
+          "description": "Accessible name shared by the trailing menu button and its popup.",
+          "required": true,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "actions": {
+          "name": "actions",
+          "description": "Related actions with unique non-empty IDs and labels.",
+          "required": true,
+          "type": {
+            "name": "readonly SplitButtonAction[]"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Visual treatment.",
+          "required": false,
+          "type": {
+            "name": "SplitButtonVariant | undefined"
+          },
+          "defaultValue": {
+            "value": "'filled'"
+          }
+        },
+        "size": {
+          "name": "size",
+          "description": "Visual size. Every size retains a 48px touch target.",
+          "required": false,
+          "type": {
+            "name": "SplitButtonSize | undefined"
+          },
+          "defaultValue": {
+            "value": "'small'"
+          }
+        },
+        "primaryButtonProps": {
+          "name": "primaryButtonProps",
+          "description": "Additional options forwarded to the shared Button primitive.",
+          "required": false,
+          "type": {
+            "name": "Partial<Omit<ButtonProps, \"label\" | \"type\" | \"variant\" | \"size\" | \"icon\" | \"iconPosition\" | \"shape\" | \"shapeFeedback\" | \"disabled\" | \"toggleable\" | \"pressed\" | \"defaultPressed\">>"
+          },
+          "defaultValue": {
+            "value": "{}"
+          }
+        },
+        "menuButtonProps": {
+          "name": "menuButtonProps",
+          "description": "Additional options forwarded to the shared IconButton primitive.",
+          "required": false,
+          "type": {
+            "name": "Partial<Omit<IconButtonProps, \"label\" | \"variant\" | \"size\" | \"icon\" | \"shape\" | \"shapeFeedback\" | \"disabled\" | \"toggleable\" | \"pressed\" | \"defaultPressed\">>"
+          },
+          "defaultValue": {
+            "value": "{}"
+          }
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Disables both button parts and every menu action.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "open": {
+          "name": "open",
+          "description": "Controlled visibility of the related-actions menu.",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null
+        },
+        "defaultOpen": {
+          "name": "defaultOpen",
+          "description": "Initial menu visibility when `open` is uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "hostClass": {
+          "name": "hostClass",
+          "description": "Classes applied to the root element. Native `class` and `[class]` bind here.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          },
+          "alias": "class"
+        },
+        "classes": {
+          "name": "classes",
+          "description": "Static or state-aware classes for internal elements, keyed by element name.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"menuIcon\" | \"splitButton\" | \"primaryButton\" | \"primaryTouchTarget\" | \"primaryStateLayer\" | \"primaryIcon\" | \"primaryLabel\" | \"menuButton\" | \"menuTouchTarget\" | \"menuStateLayer\" | \"menuSurface\", string>> | ClassNameComponent<SplitButtonInterface>"
+          },
+          "defaultValue": null
+        }
+      },
+      "outputs": {
+        "primaryAction": {
+          "name": "primaryAction",
+          "description": "Emits when the primary action is activated.",
+          "required": false,
+          "type": {
+            "name": "void"
+          },
+          "defaultValue": null
+        },
+        "actionSelect": {
+          "name": "actionSelect",
+          "description": "Emits the selected action and its index before the menu closes.",
+          "required": false,
+          "type": {
+            "name": "SplitButtonActionSelectEvent"
+          },
+          "defaultValue": null
+        },
+        "openChange": {
+          "name": "openChange",
+          "description": "Emits when the component accepts an open-state request.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        }
+      }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/split-button/SplitButton.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Action",
+        "devx": "- Provide a visible primary `label` or an `icon`; icon-only usage requires `accessibleLabel`.\n- `menuLabel` names the trailing menu button and popup. Actions share one framework-independent data model and need unique non-empty IDs and labels.\n- Both prop bags forward primitive-specific options. SplitButton supplies each part's content and coordinates size, variant, shape, and disabled state.\n- Each button morphs only its own inner corners on hover, focus-visible, and\n  press. While the menu is open, only the trailing button keeps its expanded\n  shape and selected state layer.\n- `open` is bindable; `defaultOpen` initializes uncontrolled use.",
+        "a11y": "- Composes the shared `Button` and `IconButton` primitives; the menu IconButton exposes `aria-haspopup=\"menu\"`, `aria-expanded`, and `aria-controls`.\n- Enter and Space open the menu; Arrow Down and Arrow Up open at the first and last enabled actions.\n- The shared Menu handles item navigation; Escape and outside press close it, and Escape restores trigger focus.\n- Both button parts retain a 48px touch target and visible focus outline.",
+        "limitations": "The primary action is a callback, and nested menu actions are not supported."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes merged onto the split button root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "classes": {
+          "name": "classes",
+          "description": "State-aware classes for the group, both button parts, and popup.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"menuIcon\" | \"splitButton\" | \"primaryButton\" | \"primaryTouchTarget\" | \"primaryStateLayer\" | \"primaryIcon\" | \"primaryLabel\" | \"menuButton\" | \"menuTouchTarget\" | \"menuStateLayer\" | \"menuSurface\", string>> | ClassNameComponent<SplitButtonInterface>"
+          },
+          "defaultValue": null
+        },
+        "open": {
+          "name": "open",
+          "description": "Controlled visibility; `bind:open` synchronizes the owner.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null,
+          "bindable": true
+        },
+        "onOpenChange": {
+          "name": "onOpenChange",
+          "description": "Notifies an accepted open-state request.",
+          "required": false,
+          "type": {
+            "name": "(open: boolean) => void"
+          },
+          "defaultValue": null
+        },
+        "onPrimaryAction": {
+          "name": "onPrimaryAction",
+          "description": "Runs the primary action.",
+          "required": false,
+          "type": {
+            "name": "() => void"
+          },
+          "defaultValue": null
+        },
+        "onActionSelect": {
+          "name": "onActionSelect",
+          "description": "Notifies selection before the menu closes.",
+          "required": false,
+          "type": {
+            "name": "(action: SplitButtonAction, index: number) => void"
+          },
+          "defaultValue": null
+        },
+        "label": {
+          "name": "label",
+          "description": "Visible label for the primary action. Provide `icon` for an icon-only action.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "icon": {
+          "name": "icon",
+          "description": "Optional icon shown before the primary action label.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "accessibleLabel": {
+          "name": "accessibleLabel",
+          "description": "Accessible-name override for the primary action when it has no visible label.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "menuLabel": {
+          "name": "menuLabel",
+          "description": "Accessible name shared by the trailing menu button and its menu.",
+          "required": true,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "actions": {
+          "name": "actions",
+          "description": "Related menu actions. Include at least one action with a unique, non-empty\n`id` and a non-empty `label` for each record.",
+          "required": true,
+          "type": {
+            "name": "readonly SplitButtonAction[]"
+          },
+          "defaultValue": null
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Visual treatment.",
+          "required": false,
+          "type": {
+            "name": "SplitButtonVariant"
+          },
+          "defaultValue": {
+            "value": "'filled'"
+          }
+        },
+        "size": {
+          "name": "size",
+          "description": "Visual size. Every size keeps a 48px touch target.",
+          "required": false,
+          "type": {
+            "name": "SplitButtonSize"
+          },
+          "defaultValue": {
+            "value": "'small'"
+          }
+        },
+        "primaryButtonProps": {
+          "name": "primaryButtonProps",
+          "description": "Extra Button options. SplitButton supplies its content and owns size, variant, shape, and disabled state.",
+          "required": false,
+          "type": {
+            "name": "Partial<Omit<ButtonProps, \"label\" | \"type\" | \"icon\" | \"iconPosition\" | \"size\" | \"variant\" | \"disabled\" | \"shape\" | \"shapeFeedback\" | \"toggleable\" | \"pressed\" | \"defaultPressed\">>"
+          },
+          "defaultValue": {
+            "value": "{}"
+          }
+        },
+        "menuButtonProps": {
+          "name": "menuButtonProps",
+          "description": "Extra IconButton options. SplitButton supplies its content and owns size, variant, shape, and disabled state.",
+          "required": false,
+          "type": {
+            "name": "Partial<Omit<IconButtonProps, \"label\" | \"icon\" | \"size\" | \"variant\" | \"disabled\" | \"shape\" | \"shapeFeedback\" | \"toggleable\" | \"pressed\" | \"defaultPressed\">>"
+          },
+          "defaultValue": {
+            "value": "{}"
+          }
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Disables the primary action, menu trigger, and every menu action.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "defaultOpen": {
+          "name": "defaultOpen",
+          "description": "Initial menu visibility when `open` is uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        }
+      }
+    }
+  }
+}

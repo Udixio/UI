@@ -20,7 +20,7 @@
           "description": "Root classes (string), static element classes (object), or state-aware element classes (function).",
           "required": false,
           "type": {
-            "name": "string | Partial<Record<\"switch\" | \"stateLayer\" | \"icon\" | \"handle\" | \"handleContainer\", string>> | ClassNameComponent<SwitchInterface>"
+            "name": "string | Partial<Record<\"switch\" | \"icon\" | \"stateLayer\" | \"handle\" | \"handleContainer\", string>> | ClassNameComponent<SwitchInterface>"
           },
           "defaultValue": null
         },

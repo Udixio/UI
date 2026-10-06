@@ -24,6 +24,12 @@ export interface IconButtonProps {
   size?: IconButtonSize;
   /** Horizontal container width. @default 'default' */
   width?: IconButtonWidth;
+  /**
+   * Colour token for the state layer, without the `--color-` prefix.
+   * Defaults to the token matching `variant`. Set it when custom classes
+   * repaint the button so hover and press feedback keeps enough contrast.
+   */
+  stateColor?: string;
   /** Disables interaction. */
   disabled?: boolean;
   /** Resting container shape. @default 'rounded' */
@@ -39,6 +45,23 @@ export interface IconButtonProps {
   /** Initial pressed state when `pressed` is not controlled. */
   defaultPressed?: boolean;
 }
+
+/** Additional IconButton props for compositions that own its label and state. */
+export type IconButtonAdditionalProps = Partial<
+  Omit<
+    IconButtonProps,
+    | 'label'
+    | 'icon'
+    | 'variant'
+    | 'size'
+    | 'disabled'
+    | 'shape'
+    | 'shapeFeedback'
+    | 'toggleable'
+    | 'pressed'
+    | 'defaultPressed'
+  >
+>;
 
 export interface IconButtonInterface {
   type: 'button';

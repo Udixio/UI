@@ -25,6 +25,7 @@ export * from './navigation-rail.interface';
 export * from './progress-indicator.interface';
 export * from './search.interface';
 export * from './side-sheet.interface';
+export * from './split-button.interface';
 export * from './slider.interface';
 export * from './snackbar.interface';
 export * from './state-layer.interface';

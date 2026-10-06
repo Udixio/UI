@@ -1,0 +1,276 @@
+---
+---
+
+import Code from '@/components/Code.astro';
+import SplitButtonBasicReact from '@/examples/react/split-button-basic.tsx';
+import { SplitButtonBasicAngular } from '@/examples/angular/split-button-basic.ts';
+import SplitButtonBasicSvelte from '@/examples/svelte/split-button-basic.svelte';
+import SplitButtonContentReact from '@/examples/react/split-button-content.tsx';
+import { SplitButtonContentAngular } from '@/examples/angular/split-button-content.ts';
+import SplitButtonContentSvelte from '@/examples/svelte/split-button-content.svelte';
+import SplitButtonIconOnlyReact from '@/examples/react/split-button-icon-only.tsx';
+import { SplitButtonIconOnlyAngular } from '@/examples/angular/split-button-icon-only.ts';
+import SplitButtonIconOnlySvelte from '@/examples/svelte/split-button-icon-only.svelte';
+import SplitButtonSizesReact from '@/examples/react/split-button-sizes.tsx';
+import { SplitButtonSizesAngular } from '@/examples/angular/split-button-sizes.ts';
+import SplitButtonSizesSvelte from '@/examples/svelte/split-button-sizes.svelte';
+import SplitButtonVariantsReact from '@/examples/react/split-button-variants.tsx';
+import { SplitButtonVariantsAngular } from '@/examples/angular/split-button-variants.ts';
+import SplitButtonVariantsSvelte from '@/examples/svelte/split-button-variants.svelte';
+import SplitButtonWidthReact from '@/examples/react/split-button-width.tsx';
+import { SplitButtonWidthAngular } from '@/examples/angular/split-button-width.ts';
+import SplitButtonWidthSvelte from '@/examples/svelte/split-button-width.svelte';
+import SplitButtonDisabledReact from '@/examples/react/split-button-disabled.tsx';
+import { SplitButtonDisabledAngular } from '@/examples/angular/split-button-disabled.ts';
+import SplitButtonDisabledSvelte from '@/examples/svelte/split-button-disabled.svelte';
+import SplitButtonDisabledActionReact from '@/examples/react/split-button-disabled-action.tsx';
+import { SplitButtonDisabledActionAngular } from '@/examples/angular/split-button-disabled-action.ts';
+import SplitButtonDisabledActionSvelte from '@/examples/svelte/split-button-disabled-action.svelte';
+import splitButtonReactSource from '@/examples/react/split-button-basic.tsx?raw';
+import splitButtonAngularSource from '@/examples/angular/split-button-basic.ts?raw';
+import splitButtonSvelteSource from '@/examples/svelte/split-button-basic.svelte?raw';
+import splitButtonContentReactSource from '@/examples/react/split-button-content.tsx?raw';
+import splitButtonContentAngularSource from '@/examples/angular/split-button-content.ts?raw';
+import splitButtonContentSvelteSource from '@/examples/svelte/split-button-content.svelte?raw';
+import splitButtonIconOnlyReactSource from '@/examples/react/split-button-icon-only.tsx?raw';
+import splitButtonIconOnlyAngularSource from '@/examples/angular/split-button-icon-only.ts?raw';
+import splitButtonIconOnlySvelteSource from '@/examples/svelte/split-button-icon-only.svelte?raw';
+import splitButtonSizesReactSource from '@/examples/react/split-button-sizes.tsx?raw';
+import splitButtonSizesAngularSource from '@/examples/angular/split-button-sizes.ts?raw';
+import splitButtonSizesSvelteSource from '@/examples/svelte/split-button-sizes.svelte?raw';
+import splitButtonVariantsReactSource from '@/examples/react/split-button-variants.tsx?raw';
+import splitButtonVariantsAngularSource from '@/examples/angular/split-button-variants.ts?raw';
+import splitButtonVariantsSvelteSource from '@/examples/svelte/split-button-variants.svelte?raw';
+import splitButtonWidthReactSource from '@/examples/react/split-button-width.tsx?raw';
+import splitButtonWidthAngularSource from '@/examples/angular/split-button-width.ts?raw';
+import splitButtonWidthSvelteSource from '@/examples/svelte/split-button-width.svelte?raw';
+import splitButtonDisabledReactSource from '@/examples/react/split-button-disabled.tsx?raw';
+import splitButtonDisabledAngularSource from '@/examples/angular/split-button-disabled.ts?raw';
+import splitButtonDisabledSvelteSource from '@/examples/svelte/split-button-disabled.svelte?raw';
+import splitButtonDisabledActionReactSource from '@/examples/react/split-button-disabled-action.tsx?raw';
+import splitButtonDisabledActionAngularSource from '@/examples/angular/split-button-disabled-action.ts?raw';
+import splitButtonDisabledActionSvelteSource from '@/examples/svelte/split-button-disabled-action.svelte?raw';
+
+## Usage
+
+`SplitButton` pairs one primary action with a separate button that opens related
+actions. Use it when one action is the common choice and the other actions are
+closely related alternatives. The primary button runs independently from the
+menu button. The examples use report export and project sharing to show practical
+actions, then show primary-content choices and disabled states. The size, visual
+variant, and menu-width comparisons keep every other component input constant.
+
+Import `SplitButton` from `@udixio/ui-react`, `@udixio/ui-angular`, or
+`@udixio/ui-svelte`. The three adapters share the same `actions` data model.
+
+### Export a report
+
+Download PDF is the common action. The menu offers CSV, Excel, and a shareable
+report link. The live status shows which action was requested; replace these
+callbacks with the application’s export and clipboard logic.
+
+<Code
+  codes={{
+    react: splitButtonReactSource,
+    angular: splitButtonAngularSource,
+    svelte: splitButtonSvelteSource,
+  }}
+>
+  <SplitButtonBasicReact slot="react" client:load />
+  <SplitButtonBasicAngular slot="angular" client:load />
+  <SplitButtonBasicSvelte slot="svelte" client:load />
+</Code>
+
+### Primary-button content
+
+The [Material 3 specs](https://m3.material.io/components/split-button/specs)
+allow the leading button to contain an icon, label text, or both. The
+[guidelines](https://m3.material.io/components/split-button/guidelines) recommend
+a brief one- or two-word label with a matching icon. These three examples hold
+the action, size, and variant constant while comparing icon plus label, label
+only, and icon only. The icon-only case supplies `accessibleLabel`.
+
+<Code
+  codes={{
+    react: splitButtonContentReactSource,
+    angular: splitButtonContentAngularSource,
+    svelte: splitButtonContentSvelteSource,
+  }}
+>
+  <SplitButtonContentReact slot="react" client:load />
+  <SplitButtonContentAngular slot="angular" client:load />
+  <SplitButtonContentSvelte slot="svelte" client:load />
+</Code>
+
+### Compact project sharing
+
+An icon-only Share action fits a compact project toolbar. Its accessible name is
+`Share`; the menu keeps the related actions visible and named. This uses the
+spec-supported icon-only form for a space-constrained toolbar; where space
+permits, prefer the brief visible label and matching icon recommended by the
+guidelines.
+
+<Code
+  codes={{
+    react: splitButtonIconOnlyReactSource,
+    angular: splitButtonIconOnlyAngularSource,
+    svelte: splitButtonIconOnlySvelteSource,
+  }}
+>
+  <SplitButtonIconOnlyReact slot="react" client:load />
+  <SplitButtonIconOnlyAngular slot="angular" client:load />
+  <SplitButtonIconOnlySvelte slot="svelte" client:load />
+</Code>
+
+### Sizes
+
+All five sizes use the same PDF-export action, `filled` variant, and default
+menu-button width. Only `size` changes. The default menu width scales with the
+SplitButton size.
+
+<Code
+  codes={{
+    react: splitButtonSizesReactSource,
+    angular: splitButtonSizesAngularSource,
+    svelte: splitButtonSizesSvelteSource,
+  }}
+>
+  <SplitButtonSizesReact slot="react" client:load />
+  <SplitButtonSizesAngular slot="angular" client:load />
+  <SplitButtonSizesSvelte slot="svelte" client:load />
+</Code>
+
+### Visual variants
+
+The same medium PDF-export action is shown with each visual variant. Only
+`variant` changes; size, content, menu label, and actions stay fixed.
+
+<Code
+  codes={{
+    react: splitButtonVariantsReactSource,
+    angular: splitButtonVariantsAngularSource,
+    svelte: splitButtonVariantsSvelteSource,
+  }}
+>
+  <SplitButtonVariantsReact slot="react" client:load />
+  <SplitButtonVariantsAngular slot="angular" client:load />
+  <SplitButtonVariantsSvelte slot="svelte" client:load />
+</Code>
+
+### Menu-button width
+
+The trailing `IconButton` supports `narrow`, `default`, and `wide` widths through
+`menuButtonProps.width`. The same medium, filled report-download action is used
+for each width; only `menuButtonProps.width` changes.
+
+<Code
+  codes={{
+    react: splitButtonWidthReactSource,
+    angular: splitButtonWidthAngularSource,
+    svelte: splitButtonWidthSvelteSource,
+  }}
+>
+  <SplitButtonWidthReact slot="react" client:load />
+  <SplitButtonWidthAngular slot="angular" client:load />
+  <SplitButtonWidthSvelte slot="svelte" client:load />
+</Code>
+
+### Disabled SplitButton
+
+When no report is selected, disable the whole control. This blocks the primary
+action, menu trigger, and every related export action.
+
+<Code
+  codes={{
+    react: splitButtonDisabledReactSource,
+    angular: splitButtonDisabledAngularSource,
+    svelte: splitButtonDisabledSvelteSource,
+  }}
+>
+  <SplitButtonDisabledReact slot="react" client:load />
+  <SplitButtonDisabledAngular slot="angular" client:load />
+  <SplitButtonDisabledSvelte slot="svelte" client:load />
+</Code>
+
+### One unavailable menu action
+
+Here, workspace policy disables public-link sharing while email invites and
+access management remain available. Set `disabled` on that action record only.
+
+<Code
+  codes={{
+    react: splitButtonDisabledActionReactSource,
+    angular: splitButtonDisabledActionAngularSource,
+    svelte: splitButtonDisabledActionSvelteSource,
+  }}
+>
+  <SplitButtonDisabledActionReact slot="react" client:load />
+  <SplitButtonDisabledActionAngular slot="angular" client:load />
+  <SplitButtonDisabledActionSvelte slot="svelte" client:load />
+</Code>
+
+## Anatomy and variants
+
+Material 3 defines two adjacent buttons: the leading button runs the primary
+action and can show a label, an icon, or both; the trailing button always shows
+the menu icon and opens related options. This implementation composes the shared
+`Button` and `IconButton` primitives and supports the five sizes `xSmall`,
+`small`, `medium`, `large`, and `xLarge`, plus the `elevated`, `filled`,
+`tonal`, and `outlined` visual treatments. The default is `small` and `filled`.
+`menuButtonProps` forwards supported `IconButton` options such as `width`, while
+SplitButton supplies and owns the trailing menu icon and accessible label.
+`primaryButtonProps` forwards additional `Button` options to the leading part.
+
+## Actions and state
+
+`actions` is a non-empty array of `{ id, label, icon?, href?, disabled? }`
+records. Each action needs a unique, non-empty `id` and visible `label`.
+`onPrimaryAction` runs the main action. Selecting a menu item emits
+`onActionSelect(action, index)` in React and Svelte, or `actionSelect` with
+`{ action, index }` in Angular; the menu then closes. Action links keep native
+link semantics.
+
+Use `open` with `onOpenChange` in React, `open` with `openChange` in Angular, or
+`bind:open` in Svelte for controlled visibility. `defaultOpen` initializes
+uncontrolled state. The visible primary label names the primary button; an
+icon-only primary action also needs `accessibleLabel`. `menuLabel` is required
+and names both the trailing menu button and the popup.
+
+## Accessibility and motion
+
+Both parts are native buttons with their own keyboard focus. The trailing
+button exposes `aria-haspopup="menu"`, `aria-expanded`, and `aria-controls`.
+Enter and Space open the menu and focus its first available action. Arrow Down
+opens at the first action and Arrow Up at the last; inside the menu, the shared
+Menu implementation handles arrow navigation, Home, End, and type-ahead.
+Escape and outside press close the menu; Escape restores focus to its trigger.
+Each part retains a 48px minimum touch target.
+
+Each button morphs only its own inner corners when that button is hovered,
+focused, or pressed. Opening the menu turns the trailing chevron and keeps only
+the trailing button in its selected state: its inner corners stay expanded and
+its state layer shows the selected overlay. The primary button keeps its own
+shape. The shared controller honors `prefers-reduced-motion` by applying the
+final state immediately. The popup aligns to the inline end of the split button
+and uses the Menu component's scrollable surface.
+
+## Design decisions and limits
+
+| Classification      | Decision                                                                                                                                                       |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Material 3 guidance | Two independent button parts; the trailing part always shows a menu icon and opens related actions; leading content may be a label, icon, or both; guidelines recommend a brief label with a matching icon; five sizes and four visual styles. |
+| WAI-ARIA guidance   | Use a native menu button with `aria-haspopup="menu"`, `aria-expanded`, a labelled menu, and the menu-button keyboard pattern.                                  |
+| Udixio API choice   | Use a shared action-record array, following `FabMenu`; use `menuLabel` for the trigger and popup; control visibility with `open`/`defaultOpen`.                |
+| Unsupported         | Text treatment, nested menus, and rich framework-specific menu content are not included.                                                                       |
+
+The primary action is a callback, so use a separate Link for primary
+navigation. The popup is positioned relative to the component and does not
+portal or flip based on viewport space; keep it out of clipping containers.
+
+## Sources
+
+- [Material 3 Split Button specs](https://m3.material.io/components/split-button/specs)
+- [Material 3 Split Button guidelines](https://m3.material.io/components/split-button/guidelines)
+- [Material 3 Split Button accessibility](https://m3.material.io/components/split-button/accessibility)
+- [WAI-ARIA APG: Button pattern](https://www.w3.org/WAI/ARIA/apg/patterns/button/)
+- [WAI-ARIA APG: Menu button pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/)

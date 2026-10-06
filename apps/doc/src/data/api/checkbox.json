@@ -20,7 +20,7 @@
           "description": "Root classes (string), static element classes (object), or state-aware element classes (function).",
           "required": false,
           "type": {
-            "name": "string | Partial<Record<\"box\" | \"input\" | \"stateLayer\" | \"icon\" | \"checkbox\", string>> | ClassNameComponent<CheckboxInterface>"
+            "name": "string | Partial<Record<\"box\" | \"input\" | \"icon\" | \"stateLayer\" | \"checkbox\", string>> | ClassNameComponent<CheckboxInterface>"
           },
           "defaultValue": null
         },

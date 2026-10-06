@@ -46,7 +46,6 @@ const buttonConfig: ClassNameComponent<ButtonInterface> = (state) => {
         'text-on-surface/[38%]': disabled,
       },
       variant === 'filled' && {
-        'hover:shadow-1': !interactionBlocked,
         'bg-surface-container text-on-surface-variant':
           !disabled && !isPressed && toggleable,
         'bg-primary text-on-primary':
@@ -54,7 +53,6 @@ const buttonConfig: ClassNameComponent<ButtonInterface> = (state) => {
         'text-on-surface/[38%]': disabled,
       },
       variant === 'tonal' && {
-        'hover:shadow-1': !interactionBlocked,
         'bg-secondary-container text-on-secondary-container':
           !disabled && !isPressed,
         'bg-secondary text-on-secondary': !disabled && isPressed,
