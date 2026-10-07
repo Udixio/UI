@@ -31,9 +31,9 @@ export type ReactMenuItemProps = Omit<
   children?: ReactNode;
   /** Optional navigation target; disabled links omit the native href. */
   href?: string;
-  /** Optional icon displayed before the label. */
+  /** Optional icon displayed before the label. Commands share this leading column when any command uses an icon; selection items keep their own indicator. */
   leadingIcon?: MenuItemProps['leadingIcon'];
-  /** Optional icon displayed after the label. */
+  /** Optional decorative icon displayed after the label; use MenuSubmenu for a chevron that opens another menu. */
   trailingIcon?: MenuItemProps['trailingIcon'];
   /** Prevents activation, selection changes, and keyboard focus. */
   disabled?: MenuItemProps['disabled'];
@@ -52,8 +52,7 @@ export const useMenuItemStyle = createUseStyle(menuItemStyle);
  * @a11y
  * - Resolves to `menuitem`, `menuitemradio`, `menuitemcheckbox`, or `option` from the parent Menu purpose.
  * - Disabled links are removed from navigation and expose `aria-disabled`.
- * @limitations
- * - Nested submenus require a separate popup composition.
+ * - Use `MenuSubmenu` when the row should open another action menu.
  */
 export const MenuItem = forwardRef<
   HTMLButtonElement | HTMLAnchorElement,
@@ -95,6 +94,8 @@ export const MenuItem = forwardRef<
       purpose: context.purpose,
       selectionType,
     });
+    const usesActionIconSlot =
+      context.purpose === 'actions' && selectionType === 'none';
     const resolvedLeadingIcon =
       isSelected && selectionType !== 'none' ? iCheck : leadingIcon;
     const styles = useMenuItemStyle({
@@ -148,6 +149,8 @@ export const MenuItem = forwardRef<
           ? isSelected
           : undefined,
       'data-menu-disabled': disabled ? 'true' : undefined,
+      'data-menu-leading-icon':
+        usesActionIconSlot && leadingIcon ? 'true' : undefined,
       tabIndex: disabled ? -1 : 0,
       onClick: activate,
     };
@@ -164,7 +167,20 @@ export const MenuItem = forwardRef<
             stateClassName="state-ripple-group-[menu-item]"
           />
         )}
-        {resolvedLeadingIcon && (
+        {usesActionIconSlot ? (
+          <span
+            aria-hidden="true"
+            data-menu-leading-icon-slot
+            style={resolvedLeadingIcon ? undefined : { display: 'none' }}
+            className={classNames(
+              styles.itemIcon,
+              styles.leadingIcon,
+              'z-10 relative',
+            )}
+          >
+            {resolvedLeadingIcon && <Icon icon={resolvedLeadingIcon} />}
+          </span>
+        ) : resolvedLeadingIcon ? (
           <span
             aria-hidden="true"
             className={classNames(
@@ -175,7 +191,7 @@ export const MenuItem = forwardRef<
           >
             <Icon icon={resolvedLeadingIcon} />
           </span>
-        )}
+        ) : null}
         <span className={classNames(styles.itemLabel, 'z-10 relative')}>
           {children ?? label}
         </span>

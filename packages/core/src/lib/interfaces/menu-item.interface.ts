@@ -12,9 +12,9 @@ export type MenuItemProps = {
   label?: string;
   /** Stable application value emitted or consumed by a parent selection surface. */
   value?: string | number;
-  /** Optional icon displayed before the label. */
+  /** Optional icon displayed before the label. In action menus, commands share this leading column when any command uses an icon; selection items keep their own indicator. */
   leadingIcon?: Icon;
-  /** Optional icon displayed after the label. */
+  /** Optional decorative icon displayed after the label; use MenuSubmenu for a chevron that opens another menu. */
   trailingIcon?: Icon;
   /** Prevents activation, selection changes, and keyboard focus. */
   disabled?: boolean;

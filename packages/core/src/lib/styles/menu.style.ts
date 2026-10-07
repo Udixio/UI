@@ -13,7 +13,7 @@ const menuConfig: ClassNameComponent<MenuInterface> = ({
       'bg-surface-container': !variant || variant === 'standard',
       // Vibrant uses tertiary-container (approximated) or just colored surface
       'bg-tertiary-container text-on-tertiary-container': variant === 'vibrant',
-      'py-0.5 shadow-2 px-1 rounded-2xl': !hasGroups,
+      'py-0.5 shadow-2 px-1 rounded-lg': !hasGroups,
       'bg-transparent': hasGroups,
     },
   ),

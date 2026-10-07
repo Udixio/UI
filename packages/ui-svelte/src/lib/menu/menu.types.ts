@@ -7,7 +7,10 @@ import type {
 import type { HTMLAttributes } from 'svelte/elements';
 import type { Snippet } from 'svelte';
 
-type ForwardedAttributes = Omit<HTMLAttributes<HTMLDivElement>, keyof MenuProps | 'class' | 'children'>;
+type ForwardedAttributes = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  keyof MenuProps | 'class' | 'children'
+>;
 
 /**
  * Menus display a list of choices on a temporary surface.
@@ -17,7 +20,6 @@ type ForwardedAttributes = Omit<HTMLAttributes<HTMLDivElement>, keyof MenuProps 
  * @devx Use `purpose="actions"` for commands and `purpose="selection"` for options; set
  * `initialFocus` when mounting inside a popup.
  * @a11y Implements Arrow, Home, End, Escape, and type-ahead focus navigation.
- * @limitations Nested submenus are not included; compose another popup from an item trigger.
  */
 export interface SvelteMenuProps extends MenuProps, ForwardedAttributes {
   /** Classes merged onto the menu root. */

@@ -157,10 +157,25 @@ function resolveAutoPosition(
   viewportWidth: number,
   viewportHeight: number,
   axis: AnchorPositionAxis,
+  floatingWidth: number,
+  direction: string,
 ): ExplicitAnchorPosition {
-  // Keep the decision predictable while the anchor moves: toolbars are read
-  // as belonging to the upper/lower or left/right half of the viewport. This
-  // intentionally does not measure the floating surface's size. A toolbar
+  if (axis === 'horizontal' && floatingWidth > 0) {
+    const spaceRight = Math.max(0, viewportWidth - anchorRect.right);
+    const spaceLeft = Math.max(0, anchorRect.left);
+    const preferred: 'left' | 'right' =
+      direction === 'rtl' ? 'left' : 'right';
+    const preferredSpace = preferred === 'right' ? spaceRight : spaceLeft;
+    const alternateSpace = preferred === 'right' ? spaceLeft : spaceRight;
+    const alternate = preferred === 'right' ? 'left' : 'right';
+
+    if (preferredSpace >= floatingWidth) return preferred;
+    if (alternateSpace >= floatingWidth) return alternate;
+    return preferredSpace >= alternateSpace ? preferred : alternate;
+  }
+
+  // Keep vertical placement predictable while the anchor moves: toolbars are
+  // read as belonging to the upper or lower half of the viewport. A toolbar
   // near the bottom should open upward even when there is technically enough
   // room below it, so the popup does not cover the controls around it.
   const anchorCenter =
@@ -198,6 +213,13 @@ export function createAnchorPositionerController({
     ? mirrorThemeScope(givenAnchor, floating)
     : () => {};
   const ownerWindow = anchor.ownerDocument.defaultView ?? globalThis.window;
+  floating.style.position = 'fixed';
+  floating.style.margin = '0';
+  // Capture the surface's natural width before position-area constrains it to
+  // one side of the anchor. Re-measuring after that would let the chosen side
+  // shrink the menu and make the next update incorrectly prefer that side.
+  const floatingWidth = floating.getBoundingClientRect().width;
+  const direction = ownerWindow.getComputedStyle(anchor).direction;
   const getViewport = () => {
     // `innerWidth`/`innerHeight` include the scrollbars, while CSS `right` and
     // `bottom` resolve against the layout viewport, which does not. Measuring
@@ -230,6 +252,8 @@ export function createAnchorPositionerController({
               viewport.width,
               viewport.height,
               autoAxis(),
+              floatingWidth,
+              direction,
             )
           : requestedPosition;
       floating.style.setProperty(
@@ -277,7 +301,14 @@ export function createAnchorPositionerController({
     const requestedPosition = position();
     const resolvedPosition: ExplicitAnchorPosition =
       requestedPosition === 'auto'
-        ? resolveAutoPosition(rect, viewportWidth, viewportHeight, autoAxis())
+        ? resolveAutoPosition(
+            rect,
+            viewportWidth,
+            viewportHeight,
+            autoAxis(),
+            floatingWidth,
+            direction,
+          )
         : requestedPosition;
 
     switch (resolvedPosition) {

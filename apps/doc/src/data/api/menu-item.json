@@ -11,14 +11,13 @@
         "category": "Selection",
         "parent": "menu",
         "devx": "- Use `selectionType`, `selected`, and `onSelectedChange` for controlled selection.\n- Use `defaultSelected` when the item owns its initial selection state.",
-        "a11y": "- Resolves to `menuitem`, `menuitemradio`, `menuitemcheckbox`, or `option` from the parent Menu purpose.\n- Disabled links are removed from navigation and expose `aria-disabled`.",
-        "limitations": "- Nested submenus require a separate popup composition."
+        "a11y": "- Resolves to `menuitem`, `menuitemradio`, `menuitemcheckbox`, or `option` from the parent Menu purpose.\n- Disabled links are removed from navigation and expose `aria-disabled`.\n- Use `MenuSubmenu` when the row should open another action menu."
       },
       "methods": [],
       "props": {
         "leadingIcon": {
           "name": "leadingIcon",
-          "description": "Optional icon displayed before the label.",
+          "description": "Optional icon displayed before the label. Commands share this leading column when any command uses an icon; selection items keep their own indicator.",
           "required": false,
           "type": {
             "name": "Icon"
@@ -27,7 +26,7 @@
         },
         "trailingIcon": {
           "name": "trailingIcon",
-          "description": "Optional icon displayed after the label.",
+          "description": "Optional decorative icon displayed after the label; use MenuSubmenu for a chevron that opens another menu.",
           "required": false,
           "type": {
             "name": "Icon"
@@ -148,7 +147,7 @@
         "parent": "menu",
         "devx": "Use `selectionType`, `selected`, and `selectedChange` for controlled selection, or initialize with `defaultSelected`.",
         "a11y": "Resolves to `menuitem`, `menuitemradio`, `menuitemcheckbox`, or `option`; disabled links are inert and removed from navigation.",
-        "limitations": "- Nested submenus require a separate popup composition. Angular uses the required `label` input instead of projected item content.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`."
+        "limitations": "- Angular uses the required `label` input instead of projected item content; use `udx-menu-submenu` for nested actions.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`."
       },
       "inputs": {
         "label": {
@@ -171,7 +170,7 @@
         },
         "leadingIcon": {
           "name": "leadingIcon",
-          "description": "Optional icon displayed before the label.",
+          "description": "Optional icon displayed before the label. Commands share this leading column when any command uses an icon; selection items keep their own indicator.",
           "required": false,
           "type": {
             "name": "Icon | undefined"
@@ -180,7 +179,7 @@
         },
         "trailingIcon": {
           "name": "trailingIcon",
-          "description": "Optional icon displayed after the label.",
+          "description": "Optional decorative icon displayed after the label; use `udx-menu-submenu` for an interactive chevron.",
           "required": false,
           "type": {
             "name": "Icon | undefined"
@@ -262,7 +261,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"stateLayer\" | \"leadingIcon\" | \"trailingIcon\" | \"menuItem\" | \"selectedItem\" | \"itemLabel\" | \"itemIcon\", string>> | ClassNameComponent<MenuItemInterface>"
+            "name": "Partial<Record<\"leadingIcon\" | \"trailingIcon\" | \"menuItem\" | \"selectedItem\" | \"stateLayer\" | \"itemLabel\" | \"itemIcon\", string>> | ClassNameComponent<MenuItemInterface>"
           },
           "defaultValue": null
         }
@@ -285,9 +284,8 @@
         "status": "beta",
         "category": "Selection",
         "parent": "menu",
-        "devx": "Use `selectionType`, `selected`, and `onSelectedChange` for selectable items.",
-        "a11y": "Resolves to menuitem, menuitemradio, menuitemcheckbox, or option from the parent Menu.",
-        "limitations": "Nested submenus require a separate popup composition."
+        "devx": "Use `selectionType`, `selected`, and `onSelectedChange` for selectable items. Use `MenuSubmenu` when the row should open another actions menu.",
+        "a11y": "Resolves to menuitem, menuitemradio, menuitemcheckbox, or option from the parent Menu."
       },
       "props": {
         "class": {
@@ -306,7 +304,7 @@
           "description": "State-aware classes for the item and its state layer.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"stateLayer\" | \"leadingIcon\" | \"trailingIcon\" | \"menuItem\" | \"selectedItem\" | \"itemLabel\" | \"itemIcon\", string>> | ClassNameComponent<MenuItemInterface>"
+            "name": "Partial<Record<\"leadingIcon\" | \"trailingIcon\" | \"menuItem\" | \"selectedItem\" | \"stateLayer\" | \"itemLabel\" | \"itemIcon\", string>> | ClassNameComponent<MenuItemInterface>"
           },
           "defaultValue": null
         },
@@ -367,7 +365,7 @@
         },
         "leadingIcon": {
           "name": "leadingIcon",
-          "description": "Optional icon displayed before the label.",
+          "description": "Optional icon displayed before the label. In action menus, commands share this leading column when any command uses an icon; selection items keep their own indicator.",
           "required": false,
           "type": {
             "name": "Icon"
@@ -376,7 +374,7 @@
         },
         "trailingIcon": {
           "name": "trailingIcon",
-          "description": "Optional icon displayed after the label.",
+          "description": "Optional decorative icon displayed after the label; use MenuSubmenu for a chevron that opens another menu.",
           "required": false,
           "type": {
             "name": "Icon"

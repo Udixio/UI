@@ -56,12 +56,11 @@ export function ComponentDocumentationNotes({
     Object.keys(NOTE_META) as (keyof typeof NOTE_META)[]
   ).filter((key) => notes[key]);
 
-  if (visibleNotes.length === 0) return null;
-
   return (
     <aside
       className={`my-12 grid gap-4 ${visibleNotes.length > 1 ? 'lg:grid-cols-3' : ''}`}
       aria-label="API notes"
+      hidden={visibleNotes.length === 0}
     >
       {visibleNotes.map((key) => (
         <Card

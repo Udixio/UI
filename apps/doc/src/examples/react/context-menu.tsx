@@ -5,7 +5,10 @@ export default function ContextMenuReact() {
     <ContextMenu
       accessibleLabel="Document actions"
       trigger={
-        <button className="rounded-xl border border-outline px-6 py-4">
+        <button
+          type="button"
+          className="rounded-xl border border-outline px-6 py-4"
+        >
           Right-click or press Shift+F10
         </button>
       }

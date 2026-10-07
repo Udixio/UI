@@ -53,8 +53,6 @@ describe('Menu family', () => {
       fixture.nativeElement.querySelector('udx-menu-group');
     expect(group.classList.contains('mb-0.5')).toBe(true);
     expect(group.classList.contains('rounded-lg')).toBe(true);
-    expect(group.classList.contains('first:rounded-t-2xl')).toBe(true);
-    expect(group.classList.contains('last:rounded-b-2xl')).toBe(true);
     expect(
       fixture.nativeElement
         .querySelector('[role="menu"]')
@@ -209,7 +207,10 @@ describe('ContextMenu', () => {
 
     const item: HTMLButtonElement =
       fixture.nativeElement.querySelector('[role="menuitem"]');
+    const popup: HTMLElement =
+      fixture.nativeElement.querySelector('[popover="manual"]');
     expect(item).toBeTruthy();
+    expect(popup.classList.contains('rounded-lg')).toBe(true);
     expect(document.activeElement).toBe(item);
     expect(fixture.componentInstance.changes).toEqual([true]);
     item.dispatchEvent(

@@ -29,7 +29,12 @@ export type AnchorPositionAxis = 'vertical' | 'horizontal';
  * moves.
  */
 export interface AnchorPositionerProps {
-  /** Placement of the floating element relative to its anchor. `auto` chooses below/above or right/left from the anchor's viewport half. Defaults to `bottom`. */
+  /**
+   * Placement of the floating element relative to its anchor. `auto` chooses
+   * above/below from the anchor's viewport half. Horizontally, it prefers the
+   * reading direction when the surface fits, otherwise using the side with
+   * enough or more room. Defaults to `bottom`.
+   */
   position?: AnchorPosition;
   /** Axis used by automatic placement. Defaults to `vertical`. */
   autoAxis?: AnchorPositionAxis;

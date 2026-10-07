@@ -29,7 +29,6 @@ import { MenuGroup } from './menu-group';
  * @devx Use `purpose="actions"` for commands and `purpose="selection"` for options. Set `initialFocus` for popup usage. When using groups, project each related MenuHeadline inside its MenuGroup.
  * @a11y Implements wrapping Arrow Up/Down, Home, End, and type-ahead focus navigation. Provide `accessibleLabel` unless the menu is labelled externally.
  * @limitations
- * - Nested submenus are not part of this component; compose another popup from an item trigger.
  * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({

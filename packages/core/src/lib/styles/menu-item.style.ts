@@ -10,7 +10,7 @@ const menuItemConfig: ClassNameComponent<MenuItemInterface> = ({
     'group/menu-item relative text-start overflow-hidden flex items-center h-12 px-3 cursor-pointer outline-none select-none shrink-0',
     'text-label-large',
     'transition-colors duration-200',
-    'rounded-xl',
+    'rounded-lg',
     {
       'text-on-surface': !variant || variant === 'standard',
       'opacity-38 pointer-events-none': disabled,

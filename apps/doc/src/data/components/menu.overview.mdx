@@ -7,6 +7,7 @@ import MenuVariantsSvelte from '@/examples/svelte/menu-variants.svelte';
 import MenuSelectionSvelte from '@/examples/svelte/menu-selection.svelte';
 import MenuLinksScrollSvelte from '@/examples/svelte/menu-links-scroll.svelte';
 import MenuSelectFieldSvelte from '@/examples/svelte/menu-select-field.svelte';
+import MenuSubmenusSvelte from '@/examples/svelte/menu-submenus.svelte';
 import ContextMenuSvelte from '@/examples/svelte/context-menu.svelte';
 import MenuFamilyReact from '@/examples/react/menu-family.tsx';
 import { MenuFamilyAngular } from '@/examples/angular/menu-family.ts';
@@ -25,9 +26,13 @@ import { MenuLinksScrollAngular } from '@/examples/angular/menu-links-scroll.ts'
 import menuLinksScrollReactSource from '@/examples/react/menu-links-scroll.tsx?raw';
 import menuLinksScrollAngularSource from '@/examples/angular/menu-links-scroll.ts?raw';
 import MenuSelectFieldReact from '@/examples/react/menu-select-field.tsx';
+import MenuSubmenusReact from '@/examples/react/menu-submenus.tsx';
 import { MenuSelectFieldAngular } from '@/examples/angular/menu-select-field.ts';
+import { MenuSubmenusAngular } from '@/examples/angular/menu-submenus.ts';
 import menuSelectFieldReactSource from '@/examples/react/menu-select-field.tsx?raw';
 import menuSelectFieldAngularSource from '@/examples/angular/menu-select-field.ts?raw';
+import menuSubmenusReactSource from '@/examples/react/menu-submenus.tsx?raw';
+import menuSubmenusAngularSource from '@/examples/angular/menu-submenus.ts?raw';
 import ContextMenuReact from '@/examples/react/context-menu.tsx';
 import { ContextMenuAngular } from '@/examples/angular/context-menu.ts';
 import contextMenuReactSource from '@/examples/react/context-menu.tsx?raw';
@@ -37,21 +42,23 @@ import menuVariantsSvelteSource from '@/examples/svelte/menu-variants.svelte?raw
 import menuSelectionSvelteSource from '@/examples/svelte/menu-selection.svelte?raw';
 import menuLinksScrollSvelteSource from '@/examples/svelte/menu-links-scroll.svelte?raw';
 import menuSelectFieldSvelteSource from '@/examples/svelte/menu-select-field.svelte?raw';
+import menuSubmenusSvelteSource from '@/examples/svelte/menu-submenus.svelte?raw';
 import contextMenuSvelteSource from '@/examples/svelte/context-menu.svelte?raw';
 
 ## One family, one documentation
 
-`Menu`, `MenuItem`, `MenuGroup`, `MenuHeadline` and `ContextMenu` form a
+`Menu`, `MenuItem`, `MenuSubmenu`, `MenuGroup`, `MenuHeadline` and `ContextMenu` form a
 single family. This page is their shared documentation; each component keeps
 a dedicated API reference:
 
 - [`Menu`](/components/menu/api)
 - [`MenuItem`](/components/menu-item/api)
+- [`MenuSubmenu`](/components/menu-submenu/api)
 - [`MenuGroup`](/components/menu-group/api)
 - [`MenuHeadline`](/components/menu-headline/api)
 - [`ContextMenu`](/components/context-menu/api)
 
-Both adapters use the same core contract, the same styles and the same
+All adapters use the same core contract, the same styles and the same
 keyboard navigation engine.
 
 ## Choosing the right semantics
@@ -69,6 +76,7 @@ Use `purpose="selection"` for a list of options. The container becomes a
 ## Composition
 
 - `MenuItem` represents a command or a choice.
+- `MenuSubmenu` represents a command that opens another actions menu.
 - `MenuGroup` groups items and its `label` names the group.
 - `MenuHeadline` is a non-interactive visual marker. It does not replace the
   semantic label of a `MenuGroup`. In a menu made of groups, place it inside
@@ -93,7 +101,11 @@ Use `purpose="selection"` for a list of options. The container becomes a
 `variant="standard"` uses the neutral surface. `variant="vibrant"` applies
 the family color to the whole composition. Leading and trailing icons remain
 optional; a disabled item keeps its structure but receives no interaction or
-state layer.
+state layer. In an actions menu, a leading icon on any command aligns the
+labels of the other action rows to the same icon column. Selection toggles
+keep their own checkmark column. `MenuItem.trailingIcon` stays decorative;
+it can mark a link such as “Open API reference” with an open-in-new icon.
+Use `MenuSubmenu` when the row should open another menu.
 
 When there is no `MenuGroup`, a `MenuHeadline` can be placed directly inside
 `Menu`.
@@ -108,6 +120,26 @@ When there is no `MenuGroup`, a `MenuHeadline` can be placed directly inside
   <MenuVariantsReact slot="react" client:load />
   <MenuVariantsAngular slot="angular" client:load />
   <MenuVariantsSvelte slot="svelte" client:load />
+</Code>
+
+## Nested action menus
+
+Use `MenuSubmenu` for a row that opens another actions menu. It inherits the
+parent variant, opens on pointer hover or click, and supports Arrow Right to
+open and focus the first child (Arrow Left in RTL). The opposite arrow or
+Escape closes it and returns focus to the trigger. A child command closes its
+submenu; a checkbox toggle keeps it open.
+
+<Code
+  codes={{
+    react: menuSubmenusReactSource,
+    angular: menuSubmenusAngularSource,
+    svelte: menuSubmenusSvelteSource,
+  }}
+>
+  <MenuSubmenusReact slot="react" client:load />
+  <MenuSubmenusAngular slot="angular" client:load />
+  <MenuSubmenusSvelte slot="svelte" client:load />
 </Code>
 
 ## Controlled and uncontrolled selection
@@ -211,6 +243,8 @@ focus to the trigger; an outside click or a scroll also closes it.
 In an open menu:
 
 - Arrow down/up moves focus and wraps at both ends.
+- Arrow Right opens a focused submenu trigger and Arrow Left returns to its
+  parent (the directions reverse in RTL).
 - Home/End goes to the first/last available item.
 - Typing a character searches for the next matching label.
 - Disabled items are skipped.

@@ -28,8 +28,6 @@ describe('Menu family', () => {
     expect(screen.getByRole('group', { name: 'Editing' })).toBeVisible();
     expect(screen.getByRole('group', { name: 'Editing' })).toHaveClass(
       'rounded-lg',
-      'first:rounded-t-2xl',
-      'last:rounded-b-2xl',
     );
     expect(screen.getByRole('menuitem', { name: 'Copy' })).toBeVisible();
     expect(screen.getByRole('menuitem', { name: 'Paste' })).toBeDisabled();
@@ -39,8 +37,8 @@ describe('Menu family', () => {
     expect(
       screen
         .getByRole('menuitem', { name: 'Paste' })
-        .querySelector('[aria-hidden="true"]'),
-    ).toBeNull();
+        .querySelector('[data-menu-leading-icon-slot]'),
+    ).toHaveStyle({ display: 'none' });
     expect(screen.getByText('Clipboard')).toHaveAttribute(
       'role',
       'presentation',
@@ -56,6 +54,12 @@ describe('Menu family', () => {
     );
 
     expect(screen.getByRole('listbox', { name: 'Fruit' })).toBeVisible();
+    expect(screen.getByRole('listbox', { name: 'Fruit' })).toHaveClass(
+      'rounded-lg',
+    );
+    expect(screen.getByRole('option', { name: 'Apple' })).toHaveClass(
+      'rounded-lg',
+    );
     expect(screen.getByRole('option', { name: 'Apple' })).toHaveAttribute(
       'aria-selected',
       'true',

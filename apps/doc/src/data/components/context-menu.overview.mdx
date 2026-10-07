@@ -13,7 +13,10 @@ import contextMenuSvelteSource from '@/examples/svelte/context-menu.svelte?raw';
 
 `ContextMenu` opens the Menu family at the pointer position after a native
 context-menu event. It also supports `Shift+F10`, focuses the first available
-item, and restores focus after dismissal.
+item without scrolling the page, and restores focus after dismissal. The
+popup adjusts its position to stay within the viewport. A regular left click
+keeps the trigger's own behavior; use `type="button"` for button triggers,
+especially inside a form.
 
 React:
 
@@ -40,7 +43,13 @@ Angular marks it with `contextMenuTrigger`, and Svelte supplies it with a
 `trigger` snippet. The popup content remains ordinary `MenuItem` composition
 in each framework.
 
-<Code codes={{ react: contextMenuReactSource, angular: contextMenuAngularSource, svelte: contextMenuSvelteSource }}>
+<Code
+  codes={{
+    react: contextMenuReactSource,
+    angular: contextMenuAngularSource,
+    svelte: contextMenuSvelteSource,
+  }}
+>
   <ContextMenuReact slot="react" client:load />
   <ContextMenuAngular slot="angular" client:load />
   <ContextMenuSvelte slot="svelte" client:load />

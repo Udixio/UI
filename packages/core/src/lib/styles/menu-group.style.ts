@@ -6,7 +6,7 @@ const menuGroupConfig: ClassNameComponent<MenuGroupInterface> = ({
 }) => ({
   menuGroup: cx(
     'flex flex-col gap-0.5 mb-0.5 last:mb-0',
-    'rounded-lg py-0.5 px-1 shadow-2 first:rounded-t-2xl last:rounded-b-2xl',
+    'rounded-lg py-0.5 px-1 shadow-2',
     {
       'bg-surface-container': variant === 'standard',
       'bg-tertiary-container text-on-tertiary-container': variant === 'vibrant',

@@ -14,6 +14,7 @@ export * from './FabMenu';
 export * from './IconButton';
 export * from './Menu';
 export * from './MenuItem';
+export * from './MenuSubmenu';
 export * from './MenuGroup';
 export * from './MenuHeadline';
 export * from './ProgressIndicator';

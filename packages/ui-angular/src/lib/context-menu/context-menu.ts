@@ -11,7 +11,12 @@ import {
   viewChild,
 } from '@angular/core';
 import type { ContextMenuProps, MenuVariant } from '@udixio/core';
-import { createContextMenuController } from '@udixio/core/dom';
+import {
+  createContextMenuController,
+  resolveContextMenuPosition,
+  resolveBoxElement,
+  showContextMenuPopover,
+} from '@udixio/core/dom';
 import { MENU_CONTEXT } from '../menu/menu-context';
 import { Menu } from '../menu/menu';
 
@@ -21,7 +26,7 @@ import { Menu } from '../menu/menu';
  * @category Selection
  * @parent menu
  * @devx Mark the projected trigger with `contextMenuTrigger`; project Menu family elements into the default slot.
- * @a11y Supports native context-menu events and Shift+F10, focuses the first item, and restores trigger focus after Escape.
+ * @a11y Supports native context-menu events and Shift+F10, focuses the first item without scrolling the page, and restores trigger focus after Escape.
  * @limitations
  * - The popup position is internally owned and is not controllable.
  * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class` or `[class]`.
@@ -51,10 +56,11 @@ import { Menu } from '../menu/menu';
       @if (position(); as point) {
         <div
           #popup
-          class="fixed z-50"
+          class="fixed z-50 rounded-lg"
+          popover="manual"
           [style.top.px]="point.y"
           [style.left.px]="point.x"
-          (click)="close()"
+          style="inset: auto; margin: 0; right: auto; bottom: auto; max-width: calc(100vw - 16px); max-height: calc(100vh - 16px); overflow: auto"
         >
           <udx-menu
             purpose="actions"
@@ -89,13 +95,32 @@ export class ContextMenu {
       if (!this.position()) return;
       const root = this.root()?.nativeElement;
       const triggerHost = this.trigger()?.nativeElement;
-      const menu =
-        this.popup()?.nativeElement.querySelector<HTMLElement>('[role="menu"]');
+      const popup = this.popup()?.nativeElement;
+      const menu = popup?.querySelector<HTMLElement>('[role="menu"]');
       const triggerElement =
         triggerHost?.querySelector<HTMLElement>(
           'button, a[href], input, select, textarea, [tabindex]',
         ) ?? triggerHost;
-      if (!root || !triggerElement || !menu) return;
+      if (!root || !triggerElement || !popup || !menu) return;
+      showContextMenuPopover(popup);
+      const ownerWindow = root.ownerDocument.defaultView;
+      if (!ownerWindow) return;
+      const menuRect = menu.getBoundingClientRect();
+      const documentElement = root.ownerDocument.documentElement;
+      const point = this.position();
+      if (!point) return;
+      const nextPosition = resolveContextMenuPosition(
+        point,
+        { width: menuRect.width, height: menuRect.height },
+        {
+          width: documentElement.clientWidth || ownerWindow.innerWidth,
+          height: documentElement.clientHeight || ownerWindow.innerHeight,
+        },
+      );
+      if (nextPosition.x !== point.x || nextPosition.y !== point.y) {
+        this.position.set(nextPosition);
+        return;
+      }
       const controller = createContextMenuController({
         root,
         trigger: triggerElement,
@@ -109,15 +134,21 @@ export class ContextMenu {
   protected handleContextMenu(event: MouseEvent): void {
     if (this.disabled()) return;
     event.preventDefault();
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    this.openAt(event.clientX || rect.left, event.clientY || rect.bottom);
+    this.openAt(event.clientX, event.clientY);
   }
 
   protected handleKeydown(event: KeyboardEvent): void {
     if (!event.shiftKey || event.key !== 'F10' || this.disabled()) return;
     event.preventDefault();
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    this.openAt(rect.left, rect.bottom);
+    const rect = this.getTriggerRect();
+    this.openAt(rect?.left ?? 0, rect?.bottom ?? 0);
+  }
+
+  private getTriggerRect(): DOMRect | undefined {
+    const trigger = this.trigger()?.nativeElement;
+    return trigger
+      ? resolveBoxElement(trigger).getBoundingClientRect()
+      : undefined;
   }
 
   private openAt(x: number, y: number): void {

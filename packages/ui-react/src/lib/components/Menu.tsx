@@ -27,8 +27,6 @@ export const useMenuStyle = createUseStyle(menuStyle);
  * Menu displays a list of choices on a temporary surface.
  * @status beta
  * @category Selection
- * @limitations
- * - Nested submenus are not part of this component; compose another popup from an item trigger.
  * @devx
  * - Use `purpose="actions"` for commands and `purpose="selection"` for options.
  * - Set `initialFocus` when the Menu is mounted inside a popup.

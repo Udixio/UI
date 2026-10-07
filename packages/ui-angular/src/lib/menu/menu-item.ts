@@ -37,7 +37,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
  * @devx Use `selectionType`, `selected`, and `selectedChange` for controlled selection, or initialize with `defaultSelected`.
  * @a11y Resolves to `menuitem`, `menuitemradio`, `menuitemcheckbox`, or `option`; disabled links are inert and removed from navigation.
  * @limitations
- * - Nested submenus require a separate popup composition. Angular uses the required `label` input instead of projected item content.
+ * - Angular uses the required `label` input instead of projected item content; use `udx-menu-submenu` for nested actions.
  * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
@@ -55,6 +55,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         [attr.aria-selected]="role() === 'option' ? isSelected() : null"
         [attr.aria-checked]="isCheckedRole() ? isSelected() : null"
         [attr.data-menu-disabled]="disabled() || null"
+        [attr.data-menu-leading-icon]="hasActionLeadingIcon() ? 'true' : null"
         [attr.tabindex]="disabled() ? -1 : 0"
         (click)="activate($event)"
       >
@@ -70,6 +71,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         [attr.aria-selected]="role() === 'option' ? isSelected() : null"
         [attr.aria-checked]="isCheckedRole() ? isSelected() : null"
         [attr.data-menu-disabled]="disabled() || null"
+        [attr.data-menu-leading-icon]="hasActionLeadingIcon() ? 'true' : null"
         (click)="activate($event)"
       >
         <ng-container [ngTemplateOutlet]="content" />
@@ -84,7 +86,23 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
           stateClassName="state-ripple-group-[menu-item]"
         />
       }
-      @if (resolvedLeadingIcon()) {
+      @if (usesActionIconSlot()) {
+        <span
+          aria-hidden="true"
+          data-menu-leading-icon-slot
+          [style.display]="resolvedLeadingIcon() ? null : 'none'"
+          [class]="
+            styles()['itemIcon'] +
+            ' ' +
+            styles()['leadingIcon'] +
+            ' z-10 relative'
+          "
+        >
+          @if (resolvedLeadingIcon()) {
+            <udx-icon [icon]="resolvedLeadingIcon()!" />
+          }
+        </span>
+      } @else if (resolvedLeadingIcon()) {
         <span
           aria-hidden="true"
           [class]="
@@ -120,9 +138,9 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
 export class MenuItem implements OnInit {
   readonly label = input.required<string>();
   readonly value = input<MenuItemProps['value']>();
-  /** Optional icon displayed before the label. */
+  /** Optional icon displayed before the label. Commands share this leading column when any command uses an icon; selection items keep their own indicator. */
   readonly leadingIcon = input<MenuItemProps['leadingIcon']>();
-  /** Optional icon displayed after the label. */
+  /** Optional decorative icon displayed after the label; use `udx-menu-submenu` for an interactive chevron. */
   readonly trailingIcon = input<MenuItemProps['trailingIcon']>();
   /** Prevents activation, selection changes, and keyboard focus. */
   readonly disabled = input(false, { transform: booleanAttribute });
@@ -170,6 +188,13 @@ export class MenuItem implements OnInit {
       purpose: this.purpose(),
       selectionType: this.resolvedSelectionType(),
     }),
+  );
+  protected readonly usesActionIconSlot = computed(
+    () =>
+      this.purpose() === 'actions' && this.resolvedSelectionType() === 'none',
+  );
+  protected readonly hasActionLeadingIcon = computed(
+    () => this.usesActionIconSlot() && Boolean(this.leadingIcon()),
   );
   protected readonly isCheckedRole = computed(
     () => this.role() === 'menuitemcheckbox' || this.role() === 'menuitemradio',

@@ -17,7 +17,7 @@
       "props": {
         "position": {
           "name": "position",
-          "description": "Placement of the floating element relative to its anchor. `auto` chooses below/above or right/left from the anchor's viewport half. Defaults to `bottom`.",
+          "description": "Placement of the floating element relative to its anchor. `auto` chooses\nabove/below from the anchor's viewport half. Horizontally, it prefers the\nreading direction when the surface fits, otherwise using the side with\nenough or more room. Defaults to `bottom`.",
           "required": false,
           "type": {
             "name": "AnchorPosition"
@@ -70,7 +70,7 @@
         },
         "position": {
           "name": "position",
-          "description": "Placement of the floating element relative to its anchor. `auto` chooses below/above or right/left from the anchor's viewport half. Defaults to `bottom`.",
+          "description": "Placement of the floating element relative to its anchor. `auto` chooses\nabove/below from the anchor's viewport half. Horizontally, it prefers the\nreading direction when the surface fits, otherwise using the side with\nenough or more room. Defaults to `bottom`.",
           "required": false,
           "type": {
             "name": "AnchorPosition"
@@ -133,7 +133,7 @@
         },
         "position": {
           "name": "position",
-          "description": "Placement of the floating element relative to its anchor. `auto` chooses below/above or right/left from the anchor's viewport half. Defaults to `bottom`.",
+          "description": "Placement of the floating element relative to its anchor. `auto` chooses\nabove/below from the anchor's viewport half. Horizontally, it prefers the\nreading direction when the surface fits, otherwise using the side with\nenough or more room. Defaults to `bottom`.",
           "required": false,
           "type": {
             "name": "AnchorPosition"

@@ -10,6 +10,7 @@ import { ContextMenu, MenuItem } from '@udixio/ui-angular';
     <udx-context-menu accessibleLabel="Document actions">
       <button
         contextMenuTrigger
+        type="button"
         class="rounded-xl border border-outline px-6 py-4"
       >
         Right-click or press Shift+F10

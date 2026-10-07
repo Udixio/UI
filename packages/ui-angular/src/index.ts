@@ -19,6 +19,7 @@ export * from './lib/icon/icon';
 export * from './lib/icon-button/icon-button';
 export * from './lib/menu/menu';
 export * from './lib/menu/menu-item';
+export * from './lib/menu/menu-submenu';
 export * from './lib/menu/menu-group';
 export * from './lib/menu/menu-headline';
 export * from './lib/context-menu/context-menu';

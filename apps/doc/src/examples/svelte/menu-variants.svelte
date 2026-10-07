@@ -1,8 +1,6 @@
 <script lang="ts">
-  import { iChevronRight } from '@udixio/icons-rounded-400/chevron_right';
   import { iContentCopy } from '@udixio/icons-rounded-400/content_copy';
-  import { iDelete } from '@udixio/icons-rounded-400/delete';
-  import { iSettings } from '@udixio/icons-rounded-400/settings';
+  import { iOpenInNew } from '@udixio/icons-rounded-400/open_in_new';
   import { Menu, MenuHeadline, MenuItem } from '@udixio/ui-svelte';
 </script>
 
@@ -10,13 +8,13 @@
   <Menu accessibleLabel="Standard actions">
     <MenuHeadline label="Standard" />
     <MenuItem label="Copy" leadingIcon={iContentCopy} />
-    <MenuItem label="Settings" leadingIcon={iSettings} trailingIcon={iChevronRight} />
-    <MenuItem label="Delete" leadingIcon={iDelete} disabled />
+    <MenuItem label="Open API reference" href="/components/menu/api" target="_blank" trailingIcon={iOpenInNew} />
+    <MenuItem label="Delete" disabled />
   </Menu>
   <Menu accessibleLabel="Vibrant actions" variant="vibrant">
     <MenuHeadline label="Vibrant" />
     <MenuItem label="Copy" leadingIcon={iContentCopy} />
-    <MenuItem label="Settings" leadingIcon={iSettings} trailingIcon={iChevronRight} />
-    <MenuItem label="Delete" leadingIcon={iDelete} disabled />
+    <MenuItem label="Open API reference" href="/components/menu/api" target="_blank" trailingIcon={iOpenInNew} />
+    <MenuItem label="Delete" disabled />
   </Menu>
 </div>

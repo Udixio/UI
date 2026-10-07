@@ -48,6 +48,8 @@ export { default as Menu } from './lib/menu/Menu.svelte';
 export type { SvelteMenuProps } from './lib/menu/menu.types';
 export { default as MenuItem } from './lib/menu/MenuItem.svelte';
 export type { SvelteMenuItemProps } from './lib/menu/menu-item.types';
+export { default as MenuSubmenu } from './lib/menu/MenuSubmenu.svelte';
+export type { SvelteMenuSubmenuProps } from './lib/menu/menu-submenu.types';
 export { default as MenuGroup } from './lib/menu/MenuGroup.svelte';
 export type { SvelteMenuGroupProps } from './lib/menu/menu-group.types';
 export { default as MenuHeadline } from './lib/menu/MenuHeadline.svelte';

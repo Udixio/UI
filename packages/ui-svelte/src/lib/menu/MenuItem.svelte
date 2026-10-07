@@ -38,6 +38,7 @@
   const resolvedVariant = $derived(variant ?? context?.variant() ?? 'standard');
   const resolvedSelectionType = $derived(selectionType ?? (purpose === 'selection' ? 'single' : 'none'));
   const role = $derived(getMenuItemRole({ purpose, selectionType: resolvedSelectionType }));
+  const usesActionIconSlot = $derived(purpose === 'actions' && resolvedSelectionType === 'none');
   const selectedState = createControllableState({
     value: () => selected,
     defaultValue: () => defaultSelected,
@@ -85,6 +86,7 @@
     aria-selected={role === 'option' ? isSelected : undefined}
     aria-checked={role === 'menuitemcheckbox' || role === 'menuitemradio' ? isSelected : undefined}
     data-menu-disabled={disabled ? 'true' : undefined}
+    data-menu-leading-icon={usesActionIconSlot && leadingIcon ? 'true' : undefined}
     tabindex={disabled ? -1 : 0}
     onclick={activate}
   >
@@ -101,6 +103,7 @@
     aria-selected={role === 'option' ? isSelected : undefined}
     aria-checked={role === 'menuitemcheckbox' || role === 'menuitemradio' ? isSelected : undefined}
     data-menu-disabled={disabled ? 'true' : undefined}
+    data-menu-leading-icon={usesActionIconSlot && leadingIcon ? 'true' : undefined}
     tabindex={disabled ? -1 : 0}
     onclick={activate}
   >
@@ -116,7 +119,16 @@
       stateClassName="state-ripple-group-[menu-item]"
     />
   {/if}
-  {#if resolvedLeadingIcon}
+  {#if usesActionIconSlot}
+    <span
+      aria-hidden="true"
+      data-menu-leading-icon-slot
+      style:display={resolvedLeadingIcon ? undefined : 'none'}
+      class={`${styles.current['itemIcon']} ${styles.current['leadingIcon']} z-10 relative`}
+    >
+      {#if resolvedLeadingIcon}<Icon icon={resolvedLeadingIcon} />{/if}
+    </span>
+  {:else if resolvedLeadingIcon}
     <span aria-hidden="true" class={`${styles.current['itemIcon']} ${styles.current['leadingIcon']} z-10 relative`}>
       <Icon icon={resolvedLeadingIcon} />
     </span>

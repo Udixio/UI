@@ -1,0 +1,272 @@
+{
+  "schemaVersion": 5,
+  "displayName": "MenuSubmenu",
+  "description": "A menu item that opens a nested actions menu.",
+  "defaultFramework": "react",
+  "frameworks": {
+    "react": {
+      "filePath": "packages/ui-react/src/lib/components/MenuSubmenu.tsx",
+      "tags": {
+        "status": "beta",
+        "category": "Selection",
+        "parent": "menu",
+        "devx": "- Place it inside a `Menu purpose=\"actions\"` and compose `MenuItem` children inside it.\n- The nested menu inherits the parent variant and is labelled from `label` unless `accessibleLabel` is provided.",
+        "a11y": "- Exposes `aria-haspopup=\"menu\"` and `aria-expanded` on its trigger.\n- Arrow Right (Arrow Left in RTL) opens and focuses the first item; the opposite arrow or Escape closes and restores trigger focus.\n- Pointer hover opens the submenu; clicking an action inside it closes that submenu.",
+        "limitations": "- Use only in action menus, not in `purpose=\"selection\"` listboxes."
+      },
+      "methods": [],
+      "props": {
+        "label": {
+          "name": "label",
+          "description": "Visible name for the submenu trigger.",
+          "required": true,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "leadingIcon": {
+          "name": "leadingIcon",
+          "description": "Optional icon displayed before the trigger label.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Prevents opening the nested menu and removes the trigger from navigation.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Overrides the color treatment inherited from the parent Menu.",
+          "required": false,
+          "type": {
+            "name": "MenuVariant"
+          },
+          "defaultValue": null
+        },
+        "accessibleLabel": {
+          "name": "accessibleLabel",
+          "description": "Accessible name for the nested menu; defaults to \"{label} submenu\".",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "children": {
+          "name": "children",
+          "description": "MenuItem, MenuGroup, and MenuHeadline content for the nested menu.",
+          "required": false,
+          "type": {
+            "name": "ReactNode"
+          },
+          "defaultValue": null
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes merged onto the submenu trigger.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "triggerClasses": {
+          "name": "triggerClasses",
+          "description": "Classes applied to the submenu trigger using the MenuItem style contract.",
+          "required": false,
+          "type": {
+            "name": "string | Partial<Record<\"leadingIcon\" | \"menuItem\" | \"selectedItem\" | \"stateLayer\" | \"itemLabel\" | \"itemIcon\" | \"trailingIcon\", string>> | ClassNameComponent<MenuItemInterface>"
+          },
+          "defaultValue": null
+        }
+      }
+    },
+    "angular": {
+      "filePath": "packages/ui-angular/src/lib/menu/menu-submenu.ts",
+      "selector": "udx-menu-submenu",
+      "tags": {
+        "status": "beta",
+        "category": "Selection",
+        "parent": "menu",
+        "devx": "Place it inside an actions Menu and project MenuItem-family elements as children. The nested menu inherits the parent variant.",
+        "a11y": "Arrow Right (Arrow Left in RTL) opens and focuses the first item; the opposite arrow or Escape closes and restores trigger focus. Pointer hover opens the submenu.",
+        "limitations": "Use only in action menus, not in `purpose=\"selection\"` listboxes. `[class.x]` and `[ngClass]` bind to the display-contents host; use `class`, `[class]`, or `triggerClasses`."
+      },
+      "inputs": {
+        "label": {
+          "name": "label",
+          "description": "Visible name for the submenu trigger.",
+          "required": true,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "leadingIcon": {
+          "name": "leadingIcon",
+          "description": "Optional icon displayed before the trigger label.",
+          "required": false,
+          "type": {
+            "name": "Icon | undefined"
+          },
+          "defaultValue": null
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Prevents opening the nested menu and removes the trigger from navigation.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Overrides the color treatment inherited from the parent Menu.",
+          "required": false,
+          "type": {
+            "name": "MenuVariant | undefined"
+          },
+          "defaultValue": null
+        },
+        "accessibleLabel": {
+          "name": "accessibleLabel",
+          "description": "Accessible name for the nested menu; defaults to \"{label} submenu\".",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null
+        },
+        "triggerClasses": {
+          "name": "triggerClasses",
+          "description": "State-aware classes applied to the trigger using the MenuItem style contract.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"leadingIcon\" | \"menuItem\" | \"selectedItem\" | \"stateLayer\" | \"itemLabel\" | \"itemIcon\" | \"trailingIcon\", string>> | ClassNameComponent<MenuItemInterface>"
+          },
+          "defaultValue": null
+        },
+        "hostClass": {
+          "name": "hostClass",
+          "description": "Classes merged onto the submenu trigger.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          },
+          "alias": "class"
+        }
+      },
+      "outputs": {},
+      "content": {
+        "default": {
+          "name": "default",
+          "selector": "*",
+          "description": "Default projected content."
+        }
+      }
+    },
+    "svelte": {
+      "filePath": "packages/ui-svelte/src/lib/menu/MenuSubmenu.svelte",
+      "tags": {
+        "status": "beta",
+        "category": "Selection",
+        "parent": "menu",
+        "devx": "Place it inside an actions Menu and provide MenuItem-family snippets as children.",
+        "a11y": "Arrow Right (Arrow Left in RTL) opens and focuses the first item; the opposite arrow or Escape closes and restores trigger focus. Pointer hover opens the submenu.",
+        "limitations": "Use only in action menus, not in `purpose=\"selection\"` listboxes."
+      },
+      "props": {
+        "class": {
+          "name": "class",
+          "description": "Classes merged onto the submenu trigger.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "triggerClasses": {
+          "name": "triggerClasses",
+          "description": "State-aware classes applied to the trigger using the MenuItem style contract.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"leadingIcon\" | \"menuItem\" | \"selectedItem\" | \"stateLayer\" | \"itemLabel\" | \"itemIcon\" | \"trailingIcon\", string>> | ClassNameComponent<MenuItemInterface>"
+          },
+          "defaultValue": null
+        },
+        "label": {
+          "name": "label",
+          "description": "Visible name for the submenu trigger.",
+          "required": true,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "leadingIcon": {
+          "name": "leadingIcon",
+          "description": "Optional icon displayed before the trigger label.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Prevents opening the nested menu and removes the trigger from navigation.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "variant": {
+          "name": "variant",
+          "description": "Overrides the color treatment inherited from the parent Menu.",
+          "required": false,
+          "type": {
+            "name": "MenuVariant"
+          },
+          "defaultValue": null
+        },
+        "accessibleLabel": {
+          "name": "accessibleLabel",
+          "description": "Accessible name for the nested menu; defaults to \"{label} submenu\".",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        }
+      },
+      "snippets": {
+        "children": {
+          "name": "children",
+          "description": "MenuItem-family content for the nested actions menu."
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { createContextMenuController } from '@udixio/core/dom';
+  import {
+    createContextMenuController,
+    resolveContextMenuPosition,
+    resolveBoxElement,
+    showContextMenuPopover,
+  } from '@udixio/core/dom';
   import Menu from '../menu/Menu.svelte';
   import { setMenuContext } from '../menu/menu-context.svelte';
   import type { SvelteContextMenuProps } from './context-menu.types';
@@ -38,15 +43,31 @@
   const handleContextMenu = (event: MouseEvent) => {
     if (disabled) return;
     event.preventDefault();
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    openAt(event.clientX || rect.left, event.clientY || rect.bottom);
+    openAt(event.clientX, event.clientY);
   };
 
   $effect(() => {
     if (!position || !root || !triggerHost || !menu) return;
     const triggerElement = triggerHost.querySelector<HTMLElement>('button, a[href], input, select, textarea, [tabindex]') ?? triggerHost;
+    showContextMenuPopover(menu);
     const menuElement = menu.querySelector<HTMLElement>('[role="menu"]');
     if (!menuElement) return;
+    const ownerWindow = root.ownerDocument.defaultView;
+    if (!ownerWindow) return;
+    const menuRect = menuElement.getBoundingClientRect();
+    const documentElement = root.ownerDocument.documentElement;
+    const nextPosition = resolveContextMenuPosition(
+      position,
+      { width: menuRect.width, height: menuRect.height },
+      {
+        width: documentElement.clientWidth || ownerWindow.innerWidth,
+        height: documentElement.clientHeight || ownerWindow.innerHeight,
+      },
+    );
+    if (nextPosition.x !== position.x || nextPosition.y !== position.y) {
+      position = nextPosition;
+      return;
+    }
     const created = createContextMenuController({ root, trigger: triggerElement, menu: menuElement, onDismiss: close });
     controller = created;
     return () => {
@@ -67,15 +88,17 @@
     onkeydown={(event) => {
       if (event.shiftKey && event.key === 'F10') {
         event.preventDefault();
-        const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-        openAt(rect.left, rect.bottom);
+        const rect = triggerHost
+          ? resolveBoxElement(triggerHost).getBoundingClientRect()
+          : undefined;
+        openAt(rect?.left ?? 0, rect?.bottom ?? 0);
       }
     }}
   >
     {@render trigger?.()}
   </span>
   {#if position}
-    <div bind:this={menu} class="fixed z-50" role="presentation" style={`top: ${position.y}px; left: ${position.x}px`} onclick={close}>
+    <div bind:this={menu} class="fixed z-50 rounded-lg" role="presentation" popover="manual" style={`inset: auto; margin: 0; top: ${position.y}px; left: ${position.x}px; right: auto; bottom: auto; max-width: calc(100vw - 16px); max-height: calc(100vh - 16px); overflow: auto`}>
       <Menu purpose="actions" {variant} {accessibleLabel}>{@render children?.()}</Menu>
     </div>
   {/if}
