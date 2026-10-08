@@ -1,3 +1,17 @@
+## 0.1.1-next.4 (2026-10-08)
+
+### 🚀 Features
+
+- **menu:** add nested action menus and refine context menu ([e509afc1](https://github.com/Udixio/UI/commit/e509afc1))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/core to 0.2.2-next.14
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.1.1-next.2 (2026-09-25)
 
 ### 🩹 Fixes

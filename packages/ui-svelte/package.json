@@ -1,6 +1,6 @@
 {
   "name": "@udixio/ui-svelte",
-  "version": "0.1.1-next.2",
+  "version": "0.1.1-next.4",
   "type": "module",
   "svelte": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -19,7 +19,7 @@
   ],
   "sideEffects": false,
   "peerDependencies": {
-    "@udixio/core": "0.2.2-next.12",
+    "@udixio/core": "0.2.2-next.14",
     "svelte": "^5.46.4"
   },
   "devDependencies": {

@@ -887,7 +887,7 @@ importers:
         specifier: ^21.0.0
         version: 21.2.18(@angular/animations@21.2.23(@angular/core@21.2.18(@angular/compiler@21.2.18)(rxjs@7.8.2)(zone.js@0.16.2)))(@angular/common@21.2.18(@angular/core@21.2.18(@angular/compiler@21.2.18)(rxjs@7.8.2)(zone.js@0.16.2))(rxjs@7.8.2))(@angular/core@21.2.18(@angular/compiler@21.2.18)(rxjs@7.8.2)(zone.js@0.16.2))
       '@udixio/core':
-        specifier: 0.2.2-next.12
+        specifier: 0.2.2-next.14
         version: link:../core
       '@udixio/icons-rounded-400':
         specifier: 0.2.2-next.5
@@ -912,7 +912,7 @@ importers:
         specifier: ^7.0.0
         version: 7.3.1
       '@udixio/core':
-        specifier: 0.2.2-next.12
+        specifier: 0.2.2-next.14
         version: link:../core
       '@udixio/icons-rounded-400':
         specifier: 0.2.2-next.5
@@ -967,7 +967,7 @@ importers:
   packages/ui-svelte:
     dependencies:
       '@udixio/core':
-        specifier: 0.2.2-next.12
+        specifier: 0.2.2-next.14
         version: link:../core
       svelte:
         specifier: ^5.46.4
