@@ -12,7 +12,7 @@ import { ColorManager } from './color.manager';
 import { DynamicColorKey, tMaxC, tMinC } from './color.utils';
 import { API } from '../API';
 
-import { Context } from 'src/context';
+import { Context } from '../context';
 
 function highestSurface(context: Context, colors: ColorApi): Color {
   return context.isDark

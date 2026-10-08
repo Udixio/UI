@@ -13,10 +13,16 @@
   "include": ["src/**/*.ts", "src/**/*.svelte"],
   "references": [
     {
-      "path": "../core/tsconfig.lib.json"
+      "path": "../theme/tsconfig.lib.json"
+    },
+    {
+      "path": "../tailwind/tsconfig.lib.json"
     },
     {
       "path": "../icons/icons-rounded-400/tsconfig.lib.json"
+    },
+    {
+      "path": "../core/tsconfig.lib.json"
     }
   ],
   "exclude": [

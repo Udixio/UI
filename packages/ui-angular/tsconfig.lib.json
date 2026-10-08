@@ -5,7 +5,8 @@
     "declaration": true,
     "declarationMap": true,
     "lib": ["es2022", "dom"],
-    "types": []
+    "types": [],
+    "customConditions": []
   },
   "exclude": [
     "src/**/*.spec.ts",
@@ -16,6 +17,12 @@
   ],
   "include": ["src/**/*.ts"],
   "references": [
+    {
+      "path": "../theme/tsconfig.lib.json"
+    },
+    {
+      "path": "../tailwind/tsconfig.lib.json"
+    },
     {
       "path": "../icons/icons-rounded-400/tsconfig.lib.json"
     },

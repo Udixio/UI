@@ -1,4 +1,4 @@
-import { Context } from 'src/context';
+import { Context } from '../context';
 import { Palette, PaletteCallback } from './palette';
 import { Color } from '../color/color.base';
 import { ColorApi } from '../color';
