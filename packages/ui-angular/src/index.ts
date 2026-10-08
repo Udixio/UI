@@ -3,6 +3,7 @@
 // always done this, and its absence here left `FabMenuAction` and friends
 // reachable only from `@udixio/core`.
 export * from '@udixio/core';
+export { generateThemeCss } from '@udixio/tailwind';
 export * from './lib/anchor-positioner/anchor-positioner';
 export * from './lib/badge/badge';
 export * from './lib/badge/badge-surface';
@@ -45,6 +46,7 @@ export * from './lib/toolbar/toolbar';
 export * from './lib/search/search';
 export * from './lib/tooltip/tooltip';
 export * from './lib/tooltip/tooltip-surface';
+export * from './lib/theme-provider/theme-provider';
 export * from './lib/utils/create-controllable-state';
 
 // `Icon` exists both as a type in @udixio/core and as the Angular component in

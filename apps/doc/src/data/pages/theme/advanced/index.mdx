@@ -5,11 +5,11 @@ description: When and why to use @udixio/theme directly — architecture, packag
 
 # @udixio/theme
 
-`@udixio/theme` is the low-level engine that powers all Udixio theming. Most developers use `defineConfig` from `@udixio/tailwind` and the runtime adapter appropriate to their framework, such as `ThemeProvider` from `@udixio/ui-react`.
+`@udixio/theme` is the low-level engine that powers all Udixio theming. Most developers use `defineConfig` from `@udixio/tailwind` and the runtime adapter appropriate to their framework, such as `ThemeProvider` from `@udixio/ui-react`, `@udixio/ui-angular` or `@udixio/ui-svelte`.
 
 Use `@udixio/theme` when you need to:
 
-- Generate theme CSS outside of React (Vite plugin, Node script, build step)
+- Generate theme CSS outside the UI runtime (Vite plugin, Node script, build step)
 - Create a custom palette derivation algorithm (custom `variant`)
 - Build a custom plugin that reads computed color tokens
 - Access the raw HCT values of any semantic color token
@@ -20,8 +20,9 @@ Use `@udixio/theme` when you need to:
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | `@udixio/theme`      | Core engine — `loader()`, `variant()`, `Color`, `Palette`, the tone adjusters, plugin base classes                     |
 | `@udixio/tailwind`   | `TailwindPlugin` — generates Tailwind CSS from tokens — and `defineConfig`, which auto-wires it alongside `FontPlugin` |
-| `@udixio/ui-react`   | `ThemeProvider` — React runtime layer                                                                                  |
-| `@udixio/ui-angular` | Angular components. Theming goes through `@udixio/tailwind` directly — there is no Angular runtime layer               |
+| `@udixio/ui-react`   | React components and `ThemeProvider` runtime adapter                                                                   |
+| `@udixio/ui-angular` | Angular components and `ThemeProvider` runtime adapter                                                                 |
+| `@udixio/ui-svelte`  | Svelte components and `ThemeProvider` runtime adapter                                                                  |
 
 ## Architecture
 

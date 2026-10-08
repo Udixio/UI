@@ -8,6 +8,31 @@ framework-agnostic contracts, styles, behaviors and DOM controllers of `@udixio/
 - `@udixio/core` is a peer dependency so the consumer resolves one core instance.
 - Controllable values are `$bindable`; owners that need to reject a change use a Svelte 5 function
   binding. Content goes through snippets.
+- `ThemeProvider` uses the shared worker to generate runtime stylesheets from
+  the shared `defineConfig` output.
+
+## Runtime theme updates
+
+Wrap the elements inside the configured `dynamicSelector`. The provider rebuilds
+the dynamic CSS when its `config` prop changes; `initialCss` can carry CSS
+generated on the server. `generateThemeCss` is exported from both
+`@udixio/ui-svelte` and `@udixio/tailwind` for server-side generation.
+
+```svelte
+<script lang="ts">
+  import { defineConfig } from '@udixio/tailwind';
+  import { ThemeProvider } from '@udixio/ui-svelte';
+
+  const themeConfig = defineConfig({
+    sourceColor: '#6750A4',
+    dynamicSelector: '.dynamic',
+  });
+</script>
+
+<ThemeProvider config={themeConfig} onLoad={(api) => console.log(api.colors.get('primary').hex)}>
+  <main class="dynamic">Application content</main>
+</ThemeProvider>
+```
 
 See `docs/component-authoring.md` at the repository root for the authoring standard.
 

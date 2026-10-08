@@ -25,8 +25,9 @@ npm install @udixio/ui-angular @udixio/theme @udixio/tailwind
 npm install -D tailwindcss @tailwindcss/postcss postcss
 ```
 
-Theming is framework-agnostic — the same generator the React package uses, with
-no Angular-specific runtime.
+Theming configuration and the runtime-generation worker are shared across
+frameworks. `ThemeProvider` regenerates the dynamic stylesheet when the Angular
+config changes at runtime.
 
 ## Set up
 
@@ -88,6 +89,23 @@ import { Button } from '@udixio/ui-angular';
 @Component({
   imports: [Button],
   template: `<udx-button label="Send" variant="filled" />`,
+})
+export class AppComponent {}
+```
+
+For live theme updates, import `ThemeProvider` and wrap the content that uses
+the configured `dynamicSelector`:
+
+```ts
+import { ThemeProvider } from '@udixio/ui-angular';
+
+@Component({
+  imports: [ThemeProvider],
+  template: `
+    <udx-theme-provider [config]="themeConfig">
+      <main class="dynamic">Application content</main>
+    </udx-theme-provider>
+  `,
 })
 export class AppComponent {}
 ```

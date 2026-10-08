@@ -12,7 +12,7 @@ npm install @udixio/ui-angular @udixio/theme @udixio/tailwind
 npm install -D tailwindcss @tailwindcss/postcss postcss
 ```
 
-`@udixio/theme` and `@udixio/tailwind` are the color/typography engine — install them alongside `@udixio/ui-angular`. Theming is framework-agnostic: the same generator the React package uses, no Angular-specific runtime.
+`@udixio/theme` and `@udixio/tailwind` are the shared color and typography engine — install them alongside `@udixio/ui-angular`. For live theme changes, Angular also provides a native `ThemeProvider` component.
 
 Angular compiles CSS through PostCSS, so enable the Tailwind plugin with a `.postcssrc.json` at your project root:
 
@@ -109,7 +109,10 @@ through `tailwind-merge`, so your utilities win on conflicts.
 To style an internal element, bind `[classes]` to an object keyed by element name:
 
 ```html
-<udx-text-field label="Code" [classes]="{ input: 'uppercase', label: 'font-bold' }" />
+<udx-text-field
+  label="Code"
+  [classes]="{ input: 'uppercase', label: 'font-bold' }"
+/>
 ```
 
 Most components render their host with `display: contents`, so `[class.x]` and
@@ -120,7 +123,34 @@ them. Put conditional classes in `[class]` or `[classes]` instead.
 
 The generated stylesheet covers a fixed light/dark theme through the `darkMode` and `darkSelector` options — see [Theme — Dark mode](/theme/dark-mode).
 
-Changing colors at runtime is another matter: there's no Angular equivalent of React's `ThemeProvider` yet. To build a live theme switcher, drive [`loader()`](/theme/advanced/loader) yourself and inject the CSS it returns.
+For live changes, wrap the content that uses dynamic theme variables in
+`ThemeProvider` and update its `config` input when your theme changes:
+
+```ts
+import { ThemeProvider } from '@udixio/ui-angular';
+```
+
+```html
+<udx-theme-provider [config]="themeConfig" (load)="onThemeLoaded($event)">
+  <main class="dynamic">
+    <udx-button label="Themed action" />
+  </main>
+</udx-theme-provider>
+```
+
+The provider regenerates the stylesheet when the config changes. It accepts
+`initialCss` for server-rendered CSS and emits `load` after each successful
+generation. The `.dynamic` selector must contain the elements that should
+receive live updates.
+
+For a server-rendered initial stylesheet, `generateThemeCss` is also exported
+from `@udixio/ui-angular`:
+
+```ts
+import { generateThemeCss } from '@udixio/ui-angular';
+
+const initialCss = await generateThemeCss(themeConfig);
+```
 
 ## Next steps
 

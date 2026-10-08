@@ -342,6 +342,6 @@ export class SplitButton implements OnInit {
       disabled: this.disabled(),
       reason,
     });
-    if (!transition.blocked) this.openState.set(transition.nextOpen);
+    if (transition.blocked === false) this.openState.set(transition.nextOpen);
   }
 }

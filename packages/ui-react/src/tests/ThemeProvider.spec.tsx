@@ -9,49 +9,17 @@ import {
 import { TailwindPlugin } from '@udixio/tailwind';
 import { ThemeProvider } from '../lib/effects/ThemeProvider';
 import {
-  ThemeWorkerProcessor,
-  type WorkerInboundMessage,
-  type WorkerOutboundMessage,
-} from '../lib/effects/theme.worker.processor';
+  createUdixioProviderConfig,
+  expectedThemeCssColors,
+  readThemeCssColors,
+  ThemeProviderWorkerMock,
+  UDIXIO_THEME_PROVIDER_REFERENCE,
+} from '../../../tailwind/tests/theme-provider-test-utils';
 
 // The hex values live in the light/dark palette; `--color-primary` is the
 // mode-resolved alias.
 const primaryDeclaration = (css: string) =>
   css.match(/--udx-light-primary:\s*(#[0-9a-f]{6});/)?.[1];
-
-class ThemeWorkerMock {
-  onmessage: ((event: MessageEvent<WorkerOutboundMessage>) => void) | null =
-    null;
-  onerror: ((event: ErrorEvent) => void) | null = null;
-  onmessageerror: ((event: MessageEvent) => void) | null = null;
-
-  private readonly processor = new ThemeWorkerProcessor();
-  private terminated = false;
-
-  postMessage(message: WorkerInboundMessage) {
-    void this.processor.process(message).then(
-      (css) => {
-        if (this.terminated) return;
-        this.onmessage?.({
-          data: { id: message.id, css },
-        } as MessageEvent<WorkerOutboundMessage>);
-      },
-      (error) => {
-        if (this.terminated) return;
-        this.onerror?.(
-          new ErrorEvent('error', {
-            error,
-            message: error instanceof Error ? error.message : String(error),
-          }),
-        );
-      },
-    );
-  }
-
-  terminate() {
-    this.terminated = true;
-  }
-}
 
 const createConfig = (sourceColor: string): ConfigInterface => ({
   sourceColor,
@@ -64,7 +32,8 @@ const createConfig = (sourceColor: string): ConfigInterface => ({
 
 describe('ThemeProvider', () => {
   beforeEach(() => {
-    vi.stubGlobal('Worker', ThemeWorkerMock);
+    ThemeProviderWorkerMock.reset();
+    vi.stubGlobal('Worker', ThemeProviderWorkerMock);
   });
 
   afterEach(() => {
@@ -120,5 +89,48 @@ describe('ThemeProvider', () => {
       expect(readPrimary()).not.toBe(overriddenBluePrimary);
       expect(readPrimary()).not.toBe(sourceGreenPrimary);
     });
+  });
+
+  it('matches the pinned Udixio theme output before and after a runtime update', async () => {
+    const initialState = UDIXIO_THEME_PROVIDER_REFERENCE.cases.purpleLight;
+    const updatedState = UDIXIO_THEME_PROVIDER_REFERENCE.cases.redDark;
+    const initialConfig = createUdixioProviderConfig(initialState);
+    const onLoad = vi.fn();
+    const { container, rerender, unmount } = render(
+      <ThemeProvider
+        config={initialConfig}
+        throttleDelay={0}
+        onLoad={onLoad}
+      />,
+    );
+
+    await waitFor(() => {
+      const css = container.querySelector('style')?.textContent ?? '';
+      expect(readThemeCssColors(css)).toEqual(expectedThemeCssColors('purple'));
+    });
+
+    expect(initialConfig.variant?.name).toBe(
+      UDIXIO_THEME_PROVIDER_REFERENCE.variant,
+    );
+    expect(ThemeProviderWorkerMock.instances).toHaveLength(1);
+    expect(ThemeProviderWorkerMock.instances[0].messages).toHaveLength(0);
+
+    rerender(
+      <ThemeProvider
+        config={createUdixioProviderConfig(updatedState)}
+        throttleDelay={0}
+        onLoad={onLoad}
+      />,
+    );
+
+    await waitFor(() => {
+      const css = container.querySelector('style')?.textContent ?? '';
+      expect(readThemeCssColors(css)).toEqual(expectedThemeCssColors('red'));
+    });
+
+    expect(ThemeProviderWorkerMock.instances[0].messages).toHaveLength(1);
+    expect(onLoad).toHaveBeenCalledTimes(2);
+    unmount();
+    expect(ThemeProviderWorkerMock.instances[0].terminated).toBe(true);
   });
 });

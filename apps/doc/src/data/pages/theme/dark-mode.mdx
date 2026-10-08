@@ -1,6 +1,6 @@
 ---
 title: Dark mode
-description: Configure dark mode in theme.config.ts for React and Angular, with optional runtime web updates.
+description: Configure dark mode in theme.config.ts for React, Angular and Svelte, with optional runtime web updates.
 ---
 
 # Dark mode
@@ -10,7 +10,7 @@ description: Configure dark mode in theme.config.ts for React and Angular, with 
 `defineConfig` wires `TailwindPlugin`, which generates two CSS layers. The
 static `@theme` layer is consumed by Tailwind at build time. The dynamic
 `@layer theme` layer scopes variables that can be refreshed at runtime on the
-web by React's `ThemeProvider`:
+web by `ThemeProvider`:
 
 ```css
 /* Static — Tailwind build-time values */
@@ -90,12 +90,13 @@ export default defineConfig({
 }
 ```
 
-## Dynamic theme updates on the web (React)
+## Dynamic theme updates on the web
 
-The generated CSS is enough for a fixed light/dark theme. In a React app that
-also supports runtime changes to `sourceColor`, `variant`, palettes or other
-configuration, mount `ThemeProvider` with the shared config. It injects the
-dynamic layer and regenerates it when the config prop changes:
+The generated CSS is enough for a fixed light/dark theme. In an app that also
+supports runtime changes to `sourceColor`, `variant`, palettes or other
+configuration, mount `ThemeProvider` with the shared config. The provider from
+`@udixio/ui-react`, `@udixio/ui-angular` or `@udixio/ui-svelte` injects the
+dynamic layer and regenerates it when the config changes:
 
 ```tsx
 import { useState, useEffect } from 'react';

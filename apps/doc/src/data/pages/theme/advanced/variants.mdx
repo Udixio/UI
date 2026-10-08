@@ -214,4 +214,4 @@ source tone is kept where it is accessible, and re-chosen where it is not.
 
 ## Registering it
 
-`getVariantByName()` resolves the built-ins by name, which is how the React worker rebuilds a theme from a serialised snapshot. It does not know about yours, so pass your variant by value rather than by name if you serialise a theme.
+`getVariantByName()` resolves the built-ins by name, which is how the shared framework worker rebuilds a theme from a serialised snapshot. It does not know about yours, so pass your variant by value rather than by name if you serialise a theme.

@@ -39,7 +39,7 @@ import config from './theme.config';
 writeFileSync('src/udixio.generated.css', await generateStaticThemeCss(config));
 ```
 
-An optional second argument `(api) => void` runs before the load, for palette or context overrides. For the colors-only CSS used at runtime / SSR, use `generateThemeCss` from `@udixio/ui-react` instead.
+An optional second argument `(api) => void` runs before the load, for palette or context overrides. For browser-compatible CSS used at runtime or during SSR, use `generateThemeCss` from `@udixio/tailwind` (also re-exported by each UI package).
 
 ## Options reference
 

@@ -1,4 +1,5 @@
 export * from './lib/utils';
+export { generateThemeCss } from '@udixio/tailwind';
 export { default as AnchorPositioner } from './lib/anchor-positioner/AnchorPositioner.svelte';
 export type { SvelteAnchorPositionerProps } from './lib/anchor-positioner/anchor-positioner.types';
 export { default as Badge } from './lib/badge/Badge.svelte';
@@ -86,3 +87,5 @@ export { default as CarouselItem } from './lib/carousel/CarouselItem.svelte';
 export type { SvelteCarouselItemProps } from './lib/carousel/carousel-item.types';
 export { default as DatePicker } from './lib/date-picker/DatePicker.svelte';
 export type { SvelteDatePickerProps } from './lib/date-picker/date-picker.types';
+export { default as ThemeProvider } from './lib/theme-provider/ThemeProvider.svelte';
+export type { SvelteThemeProviderProps } from './lib/theme-provider/theme-provider.types';

@@ -107,6 +107,21 @@ Only the **hue** of each value is read — chroma and tone always come from
 `sourceColor`, so every sub-theme stays in step with the rest of the scheme.
 A `Color`, a bare hue, or a hex all work.
 
+## Generate runtime CSS
+
+`generateThemeCss` returns the browser-compatible stylesheet without writing a
+file or emitting Tailwind directives. Use it for SSR or pass the result as
+`initialCss` to a framework `ThemeProvider`:
+
+```ts
+import { generateThemeCss } from '@udixio/tailwind';
+
+const initialCss = await generateThemeCss(config);
+```
+
+An optional second callback receives the theme API before its first load, so
+server code can apply a user or tenant-specific palette.
+
 ## The Tailwind plugin
 
 Separate from the generator, and added in CSS:

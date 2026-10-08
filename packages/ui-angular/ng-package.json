@@ -4,5 +4,9 @@
   "lib": {
     "entryFile": "src/index.ts"
   },
-  "allowedNonPeerDependencies": ["@udixio/icons-rounded-400"]
+  "allowedNonPeerDependencies": [
+    "@udixio/icons-rounded-400",
+    "@udixio/tailwind",
+    "@udixio/theme"
+  ]
 }

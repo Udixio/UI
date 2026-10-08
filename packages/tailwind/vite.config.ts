@@ -32,10 +32,14 @@ export default defineConfig(() => ({
       brotliSize: true,
     }),
   ],
-  // Uncomment this if you are using workers.
-  // worker: {
-  //  plugins: [ nxViteTsPaths() ],
-  // },
+  worker: {
+    format: 'es',
+    rollupOptions: {
+      // The inlined worker must include its dependencies: bare package imports
+      // cannot be resolved from a Blob URL at runtime.
+      external: [],
+    },
+  },
   // Library build, one environment per runtime. The node environment keeps
   // its dependencies external; the browser one bundles everything but
   // `@udixio/theme` (its own browser build), so that `dist/browser.js` and

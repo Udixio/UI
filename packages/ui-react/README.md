@@ -72,30 +72,35 @@ Full walkthrough: [ui.udixio.fr/get-started/react](https://ui.udixio.fr/get-star
 
 ## Changing the theme at runtime
 
-`ThemeProvider` rebuilds the scheme in a worker and injects it, so switching
-source colour or dark mode does not block the main thread:
+`ThemeProvider` uses the same worker as the Angular and Svelte adapters to
+rebuild the scheme and inject it, so switching source colour or dark mode does
+not block the main thread:
 
 ```tsx
 import { ThemeProvider } from '@udixio/ui-react';
 
-<ThemeProvider config={config} onLoad={(api) => console.log(api.colors.get('primary').hex)}>
+<ThemeProvider
+  config={config}
+  onLoad={(api) => console.log(api.colors.get('primary').hex)}
+>
   <App />
 </ThemeProvider>;
 ```
 
-| Prop | Default | |
-|---|---|---|
-| `config` | — | The same shape `defineConfig` takes. |
-| `initialCss` | — | Pre-generated CSS from the server; renders immediately instead of waiting for the worker. |
-| `loadTheme` | `false` | Runs the plugins on the first pass. |
-| `throttleDelay` | `100` | Milliseconds between rebuilds while a value is being dragged. |
-| `onLoad` | — | Receives the `API` after each build. |
+| Prop            | Default |                                                                                           |
+| --------------- | ------- | ----------------------------------------------------------------------------------------- |
+| `config`        | —       | The same shape `defineConfig` takes.                                                      |
+| `initialCss`    | —       | Pre-generated CSS from the server; renders immediately instead of waiting for the worker. |
+| `loadTheme`     | `false` | Runs the plugins on the first pass.                                                       |
+| `throttleDelay` | `100`   | Milliseconds between rebuilds while a value is being dragged.                             |
+| `onLoad`        | —       | Receives the `API` after each build.                                                      |
 
 ### Server-side
 
 `generateThemeCss(config)` returns the stylesheet as a string, with no
 filesystem access and no Tailwind directives — pass it to `ThemeProvider` as
-`initialCss` to avoid a flash of the build-time theme:
+`initialCss` to avoid a flash of the build-time theme. It is shared by
+`@udixio/tailwind` and re-exported from the Angular and Svelte packages too:
 
 ```ts
 import { generateThemeCss } from '@udixio/ui-react';
@@ -107,13 +112,13 @@ Each call builds an isolated theme, so concurrent renders do not share state.
 
 ## What it exports
 
-| | |
-|---|---|
-| Components | 36, from `Button` to `DatePicker`. |
-| `ThemeProvider`, `generateThemeCss` | Runtime theming. |
-| Effects | `State`, ripple, `AnimateOnScroll`, smooth scroll, scroll-driven animation, scroll locking. |
-| `Icon` | The icon component, paired with the `@udixio/icons-*` packages. |
-| `useControllableState`, `createUseStyle` | The hooks the components use, for building your own on the same footing. |
+|                                          |                                                                                             |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Components                               | 36, from `Button` to `DatePicker`.                                                          |
+| `ThemeProvider`, `generateThemeCss`      | Runtime theming.                                                                            |
+| Effects                                  | `State`, ripple, `AnimateOnScroll`, smooth scroll, scroll-driven animation, scroll locking. |
+| `Icon`                                   | The icon component, paired with the `@udixio/icons-*` packages.                             |
+| `useControllableState`, `createUseStyle` | The hooks the components use, for building your own on the same footing.                    |
 
 Everything from `@udixio/core` is re-exported, so a component's props and style
 contract are reachable from here.

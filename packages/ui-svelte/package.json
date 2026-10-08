@@ -22,6 +22,10 @@
     "@udixio/core": "0.2.2-next.14",
     "svelte": "^5.46.4"
   },
+  "dependencies": {
+    "@udixio/tailwind": "5.0.1-next.10",
+    "@udixio/theme": "5.0.1-next.10"
+  },
   "devDependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.0.0",
     "@types/jest-axe": "^3.5.9",
