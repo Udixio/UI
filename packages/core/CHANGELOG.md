@@ -1,3 +1,7 @@
+## 0.2.2-next.15 (2026-10-08)
+
+This was a version bump only for @udixio/core to align it with other projects, there were no code changes.
+
 ## 0.2.2-next.14 (2026-10-08)
 
 ### 🚀 Features

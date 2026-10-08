@@ -1,3 +1,7 @@
+## 0.2.2-next.6 (2026-10-08)
+
+This was a version bump only for @udixio/icons-sharp-600 to align it with other projects, there were no code changes.
+
 ## 0.2.2-next.5 (2026-09-25)
 
 This was a version bump only for @udixio/icons-sharp-600 to align it with other projects, there were no code changes.
