@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  OnDestroy,
   PLATFORM_ID,
   Renderer2,
   ViewEncapsulation,
@@ -12,6 +11,7 @@ import {
   signal,
   inject,
 } from '@angular/core';
+import type { OnDestroy } from '@angular/core';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
   createDynamicThemeWorker,
