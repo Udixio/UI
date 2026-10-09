@@ -15,8 +15,12 @@
   },
   "files": [
     "dist",
+    "src",
     "!dist/**/*.spec.*",
-    "!dist/tests"
+    "!dist/tests",
+    "!src/**/*.spec.*",
+    "!src/**/*.fixture.svelte",
+    "!src/tests"
   ],
   "sideEffects": false,
   "peerDependencies": {
