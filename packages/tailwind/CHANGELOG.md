@@ -1,3 +1,21 @@
+## 5.0.1-next.11 (2026-10-08)
+
+### 🚀 Features
+
+- **theme:** share ThemeProvider across frameworks ([5a5b3655](https://github.com/Udixio/UI/commit/5a5b3655))
+
+### 🩹 Fixes
+
+- **angular:** resolve shared theme build ([4bcdb7b6](https://github.com/Udixio/UI/commit/4bcdb7b6))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 5.0.1-next.11
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 5.0.1-next.10 (2026-09-25)
 
 ### 🩹 Fixes

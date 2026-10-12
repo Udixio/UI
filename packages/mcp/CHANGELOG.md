@@ -1,3 +1,9 @@
+## 0.7.1-next.11 (2026-10-08)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 5.0.1-next.11
+
 ## 0.7.1-next.10 (2026-09-25)
 
 ### 🧱 Updated Dependencies

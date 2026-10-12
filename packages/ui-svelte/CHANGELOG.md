@@ -1,3 +1,24 @@
+## 0.1.1-next.5 (2026-10-08)
+
+### 🚀 Features
+
+- **theme:** share ThemeProvider across frameworks ([5a5b3655](https://github.com/Udixio/UI/commit/5a5b3655))
+
+### 🩹 Fixes
+
+- **angular:** resolve shared theme build ([4bcdb7b6](https://github.com/Udixio/UI/commit/4bcdb7b6))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 5.0.1-next.11
+- Updated @udixio/theme to 5.0.1-next.11
+- Updated @udixio/core to 0.2.2-next.15
+- Updated @udixio/icons-rounded-400 to 0.2.2-next.6
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.1.1-next.4 (2026-10-08)
 
 ### 🚀 Features

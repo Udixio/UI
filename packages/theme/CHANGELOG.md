@@ -1,3 +1,13 @@
+## 5.0.1-next.11 (2026-10-08)
+
+### 🩹 Fixes
+
+- **angular:** resolve shared theme build ([4bcdb7b6](https://github.com/Udixio/UI/commit/4bcdb7b6))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 5.0.1-next.10 (2026-09-25)
 
 ### 🩹 Fixes
