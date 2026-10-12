@@ -3,6 +3,10 @@
   "version": "0.2.2-next.5",
   "type": "module",
   "sideEffects": false,
+  "files": [
+    "src",
+    "dist"
+  ],
   "exports": {
     "./package.json": "./package.json",
     "./*": {
@@ -18,7 +22,8 @@
   },
   "scripts": {
     "generate": "tsx ../../../scripts/generate-icons.ts sharp 600",
-    "build": "pnpm generate && tsc -p tsconfig.lib.json"
+    "build": "pnpm generate && tsc -p tsconfig.lib.json",
+    "prepack": "pnpm build"
   },
   "devDependencies": {
     "@material-symbols/svg-600": "*",
