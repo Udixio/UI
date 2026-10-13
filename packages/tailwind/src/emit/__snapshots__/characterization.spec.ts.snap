@@ -15,6 +15,7 @@ exports[`current @udixio/tailwind resolved CSS (characterization) > golden resol
     --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     --default-font-family: var(--font-sans);
     --default-mono-font-family: var(--font-mono);
+    --color-surface: var(--udx-surface-dark-on, var(--udx-light-surface));
     --color-on-surface: var(--udx-on-surface-dark-on, var(--udx-light-on-surface));
     --color-primary: var(--udx-primary-dark-on, var(--udx-light-primary));
   }
@@ -477,6 +478,19 @@ exports[`current @udixio/tailwind resolved CSS (characterization) > golden resol
     --udx-on-background-dark-on: var(--udx-on-dark) var(--udx-dark-on-background);
     --color-on-background: var(--udx-on-background-dark-on, var(--udx-light-on-background));
   }
+}
+body {
+  background-color: var(--color-surface);
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.25rem;
+  letter-spacing: 0.015625rem;
+  font-family: "Roboto", "sans-serif";
+  @media (min-width: 64rem) {
+    font-size: 0.984375rem;
+    line-height: 1.40625rem;
+  }
+  color: var(--color-on-surface);
 }
 @layer base {
   @keyframes enter {

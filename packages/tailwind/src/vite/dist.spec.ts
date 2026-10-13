@@ -49,7 +49,13 @@ async function bundle(
         // it cannot provide for itself
         external: options.browser
           ? ['tailwindcss/plugin']
-          : ['@udixio/theme', 'tailwindcss/plugin', 'text-case', 'pathe', 'vite'],
+          : [
+              '@udixio/theme',
+              'tailwindcss/plugin',
+              'text-case',
+              'pathe',
+              'vite',
+            ],
       },
     },
   })) as Rollup.RollupOutput[];
@@ -74,7 +80,10 @@ afterAll(() => {
 
 describe('dist/vite.browser.js', () => {
   let chunk: Rollup.OutputChunk;
-  let mod: { default: (o: object) => Hooks; defineConfig: (c: object) => object };
+  let mod: {
+    default: (o: object) => Hooks;
+    defineConfig: (c: object) => object;
+  };
 
   beforeAll(async () => {
     // the plugin entry plus `defineConfig`, from the same bundle
@@ -140,6 +149,9 @@ console.log(JSON.stringify(watched));
     expect(
       readFileSync(join(dir, 'src/udixio.generated.css'), 'utf8'),
     ).toContain('--color-primary:');
-    expect(JSON.parse(stdout.trim())).toEqual([join(dir, 'theme.config.ts')]);
+    expect(JSON.parse(stdout.trim())).toEqual([
+      join(dir, 'src/udixio.generated.css'),
+      join(dir, 'theme.config.ts'),
+    ]);
   });
 });
