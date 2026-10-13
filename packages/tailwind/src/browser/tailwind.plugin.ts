@@ -48,6 +48,14 @@ export interface TailwindPluginOptions {
    */
   resetColors?: boolean;
   /**
+   * Applies the theme's default background and typography to the document body.
+   *
+   * Pass `false` to leave the `body` styles to the application.
+   *
+   * @default true
+   */
+  includeDefaultStyles?: boolean;
+  /**
    * Force browser-compatible CSS output (pure CSS variables, no @plugin/@theme directives,
    * no filesystem writes). Set automatically by `generateThemeCss()` for SSR use cases.
    */
@@ -157,6 +165,7 @@ export class TailwindImplPluginBrowser extends PluginImplAbstract<TailwindPlugin
       lightSelector: '.light',
       dynamicSelector: '.dynamic',
       resetColors: true,
+      includeDefaultStyles: true,
       ...this.options,
     };
   }
@@ -301,6 +310,12 @@ ${resetColors ? '  --color-*: initial;\n' : ''}  ${keys
             .join(', ')};`,
       )
       .join('\n  ')}\n}`;
+    if (this.options.includeDefaultStyles ?? true) {
+      this.outputCss += `
+body {
+  @apply bg-surface text-on-surface text-body-medium;
+}`;
+    }
     this.outputCss += '\n@plugin "@udixio/tailwind";';
   }
 }

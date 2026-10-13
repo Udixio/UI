@@ -52,7 +52,18 @@ An optional second argument `(api) => void` runs before the load, for palette or
 | `responsiveBreakPoints` | `Record<string, number>`                    | `{ lg: 1.125 }`        | Additional Tailwind breakpoints                                       |
 | `outFile`               | `string`                                    | `udixio.generated.css` | Output path for the generated stylesheet in Node/CLI mode             |
 | `resetColors`           | `boolean`                                   | `true`                 | Reset Tailwind's default color namespace before emitting theme colors |
+| `includeDefaultStyles`  | `boolean`                                   | `true`                 | Apply the theme background and typography to `body`                    |
 | `ssr`                   | `boolean`                                   | `false`                | Emit browser-compatible CSS without filesystem writes                 |
+
+By default, the static stylesheet applies the theme's surface and body typography to the
+document body. Set `includeDefaultStyles: false` in `defineConfig` to leave the body styling
+to your application.
+
+```css
+body {
+  @apply bg-surface text-on-surface text-body-medium;
+}
+```
 
 ## CSS structure
 
