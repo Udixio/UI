@@ -1,3 +1,13 @@
+## 5.0.1-next.12 (2026-10-13)
+
+### 🚀 Features
+
+- **tailwind:** add configurable default body styles ([f5f9f8ab](https://github.com/Udixio/UI/commit/f5f9f8ab))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 5.0.1-next.11 (2026-10-08)
 
 ### 🚀 Features

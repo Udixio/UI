@@ -1,3 +1,13 @@
+## 0.2.2-next.7 (2026-10-13)
+
+### 🩹 Fixes
+
+- **icons:** package generated export files ([278806c3](https://github.com/Udixio/UI/commit/278806c3))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.2.2-next.6 (2026-10-08)
 
 This was a version bump only for @udixio/icons-sharp-500 to align it with other projects, there were no code changes.
