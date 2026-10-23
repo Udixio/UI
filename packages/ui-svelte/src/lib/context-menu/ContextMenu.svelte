@@ -98,7 +98,7 @@
     {@render trigger?.()}
   </span>
   {#if position}
-    <div bind:this={menu} class="fixed z-50 rounded-lg" role="presentation" popover="manual" style={`inset: auto; margin: 0; top: ${position.y}px; left: ${position.x}px; right: auto; bottom: auto; max-width: calc(100vw - 16px); max-height: calc(100vh - 16px); overflow: auto`}>
+    <div bind:this={menu} class="fixed z-50 rounded-lg" role="presentation" popover="manual" style={`inset: auto; margin: 0; top: ${position.y}px; left: ${position.x}px; right: auto; bottom: auto; max-width: calc(100vw - 16px); max-height: calc(100vh - 16px); overflow: visible`}>
       <Menu purpose="actions" {variant} {accessibleLabel}>{@render children?.()}</Menu>
     </div>
   {/if}

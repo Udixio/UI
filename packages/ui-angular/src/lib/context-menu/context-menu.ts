@@ -60,7 +60,7 @@ import { Menu } from '../menu/menu';
           popover="manual"
           [style.top.px]="point.y"
           [style.left.px]="point.x"
-          style="inset: auto; margin: 0; right: auto; bottom: auto; max-width: calc(100vw - 16px); max-height: calc(100vh - 16px); overflow: auto"
+          style="inset: auto; margin: 0; right: auto; bottom: auto; max-width: calc(100vw - 16px); max-height: calc(100vh - 16px); overflow: visible"
         >
           <udx-menu
             purpose="actions"

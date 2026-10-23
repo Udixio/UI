@@ -166,7 +166,7 @@ export const ContextMenu = ({
             bottom: 'auto',
             maxWidth: 'calc(100vw - 16px)',
             maxHeight: 'calc(100vh - 16px)',
-            overflow: 'auto',
+            overflow: 'visible',
           }}
         >
           <Menu
