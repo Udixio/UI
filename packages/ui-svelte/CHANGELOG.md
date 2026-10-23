@@ -1,3 +1,20 @@
+## 0.1.1-next.7 (2026-10-23)
+
+### 🩹 Fixes
+
+- **ui:** align native element parity ([67d2d99c](https://github.com/Udixio/UI/commit/67d2d99c))
+- **checkbox:** compact layout footprint ([12fc9ef0](https://github.com/Udixio/UI/commit/12fc9ef0))
+- **context-menu:** let menu shadow escape popup wrapper ([88095ab7](https://github.com/Udixio/UI/commit/88095ab7))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 5.0.1-next.13
+- Updated @udixio/core to 0.2.2-next.16
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.1.1-next.5 (2026-10-08)
 
 ### 🚀 Features

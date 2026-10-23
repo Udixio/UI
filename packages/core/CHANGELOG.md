@@ -1,3 +1,13 @@
+## 0.2.2-next.16 (2026-10-23)
+
+### 🩹 Fixes
+
+- **checkbox:** compact layout footprint ([12fc9ef0](https://github.com/Udixio/UI/commit/12fc9ef0))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 0.2.2-next.15 (2026-10-08)
 
 This was a version bump only for @udixio/core to align it with other projects, there were no code changes.

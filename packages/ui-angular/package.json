@@ -1,6 +1,6 @@
 {
   "name": "@udixio/ui-angular",
-  "version": "0.2.2-next.16",
+  "version": "0.2.2-next.18",
   "publishConfig": {
     "provenance": true,
     "access": "public"
@@ -13,11 +13,11 @@
     "@angular/common": "^21.0.0",
     "@angular/core": "^21.0.0",
     "@angular/platform-browser": "^21.0.0",
-    "@udixio/core": "0.2.2-next.15"
+    "@udixio/core": "0.2.2-next.16"
   },
   "dependencies": {
-    "@udixio/icons-rounded-400": "0.2.2-next.6",
-    "@udixio/tailwind": "5.0.1-next.11",
+    "@udixio/icons-rounded-400": "0.2.2-next.7",
+    "@udixio/tailwind": "5.0.1-next.13",
     "@udixio/theme": "5.0.1-next.11"
   },
   "devDependencies": {

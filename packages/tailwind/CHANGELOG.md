@@ -1,3 +1,13 @@
+## 5.0.1-next.13 (2026-10-23)
+
+### 🩹 Fixes
+
+- **tailwind:** guard worker scope in Node ([7a8883a5](https://github.com/Udixio/UI/commit/7a8883a5))
+
+### ❤️ Thank You
+
+- Joël VIGREUX
+
 ## 5.0.1-next.11 (2026-10-08)
 
 ### 🚀 Features
