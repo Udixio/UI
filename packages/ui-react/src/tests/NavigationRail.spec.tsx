@@ -295,6 +295,21 @@ describe('NavigationRailItem', () => {
     );
   });
 
+  it('forwards button-only native attributes to action items', () => {
+    render(
+      <NavigationRail>
+        <NavigationRailItem
+          icon={iAlarm}
+          iconSelected={iAlarm}
+          label="Save"
+          form="navigation-form"
+        />
+      </NavigationRail>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('form', 'navigation-form');
+  });
+
   it('always renders one label per layout, and reveals only the one matching the resolved variant', () => {
     // Regression test: the label used to be a single mount/unmount span
     // driven by `motion/react`'s AnimatePresence; it is now two always-

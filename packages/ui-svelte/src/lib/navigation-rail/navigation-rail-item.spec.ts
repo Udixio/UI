@@ -5,7 +5,10 @@ import { iHome } from '@udixio/icons-rounded-400/home';
 
 describe('NavigationRailItem', () => {
   it('renders its label and icon', () => {
-    render(NavigationRailItem, { props: { label: 'Home', icon: iHome, iconSelected: iHome } });
+    render(NavigationRailItem, {
+      props: { label: 'Home', icon: iHome, iconSelected: iHome, form: 'navigation-form' },
+    });
     expect(screen.getByRole('button', { name: 'Home' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Home' })).toHaveAttribute('form', 'navigation-form');
   });
 });

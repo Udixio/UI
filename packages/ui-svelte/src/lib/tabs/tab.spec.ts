@@ -4,7 +4,7 @@ import Tab from './Tab.svelte';
 
 describe('Tab', () => {
   it('renders a standalone tab', () => {
-    render(Tab, { props: { label: 'Overview' } });
-    expect(screen.getByRole('tab', { name: 'Overview' })).toBeInTheDocument();
+    render(Tab, { props: { label: 'Overview', form: 'tabs-form' } });
+    expect(screen.getByRole('tab', { name: 'Overview' })).toHaveAttribute('form', 'tabs-form');
   });
 });

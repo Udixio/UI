@@ -24,46 +24,6 @@
           },
           "defaultValue": null
         },
-        "className": {
-          "name": "className",
-          "description": "Root classes (string), static element classes (object), or state-aware element classes (function).",
-          "required": false,
-          "type": {
-            "name": "string | Partial<Record<\"label\" | \"stateLayer\" | \"leadingIcon\" | \"trailingIcon\" | \"chip\", string>> | ClassNameComponent<ChipInterface>"
-          },
-          "defaultValue": null
-        },
-        "disabled": {
-          "name": "disabled",
-          "description": "Disables the chip if set to true.",
-          "required": false,
-          "type": {
-            "name": "boolean"
-          },
-          "defaultValue": {
-            "value": "false"
-          }
-        },
-        "draggable": {
-          "name": "draggable",
-          "description": "Enable native drag and drop on the chip.",
-          "required": false,
-          "type": {
-            "name": "boolean"
-          },
-          "defaultValue": {
-            "value": "false"
-          }
-        },
-        "onChange": {
-          "name": "onChange",
-          "description": "Fires whenever the editable label changes.",
-          "required": false,
-          "type": {
-            "name": "(nextLabel: string) => void"
-          },
-          "defaultValue": null
-        },
         "transition": {
           "name": "transition",
           "description": "Motion timing for the selection colour change. Defaults to 0.3s.\n\nIt lived only on the React adapter, so the Angular chip's selection\nsnapped where React's faded.",
@@ -82,6 +42,17 @@
           },
           "defaultValue": {
             "value": "'outlined'"
+          }
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Disables the chip if set to true.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
           }
         },
         "icon": {
@@ -129,14 +100,16 @@
           },
           "defaultValue": null
         },
-        "href": {
-          "name": "href",
-          "description": "Optional navigation target.",
+        "draggable": {
+          "name": "draggable",
+          "description": "Enable native drag and drop on the chip.",
           "required": false,
           "type": {
-            "name": "string"
+            "name": "boolean"
           },
-          "defaultValue": null
+          "defaultValue": {
+            "value": "false"
+          }
         },
         "editable": {
           "name": "editable",
@@ -180,6 +153,24 @@
           "required": false,
           "type": {
             "name": "() => void"
+          },
+          "defaultValue": null
+        },
+        "onChange": {
+          "name": "onChange",
+          "description": "Fires whenever the editable label changes.",
+          "required": false,
+          "type": {
+            "name": "(nextLabel: string) => void"
+          },
+          "defaultValue": null
+        },
+        "href": {
+          "name": "href",
+          "description": "Navigation destination; switches the chip to a native link.",
+          "required": false,
+          "type": {
+            "name": "string"
           },
           "defaultValue": null
         }
@@ -238,7 +229,7 @@
         },
         "href": {
           "name": "href",
-          "description": "Optional navigation target.",
+          "description": "Navigation destination; switches the chip to a native link.",
           "required": false,
           "type": {
             "name": "string"
@@ -322,7 +313,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"label\" | \"stateLayer\" | \"chip\" | \"leadingIcon\" | \"trailingIcon\", string>> | ClassNameComponent<ChipInterface>"
+            "name": "Partial<Record<\"chip\" | \"stateLayer\" | \"leadingIcon\" | \"trailingIcon\" | \"label\", string>> | ClassNameComponent<ChipInterface>"
           },
           "defaultValue": null
         },
@@ -403,38 +394,58 @@
         "limitations": "- Edit-on-focus starts after a one-second delay; double-click, Enter, and F2 start it directly."
       },
       "props": {
-        "class": {
-          "name": "class",
-          "description": "String class merged onto the root element.",
+        "transition": {
+          "name": "transition",
+          "description": "Motion timing for the selection colour change. Defaults to 0.3s.\n\nIt lived only on the React adapter, so the Angular chip's selection\nsnapped where React's faded.",
           "required": false,
           "type": {
-            "name": "string"
+            "name": "{ duration?: number; }"
           },
-          "defaultValue": {
-            "value": "''"
-          }
+          "defaultValue": null
         },
-        "style": {
-          "name": "style",
-          "description": "Inline style merged onto the root element.",
+        "label": {
+          "name": "label",
+          "description": "The label is the text that is displayed on the chip.",
           "required": false,
           "type": {
             "name": "string"
           },
           "defaultValue": null
         },
-        "classes": {
-          "name": "classes",
-          "description": "State-aware classes for the component's internal elements.",
+        "variant": {
+          "name": "variant",
+          "description": "The chip variant determines the style.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"label\" | \"stateLayer\" | \"chip\" | \"leadingIcon\" | \"trailingIcon\", string>> | ClassNameComponent<ChipInterface>"
+            "name": "ChipVariant"
+          },
+          "defaultValue": {
+            "value": "'outlined'"
+          }
+        },
+        "disabled": {
+          "name": "disabled",
+          "description": "Disables the chip if set to true.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "icon": {
+          "name": "icon",
+          "description": "An optional icon to display in the chip.",
+          "required": false,
+          "type": {
+            "name": "Icon"
           },
           "defaultValue": null
         },
         "selected": {
           "name": "selected",
-          "description": "Bindable selected state.",
+          "description": "Controlled selected state.",
           "required": false,
           "type": {
             "name": "boolean"
@@ -442,18 +453,67 @@
           "defaultValue": null,
           "bindable": true
         },
+        "defaultSelected": {
+          "name": "defaultSelected",
+          "description": "Initial selected state when the chip is uncontrolled.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        },
         "onSelectedChange": {
           "name": "onSelectedChange",
-          "description": "Notifies an accepted selected-state transition.",
+          "description": "Notifies selection requests in controlled and uncontrolled modes.",
           "required": false,
           "type": {
             "name": "(selected: boolean) => void"
           },
           "defaultValue": null
         },
+        "onRemove": {
+          "name": "onRemove",
+          "description": "Requests removal of this chip.",
+          "required": false,
+          "type": {
+            "name": "() => void"
+          },
+          "defaultValue": null
+        },
+        "draggable": {
+          "name": "draggable",
+          "description": "Enable native drag and drop on the chip.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "editable": {
+          "name": "editable",
+          "description": "Enables inline label editing, used by `Chips` in input mode.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
+        "editing": {
+          "name": "editing",
+          "description": "Controlled edition state (the resolved value lives in `states.isEditing`).",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
+        },
         "onEditStart": {
           "name": "onEditStart",
-          "description": "Called when editing starts.",
+          "description": "Requests editing, for example after a double-click, Enter, or F2.",
           "required": false,
           "type": {
             "name": "() => void"
@@ -462,7 +522,7 @@
         },
         "onEditCommit": {
           "name": "onEditCommit",
-          "description": "Called with the normalized label when editing is committed.",
+          "description": "Commits editing with the normalized label.",
           "required": false,
           "type": {
             "name": "(nextLabel: string) => void"
@@ -471,7 +531,7 @@
         },
         "onEditCancel": {
           "name": "onEditCancel",
-          "description": "Called when editing is cancelled.",
+          "description": "Cancels editing and restores the previous label.",
           "required": false,
           "type": {
             "name": "() => void"
@@ -480,19 +540,10 @@
         },
         "onChange": {
           "name": "onChange",
-          "description": "Called for every editable label change.",
+          "description": "Fires whenever the editable label changes.",
           "required": false,
           "type": {
             "name": "(nextLabel: string) => void"
-          },
-          "defaultValue": null
-        },
-        "onRemove": {
-          "name": "onRemove",
-          "description": "Called when the trailing remove action is activated.",
-          "required": false,
-          "type": {
-            "name": "() => void"
           },
           "defaultValue": null
         },
@@ -559,101 +610,68 @@
           },
           "defaultValue": null
         },
-        "transition": {
-          "name": "transition",
-          "description": "Motion timing for the selection colour change. Defaults to 0.3s.\n\nIt lived only on the React adapter, so the Angular chip's selection\nsnapped where React's faded.",
+        "class": {
+          "name": "class",
+          "description": "String class merged onto the root element.",
           "required": false,
           "type": {
-            "name": "{ duration?: number; }"
+            "name": "string"
           },
-          "defaultValue": null
+          "defaultValue": {
+            "value": "''"
+          }
         },
-        "label": {
-          "name": "label",
-          "description": "The label is the text that is displayed on the chip.",
+        "style": {
+          "name": "style",
+          "description": "Inline style merged onto the root element.",
           "required": false,
           "type": {
             "name": "string"
           },
           "defaultValue": null
         },
-        "variant": {
-          "name": "variant",
-          "description": "The chip variant determines the style.",
+        "classes": {
+          "name": "classes",
+          "description": "State-aware classes for the component's internal elements.",
           "required": false,
           "type": {
-            "name": "ChipVariant"
-          },
-          "defaultValue": {
-            "value": "'outlined'"
-          }
-        },
-        "disabled": {
-          "name": "disabled",
-          "description": "Disables the chip if set to true.",
-          "required": false,
-          "type": {
-            "name": "boolean"
-          },
-          "defaultValue": {
-            "value": "false"
-          }
-        },
-        "icon": {
-          "name": "icon",
-          "description": "An optional icon to display in the chip.",
-          "required": false,
-          "type": {
-            "name": "Icon"
-          },
-          "defaultValue": null
-        },
-        "defaultSelected": {
-          "name": "defaultSelected",
-          "description": "Initial selected state when the chip is uncontrolled.",
-          "required": false,
-          "type": {
-            "name": "boolean"
+            "name": "Partial<Record<\"label\" | \"chip\" | \"stateLayer\" | \"leadingIcon\" | \"trailingIcon\", string>> | ClassNameComponent<ChipInterface>"
           },
           "defaultValue": null
         },
         "href": {
           "name": "href",
-          "description": "Optional navigation target.",
+          "description": "Navigation destination; switches the native element from button to link.",
           "required": false,
           "type": {
             "name": "string"
           },
           "defaultValue": null
         },
-        "draggable": {
-          "name": "draggable",
-          "description": "Enable native drag and drop on the chip.",
+        "target": {
+          "name": "target",
+          "description": "Native link browsing-context target.",
           "required": false,
           "type": {
-            "name": "boolean"
+            "name": "HTMLAttributeAnchorTarget"
           },
-          "defaultValue": {
-            "value": "false"
-          }
+          "defaultValue": null
         },
-        "editable": {
-          "name": "editable",
-          "description": "Enables inline label editing, used by `Chips` in input mode.",
+        "rel": {
+          "name": "rel",
+          "description": "Native link relationship tokens.",
           "required": false,
           "type": {
-            "name": "boolean"
+            "name": "string"
           },
-          "defaultValue": {
-            "value": "false"
-          }
+          "defaultValue": null
         },
-        "editing": {
-          "name": "editing",
-          "description": "Controlled edition state (the resolved value lives in `states.isEditing`).",
+        "form": {
+          "name": "form",
+          "description": "Id of an external `<form>` associated with the native button.\nButton-only attributes are not valid on a navigation link.",
           "required": false,
           "type": {
-            "name": "boolean"
+            "name": "string"
           },
           "defaultValue": null
         }

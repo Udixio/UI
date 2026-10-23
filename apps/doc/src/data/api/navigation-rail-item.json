@@ -15,15 +15,6 @@
       },
       "methods": [],
       "props": {
-        "className": {
-          "name": "className",
-          "description": "Root classes (string), static element classes (object), or state-aware element classes (function).",
-          "required": false,
-          "type": {
-            "name": "string | Partial<Record<\"container\" | \"label\" | \"icon\" | \"stateLayer\" | \"navigationRailItem\", string>> | ClassNameComponent<NavigationRailItemInterface>"
-          },
-          "defaultValue": null
-        },
         "badge": {
           "name": "badge",
           "description": "A badge on the icon, the way Material 3 shows notifications on a\ndestination: `{}` is the small dot, `{ label: 3 }` the count. Material\nrecommends removing it once the destination has been viewed, which is\nthe caller's call -- pass `undefined` when the item is selected.",
@@ -177,7 +168,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"label\" | \"container\" | \"icon\" | \"stateLayer\" | \"navigationRailItem\", string>> | ClassNameComponent<NavigationRailItemInterface>"
+            "name": "Partial<Record<\"navigationRailItem\" | \"stateLayer\" | \"icon\" | \"label\" | \"container\", string>> | ClassNameComponent<NavigationRailItemInterface>"
           },
           "defaultValue": null
         }
@@ -194,59 +185,12 @@
         "limitations": "No arrow-key navigation between destinations."
       },
       "props": {
-        "class": {
-          "name": "class",
-          "description": "Classes merged onto the destination root.",
-          "required": false,
-          "type": {
-            "name": "string"
-          },
-          "defaultValue": {
-            "value": "''"
-          }
-        },
-        "style": {
-          "name": "style",
-          "description": "Inline style merged onto the destination root.",
-          "required": false,
-          "type": {
-            "name": "string"
-          },
-          "defaultValue": null
-        },
-        "classes": {
-          "name": "classes",
-          "description": "State-aware classes for the destination elements.",
-          "required": false,
-          "type": {
-            "name": "Partial<Record<\"label\" | \"container\" | \"icon\" | \"stateLayer\" | \"navigationRailItem\", string>> | ClassNameComponent<NavigationRailItemInterface>"
-          },
-          "defaultValue": null
-        },
         "label": {
           "name": "label",
           "description": "Visible destination label.",
           "required": false,
           "type": {
             "name": "string"
-          },
-          "defaultValue": null
-        },
-        "icon": {
-          "name": "icon",
-          "description": "Icon shown while the destination is not selected.",
-          "required": false,
-          "type": {
-            "name": "Icon"
-          },
-          "defaultValue": null
-        },
-        "iconSelected": {
-          "name": "iconSelected",
-          "description": "Optional icon shown while the destination is selected.",
-          "required": false,
-          "type": {
-            "name": "Icon"
           },
           "defaultValue": null
         },
@@ -259,32 +203,16 @@
           },
           "defaultValue": null
         },
-        "href": {
-          "name": "href",
-          "description": "Navigation destination; switches the inner element to a native link.",
+        "selected": {
+          "name": "selected",
+          "description": "Controlled selected state, used when no parent drives the selection.",
           "required": false,
           "type": {
-            "name": "string"
+            "name": "boolean"
           },
-          "defaultValue": null
-        },
-        "onclick": {
-          "name": "onclick",
-          "description": "Native activation handler.",
-          "required": false,
-          "type": {
-            "name": "(event: MouseEvent & { currentTarget: EventTarget & (HTMLButtonElement | HTMLAnchorElement); }) => void"
-          },
-          "defaultValue": null
-        },
-        "onItemSelected": {
-          "name": "onItemSelected",
-          "description": "Notifies activation of an already selected destination.",
-          "required": false,
-          "type": {
-            "name": "(event: { index: number; label?: string; icon?: Icon; }) => void"
-          },
-          "defaultValue": null
+          "defaultValue": {
+            "value": "false"
+          }
         },
         "variant": {
           "name": "variant",
@@ -303,17 +231,6 @@
             "name": "number"
           },
           "defaultValue": null
-        },
-        "selected": {
-          "name": "selected",
-          "description": "Controlled selected state, used when no parent drives the selection.",
-          "required": false,
-          "type": {
-            "name": "boolean"
-          },
-          "defaultValue": {
-            "value": "false"
-          }
         },
         "selectedItem": {
           "name": "selectedItem",
@@ -339,6 +256,107 @@
           "required": false,
           "type": {
             "name": "boolean"
+          },
+          "defaultValue": null
+        },
+        "class": {
+          "name": "class",
+          "description": "Classes merged onto the destination root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "style": {
+          "name": "style",
+          "description": "Inline style merged onto the destination root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "classes": {
+          "name": "classes",
+          "description": "State-aware classes for the destination elements.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"icon\" | \"label\" | \"navigationRailItem\" | \"stateLayer\" | \"container\", string>> | ClassNameComponent<NavigationRailItemInterface>"
+          },
+          "defaultValue": null
+        },
+        "icon": {
+          "name": "icon",
+          "description": "Icon shown while the destination is not selected.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "iconSelected": {
+          "name": "iconSelected",
+          "description": "Optional icon shown while the destination is selected.",
+          "required": false,
+          "type": {
+            "name": "Icon"
+          },
+          "defaultValue": null
+        },
+        "onclick": {
+          "name": "onclick",
+          "description": "Native activation handler.",
+          "required": false,
+          "type": {
+            "name": "(event: MouseEvent & { currentTarget: EventTarget & (HTMLButtonElement | HTMLAnchorElement); }) => void"
+          },
+          "defaultValue": null
+        },
+        "onItemSelected": {
+          "name": "onItemSelected",
+          "description": "Notifies activation of an already selected destination.",
+          "required": false,
+          "type": {
+            "name": "(event: { index: number; label?: string; icon?: Icon; }) => void"
+          },
+          "defaultValue": null
+        },
+        "href": {
+          "name": "href",
+          "description": "Navigation destination; switches the native element from button to link.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "target": {
+          "name": "target",
+          "description": "Native link browsing-context target.",
+          "required": false,
+          "type": {
+            "name": "HTMLAttributeAnchorTarget"
+          },
+          "defaultValue": null
+        },
+        "rel": {
+          "name": "rel",
+          "description": "Native link relationship tokens.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "form": {
+          "name": "form",
+          "description": "Id of an external `<form>` associated with the native button.\nButton-only attributes are not valid on a navigation link.",
+          "required": false,
+          "type": {
+            "name": "string"
           },
           "defaultValue": null
         }

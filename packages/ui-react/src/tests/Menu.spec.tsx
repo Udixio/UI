@@ -145,6 +145,16 @@ describe('Menu family', () => {
     expect(item).toHaveAttribute('tabindex', '-1');
   });
 
+  it('forwards button-only native attributes to action items', () => {
+    render(
+      <Menu accessibleLabel="Actions">
+        <MenuItem label="Save" form="menu-form" />
+      </Menu>,
+    );
+
+    expect(screen.getByRole('menuitem', { name: 'Save' })).toHaveAttribute('form', 'menu-form');
+  });
+
   it('opens a context menu with Shift+F10 and restores focus on Escape', async () => {
     const onOpenChange = vi.fn();
     render(

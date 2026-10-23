@@ -11,13 +11,14 @@
         "category": "Selection",
         "parent": "menu",
         "devx": "- Use `selectionType`, `selected`, and `onSelectedChange` for controlled selection.\n- Use `defaultSelected` when the item owns its initial selection state.",
-        "a11y": "- Resolves to `menuitem`, `menuitemradio`, `menuitemcheckbox`, or `option` from the parent Menu purpose.\n- Disabled links are removed from navigation and expose `aria-disabled`.\n- Use `MenuSubmenu` when the row should open another action menu."
+        "a11y": "- Resolves to `menuitem`, `menuitemradio`, `menuitemcheckbox`, or `option` from the parent Menu purpose.\n- Disabled links are removed from navigation and expose `aria-disabled`.\n- Use `MenuSubmenu` when the row should open another action menu.",
+        "limitations": "- Positioning, dismissal, and nested-menu lifecycle are owned by the surrounding menu surface; use `MenuSubmenu` for nested menus."
       },
       "methods": [],
       "props": {
         "leadingIcon": {
           "name": "leadingIcon",
-          "description": "Optional icon displayed before the label. Commands share this leading column when any command uses an icon; selection items keep their own indicator.",
+          "description": "Optional icon displayed before the label. In action menus, commands share this leading column when any command uses an icon; selection items keep their own indicator.",
           "required": false,
           "type": {
             "name": "Icon"
@@ -33,21 +34,21 @@
           },
           "defaultValue": null
         },
-        "className": {
-          "name": "className",
-          "description": "Root classes (string), static element classes (object), or state-aware element classes (function).",
+        "label": {
+          "name": "label",
+          "description": "Text label used when an adapter does not project custom content.",
           "required": false,
           "type": {
-            "name": "string | Partial<Record<\"stateLayer\" | \"leadingIcon\" | \"trailingIcon\" | \"selectedItem\" | \"menuItem\" | \"itemLabel\" | \"itemIcon\", string>> | ClassNameComponent<MenuItemInterface>"
+            "name": "string"
           },
           "defaultValue": null
         },
-        "children": {
-          "name": "children",
-          "description": "Custom visible label content; falls back to `label`.",
+        "value": {
+          "name": "value",
+          "description": "Stable application value emitted or consumed by a parent selection surface.",
           "required": false,
           "type": {
-            "name": "ReactNode"
+            "name": "string | number"
           },
           "defaultValue": null
         },
@@ -61,24 +62,6 @@
           "defaultValue": {
             "value": "false"
           }
-        },
-        "value": {
-          "name": "value",
-          "description": "Stable application value emitted or consumed by a parent selection surface.",
-          "required": false,
-          "type": {
-            "name": "string | number"
-          },
-          "defaultValue": null
-        },
-        "label": {
-          "name": "label",
-          "description": "Text label used when an adapter does not project custom content.",
-          "required": false,
-          "type": {
-            "name": "string"
-          },
-          "defaultValue": null
         },
         "variant": {
           "name": "variant",
@@ -127,9 +110,27 @@
           },
           "defaultValue": null
         },
+        "children": {
+          "name": "children",
+          "description": "Custom visible label content; falls back to `label`.",
+          "required": false,
+          "type": {
+            "name": "ReactNode"
+          },
+          "defaultValue": null
+        },
+        "className": {
+          "name": "className",
+          "description": "Classes or state-aware element classes applied through the shared style contract.",
+          "required": false,
+          "type": {
+            "name": "string | Partial<Record<\"stateLayer\" | \"leadingIcon\" | \"trailingIcon\" | \"selectedItem\" | \"menuItem\" | \"itemLabel\" | \"itemIcon\", string>> | ClassNameComponent<MenuItemInterface>"
+          },
+          "defaultValue": null
+        },
         "href": {
           "name": "href",
-          "description": "Optional navigation target; disabled links omit the native href.",
+          "description": "Navigation target; disabled links omit the native href.",
           "required": false,
           "type": {
             "name": "string"
@@ -285,66 +286,10 @@
         "category": "Selection",
         "parent": "menu",
         "devx": "Use `selectionType`, `selected`, and `onSelectedChange` for selectable items. Use `MenuSubmenu` when the row should open another actions menu.",
-        "a11y": "Resolves to menuitem, menuitemradio, menuitemcheckbox, or option from the parent Menu."
+        "a11y": "Resolves to menuitem, menuitemradio, menuitemcheckbox, or option from the parent Menu.",
+        "limitations": "Positioning, dismissal, and nested-menu lifecycle are owned by the surrounding menu surface; use `MenuSubmenu` for nested menus."
       },
       "props": {
-        "class": {
-          "name": "class",
-          "description": "Classes merged onto the item root.",
-          "required": false,
-          "type": {
-            "name": "string"
-          },
-          "defaultValue": {
-            "value": "''"
-          }
-        },
-        "classes": {
-          "name": "classes",
-          "description": "State-aware classes for the item and its state layer.",
-          "required": false,
-          "type": {
-            "name": "Partial<Record<\"leadingIcon\" | \"trailingIcon\" | \"menuItem\" | \"selectedItem\" | \"stateLayer\" | \"itemLabel\" | \"itemIcon\", string>> | ClassNameComponent<MenuItemInterface>"
-          },
-          "defaultValue": null
-        },
-        "href": {
-          "name": "href",
-          "description": "Optional navigation target; disabled links omit the native href.",
-          "required": false,
-          "type": {
-            "name": "string"
-          },
-          "defaultValue": null
-        },
-        "selected": {
-          "name": "selected",
-          "description": "Controlled selection state.",
-          "required": false,
-          "type": {
-            "name": "boolean"
-          },
-          "defaultValue": null,
-          "bindable": true
-        },
-        "onSelectedChange": {
-          "name": "onSelectedChange",
-          "description": "Notifies each accepted selection transition exactly once.",
-          "required": false,
-          "type": {
-            "name": "(selected: boolean) => void"
-          },
-          "defaultValue": null
-        },
-        "onclick": {
-          "name": "onclick",
-          "description": "Native activation handler.",
-          "required": false,
-          "type": {
-            "name": "(event: MouseEvent & { currentTarget: EventTarget & (HTMLButtonElement | HTMLAnchorElement); }) => void"
-          },
-          "defaultValue": null
-        },
         "label": {
           "name": "label",
           "description": "Text label used when an adapter does not project custom content.",
@@ -410,6 +355,16 @@
           },
           "defaultValue": null
         },
+        "selected": {
+          "name": "selected",
+          "description": "Controlled selection state.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null,
+          "bindable": true
+        },
         "defaultSelected": {
           "name": "defaultSelected",
           "description": "Initial selection state when uncontrolled.",
@@ -420,6 +375,62 @@
           "defaultValue": {
             "value": "false"
           }
+        },
+        "onSelectedChange": {
+          "name": "onSelectedChange",
+          "description": "Notifies each accepted selection transition exactly once.",
+          "required": false,
+          "type": {
+            "name": "(selected: boolean) => void"
+          },
+          "defaultValue": null
+        },
+        "class": {
+          "name": "class",
+          "description": "Classes merged onto the item root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "classes": {
+          "name": "classes",
+          "description": "State-aware classes for the item and its state layer.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"leadingIcon\" | \"trailingIcon\" | \"menuItem\" | \"selectedItem\" | \"stateLayer\" | \"itemLabel\" | \"itemIcon\", string>> | ClassNameComponent<MenuItemInterface>"
+          },
+          "defaultValue": null
+        },
+        "onclick": {
+          "name": "onclick",
+          "description": "Native activation handler.",
+          "required": false,
+          "type": {
+            "name": "(event: MouseEvent & { currentTarget: EventTarget & (HTMLButtonElement | HTMLAnchorElement); }) => void"
+          },
+          "defaultValue": null
+        },
+        "href": {
+          "name": "href",
+          "description": "Navigation destination; switches the native element from button to link.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "form": {
+          "name": "form",
+          "description": "Id of an external `<form>` associated with the native button.\nButton-only attributes are not valid on a navigation link.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
         }
       },
       "snippets": {

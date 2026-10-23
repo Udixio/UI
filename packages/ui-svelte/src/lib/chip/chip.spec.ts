@@ -18,6 +18,12 @@ describe('Chip', () => {
     expect(onSelectedChange).toHaveBeenCalledWith(true);
   });
 
+  it('forwards button-only native attributes to the action root', () => {
+    render(Chip, { props: { label: 'Filter', form: 'filters' } });
+
+    expect(screen.getByRole('button', { name: 'Filter' })).toHaveAttribute('form', 'filters');
+  });
+
   it('keeps a controlled selection when a function binding rejects it', async () => {
     const onSelectedChange = vi.fn();
     const { component } = render(Fixture, {

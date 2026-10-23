@@ -21,6 +21,7 @@
     badge,
     selected = false,
     href,
+    form,
     class: hostClass = '',
     style: hostStyle,
     classes,
@@ -113,6 +114,7 @@
       {...rest}
       bind:this={root}
       type="button"
+    {form}
       class={styles.current['navigationRailItem']}
       style={`${hostStyle ?? ''}${hostStyle && !hostStyle.endsWith(';') ? ';' : ''}transition: 0.3s`}
       aria-current={isSelected ? 'page' : undefined}

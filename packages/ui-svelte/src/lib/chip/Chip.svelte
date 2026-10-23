@@ -21,6 +21,7 @@
     disabled = false,
     icon,
     href,
+    form,
     selected = $bindable(),
     defaultSelected,
     onSelectedChange,
@@ -262,6 +263,7 @@
     {...rest}
     bind:this={rootElement}
     type="button"
+    {form}
     class={styles.current['chip']}
     style={`${hostStyle ?? ''}${hostStyle && !hostStyle.endsWith(';') ? ';' : ''}transition: ${resolvedDuration}s`}
     disabled={disabled}

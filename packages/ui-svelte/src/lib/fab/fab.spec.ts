@@ -147,6 +147,7 @@ describe('Fab', () => {
         label: 'Submit',
         icon: iAdd,
         type: 'submit',
+        form: 'checkout-form',
         tabindex: 2,
         title: 'Submit item',
         class: 'consumer-class',
@@ -157,6 +158,7 @@ describe('Fab', () => {
 
     const button = screen.getByTestId('submit');
     expect(button).toHaveAttribute('type', 'submit');
+    expect(button).toHaveAttribute('form', 'checkout-form');
     expect(button).toHaveAttribute('tabindex', '2');
     expect(button).toHaveAttribute('title', 'Submit item');
     expect(button.className).toContain('consumer-class');

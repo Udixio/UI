@@ -34,6 +34,7 @@
     class: hostClass = '',
     classes,
     href,
+    form,
     target,
     rel,
     type = 'button',
@@ -159,6 +160,7 @@
     {...rest}
     {@attach tooltipAttachment(tooltipOptions)}
     {type}
+    {form}
     {disabled}
     class={styles.current['iconButton']}
     aria-label={label}

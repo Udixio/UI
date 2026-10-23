@@ -22,6 +22,7 @@
     type = 'button',
     icon,
     href,
+    form,
     target,
     rel,
     label,
@@ -187,6 +188,7 @@
     {...rest}
     class={styles.current['button']}
     {type}
+    {form}
     disabled={interactionBlocked}
     aria-pressed={isToggleButton ? isPressed : undefined}
     aria-busy={loading || undefined}

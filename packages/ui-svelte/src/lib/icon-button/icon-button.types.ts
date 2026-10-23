@@ -4,12 +4,76 @@ import type {
   IconButtonInterface,
   IconButtonProps,
 } from '@udixio/core';
-import type { HTMLAnchorAttributes, HTMLAttributes } from 'svelte/elements';
+import type {
+  HTMLAnchorAttributes,
+  HTMLAttributes,
+  HTMLButtonAttributes,
+} from 'svelte/elements';
 
-type ForwardedAttributes = Omit<
+type CommonForwardedAttributes = Omit<
   HTMLAttributes<HTMLElement>,
-  keyof IconButtonProps | 'class' | 'children' | 'onclick'
+  keyof IconButtonProps | 'class' | 'children' | 'onclick' | 'title'
 >;
+
+type ButtonForwardedAttributes = Omit<
+  HTMLButtonAttributes,
+  keyof IconButtonProps | 'class' | 'children' | 'onclick' | 'title' | 'form'
+>;
+
+type LinkForwardedAttributes = Omit<
+  HTMLAnchorAttributes,
+  | keyof IconButtonProps
+  | 'class'
+  | 'children'
+  | 'onclick'
+  | 'title'
+  | 'href'
+  | 'target'
+  | 'rel'
+  | 'type'
+>;
+
+interface SvelteIconButtonCommonProps
+  extends IconButtonProps, CommonForwardedAttributes {
+  /** Classes applied to the root element, merged with the component's own classes. */
+  class?: string;
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  classes?:
+    | ElementClasses<IconButtonInterface>
+    | ClassNameComponent<IconButtonInterface>;
+  /** Notifies an accepted toggle-state request. */
+  onPressedChange?: (pressed: boolean) => void;
+  /** Native advisory title used as the tooltip fallback; it is not forwarded to the root. */
+  title?: string;
+  /** Handles clicks accepted by the button or link interaction contract. */
+  onclick?: (
+    event: MouseEvent & { currentTarget: EventTarget & (HTMLButtonElement | HTMLAnchorElement) },
+  ) => void;
+}
+
+type SvelteIconButtonActionProps = SvelteIconButtonCommonProps &
+  ButtonForwardedAttributes & {
+    href?: undefined;
+    target?: undefined;
+    rel?: undefined;
+    /** The HTML button type attribute. Only applies when rendered as `<button>`. @default 'button' */
+    type?: 'button' | 'submit' | 'reset';
+    /** Id of an external `<form>` associated with the native button. */
+    form?: HTMLButtonAttributes['form'];
+  };
+
+type SvelteIconButtonLinkProps = SvelteIconButtonCommonProps &
+  LinkForwardedAttributes & {
+    /** Navigation destination; switches the native element from button to link. */
+    href: string;
+    /** Native link browsing-context target. */
+    target?: HTMLAnchorAttributes['target'];
+    /** Native link relationship tokens. */
+    rel?: string;
+    /** Button-only attributes are not valid on a navigation link. */
+    form?: never;
+    type?: never;
+  };
 
 /**
  * Icon buttons expose a frequent action through one unambiguous icon.
@@ -28,28 +92,6 @@ type ForwardedAttributes = Omit<
  * - Disabled links are inert and removed from the tab order.
  * - Navigation links ignore toggle state; use `aria-current` for the current destination.
  */
-export interface SvelteIconButtonProps
-  extends IconButtonProps, ForwardedAttributes {
-  /** Classes applied to the root element, merged with the component's own classes. */
-  class?: string;
-  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
-  classes?:
-    | ElementClasses<IconButtonInterface>
-    | ClassNameComponent<IconButtonInterface>;
-  /** Notifies an accepted toggle-state request. */
-  onPressedChange?: (pressed: boolean) => void;
-  /** Navigation destination; switches the native element from button to link. */
-  href?: string;
-  /** Native link browsing-context target. */
-  target?: HTMLAnchorAttributes['target'];
-  /** Native link relationship tokens. */
-  rel?: string;
-  /** The HTML button type attribute. Only applies when rendered as `<button>`. @default 'button' */
-  type?: 'button' | 'submit' | 'reset';
-  /** Handles clicks accepted by the button or link interaction contract. */
-  onclick?: (
-    event: MouseEvent & {
-      currentTarget: EventTarget & (HTMLButtonElement | HTMLAnchorElement);
-    },
-  ) => void;
-}
+export type SvelteIconButtonProps =
+  | SvelteIconButtonActionProps
+  | SvelteIconButtonLinkProps;

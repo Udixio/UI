@@ -10,7 +10,8 @@
         "status": "beta",
         "category": "Selection",
         "devx": "- Use `purpose=\"actions\"` for commands and `purpose=\"selection\"` for options.\n- Set `initialFocus` when the Menu is mounted inside a popup.\n- When using groups, render each related MenuHeadline inside its MenuGroup.",
-        "a11y": "- Implements wrapping Arrow Up/Down, Home, End, and type-ahead focus navigation.\n- Provide `accessibleLabel` unless an external `aria-labelledby` is forwarded."
+        "a11y": "- Implements wrapping Arrow Up/Down, Home, End, and type-ahead focus navigation.\n- Provide `accessibleLabel` unless an external `aria-labelledby` is forwarded.",
+        "limitations": "- Positioning, dismissal, and popup lifecycle remain the responsibility of the containing surface."
       },
       "methods": [],
       "props": {
@@ -166,7 +167,8 @@
         "status": "beta",
         "category": "Selection",
         "devx": "Use `purpose=\"actions\"` for commands and `purpose=\"selection\"` for options; set\n`initialFocus` when mounting inside a popup.",
-        "a11y": "Implements Arrow, Home, End, Escape, and type-ahead focus navigation."
+        "a11y": "Implements Arrow, Home, End, Escape, and type-ahead focus navigation.",
+        "limitations": "Positioning, dismissal, and popup lifecycle remain the responsibility of the containing surface."
       },
       "props": {
         "class": {

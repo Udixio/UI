@@ -196,7 +196,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"label\" | \"icon\" | \"touchTarget\" | \"stateLayer\" | \"fab\", string>> | ClassNameComponent<FabInterface>"
+            "name": "Partial<Record<\"icon\" | \"fab\" | \"touchTarget\" | \"stateLayer\" | \"label\", string>> | ClassNameComponent<FabInterface>"
           },
           "defaultValue": null
         },
@@ -315,34 +315,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"label\" | \"icon\" | \"touchTarget\" | \"stateLayer\" | \"fab\", string>> | ClassNameComponent<FabInterface>"
-          },
-          "defaultValue": null
-        },
-        "href": {
-          "name": "href",
-          "description": "Navigation destination; switches the native element from button to link.",
-          "required": false,
-          "type": {
-            "name": "string"
-          },
-          "defaultValue": null
-        },
-        "target": {
-          "name": "target",
-          "description": "Native link browsing-context target.",
-          "required": false,
-          "type": {
-            "name": "HTMLAttributeAnchorTarget"
-          },
-          "defaultValue": null
-        },
-        "rel": {
-          "name": "rel",
-          "description": "Native link relationship tokens.",
-          "required": false,
-          "type": {
-            "name": "string"
+            "name": "Partial<Record<\"label\" | \"icon\" | \"fab\" | \"touchTarget\" | \"stateLayer\", string>> | ClassNameComponent<FabInterface>"
           },
           "defaultValue": null
         },
@@ -354,17 +327,6 @@
             "name": "string"
           },
           "defaultValue": null
-        },
-        "type": {
-          "name": "type",
-          "description": "Native action button type. Only applies when rendered as `<button>`.",
-          "required": false,
-          "type": {
-            "name": "\"button\" | \"submit\" | \"reset\""
-          },
-          "defaultValue": {
-            "value": "'button'"
-          }
         },
         "onclick": {
           "name": "onclick",
@@ -445,6 +407,42 @@
           "defaultValue": {
             "value": "false"
           }
+        },
+        "href": {
+          "name": "href",
+          "description": "Navigation destination; switches the native element from button to link.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "target": {
+          "name": "target",
+          "description": "Native link browsing-context target.",
+          "required": false,
+          "type": {
+            "name": "HTMLAttributeAnchorTarget"
+          },
+          "defaultValue": null
+        },
+        "rel": {
+          "name": "rel",
+          "description": "Native link relationship tokens.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "form": {
+          "name": "form",
+          "description": "Id of an external `<form>` associated with the native button.\nButton-only attributes are not valid on a navigation link.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
         }
       }
     }

@@ -24,4 +24,10 @@ describe('Menu family', () => {
     await fireEvent.click(item);
     expect(item).toHaveAttribute('aria-checked', 'true');
   });
+
+  it('forwards button-only native attributes to action items', () => {
+    render(MenuItem, { props: { label: 'Save', form: 'menu-form' } });
+
+    expect(screen.getByRole('menuitem', { name: 'Save' })).toHaveAttribute('form', 'menu-form');
+  });
 });

@@ -1,9 +1,16 @@
 import {
+  type AnchorHTMLAttributes,
+  type ButtonHTMLAttributes,
+  type MouseEventHandler,
+  type Ref,
+} from 'react';
+import {
   type ChipInterface,
+  type ChipProps,
   chipStyle,
   classNames,
+  type ComponentClassName,
   getChipSelectionTransition,
-  type ReactProps,
 } from '@udixio/core';
 import type { Transition } from 'motion';
 import { Icon } from '../icon';
@@ -14,12 +21,37 @@ import { iClose } from '@udixio/icons-rounded-400/close';
 import { createUseStyle } from '../utils/create-use-style';
 import { useControllableState } from '../utils/use-controllable-state';
 
-export type ReactChipProps = Omit<ReactProps<ChipInterface>, 'ref'> & {
+type ReactChipOwnProps = Omit<ChipProps, 'href'> & {
   // `children` is the fallback for `label` → typed string (as in the former contract)
   children?: string;
+  className?: ComponentClassName<ChipInterface>['className'];
   transition?: Transition;
-  ref?: React.Ref<HTMLButtonElement | HTMLAnchorElement>;
 };
+
+type ReactChipActionProps = ReactChipOwnProps &
+  Omit<
+    ButtonHTMLAttributes<HTMLButtonElement>,
+    keyof ReactChipOwnProps | 'children' | 'className' | 'onClick'
+  > & {
+    href?: undefined;
+    form?: string;
+    ref?: Ref<HTMLButtonElement>;
+    onClick?: MouseEventHandler<HTMLButtonElement>;
+  };
+
+type ReactChipLinkProps = ReactChipOwnProps &
+  Omit<
+    AnchorHTMLAttributes<HTMLAnchorElement>,
+    keyof ReactChipOwnProps | 'children' | 'className' | 'onClick' | 'href'
+  > & {
+    /** Navigation destination; switches the chip to a native link. */
+    href: string;
+    form?: never;
+    ref?: Ref<HTMLAnchorElement>;
+    onClick?: MouseEventHandler<HTMLAnchorElement>;
+  };
+
+export type ReactChipProps = ReactChipActionProps | ReactChipLinkProps;
 
 export const useChipStyle = createUseStyle(chipStyle);
 
@@ -42,6 +74,7 @@ export const Chip = ({
   disabled = false,
   icon,
   href,
+  form,
   label,
   className,
   onClick,
@@ -358,6 +391,7 @@ export const Chip = ({
             tabIndex: disabled ? -1 : undefined,
           }
         : { disabled, type: 'button' })}
+      {...(!href ? { form } : {})}
       aria-pressed={isSelectable ? isSelected : undefined}
       style={{ transition: transition.duration + 's' }}
     >

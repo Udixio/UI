@@ -160,9 +160,9 @@ remain supported. Button icons are decorative; the text label names the action.
 
 React forwards native button or anchor attributes. Angular exposes the common
 link attributes `target`, `rel`, `tabIndex`, `aria-label`, `aria-describedby`,
-and `aria-current` on the inner interactive element. Svelte spreads the
-attributes a button and a link share onto the root element, plus `target` and
-`rel`. A disabled or loading link
+and `aria-current` on the inner interactive element. Svelte forwards native
+button attributes in action mode, including the external form association
+`form`, and native link attributes in link mode. A disabled or loading link
 has no `href`, receives `aria-disabled="true"`, and leaves the tab order.
 
 <Code

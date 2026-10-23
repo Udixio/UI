@@ -27,6 +27,7 @@
     defaultSelected = false,
     onSelectedChange,
     href,
+    form,
     class: hostClass = '',
     classes,
     onclick,
@@ -96,6 +97,7 @@
   <button
     {...rest}
     type="button"
+    {form}
     class={styles.current['menuItem']}
     role={role}
     disabled={disabled}

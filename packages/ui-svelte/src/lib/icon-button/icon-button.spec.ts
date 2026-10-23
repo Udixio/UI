@@ -88,6 +88,7 @@ describe('IconButton', () => {
         label: 'Submit',
         icon: iAdd,
         type: 'submit',
+        form: 'checkout-form',
         tabindex: 2,
         title: 'Submit item',
         'data-testid': 'submit',
@@ -96,6 +97,7 @@ describe('IconButton', () => {
 
     const button = screen.getByTestId('submit');
     expect(button).toHaveAttribute('type', 'submit');
+    expect(button).toHaveAttribute('form', 'checkout-form');
     expect(button).toHaveAttribute('tabindex', '2');
     expect(button).not.toHaveAttribute('title');
   });

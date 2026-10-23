@@ -1,12 +1,19 @@
-import React, { forwardRef, type ReactNode } from 'react';
+import React, {
+  forwardRef,
+  type AnchorHTMLAttributes,
+  type ButtonHTMLAttributes,
+  type MouseEventHandler,
+  type ReactNode,
+  type Ref,
+} from 'react';
 import {
   classNames,
+  type ComponentClassName,
   getMenuItemRole,
   getMenuItemSelectionTransition,
   menuItemStyle,
   type MenuItemInterface,
   type MenuItemProps,
-  type ReactProps,
 } from '@udixio/core';
 import { iCheck } from '@udixio/icons-rounded-400/check';
 import { StateLayer } from './StateLayer';
@@ -17,27 +24,54 @@ import { useMenuContext } from './menu-context';
 
 export type { MenuItemSelectionType, MenuItemVariant } from '@udixio/core';
 
-export type ReactMenuItemProps = Omit<
-  ReactProps<MenuItemInterface>,
-  | 'aria-checked'
-  | 'aria-disabled'
-  | 'aria-selected'
-  | 'disabled'
-  | 'leadingIcon'
-  | 'role'
-  | 'trailingIcon'
-> & {
+type ReactMenuItemOwnProps = MenuItemProps & {
   /** Custom visible label content; falls back to `label`. */
   children?: ReactNode;
-  /** Optional navigation target; disabled links omit the native href. */
-  href?: string;
-  /** Optional icon displayed before the label. Commands share this leading column when any command uses an icon; selection items keep their own indicator. */
-  leadingIcon?: MenuItemProps['leadingIcon'];
-  /** Optional decorative icon displayed after the label; use MenuSubmenu for a chevron that opens another menu. */
-  trailingIcon?: MenuItemProps['trailingIcon'];
-  /** Prevents activation, selection changes, and keyboard focus. */
-  disabled?: MenuItemProps['disabled'];
+  /** Classes or state-aware element classes applied through the shared style contract. */
+  className?: ComponentClassName<MenuItemInterface>['className'];
 };
+
+type ReactMenuItemActionProps = ReactMenuItemOwnProps &
+  Omit<
+    ButtonHTMLAttributes<HTMLButtonElement>,
+    | keyof ReactMenuItemOwnProps
+    | 'children'
+    | 'className'
+    | 'onClick'
+    | 'role'
+    | 'aria-checked'
+    | 'aria-disabled'
+    | 'aria-selected'
+  > & {
+    href?: undefined;
+    form?: ButtonHTMLAttributes<HTMLButtonElement>['form'];
+    ref?: Ref<HTMLButtonElement>;
+    onClick?: MouseEventHandler<HTMLButtonElement>;
+  };
+
+type ReactMenuItemLinkProps = ReactMenuItemOwnProps &
+  Omit<
+    AnchorHTMLAttributes<HTMLAnchorElement>,
+    | keyof ReactMenuItemOwnProps
+    | 'children'
+    | 'className'
+    | 'onClick'
+    | 'href'
+    | 'role'
+    | 'aria-checked'
+    | 'aria-disabled'
+    | 'aria-selected'
+  > & {
+  /** Navigation target; disabled links omit the native href. */
+  href: string;
+  form?: never;
+  ref?: Ref<HTMLAnchorElement>;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
+};
+
+export type ReactMenuItemProps =
+  | ReactMenuItemActionProps
+  | ReactMenuItemLinkProps;
 
 export const useMenuItemStyle = createUseStyle(menuItemStyle);
 
@@ -53,6 +87,8 @@ export const useMenuItemStyle = createUseStyle(menuItemStyle);
  * - Resolves to `menuitem`, `menuitemradio`, `menuitemcheckbox`, or `option` from the parent Menu purpose.
  * - Disabled links are removed from navigation and expose `aria-disabled`.
  * - Use `MenuSubmenu` when the row should open another action menu.
+ * @limitations
+ * - Positioning, dismissal, and nested-menu lifecycle are owned by the surrounding menu surface; use `MenuSubmenu` for nested menus.
  */
 export const MenuItem = forwardRef<
   HTMLButtonElement | HTMLAnchorElement,
@@ -68,6 +104,7 @@ export const MenuItem = forwardRef<
       disabled = false,
       variant,
       href,
+      form,
       selectionType: selectionTypeProp,
       selected,
       defaultSelected = false,
@@ -221,6 +258,7 @@ export const MenuItem = forwardRef<
       <button
         {...(sharedProps as React.ButtonHTMLAttributes<HTMLButtonElement>)}
         type="button"
+        form={form}
         disabled={disabled}
         value={value}
       >

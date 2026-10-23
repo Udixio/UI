@@ -22,6 +22,7 @@
     class: hostClass = '',
     classes,
     href,
+    form,
     target,
     rel,
     title,
@@ -155,6 +156,7 @@
     {...rest}
     {@attach tooltipAttachment(tooltipOptions)}
     {type}
+    {form}
     {disabled}
     class={styles.current['fab']}
     {title}

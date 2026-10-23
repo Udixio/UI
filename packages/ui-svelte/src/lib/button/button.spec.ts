@@ -127,6 +127,17 @@ describe('Button', () => {
     expect(screen.getByText('Submit').closest('button')).toHaveAttribute('type', 'submit');
   });
 
+  it('forwards the external form association to action buttons', () => {
+    render(Button, {
+      props: { label: 'Submit checkout', type: 'submit', form: 'checkout-form' },
+    });
+
+    expect(screen.getByRole('button', { name: 'Submit checkout' })).toHaveAttribute(
+      'form',
+      'checkout-form',
+    );
+  });
+
   it('does not pass type attribute to anchor elements', () => {
     render(Button, { props: { label: 'Link', href: 'https://example.com' } });
 

@@ -1,5 +1,9 @@
 import React, {
+  type AnchorHTMLAttributes,
+  type ButtonHTMLAttributes,
   type Dispatch,
+  type MouseEventHandler,
+  type Ref,
   type RefObject,
   type SetStateAction,
   useEffect,
@@ -12,9 +16,10 @@ import type { Transition } from 'motion';
 import { Icon } from '../icon';
 import {
   classNames,
+  type ComponentClassName,
   type NavigationRailItemInterface,
+  type NavigationRailItemProps,
   navigationRailItemStyle,
-  type ReactProps,
   resolveNavigationRailItemSelection,
 } from '@udixio/core';
 import {
@@ -34,15 +39,46 @@ export type NavigationRailItemSelectedEvent = Pick<
   ref: RefObject<any>;
 };
 
+type ReactNavigationRailItemOwnProps = NavigationRailItemProps & {
+  // `children` is the fallback for `label` → typed string (like Fab / IconButton)
+  children?: string;
+  className?: ComponentClassName<NavigationRailItemInterface>['className'];
+  transition?: Transition;
+  setSelectedItem?: Dispatch<SetStateAction<number | null>>;
+  onItemSelected?: (args: NavigationRailItemSelectedEvent) => void;
+};
+
+type ReactNavigationRailItemActionProps =
+  ReactNavigationRailItemOwnProps &
+    Omit<
+      ButtonHTMLAttributes<HTMLButtonElement>,
+      keyof ReactNavigationRailItemOwnProps | 'children' | 'className' | 'onClick'
+    > & {
+      href?: undefined;
+      form?: ButtonHTMLAttributes<HTMLButtonElement>['form'];
+      ref?: Ref<HTMLButtonElement>;
+      onClick?: MouseEventHandler<HTMLButtonElement>;
+    };
+
+type ReactNavigationRailItemLinkProps =
+  ReactNavigationRailItemOwnProps &
+    Omit<
+      AnchorHTMLAttributes<HTMLAnchorElement>,
+      | keyof ReactNavigationRailItemOwnProps
+      | 'children'
+      | 'className'
+      | 'onClick'
+      | 'href'
+    > & {
+      href: string;
+      form?: never;
+      ref?: Ref<HTMLAnchorElement>;
+      onClick?: MouseEventHandler<HTMLAnchorElement>;
+    };
+
 export type ReactNavigationRailItemProps =
-  ReactProps<NavigationRailItemInterface> & {
-    // `children` is the fallback for `label` → typed string (like Fab / IconButton)
-    children?: string;
-    href?: string;
-    transition?: Transition;
-    setSelectedItem?: Dispatch<SetStateAction<number | null>>;
-    onItemSelected?: (args: NavigationRailItemSelectedEvent) => void;
-  };
+  | ReactNavigationRailItemActionProps
+  | ReactNavigationRailItemLinkProps;
 
 export const useNavigationRailItemStyle = createUseStyle(
   navigationRailItemStyle,
@@ -76,6 +112,7 @@ export const NavigationRailItem = ({
   label,
   variant = 'vertical',
   href,
+  form,
   icon,
   selectedItem,
   setSelectedItem,
@@ -227,6 +264,7 @@ export const NavigationRailItem = ({
   return (
     <ElementType
       {...(restProps as any)}
+      {...(!href ? { form } : {})}
       aria-current={isSelected ? 'page' : undefined}
       ref={resolvedRef as any}
       href={href}

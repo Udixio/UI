@@ -34,6 +34,8 @@ export const useMenuStyle = createUseStyle(menuStyle);
  * @a11y
  * - Implements wrapping Arrow Up/Down, Home, End, and type-ahead focus navigation.
  * - Provide `accessibleLabel` unless an external `aria-labelledby` is forwarded.
+ * @limitations
+ * - Positioning, dismissal, and popup lifecycle remain the responsibility of the containing surface.
  */
 export const Menu = forwardRef<HTMLDivElement, ReactMenuProps>(
   (

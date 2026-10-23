@@ -1,5 +1,9 @@
 import React, {
+  type AnchorHTMLAttributes,
+  type ButtonHTMLAttributes,
+  type MouseEventHandler,
   type ReactNode,
+  type Ref,
   type RefObject,
   useEffect,
   useRef,
@@ -7,7 +11,7 @@ import React, {
 
 import { Icon } from '../icon';
 import {
-  type ReactProps,
+  type ComponentClassName,
   resolveTabSelection,
   type TabInterface,
   tabStyle,
@@ -21,10 +25,9 @@ export type TabSelectedEvent = Pick<TabInterface['props'], 'label' | 'icon'> & {
   ref: RefObject<any>;
 };
 
-export type ReactTabProps = ReactProps<TabInterface> & {
+type ReactTabOwnProps = TabInterface['props'] & {
+  className?: ComponentClassName<TabInterface>['className'];
   children?: ReactNode;
-  /** Navigation destination; switches the inner element to a native link. */
-  href?: string;
   /** Injected by the parent Tabs: this tab is the roving-tabindex stop while nothing is selected. */
   isFocusable?: boolean;
   /** Injected by the parent Tabs: whether a connected TabPanels exists (wires aria-controls). */
@@ -35,6 +38,31 @@ export type ReactTabProps = ReactProps<TabInterface> & {
   contentRef?: (element: HTMLSpanElement | null) => void;
   onTabSelected?: (args: TabSelectedEvent) => void;
 };
+
+type ReactTabActionProps = ReactTabOwnProps &
+  Omit<
+    ButtonHTMLAttributes<HTMLButtonElement>,
+    keyof ReactTabOwnProps | 'children' | 'className' | 'onClick'
+  > & {
+    href?: undefined;
+    form?: ButtonHTMLAttributes<HTMLButtonElement>['form'];
+    ref?: Ref<HTMLButtonElement>;
+    onClick?: MouseEventHandler<HTMLButtonElement>;
+  };
+
+type ReactTabLinkProps = ReactTabOwnProps &
+  Omit<
+    AnchorHTMLAttributes<HTMLAnchorElement>,
+    keyof ReactTabOwnProps | 'children' | 'className' | 'onClick' | 'href'
+  > & {
+    /** Navigation destination; switches the inner element to a native link. */
+    href: string;
+    form?: never;
+    ref?: Ref<HTMLAnchorElement>;
+    onClick?: MouseEventHandler<HTMLAnchorElement>;
+  };
+
+export type ReactTabProps = ReactTabActionProps | ReactTabLinkProps;
 
 export const useTabStyle = createUseStyle(tabStyle);
 
@@ -62,6 +90,7 @@ export const Tab = ({
   label: labelProp,
   variant = 'primary',
   href,
+  form,
   icon,
   disabled = false,
   selectedTab,
@@ -142,6 +171,7 @@ export const Tab = ({
       href={href}
       className={styles.tab}
       onClick={handleClick}
+      {...(!href ? { form } : {})}
       {...(restProps as any)}
     >
       <StateLayer

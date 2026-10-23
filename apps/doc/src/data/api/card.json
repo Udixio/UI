@@ -125,7 +125,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"stateLayer\" | \"card\", string>> | ClassNameComponent<CardInterface>"
+            "name": "Partial<Record<\"card\" | \"stateLayer\", string>> | ClassNameComponent<CardInterface>"
           },
           "defaultValue": null
         },
@@ -176,6 +176,28 @@
         "limitations": "- No built-in header/actions slots; layout is fully custom via the `children` snippet.\n- An actionable card is one action target: do not nest interactive elements inside it; compose inner controls in a non-interactive card instead."
       },
       "props": {
+        "variant": {
+          "name": "variant",
+          "description": "Visual container treatment.",
+          "required": false,
+          "type": {
+            "name": "CardVariant"
+          },
+          "defaultValue": {
+            "value": "'outlined'"
+          }
+        },
+        "interactive": {
+          "name": "interactive",
+          "description": "Enables the actionable treatment: state layer, pointer cursor, and a\nvisible focus outline. Framework adapters also apply it whenever `href`\nis provided.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
         "class": {
           "name": "class",
           "description": "Classes applied to the root element, merged with the component's own classes.",
@@ -192,13 +214,31 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"stateLayer\" | \"card\", string>> | ClassNameComponent<CardInterface>"
+            "name": "Partial<Record<\"card\" | \"stateLayer\", string>> | ClassNameComponent<CardInterface>"
+          },
+          "defaultValue": null
+        },
+        "onkeydown": {
+          "name": "onkeydown",
+          "description": "Consumer key handler composed with interactive-card activation.",
+          "required": false,
+          "type": {
+            "name": "CardKeyboardHandler"
+          },
+          "defaultValue": null
+        },
+        "onkeyup": {
+          "name": "onkeyup",
+          "description": "Consumer key handler composed with interactive-card activation.",
+          "required": false,
+          "type": {
+            "name": "CardKeyboardHandler"
           },
           "defaultValue": null
         },
         "href": {
           "name": "href",
-          "description": "Navigation destination; switches the native element from div to link.",
+          "description": "Container cards do not expose link-only attributes.\nNavigation destination; switches the native element from div to link.",
           "required": false,
           "type": {
             "name": "string"
@@ -222,28 +262,6 @@
             "name": "string"
           },
           "defaultValue": null
-        },
-        "variant": {
-          "name": "variant",
-          "description": "Visual container treatment.",
-          "required": false,
-          "type": {
-            "name": "CardVariant"
-          },
-          "defaultValue": {
-            "value": "'outlined'"
-          }
-        },
-        "interactive": {
-          "name": "interactive",
-          "description": "Enables the actionable treatment: state layer, pointer cursor, and a\nvisible focus outline. Framework adapters also apply it whenever `href`\nis provided.",
-          "required": false,
-          "type": {
-            "name": "boolean"
-          },
-          "defaultValue": {
-            "value": "false"
-          }
         }
       },
       "snippets": {

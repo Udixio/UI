@@ -6,7 +6,7 @@
   import { getTabsContext, type TabRegistration } from './tabs-context.svelte';
   import type { SvelteTabProps } from './tab.types';
 
-  let { label, icon, children, disabled = false, href, class: hostClass = '', classes, onclick, ...rest }: SvelteTabProps = $props();
+  let { label, icon, children, disabled = false, href, form, class: hostClass = '', classes, onclick, ...rest }: SvelteTabProps = $props();
   const context = getTabsContext();
   const registration = $state<TabRegistration>({ label: undefined, icon: undefined, disabled: false });
   const resolvedIndex = $derived(context?.indexOf(registration));
@@ -75,6 +75,7 @@
     {...rest}
     bind:this={root}
     type="button"
+    {form}
     role="tab"
     id={domId}
     aria-selected={isSelected}

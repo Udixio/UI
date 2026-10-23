@@ -26,6 +26,8 @@
     ...rest
   }: SvelteCardProps = $props();
 
+  const nativeRest = $derived(rest as Record<string, unknown>);
+
   const isActionable = $derived(interactive || href !== undefined);
   const styles = createStyle(cardStyle, () => ({
     variant,
@@ -61,14 +63,14 @@
 {/snippet}
 
 {#if href !== undefined}
-  <a {...rest} {href} {target} {rel} {role} {tabindex} {onkeydown} {onkeyup} class={styles.current['card']}>
+  <a {...nativeRest} {href} {target} {rel} {role} {tabindex} {onkeydown} {onkeyup} class={styles.current['card']}>
     {@render content()}
   </a>
 {:else if interactive}
   <!-- The role resolves to `button` unless the consumer overrides it, which the compiler cannot see. -->
   <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
   <div
-    {...rest}
+    {...nativeRest}
     role={role ?? 'button'}
     tabindex={tabindex ?? 0}
     onkeydown={(event) => handleKey(event, 'down', onkeydown)}
@@ -80,7 +82,7 @@
 {:else}
   <!-- A static card forwards `role`/`tabindex` untouched; their consistency is the consumer's, as in React. -->
   <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-  <div {...rest} {role} {tabindex} {onkeydown} {onkeyup} class={styles.current['card']}>
+  <div {...nativeRest} {role} {tabindex} {onkeydown} {onkeyup} class={styles.current['card']}>
     {@render content()}
   </div>
 {/if}

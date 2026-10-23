@@ -123,7 +123,7 @@ describe('Card', () => {
 
   it('renders a native link with the interactive treatment when href is set', () => {
     render(
-      <Card href="/projects/aurora" target="_blank" rel="noreferrer">
+      <Card href="/projects/aurora" target="_blank" rel="noreferrer" download="aurora.html">
         <p>Project Aurora</p>
       </Card>,
     );
@@ -133,6 +133,7 @@ describe('Card', () => {
     expect(link).toHaveAttribute('href', '/projects/aurora');
     expect(link).toHaveAttribute('target', '_blank');
     expect(link).toHaveAttribute('rel', 'noreferrer');
+    expect(link).toHaveAttribute('download', 'aurora.html');
     expect(link).not.toHaveAttribute('role');
     expect(link).toHaveClass('cursor-pointer');
     expect(link.querySelector('.state-layer')).toBeInTheDocument();

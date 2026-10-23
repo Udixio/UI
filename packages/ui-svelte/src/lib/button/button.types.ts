@@ -5,17 +5,72 @@ import type {
   ElementClasses,
 } from '@udixio/core';
 import type { Snippet } from 'svelte';
-import type { HTMLAnchorAttributes, HTMLAttributes } from 'svelte/elements';
+import type {
+  HTMLAnchorAttributes,
+  HTMLAttributes,
+  HTMLButtonAttributes,
+} from 'svelte/elements';
 
 /**
- * Native attributes forwarded to the root element, which is a `button` or an
- * `a` depending on `href`; only the attributes both accept are exposed, plus
- * the link-only ones declared below.
+ * Common native attributes forwarded to the root element, which is a `button`
+ * or an `a` depending on `href`.
  */
-type ForwardedAttributes = Omit<
+type CommonForwardedAttributes = Omit<
   HTMLAttributes<HTMLElement>,
   keyof ButtonProps | 'class' | 'children' | 'onclick'
 >;
+
+/** Native button attributes that are only valid when `href` is absent. */
+type ButtonForwardedAttributes = Omit<
+  HTMLButtonAttributes,
+  keyof ButtonProps | 'class' | 'children' | 'onclick' | 'form'
+>;
+
+/** Native anchor attributes that are only valid when `href` is present. */
+type LinkForwardedAttributes = Omit<
+  HTMLAnchorAttributes,
+  keyof ButtonProps | 'class' | 'children' | 'onclick' | 'href' | 'target' | 'rel'
+>;
+
+interface SvelteButtonCommonProps
+  extends Omit<ButtonProps, 'label'>,
+    CommonForwardedAttributes {
+  /** Visible text content. Ignored when `children` is provided. */
+  label?: string;
+  /** Custom visible content. Use `aria-label` when it has no accessible text. */
+  children?: Snippet;
+  /** Classes applied to the root element, merged with the component's own classes. */
+  class?: string;
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  classes?: ElementClasses<ButtonInterface> | ClassNameComponent<ButtonInterface>;
+  /** Notifies an accepted toggle-state request. */
+  onPressedChange?: (pressed: boolean) => void;
+  /** Handles clicks accepted by the button or link interaction contract. */
+  onclick?: (
+    event: MouseEvent & { currentTarget: EventTarget & (HTMLButtonElement | HTMLAnchorElement) },
+  ) => void;
+}
+
+type SvelteButtonActionProps = SvelteButtonCommonProps &
+  ButtonForwardedAttributes & {
+    href?: undefined;
+    target?: undefined;
+    rel?: undefined;
+    /** Id of an external `<form>` associated with the native button. */
+    form?: HTMLButtonAttributes['form'];
+  };
+
+type SvelteButtonLinkProps = SvelteButtonCommonProps &
+  LinkForwardedAttributes & {
+    /** Navigation destination; switches the native element from button to link. */
+    href: string;
+    /** Native link browsing-context target. */
+    target?: HTMLAnchorAttributes['target'];
+    /** Native link relationship tokens. */
+    rel?: string;
+    /** Form association belongs to action buttons, not links. */
+    form?: never;
+  };
 
 /**
  * Buttons prompt most actions in a UI.
@@ -36,25 +91,4 @@ type ForwardedAttributes = Omit<
  * - When `href` is set with `disabled`, the link is made inert via `aria-disabled` and `tabindex="-1"`.
  * - Navigation links ignore toggle state; use `aria-current` for the current destination.
  */
-export interface SvelteButtonProps extends Omit<ButtonProps, 'label'>, ForwardedAttributes {
-  /** Visible text content. Ignored when `children` is provided. */
-  label?: string;
-  /** Custom visible content. Use `aria-label` when it has no accessible text. */
-  children?: Snippet;
-  /** Classes applied to the root element, merged with the component's own classes. */
-  class?: string;
-  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
-  classes?: ElementClasses<ButtonInterface> | ClassNameComponent<ButtonInterface>;
-  /** Notifies an accepted toggle-state request. */
-  onPressedChange?: (pressed: boolean) => void;
-  /** Navigation destination; switches the native element from button to link. */
-  href?: string;
-  /** Native link browsing-context target. */
-  target?: HTMLAnchorAttributes['target'];
-  /** Native link relationship tokens. */
-  rel?: string;
-  /** Handles clicks accepted by the button or link interaction contract. */
-  onclick?: (
-    event: MouseEvent & { currentTarget: EventTarget & (HTMLButtonElement | HTMLAnchorElement) },
-  ) => void;
-}
+export type SvelteButtonProps = SvelteButtonActionProps | SvelteButtonLinkProps;

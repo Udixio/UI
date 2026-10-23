@@ -4,12 +4,71 @@ import type {
   FabInterface,
   FabProps,
 } from '@udixio/core';
-import type { HTMLAnchorAttributes, HTMLAttributes } from 'svelte/elements';
+import type {
+  HTMLAnchorAttributes,
+  HTMLAttributes,
+  HTMLButtonAttributes,
+} from 'svelte/elements';
 
-type ForwardedAttributes = Omit<
+type CommonForwardedAttributes = Omit<
   HTMLAttributes<HTMLElement>,
   keyof FabProps | 'class' | 'children' | 'onclick' | 'title'
 >;
+
+type ButtonForwardedAttributes = Omit<
+  HTMLButtonAttributes,
+  keyof FabProps | 'class' | 'children' | 'onclick' | 'title' | 'form'
+>;
+
+type LinkForwardedAttributes = Omit<
+  HTMLAnchorAttributes,
+  | keyof FabProps
+  | 'class'
+  | 'children'
+  | 'onclick'
+  | 'title'
+  | 'href'
+  | 'target'
+  | 'rel'
+  | 'type'
+>;
+
+interface SvelteFabCommonProps extends FabProps, CommonForwardedAttributes {
+  /** Classes applied to the root element, merged with the component's own classes. */
+  class?: string;
+  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
+  classes?: ElementClasses<FabInterface> | ClassNameComponent<FabInterface>;
+  /** Optional native advisory title; it also supplies the compact tooltip fallback. */
+  title?: string;
+  /** Handles clicks accepted by the button or link interaction contract. */
+  onclick?: (
+    event: MouseEvent & { currentTarget: EventTarget & (HTMLButtonElement | HTMLAnchorElement) },
+  ) => void;
+}
+
+type SvelteFabActionProps = SvelteFabCommonProps &
+  ButtonForwardedAttributes & {
+    href?: undefined;
+    target?: undefined;
+    rel?: undefined;
+    /** Native action button type. Only applies when rendered as `<button>`. */
+    type?: 'button' | 'submit' | 'reset';
+    /** Id of an external `<form>` associated with the native button. */
+    form?: HTMLButtonAttributes['form'];
+  };
+
+type SvelteFabLinkProps = SvelteFabCommonProps &
+  LinkForwardedAttributes & {
+    /** Navigation destination; switches the native element from button to link. */
+    href: string;
+    /** Native link browsing-context target. */
+    target?: HTMLAnchorAttributes['target'];
+    /** Native link relationship tokens. */
+    rel?: string;
+    /** Button-only attributes are not valid on a navigation link. */
+    form?: never;
+    type?: never;
+  };
 
 /**
  * Floating action buttons expose the primary action on a screen.
@@ -30,23 +89,4 @@ type ForwardedAttributes = Omit<
  * - No built-in positioning; placement is handled by layout.
  * - Disabled links are inert and removed from the tab order.
  */
-export interface SvelteFabProps extends FabProps, ForwardedAttributes {
-  /** Classes applied to the root element, merged with the component's own classes. */
-  class?: string;
-  /** Static or state-aware classes for the component's internal elements, keyed by element name. */
-  classes?: ElementClasses<FabInterface> | ClassNameComponent<FabInterface>;
-  /** Navigation destination; switches the native element from button to link. */
-  href?: string;
-  /** Native link browsing-context target. */
-  target?: HTMLAnchorAttributes['target'];
-  /** Native link relationship tokens. */
-  rel?: string;
-  /** Optional native advisory title; it also supplies the compact tooltip fallback. */
-  title?: string;
-  /** Native action button type. Only applies when rendered as `<button>`. */
-  type?: 'button' | 'submit' | 'reset';
-  /** Handles clicks accepted by the button or link interaction contract. */
-  onclick?: (
-    event: MouseEvent & { currentTarget: EventTarget & (HTMLButtonElement | HTMLAnchorElement) },
-  ) => void;
-}
+export type SvelteFabProps = SvelteFabActionProps | SvelteFabLinkProps;

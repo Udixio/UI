@@ -365,7 +365,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"icon\" | \"touchTarget\" | \"stateLayer\" | \"iconButton\", string>> | ClassNameComponent<IconButtonInterface>"
+            "name": "Partial<Record<\"icon\" | \"iconButton\" | \"stateLayer\" | \"touchTarget\", string>> | ClassNameComponent<IconButtonInterface>"
           },
           "defaultValue": null
         },
@@ -374,7 +374,7 @@
           "description": "Additional IconButton props for compositions; these override matching individual inputs.",
           "required": false,
           "type": {
-            "name": "Partial<Omit<IconButtonProps, \"label\" | \"variant\" | \"size\" | \"icon\" | \"shape\" | \"shapeFeedback\" | \"disabled\" | \"toggleable\" | \"pressed\" | \"defaultPressed\">>"
+            "name": "Partial<Omit<IconButtonProps, \"icon\" | \"variant\" | \"size\" | \"shape\" | \"shapeFeedback\" | \"label\" | \"disabled\" | \"toggleable\" | \"pressed\" | \"defaultPressed\">>"
           },
           "defaultValue": {
             "value": "{}"
@@ -515,7 +515,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"icon\" | \"touchTarget\" | \"stateLayer\" | \"iconButton\", string>> | ClassNameComponent<IconButtonInterface>"
+            "name": "Partial<Record<\"icon\" | \"iconButton\" | \"stateLayer\" | \"touchTarget\", string>> | ClassNameComponent<IconButtonInterface>"
           },
           "defaultValue": null
         },
@@ -528,43 +528,14 @@
           },
           "defaultValue": null
         },
-        "href": {
-          "name": "href",
-          "description": "Navigation destination; switches the native element from button to link.",
+        "title": {
+          "name": "title",
+          "description": "Native advisory title used as the tooltip fallback; it is not forwarded to the root.",
           "required": false,
           "type": {
             "name": "string"
           },
           "defaultValue": null
-        },
-        "target": {
-          "name": "target",
-          "description": "Native link browsing-context target.",
-          "required": false,
-          "type": {
-            "name": "HTMLAttributeAnchorTarget"
-          },
-          "defaultValue": null
-        },
-        "rel": {
-          "name": "rel",
-          "description": "Native link relationship tokens.",
-          "required": false,
-          "type": {
-            "name": "string"
-          },
-          "defaultValue": null
-        },
-        "type": {
-          "name": "type",
-          "description": "The HTML button type attribute. Only applies when rendered as `<button>`.",
-          "required": false,
-          "type": {
-            "name": "\"button\" | \"submit\" | \"reset\""
-          },
-          "defaultValue": {
-            "value": "'button'"
-          }
         },
         "onclick": {
           "name": "onclick",
@@ -726,6 +697,42 @@
           "defaultValue": {
             "value": "false"
           }
+        },
+        "href": {
+          "name": "href",
+          "description": "Navigation destination; switches the native element from button to link.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "target": {
+          "name": "target",
+          "description": "Native link browsing-context target.",
+          "required": false,
+          "type": {
+            "name": "HTMLAttributeAnchorTarget"
+          },
+          "defaultValue": null
+        },
+        "rel": {
+          "name": "rel",
+          "description": "Native link relationship tokens.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "form": {
+          "name": "form",
+          "description": "Id of an external `<form>` associated with the native button.\nButton-only attributes are not valid on a navigation link.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
         }
       }
     }

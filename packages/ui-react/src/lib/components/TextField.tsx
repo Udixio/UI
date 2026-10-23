@@ -629,7 +629,11 @@ export const TextField = ({
                         selected: child.props.value === value,
                         onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
                           if (child.props.onClick) {
-                            child.props.onClick(e);
+                            child.props.onClick(
+                              e as React.MouseEvent<
+                                HTMLButtonElement & HTMLAnchorElement
+                              >,
+                            );
                           }
                           const optionValue = child.props.value;
                           handleSelectOption(

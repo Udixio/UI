@@ -15,15 +15,6 @@
       },
       "methods": [],
       "props": {
-        "className": {
-          "name": "className",
-          "description": "Root classes (string), static element classes (object), or state-aware element classes (function).",
-          "required": false,
-          "type": {
-            "name": "string | Partial<Record<\"content\" | \"label\" | \"icon\" | \"stateLayer\" | \"tab\", string>> | ClassNameComponent<TabInterface>"
-          },
-          "defaultValue": null
-        },
         "label": {
           "name": "label",
           "description": "Text shown for this tab; can also come from a string child.",
@@ -91,15 +82,6 @@
           },
           "defaultValue": null
         },
-        "href": {
-          "name": "href",
-          "description": "Navigation destination; switches the inner element to a native link.",
-          "required": false,
-          "type": {
-            "name": "string"
-          },
-          "defaultValue": null
-        },
         "isFocusable": {
           "name": "isFocusable",
           "description": "Injected by the parent Tabs: this tab is the roving-tabindex stop while nothing is selected.",
@@ -137,6 +119,15 @@
           "required": false,
           "type": {
             "name": "(element: HTMLSpanElement) => void"
+          },
+          "defaultValue": null
+        },
+        "href": {
+          "name": "href",
+          "description": "Navigation destination; switches the inner element to a native link.",
+          "required": false,
+          "type": {
+            "name": "string"
           },
           "defaultValue": null
         }
@@ -208,7 +199,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"label\" | \"icon\" | \"content\" | \"stateLayer\" | \"tab\", string>> | ClassNameComponent<TabInterface>"
+            "name": "Partial<Record<\"tab\" | \"stateLayer\" | \"icon\" | \"label\" | \"content\", string>> | ClassNameComponent<TabInterface>"
           },
           "defaultValue": null
         }
@@ -225,26 +216,6 @@
         "limitations": "Horizontal layout only."
       },
       "props": {
-        "class": {
-          "name": "class",
-          "description": "Classes merged onto the tab root.",
-          "required": false,
-          "type": {
-            "name": "string"
-          },
-          "defaultValue": {
-            "value": "''"
-          }
-        },
-        "classes": {
-          "name": "classes",
-          "description": "State-aware classes for the tab and its indicator content.",
-          "required": false,
-          "type": {
-            "name": "Partial<Record<\"label\" | \"icon\" | \"stateLayer\" | \"content\" | \"tab\", string>> | ClassNameComponent<TabInterface>"
-          },
-          "defaultValue": null
-        },
         "label": {
           "name": "label",
           "description": "Text shown for this tab; can also come from a string child.",
@@ -273,24 +244,6 @@
           "defaultValue": {
             "value": "false"
           }
-        },
-        "href": {
-          "name": "href",
-          "description": "Navigation destination; switches the inner element to a native link.",
-          "required": false,
-          "type": {
-            "name": "string"
-          },
-          "defaultValue": null
-        },
-        "onclick": {
-          "name": "onclick",
-          "description": "Native activation handler.",
-          "required": false,
-          "type": {
-            "name": "(event: MouseEvent & { currentTarget: EventTarget & (HTMLButtonElement | HTMLAnchorElement); }) => void"
-          },
-          "defaultValue": null
         },
         "variant": {
           "name": "variant",
@@ -322,6 +275,71 @@
         "tabsId": {
           "name": "tabsId",
           "description": "Injected by the parent Tabs: identifier shared by every tab and panel of the group.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "class": {
+          "name": "class",
+          "description": "Classes merged onto the tab root.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": {
+            "value": "''"
+          }
+        },
+        "classes": {
+          "name": "classes",
+          "description": "State-aware classes for the tab and its indicator content.",
+          "required": false,
+          "type": {
+            "name": "Partial<Record<\"label\" | \"icon\" | \"tab\" | \"stateLayer\" | \"content\", string>> | ClassNameComponent<TabInterface>"
+          },
+          "defaultValue": null
+        },
+        "onclick": {
+          "name": "onclick",
+          "description": "Native activation handler.",
+          "required": false,
+          "type": {
+            "name": "(event: MouseEvent & { currentTarget: EventTarget & (HTMLButtonElement | HTMLAnchorElement); }) => void"
+          },
+          "defaultValue": null
+        },
+        "href": {
+          "name": "href",
+          "description": "Navigation destination; switches the native element from button to link.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "target": {
+          "name": "target",
+          "description": "Native link browsing-context target.",
+          "required": false,
+          "type": {
+            "name": "HTMLAttributeAnchorTarget"
+          },
+          "defaultValue": null
+        },
+        "rel": {
+          "name": "rel",
+          "description": "Native link relationship tokens.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "form": {
+          "name": "form",
+          "description": "Id of an external `<form>` associated with the native button.\nButton-only attributes are not valid on a navigation link.",
           "required": false,
           "type": {
             "name": "string"

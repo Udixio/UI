@@ -508,7 +508,7 @@ export const extractAngularComponent = ({
 // ─── Svelte ──────────────────────────────────────────────────────────────────
 //
 // A Svelte adapter is `<dir>/<Name>.svelte` reading `Svelte<Name>Props` from
-// `<dir>/<name>.types.ts`. The interface owns the component TSDoc and the
+// `<dir>/<name>.types.ts`. The props declaration owns the component TSDoc and
 // member descriptions; the `.svelte` script owns what only runtime code can
 // say: destructuring defaults and which props are `$bindable`.
 
@@ -593,10 +593,10 @@ const snippetParameters = (snippetType, node, checker) => {
   return text === '[]' ? undefined : text;
 };
 
-const findSveltePropsInterface = (sourceFile, displayName) =>
+const findSveltePropsDeclaration = (sourceFile, displayName) =>
   sourceFile.statements.find(
     (statement) =>
-      ts.isInterfaceDeclaration(statement) &&
+      (ts.isInterfaceDeclaration(statement) || ts.isTypeAliasDeclaration(statement)) &&
       statement.name.text === `Svelte${displayName}Props`,
   );
 
@@ -608,11 +608,11 @@ export const extractSvelteComponent = async ({
   checker,
   reactComponent,
 }) => {
-  const propsInterface = findSveltePropsInterface(typesSourceFile, displayName);
-  if (!propsInterface) {
+  const propsDeclaration = findSveltePropsDeclaration(typesSourceFile, displayName);
+  if (!propsDeclaration) {
     throw new Error(
       `Unable to find Svelte${displayName}Props in ${toProjectPath(typesSourceFile.fileName)}. ` +
-        'A Svelte adapter declares its public props interface in its sibling .types.ts file.',
+        'A Svelte adapter declares its public props type in its sibling .types.ts file.',
     );
   }
 
@@ -624,11 +624,11 @@ export const extractSvelteComponent = async ({
         await readFile(svelteFilePath, 'utf8'),
         path.basename(svelteFilePath),
       );
-  const interfaceDocumentation = getSymbolDocumentation(
-    checker.getSymbolAtLocation(propsInterface.name),
+  const propsDocumentation = getSymbolDocumentation(
+    checker.getSymbolAtLocation(propsDeclaration.name),
     checker,
   );
-  const propsType = checker.getTypeAtLocation(propsInterface.name);
+  const propsType = checker.getTypeAtLocation(propsDeclaration.name);
   const props = {};
   const snippets = {};
 
@@ -693,7 +693,7 @@ export const extractSvelteComponent = async ({
     ...(attachment ? { attachment } : {}),
     tags: {
       ...getSharedCatalogTags(reactComponent.tags),
-      ...interfaceDocumentation.tags,
+      ...propsDocumentation.tags,
     },
     props,
     ...(Object.keys(snippets).length ? { snippets } : {}),

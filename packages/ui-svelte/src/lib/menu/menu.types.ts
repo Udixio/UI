@@ -20,6 +20,7 @@ type ForwardedAttributes = Omit<
  * @devx Use `purpose="actions"` for commands and `purpose="selection"` for options; set
  * `initialFocus` when mounting inside a popup.
  * @a11y Implements Arrow, Home, End, Escape, and type-ahead focus navigation.
+ * @limitations Positioning, dismissal, and popup lifecycle remain the responsibility of the containing surface.
  */
 export interface SvelteMenuProps extends MenuProps, ForwardedAttributes {
   /** Classes merged onto the menu root. */

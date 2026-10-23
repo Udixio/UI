@@ -161,7 +161,7 @@ import type { Snippet } from 'svelte';
  * @devx Use snippets.
  * @a11y Has native semantics.
  */
-export interface SvelteExampleProps {
+export type SvelteExampleProps = {
   /** Own title. */
   title: string;
   disabled?: boolean;

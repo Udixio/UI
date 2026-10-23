@@ -424,7 +424,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"label\" | \"button\" | \"icon\" | \"touchTarget\" | \"stateLayer\", string>> | ClassNameComponent<ButtonInterface>"
+            "name": "Partial<Record<\"button\" | \"icon\" | \"touchTarget\" | \"stateLayer\" | \"label\", string>> | ClassNameComponent<ButtonInterface>"
           },
           "defaultValue": null
         },
@@ -433,7 +433,7 @@
           "description": "Additional Button options; these take precedence over matching individual inputs.",
           "required": false,
           "type": {
-            "name": "Partial<Omit<ButtonProps, \"label\" | \"type\" | \"variant\" | \"size\" | \"icon\" | \"iconPosition\" | \"shape\" | \"shapeFeedback\" | \"disabled\" | \"toggleable\" | \"pressed\" | \"defaultPressed\">>"
+            "name": "Partial<Omit<ButtonProps, \"type\" | \"variant\" | \"size\" | \"icon\" | \"iconPosition\" | \"shape\" | \"shapeFeedback\" | \"label\" | \"disabled\" | \"toggleable\" | \"pressed\" | \"defaultPressed\">>"
           },
           "defaultValue": {
             "value": "{}"
@@ -569,7 +569,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"label\" | \"icon\" | \"button\" | \"touchTarget\" | \"stateLayer\", string>> | ClassNameComponent<ButtonInterface>"
+            "name": "Partial<Record<\"icon\" | \"label\" | \"button\" | \"touchTarget\" | \"stateLayer\", string>> | ClassNameComponent<ButtonInterface>"
           },
           "defaultValue": null
         },
@@ -582,48 +582,12 @@
           },
           "defaultValue": null
         },
-        "href": {
-          "name": "href",
-          "description": "Navigation destination; switches the native element from button to link.",
-          "required": false,
-          "type": {
-            "name": "string"
-          },
-          "defaultValue": null
-        },
-        "target": {
-          "name": "target",
-          "description": "Native link browsing-context target.",
-          "required": false,
-          "type": {
-            "name": "HTMLAttributeAnchorTarget"
-          },
-          "defaultValue": null
-        },
-        "rel": {
-          "name": "rel",
-          "description": "Native link relationship tokens.",
-          "required": false,
-          "type": {
-            "name": "string"
-          },
-          "defaultValue": null
-        },
         "onclick": {
           "name": "onclick",
           "description": "Handles clicks accepted by the button or link interaction contract.",
           "required": false,
           "type": {
             "name": "(event: MouseEvent & { currentTarget: EventTarget & (HTMLButtonElement | HTMLAnchorElement); }) => void"
-          },
-          "defaultValue": null
-        },
-        "transition": {
-          "name": "transition",
-          "description": "Motion transition shared by every framework for shape changes.",
-          "required": false,
-          "type": {
-            "name": "Transition"
           },
           "defaultValue": null
         },
@@ -663,7 +627,7 @@
           "description": "Visual size; every option retains a 48px touch target.",
           "required": false,
           "type": {
-            "name": "\"small\" | \"xSmall\" | \"medium\" | \"large\" | \"xLarge\""
+            "name": "\"xSmall\" | \"small\" | \"medium\" | \"large\" | \"xLarge\""
           },
           "defaultValue": {
             "value": "'medium'"
@@ -744,6 +708,15 @@
             "value": "'morph'"
           }
         },
+        "transition": {
+          "name": "transition",
+          "description": "Motion transition shared by every framework for shape changes.",
+          "required": false,
+          "type": {
+            "name": "Transition"
+          },
+          "defaultValue": null
+        },
         "toggleable": {
           "name": "toggleable",
           "description": "Enables the semantic pressed state and its visual treatment.",
@@ -775,6 +748,42 @@
           "defaultValue": {
             "value": "false"
           }
+        },
+        "href": {
+          "name": "href",
+          "description": "Navigation destination; switches the native element from button to link.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "target": {
+          "name": "target",
+          "description": "Native link browsing-context target.",
+          "required": false,
+          "type": {
+            "name": "HTMLAttributeAnchorTarget"
+          },
+          "defaultValue": null
+        },
+        "rel": {
+          "name": "rel",
+          "description": "Native link relationship tokens.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
+        "form": {
+          "name": "form",
+          "description": "Id of an external `<form>` associated with the native button.\nForm association belongs to action buttons, not links.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
         }
       },
       "snippets": {

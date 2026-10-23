@@ -316,6 +316,16 @@ describe('Tabs', () => {
     expect(screen.getByRole('tab', { name: 'Action' }).tagName).toBe('BUTTON');
   });
 
+  it('forwards button-only native attributes to action tabs', () => {
+    render(
+      <Tabs>
+        <Tab label="Action" form="tabs-form" />
+      </Tabs>,
+    );
+
+    expect(screen.getByRole('tab', { name: 'Action' })).toHaveAttribute('form', 'tabs-form');
+  });
+
   it('sets aria-disabled and blocks navigation for a disabled link tab, and the native attribute for a disabled button tab', () => {
     render(
       <Tabs>
