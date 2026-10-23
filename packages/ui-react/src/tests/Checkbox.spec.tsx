@@ -15,6 +15,35 @@ const NamedCheckbox = (props: React.ComponentProps<typeof Checkbox>) => (
 );
 
 describe('Checkbox', () => {
+  it('keeps the visual footprint compact while preserving the 40px interaction surface', () => {
+    render(<NamedCheckbox style={{ marginInline: '4px' }} />);
+
+    const checkbox = screen.getByRole('checkbox');
+    const root = checkbox.parentElement;
+    const stateLayer = root?.querySelector('.state-layer');
+    const box = root?.querySelector('.box');
+
+    expect(root).toHaveClass('size-4');
+    expect(root).not.toHaveClass('size-10');
+    expect(root).toHaveClass('has-[:focus-visible]:after:size-10');
+    expect(root).toHaveStyle({ marginInline: '4px' });
+    expect(checkbox).toHaveClass(
+      'size-10',
+      'left-1/2',
+      'top-1/2',
+      '-translate-x-1/2',
+      '-translate-y-1/2',
+    );
+    expect(stateLayer).toHaveClass(
+      'size-10',
+      'left-1/2',
+      'top-1/2',
+      '-translate-x-1/2',
+      '-translate-y-1/2',
+    );
+    expect(box).toHaveClass('size-4');
+  });
+
   it('owns an uncontrolled checked state and emits each accepted transition once', () => {
     const onCheckedChange = vi.fn();
     render(<NamedCheckbox defaultChecked onCheckedChange={onCheckedChange} />);

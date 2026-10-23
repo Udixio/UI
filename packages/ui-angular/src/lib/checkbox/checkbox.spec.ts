@@ -30,6 +30,30 @@ describe('Checkbox (Angular)', () => {
     fixture.componentRef.setInput('id', 'updates');
   });
 
+  it('keeps the visual footprint compact while preserving the 40px interaction surface', () => {
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement.querySelector('.checkbox');
+    const checkbox: HTMLInputElement = root.querySelector('input');
+    const stateLayer: HTMLElement | null = root.querySelector('.state-layer');
+    const box: HTMLElement | null = root.querySelector('.box');
+
+    expect(root.className).toContain('size-4');
+    expect(root.className).not.toContain('inline-flex size-10');
+    expect(root.className).toContain('has-[:focus-visible]:after:size-10');
+    expect(checkbox.className).toContain('size-10');
+    expect(checkbox.className).toContain('left-1/2');
+    expect(checkbox.className).toContain('top-1/2');
+    expect(checkbox.className).toContain('-translate-x-1/2');
+    expect(checkbox.className).toContain('-translate-y-1/2');
+    expect(stateLayer?.className).toContain('size-10');
+    expect(stateLayer?.className).toContain('left-1/2');
+    expect(stateLayer?.className).toContain('top-1/2');
+    expect(stateLayer?.className).toContain('-translate-x-1/2');
+    expect(stateLayer?.className).toContain('-translate-y-1/2');
+    expect(box?.className).toContain('size-4');
+  });
+
   it('owns uncontrolled state and emits exactly one accepted transition', () => {
     const changes: boolean[] = [];
     fixture.componentRef.setInput('defaultChecked', true);

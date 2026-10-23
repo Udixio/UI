@@ -9,6 +9,34 @@ import Fixture from './checkbox.fixture.svelte';
 describe('Checkbox', () => {
   afterEach(() => cleanup());
 
+  it('keeps the visual footprint compact while preserving the 40px interaction surface', () => {
+    render(Checkbox, { props: { 'aria-label': 'Product updates' } });
+
+    const checkbox = screen.getByRole('checkbox');
+    const root = checkbox.parentElement;
+    const stateLayer = root?.querySelector('.state-layer');
+    const box = root?.querySelector('.box');
+
+    expect(root).toHaveClass('size-4');
+    expect(root).not.toHaveClass('size-10');
+    expect(root).toHaveClass('has-[:focus-visible]:after:size-10');
+    expect(checkbox).toHaveClass(
+      'size-10',
+      'left-1/2',
+      'top-1/2',
+      '-translate-x-1/2',
+      '-translate-y-1/2',
+    );
+    expect(stateLayer).toHaveClass(
+      'size-10',
+      'left-1/2',
+      'top-1/2',
+      '-translate-x-1/2',
+      '-translate-y-1/2',
+    );
+    expect(box).toHaveClass('size-4');
+  });
+
   it('renders a native, named checkbox with a generated id', () => {
     render(Checkbox, { props: { 'aria-label': 'Product updates' } });
 
@@ -21,7 +49,11 @@ describe('Checkbox', () => {
   it('owns an uncontrolled checked state and emits each accepted transition once', async () => {
     const onCheckedChange = vi.fn();
     render(Checkbox, {
-      props: { 'aria-label': 'Product updates', defaultChecked: true, onCheckedChange },
+      props: {
+        'aria-label': 'Product updates',
+        defaultChecked: true,
+        onCheckedChange,
+      },
     });
     const checkbox = screen.getByRole('checkbox', { name: 'Product updates' });
 
@@ -36,7 +68,11 @@ describe('Checkbox', () => {
   it('requests a controlled change and notifies the owner', async () => {
     const onCheckedChange = vi.fn();
     render(Checkbox, {
-      props: { 'aria-label': 'Product updates', checked: false, onCheckedChange },
+      props: {
+        'aria-label': 'Product updates',
+        checked: false,
+        onCheckedChange,
+      },
     });
     const checkbox = screen.getByRole('checkbox', { name: 'Product updates' });
 
@@ -101,11 +137,17 @@ describe('Checkbox', () => {
   });
 
   it('keeps native mixed state and renders the minus icon', () => {
-    render(Checkbox, { props: { 'aria-label': 'Notifications', indeterminate: true } });
+    render(Checkbox, {
+      props: { 'aria-label': 'Notifications', indeterminate: true },
+    });
 
-    const checkbox = screen.getByRole('checkbox', { name: 'Notifications' }) as HTMLInputElement;
+    const checkbox = screen.getByRole('checkbox', {
+      name: 'Notifications',
+    }) as HTMLInputElement;
     expect(checkbox.indeterminate).toBe(true);
-    expect(checkbox.parentElement?.querySelector('.icon svg')).toBeInTheDocument();
+    expect(
+      checkbox.parentElement?.querySelector('.icon svg'),
+    ).toBeInTheDocument();
     expect(checkbox.closest('[aria-hidden="true"]')).toBeNull();
   });
 
@@ -144,15 +186,23 @@ describe('Checkbox', () => {
     await fireEvent.blur(checkbox);
     expect(onfocus).toHaveBeenCalledTimes(1);
     expect(onblur).toHaveBeenCalledTimes(1);
-    expect(classes).toHaveBeenLastCalledWith(expect.objectContaining({ isFocused: false }));
+    expect(classes).toHaveBeenLastCalledWith(
+      expect.objectContaining({ isFocused: false }),
+    );
   });
 
   it('connects pointer feedback and cleans it up', async () => {
-    const { unmount } = render(Checkbox, { props: { 'aria-label': 'Updates' } });
+    const { unmount } = render(Checkbox, {
+      props: { 'aria-label': 'Updates' },
+    });
     const checkbox = screen.getByRole('checkbox', { name: 'Updates' });
     const root = checkbox.parentElement;
 
-    await fireEvent.pointerDown(checkbox, { pointerType: 'mouse', clientX: 4, clientY: 4 });
+    await fireEvent.pointerDown(checkbox, {
+      pointerType: 'mouse',
+      clientX: 4,
+      clientY: 4,
+    });
     const ripple = root?.querySelector('[data-udixio-ripple]');
     expect(ripple).not.toBeNull();
     unmount();
@@ -160,7 +210,9 @@ describe('Checkbox', () => {
   });
 
   it('has no automated accessibility violations', async () => {
-    const { container } = render(Checkbox, { props: { 'aria-label': 'Product updates' } });
+    const { container } = render(Checkbox, {
+      props: { 'aria-label': 'Product updates' },
+    });
     expect(await axe(container)).toHaveNoViolations();
   });
 });

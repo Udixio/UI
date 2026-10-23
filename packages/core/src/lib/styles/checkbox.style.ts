@@ -8,12 +8,15 @@ const checkboxConfig: ClassNameComponent<CheckboxInterface> = ({
   invalid,
 }) => ({
   checkbox: cx(
-    'group/checkbox relative inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary',
+    'group/checkbox relative inline-flex size-4 shrink-0 cursor-pointer items-center justify-center overflow-visible',
+    "has-[:focus-visible]:after:pointer-events-none has-[:focus-visible]:after:absolute has-[:focus-visible]:after:left-1/2 has-[:focus-visible]:after:top-1/2 has-[:focus-visible]:after:size-10 has-[:focus-visible]:after:-translate-x-1/2 has-[:focus-visible]:after:-translate-y-1/2 has-[:focus-visible]:after:rounded-full has-[:focus-visible]:after:outline has-[:focus-visible]:after:outline-2 has-[:focus-visible]:after:outline-offset-2 has-[:focus-visible]:after:outline-primary has-[:focus-visible]:after:content-['']",
     {
       'pointer-events-none opacity-[0.38]': disabled,
     },
   ),
-  input: cx('absolute inset-0 z-10 size-full cursor-pointer opacity-0'),
+  input: cx(
+    'absolute left-1/2 top-1/2 z-10 size-10 -translate-x-1/2 -translate-y-1/2 cursor-pointer opacity-0',
+  ),
   box: cx(
     'pointer-events-none absolute left-1/2 top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-[2px] border-2 transition-colors duration-200',
     // Unchecked state (Border only)
@@ -37,7 +40,8 @@ const checkboxConfig: ClassNameComponent<CheckboxInterface> = ({
       'text-surface': disabled, // Usually on-surface with opacity against on-surface bg? No, checked disabled is on-surface bg with surface icon usually.
     },
   ),
-  stateLayer: 'state-ripple-group-[checkbox] rounded-full',
+  stateLayer:
+    'state-ripple-group-[checkbox] absolute left-1/2 top-1/2 size-10 -translate-x-1/2 -translate-y-1/2 rounded-full',
 });
 
 export const checkboxStyle = defaultClassNames<CheckboxInterface>(
