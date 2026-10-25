@@ -1,3 +1,14 @@
+## 0.2.2-next.8 (2026-10-25)
+
+### 🩹 Fixes
+
+- **icons:** align workspace versions with published 0.2.2-next.7 ([b1225056](https://github.com/Udixio/UI/commit/b1225056))
+
+### ❤️ Thank You
+
+- Claude Opus 5.5
+- Joël VIGREUX
+
 ## 0.2.2-next.6 (2026-10-08)
 
 This was a version bump only for @udixio/icons-outlined-500 to align it with other projects, there were no code changes.

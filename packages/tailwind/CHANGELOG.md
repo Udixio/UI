@@ -1,3 +1,9 @@
+## 5.0.1-next.14 (2026-10-25)
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 5.0.1-next.12
+
 ## 5.0.1-next.13 (2026-10-23)
 
 ### 🩹 Fixes

@@ -1,3 +1,21 @@
+## 0.1.1-next.8 (2026-10-25)
+
+### 🩹 Fixes
+
+- **release:** strip development condition from published exports ([ff7ef462](https://github.com/Udixio/UI/commit/ff7ef462))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/tailwind to 5.0.1-next.14
+- Updated @udixio/theme to 5.0.1-next.12
+- Updated @udixio/core to 0.2.2-next.17
+- Updated @udixio/icons-rounded-400 to 0.2.2-next.8
+
+### ❤️ Thank You
+
+- Claude Opus 5.5
+- Joël VIGREUX
+
 ## 0.1.1-next.7 (2026-10-23)
 
 ### 🩹 Fixes

@@ -1,3 +1,18 @@
+## 0.7.1-next.12 (2026-10-25)
+
+### 🩹 Fixes
+
+- **release:** strip development condition from published exports ([ff7ef462](https://github.com/Udixio/UI/commit/ff7ef462))
+
+### 🧱 Updated Dependencies
+
+- Updated @udixio/theme to 5.0.1-next.12
+
+### ❤️ Thank You
+
+- Claude Opus 5.5
+- Joël VIGREUX
+
 ## 0.7.1-next.11 (2026-10-08)
 
 ### 🧱 Updated Dependencies

@@ -1,3 +1,14 @@
+## 0.2.2-next.17 (2026-10-25)
+
+### 🩹 Fixes
+
+- **release:** strip development condition from published exports ([ff7ef462](https://github.com/Udixio/UI/commit/ff7ef462))
+
+### ❤️ Thank You
+
+- Claude Opus 5.5
+- Joël VIGREUX
+
 ## 0.2.2-next.16 (2026-10-23)
 
 ### 🩹 Fixes
