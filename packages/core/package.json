@@ -3,7 +3,22 @@
   "version": "0.2.2-next.16",
   "publishConfig": {
     "provenance": true,
-    "access": "public"
+    "access": "public",
+    "exports": {
+      "./package.json": "./package.json",
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "require": "./dist/index.cjs",
+        "default": "./dist/index.js"
+      },
+      "./dom": {
+        "types": "./dist/dom.d.ts",
+        "import": "./dist/dom.js",
+        "require": "./dist/dom.cjs",
+        "default": "./dist/dom.js"
+      }
+    }
   },
   "repository": {
     "type": "git",

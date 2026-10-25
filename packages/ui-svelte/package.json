@@ -43,7 +43,15 @@
   },
   "publishConfig": {
     "provenance": true,
-    "access": "public"
+    "access": "public",
+    "exports": {
+      "./package.json": "./package.json",
+      ".": {
+        "types": "./dist/index.d.ts",
+        "svelte": "./dist/index.js",
+        "default": "./dist/index.js"
+      }
+    }
   },
   "license": "Apache-2.0"
 }
