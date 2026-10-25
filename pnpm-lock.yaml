@@ -894,7 +894,7 @@ importers:
         version: link:../core
       '@udixio/icons-rounded-400':
         specifier: 0.2.2-next.7
-        version: 0.2.2-next.7
+        version: link:../icons/icons-rounded-400
       '@udixio/tailwind':
         specifier: 5.0.1-next.13
         version: link:../tailwind
@@ -925,7 +925,7 @@ importers:
         version: link:../core
       '@udixio/icons-rounded-400':
         specifier: 0.2.2-next.7
-        version: 0.2.2-next.7
+        version: link:../icons/icons-rounded-400
       '@udixio/tailwind':
         specifier: 5.0.1-next.13
         version: link:../tailwind
@@ -996,7 +996,7 @@ importers:
         version: 3.5.9
       '@udixio/icons-rounded-400':
         specifier: 0.2.2-next.7
-        version: 0.2.2-next.7
+        version: link:../icons/icons-rounded-400
       jest-axe:
         specifier: ^10.0.0
         version: 10.0.0
@@ -6912,9 +6912,6 @@ packages:
   '@typescript-eslint/visitor-keys@8.70.0':
     resolution: {integrity: sha512-BoC8PiO4Hkdo0TVJh9Ntxr5MxPDI7/oFsrygN5ADelFSeXG/qgNuucIGA+L5Z6JpPTE/uRfcTWtscjbUaufepQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
-  '@udixio/icons-rounded-400@0.2.2-next.7':
-    resolution: {integrity: sha512-jGEGQ617ebJ1VJhcRhsKo/V00uQhoIW+yLPFM62yq3QWEyssv7N5XjDL/+4LB/AntS4lPZ0Ea6AEov68soWzKA==}
 
   '@ungap/structured-clone@1.4.0':
     resolution: {integrity: sha512-1mEZtMKPM09vDmQt5y7YvmN2+DFTP7Tg0EWXdic8/C6VRnpb33e4ghisCIE3WZjsE2N8mf+QV1Zqh7ZFYLWInQ==}
@@ -23983,8 +23980,6 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.70.0
       eslint-visitor-keys: 5.0.1
-
-  '@udixio/icons-rounded-400@0.2.2-next.7': {}
 
   '@ungap/structured-clone@1.4.0': {}
 
