@@ -51,7 +51,7 @@ d'un navigateur à l'autre en s'appuyant sur le natif dès que possible.
   les animations existantes.
 - Des **syntaxes** multiples sur ce même modèle : classes Tailwind (référence),
   attributs HTML, API TypeScript, adaptateurs React / Angular / Svelte.
-- La **définition intégrale** du wrapper (les 23 familles du §5), avec une
+- La **définition intégrale** du wrapper (les 24 familles du §5), avec une
   roadmap publique ; rien n'est laissé de côté, tout n'est pas livré en même
   temps.
 - **Test-first** : une suite de conformance exécutée dans de vrais navigateurs
@@ -181,14 +181,14 @@ Le wrapper définit **toutes** ces familles. L'ordre de livraison est au §7
 |---|---|---|---|---|
 | F1 | Tokens : durées, easings, springs M3, easings personnalisés | `linear()` (springs pré-calculés), `cubic-bezier`, `steps` | anime `spring`, `irregular` | GSAP CustomEase, Motion easing functions |
 | F2 | Transitions d'état (hover, focus, `data-state`, propriétés discrètes) | `transition`, `allow-discrete`, `interpolate-size` | anime / WAAPI pour tailles `auto` hors Chromium | Motion `whileHover`/`whilePress` |
-| F3 | Présence : entrée / sortie, montage / démontage, `display:none` | `@starting-style`, `allow-discrete` | hooks de sortie par framework, anime Layout `enterFrom`/`leaveTo` | Motion `AnimatePresence`, Svelte `in:/out:`, Angular `animate.leave` |
+| F3 | Présence : entrée / sortie, montage / démontage, `display:none` | `@starting-style`, `allow-discrete` (Firefox : pas de transition vers `display:none`) | hooks de sortie par framework, anime Layout `enterFrom`/`leaveTo` | Motion `AnimatePresence`, Svelte `in:/out:`, Angular `animate.leave` |
 | F4 | Déclenchement à la vue (une fois / répété, seuils, direction) | `animation-trigger` (Chrome 146+) | IntersectionObserver, anime `onScroll` | GSAP ScrollTrigger, Motion `inView` |
-| F5 | Lié au scroll (progression, plages, axe, conteneur nommé) | `animation-timeline: view()/scroll()` (Chrome, Safari 26 ; Firefox derrière flag) | pilotage `currentTime` (cf. 4.7), anime `onScroll` sync | GSAP scrub, Motion `scroll()` |
+| F5 | Lié au scroll (progression, plages, axe, conteneur nommé) | `animation-timeline: view()/scroll()` (Baseline newly depuis Firefox 159, 2026-10-27 ; ~3,9 % de `defaults` sans support) | pilotage `currentTime` (cf. 4.7), anime `onScroll` sync | GSAP scrub, Motion `scroll()` |
 | F6 | Scroll piloté (scrollTo, smooth scroll) | `scroll-behavior`, `scrollIntoView` | anime ; existant `smooth-scroll.effect.tsx`, `custom-scroll` | GSAP ScrollTo/ScrollSmoother, Lenis |
-| F7 | Layout (taille, position, `auto`, `justify-*`, réordonnancement) | `interpolate-size`, `element.startViewTransition()` (Chrome 147+) | anime Layout (FLIP) | GSAP Flip, Motion `layout` |
+| F7 | Layout (taille, position, `auto`, `justify-*`, réordonnancement) | `interpolate-size`, `element.startViewTransition()` (Chromium seulement) | anime Layout (FLIP) | GSAP Flip, Motion `layout` / `animateLayout` vanilla (`data-layout`, `data-layout-id`, ≥ 14.1) |
 | F8 | Élément partagé (`layoutId`) entre composants et îles | View Transitions + `match-element` (Baseline) | anime Layout id | Motion `layoutId` |
 | F9 | View Transitions de page / route (dont Astro) | View Transitions same-document / cross-document | — | Motion `AnimateView` |
-| F10 | Listes : stagger, ajout / suppression, réordonnancement | `sibling-index()` (Chromium) | délai calculé, anime `stagger` (grille, jitter) | Motion `Reorder`, Svelte `animate:flip` |
+| F10 | Listes : stagger, ajout / suppression, réordonnancement | `sibling-index()` (Baseline newly depuis 2026-08-18) | délai calculé, anime `stagger` (grille, jitter) | Motion `Reorder`, Svelte `animate:flip` |
 | F11 | Chorégraphie : séquences, décalages relatifs, propagation parent → enfants | — | anime Timeline | GSAP Timeline, Motion variants / sequences |
 | F12 | Contrôle : play / pause / reverse / seek, promesses de fin, événements | WAAPI | anime | toutes |
 | F13 | Interruption et physique (reprise avec vitesse) | — | anime spring, Draggable | Motion (natif sur springs), GSAP Inertia |
@@ -201,10 +201,57 @@ Le wrapper définit **toutes** ces familles. L'ordre de livraison est au §7
 | F20 | Accessibilité : politique reduced-motion par famille | `prefers-reduced-motion`, `motion-safe:` | — | Motion `MotionConfig` |
 | F21 | Performance du moteur (pause onglet caché, page invisible, budgets) | — | anime `pauseOnDocumentHidden` | Motion `usePageInView` |
 | F22 | Usage interne : migration des contrôleurs Udixio | — | — | — |
+| F24 | Boucles et animations continues (progression indéterminée, curseur clignotant, pulsation) | `animation-iteration-count: infinite` | anime `loop` | toutes |
 | F23 | Outillage agents IA : types stricts, détection des classes inconnues, exposition via `packages/mcp`, doc pour agents | — | — | Motion AI Kit / agent skill |
 
-Les supports navigateur ci-dessus datent de la discussion du 2026-11-03 et
-**doivent** être revérifiés par R1 avant toute décision qui en dépend.
+Supports navigateur mis à jour d'après `docs/motion/research/R1-native-support.md`
+(2026-11-03), qui fait foi pour le détail par version et la couverture `defaults`.
+F24 ajoutée après E1 (boucles internes non couvertes par F1–F23).
+
+## 5 bis. Résultats de la phase 0 (synthèse)
+
+Rapports complets dans `docs/motion/research/`. Faits saillants qui orientent
+la phase 1 (aucune décision prise) :
+
+- **R1** : scroll-driven et `sibling-index()` sont Baseline ; `@starting-style`,
+  `linear()`, View Transitions same-document ne sont bloqués que par Chrome 109 ;
+  Chromium seul : `animation-trigger`, `interpolate-size`, `Element.startViewTransition`.
+  Piège : le raccourci `animation` réinitialise `animation-timeline` dans Chrome
+  seulement — l'ordre des déclarations générées compte.
+- **R2** : aucune syntaxe à base de classes ne couvre stagger + scroll lié +
+  layout ; seuls Motion vanilla et Astro coordonnent l'élément partagé par le
+  DOM. Erreurs d'agents IA documentées (imports `framer-motion`, anime v3,
+  config Tailwind v3, confusion tw-animate / tailwindcss-animate, classes
+  inventées). Tableau de 15 concepts × 11 libs = entrée de B1.
+- **R3** : algorithme de progression `view()`/`scroll()` implémentable ; les
+  transforms sont ignorés par la spec (pas de `getBoundingClientRect` brut),
+  sticky demande un traitement dédié ; 7 cas où piloter `currentTime` diverge du
+  natif ; `animation-trigger` vit dans Animation Triggers 1 (nom de l'API JS
+  incertain).
+- **R4** : piloter une `CSSAnimation` est faisable mais l'instance est recréée
+  quand `animation-name` change ou en `display:none` ; une déclaration non
+  supportée est jetée au parsing → le JS ne peut lire que des copies en
+  variables (argument pour 4.2) ; polyfill flackr écarté de fait (non maintenu,
+  remplace `window.Animation`, incompatible `@layer`/`@media` de Tailwind v4) ;
+  anime `timeline.sync()` peut piloter une animation native ; détecter un
+  `hover:` sans polling reste fragile. 23 tests proposés pour S1.
+- **R5** : anime.js, Motion, Lenis en MIT ; GSAP sous licence propriétaire
+  (résiliable, révisable, lie chaque utilisateur final) → pèse contre D3.
+  Udixio est en Apache-2.0 à la racine, mais `@udixio/mcp` déclare MIT et
+  plusieurs paquets n'ont pas de champ `license` (hors périmètre, à signaler).
+- **E1** : aucun import runtime de `motion/react` dans les paquets publiés
+  (4 fichiers d'`apps/doc` seulement) ; 12 contrôleurs core sur Motion vanilla,
+  7 sur anime.js ; `Transition` de Motion public dans 5 interfaces + constantes
+  + 3 props React-only ; easings anime (`'outCubic'`) aussi dans l'API publique ;
+  durées en s et ms mélangées ; aucun token motion M3 ; 17 copies de la
+  détection reduced-motion ; anime.js inliné dans `dist` de core.
+- **E2** : deux doctrines déjà contradictoires (docs du dépôt : Motion par
+  défaut ; plugin de gouvernance 0.5.0 : anime.js partout) ; 8 references/skills
+  à réécrire en M3 ; cache de plugin périmé `0.1.0-codex` à purger.
+- **E3** : `anim-*` n'est utilisé que par `/animations` ; pas de mécanisme de
+  redirection existant ; la copie de doc dans `@udixio/mcp` ne purge jamais
+  (M4 doit la nettoyer) ; suppression du plugin `animation` = breaking change
+  de `@udixio/tailwind` (D2).
 
 ## 6. Types de travaux
 
@@ -275,7 +322,7 @@ Pour chaque famille du §5, dans l'ordre ci-dessous :
 
 Ordre proposé *(choix Claude : dépendances + besoins internes d'abord)* :
 F1 → F20 → F2 → F3 → F4 → F5 → F7 → F8 → F9 → F10 → F11 → F12 → F13 →
-F15 → F19 → F21 → F6 → F16 → F17 → F14 → F18. F22 et F23 avancent en
+F15 → F24 → F19 → F21 → F6 → F16 → F17 → F14 → F18. F22 et F23 avancent en
 continu (chaque famille livrée migre ses usages internes et enrichit
 l'outillage IA).
 
@@ -362,7 +409,7 @@ D2 (en partie orientée par C15), D3.
 - **Support natif mouvant** : la matrice R1 doit être revérifiée à chaque
   famille ; la sélection par capacités se fait à l'exécution, jamais par
   détection de navigateur.
-- **Taille du chantier** : 23 familles. La roadmap publique rend l'avancement
+- **Taille du chantier** : 24 familles. La roadmap publique rend l'avancement
   visible et évite que des familles soient oubliées.
 
 ## 12. Journal
@@ -370,6 +417,7 @@ D2 (en partie orientée par C15), D3.
 | Date | Travail | Changement |
 |---|---|---|
 | 2026-11-03 | — | Création du document à l'issue du brainstorming initial. |
+| 2026-11-03 | Phase 0 (R1–R5, E1–E3) | Rapports dans `docs/motion/research/` ; synthèse §5 bis ; supports F3/F5/F7/F10 corrigés ; ajout F24 (boucles). |
 | 2026-11-03 | Livraison | Branche longue `feat/anime`, fusion finale (C15). |
 | 2026-11-03 | Tailwind | Tailwind requis, écosystème d'abord (C14). |
 | 2026-11-03 | D1, navigateurs | Paquet `@udixio/motion` ; browserslist `defaults` + double niveau de tests (C12, C13). |
