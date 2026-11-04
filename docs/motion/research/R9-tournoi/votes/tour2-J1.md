@@ -1,0 +1,5 @@
+# Vote 2 — J1 (juge)
+
+1. J2 — Force : neuf verbes fermés, paliers fixés par verbe, invariants de focus, `inert` et pause dans le cœur et dans le type, `motion check` en CI sans plugin Astro, parité par fixtures. Faiblesse : `share` et `cascade` chargent un chunk JS et `share` retombe sur FLIP, donc le coût du partage reste payé par les pages qui l'utilisent ; exemples Angular et Svelte absents.
+2. J4 — Force : meilleure réponse à l'agent : erreurs nommées au build, lint qui refuse tout nombre de mouvement hors `tokens.json`, `share` sans FLIP assumé, sorties via `exit`. Faiblesse : deux styles d'attributs (`data-motion-entry` en anglais, valeurs `rise`, `medium`) et `tokens.json` sans plafond de rythmes, ce qui élargit l'espace de réglage ; invariants d'île moins détaillés.
+3. J5 — Force : meilleure histoire designer (rendus réduits nommés, tokens en un fichier, expressivité des verbes `tracer`, `ecrire`, `compter`). Faiblesse : noms mêlés (`sequencer` contre `sequence`, `data-partager`, `data-jeton`), extension projet qui réintroduit une sortie hors contrat, et un exemple React qui ne compile pas tel quel (`const retrait` sans lien avec `Presence`).

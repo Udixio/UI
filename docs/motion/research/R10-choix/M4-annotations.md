@@ -1,0 +1,55 @@
+# M4 — Annotations (intégration frameworks, îles, SSR)
+
+- M1-01 : valide — +état initial SSR en CSS/WAAPI, sans JS de framework pour les îles HTML / −handle à recréer si le backend change en cours de vie d'un composant / conflits: M1-03, M1-05
+- M1-02 : valide — +même courbe en CSS et en JS, rendu SSR possible en CSS pur / −cache de compilation dupliqué par copie de module dans les îles / conflits: M1-01, M1-10
+- M1-03 : valide — +une règle de reprise commune aux trois adaptateurs (re-rendu rapide, remontage) / −état de vitesse par élément à libérer au démontage / conflits: M1-01
+- M1-04 : valide — +aucun thrashing entre composants de frameworks différents / −une copie par île = une boucle, sauf registre partagé (M4-05) / conflits: M1-07
+- M1-05 : valide — +handle unique sur ref React, DestroyRef Angular et attachment Svelte / −séquence traversant une île non sérialisable sans registre / conflits: M1-01, M1-04
+- M1-06 : valide — +mesure explicite appelable depuis un hook, un attachment ou un effet / −l'appelant doit encadrer la mutation (useLayoutEffect, before-update Svelte, afterRender Angular) / conflits: M1-07
+- M1-07 : valide — +clé versionnée partagée par toutes les copies, sans Provider / −purge temporisée = élément fantôme si l'île hydratée arrive après le délai / conflits: M1-04, M1-06
+- M1-08 : valide — +rien à hydrater, état final dans le HTML sans JS / −Firefox < 159 et vieux Chrome restent à l'état final / conflits: —
+- M1-09 : conteste — +suivi sans re-rendu, identique depuis les trois frameworks / −écrit un style inline que React ou Svelte réécrivent au rendu, anticipé ni par le SSR ni par l'hydratation / conflits: M1-04, M4-07
+- M1-10 : conteste — +un seul point de vérité pour la réduction / −résolu à la compilation : ne réagit pas à un changement de préférence sans rechargement, et une île peut diverger de la page / conflits: M1-02, M4-09
+- M2-01 : valide — +registre par page qui traverse frameworks et îles sans contexte / −deux copies sans symbole versionné commun = deux registres / conflits: M2-07
+- M2-02 : valide — +une boucle lecture/écriture pour toute la page, îles comprises / −une île hydratée en retard rate la frame en cours / conflits: M2-04
+- M2-03 : valide — +variables CSS traversent les îles, enfants compensés sans JS / −un composant qui réécrit le style inline du parent efface --m-sx / conflits: M2-09
+- M2-04 : valide — +navigations cross-document Astro gérées par le navigateur (astro:after-swap) / −une île hydratée pendant une VT rate la transition ; Chromium seul / conflits: M2-08, M2-02
+- M2-05 : valide — +même contrat que M4-03 : nœud réel conservé, focus et refs préservés / −chaque framework a son mécanisme de fin de sortie (out:, animation.done, état de présence) / conflits: M2-06
+- M2-06 : conteste — +voisins réorganisés sans attendre la fin de sortie / −position absolue réécrite par le framework au re-rendu du conteneur ; mesure fausse en SSR sans layout / conflits: M2-05
+- M2-07 : neutre — +cohérent avec une portée de cycle de vie (M4-10) / −une paire inter-îles devient impossible hors portée, ce qui contredit M2-01 pour les îles / conflits: M2-01
+- M2-08 : valide — +reprise depuis la position rendue quand un composant change de cible pendant un rendu / −lecture de style coûteuse à chaque interruption / conflits: M2-04
+- M2-09 : valide — +hauteur auto dont la cible est déjà dans le HTML SSR, sans scale / −mesure fausse si le contenu change en cours d'animation / conflits: M2-03
+- M2-10 : neutre — +un seul chemin FLIP pour geste et liste / −pointer events et capture câblés différemment par React, Angular et Svelte / conflits: M2-08
+- M3-01 : valide — +un observateur par document ; les nœuds rendus par un framework n'exigent aucune hydratation supplémentaire / −une copie par île sans registre = plusieurs observateurs / conflits: —
+- M3-02 : valide — +aligné sur M4-04 : aucun masquage statique, le SSR montre le contenu / −clignotement possible pour un élément sous le pli avant inscription / conflits: —
+- M3-03 : valide — +évite le piège d'auto-désarmement traité en M4-06 / −sentinelle à rendre identique en SSR et en client (décalage si elle est ajoutée par JS) / conflits: —
+- M3-04 : conteste — +cycle de vie natif : le retrait libère l'inscription / −React 19 et Angular transmettent mal les propriétés aux éléments personnalisés ; l'élément doit être défini avant peinture / conflits: R8 R2 (hors registre), M3-02
+- M3-05 : valide — +frontière typée, un agent ne peut pas écrire « scrub avec seuil » / −deux notions à apprendre à la place de « révéler au défilement » / conflits: R9 J4, R9 J2, M5-01
+- M3-06 : valide — +zéro listener sur les navigateurs à timeline ; une île sans scroll n'en charge aucun / −en île tardive, le listener du repli doit s'ajouter après le chargement / conflits: M3-08
+- M3-07 : valide — +restauration de position et ClientRouter Astro respectés / −durée du smooth natif non réglable / conflits: —
+- M3-08 : valide — +un listener par document, cadencé par rAF / −une copie par île = un listener par île sans registre (M5-07) / conflits: M3-06, M5-07
+- M3-09 : conteste — +pause partagée (visibilité, hors-vue) et reprise sans saut / −une présence figée hors écran retarde sa promesse de fin, donc le contrat finished de M4-03 / conflits: M3-01, M4-03
+- M3-10 : valide — +deux îles au même composant ne se marchent pas dessus, en accord avec le partage d'espace CSS d'Astro / −une règle de scope par île, noms générés au build / conflits: M3-01
+- M5-01 : conteste — +vocabulaire court, décrit par résultat, lisible par un agent / −enter et exit entrent en collision avec animate.enter/leave d'Angular et in:/out: de Svelte / conflits: M5-02, M5-08
+- M5-02 : valide — +HTML pur et pages Astro sans framework couverts par la même grammaire / −l'attribut doit être identique au SSR et au client, sinon mismatch d'hydratation / conflits: M5-01
+- M5-03 : valide — +custom properties --udx-motion-* traversent les îles sans contexte / −linear() ne transmet pas la vitesse à une interruption / conflits: M5-04, M5-08
+- M5-04 : valide — +classes rendues en SSR = état final ; plugin CSS-first sans JS / −réduction à répliquer en CSS, classes dynamiques invisibles au scanner / conflits: M5-09, M5-03
+- M5-05 : valide — +chargement par page et par île, respecte client:visible / −usages construits à l'exécution (props de framework) invisibles à l'analyse statique / conflits: M5-07
+- M5-06 : valide — +une île n'importe que sa capacité ; coût lisible avant import / −deux copies de versions différentes entre îles dupliquent du code / conflits: M5-07
+- M5-07 : valide — +contrat unique entre îles, compteur de références couvre le démontage / −compteur à tenir : un unmount manqué fuit, et avec transition:persist le swap ne doit pas être lu comme un démontage / conflits: M5-05, M5-06
+- M5-08 : valide — +await identique dans les trois frameworks, aucune promesse rejetée / −reprise par vitesse non transmise pour les springs CSS / conflits: M5-03, M5-01
+- M5-09 : valide — +classification unique, pause WCAG 2.2.2 exposée / −jugement décoratif/essentiel sujet à débat ; deux implémentations à garder identiques / conflits: M5-04, M1-10
+- M5-10 : neutre — +agents et docs lisent la même source ; les erreurs de dev citent l'id / −manifeste à ne pas embarquer dans le bundle client ; à régénérer en CI / conflits: M5-01, M5-06
+
+## Doublons à fusionner
+
+- Registre inter-îles versionné sur `globalThis` : garder **M5-07** ; fusionner M4-05 (identique), M2-01 (ne garder que la règle d'unicité des clés, abandonner son symbole `udixio.motion.layout@1` au profit d'un seul), M1-07 (ne garder que la purge temporisée).
+- Scheduler lecture/écriture par page : garder **M1-04** ; fusionner M2-02.
+- Handle de contrôle et `finished` sans rejet : garder **M5-08** ; fusionner M4-08 ; M1-05 ne garde que la compilation de séquence.
+- Sortie avec nœud réel retenu : garder **M2-05** ; fusionner M4-03.
+- Déclenchement à la vue par sentinelle : garder **M3-03** ; fusionner M4-06 (règle « pas de rattrapage »). M3-01 reste un mécanisme distinct.
+- FLIP en transform seul : garder **M2-03** ; fusionner M1-06 (mesure explicite).
+- Ressort vers `linear()` et tokens : garder **M5-03** ; fusionner M1-02.
+- Reprise par vitesse : garder **M1-03** ; fusionner M2-08 (même règle appliquée au layout).
+- Réduction de mouvement : garder **M5-09** ; fusionner M4-09 (store unique). M1-10 n'est pas un doublon mais un conflit de fond à trancher.
+- Recouvrement partiel, non fusionné : M4-10 (scope de cycle de vie) et M2-07 (portée de layout) ; M2-07 pourrait devenir un usage de M4-10.

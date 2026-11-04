@@ -1,0 +1,5 @@
+# Vote tour 3, J3 (juge)
+
+1. J2 : Force : un seul nom par verbe et par option, identique en HTML, JS et tokens ; la cascade devient un `group` au lieu d'un verbe ; aucun échappement ; la politique et les champs `pause` et `reason` sont dans le cœur et le type. Faiblesse : `draw` reste en CSS pour le trait seul (pas de morphing SVG), et le rythme se limite à trois noms.
+2. J4 : Force : onze intentions explicites (`exit`, `split`, `draw`, `scroll`, `move`), `loop` mis en pause en CSS sans JS, repli du partage choisi par le designer et visible. Faiblesse : le repli `flip` réintroduit un palier 2 coûteux pour `share`, et la vérification de conformité repose sur plus d'options à retenir que chez J2.
+3. J1 : Force : palier fixe par verbe, qui ne change jamais selon le navigateur, avec repli déclaré dans le jeton et journalisé en dev. Faiblesse : le mélange `sequence` (anglais) avec `entrer`, `deplacer`, `defiler` (français) laisse subsister la double langue que J3, J4 et J5 ont relevée, et le repli ajoute un second mécanisme à apprendre.

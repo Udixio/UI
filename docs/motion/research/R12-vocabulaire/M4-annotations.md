@@ -1,0 +1,55 @@
+# M4 — Annotations R12 (vocabulaire : collisions natives, grammaire framework et HTML)
+
+- M1-V01 : valide — +coût prévisible par nom, le manifeste publie la classe de moteur, donc le SSR sait ce qui est CSS / −une classe par verbe reste une approximation (un `state` peut monter en `waapi`) / conflits: M5-S08, M1-01
+- M1-V02 : valide — +`state` et `layout` restent natifs en `carry` ; le JS n'apparaît qu'avec un ressort, réduisant le coût sur les îles / −deux niveaux de continuité à expliquer ; vitesse visuelle différente sur une transition non ressort / conflits: M5-S08, M1-03, M1-02
+- M1-V03 : valide — +la plupart des écritures ne portent aucune option de reprise ; le défaut suit le moteur réel / −`disappear` pendant un `appear` en `restart` peut sauter ; `sequence` en `restart` coupe la cascade / conflits: M5-S08, M4-03
+- M1-V04 : valide — +une valeur de réduction par verbe, `fade` sans JS, vérifiable par le lint / −`fade` peut rester fort ; `instant` supprime l'indication de `reveal` / conflits: M5-S09, M5-S04
+- M1-V05 : valide — +le verbe reste stable quand le ressort change de moteur ; une seule source CSS et JS / −`linear()` absent des vieux Chrome ; deux représentations à tester ; la table ne porte pas la vitesse / conflits: M5-S05, M1-02
+- M1-V06 : conteste — +noms alignés sur un moteur chacun ; `scrub` et `reveal` restent distincts / −`follow` pour une valeur continue duplique `defineValue` (F14, F15) et sort du vocabulaire en M5-V08 / conflits: M5-S02, M3-S01, M5-V08
+- M1-V07 : valide — +un seul mot pour la sortie, pas de collision avec `exit` ni `out:` / −`disappear` et `data-presence` font deux noms pour une même sortie ; l'état public contredit M2-V03 / conflits: M2-S03, M4-S02, M2-V03
+- M1-V08 : valide — +un défilement n'est plus un effet d'élément ; quatorze verbes sans perdre de famille / −`tween` perd son nom pour un débutant ; `scrollTo` sans attribut HTML / conflits: M5-S02, M3-S02
+- M1-V09 : valide — +un agent ne peut pas inventer une valeur ; le moteur se lit dans le nom / −un domaine fermé peut manquer un besoin ; ajouter une valeur est une version / conflits: M3-S06, M4-S05
+- M1-V10 : neutre — +pas de parseur de chaîne ; `attributeFilter` limité à une liste fermée / −`data-motion="reveal"` porte un verbe, contredit M5-V04 qui le retire du HTML / conflits: M5-S01, M4-S09, M5-V04
+- M2-V01 : valide — +nom présent chez Motion et anime.js ; `carry` évite le saut d'une mise en page interrompue / −« layout » se confond avec la mise en page CSS ; `carry` impose le JS / conflits: M2-V02, M5-S02
+- M2-V02 : conteste — +l'intention « partagé » reste lisible ; `restart` honnête pour la VT / −`shared` verbe ici, mais option de `layout` dans M5-V08 : deux placements incompatibles / conflits: M2-V01, M1-S10, M5-V08, M5-V01
+- M2-V03 : valide — +verbes symétriques sans homonyme (`exit`, `leave` évités) ; l'état peut changer sans casser l'API / −`disappear` plus long ; l'état « interne » contredit M1-V07 et M3-V09 / conflits: M2-S03, M5-S02, M4-S02, M1-V07, M3-V09
+- M2-V04 : valide — +nom convergent (GSAP, anime.js, Motion) ; option de conteneur qui ne double pas le verbe enfant / −`stagger` n'est pas une séquence ; faux sur liste virtualisée / conflits: M3-S09, M2-S04
+- M2-V05 : valide — +`drag` évité car homonyme d'événement DOM ; `reorder` nomme le résultat / −aucun nom pour le déplacement libre ; le clavier doit exister sous ce verbe / conflits: M5-S02, M2-S05, M1-S09
+- M2-V06 : conteste — +un `disappear` réapparaissant se poursuit sans saut avec `carry` / −défaut `carry` pour appear et disappear contredit M1-V03 et M5-V02 (`restart`) ; coût JS par défaut sur toute présence / conflits: M5-S08, M1-S10, M1-V03, M5-V02
+- M2-V07 : valide — +`measure` et `correct` disent ce qui est mesuré et corrigé ; `scale` ne se confond plus avec l'animation / −`measure: size` seul reste rare ; `correct` ne couvre pas `box-shadow` / conflits: M2-S01, M2-03
+- M2-V08 : conteste — +aucun homonyme natif ; un même mot pour entrée et sortie / −`rise`, `sink`, `drop`, `lift` contre-intuitifs ; noms de sens incompatibles avec la direction en option de M5-V05 / conflits: M3-V10, M5-V05, M3-V06, M4-V09
+- M2-V09 : conteste — +`data-motion-shared` garde l'identité sérialisable au SSR / −interdit les options en attributs, donc contredit M1-V10, M3-V07 et M5-V04 ; attribut supplémentaire à maintenir / conflits: M1-V10, M3-V07, M5-V04, M5-S01, M2-S02
+- M2-V10 : valide — +une seule langue pour humains et agents ; lint de casse / −effort de traduction pour les francophones ; `layout` et `shared` non traduisibles / conflits: M4-S02, M5-S03, M5-V06
+- M3-V01 : valide — +nom court sans homonyme natif, même mot que le mécanisme du runtime / −ne dit pas le sens ; la sortie passe par l'état, pas par `reveal` / conflits: M2-S03, M5-S02
+- M3-V02 : valide — +mots exacts de `animation-range`, aucune traduction à apprendre / −`scrub` peu connu hors GSAP ; `cover` et `contain` à expliquer / conflits: M5-S02, M3-S01
+- M3-V03 : valide — +action nommée comme la méthode native, pas de seizième verbe / −impossible en HTML pur sans JS ; le `smooth` natif ne règle pas la durée / conflits: M5-S02, M3-S02
+- M3-V04 : neutre — +WCAG 2.2.2 devient une donnée vérifiée ; `essential` rend l'exception explicite / −réduction « figé » contredit M5-V02 (« pause contrôlable ») et M1-V04 (« frame neutre + pause »), et `restart` contredit M5-V02 (« sans reprise ») / conflits: M5-S09, M5-S10, M3-S03, M5-V02, M1-V04
+- M3-V05 : valide — +un agent ne peut pas écrire `0.37` ; mots intuitifs « quart, moitié, entièrement » / −cinq mots ne couvrent pas tous les cas ; `margin` relatif à la fenêtre / conflits: M3-S06, M5-S05
+- M3-V06 : conteste — +lève l'ambiguïté « down » par l'origine, cohérent avec `slide-in-from-*` / −`from` remplace `direction` de M5-V03 et interdit `up`/`down` que M4-V08 et M5-V06 acceptent comme valeurs / conflits: M5-V03, M5-V06, M4-V08, M2-V08
+- M3-V07 : neutre — +chaque option s'observe seule (`attributeFilter`) ; valeurs référencées à un jeton / −`data-motion="reveal"` contredit M5-V04 ; attributs à garder synchrones avec la définition TS / conflits: M5-S01, M5-S02, M5-V04, M4-S09
+- M3-V08 : valide — +`stagger` est le mot de Motion, GSAP et anime.js ; le groupe se résout une fois / −désigne une cascade, pas une séquence ; un élément ajouté sort de la cascade / conflits: M5-S02, M3-S09, M2-S04
+- M3-V09 : valide — +séparation nette entre ce que l'auteur déclare et ce que le runtime observe ; un agent ne peut pas forger un état / −un état JS n'existe pas au rendu serveur ; deux espaces de noms à documenter / conflits: M2-S03, M3-01, M3-02, M2-V03
+- M3-V10 : conteste — +un preset ne se trompe pas de sens ; peu de noms à retenir / −sans préfixe, collision possible avec les définitions utilisateur (contre M4-V09) ; `pulse`, `blink` recouvrent les noms cœur de Tailwind (M5-V07) / conflits: M4-V09, M5-V05, M5-V07, M2-V08
+- M5-V01 : valide — +sept mots au lieu de quinze, noms convergents, paire `appear`/`disappear` / −`emphasize` mêle états et attention ; `layout` recouvre F7 et F8 / conflits: M5-S02, M3-S01, M2-S03, M4-S02, M2-V02, M1-V06
+- M5-V02 : valide — +la plupart des cas ne demandent aucune décision de reprise ; réduction tranchée par verbe / −sept défauts à justifier ; `loop` réduit en pause impose un choix d'accessibilité / conflits: M5-S08, M3-S03, M5-S09, M1-V03, M1-V04, M2-V06
+- M5-V03 : valide — +une durée ou un seuil se change dans les tokens ; une seule unité (ms) évite le piège de R2 §17 / −liste fermée à faire évoluer par version ; `direction`, `axis`, `range` non personnalisables / conflits: M3-S06, M4-S05, M5-S05, M3-V06
+- M5-V04 : valide — +attributs interrogeables et observables, sans parseur de chaîne ; une option fausse échoue par son nom / −beaucoup d'attributs sur un élément très animé ; verbe absent du HTML, contre M1-V10 et M3-V07 / conflits: M5-S01, M2-S02, M2-S03, M1-V10, M3-V07
+- M5-V05 : valide — +convergence forte (`fade`, `slide`, `scale`, `spin`) ; direction en option, pas dans le nom / −`collapse` exige la mesure ; `pulse`, `spin` recoupent les classes cœur de Tailwind / conflits: M4-S04, M2-S03, M5-S04, M2-V08, M3-V10
+- M5-V06 : valide — +un seul sens par mot (évite le `down` d'AOS contre celui de tw-animate) ; kebab-case HTML, camelCase TS / −l'effort de traduction en anglais ; interdire `down` contredit des usages existants / conflits: M5-S07, M4-S04, M3-V06
+- M5-V07 : valide — +aucune collision silencieuse ni avec les frameworks ni avec les variables cœur de Tailwind ; une seule liste pour lint, types et doc / −liste à suivre à chaque version ; `initial` et `new` gênent le choix de noms / conflits: M5-S03, M5-S04, M4-S02, M4-V01, M3-V10
+- M5-V08 : valide — +un défilement ou un geste n'est pas un effet d'élément ; le handle reste commun / −F9 n'a plus de nom propre ; `scrollTo` et `reorder` sont des fonctions, pas des attributs / conflits: M3-S02, M2-S05, M1-S09, M5-S02, M2-V02, M4-V06, M1-V06
+- M5-V09 : valide — +le vocabulaire ne dérive pas en silence ; une fiche remplace les débats d'avis / −une règle de plus en revue ; un besoin urgent attend la version suivante / conflits: M5-S10, M5-S02
+- M5-V10 : valide — +les échecs silencieux deviennent des erreurs visibles ; un agent formé sur Motion ou AOS reçoit la bonne forme / −la table vieillit avec les données d'entraînement ; `fade-up` vers `slide` plus `direction` n'est pas biunivoque / conflits: M5-S10, M5-V07
+
+## Doublons à fusionner
+
+- Défauts de reprise et de réduction par verbe : garder **M5-V02** ; fusionner M1-V03 (défauts de reprise) et M1-V04 (réduction) ; M2-V06 est à réviser, son défaut `carry` pour la présence contredit les deux.
+- Présence (verbes et état) : garder **M2-V03** ; fusionner M1-V07 (`disappear`) ; l'état `data-presence` public (M1-V07, M3-V09) reste à trancher avec M2-V03.
+- Défilement programmé : garder **M3-V03** ; fusionner M1-V08 (retrait de `scroll` et `tween`) et la partie défilement de M5-V08.
+- Options à domaine fermé : garder **M5-V03** ; fusionner M1-V09 et M3-V05 (seuils et marges en tokens).
+- Grammaire HTML : garder **M5-V04** (une référence, options en attributs) ; fusionner M3-V07 (`motion check`) et M1-V10 (`attributeFilter`) ; le verbe dans `data-motion` reste à trancher.
+- Stagger : garder **M2-V04** (option de conteneur, `from`) ; fusionner M3-V08 (valeurs `tight` à `wide`, à aligner avec M1-V09).
+- Langue et casse : garder **M5-V06** ; fusionner M2-V10 (liste des mots interdits).
+- Liste réservée : garder **M5-V07** ; fusionner M4-V01 (ma propre proposition, liste issue des API natives).
+- Presets nommés par effet : garder **M5-V05** ; fusionner M3-V10 (nommés sans direction), à condition de trancher le préfixe `udx-` (M4-V09).
+- Recouvrements non fusionnés : `reveal` (M3-V01 contre M1-V06), `scrub` (M3-V02 contre M1-V06), direction (`from` de M3-V06 contre `direction` de M5-V03) et `layout`/`shared` (M2-V01, M2-V02, M5-V08) ; à trancher, pas à fusionner.

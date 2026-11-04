@@ -1,0 +1,5 @@
+# Vote tour 2 — J4 (juge)
+
+1. J1 — Force : couvre explicitement la liste du problème (onze intentions, dont texte, SVG, déplacement, défilement) avec une table de paliers publique, testée et affichée en dev ; aucun échappement. Faiblesse : onze verbes, surface plus large, et `défiler` garde un palier conditionnel au navigateur, ce qui contredit « palier fixe ».
+2. J2 — Force : surface la plus petite et contrat le plus strict pour un agent (pas d'échappement, `motion check` en CI, pause et rendu réduit dans le type, parité par fixtures). Faiblesse : neuf verbes où texte, SVG et mise en page ne sont pas nommés clairement (`write`, `change`), donc la couverture du problème reste à démontrer.
+3. J5 — Force : expressivité la plus explicite (tracer, suivre, partager, jetons du designer) et sortie bien posée. Faiblesse : noms incohérents d'une liaison à l'autre (`data-sequencer`, `data-jeton`, `rythme` objet ou chaîne), exemple React incohérent (`retrait` réutilise `entree` à l'envers), et un fichier d'extensions qui rouvre un échappement au niveau projet.

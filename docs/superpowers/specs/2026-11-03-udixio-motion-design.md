@@ -101,6 +101,7 @@ d'un navigateur à l'autre en s'appuyant sur le natif dès que possible.
 | C13 | **Navigateurs supportés = requête browserslist `defaults`.** Tests à chaque PR : 3 moteurs Playwright récents, chaque provider forcé. Nightly et avant release : pour chaque moteur, la version la plus ancienne satisfaisant `defaults` (Chrome via Chrome for Testing ; Firefox ESR et Safari réels via un service cloud, offre open source à vérifier). Le même `browserslist` sert au build. |
 | C14 | **Tailwind est un prérequis** de `@udixio/motion`, comme pour `@udixio/ui-*` et `@udixio/theme`. Pas de feuille CSS statique autonome : keyframes, variables et syntaxe en attributs sont générés par le plugin Tailwind. Priorité à l'écosystème Udixio plutôt qu'à l'autonomie ou l'externalisation du paquet. « HTML pur » (C6) s'entend donc : HTML dans un projet Tailwind + Udixio. |
 | C15 | **Tout le chantier vit sur `feat/anime`**, fusionné d'un bloc à la fin. Pas de publication intermédiaire ni de coexistence publique avec `anim-*`. *Déduction Claude, à confirmer en D2* : `anim-*` et le type `Transition` de Motion disparaissent dans la même release que l'arrivée de `@udixio/motion`. La branche doit être rebasée régulièrement sur `develop` pour limiter la divergence. |
+| C16 | **anime.js est le seul moteur JS utilisé.** Les providers se limitent au natif (CSS, WAAPI) et à anime.js ; l'abstraction provider sert à pouvoir remplacer anime.js un jour, pas à en supporter plusieurs. |
 | C11 | « Jamais de logique internal-only » : tout ce que les composants Udixio utilisent est exporté (mémoire `feedback_no-internal-only-logic`). |
 
 ## 4. Architecture de principe
@@ -117,7 +118,7 @@ Modèle (core)   MotionSpec : keyframes · timing (durée, délai, easing, sprin
                 · timeline (temps, scroll, view) · trigger (mount, in-view, state, presence)
                 · layout · séquence
                                          ↓
-Providers       css-native │ waapi │ animejs │ (futur moteur)
+Providers       css-native │ waapi │ animejs   (seul moteur JS ; remplaçable, pas multiple)
                 choisis par capacité navigateur + capacité requise par la spec
 ```
 
@@ -236,7 +237,7 @@ la phase 1 (aucune décision prise) :
   anime `timeline.sync()` peut piloter une animation native ; détecter un
   `hover:` sans polling reste fragile. 23 tests proposés pour S1.
 - **R5** : anime.js, Motion, Lenis en MIT ; GSAP sous licence propriétaire
-  (résiliable, révisable, lie chaque utilisateur final) → pèse contre D3.
+  (résiliable, révisable, lie chaque utilisateur final). D3 clos : anime.js seul (C16).
   Udixio est en Apache-2.0 à la racine, mais `@udixio/mcp` déclare MIT et
   plusieurs paquets n'ont pas de champ `license` (hors périmètre, à signaler).
 - **E1** : aucun import runtime de `motion/react` dans les paquets publiés
@@ -291,7 +292,7 @@ Chaque travail du §7 a un identifiant, un type, des entrées, une sortie
 | B3 | 🧠 | **Contrat provider** : interface, capacités, sélection, forçage, échappatoire, cycle de vie (création, update, cancel, cleanup), SSR | Interface de référence en §8.3 |
 | D1 | ⚖️ ✅ | **Décidé : paquet `@udixio/motion`** (C12). Emplacement : sous-module `@udixio/core/motion` ou paquet `@udixio/motion` ; place du plugin Tailwind (`@udixio/tailwind`). Fait constaté : `@udixio/core` a `react` en peerDependency et `motion` + `animejs` en dépendances dures ; un sous-module de `core` hériterait de la peer React (tension avec C6). **Bloque la phase 2.** | Décision §10 |
 | D2 | ⚖️ | Politique de breaking change : remplacement du type `Transition` de Motion dans les interfaces publiques, suppression de `anim-*` (immédiate ou après une version dépréciée) | Décision §10 |
-| D3 | ⚖️ | GSAP comme provider futur possible malgré sa licence propriétaire (entrée R5) | Décision §10 |
+| D3 | ⚖️ ✅ | **Décidé : anime.js est le seul moteur JS.** Le système de providers existe (natif CSS/WAAPI + anime.js) pour la remplaçabilité, mais aucun autre moteur (GSAP, Motion…) n'est prévu. | Décision §10 |
 | S1 | 🧪 | Contrat variables CSS + variants Tailwind lus par un provider JS ; pilotage `currentTime` d'une animation CSS scroll-driven en fallback ; mesure de fidélité native vs fallback | Go / no-go sur 4.2 et 4.7 |
 | S2 | 🧪 | Coordination par le DOM : `layoutId` entre deux îles Astro (React + Svelte), View Transitions vs anime Layout, détection du changement (MutationObserver vs appel explicite) | Go / no-go sur 4.4, choix du mécanisme de détection |
 
@@ -352,7 +353,183 @@ Section **Motion** remplaçant `/animations` :
 
 ## 8. Design détaillé (rempli par les travaux)
 
-### 8.1 Vocabulaire — *à remplir par B1*
+### 8.0 Fondations du moteur — **validées par l'utilisateur (R10, 2026-11-04)**
+
+Issues du registre de choix R10 (`docs/motion/research/R10-choix/`, 5 experts
+motion, 50 choix proposés, 38 après fusion, top 10 puis notation 1–10).
+
+| Rang | Choix | Décision |
+|---|---|---|
+| 1 | M5-07 (9,0) | **Runtime global unique par page**, partagé entre îles : `globalThis[Symbol.for('udixio.motion@1')]`, réutilisé par chaque île, inscription/désinscription par compteur de références, majeures différentes coexistantes. |
+| 2 | M4-03 (8,2) | **Présence** : une sortie garde le nœud (`inert`, `aria-hidden`) jusqu'à `finished`, puis le retire ; `animate.leave` (Angular) et `out:` (Svelte) utilisés quand ils suffisent ; hook dédié en React. |
+| 3 | M1-04 (8,2) | **Une seule frame rAF**, phases lecture puis écriture déclarées par abonné ; la boucle s'arrête quand la file est vide. |
+| 4 | M5-08 (8,0) | **Handle unique** (`play/pause/reverse/seek/cancel/finished`) quel que soit le moteur ; `finished` ne rejette jamais (`finished`/`cancelled`) ; reprise depuis valeur et vitesse courantes. |
+| 5 | M1-01 (7,2) | **Moteur choisi par animation, natif d'abord** : WAAPI si cibles compositables et aucune contrainte JS, sinon anime.js chargé à la demande ; backend exposé et tracé en dev. |
+
+Tensions à résoudre dans la suite : (a) reprise par vitesse (4) vs WAAPI qui
+n'expose pas la vitesse (5) ; (b) la boucle unique (3) doit être enregistrée
+dans le runtime global (1) pour rester unique entre îles. Ce choix remplace
+la règle R8 « jamais de global ».
+
+### 8.0 bis Surface d'écriture — **validée par l'utilisateur (R11, 2026-11-04)**
+
+Issue du registre R11 (`docs/motion/research/R11-surface/`), avec les
+amendements de l'utilisateur (marqués ✎).
+
+| # | Choix | Décision |
+|---|---|---|
+| 1 | M5-S10 (8,4) | **Garde-fous à quatre niveaux, manifeste unique** (verbes, options, définitions, noms réservés) : types TS générés, build (parseur d'attributs + lint), runtime dev (erreur citant le manifeste), tests (couverture des 24 familles) ; manifeste `llms.txt`/JSON pour doc et agents. ✎ Ordre de mise en œuvre : types + runtime dev d'abord, parseur de templates ensuite. |
+| 2 | M5-S09 (8,2) | **Boucles et suivis = abonnés nommés** du runtime global sur la frame unique ; pause hors vue et réduction appliquées sans code par composant ; `udixio.motion.inspect()`. ✎ Une boucle purement CSS n'a pas d'abonnement par frame : le runtime la connaît seulement pour la pause (`animation-play-state`) et la visibilité. |
+| 3 | M5-S07 (8,2) | **Même surface dans chaque environnement** : `data-motion` (HTML/Astro), `useMotion(spec)` (React), directive `udxMotion` (Angular), `{@attach motion(spec)}` (Svelte), `motion(el, spec)` (noyau) ; composants Udixio sur la surface publique. |
+| 4 | M5-S08 (8,0) | **Reprise déclarée `carry` / `restart`** ; `carry` force le JS là où WAAPI n'a pas la vitesse ; le handle expose `velocity.source: exact / estimated / unavailable`. ✎ **Défaut par verbe** dans le manifeste (ex. `restart` pour une apparition, `carry` pour un drag ou un changement d'état) ; on ne l'écrit que pour le changer. |
+| 5 | M4-S04 (8,0) | **Définitions nommées en TS** : `defineMotion(name, …)`, `defineValue(name, …)`, référencées par nom partout ; valeurs lues sans re-rendu (signal Angular, store Svelte, `useSyncExternalStore` React). ✎ **Udixio livre des définitions prêtes à l'emploi** (fondées sur les tokens M3) pour que les cas simples n'exigent aucun `defineMotion`. |
+
+✎ **Règle HTML / Tailwind (choix M5-S01 7,0 et M5-S04 6,8, adoptés par
+l'utilisateur)** : l'attribut **nomme** l'animation (`data-motion="card-enter"`,
+référence uniquement, jamais de valeur libre) ; Tailwind **règle les tokens et
+les états** avec ses variants (`md:[--motion-distance:2rem]`, `data-[open]:…`),
+sans jamais inscrire un élément. Raison : `[data-motion]` est bon marché à
+interroger, observer (`attributeFilter`) et analyser, contrairement à des
+classes mêlées aux utilitaires Tailwind.
+
+Reste ouvert : **les verbes** (R12), layout / partagé / présence (R13),
+texte / SVG / gestes (R14).
+
+### 8.1 Vocabulaire — **validé (R12, validation globale 2026-11-04)**
+
+Issu du registre R12 (`docs/motion/research/R12-vocabulaire/`). Consensus plus
+faible qu'en R10/R11 (meilleure moyenne 7,2). L'utilisateur validera
+l'ensemble une fois toutes les familles couvertes.
+
+| # | Choix | Proposition |
+|---|---|---|
+| 1 | M5-V04 (7,2) | Grammaire HTML : `data-motion="<nom>"` (preset ou définition, référence seule) ; une option = un attribut `data-motion-<option>` ; pas de chaîne composite ; attribut inconnu = erreur de build. |
+| 2 | M5-V01 (7,0) | Sept verbes : `appear`, `disappear`, `emphasize`, `reveal` (à la vue), `scrub` (lié au défilement), `loop`, `layout` (y compris élément partagé). Valeurs continues via `defineValue`. |
+| 3 | M5-V07 (7,0) | Noms réservés refusés au build (`enter`, `exit`, `in`, `out`, `transition`, `animate`, `initial`, `view-transition-*`, `AnimatePresence`…) ; tokens `--udx-motion-*`, jamais `--animate-*`. |
+| 4 | M5-V05 (6,8) | Dix presets livrés nommés par effet ; direction = option, jamais dans le nom. |
+| 5 | M5-V02 (6,8) | Défaut de reprise et de rendu réduit par verbe, dans le manifeste. |
+| 6 | M3-V03 (6,8) | `scrollTo(cible, { duration, easing })` est une action, pas un verbe. |
+
+Égalité à trois pour les places 4–6 (même moyenne, médiane et nombre de top 10) : les trois sont conservés car non contradictoires.
+
+Corrections proposées par Claude (à valider avec l'ensemble) :
+- directions : `start` / `end` (horizontal, compatible RTL) et `up` / `down` (vertical), désignant le **sens du mouvement** ;
+- rendu réduit de `disappear` : fondu (et non instantané) ;
+- presets `spin` et `pulse` renommés (ex. `rotate`, `breathe`) pour éviter la confusion avec `animate-spin` / `animate-pulse` de Tailwind ;
+- `stagger` en token (`tight` / `normal` / `loose`), jamais en millisecondes.
+
+Trous identifiés, traités en R13 : détection du changement pour `layout`
+(mesure avant mutation, React ; limite `:hover` CSS) ; transition d'état non
+géométrique avec ressort / reprise (pas de verbe) ; panneau qui reste monté
+(accordéon, hauteur `auto`) ; transitions de page (View Transitions) ;
+identité de l'élément partagé. Traités en R14 : séquences / chorégraphie,
+gestes, texte, SVG, responsive, usage interne.
+
+Suite du processus (demande de l'utilisateur, 2026-11-04) : la recherche
+continue sans validation intermédiaire jusqu'à couverture complète des 24
+familles (R13, R14), puis **R15 — cohérence transversale** : audit que toutes
+les familles partagent verbes, grammaire, options, défauts, handle, présence
+et règles d'accessibilité ; validation globale par l'utilisateur ensuite.
+Chaque choix R13+ porte une ligne « Cohérence ».
+### 8.1 bis États, layout, partagé, présence, pages — **validé (R13, validation globale 2026-11-04)**
+
+Registre R13 (`docs/motion/research/R13-etats-layout/`, agents neufs, ligne
+« Cohérence » par choix ; top 10 et notation fusionnés en un passage).
+
+Top 5 :
+
+| # | Choix | Proposition |
+|---|---|---|
+| 1 | M3-L02 (8,4) | Valeur « avant » du FLIP = dernière géométrie stable lue en phase lecture de la frame précédente, par racine suivie ; invalidée par ResizeObserver (breakpoints, container queries) et MutationObserver ; sert aussi aux sorties et au réordonnancement. |
+| 2 | M5-L09 (8,0) | Table verbe × option générée par le manifeste (ex. `interrupt` pour `emphasize`/`layout`/`reveal`, `shared` pour `layout`, `stagger` pour `appear`/`disappear`/`loop`) : erreur de type, de build et dev identiques dans les 5 formes. |
+| 3 | M5-L07 (7,8) | Sortie d'un sous-arbre : seule la racine retirée porte `disappear` ; enfants en cascade via `data-motion-stagger` sur la racine. |
+| 4 | M5-L02 (7,6) | Lint : `layout` combiné à `hover:` / `focus:` / `group-hover:` = erreur de build qui renvoie vers `emphasize` ; seul un changement d'état écrit déclenche `layout`. |
+| 5 | M1-L05 (7,4) | Ressort transmis par ses paramètres physiques (jamais seulement `linear()`) ; vitesse exacte calculée analytiquement à l'interruption, sinon `estimated` / `unavailable`. |
+
+Réponse retenue par question (meilleure note, même hors top 5) :
+
+| Question | Réponse | Note | Solidité |
+|---|---|---|---|
+| Q1 détection et mesure | M3-L02 + M3-L01 (déclencheur = attribut `data-*`, jamais la classe) + M3-L05 (réordonnancement reconnu par identité de nœud) + M1-L01 (point pré-mutation par environnement ; faits M4 : React `getSnapshotBeforeUpdate` d'un wrapper classe, Svelte `$effect.pre`, Angular : avant l'écriture du signal, pas `afterRender`) | 8,4 / 7,0 / 7,2 / 6,6 | solide |
+| Q2 transition d'état non géométrique | M5-L03 : `emphasize` avec `trigger="state"` et `interrupt="carry"` | 5,6 | **faible — à résoudre en R15** (`emphasize` mêle accentuation et état ; M1-L04 « `layout` pour les valeurs » rejeté à 2,2) |
+| Q3 panneau qui reste monté | M5-L04 : le preset `collapse` passe en `layout` | 5,2 | **faible — à résoudre en R15** (concurrent : CSS pur `grid-template-rows` 0fr→1fr de M1-L06) |
+| Q4 élément partagé | M5-L05 : `defineShared('nom')` + `data-motion-shared="nom"` (lint du nom), unicité par document | 7,4 | solide |
+| Q5 transitions de page | M4-L07 : pas de verbe, preset `route` + `navigate(run, { direction })` du runtime, branché par routeur ; M4-L08 pour Astro et le cross-document | 7,2 / 6,4 | moyen (statut de `addTransitionType` à vérifier) |
+| Q6 présence | M5-L07 (racine) + M5-L08 (`data-presence` écrit par le runtime seul) | 7,8 / 5,8 | moyen (`leaving` vs `exiting`, nom de l'attribut à trancher) |
+
+Rejetés nettement : M1-L04 (`layout` pour des valeurs non géométriques, 2,2),
+M2-L06 (FLIP JS unique pour l'élément partagé, contraire au natif d'abord, 3,2).
+
+### 8.1 ter Familles restantes — **validé (R14, validation globale 2026-11-04)**
+
+Registre R14 (`docs/motion/research/R14-reste/`, agents neufs). 21 choix
+conservés, tous complémentaires ; aucune question sans réponse. Top 5 global :
+M3-R03 (8,6), M2-R03 (8,2), M5-R03 (8,2), M3-R04 (8,2), puis M3-R01, M2-R01 et
+M1-R10 à égalité (8,0).
+
+Réponse par question (attribution par question **principale** du choix) :
+
+| Question | Réponse(s) | Note | Contenu |
+|---|---|---|---|
+| Q1 séquences | M1-R01 + M2-R06 | 7,2 / 7,6 | Séquence définie en TS, compilée une fois, pilotée par le handle unique ; cascade de liste par rang visuel mesuré, avec plafond de durée. |
+| Q2 gestes | M2-R01 + M2-R02 + M2-R03 + M2-R04 | 8,0 / 7,0 / 8,2 / 7,0 | Geste = source de valeurs, sans verbe ; relâchement en ressort initialisé par la vitesse, exposée au handle ; **alternative clavier et à un seul pointeur obligatoire et typée** (WCAG 2.5.7 et 2.1.1) ; drag-to-reorder = `layout` sur la liste, échange au franchissement du milieu. |
+| Q3 texte | M1-R04 | 7,4 | Découpage préparé, source accessible conservée, reflow contrôlé (méthode d'accessibilité encore disputée : `sr-only` vs `aria-label`). |
+| Q4 SVG | M1-R05 | 7,2 | Tracé et trajectoire en natif, morphing en JS (`morphTo` rééchantillonne). |
+| Q5 valeurs, compteurs | M3-R01 + M4-R06 | 8,0 / 7,4 | Valeur réactive écrite dans le DOM, jamais re-rendue ; compteur : valeur finale rendue par le serveur, animée après hydratation. |
+| Q6 responsive, scopes | M3-R06 + M3-R05 | 7,6 / 7,4 | Paliers nommés, reconstruction au seul changement de palier ; scope = racine + registre, nettoyage par élagage. |
+| Q7 usage interne | M1-R10 + M4-R02 | 8,0 / 6,4 | Les contrôleurs internes passent par le chemin public ; prop `motion` unique, durées en tokens, fin du type `Transition` de Motion (breaking change, D2). |
+| Q8 tokens | M1-R06 (+ M3-R07 faible, 5,0) | 7,8 | Une source de paramètres physiques (ressorts M3 Expressive, **valeurs officielles à relever avant S1**), émise en CSS, TS et Tailwind (`--udx-motion-*`). |
+| Q9 perf, chargement | M3-R04 + M3-R03 + M3-R08 | 8,2 / 8,6 / 6,8 | Chargement par verbe, préchargement en trois temps, un moteur par page ; abonnements bornés (visible, document visible, une observation par racine) ; coût par propriété. |
+| Q10 outillage IA | M5-R03 + M5-R04 | 8,2 / 6,6 | Manifeste machine (`llms.txt` + JSON) produit au build ; outils MCP `@udixio/mcp` (recette et validation motion). |
+
+Contradictions R14 ouvertes, transmises à R15 : `reorder` verbe ou geste ;
+rang de cascade (DOM / visuel) ; attribut enfant (`part` / `step`) ;
+découpage et accessibilité du texte ; valeurs sur la racine ou sur les
+cibles ; source de vitesse des gestes ; syntaxe des décalages (`at` vs
+tokens) ; `--udx-motion-scale` vs fondu de `disappear` ; alias `--duration-*`
+vs échelle Tailwind ; flèches vs espace au clavier.
+
+### 8.1 quater Résolutions de cohérence — **validé (R15, validation globale 2026-11-04), prévaut sur §8.1 à §8.1 ter**
+
+Audit `docs/motion/research/R15-coherence/01-audit.md` (matrice 24 familles ×
+10 conventions, 30 incohérences) ; vote de 5 experts neufs (`votes/`). Une
+résolution R15 **remplace** la formulation antérieure qu'elle contredit.
+« Arbitrage Claude » = pas de majorité, décision proposée par Claude à partir
+du terrain commun des votes.
+
+| # | Sujet | Résolution | Vote |
+|---|---|---|---|
+| I01 | Direction | **Sens du mouvement** : `start` / `end` (horizontal, RTL), `up` / `down` (vertical) ; `left` / `right` retirés ; `direction` réécrite. | 4/5 |
+| I02 | Défauts de reprise | **Arbitrage Claude** : deux valeurs seulement (`carry`, `restart`) ; table complète au manifeste : `carry` pour `appear`, `disappear`, `layout`, `scrub`, gestes ; `restart` pour `emphasize`, `reveal`, `loop`, transitions de page. **Correction de §8.0 bis #4** : `carry` sans ressort reste natif (nouvelle animation WAAPI depuis la valeur calculée) ; le JS n'est requis que pour reprendre un ressort avec sa vitesse. | B 2, A 1, C 1, D 1 — présence en `carry` 4/5 |
+| I03 | Verbe dans `data-motion` | **Référence seule** : le verbe est porté par le preset ou la définition, jamais écrit en HTML. | 4/5 |
+| I04 | Présence | `data-presence="entering | present | exiting"`, écrit par le runtime seul (lint). | 4/5 |
+| I05 | Rendu réduit de `disappear` | **Fondu**, non multiplié par `--udx-motion-scale` (exception documentée). | 5/5 |
+| I06 | Transition d'état non géométrique (Q2) | **Arbitrage Claude** (terrain commun : `emphasize` reste un accent en `restart`, pas de défaut conditionnel) : un changement d'état continu (chevron, couleur) est une **transition CSS** avec tokens et variants (`data-[state=open]:rotate-180`), qui reprend déjà sans saut ; si un ressort avec vitesse est requis, **`defineValue`**. Aucun verbe ajouté. Q2 n'est plus faible. | C 2, A 2, B 1 |
+| I07 | Espace de noms CSS | `--udx-motion-*` uniquement ; aucun alias `--duration-*`, `--ease-*`, `--animate-*`. | 4/5 |
+| I08 | `loop` | `restart`, rendu réduit figé, `pause` obligatoire (`control | essential`). | 3/5 |
+| I09 | Frontière des verbes | Sept verbes ; `shared` est une option de `layout`. | 4/5 |
+| I10 | Mesure « avant » | Cache de géométrie stable (M3-L02) pour les quatre environnements. | 3/5 |
+| I11 | Registre d'attributs | Liste fermée et versionnée ; doublons fusionnés (`part`/`step` → `step`, `layout-id` → `shared`, `scope`/`keep`/`group`) ; la prop `motion` des composants utilise **exactement** les clés `data-motion-<option>`. | 3/5 (D convergents) |
+| I12 | Panneau monté (Q3) | **CSS pur** `grid-template-rows` 0fr → 1fr, preset sans verbe, repli JS. Q3 n'est plus faible. | 4/5 |
+| I13 | Presets | `spin` → `rotate`, `pulse` → `breathe` réservé à `loop` ; `blink` borné à 3 flashs/s (WCAG 2.3.1) ou retiré. | 5/5 |
+| I14 | `stagger` | Tokens `tight | normal | loose`. | 5/5 |
+| I15 | Chorégraphie | **Arbitrage Claude** (majorité par sous-question) : attribut enfant `data-motion-step` (3/5) ; décalage `at` qui accepte une étiquette ou `+=token`, jamais un temps nu ni `'<'` (3/5). | B 2, A 2, C 1 |
+| I16 | Rang de cascade | Rang visuel mesuré. | 5/5 |
+| I17 | Élément partagé | Identité `defineShared` + `data-motion-shared`, unique par document (doublon = erreur dev). **Rendu, arbitrage Claude** (votes partagés, règle §8.0 #5 natif d'abord) : View Transitions (`view-transition-name`) quand la reprise est `restart` et le support présent ; FLIP JS si `carry` ou sans support. Règle du doublon en production (premier ou dernier inscrit) : à trancher en spike. | D 3 (identité unanime) |
+| I18 | Transitions de page | `motion.navigate(update)` du noyau ; chaque routeur passe par lui ; ajouter `direction` à la signature. | 3/5 |
+| I19 | Sorties de liste | Option déclarée, défaut **en place**. | 3/5 |
+| I20 | États d'auteur | `data-state` pour tout état d'auteur (convention Radix / shadcn) ; le moteur n'écrit jamais `data-hover` / `data-focus`. | 4/5 |
+| I21 | Handle | Six méthodes inchangées ; canal d'événements séparé `motion.on(el, 'release')`. | 5/5 |
+| I22 | Fonctions de définition | Une par type : `defineMotion`, `defineValue`, `defineSequence`, `defineGesture`, `defineShared`, `defineTokens`. | 4/5 |
+| I23 | Options partagées | Un sens par nom ; domaines publiés au manifeste ; noms anglais. | 5/5 |
+| I24 | Gestes | `reorder` = primitive de `defineGesture` + `layout`, sans verbe ; vitesse `exact` au pointeur, `estimated` ailleurs ; champ clavier `alternative` obligatoire (Espace et flèches). | 5/5 |
+| I25 | Ressorts | Token `spring.<rôle>.<vitesse>` (noms M3 Expressive), paramètres physiques conservés, `linear()` dérivé au build. **Valeurs officielles M3 à relever avant S1.** | 4/5 |
+| I26 | Valeurs réactives | `defineValue` avec `source`, `axis`, `range` ; variables écrites sur les **cibles abonnées**, jamais sur la racine ; compteur en `<data value>`. | 3/5 (D convergents) |
+| I27 | Texte | Découpage client après hydratation, copie `sr-only` + morceaux `aria-hidden`, brouillage hors v1. | 4/5 |
+| I28 | Chargement | Préchargement par intersection ou intention ; verbes du premier rendu chargés avec l'île (pas d'idle sans cible). | 3/5 |
+| I29 | Scope | `revert()` pour le registre, `inspect()` pour le diagnostic. | 4/5 |
+| I30 | Faits à vérifier | Vérification par spike avant les choix dépendants : `linear()`, `sibling-index()`, `match-element`, `grid-template-rows`, `requestIdleCallback` (absent de Safari), `getCoalescedEvents`, valeurs M3. | 4/5 |
+
 ### 8.2 Modèle `MotionSpec` — *à remplir par B2*
 ### 8.3 Contrat provider — *à remplir par B3*
 ### 8.4 Détails par famille — *une sous-section par famille, remplie en phase 3*
@@ -396,7 +573,7 @@ Section **Motion** remplaçant `/animations` :
 
 ### En attente (⚖️)
 
-D2 (en partie orientée par C15), D3.
+D2 (en partie orientée par C15).
 
 ## 11. Risques
 
@@ -417,6 +594,14 @@ D2 (en partie orientée par C15), D3.
 | Date | Travail | Changement |
 |---|---|---|
 | 2026-11-03 | — | Création du document à l'issue du brainstorming initial. |
+| 2026-11-04 | Validation globale | L'utilisateur valide §8.1 à §8.1 quater, arbitrages Claude compris ; prochaine étape : vérifications I30 et spikes S1/S2. |
+| 2026-11-04 | R15 | Audit de cohérence : 30 résolutions (§8.1 quater), 27 à la majorité, 3 + rendu partagé arbitrés par Claude. Recherche complète, en attente de validation globale. |
+| 2026-11-04 | R14 | Familles restantes proposées (§8.1 ter), toutes les questions couvertes ; contradictions transmises à R15. |
+| 2026-11-04 | R13 | États/layout/partagé/présence/pages proposés (§8.1 bis) ; Q2 et Q3 faibles, renvoyées à R15. |
+| 2026-11-04 | R12 | Vocabulaire proposé (§8.1), non validé ; l'utilisateur demande de tout couvrir avant une validation globale. |
+| 2026-11-04 | R11 | Surface d'écriture validée avec amendements (§8.0 bis) ; attribut pour le nom, Tailwind pour tokens et états. |
+| 2026-11-04 | R10 | Fondations du moteur validées (§8.0) ; débats R8/R9 conservés comme entrées. |
+| 2026-11-03 | D3 | anime.js seul moteur JS ; GSAP/Motion jamais envisagés comme providers (C16). |
 | 2026-11-03 | Phase 0 (R1–R5, E1–E3) | Rapports dans `docs/motion/research/` ; synthèse §5 bis ; supports F3/F5/F7/F10 corrigés ; ajout F24 (boucles). |
 | 2026-11-03 | Livraison | Branche longue `feat/anime`, fusion finale (C15). |
 | 2026-11-03 | Tailwind | Tailwind requis, écosystème d'abord (C14). |

@@ -1,0 +1,6 @@
+# Vote tour 1, J3 (juge accessibilité)
+
+1. J2 : Force : une seule sémantique dans le cœur, liaisons minces, `data-motion` sans configuration pour Astro, tokens possédés par le designer, et la couverture la plus large de la liste du problème. Faiblesse : la pause n'est pas mentionnée et n'est pas imposée par le type, et `motion.custom` ouvre une sortie non contrôlée.
+2. J4 : Force : seul à imposer par le type la pause et la variante réduite, avec des erreurs de build nommées (`sequnce`, `pause` manquant). Faiblesse : le lexique n'a ni compteur, ni texte découpé, ni SVG, que le problème nomme explicitement ; ils passeraient par l'échappement.
+3. J5 : Force : expressivité la plus complète (cascade, partage, compteur, texte, designer maître des valeurs). Faiblesse : ses propres exemples de composants contiennent des valeurs brutes (`rythme: 0.12`, `data-compter="1280"`) qui contredisent sa règle, et `partition.scan(document)` ne voit pas les îles.
+4. J1 : Force : le meilleur plancher de coût (palier 0 sans JS, chunk chargé seulement si demandé) et un repli en état final. Faiblesse : le vocabulaire reste flou (`tone`/`rythme` côté React, `data-motion-stagger` côté HTML, aucune erreur de build décrite pour le HTML) et le contrat des séquences et du partage n'est pas posé.

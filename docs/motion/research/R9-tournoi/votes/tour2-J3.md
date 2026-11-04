@@ -1,0 +1,6 @@
+# Vote tour 2, J3 (juge)
+
+1. J4 : Force : dix intentions qui couvrent la liste du problème (compteur, texte, SVG, partage, défilement explicite), erreurs de build nommées, lint qui refuse toute valeur numérique hors de `tokens.json`. Faiblesse : des jetons illimités dans `tokens.json` déplacent la fermeture du vocabulaire vers le designer, et `share` tombe à l'état final sans FLIP hors View Transitions.
+2. J1 : Force : table de paliers fixe par intention, publiée et testée ; onze verbes couvrant toute la liste ; rendu réduit obligatoire dans le jeton. Faiblesse : `défiler` change de palier selon le navigateur, ce qui contredit le palier fixe, et la surface est plus large que celle de J4.
+3. J5 : Force : seul à couvrir tout le problème avec des verbes de première classe (suivre, tracer, écrire, compter) et une validation identique en HTML et en TS. Faiblesse : une « extension » déclarée au projet réintroduit un échappement libre, et les formes verbales se croisent (`sequencer`, `tracer`, `boucler`, clé `sortir` pointant un jeton `entree`).
+4. J2 : Force : meilleure réponse aux îles (groupes par DOM, politique sur `<html>`, `motion check` en CI sans plugin) et aucun échappement libre. Faiblesse : neuf verbes sans SVG ni défilement, deux éléments explicites du problème, renvoyés à « un verbe à ajouter » sans contrat.

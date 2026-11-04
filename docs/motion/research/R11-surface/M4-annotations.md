@@ -1,0 +1,56 @@
+# M4 — Annotations R11 (intégration frameworks, îles, SSR)
+
+- M1-S01 : valide — +garantie de vitesse publiée dans le manifeste et vérifiable au build / −le même verbe change de moteur, donc de coût, selon une option / conflits: M1-S02, M1-S04, M1-S10, M3-S04, M5-S08
+- M1-S02 : valide — +un token, deux représentations générées ; `linear()` pour le rendu CSS sans solveur à l'exécution / −deux représentations à garder égales ; `linear()` absent des vieux Chrome / conflits: M5-S05, M1-S01
+- M1-S03 : valide — +une seule boucle par page, y compris pour les îles chargées tard, avec file rejouée au chargement du runtime / −file avant chargement à borner ; ordre de rejeu entre îles non garanti / conflits: M3-08, M5-05
+- M1-S04 : valide — +zéro JS pour les specs de palier CSS ; le build refuse une classe qui exigerait du JS / −`motion-${x}` invisible au scanner ; plugin couplé au registre / conflits: M5-04, M3-04
+- M1-S05 : valide — +une règle d'encodage pour HTML, React, Angular et Svelte, avec ou sans plugin / −le prédicat doit suivre chaque moteur ; trop large, il produit de faux refus / conflits: M1-S04, M5-02
+- M1-S06 : valide — +restauration de position, ancres et trackpads restés natifs ; aucun moyen de détourner le scroll / −durée du `smooth` natif non réglable ; scrub neutre sans timeline / conflits: M3-S02
+- M1-S07 : conteste — +zéro re-rendu ; le texte rendu côté serveur est déjà la cible d'un compteur / −déclare « aucun signal » : un rendu qui dépend de la valeur n'a plus de chemin réactif propre, contredit M4-S04 / conflits: M4-S04, M1-09, M4-07, M3-S05
+- M1-S08 : valide — +aucune mutation du DOM après peinture pour un texte statique ; tracé SVG natif sans JS / −DOM plus lourde ; serveur et client doivent produire la même découpe (risque de décalage à l'hydratation) / conflits: —
+- M1-S09 : neutre — +une seule règle de reprise pour geste et animation, transmise au handle / −aucun verbe `drag` en v1 contredit M2-S05 et M5-S02 : décision de périmètre à trancher / conflits: M2-S05, M5-S02
+- M1-S10 : valide — +navigations same-document et cross-document Astro sans JS par frame ; l'auteur n'écrit jamais le nom / −une VT à la fois, non interruptible ; deux îles qui nomment pareil entrent en collision / conflits: M1-03, M1-S01
+- M2-S01 : conteste — +un point d'entrée impératif unique pour les quatre surfaces / −en React, la mutation est le commit : mesurer « avant » exige un pré-commit (flushSync ou snapshot), donc l'encadrement n'est pas uniforme / conflits: M1-06, M2-S10
+- M2-S02 : valide — +identité sérialisable, visible au SSR et dans les îles HTML ; même nom dans les quatre environnements / −une paire hors portée devient impossible entre îles sans portée commune / conflits: M2-01, M2-07, M5-02
+- M2-S03 : valide — +état `data-presence` sans collision avec `enter`/`exit`, lisible au SSR et stylable en CSS / −état à poser avant le retrait ; React doit retenir les enfants sortants / conflits: M5-01, M1-07, M3-09
+- M2-S04 : valide — +clés natives (`key`, `track`, `each`) comme identité, aucun identifiant à inventer / −clé d'index refusée ; listes virtualisées perdent leur identité / conflits: M2-06, M2-S02
+- M2-S05 : valide — +une primitive de réordonnancement déclinée en quatre surfaces, fantôme en `transform` / −`touch-action` et pointer events diffèrent selon le framework ; clavier à définir (F20) / conflits: M2-08, M2-S06, M1-S09
+- M2-S06 : valide — +même décision que M5-S08 : l'auteur choisit le coût de la vitesse, sans promesse exacte sur WAAPI / −deux vocabulaires (`continuous`/`exact` contre `carry`/`restart`) pour une même décision / conflits: M1-02, M5-03, M2-04
+- M2-S07 : valide — +tokens et variants d'état ; classes statiques donc élaguées / −aucune expressivité pour le layout ; écart assumé avec la préférence Tailwind / conflits: M5-04, M3-04, M5-02
+- M2-S08 : valide — +deux rôles seulement (attribut sérialisable, preset nommé) ; un preset se teste une fois / −options non nommables inexprimables en attribut ; preset inconnu à faire échouer en dev / conflits: M5-02, M5-01
+- M2-S09 : valide — +tokens de layout et de présence en custom properties, lisibles dans les îles sans contexte partagé / −ressort CSS = table `linear()` sans vitesse ; valeurs calculées à l'exécution hors tokens / conflits: M5-03, M1-02
+- M2-S10 : valide — +erreurs de surface remontées tôt, avec la règle citée ; zéro coût en production / −mutations non encadrées détectées par échantillonnage (faux négatifs) ; le mode dev change le rendu / conflits: M5-10, M2-S01
+- M3-S01 : valide — +deux verbes de vue sans nom natif ; le typage refuse `scrub` avec seuil / −deux verbes à apprendre ; `scrub` contredit `follow` de M5-S02 / conflits: M5-01, M3-06, M5-S02
+- M3-S02 : valide — +défilement traité comme action sur le handle commun, pas comme effet d'élément / −durée du `smooth` natif non réglable ; pas d'équivalent attribut pour le HTML pur / conflits: M5-08, M3-07, M5-S02
+- M3-S03 : valide — +boucle hors écran sans coût, pause WCAG vérifiée à la compilation / −une boucle sur un élément jamais observé tourne en permanence ; pas de `finished` / conflits: M1-04, M3-01, M4-03
+- M3-S04 : valide — +le WAAPI ne perd plus la vitesse en silence ; l'auteur choisit le coût écrit dans le code / −option obligatoire de plus ; `velocity` fait basculer en JS / conflits: M1-01, M5-08, M1-02
+- M3-S05 : valide — +une variable par valeur (`--udx-progress`, `--udx-pointer-x`) lue sans JS sur le chemin natif ; un écouteur par page / −`@property` requis pour animer par timeline ; le repli écrit des styles / conflits: M1-09, M4-07, M3-06
+- M3-S06 : valide — +seuils et marges nommés dans les tokens ; un agent ne peut pas écrire `0.37` / −jeu fermé à faire évoluer par version ; un nom ne dit pas la distance réelle / conflits: —
+- M3-S07 : valide — +erreurs de déclenchement visibles avant le navigateur, même règle dans les quatre surfaces / −un `transform` posé par JS échappe à la détection statique ; dépend de M3-01 / conflits: M5-02, M3-03
+- M3-S08 : valide — +résolution du nom une fois au premier attach ; îles et frameworks partagent le même nom sans contexte / −registre complet au build sinon refus ; ordre d'arrivée des îles non garanti / conflits: M5-07, M5-05
+- M3-S09 : valide — +coût proportionnel au nombre de groupes ; cascade déclarée une fois pour une liste / −un élément ajouté après déclenchement ne rejoint pas la cascade ; très grands groupes à découper / conflits: M4-03, M1-05, M3-01
+- M3-S10 : valide — +Tailwind encode la correspondance état vers nom sans définir d'animation ; breakpoint = variable / −`hover:` tactile diverge ; `MutationObserver` ciblé coûte ; une classe ne peut pas inscrire / conflits: M5-04, M3-04, M5-02
+- M5-S01 : valide — +attributs et classes ne désignent qu'une référence ; un agent ne peut pas inventer une valeur dans un attribut / −effets à callback restent en TS ; grammaire réduite à un nom et une option / conflits: M5-02, M3-04
+- M5-S02 : valide — +une table famille vers verbe couvre les 24 familles et se teste / −quinze verbes pour un débutant ; `split`, `draw`, `morph` se recoupent ; `scroll` et `drag` contredisent M3-S02 et M1-S09 / conflits: M5-01, M3-05, M1-S09, M3-S02
+- M5-S03 : valide — +aucun verbe ne reprend un nom natif ; lint court valable dans les trois frameworks / −liste à suivre selon les versions ; `appear`/`disappear` moins évidents pour un débutant / conflits: M5-01
+- M5-S04 : valide — +Tailwind reste une couche retirable ; pas de second vocabulaire à aligner / −un effet ne s'écrit pas en classe seule ; réduction répliquée dans le CSS généré / conflits: M3-04, M5-09
+- M5-S05 : valide — +un rôle, une émission ; les composants ne codent aucune durée / −N points fixes approchés ; ressorts ad hoc restent en JS ; `linear()` ne porte pas la vitesse / conflits: M1-02, M5-08
+- M5-S06 : valide — +définition partagée entre îles sans import commun ; variantes `at:` pour F19 / −registre chargé avant usage (ordre des îles) ; `at:` non traduisible diverge du JS / conflits: M5-07, M4-02
+- M5-S07 : valide — +même verbe et mêmes options dans toutes les surfaces ; le dogfood révèle les lacunes / −cinq formes à tester ; `useMotion` contre ref callback reste à trancher ; durées de vie ref et attachment différentes / conflits: M4-01, M4-03
+- M5-S08 : valide — +`carry` ou `restart` déclaré, dégradation visible via `source` / −`carry` peut basculer en JS ; estimation WAAPI bruitée / conflits: M1-01, M1-03
+- M5-S09 : valide — +une horloge, abonnés nommés et inspectables ; pause et réduction uniformes / −l'abonné doit être libéré par son scope ; un abonné lent retarde la frame / conflits: M1-04, M4-10, M3-09
+- M5-S10 : valide — +erreur d'attribut au build ; source unique pour types, runtime et agents / −génération à tenir en CI ; le lint ne voit pas les noms construits à l'exécution / conflits: M5-10, M5-06
+
+## Doublons à fusionner
+
+- Continuité de vitesse : garder **M5-S08** (`carry`/`restart`, `source` exposé) ; fusionner M3-S04 (obligation au build), M1-S01 (routage vers JS et garantie au manifeste), M2-S06 (vocabulaire `continuous`/`exact` abandonné).
+- Tokens de ressort : garder **M5-S05** ; fusionner M1-S02 (deux représentations) et M2-S09 (émission CSS).
+- Tailwind : garder **M5-S04** ; fusionner M2-S07 ; M1-S04 garde le refus au build et M3-S10 la génération de variants, sous M5-S04.
+- Vérification : garder **M5-S10** ; fusionner M1-S05 (prédicat unique), M3-S07 (règles de déclencheurs), M2-S10 (contrôles dev).
+- Définitions nommées : garder **M5-S06** ; fusionner M3-S08 (résolution au premier attach), M2-S08 (preset nommé), M5-S01 (règle attribut = référence).
+- Boucles : garder **M5-S09** ; fusionner M3-S03 (pause obligatoire) et M1-S03 (file avant chargement).
+- Valeur continue en variable CSS : garder **M3-S05** ; fusionner M1-S07 pour son apport F15, sauf sa lecture « aucun signal », à trancher avec M4-S04.
+- Défilement programmé : garder **M3-S02** ; fusionner M1-S06 (règle sans lissage) ; M5-S02 retire `scroll` du vocabulaire.
+- Surface par framework : garder **M5-S07** ; fusionner M4-S01 et M4-S10 (dogfood) ; trancher `useMotion` contre ref callback.
+- Vocabulaire sans nom natif : garder **M5-S03** ; M4-S02 est identique, à fusionner.
+- Recouvrements non fusionnés : stagger (M2-S04 identité par clé, M3-S09 cascade par groupe) ; présence (M2-S03 état, M4-S03 mécanisme).
