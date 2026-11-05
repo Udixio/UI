@@ -27,7 +27,7 @@ export default defineConfig(() => ({
         index: 'src/index.ts',
         'providers/waapi': 'src/providers/waapi.ts',
         'providers/animejs': 'src/providers/animejs.ts',
-        testing: 'src/testing/index.ts',
+        'testing/index': 'src/testing/index.ts',
       },
       name: '@udixio/motion',
       fileName: (format, entryName) =>
