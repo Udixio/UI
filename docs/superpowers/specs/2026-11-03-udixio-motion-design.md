@@ -560,6 +560,29 @@ geste. **Ajustement I25** : nom de token dans l'ordre officiel
 pas une option par animation ; la conversion officielle sert de courbe de
 repli au palier natif.
 
+### 8.1 quinquies Résultats des spikes S1 et S2 (2026-11-05)
+
+Rapports : `docs/motion/research/S1-spike-rapport.md`,
+`docs/motion/research/S2-spike-rapport.md`. Mesures sur Chromium 156 et
+Firefox 157 (sans scroll-driven natif : version antérieure à 159) ; WebKit non
+mesuré (bibliothèques système manquantes).
+
+| Point | Verdict | Conséquence pour la spec |
+|---|---|---|
+| §4.2 contrat de variables CSS | **GO** | Variables `@property` déclarées au niveau du document (pas dans une shadow root) ; lectures groupées en phase lecture (~0,5 µs/lecture ; entrelacer écritures et lectures est pathologique). |
+| §4.7 pilotage de `CSSAnimation` (fallback scroll-driven) | **GO, 9 conditions** | Écart 0 avec le natif sur 41 positions. Ne pas utiliser `getBoundingClientRect` pour la progression ; garder la poignée de l'animation (une `fill:none` sort de `getAnimations()`) ; re-pauser une instance recréée (changement d'`animation-name`) avant rendu via `MutationObserver` ; `cancel()` définitif ; toujours une durée de repli ; ne jamais écrire le raccourci `animation:` après `animation-timeline`. |
+| I02 reprise `carry` native | **GO nuancé** | Position reprise exactement (0 px) par une nouvelle WAAPI ; la vitesse ne l'est pas : seul un ressort la conserve. Confirme la frontière : `carry` sans ressort = natif, ressort avec vitesse = JS. |
+| I25 ressorts en `linear()` | **GO** | Un `linear()` dérivé de la solution analytique (21–26 stops, ~300 octets) tient à 0,2 % ; la conversion officielle cubic-bezier + durée s'écarte de 6 à 10 % → **le `linear()` dérivé est le repli natif par défaut**, la conversion officielle un repli de dernier recours. anime.js : `damping = 2ζ√stiffness`. |
+| §4.4 / M5-07 runtime global entre îles | **GO** | Deux copies du module partagent un runtime et une seule boucle rAF ; compteur de références correct au démontage ClientRouter. La première copie inscrite impose sa forme : **forme du runtime stable au sein d'une majeure**. |
+| I10 cache de géométrie | **Précisé** | Le cache doit inclure le **transform courant** ; un cache « layout seul » saute de 77 px à l'interruption. |
+| I17 élément partagé | **FLIP GO, VT GO conditionnel** | Confirme VT si `restart`, FLIP si `carry`. **Règle du doublon : exclure `data-presence="exiting"`, prendre le premier inscrit vivant (`first-live`), erreur en dev.** Deux noms VT identiques font avorter la transition. Pendant le callback d'une VT, rAF ne tourne pas : ne jamais l'attendre. |
+| Hydratation tardive (îles) | **FLIP GO, VT NO-GO** | Rétention du nœud sortant : **600 ms par défaut**, puis repli sur `disappear` / `appear` ordinaires ; ne jamais attendre une île `client:visible` hors écran. Entre îles à hydratation différée, l'élément partagé passe par **FLIP**, jamais par VT. |
+| I18 transitions de page avec Astro | **Nuance** | Envelopper le `navigate()` d'Astro produit deux VT (la première avorte). **Adaptateur Astro** fondé sur ses événements (`astro:before-preparation`, `astro:before-swap`, `event.direction`) et rejets de `ready` / `finished` attrapés ; `motion.navigate` reste valable hors routeur. |
+
+Non couvert, à faire : WebKit / Safari, build de production, coexistence de
+deux majeures, `addTransitionType`, retard de frame du fallback en défilement
+réel, détection sans polling.
+
 ### 8.2 Modèle `MotionSpec` — *à remplir par B2*
 ### 8.3 Contrat provider — *à remplir par B3*
 ### 8.4 Détails par famille — *une sous-section par famille, remplie en phase 3*
@@ -624,6 +647,7 @@ D2 (en partie orientée par C15).
 | Date | Travail | Changement |
 |---|---|---|
 | 2026-11-03 | — | Création du document à l'issue du brainstorming initial. |
+| 2026-11-05 | S1, S2 | Spikes : contrat de variables, fallback scroll-driven, runtime entre îles GO ; règles précisées (cache avec transform, doublon `first-live`, rétention 600 ms, adaptateur Astro, `linear()` dérivé en repli). |
 | 2026-11-05 | R16, R17 | Faits I30 vérifiés (2 corrections : vitesse au pointeur sur Firefox Android, API Angular 22) ; valeurs M3 Expressive relevées sur la doc officielle. |
 | 2026-11-04 | Validation globale | L'utilisateur valide §8.1 à §8.1 quater, arbitrages Claude compris ; prochaine étape : vérifications I30 et spikes S1/S2. |
 | 2026-11-04 | R15 | Audit de cohérence : 30 résolutions (§8.1 quater), 27 à la majorité, 3 + rendu partagé arbitrés par Claude. Recherche complète, en attente de validation globale. |
