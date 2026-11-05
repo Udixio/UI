@@ -6,7 +6,7 @@ It is framework-agnostic: it has no React or other UI framework dependency or
 peer dependency. Its only JavaScript animation engine is
 [animejs](https://animejs.com) (`^4.5.0`), which consumers install alongside it.
 
-This package is under construction. For now it exports only `RUNTIME_KEY`, the
+This package is under construction. It exports `defineTokens` and `RUNTIME_KEY`, the
 `Symbol.for('udixio.motion@1')` key under which the per-page runtime is shared
 through `globalThis`.
 
@@ -32,10 +32,13 @@ selects the standard scheme for a product. Access the physical parameters as,
 for example, `tokens.spring.fast.spatial.dampingRatio` and `.stiffness`.
 `fallback.duration` is in milliseconds and `fallback.easing` is the official
 M3 CSS cubic-bezier approximation. It is a last-resort approximation for
-uninterrupted motion, not an equivalent physical spring. The planned native
-fallback uses a generated `linear()` curve; it is not implemented yet.
+uninterrupted motion, not an equivalent physical spring. `linear.duration` (ms)
+and `linear.easing` give a CSS `linear()` approximation of the unit-mass,
+zero-initial-velocity analytical response. Its duration bounds the remaining
+settling error to 0.2%; the 26 stops approximate the response to 0.2% for
+each official token. Use the official fallback where `linear()` is unavailable.
 
 This is a provisional token-data foundation, not a complete F1 implementation:
-provider integration, custom easings, duration tokens, generated spring curves,
+provider integration, custom easings, duration tokens, CSS property registration,
 Tailwind and framework syntaxes remain future work. The API shape may change
 when the shared motion model and provider contracts are designed.

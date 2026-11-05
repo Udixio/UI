@@ -25,7 +25,7 @@ describe('M3 spring tokens', () => {
     (['fast', 'default', 'slow'] as const).forEach((speed, index) => {
       for (const [type, expected] of [['spatial', spatial[scheme][index]], ['effects', effects[index]]] as const) {
         const [dampingRatio, stiffness, duration, easing] = expected;
-        expect(tokens.spring[speed][type]).toEqual({ dampingRatio, stiffness, fallback: { duration, easing } });
+        expect(tokens.spring[speed][type]).toMatchObject({ dampingRatio, stiffness, fallback: { duration, easing } });
       }
     });
   });
@@ -40,5 +40,39 @@ describe('M3 spring tokens', () => {
   });
   it('rejects an unknown scheme', () => {
     expect(() => defineTokens({ scheme: 'invalid' as never })).toThrow('Unknown motion scheme: invalid');
+  });
+});
+
+describe('analytical CSS spring timing', () => {
+  it.each(['expressive', 'standard'] as const)('approximates every %s spring within 0.2%', (scheme) => {
+    const tokens = defineTokens({ scheme });
+    for (const speed of ['fast', 'default', 'slow'] as const) {
+      for (const type of ['spatial', 'effects'] as const) {
+        const spring = tokens.spring[speed][type];
+        const { duration, easing } = spring.linear;
+        const stops = easing.slice(7, -1).split(', ').map((stop) => {
+          const [value, position] = stop.split(' ');
+          return [Number(value), Number(position.slice(0, -1)) / 100];
+        });
+        expect(stops.length).toBeGreaterThanOrEqual(21);
+        expect(stops.length).toBeLessThanOrEqual(26);
+        expect(stops[0]).toEqual([0, 0]);
+        expect(stops.at(-1)?.[1]).toBe(1);
+        const omega = Math.sqrt(spring.stiffness);
+        const zeta = spring.dampingRatio;
+        let segment = 0;
+        for (let i = 0; i <= 10000; i++) {
+          const x = i / 10000;
+          while (segment < stops.length - 2 && x > stops[segment + 1][1]) segment++;
+          const [a, b] = [stops[segment], stops[segment + 1]];
+          const actual = a[0] + (b[0] - a[0]) * (x - a[1]) / (b[1] - a[1]);
+          const t = x * duration / 1000;
+          const expected = zeta === 1
+            ? 1 - (1 + omega * t) * Math.exp(-omega * t)
+            : 1 - Math.exp(-zeta * omega * t) * (Math.cos(omega * Math.sqrt(1 - zeta ** 2) * t) + zeta / Math.sqrt(1 - zeta ** 2) * Math.sin(omega * Math.sqrt(1 - zeta ** 2) * t));
+          expect(Math.abs(actual - expected)).toBeLessThanOrEqual(0.002);
+        }
+      }
+    }
   });
 });

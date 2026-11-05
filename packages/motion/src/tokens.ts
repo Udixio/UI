@@ -5,6 +5,7 @@ export type SpringToken = {
   dampingRatio: number;
   stiffness: number;
   fallback: { duration: number; easing: string };
+  linear: { duration: number; easing: string };
 };
 export type MotionTokens = {
   spring: Record<'fast' | 'default' | 'slow', Record<'spatial' | 'effects', SpringToken>>;
@@ -28,8 +29,40 @@ const spatial: Record<MotionScheme, readonly Tuple[]> = {
     [0.9, 300, 750, 'cubic-bezier(0.27, 1.06, 0.18, 1)'],
   ],
 };
+function linearSpring(dampingRatio: number, stiffness: number): SpringToken['linear'] {
+  const omega = Math.sqrt(stiffness);
+  const damped = Math.sqrt(1 - dampingRatio ** 2);
+  const response = (t: number) => dampingRatio === 1
+    ? 1 - (1 + omega * t) * Math.exp(-omega * t)
+    : 1 - Math.exp(-dampingRatio * omega * t) * (Math.cos(omega * damped * t) + dampingRatio / damped * Math.sin(omega * damped * t));
+  // Bound the remaining oscillation; critical damping uses its exact tail.
+  let seconds = 0;
+  while (dampingRatio === 1
+    ? (1 + omega * seconds) * Math.exp(-omega * seconds) > 0.002
+    : Math.exp(-dampingRatio * omega * seconds) / damped > 0.002) seconds += 0.001;
+  const duration = Math.round(seconds * 1000);
+  const value = (x: number) => response(x * duration / 1000);
+  const stops = [0, 1];
+  // Split at the largest interpolation error, evaluating a fine fixed grid.
+  while (stops.length < 26) {
+    let worstError = -1;
+    let worstPosition = 0;
+    for (let segment = 0; segment < stops.length - 1; segment++) {
+      const a = stops[segment], b = stops[segment + 1];
+      const va = value(a), vb = value(b);
+      for (let i = 1; i < 100; i++) {
+        const x = a + (b - a) * i / 100;
+        const error = Math.abs(value(x) - (va + (vb - va) * i / 100));
+        if (error > worstError) { worstError = error; worstPosition = x; }
+      }
+    }
+    stops.push(worstPosition);
+    stops.sort((a, b) => a - b);
+  }
+  return { duration, easing: `linear(${stops.map(x => `${Number(value(x).toFixed(6))} ${Number((x * 100).toFixed(4))}%`).join(', ')})` };
+}
 function token([dampingRatio, stiffness, duration, easing]: Tuple): SpringToken {
-  return { dampingRatio, stiffness, fallback: { duration, easing } };
+  return { dampingRatio, stiffness, fallback: { duration, easing }, linear: linearSpring(dampingRatio, stiffness) };
 }
 /** Select a product-wide M3 scheme. Durations are in milliseconds. */
 export function defineTokens(options: { scheme?: MotionScheme } = {}): MotionTokens {
