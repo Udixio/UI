@@ -10,6 +10,10 @@
   --udx-motion-scale: 1;
 }
 
+:root[data-motion-policy='reduce'] {
+  --udx-motion-scale: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   :root {
     --udx-motion-scale: 0;

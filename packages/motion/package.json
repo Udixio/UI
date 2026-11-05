@@ -59,7 +59,7 @@
         "inputs": ["default", "^default", { "env": "MOTION_BROWSERS" }],
         "options": {
           "cwd": "packages/motion",
-          "command": "tsc --noEmit --project tsconfig.spec.json && vitest run"
+          "command": "tsc --noEmit --project tsconfig.spec.json && vitest run && node --test scripts/motion-policy-css.test.mjs"
         }
       }
     }
