@@ -13,7 +13,8 @@
         "default": "./dist/index.js"
       },
       "./providers/waapi": { "types": "./dist/providers/waapi.d.ts", "import": "./dist/providers/waapi.js", "require": "./dist/providers/waapi.cjs", "default": "./dist/providers/waapi.js" },
-      "./providers/animejs": { "types": "./dist/providers/animejs.d.ts", "import": "./dist/providers/animejs.js", "require": "./dist/providers/animejs.cjs", "default": "./dist/providers/animejs.js" }
+      "./providers/animejs": { "types": "./dist/providers/animejs.d.ts", "import": "./dist/providers/animejs.js", "require": "./dist/providers/animejs.cjs", "default": "./dist/providers/animejs.js" },
+      "./testing": { "types": "./dist/testing/index.d.ts", "import": "./dist/testing.js", "require": "./dist/testing.cjs", "default": "./dist/testing.js" }
     }
   },
   "repository": {
@@ -34,7 +35,8 @@
       "default": "./dist/index.js"
     },
     "./providers/waapi": { "development": "./src/providers/waapi.ts", "types": "./dist/providers/waapi.d.ts", "import": "./dist/providers/waapi.js", "require": "./dist/providers/waapi.cjs", "default": "./dist/providers/waapi.js" },
-    "./providers/animejs": { "development": "./src/providers/animejs.ts", "types": "./dist/providers/animejs.d.ts", "import": "./dist/providers/animejs.js", "require": "./dist/providers/animejs.cjs", "default": "./dist/providers/animejs.js" }
+    "./providers/animejs": { "development": "./src/providers/animejs.ts", "types": "./dist/providers/animejs.d.ts", "import": "./dist/providers/animejs.js", "require": "./dist/providers/animejs.cjs", "default": "./dist/providers/animejs.js" },
+    "./testing": { "development": "./src/testing/index.ts", "types": "./dist/testing/index.d.ts", "import": "./dist/testing.js", "require": "./dist/testing.cjs", "default": "./dist/testing.js" }
   },
   "dependencies": {
     "animejs": "^4.5.0"
