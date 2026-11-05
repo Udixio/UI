@@ -23,7 +23,8 @@
   },
   "type": "module",
   "scripts": {
-    "size": "size-limit"
+    "size": "size-limit",
+    "bench": "node bench/run.mjs"
   },
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -45,7 +46,9 @@
     "animejs": "^4.5.0"
   },
   "devDependencies": {
-    "@vitest/browser-playwright": "4.1.11"
+    "@vitest/browser-playwright": "4.1.11",
+    "motion": "^12.23.0",
+    "playwright": "^1.64.0"
   },
   "nx": {
     "targets": {

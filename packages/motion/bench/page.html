@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Motion benchmark</title></head>
+<body>
+<main id="targets"></main>
+<script type="module">
+import { waapiProvider } from '/dist/providers/waapi.js';
+import { animejsProvider } from '/dist/providers/animejs.js';
+import { animate } from 'motion';
+
+const providers = { waapi: waapiProvider, animejs: animejsProvider };
+const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+window.runBenchmark = async (kind, count) => {
+  const container = document.querySelector('#targets');
+  container.replaceChildren(...Array.from({ length: count }, () => {
+    const element = document.createElement('div');
+    element.style.cssText = 'width:4px;height:4px;opacity:0;display:inline-block';
+    return element;
+  }));
+  const targets = [...container.children];
+  // Force initial style calculation before starting CSS transitions.
+  container.getBoundingClientRect();
+  await nextFrame();
+  const longAnimationFrames = { count: 0, durationMs: 0 };
+  const observer = new PerformanceObserver((list) => {
+    for (const entry of list.getEntries()) {
+      longAnimationFrames.count++;
+      longAnimationFrames.durationMs += entry.duration;
+    }
+  });
+  observer.observe({ type: 'long-animation-frame', buffered: false });
+  let framesDropped = 0;
+  let previous;
+  let measuring = true;
+  function sample(time) {
+    if (!measuring) return;
+    if (previous !== undefined) framesDropped += Math.max(0, Math.round((time - previous) / (1000 / 60)) - 1);
+    previous = time;
+    requestAnimationFrame(sample);
+  }
+  requestAnimationFrame(sample);
+  const start = performance.now();
+  const finished = targets.map((target) => {
+    if (kind === 'css') {
+      target.style.transition = 'opacity 300ms linear';
+      target.style.opacity = '1';
+      return new Promise((resolve) => target.addEventListener('transitionend', resolve, { once: true }));
+    }
+    if (kind === 'motion') return animate(target, { opacity: [0, 1] }, { duration: 0.3, ease: 'linear' }).then(() => {});
+    return providers[kind].animate({ target, keyframes: [{ opacity: 0 }, { opacity: 1 }], timing: { duration: 300, easing: 'linear' } }).finished;
+  });
+  const scriptMs = performance.now() - start;
+  await Promise.all(finished);
+  await nextFrame();
+  measuring = false;
+  for (const entry of observer.takeRecords()) {
+    longAnimationFrames.count++;
+    longAnimationFrames.durationMs += entry.duration;
+  }
+  observer.disconnect();
+  container.replaceChildren();
+  return { longAnimationFrames, scriptMs, framesDropped };
+};
+</script>
+</body>
+</html>
