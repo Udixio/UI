@@ -12,7 +12,7 @@ export async function runScenario(provider: MotionProvider, scenario: Scenario):
     handle = provider.animate({ ...scenario.request, target });
     handle.pause();
     return scenario.samples.map((progress) => {
-      handle!.seek(progress * handle!.duration);
+      handle!.seek((scenario.request.timing.delay ?? 0) + progress * handle!.duration);
       return readVisualState(target);
     });
   } finally {

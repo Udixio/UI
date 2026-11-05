@@ -19,6 +19,15 @@ it('uses the initial style for a single keyframe', async () => {
   }
 });
 
+it('samples active animation progress after a positive delay', async () => {
+  for (const provider of [waapiProvider, animejsProvider]) {
+    const samples = await runScenario(provider, { name: 'delay', family: 'test', request: { keyframes: [{ opacity: 0 }, { opacity: 1 }], timing: { duration: 200, delay: 100, easing: 'linear' } }, samples: [0, 0.5, 1] });
+    expect(samples[0].opacity).toBeCloseTo(0, 2);
+    expect(samples[1].opacity).toBeCloseTo(0.5, 2);
+    expect(samples[2].opacity).toBeCloseTo(1, 2);
+  }
+});
+
 it('reports differences and unequal sample counts', () => {
   const state = { opacity: 1, x: 0, y: 0, scaleX: 1, scaleY: 1, rotate: 0 };
   expect(compareSamples([state], [{ ...state, y: 2 }]).failures).toEqual(['y @ 0 : 0 vs 2']);

@@ -54,6 +54,7 @@
     "targets": {
       "test": {
         "executor": "nx:run-commands",
+        "inputs": ["default", "^default", { "env": "MOTION_BROWSERS" }],
         "options": {
           "cwd": "packages/motion",
           "command": "vitest run"

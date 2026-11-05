@@ -84,8 +84,11 @@ export const animejsProvider: MotionProvider = {
       reverse: () => { if (!settled) animation.reverse(); },
       seek: (time) => {
         if (!settled) {
-          animation.seek(time);
-          if (time === 0) {
+          // Anime.js seeks within the active duration; expose the same
+          // delay-inclusive timeline as WAAPI to callers.
+          const activeTime = Math.max(0, time - (timing.delay ?? 0));
+          animation.seek(activeTime);
+          if (activeTime === 0) {
             Object.assign(values, frames['0%']);
             renderValues();
           }
