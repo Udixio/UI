@@ -31,12 +31,23 @@ export const animejsProvider: MotionProvider = {
     const computed = getComputedStyle(target);
     const properties = new Set(keyframes.flatMap((frame) => Object.keys(frameToKeyframe(frame))));
     const values: Record<string, string | number> = {};
+    const inlineStyles = new Map<string, { value: string; priority: string }>();
     for (const property of properties) {
       const cssProperty = property as 'opacity' | 'translate' | 'scale' | 'rotate';
       const value = computed[cssProperty];
+      inlineStyles.set(property, {
+        value: target.style.getPropertyValue(property),
+        priority: target.style.getPropertyPriority(property),
+      });
       values[cssProperty] = value === 'none'
         ? ({ translate: '0px 0px', scale: '1', rotate: '0deg', opacity: '1' })[cssProperty]
         : value;
+    }
+    frames['0%'] ??= {};
+    frames['100%'] ??= {};
+    for (const property of properties) {
+      frames['0%'][property] ??= values[property];
+      frames['100%'][property] ??= values[property];
     }
     active++;
     let animation: ReturnType<typeof animate>;
@@ -62,7 +73,16 @@ export const animejsProvider: MotionProvider = {
       pause: () => { if (!settled) animation.pause(); },
       reverse: () => { if (!settled) animation.reverse(); },
       seek: (time) => { if (!settled) animation.seek(time); },
-      cancel: () => { if (!settled) { settle('cancelled'); animation.cancel(); } },
+      cancel: () => {
+        if (!settled) {
+          animation.cancel();
+          for (const [property, { value, priority }] of inlineStyles) {
+            if (value) target.style.setProperty(property, value, priority);
+            else target.style.removeProperty(property);
+          }
+          settle('cancelled');
+        }
+      },
     };
   },
 };

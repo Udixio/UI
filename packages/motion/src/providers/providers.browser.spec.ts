@@ -43,4 +43,33 @@ describe.each([waapiProvider, animejsProvider])('$backend provider', (provider) 
     handle.cancel();
     target.remove();
   });
+
+  it('restores pre-existing inline styles when cancelled partway through', async () => {
+    const target = document.createElement('div');
+    target.style.setProperty('opacity', '0.3', 'important');
+    target.style.translate = '12px 4px';
+    document.body.append(target);
+    const handle = provider.animate({ target, keyframes: [{ opacity: 0.9, x: 100, scale: 2 }], timing: { duration: 1000, easing: 'linear' } });
+    handle.pause();
+    handle.seek(500);
+    handle.cancel();
+    expect(await handle.finished).toBe('cancelled');
+    expect(target.style.getPropertyValue('opacity')).toBe('0.3');
+    expect(target.style.getPropertyPriority('opacity')).toBe('important');
+    expect(target.style.translate).toBe('12px 4px');
+    expect(target.style.scale).toBe('');
+    target.remove();
+  });
+
+  it('interpolates omitted endpoint properties against their underlying values', () => {
+    const target = document.createElement('div');
+    target.style.opacity = '1';
+    document.body.append(target);
+    const handle = provider.animate({ target, keyframes: [{ opacity: 0 }, { x: 100 }], timing: { duration: 1000, easing: 'linear' } });
+    handle.pause();
+    handle.seek(500);
+    expect(Number(getComputedStyle(target).opacity)).toBeCloseTo(0.5, 1);
+    handle.cancel();
+    target.remove();
+  });
 });
