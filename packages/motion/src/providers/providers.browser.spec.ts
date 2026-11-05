@@ -3,6 +3,22 @@ import { waapiProvider } from './waapi.js';
 import { animejsProvider } from './animejs.js';
 
 describe.each([waapiProvider, animejsProvider])('$backend provider', (provider) => {
+  it('waits for the remaining delay after seeking and resuming', async () => {
+    const target = document.createElement('div');
+    document.body.append(target);
+    const handle = provider.animate({ target, keyframes: [{ opacity: 0 }, { opacity: 1 }], timing: { duration: 400, delay: 600, easing: 'linear' } });
+    try {
+      handle.pause();
+      handle.seek(100);
+      handle.play();
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      handle.pause();
+      expect(Number(getComputedStyle(target).opacity)).toBeCloseTo(0, 2);
+    } finally {
+      handle.cancel();
+      target.remove();
+    }
+  });
   it('finishes and releases its active animation', async () => {
     const target = document.createElement('div');
     document.body.append(target);

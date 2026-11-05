@@ -1,6 +1,6 @@
 [
   { "name": "core", "path": "dist/index.js", "import": "*", "gzip": true, "limit": "0.1 kB" },
-  { "name": "waapi", "path": "dist/providers/waapi.js", "import": "*", "gzip": true, "limit": "0.5 kB" },
+  { "name": "waapi", "path": "dist/providers/waapi.js", "import": "*", "gzip": true, "limit": "0.7 kB" },
   { "name": "animejs", "path": "dist/providers/animejs.js", "import": "*", "gzip": true, "limit": "15.0 kB" },
   { "name": "testing", "path": "dist/testing/index.js", "import": "*", "gzip": true, "limit": "1.7 kB" }
 ]

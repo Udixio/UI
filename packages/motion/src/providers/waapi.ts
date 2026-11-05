@@ -28,7 +28,18 @@ export const waapiProvider: MotionProvider = {
     void animation.finished.then(() => {
       // Persist the resolved visual state before removing the filling effect.
       // Detached targets cannot always be committed by the browser.
-      try { animation.commitStyles(); } catch { /* The target may be detached. */ }
+      try {
+        animation.commitStyles();
+      } catch {
+        // A detached element has no computed style to commit. Its endpoint
+        // values can still be written directly; omitted values stay underlying.
+        const atStart = animation.effect?.getComputedTiming().progress === 0;
+        const endpoint = atStart && keyframes.length === 1 ? undefined : keyframes[atStart ? 0 : keyframes.length - 1];
+        const frame = endpoint ? frameToKeyframe(endpoint) : {};
+        for (const [property, value] of Object.entries(frame)) {
+          if (value != null) target.style.setProperty(property, String(value), target.style.getPropertyPriority(property));
+        }
+      }
       animation.cancel();
       settle('finished');
     }, () => settle('cancelled'));
