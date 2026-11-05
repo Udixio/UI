@@ -1,13 +1,20 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { chromium } from 'playwright';
+import { fileURLToPath } from 'node:url';
+import { chromium, firefox, webkit } from 'playwright';
+
+const browserTypes = { chromium, firefox, webkit };
+const browsers = (process.env.MOTION_BROWSERS ?? 'chromium,firefox,webkit')
+  .split(',')
+  .map((name) => name.trim());
 
 // Removing the attribute selector from motion.css must make the reduce/no-preference case fail.
-test('CSS scale follows the system preference or the document reduce policy', async () => {
-  const browser = await chromium.launch();
+for (const name of browsers) test(`CSS scale follows the system preference or document policy (${name})`, async () => {
+  assert.ok(Object.hasOwn(browserTypes, name), `Unsupported browser: ${name}`);
+  const browser = await browserTypes[name].launch();
   try {
     const page = await browser.newPage();
-    await page.addStyleTag({ path: new URL('../public/motion.css', import.meta.url).pathname });
+    await page.addStyleTag({ path: fileURLToPath(new URL('../public/motion.css', import.meta.url)) });
     for (const preference of ['no-preference', 'reduce']) {
       await page.emulateMedia({ reducedMotion: preference });
       for (const policy of [null, 'auto', 'reduce', 'unknown']) {
