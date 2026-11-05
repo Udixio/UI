@@ -20,7 +20,6 @@ window.runBenchmark = async (kind, count) => {
   const targets = [...container.children];
   // Force initial style calculation before starting CSS transitions.
   container.getBoundingClientRect();
-  await nextFrame();
   const longAnimationFrames = { count: 0, durationMs: 0 };
   const observer = new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
@@ -30,11 +29,11 @@ window.runBenchmark = async (kind, count) => {
   });
   observer.observe({ type: 'long-animation-frame', buffered: false });
   let framesDropped = 0;
-  let previous;
+  let previous = await nextFrame();
   let measuring = true;
   function sample(time) {
     if (!measuring) return;
-    if (previous !== undefined) framesDropped += Math.max(0, Math.round((time - previous) / (1000 / 60)) - 1);
+    framesDropped += Math.max(0, Math.round((time - previous) / (1000 / 60)) - 1);
     previous = time;
     requestAnimationFrame(sample);
   }
@@ -53,6 +52,10 @@ window.runBenchmark = async (kind, count) => {
   await Promise.all(finished);
   await nextFrame();
   measuring = false;
+  // LoAF entries are queued after rendering, not during the frame callback.
+  // Let that rendering finish and the observer's delivery task run first.
+  await nextFrame();
+  await new Promise((resolve) => setTimeout(resolve, 0));
   for (const entry of observer.takeRecords()) {
     longAnimationFrames.count++;
     longAnimationFrames.durationMs += entry.duration;
