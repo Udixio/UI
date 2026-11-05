@@ -69,7 +69,23 @@ describe.each([waapiProvider, animejsProvider])('$backend provider', (provider) 
     handle.pause();
     handle.seek(500);
     expect(Number(getComputedStyle(target).opacity)).toBeCloseTo(0.5, 1);
+    expect(parseFloat(getComputedStyle(target).translate)).toBeCloseTo(50, 0);
     handle.cancel();
+    target.remove();
+  });
+
+  it('preserves inline changes made after an animation writes its values', async () => {
+    const target = document.createElement('div');
+    target.style.opacity = '0.3';
+    document.body.append(target);
+    const handle = provider.animate({ target, keyframes: [{ opacity: 1 }], timing: { duration: 1000, easing: 'linear' } });
+    handle.pause();
+    handle.seek(500);
+    target.style.setProperty('opacity', '0.8', 'important');
+    handle.cancel();
+    expect(await handle.finished).toBe('cancelled');
+    expect(target.style.opacity).toBe('0.8');
+    expect(target.style.getPropertyPriority('opacity')).toBe('important');
     target.remove();
   });
 });

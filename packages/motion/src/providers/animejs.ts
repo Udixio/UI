@@ -32,6 +32,7 @@ export const animejsProvider: MotionProvider = {
     const properties = new Set(keyframes.flatMap((frame) => Object.keys(frameToKeyframe(frame))));
     const values: Record<string, string | number> = {};
     const inlineStyles = new Map<string, { value: string; priority: string }>();
+    const lastWritten = new Map<string, { value: string; priority: string }>();
     for (const property of properties) {
       const cssProperty = property as 'opacity' | 'translate' | 'scale' | 'rotate';
       const value = computed[cssProperty];
@@ -59,6 +60,10 @@ export const animejsProvider: MotionProvider = {
           for (const property of properties) {
             const cssProperty = property as 'opacity' | 'translate' | 'scale' | 'rotate';
             target.style[cssProperty] = String(values[cssProperty]);
+            lastWritten.set(property, {
+              value: target.style.getPropertyValue(property),
+              priority: target.style.getPropertyPriority(property),
+            });
           }
         },
         autoplay: true, onComplete: () => settle('finished'),
@@ -77,6 +82,9 @@ export const animejsProvider: MotionProvider = {
         if (!settled) {
           animation.cancel();
           for (const [property, { value, priority }] of inlineStyles) {
+            const written = lastWritten.get(property);
+            if (!written || target.style.getPropertyValue(property) !== written.value ||
+                target.style.getPropertyPriority(property) !== written.priority) continue;
             if (value) target.style.setProperty(property, value, priority);
             else target.style.removeProperty(property);
           }
