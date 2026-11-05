@@ -38,4 +38,23 @@ describe.each([waapiProvider, animejsProvider])('$backend leak checks', (provide
       container.remove();
     }
   });
+
+  it('releases completed effects while preserving the final visual state and settled result', async () => {
+    const target = document.createElement('div');
+    target.style.opacity = '0.2';
+    document.body.append(target);
+    try {
+      const handle = provider.animate({ target, keyframes: [{ opacity: 0.2 }, { opacity: 0.8 }], timing: { duration: 50, easing: 'linear' } });
+      expect(await handle.finished).toBe('finished');
+      expect(provider.activeCount()).toBe(0);
+      expect(Number(getComputedStyle(target).opacity)).toBeCloseTo(0.8, 2);
+      expect(document.getAnimations()).toHaveLength(0);
+      handle.cancel();
+      expect(await handle.finished).toBe('finished');
+      expect(Number(getComputedStyle(target).opacity)).toBeCloseTo(0.8, 2);
+      expect(document.getAnimations()).toHaveLength(0);
+    } finally {
+      target.remove();
+    }
+  });
 });

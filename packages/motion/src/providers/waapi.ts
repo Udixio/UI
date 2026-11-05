@@ -25,7 +25,13 @@ export const waapiProvider: MotionProvider = {
       active--;
       resolve(result);
     };
-    void animation.finished.then(() => settle('finished'), () => settle('cancelled'));
+    void animation.finished.then(() => {
+      // Persist the resolved visual state before removing the filling effect.
+      // Detached targets cannot always be committed by the browser.
+      try { animation.commitStyles(); } catch { /* The target may be detached. */ }
+      animation.cancel();
+      settle('finished');
+    }, () => settle('cancelled'));
     return {
       backend: 'waapi', duration: timing.duration, finished,
       play: () => { if (!settled) animation.play(); },
