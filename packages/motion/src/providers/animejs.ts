@@ -1,4 +1,4 @@
-import { animate } from 'animejs';
+import { animate, cubicBezier } from 'animejs';
 import type { MotionProvider, VisualFrame } from '../contract.js';
 
 function frameToKeyframe(frame: VisualFrame): Record<string, number | string> {
@@ -28,6 +28,10 @@ export const animejsProvider: MotionProvider = {
       `${keyframes.length === 1 ? 100 : index * 100 / (keyframes.length - 1)}%`, frameToKeyframe(frame),
     ]));
     const bezier = timing.easing.match(/^cubic-bezier\s*\(([^)]+)\)$/i);
+    const coordinates = bezier?.[1].split(',').map((value) => Number(value.trim()));
+    const ease = coordinates?.length === 4 && coordinates.every(Number.isFinite)
+      && coordinates[0] >= 0 && coordinates[0] <= 1 && coordinates[2] >= 0 && coordinates[2] <= 1
+      ? cubicBezier(coordinates[0], coordinates[1], coordinates[2], coordinates[3]) : 'linear';
     const computed = getComputedStyle(target);
     const properties = new Set(keyframes.flatMap((frame) => Object.keys(frameToKeyframe(frame))));
     const values: Record<string, string | number> = {};
@@ -50,22 +54,23 @@ export const animejsProvider: MotionProvider = {
       frames['0%'][property] ??= values[property];
       frames['100%'][property] ??= values[property];
     }
+    const renderValues = () => {
+      for (const property of properties) {
+        const cssProperty = property as 'opacity' | 'translate' | 'scale' | 'rotate';
+        target.style[cssProperty] = String(values[cssProperty]);
+        lastWritten.set(property, {
+          value: target.style.getPropertyValue(property),
+          priority: target.style.getPropertyPriority(property),
+        });
+      }
+    };
     active++;
     let animation: ReturnType<typeof animate>;
     try {
       animation = animate(values, {
         keyframes: frames, duration: timing.duration, ...(timing.delay !== undefined && { delay: timing.delay }),
-        ease: bezier ? `cubicBezier(${bezier[1]})` : 'linear',
-        onRender: () => {
-          for (const property of properties) {
-            const cssProperty = property as 'opacity' | 'translate' | 'scale' | 'rotate';
-            target.style[cssProperty] = String(values[cssProperty]);
-            lastWritten.set(property, {
-              value: target.style.getPropertyValue(property),
-              priority: target.style.getPropertyPriority(property),
-            });
-          }
-        },
+        ease,
+        onRender: renderValues,
         autoplay: true, onComplete: () => settle('finished'),
       });
     } catch (error) {
@@ -77,7 +82,15 @@ export const animejsProvider: MotionProvider = {
       play: () => { if (!settled) animation.play(); },
       pause: () => { if (!settled) animation.pause(); },
       reverse: () => { if (!settled) animation.reverse(); },
-      seek: (time) => { if (!settled) animation.seek(time); },
+      seek: (time) => {
+        if (!settled) {
+          animation.seek(time);
+          if (time === 0) {
+            Object.assign(values, frames['0%']);
+            renderValues();
+          }
+        }
+      },
       cancel: () => {
         if (!settled) {
           animation.cancel();

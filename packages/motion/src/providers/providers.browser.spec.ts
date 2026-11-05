@@ -89,4 +89,22 @@ describe.each([waapiProvider, animejsProvider])('$backend provider', (provider) 
     target.remove();
   });
 
+  it('samples the first frame at zero and applies cubic-bezier easing', () => {
+    const target = document.createElement('div');
+    document.body.append(target);
+    const handle = provider.animate({
+      target,
+      keyframes: [{ opacity: 0, y: 24 }, { opacity: 1, y: 0 }],
+      timing: { duration: 1000, easing: 'cubic-bezier(0.34, 0.80, 0.34, 1.00)' },
+    });
+    handle.pause();
+    handle.seek(0);
+    expect(Number(getComputedStyle(target).opacity)).toBeCloseTo(0, 2);
+    expect(parseFloat(getComputedStyle(target).translate.split(' ')[1])).toBeCloseTo(24, 1);
+    handle.seek(500);
+    expect(Number(getComputedStyle(target).opacity)).toBeGreaterThan(0.8);
+    handle.cancel();
+    target.remove();
+  });
+
 });
