@@ -583,11 +583,263 @@ Non couvert, à faire : WebKit / Safari, build de production, coexistence de
 deux majeures, `addTransitionType`, retard de frame du fallback en défilement
 réel, détection sans polling.
 
-### 8.2 Modèle `MotionSpec` — *à remplir par B2*
-### 8.3 Contrat provider — *à remplir par B3*
-### 8.4 Détails par famille — *une sous-section par famille, remplie en phase 3*
+### 8.2 Modèle `MotionSpec` — **rédigé (consolidation de §8.0 à §8.1 quinquies)**
+
+Rédigé par Claude le 2026-11-05 à partir des décisions validées ; les points
+nouveaux, non tranchés par R10–R15, sont marqués ⚑ et restent à valider.
+Le contrat implémenté en phase 2 (`packages/motion/src/contract.ts`) en est un
+**sous-ensemble de vérification** ; les écarts à combler sont listés en §8.3.4.
+
+#### 8.2.1 Principe
+
+Une animation est **une donnée sérialisable, définie une fois en TS et
+référencée par son nom** (§8.0 bis #5). Le modèle reprend celui de Web
+Animations (keyframes + timing + timeline) et l'étend avec ce qui lui manque :
+ressort, déclencheur, reprise, rendu réduit, présence, identité partagée.
+Le **verbe** porte la sémantique et les défauts ; il n'est jamais écrit en HTML
+(I03) mais dans la définition ou le preset.
+
+#### 8.2.2 Fonctions de définition (I22)
+
+| Fonction | Rôle | Référencée par |
+|---|---|---|
+| `defineTokens({ scheme })` | Schéma M3 global (`expressive` par défaut / `standard`), ressorts officiels (R17) — **implémentée** | réglage produit, pas d'option par animation |
+| `defineMotion(name, spec: MotionSpec)` | Animation déclarative (les 7 verbes) | `data-motion="name"`, `useMotion(name)`, `udxMotion="name"`, `motion(name)` |
+| `defineValue(name, spec: ValueSpec)` | Valeur continue (curseur, parallaxe, compteur, état continu avec ressort) | `data-motion-value="name"` sur les cibles abonnées |
+| `defineSequence(name, spec: SequenceSpec)` | Chorégraphie d'étapes nommées | `data-motion="name"` sur la racine, `data-motion-step` sur les enfants |
+| `defineGesture(name, spec: GestureSpec)` | Drag, lancer, swipe, réordonnancement | `data-motion-gesture="name"` ⚑ |
+| `defineShared(name)` | Identité d'élément partagé, clé typée | `data-motion-shared="name"` |
+
+Les presets livrés par Udixio (§8.1 #4 corrigé par I13) sont des
+`defineMotion` publics : `fade`, `slide`, `scale`, `collapse` (CSS pur, I12),
+`press`, `shake`, `rotate`, `breathe`, `shimmer`, `blink` (borné, I13).
+
+#### 8.2.3 `MotionSpec`
+
+```ts
+type Verb = 'appear' | 'disappear' | 'emphasize' | 'reveal' | 'scrub' | 'loop' | 'layout';
+
+interface MotionSpec {
+  verb: Verb;
+  /** États visuels ; un seul état = départ depuis la valeur calculée courante. */
+  keyframes: VisualFrame[];
+  /** Ressort M3 (défaut selon le verbe) ou courbe + durée en tokens. */
+  timing?: SpringRef | CurveTiming;
+  trigger?: 'load' | 'view' | 'state';      // table verbe × option (M5-L09)
+  repeat?: 'once' | 'always';               // reveal
+  direction?: 'start' | 'end' | 'up' | 'down'; // sens du mouvement (I01)
+  distance?: DistanceToken;
+  stagger?: 'tight' | 'normal' | 'loose';   // I14
+  origin?: 'first' | 'last' | 'center';     // ex-`from` du stagger (I23)
+  range?: ScrollRange;                      // scrub
+  axis?: 'block' | 'inline';                // scrub, reveal
+  interrupt?: 'carry' | 'restart';          // défaut par verbe (I02)
+  reduced?: ReducedRender;                  // défaut par verbe
+  pause?: 'control' | 'essential';          // loop, obligatoire (I08, WCAG 2.2.2)
+  reason?: string;                          // obligatoire si pause = 'essential'
+  shared?: SharedKey;                       // layout uniquement (I09)
+  exit?: 'in-place' | 'out-of-flow';        // disappear dans une liste, défaut in-place (I19)
+}
+
+type SpringRef = `spring.${'fast' | 'default' | 'slow'}.${'spatial' | 'effects'}`; // I25 ordre officiel
+type CurveTiming = { duration: DurationToken; easing: EasingToken };
+type ReducedRender = 'fade' | 'instant' | 'static' | 'neutral' | 'frozen';
+```
+
+`VisualFrame` (implémenté : `opacity`, `x`, `y`, `scale`, `rotate`) s'étend par
+famille avec des champs **fermés et listés au manifeste** : `scaleX`,
+`scaleY`, `color`, `backgroundColor`, `clipPath`, `blur` ⚑. Aucune propriété
+CSS libre : une propriété hors liste passe par `defineValue` ou par
+l'échappatoire du provider (§4.6, non portable).
+
+Toutes les valeurs numériques vivent dans la définition TS ou dans les tokens,
+jamais dans un attribut HTML (§8.1 #1, I03).
+
+#### 8.2.4 Table des défauts par verbe (I02, I05, I08, §8.1 #5)
+
+| Verbe | Familles | Déclencheur par défaut | Reprise | Rendu réduit | Ressort par défaut |
+|---|---|---|---|---|---|
+| `appear` | F3, F10 | `load` (montage) | `carry` | `fade` | `spring.default.spatial` + `effects` pour l'opacité |
+| `disappear` | F3, F10 | démontage | `carry` | `fade` (non multiplié par `--udx-motion-scale`) | idem |
+| `emphasize` | F2 (accent), F18 (press) | `state` | `restart` | `static` | `spring.fast.spatial` |
+| `reveal` | F4 | `view` | `restart` | `instant` | `spring.default.spatial` |
+| `scrub` | F5 | défilement | `carry` (position) | `neutral` (position neutre) | aucun : progression liée au défilement |
+| `loop` | F24 | `load` | `restart` | `frozen` (+ `pause` obligatoire) | courbe linéaire en token |
+| `layout` | F7, F8, F10 | `state` (changement observable, I20) | `carry` | `instant` | `spring.default.spatial` |
+| transitions de page (pas un verbe) | F9 | navigation | `restart` | `instant` | `spring.slow.spatial` ⚑ |
+| gestes (pas un verbe) | F18 | pointeur / clavier | `carry` | sans animation de relâchement | `spring.fast.spatial` ⚑ |
+
+Changements d'état continus (chevron, couleur) : **transition CSS** avec tokens
+et variants ; `defineValue` à ressort si la vitesse doit être conservée (I06).
+Panneau qui reste monté : preset `collapse` en CSS pur (I12).
+
+#### 8.2.5 Autres specs
+
+```ts
+interface ValueSpec {           // I26
+  source: 'pointer' | 'scroll' | 'state' | 'time';
+  axis?: 'x' | 'y' | 'block' | 'inline';
+  range?: [number, number];      // bornes de la valeur produite
+  spring?: SpringRef;            // lissage avec reprise de vitesse
+  format?: 'integer' | 'decimal' | 'percent' | 'currency'; // compteurs ⚑
+}
+interface SequenceSpec {        // I15, M1-R01
+  steps: Record<string, Omit<MotionSpec, 'verb'> & { verb?: Verb; at?: `${string}` | `+=${StaggerToken}` }>;
+}
+interface GestureSpec {         // I24, M2-R01..R04
+  kind: 'drag' | 'swipe' | 'reorder';
+  axis?: 'x' | 'y' | 'both';
+  bounds?: 'parent' | 'none';
+  release?: SpringRef;           // ressort initialisé par la vitesse
+  alternative: KeyboardAlternative; // obligatoire et typé (WCAG 2.1.1, 2.5.7)
+}
+```
+
+`at` accepte une **étiquette d'étape** ou `+=<token>`, jamais un temps nu ni
+`'<'` (I15). Vitesse d'un geste : `exact` quand les événements coalescés sont
+disponibles, `estimated` sinon (Firefox Android, R16).
+
+#### 8.2.6 Tokens et variables CSS (I07, I25, R17, S1)
+
+- Un seul espace `--udx-motion-*` ; aucun alias `--duration-*`, `--ease-*`,
+  `--animate-*` ; variables `@property` déclarées au niveau du document (S1).
+- Ressorts : paramètres physiques officiels (R17) ; courbe native par défaut
+  = **`linear()` dérivé de la solution analytique** (21–26 stops, erreur
+  ≤ 0,2 %, S1) ; la conversion officielle cubic-bezier + durée n'est qu'un
+  repli de dernier recours (Chrome 109 sans `linear()`).
+- `--udx-motion-scale` (multiplicateur de distance et de durée, 0 en
+  réduction) ; exception : le fondu de `disappear` n'est jamais multiplié (I05).
+- Tokens de distance ⚑ : `--udx-motion-distance-{sm,md,lg}` = 8 / 24 / 64 px ;
+  tokens de stagger : `tight` 30 ms, `normal` 60 ms, `loose` 120 ms, avec un
+  plafond de cascade de 400 ms ⚑ (M2-R06).
+
+### 8.3 Contrat provider — **rédigé (consolidation)**
+
+#### 8.3.1 Interface
+
+```ts
+type MotionBackend = 'css' | 'waapi' | 'animejs';
+type Capability =
+  | 'compositor'      // opacity, transform, filter, clip-path
+  | 'spring-velocity' // reprise exacte de la vitesse
+  | 'scroll-timeline' | 'view-transition' | 'layout-flip'
+  | 'discrete'        // display, content-visibility
+  | 'text-split' | 'svg-morph' | 'gesture';
+
+interface MotionProvider {
+  readonly backend: MotionBackend;
+  readonly capabilities: ReadonlySet<Capability>;
+  animate(request: MotionRequest): MotionHandle;
+  activeCount(): number;
+}
+
+interface MotionHandle {               // §8.0 #4, I21 : surface fermée
+  readonly backend: MotionBackend;
+  readonly duration: number;
+  readonly finished: Promise<'finished' | 'cancelled'>; // ne rejette jamais
+  readonly velocity: { value: number; source: 'exact' | 'estimated' | 'unavailable' };
+  play(): void; pause(): void; reverse(): void; seek(timeMs: number): void; cancel(): void;
+}
+```
+
+Les événements (relâchement de geste, étape de séquence) passent par un canal
+séparé `motion.on(el, 'release' | 'step', cb)` (I21), pas par le handle.
+
+#### 8.3.2 Choix du backend (§8.0 #5, I02, S1)
+
+1. Animation déclarée par classes ou preset CSS, sans contrôle impératif →
+   **`css`** (aucun JS de lecture hors abonnement de pause/visibilité).
+2. Sinon, propriétés toutes `compositor` et (`restart` ou `carry` sans ressort)
+   → **`waapi`** : `carry` relance une nouvelle animation depuis la valeur
+   calculée (position exacte, S1).
+3. Sinon (`carry` avec ressort, propriétés non composées, texte, morphing,
+   gestes) → **`animejs`**, chargé à la demande (I28).
+
+Le backend retenu est exposé (`handle.backend`) et tracé par
+`udixio.motion.inspect()` en dev.
+
+#### 8.3.3 Runtime global (§8.0 #1–#3, S2)
+
+`globalThis[Symbol.for('udixio.motion@1')]` : forme **stable au sein d'une
+majeure** (S2 : la première copie inscrite impose la sienne) :
+
+```ts
+interface MotionRuntime {
+  readonly version: string;
+  retain(): void; release(): void;               // compteur de références
+  frame: { read(cb: () => void): void; write(cb: () => void): void }; // une seule rAF
+  shared: SharedRegistry;   // first-live, exclut data-presence="exiting", rétention 600 ms
+  subscribe(name: string, sub: FrameSubscriber): () => void; // loop, follow
+  policy: { reduced: boolean }; // prefers-reduced-motion + data-motion-policy sur <html>
+  inspect(): RuntimeReport;
+}
+```
+
+Cache de géométrie (I10, S2) : rect + **transform courant**, lu en phase
+lecture, invalidé par `ResizeObserver` et `MutationObserver`.
+
+#### 8.3.4 Écarts avec le contrat implémenté (phase 2)
+
+| Implémenté | Cible | Travail |
+|---|---|---|
+| `MotionBackend = 'waapi' \| 'animejs'` | ajout de `'css'` | provider `css` (pilotage de `CSSAnimation`, §8.1 quinquies) |
+| pas de `capabilities` | `ReadonlySet<Capability>` | déclarer par provider |
+| pas de `velocity` sur le handle | `velocity: { value, source }` | `animejs` : exact ; `waapi` : estimated / unavailable |
+| `MotionTiming = { duration, easing }` | `SpringRef \| CurveTiming` résolus en `linear()` dérivé | générateur `linear()` + résolution des tokens |
+| `RUNTIME_KEY` seul | `MotionRuntime` complet | runtime global, frame unique, registre partagé |
+
+### 8.4 Détails par famille — **rédigé (consolidation)**
+
+| # | Famille | Écriture | Chemin natif | Repli / moteur JS | Sources |
+|---|---|---|---|---|---|
+| F1 | Tokens | `defineTokens`, `--udx-motion-*` | CSS `@property` | — | R17, I07, I25 |
+| F2 | Transitions d'état | CSS + tokens + `data-[state]:` ; `emphasize` pour les accents | `transition` | `defineValue` à ressort | I06, I20 |
+| F3 | Présence | `appear` / `disappear` ; `data-presence` écrit par le runtime | `@starting-style`, `allow-discrete` ; `animate.leave`, `out:` | WAAPI ; nœud retenu jusqu'à `finished` | §8.0 #2, I04, M5-L07 |
+| F4 | À la vue | `reveal` (`repeat`, `axis`) | `animation-trigger` (Chromium) | IntersectionObserver partagé + sentinelle sans transform | M3-03, R1 |
+| F5 | Lié au scroll | `scrub` (`range`, `axis`) | `animation-timeline: view()/scroll()` | pilotage `CSSAnimation.currentTime` (S1, 9 conditions) | R3, R4, S1 |
+| F6 | Scroll piloté | action `scrollTo(cible, { timing })` | `scroll-behavior` | anime.js | M3-V03 |
+| F7 | Layout | `layout` sur changement observable (`data-state`) | `interpolate-size`, VT scopée | FLIP (cache I10) | M3-L02, I10 |
+| F8 | Élément partagé | `layout` + `shared` (`defineShared`) | VT si `restart` et support | FLIP si `carry`, hydratation tardive, ou sans support | I17, S2 |
+| F9 | Pages | adaptateur par routeur ; Astro via ses événements | View Transitions | rendu instantané | I18, S2 |
+| F10 | Listes | `stagger`, `origin`, `exit` | `sibling-index()` | rang visuel mesuré en JS | I14, I16, I19, R16 |
+| F11 | Chorégraphie | `defineSequence`, `data-motion-step`, `at` | — | timeline anime.js pilotée par le handle | I15, M1-R01 |
+| F12 | Contrôle | handle à surface fermée + `motion.on` | WAAPI | anime.js | §8.0 #4, I21 |
+| F13 | Interruption | `interrupt`, `velocity.source` | WAAPI (position) | ressort anime.js (vitesse) | I02, S1 |
+| F14 | Valeurs réactives | `defineValue` + `data-motion-value` | variables CSS sur les cibles abonnées | ressort de lissage | I26 |
+| F15 | Compteurs | `defineValue` (`format`) sur `<data value>` | valeur finale en SSR | anime.js | I26, M4-R06 |
+| F16 | Texte | `split` (lettres / mots / lignes) | — | découpage après hydratation, `sr-only` + `aria-hidden` ; brouillage hors v1 | I27 |
+| F17 | SVG | tracé, trajectoire, morphing | `stroke-dashoffset`, `offset-path` | `morphTo` d'anime.js | M1-R05, R16 |
+| F18 | Gestes | `defineGesture` (`alternative` obligatoire) | — | Draggable anime.js + vitesse au handle | I24, R16 |
+| F19 | Responsive / scopes | paliers nommés, `revert()` / `inspect()` | media / container queries | reconstruction au changement de palier | M3-R06, I29 |
+| F20 | Accessibilité | `reduced` par verbe, `pause`, `alternative` | `prefers-reduced-motion`, `motion-safe:` | politique unique sur `<html>` | §8.2.4, I05, I08 |
+| F21 | Performance | chargement par verbe | — | préchargement par intersection / intention | I28, M3-R03 |
+| F22 | Usage interne | prop `motion` = clés `data-motion-<option>` | — | — | M1-R10, I11 |
+| F23 | Outillage IA | manifeste `llms.txt` + JSON, MCP | — | — | M5-R03, M5-R04 |
+| F24 | Boucles | `loop` (`pause` obligatoire) | CSS `animation`, `animation-play-state` | abonné de la frame unique (JS) | I08, §8.0 bis #2 |
+
+#### Points ⚑ à valider (nouveaux dans cette rédaction)
+
+1. Attribut `data-motion-gesture` pour référencer un `defineGesture`.
+2. Champs supplémentaires de `VisualFrame` : `scaleX`, `scaleY`, `color`,
+   `backgroundColor`, `clipPath`, `blur`.
+3. `format` des compteurs : `integer`, `decimal`, `percent`, `currency`.
+4. Ressort par défaut des transitions de page (`spring.slow.spatial`) et des
+   gestes (`spring.fast.spatial`).
+5. Valeurs des tokens de distance (8 / 24 / 64 px) et de stagger
+   (30 / 60 / 120 ms, plafond 400 ms).
+6. Nom du backend natif CSS : `'css'`.
+
 
 ## 9. Questions ouvertes connues
+
+> **État au 2026-11-05** : F3 → §8.0 #2 et M5-L07 ; F4/F5 → deux verbes
+> `reveal` / `scrub` ; F7 → racine de layout bornée et cache I10 ; F8/F9 → I17,
+> I18 et S2 ; F13 → I02 et S1 ; F15 → `defineValue` + `<data value>` ; F20 →
+> rendu réduit par verbe (§8.2.4) ; noms inconnus → garde-fous à quatre niveaux
+> (§8.0 bis #1) ; scroll-driven interne → M4. **SSR** : règle M3-02 (R10, G12)
+> retenue ⚑ — le contenu est rendu visible côté serveur et n'est masqué pour
+> une entrée qu'après inscription effective auprès du runtime ; sans JS, rien
+> n'est invisible. Le tableau ci-dessous est conservé pour l'historique.
 
 | Famille / sujet | Question |
 |---|---|
@@ -647,6 +899,7 @@ D2 (en partie orientée par C15).
 | Date | Travail | Changement |
 |---|---|---|
 | 2026-11-03 | — | Création du document à l'issue du brainstorming initial. |
+| 2026-11-05 | §8.2–§8.4 | Modèle `MotionSpec`, contrat provider, runtime global et détail des 24 familles rédigés (consolidation) ; 6 points ⚑ à valider. |
 | 2026-11-05 | S1, S2 | Spikes : contrat de variables, fallback scroll-driven, runtime entre îles GO ; règles précisées (cache avec transform, doublon `first-live`, rétention 600 ms, adaptateur Astro, `linear()` dérivé en repli). |
 | 2026-11-05 | R16, R17 | Faits I30 vérifiés (2 corrections : vitesse au pointeur sur Firefox Android, API Angular 22) ; valeurs M3 Expressive relevées sur la doc officielle. |
 | 2026-11-04 | Validation globale | L'utilisateur valide §8.1 à §8.1 quater, arbitrages Claude compris ; prochaine étape : vérifications I30 et spikes S1/S2. |
