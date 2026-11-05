@@ -35,6 +35,9 @@
   "dependencies": {
     "animejs": "^4.5.0"
   },
+  "devDependencies": {
+    "@vitest/browser-playwright": "4.1.11"
+  },
   "nx": {
     "targets": {
       "test": {

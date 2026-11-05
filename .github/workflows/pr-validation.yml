@@ -41,5 +41,11 @@ jobs:
       - name: Lint
         run: npx nx affected --target=lint
 
+      - name: Install motion test browsers
+        run: |
+          if npx nx show projects --affected | grep -Fxq '@udixio/motion'; then
+            npx playwright install --with-deps chromium firefox webkit
+          fi
+
       - name: Test
         run: npx nx affected --target=test

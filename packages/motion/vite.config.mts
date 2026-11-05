@@ -2,6 +2,11 @@
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import * as path from 'path';
+import { playwright } from '@vitest/browser-playwright';
+
+const browsers = (process.env.MOTION_BROWSERS ?? 'chromium,firefox,webkit')
+  .split(',')
+  .map((browser) => browser.trim() as 'chromium' | 'firefox' | 'webkit');
 
 export default defineConfig(() => ({
   root: import.meta.dirname,
@@ -33,12 +38,31 @@ export default defineConfig(() => ({
     },
   },
   test: {
-    name: '@udixio/motion',
     watch: false,
     globals: true,
     passWithNoTests: true,
-    environment: 'node',
-    include: ['{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    projects: [
+      {
+        test: {
+          name: 'unit',
+          environment: 'node',
+          include: ['src/**/*.spec.ts'],
+          exclude: ['**/*.browser.spec.ts'],
+        },
+      },
+      {
+        test: {
+          name: 'browser',
+          include: ['src/**/*.browser.spec.ts'],
+          browser: {
+            enabled: true,
+            provider: playwright(),
+            headless: true,
+            instances: browsers.map((browser) => ({ browser })),
+          },
+        },
+      },
+    ],
     reporters: ['default'],
     coverage: {
       reportsDirectory: './test-output/vitest/coverage',
