@@ -817,7 +817,18 @@ lecture, invalidé par `ResizeObserver` et `MutationObserver`.
 | F23 | Outillage IA | manifeste `llms.txt` + JSON, MCP | — | — | M5-R03, M5-R04 |
 | F24 | Boucles | `loop` (`pause` obligatoire) | CSS `animation`, `animation-play-state` | abonné de la frame unique (JS) | I08, §8.0 bis #2 |
 
-#### Points ⚑ à valider (nouveaux dans cette rédaction)
+#### Points ⚑ — statut (2026-11-05)
+
+**Validés par l'utilisateur** : 1, 2, 3, 4 (transitions de page en
+`spring.slow.spatial`, conforme à la doc M3 « slow = plein écran »), 6, et la
+règle SSR M3-02 (§9).
+
+**Provisoires, à calibrer visuellement** sur des démos (tâche de design
+visuel, sous-agent Opus) : le ressort par défaut des gestes (point 4,
+`spring.fast.spatial`, supposition) et toutes les valeurs du point 5 (M3 ne
+définit ni distance ni stagger ; valeurs plausibles, non mesurées).
+
+Liste d'origine :
 
 1. Attribut `data-motion-gesture` pour référencer un `defineGesture`.
 2. Champs supplémentaires de `VisualFrame` : `scaleX`, `scaleY`, `color`,
@@ -899,6 +910,7 @@ D2 (en partie orientée par C15).
 | Date | Travail | Changement |
 |---|---|---|
 | 2026-11-03 | — | Création du document à l'issue du brainstorming initial. |
+| 2026-11-05 | Validation ⚑ | Points 1, 2, 3, 4 (pages), 6 et SSR validés ; ressort des gestes et tokens de distance / stagger provisoires, à calibrer visuellement. |
 | 2026-11-05 | §8.2–§8.4 | Modèle `MotionSpec`, contrat provider, runtime global et détail des 24 familles rédigés (consolidation) ; 6 points ⚑ à valider. |
 | 2026-11-05 | S1, S2 | Spikes : contrat de variables, fallback scroll-driven, runtime entre îles GO ; règles précisées (cache avec transform, doublon `first-live`, rétention 600 ms, adaptateur Astro, `linear()` dérivé en repli). |
 | 2026-11-05 | R16, R17 | Faits I30 vérifiés (2 corrections : vitesse au pointeur sur Firefox Android, API Angular 22) ; valeurs M3 Expressive relevées sur la doc officielle. |
