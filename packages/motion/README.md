@@ -24,3 +24,18 @@ Run the tests with:
 ```sh
 npx nx test @udixio/motion
 ```
+
+### Experimental M3 spring tokens
+
+`defineTokens()` returns the expressive scheme; `defineTokens({ scheme: 'standard' })`
+selects the standard scheme for a product. Access the physical parameters as,
+for example, `tokens.spring.fast.spatial.dampingRatio` and `.stiffness`.
+`fallback.duration` is in milliseconds and `fallback.easing` is the official
+M3 CSS cubic-bezier approximation. It is a last-resort approximation for
+uninterrupted motion, not an equivalent physical spring. The planned native
+fallback uses a generated `linear()` curve; it is not implemented yet.
+
+This is a provisional token-data foundation, not a complete F1 implementation:
+provider integration, custom easings, duration tokens, generated spring curves,
+Tailwind and framework syntaxes remain future work. The API shape may change
+when the shared motion model and provider contracts are designed.
