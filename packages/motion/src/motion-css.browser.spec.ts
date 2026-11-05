@@ -41,7 +41,28 @@ it('exposes provisional token values to the document and inherited descendants',
       expect(computed.getPropertyValue(`--udx-motion-distance-${name}`).trim()).toBe(`${value}px`);
     }
     for (const [name, value] of Object.entries(tokens.stagger)) {
-      expect(computed.getPropertyValue(`--udx-motion-stagger-${name}`).trim()).toBe(`${value}ms`);
+      expect(computed.getPropertyValue(`--udx-motion-stagger-${name}`).trim()).toBe(`${value / 1000}s`);
     }
   } finally { child.remove(); style.remove(); }
+});
+
+it('registers each distance and stagger as an inherited typed property', async () => {
+  const response = await fetch('/motion.css');
+  const style = document.createElement('style');
+  style.textContent = await response.text();
+  document.head.append(style);
+  const host = document.createElement('div');
+  const child = document.createElement('div');
+  host.append(child);
+  document.body.append(host);
+  try {
+    for (const [name, valid] of [
+      ...['sm', 'md', 'lg'].map(name => [`--udx-motion-distance-${name}`, '12px']),
+      ...['tight', 'normal', 'loose', 'max'].map(name => [`--udx-motion-stagger-${name}`, '75ms']),
+    ]) {
+      host.style.setProperty(name, valid);
+      child.style.setProperty(name, 'invalid');
+      expect(getComputedStyle(child).getPropertyValue(name).trim(), name).toBe(valid === '75ms' ? '0.075s' : valid);
+    }
+  } finally { host.remove(); style.remove(); }
 });

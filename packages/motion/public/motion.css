@@ -5,7 +5,49 @@
   initial-value: 1;
 }
 
-/* Also provides the initial value where @property is not supported. */
+@property --udx-motion-distance-sm {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 8px;
+}
+
+@property --udx-motion-distance-md {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 24px;
+}
+
+@property --udx-motion-distance-lg {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 64px;
+}
+
+@property --udx-motion-stagger-tight {
+  syntax: '<time>';
+  inherits: true;
+  initial-value: 20ms;
+}
+
+@property --udx-motion-stagger-normal {
+  syntax: '<time>';
+  inherits: true;
+  initial-value: 50ms;
+}
+
+@property --udx-motion-stagger-loose {
+  syntax: '<time>';
+  inherits: true;
+  initial-value: 100ms;
+}
+
+@property --udx-motion-stagger-max {
+  syntax: '<time>';
+  inherits: true;
+  initial-value: 400ms;
+}
+
+/* Also provides the initial values where @property is not supported. */
 :root {
   --udx-motion-scale: 1;
   /* Experimental values pending visual calibration. */

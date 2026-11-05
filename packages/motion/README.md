@@ -53,7 +53,9 @@ when the shared motion model and provider contracts are designed.
 These values are provisional, have low confidence, and require visual calibration;
 they do not come from M3. The stylesheet exposes the same values as inherited
 `--udx-motion-distance-{sm,md,lg}` and
-`--udx-motion-stagger-{tight,normal,loose,max}` custom properties. They may
+`--udx-motion-stagger-{tight,normal,loose,max}` custom properties. These are
+registered as inherited `<length>` and `<time>` properties at document level,
+with root declarations as a fallback where `@property` is unsupported. They may
 be overridden through the CSS cascade. `stagger.max` caps relative start delay,
 not the end time of the last animation.
 
