@@ -27,3 +27,20 @@ it('composes individual properties with transform', () => {
   expect(state.scaleX).toBeCloseTo(2); expect(state.scaleY).toBeCloseTo(2);
   el.remove();
 });
+
+it('resolves percentage translations against the border box', () => {
+  const el = document.createElement('div');
+  el.style.cssText = 'box-sizing: content-box; width: 180px; height: 80px; padding: 10px; translate: 50% 25%';
+  document.body.append(el);
+  const state = readVisualState(el);
+  expect(state.x).toBeCloseTo(100); expect(state.y).toBeCloseTo(25);
+  el.remove();
+});
+
+it.each(['z 90deg', '0 0 1 90deg'])('reads an axis rotation: %s', (rotation) => {
+  const el = document.createElement('div');
+  el.style.rotate = rotation;
+  document.body.append(el);
+  expect(readVisualState(el).rotate).toBeCloseTo(90);
+  el.remove();
+});
