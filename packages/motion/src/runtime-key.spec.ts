@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { RUNTIME_KEY } from './runtime-key';
+import { RUNTIME_KEY } from './index.js';
 
 describe('RUNTIME_KEY', () => {
   it('is the global symbol registered under udixio.motion@1', () => {

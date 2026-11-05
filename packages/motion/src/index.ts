@@ -1,1 +1,1 @@
-export { RUNTIME_KEY } from './runtime-key';
+export { RUNTIME_KEY } from './runtime-key.js';
