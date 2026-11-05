@@ -1,4 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { defineTokens } from './index.js';
 
 const effects = [
@@ -57,9 +59,13 @@ describe('analytical CSS spring timing', () => {
         expect(stops.length).toBeGreaterThanOrEqual(21);
         expect(stops.length).toBeLessThanOrEqual(26);
         expect(stops[0]).toEqual([0, 0]);
-        expect(stops.at(-1)?.[1]).toBe(1);
+        expect(stops.at(-1)).toEqual([1, 1]);
         const omega = Math.sqrt(spring.stiffness);
         const zeta = spring.dampingRatio;
+        const tail = (t: number) => zeta === 1
+          ? (1 + omega * t) * Math.exp(-omega * t)
+          : Math.abs(Math.exp(-zeta * omega * t) * (Math.cos(omega * Math.sqrt(1 - zeta ** 2) * t) + zeta / Math.sqrt(1 - zeta ** 2) * Math.sin(omega * Math.sqrt(1 - zeta ** 2) * t)));
+        for (let ms = duration; ms <= duration + 2000; ms++) expect(tail(ms / 1000)).toBeLessThanOrEqual(0.001);
         let segment = 0;
         for (let i = 0; i <= 10000; i++) {
           const x = i / 10000;
@@ -75,4 +81,25 @@ describe('analytical CSS spring timing', () => {
       }
     }
   });
+});
+
+it('uses the S1 0.1% settling durations', () => {
+  const spring = defineTokens().spring;
+  expect(['fast', 'default', 'slow'].map(speed => spring[speed as 'fast' | 'default' | 'slow'].spatial.linear.duration)).toEqual([360, 435, 600]);
+  expect(['fast', 'default', 'slow'].map(speed => spring[speed as 'fast' | 'default' | 'slow'].effects.linear.duration)).toEqual([150, 231, 327]);
+});
+
+it('does not solve springs when selecting tokens', () => {
+  const sin = vi.spyOn(Math, 'sin');
+  const cos = vi.spyOn(Math, 'cos');
+  try {
+    defineTokens();
+    expect(sin).not.toHaveBeenCalled();
+    expect(cos).not.toHaveBeenCalled();
+  } finally { sin.mockRestore(); cos.mockRestore(); }
+});
+
+it('keeps generated spring data in sync with its physical source', () => {
+  const script = fileURLToPath(new URL('../scripts/generate-springs.mjs', import.meta.url));
+  expect(() => execFileSync(process.execPath, [script, '--check'])).not.toThrow();
 });

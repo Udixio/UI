@@ -35,8 +35,10 @@ M3 CSS cubic-bezier approximation. It is a last-resort approximation for
 uninterrupted motion, not an equivalent physical spring. `linear.duration` (ms)
 and `linear.easing` give a CSS `linear()` approximation of the unit-mass,
 zero-initial-velocity analytical response. Its duration bounds the remaining
-settling error to 0.2%; the 26 stops approximate the response to 0.2% for
-each official token. Use the official fallback where `linear()` is unavailable.
+settling error to 0.1%; the 26 stops approximate the response to 0.2% for
+each official token, with an exact final value of 1. The curves are generated
+from `scripts/spring-source.json` by `node scripts/generate-springs.mjs`;
+`node scripts/generate-springs.mjs --check` verifies they are current. Use the official fallback where `linear()` is unavailable.
 
 This is a provisional token-data foundation, not a complete F1 implementation:
 provider integration, custom easings, duration tokens, CSS property registration,
