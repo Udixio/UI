@@ -10,6 +10,10 @@ export type SpringToken = {
   linear: { duration: number; easing: string };
 };
 export type MotionTokens = {
+  /** Experimental CSS pixel magnitudes; visual calibration is pending. */
+  distance: Record<'sm' | 'md' | 'lg', number>;
+  /** Experimental stagger steps and maximum relative start delay, in milliseconds. */
+  stagger: Record<'tight' | 'normal' | 'loose' | 'max', number>;
   spring: Record<'fast' | 'default' | 'slow', Record<'spatial' | 'effects', SpringToken>>;
 };
 
@@ -23,5 +27,9 @@ export function defineTokens(options: { scheme?: MotionScheme } = {}): MotionTok
     throw new RangeError(`Unknown motion scheme: ${String(scheme)}`);
   }
   const pair = (index: number) => ({ spatial: token(springData[scheme][index]), effects: token(springData.effects[index]) });
-  return { spring: { fast: pair(0), default: pair(1), slow: pair(2) } };
+  return {
+    spring: { fast: pair(0), default: pair(1), slow: pair(2) },
+    distance: { sm: 8, md: 24, lg: 64 },
+    stagger: { tight: 20, normal: 50, loose: 100, max: 400 },
+  };
 }

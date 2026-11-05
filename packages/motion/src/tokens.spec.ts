@@ -103,3 +103,16 @@ it('keeps generated spring data in sync with its physical source', () => {
   const script = fileURLToPath(new URL('../scripts/generate-springs.mjs', import.meta.url));
   expect(() => execFileSync(process.execPath, [script, '--check'])).not.toThrow();
 });
+
+it('exposes provisional distance and stagger values independently of the scheme', () => {
+  for (const scheme of ['expressive', 'standard'] as const) {
+    const tokens = defineTokens({ scheme });
+    expect(tokens.distance).toEqual({ sm: 8, md: 24, lg: 64 });
+    expect(tokens.stagger).toEqual({ tight: 20, normal: 50, loose: 100, max: 400 });
+  }
+  const first = defineTokens();
+  first.distance.sm = 999;
+  first.stagger.tight = 999;
+  expect(defineTokens().distance.sm).toBe(8);
+  expect(defineTokens().stagger.tight).toBe(20);
+});

@@ -8,6 +8,14 @@
 /* Also provides the initial value where @property is not supported. */
 :root {
   --udx-motion-scale: 1;
+  /* Experimental values pending visual calibration. */
+  --udx-motion-distance-sm: 8px;
+  --udx-motion-distance-md: 24px;
+  --udx-motion-distance-lg: 64px;
+  --udx-motion-stagger-tight: 20ms;
+  --udx-motion-stagger-normal: 50ms;
+  --udx-motion-stagger-loose: 100ms;
+  --udx-motion-stagger-max: 400ms;
 }
 
 :root[data-motion-policy='reduce'] {

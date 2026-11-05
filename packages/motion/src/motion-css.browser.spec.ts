@@ -24,3 +24,24 @@ it('registers an inherited scale at the document level', async () => {
     expect(media.cssText).toContain('--udx-motion-scale: 0');
   } finally { host.remove(); style.remove(); }
 });
+
+it('exposes provisional token values to the document and inherited descendants', async () => {
+  const { defineTokens } = await import('./index.js');
+  const response = await fetch('/motion.css');
+  expect(response.ok).toBe(true);
+  const style = document.createElement('style');
+  style.textContent = await response.text();
+  document.head.append(style);
+  const child = document.createElement('div');
+  document.body.append(child);
+  try {
+    const tokens = defineTokens();
+    const computed = getComputedStyle(child);
+    for (const [name, value] of Object.entries(tokens.distance)) {
+      expect(computed.getPropertyValue(`--udx-motion-distance-${name}`).trim()).toBe(`${value}px`);
+    }
+    for (const [name, value] of Object.entries(tokens.stagger)) {
+      expect(computed.getPropertyValue(`--udx-motion-stagger-${name}`).trim()).toBe(`${value}ms`);
+    }
+  } finally { child.remove(); style.remove(); }
+});
