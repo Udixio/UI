@@ -530,6 +530,36 @@ du terrain commun des votes.
 | I29 | Scope | `revert()` pour le registre, `inspect()` pour le diagnostic. | 4/5 |
 | I30 | Faits à vérifier | Vérification par spike avant les choix dépendants : `linear()`, `sibling-index()`, `match-element`, `grid-template-rows`, `requestIdleCallback` (absent de Safari), `getCoalescedEvents`, valeurs M3. | 4/5 |
 
+#### Faits vérifiés (R16, `docs/motion/research/R16-faits-I30.md`)
+
+Confirmés : `linear()` (Baseline widely, seul Chrome 109 manque → repli),
+`grid-template-rows` 0fr→1fr (couvert partout, valide I12), `Intl.Segmenter`
+(couvert), `match-element` (same-document seulement), `requestIdleCallback`
+absent de Safari **et d'iOS** (repli `setTimeout`), React 19.3 `<ViewTransition>`
+stable, Angular `animate.enter/leave` depuis 20.2 et zoneless par défaut
+depuis v21, anime.js 4.5 `morphTo` rééchantillonne, `splitText` accessible par
+défaut, `pauseOnDocumentHidden` global au moteur. `sibling-index()` manque dans
+Chrome 109, Firefox ESR 153, iOS 18.5–18.7 → repli JS du rang requis (I16).
+
+Corrections à appliquer :
+- **I24** : vitesse `exact` au pointeur fausse sur Firefox Android
+  (`getCoalescedEvents()` renvoie toujours `[]`) → `estimated` en repli.
+- **Q1 / §8.1 bis** : `afterRender` n'existe plus en Angular 22 ; API actuelle
+  `afterEveryRender`, `afterNextRender`, `afterRenderEffect`.
+
+Valeurs M3 Expressive relevées sur la doc officielle (R17,
+`docs/motion/research/R17-m3-motion-tokens.md`) : ressorts
+`md.sys.motion.spring.<vitesse>.<type>` (schéma global `expressive` /
+`standard`, valeurs identiques Android et Web). Expressive : spatial fast
+0,6 / 800, default 0,8 / 380, slow 0,8 / 200 ; effects fast 1 / 3800,
+default 1 / 1600, slow 1 / 800 (damping ratio / stiffness). Conversion
+officielle web en cubic-bezier + durée (350 / 500 / 650 ms spatial,
+150 / 200 / 300 ms effects), réservée aux animations sans interruption ni
+geste. **Ajustement I25** : nom de token dans l'ordre officiel
+`spring.<vitesse>.<type>` ; le schéma est un réglage global de `defineTokens`,
+pas une option par animation ; la conversion officielle sert de courbe de
+repli au palier natif.
+
 ### 8.2 Modèle `MotionSpec` — *à remplir par B2*
 ### 8.3 Contrat provider — *à remplir par B3*
 ### 8.4 Détails par famille — *une sous-section par famille, remplie en phase 3*
@@ -594,6 +624,7 @@ D2 (en partie orientée par C15).
 | Date | Travail | Changement |
 |---|---|---|
 | 2026-11-03 | — | Création du document à l'issue du brainstorming initial. |
+| 2026-11-05 | R16, R17 | Faits I30 vérifiés (2 corrections : vitesse au pointeur sur Firefox Android, API Angular 22) ; valeurs M3 Expressive relevées sur la doc officielle. |
 | 2026-11-04 | Validation globale | L'utilisateur valide §8.1 à §8.1 quater, arbitrages Claude compris ; prochaine étape : vérifications I30 et spikes S1/S2. |
 | 2026-11-04 | R15 | Audit de cohérence : 30 résolutions (§8.1 quater), 27 à la majorité, 3 + rendu partagé arbitrés par Claude. Recherche complète, en attente de validation globale. |
 | 2026-11-04 | R14 | Familles restantes proposées (§8.1 ter), toutes les questions couvertes ; contradictions transmises à R15. |
