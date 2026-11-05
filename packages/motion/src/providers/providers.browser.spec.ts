@@ -89,22 +89,4 @@ describe.each([waapiProvider, animejsProvider])('$backend provider', (provider) 
     target.remove();
   });
 
-  it('preserves a later identical write when the browser reports a style mutation', async () => {
-    const target = document.createElement('div');
-    target.style.opacity = '0.3';
-    document.body.append(target);
-    const handle = provider.animate({ target, keyframes: [{ opacity: 1 }], timing: { duration: 1000, easing: 'linear' } });
-    handle.pause();
-    handle.seek(500);
-    const value = getComputedStyle(target).opacity;
-    const observer = new MutationObserver(() => {});
-    observer.observe(target, { attributes: true, attributeFilter: ['style'] });
-    target.style.opacity = value;
-    const sameValueIsObservable = observer.takeRecords().length > 0;
-    observer.disconnect();
-    handle.cancel();
-    expect(await handle.finished).toBe('cancelled');
-    expect(target.style.opacity).toBe(provider.backend === 'waapi' || sameValueIsObservable ? value : '0.3');
-    target.remove();
-  });
 });

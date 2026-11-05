@@ -16,15 +16,11 @@ export const animejsProvider: MotionProvider = {
   activeCount: () => active,
   animate({ target, keyframes, timing }) {
     let settled = false;
-    let externallyChanged = false;
-    const observer = new MutationObserver(() => { externallyChanged = true; });
-    observer.observe(target, { attributes: true, attributeFilter: ['style'] });
     let resolve!: (result: 'finished' | 'cancelled') => void;
     const finished = new Promise<'finished' | 'cancelled'>((done) => { resolve = done; });
     const settle = (result: 'finished' | 'cancelled') => {
       if (settled) return;
       settled = true;
-      observer.disconnect();
       active--;
       resolve(result);
     };
@@ -61,7 +57,6 @@ export const animejsProvider: MotionProvider = {
         keyframes: frames, duration: timing.duration, ...(timing.delay !== undefined && { delay: timing.delay }),
         ease: bezier ? `cubicBezier(${bezier[1]})` : 'linear',
         onRender: () => {
-          if (observer.takeRecords().length) externallyChanged = true;
           for (const property of properties) {
             const cssProperty = property as 'opacity' | 'translate' | 'scale' | 'rotate';
             target.style[cssProperty] = String(values[cssProperty]);
@@ -70,12 +65,10 @@ export const animejsProvider: MotionProvider = {
               priority: target.style.getPropertyPriority(property),
             });
           }
-          observer.takeRecords();
         },
         autoplay: true, onComplete: () => settle('finished'),
       });
     } catch (error) {
-      observer.disconnect();
       active--;
       throw error;
     }
@@ -87,12 +80,10 @@ export const animejsProvider: MotionProvider = {
       seek: (time) => { if (!settled) animation.seek(time); },
       cancel: () => {
         if (!settled) {
-          if (observer.takeRecords().length) externallyChanged = true;
-          observer.disconnect();
           animation.cancel();
           for (const [property, { value, priority }] of inlineStyles) {
             const written = lastWritten.get(property);
-            if (externallyChanged || !written || target.style.getPropertyValue(property) !== written.value ||
+            if (!written || target.style.getPropertyValue(property) !== written.value ||
                 target.style.getPropertyPriority(property) !== written.priority) continue;
             if (value) target.style.setProperty(property, value, priority);
             else target.style.removeProperty(property);
