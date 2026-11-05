@@ -38,6 +38,9 @@ jobs:
       - name: Build
         run: npx nx affected --target=build
 
+      - name: Size budgets
+        run: npx nx affected --target=size
+
       - name: Lint
         run: npx nx affected --target=lint
 

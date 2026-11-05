@@ -22,6 +22,9 @@
     "url": "https://github.com/Udixio/UI.git"
   },
   "type": "module",
+  "scripts": {
+    "size": "size-limit"
+  },
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
