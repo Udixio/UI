@@ -1,0 +1,17 @@
+/* Load in the document, including when components use shadow roots. */
+@property --udx-motion-scale {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+
+/* Also provides the initial value where @property is not supported. */
+:root {
+  --udx-motion-scale: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --udx-motion-scale: 0;
+  }
+}

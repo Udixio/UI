@@ -6,6 +6,7 @@
     "access": "public",
     "exports": {
       "./package.json": "./package.json",
+      "./motion.css": "./dist/motion.css",
       ".": {
         "types": "./dist/index.d.ts",
         "import": "./dist/index.js",
@@ -31,6 +32,7 @@
   "types": "./dist/index.d.ts",
   "exports": {
     "./package.json": "./package.json",
+    "./motion.css": { "development": "./public/motion.css", "default": "./dist/motion.css" },
     ".": {
       "development": "./src/index.ts",
       "types": "./dist/index.d.ts",
