@@ -3,6 +3,24 @@ import { waapiProvider } from './waapi.js';
 import { animejsProvider } from './animejs.js';
 
 describe.each([waapiProvider, animejsProvider])('$backend provider', (provider) => {
+  it('declares only capabilities implemented by its current request contract', () => {
+    expect([...provider.capabilities]).toEqual([]);
+  });
+
+  it('reports velocity as unavailable throughout the handle lifecycle', async () => {
+    const target = document.createElement('div');
+    document.body.append(target);
+    const handle = provider.animate({ target, keyframes: [{ opacity: 0 }, { opacity: 1 }], timing: { duration: 1000, easing: 'linear' } });
+    expect(handle.velocity).toEqual({ value: 0, source: 'unavailable' });
+    handle.pause();
+    handle.seek(500);
+    expect(handle.velocity).toEqual({ value: 0, source: 'unavailable' });
+    handle.cancel();
+    await handle.finished;
+    expect(handle.velocity).toEqual({ value: 0, source: 'unavailable' });
+    target.remove();
+  });
+
   it('waits for the remaining delay after seeking and resuming', async () => {
     const target = document.createElement('div');
     document.body.append(target);

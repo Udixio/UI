@@ -12,6 +12,7 @@ function frameToKeyframe(frame: VisualFrame): Keyframe {
 let active = 0;
 export const waapiProvider: MotionProvider = {
   backend: 'waapi',
+  capabilities: new Set(),
   activeCount: () => active,
   animate({ target, keyframes, timing }) {
     const animation = target.animate(keyframes.map(frameToKeyframe), { ...timing, fill: 'both' });
@@ -45,6 +46,7 @@ export const waapiProvider: MotionProvider = {
     }, () => settle('cancelled'));
     return {
       backend: 'waapi', duration: timing.duration, finished,
+      velocity: { value: 0, source: 'unavailable' },
       play: () => { if (!settled) animation.play(); },
       pause: () => { if (!settled) animation.pause(); },
       reverse: () => { if (!settled) animation.reverse(); },

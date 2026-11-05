@@ -13,6 +13,7 @@ function frameToKeyframe(frame: VisualFrame): Record<string, number | string> {
 let active = 0;
 export const animejsProvider: MotionProvider = {
   backend: 'animejs',
+  capabilities: new Set(),
   activeCount: () => active,
   animate({ target, keyframes, timing }) {
     let settled = false;
@@ -79,6 +80,7 @@ export const animejsProvider: MotionProvider = {
     }
     return {
       backend: 'animejs', duration: timing.duration, finished,
+      velocity: { value: 0, source: 'unavailable' },
       play: () => { if (!settled) animation.play(); },
       pause: () => { if (!settled) animation.pause(); },
       reverse: () => { if (!settled) animation.reverse(); },
