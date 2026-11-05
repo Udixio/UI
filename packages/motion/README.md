@@ -54,3 +54,9 @@ defaulting to `1` and to `0` under `prefers-reduced-motion: reduce`. A plain
 The CSS is static and can be included in server-rendered HTML without JavaScript.
 This entry supplies the scale only; it does not apply it to animations or
 implement a motion provider or policy override.
+
+The public motion vocabulary includes `Verb`, `SpringRef`, and `ReducedRender`.
+The complete declarative `MotionSpec` is not exported yet: the domains of curve
+and distance tokens, scroll ranges, and shared keys remain unspecified, and the
+stagger vocabulary is provisional. These types do not add a runtime API or
+implement the defaults in the motion design specification.
