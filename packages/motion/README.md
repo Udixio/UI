@@ -41,8 +41,8 @@ from `scripts/spring-source.json` by `node scripts/generate-springs.mjs`;
 `node scripts/generate-springs.mjs --check` verifies they are current. Use the official fallback where `linear()` is unavailable.
 
 This is a provisional token-data foundation, not a complete F1 implementation:
-provider integration, custom easings, duration tokens, CSS property registration,
-Tailwind and framework syntaxes remain future work. The API shape may change
+provider integration, custom easings, duration tokens, additional CSS property
+registration, Tailwind and framework syntaxes remain future work. The API shape may change
 when the shared motion model and provider contracts are designed.
 
 ### Document motion scale

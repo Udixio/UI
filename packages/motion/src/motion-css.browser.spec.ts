@@ -15,6 +15,8 @@ it('registers an inherited scale at the document level', async () => {
   host.attachShadow({ mode: 'open' }).append(document.createElement('slot'), shadowChild);
   document.body.append(host);
   try {
+    const expectedScale = matchMedia('(prefers-reduced-motion: reduce)').matches ? '0' : '1';
+    expect(getComputedStyle(document.documentElement).getPropertyValue('--udx-motion-scale').trim()).toBe(expectedScale);
     expect(getComputedStyle(child).getPropertyValue('--udx-motion-scale').trim()).toBe('0.5');
     expect(getComputedStyle(shadowChild).getPropertyValue('--udx-motion-scale').trim()).toBe('0.5');
     const media = Array.from(style.sheet!.cssRules).find(rule => rule instanceof CSSMediaRule && rule.conditionText.includes('prefers-reduced-motion')) as CSSMediaRule;
