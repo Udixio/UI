@@ -4,6 +4,7 @@ import { RUNTIME_KEY } from './runtime-key.js';
 
 afterEach(() => {
   delete (globalThis as Record<symbol, unknown>)[RUNTIME_KEY];
+  delete (globalThis as Record<symbol, unknown>)[Symbol.for('udixio.motion.frame-runtime.preview')];
   vi.unstubAllGlobals();
 });
 
@@ -64,6 +65,57 @@ describe('motion runtime', () => {
     tick();
     expect(order).toEqual(['read', 'write', 'next read', 'next write']);
     expect(callbacks.size).toBe(0);
+    runtime.release();
+  });
+
+  it('does not publish the incomplete runtime under the stable v1 key', () => {
+    vi.stubGlobal('window', globalThis);
+    getMotionRuntime();
+    expect((globalThis as Record<symbol, unknown>)[RUNTIME_KEY]).toBeUndefined();
+  });
+
+  it('continues both phases after callback errors and reports each error', () => {
+    let frame!: FrameRequestCallback;
+    vi.stubGlobal('window', globalThis);
+    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => { frame = cb; return 1; });
+    const report = vi.fn();
+    vi.stubGlobal('reportError', report);
+    const runtime = getMotionRuntime();
+    runtime.retain();
+    const first = new Error('read');
+    const second = new Error('write');
+    const order: string[] = [];
+    runtime.frame.read(() => { throw first; });
+    runtime.frame.read(() => order.push('read'));
+    runtime.frame.write(() => { throw second; });
+    runtime.frame.write(() => order.push('write'));
+    frame(0);
+    expect(order).toEqual(['read', 'write']);
+    expect(report.mock.calls.map(([error]) => error)).toEqual([first, second]);
+    runtime.release();
+  });
+
+  it('keeps new work queued after release and retain during a read', () => {
+    const callbacks = new Map<number, FrameRequestCallback>();
+    let id = 0;
+    vi.stubGlobal('window', globalThis);
+    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => { callbacks.set(++id, cb); return id; });
+    vi.stubGlobal('cancelAnimationFrame', (handle: number) => callbacks.delete(handle));
+    const runtime = getMotionRuntime();
+    runtime.retain();
+    const order: string[] = [];
+    runtime.frame.read(() => {
+      runtime.release();
+      runtime.retain();
+      runtime.frame.write(() => order.push('new write'));
+    });
+    runtime.frame.write(() => order.push('old write'));
+    const tick = () => { const cb = [...callbacks.values()][0]; callbacks.clear(); cb(0); };
+    tick();
+    expect(order).toEqual([]);
+    expect(callbacks.size).toBe(1);
+    tick();
+    expect(order).toEqual(['new write']);
     runtime.release();
   });
 

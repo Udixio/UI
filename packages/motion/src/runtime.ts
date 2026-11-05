@@ -1,4 +1,6 @@
-import { RUNTIME_KEY } from './runtime-key.js';
+// Provisional key: the partial frame runtime must not occupy the stable v1 key.
+// Replace it only when the complete §8.3.3 contract is implemented.
+const FRAME_RUNTIME_KEY = Symbol.for('udixio.motion.frame-runtime.preview');
 
 /** Internal subset of the major-1 runtime. Shared registries, subscriptions,
  * motion policy and inspection are not implemented yet. */
@@ -33,16 +35,24 @@ function createRuntime(): MotionRuntime {
     const run = (callbacks: Array<() => void>) => {
       for (const callback of callbacks) {
         if (generation !== currentGeneration) break;
-        callback();
+        try {
+          callback();
+        } catch (error) {
+          // Report without aborting other callbacks, as the browser does for rAF.
+          if (typeof globalThis.reportError === 'function') globalThis.reportError(error);
+          else setTimeout(() => { throw error; }, 0);
+        }
       }
     };
     try {
       const pendingReads = reads;
       reads = [];
       run(pendingReads);
-      const pendingWrites = writes;
-      writes = [];
-      run(pendingWrites);
+      if (generation === currentGeneration) {
+        const pendingWrites = writes;
+        writes = [];
+        run(pendingWrites);
+      }
     } finally {
       flushing = false;
       if (reads.length || writes.length) schedule();
@@ -67,9 +77,9 @@ function createRuntime(): MotionRuntime {
   };
 }
 
-/** The first browser copy defines the major-1 shape; SSR never stores process-global state. */
+/** Browser copies share this provisional subset; SSR never stores process-global state. */
 export function getMotionRuntime(): MotionRuntime {
   if (typeof window === 'undefined') return createRuntime();
   const host = globalThis as typeof globalThis & { [key: symbol]: MotionRuntime | undefined };
-  return (host[RUNTIME_KEY] ??= createRuntime());
+  return (host[FRAME_RUNTIME_KEY] ??= createRuntime());
 }

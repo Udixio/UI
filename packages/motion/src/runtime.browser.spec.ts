@@ -1,8 +1,8 @@
 import { afterEach, expect, it } from 'vitest';
 import { getMotionRuntime } from './runtime.js';
-import { RUNTIME_KEY } from './runtime-key.js';
+const FRAME_RUNTIME_KEY = Symbol.for('udixio.motion.frame-runtime.preview');
 
-afterEach(() => { delete (globalThis as Record<symbol, unknown>)[RUNTIME_KEY]; });
+afterEach(() => { delete (globalThis as Record<symbol, unknown>)[FRAME_RUNTIME_KEY]; });
 
 it('coordinates distinct module copies in one frame and drains work in read/write order', async () => {
   // The query causes Vite to load a second copy of the module.
