@@ -866,6 +866,56 @@ Points ouverts relevés pendant l'étape 1a :
   la fin de la sortie ; le contenu voisin saute. C'est le rôle de `layout`
   (étape 2).
 
+#### 8.3.6 État après l'étape 1b (2026-11-15)
+
+Adaptateurs livrés, enveloppes minces autour de la liaison du noyau (aucune
+logique d'animation, seulement `setPresent`, `play`, `destroy`) :
+
+| Framework | Écriture | Sortie au démontage |
+|---|---|---|
+| React (`@udixio/ui-react`) | `const m = useMotion('slide', { present: open })` puis `m.mounted && <div ref={m.ref}>` ; renvoie aussi `play`, `getBinding` | `mounted` reste vrai jusqu'à la fin de la sortie |
+| Angular (`@udixio/ui-angular`) | `<div udxMotion="slide">` dans un `@if` ; entrées `udxMotionPresent`, `udxMotionState`, `udxMotionSettled` ; `exportAs: 'udxMotion'` | écouteur d'hôte `(animate.leave)`, retrait à `animationComplete()` |
+| Svelte (`@udixio/ui-svelte`) | `{@attach motion('slide', () => ({ present, state, settled }))}` | `transition:presence`, qui retient le nœud pour la durée de la sortie |
+
+Noyau : `motionWhenDefined(target, source, options)` lie tout de suite, ou dès
+que le nom est défini (ordre d'hydratation des îles) ; `MotionBinding.verb`.
+
+Règles fixées pendant l'étape 1b :
+
+- **Entrée au chargement (décision de l'utilisateur, 2026-11-15)** : le contenu
+  présent au chargement de la page ne s'anime pas ; seuls les éléments insérés
+  ou ré-affichés ensuite jouent leur entrée. Une option explicite par élément
+  pourra être ajoutée plus tard ; elle demandera une règle de masquage avant
+  le premier affichage.
+- **Entrée côté framework** : un élément monté par le framework côté client
+  joue son entrée. React détecte le contenu hydraté (`useSyncExternalStore`)
+  et le considère en place. Angular et Svelte n'exposent aucune API publique
+  pour cela : option explicite `udxMotionSettled` / `settled: true`.
+- **Emphase** : même option dans les trois adaptateurs (`state` /
+  `udxMotionState`) ; elle rejoue au changement de valeur, jamais au montage.
+- **Changement de source** sur un même élément : nouvelle liaison, sans rejouer
+  l'entrée.
+- **Angular** : la directive est détruite avant l'appel de `leave` (même
+  tick) ; la liaison n'est donc libérée qu'après la sortie, ou une macrotâche
+  après la destruction s'il n'y a pas de sortie.
+- **Nom pas encore défini** : aucun adaptateur ne lève ; l'élément reste
+  visible et se lie à l'arrivée de la définition, sans rejouer l'entrée.
+
+Points ouverts relevés pendant l'étape 1b :
+
+- **Hydratation en Angular et Svelte** : sans détection automatique, un
+  contenu rendu par le serveur rejoue son entrée à l'hydratation. À traiter
+  avec l'adaptateur Astro (S2) ou par un marquage côté serveur.
+- **Changements avant la définition** : un changement de `present` ou de
+  `state` fait pendant qu'un nom n'est pas encore défini est perdu à la liaison
+  (nœuds gardés seulement). Piste : `DeferredMotion.setPresent`.
+- **Tests Angular** : jsdom n'a pas `getAnimations`, donc Angular n'y appelle
+  pas `animate.leave` ; le chemin réel est couvert par le test navigateur de
+  la démo, la logique de la directive par des appels directs.
+- **Cohérence entre frameworks au premier rendu client** : une île rendue
+  uniquement côté client joue ses entrées au montage dans les trois
+  frameworks ; une île hydratée ne les joue pas en React seulement.
+
 ### 8.4 Détails par famille — **rédigé (consolidation)**
 
 | # | Famille | Écriture | Chemin natif | Repli / moteur JS | Sources |
@@ -963,8 +1013,9 @@ modification).
 
 Avancement : **étape 1a livrée le 2026-11-14** (cœur de la surface
 d'écriture, `data-motion`, Badge, démo `/motion/demo` — détail en §8.3.5).
-Reste de l'étape 1 : **1b**, les adaptateurs React, Angular et Svelte et la
-présence par framework.
+**Étape 1b livrée le 2026-11-15** (adaptateurs React, Angular, Svelte et
+présence par framework — détail en §8.3.6). L'étape 1 est terminée ; la
+suivante est l'étape 2 (layout, élément partagé, listes).
 
 ## 9. Questions ouvertes connues
 
@@ -1035,6 +1086,7 @@ D2 (en partie orientée par C15).
 | Date | Travail | Changement |
 |---|---|---|
 | 2026-11-03 | — | Création du document à l'issue du brainstorming initial. |
+| 2026-11-15 | Étape 1b | Adaptateurs livrés : `useMotion` (React), `udxMotion` (Angular), `motion` + `presence` (Svelte) ; `motionWhenDefined` dans le noyau ; démo par framework. Décision : pas d'animation au chargement par défaut. Règles et points ouverts en §8.3.6. Vérification groupée : motion 816 tests (Chromium, Firefox, WebKit), core 433, React 402, Svelte 293, Angular 365, doc 12 tests navigateur sur le site construit. |
 | 2026-11-14 | Étape 1a | Surface d'écriture livrée : `defineMotion`, presets, `playMotion`, `motion()`, `connectMotion`, entrée `policy` ; Badge migré ; démo `/motion/demo`. Règles et points ouverts en §8.3.5. Vérification groupée : motion 798 tests (Chromium, Firefox, WebKit), core 433, React 387, Svelte 280, Angular vert. |
 | 2026-11-14 | Revue d'ensemble | Pas de publication partielle ; anime.js confirmé ; doublon `appear` / `reveal` levé ; `layout` sur changement de classe ; repli statique du scroll lié ; ordre de réalisation §8.6. |
 | 2026-11-05 | Validation ⚑ | Points 1, 2, 3, 4 (pages), 6 et SSR validés ; ressort des gestes et tokens de distance / stagger provisoires, à calibrer visuellement. |
