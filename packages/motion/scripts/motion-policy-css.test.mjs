@@ -14,7 +14,14 @@ for (const name of browsers) test(`CSS scale follows the system preference or do
   const browser = await browserTypes[name].launch();
   try {
     const page = await browser.newPage();
-    await page.addStyleTag({ path: fileURLToPath(new URL('../public/motion.css', import.meta.url)) });
+    // Serve the stylesheet from a page origin: its relative @import rules fail in a
+    // <style> injected into about:blank, which WebKit reports as a load error.
+    await page.route('http://motion.test/**', (route) => {
+      const { pathname } = new URL(route.request().url());
+      if (pathname === '/') return route.fulfill({ contentType: 'text/html', body: '<link rel="stylesheet" href="/motion.css">' });
+      return route.fulfill({ path: fileURLToPath(new URL(`../public${pathname}`, import.meta.url)) });
+    });
+    await page.goto('http://motion.test/');
     for (const preference of ['no-preference', 'reduce']) {
       await page.emulateMedia({ reducedMotion: preference });
       for (const policy of [null, 'auto', 'reduce', 'unknown']) {
