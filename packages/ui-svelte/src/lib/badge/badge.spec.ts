@@ -159,19 +159,19 @@ describe('Badge', () => {
     expect(badgeOf(container).className).toContain('ring-2');
   });
 
-  it('connects the shared show/hide transition, instantly on first paint', async () => {
+  it('connects the shared show/hide motion, instantly on first paint', async () => {
     const controller = mockTransitionController();
     vi.mocked(createBadgeTransitionController).mockReturnValue(controller);
     const { container, rerender } = render(Badge, {
-      props: { label: 3, description: '3 unread', transition: { duration: 50 } },
+      props: { label: 3, description: '3 unread', motion: { timing: 'spring.fast.spatial' } },
     });
 
     expect(createBadgeTransitionController).toHaveBeenCalledWith(
-      expect.objectContaining({ element: badgeOf(container), transition: { duration: 50 } }),
+      expect.objectContaining({ element: badgeOf(container), motion: { timing: 'spring.fast.spatial' } }),
     );
     expect(controller.setVisible).toHaveBeenCalledWith(true, true);
 
-    await rerender({ label: 3, description: '3 unread', transition: { duration: 50 }, visible: false });
+    await rerender({ label: 3, description: '3 unread', motion: { timing: 'spring.fast.spatial' }, visible: false });
     flushSync();
     expect(controller.setVisible).toHaveBeenLastCalledWith(false);
     expect(controller.setVisible).toHaveBeenCalledTimes(2);

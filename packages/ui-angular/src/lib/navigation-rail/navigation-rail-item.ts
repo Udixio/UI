@@ -104,7 +104,7 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
               [udxBadgeMax]="badge.max"
               [udxBadgeDescription]="badge.description"
               [udxBadgeVisible]="this.badge() !== undefined"
-              [udxBadgeTransition]="badge.transition"
+              [udxBadgeMotion]="badge.motion"
             />
           } @else {
             <udx-icon

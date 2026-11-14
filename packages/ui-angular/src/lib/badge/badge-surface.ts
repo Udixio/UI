@@ -31,7 +31,7 @@ import { createStyle } from '../utils/create-style';
  * - Renders the dot or the pill from the same shared contract React renders
  *   from, so the DOM the two frameworks produce is identical.
  * - Exposes its badge element so the directive can connect the shared
- *   anime.js show/hide scale-and-fade from `@udixio/core/dom`.
+ *   show/hide scale-and-fade from `@udixio/core/dom`.
  * @a11y
  * - Carries the live region and the visually hidden `description`; hides
  *   itself from assistive technology when there is no description, and when
@@ -71,8 +71,8 @@ export class BadgeSurface {
   readonly description = input<BadgeProps['description']>();
   /** Whether the badge is shown; `false` animates it out and keeps it mounted. */
   readonly visible = input<boolean>(true);
-  /** Anime.js show-hide timing. */
-  readonly transition = input<BadgeProps['transition']>();
+  /** Show-hide motion of the badge, timed by `@udixio/motion`. */
+  readonly motion = input<BadgeProps['motion']>();
   /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
   readonly hostClass = input<string>('', { alias: 'class' });
 
@@ -104,7 +104,7 @@ export class BadgeSurface {
     max: this.max(),
     description: this.description(),
     visible: this.visible(),
-    transition: this.transition(),
+    motion: this.motion(),
     variant: resolveBadgeVariant(this.resolvedLabel()),
     attached: true,
     className: mergeClassNames<BadgeInterface>(

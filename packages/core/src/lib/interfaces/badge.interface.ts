@@ -1,9 +1,9 @@
-/** Anime.js opacity/scale show-hide timing, shared by every framework. */
-export interface BadgeTransition {
-  /** Duration in milliseconds. Default: 200ms */
-  duration?: number;
-  /** Anime.js easing name or function. Default: 'outCubic' */
-  ease?: string;
+import type { CurveTiming, SpringRef } from '@udixio/motion';
+
+/** Timing of the badge's show-hide motion, shared by every framework. */
+export interface BadgeMotion {
+  /** A spring token or a duration/easing pair from `@udixio/motion`. Default: the `appear` defaults. */
+  timing?: SpringRef | CurveTiming;
 }
 
 /**
@@ -46,8 +46,8 @@ export interface BadgeProps {
    */
   visible?: boolean;
 
-  /** Anime.js show-hide timing. */
-  transition?: BadgeTransition;
+  /** Show-hide motion of the badge, timed by `@udixio/motion`. */
+  motion?: BadgeMotion;
 }
 
 export interface BadgeStates {

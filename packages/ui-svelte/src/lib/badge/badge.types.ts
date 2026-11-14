@@ -24,9 +24,9 @@ import type { HTMLAttributes } from 'svelte/elements';
  *   renders `99+`.
  * - Hiding the badge once its destination is selected is the caller's
  *   decision: set `visible={false}` rather than unmounting it, so it can
- *   animate out. The show/hide scale-and-fade is implemented once with
- *   anime.js in `@udixio/core/dom`; `transition` tunes it, and reduced motion
- *   skips it.
+ *   animate out. The show/hide scale-and-fade is implemented once in
+ *   `@udixio/core/dom` on `@udixio/motion`; `motion.timing` tunes it, with a
+ *   spring token or a duration/easing pair, and reduced motion skips it.
  * @a11y
  * - `description` is what a screen reader announces. Give it the meaning, not
  *   the number: `3 unread messages`, not `3`. It is rendered as visually

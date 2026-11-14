@@ -7,9 +7,8 @@ import { Badge } from '../lib/index.js';
 
 expect.extend(toHaveNoViolations);
 
-// Mocking `animejs` directly corrupts the sibling `@udixio/core` entry under
-// Vite's pre-bundling here; mocking the isolated factory is what the Tooltip
-// spec does too.
+// Mocking only the factory keeps the sibling `@udixio/core` entry intact under
+// Vite's pre-bundling here; the Tooltip spec does the same.
 vi.mock('@udixio/core/dom', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@udixio/core/dom')>();
   return { ...actual, createBadgeTransitionController: vi.fn() };
@@ -211,17 +210,21 @@ describe('Badge', () => {
     expect(badgeOf(container).className).toContain('ring-2');
   });
 
-  it('connects the shared show/hide transition, instantly on first paint', () => {
+  it('connects the shared show/hide motion, instantly on first paint', () => {
     const controller = mockTransitionController();
     vi.mocked(createBadgeTransitionController).mockReturnValue(controller);
     const { container, rerender } = render(
-      <Badge label={3} description="3 unread" transition={{ duration: 50 }} />,
+      <Badge
+        label={3}
+        description="3 unread"
+        motion={{ timing: 'spring.fast.spatial' }}
+      />,
     );
 
     expect(createBadgeTransitionController).toHaveBeenCalledWith(
       expect.objectContaining({
         element: badgeOf(container),
-        transition: { duration: 50 },
+        motion: { timing: 'spring.fast.spatial' },
       }),
     );
     expect(controller.setVisible).toHaveBeenCalledWith(true, true);
@@ -230,12 +233,25 @@ describe('Badge', () => {
       <Badge
         label={3}
         description="3 unread"
-        transition={{ duration: 50 }}
+        motion={{ timing: 'spring.fast.spatial' }}
         visible={false}
       />,
     );
     expect(controller.setVisible).toHaveBeenLastCalledWith(false);
     expect(controller.setVisible).toHaveBeenCalledTimes(2);
+  });
+
+  it('keeps the controller when a re-render passes the same timing in a new object', () => {
+    vi.mocked(createBadgeTransitionController).mockClear();
+    const { rerender } = render(
+      <Badge label={3} description="3 unread" motion={{ timing: 'spring.fast.spatial' }} />,
+    );
+
+    rerender(
+      <Badge label={3} description="3 unread" motion={{ timing: 'spring.fast.spatial' }} />,
+    );
+
+    expect(createBadgeTransitionController).toHaveBeenCalledTimes(1);
   });
 
   it('stays mounted but leaves the accessibility tree while not visible', () => {

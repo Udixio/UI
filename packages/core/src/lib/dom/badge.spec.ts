@@ -1,13 +1,12 @@
 // @vitest-environment jsdom
 
-import { animate } from 'animejs';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
   createBadgeAnchorController,
   createBadgeTransitionController,
 } from './badge.js';
-
-vi.mock('animejs', () => ({ animate: vi.fn() }));
 
 function badgeElement(): HTMLElement {
   const badge = document.createElement('span');
@@ -126,13 +125,13 @@ describe('badge anchor controller', () => {
   });
 });
 
-describe('badge transition controller', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    vi.mocked(animate).mockReturnValue({ pause: vi.fn() } as never);
-  });
+/** Lets the promises of a finished motion settle, then reads the final state. */
+function flushMotion(): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve));
+}
 
-  it('scales and fades the badge in with the default transition', () => {
+describe('badge transition controller', () => {
+  it('shows the badge: visibility cleared, then scaled and faded in to its end state', () => {
     const element = document.createElement('span');
     element.style.visibility = 'hidden';
 
@@ -142,18 +141,12 @@ describe('badge transition controller', () => {
     }).setVisible(true);
 
     expect(element.style.visibility).toBe('');
-    expect(animate).toHaveBeenCalledWith(
-      element,
-      expect.objectContaining({
-        opacity: 1,
-        scale: 1,
-        duration: 200,
-        ease: 'outCubic',
-      }),
-    );
+    expect(element.style.opacity).toBe('1');
+    expect(element.style.scale).toBe('1');
+    expect(element.hasAttribute('inert')).toBe(false);
   });
 
-  it('scales and fades the badge out, then takes it out of painting', () => {
+  it('scales and fades the badge out, and takes it out of painting once the exit has finished', async () => {
     const element = document.createElement('span');
 
     createBadgeTransitionController({
@@ -161,65 +154,90 @@ describe('badge transition controller', () => {
       reducedMotion: () => false,
     }).setVisible(false);
 
-    const options = vi.mocked(animate).mock.calls[0][1] as {
-      opacity: number;
-      scale: number;
-      onComplete: () => void;
-    };
-    expect(options).toMatchObject({ opacity: 0, scale: 0 });
+    expect(element.style.opacity).toBe('0');
+    expect(element.style.scale).toBe('0');
+    expect(element.hasAttribute('inert')).toBe(true);
     expect(element.style.visibility).toBe('');
-    options.onComplete();
+
+    await flushMotion();
     expect(element.style.visibility).toBe('hidden');
   });
 
-  it('jumps to the end state when the user prefers reduced motion, or on first paint', () => {
+  it('applies the end state at once when instant, without waiting for the exit', () => {
     const element = document.createElement('span');
     const controller = createBadgeTransitionController({
       element,
-      transition: { duration: 500 },
+      reducedMotion: () => false,
+    });
+    controller.setVisible(true);
+
+    controller.setVisible(false, true);
+    expect(element.style.visibility).toBe('hidden');
+    expect(element.style.opacity).toBe('0');
+    expect(element.hasAttribute('inert')).toBe(true);
+
+    controller.setVisible(true, true);
+    expect(element.style.visibility).toBe('');
+    expect(element.style.opacity).not.toBe('0');
+    expect(element.hasAttribute('inert')).toBe(false);
+  });
+
+  it('jumps to the end state when the user prefers reduced motion', () => {
+    const element = document.createElement('span');
+    const controller = createBadgeTransitionController({
+      element,
       reducedMotion: () => true,
     });
 
     controller.setVisible(true);
-    expect(animate).toHaveBeenLastCalledWith(
-      element,
-      expect.objectContaining({ duration: 0 }),
-    );
+    expect(element.style.visibility).toBe('');
+    expect(element.style.opacity).not.toBe('0');
+    expect(element.hasAttribute('inert')).toBe(false);
 
-    const instant = createBadgeTransitionController({
-      element,
-      transition: { duration: 500 },
-      reducedMotion: () => false,
-    });
-    instant.setVisible(false, true);
-    expect(animate).toHaveBeenLastCalledWith(
-      element,
-      expect.objectContaining({ duration: 0 }),
-    );
-    instant.setVisible(false);
-    expect(animate).toHaveBeenLastCalledWith(
-      element,
-      expect.objectContaining({ duration: 500 }),
-    );
+    controller.setVisible(false);
+    expect(element.style.visibility).toBe('hidden');
+    expect(element.style.opacity).toBe('0');
+    expect(element.hasAttribute('inert')).toBe(true);
   });
 
-  it('interrupts the running animation before starting the next', () => {
+  it('ends visible when shown again before the hide has finished', async () => {
     const element = document.createElement('span');
-    const first = { pause: vi.fn() };
-    const second = { pause: vi.fn() };
-    vi.mocked(animate)
-      .mockReturnValueOnce(first as never)
-      .mockReturnValueOnce(second as never);
     const controller = createBadgeTransitionController({
       element,
       reducedMotion: () => false,
     });
 
-    controller.setVisible(true);
     controller.setVisible(false);
-    expect(first.pause).toHaveBeenCalledOnce();
+    controller.setVisible(true);
+    await flushMotion();
 
+    expect(element.style.visibility).toBe('');
+    expect(element.style.opacity).toBe('1');
+    expect(element.hasAttribute('inert')).toBe(false);
+  });
+
+  it('releases the badge on destroy, and a pending hide no longer hides it', async () => {
+    const element = document.createElement('span');
+    const controller = createBadgeTransitionController({
+      element,
+      reducedMotion: () => false,
+    });
+
+    controller.setVisible(false);
     controller.destroy();
-    expect(second.pause).toHaveBeenCalledOnce();
+    await flushMotion();
+
+    expect(element.style.visibility).toBe('');
+    expect(element.style.opacity).toBe('');
+    expect(element.hasAttribute('inert')).toBe(false);
+    expect(element.hasAttribute('data-presence')).toBe(false);
+  });
+});
+
+describe('badge motion source', () => {
+  it('does not import anime.js', () => {
+    const source = readFileSync(resolve(__dirname, 'badge.ts'), 'utf8');
+
+    expect(source).not.toContain('animejs');
   });
 });

@@ -19,7 +19,7 @@
     max,
     description,
     visible = true,
-    transition,
+    motion,
     class: hostClass = '',
     classes,
     children,
@@ -34,7 +34,7 @@
     max,
     description,
     visible,
-    transition,
+    motion,
     variant,
     attached: false,
     className: mergeClassNames<BadgeInterface>('container', classes, hostClass),
@@ -48,18 +48,16 @@
   // Captured once so first paint already matches `visible`; later changes go
   // through the controller, and a re-rendered style would cut its exit short.
   const initiallyHidden = untrack(() => !visible);
-  // Read through deriveds so the connect effect keys off the values, not the
-  // props object of a spreading parent.
-  const transitionDuration = $derived(transition?.duration);
-  const transitionEase = $derived(transition?.ease);
+  // Read through a derived so the connect effect keys off the timing's value,
+  // not the props object of a spreading parent.
+  const motionTiming = $derived(JSON.stringify(motion?.timing));
 
   $effect(() => {
     if (!badge) return;
-    void transitionDuration;
-    void transitionEase;
+    void motionTiming;
     const created = createBadgeTransitionController({
       element: badge,
-      transition: untrack(() => transition),
+      motion: untrack(() => motion),
     });
     controller = created;
     appliedVisible = untrack(() => visible);

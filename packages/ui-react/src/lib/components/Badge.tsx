@@ -37,9 +37,9 @@ const HIDDEN_STYLE = { visibility: 'hidden', opacity: 0 } as const;
  *   renders `99+`.
  * - Hiding the badge once its destination is selected is the caller's
  *   decision: set `visible={false}` rather than unmounting it, so it can
- *   animate out. The show/hide scale-and-fade is implemented once with
- *   anime.js in `@udixio/core/dom`; `transition` tunes it, and reduced motion
- *   skips it.
+ *   animate out. The show/hide scale-and-fade is implemented once in
+ *   `@udixio/core/dom` on `@udixio/motion`; `motion.timing` tunes it, with a
+ *   spring token or a duration/easing pair, and reduced motion skips it.
  * @a11y
  * - `description` is what a screen reader announces. Give it the meaning, not
  *   the number: `3 unread messages`, not `3`. It is rendered as visually
@@ -64,7 +64,7 @@ export const Badge = ({
   max,
   description,
   visible = true,
-  transition,
+  motion,
   className,
   children,
   ...props
@@ -76,12 +76,15 @@ export const Badge = ({
     max,
     description,
     visible,
-    transition,
+    motion,
     variant,
     attached: false,
     className,
   });
   const announced = visible && !!description;
+  // The timing is compared by value, so an inline `motion` object does not
+  // rebuild the controller on every render.
+  const timingKey = JSON.stringify(motion?.timing);
 
   const [badge, setBadge] = useState<HTMLSpanElement | null>(null);
   const controllerRef = useRef<BadgeTransitionController | null>(null);
@@ -93,7 +96,7 @@ export const Badge = ({
     if (!badge) return undefined;
     const controller = createBadgeTransitionController({
       element: badge,
-      transition,
+      motion,
     });
     controllerRef.current = controller;
     controller.setVisible(visible, true);
@@ -102,7 +105,7 @@ export const Badge = ({
       controllerRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [badge, transition?.duration, transition?.ease]);
+  }, [badge, timingKey]);
 
   useEffect(() => {
     controllerRef.current?.setVisible(visible);

@@ -1,5 +1,5 @@
-import { animate, type JSAnimation } from 'animejs';
-import type { BadgeTransition } from '../interfaces/badge.interface.js';
+import { motion, type MotionBinding, type MotionSpec } from '@udixio/motion';
+import type { BadgeMotion } from '../interfaces/badge.interface.js';
 import { resolveBoxElement } from './anchor-positioner.js';
 
 export interface BadgeAnchorOptions {
@@ -98,10 +98,20 @@ export function createBadgeAnchorController({
   };
 }
 
+/** The badge's show-hide motion: from nothing (faded, scaled to 0) to its full size. */
+export const badgeVisibility: MotionSpec = {
+  verb: 'appear',
+  keyframes: [
+    { opacity: 0, scale: 0 },
+    { opacity: 1, scale: 1 },
+  ],
+};
+
 export interface BadgeTransitionOptions {
   /** The badge element itself; the adapter owns rendering it. */
   element: HTMLElement;
-  transition?: BadgeTransition;
+  /** Timing of the show-hide motion; the `appear` defaults when omitted. */
+  motion?: BadgeMotion;
   /** Overridable for tests; defaults to the system `prefers-reduced-motion`. */
   reducedMotion?: () => boolean;
 }
@@ -119,45 +129,52 @@ function systemPrefersReducedMotion(): boolean {
   );
 }
 
-const DEFAULT_TRANSITION: Required<BadgeTransition> = {
-  duration: 200,
-  ease: 'outCubic',
-};
-
 /**
  * Connects the shared show-hide effect for a badge: it scales and fades in
  * from nothing when it appears and back to nothing when it goes, the way
  * Material's badges enter and exit. Once hidden the element is also
  * `visibility: hidden`, so a hidden badge is neither painted nor hit-tested;
  * reduced motion jumps straight to either end state. Both React and Angular
- * connect this single controller with anime.js.
+ * connect this single controller through `@udixio/motion`.
  */
 export function createBadgeTransitionController({
   element,
-  transition = DEFAULT_TRANSITION,
+  motion: badgeMotion,
   reducedMotion = systemPrefersReducedMotion,
 }: BadgeTransitionOptions): BadgeTransitionController {
-  let current: JSAnimation | undefined;
+  const spec: MotionSpec =
+    badgeMotion?.timing === undefined
+      ? badgeVisibility
+      : { ...badgeVisibility, timing: badgeMotion.timing };
+  let binding: MotionBinding | undefined;
+  // Bumped by every change of state, so an exit that finishes after a newer
+  // change does not hide the badge.
+  let run = 0;
+
+  function bindAt(present: boolean): MotionBinding {
+    return motion(element, spec, { present, settled: true });
+  }
 
   return {
     setVisible(visible, instant = false) {
-      current?.pause();
-      const skipAnimation = instant || reducedMotion();
+      const current = ++run;
       if (visible) element.style.visibility = '';
-      current = animate(element, {
-        opacity: visible ? 1 : 0,
-        scale: visible ? 1 : 0,
-        duration: skipAnimation
-          ? 0
-          : (transition.duration ?? DEFAULT_TRANSITION.duration),
-        ease: transition.ease ?? DEFAULT_TRANSITION.ease,
-        onComplete: () => {
-          if (!visible) element.style.visibility = 'hidden';
-        },
+      if (instant || reducedMotion()) {
+        binding = bindAt(visible);
+        if (!visible) element.style.visibility = 'hidden';
+        return;
+      }
+      if (!binding) binding = bindAt(!visible);
+      binding.setPresent(visible).then((outcome) => {
+        if (!visible && outcome === 'finished' && run === current) {
+          element.style.visibility = 'hidden';
+        }
       });
     },
     destroy() {
-      current?.pause();
+      run++;
+      binding?.destroy();
+      binding = undefined;
     },
   };
 }

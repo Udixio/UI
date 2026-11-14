@@ -1,7 +1,11 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import type { BadgeInterface, ClassNameComponent } from '@udixio/core';
+import type {
+  BadgeInterface,
+  BadgeMotion,
+  ClassNameComponent,
+} from '@udixio/core';
 import * as coreDom from '@udixio/core/dom';
 import { Badge } from './badge';
 
@@ -29,7 +33,7 @@ beforeEach(() => {
       [udxBadgeMax]="max"
       [udxBadgeDescription]="description"
       [udxBadgeVisible]="visible"
-      [udxBadgeTransition]="transition"
+      [udxBadgeMotion]="motion"
     ></i>
   `,
 })
@@ -38,7 +42,7 @@ class Harness {
   max: number | undefined = undefined;
   description: string | undefined = 'Unread';
   visible = true;
-  transition: { duration?: number } | undefined = undefined;
+  motion: BadgeMotion | undefined = undefined;
 }
 
 @Component({
@@ -330,20 +334,20 @@ describe('Badge (Angular)', () => {
     fixture.destroy();
   });
 
-  it('connects the shared show/hide transition, instantly on first paint', () => {
+  it('connects the shared show/hide motion, instantly on first paint', () => {
     const controller = mockTransitionController();
     jest
       .spyOn(coreDom, 'createBadgeTransitionController')
       .mockReturnValue(controller);
     const fixture = TestBed.createComponent(Harness);
     fixture.componentInstance.label = 3;
-    fixture.componentInstance.transition = { duration: 50 };
+    fixture.componentInstance.motion = { timing: 'spring.fast.spatial' };
     fixture.detectChanges();
 
     expect(coreDom.createBadgeTransitionController).toHaveBeenCalledWith(
       expect.objectContaining({
         element: badgeOf(fixture.nativeElement),
-        transition: { duration: 50 },
+        motion: { timing: 'spring.fast.spatial' },
       }),
     );
     expect(controller.setVisible).toHaveBeenCalledWith(true, true);

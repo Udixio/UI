@@ -64,8 +64,8 @@ const optionalNumberAttribute = (value: unknown): number | undefined =>
  *   decision: set `udxBadgeVisible` to `false` rather than removing the
  *   attribute, so it can animate out -- or let `udx-navigation-rail-item` do
  *   it through its `badge` input. The show/hide scale-and-fade is implemented
- *   once with anime.js in `@udixio/core/dom`; `udxBadgeTransition` tunes it,
- *   and reduced motion skips it.
+ *   once in `@udixio/core/dom` on `@udixio/motion`; `udxBadgeMotion` tunes it,
+ *   with a spring token or a duration/easing pair, and reduced motion skips it.
  * @a11y
  * - `udxBadgeDescription` is what a screen reader announces. Give it the
  *   meaning, not the number: `3 unread messages`, not `3`. It is rendered as
@@ -113,9 +113,9 @@ export class Badge implements OnDestroy {
     alias: 'udxBadgeVisible',
     transform: booleanAttribute,
   });
-  /** Anime.js show-hide timing. */
-  readonly transition = input<BadgeProps['transition']>(undefined, {
-    alias: 'udxBadgeTransition',
+  /** Show-hide motion of the badge, timed by `@udixio/motion`. */
+  readonly motion = input<BadgeProps['motion']>(undefined, {
+    alias: 'udxBadgeMotion',
   });
   /** Classes for the detached surface: a root string, static element classes, or a state-aware function. */
   readonly classes = input<
@@ -145,7 +145,7 @@ export class Badge implements OnDestroy {
       surface.setInput('max', this.max());
       surface.setInput('description', this.description());
       surface.setInput('visible', this.visible());
-      surface.setInput('transition', this.transition());
+      surface.setInput('motion', this.motion());
       // A string targets the surface root; anything else is element classes.
       // Both slots are written so switching form clears the other one.
       const value = this.classes();
@@ -183,7 +183,7 @@ export class Badge implements OnDestroy {
       this.wiredElement = element;
       const controller = createBadgeTransitionController({
         element,
-        transition: untracked(this.transition),
+        motion: untracked(this.motion),
       });
       this.transitionController = controller;
       controller.setVisible(untracked(this.visible), true);
