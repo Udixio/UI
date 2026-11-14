@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="fr">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R18 — Banc de calibrage</title>
+<style>
+  :root { color-scheme: light dark; font: 16px/1.5 system-ui, sans-serif; --surface: light-dark(#fff,#222); --ink: light-dark(#182126,#edf3f4); --edge: light-dark(#bbc8ca,#536367); --accent: light-dark(#006874,#83d4df); }
+  * { box-sizing: border-box } body { margin: 0; background: light-dark(#f2f6f5,#11191b); color: var(--ink) } main { max-width: 1200px; margin: auto; padding: 1.5rem } h1,h2,h3,p { margin-top: 0 } h1 { margin-bottom: .25rem } h2 { margin-bottom: .4rem } section { background: var(--surface); border: 1px solid var(--edge); border-radius: 1rem; padding: 1.25rem; margin: 1rem 0 } .intro,.hint { max-width: 80ch } .hint,small { color: light-dark(#475b5e,#b8cacc) } .controls { display: flex; flex-wrap: wrap; gap: .8rem; align-items: end; margin: 1rem 0 } label { display: grid; gap: .25rem; font-weight: 600 } select,button { font: inherit; border: 1px solid var(--edge); border-radius: .5rem; padding: .5rem .7rem; background: var(--surface); color: var(--ink) } button { background: var(--accent); color: light-dark(white,#002024); border-color: transparent; font-weight: 700; cursor: pointer } :focus-visible { outline: 3px solid #e28700; outline-offset: 3px } .grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%, 235px),1fr)); gap: .75rem } .panel { border: 1px solid var(--edge); border-radius: .75rem; padding: .75rem; min-width: 0 } .panel h3 { font-size: 1rem; margin-bottom: .3rem } .track { height: 145px; position: relative; overflow: hidden; border-radius: .5rem; background: light-dark(#e8f1f1,#29383b); margin-top: .5rem } .target { position:absolute; left:75%; top:0; bottom:0; border-left: 2px dashed var(--edge) } .object { position:absolute; top:50%; left:0; transform:translate(0,-50%); background:var(--accent); border-radius:.7rem; width:32px; height:32px } .object.card { width:65px; height:80px } .object.sheet { width:90px; height:110px } .entry { min-height: 90px; display:grid; place-items:center; overflow:hidden; background:light-dark(#e8f1f1,#29383b); border-radius:.5rem } .entry span { background:var(--accent); color:light-dark(white,#002024); border-radius:.5rem; padding:.65rem } .items { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; min-height: 30px; margin-top:.5rem } .item { background:var(--accent); color:light-dark(white,#002024); border-radius:.25rem; text-align:center; font-size:.75rem; padding:.25rem } .metrics { font-variant-numeric: tabular-nums; margin:.4rem 0 0 } .notice { border-left: .25rem solid var(--accent); padding-left: .8rem } noscript { display:block; padding:1rem; border:2px solid currentColor } @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior:auto !important; animation-duration:0s !important; transition-duration:0s !important } }
+</style>
+<main>
+  <h1>R18 · Banc de calibrage</h1>
+  <p class="intro">Comparaison exploratoire locale. Les valeurs sont des candidates, pas des décisions ni une preuve d’accessibilité. Chaque bouton relance les variantes en même temps.</p>
+  <noscript>JavaScript est nécessaire pour les comparaisons animées. Les valeurs et explications restent lisibles ci-dessous.</noscript>
+  <p id="motion-status" class="notice" role="status">Vérification de la préférence de mouvement…</p>
+  <section>
+    <h2>1 · Ressort vers une cible</h2>
+    <p class="hint">Expressive fast : ratio 0,6, raideur 800 ; default : ratio 0,8, raideur 380. Masse normalisée à 1. La vitesse initiale est en px/s : positive vers la cible, négative à l’opposé. Il s’agit d’un retour vers cible, pas d’une inertie libre.</p>
+    <div class="controls"><label>Surface<select id="surface"><option value="compact">Contrôle compact</option><option value="card">Carte</option><option value="sheet">Sheet</option></select></label><label>Vitesse au lâcher<select id="velocity"><option value="0">Nulle · 0 px/s</option><option value="400">Faible · +400 px/s</option><option value="1600">Forte · +1 600 px/s</option><option value="-800">Inversion · −800 px/s</option></select></label><button id="play-springs" type="button">Comparer les ressorts</button></div>
+    <div class="grid" id="springs"><div class="panel"><h3>Fast spatial</h3><div class="track"><div class="target"></div><div class="object"></div></div></div><div class="panel"><h3>Default spatial</h3><div class="track"><div class="target"></div><div class="object"></div></div></div></div>
+    <small>Trait pointillé : cible du bord gauche. Un nouveau lancement interrompt la comparaison et repart du début ; les débordements sont masqués par la piste.</small>
+  </section>
+  <section>
+    <h2>2 · Distance d’entrée</h2>
+    <p class="hint">Quatre distances sur la même durée (300 ms). Le mouvement est vertical ; la distance seule ne détermine pas son accessibilité.</p>
+    <div class="controls"><button id="play-distances" type="button">Comparer les distances</button></div>
+    <div class="grid" id="distances"><div class="panel"><h3>8 px</h3><div class="entry"><span>Élément</span></div></div><div class="panel"><h3>24 px</h3><div class="entry"><span>Élément</span></div></div><div class="panel"><h3>48 px</h3><div class="entry"><span>Élément</span></div></div><div class="panel"><h3>64 px</h3><div class="entry"><span>Élément</span></div></div></div>
+  </section>
+  <section>
+    <h2>3 · Cascade</h2>
+    <p class="hint">Chaque élément dure 300 ms, sans délai initial. Le plafond de 400 ms s’applique soit au dernier départ, soit à la dernière fin. En mode fin, il reste donc au plus 100 ms pour échelonner les départs.</p>
+    <div class="controls"><label>Nombre d’éléments<select id="count"><option>1</option><option selected>4</option><option>10</option><option>50</option></select></label><label>Origine<select id="origin"><option value="first">Premier</option><option value="last">Dernier</option><option value="center">Centre</option></select></label><label>Plafond<select id="cap"><option value="start">Dernier départ ≤ 400 ms</option><option value="end">Dernière fin ≤ 400 ms</option><option value="none">Aucun plafond</option></select></label><button id="play-stagger" type="button">Comparer les cascades</button></div>
+    <div class="grid" id="stagger"></div>
+    <small>Les éléments restent présents et disponibles ; seule leur présentation visuelle est animée. Pour une origine centrale, les éléments à égale distance partent ensemble.</small>
+  </section>
+  <section><h2>Mode d’emploi et limites</h2><p>Ouvrir ce fichier directement dans un navigateur récent, choisir les paramètres puis relancer chaque comparaison. Tester aussi avec un écran étroit, le zoom et la préférence système de mouvement réduit. Lorsque celle-ci est active, les animations sont supprimées et les états finaux restent visibles.</p><p>Le calcul du ressort résout l’équation amortie avec masse 1 et utilise le temps réel. Les dimensions de piste, les durées d’entrée et les vitesses sont des conditions de laboratoire. Ce banc ne simule ni geste physique, ni inertie, ni collisions, ni interruption avec conservation de vitesse ; il ne remplace pas des essais sur appareils et auprès de personnes. Les mesures de cascade sont théoriques : le rendu peut varier selon la charge du navigateur.</p><p>Références locales : <a href="00-cadre.md">cadre R18</a>, <a href="06-synthese.md">synthèse R18</a> et <a href="../R17-m3-motion-tokens.md">tokens R17</a>.</p></section>
+</main>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  let frame = 0;
+  const animations = { distances: new Set(), stagger: new Set() };
+  function stopSprings() { cancelAnimationFrame(frame); }
+  function stopAnimations(section) { animations[section].forEach(a => a.cancel()); animations[section].clear(); }
+  function motionStatus() { $('motion-status').textContent = reduced.matches ? 'Mouvement réduit activé : les comparaisons affichent directement leur état final.' : 'Mouvement autorisé par la préférence système. Activez « réduire les animations » dans votre système pour supprimer les mouvements.'; if (reduced.matches) { stopSprings(); stopAnimations('distances'); stopAnimations('stagger'); document.querySelectorAll('.object').forEach(el => { el.style.left = '75%'; }); } }
+  reduced.addEventListener('change', motionStatus); motionStatus();
+  $('play-springs').addEventListener('click', () => {
+    stopSprings(); const objects = [...document.querySelectorAll('.object')]; const velocity = Number($('velocity').value); const surface = $('surface').value;
+    objects.forEach(el => { el.className = 'object ' + surface; });
+    if (reduced.matches) { objects.forEach(el => { el.style.left = '75%'; }); return; }
+    const start = performance.now(); const params = [[.6,800],[.8,380]];
+    function tick(now) { const t = (now-start)/1000; objects.forEach((el,i) => { const target = el.parentElement.clientWidth * .75; const [z,k] = params[i]; const w = Math.sqrt(k), wd = w * Math.sqrt(1-z*z); const a = -target, b = (velocity + z*w*a)/wd; const x = target + Math.exp(-z*w*t)*(a*Math.cos(wd*t)+b*Math.sin(wd*t)); el.style.left = x + 'px'; }); if (t < 2) frame = requestAnimationFrame(tick); else objects.forEach(el => { el.style.left = '75%'; }); }
+    frame = requestAnimationFrame(tick);
+  });
+  $('play-distances').addEventListener('click', () => { stopAnimations('distances'); document.querySelectorAll('.entry span').forEach((el,i) => { if (!reduced.matches) animations.distances.add(el.animate([{transform:`translateY(${[8,24,48,64][i]}px)`,opacity:0},{transform:'translateY(0)',opacity:1}], {duration:300,easing:'cubic-bezier(.2,0,0,1)'})); }); });
+  function renderStagger(play = false) {
+    const n = Number($('count').value), origin = $('origin').value, cap = $('cap').value, duration = 300;
+    const ranks = Array.from({length:n}, (_,i) => origin === 'first' ? i : origin === 'last' ? n-1-i : Math.abs(i-(n-1)/2));
+    const minimum = Math.min(...ranks); const normalized = ranks.map(rank => rank-minimum); const maxRank = Math.max(...normalized);
+    const container = $('stagger'); container.replaceChildren();
+    [20,50,100,30,60,120].forEach((step,i) => {
+      const budget = cap === 'start' ? 400 : cap === 'end' ? Math.max(0,400-duration) : Infinity;
+      const effective = maxRank ? Math.min(step,budget/maxRank) : 0; const lastStart = effective*maxRank;
+      const panel = document.createElement('div'); panel.className='panel';
+      const title = document.createElement('h3'); title.textContent = `${i < 3 ? 'Échelle 20 / 50 / 100' : 'Échelle 30 / 60 / 120'} · ${step} ms`;
+      const metrics = document.createElement('p'); metrics.className='metrics'; metrics.textContent = `Pas effectif : ${effective.toFixed(1)} ms · dernier départ : ${lastStart.toFixed(0)} ms · dernière fin : ${(lastStart+duration).toFixed(0)} ms`;
+      const list = document.createElement('div'); list.className='items';
+      normalized.forEach((rank,index) => { const item = document.createElement('div'); item.className='item'; item.textContent=String(index+1); list.append(item); if (play && !reduced.matches) animations.stagger.add(item.animate([{opacity:.2,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)'}],{duration,delay:rank*effective,easing:'ease-out',fill:'backwards'})); });
+      panel.append(title,metrics,list); container.append(panel);
+    });
+  }
+  ['count','origin','cap'].forEach(id => $(id).addEventListener('change', () => { stopAnimations('stagger'); renderStagger(); }));
+  $('play-stagger').addEventListener('click', () => { stopAnimations('stagger'); renderStagger(true); }); renderStagger();
+})();
+</script>
+</html>

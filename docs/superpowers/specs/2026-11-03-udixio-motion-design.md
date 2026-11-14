@@ -471,7 +471,7 @@ Réponse par question (attribution par question **principale** du choix) :
 
 | Question | Réponse(s) | Note | Contenu |
 |---|---|---|---|
-| Q1 séquences | M1-R01 + M2-R06 | 7,2 / 7,6 | Séquence définie en TS, compilée une fois, pilotée par le handle unique ; cascade de liste par rang visuel mesuré, avec plafond de durée. |
+| Q1 séquences | M1-R01 + M2-R06 | 7,2 / 7,6 | Séquence définie en TS, compilée une fois, pilotée par le handle unique ; cascade par rang visuel mesuré, délai de départ plafonné à 400 ms (§8.2.6), sans plafond sur la dernière fin. |
 | Q2 gestes | M2-R01 + M2-R02 + M2-R03 + M2-R04 | 8,0 / 7,0 / 8,2 / 7,0 | Geste = source de valeurs, sans verbe ; relâchement en ressort initialisé par la vitesse, exposée au handle ; **alternative clavier et à un seul pointeur obligatoire et typée** (WCAG 2.5.7 et 2.1.1) ; drag-to-reorder = `layout` sur la liste, échange au franchissement du milieu. |
 | Q3 texte | M1-R04 | 7,4 | Découpage préparé, source accessible conservée, reflow contrôlé (méthode d'accessibilité encore disputée : `sr-only` vs `aria-label`). |
 | Q4 SVG | M1-R05 | 7,2 | Tracé et trajectoire en natif, morphing en JS (`morphTo` rééchantillonne). |
@@ -667,7 +667,7 @@ jamais dans un attribut HTML (§8.1 #1, I03).
 | `loop` | F24 | `load` | `restart` | `frozen` (+ `pause` obligatoire) | courbe linéaire en token |
 | `layout` | F7, F8, F10 | `state` (changement observable, I20) | `carry` | `instant` | `spring.default.spatial` |
 | transitions de page (pas un verbe) | F9 | navigation | `restart` | `instant` | `spring.slow.spatial` ⚑ |
-| gestes (pas un verbe) | F18 | pointeur / clavier | `carry` | sans animation de relâchement | `spring.fast.spatial` ⚑ |
+| gestes (pas un verbe) | F18 | pointeur / clavier | `carry` | sans animation de relâchement | `spring.default.spatial` pour le retour vers une cible ; `fast` ou `slow` explicite par composant ⚑ |
 
 Changements d'état continus (chevron, couleur) : **transition CSS** avec tokens
 et variants ; `defineValue` à ressort si la vitesse doit être conservée (I06).
@@ -709,9 +709,14 @@ disponibles, `estimated` sinon (Firefox Android, R16).
   repli de dernier recours (Chrome 109 sans `linear()`).
 - `--udx-motion-scale` (multiplicateur de distance et de durée, 0 en
   réduction) ; exception : le fondu de `disappear` n'est jamais multiplié (I05).
-- Tokens de distance ⚑ : `--udx-motion-distance-{sm,md,lg}` = 8 / 24 / 64 px ;
-  tokens de stagger : `tight` 30 ms, `normal` 60 ms, `loose` 120 ms, avec un
-  plafond de cascade de 400 ms ⚑ (M2-R06).
+- Choix opérationnels provisoires, de faible confiance et à calibrer
+  visuellement (R18) : `--udx-motion-distance-{sm,md,lg}` = 8 / 24 / 64 px ;
+  stagger `tight` 20 ms, `normal` 50 ms, `loose` 100 ms.
+- Le token global `--udx-motion-stagger-max` vaut initialement 400 ms à titre
+  provisoire. Pour chaque rang visuel normalisé depuis zéro, le délai de départ
+  relatif est `min(rang * pas, --udx-motion-stagger-max)` (M2-R06), hors délai initial. Les derniers
+  éléments atteignant le plafond démarrent ensemble. Ce plafond ne borne pas
+  la dernière fin, qui inclut aussi la durée de l'animation.
 
 ### 8.3 Contrat provider — **rédigé (consolidation)**
 
@@ -801,7 +806,7 @@ lecture, invalidé par `ResizeObserver` et `MutationObserver`.
 | F7 | Layout | `layout` sur changement observable (`data-state`) | `interpolate-size`, VT scopée | FLIP (cache I10) | M3-L02, I10 |
 | F8 | Élément partagé | `layout` + `shared` (`defineShared`) | VT si `restart` et support | FLIP si `carry`, hydratation tardive, ou sans support | I17, S2 |
 | F9 | Pages | adaptateur par routeur ; Astro via ses événements | View Transitions | rendu instantané | I18, S2 |
-| F10 | Listes | `stagger`, `origin`, `exit` | `sibling-index()` | rang visuel mesuré en JS | I14, I16, I19, R16 |
+| F10 | Listes | `stagger`, `origin`, `exit` | `sibling-index()` si ordre DOM = ordre visuel | rang visuel mesuré en JS si ordre différent ou support absent | I14, I16, I19, R16 |
 | F11 | Chorégraphie | `defineSequence`, `data-motion-step`, `at` | — | timeline anime.js pilotée par le handle | I15, M1-R01 |
 | F12 | Contrôle | handle à surface fermée + `motion.on` | WAAPI | anime.js | §8.0 #4, I21 |
 | F13 | Interruption | `interrupt`, `velocity.source` | WAAPI (position) | ressort anime.js (vitesse) | I02, S1 |
@@ -823,10 +828,11 @@ lecture, invalidé par `ResizeObserver` et `MutationObserver`.
 `spring.slow.spatial`, conforme à la doc M3 « slow = plein écran »), 6, et la
 règle SSR M3-02 (§9).
 
-**Provisoires, à calibrer visuellement** sur des démos (tâche de design
-visuel, sous-agent Opus) : le ressort par défaut des gestes (point 4,
-`spring.fast.spatial`, supposition) et toutes les valeurs du point 5 (M3 ne
-définit ni distance ni stagger ; valeurs plausibles, non mesurées).
+**Choix opérationnels provisoires, de faible confiance et à calibrer
+visuellement** sur des démos (R18) : `spring.default.spatial` pour le retour
+d'un geste vers une cible, avec `fast` ou `slow` explicite par composant ;
+distances 8 / 24 / 64 px et stagger 20 / 50 / 100 ms. M3 ne définit ni
+distance ni stagger ; ces valeurs ne sont pas validées perceptivement.
 
 Liste d'origine :
 
@@ -835,9 +841,9 @@ Liste d'origine :
    `backgroundColor`, `clipPath`, `blur`.
 3. `format` des compteurs : `integer`, `decimal`, `percent`, `currency`.
 4. Ressort par défaut des transitions de page (`spring.slow.spatial`) et des
-   gestes (`spring.fast.spatial`).
+   gestes (`spring.default.spatial` pour le retour vers une cible, provisoire).
 5. Valeurs des tokens de distance (8 / 24 / 64 px) et de stagger
-   (30 / 60 / 120 ms, plafond 400 ms).
+   (20 / 50 / 100 ms, départs plafonnés à 400 ms, provisoires).
 6. Nom du backend natif CSS : `'css'`.
 
 
