@@ -22,7 +22,7 @@ export const motionManifest = freezeDeep({
       'loop',
       'layout',
     ],
-    supportedVerbs: ['appear', 'disappear', 'emphasize'],
+    supportedVerbs: ['appear', 'disappear', 'emphasize', 'layout'],
     springs: [
       'spring.fast.spatial',
       'spring.fast.effects',
@@ -60,7 +60,7 @@ export const motionManifest = freezeDeep({
       'shared',
       'exit',
     ],
-    interruptVerbs: ['emphasize'],
+    interruptVerbs: ['emphasize', 'layout'],
   },
   deferredDomains: {
     repeat: { values: ['once', 'always'], source: '§8.2.3' },
@@ -153,23 +153,29 @@ type Frame = {
     Partial<Record<Exclude<ManifestVisualField, K>, number>>;
 }[ManifestVisualField];
 type Common = {
-  keyframes: [Frame, ...Frame[]];
   timing?: ManifestSpringRef | CurveTiming;
   reduced?: ManifestReduced;
 };
 export type MotionDocument = {
   version: typeof motionManifest.version;
-  spec: Common &
-    (
-      | {
-          verb: Extract<Domain<'supportedVerbs'>, 'emphasize'>;
-          interrupt?: Domain<'interrupt'>;
-        }
-      | {
-          verb: Exclude<Domain<'supportedVerbs'>, 'emphasize'>;
-          interrupt?: never;
-        }
-    );
+  spec:
+    | (Common &
+        { keyframes: [Frame, ...Frame[]] } &
+        (
+          | {
+              verb: Extract<Domain<'supportedVerbs'>, 'emphasize'>;
+              interrupt?: Domain<'interrupt'>;
+            }
+          | {
+              verb: Exclude<Domain<'supportedVerbs'>, 'emphasize' | 'layout'>;
+              interrupt?: never;
+            }
+        ))
+    | (Common & {
+        verb: Extract<Domain<'supportedVerbs'>, 'layout'>;
+        keyframes?: readonly [];
+        interrupt?: Domain<'interrupt'>;
+      });
 };
 export type MotionValidationCode =
   | 'type'
@@ -253,7 +259,13 @@ export function validateMotionDocument(input: unknown): MotionValidationResult {
           [...motionManifest.spec.required, ...motionManifest.spec.optional],
           motionManifest.spec.deferred,
         );
-        required(spec, '/spec', motionManifest.spec.required);
+        // A layout motion has no keyframes: they may be absent, or present and empty.
+        const layout = spec.verb === 'layout';
+        required(
+          spec,
+          '/spec',
+          motionManifest.spec.required.filter(key => !layout || key !== 'keyframes'),
+        );
         if (has(spec, 'verb')) {
           if (typeof spec.verb !== 'string') add('/spec/verb', 'type');
           else if (!contains(motionManifest.domains.verbs, spec.verb))
@@ -263,7 +275,9 @@ export function validateMotionDocument(input: unknown): MotionValidationResult {
         }
         if (has(spec, 'keyframes')) {
           if (!Array.isArray(spec.keyframes)) add('/spec/keyframes', 'type');
-          else if (
+          else if (layout) {
+            if (spec.keyframes.length > 0) add('/spec/keyframes', 'unsupported');
+          } else if (
             spec.keyframes.length < motionManifest.constraints.minKeyframes
           )
             add('/spec/keyframes', 'empty');

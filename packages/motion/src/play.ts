@@ -120,6 +120,7 @@ export function playMotion(
   spec: Readonly<MotionSpec>,
   options: { direction: Direction; carry: boolean; runtime: MotionRuntime; scheme?: MotionScheme; development?: boolean },
 ): MotionHandle {
+  if (spec.verb === 'layout') throw new TypeError('layout motions are not played yet');
   const { direction, carry, runtime } = options;
   const development = options.development ?? runtime.development;
   const scheme = options.scheme ?? (target.ownerDocument.documentElement.dataset.motionScheme === 'standard' ? 'standard' : 'expressive');

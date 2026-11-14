@@ -53,9 +53,9 @@ function inOrder(
   );
 }
 
-/** Copy a validated spec with keys in manifest order, frozen at every level. */
+/** Copy a validated spec with keys in manifest order, frozen at every level. A layout has `keyframes: []`. */
 function canonicalSpec(spec: MotionSpec): Readonly<MotionSpec> {
-  const source = spec as unknown as Record<string, unknown>;
+  const source: Record<string, unknown> = { keyframes: [], ...(spec as unknown as Record<string, unknown>) };
   const copy = inOrder(source, SPEC_KEYS);
   copy.keyframes = (source.keyframes as Record<string, unknown>[]).map(frame =>
     Object.freeze(inOrder(frame, motionManifest.domains.visualFields)),
@@ -110,6 +110,11 @@ export function defineMotion<N extends string>(
     }
   }
   return ref;
+}
+
+/** Whether a verb is a presence verb, which enters and leaves the page. */
+export function isPresenceVerb(verb: MotionSpec['verb']): verb is 'appear' | 'disappear' {
+  return verb === 'appear' || verb === 'disappear';
 }
 
 export function resolveMotion(name: string): MotionRef | undefined {

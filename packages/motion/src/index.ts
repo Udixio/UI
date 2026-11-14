@@ -11,7 +11,7 @@ export type {
 export { defineTokens, resolveSpring, resolveCurve } from './tokens.js';
 export type { DurationToken, EasingToken, CurveTiming, ResolvedCurve, MotionScheme, MotionTokens, SpringToken, SpringSupport, ResolvedSpring } from './tokens.js';
 export type { Verb, SpringRef, ReducedRender } from './motion-spec.js';
-export { defineMotion, resolveMotion, onMotionDefined, validateMotionSpec, definedMotions } from './define-motion.js';
+export { defineMotion, resolveMotion, onMotionDefined, validateMotionSpec, definedMotions, isPresenceVerb } from './define-motion.js';
 export type { MotionSpec, MotionRef } from './define-motion.js';
 export { getMotionRuntime, retainMotionRuntime } from './runtime.js';
 export { composeHandles, settledHandle, splitFrames } from './compose.js';

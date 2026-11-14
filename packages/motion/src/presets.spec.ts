@@ -1,8 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { resolveMotion } from './define-motion.js';
-import './presets.js';
+import { reflow } from './presets.js';
 
 describe('presets', () => {
+  it('defines reflow as a layout motion without keyframes', () => {
+    expect(reflow.spec.verb).toBe('layout');
+    expect(resolveMotion('reflow')).toBe(reflow);
+  });
+
   it('defines fade, slide, scale and press when the entry is imported', () => {
     expect(resolveMotion('fade')?.spec).toEqual({
       verb: 'appear',

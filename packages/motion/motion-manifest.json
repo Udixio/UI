@@ -13,7 +13,8 @@
     "supportedVerbs": [
       "appear",
       "disappear",
-      "emphasize"
+      "emphasize",
+      "layout"
     ],
     "springs": [
       "spring.fast.spatial",
@@ -104,7 +105,8 @@
       "exit"
     ],
     "interruptVerbs": [
-      "emphasize"
+      "emphasize",
+      "layout"
     ]
   },
   "deferredDomains": {

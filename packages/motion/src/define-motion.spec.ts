@@ -135,6 +135,35 @@ describe('validateMotionSpec', () => {
   });
 });
 
+describe('layout motions', () => {
+  it('accepts a layout spec without keyframes and stores it with empty keyframes', () => {
+    const ref = defineMotion('layout-bare', { verb: 'layout' });
+    expect(ref.spec).toEqual({ verb: 'layout', keyframes: [] });
+    expect(Object.isFrozen(ref.spec.keyframes)).toBe(true);
+  });
+
+  it('treats an explicit empty keyframes array as the same definition', () => {
+    const first = defineMotion('layout-same', { verb: 'layout' });
+    expect(defineMotion('layout-same', { verb: 'layout', keyframes: [] })).toBe(first);
+  });
+
+  it('rejects non-empty keyframes on a layout spec at /spec/keyframes', () => {
+    expect(() =>
+      defineMotion('layout-keyed', { verb: 'layout', keyframes: [{ x: 1 }] } as never),
+    ).toThrow('/spec/keyframes: unsupported');
+  });
+
+  it('accepts interrupt on a layout spec and keeps it', () => {
+    expect(defineMotion('layout-interrupt', { verb: 'layout', interrupt: 'restart' }).spec.interrupt).toBe('restart');
+  });
+
+  it('still rejects interrupt on an appear spec', () => {
+    expect(() =>
+      defineMotion('appear-interrupt', { verb: 'appear', keyframes: [{ opacity: 1 }], interrupt: 'carry' } as never),
+    ).toThrow('/spec/interrupt: unsupported');
+  });
+});
+
 describe('motion manifest without trigger', () => {
   it('no longer lists trigger as deferred or as a deferred domain', () => {
     expect(motionManifest.spec.deferred).not.toContain('trigger');

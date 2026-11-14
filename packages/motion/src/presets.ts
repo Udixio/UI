@@ -29,3 +29,6 @@ export const press: MotionRef<'press'> = defineMotion('press', {
   verb: 'emphasize',
   keyframes: [{ scale: 1 }, { scale: 0.96 }, { scale: 1 }],
 });
+
+/** Layout: the element moves to its new place and size when the layout changes. */
+export const reflow: MotionRef<'reflow'> = defineMotion('reflow', { verb: 'layout' });
