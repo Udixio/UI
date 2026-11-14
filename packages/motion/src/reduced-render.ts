@@ -25,6 +25,6 @@ export function resolveReducedRender(
   const render = override ?? motionManifest.defaults[verb].reduced;
   return {
     render,
-    scalesWithMotion: !(verb === 'disappear' && render === 'fade'),
+    scalesWithMotion: render !== 'fade',
   };
 }

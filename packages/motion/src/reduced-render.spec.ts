@@ -3,7 +3,7 @@ import { resolveReducedRender } from './reduced-render.js';
 
 describe('resolveReducedRender', () => {
   it.each([
-    ['appear', 'fade', true],
+    ['appear', 'fade', false],
     ['disappear', 'fade', false],
     ['emphasize', 'static', true],
     ['reveal', 'instant', true],
@@ -14,12 +14,16 @@ describe('resolveReducedRender', () => {
     expect(resolveReducedRender(verb)).toEqual({ render, scalesWithMotion });
   });
 
-  it('uses a valid explicit override and preserves the disappear fade exception', () => {
+  it('uses a valid explicit override and never scales a fade', () => {
     expect(resolveReducedRender('disappear', 'instant')).toEqual({
       render: 'instant',
       scalesWithMotion: true,
     });
     expect(resolveReducedRender('disappear', 'fade')).toEqual({
+      render: 'fade',
+      scalesWithMotion: false,
+    });
+    expect(resolveReducedRender('emphasize', 'fade')).toEqual({
       render: 'fade',
       scalesWithMotion: false,
     });
