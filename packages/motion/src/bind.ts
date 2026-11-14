@@ -1,6 +1,13 @@
 import { settledHandle } from './compose.js';
 import type { MotionHandle, VisualFrame } from './contract.js';
-import { resolveMotion, validateMotionSpec, type MotionRef, type MotionSpec } from './define-motion.js';
+import {
+  definedMotions,
+  onMotionDefined,
+  resolveMotion,
+  validateMotionSpec,
+  type MotionRef,
+  type MotionSpec,
+} from './define-motion.js';
 import { applyFrame, playMotion, releaseFrame } from './play.js';
 import { getMotionRuntime, retainMotionRuntime } from './runtime.js';
 
@@ -10,6 +17,7 @@ export type MotionSource = MotionRef | Readonly<MotionSpec> | string;
 export interface MotionBinding {
   readonly handle: MotionHandle | null;
   readonly present: boolean;
+  readonly verb: MotionSpec['verb'];
   play(): MotionHandle;
   setPresent(present: boolean): Promise<'finished' | 'cancelled'>;
   destroy(): void;
@@ -48,6 +56,44 @@ export function motion(target: HTMLElement, source: MotionSource, options: BindO
   const binding = createBinding(target, spec, options);
   bindings.set(target, binding);
   return binding;
+}
+
+/** A motion that is bound, or waits for its name to be defined. */
+export interface DeferredMotion {
+  /** The binding, once the motion is defined. */
+  readonly binding: MotionBinding | undefined;
+  destroy(): void;
+}
+
+/**
+ * Bind a motion now when its source is known, or as soon as the named motion is defined. Until then the
+ * element is not touched, so a render that runs before the definition never throws.
+ */
+export function motionWhenDefined(target: HTMLElement, source: MotionSource, options: BindOptions = {}): DeferredMotion {
+  let binding: MotionBinding | undefined;
+  let unsubscribe: (() => void) | undefined;
+  if (typeof source === 'string' && !resolveMotion(source)) {
+    const name = source;
+    if (options.development) console.error(`[@udixio/motion] Unknown motion "${name}". Defined: ${definedMotions().join(', ')}`);
+    unsubscribe = onMotionDefined(ref => {
+      if (ref.name !== name) return;
+      unsubscribe?.();
+      unsubscribe = undefined;
+      binding = motion(target, ref, { ...options, settled: true });
+    });
+  } else {
+    binding = motion(target, source, options);
+  }
+  return {
+    get binding() {
+      return binding;
+    },
+    destroy() {
+      unsubscribe?.();
+      unsubscribe = undefined;
+      binding?.destroy();
+    },
+  };
 }
 
 function createBinding(target: HTMLElement, spec: Readonly<MotionSpec>, options: BindOptions): MotionBinding {
@@ -176,6 +222,7 @@ function createBinding(target: HTMLElement, spec: Readonly<MotionSpec>, options:
     get present() {
       return present;
     },
+    verb,
     play,
     setPresent,
     destroy,

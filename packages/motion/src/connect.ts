@@ -24,7 +24,7 @@ function motionElements(node: Node): HTMLElement[] {
 export function connectMotion(options: ConnectOptions = {}): () => void {
   const root = options.root ?? document;
   const development = options.development ?? false;
-  const verbs = new Map<HTMLElement, Verb>();
+  const bound = new Set<HTMLElement>();
   const pending = new Map<string, Set<HTMLElement>>();
   const holds = new Map<HTMLElement, Hold>();
   const reported = new Set<string>();
@@ -38,8 +38,13 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
       return;
     }
     undefer(el);
-    verbs.set(el, ref.spec.verb);
+    bound.add(el);
     motion(el, ref, { present: !el.hasAttribute('hidden'), settled: !entering, development });
+  }
+
+  /** The verb of the motion this scanner bound on `el`; a binding made by hand on it is not the scanner's. */
+  function boundVerb(el: HTMLElement): Verb | undefined {
+    return bound.has(el) ? getMotion(el)?.verb : undefined;
   }
 
   /** An undefined name leaves the element untouched until that motion is defined. */
@@ -70,7 +75,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   /** Destroy the binding of an element that left the root, and release what the scanner holds on it. */
   function forget(el: HTMLElement): void {
     release(el);
-    if (verbs.delete(el)) getMotion(el)?.destroy();
+    if (bound.delete(el)) getMotion(el)?.destroy();
     undefer(el);
   }
 
@@ -95,7 +100,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   /** Make the presence of a presence element follow its `hidden` attribute. */
   function syncPresence(el: HTMLElement): void {
     const binding = getMotion(el);
-    const verb = verbs.get(el);
+    const verb = boundVerb(el);
     if (!binding || (verb !== 'appear' && verb !== 'disappear')) return;
     const wanted = !el.hasAttribute('hidden');
     if (wanted === binding.present) return;
@@ -112,7 +117,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
       if (record.type === 'childList') {
         // A node moved within the root keeps its binding: it is still under root when its removal is read.
         for (const el of Array.from(record.removedNodes).flatMap(motionElements)) if (!root.contains(el)) forget(el);
-        for (const el of Array.from(record.addedNodes).flatMap(motionElements)) if (root.contains(el) && !verbs.has(el)) bind(el, true);
+        for (const el of Array.from(record.addedNodes).flatMap(motionElements)) if (root.contains(el) && !bound.has(el)) bind(el, true);
         continue;
       }
       const el = record.target;
@@ -121,7 +126,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
         forget(el);
         bind(el, false);
       } else if (record.attributeName === 'data-state') {
-        if (verbs.get(el) === 'emphasize') getMotion(el)?.play();
+        if (boundVerb(el) === 'emphasize') getMotion(el)?.play();
       } else {
         syncPresence(el);
       }
@@ -141,7 +146,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   return () => {
     observer.disconnect();
     unsubscribe();
-    for (const el of [...verbs.keys()]) forget(el);
+    for (const el of [...bound]) forget(el);
     pending.clear();
   };
 }

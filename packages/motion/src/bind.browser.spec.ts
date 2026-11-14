@@ -1,6 +1,6 @@
-import { afterEach, beforeEach, expect, it } from 'vitest';
-import { getMotion, motion, type MotionBinding } from './bind.js';
-import type { MotionSpec } from './define-motion.js';
+import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import { getMotion, motion, motionWhenDefined, type DeferredMotion, type MotionBinding } from './bind.js';
+import { defineMotion, type MotionSpec } from './define-motion.js';
 import { fade, press } from './presets.js';
 import { waapiProvider } from './providers/waapi.js';
 
@@ -9,6 +9,7 @@ const nextFrame = () => new Promise<void>(resolve => requestAnimationFrame(() =>
 
 let target: HTMLElement;
 let bindings: MotionBinding[];
+let deferreds: DeferredMotion[];
 
 /** Bind and remember the binding so that cleanup destroys it. */
 function bindTo(...args: Parameters<typeof motion>): MotionBinding {
@@ -17,16 +18,26 @@ function bindTo(...args: Parameters<typeof motion>): MotionBinding {
   return binding;
 }
 
+/** Bind when defined and remember the handle so that cleanup destroys it. */
+function deferTo(...args: Parameters<typeof motionWhenDefined>): DeferredMotion {
+  const deferred = motionWhenDefined(...args);
+  deferreds.push(deferred);
+  return deferred;
+}
+
 beforeEach(() => {
   target = document.createElement('div');
   document.body.append(target);
   bindings = [];
+  deferreds = [];
 });
 
 afterEach(() => {
+  for (const deferred of deferreds) deferred.destroy();
   for (const binding of bindings) binding.destroy();
   target.remove();
   delete document.documentElement.dataset.motionPolicy;
+  vi.restoreAllMocks();
 });
 
 it('plays a fade on bind and marks the element present when it ends', async () => {
@@ -179,4 +190,50 @@ it('releases the exited frame it wrote when destroyed while absent', () => {
   expect(target.style.opacity).toBe('0');
   binding.destroy();
   expect(target.style.opacity).toBe('');
+});
+
+it('exposes the verb of its motion on the binding', () => {
+  expect(bindTo(target, press).verb).toBe('emphasize');
+});
+
+it('binds a motion whose name is already defined at once, with its entry', () => {
+  const deferred = deferTo(target, 'fade');
+  expect(deferred.binding?.present).toBe(true);
+  expect(target.dataset.presence).toBe('entering');
+  expect(waapiProvider.activeCount()).toBe(1);
+});
+
+it('leaves an element untouched while its motion is undefined, then binds it settled once defined', () => {
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  const deferred = deferTo(target, 'when-defined-later', { development: true });
+  expect(deferred.binding).toBeUndefined();
+  expect(target.getAttribute('style')).toBeNull();
+  expect(target.hasAttribute('data-presence')).toBe(false);
+  expect(target.hasAttribute('inert')).toBe(false);
+  expect(error).toHaveBeenCalledTimes(1);
+  expect(String(error.mock.calls[0]?.[0])).toContain('"when-defined-later"');
+
+  defineMotion('when-defined-later', fade.spec);
+  expect(deferred.binding?.present).toBe(true);
+  expect(document.getAnimations()).toHaveLength(0);
+  expect(target.dataset.presence).toBe('present');
+});
+
+it('binds nothing when destroyed before its name is defined', () => {
+  const deferred = deferTo(target, 'when-defined-destroyed');
+  deferred.destroy();
+  defineMotion('when-defined-destroyed', fade.spec);
+  expect(deferred.binding).toBeUndefined();
+  expect(getMotion(target)).toBeUndefined();
+});
+
+it('destroys its binding when destroyed after the binding exists', () => {
+  const deferred = deferTo(target, 'fade');
+  deferred.destroy();
+  expect(getMotion(target)).toBeUndefined();
+  expect(waapiProvider.activeCount()).toBe(0);
+});
+
+it('throws a TypeError for an invalid spec, whatever the definition state', () => {
+  expect(() => deferTo(target, { verb: 'nope', keyframes: [] } as unknown as MotionSpec)).toThrow(TypeError);
 });
