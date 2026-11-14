@@ -1,7 +1,7 @@
 import { composeHandles, settledHandle, splitFrames } from './compose.js';
 import type { MotionHandle, VisualFrame } from './contract.js';
 import type { MotionSpec } from './define-motion.js';
-import { motionManifest, type ManifestVerb } from './manifest.js';
+import { motionManifest, type ManifestVerb, type ManifestVisualField } from './manifest.js';
 import type { SpringRef } from './motion-spec.js';
 import { resolveReducedRender } from './reduced-render.js';
 import type { MotionRuntime } from './runtime.js';
@@ -16,6 +16,7 @@ type Group = { keyframes: VisualFrame[]; timing: SpringRef | CurveTiming };
 
 /** Reduced fades are opacity-only and always use this effects spring. */
 const REDUCED_FADE_TIMING: SpringRef = 'spring.default.effects';
+const OPACITY_ONLY: ReadonlySet<ManifestVisualField> = new Set<ManifestVisualField>(['opacity']);
 
 /** Write the visual fields of a frame inline. Never writes `transform`. */
 export function applyFrame(target: HTMLElement, frame: VisualFrame): void {
@@ -29,13 +30,21 @@ function windowOf(target: HTMLElement): Window {
   return target.ownerDocument.defaultView ?? window;
 }
 
-/** Write the current computed values inline so that a new motion starts from them. */
-function freezeCurrentStyle(target: HTMLElement): void {
+/** The visual fields written by a set of frames. */
+function fieldsOf(frames: VisualFrame[]): Set<ManifestVisualField> {
+  return new Set(frames.flatMap(frame => Object.keys(frame) as ManifestVisualField[]));
+}
+
+/**
+ * Write the current computed values of the given fields inline, so that a new
+ * motion starts from them. Other fields stay untouched, so author CSS still applies.
+ */
+function freezeCurrentStyle(target: HTMLElement, fields: ReadonlySet<ManifestVisualField>): void {
   const computed = windowOf(target).getComputedStyle(target);
-  target.style.opacity = computed.opacity;
-  target.style.translate = computed.translate === 'none' ? '0px 0px' : computed.translate;
-  target.style.scale = computed.scale === 'none' ? '1' : computed.scale;
-  target.style.rotate = computed.rotate === 'none' ? '0deg' : computed.rotate;
+  if (fields.has('opacity')) target.style.opacity = computed.opacity;
+  if (fields.has('x') || fields.has('y')) target.style.translate = computed.translate === 'none' ? '0px 0px' : computed.translate;
+  if (fields.has('scale')) target.style.scale = computed.scale === 'none' ? '1' : computed.scale;
+  if (fields.has('rotate')) target.style.rotate = computed.rotate === 'none' ? '0deg' : computed.rotate;
 }
 
 /** `--udx-motion-scale` clamped to [0, 1]; absent or non-numeric means 1. */
@@ -106,7 +115,8 @@ export function playMotion(
   const reducedPolicy = runtime.policy.reduced;
   if (reducedPolicy && resolveReducedRender(verb, spec.reduced).render !== 'fade') return settle(target, destination, runtime);
 
-  if (carry) freezeCurrentStyle(target);
+  // The carried animation writes only the destination's fields, so only those are frozen.
+  if (carry) freezeCurrentStyle(target, reducedPolicy ? OPACITY_ONLY : fieldsOf([destination]));
   if (reducedPolicy) {
     for (const frame of splitFrames([destination]).spatial) applyFrame(target, frame);
   }

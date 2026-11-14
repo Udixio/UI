@@ -63,6 +63,17 @@ it('carries the interrupted opacity into a backward fade', () => {
   second.cancel();
 });
 
+it('leaves scale, rotate and translate untouched on a carried fade', async () => {
+  const handle = playMotion(target, fadeSpec, { ...forward, carry: true });
+  expect(target.style.scale).toBe('');
+  expect(target.style.rotate).toBe('');
+  expect(target.style.translate).toBe('');
+  expect(await handle.finished).toBe('finished');
+  expect(target.style.scale).toBe('');
+  expect(target.style.rotate).toBe('');
+  expect(target.style.translate).toBe('');
+});
+
 it('renders a reduced slide with its offset applied at once and an animated opacity', async () => {
   document.documentElement.dataset.motionPolicy = 'reduce';
   const handle = playMotion(target, slideSpec, forward);
