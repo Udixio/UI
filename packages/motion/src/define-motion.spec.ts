@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   defineMotion,
   definedMotions,
@@ -76,6 +76,22 @@ describe('defineMotion', () => {
     unsubscribe();
     defineMotion('listened-two', spec);
     expect(seen).toEqual(['listened-one']);
+  });
+
+  it('calls the other listeners and keeps the definition when a listener throws', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const called: string[] = [];
+    const unsubscribeThrowing = onMotionDefined(() => {
+      throw new Error('listener failure');
+    });
+    const unsubscribeSecond = onMotionDefined(ref => called.push(ref.name));
+    const ref = defineMotion('isolated-listener', spec);
+    unsubscribeThrowing();
+    unsubscribeSecond();
+    expect(resolveMotion('isolated-listener')).toBe(ref);
+    expect(called).toEqual(['isolated-listener']);
+    expect(error).toHaveBeenCalledTimes(1);
+    error.mockRestore();
   });
 
   it('lists the defined names in definition order', () => {

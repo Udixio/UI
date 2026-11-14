@@ -70,8 +70,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   /** Destroy the binding of an element that left the root, and release what the scanner holds on it. */
   function forget(el: HTMLElement): void {
     release(el);
-    getMotion(el)?.destroy();
-    verbs.delete(el);
+    if (verbs.delete(el)) getMotion(el)?.destroy();
     undefer(el);
   }
 

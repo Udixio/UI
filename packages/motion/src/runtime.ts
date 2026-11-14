@@ -5,7 +5,7 @@ import { createSharedRegistry } from './shared-registry.js';
 // their schedulers. The stable v1 key is reserved for the complete contract.
 const FRAME_RUNTIME_KEY = Symbol.for('udixio.motion.frame-runtime.preview.6');
 
-/** Internal preview subset. */
+/** The page-wide runtime shared by every copy of the package (preview: its shape may still change before 1.0). */
 export interface MotionRuntime {
   readonly version: string;
   readonly development: boolean;

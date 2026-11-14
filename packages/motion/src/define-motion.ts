@@ -102,7 +102,13 @@ export function defineMotion<N extends string>(
   }
   const ref = Object.freeze({ name, spec: validated });
   registry.set(name, ref);
-  for (const listener of [...listeners()]) listener(ref);
+  for (const listener of [...listeners()]) {
+    try {
+      listener(ref);
+    } catch (error) {
+      console.error('[@udixio/motion] A definition listener failed:', error);
+    }
+  }
   return ref;
 }
 

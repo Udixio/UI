@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { getMotion } from './bind.js';
+import { getMotion, motion } from './bind.js';
 import { connectMotion } from './connect.js';
 import { defineMotion } from './define-motion.js';
 import { fade, press } from './presets.js';
@@ -175,6 +175,18 @@ it('keeps the binding of a node moved within the root and starts no animation', 
   await tick();
   expect(getMotion(el)).toBe(binding);
   expect(el.getAnimations()).toHaveLength(0);
+});
+
+it('keeps a binding made by hand when its element leaves the root', async () => {
+  connect();
+  const el = make('connect-unknown-owner');
+  root.append(el);
+  await tick();
+  const binding = motion(el, fade.spec, { settled: true });
+  el.remove();
+  await tick();
+  expect(getMotion(el)).toBe(binding);
+  binding.destroy();
 });
 
 it('destroys every binding on disconnect and ignores later insertions', async () => {
