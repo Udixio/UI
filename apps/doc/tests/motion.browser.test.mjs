@@ -167,14 +167,17 @@ test(`${name}: framework adapters play the exit before removing the card`, async
       const toggle = page.getByRole('button', { name: 'Toggle ' + label + ' card' });
       await page.waitForSelector(card);
       await page.waitForFunction(selector => document.querySelector(selector)?.getAttribute('data-presence') === 'present', card);
-      await toggle.click();
-      const exiting = await page.evaluate(selector => {
+      // Recorded in the page: a framework may start the exit a task after the click.
+      await page.evaluate(selector => {
         const element = document.querySelector(selector);
-        return { inDocument: element !== null, presence: element?.getAttribute('data-presence') };
+        window.__exitSeen = false;
+        new MutationObserver(() => {
+          if (element.isConnected && element.getAttribute('data-presence') === 'exiting') window.__exitSeen = true;
+        }).observe(element, { attributes: true, attributeFilter: ['data-presence'] });
       }, card);
-      assert.equal(exiting.inDocument, true, label + ' card removed before its exit');
-      assert.equal(exiting.presence, 'exiting', label);
+      await toggle.click();
       await page.waitForFunction(selector => document.querySelector(selector) === null, card);
+      assert.equal(await page.evaluate(() => window.__exitSeen), true, label + ' card removed without playing its exit');
       await toggle.click();
       await page.waitForFunction(selector => document.querySelector(selector)?.getAttribute('data-presence') === 'present', card);
     }
