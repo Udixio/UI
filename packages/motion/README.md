@@ -146,7 +146,7 @@ override a reduced system preference. A plain
 `:root` declaration supplies the same values in browsers without `@property`.
 The CSS is static and can be included in server-rendered HTML without JavaScript.
 This entry supplies token values and the scale; it does not apply them to animations or
-implement a motion provider or integrate the internal policy reader into a runtime.
+implement a motion provider or integrate the policy reader (`@udixio/motion/policy`) into a runtime.
 
 The public motion vocabulary includes `Verb`, `SpringRef`, and `ReducedRender`.
 The complete declarative `MotionSpec` is not exported yet: the domains of scroll ranges and shared keys remain unspecified, and the

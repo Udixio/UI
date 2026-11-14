@@ -148,13 +148,36 @@ test('motion CSS size budget accepts the artifact and rejects an oversized one',
   } finally { await rm(dir, { recursive: true, force: true }); }
 });
 
-test('internal policy resolves from built ESM and CommonJS without DOM globals', async () => {
-  const esm = await import('@udixio/motion/internal-policy');
-  const cjs = createRequire(import.meta.url)('@udixio/motion/internal-policy');
+test('policy entry is public in both export maps and internal-policy is gone', () => {
+  for (const exportsMap of [pkg.exports, pkg.publishConfig.exports]) {
+    assert.equal(exportsMap['./internal-policy'], undefined);
+  }
+  assert.deepEqual(pkg.exports['./policy'], {
+    development: './src/policy.ts', types: './dist/policy.d.ts',
+    import: './dist/policy.js', require: './dist/policy.cjs', default: './dist/policy.js',
+  });
+  assert.deepEqual(pkg.publishConfig.exports['./policy'], {
+    types: './dist/policy.d.ts', import: './dist/policy.js',
+    require: './dist/policy.cjs', default: './dist/policy.js',
+  });
+});
+
+test('policy resolves from built ESM and CommonJS without DOM globals', async () => {
+  const esm = await import('@udixio/motion/policy');
+  const cjs = createRequire(import.meta.url)('@udixio/motion/policy');
   for (const entry of [esm, cjs]) {
     assert.equal(typeof entry.motionPolicy.retain, 'function');
     entry.motionPolicy.retain();
     assert.equal(entry.motionPolicy.reduced, false);
     entry.motionPolicy.release();
+  }
+});
+
+test('package index exports the runtime factories from built ESM and CommonJS', async () => {
+  const esm = await import('@udixio/motion');
+  const cjs = createRequire(import.meta.url)('@udixio/motion');
+  for (const entry of [esm, cjs]) {
+    assert.equal(typeof entry.getMotionRuntime, 'function');
+    assert.equal(typeof entry.retainMotionRuntime, 'function');
   }
 });

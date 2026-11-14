@@ -1,6 +1,6 @@
 import { animate, type JSAnimation } from 'animejs';
 
-import { motionPolicy } from '@udixio/motion/internal-policy';
+import { motionPolicy } from '@udixio/motion/policy';
 
 export interface SwitchThumbControllerOptions {
   /** The handle container (`.handle-container`) whose `translate` slides between resting offsets. */

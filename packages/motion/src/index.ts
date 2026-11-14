@@ -11,3 +11,5 @@ export type {
 export { defineTokens, resolveSpring, resolveCurve } from './tokens.js';
 export type { DurationToken, EasingToken, CurveTiming, ResolvedCurve, MotionScheme, MotionTokens, SpringToken, SpringSupport, ResolvedSpring } from './tokens.js';
 export type { Verb, SpringRef, ReducedRender } from './motion-spec.js';
+export { getMotionRuntime, retainMotionRuntime } from './runtime.js';
+export type { MotionRuntime } from './runtime.js';

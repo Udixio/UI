@@ -1,4 +1,4 @@
-import { motionPolicy } from '@udixio/motion/internal-policy';
+import { motionPolicy } from '@udixio/motion/policy';
 import type { AnimationPlaybackControls } from 'motion';
 
 /** Owns a single indeterminate loop and its shared policy subscription. */

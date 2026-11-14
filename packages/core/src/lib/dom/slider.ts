@@ -1,5 +1,5 @@
 import { animate, type AnimationPlaybackControls } from 'motion';
-import { motionPolicy } from '@udixio/motion/internal-policy';
+import { motionPolicy } from '@udixio/motion/policy';
 import { getSliderValueFromPercent } from '../behaviors/slider.behavior.js';
 import type { SliderMark } from '../interfaces/slider.interface.js';
 

@@ -44,11 +44,11 @@
         "require": "./dist/testing/index.cjs",
         "default": "./dist/testing/index.js"
       },
-      "./internal-policy": {
-        "types": "./dist/internal-policy.d.ts",
-        "import": "./dist/internal-policy.js",
-        "require": "./dist/internal-policy.cjs",
-        "default": "./dist/internal-policy.js"
+      "./policy": {
+        "types": "./dist/policy.d.ts",
+        "import": "./dist/policy.js",
+        "require": "./dist/policy.cjs",
+        "default": "./dist/policy.js"
       }
     }
   },
@@ -121,12 +121,12 @@
       "require": "./dist/testing/index.cjs",
       "default": "./dist/testing/index.js"
     },
-    "./internal-policy": {
-      "development": "./src/internal-policy.ts",
-      "types": "./dist/internal-policy.d.ts",
-      "import": "./dist/internal-policy.js",
-      "require": "./dist/internal-policy.cjs",
-      "default": "./dist/internal-policy.js"
+    "./policy": {
+      "development": "./src/policy.ts",
+      "types": "./dist/policy.d.ts",
+      "import": "./dist/policy.js",
+      "require": "./dist/policy.cjs",
+      "default": "./dist/policy.js"
     }
   },
   "dependencies": {

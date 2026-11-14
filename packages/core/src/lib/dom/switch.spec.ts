@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { animate } from 'animejs';
-import { motionPolicy } from '@udixio/motion/internal-policy';
+import { motionPolicy } from '@udixio/motion/policy';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createSwitchThumbController } from './switch.js';
 
