@@ -91,7 +91,6 @@
       "interrupt"
     ],
     "deferred": [
-      "trigger",
       "repeat",
       "direction",
       "distance",
@@ -109,14 +108,6 @@
     ]
   },
   "deferredDomains": {
-    "trigger": {
-      "values": [
-        "load",
-        "view",
-        "state"
-      ],
-      "source": "§8.2.3"
-    },
     "repeat": {
       "values": [
         "once",

@@ -50,7 +50,6 @@ export const motionManifest = freezeDeep({
     required: ['verb', 'keyframes'],
     optional: ['timing', 'reduced', 'interrupt'],
     deferred: [
-      'trigger',
       'repeat',
       'direction',
       'distance',
@@ -66,7 +65,6 @@ export const motionManifest = freezeDeep({
     interruptVerbs: ['emphasize'],
   },
   deferredDomains: {
-    trigger: { values: ['load', 'view', 'state'], source: '§8.2.3' },
     repeat: { values: ['once', 'always'], source: '§8.2.3' },
     direction: { values: ['start', 'end', 'up', 'down'], source: '§8.2.3' },
     stagger: { values: ['tight', 'normal', 'loose'], source: '§8.2.3' },

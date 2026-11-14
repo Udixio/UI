@@ -43,11 +43,7 @@ describe('experimental motion manifest validator', () => {
       ['/spec/keyframes/0/scaleX', 'unsupported'],
       ['/spec/keyframes/0/surprise', 'unknown_field'],
     ]);
-    expect(motionManifest.deferredDomains.trigger.values).toEqual([
-      'load',
-      'view',
-      'state',
-    ]);
+    expect(motionManifest.deferredDomains).not.toHaveProperty('trigger');
     expect(motionManifest.deferredDomains.pause.values).toEqual([
       'control',
       'essential',
