@@ -667,7 +667,7 @@ changement d'état observable ou par `handle.play()`.
 
 | Verbe | Familles | Déclencheur (fixé par le verbe) | Reprise | Rendu réduit | Ressort par défaut |
 |---|---|---|---|---|---|
-| `appear` | F3, F10 | `load` (montage) | `carry` | `fade` | `spring.default.spatial` + `effects` pour l'opacité |
+| `appear` | F3, F10 | `load` (montage) | `carry` | `fade` (non multiplié par `--udx-motion-scale`) | `spring.default.spatial` + `effects` pour l'opacité |
 | `disappear` | F3, F10 | démontage | `carry` | `fade` (non multiplié par `--udx-motion-scale`) | idem |
 | `emphasize` | F2 (accent), F18 (press) | `state` | `restart` | `static` | `spring.fast.spatial` |
 | `reveal` | F4 | `view` | `restart` | `instant` | `spring.default.spatial` |
@@ -802,6 +802,70 @@ lecture, invalidé par `ResizeObserver` et `MutationObserver`.
 | `RUNTIME_KEY` seul | `MotionRuntime` complet | runtime global, frame unique, registre partagé |
 | manifeste : `trigger` en option différée | déclencheur fixé par le verbe | retirer `trigger` des options du manifeste |
 
+#### 8.3.5 État après l'étape 1a (2026-11-14)
+
+Écarts de §8.3.4 comblés : backend `css`, `capabilities`, `velocity`, timing par tokens,
+`trigger` retiré du manifeste, `MotionRuntime` exporté (clé encore
+provisoire, à figer en `udixio.motion@1` avant publication).
+
+Surface d'écriture livrée dans `@udixio/motion` (verbes `appear`,
+`disappear`, `emphasize` ; backend WAAPI) :
+
+| Élément | Rôle |
+|---|---|
+| `defineMotion(name, spec)`, `resolveMotion`, `onMotionDefined`, `definedMotions`, `validateMotionSpec` | registre des définitions, partagé par page ; un abonné qui lève n'interrompt pas la définition |
+| `@udixio/motion/presets` | `fade`, `slide`, `scale` (appear), `press` (emphasize) — valeurs provisoires |
+| `playMotion(target, spec, { direction, carry, runtime })`, `applyFrame`, `releaseFrame` | lecture d'une définition : sens, reprise, rendu réduit, repli sur l'état de destination |
+| `motion(element, source, { present, settled })` → `MotionBinding` ; `getMotion(element)` | liaison par élément : présence (`data-presence`, `inert`), rejeu, nettoyage |
+| `connectMotion({ root, development })` | syntaxe HTML `data-motion="<nom>"` : un `MutationObserver` par racine |
+| `@udixio/motion/policy` | politique de mouvement réduit (remplace l'entrée `internal-policy`) |
+
+Règles fixées pendant l'étape 1a (choix de Claude, sur délégation) :
+
+- **Fondu réduit jamais multiplié par `--udx-motion-scale`**, pour `appear`
+  comme pour `disappear` : la feuille met l'échelle à 0 sous `reduce`, ce qui
+  aurait transformé le fondu réduit de `appear` en saut instantané.
+- **Reprise `carry`** : seuls les champs de la frame de destination sont figés
+  en ligne ; les autres propriétés restent à la feuille de style.
+- **Présence par `hidden`** : l'attribut reste celui de l'auteur. Pendant une
+  sortie, le scanner maintient l'élément affiché par un `display` en ligne
+  (`!important`) et le retire à la fin. Il ne réécrit jamais `hidden` : un
+  framework qui ré-affiche pendant la sortie retire un attribut, ce qui doit
+  rester observable.
+- **Élément absent** : il reçoit toujours sa frame de sortie, porte
+  `data-presence="exiting"` et `inert` (trois états seulement, I04).
+- **`destroy()`** rend l'élément à sa feuille de style : `data-presence`,
+  `inert` et les propriétés en ligne écrites par la définition sont retirés.
+- **`--udx-motion: none`** (F19) est lu par `playMotion` : l'état de
+  destination est appliqué sans animation, quelle que soit la surface
+  (HTML, `motion()`, adaptateurs). La propriété n'est pas enregistrée, donc
+  elle s'hérite.
+- **Nœud déplacé** dans le DOM : il garde sa liaison et ne rejoue pas son
+  entrée. Avec le routeur client d'Astro, le scanner est déconnecté avant
+  l'échange de page et reconnecté après : le contenu livré avec la page est
+  considéré en place.
+- **Runtime et mode développement** : `getMotionRuntime()` sans argument
+  adopte le runtime existant ; seule une valeur explicite contradictoire lève.
+- **Badge** : premier composant sur `@udixio/motion`
+  (`BadgeProps.motion: { timing }` remplace `transition`, `udxBadgeMotion`
+  remplace `udxBadgeTransition`) ; `badge.ts` n'importe plus anime.js.
+
+Points ouverts relevés pendant l'étape 1a :
+
+- **Valeurs en ligne au repos** : à la fin d'une animation, le provider WAAPI
+  laisse les valeurs de destination en ligne (`opacity: 1; scale: 1`), ce qui
+  prime sur une classe posée sur le même élément (`hover:scale-105`). À
+  trancher avec les états (étape 2 ou 8) : libérer au repos ou documenter.
+- **Poids** : l'entrée principale pèse 12,7 kB gzip sans anime.js (validation
+  du manifeste à l'exécution, tables de ressorts, contrôles défensifs).
+  Budget fixé à la mesure + 10 % ; réduction à traiter à l'étape 8.
+- **Calibrage** : à la sortie, l'opacité finit bien avant le déplacement
+  (ressort `effects` plus rapide que `spatial`) ; le mouvement de sortie se
+  voit peu. À régler au calibrage visuel (étape 8).
+- **Saut de mise en page** : masquer par `hidden` retire l'élément du flux à
+  la fin de la sortie ; le contenu voisin saute. C'est le rôle de `layout`
+  (étape 2).
+
 ### 8.4 Détails par famille — **rédigé (consolidation)**
 
 | # | Famille | Écriture | Chemin natif | Repli / moteur JS | Sources |
@@ -897,6 +961,11 @@ Chaque étape migre au passage les composants Udixio qui utilisent ses
 familles, et se termine par une vérification groupée (pas de tests à chaque
 modification).
 
+Avancement : **étape 1a livrée le 2026-11-14** (cœur de la surface
+d'écriture, `data-motion`, Badge, démo `/motion/demo` — détail en §8.3.5).
+Reste de l'étape 1 : **1b**, les adaptateurs React, Angular et Svelte et la
+présence par framework.
+
 ## 9. Questions ouvertes connues
 
 > **État au 2026-11-05** : F3 → §8.0 #2 et M5-L07 ; F4/F5 → deux verbes
@@ -966,6 +1035,7 @@ D2 (en partie orientée par C15).
 | Date | Travail | Changement |
 |---|---|---|
 | 2026-11-03 | — | Création du document à l'issue du brainstorming initial. |
+| 2026-11-14 | Étape 1a | Surface d'écriture livrée : `defineMotion`, presets, `playMotion`, `motion()`, `connectMotion`, entrée `policy` ; Badge migré ; démo `/motion/demo`. Règles et points ouverts en §8.3.5. Vérification groupée : motion 798 tests (Chromium, Firefox, WebKit), core 433, React 387, Svelte 280, Angular vert. |
 | 2026-11-14 | Revue d'ensemble | Pas de publication partielle ; anime.js confirmé ; doublon `appear` / `reveal` levé ; `layout` sur changement de classe ; repli statique du scroll lié ; ordre de réalisation §8.6. |
 | 2026-11-05 | Validation ⚑ | Points 1, 2, 3, 4 (pages), 6 et SSR validés ; ressort des gestes et tokens de distance / stagger provisoires, à calibrer visuellement. |
 | 2026-11-05 | §8.2–§8.4 | Modèle `MotionSpec`, contrat provider, runtime global et détail des 24 familles rédigés (consolidation) ; 6 points ⚑ à valider. |
