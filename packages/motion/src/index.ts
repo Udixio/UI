@@ -14,4 +14,5 @@ export type { Verb, SpringRef, ReducedRender } from './motion-spec.js';
 export { defineMotion, resolveMotion, onMotionDefined, validateMotionSpec } from './define-motion.js';
 export type { MotionSpec, MotionRef } from './define-motion.js';
 export { getMotionRuntime, retainMotionRuntime } from './runtime.js';
+export { composeHandles, settledHandle, splitFrames } from './compose.js';
 export type { MotionRuntime } from './runtime.js';
