@@ -16,6 +16,119 @@ types). The generated JSON is available at `@udixio/motion/motion-manifest.json`
 The manifest API was moved from the root entry to this subpath; update any
 imports from the previous experimental root export.
 
+## Writing a motion
+
+A motion is a named, validated description of how an element enters, leaves or
+emphasizes. Define it once, then attach it with `data-motion` in HTML or `motion()` in JavaScript.
+
+### Define
+
+```ts
+import { defineMotion } from '@udixio/motion';
+
+defineMotion('card-enter', {
+  verb: 'appear',
+  keyframes: [
+    { opacity: 0, y: 24 },
+    { opacity: 1, y: 0 },
+  ],
+  timing: 'spring.default.spatial',
+});
+```
+
+- The name is kebab-case; reserved names are rejected.
+- Verbs: `appear` (enters through the keyframes, leaves backward), `disappear` (the
+  reverse) and `emphasize` (plays the keyframes forward on each replay).
+- Keyframe fields: `opacity`, `x`, `y`, `scale`, `rotate`.
+- `timing` is optional: a spring token such as `spring.fast.spatial`, or
+  `{ duration: 'duration.medium2', easing: 'easing.standard' }`. It applies to every field.
+- Definitions are shared page-wide. An identical redefinition returns the existing
+  definition; a different spec throws.
+
+### Presets
+
+```ts
+import { fade, slide, scale, press } from '@udixio/motion/presets';
+```
+
+Importing the entry defines `fade`, `slide` and `scale` (appear) and `press`
+(emphasize), usable directly in `data-motion`. Their values are provisional.
+
+### HTML
+
+```html
+<section data-motion="slide">Enters when inserted</section>
+<button type="button" data-motion="press">Save</button>
+```
+
+```ts
+import { connectMotion } from '@udixio/motion';
+import '@udixio/motion/presets';
+
+// Once per page. Returns a function that disconnects and destroys the bindings.
+const disconnect = connectMotion();
+
+// Later, to apply the press emphasis:
+document.querySelector('button')!.dataset.state = 'pressed';
+```
+
+`connectMotion()` binds the `data-motion` elements under `document` and keeps them in step with the DOM:
+
+- An inserted element plays its entry, unless it is inserted with `hidden`.
+- Setting `hidden` plays the exit. The attribute stays, and the element remains displayed
+  and `inert` until the exit ends.
+- Removing `hidden` plays the entry.
+- A `data-state` change on an `emphasize` motion replays it.
+- An element present at connect is not animated. An element removed from the root is destroyed.
+- An unknown name leaves the element untouched. With `connectMotion({ development: true })`
+  an error names the missing motion, and the element is bound once that name is defined.
+
+### JavaScript
+
+```ts
+import { motion } from '@udixio/motion';
+import '@udixio/motion/presets';
+
+const binding = motion(panel, 'slide', { settled: true });
+console.log(await binding.setPresent(false)); // 'finished' or 'cancelled'
+```
+
+`motion(element, source, options)` accepts a defined name, a `MotionRef` or a raw spec,
+and returns a `MotionBinding` (`setPresent`, `play`, `destroy`, and `present` and `handle` getters):
+
+- `present` (default `true`) is the initial presence; `settled` skips the entry of a present element.
+- `setPresent(present)` runs the exit or entry and resolves to `'finished'` or `'cancelled'`.
+  It never rejects; on any failure the element is left in its destination state.
+- `play()` replays an `emphasize` motion. `setPresent` throws for an `emphasize`, and `play()` throws for the other verbs.
+- `destroy()` cancels the motion and releases its inline state.
+- `getMotion(element)` returns the binding attached to an element, if any.
+
+### Presence state
+
+The runtime writes `data-presence="entering" | "present" | "exiting"` on each bound
+element; authors should not set it. Style it with Tailwind variants, for example
+`data-[presence=exiting]:pointer-events-none`.
+
+### Turning motion off, or reducing it
+
+- `--udx-motion: none` on an element or an ancestor applies the end state without
+  animating. Tailwind: `md:[--udx-motion:none]`.
+- Under reduced motion (`prefers-reduced-motion: reduce`, or `<html data-motion-policy="reduce">`),
+  entries and exits become a short opacity fade. An emphasis is not animated: it
+  applies its end frame.
+
+### Current limits
+
+This is step 1a of the package, so:
+
+- Only three verbs exist: `appear`, `disappear` and `emphasize`. `reveal`, `scrub`,
+  `loop` and `layout` come later.
+- Framework adapters (React hook, Angular directive, Svelte attachment) are not shipped yet.
+- At the end of a motion, the end values stay inline on the element (`opacity`,
+  `translate`, `scale`, `rotate`). A class that sets the same property on that element
+  is overridden until the binding is destroyed.
+- Preset values are not calibrated yet.
+
 ## Development
 
 Inside the workspace, the `development` export condition resolves to the
