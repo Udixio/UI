@@ -134,3 +134,14 @@ and responds to ArrowLeft/ArrowRight/ArrowUp/ArrowDown (one step, or one mark
 when using `marks` without `step`) and Home/End (jump to the bounds).
 `disabled` sets `aria-disabled` and removes it from the tab order. Provide
 `aria-label` or `aria-labelledby`; this component does not render label text.
+
+## Motion
+
+The value indicator and track transitions follow the system reduced-motion
+preference and `html[data-motion-policy="reduce"]`. A change to reduced motion
+finishes any current movement at its latest target; returning to normal does
+not replay it. Keyboard and pointer interaction remain available. The slider
+root carries a local policy marker after mounting, so its default transitions
+also respond inside Shadow DOM. Before hydration, the system preference still
+applies, but the document attribute alone cannot cross a shadow boundary.
+Custom classes that introduce transitions can override the default rules.

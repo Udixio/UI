@@ -11,6 +11,7 @@
   "include": [".astro/types.d.ts", "**/*"],
   "exclude": ["dist"],
   "references": [
+    { "path": "../../packages/motion" },
     {
       "path": "../../packages/ui-react"
     },

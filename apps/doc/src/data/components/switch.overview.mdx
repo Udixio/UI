@@ -65,3 +65,7 @@ Switch exposes `aria-checked` and toggles with a click or with Space/Enter
 when focused. It never renders a visible label on its own; pair it with
 `aria-label`, `aria-labelledby`, or a visible label element referencing it
 through your own markup.
+
+### Reduced motion
+
+Switch completes an in-progress thumb movement immediately when the system requests reduced motion or the document root has `data-motion-policy="reduce"`. Its size transition follows the same policy. Returning to normal motion does not restart an interrupted transition. Loading `@udixio/motion/motion.css` is optional; when loaded, its inherited `--udx-motion-scale` also scales the size transition. After mount, the shared controller applies the document policy within Shadow DOM as well, even without the stylesheet. Before hydration, the document attribute selector cannot cross the shadow boundary; the system preference still applies. Custom component classes can override the CSS transition rule.

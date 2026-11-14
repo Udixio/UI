@@ -32,6 +32,7 @@
   "files": [],
   "include": ["src/**/*.ts", "src/**/*.tsx"],
   "references": [
+    { "path": "../../packages/motion/tsconfig.lib.json" },
     {
       "path": "../../packages/theme/tsconfig.lib.json"
     },

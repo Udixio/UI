@@ -1,0 +1,11 @@
+---
+import MotionPage from '@/components/MotionPage.astro';
+---
+<MotionPage title="Motion" description="Experimental motion foundations and their current status.">
+  <h1>Motion</h1>
+  <p><strong>Experimental and under construction.</strong> <code>@udixio/motion</code> provides static CSS tokens and limited TypeScript exports including <code>defineTokens</code>, <code>resolveCurve</code> and <code>resolveSpring</code>. The repository version is 0.0.0; check publication before relying on an installation.</p>
+  <p>The experimental manifest is available from <code>@udixio/motion/manifest</code>. Its <code>supportedVerbs</code> describes experimental validation, not a complete family animation API. <code>RUNTIME_KEY</code> is reserved; a shared runtime is not registered.</p>
+  <h2>Start here</h2>
+  <ul><li><a href="/motion/tokens">Tokens</a>: use the CSS foundations and understand their limits.</li><li><a href="/motion/accessibility">Accessibility</a>: reduced motion and an interactive CSS example.</li><li><a href="/motion/roadmap">Roadmap</a>: family status and verification.</li></ul>
+  <p>The <a href="/animations">existing animations (anim-*)</a> are a separate, older set of utilities. Their documentation and examples remain available. References to the separate <code>motion</code> dependency in component documentation do not necessarily mean <code>@udixio/motion</code>.</p>
+</MotionPage>

@@ -1,0 +1,16 @@
+---
+import Layout from '@/layouts/layout.astro';
+const { title, description } = Astro.props;
+---
+<Layout title={title} description={description}>
+  <article class="mx-auto max-w-5xl px-6 py-12 lg:px-12 lg:py-20 prose-markdown">
+    <nav aria-label="Motion documentation" class="not-prose mb-10 flex flex-wrap gap-x-5 gap-y-3">
+      <a class="underline" href="/motion">Overview</a>
+      <a class="underline" href="/motion/roadmap">Roadmap</a>
+      <a class="underline" href="/motion/tokens">Tokens</a>
+      <a class="underline" href="/motion/accessibility">Accessibility</a>
+      <a class="underline" href="/animations">Existing animations (anim-*)</a>
+    </nav>
+    <slot />
+  </article>
+</Layout>

@@ -1,0 +1,40 @@
+---
+import MotionPage from '@/components/MotionPage.astro';
+const example = `<div class="example">
+  <input id="reduce" type="checkbox">
+  <label for="reduce">Reduce motion in this demonstration</label>
+  <input id="toggle" type="checkbox">
+  <label for="toggle">Change the decorative swatch</label>
+  <span class="swatch" aria-hidden="true"></span>
+</div>
+<style>
+  .swatch { opacity: .35; transition: opacity
+    calc(300ms * var(--udx-motion-scale, 1)); }
+  #toggle:checked ~ .swatch { opacity: 1; }
+  #reduce:checked ~ .swatch { transition-duration: 0s; }
+</style>`;
+---
+<MotionPage title="Motion accessibility" description="Reduced motion policy and an accessible CSS demonstration.">
+  <h1>Motion accessibility</h1>
+  <p>The document stylesheet defines <code>--udx-motion-scale</code> as 1 by default. The system reduced-motion preference or <code>html[data-motion-policy="reduce"]</code> sets it to 0. An absent attribute, <code>auto</code>, or an unknown value follows the system preference.</p>
+  <p>Multiplying a transition duration by this scale alone does not make every effect safe. Adapt or remove translation and loops as appropriate, and keep essential content available. Raw providers do not automatically consume this policy; consumers must choose and apply one.</p>
+  <h2>Try it without JavaScript</h2>
+  <p>The checkbox state remains visible and the final appearance is available without animation. The reduction checkbox only changes this demonstration, not your system or document policy.</p>
+  <div class="demo not-prose">
+    <input id="demo-reduce" type="checkbox" /> <label for="demo-reduce">Reduce motion in this demonstration</label>
+    <input id="demo-toggle" type="checkbox" /> <label for="demo-toggle">Change the decorative swatch</label>
+    <span class="swatch" aria-hidden="true"></span>
+  </div>
+  <pre><code>{example}</code></pre>
+  <h2>Shadow DOM</h2>
+  <p>The HTML selector does not cross a shadow boundary. The scale set by the document stylesheet can be inherited into a shadow root, but a local override can defeat it. Without the document stylesheet, the HTML attribute alone does not guarantee reduction inside a shadow root.</p>
+  <p>Search has its own behavior: it respects the system preference even without the stylesheet, has a 200 ms and easing fallback, and reads the attribute in ordinary DOM. Do not generalize this behavior to all components or providers.</p>
+  <style>
+    .demo { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: .75rem; padding: 1.5rem; border: 1px solid currentColor; border-radius: 1rem; }
+    .demo input { width: 1.25rem; height: 1.25rem; accent-color: var(--color-primary); }
+    .demo input:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+    .swatch { grid-column: 1 / -1; width: 5rem; height: 3rem; border-radius: .75rem; background: var(--color-primary); opacity: .35; transition: opacity calc(300ms * var(--udx-motion-scale, 1)); }
+    #demo-toggle:checked ~ .swatch { opacity: 1; }
+    #demo-reduce:checked ~ .swatch { transition-duration: 0s; }
+  </style>
+</MotionPage>

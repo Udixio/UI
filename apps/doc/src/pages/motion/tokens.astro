@@ -1,0 +1,14 @@
+---
+import MotionPage from '@/components/MotionPage.astro';
+---
+<MotionPage title="Motion tokens" description="Experimental CSS and TypeScript motion tokens.">
+  <h1>Motion tokens</h1>
+  <p>With <code>@udixio/motion</code> available to your workspace, load its stylesheet in the document stylesheet:</p>
+  <pre><code>@import '@udixio/motion/motion.css';</code></pre>
+  <p>A bundler that supports CSS imports can instead load it from an application entry point:</p>
+  <pre><code>import '@udixio/motion/motion.css';</code></pre>
+  <p>The stylesheet includes generated curves and springs. Tokens describe timing; defining one does not animate an element. Durations range from <code>--udx-motion-duration-short1</code> through <code>--udx-motion-duration-extra-long4</code>; easings include <code>--udx-motion-easing-linear</code>, <code>--udx-motion-easing-standard</code>, <code>--udx-motion-easing-standard-accelerate</code> and <code>--udx-motion-easing-standard-decelerate</code>.</p>
+  <p>Spring variables follow <code>--udx-motion-spring-{'{fast,default,slow}'}-{'{spatial,effects}'}-{'{duration,easing}'}</code>. A cubic-bezier fallback is provided; supported browsers select the generated <code>linear()</code> curve.</p>
+  <p>CSS <code>data-motion-scheme="standard"</code> and TypeScript <code>defineTokens({'{ scheme: \'standard\' }'})</code> are independent selections. Distance and stagger values are provisional and await visual calibration. Customization, complete runtime integration and Tailwind or framework adapters are not delivered as a complete family.</p>
+  <p>See <a href="/motion/accessibility">accessibility</a> before applying timing to an effect.</p>
+</MotionPage>

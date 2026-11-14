@@ -44,3 +44,13 @@ determinate value or as an unspecified wait time.
 Every variant renders `role="progressbar"` with `aria-valuemin`/`aria-valuemax`;
 determinate variants also expose `aria-valuenow`. Provide `aria-label` or
 `aria-labelledby` — the component does not infer an accessible name.
+
+
+Indeterminate indicators ignore `value` and require an accessible name via
+`aria-label` or `aria-labelledby`. Provide nearby context describing the wait.
+Their initial server-rendered shape is static; it remains static when reduced
+motion is requested and resumes animating when the shared motion policy allows
+it. Loading indicators inside buttons are decorative and do not create another
+announcement. The policy observes the global document; local class or style
+overrides that replace the geometry or add animation can change this behavior.
+This policy currently covers indeterminate loops only, not determinate transitions.

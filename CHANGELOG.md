@@ -1,3 +1,13 @@
+## Unreleased
+
+### Breaking changes
+
+* **motion:** The Anime.js provider now rejects unsupported or malformed easing
+  strings instead of silently using `linear`. Direct callers should select `linear`
+  or a valid `cubic-bezier()`; use the complete spring fallback pair for spring
+  tokens, since `linear()` stop lists are not supported by this adapter. Numeric
+  coordinates also have precision and range limits documented in the README.
+
 ## [1.9.4](https://github.com/Udixio/UI/compare/v1.9.3...v1.9.4) (2025-07-18)
 
 

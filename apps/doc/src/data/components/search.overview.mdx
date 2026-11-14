@@ -362,3 +362,9 @@ The input forwards native form attributes such as `name`, `required`,
 `readOnly`, `autoComplete`, and `inputMode`. The component does not filter or
 announce result data itself: applications should update the projected content
 and provide an appropriate empty state when no match exists.
+
+### Motion
+
+The container and clear button animate only their outline color. Search works without a motion stylesheet: the duration is 200 ms, the easing is `cubic-bezier(0, 0, 0.2, 1)`, and the scale is 1. To use the shared motion tokens, explicitly import `@udixio/motion/motion.css` at the document level. It supplies `--udx-motion-duration-short4`, `--udx-motion-easing-standard-decelerate`, and `--udx-motion-scale`; the token easing differs from the fallback. Valid local CSS values can override these inherited variables, and custom classes can replace the transition.
+
+System reduced motion disables the transition, including in shadow roots, without the stylesheet. `html[data-motion-policy="reduce"]` also disables it in ordinary DOM. In a shadow root, that selector cannot cross the boundary: load motion.css in the document to inherit a zero scale. A local scale override can bypass that inherited policy, so avoid it where reduction must be enforced. `auto`, an absent attribute, and unknown values follow the system preference.

@@ -1,0 +1,22 @@
+---
+import MotionPage from '@/components/MotionPage.astro';
+const families = [
+  ['Tokens', 'Partial, experimental', 'M3 tokens, resolvers and static CSS exist; distance and stagger are provisional.', 'Calibrate and complete customization and integrations.'],
+  ['State transitions', 'Partial', 'Search uses tokens for two outlines; discrete properties and auto sizes are not demonstrated.', 'Validate family scenarios and providers.'],
+  ...['Presence','View triggers','Scroll-linked motion','Programmatic scrolling','Layout','Shared elements','Page transitions','Lists and stagger','Choreography','Playback controls','Interruption and physics','Reactive values','Value animation','Text','SVG','Gestures','Responsive scopes'].map(subject => [subject, 'Planned', 'No public family API delivered.', 'Define and validate family scenarios.']),
+  ['Accessibility', 'Partial', 'CSS scale follows the system and HTML attribute; it does not enforce every animation. Raw providers need a consumer policy.', 'Develop family-specific policies.'],
+  ['Engine performance','Planned','Foundations do not constitute a public family API.','Validate performance scenarios.'],
+  ['Internal migration','Planned','Existing anim-* utilities remain available.','Migrate separately.'],
+  ['Agent tooling','Planned','The experimental manifest is not a complete family API.','Document delivered tooling.'],
+  ['Loops and continuous animation','Planned','No public family API delivered.','Define accessible pause and reduction behavior.'],
+];
+---
+<MotionPage title="Motion roadmap" description="Current family status and verification roadmap.">
+  <h1>Motion roadmap</h1>
+  <p>This page is the public status source for motion families. Partial means only the evidence stated here is available; planned means no public family API is delivered, even where foundations or tests exist. The design phases guide the order, without a date commitment.</p>
+  <div class="overflow-x-auto"><table><thead><tr><th>Family</th><th>Subject</th><th>Status</th><th>Evidence or limitation</th><th>Next step</th></tr></thead><tbody>{families.map(([subject, status, evidence, next], i) => <tr><td>F{i + 1}</td><td>{subject}</td><td>{status}</td><td>{evidence}</td><td>{next}</td></tr>)}</tbody></table></div>
+  <h2>Browser and provider verification</h2>
+  <p>Provider presence or <code>CSS.supports</code> alone does not establish family compatibility. A positive result needs an engine, version, family scenario and reproducible result. The matrix below makes no global compatibility claim.</p>
+  <table><thead><tr><th>Provider / browser</th><th>Chromium</th><th>Firefox</th><th>WebKit</th></tr></thead><tbody>{['CSS', 'WAAPI', 'anime.js'].map(provider => <tr><td>{provider}</td><td>Not verified</td><td>Not verified</td><td>Not verified</td></tr>)}</tbody></table>
+  <p>Future family pages, imperative API, providers, Tailwind, framework syntax and agent guidance will be published with their proven public interfaces, accessible examples, SSR contracts and reproducible conformance results.</p>
+</MotionPage>

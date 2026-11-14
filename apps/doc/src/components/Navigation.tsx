@@ -234,7 +234,9 @@ export const Navigation = ({
     theme: 3,
   };
   const selectedRailItem =
-    pathname === '/animations' ? 1 : pinnedId ? RAIL_INDEX[pinnedId] : -1;
+    /^\/(motion|animations)(?:\/|$)/.test(pathname)
+      ? 1
+      : pinnedId ? RAIL_INDEX[pinnedId] : -1;
 
   useEffect(() => {
     if (typeof document === 'undefined') return;
@@ -301,13 +303,13 @@ export const Navigation = ({
             Get started
           </NavigationRailItem>
           <NavigationRailItem
-            href={'/animations'}
+            href={'/motion'}
             icon={iAnimation}
             iconSelected={iAnimationFilled}
             onMouseEnter={endPreview}
             onFocus={endPreview}
           >
-            animations
+            Motion
           </NavigationRailItem>
           <NavigationRailItem
             href={'/components'}
