@@ -353,6 +353,10 @@ Section **Motion** remplaçant `/animations` :
 
 ## 8. Design détaillé (rempli par les travaux)
 
+> **Ordre de lecture.** La référence normative est **§8.2 à §8.6**. Les
+> sections §8.0 à §8.1 quinquies sont l'historique des décisions qui y ont
+> conduit ; en cas d'écart, §8.2–§8.6 font foi.
+
 ### 8.0 Fondations du moteur — **validées par l'utilisateur (R10, 2026-11-04)**
 
 Issues du registre de choix R10 (`docs/motion/research/R10-choix/`, 5 experts
@@ -625,7 +629,6 @@ interface MotionSpec {
   keyframes: VisualFrame[];
   /** Ressort M3 (défaut selon le verbe) ou courbe + durée en tokens. */
   timing?: SpringRef | CurveTiming;
-  trigger?: 'load' | 'view' | 'state';      // table verbe × option (M5-L09)
   repeat?: 'once' | 'always';               // reveal
   direction?: 'start' | 'end' | 'up' | 'down'; // sens du mouvement (I01)
   distance?: DistanceToken;
@@ -655,9 +658,14 @@ l'échappatoire du provider (§4.6, non portable).
 Toutes les valeurs numériques vivent dans la définition TS ou dans les tokens,
 jamais dans un attribut HTML (§8.1 #1, I03).
 
+**Le déclencheur n'est pas une option** (amendement du 2026-11-14) : il est
+fixé par le verbe (§8.2.4). `appear` joue au montage, `reveal` à l'entrée dans
+la vue : il n'existe donc qu'une façon d'écrire chacun. `emphasize` joue sur un
+changement d'état observable ou par `handle.play()`.
+
 #### 8.2.4 Table des défauts par verbe (I02, I05, I08, §8.1 #5)
 
-| Verbe | Familles | Déclencheur par défaut | Reprise | Rendu réduit | Ressort par défaut |
+| Verbe | Familles | Déclencheur (fixé par le verbe) | Reprise | Rendu réduit | Ressort par défaut |
 |---|---|---|---|---|---|
 | `appear` | F3, F10 | `load` (montage) | `carry` | `fade` | `spring.default.spatial` + `effects` pour l'opacité |
 | `disappear` | F3, F10 | démontage | `carry` | `fade` (non multiplié par `--udx-motion-scale`) | idem |
@@ -665,7 +673,7 @@ jamais dans un attribut HTML (§8.1 #1, I03).
 | `reveal` | F4 | `view` | `restart` | `instant` | `spring.default.spatial` |
 | `scrub` | F5 | défilement | `carry` (position) | `neutral` (position neutre) | aucun : progression liée au défilement |
 | `loop` | F24 | `load` | `restart` | `frozen` (+ `pause` obligatoire) | courbe linéaire en token |
-| `layout` | F7, F8, F10 | `state` (changement observable, I20) | `carry` | `instant` | `spring.default.spatial` |
+| `layout` | F7, F8, F10 | changement observable de l'élément marqué ou de sa racine de layout : **classe**, attribut `data-*`, enfants ; signalé par l'adaptateur en React, Angular et Svelte | `carry` | `instant` | `spring.default.spatial` |
 | transitions de page (pas un verbe) | F9 | navigation | `restart` | `instant` | `spring.slow.spatial` ⚑ |
 | gestes (pas un verbe) | F18 | pointeur / clavier | `carry` | sans animation de relâchement | `spring.default.spatial` pour le retour vers une cible ; `fast` ou `slow` explicite par composant ⚑ |
 
@@ -792,6 +800,7 @@ lecture, invalidé par `ResizeObserver` et `MutationObserver`.
 | pas de `velocity` sur le handle | `velocity: { value, source }` | `animejs` : exact ; `waapi` : estimated / unavailable |
 | `MotionTiming = { duration, easing }` | `SpringRef \| CurveTiming` résolus en `linear()` dérivé | générateur `linear()` + résolution des tokens |
 | `RUNTIME_KEY` seul | `MotionRuntime` complet | runtime global, frame unique, registre partagé |
+| manifeste : `trigger` en option différée | déclencheur fixé par le verbe | retirer `trigger` des options du manifeste |
 
 ### 8.4 Détails par famille — **rédigé (consolidation)**
 
@@ -801,9 +810,9 @@ lecture, invalidé par `ResizeObserver` et `MutationObserver`.
 | F2 | Transitions d'état | CSS + tokens + `data-[state]:` ; `emphasize` pour les accents | `transition` | `defineValue` à ressort | I06, I20 |
 | F3 | Présence | `appear` / `disappear` ; `data-presence` écrit par le runtime | `@starting-style`, `allow-discrete` ; `animate.leave`, `out:` | WAAPI ; nœud retenu jusqu'à `finished` | §8.0 #2, I04, M5-L07 |
 | F4 | À la vue | `reveal` (`repeat`, `axis`) | `animation-trigger` (Chromium) | IntersectionObserver partagé + sentinelle sans transform | M3-03, R1 |
-| F5 | Lié au scroll | `scrub` (`range`, `axis`) | `animation-timeline: view()/scroll()` | pilotage `CSSAnimation.currentTime` (S1, 9 conditions) | R3, R4, S1 |
+| F5 | Lié au scroll | `scrub` (`range`, `axis`) | `animation-timeline: view()/scroll()` | **rendu statique (position neutre) par défaut** ; pilotage `CSSAnimation.currentTime` en module optionnel nommé (S1, 9 conditions) | R3, R4, S1, M3-06 |
 | F6 | Scroll piloté | action `scrollTo(cible, { timing })` | `scroll-behavior` | anime.js | M3-V03 |
-| F7 | Layout | `layout` sur changement observable (`data-state`) | `interpolate-size`, VT scopée | FLIP (cache I10) | M3-L02, I10 |
+| F7 | Layout | `layout` sur changement observable (classe, `data-*`, enfants) | `interpolate-size`, VT scopée | FLIP (cache I10) | M3-L02, I10 |
 | F8 | Élément partagé | `layout` + `shared` (`defineShared`) | VT si `restart` et support | FLIP si `carry`, hydratation tardive, ou sans support | I17, S2 |
 | F9 | Pages | adaptateur par routeur ; Astro via ses événements | View Transitions | rendu instantané | I18, S2 |
 | F10 | Listes | `stagger`, `origin`, `exit` | `sibling-index()` si ordre DOM = ordre visuel | rang visuel mesuré en JS si ordre différent ou support absent | I14, I16, I19, R16 |
@@ -815,11 +824,11 @@ lecture, invalidé par `ResizeObserver` et `MutationObserver`.
 | F16 | Texte | `split` (lettres / mots / lignes) | — | découpage après hydratation, `sr-only` + `aria-hidden` ; brouillage hors v1 | I27 |
 | F17 | SVG | tracé, trajectoire, morphing | `stroke-dashoffset`, `offset-path` | `morphTo` d'anime.js | M1-R05, R16 |
 | F18 | Gestes | `defineGesture` (`alternative` obligatoire) | — | Draggable anime.js + vitesse au handle | I24, R16 |
-| F19 | Responsive / scopes | paliers nommés, `revert()` / `inspect()` | media / container queries | reconstruction au changement de palier | M3-R06, I29 |
+| F19 | Responsive / scopes | paliers nommés, `revert()` / `inspect()` ; conditionnel par variant Tailwind via `md:[--udx-motion:none \| <nom>]` lu au déclenchement (candidat, à éprouver à l'étape 1) | media / container queries | reconstruction au changement de palier | M3-R06, I29 |
 | F20 | Accessibilité | `reduced` par verbe, `pause`, `alternative` | `prefers-reduced-motion`, `motion-safe:` | politique unique sur `<html>` | §8.2.4, I05, I08 |
 | F21 | Performance | chargement par verbe | — | préchargement par intersection / intention | I28, M3-R03 |
 | F22 | Usage interne | prop `motion` = clés `data-motion-<option>` | — | — | M1-R10, I11 |
-| F23 | Outillage IA | manifeste `llms.txt` + JSON, MCP | — | — | M5-R03, M5-R04 |
+| F23 | Outillage IA | manifeste `llms.txt` + JSON, MCP ; types et erreurs dev d'abord, analyse des templates au build en dernier | — | — | M5-R03, M5-R04 |
 | F24 | Boucles | `loop` (`pause` obligatoire) | CSS `animation`, `animation-play-state` | abonné de la frame unique (JS) | I08, §8.0 bis #2 |
 
 #### Points ⚑ — statut (2026-11-05)
@@ -846,6 +855,47 @@ Liste d'origine :
    (20 / 50 / 100 ms, départs plafonnés à 400 ms, provisoires).
 6. Nom du backend natif CSS : `'css'`.
 
+
+### 8.5 Décisions du 2026-11-14 (revue d'ensemble)
+
+Décidées par l'utilisateur :
+
+- **Aucune publication partielle** : `@udixio/motion` n'est publié que lorsque
+  toutes les familles sont livrées, layout compris.
+- **anime.js reste le moteur JS** (C16 confirmé), même si son rôle est encore
+  réduit dans le code actuel : il porte le layout, les gestes, le texte, le
+  SVG et les ressorts avec vitesse.
+
+Tranchées par Claude, sur délégation de l'utilisateur (« pour le reste je te
+fais confiance ») :
+
+- Doublon `appear` / `reveal` supprimé : le déclencheur est fixé par le verbe
+  (§8.2.3).
+- `layout` réagit aussi aux changements de classe, pas seulement à `data-*`
+  (§8.2.4) ; coût borné car seuls les éléments marqués et leur racine sont
+  observés.
+- Repli du scroll lié : rendu statique par défaut, pilotage JS optionnel (§8.4 F5).
+- Conditionnel par breakpoint : `md:[--udx-motion:…]` comme candidat, à
+  éprouver sur un cas réel (§8.4 F19).
+- Vérification au build des templates reportée en dernier (§8.4 F23).
+
+### 8.6 Ordre de réalisation jusqu'à la publication
+
+| Étape | Contenu | Familles |
+|---|---|---|
+| 1 | Surface d'écriture de bout en bout : `defineMotion`, `motion(el)`, `data-motion`, adaptateurs React / Angular / Svelte, présence ; verbes `appear`, `disappear`, `emphasize` ; un composant réel et une démo dans la doc | F2, F3, F12, F13 |
+| 2 | **Layout** et élément partagé, listes (le plus risqué, traité tôt) | F7, F8, F10 |
+| 3 | `reveal`, `scrub`, `loop` | F4, F5, F24 |
+| 4 | Valeurs, compteurs, séquences | F14, F15, F11 |
+| 5 | Gestes, transitions de page | F18, F9 |
+| 6 | Texte, SVG, `scrollTo` | F16, F17, F6 |
+| 7 | Fin de la migration des composants Udixio ; retrait de `motion` et de `anim-*` | F22 |
+| 8 | Calibrage visuel, doc complète, manifeste et outillage IA, audit d'accessibilité, performance, navigateurs anciens | F1, F19, F20, F21, F23 |
+| 9 | Publication | — |
+
+Chaque étape migre au passage les composants Udixio qui utilisent ses
+familles, et se termine par une vérification groupée (pas de tests à chaque
+modification).
 
 ## 9. Questions ouvertes connues
 
@@ -916,6 +966,7 @@ D2 (en partie orientée par C15).
 | Date | Travail | Changement |
 |---|---|---|
 | 2026-11-03 | — | Création du document à l'issue du brainstorming initial. |
+| 2026-11-14 | Revue d'ensemble | Pas de publication partielle ; anime.js confirmé ; doublon `appear` / `reveal` levé ; `layout` sur changement de classe ; repli statique du scroll lié ; ordre de réalisation §8.6. |
 | 2026-11-05 | Validation ⚑ | Points 1, 2, 3, 4 (pages), 6 et SSR validés ; ressort des gestes et tokens de distance / stagger provisoires, à calibrer visuellement. |
 | 2026-11-05 | §8.2–§8.4 | Modèle `MotionSpec`, contrat provider, runtime global et détail des 24 familles rédigés (consolidation) ; 6 points ⚑ à valider. |
 | 2026-11-05 | S1, S2 | Spikes : contrat de variables, fallback scroll-driven, runtime entre îles GO ; règles précisées (cache avec transform, doublon `first-live`, rétention 600 ms, adaptateur Astro, `linear()` dérivé en repli). |
