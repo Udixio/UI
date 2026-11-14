@@ -1,12 +1,31 @@
 import { expect, it } from 'vitest';
 
+async function loadMotionStylesheet(href = '/motion.css') {
+  const style = document.createElement('link');
+  style.rel = 'stylesheet';
+  style.href = href;
+  await new Promise<void>((resolve, reject) => {
+    const fail = () => {
+      clearTimeout(timer);
+      style.remove();
+      reject(new Error('stylesheet failed to load'));
+    };
+    const timer = setTimeout(fail, 4000);
+    style.onload = () => { clearTimeout(timer); resolve(); };
+    style.onerror = fail;
+    document.head.append(style);
+  });
+  return style;
+}
+
+it('removes the stylesheet when loading fails', async () => {
+  const href = '/missing-motion-test.css';
+  await expect(loadMotionStylesheet(href)).rejects.toThrow('stylesheet failed to load');
+  expect(document.querySelector(`link[href="${href}"]`)).toBeNull();
+});
+
 it('registers an inherited scale at the document level', async () => {
-  const response = await fetch('/motion.css');
-  expect(response.ok).toBe(true);
-  const css = await response.text();
-  const style = document.createElement('style');
-  style.textContent = css;
-  document.head.append(style);
+  const style = await loadMotionStylesheet();
   const host = document.createElement('div');
   host.style.setProperty('--udx-motion-scale', 'calc(0.25 + 0.25)');
   const child = document.createElement('div');
@@ -27,11 +46,7 @@ it('registers an inherited scale at the document level', async () => {
 
 it('exposes provisional token values to the document and inherited descendants', async () => {
   const { defineTokens } = await import('./index.js');
-  const response = await fetch('/motion.css');
-  expect(response.ok).toBe(true);
-  const style = document.createElement('style');
-  style.textContent = await response.text();
-  document.head.append(style);
+  const style = await loadMotionStylesheet();
   const child = document.createElement('div');
   document.body.append(child);
   try {
@@ -47,10 +62,7 @@ it('exposes provisional token values to the document and inherited descendants',
 });
 
 it('registers each distance and stagger as an inherited typed property', async () => {
-  const response = await fetch('/motion.css');
-  const style = document.createElement('style');
-  style.textContent = await response.text();
-  document.head.append(style);
+  const style = await loadMotionStylesheet();
   const host = document.createElement('div');
   const child = document.createElement('div');
   host.append(child);

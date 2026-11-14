@@ -1,6 +1,7 @@
 import { expect, it } from 'vitest';
 import { waapiProvider, animejsProvider } from '../providers/index.js';
-import { compareSamples, f2FadeSlide, runScenario } from './index.js';
+import { cssProvider } from '../providers/css.js';
+import { compareSamples, f2FadeSlide, runScenario, TOLERANCES } from './index.js';
 
 it('conforms across providers for F2', async () => {
   const a = await runScenario(waapiProvider, f2FadeSlide);
@@ -9,6 +10,27 @@ it('conforms across providers for F2', async () => {
   for (const samples of [a, b]) {
     expect(samples[0].opacity).toBeCloseTo(0); expect(samples[0].y).toBeCloseTo(24);
     expect(samples[4].opacity).toBeCloseTo(1); expect(samples[4].y).toBeCloseTo(0);
+  }
+});
+
+it('compares the experimental CSS provider with animejs for F2', async () => {
+  const css = await runScenario(cssProvider, f2FadeSlide);
+  const anime = await runScenario(animejsProvider, f2FadeSlide);
+  expect(compareSamples(css, anime)).toEqual({ ok: true, failures: [] });
+  // Independently computed by bisecting the Bézier x polynomial for each
+  // progress value, then evaluating y; translation is 24 * (1 - y).
+  const expected = [
+    [0, 24], [0.5871299265, 9.9088817639], [0.9053371781, 2.2719077250],
+    [0.9859636903, 0.3368714328], [1, 0],
+  ];
+  for (const samples of [css, anime]) {
+    expect(samples[0].opacity).toBeCloseTo(0); expect(samples[0].y).toBeCloseTo(24);
+    expect(samples[4].opacity).toBeCloseTo(1); expect(samples[4].y).toBeCloseTo(0);
+    expect(samples).toHaveLength(expected.length);
+    expected.forEach(([opacity, y], index) => {
+      expect(Math.abs(samples[index].opacity - opacity)).toBeLessThanOrEqual(TOLERANCES.opacity);
+      expect(Math.abs(samples[index].y - y)).toBeLessThanOrEqual(TOLERANCES.length);
+    });
   }
 });
 

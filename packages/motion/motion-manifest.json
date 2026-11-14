@@ -1,0 +1,255 @@
+{
+  "version": 1,
+  "domains": {
+    "verbs": [
+      "appear",
+      "disappear",
+      "emphasize",
+      "reveal",
+      "scrub",
+      "loop",
+      "layout"
+    ],
+    "supportedVerbs": [
+      "appear",
+      "disappear",
+      "emphasize"
+    ],
+    "springs": [
+      "spring.fast.spatial",
+      "spring.fast.effects",
+      "spring.default.spatial",
+      "spring.default.effects",
+      "spring.slow.spatial",
+      "spring.slow.effects"
+    ],
+    "durations": [
+      "duration.short1",
+      "duration.short2",
+      "duration.short3",
+      "duration.short4",
+      "duration.medium1",
+      "duration.medium2",
+      "duration.medium3",
+      "duration.medium4",
+      "duration.long1",
+      "duration.long2",
+      "duration.long3",
+      "duration.long4",
+      "duration.extraLong1",
+      "duration.extraLong2",
+      "duration.extraLong3",
+      "duration.extraLong4"
+    ],
+    "easings": [
+      "easing.linear",
+      "easing.standard",
+      "easing.standardAccelerate",
+      "easing.standardDecelerate"
+    ],
+    "reduced": [
+      "fade",
+      "instant",
+      "static",
+      "neutral",
+      "frozen"
+    ],
+    "interrupt": [
+      "carry",
+      "restart"
+    ],
+    "visualFields": [
+      "opacity",
+      "x",
+      "y",
+      "scale",
+      "rotate"
+    ],
+    "deferredVisualFields": [
+      "scaleX",
+      "scaleY",
+      "color",
+      "backgroundColor",
+      "clipPath",
+      "blur"
+    ]
+  },
+  "envelope": {
+    "required": [
+      "version",
+      "spec"
+    ]
+  },
+  "spec": {
+    "required": [
+      "verb",
+      "keyframes"
+    ],
+    "optional": [
+      "timing",
+      "reduced",
+      "interrupt"
+    ],
+    "deferred": [
+      "trigger",
+      "repeat",
+      "direction",
+      "distance",
+      "stagger",
+      "origin",
+      "range",
+      "axis",
+      "pause",
+      "reason",
+      "shared",
+      "exit"
+    ],
+    "interruptVerbs": [
+      "emphasize"
+    ]
+  },
+  "deferredDomains": {
+    "trigger": {
+      "values": [
+        "load",
+        "view",
+        "state"
+      ],
+      "source": "§8.2.3"
+    },
+    "repeat": {
+      "values": [
+        "once",
+        "always"
+      ],
+      "source": "§8.2.3"
+    },
+    "direction": {
+      "values": [
+        "start",
+        "end",
+        "up",
+        "down"
+      ],
+      "source": "§8.2.3"
+    },
+    "stagger": {
+      "values": [
+        "tight",
+        "normal",
+        "loose"
+      ],
+      "source": "§8.2.3"
+    },
+    "origin": {
+      "values": [
+        "first",
+        "last",
+        "center"
+      ],
+      "source": "§8.2.3"
+    },
+    "axis": {
+      "values": [
+        "block",
+        "inline"
+      ],
+      "source": "§8.2.3"
+    },
+    "pause": {
+      "values": [
+        "control",
+        "essential"
+      ],
+      "source": "§8.2.3"
+    },
+    "exit": {
+      "values": [
+        "in-place",
+        "out-of-flow"
+      ],
+      "source": "§8.2.3"
+    }
+  },
+  "constraints": {
+    "minKeyframes": 1,
+    "minFrameFields": 1,
+    "finiteVisualValues": true
+  },
+  "defaults": {
+    "appear": {
+      "trigger": "load",
+      "interrupt": "carry",
+      "reduced": "fade",
+      "timing": [
+        "spring.default.spatial",
+        "spring.default.effects"
+      ]
+    },
+    "disappear": {
+      "trigger": "unmount",
+      "interrupt": "carry",
+      "reduced": "fade",
+      "timing": [
+        "spring.default.spatial",
+        "spring.default.effects"
+      ]
+    },
+    "emphasize": {
+      "trigger": "state",
+      "interrupt": "restart",
+      "reduced": "static",
+      "timing": [
+        "spring.fast.spatial"
+      ]
+    },
+    "reveal": {
+      "trigger": "view",
+      "interrupt": "restart",
+      "reduced": "instant",
+      "timing": [
+        "spring.default.spatial"
+      ]
+    },
+    "scrub": {
+      "trigger": "scroll",
+      "interrupt": "carry",
+      "reduced": "neutral",
+      "timing": []
+    },
+    "loop": {
+      "trigger": "load",
+      "interrupt": "restart",
+      "reduced": "frozen",
+      "timing": [
+        "linear-token"
+      ],
+      "pause": "required"
+    },
+    "layout": {
+      "trigger": "state",
+      "interrupt": "carry",
+      "reduced": "instant",
+      "timing": [
+        "spring.default.spatial"
+      ]
+    }
+  },
+  "reserved": {
+    "names": [
+      "enter",
+      "exit",
+      "in",
+      "out",
+      "transition",
+      "animate",
+      "initial",
+      "AnimatePresence"
+    ],
+    "prefixes": [
+      "view-transition-"
+    ],
+    "exhaustive": false,
+    "source": "§8.1"
+  }
+}

@@ -1,3 +1,6 @@
+@import './motion-springs.generated.css';
+@import './motion-curves.generated.css';
+
 /* Load in the document, including when components use shadow roots. */
 @property --udx-motion-scale {
   syntax: '<number>';

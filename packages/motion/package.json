@@ -7,15 +7,49 @@
     "exports": {
       "./package.json": "./package.json",
       "./motion.css": "./dist/motion.css",
+      "./motion-manifest.json": "./motion-manifest.json",
       ".": {
         "types": "./dist/index.d.ts",
         "import": "./dist/index.js",
         "require": "./dist/index.cjs",
         "default": "./dist/index.js"
       },
-      "./providers/waapi": { "types": "./dist/providers/waapi.d.ts", "import": "./dist/providers/waapi.js", "require": "./dist/providers/waapi.cjs", "default": "./dist/providers/waapi.js" },
-      "./providers/animejs": { "types": "./dist/providers/animejs.d.ts", "import": "./dist/providers/animejs.js", "require": "./dist/providers/animejs.cjs", "default": "./dist/providers/animejs.js" },
-      "./testing": { "types": "./dist/testing/index.d.ts", "import": "./dist/testing/index.js", "require": "./dist/testing/index.cjs", "default": "./dist/testing/index.js" }
+      "./manifest": {
+        "types": "./dist/manifest.d.ts",
+        "import": "./dist/manifest.js",
+        "require": "./dist/manifest.cjs",
+        "default": "./dist/manifest.js"
+      },
+      "./providers/css": {
+        "types": "./dist/providers/css.d.ts",
+        "import": "./dist/providers/css.js",
+        "require": "./dist/providers/css.cjs",
+        "default": "./dist/providers/css.js"
+      },
+      "./providers/waapi": {
+        "types": "./dist/providers/waapi.d.ts",
+        "import": "./dist/providers/waapi.js",
+        "require": "./dist/providers/waapi.cjs",
+        "default": "./dist/providers/waapi.js"
+      },
+      "./providers/animejs": {
+        "types": "./dist/providers/animejs.d.ts",
+        "import": "./dist/providers/animejs.js",
+        "require": "./dist/providers/animejs.cjs",
+        "default": "./dist/providers/animejs.js"
+      },
+      "./testing": {
+        "types": "./dist/testing/index.d.ts",
+        "import": "./dist/testing/index.js",
+        "require": "./dist/testing/index.cjs",
+        "default": "./dist/testing/index.js"
+      },
+      "./internal-policy": {
+        "types": "./dist/internal-policy.d.ts",
+        "import": "./dist/internal-policy.js",
+        "require": "./dist/internal-policy.cjs",
+        "default": "./dist/internal-policy.js"
+      }
     }
   },
   "repository": {
@@ -23,8 +57,16 @@
     "url": "https://github.com/Udixio/UI.git"
   },
   "type": "module",
+  "files": [
+    "dist",
+    "motion-manifest.json",
+    "src/**/*.ts",
+    "!src/**/*.spec.ts",
+    "!src/**/*.test.ts",
+    "public/*.css"
+  ],
   "scripts": {
-    "size": "size-limit",
+    "size": "node --test scripts/package-exports.test.mjs && size-limit",
     "bench": "node bench/run.mjs"
   },
   "main": "./dist/index.js",
@@ -32,7 +74,11 @@
   "types": "./dist/index.d.ts",
   "exports": {
     "./package.json": "./package.json",
-    "./motion.css": { "development": "./public/motion.css", "default": "./dist/motion.css" },
+    "./motion.css": {
+      "development": "./public/motion.css",
+      "default": "./dist/motion.css"
+    },
+    "./motion-manifest.json": "./motion-manifest.json",
     ".": {
       "development": "./src/index.ts",
       "types": "./dist/index.d.ts",
@@ -40,14 +86,54 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.js"
     },
-    "./providers/waapi": { "development": "./src/providers/waapi.ts", "types": "./dist/providers/waapi.d.ts", "import": "./dist/providers/waapi.js", "require": "./dist/providers/waapi.cjs", "default": "./dist/providers/waapi.js" },
-    "./providers/animejs": { "development": "./src/providers/animejs.ts", "types": "./dist/providers/animejs.d.ts", "import": "./dist/providers/animejs.js", "require": "./dist/providers/animejs.cjs", "default": "./dist/providers/animejs.js" },
-    "./testing": { "development": "./src/testing/index.ts", "types": "./dist/testing/index.d.ts", "import": "./dist/testing/index.js", "require": "./dist/testing/index.cjs", "default": "./dist/testing/index.js" }
+    "./manifest": {
+      "development": "./src/manifest.ts",
+      "types": "./dist/manifest.d.ts",
+      "import": "./dist/manifest.js",
+      "require": "./dist/manifest.cjs",
+      "default": "./dist/manifest.js"
+    },
+    "./providers/css": {
+      "development": "./src/providers/css.ts",
+      "types": "./dist/providers/css.d.ts",
+      "import": "./dist/providers/css.js",
+      "require": "./dist/providers/css.cjs",
+      "default": "./dist/providers/css.js"
+    },
+    "./providers/waapi": {
+      "development": "./src/providers/waapi.ts",
+      "types": "./dist/providers/waapi.d.ts",
+      "import": "./dist/providers/waapi.js",
+      "require": "./dist/providers/waapi.cjs",
+      "default": "./dist/providers/waapi.js"
+    },
+    "./providers/animejs": {
+      "development": "./src/providers/animejs.ts",
+      "types": "./dist/providers/animejs.d.ts",
+      "import": "./dist/providers/animejs.js",
+      "require": "./dist/providers/animejs.cjs",
+      "default": "./dist/providers/animejs.js"
+    },
+    "./testing": {
+      "development": "./src/testing/index.ts",
+      "types": "./dist/testing/index.d.ts",
+      "import": "./dist/testing/index.js",
+      "require": "./dist/testing/index.cjs",
+      "default": "./dist/testing/index.js"
+    },
+    "./internal-policy": {
+      "development": "./src/internal-policy.ts",
+      "types": "./dist/internal-policy.d.ts",
+      "import": "./dist/internal-policy.js",
+      "require": "./dist/internal-policy.cjs",
+      "default": "./dist/internal-policy.js"
+    }
   },
   "dependencies": {
     "animejs": "^4.5.0"
   },
   "devDependencies": {
+    "@size-limit/preset-small-lib": "^11.1.6",
     "@vitest/browser-playwright": "4.1.11",
     "motion": "^12.23.0",
     "playwright": "^1.64.0"
@@ -56,10 +142,16 @@
     "targets": {
       "test": {
         "executor": "nx:run-commands",
-        "inputs": ["default", "^default", { "env": "MOTION_BROWSERS" }],
+        "inputs": [
+          "default",
+          "^default",
+          {
+            "env": "MOTION_BROWSERS"
+          }
+        ],
         "options": {
           "cwd": "packages/motion",
-          "command": "tsc --noEmit --project tsconfig.spec.json && vitest run && node --test scripts/motion-policy-css.test.mjs"
+          "command": "tsc --noEmit --project tsconfig.spec.json && node scripts/generate-curves.mjs --check && node scripts/generate-motion-manifest.mjs --check && node scripts/generate-springs.mjs --check && vitest run && node --test scripts/motion-policy-css.test.mjs scripts/spring-css.test.mjs scripts/curve-generation.test.mjs"
         }
       }
     }

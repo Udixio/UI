@@ -25,6 +25,9 @@ export default defineConfig(() => ({
     lib: {
       entry: {
         index: 'src/index.ts',
+        'internal-policy': 'src/internal-policy.ts',
+        manifest: 'src/manifest.ts',
+        'providers/css': 'src/providers/css.ts',
         'providers/waapi': 'src/providers/waapi.ts',
         'providers/animejs': 'src/providers/animejs.ts',
         'testing/index': 'src/testing/index.ts',
