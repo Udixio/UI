@@ -154,3 +154,29 @@ it('lands a running entry at once when the policy turns reduced', async () => {
   expect(getComputedStyle(target).opacity).toBe('1');
   expect(await entry).toBe('finished');
 });
+
+it('writes the exited frame of an absent element even when it is settled', async () => {
+  const binding = bindTo(target, fade, { present: false, settled: true });
+  expect(target.style.opacity).toBe('0');
+  expect(document.getAnimations()).toHaveLength(0);
+  expect(target.dataset.presence).toBe('exiting');
+  expect(await binding.setPresent(true)).toBe('finished');
+  expect(target.style.opacity).toBe('1');
+});
+
+it('releases the inline opacity it wrote when destroyed mid-motion', async () => {
+  const binding = bindTo(target, fade);
+  binding.setPresent(false);
+  await nextFrame();
+  binding.setPresent(true);
+  expect(target.style.opacity).not.toBe('');
+  binding.destroy();
+  expect(target.style.opacity).toBe('');
+});
+
+it('releases the exited frame it wrote when destroyed while absent', () => {
+  const binding = bindTo(target, fade, { present: false });
+  expect(target.style.opacity).toBe('0');
+  binding.destroy();
+  expect(target.style.opacity).toBe('');
+});

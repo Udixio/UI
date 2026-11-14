@@ -15,7 +15,7 @@ export { defineMotion, resolveMotion, onMotionDefined, validateMotionSpec } from
 export type { MotionSpec, MotionRef } from './define-motion.js';
 export { getMotionRuntime, retainMotionRuntime } from './runtime.js';
 export { composeHandles, settledHandle, splitFrames } from './compose.js';
-export { playMotion, applyFrame } from './play.js';
+export { playMotion, applyFrame, releaseFrame } from './play.js';
 export { motion, getMotion } from './bind.js';
 export type { MotionBinding, MotionSource } from './bind.js';
 export type { MotionRuntime } from './runtime.js';

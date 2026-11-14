@@ -26,6 +26,13 @@ export function applyFrame(target: HTMLElement, frame: VisualFrame): void {
   if (frame.rotate !== undefined) target.style.rotate = `${frame.rotate}deg`;
 }
 
+const INLINE_PROPERTY: Record<keyof VisualFrame, string> = { opacity: 'opacity', x: 'translate', y: 'translate', scale: 'scale', rotate: 'rotate' };
+
+/** Remove the inline properties written for the given fields, so that author CSS applies again. */
+export function releaseFrame(target: HTMLElement, fields: Iterable<keyof VisualFrame>): void {
+  for (const property of new Set([...fields].map(field => INLINE_PROPERTY[field]))) target.style.removeProperty(property);
+}
+
 function windowOf(target: HTMLElement): Window {
   return target.ownerDocument.defaultView ?? window;
 }

@@ -1,7 +1,7 @@
 import { settledHandle } from './compose.js';
-import type { MotionHandle } from './contract.js';
+import type { MotionHandle, VisualFrame } from './contract.js';
 import { resolveMotion, validateMotionSpec, type MotionRef, type MotionSpec } from './define-motion.js';
-import { applyFrame, playMotion } from './play.js';
+import { applyFrame, playMotion, releaseFrame } from './play.js';
 import { getMotionRuntime, retainMotionRuntime } from './runtime.js';
 
 /** A definition reference, a raw spec (validated here), or the name of a defined motion. */
@@ -60,6 +60,9 @@ function createBinding(target: HTMLElement, spec: Readonly<MotionSpec>, options:
   // An appear enters through its keyframes and leaves backward; a disappear is the reverse.
   const entered = verb === 'disappear' ? first : last;
   const exited = verb === 'disappear' ? last : first;
+  // Every field the spec animates, plus opacity for a presence verb whose reduced render is a fade.
+  const writtenFields = new Set<keyof VisualFrame>(spec.keyframes.flatMap(frame => Object.keys(frame) as (keyof VisualFrame)[]));
+  if (verb === 'appear' || verb === 'disappear') writtenFields.add('opacity');
 
   let present = verb === 'emphasize' || options.present !== false;
   let handle: MotionHandle | null = null;
@@ -144,16 +147,18 @@ function createBinding(target: HTMLElement, spec: Readonly<MotionSpec>, options:
     stopPolicy();
     handle?.cancel();
     handle = null;
+    releaseFrame(target, writtenFields);
     target.removeAttribute('data-presence');
     releaseInert();
     if (bindings.get(target) === binding) bindings.delete(target);
     releaseRuntime();
   }
 
-  // Initial state. An emphasis waits for play(); `settled` writes no visual state.
+  // Initial state. An emphasis waits for play(). `settled` only skips the entry of a present element:
+  // an absent element always takes its exited frame, so it is never visible.
   if (verb !== 'emphasize') {
     if (!present) {
-      if (!options.settled) applyFrame(target, exited);
+      applyFrame(target, exited);
       markExiting();
     } else if (options.settled) {
       target.setAttribute('data-presence', 'present');
