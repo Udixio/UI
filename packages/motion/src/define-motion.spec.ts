@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   defineMotion,
+  definedMotions,
   onMotionDefined,
   resolveMotion,
   validateMotionSpec,
@@ -75,6 +76,14 @@ describe('defineMotion', () => {
     unsubscribe();
     defineMotion('listened-two', spec);
     expect(seen).toEqual(['listened-one']);
+  });
+
+  it('lists the defined names in definition order', () => {
+    defineMotion('ordered-first', spec);
+    defineMotion('ordered-second', spec);
+    const names = definedMotions();
+    expect(names).toContain('ordered-first');
+    expect(names.indexOf('ordered-second')).toBeGreaterThan(names.indexOf('ordered-first'));
   });
 });
 

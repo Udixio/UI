@@ -110,6 +110,11 @@ export function resolveMotion(name: string): MotionRef | undefined {
   return definitions().get(name);
 }
 
+/** The names of the defined motions, in definition order. */
+export function definedMotions(): readonly string[] {
+  return [...definitions().keys()];
+}
+
 /** Call `listener` for each newly defined motion; returns an unsubscribe function. */
 export function onMotionDefined(listener: Listener): () => void {
   const set = listeners();
