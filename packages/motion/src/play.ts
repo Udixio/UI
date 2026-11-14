@@ -86,9 +86,9 @@ function planGroups(keyframes: VisualFrame[], verb: ManifestVerb, timing: Spring
 }
 
 /** Final state at once: the destination is applied and nothing animates. */
-function settle(target: HTMLElement, destination: VisualFrame, runtime: MotionRuntime, report?: unknown): MotionHandle {
+function settle(target: HTMLElement, destination: VisualFrame, development: boolean, report?: unknown): MotionHandle {
   applyFrame(target, destination);
-  if (report !== undefined && runtime.development) console.error('[@udixio/motion] playMotion settled at its destination:', report);
+  if (report !== undefined && development) console.error('[@udixio/motion] playMotion settled at its destination:', report);
   return settledHandle();
 }
 
@@ -105,15 +105,16 @@ function waapiSupport(element: HTMLElement, candidate: { easing: string }): Timi
 export function playMotion(
   target: HTMLElement,
   spec: Readonly<MotionSpec>,
-  options: { direction: Direction; carry: boolean; runtime: MotionRuntime; scheme?: MotionScheme },
+  options: { direction: Direction; carry: boolean; runtime: MotionRuntime; scheme?: MotionScheme; development?: boolean },
 ): MotionHandle {
   const { direction, carry, runtime } = options;
+  const development = options.development ?? runtime.development;
   const scheme = options.scheme ?? (target.ownerDocument.documentElement.dataset.motionScheme === 'standard' ? 'standard' : 'expressive');
   const verb = directedVerb(spec.verb, direction);
   const frames: VisualFrame[] = direction === 'backward' ? [...spec.keyframes].reverse() : [...spec.keyframes];
   const destination = frames[frames.length - 1];
   const reducedPolicy = runtime.policy.reduced;
-  if (reducedPolicy && resolveReducedRender(verb, spec.reduced).render !== 'fade') return settle(target, destination, runtime);
+  if (reducedPolicy && resolveReducedRender(verb, spec.reduced).render !== 'fade') return settle(target, destination, development);
 
   // The carried animation writes only the destination's fields, so only those are frozen.
   if (carry) freezeCurrentStyle(target, reducedPolicy ? OPACITY_ONLY : fieldsOf([destination]));
@@ -145,5 +146,5 @@ export function playMotion(
   }
   if (started.length === groups.length) return composeHandles(started);
   for (const handle of started) handle.cancel();
-  return settle(target, destination, runtime, failure);
+  return settle(target, destination, development, failure);
 }

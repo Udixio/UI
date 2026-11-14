@@ -73,6 +73,15 @@ it('uses adapter-provided development mode across module copies', async () => {
   first.remove(); second.remove();
 });
 
+it('creates the runtime with development off when the option is omitted, then adopts it', async () => {
+  // @ts-expect-error Vite supports module query suffixes.
+  const copy = await import('./runtime.js?omitted-development-copy');
+  const runtime = copy.getMotionRuntime();
+  expect(runtime.development).toBe(false);
+  expect(getMotionRuntime()).toBe(runtime);
+  expect(() => getMotionRuntime({ development: true })).toThrow(/development/i);
+});
+
 it('shares reduced-motion scheduling across module copies', async () => {
   // @ts-expect-error Vite supports module query suffixes.
   const copy = await import('./runtime.js?reduced-copy');

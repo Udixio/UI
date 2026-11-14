@@ -19,6 +19,7 @@ describe('motion runtime', () => {
     expect(getMotionRuntime({ development: false })).not.toBe(first);
     expect((globalThis as Record<symbol, unknown>)[RUNTIME_KEY]).toBeUndefined();
     expect(() => first.frame.read(() => {})).not.toThrow();
+    expect(getMotionRuntime().development).toBe(false);
     first.retain();
     expect(first.policy.reduced).toBe(false);
     expect(first.shared.resolve('server')).toBeUndefined();

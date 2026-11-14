@@ -334,12 +334,15 @@ function createRuntime(browser: boolean, development: boolean): MotionRuntime {
   };
 }
 
-/** Each adapter supplies its development mode; copies must agree. SSR is isolated. */
-export function getMotionRuntime(options: { development: boolean }): MotionRuntime {
-  if (typeof window === 'undefined') return createRuntime(false, options.development);
+/**
+ * Each adapter may supply its development mode; copies must agree. An omitted mode
+ * adopts the shared runtime's, or is `false` when this call creates it. SSR is isolated.
+ */
+export function getMotionRuntime(options: { development?: boolean } = {}): MotionRuntime {
+  if (typeof window === 'undefined') return createRuntime(false, options.development ?? false);
   const host = globalThis as typeof globalThis & { [key: symbol]: MotionRuntime | undefined };
-  const runtime = (host[FRAME_RUNTIME_KEY] ??= createRuntime(true, options.development));
-  if (runtime.development !== options.development) {
+  const runtime = (host[FRAME_RUNTIME_KEY] ??= createRuntime(true, options.development ?? false));
+  if (options.development !== undefined && runtime.development !== options.development) {
     throw new Error('Motion runtime copies must agree on the development setting');
   }
   return runtime;
