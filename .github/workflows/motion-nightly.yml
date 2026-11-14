@@ -1,0 +1,77 @@
+name: Motion nightly
+
+on:
+  schedule:
+    - cron: '17 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: motion-nightly-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browsers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v3
+        with:
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - name: Test report validation
+        run: node --test .github/scripts/validate-motion-report.test.mjs
+      - run: pnpm --filter @udixio/motion exec playwright install --with-deps chromium firefox webkit
+      - name: Test all motion browsers
+        env:
+          MOTION_BROWSERS: chromium,firefox,webkit
+        run: npx nx run @udixio/motion:test --skip-nx-cache
+      - name: Test Search motion in all browsers
+        env:
+          MOTION_BROWSERS: chromium,firefox,webkit
+        run: npx nx run @udixio/tailwind:test-search-motion --skip-nx-cache
+      - name: Build documentation
+        run: npx nx run apps-doc:build
+      - name: Test documentation in browsers
+        env:
+          MOTION_BROWSERS: chromium,firefox,webkit
+        shell: bash
+        run: |
+          set -euo pipefail
+          temp_dir=$(mktemp -d)
+          python3 - "$temp_dir/port" <<'PY_SERVER' >"$temp_dir/server.log" 2>&1 &
+          import http.server
+          import pathlib
+          import sys
+
+          handler = lambda *args, **kwargs: http.server.SimpleHTTPRequestHandler(*args, directory='apps/doc/dist/client', **kwargs)
+          server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), handler)
+          pathlib.Path(sys.argv[1]).write_text(str(server.server_port))
+          server.serve_forever()
+          PY_SERVER
+          server_pid=$!
+          cleanup() {
+            kill "$server_pid" 2>/dev/null || true
+            wait "$server_pid" 2>/dev/null || true
+            rm -rf "$temp_dir"
+          }
+          trap cleanup EXIT
+          for attempt in {1..100}; do
+            if [[ -s "$temp_dir/port" ]]; then break; fi
+            if ! kill -0 "$server_pid" 2>/dev/null; then cat "$temp_dir/server.log" >&2; exit 1; fi
+            sleep 0.1
+          done
+          test -s "$temp_dir/port" || { cat "$temp_dir/server.log" >&2; exit 1; }
+          export MOTION_DOC_URL="http://127.0.0.1:$(cat "$temp_dir/port")"
+          curl --fail --silent --output /dev/null "$MOTION_DOC_URL/motion/"
+          cd apps/doc
+          node --test tests/motion.browser.test.mjs

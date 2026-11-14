@@ -3,7 +3,7 @@ name: PR Validation
 on:
   pull_request:
     branches: [ develop, main ]
-    types: [ opened, synchronize, reopened ]
+    types: [ opened, synchronize, reopened, edited ]
 
 permissions:
   contents: read
@@ -13,42 +13,161 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  validate:
+  select:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NX_BASE: ${{ github.event.pull_request.base.sha }}
+      NX_HEAD: ${{ github.sha }}
+    outputs:
+      motion: ${{ steps.affected.outputs.motion }}
+      motion_benchmark: ${{ steps.affected.outputs.motion_benchmark }}
+      search_motion: ${{ steps.affected.outputs.search_motion }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v3
+          persist-credentials: false
+      - uses: pnpm/action-setup@v3
         with:
           run_install: false
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - name: Test report validation
+        run: node --test .github/scripts/validate-motion-report.test.mjs .github/scripts/select-motion.test.mjs .github/scripts/motion-browsers.test.mjs .github/scripts/tailwind-motion-discovery.test.mjs
+      - name: Verify comparison commits
+        run: |
+          echo "NX_BASE=$NX_BASE NX_HEAD=$NX_HEAD"
+          git cat-file -e "${NX_BASE}^{commit}"
+          git cat-file -e "${NX_HEAD}^{commit}"
+          test "$(git rev-parse HEAD)" = "$NX_HEAD"
+      - name: Select affected projects
+        id: affected
+        shell: bash
+        run: |
+          if projects=$(npx nx show projects --affected); then
+            printf '%s\n' "$projects"
+          else
+            status=$?
+            echo "Nx affected project selection failed ($status)" >&2
+            exit "$status"
+          fi
+          printf '%s\n' "$projects" | node .github/scripts/select-motion.mjs
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
+  validate:
+    needs: select
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      NX_BASE: ${{ github.event.pull_request.base.sha }}
+      NX_HEAD: ${{ github.sha }}
+    steps:
+      - name: Require affected project selection
+        if: needs.select.result != 'success'
+        run: exit 1
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify comparison commits
+        run: |
+          echo "NX_BASE=$NX_BASE NX_HEAD=$NX_HEAD"
+          git cat-file -e "${NX_BASE}^{commit}"
+          git cat-file -e "${NX_HEAD}^{commit}"
+          test "$(git rev-parse HEAD)" = "$NX_HEAD"
+      - uses: pnpm/action-setup@v3
+        with:
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
       - name: Build
         run: npx nx affected --target=build
-
       - name: Size budgets
         run: npx nx affected --target=size
-
       - name: Lint
         run: npx nx affected --target=lint
-
       - name: Install motion test browsers
-        run: |
-          if npx nx show projects --affected | grep -Fxq '@udixio/motion'; then
-            npx playwright install --with-deps chromium firefox webkit
-          fi
-
+        if: needs.select.outputs.motion == 'true'
+        run: pnpm --filter @udixio/motion exec playwright install --with-deps chromium firefox webkit
       - name: Test
-        run: npx nx affected --target=test
+        run: npx nx affected --target=test --skip-nx-cache
+
+  motion-benchmark:
+    needs: select
+    if: ${{ !cancelled() && (needs.select.result != 'success' || needs.select.outputs.motion_benchmark == 'true') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NX_BASE: ${{ github.event.pull_request.base.sha }}
+      NX_HEAD: ${{ github.sha }}
+    steps:
+      - name: Require affected project selection
+        if: needs.select.result != 'success'
+        run: exit 1
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify comparison commits
+        run: |
+          echo "NX_BASE=$NX_BASE NX_HEAD=$NX_HEAD"
+          git cat-file -e "${NX_BASE}^{commit}"
+          git cat-file -e "${NX_HEAD}^{commit}"
+          test "$(git rev-parse HEAD)" = "$NX_HEAD"
+      - uses: pnpm/action-setup@v3
+        with:
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: npx nx build @udixio/motion
+      - run: pnpm --filter @udixio/motion exec playwright install --with-deps chromium
+      - run: pnpm --filter @udixio/motion bench
+      - run: node .github/scripts/validate-motion-report.mjs packages/motion/bench/report.json
+      - name: Upload benchmark report
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: motion-benchmark-${{ github.run_id }}-${{ github.run_attempt }}
+          path: packages/motion/bench/report.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Link report in summary
+        env:
+          ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
+        run: echo "[Motion benchmark report]($ARTIFACT_URL)" >> "$GITHUB_STEP_SUMMARY"
+
+  search-motion:
+    needs: select
+    if: ${{ !cancelled() && (needs.select.result != 'success' || needs.select.outputs.search_motion == 'true') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Require affected project selection
+        if: needs.select.result != 'success'
+        run: exit 1
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v3
+        with:
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @udixio/tailwind exec playwright install --with-deps chromium firefox
+      - name: Test Search motion
+        env:
+          MOTION_BROWSERS: chromium,firefox
+        run: npx nx run @udixio/tailwind:test-search-motion --skip-nx-cache
