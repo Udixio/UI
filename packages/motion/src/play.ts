@@ -54,6 +54,11 @@ function freezeCurrentStyle(target: HTMLElement, fields: ReadonlySet<ManifestVis
   if (fields.has('rotate')) target.style.rotate = computed.rotate === 'none' ? '0deg' : computed.rotate;
 }
 
+/** `--udx-motion: none` on the element or inherited from an ancestor turns its motions off. */
+function motionDisabled(target: HTMLElement): boolean {
+  return windowOf(target).getComputedStyle(target).getPropertyValue('--udx-motion').trim() === 'none';
+}
+
 /** `--udx-motion-scale` clamped to [0, 1]; absent or non-numeric means 1. */
 function motionScale(target: HTMLElement): number {
   const value = Number.parseFloat(windowOf(target).getComputedStyle(target).getPropertyValue('--udx-motion-scale'));
@@ -120,6 +125,7 @@ export function playMotion(
   const verb = directedVerb(spec.verb, direction);
   const frames: VisualFrame[] = direction === 'backward' ? [...spec.keyframes].reverse() : [...spec.keyframes];
   const destination = frames[frames.length - 1];
+  if (motionDisabled(target)) return settle(target, destination, development);
   const reducedPolicy = runtime.policy.reduced;
   if (reducedPolicy && resolveReducedRender(verb, spec.reduced).render !== 'fade') return settle(target, destination, development);
 

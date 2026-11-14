@@ -144,3 +144,26 @@ it('applies only the visual fields of a frame and never transform', () => {
   expect(target.style.rotate).toBe('90deg');
   expect(target.style.transform).toBe('');
 });
+
+it('settles at the destination without animating when --udx-motion is none', async () => {
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  target.style.setProperty('--udx-motion', 'none');
+  const handle = playMotion(target, slideSpec, forward);
+  expect(target.getAnimations()).toHaveLength(0);
+  expect(target.style.opacity).toBe('1');
+  expect(translateOf(target)).toEqual([0, 0]);
+  expect(await handle.finished).toBe('finished');
+  expect(error).not.toHaveBeenCalled();
+});
+
+it('inherits --udx-motion: none from an ancestor', async () => {
+  const parent = document.createElement('div');
+  parent.style.setProperty('--udx-motion', 'none');
+  document.body.append(parent);
+  parent.append(target);
+  const handle = playMotion(target, slideSpec, forward);
+  expect(target.getAnimations()).toHaveLength(0);
+  expect(target.style.opacity).toBe('1');
+  expect(await handle.finished).toBe('finished');
+  parent.remove();
+});
