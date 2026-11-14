@@ -23,6 +23,7 @@ export * from './lib/menu/menu-item';
 export * from './lib/menu/menu-submenu';
 export * from './lib/menu/menu-group';
 export * from './lib/menu/menu-headline';
+export * from './lib/motion/motion';
 export * from './lib/context-menu/context-menu';
 export * from './lib/navigation-rail/navigation-rail';
 export * from './lib/navigation-rail/navigation-rail-item';
