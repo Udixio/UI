@@ -85,6 +85,7 @@ export default defineConfig(async () => ({
         'tailwind-merge',
         'motion',
         '@udixio/core/dom',
+        '@udixio/motion',
         '@udixio/theme',
         '@udixio/tailwind',
         'motion/react',

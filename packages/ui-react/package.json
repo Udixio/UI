@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@udixio/core": "0.2.2-next.17",
+    "@udixio/motion": "0.0.0",
     "@udixio/icons-rounded-400": "0.2.2-next.8",
     "@udixio/tailwind": "5.0.1-next.14",
     "@udixio/theme": "5.0.1-next.12",

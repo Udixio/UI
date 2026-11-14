@@ -25,6 +25,7 @@
   "sideEffects": false,
   "peerDependencies": {
     "@udixio/core": "0.2.2-next.17",
+    "@udixio/motion": "0.0.0",
     "svelte": "^5.46.4"
   },
   "dependencies": {
