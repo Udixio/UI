@@ -1,0 +1,91 @@
+---
+import MotionPage from '@/components/MotionPage.astro';
+const example = `<!-- Markup: reference a motion by name -->
+<div data-motion="fade">
+  <h3>fade</h3>
+  <p>Fades in when inserted, fades out when hidden.</p>
+</div>
+<button type="button" data-motion="press" data-state="off">Press me</button>
+
+// Hide or show a card: set or remove its hidden attribute
+card.hidden = true;
+card.hidden = false;
+
+// Start the runtime once, in the layout
+import { connectMotion } from '@udixio/motion';
+import '@udixio/motion/presets';
+
+connectMotion();`;
+---
+<MotionPage title="Motion demo" description="A live demonstration of data-motion: elements reference a named motion and the runtime animates them.">
+  <h1>Motion demo</h1>
+  <p>Motions are defined once in TypeScript and referenced in HTML by name with <code>data-motion="&lt;name&gt;"</code>. A runtime started once by <code>connectMotion()</code> animates those elements when they are shown, hidden or change state.</p>
+  <p>Content already on the page when the runtime connects does not animate. An element inserted later plays its entry.</p>
+
+  <h2>Presence</h2>
+  <p>The three cards use the <code>fade</code>, <code>slide</code> and <code>scale</code> presets. The button sets or removes <code>hidden</code> on each card: hiding plays the exit, then the card stays hidden; showing plays the entry.</p>
+  <div class="not-prose flex flex-col gap-6">
+    <div>
+      <button type="button" data-demo-toggle aria-expanded="true" aria-controls="demo-cards" class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Hide cards</button>
+    </div>
+    <div id="demo-cards" class="grid gap-4 sm:grid-cols-3">
+      <div data-motion="fade" class="rounded-2xl bg-surface-container-high p-6">
+        <h3 class="text-title-medium text-on-surface">fade</h3>
+        <p class="text-body-medium text-on-surface-variant">Fades in and out.</p>
+      </div>
+      <div data-motion="slide" class="rounded-2xl bg-surface-container-high p-6">
+        <h3 class="text-title-medium text-on-surface">slide</h3>
+        <p class="text-body-medium text-on-surface-variant">Fades in while rising.</p>
+      </div>
+      <div data-motion="scale" class="rounded-2xl bg-surface-container-high p-6">
+        <h3 class="text-title-medium text-on-surface">scale</h3>
+        <p class="text-body-medium text-on-surface-variant">Fades in while growing.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2>Emphasis</h2>
+  <p>An emphasis motion replays each time the element's <code>data-state</code> changes. This button flips its state between <code>off</code> and <code>on</code> on every click.</p>
+  <div class="not-prose">
+    <button type="button" data-motion="press" data-demo-press data-state="off" class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Press me</button>
+  </div>
+
+  <h2>Reduced motion</h2>
+  <p>While checked, this control sets <code>data-motion-policy="reduce"</code> on the <code>html</code> element: entries and exits become a short fade, and emphasis does nothing.</p>
+  <div class="not-prose">
+    <label class="flex items-center gap-3 text-body-large text-on-surface">
+      <input type="checkbox" data-demo-reduce autocomplete="off" class="size-5 accent-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface" />
+      Reduce motion on this page
+    </label>
+  </div>
+
+  <h2>The HTML</h2>
+  <p>An author writes the markup below and starts the runtime once.</p>
+  <pre><code>{example}</code></pre>
+
+  <script>
+    // Event delegation on document: a page script runs once, so listeners attached
+    // to the elements themselves would be lost after a client-side navigation.
+    document.addEventListener('click', event => {
+      if (!(event.target instanceof Element)) return;
+      const toggle = event.target.closest<HTMLButtonElement>('[data-demo-toggle]');
+      if (toggle) {
+        const hide = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!hide));
+        toggle.textContent = hide ? 'Show cards' : 'Hide cards';
+        for (const card of document.querySelectorAll<HTMLElement>('#demo-cards [data-motion]')) card.hidden = hide;
+        return;
+      }
+      const press = event.target.closest<HTMLElement>('[data-demo-press]');
+      if (press) press.setAttribute('data-state', press.getAttribute('data-state') === 'on' ? 'off' : 'on');
+    });
+
+    document.addEventListener('change', event => {
+      if (!(event.target instanceof Element)) return;
+      const reduce = event.target.closest<HTMLInputElement>('[data-demo-reduce]');
+      if (!reduce) return;
+      if (reduce.checked) document.documentElement.setAttribute('data-motion-policy', 'reduce');
+      else document.documentElement.removeAttribute('data-motion-policy');
+    });
+  </script>
+</MotionPage>

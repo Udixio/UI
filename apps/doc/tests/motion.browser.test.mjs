@@ -14,7 +14,7 @@ test(`${name}: Motion works without JavaScript and applies reduced-motion policy
   try {
     const context = await browser.newContext({ javaScriptEnabled: false, reducedMotion: 'no-preference' });
     const page = await context.newPage();
-    for (const path of ['/motion/', '/motion/roadmap/', '/motion/tokens/', '/motion/accessibility/', '/animations/']) {
+    for (const path of ['/motion/', '/motion/roadmap/', '/motion/tokens/', '/motion/accessibility/', '/motion/demo/', '/animations/']) {
       assert.equal((await page.goto(base + path)).status(), 200, path);
     }
     await page.goto(base + '/motion/');
@@ -109,6 +109,47 @@ test(`${name}: Motion rail stays selected for both section and legacy URL`, asyn
       await page.waitForSelector('a[aria-current="page"]');
       assert.equal(await page.getByRole('link', { name: 'Motion', exact: true }).getAttribute('aria-current'), 'page', path);
     }
+  } finally { await browser.close(); }
+});
+
+test(`${name}: the data-motion demo hides and shows its cards`, async () => {
+  const browser = await browserType.launch();
+  try {
+    const context = await browser.newContext({ reducedMotion: 'no-preference' });
+    const page = await context.newPage();
+    const pageErrors = [];
+    const motionErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    page.on('console', message => {
+      if (message.type() === 'error' && message.text().includes('@udixio/motion')) motionErrors.push(message.text());
+    });
+    await page.goto(base + '/motion/demo/');
+    await page.waitForFunction(() => document.querySelector('[data-motion="fade"]')?.getAttribute('data-presence') === 'present');
+    await page.getByRole('button', { name: 'Hide cards' }).click();
+    const hiding = await page.evaluate(() => {
+      const card = document.querySelector('[data-motion="fade"]');
+      return { hidden: card.hasAttribute('hidden'), inert: card.hasAttribute('inert'), display: getComputedStyle(card).display };
+    });
+    assert.equal(hiding.hidden, true);
+    assert.equal(hiding.inert, true);
+    assert.notEqual(hiding.display, 'none');
+    await page.waitForFunction(() => getComputedStyle(document.querySelector('[data-motion="fade"]')).display === 'none');
+    assert.equal(await page.locator('[data-motion="fade"]').evaluate(el => el.hasAttribute('hidden')), true);
+    await page.getByRole('button', { name: 'Show cards' }).click();
+    await page.waitForFunction(() => {
+      const card = document.querySelector('[data-motion="fade"]');
+      return card.getAttribute('data-presence') === 'present' && !card.hasAttribute('inert');
+    });
+    const shown = await page.locator('[data-motion="fade"]').evaluate(el => ({ hidden: el.hasAttribute('hidden'), opacity: getComputedStyle(el).opacity }));
+    assert.equal(shown.hidden, false);
+    assert.equal(shown.opacity, '1');
+    const reduce = page.getByLabel('Reduce motion on this page');
+    await reduce.check();
+    assert.equal(await page.evaluate(() => document.documentElement.getAttribute('data-motion-policy')), 'reduce');
+    await reduce.uncheck();
+    assert.equal(await page.evaluate(() => document.documentElement.hasAttribute('data-motion-policy')), false);
+    assert.deepEqual(pageErrors, []);
+    assert.deepEqual(motionErrors, []);
   } finally { await browser.close(); }
 });
 }

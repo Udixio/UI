@@ -74,8 +74,21 @@ const {
   </div>
 </main>
 <script >
+  import { connectMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
   import { initAnimateOnScroll as animateOnScroll } from '@udixio/ui-react';
   animateOnScroll({ once: false });
+
+  // The client router swaps the body: reconnect on every page so that content
+  // delivered with the page is treated as already in place.
+  let disconnectMotion: (() => void) | undefined;
+  document.addEventListener('astro:before-swap', () => {
+    disconnectMotion?.();
+    disconnectMotion = undefined;
+  });
+  document.addEventListener('astro:page-load', () => {
+    disconnectMotion ??= connectMotion({ development: import.meta.env.DEV });
+  });
 </script>
 <ThemeProvider client:idle transition:name="theme-provider" transition:persist />
 </body>
