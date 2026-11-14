@@ -152,4 +152,33 @@ test(`${name}: the data-motion demo hides and shows its cards`, async () => {
     assert.deepEqual(motionErrors, []);
   } finally { await browser.close(); }
 });
+
+test(`${name}: framework adapters play the exit before removing the card`, async () => {
+  const browser = await browserType.launch();
+  try {
+    const context = await browser.newContext({ reducedMotion: 'no-preference' });
+    const page = await context.newPage();
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    await page.goto(base + '/motion/demo/');
+    for (const label of ['React', 'Angular', 'Svelte']) {
+      const key = label.toLowerCase();
+      const card = '[data-demo-card="' + key + '"]';
+      const toggle = page.getByRole('button', { name: 'Toggle ' + label + ' card' });
+      await page.waitForSelector(card);
+      await page.waitForFunction(selector => document.querySelector(selector)?.getAttribute('data-presence') === 'present', card);
+      await toggle.click();
+      const exiting = await page.evaluate(selector => {
+        const element = document.querySelector(selector);
+        return { inDocument: element !== null, presence: element?.getAttribute('data-presence') };
+      }, card);
+      assert.equal(exiting.inDocument, true, label + ' card removed before its exit');
+      assert.equal(exiting.presence, 'exiting', label);
+      await page.waitForFunction(selector => document.querySelector(selector) === null, card);
+      await toggle.click();
+      await page.waitForFunction(selector => document.querySelector(selector)?.getAttribute('data-presence') === 'present', card);
+    }
+    assert.deepEqual(pageErrors, []);
+  } finally { await browser.close(); }
+});
 }

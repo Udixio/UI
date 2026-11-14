@@ -1,5 +1,12 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
+import Code from '@/components/Code.astro';
+import MotionPresenceReact from '@/examples/react/motion-presence.tsx';
+import { MotionPresenceAngular } from '@/examples/angular/motion-presence.ts';
+import MotionPresenceSvelte from '@/examples/svelte/motion-presence.svelte';
+import reactSource from '@/examples/react/motion-presence.tsx?raw';
+import angularSource from '@/examples/angular/motion-presence.ts?raw';
+import svelteSource from '@/examples/svelte/motion-presence.svelte?raw';
 const example = `<!-- Markup: reference a motion by name -->
 <div data-motion="fade">
   <h3>fade</h3>
@@ -58,6 +65,21 @@ connectMotion();`;
       Reduce motion on this page
     </label>
   </div>
+
+  <h2>Frameworks</h2>
+  <p>The same named motions are available in each framework: the framework mounts and unmounts each card, and its exit plays before the card is removed.</p>
+  <h3>React</h3>
+  <Code codes={{ react: reactSource }}>
+    <MotionPresenceReact slot="react" client:only="react" />
+  </Code>
+  <h3>Angular</h3>
+  <Code codes={{ angular: angularSource }}>
+    <MotionPresenceAngular slot="angular" client:load />
+  </Code>
+  <h3>Svelte</h3>
+  <Code codes={{ svelte: svelteSource }}>
+    <MotionPresenceSvelte slot="svelte" client:only="svelte" />
+  </Code>
 
   <h2>The HTML</h2>
   <p>An author writes the markup below and starts the runtime once.</p>

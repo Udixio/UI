@@ -103,6 +103,56 @@ and returns a `MotionBinding` (`setPresent`, `play`, `destroy`, and `present` an
 - `destroy()` cancels the motion and releases its inline state.
 - `getMotion(element)` returns the binding attached to an element, if any.
 
+### Frameworks
+
+Each framework adapter binds a motion to its element and forwards presence and
+emphasis to the binding. The adapters hold no animation: the motion is still
+defined and timed by `@udixio/motion`. They live in `@udixio/ui-react` (`useMotion`),
+`@udixio/ui-angular` (the `Motion` directive, `udxMotion`) and `@udixio/ui-svelte`
+(the `motion` attachment and the `presence` transition).
+
+React:
+
+```tsx
+import { useMotion } from '@udixio/ui-react';
+
+function Sheet({ open }: { open: boolean }) {
+  const panel = useMotion<HTMLDivElement>('slide', { present: open });
+  return panel.mounted && <div ref={panel.ref}>…</div>;
+}
+```
+
+`mounted` stays true while the exit plays, so do not unmount the element yourself.
+For an emphasis, pass `state`: it replays each time its value changes.
+
+Angular:
+
+```html
+@if (open()) {
+  <div udxMotion="slide">…</div>
+}
+```
+
+Add `Motion` to the component's `imports`. Angular keeps the element until its exit
+has played, then removes it. For an emphasis, bind `[udxMotionState]` to the value that changes.
+
+Svelte, on an element of an `{#if}` block:
+
+```svelte
+<script lang="ts">
+  import { motion, presence } from '@udixio/ui-svelte';
+</script>
+
+{#if open}<div {@attach motion('slide')} transition:presence>…</div>{/if}
+```
+
+`presence` keeps the element until its exit has played. For an emphasis, pass `state`
+in the options: `{@attach motion('press', () => ({ state: count }))}`.
+
+Hydrated server content: React treats it as already in place, so it plays no entry.
+Angular and Svelte replay the entry of server-rendered content unless it is marked settled:
+`udxMotionSettled` in Angular, `settled: true` in the options of the Svelte `motion` attachment.
+
 ### Presence state
 
 The runtime writes `data-presence="entering" | "present" | "exiting"` on each bound
@@ -123,7 +173,6 @@ This is step 1a of the package, so:
 
 - Only three verbs exist: `appear`, `disappear` and `emphasize`. `reveal`, `scrub`,
   `loop` and `layout` come later.
-- Framework adapters (React hook, Angular directive, Svelte attachment) are not shipped yet.
 - At the end of a motion, the end values stay inline on the element (`opacity`,
   `translate`, `scale`, `rotate`). A class that sets the same property on that element
   is overridden until the binding is destroyed.
