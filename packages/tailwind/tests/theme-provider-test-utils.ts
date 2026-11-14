@@ -4,6 +4,8 @@ import type {
   DynamicThemeWorkerOutboundMessage,
 } from '../src/dynamic-theme-runtime';
 import { DynamicThemeWorkerProcessor } from '../src/dynamic-theme-worker.processor';
+// Preserve package export conditions for each adapter's test environment.
+// eslint-disable-next-line @nx/enforce-module-boundaries
 import { defineConfig } from '@udixio/tailwind';
 import { UDIXIO_THEME_PROVIDER_REFERENCE } from './fixtures/udixio-theme-provider-reference';
 

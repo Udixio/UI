@@ -117,5 +117,17 @@
   "devDependencies": {
     "@tailwindcss/node": "^4.1.12",
     "playwright": "^1.64.0"
+  },
+  "nx": {
+    "targets": {
+      "test-search-motion": {
+        "executor": "nx:run-commands",
+        "cache": false,
+        "options": {
+          "cwd": "packages/tailwind",
+          "command": "vitest run --config search-motion.config.mts"
+        }
+      }
+    }
   }
 }

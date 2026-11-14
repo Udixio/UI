@@ -60,7 +60,7 @@ export async function buildResolvedCss(
   try {
     writeFileSync(join(dir, 'generated.css'), generatedCss);
     const entry = `@import "tailwindcss";\n@import "./generated.css";`;
-    const { build } = await compile(entry, { base: dir, onDependency: () => {} });
+    const { build } = await compile(entry, { base: dir, onDependency: () => { /* Dependency tracking is not needed for this one-shot compilation. */ } });
     return build(candidates);
   } finally {
     rmSync(dir, { recursive: true, force: true });

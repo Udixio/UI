@@ -19,11 +19,13 @@
     "src/**/*.ts"
   ],
   "references": [
+    { "path": "../core/tsconfig.lib.json" },
     {
       "path": "../theme/tsconfig.lib.json"
     }
   ],
   "exclude": [
+    "src/test-support/**",
     "vite.config.ts",
     "vite.config.mts",
     "vitest.config.ts",

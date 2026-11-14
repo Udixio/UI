@@ -1,0 +1,70 @@
+{
+  "name": "tailwind-integration-tests",
+  "implicitDependencies": [
+    "@udixio/tailwind",
+    "@udixio/core",
+    "@udixio/motion",
+    "@udixio/ui-react",
+    "ui-angular",
+    "ui-svelte",
+    "apps-doc"
+  ],
+  "targets": {
+    "vitest:test": {
+      "inputs": [
+        "default",
+        "^default",
+        {
+          "env": "MOTION_BROWSERS"
+        },
+        {
+          "env": "CI"
+        }
+      ]
+    },
+    "test-ci": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "default",
+        "^default",
+        {
+          "env": "MOTION_BROWSERS"
+        },
+        {
+          "env": "CI"
+        }
+      ],
+      "options": {
+        "cwd": "packages/tailwind",
+        "command": "vitest run --config tests/vitest.config.ts"
+      }
+    },
+    "test-search-motion": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": {
+        "cwd": "packages/tailwind",
+        "command": "vitest run --config search-motion.config.mts"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "default",
+        "^default",
+        {
+          "env": "MOTION_BROWSERS"
+        },
+        {
+          "env": "CI"
+        }
+      ],
+      "options": {
+        "cwd": "packages/tailwind",
+        "command": "vitest run --config tests/vitest.config.ts --exclude '**/*.browser.spec.*'"
+      }
+    }
+  }
+}
