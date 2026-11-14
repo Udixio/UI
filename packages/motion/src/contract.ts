@@ -5,6 +5,8 @@ export type MotionRequest = {
   target: HTMLElement;
   keyframes: VisualFrame[];
   timing: MotionTiming;
+  /** Default true. `false` removes the animation at its end and writes nothing inline. */
+  commit?: boolean;
 };
 export type MotionBackend = 'css' | 'waapi' | 'animejs';
 export type Capability =

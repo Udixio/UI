@@ -5,6 +5,7 @@ function frameToKeyframe(frame: VisualFrame): Keyframe {
     ...(frame.opacity !== undefined && { opacity: frame.opacity }),
     ...((frame.x !== undefined || frame.y !== undefined) && { translate: `${frame.x ?? 0}px ${frame.y ?? 0}px` }),
     ...(frame.scale !== undefined && { scale: String(frame.scale) }),
+    ...(frame.scale === undefined && (frame.scaleX !== undefined || frame.scaleY !== undefined) && { scale: `${frame.scaleX ?? 1} ${frame.scaleY ?? 1}` }),
     ...(frame.rotate !== undefined && { rotate: `${frame.rotate}deg` }),
   };
 }
@@ -14,7 +15,7 @@ export const waapiProvider: MotionProvider = {
   backend: 'waapi',
   capabilities: new Set(),
   activeCount: () => active,
-  animate({ target, keyframes, timing }) {
+  animate({ target, keyframes, timing, commit = true }) {
     const animation = target.animate(keyframes.map(frameToKeyframe), { ...timing, fill: 'both' });
     active++;
     let settled = false;
@@ -27,6 +28,11 @@ export const waapiProvider: MotionProvider = {
       resolve(result);
     };
     void animation.finished.then(() => {
+      if (!commit) {
+        animation.cancel();
+        settle('finished');
+        return;
+      }
       // Persist the resolved visual state before removing the filling effect.
       // Detached targets cannot always be committed by the browser.
       try {

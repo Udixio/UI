@@ -37,10 +37,10 @@ describe('experimental motion manifest validator', () => {
     expect(
       errors({
         version: 1,
-        spec: { verb: 'appear', keyframes: [{ scaleX: 1, surprise: 1 }] },
+        spec: { verb: 'appear', keyframes: [{ color: 1, surprise: 1 }] },
       }),
     ).toEqual([
-      ['/spec/keyframes/0/scaleX', 'unsupported'],
+      ['/spec/keyframes/0/color', 'unsupported'],
       ['/spec/keyframes/0/surprise', 'unknown_field'],
     ]);
     expect(motionManifest.deferredDomains).not.toHaveProperty('trigger');

@@ -115,6 +115,24 @@ describe('validateMotionSpec', () => {
     );
     expect(Object.isFrozen(validated)).toBe(true);
   });
+
+  it('accepts scaleX and scaleY frames', () => {
+    expect(
+      validateMotionSpec({
+        verb: 'appear',
+        keyframes: [{ scaleX: 0 }, { scaleX: 1, scaleY: 1 }],
+      }).keyframes,
+    ).toEqual([{ scaleX: 0 }, { scaleX: 1, scaleY: 1 }]);
+  });
+
+  it('rejects a frame that mixes scale with scaleX or scaleY', () => {
+    expect(() =>
+      validateMotionSpec({ verb: 'appear', keyframes: [{ scale: 1, scaleX: 2 }] }),
+    ).toThrow(TypeError);
+    expect(() =>
+      validateMotionSpec({ verb: 'appear', keyframes: [{ scale: 1, scaleY: 2 }] }),
+    ).toThrow('/spec/keyframes/0: conflict');
+  });
 });
 
 describe('motion manifest without trigger', () => {

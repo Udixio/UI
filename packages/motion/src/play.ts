@@ -23,10 +23,11 @@ export function applyFrame(target: HTMLElement, frame: VisualFrame): void {
   if (frame.opacity !== undefined) target.style.opacity = String(frame.opacity);
   if (frame.x !== undefined || frame.y !== undefined) target.style.translate = `${frame.x ?? 0}px ${frame.y ?? 0}px`;
   if (frame.scale !== undefined) target.style.scale = String(frame.scale);
+  else if (frame.scaleX !== undefined || frame.scaleY !== undefined) target.style.scale = `${frame.scaleX ?? 1} ${frame.scaleY ?? 1}`;
   if (frame.rotate !== undefined) target.style.rotate = `${frame.rotate}deg`;
 }
 
-const INLINE_PROPERTY: Record<keyof VisualFrame, string> = { opacity: 'opacity', x: 'translate', y: 'translate', scale: 'scale', rotate: 'rotate' };
+const INLINE_PROPERTY: Record<keyof VisualFrame, string> = { opacity: 'opacity', x: 'translate', y: 'translate', scale: 'scale', scaleX: 'scale', scaleY: 'scale', rotate: 'rotate' };
 
 /** Remove the inline properties written for the given fields, so that author CSS applies again. */
 export function releaseFrame(target: HTMLElement, fields: Iterable<keyof VisualFrame>): void {
@@ -50,7 +51,7 @@ function freezeCurrentStyle(target: HTMLElement, fields: ReadonlySet<ManifestVis
   const computed = windowOf(target).getComputedStyle(target);
   if (fields.has('opacity')) target.style.opacity = computed.opacity;
   if (fields.has('x') || fields.has('y')) target.style.translate = computed.translate === 'none' ? '0px 0px' : computed.translate;
-  if (fields.has('scale')) target.style.scale = computed.scale === 'none' ? '1' : computed.scale;
+  if (fields.has('scale') || fields.has('scaleX') || fields.has('scaleY')) target.style.scale = computed.scale === 'none' ? '1' : computed.scale;
   if (fields.has('rotate')) target.style.rotate = computed.rotate === 'none' ? '0deg' : computed.rotate;
 }
 

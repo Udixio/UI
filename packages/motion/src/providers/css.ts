@@ -27,7 +27,9 @@ function frameStyles(frame: VisualFrame): Record<string, string> {
  * Cascade changes and writes between synchronous checks cannot be reliably detected. */
 export const cssProvider: MotionProvider = {
   backend: 'css', capabilities: new Set(), activeCount: () => active,
-  animate({ target, keyframes, timing }) {
+  animate({ target, keyframes, timing, commit }) {
+    if (Array.isArray(keyframes) && keyframes.some((frame) => frame?.scaleX !== undefined || frame?.scaleY !== undefined)) throw new RangeError('Unsupported by this provider: scaleX/scaleY');
+    if (commit === false) throw new RangeError('Unsupported by this provider: commit');
     const doc = target?.ownerDocument;
     const view = doc?.defaultView;
     if (!view || !(target instanceof view.HTMLElement) || !target.isConnected || target.getRootNode() !== doc) throw new Error('CSS provider requires a connected light-DOM HTMLElement');

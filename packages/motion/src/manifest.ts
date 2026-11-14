@@ -35,10 +35,8 @@ export const motionManifest = freezeDeep({
     easings: Object.keys(curveData.easing).map(key => `easing.${key}` as EasingToken),
     reduced: ['fade', 'instant', 'static', 'neutral', 'frozen'],
     interrupt: ['carry', 'restart'],
-    visualFields: ['opacity', 'x', 'y', 'scale', 'rotate'],
+    visualFields: ['opacity', 'x', 'y', 'scale', 'scaleX', 'scaleY', 'rotate'],
     deferredVisualFields: [
-      'scaleX',
-      'scaleY',
       'color',
       'backgroundColor',
       'clipPath',
@@ -180,6 +178,7 @@ export type MotionValidationCode =
   | 'unsupported'
   | 'invalid_value'
   | 'empty'
+  | 'conflict'
   | 'unsupported_version';
 export type MotionValidationError = {
   path: string;
@@ -282,6 +281,11 @@ export function validateMotionDocument(input: unknown): MotionValidationResult {
                   motionManifest.domains.visualFields,
                   motionManifest.domains.deferredVisualFields,
                 );
+                if (
+                  has(frame, 'scale') &&
+                  (has(frame, 'scaleX') || has(frame, 'scaleY'))
+                )
+                  add(path, 'conflict');
                 for (const key of keys)
                   if (contains(motionManifest.domains.visualFields, key)) {
                     if (typeof frame[key] !== 'number')

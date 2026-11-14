@@ -5,7 +5,7 @@ import { resolveReducedRender } from './reduced-render.js';
 import { routeTimingWithEvaluator, type TimingBackend, type TimingRoute, type TimingSupport } from './timing-routing.js';
 import { resolveCurve, resolveSpring, type CurveTiming, type MotionScheme } from './tokens.js';
 
-type Input = { target: HTMLElement | null; keyframes: VisualFrame[]; timing: SpringRef | CurveTiming; scheme: MotionScheme; verb: ManifestVerb; reduced?: ManifestReduced; policy: 'normal' | 'reduced' | 'unknown'; scale: number; delay?: number; backend: TimingBackend };
+type Input = { target: HTMLElement | null; keyframes: VisualFrame[]; timing: SpringRef | CurveTiming; scheme: MotionScheme; verb: ManifestVerb; reduced?: ManifestReduced; policy: 'normal' | 'reduced' | 'unknown'; scale: number; delay?: number; commit?: boolean; backend: TimingBackend };
 type Result = { status: 'started'; handle: MotionHandle; route: Extract<TimingRoute, { status: 'resolved' }> } | { status: 'reduced'; render: ManifestReduced; scalesWithMotion: boolean } | { status: 'instant'; reason: 'zero-scale' } | { status: 'unavailable'; reason: 'policy-unknown' | 'no-target' | 'support-unknown' | 'support-refused'; source?: 'linear' | 'fallback' | 'curve' };
 const active = new WeakSet<object>();
 function own(object: unknown, key: PropertyKey, optional = false): unknown {
@@ -78,6 +78,8 @@ export function startRoutedMotion(input: Input, provider: MotionProvider, evalua
     if (typeof scale !== 'number' || !Number.isFinite(scale) || scale < 0 || scale > 1) throw new RangeError('Invalid scale');
     const delay = own(input, 'delay', true);
     if (delay !== undefined && (typeof delay !== 'number' || !Number.isFinite(delay) || delay < 0)) throw new RangeError('Invalid delay');
+    const commit = own(input, 'commit', true);
+    if (commit !== undefined && typeof commit !== 'boolean') throw new RangeError('Invalid commit');
     const target = own(input, 'target') as HTMLElement | null;
     if (target !== null && (typeof target !== 'object' || !target.ownerDocument)) throw new TypeError('Invalid target');
     const document = target?.ownerDocument;
@@ -94,7 +96,7 @@ export function startRoutedMotion(input: Input, provider: MotionProvider, evalua
     if (route.status !== 'resolved') return { status: 'unavailable', reason: route.status === 'unknown' ? 'support-unknown' : 'support-refused', source: route.source };
     const duration = route.duration * scale;
     if (!Number.isFinite(duration) || duration <= 0) throw new RangeError('Invalid scaled duration');
-    const handle = animate.call(provider, { target, keyframes, timing: { duration, easing: route.easing, ...(delay !== undefined && { delay }) } });
+    const handle = animate.call(provider, { target, keyframes, timing: { duration, easing: route.easing, ...(delay !== undefined && { delay }) }, ...(commit !== undefined && { commit }) });
     return { status: 'started', handle, route };
   } finally { active.delete(input); }
 }

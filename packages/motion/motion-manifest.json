@@ -63,11 +63,11 @@
       "x",
       "y",
       "scale",
+      "scaleX",
+      "scaleY",
       "rotate"
     ],
     "deferredVisualFields": [
-      "scaleX",
-      "scaleY",
       "color",
       "backgroundColor",
       "clipPath",

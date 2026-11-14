@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { waapiProvider } from './waapi.js';
 import { animejsProvider } from './animejs.js';
+import { cssProvider } from './css.js';
+
+/** Scale as [x, y], whatever the browser's serialization of a one-value scale. */
+const scaleOf = (element: HTMLElement) => {
+  const [x = '1', y = x] = getComputedStyle(element).scale.split(' ');
+  return [parseFloat(x), parseFloat(y)];
+};
 
 describe.each([waapiProvider, animejsProvider])('$backend provider', (provider) => {
   it('declares only capabilities implemented by its current request contract', () => {
@@ -141,4 +148,54 @@ describe.each([waapiProvider, animejsProvider])('$backend provider', (provider) 
     target.remove();
   });
 
+});
+
+describe('waapi provider scaleX and scaleY', () => {
+  it('animates scale as a pair of values', () => {
+    const target = document.createElement('div');
+    document.body.append(target);
+    const handle = waapiProvider.animate({ target, keyframes: [{ scaleX: 0.5, scaleY: 2 }, { scaleX: 1, scaleY: 1 }], timing: { duration: 1000, easing: 'linear' } });
+    handle.pause();
+    handle.seek(0);
+    expect(scaleOf(target)).toEqual([0.5, 2]);
+    handle.seek(1000);
+    expect(scaleOf(target)).toEqual([1, 1]);
+    handle.cancel();
+    target.remove();
+  });
+
+  it('writes no inline scale and leaves no animation when commit is false', async () => {
+    const target = document.createElement('div');
+    document.body.append(target);
+    const handle = waapiProvider.animate({ target, keyframes: [{ scaleX: 0 }, { scaleX: 1 }], timing: { duration: 40, easing: 'linear' }, commit: false });
+    expect(await handle.finished).toBe('finished');
+    expect(target.style.scale).toBe('');
+    expect(target.getAnimations()).toHaveLength(0);
+    target.remove();
+  });
+
+  it('commits the final scale inline when commit is omitted', async () => {
+    const target = document.createElement('div');
+    document.body.append(target);
+    const handle = waapiProvider.animate({ target, keyframes: [{ scaleX: 0 }, { scaleX: 1 }], timing: { duration: 40, easing: 'linear' } });
+    expect(await handle.finished).toBe('finished');
+    expect(scaleOf(target)).toEqual([1, 1]);
+    target.remove();
+  });
+});
+
+describe.each([animejsProvider, cssProvider])('$backend provider refusals', (provider) => {
+  it('refuses scaleX and scaleY explicitly', () => {
+    const target = document.createElement('div');
+    document.body.append(target);
+    expect(() => provider.animate({ target, keyframes: [{ scaleX: 0 }, { scaleX: 1 }], timing: { duration: 100, easing: 'linear' } })).toThrow(new RangeError('Unsupported by this provider: scaleX/scaleY'));
+    target.remove();
+  });
+
+  it('refuses commit: false explicitly', () => {
+    const target = document.createElement('div');
+    document.body.append(target);
+    expect(() => provider.animate({ target, keyframes: [{ opacity: 0 }, { opacity: 1 }], timing: { duration: 100, easing: 'linear' }, commit: false })).toThrow(new RangeError('Unsupported by this provider: commit'));
+    target.remove();
+  });
 });

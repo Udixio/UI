@@ -43,7 +43,9 @@ export const animejsProvider: MotionProvider = {
   backend: 'animejs',
   capabilities: new Set(),
   activeCount: () => active,
-  animate({ target, keyframes, timing }) {
+  animate({ target, keyframes, timing, commit }) {
+    if (Array.isArray(keyframes) && keyframes.some((frame) => frame?.scaleX !== undefined || frame?.scaleY !== undefined)) throw new RangeError('Unsupported by this provider: scaleX/scaleY');
+    if (commit === false) throw new RangeError('Unsupported by this provider: commit');
     const ease = parseEase(timing.easing);
     let settled = false;
     let resolve!: (result: 'finished' | 'cancelled') => void;

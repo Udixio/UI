@@ -1,12 +1,13 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { validateMotionSpec } from './define-motion.js';
-import { applyFrame, playMotion } from './play.js';
+import { applyFrame, playMotion, releaseFrame } from './play.js';
 import { getMotionRuntime, retainMotionRuntime } from './runtime.js';
 import { resolveSpring } from './tokens.js';
 
 const fadeSpec = validateMotionSpec({ verb: 'appear', keyframes: [{ opacity: 0 }, { opacity: 1 }] });
 const slideSpec = validateMotionSpec({ verb: 'appear', keyframes: [{ opacity: 0, y: 24 }, { opacity: 1, y: 0 }] });
 const pressSpec = validateMotionSpec({ verb: 'emphasize', keyframes: [{ scale: 1 }, { scale: 0.96 }, { scale: 1 }] });
+const scaleXSpec = validateMotionSpec({ verb: 'appear', keyframes: [{ scaleX: 0 }, { scaleX: 1 }] });
 
 const runtime = getMotionRuntime({ development: true });
 const forward = { direction: 'forward', carry: false, runtime } as const;
@@ -16,6 +17,12 @@ const spring = (ref: 'spring.default.spatial' | 'spring.default.effects') =>
 /** Translation in px as [x, y], whatever the browser's serialization of 0px. */
 const translateOf = (element: HTMLElement) => {
   const [x = '0', y = '0'] = getComputedStyle(element).translate.split(' ');
+  return [parseFloat(x), parseFloat(y)];
+};
+
+/** Scale as [x, y], whatever the browser's serialization of a one-value scale. */
+const scaleOf = (element: HTMLElement) => {
+  const [x = '1', y = x] = getComputedStyle(element).scale.split(' ');
   return [parseFloat(x), parseFloat(y)];
 };
 
@@ -143,6 +150,33 @@ it('applies only the visual fields of a frame and never transform', () => {
   expect(target.style.scale).toBe('2');
   expect(target.style.rotate).toBe('90deg');
   expect(target.style.transform).toBe('');
+});
+
+it('writes scaleX and scaleY as one scale value and releases it', () => {
+  applyFrame(target, { scaleY: 2 });
+  expect(scaleOf(target)).toEqual([1, 2]);
+  releaseFrame(target, ['scaleX']);
+  expect(target.style.scale).toBe('');
+});
+
+it('ends a scaleX appear at a scale of 1', async () => {
+  const handle = playMotion(target, scaleXSpec, forward);
+  expect(await handle.finished).toBe('finished');
+  expect(scaleOf(target)).toEqual([1, 1]);
+});
+
+it('carries an interrupted scale into the next motion', () => {
+  // The spring overshoots, so a destination of 2 keeps the interrupted value far from the 1 an uncarried motion starts at.
+  const doubling = validateMotionSpec({ verb: 'appear', keyframes: [{ scaleX: 0 }, { scaleX: 2 }] });
+  const first = playMotion(target, doubling, forward);
+  first.pause();
+  first.seek(first.duration / 2);
+  const [before] = scaleOf(target);
+  expect(before).toBeGreaterThan(1.5);
+  const second = playMotion(target, doubling, { ...forward, carry: true });
+  expect(Math.abs(scaleOf(target)[0] - before)).toBeLessThan(0.02);
+  first.cancel();
+  second.cancel();
 });
 
 it('settles at the destination without animating when --udx-motion is none', async () => {
