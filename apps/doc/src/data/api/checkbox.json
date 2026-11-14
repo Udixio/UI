@@ -326,7 +326,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"icon\" | \"stateLayer\" | \"checkbox\" | \"input\" | \"box\", string>> | ClassNameComponent<CheckboxInterface>"
+            "name": "Partial<Record<\"icon\" | \"checkbox\" | \"stateLayer\" | \"input\" | \"box\", string>> | ClassNameComponent<CheckboxInterface>"
           },
           "defaultValue": null
         },

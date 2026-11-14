@@ -196,7 +196,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"icon\" | \"fab\" | \"touchTarget\" | \"stateLayer\" | \"label\", string>> | ClassNameComponent<FabInterface>"
+            "name": "Partial<Record<\"label\" | \"icon\" | \"touchTarget\" | \"stateLayer\" | \"fab\", string>> | ClassNameComponent<FabInterface>"
           },
           "defaultValue": null
         },
@@ -315,7 +315,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"label\" | \"icon\" | \"fab\" | \"touchTarget\" | \"stateLayer\", string>> | ClassNameComponent<FabInterface>"
+            "name": "Partial<Record<\"label\" | \"icon\" | \"touchTarget\" | \"stateLayer\" | \"fab\", string>> | ClassNameComponent<FabInterface>"
           },
           "defaultValue": null
         },

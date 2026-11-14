@@ -313,7 +313,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"chip\" | \"stateLayer\" | \"leadingIcon\" | \"trailingIcon\" | \"label\", string>> | ClassNameComponent<ChipInterface>"
+            "name": "Partial<Record<\"label\" | \"stateLayer\" | \"chip\" | \"leadingIcon\" | \"trailingIcon\", string>> | ClassNameComponent<ChipInterface>"
           },
           "defaultValue": null
         },
@@ -394,14 +394,16 @@
         "limitations": "- Edit-on-focus starts after a one-second delay; double-click, Enter, and F2 start it directly."
       },
       "props": {
-        "transition": {
-          "name": "transition",
-          "description": "Motion timing for the selection colour change. Defaults to 0.3s.\n\nIt lived only on the React adapter, so the Angular chip's selection\nsnapped where React's faded.",
+        "draggable": {
+          "name": "draggable",
+          "description": "Enable native drag and drop on the chip.",
           "required": false,
           "type": {
-            "name": "{ duration?: number; }"
+            "name": "boolean"
           },
-          "defaultValue": null
+          "defaultValue": {
+            "value": "false"
+          }
         },
         "label": {
           "name": "label",
@@ -409,6 +411,15 @@
           "required": false,
           "type": {
             "name": "string"
+          },
+          "defaultValue": null
+        },
+        "icon": {
+          "name": "icon",
+          "description": "An optional icon to display in the chip.",
+          "required": false,
+          "type": {
+            "name": "Icon"
           },
           "defaultValue": null
         },
@@ -434,12 +445,12 @@
             "value": "false"
           }
         },
-        "icon": {
-          "name": "icon",
-          "description": "An optional icon to display in the chip.",
+        "transition": {
+          "name": "transition",
+          "description": "Motion timing for the selection colour change. Defaults to 0.3s.\n\nIt lived only on the React adapter, so the Angular chip's selection\nsnapped where React's faded.",
           "required": false,
           "type": {
-            "name": "Icon"
+            "name": "{ duration?: number; }"
           },
           "defaultValue": null
         },
@@ -479,17 +490,6 @@
             "name": "() => void"
           },
           "defaultValue": null
-        },
-        "draggable": {
-          "name": "draggable",
-          "description": "Enable native drag and drop on the chip.",
-          "required": false,
-          "type": {
-            "name": "boolean"
-          },
-          "defaultValue": {
-            "value": "false"
-          }
         },
         "editable": {
           "name": "editable",
@@ -635,7 +635,7 @@
           "description": "State-aware classes for the component's internal elements.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"label\" | \"chip\" | \"stateLayer\" | \"leadingIcon\" | \"trailingIcon\", string>> | ClassNameComponent<ChipInterface>"
+            "name": "Partial<Record<\"label\" | \"stateLayer\" | \"chip\" | \"leadingIcon\" | \"trailingIcon\", string>> | ClassNameComponent<ChipInterface>"
           },
           "defaultValue": null
         },

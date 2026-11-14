@@ -168,7 +168,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"navigationRailItem\" | \"stateLayer\" | \"icon\" | \"label\" | \"container\", string>> | ClassNameComponent<NavigationRailItemInterface>"
+            "name": "Partial<Record<\"label\" | \"container\" | \"icon\" | \"stateLayer\" | \"navigationRailItem\", string>> | ClassNameComponent<NavigationRailItemInterface>"
           },
           "defaultValue": null
         }
@@ -203,17 +203,6 @@
           },
           "defaultValue": null
         },
-        "selected": {
-          "name": "selected",
-          "description": "Controlled selected state, used when no parent drives the selection.",
-          "required": false,
-          "type": {
-            "name": "boolean"
-          },
-          "defaultValue": {
-            "value": "false"
-          }
-        },
         "variant": {
           "name": "variant",
           "description": "Injected by the parent NavigationRail: layout direction of the item.",
@@ -231,6 +220,17 @@
             "name": "number"
           },
           "defaultValue": null
+        },
+        "selected": {
+          "name": "selected",
+          "description": "Controlled selected state, used when no parent drives the selection.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
         },
         "selectedItem": {
           "name": "selectedItem",
@@ -284,7 +284,7 @@
           "description": "State-aware classes for the destination elements.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"icon\" | \"label\" | \"navigationRailItem\" | \"stateLayer\" | \"container\", string>> | ClassNameComponent<NavigationRailItemInterface>"
+            "name": "Partial<Record<\"label\" | \"container\" | \"icon\" | \"stateLayer\" | \"navigationRailItem\", string>> | ClassNameComponent<NavigationRailItemInterface>"
           },
           "defaultValue": null
         },

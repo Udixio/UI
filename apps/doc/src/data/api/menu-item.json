@@ -262,7 +262,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"leadingIcon\" | \"trailingIcon\" | \"menuItem\" | \"selectedItem\" | \"stateLayer\" | \"itemLabel\" | \"itemIcon\", string>> | ClassNameComponent<MenuItemInterface>"
+            "name": "Partial<Record<\"stateLayer\" | \"leadingIcon\" | \"trailingIcon\" | \"menuItem\" | \"selectedItem\" | \"itemLabel\" | \"itemIcon\", string>> | ClassNameComponent<MenuItemInterface>"
           },
           "defaultValue": null
         }
@@ -401,7 +401,7 @@
           "description": "State-aware classes for the item and its state layer.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"leadingIcon\" | \"trailingIcon\" | \"menuItem\" | \"selectedItem\" | \"stateLayer\" | \"itemLabel\" | \"itemIcon\", string>> | ClassNameComponent<MenuItemInterface>"
+            "name": "Partial<Record<\"stateLayer\" | \"leadingIcon\" | \"trailingIcon\" | \"menuItem\" | \"selectedItem\" | \"itemLabel\" | \"itemIcon\", string>> | ClassNameComponent<MenuItemInterface>"
           },
           "defaultValue": null
         },

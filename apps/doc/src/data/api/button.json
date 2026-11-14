@@ -424,7 +424,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"button\" | \"icon\" | \"touchTarget\" | \"stateLayer\" | \"label\", string>> | ClassNameComponent<ButtonInterface>"
+            "name": "Partial<Record<\"label\" | \"button\" | \"icon\" | \"touchTarget\" | \"stateLayer\", string>> | ClassNameComponent<ButtonInterface>"
           },
           "defaultValue": null
         },
@@ -433,7 +433,7 @@
           "description": "Additional Button options; these take precedence over matching individual inputs.",
           "required": false,
           "type": {
-            "name": "Partial<Omit<ButtonProps, \"type\" | \"variant\" | \"size\" | \"icon\" | \"iconPosition\" | \"shape\" | \"shapeFeedback\" | \"label\" | \"disabled\" | \"toggleable\" | \"pressed\" | \"defaultPressed\">>"
+            "name": "Partial<Omit<ButtonProps, \"label\" | \"type\" | \"variant\" | \"size\" | \"icon\" | \"iconPosition\" | \"shape\" | \"shapeFeedback\" | \"disabled\" | \"toggleable\" | \"pressed\" | \"defaultPressed\">>"
           },
           "defaultValue": {
             "value": "{}"
@@ -569,7 +569,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"icon\" | \"label\" | \"button\" | \"touchTarget\" | \"stateLayer\", string>> | ClassNameComponent<ButtonInterface>"
+            "name": "Partial<Record<\"label\" | \"icon\" | \"button\" | \"touchTarget\" | \"stateLayer\", string>> | ClassNameComponent<ButtonInterface>"
           },
           "defaultValue": null
         },

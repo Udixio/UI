@@ -84,7 +84,7 @@
         },
         "primaryButtonProps": {
           "name": "primaryButtonProps",
-          "description": "Additional Button options; shared SplitButton properties remain authoritative.",
+          "description": "Extra Button options. SplitButton supplies its content and owns size, variant, shape, and disabled state.",
           "required": false,
           "type": {
             "name": "Partial<Omit<ButtonProps, \"label\" | \"icon\" | \"variant\" | \"size\" | \"disabled\" | \"type\" | \"iconPosition\" | \"shape\" | \"shapeFeedback\" | \"toggleable\" | \"pressed\" | \"defaultPressed\">>"
@@ -93,7 +93,7 @@
         },
         "menuButtonProps": {
           "name": "menuButtonProps",
-          "description": "Additional IconButton options; shared SplitButton properties remain authoritative.",
+          "description": "Extra IconButton options. SplitButton supplies its content and owns size, variant, shape, and disabled state.",
           "required": false,
           "type": {
             "name": "Partial<Omit<IconButtonProps, \"label\" | \"icon\" | \"variant\" | \"size\" | \"disabled\" | \"shape\" | \"shapeFeedback\" | \"toggleable\" | \"pressed\" | \"defaultPressed\">>"

@@ -156,7 +156,7 @@
           "description": "State-aware classes applied to the trigger using the MenuItem style contract.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"leadingIcon\" | \"menuItem\" | \"selectedItem\" | \"stateLayer\" | \"itemLabel\" | \"itemIcon\" | \"trailingIcon\", string>> | ClassNameComponent<MenuItemInterface>"
+            "name": "Partial<Record<\"stateLayer\" | \"leadingIcon\" | \"trailingIcon\" | \"menuItem\" | \"selectedItem\" | \"itemLabel\" | \"itemIcon\", string>> | ClassNameComponent<MenuItemInterface>"
           },
           "defaultValue": null
         },
@@ -209,7 +209,7 @@
           "description": "State-aware classes applied to the trigger using the MenuItem style contract.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"leadingIcon\" | \"menuItem\" | \"selectedItem\" | \"stateLayer\" | \"itemLabel\" | \"itemIcon\" | \"trailingIcon\", string>> | ClassNameComponent<MenuItemInterface>"
+            "name": "Partial<Record<\"stateLayer\" | \"leadingIcon\" | \"trailingIcon\" | \"menuItem\" | \"selectedItem\" | \"itemLabel\" | \"itemIcon\", string>> | ClassNameComponent<MenuItemInterface>"
           },
           "defaultValue": null
         },

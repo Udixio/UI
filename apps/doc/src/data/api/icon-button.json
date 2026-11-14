@@ -365,7 +365,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"icon\" | \"iconButton\" | \"stateLayer\" | \"touchTarget\", string>> | ClassNameComponent<IconButtonInterface>"
+            "name": "Partial<Record<\"icon\" | \"touchTarget\" | \"stateLayer\" | \"iconButton\", string>> | ClassNameComponent<IconButtonInterface>"
           },
           "defaultValue": null
         },
@@ -374,7 +374,7 @@
           "description": "Additional IconButton props for compositions; these override matching individual inputs.",
           "required": false,
           "type": {
-            "name": "Partial<Omit<IconButtonProps, \"icon\" | \"variant\" | \"size\" | \"shape\" | \"shapeFeedback\" | \"label\" | \"disabled\" | \"toggleable\" | \"pressed\" | \"defaultPressed\">>"
+            "name": "Partial<Omit<IconButtonProps, \"label\" | \"variant\" | \"size\" | \"icon\" | \"shape\" | \"shapeFeedback\" | \"disabled\" | \"toggleable\" | \"pressed\" | \"defaultPressed\">>"
           },
           "defaultValue": {
             "value": "{}"
@@ -515,7 +515,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"icon\" | \"iconButton\" | \"stateLayer\" | \"touchTarget\", string>> | ClassNameComponent<IconButtonInterface>"
+            "name": "Partial<Record<\"icon\" | \"touchTarget\" | \"stateLayer\" | \"iconButton\", string>> | ClassNameComponent<IconButtonInterface>"
           },
           "defaultValue": null
         },
