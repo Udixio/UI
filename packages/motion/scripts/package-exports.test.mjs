@@ -25,6 +25,17 @@ test('manifest has published and development entry points', () => {
   });
 });
 
+test('presets entry point is public in both export maps', () => {
+  assert.deepEqual(pkg.exports['./presets'], {
+    development: './src/presets.ts', types: './dist/presets.d.ts',
+    import: './dist/presets.js', require: './dist/presets.cjs', default: './dist/presets.js',
+  });
+  assert.deepEqual(pkg.publishConfig.exports['./presets'], {
+    types: './dist/presets.d.ts', import: './dist/presets.js',
+    require: './dist/presets.cjs', default: './dist/presets.js',
+  });
+});
+
 test('a named runtime key import does not include the manifest', async () => {
   const bundle = await rollup({
     input: 'runtime-key-test',

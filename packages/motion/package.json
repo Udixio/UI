@@ -49,6 +49,12 @@
         "import": "./dist/policy.js",
         "require": "./dist/policy.cjs",
         "default": "./dist/policy.js"
+      },
+      "./presets": {
+        "types": "./dist/presets.d.ts",
+        "import": "./dist/presets.js",
+        "require": "./dist/presets.cjs",
+        "default": "./dist/presets.js"
       }
     }
   },
@@ -127,6 +133,13 @@
       "import": "./dist/policy.js",
       "require": "./dist/policy.cjs",
       "default": "./dist/policy.js"
+    },
+    "./presets": {
+      "development": "./src/presets.ts",
+      "types": "./dist/presets.d.ts",
+      "import": "./dist/presets.js",
+      "require": "./dist/presets.cjs",
+      "default": "./dist/presets.js"
     }
   },
   "dependencies": {

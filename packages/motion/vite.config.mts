@@ -26,6 +26,7 @@ export default defineConfig(() => ({
       entry: {
         index: 'src/index.ts',
         policy: 'src/policy.ts',
+        presets: 'src/presets.ts',
         manifest: 'src/manifest.ts',
         'providers/css': 'src/providers/css.ts',
         'providers/waapi': 'src/providers/waapi.ts',
