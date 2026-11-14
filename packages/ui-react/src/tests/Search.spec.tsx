@@ -1,6 +1,9 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { animate } from 'animejs';
+import { renderToString } from 'react-dom/server';
+import { hydrateRoot } from 'react-dom/client';
+import { act } from 'react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { vi } from 'vitest';
 import { IconButton, Search } from '../lib/index.js';
@@ -15,6 +18,41 @@ expect.extend(toHaveNoViolations);
 describe('Search', () => {
   const actionIcon =
     '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>';
+
+  it('updates outline state on focus and lets the clear button take focus', () => {
+    render(<Search label="Search" defaultQuery="chair" />);
+    const input = screen.getByRole('searchbox');
+    const container = screen.getByRole('search').querySelector('.container')!;
+    const clear = screen.getByRole('button', { name: 'Clear search' });
+    fireEvent.focus(input);
+    expect(container).toHaveClass('outline-secondary');
+    expect(container).toHaveClass(
+      'duration-[calc(var(--udx-motion-duration-short4,200ms)*var(--udx-motion-scale,1))]',
+    );
+    fireEvent.blur(input);
+    expect(container).toHaveClass('outline-transparent');
+    clear.focus();
+    expect(clear).toHaveFocus();
+    expect(clear).toHaveClass('focus-visible:outline-secondary');
+  });
+
+  it('hydrates server markup with the same initial motion classes', async () => {
+    const app = <Search label="Hydrated search" defaultQuery="chair" />;
+    const host = document.createElement('div');
+    host.innerHTML = renderToString(app);
+    document.body.appendChild(host);
+    const initial = host.querySelector('.container')!.className;
+    let root: ReturnType<typeof hydrateRoot>;
+    await act(async () => {
+      root = hydrateRoot(host, app);
+    });
+    expect(host.querySelector('.container')!.className).toBe(initial);
+    expect(initial).toContain(
+      'duration-[calc(var(--udx-motion-duration-short4,200ms)*var(--udx-motion-scale,1))]',
+    );
+    await act(async () => root!.unmount());
+    host.remove();
+  });
 
   it('renders a named native searchbox and owns an uncontrolled query', () => {
     const onQueryChange = vi.fn();

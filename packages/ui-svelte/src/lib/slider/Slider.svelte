@@ -129,9 +129,10 @@
 
   $effect(() => {
     const valueIndicator = indicator;
-    if (!valueIndicator) return;
+    const root = track;
+    if (!valueIndicator || !root) return;
 
-    const controller = createSliderIndicatorController({ indicator: valueIndicator });
+    const controller = createSliderIndicatorController({ indicator: valueIndicator, root });
     indicatorController = controller;
 
     return () => {

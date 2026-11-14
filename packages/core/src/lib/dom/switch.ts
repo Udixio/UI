@@ -1,11 +1,6 @@
 import { animate, type JSAnimation } from 'animejs';
 
-function systemPrefersReducedMotion(): boolean {
-  return (
-    typeof globalThis.matchMedia === 'function' &&
-    globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
-}
+import { motionPolicy } from '@udixio/motion/internal-policy';
 
 export interface SwitchThumbControllerOptions {
   /** The handle container (`.handle-container`) whose `translate` slides between resting offsets. */
@@ -26,7 +21,7 @@ export interface SwitchThumbController {
  * per-component exception to the shared Motion controller convention (see
  * `docs/component-behavior.md`): Motion has no free equivalent to automatic
  * before/after layout diffing (its `animateLayout` is a paid Motion+
- * feature). Both React and Angular adapters use this same controller and
+ * feature). React, Angular and Svelte adapters use this same controller and
  * only own mount lifecycle wiring.
  *
  * This intentionally does *not* use Anime.js's `Layout` (Auto Layout)
@@ -48,15 +43,42 @@ export interface SwitchThumbController {
  */
 export function createSwitchThumbController({
   root,
-  reducedMotion = systemPrefersReducedMotion,
+  reducedMotion,
   duration = 150,
 }: SwitchThumbControllerOptions): SwitchThumbController {
   let animation: JSAnimation | null = null;
+  let target: number | undefined;
+  let destroyed = false;
+  let unsubscribe: (() => void) | undefined;
+
+  motionPolicy.retain();
+  try {
+    const applyPolicy = () => {
+      const reduced = motionPolicy.reduced;
+      root.toggleAttribute('data-udx-switch-motion-reduce', reduced);
+      if (reduced && target !== undefined) {
+        animation?.cancel();
+        animation = null;
+        root.style.translate = `${target}px`;
+      }
+    };
+    unsubscribe = motionPolicy.subscribe(applyPolicy);
+    // Read once after subscribing, including any changes during installation.
+    applyPolicy();
+  } catch (error) {
+    root.removeAttribute('data-udx-switch-motion-reduce');
+    try { unsubscribe?.(); } catch { /* Preserve the installation error. */ }
+    try { motionPolicy.release(); } catch { /* Preserve the installation error. */ }
+    throw error;
+  }
 
   return {
     update(from, to) {
+      if (destroyed) return;
       animation?.cancel();
-      if (reducedMotion()) {
+      animation = null;
+      target = to;
+      if (motionPolicy.reduced || reducedMotion?.()) {
         root.style.translate = `${to}px`;
         return;
       }
@@ -67,7 +89,12 @@ export function createSwitchThumbController({
       });
     },
     destroy() {
-      animation?.cancel();
+      if (destroyed) return;
+      destroyed = true;
+      root.removeAttribute('data-udx-switch-motion-reduce');
+      try { unsubscribe?.(); } finally {
+        try { animation?.cancel(); } finally { motionPolicy.release(); }
+      }
     },
   };
 }

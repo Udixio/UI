@@ -23,7 +23,19 @@ describe('searchStyle', () => {
     expect(styles.container).not.toContain('outline-transparent');
     expect(styles.container).toContain('gap-0');
     expect(styles.container).toContain('transition-[outline-color]');
-    expect(styles.container).toContain('duration-200');
+    for (const surface of [styles.container, styles.clearButton]) {
+      expect(surface).toContain('transition-[outline-color]');
+      expect(surface).toContain(
+        'duration-[calc(var(--udx-motion-duration-short4,200ms)*var(--udx-motion-scale,1))]',
+      );
+      expect(surface).toContain(
+        'ease-[var(--udx-motion-easing-standard-decelerate,cubic-bezier(0,0,0.2,1))]',
+      );
+      expect(surface).toContain('motion-reduce:transition-none');
+      expect(surface).toContain(
+        '[html[data-motion-policy=reduce]_&]:transition-none',
+      );
+    }
     expect(styles.container).toContain('motion-reduce:transition-none');
 
     const unfocusedStyles = searchStyle({

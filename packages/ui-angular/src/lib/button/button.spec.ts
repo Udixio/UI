@@ -134,6 +134,10 @@ describe('Button (Angular, consuming @udixio/core)', () => {
       'udx-button-loading-indicator svg',
     );
     expect(loadingIndicator).not.toBeNull();
+    expect(loadingIndicator?.getAttribute('viewBox')).toBe('0 0 48 48');
+    expect(loadingIndicator?.querySelector('circle')?.getAttribute('r')).toBe(
+      '22',
+    );
     expect(loadingIndicator?.style.stroke).toBe('var(--color-on-primary)');
     expect(button.querySelector('.label')?.className).toContain('opacity-0');
     expect(button.querySelector('.label')?.className).not.toContain(

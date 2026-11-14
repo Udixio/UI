@@ -39,7 +39,11 @@ import { createStyle } from '../utils/create-style';
  * - Provide `aria-label`/`aria-labelledby`; this component does not infer an
  *   accessible name.
  * @limitations
- * - Visibility auto-hides at 100% (no controlled open prop).
+ * - Determinate visibility auto-hides at 100% (no controlled open prop).
+ * - Indeterminate indicators render a static frame before hydration and while
+ *   motion is reduced; animation resumes when the shared policy permits it.
+ * - Custom styles or classes that replace the geometry or add animation can
+ *   override this behavior. The policy observes the global document.
  * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({
@@ -60,17 +64,17 @@ import { createStyle } from '../utils/create-style';
         >
           <div
             #leadingBar
-            style="flex-shrink: 0"
+            style="flex-shrink: 0; width: 20%"
             [class]="styles()['activeIndicator']"
           ></div>
           <div
             #gapTrack
-            style="flex-shrink: 0"
+            style="flex-shrink: 0; width: 20%"
             [class]="styles()['firstTrack']"
           ></div>
           <div
             #trailingBar
-            style="flex-shrink: 0; margin-left: 6px"
+            style="flex-shrink: 0; width: 20%; margin-left: 6px"
             [class]="styles()['activeIndicator']"
           ></div>
           <div style="margin-left: 6px" [class]="styles()['lastTrack']"></div>
@@ -106,6 +110,7 @@ import { createStyle } from '../utils/create-style';
       @case ('circular-indeterminate') {
         <svg
           #indeterminateSvg
+          style="transform: rotate(-90deg)"
           width="48"
           height="48"
           viewBox="0 0 48 48"
@@ -118,10 +123,11 @@ import { createStyle } from '../utils/create-style';
         >
           <circle
             #indeterminateCircle
+            pathLength="1"
             cx="50%"
             cy="50%"
-            r="calc(50% - 2px)"
-            style="stroke-linecap: round"
+            r="22"
+            style="stroke-linecap: round; stroke-dasharray: 0.25 1"
             [class]="styles()['activeIndicator']"
           />
         </svg>
@@ -167,7 +173,8 @@ export class ProgressIndicator {
 
   /** Static or state-aware classes for the component's internal elements, keyed by element name. */
   readonly classes = input<
-    ElementClasses<ProgressIndicatorInterface> | ClassNameComponent<ProgressIndicatorInterface>
+    | ElementClasses<ProgressIndicatorInterface>
+    | ClassNameComponent<ProgressIndicatorInterface>
   >();
   /** Accessible-name override; this component does not infer one. */
   readonly ariaLabel = input<string | undefined>(undefined, {
@@ -239,11 +246,12 @@ export class ProgressIndicator {
     value: this.value(),
     transitionDuration: this.transitionDuration(),
     minHeight: this.minHeight(),
-    isVisible: this.isVisible(),
+    isVisible: !isDeterminateVariant(this.variant()) || this.isVisible(),
   }));
 
   constructor() {
     afterRenderEffect((onCleanup) => {
+      if (!isDeterminateVariant(this.variant())) return;
       onCleanup(
         createProgressVisibilityController({
           completedPercentage: this.completedPercentage(),

@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
 import { animate } from 'motion';
+import { motionPolicy } from '@udixio/motion/internal-policy';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createSliderIndicatorController,
@@ -11,6 +12,12 @@ import {
 vi.mock('motion', () => ({ animate: vi.fn() }));
 
 let controllers: SliderPointerController[] = [];
+let indicatorControllers: ReturnType<typeof createSliderIndicatorController>[] = [];
+function createIndicator(options: Parameters<typeof createSliderIndicatorController>[0]) {
+  const controller = createSliderIndicatorController(options);
+  indicatorControllers.push(controller);
+  return controller;
+}
 
 function setup(
   overrides: Partial<Parameters<typeof createSliderPointerController>[0]> = {},
@@ -39,11 +46,14 @@ function setup(
 
 beforeEach(() => {
   controllers = [];
+  indicatorControllers = [];
   vi.clearAllMocks();
 });
 
 afterEach(() => {
   controllers.forEach((c) => c.destroy());
+  indicatorControllers.forEach((c) => c.destroy());
+  document.documentElement.removeAttribute('data-motion-policy');
   document.body.innerHTML = '';
 });
 
@@ -99,20 +109,95 @@ describe('createSliderPointerController', () => {
 });
 
 describe('createSliderIndicatorController', () => {
-  it('animates the standalone scale property, not transform', () => {
+  it('settles an active animation when the injected preference changes and the request repeats', () => {
     const stop = vi.fn();
-    vi.mocked(animate).mockReturnValue({ stop } as never);
+    vi.mocked(animate).mockReturnValue({ stop, cancel: stop } as never);
+    const indicator = document.createElement('div');
+    let reduced = false;
+    const controller = createIndicator({ indicator, root: document.createElement('div'), reducedMotion: () => reduced });
+    controller.setVisible(true);
+    reduced = true;
+    controller.setVisible(true);
+    expect(stop).toHaveBeenCalledOnce();
+    expect(indicator.style.transform).toBe('scale(1)');
+    controller.destroy();
+  });
+
+  it('samples the injected preference on a repeated hide and on policy notification', async () => {
+    const cancel = vi.fn();
+    vi.mocked(animate).mockReturnValue({ stop: vi.fn(), cancel } as never);
+    let reduced = false;
+    const indicator = document.createElement('div');
+    const controller = createIndicator({ root: document.createElement('div'), indicator, reducedMotion: () => reduced });
+    controller.setVisible(true);
+    controller.setVisible(false);
+    reduced = true;
+    controller.setVisible(false);
+    expect(indicator.style.transform).toBe('scale(0)');
+    reduced = false;
+    controller.setVisible(true);
+    reduced = true;
+    document.documentElement.setAttribute('data-motion-policy', 'reduce');
+    await Promise.resolve();
+    expect(indicator.style.transform).toBe('scale(1)');
+    expect(cancel).toHaveBeenCalled();
+  });
+
+  it('settles independent targets on a policy change and cleans up each root', async () => {
+    const stop = vi.fn();
+    vi.mocked(animate).mockReturnValue({ stop, cancel: stop } as never);
+    const firstRoot = document.createElement('div');
+    const secondRoot = document.createElement('div');
+    const first = document.createElement('div');
+    const second = document.createElement('div');
+    const a = createIndicator({ root: firstRoot, indicator: first });
+    const b = createIndicator({ root: secondRoot, indicator: second });
+    a.setVisible(true);
+    a.setVisible(false);
+    b.setVisible(true);
+    document.documentElement.setAttribute('data-motion-policy', 'reduce');
+    await Promise.resolve();
+    expect(first.style.transform).toBe('scale(0)');
+    expect(second.style.transform).toBe('scale(1)');
+    expect(stop).toHaveBeenCalledTimes(3);
+    expect(firstRoot.hasAttribute('data-udx-slider-motion-reduce')).toBe(true);
+    expect(secondRoot.hasAttribute('data-udx-slider-motion-reduce')).toBe(true);
+    a.destroy(); a.destroy();
+    expect(firstRoot.hasAttribute('data-udx-slider-motion-reduce')).toBe(false);
+    expect(secondRoot.hasAttribute('data-udx-slider-motion-reduce')).toBe(true);
+    document.documentElement.removeAttribute('data-motion-policy');
+    await Promise.resolve();
+    expect(animate).toHaveBeenCalledTimes(3);
+    b.destroy();
+    b.setVisible(false);
+    expect(animate).toHaveBeenCalledTimes(3);
+  });
+
+  it('releases a retained policy when installation fails', () => {
+    const root = document.createElement('div');
+    const release = vi.spyOn(motionPolicy, 'release');
+    const subscribe = vi.spyOn(motionPolicy, 'subscribe').mockImplementationOnce(() => { throw new Error('failed'); });
+    expect(() => createIndicator({ root, indicator: document.createElement('div') })).toThrow('failed');
+    expect(release).toHaveBeenCalledOnce();
+    expect(root.hasAttribute('data-udx-slider-motion-reduce')).toBe(false);
+    subscribe.mockRestore(); release.mockRestore();
+  });
+
+  it('animates the indicator transform', () => {
+    const stop = vi.fn();
+    vi.mocked(animate).mockReturnValue({ stop, cancel: stop } as never);
     const indicator = document.createElement('div');
 
-    const controller = createSliderIndicatorController({
+    const controller = createIndicator({
       indicator,
+      root: document.createElement('div'),
       reducedMotion: () => false,
     });
     controller.setVisible(true);
 
     expect(animate).toHaveBeenCalledWith(
       indicator,
-      { scale: 1 },
+      { transform: [expect.any(String), 'scale(1)'] },
       { duration: 0.1 },
     );
 
@@ -120,15 +205,16 @@ describe('createSliderIndicatorController', () => {
     expect(stop).toHaveBeenCalled();
     expect(animate).toHaveBeenLastCalledWith(
       indicator,
-      { scale: 0 },
+      { transform: [expect.any(String), 'scale(0)'] },
       { duration: 0.1 },
     );
   });
 
   it('treats the initial state as already hidden, so the first setVisible(false) is a no-op', () => {
     const indicator = document.createElement('div');
-    const controller = createSliderIndicatorController({
+    const controller = createIndicator({
       indicator,
+      root: document.createElement('div'),
       reducedMotion: () => false,
     });
 
@@ -137,10 +223,11 @@ describe('createSliderIndicatorController', () => {
   });
 
   it('ignores a redundant setVisible for the same requested state', () => {
-    vi.mocked(animate).mockReturnValue({ stop: vi.fn() } as never);
+    vi.mocked(animate).mockReturnValue({ stop: vi.fn(), cancel: vi.fn() } as never);
     const indicator = document.createElement('div');
-    const controller = createSliderIndicatorController({
+    const controller = createIndicator({
       indicator,
+      root: document.createElement('div'),
       reducedMotion: () => false,
     });
 
@@ -151,8 +238,9 @@ describe('createSliderIndicatorController', () => {
 
   it('jumps instantly under reduced motion instead of animating', () => {
     const indicator = document.createElement('div');
-    const controller = createSliderIndicatorController({
+    const controller = createIndicator({
       indicator,
+      root: document.createElement('div'),
       reducedMotion: () => true,
     });
 
@@ -166,10 +254,11 @@ describe('createSliderIndicatorController', () => {
 
   it('stops the in-flight animation on destroy', () => {
     const stop = vi.fn();
-    vi.mocked(animate).mockReturnValue({ stop } as never);
+    vi.mocked(animate).mockReturnValue({ stop, cancel: stop } as never);
     const indicator = document.createElement('div');
-    const controller = createSliderIndicatorController({
+    const controller = createIndicator({
       indicator,
+      root: document.createElement('div'),
       reducedMotion: () => false,
     });
 

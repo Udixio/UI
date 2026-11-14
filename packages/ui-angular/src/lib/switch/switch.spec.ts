@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { Switch } from './switch';
+import { createSwitchThumbController } from '@udixio/core/dom';
 
 expect.extend(toHaveNoViolations);
 
@@ -116,6 +117,18 @@ describe('Switch (Angular)', () => {
     toggle.click();
     host.detectChanges();
     expect(host.componentInstance.checked).toBe(true);
+  });
+
+  it('updates the thumb after interaction and destroys its controller', () => {
+    fixture.detectChanges();
+    const controller = jest.mocked(createSwitchThumbController).mock.results.at(-1)?.value;
+    expect(controller).toBeDefined();
+    expect(controller?.update).not.toHaveBeenCalled();
+    (fixture.nativeElement.querySelector('[role="switch"]') as HTMLElement).click();
+    fixture.detectChanges();
+    expect(controller?.update).toHaveBeenCalledTimes(1);
+    fixture.destroy();
+    expect(controller?.destroy).toHaveBeenCalledTimes(1);
   });
 
   it('has no automated accessibility violations', async () => {

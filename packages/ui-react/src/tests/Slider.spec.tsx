@@ -11,7 +11,7 @@ expect.extend(toHaveNoViolations);
 // `createSliderIndicatorController` (core/dom) and already unit-tested
 // there; here we only need to verify the React wiring requests the right
 // visibility, not exercise jsdom's lack of a real WAAPI implementation.
-vi.mock('motion', () => ({ animate: vi.fn(() => ({ stop: vi.fn() })) }));
+vi.mock('motion', () => ({ animate: vi.fn(() => ({ stop: vi.fn(), cancel: vi.fn() })) }));
 
 function stubTrackWidth(track: HTMLElement, width = 200) {
   track.getBoundingClientRect = () =>
@@ -27,6 +27,16 @@ describe('Slider', () => {
     expect(slider).toHaveAttribute('aria-valuenow', '30');
     expect(slider).toHaveAttribute('tabindex', '0');
     expect(slider).not.toHaveAttribute('aria-disabled');
+  });
+
+  it('marks the slider root under shared reduced motion and cleans up', async () => {
+    document.documentElement.setAttribute('data-motion-policy', 'reduce');
+    const { unmount } = render(<Slider name="volume" aria-label="Volume" />);
+    const root = screen.getByRole('slider', { name: 'Volume' });
+    expect(root).toHaveAttribute('data-udx-slider-motion-reduce');
+    unmount();
+    expect(root).not.toHaveAttribute('data-udx-slider-motion-reduce');
+    document.documentElement.removeAttribute('data-motion-policy');
   });
 
   it('has no accessibility violations', async () => {
@@ -141,7 +151,7 @@ describe('Slider', () => {
     fireEvent.keyDown(slider, { key: 'ArrowRight' });
     expect(animate).toHaveBeenLastCalledWith(
       indicator,
-      { scale: 1 },
+      { transform: [expect.any(String), 'scale(1)'] },
       { duration: 0.1 },
     );
 
@@ -150,7 +160,7 @@ describe('Slider', () => {
     });
     expect(animate).toHaveBeenLastCalledWith(
       indicator,
-      { scale: 1 },
+      { transform: [expect.any(String), 'scale(1)'] },
       { duration: 0.1 },
     );
     act(() => {
@@ -158,20 +168,20 @@ describe('Slider', () => {
     });
     expect(animate).toHaveBeenLastCalledWith(
       indicator,
-      { scale: 0 },
+      { transform: [expect.any(String), 'scale(0)'] },
       { duration: 0.1 },
     );
 
     fireEvent.keyDown(slider, { key: 'ArrowRight' });
     expect(animate).toHaveBeenLastCalledWith(
       indicator,
-      { scale: 1 },
+      { transform: [expect.any(String), 'scale(1)'] },
       { duration: 0.1 },
     );
     fireEvent.blur(slider);
     expect(animate).toHaveBeenLastCalledWith(
       indicator,
-      { scale: 0 },
+      { transform: [expect.any(String), 'scale(0)'] },
       { duration: 0.1 },
     );
 

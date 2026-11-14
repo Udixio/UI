@@ -11,7 +11,7 @@ const searchConfig: ClassNameComponent<SearchInterface> = ({
 }) => ({
   search: cx('relative block w-full min-w-[min(360px,100%)] max-w-[360px]'),
   container: cx(
-    'group/search relative flex w-full flex-col rounded-[28px] bg-surface-container-high text-on-surface outline outline-[3px] outline-offset-2 transition-[outline-color] duration-200 ease-out motion-reduce:transition-none',
+    'group/search relative flex w-full flex-col rounded-[28px] bg-surface-container-high text-on-surface outline outline-[3px] outline-offset-2 transition-[outline-color] duration-[calc(var(--udx-motion-duration-short4,200ms)*var(--udx-motion-scale,1))] ease-[var(--udx-motion-easing-standard-decelerate,cubic-bezier(0,0,0.2,1))] motion-reduce:transition-none [html[data-motion-policy=reduce]_&]:transition-none',
     isExpanded && hasResults ? 'gap-0.5' : 'gap-0',
     isFocused && !disabled ? 'outline-secondary' : 'outline-transparent',
     {
@@ -38,7 +38,7 @@ const searchConfig: ClassNameComponent<SearchInterface> = ({
     'inline-flex h-12 w-[50px] shrink-0 items-center justify-center empty:hidden',
   ),
   clearButton: cx(
-    'group/search-clear relative inline-flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full outline outline-[3px] outline-offset-2 outline-transparent transition-[outline-color] duration-200 ease-out motion-reduce:transition-none',
+    'group/search-clear relative inline-flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full outline outline-[3px] outline-offset-2 outline-transparent transition-[outline-color] duration-[calc(var(--udx-motion-duration-short4,200ms)*var(--udx-motion-scale,1))] ease-[var(--udx-motion-easing-standard-decelerate,cubic-bezier(0,0,0.2,1))] motion-reduce:transition-none [html[data-motion-policy=reduce]_&]:transition-none',
     'text-on-surface-variant focus-visible:outline-secondary',
     { hidden: !clearable || !hasQuery },
   ),

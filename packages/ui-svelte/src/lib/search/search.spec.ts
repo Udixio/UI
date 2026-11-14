@@ -7,6 +7,25 @@ import Search from './Search.svelte';
 describe('Search', () => {
   afterEach(cleanup);
 
+  it('updates outline state on focus and lets the clear button take focus', async () => {
+    render(Search, { props: { label: 'Search', defaultQuery: 'chair' } });
+    const input = screen.getByRole('searchbox');
+    const container = screen.getByRole('search').querySelector('.container')!;
+    const clear = screen.getByRole('button', { name: 'Clear search' });
+    await fireEvent.focus(input);
+    flushSync();
+    expect(container).toHaveClass('outline-secondary');
+    expect(container).toHaveClass(
+      'duration-[calc(var(--udx-motion-duration-short4,200ms)*var(--udx-motion-scale,1))]',
+    );
+    await fireEvent.blur(input);
+    flushSync();
+    expect(container).toHaveClass('outline-transparent');
+    clear.focus();
+    expect(clear).toHaveFocus();
+    expect(clear).toHaveClass('focus-visible:outline-secondary');
+  });
+
   it('updates query, clears it, and submits with Enter', async () => {
     const onQueryChange = vi.fn();
     const onSearch = vi.fn();

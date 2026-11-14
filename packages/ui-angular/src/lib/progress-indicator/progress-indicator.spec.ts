@@ -62,6 +62,14 @@ describe('ProgressIndicator (Angular)', () => {
     expect(progressbar.hasAttribute('aria-valuenow')).toBe(false);
   });
 
+  it('uses a portable radius for the circular indeterminate arc', () => {
+    fixture.componentRef.setInput('variant', 'circular-indeterminate');
+    fixture.detectChanges();
+    const svg: SVGElement = fixture.nativeElement.querySelector('svg');
+    expect(svg.getAttribute('viewBox')).toBe('0 0 48 48');
+    expect(svg.querySelector('circle')?.getAttribute('r')).toBe('22');
+  });
+
   it('hides transitionDuration ms after the value reaches 100', () => {
     jest.useFakeTimers();
     const visibilityStates: boolean[] = [];

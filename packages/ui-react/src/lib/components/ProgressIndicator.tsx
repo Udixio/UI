@@ -33,7 +33,11 @@ export const useProgressIndicatorStyle = createUseStyle(progressIndicatorStyle);
  * - Provide `aria-label` or `aria-labelledby`; this component does not infer an
  *   accessible name.
  * @limitations
- * - Visibility auto-hides at 100% (no controlled open prop).
+ * - Determinate visibility auto-hides at 100% (no controlled open prop).
+ * - Indeterminate indicators render a static frame before hydration and while
+ *   motion is reduced; animation resumes when the shared policy permits it.
+ * - Custom styles or classes that replace the geometry or add animation can
+ *   override this behavior. The policy observes the global document.
  */
 export const ProgressIndicator = ({
   variant = 'linear-determinate',
@@ -54,12 +58,14 @@ export const ProgressIndicator = ({
 
   useEffect(
     () =>
-      createProgressVisibilityController({
-        completedPercentage,
-        transitionDuration,
-        onVisibilityChange: setIsVisible,
-      }),
-    [completedPercentage, transitionDuration],
+      isDeterminateVariant(variant)
+        ? createProgressVisibilityController({
+            completedPercentage,
+            transitionDuration,
+            onVisibilityChange: setIsVisible,
+          })
+        : undefined,
+    [completedPercentage, transitionDuration, variant],
   );
 
   useEffect(() => {
@@ -100,7 +106,7 @@ export const ProgressIndicator = ({
     value,
     transitionDuration,
     minHeight,
-    isVisible,
+    isVisible: !isDeterminateVariant(variant) || isVisible,
   });
 
   const circularRadius = isVisible ? 22 : 24;
@@ -123,20 +129,21 @@ export const ProgressIndicator = ({
           className={styles.progressIndicator}
           {...progressBarProps}
           {...restProps}
+          aria-valuenow={undefined}
         >
           <div
             ref={leadingBarRef}
-            style={{ flexShrink: 0 }}
+            style={{ flexShrink: 0, width: '20%' }}
             className={styles.activeIndicator}
           />
           <div
             ref={gapTrackRef}
-            style={{ flexShrink: 0 }}
+            style={{ flexShrink: 0, width: '20%' }}
             className={styles.firstTrack}
           />
           <div
             ref={trailingBarRef}
-            style={{ flexShrink: 0, marginLeft: '6px' }}
+            style={{ flexShrink: 0, width: '20%', marginLeft: '6px' }}
             className={styles.activeIndicator}
           />
           <div style={{ marginLeft: '6px' }} className={styles.lastTrack} />
@@ -180,13 +187,19 @@ export const ProgressIndicator = ({
           className={styles.progressIndicator}
           {...progressBarProps}
           {...(restProps as any)}
+          aria-valuenow={undefined}
+          style={{
+            transform: 'rotate(-90deg)',
+            ...((restProps as any).style ?? {}),
+          }}
         >
           <circle
             ref={indeterminateCircleRef}
             cx="50%"
             cy="50%"
-            r="calc(50% - 2px)"
-            style={{ strokeLinecap: 'round' }}
+            r="22"
+            pathLength={1}
+            style={{ strokeLinecap: 'round', strokeDasharray: '0.25 1' }}
             className={styles.activeIndicator}
           />
         </svg>

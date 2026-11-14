@@ -143,8 +143,9 @@ export const Slider = ({
 
   useEffect(() => {
     const indicator = indicatorRef.current;
-    if (!indicator) return;
-    const controller = createSliderIndicatorController({ indicator });
+    const root = ref.current;
+    if (!indicator || !root) return;
+    const controller = createSliderIndicatorController({ indicator, root });
     indicatorControllerRef.current = controller;
     return () => {
       controller.destroy();

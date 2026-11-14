@@ -196,10 +196,17 @@ describe('Search (Angular)', () => {
     expect(container.className).toContain('outline-[3px]');
     expect(container.className).toContain('outline-offset-2');
     expect(container.className).toContain('outline-secondary');
+    expect(container.className).toContain(
+      'duration-[calc(var(--udx-motion-duration-short4,200ms)*var(--udx-motion-scale,1))]',
+    );
     expect(root.className).toContain('max-w-[360px]');
     expect(
       fixture.nativeElement.querySelector('.input-field').className,
     ).toContain('px-1');
+
+    input.dispatchEvent(new FocusEvent('blur'));
+    fixture.detectChanges();
+    expect(container.className).toContain('outline-transparent');
 
     const queryFixture = TestBed.createComponent(DefaultSearchHost);
     queryFixture.detectChanges();
@@ -207,6 +214,9 @@ describe('Search (Angular)', () => {
       'button[aria-label="Clear search"]',
     ) as HTMLButtonElement;
     expect(clear.querySelector('udx-state-layer')).not.toBeNull();
+    clear.focus();
+    expect(document.activeElement).toBe(clear);
+    expect(clear.className).toContain('focus-visible:outline-secondary');
     queryFixture.destroy();
   });
 

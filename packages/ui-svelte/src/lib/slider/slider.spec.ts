@@ -156,6 +156,7 @@ describe('Slider', () => {
     render(Slider, { props: { defaultValue: 50, step: 10, 'aria-label': 'Volume' } });
     const slider = screen.getByRole('slider', { name: 'Volume' });
 
+    expect(createSliderIndicatorController).toHaveBeenLastCalledWith(expect.objectContaining({ root: slider, indicator: expect.any(HTMLElement) }));
     expect(controller.setVisible).toHaveBeenCalledWith(false);
     fireEvent.keyDown(slider, { key: 'ArrowRight' });
     flushSync();

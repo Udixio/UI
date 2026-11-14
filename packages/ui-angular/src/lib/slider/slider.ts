@@ -245,6 +245,7 @@ export class Slider implements OnInit {
 
       const indicatorController = createSliderIndicatorController({
         indicator: this.indicator().nativeElement,
+        root: track,
       });
       this.indicatorController = indicatorController;
       destroyRef.onDestroy(() => {

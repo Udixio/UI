@@ -8,9 +8,15 @@ import ProgressIndicator from './ProgressIndicator.svelte';
 describe('ProgressIndicator', () => {
   it('exposes role="progressbar" with aria-valuenow for determinate variants', () => {
     render(ProgressIndicator, {
-      props: { variant: 'linear-determinate', value: 40, 'aria-label': 'Upload progress' },
+      props: {
+        variant: 'linear-determinate',
+        value: 40,
+        'aria-label': 'Upload progress',
+      },
     });
-    const progressbar = screen.getByRole('progressbar', { name: 'Upload progress' });
+    const progressbar = screen.getByRole('progressbar', {
+      name: 'Upload progress',
+    });
 
     expect(progressbar).toHaveAttribute('aria-valuemin', '0');
     expect(progressbar).toHaveAttribute('aria-valuemax', '100');
@@ -19,17 +25,35 @@ describe('ProgressIndicator', () => {
 
   it('clamps out-of-range values before exposing aria-valuenow', async () => {
     const { rerender } = render(ProgressIndicator, {
-      props: { variant: 'circular-determinate', value: 140, 'aria-label': 'Upload progress' },
+      props: {
+        variant: 'circular-determinate',
+        value: 140,
+        'aria-label': 'Upload progress',
+      },
     });
-    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '100');
+    expect(screen.getByRole('progressbar')).toHaveAttribute(
+      'aria-valuenow',
+      '100',
+    );
 
-    await rerender({ variant: 'circular-determinate', value: -10, 'aria-label': 'Upload progress' });
-    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');
+    await rerender({
+      variant: 'circular-determinate',
+      value: -10,
+      'aria-label': 'Upload progress',
+    });
+    expect(screen.getByRole('progressbar')).toHaveAttribute(
+      'aria-valuenow',
+      '0',
+    );
   });
 
   it('omits aria-valuenow for indeterminate variants', () => {
-    render(ProgressIndicator, { props: { variant: 'linear-indeterminate', 'aria-label': 'Loading' } });
-    expect(screen.getByRole('progressbar')).not.toHaveAttribute('aria-valuenow');
+    render(ProgressIndicator, {
+      props: { variant: 'linear-indeterminate', 'aria-label': 'Loading' },
+    });
+    expect(screen.getByRole('progressbar')).not.toHaveAttribute(
+      'aria-valuenow',
+    );
   });
 
   it('hides transitionDuration ms after the value reaches 100', async () => {
@@ -45,7 +69,9 @@ describe('ProgressIndicator', () => {
           'aria-label': 'Upload progress',
         },
       });
-      expect(classes).toHaveBeenLastCalledWith(expect.objectContaining({ isVisible: true }));
+      expect(classes).toHaveBeenLastCalledWith(
+        expect.objectContaining({ isVisible: true }),
+      );
 
       await rerender({
         variant: 'linear-determinate',
@@ -54,12 +80,16 @@ describe('ProgressIndicator', () => {
         classes,
         'aria-label': 'Upload progress',
       });
-      expect(classes).toHaveBeenLastCalledWith(expect.objectContaining({ isVisible: true }));
+      expect(classes).toHaveBeenLastCalledWith(
+        expect.objectContaining({ isVisible: true }),
+      );
 
       vi.advanceTimersByTime(500);
       flushSync();
 
-      expect(classes).toHaveBeenLastCalledWith(expect.objectContaining({ isVisible: false }));
+      expect(classes).toHaveBeenLastCalledWith(
+        expect.objectContaining({ isVisible: false }),
+      );
     } finally {
       vi.useRealTimers();
     }
@@ -81,7 +111,9 @@ describe('ProgressIndicator', () => {
 
       vi.advanceTimersByTime(500);
       flushSync();
-      expect(classes).toHaveBeenLastCalledWith(expect.objectContaining({ isVisible: true }));
+      expect(classes).toHaveBeenLastCalledWith(
+        expect.objectContaining({ isVisible: true }),
+      );
     } finally {
       vi.useRealTimers();
     }
@@ -103,15 +135,45 @@ describe('ProgressIndicator', () => {
 
     expect(screen.getByTestId('progress')).toBeInTheDocument();
     expect(classes).toHaveBeenCalledWith(
-      expect.objectContaining({ variant: 'linear-determinate', value: 40, minHeight: 4 }),
+      expect.objectContaining({
+        variant: 'linear-determinate',
+        value: 40,
+        minHeight: 4,
+      }),
     );
   });
 
   it('has no automated accessibility violations', async () => {
     const { container } = render(ProgressIndicator, {
-      props: { variant: 'linear-determinate', value: 40, 'aria-label': 'Upload progress' },
+      props: {
+        variant: 'linear-determinate',
+        value: 40,
+        'aria-label': 'Upload progress',
+      },
     });
 
     expect(await axe(container)).toHaveNoViolations();
   });
 });
+
+it.each(['linear-indeterminate', 'circular-indeterminate'] as const)(
+  'keeps %s visible and omits an accidental current value',
+  (variant) => {
+    const classes = vi.fn(() => ({}));
+    render(ProgressIndicator, {
+      props: {
+        variant,
+        value: 100,
+        classes,
+        'aria-label': 'Loading',
+        'aria-valuenow': 100,
+      },
+    });
+    expect(screen.getByRole('progressbar')).not.toHaveAttribute(
+      'aria-valuenow',
+    );
+    expect(classes).toHaveBeenLastCalledWith(
+      expect.objectContaining({ isVisible: true }),
+    );
+  },
+);

@@ -41,6 +41,7 @@ export default defineConfig(() => ({
     rollupOptions: {
       // External packages that should not be bundled into your library.
       external: [
+        '@udixio/motion/internal-policy',
         'react',
         'react/jsx-runtime',
         'clsx',

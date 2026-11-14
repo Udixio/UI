@@ -162,3 +162,36 @@ describe('ProgressIndicator', () => {
     expect(await axe(view.container)).toHaveNoViolations();
   });
 });
+
+it.each(['linear-indeterminate', 'circular-indeterminate'] as const)(
+  'keeps %s visible and removes an accidental current value',
+  (variant) => {
+    const className = vi.fn(() => ({}));
+    render(
+      <ProgressIndicator
+        variant={variant}
+        value={100}
+        aria-label="Loading"
+        aria-valuenow={100}
+        className={className}
+      />,
+    );
+    expect(screen.getByRole('progressbar')).not.toHaveAttribute(
+      'aria-valuenow',
+    );
+    expect(className).toHaveBeenLastCalledWith(
+      expect.objectContaining({ isVisible: true }),
+    );
+  },
+);
+
+it('cancels a pending completion hide when switching to indeterminate', () => {
+  vi.useFakeTimers();
+  try {
+    const className = vi.fn(() => ({}));
+    const { rerender } = render(<ProgressIndicator variant="linear-determinate" value={100} transitionDuration={500} className={className} aria-label="Loading" />);
+    rerender(<ProgressIndicator variant="circular-indeterminate" value={100} transitionDuration={500} className={className} aria-label="Loading" />);
+    act(() => vi.advanceTimersByTime(500));
+    expect(className).toHaveBeenLastCalledWith(expect.objectContaining({ isVisible: true }));
+  } finally { vi.useRealTimers(); }
+});

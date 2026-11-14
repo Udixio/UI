@@ -16,6 +16,7 @@ import { createCircularProgressController } from '@udixio/core/dom';
   template: `
     <svg
       #svg
+      style="transform: rotate(-90deg)"
       aria-hidden="true"
       class="h-6 w-6 fill-transparent"
       width="48"
@@ -25,9 +26,11 @@ import { createCircularProgressController } from '@udixio/core/dom';
     >
       <circle
         #circle
+        pathLength="1"
+        style="stroke-dasharray: 0.25 1"
         cx="50%"
         cy="50%"
-        r="calc(50% - 2px)"
+        r="22"
         stroke-width="4"
         stroke-linecap="round"
       />

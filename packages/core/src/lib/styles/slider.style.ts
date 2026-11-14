@@ -14,13 +14,13 @@ export const sliderConfig: ClassNameComponent<SliderInterface> = ({
     { 'pointer-events-none opacity-[0.38] cursor-default': disabled },
   ]),
   activeTrack: cx([
-    'h-4 relative transition-all duration-100 bg-primary overflow-hidden rounded-l-full ',
+    'h-4 relative transition-[flex] duration-100 duration-[calc(100ms*var(--udx-motion-scale,1))] motion-reduce:transition-none [[data-udx-slider-motion-reduce]_&]:transition-none bg-primary overflow-hidden rounded-l-full ',
   ]),
   inactiveTrack: cx([
-    'h-4 relative transition-all duration-100 bg-primary-container rounded-r-full overflow-hidden',
+    'h-4 relative transition-[flex] duration-100 duration-[calc(100ms*var(--udx-motion-scale,1))] motion-reduce:transition-none [[data-udx-slider-motion-reduce]_&]:transition-none bg-primary-container rounded-r-full overflow-hidden',
   ]),
   handle: cx([
-    'transform relative transition-all duration-100 bg-primary h-full rounded-full ',
+    'transform relative transition-[width] duration-100 duration-[calc(100ms*var(--udx-motion-scale,1))] motion-reduce:transition-none [[data-udx-slider-motion-reduce]_&]:transition-none bg-primary h-full rounded-full ',
     { 'w-0.5': isChanging, 'w-1': !isChanging },
   ]),
   // Shown/hidden by `createSliderIndicatorController` (core/dom) animating
@@ -29,7 +29,7 @@ export const sliderConfig: ClassNameComponent<SliderInterface> = ({
   // (the static `-translate-x-1/2` centering lives on a separate, unanimated
   // wrapper around it instead of clobbering / getting clobbered). Keeping
   // the animation itself in one shared controller keeps it identical (one
-  // implementation) across both adapters. `pointer-events-none` always
+  // implementation) across all three adapters. `pointer-events-none` always
   // applies; this is a value tooltip, never a click target.
   valueIndicator: cx([
     'select-none pointer-events-none bg-inverse-surface text-inverse-on-surface py-3 px-4 text-label-large rounded-full origin-bottom text-nowrap',

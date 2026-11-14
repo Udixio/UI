@@ -1,13 +1,7 @@
 import { animate, type AnimationPlaybackControls } from 'motion';
+import { motionPolicy } from '@udixio/motion/internal-policy';
 import { getSliderValueFromPercent } from '../behaviors/slider.behavior.js';
 import type { SliderMark } from '../interfaces/slider.interface.js';
-
-function systemPrefersReducedMotion(): boolean {
-  return (
-    typeof globalThis.matchMedia === 'function' &&
-    globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
-}
 
 export interface SliderPointerControllerOptions {
   /** The element whose width defines the 0..100% drag range. */
@@ -45,7 +39,7 @@ function clientXFromEvent(event: MouseEvent | TouchEvent): number | null {
  * primitive.
  *
  * React connects it in `useEffect`; Angular connects it in
- * `afterRenderEffect`.
+ * `afterRenderEffect`; Svelte connects it in `$effect`.
  */
 export function createSliderPointerController({
   track,
@@ -124,7 +118,10 @@ export function createSliderPointerController({
 export interface SliderIndicatorControllerOptions {
   /** The value-bubble element, scaled in/out around its bottom-center origin. */
   indicator: HTMLElement;
+  /** Slider root containing the tracks and handle, including in Shadow DOM. */
+  root: HTMLElement;
   duration?: number;
+  /** Additional sampled preference, checked on calls and policy notifications. */
   reducedMotion?: () => boolean;
 }
 
@@ -135,7 +132,7 @@ export interface SliderIndicatorController {
 
 /**
  * Owns the value indicator's show/hide animation: a 0↔1 scale, animated via
- * Motion JS. React and Angular both drive this from their `isChanging`
+ * Motion JS. React, Angular and Svelte drive this from their `isChanging`
  * state instead of each carrying their own animation implementation, which
  * would inevitably drift.
  *
@@ -145,7 +142,7 @@ export interface SliderIndicatorController {
  * positioning (e.g. horizontal centering) belongs on a separate wrapper
  * around it, not on this element.
  *
- * Assumes the indicator starts hidden (both adapters render it with an
+ * Assumes the indicator starts hidden (all adapters render it with an
  * initial `transform: scale(0)` inline style before this controller ever
  * mounts, matching exactly what this controller itself would write), so the
  * first `setVisible(false)` a mount effect naturally fires is a no-op
@@ -153,29 +150,65 @@ export interface SliderIndicatorController {
  */
 export function createSliderIndicatorController({
   indicator,
+  root,
   duration = 0.1,
-  reducedMotion = systemPrefersReducedMotion,
+  reducedMotion,
 }: SliderIndicatorControllerOptions): SliderIndicatorController {
   let animation: AnimationPlaybackControls | undefined;
   let requestedVisible = false;
+  let destroyed = false;
+  let unsubscribe: (() => void) | undefined;
+
+  const settle = () => {
+    animation?.cancel();
+    animation = undefined;
+    indicator.style.transform = `scale(${requestedVisible ? 1 : 0})`;
+  };
+  motionPolicy.retain();
+  try {
+    const applyPolicy = () => {
+      const reduced = motionPolicy.reduced;
+      root.toggleAttribute('data-udx-slider-motion-reduce', reduced);
+      if (reduced || reducedMotion?.()) settle();
+    };
+    unsubscribe = motionPolicy.subscribe(applyPolicy);
+    applyPolicy();
+  } catch (error) {
+    root.removeAttribute('data-udx-slider-motion-reduce');
+    try { unsubscribe?.(); } catch { /* Preserve installation error. */ }
+    try { motionPolicy.release(); } catch { /* Preserve installation error. */ }
+    throw error;
+  }
 
   return {
     setVisible(visible) {
-      if (requestedVisible === visible) return;
+      if (destroyed) return;
+      const changed = requestedVisible !== visible;
       requestedVisible = visible;
-
-      animation?.stop();
-      animation = undefined;
-
-      if (reducedMotion()) {
-        indicator.style.transform = `scale(${visible ? 1 : 0})`;
+      if (motionPolicy.reduced || reducedMotion?.()) {
+        settle();
         return;
       }
-
-      animation = animate(indicator, { scale: visible ? 1 : 0 }, { duration });
+      if (!changed) return;
+      // Motion receives two scale functions: a computed matrix interpolates
+      // discretely against scale(), so normalize the indicator's owned transform.
+      const current = getComputedStyle(indicator).transform;
+      const matrix = typeof DOMMatrixReadOnly === 'function' && current !== 'none'
+        ? new DOMMatrixReadOnly(current) : undefined;
+      const scale = matrix ? Math.hypot(matrix.a, matrix.b)
+        : Number(current.match(/^scale\(([^)]+)\)$/)?.[1] ?? 1);
+      animation?.cancel();
+      const from = `scale(${scale})`;
+      indicator.style.transform = from;
+      animation = animate(indicator, { transform: [from, `scale(${visible ? 1 : 0})`] }, { duration });
     },
     destroy() {
-      animation?.stop();
+      if (destroyed) return;
+      destroyed = true;
+      root.removeAttribute('data-udx-slider-motion-reduce');
+      try { unsubscribe?.(); } finally {
+        try { animation?.cancel(); } finally { motionPolicy.release(); }
+      }
     },
   };
 }

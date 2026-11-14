@@ -10,7 +10,7 @@ expect.extend(toHaveNoViolations);
 // `createSliderIndicatorController` (core/dom) and already unit-tested
 // there; here we only need to verify the Angular wiring requests the right
 // visibility, not exercise jsdom's lack of a real WAAPI implementation.
-jest.mock('motion', () => ({ animate: jest.fn(() => ({ stop: jest.fn() })) }));
+jest.mock('motion', () => ({ animate: jest.fn(() => ({ stop: jest.fn(), cancel: jest.fn() })) }));
 
 function stubTrackWidth(track: HTMLElement, width = 200) {
   track.getBoundingClientRect = () =>
@@ -62,6 +62,19 @@ describe('Slider (Angular)', () => {
     expect(track.getAttribute('aria-valuenow')).toBe('30');
     expect(track.getAttribute('tabindex')).toBe('0');
     expect(track.hasAttribute('aria-disabled')).toBe(false);
+  });
+
+  it('marks the slider root under shared reduced motion and cleans up', async () => {
+    document.documentElement.setAttribute('data-motion-policy', 'reduce');
+    fixture = await createFixture();
+    fixture.componentRef.setInput('name', 'volume');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const root: HTMLElement = fixture.nativeElement.querySelector('[role="slider"]');
+    expect(root.hasAttribute('data-udx-slider-motion-reduce')).toBe(true);
+    fixture.destroy();
+    expect(root.hasAttribute('data-udx-slider-motion-reduce')).toBe(false);
+    document.documentElement.removeAttribute('data-motion-policy');
   });
 
   it('has no accessibility violations', async () => {
@@ -190,7 +203,7 @@ describe('Slider (Angular)', () => {
     fixture.detectChanges();
     expect(animate).toHaveBeenLastCalledWith(
       indicator,
-      { scale: 1 },
+      { transform: [expect.any(String), 'scale(1)'] },
       { duration: 0.1 },
     );
 
@@ -198,14 +211,14 @@ describe('Slider (Angular)', () => {
     fixture.detectChanges();
     expect(animate).toHaveBeenLastCalledWith(
       indicator,
-      { scale: 1 },
+      { transform: [expect.any(String), 'scale(1)'] },
       { duration: 0.1 },
     );
     jest.advanceTimersByTime(1);
     fixture.detectChanges();
     expect(animate).toHaveBeenLastCalledWith(
       indicator,
-      { scale: 0 },
+      { transform: [expect.any(String), 'scale(0)'] },
       { duration: 0.1 },
     );
 
@@ -215,14 +228,14 @@ describe('Slider (Angular)', () => {
     fixture.detectChanges();
     expect(animate).toHaveBeenLastCalledWith(
       indicator,
-      { scale: 1 },
+      { transform: [expect.any(String), 'scale(1)'] },
       { duration: 0.1 },
     );
     track.dispatchEvent(new FocusEvent('blur', { bubbles: true }));
     fixture.detectChanges();
     expect(animate).toHaveBeenLastCalledWith(
       indicator,
-      { scale: 0 },
+      { transform: [expect.any(String), 'scale(0)'] },
       { duration: 0.1 },
     );
 

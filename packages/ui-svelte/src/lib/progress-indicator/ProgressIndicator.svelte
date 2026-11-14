@@ -62,15 +62,15 @@
     value,
     transitionDuration,
     minHeight,
-    isVisible,
+    isVisible: !isDeterminateVariant(variant) || isVisible,
   }));
 
   $effect(() =>
-    createProgressVisibilityController({
+    isDeterminateVariant(variant) ? createProgressVisibilityController({
       completedPercentage,
       transitionDuration,
       onVisibilityChange: (visible) => (isVisible = visible),
-    }),
+    }) : undefined,
   );
 
   $effect(() => {
@@ -91,12 +91,14 @@
     role="progressbar"
     aria-valuemin={0}
     aria-valuemax={100}
+    aria-valuenow={undefined}
   >
-    <div bind:this={leadingBar} style:flex-shrink={0} class={styles.current['activeIndicator']}></div>
-    <div bind:this={gapTrack} style:flex-shrink={0} class={styles.current['firstTrack']}></div>
+    <div bind:this={leadingBar} style:flex-shrink={0} style:width="20%" class={styles.current['activeIndicator']}></div>
+    <div bind:this={gapTrack} style:flex-shrink={0} style:width="20%" class={styles.current['firstTrack']}></div>
     <div
       bind:this={trailingBar}
       style:flex-shrink={0}
+      style:width="20%"
       style:margin-left="6px"
       class={styles.current['activeIndicator']}
     ></div>
@@ -127,6 +129,7 @@
   <svg
     {...rest}
     bind:this={indeterminateSvg}
+    style:transform="rotate(-90deg)"
     width="48"
     height="48"
     viewBox="0 0 48 48"
@@ -134,13 +137,16 @@
     role="progressbar"
     aria-valuemin={0}
     aria-valuemax={100}
+    aria-valuenow={undefined}
   >
     <circle
       bind:this={indeterminateCircle}
       cx="50%"
       cy="50%"
-      r="calc(50% - 2px)"
+      r="22"
+      pathLength="1"
       style:stroke-linecap="round"
+      style:stroke-dasharray="0.25 1"
       class={styles.current['activeIndicator']}
     />
   </svg>
