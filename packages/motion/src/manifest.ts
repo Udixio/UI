@@ -25,7 +25,7 @@ export const motionManifest = freezeDeep({
       'loop',
       'layout',
     ],
-    supportedVerbs: ['appear', 'disappear', 'emphasize', 'layout'],
+    supportedVerbs: ['appear', 'disappear', 'emphasize', 'reveal', 'scrub', 'loop', 'layout'],
     springs: [
       'spring.fast.spatial',
       'spring.fast.effects',
@@ -41,6 +41,10 @@ export const motionManifest = freezeDeep({
     stagger: ['tight', 'normal', 'loose'],
     origin: ['first', 'last', 'center'],
     exit: ['in-place', 'out-of-flow'],
+    repeat: ['once', 'always'],
+    axis: ['block', 'inline'],
+    range: ['enter', 'cross', 'exit', 'contain'],
+    pause: ['control', 'essential'],
     visualFields: ['opacity', 'x', 'y', 'scale', 'scaleX', 'scaleY', 'rotate'],
     deferredVisualFields: [
       'color',
@@ -52,26 +56,35 @@ export const motionManifest = freezeDeep({
   envelope: { required: ['version', 'spec'] },
   spec: {
     required: ['verb', 'keyframes'],
-    optional: ['timing', 'reduced', 'interrupt', 'stagger', 'origin', 'exit', 'shared'],
-    deferred: [
+    optional: [
+      'timing',
+      'reduced',
+      'interrupt',
+      'stagger',
+      'origin',
+      'exit',
+      'shared',
       'repeat',
-      'direction',
-      'distance',
-      'range',
       'axis',
+      'range',
       'pause',
       'reason',
     ],
+    deferred: ['direction', 'distance'],
     interruptVerbs: ['emphasize', 'layout'],
-    staggerVerbs: ['appear', 'disappear'],
+    staggerVerbs: ['appear', 'disappear', 'reveal'],
     exitVerbs: ['appear', 'disappear'],
     sharedVerbs: ['layout'],
+    repeatVerbs: ['reveal'],
+    axisVerbs: ['reveal', 'scrub'],
+    rangeVerbs: ['scrub'],
+    pauseVerbs: ['loop'],
+    reasonVerbs: ['loop'],
+    untimedVerbs: ['scrub'],
+    curveTimingVerbs: ['loop'],
   },
   deferredDomains: {
-    repeat: { values: ['once', 'always'], source: '§8.2.3' },
     direction: { values: ['start', 'end', 'up', 'down'], source: '§8.2.3' },
-    axis: { values: ['block', 'inline'], source: '§8.2.3' },
-    pause: { values: ['control', 'essential'], source: '§8.2.3' },
   },
   constraints: {
     minKeyframes: 1,
@@ -113,7 +126,9 @@ export const motionManifest = freezeDeep({
       trigger: 'load',
       interrupt: 'restart',
       reduced: 'frozen',
-      timing: ['linear-token'],
+      // A loop has no spring: its default is the curve, held apart from the spring lists the other verbs read.
+      timing: [],
+      curve: { duration: 'duration.extraLong4', easing: 'easing.linear' },
       pause: 'required',
     },
     layout: {
@@ -158,11 +173,13 @@ type Common = {
   timing?: ManifestSpringRef | CurveTiming;
   reduced?: ManifestReduced;
 };
+type Keyed = { keyframes: [Frame, ...Frame[]] };
+// Each branch names every option of the spec: the options its verb does not take are typed `never`.
 export type MotionDocument = {
   version: typeof motionManifest.version;
   spec:
     | (Common &
-        { keyframes: [Frame, ...Frame[]] } &
+        Keyed &
         (
           | {
               verb: Extract<Domain<'supportedVerbs'>, 'emphasize'>;
@@ -171,15 +188,69 @@ export type MotionDocument = {
               origin?: never;
               exit?: never;
               shared?: never;
+              repeat?: never;
+              axis?: never;
+              range?: never;
+              pause?: never;
+              reason?: never;
             }
           | {
-              verb: Exclude<Domain<'supportedVerbs'>, 'emphasize' | 'layout'>;
+              verb: Extract<Domain<'supportedVerbs'>, 'appear' | 'disappear'>;
               interrupt?: never;
               stagger?: Domain<'stagger'>;
               origin?: Domain<'origin'>;
               exit?: Domain<'exit'>;
               shared?: never;
+              repeat?: never;
+              axis?: never;
+              range?: never;
+              pause?: never;
+              reason?: never;
             }
+          | {
+              verb: Extract<Domain<'supportedVerbs'>, 'reveal'>;
+              interrupt?: never;
+              stagger?: Domain<'stagger'>;
+              origin?: Domain<'origin'>;
+              exit?: never;
+              shared?: never;
+              repeat?: Domain<'repeat'>;
+              axis?: Domain<'axis'>;
+              range?: never;
+              pause?: never;
+              reason?: never;
+            }
+        ))
+    | (Omit<Common, 'timing'> &
+        Keyed & {
+          verb: Extract<Domain<'supportedVerbs'>, 'scrub'>;
+          timing?: never;
+          interrupt?: never;
+          stagger?: never;
+          origin?: never;
+          exit?: never;
+          shared?: never;
+          repeat?: never;
+          axis?: Domain<'axis'>;
+          range?: Domain<'range'>;
+          pause?: never;
+          reason?: never;
+        })
+    | (Omit<Common, 'timing'> &
+        Keyed & {
+          verb: Extract<Domain<'supportedVerbs'>, 'loop'>;
+          timing?: CurveTiming;
+          interrupt?: never;
+          stagger?: never;
+          origin?: never;
+          exit?: never;
+          shared?: never;
+          repeat?: never;
+          axis?: never;
+          range?: never;
+        } & (
+          | { pause: 'control'; reason?: never }
+          | { pause: 'essential'; reason: string }
         ))
     | (Common & {
         verb: Extract<Domain<'supportedVerbs'>, 'layout'>;
@@ -189,6 +260,11 @@ export type MotionDocument = {
         origin?: never;
         exit?: never;
         shared?: string;
+        repeat?: never;
+        axis?: never;
+        range?: never;
+        pause?: never;
+        reason?: never;
       });
 };
 export type MotionValidationCode =
@@ -327,9 +403,17 @@ export function validateMotionDocument(input: unknown): MotionValidationResult {
               }
             });
         }
+        // A verb takes the fields listed for it; any other known verb refuses them.
+        const verbIs = (verbs: readonly string[]) =>
+          typeof spec.verb === 'string' && contains(verbs, spec.verb);
+        const verbIsNot = (verbs: readonly string[]) =>
+          typeof spec.verb === 'string' && !contains(verbs, spec.verb);
         if (has(spec, 'timing')) {
           const timing = spec.timing;
-          if (typeof timing === 'string') domain(timing, '/spec/timing', motionManifest.domains.springs);
+          // A scroll-driven scrub takes no timing; a loop takes a curve, never a spring.
+          if (verbIs(motionManifest.spec.untimedVerbs)) add('/spec/timing', 'unsupported');
+          else if (typeof timing === 'string' && verbIs(motionManifest.spec.curveTimingVerbs)) add('/spec/timing', 'unsupported');
+          else if (typeof timing === 'string') domain(timing, '/spec/timing', motionManifest.domains.springs);
           else if (!object(timing)) add('/spec/timing', 'type');
           else {
             fields(timing, '/spec/timing', ['duration', 'easing']);
@@ -385,6 +469,28 @@ export function validateMotionDocument(input: unknown): MotionValidationResult {
             add('/spec/shared', 'unsupported');
           else if (typeof spec.shared !== 'string') add('/spec/shared', 'type');
           else if (!NAME_PATTERN.test(spec.shared)) add('/spec/shared', 'invalid_value');
+        }
+        // The view, scroll and loop fields: each one is refused by the verbs that do not list it.
+        for (const [key, verbs, values] of [
+          ['repeat', motionManifest.spec.repeatVerbs, motionManifest.domains.repeat],
+          ['axis', motionManifest.spec.axisVerbs, motionManifest.domains.axis],
+          ['range', motionManifest.spec.rangeVerbs, motionManifest.domains.range],
+          ['pause', motionManifest.spec.pauseVerbs, motionManifest.domains.pause],
+        ] as const)
+          if (has(spec, key)) {
+            if (verbIsNot(verbs)) add(`/spec/${key}`, 'unsupported');
+            else domain(spec[key], `/spec/${key}`, values);
+          }
+        // A loop says whether it may be paused: every loop has a pause, and an essential one gives its reason.
+        if (verbIs(motionManifest.spec.pauseVerbs)) {
+          required(spec, '/spec', ['pause']);
+          if (spec.pause === 'essential') required(spec, '/spec', ['reason']);
+        }
+        if (has(spec, 'reason')) {
+          if (verbIsNot(motionManifest.spec.reasonVerbs)) add('/spec/reason', 'unsupported');
+          else if (spec.pause === 'control') add('/spec/reason', 'conflict');
+          else if (typeof spec.reason !== 'string') add('/spec/reason', 'type');
+          else if (spec.reason.trim() === '') add('/spec/reason', 'empty');
         }
       }
     }

@@ -37,7 +37,15 @@ type BindOptions = { present?: boolean; settled?: boolean; development?: boolean
 type KeyframedSpec = Exclude<MotionSpec, { verb: 'layout' }>;
 
 /** The kinds in the order `getMotion` and `getMotions` read them. */
-const KINDS: readonly MotionKind[] = ['presence', 'emphasis', 'layout'];
+const KINDS: readonly MotionKind[] = ['presence', 'emphasis', 'layout', 'view', 'loop'];
+
+/** The verbs whose binding is written in a later step: until then `motion` refuses them, before it registers anything. */
+const UNBOUND_VERBS: readonly MotionSpec['verb'][] = ['reveal', 'scrub', 'loop'];
+
+/** Whether a verb is not bound yet: a page that defines such a motion is never broken by it. */
+export function isUnboundVerb(verb: MotionSpec['verb']): boolean {
+  return UNBOUND_VERBS.includes(verb);
+}
 
 /** The binding of each kind on an element: at most one per kind. */
 const bindings = new WeakMap<Element, Map<MotionKind, MotionBinding>>();
@@ -90,6 +98,7 @@ function unregister(target: Element, binding: MotionBinding): void {
  */
 export function motion(target: HTMLElement, source: MotionSource, options: BindOptions = {}): MotionBinding {
   const spec = specOf(source);
+  if (isUnboundVerb(spec.verb)) throw new TypeError(`${spec.verb} motions are not bound yet`);
   getMotion(target, kindOf(spec.verb))?.destroy();
   const binding = spec.verb === 'layout' ? createLayoutBinding(target, spec, options) : createBinding(target, spec, options);
   register(target, binding);
@@ -101,6 +110,17 @@ export interface DeferredMotion {
   /** The binding, once the motion is defined. */
   readonly binding: MotionBinding | undefined;
   destroy(): void;
+}
+
+/**
+ * Bind a motion whose verb is bound; a verb not bound yet leaves the element untouched, and development logs it.
+ * Callers that bind a definition as it is defined use it, so that no exception escapes a render or a scan.
+ */
+function bindIfBound(target: HTMLElement, source: MotionSource, options: BindOptions): MotionBinding | undefined {
+  const verb = specOf(source).verb;
+  if (!isUnboundVerb(verb)) return motion(target, source, options);
+  if (options.development) console.error(`[@udixio/motion] ${verb} motions are not bound yet: the element is left untouched.`);
+  return undefined;
 }
 
 /**
@@ -117,10 +137,10 @@ export function motionWhenDefined(target: HTMLElement, source: MotionSource, opt
       if (ref.name !== name) return;
       unsubscribe?.();
       unsubscribe = undefined;
-      binding = motion(target, ref, { ...options, settled: true });
+      binding = bindIfBound(target, ref, { ...options, settled: true });
     });
   } else {
-    binding = motion(target, source, options);
+    binding = bindIfBound(target, source, options);
   }
   return {
     get binding() {

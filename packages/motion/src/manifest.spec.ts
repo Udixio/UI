@@ -44,7 +44,7 @@ describe('experimental motion manifest validator', () => {
       ['/spec/keyframes/0/surprise', 'unknown_field'],
     ]);
     expect(motionManifest.deferredDomains).not.toHaveProperty('trigger');
-    expect(motionManifest.deferredDomains.pause.values).toEqual([
+    expect(motionManifest.domains.pause).toEqual([
       'control',
       'essential',
     ]);
@@ -110,12 +110,6 @@ describe('experimental motion manifest validator', () => {
       ['/spec/reduced', 'type'],
       ['/spec/timing', 'invalid_value'],
     ]);
-    expect(
-      errors({ version: 1, spec: { verb: 'loop', keyframes: [] } }),
-    ).toEqual([
-      ['/spec/keyframes', 'empty'],
-      ['/spec/verb', 'unsupported'],
-    ]);
     expect(errors(null)).toEqual([['', 'type']]);
     expect(
       errors({
@@ -127,5 +121,119 @@ describe('experimental motion manifest validator', () => {
         },
       }),
     ).toEqual([]);
+  });
+});
+
+describe('reveal, scrub and loop in the validator', () => {
+  const loop = (extra: Record<string, unknown>) => ({
+    version: 1,
+    spec: { verb: 'loop', keyframes: [{ opacity: 1 }], ...extra },
+  });
+
+  it('accepts a reveal with a spring or a curve, and a scrub with a range and an axis', () => {
+    expect(
+      errors({
+        version: 1,
+        spec: {
+          verb: 'reveal',
+          keyframes: [{ opacity: 0 }],
+          timing: 'spring.default.spatial',
+          repeat: 'always',
+          axis: 'inline',
+          stagger: 'loose',
+          origin: 'center',
+        },
+      }),
+    ).toEqual([]);
+    expect(
+      errors({
+        version: 1,
+        spec: {
+          verb: 'reveal',
+          keyframes: [{ opacity: 0 }],
+          timing: { duration: 'duration.long2', easing: 'easing.standard' },
+        },
+      }),
+    ).toEqual([]);
+    expect(errors({ version: 1, spec: { verb: 'scrub', keyframes: [{ y: 1 }], range: 'contain', axis: 'block' } })).toEqual([]);
+  });
+
+  it('refuses a timing on a scrub, and a spring on a loop, both at /spec/timing', () => {
+    expect(
+      errors({ version: 1, spec: { verb: 'scrub', keyframes: [{ y: 1 }], timing: 'spring.default.spatial' } }),
+    ).toEqual([['/spec/timing', 'unsupported']]);
+    expect(
+      errors({
+        version: 1,
+        spec: { verb: 'scrub', keyframes: [{ y: 1 }], timing: { duration: 'duration.long2', easing: 'easing.standard' } },
+      }),
+    ).toEqual([['/spec/timing', 'unsupported']]);
+    expect(errors(loop({ pause: 'control', timing: 'spring.default.spatial' }))).toEqual([['/spec/timing', 'unsupported']]);
+    expect(
+      errors(loop({ pause: 'control', timing: { duration: 'duration.extraLong4', easing: 'easing.linear' } })),
+    ).toEqual([]);
+  });
+
+  it('checks the pause and reason matrix of a loop', () => {
+    expect(errors(loop({ pause: 'control' }))).toEqual([]);
+    expect(errors(loop({ pause: 'control', reason: 'Not needed.' }))).toEqual([['/spec/reason', 'conflict']]);
+    expect(errors(loop({ pause: 'essential', reason: 'Shows that the feed is live.' }))).toEqual([]);
+    expect(errors(loop({ pause: 'essential' }))).toEqual([['/spec/reason', 'required']]);
+    expect(errors(loop({ pause: 'essential', reason: '' }))).toEqual([['/spec/reason', 'empty']]);
+    expect(errors(loop({ pause: 'essential', reason: '  ' }))).toEqual([['/spec/reason', 'empty']]);
+    expect(errors(loop({ pause: 'essential', reason: 3 }))).toEqual([['/spec/reason', 'type']]);
+    expect(errors(loop({}))).toEqual([['/spec/pause', 'required']]);
+    expect(errors(loop({ pause: 'sometimes' }))).toEqual([['/spec/pause', 'invalid_value']]);
+  });
+
+  it('refuses pause, range and repeat where their verb does not take them', () => {
+    expect(errors({ version: 1, spec: { verb: 'reveal', keyframes: [{ opacity: 0 }], pause: 'control' } })).toEqual([
+      ['/spec/pause', 'unsupported'],
+    ]);
+    expect(errors({ version: 1, spec: { verb: 'scrub', keyframes: [{ y: 1 }], pause: 'control' } })).toEqual([
+      ['/spec/pause', 'unsupported'],
+    ]);
+    expect(errors({ version: 1, spec: { verb: 'appear', keyframes: [{ opacity: 0 }], range: 'cross' } })).toEqual([
+      ['/spec/range', 'unsupported'],
+    ]);
+    expect(errors(loop({ pause: 'control', repeat: 'once', axis: 'block' }))).toEqual([
+      ['/spec/axis', 'unsupported'],
+      ['/spec/repeat', 'unsupported'],
+    ]);
+  });
+
+  it('reports the keyframes of a reveal, a scrub and a loop as required or empty', () => {
+    expect(errors({ version: 1, spec: { verb: 'reveal' } })).toEqual([['/spec/keyframes', 'required']]);
+    expect(errors({ version: 1, spec: { verb: 'scrub', keyframes: [] } })).toEqual([['/spec/keyframes', 'empty']]);
+    expect(errors({ version: 1, spec: { verb: 'loop', pause: 'control' } })).toEqual([['/spec/keyframes', 'required']]);
+  });
+
+  it('reports an empty keyframes list and a missing pause on a loop, not an unsupported verb', () => {
+    expect(errors({ version: 1, spec: { verb: 'loop', keyframes: [] } })).toEqual([
+      ['/spec/keyframes', 'empty'],
+      ['/spec/pause', 'required'],
+    ]);
+  });
+
+  it('documents the new verbs, domains and defaults in the manifest', () => {
+    expect(motionManifest.domains.supportedVerbs).toEqual([
+      'appear',
+      'disappear',
+      'emphasize',
+      'reveal',
+      'scrub',
+      'loop',
+      'layout',
+    ]);
+    expect(motionManifest.domains.repeat).toEqual(['once', 'always']);
+    expect(motionManifest.domains.axis).toEqual(['block', 'inline']);
+    expect(motionManifest.domains.range).toEqual(['enter', 'cross', 'exit', 'contain']);
+    expect(motionManifest.domains.pause).toEqual(['control', 'essential']);
+    expect(motionManifest.spec.deferred).toEqual(['direction', 'distance']);
+    expect(motionManifest.defaults.loop.timing).toEqual([]);
+    expect(motionManifest.defaults.loop.curve).toEqual({
+      duration: 'duration.extraLong4',
+      easing: 'easing.linear',
+    });
   });
 });

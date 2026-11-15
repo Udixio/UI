@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { resolveMotion } from './define-motion.js';
-import { cascade, reflow } from './presets.js';
+import { blink, breathe, cascade, parallax, reflow, rise, rotate, shake } from './presets.js';
 
 describe('presets', () => {
   it('defines reflow as a layout motion without keyframes', () => {
@@ -43,5 +43,17 @@ describe('presets', () => {
       verb: 'emphasize',
       keyframes: [{ scale: 1 }, { scale: 0.96 }, { scale: 1 }],
     });
+  });
+
+  it('defines rise, parallax, rotate, breathe, blink and shake, each with its verb', () => {
+    const verbs = { rise: 'reveal', parallax: 'scrub', rotate: 'loop', breathe: 'loop', blink: 'loop', shake: 'emphasize' };
+    for (const ref of [rise, parallax, rotate, breathe, blink, shake]) {
+      expect(ref.spec.verb).toBe(verbs[ref.name as keyof typeof verbs]);
+      expect(resolveMotion(ref.name)).toBe(ref);
+    }
+  });
+
+  it('makes each loop preset pausable by its user', () => {
+    for (const ref of [rotate, breathe, blink]) expect(ref.spec.pause).toBe('control');
   });
 });

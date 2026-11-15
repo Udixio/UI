@@ -14,6 +14,9 @@
       "appear",
       "disappear",
       "emphasize",
+      "reveal",
+      "scrub",
+      "loop",
       "layout"
     ],
     "springs": [
@@ -73,6 +76,24 @@
       "in-place",
       "out-of-flow"
     ],
+    "repeat": [
+      "once",
+      "always"
+    ],
+    "axis": [
+      "block",
+      "inline"
+    ],
+    "range": [
+      "enter",
+      "cross",
+      "exit",
+      "contain"
+    ],
+    "pause": [
+      "control",
+      "essential"
+    ],
     "visualFields": [
       "opacity",
       "x",
@@ -107,16 +128,16 @@
       "stagger",
       "origin",
       "exit",
-      "shared"
-    ],
-    "deferred": [
+      "shared",
       "repeat",
-      "direction",
-      "distance",
-      "range",
       "axis",
+      "range",
       "pause",
       "reason"
+    ],
+    "deferred": [
+      "direction",
+      "distance"
     ],
     "interruptVerbs": [
       "emphasize",
@@ -124,7 +145,8 @@
     ],
     "staggerVerbs": [
       "appear",
-      "disappear"
+      "disappear",
+      "reveal"
     ],
     "exitVerbs": [
       "appear",
@@ -132,36 +154,37 @@
     ],
     "sharedVerbs": [
       "layout"
+    ],
+    "repeatVerbs": [
+      "reveal"
+    ],
+    "axisVerbs": [
+      "reveal",
+      "scrub"
+    ],
+    "rangeVerbs": [
+      "scrub"
+    ],
+    "pauseVerbs": [
+      "loop"
+    ],
+    "reasonVerbs": [
+      "loop"
+    ],
+    "untimedVerbs": [
+      "scrub"
+    ],
+    "curveTimingVerbs": [
+      "loop"
     ]
   },
   "deferredDomains": {
-    "repeat": {
-      "values": [
-        "once",
-        "always"
-      ],
-      "source": "§8.2.3"
-    },
     "direction": {
       "values": [
         "start",
         "end",
         "up",
         "down"
-      ],
-      "source": "§8.2.3"
-    },
-    "axis": {
-      "values": [
-        "block",
-        "inline"
-      ],
-      "source": "§8.2.3"
-    },
-    "pause": {
-      "values": [
-        "control",
-        "essential"
       ],
       "source": "§8.2.3"
     }
@@ -216,9 +239,11 @@
       "trigger": "load",
       "interrupt": "restart",
       "reduced": "frozen",
-      "timing": [
-        "linear-token"
-      ],
+      "timing": [],
+      "curve": {
+        "duration": "duration.extraLong4",
+        "easing": "easing.linear"
+      },
       "pause": "required"
     },
     "layout": {

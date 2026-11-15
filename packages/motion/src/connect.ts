@@ -1,4 +1,4 @@
-import { getMotion, motion, type MotionBinding } from './bind.js';
+import { getMotion, isUnboundVerb, motion, type MotionBinding } from './bind.js';
 import { definedMotions, kindOf, onMotionDefined, resolveMotion, type MotionKind, type MotionRef } from './define-motion.js';
 import { flushLayoutAround } from './layout-loader.js';
 import { NAME_PATTERN } from './manifest.js';
@@ -67,6 +67,11 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
 
   /** Bind the motion `ref` on `el`, unless the scanner has already bound a motion of its kind there. */
   function bindRef(el: HTMLElement, ref: MotionRef, entering: boolean): void {
+    // A verb not bound yet skips this name only: the element is untouched and the scan goes on.
+    if (isUnboundVerb(ref.spec.verb)) {
+      if (development) console.error(`[@udixio/motion] "${ref.name}" is skipped: ${ref.spec.verb} motions are not bound yet.`);
+      return;
+    }
     const kind = kindOf(ref.spec.verb);
     const owned = bound.get(el)?.get(kind);
     if (owned && getMotion(el, kind) === owned.binding) {

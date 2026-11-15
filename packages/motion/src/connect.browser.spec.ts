@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { getMotion, getMotions, motion } from './bind.js';
+import { getMotion, getMotions, motion, motionWhenDefined } from './bind.js';
 import { connectMotion } from './connect.js';
 import { defineMotion } from './define-motion.js';
 import { fade, press, reflow, slide } from './presets.js';
@@ -19,6 +19,9 @@ defineMotion('connect-exit-fade', fade.spec);
 defineMotion('connect-exit-reflow', { verb: 'layout' });
 defineMotion('connect-exit-out', { verb: 'appear', keyframes: [{ opacity: 0 }, { opacity: 1 }], exit: 'out-of-flow' });
 defineMotion('connect-shared-move', { verb: 'layout' });
+defineMotion('connect-rise', { verb: 'reveal', keyframes: [{ opacity: 0 }, { opacity: 1 }] });
+defineMotion('connect-scrub', { verb: 'scrub', keyframes: [{ y: 48 }, { y: -48 }], range: 'cross' });
+defineMotion('connect-loop', { verb: 'loop', keyframes: [{ opacity: 1 }, { opacity: 0.4 }, { opacity: 1 }], pause: 'control' });
 
 const tick = () => Promise.resolve();
 
@@ -527,4 +530,32 @@ it('an invalid data-motion-shared is reported once and bound without a key: the 
   expect(getMotion(bad, 'layout')).toBeDefined();
   expect(error).toHaveBeenCalledTimes(2);
   expect(String(error.mock.calls[1]?.[0])).toContain('data-motion-shared="Bad Key"');
+});
+
+it('skips a reveal that is not bound yet: no exception escapes, one error in development, the element untouched', async () => {
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  const el = make('connect-rise');
+  root.append(el);
+  expect(() => connect({ development: true })).not.toThrow();
+  await tick();
+  expect(error).toHaveBeenCalledTimes(1);
+  expect(String(error.mock.calls[0]?.[0])).toContain('connect-rise');
+  expect(getMotion(el)).toBeUndefined();
+  expect(el.getAttribute('style')).toBeNull();
+  expect(el.hasAttribute('data-presence')).toBe(false);
+});
+
+it('refuses a reveal, scrub or loop before it registers anything, and motionWhenDefined does not throw', () => {
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  for (const [name, verb] of [['connect-rise', 'reveal'], ['connect-scrub', 'scrub'], ['connect-loop', 'loop']] as const) {
+    const el = make(name);
+    expect(() => motion(el, name)).toThrow(`${verb} motions are not bound yet`);
+    expect(getMotion(el)).toBeUndefined();
+    expect(el.getAttribute('style')).toBeNull();
+    const deferred = motionWhenDefined(el, name, { development: true });
+    expect(deferred.binding).toBeUndefined();
+    expect(getMotion(el)).toBeUndefined();
+    expect(el.getAttribute('style')).toBeNull();
+  }
+  expect(error).toHaveBeenCalledTimes(3);
 });

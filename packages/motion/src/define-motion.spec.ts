@@ -4,6 +4,7 @@ import {
   defineShared,
   definedMotions,
   onMotionDefined,
+  kindOf,
   resolveMotion,
   validateMotionSpec,
 } from './define-motion.js';
@@ -30,13 +31,13 @@ describe('defineMotion', () => {
     }
   });
 
-  it('reports unsupported verbs with their validator path', () => {
+  it('reports unknown verbs with their validator path', () => {
     expect(() =>
-      defineMotion('reveal-card', {
-        verb: 'reveal',
+      defineMotion('bounce-card', {
+        verb: 'bounce',
         keyframes: [{ opacity: 1 }],
       } as never),
-    ).toThrow(/\/verb: unsupported/);
+    ).toThrow(/\/verb: invalid_value/);
   });
 
   it('rejects the author-writable trigger option', () => {
@@ -320,5 +321,125 @@ describe('shared identity', () => {
   it('defineShared returns its name and refuses a name that is not kebab-case', () => {
     expect(defineShared('hero')).toBe('hero');
     expect(() => defineShared('Not Kebab')).toThrow(TypeError);
+  });
+});
+
+describe('reveal, scrub and loop motions', () => {
+  it('accepts a reveal with its options, and with a spring or a curve timing', () => {
+    expect(
+      validateMotionSpec({
+        verb: 'reveal',
+        keyframes: [{ opacity: 0, y: 24 }, { opacity: 1, y: 0 }],
+        repeat: 'once',
+        axis: 'block',
+        stagger: 'normal',
+        origin: 'first',
+        timing: 'spring.default.spatial',
+        reduced: 'fade',
+      }),
+    ).toMatchObject({ verb: 'reveal', repeat: 'once', axis: 'block', stagger: 'normal', origin: 'first' });
+    expect(
+      validateMotionSpec({
+        verb: 'reveal',
+        keyframes: [{ opacity: 0 }],
+        timing: { duration: 'duration.medium2', easing: 'easing.standard' },
+      }),
+    ).toMatchObject({ timing: { duration: 'duration.medium2', easing: 'easing.standard' } });
+  });
+
+  it('refuses exit, shared, interrupt, range and pause on a reveal at their own paths', () => {
+    expect(() => validateMotionSpec({ verb: 'reveal', keyframes: [{ opacity: 0 }], exit: 'in-place' } as never)).toThrow('/spec/exit: unsupported');
+    expect(() => validateMotionSpec({ verb: 'reveal', keyframes: [{ opacity: 0 }], shared: 'card' } as never)).toThrow('/spec/shared: unsupported');
+    expect(() => validateMotionSpec({ verb: 'reveal', keyframes: [{ opacity: 0 }], interrupt: 'carry' } as never)).toThrow('/spec/interrupt: unsupported');
+    expect(() => validateMotionSpec({ verb: 'reveal', keyframes: [{ opacity: 0 }], range: 'cross' } as never)).toThrow('/spec/range: unsupported');
+    expect(() => validateMotionSpec({ verb: 'reveal', keyframes: [{ opacity: 0 }], pause: 'control' } as never)).toThrow('/spec/pause: unsupported');
+  });
+
+  it('rejects a repeat outside its domain at /spec/repeat', () => {
+    expect(() => validateMotionSpec({ verb: 'reveal', keyframes: [{ opacity: 0 }], repeat: 'twice' } as never)).toThrow('/spec/repeat: invalid_value');
+  });
+
+  it('accepts a scrub with its range and axis, and refuses a timing of either kind', () => {
+    expect(validateMotionSpec({ verb: 'scrub', keyframes: [{ y: 48 }, { y: -48 }], range: 'cross', axis: 'inline' })).toMatchObject({
+      range: 'cross',
+      axis: 'inline',
+    });
+    expect(() => validateMotionSpec({ verb: 'scrub', keyframes: [{ y: 1 }], timing: 'spring.default.spatial' })).toThrow('/spec/timing: unsupported');
+    expect(() =>
+      validateMotionSpec({ verb: 'scrub', keyframes: [{ y: 1 }], timing: { duration: 'duration.medium2', easing: 'easing.standard' } }),
+    ).toThrow('/spec/timing: unsupported');
+  });
+
+  it('refuses repeat, stagger, origin, exit and interrupt on a scrub at their own paths', () => {
+    expect(() => validateMotionSpec({ verb: 'scrub', keyframes: [{ y: 1 }], repeat: 'once' } as never)).toThrow('/spec/repeat: unsupported');
+    expect(() => validateMotionSpec({ verb: 'scrub', keyframes: [{ y: 1 }], stagger: 'normal' } as never)).toThrow('/spec/stagger: unsupported');
+    expect(() => validateMotionSpec({ verb: 'scrub', keyframes: [{ y: 1 }], origin: 'first' } as never)).toThrow('/spec/origin: unsupported');
+    expect(() => validateMotionSpec({ verb: 'scrub', keyframes: [{ y: 1 }], exit: 'in-place' } as never)).toThrow('/spec/exit: unsupported');
+    expect(() => validateMotionSpec({ verb: 'scrub', keyframes: [{ y: 1 }], interrupt: 'carry' } as never)).toThrow('/spec/interrupt: unsupported');
+  });
+
+  it('rejects a range or an axis outside its domain', () => {
+    expect(() => validateMotionSpec({ verb: 'scrub', keyframes: [{ y: 1 }], range: 'middle' } as never)).toThrow('/spec/range: invalid_value');
+    expect(() => validateMotionSpec({ verb: 'scrub', keyframes: [{ y: 1 }], axis: 'diagonal' } as never)).toThrow('/spec/axis: invalid_value');
+  });
+
+  it('accepts a loop that the user can pause, with a curve timing', () => {
+    expect(
+      validateMotionSpec({
+        verb: 'loop',
+        keyframes: [{ rotate: 0 }, { rotate: 360 }],
+        timing: { duration: 'duration.extraLong4', easing: 'easing.linear' },
+        pause: 'control',
+      }),
+    ).toMatchObject({ pause: 'control', timing: { duration: 'duration.extraLong4', easing: 'easing.linear' } });
+  });
+
+  it('accepts an essential loop that gives its reason', () => {
+    expect(
+      validateMotionSpec({
+        verb: 'loop',
+        keyframes: [{ scale: 1 }, { scale: 1.04 }, { scale: 1 }],
+        pause: 'essential',
+        reason: 'The pulse shows that an upload is still running.',
+      }),
+    ).toMatchObject({ pause: 'essential', reason: 'The pulse shows that an upload is still running.' });
+  });
+
+  it('requires pause on a loop, at /spec/pause', () => {
+    expect(() => validateMotionSpec({ verb: 'loop', keyframes: [{ opacity: 1 }] } as never)).toThrow('/spec/pause: required');
+  });
+
+  it('requires a reason for an essential loop, at /spec/reason', () => {
+    expect(() => validateMotionSpec({ verb: 'loop', keyframes: [{ opacity: 1 }], pause: 'essential' } as never)).toThrow('/spec/reason: required');
+  });
+
+  it('refuses a reason on a control loop at /spec/reason, an empty reason and a pause outside its domain', () => {
+    expect(() =>
+      validateMotionSpec({ verb: 'loop', keyframes: [{ opacity: 1 }], pause: 'control', reason: 'Not needed.' } as never),
+    ).toThrow('/spec/reason: conflict');
+    expect(() =>
+      validateMotionSpec({ verb: 'loop', keyframes: [{ opacity: 1 }], pause: 'essential', reason: '   ' } as never),
+    ).toThrow('/spec/reason: empty');
+    expect(() => validateMotionSpec({ verb: 'loop', keyframes: [{ opacity: 1 }], pause: 'sometimes' } as never)).toThrow(
+      '/spec/pause: invalid_value',
+    );
+  });
+
+  it('refuses a spring timing on a loop, and pause on a reveal', () => {
+    expect(() =>
+      validateMotionSpec({ verb: 'loop', keyframes: [{ opacity: 1 }], pause: 'control', timing: 'spring.default.spatial' } as never),
+    ).toThrow('/spec/timing: unsupported');
+    expect(() => validateMotionSpec({ verb: 'reveal', keyframes: [{ opacity: 0 }], pause: 'control' } as never)).toThrow(
+      '/spec/pause: unsupported',
+    );
+  });
+
+  it('classifies reveal and scrub as view motions, loop as a loop motion', () => {
+    expect(kindOf('appear')).toBe('presence');
+    expect(kindOf('emphasize')).toBe('emphasis');
+    expect(kindOf('layout')).toBe('layout');
+    expect(kindOf('reveal')).toBe('view');
+    expect(kindOf('scrub')).toBe('view');
+    expect(kindOf('loop')).toBe('loop');
   });
 });

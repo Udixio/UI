@@ -42,3 +42,50 @@ export const press: MotionRef<'press'> = defineMotion('press', {
 
 /** Layout: the element moves to its new place and size when the layout changes. */
 export const reflow: MotionRef<'reflow'> = defineMotion('reflow', { verb: 'layout' });
+
+/** Entering the viewport: fades in while rising 24px. */
+export const rise: MotionRef<'rise'> = defineMotion('rise', {
+  verb: 'reveal',
+  keyframes: [
+    { opacity: 0, y: 24 },
+    { opacity: 1, y: 0 },
+  ],
+  stagger: 'normal',
+});
+
+/** Scrolling: drifts from 48px below its place to 48px above it, across the viewport. */
+export const parallax: MotionRef<'parallax'> = defineMotion('parallax', {
+  verb: 'scrub',
+  keyframes: [{ y: 48 }, { y: -48 }],
+  range: 'cross',
+});
+
+/** Looping: turns a full turn in one second; the user can pause it (WCAG 2.2.2). */
+export const rotate: MotionRef<'rotate'> = defineMotion('rotate', {
+  verb: 'loop',
+  keyframes: [{ rotate: 0 }, { rotate: 360 }],
+  timing: { duration: 'duration.extraLong4', easing: 'easing.linear' },
+  pause: 'control',
+});
+
+/** Looping: swells to 104% and back in one second; the user can pause it (WCAG 2.2.2). */
+export const breathe: MotionRef<'breathe'> = defineMotion('breathe', {
+  verb: 'loop',
+  keyframes: [{ scale: 1 }, { scale: 1.04 }, { scale: 1 }],
+  timing: { duration: 'duration.extraLong4', easing: 'easing.standard' },
+  pause: 'control',
+});
+
+/** Looping: one dim flash per second, under the three flashes a second of WCAG 2.3.1; the user can pause it. */
+export const blink: MotionRef<'blink'> = defineMotion('blink', {
+  verb: 'loop',
+  keyframes: [{ opacity: 1 }, { opacity: 0.4 }, { opacity: 1 }],
+  timing: { duration: 'duration.extraLong4', easing: 'easing.standard' },
+  pause: 'control',
+});
+
+/** Emphasis: shakes sideways by 6px, then settles, to signal a refused action. */
+export const shake: MotionRef<'shake'> = defineMotion('shake', {
+  verb: 'emphasize',
+  keyframes: [{ x: 0 }, { x: -6 }, { x: 6 }, { x: -4 }, { x: 4 }, { x: 0 }],
+});
