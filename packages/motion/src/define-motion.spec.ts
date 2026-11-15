@@ -241,6 +241,38 @@ describe('stagger and origin', () => {
   });
 });
 
+describe('exit', () => {
+  it('accepts exit on appear and disappear and keeps it', () => {
+    expect(
+      defineMotion('exit-enter', { verb: 'appear', keyframes: [{ opacity: 0 }, { opacity: 1 }], exit: 'out-of-flow' }).spec,
+    ).toMatchObject({ exit: 'out-of-flow' });
+    expect(
+      defineMotion('exit-leave', { verb: 'disappear', keyframes: [{ opacity: 1 }, { opacity: 0 }], exit: 'in-place' }).spec,
+    ).toMatchObject({ exit: 'in-place' });
+  });
+
+  it('refuses exit on layout and emphasize at /spec/exit', () => {
+    expect(() => defineMotion('exit-layout', { verb: 'layout', exit: 'in-place' } as never)).toThrow('/spec/exit: unsupported');
+    expect(() =>
+      defineMotion('exit-emphasis', { verb: 'emphasize', keyframes: [{ scale: 1 }], exit: 'in-place' } as never),
+    ).toThrow('/spec/exit: unsupported');
+  });
+
+  it('rejects an exit value outside its domain', () => {
+    expect(() =>
+      defineMotion('exit-vanish', { verb: 'appear', keyframes: [{ opacity: 1 }], exit: 'vanish' } as never),
+    ).toThrow('/spec/exit: invalid_value');
+  });
+});
+
+describe('motion manifest with exit', () => {
+  it('no longer lists exit as deferred, and documents its domain', () => {
+    expect(motionManifest.spec.deferred).not.toContain('exit');
+    expect(motionManifest.deferredDomains).not.toHaveProperty('exit');
+    expect(motionManifest.domains.exit).toEqual(['in-place', 'out-of-flow']);
+  });
+});
+
 describe('motion manifest without trigger', () => {
   it('no longer lists trigger as deferred or as a deferred domain', () => {
     expect(motionManifest.spec.deferred).not.toContain('trigger');

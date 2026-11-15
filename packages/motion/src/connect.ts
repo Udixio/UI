@@ -1,5 +1,6 @@
 import { getMotion, motion, type MotionBinding } from './bind.js';
 import { definedMotions, kindOf, onMotionDefined, resolveMotion, type MotionKind, type MotionRef } from './define-motion.js';
+import { flushLayoutAround } from './layout.js';
 
 export interface ConnectOptions {
   root?: Document | Element;
@@ -121,7 +122,10 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     holds.set(el, hold);
     el.style.setProperty('display', natural, 'important');
     void binding.setPresent(false).then(result => {
-      if (result === 'finished' && holds.get(el) === hold) release(el);
+      if (result !== 'finished' || holds.get(el) !== hold) return;
+      release(el);
+      // The element is display: none from now on. The style change is not seen by the layout observer, so it is announced.
+      flushLayoutAround(el);
     });
   }
 
@@ -134,6 +138,8 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     if (wanted) {
       release(el);
       void binding.setPresent(true);
+      // An element shown again after a finished exit was display: none, out of the flow: its neighbours make room.
+      flushLayoutAround(el);
     } else {
       hide(el, binding);
     }

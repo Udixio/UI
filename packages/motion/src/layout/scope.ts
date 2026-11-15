@@ -8,8 +8,11 @@ export function layoutScopeOf(target: HTMLElement): HTMLElement {
   return target.parentElement?.closest<HTMLElement>('[data-motion-scope]') ?? target.parentElement ?? target;
 }
 
+/** A `hidden` change on an element that carries a presence is not relevant: its presence announces its own exit and entry to the layout. */
 export function relevant(record: MutationRecord): boolean {
-  return record.type === 'childList' || record.type === 'characterData' || !IGNORED_ATTRIBUTES.has(record.attributeName ?? '');
+  if (record.type === 'childList' || record.type === 'characterData') return true;
+  if (record.attributeName === 'hidden' && record.target instanceof Element && record.target.hasAttribute('data-presence')) return false;
+  return !IGNORED_ATTRIBUTES.has(record.attributeName ?? '');
 }
 
 export function dispose(scope: Scope): void {

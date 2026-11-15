@@ -204,6 +204,21 @@ it('[Review Focus 3] a hidden element moves nothing, when it is hidden and when 
   expect(document.getAnimations()).toHaveLength(0);
 });
 
+it('an element without presence that is hidden moves its neighbours at once', async () => {
+  page(css(), '<div class="row" id="row"><div class="box" id="a"></div><div class="box" id="b"></div><div class="box" id="c"></div></div>');
+  const row = byId('row');
+  bindTo(byId('a'));
+  const second = bindTo(byId('b'));
+  const third = bindTo(byId('c'));
+  byId('a').hidden = true;
+  await Promise.resolve();
+  expect(second.handle).not.toBeNull();
+  expect(third.handle).not.toBeNull();
+  await Promise.all([moving(second).finished, moving(third).finished]);
+  expectNear(local(byId('b'), row), { left: 0, top: 0, width: 50, height: 40 }, 0.5);
+  expectNear(local(byId('c'), row), { left: 50, top: 0, width: 50, height: 40 }, 0.5);
+});
+
 it('[Review Focus 4] an author transform is the rest state, read back as the start of the move', async () => {
   page(css(), '<div class="row" id="row"><div class="box author" id="box"></div></div>');
   const row = byId('row');

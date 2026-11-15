@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { getMotion, getMotions, motion, motionWhenDefined, type DeferredMotion, type MotionBinding } from './bind.js';
+import { getMotion, getMotions, motion, motionWhenDefined, type DeferredMotion, type MotionBinding, type MotionSource } from './bind.js';
 import { defineMotion, type MotionSpec } from './define-motion.js';
 import { fade, press, reflow, slide } from './presets.js';
 import { waapiProvider } from './providers/waapi.js';
@@ -284,4 +284,134 @@ it('destroying one kind leaves the other registered and working, and the last de
   presence.destroy();
   expect(getMotions(target)).toHaveLength(0);
   expect(getMotion(target)).toBeUndefined();
+});
+
+const out: MotionSpec = { verb: 'appear', keyframes: [{ opacity: 0 }, { opacity: 1 }], exit: 'out-of-flow' };
+const INLINE_LAYOUT = ['position', 'left', 'top', 'width', 'height', 'margin', 'box-sizing'];
+
+/** Three items in a relative column (the test target): 40px high, with 8px below each one, from a stylesheet, not inline. */
+function column(): HTMLElement[] {
+  target.style.position = 'relative';
+  const style = document.createElement('style');
+  style.textContent = '.item { height: 40px; margin-bottom: 8px; }';
+  const items = [0, 1, 2].map(() => {
+    const item = document.createElement('div');
+    item.className = 'item';
+    return item;
+  });
+  target.append(style, ...items);
+  return items;
+}
+
+/** Three items, each bound to the presence motion and to a layout. */
+function listOf(presence: MotionSource): HTMLElement[] {
+  const items = column();
+  for (const item of items) {
+    bindTo(item, presence, { settled: true });
+    bindTo(item, reflow);
+  }
+  return items;
+}
+
+/** Whether an element is moving: a layout move animates its translate. */
+function movingOnTranslate(element: HTMLElement): boolean {
+  return element.getAnimations().some(animation => (animation.effect as KeyframeEffect).getKeyframes().some(frame => frame.translate != null));
+}
+
+/** Resolve once no animation under `root` is still playing, the moves that a finished one starts included. */
+async function settle(root: HTMLElement): Promise<void> {
+  const playing = () => root.getAnimations({ subtree: true }).filter(animation => animation.playState === 'running');
+  while (playing().length > 0) await Promise.allSettled(playing().map(animation => animation.finished));
+}
+
+/** Each edge and size of the box agrees with the expected one, within half a pixel. */
+function expectSameBox(actual: DOMRect, expected: DOMRect): void {
+  for (const key of ['left', 'top', 'width', 'height'] as const) {
+    expect(Math.abs(actual[key] - expected[key]), `${key} measured ${actual[key]}, expected ${expected[key]}`).toBeLessThanOrEqual(0.5);
+  }
+}
+
+it('out-of-flow: a leaving item stays where it stands, and its neighbours close the gap as its exit starts', async () => {
+  const [first, second, third] = listOf(out);
+  const before = first.getBoundingClientRect();
+  getMotion(first, 'presence')!.setPresent(false);
+  expect(first.style.getPropertyValue('position')).toBe('absolute');
+  expectSameBox(first.getBoundingClientRect(), before);
+  expect(movingOnTranslate(second)).toBe(true);
+  expect(movingOnTranslate(third)).toBe(true);
+  await Promise.resolve();
+  expect(first.style.getPropertyValue('position')).toBe('absolute');
+  expectSameBox(first.getBoundingClientRect(), before);
+  expect(movingOnTranslate(second)).toBe(true);
+  expect(movingOnTranslate(third)).toBe(true);
+});
+
+it('out-of-flow: setPresent(true) before the exit ends takes the item back into the flow, and the neighbours make room again', async () => {
+  const items = listOf(out);
+  const [first, second, third] = items;
+  const natural = items.map(item => item.getBoundingClientRect());
+  const presence = getMotion(first, 'presence')!;
+  presence.setPresent(false);
+  // Two frames in: the neighbours are visibly on their way, and the exit still runs.
+  await nextFrame();
+  await nextFrame();
+  expect(first.getAnimations().length, 'the exit is still running').toBeGreaterThan(0);
+  expect(movingOnTranslate(second)).toBe(true);
+  const enter = presence.setPresent(true);
+  for (const property of INLINE_LAYOUT) expect(first.style.getPropertyValue(property), property).toBe('');
+  expect(movingOnTranslate(second)).toBe(true);
+  expect(movingOnTranslate(third)).toBe(true);
+  expect(await enter).toBe('finished');
+  await settle(target);
+  items.forEach((item, index) => expectSameBox(item.getBoundingClientRect(), natural[index]));
+});
+
+it('out-of-flow: under reduced motion a leaving item is not pinned', async () => {
+  const [first] = listOf(out);
+  document.documentElement.dataset.motionPolicy = 'reduce';
+  await nextFrame();
+  getMotion(first, 'presence')!.setPresent(false);
+  expect(first.style.getPropertyValue('position')).toBe('');
+});
+
+it('out-of-flow: destroying the binding during the exit gives the item back its inline styles', () => {
+  const [first] = listOf(out);
+  const presence = getMotion(first, 'presence')!;
+  presence.setPresent(false);
+  expect(first.style.getPropertyValue('position')).toBe('absolute');
+  presence.destroy();
+  for (const property of INLINE_LAYOUT) expect(first.style.getPropertyValue(property), property).toBe('');
+});
+
+it('out-of-flow: destroying the presence binding of a pinned element puts it back, and its neighbours make room', async () => {
+  const items = listOf(out);
+  const [first, second, third] = items;
+  const natural = items.map(item => item.getBoundingClientRect());
+  const presence = getMotion(first, 'presence')!;
+  presence.setPresent(false);
+  await nextFrame();
+  await nextFrame();
+  expect(first.getAnimations().length, 'the exit is still running').toBeGreaterThan(0);
+  const [secondBefore, thirdBefore] = [second, third].map(item => item.getBoundingClientRect());
+  presence.destroy();
+  expect(first.style.getPropertyValue('position')).toBe('');
+  // The neighbours do not jump when the element comes back: they fly on from where they are.
+  expectSameBox(second.getBoundingClientRect(), secondBefore);
+  expectSameBox(third.getBoundingClientRect(), thirdBefore);
+  expect(movingOnTranslate(second)).toBe(true);
+  expect(movingOnTranslate(third)).toBe(true);
+  await settle(target);
+  items.forEach((item, index) => expectSameBox(item.getBoundingClientRect(), natural[index]));
+});
+
+it('in-place: a leaving item keeps its place, and its neighbours do not move', async () => {
+  const [first, second, third] = listOf(fade.spec);
+  getMotion(first, 'presence')!.setPresent(false);
+  expect(first.style.getPropertyValue('position')).toBe('');
+  expect(movingOnTranslate(second)).toBe(false);
+  expect(movingOnTranslate(third)).toBe(false);
+  await Promise.resolve();
+  expect(first.style.getPropertyValue('position')).toBe('');
+  expect(movingOnTranslate(second)).toBe(false);
+  expect(movingOnTranslate(third)).toBe(false);
 });

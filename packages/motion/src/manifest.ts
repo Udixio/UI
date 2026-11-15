@@ -37,6 +37,7 @@ export const motionManifest = freezeDeep({
     interrupt: ['carry', 'restart'],
     stagger: ['tight', 'normal', 'loose'],
     origin: ['first', 'last', 'center'],
+    exit: ['in-place', 'out-of-flow'],
     visualFields: ['opacity', 'x', 'y', 'scale', 'scaleX', 'scaleY', 'rotate'],
     deferredVisualFields: [
       'color',
@@ -48,7 +49,7 @@ export const motionManifest = freezeDeep({
   envelope: { required: ['version', 'spec'] },
   spec: {
     required: ['verb', 'keyframes'],
-    optional: ['timing', 'reduced', 'interrupt', 'stagger', 'origin'],
+    optional: ['timing', 'reduced', 'interrupt', 'stagger', 'origin', 'exit'],
     deferred: [
       'repeat',
       'direction',
@@ -58,17 +59,16 @@ export const motionManifest = freezeDeep({
       'pause',
       'reason',
       'shared',
-      'exit',
     ],
     interruptVerbs: ['emphasize', 'layout'],
     staggerVerbs: ['appear', 'disappear'],
+    exitVerbs: ['appear', 'disappear'],
   },
   deferredDomains: {
     repeat: { values: ['once', 'always'], source: '§8.2.3' },
     direction: { values: ['start', 'end', 'up', 'down'], source: '§8.2.3' },
     axis: { values: ['block', 'inline'], source: '§8.2.3' },
     pause: { values: ['control', 'essential'], source: '§8.2.3' },
-    exit: { values: ['in-place', 'out-of-flow'], source: '§8.2.3' },
   },
   constraints: {
     minKeyframes: 1,
@@ -166,12 +166,14 @@ export type MotionDocument = {
               interrupt?: Domain<'interrupt'>;
               stagger?: never;
               origin?: never;
+              exit?: never;
             }
           | {
               verb: Exclude<Domain<'supportedVerbs'>, 'emphasize' | 'layout'>;
               interrupt?: never;
               stagger?: Domain<'stagger'>;
               origin?: Domain<'origin'>;
+              exit?: Domain<'exit'>;
             }
         ))
     | (Common & {
@@ -180,6 +182,7 @@ export type MotionDocument = {
         interrupt?: Domain<'interrupt'>;
         stagger?: never;
         origin?: never;
+        exit?: never;
       });
 };
 export type MotionValidationCode =
@@ -356,6 +359,16 @@ export function validateMotionDocument(input: unknown): MotionValidationResult {
               add(`/spec/${key}`, 'unsupported');
             else domain(spec[key], `/spec/${key}`, motionManifest.domains[key]);
           }
+        // An exit belongs to presence verbs only: it tells how the neighbours of a leaving element move.
+        if (has(spec, 'exit')) {
+          if (
+            has(spec, 'verb') &&
+            typeof spec.verb === 'string' &&
+            !contains(motionManifest.spec.exitVerbs, spec.verb)
+          )
+            add('/spec/exit', 'unsupported');
+          else domain(spec.exit, '/spec/exit', motionManifest.domains.exit);
+        }
       }
     }
   }

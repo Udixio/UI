@@ -69,6 +69,10 @@
       "last",
       "center"
     ],
+    "exit": [
+      "in-place",
+      "out-of-flow"
+    ],
     "visualFields": [
       "opacity",
       "x",
@@ -101,7 +105,8 @@
       "reduced",
       "interrupt",
       "stagger",
-      "origin"
+      "origin",
+      "exit"
     ],
     "deferred": [
       "repeat",
@@ -111,14 +116,17 @@
       "axis",
       "pause",
       "reason",
-      "shared",
-      "exit"
+      "shared"
     ],
     "interruptVerbs": [
       "emphasize",
       "layout"
     ],
     "staggerVerbs": [
+      "appear",
+      "disappear"
+    ],
+    "exitVerbs": [
       "appear",
       "disappear"
     ]
@@ -151,13 +159,6 @@
       "values": [
         "control",
         "essential"
-      ],
-      "source": "§8.2.3"
-    },
-    "exit": {
-      "values": [
-        "in-place",
-        "out-of-flow"
       ],
       "source": "§8.2.3"
     }

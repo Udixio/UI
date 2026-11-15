@@ -20,7 +20,8 @@ export { composeHandles, deferredHandle, settledHandle, splitFrames } from './co
 export { playMotion, playFrames, applyFrame, releaseFrame, resolveWaapiTiming } from './play.js';
 export { motion, motionWhenDefined, getMotion, getMotions } from './bind.js';
 export type { DeferredMotion, MotionBinding, MotionSource } from './bind.js';
-export { trackLayout, layoutScopeOf } from './layout.js';
+export { trackLayout, layoutScopeOf, flushLayoutAround } from './layout.js';
+export { pinOutOfFlow } from './pin.js';
 export { staggered, staggerDelay, visualRanks } from './stagger.js';
 export type { StaggerOptions } from './stagger.js';
 export type { LayoutTracking } from './layout.js';

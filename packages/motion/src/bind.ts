@@ -10,7 +10,8 @@ import {
   type MotionRef,
   type MotionSpec,
 } from './define-motion.js';
-import { trackLayout } from './layout.js';
+import { flushLayoutAround, trackLayout } from './layout.js';
+import { pinOutOfFlow } from './pin.js';
 import { applyFrame, playMotion, releaseFrame } from './play.js';
 import { getMotionRuntime, retainMotionRuntime } from './runtime.js';
 import { staggered } from './stagger.js';
@@ -187,6 +188,8 @@ function createBinding(target: HTMLElement, spec: Readonly<KeyframedSpec>, optio
   let handle: MotionHandle | null = null;
   let outcome: Promise<Outcome> = Promise.resolve('finished');
   let ownsInert = false;
+  // Set while an out-of-flow exit takes the element out of the flow: calling it puts the element back.
+  let unpin: (() => void) | undefined;
   let destroyed = false;
 
   /** Make `next` the current motion. Call it after `playMotion`, so the old handle stops once the new one runs. */
@@ -212,6 +215,14 @@ function createBinding(target: HTMLElement, spec: Readonly<KeyframedSpec>, optio
     ownsInert = false;
   }
 
+  /** Put the element back into the flow, if an out-of-flow exit took it out: its neighbours make room again. */
+  function returnToFlow() {
+    if (!unpin) return;
+    unpin();
+    unpin = undefined;
+    flushLayoutAround(target);
+  }
+
   function markExiting() {
     present = false;
     target.setAttribute('data-presence', 'exiting');
@@ -231,6 +242,7 @@ function createBinding(target: HTMLElement, spec: Readonly<KeyframedSpec>, optio
   function enter(carry: boolean): Promise<Outcome> {
     present = true;
     releaseInert();
+    returnToFlow();
     target.setAttribute('data-presence', 'entering');
     return track(replace(playPresence('enter', 'forward', carry)), true);
   }
@@ -239,6 +251,7 @@ function createBinding(target: HTMLElement, spec: Readonly<KeyframedSpec>, optio
   function enterAtOnce(): Promise<Outcome> {
     present = true;
     releaseInert();
+    returnToFlow();
     const done = track(replace(settledHandle()), false);
     applyFrame(target, entered);
     target.setAttribute('data-presence', 'present');
@@ -247,6 +260,11 @@ function createBinding(target: HTMLElement, spec: Readonly<KeyframedSpec>, optio
 
   function exit(): Promise<Outcome> {
     markExiting();
+    // An out-of-flow exit takes the element out of the flow now, so that its neighbours close the gap as it fades.
+    if (spec.exit === 'out-of-flow' && !runtime.policy.reduced && unpin === undefined) {
+      unpin = pinOutOfFlow(target);
+      flushLayoutAround(target);
+    }
     const direction = verb === 'disappear' ? 'forward' : 'backward';
     return track(replace(playPresence('exit', direction, true)), false);
   }
@@ -274,10 +292,15 @@ function createBinding(target: HTMLElement, spec: Readonly<KeyframedSpec>, optio
     stopPolicy();
     handle?.cancel();
     handle = null;
+    const pinned = unpin !== undefined;
+    unpin?.();
+    unpin = undefined;
     releaseFrame(target, writtenFields);
     target.removeAttribute('data-presence');
     releaseInert();
     unregister(target, binding);
+    // A pinned element that stays in the page is back in the flow: its neighbours make room again.
+    if (pinned && target.isConnected) flushLayoutAround(target);
     releaseRuntime();
   }
 

@@ -4,7 +4,7 @@ import type { MotionRuntime } from './runtime.js';
 import { measure } from './layout/measure.js';
 import { flush, scopeFor } from './layout/flush.js';
 import { stopFlight } from './layout/flight.js';
-import { dispose, layoutScopeOf, scopeOf } from './layout/scope.js';
+import { dispose, layoutScopeOf, scopeOf, scopes } from './layout/scope.js';
 import type { Item } from './layout/types.js';
 
 export { layoutScopeOf };
@@ -55,4 +55,10 @@ export function trackLayout(target: HTMLElement, spec: Readonly<MotionSpec>, opt
       if (current.items.size === 0) dispose(current);
     },
   };
+}
+
+/** Compare now the scope that follows the neighbours of `element`, as its observer would after a mutation it can see. */
+export function flushLayoutAround(element: HTMLElement): void {
+  const scope = scopes.get(layoutScopeOf(element));
+  if (scope) flush(scope);
 }

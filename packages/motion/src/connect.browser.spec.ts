@@ -11,6 +11,9 @@ defineMotion('connect-reflow', { verb: 'layout' });
 defineMotion('connect-multi-fade', fade.spec);
 defineMotion('connect-multi-reflow', { verb: 'layout' });
 defineMotion('connect-multi-slide', slide.spec);
+defineMotion('connect-exit-fade', fade.spec);
+defineMotion('connect-exit-reflow', { verb: 'layout' });
+defineMotion('connect-exit-out', { verb: 'appear', keyframes: [{ opacity: 0 }, { opacity: 1 }], exit: 'out-of-flow' });
 
 const tick = () => Promise.resolve();
 
@@ -328,4 +331,104 @@ it('keeps a binding made by hand that replaced the scanner binding of its kind, 
   await tick();
   expect(getMotion(el, 'presence')).toBe(hand);
   hand.destroy();
+});
+
+/** Three items in a relative column under the test root: 40px high, with 8px below each one, scanned with `name`. */
+function column(name: string): HTMLElement[] {
+  root.style.position = 'relative';
+  const style = document.createElement('style');
+  style.textContent = '.exit-item { height: 40px; margin-bottom: 8px; }';
+  const items = [0, 1, 2].map(() => {
+    const el = make(name);
+    el.classList.add('exit-item');
+    return el;
+  });
+  root.append(style, ...items);
+  return items;
+}
+
+/** Whether an element is moving: a layout move animates its translate. */
+function movingOnTranslate(element: HTMLElement): boolean {
+  return element.getAnimations().some(animation => (animation.effect as KeyframeEffect).getKeyframes().some(frame => frame.translate != null));
+}
+
+/** Resolve once no animation under the test root is still playing, the moves that a finished one starts included. */
+async function settle(): Promise<void> {
+  const playing = () => root.getAnimations({ subtree: true }).filter(animation => animation.playState === 'running');
+  while (playing().length > 0) await Promise.allSettled(playing().map(animation => animation.finished));
+}
+
+/** The top edge of the element is at `top`, within half a pixel. */
+function expectTop(el: HTMLElement, top: number): void {
+  const measured = el.getBoundingClientRect().top;
+  expect(Math.abs(measured - top), `top measured ${measured}, expected ${top}`).toBeLessThanOrEqual(0.5);
+}
+
+it('a leaving item keeps its place during its exit, and its neighbours move once it is gone', async () => {
+  const [first, second, third] = column('connect-exit-fade connect-exit-reflow');
+  connect();
+  await tick();
+  const tops = [first, second, third].map(el => el.getBoundingClientRect().top);
+  first.hidden = true;
+  await tick();
+  expect(getComputedStyle(first).display).not.toBe('none');
+  expectTop(second, tops[1]);
+  expectTop(third, tops[2]);
+  expect(second.getAnimations()).toHaveLength(0);
+  expect(third.getAnimations()).toHaveLength(0);
+  await getMotion(first, 'presence')!.setPresent(false);
+  await tick();
+  expect(getComputedStyle(first).display).toBe('none');
+  expect(movingOnTranslate(second)).toBe(true);
+  expect(movingOnTranslate(third)).toBe(true);
+  await settle();
+  expectTop(second, tops[0]);
+  expectTop(third, tops[1]);
+});
+
+it('a finished in-place exit: removing hidden shows the element again, and its neighbours make room', async () => {
+  const [first, second, third] = column('connect-exit-fade connect-exit-reflow');
+  connect();
+  await tick();
+  const tops = [first, second, third].map(el => el.getBoundingClientRect().top);
+  first.hidden = true;
+  await tick();
+  await getMotion(first, 'presence')!.setPresent(false);
+  await tick();
+  await settle();
+  expect(getComputedStyle(first).display).toBe('none');
+  expectTop(second, tops[0]);
+  expectTop(third, tops[1]);
+
+  first.hidden = false;
+  await tick();
+  expect(movingOnTranslate(second)).toBe(true);
+  expect(movingOnTranslate(third)).toBe(true);
+  expect(await getMotion(first, 'presence')!.setPresent(true)).toBe('finished');
+  await settle();
+  expect(getComputedStyle(first).display).not.toBe('none');
+  expect(first.dataset.presence).toBe('present');
+  expect(getMotion(first, 'presence')!.present).toBe(true);
+  expectTop(first, tops[0]);
+  expectTop(second, tops[1]);
+  expectTop(third, tops[2]);
+});
+
+it('out-of-flow: a leaving item is taken out of the flow as its exit starts, and its neighbours move at once', async () => {
+  const [first, second, third] = column('connect-exit-out connect-exit-reflow');
+  connect();
+  await tick();
+  const tops = [first, second, third].map(el => el.getBoundingClientRect().top);
+  first.hidden = true;
+  await tick();
+  expect(first.style.getPropertyValue('position')).toBe('absolute');
+  expectTop(first, tops[0]);
+  expect(movingOnTranslate(second)).toBe(true);
+  expect(movingOnTranslate(third)).toBe(true);
+  await getMotion(first, 'presence')!.setPresent(false);
+  await tick();
+  expect(getComputedStyle(first).display).toBe('none');
+  await settle();
+  expectTop(second, tops[0]);
+  expectTop(third, tops[1]);
 });
