@@ -1262,6 +1262,56 @@ Points ouverts :
 - Un changement de `--udx-motion` pendant qu'une valeur temporelle tourne
   prend effet à sa prochaine reprise.
 
+#### 8.3.14 État après l'étape 5 — gestes, transitions de page (2026-11-15)
+
+| Famille | Écriture | Moteur | Mesuré (trois navigateurs) |
+|---|---|---|---|
+| Gestes (F12) | `defineGesture(nom, { kind: 'drag' \| 'swipe' \| 'reorder', axis, bounds, release, alternative })` (entrée `@udixio/motion/gesture`) ; `data-motion-gesture="<nom>"`, `gesture(el, nom)` | événements pointeur natifs avec capture ; ressort intégré par frame au relâchement (`spring-step`, vitesse mesurée conservée) ; lancer d'un `drag` = 0,2 s de sa vitesse, borné au parent | swipe sorti au-delà de 40 % de la taille ou à plus de 800 px/s ; flèches 16 px (64 avec Maj) ; reorder clavier annoncé |
+| Transitions de page (F21) | `navigate(update, { direction })` (entrée principale) ; `connectAstroTransitions()` (entrée `@udixio/motion/astro`) | View Transitions natives ; règles de route dans `motion.css` (glissement + fondu, ressort spatial lent, `mix-blend-mode: plus-lighter`) ; type `udx-forward` / `udx-back` et `data-motion-direction` sur `html` | direction donnée par le routeur Astro, aller et retour |
+
+Adaptateurs : `useMotionGesture` ; `[udxMotionGesture]` avec `udxDragEnd`, `udxSwipe`, `udxReorder` ; `motionGesture`.
+
+Règles fixées pendant l'étape 5 (choix de Claude, sur délégation) :
+
+- **Moteur** : les gestes ne passent pas par anime.js (son `Draggable` ne
+  couvre ni le swipe, ni le reorder entre frères, ni l'alternative clavier
+  exigée) ; le ressort réutilise l'intégrateur des valeurs.
+- **Alternative clavier obligatoire** (WCAG 2.1.1, 2.5.7) : `arrows` pour
+  `drag`, `action` (Suppr, Retour arrière) pour `swipe`, `grab` (Espace /
+  Entrée, flèches, Échap) pour `reorder`, annoncé dans une région
+  `role="status"`. Les flèches d'un `drag` restent physiques en RTL ; seul le
+  `reorder` suit le sens de lecture.
+- **Événements** : `motion-dragend` (non annulable), `motion-swipe` et
+  `motion-reorder` (annulables : l'application qui rend sa liste depuis son
+  état refuse le pas et déplace l'élément dans son état). Un élément sorti par
+  swipe devient `aria-hidden` ; le retirer est le travail de la page.
+- **`touch-action`** posé à la liaison (`none`, `pan-y` sur x, `pan-x` sur y),
+  rendu au `destroy()` ; `user-select: none` seulement pendant la prise.
+- **Layout** : un élément `data-gesture="dragging"` n'a pas de vol de layout
+  (il suit le pointeur) ; ses voisins en ont un.
+- **Première image d'un ressort** : elle intègre une image nominale (1/60 s),
+  sinon le mouvement restait immobile une image au relâchement (gestes et
+  valeurs).
+- **Transitions de page** : sous mouvement réduit ou `--udx-motion: none`, la
+  mise à jour seule ; sans View Transitions, la mise à jour seule aussi.
+  `connectAstroTransitions()` ne démarre aucune transition : il donne la
+  direction à celle du routeur.
+- **Poids** : gestes en entrée chargée à la demande (`loadGestures`, chargée
+  par le scanner au premier `data-motion-gesture`) ; entrée principale
+  17,9 kB gzip (limite 18,1), gestes 10,8 kB (limite 11,8), astro 4,4 kB dont
+  ~1 kB propre, le reste partagé avec l'entrée principale (limite 4,9).
+
+Points ouverts (étape 8) :
+
+- Un déplacement clavier d'un `drag` n'est pas vu par le layout comme un
+  geste.
+- Les valeurs de fin écrites en ligne au repos priment sur les classes de
+  l'auteur.
+- Ancrage du défilement pendant un reorder ; éléments suivis imbriqués
+  pendant un geste.
+- L'entrée principale est à 0,2 kB de sa limite : la prochaine fonction doit
+  aller dans une entrée à la demande ou libérer de la place.
+
 ### 8.4 Détails par famille — **rédigé (consolidation)**
 
 | # | Famille | Écriture | Chemin natif | Repli / moteur JS | Sources |
@@ -1371,8 +1421,9 @@ performance du layout : vitesse conservée, contenu non déformé, détail en
 2026-11-16** (élément partagé en FLIP, détail en §8.3.11) : **l'étape 2 est
 terminée**. **Étape 3 livrée le 2026-11-16** (`reveal`, `scrub`, `loop`,
 détail en §8.3.12) : les sept verbes existent. **Étape 4 livrée le
-2026-11-16** (valeurs, compteurs, séquences, détail en §8.3.13). La suivante
-est l'étape 5 (gestes, transitions de page).
+2026-11-16** (valeurs, compteurs, séquences, détail en §8.3.13). **Étape 5
+livrée le 2026-11-15** (gestes, transitions de page, détail en §8.3.14). La
+suivante est l'étape 6 (découpage de texte, SVG, défilement programmé).
 
 ## 9. Questions ouvertes connues
 
@@ -1443,6 +1494,7 @@ D2 (en partie orientée par C15).
 | Date | Travail | Changement |
 |---|---|---|
 | 2026-11-03 | — | Création du document à l'issue du brainstorming initial. |
+| 2026-11-15 | Étape 5 | Gestes (`defineGesture` : `drag`, `swipe`, `reorder`, alternative clavier obligatoire, événements annulables), transitions de page (`navigate`, règles de route de `motion.css`, `connectAstroTransitions`) ; adaptateurs ; démo. Défauts corrigés en vérification : mélange `plus-lighter` perdu par les routes, vol de layout de l'élément tenu, image immobile au départ d'un ressort. Règles et limites en §8.3.14. Vérification : motion 1 815 tests + 7 ignorés (trois navigateurs), core 433, React 443, Svelte 322, Angular 400, doc 51 tests navigateur sur le site construit. |
 | 2026-11-16 | Étape 4 | Valeurs (`defineValue`, `--udx-motion-value-<nom>`), compteurs formatés et accessibles, séquences (`defineSequence`, `data-motion-step`) ; `MotionHandle.delay` et positionnement composé corrigé ; valeurs et séquences chargées à la demande ; adaptateurs ; démo. Vérification : motion 1 649 tests + 7 ignorés (trois navigateurs), core 433, React 433, Svelte 315, Angular 391, doc 39 tests navigateur sur le site construit. |
 | 2026-11-16 | Étape 3 | Verbes `reveal` (observateur partagé, cascade), `scrub` (`ViewTimeline` natif, repli statique), `loop` (itérations infinies, pause hors vue et à la demande) ; natures `view` et `loop` ; presets `rise`, `parallax`, `rotate`, `breathe`, `blink`, `shake` ; démo. Règles et limites en §8.3.12. Vérification : motion 1 453 tests + 7 ignorés selon le support (trois navigateurs), core 433, React 415, Svelte 305, Angular 375, doc 30 tests navigateur sur le site construit. |
 | 2026-11-16 | Étape 2d | Élément partagé : clé `shared` (définition, option, `data-motion-shared`, adaptateurs), mémoire de page de 600 ms dans le runtime (`preview.7`), transformation FLIP à l'arrivée ; démo « Shared element ». Étape 2 terminée. Règles et limites en §8.3.11. Vérification : motion 1 335 tests (trois navigateurs), core 433, React 410, Svelte 302, Angular 372, doc 21 tests navigateur sur le site construit, deux passages. |
