@@ -1,13 +1,16 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { getMotion, motion } from './bind.js';
+import { getMotion, getMotions, motion } from './bind.js';
 import { connectMotion } from './connect.js';
 import { defineMotion } from './define-motion.js';
-import { fade, press } from './presets.js';
+import { fade, press, reflow, slide } from './presets.js';
 import { waapiProvider } from './providers/waapi.js';
 
 defineMotion('connect-fade', fade.spec);
 defineMotion('connect-press', press.spec);
 defineMotion('connect-reflow', { verb: 'layout' });
+defineMotion('connect-multi-fade', fade.spec);
+defineMotion('connect-multi-reflow', { verb: 'layout' });
+defineMotion('connect-multi-slide', slide.spec);
 
 const tick = () => Promise.resolve();
 
@@ -245,4 +248,84 @@ it('destroys every binding on disconnect and ignores later insertions', async ()
   await tick();
   expect(getMotion(late)).toBeUndefined();
   expect(late.getAnimations()).toHaveLength(0);
+});
+
+it('binds each name of data-motion: a presence and a layout, and hidden drives the presence', async () => {
+  const el = make('connect-multi-fade connect-multi-reflow');
+  root.append(el);
+  connect();
+  await tick();
+  expect(getMotions(el).map(binding => binding.kind)).toEqual(['presence', 'layout']);
+  el.hidden = true;
+  await tick();
+  expect(getMotion(el, 'presence')!.present).toBe(false);
+  expect(el.hasAttribute('inert')).toBe(true);
+  expect(getMotion(el, 'layout')!.handle).toBeNull();
+});
+
+it('binds the other names of an element at once, and a name undefined at connect waits alone', async () => {
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  connect({ development: true });
+  const el = make('connect-multi-fade connect-multi-later');
+  root.append(el);
+  await tick();
+  expect(getMotion(el, 'presence')?.verb).toBe('appear');
+  expect(getMotion(el, 'layout')).toBeUndefined();
+  expect(error).toHaveBeenCalledTimes(1);
+  expect(String(error.mock.calls[0]?.[0])).toContain('"connect-multi-later"');
+
+  defineMotion('connect-multi-later', { verb: 'layout' });
+  expect(getMotion(el, 'layout')?.verb).toBe('layout');
+  expect(getMotion(el, 'presence')?.verb).toBe('appear');
+  expect(error).toHaveBeenCalledTimes(1);
+});
+
+it('ignores a second name of a kind the element already has, with one error in development', async () => {
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  connect({ development: true });
+  const el = make('connect-multi-fade connect-multi-slide');
+  root.append(el);
+  await tick();
+  expect(getMotions(el)).toHaveLength(1);
+  expect(el.getAnimations()).toHaveLength(1);
+  expect((el.getAnimations()[0].effect as KeyframeEffect).getKeyframes().some(frame => frame.translate != null)).toBe(false);
+  expect(error).toHaveBeenCalledTimes(1);
+  expect(String(error.mock.calls[0]?.[0])).toContain('"connect-multi-slide"');
+  expect(String(error.mock.calls[0]?.[0])).toContain('"connect-multi-fade"');
+});
+
+it('removing the element destroys both bindings the scanner made', async () => {
+  const el = make('connect-multi-fade connect-multi-reflow');
+  root.append(el);
+  connect();
+  await tick();
+  expect(getMotions(el)).toHaveLength(2);
+  el.remove();
+  await tick();
+  expect(getMotions(el)).toHaveLength(0);
+});
+
+it('keeps a binding made by hand of a kind the scanner did not bind, when the element is removed', async () => {
+  const el = make('connect-multi-fade');
+  root.append(el);
+  connect();
+  await tick();
+  const hand = motion(el, reflow);
+  el.remove();
+  await tick();
+  expect(getMotion(el, 'layout')).toBe(hand);
+  expect(getMotion(el, 'presence')).toBeUndefined();
+  hand.destroy();
+});
+
+it('keeps a binding made by hand that replaced the scanner binding of its kind, when the element is removed', async () => {
+  const el = make('connect-multi-fade');
+  root.append(el);
+  connect();
+  await tick();
+  const hand = motion(el, slide.spec);
+  el.remove();
+  await tick();
+  expect(getMotion(el, 'presence')).toBe(hand);
+  hand.destroy();
 });

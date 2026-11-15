@@ -1,14 +1,15 @@
 import { getMotion, motion, type MotionBinding } from './bind.js';
-import { definedMotions, isPresenceVerb, onMotionDefined, resolveMotion, type MotionSpec } from './define-motion.js';
+import { definedMotions, kindOf, onMotionDefined, resolveMotion, type MotionKind, type MotionRef } from './define-motion.js';
 
 export interface ConnectOptions {
   root?: Document | Element;
   development?: boolean;
 }
 
-type Verb = MotionSpec['verb'];
 /** The inline display held during an exit, with the author's inline value it replaces. */
 type Hold = { value: string; priority: string };
+/** A motion the scanner bound on an element: the name it came from, and its binding. */
+type Owned = { name: string; binding: MotionBinding };
 
 /** The elements under `node`, the node itself included, that carry `data-motion`. */
 function motionElements(node: Node): HTMLElement[] {
@@ -16,38 +17,61 @@ function motionElements(node: Node): HTMLElement[] {
   return node instanceof HTMLElement && node.hasAttribute('data-motion') ? [node, ...within] : within;
 }
 
+/** The names listed in the `data-motion` of an element, in order. */
+function namesOf(el: HTMLElement): string[] {
+  return (el.getAttribute('data-motion') ?? '').split(/\s+/).filter(Boolean);
+}
+
 /**
  * Bind the `[data-motion]` elements under `root` and keep the bindings in step with the DOM:
  * an insertion plays its entry, a removal destroys, and `data-motion`, `data-state` and `hidden`
- * drive the motion. The returned function disconnects the scanner and destroys its bindings.
+ * drive the motion. An element may list several motions, one per kind. The returned function
+ * disconnects the scanner and destroys its bindings.
  */
 export function connectMotion(options: ConnectOptions = {}): () => void {
   const root = options.root ?? document;
   const development = options.development ?? false;
-  const bound = new Set<HTMLElement>();
+  /** The motions the scanner bound on each element, by kind. */
+  const bound = new Map<HTMLElement, Map<MotionKind, Owned>>();
   const pending = new Map<string, Set<HTMLElement>>();
   const holds = new Map<HTMLElement, Hold>();
   const reported = new Set<string>();
+  const conflicts = new WeakSet<HTMLElement>();
 
+  /** Bind the names of `el`, in order. An undefined name waits alone; a motion of a kind already bound on `el` is ignored. */
   function bind(el: HTMLElement, entering: boolean): void {
-    const name = el.getAttribute('data-motion');
-    if (!name) return;
-    const ref = resolveMotion(name);
-    if (!ref) {
-      defer(el, name);
+    undefer(el);
+    for (const name of namesOf(el)) {
+      const ref = resolveMotion(name);
+      if (ref) bindRef(el, ref, entering);
+      else defer(el, name);
+    }
+  }
+
+  /** Bind the motion `ref` on `el`, unless the scanner has already bound a motion of its kind there. */
+  function bindRef(el: HTMLElement, ref: MotionRef, entering: boolean): void {
+    const kind = kindOf(ref.spec.verb);
+    const owned = bound.get(el)?.get(kind);
+    if (owned && getMotion(el, kind) === owned.binding) {
+      if (development && !conflicts.has(el)) {
+        conflicts.add(el);
+        console.error(`[@udixio/motion] "${ref.name}" ignored on an element that already has a ${kind} motion ("${owned.name}").`);
+      }
       return;
     }
-    undefer(el);
-    bound.add(el);
-    motion(el, ref, { present: !el.hasAttribute('hidden'), settled: !entering, development });
+    const binding = motion(el, ref, { present: !el.hasAttribute('hidden'), settled: !entering, development });
+    let kinds = bound.get(el);
+    if (!kinds) bound.set(el, (kinds = new Map()));
+    kinds.set(kind, { name: ref.name, binding });
   }
 
-  /** The verb of the motion this scanner bound on `el`; a binding made by hand on it is not the scanner's. */
-  function boundVerb(el: HTMLElement): Verb | undefined {
-    return bound.has(el) ? getMotion(el)?.verb : undefined;
+  /** The binding of `kind` that the scanner bound on `el`, while it is still the registered one. */
+  function ownBinding(el: HTMLElement, kind: MotionKind): MotionBinding | undefined {
+    const owned = bound.get(el)?.get(kind);
+    return owned && getMotion(el, kind) === owned.binding ? owned.binding : undefined;
   }
 
-  /** An undefined name leaves the element untouched until that motion is defined. */
+  /** An undefined name leaves that name untouched until its motion is defined. */
   function defer(el: HTMLElement, name: string): void {
     const waiting = pending.get(name) ?? new Set<HTMLElement>();
     pending.set(name, waiting.add(el));
@@ -72,10 +96,14 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     else el.style.removeProperty('display');
   }
 
-  /** Destroy the binding of an element that left the root, and release what the scanner holds on it. */
+  /**
+   * Destroy the bindings the scanner made on an element that left the root, and release what it holds on it.
+   * A binding made by hand on the element is not the scanner's, even when it replaced one of the scanner's.
+   */
   function forget(el: HTMLElement): void {
     release(el);
-    if (bound.delete(el)) getMotion(el)?.destroy();
+    for (const kind of bound.get(el)?.keys() ?? []) ownBinding(el, kind)?.destroy();
+    bound.delete(el);
     undefer(el);
   }
 
@@ -97,11 +125,10 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     });
   }
 
-  /** Make the presence of a presence element follow its `hidden` attribute. */
+  /** Make the presence of an element with a presence motion follow its `hidden` attribute. */
   function syncPresence(el: HTMLElement): void {
-    const binding = getMotion(el);
-    const verb = boundVerb(el);
-    if (!binding || !verb || !isPresenceVerb(verb)) return;
+    const binding = ownBinding(el, 'presence');
+    if (!binding) return;
     const wanted = !el.hasAttribute('hidden');
     if (wanted === binding.present) return;
     if (wanted) {
@@ -126,7 +153,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
         forget(el);
         bind(el, false);
       } else if (record.attributeName === 'data-state') {
-        if (boundVerb(el) === 'emphasize') getMotion(el)?.play();
+        ownBinding(el, 'emphasis')?.play();
       } else {
         syncPresence(el);
       }
@@ -140,13 +167,14 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     const waiting = pending.get(ref.name);
     if (!waiting) return;
     pending.delete(ref.name);
-    for (const el of waiting) if (root.contains(el) && el.getAttribute('data-motion') === ref.name) bind(el, false);
+    // Only the defined name is bound: the other names of the element keep their bindings.
+    for (const el of waiting) if (root.contains(el) && namesOf(el).includes(ref.name)) bindRef(el, ref, false);
   });
 
   return () => {
     observer.disconnect();
     unsubscribe();
-    for (const el of [...bound]) forget(el);
+    for (const el of [...bound.keys()]) forget(el);
     pending.clear();
   };
 }

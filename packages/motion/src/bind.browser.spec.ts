@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { getMotion, motion, motionWhenDefined, type DeferredMotion, type MotionBinding } from './bind.js';
+import { getMotion, getMotions, motion, motionWhenDefined, type DeferredMotion, type MotionBinding } from './bind.js';
 import { defineMotion, type MotionSpec } from './define-motion.js';
-import { fade, press } from './presets.js';
+import { fade, press, reflow, slide } from './presets.js';
 import { waapiProvider } from './providers/waapi.js';
 
 const disappear: MotionSpec = { verb: 'disappear', keyframes: [{ opacity: 1 }, { opacity: 0 }] };
@@ -236,4 +236,52 @@ it('destroys its binding when destroyed after the binding exists', () => {
 
 it('throws a TypeError for an invalid spec, whatever the definition state', () => {
   expect(() => deferTo(target, { verb: 'nope', keyframes: [] } as unknown as MotionSpec)).toThrow(TypeError);
+});
+
+it('holds one binding of each kind on an element, and reads each one by its kind', () => {
+  const presence = bindTo(target, fade);
+  const layout = bindTo(target, reflow);
+  const all = getMotions(target);
+  expect(all).toHaveLength(2);
+  expect(all[0]).toBe(presence);
+  expect(all[1]).toBe(layout);
+  expect(getMotion(target)).toBe(presence);
+  expect(getMotion(target, 'layout')).toBe(layout);
+  expect(getMotion(target, 'emphasis')).toBeUndefined();
+  expect(presence.kind).toBe('presence');
+  expect(layout.kind).toBe('layout');
+  expect(layout.verb).toBe('layout');
+});
+
+it('lists the bindings of an element in the order presence, emphasis, layout', () => {
+  bindTo(target, reflow);
+  bindTo(target, press);
+  bindTo(target, fade);
+  expect(getMotions(target).map(binding => binding.kind)).toEqual(['presence', 'emphasis', 'layout']);
+  expect(getMotion(target)?.kind).toBe('presence');
+});
+
+it('a motion of a kind the element already holds destroys that binding, and keeps the others', () => {
+  const presence = bindTo(target, fade);
+  const layout = bindTo(target, reflow);
+  const replacement = bindTo(target, slide);
+  expect(getMotions(target)).toHaveLength(2);
+  expect(getMotion(target)).toBe(replacement);
+  expect(getMotion(target, 'layout')).toBe(layout);
+  expect(presence.handle).toBeNull();
+  expect(target.dataset.presence).toBe('entering');
+});
+
+it('destroying one kind leaves the other registered and working, and the last destroy empties the element', async () => {
+  const presence = bindTo(target, fade);
+  await presence.setPresent(true);
+  const layout = bindTo(target, reflow);
+  layout.destroy();
+  expect(getMotions(target)).toHaveLength(1);
+  expect(getMotion(target)).toBe(presence);
+  expect(await presence.setPresent(false)).toBe('finished');
+  expect(target.dataset.presence).toBe('exiting');
+  presence.destroy();
+  expect(getMotions(target)).toHaveLength(0);
+  expect(getMotion(target)).toBeUndefined();
 });

@@ -63,6 +63,12 @@ function dirtyItemsOf(scope: Scope, records: readonly MutationRecord[]): Set<Ite
   return dirty;
 }
 
+/** Whether an element is entering or leaving: its `data-presence` is not `present`, and its presence owns its transform. */
+function isPresenceBusy(element: HTMLElement): boolean {
+  const presence = element.getAttribute('data-presence');
+  return presence !== null && presence !== 'present';
+}
+
 /**
  * Compare the layout with the cache, and play the difference of every element that moved.
  * Reads come first in each pass, and a pass never reads after its own writes: the browser then recalculates
@@ -86,10 +92,20 @@ export function flush(scope: Scope, records: readonly MutationRecord[] = []): vo
   const rects: ReferenceRects = new Map();
   const dirty = dirtyItemsOf(scope, records);
   const changed: Change[] = [];
+  // The elements that enter or leave: their moves stop after this pass, which reads only.
+  const busy: Item[] = [];
   // An element whose parent is the root has the root as its reference: with none nested, the passes below that order or join followed elements do nothing.
   let nested = false;
   for (const [element, item] of scope.items) {
     if (!element.isConnected) continue;
+    if (isPresenceBusy(element)) {
+      // No box is kept for it: it is measured again at the first flush where it is present, without a move.
+      busy.push(item);
+      item.layout = undefined;
+      item.visual = undefined;
+      if (item.content.length > 0) item.content = [];
+      continue;
+    }
     if (!item.layout || !item.visual) {
       nested = true;
       if (item.handle === null) measure(scope, element, item, rects);
@@ -116,7 +132,9 @@ export function flush(scope: Scope, records: readonly MutationRecord[] = []): vo
       changed.push([element, item, item.visual, null, null]);
     }
   }
-  // Nothing changed: nothing is stopped, planned or played.
+  // The moves of the elements that enter or leave stop here, before the writes below, whatever changed.
+  for (const item of busy) stopFlight(item);
+  // Nothing changed: no other move is stopped, planned or played.
   if (changed.length === 0) return;
   // 1b. A followed child of a changed element is changed too, moved or not: its reference may now carry it as content.
   // Its box is planned in pass 3, from the content its reference is running when that carries it; a child in flight
@@ -215,8 +233,8 @@ export function flush(scope: Scope, records: readonly MutationRecord[] = []): vo
 function refresh(scope: Scope, content: boolean): void {
   const rects: ReferenceRects = new Map();
   for (const [element, item] of scope.items) {
-    // An element animated as content is measured with its projector, whose move it follows.
-    if (!element.isConnected || item.projector !== null) continue;
+    // An element animated as content is measured with its projector, whose move it follows. An element entering or leaving is measured once present.
+    if (!element.isConnected || item.projector !== null || isPresenceBusy(element)) continue;
     if (item.handle === null) {
       measure(scope, element, item, rects, content);
     } else {

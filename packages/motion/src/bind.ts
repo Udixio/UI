@@ -2,9 +2,11 @@ import { settledHandle } from './compose.js';
 import type { MotionHandle, VisualFrame } from './contract.js';
 import {
   definedMotions,
+  kindOf,
   onMotionDefined,
   resolveMotion,
   validateMotionSpec,
+  type MotionKind,
   type MotionRef,
   type MotionSpec,
 } from './define-motion.js';
@@ -19,6 +21,7 @@ export interface MotionBinding {
   readonly handle: MotionHandle | null;
   readonly present: boolean;
   readonly verb: MotionSpec['verb'];
+  readonly kind: MotionKind;
   play(): MotionHandle;
   setPresent(present: boolean): Promise<'finished' | 'cancelled'>;
   destroy(): void;
@@ -29,7 +32,11 @@ type BindOptions = { present?: boolean; settled?: boolean; development?: boolean
 /** A spec with keyframes: a layout is bound by `createLayoutBinding` instead. */
 type KeyframedSpec = Exclude<MotionSpec, { verb: 'layout' }>;
 
-const bindings = new WeakMap<Element, MotionBinding>();
+/** The kinds in the order `getMotion` and `getMotions` read them. */
+const KINDS: readonly MotionKind[] = ['presence', 'emphasis', 'layout'];
+
+/** The binding of each kind on an element: at most one per kind. */
+const bindings = new WeakMap<Element, Map<MotionKind, MotionBinding>>();
 
 function isRef(source: MotionRef | Readonly<MotionSpec>): source is MotionRef {
   return 'name' in source && 'spec' in source;
@@ -44,20 +51,44 @@ function specOf(source: MotionSource): Readonly<MotionSpec> {
   return isRef(source) ? source.spec : validateMotionSpec(source);
 }
 
-/** The binding attached to an element, if any. */
-export function getMotion(target: Element): MotionBinding | undefined {
-  return bindings.get(target);
+/** The binding of a kind on an element; without a kind, the first of presence, emphasis, layout. */
+export function getMotion(target: Element, kind?: MotionKind): MotionBinding | undefined {
+  const kinds = bindings.get(target);
+  if (!kinds) return undefined;
+  if (kind !== undefined) return kinds.get(kind);
+  return KINDS.map(each => kinds.get(each)).find(binding => binding !== undefined);
+}
+
+/** The bindings of an element, in the order presence, emphasis, layout. */
+export function getMotions(target: Element): MotionBinding[] {
+  const kinds = bindings.get(target);
+  return kinds ? KINDS.flatMap(kind => kinds.get(kind) ?? []) : [];
+}
+
+function register(target: Element, binding: MotionBinding): void {
+  let kinds = bindings.get(target);
+  if (!kinds) bindings.set(target, (kinds = new Map()));
+  kinds.set(binding.kind, binding);
+}
+
+/** Forget a binding, if it is still the one registered for its kind. */
+function unregister(target: Element, binding: MotionBinding): void {
+  const kinds = bindings.get(target);
+  if (kinds?.get(binding.kind) !== binding) return;
+  kinds.delete(binding.kind);
+  if (kinds.size === 0) bindings.delete(target);
 }
 
 /**
  * Bind a motion to an element. The binding owns its presence (`data-presence`, `inert`),
- * its replays and its cleanup. A second binding on the same element destroys the first.
+ * its replays and its cleanup. A motion of a kind the element already holds destroys that
+ * binding; the bindings of the other kinds are kept.
  */
 export function motion(target: HTMLElement, source: MotionSource, options: BindOptions = {}): MotionBinding {
   const spec = specOf(source);
-  getMotion(target)?.destroy();
+  getMotion(target, kindOf(spec.verb))?.destroy();
   const binding = spec.verb === 'layout' ? createLayoutBinding(target, spec, options) : createBinding(target, spec, options);
-  bindings.set(target, binding);
+  register(target, binding);
   return binding;
 }
 
@@ -111,6 +142,7 @@ function createLayoutBinding(target: HTMLElement, spec: Readonly<MotionSpec>, op
   let destroyed = false;
   const binding: MotionBinding = {
     verb: 'layout',
+    kind: 'layout',
     get handle() {
       return tracking.handle;
     },
@@ -129,7 +161,7 @@ function createLayoutBinding(target: HTMLElement, spec: Readonly<MotionSpec>, op
       destroyed = true;
       stopPolicy();
       tracking.destroy();
-      if (bindings.get(target) === binding) bindings.delete(target);
+      unregister(target, binding);
       releaseRuntime();
     },
   };
@@ -236,7 +268,7 @@ function createBinding(target: HTMLElement, spec: Readonly<KeyframedSpec>, optio
     releaseFrame(target, writtenFields);
     target.removeAttribute('data-presence');
     releaseInert();
-    if (bindings.get(target) === binding) bindings.delete(target);
+    unregister(target, binding);
     releaseRuntime();
   }
 
@@ -263,6 +295,7 @@ function createBinding(target: HTMLElement, spec: Readonly<KeyframedSpec>, optio
       return present;
     },
     verb,
+    kind: kindOf(verb),
     play,
     setPresent,
     destroy,

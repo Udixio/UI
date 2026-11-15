@@ -117,6 +117,15 @@ export function isPresenceVerb(verb: MotionSpec['verb']): verb is 'appear' | 'di
   return verb === 'appear' || verb === 'disappear';
 }
 
+/** The kind of a motion: an element holds at most one binding of each kind. */
+export type MotionKind = 'presence' | 'emphasis' | 'layout';
+
+/** The kind of a verb: `appear` and `disappear` are presence motions, `emphasize` an emphasis, `layout` a layout. */
+export function kindOf(verb: MotionSpec['verb']): MotionKind {
+  if (isPresenceVerb(verb)) return 'presence';
+  return verb === 'emphasize' ? 'emphasis' : 'layout';
+}
+
 export function resolveMotion(name: string): MotionRef | undefined {
   return definitions().get(name);
 }

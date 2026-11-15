@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, it } from 'vitest';
 import { getMotion, motion, motionWhenDefined, type DeferredMotion, type MotionBinding } from './bind.js';
 import type { MotionHandle } from './contract.js';
-import { reflow } from './presets.js';
+import { fade, reflow } from './presets.js';
 import { defineMotion } from './define-motion.js';
 import { springOffset, springVelocity } from './spring.js';
 import { springParams } from './tokens.js';
@@ -920,4 +920,91 @@ it('[Review Focus 3] a child that moves alone inside a card at rest plays its ow
   expect(keyframeCount(item)).toBe(2);
   await moving(itemBinding).finished;
   expectNear(local(item, card), { left: 20, top: 10, width: 40, height: 40 }, 0.5);
+});
+
+/** Whether an animation is a layout move: it animates the translate or the scale of its element. */
+function isMove(animation: Animation): boolean {
+  return (animation.effect as KeyframeEffect).getKeyframes().some(frame => frame.translate != null || frame.scale != null);
+}
+
+/** Two 50 px boxes of 40 px per column item, stacked in a 200 px column: `.stack.end` packs them to the bottom. */
+const stackCss = `
+  .stack { display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start; width: 100px; height: 200px; }
+  .stack.end { justify-content: flex-end; }
+`;
+const stackMarkup = '<div class="stack" id="stack"><div class="box" id="a"></div><div class="box" id="b"></div><div class="box" id="c"></div></div>';
+
+/** Bind an item to fade and to reflow, the two motions of a list item, and remember both so that cleanup destroys them. */
+function bindItem(element: HTMLElement, options: { settled?: boolean }): [MotionBinding, MotionBinding] {
+  const presence = motion(element, fade, options);
+  const layout = motion(element, reflow);
+  bindings.push(presence, layout);
+  return [presence, layout];
+}
+
+it('[Review Focus 1] an item inserted between two followed items fades in, moves nothing, and the items below it move', async () => {
+  page(css() + stackCss, stackMarkup);
+  const stack = byId('stack');
+  const layouts = ['a', 'b', 'c'].map(id => bindItem(byId(id), { settled: true })[1]);
+  const fresh = document.createElement('div');
+  fresh.className = 'box';
+  stack.insertBefore(fresh, byId('b'));
+  const [freshFade, freshLayout] = bindItem(fresh, {});
+  await Promise.resolve();
+
+  expect(fresh.getAnimations()).toHaveLength(1);
+  expect(isMove(fresh.getAnimations()[0])).toBe(false);
+  expect((fresh.getAnimations()[0].effect as KeyframeEffect).getKeyframes().every(frame => frame.opacity != null)).toBe(true);
+  expect(freshLayout.handle).toBeNull();
+  expect(byId('a').getAnimations()).toHaveLength(0);
+  expect(byId('b').getAnimations().some(isMove)).toBe(true);
+  expect(byId('c').getAnimations().some(isMove)).toBe(true);
+
+  const moves = [moving(layouts[1]).finished, moving(layouts[2]).finished];
+  expect(await Promise.all([freshFade.setPresent(true), ...moves])).toEqual(['finished', 'finished', 'finished']);
+  expectNear(local(byId('a'), stack), { left: 0, top: 0, width: 50, height: 40 }, 0.5);
+  expectNear(local(fresh, stack), { left: 0, top: 40, width: 50, height: 40 }, 0.5);
+  expectNear(local(byId('b'), stack), { left: 0, top: 80, width: 50, height: 40 }, 0.5);
+  expectNear(local(byId('c'), stack), { left: 0, top: 120, width: 50, height: 40 }, 0.5);
+  for (const element of [byId('a'), fresh, byId('b'), byId('c')]) {
+    expect(element.style.translate).toBe('');
+    expect(element.style.scale).toBe('');
+    expect(Array.from(element.style).filter(property => property !== 'opacity')).toEqual([]);
+  }
+});
+
+it('[Review Focus 1] an item that starts leaving gets no layout move while its container changes', async () => {
+  page(css() + stackCss, stackMarkup);
+  const stack = byId('stack');
+  const [, layoutA] = bindItem(byId('a'), { settled: true });
+  const [leavingFade, leavingLayout] = bindItem(byId('b'), { settled: true });
+  const [, layoutC] = bindItem(byId('c'), { settled: true });
+  const exit = leavingFade.setPresent(false);
+  stack.classList.add('end');
+  await Promise.resolve();
+  expect(leavingLayout.handle).toBeNull();
+  expect(byId('b').getAnimations()).toHaveLength(1);
+  expect(byId('b').getAnimations().some(isMove)).toBe(false);
+  const moves = [moving(layoutA).finished, moving(layoutC).finished];
+  await Promise.all([exit, ...moves]);
+  expectNear(local(byId('a'), stack), { left: 0, top: 80, width: 50, height: 40 }, 0.5);
+  expectNear(local(byId('c'), stack), { left: 0, top: 160, width: 50, height: 40 }, 0.5);
+});
+
+it('[Review Focus 1] a move in flight stops at the next flush of an item that is leaving', async () => {
+  page(css() + stackCss, stackMarkup);
+  const stack = byId('stack');
+  bindItem(byId('a'), { settled: true });
+  const [leavingFade, leavingLayout] = bindItem(byId('b'), { settled: true });
+  stack.classList.add('end');
+  await Promise.resolve();
+  const flight = moving(leavingLayout);
+  flight.pause();
+  flight.seek(flight.duration * 0.5);
+  leavingFade.setPresent(false);
+  stack.classList.remove('end');
+  await Promise.resolve();
+  expect(await flight.finished).toBe('cancelled');
+  expect(leavingLayout.handle).toBeNull();
+  expect(byId('b').getAnimations().some(isMove)).toBe(false);
 });
