@@ -63,31 +63,31 @@
         "default": "./dist/layout.js"
       },
       "./value": {
-        "types": "./dist/value.d.ts",
+        "types": "./dist/value-entry.d.ts",
         "import": "./dist/value.js",
         "require": "./dist/value.cjs",
         "default": "./dist/value.js"
       },
       "./sequence": {
-        "types": "./dist/sequence.d.ts",
+        "types": "./dist/sequence-entry.d.ts",
         "import": "./dist/sequence.js",
         "require": "./dist/sequence.cjs",
         "default": "./dist/sequence.js"
       },
       "./gesture": {
-        "types": "./dist/gesture.d.ts",
+        "types": "./dist/gesture-entry.d.ts",
         "import": "./dist/gesture.js",
         "require": "./dist/gesture.cjs",
         "default": "./dist/gesture.js"
       },
       "./text": {
-        "types": "./dist/text.d.ts",
+        "types": "./dist/text-entry.d.ts",
         "import": "./dist/text.js",
         "require": "./dist/text.cjs",
         "default": "./dist/text.js"
       },
       "./svg": {
-        "types": "./dist/svg.d.ts",
+        "types": "./dist/svg-entry.d.ts",
         "import": "./dist/svg.js",
         "require": "./dist/svg.cjs",
         "default": "./dist/svg.js"
@@ -192,35 +192,35 @@
     },
     "./value": {
       "development": "./src/value-entry.ts",
-      "types": "./dist/value.d.ts",
+      "types": "./dist/value-entry.d.ts",
       "import": "./dist/value.js",
       "require": "./dist/value.cjs",
       "default": "./dist/value.js"
     },
     "./sequence": {
       "development": "./src/sequence-entry.ts",
-      "types": "./dist/sequence.d.ts",
+      "types": "./dist/sequence-entry.d.ts",
       "import": "./dist/sequence.js",
       "require": "./dist/sequence.cjs",
       "default": "./dist/sequence.js"
     },
     "./gesture": {
       "development": "./src/gesture-entry.ts",
-      "types": "./dist/gesture.d.ts",
+      "types": "./dist/gesture-entry.d.ts",
       "import": "./dist/gesture.js",
       "require": "./dist/gesture.cjs",
       "default": "./dist/gesture.js"
     },
     "./text": {
       "development": "./src/text-entry.ts",
-      "types": "./dist/text.d.ts",
+      "types": "./dist/text-entry.d.ts",
       "import": "./dist/text.js",
       "require": "./dist/text.cjs",
       "default": "./dist/text.js"
     },
     "./svg": {
       "development": "./src/svg-entry.ts",
-      "types": "./dist/svg.d.ts",
+      "types": "./dist/svg-entry.d.ts",
       "import": "./dist/svg.js",
       "require": "./dist/svg.cjs",
       "default": "./dist/svg.js"

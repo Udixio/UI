@@ -50,11 +50,11 @@ test('layout entry point is public in both export maps', () => {
 test('value and sequence entry points are public in both export maps', () => {
   for (const name of ['value', 'sequence']) {
     assert.deepEqual(pkg.exports[`./${name}`], {
-      development: `./src/${name}-entry.ts`, types: `./dist/${name}.d.ts`,
+      development: `./src/${name}-entry.ts`, types: `./dist/${name}-entry.d.ts`,
       import: `./dist/${name}.js`, require: `./dist/${name}.cjs`, default: `./dist/${name}.js`,
     });
     assert.deepEqual(pkg.publishConfig.exports[`./${name}`], {
-      types: `./dist/${name}.d.ts`, import: `./dist/${name}.js`,
+      types: `./dist/${name}-entry.d.ts`, import: `./dist/${name}.js`,
       require: `./dist/${name}.cjs`, default: `./dist/${name}.js`,
     });
   }
@@ -269,22 +269,22 @@ test('astro entry point is public in both export maps', () => {
 
 test('gesture entry point is public in both export maps', () => {
   assert.deepEqual(pkg.exports['./gesture'], {
-    development: './src/gesture-entry.ts', types: './dist/gesture.d.ts',
+    development: './src/gesture-entry.ts', types: './dist/gesture-entry.d.ts',
     import: './dist/gesture.js', require: './dist/gesture.cjs', default: './dist/gesture.js',
   });
   assert.deepEqual(pkg.publishConfig.exports['./gesture'], {
-    types: './dist/gesture.d.ts', import: './dist/gesture.js',
+    types: './dist/gesture-entry.d.ts', import: './dist/gesture.js',
     require: './dist/gesture.cjs', default: './dist/gesture.js',
   });
 });
 
 test('text entry point is public in both export maps', () => {
   assert.deepEqual(pkg.exports['./text'], {
-    development: './src/text-entry.ts', types: './dist/text.d.ts',
+    development: './src/text-entry.ts', types: './dist/text-entry.d.ts',
     import: './dist/text.js', require: './dist/text.cjs', default: './dist/text.js',
   });
   assert.deepEqual(pkg.publishConfig.exports['./text'], {
-    types: './dist/text.d.ts', import: './dist/text.js',
+    types: './dist/text-entry.d.ts', import: './dist/text.js',
     require: './dist/text.cjs', default: './dist/text.js',
   });
 });
@@ -348,11 +348,11 @@ test('importing the text entry hands its functions to the main entry', async () 
 
 test('svg entry point is public in both export maps', () => {
   assert.deepEqual(pkg.exports['./svg'], {
-    development: './src/svg-entry.ts', types: './dist/svg.d.ts',
+    development: './src/svg-entry.ts', types: './dist/svg-entry.d.ts',
     import: './dist/svg.js', require: './dist/svg.cjs', default: './dist/svg.js',
   });
   assert.deepEqual(pkg.publishConfig.exports['./svg'], {
-    types: './dist/svg.d.ts', import: './dist/svg.js',
+    types: './dist/svg-entry.d.ts', import: './dist/svg.js',
     require: './dist/svg.cjs', default: './dist/svg.js',
   });
 });
@@ -362,4 +362,13 @@ test('the svg entry imports anime.js and its svg subpath, and the main entry hol
   assert.match(svg, /from ["']animejs\/svg["']/);
   assert.doesNotMatch(svg, /Can't morph a|function morphTo/);
   for (const code of await staticClosure('dist/index.js')) assert.doesNotMatch(code, /morphTo|scratchPath/);
+});
+
+test('every types path of both export maps names a declaration file of the build', async () => {
+  const { existsSync } = await import('node:fs');
+  const { fileURLToPath } = await import('node:url');
+  const root = fileURLToPath(new URL('..', import.meta.url));
+  for (const map of [pkg.exports, pkg.publishConfig.exports])
+    for (const [entry, target] of Object.entries(map))
+      if (typeof target === 'object' && target.types) assert.ok(existsSync(root + target.types.slice(2)), `${entry}: ${target.types} is missing`);
 });
