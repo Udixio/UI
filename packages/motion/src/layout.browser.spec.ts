@@ -5,6 +5,10 @@ import { fade, reflow } from './presets.js';
 import { defineMotion } from './define-motion.js';
 import { springOffset, springVelocity } from './spring.js';
 import { springParams } from './tokens.js';
+import { loadLayoutEngine } from './layout-loader.js';
+
+// Every test here binds a layout motion and expects it to follow at once: the engine is loaded before the first test.
+await loadLayoutEngine();
 
 type Rect = { left: number; top: number; width: number; height: number };
 

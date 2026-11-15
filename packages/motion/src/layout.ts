@@ -1,3 +1,7 @@
+/**
+ * The public entry `@udixio/motion/layout`: the layout engine. The main entry loads it on demand, the first time a
+ * layout motion is bound, so a site without layout motions never downloads it.
+ */
 import type { MotionHandle } from './contract.js';
 import type { MotionSpec } from './define-motion.js';
 import type { MotionRuntime } from './runtime.js';
@@ -8,6 +12,12 @@ import { dispose, layoutScopeOf, scopeOf, scopes } from './layout/scope.js';
 import type { Item } from './layout/types.js';
 
 export { layoutScopeOf };
+export { flipFrames, sameBox, toLayoutBox, toVisualBox, parseOwnTransform } from './flip.js';
+export type { Box, OwnTransform } from './flip.js';
+export { springOffset, springVelocity, springSettleTime } from './spring.js';
+export type { SpringParams } from './spring.js';
+export { isStretched, parseRadii, correctedRadius, lerpBox, projectBox, projectText, stretchOf, sampleContent, liveContentBoxes, easingOf } from './project.js';
+export type { Stretch, AxisProgress, ContentPlan, Radii } from './project.js';
 
 export interface LayoutTracking {
   /** The move in flight, if any. */

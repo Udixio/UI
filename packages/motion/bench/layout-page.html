@@ -17,7 +17,7 @@
 <body>
 <main id="stage"></main>
 <script type="module">
-import { motion } from '/src/index.ts';
+import { loadLayoutEngine, motion } from '/src/index.ts';
 import { createLayout } from 'animejs';
 
 const SCOPE_ATTRIBUTE = 'data-motion-scope';
@@ -289,6 +289,8 @@ function aggregate(scenario, runs) {
 window.runLayoutBenchmark = async (engineName, scenario, count) => {
   if (!ENGINES[engineName]) throw new Error(`Unknown engine "${engineName}"`);
   if (engineName === 'none' && scenario !== 'idle') throw new Error('The none engine only runs the idle scenario');
+  // The layout engine loads on first use: a udixio run measures it loaded, after its first layout motion, as a site does.
+  if (engineName === 'udixio') await loadLayoutEngine();
   const container = build(scenario, count);
   const engine = ENGINES[engineName](container);
   const setupMs = engine.setup();

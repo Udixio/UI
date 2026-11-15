@@ -10,7 +10,8 @@ import {
   type MotionRef,
   type MotionSpec,
 } from './define-motion.js';
-import { flushLayoutAround, trackLayout } from './layout.js';
+import type { LayoutTracking } from './layout.js';
+import { flushLayoutAround, layoutEngine, loadLayoutEngine } from './layout-loader.js';
 import { pinOutOfFlow } from './pin.js';
 import { applyFrame, playMotion, releaseFrame } from './play.js';
 import { getMotionRuntime, retainMotionRuntime } from './runtime.js';
@@ -132,28 +133,38 @@ export function motionWhenDefined(target: HTMLElement, source: MotionSource, opt
   };
 }
 
-/** A layout follows its element: it writes no presence attribute and never enters or leaves. */
+/**
+ * A layout follows its element: it writes no presence attribute and never enters or leaves. The layout engine is
+ * loaded on first use: until it is, the element is not followed, and it starts following from its place once loaded.
+ */
 function createLayoutBinding(target: HTMLElement, spec: Readonly<MotionSpec>, options: BindOptions): MotionBinding {
   const runtime = getMotionRuntime();
   const releaseRuntime = retainMotionRuntime(runtime);
-  const tracking = trackLayout(target, spec, { runtime, development: options.development ?? false });
+  const trackOptions = { runtime, development: options.development ?? false };
+  let destroyed = false;
+  const engine = layoutEngine();
+  let tracking: LayoutTracking | undefined = engine?.trackLayout(target, spec, trackOptions);
+  if (!engine) {
+    void loadLayoutEngine().then(() => {
+      if (!destroyed) tracking = layoutEngine()?.trackLayout(target, spec, trackOptions);
+    });
+  }
   // Under reduced motion, a move in flight stops where the layout puts the element.
   const stopPolicy = runtime.policy.subscribe(() => {
-    if (runtime.policy.reduced) tracking.handle?.cancel();
+    if (runtime.policy.reduced) tracking?.handle?.cancel();
   });
-  let destroyed = false;
   const binding: MotionBinding = {
     verb: 'layout',
     kind: 'layout',
     get handle() {
-      return tracking.handle;
+      return tracking?.handle ?? null;
     },
     get present() {
       return true;
     },
     play() {
-      tracking.flush();
-      return tracking.handle ?? settledHandle();
+      tracking?.flush();
+      return tracking?.handle ?? settledHandle();
     },
     setPresent() {
       throw new TypeError('setPresent does not apply to a layout motion');
@@ -162,7 +173,7 @@ function createLayoutBinding(target: HTMLElement, spec: Readonly<MotionSpec>, op
       if (destroyed) return;
       destroyed = true;
       stopPolicy();
-      tracking.destroy();
+      tracking?.destroy();
       unregister(target, binding);
       releaseRuntime();
     },

@@ -36,6 +36,23 @@ test('presets entry point is public in both export maps', () => {
   });
 });
 
+test('layout entry point is public in both export maps', () => {
+  assert.deepEqual(pkg.exports['./layout'], {
+    development: './src/layout.ts', types: './dist/layout.d.ts',
+    import: './dist/layout.js', require: './dist/layout.cjs', default: './dist/layout.js',
+  });
+  assert.deepEqual(pkg.publishConfig.exports['./layout'], {
+    types: './dist/layout.d.ts', import: './dist/layout.js',
+    require: './dist/layout.cjs', default: './dist/layout.js',
+  });
+});
+
+test('the main entry loads the layout engine with a dynamic import only', async () => {
+  const index = await readFile(new URL('dist/index.js', root), 'utf8');
+  assert.match(index, /import\(["']\.\/layout\.js["']\)/);
+  assert.doesNotMatch(index, /^import\b[^;]*["']\.\/layout\.js["']/m);
+});
+
 test('a named runtime key import does not include the manifest', async () => {
   const bundle = await rollup({
     input: 'runtime-key-test',

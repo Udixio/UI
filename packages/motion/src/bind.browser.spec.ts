@@ -3,6 +3,10 @@ import { getMotion, getMotions, motion, motionWhenDefined, type DeferredMotion, 
 import { defineMotion, type MotionSpec } from './define-motion.js';
 import { fade, press, reflow, slide } from './presets.js';
 import { waapiProvider } from './providers/waapi.js';
+import { loadLayoutEngine } from './layout-loader.js';
+
+// The layout motions of this file follow at once: the engine is loaded before the first test.
+await loadLayoutEngine();
 
 const disappear: MotionSpec = { verb: 'disappear', keyframes: [{ opacity: 1 }, { opacity: 0 }] };
 const nextFrame = () => new Promise<void>(resolve => requestAnimationFrame(() => resolve()));

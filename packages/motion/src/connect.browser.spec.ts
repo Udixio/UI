@@ -4,6 +4,10 @@ import { connectMotion } from './connect.js';
 import { defineMotion } from './define-motion.js';
 import { fade, press, reflow, slide } from './presets.js';
 import { waapiProvider } from './providers/waapi.js';
+import { loadLayoutEngine } from './layout-loader.js';
+
+// The layout motions of this file follow at once: the engine is loaded before the first test.
+await loadLayoutEngine();
 
 defineMotion('connect-fade', fade.spec);
 defineMotion('connect-press', press.spec);

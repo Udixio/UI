@@ -1,6 +1,6 @@
 import { deferredHandle } from './compose.js';
 import type { MotionHandle } from './contract.js';
-import { layoutScopeOf } from './layout.js';
+import { layoutScopeOf } from './scope-of.js';
 
 type Origin = 'first' | 'last' | 'center';
 type Step = 'tight' | 'normal' | 'loose';

@@ -1,6 +1,6 @@
 import { getMotion, motion, type MotionBinding } from './bind.js';
 import { definedMotions, kindOf, onMotionDefined, resolveMotion, type MotionKind, type MotionRef } from './define-motion.js';
-import { flushLayoutAround } from './layout.js';
+import { flushLayoutAround } from './layout-loader.js';
 
 export interface ConnectOptions {
   root?: Document | Element;

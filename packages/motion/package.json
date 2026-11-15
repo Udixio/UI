@@ -55,6 +55,12 @@
         "import": "./dist/presets.js",
         "require": "./dist/presets.cjs",
         "default": "./dist/presets.js"
+      },
+      "./layout": {
+        "types": "./dist/layout.d.ts",
+        "import": "./dist/layout.js",
+        "require": "./dist/layout.cjs",
+        "default": "./dist/layout.js"
       }
     }
   },
@@ -140,6 +146,13 @@
       "import": "./dist/presets.js",
       "require": "./dist/presets.cjs",
       "default": "./dist/presets.js"
+    },
+    "./layout": {
+      "development": "./src/layout.ts",
+      "types": "./dist/layout.d.ts",
+      "import": "./dist/layout.js",
+      "require": "./dist/layout.cjs",
+      "default": "./dist/layout.js"
     }
   },
   "dependencies": {
