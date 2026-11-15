@@ -166,7 +166,7 @@ it('[Review Focus 1] a second change mid-course starts from the visual position,
 it('[Review Focus 2] a change after a scroll starts from the scrolled position', async () => {
   page(
     css() + `
-      .scroller { width: 300px; height: 100px; overflow: auto; }
+      .scroller { width: 300px; height: 100px; overflow: auto; overflow-anchor: none; }
       .column { display: flex; flex-direction: column; justify-content: flex-start; height: 300px; }
       .column.end { justify-content: flex-end; }
     `,
@@ -233,6 +233,34 @@ it('[Review Focus 5] a width change seen only by the ResizeObserver refreshes th
   const before = local(box, row);
   row.classList.replace('end', 'start');
   await Promise.resolve();
+  expectNear(local(box, row), before, 1);
+  await moving(binding).finished;
+  expectNear(local(box, row), { left: 0, top: 0, width: 50, height: 40 }, 0.5);
+});
+
+it('a resize followed immediately by a change starts from the resized position', async () => {
+  page(css(300), '<div class="row end" id="row"><div class="box" id="box"></div></div>');
+  const row = byId('row');
+  const box = byId('box');
+  const binding = bindTo(box);
+  // Wait for the observer's callback itself, not for a frame: rAF callbacks run before the ResizeObserver
+  // delivery, so one frame cannot prove that the cache was refreshed. The engine's observer is older, so it runs first.
+  const resized = new Promise<void>(resolve => {
+    const observer = new ResizeObserver(() => {
+      observer.disconnect();
+      resolve();
+    });
+    observer.observe(row);
+  });
+  style.textContent = css(200);
+  await resized;
+  await Promise.resolve();
+  expect(binding.handle).toBeNull();
+  const before = local(box, row);
+  expectNear(before, { left: 150, top: 0, width: 50, height: 40 }, 0.5);
+  row.classList.replace('end', 'start');
+  await Promise.resolve();
+  expect(binding.handle).not.toBeNull();
   expectNear(local(box, row), before, 1);
   await moving(binding).finished;
   expectNear(local(box, row), { left: 0, top: 0, width: 50, height: 40 }, 0.5);

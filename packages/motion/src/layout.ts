@@ -23,7 +23,6 @@ interface Scope {
   items: Map<HTMLElement, Item>;
   observer: MutationObserver;
   resize: ResizeObserver;
-  refreshQueued: boolean;
   onScroll: () => void;
 }
 
@@ -86,7 +85,6 @@ function scopeFor(root: HTMLElement): Scope {
       if (records.some(relevant)) flush(scope);
     }),
     resize: new ResizeObserver(() => refresh(scope)),
-    refreshQueued: false,
     onScroll: () => refresh(scope),
   };
   scope.observer.observe(root, { childList: true, subtree: true, attributes: true });
@@ -173,23 +171,21 @@ function flush(scope: Scope): void {
   }
 }
 
-/** The layout changed without a mutation (resize, scroll): update the cache, animate nothing. */
+/**
+ * The layout changed without a mutation (resize, scroll): update the cache now, animate nothing.
+ * Synchronous on purpose: a ResizeObserver callback runs right after layout and a scroll event once per
+ * frame, so a change made just after either is flushed against a fresh cache.
+ */
 function refresh(scope: Scope): void {
-  const runtime = scope.items.values().next().value?.runtime;
-  if (scope.refreshQueued || !runtime) return;
-  scope.refreshQueued = true;
-  runtime.frame.read(() => {
-    scope.refreshQueued = false;
-    for (const [element, item] of scope.items) {
-      if (!element.isConnected) continue;
-      if (item.handle === null) {
-        measure(scope, element, item);
-      } else {
-        item.layout = toLayoutBox(visualBoxOf(scope, element), ownOf(element));
-        item.visual = toVisualBox(item.layout, item.rest);
-      }
+  for (const [element, item] of scope.items) {
+    if (!element.isConnected) continue;
+    if (item.handle === null) {
+      measure(scope, element, item);
+    } else {
+      item.layout = toLayoutBox(visualBoxOf(scope, element), ownOf(element));
+      item.visual = toVisualBox(item.layout, item.rest);
     }
-  });
+  }
 }
 
 /** Start following `target`: it moves to its new place when its scope changes. */
