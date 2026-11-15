@@ -1,5 +1,6 @@
 import type { getGesture, gesture } from './gesture-binding.js';
 import type { getSequence, sequence } from './sequence.js';
+import type { applySplitFrame, playSplit, revertSplit } from './split-play.js';
 import type { getValue, value } from './value-binding.js';
 
 /** The functions that bind values, as the values module provides them once it has evaluated in this copy of the package. */
@@ -10,12 +11,17 @@ export type SequenceApi = { readonly sequence: typeof sequence; readonly getSequ
 /** The functions that bind gestures, as the gestures module provides them once it has evaluated in this copy of the package. */
 export type GestureApi = { readonly gesture: typeof gesture; readonly getGesture: typeof getGesture };
 
+/** The functions that play a split definition, as the text module provides them once it has evaluated in this copy of the package. */
+export type TextApi = {
+  readonly playSplit: typeof playSplit;
+  readonly applySplitFrame: typeof applySplitFrame;
+  readonly revertSplit: typeof revertSplit;
+};
+
 let values: ValueApi | undefined;
 let sequences: SequenceApi | undefined;
 let gestures: GestureApi | undefined;
-let loadingValues: Promise<void> | undefined;
-let loadingSequences: Promise<void> | undefined;
-let loadingGestures: Promise<void> | undefined;
+let texts: TextApi | undefined;
 
 /**
  * Called by the values module when it evaluates: a page that binds values from then on does it at once, with no wait
@@ -41,6 +47,14 @@ export function provideGestures(api: GestureApi): void {
   gestures = api;
 }
 
+/**
+ * Called by the text module when it evaluates: a binding that splits a text from then on does it at once, with no wait
+ * for a load.
+ */
+export function provideText(api: TextApi): void {
+  texts = api;
+}
+
 /** The functions that bind values, once the values module has evaluated in this copy of the package. */
 export function valuesModule(): ValueApi | undefined {
   return values;
@@ -56,45 +70,43 @@ export function gesturesModule(): GestureApi | undefined {
   return gestures;
 }
 
+/** The functions that play a split definition, once the text module has evaluated in this copy of the package. */
+export function textModule(): TextApi | undefined {
+  return texts;
+}
+
+/** A loader of a module: the module loads once, and a failed load rejects, so that a later call tries again. */
+function loader(load: () => Promise<unknown>): () => Promise<void> {
+  let loading: Promise<void> | undefined;
+  return () => {
+    loading ??= load().then(
+      () => undefined,
+      error => {
+        loading = undefined;
+        throw error;
+      },
+    );
+    return loading;
+  };
+}
+
 /**
  * Load the gestures module, once. A failed load rejects, and a later call tries again.
  */
-export function loadGestures(): Promise<void> {
-  loadingGestures ??= import('./gesture-entry.js').then(
-    () => undefined,
-    error => {
-      loadingGestures = undefined;
-      throw error;
-    },
-  );
-  return loadingGestures;
-}
+export const loadGestures = /* @__PURE__ */ loader(() => import('./gesture-entry.js'));
+
+/**
+ * Load the text module, once. A failed load rejects, and a later call tries again.
+ */
+export const loadText = /* @__PURE__ */ loader(() => import('./text-entry.js'));
 
 /**
  * Load the values module, once. The scanner loads it the first time it meets a `data-motion-value`: until it is loaded,
  * the element keeps its content, and its values bind when it is. A failed load rejects, and a later call tries again.
  */
-export function loadValues(): Promise<void> {
-  loadingValues ??= import('./value-entry.js').then(
-    () => undefined,
-    error => {
-      loadingValues = undefined;
-      throw error;
-    },
-  );
-  return loadingValues;
-}
+export const loadValues = /* @__PURE__ */ loader(() => import('./value-entry.js'));
 
 /**
  * Load the sequences module, once. A failed load rejects, and a later call tries again.
  */
-export function loadSequences(): Promise<void> {
-  loadingSequences ??= import('./sequence-entry.js').then(
-    () => undefined,
-    error => {
-      loadingSequences = undefined;
-      throw error;
-    },
-  );
-  return loadingSequences;
-}
+export const loadSequences = /* @__PURE__ */ loader(() => import('./sequence-entry.js'));

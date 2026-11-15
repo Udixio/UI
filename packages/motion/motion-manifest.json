@@ -72,6 +72,11 @@
       "last",
       "center"
     ],
+    "split": [
+      "chars",
+      "words",
+      "lines"
+    ],
     "exit": [
       "in-place",
       "out-of-flow"
@@ -127,6 +132,7 @@
       "interrupt",
       "stagger",
       "origin",
+      "split",
       "exit",
       "shared",
       "repeat",
@@ -144,6 +150,11 @@
       "layout"
     ],
     "staggerVerbs": [
+      "appear",
+      "disappear",
+      "reveal"
+    ],
+    "splitVerbs": [
       "appear",
       "disappear",
       "reveal"

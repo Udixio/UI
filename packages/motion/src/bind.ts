@@ -1,4 +1,4 @@
-import { settledHandle } from './compose.js';
+import { deferredHandle, settledHandle } from './compose.js';
 import type { MotionHandle, VisualFrame } from './contract.js';
 import {
   definedMotions,
@@ -10,13 +10,14 @@ import {
   type MotionRef,
   type MotionSpec,
 } from './define-motion.js';
+import { loadText, textModule } from './feature-loader.js';
 import type { LayoutTracking } from './layout.js';
 import { flushLayoutAround, layoutEngine, loadLayoutEngine } from './layout-loader.js';
 import { motionManifest, NAME_PATTERN } from './manifest.js';
 import { pinOutOfFlow } from './pin.js';
 import { applyFrame, motionDisabled, motionScale, playMotion, releaseFrame } from './play.js';
 import { waapiProvider } from './providers/waapi.js';
-import { getMotionRuntime, retainMotionRuntime } from './runtime.js';
+import { getMotionRuntime, retainMotionRuntime, type MotionRuntime } from './runtime.js';
 import { startScrub } from './scroll.js';
 import { staggered } from './stagger.js';
 import { resolveCurve } from './tokens.js';
@@ -104,6 +105,8 @@ function unregister(target: Element, binding: MotionBinding): void {
 export function motion(target: HTMLElement, source: MotionSource, options: BindOptions = {}): MotionBinding {
   const spec = specOf(source);
   getMotion(target, kindOf(spec.verb))?.destroy();
+  // A split definition needs the text module: it loads now, and a failure leaves the element to animate whole.
+  if (spec.split !== undefined) void loadText().catch(() => undefined);
   const binding =
     spec.verb === 'layout'
       ? createLayoutBinding(target, spec, options)
@@ -214,6 +217,34 @@ function createLayoutBinding(target: HTMLElement, spec: Readonly<MotionSpec>, op
   return binding;
 }
 
+/** A split definition on the pieces of its text when the text module is loaded, else on the element whole. */
+function playLoaded(target: HTMLElement, spec: Readonly<KeyframedSpec>, options: Parameters<typeof playMotion>[2]): MotionHandle {
+  return textModule()?.playSplit(target, spec, options) ?? playMotion(target, spec, options);
+}
+
+/**
+ * The entry of a split definition on the pieces of its text, once the text module is loaded. While the module is still
+ * loading, the element holds its first frame and the entry waits for the module; if the module fails to load, the entry
+ * plays the element whole.
+ */
+function playEntry(target: HTMLElement, spec: Readonly<KeyframedSpec>, options: Parameters<typeof playMotion>[2]): MotionHandle {
+  if (textModule()) return playLoaded(target, spec, options);
+  const pending = deferredHandle();
+  applyFrame(target, spec.keyframes[0]);
+  // A failed load leaves the module unloaded, so the entry plays the element whole.
+  void loadText().catch(() => undefined).then(() => {
+    if (!pending.cancelled) pending.resolve(playLoaded(target, spec, options));
+  });
+  return pending.handle;
+}
+
+/** Write a frame where the definition plays it: on the pieces of its text when it is split, else on the element. */
+function writeFrame(target: HTMLElement, spec: Readonly<KeyframedSpec>, runtime: MotionRuntime, frame: VisualFrame): void {
+  const text = textModule();
+  if (text) text.applySplitFrame(target, spec, runtime, frame);
+  else applyFrame(target, frame);
+}
+
 /**
  * A reveal: out of view, the element waits in its first frame; when it enters the view, it plays forward from there.
  * Content in view when it is bound is left in its natural state. `repeat: 'always'` hides it again when it leaves
@@ -243,7 +274,7 @@ function createRevealBinding(target: HTMLElement, spec: Readonly<Extract<MotionS
   function hide() {
     handle?.cancel();
     handle = null;
-    applyFrame(target, first);
+    writeFrame(target, spec, runtime, first);
     revealed = false;
   }
 
@@ -255,7 +286,9 @@ function createRevealBinding(target: HTMLElement, spec: Readonly<Extract<MotionS
   /** Play forward from the first frame, in the cascade of the definition when it staggers. */
   function start(): MotionHandle {
     const play = (delay: number) => playMotion(target, spec, { direction: 'forward', carry: false, runtime, development, delay });
-    const next = spec.stagger === undefined ? play(0) : staggered(target, spec, { stagger: spec.stagger, origin: spec.origin, reduced: runtime.policy.reduced, phase: 'enter' }, play);
+    const next = spec.split !== undefined
+      ? playEntry(target, spec, { direction: 'forward', carry: false, runtime, development })
+      : spec.stagger === undefined ? play(0) : staggered(target, spec, { stagger: spec.stagger, origin: spec.origin, reduced: runtime.policy.reduced, phase: 'enter' }, play);
     const previous = handle;
     handle = next;
     previous?.cancel();
@@ -268,7 +301,7 @@ function createRevealBinding(target: HTMLElement, spec: Readonly<Extract<MotionS
       initial = false;
       // Content in view stays in its natural state; content out of view waits in its first frame.
       if (inView) markRevealed();
-      else applyFrame(target, first);
+      else writeFrame(target, spec, runtime, first);
       return;
     }
     if (inView && !revealed) {
@@ -317,6 +350,7 @@ function createRevealBinding(target: HTMLElement, spec: Readonly<Extract<MotionS
       handle?.cancel();
       handle = null;
       releaseFrame(target, fields);
+      textModule()?.revertSplit(target, spec);
       unregister(target, binding);
       releaseRuntime();
     },
@@ -531,6 +565,11 @@ function createBinding(target: HTMLElement, spec: Readonly<KeyframedSpec>, optio
 
   /** Play the presence motion: at once, or in the cascade of its definition when it staggers. */
   function playPresence(phase: 'enter' | 'exit', direction: 'forward' | 'backward', carry: boolean): MotionHandle {
+    // An entry of a split definition waits for the text module; an exit does not, so that a removal is never delayed by a load.
+    if (spec.split !== undefined) {
+      const options = { direction, carry, runtime, development };
+      return phase === 'enter' ? playEntry(target, spec, options) : playLoaded(target, spec, options);
+    }
     if (spec.stagger === undefined) return playMotion(target, spec, { direction, carry, runtime, development });
     return staggered(target, spec, { stagger: spec.stagger, origin: spec.origin, reduced: runtime.policy.reduced, phase }, delay =>
       playMotion(target, spec, { direction, carry, runtime, development, delay }),
@@ -551,7 +590,7 @@ function createBinding(target: HTMLElement, spec: Readonly<KeyframedSpec>, optio
     releaseInert();
     returnToFlow();
     const done = track(replace(settledHandle()), false);
-    applyFrame(target, entered);
+    writeFrame(target, spec, runtime, entered);
     target.setAttribute('data-presence', 'present');
     return done;
   }
@@ -598,6 +637,7 @@ function createBinding(target: HTMLElement, spec: Readonly<KeyframedSpec>, optio
     unpin?.();
     unpin = undefined;
     releaseFrame(target, writtenFields);
+    textModule()?.revertSplit(target, spec);
     target.removeAttribute('data-presence');
     releaseInert();
     unregister(target, binding);
@@ -610,7 +650,7 @@ function createBinding(target: HTMLElement, spec: Readonly<KeyframedSpec>, optio
   // an absent element always takes its exited frame, so it is never visible.
   if (verb !== 'emphasize') {
     if (!present) {
-      applyFrame(target, exited);
+      writeFrame(target, spec, runtime, exited);
       markExiting();
     } else if (options.settled) {
       target.setAttribute('data-presence', 'present');

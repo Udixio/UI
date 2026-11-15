@@ -305,3 +305,43 @@ test('the main entry reaches gestures only through a dynamic import, and holds n
     }
   }
 });
+
+test('the main entry reaches the text module only through a dynamic import, and holds none of its code', async () => {
+  for (const [entry, extension] of [['dist/index.js', 'js'], ['dist/index.cjs', 'cjs']]) {
+    const sources = await staticClosure(entry);
+    const dynamicImport = extension === 'js'
+      ? /import\(["']\.\/text\.js["']\)/
+      : /=>\s*require\(["']\.\/text\.cjs["']\)/;
+    const staticImport = extension === 'js'
+      ? /^import\s[^;]*["']\.\/text\.js["']/m
+      : /(?:^|[=,;])\s*require\(["']\.\/text\.cjs["']\)/m;
+    assert.ok(sources.some(code => dynamicImport.test(code)), `${entry} does not load ./text dynamically`);
+    for (const code of sources) {
+      assert.doesNotMatch(code, staticImport);
+      assert.doesNotMatch(code, /data-udx-piece|data-udx-split-source|data-udx-line-word|splitText: /);
+    }
+  }
+});
+
+test('the text entry imports only shared chunks, and the core holds none of the split code', async () => {
+  const text = await readFile(new URL('dist/text.js', root), 'utf8');
+  const imports = [...text.matchAll(/^import\s[^;]*?from "(\.\/[^"]+)";/gm)].map(match => match[1]);
+  assert.ok(imports.length > 0);
+  for (const file of imports) {
+    assert.notEqual(file, './index.js', 'the text entry imports the main entry');
+    await readFile(new URL(file, new URL('dist/', root)), 'utf8');
+  }
+  for (const code of await staticClosure('dist/index.js')) {
+    assert.doesNotMatch(code, /data-udx-piece|data-udx-split-source|data-udx-line-word|function textRanks|function splitPieces/);
+  }
+});
+
+test('importing the text entry hands its functions to the main entry', async () => {
+  const main = await import('@udixio/motion');
+  assert.equal(main.textModule(), undefined);
+  await import('@udixio/motion/text');
+  assert.equal(typeof main.textModule().playSplit, 'function');
+  assert.equal(typeof main.textModule().applySplitFrame, 'function');
+  assert.equal(typeof main.textModule().revertSplit, 'function');
+});
+

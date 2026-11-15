@@ -202,6 +202,35 @@ describe('layout motions', () => {
   });
 });
 
+describe('split', () => {
+  it('accepts split on appear, disappear and reveal, and keeps it', () => {
+    expect(
+      defineMotion('split-enter', { verb: 'appear', keyframes: [{ opacity: 0 }, { opacity: 1 }], split: 'chars' }).spec,
+    ).toMatchObject({ split: 'chars' });
+    expect(
+      defineMotion('split-leave', { verb: 'disappear', keyframes: [{ opacity: 1 }, { opacity: 0 }], split: 'lines' }).spec,
+    ).toMatchObject({ split: 'lines' });
+    expect(
+      defineMotion('split-reveal', { verb: 'reveal', keyframes: [{ opacity: 0 }, { opacity: 1 }], split: 'words' }).spec,
+    ).toMatchObject({ split: 'words' });
+  });
+
+  it('refuses split on emphasize with a TypeError at its own path', () => {
+    expect(() =>
+      defineMotion('split-emphasis', { verb: 'emphasize', keyframes: [{ scale: 1 }], split: 'words' } as never),
+    ).toThrow(TypeError);
+    expect(() =>
+      defineMotion('split-emphasis', { verb: 'emphasize', keyframes: [{ scale: 1 }], split: 'words' } as never),
+    ).toThrow('/spec/split: unsupported');
+  });
+
+  it('rejects a split outside its domain', () => {
+    expect(() =>
+      defineMotion('split-sentences', { verb: 'appear', keyframes: [{ opacity: 1 }], split: 'sentences' } as never),
+    ).toThrow('/spec/split: invalid_value');
+  });
+});
+
 describe('stagger and origin', () => {
   it('accepts stagger and origin on appear and disappear', () => {
     const entering = defineMotion('stagger-enter', {

@@ -124,6 +124,38 @@ describe('experimental motion manifest validator', () => {
   });
 });
 
+describe('split in the validator', () => {
+  it('accepts a split of the letters, words or lines on appear, disappear and reveal', () => {
+    for (const by of ['chars', 'words', 'lines']) {
+      expect(errors({ version: 1, spec: { verb: 'appear', keyframes: [{ opacity: 1 }], split: by } })).toEqual([]);
+      expect(errors({ version: 1, spec: { verb: 'disappear', keyframes: [{ opacity: 1 }], split: by } })).toEqual([]);
+      expect(errors({ version: 1, spec: { verb: 'reveal', keyframes: [{ opacity: 1 }], split: by } })).toEqual([]);
+    }
+  });
+
+  it('refuses a split on the verbs that do not take it, at /spec/split', () => {
+    expect(errors({ version: 1, spec: { verb: 'emphasize', keyframes: [{ scale: 1 }], split: 'words' } })).toEqual([
+      ['/spec/split', 'unsupported'],
+    ]);
+    expect(errors({ version: 1, spec: { verb: 'scrub', keyframes: [{ y: 1 }], split: 'words' } })).toEqual([
+      ['/spec/split', 'unsupported'],
+    ]);
+    expect(
+      errors({ version: 1, spec: { verb: 'loop', keyframes: [{ opacity: 1 }], pause: 'control', split: 'words' } }),
+    ).toEqual([['/spec/split', 'unsupported']]);
+    expect(errors({ version: 1, spec: { verb: 'layout', split: 'words' } })).toEqual([['/spec/split', 'unsupported']]);
+  });
+
+  it('refuses a split outside its domain, and documents the domain and the verbs', () => {
+    expect(errors({ version: 1, spec: { verb: 'reveal', keyframes: [{ opacity: 1 }], split: 'sentences' } })).toEqual([
+      ['/spec/split', 'invalid_value'],
+    ]);
+    expect(motionManifest.domains.split).toEqual(['chars', 'words', 'lines']);
+    expect(motionManifest.spec.optional).toContain('split');
+    expect(motionManifest.spec.splitVerbs).toEqual(['appear', 'disappear', 'reveal']);
+  });
+});
+
 describe('reveal, scrub and loop in the validator', () => {
   const loop = (extra: Record<string, unknown>) => ({
     version: 1,

@@ -47,5 +47,10 @@ it('types the reveal, scrub and loop specs and refuses what their verbs do not t
   const revealRange: MotionDocument = { version: 1, spec: { verb: 'reveal', keyframes: [{ opacity: 0 }], range: 'cross' } };
   // @ts-expect-error exit belongs to appear and disappear
   const revealExit: MotionDocument = { version: 1, spec: { verb: 'reveal', keyframes: [{ opacity: 0 }], exit: 'in-place' } };
-  void [scrubTimed, loopWithoutPause, controlReason, essentialWithoutReason, loopSpring, revealRange, revealExit];
+  // @ts-expect-error split belongs to appear, disappear and reveal
+  const scrubSplit: MotionDocument = { version: 1, spec: { verb: 'scrub', keyframes: [{ y: 1 }], split: 'words' } };
+  // @ts-expect-error split takes a letter, word or line domain
+  const revealSplitValue: MotionDocument = { version: 1, spec: { verb: 'reveal', keyframes: [{ opacity: 0 }], split: 'sentences' } };
+  const revealSplit: MotionDocument = { version: 1, spec: { verb: 'reveal', keyframes: [{ opacity: 0 }], split: 'chars' } };
+  void [scrubTimed, loopWithoutPause, controlReason, essentialWithoutReason, loopSpring, revealRange, revealExit, scrubSplit, revealSplitValue, revealSplit];
 });

@@ -40,6 +40,7 @@ export const motionManifest = freezeDeep({
     interrupt: ['carry', 'restart'],
     stagger: ['tight', 'normal', 'loose'],
     origin: ['first', 'last', 'center'],
+    split: ['chars', 'words', 'lines'],
     exit: ['in-place', 'out-of-flow'],
     repeat: ['once', 'always'],
     axis: ['block', 'inline'],
@@ -62,6 +63,7 @@ export const motionManifest = freezeDeep({
       'interrupt',
       'stagger',
       'origin',
+      'split',
       'exit',
       'shared',
       'repeat',
@@ -73,6 +75,7 @@ export const motionManifest = freezeDeep({
     deferred: ['direction', 'distance'],
     interruptVerbs: ['emphasize', 'layout'],
     staggerVerbs: ['appear', 'disappear', 'reveal'],
+    splitVerbs: ['appear', 'disappear', 'reveal'],
     exitVerbs: ['appear', 'disappear'],
     sharedVerbs: ['layout'],
     repeatVerbs: ['reveal'],
@@ -186,6 +189,7 @@ export type MotionDocument = {
               interrupt?: Domain<'interrupt'>;
               stagger?: never;
               origin?: never;
+              split?: never;
               exit?: never;
               shared?: never;
               repeat?: never;
@@ -199,6 +203,7 @@ export type MotionDocument = {
               interrupt?: never;
               stagger?: Domain<'stagger'>;
               origin?: Domain<'origin'>;
+              split?: Domain<'split'>;
               exit?: Domain<'exit'>;
               shared?: never;
               repeat?: never;
@@ -212,6 +217,7 @@ export type MotionDocument = {
               interrupt?: never;
               stagger?: Domain<'stagger'>;
               origin?: Domain<'origin'>;
+              split?: Domain<'split'>;
               exit?: never;
               shared?: never;
               repeat?: Domain<'repeat'>;
@@ -228,6 +234,7 @@ export type MotionDocument = {
           interrupt?: never;
           stagger?: never;
           origin?: never;
+          split?: never;
           exit?: never;
           shared?: never;
           repeat?: never;
@@ -243,6 +250,7 @@ export type MotionDocument = {
           interrupt?: never;
           stagger?: never;
           origin?: never;
+          split?: never;
           exit?: never;
           shared?: never;
           repeat?: never;
@@ -258,6 +266,7 @@ export type MotionDocument = {
         interrupt?: Domain<'interrupt'>;
         stagger?: never;
         origin?: never;
+        split?: never;
         exit?: never;
         shared?: string;
         repeat?: never;
@@ -470,8 +479,9 @@ export function validateMotionDocument(input: unknown): MotionValidationResult {
           else if (typeof spec.shared !== 'string') add('/spec/shared', 'type');
           else if (!NAME_PATTERN.test(spec.shared)) add('/spec/shared', 'invalid_value');
         }
-        // The view, scroll and loop fields: each one is refused by the verbs that do not list it.
+        // The split, view, scroll and loop fields: each one is refused by the verbs that do not list it.
         for (const [key, verbs, values] of [
+          ['split', motionManifest.spec.splitVerbs, motionManifest.domains.split],
           ['repeat', motionManifest.spec.repeatVerbs, motionManifest.domains.repeat],
           ['axis', motionManifest.spec.axisVerbs, motionManifest.domains.axis],
           ['range', motionManifest.spec.rangeVerbs, motionManifest.domains.range],
