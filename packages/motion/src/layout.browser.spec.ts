@@ -314,3 +314,45 @@ it('play() after an unobserved change flies the element from its last measured p
   await handle.finished;
   expectNear(local(box, row), { left: 40, top: 0, width: 50, height: 40 }, 0.5);
 });
+
+it('an unrelated mutation does not restart a move in flight', async () => {
+  page(css(), '<div class="row" id="row"><div class="box" id="box"></div></div>');
+  const row = byId('row');
+  const box = byId('box');
+  const binding = bindTo(box);
+  row.classList.add('end');
+  await Promise.resolve();
+  const first = moving(binding);
+  row.dataset.x = '1';
+  await Promise.resolve();
+  expect(binding.handle).toBe(first);
+  await expect(first.finished).resolves.toBe('finished');
+  expectNear(local(box, row), { left: 250, top: 0, width: 50, height: 40 }, 0.5);
+  expect(box.style.translate).toBe('');
+  expect(box.style.scale).toBe('');
+});
+
+it('only the element whose destination changed is restarted', async () => {
+  page(
+    css() + '.row.tall { height: 100px; } .box.lower { align-self: flex-end; }',
+    '<div class="row tall" id="row"><div class="box" id="a"></div><div class="box" id="b"></div></div>',
+  );
+  const row = byId('row');
+  const a = byId('a');
+  const b = byId('b');
+  const bindingA = bindTo(a);
+  const bindingB = bindTo(b);
+  row.classList.add('end');
+  await Promise.resolve();
+  const aFirst = moving(bindingA);
+  const bFirst = moving(bindingB);
+  b.classList.add('lower');
+  await Promise.resolve();
+  expect(bindingA.handle).toBe(aFirst);
+  expect(a.getAnimations()).toHaveLength(1);
+  expect(bindingB.handle).not.toBeNull();
+  expect(bindingB.handle).not.toBe(bFirst);
+  await Promise.all([aFirst.finished, moving(bindingB).finished]);
+  expectNear(local(a, row), { left: 200, top: 0, width: 50, height: 40 }, 0.5);
+  expectNear(local(b, row), { left: 250, top: 60, width: 50, height: 40 }, 0.5);
+});

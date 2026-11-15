@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { flipFrames, parseOwnTransform, toLayoutBox, toVisualBox } from './flip.js';
+import { flipFrames, parseOwnTransform, sameBox, toLayoutBox, toVisualBox } from './flip.js';
 
 const neutral = { x: 0, y: 0, sx: 1, sy: 1 };
 
@@ -101,5 +101,30 @@ describe('parseOwnTransform', () => {
   it('reads two scale values and ignores a third', () => {
     expect(parseOwnTransform('none', '0.5 2')).toEqual({ x: 0, y: 0, sx: 0.5, sy: 2 });
     expect(parseOwnTransform('none', '0.5 2 3')).toEqual({ x: 0, y: 0, sx: 0.5, sy: 2 });
+  });
+});
+
+describe('sameBox', () => {
+  const box = { cx: 100, cy: 50, w: 200, h: 100 };
+
+  it('matches a box with the same place and size', () => {
+    expect(sameBox(box, { ...box })).toBe(true);
+  });
+
+  it('tolerates less than half a pixel of centre offset', () => {
+    expect(sameBox(box, { ...box, cx: 100.4, cy: 49.6 })).toBe(true);
+    expect(sameBox(box, { ...box, cx: 100.5 })).toBe(false);
+    expect(sameBox(box, { ...box, cy: 50.5 })).toBe(false);
+  });
+
+  it('tolerates a size ratio within 1 percent of 1', () => {
+    expect(sameBox(box, { ...box, w: 201 })).toBe(true);
+    expect(sameBox(box, { ...box, w: 203 })).toBe(false);
+    expect(sameBox(box, { ...box, h: 102 })).toBe(false);
+  });
+
+  it('matches two boxes with no width or no height, and not a zero against a size', () => {
+    expect(sameBox({ cx: 0, cy: 0, w: 0, h: 10 }, { cx: 0, cy: 0, w: 0, h: 10 })).toBe(true);
+    expect(sameBox({ cx: 0, cy: 0, w: 0, h: 10 }, { cx: 0, cy: 0, w: 5, h: 10 })).toBe(false);
   });
 });

@@ -1,5 +1,5 @@
 import type { MotionHandle, VisualFrame } from './contract.js';
-import { flipFrames, parseOwnTransform, toLayoutBox, toVisualBox, type Box, type OwnTransform } from './flip.js';
+import { flipFrames, parseOwnTransform, sameBox, toLayoutBox, toVisualBox, type Box, type OwnTransform } from './flip.js';
 import type { MotionSpec } from './define-motion.js';
 import { motionManifest } from './manifest.js';
 import { playFrames } from './play.js';
@@ -125,26 +125,36 @@ function flush(scope: Scope): void {
     dispose(scope);
     return;
   }
-  // Where each element is seen right now. A move in flight is carried from its current place.
-  const before = new Map<HTMLElement, Box>();
+  // 1. Reads only, nothing is stopped: find the elements whose place really changed.
+  const changed: Array<[HTMLElement, Item, Box]> = [];
   for (const [element, item] of scope.items) {
-    if (!element.isConnected || !item.layout || !item.visual) continue;
-    const carried = item.handle !== null && (item.spec.interrupt ?? 'carry') === 'carry';
-    before.set(element, carried ? toVisualBox(item.layout, ownOf(element)) : item.visual);
+    if (!element.isConnected) continue;
+    if (!item.layout || !item.visual) {
+      if (item.handle === null) measure(scope, element, item);
+      continue;
+    }
+    const own = ownOf(element);
+    const visualNow = visualBoxOf(scope, element);
+    if (item.handle !== null) {
+      // In flight: the underlying layout box, with the animated transform undone.
+      if (sameBox(toLayoutBox(visualNow, own), item.layout)) continue; // its destination did not change: keep flying
+      const carried = (item.spec.interrupt ?? 'carry') === 'carry';
+      changed.push([element, item, carried ? toVisualBox(item.layout, own) : item.visual]);
+    } else {
+      if (sameBox(visualNow, item.visual)) continue; // it did not move
+      changed.push([element, item, item.visual]);
+    }
   }
-  // Stop the moves in flight: the elements are back in the new layout.
-  for (const item of scope.items.values()) {
+  // 2. Writes: stop only the moves whose destination changed.
+  for (const [, item] of changed) {
     item.handle?.cancel();
     item.handle = null;
   }
-  // Measure the new layout and plan the moves.
+  // 3. Reads: measure the new rest state of the changed elements and plan their moves.
   const moves: Array<[HTMLElement, Item, [VisualFrame, VisualFrame]]> = [];
-  for (const [element, item] of scope.items) {
-    if (!element.isConnected) continue;
+  for (const [element, item, from] of changed) {
     measure(scope, element, item);
-    const from = before.get(element);
-    if (!from || !item.visual) continue;
-    const frames = flipFrames(from, item.visual, item.rest);
+    const frames = item.visual && flipFrames(from, item.visual, item.rest);
     if (frames) moves.push([element, item, frames]);
   }
   for (const [element, item, frames] of moves) {

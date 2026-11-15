@@ -40,6 +40,17 @@ export function toVisualBox(layout: Box, own: OwnTransform): Box {
   };
 }
 
+/** Two sizes match when their ratio is within tolerance; two zeros match, one zero does not. */
+function sameSize(a: number, b: number): boolean {
+  if (a === 0 || b === 0) return a === b;
+  return Math.abs(a / b - 1) < TOLERANCE_RATIO;
+}
+
+/** Whether two boxes are the same place and size, within tolerance. */
+export function sameBox(a: Box, b: Box): boolean {
+  return Math.abs(a.cx - b.cx) < TOLERANCE_PX && Math.abs(a.cy - b.cy) < TOLERANCE_PX && sameSize(a.w, b.w) && sameSize(a.h, b.h);
+}
+
 /** Frames that carry the visual box `before` to the visual box at rest `after`, or null when they match within tolerance. */
 export function flipFrames(
   before: Box,
@@ -48,17 +59,11 @@ export function flipFrames(
 ): [VisualFrame, VisualFrame] | null {
   if (before.w === 0 || before.h === 0 || after.w === 0 || after.h === 0)
     return null;
+  if (sameBox(before, after)) return null;
   const dx = before.cx - after.cx;
   const dy = before.cy - after.cy;
   const rw = before.w / after.w;
   const rh = before.h / after.h;
-  if (
-    Math.abs(dx) < TOLERANCE_PX &&
-    Math.abs(dy) < TOLERANCE_PX &&
-    Math.abs(rw - 1) < TOLERANCE_RATIO &&
-    Math.abs(rh - 1) < TOLERANCE_RATIO
-  )
-    return null;
   return [
     {
       x: rest.x + dx,
