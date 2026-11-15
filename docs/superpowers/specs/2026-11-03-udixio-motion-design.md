@@ -1131,6 +1131,48 @@ Points ouverts après 2c :
   timing avec ses contrôles défensifs. Pistes suivantes si besoin : alléger
   ces contrôles, sortir la cascade.
 
+#### 8.3.11 État après l'étape 2d — élément partagé (2026-11-16)
+
+Deux éléments qui portent la même clé sont une seule chose pour l'œil :
+quand l'un arrive (inséré ou ré-affiché) alors que l'autre est parti, il part
+de la dernière position et de la dernière taille de l'autre et rejoint la
+sienne. Mesuré sur les trois navigateurs : le départ coïncide exactement avec
+le rectangle de l'ancien porteur, l'arrivée avec la place naturelle, dans les
+deux sens.
+
+| Élément | Rôle |
+|---|---|
+| clé `shared` | option du verbe `layout` (I09) : dans la définition, `motion(el, source, { shared })`, `data-motion-shared="<clé>"`, `useMotion(…, { shared })`, `udxMotionShared`, options de l'attachment Svelte ; la valeur par élément l'emporte ; `defineShared('hero')` pour une clé typée |
+| mémoire de page | registre partagé du runtime (`remember`, `forget`, `recall`) : dernière boîte de chaque clé, valable 600 ms après le départ du porteur (`SHARED_WINDOW`) ; clé du runtime passée en `preview.7` |
+| arrivée | dans le moteur de layout : un élément à clé sans boîte en cache demande la mémoire et vole depuis la boîte rendue (FLIP) |
+
+Règles fixées pendant l'étape 2d (choix de Claude, sur délégation) :
+
+- **FLIP seulement** (rendu sûr d'après S2) : pas de View Transitions, pas de
+  rétention du nœud sortant (seule sa boîte est retenue).
+- **Un seul porteur vivant par clé** (I17, `first-live`) : un second élément
+  visible de même clé ne se transforme pas ; erreur en développement, une
+  fois par clé.
+- **Pas de projection du contenu pendant une transformation** : les deux
+  porteurs n'ont pas le même contenu, il suit la boîte ; les coins arrondis
+  restent corrigés (rayon de l'élément qui arrive).
+- **Les mémoires expirent seules** (minuteur de 650 ms lancé au départ du
+  porteur, annulé si la clé est reprise) ; elles ne sont pas vidées à la
+  libération du runtime, sinon l'élément qui remplace le dernier lié
+  arriverait sans mémoire.
+- **Une clé HTML invalide** est signalée en développement et ignorée : elle
+  n'arrête jamais le balayage de la page.
+
+Limites :
+
+- Le rayon des coins est celui de l'élément qui arrive pendant tout le vol
+  (pas d'interpolation entre les deux porteurs) ; pas de fondu enchaîné.
+- Un porteur masqué par un style en ligne, ou retiré sans détruire sa
+  liaison, n'est jamais « oublié » : sa mémoire reste jusqu'à ce que la clé
+  soit reprise, et un remplaçant arrivant plus tard se transforme quand même.
+- Une île hydratée plus de 600 ms après le départ de l'autre porteur ne se
+  transforme pas.
+
 ### 8.4 Détails par famille — **rédigé (consolidation)**
 
 | # | Famille | Écriture | Chemin natif | Repli / moteur JS | Sources |
@@ -1236,8 +1278,9 @@ L'étape 2 est découpée en trois : **2a livrée le 2026-11-15** (verbe
 performance du layout : vitesse conservée, contenu non déformé, détail en
 §8.3.8) ; **2c livrée le 2026-11-15** (listes : plusieurs animations par
 élément, cascade, sorties, coins arrondis, détail en §8.3.9) ; reste 2d =
-élément partagé (`defineShared`, rétention 600 ms, View Transitions
-conditionnelles). La passe sur le poids est faite (§8.3.10).
+élément partagé. La passe sur le poids est faite (§8.3.10). **2d livrée le
+2026-11-16** (élément partagé en FLIP, détail en §8.3.11) : **l'étape 2 est
+terminée**. La suivante est l'étape 3 (`reveal`, `scrub`, `loop`).
 
 ## 9. Questions ouvertes connues
 
@@ -1308,6 +1351,7 @@ D2 (en partie orientée par C15).
 | Date | Travail | Changement |
 |---|---|---|
 | 2026-11-03 | — | Création du document à l'issue du brainstorming initial. |
+| 2026-11-16 | Étape 2d | Élément partagé : clé `shared` (définition, option, `data-motion-shared`, adaptateurs), mémoire de page de 600 ms dans le runtime (`preview.7`), transformation FLIP à l'arrivée ; démo « Shared element ». Étape 2 terminée. Règles et limites en §8.3.11. Vérification : motion 1 335 tests (trois navigateurs), core 433, React 410, Svelte 302, Angular 372, doc 21 tests navigateur sur le site construit, deux passages. |
 | 2026-11-16 | Passe sur le poids | Entrée principale 20,6 → 14,6 kB gzip : moteur de layout en entrée séparée chargée à la demande (`@udixio/motion/layout`, `loadLayoutEngine`), validation des définitions en développement seulement. Détail en §8.3.10. Vérification : motion 1 280 tests (trois navigateurs), core 433, React 408, Svelte 300, Angular 370, doc 18 tests navigateur sur le site construit, trois passages. |
 | 2026-11-15 | Étape 2c | Listes : une liaison par nature sur un élément (`data-motion="cascade reflow"`), cascade par rang visuel, sorties en place ou hors flux, coins arrondis corrigés, moteur de layout découpé en modules. Défaut WebKit corrigé (état final écrit par le provider, plus de `commitStyles`). Règles et points ouverts en §8.3.9. Vérification groupée : motion 1 267 tests (Chromium, Firefox, WebKit), core 433, React 408, Svelte 300, Angular 370, doc 18 tests navigateur sur le site construit. |
 | 2026-11-15 | Étape 2b | Qualité et performance du layout : banc d'essai contre anime.js, calcul d'un changement divisé par 3 (41–43 ms à 200 éléments contre 84–89 ms pour anime.js), vitesse conservée à l'interruption, contenu non déformé par projection, enfants suivis imbriqués. Règles et limites en §8.3.8. Vérification groupée : motion 1 081 tests (Chromium, Firefox, WebKit), core 433, React 403, Svelte 295, Angular 367, doc 15 tests navigateur sur le site construit. |
