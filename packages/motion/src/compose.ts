@@ -40,6 +40,57 @@ export function composeHandles(handles: MotionHandle[]): MotionHandle {
   };
 }
 
+/**
+ * A handle that exists before its animation: commands wait for the real handle, except cancel.
+ * `cancelled` tells whether the handle was cancelled before its real handle arrived.
+ */
+export function deferredHandle(): { handle: MotionHandle; readonly cancelled: boolean; resolve(real: MotionHandle): void } {
+  let real: MotionHandle | undefined;
+  let cancelled = false;
+  let settle!: (result: 'finished' | 'cancelled') => void;
+  const finished = new Promise<'finished' | 'cancelled'>(done => {
+    settle = done;
+  });
+  const handle: MotionHandle = {
+    backend: 'waapi',
+    get duration() {
+      return real?.duration ?? 0;
+    },
+    get currentTime() {
+      return real?.currentTime ?? 0;
+    },
+    finished,
+    get velocity() {
+      return real?.velocity ?? { value: 0, source: 'unavailable' };
+    },
+    play: () => real?.play(),
+    pause: () => real?.pause(),
+    reverse: () => real?.reverse(),
+    seek: timeMs => real?.seek(timeMs),
+    cancel() {
+      if (real) real.cancel();
+      else if (!cancelled) {
+        cancelled = true;
+        settle('cancelled');
+      }
+    },
+  };
+  return {
+    handle,
+    get cancelled() {
+      return cancelled;
+    },
+    resolve(next) {
+      if (cancelled) {
+        next.cancel();
+        return;
+      }
+      real = next;
+      void next.finished.then(settle);
+    },
+  };
+}
+
 function keepFields(
   keyframes: VisualFrame[],
   keep: (field: string) => boolean,

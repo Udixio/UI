@@ -137,12 +137,13 @@ export function resolveWaapiTiming(target: HTMLElement, timing: SpringRef | Curv
 
 /**
  * Play a validated motion spec on `target`. The returned handle never rejects its
- * `finished`; on any failure the target is left in its destination state.
+ * `finished`; on any failure the target is left in its destination state. `delay`
+ * (ms) postpones every group of the motion; reduced motion ignores it.
  */
 export function playMotion(
   target: HTMLElement,
   spec: Readonly<MotionSpec>,
-  options: { direction: Direction; carry: boolean; runtime: MotionRuntime; scheme?: MotionScheme; development?: boolean },
+  options: { direction: Direction; carry: boolean; runtime: MotionRuntime; scheme?: MotionScheme; development?: boolean; delay?: number },
 ): MotionHandle {
   if (spec.verb === 'layout') throw new TypeError('playMotion does not play a layout motion: trackLayout follows it');
   const { direction, carry, runtime } = options;
@@ -164,13 +165,14 @@ export function playMotion(
     ? [{ keyframes: fadeFrames(frames, direction, carry), timing: REDUCED_FADE_TIMING }]
     : planGroups(carry ? [destination] : frames, verb, spec.timing);
   const scale = reducedPolicy ? 1 : motionScale(target);
+  const delay = reducedPolicy || (options.delay ?? 0) <= 0 ? undefined : options.delay;
 
   const started: MotionHandle[] = [];
   let failure: unknown;
   try {
     for (const group of groups) {
       const result = startRoutedMotion(
-        { target, keyframes: group.keyframes, timing: group.timing, scheme, verb, reduced: spec.reduced, policy: 'normal', scale, backend: 'waapi' },
+        { target, keyframes: group.keyframes, timing: group.timing, scheme, verb, reduced: spec.reduced, policy: 'normal', scale, backend: 'waapi', ...(delay !== undefined && { delay }) },
         waapiProvider,
         waapiSupport,
       );

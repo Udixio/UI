@@ -15,6 +15,16 @@ export const slide: MotionRef<'slide'> = defineMotion('slide', {
   ],
 });
 
+/** A list entering together: each item fades in while rising 16px, one step after the previous one. */
+export const cascade: MotionRef<'cascade'> = defineMotion('cascade', {
+  verb: 'appear',
+  keyframes: [
+    { opacity: 0, y: 16 },
+    { opacity: 1, y: 0 },
+  ],
+  stagger: 'normal',
+});
+
 /** Entering content: fades in while growing from 80%. */
 export const scale: MotionRef<'scale'> = defineMotion('scale', {
   verb: 'appear',

@@ -164,6 +164,67 @@ describe('layout motions', () => {
   });
 });
 
+describe('stagger and origin', () => {
+  it('accepts stagger and origin on appear and disappear', () => {
+    const entering = defineMotion('stagger-enter', {
+      verb: 'appear',
+      keyframes: [{ opacity: 0 }, { opacity: 1 }],
+      stagger: 'normal',
+      origin: 'last',
+    });
+    expect(entering.spec).toMatchObject({ stagger: 'normal', origin: 'last' });
+    const leaving = defineMotion('stagger-leave', {
+      verb: 'disappear',
+      keyframes: [{ opacity: 1 }, { opacity: 0 }],
+      stagger: 'loose',
+    });
+    expect(leaving.spec).toMatchObject({ stagger: 'loose' });
+  });
+
+  it('accepts origin without stagger and keeps it', () => {
+    expect(
+      defineMotion('origin-alone', {
+        verb: 'appear',
+        keyframes: [{ opacity: 0 }, { opacity: 1 }],
+        origin: 'center',
+      }).spec,
+    ).toMatchObject({ origin: 'center' });
+  });
+
+  it('refuses stagger and origin on layout and emphasize at their own paths', () => {
+    expect(() =>
+      defineMotion('stagger-layout', { verb: 'layout', stagger: 'tight' } as never),
+    ).toThrow('/spec/stagger: unsupported');
+    expect(() =>
+      defineMotion('origin-layout', { verb: 'layout', origin: 'first' } as never),
+    ).toThrow('/spec/origin: unsupported');
+    expect(() =>
+      defineMotion('stagger-emphasis', {
+        verb: 'emphasize',
+        keyframes: [{ scale: 1 }],
+        stagger: 'normal',
+      } as never),
+    ).toThrow('/spec/stagger: unsupported');
+  });
+
+  it('rejects a stagger token or origin outside its domain', () => {
+    expect(() =>
+      defineMotion('stagger-huge', {
+        verb: 'appear',
+        keyframes: [{ opacity: 1 }],
+        stagger: 'huge',
+      } as never),
+    ).toThrow('/spec/stagger: invalid_value');
+    expect(() =>
+      defineMotion('origin-side', {
+        verb: 'appear',
+        keyframes: [{ opacity: 1 }],
+        origin: 'right',
+      } as never),
+    ).toThrow('/spec/origin: invalid_value');
+  });
+});
+
 describe('motion manifest without trigger', () => {
   it('no longer lists trigger as deferred or as a deferred domain', () => {
     expect(motionManifest.spec.deferred).not.toContain('trigger');

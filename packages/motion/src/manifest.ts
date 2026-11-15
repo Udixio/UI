@@ -35,6 +35,8 @@ export const motionManifest = freezeDeep({
     easings: Object.keys(curveData.easing).map(key => `easing.${key}` as EasingToken),
     reduced: ['fade', 'instant', 'static', 'neutral', 'frozen'],
     interrupt: ['carry', 'restart'],
+    stagger: ['tight', 'normal', 'loose'],
+    origin: ['first', 'last', 'center'],
     visualFields: ['opacity', 'x', 'y', 'scale', 'scaleX', 'scaleY', 'rotate'],
     deferredVisualFields: [
       'color',
@@ -46,13 +48,11 @@ export const motionManifest = freezeDeep({
   envelope: { required: ['version', 'spec'] },
   spec: {
     required: ['verb', 'keyframes'],
-    optional: ['timing', 'reduced', 'interrupt'],
+    optional: ['timing', 'reduced', 'interrupt', 'stagger', 'origin'],
     deferred: [
       'repeat',
       'direction',
       'distance',
-      'stagger',
-      'origin',
       'range',
       'axis',
       'pause',
@@ -61,12 +61,11 @@ export const motionManifest = freezeDeep({
       'exit',
     ],
     interruptVerbs: ['emphasize', 'layout'],
+    staggerVerbs: ['appear', 'disappear'],
   },
   deferredDomains: {
     repeat: { values: ['once', 'always'], source: '§8.2.3' },
     direction: { values: ['start', 'end', 'up', 'down'], source: '§8.2.3' },
-    stagger: { values: ['tight', 'normal', 'loose'], source: '§8.2.3' },
-    origin: { values: ['first', 'last', 'center'], source: '§8.2.3' },
     axis: { values: ['block', 'inline'], source: '§8.2.3' },
     pause: { values: ['control', 'essential'], source: '§8.2.3' },
     exit: { values: ['in-place', 'out-of-flow'], source: '§8.2.3' },
@@ -165,16 +164,22 @@ export type MotionDocument = {
           | {
               verb: Extract<Domain<'supportedVerbs'>, 'emphasize'>;
               interrupt?: Domain<'interrupt'>;
+              stagger?: never;
+              origin?: never;
             }
           | {
               verb: Exclude<Domain<'supportedVerbs'>, 'emphasize' | 'layout'>;
               interrupt?: never;
+              stagger?: Domain<'stagger'>;
+              origin?: Domain<'origin'>;
             }
         ))
     | (Common & {
         verb: Extract<Domain<'supportedVerbs'>, 'layout'>;
         keyframes?: readonly [];
         interrupt?: Domain<'interrupt'>;
+        stagger?: never;
+        origin?: never;
       });
 };
 export type MotionValidationCode =
@@ -340,6 +345,17 @@ export function validateMotionDocument(input: unknown): MotionValidationResult {
               motionManifest.domains.interrupt,
             );
         }
+        // The cascade belongs to presence verbs only; origin without stagger is accepted.
+        for (const key of ['stagger', 'origin'] as const)
+          if (has(spec, key)) {
+            if (
+              has(spec, 'verb') &&
+              typeof spec.verb === 'string' &&
+              !contains(motionManifest.spec.staggerVerbs, spec.verb)
+            )
+              add(`/spec/${key}`, 'unsupported');
+            else domain(spec[key], `/spec/${key}`, motionManifest.domains[key]);
+          }
       }
     }
   }

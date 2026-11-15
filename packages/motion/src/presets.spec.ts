@@ -1,11 +1,23 @@
 import { describe, expect, it } from 'vitest';
 import { resolveMotion } from './define-motion.js';
-import { reflow } from './presets.js';
+import { cascade, reflow } from './presets.js';
 
 describe('presets', () => {
   it('defines reflow as a layout motion without keyframes', () => {
     expect(reflow.spec.verb).toBe('layout');
     expect(resolveMotion('reflow')).toBe(reflow);
+  });
+
+  it('defines cascade as a staggered entry that rises and fades', () => {
+    expect(cascade.spec).toEqual({
+      verb: 'appear',
+      keyframes: [
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0 },
+      ],
+      stagger: 'normal',
+    });
+    expect(resolveMotion('cascade')).toBe(cascade);
   });
 
   it('defines fade, slide, scale and press when the entry is imported', () => {

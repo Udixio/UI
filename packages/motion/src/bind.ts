@@ -13,6 +13,7 @@ import {
 import { trackLayout } from './layout.js';
 import { applyFrame, playMotion, releaseFrame } from './play.js';
 import { getMotionRuntime, retainMotionRuntime } from './runtime.js';
+import { staggered } from './stagger.js';
 
 /** A definition reference, a raw spec (validated here), or the name of a defined motion. */
 export type MotionSource = MotionRef | Readonly<MotionSpec> | string;
@@ -219,11 +220,19 @@ function createBinding(target: HTMLElement, spec: Readonly<KeyframedSpec>, optio
     ownsInert = true;
   }
 
+  /** Play the presence motion: at once, or in the cascade of its definition when it staggers. */
+  function playPresence(direction: 'forward' | 'backward', carry: boolean): MotionHandle {
+    if (spec.stagger === undefined) return playMotion(target, spec, { direction, carry, runtime, development });
+    return staggered(target, spec, { stagger: spec.stagger, origin: spec.origin, reduced: runtime.policy.reduced }, delay =>
+      playMotion(target, spec, { direction, carry, runtime, development, delay }),
+    );
+  }
+
   function enter(carry: boolean): Promise<Outcome> {
     present = true;
     releaseInert();
     target.setAttribute('data-presence', 'entering');
-    return track(replace(playMotion(target, spec, { direction: 'forward', carry, runtime, development })), true);
+    return track(replace(playPresence('forward', carry)), true);
   }
 
   /** A disappear enters at once; the running exit is cancelled before the inline write. */
@@ -239,7 +248,7 @@ function createBinding(target: HTMLElement, spec: Readonly<KeyframedSpec>, optio
   function exit(): Promise<Outcome> {
     markExiting();
     const direction = verb === 'disappear' ? 'forward' : 'backward';
-    return track(replace(playMotion(target, spec, { direction, carry: true, runtime, development })), false);
+    return track(replace(playPresence(direction, true)), false);
   }
 
   function setPresent(next: boolean): Promise<Outcome> {

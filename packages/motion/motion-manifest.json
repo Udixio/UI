@@ -59,6 +59,16 @@
       "carry",
       "restart"
     ],
+    "stagger": [
+      "tight",
+      "normal",
+      "loose"
+    ],
+    "origin": [
+      "first",
+      "last",
+      "center"
+    ],
     "visualFields": [
       "opacity",
       "x",
@@ -89,14 +99,14 @@
     "optional": [
       "timing",
       "reduced",
-      "interrupt"
+      "interrupt",
+      "stagger",
+      "origin"
     ],
     "deferred": [
       "repeat",
       "direction",
       "distance",
-      "stagger",
-      "origin",
       "range",
       "axis",
       "pause",
@@ -107,6 +117,10 @@
     "interruptVerbs": [
       "emphasize",
       "layout"
+    ],
+    "staggerVerbs": [
+      "appear",
+      "disappear"
     ]
   },
   "deferredDomains": {
@@ -123,22 +137,6 @@
         "end",
         "up",
         "down"
-      ],
-      "source": "§8.2.3"
-    },
-    "stagger": {
-      "values": [
-        "tight",
-        "normal",
-        "loose"
-      ],
-      "source": "§8.2.3"
-    },
-    "origin": {
-      "values": [
-        "first",
-        "last",
-        "center"
       ],
       "source": "§8.2.3"
     },

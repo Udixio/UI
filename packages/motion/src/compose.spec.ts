@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { MotionBackend, MotionHandle } from './contract.js';
-import { composeHandles, settledHandle, splitFrames } from './compose.js';
+import { composeHandles, deferredHandle, settledHandle, splitFrames } from './compose.js';
 
 type Fake = MotionHandle & { resolve(result: 'finished' | 'cancelled'): void };
 
@@ -139,5 +139,47 @@ describe('splitFrames', () => {
       effects: [{ opacity: 0 }, { opacity: 1 }],
       spatial: [],
     });
+  });
+});
+
+describe('deferredHandle', () => {
+  it('is cancelled before its real handle arrives, and cancels that handle when it arrives', async () => {
+    const deferred = deferredHandle();
+    deferred.handle.cancel();
+    expect(deferred.cancelled).toBe(true);
+    await expect(deferred.handle.finished).resolves.toBe('cancelled');
+    const real = fakeHandle(300);
+    deferred.resolve(real);
+    expect(real.cancel).toHaveBeenCalledOnce();
+  });
+
+  it('stands for a settled animation before its real handle arrives and ignores its commands', () => {
+    const deferred = deferredHandle();
+    expect(deferred.cancelled).toBe(false);
+    expect(deferred.handle.backend).toBe('waapi');
+    expect(deferred.handle.duration).toBe(0);
+    expect(deferred.handle.currentTime).toBe(0);
+    expect(deferred.handle.velocity).toEqual({ value: 0, source: 'unavailable' });
+    expect(() => {
+      deferred.handle.play();
+      deferred.handle.pause();
+      deferred.handle.reverse();
+      deferred.handle.seek(100);
+    }).not.toThrow();
+  });
+
+  it('forwards every command, measure and the end to the real handle once it arrives', async () => {
+    const deferred = deferredHandle();
+    const real = fakeHandle(300);
+    deferred.resolve(real);
+    expect(deferred.handle.duration).toBe(300);
+    (real as { currentTime: number }).currentTime = 120;
+    expect(deferred.handle.currentTime).toBe(120);
+    deferred.handle.seek(50);
+    deferred.handle.play();
+    expect(real.seek).toHaveBeenCalledWith(50);
+    expect(real.play).toHaveBeenCalledOnce();
+    real.resolve('finished');
+    await expect(deferred.handle.finished).resolves.toBe('finished');
   });
 });
