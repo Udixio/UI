@@ -30,6 +30,7 @@ export default defineConfig(() => ({
         layout: 'src/layout.ts',
         value: 'src/value-entry.ts',
         sequence: 'src/sequence-entry.ts',
+        gesture: 'src/gesture-entry.ts',
         manifest: 'src/manifest.ts',
         'providers/css': 'src/providers/css.ts',
         'providers/waapi': 'src/providers/waapi.ts',

@@ -255,3 +255,31 @@ test('package index exports the runtime factories from built ESM and CommonJS', 
     assert.equal(typeof entry.retainMotionRuntime, 'function');
   }
 });
+
+test('gesture entry point is public in both export maps', () => {
+  assert.deepEqual(pkg.exports['./gesture'], {
+    development: './src/gesture-entry.ts', types: './dist/gesture.d.ts',
+    import: './dist/gesture.js', require: './dist/gesture.cjs', default: './dist/gesture.js',
+  });
+  assert.deepEqual(pkg.publishConfig.exports['./gesture'], {
+    types: './dist/gesture.d.ts', import: './dist/gesture.js',
+    require: './dist/gesture.cjs', default: './dist/gesture.js',
+  });
+});
+
+test('the main entry reaches gestures only through a dynamic import, and holds none of their code', async () => {
+  for (const [entry, extension] of [['dist/index.js', 'js'], ['dist/index.cjs', 'cjs']]) {
+    const sources = await staticClosure(entry);
+    const dynamicImport = extension === 'js'
+      ? /import\(["']\.\/gesture\.js["']\)/
+      : /=>\s*require\(["']\.\/gesture\.cjs["']\)/;
+    const staticImport = extension === 'js'
+      ? /^import\s[^;]*["']\.\/gesture\.js["']/m
+      : /(?:^|[=,;])\s*require\(["']\.\/gesture\.cjs["']\)/m;
+    assert.ok(sources.some(code => dynamicImport.test(code)), `${entry} does not load ./gesture dynamically`);
+    for (const code of sources) {
+      assert.doesNotMatch(code, staticImport);
+      assert.doesNotMatch(code, /Invalid gesture spec|data-udx-motion-live/);
+    }
+  }
+});

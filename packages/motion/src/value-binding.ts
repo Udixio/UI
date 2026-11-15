@@ -2,8 +2,10 @@ import { provideValues } from './feature-loader.js';
 import { motionManifest } from './manifest.js';
 import { motionDisabled } from './play.js';
 import { getMotionRuntime, retainMotionRuntime, type MotionRuntime } from './runtime.js';
+import { stepSpring, type SpringState } from './spring-step.js';
 import { resolveCurve, springParams, type MotionScheme } from './tokens.js';
 import { resolveValue, type ValueRef, type ValueSpec, type ValueSource } from './value.js';
+import { VISUALLY_HIDDEN } from './visually-hidden.js';
 import { watchView } from './viewport.js';
 
 /** A value bound to an element: the number it writes, its state setter, and its listeners. */
@@ -19,17 +21,12 @@ export interface ValueBinding {
   destroy(): void;
 }
 
-/** The longest sub-step of the integration, in seconds. */
-const MAX_STEP = 1 / 240;
 /** The longest frame step that is integrated, in seconds: a frame after a pause moves the spring at most this far. */
 const MAX_FRAME = 1 / 30;
 /** A smoothed value is at rest when it is this close to its goal, as a fraction of its span... */
 const POSITION_EPSILON = 1e-4;
 /** ...and moves this slowly, as a fraction of its span per second. */
 const VELOCITY_EPSILON = 1e-3;
-/** Hides a counter's final number from sight, and keeps it for assistive technology, without taking any width. */
-const VISUALLY_HIDDEN =
-  'position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0';
 
 const bindings = new WeakMap<Element, Map<string, ValueBinding>>();
 
@@ -137,9 +134,8 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
   let destroyed = false;
   let written = NaN;
   let text = '';
-  // Spring state, in the units of the value: where it is, how fast it moves, and where it is going.
-  let position = 0;
-  let velocity = 0;
+  // Spring state, in the units of the value: where it is and how fast it moves, and where it is going.
+  const springState: SpringState = { x: 0, v: 0 };
   let goal = 0;
   // The runtime subscription: the spring while it moves, the clock of a time value always.
   let unsubscribe: (() => void) | undefined;
@@ -238,37 +234,24 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
   /** Set the spring at its goal, at rest, and write it. */
   function snap(): void {
     halt();
-    position = goal;
-    velocity = 0;
+    springState.x = goal;
+    springState.v = 0;
     write(goal);
   }
 
   /** Whether the value is written at once rather than moved to: reduced motion, or `--udx-motion: none`. */
   const immediate = () => runtime.policy.reduced || motionDisabled(target);
 
-  /** One step of the spring over `dt` seconds: semi-implicit Euler, in sub-steps of at most 1/240 s. */
-  function integrate(dt: number, parameters: { dampingRatio: number; stiffness: number }): void {
-    const { dampingRatio, stiffness } = parameters;
-    const damping = 2 * dampingRatio * Math.sqrt(stiffness);
-    const steps = Math.ceil(dt / MAX_STEP);
-    const h = dt / steps;
-    for (let i = 0; i < steps; i++) {
-      const acceleration = -stiffness * (position - goal) - damping * velocity;
-      velocity += acceleration * h;
-      position += velocity * h;
-    }
-  }
-
   /** The frame of a moving spring: it integrates the time since the last frame, and rests once it is at its goal. */
   function step(now: number): void {
     const dt = frameAt === undefined ? 0 : Math.min(Math.max(now - frameAt, 0) / 1000, MAX_FRAME);
     frameAt = now;
-    if (params && dt > 0) integrate(dt, params);
-    if (Math.abs(position - goal) < POSITION_EPSILON * span && Math.abs(velocity) < VELOCITY_EPSILON * span) {
+    if (params && dt > 0) stepSpring(springState, goal, dt, params);
+    if (Math.abs(springState.x - goal) < POSITION_EPSILON * span && Math.abs(springState.v) < VELOCITY_EPSILON * span) {
       snap();
       return;
     }
-    write(position);
+    write(springState.x);
   }
 
   /** The frame of a time value: its progress through the period, from the moment it was bound. */
@@ -372,12 +355,12 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
       if (inView) {
         phase = 'live';
         stopWatch?.();
-        if (goal !== position) aim(goal);
+        if (goal !== springState.x) aim(goal);
         return;
       }
       phase = 'waiting';
-      position = first;
-      velocity = 0;
+      springState.x = first;
+      springState.v = 0;
       write(first);
       paint(first);
       return;
@@ -389,7 +372,7 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
   }
 
   const initial = initialPosition();
-  position = initial;
+  springState.x = initial;
   goal = initial;
   write(initial);
 

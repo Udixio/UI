@@ -1,16 +1,19 @@
+import type { GestureRef } from './gesture.js';
 import type { SequenceRef } from './sequence.js';
 import type { ValueRef } from './value.js';
 
 type Listener<R> = (ref: R) => void;
 
-// The definitions of values and sequences, and their listeners, live on globalThis so that every copy of the package
-// shares them. They sit here, apart from the modules that bind them, so that the scanner can read them without loading
-// those modules.
+// The definitions of values, sequences and gestures, and their listeners, live on globalThis so that every copy of the
+// package shares them. They sit here, apart from the modules that bind them, so that the scanner can read them without
+// loading those modules.
 const shared = globalThis as unknown as Record<symbol, unknown>;
 const VALUE_DEFINITIONS = Symbol.for('udixio.motion.values.preview.1');
 const VALUE_LISTENERS = Symbol.for('udixio.motion.value-listeners.preview.1');
 const SEQUENCE_DEFINITIONS = Symbol.for('udixio.motion.sequences.preview.1');
 const SEQUENCE_LISTENERS = Symbol.for('udixio.motion.sequence-listeners.preview.1');
+const GESTURE_DEFINITIONS = Symbol.for('udixio.motion.gestures.preview.1');
+const GESTURE_LISTENERS = Symbol.for('udixio.motion.gesture-listeners.preview.1');
 
 function registry<T>(key: symbol, create: () => T): T {
   shared[key] ??= create();
@@ -33,8 +36,29 @@ export function sequenceListeners(): Set<Listener<SequenceRef>> {
   return registry(SEQUENCE_LISTENERS, () => new Set<Listener<SequenceRef>>());
 }
 
+export function gestureDefinitions(): Map<string, GestureRef> {
+  return registry(GESTURE_DEFINITIONS, () => new Map<string, GestureRef>());
+}
+
+export function gestureListeners(): Set<Listener<GestureRef>> {
+  return registry(GESTURE_LISTENERS, () => new Set<Listener<GestureRef>>());
+}
+
 export function resolveValue(name: string): ValueRef | undefined {
   return valueDefinitions().get(name);
+}
+
+export function resolveGesture(name: string): GestureRef | undefined {
+  return gestureDefinitions().get(name);
+}
+
+/** Call `listener` for each newly defined gesture; returns an unsubscribe function. */
+export function onGestureDefined(listener: Listener<GestureRef>): () => void {
+  const set = gestureListeners();
+  set.add(listener);
+  return () => {
+    set.delete(listener);
+  };
 }
 
 /** Call `listener` for each newly defined value; returns an unsubscribe function. */

@@ -73,6 +73,12 @@
         "import": "./dist/sequence.js",
         "require": "./dist/sequence.cjs",
         "default": "./dist/sequence.js"
+      },
+      "./gesture": {
+        "types": "./dist/gesture.d.ts",
+        "import": "./dist/gesture.js",
+        "require": "./dist/gesture.cjs",
+        "default": "./dist/gesture.js"
       }
     }
   },
@@ -179,6 +185,13 @@
       "import": "./dist/sequence.js",
       "require": "./dist/sequence.cjs",
       "default": "./dist/sequence.js"
+    },
+    "./gesture": {
+      "development": "./src/gesture-entry.ts",
+      "types": "./dist/gesture.d.ts",
+      "import": "./dist/gesture.js",
+      "require": "./dist/gesture.cjs",
+      "default": "./dist/gesture.js"
     }
   },
   "dependencies": {
