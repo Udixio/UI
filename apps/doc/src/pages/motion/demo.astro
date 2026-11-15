@@ -13,6 +13,7 @@ const example = `<!-- Markup: reference a motion by name -->
   <p>Fades in when inserted, fades out when hidden.</p>
 </div>
 <button type="button" data-motion="press" data-state="off">Press me</button>
+<ul><li data-motion="reflow">One</li></ul>
 
 // Hide or show a card: set or remove its hidden attribute
 card.hidden = true;
@@ -55,6 +56,42 @@ connectMotion();`;
   <p>An emphasis motion replays each time the element's <code>data-state</code> changes. This button flips its state between <code>off</code> and <code>on</code> on every click.</p>
   <div class="not-prose">
     <button type="button" data-motion="press" data-demo-press data-state="off" class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Press me</button>
+  </div>
+
+  <h2>Layout</h2>
+  <p>An element with a layout motion moves to its new place when the layout around it changes; nothing is measured by hand. Each demo below changes its layout with one button.</p>
+  <h3>Alignment</h3>
+  <div class="not-prose flex flex-col gap-4">
+    <div>
+      <button type="button" data-demo-align class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Toggle alignment</button>
+    </div>
+    <div id="demo-align" class="flex justify-start rounded-2xl bg-surface-container p-4">
+      <div data-motion="reflow" data-demo-layout="pill" class="rounded-full bg-primary px-6 py-3 text-label-large text-on-primary">Pill</div>
+    </div>
+  </div>
+  <h3>List</h3>
+  <div class="not-prose flex flex-col gap-4">
+    <div class="flex flex-wrap gap-3">
+      <button type="button" data-demo-shuffle class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Shuffle</button>
+      <button type="button" data-demo-rotate class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Move first to end</button>
+    </div>
+    <ul id="demo-list" class="flex flex-col gap-2">
+      <li data-motion="reflow" data-demo-layout="item" class="rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface">One</li>
+      <li data-motion="reflow" data-demo-layout="item" class="rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface">Two</li>
+      <li data-motion="reflow" data-demo-layout="item" class="rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface">Three</li>
+      <li data-motion="reflow" data-demo-layout="item" class="rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface">Four</li>
+      <li data-motion="reflow" data-demo-layout="item" class="rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface">Five</li>
+    </ul>
+  </div>
+  <h3>Size</h3>
+  <div class="not-prose flex flex-col gap-4">
+    <div>
+      <button type="button" data-demo-grow class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Toggle width</button>
+    </div>
+    <div id="demo-size" class="flex gap-4">
+      <div data-motion="reflow" data-demo-layout="card" class="flex-1 rounded-2xl bg-surface-container-high p-6"><p class="text-body-large text-on-surface">First card</p></div>
+      <div data-motion="reflow" data-demo-layout="card" class="flex-1 rounded-2xl bg-surface-container-high p-6"><p class="text-body-large text-on-surface">Second card</p></div>
+    </div>
   </div>
 
   <h2>Reduced motion</h2>
@@ -100,6 +137,29 @@ connectMotion();`;
       }
       const press = event.target.closest<HTMLElement>('[data-demo-press]');
       if (press) press.setAttribute('data-state', press.getAttribute('data-state') === 'on' ? 'off' : 'on');
+      if (event.target.closest('[data-demo-align]')) {
+        const row = document.getElementById('demo-align');
+        if (row) {
+          const toEnd = row.classList.contains('justify-start');
+          row.classList.toggle('justify-start', !toEnd);
+          row.classList.toggle('justify-end', toEnd);
+        }
+        return;
+      }
+      if (event.target.closest('[data-demo-shuffle]')) {
+        const list = document.getElementById('demo-list');
+        if (list) list.append(...shuffled([...list.querySelectorAll<HTMLElement>('li')]));
+        return;
+      }
+      if (event.target.closest('[data-demo-rotate]')) {
+        const list = document.getElementById('demo-list');
+        const first = list?.firstElementChild;
+        if (list && first) list.append(first);
+        return;
+      }
+      if (event.target.closest('[data-demo-grow]')) {
+        document.querySelector<HTMLElement>('#demo-size [data-demo-layout="card"]')?.classList.toggle('grow-[3]');
+      }
     });
 
     document.addEventListener('change', event => {
@@ -109,5 +169,17 @@ connectMotion();`;
       if (reduce.checked) document.documentElement.setAttribute('data-motion-policy', 'reduce');
       else document.documentElement.removeAttribute('data-motion-policy');
     });
+
+    // A random order of the items that differs from their current one.
+    function shuffled(items: HTMLElement[]): HTMLElement[] {
+      const order = [...items];
+      do {
+        for (let i = order.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [order[i], order[j]] = [order[j], order[i]];
+        }
+      } while (items.length > 1 && order.every((item, index) => item === items[index]));
+      return order;
+    }
   </script>
 </MotionPage>

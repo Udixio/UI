@@ -38,7 +38,8 @@ defineMotion('card-enter', {
 
 - The name is kebab-case; reserved names are rejected.
 - Verbs: `appear` (enters through the keyframes, leaves backward), `disappear` (the
-  reverse) and `emphasize` (plays the keyframes forward on each replay).
+  reverse), `emphasize` (plays the keyframes forward on each replay) and `layout`
+  (moves with the layout, see [Layout](#layout)).
 - Keyframe fields: `opacity`, `x`, `y`, `scale`, `rotate`.
 - `timing` is optional: a spring token such as `spring.fast.spatial`, or
   `{ duration: 'duration.medium2', easing: 'easing.standard' }`. It applies to every field.
@@ -48,11 +49,56 @@ defineMotion('card-enter', {
 ### Presets
 
 ```ts
-import { fade, slide, scale, press } from '@udixio/motion/presets';
+import { fade, slide, scale, press, reflow } from '@udixio/motion/presets';
 ```
 
-Importing the entry defines `fade`, `slide` and `scale` (appear) and `press`
-(emphasize), usable directly in `data-motion`. Their values are provisional.
+Importing the entry defines `fade`, `slide` and `scale` (appear), `press`
+(emphasize) and `reflow` (layout), usable directly in `data-motion`. Their values are provisional.
+
+### Layout
+
+A layout motion has no keyframes. Its element moves from where it was to its new
+place and size when the layout around it changes, and nothing is left inline at the end:
+
+```ts
+defineMotion('card-move', { verb: 'layout' }); // timing is optional
+```
+
+The preset `reflow` is a layout motion:
+
+```html
+<ul>
+  <li data-motion="reflow">One</li>
+  <li data-motion="reflow">Two</li>
+</ul>
+```
+
+A change inside the scope triggers the move: a class or `data-*` attribute changes on
+an element of the scope, a child is added, removed or reordered, or `hidden` changes.
+An element that appears or disappears does not animate itself: it has no earlier box to
+move from or to.
+
+The scope is the closest ancestor with `data-motion-scope`, or else the element's parent.
+Only changes inside the scope are seen. An inline `style` change is not observed: after
+one, call `play()` on the binding to compare the layout and move now:
+
+```ts
+import { getMotion } from '@udixio/motion';
+
+item.style.width = '50%'; // an inline style is not observed
+getMotion(item)?.play(); // compares the layout now and plays the move
+```
+
+In the frameworks, use the same name: `useMotion('reflow')` (attach its `ref`),
+`udxMotion="reflow"` in Angular, or `{@attach motion('reflow')}` in Svelte. The adapters
+need nothing else.
+
+Limits:
+
+- The content of an element whose size changes is stretched during the move.
+- `transform-origin` must stay at the centre, where the move scales the element.
+- A move caused by something outside the scope is not animated.
+- Under reduced motion, or with `--udx-motion: none`, the new layout applies at once.
 
 ### HTML
 
@@ -171,8 +217,8 @@ element; authors should not set it. Style it with Tailwind variants, for example
 
 This is step 1a of the package, so:
 
-- Only three verbs exist: `appear`, `disappear` and `emphasize`. `reveal`, `scrub`,
-  `loop` and `layout` come later.
+- Four verbs exist: `appear`, `disappear`, `emphasize` and `layout`. `reveal`, `scrub`
+  and `loop` come later.
 - At the end of a motion, the end values stay inline on the element (`opacity`,
   `translate`, `scale`, `rotate`). A class that sets the same property on that element
   is overridden until the binding is destroyed.
