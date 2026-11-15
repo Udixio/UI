@@ -49,11 +49,12 @@ defineMotion('card-enter', {
 ### Presets
 
 ```ts
-import { fade, slide, scale, press, reflow } from '@udixio/motion/presets';
+import { fade, slide, scale, cascade, press, reflow } from '@udixio/motion/presets';
 ```
 
-Importing the entry defines `fade`, `slide` and `scale` (appear), `press`
-(emphasize) and `reflow` (layout), usable directly in `data-motion`. Their values are provisional.
+Importing the entry defines `fade`, `slide`, `scale` and `cascade` (appear), `press`
+(emphasize) and `reflow` (layout), usable directly in `data-motion`. `cascade` staggers the
+elements that enter together, see [Lists](#lists). Their values are provisional.
 
 ### Layout
 
@@ -103,11 +104,65 @@ Limits:
 - A move caused by something outside the scope is not animated.
 - Under reduced motion, or with `--udx-motion: none`, the new layout applies at once.
 
+### Lists
+
+A list item names two motions in `data-motion`: a presence motion, which makes it enter
+and leave, and `reflow`, which makes it follow its neighbours. The preset `cascade` is a
+presence motion with `stagger: 'normal'`:
+
+```html
+<ul>
+  <li data-motion="cascade reflow"><span>One</span></li>
+  <li data-motion="cascade reflow"><span>Two</span></li>
+</ul>
+```
+
+- `stagger` makes the elements that enter in the same task (several items added at once)
+  start one step after the previous one, in visual order. The steps are `tight` (20 ms),
+  `normal` (50 ms) and `loose` (100 ms), and the delay is capped at 400 ms. These are the `--udx-motion-stagger-*` tokens
+  of `motion.css`. Entries and exits cascade separately, and reduced motion drops the delays.
+- `origin` chooses where the cascade starts: `first` (the default), `last`, or `center`,
+  which starts in the middle and spreads both ways.
+- `exit` chooses how a leaving element moves its neighbours. The default, `in-place`, keeps
+  the element where it is until its exit ends, and the neighbours move once it is gone.
+  `out-of-flow` takes the element out of the flow when its exit starts, so the neighbours
+  close the gap while it fades. The parent must be positioned (`position: relative`) for
+  `out-of-flow`. Under reduced motion the exit is `in-place`.
+
+`stagger`, `origin` and `exit` belong to the `appear` and `disappear` verbs:
+
+```ts
+import { defineMotion } from '@udixio/motion';
+
+defineMotion('list-item', {
+  verb: 'appear',
+  keyframes: [
+    { opacity: 0, y: 16 },
+    { opacity: 1, y: 0 },
+  ],
+  stagger: 'normal',
+  exit: 'out-of-flow',
+});
+```
+
+In the frameworks, each adapter takes one motion name: `useMotion('cascade')`,
+`udxMotion="cascade"` or `{@attach motion('cascade')}`.
+
 ### HTML
+
+`data-motion` takes names separated by spaces, at most one per kind: a presence motion
+(it enters and leaves), an emphasis, and a layout motion. A second name of a kind the
+element already has is ignored.
 
 ```html
 <section data-motion="slide">Enters when inserted</section>
 <button type="button" data-motion="press">Save</button>
+```
+
+A list item that enters and leaves with `cascade`, and follows its neighbours with `reflow`:
+
+```html
+<li data-motion="cascade reflow">…</li>
 ```
 
 ```ts
@@ -150,7 +205,8 @@ and returns a `MotionBinding` (`setPresent`, `play`, `destroy`, and `present` an
   It never rejects; on any failure the element is left in its destination state.
 - `play()` replays an `emphasize` motion. `setPresent` throws for an `emphasize`, and `play()` throws for the other verbs.
 - `destroy()` cancels the motion and releases its inline state.
-- `getMotion(element)` returns the binding attached to an element, if any.
+- `getMotion(element, kind?)` returns the binding of a kind (`'presence'`, `'emphasis'` or `'layout'`),
+  or the first one when no kind is given. `getMotions(element)` returns all of them, in that order.
 
 ### Frameworks
 

@@ -24,6 +24,23 @@ import { connectMotion } from '@udixio/motion';
 import '@udixio/motion/presets';
 
 connectMotion();`;
+const listExample = `<!-- A list item enters and leaves with cascade, and follows its neighbours with reflow -->
+<li data-motion="cascade reflow">…</li>
+
+// Add an item at the top: it cascades in, and the items below move down
+list.prepend(item);
+
+// Remove it: setting hidden plays its exit, then it is display: none
+item.hidden = true;
+
+// A leaving item that takes itself out of the flow: the neighbours close the gap as it fades
+import { defineMotion } from '@udixio/motion';
+defineMotion('demo-leave', {
+  verb: 'appear',
+  keyframes: [{ opacity: 0, y: 16 }, { opacity: 1, y: 0 }],
+  stagger: 'normal',
+  exit: 'out-of-flow',
+});`;
 ---
 <MotionPage title="Motion demo" description="A live demonstration of data-motion: elements reference a named motion and the runtime animates them.">
   <h1>Motion demo</h1>
@@ -107,6 +124,27 @@ connectMotion();`;
     </div>
   </div>
 
+  <h2>Lists</h2>
+  <p>A list item carries two motions in its <code>data-motion</code> attribute: <code>cascade</code> makes it enter and leave, and <code>reflow</code> makes it follow its neighbours when the layout changes. Items added together start one after the other, in visual order.</p>
+  <div class="not-prose flex flex-col gap-4">
+    <div class="flex flex-wrap gap-3">
+      <button type="button" data-demo-add class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Add item</button>
+      <button type="button" data-demo-add-five class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Add five</button>
+      <button type="button" data-demo-remove class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Remove first</button>
+    </div>
+    <label class="flex items-center gap-3 text-body-large text-on-surface">
+      <input type="checkbox" data-demo-outflow autocomplete="off" class="size-5 accent-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface" />
+      Close the gap while leaving
+    </label>
+    <ul id="demo-items" class="relative flex flex-col gap-2">
+      <li data-motion="cascade reflow" data-demo-list="item" class="rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface"><span>Item 1</span></li>
+      <li data-motion="cascade reflow" data-demo-list="item" class="rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface"><span>Item 2</span></li>
+      <li data-motion="cascade reflow" data-demo-list="item" class="rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface"><span>Item 3</span></li>
+    </ul>
+  </div>
+  <p>Unchecked, a removed item keeps its place while it fades, and the items below it move up once it is gone. Checked, it leaves the flow as it fades, so the items below close the gap during its exit.</p>
+  <pre><code>{listExample}</code></pre>
+
   <h2>Reduced motion</h2>
   <p>While checked, this control sets <code>data-motion-policy="reduce"</code> on the <code>html</code> element: entries and exits become a short fade, and emphasis does nothing.</p>
   <div class="not-prose">
@@ -136,6 +174,16 @@ connectMotion();`;
   <pre><code>{example}</code></pre>
 
   <script>
+    import { defineMotion } from '@udixio/motion';
+
+    // A cascade whose exit takes the item out of the flow, so that its neighbours close the gap as it fades.
+    defineMotion('demo-leave', {
+      verb: 'appear',
+      keyframes: [{ opacity: 0, y: 16 }, { opacity: 1, y: 0 }],
+      stagger: 'normal',
+      exit: 'out-of-flow',
+    });
+
     // Event delegation on document: a page script runs once, so listeners attached
     // to the elements themselves would be lost after a client-side navigation.
     document.addEventListener('click', event => {
@@ -172,11 +220,31 @@ connectMotion();`;
       }
       if (event.target.closest('[data-demo-grow]')) {
         document.querySelector<HTMLElement>('#demo-size [data-demo-layout="card"]')?.classList.toggle('grow-[3]');
+        return;
+      }
+      if (event.target.closest('[data-demo-add]')) {
+        document.getElementById('demo-items')?.prepend(makeItem());
+        return;
+      }
+      if (event.target.closest('[data-demo-add-five]')) {
+        document.getElementById('demo-items')?.append(...Array.from({ length: 5 }, () => makeItem()));
+        return;
+      }
+      if (event.target.closest('[data-demo-remove]')) {
+        const first = document.querySelector<HTMLElement>('#demo-items [data-demo-list="item"]:not([hidden])');
+        if (first) removeWhenHidden(first);
       }
     });
 
     document.addEventListener('change', event => {
       if (!(event.target instanceof Element)) return;
+      if (event.target.closest('[data-demo-outflow]')) {
+        // The items already on the page take the motions the checkbox selects.
+        const checked = outflowChecked();
+        for (const item of document.querySelectorAll<HTMLElement>('#demo-items [data-demo-list="item"]'))
+          item.setAttribute('data-motion', checked ? 'demo-leave reflow' : 'cascade reflow');
+        return;
+      }
       const reduce = event.target.closest<HTMLInputElement>('[data-demo-reduce]');
       if (!reduce) return;
       if (reduce.checked) document.documentElement.setAttribute('data-motion-policy', 'reduce');
@@ -193,6 +261,37 @@ connectMotion();`;
         }
       } while (items.length > 1 && order.every((item, index) => item === items[index]));
       return order;
+    }
+
+    // The items of the markup are 1 to 3; each new item takes the next number.
+    let itemCount = 3;
+
+    // A new item, with the motions the checkbox selects.
+    function makeItem(): HTMLLIElement {
+      itemCount += 1;
+      const item = document.createElement('li');
+      item.className = 'rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface';
+      item.setAttribute('data-demo-list', 'item');
+      item.setAttribute('data-motion', outflowChecked() ? 'demo-leave reflow' : 'cascade reflow');
+      const label = document.createElement('span');
+      label.textContent = `Item ${itemCount}`;
+      item.append(label);
+      return item;
+    }
+
+    function outflowChecked(): boolean {
+      return document.querySelector<HTMLInputElement>('[data-demo-outflow]')?.checked ?? false;
+    }
+
+    // Hiding plays the exit; the node is removed once the exit has ended and the item is display: none.
+    // The first check waits a frame: the hidden attribute alone already hides the item.
+    function removeWhenHidden(item: HTMLElement): void {
+      item.hidden = true;
+      const check = () => {
+        if (!item.isConnected || getComputedStyle(item).display === 'none') item.remove();
+        else requestAnimationFrame(check);
+      };
+      requestAnimationFrame(check);
     }
   </script>
 </MotionPage>

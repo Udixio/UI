@@ -252,4 +252,76 @@ test(`${name}: layout motions carry elements to their new place`, async () => {
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
+
+test(`${name}: list items cascade in and their neighbours follow`, async () => {
+  const browser = await browserType.launch();
+  try {
+    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
+    const page = await context.newPage();
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    await page.goto(base + '/motion/demo/');
+    const items = '#demo-items [data-demo-list="item"]';
+    await page.waitForSelector(items);
+    // Two frames: the runtime is connected once the page has painted.
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    const count = () => page.locator(items).count();
+    const texts = () => page.locator(items).allTextContents();
+    const waitForRest = () => page.waitForFunction(() => [...document.querySelectorAll('#demo-items *')].every(el => el.getAnimations().length === 0));
+    // The items in DOM order and in visual order (by top), and the gaps between consecutive boxes.
+    const layout = () => page.evaluate(selector => {
+      const elements = [...document.querySelectorAll(selector)];
+      const dom = elements.map(el => el.textContent.trim());
+      const visual = [...elements].sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top).map(el => el.textContent.trim());
+      const boxes = elements.map(el => el.getBoundingClientRect());
+      const gaps = boxes.slice(1).map((box, index) => box.top - boxes[index].bottom);
+      return { dom, visual, gaps };
+    }, items);
+
+    // Add five: five items entering in one task cascade one step apart, in visual order.
+    await page.getByRole('button', { name: 'Add five' }).click();
+    const delays = await page.evaluate(selector => [...document.querySelectorAll(selector)].slice(-5).map(el => {
+      const values = el.getAnimations().map(animation => animation.effect.getTiming().delay);
+      return values.length > 0 ? Math.max(...values) : null;
+    }), items);
+    assert.deepEqual(delays, [0, 50, 100, 150, 200]);
+    await page.waitForFunction(selector => [...document.querySelectorAll(selector)].every(el => el.getAttribute('data-presence') === 'present'), items);
+    assert.equal(await count(), 8);
+
+    // Add item: the new item goes first, and the item that was first moves down.
+    const previousFirst = (await texts())[0];
+    const topBefore = await page.locator(items).first().evaluate(el => el.getBoundingClientRect().top + window.scrollY);
+    await page.getByRole('button', { name: 'Add item' }).click();
+    await waitForRest();
+    assert.equal(await count(), 9);
+    assert.equal((await texts())[1], previousFirst);
+    assert.notEqual((await texts())[0], previousFirst);
+    const topAfter = await page.locator(items).nth(1).evaluate(el => el.getBoundingClientRect().top + window.scrollY);
+    assert.ok(topAfter > topBefore, `the previous first item is at ${topAfter}, it was at ${topBefore}`);
+
+    // Remove first: the new item leaves, and the list closes up with the 8 px gap of gap-2.
+    const beforeRemove = await count();
+    await page.getByRole('button', { name: 'Remove first' }).click();
+    await page.waitForFunction(([selector, expected]) => document.querySelectorAll(selector).length === expected, [items, beforeRemove - 1]);
+    await waitForRest();
+    let order = await layout();
+    assert.deepEqual(order.visual, order.dom);
+    assert.equal(order.dom[0], 'Item 1');
+    for (const gap of order.gaps) assert.ok(Math.abs(gap - 8) <= 1, `gap of ${gap}px between list items`);
+
+    // Close the gap: the first item leaves the flow as it fades, and the second item moves up while it is still there.
+    await page.getByLabel('Close the gap while leaving').check();
+    const beforeOutflow = await count();
+    await page.getByRole('button', { name: 'Remove first' }).click();
+    const moving = await page.evaluate(selector => document.querySelectorAll(selector)[1].getAnimations().length, items);
+    assert.ok(moving >= 1, 'the second item does not move while the first one leaves');
+    await page.waitForFunction(([selector, expected]) => document.querySelectorAll(selector).length === expected, [items, beforeOutflow - 1]);
+    await waitForRest();
+    order = await layout();
+    assert.deepEqual(order.visual, order.dom);
+    assert.equal(order.dom[0], 'Item 2');
+    for (const gap of order.gaps) assert.ok(Math.abs(gap - 8) <= 1, `gap of ${gap}px between list items`);
+    assert.deepEqual(pageErrors, []);
+  } finally { await browser.close(); }
+});
 }
