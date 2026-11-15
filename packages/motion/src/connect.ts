@@ -1,9 +1,20 @@
 import { getMotion, motion, type MotionBinding } from './bind.js';
 import { definedMotions, kindOf, onMotionDefined, resolveMotion, type MotionKind, type MotionRef } from './define-motion.js';
-import { loadSequences, loadValues, sequencesModule, valuesModule, type SequenceApi, type ValueApi } from './feature-loader.js';
+import {
+  gesturesModule,
+  loadGestures,
+  loadSequences,
+  loadValues,
+  sequencesModule,
+  valuesModule,
+  type GestureApi,
+  type SequenceApi,
+  type ValueApi,
+} from './feature-loader.js';
+import type { GestureBinding } from './gesture-binding.js';
 import { flushLayoutAround } from './layout-loader.js';
 import { NAME_PATTERN } from './manifest.js';
-import { onSequenceDefined, onValueDefined, resolveSequence, resolveValue } from './registries.js';
+import { onGestureDefined, onSequenceDefined, onValueDefined, resolveGesture, resolveSequence, resolveValue } from './registries.js';
 import type { SequenceBinding } from './sequence.js';
 import type { ValueBinding } from './value-binding.js';
 
@@ -17,9 +28,9 @@ type Hold = { value: string; priority: string };
 /** A motion the scanner bound on an element: the name it came from, and its binding. */
 type Owned = { name: string; binding: MotionBinding };
 
-/** The elements under `node`, the node itself included, that carry `data-motion` or `data-motion-value`. */
+/** The elements under `node`, the node itself included, that carry `data-motion`, `data-motion-value` or `data-motion-gesture`. */
 function scannedElements(node: Node): HTMLElement[] {
-  const selector = '[data-motion], [data-motion-value]';
+  const selector = '[data-motion], [data-motion-value], [data-motion-gesture]';
   const within = node instanceof Element || node instanceof Document ? [...node.querySelectorAll<HTMLElement>(selector)] : [];
   return node instanceof HTMLElement && node.matches(selector) ? [node, ...within] : within;
 }
@@ -32,6 +43,11 @@ function namesOf(el: HTMLElement): string[] {
 /** The names listed in the `data-motion-value` of an element, in order. */
 function valueNamesOf(el: HTMLElement): string[] {
   return (el.getAttribute('data-motion-value') ?? '').split(/\s+/).filter(Boolean);
+}
+
+/** The gesture named by the `data-motion-gesture` of an element; an empty attribute names none. */
+function gestureNameOf(el: HTMLElement): string {
+  return (el.getAttribute('data-motion-gesture') ?? '').trim();
 }
 
 /**
@@ -55,8 +71,9 @@ function sharedOf(el: HTMLElement, development: boolean): string | undefined {
  * list several motions, one per kind. A `data-motion-shared` gives the layout motion of the element a shared
  * identity: it morphs from the place of another element with the same key. A `data-motion-value` binds the named values
  * of the element, each written as a variable there. A `data-motion` name that is a defined sequence binds the sequence
- * on the element; its `data-motion-step` children need no scanning of their own. The values and the sequences are loaded
- * the first time a page meets one of them. The returned function disconnects the scanner and destroys its bindings.
+ * on the element; its `data-motion-step` children need no scanning of their own. A `data-motion-gesture` binds the gesture
+ * it names on the element. The values, the sequences and the gestures are loaded the first time a page meets one of them.
+ * The returned function disconnects the scanner and destroys its bindings.
  */
 export function connectMotion(options: ConnectOptions = {}): () => void {
   const root = options.root ?? document;
@@ -69,9 +86,13 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   /** The values the scanner bound on each element, by name; and the elements waiting for each undefined name. */
   const boundValues = new Map<HTMLElement, Map<string, ValueBinding>>();
   const pendingValues = new Map<string, Set<HTMLElement>>();
+  /** The gesture the scanner bound on each element; and the elements waiting for each undefined gesture name. */
+  const boundGestures = new Map<HTMLElement, GestureBinding>();
+  const pendingGestures = new Map<string, Set<HTMLElement>>();
   const holds = new Map<HTMLElement, Hold>();
   const reported = new Set<string>();
   const reportedValues = new Set<string>();
+  const reportedGestures = new Set<string>();
   const conflicts = new WeakSet<HTMLElement>();
   /** False once the scanner is disconnected: a module that loads after that binds nothing. */
   let live = true;
@@ -100,6 +121,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   }
   const whenValues = (task: (api: ValueApi) => void) => whenLoaded(valuesModule, loadValues, task, 'values');
   const whenSequences = (task: (api: SequenceApi) => void) => whenLoaded(sequencesModule, loadSequences, task, 'sequences');
+  const whenGestures = (task: (api: GestureApi) => void) => whenLoaded(gesturesModule, loadGestures, task, 'gestures');
 
   /** Bind the names of `el`, in order. A motion wins over a sequence of the same name; an undefined name waits alone. */
   function bind(el: HTMLElement, entering: boolean): void {
@@ -114,6 +136,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
       else defer(el, name);
     }
     bindValues(el);
+    bindGesture(el);
   }
 
   /**
@@ -194,6 +217,50 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     undeferValues(el);
   }
 
+  /**
+   * Bind the gesture `data-motion-gesture` names on `el`, once the gestures module is loaded: at once when it is. An
+   * element with no gesture name binds nothing, and an undefined name waits until it is defined.
+   */
+  function bindGesture(el: HTMLElement): void {
+    const name = gestureNameOf(el);
+    if (!name) return;
+    whenGestures(api => {
+      if (!current(el) || gestureNameOf(el) !== name) return;
+      if (resolveGesture(name)) bindGestureName(api, el, name);
+      else deferGesture(el, name);
+    });
+  }
+
+  /** Bind the gesture `name` on `el`. The element carries one gesture at a time, so this replaces the one there. */
+  function bindGestureName(api: GestureApi, el: HTMLElement, name: string): void {
+    undeferGesture(el);
+    boundGestures.set(el, api.gesture(el, name, { development }));
+  }
+
+  /** An undefined gesture name leaves the element untouched until defineGesture defines it. */
+  function deferGesture(el: HTMLElement, name: string): void {
+    const waiting = pendingGestures.get(name) ?? new Set<HTMLElement>();
+    pendingGestures.set(name, waiting.add(el));
+    if (!development || reportedGestures.has(name)) return;
+    reportedGestures.add(name);
+    console.error(`[@udixio/motion] Unknown gesture "${name}": it is bound once defineGesture defines it.`);
+  }
+
+  function undeferGesture(el: HTMLElement): void {
+    for (const [name, waiting] of pendingGestures) {
+      waiting.delete(el);
+      if (waiting.size === 0) pendingGestures.delete(name);
+    }
+  }
+
+  /** Destroy the gesture the scanner bound on `el`, while it is still the registered one, and forget the rest. */
+  function forgetGesture(el: HTMLElement): void {
+    const binding = boundGestures.get(el);
+    if (binding && gesturesModule()?.getGesture(el) === binding) binding.destroy();
+    boundGestures.delete(el);
+    undeferGesture(el);
+  }
+
   /** Bind the motion `ref` on `el`, unless the scanner has already bound a motion of its kind there. */
   function bindRef(el: HTMLElement, ref: MotionRef, entering: boolean): void {
     const kind = kindOf(ref.spec.verb);
@@ -267,6 +334,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     boundSequences.delete(el);
     undefer(el);
     forgetValues(el);
+    forgetGesture(el);
   }
 
   /**
@@ -311,7 +379,9 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
       if (record.type === 'childList') {
         // A node moved within the root keeps its binding: it is still under root when its removal is read.
         for (const el of Array.from(record.removedNodes).flatMap(scannedElements)) if (!root.contains(el)) forget(el);
-        for (const el of Array.from(record.addedNodes).flatMap(scannedElements)) if (root.contains(el) && !bound.has(el) && !boundValues.has(el) && !boundSequences.has(el)) bind(el, true);
+        for (const el of Array.from(record.addedNodes).flatMap(scannedElements)) {
+          if (root.contains(el) && !bound.has(el) && !boundValues.has(el) && !boundSequences.has(el) && !boundGestures.has(el)) bind(el, true);
+        }
         continue;
       }
       const el = record.target;
@@ -322,6 +392,9 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
       } else if (record.attributeName === 'data-motion-value') {
         forgetValues(el);
         bindValues(el);
+      } else if (record.attributeName === 'data-motion-gesture') {
+        forgetGesture(el);
+        bindGesture(el);
       } else if (record.attributeName === 'data-state') {
         ownBinding(el, 'emphasis')?.play();
       } else if (record.attributeName === 'data-motion-shared') {
@@ -342,7 +415,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     childList: true,
     subtree: true,
     attributes: true,
-    attributeFilter: ['data-motion', 'data-motion-shared', 'data-motion-paused', 'data-motion-value', 'data-state', 'hidden'],
+    attributeFilter: ['data-motion', 'data-motion-shared', 'data-motion-paused', 'data-motion-value', 'data-motion-gesture', 'data-state', 'hidden'],
   });
   const unsubscribe = onMotionDefined(ref => {
     const waiting = pending.get(ref.name);
@@ -368,6 +441,14 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
       for (const el of waiting) if (current(el) && valueNamesOf(el).includes(ref.name)) bindValue(api, el, ref.name);
     });
   });
+  const unsubscribeGestures = onGestureDefined(ref => {
+    const waiting = pendingGestures.get(ref.name);
+    if (!waiting) return;
+    pendingGestures.delete(ref.name);
+    whenGestures(api => {
+      for (const el of waiting) if (current(el) && gestureNameOf(el) === ref.name) bindGestureName(api, el, ref.name);
+    });
+  });
 
   return () => {
     live = false;
@@ -375,8 +456,10 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     unsubscribe();
     unsubscribeSequences();
     unsubscribeValues();
-    for (const el of new Set([...bound.keys(), ...boundSequences.keys(), ...boundValues.keys()])) forget(el);
+    unsubscribeGestures();
+    for (const el of new Set([...bound.keys(), ...boundSequences.keys(), ...boundValues.keys(), ...boundGestures.keys()])) forget(el);
     pending.clear();
     pendingValues.clear();
+    pendingGestures.clear();
   };
 }

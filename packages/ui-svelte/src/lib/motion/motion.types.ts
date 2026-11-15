@@ -47,6 +47,24 @@ export interface MotionValueAttachmentOptions {
 }
 
 /**
+ * Options of the `motionGesture` attachment. They are read through a getter, when an event arrives.
+ */
+export interface MotionGestureAttachmentOptions {
+  /**
+   * Called when a drag is released and has come to rest, with the offset it came to rest at in `detail`.
+   */
+  onDragEnd?: (event: CustomEvent<{ x: number; y: number }>) => void;
+  /**
+   * Called with each swipe. Calling `event.preventDefault()` keeps the element in place; removing it from a list needs none.
+   */
+  onSwipe?: (event: CustomEvent<{ direction: 'start' | 'end' }>) => void;
+  /**
+   * Called with each reorder step, before the element moves. Calling `event.preventDefault()` keeps the order as it is.
+   */
+  onReorder?: (event: CustomEvent<{ from: number; to: number }>) => void;
+}
+
+/**
  * Options of the `motionSequence` attachment. They are read through a getter, when the sequence binds.
  */
 export interface MotionSequenceAttachmentOptions {

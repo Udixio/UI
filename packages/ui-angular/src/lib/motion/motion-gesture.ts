@@ -1,0 +1,129 @@
+import {
+  Directive,
+  ElementRef,
+  HostListener,
+  afterRenderEffect,
+  inject,
+  input,
+  output,
+  untracked,
+  type OnDestroy,
+} from '@angular/core';
+import type { GestureBinding, GestureRef } from '@udixio/motion';
+import { gesture, onGestureDefined, resolveGesture } from '@udixio/motion/gesture';
+
+/**
+ * Binds a gesture now, or as soon as the named gesture is defined: until then the element is not touched, so a render never
+ * throws because of a gesture. Returns the function that destroys the binding.
+ */
+function bindGestureWhenDefined(
+  target: HTMLElement,
+  source: GestureRef | string,
+  onBound: (binding: GestureBinding) => void,
+): () => void {
+  let binding: GestureBinding | undefined;
+  let stopWaiting: (() => void) | undefined;
+  const bind = (ref: GestureRef | string) => {
+    binding = gesture(target, ref);
+    onBound(binding);
+  };
+  if (typeof source === 'string' && !resolveGesture(source)) {
+    stopWaiting = onGestureDefined((ref) => {
+      if (ref.name !== source) return;
+      stopWaiting?.();
+      stopWaiting = undefined;
+      bind(ref);
+    });
+  } else {
+    bind(source);
+  }
+  return () => {
+    stopWaiting?.();
+    stopWaiting = undefined;
+    binding?.destroy();
+    binding = undefined;
+  };
+}
+
+/**
+ * Gives the element it sits on a gesture of `@udixio/motion`: a drag that follows the pointer, a swipe that flies away, or a
+ * reorder among its siblings, with its keyboard alternative. Each event of the gesture is emitted on its output, as the
+ * `CustomEvent` the gesture dispatched: a handler that calls `$event.preventDefault()` keeps the element in place (a
+ * swipe) or the order as it is (a reorder).
+ *
+ * @status beta
+ * @devx
+ * - Bind it as `<li udxMotionGesture="swipe-dismiss" (udxSwipe)="remove(item)">`: a swiped row removes itself from the list.
+ * - A reorder list prevents the move and moves the item in its state, so the template renders the new order and the layout
+ *   motion animates it: `<li udxMotionGesture="reorder-row" (udxReorder)="onReorder($event)">`, with
+ *   `onReorder(event: CustomEvent<{ from: number; to: number }>) { event.preventDefault(); this.move(event.detail); }`.
+ * - Call `reset()` on the template reference `#row="udxMotionGesture"` to put the element back at offset 0.
+ * @limitations
+ * - The directive binds after the host has rendered, in the browser only: nothing is bound during server rendering.
+ */
+@Directive({
+  selector: '[udxMotionGesture]',
+  standalone: true,
+  exportAs: 'udxMotionGesture',
+})
+export class MotionGesture implements OnDestroy {
+  /** The gesture: the name of a defined gesture, or its definition. A change binds the element again. */
+  readonly source = input.required<GestureRef | string>({ alias: 'udxMotionGesture' });
+  /** Emits the release of a drag, once it has come to rest; its `detail` is the offset `{ x, y }` it came to rest at. */
+  readonly dragEnd = output<CustomEvent<{ x: number; y: number }>>({ alias: 'udxDragEnd' });
+  /** Emits each swipe, before it flies out. Preventing it keeps the element in place. */
+  readonly swipe = output<CustomEvent<{ direction: 'start' | 'end' }>>({ alias: 'udxSwipe' });
+  /** Emits each reorder step, before the element moves. Preventing it keeps the order. */
+  readonly reorder = output<CustomEvent<{ from: number; to: number }>>({ alias: 'udxReorder' });
+
+  private readonly host = inject(ElementRef<HTMLElement>);
+  private binding?: GestureBinding;
+  private destroyBinding?: () => void;
+  private boundKey?: string;
+
+  constructor() {
+    // Browser only, after the host has rendered. A change of the name binds again.
+    afterRenderEffect(() => {
+      const source = this.source();
+      const key = typeof source === 'string' ? source : source.name;
+      if (key === this.boundKey) return;
+      untracked(() => {
+        this.unbind();
+        this.boundKey = key;
+        this.destroyBinding = bindGestureWhenDefined(this.host.nativeElement, source, (binding) => {
+          this.binding = binding;
+        });
+      });
+    });
+  }
+
+  /** Puts the element back at offset 0, with the release spring. Does nothing before the element is bound. */
+  reset(): void {
+    this.binding?.reset();
+  }
+
+  @HostListener('motion-dragend', ['$event'])
+  protected onDragEnd(event: Event): void {
+    this.dragEnd.emit(event as CustomEvent<{ x: number; y: number }>);
+  }
+
+  @HostListener('motion-swipe', ['$event'])
+  protected onSwipe(event: Event): void {
+    this.swipe.emit(event as CustomEvent<{ direction: 'start' | 'end' }>);
+  }
+
+  @HostListener('motion-reorder', ['$event'])
+  protected onReorder(event: Event): void {
+    this.reorder.emit(event as CustomEvent<{ from: number; to: number }>);
+  }
+
+  ngOnDestroy(): void {
+    this.unbind();
+  }
+
+  private unbind(): void {
+    this.binding = undefined;
+    this.destroyBinding?.();
+    this.destroyBinding = undefined;
+  }
+}

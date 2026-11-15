@@ -88,6 +88,7 @@ export default defineConfig(async () => ({
         '@udixio/motion',
         '@udixio/motion/value',
         '@udixio/motion/sequence',
+        '@udixio/motion/gesture',
         '@udixio/theme',
         '@udixio/tailwind',
         'motion/react',

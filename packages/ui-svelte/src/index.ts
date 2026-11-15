@@ -28,8 +28,10 @@ export type {
 export { motion, presence } from './lib/motion/motion.attachment.svelte';
 export { motionValue, getMotionValue } from './lib/motion/value.attachment.svelte';
 export { motionSequence } from './lib/motion/sequence.attachment.svelte';
+export { motionGesture } from './lib/motion/gesture.attachment.svelte';
 export type {
   MotionAttachmentOptions,
+  MotionGestureAttachmentOptions,
   MotionSequenceAttachmentOptions,
   MotionValueAttachmentOptions,
 } from './lib/motion/motion.types';

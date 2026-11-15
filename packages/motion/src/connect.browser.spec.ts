@@ -1,15 +1,21 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { getMotion, getMotions, motion, motionWhenDefined } from './bind.js';
 import { connectMotion } from './connect.js';
+import { defineGesture } from './gesture.js';
 import { defineMotion } from './define-motion.js';
+import { gesturesModule, loadGestures } from './feature-loader.js';
 import { defineValue } from './value.js';
 import { getValue } from './value-binding.js';
 import { fade, press, reflow, slide } from './presets.js';
 import { waapiProvider } from './providers/waapi.js';
 import { loadLayoutEngine } from './layout-loader.js';
 
-// The layout motions of this file follow at once: the engine is loaded before the first test.
+// The layout motions of this file follow at once: the engine is loaded before the first test, and so is the gestures module.
 await loadLayoutEngine();
+await loadGestures();
+
+defineGesture('connect-card', { kind: 'drag', bounds: 'none', alternative: 'arrows' });
+defineGesture('connect-dismiss', { kind: 'swipe', alternative: 'action' });
 
 defineMotion('connect-fade', fade.spec);
 defineMotion('connect-press', press.spec);
@@ -543,6 +549,90 @@ it('binds a loop listed in data-motion: it plays forever, with no error in devel
   expect(el.getAnimations()).toHaveLength(1);
   expect((el.getAnimations()[0].effect as KeyframeEffect).getTiming().iterations).toBe(Infinity);
   expect(error).not.toHaveBeenCalled();
+});
+
+/** The gesture the scanner bound on an element, once the gestures module is loaded. */
+const gestureOf = (el: Element) => gesturesModule()?.getGesture(el);
+
+/** A pointer event of `type` on an element, held by the primary button. */
+function pointerAt(el: Element, type: 'pointerdown' | 'pointermove' | 'pointerup', x: number, y: number): void {
+  el.dispatchEvent(
+    new PointerEvent(type, {
+      pointerId: 1,
+      isPrimary: true,
+      pointerType: 'mouse',
+      button: 0,
+      buttons: type === 'pointerup' ? 0 : 1,
+      clientX: x,
+      clientY: y,
+      bubbles: true,
+      cancelable: true,
+    }),
+  );
+}
+
+it('binds the gesture named by data-motion-gesture, and a pointer drag follows the pointer', () => {
+  const el = document.createElement('div');
+  el.dataset.motionGesture = 'connect-card';
+  el.style.cssText = 'width:100px;height:100px';
+  root.append(el);
+  connect();
+  const binding = gestureOf(el);
+  expect(binding?.kind).toBe('drag');
+  const { left, top } = el.getBoundingClientRect();
+  pointerAt(el, 'pointerdown', left + 10, top + 50);
+  pointerAt(el, 'pointermove', left + 60, top + 50);
+  expect(binding?.offset).toEqual({ x: 50, y: 0 });
+  expect(Math.abs(el.getBoundingClientRect().left - (left + 50))).toBeLessThanOrEqual(0.5);
+  pointerAt(el, 'pointerup', left + 60, top + 50);
+});
+
+it('binds a gesture on an element inserted after the scan', async () => {
+  connect();
+  const el = document.createElement('div');
+  el.dataset.motionGesture = 'connect-dismiss';
+  root.append(el);
+  await tick();
+  expect(gestureOf(el)?.kind).toBe('swipe');
+});
+
+it('waits for an undefined gesture name, and binds it once defineGesture defines it', () => {
+  const el = document.createElement('div');
+  el.dataset.motionGesture = 'connect-gesture-later';
+  root.append(el);
+  connect();
+  expect(gestureOf(el)).toBeUndefined();
+  defineGesture('connect-gesture-later', { kind: 'swipe', alternative: 'action' });
+  expect(gestureOf(el)?.kind).toBe('swipe');
+});
+
+it('destroys the gesture the scanner bound when the element is removed, and gives back its touch-action', async () => {
+  const el = document.createElement('div');
+  el.dataset.motionGesture = 'connect-card';
+  root.append(el);
+  connect();
+  expect(el.style.touchAction).toBe('none');
+  el.remove();
+  await tick();
+  expect(gestureOf(el)).toBeUndefined();
+  expect(el.style.touchAction).toBe('');
+  expect(el.hasAttribute('tabindex')).toBe(false);
+});
+
+it('binds the new gesture when data-motion-gesture changes, and unbinds it when the attribute is removed', async () => {
+  const el = document.createElement('div');
+  el.dataset.motionGesture = 'connect-card';
+  root.append(el);
+  connect();
+  const first = gestureOf(el);
+  expect(first).toBeDefined();
+  el.dataset.motionGesture = 'connect-dismiss';
+  await tick();
+  expect(gestureOf(el)?.kind).toBe('swipe');
+  expect(gestureOf(el)).not.toBe(first);
+  el.removeAttribute('data-motion-gesture');
+  await tick();
+  expect(gestureOf(el)).toBeUndefined();
 });
 
 it('binds a loop by name as soon as it is bound, and it plays forever until it is destroyed', () => {
