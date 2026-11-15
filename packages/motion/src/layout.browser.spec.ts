@@ -508,3 +508,175 @@ it('an interrupted curve move starts from rest, with two keyframes', async () =>
   await Promise.resolve();
   expect(keyframeCount(box)).toBe(2);
 });
+
+/** A card of 200 px that grows to 400 px, with children of fixed size that keep their own shape. */
+const cardCss = `
+  .card { display: flex; align-items: center; width: 200px; height: 60px; padding: 0 20px; box-sizing: border-box; }
+  .card.wide { width: 400px; }
+  .child { flex: none; width: 80px; height: 20px; }
+  .child.centred { margin: 0 auto; }
+  .child.right { margin-left: auto; }
+  .title { flex: 1; margin: 0; }
+  .inner { flex: 1; display: flex; }
+  .tiny { flex: none; width: 30px; height: 10px; margin-left: auto; }
+  .label { flex: none; margin-left: auto; }
+`;
+
+/** The shares of a move at which its content is checked. */
+const SHARES = [0.15, 0.3, 0.6];
+
+/** Pause the move of `root` and of every element under it, and set all of them to `ms` of their own time. */
+function seekAll(handle: MotionHandle, root: HTMLElement, ms: number): void {
+  handle.pause();
+  handle.seek(ms);
+  for (const element of [root, ...root.querySelectorAll<HTMLElement>('*')]) {
+    for (const animation of element.getAnimations()) {
+      animation.pause();
+      animation.currentTime = ms;
+    }
+  }
+}
+
+/** The element is `width` by `height` as measured on screen, within half a pixel. */
+function expectSize(element: HTMLElement, width: number, height: number): void {
+  const r = element.getBoundingClientRect();
+  expect(Math.abs(r.width - width), `width measured ${r.width}, expected ${width}`).toBeLessThanOrEqual(0.5);
+  expect(Math.abs(r.height - height), `height measured ${r.height}, expected ${height}`).toBeLessThanOrEqual(0.5);
+}
+
+it('a child keeps its size while its card resizes, and the card shows an intermediate width', async () => {
+  page(cardCss, '<div class="card" id="card"><div class="child" id="child"></div></div>');
+  const card = byId('card');
+  const child = byId('child');
+  const binding = bindTo(card);
+  card.classList.add('wide');
+  await Promise.resolve();
+  const handle = moving(binding);
+  for (const share of SHARES) {
+    seekAll(handle, card, share * handle.duration);
+    const width = card.getBoundingClientRect().width;
+    expect(width, `card width ${width} at ${share * 100} %`).toBeGreaterThan(200);
+    expectSize(child, 80, 20);
+  }
+});
+
+it('[Review Focus 2] a centred child stays centred, and a child at the right keeps 20 px to the right edge', async () => {
+  page(
+    cardCss,
+    '<div class="card" id="card-a"><div class="child centred" id="centred"></div></div><div class="card" id="card-b"><div class="child right" id="right"></div></div>',
+  );
+  const a = byId('card-a');
+  const b = byId('card-b');
+  const bindingA = bindTo(a);
+  const bindingB = bindTo(b);
+  a.classList.add('wide');
+  b.classList.add('wide');
+  await Promise.resolve();
+  const handleA = moving(bindingA);
+  const handleB = moving(bindingB);
+  for (const share of SHARES) {
+    seekAll(handleA, a, share * handleA.duration);
+    seekAll(handleB, b, share * handleB.duration);
+    const card = a.getBoundingClientRect();
+    const centred = byId('centred').getBoundingClientRect();
+    const offset = centred.left + centred.width / 2 - (card.left + card.width / 2);
+    expect(Math.abs(offset), `centre offset ${offset} px at ${share * 100} %`).toBeLessThanOrEqual(1);
+    const cardB = b.getBoundingClientRect();
+    const right = byId('right').getBoundingClientRect();
+    const gap = cardB.right - right.right;
+    expect(Math.abs(gap - 20), `right gap ${gap} px at ${share * 100} %`).toBeLessThanOrEqual(1);
+  }
+});
+
+it('a block title with text keeps its final width, and its start edge stays 20 px from the left', async () => {
+  page(cardCss, '<div class="card" id="card"><h3 class="title" id="title">Title</h3></div>');
+  const card = byId('card');
+  const title = byId('title');
+  const binding = bindTo(card);
+  card.classList.add('wide');
+  await Promise.resolve();
+  const handle = moving(binding);
+  for (const share of SHARES) {
+    seekAll(handle, card, share * handle.duration);
+    const r = title.getBoundingClientRect();
+    const c = card.getBoundingClientRect();
+    expect(Math.abs(r.width - 360), `title width ${r.width} px at ${share * 100} %`).toBeLessThanOrEqual(0.5);
+    expect(Math.abs(r.left - c.left - 20), `title edge ${r.left - c.left} px at ${share * 100} %`).toBeLessThanOrEqual(1);
+  }
+});
+
+it('the innermost child of a nested box keeps its size', async () => {
+  page(cardCss, '<div class="card" id="card"><div class="inner" id="inner"><div class="tiny" id="tiny"></div></div></div>');
+  const card = byId('card');
+  const tiny = byId('tiny');
+  const binding = bindTo(card);
+  card.classList.add('wide');
+  await Promise.resolve();
+  const handle = moving(binding);
+  for (const share of SHARES) {
+    seekAll(handle, card, share * handle.duration);
+    expectSize(tiny, 30, 10);
+  }
+});
+
+it('[Review Focus 5] a text change seen without a move is in the cache before the next move', async () => {
+  page(cardCss, '<div class="card" id="card"><span class="label" id="label">Short</span></div>');
+  const card = byId('card');
+  const label = byId('label');
+  const binding = bindTo(card);
+  (label.firstChild as Text).data = 'A much longer label';
+  await Promise.resolve();
+  expect(binding.handle).toBeNull();
+  const before = local(label, card);
+  card.classList.add('wide');
+  await Promise.resolve();
+  const handle = moving(binding);
+  const finalLeft = 380 - before.width; // right-aligned in a 400 px card with 20 px padding
+  for (const share of SHARES) {
+    seekAll(handle, card, share * handle.duration);
+    const q = (card.getBoundingClientRect().width - 200) / 200;
+    const expected = before.left + (finalLeft - before.left) * q;
+    const actual = local(label, card).left;
+    expect(Math.abs(actual - expected), `left ${actual} px, interpolation ${expected} px at ${share * 100} %`).toBeLessThanOrEqual(1);
+  }
+});
+
+it('once finished, nothing under the card keeps an inline transform or an animation', async () => {
+  page(cardCss, '<div class="card" id="card"><div class="child" id="child"></div><h3 class="title">Title</h3><div class="inner"><div class="tiny"></div></div></div>');
+  const card = byId('card');
+  const binding = bindTo(card);
+  card.classList.add('wide');
+  await Promise.resolve();
+  expect(byId('child').getAnimations()).toHaveLength(1);
+  await moving(binding).finished;
+  for (const element of [card, ...card.querySelectorAll<HTMLElement>('*')]) {
+    expect(element.style.translate).toBe('');
+    expect(element.style.scale).toBe('');
+    expect(element.getAnimations()).toHaveLength(0);
+  }
+});
+
+it('a card that only moves animates none of its children', async () => {
+  page(css() + cardCss, '<div class="row" id="row"><div class="card" id="card"><div class="child" id="child"></div></div></div>');
+  const row = byId('row');
+  const card = byId('card');
+  const binding = bindTo(card);
+  row.classList.add('end');
+  await Promise.resolve();
+  expect(binding.handle).not.toBeNull();
+  expect(byId('child').getAnimations()).toHaveLength(0);
+  await moving(binding).finished;
+});
+
+it('a card of 30 children animates at most 24 of them', async () => {
+  const children = Array.from({ length: 30 }, () => '<div class="child"></div>').join('');
+  page(cardCss, `<div class="card" id="card">${children}</div>`);
+  const card = byId('card');
+  const binding = bindTo(card);
+  card.classList.add('wide');
+  await Promise.resolve();
+  const animated = Array.from(card.querySelectorAll<HTMLElement>('*')).filter(element => element.getAnimations().length > 0);
+  expect(animated.length, `${animated.length} children animated`).toBeGreaterThan(0);
+  expect(animated.length, `${animated.length} children animated`).toBeLessThanOrEqual(24);
+  await moving(binding).finished;
+});
