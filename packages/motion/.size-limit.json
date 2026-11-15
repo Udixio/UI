@@ -1,6 +1,8 @@
 [
-  { "name": "core", "path": "dist/index.js", "import": "*", "gzip": true, "ignore": ["./layout.js"], "limit": "18.1 kB" },
+  { "name": "core", "path": "dist/index.js", "import": "*", "gzip": true, "ignore": ["./layout.js", "./value.js", "./sequence.js"], "limit": "19.2 kB" },
   { "name": "layout", "path": "dist/layout.js", "import": "*", "gzip": true, "limit": "12.3 kB" },
+  { "name": "value", "path": "dist/value.js", "import": "*", "gzip": true, "limit": "10.9 kB" },
+  { "name": "sequence", "path": "dist/sequence.js", "import": "*", "gzip": true, "limit": "14.3 kB" },
   { "name": "presets", "path": "dist/presets.js", "import": "*", "gzip": true, "limit": "2.4 kB" },
   { "name": "policy", "path": "dist/policy.js", "import": "*", "gzip": true, "limit": "0.9 kB" },
   { "name": "manifest", "path": "dist/manifest.js", "import": "*", "gzip": true, "limit": "2.8 kB" },

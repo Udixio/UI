@@ -47,10 +47,56 @@ test('layout entry point is public in both export maps', () => {
   });
 });
 
+test('value and sequence entry points are public in both export maps', () => {
+  for (const name of ['value', 'sequence']) {
+    assert.deepEqual(pkg.exports[`./${name}`], {
+      development: `./src/${name}-entry.ts`, types: `./dist/${name}.d.ts`,
+      import: `./dist/${name}.js`, require: `./dist/${name}.cjs`, default: `./dist/${name}.js`,
+    });
+    assert.deepEqual(pkg.publishConfig.exports[`./${name}`], {
+      types: `./dist/${name}.d.ts`, import: `./dist/${name}.js`,
+      require: `./dist/${name}.cjs`, default: `./dist/${name}.js`,
+    });
+  }
+});
+
 test('the main entry loads the layout engine with a dynamic import only', async () => {
   const index = await readFile(new URL('dist/index.js', root), 'utf8');
   assert.match(index, /import\(["']\.\/layout\.js["']\)/);
   assert.doesNotMatch(index, /^import\b[^;]*["']\.\/layout\.js["']/m);
+});
+
+/** The source of each file a built entry loads at once: its static imports, followed through the chunks it imports. */
+async function staticClosure(entry) {
+  const files = new Map();
+  const queue = [new URL(entry, root)];
+  while (queue.length > 0) {
+    const file = queue.shift();
+    if (files.has(file.href)) continue;
+    const code = await readFile(file, 'utf8');
+    files.set(file.href, code);
+    for (const match of code.matchAll(/^import\s[^;]*?["'](\.[^"']+)["']/gm)) queue.push(new URL(match[1], file));
+    for (const match of code.matchAll(/(?:^|[=,;])\s*require\(["'](\.[^"']+)["']\)/gm)) queue.push(new URL(match[1], file));
+  }
+  return [...files.values()];
+}
+
+test('the main entry reaches values and sequences only through dynamic imports, and holds neither their code', async () => {
+  // The loaders may sit in a chunk the main entry imports: the check follows the static imports from the entry.
+  for (const [entry, extension] of [['dist/index.js', 'js'], ['dist/index.cjs', 'cjs']]) {
+    const sources = await staticClosure(entry);
+    for (const name of ['value', 'sequence']) {
+      const dynamicImport = extension === 'js'
+        ? new RegExp(`import\\(["']\\./${name}\\.js["']\\)`)
+        : new RegExp(`=>\\s*require\\(["']\\./${name}\\.cjs["']\\)`);
+      const staticImport = extension === 'js'
+        ? new RegExp(`^import\\s[^;]*["']\\./${name}\\.js["']`, 'm')
+        : new RegExp(`(?:^|[=,;])\\s*require\\(["']\\./${name}\\.cjs["']\\)`, 'm');
+      assert.ok(sources.some(code => dynamicImport.test(code)), `${entry} does not load ./${name} dynamically`);
+      for (const code of sources) assert.doesNotMatch(code, staticImport);
+    }
+    for (const code of sources) assert.doesNotMatch(code, /Invalid value spec|Invalid sequence spec|udx-motion-value-/);
+  }
 });
 
 test('a named runtime key import does not include the manifest', async () => {

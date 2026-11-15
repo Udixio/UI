@@ -1,3 +1,4 @@
+import { provideValues } from './feature-loader.js';
 import { motionManifest } from './manifest.js';
 import { motionDisabled } from './play.js';
 import { getMotionRuntime, retainMotionRuntime, type MotionRuntime } from './runtime.js';
@@ -457,3 +458,6 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
 function periodOf(spec: Readonly<ValueSpec>): number {
   return resolveCurve(spec.timing ?? motionManifest.defaults.loop.curve).duration;
 }
+
+// Once this module has evaluated, the scanner binds values at once, without loading it again.
+provideValues({ value, getValue });

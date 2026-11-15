@@ -1,6 +1,9 @@
 import { motionManifest, NAME_PATTERN, type MotionValidationCode } from './manifest.js';
 import type { SpringRef } from './motion-spec.js';
+import { valueDefinitions, valueListeners } from './registries.js';
 import type { CurveTiming } from './tokens.js';
+
+export { onValueDefined, resolveValue } from './registries.js';
 
 /** Where a value comes from: the pointer, the document scroll, a state the page sets, or a time loop. */
 export type ValueSource = 'pointer' | 'scroll' | 'state' | 'time';
@@ -32,11 +35,8 @@ export interface ValueRef<N extends string = string> {
   readonly spec: Readonly<ValueSpec>;
 }
 
-type Listener = (ref: ValueRef) => void;
 type Issue = { path: string; code: MotionValidationCode };
 
-const DEFINITIONS = Symbol.for('udixio.motion.values.preview.1');
-const LISTENERS = Symbol.for('udixio.motion.value-listeners.preview.1');
 const SOURCES: readonly string[] = ['pointer', 'scroll', 'state', 'time'];
 const FIELDS: readonly string[] = ['source', 'axis', 'range', 'spring', 'timing', 'format', 'currency'];
 const FORMATS: readonly string[] = ['integer', 'decimal', 'percent', 'currency'];
@@ -45,19 +45,6 @@ const AXES: Record<'pointer' | 'scroll', readonly string[]> = { pointer: ['x', '
 const DEFAULT_SPRING: SpringRef = 'spring.default.spatial';
 /** A formatted value is critically damped: a count goes to its value and never overshoots it. */
 const COUNTER_SPRING: SpringRef = 'spring.default.effects';
-
-/** Registries live on globalThis so that every copy of the package shares them. */
-const shared = globalThis as unknown as Record<symbol, unknown>;
-
-function definitions(): Map<string, ValueRef> {
-  shared[DEFINITIONS] ??= new Map<string, ValueRef>();
-  return shared[DEFINITIONS] as Map<string, ValueRef>;
-}
-
-function listeners(): Set<Listener> {
-  shared[LISTENERS] ??= new Set<Listener>();
-  return shared[LISTENERS] as Set<Listener>;
-}
 
 function oneOf(values: readonly string[], value: unknown): boolean {
   return typeof value === 'string' && values.includes(value);
@@ -182,7 +169,7 @@ export function validateValueSpec(spec: unknown): Readonly<ValueSpec> {
 export function defineValue<N extends string>(name: N, spec: ValueSpec): ValueRef<N> {
   if (!NAME_PATTERN.test(name)) throw new TypeError(`Value name "${name}" must be kebab-case`);
   const validated = validateValueSpec(spec);
-  const registry = definitions();
+  const registry = valueDefinitions();
   const existing = registry.get(name);
   if (existing) {
     if (JSON.stringify(existing.spec) === JSON.stringify(validated)) return existing as ValueRef<N>;
@@ -190,7 +177,7 @@ export function defineValue<N extends string>(name: N, spec: ValueSpec): ValueRe
   }
   const ref = Object.freeze({ name, spec: validated });
   registry.set(name, ref);
-  for (const listener of [...listeners()]) {
+  for (const listener of [...valueListeners()]) {
     try {
       listener(ref);
     } catch (error) {
@@ -198,17 +185,4 @@ export function defineValue<N extends string>(name: N, spec: ValueSpec): ValueRe
     }
   }
   return ref;
-}
-
-export function resolveValue(name: string): ValueRef | undefined {
-  return definitions().get(name);
-}
-
-/** Call `listener` for each newly defined value; returns an unsubscribe function. */
-export function onValueDefined(listener: Listener): () => void {
-  const set = listeners();
-  set.add(listener);
-  return () => {
-    set.delete(listener);
-  };
 }

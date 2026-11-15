@@ -1,10 +1,11 @@
 import { getMotion, motion, type MotionBinding } from './bind.js';
 import { definedMotions, kindOf, onMotionDefined, resolveMotion, type MotionKind, type MotionRef } from './define-motion.js';
+import { loadSequences, loadValues, sequencesModule, valuesModule, type SequenceApi, type ValueApi } from './feature-loader.js';
 import { flushLayoutAround } from './layout-loader.js';
 import { NAME_PATTERN } from './manifest.js';
-import { getSequence, onSequenceDefined, resolveSequence, sequence, type SequenceBinding, type SequenceRef } from './sequence.js';
-import { onValueDefined, resolveValue } from './value.js';
-import { getValue, value, type ValueBinding } from './value-binding.js';
+import { onSequenceDefined, onValueDefined, resolveSequence, resolveValue } from './registries.js';
+import type { SequenceBinding } from './sequence.js';
+import type { ValueBinding } from './value-binding.js';
 
 export interface ConnectOptions {
   root?: Document | Element;
@@ -54,8 +55,8 @@ function sharedOf(el: HTMLElement, development: boolean): string | undefined {
  * list several motions, one per kind. A `data-motion-shared` gives the layout motion of the element a shared
  * identity: it morphs from the place of another element with the same key. A `data-motion-value` binds the named values
  * of the element, each written as a variable there. A `data-motion` name that is a defined sequence binds the sequence
- * on the element; its `data-motion-step` children need no scanning of their own. The returned function disconnects the
- * scanner and destroys its bindings.
+ * on the element; its `data-motion-step` children need no scanning of their own. The values and the sequences are loaded
+ * the first time a page meets one of them. The returned function disconnects the scanner and destroys its bindings.
  */
 export function connectMotion(options: ConnectOptions = {}): () => void {
   const root = options.root ?? document;
@@ -72,6 +73,33 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   const reported = new Set<string>();
   const reportedValues = new Set<string>();
   const conflicts = new WeakSet<HTMLElement>();
+  /** False once the scanner is disconnected: a module that loads after that binds nothing. */
+  let live = true;
+
+  /** Whether `el` is still under the root: a binding for an element that has left it is not made. */
+  const current = (el: HTMLElement): boolean => live && root.contains(el);
+
+  /**
+   * Run `task` with a module's functions: now when the module has evaluated, else once the scanner has loaded it. A
+   * failed load is reported in development only, and the elements it was for stay as they are.
+   */
+  function whenLoaded<A>(loaded: () => A | undefined, load: () => Promise<void>, task: (api: A) => void, what: string): void {
+    const api = loaded();
+    if (api) {
+      task(api);
+      return;
+    }
+    load()
+      .then(() => {
+        const later = loaded();
+        if (later && live) task(later);
+      })
+      .catch((error: unknown) => {
+        if (development) console.error(`[@udixio/motion] The ${what} module failed to load:`, error);
+      });
+  }
+  const whenValues = (task: (api: ValueApi) => void) => whenLoaded(valuesModule, loadValues, task, 'values');
+  const whenSequences = (task: (api: SequenceApi) => void) => whenLoaded(sequencesModule, loadSequences, task, 'sequences');
 
   /** Bind the names of `el`, in order. A motion wins over a sequence of the same name; an undefined name waits alone. */
   function bind(el: HTMLElement, entering: boolean): void {
@@ -82,34 +110,59 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
         bindRef(el, ref, entering);
         continue;
       }
-      const sequenceRef = resolveSequence(name);
-      if (sequenceRef) bindSequence(el, sequenceRef, entering);
+      if (resolveSequence(name)) bindSequenceName(el, name, entering);
       else defer(el, name);
     }
     bindValues(el);
   }
 
-  /** Bind the sequence `ref` on `el`, unless the scanner already holds a sequence there that is still the registered one. */
-  function bindSequence(el: HTMLElement, ref: SequenceRef, entering: boolean): void {
+  /**
+   * Bind the sequence `name` on `el` once the sequences module is loaded, at once when it is. A motion of that name that
+   * is defined by then wins, as it does at bind; an element that no longer carries the name binds nothing.
+   */
+  function bindSequenceName(el: HTMLElement, name: string, entering: boolean): void {
+    whenSequences(api => {
+      if (!current(el) || !namesOf(el).includes(name)) return;
+      const ref = resolveMotion(name);
+      if (ref) bindRef(el, ref, entering);
+      else bindSequence(api, el, name, entering);
+    });
+  }
+
+  /** Bind the sequence `name` on `el`, unless the scanner already holds a sequence there that is still the registered one. */
+  function bindSequence(api: SequenceApi, el: HTMLElement, name: string, entering: boolean): void {
+    const ref = resolveSequence(name);
+    if (!ref) return;
     const owned = boundSequences.get(el);
-    if (owned && getSequence(el) === owned) return;
-    boundSequences.set(el, sequence(el, ref, { settled: !entering, development }));
+    if (owned && api.getSequence(el) === owned) return;
+    boundSequences.set(el, api.sequence(el, ref, { settled: !entering, development }));
+  }
+
+  /** Bind the value names of `el`, in order, once the values module is loaded; an element with no value name loads nothing. */
+  function bindValues(el: HTMLElement): void {
+    if (valueNamesOf(el).length === 0) {
+      undeferValues(el);
+      return;
+    }
+    whenValues(api => {
+      if (current(el)) bindValueNames(api, el);
+    });
   }
 
   /** Bind the value names of `el`, in order. An undefined name waits alone until it is defined. */
-  function bindValues(el: HTMLElement): void {
+  function bindValueNames(api: ValueApi, el: HTMLElement): void {
     undeferValues(el);
     for (const name of valueNamesOf(el)) {
-      if (resolveValue(name)) bindValue(el, name);
+      if (resolveValue(name)) bindValue(api, el, name);
       else deferValue(el, name);
     }
   }
 
   /** Bind the value `name` on `el`, unless the scanner already holds it there and it is still the registered one. */
-  function bindValue(el: HTMLElement, name: string): void {
+  function bindValue(api: ValueApi, el: HTMLElement, name: string): void {
     const owned = boundValues.get(el)?.get(name);
-    if (owned && getValue(el, name) === owned) return;
-    const binding = value(el, name, { development });
+    if (owned && api.getValue(el, name) === owned) return;
+    const binding = api.value(el, name, { development });
     let map = boundValues.get(el);
     if (!map) boundValues.set(el, (map = new Map()));
     map.set(name, binding);
@@ -133,8 +186,9 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
 
   /** Destroy the values the scanner bound on `el`, the ones still registered, and forget the rest. */
   function forgetValues(el: HTMLElement): void {
+    const api = valuesModule();
     boundValues.get(el)?.forEach((binding, name) => {
-      if (getValue(el, name) === binding) binding.destroy();
+      if (api?.getValue(el, name) === binding) binding.destroy();
     });
     boundValues.delete(el);
     undeferValues(el);
@@ -209,7 +263,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     for (const kind of bound.get(el)?.keys() ?? []) ownBinding(el, kind)?.destroy();
     bound.delete(el);
     const sequenceBinding = boundSequences.get(el);
-    if (sequenceBinding && getSequence(el) === sequenceBinding) sequenceBinding.destroy();
+    if (sequenceBinding && sequencesModule()?.getSequence(el) === sequenceBinding) sequenceBinding.destroy();
     boundSequences.delete(el);
     undefer(el);
     forgetValues(el);
@@ -302,16 +356,21 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     if (!waiting) return;
     pending.delete(ref.name);
     // A sequence bound once its name is defined is settled: it does not play on the page it was waiting for.
-    for (const el of waiting) if (root.contains(el) && namesOf(el).includes(ref.name)) bindSequence(el, ref, false);
+    whenSequences(api => {
+      for (const el of waiting) if (current(el) && namesOf(el).includes(ref.name)) bindSequence(api, el, ref.name, false);
+    });
   });
   const unsubscribeValues = onValueDefined(ref => {
     const waiting = pendingValues.get(ref.name);
     if (!waiting) return;
     pendingValues.delete(ref.name);
-    for (const el of waiting) if (root.contains(el) && valueNamesOf(el).includes(ref.name)) bindValue(el, ref.name);
+    whenValues(api => {
+      for (const el of waiting) if (current(el) && valueNamesOf(el).includes(ref.name)) bindValue(api, el, ref.name);
+    });
   });
 
   return () => {
+    live = false;
     observer.disconnect();
     unsubscribe();
     unsubscribeSequences();

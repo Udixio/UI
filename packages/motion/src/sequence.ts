@@ -1,13 +1,17 @@
 import { composeHandles, settledHandle } from './compose.js';
 import type { MotionHandle, VisualFrame } from './contract.js';
 import { assertName, validateMotionSpec, type MotionSpec } from './define-motion.js';
+import { provideSequences } from './feature-loader.js';
 import { motionManifest, NAME_PATTERN, validateMotionDocument, type MotionValidationCode } from './manifest.js';
 import type { ReducedRender, SpringRef } from './motion-spec.js';
 import { applyFrame, playMotion, releaseFrame } from './play.js';
+import { resolveSequence, sequenceDefinitions, sequenceListeners } from './registries.js';
 import { getMotionRuntime, retainMotionRuntime, type MotionRuntime } from './runtime.js';
 import { staggerCap, staggerDelay, staggerStep, visualRanks, type StaggerOptions } from './stagger.js';
 import type { CurveTiming } from './tokens.js';
 import { watchView } from './viewport.js';
+
+export { onSequenceDefined, resolveSequence } from './registries.js';
 
 /** One group of elements of a sequence: the children of the root that carry its `data-motion-step`. */
 export interface SequenceStep {
@@ -46,28 +50,13 @@ export interface SequenceBinding {
   destroy(): void;
 }
 
-type Listener = (ref: SequenceRef) => void;
 type Token = NonNullable<SequenceStep['stagger']>;
 
-const DEFINITIONS = Symbol.for('udixio.motion.sequences.preview.1');
-const LISTENERS = Symbol.for('udixio.motion.sequence-listeners.preview.1');
 const TOKENS: readonly Token[] = ['tight', 'normal', 'loose'];
 const VERBS: readonly string[] = ['appear', 'reveal'];
 const STEP_FIELDS = ['keyframes', 'timing', 'reduced', 'stagger', 'origin', 'at'] as const;
-/** Registries live on globalThis so that every copy of the package shares them. */
-const shared = globalThis as unknown as Record<symbol, unknown>;
 /** The sequence bound to each root. */
 const bindings = new WeakMap<Element, SequenceBinding>();
-
-function definitions(): Map<string, SequenceRef> {
-  shared[DEFINITIONS] ??= new Map<string, SequenceRef>();
-  return shared[DEFINITIONS] as Map<string, SequenceRef>;
-}
-
-function listeners(): Set<Listener> {
-  shared[LISTENERS] ??= new Set<Listener>();
-  return shared[LISTENERS] as Set<Listener>;
-}
 
 /** The stagger token of an `at` such as `+=normal`, or undefined. */
 function tokenOf(at: string): Token | undefined {
@@ -143,7 +132,7 @@ function canonicalOf(spec: SequenceSpec): Readonly<SequenceSpec> {
 export function defineSequence<N extends string>(name: N, spec: SequenceSpec): SequenceRef<N> {
   assertName(name, 'Sequence name');
   const canonical = canonicalOf(spec);
-  const registry = definitions();
+  const registry = sequenceDefinitions();
   const existing = registry.get(name);
   if (existing) {
     if (JSON.stringify(existing.spec) === JSON.stringify(canonical)) return existing as SequenceRef<N>;
@@ -151,7 +140,7 @@ export function defineSequence<N extends string>(name: N, spec: SequenceSpec): S
   }
   const ref = Object.freeze({ name, spec: canonical });
   registry.set(name, ref);
-  for (const listener of [...listeners()]) {
+  for (const listener of [...sequenceListeners()]) {
     try {
       listener(ref);
     } catch (error) {
@@ -159,19 +148,6 @@ export function defineSequence<N extends string>(name: N, spec: SequenceSpec): S
     }
   }
   return ref;
-}
-
-export function resolveSequence(name: string): SequenceRef | undefined {
-  return definitions().get(name);
-}
-
-/** Call `listener` for each newly defined sequence; returns an unsubscribe function. */
-export function onSequenceDefined(listener: Listener): () => void {
-  const set = listeners();
-  set.add(listener);
-  return () => {
-    set.delete(listener);
-  };
 }
 
 /** The sequence bound to a root, if any. */
@@ -364,3 +340,6 @@ export function sequence(root: HTMLElement, source: SequenceRef | string, option
   bindings.set(root, binding);
   return binding;
 }
+
+// Once this module has evaluated, the scanner binds sequences at once, without loading it again.
+provideSequences({ sequence, getSequence });

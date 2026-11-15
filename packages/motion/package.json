@@ -61,6 +61,18 @@
         "import": "./dist/layout.js",
         "require": "./dist/layout.cjs",
         "default": "./dist/layout.js"
+      },
+      "./value": {
+        "types": "./dist/value.d.ts",
+        "import": "./dist/value.js",
+        "require": "./dist/value.cjs",
+        "default": "./dist/value.js"
+      },
+      "./sequence": {
+        "types": "./dist/sequence.d.ts",
+        "import": "./dist/sequence.js",
+        "require": "./dist/sequence.cjs",
+        "default": "./dist/sequence.js"
       }
     }
   },
@@ -153,6 +165,20 @@
       "import": "./dist/layout.js",
       "require": "./dist/layout.cjs",
       "default": "./dist/layout.js"
+    },
+    "./value": {
+      "development": "./src/value-entry.ts",
+      "types": "./dist/value.d.ts",
+      "import": "./dist/value.js",
+      "require": "./dist/value.cjs",
+      "default": "./dist/value.js"
+    },
+    "./sequence": {
+      "development": "./src/sequence-entry.ts",
+      "types": "./dist/sequence.d.ts",
+      "import": "./dist/sequence.js",
+      "require": "./dist/sequence.cjs",
+      "default": "./dist/sequence.js"
     }
   },
   "dependencies": {
