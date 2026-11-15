@@ -71,19 +71,26 @@ function canonicalSpec(spec: MotionSpec): Readonly<MotionSpec> {
 /** Canonical specs by structure: structurally equal specs share one object, so bindings of one spec form one group. */
 const canonicalSpecs = new Map<string, Readonly<MotionSpec>>();
 
-/** Validate a spec and return its canonical frozen copy, shared by every structurally equal spec; throws `TypeError`. */
+/**
+ * Validate a spec and return its canonical frozen copy, shared by every structurally equal spec; throws `TypeError`.
+ * The manifest check runs in development only: a production build trusts the definition.
+ */
 export function validateMotionSpec(spec: unknown): Readonly<MotionSpec> {
-  const result = validateMotionDocument({
-    version: motionManifest.version,
-    spec,
-  });
-  if (!result.valid)
-    throw new TypeError(
-      `Invalid motion spec: ${result.errors
-        .map(({ path, code }) => `${path}: ${code}`)
-        .join('; ')}`,
-    );
-  const canonical = canonicalSpec(result.value.spec);
+  let checked = spec as MotionSpec;
+  if (process.env.NODE_ENV !== 'production') {
+    const result = validateMotionDocument({
+      version: motionManifest.version,
+      spec,
+    });
+    if (!result.valid)
+      throw new TypeError(
+        `Invalid motion spec: ${result.errors
+          .map(({ path, code }) => `${path}: ${code}`)
+          .join('; ')}`,
+      );
+    checked = result.value.spec;
+  }
+  const canonical = canonicalSpec(checked);
   const key = JSON.stringify(canonical);
   const cached = canonicalSpecs.get(key);
   if (cached) return cached;
@@ -93,7 +100,8 @@ export function validateMotionSpec(spec: unknown): Readonly<MotionSpec> {
 
 /**
  * Define a named motion. Re-defining a name with an identical spec returns the
- * existing reference; a different spec throws.
+ * existing reference; a different spec throws. The spec is validated in development only:
+ * a production build trusts the definition.
  */
 export function defineMotion<N extends string>(
   name: N,

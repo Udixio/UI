@@ -133,6 +133,26 @@ describe('validateMotionSpec', () => {
       validateMotionSpec({ verb: 'appear', keyframes: [{ scale: 1, scaleY: 2 }] }),
     ).toThrow('/spec/keyframes/0: conflict');
   });
+
+  it('does not validate in production and returns the frozen canonical copy', () => {
+    const valid = { verb: 'appear' as const, keyframes: [{ opacity: 1 }] };
+    const canonical = validateMotionSpec(valid);
+    const previous = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'production';
+    try {
+      const invalid = validateMotionSpec({
+        verb: 'appear',
+        keyframes: [{ opacity: 1, notAField: 2 }],
+      });
+      expect(Object.isFrozen(invalid)).toBe(true);
+      expect(Object.isFrozen(invalid.keyframes)).toBe(true);
+      expect(invalid.keyframes).toEqual([{ opacity: 1 }]);
+      expect(validateMotionSpec(valid)).toBe(canonical);
+    } finally {
+      if (previous === undefined) delete process.env.NODE_ENV;
+      else process.env.NODE_ENV = previous;
+    }
+  });
 });
 
 describe('validateMotionSpec identity', () => {
