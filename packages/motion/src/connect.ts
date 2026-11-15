@@ -1,6 +1,7 @@
 import { getMotion, motion, type MotionBinding } from './bind.js';
 import { definedMotions, kindOf, onMotionDefined, resolveMotion, type MotionKind, type MotionRef } from './define-motion.js';
 import { flushLayoutAround } from './layout-loader.js';
+import { NAME_PATTERN } from './manifest.js';
 
 export interface ConnectOptions {
   root?: Document | Element;
@@ -23,9 +24,18 @@ function namesOf(el: HTMLElement): string[] {
   return (el.getAttribute('data-motion') ?? '').split(/\s+/).filter(Boolean);
 }
 
-/** The shared identity of an element: its `data-motion-shared`, when it is not empty. */
-function sharedOf(el: HTMLElement): string | undefined {
-  return el.getAttribute('data-motion-shared') || undefined;
+/**
+ * The shared identity of an element: its `data-motion-shared`, when it is a kebab-case key. An empty value is no
+ * key; an invalid one is reported (in development) and ignored, so that one bad attribute never stops the scan.
+ */
+function sharedOf(el: HTMLElement, development: boolean): string | undefined {
+  const value = el.getAttribute('data-motion-shared');
+  if (!value) return undefined;
+  if (NAME_PATTERN.test(value)) return value;
+  if (development) {
+    console.error(`[@udixio/motion] data-motion-shared="${value}" is not a kebab-case key: the element is bound without a shared identity.`);
+  }
+  return undefined;
 }
 
 /**
@@ -66,7 +76,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
       }
       return;
     }
-    const binding = motion(el, ref, { present: !el.hasAttribute('hidden'), settled: !entering, development, shared: sharedOf(el) });
+    const binding = motion(el, ref, { present: !el.hasAttribute('hidden'), settled: !entering, development, shared: sharedOf(el, development) });
     let kinds = bound.get(el);
     if (!kinds) bound.set(el, (kinds = new Map()));
     kinds.set(kind, { name: ref.name, binding });

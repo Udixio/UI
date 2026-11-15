@@ -502,3 +502,29 @@ it('a changed data-motion-shared is the key the layout motion is bound under: th
   await tick();
   await swapToCard(thumb, card);
 });
+
+it('an invalid data-motion-shared is reported once and bound without a key: the scan goes on, and no exception escapes', async () => {
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  const errors: unknown[] = [];
+  const onError = (event: ErrorEvent) => errors.push(event.error);
+  window.addEventListener('error', onError);
+  const bad = make('connect-shared-move');
+  bad.dataset.motionShared = 'Pic';
+  const valid = make('connect-fade');
+  root.append(bad, valid);
+
+  expect(() => connect({ development: true })).not.toThrow();
+  await tick();
+  expect(getMotion(valid)).toBeDefined();
+  expect(getMotion(bad, 'layout')).toBeDefined();
+  expect(error).toHaveBeenCalledTimes(1);
+  expect(String(error.mock.calls[0]?.[0])).toContain('data-motion-shared="Pic"');
+
+  bad.dataset.motionShared = 'Bad Key';
+  await tick();
+  window.removeEventListener('error', onError);
+  expect(errors).toEqual([]);
+  expect(getMotion(bad, 'layout')).toBeDefined();
+  expect(error).toHaveBeenCalledTimes(2);
+  expect(String(error.mock.calls[1]?.[0])).toContain('data-motion-shared="Bad Key"');
+});
