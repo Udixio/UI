@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Layout motion benchmark</title>
+<style>
+  html, body { margin: 0; }
+  body { font: 12px/1 system-ui, sans-serif; }
+  .col { position: relative; display: flex; flex-direction: column; width: 300px; }
+  .col > .item { flex: none; box-sizing: border-box; width: 300px; height: 32px; padding: 8px; }
+  .row { display: flex; flex-wrap: wrap; align-items: flex-start; width: 800px; }
+  .row > .item { flex: none; box-sizing: border-box; width: 80px; height: 40px; padding: 4px; }
+  .row.grow > .item:nth-child(2n) { width: 160px; }
+  .probe { position: absolute; left: 0; top: 0; width: 1px; height: 1px; }
+</style>
+</head>
+<body>
+<main id="stage"></main>
+<script type="module">
+import { motion } from '/src/index.ts';
+import { createLayout } from 'animejs';
+
+const SCOPE_ATTRIBUTE = 'data-motion-scope';
+const LONG_FRAME_MS = 25;
+const ANIMATION_CAP_MS = 1500;
+const RUNS = 3;
+const IDLE_MUTATIONS = 300;
+const END_TOLERANCE_PX = 1;
+
+const nextFrame = () => new Promise(resolve => requestAnimationFrame(resolve));
+const nextTask = () => new Promise(resolve => setTimeout(resolve, 0));
+const round = value => Math.round(value * 100) / 100;
+const mean = values => values.reduce((sum, value) => sum + value, 0) / values.length;
+const median = values => {
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+};
+const percentile = (sorted, p) => sorted[Math.min(sorted.length - 1, Math.ceil(p * sorted.length) - 1)] ?? 0;
+
+const itemsOf = container => [...container.children].filter(child => child.classList.contains('item'));
+
+/** A fresh container with `count` items; `idle` adds one followed-by-nobody probe span. */
+function build(scenario, count) {
+  const container = document.createElement('div');
+  container.id = 'root';
+  container.className = scenario === 'resize' ? 'row' : 'col';
+  container.setAttribute(SCOPE_ATTRIBUTE, '');
+  const items = Array.from({ length: count }, (_, index) => {
+    const item = document.createElement('div');
+    item.className = 'item';
+    item.textContent = scenario === 'resize' ? String(index) : `Item ${index}`;
+    return item;
+  });
+  container.append(...items);
+  if (scenario === 'idle') {
+    const probe = document.createElement('span');
+    probe.className = 'probe';
+    probe.dataset.x = '0';
+    container.append(probe);
+  }
+  document.querySelector('#stage').replaceChildren(container);
+  return container;
+}
+
+/**
+ * Our engine: every item bound with motion(item, { verb: 'layout' }).
+ * `change` resolves once the MutationObserver callback has run and the animations exist.
+ */
+function udixioEngine(container) {
+  let bindings = [];
+  return {
+    setup() {
+      const start = performance.now();
+      bindings = itemsOf(container).map(item => motion(item, { verb: 'layout' }));
+      return performance.now() - start;
+    },
+    change(mutate) {
+      mutate();
+      return Promise.resolve(); // the MutationObserver callback runs in the microtask checkpoint before this continuation
+    },
+    isSettled() {
+      return itemsOf(container).every(item => item.getAnimations().length === 0);
+    },
+    teardown() {
+      for (const binding of bindings) binding.destroy();
+      bindings = [];
+    },
+  };
+}
+
+/** anime.js Layout: update(mutate, params) records, runs mutate, then animates; completion via onComplete. */
+function animejsEngine(container) {
+  let layout;
+  let finished = false;
+  return {
+    setup() {
+      const start = performance.now();
+      layout = createLayout(container);
+      return performance.now() - start;
+    },
+    change(mutate) {
+      finished = false;
+      layout.update(() => mutate(), { onComplete: () => { finished = true; } });
+      return undefined;
+    },
+    isSettled() {
+      return finished;
+    },
+    teardown() {
+      layout.revert();
+    },
+  };
+}
+
+/** Baseline: same DOM, no engine. Only the idle scenario runs it. */
+function noneEngine() {
+  return {
+    setup() {
+      return 0;
+    },
+    change(mutate) {
+      mutate();
+      return Promise.resolve();
+    },
+    isSettled() {
+      return true;
+    },
+    teardown() {},
+  };
+}
+
+const ENGINES = { udixio: udixioEngine, animejs: animejsEngine, none: noneEngine };
+
+/**
+ * One movement phase. The change runs inside a requestAnimationFrame callback, so the interval
+ * from that frame to the next one contains the change's script time. Frames are recorded until
+ * the engine reports that everything has settled, or the cap is reached.
+ */
+function animatePhase(change, isSettled) {
+  return new Promise((resolve, reject) => {
+    const stamps = [];
+    let changeMs = 0;
+    let started = 0;
+    let armed = false;
+    const tick = async time => {
+      try {
+        stamps.push(time);
+        if (!armed) {
+          armed = true;
+          started = performance.now();
+          const begin = performance.now();
+          await change();
+          changeMs = performance.now() - begin;
+          requestAnimationFrame(tick);
+          return;
+        }
+        const elapsed = performance.now() - started;
+        const settled = isSettled();
+        if (settled || elapsed > ANIMATION_CAP_MS) {
+          resolve({ changeMs, stamps, durationMs: elapsed, timedOut: !settled });
+          return;
+        }
+        requestAnimationFrame(tick);
+      } catch (error) {
+        reject(error);
+      }
+    };
+    requestAnimationFrame(tick);
+  });
+}
+
+function frameMetrics(stamps) {
+  const intervals = [];
+  for (let index = 1; index < stamps.length; index++) intervals.push(stamps[index] - stamps[index - 1]);
+  const sorted = [...intervals].sort((a, b) => a - b);
+  return {
+    frames: intervals.length,
+    meanFrameMs: round(intervals.length ? mean(intervals) : 0),
+    p95FrameMs: round(percentile(sorted, 0.95)),
+    maxFrameMs: round(sorted[sorted.length - 1] ?? 0),
+    longFrames: intervals.filter(value => value > LONG_FRAME_MS).length,
+  };
+}
+
+/** [left, top, width, height] of each child, relative to the element itself. */
+function boxesOf(element) {
+  const origin = element.getBoundingClientRect();
+  return [...element.children].map(child => {
+    const box = child.getBoundingClientRect();
+    return [box.left - origin.left, box.top - origin.top, box.width, box.height];
+  });
+}
+
+/**
+ * The position each item has with the engine removed: a plain clone of the container, in its final
+ * state, with every inline style stripped, laid out beside the live one.
+ */
+function endCheck(container) {
+  const actual = boxesOf(container);
+  // An empty style attribute is not a residue: only a non-empty inline style counts.
+  const residue = itemsOf(container).map(item => (item.getAttribute('style') ?? '').trim()).filter(style => style !== '');
+  const clone = container.cloneNode(true);
+  clone.removeAttribute('id');
+  clone.removeAttribute(SCOPE_ATTRIBUTE);
+  for (const element of clone.querySelectorAll('[style]')) element.removeAttribute('style');
+  clone.removeAttribute('style');
+  clone.style.cssText = 'position:absolute;left:0;top:0;visibility:hidden;';
+  document.querySelector('#stage').append(clone);
+  const reference = boxesOf(clone);
+  clone.remove();
+  let maxErrorPx = 0;
+  actual.forEach((box, index) => {
+    for (let axis = 0; axis < 4; axis++) maxErrorPx = Math.max(maxErrorPx, Math.abs(box[axis] - reference[index][axis]));
+  });
+  return {
+    endCorrect: actual.length === reference.length && maxErrorPx <= END_TOLERANCE_PX,
+    maxEndErrorPx: round(maxErrorPx),
+    residualInlineStyles: residue.length,
+    residualInlineStyleSample: residue[0] ?? '',
+  };
+}
+
+async function movementRun(scenario, container, engine) {
+  const mutate = scenario === 'reorder'
+    ? () => container.append(...[...container.children].reverse())
+    : () => container.classList.toggle('grow');
+  const phase = await animatePhase(() => engine.change(mutate), () => engine.isSettled());
+  await nextFrame();
+  await nextFrame();
+  return {
+    changeMs: round(phase.changeMs),
+    ...frameMetrics(phase.stamps),
+    durationMs: round(phase.durationMs),
+    timedOut: phase.timedOut,
+    ...endCheck(container),
+  };
+}
+
+async function idleRun(container) {
+  const probe = container.querySelector('.probe');
+  let scriptMs = 0;
+  const start = performance.now();
+  for (let index = 0; index < IDLE_MUTATIONS; index++) {
+    const begin = performance.now();
+    probe.dataset.x = String(index % 2);
+    await Promise.resolve();
+    scriptMs += performance.now() - begin;
+    await nextTask();
+  }
+  const totalMs = performance.now() - start;
+  return {
+    totalMs: round(totalMs),
+    perMutationMs: round(totalMs / IDLE_MUTATIONS),
+    scriptMs: round(scriptMs),
+    perMutationScriptMs: round(scriptMs / IDLE_MUTATIONS),
+  };
+}
+
+function aggregate(scenario, runs) {
+  if (scenario === 'idle') {
+    return {
+      totalMs: round(median(runs.map(run => run.totalMs))),
+      perMutationMs: round(median(runs.map(run => run.perMutationMs))),
+      scriptMs: round(median(runs.map(run => run.scriptMs))),
+      perMutationScriptMs: round(median(runs.map(run => run.perMutationScriptMs))),
+    };
+  }
+  return {
+    changeMs: round(median(runs.map(run => run.changeMs))),
+    frames: median(runs.map(run => run.frames)),
+    meanFrameMs: round(median(runs.map(run => run.meanFrameMs))),
+    p95FrameMs: round(median(runs.map(run => run.p95FrameMs))),
+    maxFrameMs: round(median(runs.map(run => run.maxFrameMs))),
+    longFrames: median(runs.map(run => run.longFrames)),
+    durationMs: round(median(runs.map(run => run.durationMs))),
+    endCorrect: runs.every(run => run.endCorrect),
+    maxEndErrorPx: Math.max(...runs.map(run => run.maxEndErrorPx)),
+    residualInlineStyles: Math.max(...runs.map(run => run.residualInlineStyles)),
+    residualInlineStyleSample: runs.map(run => run.residualInlineStyleSample).find(sample => sample) ?? '',
+    timedOut: runs.some(run => run.timedOut),
+  };
+}
+
+/**
+ * Sets the engine up once, then runs the scenario RUNS times in the same page. Medians are reported;
+ * the raw per-run values are kept in `perRun`.
+ */
+window.runLayoutBenchmark = async (engineName, scenario, count) => {
+  if (!ENGINES[engineName]) throw new Error(`Unknown engine "${engineName}"`);
+  if (engineName === 'none' && scenario !== 'idle') throw new Error('The none engine only runs the idle scenario');
+  const container = build(scenario, count);
+  const engine = ENGINES[engineName](container);
+  const setupMs = engine.setup();
+  await nextFrame();
+  await nextFrame();
+  const runs = [];
+  for (let run = 0; run < RUNS; run++) {
+    runs.push(scenario === 'idle' ? await idleRun(container) : await movementRun(scenario, container, engine));
+  }
+  engine.teardown();
+  return {
+    runs: RUNS,
+    aggregation: 'median',
+    setupMs: round(setupMs),
+    ...aggregate(scenario, runs),
+    perRun: runs,
+  };
+};
+</script>
+</body>
+</html>

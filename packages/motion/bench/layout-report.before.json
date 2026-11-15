@@ -1,0 +1,717 @@
+{
+  "generatedAt": "2026-11-15T03:27:50.955Z",
+  "browser": "156.0.8078.4",
+  "cpuThrottlingRate": 4,
+  "runsPerConfiguration": 3,
+  "aggregation": "median of the runs in one page; perRun keeps the raw values",
+  "timings": {
+    "udixio": "motionManifest layout timing: spring.default.spatial (WAAPI, compositor)",
+    "animejs": "createLayout defaults: duration 350 ms, ease inOut(3.5), no duration or ease passed"
+  },
+  "results": [
+    {
+      "engine": "udixio",
+      "scenario": "reorder",
+      "count": 50,
+      "runs": 3,
+      "aggregation": "median",
+      "setupMs": 15.9,
+      "changeMs": 33.6,
+      "frames": 28,
+      "meanFrameMs": 17.26,
+      "p95FrameMs": 16.8,
+      "maxFrameMs": 33.3,
+      "longFrames": 1,
+      "durationMs": 484.2,
+      "endCorrect": true,
+      "maxEndErrorPx": 0,
+      "residualInlineStyles": 0,
+      "residualInlineStyleSample": "",
+      "timedOut": false,
+      "perRun": [
+        {
+          "changeMs": 45.7,
+          "frames": 28,
+          "meanFrameMs": 17.86,
+          "p95FrameMs": 16.8,
+          "maxFrameMs": 50.1,
+          "longFrames": 1,
+          "durationMs": 502.1,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        },
+        {
+          "changeMs": 33.6,
+          "frames": 28,
+          "meanFrameMs": 17.26,
+          "p95FrameMs": 16.8,
+          "maxFrameMs": 33.3,
+          "longFrames": 1,
+          "durationMs": 484.2,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        },
+        {
+          "changeMs": 32.4,
+          "frames": 28,
+          "meanFrameMs": 17.26,
+          "p95FrameMs": 16.8,
+          "maxFrameMs": 33.3,
+          "longFrames": 1,
+          "durationMs": 483.7,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        }
+      ]
+    },
+    {
+      "engine": "udixio",
+      "scenario": "reorder",
+      "count": 200,
+      "runs": 3,
+      "aggregation": "median",
+      "setupMs": 28.9,
+      "changeMs": 136.2,
+      "frames": 28,
+      "meanFrameMs": 21.43,
+      "p95FrameMs": 16.8,
+      "maxFrameMs": 150,
+      "longFrames": 1,
+      "durationMs": 603.2,
+      "endCorrect": true,
+      "maxEndErrorPx": 0,
+      "residualInlineStyles": 0,
+      "residualInlineStyleSample": "",
+      "timedOut": false,
+      "perRun": [
+        {
+          "changeMs": 155.9,
+          "frames": 28,
+          "meanFrameMs": 22.62,
+          "p95FrameMs": 16.8,
+          "maxFrameMs": 183.3,
+          "longFrames": 1,
+          "durationMs": 636.7,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        },
+        {
+          "changeMs": 133.3,
+          "frames": 28,
+          "meanFrameMs": 21.43,
+          "p95FrameMs": 16.8,
+          "maxFrameMs": 150,
+          "longFrames": 1,
+          "durationMs": 602.9,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        },
+        {
+          "changeMs": 136.2,
+          "frames": 28,
+          "meanFrameMs": 21.43,
+          "p95FrameMs": 16.7,
+          "maxFrameMs": 149.9,
+          "longFrames": 1,
+          "durationMs": 603.2,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        }
+      ]
+    },
+    {
+      "engine": "animejs",
+      "scenario": "reorder",
+      "count": 50,
+      "runs": 3,
+      "aggregation": "median",
+      "setupMs": 20.1,
+      "changeMs": 28.2,
+      "frames": 21,
+      "meanFrameMs": 17.46,
+      "p95FrameMs": 16.7,
+      "maxFrameMs": 33.4,
+      "longFrames": 1,
+      "durationMs": 369.1,
+      "endCorrect": true,
+      "maxEndErrorPx": 0,
+      "residualInlineStyles": 0,
+      "residualInlineStyleSample": "",
+      "timedOut": false,
+      "perRun": [
+        {
+          "changeMs": 45.2,
+          "frames": 21,
+          "meanFrameMs": 18.25,
+          "p95FrameMs": 16.8,
+          "maxFrameMs": 50,
+          "longFrames": 1,
+          "durationMs": 387.6,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        },
+        {
+          "changeMs": 28.2,
+          "frames": 21,
+          "meanFrameMs": 17.46,
+          "p95FrameMs": 16.7,
+          "maxFrameMs": 33.4,
+          "longFrames": 1,
+          "durationMs": 369.1,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        },
+        {
+          "changeMs": 23.6,
+          "frames": 22,
+          "meanFrameMs": 16.67,
+          "p95FrameMs": 16.7,
+          "maxFrameMs": 16.7,
+          "longFrames": 0,
+          "durationMs": 369.1,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        }
+      ]
+    },
+    {
+      "engine": "animejs",
+      "scenario": "reorder",
+      "count": 200,
+      "runs": 3,
+      "aggregation": "median",
+      "setupMs": 42.6,
+      "changeMs": 86.3,
+      "frames": 21,
+      "meanFrameMs": 19.84,
+      "p95FrameMs": 16.8,
+      "maxFrameMs": 83.4,
+      "longFrames": 1,
+      "durationMs": 440.4,
+      "endCorrect": true,
+      "maxEndErrorPx": 0,
+      "residualInlineStyles": 0,
+      "residualInlineStyleSample": "",
+      "timedOut": false,
+      "perRun": [
+        {
+          "changeMs": 128.6,
+          "frames": 21,
+          "meanFrameMs": 22.22,
+          "p95FrameMs": 16.7,
+          "maxFrameMs": 133.4,
+          "longFrames": 1,
+          "durationMs": 476.4,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        },
+        {
+          "changeMs": 86.3,
+          "frames": 22,
+          "meanFrameMs": 19.7,
+          "p95FrameMs": 16.8,
+          "maxFrameMs": 83.4,
+          "longFrames": 1,
+          "durationMs": 440.4,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        },
+        {
+          "changeMs": 78.8,
+          "frames": 21,
+          "meanFrameMs": 19.84,
+          "p95FrameMs": 16.8,
+          "maxFrameMs": 83.3,
+          "longFrames": 1,
+          "durationMs": 423.7,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        }
+      ]
+    },
+    {
+      "engine": "udixio",
+      "scenario": "resize",
+      "count": 50,
+      "runs": 3,
+      "aggregation": "median",
+      "setupMs": 15.4,
+      "changeMs": 34.3,
+      "frames": 28,
+      "meanFrameMs": 17.26,
+      "p95FrameMs": 16.8,
+      "maxFrameMs": 33.3,
+      "longFrames": 1,
+      "durationMs": 484.6,
+      "endCorrect": true,
+      "maxEndErrorPx": 0,
+      "residualInlineStyles": 0,
+      "residualInlineStyleSample": "",
+      "timedOut": false,
+      "perRun": [
+        {
+          "changeMs": 45.8,
+          "frames": 28,
+          "meanFrameMs": 18.45,
+          "p95FrameMs": 16.8,
+          "maxFrameMs": 66.6,
+          "longFrames": 1,
+          "durationMs": 517.6,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        },
+        {
+          "changeMs": 34.3,
+          "frames": 28,
+          "meanFrameMs": 17.26,
+          "p95FrameMs": 16.8,
+          "maxFrameMs": 33.3,
+          "longFrames": 1,
+          "durationMs": 484.6,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        },
+        {
+          "changeMs": 31.3,
+          "frames": 28,
+          "meanFrameMs": 17.26,
+          "p95FrameMs": 16.8,
+          "maxFrameMs": 33.3,
+          "longFrames": 1,
+          "durationMs": 484.4,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        }
+      ]
+    },
+    {
+      "engine": "udixio",
+      "scenario": "resize",
+      "count": 200,
+      "runs": 3,
+      "aggregation": "median",
+      "setupMs": 28.1,
+      "changeMs": 143.1,
+      "frames": 29,
+      "meanFrameMs": 22.03,
+      "p95FrameMs": 16.8,
+      "maxFrameMs": 166.6,
+      "longFrames": 1,
+      "durationMs": 621.3,
+      "endCorrect": true,
+      "maxEndErrorPx": 0,
+      "residualInlineStyles": 0,
+      "residualInlineStyleSample": "",
+      "timedOut": false,
+      "perRun": [
+        {
+          "changeMs": 159.7,
+          "frames": 29,
+          "meanFrameMs": 22.41,
+          "p95FrameMs": 16.8,
+          "maxFrameMs": 183.2,
+          "longFrames": 1,
+          "durationMs": 654.8,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        },
+        {
+          "changeMs": 143.1,
+          "frames": 28,
+          "meanFrameMs": 22.03,
+          "p95FrameMs": 16.8,
+          "maxFrameMs": 166.6,
+          "longFrames": 1,
+          "durationMs": 621.3,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        },
+        {
+          "changeMs": 136.8,
+          "frames": 29,
+          "meanFrameMs": 21.27,
+          "p95FrameMs": 16.8,
+          "maxFrameMs": 150.1,
+          "longFrames": 1,
+          "durationMs": 620.6,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        }
+      ]
+    },
+    {
+      "engine": "animejs",
+      "scenario": "resize",
+      "count": 50,
+      "runs": 3,
+      "aggregation": "median",
+      "setupMs": 19.4,
+      "changeMs": 29.6,
+      "frames": 22,
+      "meanFrameMs": 17.42,
+      "p95FrameMs": 16.7,
+      "maxFrameMs": 33.4,
+      "longFrames": 1,
+      "durationMs": 385.2,
+      "endCorrect": true,
+      "maxEndErrorPx": 0,
+      "residualInlineStyles": 0,
+      "residualInlineStyleSample": "",
+      "timedOut": false,
+      "perRun": [
+        {
+          "changeMs": 48.1,
+          "frames": 22,
+          "meanFrameMs": 18.18,
+          "p95FrameMs": 16.8,
+          "maxFrameMs": 50,
+          "longFrames": 1,
+          "durationMs": 404,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        },
+        {
+          "changeMs": 29.6,
+          "frames": 22,
+          "meanFrameMs": 17.42,
+          "p95FrameMs": 16.7,
+          "maxFrameMs": 33.4,
+          "longFrames": 1,
+          "durationMs": 385.2,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        },
+        {
+          "changeMs": 23.1,
+          "frames": 22,
+          "meanFrameMs": 16.66,
+          "p95FrameMs": 16.7,
+          "maxFrameMs": 16.7,
+          "longFrames": 0,
+          "durationMs": 368.6,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        }
+      ]
+    },
+    {
+      "engine": "animejs",
+      "scenario": "resize",
+      "count": 200,
+      "runs": 3,
+      "aggregation": "median",
+      "setupMs": 41.8,
+      "changeMs": 86.9,
+      "frames": 21,
+      "meanFrameMs": 19.84,
+      "p95FrameMs": 16.8,
+      "maxFrameMs": 83.4,
+      "longFrames": 1,
+      "durationMs": 441.1,
+      "endCorrect": true,
+      "maxEndErrorPx": 0,
+      "residualInlineStyles": 0,
+      "residualInlineStyleSample": "",
+      "timedOut": false,
+      "perRun": [
+        {
+          "changeMs": 128,
+          "frames": 20,
+          "meanFrameMs": 23.33,
+          "p95FrameMs": 33.3,
+          "maxFrameMs": 133.3,
+          "longFrames": 2,
+          "durationMs": 479.9,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        },
+        {
+          "changeMs": 86.9,
+          "frames": 22,
+          "meanFrameMs": 19.69,
+          "p95FrameMs": 16.8,
+          "maxFrameMs": 83.3,
+          "longFrames": 1,
+          "durationMs": 441.1,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        },
+        {
+          "changeMs": 79,
+          "frames": 21,
+          "meanFrameMs": 19.84,
+          "p95FrameMs": 16.7,
+          "maxFrameMs": 83.4,
+          "longFrames": 1,
+          "durationMs": 425,
+          "timedOut": false,
+          "endCorrect": true,
+          "maxEndErrorPx": 0,
+          "residualInlineStyles": 0,
+          "residualInlineStyleSample": ""
+        }
+      ]
+    },
+    {
+      "engine": "udixio",
+      "scenario": "idle",
+      "count": 50,
+      "runs": 3,
+      "aggregation": "median",
+      "setupMs": 17.2,
+      "totalMs": 1811.5,
+      "perMutationMs": 6.04,
+      "scriptMs": 414.4,
+      "perMutationScriptMs": 1.38,
+      "perRun": [
+        {
+          "totalMs": 1724.5,
+          "perMutationMs": 5.75,
+          "scriptMs": 344.5,
+          "perMutationScriptMs": 1.15
+        },
+        {
+          "totalMs": 2012.9,
+          "perMutationMs": 6.71,
+          "scriptMs": 495.3,
+          "perMutationScriptMs": 1.65
+        },
+        {
+          "totalMs": 1811.5,
+          "perMutationMs": 6.04,
+          "scriptMs": 414.4,
+          "perMutationScriptMs": 1.38
+        }
+      ]
+    },
+    {
+      "engine": "udixio",
+      "scenario": "idle",
+      "count": 200,
+      "runs": 3,
+      "aggregation": "median",
+      "setupMs": 31.5,
+      "totalMs": 2045.3,
+      "perMutationMs": 6.82,
+      "scriptMs": 749.9,
+      "perMutationScriptMs": 2.5,
+      "perRun": [
+        {
+          "totalMs": 2110,
+          "perMutationMs": 7.03,
+          "scriptMs": 834.3,
+          "perMutationScriptMs": 2.78
+        },
+        {
+          "totalMs": 2045.3,
+          "perMutationMs": 6.82,
+          "scriptMs": 749.9,
+          "perMutationScriptMs": 2.5
+        },
+        {
+          "totalMs": 2019,
+          "perMutationMs": 6.73,
+          "scriptMs": 681.4,
+          "perMutationScriptMs": 2.27
+        }
+      ]
+    },
+    {
+      "engine": "animejs",
+      "scenario": "idle",
+      "count": 50,
+      "runs": 3,
+      "aggregation": "median",
+      "setupMs": 20.7,
+      "totalMs": 1293,
+      "perMutationMs": 4.31,
+      "scriptMs": 2.8,
+      "perMutationScriptMs": 0.01,
+      "perRun": [
+        {
+          "totalMs": 1276.3,
+          "perMutationMs": 4.25,
+          "scriptMs": 2.6,
+          "perMutationScriptMs": 0.01
+        },
+        {
+          "totalMs": 1293,
+          "perMutationMs": 4.31,
+          "scriptMs": 2.8,
+          "perMutationScriptMs": 0.01
+        },
+        {
+          "totalMs": 1305.4,
+          "perMutationMs": 4.35,
+          "scriptMs": 4.1,
+          "perMutationScriptMs": 0.01
+        }
+      ]
+    },
+    {
+      "engine": "animejs",
+      "scenario": "idle",
+      "count": 200,
+      "runs": 3,
+      "aggregation": "median",
+      "setupMs": 44.5,
+      "totalMs": 1289.5,
+      "perMutationMs": 4.3,
+      "scriptMs": 1.7,
+      "perMutationScriptMs": 0.01,
+      "perRun": [
+        {
+          "totalMs": 1288.4,
+          "perMutationMs": 4.29,
+          "scriptMs": 1.7,
+          "perMutationScriptMs": 0.01
+        },
+        {
+          "totalMs": 1294.5,
+          "perMutationMs": 4.32,
+          "scriptMs": 3.3,
+          "perMutationScriptMs": 0.01
+        },
+        {
+          "totalMs": 1289.5,
+          "perMutationMs": 4.3,
+          "scriptMs": 1.6,
+          "perMutationScriptMs": 0.01
+        }
+      ]
+    },
+    {
+      "engine": "none",
+      "scenario": "idle",
+      "count": 50,
+      "runs": 3,
+      "aggregation": "median",
+      "setupMs": 0,
+      "totalMs": 1292.2,
+      "perMutationMs": 4.31,
+      "scriptMs": 2.4,
+      "perMutationScriptMs": 0.01,
+      "perRun": [
+        {
+          "totalMs": 1275.2,
+          "perMutationMs": 4.25,
+          "scriptMs": 2.4,
+          "perMutationScriptMs": 0.01
+        },
+        {
+          "totalMs": 1294.9,
+          "perMutationMs": 4.32,
+          "scriptMs": 1.4,
+          "perMutationScriptMs": 0
+        },
+        {
+          "totalMs": 1292.2,
+          "perMutationMs": 4.31,
+          "scriptMs": 2.4,
+          "perMutationScriptMs": 0.01
+        }
+      ]
+    },
+    {
+      "engine": "none",
+      "scenario": "idle",
+      "count": 200,
+      "runs": 3,
+      "aggregation": "median",
+      "setupMs": 0,
+      "totalMs": 1292.7,
+      "perMutationMs": 4.31,
+      "scriptMs": 1.5,
+      "perMutationScriptMs": 0,
+      "perRun": [
+        {
+          "totalMs": 1259,
+          "perMutationMs": 4.2,
+          "scriptMs": 1.5,
+          "perMutationScriptMs": 0
+        },
+        {
+          "totalMs": 1293.2,
+          "perMutationMs": 4.31,
+          "scriptMs": 3.1,
+          "perMutationScriptMs": 0.01
+        },
+        {
+          "totalMs": 1292.7,
+          "perMutationMs": 4.31,
+          "scriptMs": 0.7,
+          "perMutationScriptMs": 0
+        }
+      ]
+    }
+  ]
+}
