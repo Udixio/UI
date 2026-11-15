@@ -46,7 +46,7 @@ interface Item {
   rest: OwnTransform; // last rest transform
   handle: MotionHandle | null; // the move in flight
   flight: Flight | null; // the spring the move in flight follows; null at rest or on a curve
-  content: ContentNode[]; // the content, measured at rest
+  content: readonly ContentNode[]; // the content, measured at rest
   contentPlan: ContentPlan[]; // the content that the move in flight carries; empty when none
   contentHandles: MotionHandle[]; // the moves of the content, which run with the move in flight
   projected: Item[]; // the followed elements that the move in flight animates as its content, at any depth
@@ -188,6 +188,16 @@ interface Playback {
   baseProgress: ((i: number) => number) | null; // null when the move is not sampled
 }
 
+/** The spring parameters of a reference for a scheme, read once: a token lookup builds the whole token tree. */
+const flightParams = new Map<MotionScheme, Map<SpringRef, SpringParams>>();
+function flightParamsOf(timing: SpringRef, scheme: MotionScheme): SpringParams {
+  let byTiming = flightParams.get(scheme);
+  if (!byTiming) flightParams.set(scheme, (byTiming = new Map()));
+  let params = byTiming.get(timing);
+  if (!params) byTiming.set(timing, (params = springParams(timing, scheme)));
+  return params;
+}
+
 /**
  * How a planned move plays, or null when its timing cannot be played. A move from rest keeps the token's two
  * keyframes and easing, unless a content plan follows it. A move that carries a velocity, or that a content plan
@@ -207,10 +217,13 @@ function playbackOf({ element, item, frames, velocity, scale, content }: Planned
     if (!ease) return token;
     return { keyframes: sampleBetween(frames, i => ease(i / steps), steps), duration: resolved.duration * scale, easing: 'linear', flight: null, steps, baseProgress: i => ease(i / steps) };
   }
-  const params = springParams(timing, scheme);
+  const params = flightParamsOf(timing, scheme);
   const fields = fieldMotions(frames, velocity);
   const flight: Flight = { params, timeScale: scale, fields };
-  if (velocity === null && content === null) return { ...token, flight };
+  if (velocity === null && content === null) {
+    token.flight = flight;
+    return token;
+  }
   let seconds = base;
   if (velocity !== null) {
     const settle = Math.max(
@@ -261,9 +274,8 @@ function referenceOf(scope: Scope, element: HTMLElement): HTMLElement {
   return scope.root;
 }
 
-function visualBoxOf(scope: Scope, element: HTMLElement, rects: ReferenceRects): Box {
+function visualBoxOf(scope: Scope, element: HTMLElement, rects: ReferenceRects, reference = referenceOf(scope, element)): Box {
   const r = element.getBoundingClientRect();
-  const reference = referenceOf(scope, element);
   let o = rects.get(reference);
   if (!o) {
     o = reference.getBoundingClientRect();
@@ -305,8 +317,12 @@ function measureContent(scope: Scope, parent: HTMLElement, parentRect: DOMRect, 
   return nodes;
 }
 
+/** The content of an element with no element child: nothing to measure, shared so that none is allocated. */
+const NO_CONTENT: readonly ContentNode[] = Object.freeze([] as ContentNode[]);
+
 /** The content tree of an element at rest (reads only). */
-function contentOf(scope: Scope, element: HTMLElement): ContentNode[] {
+function contentOf(scope: Scope, element: HTMLElement): readonly ContentNode[] {
+  if (element.firstElementChild === null) return NO_CONTENT;
   return measureContent(scope, element, element.getBoundingClientRect(), 1, { left: CONTENT_BUDGET });
 }
 
@@ -363,9 +379,9 @@ function stopFlight(item: Item): void {
   for (const child of item.projected) stopFlight(child);
   item.handle = null;
   item.flight = null;
-  item.contentPlan = [];
-  item.contentHandles = [];
-  item.projected = [];
+  if (item.contentPlan.length > 0) item.contentPlan = [];
+  if (item.contentHandles.length > 0) item.contentHandles = [];
+  if (item.projected.length > 0) item.projected = [];
   item.projector = null;
 }
 
@@ -463,15 +479,23 @@ function flush(scope: Scope, records: readonly MutationRecord[] = []): void {
   const rects: ReferenceRects = new Map();
   const dirty = dirtyItemsOf(scope, records);
   const changed: Change[] = [];
+  // An element whose parent is the root has the root as its reference: with none nested, the passes below that order or join followed elements do nothing.
+  let nested = false;
   for (const [element, item] of scope.items) {
     if (!element.isConnected) continue;
     if (!item.layout || !item.visual) {
+      nested = true;
       if (item.handle === null) measure(scope, element, item, rects);
       continue;
     }
     // A child animated as content moves with its projector: it is changed with it, in 1b.
-    if (item.projector !== null) continue;
-    const visualNow = visualBoxOf(scope, element, rects);
+    if (item.projector !== null) {
+      nested = true;
+      continue;
+    }
+    const reference = referenceOf(scope, element);
+    if (reference !== scope.root) nested = true;
+    const visualNow = visualBoxOf(scope, element, rects, reference);
     if (item.handle !== null) {
       // In flight: the underlying layout box, with the animated transform undone.
       const own = ownOf(element);
@@ -485,18 +509,22 @@ function flush(scope: Scope, records: readonly MutationRecord[] = []): void {
       changed.push([element, item, item.visual, null, null]);
     }
   }
+  // Nothing changed: nothing is stopped, planned or played.
+  if (changed.length === 0) return;
   // 1b. A followed child of a changed element is changed too, moved or not: its reference may now carry it as content.
   // Its box is planned in pass 3, from the content its reference is running when that carries it; a child in flight
   // by itself starts as an element in flight does.
-  const changing = new Set(changed.map(([element]) => element));
-  for (let grew = true; grew; ) {
-    grew = false;
-    for (const [element, item] of scope.items) {
-      if (changing.has(element) || !element.isConnected || !item.layout || !item.visual || !changing.has(referenceOf(scope, element))) continue;
-      if (item.handle !== null && item.projector === null) changed.push(flyingChange(element, item, item.layout, item.visual, ownOf(element)));
-      else changed.push([element, item, item.visual, null, null]);
-      changing.add(element);
-      grew = true;
+  if (nested) {
+    const changing = new Set(changed.map(([element]) => element));
+    for (let grew = true; grew; ) {
+      grew = false;
+      for (const [element, item] of scope.items) {
+        if (changing.has(element) || !element.isConnected || !item.layout || !item.visual || !changing.has(referenceOf(scope, element))) continue;
+        if (item.handle !== null && item.projector === null) changed.push(flyingChange(element, item, item.layout, item.visual, ownOf(element)));
+        else changed.push([element, item, item.visual, null, null]);
+        changing.add(element);
+        grew = true;
+      }
     }
   }
   // 2. Writes: stop only the moves whose destination changed, and the content that they carry.
@@ -506,8 +534,9 @@ function flush(scope: Scope, records: readonly MutationRecord[] = []): void {
   // planned against the cache as it was before this measure. A reference is planned before the elements it
   // contains: a changed element whose reference has a content plan joins that content, and has no move of its own.
   const rectsAfterWrites: ReferenceRects = new Map();
-  const references = new Set(changed.map(([element]) => referenceOf(scope, element)));
-  const ordered = [...changed].sort((a, b) => depthOf(scope, a[0]) - depthOf(scope, b[0]));
+  // Without a nested element, no changed element references another, and the order of the change is kept.
+  const references = new Set(nested ? changed.map(([element]) => referenceOf(scope, element)) : []);
+  const ordered = nested ? [...changed].sort((a, b) => depthOf(scope, a[0]) - depthOf(scope, b[0])) : changed;
   const hosts = new Map<HTMLElement, Host>();
   const nodes = new Map<HTMLElement, Item>(); // the followed elements that join a content plan, by element
   const planned: PlannedMove[] = [];
@@ -517,7 +546,7 @@ function flush(scope: Scope, records: readonly MutationRecord[] = []): void {
     const disabled = motionDisabledIn(style);
     const scale = motionScaleIn(style);
     const visual = measureWith(scope, element, item, style, rectsAfterWrites);
-    const host = hosts.get(referenceOf(scope, element));
+    const host = hosts.size > 0 ? hosts.get(referenceOf(scope, element)) : undefined;
     if (host) {
       // A node of the content of its reference: its own content hangs from it, and it is moved with the reference's content.
       const kind = hasText(element) ? 'text' : 'box';
