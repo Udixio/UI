@@ -227,6 +227,20 @@ describe('Motion (Angular directive)', () => {
       fixture.destroy();
     });
 
+    it('never sets the presence of a layout motion when udxMotionPresent changes', () => {
+      const motion = fakeMotion('layout');
+      motionWhenDefinedMock.mockReturnValue(motion.deferred);
+      const fixture = TestBed.createComponent(PresenceHost);
+      fixture.detectChanges();
+
+      fixture.componentInstance.present = false;
+      fixture.detectChanges();
+
+      expect(motion.setPresent).not.toHaveBeenCalled();
+      expect(boxOf(fixture.nativeElement).isConnected).toBe(true);
+      fixture.destroy();
+    });
+
     it('replays an emphasis once when udxMotionState changes', () => {
       const motion = fakeMotion('emphasize');
       motionWhenDefinedMock.mockReturnValue(motion.deferred);
@@ -360,6 +374,22 @@ describe('Motion (Angular directive)', () => {
       // The presence exit settles after the destroy: nothing runs again.
       expect(() => motion.finishExit('finished')).not.toThrow();
       await flushPromises();
+      expect(motion.destroy).toHaveBeenCalledTimes(1);
+    });
+
+    it('completes a layout at once, since it has no presence to exit', () => {
+      const motion = fakeMotion('layout');
+      motionWhenDefinedMock.mockReturnValue(motion.deferred);
+      const fixture = TestBed.createComponent(StaticHost);
+      fixture.detectChanges();
+
+      const animationComplete = leave(
+        motionOf(fixture),
+        boxOf(fixture.nativeElement),
+      );
+
+      expect(animationComplete).toHaveBeenCalledTimes(1);
+      expect(motion.setPresent).not.toHaveBeenCalled();
       expect(motion.destroy).toHaveBeenCalledTimes(1);
     });
 

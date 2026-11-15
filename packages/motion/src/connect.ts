@@ -1,5 +1,5 @@
 import { getMotion, motion, type MotionBinding } from './bind.js';
-import { definedMotions, onMotionDefined, resolveMotion, type MotionSpec } from './define-motion.js';
+import { definedMotions, isPresenceVerb, onMotionDefined, resolveMotion, type MotionSpec } from './define-motion.js';
 
 export interface ConnectOptions {
   root?: Document | Element;
@@ -101,7 +101,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   function syncPresence(el: HTMLElement): void {
     const binding = getMotion(el);
     const verb = boundVerb(el);
-    if (!binding || (verb !== 'appear' && verb !== 'disappear')) return;
+    if (!binding || !verb || !isPresenceVerb(verb)) return;
     const wanted = !el.hasAttribute('hidden');
     if (wanted === binding.present) return;
     if (wanted) {

@@ -7,6 +7,7 @@ import { waapiProvider } from './providers/waapi.js';
 
 defineMotion('connect-fade', fade.spec);
 defineMotion('connect-press', press.spec);
+defineMotion('connect-reflow', { verb: 'layout' });
 
 const tick = () => Promise.resolve();
 
@@ -187,6 +188,46 @@ it('keeps a binding made by hand when its element leaves the root', async () => 
   await tick();
   expect(getMotion(el)).toBe(binding);
   binding.destroy();
+});
+
+it('follows a layout change of its container with a layout flight', async () => {
+  const style = document.createElement('style');
+  style.textContent = `
+    .connect-row { display: flex; justify-content: flex-start; width: 300px; height: 40px; }
+    .connect-row.end { justify-content: flex-end; }
+    .connect-row > div { flex: none; width: 50px; height: 40px; }
+  `;
+  const container = document.createElement('div');
+  container.className = 'connect-row';
+  const first = make('connect-reflow');
+  const second = make('connect-reflow');
+  container.append(first, second);
+  root.append(style, container);
+  connect();
+  await tick();
+  expect(getMotion(first)!.handle).toBeNull();
+
+  container.classList.add('end');
+  await tick();
+  expect(getMotion(first)!.handle).not.toBeNull();
+  expect(getMotion(second)!.handle).not.toBeNull();
+});
+
+it('ignores hidden on a layout element: no presence is set and no error is raised', async () => {
+  const errors: unknown[] = [];
+  const onError = (event: ErrorEvent) => errors.push(event.error);
+  window.addEventListener('error', onError);
+  const el = make('connect-reflow');
+  root.append(el);
+  connect();
+  await tick();
+  el.hidden = true;
+  await tick();
+  window.removeEventListener('error', onError);
+  expect(errors).toEqual([]);
+  expect(getMotion(el)).toBeDefined();
+  expect(getMotion(el)!.present).toBe(true);
+  expect(el.hasAttribute('data-presence')).toBe(false);
 });
 
 it('destroys every binding on disconnect and ignores later insertions', async () => {

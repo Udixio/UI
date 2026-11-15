@@ -11,6 +11,7 @@ import {
   type OnDestroy,
 } from '@angular/core';
 import {
+  isPresenceVerb,
   motionWhenDefined,
   type DeferredMotion,
   type MotionBinding,
@@ -106,7 +107,7 @@ export class Motion implements OnDestroy {
     afterRenderEffect(() => {
       const present = this.present();
       const binding = this.deferred?.binding;
-      if (binding && binding.verb !== 'emphasize') void binding.setPresent(present);
+      if (binding && isPresenceVerb(binding.verb)) void binding.setPresent(present);
     });
 
     effect(() => {
@@ -141,7 +142,7 @@ export class Motion implements OnDestroy {
   /** Angular calls this before it removes the element; the removal waits for `animationComplete()`. */
   protected leave(event: AnimationCallbackEvent): void {
     const binding = this.released ? undefined : this.deferred?.binding;
-    if (!binding || binding.verb === 'emphasize') {
+    if (!binding || !isPresenceVerb(binding.verb)) {
       event.animationComplete();
       this.release();
       return;

@@ -7,6 +7,7 @@ import {
   type RefCallback,
 } from 'react';
 import {
+  isPresenceVerb,
   motionWhenDefined,
   type DeferredMotion,
   type MotionBinding,
@@ -64,6 +65,7 @@ const sourceKey = (source: MotionSource): string =>
  *   once the exit has finished. Do not unmount it yourself on `present`.
  * - An emphasis replays on each change of `state`. Its `present` is not an
  *   exit: when it turns false the element is removed at once, without animation.
+ *   Only `appear` and `disappear` have a presence; a layout is removed at once too.
  * - Hydrated server content is treated as already in place, so the first
  *   attach plays no entry; a later remount plays it.
  * @limitations
@@ -135,10 +137,10 @@ export function useMotion<T extends HTMLElement = HTMLElement>(
   useEffect(() => {
     const binding = deferred.current?.binding;
     if (present) {
-      if (binding && binding.verb !== 'emphasize') void binding.setPresent(true);
+      if (binding && isPresenceVerb(binding.verb)) void binding.setPresent(true);
       return undefined;
     }
-    if (!binding || binding.verb === 'emphasize') {
+    if (!binding || !isPresenceVerb(binding.verb)) {
       setLeaving(false);
       return undefined;
     }

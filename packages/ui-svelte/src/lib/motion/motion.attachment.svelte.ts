@@ -1,4 +1,4 @@
-import { getMotion, motionWhenDefined, type MotionSource } from '@udixio/motion';
+import { getMotion, isPresenceVerb, motionWhenDefined, type MotionSource } from '@udixio/motion';
 import { untrack } from 'svelte';
 import type { Attachment } from 'svelte/attachments';
 import type { TransitionConfig } from 'svelte/transition';
@@ -39,11 +39,11 @@ export function motion(
       settled: initial.settled ?? (previousKey !== undefined && previousKey !== key),
     });
 
-    // Presence follows the option; an emphasis has no presence to set.
+    // Presence follows the option; only appear and disappear have a presence to set.
     $effect(() => {
       const present = options().present ?? true;
       const binding = deferred.binding;
-      if (binding && binding.verb !== 'emphasize') void binding.setPresent(present);
+      if (binding && isPresenceVerb(binding.verb)) void binding.setPresent(present);
     });
 
     // An emphasis replays on a real change of `state`, never at the first read.
@@ -71,7 +71,8 @@ export function motion(
  * `transition:presence` only on an element of an `{#if}` or `{#each}` block
  * that must play its exit before it is removed. The transition asks the
  * element's binding for the exit and waits for the exit's duration; an element
- * without a binding, or an emphasis, runs without a duration.
+ * without a binding, or one whose motion has no presence (an emphasis, a layout),
+ * runs without a duration.
  *
  * ```svelte
  * {#if open}<div {@attach motion('slide')} transition:presence>…</div>{/if}
@@ -82,7 +83,7 @@ export function presence(
 ): (options: { direction: 'in' | 'out' | 'both' }) => TransitionConfig {
   return ({ direction }) => {
     const binding = getMotion(node);
-    if (!binding || binding.verb === 'emphasize') return { duration: 0 };
+    if (!binding || !isPresenceVerb(binding.verb)) return { duration: 0 };
     if (direction === 'out') {
       void binding.setPresent(false);
       // Svelte keeps the node for `duration`; the no-op tick makes it time the exit itself.

@@ -252,6 +252,18 @@ describe('useMotion', () => {
     expect(probe?.getBinding()).toBe(fakes[0].binding);
   });
 
+  it('never sets the presence of a layout motion, and removes an absent layout at once', () => {
+    verb = 'layout';
+    const error = vi.spyOn(console, 'error');
+    const { queryByTestId, rerender } = render(<Panel />);
+
+    rerender(<Panel present={false} />);
+
+    expect(fakes[0].binding.setPresent).not.toHaveBeenCalled();
+    expect(queryByTestId('box')).toBeNull();
+    expect(error).not.toHaveBeenCalled();
+  });
+
   it('returns a play that does nothing on a presence motion', () => {
     verb = 'appear';
     render(<Probe source="slide" />);

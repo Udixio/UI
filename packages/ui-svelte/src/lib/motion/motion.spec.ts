@@ -137,6 +137,18 @@ describe('motion attachment', () => {
 
     expect(destroy).toHaveBeenCalledOnce();
   });
+
+  it('never sets the presence of a layout motion', async () => {
+    const binding = fakeBinding('layout');
+    bindDeferred(binding);
+    const { rerender } = render(Fixture, { props: props({ present: true }) });
+    flushSync();
+
+    await rerender(props({ present: false }));
+    flushSync();
+
+    expect(binding.setPresent).not.toHaveBeenCalled();
+  });
 });
 
 describe('presence transition', () => {
@@ -177,6 +189,16 @@ describe('presence transition', () => {
 
   it('leaves an emphasis alone: no presence exit, no duration', () => {
     const binding = fakeBinding('emphasize');
+    vi.mocked(getMotion).mockReturnValue(binding as unknown as MotionBinding);
+
+    const config = presence(document.createElement('div'))({ direction: 'out' });
+
+    expect(config).toEqual({ duration: 0 });
+    expect(binding.setPresent).not.toHaveBeenCalled();
+  });
+
+  it('leaves a layout alone: no presence exit, no duration', () => {
+    const binding = fakeBinding('layout');
     vi.mocked(getMotion).mockReturnValue(binding as unknown as MotionBinding);
 
     const config = presence(document.createElement('div'))({ direction: 'out' });
