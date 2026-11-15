@@ -17,6 +17,7 @@ import { pinOutOfFlow } from './pin.js';
 import { applyFrame, playMotion, releaseFrame } from './play.js';
 import { getMotionRuntime, retainMotionRuntime } from './runtime.js';
 import { staggered } from './stagger.js';
+import { watchView } from './viewport.js';
 
 /** A definition reference, a raw spec (validated here), or the name of a defined motion. */
 export type MotionSource = MotionRef | Readonly<MotionSpec> | string;
@@ -40,7 +41,7 @@ type KeyframedSpec = Exclude<MotionSpec, { verb: 'layout' }>;
 const KINDS: readonly MotionKind[] = ['presence', 'emphasis', 'layout', 'view', 'loop'];
 
 /** The verbs whose binding is written in a later step: until then `motion` refuses them, before it registers anything. */
-const UNBOUND_VERBS: readonly MotionSpec['verb'][] = ['reveal', 'scrub', 'loop'];
+const UNBOUND_VERBS: readonly MotionSpec['verb'][] = ['scrub', 'loop'];
 
 /** Whether a verb is not bound yet: a page that defines such a motion is never broken by it. */
 export function isUnboundVerb(verb: MotionSpec['verb']): boolean {
@@ -100,7 +101,12 @@ export function motion(target: HTMLElement, source: MotionSource, options: BindO
   const spec = specOf(source);
   if (isUnboundVerb(spec.verb)) throw new TypeError(`${spec.verb} motions are not bound yet`);
   getMotion(target, kindOf(spec.verb))?.destroy();
-  const binding = spec.verb === 'layout' ? createLayoutBinding(target, spec, options) : createBinding(target, spec, options);
+  const binding =
+    spec.verb === 'layout'
+      ? createLayoutBinding(target, spec, options)
+      : spec.verb === 'reveal'
+        ? createRevealBinding(target, spec, options)
+        : createBinding(target, spec, options);
   register(target, binding);
   return binding;
 }
@@ -202,6 +208,107 @@ function createLayoutBinding(target: HTMLElement, spec: Readonly<MotionSpec>, op
       destroyed = true;
       stopPolicy();
       tracking?.destroy();
+      unregister(target, binding);
+      releaseRuntime();
+    },
+  };
+  return binding;
+}
+
+/**
+ * A reveal: out of view, the element waits in its first frame; when it enters the view, it plays forward from there.
+ * Content in view when it is bound is left in its natural state. `repeat: 'always'` hides it again when it leaves
+ * the view; by default it is revealed once, and the view is no longer watched after that.
+ */
+function createRevealBinding(target: HTMLElement, spec: Readonly<Extract<MotionSpec, { verb: 'reveal' }>>, options: BindOptions): MotionBinding {
+  const development = options.development ?? false;
+  const runtime = getMotionRuntime();
+  const releaseRuntime = retainMotionRuntime(runtime);
+  const first = spec.keyframes[0];
+  const once = spec.repeat !== 'always';
+  const fields = new Set<keyof VisualFrame>(spec.keyframes.flatMap(frame => Object.keys(frame) as (keyof VisualFrame)[]));
+  let revealed = false;
+  let handle: MotionHandle | null = null;
+  let initial = true;
+  let destroyed = false;
+  let watching = true;
+  let unwatch: (() => void) | undefined;
+
+  function stopWatching() {
+    watching = false;
+    unwatch?.();
+    unwatch = undefined;
+  }
+
+  /** Put the element back in its first frame, out of sight, and stop what plays. */
+  function hide() {
+    handle?.cancel();
+    handle = null;
+    applyFrame(target, first);
+    revealed = false;
+  }
+
+  function markRevealed() {
+    revealed = true;
+    if (once) stopWatching();
+  }
+
+  /** Play forward from the first frame, in the cascade of the definition when it staggers. */
+  function start(): MotionHandle {
+    const play = (delay: number) => playMotion(target, spec, { direction: 'forward', carry: false, runtime, development, delay });
+    const next = spec.stagger === undefined ? play(0) : staggered(target, spec, { stagger: spec.stagger, origin: spec.origin, reduced: runtime.policy.reduced, phase: 'enter' }, play);
+    const previous = handle;
+    handle = next;
+    previous?.cancel();
+    return next;
+  }
+
+  function onView(inView: boolean) {
+    if (destroyed) return;
+    if (initial) {
+      initial = false;
+      // Content in view stays in its natural state; content out of view waits in its first frame.
+      if (inView) markRevealed();
+      else applyFrame(target, first);
+      return;
+    }
+    if (inView && !revealed) {
+      markRevealed();
+      start();
+    } else if (!inView && revealed && !once) {
+      hide();
+    }
+  }
+
+  const stop = watchView(target, spec.axis ?? 'block', onView);
+  if (watching) unwatch = stop;
+  else stop();
+
+  const binding: MotionBinding = {
+    verb: 'reveal',
+    kind: 'view',
+    get handle() {
+      return handle;
+    },
+    get present() {
+      return revealed;
+    },
+    play() {
+      if (destroyed) return settledHandle();
+      hide();
+      markRevealed();
+      return start();
+    },
+    setPresent() {
+      throw new TypeError('setPresent does not apply to a reveal motion');
+    },
+    destroy() {
+      if (destroyed) return;
+      destroyed = true;
+      stopWatching();
+      handle?.cancel();
+      handle = null;
+      releaseFrame(target, fields);
       unregister(target, binding);
       releaseRuntime();
     },

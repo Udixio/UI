@@ -19,6 +19,8 @@ export { composeHandles, deferredHandle, settledHandle, splitFrames } from './co
 export { playMotion, playFrames, applyFrame, releaseFrame, resolveWaapiTiming } from './play.js';
 export { motion, motionWhenDefined, getMotion, getMotions } from './bind.js';
 export type { DeferredMotion, MotionBinding, MotionSource } from './bind.js';
+export { watchView } from './viewport.js';
+export type { ViewAxis } from './viewport.js';
 export { layoutScopeOf } from './scope-of.js';
 export { loadLayoutEngine, layoutEngine, flushLayoutAround } from './layout-loader.js';
 export type { LayoutTracking } from './layout.js';

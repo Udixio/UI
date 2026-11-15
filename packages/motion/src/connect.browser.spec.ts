@@ -532,22 +532,22 @@ it('an invalid data-motion-shared is reported once and bound without a key: the 
   expect(String(error.mock.calls[1]?.[0])).toContain('data-motion-shared="Bad Key"');
 });
 
-it('skips a reveal that is not bound yet: no exception escapes, one error in development, the element untouched', async () => {
+it('skips a scrub that is not bound yet: no exception escapes, one error in development, the element untouched', async () => {
   const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-  const el = make('connect-rise');
+  const el = make('connect-scrub');
   root.append(el);
   expect(() => connect({ development: true })).not.toThrow();
   await tick();
   expect(error).toHaveBeenCalledTimes(1);
-  expect(String(error.mock.calls[0]?.[0])).toContain('connect-rise');
+  expect(String(error.mock.calls[0]?.[0])).toContain('connect-scrub');
   expect(getMotion(el)).toBeUndefined();
   expect(el.getAttribute('style')).toBeNull();
   expect(el.hasAttribute('data-presence')).toBe(false);
 });
 
-it('refuses a reveal, scrub or loop before it registers anything, and motionWhenDefined does not throw', () => {
+it('refuses a scrub or loop before it registers anything, and motionWhenDefined does not throw', () => {
   const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-  for (const [name, verb] of [['connect-rise', 'reveal'], ['connect-scrub', 'scrub'], ['connect-loop', 'loop']] as const) {
+  for (const [name, verb] of [['connect-scrub', 'scrub'], ['connect-loop', 'loop']] as const) {
     const el = make(name);
     expect(() => motion(el, name)).toThrow(`${verb} motions are not bound yet`);
     expect(getMotion(el)).toBeUndefined();
@@ -557,5 +557,5 @@ it('refuses a reveal, scrub or loop before it registers anything, and motionWhen
     expect(getMotion(el)).toBeUndefined();
     expect(el.getAttribute('style')).toBeNull();
   }
-  expect(error).toHaveBeenCalledTimes(3);
+  expect(error).toHaveBeenCalledTimes(2);
 });
