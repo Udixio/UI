@@ -53,6 +53,9 @@ const motionsOf = (source: MotionSource | readonly MotionSource[]): MotionSource
  * - Several motions can share one element, as names separated by spaces or as a
  *   list: `<li udxMotion="fade reflow">` enters and leaves with its presence, and
  *   follows its neighbours with its layout.
+ * - A layout can share an identity with `[udxMotionShared]`: a thumbnail and its
+ *   detail that share `'pic-' + id` morph into each other, as in
+ *   `<img udxMotion="reflow" [udxMotionShared]="'pic-' + id">`.
  * - The directive holds no animation of its own: the motion is defined and
  *   timed by `@udixio/motion`.
  * @a11y
@@ -85,6 +88,8 @@ export class Motion implements OnDestroy {
     alias: 'udxMotionSettled',
     transform: booleanAttribute,
   });
+  /** The shared identity: a layout motion morphs from the place of another element that held the same key. A change binds the element again. */
+  readonly shared = input<string | undefined>(undefined, { alias: 'udxMotionShared' });
 
   private readonly host = inject(ElementRef<HTMLElement>);
   private deferred: DeferredMotion[] = [];
@@ -109,7 +114,9 @@ export class Motion implements OnDestroy {
     // new bindings start settled, so a rebind does not replay the entry.
     afterRenderEffect(() => {
       const sources = motionsOf(this.source());
-      const key = sources.map(sourceKey).join(' ');
+      const shared = this.shared();
+      // A change of the shared identity is a change of the binding, as a change of a source is.
+      const key = JSON.stringify([sources.map(sourceKey), shared ?? null]);
       if (key === this.boundKey) return;
       untracked(() => {
         const rebinding = this.boundKey !== undefined;
@@ -117,7 +124,7 @@ export class Motion implements OnDestroy {
         const present = this.present();
         const settled = rebinding || this.settled();
         this.deferred = sources.map((each) =>
-          motionWhenDefined(this.host.nativeElement, each, { present, settled }),
+          motionWhenDefined(this.host.nativeElement, each, { present, settled, shared }),
         );
         this.boundKey = key;
       });

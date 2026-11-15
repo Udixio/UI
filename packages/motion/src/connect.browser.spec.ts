@@ -18,6 +18,7 @@ defineMotion('connect-multi-slide', slide.spec);
 defineMotion('connect-exit-fade', fade.spec);
 defineMotion('connect-exit-reflow', { verb: 'layout' });
 defineMotion('connect-exit-out', { verb: 'appear', keyframes: [{ opacity: 0 }, { opacity: 1 }], exit: 'out-of-flow' });
+defineMotion('connect-shared-move', { verb: 'layout' });
 
 const tick = () => Promise.resolve();
 
@@ -435,4 +436,69 @@ it('out-of-flow: a leaving item is taken out of the flow as its exit starts, and
   await settle();
   expectTop(second, tops[0]);
   expectTop(third, tops[1]);
+});
+
+/** A thumbnail (60 x 40, shown) and a card (300 x 200, hidden), apart from each other, both layout motions of the scanner under their keys. */
+function sharedPair(thumbKey: string, cardKey: string): { thumb: HTMLElement; card: HTMLElement } {
+  const style = document.createElement('style');
+  style.textContent = `
+    .shared-thumb { position: absolute; left: 20px; top: 30px; width: 60px; height: 40px; }
+    .shared-card { position: absolute; left: 200px; top: 100px; width: 300px; height: 200px; }
+  `;
+  const thumb = make('connect-shared-move');
+  thumb.classList.add('shared-thumb');
+  thumb.dataset.motionShared = thumbKey;
+  const card = make('connect-shared-move', true);
+  card.classList.add('shared-card');
+  card.dataset.motionShared = cardKey;
+  root.append(style, thumb, card);
+  return { thumb, card };
+}
+
+/** Hides the thumbnail and shows the card in one task: the card has a move in flight, starting at the thumbnail's rect within 1 px. */
+async function swapToCard(thumb: HTMLElement, card: HTMLElement): Promise<void> {
+  const from = thumb.getBoundingClientRect();
+  thumb.hidden = true;
+  card.hidden = false;
+  await tick();
+  expect(getMotion(card, 'layout')!.handle).not.toBeNull();
+  const start = card.getBoundingClientRect();
+  for (const key of ['left', 'top', 'width', 'height'] as const) {
+    expect(Math.abs(start[key] - from[key]), `${key} measured ${start[key]}, expected ${from[key]}`).toBeLessThanOrEqual(1);
+  }
+}
+
+it('a card shown in place of a thumbnail with the same data-motion-shared moves from the thumbnail place', async () => {
+  const { thumb, card } = sharedPair('pic', 'pic');
+  connect();
+  await tick();
+  await swapToCard(thumb, card);
+});
+
+it('changing data-motion-shared rebinds the layout motion alone: the presence keeps its binding', async () => {
+  const el = make('connect-multi-fade connect-shared-move');
+  el.dataset.motionShared = 'frame-1';
+  root.append(el);
+  connect();
+  await tick();
+  const presence = getMotion(el, 'presence');
+  const layout = getMotion(el, 'layout');
+  expect(presence).toBeDefined();
+  expect(layout).toBeDefined();
+
+  el.dataset.motionShared = 'frame-2';
+  await tick();
+
+  expect(getMotion(el, 'layout')).toBeDefined();
+  expect(getMotion(el, 'layout')).not.toBe(layout);
+  expect(getMotion(el, 'presence')).toBe(presence);
+});
+
+it('a changed data-motion-shared is the key the layout motion is bound under: the card moves from the thumbnail under it', async () => {
+  const { thumb, card } = sharedPair('frame-3', 'frame-4');
+  connect();
+  await tick();
+  card.dataset.motionShared = 'frame-3';
+  await tick();
+  await swapToCard(thumb, card);
 });

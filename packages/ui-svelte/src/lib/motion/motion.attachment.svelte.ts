@@ -67,6 +67,7 @@ export function motion(
       motionWhenDefined(target, each, {
         present: initial.present ?? true,
         settled: initial.settled ?? (previousKey !== undefined && previousKey !== key),
+        shared: initial.shared,
       }),
     );
 

@@ -86,10 +86,11 @@ interface PanelProps {
   present?: boolean;
   state?: unknown;
   settled?: boolean;
+  shared?: string;
 }
 
-function Panel({ source = 'slide', present = true, state, settled }: PanelProps) {
-  const panel = useMotion(source, { present, state, settled });
+function Panel({ source = 'slide', present = true, state, settled, shared }: PanelProps) {
+  const panel = useMotion(source, { present, state, settled, shared });
   return panel.mounted && <div data-testid="box" ref={panel.ref} />;
 }
 
@@ -340,5 +341,28 @@ describe('useMotion', () => {
 
     expect(probe?.getBinding('layout')).toBe(fakes[0].binding);
     expect(probe?.getBinding()).toBe(fakes[1].binding);
+  });
+
+  it('gives the shared identity to every motion it binds', () => {
+    verbs = { fade: 'appear', reflow: 'layout' };
+    render(<Panel source={['fade', 'reflow']} shared="pic" />);
+
+    expect(bindMotion).toHaveBeenCalledTimes(2);
+    expect(bindMotion).toHaveBeenNthCalledWith(1, expect.any(HTMLElement), 'fade', expect.objectContaining({ shared: 'pic' }));
+    expect(bindMotion).toHaveBeenNthCalledWith(2, expect.any(HTMLElement), 'reflow', expect.objectContaining({ shared: 'pic' }));
+  });
+
+  it('binds again, settled, when the shared identity changes, and destroys the old binding once', () => {
+    const { rerender } = render(<Panel shared="pic" />);
+
+    rerender(<Panel shared="frame" />);
+
+    expect(fakes[0].deferred.destroy).toHaveBeenCalledTimes(1);
+    expect(bindMotion).toHaveBeenCalledTimes(2);
+    expect(bindMotion).toHaveBeenLastCalledWith(expect.any(HTMLElement), 'slide', {
+      present: true,
+      settled: true,
+      shared: 'frame',
+    });
   });
 });

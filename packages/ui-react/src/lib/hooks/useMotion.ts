@@ -21,6 +21,11 @@ export interface UseMotionOptions {
   state?: unknown;
   /** Treat the element as already in place: no entry. Default: true when hydrating server content. */
   settled?: boolean;
+  /**
+   * The shared identity of the element: a layout motion morphs from the place of another element that held the same key.
+   * A change of it binds the element again.
+   */
+  shared?: string;
 }
 
 export interface UseMotionReturn<T extends HTMLElement> {
@@ -91,6 +96,12 @@ function bindingOf(motions: readonly DeferredMotion[], kind?: MotionKind): Motio
  * const item = useMotion(['fade', 'reflow'], { present });
  * ```
  *
+ * @example
+ * ```tsx
+ * // A thumbnail and its detail share a key: the detail morphs out of the thumbnail.
+ * const detail = useMotion('reflow', { shared: `pic-${id}` });
+ * ```
+ *
  * @devx
  * - `mounted` stays true while an exit plays, so the element is removed only
  *   once the exit has finished. Do not unmount it yourself on `present`.
@@ -108,7 +119,7 @@ export function useMotion<T extends HTMLElement = HTMLElement>(
   source: MotionSource | readonly MotionSource[],
   options: UseMotionOptions = {},
 ): UseMotionReturn<T> {
-  const { present = true, state, settled } = options;
+  const { present = true, state, settled, shared } = options;
 
   // Hydrated content reads `true` on its first render; React then re-renders with `false`.
   const hydrated = useSyncExternalStore(
@@ -119,9 +130,10 @@ export function useMotion<T extends HTMLElement = HTMLElement>(
   const hydratedAtFirstRender = useRef(hydrated).current;
   const pastFirstCommit = useRef(false);
   const sources = motionsOf(source);
-  const key = sources.map(sourceKey).join(' ');
-  const latest = useRef({ sources, present, settled });
-  latest.current = { sources, present, settled };
+  // A change of the shared identity is a change of the binding, as a change of a source is.
+  const key = JSON.stringify([sources.map(sourceKey), shared ?? null]);
+  const latest = useRef({ sources, present, settled, shared });
+  latest.current = { sources, present, settled, shared };
   const deferred = useRef<DeferredMotion[]>([]);
   const bound = useRef<{ element: HTMLElement; key: string } | null>(null);
 
@@ -147,6 +159,7 @@ export function useMotion<T extends HTMLElement = HTMLElement>(
         motionWhenDefined(element, each, {
           present: current.present,
           settled: settledNow,
+          shared: current.shared,
         }),
       );
       deferred.current = motions;

@@ -124,6 +124,15 @@ class StaticAbsentHost {}
 @Component({
   standalone: true,
   imports: [Motion],
+  template: `<div data-testid="box" udxMotion="demo" [udxMotionShared]="shared"></div>`,
+})
+class SharedHost {
+  shared: string | undefined = 'pic';
+}
+
+@Component({
+  standalone: true,
+  imports: [Motion],
   template: `
     <div data-testid="box" udxMotion="demo" [udxMotionPresent]="present"></div>
   `,
@@ -245,6 +254,42 @@ describe('Motion (Angular directive)', () => {
         boxOf(fixture.nativeElement),
         'demo',
         { present: false, settled: false },
+      );
+      fixture.destroy();
+    });
+
+    it('gives the shared identity to the binding', () => {
+      const motion = fakeMotion('layout');
+      motionWhenDefinedMock.mockReturnValue(motion.deferred);
+      const fixture = TestBed.createComponent(SharedHost);
+      fixture.detectChanges();
+
+      expect(motionWhenDefinedMock).toHaveBeenCalledWith(
+        boxOf(fixture.nativeElement),
+        'demo',
+        { present: true, settled: false, shared: 'pic' },
+      );
+      fixture.destroy();
+    });
+
+    it('rebinds once, as settled, when udxMotionShared changes', () => {
+      const first = fakeMotion('layout');
+      const second = fakeMotion('layout');
+      motionWhenDefinedMock
+        .mockReturnValueOnce(first.deferred)
+        .mockReturnValueOnce(second.deferred);
+      const fixture = TestBed.createComponent(SharedHost);
+      fixture.detectChanges();
+
+      fixture.componentInstance.shared = 'frame';
+      fixture.detectChanges();
+
+      expect(first.destroy).toHaveBeenCalledTimes(1);
+      expect(motionWhenDefinedMock).toHaveBeenCalledTimes(2);
+      expect(motionWhenDefinedMock).toHaveBeenLastCalledWith(
+        boxOf(fixture.nativeElement),
+        'demo',
+        { present: true, settled: true, shared: 'frame' },
       );
       fixture.destroy();
     });

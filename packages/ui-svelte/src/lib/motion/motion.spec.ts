@@ -54,6 +54,7 @@ const props = (overrides: Record<string, unknown> = {}) => ({
   present: undefined,
   state: undefined,
   settled: undefined,
+  shared: undefined,
   shown: true,
   ...overrides,
 });
@@ -88,6 +89,29 @@ describe('motion attachment', () => {
       present: true,
       settled: true,
     });
+  });
+
+  it('gives the shared identity to the binding', () => {
+    bindDeferred(fakeBinding());
+    render(Fixture, { props: props({ source: 'slide', shared: 'pic' }) });
+    flushSync();
+
+    expect(motionWhenDefined).toHaveBeenCalledExactlyOnceWith(screen.getByTestId('box'), 'slide', {
+      present: true,
+      settled: false,
+      shared: 'pic',
+    });
+  });
+
+  it('reads the shared identity when it binds: a later change does not bind the element again', async () => {
+    bindDeferred(fakeBinding());
+    const { rerender } = render(Fixture, { props: props({ shared: 'pic' }) });
+    flushSync();
+
+    await rerender(props({ shared: 'frame' }));
+    flushSync();
+
+    expect(motionWhenDefined).toHaveBeenCalledOnce();
   });
 
   it('destroys the deferred motion on unmount', async () => {

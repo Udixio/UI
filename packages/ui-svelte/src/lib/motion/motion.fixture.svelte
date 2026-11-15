@@ -10,16 +10,18 @@
     present,
     state,
     settled,
+    shared,
     shown = true,
   }: {
     source: MotionSource | readonly MotionSource[];
     present?: boolean;
     state?: unknown;
     settled?: boolean;
+    shared?: string;
     shown?: boolean;
   } = $props();
 </script>
 
 {#if shown}
-  <div data-testid="box" {@attach motion(untrack(() => source), () => ({ present, state, settled }))}></div>
+  <div data-testid="box" {@attach motion(untrack(() => source), () => ({ present, state, settled, shared }))}></div>
 {/if}

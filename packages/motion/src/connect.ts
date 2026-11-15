@@ -23,11 +23,17 @@ function namesOf(el: HTMLElement): string[] {
   return (el.getAttribute('data-motion') ?? '').split(/\s+/).filter(Boolean);
 }
 
+/** The shared identity of an element: its `data-motion-shared`, when it is not empty. */
+function sharedOf(el: HTMLElement): string | undefined {
+  return el.getAttribute('data-motion-shared') || undefined;
+}
+
 /**
  * Bind the `[data-motion]` elements under `root` and keep the bindings in step with the DOM:
  * an insertion plays its entry, a removal destroys, and `data-motion`, `data-state` and `hidden`
- * drive the motion. An element may list several motions, one per kind. The returned function
- * disconnects the scanner and destroys its bindings.
+ * drive the motion. An element may list several motions, one per kind. A `data-motion-shared`
+ * gives the layout motion of the element a shared identity: it morphs from the place of another
+ * element with the same key. The returned function disconnects the scanner and destroys its bindings.
  */
 export function connectMotion(options: ConnectOptions = {}): () => void {
   const root = options.root ?? document;
@@ -60,10 +66,20 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
       }
       return;
     }
-    const binding = motion(el, ref, { present: !el.hasAttribute('hidden'), settled: !entering, development });
+    const binding = motion(el, ref, { present: !el.hasAttribute('hidden'), settled: !entering, development, shared: sharedOf(el) });
     let kinds = bound.get(el);
     if (!kinds) bound.set(el, (kinds = new Map()));
     kinds.set(kind, { name: ref.name, binding });
+  }
+
+  /** A change of `data-motion-shared` re-binds the layout motion the scanner bound on `el`, under the same name and the new key. */
+  function reshare(el: HTMLElement): void {
+    const owned = bound.get(el)?.get('layout');
+    if (!owned || ownBinding(el, 'layout') !== owned.binding) return;
+    const ref = resolveMotion(owned.name);
+    if (!ref) return;
+    owned.binding.destroy();
+    bindRef(el, ref, false);
   }
 
   /** The binding of `kind` that the scanner bound on `el`, while it is still the registered one. */
@@ -160,6 +176,8 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
         bind(el, false);
       } else if (record.attributeName === 'data-state') {
         ownBinding(el, 'emphasis')?.play();
+      } else if (record.attributeName === 'data-motion-shared') {
+        reshare(el);
       } else {
         syncPresence(el);
       }
@@ -168,7 +186,12 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
 
   for (const el of motionElements(root)) bind(el, false);
   const observer = new MutationObserver(observe);
-  observer.observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-motion', 'data-state', 'hidden'] });
+  observer.observe(root, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['data-motion', 'data-motion-shared', 'data-state', 'hidden'],
+  });
   const unsubscribe = onMotionDefined(ref => {
     const waiting = pending.get(ref.name);
     if (!waiting) return;

@@ -9,4 +9,14 @@ export interface MotionAttachmentOptions {
   state?: unknown;
   /** Skips the entry of an element that is already present, such as server-rendered content. */
   settled?: boolean;
+  /**
+   * The shared identity of the element: a layout motion morphs from the place of another element that held the same key.
+   * It is read when the attachment binds, so a later change does not bind the element again.
+   *
+   * @example
+   * ```svelte
+   * <img {@attach motion('reflow', () => ({ shared: `pic-${id}` }))} />
+   * ```
+   */
+  shared?: string;
 }
