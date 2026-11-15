@@ -26,12 +26,6 @@ const MAX_FRAME = 1 / 30;
 const POSITION_EPSILON = 1e-4;
 /** ...and moves this slowly, as a fraction of its span per second. */
 const VELOCITY_EPSILON = 1e-3;
-/**
- * A gap of more than this many milliseconds between two frames of a time value is a pause of its runtime subscription
- * (out of view, hidden page, reduced motion): `--udx-motion` is read again when the clock resumes. A change of
- * `--udx-motion` made while the clock runs therefore takes effect at its next pause, not at once: a frame is not read.
- */
-const PAUSE_GAP_MS = 100;
 /** Hides a counter's final number from sight, and keeps it for assistive technology, without taking any width. */
 const VISUALLY_HIDDEN =
   'position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0';
@@ -150,9 +144,14 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
   let unsubscribe: (() => void) | undefined;
   let frameAt: number | undefined;
   let start = 0;
-  let lastTick = 0;
-  // A time value reads `--udx-motion` when its clock starts and when it resumes, not at each frame.
+  // A time value reads `--udx-motion` when its clock starts and when it can resume (back in view, page shown again,
+  // reduced motion turned off), not at each frame: a change made while the clock runs takes effect at its next resume.
+  let recheck = false;
   let frozen = false;
+  let stopTimeWatch: (() => void) | undefined;
+  const onVisibility = (): void => {
+    if (document.visibilityState === 'visible') recheck = true;
+  };
   const period = source === 'time' ? periodOf(spec) : 0;
   let detachInputs: () => void = () => {};
   let observer: MutationObserver | undefined;
@@ -273,8 +272,10 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
 
   /** The frame of a time value: its progress through the period, from the moment it was bound. */
   function tickTime(now: number): void {
-    if (now - lastTick > PAUSE_GAP_MS) frozen = motionDisabled(target);
-    lastTick = now;
+    if (recheck) {
+      recheck = false;
+      frozen = motionDisabled(target);
+    }
     if (frozen) {
       write(first);
       return;
@@ -354,7 +355,7 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
       observer.observe(target, { attributes: true, attributeFilter: ['value'] });
       return clamp(parseNumber(target.getAttribute('value')) ?? first);
     }
-    start = lastTick = performance.now();
+    start = performance.now();
     frozen = motionDisabled(target);
     return first;
   }
@@ -391,11 +392,20 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
   goal = initial;
   write(initial);
 
-  if (source === 'time') unsubscribe = runtime.subscribe(`value:${name}`, { tick: tickTime }, { pauseWhenReduced: true, root: target });
+  if (source === 'time') {
+    unsubscribe = runtime.subscribe(`value:${name}`, { tick: tickTime }, { pauseWhenReduced: true, root: target });
+    stopTimeWatch = watchView(target, 'block', inView => {
+      if (inView) recheck = true;
+    });
+    document.addEventListener('visibilitychange', onVisibility);
+  }
 
   // Under reduced motion, a smoothed value that is moving stops at its goal; a time value holds the start of its range.
   const stopPolicy = runtime.policy.subscribe(() => {
-    if (!runtime.policy.reduced) return;
+    if (!runtime.policy.reduced) {
+      recheck = true;
+      return;
+    }
     if (source === 'time') write(first);
     else if (phase === 'live') snap();
   });
@@ -424,6 +434,9 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
       destroyed = true;
       stopWatch?.();
       stopWatch = undefined;
+      stopTimeWatch?.();
+      stopTimeWatch = undefined;
+      document.removeEventListener('visibilitychange', onVisibility);
       unsubscribe?.();
       unsubscribe = undefined;
       stopPolicy();

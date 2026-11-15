@@ -356,9 +356,13 @@ it('out-of-flow: setPresent(true) before the exit ends takes the item back into 
   const natural = items.map(item => item.getBoundingClientRect());
   const presence = getMotion(first, 'presence')!;
   presence.setPresent(false);
-  // Two frames in: the neighbours are visibly on their way, and the exit still runs.
-  await nextFrame();
-  await nextFrame();
+  await Promise.resolve();
+  // Freeze every animation 40 ms in: the neighbours are visibly on their way and the exit still runs, whatever the
+  // machine load (two real frames can outlast the exit on a loaded machine).
+  for (const animation of items.flatMap(item => item.getAnimations())) {
+    animation.pause();
+    animation.currentTime = 40;
+  }
   expect(first.getAnimations().length, 'the exit is still running').toBeGreaterThan(0);
   expect(movingOnTranslate(second)).toBe(true);
   const enter = presence.setPresent(true);
