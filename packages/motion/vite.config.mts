@@ -33,6 +33,7 @@ export default defineConfig(() => ({
         gesture: 'src/gesture-entry.ts',
         text: 'src/text-entry.ts',
         svg: 'src/svg-entry.ts',
+        scroll: 'src/scroll-entry.ts',
         astro: 'src/astro.ts',
         manifest: 'src/manifest.ts',
         'providers/css': 'src/providers/css.ts',

@@ -372,3 +372,28 @@ test('every types path of both export maps names a declaration file of the build
     for (const [entry, target] of Object.entries(map))
       if (typeof target === 'object' && target.types) assert.ok(existsSync(root + target.types.slice(2)), `${entry}: ${target.types} is missing`);
 });
+
+test('scroll entry point is public in both export maps', () => {
+  assert.deepEqual(pkg.exports['./scroll'], {
+    development: './src/scroll-entry.ts', types: './dist/scroll-entry.d.ts',
+    import: './dist/scroll.js', require: './dist/scroll.cjs', default: './dist/scroll.js',
+  });
+  assert.deepEqual(pkg.publishConfig.exports['./scroll'], {
+    types: './dist/scroll-entry.d.ts', import: './dist/scroll.js',
+    require: './dist/scroll.cjs', default: './dist/scroll.js',
+  });
+});
+
+test('the main entry holds none of the scroll code', async () => {
+  for (const code of await staticClosure('dist/index.js')) assert.doesNotMatch(code, /scrollDestination|scrollTo\(|scrollParentOf|startSides|scrollerOf|scroll-padding-/);
+});
+
+test('the scroll entry imports only shared chunks, never the main entry', async () => {
+  const scroll = await readFile(new URL('dist/scroll.js', root), 'utf8');
+  const imports = [...scroll.matchAll(/^import\s[^;]*?from "(\.\/[^"]+)";/gm)].map(match => match[1]);
+  assert.ok(imports.length > 0);
+  for (const file of imports) {
+    assert.notEqual(file, './index.js', 'the scroll entry imports the main entry');
+    await readFile(new URL(file, new URL('dist/', root)), 'utf8');
+  }
+});

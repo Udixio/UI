@@ -92,6 +92,12 @@
         "require": "./dist/svg.cjs",
         "default": "./dist/svg.js"
       },
+      "./scroll": {
+        "types": "./dist/scroll-entry.d.ts",
+        "import": "./dist/scroll.js",
+        "require": "./dist/scroll.cjs",
+        "default": "./dist/scroll.js"
+      },
       "./astro": {
         "types": "./dist/astro.d.ts",
         "import": "./dist/astro.js",
@@ -224,6 +230,13 @@
       "import": "./dist/svg.js",
       "require": "./dist/svg.cjs",
       "default": "./dist/svg.js"
+    },
+    "./scroll": {
+      "development": "./src/scroll-entry.ts",
+      "types": "./dist/scroll-entry.d.ts",
+      "import": "./dist/scroll.js",
+      "require": "./dist/scroll.cjs",
+      "default": "./dist/scroll.js"
     },
     "./astro": {
       "development": "./src/astro.ts",
