@@ -242,7 +242,7 @@ defineMotion('progress-spin', {
       <div data-motion="blink" data-demo-loop="blink" class="size-6 rounded-full bg-primary"></div>
     </div>
     <div>
-      <button type="button" data-demo-pause-loops aria-pressed="false" class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Pause loops</button>
+      <button type="button" data-demo-pause-loops class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Pause loops</button>
     </div>
   </div>
   <p>The <code>shake</code> emphasis, which signals a refused action, is not a loop: it replays each time the element's <code>data-state</code> changes. Each click on this button sets the next state.</p>
@@ -346,8 +346,9 @@ defineMotion('progress-spin', {
       }
       const pauseLoops = event.target.closest<HTMLButtonElement>('[data-demo-pause-loops]');
       if (pauseLoops) {
-        const paused = pauseLoops.getAttribute('aria-pressed') !== 'true';
-        pauseLoops.setAttribute('aria-pressed', String(paused));
+        // The label says what the button does next; it is the only state announced (no aria-pressed on top of it).
+        const paused = !pauseLoops.hasAttribute('data-paused');
+        pauseLoops.toggleAttribute('data-paused', paused);
         pauseLoops.textContent = paused ? 'Play loops' : 'Pause loops';
         for (const loop of document.querySelectorAll<HTMLElement>('[data-demo-loop]')) {
           if (paused) loop.setAttribute('data-motion-paused', '');
