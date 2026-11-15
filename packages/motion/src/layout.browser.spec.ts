@@ -805,3 +805,119 @@ it('a carried move that returns to the size the card looks like keeps its conten
     expectSize(child, 80, 20);
   }
 });
+
+/** A followed card that grows, holding a followed item with a dot: a followed element inside a followed element that resizes. */
+const nestedCss = `
+  .scope { display: flex; justify-content: flex-start; width: 500px; }
+  .scope.end { justify-content: flex-end; }
+  .card { display: flex; align-items: center; width: 200px; height: 60px; padding: 0 20px; box-sizing: border-box; }
+  .card.wide { width: 400px; }
+  .item { width: 40px; height: 40px; margin-left: auto; }
+  .item.start { margin-left: 0; margin-right: auto; }
+  .dot { width: 10px; height: 10px; }
+`;
+const nestedMarkup = '<div class="scope" id="scope" data-motion-scope><div class="card" id="card"><div class="item" id="item"><div class="dot" id="dot"></div></div></div></div>';
+
+it('[Review Focus 3] a followed child keeps its size and its place while its followed card resizes', async () => {
+  page(nestedCss, nestedMarkup);
+  const card = byId('card');
+  const item = byId('item');
+  const dot = byId('dot');
+  const cardBinding = bindTo(card);
+  bindTo(item);
+  card.classList.add('wide');
+  await Promise.resolve();
+  const handle = moving(cardBinding);
+  for (const share of SHARES) {
+    seekAll(handle, card, share * handle.duration);
+    expectSize(item, 40, 40);
+    const gap = rightGap(card, item);
+    expect(Math.abs(gap - 20), `gap ${gap} px at ${share * 100} %`).toBeLessThanOrEqual(1);
+    expectSize(dot, 10, 10);
+  }
+});
+
+it('[Review Focus 3] once the card has finished, its followed child and its dot are at their natural places, with nothing inline', async () => {
+  page(nestedCss, nestedMarkup);
+  const card = byId('card');
+  const item = byId('item');
+  const dot = byId('dot');
+  const cardBinding = bindTo(card);
+  const itemBinding = bindTo(item);
+  card.classList.add('wide');
+  await Promise.resolve();
+  await moving(cardBinding).finished;
+  expectNear(local(item, card), { left: 340, top: 10, width: 40, height: 40 }, 0.5);
+  expectNear(local(dot, card), { left: 340, top: 10, width: 10, height: 10 }, 0.5);
+  for (const element of [card, item, dot]) {
+    expect(element.style.translate).toBe('');
+    expect(element.style.scale).toBe('');
+    expect(element.getAnimations()).toHaveLength(0);
+  }
+  expect(itemBinding.handle).toBeNull();
+});
+
+it('[Review Focus 3] interrupted at 15 %, the child and its dot keep their places, then arrive exact', async () => {
+  page(nestedCss, nestedMarkup);
+  const card = byId('card');
+  const item = byId('item');
+  const dot = byId('dot');
+  const cardBinding = bindTo(card);
+  const itemBinding = bindTo(item);
+  card.classList.add('wide');
+  await Promise.resolve();
+  const first = moving(cardBinding);
+  seekAll(first, card, 0.15 * first.duration);
+  const before = [item, dot].map(element => element.getBoundingClientRect());
+  card.classList.remove('wide');
+  await Promise.resolve();
+  const after = [item, dot].map(element => element.getBoundingClientRect());
+  [item, dot].forEach((element, i) => {
+    for (const key of ['left', 'top', 'width', 'height'] as const) {
+      expect(Math.abs(after[i][key] - before[i][key]), `${element.id} ${key}: ${after[i][key]} after, ${before[i][key]} before`).toBeLessThanOrEqual(2);
+    }
+  });
+  await moving(cardBinding).finished;
+  expectNear(local(item, card), { left: 140, top: 10, width: 40, height: 40 }, 0.5);
+  expectNear(local(dot, card), { left: 140, top: 10, width: 10, height: 10 }, 0.5);
+  expect(itemBinding.handle).toBeNull();
+  for (const element of [card, item, dot]) {
+    expect(element.style.translate).toBe('');
+    expect(element.style.scale).toBe('');
+    expect(element.getAnimations()).toHaveLength(0);
+  }
+});
+
+it('[Review Focus 3] a card that only moves gives its followed child no move of its own', async () => {
+  page(nestedCss, nestedMarkup);
+  const scope = byId('scope');
+  const card = byId('card');
+  const item = byId('item');
+  const cardBinding = bindTo(card);
+  const itemBinding = bindTo(item);
+  const before = local(item, card);
+  scope.classList.add('end');
+  await Promise.resolve();
+  expect(cardBinding.handle).not.toBeNull();
+  expect(itemBinding.handle).toBeNull();
+  expect(item.getAnimations()).toHaveLength(0);
+  const handle = moving(cardBinding);
+  for (const share of [0.15, 0.6]) {
+    seekAll(handle, card, share * handle.duration);
+    expectNear(local(item, card), before, 0.5);
+  }
+});
+
+it('[Review Focus 3] a child that moves alone inside a card at rest plays its own move, with two keyframes', async () => {
+  page(nestedCss, nestedMarkup);
+  const card = byId('card');
+  const item = byId('item');
+  bindTo(card);
+  const itemBinding = bindTo(item);
+  item.classList.add('start');
+  await Promise.resolve();
+  expect(itemBinding.handle).not.toBeNull();
+  expect(keyframeCount(item)).toBe(2);
+  await moving(itemBinding).finished;
+  expectNear(local(item, card), { left: 20, top: 10, width: 40, height: 40 }, 0.5);
+});

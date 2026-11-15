@@ -49,6 +49,8 @@ interface Item {
   content: ContentNode[]; // the content, measured at rest
   contentPlan: ContentPlan[]; // the content that the move in flight carries; empty when none
   contentHandles: MotionHandle[]; // the moves of the content, which run with the move in flight
+  projected: Item[]; // the followed elements that the move in flight animates as its content, at any depth
+  projector: Item | null; // the followed element whose move animates this one as its content; null when it moves by itself
 }
 
 /** The followed elements under one root, watched together. */
@@ -69,6 +71,18 @@ interface PlannedMove {
   disabled: boolean;
   scale: number;
   content: ContentPlan[] | null;
+}
+
+/** A followed element that changes in a flush: the visual box it starts from, and the velocity and the live content boxes it carries (null when it carries none). */
+type Change = [HTMLElement, Item, Box, Velocity | null, Map<HTMLElement, Box> | null];
+
+/** A changed element whose content is planned in this flush: its content nodes go to `list`; `from` and `visual` are its visual boxes before and after. */
+interface Host {
+  from: Box;
+  visual: Box;
+  list: ContentPlan[];
+  unit: Stretch;
+  live: Map<HTMLElement, Box> | null;
 }
 
 /**
@@ -296,12 +310,14 @@ function contentOf(scope: Scope, element: HTMLElement): ContentNode[] {
   return measureContent(scope, element, element.getBoundingClientRect(), 1, { left: CONTENT_BUDGET });
 }
 
-/** Measure an element at rest, from the computed style its caller has just read. */
-function measureWith(scope: Scope, element: HTMLElement, item: Item, style: CSSStyleDeclaration, rects: ReferenceRects, content = true): void {
+/** Measure an element at rest, from the computed style its caller has just read. Returns its visual box. */
+function measureWith(scope: Scope, element: HTMLElement, item: Item, style: CSSStyleDeclaration, rects: ReferenceRects, content = true): Box {
   item.rest = parseOwnTransform(style.translate, style.scale);
-  item.visual = visualBoxOf(scope, element, rects);
-  item.layout = toLayoutBox(item.visual, item.rest);
+  const visual = visualBoxOf(scope, element, rects);
+  item.visual = visual;
+  item.layout = toLayoutBox(visual, item.rest);
   if (content) item.content = contentOf(scope, element);
+  return visual;
 }
 
 /** Measure an element at rest. Its content is measured too, unless `content` is false. */
@@ -340,14 +356,17 @@ function dispose(scope: Scope): void {
   scopes.delete(scope.root);
 }
 
-/** Stop the move of a followed element and the content it carries, and forget both. */
+/** Stop the move of a followed element, the content it carries and the followed elements it animates as content, and forget them all. */
 function stopFlight(item: Item): void {
   item.handle?.cancel();
   for (const handle of item.contentHandles) handle.cancel();
+  for (const child of item.projected) stopFlight(child);
   item.handle = null;
   item.flight = null;
   item.contentPlan = [];
   item.contentHandles = [];
+  item.projected = [];
+  item.projector = null;
 }
 
 /** An element that left the scope follows its new scope, without animating this time. */
@@ -403,6 +422,24 @@ function contentPlanOf(cache: readonly ContentNode[], after: readonly ContentNod
   return plan(after, unitOf(parent, parent.getBoundingClientRect()));
 }
 
+/** How many followed elements of the scope contain `element`: a reference always has a smaller depth than what it contains. */
+function depthOf(scope: Scope, element: HTMLElement): number {
+  let depth = 0;
+  for (let reference = referenceOf(scope, element); reference !== scope.root; reference = referenceOf(scope, reference)) depth++;
+  return depth;
+}
+
+/** A box given relative to the top-left corner of its reference, made relative to the centre of that reference. */
+function centredOn(box: Box, reference: Box): Box {
+  return { cx: box.cx - reference.w / 2, cy: box.cy - reference.h / 2, w: box.w, h: box.h };
+}
+
+/** The change of an element in flight (reads only): a carried move starts from its layout box as it is now, with the velocity and content it carries; otherwise from its rest visual box. */
+function flyingChange(element: HTMLElement, item: Item, layout: Box, visual: Box, own: OwnTransform): Change {
+  const carried = (item.spec.interrupt ?? 'carry') === 'carry';
+  return carried ? [element, item, toVisualBox(layout, own), velocityOf(item), liveBoxesOf(item, own)] : [element, item, visual, null, null];
+}
+
 /**
  * Compare the layout with the cache, and play the difference of every element that moved.
  * Reads come first in each pass, and a pass never reads after its own writes: the browser then recalculates
@@ -425,22 +462,22 @@ function flush(scope: Scope, records: readonly MutationRecord[] = []): void {
   // changed gets its content measured again.
   const rects: ReferenceRects = new Map();
   const dirty = dirtyItemsOf(scope, records);
-  const changed: Array<[HTMLElement, Item, Box, Velocity | null, Map<HTMLElement, Box> | null]> = [];
+  const changed: Change[] = [];
   for (const [element, item] of scope.items) {
     if (!element.isConnected) continue;
     if (!item.layout || !item.visual) {
       if (item.handle === null) measure(scope, element, item, rects);
       continue;
     }
+    // A child animated as content moves with its projector: it is changed with it, in 1b.
+    if (item.projector !== null) continue;
     const visualNow = visualBoxOf(scope, element, rects);
     if (item.handle !== null) {
       // In flight: the underlying layout box, with the animated transform undone.
       const own = ownOf(element);
       if (sameBox(toLayoutBox(visualNow, own), item.layout)) continue; // its destination did not change: keep flying
-      const carried = (item.spec.interrupt ?? 'carry') === 'carry';
-      // A carried move keeps the velocity its spring has now, read before the move is cancelled.
-      // A carried move also starts its content from where it is now, read before anything is cancelled.
-      changed.push(carried ? [element, item, toVisualBox(item.layout, own), velocityOf(item), liveBoxesOf(item, own)] : [element, item, item.visual, null, null]);
+      // A carried move keeps the velocity its spring has now, and starts its content from where it is now, both read before anything is cancelled.
+      changed.push(flyingChange(element, item, item.layout, item.visual, own));
     } else if (sameBox(visualNow, item.visual)) {
       // It did not move, but its content may have changed.
       if (dirty.has(item)) item.content = contentOf(scope, element);
@@ -448,26 +485,66 @@ function flush(scope: Scope, records: readonly MutationRecord[] = []): void {
       changed.push([element, item, item.visual, null, null]);
     }
   }
-  // 2. Writes: stop only the moves whose destination changed.
+  // 1b. A followed child of a changed element is changed too, moved or not: its reference may now carry it as content.
+  // Its box is planned in pass 3, from the content its reference is running when that carries it; a child in flight
+  // by itself starts as an element in flight does.
+  const changing = new Set(changed.map(([element]) => element));
+  for (let grew = true; grew; ) {
+    grew = false;
+    for (const [element, item] of scope.items) {
+      if (changing.has(element) || !element.isConnected || !item.layout || !item.visual || !changing.has(referenceOf(scope, element))) continue;
+      if (item.handle !== null && item.projector === null) changed.push(flyingChange(element, item, item.layout, item.visual, ownOf(element)));
+      else changed.push([element, item, item.visual, null, null]);
+      changing.add(element);
+      grew = true;
+    }
+  }
+  // 2. Writes: stop only the moves whose destination changed, and the content that they carry.
   for (const [, item] of changed) stopFlight(item);
   // 3. Reads, after the writes above: measure the new rest state of the changed elements, one computed style
   // per element, from which the move's rest transform, disabled flag and scale are all taken. The content is
-  // planned against the cache as it was before this measure.
+  // planned against the cache as it was before this measure. A reference is planned before the elements it
+  // contains: a changed element whose reference has a content plan joins that content, and has no move of its own.
   const rectsAfterWrites: ReferenceRects = new Map();
+  const references = new Set(changed.map(([element]) => referenceOf(scope, element)));
+  const ordered = [...changed].sort((a, b) => depthOf(scope, a[0]) - depthOf(scope, b[0]));
+  const hosts = new Map<HTMLElement, Host>();
+  const nodes = new Map<HTMLElement, Item>(); // the followed elements that join a content plan, by element
   const planned: PlannedMove[] = [];
-  for (const [element, item, from, velocity, live] of changed) {
+  for (const [element, item, from, velocity, live] of ordered) {
     const contentBefore = item.content;
     const style = getComputedStyle(element);
     const disabled = motionDisabledIn(style);
     const scale = motionScaleIn(style);
-    measureWith(scope, element, item, style, rectsAfterWrites);
+    const visual = measureWith(scope, element, item, style, rectsAfterWrites);
+    const host = hosts.get(referenceOf(scope, element));
+    if (host) {
+      // A node of the content of its reference: its own content hangs from it, and it is moved with the reference's content.
+      const kind = hasText(element) ? 'text' : 'box';
+      const node: ContentPlan = {
+        element,
+        kind,
+        // Where it is on screen, when its reference's running content carries it; else its place at rest, in the reference's frame.
+        before: host.live?.get(element) ?? centredOn(from, host.from),
+        after: centredOn(visual, host.visual),
+        rest: item.rest,
+        unit: host.unit,
+        children: kind === 'box' ? contentPlanOf(contentBefore, item.content, element, host.live) : [],
+      };
+      host.list.push(node);
+      nodes.set(element, item);
+      if (kind === 'box') hosts.set(element, { from, visual, list: node.children, unit: unitOf(element, element.getBoundingClientRect()), live: host.live });
+      continue;
+    }
     // A move with a visible velocity still flies when its frames are null: the element is then at its destination.
     const carry = isNegligible(velocity) ? null : velocity;
-    const frames = item.visual && (flipFrames(from, item.visual, item.rest) ?? (carry && restFrames(item.rest)));
+    const frames = flipFrames(from, visual, item.rest) ?? (carry && restFrames(item.rest));
     if (!frames) continue;
     // Its content follows a move that resizes it, or a scale that the velocity still carries, even at the same size.
+    // A reference with followed children has a content plan even without content of its own: the children are its content.
     const follows = resizes(frames) || scalesMoving(carry);
-    const content = follows && item.content.length > 0 ? contentPlanOf(contentBefore, item.content, element, live) : null;
+    const content = follows && (item.content.length > 0 || references.has(element)) ? contentPlanOf(contentBefore, item.content, element, live) : null;
+    if (content) hosts.set(element, { from, visual, list: content, unit: unitOf(element, element.getBoundingClientRect()), live });
     planned.push({ element, item, frames, velocity: carry, disabled, scale, content });
   }
   if (planned.length === 0) return;
@@ -486,7 +563,7 @@ function flush(scope: Scope, records: readonly MutationRecord[] = []): void {
       void handle.finished.then(() => {
         if (item.handle === handle) stopFlight(item);
       });
-      startContent(item, move, playback);
+      startContent(item, move, playback, nodes);
     } catch (error) {
       if (item.development) console.error('[@udixio/motion] layout move could not animate:', error);
     }
@@ -498,7 +575,7 @@ function flush(scope: Scope, records: readonly MutationRecord[] = []): void {
  * stretch is the parent's scale at the instant over its rest scale, and the progress of its box is the progress of the
  * parent's size between its first and last frames (the progress without velocity when they are equal).
  */
-function startContent(item: Item, move: PlannedMove, playback: Playback): void {
+function startContent(item: Item, move: PlannedMove, playback: Playback, nodes: ReadonlyMap<HTMLElement, Item>): void {
   const { content, frames: [from, to] } = move;
   const { keyframes, steps, baseProgress } = playback;
   if (!content || !baseProgress) return;
@@ -517,7 +594,15 @@ function startContent(item: Item, move: PlannedMove, playback: Playback): void {
   );
   item.contentPlan = content;
   for (const sample of samples) {
-    item.contentHandles.push(waapiProvider.animate({ target: sample.element, keyframes: sample.keyframes, timing: { duration: playback.duration, easing: 'linear' }, commit: false }));
+    const handle = waapiProvider.animate({ target: sample.element, keyframes: sample.keyframes, timing: { duration: playback.duration, easing: 'linear' }, commit: false });
+    item.contentHandles.push(handle);
+    // A followed element in the content moves with this sample: the sample is its move in flight, with no spring of its own.
+    const child = nodes.get(sample.element);
+    if (!child) continue;
+    child.handle = handle;
+    child.flight = null;
+    child.projector = item;
+    item.projected.push(child);
   }
 }
 
@@ -530,7 +615,8 @@ function startContent(item: Item, move: PlannedMove, playback: Playback): void {
 function refresh(scope: Scope, content: boolean): void {
   const rects: ReferenceRects = new Map();
   for (const [element, item] of scope.items) {
-    if (!element.isConnected) continue;
+    // An element animated as content is measured with its projector, whose move it follows.
+    if (!element.isConnected || item.projector !== null) continue;
     if (item.handle === null) {
       measure(scope, element, item, rects, content);
     } else {
@@ -554,6 +640,8 @@ export function trackLayout(target: HTMLElement, spec: Readonly<MotionSpec>, opt
     content: [],
     contentPlan: [],
     contentHandles: [],
+    projected: [],
+    projector: null,
   };
   const scope = scopeFor(layoutScopeOf(target));
   scope.items.set(target, item);
