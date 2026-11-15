@@ -670,25 +670,21 @@ test(`${name}: a chip can be dragged and nudged with the keyboard`, async () => 
     const chip = page.locator('[data-demo-drag]');
     const area = page.locator('#demo-drag-area');
     await area.scrollIntoViewIfNeeded();
-    // Idle: no running animation, and the same translate on two frames in a row (read in the page, on each frame).
-    const settle = async () => {
-      await page.evaluate(() => { window.__chipTranslate = undefined; });
-      await page.waitForFunction(() => {
-        const element = document.querySelector('[data-demo-drag]');
-        const translate = getComputedStyle(element).translate;
-        const idle = element.getAnimations().length === 0 && window.__chipTranslate === translate;
-        window.__chipTranslate = translate;
-        return idle;
-      }, null, { polling: 'raf' });
-    };
+    // A release is over when the chip reports motion-dragend: it fires once the spring is at rest. Two equal frames are not
+    // enough, as the release frame and the one before it can show the same translate.
+    const armDragEnd = () => page.evaluate(() => {
+      window.__dragEnded = false;
+      document.querySelector('[data-demo-drag]').addEventListener('motion-dragend', () => { window.__dragEnded = true; }, { once: true });
+    });
     const before = await chip.boundingBox();
     const areaBox = await area.boundingBox();
     const centre = { x: before.x + before.width / 2, y: before.y + before.height / 2 };
     await page.mouse.move(centre.x, centre.y);
     await page.mouse.down();
     await page.mouse.move(centre.x + 120, centre.y + 40, { steps: 6 });
+    await armDragEnd();
     await page.mouse.up();
-    await settle();
+    await page.waitForFunction(() => window.__dragEnded);
     const dragged = await chip.boundingBox();
     assert.ok(dragged.x - before.x >= 100, `the chip moved ${dragged.x - before.x} px, expected at least 100`);
     assert.ok(dragged.x >= areaBox.x && dragged.x + dragged.width <= areaBox.x + areaBox.width, 'the chip is outside the area on the x axis');
@@ -696,8 +692,8 @@ test(`${name}: a chip can be dragged and nudged with the keyboard`, async () => 
     // Focused, one press of ArrowLeft moves the chip 16 px to the left.
     await chip.focus();
     const beforeKey = await chip.boundingBox();
+    // The nudge is written in the keydown, without a release.
     await page.keyboard.press('ArrowLeft');
-    await settle();
     const afterKey = await chip.boundingBox();
     assert.ok(Math.abs(beforeKey.x - afterKey.x - 16) <= 1, `the chip moved ${beforeKey.x - afterKey.x} px left, expected 16`);
     assert.deepEqual(pageErrors, []);

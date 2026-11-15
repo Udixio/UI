@@ -39,6 +39,8 @@ interface Grab {
 
 /** The longest frame step that is integrated, in seconds: a frame after a pause moves the spring at most this far. */
 const MAX_FRAME = 1 / 30;
+/** The time the first frame of a motion integrates: the change came during the frame before, so the motion starts on the next one. */
+const FIRST_FRAME = 1 / 60;
 /** A release is at rest when it is this close to its goal, in px, and moves this slowly, in px/s. */
 const REST_POSITION = 0.05;
 const REST_VELOCITY = 0.5;
@@ -346,7 +348,7 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
   /** A frame of the release: the springs integrate the time since the last frame, and arrive once they are at rest. */
   function frame(now: number): void {
     if (destroyed) return;
-    const dt = frameAt === undefined ? 0 : Math.min(Math.max(now - frameAt, 0) / 1000, MAX_FRAME);
+    const dt = frameAt === undefined ? FIRST_FRAME : Math.min(Math.max(now - frameAt, 0) / 1000, MAX_FRAME);
     frameAt = now;
     if (dt > 0) {
       if (useX) stepSpring(springs.x, goal.x, dt, params);

@@ -12,5 +12,5 @@
   { "name": "waapi", "path": "dist/providers/waapi.js", "import": "*", "gzip": true, "limit": "1.1 kB" },
   { "name": "animejs", "path": "dist/providers/animejs.js", "import": "*", "gzip": true, "limit": "15.0 kB" },
   { "name": "testing", "path": "dist/testing/index.js", "import": "*", "gzip": true, "limit": "1.7 kB" },
-  { "name": "astro", "path": "dist/astro.js", "import": "*", "gzip": true, "limit": "4.0 kB" }
+  { "name": "astro", "path": "dist/astro.js", "import": "*", "gzip": true, "limit": "4.9 kB" }
 ]

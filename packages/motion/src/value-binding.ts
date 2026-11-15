@@ -23,6 +23,8 @@ export interface ValueBinding {
 
 /** The longest frame step that is integrated, in seconds: a frame after a pause moves the spring at most this far. */
 const MAX_FRAME = 1 / 30;
+/** The time the first frame of a motion integrates: the change came during the frame before, so the motion starts on the next one. */
+const FIRST_FRAME = 1 / 60;
 /** A smoothed value is at rest when it is this close to its goal, as a fraction of its span... */
 const POSITION_EPSILON = 1e-4;
 /** ...and moves this slowly, as a fraction of its span per second. */
@@ -244,7 +246,7 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
 
   /** The frame of a moving spring: it integrates the time since the last frame, and rests once it is at its goal. */
   function step(now: number): void {
-    const dt = frameAt === undefined ? 0 : Math.min(Math.max(now - frameAt, 0) / 1000, MAX_FRAME);
+    const dt = frameAt === undefined ? FIRST_FRAME : Math.min(Math.max(now - frameAt, 0) / 1000, MAX_FRAME);
     frameAt = now;
     if (params && dt > 0) stepSpring(springState, goal, dt, params);
     if (Math.abs(springState.x - goal) < POSITION_EPSILON * span && Math.abs(springState.v) < VELOCITY_EPSILON * span) {
