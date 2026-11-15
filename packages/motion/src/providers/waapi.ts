@@ -1,4 +1,4 @@
-import type { MotionProvider, VisualFrame } from '../contract.js';
+import type { MotionHandle, MotionProvider, VisualFrame } from '../contract.js';
 
 function frameToKeyframe(frame: VisualFrame): Keyframe {
   return {
@@ -8,6 +8,37 @@ function frameToKeyframe(frame: VisualFrame): Keyframe {
     ...(frame.scale === undefined && (frame.scaleX !== undefined || frame.scaleY !== undefined) && { scale: `${frame.scaleX ?? 1} ${frame.scaleY ?? 1}` }),
     ...(frame.rotate !== undefined && { rotate: `${frame.rotate}deg` }),
   };
+}
+
+/**
+ * The handle of one WAAPI move. `currentTime` is an accessor of the class: written as an accessor in the object
+ * literal of each move, it made every move of the layout engine measurably slower.
+ */
+class WaapiMove implements MotionHandle {
+  readonly backend = 'waapi';
+  readonly velocity: MotionHandle['velocity'] = { value: 0, source: 'unavailable' };
+  readonly play: MotionHandle['play'];
+  readonly pause: MotionHandle['pause'];
+  readonly reverse: MotionHandle['reverse'];
+  readonly seek: MotionHandle['seek'];
+  readonly cancel: MotionHandle['cancel'];
+
+  constructor(
+    readonly duration: number,
+    readonly finished: Promise<'finished' | 'cancelled'>,
+    private readonly elapsed: () => number,
+    controls: Omit<MotionHandle, 'backend' | 'duration' | 'finished' | 'velocity' | 'currentTime'>,
+  ) {
+    this.play = controls.play;
+    this.pause = controls.pause;
+    this.reverse = controls.reverse;
+    this.seek = controls.seek;
+    this.cancel = controls.cancel;
+  }
+
+  get currentTime(): number {
+    return this.elapsed();
+  }
 }
 
 let active = 0;
@@ -55,15 +86,12 @@ export const waapiProvider: MotionProvider = {
       animation.cancel();
       settle('finished');
     }, () => settle('cancelled'));
-    return {
-      backend: 'waapi', duration: timing.duration, finished,
-      get currentTime() { return frozen ?? Number(animation.currentTime ?? 0); },
-      velocity: { value: 0, source: 'unavailable' },
+    return new WaapiMove(timing.duration, finished, () => frozen ?? Number(animation.currentTime ?? 0), {
       play: () => { if (!settled) animation.play(); },
       pause: () => { if (!settled) animation.pause(); },
       reverse: () => { if (!settled) animation.reverse(); },
       seek: (time) => { if (!settled) animation.currentTime = time; },
       cancel: () => { if (!settled) { freeze(); settle('cancelled'); animation.cancel(); } },
-    };
+    });
   },
 };
