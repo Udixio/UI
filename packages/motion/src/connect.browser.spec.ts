@@ -20,7 +20,6 @@ defineMotion('connect-exit-reflow', { verb: 'layout' });
 defineMotion('connect-exit-out', { verb: 'appear', keyframes: [{ opacity: 0 }, { opacity: 1 }], exit: 'out-of-flow' });
 defineMotion('connect-shared-move', { verb: 'layout' });
 defineMotion('connect-rise', { verb: 'reveal', keyframes: [{ opacity: 0 }, { opacity: 1 }] });
-defineMotion('connect-scrub', { verb: 'scrub', keyframes: [{ y: 48 }, { y: -48 }], range: 'cross' });
 defineMotion('connect-loop', { verb: 'loop', keyframes: [{ opacity: 1 }, { opacity: 0.4 }, { opacity: 1 }], pause: 'control' });
 
 const tick = () => Promise.resolve();
@@ -532,22 +531,22 @@ it('an invalid data-motion-shared is reported once and bound without a key: the 
   expect(String(error.mock.calls[1]?.[0])).toContain('data-motion-shared="Bad Key"');
 });
 
-it('skips a scrub that is not bound yet: no exception escapes, one error in development, the element untouched', async () => {
+it('skips a loop that is not bound yet: no exception escapes, one error in development, the element untouched', async () => {
   const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-  const el = make('connect-scrub');
+  const el = make('connect-loop');
   root.append(el);
   expect(() => connect({ development: true })).not.toThrow();
   await tick();
   expect(error).toHaveBeenCalledTimes(1);
-  expect(String(error.mock.calls[0]?.[0])).toContain('connect-scrub');
+  expect(String(error.mock.calls[0]?.[0])).toContain('connect-loop');
   expect(getMotion(el)).toBeUndefined();
   expect(el.getAttribute('style')).toBeNull();
   expect(el.hasAttribute('data-presence')).toBe(false);
 });
 
-it('refuses a scrub or loop before it registers anything, and motionWhenDefined does not throw', () => {
+it('refuses a loop before it registers anything, and motionWhenDefined does not throw', () => {
   const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-  for (const [name, verb] of [['connect-scrub', 'scrub'], ['connect-loop', 'loop']] as const) {
+  for (const [name, verb] of [['connect-loop', 'loop']] as const) {
     const el = make(name);
     expect(() => motion(el, name)).toThrow(`${verb} motions are not bound yet`);
     expect(getMotion(el)).toBeUndefined();
@@ -557,5 +556,5 @@ it('refuses a scrub or loop before it registers anything, and motionWhenDefined 
     expect(getMotion(el)).toBeUndefined();
     expect(el.getAttribute('style')).toBeNull();
   }
-  expect(error).toHaveBeenCalledTimes(2);
+  expect(error).toHaveBeenCalledTimes(1);
 });

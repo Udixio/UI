@@ -181,6 +181,20 @@ it('under reduced motion, an item scrolled into view ends visible, with no runni
   expect(['none', '0px', '0px 0px']).toContain(getComputedStyle(item).translate);
 });
 
+it('under reduced motion turned on while a reveal runs, the reveal jumps to its end', async () => {
+  const [item] = layout(1);
+  bindTo(item);
+  await twoFrames();
+  scrollToTop(item);
+  await twoFrames();
+  expect(item.getAnimations()).toHaveLength(1);
+
+  document.documentElement.dataset.motionPolicy = 'reduce';
+  await twoFrames();
+  expect(item.getAnimations()).toHaveLength(0);
+  expect(getComputedStyle(item).opacity).toBe('1');
+});
+
 it('destroying an item that is hidden in its first frame makes it visible again', async () => {
   const [item] = layout(1);
   const binding = bindTo(item);

@@ -16,6 +16,7 @@ import { NAME_PATTERN } from './manifest.js';
 import { pinOutOfFlow } from './pin.js';
 import { applyFrame, playMotion, releaseFrame } from './play.js';
 import { getMotionRuntime, retainMotionRuntime } from './runtime.js';
+import { startScrub } from './scroll.js';
 import { staggered } from './stagger.js';
 import { watchView } from './viewport.js';
 
@@ -41,7 +42,7 @@ type KeyframedSpec = Exclude<MotionSpec, { verb: 'layout' }>;
 const KINDS: readonly MotionKind[] = ['presence', 'emphasis', 'layout', 'view', 'loop'];
 
 /** The verbs whose binding is written in a later step: until then `motion` refuses them, before it registers anything. */
-const UNBOUND_VERBS: readonly MotionSpec['verb'][] = ['scrub', 'loop'];
+const UNBOUND_VERBS: readonly MotionSpec['verb'][] = ['loop'];
 
 /** Whether a verb is not bound yet: a page that defines such a motion is never broken by it. */
 export function isUnboundVerb(verb: MotionSpec['verb']): boolean {
@@ -106,7 +107,9 @@ export function motion(target: HTMLElement, source: MotionSource, options: BindO
       ? createLayoutBinding(target, spec, options)
       : spec.verb === 'reveal'
         ? createRevealBinding(target, spec, options)
-        : createBinding(target, spec, options);
+        : spec.verb === 'scrub'
+          ? createScrubBinding(target, spec, options)
+          : createBinding(target, spec, options);
   register(target, binding);
   return binding;
 }
@@ -284,6 +287,11 @@ function createRevealBinding(target: HTMLElement, spec: Readonly<Extract<MotionS
   if (watching) unwatch = stop;
   else stop();
 
+  // Under reduced motion, a reveal that runs jumps to its end, as a presence motion does.
+  const stopPolicy = runtime.policy.subscribe(() => {
+    if (handle && runtime.policy.reduced) handle.seek(handle.duration);
+  });
+
   const binding: MotionBinding = {
     verb: 'reveal',
     kind: 'view',
@@ -305,10 +313,65 @@ function createRevealBinding(target: HTMLElement, spec: Readonly<Extract<MotionS
     destroy() {
       if (destroyed) return;
       destroyed = true;
+      stopPolicy();
       stopWatching();
       handle?.cancel();
       handle = null;
       releaseFrame(target, fields);
+      unregister(target, binding);
+      releaseRuntime();
+    },
+  };
+  return binding;
+}
+
+/**
+ * A scrub: the keyframes follow the scroll position of the element through its range, forwards and backwards. The
+ * scroll drives the animation, which has no timing and no handle: there is nothing to replay or to pause. Under reduced
+ * motion, or where the browser has no view timeline, the element stays in its stylesheet state.
+ */
+function createScrubBinding(target: HTMLElement, spec: Readonly<Extract<MotionSpec, { verb: 'scrub' }>>, options: BindOptions): MotionBinding {
+  const development = options.development ?? false;
+  const runtime = getMotionRuntime();
+  const releaseRuntime = retainMotionRuntime(runtime);
+  const axis = spec.axis ?? 'block';
+  const range = spec.range ?? 'cross';
+  let animation: Animation | null = null;
+  let destroyed = false;
+
+  function start() {
+    animation = runtime.policy.reduced ? null : startScrub(target, spec.keyframes, { axis, range, development });
+  }
+
+  function stop() {
+    animation?.cancel();
+    animation = null;
+  }
+
+  start();
+  // Turning reduced motion on stops the scroll link; turning it off resumes it at the current scroll position.
+  const stopPolicy = runtime.policy.subscribe(() => {
+    if (runtime.policy.reduced) stop();
+    else if (!animation) start();
+  });
+
+  const binding: MotionBinding = {
+    verb: 'scrub',
+    kind: 'view',
+    handle: null,
+    present: true,
+    play() {
+      return settledHandle();
+    },
+    setPresent() {
+      throw new TypeError('setPresent does not apply to a scrub motion');
+    },
+    destroy() {
+      if (destroyed) return;
+      destroyed = true;
+      stopPolicy();
+      // Nothing was written inline: cancelling the animation gives the element back its stylesheet state.
+      stop();
       unregister(target, binding);
       releaseRuntime();
     },

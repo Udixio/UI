@@ -1,6 +1,6 @@
 import type { MotionHandle, MotionProvider, VisualFrame } from '../contract.js';
 
-function frameToKeyframe(frame: VisualFrame): Keyframe {
+export function frameToKeyframe(frame: VisualFrame): Keyframe {
   return {
     ...(frame.opacity !== undefined && { opacity: frame.opacity }),
     ...((frame.x !== undefined || frame.y !== undefined) && { translate: `${frame.x ?? 0}px ${frame.y ?? 0}px` }),
