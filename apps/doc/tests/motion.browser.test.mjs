@@ -782,4 +782,152 @@ test(`${name}: tasks reorder with the keyboard`, async () => {
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
+
+test(`${name}: a heading is revealed word by word, and read once`, async () => {
+  const browser = await browserType.launch();
+  try {
+    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
+    const page = await context.newPage();
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    await page.goto(base + '/motion/demo/');
+    const heading = '[data-motion="demo-title-words"]';
+    await page.waitForSelector(heading);
+    // The reveal is bound at connect: wait for the page to be quiet, then two frames.
+    await page.waitForLoadState('networkidle');
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    // Out of view, the heading waits in its first frame, and is not cut into words yet.
+    const atLoad = await page.evaluate(selector => {
+      const element = document.querySelector(selector);
+      return {
+        below: element.getBoundingClientRect().top >= window.innerHeight,
+        opacity: getComputedStyle(element).opacity,
+        pieces: element.querySelectorAll('[data-udx-piece]').length,
+      };
+    }, heading);
+    assert.ok(atLoad.below, 'the heading is in view at load');
+    assert.equal(atLoad.opacity, '0');
+    assert.equal(atLoad.pieces, 0);
+    // Scrolled into view, the five words play in order and end at opacity 1.
+    await page.evaluate(selector => document.querySelector(selector).scrollIntoView(), heading);
+    await page.waitForFunction(selector => document.querySelectorAll(`${selector} [data-udx-piece]`).length > 0, heading);
+    await page.waitForFunction(selector => document.querySelector(selector).getAnimations({ subtree: true }).length === 0, heading);
+    const split = await page.evaluate(selector => {
+      const element = document.querySelector(selector);
+      const pieces = [...element.querySelectorAll('[data-udx-piece]')];
+      return {
+        words: pieces.map(piece => piece.textContent),
+        opacities: pieces.map(piece => getComputedStyle(piece).opacity),
+        headingOpacity: getComputedStyle(element).opacity,
+        copyHidden: element.querySelector('[data-udx-split]')?.getAttribute('aria-hidden'),
+        source: element.querySelector('[data-udx-split-source]')?.textContent,
+      };
+    }, heading);
+    assert.deepEqual(split.words, ['Each', 'word', 'arrives', 'in', 'turn']);
+    assert.deepEqual(split.opacities, ['1', '1', '1', '1', '1']);
+    assert.equal(split.headingOpacity, '1');
+    // The visual copy is hidden from the accessibility tree, and the text is read once, in full, from the source.
+    assert.equal(split.copyHidden, 'true');
+    assert.equal(split.source, 'Each word arrives in turn');
+    assert.equal(await page.getByRole('heading', { name: 'Each word arrives in turn', exact: true }).count(), 1);
+    assert.deepEqual(pageErrors, []);
+  } finally { await browser.close(); }
+});
+
+test(`${name}: a check is drawn again, a dot travels again, and an icon morphs into a pause mark`, async () => {
+  const browser = await browserType.launch();
+  try {
+    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
+    const page = await context.newPage();
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    await page.goto(base + '/motion/demo/');
+    await page.waitForSelector('[data-demo-draw-again]');
+    // The motions are bound at connect: wait for the page to be quiet, then two frames.
+    await page.waitForLoadState('networkidle');
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    // The dot rests at the end of its track, where its entry ends.
+    assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('[data-demo-travel]')).offsetDistance), '100%');
+
+    // A replay is three changes of the presence, from the one it had: out (exiting), in (entering), then present. The
+    // records are taken from the click on, so the test sees the replay whatever the load.
+    const recordPresence = selector => page.evaluate(target => {
+      window.__presence = [];
+      new MutationObserver(records => {
+        for (const record of records) window.__presence.push(record.oldValue);
+      }).observe(document.querySelector(target), { attributes: true, attributeFilter: ['data-presence'], attributeOldValue: true });
+    }, selector);
+    const replayed = selector => page.waitForFunction(target => window.__presence.length === 3 && document.querySelector(target).getAnimations().length === 0, selector, { timeout: 20000 });
+
+    // Draw again: the check undraws, then draws, and at rest the stroke is whole with no dash inline.
+    await recordPresence('[data-demo-draw]');
+    await page.locator('[data-demo-draw-again]').click();
+    await replayed('[data-demo-draw]');
+    assert.deepEqual(await page.evaluate(() => window.__presence), ['present', 'exiting', 'entering']);
+    const drawn = await page.evaluate(() => {
+      const path = document.querySelector('[data-demo-draw]');
+      return { offset: parseFloat(getComputedStyle(path).strokeDashoffset), dash: path.style.strokeDasharray, inlineOffset: path.style.strokeDashoffset };
+    });
+    assert.ok(Math.abs(drawn.offset) <= 0.001, `the stroke ends at dash offset ${drawn.offset}, expected 0`);
+    assert.equal(drawn.dash, '');
+    assert.equal(drawn.inlineOffset, '');
+
+    // Move again: the dot leaves its end, then comes back to it.
+    await recordPresence('[data-demo-travel]');
+    await page.locator('[data-demo-move-again]').click();
+    await replayed('[data-demo-travel]');
+    assert.deepEqual(await page.evaluate(() => window.__presence), ['present', 'exiting', 'entering']);
+    assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('[data-demo-travel]')).offsetDistance), '100%');
+
+    // Morph: the play triangle becomes the pause mark, its button is pressed, and the temporary path of the morph is gone.
+    const PAUSE = 'M7 5 H10 V19 H7 Z M14 5 H17 V19 H14 Z';
+    await page.locator('[data-demo-morph-button]').click();
+    await page.waitForFunction(pause => document.querySelector('[data-demo-morph]').getAttribute('d') === pause, PAUSE, { timeout: 20000 });
+    const morphed = await page.evaluate(() => ({
+      pressed: document.querySelector('[data-demo-morph-button]').getAttribute('aria-pressed'),
+      label: document.querySelector('[data-demo-morph-button]').getAttribute('aria-label'),
+      paths: document.querySelectorAll('#demo-icon path').length,
+    }));
+    assert.deepEqual(morphed, { pressed: 'true', label: 'Morph the icon between play and pause', paths: 1 });
+    assert.deepEqual(pageErrors, []);
+  } finally { await browser.close(); }
+});
+
+test(`${name}: a scroll takes the page back to the text demo, and focuses its heading`, async () => {
+  const browser = await browserType.launch();
+  try {
+    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
+    const page = await context.newPage();
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    await page.goto(base + '/motion/demo/');
+    await page.waitForSelector('[data-demo-scroll-back]');
+    // The gesture is bound at connect: wait for the page to be quiet, then two frames.
+    await page.waitForLoadState('networkidle');
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    // The button is far below the heading of the text demo.
+    await page.evaluate(() => document.querySelector('[data-demo-scroll-back]').scrollIntoView({ block: 'center' }));
+    const before = await page.evaluate(() => window.scrollY);
+    await page.locator('[data-demo-scroll-back]').click();
+    // The scroll is over when the heading holds the focus, and its top is at the scroll margin (within 2 px).
+    await page.waitForFunction(() => {
+      const heading = document.getElementById('demo-text');
+      const margin = Number.parseFloat(getComputedStyle(heading).scrollMarginTop) || 0;
+      return document.activeElement === heading && Math.abs(heading.getBoundingClientRect().top - margin) <= 2;
+    }, null, { timeout: 20000 });
+    const after = await page.evaluate(() => {
+      const heading = document.getElementById('demo-text');
+      return {
+        scrollY: window.scrollY,
+        top: heading.getBoundingClientRect().top,
+        margin: Number.parseFloat(getComputedStyle(heading).scrollMarginTop) || 0,
+        focused: document.activeElement === heading,
+      };
+    });
+    assert.ok(before - after.scrollY > 1000, `the page scrolled ${before - after.scrollY} px, expected more than 1000`);
+    assert.ok(Math.abs(after.top - after.margin) <= 2, `the heading is ${after.top} px from the top, expected ${after.margin}`);
+    assert.equal(after.focused, true);
+    assert.deepEqual(pageErrors, []);
+  } finally { await browser.close(); }
+});
 }

@@ -155,6 +155,40 @@ const reorderExample = `<!-- Items that carry the same reorder gesture move amon
 // Define it once. Its keyboard alternative: Space grabs the focused item, the arrow keys move it, Space drops it, Escape puts it back
 import { defineGesture } from '@udixio/motion/gesture';
 defineGesture('demo-reorder', { kind: 'reorder', alternative: 'grab' });`;
+const textExample = `<!-- A heading revealed by its words, and a line written by its letters -->
+<h3 data-motion="demo-title-words">…</h3>
+<p data-motion="demo-letters">…</p>
+
+// Define each split once: the pieces play the keyframes in a cascade, in the order of the text
+import { defineMotion } from '@udixio/motion';
+defineMotion('demo-title-words', {
+  verb: 'reveal',
+  split: 'words',
+  keyframes: [{ opacity: 0, y: 12 }, { opacity: 1, y: 0 }],
+});
+defineMotion('demo-letters', {
+  verb: 'appear',
+  split: 'chars',
+  keyframes: [{ opacity: 0, y: 6 }, { opacity: 1, y: 0 }],
+});
+
+// A screen reader reads the text once, as written: the pieces are a visual copy, hidden from it`;
+const svgExample = `<!-- A path drawn from nothing, and a dot that travels along the offset path its CSS gives it -->
+<path data-motion="draw" d="…"/>
+<span data-motion="demo-travel" style="offset-path: path('M16 72C96 0 192 0 272 72'); offset-distance: 100%"></span>
+
+// The draw preset is built in. The travel is an appear whose keyframes move along the path, and the dot rests at its end
+import { defineMotion } from '@udixio/motion';
+defineMotion('demo-travel', { verb: 'appear', keyframes: [{ along: 0 }, { along: 1 }] });
+
+// Morph a path into another shape, from @udixio/motion/svg: a path element or a d string
+import { morph } from '@udixio/motion/svg';
+const handle = morph(icon, 'M7 5 H10 V19 H7 Z M14 5 H17 V19 H14 Z');
+await handle.finished; // 'finished' once the shape is there, with the d of the target`;
+const scrollExample = `// Scroll an element into place over a spring, with focus on it at the end
+import { scrollTo } from '@udixio/motion/scroll';
+const { finished, cancel } = scrollTo(document.getElementById('demo-text')!, { focus: true });
+await finished; // 'finished', or 'cancelled' when the user scrolls, or after cancel()`;
 ---
 <MotionPage title="Motion demo" description="A live demonstration of data-motion: elements reference a named motion and the runtime animates them.">
   <h1>Motion demo</h1>
@@ -402,6 +436,52 @@ defineGesture('demo-reorder', { kind: 'reorder', alternative: 'grab' });`;
   <pre><code>{reorderExample}</code></pre>
   <p><strong>Page transitions.</strong> This site's pages slide in the direction of navigation: <code>connectAstroTransitions()</code>, from <code>@udixio/motion/astro</code>, gives Astro's router that direction. Any other router can call <code>navigate(update, &#123; direction &#125;)</code>, which runs its update inside a View Transition.</p>
 
+  <h2 id="demo-text">Text</h2>
+  <p>A definition with <code>split</code> cuts the text of its element into <code>words</code> or <code>chars</code> (letters), and each piece plays the keyframes in a cascade, in the order of the text. A screen reader reads the text once, as written: the pieces are a visual copy that it skips. The heading is revealed word by word as it scrolls into view. The line below is written letter by letter, and Replay plays it out and in again.</p>
+  <div class="not-prose flex flex-col gap-6">
+    <h3 data-motion="demo-title-words" class="text-display-small text-on-surface">Each word arrives in turn</h3>
+    <div class="flex flex-wrap items-center gap-4">
+      <p id="demo-letters" data-motion="demo-letters" class="text-title-medium text-on-surface">Letter by letter, this line is written.</p>
+      <button type="button" data-demo-replay-letters class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Replay</button>
+    </div>
+  </div>
+  <pre><code>{textExample}</code></pre>
+
+  <h2 id="demo-svg">SVG</h2>
+  <p>Motions play on SVG elements too. <code>draw</code> draws a path or a basic shape from nothing to its whole stroke. <code>along</code> moves an element along the offset path its CSS gives it. <code>morph</code>, from <code>@udixio/motion/svg</code>, turns the shape of a path into the shape of another one.</p>
+  <h3>Draw</h3>
+  <div class="not-prose flex flex-wrap items-center gap-6">
+    <svg id="demo-check" viewBox="0 0 48 48" class="size-20 text-primary" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+      <path data-motion="draw" data-demo-draw d="M44 24A20 20 0 1 1 4 24A20 20 0 1 1 44 24Z M16 25L22 31L33 19" />
+    </svg>
+    <button type="button" data-demo-draw-again class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Draw again</button>
+  </div>
+  <h3>Along a path</h3>
+  <div class="not-prose flex flex-wrap items-center gap-6">
+    <div id="demo-track" class="relative h-24 w-72 shrink-0 rounded-2xl bg-surface-container">
+      <svg viewBox="0 0 288 96" class="absolute inset-0 size-full text-on-surface-variant" fill="none" stroke="currentColor" stroke-dasharray="4 6" aria-hidden="true" focusable="false">
+        <path d="M16 72C96 0 192 0 272 72" />
+      </svg>
+      <span data-motion="demo-travel" data-demo-travel class="absolute left-0 top-0 size-4 rounded-full bg-primary" style="offset-path: path('M16 72C96 0 192 0 272 72'); offset-distance: 100%"></span>
+    </div>
+    <button type="button" data-demo-move-again class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Move again</button>
+  </div>
+  <h3>Morph</h3>
+  <div class="not-prose flex flex-wrap items-center gap-6">
+    <svg id="demo-icon" viewBox="0 0 24 24" class="size-16 text-primary" fill="currentColor" aria-hidden="true" focusable="false">
+      <path data-demo-morph d="M8 5 L19 12 L8 19 Z" />
+    </svg>
+    <button type="button" data-demo-morph-button aria-pressed="false" aria-label="Morph the icon between play and pause" class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Morph</button>
+  </div>
+  <pre><code>{svgExample}</code></pre>
+
+  <h2>Scroll</h2>
+  <p><code>scrollTo</code>, from <code>@udixio/motion/scroll</code>, scrolls an element into place over a spring, and follows the layout while it moves. The button below scrolls back to the start of the text demo and gives focus to its heading. A wheel turn, a touch, a press or a key stops the scroll where it is.</p>
+  <div class="not-prose">
+    <button type="button" id="demo-scroll-back" data-demo-scroll-back class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Back to the text demo</button>
+  </div>
+  <pre><code>{scrollExample}</code></pre>
+
   <h2>Reduced motion</h2>
   <p>While checked, this control sets <code>data-motion-policy="reduce"</code> on the <code>html</code> element: entries and exits become a short fade, and emphasis does nothing.</p>
   <div class="not-prose">
@@ -431,10 +511,12 @@ defineGesture('demo-reorder', { kind: 'reorder', alternative: 'grab' });`;
   <pre><code>{example}</code></pre>
 
   <script>
-    import { defineMotion } from '@udixio/motion';
+    import { defineMotion, getMotion } from '@udixio/motion';
     import { defineValue } from '@udixio/motion/value';
     import { defineSequence, getSequence } from '@udixio/motion/sequence';
     import { defineGesture } from '@udixio/motion/gesture';
+    import { morph } from '@udixio/motion/svg';
+    import { scrollTo } from '@udixio/motion/scroll';
 
     // Gestures: a drag, a swipe that takes its item out of the list, and a reorder. Each has a keyboard alternative.
     defineGesture('demo-drag', { kind: 'drag', alternative: 'arrows' });
@@ -465,6 +547,25 @@ defineGesture('demo-reorder', { kind: 'reorder', alternative: 'grab' });`;
       stagger: 'normal',
       exit: 'out-of-flow',
     });
+
+    // Text: a heading revealed by its words, and a line written by its letters.
+    defineMotion('demo-title-words', {
+      verb: 'reveal',
+      split: 'words',
+      keyframes: [{ opacity: 0, y: 12 }, { opacity: 1, y: 0 }],
+    });
+    defineMotion('demo-letters', {
+      verb: 'appear',
+      split: 'chars',
+      keyframes: [{ opacity: 0, y: 6 }, { opacity: 1, y: 0 }],
+    });
+    // A dot that travels along the offset path of its track, out and back again on replay.
+    defineMotion('demo-travel', { verb: 'appear', keyframes: [{ along: 0 }, { along: 1 }] });
+    // The two icons the morph joins: a play triangle and a pause mark, in the same 24 by 24 box.
+    const PLAY = 'M8 5 L19 12 L8 19 Z';
+    const PAUSE = 'M7 5 H10 V19 H7 Z M14 5 H17 V19 H14 Z';
+    // The morph in progress, if any: a new morph replaces it from the shape it has reached.
+    let morphing: ReturnType<typeof morph> | undefined;
 
     // Event delegation on document: a page script runs once, so listeners attached
     // to the elements themselves would be lost after a client-side navigation.
@@ -553,6 +654,38 @@ defineGesture('demo-reorder', { kind: 'reorder', alternative: 'grab' });`;
       if (event.target.closest('[data-demo-swipe-restore]')) {
         // The four notifications again: the list is rebuilt, and the new items are bound as the others were.
         document.getElementById('demo-swipe-list')?.replaceChildren(...[1, 2, 3, 4].map(makeNotification));
+        return;
+      }
+      if (event.target.closest('[data-demo-replay-letters]')) {
+        const letters = document.getElementById('demo-letters');
+        if (letters) void replayPresence(letters);
+        return;
+      }
+      if (event.target.closest('[data-demo-draw-again]')) {
+        const check = document.querySelector<SVGPathElement>('[data-demo-draw]');
+        if (check) void replayPresence(check);
+        return;
+      }
+      if (event.target.closest('[data-demo-move-again]')) {
+        const dot = document.querySelector<HTMLElement>('[data-demo-travel]');
+        if (dot) void replayPresence(dot);
+        return;
+      }
+      const morphButton = event.target.closest<HTMLButtonElement>('[data-demo-morph-button]');
+      if (morphButton) {
+        // The name of the button stays the same: aria-pressed says whether the icon shows the pause mark.
+        const pressed = morphButton.getAttribute('aria-pressed') !== 'true';
+        morphButton.setAttribute('aria-pressed', String(pressed));
+        const icon = document.querySelector<SVGPathElement>('[data-demo-morph]');
+        if (icon) {
+          morphing?.cancel();
+          morphing = morph(icon, pressed ? PAUSE : PLAY);
+        }
+        return;
+      }
+      if (event.target.closest('[data-demo-scroll-back]')) {
+        const text = document.getElementById('demo-text');
+        if (text) scrollTo(text, { focus: true });
         return;
       }
       const shot = event.target.closest<HTMLElement>('[data-demo-shot]');
@@ -651,6 +784,14 @@ defineGesture('demo-reorder', { kind: 'reorder', alternative: 'grab' });`;
         else requestAnimationFrame(check);
       };
       requestAnimationFrame(check);
+    }
+
+    // Plays a presence motion again: its exit, then its entry, on the same element. The element ends where it was, shown.
+    async function replayPresence(element: HTMLElement | SVGElement): Promise<void> {
+      const presence = getMotion(element, 'presence');
+      if (!presence) return;
+      await presence.setPresent(false);
+      await presence.setPresent(true);
     }
 
     // The thumbnail whose detail is open, if any.

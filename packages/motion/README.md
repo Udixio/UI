@@ -579,6 +579,97 @@ Under reduced motion, or with `--udx-motion: none`, `navigate()` runs the update
 `connectAstroTransitions()` does nothing. Where the browser has no View Transitions, `navigate()` runs the update
 alone too.
 
+### Text
+
+A definition with `split` cuts the text of its element into pieces, and plays its keyframes on the pieces in a
+cascade, in the order of the text. `split` is `words`, `chars` (the letters, as graphemes) or `lines`, and it applies
+to `appear`, `disappear` and `reveal`. Without a `stagger` the pieces cascade `tight`, and `origin` applies to them:
+
+```ts
+import { defineMotion } from '@udixio/motion';
+
+defineMotion('headline', {
+  verb: 'reveal',
+  split: 'words',
+  keyframes: [{ opacity: 0, y: 12 }, { opacity: 1, y: 0 }],
+});
+```
+
+In HTML, the element names the motion as any other: `<h2 data-motion="headline">…</h2>`.
+
+The original nodes move into a visually hidden copy, which keeps their semantics (`em`, `strong`, `abbr`), and the
+cut copy that the eye sees is `aria-hidden="true"`: a screen reader reads the text once, as written. A change of the
+text is cut again. An element that holds an interactive descendant (`a[href]`, `button`, `input`, `select`,
+`textarea`, `[tabindex]`, `[contenteditable]`) is not split: it plays whole, and a development warning says why.
+`lines` groups the words by their position, and a resize rebuilds the lines once the motion in progress has ended.
+
+Under reduced motion, or with `--udx-motion: none`, the text is not split: the element plays whole, with the reduced
+rule of its verb.
+
+The split lives in `@udixio/motion/text`, which the main entry loads the first time a split definition is bound.
+`loadText()`, exported from `@udixio/motion`, loads it ahead of time. `splitText(element, { by })` cuts an element by
+hand and returns `undefined` when it has no text or an interactive descendant; `getSplit(element)` returns its split,
+and `revert()` puts the original nodes back in place. Both come from `@udixio/motion/text`.
+
+### SVG
+
+A motion binds on an SVG element as it does on an HTML one, with three exceptions: a layout motion is refused there,
+since it needs a box; a split plays the element whole, since its text is not cut; and values, sequences and gestures
+bind to HTML elements only. Two visual fields are for shapes and paths:
+
+- `draw`, from 0 to 1, draws a path or a basic shape from nothing to its whole stroke. It sets `pathLength` to 1 and
+  the dash of the stroke, and both are given back to the author when the binding is destroyed. The `draw` preset is an
+  `appear` from nothing to the whole stroke. Another element keeps its stroke, with a development warning.
+- `along`, from 0 to 1, moves an element along the `offset-path` its CSS gives it, by writing `offset-distance`.
+
+Under reduced motion an entry or an exit with `draw` keeps its stroke drawn over the short fade, with no movement, and
+an `along` moves at once and fades in place.
+
+```ts
+import { defineMotion } from '@udixio/motion';
+import { morph } from '@udixio/motion/svg';
+
+// Along: the element travels from the start of its offset path to its end
+defineMotion('travel', { verb: 'appear', keyframes: [{ along: 0 }, { along: 1 }] });
+
+// Morph: the d of the path becomes the d of another shape
+const handle = morph(icon, 'M7 5 H10 V19 H7 Z M14 5 H17 V19 H14 Z');
+await handle.finished; // 'finished' once the shape is there
+```
+
+`morph(path, to, { timing, precision })`, from `@udixio/motion/svg`, morphs the `d` of a path into the `d` of another
+path element, or into a `d` string. Both shapes are resampled with anime.js, which the consumer installs alongside the
+package, so they need not have the same number of points. The default timing is `spring.default.spatial`; a curve is
+its own easing. `precision` is the number of points per unit of length the shapes are sampled at, and 0 morphs the two
+strings as they are. The handle ends when the shape is there, and then the path carries exactly the `d` of the target.
+`cancel()` leaves the shape where it is. Under reduced motion, with `--udx-motion: none` or a zero motion scale, the
+shape is set at once. The path must be inside an SVG.
+
+An element that is already on the page when the runtime connects keeps the `offset-distance` its CSS gives it, which is
+the start of its path unless the CSS says otherwise: set `offset-distance: 100%` on a travel that should rest at its end.
+
+### Scroll
+
+`scrollTo(target, { container, timing, offset, focus })`, from `@udixio/motion/scroll`, scrolls an element into place
+over a spring. The target is an element or a `{ x, y }` position. By default the nearest scrollable ancestor of the
+element scrolls, or the page; `container` names another scroller. The start edge of the element is brought to the start
+of the visible area, past the `scroll-padding` of the scroller and the `scroll-margin` of the element. `offset` adds
+pixels to the destination, in scroll units. The spring is `spring.slow.spatial` unless `timing` says otherwise, and the
+destination is read on each frame, so the scroll follows a layout that moves while it runs.
+
+```ts
+import { scrollTo } from '@udixio/motion/scroll';
+
+const { finished } = scrollTo(document.getElementById('pricing')!, { focus: true });
+await finished; // 'finished' at the destination, or 'cancelled' when the user scrolled
+```
+
+The scroll returns `{ finished, cancel() }`. A wheel turn, a touch, a pointer press or a key press of the user cancels
+it, and so does a new scroll of the same container. `focus: true` gives the focus to the target on arrival, without
+scrolling again; a target that cannot take focus gets `tabindex="-1"`. While it runs, the `overflow-anchor` of the
+scroller is `none`, and it is given back at the end. Under reduced motion, or with `--udx-motion: none`, the scroll
+jumps to its destination. `scrollDestination(target, options)` reads where the same scroll would stop, without scrolling.
+
 ### HTML
 
 `data-motion` takes names separated by spaces, at most one per kind: a presence motion
@@ -751,6 +842,12 @@ The package is under construction, so:
 - A gesture's spec is validated in development only, as a motion is; its name is checked always.
 - `navigate()` needs the View Transitions API: where it is missing, the update runs alone.
   `connectAstroTransitions()` starts no transition; it sets the direction only.
+- A split element's children must not be added or removed by a framework: its text changes are followed, its
+  elements are not.
+- `lines` falls back to `words` when the text holds an element other than `br`.
+- Joining scripts (Arabic, Indic, Thai and the like) are split by words in `chars`, so that no letter loses its form.
+- Two motions drawing one shape: destroying the first gives the author's `pathLength` back while the second still draws.
+- `scrollTo` cancels when the user scrolls, and scroll anchoring is off on the scroller while it runs.
 
 ## Development
 
