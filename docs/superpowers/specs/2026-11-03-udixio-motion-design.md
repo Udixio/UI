@@ -1217,6 +1217,51 @@ Limites :
   première frame (décalé, mais hors de la vue).
 - Firefox 157 : pas de défilement lié (support natif attendu à partir de 159).
 
+#### 8.3.13 État après l'étape 4 — valeurs, compteurs, séquences (2026-11-16)
+
+| Famille | Écriture | Moteur | Mesuré (trois navigateurs) |
+|---|---|---|---|
+| Valeurs (F14) | `defineValue(nom, { source: 'pointer' \| 'scroll' \| 'state' \| 'time', axis, range, spring, timing })` (entrée `@udixio/motion/value`) ; `data-motion-value="<nom>"`, `value(el, nom)` | nombre lissé par un ressort intégré par frame (vitesse conservée), écrit en `--udx-motion-value-<nom>` sur l'élément ; abonnement au runtime seulement pendant un mouvement | dépassement du ressort spatial 80,76–80,81 pour 80 (simulation 80,77) ; ressort critique monotone |
+| Compteurs (F15) | valeur `state` avec `format: 'integer' \| 'decimal' \| 'percent' \| 'currency'` (+ `currency`) | texte formaté par `Intl.NumberFormat` (langue de la page) ; hors vue à la liaison → compte à l'entrée ; un changement de `value` compte vers la nouvelle valeur | « 1 234,5 » (fr), « €1,234.50 », « 42% » |
+| Séquences (F11) | `defineSequence(nom, { verb: 'appear' \| 'reveal', steps })` (entrée `@udixio/motion/sequence`) ; racine `data-motion="<nom>"`, enfants `data-motion-step` | un `playMotion` par élément avec un délai calculé ; un handle composé | titre 0, sous-titre 50, actions 435 / 455 / 475 ms |
+
+Adaptateurs : `useMotionValue`, `useMotionValueSnapshot` (lecture par `useSyncExternalStore`), `useMotionSequence` ; `[udxMotionValue]`, `[udxMotionSequence]` ; `motionValue`, `motionSequence`.
+
+Règles fixées pendant l'étape 4 (choix de Claude, sur délégation) :
+
+- **Pointeur** : position relative à la boîte de l'élément, retour au milieu de
+  `range` à la sortie. **Défilement** : progression du document.
+  **Temps** : boucle linéaire sur une période, en pause hors de la vue.
+- **Mouvement réduit et `--udx-motion: none`** : valeur posée sans lissage ;
+  une valeur temporelle reste au début de `range` ; elle relit
+  `--udx-motion` quand elle redevient visible (et non sur un écart entre deux
+  images, qui se déclenchait à tort sur une machine chargée).
+- **Compteur et accessibilité** : pendant l'attente ou le comptage, le texte
+  est un nombre affiché `aria-hidden` plus le nombre final masqué visuellement
+  (même principe que le découpage de texte, I27) ; un seul nœud de texte au
+  repos. Ressort critique par défaut : un compte ne dépasse jamais sa valeur.
+- **Séquences** : une étape sans `at` démarre quand tout ce qui précède est
+  fini ; `at: '<étape>'` démarre avec elle ; `at: '+=<jeton>'` démarre ce
+  délai après le début de l'étape précédente.
+- **Handles et délais** : `MotionHandle.delay` ; la fin d'un handle est
+  `delay + duration` ; un handle composé se positionne en temps incluant les
+  délais et borne chaque enfant à sa fin (corrige un défaut ancien des
+  cascades).
+- **Poids** : valeurs et séquences sont des entrées chargées à la demande
+  (`loadValues`, `loadSequences`) ; entrée principale 17,4 kB gzip (limite
+  18,1). Cassant pour les utilisateurs JS : ces fonctions viennent de leurs
+  entrées.
+
+Points ouverts :
+
+- Les adaptateurs importent `@udixio/motion/value` et `/sequence`
+  statiquement (environ 7 kB gardés même sans usage) ; l'aide d'attente d'une
+  définition est répétée dans chaque adaptateur. À reprendre à l'étape 8
+  (`valueWhenDefined`, `sequenceWhenDefined` dans le cœur, chemins paresseux).
+- `udxMotionValueChange` (Angular) émet à chaque frame.
+- Un changement de `--udx-motion` pendant qu'une valeur temporelle tourne
+  prend effet à sa prochaine reprise.
+
 ### 8.4 Détails par famille — **rédigé (consolidation)**
 
 | # | Famille | Écriture | Chemin natif | Repli / moteur JS | Sources |
@@ -1325,8 +1370,9 @@ performance du layout : vitesse conservée, contenu non déformé, détail en
 élément partagé. La passe sur le poids est faite (§8.3.10). **2d livrée le
 2026-11-16** (élément partagé en FLIP, détail en §8.3.11) : **l'étape 2 est
 terminée**. **Étape 3 livrée le 2026-11-16** (`reveal`, `scrub`, `loop`,
-détail en §8.3.12) : les sept verbes existent. La suivante est l'étape 4
-(valeurs, compteurs, séquences).
+détail en §8.3.12) : les sept verbes existent. **Étape 4 livrée le
+2026-11-16** (valeurs, compteurs, séquences, détail en §8.3.13). La suivante
+est l'étape 5 (gestes, transitions de page).
 
 ## 9. Questions ouvertes connues
 
@@ -1397,6 +1443,7 @@ D2 (en partie orientée par C15).
 | Date | Travail | Changement |
 |---|---|---|
 | 2026-11-03 | — | Création du document à l'issue du brainstorming initial. |
+| 2026-11-16 | Étape 4 | Valeurs (`defineValue`, `--udx-motion-value-<nom>`), compteurs formatés et accessibles, séquences (`defineSequence`, `data-motion-step`) ; `MotionHandle.delay` et positionnement composé corrigé ; valeurs et séquences chargées à la demande ; adaptateurs ; démo. Vérification : motion 1 649 tests + 7 ignorés (trois navigateurs), core 433, React 433, Svelte 315, Angular 391, doc 39 tests navigateur sur le site construit. |
 | 2026-11-16 | Étape 3 | Verbes `reveal` (observateur partagé, cascade), `scrub` (`ViewTimeline` natif, repli statique), `loop` (itérations infinies, pause hors vue et à la demande) ; natures `view` et `loop` ; presets `rise`, `parallax`, `rotate`, `breathe`, `blink`, `shake` ; démo. Règles et limites en §8.3.12. Vérification : motion 1 453 tests + 7 ignorés selon le support (trois navigateurs), core 433, React 415, Svelte 305, Angular 375, doc 30 tests navigateur sur le site construit. |
 | 2026-11-16 | Étape 2d | Élément partagé : clé `shared` (définition, option, `data-motion-shared`, adaptateurs), mémoire de page de 600 ms dans le runtime (`preview.7`), transformation FLIP à l'arrivée ; démo « Shared element ». Étape 2 terminée. Règles et limites en §8.3.11. Vérification : motion 1 335 tests (trois navigateurs), core 433, React 410, Svelte 302, Angular 372, doc 21 tests navigateur sur le site construit, deux passages. |
 | 2026-11-16 | Passe sur le poids | Entrée principale 20,6 → 14,6 kB gzip : moteur de layout en entrée séparée chargée à la demande (`@udixio/motion/layout`, `loadLayoutEngine`), validation des définitions en développement seulement. Détail en §8.3.10. Vérification : motion 1 280 tests (trois navigateurs), core 433, React 408, Svelte 300, Angular 370, doc 18 tests navigateur sur le site construit, trois passages. |
