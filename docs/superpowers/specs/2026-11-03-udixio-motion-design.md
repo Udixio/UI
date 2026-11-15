@@ -1047,6 +1047,62 @@ Limites connues après 2b :
 - Restent de 2a : ancrage de défilement dans une portée défilée,
   `transform-origin` au centre, style en ligne non observé.
 
+#### 8.3.9 État après l'étape 2c — listes (2026-11-15)
+
+Une liste s'anime de bout en bout : `<li data-motion="cascade reflow">` entre
+en cascade, sort, et ses voisins lui font ou lui reprennent la place.
+
+| Élément | Rôle |
+|---|---|
+| plusieurs animations par élément | une liaison par nature — présence (`appear`, `disappear`), emphase, layout ; `data-motion="a b"`, `getMotion(el, kind?)`, `getMotions(el)`, `binding.kind`, `kindOf` ; adaptateurs : `useMotion(['cascade', 'reflow'])`, `udxMotion="cascade reflow"`, `motion(['cascade', 'reflow'])` |
+| `stagger`, `origin` (`appear`, `disappear`) | cascade par rang visuel (haut puis gauche), délai `min(rang × pas, plafond)` lu sur `--udx-motion-stagger-*` ; groupe = même définition, même portée, même sens (entrée ou sortie), même tâche ; preset `cascade` |
+| `deferredHandle`, `staggered`, `visualRanks` | handle d'une animation pas encore créée ; lot vidé au microtask (lectures puis écritures) |
+| `exit: 'in-place' \| 'out-of-flow'` | sortie en place (défaut) ou hors flux ; `pinOutOfFlow`, `flushLayoutAround` |
+| coins arrondis | `border-radius` animé à l'inverse de l'étirement (rayons en px), par `MotionRequest.styles` (WAAPI) |
+| `src/layout/*.ts` | moteur de layout découpé en modules (types, mesure, vol, plan, flush, portée) |
+
+Règles fixées pendant l'étape 2c (choix de Claude, sur délégation) :
+
+- **Une liaison par nature** sur un élément ; deux noms de même nature dans
+  `data-motion` : le premier gagne, erreur en développement. La spec était
+  muette sur le cumul ; il est nécessaire aux listes.
+- **Le layout ignore un élément qui entre ou sort** (`data-presence` autre
+  que `present`) : sa présence a la main sur `translate` / `scale` ; il est
+  remesuré, sans animation, quand il redevient présent.
+- **`hidden` sur un élément qui a une présence** n'est pas un changement de
+  layout : c'est la présence qui annonce l'entrée ou la sortie réelle du flux
+  (`flushLayoutAround`). Sans cela, deux observateurs voyaient la même
+  mutation dans un ordre qui dépend du navigateur.
+- **Sortie hors flux** : l'élément est épinglé (`position: absolute` à sa
+  place) au début de la sortie, ses styles en ligne d'origine sont restaurés
+  au retour ou à la destruction ; le parent doit être positionné.
+- **Définitions écrites à la volée** : deux specs de même structure partagent
+  le même objet canonique, donc la même cascade.
+- **État final écrit par le provider** : le provider WAAPI n'appelle plus
+  `commitStyles()` ; il écrit la frame d'arrivée lui-même (sens lu sur
+  `playbackRate`). Sous WebKit, `commitStyles()` après un délai figeait
+  parfois la valeur de départ (élément invisible ou décalé).
+- **Comparaison avec les autres moteurs** (doc officielle de Motion, source
+  d'anime.js 4.5.0) : Motion anime par mise à l'échelle comme nous (enfants à
+  marquer `layout`, texte en `layout="position"`, rayon corrigé seulement s'il
+  est posé par `style`) ; anime.js anime la largeur et la hauteur réelles
+  (aucune déformation, mise en page recalculée à chaque image).
+- Budgets : entrée principale 20,6 kB gzip (limite 22,7 kB), provider WAAPI
+  1,0 kB (limite 1,1 kB).
+
+Points ouverts après 2c :
+
+- **Poids de l'entrée principale** : 20,6 kB gzip (12,7 à l'étape 1a). À
+  traiter avant la suite : charger le moteur de layout et ses aides seulement
+  quand une définition `layout` est utilisée, et sortir la validation du
+  manifeste du chemin de production.
+- Un élément à présence masqué par `hidden` hors de `connectMotion` ne
+  déplace pas ses voisins avant la prochaine mutation de la portée.
+- La cascade et le cache des specs brutes sont propres à chaque copie du
+  paquet (pas partagés entre îles qui embarquent chacune la leur).
+- Petites fonctions dupliquées dans les trois adaptateurs (normalisation de
+  la liste de sources).
+
 ### 8.4 Détails par famille — **rédigé (consolidation)**
 
 | # | Famille | Écriture | Chemin natif | Repli / moteur JS | Sources |
@@ -1150,9 +1206,10 @@ présence par framework — détail en §8.3.6). L'étape 1 est terminée.
 L'étape 2 est découpée en trois : **2a livrée le 2026-11-15** (verbe
 `layout`, détail en §8.3.7) ; **2b livrée le 2026-11-15** (qualité et
 performance du layout : vitesse conservée, contenu non déformé, détail en
-§8.3.8) ; 2c = listes (`stagger`, `origin`, sorties `in-place` /
-`out-of-flow`) ; 2d = élément partagé (`defineShared`, rétention 600 ms,
-View Transitions conditionnelles).
+§8.3.8) ; **2c livrée le 2026-11-15** (listes : plusieurs animations par
+élément, cascade, sorties, coins arrondis, détail en §8.3.9) ; reste 2d =
+élément partagé (`defineShared`, rétention 600 ms, View Transitions
+conditionnelles), précédé d'une passe sur le poids de l'entrée principale.
 
 ## 9. Questions ouvertes connues
 
@@ -1223,6 +1280,7 @@ D2 (en partie orientée par C15).
 | Date | Travail | Changement |
 |---|---|---|
 | 2026-11-03 | — | Création du document à l'issue du brainstorming initial. |
+| 2026-11-15 | Étape 2c | Listes : une liaison par nature sur un élément (`data-motion="cascade reflow"`), cascade par rang visuel, sorties en place ou hors flux, coins arrondis corrigés, moteur de layout découpé en modules. Défaut WebKit corrigé (état final écrit par le provider, plus de `commitStyles`). Règles et points ouverts en §8.3.9. Vérification groupée : motion 1 267 tests (Chromium, Firefox, WebKit), core 433, React 408, Svelte 300, Angular 370, doc 18 tests navigateur sur le site construit. |
 | 2026-11-15 | Étape 2b | Qualité et performance du layout : banc d'essai contre anime.js, calcul d'un changement divisé par 3 (41–43 ms à 200 éléments contre 84–89 ms pour anime.js), vitesse conservée à l'interruption, contenu non déformé par projection, enfants suivis imbriqués. Règles et limites en §8.3.8. Vérification groupée : motion 1 081 tests (Chromium, Firefox, WebKit), core 433, React 403, Svelte 295, Angular 367, doc 15 tests navigateur sur le site construit. |
 | 2026-11-15 | Étape 2a | Verbe `layout` livré (FLIP sur cache de géométrie, portée `data-motion-scope`, preset `reflow`, champs `scaleX` / `scaleY`, `commit: false`) ; démo « Layout ». Règles et limites en §8.3.7. Vérification groupée : motion 931 tests (Chromium, Firefox, WebKit), core 433, React 403, Svelte 295, Angular 367, doc 15 tests navigateur sur le site construit. |
 | 2026-11-15 | Étape 1b | Adaptateurs livrés : `useMotion` (React), `udxMotion` (Angular), `motion` + `presence` (Svelte) ; `motionWhenDefined` dans le noyau ; démo par framework. Décision : pas d'animation au chargement par défaut. Règles et points ouverts en §8.3.6. Vérification groupée : motion 816 tests (Chromium, Firefox, WebKit), core 433, React 402, Svelte 293, Angular 365, doc 12 tests navigateur sur le site construit. |
