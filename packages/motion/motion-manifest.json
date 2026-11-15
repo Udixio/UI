@@ -106,7 +106,8 @@
       "interrupt",
       "stagger",
       "origin",
-      "exit"
+      "exit",
+      "shared"
     ],
     "deferred": [
       "repeat",
@@ -115,8 +116,7 @@
       "range",
       "axis",
       "pause",
-      "reason",
-      "shared"
+      "reason"
     ],
     "interruptVerbs": [
       "emphasize",
@@ -129,6 +129,9 @@
     "exitVerbs": [
       "appear",
       "disappear"
+    ],
+    "sharedVerbs": [
+      "layout"
     ]
   },
   "deferredDomains": {

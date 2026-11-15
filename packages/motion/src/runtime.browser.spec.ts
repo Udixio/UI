@@ -1,6 +1,6 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { getMotionRuntime } from './runtime.js';
-const FRAME_RUNTIME_KEY = Symbol.for('udixio.motion.frame-runtime.preview.6');
+const FRAME_RUNTIME_KEY = Symbol.for('udixio.motion.frame-runtime.preview.7');
 
 afterEach(() => { delete (globalThis as Record<symbol, unknown>)[FRAME_RUNTIME_KEY]; });
 

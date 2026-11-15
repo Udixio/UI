@@ -9,7 +9,7 @@ afterEach(() => {
   delete (globalThis as Record<symbol, unknown>)[Symbol.for('udixio.motion.frame-runtime.preview.3')];
   delete (globalThis as Record<symbol, unknown>)[Symbol.for('udixio.motion.frame-runtime.preview.4')];
   delete (globalThis as Record<symbol, unknown>)[Symbol.for('udixio.motion.frame-runtime.preview.5')];
-  delete (globalThis as Record<symbol, unknown>)[Symbol.for('udixio.motion.frame-runtime.preview.6')];
+  delete (globalThis as Record<symbol, unknown>)[Symbol.for('udixio.motion.frame-runtime.preview.7')];
   vi.unstubAllGlobals();
 });
 
@@ -103,7 +103,7 @@ describe('motion runtime', () => {
     expect(host[Symbol.for('udixio.motion.frame-runtime.preview.2')]).toBe(previous);
     expect(host[Symbol.for('udixio.motion.frame-runtime.preview.3')]).toBe(previousIntegrated);
     expect(host[Symbol.for('udixio.motion.frame-runtime.preview.4')]).toBe(previousFrame);
-    expect(host[Symbol.for('udixio.motion.frame-runtime.preview.6')]).toBe(runtime);
+    expect(host[Symbol.for('udixio.motion.frame-runtime.preview.7')]).toBe(runtime);
     expect(host[RUNTIME_KEY]).toBeUndefined();
   });
 

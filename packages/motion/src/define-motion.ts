@@ -1,4 +1,4 @@
-import { motionManifest, validateMotionDocument, type MotionDocument } from './manifest.js';
+import { motionManifest, NAME_PATTERN, validateMotionDocument, type MotionDocument } from './manifest.js';
 
 /** Experimental motion spec, as accepted by `validateMotionDocument`. */
 export type MotionSpec = MotionDocument['spec'];
@@ -11,7 +11,6 @@ export interface MotionRef<N extends string = string> {
 
 type Listener = (ref: MotionRef) => void;
 
-const NAME_PATTERN = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
 const DEFINITIONS = Symbol.for('udixio.motion.definitions.preview.1');
 const LISTENERS = Symbol.for('udixio.motion.definition-listeners.preview.1');
 const SPEC_KEYS: readonly string[] = [
@@ -34,14 +33,23 @@ function listeners(): Set<Listener> {
   return shared[LISTENERS] as Set<Listener>;
 }
 
-function assertName(name: string): void {
+function assertName(name: string, what = 'Motion name'): void {
   if (!NAME_PATTERN.test(name))
-    throw new TypeError(`Motion name "${name}" must be kebab-case`);
+    throw new TypeError(`${what} "${name}" must be kebab-case`);
   if (
     reservedNames.includes(name) ||
     reservedPrefixes.some(prefix => name.startsWith(prefix))
   )
-    throw new TypeError(`Motion name "${name}" is reserved`);
+    throw new TypeError(`${what} "${name}" is reserved`);
+}
+
+/**
+ * Name a shared identity: the layout motions that bear the same name follow one element into another (a thumbnail
+ * that becomes the card it opens). Validated like a motion name, and returned as given.
+ */
+export function defineShared<N extends string>(name: N): N {
+  assertName(name, 'Shared identity');
+  return name;
 }
 
 function inOrder(

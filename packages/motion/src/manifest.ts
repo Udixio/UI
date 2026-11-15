@@ -1,6 +1,9 @@
 import { curveData } from './curve-data.generated.js';
 import type { CurveTiming, DurationToken, EasingToken } from './tokens.js';
 
+/** Motion names and shared identities are kebab-case. */
+export const NAME_PATTERN = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
+
 function freezeDeep<T>(value: T): T {
   if (value !== null && typeof value === 'object') {
     for (const child of Object.values(value)) freezeDeep(child);
@@ -49,7 +52,7 @@ export const motionManifest = freezeDeep({
   envelope: { required: ['version', 'spec'] },
   spec: {
     required: ['verb', 'keyframes'],
-    optional: ['timing', 'reduced', 'interrupt', 'stagger', 'origin', 'exit'],
+    optional: ['timing', 'reduced', 'interrupt', 'stagger', 'origin', 'exit', 'shared'],
     deferred: [
       'repeat',
       'direction',
@@ -58,11 +61,11 @@ export const motionManifest = freezeDeep({
       'axis',
       'pause',
       'reason',
-      'shared',
     ],
     interruptVerbs: ['emphasize', 'layout'],
     staggerVerbs: ['appear', 'disappear'],
     exitVerbs: ['appear', 'disappear'],
+    sharedVerbs: ['layout'],
   },
   deferredDomains: {
     repeat: { values: ['once', 'always'], source: '§8.2.3' },
@@ -167,6 +170,7 @@ export type MotionDocument = {
               stagger?: never;
               origin?: never;
               exit?: never;
+              shared?: never;
             }
           | {
               verb: Exclude<Domain<'supportedVerbs'>, 'emphasize' | 'layout'>;
@@ -174,6 +178,7 @@ export type MotionDocument = {
               stagger?: Domain<'stagger'>;
               origin?: Domain<'origin'>;
               exit?: Domain<'exit'>;
+              shared?: never;
             }
         ))
     | (Common & {
@@ -183,6 +188,7 @@ export type MotionDocument = {
         stagger?: never;
         origin?: never;
         exit?: never;
+        shared?: string;
       });
 };
 export type MotionValidationCode =
@@ -368,6 +374,17 @@ export function validateMotionDocument(input: unknown): MotionValidationResult {
           )
             add('/spec/exit', 'unsupported');
           else domain(spec.exit, '/spec/exit', motionManifest.domains.exit);
+        }
+        // A shared identity belongs to layout motions only: the element keeps it while its layout is followed.
+        if (has(spec, 'shared')) {
+          if (
+            has(spec, 'verb') &&
+            typeof spec.verb === 'string' &&
+            !contains(motionManifest.spec.sharedVerbs, spec.verb)
+          )
+            add('/spec/shared', 'unsupported');
+          else if (typeof spec.shared !== 'string') add('/spec/shared', 'type');
+          else if (!NAME_PATTERN.test(spec.shared)) add('/spec/shared', 'invalid_value');
         }
       }
     }

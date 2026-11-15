@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   defineMotion,
+  defineShared,
   definedMotions,
   onMotionDefined,
   resolveMotion,
@@ -297,5 +298,27 @@ describe('motion manifest without trigger', () => {
   it('no longer lists trigger as deferred or as a deferred domain', () => {
     expect(motionManifest.spec.deferred).not.toContain('trigger');
     expect(motionManifest.deferredDomains).not.toHaveProperty('trigger');
+  });
+});
+
+describe('shared identity', () => {
+  it('accepts shared on a layout and keeps it in the canonical spec', () => {
+    const ref = defineMotion('shared-card-move', { verb: 'layout', shared: 'card' });
+    expect(ref.spec.shared).toBe('card');
+  });
+
+  it('refuses shared on an appear at /spec/shared', () => {
+    expect(() =>
+      validateMotionSpec({ verb: 'appear', keyframes: [{ opacity: 0 }], shared: 'card' }),
+    ).toThrow(/\/spec\/shared: unsupported/);
+  });
+
+  it('refuses a key that is not kebab-case at /spec/shared', () => {
+    expect(() => validateMotionSpec({ verb: 'layout', shared: 'Not Kebab' })).toThrow(/\/spec\/shared: invalid_value/);
+  });
+
+  it('defineShared returns its name and refuses a name that is not kebab-case', () => {
+    expect(defineShared('hero')).toBe('hero');
+    expect(() => defineShared('Not Kebab')).toThrow(TypeError);
   });
 });

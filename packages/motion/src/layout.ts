@@ -27,12 +27,13 @@ export interface LayoutTracking {
   destroy(): void;
 }
 
-/** Start following `target`: it moves to its new place when its scope changes. */
-export function trackLayout(target: HTMLElement, spec: Readonly<MotionSpec>, options: { runtime: MotionRuntime; development?: boolean }): LayoutTracking {
+/** Start following `target`: it moves to its new place when its scope changes. A `shared` element holds its identity while it is followed. */
+export function trackLayout(target: HTMLElement, spec: Readonly<MotionSpec>, options: { runtime: MotionRuntime; development?: boolean; shared?: string }): LayoutTracking {
   const item: Item = {
     spec,
     runtime: options.runtime,
     development: options.development ?? false,
+    shared: options.shared,
     layout: undefined,
     visual: undefined,
     rest: { x: 0, y: 0, sx: 1, sy: 1 },
@@ -47,7 +48,9 @@ export function trackLayout(target: HTMLElement, spec: Readonly<MotionSpec>, opt
   const scope = scopeFor(layoutScopeOf(target));
   scope.items.set(target, item);
   scopeOf.set(target, scope);
-  measure(scope, target, item);
+  // A shared element is flushed at once, so that it arrives in the place of its identity now; the others are measured as before.
+  if (item.shared === undefined) measure(scope, target, item);
+  else flush(scope);
   return {
     get handle() {
       return item.handle;
@@ -58,6 +61,7 @@ export function trackLayout(target: HTMLElement, spec: Readonly<MotionSpec>, opt
     },
     destroy() {
       stopFlight(item);
+      if (item.shared !== undefined) options.runtime.shared.forget(item.shared, target);
       const current = scopeOf.get(target);
       if (!current) return;
       scopeOf.delete(target);

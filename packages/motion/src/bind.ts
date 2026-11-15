@@ -12,6 +12,7 @@ import {
 } from './define-motion.js';
 import type { LayoutTracking } from './layout.js';
 import { flushLayoutAround, layoutEngine, loadLayoutEngine } from './layout-loader.js';
+import { NAME_PATTERN } from './manifest.js';
 import { pinOutOfFlow } from './pin.js';
 import { applyFrame, playMotion, releaseFrame } from './play.js';
 import { getMotionRuntime, retainMotionRuntime } from './runtime.js';
@@ -31,7 +32,7 @@ export interface MotionBinding {
 }
 
 type Outcome = 'finished' | 'cancelled';
-type BindOptions = { present?: boolean; settled?: boolean; development?: boolean };
+type BindOptions = { present?: boolean; settled?: boolean; development?: boolean; shared?: string };
 /** A spec with keyframes: a layout is bound by `createLayoutBinding` instead. */
 type KeyframedSpec = Exclude<MotionSpec, { verb: 'layout' }>;
 
@@ -136,11 +137,14 @@ export function motionWhenDefined(target: HTMLElement, source: MotionSource, opt
 /**
  * A layout follows its element: it writes no presence attribute and never enters or leaves. The layout engine is
  * loaded on first use: until it is, the element is not followed, and it starts following from its place once loaded.
+ * Its shared identity is the option `shared`, else the one of its definition; an element with none holds no identity.
  */
 function createLayoutBinding(target: HTMLElement, spec: Readonly<MotionSpec>, options: BindOptions): MotionBinding {
+  const shared = options.shared ?? spec.shared;
+  if (shared !== undefined && !NAME_PATTERN.test(shared)) throw new TypeError(`Shared identity "${shared}" must be kebab-case`);
   const runtime = getMotionRuntime();
   const releaseRuntime = retainMotionRuntime(runtime);
-  const trackOptions = { runtime, development: options.development ?? false };
+  const trackOptions = { runtime, development: options.development ?? false, shared };
   let destroyed = false;
   const engine = layoutEngine();
   let tracking: LayoutTracking | undefined = engine?.trackLayout(target, spec, trackOptions);

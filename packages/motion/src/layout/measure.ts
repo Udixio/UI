@@ -1,6 +1,7 @@
 import { parseOwnTransform, toLayoutBox, type Box, type OwnTransform } from '../flip.js';
 import { parseRadii, type Radii, type Stretch } from '../project.js';
 import { CONTENT_BUDGET, CONTENT_DEPTH, type ContentNode, type Item, type ReferenceRects, type Scope } from './types.js';
+import type { MotionRuntime } from '../runtime.js';
 
 export function ownOf(element: HTMLElement): OwnTransform {
   const style = getComputedStyle(element);
@@ -93,8 +94,31 @@ export function measureWith(scope: Scope, element: HTMLElement, item: Item, styl
   const visual = visualBoxOf(scope, element, rects);
   item.visual = visual;
   item.layout = toLayoutBox(visual, item.rest);
+  if (item.shared !== undefined) holdShared(scope, element, item.shared, item.runtime, visual, rects);
   if (content) item.content = contentOf(scope, element);
   return visual;
+}
+
+/**
+ * Remember a keyed element at rest, as the holder of its shared identity: its page box when it is visible, and nothing
+ * when it is hidden, which forgets it. The box is derived from the visual box and the reference rect it was taken
+ * against, so no rect is read here.
+ */
+function holdShared(scope: Scope, element: HTMLElement, key: string, runtime: MotionRuntime, visual: Box, rects: ReferenceRects): void {
+  if (visual.w === 0 || visual.h === 0) {
+    runtime.shared.forget(key, element);
+    return;
+  }
+  // visualBoxOf has cached the rect of this reference: the reference is the one the visual box is relative to.
+  const reference = rects.get(referenceOf(scope, element));
+  if (!reference) return;
+  const win = element.ownerDocument.defaultView;
+  runtime.shared.remember(key, element, {
+    left: visual.cx - visual.w / 2 + reference.left + (win?.scrollX ?? 0),
+    top: visual.cy - visual.h / 2 + reference.top + (win?.scrollY ?? 0),
+    width: visual.w,
+    height: visual.h,
+  });
 }
 
 /** Measure an element at rest. Its content is measured too, unless `content` is false. */

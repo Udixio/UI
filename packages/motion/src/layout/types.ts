@@ -39,6 +39,7 @@ export interface Item {
   spec: Readonly<MotionSpec>;
   runtime: MotionRuntime;
   development: boolean;
+  shared: string | undefined; // the shared identity this element holds, when it is keyed
   layout: Box | undefined; // last measured layout box
   visual: Box | undefined; // last visual box at rest
   rest: OwnTransform; // last rest transform
@@ -60,7 +61,7 @@ export interface Scope {
   onScroll: () => void;
 }
 
-/** A move planned by one flush: its frames, the velocity it starts with (null from rest), the style values that decide whether it runs, its content to project when the size changes, and its px corner radii when the size changes by more than 3 %. */
+/** A move planned by one flush: its frames, the velocity it starts with (null from rest), the style values that decide whether it runs, its content to project when the size changes, its px corner radii when the size changes by more than 3 %, and whether it morphs from the box of another element that held its shared identity (then it has no content). */
 export interface PlannedMove {
   element: HTMLElement;
   item: Item;
@@ -70,7 +71,9 @@ export interface PlannedMove {
   scale: number;
   content: ContentPlan[] | null;
   radii: Radii | null;
+  morph: boolean;
 }
+
 
 /** A followed element that changes in a flush: the visual box it starts from, and the velocity and the live content boxes it carries (null when it carries none). */
 export type Change = [HTMLElement, Item, Box, Velocity | null, Map<HTMLElement, Box> | null];

@@ -1,14 +1,47 @@
 /**
- * Internal preview registry. Each instance belongs to exactly one document.
- * The future runtime owner must clear it on last release; this module does not
- * install or share a runtime, including across module reloads.
+ * How long, in ms, the box of a holder serves as the place a shared identity arrives from, counted from the moment the
+ * engine learns that the holder is gone.
+ */
+export const SHARED_WINDOW = 600;
+
+/** Delay before a forgotten holder's memory is deleted: the window, with a margin so that a recall at its edge still finds it. */
+const EXPIRY = SHARED_WINDOW + 50;
+
+/** A box in page coordinates: the viewport rect plus the scroll offsets of its window. */
+export interface PageBox {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+/** The last holder of a shared key: its box when it was last seen, when it went away (undefined while it is still the holder), and the timer that deletes it. */
+interface Memory {
+  element: Element;
+  box: PageBox;
+  goneAt: number | undefined;
+  timer: ReturnType<typeof setTimeout> | undefined;
+}
+
+/**
+ * The page-wide registry of shared identities, one instance per document: the live elements registered under a key,
+ * and the last box of the element that held each key, with the time it went away. A holder hidden through an inline
+ * style is never forgotten (the engine does not observe style changes): its box then serves until the next holder
+ * arrives, and the window counts from the moment the engine learns that the holder is gone.
  */
 export function createSharedRegistry(document: Document, development: boolean) {
   const entries = new Map<string, Array<{ element: Element | undefined }>>();
+  const memories = new Map<string, Memory>();
+  const announced = new Set<string>();
 
   function isLive(element: Element): boolean {
     return element.ownerDocument === document && element.isConnected &&
       element.getAttribute('data-presence') !== 'exiting';
+  }
+
+  /** Whether a remembered holder still holds its key: it is live and displayed (an element with `display: none` is not). */
+  function isHolder(element: Element): boolean {
+    return isLive(element) && element.getClientRects().length > 0;
   }
 
   function duplicate(key: string): never {
@@ -49,6 +82,44 @@ export function createSharedRegistry(document: Document, development: boolean) {
       }
       return first;
     },
+    /** `element` now holds `key`, seen at `box`: it replaces the memory of the previous holder, whose pending deletion is cancelled. */
+    remember(key: string, element: Element, box: PageBox): void {
+      const previous = memories.get(key);
+      if (previous?.timer !== undefined) clearTimeout(previous.timer);
+      memories.set(key, { element, box, goneAt: undefined, timer: undefined });
+    },
+    /** The holder of `key` is gone (destroyed, hidden): its box stays valid for a window, then its memory is deleted. */
+    forget(key: string, element: Element): void {
+      const memory = memories.get(key);
+      if (memory?.element !== element || memory.goneAt !== undefined) return;
+      memory.goneAt = performance.now();
+      const timer = setTimeout(() => {
+        if (memories.get(key) === memory && !isHolder(element)) memories.delete(key);
+      }, EXPIRY);
+      // A pending deletion never keeps a Node process alive (unit tests); browsers return a number, which has no unref.
+      (timer as { unref?: () => void }).unref?.();
+      memory.timer = timer;
+    },
+    /**
+     * Where `key` was last seen on another element that is no longer a holder, if that was at most `maxAge` ms ago.
+     * A live holder other than `element` is reported in development, once per key, and blocks the recall.
+     */
+    recall(key: string, element: Element, maxAge = SHARED_WINDOW): PageBox | undefined {
+      const memory = memories.get(key);
+      if (!memory || memory.element === element) return undefined;
+      if (isHolder(memory.element)) {
+        if (development && !announced.has(key)) {
+          announced.add(key);
+          console.error(`[@udixio/motion] Two live elements share "${key}": the second one does not morph.`);
+        }
+        return undefined;
+      }
+      const now = performance.now();
+      // A holder that left without being forgotten is taken to have left just now.
+      const goneAt = memory.goneAt ?? now;
+      return now - goneAt <= maxAge ? memory.box : undefined;
+    },
+    /** Empties the registrations only: the memories expire on their own, a window after their holder went away. */
     clear(): void {
       for (const list of entries.values()) {
         for (const entry of list) entry.element = undefined;

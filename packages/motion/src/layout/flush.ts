@@ -2,10 +2,12 @@ import { flipFrames, sameBox, toLayoutBox, toVisualBox, type Box } from '../flip
 import { motionDisabledIn, motionScaleIn } from '../play.js';
 import type { ContentPlan, Stretch } from '../project.js';
 import { waapiProvider } from '../providers/waapi.js';
+import type { MotionRuntime } from '../runtime.js';
 import { playbackOf, restFrames, startContent, stopFlight } from './flight.js';
 import { centredOn, contentPlanOf, depthOf, flyingChange, isNegligible, resizes, scalesMoving, stretchesCorners } from './plan.js';
 import { contentOf, hasText, measure, measureWith, ownOf, radiiOf, referenceOf, unitOf, visualBoxOf } from './measure.js';
 import { dispose, layoutScopeOf, relevant, scopeOf, scopes } from './scope.js';
+import { SHARED_WINDOW } from '../shared-registry.js';
 import type { Change, Item, PlannedMove, ReferenceRects, Scope } from './types.js';
 
 /** A changed element whose content is planned in this flush: its content nodes go to `list`; `from` and `visual` are its visual boxes before and after. */
@@ -69,6 +71,35 @@ function isPresenceBusy(element: HTMLElement): boolean {
   return presence !== null && presence !== 'present';
 }
 
+/** Whether a box has no size: an element that is hidden, or not displayed. */
+function isEmpty(box: Box): boolean {
+  return box.w === 0 || box.h === 0;
+}
+
+/**
+ * The box a shared identity was last seen at, in the frame of the reference of `element`, when `element` is visible and
+ * the identity was held by another element that went away at most `SHARED_WINDOW` ms ago (reads only).
+ */
+function arrivalOf(scope: Scope, element: HTMLElement, key: string, runtime: MotionRuntime, rects: ReferenceRects): Box | undefined {
+  const rect = element.getBoundingClientRect();
+  if (rect.width === 0 || rect.height === 0) return undefined;
+  const page = runtime.shared.recall(key, element, SHARED_WINDOW);
+  if (!page) return undefined;
+  const reference = referenceOf(scope, element);
+  let origin = rects.get(reference);
+  if (!origin) {
+    origin = reference.getBoundingClientRect();
+    rects.set(reference, origin);
+  }
+  const win = element.ownerDocument.defaultView;
+  return {
+    cx: page.left - (win?.scrollX ?? 0) + page.width / 2 - origin.left,
+    cy: page.top - (win?.scrollY ?? 0) + page.height / 2 - origin.top,
+    w: page.width,
+    h: page.height,
+  };
+}
+
 /**
  * Compare the layout with the cache, and play the difference of every element that moved.
  * Reads come first in each pass, and a pass never reads after its own writes: the browser then recalculates
@@ -94,6 +125,8 @@ export function flush(scope: Scope, records: readonly MutationRecord[] = []): vo
   const changed: Change[] = [];
   // The elements that enter or leave: their moves stop after this pass, which reads only.
   const busy: Item[] = [];
+  // The elements that arrive in the place of a shared identity: each moves from the box its identity was last seen at.
+  let morphs: Set<HTMLElement> | undefined;
   // An element whose parent is the root has the root as its reference: with none nested, the passes below that order or join followed elements do nothing.
   let nested = false;
   for (const [element, item] of scope.items) {
@@ -105,6 +138,16 @@ export function flush(scope: Scope, records: readonly MutationRecord[] = []): vo
       item.visual = undefined;
       if (item.content.length > 0) item.content = [];
       continue;
+    }
+    // A keyed element at rest, with no visible box yet, may arrive in the place of its shared identity.
+    if (item.shared !== undefined && item.handle === null && (!item.visual || isEmpty(item.visual))) {
+      const from = arrivalOf(scope, element, item.shared, item.runtime, rects);
+      if (from) {
+        nested = true;
+        (morphs ??= new Set()).add(element);
+        changed.push([element, item, from, null, null]);
+        continue;
+      }
     }
     if (!item.layout || !item.visual) {
       nested = true;
@@ -171,7 +214,9 @@ export function flush(scope: Scope, records: readonly MutationRecord[] = []): vo
     const disabled = motionDisabledIn(style);
     const scale = motionScaleIn(style);
     const visual = measureWith(scope, element, item, style, rectsAfterWrites);
-    const host = hosts.size > 0 ? hosts.get(referenceOf(scope, element)) : undefined;
+    // A morph plays its own move: it neither joins the content of its reference nor carries any content of its own.
+    const morph = morphs !== undefined && morphs.has(element);
+    const host = !morph && hosts.size > 0 ? hosts.get(referenceOf(scope, element)) : undefined;
     if (host) {
       // A node of the content of its reference: its own content hangs from it, and it is moved with the reference's content.
       const kind = hasText(element) ? 'text' : 'box';
@@ -198,11 +243,11 @@ export function flush(scope: Scope, records: readonly MutationRecord[] = []): vo
     // Its content follows a move that resizes it, or a scale that the velocity still carries, even at the same size.
     // A reference with followed children has a content plan even without content of its own: the children are its content.
     const follows = resizes(frames) || scalesMoving(carry);
-    const content = follows && (item.content.length > 0 || references.has(element)) ? contentPlanOf(contentBefore, item.content, element, live) : null;
+    const content = !morph && follows && (item.content.length > 0 || references.has(element)) ? contentPlanOf(contentBefore, item.content, element, live) : null;
     if (content) hosts.set(element, { from, visual, list: content, unit: unitOf(element, element.getBoundingClientRect()), live });
     // A move that changes the size of its element by more than 3 % keeps its px corner radii round.
     const radii = stretchesCorners(frames) ? radiiOf(style) : null;
-    planned.push({ element, item, frames, velocity: carry, disabled, scale, content, radii });
+    planned.push({ element, item, frames, velocity: carry, disabled, scale, content, radii, morph });
   }
   if (planned.length === 0) return;
   // 4. Writes only: no style is read from here on. The scheme and the policy are read once, before the writes.

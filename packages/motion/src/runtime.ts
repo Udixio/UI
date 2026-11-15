@@ -3,7 +3,7 @@ import { createSharedRegistry } from './shared-registry.js';
 
 // Preview revisions have distinct keys: incompatible revisions do not coordinate
 // their schedulers. The stable v1 key is reserved for the complete contract.
-const FRAME_RUNTIME_KEY = Symbol.for('udixio.motion.frame-runtime.preview.6');
+const FRAME_RUNTIME_KEY = Symbol.for('udixio.motion.frame-runtime.preview.7');
 
 /** The page-wide runtime shared by every copy of the package (preview: its shape may still change before 1.0). */
 export interface MotionRuntime {
@@ -27,7 +27,7 @@ function createRuntime(browser: boolean, development: boolean): MotionRuntime {
   };
   const shared = browser && typeof document !== 'undefined'
     ? createSharedRegistry(document, development)
-    : { register() { return () => {}; }, resolve() { return undefined; }, clear() {} };
+    : { register() { return () => {}; }, resolve() { return undefined; }, remember() {}, forget() {}, recall() { return undefined; }, clear() {} };
   let references = 0;
   let frameId: number | undefined;
   let reads: Array<() => void> = [];

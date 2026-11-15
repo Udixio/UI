@@ -1,7 +1,7 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { getMotionRuntime } from './runtime.js';
 
-const key = Symbol.for('udixio.motion.frame-runtime.preview.6');
+const key = Symbol.for('udixio.motion.frame-runtime.preview.7');
 afterEach(() => { delete (globalThis as Record<symbol, unknown>)[key]; vi.unstubAllGlobals(); });
 
 it('holds roots pending and rejects callbacks from replaced observers', () => {
