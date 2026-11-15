@@ -56,6 +56,10 @@ export const animejsProvider: MotionProvider = {
       active--;
       resolve(result);
     };
+    // Anime.js runs on the active timeline; the handle reports the delay-inclusive
+    // time, the inverse of the mapping its seek applies.
+    let frozen: number | undefined;
+    const live = () => animation.currentTime + (timing.delay ?? 0);
     const frames = Object.fromEntries(keyframes.map((frame, index) => [
       `${keyframes.length === 1 ? 100 : index * 100 / (keyframes.length - 1)}%`, frameToKeyframe(frame),
     ]));
@@ -100,7 +104,7 @@ export const animejsProvider: MotionProvider = {
         keyframes: frames, duration: timing.duration, ...(timing.delay !== undefined && { delay: timing.delay }),
         ease,
         onRender: renderValues,
-        autoplay: true, onComplete: () => settle('finished'),
+        autoplay: true, onComplete: () => { frozen ??= (timing.delay ?? 0) + timing.duration; settle('finished'); },
       });
     } catch (error) {
       active--;
@@ -108,6 +112,7 @@ export const animejsProvider: MotionProvider = {
     }
     return {
       backend: 'animejs', duration: timing.duration, finished,
+      get currentTime() { return frozen ?? live(); },
       velocity: { value: 0, source: 'unavailable' },
       play: () => { if (!settled) animation.play(); },
       pause: () => { if (!settled) animation.pause(); },
@@ -126,6 +131,7 @@ export const animejsProvider: MotionProvider = {
       },
       cancel: () => {
         if (!settled) {
+          frozen ??= live();
           animation.cancel();
           for (const [property, { value, priority }] of inlineStyles) {
             const written = lastWritten.get(property);

@@ -15,6 +15,7 @@ function fakeHandle(
   return {
     backend,
     duration,
+    currentTime: 0,
     finished,
     velocity: { value: 0, source: 'unavailable' },
     play: vi.fn(),
@@ -35,6 +36,16 @@ describe('composeHandles', () => {
     expect(composed.duration).toBe(500);
     expect(composed.backend).toBe('css');
     expect(composed.velocity).toEqual({ value: 0, source: 'unavailable' });
+  });
+
+  it('shows the largest current time of its handles', () => {
+    const a = fakeHandle(100);
+    const b = fakeHandle(300);
+    const composed = composeHandles([a, b]);
+    expect(composed.currentTime).toBe(0);
+    (a as { currentTime: number }).currentTime = 120;
+    (b as { currentTime: number }).currentTime = 80;
+    expect(composed.currentTime).toBe(120);
   });
 
   it('finishes when every handle finished', async () => {
@@ -94,6 +105,7 @@ describe('settledHandle', () => {
     const handle = settledHandle();
     expect(handle.backend).toBe('waapi');
     expect(handle.duration).toBe(0);
+    expect(handle.currentTime).toBe(0);
     await expect(handle.finished).resolves.toBe('finished');
     expect(() => {
       handle.play();

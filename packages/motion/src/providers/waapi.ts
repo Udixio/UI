@@ -19,6 +19,9 @@ export const waapiProvider: MotionProvider = {
     const animation = target.animate(keyframes.map(frameToKeyframe), { ...timing, fill: 'both' });
     active++;
     let settled = false;
+    // Captured before the animation is cancelled, which clears its currentTime.
+    let frozen: number | undefined;
+    const freeze = () => { frozen ??= Number(animation.currentTime ?? 0); };
     let resolve!: (result: 'finished' | 'cancelled') => void;
     const finished = new Promise<'finished' | 'cancelled'>((done) => { resolve = done; });
     const settle = (result: 'finished' | 'cancelled') => {
@@ -29,6 +32,7 @@ export const waapiProvider: MotionProvider = {
     };
     void animation.finished.then(() => {
       if (!commit) {
+        freeze();
         animation.cancel();
         settle('finished');
         return;
@@ -47,17 +51,19 @@ export const waapiProvider: MotionProvider = {
           if (value != null) target.style.setProperty(property, String(value), target.style.getPropertyPriority(property));
         }
       }
+      freeze();
       animation.cancel();
       settle('finished');
     }, () => settle('cancelled'));
     return {
       backend: 'waapi', duration: timing.duration, finished,
+      get currentTime() { return frozen ?? Number(animation.currentTime ?? 0); },
       velocity: { value: 0, source: 'unavailable' },
       play: () => { if (!settled) animation.play(); },
       pause: () => { if (!settled) animation.pause(); },
       reverse: () => { if (!settled) animation.reverse(); },
       seek: (time) => { if (!settled) animation.currentTime = time; },
-      cancel: () => { if (!settled) { settle('cancelled'); animation.cancel(); } },
+      cancel: () => { if (!settled) { freeze(); settle('cancelled'); animation.cancel(); } },
     };
   },
 };

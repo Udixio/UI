@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { startRoutedMotion } from './timing-integration.js';
 import type { MotionProvider } from './contract.js';
 
-const handle = { backend: 'waapi', duration: 100, finished: Promise.resolve<'finished' | 'cancelled'>('finished'), velocity: { value: 0, source: 'unavailable' }, play() {}, pause() {}, reverse() {}, seek() {}, cancel() {} } as const;
+const handle = { backend: 'waapi', duration: 100, currentTime: 0, finished: Promise.resolve<'finished' | 'cancelled'>('finished'), velocity: { value: 0, source: 'unavailable' }, play() {}, pause() {}, reverse() {}, seek() {}, cancel() {} } as const;
 function setup() {
   const target = { ownerDocument: {} } as HTMLElement;
   const input = { target, keyframes: [{ opacity: 0 }, { opacity: 1 }], timing: { duration: 'duration.medium1', easing: 'easing.standard' }, scheme: 'standard', verb: 'appear', policy: 'normal', scale: 0.5, delay: 20, backend: 'waapi' } as const;

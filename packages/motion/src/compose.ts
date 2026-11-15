@@ -7,6 +7,7 @@ export function settledHandle(): MotionHandle {
   return {
     backend: 'waapi',
     duration: 0,
+    currentTime: 0,
     finished: Promise.resolve('finished'),
     velocity: { value: 0, source: 'unavailable' },
     play: noop,
@@ -23,6 +24,9 @@ export function composeHandles(handles: MotionHandle[]): MotionHandle {
   return {
     backend: handles[0].backend,
     duration: Math.max(...handles.map(handle => handle.duration)),
+    get currentTime() {
+      return Math.max(...handles.map(handle => handle.currentTime));
+    },
     finished: Promise.all(handles.map(handle => handle.finished)).then(
       results => (results.includes('cancelled') ? 'cancelled' : 'finished'),
     ),

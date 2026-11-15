@@ -91,11 +91,14 @@ export const cssProvider: MotionProvider = {
     const instance = animation;
     targets.add(target); active++;
     let settled = false;
+    // Captured before the animation is cancelled, which clears its currentTime.
+    let frozen: number | undefined;
     let resolve!: (result: 'finished' | 'cancelled') => void;
     const finished = new Promise<'finished' | 'cancelled'>((done) => { resolve = done; });
     const valid = () => target.isConnected && target.getRootNode() === doc && properties.every((p) => target.style.getPropertyValue(p) === installed.get(p) && target.style.getPropertyPriority(p) === '') && animated.every((p) => target.style.getPropertyValue(p) === originalAnimated.get(p)![0] && target.style.getPropertyPriority(p) === originalAnimated.get(p)![1]) && target.getAnimations().includes(instance);
     const settle = (result: 'finished' | 'cancelled') => {
       if (settled) return;
+      frozen = Number(instance.currentTime ?? 0);
       const endpoint = result === 'finished' && valid() ? (endpointVisible(0) ? 0 : endpointVisible(1) ? 1 : undefined) : undefined;
       if (result === 'finished' && endpoint === undefined) result = 'cancelled';
       settled = true;
@@ -113,6 +116,6 @@ export const cssProvider: MotionProvider = {
     };
     void instance.finished.then(() => settle('finished'), () => settle('cancelled'));
     const run = (operation: () => void) => { if (!settled) { if (!valid()) settle('cancelled'); else operation(); } };
-    return { backend: 'css', duration: timing.duration, finished, velocity: { value: 0, source: 'unavailable' }, play: () => run(() => instance.play()), pause: () => run(() => instance.pause()), reverse: () => run(() => instance.reverse()), seek: (time) => run(() => { instance.currentTime = time; }), cancel: () => settle('cancelled') };
+    return { backend: 'css', duration: timing.duration, finished, get currentTime() { return frozen ?? Number(instance.currentTime ?? 0); }, velocity: { value: 0, source: 'unavailable' }, play: () => run(() => instance.play()), pause: () => run(() => instance.pause()), reverse: () => run(() => instance.reverse()), seek: (time) => run(() => { instance.currentTime = time; }), cancel: () => settle('cancelled') };
   },
 };

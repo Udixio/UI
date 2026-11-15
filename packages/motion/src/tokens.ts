@@ -1,4 +1,5 @@
 import type { SpringRef } from './motion-spec.js';
+import type { SpringParams } from './spring.js';
 import { curveData } from './curve-data.generated.js';
 import { springData } from './spring-data.generated.js';
 
@@ -69,6 +70,19 @@ export type ResolvedSpring = { duration: number; easing: string; source: 'linear
 
 const springRefs = 'spring.fast.spatial,spring.fast.effects,spring.default.spatial,spring.default.effects,spring.slow.spatial,spring.slow.effects'.split(',');
 
+/** The spring token a valid reference names, for a scheme. */
+function springToken(ref: SpringRef, scheme: MotionScheme | undefined): SpringToken {
+  const [, speed, type] = ref.split('.') as ['spring', 'fast' | 'default' | 'slow', 'spatial' | 'effects'];
+  return defineTokens({ scheme }).spring[speed][type];
+}
+
+/** Physical parameters of a spring reference for a scheme, as input of the analytic spring. */
+export function springParams(ref: SpringRef, scheme: MotionScheme): SpringParams {
+  if (typeof ref !== 'string' || !springRefs.includes(ref)) throw new RangeError('Unknown spring reference');
+  const { dampingRatio, stiffness } = springToken(ref, scheme);
+  return { dampingRatio, stiffness };
+}
+
 /** Resolve an experimental spring reference using explicitly supplied backend capabilities. */
 export function resolveSpring(ref: SpringRef, options: { scheme?: MotionScheme; support: SpringSupport }): ResolvedSpring {
   const index = typeof ref === 'string' ? springRefs.indexOf(ref) : -1;
@@ -79,6 +93,5 @@ export function resolveSpring(ref: SpringRef, options: { scheme?: MotionScheme; 
   if (support === null || typeof support !== 'object' || Array.isArray(support) || typeof support.linear !== 'boolean' || typeof support.fallback !== 'boolean') throw new TypeError('Boolean spring support flags are required');
   const source = support.linear ? 'linear' : support.fallback ? 'fallback' : undefined;
   if (!source) throw new Error('No supported spring easing');
-  const [, speed, type] = ref.split('.') as ['spring', 'fast' | 'default' | 'slow', 'spatial' | 'effects'];
-  return { ...defineTokens({ scheme }).spring[speed][type][source], source };
+  return { ...springToken(ref, scheme)[source], source };
 }

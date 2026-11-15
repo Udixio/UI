@@ -184,6 +184,40 @@ describe('waapi provider scaleX and scaleY', () => {
   });
 });
 
+describe.each([waapiProvider, animejsProvider, cssProvider])('$backend provider current time', (provider) => {
+  it('reports the delay-inclusive time of a paused handle', () => {
+    const target = document.createElement('div');
+    document.body.append(target);
+    const handle = provider.animate({ target, keyframes: [{ opacity: 0 }, { opacity: 1 }], timing: { duration: 400, delay: 600, easing: 'linear' } });
+    handle.pause();
+    handle.seek(700);
+    expect(handle.currentTime).toBeCloseTo(700, 0);
+    handle.cancel();
+    target.remove();
+  });
+
+  it('keeps the time at which a handle was cancelled', async () => {
+    const target = document.createElement('div');
+    document.body.append(target);
+    const handle = provider.animate({ target, keyframes: [{ opacity: 0 }, { opacity: 1 }], timing: { duration: 1000, easing: 'linear' } });
+    handle.pause();
+    handle.seek(300);
+    handle.cancel();
+    expect(await handle.finished).toBe('cancelled');
+    expect(handle.currentTime).toBeCloseTo(300, 0);
+    target.remove();
+  });
+
+  it('reports the end of the timeline once finished', async () => {
+    const target = document.createElement('div');
+    document.body.append(target);
+    const handle = provider.animate({ target, keyframes: [{ opacity: 0 }, { opacity: 1 }], timing: { duration: 40, easing: 'linear' } });
+    expect(await handle.finished).toBe('finished');
+    expect(handle.currentTime).toBeCloseTo(40, 0);
+    target.remove();
+  });
+});
+
 describe.each([animejsProvider, cssProvider])('$backend provider refusals', (provider) => {
   it('refuses scaleX and scaleY explicitly', () => {
     const target = document.createElement('div');

@@ -23,6 +23,8 @@ export type Capability =
 export interface MotionHandle {
   readonly backend: MotionBackend;
   readonly duration: number;
+  /** Milliseconds elapsed in the animation, delay included; frozen once settled. */
+  readonly currentTime: number;
   readonly finished: Promise<'finished' | 'cancelled'>;
   /** value is a placeholder when source is unavailable. */
   readonly velocity: {
