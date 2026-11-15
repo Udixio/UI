@@ -323,9 +323,9 @@ defineSequence('hero', {
       <h3 data-motion-step="title" class="text-display-small text-on-surface">Steps, in order</h3>
       <p data-motion-step="subtitle" class="text-body-large text-on-surface-variant">Each step starts when the one before it has ended, or after a set delay.</p>
       <div class="flex flex-wrap gap-3">
-        <button type="button" data-motion-step="actions" class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Start</button>
-        <button type="button" data-motion-step="actions" class="rounded-full bg-secondary-container px-6 py-2.5 text-label-large text-on-secondary-container focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Details</button>
-        <button type="button" data-motion-step="actions" class="rounded-full bg-secondary-container px-6 py-2.5 text-label-large text-on-secondary-container focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Later</button>
+        <button type="button" data-motion-step="actions" data-demo-replay class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Replay</button>
+        <span data-motion-step="actions" class="rounded-full bg-secondary-container px-6 py-2.5 text-label-large text-on-secondary-container">Step three</span>
+        <span data-motion-step="actions" class="rounded-full bg-secondary-container px-6 py-2.5 text-label-large text-on-secondary-container">in cascade</span>
       </div>
     </div>
   </div>
@@ -362,7 +362,7 @@ defineSequence('hero', {
   <script>
     import { defineMotion } from '@udixio/motion';
     import { defineValue } from '@udixio/motion/value';
-    import { defineSequence } from '@udixio/motion/sequence';
+    import { defineSequence, getSequence } from '@udixio/motion/sequence';
 
     // Values: a number written on each element that names it, as --udx-motion-value-<name>.
     defineValue('demo-tilt-x', { source: 'pointer', axis: 'x', range: [-8, 8] });
@@ -453,6 +453,12 @@ defineSequence('hero', {
           if (paused) loop.setAttribute('data-motion-paused', '');
           else loop.removeAttribute('data-motion-paused');
         }
+        return;
+      }
+      const replay = event.target.closest<HTMLElement>('[data-demo-replay]');
+      if (replay) {
+        const root = replay.closest<HTMLElement>('[data-motion="demo-hero"]');
+        if (root) getSequence(root)?.play();
         return;
       }
       const shake = event.target.closest<HTMLElement>('[data-demo-shake]');
