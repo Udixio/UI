@@ -2,6 +2,9 @@ import { afterEach, beforeEach, expect, it } from 'vitest';
 import { getMotion, motion, motionWhenDefined, type DeferredMotion, type MotionBinding } from './bind.js';
 import type { MotionHandle } from './contract.js';
 import { reflow } from './presets.js';
+import { defineMotion } from './define-motion.js';
+import { springOffset, springVelocity } from './spring.js';
+import { springParams } from './tokens.js';
 
 type Rect = { left: number; top: number; width: number; height: number };
 
@@ -383,4 +386,125 @@ it('only the element whose destination changed is restarted', async () => {
   await Promise.all([aFirst.finished, moving(bindingB).finished]);
   expectNear(local(a, row), { left: 200, top: 0, width: 50, height: 40 }, 0.5);
   expectNear(local(b, row), { left: 250, top: 60, width: 50, height: 40 }, 0.5);
+});
+
+/** The spring of the default layout move, and the two layout motions of the keyframe tests. */
+const spring = springParams('spring.default.spatial', 'expressive');
+const restarting = defineMotion('restart-reflow', { verb: 'layout', interrupt: 'restart' });
+const curved = defineMotion('curved-reflow', { verb: 'layout', timing: { duration: 'duration.medium2', easing: 'easing.standard' } });
+
+/** Keyframes of the move running on `element`. */
+function keyframeCount(element: HTMLElement): number {
+  return (element.getAnimations()[0].effect as KeyframeEffect).getKeyframes().length;
+}
+
+/** Chord of a move over 16 ms, in px/s: its displacement from a seek to its first instant, divided by 16 ms. */
+function chordOf16ms(element: HTMLElement, origin: HTMLElement, handle: MotionHandle): number {
+  handle.pause();
+  handle.seek(0);
+  const left0 = local(element, origin).left;
+  handle.seek(16);
+  return (local(element, origin).left - left0) / 0.016;
+}
+
+/** Chord over 16 ms of the continuous spring that starts `offset` from its target with `velocity`, in px/s. */
+function springChord16ms(offset: number, velocity: number): number {
+  return (springOffset(spring, offset, velocity, 0.016) - springOffset(spring, offset, velocity, 0)) / 0.016;
+}
+
+it('an interrupted move restarts with the velocity it had', async () => {
+  page(css(), '<div class="row" id="row"><div class="box" id="box"></div></div>');
+  const row = byId('row');
+  const box = byId('box');
+  const binding = bindTo(box);
+  row.classList.add('end');
+  await Promise.resolve();
+  const first = moving(binding);
+  first.pause();
+  first.seek(first.duration * 0.15);
+  const velocity = springVelocity(spring, -250, 0, (0.15 * first.duration) / 1000);
+  const offset = local(box, row).left; // distance to the new rest (left 0) at the interruption
+  row.classList.remove('end');
+  await Promise.resolve();
+  // The chord is compared with the continuous spring's chord, not with the instantaneous velocity, because the spring's acceleration (about 1e5 px/s²) changes the velocity by more than the tolerance within 16 ms.
+  const measured = chordOf16ms(box, row, moving(binding));
+  const expected = springChord16ms(offset, velocity);
+  expect(Math.abs(measured - expected), `chord measured ${measured} px/s, expected ${expected} px/s`).toBeLessThanOrEqual(0.05 * Math.abs(expected));
+  const fromRest = springChord16ms(offset, 0);
+  expect(Math.abs(measured - fromRest), `chord measured ${measured} px/s, from rest ${fromRest} px/s`).toBeGreaterThan(500);
+});
+
+it('[Review Focus 1] interrupted while overshooting: continuous position, carried chord, exact arrival', async () => {
+  page(css(), '<div class="row" id="row"><div class="box" id="box"></div></div>');
+  const row = byId('row');
+  const box = byId('box');
+  const binding = bindTo(box);
+  row.classList.add('end');
+  await Promise.resolve();
+  const first = moving(binding);
+  first.pause();
+  first.seek(first.duration * 0.6);
+  const mid = local(box, row);
+  expect(mid.left).toBeGreaterThan(250);
+  const velocity = springVelocity(spring, -250, 0, (0.6 * first.duration) / 1000);
+  row.classList.remove('end');
+  await Promise.resolve();
+  expectNear(local(box, row), mid, 2);
+  const second = moving(binding);
+  const measured = chordOf16ms(box, row, second);
+  const expected = springChord16ms(mid.left, velocity);
+  expect(Math.abs(measured - expected), `chord measured ${measured} px/s, expected ${expected} px/s`).toBeLessThanOrEqual(0.05 * Math.abs(expected));
+  second.play();
+  await second.finished;
+  expectNear(local(box, row), { left: 0, top: 0, width: 50, height: 40 }, 0.5);
+  expect(box.style.translate).toBe('');
+  expect(box.style.scale).toBe('');
+});
+
+it('a move from rest keeps two keyframes, and a carried move has at least nine', async () => {
+  page(css(), '<div class="row" id="row"><div class="box" id="box"></div></div>');
+  const row = byId('row');
+  const box = byId('box');
+  const binding = bindTo(box);
+  row.classList.add('end');
+  await Promise.resolve();
+  expect(keyframeCount(box)).toBe(2);
+  const first = moving(binding);
+  first.pause();
+  first.seek(first.duration * 0.15);
+  row.classList.remove('end');
+  await Promise.resolve();
+  expect(keyframeCount(box)).toBeGreaterThanOrEqual(9);
+});
+
+it('a move of an element defined with interrupt restart starts from rest, with two keyframes', async () => {
+  page(css(), '<div class="row" id="row"><div class="box" id="box"></div></div>');
+  const row = byId('row');
+  const box = byId('box');
+  const binding = motion(box, restarting);
+  bindings.push(binding);
+  row.classList.add('end');
+  await Promise.resolve();
+  const first = moving(binding);
+  first.pause();
+  first.seek(first.duration * 0.15);
+  row.classList.remove('end');
+  await Promise.resolve();
+  expect(keyframeCount(box)).toBe(2);
+});
+
+it('an interrupted curve move starts from rest, with two keyframes', async () => {
+  page(css(), '<div class="row" id="row"><div class="box" id="box"></div></div>');
+  const row = byId('row');
+  const box = byId('box');
+  const binding = motion(box, curved);
+  bindings.push(binding);
+  row.classList.add('end');
+  await Promise.resolve();
+  const first = moving(binding);
+  first.pause();
+  first.seek(first.duration * 0.15);
+  row.classList.remove('end');
+  await Promise.resolve();
+  expect(keyframeCount(box)).toBe(2);
 });

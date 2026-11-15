@@ -5,7 +5,27 @@ import { motionManifest } from './manifest.js';
 import { motionDisabledIn, motionScaleIn, resolveWaapiTiming } from './play.js';
 import type { SpringRef } from './motion-spec.js';
 import type { MotionRuntime } from './runtime.js';
+import { springOffset, springSettleTime, springVelocity, type SpringParams } from './spring.js';
+import { springParams, type MotionScheme } from './tokens.js';
 import { waapiProvider } from './providers/waapi.js';
+
+/** The four fields a layout move animates. */
+type Field = 'x' | 'y' | 'scaleX' | 'scaleY';
+const FIELDS: readonly Field[] = ['x', 'y', 'scaleX', 'scaleY'];
+/** A field of a spring flight: where it starts, where it lands, and its velocity at the start, per second of spring time. */
+interface FieldMotion {
+  from: number;
+  to: number;
+  velocity: number;
+}
+/** The velocity of each field at one instant, per second of spring time. */
+type Velocity = Record<Field, number>;
+/** What a spring flight is doing, so that its velocity can be read at any time. Its real time is spring time × timeScale. */
+interface Flight {
+  params: SpringParams;
+  timeScale: number; // motion scale when the flight started; a scale change between two flights is not carried (rare, accepted)
+  fields: Record<Field, FieldMotion>;
+}
 
 /** A followed element: its last measures and the move in flight. */
 interface Item {
@@ -16,6 +36,7 @@ interface Item {
   visual: Box | undefined; // last visual box at rest
   rest: OwnTransform; // last rest transform
   handle: MotionHandle | null; // the move in flight
+  flight: Flight | null; // the spring the move in flight follows; null at rest or on a curve
 }
 
 /** The followed elements under one root, watched together. */
@@ -27,11 +48,12 @@ interface Scope {
   onScroll: () => void;
 }
 
-/** A move planned by one flush: its frames, and the style values that decide whether it runs. */
+/** A move planned by one flush: its frames, the velocity it starts with (null from rest), and the style values that decide whether it runs. */
 interface PlannedMove {
   element: HTMLElement;
   item: Item;
   frames: [VisualFrame, VisualFrame];
+  velocity: Velocity | null;
   disabled: boolean;
   scale: number;
 }
@@ -55,6 +77,75 @@ const scopeOf = new WeakMap<HTMLElement, Scope>();
 /** Mutations of these attributes never move anything: the library writes them itself. */
 const IGNORED_ATTRIBUTES = new Set(['style', 'data-presence', 'inert']);
 const DEFAULT_TIMING = motionManifest.defaults.layout.timing[0] as SpringRef;
+
+/** Whether a velocity is too small to be seen: under 1 px/s, or 0.01 scale per second. No velocity is negligible. */
+function isNegligible(velocity: Velocity | null): boolean {
+  return velocity === null || (Math.abs(velocity.x) < 1 && Math.abs(velocity.y) < 1 && Math.abs(velocity.scaleX) < 0.01 && Math.abs(velocity.scaleY) < 0.01);
+}
+
+/** The velocity of the spring flight of an item at its current instant; null when no spring is in flight. */
+function velocityOf({ flight, handle }: Item): Velocity | null {
+  if (!flight || !handle) return null;
+  const t = handle.currentTime / 1000 / flight.timeScale;
+  const at = (name: Field) => springVelocity(flight.params, flight.fields[name].from - flight.fields[name].to, flight.fields[name].velocity, t);
+  return { x: at('x'), y: at('y'), scaleX: at('scaleX'), scaleY: at('scaleY') };
+}
+
+/** The fields of a flight from its first and last frames, with the velocity it starts with (zero from rest). */
+function fieldMotions([from, to]: [VisualFrame, VisualFrame], velocity: Velocity | null): Record<Field, FieldMotion> {
+  const field = (name: Field): FieldMotion => ({ from: from[name] ?? 0, to: to[name] ?? 0, velocity: velocity?.[name] ?? 0 });
+  return { x: field('x'), y: field('y'), scaleX: field('scaleX'), scaleY: field('scaleY') };
+}
+
+/** `steps + 1` frames of a spring flight at uniform instants of `seconds`; the last one is exactly the target. */
+function sampleFlight(params: SpringParams, fields: Record<Field, FieldMotion>, seconds: number, steps: number): VisualFrame[] {
+  return Array.from({ length: steps + 1 }, (_, i) => {
+    const frame: VisualFrame = {};
+    for (const name of FIELDS) {
+      const { from, to, velocity } = fields[name];
+      frame[name] = i === steps ? to : to + springOffset(params, from - to, velocity, (i * seconds) / steps);
+    }
+    return frame;
+  });
+}
+
+/** The frames of a move from the rest state to itself: it only carries a velocity. */
+function restFrames(rest: OwnTransform): [VisualFrame, VisualFrame] {
+  const frame = { x: rest.x, y: rest.y, scaleX: rest.sx, scaleY: rest.sy };
+  return [frame, frame];
+}
+
+/** What a planned move plays on the WAAPI provider, and the spring flight it follows (null for a curve). */
+interface Playback {
+  keyframes: VisualFrame[];
+  duration: number;
+  easing: string;
+  flight: Flight | null;
+}
+
+/**
+ * How a planned move plays, or null when its timing cannot be played. A move from rest keeps the token's two
+ * keyframes and easing. A move that carries a velocity is sampled from its spring, for the token's settle time
+ * bounded to between one and two of its durations, and played with a linear easing. A curve has no spring to carry.
+ */
+function playbackOf({ element, item, frames, velocity, scale }: PlannedMove, scheme: MotionScheme): Playback | null {
+  const timing = item.spec.timing ?? DEFAULT_TIMING;
+  const resolved = resolveWaapiTiming(element, timing, scheme);
+  if (!resolved) return null;
+  const token: Playback = { keyframes: frames, duration: resolved.duration * scale, easing: resolved.easing, flight: null };
+  if (typeof timing !== 'string') return token;
+  const params = springParams(timing, scheme);
+  const fields = fieldMotions(frames, velocity);
+  const flight: Flight = { params, timeScale: scale, fields };
+  if (velocity === null) return { ...token, flight };
+  const base = resolved.duration / 1000;
+  const settle = Math.max(
+    ...FIELDS.map(name => springSettleTime(params, fields[name].from - fields[name].to, fields[name].velocity, name === 'x' || name === 'y' ? 0.5 : 0.001)),
+  );
+  const seconds = Math.min(Math.max(settle, base), base * 2);
+  const steps = Math.min(Math.max(Math.ceil(seconds * 60), 8), 90);
+  return { keyframes: sampleFlight(params, fields, seconds, steps), duration: seconds * 1000 * scale, easing: 'linear', flight };
+}
 
 /** The watched ancestor of a followed element: closest `[data-motion-scope]`, else its parent. */
 export function layoutScopeOf(target: HTMLElement): HTMLElement {
@@ -131,6 +222,7 @@ function dispose(scope: Scope): void {
 function adopt(element: HTMLElement, item: Item): void {
   item.handle?.cancel();
   item.handle = null;
+  item.flight = null;
   const scope = scopeFor(layoutScopeOf(element));
   scope.items.set(element, item);
   scopeOf.set(element, scope);
@@ -157,7 +249,7 @@ function flush(scope: Scope): void {
   // needs its rect alone, since its visual box already includes its own transform. Only an element in
   // flight needs its style, to undo the animated transform.
   const rects: ReferenceRects = new Map();
-  const changed: Array<[HTMLElement, Item, Box]> = [];
+  const changed: Array<[HTMLElement, Item, Box, Velocity | null]> = [];
   for (const [element, item] of scope.items) {
     if (!element.isConnected) continue;
     if (!item.layout || !item.visual) {
@@ -170,44 +262,51 @@ function flush(scope: Scope): void {
       const own = ownOf(element);
       if (sameBox(toLayoutBox(visualNow, own), item.layout)) continue; // its destination did not change: keep flying
       const carried = (item.spec.interrupt ?? 'carry') === 'carry';
-      changed.push([element, item, carried ? toVisualBox(item.layout, own) : item.visual]);
+      // A carried move keeps the velocity its spring has now, read before the move is cancelled.
+      changed.push(carried ? [element, item, toVisualBox(item.layout, own), velocityOf(item)] : [element, item, item.visual, null]);
     } else {
       if (sameBox(visualNow, item.visual)) continue; // it did not move
-      changed.push([element, item, item.visual]);
+      changed.push([element, item, item.visual, null]);
     }
   }
   // 2. Writes: stop only the moves whose destination changed.
   for (const [, item] of changed) {
     item.handle?.cancel();
     item.handle = null;
+    item.flight = null;
   }
   // 3. Reads, after the writes above: measure the new rest state of the changed elements, one computed style
   // per element, from which the move's rest transform, disabled flag and scale are all taken.
   const rectsAfterWrites: ReferenceRects = new Map();
   const planned: PlannedMove[] = [];
-  for (const [element, item, from] of changed) {
+  for (const [element, item, from, velocity] of changed) {
     const style = getComputedStyle(element);
     const disabled = motionDisabledIn(style);
     const scale = motionScaleIn(style);
     measureWith(scope, element, item, style, rectsAfterWrites);
-    const frames = item.visual && flipFrames(from, item.visual, item.rest);
-    if (frames) planned.push({ element, item, frames, disabled, scale });
+    // A move with a visible velocity still flies when its frames are null: the element is then at its destination.
+    const carry = isNegligible(velocity) ? null : velocity;
+    const frames = item.visual && (flipFrames(from, item.visual, item.rest) ?? (carry && restFrames(item.rest)));
+    if (frames) planned.push({ element, item, frames, velocity: carry, disabled, scale });
   }
   if (planned.length === 0) return;
   // 4. Writes only: no style is read from here on. The scheme and the policy are read once, before the writes.
   const scheme = scope.root.ownerDocument.documentElement.dataset.motionScheme === 'standard' ? 'standard' : 'expressive';
   if (planned[0].item.runtime.policy.reduced) return;
-  for (const { element, item, frames, disabled, scale } of planned) {
+  for (const move of planned) {
+    const { element, item, disabled, scale } = move;
     if (disabled || scale === 0) continue;
     try {
-      const timing = resolveWaapiTiming(element, item.spec.timing ?? DEFAULT_TIMING, scheme);
-      if (!timing) continue;
-      const duration = timing.duration * scale;
-      if (!Number.isFinite(duration) || duration <= 0) continue;
-      const handle = waapiProvider.animate({ target: element, keyframes: frames, timing: { duration, easing: timing.easing }, commit: false });
+      const playback = playbackOf(move, scheme);
+      if (!playback || !Number.isFinite(playback.duration) || playback.duration <= 0) continue;
+      const handle = waapiProvider.animate({ target: element, keyframes: playback.keyframes, timing: { duration: playback.duration, easing: playback.easing }, commit: false });
       item.handle = handle;
+      item.flight = playback.flight;
       void handle.finished.then(() => {
-        if (item.handle === handle) item.handle = null;
+        if (item.handle === handle) {
+          item.handle = null;
+          item.flight = null;
+        }
       });
     } catch (error) {
       if (item.development) console.error('[@udixio/motion] layout move could not animate:', error);
@@ -243,6 +342,7 @@ export function trackLayout(target: HTMLElement, spec: Readonly<MotionSpec>, opt
     visual: undefined,
     rest: { x: 0, y: 0, sx: 1, sy: 1 },
     handle: null,
+    flight: null,
   };
   const scope = scopeFor(layoutScopeOf(target));
   scope.items.set(target, item);
@@ -259,6 +359,7 @@ export function trackLayout(target: HTMLElement, spec: Readonly<MotionSpec>, opt
     destroy() {
       item.handle?.cancel();
       item.handle = null;
+      item.flight = null;
       const current = scopeOf.get(target);
       if (!current) return;
       scopeOf.delete(target);
