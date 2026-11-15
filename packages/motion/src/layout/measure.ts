@@ -7,8 +7,15 @@ export function ownOf(element: HTMLElement): OwnTransform {
   return parseOwnTransform(style.translate, style.scale);
 }
 
-/** The px corner radii of an element, from the computed style its caller has read; null when none is kept round. */
+/** The `border-radius` of an element with no radius: the shorthand reads `0px` in each engine, and `''` where it is not serialised. */
+const NO_RADIUS = new Set(['', '0px']);
+
+/**
+ * The px corner radii of an element, from the computed style its caller has read; null when none is kept round. The
+ * shorthand is read first: an element without a radius, the common case, costs that one read instead of four.
+ */
 export function radiiOf(style: CSSStyleDeclaration): Radii | null {
+  if (NO_RADIUS.has(style.borderRadius)) return null;
   return parseRadii(style.borderTopLeftRadius, style.borderTopRightRadius, style.borderBottomRightRadius, style.borderBottomLeftRadius);
 }
 

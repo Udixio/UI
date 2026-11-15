@@ -1105,3 +1105,8 @@ it('once finished, the card and its content have their stylesheet radius and no 
   expect(cornerOf(card)).toEqual([16, 16]);
   expect(cornerOf(panel)).toEqual([8, 8]);
 });
+
+it('a plain box serialises its border-radius as zero, the value the planning pass takes as no radius', () => {
+  page(roundCss, '<div id="plain"></div>');
+  expect(['', '0px']).toContain(getComputedStyle(byId('plain')).borderRadius);
+});
