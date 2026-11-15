@@ -680,3 +680,128 @@ it('a card of 30 children animates at most 24 of them', async () => {
   expect(animated.length, `${animated.length} children animated`).toBeLessThanOrEqual(24);
   await moving(binding).finished;
 });
+
+/** On screen, the distance from the right edge of `child` to the right edge of `card`. */
+const rightGap = (card: HTMLElement, child: HTMLElement): number => card.getBoundingClientRect().right - child.getBoundingClientRect().right;
+
+/** A card that grows, with a right-aligned child that must stay 20 px from its visual right edge. */
+const syncPage = (): void => page(cardCss, '<div class="card" id="card"><div class="child right" id="child"></div></div>');
+
+it('a card at rest scale one half keeps its right-aligned child at the same distance on screen', async () => {
+  page(`${cardCss} .card.scaled { scale: 0.5; }`, '<div class="card scaled" id="card"><div class="child right" id="child"></div></div>');
+  const card = byId('card');
+  const child = byId('child');
+  const binding = bindTo(card);
+  card.classList.add('wide');
+  await Promise.resolve();
+  const handle = moving(binding);
+  for (const share of SHARES) {
+    seekAll(handle, card, share * handle.duration);
+    const gap = rightGap(card, child);
+    expect(Math.abs(gap - 10), `gap ${gap} px at ${share * 100} %`).toBeLessThanOrEqual(1);
+    expectSize(child, 40, 10);
+  }
+});
+
+it('[sync] a right-aligned child stays 20 px from the visual right edge of its card, on a move from rest', async () => {
+  syncPage();
+  const card = byId('card');
+  const child = byId('child');
+  const binding = bindTo(card);
+  card.classList.add('wide');
+  await Promise.resolve();
+  const handle = moving(binding);
+  for (const share of SHARES) {
+    seekAll(handle, card, share * handle.duration);
+    const gap = rightGap(card, child);
+    expect(Math.abs(gap - 20), `gap ${gap} px at ${share * 100} %`).toBeLessThanOrEqual(1);
+  }
+});
+
+it('[sync] a right-aligned child stays 20 px from the visual right edge of its card, on a CurveTiming move', async () => {
+  syncPage();
+  const card = byId('card');
+  const child = byId('child');
+  const binding = motion(card, curved);
+  bindings.push(binding);
+  card.classList.add('wide');
+  await Promise.resolve();
+  const handle = moving(binding);
+  for (const share of SHARES) {
+    seekAll(handle, card, share * handle.duration);
+    const gap = rightGap(card, child);
+    expect(Math.abs(gap - 20), `gap ${gap} px at ${share * 100} %`).toBeLessThanOrEqual(1);
+  }
+});
+
+it('[sync] a right-aligned child stays 20 px from the visual right edge of its card, on a carried move', async () => {
+  syncPage();
+  const card = byId('card');
+  const child = byId('child');
+  const binding = bindTo(card);
+  card.classList.add('wide');
+  await Promise.resolve();
+  const first = moving(binding);
+  seekAll(first, card, 0.15 * first.duration);
+  card.classList.remove('wide');
+  await Promise.resolve();
+  const second = moving(binding);
+  for (const share of SHARES) {
+    seekAll(second, card, share * second.duration);
+    const gap = rightGap(card, child);
+    expect(Math.abs(gap - 20), `gap ${gap} px at ${share * 100} %`).toBeLessThanOrEqual(1);
+  }
+});
+
+it('[Review Focus 4] an interrupted move hands its content over without a jump, and arrives exact', async () => {
+  page(cardCss, '<div class="card" id="card"><h3 class="title" id="title">Title</h3><div class="inner" id="inner"><div class="tiny" id="tiny"></div></div><div class="child right" id="child"></div></div>');
+  const card = byId('card');
+  const nodes = ['title', 'inner', 'tiny', 'child'].map(byId);
+  const binding = bindTo(card);
+  card.classList.add('wide');
+  await Promise.resolve();
+  const first = moving(binding);
+  seekAll(first, card, 0.15 * first.duration);
+  const before = nodes.map(node => node.getBoundingClientRect());
+  card.classList.remove('wide');
+  await Promise.resolve();
+  const after = nodes.map(node => node.getBoundingClientRect());
+  // A text node takes its destination width at once, by design: its glyphs are never stretched, so only its box changes.
+  nodes.forEach((node, i) => {
+    const keys = node.id === 'title' ? (['left', 'top', 'height'] as const) : (['left', 'top', 'width', 'height'] as const);
+    for (const key of keys) {
+      expect(Math.abs(after[i][key] - before[i][key]), `${node.id} ${key}: ${after[i][key]} after, ${before[i][key]} before`).toBeLessThanOrEqual(2);
+    }
+  });
+  await moving(binding).finished;
+  const child = byId('child');
+  expectSize(child, 80, 20);
+  expect(Math.abs(rightGap(card, child) - 20), `gap ${rightGap(card, child)} px at the end`).toBeLessThanOrEqual(0.5);
+  for (const element of [card, ...card.querySelectorAll<HTMLElement>('*')]) {
+    expect(element.style.translate).toBe('');
+    expect(element.style.scale).toBe('');
+    expect(element.getAnimations()).toHaveLength(0);
+  }
+});
+
+it('a carried move that returns to the size the card looks like keeps its content undistorted', async () => {
+  page(cardCss, '<div class="card" id="card"><div class="child" id="child"></div></div>');
+  const card = byId('card');
+  const child = byId('child');
+  const binding = bindTo(card);
+  card.classList.add('wide');
+  await Promise.resolve();
+  const first = moving(binding);
+  seekAll(first, card, 0.15 * first.duration);
+  const width = card.getBoundingClientRect().width;
+  // The observer ignores style attributes: the new size is set by a class, whose rule is added to the page first.
+  style.textContent += `.card.match { width: ${width}px; }`;
+  card.classList.remove('wide');
+  card.classList.add('match');
+  await Promise.resolve();
+  const second = moving(binding);
+  for (const ms of [0, 50, 100]) {
+    seekAll(second, card, ms);
+    expectSize(child, 80, 20);
+  }
+});

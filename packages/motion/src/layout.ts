@@ -3,7 +3,7 @@ import { flipFrames, parseOwnTransform, sameBox, toLayoutBox, toVisualBox, type 
 import type { MotionSpec } from './define-motion.js';
 import { motionManifest } from './manifest.js';
 import { motionDisabledIn, motionScaleIn, resolveWaapiTiming } from './play.js';
-import { easingOf, sampleContent, type ContentPlan, type Stretch } from './project.js';
+import { easingOf, liveContentBoxes, sampleContent, type ContentPlan, type Stretch } from './project.js';
 import type { SpringRef } from './motion-spec.js';
 import type { MotionRuntime } from './runtime.js';
 import { springOffset, springSettleTime, springVelocity, type SpringParams } from './spring.js';
@@ -47,6 +47,7 @@ interface Item {
   handle: MotionHandle | null; // the move in flight
   flight: Flight | null; // the spring the move in flight follows; null at rest or on a curve
   content: ContentNode[]; // the content, measured at rest
+  contentPlan: ContentPlan[]; // the content that the move in flight carries; empty when none
   contentHandles: MotionHandle[]; // the moves of the content, which run with the move in flight
 }
 
@@ -141,38 +142,77 @@ function resizes([from, to]: [VisualFrame, VisualFrame]): boolean {
   return Math.abs((from.scaleX ?? 1) / (to.scaleX ?? 1) - 1) > 0.01 || Math.abs((from.scaleY ?? 1) / (to.scaleY ?? 1) - 1) > 0.01;
 }
 
-/** What a planned move plays on the WAAPI provider, and the spring flight it follows (null for a curve). */
+/** Whether a carried velocity moves the scale of its element, which a content plan must then follow. */
+function scalesMoving(velocity: Velocity | null): boolean {
+  return velocity !== null && (Math.abs(velocity.scaleX) >= 0.01 || Math.abs(velocity.scaleY) >= 0.01);
+}
+
+/** `steps + 1` frames from one frame to the other, at the progress `progress(i)` of each sample; the last one is exactly the end. */
+function sampleBetween([from, to]: [VisualFrame, VisualFrame], progress: (i: number) => number, steps: number): VisualFrame[] {
+  return Array.from({ length: steps + 1 }, (_, i) => {
+    const frame: VisualFrame = {};
+    const e = progress(i);
+    for (const name of FIELDS) {
+      const start = from[name] ?? 0;
+      const end = to[name] ?? 0;
+      frame[name] = i === steps ? end : start + (end - start) * e;
+    }
+    return frame;
+  });
+}
+
+/**
+ * What a planned move plays on the WAAPI provider, and the spring flight it follows (null for a curve). `steps` are
+ * the samples of a sampled move, and `baseProgress` the progress of its move without velocity at each of them.
+ */
 interface Playback {
   keyframes: VisualFrame[];
   duration: number;
   easing: string;
   flight: Flight | null;
-  seconds: number; // the instants at which the move is sampled, in spring or curve time
   steps: number;
+  baseProgress: ((i: number) => number) | null; // null when the move is not sampled
 }
 
 /**
  * How a planned move plays, or null when its timing cannot be played. A move from rest keeps the token's two
- * keyframes and easing. A move that carries a velocity is sampled from its spring, for the token's settle time
- * bounded to between one and two of its durations, and played with a linear easing. A curve has no spring to carry.
+ * keyframes and easing, unless a content plan follows it. A move that carries a velocity, or that a content plan
+ * follows, is sampled and played with a linear easing, over the same duration: from its spring (over the token's
+ * duration from rest, over its settle time bounded to one or two durations with a velocity), or from its curve when
+ * the easing can be evaluated. A curve whose easing cannot be evaluated keeps its two keyframes, with no content plan.
  */
-function playbackOf({ element, item, frames, velocity, scale }: PlannedMove, scheme: MotionScheme): Playback | null {
+function playbackOf({ element, item, frames, velocity, scale, content }: PlannedMove, scheme: MotionScheme): Playback | null {
   const timing = item.spec.timing ?? DEFAULT_TIMING;
   const resolved = resolveWaapiTiming(element, timing, scheme);
   if (!resolved) return null;
   const base = resolved.duration / 1000;
-  const token: Playback = { keyframes: frames, duration: resolved.duration * scale, easing: resolved.easing, flight: null, seconds: base, steps: sampleCount(base) };
-  if (typeof timing !== 'string') return token;
+  const steps = sampleCount(base);
+  const token: Playback = { keyframes: frames, duration: resolved.duration * scale, easing: resolved.easing, flight: null, steps, baseProgress: null };
+  if (typeof timing !== 'string') {
+    const ease = content !== null ? easingOf(resolved.easing) : null;
+    if (!ease) return token;
+    return { keyframes: sampleBetween(frames, i => ease(i / steps), steps), duration: resolved.duration * scale, easing: 'linear', flight: null, steps, baseProgress: i => ease(i / steps) };
+  }
   const params = springParams(timing, scheme);
   const fields = fieldMotions(frames, velocity);
   const flight: Flight = { params, timeScale: scale, fields };
-  if (velocity === null) return { ...token, flight };
-  const settle = Math.max(
-    ...FIELDS.map(name => springSettleTime(params, fields[name].from - fields[name].to, fields[name].velocity, name === 'x' || name === 'y' ? 0.5 : 0.001)),
-  );
-  const seconds = Math.min(Math.max(settle, base), base * 2);
-  const steps = sampleCount(seconds);
-  return { keyframes: sampleFlight(params, fields, seconds, steps), duration: seconds * 1000 * scale, easing: 'linear', flight, seconds, steps };
+  if (velocity === null && content === null) return { ...token, flight };
+  let seconds = base;
+  if (velocity !== null) {
+    const settle = Math.max(
+      ...FIELDS.map(name => springSettleTime(params, fields[name].from - fields[name].to, fields[name].velocity, name === 'x' || name === 'y' ? 0.5 : 0.001)),
+    );
+    seconds = Math.min(Math.max(settle, base), base * 2);
+  }
+  const sampled = sampleCount(seconds);
+  return {
+    keyframes: sampleFlight(params, fields, seconds, sampled),
+    duration: seconds * 1000 * scale,
+    easing: 'linear',
+    flight,
+    steps: sampled,
+    baseProgress: i => 1 - springOffset(params, 1, 0, (i * seconds) / sampled),
+  };
 }
 
 /** The watched ancestor of a followed element: closest `[data-motion-scope]`, else its parent. */
@@ -183,6 +223,20 @@ export function layoutScopeOf(target: HTMLElement): HTMLElement {
 function ownOf(element: HTMLElement): OwnTransform {
   const style = getComputedStyle(element);
   return parseOwnTransform(style.translate, style.scale);
+}
+
+/** Screen pixels per local pixel inside `element`, per axis: its rect against its layout size. */
+function unitOf(element: HTMLElement, rect: DOMRect): Stretch {
+  return {
+    x: element.offsetWidth ? rect.width / element.offsetWidth : 1,
+    y: element.offsetHeight ? rect.height / element.offsetHeight : 1,
+  };
+}
+
+/** Where the content of a running move is now, when a carried move starts from it: null when there is no running content. */
+function liveBoxesOf(item: Item, own: OwnTransform): Map<HTMLElement, Box> | null {
+  if (item.contentPlan.length === 0) return null;
+  return liveContentBoxes(item.contentPlan, { x: own.sx / item.rest.sx, y: own.sy / item.rest.sy }, ownOf);
 }
 
 /** The nearest followed ancestor inside the scope, else the scope root. */
@@ -292,6 +346,7 @@ function stopFlight(item: Item): void {
   for (const handle of item.contentHandles) handle.cancel();
   item.handle = null;
   item.flight = null;
+  item.contentPlan = [];
   item.contentHandles = [];
 }
 
@@ -321,8 +376,11 @@ function dirtyItemsOf(scope: Scope, records: readonly MutationRecord[]): Set<Ite
   return dirty;
 }
 
-/** The plan of the content of a resizing element: each node's box before the move (from the cache) and after it. */
-function contentPlanOf(before: readonly ContentNode[], after: readonly ContentNode[]): ContentPlan[] {
+/**
+ * The plan of the content of a resizing element (reads only): each node's box before the move, from the live boxes
+ * of a carried move when there are some and else from the cache, and after it; its rest transform; and the unit of its parent.
+ */
+function contentPlanOf(cache: readonly ContentNode[], after: readonly ContentNode[], parent: HTMLElement, live: Map<HTMLElement, Box> | null): ContentPlan[] {
   const previous = new Map<HTMLElement, Box>();
   const flatten = (nodes: readonly ContentNode[]): void => {
     for (const node of nodes) {
@@ -330,17 +388,19 @@ function contentPlanOf(before: readonly ContentNode[], after: readonly ContentNo
       flatten(node.children);
     }
   };
-  flatten(before);
-  const plan = (nodes: readonly ContentNode[]): ContentPlan[] =>
+  flatten(cache);
+  for (const [element, box] of live ?? []) previous.set(element, box);
+  const plan = (nodes: readonly ContentNode[], unit: Stretch): ContentPlan[] =>
     nodes.map(node => ({
       element: node.element,
       kind: node.kind,
       before: previous.get(node.element) ?? node.box,
       after: node.box,
       rest: ownOf(node.element),
-      children: plan(node.children),
+      unit,
+      children: node.children.length > 0 ? plan(node.children, unitOf(node.element, node.element.getBoundingClientRect())) : [],
     }));
-  return plan(after);
+  return plan(after, unitOf(parent, parent.getBoundingClientRect()));
 }
 
 /**
@@ -365,7 +425,7 @@ function flush(scope: Scope, records: readonly MutationRecord[] = []): void {
   // changed gets its content measured again.
   const rects: ReferenceRects = new Map();
   const dirty = dirtyItemsOf(scope, records);
-  const changed: Array<[HTMLElement, Item, Box, Velocity | null]> = [];
+  const changed: Array<[HTMLElement, Item, Box, Velocity | null, Map<HTMLElement, Box> | null]> = [];
   for (const [element, item] of scope.items) {
     if (!element.isConnected) continue;
     if (!item.layout || !item.visual) {
@@ -379,12 +439,13 @@ function flush(scope: Scope, records: readonly MutationRecord[] = []): void {
       if (sameBox(toLayoutBox(visualNow, own), item.layout)) continue; // its destination did not change: keep flying
       const carried = (item.spec.interrupt ?? 'carry') === 'carry';
       // A carried move keeps the velocity its spring has now, read before the move is cancelled.
-      changed.push(carried ? [element, item, toVisualBox(item.layout, own), velocityOf(item)] : [element, item, item.visual, null]);
+      // A carried move also starts its content from where it is now, read before anything is cancelled.
+      changed.push(carried ? [element, item, toVisualBox(item.layout, own), velocityOf(item), liveBoxesOf(item, own)] : [element, item, item.visual, null, null]);
     } else if (sameBox(visualNow, item.visual)) {
       // It did not move, but its content may have changed.
       if (dirty.has(item)) item.content = contentOf(scope, element);
     } else {
-      changed.push([element, item, item.visual, null]);
+      changed.push([element, item, item.visual, null, null]);
     }
   }
   // 2. Writes: stop only the moves whose destination changed.
@@ -394,7 +455,7 @@ function flush(scope: Scope, records: readonly MutationRecord[] = []): void {
   // planned against the cache as it was before this measure.
   const rectsAfterWrites: ReferenceRects = new Map();
   const planned: PlannedMove[] = [];
-  for (const [element, item, from, velocity] of changed) {
+  for (const [element, item, from, velocity, live] of changed) {
     const contentBefore = item.content;
     const style = getComputedStyle(element);
     const disabled = motionDisabledIn(style);
@@ -404,7 +465,9 @@ function flush(scope: Scope, records: readonly MutationRecord[] = []): void {
     const carry = isNegligible(velocity) ? null : velocity;
     const frames = item.visual && (flipFrames(from, item.visual, item.rest) ?? (carry && restFrames(item.rest)));
     if (!frames) continue;
-    const content = resizes(frames) && item.content.length > 0 ? contentPlanOf(contentBefore, item.content) : null;
+    // Its content follows a move that resizes it, or a scale that the velocity still carries, even at the same size.
+    const follows = resizes(frames) || scalesMoving(carry);
+    const content = follows && item.content.length > 0 ? contentPlanOf(contentBefore, item.content, element, live) : null;
     planned.push({ element, item, frames, velocity: carry, disabled, scale, content });
   }
   if (planned.length === 0) return;
@@ -430,45 +493,31 @@ function flush(scope: Scope, records: readonly MutationRecord[] = []): void {
   }
 }
 
-/** The stretch of the parent and the progress of its move at sample `i`, or null when its easing cannot be sampled. */
-function samplerOf(move: PlannedMove, playback: Playback): { stretchAt: (i: number) => Stretch; progressAt: (i: number) => number } | null {
-  const { item, frames } = move;
-  const { seconds, steps, flight } = playback;
-  const rest = item.rest;
-  if (flight) {
-    // A spring: the analytic spring at the spring time of the sample, and the progress that its offset gives.
-    const { params, fields } = flight;
-    const at = (i: number) => (i * seconds) / steps;
-    const scaleAt = (name: 'scaleX' | 'scaleY', t: number) => fields[name].to + springOffset(params, fields[name].from - fields[name].to, fields[name].velocity, t);
-    return {
-      stretchAt: i => ({ x: scaleAt('scaleX', at(i)) / rest.sx, y: scaleAt('scaleY', at(i)) / rest.sy }),
-      progressAt: i => 1 - springOffset(params, 1, 0, at(i)),
-    };
-  }
-  // A curve: its easing at the time fraction of the sample.
-  const ease = easingOf(playback.easing);
-  if (!ease) return null;
-  const scaleAt = (name: 'scaleX' | 'scaleY', e: number): number => {
-    const from = frames[0][name] ?? 1;
-    const to = frames[1][name] ?? 1;
-    return from + (to - from) * e;
-  };
-  return {
-    stretchAt: i => {
-      const e = ease(i / steps);
-      return { x: scaleAt('scaleX', e) / rest.sx, y: scaleAt('scaleY', e) / rest.sy };
-    },
-    progressAt: i => ease(i / steps),
-  };
-}
-
-/** Start the content of a resizing element on the instants of its move: one animation per node, with its own keyframes. */
+/**
+ * Start the content of a resizing element on the instants of its move, with the parent's own sampled frames: a node's
+ * stretch is the parent's scale at the instant over its rest scale, and the progress of its box is the progress of the
+ * parent's size between its first and last frames (the progress without velocity when they are equal).
+ */
 function startContent(item: Item, move: PlannedMove, playback: Playback): void {
-  if (!move.content) return;
-  const sampler = samplerOf(move, playback);
-  if (!sampler) return;
-  for (const { element, keyframes } of sampleContent(move.content, sampler.stretchAt, sampler.progressAt, playback.steps)) {
-    item.contentHandles.push(waapiProvider.animate({ target: element, keyframes, timing: { duration: playback.duration, easing: 'linear' }, commit: false }));
+  const { content, frames: [from, to] } = move;
+  const { keyframes, steps, baseProgress } = playback;
+  if (!content || !baseProgress) return;
+  const rest = item.rest;
+  const scaleAt = (i: number, name: 'scaleX' | 'scaleY'): number => keyframes[i][name] ?? 1;
+  const progressOf = (i: number, name: 'scaleX' | 'scaleY'): number => {
+    const start = from[name] ?? 1;
+    const end = to[name] ?? 1;
+    return start === end ? baseProgress(i) : (scaleAt(i, name) - start) / (end - start);
+  };
+  const samples = sampleContent(
+    content,
+    i => ({ x: scaleAt(i, 'scaleX') / rest.sx, y: scaleAt(i, 'scaleY') / rest.sy }),
+    i => ({ x: progressOf(i, 'scaleX'), y: progressOf(i, 'scaleY') }),
+    steps,
+  );
+  item.contentPlan = content;
+  for (const sample of samples) {
+    item.contentHandles.push(waapiProvider.animate({ target: sample.element, keyframes: sample.keyframes, timing: { duration: playback.duration, easing: 'linear' }, commit: false }));
   }
 }
 
@@ -503,6 +552,7 @@ export function trackLayout(target: HTMLElement, spec: Readonly<MotionSpec>, opt
     handle: null,
     flight: null,
     content: [],
+    contentPlan: [],
     contentHandles: [],
   };
   const scope = scopeFor(layoutScopeOf(target));
