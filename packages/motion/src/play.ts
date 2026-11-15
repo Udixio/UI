@@ -66,11 +66,11 @@ export function motionScaleIn(style: CSSStyleDeclaration): number {
   return Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 1;
 }
 
-function motionDisabled(target: HTMLElement): boolean {
+export function motionDisabled(target: HTMLElement): boolean {
   return motionDisabledIn(windowOf(target).getComputedStyle(target));
 }
 
-function motionScale(target: HTMLElement): number {
+export function motionScale(target: HTMLElement): number {
   return motionScaleIn(windowOf(target).getComputedStyle(target));
 }
 

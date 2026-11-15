@@ -298,6 +298,37 @@ describe.each([animejsProvider, cssProvider])('$backend provider refusals', (pro
     expect(() => provider.animate({ target, keyframes: [{ opacity: 0 }, { opacity: 1 }], timing: { duration: 100, easing: 'linear' }, commit: false })).toThrow(new RangeError('Unsupported by this provider: commit'));
     target.remove();
   });
+
+  it('refuses an iteration count other than 1 explicitly', () => {
+    const target = document.createElement('div');
+    document.body.append(target);
+    expect(() => provider.animate({ target, keyframes: [{ opacity: 0 }, { opacity: 1 }], timing: { duration: 100, easing: 'linear', iterations: Infinity } })).toThrow(new RangeError('Unsupported by this provider: iterations'));
+    target.remove();
+  });
+});
+
+describe('waapi provider iterations', () => {
+  it('plays an infinite iteration count, and cancelling it settles as cancelled with nothing committed', async () => {
+    const target = document.createElement('div');
+    document.body.append(target);
+    const handle = waapiProvider.animate({ target, keyframes: [{ opacity: 0 }, { opacity: 1 }], timing: { duration: 40, easing: 'linear', iterations: Infinity } });
+    let finished = false;
+    void handle.finished.then(() => { finished = true; });
+    try {
+      // Several iterations of 40 ms later, the animation is still running.
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      expect(finished).toBe(false);
+      expect(target.getAnimations()[0]?.effect?.getTiming().iterations).toBe(Infinity);
+      handle.cancel();
+      expect(await handle.finished).toBe('cancelled');
+      expect(target.getAnimations()).toHaveLength(0);
+      expect(target.getAttribute('style')).toBeNull();
+      expect(target.style.opacity).toBe('');
+    } finally {
+      handle.cancel();
+      target.remove();
+    }
+  });
 });
 
 describe('waapi provider end frame', () => {

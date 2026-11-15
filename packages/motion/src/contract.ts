@@ -1,6 +1,7 @@
 import type { ManifestVisualField } from './manifest.js';
 export type VisualFrame = Partial<Record<ManifestVisualField, number>>;
-export type MotionTiming = { duration: number; easing: string; delay?: number };
+/** `iterations` defaults to 1; `Infinity` repeats forever. Only the WAAPI provider takes another count than 1. */
+export type MotionTiming = { duration: number; easing: string; delay?: number; iterations?: number };
 export type MotionRequest = {
   target: HTMLElement;
   keyframes: VisualFrame[];

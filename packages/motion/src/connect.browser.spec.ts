@@ -531,30 +531,24 @@ it('an invalid data-motion-shared is reported once and bound without a key: the 
   expect(String(error.mock.calls[1]?.[0])).toContain('data-motion-shared="Bad Key"');
 });
 
-it('skips a loop that is not bound yet: no exception escapes, one error in development, the element untouched', async () => {
+it('binds a loop listed in data-motion: it plays forever, with no error in development', async () => {
   const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
   const el = make('connect-loop');
   root.append(el);
   expect(() => connect({ development: true })).not.toThrow();
   await tick();
-  expect(error).toHaveBeenCalledTimes(1);
-  expect(String(error.mock.calls[0]?.[0])).toContain('connect-loop');
-  expect(getMotion(el)).toBeUndefined();
-  expect(el.getAttribute('style')).toBeNull();
-  expect(el.hasAttribute('data-presence')).toBe(false);
+  expect(getMotion(el)?.kind).toBe('loop');
+  expect(el.getAnimations()).toHaveLength(1);
+  expect((el.getAnimations()[0].effect as KeyframeEffect).getTiming().iterations).toBe(Infinity);
+  expect(error).not.toHaveBeenCalled();
 });
 
-it('refuses a loop before it registers anything, and motionWhenDefined does not throw', () => {
-  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-  for (const [name, verb] of [['connect-loop', 'loop']] as const) {
-    const el = make(name);
-    expect(() => motion(el, name)).toThrow(`${verb} motions are not bound yet`);
-    expect(getMotion(el)).toBeUndefined();
-    expect(el.getAttribute('style')).toBeNull();
-    const deferred = motionWhenDefined(el, name, { development: true });
-    expect(deferred.binding).toBeUndefined();
-    expect(getMotion(el)).toBeUndefined();
-    expect(el.getAttribute('style')).toBeNull();
-  }
-  expect(error).toHaveBeenCalledTimes(1);
+it('binds a loop by name as soon as it is bound, and it plays forever until it is destroyed', () => {
+  const el = make('connect-loop');
+  root.append(el);
+  const deferred = motionWhenDefined(el, 'connect-loop', { development: true });
+  expect(deferred.binding?.kind).toBe('loop');
+  expect(el.getAnimations()).toHaveLength(1);
+  deferred.destroy();
+  expect(el.getAnimations()).toHaveLength(0);
 });

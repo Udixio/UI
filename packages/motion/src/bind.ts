@@ -12,12 +12,14 @@ import {
 } from './define-motion.js';
 import type { LayoutTracking } from './layout.js';
 import { flushLayoutAround, layoutEngine, loadLayoutEngine } from './layout-loader.js';
-import { NAME_PATTERN } from './manifest.js';
+import { motionManifest, NAME_PATTERN } from './manifest.js';
 import { pinOutOfFlow } from './pin.js';
-import { applyFrame, playMotion, releaseFrame } from './play.js';
+import { applyFrame, motionDisabled, motionScale, playMotion, releaseFrame } from './play.js';
+import { waapiProvider } from './providers/waapi.js';
 import { getMotionRuntime, retainMotionRuntime } from './runtime.js';
 import { startScrub } from './scroll.js';
 import { staggered } from './stagger.js';
+import { resolveCurve } from './tokens.js';
 import { watchView } from './viewport.js';
 
 /** A definition reference, a raw spec (validated here), or the name of a defined motion. */
@@ -29,6 +31,8 @@ export interface MotionBinding {
   readonly verb: MotionSpec['verb'];
   readonly kind: MotionKind;
   play(): MotionHandle;
+  /** Pause a loop, at the author's request (WCAG 2.2.2); `play()` resumes it. Refused for every other kind. */
+  pause(): void;
   setPresent(present: boolean): Promise<'finished' | 'cancelled'>;
   destroy(): void;
 }
@@ -40,14 +44,6 @@ type KeyframedSpec = Exclude<MotionSpec, { verb: 'layout' }>;
 
 /** The kinds in the order `getMotion` and `getMotions` read them. */
 const KINDS: readonly MotionKind[] = ['presence', 'emphasis', 'layout', 'view', 'loop'];
-
-/** The verbs whose binding is written in a later step: until then `motion` refuses them, before it registers anything. */
-const UNBOUND_VERBS: readonly MotionSpec['verb'][] = ['loop'];
-
-/** Whether a verb is not bound yet: a page that defines such a motion is never broken by it. */
-export function isUnboundVerb(verb: MotionSpec['verb']): boolean {
-  return UNBOUND_VERBS.includes(verb);
-}
 
 /** The binding of each kind on an element: at most one per kind. */
 const bindings = new WeakMap<Element, Map<MotionKind, MotionBinding>>();
@@ -100,7 +96,6 @@ function unregister(target: Element, binding: MotionBinding): void {
  */
 export function motion(target: HTMLElement, source: MotionSource, options: BindOptions = {}): MotionBinding {
   const spec = specOf(source);
-  if (isUnboundVerb(spec.verb)) throw new TypeError(`${spec.verb} motions are not bound yet`);
   getMotion(target, kindOf(spec.verb))?.destroy();
   const binding =
     spec.verb === 'layout'
@@ -109,7 +104,9 @@ export function motion(target: HTMLElement, source: MotionSource, options: BindO
         ? createRevealBinding(target, spec, options)
         : spec.verb === 'scrub'
           ? createScrubBinding(target, spec, options)
-          : createBinding(target, spec, options);
+          : spec.verb === 'loop'
+            ? createLoopBinding(target, spec, options)
+            : createBinding(target, spec, options);
   register(target, binding);
   return binding;
 }
@@ -119,17 +116,6 @@ export interface DeferredMotion {
   /** The binding, once the motion is defined. */
   readonly binding: MotionBinding | undefined;
   destroy(): void;
-}
-
-/**
- * Bind a motion whose verb is bound; a verb not bound yet leaves the element untouched, and development logs it.
- * Callers that bind a definition as it is defined use it, so that no exception escapes a render or a scan.
- */
-function bindIfBound(target: HTMLElement, source: MotionSource, options: BindOptions): MotionBinding | undefined {
-  const verb = specOf(source).verb;
-  if (!isUnboundVerb(verb)) return motion(target, source, options);
-  if (options.development) console.error(`[@udixio/motion] ${verb} motions are not bound yet: the element is left untouched.`);
-  return undefined;
 }
 
 /**
@@ -146,10 +132,10 @@ export function motionWhenDefined(target: HTMLElement, source: MotionSource, opt
       if (ref.name !== name) return;
       unsubscribe?.();
       unsubscribe = undefined;
-      binding = bindIfBound(target, ref, { ...options, settled: true });
+      binding = motion(target, ref, { ...options, settled: true });
     });
   } else {
-    binding = bindIfBound(target, source, options);
+    binding = motion(target, source, options);
   }
   return {
     get binding() {
@@ -202,6 +188,9 @@ function createLayoutBinding(target: HTMLElement, spec: Readonly<MotionSpec>, op
     play() {
       tracking?.flush();
       return tracking?.handle ?? settledHandle();
+    },
+    pause() {
+      throw new TypeError('pause applies to a loop motion');
     },
     setPresent() {
       throw new TypeError('setPresent does not apply to a layout motion');
@@ -307,6 +296,9 @@ function createRevealBinding(target: HTMLElement, spec: Readonly<Extract<MotionS
       markRevealed();
       return start();
     },
+    pause() {
+      throw new TypeError('pause applies to a loop motion');
+    },
     setPresent() {
       throw new TypeError('setPresent does not apply to a reveal motion');
     },
@@ -363,6 +355,9 @@ function createScrubBinding(target: HTMLElement, spec: Readonly<Extract<MotionSp
     play() {
       return settledHandle();
     },
+    pause() {
+      throw new TypeError('pause applies to a loop motion');
+    },
     setPresent() {
       throw new TypeError('setPresent does not apply to a scrub motion');
     },
@@ -370,6 +365,93 @@ function createScrubBinding(target: HTMLElement, spec: Readonly<Extract<MotionSp
       if (destroyed) return;
       destroyed = true;
       stopPolicy();
+      // Nothing was written inline: cancelling the animation gives the element back its stylesheet state.
+      stop();
+      unregister(target, binding);
+      releaseRuntime();
+    },
+  };
+  return binding;
+}
+
+/**
+ * A loop: the element plays its keyframes forever from the moment it is bound. It pauses while it is out of view and
+ * while the author pauses it (WCAG 2.2.2), and plays again when neither holds. Under reduced motion, or with no motion
+ * (`--udx-motion: none`, a motion scale of 0), it does not play: the element stays in its stylesheet state.
+ */
+function createLoopBinding(target: HTMLElement, spec: Readonly<Extract<MotionSpec, { verb: 'loop' }>>, options: BindOptions): MotionBinding {
+  const development = options.development ?? false;
+  const runtime = getMotionRuntime();
+  const releaseRuntime = retainMotionRuntime(runtime);
+  const { duration, easing } = resolveCurve(spec.timing ?? motionManifest.defaults.loop.curve);
+  let animation: MotionHandle | null = null;
+  let authorPaused = false;
+  let inView = true;
+  let destroyed = false;
+
+  /** Pause the animation while the author or the view holds it; play it otherwise. */
+  function apply() {
+    if (authorPaused || !inView) animation?.pause();
+    else animation?.play();
+  }
+
+  function start() {
+    if (runtime.policy.reduced || motionDisabled(target)) return;
+    const scale = motionScale(target);
+    if (scale === 0) return;
+    try {
+      animation = waapiProvider.animate({ target, keyframes: spec.keyframes, timing: { duration: duration * scale, easing, iterations: Infinity } });
+    } catch (error) {
+      // A loop that cannot animate leaves the element as it is: a scan never throws because of a motion.
+      if (development) console.error('[@udixio/motion] a loop could not animate:', error);
+      return;
+    }
+    apply();
+  }
+
+  function stop() {
+    animation?.cancel();
+    animation = null;
+  }
+
+  const stopView = watchView(target, 'block', visible => {
+    if (destroyed) return;
+    inView = visible;
+    apply();
+  });
+  start();
+  // Turning reduced motion on stops the loop; turning it off starts it again, paused if the author has paused it.
+  const stopPolicy = runtime.policy.subscribe(() => {
+    if (runtime.policy.reduced) stop();
+    else if (!animation) start();
+  });
+
+  const binding: MotionBinding = {
+    verb: 'loop',
+    kind: 'loop',
+    get handle() {
+      return animation;
+    },
+    present: true,
+    play() {
+      if (destroyed) return settledHandle();
+      authorPaused = false;
+      if (!animation) start();
+      apply();
+      return animation ?? settledHandle();
+    },
+    pause() {
+      authorPaused = true;
+      apply();
+    },
+    setPresent() {
+      throw new TypeError('setPresent does not apply to a loop motion');
+    },
+    destroy() {
+      if (destroyed) return;
+      destroyed = true;
+      stopPolicy();
+      stopView();
       // Nothing was written inline: cancelling the animation gives the element back its stylesheet state.
       stop();
       unregister(target, binding);
@@ -490,6 +572,10 @@ function createBinding(target: HTMLElement, spec: Readonly<KeyframedSpec>, optio
     return replace(playMotion(target, spec, { direction: 'forward', carry: spec.interrupt === 'carry', runtime, development }));
   }
 
+  function pause(): void {
+    throw new TypeError('pause applies to a loop motion');
+  }
+
   // Under reduced motion, the running animation jumps to its end.
   const stopPolicy = runtime.policy.subscribe(() => {
     if (handle && runtime.policy.reduced) handle.seek(handle.duration);
@@ -538,6 +624,7 @@ function createBinding(target: HTMLElement, spec: Readonly<KeyframedSpec>, optio
     verb,
     kind: kindOf(verb),
     play,
+    pause,
     setPresent,
     destroy,
   };
