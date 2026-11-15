@@ -76,21 +76,34 @@ connectMotion();`;
       <button type="button" data-demo-rotate class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Move first to end</button>
     </div>
     <ul id="demo-list" class="flex flex-col gap-2">
-      <li data-motion="reflow" data-demo-layout="item" class="rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface">One</li>
-      <li data-motion="reflow" data-demo-layout="item" class="rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface">Two</li>
-      <li data-motion="reflow" data-demo-layout="item" class="rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface">Three</li>
-      <li data-motion="reflow" data-demo-layout="item" class="rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface">Four</li>
-      <li data-motion="reflow" data-demo-layout="item" class="rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface">Five</li>
+      <li data-motion="reflow" data-demo-layout="item" class="rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface"><span>One</span></li>
+      <li data-motion="reflow" data-demo-layout="item" class="rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface"><span>Two</span></li>
+      <li data-motion="reflow" data-demo-layout="item" class="rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface"><span>Three</span></li>
+      <li data-motion="reflow" data-demo-layout="item" class="rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface"><span>Four</span></li>
+      <li data-motion="reflow" data-demo-layout="item" class="rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface"><span>Five</span></li>
     </ul>
   </div>
   <h3>Size</h3>
+  <p>The content of a card keeps its shape while the card changes size.</p>
   <div class="not-prose flex flex-col gap-4">
     <div>
       <button type="button" data-demo-grow class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Toggle width</button>
     </div>
     <div id="demo-size" class="flex gap-4">
-      <div data-motion="reflow" data-demo-layout="card" class="flex-1 rounded-2xl bg-surface-container-high p-6"><p class="text-body-large text-on-surface">First card</p></div>
-      <div data-motion="reflow" data-demo-layout="card" class="flex-1 rounded-2xl bg-surface-container-high p-6"><p class="text-body-large text-on-surface">Second card</p></div>
+      <div data-motion="reflow" data-demo-layout="card" class="flex-1 rounded-2xl bg-surface-container-high p-6">
+        <div class="flex items-center gap-3">
+          <h4 class="text-title-medium text-on-surface">First card</h4>
+          <span data-demo-layout="chip" class="ml-auto rounded-full bg-primary px-3 py-1 text-label-medium text-on-primary">New</span>
+        </div>
+        <p class="mt-2 text-body-medium text-on-surface-variant">The content keeps its shape while the card resizes.</p>
+      </div>
+      <div data-motion="reflow" data-demo-layout="card" class="flex-1 rounded-2xl bg-surface-container-high p-6">
+        <div class="flex items-center gap-3">
+          <h4 class="text-title-medium text-on-surface">Second card</h4>
+          <span data-demo-layout="chip" class="ml-auto rounded-full bg-primary px-3 py-1 text-label-medium text-on-primary">Beta</span>
+        </div>
+        <p class="mt-2 text-body-medium text-on-surface-variant">A second card, resized at the same time.</p>
+      </div>
     </div>
   </div>
 

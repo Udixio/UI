@@ -221,6 +221,34 @@ test(`${name}: layout motions carry elements to their new place`, async () => {
     }, items);
     assert.deepEqual(order.visual, order.dom);
     assert.equal(order.dom[0], 'Two');
+
+    // Size: the content of a card keeps its shape while the card grows.
+    const measureSize = () => {
+      const card = document.querySelector('#demo-size [data-demo-layout="card"]').getBoundingClientRect();
+      const chip = document.querySelector('#demo-size [data-demo-layout="chip"]').getBoundingClientRect();
+      return { cardWidth: card.width, chipWidth: chip.width, chipHeight: chip.height, chipGap: card.right - chip.right };
+    };
+    const rest = await page.evaluate(measureSize);
+    await page.getByRole('button', { name: 'Toggle width' }).click();
+    // Every animation of the card and its content is held at the same moment, halfway through the move.
+    await page.evaluate(() => {
+      for (const animation of document.querySelector('#demo-size').getAnimations({ subtree: true })) {
+        animation.pause();
+        animation.currentTime = 80;
+      }
+    });
+    const middle = await page.evaluate(measureSize);
+    assert.ok(Math.abs(middle.cardWidth - rest.cardWidth) > 5, `the card is still ${middle.cardWidth}px wide, it was ${rest.cardWidth}px`);
+    assert.ok(Math.abs(middle.chipWidth - rest.chipWidth) <= 1, `the chip is ${middle.chipWidth}px wide mid-move, it is ${rest.chipWidth}px at rest`);
+    assert.ok(Math.abs(middle.chipHeight - rest.chipHeight) <= 1, `the chip is ${middle.chipHeight}px high mid-move, it is ${rest.chipHeight}px at rest`);
+    assert.ok(Math.abs(middle.chipGap - rest.chipGap) <= 2, `the chip is ${middle.chipGap}px from the card edge mid-move, it was ${rest.chipGap}px`);
+    await page.evaluate(() => {
+      for (const animation of document.querySelector('#demo-size').getAnimations({ subtree: true })) animation.play();
+    });
+    await page.waitForFunction(() => document.querySelector('#demo-size').getAnimations({ subtree: true }).length === 0);
+    const final = await page.evaluate(measureSize);
+    assert.ok(Math.abs(middle.cardWidth - final.cardWidth) > 5, `the card was ${middle.cardWidth}px wide mid-move and ${final.cardWidth}px at the end`);
+    assert.equal(await page.evaluate(() => [...document.querySelectorAll('#demo-size *')].some(el => el.style.translate !== '' || el.style.scale !== '')), false);
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });

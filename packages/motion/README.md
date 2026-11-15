@@ -68,8 +68,8 @@ The preset `reflow` is a layout motion:
 
 ```html
 <ul>
-  <li data-motion="reflow">One</li>
-  <li data-motion="reflow">Two</li>
+  <li data-motion="reflow"><span>One</span></li>
+  <li data-motion="reflow"><span>Two</span></li>
 </ul>
 ```
 
@@ -77,6 +77,8 @@ A change inside the scope triggers the move: a class or `data-*` attribute chang
 an element of the scope, a child is added, removed or reordered, or `hidden` changes.
 An element that appears or disappears does not animate itself: it has no earlier box to
 move from or to.
+
+An interrupted move restarts with the velocity it had.
 
 The scope is the closest ancestor with `data-motion-scope`, or else the element's parent.
 Only changes inside the scope are seen. An inline `style` change is not observed: after
@@ -95,7 +97,8 @@ need nothing else.
 
 Limits:
 
-- The content of an element whose size changes is stretched during the move.
+- Elements inside a resizing element keep their natural size during the move, up to three levels deep and 24 elements. An element that contains text directly keeps its final size, and its start edge is interpolated.
+- Text placed directly in the followed element, with no element around it, is stretched during the move: wrap it in an element, as in `<li data-motion="reflow"><span>One</span></li>`.
 - `transform-origin` must stay at the centre, where the move scales the element.
 - A move caused by something outside the scope is not animated.
 - Under reduced motion, or with `--udx-motion: none`, the new layout applies at once.
