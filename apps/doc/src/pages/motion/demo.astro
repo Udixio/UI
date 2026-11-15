@@ -48,6 +48,44 @@ const sharedExample = `<!-- Two elements with the same key: the one that appears
 // Open the detail in place of the thumbnail: both changes happen in the same task
 thumbnail.hidden = true;
 detail.hidden = false;`;
+const revealExample = `<!-- An element rises into place when it scrolls into view; elements that enter the view together cascade -->
+<div data-motion="rise">…</div>
+
+// A reveal that goes back to its first frame when it leaves the view, and plays again on each entry
+import { defineMotion } from '@udixio/motion';
+defineMotion('rise-again', {
+  verb: 'reveal',
+  keyframes: [{ opacity: 0, y: 24 }, { opacity: 1, y: 0 }],
+  stagger: 'normal',
+  repeat: 'always',
+});`;
+const scrubExample = `<!-- The keyframes follow the scroll position: the element drifts as the page scrolls past it -->
+<div data-motion="parallax">…</div>
+
+// A scrub over the entry of the element into the view
+import { defineMotion } from '@udixio/motion';
+defineMotion('drift-in', {
+  verb: 'scrub',
+  keyframes: [{ opacity: 0, y: 48 }, { opacity: 1, y: 0 }],
+  range: 'enter',
+});`;
+const loopExample = `<!-- A loop plays forever, and pauses by itself while it is out of view -->
+<span data-motion="rotate">…</span>
+
+// The page offers a control: pause and play the loop from script, or with the attribute
+import { defineMotion, getMotion } from '@udixio/motion';
+getMotion(spinner, 'loop')?.pause();
+getMotion(spinner, 'loop')?.play();
+spinner.setAttribute('data-motion-paused', '');
+spinner.removeAttribute('data-motion-paused');
+
+// A loop that is the content itself cannot be paused: its definition gives the reason
+defineMotion('progress-spin', {
+  verb: 'loop',
+  keyframes: [{ rotate: 0 }, { rotate: 360 }],
+  pause: 'essential',
+  reason: 'An indeterminate progress indicator is the only sign that the page is loading.',
+});`;
 ---
 <MotionPage title="Motion demo" description="A live demonstration of data-motion: elements reference a named motion and the runtime animates them.">
   <h1>Motion demo</h1>
@@ -168,6 +206,51 @@ detail.hidden = false;`;
   </div>
   <pre><code>{sharedExample}</code></pre>
 
+  <h2>Reveal</h2>
+  <p>A <code>reveal</code> motion waits in its first frame while its element is out of view, and plays when the element scrolls into view. Scroll down: the twelve cards rise into place as they reach the view, and the cards that enter the view together cascade.</p>
+  <div class="not-prose flex flex-col gap-4 pt-[60vh]">
+    <div data-motion="rise" data-demo-reveal class="rounded-2xl bg-surface-container-high p-6 text-body-large text-on-surface">Card 1</div>
+    <div data-motion="rise" data-demo-reveal class="rounded-2xl bg-surface-container-high p-6 text-body-large text-on-surface">Card 2</div>
+    <div data-motion="rise" data-demo-reveal class="rounded-2xl bg-surface-container-high p-6 text-body-large text-on-surface">Card 3</div>
+    <div data-motion="rise" data-demo-reveal class="rounded-2xl bg-surface-container-high p-6 text-body-large text-on-surface">Card 4</div>
+    <div data-motion="rise" data-demo-reveal class="rounded-2xl bg-surface-container-high p-6 text-body-large text-on-surface">Card 5</div>
+    <div data-motion="rise" data-demo-reveal class="rounded-2xl bg-surface-container-high p-6 text-body-large text-on-surface">Card 6</div>
+    <div data-motion="rise" data-demo-reveal class="rounded-2xl bg-surface-container-high p-6 text-body-large text-on-surface">Card 7</div>
+    <div data-motion="rise" data-demo-reveal class="rounded-2xl bg-surface-container-high p-6 text-body-large text-on-surface">Card 8</div>
+    <div data-motion="rise" data-demo-reveal class="rounded-2xl bg-surface-container-high p-6 text-body-large text-on-surface">Card 9</div>
+    <div data-motion="rise" data-demo-reveal class="rounded-2xl bg-surface-container-high p-6 text-body-large text-on-surface">Card 10</div>
+    <div data-motion="rise" data-demo-reveal class="rounded-2xl bg-surface-container-high p-6 text-body-large text-on-surface">Card 11</div>
+    <div data-motion="rise" data-demo-reveal class="rounded-2xl bg-surface-container-high p-6 text-body-large text-on-surface">Card 12</div>
+  </div>
+  <pre><code>{revealExample}</code></pre>
+
+  <h2>Scrub</h2>
+  <p>A <code>scrub</code> motion follows the scroll position: as a tile crosses the viewport its keyframes play forward, and scrolling back plays them backward. The <code>parallax</code> preset drifts each tile from 48px below its place to 48px above it. Browsers without scroll-driven animations, and reduced motion, show the tiles still.</p>
+  <div class="not-prose flex gap-4 py-24">
+    <div data-motion="parallax" data-demo-scrub class="h-32 flex-1 rounded-2xl bg-primary"></div>
+    <div data-motion="parallax" data-demo-scrub class="h-32 flex-1 rounded-2xl bg-primary"></div>
+    <div data-motion="parallax" data-demo-scrub class="h-32 flex-1 rounded-2xl bg-primary"></div>
+  </div>
+  <pre><code>{scrubExample}</code></pre>
+
+  <h2>Loop</h2>
+  <p>A <code>loop</code> motion plays forever, from the moment it is bound, and pauses by itself while its element is out of view. A loop that never ends must be pausable, so the page offers a control: this button pauses and plays the three loops below.</p>
+  <div class="not-prose flex flex-col gap-4">
+    <div class="flex flex-wrap items-center gap-6">
+      <div data-motion="rotate" data-demo-loop="rotate" class="size-6 rounded-full border-4 border-primary border-t-transparent"></div>
+      <div data-motion="breathe" data-demo-loop="breathe" class="size-6 rounded-full bg-primary"></div>
+      <div data-motion="blink" data-demo-loop="blink" class="size-6 rounded-full bg-primary"></div>
+    </div>
+    <div>
+      <button type="button" data-demo-pause-loops aria-pressed="false" class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Pause loops</button>
+    </div>
+  </div>
+  <p>The <code>shake</code> emphasis, which signals a refused action, is not a loop: it replays each time the element's <code>data-state</code> changes. Each click on this button sets the next state.</p>
+  <div class="not-prose">
+    <button type="button" data-motion="shake" data-state="0" data-demo-shake class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Shake</button>
+  </div>
+  <pre><code>{loopExample}</code></pre>
+
   <h2>Reduced motion</h2>
   <p>While checked, this control sets <code>data-motion-policy="reduce"</code> on the <code>html</code> element: entries and exits become a short fade, and emphasis does nothing.</p>
   <div class="not-prose">
@@ -259,6 +342,23 @@ detail.hidden = false;`;
       }
       if (event.target.closest('[data-demo-close]')) {
         closeShot();
+        return;
+      }
+      const pauseLoops = event.target.closest<HTMLButtonElement>('[data-demo-pause-loops]');
+      if (pauseLoops) {
+        const paused = pauseLoops.getAttribute('aria-pressed') !== 'true';
+        pauseLoops.setAttribute('aria-pressed', String(paused));
+        pauseLoops.textContent = paused ? 'Play loops' : 'Pause loops';
+        for (const loop of document.querySelectorAll<HTMLElement>('[data-demo-loop]')) {
+          if (paused) loop.setAttribute('data-motion-paused', '');
+          else loop.removeAttribute('data-motion-paused');
+        }
+        return;
+      }
+      const shake = event.target.closest<HTMLElement>('[data-demo-shake]');
+      if (shake) {
+        // Each change of data-state replays the shake emphasis.
+        shake.setAttribute('data-state', String(Number(shake.getAttribute('data-state')) + 1));
         return;
       }
       const shot = event.target.closest<HTMLElement>('[data-demo-shot]');

@@ -417,4 +417,112 @@ test(`${name}: a shared element morphs between a thumbnail and its detail`, asyn
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
+
+test(`${name}: cards reveal as they scroll into view`, async () => {
+  const browser = await browserType.launch();
+  try {
+    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
+    const page = await context.newPage();
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    await page.goto(base + '/motion/demo/');
+    await page.waitForSelector('[data-demo-reveal]');
+    // The reveal is bound at connect: wait for the page to be quiet, then two frames.
+    await page.waitForLoadState('networkidle');
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    const cards = '[data-demo-reveal]';
+    // At load every card is below the fold, in its first frame.
+    const atLoad = await page.evaluate(selector => [...document.querySelectorAll(selector)].map(el => ({
+      below: el.getBoundingClientRect().top >= window.innerHeight,
+      opacity: getComputedStyle(el).opacity,
+    })), cards);
+    assert.equal(atLoad.length, 12);
+    assert.ok(atLoad.every(card => card.below), 'a card is in view at load');
+    assert.ok(atLoad.every(card => card.opacity === '0'), 'a card below the fold is not in its first frame');
+    // Scroll down by a third of the viewport at a time, so that every card is in view at some step of the scroll.
+    await page.evaluate(async selector => {
+      const frames = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const last = [...document.querySelectorAll(selector)].at(-1);
+      const end = last.getBoundingClientRect().top + window.scrollY - window.innerHeight / 2;
+      const step = window.innerHeight / 3;
+      for (let y = window.scrollY; ; y = Math.min(y + step, end)) {
+        window.scrollTo(0, y);
+        await frames();
+        if (y >= end) break;
+      }
+    }, cards);
+    await page.waitForFunction(selector => [...document.querySelectorAll(selector)].every(el => el.getAnimations().length === 0), cards);
+    const after = await page.evaluate(selector => [...document.querySelectorAll(selector)].map(el => ({
+      opacity: getComputedStyle(el).opacity,
+      translate: getComputedStyle(el).translate,
+    })), cards);
+    assert.equal(after.length, 12);
+    for (const card of after) {
+      assert.equal(card.opacity, '1');
+      assert.ok(['none', '0px', '0px 0px'].includes(card.translate), `a card rests at translate ${card.translate}`);
+    }
+    assert.deepEqual(pageErrors, []);
+  } finally { await browser.close(); }
+});
+
+test(`${name}: tiles follow the scroll, or stay still without support`, async () => {
+  const browser = await browserType.launch();
+  try {
+    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
+    const page = await context.newPage();
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    await page.goto(base + '/motion/demo/');
+    await page.waitForSelector('[data-demo-scrub]');
+    await page.waitForLoadState('networkidle');
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    // The top edge of the first tile at 80 %, then at 20 %, of the viewport height: two frames after each scroll.
+    const { native, low, high } = await page.evaluate(async () => {
+      const frames = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const tile = document.querySelector('[data-demo-scrub]');
+      const pageTop = tile.getBoundingClientRect().top + window.scrollY;
+      const at = async fraction => {
+        window.scrollTo(0, pageTop - fraction * window.innerHeight);
+        await frames();
+        return getComputedStyle(tile).translate;
+      };
+      const lowValue = await at(0.8);
+      const highValue = await at(0.2);
+      return { native: typeof ViewTimeline === 'function', low: lowValue, high: highValue };
+    });
+    // A single value is the x offset alone: the y offset is then 0, which the browser may leave out.
+    const offsetY = value => (value === 'none' ? 0 : Number.parseFloat(value.split(' ')[1] ?? '0'));
+    if (native) assert.ok(Math.abs(offsetY(low) - offsetY(high)) > 20, `the tile moved from ${low} to ${high}`);
+    else for (const value of [low, high]) assert.ok(['none', '0px', '0px 0px'].includes(value), `the tile moved to ${value} without a scroll link`);
+    assert.deepEqual(pageErrors, []);
+  } finally { await browser.close(); }
+});
+
+test(`${name}: loops run, pause on demand and resume`, async () => {
+  const browser = await browserType.launch();
+  try {
+    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
+    const page = await context.newPage();
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    await page.goto(base + '/motion/demo/');
+    await page.waitForSelector('[data-demo-loop]');
+    await page.waitForLoadState('networkidle');
+    const loops = '[data-demo-loop]';
+    await page.evaluate(selector => document.querySelector(selector).scrollIntoView(), loops);
+    // Two frames: the loops have been told that they are in view.
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    // One entry per loop: the play states of its animations.
+    const playStates = () => page.evaluate(selector => [...document.querySelectorAll(selector)].map(el => el.getAnimations().map(animation => animation.playState)), loops);
+    assert.deepEqual(await playStates(), [['running'], ['running'], ['running']]);
+    const toggle = page.getByRole('button', { name: /^(Pause|Play) loops$/ });
+    await toggle.click();
+    await page.waitForFunction(selector => [...document.querySelectorAll(selector)].every(el => el.getAnimations()[0]?.playState === 'paused'), loops);
+    assert.deepEqual(await playStates(), [['paused'], ['paused'], ['paused']]);
+    await toggle.click();
+    await page.waitForFunction(selector => [...document.querySelectorAll(selector)].every(el => el.getAnimations()[0]?.playState === 'running'), loops);
+    assert.deepEqual(await playStates(), [['running'], ['running'], ['running']]);
+    assert.deepEqual(pageErrors, []);
+  } finally { await browser.close(); }
+});
 }

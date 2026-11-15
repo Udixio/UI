@@ -38,8 +38,10 @@ defineMotion('card-enter', {
 
 - The name is kebab-case; reserved names are rejected.
 - Verbs: `appear` (enters through the keyframes, leaves backward), `disappear` (the
-  reverse), `emphasize` (plays the keyframes forward on each replay) and `layout`
-  (moves with the layout, see [Layout](#layout)).
+  reverse), `emphasize` (plays the keyframes forward on each replay), `layout`
+  (moves with the layout, see [Layout](#layout)), `reveal` (plays when the element
+  scrolls into view, see [Reveal](#reveal)), `scrub` (follows the scroll position, see
+  [Scrub](#scrub)) and `loop` (plays forever, see [Loop](#loop)).
 - Keyframe fields: `opacity`, `x`, `y`, `scale`, `rotate`.
 - `timing` is optional: a spring token such as `spring.fast.spatial`, or
   `{ duration: 'duration.medium2', easing: 'easing.standard' }`. It applies to every field.
@@ -49,12 +51,13 @@ defineMotion('card-enter', {
 ### Presets
 
 ```ts
-import { fade, slide, scale, cascade, press, reflow } from '@udixio/motion/presets';
+import { fade, slide, scale, cascade, press, shake, reflow, rise, parallax, rotate, breathe, blink } from '@udixio/motion/presets';
 ```
 
-Importing the entry defines `fade`, `slide`, `scale` and `cascade` (appear), `press`
-(emphasize) and `reflow` (layout), usable directly in `data-motion`. `cascade` staggers the
-elements that enter together, see [Lists](#lists). Their values are provisional.
+Importing the entry defines `fade`, `slide`, `scale` and `cascade` (appear), `press` and
+`shake` (emphasize), `reflow` (layout), `rise` (reveal), `parallax` (scrub), and `rotate`,
+`breathe` and `blink` (loop), usable directly in `data-motion`. `cascade` and `rise` stagger
+the elements that enter together, see [Lists](#lists) and [Reveal](#reveal). Their values are provisional.
 
 ### Layout
 
@@ -210,11 +213,134 @@ Limits:
 - An element that is bound more than 600 ms after the other holder went away, for example an
   island that hydrates late, does not morph.
 
+### Reveal
+
+A reveal plays when its element scrolls into view. Until then the element waits in its
+first frame, so it is not seen half-way through its entry. The preset `rise` fades in
+while rising 24px:
+
+```html
+<div data-motion="rise">…</div>
+```
+
+An element counts as in view as soon as any part of it is in the top 90 % of the viewport.
+An element that is in view when it is bound is left in its natural state.
+
+Options, given in the definition with the verb `reveal`:
+
+- `stagger` (`tight`, `normal` or `loose`), and `origin`, as for lists: elements that enter
+  the view together start one step apart, in visual order. `rise` has `stagger: 'normal'`.
+- `repeat`: `once` (the default) plays the reveal the first time the element enters the view,
+  then stops watching it. `always` puts the element back in its first frame when it leaves
+  the view, and plays it again on each entry.
+- `axis`: `block` (the default) watches the vertical view, `inline` the horizontal one.
+
+```ts
+import { defineMotion } from '@udixio/motion';
+
+defineMotion('rise-again', {
+  verb: 'reveal',
+  keyframes: [
+    { opacity: 0, y: 24 },
+    { opacity: 1, y: 0 },
+  ],
+  stagger: 'normal',
+  repeat: 'always',
+});
+```
+
+Under reduced motion a reveal shows its element at once, unless its definition sets another
+`reduced` value. `play()` on the binding replays a reveal from its first frame.
+
+### Scrub
+
+A scrub links its keyframes to the scroll position: as the element crosses the viewport its
+keyframes play forward, and scrolling back plays them backward. The preset `parallax` moves
+its element from 48px below its place to 48px above it:
+
+```html
+<div data-motion="parallax">…</div>
+```
+
+Options, given in the definition with the verb `scrub`:
+
+- `range` chooses the part of the scroll the keyframes span: `enter` (the element entering the
+  viewport), `cross` (the default: its crossing of the viewport), `exit` (the element leaving it)
+  or `contain` (its containment in the viewport).
+- `axis`: `block` (the default) follows the vertical scroll, `inline` the horizontal one.
+
+The keyframes are interpolated linearly across the range. Before the range the first keyframe
+holds, and after it the last one. A scrub has no timing and no presence.
+
+```ts
+import { defineMotion } from '@udixio/motion';
+
+defineMotion('drift-in', {
+  verb: 'scrub',
+  keyframes: [
+    { opacity: 0, y: 48 },
+    { opacity: 1, y: 0 },
+  ],
+  range: 'enter',
+});
+```
+
+The scroll link is made by the browser, on a view timeline. `supportsViewTimeline()` (from
+`@udixio/motion`) tells whether the browser has one. Where it has none (Firefox at the time of
+writing), under reduced motion and under `--udx-motion: none`, the element keeps its stylesheet
+state and nothing is written inline. Turning reduced motion on stops the scroll link, and
+turning it off resumes it at the current scroll position.
+
+### Loop
+
+A loop plays its keyframes forever, from the moment it is bound. It pauses by itself while its
+element is out of view, and plays again when the element comes back. The presets `rotate` (a
+full turn each second), `breathe` (swells to 104 % and back) and `blink` (one dim flash each
+second) are loops:
+
+```html
+<span data-motion="rotate" class="spinner"></span>
+```
+
+WCAG 2.2.2 asks that moving, blinking or scrolling content which starts by itself, lasts more
+than five seconds and runs beside other content can be paused, stopped or hidden, unless it is
+essential. A loop never ends, so each loop states in its definition how it is paused:
+
+- `pause: 'control'`: the page offers a visible control that pauses the loop. The presets
+  `rotate`, `breathe` and `blink` use it.
+- `pause: 'essential'` with a `reason`: the loop is the content itself, such as an indeterminate
+  progress indicator, and the page does not offer to pause it. The validator requires the
+  `reason`, and refuses it on a `control` loop.
+
+The page pauses a loop on demand:
+
+- From script, `getMotion(element, 'loop')?.pause()` pauses the loop, and `play()` resumes it.
+  `play()` clears the pause, but the loop still waits while its element is out of view.
+- With the attribute `data-motion-paused`, the loop pauses while the attribute is present, and
+  plays again when it is removed.
+- In the frameworks, with the option `paused`: React `useMotion('rotate', { paused })`, Angular
+  `<span udxMotion="rotate" [udxMotionPaused]="paused">`, and Svelte
+  `{@attach motion('rotate', () => ({ paused }))}`.
+
+Under reduced motion, or with `--udx-motion: none`, a loop does not play: the element keeps its
+stylesheet state. `--udx-motion-scale` scales its duration, and 0 stops it. Its `timing` is a
+curve only, `{ duration, easing }`, not a spring. Without `timing` it runs for one second, linearly.
+
+```ts
+import { defineMotion } from '@udixio/motion';
+
+defineMotion('spin', {
+  verb: 'loop',
+  keyframes: [{ rotate: 0 }, { rotate: 360 }],
+  pause: 'control',
+});
+```
+
 ### HTML
 
 `data-motion` takes names separated by spaces, at most one per kind: a presence motion
-(it enters and leaves), an emphasis, and a layout motion. A second name of a kind the
-element already has is ignored.
+(it enters and leaves), an emphasis, a layout motion, a view motion (`reveal` or `scrub`)
+and a loop. A second name of a kind the element already has is ignored.
 
 ```html
 <section data-motion="slide">Enters when inserted</section>
@@ -245,7 +371,9 @@ document.querySelector('button')!.dataset.state = 'pressed';
   and `inert` until the exit ends.
 - Removing `hidden` plays the entry.
 - A `data-state` change on an `emphasize` motion replays it.
-- An element present at connect is not animated. An element removed from the root is destroyed.
+- Adding or removing `data-motion-paused` pauses or resumes a `loop`.
+- An element present at connect plays no entry. A `reveal` waits in its first frame while it is
+  out of view, and a `loop` or a `scrub` starts at once. An element removed from the root is destroyed.
 - An unknown name leaves the element untouched. With `connectMotion({ development: true })`
   an error names the missing motion, and the element is bound once that name is defined.
 
@@ -260,14 +388,17 @@ console.log(await binding.setPresent(false)); // 'finished' or 'cancelled'
 ```
 
 `motion(element, source, options)` accepts a defined name, a `MotionRef` or a raw spec,
-and returns a `MotionBinding` (`setPresent`, `play`, `destroy`, and `present` and `handle` getters):
+and returns a `MotionBinding` (`setPresent`, `play`, `pause`, `destroy`, and `present` and `handle` getters):
 
 - `present` (default `true`) is the initial presence; `settled` skips the entry of a present element.
 - `setPresent(present)` runs the exit or entry and resolves to `'finished'` or `'cancelled'`.
   It never rejects; on any failure the element is left in its destination state.
-- `play()` replays an `emphasize` motion. `setPresent` throws for an `emphasize`, and `play()` throws for the other verbs.
+- `play()` replays an `emphasize` motion or a `reveal` from its first frame, resumes a `loop`,
+  and compares a `layout` and moves it now. A `scrub` has nothing to replay. `play()` throws for
+  `appear` and `disappear`, which take `setPresent`. `pause()` applies to a `loop` only, and
+  `setPresent` applies to `appear` and `disappear` only.
 - `destroy()` cancels the motion and releases its inline state.
-- `getMotion(element, kind?)` returns the binding of a kind (`'presence'`, `'emphasis'` or `'layout'`),
+- `getMotion(element, kind?)` returns the binding of a kind (`'presence'`, `'emphasis'`, `'layout'`, `'view'` for a reveal or a scrub, or `'loop'`),
   or the first one when no kind is given. `getMotions(element)` returns all of them, in that order.
 
 ### Frameworks
@@ -322,8 +453,8 @@ Angular and Svelte replay the entry of server-rendered content unless it is mark
 
 ### Presence state
 
-The runtime writes `data-presence="entering" | "present" | "exiting"` on each bound
-element; authors should not set it. Style it with Tailwind variants, for example
+The runtime writes `data-presence="entering" | "present" | "exiting"` on each element bound
+to a presence motion; authors should not set it. Style it with Tailwind variants, for example
 `data-[presence=exiting]:pointer-events-none`.
 
 ### Turning motion off, or reducing it
@@ -333,16 +464,18 @@ element; authors should not set it. Style it with Tailwind variants, for example
 - Under reduced motion (`prefers-reduced-motion: reduce`, or `<html data-motion-policy="reduce">`),
   entries and exits become a short opacity fade. An emphasis is not animated: it
   applies its end frame.
+- Under reduced motion a reveal shows its element at once, a scrub stays still and a loop
+  does not play.
 
 ### Current limits
 
-This is step 1a of the package, so:
+The package is under construction, so:
 
-- Four verbs exist: `appear`, `disappear`, `emphasize` and `layout`. `reveal`, `scrub`
-  and `loop` come later.
-- At the end of a motion, the end values stay inline on the element (`opacity`,
-  `translate`, `scale`, `rotate`). A class that sets the same property on that element
-  is overridden until the binding is destroyed.
+- All seven verbs exist: `appear`, `disappear`, `emphasize`, `reveal`, `scrub`, `loop` and `layout`.
+- At the end of a presence, emphasis or reveal motion, the end values stay inline on the element
+  (`opacity`, `translate`, `scale`, `rotate`). A class that sets the same property on that element
+  is overridden until the binding is destroyed. A loop and a scrub write nothing inline: while
+  they run, their animation overrides the same property.
 - Preset values are not calibrated yet.
 
 ## Development
