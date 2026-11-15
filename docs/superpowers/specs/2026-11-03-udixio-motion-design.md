@@ -916,6 +916,72 @@ Points ouverts relevés pendant l'étape 1b :
   uniquement côté client joue ses entrées au montage dans les trois
   frameworks ; une île hydratée ne les joue pas en React seulement.
 
+#### 8.3.7 État après l'étape 2a (2026-11-15)
+
+Verbe `layout` livré : un élément lié à une définition `layout` rejoint en
+mouvement sa nouvelle place et sa nouvelle taille quand la mise en page change
+dans sa portée. Écriture : `defineMotion('nom', { verb: 'layout' })` (pas de
+keyframes ; options `timing`, `interrupt`, `reduced`), preset `reflow`,
+`data-motion="reflow"`, `useMotion('reflow')`, `udxMotion="reflow"`,
+`{@attach motion('reflow')}`.
+
+| Élément | Rôle |
+|---|---|
+| `flip.ts` (`flipFrames`, `toLayoutBox`, `toVisualBox`, `sameBox`, `parseOwnTransform`) | calcul pur du FLIP : boîtes centre + taille, transform propre de l'élément |
+| `layout.ts` (`trackLayout`, `layoutScopeOf`) | portée de layout : cache de géométrie, `MutationObserver`, `ResizeObserver`, écoute du défilement |
+| `playFrames` | lecture de frames brutes par le provider, sans rien laisser en ligne (`commit: false`) |
+| champs `scaleX`, `scaleY` ; `MotionRequest.commit` | portés par le provider WAAPI ; refusés explicitement par `animejs` et `css` |
+| `isPresenceVerb` | seuls `appear` et `disappear` ont une présence |
+
+Règles fixées pendant l'étape 2a (choix de Claude, sur délégation) :
+
+- **FLIP sur cache de géométrie, pas `createLayout` d'anime.js.** Un
+  changement constaté après coup (classe basculée par l'auteur ou par un
+  framework) ne peut pas être rendu interruptible avec le cycle
+  enregistrer / animer d'anime.js (constat déjà écrit dans
+  `core/dom/auto-layout.ts`). Le FLIP passe par le contrat provider, sur
+  WAAPI : compositeur, reprise exacte en position. anime.js garde son rôle
+  pour la reprise avec vitesse (à brancher derrière `playFrames`).
+- **Portée** : l'ancêtre `data-motion-scope` le plus proche, sinon le parent.
+  Un `MutationObserver` par portée (`childList`, sous-arbre, attributs ; les
+  écritures de la bibliothèque — `style`, `data-presence`, `inert` — sont
+  ignorées). Aucun signal propre aux frameworks : l'observateur voit leurs
+  changements de DOM.
+- **Position « avant »** : boîte visuelle au repos en cache ; pour un élément
+  en vol avec `carry`, boîte de layout en cache composée avec le transform
+  animé courant. **Position « après »** : mesurée une fois le mouvement
+  annulé. Les boîtes sont relatives à l'ancêtre suivi le plus proche, sinon
+  à la racine de la portée.
+- **Un mouvement n'est interrompu que si sa destination change.** Une
+  mutation sans effet sur un élément en vol (classe de survol, `data-state`
+  voisin) le laisse voler.
+- **Changement sans mutation** (redimensionnement, défilement interne) : le
+  cache est rafraîchi tout de suite, rien ne s'anime.
+- **Rien en ligne** : à la fin ou à l'annulation, l'élément est rendu à sa
+  feuille de style ; les transforms de l'auteur (`translate`, `scale` en
+  classe) sont conservés pendant et après le mouvement.
+- **Mouvement réduit et `--udx-motion: none`** : la nouvelle mise en page
+  s'applique sans animation.
+- Budget de l'entrée principale : 14,5 kB gzip mesurés, limite 16 kB.
+
+Limites connues, à traiter :
+
+- **Contenu étiré pendant un changement de taille** : la taille est jouée en
+  mise à l'échelle non uniforme, donc le texte et les rayons de bordure se
+  déforment le temps du mouvement. Visible sur la démo ; premier point à
+  corriger (contre-échelle du contenu, ou taille réelle animée).
+- **Élément suivi imbriqué** dans un élément suivi qui change de taille : non
+  corrigé du facteur d'échelle du parent.
+- **Ancrage de défilement** (Firefox, WebKit) : dans une portée défilée, le
+  navigateur peut décaler le contenu quand des éléments suivis bougent ;
+  `overflow-anchor: none` sur le conteneur l'évite.
+- **Changement du transform de repos de l'élément lui-même pendant un vol** :
+  vu seulement à l'arrivée.
+- **Redimensionnement et changement dans la même tâche** : le cache n'est pas
+  encore rafraîchi (l'observateur de taille n'a pas parlé).
+- `transform-origin` doit rester au centre ; un changement de style en ligne
+  n'est pas observé (`binding.play()` force la comparaison).
+
 ### 8.4 Détails par famille — **rédigé (consolidation)**
 
 | # | Famille | Écriture | Chemin natif | Repli / moteur JS | Sources |
@@ -1014,8 +1080,13 @@ modification).
 Avancement : **étape 1a livrée le 2026-11-14** (cœur de la surface
 d'écriture, `data-motion`, Badge, démo `/motion/demo` — détail en §8.3.5).
 **Étape 1b livrée le 2026-11-15** (adaptateurs React, Angular, Svelte et
-présence par framework — détail en §8.3.6). L'étape 1 est terminée ; la
-suivante est l'étape 2 (layout, élément partagé, listes).
+présence par framework — détail en §8.3.6). L'étape 1 est terminée.
+
+L'étape 2 est découpée en trois : **2a livrée le 2026-11-15** (verbe
+`layout`, détail en §8.3.7) ; 2b = listes (`stagger`, `origin`, sorties
+`in-place` / `out-of-flow`) et contenu non déformé pendant un changement de
+taille ; 2c = élément partagé (`defineShared`, rétention 600 ms, View
+Transitions conditionnelles).
 
 ## 9. Questions ouvertes connues
 
@@ -1086,6 +1157,7 @@ D2 (en partie orientée par C15).
 | Date | Travail | Changement |
 |---|---|---|
 | 2026-11-03 | — | Création du document à l'issue du brainstorming initial. |
+| 2026-11-15 | Étape 2a | Verbe `layout` livré (FLIP sur cache de géométrie, portée `data-motion-scope`, preset `reflow`, champs `scaleX` / `scaleY`, `commit: false`) ; démo « Layout ». Règles et limites en §8.3.7. Vérification groupée : motion 931 tests (Chromium, Firefox, WebKit), core 433, React 403, Svelte 295, Angular 367, doc 15 tests navigateur sur le site construit. |
 | 2026-11-15 | Étape 1b | Adaptateurs livrés : `useMotion` (React), `udxMotion` (Angular), `motion` + `presence` (Svelte) ; `motionWhenDefined` dans le noyau ; démo par framework. Décision : pas d'animation au chargement par défaut. Règles et points ouverts en §8.3.6. Vérification groupée : motion 816 tests (Chromium, Firefox, WebKit), core 433, React 402, Svelte 293, Angular 365, doc 12 tests navigateur sur le site construit. |
 | 2026-11-14 | Étape 1a | Surface d'écriture livrée : `defineMotion`, presets, `playMotion`, `motion()`, `connectMotion`, entrée `policy` ; Badge migré ; démo `/motion/demo`. Règles et points ouverts en §8.3.5. Vérification groupée : motion 798 tests (Chromium, Firefox, WebKit), core 433, React 387, Svelte 280, Angular vert. |
 | 2026-11-14 | Revue d'ensemble | Pas de publication partielle ; anime.js confirmé ; doublon `appear` / `reveal` levé ; `layout` sur changement de classe ; repli statique du scroll lié ; ordre de réalisation §8.6. |
