@@ -731,14 +731,17 @@ test(`${name}: an item swipes away and the list closes up`, async () => {
     }, items);
     assert.equal(await count(), 4);
 
-    // Dragged 70 % of its width to the right, in five steps: past 40 % of its size, so it flies out.
+    // Dragged to the right edge of the viewport, in five steps: past 40 % of its size, so it flies out. The pointer stays in the
+    // viewport: Playwright's synthetic input in Firefox reports clientX 0 and drops the pointerup outside it.
     const first = page.locator(items).first();
     await first.scrollIntoViewIfNeeded();
     const box = await first.boundingBox();
     const start = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+    const end = Math.min(start.x + box.width * 0.7, page.viewportSize().width - 2);
+    assert.ok(end - start.x > box.width * 0.45, `the drag only covers ${Math.round((end - start.x) / box.width * 100)} % of the item`);
     await page.mouse.move(start.x, start.y);
     await page.mouse.down();
-    await page.mouse.move(start.x + box.width * 0.7, start.y, { steps: 5 });
+    await page.mouse.move(end, start.y, { steps: 5 });
     await page.mouse.up();
     await page.waitForFunction(([selector, expected]) => document.querySelectorAll(selector).length === expected, [items, 3]);
     await waitForRest();

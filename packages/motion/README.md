@@ -740,8 +740,9 @@ The package is under construction, so:
 - A child that belongs to a nested sequence is not a step of the outer one.
 - A gesture writes the `translate` of its element, and its `opacity` while a swipe flies out. An author's
   `translate` on that element is overwritten while it is bound, and `destroy()` gives back what the gesture wrote.
-- `touch-action` and `user-select` are set to `none` on the element only while a pointer holds it, and given back
-  when it lets go; they are not set when the gesture is bound.
+- `touch-action` is set when the gesture is bound (`none` for a free drag, `pan-y` on the x axis, `pan-x` on the y
+  axis), so a touch screen does not scroll the page instead of moving the element; it is given back on `destroy()`.
+  `user-select` is `none` only while a pointer holds the element.
 - A keyboard nudge of a drag moves the element at once, without a glide; a keyboard step of a reorder glides.
 - A drag is bounded by the content box of its parent, measured when the pointer grabs the element and at each
   nudge of a key. A reorder moves an element among the siblings that carry the same gesture, under the same

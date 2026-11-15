@@ -367,10 +367,10 @@ defineGesture('demo-reorder', { kind: 'reorder', alternative: 'grab' });`;
   <h2>Gestures</h2>
   <p>A gesture moves an element with the pointer, and each one has a keyboard alternative, so the page works without a pointer. Define a gesture once, from <code>@udixio/motion/gesture</code>, and mark the element with <code>data-motion-gesture="&lt;name&gt;"</code>. A drag follows the pointer and glides on when it is released. A swipe flies its element out past 40 % of its size, or at more than 800 px/s, and tells the page. A reorder moves an item among its siblings and announces each step to assistive technology.</p>
   <h3>Drag</h3>
-  <p>Drag the chip with the pointer, and it keeps its momentum when it is released. Or focus it and use the arrow keys.</p>
+  <p id="demo-drag-hint">Drag the chip with the pointer, and it keeps its momentum when it is released. Or focus it and use the arrow keys.</p>
   <div class="not-prose">
     <div id="demo-drag-area" class="relative h-48 rounded-3xl bg-surface-container">
-      <div data-motion-gesture="demo-drag" data-demo-drag aria-label="Draggable chip" class="absolute left-4 top-4 cursor-grab rounded-full bg-primary px-5 py-3 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Drag me</div>
+      <button type="button" data-motion-gesture="demo-drag" data-demo-drag aria-describedby="demo-drag-hint" class="absolute left-4 top-4 cursor-grab rounded-full bg-primary px-5 py-3 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Drag me</button>
     </div>
   </div>
   <pre><code>{dragExample}</code></pre>
