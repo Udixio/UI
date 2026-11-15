@@ -184,6 +184,65 @@ describe('waapi provider scaleX and scaleY', () => {
   });
 });
 
+describe('waapi provider styles', () => {
+  /** The top-left corner radius of `element` in px, horizontal then vertical. */
+  const cornerOf = (element: HTMLElement): number[] => {
+    const [h, v = h] = getComputedStyle(element).borderTopLeftRadius.split(' ').map((value) => parseFloat(value));
+    return [h, v];
+  };
+
+  it('applies the extra declarations of each keyframe with the visual fields', () => {
+    const target = document.createElement('div');
+    document.body.append(target);
+    const handle = waapiProvider.animate({
+      target,
+      keyframes: [{ scaleX: 1 }, { scaleX: 0.5 }],
+      styles: [{ borderRadius: '32px 32px 32px 32px / 16px 16px 16px 16px' }, { borderRadius: '16px' }],
+      timing: { duration: 1000, easing: 'linear' },
+    });
+    handle.pause();
+    handle.seek(0);
+    expect(cornerOf(target)).toEqual([32, 16]);
+    expect(scaleOf(target)).toEqual([1, 1]);
+    handle.seek(500);
+    expect(cornerOf(target)[0]).toBeCloseTo(24, 0);
+    handle.seek(1000);
+    expect(cornerOf(target)).toEqual([16, 16]);
+    expect(scaleOf(target)).toEqual([0.5, 1]);
+    handle.cancel();
+    target.remove();
+  });
+
+  it('refuses styles that do not have one entry per keyframe', () => {
+    const target = document.createElement('div');
+    document.body.append(target);
+    expect(() => waapiProvider.animate({ target, keyframes: [{ opacity: 0 }, { opacity: 1 }], styles: [{ borderRadius: '1px' }], timing: { duration: 100, easing: 'linear' } })).toThrow(new RangeError('styles must match keyframes'));
+    target.remove();
+  });
+
+  it('writes no inline declaration at the end when commit is false', async () => {
+    const target = document.createElement('div');
+    document.body.append(target);
+    const handle = waapiProvider.animate({ target, keyframes: [{ scaleX: 1 }, { scaleX: 0.5 }], styles: [{ borderRadius: '16px' }, { borderRadius: '8px' }], timing: { duration: 40, easing: 'linear' }, commit: false });
+    expect(await handle.finished).toBe('finished');
+    expect(target.style.borderRadius).toBe('');
+    expect(target.style.scale).toBe('');
+    expect(target.getAnimations()).toHaveLength(0);
+    target.remove();
+  });
+
+  it('commits the visual fields but not the extra declarations when commit is omitted', async () => {
+    const target = document.createElement('div');
+    target.style.borderRadius = '4px';
+    document.body.append(target);
+    const handle = waapiProvider.animate({ target, keyframes: [{ scaleX: 1 }, { scaleX: 0.5 }], styles: [{ borderRadius: '16px' }, { borderRadius: '8px' }], timing: { duration: 40, easing: 'linear' } });
+    expect(await handle.finished).toBe('finished');
+    expect(target.style.borderRadius).toBe('4px');
+    expect(scaleOf(target)).toEqual([0.5, 1]);
+    target.remove();
+  });
+});
+
 describe.each([waapiProvider, animejsProvider, cssProvider])('$backend provider current time', (provider) => {
   it('reports the delay-inclusive time of a paused handle', () => {
     const target = document.createElement('div');
@@ -223,6 +282,13 @@ describe.each([animejsProvider, cssProvider])('$backend provider refusals', (pro
     const target = document.createElement('div');
     document.body.append(target);
     expect(() => provider.animate({ target, keyframes: [{ scaleX: 0 }, { scaleX: 1 }], timing: { duration: 100, easing: 'linear' } })).toThrow(new RangeError('Unsupported by this provider: scaleX/scaleY'));
+    target.remove();
+  });
+
+  it('refuses styles explicitly', () => {
+    const target = document.createElement('div');
+    document.body.append(target);
+    expect(() => provider.animate({ target, keyframes: [{ opacity: 0 }, { opacity: 1 }], styles: [{ borderRadius: '1px' }, { borderRadius: '2px' }], timing: { duration: 100, easing: 'linear' } })).toThrow(new RangeError('Unsupported by this provider: styles'));
     target.remove();
   });
 

@@ -7,6 +7,11 @@ export type MotionRequest = {
   timing: MotionTiming;
   /** Default true. `false` removes the animation at its end and writes nothing inline. */
   commit?: boolean;
+  /**
+   * Extra CSS declarations per keyframe, camelCase, one entry per keyframe: corrections of the layout engine, which only
+   * the WAAPI provider supports. They are for corrections that end at rest: a commit does not persist them.
+   */
+  styles?: ReadonlyArray<Readonly<Record<string, string>>>;
 };
 export type MotionBackend = 'css' | 'waapi' | 'animejs';
 export type Capability =

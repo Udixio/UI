@@ -3,7 +3,7 @@ import type { OwnTransform } from '../flip.js';
 import { motionManifest } from '../manifest.js';
 import type { SpringRef } from '../motion-spec.js';
 import { resolveWaapiTiming } from '../play.js';
-import { easingOf, sampleContent } from '../project.js';
+import { correctedRadius, easingOf, sampleContent, type Radii } from '../project.js';
 import { springOffset, springSettleTime, springVelocity, type SpringParams } from '../spring.js';
 import { springParams, type MotionScheme } from '../tokens.js';
 import { waapiProvider } from '../providers/waapi.js';
@@ -72,29 +72,38 @@ function flightParamsOf(timing: SpringRef, scheme: MotionScheme): SpringParams {
   return params;
 }
 
+/** The `borderRadius` of each keyframe of a sampled move: the radii divided by the stretch of the keyframe, which is one at rest. */
+function cornerStylesOf(keyframes: VisualFrame[], rest: OwnTransform, radii: Radii): Array<Record<string, string>> {
+  return keyframes.map(frame => ({
+    borderRadius: correctedRadius(radii, { x: (frame.scaleX ?? rest.sx) / rest.sx, y: (frame.scaleY ?? rest.sy) / rest.sy }),
+  }));
+}
+
 /**
  * How a planned move plays, or null when its timing cannot be played. A move from rest keeps the token's two
- * keyframes and easing, unless a content plan follows it. A move that carries a velocity, or that a content plan
- * follows, is sampled and played with a linear easing, over the same duration: from its spring (over the token's
- * duration from rest, over its settle time bounded to one or two durations with a velocity), or from its curve when
- * the easing can be evaluated. A curve whose easing cannot be evaluated keeps its two keyframes, with no content plan.
+ * keyframes and easing, unless a content plan follows it or it has px radii to keep round. A move that carries a
+ * velocity, or that a content plan follows, or that has px radii, is sampled and played with a linear easing, over the
+ * same duration: from its spring (over the token's duration from rest, over its settle time bounded to one or two
+ * durations with a velocity), or from its curve when the easing can be evaluated. A curve whose easing cannot be
+ * evaluated keeps its two keyframes, with no content plan and no corrected radii.
  */
-export function playbackOf({ element, item, frames, velocity, scale, content }: PlannedMove, scheme: MotionScheme): Playback | null {
+export function playbackOf({ element, item, frames, velocity, scale, content, radii }: PlannedMove, scheme: MotionScheme): Playback | null {
   const timing = item.spec.timing ?? DEFAULT_TIMING;
   const resolved = resolveWaapiTiming(element, timing, scheme);
   if (!resolved) return null;
   const base = resolved.duration / 1000;
   const steps = sampleCount(base);
-  const token: Playback = { keyframes: frames, duration: resolved.duration * scale, easing: resolved.easing, flight: null, steps, baseProgress: null };
+  const token: Playback = { keyframes: frames, duration: resolved.duration * scale, easing: resolved.easing, flight: null, steps, baseProgress: null, styles: null };
   if (typeof timing !== 'string') {
-    const ease = content !== null ? easingOf(resolved.easing) : null;
+    const ease = content !== null || radii !== null ? easingOf(resolved.easing) : null;
     if (!ease) return token;
-    return { keyframes: sampleBetween(frames, i => ease(i / steps), steps), duration: resolved.duration * scale, easing: 'linear', flight: null, steps, baseProgress: i => ease(i / steps) };
+    const keyframes = sampleBetween(frames, i => ease(i / steps), steps);
+    return { keyframes, duration: resolved.duration * scale, easing: 'linear', flight: null, steps, baseProgress: i => ease(i / steps), styles: radii && cornerStylesOf(keyframes, item.rest, radii) };
   }
   const params = flightParamsOf(timing, scheme);
   const fields = fieldMotions(frames, velocity);
   const flight: Flight = { params, timeScale: scale, fields };
-  if (velocity === null && content === null) {
+  if (velocity === null && content === null && radii === null) {
     token.flight = flight;
     return token;
   }
@@ -106,13 +115,15 @@ export function playbackOf({ element, item, frames, velocity, scale, content }: 
     seconds = Math.min(Math.max(settle, base), base * 2);
   }
   const sampled = sampleCount(seconds);
+  const keyframes = sampleFlight(params, fields, seconds, sampled);
   return {
-    keyframes: sampleFlight(params, fields, seconds, sampled),
+    keyframes,
     duration: seconds * 1000 * scale,
     easing: 'linear',
     flight,
     steps: sampled,
     baseProgress: i => 1 - springOffset(params, 1, 0, (i * seconds) / sampled),
+    styles: radii && cornerStylesOf(keyframes, item.rest, radii),
   };
 }
 
@@ -153,7 +164,7 @@ export function startContent(item: Item, move: PlannedMove, playback: Playback, 
   );
   item.contentPlan = content;
   for (const sample of samples) {
-    const handle = waapiProvider.animate({ target: sample.element, keyframes: sample.keyframes, timing: { duration: playback.duration, easing: 'linear' }, commit: false });
+    const handle = waapiProvider.animate({ target: sample.element, keyframes: sample.keyframes, timing: { duration: playback.duration, easing: 'linear' }, commit: false, styles: sample.styles });
     item.contentHandles.push(handle);
     // A followed element in the content moves with this sample: the sample is its move in flight, with no spring of its own.
     const child = nodes.get(sample.element);

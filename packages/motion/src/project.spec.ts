@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Box, OwnTransform } from './flip.js';
-import { easingOf, lerpBox, liveContentBoxes, projectBox, projectText, sampleContent, stretchOf, type ContentPlan, type Stretch } from './project.js';
+import { correctedRadius, easingOf, lerpBox, liveContentBoxes, parseRadii, projectBox, projectText, sampleContent, stretchOf, type ContentPlan, type Stretch } from './project.js';
 
 const box = (cx: number, cy: number, w: number, h: number): Box => ({ cx, cy, w, h });
 /** A stand-in for an element: the pure functions only pass it through, they never touch the DOM. */
@@ -213,5 +213,23 @@ describe('easingOf', () => {
   it('is null for any other easing', () => {
     expect(easingOf('ease-in')).toBeNull();
     expect(easingOf('linear(0, 1)')).toBeNull();
+  });
+});
+
+describe('parseRadii', () => {
+  it('reads a circular corner from one value, and an elliptical one from a horizontal then a vertical value', () => {
+    expect(parseRadii('16px', '16px', '16px', '16px')).toEqual({ h: [16, 16, 16, 16], v: [16, 16, 16, 16] });
+    expect(parseRadii('16px 8px', '16px 8px', '16px 8px', '16px 8px')).toEqual({ h: [16, 16, 16, 16], v: [8, 8, 8, 8] });
+  });
+
+  it('is null when every radius is zero, and when one is a percentage', () => {
+    expect(parseRadii('0px', '0px', '0px', '0px')).toBeNull();
+    expect(parseRadii('16px', '50%', '16px', '16px')).toBeNull();
+  });
+});
+
+describe('correctedRadius', () => {
+  it('divides the horizontal radii by the horizontal stretch and the vertical ones by the vertical stretch', () => {
+    expect(correctedRadius({ h: [16, 16, 16, 16], v: [16, 16, 16, 16] }, { x: 0.5, y: 1 })).toBe('32px 32px 32px 32px / 16px 16px 16px 16px');
   });
 });

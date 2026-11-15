@@ -1,10 +1,15 @@
 import { parseOwnTransform, toLayoutBox, type Box, type OwnTransform } from '../flip.js';
-import type { Stretch } from '../project.js';
+import { parseRadii, type Radii, type Stretch } from '../project.js';
 import { CONTENT_BUDGET, CONTENT_DEPTH, type ContentNode, type Item, type ReferenceRects, type Scope } from './types.js';
 
 export function ownOf(element: HTMLElement): OwnTransform {
   const style = getComputedStyle(element);
   return parseOwnTransform(style.translate, style.scale);
+}
+
+/** The px corner radii of an element, from the computed style its caller has read; null when none is kept round. */
+export function radiiOf(style: CSSStyleDeclaration): Radii | null {
+  return parseRadii(style.borderTopLeftRadius, style.borderTopRightRadius, style.borderBottomRightRadius, style.borderBottomLeftRadius);
 }
 
 /** Screen pixels per local pixel inside `element`, per axis: its rect against its layout size. */

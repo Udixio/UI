@@ -25,10 +25,43 @@ export interface ContentPlan {
   rest: OwnTransform;
   unit: Stretch;
   children: ContentPlan[];
+  /** The px corner radii of a box at rest, when it has any: they are kept round while the box is stretched. */
+  radii?: Radii | null;
+}
+
+/** The four corner radii in px: horizontal and vertical radius of top-left, top-right, bottom-right, bottom-left. */
+export interface Radii {
+  h: [number, number, number, number];
+  v: [number, number, number, number];
 }
 
 /** A stretch component of zero cannot be projected: it is taken as one. */
 const orOne = (k: number): number => (k === 0 ? 1 : k);
+
+/** Whether a stretch changes a size by more than 3 % on one axis. */
+export function isStretched(k: Stretch): boolean {
+  return Math.abs(k.x - 1) > 0.03 || Math.abs(k.y - 1) > 0.03;
+}
+
+/** Radii from computed `border-*-radius` values, or null when every radius is zero or any is a percentage. */
+export function parseRadii(topLeft: string, topRight: string, bottomRight: string, bottomLeft: string): Radii | null {
+  const corners = [topLeft, topRight, bottomRight, bottomLeft];
+  if (corners.some(value => value.includes('%'))) return null;
+  // A computed value is `r` for a circular corner, `h v` for an elliptical one.
+  const pairs = corners.map((value): [number, number] => {
+    const [h, v = h] = value.trim().split(/\s+/).map(part => Number.parseFloat(part));
+    return [h, v];
+  });
+  if (pairs.every(([h, v]) => h === 0 && v === 0)) return null;
+  return { h: pairs.map(([h]) => h) as Radii['h'], v: pairs.map(([, v]) => v) as Radii['v'] };
+}
+
+/** The `border-radius` value that looks like `radii` on an element stretched by `k`: each radius is divided by the stretch of its axis. */
+export function correctedRadius(radii: Radii, k: Stretch): string {
+  const kx = orOne(k.x);
+  const ky = orOne(k.y);
+  return `${radii.h.map(r => `${r / kx}px`).join(' ')} / ${radii.v.map(r => `${r / ky}px`).join(' ')}`;
+}
 
 /** The box between `from` and `to`, at progress `q` (per axis, or the same for both). A progress beyond [0, 1] (an overshoot) is not clamped. */
 export function lerpBox(from: Box, to: Box, q: number | AxisProgress): Box {
@@ -81,15 +114,16 @@ export function stretchOf(after: Box, desired: Box): Stretch {
 /**
  * Keyframes of every node of a content plan, at `steps + 1` uniform instants of its parent's move. `parentStretchAt(i)`
  * and `progressAt(i)` give the parent's stretch and the move's progress per axis at instant `i`. The last keyframe of
- * a node is its rest. Samples are listed parent first, then their children.
+ * a node is its rest. Samples are listed parent first, then their children. A box with px radii that is stretched at
+ * its first instant also gets `styles`: its radii divided by its net stretch at each instant, the rest radii at the end.
  */
 export function sampleContent(
   plans: readonly ContentPlan[],
   parentStretchAt: (i: number) => Stretch,
   progressAt: (i: number) => AxisProgress,
   steps: number,
-): Array<{ element: HTMLElement; keyframes: VisualFrame[] }> {
-  const samples: Array<{ element: HTMLElement; keyframes: VisualFrame[] }> = [];
+): Array<{ element: HTMLElement; keyframes: VisualFrame[]; styles?: Array<Record<string, string>> }> {
+  const samples: Array<{ element: HTMLElement; keyframes: VisualFrame[]; styles?: Array<Record<string, string>> }> = [];
   const visit = (plan: ContentPlan, stretchAt: (i: number) => Stretch): void => {
     const keyframes: VisualFrame[] = [];
     const desired: Box[] = [];
@@ -104,7 +138,9 @@ export function sampleContent(
       const t = plan.kind === 'box' ? projectBox(plan.after, box, stretch, plan.unit) : projectText(plan.after, box, stretch, plan.unit);
       keyframes.push({ x: plan.rest.x + t.x, y: plan.rest.y + t.y, scaleX: plan.rest.sx * t.sx, scaleY: plan.rest.sy * t.sy });
     }
-    samples.push({ element: plan.element, keyframes });
+    const radii = plan.kind === 'box' && plan.radii && isStretched(stretchOf(plan.after, desired[0])) ? plan.radii : null;
+    const styles = radii && desired.map((box, i) => ({ borderRadius: correctedRadius(radii, i === steps ? { x: 1, y: 1 } : stretchOf(plan.after, box)) }));
+    samples.push({ element: plan.element, keyframes, ...(styles && { styles }) });
     if (plan.kind === 'box') for (const child of plan.children) visit(child, i => stretchOf(plan.after, desired[i]));
   };
   for (const plan of plans) visit(plan, parentStretchAt);

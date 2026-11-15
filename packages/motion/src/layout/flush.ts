@@ -3,8 +3,8 @@ import { motionDisabledIn, motionScaleIn } from '../play.js';
 import type { ContentPlan, Stretch } from '../project.js';
 import { waapiProvider } from '../providers/waapi.js';
 import { playbackOf, restFrames, startContent, stopFlight } from './flight.js';
-import { centredOn, contentPlanOf, depthOf, flyingChange, isNegligible, resizes, scalesMoving } from './plan.js';
-import { contentOf, hasText, measure, measureWith, ownOf, referenceOf, unitOf, visualBoxOf } from './measure.js';
+import { centredOn, contentPlanOf, depthOf, flyingChange, isNegligible, resizes, scalesMoving, stretchesCorners } from './plan.js';
+import { contentOf, hasText, measure, measureWith, ownOf, radiiOf, referenceOf, unitOf, visualBoxOf } from './measure.js';
 import { dispose, layoutScopeOf, relevant, scopeOf, scopes } from './scope.js';
 import type { Change, Item, PlannedMove, ReferenceRects, Scope } from './types.js';
 
@@ -182,6 +182,7 @@ export function flush(scope: Scope, records: readonly MutationRecord[] = []): vo
         before: host.live?.get(element) ?? centredOn(from, host.from),
         after: centredOn(visual, host.visual),
         rest: item.rest,
+        radii: kind === 'box' ? radiiOf(style) : null,
         unit: host.unit,
         children: kind === 'box' ? contentPlanOf(contentBefore, item.content, element, host.live) : [],
       };
@@ -199,7 +200,9 @@ export function flush(scope: Scope, records: readonly MutationRecord[] = []): vo
     const follows = resizes(frames) || scalesMoving(carry);
     const content = follows && (item.content.length > 0 || references.has(element)) ? contentPlanOf(contentBefore, item.content, element, live) : null;
     if (content) hosts.set(element, { from, visual, list: content, unit: unitOf(element, element.getBoundingClientRect()), live });
-    planned.push({ element, item, frames, velocity: carry, disabled, scale, content });
+    // A move that changes the size of its element by more than 3 % keeps its px corner radii round.
+    const radii = stretchesCorners(frames) ? radiiOf(style) : null;
+    planned.push({ element, item, frames, velocity: carry, disabled, scale, content, radii });
   }
   if (planned.length === 0) return;
   // 4. Writes only: no style is read from here on. The scheme and the policy are read once, before the writes.
@@ -211,7 +214,7 @@ export function flush(scope: Scope, records: readonly MutationRecord[] = []): vo
     try {
       const playback = playbackOf(move, scheme);
       if (!playback || !Number.isFinite(playback.duration) || playback.duration <= 0) continue;
-      const handle = waapiProvider.animate({ target: element, keyframes: playback.keyframes, timing: { duration: playback.duration, easing: playback.easing }, commit: false });
+      const handle = waapiProvider.animate({ target: element, keyframes: playback.keyframes, timing: { duration: playback.duration, easing: playback.easing }, commit: false, styles: playback.styles ?? undefined });
       item.handle = handle;
       item.flight = playback.flight;
       void handle.finished.then(() => {

@@ -1023,3 +1023,85 @@ it('[Review Focus 1] a move in flight stops at the next flush of an item that is
   expect(leavingLayout.handle).toBeNull();
   expect(byId('b').getAnimations().some(isMove)).toBe(false);
 });
+
+/** A rounded card, and a rounded box inside it that takes the rest of the card's width. */
+const roundCss = `${cardCss}
+  .round { border-radius: 16px; }
+  .pill { border-radius: 50%; }
+  .panel { flex: 1; height: 40px; border-radius: 8px; }
+`;
+
+/** The top-left corner radius of `element` in px, horizontal then vertical: a computed value is `h`, or `h v`. */
+function cornerOf(element: HTMLElement): [number, number] {
+  const [h, v = h] = getComputedStyle(element).borderTopLeftRadius.split(' ').map(value => parseFloat(value));
+  return [h, v];
+}
+
+it('a rounded card keeps its corners round at each instant of its resize', async () => {
+  page(roundCss, '<div class="card round" id="card"></div>');
+  const card = byId('card');
+  const binding = bindTo(card);
+  card.classList.add('wide');
+  await Promise.resolve();
+  const handle = moving(binding);
+  for (const share of SHARES) {
+    seekAll(handle, card, share * handle.duration);
+    const rect = card.getBoundingClientRect();
+    const [h, v] = cornerOf(card);
+    const kx = rect.width / 400;
+    const ky = rect.height / 60;
+    expect(Math.abs(h * kx - 16), `horizontal radius ${h * kx} px at ${share * 100} %`).toBeLessThanOrEqual(0.5);
+    expect(Math.abs(v * ky - 16), `vertical radius ${v * ky} px at ${share * 100} %`).toBeLessThanOrEqual(0.5);
+  }
+});
+
+it('a radius in percent is not corrected: the card keeps two keyframes and no radius animation', async () => {
+  page(roundCss, '<div class="card pill" id="card"></div>');
+  const card = byId('card');
+  const binding = bindTo(card);
+  card.classList.add('wide');
+  await Promise.resolve();
+  expect(keyframeCount(card)).toBe(2);
+  expect((card.getAnimations()[0].effect as KeyframeEffect).getKeyframes().some(frame => frame.borderRadius !== undefined)).toBe(false);
+  await moving(binding).finished;
+});
+
+it('a card without a radius keeps the two keyframes of its move', async () => {
+  page(roundCss, '<div class="card" id="card"></div>');
+  const card = byId('card');
+  const binding = bindTo(card);
+  card.classList.add('wide');
+  await Promise.resolve();
+  expect(keyframeCount(card)).toBe(2);
+  await moving(binding).finished;
+});
+
+it('a rounded box in a resizing card keeps its corners round as it widens', async () => {
+  page(roundCss, '<div class="card" id="card"><div class="panel" id="panel"></div></div>');
+  const card = byId('card');
+  const panel = byId('panel');
+  const binding = bindTo(card);
+  card.classList.add('wide');
+  await Promise.resolve();
+  const handle = moving(binding);
+  for (const share of SHARES) {
+    seekAll(handle, card, share * handle.duration);
+    const [h] = cornerOf(panel);
+    const k = panel.getBoundingClientRect().width / 360;
+    expect(Math.abs(h * k - 8), `radius ${h * k} px at ${share * 100} %`).toBeLessThanOrEqual(0.5);
+  }
+});
+
+it('once finished, the card and its content have their stylesheet radius and no inline one', async () => {
+  page(roundCss, '<div class="card round" id="card"><div class="panel" id="panel"></div></div>');
+  const card = byId('card');
+  const panel = byId('panel');
+  const binding = bindTo(card);
+  card.classList.add('wide');
+  await Promise.resolve();
+  await moving(binding).finished;
+  expect(card.style.borderRadius).toBe('');
+  expect(panel.style.borderRadius).toBe('');
+  expect(cornerOf(card)).toEqual([16, 16]);
+  expect(cornerOf(panel)).toEqual([8, 8]);
+});

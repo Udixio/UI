@@ -1,8 +1,8 @@
 import type { VisualFrame } from '../contract.js';
-import { toVisualBox, type Box, type OwnTransform } from '../flip.js';
-import { liveContentBoxes, type ContentPlan, type Stretch } from '../project.js';
+import { parseOwnTransform, toVisualBox, type Box, type OwnTransform } from '../flip.js';
+import { isStretched, liveContentBoxes, type ContentPlan, type Stretch } from '../project.js';
 import { velocityOf } from './flight.js';
-import { ownOf, referenceOf, unitOf } from './measure.js';
+import { ownOf, radiiOf, referenceOf, unitOf } from './measure.js';
 import type { Change, ContentNode, Item, Scope, Velocity } from './types.js';
 
 /** Whether a velocity is too small to be seen: under 1 px/s, or 0.01 scale per second. No velocity is negligible. */
@@ -13,6 +13,11 @@ export function isNegligible(velocity: Velocity | null): boolean {
 /** Whether a move changes the size of its element: a scale ratio off one by more than 1 %, on one axis at least. */
 export function resizes([from, to]: [VisualFrame, VisualFrame]): boolean {
   return Math.abs((from.scaleX ?? 1) / (to.scaleX ?? 1) - 1) > 0.01 || Math.abs((from.scaleY ?? 1) / (to.scaleY ?? 1) - 1) > 0.01;
+}
+
+/** Whether a move changes the size of its element by more than 3 % on one axis: its px corner radii are then kept round. */
+export function stretchesCorners([from, to]: [VisualFrame, VisualFrame]): boolean {
+  return isStretched({ x: (from.scaleX ?? 1) / (to.scaleX ?? 1), y: (from.scaleY ?? 1) / (to.scaleY ?? 1) });
 }
 
 /** Whether a carried velocity moves the scale of its element, which a content plan must then follow. */
@@ -41,15 +46,20 @@ export function contentPlanOf(cache: readonly ContentNode[], after: readonly Con
   flatten(cache);
   for (const [element, box] of live ?? []) previous.set(element, box);
   const plan = (nodes: readonly ContentNode[], unit: Stretch): ContentPlan[] =>
-    nodes.map(node => ({
-      element: node.element,
-      kind: node.kind,
-      before: previous.get(node.element) ?? node.box,
-      after: node.box,
-      rest: ownOf(node.element),
-      unit,
-      children: node.children.length > 0 ? plan(node.children, unitOf(node.element, node.element.getBoundingClientRect())) : [],
-    }));
+    nodes.map(node => {
+      // One computed style per node: its rest transform, and for a box its corner radii.
+      const style = getComputedStyle(node.element);
+      return {
+        element: node.element,
+        kind: node.kind,
+        before: previous.get(node.element) ?? node.box,
+        after: node.box,
+        rest: parseOwnTransform(style.translate, style.scale),
+        radii: node.kind === 'box' ? radiiOf(style) : null,
+        unit,
+        children: node.children.length > 0 ? plan(node.children, unitOf(node.element, node.element.getBoundingClientRect())) : [],
+      };
+    });
   return plan(after, unitOf(parent, parent.getBoundingClientRect()));
 }
 

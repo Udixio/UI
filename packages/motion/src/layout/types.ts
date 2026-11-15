@@ -1,7 +1,7 @@
 import type { MotionHandle, VisualFrame } from '../contract.js';
 import type { MotionSpec } from '../define-motion.js';
 import type { Box, OwnTransform } from '../flip.js';
-import type { ContentPlan } from '../project.js';
+import type { ContentPlan, Radii } from '../project.js';
 import type { MotionRuntime } from '../runtime.js';
 import type { SpringParams } from '../spring.js';
 
@@ -60,7 +60,7 @@ export interface Scope {
   onScroll: () => void;
 }
 
-/** A move planned by one flush: its frames, the velocity it starts with (null from rest), the style values that decide whether it runs, and its content to project when the size changes. */
+/** A move planned by one flush: its frames, the velocity it starts with (null from rest), the style values that decide whether it runs, its content to project when the size changes, and its px corner radii when the size changes by more than 3 %. */
 export interface PlannedMove {
   element: HTMLElement;
   item: Item;
@@ -69,6 +69,7 @@ export interface PlannedMove {
   disabled: boolean;
   scale: number;
   content: ContentPlan[] | null;
+  radii: Radii | null;
 }
 
 /** A followed element that changes in a flush: the visual box it starts from, and the velocity and the live content boxes it carries (null when it carries none). */
@@ -99,4 +100,5 @@ export interface Playback {
   flight: Flight | null;
   steps: number;
   baseProgress: ((i: number) => number) | null; // null when the move is not sampled
+  styles: Array<Record<string, string>> | null; // the corner radii of each keyframe, when the element has px radii and is stretched
 }

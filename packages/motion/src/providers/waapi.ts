@@ -41,13 +41,18 @@ class WaapiMove implements MotionHandle {
   }
 }
 
+/** The CSS property of a camelCase name, as `getPropertyValue` reads it. */
+const cssName = (name: string): string => name.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
+
 let active = 0;
 export const waapiProvider: MotionProvider = {
   backend: 'waapi',
   capabilities: new Set(),
   activeCount: () => active,
-  animate({ target, keyframes, timing, commit = true }) {
-    const animation = target.animate(keyframes.map(frameToKeyframe), { ...timing, fill: 'both' });
+  animate({ target, keyframes, timing, commit = true, styles }) {
+    if (styles && styles.length !== keyframes.length) throw new RangeError('styles must match keyframes');
+    const animation = target.animate(keyframes.map((frame, index) => ({ ...frameToKeyframe(frame), ...styles?.[index] })), { ...timing, fill: 'both' });
+    const extra = [...new Set(styles?.flatMap(frame => Object.keys(frame)))].map(cssName);
     active++;
     let settled = false;
     // Captured before the animation is cancelled, which clears its currentTime.
@@ -70,6 +75,7 @@ export const waapiProvider: MotionProvider = {
       }
       // Persist the resolved visual state before removing the filling effect.
       // Detached targets cannot always be committed by the browser.
+      const kept = extra.map(property => [property, target.style.getPropertyValue(property), target.style.getPropertyPriority(property)] as const);
       try {
         animation.commitStyles();
       } catch {
@@ -81,6 +87,11 @@ export const waapiProvider: MotionProvider = {
         for (const [property, value] of Object.entries(frame)) {
           if (value != null) target.style.setProperty(property, String(value), target.style.getPropertyPriority(property));
         }
+      }
+      // The commit persisted the extra declarations too: their inline values, as they were before, are put back.
+      for (const [property, value, priority] of kept) {
+        if (value) target.style.setProperty(property, value, priority);
+        else target.style.removeProperty(property);
       }
       freeze();
       animation.cancel();
