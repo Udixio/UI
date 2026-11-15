@@ -83,6 +83,9 @@
 ::view-transition-new(root) {
   animation-duration: calc(var(--udx-motion-spring-slow-spatial-duration) * var(--udx-motion-scale, 1));
   animation-timing-function: var(--udx-motion-spring-slow-spatial-easing);
+  /* The route animations replace the browser's list, which also blended the two views: keep that blend, so the
+     cross-fade does not dip in brightness half way. */
+  mix-blend-mode: plus-lighter;
 }
 
 :root[data-motion-direction='forward']::view-transition-old(root) {
