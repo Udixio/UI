@@ -26,7 +26,13 @@ export type {
   TooltipButtonAction,
 } from './lib/tooltip/tooltip.types';
 export { motion, presence } from './lib/motion/motion.attachment.svelte';
-export type { MotionAttachmentOptions } from './lib/motion/motion.types';
+export { motionValue, getMotionValue } from './lib/motion/value.attachment.svelte';
+export { motionSequence } from './lib/motion/sequence.attachment.svelte';
+export type {
+  MotionAttachmentOptions,
+  MotionSequenceAttachmentOptions,
+  MotionValueAttachmentOptions,
+} from './lib/motion/motion.types';
 export { default as StateLayer } from './lib/state-layer/StateLayer.svelte';
 export type { SvelteStateLayerProps } from './lib/state-layer/state-layer.types';
 export { default as Switch } from './lib/switch/Switch.svelte';

@@ -30,3 +30,28 @@ export interface MotionAttachmentOptions {
    */
   paused?: boolean;
 }
+
+/**
+ * Options of the `motionValue` attachment. They are read through a getter, when a number arrives.
+ */
+export interface MotionValueAttachmentOptions {
+  /**
+   * Called with each new number of the value, after it is written. It is not called with the number the value starts from.
+   *
+   * @example
+   * ```svelte
+   * <div {@attach motionValue('tilt', () => ({ onChange: (n) => (angle = n) }))}>…</div>
+   * ```
+   */
+  onChange?: (next: number) => void;
+}
+
+/**
+ * Options of the `motionSequence` attachment. They are read through a getter, when the sequence binds.
+ */
+export interface MotionSequenceAttachmentOptions {
+  /**
+   * Treat the content as already in place: no entry. Default: false, except that a new source on a bound element is settled.
+   */
+  settled?: boolean;
+}
