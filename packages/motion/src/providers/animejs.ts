@@ -113,7 +113,7 @@ export const animejsProvider: MotionProvider = {
       throw error;
     }
     return {
-      backend: 'animejs', duration: timing.duration, finished,
+      backend: 'animejs', duration: timing.duration, delay: timing.delay ?? 0, finished,
       get currentTime() { return frozen ?? live(); },
       velocity: { value: 0, source: 'unavailable' },
       play: () => { if (!settled) animation.play(); },

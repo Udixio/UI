@@ -28,6 +28,8 @@ export type Capability =
 
 export interface MotionHandle {
   readonly backend: MotionBackend;
+  /** Milliseconds before the motion starts; 0 when it has none. `duration` does not include it. */
+  readonly delay: number;
   readonly duration: number;
   /** Milliseconds elapsed in the animation, delay included; frozen once settled. */
   readonly currentTime: number;

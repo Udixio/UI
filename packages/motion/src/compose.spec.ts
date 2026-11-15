@@ -7,6 +7,7 @@ type Fake = MotionHandle & { resolve(result: 'finished' | 'cancelled'): void };
 function fakeHandle(
   duration: number,
   backend: MotionBackend = 'css',
+  delay = 0,
 ): Fake {
   let resolve!: (result: 'finished' | 'cancelled') => void;
   const finished = new Promise<'finished' | 'cancelled'>(done => {
@@ -14,6 +15,7 @@ function fakeHandle(
   });
   return {
     backend,
+    delay,
     duration,
     currentTime: 0,
     finished,
@@ -88,6 +90,23 @@ describe('composeHandles', () => {
     composeHandles([short, long]).seek(400);
     expect(short.seek).toHaveBeenCalledWith(200);
     expect(long.seek).toHaveBeenCalledWith(400);
+  });
+
+  it('composes delayed children on one timeline: it starts with the earliest, ends with the latest, and seeks each child on its own clock', () => {
+    const early = fakeHandle(200, 'waapi', 100);
+    const late = fakeHandle(300, 'waapi', 250);
+    const composed = composeHandles([early, late]);
+    expect(composed.delay).toBe(100);
+    expect(composed.duration).toBe(450);
+    // Each child is clamped to its own end, delay included: early ends at 300, late at 550.
+    composed.seek(400);
+    expect(early.seek).toHaveBeenCalledWith(300);
+    expect(late.seek).toHaveBeenCalledWith(400);
+    // A composition inside another one reaches the same times: the outer handle does not shift the inner one.
+    const outer = composeHandles([composed, fakeHandle(900, 'waapi')]);
+    outer.seek(200);
+    expect(early.seek).toHaveBeenLastCalledWith(200);
+    expect(late.seek).toHaveBeenLastCalledWith(200);
   });
 
   it('is equivalent to a settled handle when empty', async () => {

@@ -118,6 +118,6 @@ export const cssProvider: MotionProvider = {
     };
     void instance.finished.then(() => settle('finished'), () => settle('cancelled'));
     const run = (operation: () => void) => { if (!settled) { if (!valid()) settle('cancelled'); else operation(); } };
-    return { backend: 'css', duration: timing.duration, finished, get currentTime() { return frozen ?? Number(instance.currentTime ?? 0); }, velocity: { value: 0, source: 'unavailable' }, play: () => run(() => instance.play()), pause: () => run(() => instance.pause()), reverse: () => run(() => instance.reverse()), seek: (time) => run(() => { instance.currentTime = time; }), cancel: () => settle('cancelled') };
+    return { backend: 'css', duration: timing.duration, delay: timing.delay ?? 0, finished, get currentTime() { return frozen ?? Number(instance.currentTime ?? 0); }, velocity: { value: 0, source: 'unavailable' }, play: () => run(() => instance.play()), pause: () => run(() => instance.pause()), reverse: () => run(() => instance.reverse()), seek: (time) => run(() => { instance.currentTime = time; }), cancel: () => settle('cancelled') };
   },
 };

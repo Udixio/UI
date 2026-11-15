@@ -285,7 +285,7 @@ function createRevealBinding(target: HTMLElement, spec: Readonly<Extract<MotionS
 
   // Under reduced motion, a reveal that runs jumps to its end, as a presence motion does.
   const stopPolicy = runtime.policy.subscribe(() => {
-    if (handle && runtime.policy.reduced) handle.seek(handle.duration);
+    if (handle && runtime.policy.reduced) handle.seek(handle.delay + handle.duration);
   });
 
   const binding: MotionBinding = {
@@ -585,7 +585,7 @@ function createBinding(target: HTMLElement, spec: Readonly<KeyframedSpec>, optio
 
   // Under reduced motion, the running animation jumps to its end.
   const stopPolicy = runtime.policy.subscribe(() => {
-    if (handle && runtime.policy.reduced) handle.seek(handle.duration);
+    if (handle && runtime.policy.reduced) handle.seek(handle.delay + handle.duration);
   });
 
   function destroy() {

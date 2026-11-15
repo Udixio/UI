@@ -6,6 +6,7 @@ const noop = (): void => undefined;
 export function settledHandle(): MotionHandle {
   return {
     backend: 'waapi',
+    delay: 0,
     duration: 0,
     currentTime: 0,
     finished: Promise.resolve('finished'),
@@ -18,12 +19,20 @@ export function settledHandle(): MotionHandle {
   };
 }
 
-/** One handle that drives all the given handles together. */
+/**
+ * One handle that drives all the given handles together, on their common timeline: `delay` is the earliest child
+ * delay, `duration` runs from there to the latest end of the children, and `seek` takes the delay-inclusive time of
+ * the children, as `currentTime` does. Each child is clamped to its own end, delay included, so that a handle's end
+ * is `delay + duration`, for a leaf and for a composition alike.
+ */
 export function composeHandles(handles: MotionHandle[]): MotionHandle {
   if (handles.length === 0) return settledHandle();
+  const delay = Math.min(...handles.map(handle => handle.delay));
+  const end = Math.max(...handles.map(handle => handle.delay + handle.duration));
   return {
     backend: handles[0].backend,
-    duration: Math.max(...handles.map(handle => handle.duration)),
+    delay,
+    duration: end - delay,
     get currentTime() {
       return Math.max(...handles.map(handle => handle.currentTime));
     },
@@ -35,7 +44,7 @@ export function composeHandles(handles: MotionHandle[]): MotionHandle {
     pause: () => handles.forEach(handle => handle.pause()),
     reverse: () => handles.forEach(handle => handle.reverse()),
     seek: timeMs =>
-      handles.forEach(handle => handle.seek(Math.min(timeMs, handle.duration))),
+      handles.forEach(handle => handle.seek(Math.min(timeMs, handle.delay + handle.duration))),
     cancel: () => handles.forEach(handle => handle.cancel()),
   };
 }
@@ -53,6 +62,9 @@ export function deferredHandle(): { handle: MotionHandle; readonly cancelled: bo
   });
   const handle: MotionHandle = {
     backend: 'waapi',
+    get delay() {
+      return real?.delay ?? 0;
+    },
     get duration() {
       return real?.duration ?? 0;
     },

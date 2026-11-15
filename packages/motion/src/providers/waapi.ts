@@ -25,9 +25,10 @@ class WaapiMove implements MotionHandle {
 
   constructor(
     readonly duration: number,
+    readonly delay: number,
     readonly finished: Promise<'finished' | 'cancelled'>,
     private readonly elapsed: () => number,
-    controls: Omit<MotionHandle, 'backend' | 'duration' | 'finished' | 'velocity' | 'currentTime'>,
+    controls: Omit<MotionHandle, 'backend' | 'delay' | 'duration' | 'finished' | 'velocity' | 'currentTime'>,
   ) {
     this.play = controls.play;
     this.pause = controls.pause;
@@ -91,7 +92,7 @@ export const waapiProvider: MotionProvider = {
       animation.cancel();
       settle('finished');
     }, () => settle('cancelled'));
-    return new WaapiMove(timing.duration, finished, () => frozen ?? Number(animation.currentTime ?? 0), {
+    return new WaapiMove(timing.duration, timing.delay ?? 0, finished, () => frozen ?? Number(animation.currentTime ?? 0), {
       play: () => { if (!settled) animation.play(); },
       pause: () => { if (!settled) animation.pause(); },
       reverse: () => { if (!settled) animation.reverse(); },
