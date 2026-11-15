@@ -345,3 +345,21 @@ test('importing the text entry hands its functions to the main entry', async () 
   assert.equal(typeof main.textModule().revertSplit, 'function');
 });
 
+
+test('svg entry point is public in both export maps', () => {
+  assert.deepEqual(pkg.exports['./svg'], {
+    development: './src/svg-entry.ts', types: './dist/svg.d.ts',
+    import: './dist/svg.js', require: './dist/svg.cjs', default: './dist/svg.js',
+  });
+  assert.deepEqual(pkg.publishConfig.exports['./svg'], {
+    types: './dist/svg.d.ts', import: './dist/svg.js',
+    require: './dist/svg.cjs', default: './dist/svg.js',
+  });
+});
+
+test('the svg entry imports anime.js and its svg subpath, and the main entry holds no morph', async () => {
+  const svg = await readFile(new URL('dist/svg.js', root), 'utf8');
+  assert.match(svg, /from ["']animejs\/svg["']/);
+  assert.doesNotMatch(svg, /Can't morph a|function morphTo/);
+  for (const code of await staticClosure('dist/index.js')) assert.doesNotMatch(code, /morphTo|scratchPath/);
+});

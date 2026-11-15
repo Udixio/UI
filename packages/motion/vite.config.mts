@@ -32,6 +32,7 @@ export default defineConfig(() => ({
         sequence: 'src/sequence-entry.ts',
         gesture: 'src/gesture-entry.ts',
         text: 'src/text-entry.ts',
+        svg: 'src/svg-entry.ts',
         astro: 'src/astro.ts',
         manifest: 'src/manifest.ts',
         'providers/css': 'src/providers/css.ts',
@@ -47,7 +48,7 @@ export default defineConfig(() => ({
     rollupOptions: {
       // animejs is the only JS animation engine: consumers install it, the
       // bundle does not inline it.
-      external: ['animejs'],
+      external: ['animejs', 'animejs/svg'],
     },
   },
   test: {

@@ -86,6 +86,12 @@
         "require": "./dist/text.cjs",
         "default": "./dist/text.js"
       },
+      "./svg": {
+        "types": "./dist/svg.d.ts",
+        "import": "./dist/svg.js",
+        "require": "./dist/svg.cjs",
+        "default": "./dist/svg.js"
+      },
       "./astro": {
         "types": "./dist/astro.d.ts",
         "import": "./dist/astro.js",
@@ -211,6 +217,13 @@
       "import": "./dist/text.js",
       "require": "./dist/text.cjs",
       "default": "./dist/text.js"
+    },
+    "./svg": {
+      "development": "./src/svg-entry.ts",
+      "types": "./dist/svg.d.ts",
+      "import": "./dist/svg.js",
+      "require": "./dist/svg.cjs",
+      "default": "./dist/svg.js"
     },
     "./astro": {
       "development": "./src/astro.ts",
