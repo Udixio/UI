@@ -135,6 +135,22 @@ describe('validateMotionSpec', () => {
   });
 });
 
+describe('validateMotionSpec identity', () => {
+  it('returns the same canonical object for structurally equal specs written in another key order', () => {
+    const first = validateMotionSpec({
+      verb: 'appear',
+      keyframes: [{ opacity: 0, y: 16 }, { opacity: 1, y: 0 }],
+      stagger: 'normal',
+    });
+    const second = validateMotionSpec({
+      stagger: 'normal',
+      keyframes: [{ y: 16, opacity: 0 }, { y: 0, opacity: 1 }],
+      verb: 'appear',
+    });
+    expect(second).toBe(first);
+  });
+});
+
 describe('layout motions', () => {
   it('accepts a layout spec without keyframes and stores it with empty keyframes', () => {
     const ref = defineMotion('layout-bare', { verb: 'layout' });

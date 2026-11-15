@@ -68,7 +68,10 @@ function canonicalSpec(spec: MotionSpec): Readonly<MotionSpec> {
   return Object.freeze(copy) as unknown as Readonly<MotionSpec>;
 }
 
-/** Validate a spec and return its canonical frozen copy; throws `TypeError`. */
+/** Canonical specs by structure: structurally equal specs share one object, so bindings of one spec form one group. */
+const canonicalSpecs = new Map<string, Readonly<MotionSpec>>();
+
+/** Validate a spec and return its canonical frozen copy, shared by every structurally equal spec; throws `TypeError`. */
 export function validateMotionSpec(spec: unknown): Readonly<MotionSpec> {
   const result = validateMotionDocument({
     version: motionManifest.version,
@@ -80,7 +83,12 @@ export function validateMotionSpec(spec: unknown): Readonly<MotionSpec> {
         .map(({ path, code }) => `${path}: ${code}`)
         .join('; ')}`,
     );
-  return canonicalSpec(result.value.spec);
+  const canonical = canonicalSpec(result.value.spec);
+  const key = JSON.stringify(canonical);
+  const cached = canonicalSpecs.get(key);
+  if (cached) return cached;
+  canonicalSpecs.set(key, canonical);
+  return canonical;
 }
 
 /**

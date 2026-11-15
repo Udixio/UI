@@ -121,3 +121,29 @@ it('cascades five exits by visual order and sets inert on all of them at once', 
   await Promise.resolve();
   expect(items.map(delayOf)).toEqual([0, 50, 100, 150, 200]);
 });
+
+it('cascades leaving and arriving entries of one definition apart', async () => {
+  const items = list(10);
+  const leaving = items.slice(0, 5).map(item => bindTo(item, cascade, { settled: true }));
+  for (const binding of leaving) void binding.setPresent(false);
+  for (const item of items.slice(5)) bindTo(item, cascade);
+  await Promise.resolve();
+  expect(items.slice(0, 5).map(delayOf)).toEqual([0, 50, 100, 150, 200]);
+  expect(items.slice(5).map(delayOf)).toEqual([0, 50, 100, 150, 200]);
+});
+
+it('cascades raw specs with equal structure together, as one definition', async () => {
+  const items = list(3);
+  for (const item of items) {
+    bindTo(item, {
+      verb: 'appear',
+      keyframes: [
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0 },
+      ],
+      stagger: 'normal',
+    });
+  }
+  await Promise.resolve();
+  expect(items.map(delayOf)).toEqual([0, 50, 100]);
+});

@@ -4,6 +4,7 @@ import { layoutScopeOf } from './layout.js';
 
 type Origin = 'first' | 'last' | 'center';
 type Step = 'tight' | 'normal' | 'loose';
+type Phase = 'enter' | 'exit';
 type Box = { top: number; left: number; height: number };
 type Entry = {
   target: HTMLElement;
@@ -18,6 +19,8 @@ export interface StaggerOptions {
   stagger: Step;
   origin?: Origin;
   reduced: boolean;
+  /** Entries and exits of one definition are cascaded apart. */
+  phase: Phase;
 }
 
 /** Step of each token, and cap, when the stylesheet does not provide them (ms). */
@@ -62,7 +65,7 @@ export function staggerDelay(rank: number, step: number, max: number): number {
 
 /**
  * Start `play` with the delay of `target` among the elements of the same group (the same definition, in the
- * same layout scope) asking in the same task. Returns at once a handle that stands for the animation until
+ * same layout scope, entering or leaving) asking in the same task. Returns at once a handle that stands for the animation until
  * the batch runs in a microtask.
  */
 export function staggered(target: HTMLElement, group: object, options: StaggerOptions, play: (delay: number) => MotionHandle): MotionHandle {
@@ -72,17 +75,22 @@ export function staggered(target: HTMLElement, group: object, options: StaggerOp
   return deferred.handle;
 }
 
-/** The queued entries of each group and scope, in order of arrival. */
+/** The value under `key`, created by `make` when it is missing. */
+function slot<K, V>(map: Map<K, V>, key: K, make: () => V): V {
+  let value = map.get(key);
+  if (value === undefined) map.set(key, (value = make()));
+  return value;
+}
+
+/** The queued entries of each group, scope and phase, in order of arrival. */
 function partition(entries: Entry[]): Entry[][] {
-  const byGroup = new Map<object, Map<HTMLElement, Entry[]>>();
+  const byGroup = new Map<object, Map<HTMLElement, Map<Phase, Entry[]>>>();
   for (const entry of entries) {
-    let byScope = byGroup.get(entry.group);
-    if (!byScope) byGroup.set(entry.group, (byScope = new Map()));
-    let members = byScope.get(entry.scope);
-    if (!members) byScope.set(entry.scope, (members = []));
-    members.push(entry);
+    const byScope = slot(byGroup, entry.group, () => new Map<HTMLElement, Map<Phase, Entry[]>>());
+    const byPhase = slot(byScope, entry.scope, () => new Map<Phase, Entry[]>());
+    slot(byPhase, entry.options.phase, () => []).push(entry);
   }
-  return [...byGroup.values()].flatMap(byScope => [...byScope.values()]);
+  return [...byGroup.values()].flatMap(byScope => [...byScope.values()].flatMap(byPhase => [...byPhase.values()]));
 }
 
 /** The delay of each member: none when it is alone or motion is reduced, else its visual rank times the step. */
