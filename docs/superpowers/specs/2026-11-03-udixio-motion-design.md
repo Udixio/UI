@@ -1103,6 +1103,34 @@ Points ouverts après 2c :
 - Petites fonctions dupliquées dans les trois adaptateurs (normalisation de
   la liste de sources).
 
+#### 8.3.10 Passe sur le poids (2026-11-16)
+
+| Mesure (gzip, minifié) | Avant | Après |
+|---|---|---|
+| Entrée principale `@udixio/motion` | 20,6 kB | 14,6 kB |
+| Moteur de layout `@udixio/motion/layout`, chargé à la demande | inclus | 11,1 kB (avec ses morceaux partagés) |
+| `@udixio/motion/presets` | 2,9 kB | 1,9 kB |
+
+- **Moteur de layout à la demande** : `layout.ts`, `layout/*`, `flip.ts`,
+  `project.ts`, `spring.ts` forment l'entrée publique `@udixio/motion/layout`.
+  L'entrée principale la charge par import dynamique à la première liaison de
+  layout ; `loadLayoutEngine()` la précharge, `layoutEngine()` la rend quand
+  elle est chargée. Une liaison de layout existe dès `motion()` mais ne suit
+  qu'une fois le moteur chargé : un changement fait avant n'est pas animé. Un
+  chargement en échec est retenté au prochain appel, sans erreur non gérée.
+- **Validation en développement seulement** : `validateMotionSpec` ne contrôle
+  la définition contre le manifeste que si
+  `process.env.NODE_ENV !== 'production'` ; la forme canonique est toujours
+  produite. Les bundlers éliminent le validateur en production. Une page sans
+  bundler ni `process` global lèverait au premier `defineMotion` : accepté,
+  l'écosystème impose un bundler (Tailwind).
+- Aucune régression mesurée au banc d'essai (calcul d'un changement à 200
+  éléments : 46,4 → 46,5 ms).
+- Reste dans l'entrée principale : liaison et présence, scanner HTML,
+  cascade, épinglage hors flux, tokens et données de ressorts, routage du
+  timing avec ses contrôles défensifs. Pistes suivantes si besoin : alléger
+  ces contrôles, sortir la cascade.
+
 ### 8.4 Détails par famille — **rédigé (consolidation)**
 
 | # | Famille | Écriture | Chemin natif | Repli / moteur JS | Sources |
@@ -1209,7 +1237,7 @@ performance du layout : vitesse conservée, contenu non déformé, détail en
 §8.3.8) ; **2c livrée le 2026-11-15** (listes : plusieurs animations par
 élément, cascade, sorties, coins arrondis, détail en §8.3.9) ; reste 2d =
 élément partagé (`defineShared`, rétention 600 ms, View Transitions
-conditionnelles), précédé d'une passe sur le poids de l'entrée principale.
+conditionnelles). La passe sur le poids est faite (§8.3.10).
 
 ## 9. Questions ouvertes connues
 
@@ -1280,6 +1308,7 @@ D2 (en partie orientée par C15).
 | Date | Travail | Changement |
 |---|---|---|
 | 2026-11-03 | — | Création du document à l'issue du brainstorming initial. |
+| 2026-11-16 | Passe sur le poids | Entrée principale 20,6 → 14,6 kB gzip : moteur de layout en entrée séparée chargée à la demande (`@udixio/motion/layout`, `loadLayoutEngine`), validation des définitions en développement seulement. Détail en §8.3.10. Vérification : motion 1 280 tests (trois navigateurs), core 433, React 408, Svelte 300, Angular 370, doc 18 tests navigateur sur le site construit, trois passages. |
 | 2026-11-15 | Étape 2c | Listes : une liaison par nature sur un élément (`data-motion="cascade reflow"`), cascade par rang visuel, sorties en place ou hors flux, coins arrondis corrigés, moteur de layout découpé en modules. Défaut WebKit corrigé (état final écrit par le provider, plus de `commitStyles`). Règles et points ouverts en §8.3.9. Vérification groupée : motion 1 267 tests (Chromium, Firefox, WebKit), core 433, React 408, Svelte 300, Angular 370, doc 18 tests navigateur sur le site construit. |
 | 2026-11-15 | Étape 2b | Qualité et performance du layout : banc d'essai contre anime.js, calcul d'un changement divisé par 3 (41–43 ms à 200 éléments contre 84–89 ms pour anime.js), vitesse conservée à l'interruption, contenu non déformé par projection, enfants suivis imbriqués. Règles et limites en §8.3.8. Vérification groupée : motion 1 081 tests (Chromium, Firefox, WebKit), core 433, React 403, Svelte 295, Angular 367, doc 15 tests navigateur sur le site construit. |
 | 2026-11-15 | Étape 2a | Verbe `layout` livré (FLIP sur cache de géométrie, portée `data-motion-scope`, preset `reflow`, champs `scaleX` / `scaleY`, `commit: false`) ; démo « Layout ». Règles et limites en §8.3.7. Vérification groupée : motion 931 tests (Chromium, Firefox, WebKit), core 433, React 403, Svelte 295, Angular 367, doc 15 tests navigateur sur le site construit. |
