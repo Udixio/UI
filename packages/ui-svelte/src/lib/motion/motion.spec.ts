@@ -20,6 +20,7 @@ const fakeBinding = (verb: MotionBinding['verb'] = 'appear', duration = 300) => 
   handle: { duration },
   setPresent: vi.fn((_present: boolean) => Promise.resolve('finished' as const)),
   play: vi.fn(),
+  pause: vi.fn(),
   destroy: vi.fn(),
 });
 type FakeBinding = ReturnType<typeof fakeBinding>;
@@ -238,6 +239,46 @@ describe('motion attachment', () => {
 
     expect(press.play).toHaveBeenCalledOnce();
     expect(reflow.play).not.toHaveBeenCalled();
+  });
+
+  it('pauses a loop bound with paused set, once, and never plays it', () => {
+    const binding = fakeBinding('loop');
+    bindDeferred(binding);
+    render(Fixture, { props: props({ source: 'rotate', paused: true }) });
+    flushSync();
+
+    expect(binding.pause).toHaveBeenCalledOnce();
+    expect(binding.play).not.toHaveBeenCalled();
+  });
+
+  it('pauses the loop when paused turns true and plays it when paused turns false, without binding again', async () => {
+    const binding = fakeBinding('loop');
+    bindDeferred(binding);
+    const { rerender } = render(Fixture, { props: props({ source: 'rotate', paused: false }) });
+    flushSync();
+    expect(binding.pause).not.toHaveBeenCalled();
+
+    await rerender(props({ source: 'rotate', paused: true }));
+    flushSync();
+    expect(binding.pause).toHaveBeenCalledOnce();
+
+    await rerender(props({ source: 'rotate', paused: false }));
+    flushSync();
+    expect(binding.play).toHaveBeenCalledOnce();
+    expect(motionWhenDefined).toHaveBeenCalledOnce();
+  });
+
+  it('ignores paused on a motion without a loop: nothing is called', async () => {
+    const binding = fakeBinding('appear');
+    bindDeferred(binding);
+    const { rerender } = render(Fixture, { props: props({ paused: true }) });
+    flushSync();
+
+    await rerender(props({ paused: false }));
+    flushSync();
+
+    expect(binding.pause).not.toHaveBeenCalled();
+    expect(binding.play).not.toHaveBeenCalled();
   });
 });
 

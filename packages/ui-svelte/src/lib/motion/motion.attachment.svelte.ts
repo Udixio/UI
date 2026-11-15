@@ -71,11 +71,25 @@ export function motion(
       }),
     );
 
+    // A loop bound while the author holds it starts paused.
+    if (initial.paused) bindingOf(deferred, 'loop')?.pause();
+
     // Presence follows the option; only appear and disappear have a presence to set.
     $effect(() => {
       const present = options().present ?? true;
       const binding = bindingOf(deferred, 'presence');
       if (binding) void binding.setPresent(present);
+    });
+
+    // A change of `paused` pauses or plays the loop; the value read at bind is the baseline, so a bind does not repeat it.
+    let pausedApplied = initial.paused ?? false;
+    $effect(() => {
+      const paused = options().paused ?? false;
+      if (paused === pausedApplied) return;
+      pausedApplied = paused;
+      const loop = bindingOf(deferred, 'loop');
+      if (paused) loop?.pause();
+      else loop?.play();
     });
 
     // An emphasis replays on a real change of `state`, never at the first read.

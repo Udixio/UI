@@ -24,8 +24,9 @@ type Verb = MotionBinding['verb'];
 
 /**
  * A stand-in for one bound motion. Like the core, `setPresent` refuses an
- * emphasis and `play` refuses a presence verb, so a wrong call fails loudly.
- * The test settles each exit by hand, as the animation would.
+ * emphasis, `play` refuses a presence verb and `pause` refuses anything but a
+ * loop, so a wrong call fails loudly. The test settles each exit by hand, as
+ * the animation would.
  */
 function fakeMotion(verb: Verb) {
   const exits: Array<(outcome: Outcome) => void> = [];
@@ -43,8 +44,13 @@ function fakeMotion(verb: Verb) {
       });
     }),
     play: vi.fn(() => {
-      if (verb !== 'emphasize') {
-        throw new TypeError('play() applies to an emphasis');
+      if (verb !== 'emphasize' && verb !== 'loop') {
+        throw new TypeError('play() applies to an emphasis or a loop');
+      }
+    }),
+    pause: vi.fn(() => {
+      if (verb !== 'loop') {
+        throw new TypeError('pause applies to a loop motion');
       }
     }),
     destroy: vi.fn(),
@@ -87,10 +93,11 @@ interface PanelProps {
   state?: unknown;
   settled?: boolean;
   shared?: string;
+  paused?: boolean;
 }
 
-function Panel({ source = 'slide', present = true, state, settled, shared }: PanelProps) {
-  const panel = useMotion(source, { present, state, settled, shared });
+function Panel({ source = 'slide', present = true, state, settled, shared, paused }: PanelProps) {
+  const panel = useMotion(source, { present, state, settled, shared, paused });
   return panel.mounted && <div data-testid="box" ref={panel.ref} />;
 }
 
@@ -364,5 +371,60 @@ describe('useMotion', () => {
       settled: true,
       shared: 'frame',
     });
+  });
+
+  it('pauses a loop bound with paused set, once, and never plays it', () => {
+    verb = 'loop';
+    render(<Panel source="rotate" paused />);
+
+    expect(fakes[0].binding.pause).toHaveBeenCalledTimes(1);
+    expect(fakes[0].binding.play).not.toHaveBeenCalled();
+  });
+
+  it('leaves a loop running when paused is not set', () => {
+    verb = 'loop';
+    render(<Panel source="rotate" />);
+
+    expect(fakes[0].binding.pause).not.toHaveBeenCalled();
+    expect(fakes[0].binding.play).not.toHaveBeenCalled();
+  });
+
+  it('pauses the loop when paused turns true and plays it when paused turns false, without binding again', () => {
+    verb = 'loop';
+    const { rerender } = render(<Panel source="rotate" paused={false} />);
+
+    rerender(<Panel source="rotate" paused />);
+    expect(fakes[0].binding.pause).toHaveBeenCalledTimes(1);
+
+    rerender(<Panel source="rotate" paused={false} />);
+    expect(fakes[0].binding.play).toHaveBeenCalledTimes(1);
+    expect(fakes[0].binding.pause).toHaveBeenCalledTimes(1);
+    expect(bindMotion).toHaveBeenCalledTimes(1);
+  });
+
+  it('pauses only the loop of a list, and throws nothing for the other motions', () => {
+    verbs = { rotate: 'loop', fade: 'appear' };
+    const error = vi.spyOn(console, 'error');
+    const { rerender } = render(<Panel source={['rotate', 'fade']} paused />);
+
+    rerender(<Panel source={['rotate', 'fade']} paused={false} />);
+
+    expect(fakes[0].binding.pause).toHaveBeenCalledTimes(1);
+    expect(fakes[0].binding.play).toHaveBeenCalledTimes(1);
+    expect(fakes[1].binding.pause).not.toHaveBeenCalled();
+    expect(fakes[1].binding.play).not.toHaveBeenCalled();
+    expect(error).not.toHaveBeenCalled();
+  });
+
+  it('ignores paused on a motion without a loop: nothing is called and nothing throws', () => {
+    verb = 'appear';
+    const error = vi.spyOn(console, 'error');
+    const { rerender } = render(<Panel source="slide" paused />);
+
+    rerender(<Panel source="slide" paused={false} />);
+
+    expect(fakes[0].binding.pause).not.toHaveBeenCalled();
+    expect(fakes[0].binding.play).not.toHaveBeenCalled();
+    expect(error).not.toHaveBeenCalled();
   });
 });

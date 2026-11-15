@@ -19,4 +19,14 @@ export interface MotionAttachmentOptions {
    * ```
    */
   shared?: string;
+  /**
+   * Pauses a loop while true and plays it again when false: a loop pauses by itself out of view, and this holds it for the
+   * author too (WCAG 2.2.2), so a `pause: 'control'` loop needs a visible control that sets it. Ignored without a loop.
+   *
+   * @example
+   * ```svelte
+   * <span {@attach motion('rotate', () => ({ paused: !loading }))}></span>
+   * ```
+   */
+  paused?: boolean;
 }

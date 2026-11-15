@@ -31,6 +31,7 @@ function fakeMotion(verb: MotionBinding['verb'] = 'disappear') {
   });
   const setPresent = jest.fn((_present: boolean) => exit);
   const play = jest.fn();
+  const pause = jest.fn();
   const destroy = jest.fn();
   const binding: MotionBinding = {
     handle: null,
@@ -38,6 +39,7 @@ function fakeMotion(verb: MotionBinding['verb'] = 'disappear') {
     verb,
     kind: kindOf(verb),
     play,
+    pause,
     setPresent,
     destroy: jest.fn(),
   };
@@ -47,6 +49,7 @@ function fakeMotion(verb: MotionBinding['verb'] = 'disappear') {
     binding,
     setPresent,
     play,
+    pause,
     destroy,
     finishExit: (outcome: Outcome = 'finished') => settle(outcome),
   };
@@ -169,6 +172,24 @@ class ListPresenceHost {
   template: `<div data-testid="box" udxMotion="fade reflow"></div>`,
 })
 class ListHost {}
+
+@Component({
+  standalone: true,
+  imports: [Motion],
+  template: `
+    <div data-testid="box" udxMotion="rotate" [udxMotionPaused]="paused"></div>
+  `,
+})
+class PausedHost {
+  paused = false;
+}
+
+@Component({
+  standalone: true,
+  imports: [Motion],
+  template: `<div data-testid="box" udxMotion="rotate" udxMotionPaused></div>`,
+})
+class StaticPausedHost {}
 
 describe('Motion (Angular directive)', () => {
   describe('binding', () => {
@@ -541,6 +562,54 @@ describe('Motion (Angular directive)', () => {
 
       expect(animationComplete).toHaveBeenCalledTimes(1);
       expect(motion.setPresent).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('loop pausing', () => {
+    it('pauses a loop bound with udxMotionPaused set, once, and never plays it', () => {
+      const loop = fakeMotion('loop');
+      motionWhenDefinedMock.mockReturnValue(loop.deferred);
+      const fixture = TestBed.createComponent(StaticPausedHost);
+      fixture.detectChanges();
+
+      expect(loop.pause).toHaveBeenCalledTimes(1);
+      expect(loop.play).not.toHaveBeenCalled();
+      fixture.destroy();
+    });
+
+    it('pauses the loop when udxMotionPaused turns true and plays it when it turns false, without binding again', () => {
+      const loop = fakeMotion('loop');
+      motionWhenDefinedMock.mockReturnValue(loop.deferred);
+      const fixture = TestBed.createComponent(PausedHost);
+      fixture.detectChanges();
+      expect(loop.pause).not.toHaveBeenCalled();
+
+      fixture.componentInstance.paused = true;
+      fixture.detectChanges();
+      expect(loop.pause).toHaveBeenCalledTimes(1);
+
+      fixture.componentInstance.paused = false;
+      fixture.detectChanges();
+      expect(loop.play).toHaveBeenCalledTimes(1);
+      expect(loop.pause).toHaveBeenCalledTimes(1);
+      expect(motionWhenDefinedMock).toHaveBeenCalledTimes(1);
+      fixture.destroy();
+    });
+
+    it('ignores udxMotionPaused on a motion without a loop: nothing is called', () => {
+      const fade = fakeMotion('appear');
+      motionWhenDefinedMock.mockReturnValue(fade.deferred);
+      const fixture = TestBed.createComponent(PausedHost);
+      fixture.detectChanges();
+
+      fixture.componentInstance.paused = true;
+      fixture.detectChanges();
+      fixture.componentInstance.paused = false;
+      fixture.detectChanges();
+
+      expect(fade.pause).not.toHaveBeenCalled();
+      expect(fade.play).not.toHaveBeenCalled();
+      fixture.destroy();
     });
   });
 });

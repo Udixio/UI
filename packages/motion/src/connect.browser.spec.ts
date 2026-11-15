@@ -552,3 +552,26 @@ it('binds a loop by name as soon as it is bound, and it plays forever until it i
   deferred.destroy();
   expect(el.getAnimations()).toHaveLength(0);
 });
+
+/** Two frames: the attribute observer has reported, and the pause or the play has been applied. */
+const twoFrames = () => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+
+it('pauses a loop while data-motion-paused is set, and plays it again when the attribute is removed', async () => {
+  const el = make('connect-loop');
+  // In view at the top of the page: the loop is not paused by the view.
+  el.style.height = '20px';
+  el.dataset.motionPaused = '';
+  root.append(el);
+  connect();
+  await twoFrames();
+  expect(el.getAnimations()).toHaveLength(1);
+  expect(el.getAnimations()[0].playState).toBe('paused');
+
+  el.removeAttribute('data-motion-paused');
+  await twoFrames();
+  expect(el.getAnimations()[0].playState).toBe('running');
+
+  el.setAttribute('data-motion-paused', '');
+  await twoFrames();
+  expect(el.getAnimations()[0].playState).toBe('paused');
+});

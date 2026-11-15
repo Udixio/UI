@@ -26,6 +26,11 @@ export interface UseMotionOptions {
    * A change of it binds the element again.
    */
   shared?: string;
+  /**
+   * Pauses a loop while true and plays it again when false: a loop pauses by itself out of view, and this holds it for the
+   * author too (WCAG 2.2.2), so a `pause: 'control'` loop needs a visible control that sets it. Ignored without a loop.
+   */
+  paused?: boolean;
 }
 
 export interface UseMotionReturn<T extends HTMLElement> {
@@ -41,7 +46,7 @@ export interface UseMotionReturn<T extends HTMLElement> {
 
 const subscribe = () => () => {};
 
-const KINDS: readonly MotionKind[] = ['presence', 'emphasis', 'layout'];
+const KINDS: readonly MotionKind[] = ['presence', 'emphasis', 'layout', 'view', 'loop'];
 
 const sourceKey = (source: MotionSource): string =>
   typeof source === 'string'
@@ -102,6 +107,12 @@ function bindingOf(motions: readonly DeferredMotion[], kind?: MotionKind): Motio
  * const detail = useMotion('reflow', { shared: `pic-${id}` });
  * ```
  *
+ * @example
+ * ```tsx
+ * // A spinner that turns while loading and holds still otherwise: a loop pauses by itself out of view.
+ * const spinner = useMotion('rotate', { paused: !loading });
+ * ```
+ *
  * @devx
  * - `mounted` stays true while an exit plays, so the element is removed only
  *   once the exit has finished. Do not unmount it yourself on `present`.
@@ -119,7 +130,7 @@ export function useMotion<T extends HTMLElement = HTMLElement>(
   source: MotionSource | readonly MotionSource[],
   options: UseMotionOptions = {},
 ): UseMotionReturn<T> {
-  const { present = true, state, settled, shared } = options;
+  const { present = true, state, settled, shared, paused = false } = options;
 
   // Hydrated content reads `true` on its first render; React then re-renders with `false`.
   const hydrated = useSyncExternalStore(
@@ -132,8 +143,8 @@ export function useMotion<T extends HTMLElement = HTMLElement>(
   const sources = motionsOf(source);
   // A change of the shared identity is a change of the binding, as a change of a source is.
   const key = JSON.stringify([sources.map(sourceKey), shared ?? null]);
-  const latest = useRef({ sources, present, settled, shared });
-  latest.current = { sources, present, settled, shared };
+  const latest = useRef({ sources, present, settled, shared, paused });
+  latest.current = { sources, present, settled, shared, paused };
   const deferred = useRef<DeferredMotion[]>([]);
   const bound = useRef<{ element: HTMLElement; key: string } | null>(null);
 
@@ -164,6 +175,8 @@ export function useMotion<T extends HTMLElement = HTMLElement>(
       );
       deferred.current = motions;
       bound.current = { element, key };
+      // A loop bound while the author holds it starts paused.
+      if (current.paused) bindingOf(motions, 'loop')?.pause();
       return () => {
         motions.forEach((motion) => motion.destroy());
         if (deferred.current === motions) deferred.current = [];
@@ -198,6 +211,16 @@ export function useMotion<T extends HTMLElement = HTMLElement>(
       current = false;
     };
   }, [present]);
+
+  // A change of `paused` pauses or plays the loop; the value read at bind is the baseline, so a bind does not repeat it.
+  const previousPaused = useRef(paused);
+  useEffect(() => {
+    if (Object.is(previousPaused.current, paused)) return;
+    previousPaused.current = paused;
+    const loop = bindingOf(deferred.current, 'loop');
+    if (paused) loop?.pause();
+    else loop?.play();
+  }, [paused]);
 
   const play = useCallback(() => {
     bindingOf(deferred.current, 'emphasis')?.play();

@@ -56,6 +56,9 @@ const motionsOf = (source: MotionSource | readonly MotionSource[]): MotionSource
  * - A layout can share an identity with `[udxMotionShared]`: a thumbnail and its
  *   detail that share `'pic-' + id` morph into each other, as in
  *   `<img udxMotion="reflow" [udxMotionShared]="'pic-' + id">`.
+ * - A loop pauses by itself out of view. `[udxMotionPaused]` holds it for the
+ *   author too, as in `<span udxMotion="rotate" [udxMotionPaused]="!loading()">`;
+ *   a `pause: 'control'` loop needs a visible control that sets it.
  * - The directive holds no animation of its own: the motion is defined and
  *   timed by `@udixio/motion`.
  * @a11y
@@ -90,6 +93,11 @@ export class Motion implements OnDestroy {
   });
   /** The shared identity: a layout motion morphs from the place of another element that held the same key. A change binds the element again. */
   readonly shared = input<string | undefined>(undefined, { alias: 'udxMotionShared' });
+  /** Holds a loop while true and plays it again when false: a loop pauses by itself out of view, and this holds it for the author too (WCAG 2.2.2). Ignored without a loop. */
+  readonly paused = input(false, {
+    alias: 'udxMotionPaused',
+    transform: booleanAttribute,
+  });
 
   private readonly host = inject(ElementRef<HTMLElement>);
   private deferred: DeferredMotion[] = [];
@@ -126,7 +134,24 @@ export class Motion implements OnDestroy {
         this.deferred = sources.map((each) =>
           motionWhenDefined(this.host.nativeElement, each, { present, settled, shared }),
         );
+        // A loop bound while the author holds it starts paused.
+        if (this.paused()) this.bindingOf('loop')?.pause();
         this.boundKey = key;
+      });
+    });
+
+    // A change of udxMotionPaused pauses or plays the loop. The first run is the value the binding read at bind, so it does nothing.
+    let pausedRead = false;
+    effect(() => {
+      const paused = this.paused();
+      if (!pausedRead) {
+        pausedRead = true;
+        return;
+      }
+      untracked(() => {
+        const loop = this.bindingOf('loop');
+        if (paused) loop?.pause();
+        else loop?.play();
       });
     });
 

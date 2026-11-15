@@ -41,9 +41,10 @@ function sharedOf(el: HTMLElement, development: boolean): string | undefined {
 /**
  * Bind the `[data-motion]` elements under `root` and keep the bindings in step with the DOM:
  * an insertion plays its entry, a removal destroys, and `data-motion`, `data-state` and `hidden`
- * drive the motion. An element may list several motions, one per kind. A `data-motion-shared`
- * gives the layout motion of the element a shared identity: it morphs from the place of another
- * element with the same key. The returned function disconnects the scanner and destroys its bindings.
+ * drive the motion. While `data-motion-paused` is set, the loop of the element is paused. An element may
+ * list several motions, one per kind. A `data-motion-shared` gives the layout motion of the element a shared
+ * identity: it morphs from the place of another element with the same key. The returned function disconnects
+ * the scanner and destroys its bindings.
  */
 export function connectMotion(options: ConnectOptions = {}): () => void {
   const root = options.root ?? document;
@@ -80,6 +81,8 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     let kinds = bound.get(el);
     if (!kinds) bound.set(el, (kinds = new Map()));
     kinds.set(kind, { name: ref.name, binding });
+    // A loop bound while the author holds it starts paused, and stays paused until the attribute is removed.
+    if (kind === 'loop' && el.hasAttribute('data-motion-paused')) binding.pause();
   }
 
   /** A change of `data-motion-shared` re-binds the layout motion the scanner bound on `el`, under the same name and the new key. */
@@ -188,6 +191,10 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
         ownBinding(el, 'emphasis')?.play();
       } else if (record.attributeName === 'data-motion-shared') {
         reshare(el);
+      } else if (record.attributeName === 'data-motion-paused') {
+        const loop = ownBinding(el, 'loop');
+        if (el.hasAttribute('data-motion-paused')) loop?.pause();
+        else loop?.play();
       } else {
         syncPresence(el);
       }
@@ -200,7 +207,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     childList: true,
     subtree: true,
     attributes: true,
-    attributeFilter: ['data-motion', 'data-motion-shared', 'data-state', 'hidden'],
+    attributeFilter: ['data-motion', 'data-motion-shared', 'data-motion-paused', 'data-state', 'hidden'],
   });
   const unsubscribe = onMotionDefined(ref => {
     const waiting = pending.get(ref.name);
