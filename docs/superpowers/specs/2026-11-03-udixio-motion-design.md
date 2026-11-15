@@ -1312,6 +1312,64 @@ Points ouverts (étape 8) :
 - L'entrée principale est à 0,2 kB de sa limite : la prochaine fonction doit
   aller dans une entrée à la demande ou libérer de la place.
 
+#### 8.3.15 État après l'étape 6 — texte, SVG, `scrollTo` (2026-11-16)
+
+| Famille | Écriture | Moteur | Mesuré (trois navigateurs) |
+|---|---|---|---|
+| Texte (F16) | option `split: 'chars' \| 'words' \| 'lines'` d'une définition `appear` / `disappear` / `reveal` ; `splitText(el, { by })`, `getSplit(el)` (entrée `@udixio/motion/text`, chargée à la demande) | `Intl.Segmenter` (graphèmes, mots) ; lignes par `offsetTop`, reconstruites au redimensionnement au repos ; un `playMotion` par morceau, cascade par ordre du texte | boîte identique avant / après découpage (± 1 px) ; « Où ça 👍🏽 » → 5 lettres |
+| SVG (F17) | champs `draw` (fraction du trait) et `along` (fraction de l'`offset-path` de l'auteur) sur tous les verbes ; éléments SVG liés par `data-motion` ; `morph(path, to)` (entrée `@udixio/motion/svg`) | `pathLength="1"` + `stroke-dasharray` / `stroke-dashoffset`, `offset-distance` (WAAPI) ; `morphTo` d'anime.js | `pathLength` respecté sur `path`, `circle`, `rect` dans les trois moteurs |
+| Défilement (F6) | `scrollTo(cible, { container, timing, offset, focus })`, `scrollDestination` (entrée `@udixio/motion/scroll`) | ressort intégré par image (position propre au ressort), destination relue à chaque image | arrêt à ± 1 px ; reprise par l'utilisateur annule |
+
+Règles fixées pendant l'étape 6 (choix de Claude, sur délégation) :
+
+- **Découpage accessible (I27)** : les nœuds d'origine sont déplacés dans une
+  copie masquée visuellement (lue par les lecteurs d'écran, sémantique
+  conservée, mises à jour de texte d'un framework suivies) ; la copie découpée
+  est `aria-hidden`, sans `id`. Un élément qui est ou contient un contrôle
+  interactif n'est pas découpé.
+- **Mots** : un espace sécable sépare les mots ; un segment de mot qui suit un
+  segment de mot en ouvre un autre (CJK) ; tout autre segment (ponctuation,
+  emoji) rejoint le mot qu'il touche. En `chars`, les écritures à liaisons
+  (hébreu à khmer, arabe, mongol…) sont découpées en mots.
+- **Lignes** : repli sur les mots dès que le texte contient un autre élément
+  que `br`.
+- **Cascade d'un texte** : `stagger` (défaut `tight`) et `origin` s'appliquent
+  aux morceaux ; deux éléments liés à la même définition ne se décalent pas
+  entre eux. Pendant le chargement du module texte, une entrée attend dans sa
+  première image puis joue découpée (en entier si le chargement échoue) ; une
+  sortie joue tout de suite.
+- **Mouvement réduit, `--udx-motion: none`** : pas de découpage ; `morph` et
+  `scrollTo` posent l'état final d'un coup.
+- **`draw`** va avec les effets (ressort critique : un dépassement ouvrirait un
+  trou au bout du trait) ; `along` avec les champs spatiaux. Au repos à
+  `draw: 1`, aucun tiret en ligne.
+- **`scrollTo`** : `scroll-margin` de la cible et `scroll-padding` du conteneur
+  respectés ; la main de l'utilisateur (`wheel`, `touchstart`, `pointerdown`,
+  `keydown`, ou un écart de plus de 2 px) annule ; `overflow-anchor: none` sur
+  le conteneur pendant le mouvement (sinon l'ancrage du navigateur passe pour
+  l'utilisateur) ; écritures bornées au défilement possible.
+- **Contenu présent au chargement** : il reste dans son état CSS, `along`
+  compris (règle de l'étape 1b).
+- **Poids** : texte, SVG et défilement sont des entrées à la demande ; la
+  logique du découpage vit dans l'entrée texte, le cœur n'en garde que le
+  chargeur. Les chargeurs partagent une aide `/* @__PURE__ */`. Entrée
+  principale 18,84 kB gzip (limite relevée à 18,9 : `split` et les champs SVG
+  sont des champs du cœur) ; text 10,7, svg 20,5, scroll 7,4.
+- **Types des entrées** : les entrées à la demande pointaient vers les
+  déclarations des modules internes (défaut antérieur, 7 erreurs côté Angular) ;
+  corrigé, un test vérifie que chaque chemin de types existe.
+
+Points ouverts (étape 8) :
+
+- Sous mouvement réduit, `draw` se trace encore pendant le fondu court : à
+  trancher à l'audit d'accessibilité (fondu seul, ou trait posé d'un coup).
+- Deux mouvements qui tracent la même forme : le premier détruit rend le
+  `pathLength` de l'auteur (pas de compteur de références).
+- Les enfants d'un élément découpé ne doivent pas être ajoutés ou retirés par
+  un framework (les changements de texte sont suivis).
+- L'entrée principale n'a plus que 0,06 kB de marge : la reprise des
+  adaptateurs (imports paresseux) doit en rendre.
+
 ### 8.4 Détails par famille — **rédigé (consolidation)**
 
 | # | Famille | Écriture | Chemin natif | Repli / moteur JS | Sources |
@@ -1424,6 +1482,9 @@ détail en §8.3.12) : les sept verbes existent. **Étape 4 livrée le
 2026-11-16** (valeurs, compteurs, séquences, détail en §8.3.13). **Étape 5
 livrée le 2026-11-15** (gestes, transitions de page, détail en §8.3.14). La
 suivante est l'étape 6 (découpage de texte, SVG, défilement programmé).
+**Étape 6 livrée le 2026-11-16** (texte, SVG, `scrollTo`, détail en
+§8.3.15). La suivante est l'étape 7 (migration des composants Udixio, retrait
+de `motion` et des classes `anim-*`).
 
 ## 9. Questions ouvertes connues
 
@@ -1494,6 +1555,7 @@ D2 (en partie orientée par C15).
 | Date | Travail | Changement |
 |---|---|---|
 | 2026-11-03 | — | Création du document à l'issue du brainstorming initial. |
+| 2026-11-16 | Étape 6 | Texte découpé (`split`, `@udixio/motion/text`, copie accessible), SVG (`draw`, `along`, éléments SVG liés, `morph` dans `@udixio/motion/svg`), `scrollTo` (`@udixio/motion/scroll`) ; démo, README. Défaut antérieur corrigé : types des entrées à la demande. Règles et limites en §8.3.15. Vérification : motion 2 064 tests + 7 ignorés (trois navigateurs), core 433, React 443, Svelte 322, Angular 400, doc 60 tests navigateur sur le site construit. |
 | 2026-11-15 | Étape 5 | Gestes (`defineGesture` : `drag`, `swipe`, `reorder`, alternative clavier obligatoire, événements annulables), transitions de page (`navigate`, règles de route de `motion.css`, `connectAstroTransitions`) ; adaptateurs ; démo. Défauts corrigés en vérification : mélange `plus-lighter` perdu par les routes, vol de layout de l'élément tenu, image immobile au départ d'un ressort. Règles et limites en §8.3.14. Vérification : motion 1 815 tests + 7 ignorés (trois navigateurs), core 433, React 443, Svelte 322, Angular 400, doc 51 tests navigateur sur le site construit. |
 | 2026-11-16 | Étape 4 | Valeurs (`defineValue`, `--udx-motion-value-<nom>`), compteurs formatés et accessibles, séquences (`defineSequence`, `data-motion-step`) ; `MotionHandle.delay` et positionnement composé corrigé ; valeurs et séquences chargées à la demande ; adaptateurs ; démo. Vérification : motion 1 649 tests + 7 ignorés (trois navigateurs), core 433, React 433, Svelte 315, Angular 391, doc 39 tests navigateur sur le site construit. |
 | 2026-11-16 | Étape 3 | Verbes `reveal` (observateur partagé, cascade), `scrub` (`ViewTimeline` natif, repli statique), `loop` (itérations infinies, pause hors vue et à la demande) ; natures `view` et `loop` ; presets `rise`, `parallax`, `rotate`, `breathe`, `blink`, `shake` ; démo. Règles et limites en §8.3.12. Vérification : motion 1 453 tests + 7 ignorés selon le support (trois navigateurs), core 433, React 415, Svelte 305, Angular 375, doc 30 tests navigateur sur le site construit. |
