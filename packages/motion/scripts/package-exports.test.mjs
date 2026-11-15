@@ -278,6 +278,17 @@ test('gesture entry point is public in both export maps', () => {
   });
 });
 
+test('text entry point is public in both export maps', () => {
+  assert.deepEqual(pkg.exports['./text'], {
+    development: './src/text-entry.ts', types: './dist/text.d.ts',
+    import: './dist/text.js', require: './dist/text.cjs', default: './dist/text.js',
+  });
+  assert.deepEqual(pkg.publishConfig.exports['./text'], {
+    types: './dist/text.d.ts', import: './dist/text.js',
+    require: './dist/text.cjs', default: './dist/text.js',
+  });
+});
+
 test('the main entry reaches gestures only through a dynamic import, and holds none of their code', async () => {
   for (const [entry, extension] of [['dist/index.js', 'js'], ['dist/index.cjs', 'cjs']]) {
     const sources = await staticClosure(entry);

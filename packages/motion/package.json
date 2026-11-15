@@ -80,6 +80,12 @@
         "require": "./dist/gesture.cjs",
         "default": "./dist/gesture.js"
       },
+      "./text": {
+        "types": "./dist/text.d.ts",
+        "import": "./dist/text.js",
+        "require": "./dist/text.cjs",
+        "default": "./dist/text.js"
+      },
       "./astro": {
         "types": "./dist/astro.d.ts",
         "import": "./dist/astro.js",
@@ -198,6 +204,13 @@
       "import": "./dist/gesture.js",
       "require": "./dist/gesture.cjs",
       "default": "./dist/gesture.js"
+    },
+    "./text": {
+      "development": "./src/text-entry.ts",
+      "types": "./dist/text.d.ts",
+      "import": "./dist/text.js",
+      "require": "./dist/text.cjs",
+      "default": "./dist/text.js"
     },
     "./astro": {
       "development": "./src/astro.ts",

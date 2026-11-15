@@ -31,6 +31,7 @@ export default defineConfig(() => ({
         value: 'src/value-entry.ts',
         sequence: 'src/sequence-entry.ts',
         gesture: 'src/gesture-entry.ts',
+        text: 'src/text-entry.ts',
         astro: 'src/astro.ts',
         manifest: 'src/manifest.ts',
         'providers/css': 'src/providers/css.ts',
