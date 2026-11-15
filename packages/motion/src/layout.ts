@@ -2,9 +2,10 @@ import type { MotionHandle, VisualFrame } from './contract.js';
 import { flipFrames, parseOwnTransform, sameBox, toLayoutBox, toVisualBox, type Box, type OwnTransform } from './flip.js';
 import type { MotionSpec } from './define-motion.js';
 import { motionManifest } from './manifest.js';
-import { playFrames } from './play.js';
+import { motionDisabledIn, motionScaleIn, resolveWaapiTiming } from './play.js';
 import type { SpringRef } from './motion-spec.js';
 import type { MotionRuntime } from './runtime.js';
+import { waapiProvider } from './providers/waapi.js';
 
 /** A followed element: its last measures and the move in flight. */
 interface Item {
@@ -25,6 +26,21 @@ interface Scope {
   resize: ResizeObserver;
   onScroll: () => void;
 }
+
+/** A move planned by one flush: its frames, and the style values that decide whether it runs. */
+interface PlannedMove {
+  element: HTMLElement;
+  item: Item;
+  frames: [VisualFrame, VisualFrame];
+  disabled: boolean;
+  scale: number;
+}
+
+/**
+ * The reference rects read by one pass. A cache is only valid between two writes: each pass that reads
+ * after a write uses a fresh one.
+ */
+type ReferenceRects = Map<HTMLElement, DOMRect>;
 
 export interface LayoutTracking {
   /** The move in flight, if any. */
@@ -58,17 +74,27 @@ function referenceOf(scope: Scope, element: HTMLElement): HTMLElement {
   return scope.root;
 }
 
-function visualBoxOf(scope: Scope, element: HTMLElement): Box {
+function visualBoxOf(scope: Scope, element: HTMLElement, rects: ReferenceRects): Box {
   const r = element.getBoundingClientRect();
-  const o = referenceOf(scope, element).getBoundingClientRect();
+  const reference = referenceOf(scope, element);
+  let o = rects.get(reference);
+  if (!o) {
+    o = reference.getBoundingClientRect();
+    rects.set(reference, o);
+  }
   return { cx: r.left + r.width / 2 - o.left, cy: r.top + r.height / 2 - o.top, w: r.width, h: r.height };
 }
 
-/** Measure an element at rest. */
-function measure(scope: Scope, element: HTMLElement, item: Item): void {
-  item.rest = ownOf(element);
-  item.visual = visualBoxOf(scope, element);
+/** Measure an element at rest, from the computed style its caller has just read. */
+function measureWith(scope: Scope, element: HTMLElement, item: Item, style: CSSStyleDeclaration, rects: ReferenceRects): void {
+  item.rest = parseOwnTransform(style.translate, style.scale);
+  item.visual = visualBoxOf(scope, element, rects);
   item.layout = toLayoutBox(item.visual, item.rest);
+}
+
+/** Measure an element at rest. */
+function measure(scope: Scope, element: HTMLElement, item: Item, rects: ReferenceRects = new Map()): void {
+  measureWith(scope, element, item, getComputedStyle(element), rects);
 }
 
 function relevant(record: MutationRecord): boolean {
@@ -111,7 +137,11 @@ function adopt(element: HTMLElement, item: Item): void {
   measure(scope, element, item);
 }
 
-/** Compare the layout with the cache, and play the difference of every element that moved. */
+/**
+ * Compare the layout with the cache, and play the difference of every element that moved.
+ * Reads come first in each pass, and a pass never reads after its own writes: the browser then recalculates
+ * the style at most once per flush, not once per element.
+ */
 function flush(scope: Scope): void {
   for (const [element, item] of [...scope.items]) {
     if (element.isConnected && !scope.root.contains(element)) {
@@ -123,18 +153,21 @@ function flush(scope: Scope): void {
     dispose(scope);
     return;
   }
-  // 1. Reads only, nothing is stopped: find the elements whose place really changed.
+  // 1. Reads only, nothing is stopped: find the elements whose place really changed. An element at rest
+  // needs its rect alone, since its visual box already includes its own transform. Only an element in
+  // flight needs its style, to undo the animated transform.
+  const rects: ReferenceRects = new Map();
   const changed: Array<[HTMLElement, Item, Box]> = [];
   for (const [element, item] of scope.items) {
     if (!element.isConnected) continue;
     if (!item.layout || !item.visual) {
-      if (item.handle === null) measure(scope, element, item);
+      if (item.handle === null) measure(scope, element, item, rects);
       continue;
     }
-    const own = ownOf(element);
-    const visualNow = visualBoxOf(scope, element);
+    const visualNow = visualBoxOf(scope, element, rects);
     if (item.handle !== null) {
       // In flight: the underlying layout box, with the animated transform undone.
+      const own = ownOf(element);
       if (sameBox(toLayoutBox(visualNow, own), item.layout)) continue; // its destination did not change: keep flying
       const carried = (item.spec.interrupt ?? 'carry') === 'carry';
       changed.push([element, item, carried ? toVisualBox(item.layout, own) : item.visual]);
@@ -148,26 +181,37 @@ function flush(scope: Scope): void {
     item.handle?.cancel();
     item.handle = null;
   }
-  // 3. Reads: measure the new rest state of the changed elements and plan their moves.
-  const moves: Array<[HTMLElement, Item, [VisualFrame, VisualFrame]]> = [];
+  // 3. Reads, after the writes above: measure the new rest state of the changed elements, one computed style
+  // per element, from which the move's rest transform, disabled flag and scale are all taken.
+  const rectsAfterWrites: ReferenceRects = new Map();
+  const planned: PlannedMove[] = [];
   for (const [element, item, from] of changed) {
-    measure(scope, element, item);
+    const style = getComputedStyle(element);
+    const disabled = motionDisabledIn(style);
+    const scale = motionScaleIn(style);
+    measureWith(scope, element, item, style, rectsAfterWrites);
     const frames = item.visual && flipFrames(from, item.visual, item.rest);
-    if (frames) moves.push([element, item, frames]);
+    if (frames) planned.push({ element, item, frames, disabled, scale });
   }
-  for (const [element, item, frames] of moves) {
-    const handle = playFrames(element, frames, {
-      verb: 'layout',
-      timing: item.spec.timing ?? DEFAULT_TIMING,
-      runtime: item.runtime,
-      commit: false,
-      development: item.development,
-    });
-    if (!handle) continue;
-    item.handle = handle;
-    void handle.finished.then(() => {
-      if (item.handle === handle) item.handle = null;
-    });
+  if (planned.length === 0) return;
+  // 4. Writes only: no style is read from here on. The scheme and the policy are read once, before the writes.
+  const scheme = scope.root.ownerDocument.documentElement.dataset.motionScheme === 'standard' ? 'standard' : 'expressive';
+  if (planned[0].item.runtime.policy.reduced) return;
+  for (const { element, item, frames, disabled, scale } of planned) {
+    if (disabled || scale === 0) continue;
+    try {
+      const timing = resolveWaapiTiming(element, item.spec.timing ?? DEFAULT_TIMING, scheme);
+      if (!timing) continue;
+      const duration = timing.duration * scale;
+      if (!Number.isFinite(duration) || duration <= 0) continue;
+      const handle = waapiProvider.animate({ target: element, keyframes: frames, timing: { duration, easing: timing.easing }, commit: false });
+      item.handle = handle;
+      void handle.finished.then(() => {
+        if (item.handle === handle) item.handle = null;
+      });
+    } catch (error) {
+      if (item.development) console.error('[@udixio/motion] layout move could not animate:', error);
+    }
   }
 }
 
@@ -177,12 +221,13 @@ function flush(scope: Scope): void {
  * frame, so a change made just after either is flushed against a fresh cache.
  */
 function refresh(scope: Scope): void {
+  const rects: ReferenceRects = new Map();
   for (const [element, item] of scope.items) {
     if (!element.isConnected) continue;
     if (item.handle === null) {
-      measure(scope, element, item);
+      measure(scope, element, item, rects);
     } else {
-      item.layout = toLayoutBox(visualBoxOf(scope, element), ownOf(element));
+      item.layout = toLayoutBox(visualBoxOf(scope, element, rects), ownOf(element));
       item.visual = toVisualBox(item.layout, item.rest);
     }
   }

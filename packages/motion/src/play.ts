@@ -6,7 +6,7 @@ import type { SpringRef } from './motion-spec.js';
 import { resolveReducedRender } from './reduced-render.js';
 import type { MotionRuntime } from './runtime.js';
 import { startRoutedMotion } from './timing-integration.js';
-import type { TimingSupport } from './timing-routing.js';
+import { routeTimingWithEvaluator, type TimingSupport } from './timing-routing.js';
 import type { CurveTiming, MotionScheme } from './tokens.js';
 import { waapiProvider } from './providers/waapi.js';
 import { probeWaapiEasing } from './waapi-probe.js';
@@ -56,14 +56,22 @@ function freezeCurrentStyle(target: HTMLElement, fields: ReadonlySet<ManifestVis
 }
 
 /** `--udx-motion: none` on the element or inherited from an ancestor turns its motions off. */
-function motionDisabled(target: HTMLElement): boolean {
-  return windowOf(target).getComputedStyle(target).getPropertyValue('--udx-motion').trim() === 'none';
+export function motionDisabledIn(style: CSSStyleDeclaration): boolean {
+  return style.getPropertyValue('--udx-motion').trim() === 'none';
 }
 
 /** `--udx-motion-scale` clamped to [0, 1]; absent or non-numeric means 1. */
-function motionScale(target: HTMLElement): number {
-  const value = Number.parseFloat(windowOf(target).getComputedStyle(target).getPropertyValue('--udx-motion-scale'));
+export function motionScaleIn(style: CSSStyleDeclaration): number {
+  const value = Number.parseFloat(style.getPropertyValue('--udx-motion-scale'));
   return Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 1;
+}
+
+function motionDisabled(target: HTMLElement): boolean {
+  return motionDisabledIn(windowOf(target).getComputedStyle(target));
+}
+
+function motionScale(target: HTMLElement): number {
+  return motionScaleIn(windowOf(target).getComputedStyle(target));
 }
 
 /** A backward appear plays with the disappear defaults, and the reverse. */
@@ -109,6 +117,22 @@ function waapiSupport(element: HTMLElement, candidate: { easing: string }): Timi
   const { status } = probeWaapiEasing(element, candidate.easing);
   if (status === 'accepted') return 'supported';
   return status === 'refused' ? 'refused' : 'unknown';
+}
+
+const waapiTimings = new Map<string, { duration: number; easing: string } | null>();
+
+/**
+ * Duration and easing of a timing on the WAAPI provider, or null when it cannot be played. Cached per timing
+ * and scheme: easing support does not change during a page's life, so the route is resolved once.
+ */
+export function resolveWaapiTiming(target: HTMLElement, timing: SpringRef | CurveTiming, scheme: MotionScheme): { duration: number; easing: string } | null {
+  const key = `${scheme}|${typeof timing === 'string' ? timing : JSON.stringify(timing)}`;
+  const cached = waapiTimings.get(key);
+  if (cached !== undefined) return cached;
+  const route = routeTimingWithEvaluator(timing, { scheme, backend: 'waapi' }, candidate => waapiSupport(target, candidate));
+  const resolved = route.status === 'resolved' ? { duration: route.duration, easing: route.easing } : null;
+  waapiTimings.set(key, resolved);
+  return resolved;
 }
 
 /**
