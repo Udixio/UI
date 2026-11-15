@@ -194,15 +194,21 @@ test(`${name}: layout motions carry elements to their new place`, async () => {
     page.on('pageerror', error => pageErrors.push(error.message));
     await page.goto(base + '/motion/demo/');
     await page.waitForSelector('[data-demo-layout="pill"]');
+    // The layout engine is loaded on demand: wait for the page to be quiet before the first change.
+    await page.waitForLoadState('networkidle');
     // Two frames: the runtime is connected once the page has painted.
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
     const pill = page.locator('[data-demo-layout="pill"]');
     const oldLeft = await pill.evaluate(el => el.getBoundingClientRect().left);
-    await page.getByRole('button', { name: 'Toggle alignment' }).click();
-    // Read in one call right after the click: the move has just started, and has barely moved.
-    const started = await pill.evaluate(el => ({ animations: el.getAnimations().length, left: el.getBoundingClientRect().left }));
+    // Click and read in the page, in one task: the move has just started and the pill is still where it was.
+    const started = await page.evaluate(async () => {
+      const element = document.querySelector('[data-demo-layout="pill"]');
+      document.querySelector('[data-demo-align]').click();
+      await Promise.resolve();
+      return { animations: element.getAnimations().length, left: element.getBoundingClientRect().left };
+    });
     assert.ok(started.animations >= 1, 'the pill has no move in flight');
-    assert.ok(Math.abs(started.left - oldLeft) < 40, `the pill jumped from ${oldLeft} to ${started.left}`);
+    assert.ok(Math.abs(started.left - oldLeft) < 2, `the pill jumped from ${oldLeft} to ${started.left}`);
     await page.waitForFunction(() => document.querySelector('[data-demo-layout="pill"]').getAnimations().length === 0);
     const ended = await pill.evaluate(el => ({ left: el.getBoundingClientRect().left, translate: el.style.translate, scale: el.style.scale }));
     assert.ok(ended.left > oldLeft + 40, `the pill ended at ${ended.left}, it started at ${oldLeft}`);
@@ -263,6 +269,7 @@ test(`${name}: list items cascade in and their neighbours follow`, async () => {
     await page.goto(base + '/motion/demo/');
     const items = '#demo-items [data-demo-list="item"]';
     await page.waitForSelector(items);
+    await page.waitForLoadState('networkidle');
     // Two frames: the runtime is connected once the page has painted.
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
     const count = () => page.locator(items).count();
