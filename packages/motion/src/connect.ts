@@ -2,6 +2,7 @@ import { getMotion, motion, type MotionBinding } from './bind.js';
 import { definedMotions, kindOf, onMotionDefined, resolveMotion, type MotionKind, type MotionRef } from './define-motion.js';
 import { flushLayoutAround } from './layout-loader.js';
 import { NAME_PATTERN } from './manifest.js';
+import { getSequence, onSequenceDefined, resolveSequence, sequence, type SequenceBinding, type SequenceRef } from './sequence.js';
 import { onValueDefined, resolveValue } from './value.js';
 import { getValue, value, type ValueBinding } from './value-binding.js';
 
@@ -52,14 +53,17 @@ function sharedOf(el: HTMLElement, development: boolean): string | undefined {
  * drive the motion. While `data-motion-paused` is set, the loop of the element is paused. An element may
  * list several motions, one per kind. A `data-motion-shared` gives the layout motion of the element a shared
  * identity: it morphs from the place of another element with the same key. A `data-motion-value` binds the named values
- * of the element, each written as a variable there. The returned function disconnects the scanner and destroys its
- * bindings.
+ * of the element, each written as a variable there. A `data-motion` name that is a defined sequence binds the sequence
+ * on the element; its `data-motion-step` children need no scanning of their own. The returned function disconnects the
+ * scanner and destroys its bindings.
  */
 export function connectMotion(options: ConnectOptions = {}): () => void {
   const root = options.root ?? document;
   const development = options.development ?? false;
   /** The motions the scanner bound on each element, by kind. */
   const bound = new Map<HTMLElement, Map<MotionKind, Owned>>();
+  /** The sequences the scanner bound on each element. */
+  const boundSequences = new Map<HTMLElement, SequenceBinding>();
   const pending = new Map<string, Set<HTMLElement>>();
   /** The values the scanner bound on each element, by name; and the elements waiting for each undefined name. */
   const boundValues = new Map<HTMLElement, Map<string, ValueBinding>>();
@@ -69,15 +73,27 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   const reportedValues = new Set<string>();
   const conflicts = new WeakSet<HTMLElement>();
 
-  /** Bind the names of `el`, in order. An undefined name waits alone; a motion of a kind already bound on `el` is ignored. */
+  /** Bind the names of `el`, in order. A motion wins over a sequence of the same name; an undefined name waits alone. */
   function bind(el: HTMLElement, entering: boolean): void {
     undefer(el);
     for (const name of namesOf(el)) {
       const ref = resolveMotion(name);
-      if (ref) bindRef(el, ref, entering);
+      if (ref) {
+        bindRef(el, ref, entering);
+        continue;
+      }
+      const sequenceRef = resolveSequence(name);
+      if (sequenceRef) bindSequence(el, sequenceRef, entering);
       else defer(el, name);
     }
     bindValues(el);
+  }
+
+  /** Bind the sequence `ref` on `el`, unless the scanner already holds a sequence there that is still the registered one. */
+  function bindSequence(el: HTMLElement, ref: SequenceRef, entering: boolean): void {
+    const owned = boundSequences.get(el);
+    if (owned && getSequence(el) === owned) return;
+    boundSequences.set(el, sequence(el, ref, { settled: !entering, development }));
   }
 
   /** Bind the value names of `el`, in order. An undefined name waits alone until it is defined. */
@@ -192,6 +208,9 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     release(el);
     for (const kind of bound.get(el)?.keys() ?? []) ownBinding(el, kind)?.destroy();
     bound.delete(el);
+    const sequenceBinding = boundSequences.get(el);
+    if (sequenceBinding && getSequence(el) === sequenceBinding) sequenceBinding.destroy();
+    boundSequences.delete(el);
     undefer(el);
     forgetValues(el);
   }
@@ -238,7 +257,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
       if (record.type === 'childList') {
         // A node moved within the root keeps its binding: it is still under root when its removal is read.
         for (const el of Array.from(record.removedNodes).flatMap(scannedElements)) if (!root.contains(el)) forget(el);
-        for (const el of Array.from(record.addedNodes).flatMap(scannedElements)) if (root.contains(el) && !bound.has(el) && !boundValues.has(el)) bind(el, true);
+        for (const el of Array.from(record.addedNodes).flatMap(scannedElements)) if (root.contains(el) && !bound.has(el) && !boundValues.has(el) && !boundSequences.has(el)) bind(el, true);
         continue;
       }
       const el = record.target;
@@ -278,6 +297,13 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     // Only the defined name is bound: the other names of the element keep their bindings.
     for (const el of waiting) if (root.contains(el) && namesOf(el).includes(ref.name)) bindRef(el, ref, false);
   });
+  const unsubscribeSequences = onSequenceDefined(ref => {
+    const waiting = pending.get(ref.name);
+    if (!waiting) return;
+    pending.delete(ref.name);
+    // A sequence bound once its name is defined is settled: it does not play on the page it was waiting for.
+    for (const el of waiting) if (root.contains(el) && namesOf(el).includes(ref.name)) bindSequence(el, ref, false);
+  });
   const unsubscribeValues = onValueDefined(ref => {
     const waiting = pendingValues.get(ref.name);
     if (!waiting) return;
@@ -288,8 +314,9 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   return () => {
     observer.disconnect();
     unsubscribe();
+    unsubscribeSequences();
     unsubscribeValues();
-    for (const el of new Set([...bound.keys(), ...boundValues.keys()])) forget(el);
+    for (const el of new Set([...bound.keys(), ...boundSequences.keys(), ...boundValues.keys()])) forget(el);
     pending.clear();
     pendingValues.clear();
   };

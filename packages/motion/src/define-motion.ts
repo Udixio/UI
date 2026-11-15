@@ -33,7 +33,8 @@ function listeners(): Set<Listener> {
   return shared[LISTENERS] as Set<Listener>;
 }
 
-function assertName(name: string, what = 'Motion name'): void {
+/** Throw a `TypeError` when `name` is not kebab-case or is reserved; `what` names it in the message. */
+export function assertName(name: string, what = 'Motion name'): void {
   if (!NAME_PATTERN.test(name))
     throw new TypeError(`${what} "${name}" must be kebab-case`);
   if (

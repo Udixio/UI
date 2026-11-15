@@ -63,6 +63,16 @@ export function staggerDelay(rank: number, step: number, max: number): number {
   return Math.min(rank * step, max);
 }
 
+/** The step of a stagger token in ms, from `--udx-motion-stagger-<token>` in `style`; the fallback when it is missing. */
+export function staggerStep(style: CSSStyleDeclaration, stagger: StaggerOptions['stagger']): number {
+  return milliseconds(style.getPropertyValue(`--udx-motion-stagger-${stagger}`), FALLBACK_STEP[stagger]);
+}
+
+/** The cap of a cascade in ms, from `--udx-motion-stagger-max` in `style`; the fallback when it is missing. */
+export function staggerCap(style: CSSStyleDeclaration): number {
+  return milliseconds(style.getPropertyValue('--udx-motion-stagger-max'), FALLBACK_MAX);
+}
+
 /**
  * Start `play` with the delay of `target` among the elements of the same group (the same definition, in the
  * same layout scope, entering or leaving) asking in the same task. Returns at once a handle that stands for the animation until
@@ -99,8 +109,8 @@ function delaysOf(members: Entry[]): Array<[Entry, number]> {
   if (members.length === 1 || options.reduced) return members.map(entry => [entry, 0]);
   const first = members[0].target;
   const style = (first.ownerDocument.defaultView ?? window).getComputedStyle(first);
-  const step = milliseconds(style.getPropertyValue(`--udx-motion-stagger-${options.stagger}`), FALLBACK_STEP[options.stagger]);
-  const max = milliseconds(style.getPropertyValue('--udx-motion-stagger-max'), FALLBACK_MAX);
+  const step = staggerStep(style, options.stagger);
+  const max = staggerCap(style);
   const ranks = visualRanks(members.map(entry => entry.target.getBoundingClientRect()), options.origin ?? 'first');
   return members.map((entry, index) => [entry, staggerDelay(ranks[index], step, max)]);
 }

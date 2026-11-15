@@ -33,6 +33,8 @@ export type { LayoutTracking } from './layout.js';
 export { pinOutOfFlow } from './pin.js';
 export { staggered, staggerDelay, visualRanks } from './stagger.js';
 export type { StaggerOptions } from './stagger.js';
+export { defineSequence, resolveSequence, onSequenceDefined, sequence, getSequence } from './sequence.js';
+export type { SequenceSpec, SequenceStep, SequenceRef, SequenceBinding } from './sequence.js';
 export type { Stretch, AxisProgress, ContentPlan } from './project.js';
 export type { Box, OwnTransform } from './flip.js';
 export { connectMotion } from './connect.js';
