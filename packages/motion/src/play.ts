@@ -120,7 +120,7 @@ export function playMotion(
   spec: Readonly<MotionSpec>,
   options: { direction: Direction; carry: boolean; runtime: MotionRuntime; scheme?: MotionScheme; development?: boolean },
 ): MotionHandle {
-  if (spec.verb === 'layout') throw new TypeError('layout motions are not played yet');
+  if (spec.verb === 'layout') throw new TypeError('playMotion does not play a layout motion: trackLayout follows it');
   const { direction, carry, runtime } = options;
   const development = options.development ?? runtime.development;
   const scheme = options.scheme ?? (target.ownerDocument.documentElement.dataset.motionScheme === 'standard' ? 'standard' : 'expressive');
@@ -162,4 +162,29 @@ export function playMotion(
   if (started.length === groups.length) return composeHandles(started);
   for (const handle of started) handle.cancel();
   return settle(target, destination, development, failure);
+}
+
+/**
+ * Play raw frames on `target` through the WAAPI provider. Returns null when nothing must or can
+ * animate (reduced motion, `--udx-motion: none`, zero motion scale, no WAAPI, any failure):
+ * the caller then leaves the element as it is.
+ */
+export function playFrames(
+  target: HTMLElement,
+  keyframes: VisualFrame[],
+  options: { verb: ManifestVerb; timing: SpringRef | CurveTiming; runtime: MotionRuntime; commit?: boolean; scheme?: MotionScheme; development?: boolean },
+): MotionHandle | null {
+  if (options.runtime.policy.reduced || motionDisabled(target)) return null;
+  const scheme = options.scheme ?? (target.ownerDocument.documentElement.dataset.motionScheme === 'standard' ? 'standard' : 'expressive');
+  try {
+    const result = startRoutedMotion(
+      { target, keyframes, timing: options.timing, scheme, verb: options.verb, policy: 'normal', scale: motionScale(target), backend: 'waapi', ...(options.commit !== undefined && { commit: options.commit }) },
+      waapiProvider,
+      waapiSupport,
+    );
+    return result.status === 'started' ? result.handle : null;
+  } catch (error) {
+    if (options.development) console.error('[@udixio/motion] playFrames could not animate:', error);
+    return null;
+  }
 }

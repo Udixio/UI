@@ -8,6 +8,7 @@ import {
   type MotionRef,
   type MotionSpec,
 } from './define-motion.js';
+import { trackLayout } from './layout.js';
 import { applyFrame, playMotion, releaseFrame } from './play.js';
 import { getMotionRuntime, retainMotionRuntime } from './runtime.js';
 
@@ -25,7 +26,7 @@ export interface MotionBinding {
 
 type Outcome = 'finished' | 'cancelled';
 type BindOptions = { present?: boolean; settled?: boolean; development?: boolean };
-/** A spec with keyframes: the layout verb is not bound yet. */
+/** A spec with keyframes: a layout is bound by `createLayoutBinding` instead. */
 type KeyframedSpec = Exclude<MotionSpec, { verb: 'layout' }>;
 
 const bindings = new WeakMap<Element, MotionBinding>();
@@ -54,9 +55,8 @@ export function getMotion(target: Element): MotionBinding | undefined {
  */
 export function motion(target: HTMLElement, source: MotionSource, options: BindOptions = {}): MotionBinding {
   const spec = specOf(source);
-  if (spec.verb === 'layout') throw new TypeError('layout motions are not bound yet');
   getMotion(target)?.destroy();
-  const binding = createBinding(target, spec, options);
+  const binding = spec.verb === 'layout' ? createLayoutBinding(target, spec, options) : createBinding(target, spec, options);
   bindings.set(target, binding);
   return binding;
 }
@@ -97,6 +97,43 @@ export function motionWhenDefined(target: HTMLElement, source: MotionSource, opt
       binding?.destroy();
     },
   };
+}
+
+/** A layout follows its element: it writes no presence attribute and never enters or leaves. */
+function createLayoutBinding(target: HTMLElement, spec: Readonly<MotionSpec>, options: BindOptions): MotionBinding {
+  const runtime = getMotionRuntime();
+  const releaseRuntime = retainMotionRuntime(runtime);
+  const tracking = trackLayout(target, spec, { runtime, development: options.development ?? false });
+  // Under reduced motion, a move in flight stops where the layout puts the element.
+  const stopPolicy = runtime.policy.subscribe(() => {
+    if (runtime.policy.reduced) tracking.handle?.cancel();
+  });
+  let destroyed = false;
+  const binding: MotionBinding = {
+    verb: 'layout',
+    get handle() {
+      return tracking.handle;
+    },
+    get present() {
+      return true;
+    },
+    play() {
+      tracking.flush();
+      return tracking.handle ?? settledHandle();
+    },
+    setPresent() {
+      throw new TypeError('setPresent does not apply to a layout motion');
+    },
+    destroy() {
+      if (destroyed) return;
+      destroyed = true;
+      stopPolicy();
+      tracking.destroy();
+      if (bindings.get(target) === binding) bindings.delete(target);
+      releaseRuntime();
+    },
+  };
+  return binding;
 }
 
 function createBinding(target: HTMLElement, spec: Readonly<KeyframedSpec>, options: BindOptions): MotionBinding {
