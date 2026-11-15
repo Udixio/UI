@@ -5,12 +5,19 @@ let loading: Promise<void> | undefined;
 
 /**
  * Load the layout engine, once. A layout motion bound before it is loaded starts following when it is: the
- * engine is a separate chunk, which only a site that binds a layout motion downloads.
+ * engine is a separate chunk, which only a site that binds a layout motion downloads. A failed load rejects,
+ * and a later call tries again.
  */
 export function loadLayoutEngine(): Promise<void> {
-  loading ??= import('./layout.js').then(module => {
-    engine = module;
-  });
+  loading ??= import('./layout.js').then(
+    module => {
+      engine = module;
+    },
+    error => {
+      loading = undefined;
+      throw error;
+    },
+  );
   return loading;
 }
 

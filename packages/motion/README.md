@@ -65,6 +65,8 @@ place and size when the layout around it changes, and nothing is left inline at 
 defineMotion('card-move', { verb: 'layout' }); // timing is optional
 ```
 
+The layout engine is loaded the first time a layout motion is bound: it is not in the main entry. A change made before it is loaded is not animated. `await loadLayoutEngine()` (from `@udixio/motion`) preloads it, and `@udixio/motion/layout` exports the engine's functions for advanced use.
+
 The preset `reflow` is a layout motion:
 
 ```html

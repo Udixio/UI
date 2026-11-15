@@ -145,9 +145,13 @@ function createLayoutBinding(target: HTMLElement, spec: Readonly<MotionSpec>, op
   const engine = layoutEngine();
   let tracking: LayoutTracking | undefined = engine?.trackLayout(target, spec, trackOptions);
   if (!engine) {
-    void loadLayoutEngine().then(() => {
-      if (!destroyed) tracking = layoutEngine()?.trackLayout(target, spec, trackOptions);
-    });
+    // A failed load leaves the element unfollowed: it stays where it is, and the page is not affected.
+    void loadLayoutEngine().then(
+      () => {
+        if (!destroyed) tracking = layoutEngine()?.trackLayout(target, spec, trackOptions);
+      },
+      () => {},
+    );
   }
   // Under reduced motion, a move in flight stops where the layout puts the element.
   const stopPolicy = runtime.policy.subscribe(() => {

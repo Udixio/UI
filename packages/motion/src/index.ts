@@ -20,7 +20,7 @@ export { playMotion, playFrames, applyFrame, releaseFrame, resolveWaapiTiming } 
 export { motion, motionWhenDefined, getMotion, getMotions } from './bind.js';
 export type { DeferredMotion, MotionBinding, MotionSource } from './bind.js';
 export { layoutScopeOf } from './scope-of.js';
-export { loadLayoutEngine, flushLayoutAround } from './layout-loader.js';
+export { loadLayoutEngine, layoutEngine, flushLayoutAround } from './layout-loader.js';
 export type { LayoutTracking } from './layout.js';
 export { pinOutOfFlow } from './pin.js';
 export { staggered, staggerDelay, visualRanks } from './stagger.js';
