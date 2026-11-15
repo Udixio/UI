@@ -38,7 +38,14 @@ export interface MotionBinding {
 }
 
 type Outcome = 'finished' | 'cancelled';
-type BindOptions = { present?: boolean; settled?: boolean; development?: boolean; shared?: string };
+export type BindOptions = {
+  present?: boolean;
+  settled?: boolean;
+  development?: boolean;
+  shared?: string;
+  /** A loop bound with `paused` starts paused (also when it is bound later, once its name is defined). */
+  paused?: boolean;
+};
 /** A spec with keyframes: a layout is bound by `createLayoutBinding` instead. */
 type KeyframedSpec = Exclude<MotionSpec, { verb: 'layout' }>;
 
@@ -385,7 +392,7 @@ function createLoopBinding(target: HTMLElement, spec: Readonly<Extract<MotionSpe
   const releaseRuntime = retainMotionRuntime(runtime);
   const { duration, easing } = resolveCurve(spec.timing ?? motionManifest.defaults.loop.curve);
   let animation: MotionHandle | null = null;
-  let authorPaused = false;
+  let authorPaused = options.paused ?? false;
   let inView = true;
   let destroyed = false;
 

@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { motion, type MotionBinding, type MotionSource } from './bind.js';
+import { motion, motionWhenDefined, type MotionBinding, type MotionSource } from './bind.js';
+import { defineMotion } from './define-motion.js';
 import { blink, fade, parallax, press, reflow, rise, rotate } from './presets.js';
 
 const nextFrame = () => new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
@@ -186,4 +187,17 @@ it('the blink preset runs one cycle per second', () => {
   bindTo(item, blink);
   expect(timingOf(item).duration).toBe(1000);
   expect(timingOf(item).iterations).toBe(Infinity);
+});
+
+it('a loop bound paused before its name is defined starts paused once the name arrives', async () => {
+  const [item] = layout(1, false);
+  const deferred = motionWhenDefined(item, 'loop-paused-later', { paused: true });
+  expect(deferred.binding).toBeUndefined();
+  defineMotion('loop-paused-later', rotate.spec);
+  await twoFrames();
+  expect(item.getAnimations()).toHaveLength(1);
+  expect(item.getAnimations()[0].playState).toBe('paused');
+  deferred.binding!.play();
+  expect(item.getAnimations()[0].playState).toBe('running');
+  deferred.destroy();
 });

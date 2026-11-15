@@ -131,8 +131,9 @@ export class Motion implements OnDestroy {
         this.deferred.forEach((each) => each.destroy());
         const present = this.present();
         const settled = rebinding || this.settled();
+        const paused = this.paused();
         this.deferred = sources.map((each) =>
-          motionWhenDefined(this.host.nativeElement, each, { present, settled, shared }),
+          motionWhenDefined(this.host.nativeElement, each, { present, settled, shared, ...(paused && { paused: true }) }),
         );
         // A loop bound while the author holds it starts paused.
         if (this.paused()) this.bindingOf('loop')?.pause();

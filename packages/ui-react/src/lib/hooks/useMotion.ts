@@ -171,6 +171,7 @@ export function useMotion<T extends HTMLElement = HTMLElement>(
           present: current.present,
           settled: settledNow,
           shared: current.shared,
+          ...(current.paused && { paused: true }),
         }),
       );
       deferred.current = motions;
