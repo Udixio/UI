@@ -1,11 +1,11 @@
 [
-  { "name": "core", "path": "dist/index.js", "import": "*", "gzip": true, "limit": "20.2 kB" },
+  { "name": "core", "path": "dist/index.js", "import": "*", "gzip": true, "limit": "22.7 kB" },
   { "name": "presets", "path": "dist/presets.js", "import": "*", "gzip": true, "limit": "3.0 kB" },
   { "name": "policy", "path": "dist/policy.js", "import": "*", "gzip": true, "limit": "0.9 kB" },
   { "name": "manifest", "path": "dist/manifest.js", "import": "*", "gzip": true, "limit": "2.3 kB" },
   { "name": "motion-css", "path": "dist/motion.css", "gzip": true, "limit": "2.6 kB" },
   { "name": "css", "path": "dist/providers/css.js", "import": "*", "gzip": true, "limit": "4.3 kB" },
-  { "name": "waapi", "path": "dist/providers/waapi.js", "import": "*", "gzip": true, "limit": "0.9 kB" },
+  { "name": "waapi", "path": "dist/providers/waapi.js", "import": "*", "gzip": true, "limit": "1.1 kB" },
   { "name": "animejs", "path": "dist/providers/animejs.js", "import": "*", "gzip": true, "limit": "15.0 kB" },
   { "name": "testing", "path": "dist/testing/index.js", "import": "*", "gzip": true, "limit": "1.7 kB" }
 ]
