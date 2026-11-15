@@ -46,6 +46,7 @@ export const animejsProvider: MotionProvider = {
   animate({ target, keyframes, timing, commit, styles }) {
     if (styles) throw new RangeError('Unsupported by this provider: styles');
     if (Array.isArray(keyframes) && keyframes.some((frame) => frame?.scaleX !== undefined || frame?.scaleY !== undefined)) throw new RangeError('Unsupported by this provider: scaleX/scaleY');
+    if (Array.isArray(keyframes) && keyframes.some((frame) => frame?.draw !== undefined || frame?.along !== undefined)) throw new RangeError('Unsupported by this provider: draw/along');
     if (commit === false) throw new RangeError('Unsupported by this provider: commit');
     if (timing.iterations !== undefined && timing.iterations !== 1) throw new RangeError('Unsupported by this provider: iterations');
     const ease = parseEase(timing.easing);

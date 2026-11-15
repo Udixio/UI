@@ -1,11 +1,11 @@
-import type { MotionHandle, MotionProvider, VisualFrame } from './contract.js';
+import type { MotionElement, MotionHandle, MotionProvider, VisualFrame } from './contract.js';
 import { motionManifest, type ManifestReduced, type ManifestVerb } from './manifest.js';
 import type { SpringRef } from './motion-spec.js';
 import { resolveReducedRender } from './reduced-render.js';
 import { routeTimingWithEvaluator, type TimingBackend, type TimingRoute, type TimingSupport } from './timing-routing.js';
 import { resolveCurve, resolveSpring, type CurveTiming, type MotionScheme } from './tokens.js';
 
-type Input = { target: HTMLElement | null; keyframes: VisualFrame[]; timing: SpringRef | CurveTiming; scheme: MotionScheme; verb: ManifestVerb; reduced?: ManifestReduced; policy: 'normal' | 'reduced' | 'unknown'; scale: number; delay?: number; commit?: boolean; backend: TimingBackend };
+type Input = { target: MotionElement | null; keyframes: VisualFrame[]; timing: SpringRef | CurveTiming; scheme: MotionScheme; verb: ManifestVerb; reduced?: ManifestReduced; policy: 'normal' | 'reduced' | 'unknown'; scale: number; delay?: number; commit?: boolean; backend: TimingBackend };
 type Result = { status: 'started'; handle: MotionHandle; route: Extract<TimingRoute, { status: 'resolved' }> } | { status: 'reduced'; render: ManifestReduced; scalesWithMotion: boolean } | { status: 'instant'; reason: 'zero-scale' } | { status: 'unavailable'; reason: 'policy-unknown' | 'no-target' | 'support-unknown' | 'support-refused'; source?: 'linear' | 'fallback' | 'curve' };
 const active = new WeakSet<object>();
 function own(object: unknown, key: PropertyKey, optional = false): unknown {
@@ -49,7 +49,7 @@ function framesCopy(value: unknown): VisualFrame[] {
  * Provider backend and animate must be data properties (inherited methods are accepted).
  * Accessors are rejected; proxy traps can still execute and are outside this guarantee.
  */
-export function startRoutedMotion(input: Input, provider: MotionProvider, evaluate: (target: HTMLElement, candidate: { backend: TimingBackend; easing: string }) => TimingSupport): Result {
+export function startRoutedMotion(input: Input, provider: MotionProvider, evaluate: (target: MotionElement, candidate: { backend: TimingBackend; easing: string }) => TimingSupport): Result {
   if (input === null || typeof input !== 'object') throw new TypeError('Invalid input');
   if (active.has(input)) throw new Error('Reentrant motion input');
   active.add(input);
@@ -80,7 +80,7 @@ export function startRoutedMotion(input: Input, provider: MotionProvider, evalua
     if (delay !== undefined && (typeof delay !== 'number' || !Number.isFinite(delay) || delay < 0)) throw new RangeError('Invalid delay');
     const commit = own(input, 'commit', true);
     if (commit !== undefined && typeof commit !== 'boolean') throw new RangeError('Invalid commit');
-    const target = own(input, 'target') as HTMLElement | null;
+    const target = own(input, 'target') as MotionElement | null;
     if (target !== null && (typeof target !== 'object' || !target.ownerDocument)) throw new TypeError('Invalid target');
     const document = target?.ownerDocument;
     if (typeof evaluate !== 'function') throw new TypeError('Invalid evaluator');

@@ -1,9 +1,11 @@
 import type { ManifestVisualField } from './manifest.js';
 export type VisualFrame = Partial<Record<ManifestVisualField, number>>;
+/** An element a motion moves: an HTML element, or an SVG element (a shape can draw its stroke, a path can morph). */
+export type MotionElement = HTMLElement | SVGElement;
 /** `iterations` defaults to 1; `Infinity` repeats forever. Only the WAAPI provider takes another count than 1. */
 export type MotionTiming = { duration: number; easing: string; delay?: number; iterations?: number };
 export type MotionRequest = {
-  target: HTMLElement;
+  target: MotionElement;
   keyframes: VisualFrame[];
   timing: MotionTiming;
   /** Default true. `false` removes the animation at its end and writes nothing inline. */

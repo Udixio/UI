@@ -34,6 +34,12 @@ export const scale: MotionRef<'scale'> = defineMotion('scale', {
   ],
 });
 
+/** Entering a path or a basic shape: its stroke is drawn from nothing to the whole shape. */
+export const draw: MotionRef<'draw'> = defineMotion('draw', {
+  verb: 'appear',
+  keyframes: [{ draw: 0 }, { draw: 1 }],
+});
+
 /** Pressed feedback: dips to 96% and returns. */
 export const press: MotionRef<'press'> = defineMotion('press', {
   verb: 'emphasize',

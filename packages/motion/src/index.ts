@@ -1,6 +1,7 @@
 export { RUNTIME_KEY } from './runtime-key.js';
 export type {
   VisualFrame,
+  MotionElement,
   MotionTiming,
   MotionRequest,
   MotionBackend,
@@ -19,6 +20,7 @@ export type { ValueSpec, ValueRef, ValueSource, ValueAxis, ValueFormat } from '.
 export { getMotionRuntime, retainMotionRuntime } from './runtime.js';
 export { composeHandles, deferredHandle, settledHandle, splitFrames } from './compose.js';
 export { playMotion, playFrames, applyFrame, releaseFrame, resolveWaapiTiming } from './play.js';
+export { prepareDraw, restoreDraw } from './svg-fields.js';
 export { motion, motionWhenDefined, getMotion, getMotions } from './bind.js';
 export type { BindOptions, DeferredMotion, MotionBinding, MotionSource } from './bind.js';
 export type { ValueBinding } from './value-binding.js';

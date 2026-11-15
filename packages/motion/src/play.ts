@@ -1,5 +1,5 @@
 import { composeHandles, settledHandle, splitFrames } from './compose.js';
-import type { MotionHandle, VisualFrame } from './contract.js';
+import type { MotionElement, MotionHandle, VisualFrame } from './contract.js';
 import type { MotionSpec } from './define-motion.js';
 import { motionManifest, type ManifestVerb, type ManifestVisualField } from './manifest.js';
 import type { SpringRef } from './motion-spec.js';
@@ -9,32 +9,45 @@ import { startRoutedMotion } from './timing-integration.js';
 import { routeTimingWithEvaluator, type TimingSupport } from './timing-routing.js';
 import type { CurveTiming, MotionScheme } from './tokens.js';
 import { waapiProvider } from './providers/waapi.js';
+import { alongDistance, canDraw, drawStyle, prepareDraw, shapeFrames } from './svg-fields.js';
+import { motionDisabledIn, motionScaleIn } from './motion-style.js';
 import { probeWaapiEasing } from './waapi-probe.js';
+
+export { motionDisabledIn, motionScaleIn };
 
 type Direction = 'forward' | 'backward';
 type Group = { keyframes: VisualFrame[]; timing: SpringRef | CurveTiming };
 
-/** Reduced fades are opacity-only and always use this effects spring. */
+/** Reduced fades play the effects of a definition (opacity, and the stroke drawn) and always use this effects spring. */
 const REDUCED_FADE_TIMING: SpringRef = 'spring.default.effects';
 const OPACITY_ONLY: ReadonlySet<ManifestVisualField> = new Set<ManifestVisualField>(['opacity']);
 
-/** Write the visual fields of a frame inline. Never writes `transform`. */
-export function applyFrame(target: HTMLElement, frame: VisualFrame): void {
+/** Write the visual fields of a frame inline. Never writes `transform`. A fully drawn shape keeps no dash inline. */
+export function applyFrame(target: MotionElement, frame: VisualFrame): void {
   if (frame.opacity !== undefined) target.style.opacity = String(frame.opacity);
   if (frame.x !== undefined || frame.y !== undefined) target.style.translate = `${frame.x ?? 0}px ${frame.y ?? 0}px`;
   if (frame.scale !== undefined) target.style.scale = String(frame.scale);
   else if (frame.scaleX !== undefined || frame.scaleY !== undefined) target.style.scale = `${frame.scaleX ?? 1} ${frame.scaleY ?? 1}`;
   if (frame.rotate !== undefined) target.style.rotate = `${frame.rotate}deg`;
+  if (frame.draw !== undefined && canDraw(target)) {
+    prepareDraw(target);
+    if (frame.draw === 1) releaseFrame(target, ['draw']);
+    else Object.assign(target.style, drawStyle(frame.draw));
+  }
+  if (frame.along !== undefined) target.style.offsetDistance = alongDistance(frame.along);
 }
 
-const INLINE_PROPERTY: Record<keyof VisualFrame, string> = { opacity: 'opacity', x: 'translate', y: 'translate', scale: 'scale', scaleX: 'scale', scaleY: 'scale', rotate: 'rotate' };
+const INLINE_PROPERTIES: Record<keyof VisualFrame, readonly string[]> = {
+  opacity: ['opacity'], x: ['translate'], y: ['translate'], scale: ['scale'], scaleX: ['scale'], scaleY: ['scale'], rotate: ['rotate'],
+  draw: ['stroke-dasharray', 'stroke-dashoffset'], along: ['offset-distance'],
+};
 
 /** Remove the inline properties written for the given fields, so that author CSS applies again. */
-export function releaseFrame(target: HTMLElement, fields: Iterable<keyof VisualFrame>): void {
-  for (const property of new Set([...fields].map(field => INLINE_PROPERTY[field]))) target.style.removeProperty(property);
+export function releaseFrame(target: MotionElement, fields: Iterable<keyof VisualFrame>): void {
+  for (const property of new Set([...fields].flatMap(field => INLINE_PROPERTIES[field]))) target.style.removeProperty(property);
 }
 
-function windowOf(target: HTMLElement): Window {
+function windowOf(target: MotionElement): Window {
   return target.ownerDocument.defaultView ?? window;
 }
 
@@ -47,30 +60,25 @@ function fieldsOf(frames: VisualFrame[]): Set<ManifestVisualField> {
  * Write the current computed values of the given fields inline, so that a new
  * motion starts from them. Other fields stay untouched, so author CSS still applies.
  */
-function freezeCurrentStyle(target: HTMLElement, fields: ReadonlySet<ManifestVisualField>): void {
+function freezeCurrentStyle(target: MotionElement, fields: ReadonlySet<ManifestVisualField>): void {
   const computed = windowOf(target).getComputedStyle(target);
   if (fields.has('opacity')) target.style.opacity = computed.opacity;
   if (fields.has('x') || fields.has('y')) target.style.translate = computed.translate === 'none' ? '0px 0px' : computed.translate;
   if (fields.has('scale') || fields.has('scaleX') || fields.has('scaleY')) target.style.scale = computed.scale === 'none' ? '1' : computed.scale;
   if (fields.has('rotate')) target.style.rotate = computed.rotate === 'none' ? '0deg' : computed.rotate;
+  // The frames are shaped (`shapeFrames`) before a freeze: a shape holds its pathLength, so the computed dash offset is a fraction.
+  if (fields.has('draw')) {
+    target.style.strokeDasharray = '1';
+    target.style.strokeDashoffset = computed.strokeDashoffset;
+  }
+  if (fields.has('along')) target.style.offsetDistance = computed.offsetDistance;
 }
 
-/** `--udx-motion: none` on the element or inherited from an ancestor turns its motions off. */
-export function motionDisabledIn(style: CSSStyleDeclaration): boolean {
-  return style.getPropertyValue('--udx-motion').trim() === 'none';
-}
-
-/** `--udx-motion-scale` clamped to [0, 1]; absent or non-numeric means 1. */
-export function motionScaleIn(style: CSSStyleDeclaration): number {
-  const value = Number.parseFloat(style.getPropertyValue('--udx-motion-scale'));
-  return Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 1;
-}
-
-export function motionDisabled(target: HTMLElement): boolean {
+export function motionDisabled(target: MotionElement): boolean {
   return motionDisabledIn(windowOf(target).getComputedStyle(target));
 }
 
-export function motionScale(target: HTMLElement): number {
+export function motionScale(target: MotionElement): number {
   return motionScaleIn(windowOf(target).getComputedStyle(target));
 }
 
@@ -107,13 +115,13 @@ function planGroups(keyframes: VisualFrame[], verb: ManifestVerb, timing: Spring
 }
 
 /** Final state at once: the destination is applied and nothing animates. */
-function settle(target: HTMLElement, destination: VisualFrame, development: boolean, report?: unknown): MotionHandle {
+function settle(target: MotionElement, destination: VisualFrame, development: boolean, report?: unknown): MotionHandle {
   applyFrame(target, destination);
   if (report !== undefined && development) console.error('[@udixio/motion] playMotion settled at its destination:', report);
   return settledHandle();
 }
 
-function waapiSupport(element: HTMLElement, candidate: { easing: string }): TimingSupport {
+function waapiSupport(element: MotionElement, candidate: { easing: string }): TimingSupport {
   const { status } = probeWaapiEasing(element, candidate.easing);
   if (status === 'accepted') return 'supported';
   return status === 'refused' ? 'refused' : 'unknown';
@@ -125,7 +133,7 @@ const waapiTimings = new Map<string, { duration: number; easing: string } | null
  * Duration and easing of a timing on the WAAPI provider, or null when it cannot be played. Cached per timing
  * and scheme: easing support does not change during a page's life, so the route is resolved once.
  */
-export function resolveWaapiTiming(target: HTMLElement, timing: SpringRef | CurveTiming, scheme: MotionScheme): { duration: number; easing: string } | null {
+export function resolveWaapiTiming(target: MotionElement, timing: SpringRef | CurveTiming, scheme: MotionScheme): { duration: number; easing: string } | null {
   const key = `${scheme}|${typeof timing === 'string' ? timing : JSON.stringify(timing)}`;
   const cached = waapiTimings.get(key);
   if (cached !== undefined) return cached;
@@ -141,7 +149,7 @@ export function resolveWaapiTiming(target: HTMLElement, timing: SpringRef | Curv
  * (ms) postpones every group of the motion; reduced motion ignores it.
  */
 export function playMotion(
-  target: HTMLElement,
+  target: MotionElement,
   spec: Readonly<MotionSpec>,
   options: { direction: Direction; carry: boolean; runtime: MotionRuntime; scheme?: MotionScheme; development?: boolean; delay?: number },
 ): MotionHandle {
@@ -150,7 +158,7 @@ export function playMotion(
   const development = options.development ?? runtime.development;
   const scheme = options.scheme ?? (target.ownerDocument.documentElement.dataset.motionScheme === 'standard' ? 'standard' : 'expressive');
   const verb = directedVerb(spec.verb, direction);
-  const frames: VisualFrame[] = direction === 'backward' ? [...spec.keyframes].reverse() : [...spec.keyframes];
+  const frames: VisualFrame[] = shapeFrames(direction === 'backward' ? [...spec.keyframes].reverse() : spec.keyframes, target);
   const destination = frames[frames.length - 1];
   if (motionDisabled(target)) return settle(target, destination, development);
   const reducedPolicy = runtime.policy.reduced;
@@ -196,7 +204,7 @@ export function playMotion(
  * the caller then leaves the element as it is.
  */
 export function playFrames(
-  target: HTMLElement,
+  target: MotionElement,
   keyframes: VisualFrame[],
   options: { verb: ManifestVerb; timing: SpringRef | CurveTiming; runtime: MotionRuntime; commit?: boolean; scheme?: MotionScheme; development?: boolean },
 ): MotionHandle | null {
@@ -204,7 +212,7 @@ export function playFrames(
   const scheme = options.scheme ?? (target.ownerDocument.documentElement.dataset.motionScheme === 'standard' ? 'standard' : 'expressive');
   try {
     const result = startRoutedMotion(
-      { target, keyframes, timing: options.timing, scheme, verb: options.verb, policy: 'normal', scale: motionScale(target), backend: 'waapi', ...(options.commit !== undefined && { commit: options.commit }) },
+      { target, keyframes: shapeFrames(keyframes, target), timing: options.timing, scheme, verb: options.verb, policy: 'normal', scale: motionScale(target), backend: 'waapi', ...(options.commit !== undefined && { commit: options.commit }) },
       waapiProvider,
       waapiSupport,
     );

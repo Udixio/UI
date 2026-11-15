@@ -106,7 +106,9 @@
       "scale",
       "scaleX",
       "scaleY",
-      "rotate"
+      "rotate",
+      "draw",
+      "along"
     ],
     "deferredVisualFields": [
       "color",
@@ -203,7 +205,11 @@
   "constraints": {
     "minKeyframes": 1,
     "minFrameFields": 1,
-    "finiteVisualValues": true
+    "finiteVisualValues": true,
+    "fractionVisualFields": [
+      "draw",
+      "along"
+    ]
   },
   "defaults": {
     "appear": {

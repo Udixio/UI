@@ -1,5 +1,7 @@
 import type { MotionHandle, MotionProvider, VisualFrame } from '../contract.js';
+import { alongDistance, drawStyle } from '../svg-fields.js';
 
+/** The WAAPI keyframe of a frame. `along` moves the element on its offset path; `draw` dashes a shape (callers keep it to shapes). */
 export function frameToKeyframe(frame: VisualFrame): Keyframe {
   return {
     ...(frame.opacity !== undefined && { opacity: frame.opacity }),
@@ -7,6 +9,8 @@ export function frameToKeyframe(frame: VisualFrame): Keyframe {
     ...(frame.scale !== undefined && { scale: String(frame.scale) }),
     ...(frame.scale === undefined && (frame.scaleX !== undefined || frame.scaleY !== undefined) && { scale: `${frame.scaleX ?? 1} ${frame.scaleY ?? 1}` }),
     ...(frame.rotate !== undefined && { rotate: `${frame.rotate}deg` }),
+    ...(frame.draw !== undefined && drawStyle(frame.draw)),
+    ...(frame.along !== undefined && { offsetDistance: alongDistance(frame.along) }),
   };
 }
 
@@ -81,8 +85,11 @@ export const waapiProvider: MotionProvider = {
       const endpoint = reversed ? (keyframes.length === 1 ? undefined : keyframes[0]) : keyframes[keyframes.length - 1];
       const kept = extra.map(property => [property, target.style.getPropertyValue(property), target.style.getPropertyPriority(property)] as const);
       for (const [property, value] of Object.entries(endpoint ? frameToKeyframe(endpoint) : {})) {
-        target.style.setProperty(property, String(value), target.style.getPropertyPriority(property));
+        const name = cssName(property);
+        target.style.setProperty(name, String(value), target.style.getPropertyPriority(name));
       }
+      // A shape drawn to its end keeps no dash at rest, nor one a freeze wrote before: the author's stroke applies again.
+      if (endpoint?.draw === 1) for (const name of ['stroke-dasharray', 'stroke-dashoffset']) target.style.removeProperty(name);
       // The extra declarations are not persisted: their inline values, as they were before, are put back.
       for (const [property, value, priority] of kept) {
         if (value) target.style.setProperty(property, value, priority);

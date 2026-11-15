@@ -1,6 +1,7 @@
-import type { VisualFrame } from './contract.js';
+import type { MotionElement, VisualFrame } from './contract.js';
 import { motionDisabledIn } from './play.js';
 import { frameToKeyframe } from './providers/waapi.js';
+import { shapeFrames } from './svg-fields.js';
 
 /** The part of the scroll an element is linked to: its entry, the crossing of the viewport, its exit, or its containment. */
 export type ScrollRangeToken = 'enter' | 'cross' | 'exit' | 'contain';
@@ -58,7 +59,7 @@ interface ScrubOptions {
  * browser has no view timeline, when `--udx-motion: none` applies, or when the engine refuses the animation: the
  * element is then left as it is, in its stylesheet state.
  */
-export function startScrub(target: HTMLElement, keyframes: readonly VisualFrame[], options: ScrubOptions): Animation | null {
+export function startScrub(target: MotionElement, keyframes: readonly VisualFrame[], options: ScrubOptions): Animation | null {
   const View = viewTimelineConstructor();
   if (!View || motionDisabledIn((target.ownerDocument.defaultView ?? window).getComputedStyle(target))) return null;
   try {
@@ -70,7 +71,7 @@ export function startScrub(target: HTMLElement, keyframes: readonly VisualFrame[
       fill: 'both',
       easing: 'linear',
     };
-    return target.animate(keyframes.map(frameToKeyframe), animationOptions);
+    return target.animate(shapeFrames(keyframes, target).map(frame => frameToKeyframe(frame)), animationOptions);
   } catch (error) {
     if (options.development && !reported) {
       reported = true;

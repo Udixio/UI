@@ -46,7 +46,7 @@ export const motionManifest = freezeDeep({
     axis: ['block', 'inline'],
     range: ['enter', 'cross', 'exit', 'contain'],
     pause: ['control', 'essential'],
-    visualFields: ['opacity', 'x', 'y', 'scale', 'scaleX', 'scaleY', 'rotate'],
+    visualFields: ['opacity', 'x', 'y', 'scale', 'scaleX', 'scaleY', 'rotate', 'draw', 'along'],
     deferredVisualFields: [
       'color',
       'backgroundColor',
@@ -93,6 +93,8 @@ export const motionManifest = freezeDeep({
     minKeyframes: 1,
     minFrameFields: 1,
     finiteVisualValues: true,
+    // The fractions of a shape drawn (`draw`) or travelled along its path (`along`): from 0 to 1.
+    fractionVisualFields: ['draw', 'along'],
   },
   defaults: {
     appear: {
@@ -406,6 +408,11 @@ export function validateMotionDocument(input: unknown): MotionValidationResult {
                     else if (
                       motionManifest.constraints.finiteVisualValues &&
                       !Number.isFinite(frame[key])
+                    )
+                      add(pointer(path, key), 'invalid_value');
+                    else if (
+                      contains(motionManifest.constraints.fractionVisualFields, key) &&
+                      (frame[key] < 0 || frame[key] > 1)
                     )
                       add(pointer(path, key), 'invalid_value');
                   }

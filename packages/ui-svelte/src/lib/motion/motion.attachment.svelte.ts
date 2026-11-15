@@ -4,6 +4,7 @@ import {
   motionWhenDefined,
   type DeferredMotion,
   type MotionBinding,
+  type MotionElement,
   type MotionKind,
   type MotionSource,
 } from '@udixio/motion';
@@ -32,7 +33,7 @@ const bindingOf = (deferred: readonly DeferredMotion[], kind: MotionKind): Motio
   deferred.map((each) => each.binding).find((binding) => binding?.kind === kind);
 
 /** The last source bound on an element, to tell a source change from a first mount. */
-const lastKey = new WeakMap<HTMLElement, string>();
+const lastKey = new WeakMap<MotionElement, string>();
 
 /**
  * Binds a `@udixio/motion` motion to the element it is placed on -- the Svelte
@@ -56,7 +57,7 @@ const lastKey = new WeakMap<HTMLElement, string>();
 export function motion(
   source: MotionSource | readonly MotionSource[],
   options: () => MotionAttachmentOptions = () => ({}),
-): Attachment<HTMLElement> {
+): Attachment<MotionElement> {
   return (target) => {
     const sources = motionsOf(source);
     const key = sources.map(sourceKey).join(' ');

@@ -1,5 +1,5 @@
 import { deferredHandle } from './compose.js';
-import type { MotionHandle } from './contract.js';
+import type { MotionElement, MotionHandle } from './contract.js';
 import { layoutScopeOf } from './scope-of.js';
 
 type Origin = 'first' | 'last' | 'center';
@@ -7,9 +7,9 @@ type Step = 'tight' | 'normal' | 'loose';
 type Phase = 'enter' | 'exit';
 type Box = { top: number; left: number; height: number };
 type Entry = {
-  target: HTMLElement;
+  target: Element;
   group: object;
-  scope: HTMLElement;
+  scope: Element;
   options: StaggerOptions;
   play: (delay: number) => MotionHandle;
   deferred: ReturnType<typeof deferredHandle>;
@@ -78,7 +78,7 @@ export function staggerCap(style: CSSStyleDeclaration): number {
  * same layout scope, entering or leaving) asking in the same task. Returns at once a handle that stands for the animation until
  * the batch runs in a microtask.
  */
-export function staggered(target: HTMLElement, group: object, options: StaggerOptions, play: (delay: number) => MotionHandle): MotionHandle {
+export function staggered(target: MotionElement, group: object, options: StaggerOptions, play: (delay: number) => MotionHandle): MotionHandle {
   const deferred = deferredHandle();
   if (queue.length === 0) queueMicrotask(flushQueue);
   queue.push({ target, group, scope: layoutScopeOf(target), options, play, deferred });
@@ -94,9 +94,9 @@ function slot<K, V>(map: Map<K, V>, key: K, make: () => V): V {
 
 /** The queued entries of each group, scope and phase, in order of arrival. */
 function partition(entries: Entry[]): Entry[][] {
-  const byGroup = new Map<object, Map<HTMLElement, Map<Phase, Entry[]>>>();
+  const byGroup = new Map<object, Map<Element, Map<Phase, Entry[]>>>();
   for (const entry of entries) {
-    const byScope = slot(byGroup, entry.group, () => new Map<HTMLElement, Map<Phase, Entry[]>>());
+    const byScope = slot(byGroup, entry.group, () => new Map<Element, Map<Phase, Entry[]>>());
     const byPhase = slot(byScope, entry.scope, () => new Map<Phase, Entry[]>());
     slot(byPhase, entry.options.phase, () => []).push(entry);
   }

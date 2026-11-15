@@ -10,6 +10,7 @@ import {
   motionWhenDefined,
   type DeferredMotion,
   type MotionBinding,
+  type MotionElement,
   type MotionKind,
   type MotionSource,
 } from '@udixio/motion';
@@ -33,7 +34,7 @@ export interface UseMotionOptions {
   paused?: boolean;
 }
 
-export interface UseMotionReturn<T extends HTMLElement> {
+export interface UseMotionReturn<T extends MotionElement> {
   /** Put it on the animated element. */
   ref: RefCallback<T>;
   /** True while the element must be rendered: present, or still leaving. */
@@ -126,7 +127,7 @@ function bindingOf(motions: readonly DeferredMotion[], kind?: MotionKind): Motio
  *   does not forward its ref cannot be animated.
  * - The motion is bound to the element itself, not to its children.
  */
-export function useMotion<T extends HTMLElement = HTMLElement>(
+export function useMotion<T extends MotionElement = HTMLElement>(
   source: MotionSource | readonly MotionSource[],
   options: UseMotionOptions = {},
 ): UseMotionReturn<T> {
@@ -146,7 +147,7 @@ export function useMotion<T extends HTMLElement = HTMLElement>(
   const latest = useRef({ sources, present, settled, shared, paused });
   latest.current = { sources, present, settled, shared, paused };
   const deferred = useRef<DeferredMotion[]>([]);
-  const bound = useRef<{ element: HTMLElement; key: string } | null>(null);
+  const bound = useRef<{ element: MotionElement; key: string } | null>(null);
 
   const [leaving, setLeaving] = useState(false);
   const [seen, setSeen] = useState(present);

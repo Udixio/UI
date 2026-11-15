@@ -117,7 +117,8 @@ function keepFields(
 }
 
 /**
- * Split keyframes into opacity-only effects and the remaining spatial fields.
+ * Split keyframes into effects (opacity, and the stroke drawn: both follow the critically damped spring, which never
+ * overshoots past 1 and so never opens a gap at the end of a stroke) and the remaining spatial fields.
  * Frames keep their index so both lists share the same offsets.
  */
 export function splitFrames(keyframes: VisualFrame[]): {
@@ -125,7 +126,7 @@ export function splitFrames(keyframes: VisualFrame[]): {
   spatial: VisualFrame[];
 } {
   return {
-    effects: keepFields(keyframes, field => field === 'opacity'),
-    spatial: keepFields(keyframes, field => field !== 'opacity'),
+    effects: keepFields(keyframes, field => field === 'opacity' || field === 'draw'),
+    spatial: keepFields(keyframes, field => field !== 'opacity' && field !== 'draw'),
   };
 }

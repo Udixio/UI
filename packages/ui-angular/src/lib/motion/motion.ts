@@ -14,6 +14,7 @@ import {
   motionWhenDefined,
   type DeferredMotion,
   type MotionBinding,
+  type MotionElement,
   type MotionKind,
   type MotionSource,
 } from '@udixio/motion';
@@ -99,7 +100,7 @@ export class Motion implements OnDestroy {
     transform: booleanAttribute,
   });
 
-  private readonly host = inject(ElementRef<HTMLElement>);
+  private readonly host = inject(ElementRef<MotionElement>);
   private deferred: DeferredMotion[] = [];
   private boundKey?: string;
   private leaving = false;

@@ -1,5 +1,5 @@
 import { deferredHandle, settledHandle } from './compose.js';
-import type { MotionHandle, VisualFrame } from './contract.js';
+import type { MotionElement, MotionHandle, VisualFrame } from './contract.js';
 import {
   definedMotions,
   kindOf,
@@ -20,6 +20,7 @@ import { waapiProvider } from './providers/waapi.js';
 import { getMotionRuntime, retainMotionRuntime, type MotionRuntime } from './runtime.js';
 import { startScrub } from './scroll.js';
 import { staggered } from './stagger.js';
+import { isHtmlElement, restoreDraw, shapeFrames } from './svg-fields.js';
 import { resolveCurve } from './tokens.js';
 import { watchView } from './viewport.js';
 
@@ -49,6 +50,12 @@ export type BindOptions = {
 };
 /** A spec with keyframes: a layout is bound by `createLayoutBinding` instead. */
 type KeyframedSpec = Exclude<MotionSpec, { verb: 'layout' }>;
+
+/** A layout follows HTML elements only: the layout engine measures the boxes of HTML. */
+const LAYOUT_ON_SVG = 'A layout motion applies to an HTML element, not to an SVG element';
+
+/** Whether a spec draws a shape at some point of its keyframes: its binding restores the shape's pathLength when it ends. */
+const drawsShape = (spec: { keyframes: readonly VisualFrame[] }): boolean => spec.keyframes.some(frame => frame.draw !== undefined);
 
 /** The kinds in the order `getMotion` and `getMotions` read them. */
 const KINDS: readonly MotionKind[] = ['presence', 'emphasis', 'layout', 'view', 'loop'];
@@ -102,8 +109,10 @@ function unregister(target: Element, binding: MotionBinding): void {
  * its replays and its cleanup. A motion of a kind the element already holds destroys that
  * binding; the bindings of the other kinds are kept.
  */
-export function motion(target: HTMLElement, source: MotionSource, options: BindOptions = {}): MotionBinding {
+export function motion(target: MotionElement, source: MotionSource, options: BindOptions = {}): MotionBinding {
   const spec = specOf(source);
+  // Refused before the binding it would replace is destroyed.
+  if (spec.verb === 'layout' && !isHtmlElement(target)) throw new TypeError(LAYOUT_ON_SVG);
   getMotion(target, kindOf(spec.verb))?.destroy();
   // A split definition needs the text module: it loads now, and a failure leaves the element to animate whole.
   if (spec.split !== undefined) void loadText().catch(() => undefined);
@@ -132,7 +141,7 @@ export interface DeferredMotion {
  * Bind a motion now when its source is known, or as soon as the named motion is defined. Until then the
  * element is not touched, so a render that runs before the definition never throws.
  */
-export function motionWhenDefined(target: HTMLElement, source: MotionSource, options: BindOptions = {}): DeferredMotion {
+export function motionWhenDefined(target: MotionElement, source: MotionSource, options: BindOptions = {}): DeferredMotion {
   let binding: MotionBinding | undefined;
   let unsubscribe: (() => void) | undefined;
   if (typeof source === 'string' && !resolveMotion(source)) {
@@ -164,7 +173,8 @@ export function motionWhenDefined(target: HTMLElement, source: MotionSource, opt
  * loaded on first use: until it is, the element is not followed, and it starts following from its place once loaded.
  * Its shared identity is the option `shared`, else the one of its definition; an element with none holds no identity.
  */
-function createLayoutBinding(target: HTMLElement, spec: Readonly<MotionSpec>, options: BindOptions): MotionBinding {
+function createLayoutBinding(target: MotionElement, spec: Readonly<MotionSpec>, options: BindOptions): MotionBinding {
+  if (!isHtmlElement(target)) throw new TypeError(LAYOUT_ON_SVG);
   const shared = options.shared ?? spec.shared;
   if (shared !== undefined && !NAME_PATTERN.test(shared)) throw new TypeError(`Shared identity "${shared}" must be kebab-case`);
   const runtime = getMotionRuntime();
@@ -218,7 +228,7 @@ function createLayoutBinding(target: HTMLElement, spec: Readonly<MotionSpec>, op
 }
 
 /** A split definition on the pieces of its text when the text module is loaded, else on the element whole. */
-function playLoaded(target: HTMLElement, spec: Readonly<KeyframedSpec>, options: Parameters<typeof playMotion>[2]): MotionHandle {
+function playLoaded(target: MotionElement, spec: Readonly<KeyframedSpec>, options: Parameters<typeof playMotion>[2]): MotionHandle {
   return textModule()?.playSplit(target, spec, options) ?? playMotion(target, spec, options);
 }
 
@@ -227,7 +237,7 @@ function playLoaded(target: HTMLElement, spec: Readonly<KeyframedSpec>, options:
  * loading, the element holds its first frame and the entry waits for the module; if the module fails to load, the entry
  * plays the element whole.
  */
-function playEntry(target: HTMLElement, spec: Readonly<KeyframedSpec>, options: Parameters<typeof playMotion>[2]): MotionHandle {
+function playEntry(target: MotionElement, spec: Readonly<KeyframedSpec>, options: Parameters<typeof playMotion>[2]): MotionHandle {
   if (textModule()) return playLoaded(target, spec, options);
   const pending = deferredHandle();
   applyFrame(target, spec.keyframes[0]);
@@ -239,7 +249,7 @@ function playEntry(target: HTMLElement, spec: Readonly<KeyframedSpec>, options: 
 }
 
 /** Write a frame where the definition plays it: on the pieces of its text when it is split, else on the element. */
-function writeFrame(target: HTMLElement, spec: Readonly<KeyframedSpec>, runtime: MotionRuntime, frame: VisualFrame): void {
+function writeFrame(target: MotionElement, spec: Readonly<KeyframedSpec>, runtime: MotionRuntime, frame: VisualFrame): void {
   const text = textModule();
   if (text) text.applySplitFrame(target, spec, runtime, frame);
   else applyFrame(target, frame);
@@ -250,7 +260,7 @@ function writeFrame(target: HTMLElement, spec: Readonly<KeyframedSpec>, runtime:
  * Content in view when it is bound is left in its natural state. `repeat: 'always'` hides it again when it leaves
  * the view; by default it is revealed once, and the view is no longer watched after that.
  */
-function createRevealBinding(target: HTMLElement, spec: Readonly<Extract<MotionSpec, { verb: 'reveal' }>>, options: BindOptions): MotionBinding {
+function createRevealBinding(target: MotionElement, spec: Readonly<Extract<MotionSpec, { verb: 'reveal' }>>, options: BindOptions): MotionBinding {
   const development = options.development ?? false;
   const runtime = getMotionRuntime();
   const releaseRuntime = retainMotionRuntime(runtime);
@@ -350,6 +360,7 @@ function createRevealBinding(target: HTMLElement, spec: Readonly<Extract<MotionS
       handle?.cancel();
       handle = null;
       releaseFrame(target, fields);
+      if (drawsShape(spec)) restoreDraw(target);
       textModule()?.revertSplit(target, spec);
       unregister(target, binding);
       releaseRuntime();
@@ -363,7 +374,7 @@ function createRevealBinding(target: HTMLElement, spec: Readonly<Extract<MotionS
  * scroll drives the animation, which has no timing and no handle: there is nothing to replay or to pause. Under reduced
  * motion, or where the browser has no view timeline, the element stays in its stylesheet state.
  */
-function createScrubBinding(target: HTMLElement, spec: Readonly<Extract<MotionSpec, { verb: 'scrub' }>>, options: BindOptions): MotionBinding {
+function createScrubBinding(target: MotionElement, spec: Readonly<Extract<MotionSpec, { verb: 'scrub' }>>, options: BindOptions): MotionBinding {
   const development = options.development ?? false;
   const runtime = getMotionRuntime();
   const releaseRuntime = retainMotionRuntime(runtime);
@@ -408,6 +419,7 @@ function createScrubBinding(target: HTMLElement, spec: Readonly<Extract<MotionSp
       stopPolicy();
       // Nothing was written inline: cancelling the animation gives the element back its stylesheet state.
       stop();
+      if (drawsShape(spec)) restoreDraw(target);
       unregister(target, binding);
       releaseRuntime();
     },
@@ -420,7 +432,7 @@ function createScrubBinding(target: HTMLElement, spec: Readonly<Extract<MotionSp
  * while the author pauses it (WCAG 2.2.2), and plays again when neither holds. Under reduced motion, or with no motion
  * (`--udx-motion: none`, a motion scale of 0), it does not play: the element stays in its stylesheet state.
  */
-function createLoopBinding(target: HTMLElement, spec: Readonly<Extract<MotionSpec, { verb: 'loop' }>>, options: BindOptions): MotionBinding {
+function createLoopBinding(target: MotionElement, spec: Readonly<Extract<MotionSpec, { verb: 'loop' }>>, options: BindOptions): MotionBinding {
   const development = options.development ?? false;
   const runtime = getMotionRuntime();
   const releaseRuntime = retainMotionRuntime(runtime);
@@ -441,7 +453,7 @@ function createLoopBinding(target: HTMLElement, spec: Readonly<Extract<MotionSpe
     const scale = motionScale(target);
     if (scale === 0) return;
     try {
-      animation = waapiProvider.animate({ target, keyframes: spec.keyframes, timing: { duration: duration * scale, easing, iterations: Infinity } });
+      animation = waapiProvider.animate({ target, keyframes: shapeFrames(spec.keyframes, target), timing: { duration: duration * scale, easing, iterations: Infinity } });
     } catch (error) {
       // A loop that cannot animate leaves the element as it is: a scan never throws because of a motion.
       if (development) console.error('[@udixio/motion] a loop could not animate:', error);
@@ -495,6 +507,7 @@ function createLoopBinding(target: HTMLElement, spec: Readonly<Extract<MotionSpe
       stopView();
       // Nothing was written inline: cancelling the animation gives the element back its stylesheet state.
       stop();
+      if (drawsShape(spec)) restoreDraw(target);
       unregister(target, binding);
       releaseRuntime();
     },
@@ -502,7 +515,7 @@ function createLoopBinding(target: HTMLElement, spec: Readonly<Extract<MotionSpe
   return binding;
 }
 
-function createBinding(target: HTMLElement, spec: Readonly<KeyframedSpec>, options: BindOptions): MotionBinding {
+function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, options: BindOptions): MotionBinding {
   const development = options.development ?? false;
   const runtime = getMotionRuntime();
   const releaseRuntime = retainMotionRuntime(runtime);
@@ -552,7 +565,7 @@ function createBinding(target: HTMLElement, spec: Readonly<KeyframedSpec>, optio
     if (!unpin) return;
     unpin();
     unpin = undefined;
-    flushLayoutAround(target);
+    if (isHtmlElement(target)) flushLayoutAround(target);
   }
 
   function markExiting() {
@@ -598,7 +611,7 @@ function createBinding(target: HTMLElement, spec: Readonly<KeyframedSpec>, optio
   function exit(): Promise<Outcome> {
     markExiting();
     // An out-of-flow exit takes the element out of the flow now, so that its neighbours close the gap as it fades.
-    if (spec.exit === 'out-of-flow' && !runtime.policy.reduced && unpin === undefined) {
+    if (spec.exit === 'out-of-flow' && isHtmlElement(target) && !runtime.policy.reduced && unpin === undefined) {
       unpin = pinOutOfFlow(target);
       flushLayoutAround(target);
     }
@@ -637,12 +650,13 @@ function createBinding(target: HTMLElement, spec: Readonly<KeyframedSpec>, optio
     unpin?.();
     unpin = undefined;
     releaseFrame(target, writtenFields);
+    if (drawsShape(spec)) restoreDraw(target);
     textModule()?.revertSplit(target, spec);
     target.removeAttribute('data-presence');
     releaseInert();
     unregister(target, binding);
     // A pinned element that stays in the page is back in the flow: its neighbours make room again.
-    if (pinned && target.isConnected) flushLayoutAround(target);
+    if (pinned && target.isConnected && isHtmlElement(target)) flushLayoutAround(target);
     releaseRuntime();
   }
 

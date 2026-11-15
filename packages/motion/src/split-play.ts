@@ -1,9 +1,10 @@
 import { composeHandles } from './compose.js';
-import type { MotionHandle, VisualFrame } from './contract.js';
+import type { MotionElement, MotionHandle, VisualFrame } from './contract.js';
 import type { MotionSpec } from './define-motion.js';
 import { applyFrame, motionDisabled, playMotion, releaseFrame } from './play.js';
 import type { MotionRuntime } from './runtime.js';
 import { staggerCap, staggerDelay, staggerStep } from './stagger.js';
+import { isHtmlElement } from './svg-fields.js';
 import { getSplit, splitText } from './text.js';
 
 // The split of a definition: its entry plays on the pieces of an element's text. It lives in the text module, which the
@@ -14,6 +15,9 @@ type Splitting = Readonly<Exclude<MotionSpec, { verb: 'layout' }>>;
 type PlayOptions = Parameters<typeof playMotion>[2];
 type Origin = 'first' | 'last' | 'center';
 
+/** The SVG elements that were warned about a split they cannot take, once each. */
+const warned = new WeakSet<Element>();
+
 /** The visual fields a definition writes on its element: its keyframes' fields, and opacity for a presence verb. */
 function writtenFields(spec: Splitting): Set<keyof VisualFrame> {
   const fields = new Set<keyof VisualFrame>(spec.keyframes.flatMap(frame => Object.keys(frame) as (keyof VisualFrame)[]));
@@ -22,7 +26,8 @@ function writtenFields(spec: Splitting): Set<keyof VisualFrame> {
 }
 
 /** Release the frames that the pieces of an earlier split hold, so that the element is played whole without them. */
-function releasePieces(target: HTMLElement, spec: Splitting): void {
+function releasePieces(target: MotionElement, spec: Splitting): void {
+  if (!isHtmlElement(target)) return;
   const split = getSplit(target);
   if (split) for (const piece of split.pieces) releaseFrame(piece, writtenFields(spec));
 }
@@ -38,15 +43,23 @@ export function textRanks(count: number, origin: Origin): number[] {
 
 /**
  * The pieces of the text of an element that a definition plays, or undefined when the element is played whole: the
- * definition does not split, motion is reduced or turned off, or the text cannot split.
+ * definition does not split, motion is reduced or turned off, the element is an SVG element (its text is not split), or
+ * the text cannot split.
  */
-export function splitPieces(target: HTMLElement, spec: Splitting, runtime: MotionRuntime): readonly HTMLElement[] | undefined {
+export function splitPieces(target: MotionElement, spec: Splitting, runtime: MotionRuntime): readonly HTMLElement[] | undefined {
   if (spec.split === undefined || runtime.policy.reduced || motionDisabled(target)) return undefined;
+  if (!isHtmlElement(target)) {
+    if (process.env.NODE_ENV !== 'production' && !warned.has(target)) {
+      warned.add(target);
+      console.warn(`[@udixio/motion] split applies to HTML text: the <${target.localName}> plays whole.`);
+    }
+    return undefined;
+  }
   return splitText(target, { by: spec.split })?.pieces;
 }
 
 /** Play a definition on the pieces of its element's text in a cascade, or on the element whole when it cannot split. */
-export function playSplit(target: HTMLElement, spec: Splitting, options: PlayOptions): MotionHandle {
+export function playSplit(target: MotionElement, spec: Splitting, options: PlayOptions): MotionHandle {
   const pieces = splitPieces(target, spec, options.runtime);
   if (pieces === undefined) {
     releasePieces(target, spec);
@@ -67,7 +80,7 @@ export function playSplit(target: HTMLElement, spec: Splitting, options: PlayOpt
 }
 
 /** Write a frame on each piece of the text of an element, or on the element itself when its text does not split. */
-export function applySplitFrame(target: HTMLElement, spec: Splitting, runtime: MotionRuntime, frame: VisualFrame): void {
+export function applySplitFrame(target: MotionElement, spec: Splitting, runtime: MotionRuntime, frame: VisualFrame): void {
   if (spec.split === undefined) {
     applyFrame(target, frame);
     return;
@@ -83,8 +96,8 @@ export function applySplitFrame(target: HTMLElement, spec: Splitting, runtime: M
 }
 
 /** Put the text of an element back as it was, releasing the frames of its pieces; a text that is not split is left alone. */
-export function revertSplit(target: HTMLElement, spec: Splitting): void {
-  const split = spec.split === undefined ? undefined : getSplit(target);
+export function revertSplit(target: MotionElement, spec: Splitting): void {
+  const split = spec.split === undefined || !isHtmlElement(target) ? undefined : getSplit(target);
   if (!split) return;
   for (const piece of split.pieces) releaseFrame(piece, writtenFields(spec));
   split.revert();
