@@ -1173,6 +1173,50 @@ Limites :
 - Une île hydratée plus de 600 ms après le départ de l'autre porteur ne se
   transforme pas.
 
+#### 8.3.12 État après l'étape 3 — `reveal`, `scrub`, `loop` (2026-11-16)
+
+Les sept verbes existent. Natures : `presence` (`appear`, `disappear`),
+`emphasis`, `layout`, `view` (`reveal`, `scrub`), `loop` — une liaison par
+nature et par élément.
+
+| Verbe | Écriture | Moteur | Mesuré (Chromium 156, Firefox 157, WebKit 27.2) |
+|---|---|---|---|
+| `reveal` | preset `rise` ; `repeat: 'once' \| 'always'`, `axis`, `stagger`, `origin` | `watchView` : un `IntersectionObserver` partagé par axe (marge basse de 10 %) ; hors vue à la liaison → première frame ; entrée → lecture avant, en cascade | cascade 0, 50 … 400 ms dans l'ordre visuel, identique sur les trois |
+| `scrub` | preset `parallax` ; `range: 'enter' \| 'cross' \| 'exit' \| 'contain'`, `axis` | `startScrub` : `ViewTimeline` natif (WAAPI, hors fil principal), plages `entry` / `cover` / `exit` / `contain` | parallaxe +100 → 0 → −100 px sur la plage `cover` (Chromium, WebKit) ; Firefox 157 : immobile |
+| `loop` | presets `rotate`, `breathe`, `blink`, plus `shake` (emphase) ; `timing` en courbe seulement ; `pause: 'control' \| 'essential'` (+ `reason`) obligatoire | animation WAAPI à itérations infinies ; pause hors de la vue ; `binding.pause()` / `play()`, `data-motion-paused`, option `paused` / `udxMotionPaused` | en marche, en pause, reprise, en pause hors vue, sur les trois |
+
+Règles fixées pendant l'étape 3 (choix de Claude, sur délégation) :
+
+- **`range`** est défini par quatre jetons (`enter`, `cross` par défaut,
+  `exit`, `contain`) : la spec typait `ScrollRange` sans le définir.
+- **Cascade aussi sur `reveal`** (la table des options la réservait à
+  `appear`, `disappear`, `loop`) : c'est le cas le plus courant à l'entrée dans
+  la vue.
+- **Contenu déjà visible à la liaison** : `reveal` ne le masque ni ne le rejoue
+  (décision du 2026-11-15) ; le premier état connu est celui de la frame qui
+  suit la liaison.
+- **`scrub` ne passe pas par le provider** : une animation pilotée par le
+  défilement atteint 100 % et revient en arrière, ce que le cycle « fin →
+  écriture de la frame d'arrivée → annulation » du provider ne permet pas. Elle
+  n'a pas de handle.
+- **Sans `ViewTimeline` et sous mouvement réduit**, `scrub` laisse l'élément
+  dans son état de feuille de style (repli statique, §8.5). Un pilotage JS
+  optionnel pour Firefox reste possible (S1), non fait.
+- **`loop`** : un ressort ne boucle pas, le timing est une courbe ; mouvement
+  réduit, `--udx-motion: none` ou échelle 0 → la boucle ne joue pas. Toute
+  liaison a désormais `pause()` (elle lève sauf pour une boucle). Une boucle
+  liée en pause avant que son nom soit défini démarre en pause
+  (`BindOptions.paused`).
+- Budgets : entrée principale 16,5 kB gzip (limite 18,1), presets 2,1 kB
+  (limite 2,4), manifeste 2,5 kB (limite 2,8).
+
+Limites :
+
+- `--udx-motion-scale` ne réduit pas l'amplitude d'un `scrub`.
+- `fill: both` d'un `scrub` : au-dessus de sa plage, l'élément reste à sa
+  première frame (décalé, mais hors de la vue).
+- Firefox 157 : pas de défilement lié (support natif attendu à partir de 159).
+
 ### 8.4 Détails par famille — **rédigé (consolidation)**
 
 | # | Famille | Écriture | Chemin natif | Repli / moteur JS | Sources |
@@ -1280,7 +1324,9 @@ performance du layout : vitesse conservée, contenu non déformé, détail en
 élément, cascade, sorties, coins arrondis, détail en §8.3.9) ; reste 2d =
 élément partagé. La passe sur le poids est faite (§8.3.10). **2d livrée le
 2026-11-16** (élément partagé en FLIP, détail en §8.3.11) : **l'étape 2 est
-terminée**. La suivante est l'étape 3 (`reveal`, `scrub`, `loop`).
+terminée**. **Étape 3 livrée le 2026-11-16** (`reveal`, `scrub`, `loop`,
+détail en §8.3.12) : les sept verbes existent. La suivante est l'étape 4
+(valeurs, compteurs, séquences).
 
 ## 9. Questions ouvertes connues
 
@@ -1351,6 +1397,7 @@ D2 (en partie orientée par C15).
 | Date | Travail | Changement |
 |---|---|---|
 | 2026-11-03 | — | Création du document à l'issue du brainstorming initial. |
+| 2026-11-16 | Étape 3 | Verbes `reveal` (observateur partagé, cascade), `scrub` (`ViewTimeline` natif, repli statique), `loop` (itérations infinies, pause hors vue et à la demande) ; natures `view` et `loop` ; presets `rise`, `parallax`, `rotate`, `breathe`, `blink`, `shake` ; démo. Règles et limites en §8.3.12. Vérification : motion 1 453 tests + 7 ignorés selon le support (trois navigateurs), core 433, React 415, Svelte 305, Angular 375, doc 30 tests navigateur sur le site construit. |
 | 2026-11-16 | Étape 2d | Élément partagé : clé `shared` (définition, option, `data-motion-shared`, adaptateurs), mémoire de page de 600 ms dans le runtime (`preview.7`), transformation FLIP à l'arrivée ; démo « Shared element ». Étape 2 terminée. Règles et limites en §8.3.11. Vérification : motion 1 335 tests (trois navigateurs), core 433, React 410, Svelte 302, Angular 372, doc 21 tests navigateur sur le site construit, deux passages. |
 | 2026-11-16 | Passe sur le poids | Entrée principale 20,6 → 14,6 kB gzip : moteur de layout en entrée séparée chargée à la demande (`@udixio/motion/layout`, `loadLayoutEngine`), validation des définitions en développement seulement. Détail en §8.3.10. Vérification : motion 1 280 tests (trois navigateurs), core 433, React 408, Svelte 300, Angular 370, doc 18 tests navigateur sur le site construit, trois passages. |
 | 2026-11-15 | Étape 2c | Listes : une liaison par nature sur un élément (`data-motion="cascade reflow"`), cascade par rang visuel, sorties en place ou hors flux, coins arrondis corrigés, moteur de layout découpé en modules. Défaut WebKit corrigé (état final écrit par le provider, plus de `commitStyles`). Règles et points ouverts en §8.3.9. Vérification groupée : motion 1 267 tests (Chromium, Firefox, WebKit), core 433, React 408, Svelte 300, Angular 370, doc 18 tests navigateur sur le site construit. |
