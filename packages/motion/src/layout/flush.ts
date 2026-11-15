@@ -71,6 +71,14 @@ function isPresenceBusy(element: HTMLElement): boolean {
   return presence !== null && presence !== 'present';
 }
 
+/**
+ * Whether a gesture holds an element while it is dragged or reordered: its gesture moves it with its own spring, so the
+ * layout keeps no box for it until the gesture lets go.
+ */
+function isHeld(element: HTMLElement): boolean {
+  return element.getAttribute('data-gesture') === 'dragging';
+}
+
 /** Whether a box has no size: an element that is hidden, or not displayed. */
 function isEmpty(box: Box): boolean {
   return box.w === 0 || box.h === 0;
@@ -131,8 +139,8 @@ export function flush(scope: Scope, records: readonly MutationRecord[] = []): vo
   let nested = false;
   for (const [element, item] of scope.items) {
     if (!element.isConnected) continue;
-    if (isPresenceBusy(element)) {
-      // No box is kept for it: it is measured again at the first flush where it is present, without a move.
+    if (isPresenceBusy(element) || isHeld(element)) {
+      // No box is kept for it: it is measured again at the first flush where it is present or released, without a move.
       busy.push(item);
       item.layout = undefined;
       item.visual = undefined;
@@ -281,8 +289,9 @@ export function flush(scope: Scope, records: readonly MutationRecord[] = []): vo
 function refresh(scope: Scope, content: boolean): void {
   const rects: ReferenceRects = new Map();
   for (const [element, item] of scope.items) {
-    // An element animated as content is measured with its projector, whose move it follows. An element entering or leaving is measured once present.
-    if (!element.isConnected || item.projector !== null || isPresenceBusy(element)) continue;
+    // An element animated as content is measured with its projector, whose move it follows. An element entering or leaving, or held by a gesture, is
+    // measured once present or released.
+    if (!element.isConnected || item.projector !== null || isPresenceBusy(element) || isHeld(element)) continue;
     if (item.handle === null) {
       measure(scope, element, item, rects, content);
     } else {

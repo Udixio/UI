@@ -33,8 +33,7 @@ interface Grab {
   /** Where the pointer puts the element: the offset it would have with no reorder. */
   raw: Point;
   readonly bounds: Bounds | undefined;
-  /** The inline touch-action and user-select the element had before the grab, given back at its end. */
-  readonly touchAction: string;
+  /** The inline user-select the element had before the grab, given back at its end. */
   readonly userSelect: string;
 }
 
@@ -74,6 +73,8 @@ const round = (value: number, scale = 1000) => Math.round(value * scale) / scale
 const pixels = (value: string) => Number.parseFloat(value) || 0;
 const schemeOf = (target: HTMLElement): MotionScheme =>
   target.ownerDocument.documentElement.dataset.motionScheme === 'standard' ? 'standard' : 'expressive';
+/** Whether the text of an element runs right to left: its computed direction, which an ancestor's `dir` sets. */
+const rightToLeft = (el: Element): boolean => getComputedStyle(el).direction === 'rtl';
 
 /** The gesture bound on an element, if any. */
 export function getGesture(target: Element): GestureBinding | undefined {
@@ -81,10 +82,12 @@ export function getGesture(target: Element): GestureBinding | undefined {
 }
 
 /**
- * Bind a gesture to an element. It moves the element with the pointer and gives it a keyboard alternative. The element
- * carries one gesture at a time: binding another one destroys the previous one. The gesture writes the element's
- * `translate` (and `opacity` while a swipe flies out), so an author's own `translate` on that element is overwritten
- * while it is bound. The `development` option only reports a reorder bound on an element with no parent.
+ * Bind a gesture to an element. It moves the element with the pointer and gives it a keyboard alternative. While it is
+ * bound, the element's touch-action leaves to the browser only the pan the gesture does not use. The arrows of a drag
+ * move it physically, and in right-to-left text the arrows of a reorder on x follow the reading direction. The element
+ * carries one gesture at a time: binding another one destroys the previous one. The gesture writes the element's `translate` (and
+ * `opacity` while a swipe flies out), so an author's own `translate` on that element is overwritten while it is bound.
+ * The `development` option only reports a reorder bound on an element with no parent.
  */
 export function gesture(target: HTMLElement, source: GestureRef | string, options: { development?: boolean } = {}): GestureBinding {
   const ref = typeof source === 'string' ? resolveGesture(source) : source;
@@ -134,6 +137,10 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
   const runtime: MotionRuntime = getMotionRuntime();
   const releaseRuntime = retainMotionRuntime(runtime);
   const releaseLive = kind === 'reorder' ? holdLive(target.ownerDocument) : undefined;
+  // The touch-action of the axis, written when the gesture is bound: the browser decides to pan when a touch starts, which
+  // is before any pointerdown. The inline value the element had is given back on destroy.
+  const touchAction = axis === 'both' ? 'none' : axis === 'x' ? 'pan-y' : 'pan-x';
+  const previousTouchAction = target.style.touchAction;
 
   let destroyed = false;
   // The offset is the position of each release spring, in px, and its velocity in px/s. A pointer or a key sets it directly.
@@ -147,6 +154,8 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
   let frameAt: number | undefined;
   // What runs once the release comes to rest; a stopped release drops it.
   let settled: (() => void) | undefined;
+  // True while the release is a drag's and its motion-dragend is what runs once it rests: a keyboard move owes that event too.
+  let dragEndDue = false;
   // The distance over which a swipe fades while it flies out, and while it comes back: undefined when it is not faded.
   let fade: number | undefined;
   let grab: Grab | undefined;
@@ -289,6 +298,7 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
   function stop(): void {
     halt();
     settled = undefined;
+    dragEndDue = false;
     springs.x.v = 0;
     springs.y.v = 0;
   }
@@ -312,14 +322,19 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
     write();
     const done = settled;
     settled = undefined;
+    dragEndDue = false;
     done?.();
   }
 
-  /** Move the offset to `to` with the release spring, from its place and its velocity; `done` runs once it is at rest. */
-  function glide(to: Point, done?: () => void): void {
+  /**
+   * Move the offset to `to` with the release spring, from its place and its velocity; `done` runs once it is at rest.
+   * `dragEnd` marks the release of a drag, whose `done` is its motion-dragend.
+   */
+  function glide(to: Point, done?: () => void, dragEnd = false): void {
     goal.x = useX ? to.x : 0;
     goal.y = useY ? to.y : 0;
     settled = done;
+    dragEndDue = dragEnd;
     if (immediate()) {
       arrive();
       return;
@@ -385,7 +400,6 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
     doc.removeEventListener('pointermove', onPointerMove);
     doc.removeEventListener('pointerup', onPointerEnd);
     doc.removeEventListener('pointercancel', onPointerEnd);
-    target.style.touchAction = current.touchAction;
     target.style.userSelect = current.userSelect;
     try {
       if (target.hasPointerCapture(current.id)) target.releasePointerCapture(current.id);
@@ -407,7 +421,6 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
       base: { x: springs.x.x, y: springs.y.x },
       raw: { x: springs.x.x, y: springs.y.x },
       bounds,
-      touchAction: target.style.touchAction,
       userSelect: target.style.userSelect,
     };
     // The pointer is followed on the document: a pointer capture is dropped when the element is moved in the DOM, and a
@@ -416,7 +429,6 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
     doc.addEventListener('pointermove', onPointerMove);
     doc.addEventListener('pointerup', onPointerEnd);
     doc.addEventListener('pointercancel', onPointerEnd);
-    target.style.touchAction = 'none';
     target.style.userSelect = 'none';
     try {
       target.setPointerCapture(event.pointerId);
@@ -462,7 +474,7 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
         { x: springs.x.x + measured.x * THROW_TIME, y: springs.y.x + measured.y * THROW_TIME },
         current.bounds,
       );
-      glide(thrown, () => dispatch('motion-dragend', { x: springs.x.x, y: springs.y.x }));
+      glide(thrown, () => dispatch('motion-dragend', { x: springs.x.x, y: springs.y.x }), true);
     } else if (kind === 'swipe') {
       const travel = axis === 'y' ? springs.y.x : springs.x.x;
       const speed = axis === 'y' ? measured.y : measured.x;
@@ -509,14 +521,18 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
   function nudge(event: KeyboardEvent): void {
     const move = ARROWS.get(event.key);
     if (!move) return;
+    // The arrows move a drag physically, in right-to-left text too: the reading direction only orders a reorder.
     const [dx, dy] = move;
     if ((dx !== 0 && !useX) || (dy !== 0 && !useY)) return;
     event.preventDefault();
+    // The move replaces a release in flight, and the motion-dragend that release owed is given once, where the move leaves it.
+    const dragEnded = dragEndDue;
     stop();
     const step = event.shiftKey ? NUDGE_LARGE : NUDGE;
     setOffset(within({ x: springs.x.x + dx * step, y: springs.y.x + dy * step }, boundsNow()));
     measured = { x: 0, y: 0 };
     write();
+    if (dragEnded) dispatch('motion-dragend', { x: springs.x.x, y: springs.y.x });
   }
 
   function keySwipe(event: KeyboardEvent): void {
@@ -527,8 +543,10 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
   }
 
   function keyReorder(event: KeyboardEvent): void {
-    const previousKey = axis === 'y' ? 'ArrowUp' : 'ArrowLeft';
-    const nextKey = axis === 'y' ? 'ArrowDown' : 'ArrowRight';
+    // On x in right-to-left text the previous sibling is the one on the right, so ArrowRight moves towards it.
+    const reversed = axis === 'x' && rightToLeft(target);
+    const previousKey = axis === 'y' ? 'ArrowUp' : reversed ? 'ArrowRight' : 'ArrowLeft';
+    const nextKey = axis === 'y' ? 'ArrowDown' : reversed ? 'ArrowLeft' : 'ArrowRight';
     if (event.key === ' ' || event.key === 'Enter') {
       event.preventDefault();
       if (origin === undefined) grabKeyboard();
@@ -624,6 +642,7 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
     target.removeEventListener('keydown', onKeyDown);
     target.removeEventListener('blur', onBlur);
     if (translated) target.style.removeProperty('translate');
+    target.style.touchAction = previousTouchAction;
     if (fade !== undefined) target.style.removeProperty('opacity');
     target.removeAttribute('data-gesture');
     show();
@@ -641,6 +660,7 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
     target.setAttribute('tabindex', '0');
     tabindexAdded = true;
   }
+  target.style.touchAction = touchAction;
   target.addEventListener('pointerdown', onPointerDown);
   target.addEventListener('keydown', onKeyDown);
   target.addEventListener('blur', onBlur);

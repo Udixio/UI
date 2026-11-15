@@ -1,11 +1,18 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import { motion, getMotion, type MotionBinding } from './bind.js';
 import { defineGesture } from './gesture.js';
 import { gesture, getGesture, type GestureBinding } from './gesture-binding.js';
+import { loadLayoutEngine } from './layout-loader.js';
+import { reflow } from './presets.js';
+
+// The layout motions of the reorder test follow at once: the engine is loaded before the first test.
+await loadLayoutEngine();
 
 defineGesture('gb-card', { kind: 'drag', alternative: 'arrows' });
 defineGesture('gb-card-free', { kind: 'drag', bounds: 'none', alternative: 'arrows' });
 defineGesture('gb-dismiss', { kind: 'swipe', alternative: 'action' });
 defineGesture('gb-row', { kind: 'reorder', alternative: 'grab' });
+defineGesture('gb-row-x', { kind: 'reorder', axis: 'x', alternative: 'grab' });
 
 const nextFrame = () => new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
 
@@ -34,6 +41,7 @@ async function settle(binding: GestureBinding): Promise<boolean> {
 let clock = 1000;
 let page: HTMLElement;
 let bindings: GestureBinding[];
+let layouts: MotionBinding[];
 
 beforeEach(() => {
   clock = 1000;
@@ -41,10 +49,12 @@ beforeEach(() => {
   page = document.createElement('div');
   document.body.append(page);
   bindings = [];
+  layouts = [];
 });
 
 afterEach(() => {
   for (const binding of bindings) binding.destroy();
+  for (const layout of layouts) layout.destroy();
   page.remove();
   delete document.documentElement.dataset.motionPolicy;
   vi.restoreAllMocks();
@@ -160,7 +170,8 @@ it('follows the pointer, then glides on with its momentum and settles inside its
   expect(ends[0].x).toBeCloseTo(540, 6);
   expect(binding.velocity.source).toBe('estimated');
   expect(binding.velocity.x).toBeCloseTo(2000, 6);
-  expect(el.style.touchAction).toBe('');
+  // The touch-action is set when the gesture is bound, and given back only on destroy: it stays while the element is bound.
+  expect(el.style.touchAction).toBe('none');
   expect(el.style.userSelect).toBe('');
 });
 
@@ -495,4 +506,166 @@ it('binds one gesture per element, and throws for a name that is not defined', (
   second.destroy();
   expect(getGesture(el)).toBeUndefined();
   expect(() => gesture(el, 'gb-never-defined')).toThrow('Unknown gesture "gb-never-defined"');
+});
+
+/** Whether an element is moving on its translate: a layout move animates it. */
+function movingOnTranslate(element: HTMLElement): boolean {
+  return element.getAnimations().some(animation => (animation.effect as KeyframeEffect).getKeyframes().some(frame => frame.translate != null));
+}
+
+/** A microtask later: the layout observer has read the mutations made before it. */
+const tick = () => Promise.resolve();
+
+/** Resolve once no animation under the page is still playing, the moves that a finished one starts included. */
+async function settleAnimations(): Promise<void> {
+  const playing = () => page.getAnimations({ subtree: true }).filter(animation => animation.playState === 'running');
+  while (playing().length > 0) await Promise.allSettled(playing().map(animation => animation.finished));
+}
+
+it('sets touch-action when the gesture is bound, from its axis, and gives the previous value back on destroy', () => {
+  const both = card(stage(800, 300));
+  const onX = card(stage(800, 300));
+  const onY = card(stage(800, 300));
+  const kept = card(stage(800, 300));
+  kept.style.touchAction = 'pinch-zoom';
+  bind(both, 'gb-card');
+  bind(onX, 'gb-dismiss');
+  bind(onY, 'gb-row');
+  // A drag on both axes takes the whole touch; a gesture on x leaves the vertical pan to the browser, one on y the horizontal.
+  expect(getComputedStyle(both).touchAction).toBe('none');
+  expect(getComputedStyle(onX).touchAction).toBe('pan-y');
+  expect(getComputedStyle(onY).touchAction).toBe('pan-x');
+  const binding = bind(kept, 'gb-card');
+  expect(kept.style.touchAction).toBe('none');
+  binding.destroy();
+  expect(kept.style.touchAction).toBe('pinch-zoom');
+});
+
+it('moves a focused drag physically, in right-to-left text too: ArrowRight goes right, and Shift moves 64 px', () => {
+  const frame = stage(800, 200);
+  frame.dir = 'rtl';
+  const el = card(frame);
+  const binding = bind(el, 'gb-card-free');
+  el.focus();
+  // The arrows of a direct manipulation are physical directions: the reading direction does not turn them.
+  key(el, 'ArrowRight');
+  expect(binding.offset).toEqual({ x: 16, y: 0 });
+  key(el, 'ArrowLeft', { shiftKey: true });
+  expect(binding.offset).toEqual({ x: -48, y: 0 });
+  key(el, 'ArrowDown');
+  expect(binding.offset).toEqual({ x: -48, y: 16 });
+});
+
+it('reorders along a row in right-to-left text: ArrowRight moves an item towards its previous sibling, on its right', () => {
+  const list = document.createElement('div');
+  list.dir = 'rtl';
+  list.style.cssText = 'display:flex;width:300px';
+  page.append(list);
+  const items = [1, 2, 3].map(n => {
+    const item = document.createElement('div');
+    item.style.cssText = 'width:40px;height:40px';
+    item.textContent = `Item ${n}`;
+    list.append(item);
+    bind(item, 'gb-row-x');
+    return item;
+  });
+  const order = () => Array.from(list.children).map(child => child.textContent);
+  const second = items[1];
+  // The premise: the first item of a right-to-left row is the rightmost one.
+  expect(items[0].getBoundingClientRect().left).toBeGreaterThan(second.getBoundingClientRect().left);
+  second.focus();
+  key(second, ' ');
+  key(second, 'ArrowRight');
+  expect(order()).toEqual(['Item 2', 'Item 1', 'Item 3']);
+  expect(announced()).toBe('Moved. Position 1 of 3.');
+  key(second, 'ArrowLeft');
+  expect(order()).toEqual(['Item 1', 'Item 2', 'Item 3']);
+  expect(announced()).toBe('Moved. Position 2 of 3.');
+  // Left to right, the same key moves the item to the next sibling.
+  list.dir = 'ltr';
+  key(second, 'ArrowRight');
+  expect(order()).toEqual(['Item 1', 'Item 3', 'Item 2']);
+  key(second, ' ');
+});
+
+it('keeps Delete and Backspace as the swipe keys in right-to-left text, and ignores the arrows', () => {
+  const frame = stage(800, 200);
+  frame.dir = 'rtl';
+  const el = card(frame, 200, 100);
+  const other = card(frame, 200, 100);
+  bind(el, 'gb-dismiss');
+  bind(other, 'gb-dismiss');
+  const swipes = listen<{ direction: string }>(el, 'motion-swipe');
+  const otherSwipes = listen<{ direction: string }>(other, 'motion-swipe');
+  el.focus();
+  key(el, 'ArrowLeft');
+  key(el, 'ArrowRight');
+  expect(swipes).toEqual([]);
+  key(el, 'Delete');
+  expect(swipes).toEqual([{ direction: 'end' }]);
+  other.focus();
+  key(other, 'Backspace');
+  expect(otherSwipes).toEqual([{ direction: 'end' }]);
+});
+
+it('a keyboard move during a drag release replaces the release, and motion-dragend fires once, after the move', async () => {
+  const el = card(stage(800, 300));
+  const binding = bind(el, 'gb-card');
+  const ends = listen<{ x: number; y: number }>(el, 'motion-dragend');
+  // The release is in flight: no frame has run since the pointer let go, so it is still at 140 px.
+  throwCard(el);
+  expect(ends).toEqual([]);
+  el.focus();
+  key(el, 'ArrowRight');
+  expect(binding.offset).toEqual({ x: 156, y: 0 });
+  expect(await settle(binding)).toBe(true);
+  expect(binding.offset.x).toBe(156);
+  expect(ends).toEqual([{ x: 156, y: 0 }]);
+});
+
+/**
+ * Five items, each with a layout motion, the second one dragged down past the third and still held. The layout observer
+ * has read the DOM move when this resolves; `start` is where the second item was before the drag.
+ */
+async function passNeighbour(): Promise<{ second: HTMLElement; third: HTMLElement; start: DOMRect }> {
+  const { list, items } = column(5);
+  for (const item of items) layouts.push(motion(item, reflow));
+  const [, second, third] = items;
+  const start = second.getBoundingClientRect();
+  clock = 1000;
+  pointer(second, 'pointerdown', start.left + 10, start.top + 20);
+  clock = 1100;
+  pointer(second, 'pointermove', start.left + 10, start.top + 70);
+  await tick();
+  expect(Array.from(list.children).map(child => child.textContent)).toEqual(['Item 1', 'Item 3', 'Item 2', 'Item 4', 'Item 5']);
+  return { second, third, start };
+}
+
+it('reorders past a neighbour with a layout motion: the neighbour flies to its new place', async () => {
+  const { second, third, start } = await passNeighbour();
+  expect(movingOnTranslate(third)).toBe(true);
+  expect(getMotion(third, 'layout')!.handle).not.toBeNull();
+  pointer(second, 'pointerup', start.left + 10, start.top + 70);
+  expect(await settle(getGesture(second) as GestureBinding)).toBe(true);
+  await settleAnimations();
+  // The neighbour took the place of the dragged item, and the dragged item the place of the neighbour.
+  expect(Math.abs(third.getBoundingClientRect().top - start.top)).toBeLessThanOrEqual(1);
+  expect(Math.abs(second.getBoundingClientRect().top - (start.top + 40))).toBeLessThanOrEqual(1);
+});
+
+it('gives the dragged item no layout flight while it is dragged past a neighbour, nor when it is let go', async () => {
+  const { second, start } = await passNeighbour();
+  expect(getMotion(second, 'layout')!.handle).toBeNull();
+  expect(movingOnTranslate(second)).toBe(false);
+  pointer(second, 'pointerup', start.left + 10, start.top + 70);
+  // The layout observer reads the release (the element leaves its drag state) in a microtask: the release is its own move.
+  await tick();
+  expect(getMotion(second, 'layout')!.handle).toBeNull();
+  expect(movingOnTranslate(second)).toBe(false);
+  expect(await settle(getGesture(second) as GestureBinding)).toBe(true);
+  await settleAnimations();
+  // The release spring has brought the element to translate 0, in its new place.
+  expect(getGesture(second)!.offset).toEqual({ x: 0, y: 0 });
+  expect(getMotion(second, 'layout')!.handle).toBeNull();
+  expect(Math.abs(second.getBoundingClientRect().top - (start.top + 40))).toBeLessThanOrEqual(1);
 });
