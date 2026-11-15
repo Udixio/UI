@@ -256,6 +256,17 @@ test('package index exports the runtime factories from built ESM and CommonJS', 
   }
 });
 
+test('astro entry point is public in both export maps', () => {
+  assert.deepEqual(pkg.exports['./astro'], {
+    development: './src/astro.ts', types: './dist/astro.d.ts',
+    import: './dist/astro.js', require: './dist/astro.cjs', default: './dist/astro.js',
+  });
+  assert.deepEqual(pkg.publishConfig.exports['./astro'], {
+    types: './dist/astro.d.ts', import: './dist/astro.js',
+    require: './dist/astro.cjs', default: './dist/astro.js',
+  });
+});
+
 test('gesture entry point is public in both export maps', () => {
   assert.deepEqual(pkg.exports['./gesture'], {
     development: './src/gesture-entry.ts', types: './dist/gesture.d.ts',

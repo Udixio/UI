@@ -259,6 +259,29 @@ test(`${name}: layout motions carry elements to their new place`, async () => {
   } finally { await browser.close(); }
 });
 
+test(`${name}: a client navigation tells the new page its direction of travel`, async () => {
+  const browser = await browserType.launch();
+  try {
+    const page = await browser.newPage();
+    await page.goto(base + '/motion/');
+    // Recorded on each swap the router makes: the new page's <html> must carry the direction, as Astro replaces the attributes.
+    await page.evaluate(() => {
+      window.__dir = undefined;
+      document.addEventListener('astro:before-swap', event => {
+        window.__dir = event.newDocument.documentElement.dataset.motionDirection;
+      });
+    });
+    await Promise.all([
+      page.waitForURL('**/motion/roadmap/'),
+      page.getByRole('navigation', { name: 'Motion documentation' }).getByRole('link', { name: 'Roadmap' }).click(),
+    ]);
+    assert.equal(await page.evaluate(() => window.__dir), 'forward');
+    await page.evaluate(() => { window.__dir = undefined; history.back(); });
+    await page.waitForFunction(() => window.__dir !== undefined);
+    assert.equal(await page.evaluate(() => window.__dir), 'back');
+  } finally { await browser.close(); }
+});
+
 test(`${name}: list items cascade in and their neighbours follow`, async () => {
   const browser = await browserType.launch();
   try {

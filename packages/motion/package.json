@@ -79,6 +79,12 @@
         "import": "./dist/gesture.js",
         "require": "./dist/gesture.cjs",
         "default": "./dist/gesture.js"
+      },
+      "./astro": {
+        "types": "./dist/astro.d.ts",
+        "import": "./dist/astro.js",
+        "require": "./dist/astro.cjs",
+        "default": "./dist/astro.js"
       }
     }
   },
@@ -192,6 +198,13 @@
       "import": "./dist/gesture.js",
       "require": "./dist/gesture.cjs",
       "default": "./dist/gesture.js"
+    },
+    "./astro": {
+      "development": "./src/astro.ts",
+      "types": "./dist/astro.d.ts",
+      "import": "./dist/astro.js",
+      "require": "./dist/astro.cjs",
+      "default": "./dist/astro.js"
     }
   },
   "dependencies": {
@@ -216,7 +229,7 @@
         ],
         "options": {
           "cwd": "packages/motion",
-          "command": "tsc --noEmit --project tsconfig.spec.json && node scripts/generate-curves.mjs --check && node scripts/generate-motion-manifest.mjs --check && node scripts/generate-springs.mjs --check && vitest run && node --test scripts/motion-policy-css.test.mjs scripts/spring-css.test.mjs scripts/curve-generation.test.mjs"
+          "command": "tsc --noEmit --project tsconfig.spec.json && node scripts/generate-curves.mjs --check && node scripts/generate-motion-manifest.mjs --check && node scripts/generate-springs.mjs --check && vitest run && node --test scripts/motion-policy-css.test.mjs scripts/route-css.test.mjs scripts/spring-css.test.mjs scripts/curve-generation.test.mjs"
         }
       }
     }
