@@ -654,4 +654,133 @@ test(`${name}: a sequence plays its steps in order`, async () => {
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
+
+test(`${name}: a chip can be dragged and nudged with the keyboard`, async () => {
+  const browser = await browserType.launch();
+  try {
+    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
+    const page = await context.newPage();
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    await page.goto(base + '/motion/demo/');
+    await page.waitForSelector('[data-demo-drag]');
+    // The gesture is bound at connect: wait for the page to be quiet, then two frames.
+    await page.waitForLoadState('networkidle');
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    const chip = page.locator('[data-demo-drag]');
+    const area = page.locator('#demo-drag-area');
+    await area.scrollIntoViewIfNeeded();
+    // Idle: no running animation, and the same translate on two frames in a row (read in the page, on each frame).
+    const settle = async () => {
+      await page.evaluate(() => { window.__chipTranslate = undefined; });
+      await page.waitForFunction(() => {
+        const element = document.querySelector('[data-demo-drag]');
+        const translate = getComputedStyle(element).translate;
+        const idle = element.getAnimations().length === 0 && window.__chipTranslate === translate;
+        window.__chipTranslate = translate;
+        return idle;
+      }, null, { polling: 'raf' });
+    };
+    const before = await chip.boundingBox();
+    const areaBox = await area.boundingBox();
+    const centre = { x: before.x + before.width / 2, y: before.y + before.height / 2 };
+    await page.mouse.move(centre.x, centre.y);
+    await page.mouse.down();
+    await page.mouse.move(centre.x + 120, centre.y + 40, { steps: 6 });
+    await page.mouse.up();
+    await settle();
+    const dragged = await chip.boundingBox();
+    assert.ok(dragged.x - before.x >= 100, `the chip moved ${dragged.x - before.x} px, expected at least 100`);
+    assert.ok(dragged.x >= areaBox.x && dragged.x + dragged.width <= areaBox.x + areaBox.width, 'the chip is outside the area on the x axis');
+    assert.ok(dragged.y >= areaBox.y && dragged.y + dragged.height <= areaBox.y + areaBox.height, 'the chip is outside the area on the y axis');
+    // Focused, one press of ArrowLeft moves the chip 16 px to the left.
+    await chip.focus();
+    const beforeKey = await chip.boundingBox();
+    await page.keyboard.press('ArrowLeft');
+    await settle();
+    const afterKey = await chip.boundingBox();
+    assert.ok(Math.abs(beforeKey.x - afterKey.x - 16) <= 1, `the chip moved ${beforeKey.x - afterKey.x} px left, expected 16`);
+    assert.deepEqual(pageErrors, []);
+  } finally { await browser.close(); }
+});
+
+test(`${name}: an item swipes away and the list closes up`, async () => {
+  const browser = await browserType.launch();
+  try {
+    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
+    const page = await context.newPage();
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    await page.goto(base + '/motion/demo/');
+    const items = '#demo-swipe-list [data-demo-swipe]';
+    await page.waitForSelector(items);
+    // The gesture is bound at connect: wait for the page to be quiet, then two frames.
+    await page.waitForLoadState('networkidle');
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    const count = () => page.locator(items).count();
+    const texts = () => page.locator(items).allTextContents();
+    const waitForRest = () => page.waitForFunction(() => [...document.querySelectorAll('#demo-swipe-list *')].every(el => el.getAnimations().length === 0));
+    // The items in DOM order and in visual order (by top), and the gaps between consecutive boxes.
+    const layout = () => page.evaluate(selector => {
+      const elements = [...document.querySelectorAll(selector)];
+      const dom = elements.map(el => el.textContent.trim());
+      const visual = [...elements].sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top).map(el => el.textContent.trim());
+      const boxes = elements.map(el => el.getBoundingClientRect());
+      const gaps = boxes.slice(1).map((box, index) => box.top - boxes[index].bottom);
+      return { dom, visual, gaps };
+    }, items);
+    assert.equal(await count(), 4);
+
+    // Dragged 70 % of its width to the right, in five steps: past 40 % of its size, so it flies out.
+    const first = page.locator(items).first();
+    await first.scrollIntoViewIfNeeded();
+    const box = await first.boundingBox();
+    const start = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+    await page.mouse.move(start.x, start.y);
+    await page.mouse.down();
+    await page.mouse.move(start.x + box.width * 0.7, start.y, { steps: 5 });
+    await page.mouse.up();
+    await page.waitForFunction(([selector, expected]) => document.querySelectorAll(selector).length === expected, [items, 3]);
+    await waitForRest();
+    let order = await layout();
+    assert.deepEqual(order.dom, ['Notification 2', 'Notification 3', 'Notification 4']);
+    assert.deepEqual(order.visual, order.dom);
+    for (const gap of order.gaps) assert.ok(Math.abs(gap - 8) <= 1, `gap of ${gap}px between list items`);
+
+    // Focused, Delete swipes the new first item away too.
+    await page.locator(items).first().focus();
+    await page.keyboard.press('Delete');
+    await page.waitForFunction(([selector, expected]) => document.querySelectorAll(selector).length === expected, [items, 2]);
+    assert.deepEqual(await texts(), ['Notification 3', 'Notification 4']);
+    assert.deepEqual(pageErrors, []);
+  } finally { await browser.close(); }
+});
+
+test(`${name}: tasks reorder with the keyboard`, async () => {
+  const browser = await browserType.launch();
+  try {
+    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
+    const page = await context.newPage();
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    await page.goto(base + '/motion/demo/');
+    const tasks = '#demo-reorder [data-demo-reorder]';
+    await page.waitForSelector(tasks);
+    // The gesture is bound at connect: wait for the page to be quiet, then two frames.
+    await page.waitForLoadState('networkidle');
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    // Space grabs Task 2, ArrowDown moves it past Task 3, and Space drops it.
+    await page.locator(tasks, { hasText: /^Task 2$/ }).focus();
+    await page.keyboard.press('Space');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Space');
+    const names = () => page.evaluate(selector => [...document.querySelectorAll(selector)].map(el => el.textContent.trim()), tasks);
+    assert.deepEqual(await names(), ['Task 1', 'Task 3', 'Task 2', 'Task 4', 'Task 5']);
+    assert.equal(await page.locator('[data-udx-motion-live]').textContent(), 'Dropped. Position 3 of 5.');
+    await page.waitForFunction(() => [...document.querySelectorAll('#demo-reorder *')].every(el => el.getAnimations().length === 0));
+    const visual = await page.evaluate(selector => [...document.querySelectorAll(selector)].sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top).map(el => el.textContent.trim()), tasks);
+    assert.deepEqual(visual, await names());
+    assert.deepEqual(pageErrors, []);
+  } finally { await browser.close(); }
+});
 }

@@ -486,6 +486,99 @@ root, and `destroy()` releases the inline styles. In the frameworks: `useMotionS
 
 Under reduced motion every delay is 0, so the steps play together, each with its reduced render.
 
+### Gestures
+
+A gesture moves an element with the pointer, and gives it a keyboard alternative. Define it once, from `@udixio/motion/gesture`:
+
+```ts
+import { defineGesture } from '@udixio/motion/gesture';
+
+defineGesture('dismiss', { kind: 'swipe', alternative: 'action' });
+```
+
+- `kind` says what the pointer does with the element:
+  - `drag` follows the pointer on `axis`: `x`, `y` or `both` (the default). It stays within its parent
+    (`bounds: 'parent'`, the default), or moves freely with `bounds: 'none'`. Released, it is thrown on by
+    0.2 s of its velocity, within its bounds, and glides there with the release spring.
+  - `swipe` follows the pointer on `axis` `x` (the default) or `y`. Released past 40 % of its size, or at more
+    than 800 px/s in its direction, it flies out and fades; released sooner, it springs back.
+  - `reorder` moves the element among its siblings that carry the same gesture, on `axis` `y` (the default)
+    or `x`, past each neighbour its centre crosses.
+- `release` is the spring of the release: `spring.default.spatial` by default.
+- `alternative` is required, and must be the one of its kind. It is the keyboard alternative, which makes the
+  gesture operable without a pointer (WCAG 2.1.1 Keyboard; WCAG 2.5.7 Dragging Movements requires a
+  single-pointer alternative to a dragging movement):
+  - `drag` with `arrows`: the arrow keys move the element 16 px, or 64 px with Shift.
+  - `swipe` with `action`: Delete or Backspace swipes the focused element towards the end.
+  - `reorder` with `grab`: Space or Enter grabs the focused element, the arrow keys of its axis move it,
+    Space or Enter drops it, and Escape puts it back where it was.
+
+The gestures module is not in the main entry: the scanner of `connectMotion()` loads it the first time a page
+meets a `data-motion-gesture`, and `loadGestures()`, exported from `@udixio/motion`, loads it ahead of time.
+
+A gesture reports through events that bubble from the element:
+
+- `motion-dragend`, with `detail: { x, y }`, when a released drag has come to rest. It cannot be prevented.
+- `motion-swipe`, with `detail: { direction }` (`'start'` or `'end'`), when a swipe is released far or fast
+  enough, or Delete is pressed. It is cancelable: `preventDefault()` keeps the element where it is, and it
+  springs back. Without it, the element flies out and is `aria-hidden="true"` once out of sight; removing it
+  from the list is the page's job.
+- `motion-reorder`, with `detail: { from, to }` (positions among the siblings that carry the gesture), before
+  each step of a reorder, by pointer or by keyboard, Escape included. It is cancelable: `preventDefault()`
+  refuses the step, and the element stays where it is. An app that renders its list from its state refuses the
+  step and moves the item in that state; without `preventDefault()`, the binding moves the element in the DOM,
+  as the demo does.
+
+A reorder announces each keyboard step in a visually hidden live region (`[data-udx-motion-live]`, with
+`role="status"`), which exists while a reorder is bound: `Grabbed. Position 2 of 5.`, `Moved. Position 3 of 5.`,
+`Dropped. Position 3 of 5.` or `Cancelled. Position 2 of 5.`.
+
+In HTML, `data-motion-gesture` names the gesture of the element, and `connectMotion()` binds it as it binds
+`data-motion`. An element carries one gesture at a time:
+
+```html
+<div data-motion-gesture="dismiss">…</div>
+```
+
+In JavaScript, bind a gesture to an element yourself:
+
+```ts
+import { gesture, getGesture } from '@udixio/motion/gesture';
+
+const binding = gesture(card, 'dismiss'); // card: an HTMLElement; throws for a name that is not defined
+binding.offset;                            // { x, y }, in px: where the element is held
+binding.reset();                           // back to its place, with the release spring, and visible again
+getGesture(card);                          // the binding of the element, if any
+binding.destroy();                         // gives back what the gesture set on the element
+```
+
+In the frameworks: `useMotionGesture` (React), `[udxMotionGesture]` (Angular), with its `udxDragEnd`,
+`udxSwipe` and `udxReorder` outputs, and the `motionGesture` attachment (Svelte).
+
+### Page transitions
+
+`navigate(update, { direction })`, exported from `@udixio/motion`, changes the page inside a native View
+Transition. `update` makes the change, and may be async. `direction` is where the page goes: `forward` (the
+default) or `back`. The route rules of `motion.css`, which the document imports, slide the old view out and the
+new one in, both fading, over the slow spatial spring. The direction is also set as `data-motion-direction` on the
+`html` element, and the transition's type is `udx-forward` or `udx-back`.
+
+```ts
+import { navigate } from '@udixio/motion';
+
+await navigate(() => showPage('roadmap'), { direction: 'forward' });
+await navigate(() => showPage('home'), { direction: 'back' });
+```
+
+For Astro's ClientRouter, call `connectAstroTransitions()`, from `@udixio/motion/astro`, once in the layout. It
+gives each navigation of the router the direction that Astro reports, and starts no transition of its own: the
+router's transition runs with the route rules. It returns a function that disconnects it. The documentation site
+does this in its layout.
+
+Under reduced motion, or with `--udx-motion: none`, `navigate()` runs the update alone, and
+`connectAstroTransitions()` does nothing. Where the browser has no View Transitions, `navigate()` runs the update
+alone too.
+
 ### HTML
 
 `data-motion` takes names separated by spaces, at most one per kind: a presence motion
@@ -623,6 +716,8 @@ to a presence motion; authors should not set it. Style it with Tailwind variants
   applies its end frame.
 - Under reduced motion a reveal shows its element at once, a scrub stays still and a loop
   does not play.
+- Under reduced motion, or with `--udx-motion: none` on the element, a gesture's release is written at once,
+  with no glide. A page transition runs its update alone, see [Page transitions](#page-transitions).
 
 ### Current limits
 
@@ -643,6 +738,18 @@ The package is under construction, so:
 - A sequence is validated in development only, as a motion is. Within a step, the delays of a
   cascade are capped at `--udx-motion-stagger-max`, as for lists; the delays of `at` are not.
 - A child that belongs to a nested sequence is not a step of the outer one.
+- A gesture writes the `translate` of its element, and its `opacity` while a swipe flies out. An author's
+  `translate` on that element is overwritten while it is bound, and `destroy()` gives back what the gesture wrote.
+- `touch-action` and `user-select` are set to `none` on the element only while a pointer holds it, and given back
+  when it lets go; they are not set when the gesture is bound.
+- A keyboard nudge of a drag moves the element at once, without a glide; a keyboard step of a reorder glides.
+- A drag is bounded by the content box of its parent, measured when the pointer grabs the element and at each
+  nudge of a key. A reorder moves an element among the siblings that carry the same gesture, under the same
+  parent: an element with no parent cannot be reordered, and development reports it.
+- A swipe that is not prevented stays in the DOM, with `aria-hidden="true"`; removing it is the page's job.
+- A gesture's spec is validated in development only, as a motion is; its name is checked always.
+- `navigate()` needs the View Transitions API: where it is missing, the update runs alone.
+  `connectAstroTransitions()` starts no transition; it sets the direction only.
 
 ## Development
 
