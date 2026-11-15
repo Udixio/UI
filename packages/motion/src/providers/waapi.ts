@@ -73,22 +73,16 @@ export const waapiProvider: MotionProvider = {
         settle('finished');
         return;
       }
-      // Persist the resolved visual state before removing the filling effect.
-      // Detached targets cannot always be committed by the browser.
+      // The end frame is written from the keyframes, not committed by the browser: WebKit's commitStyles can persist the
+      // start of a delayed animation. A reversed animation ends at its first frame; a single keyframe reversed to its
+      // start stands for the underlying value, so nothing is written. Omitted values stay underlying.
+      const reversed = animation.playbackRate < 0;
+      const endpoint = reversed ? (keyframes.length === 1 ? undefined : keyframes[0]) : keyframes[keyframes.length - 1];
       const kept = extra.map(property => [property, target.style.getPropertyValue(property), target.style.getPropertyPriority(property)] as const);
-      try {
-        animation.commitStyles();
-      } catch {
-        // A detached element has no computed style to commit. Its endpoint
-        // values can still be written directly; omitted values stay underlying.
-        const atStart = animation.effect?.getComputedTiming().progress === 0;
-        const endpoint = atStart && keyframes.length === 1 ? undefined : keyframes[atStart ? 0 : keyframes.length - 1];
-        const frame = endpoint ? frameToKeyframe(endpoint) : {};
-        for (const [property, value] of Object.entries(frame)) {
-          if (value != null) target.style.setProperty(property, String(value), target.style.getPropertyPriority(property));
-        }
+      for (const [property, value] of Object.entries(endpoint ? frameToKeyframe(endpoint) : {})) {
+        target.style.setProperty(property, String(value), target.style.getPropertyPriority(property));
       }
-      // The commit persisted the extra declarations too: their inline values, as they were before, are put back.
+      // The extra declarations are not persisted: their inline values, as they were before, are put back.
       for (const [property, value, priority] of kept) {
         if (value) target.style.setProperty(property, value, priority);
         else target.style.removeProperty(property);

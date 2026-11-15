@@ -299,3 +299,52 @@ describe.each([animejsProvider, cssProvider])('$backend provider refusals', (pro
     target.remove();
   });
 });
+
+describe('waapi provider end frame', () => {
+  it('a delayed animation ends in its last frame', async () => {
+    const delays = [0, 50, 100, 150, 200];
+    const items = delays.map(() => {
+      const target = document.createElement('div');
+      document.body.append(target);
+      return target;
+    });
+    const handles = items.flatMap((target, index) => [
+      waapiProvider.animate({ target, keyframes: [{ y: 16 }, { y: 0 }], timing: { duration: 120, easing: 'linear', delay: delays[index] } }),
+      waapiProvider.animate({ target, keyframes: [{ opacity: 0 }, { opacity: 1 }], timing: { duration: 60, easing: 'linear', delay: delays[index] } }),
+    ]);
+    try {
+      await Promise.all(handles.map((handle) => handle.finished));
+      for (const target of items) {
+        expect.soft(target.style.opacity).toBe('1');
+        expect.soft(['0px 0px', '0px']).toContain(target.style.translate);
+        expect.soft(getComputedStyle(target).opacity).toBe('1');
+        expect.soft(target.getAnimations()).toHaveLength(0);
+      }
+    } finally {
+      items.forEach((target) => target.remove());
+    }
+  });
+
+  it('a reversed animation ends in its first frame', async () => {
+    const target = document.createElement('div');
+    document.body.append(target);
+    const handle = waapiProvider.animate({ target, keyframes: [{ opacity: 0 }, { opacity: 1 }], timing: { duration: 120, easing: 'linear' } });
+    handle.seek(60);
+    handle.reverse();
+    expect(await handle.finished).toBe('finished');
+    expect(target.style.opacity).toBe('0');
+    target.remove();
+  });
+
+  it('a reversed single-keyframe animation writes nothing', async () => {
+    const target = document.createElement('div');
+    target.style.opacity = '0.5';
+    document.body.append(target);
+    const handle = waapiProvider.animate({ target, keyframes: [{ opacity: 1 }], timing: { duration: 120, easing: 'linear' } });
+    handle.seek(60);
+    handle.reverse();
+    expect(await handle.finished).toBe('finished');
+    expect(target.style.opacity).toBe('0.5');
+    target.remove();
+  });
+});

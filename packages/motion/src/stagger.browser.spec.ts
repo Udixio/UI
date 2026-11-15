@@ -147,3 +147,13 @@ it('cascades raw specs with equal structure together, as one definition', async 
   await Promise.resolve();
   expect(items.map(delayOf)).toEqual([0, 50, 100]);
 });
+
+it('ends every entry of a ten-entry cascade in its end frame', async () => {
+  const items = list(10);
+  const handles = items.map((item) => bindTo(item, cascade).handle as MotionHandle);
+  await Promise.all(handles.map((handle) => handle.finished));
+  for (const item of items) {
+    expect(getComputedStyle(item).opacity).toBe('1');
+    expect(['none', '0px', '0px 0px']).toContain(getComputedStyle(item).translate);
+  }
+});
