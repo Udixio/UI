@@ -2,6 +2,8 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { getMotion, getMotions, motion, motionWhenDefined } from './bind.js';
 import { connectMotion } from './connect.js';
 import { defineMotion } from './define-motion.js';
+import { defineValue } from './value.js';
+import { getValue } from './value-binding.js';
 import { fade, press, reflow, slide } from './presets.js';
 import { waapiProvider } from './providers/waapi.js';
 import { loadLayoutEngine } from './layout-loader.js';
@@ -574,4 +576,52 @@ it('pauses a loop while data-motion-paused is set, and plays it again when the a
   el.setAttribute('data-motion-paused', '');
   await twoFrames();
   expect(el.getAnimations()[0].playState).toBe('paused');
+});
+
+defineValue('test-state', { source: 'state', range: [0, 100], spring: 'none' });
+
+it('binds each data-motion-value at connect and writes its variable, with no spring waiting', () => {
+  const el = document.createElement('div');
+  el.dataset.motionValue = 'test-state';
+  root.append(el);
+  connect();
+  expect(getValue(el, 'test-state')).toBeDefined();
+  expect(el.style.getPropertyValue('--udx-motion-value-test-state')).toBe('0');
+});
+
+it('waits for an undefined value name, and binds it as soon as defineValue defines it', () => {
+  const el = document.createElement('div');
+  el.dataset.motionValue = 'test-late';
+  root.append(el);
+  connect();
+  expect(getValue(el, 'test-late')).toBeUndefined();
+  defineValue('test-late', { source: 'state', range: [0, 100], spring: 'none' });
+  expect(getValue(el, 'test-late')).toBeDefined();
+  expect(el.style.getPropertyValue('--udx-motion-value-test-late')).toBe('0');
+});
+
+it('destroys the values it bound when the element is removed', async () => {
+  const el = document.createElement('div');
+  el.dataset.motionValue = 'test-state';
+  root.append(el);
+  connect();
+  el.remove();
+  await tick();
+  expect(getValue(el, 'test-state')).toBeUndefined();
+  expect(el.style.getPropertyValue('--udx-motion-value-test-state')).toBe('');
+});
+
+it('rebinds the values of an element when data-motion-value changes, and destroys the previous ones', async () => {
+  defineValue('test-other', { source: 'state', range: [0, 100], spring: 'none' });
+  const el = document.createElement('div');
+  el.dataset.motionValue = 'test-state';
+  root.append(el);
+  connect();
+  const previous = getValue(el, 'test-state');
+  el.dataset.motionValue = 'test-other';
+  await tick();
+  expect(previous).toBeDefined();
+  expect(getValue(el, 'test-state')).toBeUndefined();
+  expect(getValue(el, 'test-other')).toBeDefined();
+  expect(el.style.getPropertyValue('--udx-motion-value-test-state')).toBe('');
 });

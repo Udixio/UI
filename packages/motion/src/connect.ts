@@ -2,6 +2,8 @@ import { getMotion, motion, type MotionBinding } from './bind.js';
 import { definedMotions, kindOf, onMotionDefined, resolveMotion, type MotionKind, type MotionRef } from './define-motion.js';
 import { flushLayoutAround } from './layout-loader.js';
 import { NAME_PATTERN } from './manifest.js';
+import { onValueDefined, resolveValue } from './value.js';
+import { getValue, value, type ValueBinding } from './value-binding.js';
 
 export interface ConnectOptions {
   root?: Document | Element;
@@ -13,15 +15,21 @@ type Hold = { value: string; priority: string };
 /** A motion the scanner bound on an element: the name it came from, and its binding. */
 type Owned = { name: string; binding: MotionBinding };
 
-/** The elements under `node`, the node itself included, that carry `data-motion`. */
-function motionElements(node: Node): HTMLElement[] {
-  const within = node instanceof Element || node instanceof Document ? [...node.querySelectorAll<HTMLElement>('[data-motion]')] : [];
-  return node instanceof HTMLElement && node.hasAttribute('data-motion') ? [node, ...within] : within;
+/** The elements under `node`, the node itself included, that carry `data-motion` or `data-motion-value`. */
+function scannedElements(node: Node): HTMLElement[] {
+  const selector = '[data-motion], [data-motion-value]';
+  const within = node instanceof Element || node instanceof Document ? [...node.querySelectorAll<HTMLElement>(selector)] : [];
+  return node instanceof HTMLElement && node.matches(selector) ? [node, ...within] : within;
 }
 
 /** The names listed in the `data-motion` of an element, in order. */
 function namesOf(el: HTMLElement): string[] {
   return (el.getAttribute('data-motion') ?? '').split(/\s+/).filter(Boolean);
+}
+
+/** The names listed in the `data-motion-value` of an element, in order. */
+function valueNamesOf(el: HTMLElement): string[] {
+  return (el.getAttribute('data-motion-value') ?? '').split(/\s+/).filter(Boolean);
 }
 
 /**
@@ -43,8 +51,9 @@ function sharedOf(el: HTMLElement, development: boolean): string | undefined {
  * an insertion plays its entry, a removal destroys, and `data-motion`, `data-state` and `hidden`
  * drive the motion. While `data-motion-paused` is set, the loop of the element is paused. An element may
  * list several motions, one per kind. A `data-motion-shared` gives the layout motion of the element a shared
- * identity: it morphs from the place of another element with the same key. The returned function disconnects
- * the scanner and destroys its bindings.
+ * identity: it morphs from the place of another element with the same key. A `data-motion-value` binds the named values
+ * of the element, each written as a variable there. The returned function disconnects the scanner and destroys its
+ * bindings.
  */
 export function connectMotion(options: ConnectOptions = {}): () => void {
   const root = options.root ?? document;
@@ -52,8 +61,12 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   /** The motions the scanner bound on each element, by kind. */
   const bound = new Map<HTMLElement, Map<MotionKind, Owned>>();
   const pending = new Map<string, Set<HTMLElement>>();
+  /** The values the scanner bound on each element, by name; and the elements waiting for each undefined name. */
+  const boundValues = new Map<HTMLElement, Map<string, ValueBinding>>();
+  const pendingValues = new Map<string, Set<HTMLElement>>();
   const holds = new Map<HTMLElement, Hold>();
   const reported = new Set<string>();
+  const reportedValues = new Set<string>();
   const conflicts = new WeakSet<HTMLElement>();
 
   /** Bind the names of `el`, in order. An undefined name waits alone; a motion of a kind already bound on `el` is ignored. */
@@ -64,6 +77,51 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
       if (ref) bindRef(el, ref, entering);
       else defer(el, name);
     }
+    bindValues(el);
+  }
+
+  /** Bind the value names of `el`, in order. An undefined name waits alone until it is defined. */
+  function bindValues(el: HTMLElement): void {
+    undeferValues(el);
+    for (const name of valueNamesOf(el)) {
+      if (resolveValue(name)) bindValue(el, name);
+      else deferValue(el, name);
+    }
+  }
+
+  /** Bind the value `name` on `el`, unless the scanner already holds it there and it is still the registered one. */
+  function bindValue(el: HTMLElement, name: string): void {
+    const owned = boundValues.get(el)?.get(name);
+    if (owned && getValue(el, name) === owned) return;
+    const binding = value(el, name, { development });
+    let map = boundValues.get(el);
+    if (!map) boundValues.set(el, (map = new Map()));
+    map.set(name, binding);
+  }
+
+  /** An undefined value name leaves that name untouched until its value is defined. */
+  function deferValue(el: HTMLElement, name: string): void {
+    const waiting = pendingValues.get(name) ?? new Set<HTMLElement>();
+    pendingValues.set(name, waiting.add(el));
+    if (!development || reportedValues.has(name)) return;
+    reportedValues.add(name);
+    console.error(`[@udixio/motion] Unknown value "${name}": it is bound once defineValue defines it.`);
+  }
+
+  function undeferValues(el: HTMLElement): void {
+    for (const [name, waiting] of pendingValues) {
+      waiting.delete(el);
+      if (waiting.size === 0) pendingValues.delete(name);
+    }
+  }
+
+  /** Destroy the values the scanner bound on `el`, the ones still registered, and forget the rest. */
+  function forgetValues(el: HTMLElement): void {
+    boundValues.get(el)?.forEach((binding, name) => {
+      if (getValue(el, name) === binding) binding.destroy();
+    });
+    boundValues.delete(el);
+    undeferValues(el);
   }
 
   /** Bind the motion `ref` on `el`, unless the scanner has already bound a motion of its kind there. */
@@ -135,6 +193,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     for (const kind of bound.get(el)?.keys() ?? []) ownBinding(el, kind)?.destroy();
     bound.delete(el);
     undefer(el);
+    forgetValues(el);
   }
 
   /**
@@ -178,8 +237,8 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     for (const record of records) {
       if (record.type === 'childList') {
         // A node moved within the root keeps its binding: it is still under root when its removal is read.
-        for (const el of Array.from(record.removedNodes).flatMap(motionElements)) if (!root.contains(el)) forget(el);
-        for (const el of Array.from(record.addedNodes).flatMap(motionElements)) if (root.contains(el) && !bound.has(el)) bind(el, true);
+        for (const el of Array.from(record.removedNodes).flatMap(scannedElements)) if (!root.contains(el)) forget(el);
+        for (const el of Array.from(record.addedNodes).flatMap(scannedElements)) if (root.contains(el) && !bound.has(el) && !boundValues.has(el)) bind(el, true);
         continue;
       }
       const el = record.target;
@@ -187,6 +246,9 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
       if (record.attributeName === 'data-motion') {
         forget(el);
         bind(el, false);
+      } else if (record.attributeName === 'data-motion-value') {
+        forgetValues(el);
+        bindValues(el);
       } else if (record.attributeName === 'data-state') {
         ownBinding(el, 'emphasis')?.play();
       } else if (record.attributeName === 'data-motion-shared') {
@@ -201,13 +263,13 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     }
   }
 
-  for (const el of motionElements(root)) bind(el, false);
+  for (const el of scannedElements(root)) bind(el, false);
   const observer = new MutationObserver(observe);
   observer.observe(root, {
     childList: true,
     subtree: true,
     attributes: true,
-    attributeFilter: ['data-motion', 'data-motion-shared', 'data-motion-paused', 'data-state', 'hidden'],
+    attributeFilter: ['data-motion', 'data-motion-shared', 'data-motion-paused', 'data-motion-value', 'data-state', 'hidden'],
   });
   const unsubscribe = onMotionDefined(ref => {
     const waiting = pending.get(ref.name);
@@ -216,11 +278,19 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     // Only the defined name is bound: the other names of the element keep their bindings.
     for (const el of waiting) if (root.contains(el) && namesOf(el).includes(ref.name)) bindRef(el, ref, false);
   });
+  const unsubscribeValues = onValueDefined(ref => {
+    const waiting = pendingValues.get(ref.name);
+    if (!waiting) return;
+    pendingValues.delete(ref.name);
+    for (const el of waiting) if (root.contains(el) && valueNamesOf(el).includes(ref.name)) bindValue(el, ref.name);
+  });
 
   return () => {
     observer.disconnect();
     unsubscribe();
-    for (const el of [...bound.keys()]) forget(el);
+    unsubscribeValues();
+    for (const el of new Set([...bound.keys(), ...boundValues.keys()])) forget(el);
     pending.clear();
+    pendingValues.clear();
   };
 }

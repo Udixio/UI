@@ -14,11 +14,15 @@ export type { DurationToken, EasingToken, CurveTiming, ResolvedCurve, MotionSche
 export type { Verb, SpringRef, ReducedRender } from './motion-spec.js';
 export { defineMotion, defineShared, resolveMotion, onMotionDefined, validateMotionSpec, definedMotions, isPresenceVerb, kindOf } from './define-motion.js';
 export type { MotionSpec, MotionRef, MotionKind } from './define-motion.js';
+export { defineValue, resolveValue, onValueDefined, validateValueSpec } from './value.js';
+export type { ValueSpec, ValueRef, ValueSource, ValueAxis } from './value.js';
 export { getMotionRuntime, retainMotionRuntime } from './runtime.js';
 export { composeHandles, deferredHandle, settledHandle, splitFrames } from './compose.js';
 export { playMotion, playFrames, applyFrame, releaseFrame, resolveWaapiTiming } from './play.js';
 export { motion, motionWhenDefined, getMotion, getMotions } from './bind.js';
 export type { BindOptions, DeferredMotion, MotionBinding, MotionSource } from './bind.js';
+export { value, getValue } from './value-binding.js';
+export type { ValueBinding } from './value-binding.js';
 export { watchView } from './viewport.js';
 export type { ViewAxis } from './viewport.js';
 export { startScrub, supportsViewTimeline, rangeOf } from './scroll.js';
