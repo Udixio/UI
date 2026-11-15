@@ -1,4 +1,12 @@
-import { getMotion, isPresenceVerb, motionWhenDefined, type MotionSource } from '@udixio/motion';
+import {
+  getMotion,
+  isPresenceVerb,
+  motionWhenDefined,
+  type DeferredMotion,
+  type MotionBinding,
+  type MotionKind,
+  type MotionSource,
+} from '@udixio/motion';
 import { untrack } from 'svelte';
 import type { Attachment } from 'svelte/attachments';
 import type { TransitionConfig } from 'svelte/transition';
@@ -6,6 +14,22 @@ import type { MotionAttachmentOptions } from './motion.types';
 
 const sourceKey = (source: MotionSource): string =>
   typeof source === 'string' ? source : 'name' in source ? source.name : JSON.stringify(source);
+
+const isList = (
+  source: MotionSource | readonly MotionSource[],
+): source is readonly MotionSource[] => Array.isArray(source);
+
+/** The motions of a source or a list: a string is split on whitespace, and so is each string of a list. */
+const motionsOf = (source: MotionSource | readonly MotionSource[]): MotionSource[] => {
+  const list: readonly MotionSource[] = isList(source) ? source : [source];
+  return list.flatMap((each): MotionSource[] =>
+    typeof each === 'string' ? each.split(/\s+/).filter(Boolean) : [each],
+  );
+};
+
+/** The binding of a kind among the deferred motions of an element. */
+const bindingOf = (deferred: readonly DeferredMotion[], kind: MotionKind): MotionBinding | undefined =>
+  deferred.map((each) => each.binding).find((binding) => binding?.kind === kind);
 
 /** The last source bound on an element, to tell a source change from a first mount. */
 const lastKey = new WeakMap<HTMLElement, string>();
@@ -17,33 +41,40 @@ const lastKey = new WeakMap<HTMLElement, string>();
  * exit or entry, or replays an emphasis, without re-binding the element. The
  * animation itself lives in `@udixio/motion`: this only forwards the options.
  *
+ * A list of sources, or names separated by spaces, binds each of them to the element:
+ * one element can hold a presence and a layout at once.
+ *
  * A motion named before it is defined waits for its definition. Server-rendered
  * content replays its entry on hydration unless `settled: true` is passed.
  *
  * ```svelte
  * {#if open}<div {@attach motion('slide')} transition:presence>…</div>{/if}
  * <button {@attach motion('press', () => ({ state: count }))}>…</button>
+ * {#if open}<li {@attach motion(['fade', 'reflow'])} transition:presence>…</li>{/if}
  * ```
  */
 export function motion(
-  source: MotionSource,
+  source: MotionSource | readonly MotionSource[],
   options: () => MotionAttachmentOptions = () => ({}),
 ): Attachment<HTMLElement> {
   return (target) => {
-    const key = sourceKey(source);
+    const sources = motionsOf(source);
+    const key = sources.map(sourceKey).join(' ');
     const previousKey = lastKey.get(target);
     lastKey.set(target, key);
     const initial = untrack(options);
-    const deferred = motionWhenDefined(target, source, {
-      present: initial.present ?? true,
-      settled: initial.settled ?? (previousKey !== undefined && previousKey !== key),
-    });
+    const deferred = sources.map((each) =>
+      motionWhenDefined(target, each, {
+        present: initial.present ?? true,
+        settled: initial.settled ?? (previousKey !== undefined && previousKey !== key),
+      }),
+    );
 
     // Presence follows the option; only appear and disappear have a presence to set.
     $effect(() => {
       const present = options().present ?? true;
-      const binding = deferred.binding;
-      if (binding && isPresenceVerb(binding.verb)) void binding.setPresent(present);
+      const binding = bindingOf(deferred, 'presence');
+      if (binding) void binding.setPresent(present);
     });
 
     // An emphasis replays on a real change of `state`, never at the first read.
@@ -58,11 +89,10 @@ export function motion(
       }
       if (Object.is(previous, state)) return;
       previous = state;
-      const binding = deferred.binding;
-      if (binding?.verb === 'emphasize') binding.play();
+      bindingOf(deferred, 'emphasis')?.play();
     });
 
-    return () => deferred.destroy();
+    return () => deferred.forEach((each) => each.destroy());
   };
 }
 
@@ -70,19 +100,20 @@ export function motion(
  * Keeps a leaving element in the DOM for the time of its exit. Use it as
  * `transition:presence` only on an element of an `{#if}` or `{#each}` block
  * that must play its exit before it is removed. The transition asks the
- * element's binding for the exit and waits for the exit's duration; an element
- * without a binding, or one whose motion has no presence (an emphasis, a layout),
+ * element's presence binding for the exit and waits for the exit's duration; an
+ * element without a presence binding (none, or only an emphasis or a layout)
  * runs without a duration.
  *
  * ```svelte
  * {#if open}<div {@attach motion('slide')} transition:presence>…</div>{/if}
+ * {#if open}<li {@attach motion(['fade', 'reflow'])} transition:presence>…</li>{/if}
  * ```
  */
 export function presence(
   node: Element,
 ): (options: { direction: 'in' | 'out' | 'both' }) => TransitionConfig {
   return ({ direction }) => {
-    const binding = getMotion(node);
+    const binding = getMotion(node, 'presence');
     if (!binding || !isPresenceVerb(binding.verb)) return { duration: 0 };
     if (direction === 'out') {
       void binding.setPresent(false);

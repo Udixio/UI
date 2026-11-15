@@ -145,8 +145,13 @@ defineMotion('list-item', {
 });
 ```
 
-In the frameworks, each adapter takes one motion name: `useMotion('cascade')`,
-`udxMotion="cascade"` or `{@attach motion('cascade')}`.
+In the frameworks, each adapter takes several motions for one element, as a list or as
+names separated by spaces. A list item that enters, leaves and follows its neighbours names
+a presence and a layout:
+
+- React: `useMotion(['cascade', 'reflow'], { present })`
+- Angular: `<li udxMotion="cascade reflow">`
+- Svelte: `{@attach motion(['cascade', 'reflow'])} transition:presence`
 
 ### HTML
 

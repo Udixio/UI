@@ -7,10 +7,10 @@ import {
   type RefCallback,
 } from 'react';
 import {
-  isPresenceVerb,
   motionWhenDefined,
   type DeferredMotion,
   type MotionBinding,
+  type MotionKind,
   type MotionSource,
 } from '@udixio/motion';
 
@@ -30,11 +30,13 @@ export interface UseMotionReturn<T extends HTMLElement> {
   mounted: boolean;
   /** Replays an emphasis. */
   play: () => void;
-  /** The core binding (handle: pause, reverse, seek), once bound. */
-  getBinding: () => MotionBinding | undefined;
+  /** The core binding of a kind (handle: pause, reverse, seek), once bound. Without a kind: presence, else emphasis, else layout. */
+  getBinding: (kind?: MotionKind) => MotionBinding | undefined;
 }
 
 const subscribe = () => () => {};
+
+const KINDS: readonly MotionKind[] = ['presence', 'emphasis', 'layout'];
 
 const sourceKey = (source: MotionSource): string =>
   typeof source === 'string'
@@ -43,14 +45,37 @@ const sourceKey = (source: MotionSource): string =>
       ? source.name
       : JSON.stringify(source);
 
+const isList = (
+  source: MotionSource | readonly MotionSource[],
+): source is readonly MotionSource[] => Array.isArray(source);
+
+/** The motions of a source or a list: a string is split on whitespace, and so is each string of a list. */
+const motionsOf = (source: MotionSource | readonly MotionSource[]): MotionSource[] => {
+  const list: readonly MotionSource[] = isList(source) ? source : [source];
+  return list.flatMap((each): MotionSource[] =>
+    typeof each === 'string' ? each.split(/\s+/).filter(Boolean) : [each],
+  );
+};
+
+/** The binding of a kind among the deferred motions of an element; without a kind, presence, else emphasis, else layout. */
+function bindingOf(motions: readonly DeferredMotion[], kind?: MotionKind): MotionBinding | undefined {
+  const bindings = motions.flatMap((each) => (each.binding ? [each.binding] : []));
+  for (const wanted of kind === undefined ? KINDS : [kind]) {
+    const found = bindings.find((binding) => binding.kind === wanted);
+    if (found) return found;
+  }
+  return undefined;
+}
+
 /**
- * Connects a React element to a named motion of `@udixio/motion`.
+ * Connects a React element to one or more named motions of `@udixio/motion`.
  *
  * The hook holds no animation logic: it binds the element through the core
  * (`motionWhenDefined`), tells the binding when `present` changes, keeps the
  * element rendered until its exit has finished, and replays an emphasis when
- * `state` changes. Render the element while `mounted` is true and put `ref`
- * on it.
+ * `state` changes. Several sources, a list or names separated by spaces, bind
+ * each of them to the element, so one element can hold a presence and a layout.
+ * Render the element while `mounted` is true and put `ref` on it.
  *
  * @example
  * ```tsx
@@ -58,6 +83,12 @@ const sourceKey = (source: MotionSource): string =>
  *   const panel = useMotion('slide', { present: open });
  *   return panel.mounted && <div ref={panel.ref}>…</div>;
  * }
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // A list item that enters and leaves, and moves when its neighbours change.
+ * const item = useMotion(['fade', 'reflow'], { present });
  * ```
  *
  * @devx
@@ -74,7 +105,7 @@ const sourceKey = (source: MotionSource): string =>
  * - The motion is bound to the element itself, not to its children.
  */
 export function useMotion<T extends HTMLElement = HTMLElement>(
-  source: MotionSource,
+  source: MotionSource | readonly MotionSource[],
   options: UseMotionOptions = {},
 ): UseMotionReturn<T> {
   const { present = true, state, settled } = options;
@@ -87,9 +118,11 @@ export function useMotion<T extends HTMLElement = HTMLElement>(
   );
   const hydratedAtFirstRender = useRef(hydrated).current;
   const pastFirstCommit = useRef(false);
-  const latest = useRef({ source, present, settled });
-  latest.current = { source, present, settled };
-  const deferred = useRef<DeferredMotion | null>(null);
+  const sources = motionsOf(source);
+  const key = sources.map(sourceKey).join(' ');
+  const latest = useRef({ sources, present, settled });
+  latest.current = { sources, present, settled };
+  const deferred = useRef<DeferredMotion[]>([]);
   const bound = useRef<{ element: HTMLElement; key: string } | null>(null);
 
   const [leaving, setLeaving] = useState(false);
@@ -101,8 +134,6 @@ export function useMotion<T extends HTMLElement = HTMLElement>(
   }
   const mounted = present || leaving;
 
-  const key = sourceKey(source);
-
   const ref = useCallback(
     (element: T | null) => {
       if (!element) return;
@@ -112,15 +143,17 @@ export function useMotion<T extends HTMLElement = HTMLElement>(
       const settledNow =
         current.settled ??
         (sourceChanged || (hydratedAtFirstRender && !pastFirstCommit.current));
-      const motion = motionWhenDefined(element, current.source, {
-        present: current.present,
-        settled: settledNow,
-      });
-      deferred.current = motion;
+      const motions = current.sources.map((each) =>
+        motionWhenDefined(element, each, {
+          present: current.present,
+          settled: settledNow,
+        }),
+      );
+      deferred.current = motions;
       bound.current = { element, key };
       return () => {
-        motion.destroy();
-        if (deferred.current === motion) deferred.current = null;
+        motions.forEach((motion) => motion.destroy());
+        if (deferred.current === motions) deferred.current = [];
       };
     },
     [key, hydratedAtFirstRender],
@@ -135,12 +168,12 @@ export function useMotion<T extends HTMLElement = HTMLElement>(
   }, []);
 
   useEffect(() => {
-    const binding = deferred.current?.binding;
+    const binding = bindingOf(deferred.current, 'presence');
     if (present) {
-      if (binding && isPresenceVerb(binding.verb)) void binding.setPresent(true);
+      if (binding) void binding.setPresent(true);
       return undefined;
     }
-    if (!binding || !isPresenceVerb(binding.verb)) {
+    if (!binding) {
       setLeaving(false);
       return undefined;
     }
@@ -154,11 +187,13 @@ export function useMotion<T extends HTMLElement = HTMLElement>(
   }, [present]);
 
   const play = useCallback(() => {
-    const binding = deferred.current?.binding;
-    if (binding?.verb === 'emphasize') binding.play();
+    bindingOf(deferred.current, 'emphasis')?.play();
   }, []);
 
-  const getBinding = useCallback(() => deferred.current?.binding, []);
+  const getBinding = useCallback(
+    (kind?: MotionKind) => bindingOf(deferred.current, kind),
+    [],
+  );
 
   const previousState = useRef(state);
   useEffect(() => {

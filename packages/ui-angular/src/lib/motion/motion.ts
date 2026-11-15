@@ -11,10 +11,10 @@ import {
   type OnDestroy,
 } from '@angular/core';
 import {
-  isPresenceVerb,
   motionWhenDefined,
   type DeferredMotion,
   type MotionBinding,
+  type MotionKind,
   type MotionSource,
 } from '@udixio/motion';
 
@@ -25,6 +25,18 @@ const sourceKey = (source: MotionSource): string =>
     : 'name' in source
       ? source.name
       : JSON.stringify(source);
+
+const isList = (
+  source: MotionSource | readonly MotionSource[],
+): source is readonly MotionSource[] => Array.isArray(source);
+
+/** The motions of a source or a list: a string is split on whitespace, and so is each string of a list. */
+const motionsOf = (source: MotionSource | readonly MotionSource[]): MotionSource[] => {
+  const list: readonly MotionSource[] = isList(source) ? source : [source];
+  return list.flatMap((each): MotionSource[] =>
+    typeof each === 'string' ? each.split(/\s+/).filter(Boolean) : [each],
+  );
+};
 
 /**
  * Plays a named motion on the element it sits on, from `@udixio/motion`.
@@ -38,6 +50,9 @@ const sourceKey = (source: MotionSource): string =>
  * - For an emphasis, bind `[udxMotionState]` to the value that changes:
  *   `<button udxMotion="press" [udxMotionState]="count()">`. Each change
  *   replays the emphasis.
+ * - Several motions can share one element, as names separated by spaces or as a
+ *   list: `<li udxMotion="fade reflow">` enters and leaves with its presence, and
+ *   follows its neighbours with its layout.
  * - The directive holds no animation of its own: the motion is defined and
  *   timed by `@udixio/motion`.
  * @a11y
@@ -56,8 +71,8 @@ const sourceKey = (source: MotionSource): string =>
   host: { '(animate.leave)': 'leave($event)' },
 })
 export class Motion implements OnDestroy {
-  /** The motion: the name of a defined motion, a definition, or a raw spec. */
-  readonly source = input.required<MotionSource>({ alias: 'udxMotion' });
+  /** The motion: the name of a defined motion, a definition, or a raw spec. A list of them, or names separated by spaces, binds each one. */
+  readonly source = input.required<MotionSource | readonly MotionSource[]>({ alias: 'udxMotion' });
   /** Whether the element is present; `false` plays its exit and keeps it in the DOM. */
   readonly present = input(true, {
     alias: 'udxMotionPresent',
@@ -72,42 +87,48 @@ export class Motion implements OnDestroy {
   });
 
   private readonly host = inject(ElementRef<HTMLElement>);
-  private deferred?: DeferredMotion;
+  private deferred: DeferredMotion[] = [];
   private boundKey?: string;
   private leaving = false;
   private released = false;
   private stateRead = false;
   private previousState: unknown;
 
-  /** The core binding (handle: pause, reverse, seek), once bound. */
+  /** The core binding (handle: pause, reverse, seek), once bound: the presence if any, else the first. */
   get binding(): MotionBinding | undefined {
-    return this.deferred?.binding;
+    return this.bindingOf('presence') ?? this.bindings()[0];
+  }
+
+  /** The core binding of a kind, once bound. */
+  bindingOf(kind: MotionKind): MotionBinding | undefined {
+    return this.bindings().find((binding) => binding.kind === kind);
   }
 
   constructor() {
     // Browser only, after the host has rendered. A source change rebinds; the
-    // new binding starts settled, so a rebind does not replay the entry.
+    // new bindings start settled, so a rebind does not replay the entry.
     afterRenderEffect(() => {
-      const source = this.source();
-      const key = sourceKey(source);
+      const sources = motionsOf(this.source());
+      const key = sources.map(sourceKey).join(' ');
       if (key === this.boundKey) return;
       untracked(() => {
-        const rebinding = this.deferred !== undefined;
-        this.deferred?.destroy();
-        this.deferred = motionWhenDefined(this.host.nativeElement, source, {
-          present: this.present(),
-          settled: rebinding || this.settled(),
-        });
+        const rebinding = this.boundKey !== undefined;
+        this.deferred.forEach((each) => each.destroy());
+        const present = this.present();
+        const settled = rebinding || this.settled();
+        this.deferred = sources.map((each) =>
+          motionWhenDefined(this.host.nativeElement, each, { present, settled }),
+        );
         this.boundKey = key;
       });
     });
 
-    // Declared after the binding effect, so the binding it reads is the one
+    // Declared after the binding effect, so the bindings it reads are the ones
     // just made. The core ignores a value it already has.
     afterRenderEffect(() => {
       const present = this.present();
-      const binding = this.deferred?.binding;
-      if (binding && isPresenceVerb(binding.verb)) void binding.setPresent(present);
+      const binding = this.bindingOf('presence');
+      if (binding) void binding.setPresent(present);
     });
 
     effect(() => {
@@ -123,14 +144,13 @@ export class Motion implements OnDestroy {
     });
   }
 
-  /** Replays the emphasis. Does nothing until the motion is bound, or for a presence motion. */
+  /** Replays the emphasis. Does nothing until the motion is bound, or without an emphasis. */
   play(): void {
-    const binding = this.deferred?.binding;
-    if (binding?.verb === 'emphasize') binding.play();
+    this.bindingOf('emphasis')?.play();
   }
 
   ngOnDestroy(): void {
-    if (!this.deferred) return;
+    if (this.deferred.length === 0) return;
     // Angular may destroy the directive before or after it calls `leave`. A
     // destroy would cancel a running exit, so the binding is released a
     // macrotask later, after the tick in which Angular calls `leave`.
@@ -141,8 +161,8 @@ export class Motion implements OnDestroy {
 
   /** Angular calls this before it removes the element; the removal waits for `animationComplete()`. */
   protected leave(event: AnimationCallbackEvent): void {
-    const binding = this.released ? undefined : this.deferred?.binding;
-    if (!binding || !isPresenceVerb(binding.verb)) {
+    const binding = this.released ? undefined : this.bindingOf('presence');
+    if (!binding) {
       event.animationComplete();
       this.release();
       return;
@@ -154,9 +174,13 @@ export class Motion implements OnDestroy {
     });
   }
 
+  private bindings(): MotionBinding[] {
+    return this.deferred.flatMap((each) => (each.binding ? [each.binding] : []));
+  }
+
   private release(): void {
     if (this.released) return;
     this.released = true;
-    this.deferred?.destroy();
+    this.deferred.forEach((each) => each.destroy());
   }
 }

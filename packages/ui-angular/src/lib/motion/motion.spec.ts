@@ -2,6 +2,7 @@ import { Component, type AnimationCallbackEvent } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import {
+  kindOf,
   motionWhenDefined,
   type DeferredMotion,
   type MotionBinding,
@@ -35,6 +36,7 @@ function fakeMotion(verb: MotionBinding['verb'] = 'disappear') {
     handle: null,
     present: true,
     verb,
+    kind: kindOf(verb),
     play,
     setPresent,
     destroy: jest.fn(),
@@ -141,6 +143,24 @@ class StateHost {
   count = 0;
 }
 
+@Component({
+  standalone: true,
+  imports: [Motion],
+  template: `
+    <div data-testid="box" udxMotion="fade reflow" [udxMotionPresent]="present"></div>
+  `,
+})
+class ListPresenceHost {
+  present = true;
+}
+
+@Component({
+  standalone: true,
+  imports: [Motion],
+  template: `<div data-testid="box" udxMotion="fade reflow"></div>`,
+})
+class ListHost {}
+
 describe('Motion (Angular directive)', () => {
   describe('binding', () => {
     it('binds the named motion to its host, present and not settled by default', () => {
@@ -193,6 +213,28 @@ describe('Motion (Angular directive)', () => {
       fixture.destroy();
     });
 
+    it('binds each name of a list to the host, with the same options', () => {
+      const fade = fakeMotion('appear');
+      const reflow = fakeMotion('layout');
+      motionWhenDefinedMock
+        .mockReturnValueOnce(fade.deferred)
+        .mockReturnValueOnce(reflow.deferred);
+      const fixture = TestBed.createComponent(ListHost);
+      fixture.detectChanges();
+
+      const box = boxOf(fixture.nativeElement);
+      expect(motionWhenDefinedMock).toHaveBeenCalledTimes(2);
+      expect(motionWhenDefinedMock).toHaveBeenNthCalledWith(1, box, 'fade', {
+        present: true,
+        settled: false,
+      });
+      expect(motionWhenDefinedMock).toHaveBeenNthCalledWith(2, box, 'reflow', {
+        present: true,
+        settled: false,
+      });
+      fixture.destroy();
+    });
+
     it('reads a static udxMotionPresent="false" as absent', () => {
       const motion = fakeMotion();
       motionWhenDefinedMock.mockReturnValue(motion.deferred);
@@ -237,6 +279,25 @@ describe('Motion (Angular directive)', () => {
       fixture.detectChanges();
 
       expect(motion.setPresent).not.toHaveBeenCalled();
+      expect(boxOf(fixture.nativeElement).isConnected).toBe(true);
+      fixture.destroy();
+    });
+
+    it('follows udxMotionPresent on the presence motion of a list, and leaves its layout alone', () => {
+      const appear = fakeMotion('appear');
+      const reflow = fakeMotion('layout');
+      motionWhenDefinedMock
+        .mockReturnValueOnce(appear.deferred)
+        .mockReturnValueOnce(reflow.deferred);
+      const fixture = TestBed.createComponent(ListPresenceHost);
+      fixture.detectChanges();
+      expect(motionWhenDefinedMock).toHaveBeenCalledTimes(2);
+
+      fixture.componentInstance.present = false;
+      fixture.detectChanges();
+
+      expect(appear.setPresent).toHaveBeenLastCalledWith(false);
+      expect(reflow.setPresent).not.toHaveBeenCalled();
       expect(boxOf(fixture.nativeElement).isConnected).toBe(true);
       fixture.destroy();
     });
@@ -391,6 +452,35 @@ describe('Motion (Angular directive)', () => {
       expect(animationComplete).toHaveBeenCalledTimes(1);
       expect(motion.setPresent).not.toHaveBeenCalled();
       expect(motion.destroy).toHaveBeenCalledTimes(1);
+    });
+
+    it('waits for the presence exit of a list, then releases every binding', async () => {
+      const appear = fakeMotion('appear');
+      const reflow = fakeMotion('layout');
+      motionWhenDefinedMock
+        .mockReturnValueOnce(appear.deferred)
+        .mockReturnValueOnce(reflow.deferred);
+      const fixture = TestBed.createComponent(ListHost);
+      fixture.detectChanges();
+
+      const animationComplete = leave(
+        motionOf(fixture),
+        boxOf(fixture.nativeElement),
+      );
+
+      expect(appear.setPresent).toHaveBeenLastCalledWith(false);
+      expect(reflow.setPresent).not.toHaveBeenCalled();
+      await flushPromises();
+      expect(animationComplete).not.toHaveBeenCalled();
+      expect(appear.destroy).not.toHaveBeenCalled();
+      expect(reflow.destroy).not.toHaveBeenCalled();
+
+      appear.finishExit('finished');
+      await flushPromises();
+
+      expect(animationComplete).toHaveBeenCalledTimes(1);
+      expect(appear.destroy).toHaveBeenCalledTimes(1);
+      expect(reflow.destroy).toHaveBeenCalledTimes(1);
     });
 
     it('completes an emphasis at once, since it has no exit to wait for', () => {

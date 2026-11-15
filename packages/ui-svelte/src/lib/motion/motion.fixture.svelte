@@ -12,7 +12,7 @@
     settled,
     shown = true,
   }: {
-    source: MotionSource;
+    source: MotionSource | readonly MotionSource[];
     present?: boolean;
     state?: unknown;
     settled?: boolean;
