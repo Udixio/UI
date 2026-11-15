@@ -336,6 +336,156 @@ defineMotion('spin', {
 });
 ```
 
+### Values
+
+A value is a continuous number that CSS can use. An element names the values it uses in
+`data-motion-value`, and the runtime writes each one on that element as
+`--udx-motion-value-<name>`, for as long as the element is bound. Define a value once, from
+`@udixio/motion/value`:
+
+```ts
+import { defineValue } from '@udixio/motion/value';
+
+defineValue('tilt-x', { source: 'pointer', axis: 'x', range: [-8, 8] });
+```
+
+- `source` says where the number comes from:
+  - `pointer`: the place of the pointer across the element, on `axis` `x` (the default)
+    or `y`. The value goes back to the middle when the pointer leaves the element.
+  - `scroll`: the progress of the page's scroll, on `axis` `block` (the default) or `inline`.
+  - `state`: a number the page sets, with the `value` attribute or `set()`, clamped to `range`.
+  - `time`: a loop, whose period is its `timing` duration. It pauses while its element is out
+    of view.
+- `range` gives the two ends, `[from, to]`, and defaults to `[0, 1]`.
+- `spring` is a spring token, or `'none'` to write the value at once. By default the value
+  moves with `spring.default.spatial` (a counter: `spring.default.effects`), and keeps its
+  velocity when its target moves again.
+- `timing` is a curve, `{ duration, easing }`, for `time` only. Its duration is the period,
+  and its easing is not applied to the progress. Without `timing`, the period is one second:
+  `{ duration: 'duration.extraLong4', easing: 'easing.linear' }`.
+- `format` and `currency` make a `state` value a counter, see [Counters](#counters).
+
+In HTML, list the values of the element, separated by spaces:
+
+```html
+<div data-motion-value="tilt-x tilt-y" style="transform: rotateY(calc(var(--udx-motion-value-tilt-x, 0) * 1deg))">…</div>
+```
+
+In JavaScript, bind a value to an element yourself:
+
+```ts
+import { defineValue, value } from '@udixio/motion/value';
+
+defineValue('level', { source: 'state', range: [0, 1] });
+const meter = value(bar, 'level'); // bar: an HTMLElement; it writes --udx-motion-value-level on it
+meter.set(0.8);                    // moves to 0.8, clamped to the range
+meter.subscribe(number => console.log(number)); // returns the unsubscribe function
+meter.destroy();                   // stops writing and removes the variable
+```
+
+In the frameworks: `useMotionValue` and `useMotionValueSnapshot` (React), `[udxMotionValue]`
+(Angular) and the `motionValue` attachment (Svelte).
+
+Under reduced motion, or with `--udx-motion: none`, a smoothed value is written at once, and a
+`time` value holds the first end of its range.
+
+### Counters
+
+A counter is a `state` value with a `format`. Its number is written as the variable, and also as
+the text of the element that names it, formatted in the language of the nearest `lang` attribute:
+
+```html
+<data value="12480" data-motion-value="visitors">12480</data>
+```
+
+```ts
+import { defineValue } from '@udixio/motion/value';
+
+defineValue('visitors', { source: 'state', format: 'integer', range: [0, 100000] });
+```
+
+- `integer`: whole numbers.
+- `decimal`: as many decimals as the `value` attribute has when the element is bound: `12.50`
+  has two, and at least one is written.
+- `percent`: a fraction shown as a percentage, with no decimals: `0.42` is `42%`.
+- `currency`: an amount in the currency named by `currency`, an ISO 4217 code such as `EUR`,
+  which is required with this format and refused without it.
+
+A counter that is out of view when the page loads starts at 0, and counts up when it scrolls
+into view. A counter that is in view at load keeps its text until its value changes. A change
+of its `value` attribute, or a `set()`, counts to the new number, with a spring that does not
+overshoot (`spring.default.effects`).
+
+While it counts, the element holds the number shown in an `aria-hidden` span and the final
+number in a visually hidden span, so that a screen reader reads the final number. When the count
+ends, the element holds one text node again. `destroy()` leaves the element on its final number.
+
+In JavaScript, bind the counter element with `value()` as for any value, and call `set()`:
+
+```ts
+import { value } from '@udixio/motion/value';
+
+const visitors = value(counter, 'visitors'); // counter: the <data> element above
+visitors.set(13480);                         // counts up to 13,480 when it is in view
+```
+
+### Sequences
+
+A sequence plays the children of one root in steps, with one handle for the whole
+choreography. Define it from `@udixio/motion/sequence`:
+
+```ts
+import { defineSequence } from '@udixio/motion/sequence';
+
+defineSequence('intro', {
+  verb: 'reveal',
+  steps: {
+    title: { keyframes: [{ opacity: 0, y: 24 }, { opacity: 1, y: 0 }] },
+    subtitle: { keyframes: [{ opacity: 0 }, { opacity: 1 }], at: '+=normal' },
+    actions: { keyframes: [{ opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1 }], stagger: 'tight' },
+  },
+});
+```
+
+- `verb`: `appear` (the default) plays when the root is bound while inserted, or on `play()`.
+  `reveal` plays when the root enters the view, and waits in the first frames of its steps until then.
+- `steps`: each named step has `keyframes` (non-empty, as for an appear motion) and, optionally,
+  `timing`, `reduced`, `stagger` and `origin`, which mean what they mean for an appear motion.
+  The elements of a step are the children that carry `data-motion-step="<name>"`; the elements
+  of a step with `stagger` cascade in visual order.
+- `at` places a step on the timeline:
+  - without `at`, the step starts when everything before it has ended;
+  - `at: '<step>'` starts it with an earlier step;
+  - `at: '+=tight'`, `'+=normal'` or `'+=loose'` starts it that long after the previous step
+    starts: the `--udx-motion-stagger-*` tokens, 20, 50 and 100 ms by default.
+
+In HTML, the root names the sequence in `data-motion`, as it names a motion:
+
+```html
+<div data-motion="intro">
+  <h3 data-motion-step="title">…</h3>
+  <p data-motion-step="subtitle">…</p>
+  <button type="button" data-motion-step="actions">…</button>
+  <button type="button" data-motion-step="actions">…</button>
+</div>
+```
+
+In JavaScript, bind it to a root, and play it when you want:
+
+```ts
+import { sequence } from '@udixio/motion/sequence';
+
+const binding = sequence(panel, 'intro', { settled: true }); // bound: no entry yet
+const handle = binding.play();                              // plays the steps from the start
+await handle.finished;                                      // 'finished' or 'cancelled'
+```
+
+`binding.handle` is the handle of the latest play. `getSequence(root)` returns the binding of a
+root, and `destroy()` releases the inline styles. In the frameworks: `useMotionSequence` (React),
+`[udxMotionSequence]` (Angular) and the `motionSequence` attachment (Svelte).
+
+Under reduced motion every delay is 0, so the steps play together, each with its reduced render.
+
 ### HTML
 
 `data-motion` takes names separated by spaces, at most one per kind: a presence motion
@@ -400,6 +550,13 @@ and returns a `MotionBinding` (`setPresent`, `play`, `pause`, `destroy`, and `pr
 - `destroy()` cancels the motion and releases its inline state.
 - `getMotion(element, kind?)` returns the binding of a kind (`'presence'`, `'emphasis'`, `'layout'`, `'view'` for a reveal or a scrub, or `'loop'`),
   or the first one when no kind is given. `getMotions(element)` returns all of them, in that order.
+
+Values and sequences have entries of their own, which the main entry does not hold:
+`defineValue`, `value` and `getValue` come from `@udixio/motion/value`, and `defineSequence`,
+`sequence` and `getSequence` from `@udixio/motion/sequence`. The scanner of `connectMotion()`
+loads the values module the first time a page meets a `data-motion-value`, and the sequences
+module when a `data-motion` names a sequence. `loadValues()` and `loadSequences()`, exported from
+`@udixio/motion`, load them ahead of time, as `loadLayoutEngine()` does for layout.
 
 ### Frameworks
 
@@ -477,6 +634,15 @@ The package is under construction, so:
   is overridden until the binding is destroyed. A loop and a scrub write nothing inline: while
   they run, their animation overrides the same property.
 - Preset values are not calibrated yet.
+- A value's number is rounded to four decimals. A `pointer` value is read over its element only.
+  A `scroll` value follows the scroll of the window, not that of a scrolling element inside the page.
+- A `time` value keeps the clock of its binding: after a pause it resumes at the phase of the
+  clock, not where it stopped.
+- A counter's number is the only text of its element: once the counter moves, the content of the
+  element is replaced by it.
+- A sequence is validated in development only, as a motion is. Within a step, the delays of a
+  cascade are capped at `--udx-motion-stagger-max`, as for lists; the delays of `at` are not.
+- A child that belongs to a nested sequence is not a step of the outer one.
 
 ## Development
 

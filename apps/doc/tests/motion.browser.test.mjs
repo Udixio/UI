@@ -525,4 +525,110 @@ test(`${name}: loops run, pause on demand and resume`, async () => {
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
+
+test(`${name}: values follow the pointer and the scroll`, async () => {
+  const browser = await browserType.launch();
+  try {
+    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
+    const page = await context.newPage();
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    await page.goto(base + '/motion/demo/');
+    await page.waitForSelector('[data-demo-tilt]');
+    // The values are bound once the page is quiet; then two frames.
+    await page.waitForLoadState('networkidle');
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    // The pointer at 75 % of the card's width and at its middle height: the x value goes to 4 (the range is -8 to 8).
+    await page.evaluate(() => {
+      const card = document.querySelector('[data-demo-tilt]');
+      const box = card.getBoundingClientRect();
+      card.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, clientX: box.left + box.width * 0.75, clientY: box.top + box.height / 2 }));
+    });
+    await page.waitForFunction(() => Math.abs(Number(getComputedStyle(document.querySelector('[data-demo-tilt]')).getPropertyValue('--udx-motion-value-demo-tilt-x')) - 4) < 0.2);
+    const tiltX = await page.evaluate(() => Number(getComputedStyle(document.querySelector('[data-demo-tilt]')).getPropertyValue('--udx-motion-value-demo-tilt-x')));
+    assert.ok(Math.abs(tiltX - 4) < 0.2, `the tilt is ${tiltX} at 75 % of the card, expected 4`);
+    // Half of the scrollable height is half of the scroll progress.
+    await page.evaluate(() => window.scrollTo(0, (document.documentElement.scrollHeight - window.innerHeight) / 2));
+    await page.waitForFunction(() => Math.abs(Number(getComputedStyle(document.querySelector('[data-demo-reading]')).getPropertyValue('--udx-motion-value-demo-reading')) - 0.5) < 0.05);
+    const reading = await page.evaluate(() => Number(getComputedStyle(document.querySelector('[data-demo-reading]')).getPropertyValue('--udx-motion-value-demo-reading')));
+    assert.ok(Math.abs(reading - 0.5) < 0.05, `the scroll progress is ${reading}, expected 0.5`);
+    assert.deepEqual(pageErrors, []);
+  } finally { await browser.close(); }
+});
+
+test(`${name}: counters count when they enter the view`, async () => {
+  const browser = await browserType.launch();
+  try {
+    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
+    const page = await context.newPage();
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    await page.goto(base + '/motion/demo/');
+    await page.waitForSelector('[data-demo-count]');
+    await page.waitForLoadState('networkidle');
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    // Out of view at load, the counter shows its start: its shown number is in a span hidden from assistive technology.
+    await page.waitForFunction(() => document.querySelector('[data-demo-count] [aria-hidden="true"]') !== null);
+    const start = await page.locator('[data-demo-count] [aria-hidden="true"]').textContent();
+    assert.equal(start, '0', 'the counter does not start at 0');
+    const formatted = value => page.evaluate(number => new Intl.NumberFormat(document.documentElement.lang || undefined, { maximumFractionDigits: 0 }).format(number), value);
+    const single = async text => page.waitForFunction(([selector, expected]) => {
+      const element = document.querySelector(selector);
+      return element !== null && element.childNodes.length === 1 && element.firstChild.nodeType === Node.TEXT_NODE && element.textContent === expected;
+    }, ['[data-demo-count]', text]);
+    // Scrolled into view, it counts up to its value, and ends as one text node holding that number.
+    const twelve = await formatted(12480);
+    await page.evaluate(() => document.querySelector('[data-demo-count]').scrollIntoView({ block: 'center' }));
+    await single(twelve);
+    // Adding 1,000 visitors: the count moves to 13,480 and ends as one text node holding that number.
+    await page.getByRole('button', { name: 'Add 1,000 visitors' }).click();
+    const thirteen = await formatted(13480);
+    await single(thirteen);
+    assert.equal(await page.locator('[data-demo-count]').getAttribute('value'), '13480');
+    assert.deepEqual(pageErrors, []);
+  } finally { await browser.close(); }
+});
+
+test(`${name}: a sequence plays its steps in order`, async () => {
+  const browser = await browserType.launch();
+  try {
+    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
+    const page = await context.newPage();
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    await page.goto(base + '/motion/demo/');
+    await page.waitForSelector('[data-motion="demo-hero"]');
+    await page.waitForLoadState('networkidle');
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    // Scrolled into view, the reveal starts the steps: wait until the title is animating, then read every delay in one task.
+    await page.evaluate(() => document.querySelector('[data-motion="demo-hero"]').scrollIntoView());
+    await page.waitForFunction(() => document.querySelector('[data-motion-step="title"]').getAnimations().length > 0);
+    const timing = await page.evaluate(() => {
+      const delayOf = element => Math.max(...element.getAnimations().map(animation => animation.effect.getTiming().delay));
+      const durationOf = element => Math.max(...element.getAnimations().map(animation => animation.effect.getTiming().duration));
+      const title = document.querySelector('[data-motion-step="title"]');
+      const subtitle = document.querySelector('[data-motion-step="subtitle"]');
+      const actions = [...document.querySelectorAll('[data-motion-step="actions"]')];
+      return {
+        title: delayOf(title),
+        titleDuration: durationOf(title),
+        subtitle: delayOf(subtitle),
+        subtitleEnd: delayOf(subtitle) + durationOf(subtitle),
+        actions: actions.map(delayOf),
+      };
+    });
+    assert.equal(timing.title, 0, 'the title does not start at once');
+    assert.ok(Math.abs(timing.subtitle - 50) <= 1, `the subtitle starts at ${timing.subtitle} ms, expected 50`);
+    assert.equal(timing.actions.length, 3);
+    const [first, second, third] = timing.actions;
+    assert.ok(Math.abs(second - first - 20) <= 1, `the second action starts ${second - first} ms after the first, expected 20`);
+    assert.ok(Math.abs(third - first - 40) <= 1, `the third action starts ${third - first} ms after the first, expected 40`);
+    assert.ok(first >= timing.titleDuration - 1, `the actions start at ${first} ms, before the title ends at ${timing.titleDuration} ms`);
+    assert.ok(first >= timing.subtitleEnd - 1, `the actions start at ${first} ms, before the subtitle ends at ${timing.subtitleEnd} ms`);
+    await page.waitForFunction(() => document.querySelector('[data-motion="demo-hero"]').getAnimations({ subtree: true }).length === 0);
+    const opacities = await page.evaluate(() => [...document.querySelectorAll('[data-motion="demo-hero"] [data-motion-step]')].map(element => getComputedStyle(element).opacity));
+    assert.deepEqual(opacities, ['1', '1', '1', '1', '1']);
+    assert.deepEqual(pageErrors, []);
+  } finally { await browser.close(); }
+});
 }
