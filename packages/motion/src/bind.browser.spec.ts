@@ -393,8 +393,12 @@ it('out-of-flow: destroying the presence binding of a pinned element puts it bac
   const natural = items.map(item => item.getBoundingClientRect());
   const presence = getMotion(first, 'presence')!;
   presence.setPresent(false);
-  await nextFrame();
-  await nextFrame();
+  await Promise.resolve();
+  // Freeze every animation 40 ms in, so that the exit is still running whatever the machine load.
+  for (const animation of items.flatMap(item => item.getAnimations())) {
+    animation.pause();
+    animation.currentTime = 40;
+  }
   expect(first.getAnimations().length, 'the exit is still running').toBeGreaterThan(0);
   const [secondBefore, thirdBefore] = [second, third].map(item => item.getBoundingClientRect());
   presence.destroy();
