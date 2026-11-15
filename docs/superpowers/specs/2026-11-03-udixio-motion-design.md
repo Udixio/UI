@@ -982,6 +982,71 @@ Limites connues, à traiter :
 - `transform-origin` doit rester au centre ; un changement de style en ligne
   n'est pas observé (`binding.play()` force la comparaison).
 
+#### 8.3.8 État après l'étape 2b — qualité et performance du layout (2026-11-15)
+
+Décision de l'utilisateur (2026-11-15) : garder le moteur de layout maison,
+viser un rendu « fluide et optimisé », expérimenter si nécessaire.
+
+Mesures (`packages/motion/bench/layout-run.mjs`, Chromium sans affichage,
+processeur ralenti 4 fois, médiane de 3) :
+
+| Mesure | Notre moteur | anime.js `createLayout` |
+|---|---|---|
+| Calcul d'un changement, 200 éléments | 41–43 ms (136–143 ms avant optimisation) | 84–89 ms |
+| Calcul d'un changement, 50 éléments | 12–13 ms (34 ms avant) | 26–30 ms |
+| Images en régime établi (p95) | 16,7–16,8 ms | 16,7–16,8 ms |
+| Mutation sans effet, 200 éléments suivis | 0,8–0,9 ms (2,5 ms avant) | 0,01 ms (n'observe rien) |
+
+Ajouts au moteur (tout reste joué par le provider WAAPI sur `translate` et
+`scale`, sans rien laisser en ligne) :
+
+| Élément | Rôle |
+|---|---|
+| `spring.ts` (`springOffset`, `springVelocity`, `springSettleTime`), `springParams` | ressort amorti analytique, concordant à 0,5 % avec les easings `linear()` des tokens |
+| `MotionHandle.currentTime` | temps écoulé d'une animation (les trois providers) |
+| vols échantillonnés | une interruption `carry` repart avec la vitesse courante : keyframes à instants uniformes, easing `linear` ; un vol au repos garde la forme à 2 keyframes |
+| `project.ts` (`projectBox`, `projectText`, `sampleContent`, `liveContentBoxes`) | projection du contenu : transform propre qui annule l'étirement du parent et place le nœud où la mise en page réelle l'aurait mis |
+| cache du contenu | arbre des éléments d'un élément suivi (profondeur 3, 24 nœuds), mesuré au repos |
+
+Règles fixées pendant l'étape 2b (choix de Claude, sur délégation) :
+
+- **Vitesse conservée nativement**, sans anime.js : la vitesse courante est
+  lue sur le ressort analytique du vol interrompu (écart mesuré 0,3 à 0,6 %
+  avec le ressort continu). Un vol en courbe (`CurveTiming`) ou
+  `interrupt: 'restart'` repart sans vitesse.
+- **Contenu d'un élément qui change de taille** : un nœud **boîte** suit sa
+  position et sa taille interpolées ; un nœud **texte** (texte direct) garde
+  sa taille finale, seul son bord de départ est interpolé — ses lettres ne
+  sont jamais étirées. La progression du contenu est prise par axe sur la
+  taille réelle du parent : parent et contenu partagent les mêmes instants
+  d'échantillonnage, quel que soit l'easing supporté.
+- **Unité locale** : les translations d'un nœud sont divisées par l'échelle
+  déjà appliquée à son parent (rect / taille de layout).
+- **Interruption** : le contenu repart de ses boîtes visuelles courantes.
+- **Enfant suivi dans un parent suivi qui change de taille** : animé comme
+  contenu du parent pour ce vol (sans vitesse conservée).
+- **Performance** : lectures groupées avant les écritures ; route de timing
+  et paramètres de ressort résolus une fois ; un élément au repos ne coûte
+  qu'une lecture de rect par mutation ; le travail de contenu et
+  d'imbrication est sauté pour les portées plates.
+- Budgets : entrée principale 18,3 kB gzip (limite 20,2 kB), provider WAAPI
+  0,82 kB (limite 0,9 kB).
+
+Limites connues après 2b :
+
+- **Texte posé directement dans l'élément suivi** (sans élément enveloppe) :
+  étiré pendant un changement de taille. L'envelopper dans un élément.
+- **Texte qui change de retour à la ligne** : il prend sa mise en forme
+  finale dès le début du vol (propre à toute animation par transform).
+- **Rayons de bordure** de l'élément qui change de taille : légèrement
+  elliptiques pendant le vol.
+- **Poids** : le layout est chargé avec l'entrée principale (+5,6 kB). À
+  charger à la demande, par verbe (étape 8).
+- Coût par vol : un appel `element.animate()` par élément déplacé
+  (incompressible avec une animation par élément).
+- Restent de 2a : ancrage de défilement dans une portée défilée,
+  `transform-origin` au centre, style en ligne non observé.
+
 ### 8.4 Détails par famille — **rédigé (consolidation)**
 
 | # | Famille | Écriture | Chemin natif | Repli / moteur JS | Sources |
@@ -1083,10 +1148,11 @@ d'écriture, `data-motion`, Badge, démo `/motion/demo` — détail en §8.3.5).
 présence par framework — détail en §8.3.6). L'étape 1 est terminée.
 
 L'étape 2 est découpée en trois : **2a livrée le 2026-11-15** (verbe
-`layout`, détail en §8.3.7) ; 2b = listes (`stagger`, `origin`, sorties
-`in-place` / `out-of-flow`) et contenu non déformé pendant un changement de
-taille ; 2c = élément partagé (`defineShared`, rétention 600 ms, View
-Transitions conditionnelles).
+`layout`, détail en §8.3.7) ; **2b livrée le 2026-11-15** (qualité et
+performance du layout : vitesse conservée, contenu non déformé, détail en
+§8.3.8) ; 2c = listes (`stagger`, `origin`, sorties `in-place` /
+`out-of-flow`) ; 2d = élément partagé (`defineShared`, rétention 600 ms,
+View Transitions conditionnelles).
 
 ## 9. Questions ouvertes connues
 
@@ -1157,6 +1223,7 @@ D2 (en partie orientée par C15).
 | Date | Travail | Changement |
 |---|---|---|
 | 2026-11-03 | — | Création du document à l'issue du brainstorming initial. |
+| 2026-11-15 | Étape 2b | Qualité et performance du layout : banc d'essai contre anime.js, calcul d'un changement divisé par 3 (41–43 ms à 200 éléments contre 84–89 ms pour anime.js), vitesse conservée à l'interruption, contenu non déformé par projection, enfants suivis imbriqués. Règles et limites en §8.3.8. Vérification groupée : motion 1 081 tests (Chromium, Firefox, WebKit), core 433, React 403, Svelte 295, Angular 367, doc 15 tests navigateur sur le site construit. |
 | 2026-11-15 | Étape 2a | Verbe `layout` livré (FLIP sur cache de géométrie, portée `data-motion-scope`, preset `reflow`, champs `scaleX` / `scaleY`, `commit: false`) ; démo « Layout ». Règles et limites en §8.3.7. Vérification groupée : motion 931 tests (Chromium, Firefox, WebKit), core 433, React 403, Svelte 295, Angular 367, doc 15 tests navigateur sur le site construit. |
 | 2026-11-15 | Étape 1b | Adaptateurs livrés : `useMotion` (React), `udxMotion` (Angular), `motion` + `presence` (Svelte) ; `motionWhenDefined` dans le noyau ; démo par framework. Décision : pas d'animation au chargement par défaut. Règles et points ouverts en §8.3.6. Vérification groupée : motion 816 tests (Chromium, Firefox, WebKit), core 433, React 402, Svelte 293, Angular 365, doc 12 tests navigateur sur le site construit. |
 | 2026-11-14 | Étape 1a | Surface d'écriture livrée : `defineMotion`, presets, `playMotion`, `motion()`, `connectMotion`, entrée `policy` ; Badge migré ; démo `/motion/demo`. Règles et points ouverts en §8.3.5. Vérification groupée : motion 798 tests (Chromium, Firefox, WebKit), core 433, React 387, Svelte 280, Angular vert. |
