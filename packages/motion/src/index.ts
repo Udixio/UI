@@ -15,7 +15,7 @@ export type { Verb, SpringRef, ReducedRender } from './motion-spec.js';
 export { defineMotion, defineShared, resolveMotion, onMotionDefined, validateMotionSpec, definedMotions, isPresenceVerb, kindOf } from './define-motion.js';
 export type { MotionSpec, MotionRef, MotionKind } from './define-motion.js';
 export { defineValue, resolveValue, onValueDefined, validateValueSpec } from './value.js';
-export type { ValueSpec, ValueRef, ValueSource, ValueAxis } from './value.js';
+export type { ValueSpec, ValueRef, ValueSource, ValueAxis, ValueFormat } from './value.js';
 export { getMotionRuntime, retainMotionRuntime } from './runtime.js';
 export { composeHandles, deferredHandle, settledHandle, splitFrames } from './compose.js';
 export { playMotion, playFrames, applyFrame, releaseFrame, resolveWaapiTiming } from './play.js';

@@ -132,6 +132,41 @@ describe('defineValue', () => {
   });
 });
 
+describe('formatted values', () => {
+  it('takes a format for state only', () => {
+    expect(defineValue('fmt-state', { source: 'state', format: 'integer' }).spec.format).toBe('integer');
+    expect(() => defineValue('fmt-pointer', { source: 'pointer', format: 'integer' } as never)).toThrow(/\/format: unsupported/);
+    expect(() => defineValue('fmt-scroll', { source: 'scroll', format: 'percent' } as never)).toThrow(/\/format: unsupported/);
+    expect(() => defineValue('fmt-time', { source: 'time', format: 'integer' } as never)).toThrow(/\/format: unsupported/);
+  });
+
+  it('refuses a format that is not one of the four, and a format that is not a string', () => {
+    expect(() => defineValue('fmt-unknown', { source: 'state', format: 'roman' } as never)).toThrow(/\/format: invalid_value/);
+    expect(() => defineValue('fmt-typed', { source: 'state', format: 1 } as never)).toThrow(/\/format: type/);
+  });
+
+  it('takes a currency with the currency format, and requires one with it', () => {
+    expect(defineValue('cur-eur', { source: 'state', format: 'currency', currency: 'EUR' }).spec.currency).toBe('EUR');
+    expect(() => defineValue('cur-missing', { source: 'state', format: 'currency' })).toThrow(/\/currency: required/);
+    expect(() => defineValue('cur-refused', { source: 'state', format: 'integer', currency: 'EUR' } as never)).toThrow(/\/currency: unsupported/);
+    expect(() => defineValue('cur-bare', { source: 'state', currency: 'EUR' } as never)).toThrow(/\/currency: unsupported/);
+  });
+
+  it('refuses a currency that is not three capital letters', () => {
+    for (const [index, currency] of ['euro', 'eu', 'EURO', 'E1R', 'eur'].entries()) {
+      expect(() => defineValue(`cur-bad-${index}`, { source: 'state', format: 'currency', currency })).toThrow(/\/currency: invalid_value/);
+    }
+  });
+
+  it('gives a formatted value the critically damped spring unless its spec names one', () => {
+    expect(defineValue('fmt-spring-default', { source: 'state', format: 'integer' }).spec.spring).toBe('spring.default.effects');
+    expect(defineValue('fmt-spring-spatial', { source: 'state', format: 'integer', spring: 'spring.default.spatial' }).spec.spring).toBe(
+      'spring.default.spatial',
+    );
+    expect(defineValue('fmt-spring-none', { source: 'state', format: 'integer', spring: 'none' }).spec.spring).toBe('none');
+  });
+});
+
 describe('validateValueSpec', () => {
   it('returns a frozen copy in a fixed key order, without the fields a source does not take', () => {
     const validated = validateValueSpec({ range: [0, 10], source: 'state' } satisfies ValueSpec);

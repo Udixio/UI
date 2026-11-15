@@ -218,6 +218,29 @@ it('holds a time value at the start of its range under reduced motion, and freez
   expect(binding.current).toBe(0);
 });
 
+it('reads --udx-motion for a time value when it starts, not at each frame', async () => {
+  const el = box();
+  bindTo(el, 'bv-loop');
+  const computed = vi.spyOn(window, 'getComputedStyle');
+  await frames(30);
+  expect(computed.mock.calls.filter(([node]) => node === el).length).toBeLessThanOrEqual(2);
+});
+
+it('reads --udx-motion again when a time value resumes after a pause', async () => {
+  const el = box();
+  bindTo(el, 'bv-loop');
+  expect(await until(() => read(el, 'bv-loop') > 0.2)).toBe(true);
+  page.style.setProperty('--udx-motion', 'none');
+  document.documentElement.dataset.motionPolicy = 'reduce';
+  await new Promise(resolve => setTimeout(resolve, 200));
+  delete document.documentElement.dataset.motionPolicy;
+  await frames(10);
+  expect(read(el, 'bv-loop')).toBe(0);
+  await frames(20);
+  expect(read(el, 'bv-loop')).toBe(0);
+  page.style.removeProperty('--udx-motion');
+});
+
 it('writes a state at once and holds a time value at range start under --udx-motion: none', async () => {
   page.style.setProperty('--udx-motion', 'none');
   const el = box();

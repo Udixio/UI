@@ -5,12 +5,16 @@ import type { CurveTiming } from './tokens.js';
 /** Where a value comes from: the pointer, the document scroll, a state the page sets, or a time loop. */
 export type ValueSource = 'pointer' | 'scroll' | 'state' | 'time';
 export type ValueAxis = 'x' | 'y' | 'block' | 'inline';
+/** How a state value is also written as text: whole numbers, decimals, a percentage of a fraction, or a currency. */
+export type ValueFormat = 'integer' | 'decimal' | 'percent' | 'currency';
 
 /**
  * A continuous number an element can use in CSS: written as `--udx-motion-value-<name>` on each bound element.
  * `axis` is taken by `pointer` (`x` or `y`) and `scroll` (`block` or `inline`). `spring` smooths the value and keeps its
  * velocity when the target moves again; `none` writes it at once. `timing` is taken by `time` only, for its period:
  * its `duration` is the period, and its `easing` is not applied to the progress.
+ * `format` is taken by `state` only: the number is also written as text, in the page's language, and it counts up when
+ * the element scrolls into view. `currency` is an ISO 4217 code, required with the `currency` format and refused otherwise.
  */
 export interface ValueSpec {
   source: ValueSource;
@@ -18,6 +22,8 @@ export interface ValueSpec {
   range?: readonly [number, number];
   spring?: SpringRef | 'none';
   timing?: CurveTiming;
+  format?: ValueFormat;
+  currency?: string;
 }
 
 /** Named, validated value definition. */
@@ -32,9 +38,13 @@ type Issue = { path: string; code: MotionValidationCode };
 const DEFINITIONS = Symbol.for('udixio.motion.values.preview.1');
 const LISTENERS = Symbol.for('udixio.motion.value-listeners.preview.1');
 const SOURCES: readonly string[] = ['pointer', 'scroll', 'state', 'time'];
-const FIELDS: readonly string[] = ['source', 'axis', 'range', 'spring', 'timing'];
+const FIELDS: readonly string[] = ['source', 'axis', 'range', 'spring', 'timing', 'format', 'currency'];
+const FORMATS: readonly string[] = ['integer', 'decimal', 'percent', 'currency'];
+const CURRENCY_CODE = /^[A-Z]{3}$/;
 const AXES: Record<'pointer' | 'scroll', readonly string[]> = { pointer: ['x', 'y'], scroll: ['block', 'inline'] };
 const DEFAULT_SPRING: SpringRef = 'spring.default.spatial';
+/** A formatted value is critically damped: a count goes to its value and never overshoots it. */
+const COUNTER_SPRING: SpringRef = 'spring.default.effects';
 
 /** Registries live on globalThis so that every copy of the package shares them. */
 const shared = globalThis as unknown as Record<symbol, unknown>;
@@ -116,6 +126,18 @@ function issuesOf(input: unknown): Issue[] {
     }
   }
 
+  if ('format' in input) {
+    if (source === 'pointer' || source === 'scroll' || source === 'time') add('/format', 'unsupported');
+    else if (typeof input.format !== 'string') add('/format', 'type');
+    else if (!oneOf(FORMATS, input.format)) add('/format', 'invalid_value');
+  }
+
+  if ('currency' in input) {
+    if (input.format !== 'currency') add('/currency', 'unsupported');
+    else if (typeof input.currency !== 'string') add('/currency', 'type');
+    else if (!CURRENCY_CODE.test(input.currency)) add('/currency', 'invalid_value');
+  } else if (input.format === 'currency') add('/currency', 'required');
+
   return issues.sort((a, b) =>
     a.path < b.path ? -1 : a.path > b.path ? 1 : a.code < b.code ? -1 : a.code > b.code ? 1 : 0,
   );
@@ -123,11 +145,16 @@ function issuesOf(input: unknown): Issue[] {
 
 /** The spec with its defaults filled in, in a fixed key order, frozen at every level. */
 function canonicalValueSpec(spec: ValueSpec): Readonly<ValueSpec> {
+  const counted = spec.source === 'state' && spec.format !== undefined;
   const copy: Record<string, unknown> = { source: spec.source };
   if (spec.source === 'pointer' || spec.source === 'scroll') copy.axis = spec.axis ?? (spec.source === 'pointer' ? 'x' : 'block');
   const range = spec.range ?? [0, 1];
   copy.range = Object.freeze([range[0], range[1]]);
-  if (spec.source !== 'time') copy.spring = spec.spring ?? DEFAULT_SPRING;
+  if (spec.source !== 'time') copy.spring = spec.spring ?? (counted ? COUNTER_SPRING : DEFAULT_SPRING);
+  if (counted) {
+    copy.format = spec.format;
+    if (spec.format === 'currency') copy.currency = spec.currency;
+  }
   if (spec.source === 'time') {
     const timing = spec.timing ?? motionManifest.defaults.loop.curve;
     copy.timing = Object.freeze({ duration: timing.duration, easing: timing.easing });

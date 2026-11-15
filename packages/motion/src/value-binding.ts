@@ -3,6 +3,7 @@ import { motionDisabled } from './play.js';
 import { getMotionRuntime, retainMotionRuntime, type MotionRuntime } from './runtime.js';
 import { resolveCurve, springParams, type MotionScheme } from './tokens.js';
 import { resolveValue, type ValueRef, type ValueSpec, type ValueSource } from './value.js';
+import { watchView } from './viewport.js';
 
 /** A value bound to an element: the number it writes, its state setter, and its listeners. */
 export interface ValueBinding {
@@ -13,6 +14,7 @@ export interface ValueBinding {
   set(target: number): void;
   /** Call `listener` after each written change; returns an unsubscribe function. */
   subscribe(listener: (value: number) => void): () => void;
+  /** Stop writing. A counter that showed a number shows its final number, the one it was moving to. */
   destroy(): void;
 }
 
@@ -24,6 +26,15 @@ const MAX_FRAME = 1 / 30;
 const POSITION_EPSILON = 1e-4;
 /** ...and moves this slowly, as a fraction of its span per second. */
 const VELOCITY_EPSILON = 1e-3;
+/**
+ * A gap of more than this many milliseconds between two frames of a time value is a pause of its runtime subscription
+ * (out of view, hidden page, reduced motion): `--udx-motion` is read again when the clock resumes. A change of
+ * `--udx-motion` made while the clock runs therefore takes effect at its next pause, not at once: a frame is not read.
+ */
+const PAUSE_GAP_MS = 100;
+/** Hides a counter's final number from sight, and keeps it for assistive technology, without taking any width. */
+const VISUALLY_HIDDEN =
+  'position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0';
 
 const bindings = new WeakMap<Element, Map<string, ValueBinding>>();
 
@@ -71,6 +82,45 @@ function parseNumber(text: string | null): number | undefined {
   return Number.isFinite(number) ? number : undefined;
 }
 
+/** The digits a `decimal` counter writes: those of its value attribute as written (`12.50` has two), at least one. */
+function decimalsOf(text: string | null): number {
+  const digits = /\.(\d+)\s*$/.exec(text ?? '')?.[1].length ?? 0;
+  return Math.min(20, Math.max(1, digits));
+}
+
+function formatOptionsOf(spec: Readonly<ValueSpec>, attribute: string | null): Intl.NumberFormatOptions {
+  switch (spec.format) {
+    case 'decimal': {
+      const digits = decimalsOf(attribute);
+      return { minimumFractionDigits: digits, maximumFractionDigits: digits };
+    }
+    case 'percent':
+      return { style: 'percent', maximumFractionDigits: 0 };
+    case 'currency':
+      return { style: 'currency', currency: spec.currency };
+    default:
+      return { maximumFractionDigits: 0 };
+  }
+}
+
+/**
+ * The formatter of a counter, in the language of the nearest `lang` on the page. An engine that refuses the language or
+ * the options gets the default language, then the default options: a motion never throws while it renders.
+ */
+function formatterOf(target: HTMLElement, spec: Readonly<ValueSpec>): Intl.NumberFormat {
+  const lang = target.closest('[lang]')?.getAttribute('lang') || undefined;
+  const options = formatOptionsOf(spec, target.getAttribute('value'));
+  try {
+    return new Intl.NumberFormat(lang, options);
+  } catch {
+    try {
+      return new Intl.NumberFormat(undefined, options);
+    } catch {
+      return new Intl.NumberFormat();
+    }
+  }
+}
+
 function createBinding(target: HTMLElement, ref: ValueRef, development: boolean): ValueBinding {
   const { name } = ref;
   const spec: Readonly<ValueSpec> = ref.spec;
@@ -86,6 +136,8 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
   const listeners = new Set<(value: number) => void>();
   const spring = spec.spring;
   const params = source !== 'time' && spring !== undefined && spring !== 'none' ? springParams(spring, schemeOf(target)) : undefined;
+  // A counter also writes its number as text: formatted for the page's language, and counting up when it comes into view.
+  const formatter = source === 'state' && spec.format !== undefined ? formatterOf(target, spec) : undefined;
 
   let destroyed = false;
   let written = NaN;
@@ -98,15 +150,28 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
   let unsubscribe: (() => void) | undefined;
   let frameAt: number | undefined;
   let start = 0;
+  let lastTick = 0;
+  // A time value reads `--udx-motion` when its clock starts and when it resumes, not at each frame.
+  let frozen = false;
   const period = source === 'time' ? periodOf(spec) : 0;
   let detachInputs: () => void = () => {};
   let observer: MutationObserver | undefined;
+  // A counter is `pending` until the first report of its view, `waiting` out of view with its start shown, then `live`.
+  // Any other value is `live` from the start.
+  let phase: 'pending' | 'waiting' | 'live' = formatter ? 'pending' : 'live';
+  // The text of a counter, once it has shown one: a counter in view at load keeps its server text until it moves.
+  let shown = false;
+  let shownLabel: string | undefined;
+  // While the shown label is not the final one, the counter's text is two spans: the shown one, hidden from assistive
+  // technology, and the final one, visually hidden, which is what a screen reader reads.
+  let spans: { shown: HTMLElement; final: HTMLElement } | undefined;
+  let stopWatch: (() => void) | undefined;
 
   const clamp = (amount: number) => Math.min(high, Math.max(low, amount));
   const clamp01 = (progress: number) => Math.min(1, Math.max(0, progress));
   const toValue = (progress: number) => first + progress * (last - first);
 
-  /** Write the number, rounded to four decimals, when it changed; then tell the listeners. */
+  /** Write the number, rounded to four decimals, when it changed; then its text, and tell the listeners. */
   function write(amount: number): void {
     if (destroyed) return;
     const rounded = Math.round(amount * 1e4) / 1e4;
@@ -115,7 +180,53 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
     text = next;
     written = rounded;
     target.style.setProperty(property, next);
+    paint(rounded);
     for (const listener of [...listeners]) listener(rounded);
+  }
+
+  /**
+   * The text of a counter that has shown one. Its shown label is written only when it changed; the element is one text
+   * node once the shown label is the final one, and two spans while it is not.
+   */
+  function paint(amount: number): void {
+    if (!formatter || !shown) return;
+    const label = formatter.format(amount);
+    if (label === shownLabel) return;
+    shownLabel = label;
+    const final = formatter.format(goal);
+    if (label === final) collapse(final);
+    else if (spans) spans.shown.textContent = label;
+    else split(label, final);
+  }
+
+  /** The final number of a counter moved: the visually hidden copy follows it, or the single text node is that number. */
+  function retarget(): void {
+    if (!formatter || !shown || shownLabel === undefined) return;
+    const final = formatter.format(goal);
+    if (shownLabel === final) {
+      if (spans) collapse(final);
+    } else if (spans) {
+      if (spans.final.textContent !== final) spans.final.textContent = final;
+    } else split(shownLabel, final);
+  }
+
+  /** The two spans of a counter whose shown number is not its final one. */
+  function split(shownText: string, finalText: string): void {
+    const visible = target.ownerDocument.createElement('span');
+    visible.setAttribute('aria-hidden', 'true');
+    visible.textContent = shownText;
+    const hidden = target.ownerDocument.createElement('span');
+    hidden.setAttribute('data-udx-motion-sr', '');
+    hidden.style.cssText = VISUALLY_HIDDEN;
+    hidden.textContent = finalText;
+    spans = { shown: visible, final: hidden };
+    target.replaceChildren(visible, hidden);
+  }
+
+  /** One text node, the final number of a counter. */
+  function collapse(finalText: string): void {
+    spans = undefined;
+    target.textContent = finalText;
   }
 
   /** Stop the runtime subscription of a spring at rest or interrupted. */
@@ -162,7 +273,9 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
 
   /** The frame of a time value: its progress through the period, from the moment it was bound. */
   function tickTime(now: number): void {
-    if (motionDisabled(target)) {
+    if (now - lastTick > PAUSE_GAP_MS) frozen = motionDisabled(target);
+    lastTick = now;
+    if (frozen) {
       write(first);
       return;
     }
@@ -177,6 +290,9 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
   function aim(next: number): void {
     if (destroyed) return;
     goal = next;
+    retarget();
+    // A counter that has not started keeps its place: it moves once its view reports it in view.
+    if (phase !== 'live') return;
     if (!params || immediate()) {
       snap();
       return;
@@ -238,8 +354,36 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
       observer.observe(target, { attributes: true, attributeFilter: ['value'] });
       return clamp(parseNumber(target.getAttribute('value')) ?? first);
     }
-    start = performance.now();
+    start = lastTick = performance.now();
+    frozen = motionDisabled(target);
     return first;
+  }
+
+  /**
+   * The first reports of a counter's view decide what it shows. In view, its server text stays and nothing moves, unless
+   * its value changed since bind. Out of view, it shows its start, and it counts up when it comes into view.
+   */
+  function onView(inView: boolean): void {
+    if (destroyed || phase === 'live') return;
+    if (phase === 'pending') {
+      shown = true;
+      if (inView) {
+        phase = 'live';
+        stopWatch?.();
+        if (goal !== position) aim(goal);
+        return;
+      }
+      phase = 'waiting';
+      position = first;
+      velocity = 0;
+      write(first);
+      paint(first);
+      return;
+    }
+    if (!inView) return;
+    phase = 'live';
+    stopWatch?.();
+    aim(goal);
   }
 
   const initial = initialPosition();
@@ -253,8 +397,10 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
   const stopPolicy = runtime.policy.subscribe(() => {
     if (!runtime.policy.reduced) return;
     if (source === 'time') write(first);
-    else snap();
+    else if (phase === 'live') snap();
   });
+
+  if (formatter) stopWatch = watchView(target, 'block', onView);
 
   const binding: ValueBinding = {
     name,
@@ -276,11 +422,15 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
     destroy() {
       if (destroyed) return;
       destroyed = true;
+      stopWatch?.();
+      stopWatch = undefined;
       unsubscribe?.();
       unsubscribe = undefined;
       stopPolicy();
       detachInputs();
       observer?.disconnect();
+      // A counter that showed a number ends on its final one, as one text node, not on the step of a count cut short.
+      if (formatter && shownLabel !== undefined) collapse(formatter.format(goal));
       target.style.removeProperty(property);
       listeners.clear();
       unregister(target, binding);
