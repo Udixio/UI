@@ -41,6 +41,13 @@ defineMotion('demo-leave', {
   stagger: 'normal',
   exit: 'out-of-flow',
 });`;
+const sharedExample = `<!-- Two elements with the same key: the one that appears starts from where the other was -->
+<button type="button" data-motion="reflow" data-motion-shared="shot-1">1</button>
+<div data-motion="reflow" data-motion-shared="shot-1" hidden>Detail of 1</div>
+
+// Open the detail in place of the thumbnail: both changes happen in the same task
+thumbnail.hidden = true;
+detail.hidden = false;`;
 ---
 <MotionPage title="Motion demo" description="A live demonstration of data-motion: elements reference a named motion and the runtime animates them.">
   <h1>Motion demo</h1>
@@ -145,6 +152,22 @@ defineMotion('demo-leave', {
   <p>Unchecked, a removed item keeps its place while it fades, and the items below it move up once it is gone. Checked, it leaves the flow as it fades, so the items below close the gap during its exit.</p>
   <pre><code>{listExample}</code></pre>
 
+  <h2>Shared element</h2>
+  <p>Two elements that carry the same key are one thing for the eye: when one replaces the other, it starts from where the other was. Each thumbnail has its own key, and the detail card takes the key of the thumbnail it opens.</p>
+  <div class="not-prose">
+    <div id="demo-shots" class="grid grid-cols-4 gap-3">
+      <button type="button" data-demo-shot="1" data-motion="reflow" data-motion-shared="shot-1" class="h-16 rounded-xl bg-primary text-label-large text-on-primary">1</button>
+      <button type="button" data-demo-shot="2" data-motion="reflow" data-motion-shared="shot-2" class="h-16 rounded-xl bg-primary text-label-large text-on-primary">2</button>
+      <button type="button" data-demo-shot="3" data-motion="reflow" data-motion-shared="shot-3" class="h-16 rounded-xl bg-primary text-label-large text-on-primary">3</button>
+      <button type="button" data-demo-shot="4" data-motion="reflow" data-motion-shared="shot-4" class="h-16 rounded-xl bg-primary text-label-large text-on-primary">4</button>
+    </div>
+    <div id="demo-detail" hidden data-motion="reflow" data-motion-shared="" class="mt-4 flex h-48 items-center justify-center gap-4 rounded-3xl bg-primary text-display-small text-on-primary">
+      <span data-demo-detail-label></span>
+      <button type="button" data-demo-close class="rounded-full bg-surface-container-high px-6 py-2.5 text-label-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-primary">Close</button>
+    </div>
+  </div>
+  <pre><code>{sharedExample}</code></pre>
+
   <h2>Reduced motion</h2>
   <p>While checked, this control sets <code>data-motion-policy="reduce"</code> on the <code>html</code> element: entries and exits become a short fade, and emphasis does nothing.</p>
   <div class="not-prose">
@@ -234,6 +257,24 @@ defineMotion('demo-leave', {
         const first = document.querySelector<HTMLElement>('#demo-items [data-demo-list="item"]:not([hidden])');
         if (first) removeWhenHidden(first);
       }
+      if (event.target.closest('[data-demo-close]')) {
+        closeShot();
+        return;
+      }
+      const shot = event.target.closest<HTMLElement>('[data-demo-shot]');
+      if (shot) {
+        const detail = document.getElementById('demo-detail');
+        if (!detail) return;
+        closeShot();
+        const number = shot.dataset.demoShot ?? '';
+        detail.setAttribute('data-motion-shared', 'shot-' + number);
+        const label = detail.querySelector<HTMLElement>('[data-demo-detail-label]');
+        if (label) label.textContent = number;
+        openShot = shot;
+        // In the same task: the detail appears where the thumbnail was, and the thumbnail is hidden.
+        shot.hidden = true;
+        detail.hidden = false;
+      }
     });
 
     document.addEventListener('change', event => {
@@ -292,6 +333,18 @@ defineMotion('demo-leave', {
         else requestAnimationFrame(check);
       };
       requestAnimationFrame(check);
+    }
+
+    // The thumbnail whose detail is open, if any.
+    let openShot: HTMLElement | undefined;
+
+    // Close the open detail: its thumbnail comes back in its place.
+    function closeShot(): void {
+      const detail = document.getElementById('demo-detail');
+      if (!detail || !openShot) return;
+      detail.hidden = true;
+      openShot.hidden = false;
+      openShot = undefined;
     }
   </script>
 </MotionPage>

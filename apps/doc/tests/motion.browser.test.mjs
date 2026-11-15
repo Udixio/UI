@@ -331,4 +331,90 @@ test(`${name}: list items cascade in and their neighbours follow`, async () => {
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
+
+test(`${name}: a shared element morphs between a thumbnail and its detail`, async () => {
+  const browser = await browserType.launch();
+  try {
+    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
+    const page = await context.newPage();
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    await page.goto(base + '/motion/demo/');
+    await page.waitForSelector('[data-demo-shot="2"]');
+    // The layout engine is loaded on demand: wait for the page to be quiet before the first change.
+    await page.waitForLoadState('networkidle');
+    // Two frames: the runtime is connected once the page has painted.
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    // Page coordinates, so that a scroll between two reads does not count as a move.
+    const initial = await page.evaluate(() => {
+      const rect = document.querySelector('[data-demo-shot="2"]').getBoundingClientRect();
+      return { left: rect.left, top: rect.top + window.scrollY, width: rect.width, height: rect.height };
+    });
+
+    // Open: click and read in one task. The detail has just started from where the thumbnail was.
+    const opened = await page.evaluate(async () => {
+      const thumb = document.querySelector('[data-demo-shot="2"]');
+      const from = thumb.getBoundingClientRect();
+      thumb.click();
+      await Promise.resolve();
+      const detail = document.getElementById('demo-detail');
+      const to = detail.getBoundingClientRect();
+      return {
+        animations: detail.getAnimations().length,
+        from: { left: from.left, top: from.top, width: from.width, height: from.height },
+        to: { left: to.left, top: to.top, width: to.width, height: to.height },
+      };
+    });
+    assert.ok(opened.animations >= 1, 'the detail has no morph in flight');
+    for (const key of ['left', 'top', 'width', 'height'])
+      assert.ok(Math.abs(opened.to[key] - opened.from[key]) <= 2, `the detail's ${key} is ${opened.to[key]}, the thumbnail's is ${opened.from[key]}`);
+    await page.waitForFunction(() => document.getElementById('demo-detail').getAnimations().length === 0);
+    const shown = await page.evaluate(() => {
+      const detail = document.getElementById('demo-detail');
+      return {
+        hidden: detail.hidden,
+        display: getComputedStyle(detail).display,
+        width: detail.getBoundingClientRect().width,
+        thumbHidden: document.querySelector('[data-demo-shot="2"]').hidden,
+        translate: detail.style.translate,
+        scale: detail.style.scale,
+        borderRadius: detail.style.borderRadius,
+      };
+    });
+    assert.equal(shown.hidden, false);
+    assert.notEqual(shown.display, 'none');
+    assert.ok(shown.width > 200, `the detail is ${shown.width}px wide`);
+    assert.equal(shown.thumbHidden, true);
+    assert.equal(shown.translate, '');
+    assert.equal(shown.scale, '');
+    assert.equal(shown.borderRadius, '');
+
+    // Close: click and read in one task. The thumbnail has just started from where the detail was.
+    const closing = await page.evaluate(async () => {
+      const detail = document.getElementById('demo-detail');
+      const from = detail.getBoundingClientRect();
+      document.querySelector('[data-demo-close]').click();
+      await Promise.resolve();
+      const thumb = document.querySelector('[data-demo-shot="2"]');
+      const to = thumb.getBoundingClientRect();
+      return {
+        animations: thumb.getAnimations().length,
+        from: { left: from.left, top: from.top, width: from.width, height: from.height },
+        to: { left: to.left, top: to.top, width: to.width, height: to.height },
+      };
+    });
+    assert.ok(closing.animations >= 1, 'the thumbnail has no morph in flight');
+    for (const key of ['left', 'top', 'width', 'height'])
+      assert.ok(Math.abs(closing.to[key] - closing.from[key]) <= 2, `the thumbnail's ${key} is ${closing.to[key]}, the detail's is ${closing.from[key]}`);
+    await page.waitForFunction(() => document.querySelector('[data-demo-shot="2"]').getAnimations().length === 0);
+    const back = await page.evaluate(() => {
+      const rect = document.querySelector('[data-demo-shot="2"]').getBoundingClientRect();
+      return { left: rect.left, top: rect.top + window.scrollY, width: rect.width, height: rect.height, detailHidden: document.getElementById('demo-detail').hidden };
+    });
+    for (const key of ['left', 'top', 'width', 'height'])
+      assert.ok(Math.abs(back[key] - initial[key]) <= 1, `the thumbnail's ${key} is ${back[key]}, it was ${initial[key]}`);
+    assert.equal(back.detailHidden, true);
+    assert.deepEqual(pageErrors, []);
+  } finally { await browser.close(); }
+});
 }

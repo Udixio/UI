@@ -155,6 +155,61 @@ a presence and a layout:
 - Angular: `<li udxMotion="cascade reflow">`
 - Svelte: `{@attach motion(['cascade', 'reflow'])} transition:presence`
 
+### Shared element
+
+Two elements that carry the same shared key are one thing for the eye. When one of them
+appears while the other is gone, it starts from the other's last position and size and
+travels to its own place. A thumbnail that opens into a detail card is the typical case:
+
+```html
+<button type="button" data-motion="reflow" data-motion-shared="shot-1">1</button>
+<div data-motion="reflow" data-motion-shared="shot-1" hidden>Detail of 1</div>
+```
+
+```ts
+// Open the detail in place of the thumbnail: both changes in the same task
+thumbnail.hidden = true;
+detail.hidden = false;
+```
+
+The key is a kebab-case name, and it applies to a layout motion. Give it in one of these ways:
+
+- the attribute `data-motion-shared="<key>"`, on an element that has a layout motion;
+- the option `shared`: of `motion(element, 'reflow', { shared: 'shot-1' })`, of React's
+  `useMotion('reflow', { shared: 'shot-1' })`, of Angular's `udxMotionShared` input
+  (`<div udxMotion="reflow" udxMotionShared="shot-1">`), or of the Svelte `motion`
+  attachment (`{@attach motion('reflow', () => ({ shared: 'shot-1' }))}`);
+- `shared` in a layout definition, which gives every element bound to it the same key.
+  `defineShared` returns the name, typed, for a shared identity used in several places:
+
+```ts
+import { defineMotion, defineShared } from '@udixio/motion';
+
+defineMotion('hero-move', { verb: 'layout', shared: defineShared('hero') });
+```
+
+The `shared` option takes precedence over the key of the definition.
+
+Rules:
+
+- One live element holds a key at a time. An element holds its key while it is displayed.
+  When two elements with the same key are displayed, the second does not morph, and in
+  development an error is reported.
+- The last box of a holder is kept for 600 ms after the holder is hidden or removed. The
+  600 ms are counted from the moment the layout engine learns that it is gone. An element
+  that arrives after that starts at its own place.
+- During the morph the content of the element is scaled with it, and its rounded corners
+  stay round.
+- The morph is a layout motion, so the layout engine must be loaded, as for any layout
+  motion (see [Layout](#layout)). `await loadLayoutEngine()` (from `@udixio/motion`) preloads it.
+
+Limits:
+
+- The two elements do not cross-fade: the arriving element moves and scales from the other's box.
+- The morph does not use the View Transitions API.
+- An element that is bound more than 600 ms after the other holder went away, for example an
+  island that hydrates late, does not morph.
+
 ### HTML
 
 `data-motion` takes names separated by spaces, at most one per kind: a presence motion
