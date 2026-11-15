@@ -1266,8 +1266,8 @@ Points ouverts :
 
 | Famille | Écriture | Moteur | Mesuré (trois navigateurs) |
 |---|---|---|---|
-| Gestes (F12) | `defineGesture(nom, { kind: 'drag' \| 'swipe' \| 'reorder', axis, bounds, release, alternative })` (entrée `@udixio/motion/gesture`) ; `data-motion-gesture="<nom>"`, `gesture(el, nom)` | événements pointeur natifs avec capture ; ressort intégré par frame au relâchement (`spring-step`, vitesse mesurée conservée) ; lancer d'un `drag` = 0,2 s de sa vitesse, borné au parent | swipe sorti au-delà de 40 % de la taille ou à plus de 800 px/s ; flèches 16 px (64 avec Maj) ; reorder clavier annoncé |
-| Transitions de page (F21) | `navigate(update, { direction })` (entrée principale) ; `connectAstroTransitions()` (entrée `@udixio/motion/astro`) | View Transitions natives ; règles de route dans `motion.css` (glissement + fondu, ressort spatial lent, `mix-blend-mode: plus-lighter`) ; type `udx-forward` / `udx-back` et `data-motion-direction` sur `html` | direction donnée par le routeur Astro, aller et retour |
+| Gestes (F18) | `defineGesture(nom, { kind: 'drag' \| 'swipe' \| 'reorder', axis, bounds, release, alternative })` (entrée `@udixio/motion/gesture`) ; `data-motion-gesture="<nom>"`, `gesture(el, nom)` | événements pointeur natifs avec capture ; ressort intégré par frame au relâchement (`spring-step`, vitesse mesurée conservée) ; lancer d'un `drag` = 0,2 s de sa vitesse, borné au parent | swipe sorti au-delà de 40 % de la taille ou à plus de 800 px/s ; flèches 16 px (64 avec Maj) ; reorder clavier annoncé |
+| Transitions de page (F9) | `navigate(update, { direction })` (entrée principale) ; `connectAstroTransitions()` (entrée `@udixio/motion/astro`) | View Transitions natives ; règles de route dans `motion.css` (glissement + fondu, ressort spatial lent, `mix-blend-mode: plus-lighter`) ; type `udx-forward` / `udx-back` et `data-motion-direction` sur `html` | direction donnée par le routeur Astro, aller et retour |
 
 Adaptateurs : `useMotionGesture` ; `[udxMotionGesture]` avec `udxDragEnd`, `udxSwipe`, `udxReorder` ; `motionGesture`.
 
