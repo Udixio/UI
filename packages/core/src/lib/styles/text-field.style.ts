@@ -61,9 +61,9 @@ const textFieldConfig: ClassNameComponent<TextFieldInterface> = ({
     ),
     label: cx(
       // The floating label moves, rescales and recolours on the fast effects spring, in step with the notch it opens.
-      // Its position and its size are both transitioned, since the class changes both; `transform` carries the
+      // Its position and its size are both transitioned, since the class changes both; `translate` carries the
       // `-translate-y-1/2` of its resting place.
-      'absolute pointer-events-none whitespace-nowrap outline-none inline-flex transition-[top,left,right,transform,padding,font-size,line-height,letter-spacing,color] duration-[var(--udx-motion-spring-fast-effects-duration,150ms)] ease-[var(--udx-motion-spring-fast-effects-easing,cubic-bezier(0.31,0.94,0.34,1))] motion-reduce:transition-none [html[data-motion-policy=reduce]_&]:transition-none',
+      'absolute pointer-events-none whitespace-nowrap outline-none inline-flex transition-[top,left,right,translate,transform,padding,font-size,line-height,letter-spacing,color] duration-[var(--udx-motion-spring-fast-effects-duration,150ms)] ease-[var(--udx-motion-spring-fast-effects-easing,cubic-bezier(0.31,0.94,0.34,1))] motion-reduce:transition-none [html[data-motion-policy=reduce]_&]:transition-none',
       { 'text-on-surface-variant': !disabled && !errorText?.length },
       { 'text-on-surface': disabled },
       { 'text-error': !!errorText?.length },
