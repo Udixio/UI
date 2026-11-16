@@ -6,6 +6,8 @@ import { parallax, rotate } from './presets.js';
 // This file runs with the continuous module cold, and it has one test: the module loads inside it, so every check that
 // needs the module cold must come before the load.
 
+const nativeViewTimeline = typeof Reflect.get(globalThis, 'ViewTimeline') === 'function';
+
 let host: HTMLElement | undefined;
 const bindings: MotionBinding[] = [];
 
@@ -50,5 +52,6 @@ it('a loop or a scrub bound before its module loads waits for it: a pause holds,
   expect(paused.getAnimations()[0].playState).toBe('paused');
   expect(destroyed.getAnimations()).toHaveLength(0);
   expect(gone.handle).toBeNull();
-  expect(scrubbed.getAnimations()).toHaveLength(1);
+  // Firefox has no view timeline: there the scrub stays in its stylesheet state, as the scrub spec expects.
+  expect(scrubbed.getAnimations()).toHaveLength(nativeViewTimeline ? 1 : 0);
 });
