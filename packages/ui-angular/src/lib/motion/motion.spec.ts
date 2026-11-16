@@ -43,7 +43,15 @@ function fakeMotion(verb: MotionBinding['verb'] = 'disappear') {
     setPresent,
     destroy: jest.fn(),
   };
-  const deferred: DeferredMotion = { binding, destroy };
+  // As the core's deferred motion: the presence goes to a presence motion, the replay to an emphasis, and nothing else.
+  const deferred: DeferredMotion = {
+    binding,
+    setPresent: (present: boolean) => (binding.kind === 'presence' ? binding.setPresent(present) : Promise.resolve<Outcome>('finished')),
+    play: () => {
+      if (binding.kind === 'emphasis') binding.play();
+    },
+    destroy,
+  };
   return {
     deferred,
     binding,
@@ -365,6 +373,34 @@ describe('Motion (Angular directive)', () => {
       expect(appear.setPresent).toHaveBeenLastCalledWith(false);
       expect(reflow.setPresent).not.toHaveBeenCalled();
       expect(boxOf(fixture.nativeElement).isConnected).toBe(true);
+      fixture.destroy();
+    });
+
+    it('hands a presence set before its motion is defined to that motion, which keeps it for the definition', () => {
+      // The name is not defined: the deferred motion has no binding yet, and keeps what it is asked.
+      const pending = { binding: undefined, setPresent: jest.fn(() => Promise.resolve<Outcome>('finished')), play: jest.fn(), destroy: jest.fn() };
+      motionWhenDefinedMock.mockReturnValue(pending as unknown as DeferredMotion);
+      const fixture = TestBed.createComponent(PresenceHost);
+      fixture.detectChanges();
+
+      fixture.componentInstance.present = false;
+      fixture.detectChanges();
+
+      expect(pending.setPresent).toHaveBeenLastCalledWith(false);
+      expect(boxOf(fixture.nativeElement).isConnected).toBe(true);
+      fixture.destroy();
+    });
+
+    it('hands a replay asked before its emphasis is defined to that motion, which plays it once defined', () => {
+      const pending = { binding: undefined, setPresent: jest.fn(() => Promise.resolve<Outcome>('finished')), play: jest.fn(), destroy: jest.fn() };
+      motionWhenDefinedMock.mockReturnValue(pending as unknown as DeferredMotion);
+      const fixture = TestBed.createComponent(StateHost);
+      fixture.detectChanges();
+
+      fixture.componentInstance.count = 1;
+      fixture.detectChanges();
+
+      expect(pending.play).toHaveBeenCalledTimes(1);
       fixture.destroy();
     });
 

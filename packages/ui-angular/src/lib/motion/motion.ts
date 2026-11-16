@@ -159,10 +159,10 @@ export class Motion implements OnDestroy {
 
     // Declared after the binding effect, so the bindings it reads are the ones
     // just made. The core ignores a value it already has.
+    // Each motion takes the presence: one not defined yet keeps it for its definition.
     afterRenderEffect(() => {
       const present = this.present();
-      const binding = this.bindingOf('presence');
-      if (binding) void binding.setPresent(present);
+      for (const each of this.deferred) void each.setPresent(present);
     });
 
     effect(() => {
@@ -178,9 +178,9 @@ export class Motion implements OnDestroy {
     });
   }
 
-  /** Replays the emphasis. Does nothing until the motion is bound, or without an emphasis. */
+  /** Replays the emphasis. A replay asked before the emphasis is defined plays once it is; without an emphasis, nothing. */
   play(): void {
-    this.bindingOf('emphasis')?.play();
+    for (const each of this.deferred) each.play();
   }
 
   ngOnDestroy(): void {
