@@ -1,7 +1,7 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '@nanostores/react';
 import { API } from '@udixio/theme';
-import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
+import { createSpring, type SpringNumber } from '@udixio/motion/animate';
 import {
   themeConfigStore,
   themeServiceVersionStore,
@@ -11,7 +11,12 @@ type Props = { api: API | null | undefined; group: string };
 
 const IND_W = 48;
 const GAP = 8;
-const SPRING = { stiffness: 360, damping: 28, mass: 0.7 };
+
+/** The value of a ramp from `from` to `to` over `[start, end]`, clamped to the ends. */
+const ramp = (value: number, [start, end]: [number, number], [from, to]: [number, number]) => {
+  const t = Math.min(1, Math.max(0, (value - start) / (end - start)));
+  return from + (to - from) * t;
+};
 
 function makeGradient(
   palette: ReturnType<API['palettes']['get']>,
@@ -30,6 +35,13 @@ function makeGradient(
 export const PaletteToneRow: React.FC<Props> = ({ api, group }) => {
   const cwRef = useRef(400);
   const activeRef = useRef(false); // synchronous hover flag, immune to React batching
+  const cursorRef = useRef(0); // the pointer's x, followed at once (not by the spring)
+  const springsRef = useRef<{ width: SpringNumber; gap: SpringNumber } | null>(null);
+  const leftRef = useRef<HTMLDivElement>(null);
+  const indicatorRef = useRef<HTMLDivElement>(null);
+  const labelRef = useRef<HTMLSpanElement>(null);
+  const rightRef = useRef<HTMLDivElement>(null);
+  const pillRef = useRef<HTMLDivElement>(null);
 
   const [tone, setTone] = useState(50);
   const [copied, setCopied] = useState(false);
@@ -54,26 +66,43 @@ export const PaletteToneRow: React.FC<Props> = ({ api, group }) => {
     [palette, themeConfig, themeServiceVersion],
   );
 
-  // ── MotionValues ──────────────────────────────────────────────────────────
-  const cursorX = useMotionValue(0);
-  const indW = useSpring(0, SPRING);
-  const gapSpring = useSpring(0, SPRING);
+  /**
+   * Writes the pieces of the row for the pointer and the indicator's spring, straight to the DOM: a spring frame does not
+   * render the component.
+   */
+  const paint = () => {
+    const width = springsRef.current?.width.value ?? 0;
+    const gap = springsRef.current?.gap.value ?? 0;
+    const x = cursorRef.current;
+    const indicator = indicatorRef.current;
+    if (indicator) {
+      indicator.style.left = `${x - width / 2}px`;
+      indicator.style.width = `${width}px`;
+    }
+    if (leftRef.current) leftRef.current.style.width = `${Math.max(0, x - width / 2 - gap)}px`;
+    if (rightRef.current) rightRef.current.style.left = `${x + width / 2 + gap}px`;
+    if (pillRef.current) pillRef.current.style.opacity = String(ramp(width, [0, 8], [1, 0]));
+    if (labelRef.current) labelRef.current.style.opacity = String(ramp(width, [IND_W * 0.55, IND_W], [0, 1]));
+  };
 
-  const indLeft = useTransform(
-    [cursorX, indW],
-    ([x, iw]: number[]) => x - iw / 2,
-  );
-  const leftW = useTransform(
-    [cursorX, indW, gapSpring],
-    ([x, iw, g]: number[]) => Math.max(0, x - iw / 2 - g),
-  );
-  const rightLeft = useTransform(
-    [cursorX, indW, gapSpring],
-    ([x, iw, g]: number[]) => x + iw / 2 + g,
-  );
+  /** The two springs of the indicator, made on the first pointer move, and stopped when the row unmounts. */
+  const springs = () => {
+    if (!springsRef.current) {
+      springsRef.current = {
+        width: createSpring(0, { timing: 'spring.default.spatial', onUpdate: paint }),
+        gap: createSpring(0, { timing: 'spring.default.spatial', onUpdate: paint }),
+      };
+    }
+    return springsRef.current;
+  };
 
-  const pillOpacity = useTransform(indW, [0, 8], [1, 0]);
-  const textOpacity = useTransform(indW, [0, IND_W * 0.55, IND_W], [0, 0, 1]);
+  useEffect(
+    () => () => {
+      springsRef.current?.width.stop();
+      springsRef.current?.gap.stop();
+    },
+    [],
+  );
 
   if (!palette) return null;
 
@@ -89,10 +118,12 @@ export const PaletteToneRow: React.FC<Props> = ({ api, group }) => {
     Math.round(Math.max(0, Math.min(100, (1 - x / cwRef.current) * 100)));
 
   const triggerEnter = (x: number) => {
-    cursorX.set(x);
+    cursorRef.current = x;
     setTone(xToTone(x));
-    indW.set(IND_W);
-    gapSpring.set(GAP);
+    const { width, gap } = springs();
+    width.to(IND_W);
+    gap.to(GAP);
+    paint();
   };
 
   // ── Handlers ─────────────────────────────────────────────────────────────
@@ -113,15 +144,17 @@ export const PaletteToneRow: React.FC<Props> = ({ api, group }) => {
       triggerEnter(x);
       return;
     }
-    cursorX.set(x);
+    cursorRef.current = x;
+    paint();
     setTone(xToTone(x));
   };
 
   const handleMouseLeave = () => {
     activeRef.current = false;
     setCopied(false);
-    indW.set(0);
-    gapSpring.set(0);
+    const { width, gap } = springs();
+    width.to(0);
+    gap.to(0);
   };
 
   const handleClick = () => {
@@ -139,47 +172,52 @@ export const PaletteToneRow: React.FC<Props> = ({ api, group }) => {
       onClick={handleClick}
     >
       {/* Left : tone 100 → hovered tone */}
-      <motion.div
+      <div
+        ref={leftRef}
         className="absolute top-0 bottom-0 left-0 pointer-events-none"
         style={{
-          width: leftW,
+          width: 0,
           background: leftGrad,
           borderRadius: '24px 12px 12px 24px',
         }}
       />
 
       {/* Indicator */}
-      <motion.div
+      <div
+        ref={indicatorRef}
         className="absolute top-0 bottom-0 flex items-center justify-center overflow-hidden pointer-events-none"
         style={{
-          left: indLeft,
-          width: indW,
+          left: 0,
+          width: 0,
           background: indHex,
           borderRadius: '12px',
         }}
       >
-        <motion.span
+        <span
+          ref={labelRef}
           className="text-label-small   select-none whitespace-nowrap"
-          style={{ color: contrastHex, opacity: textOpacity }}
+          style={{ color: contrastHex, opacity: 0 }}
         >
           {copied ? '✓' : tone}
-        </motion.span>
-      </motion.div>
+        </span>
+      </div>
 
       {/* Right : hovered tone → tone 0 */}
-      <motion.div
+      <div
+        ref={rightRef}
         className="absolute top-0 bottom-0 right-0 pointer-events-none"
         style={{
-          left: rightLeft,
+          left: 0,
           background: rightGrad,
           borderRadius: '12px 24px 24px 12px',
         }}
       />
 
       {/* Pill — on top (rendered last), covers split pieces at rest */}
-      <motion.div
+      <div
+        ref={pillRef}
         className="absolute inset-0 rounded-full pointer-events-none"
-        style={{ background: fullGradient, opacity: pillOpacity }}
+        style={{ background: fullGradient, opacity: 1 }}
       />
     </div>
   );

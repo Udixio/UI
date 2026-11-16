@@ -75,8 +75,10 @@ and closing animates the panel's width and the backdrop's opacity rather than
 mounting and unmounting them. The choreography is implemented once with `@udixio/motion`
 in `@udixio/core/dom`, so React, Angular, and Svelte share the same timing,
 cleanup, and reduced-motion behavior — no `motion/react` is used, and Angular
-is not a static, unanimated adapter. Pass `transition` to override the default
-duration; reduced-motion preference applies the end state immediately.
+is not a static, unanimated adapter. Pass `motion={{ timing: 'spring.slow.spatial' }}`
+to choose the spring of the width instead of the default spatial spring (a
+spring token, or a `{ duration, easing }` pair of tokens); reduced-motion
+preference applies the end state immediately.
 
 ## Accessibility
 

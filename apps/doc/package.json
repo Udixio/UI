@@ -48,7 +48,6 @@
     "astro-seo": "^1.1.0",
     "case": "^1.6.3",
     "change-case": "^5.4.4",
-    "motion": "^12.23.3",
     "nanostores": "^1.0.1",
     "pagefind": "^1.4.0",
     "react": "^19.1.1",

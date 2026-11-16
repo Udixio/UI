@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useStore } from '@nanostores/react';
 import {
   themeConfigStore,
@@ -6,12 +6,36 @@ import {
   themeServiceVersionStore,
 } from '@/stores/themeConfigStore.ts';
 import type { Color } from '@udixio/theme';
-import { Card, Icon, TextField } from '@udixio/ui-react';
+import { Card, Icon, TextField, useMotion } from '@udixio/ui-react';
+import { defineMotion, loadLayoutEngine } from '@udixio/motion';
 import PaletteToneRow from './PaletteToneRow';
 import ColorTokenCard from './ColorTokenCard';
-import { AnimatePresence, motion } from 'motion/react';
+import { Collapsible } from './Collapsible';
 import { iKeyboardArrowDown } from '@udixio/icons-rounded-400/keyboard_arrow_down';
 import { iKeyboardArrowUp } from '@udixio/icons-rounded-400/keyboard_arrow_up';
+
+/**
+ * A token of a group: it enters one step after the previous one, rising 8 px and growing from 98 %, and it moves to its
+ * place when a filter removes the tokens before it.
+ */
+defineMotion('token-item', {
+  verb: 'appear',
+  keyframes: [
+    { opacity: 0, y: 8, scale: 0.98 },
+    { opacity: 1, y: 0, scale: 1 },
+  ],
+  stagger: 'normal',
+  timing: 'spring.default.spatial',
+});
+
+const TokenItem = ({ name, color }: { name: string; color: Color }) => {
+  const item = useMotion<HTMLDivElement>(['token-item', 'reflow']);
+  return (
+    <div ref={item.ref}>
+      <ColorTokenCard name={name} color={color} />
+    </div>
+  );
+};
 
 const paletteOrder = [
   'Primary',
@@ -32,6 +56,11 @@ export const TokenGallery: React.FC = () => {
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
     { Primary: true },
   );
+
+  // The layout engine is loaded on demand: loading it now lets a filter move the tokens that remain.
+  useEffect(() => {
+    void loadLayoutEngine();
+  }, []);
 
   const tokens = useMemo(() => {
     if (!$themeApi) {
@@ -66,29 +95,6 @@ export const TokenGallery: React.FC = () => {
     return map;
   }, [filtered]);
 
-  // Animation variants for palette keys reveal
-  const gridVariants = {
-    hidden: {
-      opacity: 0,
-      height: 0,
-    },
-    show: {
-      opacity: 1,
-      height: 'auto',
-      transition: { staggerChildren: 0.035, when: 'beforeChildren' },
-    },
-  } as const;
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 8, scale: 0.98 },
-    show: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: { type: 'spring', stiffness: 300, damping: 24 },
-    },
-    exit: { opacity: 0, y: -6, scale: 0.98, transition: { duration: 0.15 } },
-  } as const;
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 bg-surface-container p-4 rounded-xl border border-outline-variant">
@@ -151,45 +157,22 @@ export const TokenGallery: React.FC = () => {
                 </div>
               </div>
 
-              <AnimatePresence initial={false}>
-                {expandedGroups[group] && (
-                  <motion.div
-                    key={`${group}-content`}
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden bg-surface-container-lowest"
-                  >
-                    <div className="p-4 space-y-4 border-t border-outline-variant">
-                      <div className="bg-surface rounded-lg p-2 border border-outline-variant">
-                        <PaletteToneRow api={$themeApi} group={group as any} />
-                      </div>
+              <Collapsible
+                open={!!expandedGroups[group]}
+                className="bg-surface-container-lowest"
+              >
+                <div className="p-4 space-y-4 border-t border-outline-variant">
+                  <div className="bg-surface rounded-lg p-2 border border-outline-variant">
+                    <PaletteToneRow api={$themeApi} group={group as any} />
+                  </div>
 
-                      <motion.div
-                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 pt-2"
-                        variants={gridVariants}
-                        initial="hidden"
-                        animate="show"
-                        exit="hidden"
-                      >
-                        {groups.get(group)!.map((t) => {
-                          const name = t.name;
-                          return (
-                            <motion.div
-                              key={name}
-                              variants={itemVariants}
-                              layout
-                            >
-                              <ColorTokenCard name={name} color={t.color} />
-                            </motion.div>
-                          );
-                        })}
-                      </motion.div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 pt-2">
+                    {groups.get(group)!.map((t) => (
+                      <TokenItem key={t.name} name={t.name} color={t.color} />
+                    ))}
+                  </div>
+                </div>
+              </Collapsible>
             </Card>
           ))}
       </div>

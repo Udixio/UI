@@ -24,7 +24,7 @@ import {
   Tooltip,
 } from '@udixio/ui-react';
 import { iInfo } from '@udixio/icons-rounded-400/info';
-import { AnimatePresence, motion } from 'motion/react';
+import { Collapsible, RotatingChevron } from './Collapsible';
 
 const PALETTES = [
   { key: 'primary', label: 'Primary' },
@@ -477,34 +477,14 @@ export const ThemePicker: React.FC = () => {
                         <span className="text-title-medium flex-1">
                           {label}
                         </span>
-                        <motion.svg
-                          className="mr-2 text-on-surface-variant shrink-0"
-                          animate={{ rotate: isOpen ? 180 : 0 }}
-                          transition={{ duration: 0.2 }}
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                        >
-                          <path d="M7 10l5 5 5-5z" />
-                        </motion.svg>
+                        <RotatingChevron open={isOpen} />
                       </Card>
 
-                      <AnimatePresence initial={false}>
-                        {isOpen && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.25, ease: 'easeInOut' }}
-                            style={{ overflow: 'hidden' }}
-                          >
-                            <div className="px-4 pt-4 pb-2">
-                              <ColorPicker paletteKey={key} />
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
+                      <Collapsible open={isOpen}>
+                        <div className="px-4 pt-4 pb-2">
+                          <ColorPicker paletteKey={key} />
+                        </div>
+                      </Collapsible>
                     </div>
                   );
                 })}
