@@ -142,6 +142,26 @@ describe('Tooltip', () => {
     expect(screen.getByRole('tooltip')).toHaveTextContent('Last');
   });
 
+  it('gives the transition controller the timing of its motion, keyed by value', () => {
+    const { rerender } = render(
+      <Tooltip text="Copy" motion={{ timing: 'spring.default.spatial' }}>
+        <Button label="Trigger" />
+      </Tooltip>,
+    );
+    expect(createTooltipTransitionController).toHaveBeenLastCalledWith(
+      expect.objectContaining({ timing: 'spring.default.spatial' }),
+    );
+    const created = vi.mocked(createTooltipTransitionController).mock.calls.length;
+
+    // An equal motion written inline again keeps the controller.
+    rerender(
+      <Tooltip text="Copy" motion={{ timing: 'spring.default.spatial' }}>
+        <Button label="Trigger" />
+      </Tooltip>,
+    );
+    expect(vi.mocked(createTooltipTransitionController).mock.calls.length).toBe(created);
+  });
+
   it('animates the first opening after the hidden surface is connected', () => {
     const controller = mockTransitionController();
     vi.mocked(createTooltipTransitionController).mockReturnValue(controller);

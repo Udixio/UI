@@ -9,7 +9,7 @@
       "tags": {
         "status": "beta",
         "category": "Communication",
-        "devx": "- `content` overrides `title`/`text`/`buttons` for fully custom content.\n- Supports controlled `open` plus `openDelay`/`closeDelay`.\n- A touch long press opens after 500ms and remains visible for 1.5s after\n  release, following Material 3 guidance.\n- Opening one tooltip closes the currently visible tooltip in the document.\n- The open/close opacity/height transition is implemented once with\n  Anime.js in `@udixio/core/dom`, so React and Angular share the same\n  timing, reduced-motion behavior, and cleanup. No `motion/react` is used.\n- The tooltip surface stays mounted at all times (hidden via `inert` and\n  `aria-hidden`) rather than mounting only while open, so it can animate\n  out; expensive `content` subtrees are not torn down until the `Tooltip`\n  itself unmounts.",
+        "devx": "- `content` overrides `title`/`text`/`buttons` for fully custom content.\n- Supports controlled `open` plus `openDelay`/`closeDelay`.\n- A touch long press opens after 500ms and remains visible for 1.5s after\n  release, following Material 3 guidance.\n- Opening one tooltip closes the currently visible tooltip in the document.\n- The open/close height and opacity are implemented once on `@udixio/motion`\n  in `@udixio/core/dom`, so React and Angular share the same timing,\n  reduced-motion behavior, and cleanup. `motion` picks the timing of the\n  height; the opacity keeps its effects spring.\n- The tooltip surface stays mounted at all times (hidden via `inert` and\n  `aria-hidden`) rather than mounting only while open, so it can animate\n  out; expensive `content` subtrees are not torn down until the `Tooltip`\n  itself unmounts.",
         "a11y": "- Provides `role=\"tooltip\"` and `aria-describedby` when open.",
         "limitations": "- `children` stay mounted while closed, since the surface is always present\n  for its open/close animation; expensive content is not torn down until\n  the `Tooltip` itself unmounts.\n- `position` falls back to tracking `getBoundingClientRect()` on scroll and\n  resize in browsers without native CSS Anchor Positioning support."
       },
@@ -144,12 +144,12 @@
             "value": "false"
           }
         },
-        "transition": {
-          "name": "transition",
-          "description": "Anime.js opacity/scale open-close timing. Shared by every framework, no `motion/react`.",
+        "motion": {
+          "name": "motion",
+          "description": "The motion of the open/close height; the opacity keeps its own effects spring. Shared by every framework.",
           "required": false,
           "type": {
-            "name": "TooltipTransition"
+            "name": "ComponentMotion"
           },
           "defaultValue": null
         },
@@ -188,7 +188,7 @@
       "tags": {
         "status": "beta",
         "category": "Communication",
-        "devx": "- Put it on the trigger: `<udx-button udxTooltip=\"Copy\" />`. Inputs are\n  prefixed `udxTooltip*` because the host element is not the directive's own;\n  the member names stay the shared contract's vocabulary.\n- Content comes from `udxTooltip` (the supporting text), `udxTooltipTitle`\n  and `udxTooltipButtons`, or from a `TemplateRef` on `udxTooltipContent`.\n  Any one of the three activates the directive, so a title-only or\n  template-only tooltip needs no placeholder text; the rest only configure\n  an already-active directive.\n- Supports controlled `udxTooltipOpen` plus the two delays.\n- A touch long press opens after 500ms and stays visible for 1.5s after\n  release, following Material 3 guidance.\n- Opening one tooltip closes the currently visible tooltip in the document.\n- Timing, reduced-motion behaviour and interruption match React exactly:\n  both adapters drive the same controllers in `@udixio/core/dom`.",
+        "devx": "- Put it on the trigger: `<udx-button udxTooltip=\"Copy\" />`. Inputs are\n  prefixed `udxTooltip*` because the host element is not the directive's own;\n  the member names stay the shared contract's vocabulary.\n- Content comes from `udxTooltip` (the supporting text), `udxTooltipTitle`\n  and `udxTooltipButtons`, or from a `TemplateRef` on `udxTooltipContent`.\n  Any one of the three activates the directive, so a title-only or\n  template-only tooltip needs no placeholder text; the rest only configure\n  an already-active directive.\n- Supports controlled `udxTooltipOpen` plus the two delays.\n- A touch long press opens after 500ms and stays visible for 1.5s after\n  release, following Material 3 guidance.\n- Opening one tooltip closes the currently visible tooltip in the document.\n- Timing, reduced-motion behaviour and interruption match React exactly:\n  both adapters drive the same controllers in `@udixio/core/dom`, on\n  `@udixio/motion`.",
         "a11y": "- Provides `role=\"tooltip\"` on the panel and `aria-describedby` on the host\n  while open.",
         "limitations": "- The panel stays mounted while closed so it can animate out; expensive\n  `udxTooltipContent` is not torn down until the directive is destroyed.\n- `udxTooltipPosition` falls back to tracking `getBoundingClientRect()` on\n  scroll and resize where CSS Anchor Positioning is unavailable."
       },
@@ -355,15 +355,15 @@
           "defaultValue": null,
           "alias": "udxTooltipAnchor"
         },
-        "transition": {
-          "name": "transition",
-          "description": "Anime.js opacity/scale open-close timing, shared by every framework.",
+        "motion": {
+          "name": "motion",
+          "description": "The motion of the open/close height, shared by every framework; the opacity keeps its own effects spring.",
           "required": false,
           "type": {
-            "name": "TooltipTransition | undefined"
+            "name": "ComponentMotion | undefined"
           },
           "defaultValue": null,
-          "alias": "udxTooltipTransition"
+          "alias": "udxTooltipMotion"
         },
         "classes": {
           "name": "classes",
@@ -395,7 +395,7 @@
       "tags": {
         "status": "beta",
         "category": "Communication",
-        "devx": "- Attach it to the trigger: `<Button label=\"Copy\" {@attach tooltip(() => ({ text: 'Copy' }))} />`.\n  The options are read through a function so a change updates the open\n  tooltip in place instead of tearing it down.\n- `content` (a snippet) overrides `title`/`text`/`buttons` for fully custom content.\n- Supports controlled `open` plus `openDelay`/`closeDelay`; the owner updates\n  `open` from `onOpenChange`.\n- A touch long press opens after 500ms and remains visible for 1.5s after\n  release, following Material 3 guidance.\n- Opening one tooltip closes the currently visible tooltip in the document.\n- The open/close opacity/height transition is implemented once with\n  Anime.js in `@udixio/core/dom`, so every adapter shares the same timing,\n  reduced-motion behavior, and cleanup.\n- The tooltip surface stays mounted at all times (hidden via `inert` and\n  `aria-hidden`) rather than mounting only while open, so it can animate\n  out.",
+        "devx": "- Attach it to the trigger: `<Button label=\"Copy\" {@attach tooltip(() => ({ text: 'Copy' }))} />`.\n  The options are read through a function so a change updates the open\n  tooltip in place instead of tearing it down.\n- `content` (a snippet) overrides `title`/`text`/`buttons` for fully custom content.\n- Supports controlled `open` plus `openDelay`/`closeDelay`; the owner updates\n  `open` from `onOpenChange`.\n- A touch long press opens after 500ms and remains visible for 1.5s after\n  release, following Material 3 guidance.\n- Opening one tooltip closes the currently visible tooltip in the document.\n- The open/close height and opacity are implemented once on `@udixio/motion`\n  in `@udixio/core/dom`, so every adapter shares the same timing,\n  reduced-motion behavior, and cleanup. `motion` picks the timing of the\n  height; the opacity keeps its effects spring.\n- The tooltip surface stays mounted at all times (hidden via `inert` and\n  `aria-hidden`) rather than mounting only while open, so it can animate\n  out.",
         "a11y": "- Provides `role=\"tooltip\"` and `aria-describedby` on the trigger when open.",
         "limitations": "- The surface stays mounted while closed, since it is always present for\n  its open/close animation; expensive `content` is not torn down until the\n  trigger element is.\n- `position` falls back to tracking `getBoundingClientRect()` on scroll and\n  resize in browsers without native CSS Anchor Positioning support."
       },
@@ -567,12 +567,12 @@
           },
           "defaultValue": null
         },
-        "transition": {
-          "name": "transition",
-          "description": "Anime.js opacity/scale open-close timing. Shared by every framework, no `motion/react`.",
+        "motion": {
+          "name": "motion",
+          "description": "The motion of the open/close height; the opacity keeps its own effects spring. Shared by every framework.",
           "required": false,
           "type": {
-            "name": "TooltipTransition"
+            "name": "ComponentMotion"
           },
           "defaultValue": null
         }

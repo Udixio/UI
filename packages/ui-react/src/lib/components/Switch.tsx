@@ -28,8 +28,8 @@ export const useSwitchStyle = createUseStyle(switchStyle);
  * @category Input
  * @devx
  * - Use `checked` with `onCheckedChange` for controlled state, or `defaultChecked` for uncontrolled state.
- * - The thumb slide is driven by a shared `@udixio/core/dom` Anime.js tween controller, the same one the Angular
- *   adapter uses -- an accepted exception to the rest of `@udixio/core/dom`, which uses `@udixio/motion`.
+ * - The thumb slide is driven by a shared `@udixio/core/dom` controller on `@udixio/motion`, the same one the Angular
+ *   and Svelte adapters use.
  * @a11y
  * - Renders `role="switch"` with `aria-checked` and standard Space/Enter activation.
  * @limitations

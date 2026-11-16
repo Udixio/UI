@@ -25,9 +25,10 @@ export interface TooltipButtonAction {
  * - A touch long press opens after 500ms and remains visible for 1.5s after
  *   release, following Material 3 guidance.
  * - Opening one tooltip closes the currently visible tooltip in the document.
- * - The open/close opacity/height transition is implemented once with
- *   Anime.js in `@udixio/core/dom`, so every adapter shares the same timing,
- *   reduced-motion behavior, and cleanup.
+ * - The open/close height and opacity are implemented once on `@udixio/motion`
+ *   in `@udixio/core/dom`, so every adapter shares the same timing,
+ *   reduced-motion behavior, and cleanup. `motion` picks the timing of the
+ *   height; the opacity keeps its effects spring.
  * - The tooltip surface stays mounted at all times (hidden via `inert` and
  *   `aria-hidden`) rather than mounting only while open, so it can animate
  *   out.

@@ -1,18 +1,14 @@
 // @vitest-environment jsdom
 
-import { animate } from 'animejs';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   addPointerEnterLeaveListener,
   claimTooltipVisibility,
-  createTooltipTransitionController,
   createTooltipTriggerController,
   listenForTooltipVisibilityClaims,
   type TooltipTriggerController,
   type TooltipTriggerControllerOptions,
 } from './tooltip.js';
-
-vi.mock('animejs', () => ({ animate: vi.fn() }));
 
 describe('tooltip visibility coordination', () => {
   it('notifies every tooltip except the one claiming visibility', () => {
@@ -35,176 +31,6 @@ describe('tooltip visibility coordination', () => {
     expect(secondDismissed).not.toHaveBeenCalled();
     removeFirst();
     removeSecond();
-  });
-});
-
-function animationInstance() {
-  return { pause: vi.fn() };
-}
-
-describe('tooltip transition controller', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('animates opacity and height to the open state with the default transition', () => {
-    const instance = animationInstance();
-    vi.mocked(animate).mockReturnValue(instance as never);
-    const element = document.createElement('div');
-    Object.defineProperty(element, 'scrollHeight', { value: 48 });
-
-    const controller = createTooltipTransitionController({
-      element,
-      reducedMotion: () => false,
-    });
-    controller.setOpen(true);
-
-    expect(animate).toHaveBeenCalledWith(
-      element,
-      expect.objectContaining({
-        opacity: 1,
-        height: '48px',
-        duration: 300,
-        ease: 'outCubic',
-        onComplete: expect.any(Function),
-      }),
-    );
-  });
-
-  it('animates opacity and height to the closed state', () => {
-    const instance = animationInstance();
-    vi.mocked(animate).mockReturnValue(instance as never);
-    const element = document.createElement('div');
-
-    const controller = createTooltipTransitionController({
-      element,
-      reducedMotion: () => false,
-    });
-    controller.setOpen(false);
-
-    expect(animate).toHaveBeenCalledWith(
-      element,
-      expect.objectContaining({ opacity: 0, height: '16px' }),
-    );
-  });
-
-  it('stops hit-testing while closed and resumes when opening', () => {
-    const instance = animationInstance();
-    vi.mocked(animate).mockReturnValue(instance as never);
-    const element = document.createElement('div');
-
-    const controller = createTooltipTransitionController({
-      element,
-      reducedMotion: () => false,
-    });
-    controller.setOpen(false);
-    expect(element.style.pointerEvents).toBe('none');
-
-    controller.setOpen(true);
-    expect(element.style.pointerEvents).toBe('');
-  });
-
-  it('restores natural height after the opening animation', () => {
-    const instance = animationInstance();
-    vi.mocked(animate).mockReturnValue(instance as never);
-    const element = document.createElement('div');
-    Object.defineProperty(element, 'scrollHeight', { value: 40 });
-
-    const controller = createTooltipTransitionController({
-      element,
-      reducedMotion: () => false,
-    });
-    controller.setOpen(true);
-    const options = vi.mocked(animate).mock.calls[0][1];
-    (options.onComplete as () => void)();
-
-    expect(element.style.height).toBe('auto');
-    expect(element.style.overflow).toBe('visible');
-  });
-
-  it('uses a zero duration when instant is requested', () => {
-    const instance = animationInstance();
-    vi.mocked(animate).mockReturnValue(instance as never);
-    const element = document.createElement('div');
-
-    const controller = createTooltipTransitionController({
-      element,
-      reducedMotion: () => false,
-    });
-    controller.setOpen(true, true);
-
-    expect(animate).toHaveBeenCalledWith(
-      element,
-      expect.objectContaining({ duration: 0 }),
-    );
-  });
-
-  it('uses a zero duration when the user prefers reduced motion', () => {
-    const instance = animationInstance();
-    vi.mocked(animate).mockReturnValue(instance as never);
-    const element = document.createElement('div');
-
-    const controller = createTooltipTransitionController({
-      element,
-      reducedMotion: () => true,
-    });
-    controller.setOpen(true);
-
-    expect(animate).toHaveBeenCalledWith(
-      element,
-      expect.objectContaining({ duration: 0 }),
-    );
-  });
-
-  it('honors a custom transition duration and ease', () => {
-    const instance = animationInstance();
-    vi.mocked(animate).mockReturnValue(instance as never);
-    const element = document.createElement('div');
-
-    const controller = createTooltipTransitionController({
-      element,
-      transition: { duration: 400, ease: 'inOutQuad' },
-      reducedMotion: () => false,
-    });
-    controller.setOpen(true);
-
-    expect(animate).toHaveBeenCalledWith(
-      element,
-      expect.objectContaining({ duration: 400, ease: 'inOutQuad' }),
-    );
-  });
-
-  it('pauses the in-flight animation before starting a new one', () => {
-    const first = animationInstance();
-    const second = animationInstance();
-    vi.mocked(animate)
-      .mockReturnValueOnce(first as never)
-      .mockReturnValueOnce(second as never);
-    const element = document.createElement('div');
-
-    const controller = createTooltipTransitionController({
-      element,
-      reducedMotion: () => false,
-    });
-    controller.setOpen(true);
-    controller.setOpen(false);
-
-    expect(first.pause).toHaveBeenCalledTimes(1);
-  });
-
-  it('pauses the in-flight animation on destroy', () => {
-    const instance = animationInstance();
-    vi.mocked(animate).mockReturnValue(instance as never);
-    const element = document.createElement('div');
-
-    const controller = createTooltipTransitionController({
-      element,
-      reducedMotion: () => false,
-    });
-    controller.setOpen(true);
-    controller.destroy();
-
-    expect(instance.pause).toHaveBeenCalledTimes(1);
   });
 });
 

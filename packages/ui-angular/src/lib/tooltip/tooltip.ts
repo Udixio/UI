@@ -60,7 +60,8 @@ let nextTooltipId = 0;
  *   release, following Material 3 guidance.
  * - Opening one tooltip closes the currently visible tooltip in the document.
  * - Timing, reduced-motion behaviour and interruption match React exactly:
- *   both adapters drive the same controllers in `@udixio/core/dom`.
+ *   both adapters drive the same controllers in `@udixio/core/dom`, on
+ *   `@udixio/motion`.
  * @a11y
  * - Provides `role="tooltip"` on the panel and `aria-describedby` on the host
  *   while open.
@@ -138,9 +139,9 @@ export class Tooltip implements OnDestroy {
     undefined,
     { alias: 'udxTooltipAnchor' },
   );
-  /** Anime.js opacity/scale open-close timing, shared by every framework. */
-  readonly transition = input<TooltipProps['transition']>(undefined, {
-    alias: 'udxTooltipTransition',
+  /** The motion of the open/close height, shared by every framework; the opacity keeps its own effects spring. */
+  readonly motion = input<TooltipProps['motion']>(undefined, {
+    alias: 'udxTooltipMotion',
   });
   /** Classes for the detached surface: a root string, static element classes, or a state-aware function. */
   readonly classes = input<
@@ -230,7 +231,7 @@ export class Tooltip implements OnDestroy {
     open: this.open(),
     defaultOpen: this.defaultOpen(),
     id: this.tooltipId(),
-    transition: this.transition(),
+    motion: this.motion(),
     isOpen: this.resolvedOpen(),
     className: this.classes(),
   }));
@@ -308,7 +309,7 @@ export class Tooltip implements OnDestroy {
       if (!element) return;
       const controller = createTooltipTransitionController({
         element,
-        transition: untracked(this.transition),
+        timing: untracked(() => this.motion()?.timing),
       });
       this.transitionController = controller;
       controller.setOpen(untracked(this.resolvedOpen), true);

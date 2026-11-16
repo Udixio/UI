@@ -19,7 +19,7 @@ type ForwardedAttributes = Omit<
  * @devx
  * - `checked` is bindable (`bind:checked`); `defaultChecked` initializes uncontrolled use. To
  *   reject a change, bind with a function binding whose setter decides.
- * - The thumb slide is driven by the shared `@udixio/core/dom` Anime.js tween controller, the same
+ * - The thumb slide is driven by the shared `@udixio/core/dom` controller on `@udixio/motion`, the same
  *   controller used by React and Angular.
  * @a11y
  * - Renders `role="switch"` with `aria-checked` and standard Space/Enter activation.

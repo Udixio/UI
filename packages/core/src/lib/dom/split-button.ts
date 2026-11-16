@@ -1,4 +1,8 @@
-import { animate, type JSAnimation } from 'animejs';
+import {
+  animateStyle,
+  type MotionHandle,
+  type SpringRef,
+} from '@udixio/motion/animate';
 import type { SplitButtonSize } from '../interfaces/split-button.interface';
 
 export type SplitButtonDismissReason = 'escape' | 'outside';
@@ -19,7 +23,8 @@ export interface SplitButtonController {
   destroy(): void;
 }
 
-const TRANSITION_DURATION = 240;
+/** The inner corners and the chevron move on the fast spatial spring, as the button shape does. */
+const SHAPE_TIMING: SpringRef = 'spring.fast.spatial';
 const RESTING_INNER_RADIUS: Record<SplitButtonSize, number> = {
   xSmall: 4,
   small: 4,
@@ -47,14 +52,7 @@ interface ButtonShapeState {
   focused: boolean;
   pressed: boolean;
   target: number;
-  animation?: JSAnimation;
-}
-
-function systemPrefersReducedMotion(): boolean {
-  return (
-    typeof globalThis.matchMedia === 'function' &&
-    globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
+  motion?: MotionHandle;
 }
 
 function isHovered(button: HTMLElement): boolean {
@@ -95,6 +93,8 @@ function getInlineRadius(
 /**
  * Shares independent per-button corner morphs, chevron motion, outside
  * dismissal, Escape handling, and focus restoration across framework adapters.
+ * The corners and the chevron move on `@udixio/motion`; the document reduced
+ * motion policy applies, and `reducedMotion` is an extra override.
  */
 export function createSplitButtonController({
   root,
@@ -103,7 +103,7 @@ export function createSplitButtonController({
   menuIcon,
   size = 'small',
   onDismiss,
-  reducedMotion = systemPrefersReducedMotion,
+  reducedMotion = () => false,
 }: SplitButtonControllerOptions): SplitButtonController {
   const ownerDocument = root.ownerDocument;
   const restingInnerRadius = RESTING_INNER_RADIUS[size];
@@ -161,7 +161,7 @@ export function createSplitButtonController({
   let isOpen = root.dataset['open'] === 'true';
   let restoreFocus = false;
   let destroyed = false;
-  let iconAnimation: JSAnimation | undefined;
+  let iconMotion: MotionHandle | undefined;
   let listening = false;
   let pointerEndListening = false;
 
@@ -175,6 +175,28 @@ export function createSplitButtonController({
     shape.button.style[shape.corners.bottom] = `${radius}px`;
   };
 
+  /**
+   * The inner radius the corners show now. A running morph is read where it
+   * shows, since its inline radius is only written when it ends.
+   */
+  const getShownRadius = (shape: ButtonShapeState) => {
+    if (!shape.motion) {
+      return getInlineRadius(shape.button, shape.corners.topCss, restingInnerRadius);
+    }
+    const style = (shape.button.ownerDocument.defaultView ?? window).getComputedStyle(shape.button);
+    return Number.parseFloat(style.getPropertyValue(shape.corners.topCss));
+  };
+
+  const stopShape = (shape: ButtonShapeState) => {
+    shape.motion?.cancel();
+    shape.motion = undefined;
+  };
+
+  const radiusFrame = (shape: ButtonShapeState, radius: number) => ({
+    [shape.corners.top]: `${radius}px`,
+    [shape.corners.bottom]: `${radius}px`,
+  });
+
   const syncShape = (shape: ButtonShapeState, instant = false) => {
     if (destroyed) return;
     const selected = shape === menuShape && isOpen;
@@ -186,13 +208,9 @@ export function createSplitButtonController({
       : restingInnerRadius;
     if (nextRadius === shape.target) return;
 
-    const previousRadius = getInlineRadius(
-      shape.button,
-      shape.corners.topCss,
-      restingInnerRadius,
-    );
-    shape.animation?.cancel();
-    shape.animation = undefined;
+    // Read before the running morph is stopped: the new one starts from it.
+    const previousRadius = getShownRadius(shape);
+    stopShape(shape);
     shape.target = nextRadius;
 
     if (
@@ -204,12 +222,14 @@ export function createSplitButtonController({
       return;
     }
 
-    const radiusState = { value: previousRadius };
-    shape.animation = animate(radiusState, {
-      value: nextRadius,
-      duration: TRANSITION_DURATION,
-      ease: 'out(3)',
-      onUpdate: () => applyRadius(shape, radiusState.value),
+    const morph = animateStyle(
+      shape.button,
+      [radiusFrame(shape, previousRadius), radiusFrame(shape, nextRadius)],
+      { timing: SHAPE_TIMING },
+    );
+    shape.motion = morph;
+    void morph.finished.then(() => {
+      if (shape.motion === morph) shape.motion = undefined;
     });
   };
 
@@ -366,8 +386,6 @@ export function createSplitButtonController({
       // Selection expands only the menu button; interaction shapes stay local
       // to the button that receives hover, focus-visible, or press input.
       syncShape(menuShape, instant);
-      iconAnimation?.cancel();
-      iconAnimation = undefined;
 
       if (open) {
         restoreFocus = false;
@@ -383,14 +401,22 @@ export function createSplitButtonController({
       }
 
       if (instant || reducedMotion()) {
+        iconMotion?.cancel();
+        iconMotion = undefined;
         menuIcon.style.rotate = open ? '180deg' : '0deg';
         return;
       }
 
-      iconAnimation = animate(menuIcon, {
-        rotate: open ? '180deg' : '0deg',
-        duration: TRANSITION_DURATION,
-        ease: 'out(3)',
+      // A turn that is running is carried from the angle the chevron shows.
+      const interrupted = iconMotion !== undefined;
+      const turn = animateStyle(
+        menuIcon,
+        { rotate: open ? '180deg' : '0deg' },
+        { timing: SHAPE_TIMING, carry: interrupted },
+      );
+      iconMotion = turn;
+      void turn.finished.then(() => {
+        if (iconMotion === turn) iconMotion = undefined;
       });
     },
     restoreFocusOnClose() {
@@ -421,8 +447,9 @@ export function createSplitButtonController({
         handleInteractionPointerDown,
         true,
       );
-      for (const shape of shapes) shape.animation?.cancel();
-      iconAnimation?.cancel();
+      for (const shape of shapes) stopShape(shape);
+      iconMotion?.cancel();
+      iconMotion = undefined;
     },
   };
 }

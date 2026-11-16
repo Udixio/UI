@@ -47,6 +47,17 @@ describe('tooltip attachment', () => {
     expect(screen.getByRole('button', { name: 'Trigger' })).not.toHaveAttribute('aria-describedby');
   });
 
+  it('gives the transition controller the timing of its motion', () => {
+    render(Fixture, {
+      props: { triggers: [{ label: 'Trigger', text: 'Copy', motion: { timing: 'spring.default.spatial' } }] },
+    });
+    flushSync();
+
+    expect(createTooltipTransitionController).toHaveBeenCalledWith(
+      expect.objectContaining({ timing: 'spring.default.spatial' }),
+    );
+  });
+
   it('starts open when defaultOpen is true', () => {
     render(Fixture, { props: { triggers: [{ label: 'Trigger', text: 'Copy', defaultOpen: true }] } });
     flushSync();

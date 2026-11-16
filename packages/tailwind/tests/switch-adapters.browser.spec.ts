@@ -191,7 +191,8 @@ for (const name of motionBrowsers(process.env.MOTION_BROWSERS)) {
             .poll(
               () =>
                 thumb.evaluate((el) => {
-                  const value = parseFloat((el as HTMLElement).style.translate);
+                  // The slide is a WAAPI motion: the thumb shows the computed translate, while its inline one changes at the end.
+                  const value = parseFloat(getComputedStyle(el).translate);
                   return value > 0 && value < 20;
                 }),
               { interval: 10 },

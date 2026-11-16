@@ -1,4 +1,11 @@
-import { animate, type JSAnimation } from 'animejs';
+import {
+  animateStyle,
+  composeHandles,
+  type CurveTiming,
+  type MotionHandle,
+  type SpringRef,
+} from '@udixio/motion/animate';
+import { motionPolicy } from '@udixio/motion/policy';
 import {
   resolveTooltipInteraction,
   TOOLTIP_LONG_PRESS_DELAY,
@@ -8,12 +15,13 @@ import {
   type TooltipInteractionState,
   type TooltipTriggerKind,
 } from '../behaviors/tooltip.behavior.js';
-import type { TooltipTransition } from '../interfaces/tooltip.interface.js';
 
 export interface TooltipTransitionOptions {
-  /** The tooltip surface element (the panel that fades/scales in and out). */
+  /** The tooltip surface element: its height opens and closes, and its opacity fades. */
   element: HTMLElement;
-  transition?: TooltipTransition;
+  /** The motion of the height; `spring.fast.spatial` by default. The opacity keeps its own effects spring. */
+  timing?: SpringRef | CurveTiming;
+  /** An extra reduced-motion switch, read at each change; the document policy always applies. */
   reducedMotion?: () => boolean;
 }
 
@@ -93,64 +101,69 @@ export function addPointerEnterLeaveListener(
   };
 }
 
-function systemPrefersReducedMotion(): boolean {
-  return (
-    typeof globalThis.matchMedia === 'function' &&
-    globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
-}
-
-const DEFAULT_TRANSITION: Required<TooltipTransition> = {
-  duration: 300,
-  ease: 'outCubic',
-};
-
 const CLOSED_HEIGHT = 16;
+/** The surface's height opens on the fast spatial spring of its role, unless the component gives its own timing. */
+const DEFAULT_HEIGHT_TIMING: SpringRef = 'spring.fast.spatial';
+/** The opacity fades on the fast effects spring, whatever the height's timing. */
+const OPACITY_TIMING: SpringRef = 'spring.fast.effects';
 
 /**
- * Connects the shared Anime.js opacity/height choreography for `Tooltip`.
- * Every adapter uses this single controller so React and Angular animate
- * identically; neither implements its own version of this effect and no
- * `motion/react` is involved. The tooltip surface stays mounted at all
- * times -- the adapter toggles `inert`/`aria-hidden` alongside this
- * animation instead of mounting/unmounting the surface -- so there is no
- * exit-then-unmount handshake to coordinate.
+ * Opens and closes the `Tooltip` surface: its height and opacity move on
+ * `@udixio/motion`, and the open surface takes its natural height, with
+ * visible overflow, once the opening ends. Every adapter uses this single
+ * controller, so React, Angular and Svelte animate identically. The surface
+ * stays mounted at all times (the adapter toggles `inert`/`aria-hidden`
+ * alongside it), so there is no exit-then-unmount handshake to coordinate.
  */
 export function createTooltipTransitionController({
   element,
-  transition = DEFAULT_TRANSITION,
-  reducedMotion = systemPrefersReducedMotion,
+  timing = DEFAULT_HEIGHT_TIMING,
+  reducedMotion = () => false,
 }: TooltipTransitionOptions): TooltipTransitionController {
-  let current: JSAnimation | undefined;
+  let current: MotionHandle | undefined;
+
+  /** The open surface shows its natural height, and overflow stays visible. */
+  const settleOpen = (open: boolean) => {
+    if (!open) return;
+    element.style.height = 'auto';
+    element.style.overflow = 'visible';
+  };
 
   return {
     setOpen(open, instant = false) {
-      current?.pause();
-      const skipAnimation = instant || reducedMotion();
       // A closed surface is only invisible; it still has layout and, being
       // positioned against its anchor, it can sit on top of neighbouring
       // controls. `inert` alone does not let pointer events through in
       // Chromium, so the surface must also stop hit-testing while closed.
       element.style.pointerEvents = open ? '' : 'none';
       const openHeight = Math.max(element.scrollHeight, CLOSED_HEIGHT);
+      const height = open ? `${openHeight}px` : `${CLOSED_HEIGHT}px`;
       element.style.overflow = 'hidden';
-      current = animate(element, {
-        opacity: open ? 1 : 0,
-        height: open ? `${openHeight}px` : `${CLOSED_HEIGHT}px`,
-        duration: skipAnimation
-          ? 0
-          : (transition.duration ?? DEFAULT_TRANSITION.duration),
-        ease: transition.ease ?? DEFAULT_TRANSITION.ease,
-        onComplete: () => {
-          if (open) {
-            element.style.height = 'auto';
-            element.style.overflow = 'visible';
-          }
-        },
+
+      if (instant || reducedMotion() || motionPolicy.reduced) {
+        current?.cancel();
+        current = undefined;
+        element.style.height = height;
+        element.style.opacity = open ? '1' : '0';
+        settleOpen(open);
+        return;
+      }
+
+      // Both motions start from the height and opacity the surface shows (a
+      // running one is carried), so an interrupted change does not jump.
+      const resize = animateStyle(element, { height }, { timing });
+      const fade = animateStyle(element, { opacity: open ? 1 : 0 }, { timing: OPACITY_TIMING });
+      const handle = composeHandles([resize, fade]);
+      current = handle;
+      void handle.finished.then((result) => {
+        if (current !== handle) return;
+        current = undefined;
+        if (result === 'finished') settleOpen(open);
       });
     },
     destroy() {
-      current?.pause();
+      current?.cancel();
+      current = undefined;
     },
   };
 }

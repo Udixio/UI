@@ -25,7 +25,6 @@ import { useTooltipTrigger } from '../hooks';
 export type {
   TooltipPosition,
   TooltipTrigger,
-  TooltipTransition,
   TooltipVariant,
 } from '@udixio/core';
 
@@ -66,9 +65,10 @@ export const useTooltipStyle = createUseStyle(tooltipStyle);
  * - A touch long press opens after 500ms and remains visible for 1.5s after
  *   release, following Material 3 guidance.
  * - Opening one tooltip closes the currently visible tooltip in the document.
- * - The open/close opacity/height transition is implemented once with
- *   Anime.js in `@udixio/core/dom`, so React and Angular share the same
- *   timing, reduced-motion behavior, and cleanup. No `motion/react` is used.
+ * - The open/close height and opacity are implemented once on `@udixio/motion`
+ *   in `@udixio/core/dom`, so React and Angular share the same timing,
+ *   reduced-motion behavior, and cleanup. `motion` picks the timing of the
+ *   height; the opacity keeps its effects spring.
  * - The tooltip surface stays mounted at all times (hidden via `inert` and
  *   `aria-hidden`) rather than mounting only while open, so it can animate
  *   out; expensive `content` subtrees are not torn down until the `Tooltip`
@@ -96,7 +96,7 @@ export const Tooltip = ({
   ref,
   trigger = ['hover', 'focus'],
   describeTarget = true,
-  transition,
+  motion,
   openDelay = 400,
   closeDelay = 150,
   open: openProp,
@@ -175,19 +175,21 @@ export const Tooltip = ({
     id,
     isOpen,
     className,
-    transition,
+    motion,
   });
 
   const [surface, setSurface] = useState<HTMLDivElement | null>(null);
   const transitionControllerRef = useRef<TooltipTransitionController | null>(
     null,
   );
+  // The timing is keyed by value: an inline `motion` object is new on each render, and must not rebuild the controller.
+  const timingKey = JSON.stringify(motion?.timing ?? null);
 
   useEffect(() => {
     if (!surface) return undefined;
     const controller = createTooltipTransitionController({
       element: surface,
-      transition,
+      timing: motion?.timing,
     });
     transitionControllerRef.current = controller;
     controller.setOpen(isOpen, true);
@@ -196,7 +198,7 @@ export const Tooltip = ({
       transitionControllerRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [surface, transition?.duration, transition?.ease]);
+  }, [surface, timingKey]);
 
   useEffect(() => {
     transitionControllerRef.current?.setOpen(isOpen);

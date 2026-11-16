@@ -134,13 +134,15 @@ drive them rather than reimplementing anything:
 - `createTooltipTriggerController` owns the timers, the pointer, keyboard and
   touch wiring, the touch long press, `aria-describedby`, and the arbitration
   that closes one tooltip when another opens.
-- `createTooltipTransitionController` owns the open/close opacity and height
-  transition, with Anime.js.
+- `createTooltipTransitionController` owns the open/close height and opacity,
+  moved on `@udixio/motion`.
 
 React, Angular and Svelte therefore share identical timing, reduced-motion behavior,
 interruption handling and cleanup, by construction rather than by discipline.
-Override the transition timing with `transition` (`udxTooltipTransition`),
-taking `{ duration, ease }`.
+Override the timing of the height with `motion` (`udxTooltipMotion` in Angular),
+taking `{ timing }`: a spring token or a `{ duration, easing }` pair from
+`@udixio/motion`. The opacity keeps its effects spring, and the document
+reduced-motion policy applies.
 
 ## Position
 

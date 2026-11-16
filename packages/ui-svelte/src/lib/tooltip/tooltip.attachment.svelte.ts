@@ -96,7 +96,7 @@ export function tooltip(options: () => SvelteTooltipProps): Attachment<HTMLEleme
         open: resolved.open,
         defaultOpen: resolved.defaultOpen ?? false,
         id: resolved.id,
-        transition: resolved.transition,
+        motion: resolved.motion,
         isOpen: resolvedOpen,
         className: mergeClassNames<TooltipInterface>('toolTip', resolved.classes, resolved.class),
       }),
@@ -172,7 +172,7 @@ export function tooltip(options: () => SvelteTooltipProps): Attachment<HTMLEleme
         if (!element) return;
         const created = createTooltipTransitionController({
           element,
-          transition: untrack(() => resolved.transition),
+          timing: untrack(() => resolved.motion?.timing),
         });
         transitionController = created;
         appliedOpen = untrack(() => resolvedOpen);

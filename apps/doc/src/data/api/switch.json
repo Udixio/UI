@@ -9,7 +9,7 @@
       "tags": {
         "status": "beta",
         "category": "Input",
-        "devx": "- Use `checked` with `onCheckedChange` for controlled state, or `defaultChecked` for uncontrolled state.\n- The thumb slide is driven by a shared `@udixio/core/dom` Anime.js tween controller, the same one the Angular\n  adapter uses -- an accepted exception to the rest of `@udixio/core/dom`, which uses `@udixio/motion`.",
+        "devx": "- Use `checked` with `onCheckedChange` for controlled state, or `defaultChecked` for uncontrolled state.\n- The thumb slide is driven by a shared `@udixio/core/dom` controller on `@udixio/motion`, the same one the Angular\n  and Svelte adapters use.",
         "a11y": "- Renders `role=\"switch\"` with `aria-checked` and standard Space/Enter activation.",
         "limitations": "- The component does not render a visible label; provide one with `aria-label` or `aria-labelledby`."
       },
@@ -90,7 +90,7 @@
       "tags": {
         "status": "beta",
         "category": "Input",
-        "devx": "- `checked` is controlled; `defaultChecked` initializes uncontrolled use.\n- `checkedChange` emits one accepted transition and supports `[(checked)]`.\n- The thumb slide is driven by a shared `@udixio/core/dom` Anime.js tween controller, the same one the React\n  adapter uses -- an accepted exception to the rest of `@udixio/core/dom`, which uses `@udixio/motion`.",
+        "devx": "- `checked` is controlled; `defaultChecked` initializes uncontrolled use.\n- `checkedChange` emits one accepted transition and supports `[(checked)]`.\n- The thumb slide is driven by a shared `@udixio/core/dom` controller on `@udixio/motion`, the same one the React\n  and Svelte adapters use.",
         "a11y": "- Renders `role=\"switch\"` with `aria-checked` and standard Space/Enter activation.",
         "limitations": "- The component does not render a visible label; provide one with `aria-label` or `aria-labelledby`.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`."
       },
@@ -203,7 +203,7 @@
       "tags": {
         "status": "beta",
         "category": "Input",
-        "devx": "- `checked` is bindable (`bind:checked`); `defaultChecked` initializes uncontrolled use. To\n  reject a change, bind with a function binding whose setter decides.\n- The thumb slide is driven by the shared `@udixio/core/dom` Anime.js tween controller, the same\n  controller used by React and Angular.",
+        "devx": "- `checked` is bindable (`bind:checked`); `defaultChecked` initializes uncontrolled use. To\n  reject a change, bind with a function binding whose setter decides.\n- The thumb slide is driven by the shared `@udixio/core/dom` controller on `@udixio/motion`, the same\n  controller used by React and Angular.",
         "a11y": "- Renders `role=\"switch\"` with `aria-checked` and standard Space/Enter activation.",
         "limitations": "- The component does not render a visible label; provide one with `aria-label` or\n  `aria-labelledby`."
       },

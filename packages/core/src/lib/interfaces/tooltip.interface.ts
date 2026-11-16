@@ -2,6 +2,7 @@ import type {
   AnchorPosition,
   AnchorPositionAxis,
 } from './anchor-positioner.interface';
+import type { ComponentMotion } from './motion.interface';
 
 export type TooltipVariant = 'plain' | 'rich';
 
@@ -9,14 +10,6 @@ export type TooltipTrigger = 'hover' | 'click' | 'focus' | null;
 
 /** Tooltip placement shares its vocabulary with `AnchorPositioner`, which renders it. */
 export type TooltipPosition = AnchorPosition;
-
-/** Anime.js opacity/scale open-close timing, shared by every framework. */
-export interface TooltipTransition {
-  /** Duration in milliseconds. Default: 300ms */
-  duration?: number;
-  /** Anime.js easing name or function. Default: 'outCubic' */
-  ease?: string;
-}
 
 /**
  * Tooltips display brief labels or messages.
@@ -46,8 +39,8 @@ export interface TooltipProps {
   defaultOpen?: boolean;
   /** Custom ID for accessibility linking. Auto-generated if not provided. */
   id?: string;
-  /** Anime.js opacity/scale open-close timing. Shared by every framework, no `motion/react`. */
-  transition?: TooltipTransition;
+  /** The motion of the open/close height; the opacity keeps its own effects spring. Shared by every framework. */
+  motion?: ComponentMotion;
 }
 
 export type TooltipStates = {

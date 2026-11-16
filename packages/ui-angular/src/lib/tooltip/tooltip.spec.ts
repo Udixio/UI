@@ -37,6 +37,7 @@ const mockTooltipTransitionController = {
       [udxTooltipDescribeTarget]="describeTarget"
       [udxTooltipOpen]="open"
       [udxTooltipDefaultOpen]="defaultOpen"
+      [udxTooltipMotion]="motion"
       (udxTooltipOpenChange)="onOpenChange($event)"
     >
       Trigger
@@ -52,6 +53,7 @@ class Harness {
   describeTarget = true;
   open: boolean | undefined = undefined;
   defaultOpen = false;
+  motion: { timing?: 'spring.default.spatial' } | undefined = undefined;
   changes: boolean[] = [];
   onOpenChange(value: boolean): void {
     this.changes.push(value);
@@ -120,6 +122,14 @@ describe('Tooltip directive', () => {
     fixture.detectChanges();
     expect(trigger().textContent).toContain('Trigger');
     expect(surface()).not.toBeNull();
+  });
+
+  it('gives the transition controller the timing of its motion', () => {
+    fixture.componentInstance.motion = { timing: 'spring.default.spatial' };
+    fixture.detectChanges();
+    expect(coreDom.createTooltipTransitionController).toHaveBeenCalledWith(
+      expect.objectContaining({ timing: 'spring.default.spatial' }),
+    );
   });
 
   it('keeps the surface hidden from assistive tech while closed', () => {
