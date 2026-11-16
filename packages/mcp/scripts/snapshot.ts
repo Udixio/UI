@@ -67,6 +67,11 @@ async function snapshotDocs() {
   const files = await findFiles(DOC_SRC, ['.md', '.mdx', '.astro']);
   const targetDocDist = path.join(DIST_BUNDLED, 'doc-src');
   const targetDocSrc = path.join(SRC_BUNDLED, 'doc-src');
+  // Purge first: a page removed from the docs must not stay in the bundle.
+  await Promise.all([
+    fs.rm(targetDocDist, { recursive: true, force: true }),
+    fs.rm(targetDocSrc, { recursive: true, force: true }),
+  ]);
   await Promise.all([ensureDir(targetDocDist), ensureDir(targetDocSrc)]);
 
   for (const file of files) {
