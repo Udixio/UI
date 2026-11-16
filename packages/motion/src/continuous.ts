@@ -10,6 +10,7 @@ import type { MotionSpec } from './define-motion.js';
 import { motionManifest } from './manifest.js';
 import { amplitudeOf } from './amplitude.js';
 import { motionDisabled, motionScale } from './play.js';
+import { playedSpec } from './named-motion.js';
 import { waapiProvider } from './providers/waapi.js';
 import { getMotionRuntime, retainMotionRuntime } from './runtime.js';
 import { startScrub } from './scroll.js';
@@ -86,11 +87,13 @@ export function createLoopBinding(target: MotionElement, spec: Readonly<Extract<
   const development = options.development ?? false;
   const runtime = getMotionRuntime();
   const releaseRuntime = retainMotionRuntime(runtime);
-  const { duration, easing } = resolveCurve(spec.timing ?? motionManifest.defaults.loop.curve);
   let animation: MotionHandle | null = null;
+  // The definition the running animation plays: `--udx-motion` is read when the loop starts or resumes.
+  let running: Readonly<Extract<MotionSpec, { verb: 'loop' }>> | undefined;
   let authorPaused = options.paused ?? false;
   let inView = true;
   let destroyed = false;
+  let drawn = drawsShape(spec);
 
   /** Pause the animation while the author or the view holds it; play it otherwise. */
   function apply() {
@@ -98,17 +101,20 @@ export function createLoopBinding(target: MotionElement, spec: Readonly<Extract<
     else animation?.play();
   }
 
-  function start() {
+  function start(active: Readonly<Extract<MotionSpec, { verb: 'loop' }>> = playedSpec(target, spec, development)) {
     if (runtime.policy.reduced || motionDisabled(target)) return;
     const scale = motionScale(target);
     if (scale === 0) return;
+    const { duration, easing } = resolveCurve(active.timing ?? motionManifest.defaults.loop.curve);
     try {
-      animation = waapiProvider.animate({ target, keyframes: shapeFrames(spec.keyframes, target, 'loop').map(frame => amplitudeOf(frame, scale)), timing: { duration: duration * scale, easing, iterations: Infinity } });
+      animation = waapiProvider.animate({ target, keyframes: shapeFrames(active.keyframes, target, 'loop').map(frame => amplitudeOf(frame, scale)), timing: { duration: duration * scale, easing, iterations: Infinity } });
     } catch (error) {
       // A loop that cannot animate leaves the element as it is: a scan never throws because of a motion.
       if (development) console.error('[@udixio/motion] a loop could not animate:', error);
       return;
     }
+    running = active;
+    drawn ||= drawsShape(active);
     apply();
   }
 
@@ -139,7 +145,12 @@ export function createLoopBinding(target: MotionElement, spec: Readonly<Extract<
     play() {
       if (destroyed) return settledHandle();
       authorPaused = false;
-      if (!animation) start();
+      const active = playedSpec(target, spec, development);
+      // Resuming a loop whose named definition has changed plays the new one from its start.
+      if (!animation || active !== running) {
+        stop();
+        start(active);
+      }
       apply();
       return animation ?? settledHandle();
     },
@@ -157,7 +168,7 @@ export function createLoopBinding(target: MotionElement, spec: Readonly<Extract<
       stopView();
       // Nothing was written inline: cancelling the animation gives the element back its stylesheet state.
       stop();
-      if (drawsShape(spec)) releaseDraw(target, 'loop');
+      if (drawn) releaseDraw(target, 'loop');
       releaseRuntime();
     },
   };

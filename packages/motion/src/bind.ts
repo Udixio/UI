@@ -13,6 +13,7 @@ import {
 import { continuousModule, loadContinuous, loadText, textModule, type ContinuousApi } from './feature-loader.js';
 import type { LayoutTracking } from './layout.js';
 import { flushLayoutAround, layoutEngine, loadLayoutEngine } from './layout-loader.js';
+import { playedSpec } from './named-motion.js';
 import { NAME_PATTERN } from './manifest.js';
 import { pinOutOfFlow } from './pin.js';
 import { amplitudeOf } from './amplitude.js';
@@ -277,6 +278,49 @@ function writeFrame(target: MotionElement, spec: Readonly<KeyframedSpec>, runtim
   else paintFrame(target, shaped, kindOf(spec.verb));
 }
 
+/** The fields a keyframed definition writes: its keyframes' fields, and opacity for a presence, whose reduced render is a fade. */
+function fieldsOf(spec: Readonly<KeyframedSpec>): Set<keyof VisualFrame> {
+  const fields = new Set<keyof VisualFrame>(spec.keyframes.flatMap(frame => Object.keys(frame) as (keyof VisualFrame)[]));
+  if (spec.verb === 'appear' || spec.verb === 'disappear') fields.add('opacity');
+  return fields;
+}
+
+/** The frame a presence enters through: an appear enters through its last frame, a disappear through its first. */
+function enteredFrame(spec: Readonly<KeyframedSpec>): VisualFrame {
+  return spec.verb === 'disappear' ? spec.keyframes[0] : spec.keyframes[spec.keyframes.length - 1];
+}
+
+/** The frame a presence leaves through: the reverse of `enteredFrame`. */
+function exitedFrame(spec: Readonly<KeyframedSpec>): VisualFrame {
+  return spec.verb === 'disappear' ? spec.keyframes[spec.keyframes.length - 1] : spec.keyframes[0];
+}
+
+/**
+ * The inline fields a keyframed binding has written, across the definitions it plays. `--udx-motion` may name another
+ * definition at each trigger, so a play releases the fields that an earlier play wrote and it does not write: no field of
+ * a definition outlives the play that wrote it. `release` gives back every field the binding wrote, at its destruction.
+ */
+function writesOf(target: MotionElement, bound: Readonly<KeyframedSpec>, development: boolean) {
+  const owner = kindOf(bound.verb);
+  const written = fieldsOf(bound);
+  const played = new Set<Readonly<KeyframedSpec>>([bound]);
+  return {
+    /** The definition the next play uses, read now; the fields that earlier plays wrote and it does not write are released. */
+    use(): Readonly<KeyframedSpec> {
+      const spec = playedSpec(target, bound, development);
+      const fields = fieldsOf(spec);
+      releaseOwned(target, [...written].filter(field => !fields.has(field)), owner);
+      for (const field of fields) written.add(field);
+      played.add(spec);
+      return spec;
+    },
+    release(): void {
+      releaseOwned(target, written, owner);
+      for (const spec of played) textModule()?.revertSplit(target, spec);
+    },
+  };
+}
+
 /**
  * A reveal: out of view, the element waits in its first frame; when it enters the view, it plays forward from there.
  * Content in view when it is bound is left in its natural state. `repeat: 'always'` hides it again when it leaves
@@ -286,9 +330,8 @@ function createRevealBinding(target: MotionElement, spec: Readonly<Extract<Motio
   const development = options.development ?? false;
   const runtime = getMotionRuntime();
   const releaseRuntime = retainMotionRuntime(runtime);
-  const first = spec.keyframes[0];
   const once = spec.repeat !== 'always';
-  const fields = new Set<keyof VisualFrame>(spec.keyframes.flatMap(frame => Object.keys(frame) as (keyof VisualFrame)[]));
+  const writes = writesOf(target, spec, development);
   let revealed = false;
   let handle: MotionHandle | null = null;
   let initial = true;
@@ -302,11 +345,11 @@ function createRevealBinding(target: MotionElement, spec: Readonly<Extract<Motio
     unwatch = undefined;
   }
 
-  /** Put the element back in its first frame, out of sight, and stop what plays. */
-  function hide() {
+  /** Put the element back in the first frame of `active`, out of sight, and stop what plays. */
+  function hide(active: Readonly<KeyframedSpec>) {
     handle?.cancel();
     handle = null;
-    writeFrame(target, spec, runtime, first);
+    writeFrame(target, active, runtime, active.keyframes[0]);
     revealed = false;
   }
 
@@ -315,12 +358,12 @@ function createRevealBinding(target: MotionElement, spec: Readonly<Extract<Motio
     if (once) stopWatching();
   }
 
-  /** Play forward from the first frame, in the cascade of the definition when it staggers. */
-  function start(): MotionHandle {
-    const play = (delay: number) => playMotion(target, spec, { direction: 'forward', carry: false, runtime, development, delay });
-    const next = spec.split !== undefined
-      ? playEntry(target, spec, { direction: 'forward', carry: false, runtime, development })
-      : spec.stagger === undefined ? play(0) : staggered(target, spec, { stagger: spec.stagger, origin: spec.origin, reduced: runtime.policy.reduced, phase: 'enter' }, play);
+  /** Play `active` forward from its first frame, in the cascade of the definition when it staggers. */
+  function start(active: Readonly<KeyframedSpec>): MotionHandle {
+    const play = (delay: number) => playMotion(target, active, { direction: 'forward', carry: false, runtime, development, delay });
+    const next = active.split !== undefined
+      ? playEntry(target, active, { direction: 'forward', carry: false, runtime, development })
+      : active.stagger === undefined ? play(0) : staggered(target, active, { stagger: active.stagger, origin: active.origin, reduced: runtime.policy.reduced, phase: 'enter' }, play);
     const previous = handle;
     handle = next;
     previous?.cancel();
@@ -333,14 +376,17 @@ function createRevealBinding(target: MotionElement, spec: Readonly<Extract<Motio
       initial = false;
       // Content in view stays in its natural state; content out of view waits in its first frame.
       if (inView) markRevealed();
-      else writeFrame(target, spec, runtime, first);
+      else {
+        const active = writes.use();
+        writeFrame(target, active, runtime, active.keyframes[0]);
+      }
       return;
     }
     if (inView && !revealed) {
       markRevealed();
-      start();
+      start(writes.use());
     } else if (!inView && revealed && !once) {
-      hide();
+      hide(writes.use());
     }
   }
 
@@ -364,9 +410,10 @@ function createRevealBinding(target: MotionElement, spec: Readonly<Extract<Motio
     },
     play() {
       if (destroyed) return settledHandle();
-      hide();
+      const active = writes.use();
+      hide(active);
       markRevealed();
-      return start();
+      return start(active);
     },
     pause() {
       throw new TypeError('pause applies to a loop motion');
@@ -381,8 +428,7 @@ function createRevealBinding(target: MotionElement, spec: Readonly<Extract<Motio
       stopWatching();
       handle?.cancel();
       handle = null;
-      releaseOwned(target, fields, 'view');
-      textModule()?.revertSplit(target, spec);
+      writes.release();
       unregister(target, binding);
       releaseRuntime();
     },
@@ -455,14 +501,7 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
   const runtime = getMotionRuntime();
   const releaseRuntime = retainMotionRuntime(runtime);
   const verb = spec.verb;
-  const first = spec.keyframes[0];
-  const last = spec.keyframes[spec.keyframes.length - 1];
-  // An appear enters through its keyframes and leaves backward; a disappear is the reverse.
-  const entered = verb === 'disappear' ? first : last;
-  const exited = verb === 'disappear' ? last : first;
-  // Every field the spec animates, plus opacity for a presence verb whose reduced render is a fade.
-  const writtenFields = new Set<keyof VisualFrame>(spec.keyframes.flatMap(frame => Object.keys(frame) as (keyof VisualFrame)[]));
-  if (verb === 'appear' || verb === 'disappear') writtenFields.add('opacity');
+  const writes = writesOf(target, spec, development);
 
   let present = verb === 'emphasize' || options.present !== false;
   let handle: MotionHandle | null = null;
@@ -511,59 +550,61 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
     ownsInert = true;
   }
 
-  /** Play the presence motion: at once, or in the cascade of its definition when it staggers. */
-  function playPresence(phase: 'enter' | 'exit', direction: 'forward' | 'backward', carry: boolean): MotionHandle {
+  /** Play the presence motion `active`: at once, or in the cascade of its definition when it staggers. */
+  function playPresence(active: Readonly<KeyframedSpec>, phase: 'enter' | 'exit', direction: 'forward' | 'backward', carry: boolean): MotionHandle {
     // An entry of a split definition waits for the text module; an exit does not, so that a removal is never delayed by a load.
-    if (spec.split !== undefined) {
+    if (active.split !== undefined) {
       const options = { direction, carry, runtime, development };
-      return phase === 'enter' ? playEntry(target, spec, options) : playLoaded(target, spec, options);
+      return phase === 'enter' ? playEntry(target, active, options) : playLoaded(target, active, options);
     }
-    if (spec.stagger === undefined) return playMotion(target, spec, { direction, carry, runtime, development });
-    return staggered(target, spec, { stagger: spec.stagger, origin: spec.origin, reduced: runtime.policy.reduced, phase }, delay =>
-      playMotion(target, spec, { direction, carry, runtime, development, delay }),
+    if (active.stagger === undefined) return playMotion(target, active, { direction, carry, runtime, development });
+    return staggered(target, active, { stagger: active.stagger, origin: active.origin, reduced: runtime.policy.reduced, phase }, delay =>
+      playMotion(target, active, { direction, carry, runtime, development, delay }),
     );
   }
 
-  function enter(carry: boolean): Promise<Outcome> {
+  function enter(active: Readonly<KeyframedSpec>, carry: boolean): Promise<Outcome> {
     present = true;
     releaseInert();
     returnToFlow();
     target.setAttribute('data-presence', 'entering');
-    return track(replace(playPresence('enter', 'forward', carry)), true);
+    return track(replace(playPresence(active, 'enter', 'forward', carry)), true);
   }
 
   /** A disappear enters at once; the running exit is cancelled before the inline write. */
-  function enterAtOnce(): Promise<Outcome> {
+  function enterAtOnce(active: Readonly<KeyframedSpec>): Promise<Outcome> {
     present = true;
     releaseInert();
     returnToFlow();
     const done = track(replace(settledHandle()), false);
-    writeFrame(target, spec, runtime, entered, true);
+    writeFrame(target, active, runtime, enteredFrame(active), true);
     target.setAttribute('data-presence', 'present');
     return done;
   }
 
-  function exit(): Promise<Outcome> {
+  function exit(active: Readonly<KeyframedSpec>): Promise<Outcome> {
     markExiting();
     // An out-of-flow exit takes the element out of the flow now, so that its neighbours close the gap as it fades.
-    if (spec.exit === 'out-of-flow' && isHtmlElement(target) && !runtime.policy.reduced && unpin === undefined) {
+    if (active.exit === 'out-of-flow' && isHtmlElement(target) && !runtime.policy.reduced && unpin === undefined) {
       unpin = pinOutOfFlow(target);
       flushLayoutAround(target);
     }
-    const direction = verb === 'disappear' ? 'forward' : 'backward';
-    return track(replace(playPresence('exit', direction, true)), false);
+    const direction = active.verb === 'disappear' ? 'forward' : 'backward';
+    return track(replace(playPresence(active, 'exit', direction, true)), false);
   }
 
   function setPresent(next: boolean): Promise<Outcome> {
     if (verb === 'emphasize') throw new TypeError('setPresent does not apply to an emphasis; use play()');
     if (next === present) return outcome;
-    if (!next) return exit();
-    return verb === 'disappear' ? enterAtOnce() : enter(true);
+    const active = writes.use();
+    if (!next) return exit(active);
+    return active.verb === 'disappear' ? enterAtOnce(active) : enter(active, true);
   }
 
   function play(): MotionHandle {
     if (verb !== 'emphasize') throw new TypeError('play() applies to an emphasis; use setPresent() for presence');
-    return replace(playMotion(target, spec, { direction: 'forward', carry: spec.interrupt === 'carry', runtime, development }));
+    const active = writes.use();
+    return replace(playMotion(target, active, { direction: 'forward', carry: active.interrupt === 'carry', runtime, development }));
   }
 
   function pause(): void {
@@ -584,8 +625,7 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
     const pinned = unpin !== undefined;
     unpin?.();
     unpin = undefined;
-    releaseOwned(target, writtenFields, kindOf(verb));
-    textModule()?.revertSplit(target, spec);
+    writes.release();
     target.removeAttribute('data-presence');
     releaseInert();
     unregister(target, binding);
@@ -598,15 +638,16 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
   // an absent element always takes its exited frame, so it is never visible. Without an explicit `settled`, an element the
   // server marked present is settled: its content is in place, and hydration does not replay its entry.
   if (verb !== 'emphasize') {
+    const active = writes.use();
     if (!present) {
-      writeFrame(target, spec, runtime, exited);
+      writeFrame(target, active, runtime, exitedFrame(active));
       markExiting();
     } else if (options.settled ?? target.getAttribute('data-presence') === 'present') {
       target.setAttribute('data-presence', 'present');
-    } else if (verb === 'disappear') {
-      enterAtOnce();
+    } else if (active.verb === 'disappear') {
+      enterAtOnce(active);
     } else {
-      enter(false);
+      enter(active, false);
     }
   }
 

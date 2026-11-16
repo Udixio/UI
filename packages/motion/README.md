@@ -834,6 +834,20 @@ releases nothing, so the next motion carries from where it stopped. Under reduce
 - Under reduced motion, or with `--udx-motion: none` on the element, a gesture's release is written at once,
   with no glide. A page transition runs its update alone, see [Page transitions](#page-transitions).
 
+### Motion per breakpoint
+
+`--udx-motion` may name a defined motion as well as `none`. At each trigger (an entry, an exit, a replay, a loop that starts
+or resumes), the element plays the named motion in place of its own, when the name is a defined motion of the same kind (a
+presence, an emphasis, a reveal or a loop). Tailwind picks the motion by breakpoint:
+
+```html
+<div data-motion="rise" class="md:[--udx-motion:fade]"></div>
+```
+
+Here the element rises on small screens and fades from `md` up. A name of another kind, or one that is not defined, is
+ignored: the element plays its own motion, and a development build reports it once. `none` still turns the motion off.
+The binding's own triggers and its view options (`axis`, `repeat`) stay those of its definition.
+
 ### Current limits
 
 The package is under construction, so:
