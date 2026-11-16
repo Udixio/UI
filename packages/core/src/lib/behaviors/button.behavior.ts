@@ -9,10 +9,10 @@ import type {
 import type { StateLayerShapeMotion } from '../interfaces/state-layer.interface';
 
 /**
- * The timing of the shape morph of a pressed button: a fast spatial spring, the Material 3 Expressive motion of a shape
- * change.
+ * The timing of the shape morph of a pressed button: a default effects spring. Material 3 (Compose) uses it on purpose to
+ * prevent any bounce of the corners on every press and release.
  */
-export const DEFAULT_BUTTON_SHAPE_TIMING: SpringRef = 'spring.fast.spatial';
+export const DEFAULT_BUTTON_SHAPE_TIMING: SpringRef = 'spring.default.effects';
 
 const BUTTON_SHAPE_RADII: Record<
   NonNullable<ButtonProps['size']>,

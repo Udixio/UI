@@ -7,8 +7,8 @@ import {
 } from '@udixio/motion/animate';
 import { motionPolicy } from '@udixio/motion/policy';
 
-/** The indicator follows the selected tab on the fast spatial spring: it moves, it does not overshoot the tab. */
-const DEFAULT_INDICATOR_TIMING: SpringRef = 'spring.fast.spatial';
+/** The indicator follows the selected tab on the default spatial spring: a fast spring overshoots a tab-wide move by 16 px. */
+const DEFAULT_INDICATOR_TIMING: SpringRef = 'spring.default.spatial';
 /** A new panel slides in on the default spatial spring, and fades in on the default effects spring. */
 const DEFAULT_PANEL_TIMING: SpringRef = 'spring.default.spatial';
 const PANEL_FADE_TIMING: SpringRef = 'spring.default.effects';
@@ -23,7 +23,7 @@ export interface TabsIndicatorControllerOptions {
   selectedTab: () => HTMLElement | null;
   /** An extra reduced-motion switch, read at each change; the document policy always applies. */
   reducedMotion?: () => boolean;
-  /** The motion of the indicator between two tabs; `spring.fast.spatial` by default. */
+  /** The motion of the indicator between two tabs; `spring.default.spatial` by default. */
   timing?: SpringRef | CurveTiming;
 }
 

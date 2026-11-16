@@ -76,7 +76,7 @@ describe('createTabsIndicatorController in the browser', () => {
     expect(xOf(indicator)).toBeCloseTo(0, 0);
   });
 
-  it('slides to the selected tab on the fast spatial spring, and ends at its position and width', async () => {
+  it('slides to the selected tab on the default spatial spring, and ends at its position and width', async () => {
     const { root, indicator, tabs } = mountTabs();
     let selected = tabs[0]!;
     controller = createTabsIndicatorController({
@@ -90,7 +90,7 @@ describe('createTabsIndicatorController in the browser', () => {
     const [slide] = indicator.getAnimations();
     expect(slide).toBeDefined();
     expect(slide!.effect!.getComputedTiming().duration).toBe(
-      tokenDuration(indicator, 'spring.fast.spatial'),
+      tokenDuration(indicator, 'spring.default.spatial'),
     );
 
     await slide!.finished;

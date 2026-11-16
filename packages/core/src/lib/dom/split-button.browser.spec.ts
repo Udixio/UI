@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { createSplitButtonController, type SplitButtonController } from './split-button.js';
 
 /** The duration in ms of the shape motion token in this document (expressive scheme). */
-const shapeDuration = (element: HTMLElement) => resolveWaapiTiming(element, 'spring.fast.spatial', 'expressive')!.duration;
+const shapeDuration = (element: HTMLElement) => resolveWaapiTiming(element, 'spring.default.effects', 'expressive')!.duration;
 
 const radiusOf = (element: HTMLElement) => parseFloat(getComputedStyle(element).borderTopRightRadius);
 const menuRadiusOf = (element: HTMLElement) => parseFloat(getComputedStyle(element).borderTopLeftRadius);
@@ -67,7 +67,7 @@ describe('createSplitButtonController in the browser', () => {
     document.body.innerHTML = '';
   });
 
-  it('morphs the hovered button corners to half the button height on the fast spatial spring, then rests them', async () => {
+  it('morphs the hovered button corners to half the button height on the default effects spring, then rests them', async () => {
     connect();
     primary.dispatchEvent(new Event('pointerenter'));
 
@@ -99,7 +99,7 @@ describe('createSplitButtonController in the browser', () => {
     expect(primary.style.borderTopRightRadius).toBe('4px');
   });
 
-  it('turns the chevron and expands the menu corners on open, on the fast spatial spring, and turns it back on close', async () => {
+  it('turns the chevron and expands the menu corners on open, on the default effects spring, and turns it back on close', async () => {
     connect();
     controller!.setOpen(true);
 

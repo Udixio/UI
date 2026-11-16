@@ -7,15 +7,15 @@ import {
 } from '@udixio/motion/animate';
 import { motionPolicy } from '@udixio/motion/policy';
 
-/** The slide into a new month rides the fast spatial spring: quick, and it does not overshoot the grid. */
-const DEFAULT_MONTH_TIMING: SpringRef = 'spring.fast.spatial';
-/** The fade into the new month keeps the fast effects spring, whatever the slide's timing. */
-const MONTH_FADE_TIMING: SpringRef = 'spring.fast.effects';
+/** The slide into a new month rides the default spatial spring: a grid of 42 cells must not jitter with a fast overshoot. */
+const DEFAULT_MONTH_TIMING: SpringRef = 'spring.default.spatial';
+/** The fade into the new month keeps the default effects spring, whatever the slide's timing. */
+const MONTH_FADE_TIMING: SpringRef = 'spring.default.effects';
 
 /** The options of `createMonthTransitionController`: the calendar grid, its motion and its distance. */
 export interface MonthTransitionControllerOptions {
   container: HTMLElement;
-  /** The motion of the slide into the new month; `spring.fast.spatial` by default. */
+  /** The motion of the slide into the new month; `spring.default.spatial` by default. */
   timing?: SpringRef | CurveTiming;
   /** How far, in px, the new month comes from. */
   distance?: number;

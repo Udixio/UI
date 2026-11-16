@@ -53,7 +53,7 @@ describe('createMonthTransitionController in the browser', () => {
     expect(grid.getAnimations()).toHaveLength(2);
     const slide = slideOf(grid);
     expect(parseFloat(String((slide.effect as KeyframeEffect).getKeyframes()[0]!.translate))).toBe(24);
-    expect(slide.effect!.getComputedTiming().duration).toBe(tokenDuration(grid, 'spring.fast.spatial'));
+    expect(slide.effect!.getComputedTiming().duration).toBe(tokenDuration(grid, 'spring.default.spatial'));
 
     freezeAt(grid, 0);
     expect(xOf(grid)).toBeCloseTo(24, 0);
@@ -156,7 +156,7 @@ describe('createMonthTransitionController in the browser', () => {
     expect(slide.effect!.getComputedTiming().duration).toBe(500);
     expect((slide.effect as KeyframeEffect).getTiming().easing).toBe('cubic-bezier(0.2, 0, 0, 1)');
     const fade = grid.getAnimations().find((animation) => animation !== slide)!;
-    expect(fade.effect!.getComputedTiming().duration).toBe(tokenDuration(grid, 'spring.fast.effects'));
+    expect(fade.effect!.getComputedTiming().duration).toBe(tokenDuration(grid, 'spring.default.effects'));
   });
 
   it('cancels the running change on destroy', () => {

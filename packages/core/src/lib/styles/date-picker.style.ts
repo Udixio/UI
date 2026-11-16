@@ -22,7 +22,7 @@ const datePickerConfig: ClassNameComponent<DatePickerInterface> = ({
   daysGrid: cx('grid grid-cols-7 row-auto gap-y-2'),
   dayCell: cx('flex items-center justify-center  h-10 p-0 relative'),
   dayButton: cx(
-    'w-10 h-10 rounded-full flex items-center justify-center text-body-large transition-all duration-200 relative overflow-hidden z-10 outline-none',
+    'w-10 h-10 rounded-full flex items-center justify-center text-body-large transition-[background-color,color] duration-[var(--udx-motion-duration-short4,200ms)] ease-[var(--udx-motion-easing-standard,cubic-bezier(0.2,0,0,1))] relative overflow-hidden z-10 outline-none',
     // Base style is implicit text-on-surface
   ),
 });

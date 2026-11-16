@@ -23,8 +23,11 @@ export interface SplitButtonController {
   destroy(): void;
 }
 
-/** The inner corners and the chevron move on the fast spatial spring, as the button shape does. */
-const SHAPE_TIMING: SpringRef = 'spring.fast.spatial';
+/**
+ * The inner corners and the chevron change on the default effects spring: Material 3 (Compose) forbids a bounce on the
+ * shape of a button, and a chevron turned past 180 degrees would overshoot. Both settle without overshoot.
+ */
+const SHAPE_TIMING: SpringRef = 'spring.default.effects';
 const RESTING_INNER_RADIUS: Record<SplitButtonSize, number> = {
   xSmall: 4,
   small: 4,
