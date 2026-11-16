@@ -501,9 +501,6 @@ importers:
       change-case:
         specifier: ^5.4.4
         version: 5.4.4
-      motion:
-        specifier: ^12.23.3
-        version: 12.43.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       nanostores:
         specifier: ^1.0.1
         version: 1.5.3
@@ -589,9 +586,6 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      motion:
-        specifier: ^12.23.0
-        version: 12.43.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       tailwind-merge:
         specifier: ^3.3.1
         version: 3.7.0
@@ -859,9 +853,6 @@ importers:
       tailwindcss:
         specifier: ^4.1.12
         version: 4.3.3
-      text-case:
-        specifier: ^1.2.9
-        version: 1.2.11
       tslib:
         specifier: ^2.3.0
         version: 2.8.1
@@ -948,9 +939,6 @@ importers:
       jest-axe:
         specifier: ^10.0.0
         version: 10.0.0
-      motion:
-        specifier: ^12.23.0
-        version: 12.43.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
 
   packages/ui-react:
     dependencies:
@@ -978,12 +966,6 @@ importers:
       jiti:
         specifier: ^2.5.1
         version: 2.7.0
-      lenis:
-        specifier: ^1.2.3
-        version: 1.3.26(react@19.3.0)
-      motion:
-        specifier: ^12.23.0
-        version: 12.43.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       pathe:
         specifier: ^2.0.3
         version: 2.0.3
@@ -11565,20 +11547,6 @@ packages:
   launder@1.7.1:
     resolution: {integrity: sha512-mU6WRz5EusL9ZZuiZ5SO4Y6C0P9PAUR9iwdb6bzj4KDihm28DiHFw+/yk9DBH4f+Pv1wuzQ4e2jV3oQ7mkIqvw==}
 
-  lenis@1.3.26:
-    resolution: {integrity: sha512-s/xTCZCxTFvHbAN1OzuhNaN5YPJH2ail0XAkctKW1b+RUAG4nUL5UHLXwNko1h8aEeT2jspBXegMgPJd8zcuag==}
-    peerDependencies:
-      '@nuxt/kit': '>=3.0.0'
-      react: '>=17.0.0'
-      vue: '>=3.0.0'
-    peerDependenciesMeta:
-      '@nuxt/kit':
-        optional: true
-      react:
-        optional: true
-      vue:
-        optional: true
-
   less-loader@12.3.1:
     resolution: {integrity: sha512-JZZmG7gMzoDP3VGeEG8Sh6FW5wygB5jYL7Wp29FFihuRTsIBacqO3LbRPr2yStYD11riVf13selLm/CPFRDBRQ==}
     engines: {node: '>= 18.12.0'}
@@ -14978,74 +14946,11 @@ packages:
     resolution: {integrity: sha512-u9E6A+ZDYdp7a4WnarkXPZOx8Ilz46+kby6p1yZ8zsGTz9gYa6FIS7lj2oezzNKmtdyyJNNmmXDppga5GB7kSw==}
     engines: {node: '>=18'}
 
-  text-camel-case@1.2.11:
-    resolution: {integrity: sha512-2ZsM/gOlB1tyza+8lGLvs6gtPuZ9qEYuKPa+gwo38m65wkY4k323SK4hT7ku8r5wIKyspUYIWSk1aB9/Jjxr7A==}
-
-  text-capital-case@1.2.11:
-    resolution: {integrity: sha512-30A7B7+VUvevEmPE0xWK1Z2z0ncl/JTjSUBLfjpoXrkwuPpmNTVbjHShRTN3cX9GIuZn/P3jvR+TO9JiTZcl8A==}
-
-  text-case@1.2.11:
-    resolution: {integrity: sha512-LbdWNQeuXWbfav+pxBxvaefkziffMYeSA53BHp52cgJa9rjiC0dkjum9AKrH8iQWoQJ4InGPSGexLeerGFaZ1Q==}
-
-  text-constant-case@1.2.11:
-    resolution: {integrity: sha512-XnTBILsa7UpMWncUCchqIybZlg15FUcrlyNaWIJ8ybPy54qcoN513EXFswueyizuAgyJFXPCwwSFbSji6kw/Uw==}
-
   text-decoder@1.2.7:
     resolution: {integrity: sha512-vlLytXkeP4xvEq2otHeJfSQIRyWxo/oZGEbXrtEEF9Hnmrdly59sUbzZ/QgyWuLYHctCHxFF4tRQZNQ9k60ExQ==}
 
-  text-dot-case@1.2.11:
-    resolution: {integrity: sha512-7SLKiT45KZO0qad0+p+GvC0+F+6pZ851HJcTcBJiSF88HsK/e1qErlGLtVBT6hkTHIaAj48WfSyQr4lZRv1xJQ==}
-
-  text-header-case@1.2.11:
-    resolution: {integrity: sha512-7OBHd2g7X+aH6rXMC3cANFh6yvhXjXkyumw2NaRwJRIk343pP2e1SQCTCfowPDmmi8wkZVqz1fdWNq5LwvcBOQ==}
-
-  text-is-lower-case@1.2.11:
-    resolution: {integrity: sha512-dBqPAkNmX7eTM7ZbS3D/UBCQ5i9EXt5tujF2wIGGbZ1+aN8bY7Qda4mDpxgd6Hbzf/z10uQWRNzupl99wFQ8CQ==}
-
-  text-is-upper-case@1.2.11:
-    resolution: {integrity: sha512-MZeUIYEYfKZ2FSeg0vnHCH4mHXLgGzes+iz2K+4BYnhnkEa2svKA1nNjQAqTUiVNHOPqPCuzmUr1LsyQZ73uyA==}
-
-  text-kebab-case@1.2.11:
-    resolution: {integrity: sha512-RIg9iN6VwH+JrX9dFdm1nd1efPGR9LjNc0CiQz496sQETeKGkDEzxES/ZzxbkerrAL2DFEMGdLXckzDz1OEDBQ==}
-
-  text-lower-case-first@1.2.11:
-    resolution: {integrity: sha512-QR483XLyuyIpq8tKu1ds3Q1jfsgfaa/p9rtoQKHe6Rv5ah9ic/SUzTGN0MQ7UIS9APADd8SUPn5TTh1Z2/ACyg==}
-
-  text-lower-case@1.2.11:
-    resolution: {integrity: sha512-txTy6y0y8M23Lhf0mk8WcvXTqlf4OQ3AGnDsRB6o3uMNfIa0CJDol2s1PdKNa63rt5B2277zkZCCn6Xeq//big==}
-
-  text-no-case@1.2.11:
-    resolution: {integrity: sha512-wazS7FEq0Ct3aJzeE8MEMcSs0eW4+/X/fwdotv/rG66bLS+g1T0pa0gUsbBGjjLFs191AIXVIry+bYE0uaaBBQ==}
-
-  text-param-case@1.2.11:
-    resolution: {integrity: sha512-3EMMAMLSz/mJXOnATNnrS+dZAvghpq09VhOVYDOkUnbm5zlYc6iU5AZOKVDpiAVVllQ9P1h5IKVZzsEYrdIRGw==}
-
-  text-pascal-case@1.2.11:
-    resolution: {integrity: sha512-BNhQ1O/g/Q4dH5gPyLIJLDLDknl2dipBwV629ScsiZCKJaCLGXYhTXp23rp9Htg3O5OSSsiU3mqDKq+pBmwTSw==}
-
-  text-path-case@1.2.11:
-    resolution: {integrity: sha512-FsJU4BmMdtLtmnBK/XRJPqTwLF8yFiTEClHjxlQjSAG5Xt9R4p6D1WNaM1CI2dG5Lr4rsFM4jiVC620m0AsRbw==}
-
-  text-sentence-case@1.2.11:
-    resolution: {integrity: sha512-ApiVsvdLy+Wb8x7mZRVuoy8VO12jJ22G2djVM3ZZbUhXVIkqGgHxmiXRwdhRPoWGojK9n53m7jviJgBVNdRn+g==}
-
-  text-snake-case@1.2.11:
-    resolution: {integrity: sha512-NOEQvjyyVABB41SS8dUx423Y6hWS+Z4TrAAJg1xzCkOD3q9y0JtdJjCvCA1FWI8oDu+HiIOp/N446uDM8j54XQ==}
-
-  text-swap-case@1.2.11:
-    resolution: {integrity: sha512-PBmC5xvZdDZ4suikydpeXH0s4JV2XHelMj9/OEXEbA3oLpdV2A+B4BspVDWVw7C2Gi5eCareqk/7EE8I1/WwgQ==}
-
   text-table@0.2.0:
     resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}
-
-  text-title-case@1.2.11:
-    resolution: {integrity: sha512-V1GZy0XlqdkYUQm0tqm1jqtYlXJqFVMreBCTUReOaz8d/JbozTSpZrcakIeV8+1bN7LsvfhPFhA5zREiax6YIA==}
-
-  text-upper-case-first@1.2.11:
-    resolution: {integrity: sha512-vgfbwKo8TEJbRsapR9LWWvIJRnv8u9aXVa6cyYOAQQmurCx54Cnt59x5fKdiq+hFaBJ51AbzCgMpbP3p65/pHQ==}
-
-  text-upper-case@1.2.11:
-    resolution: {integrity: sha512-BfTL7yB1YIRlVGNdZUvno013hOq2cRs07fDR2ApppOXRDuKrEmsLDEY82xXlDzQHELp0jexqkI+NeyPIl6MtMw==}
 
   thenify-all@1.6.0:
     resolution: {integrity: sha512-RNxQH/qI8/t3thXJDwcstUO4zeqo64+Uy/+sNVRBx4Xn2OX+OZ9oP+iJnNFqplFra2ZUVeKCSa2oVWi3T4uVmA==}
@@ -31270,10 +31175,6 @@ snapshots:
     dependencies:
       dayjs: 1.11.23
 
-  lenis@1.3.26(react@19.3.0):
-    optionalDependencies:
-      react: 19.3.0
-
   less-loader@12.3.1(less@4.9.0(supports-color@7.2.0))(webpack@5.105.2(@swc/core@1.15.8(@swc/helpers@0.5.23))(clean-css@5.3.3)(cssnano@7.1.9(postcss@8.5.28))(csso@5.0.5)(esbuild@0.28.2)(html-minifier-terser@7.2.0)(lightningcss@1.33.0)(postcss@8.5.28)(uglify-js@3.19.3)):
     dependencies:
       less: 4.9.0(supports-color@7.2.0)
@@ -35882,106 +35783,13 @@ snapshots:
       glob: 10.5.0
       minimatch: 10.2.6
 
-  text-camel-case@1.2.11:
-    dependencies:
-      text-pascal-case: 1.2.11
-
-  text-capital-case@1.2.11:
-    dependencies:
-      text-no-case: 1.2.11
-      text-upper-case-first: 1.2.11
-
-  text-case@1.2.11:
-    dependencies:
-      text-camel-case: 1.2.11
-      text-capital-case: 1.2.11
-      text-constant-case: 1.2.11
-      text-dot-case: 1.2.11
-      text-header-case: 1.2.11
-      text-is-lower-case: 1.2.11
-      text-is-upper-case: 1.2.11
-      text-kebab-case: 1.2.11
-      text-lower-case: 1.2.11
-      text-lower-case-first: 1.2.11
-      text-no-case: 1.2.11
-      text-param-case: 1.2.11
-      text-pascal-case: 1.2.11
-      text-path-case: 1.2.11
-      text-sentence-case: 1.2.11
-      text-snake-case: 1.2.11
-      text-swap-case: 1.2.11
-      text-title-case: 1.2.11
-      text-upper-case: 1.2.11
-      text-upper-case-first: 1.2.11
-
-  text-constant-case@1.2.11:
-    dependencies:
-      text-no-case: 1.2.11
-      text-upper-case: 1.2.11
-
   text-decoder@1.2.7:
     dependencies:
       b4a: 1.8.1
     transitivePeerDependencies:
       - react-native-b4a
 
-  text-dot-case@1.2.11:
-    dependencies:
-      text-no-case: 1.2.11
-
-  text-header-case@1.2.11:
-    dependencies:
-      text-capital-case: 1.2.11
-
-  text-is-lower-case@1.2.11: {}
-
-  text-is-upper-case@1.2.11: {}
-
-  text-kebab-case@1.2.11:
-    dependencies:
-      text-no-case: 1.2.11
-
-  text-lower-case-first@1.2.11: {}
-
-  text-lower-case@1.2.11: {}
-
-  text-no-case@1.2.11:
-    dependencies:
-      text-lower-case: 1.2.11
-
-  text-param-case@1.2.11:
-    dependencies:
-      text-dot-case: 1.2.11
-
-  text-pascal-case@1.2.11:
-    dependencies:
-      text-no-case: 1.2.11
-
-  text-path-case@1.2.11:
-    dependencies:
-      text-dot-case: 1.2.11
-
-  text-sentence-case@1.2.11:
-    dependencies:
-      text-no-case: 1.2.11
-      text-upper-case-first: 1.2.11
-
-  text-snake-case@1.2.11:
-    dependencies:
-      text-dot-case: 1.2.11
-
-  text-swap-case@1.2.11: {}
-
   text-table@0.2.0: {}
-
-  text-title-case@1.2.11:
-    dependencies:
-      text-no-case: 1.2.11
-      text-upper-case-first: 1.2.11
-
-  text-upper-case-first@1.2.11: {}
-
-  text-upper-case@1.2.11: {}
 
   thenify-all@1.6.0:
     dependencies:
