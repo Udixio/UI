@@ -6,6 +6,7 @@ import type { MotionHandle } from './contract.js';
 import type { MotionSpec } from './define-motion.js';
 import type { MotionRuntime } from './runtime.js';
 import { holdShared, measure, visualBoxOf } from './layout/measure.js';
+import { sharedOf } from './shared-registry.js';
 import { flush, scopeFor } from './layout/flush.js';
 import { stopFlight } from './layout/flight.js';
 import { dispose, layoutScopeOf, scopeOf, scopes } from './layout/scope.js';
@@ -68,7 +69,7 @@ export function trackLayout(target: HTMLElement, spec: Readonly<MotionSpec>, opt
         holdShared(current, target, item.shared, options.runtime, visualBoxOf(current, target, rects), rects);
       }
       stopFlight(item);
-      if (item.shared !== undefined) options.runtime.shared.forget(item.shared, target);
+      if (item.shared !== undefined) sharedOf(options.runtime).forget(item.shared, target);
       if (!current) return;
       scopeOf.delete(target);
       current.items.delete(target);

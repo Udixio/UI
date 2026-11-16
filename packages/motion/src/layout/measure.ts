@@ -2,6 +2,7 @@ import { parseOwnTransform, toLayoutBox, type Box, type OwnTransform } from '../
 import { parseRadii, type Radii, type Stretch } from '../project.js';
 import { CONTENT_BUDGET, CONTENT_DEPTH, type ContentNode, type Item, type ReferenceRects, type Scope } from './types.js';
 import type { MotionRuntime } from '../runtime.js';
+import { sharedOf } from '../shared-registry.js';
 
 export function ownOf(element: HTMLElement): OwnTransform {
   const style = getComputedStyle(element);
@@ -107,7 +108,7 @@ export function measureWith(scope: Scope, element: HTMLElement, item: Item, styl
  */
 export function holdShared(scope: Scope, element: HTMLElement, key: string, runtime: MotionRuntime, visual: Box, rects: ReferenceRects): void {
   if (visual.w === 0 || visual.h === 0) {
-    runtime.shared.forget(key, element);
+    sharedOf(runtime).forget(key, element);
     return;
   }
   // visualBoxOf has cached the rect of this reference: the reference is the one the visual box is relative to.
@@ -119,7 +120,7 @@ export function holdShared(scope: Scope, element: HTMLElement, key: string, runt
   // The visual box gives its centre relative to the top-left corner of its reference: half its size gives its own corner.
   const left = visual.cx - width / 2;
   const top = visual.cy - height / 2;
-  runtime.shared.remember(
+  sharedOf(runtime).remember(
     key,
     element,
     { left: left + rect.left + (win?.scrollX ?? 0), top: top + rect.top + (win?.scrollY ?? 0), width, height },

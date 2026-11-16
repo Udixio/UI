@@ -1,3 +1,4 @@
+import { sharedOf } from './shared-registry.js';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { getMotionRuntime } from './runtime.js';
 import { RUNTIME_KEY } from './runtime-key.js';
@@ -22,7 +23,7 @@ describe('motion runtime', () => {
     expect(getMotionRuntime().development).toBe(false);
     first.retain();
     expect(first.policy.reduced).toBe(false);
-    expect(first.shared.resolve('server')).toBeUndefined();
+    expect(first.shared).toBeUndefined();
     first.release();
   });
 
@@ -352,10 +353,10 @@ describe('frame cancellation failures', () => {
     vi.stubGlobal('cancelAnimationFrame', () => { throw failure; });
     const runtime = getMotionRuntime({ development: false });
     runtime.retain();
-    runtime.shared.register('test', element);
+    sharedOf(runtime).register('test', element);
     runtime.frame.read(() => {});
     expect(() => runtime.release()).toThrow(failure);
-    expect(runtime.shared.resolve('test')).toBeUndefined();
+    expect(sharedOf(runtime).resolve('test')).toBeUndefined();
     expect(removeListener).toHaveBeenCalledOnce();
     runtime.retain();
     const work = vi.fn();

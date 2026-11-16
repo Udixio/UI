@@ -1,3 +1,5 @@
+import type { MotionRuntime } from './runtime.js';
+
 /**
  * How long, in ms, the box of a holder serves as the place a shared identity arrives from, counted from the moment the
  * engine learns that the holder is gone.
@@ -141,4 +143,15 @@ export function createSharedRegistry(document: Document, development: boolean) {
       entries.clear();
     },
   };
+}
+
+/** The registry of a page's runtime. */
+export type SharedRegistry = ReturnType<typeof createSharedRegistry>;
+
+/**
+ * The page's registry of shared identities, created the first time the layout engine needs it: a page without a shared
+ * element never holds one. It is kept on the runtime, which every copy of the package shares.
+ */
+export function sharedOf(runtime: MotionRuntime): SharedRegistry {
+  return (runtime.shared ??= createSharedRegistry(document, runtime.development));
 }

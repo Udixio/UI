@@ -1,5 +1,5 @@
 import { createMotionPolicy, type MotionPolicy } from './runtime-policy.js';
-import { createSharedRegistry } from './shared-registry.js';
+import type { SharedRegistry } from './shared-registry.js';
 
 // Preview revisions have distinct keys: incompatible revisions do not coordinate
 // their schedulers. The stable v1 key is reserved for the complete contract.
@@ -10,7 +10,8 @@ export interface MotionRuntime {
   readonly version: string;
   readonly development: boolean;
   readonly policy: MotionPolicy;
-  readonly shared: ReturnType<typeof createSharedRegistry>;
+  /** The shared identities of the page: created by the layout engine on first use (`sharedOf`), never during SSR. */
+  shared?: SharedRegistry;
   retain(): void;
   release(): void;
   subscribe(name: string, sub: { tick(timestamp: number): void }, options?: { pauseWhenReduced?: boolean; root?: Element }): () => void;
@@ -25,9 +26,6 @@ function createRuntime(browser: boolean, development: boolean): MotionRuntime {
   const policy = browser ? createMotionPolicy() : {
     reduced: false, retain() {}, release() {}, subscribe() { return () => {}; },
   };
-  const shared = browser && typeof document !== 'undefined'
-    ? createSharedRegistry(document, development)
-    : { register() { return () => {}; }, resolve() { return undefined; }, remember() {}, forget() {}, recall() { return undefined; }, clear() {} };
   let references = 0;
   let frameId: number | undefined;
   let reads: Array<() => void> = [];
@@ -187,11 +185,10 @@ function createRuntime(browser: boolean, development: boolean): MotionRuntime {
     }
   }
 
-  return {
+  const runtime: MotionRuntime = {
     version: '1',
     development,
     policy,
-    shared,
     retain() {
       if (references === 0) {
         policy.retain();
@@ -235,7 +232,7 @@ function createRuntime(browser: boolean, development: boolean): MotionRuntime {
       try { disconnectRetiredObservers(); } catch (error) { failures.push(error); }
       try { stopDocument?.(); } catch (error) { failures.push(error); }
       stopDocument = undefined;
-      try { shared.clear(); } catch (error) { failures.push(error); }
+      try { runtime.shared?.clear(); } catch (error) { failures.push(error); }
       try { stopPolicy?.(); } catch (error) { failures.push(error); }
       stopPolicy = undefined;
       try { policy.release(); } catch (error) { failures.push(error); }
@@ -332,6 +329,7 @@ function createRuntime(browser: boolean, development: boolean): MotionRuntime {
       write(callback) { if (browser && references > 0) { writes.push(callback); schedule(); } },
     },
   };
+  return runtime;
 }
 
 /**

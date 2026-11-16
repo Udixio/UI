@@ -8,7 +8,7 @@ import { playbackOf, restFrames, startContent, stopFlight } from './flight.js';
 import { centredOn, contentPlanOf, depthOf, flyingChange, isNegligible, resizes, scalesMoving, stretchesCorners } from './plan.js';
 import { contentOf, hasText, measure, measureWith, ownOf, radiiOf, referenceOf, unitOf, visualBoxOf } from './measure.js';
 import { dispose, layoutScopeOf, relevant, scopeOf, scopes } from './scope.js';
-import { SHARED_WINDOW } from '../shared-registry.js';
+import { SHARED_WINDOW, sharedOf } from '../shared-registry.js';
 import type { Change, Item, PlannedMove, ReferenceRects, Scope } from './types.js';
 
 /** A changed element whose content is planned in this flush: its content nodes go to `list`; `from` and `visual` are its visual boxes before and after. */
@@ -92,7 +92,7 @@ function isEmpty(box: Box): boolean {
 function arrivalOf(scope: Scope, element: HTMLElement, key: string, runtime: MotionRuntime, rects: ReferenceRects): Box | undefined {
   const rect = element.getBoundingClientRect();
   if (rect.width === 0 || rect.height === 0) return undefined;
-  const page = runtime.shared.recall(key, element, SHARED_WINDOW);
+  const page = sharedOf(runtime).recall(key, element, SHARED_WINDOW);
   if (!page) return undefined;
   const reference = referenceOf(scope, element);
   let origin = rects.get(reference);

@@ -456,3 +456,9 @@ test('the page entry imports only shared chunks, never the main entry', async ()
     await readFile(new URL(file, new URL('dist/', root)), 'utf8');
   }
 });
+
+test('the main entry holds none of the shared identity registry, which the layout engine creates', async () => {
+  for (const code of await staticClosure('dist/index.js')) assert.doesNotMatch(code, /Multiple live shared elements|SHARED_WINDOW|sharedOf/);
+  const layout = await readFile(new URL('dist/layout.js', root), 'utf8');
+  assert.match(layout, /Multiple live shared elements/);
+});
