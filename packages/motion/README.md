@@ -933,6 +933,13 @@ This is a provisional token-data foundation, not a complete F1 implementation:
 automatic runtime resolution of timing references, custom easings, Tailwind and framework syntaxes remain future work. The API shape may change
 when the shared motion model and provider contracts are designed.
 
+Choosing a spring. The fast spatial spring overshoots its target by about 9.5 %, the default and slow spatial springs
+by about 1.5 %, and the effects springs not at all. Use the fast spatial spring only on transforms of small pieces: a
+switch thumb, a small scale, the items of a FAB menu. Do not use it on layout edges with clipped content (height or
+width), on corner radii, or on an indicator that travels more than about 50 px: the overshoot reads as a glitch there.
+A property that collapses to 0 (height, width or scale) never uses an underdamped spring, spatial ones included: it
+reaches 0 at full speed, where the overshoot is clamped, so it moves on the effects spring of the same speed.
+
 ### Static CSS spring tokens
 
 Import `@udixio/motion/motion.css` in the document to expose six pairs:

@@ -725,6 +725,11 @@ disponibles, `estimated` sinon (Firefox Android, R16).
   relatif est `min(rang * pas, --udx-motion-stagger-max)` (M2-R06), hors délai initial. Les derniers
   éléments atteignant le plafond démarrent ensemble. Ce plafond ne borne pas
   la dernière fin, qui inclut aussi la durée de l'animation.
+- Choix du ressort par mouvement (calibrage visuel, étape 8d) : le ressort spatial rapide (≈ 9,5 % de dépassement) ne
+  sert qu'aux transformations de petites pièces (pouce d'un interrupteur, petite échelle, éléments d'un menu FAB). Il
+  n'est jamais utilisé sur un bord de mise en page avec contenu découpé (hauteur, largeur), sur un rayon de coin, ni sur
+  un indicateur qui traverse plus d'environ 50 px. Une propriété qui s'effondre à 0 (hauteur, largeur, échelle) n'utilise
+  jamais un ressort sous-amorti : elle prend le ressort `effets` de même vitesse, qui ne dépasse pas sa cible.
 
 ### 8.3 Contrat provider — **rédigé (consolidation)**
 
