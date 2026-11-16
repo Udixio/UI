@@ -1,6 +1,8 @@
+import { isPlatformServer } from '@angular/common';
 import {
   Directive,
   ElementRef,
+  PLATFORM_ID,
   afterRenderEffect,
   booleanAttribute,
   effect,
@@ -9,6 +11,7 @@ import {
   untracked,
   type AnimationCallbackEvent,
   type OnDestroy,
+  type OnInit,
 } from '@angular/core';
 import {
   motionWhenDefined,
@@ -66,8 +69,8 @@ const motionsOf = (source: MotionSource | readonly MotionSource[]): MotionSource
  * - An exit keeps the element in the accessibility tree until it has played,
  *   and the core makes it `inert` meanwhile.
  * @limitations
- * - Server-rendered content replays its entry on hydration unless
- *   `udxMotionSettled` is set.
+ * - Content rendered by the server is marked present, so it does not replay its
+ *   entry on hydration; `udxMotionSettled` still skips the entry of other content.
  * - A leave inside a child component's template follows Angular's own rule:
  *   apply the directive on the child host in the parent template.
  */
@@ -77,7 +80,7 @@ const motionsOf = (source: MotionSource | readonly MotionSource[]): MotionSource
   exportAs: 'udxMotion',
   host: { '(animate.leave)': 'leave($event)' },
 })
-export class Motion implements OnDestroy {
+export class Motion implements OnInit, OnDestroy {
   /** The motion: the name of a defined motion, a definition, or a raw spec. A list of them, or names separated by spaces, binds each one. */
   readonly source = input.required<MotionSource | readonly MotionSource[]>({ alias: 'udxMotion' });
   /** Whether the element is present; `false` plays its exit and keeps it in the DOM. */
@@ -101,6 +104,7 @@ export class Motion implements OnDestroy {
   });
 
   private readonly host = inject(ElementRef<MotionElement>);
+  private readonly platformId = inject(PLATFORM_ID);
   private deferred: DeferredMotion[] = [];
   private boundKey?: string;
   private leaving = false;
@@ -131,7 +135,9 @@ export class Motion implements OnDestroy {
         const rebinding = this.boundKey !== undefined;
         this.deferred.forEach((each) => each.destroy());
         const present = this.present();
-        const settled = rebinding || this.settled();
+        // Server-rendered content is marked present by the server, so it is in place: no entry replays on hydration.
+        const marked = this.host.nativeElement.getAttribute('data-presence') === 'present';
+        const settled = rebinding || this.settled() || marked;
         const paused = this.paused();
         this.deferred = sources.map((each) =>
           motionWhenDefined(this.host.nativeElement, each, { present, settled, shared, ...(paused && { paused: true }) }),
@@ -178,6 +184,11 @@ export class Motion implements OnDestroy {
     });
   }
 
+  ngOnInit(): void {
+    // Rendered on the server, a present element is marked, so that the browser binds it settled.
+    if (isPlatformServer(this.platformId) && this.present()) this.host.nativeElement.setAttribute('data-presence', 'present');
+  }
+
   /** Replays the emphasis. A replay asked before the emphasis is defined plays once it is; without an emphasis, nothing. */
   play(): void {
     for (const each of this.deferred) each.play();
@@ -196,15 +207,16 @@ export class Motion implements OnDestroy {
   /** Angular calls this before it removes the element; the removal waits for `animationComplete()`. */
   protected leave(event: AnimationCallbackEvent): void {
     const binding = this.released ? undefined : this.bindingOf('presence');
+    // The bindings are released before the element is allowed to leave: a shared element keeps its box in flight, which is read from the page.
     if (!binding) {
-      event.animationComplete();
       this.release();
+      event.animationComplete();
       return;
     }
     this.leaving = true;
     void binding.setPresent(false).then(() => {
-      event.animationComplete();
       this.release();
+      event.animationComplete();
     });
   }
 

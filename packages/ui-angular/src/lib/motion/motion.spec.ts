@@ -1,5 +1,5 @@
-import { Component, type AnimationCallbackEvent } from '@angular/core';
 import { By } from '@angular/platform-browser';
+import { PLATFORM_ID, Component, type AnimationCallbackEvent } from '@angular/core';
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import {
   kindOf,
@@ -213,6 +213,34 @@ describe('Motion (Angular directive)', () => {
         { present: true, settled: false },
       );
       fixture.destroy();
+    });
+
+    it('binds an element that the server marked present as settled: no entry replays on hydration', () => {
+      const motion = fakeMotion();
+      motionWhenDefinedMock.mockReturnValue(motion.deferred);
+      const fixture = TestBed.createComponent(BindHost);
+      boxOf(fixture.nativeElement).setAttribute('data-presence', 'present');
+      fixture.detectChanges();
+
+      expect(motionWhenDefinedMock).toHaveBeenCalledWith(boxOf(fixture.nativeElement), 'demo', { present: true, settled: true });
+      fixture.destroy();
+    });
+
+    it('marks a present element on the server, and leaves an absent one unmarked', async () => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({ providers: [{ provide: PLATFORM_ID, useValue: 'server' }] });
+      const motion = fakeMotion();
+      motionWhenDefinedMock.mockReturnValue(motion.deferred);
+      const present = TestBed.createComponent(PresenceHost);
+      present.detectChanges();
+      expect(boxOf(present.nativeElement).getAttribute('data-presence')).toBe('present');
+      present.destroy();
+
+      const absent = TestBed.createComponent(PresenceHost);
+      absent.componentInstance.present = false;
+      absent.detectChanges();
+      expect(boxOf(absent.nativeElement).hasAttribute('data-presence')).toBe(false);
+      absent.destroy();
     });
 
     it('binds as settled when udxMotionSettled is set', () => {
@@ -499,6 +527,29 @@ describe('Motion (Angular directive)', () => {
 
       expect(animationComplete).toHaveBeenCalledTimes(1);
       expect(motion.destroy).toHaveBeenCalledTimes(1);
+    });
+
+    it('releases the binding while the element is still in the page, and lets it leave only after', () => {
+      const order: string[] = [];
+      let box: HTMLElement | undefined;
+      let connectedAtRelease: boolean | undefined;
+      const destroy = jest.fn(() => {
+        connectedAtRelease = box?.isConnected;
+        order.push('release');
+      });
+      motionWhenDefinedMock.mockReturnValue({ binding: undefined, destroy });
+      const fixture = TestBed.createComponent(StaticHost);
+      fixture.detectChanges();
+      box = boxOf(fixture.nativeElement);
+      // Angular removes the element once `animationComplete` has been called: the removal is simulated by the call.
+      const animationComplete = jest.fn(() => {
+        order.push('leave');
+        box?.remove();
+      });
+      (motionOf(fixture) as unknown as LeavingMotion).leave({ target: box, animationComplete });
+
+      expect(order).toEqual(['release', 'leave']);
+      expect(connectedAtRelease).toBe(true);
     });
 
     it('completes the removal at once when there is no binding to play an exit', () => {
