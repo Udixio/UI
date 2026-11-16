@@ -116,7 +116,7 @@ Each call builds an isolated theme, so concurrent renders do not share state.
 | ---------------------------------------- | ------------------------------------------------------------------------------------------- |
 | Components                               | 36, from `Button` to `DatePicker`.                                                          |
 | `ThemeProvider`, `generateThemeCss`      | Runtime theming.                                                                            |
-| Effects                                  | `State`, ripple, `AnimateOnScroll`, smooth scroll, scroll-driven animation, scroll locking. |
+| `CustomScroll`                           | The custom scroll of `Carousel`, on `@udixio/core/dom`.                                     |
 | `Icon`                                   | The icon component, paired with the `@udixio/icons-*` packages.                             |
 | `useControllableState`, `createUseStyle` | The hooks the components use, for building your own on the same footing.                    |
 
