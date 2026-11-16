@@ -1370,6 +1370,70 @@ Points ouverts (étape 8) :
 - L'entrée principale n'a plus que 0,06 kB de marge : la reprise des
   adaptateurs (imports paresseux) doit en rendre.
 
+#### 8.3.16 État après l'étape 7 — migration des composants Udixio (2026-11-16)
+
+Plus aucun paquet de composants n'importe `motion` ni anime.js : les contrôleurs de
+`@udixio/core/dom` passent par le chemin public de `@udixio/motion` (M4-R01). anime.js ne
+reste que dans le fournisseur anime.js et `morph()` ; `motion` seulement comme dépendance de
+développement du banc d'essai de `@udixio/motion`. Lockfile : −23 paquets (`motion`, `lenis`,
+`text-case`…), puis anime.js retiré de core et de ui-react.
+
+| Lot | Composants | Moteur |
+|---|---|---|
+| 7a | entrée `@udixio/motion/animate` : `animateStyle` (toute propriété CSS, `auto` mesuré, départ depuis la valeur affichée), `createSpring` (nombre lissé, vitesse conservée), `cssTiming`, `composeHandles`, `stagger*` | WAAPI, timing routé comme les verbes |
+| 7b | StateLayer (forme, ripple, appui), Button, IconButton, Tabs, DatePicker, Slider, SideSheet, Snackbar, NavigationRail(Item), Chip, FabMenu, indicateurs de progression, Carousel, CustomScroll | `animateStyle`, `createSpring`, écouteurs natifs |
+| 7d | suppression de `anim-*`, des effets ui-react (`AnimateOnScroll`, `SmoothScroll`/`lenis`, `RippleEffect`, `BlockScroll`), de la page `/animations` ; doc sur `@udixio/motion` | — |
+| 7e | Switch, SplitButton, Tooltip, label du FAB, encoche du TextField, résultats de Search ; `createAutoLayoutController` supprimé | `animateStyle` |
+
+Règles fixées pendant l'étape 7 (choix de Claude, sur délégation) :
+
+- **D2** : suppression immédiate, sans alias (C7, C15). Publier une dernière version
+  dépréciée depuis `main` se décide à l'étape 9.
+- **Prop `motion`** (M4-R02 adaptée) : `motion?: { timing?: SpringRef | CurveTiming }`
+  remplace `transition`, `transitionDuration`, `shapeTransition`, `TooltipTransition`, avec la
+  même forme dans core, React, Angular et Svelte (NavigationRail l'a maintenant partout). La
+  forme « nom de définition » n'est pas retenue : les composants animent surtout des
+  propriétés hors verbes.
+- **Timing** : un mouvement spatial ou d'effet passe au ressort M3 de son rôle (rapide pour
+  les petites pièces, défaut pour les conteneurs), même là où l'ancien code avait un tween ;
+  les fondus de couleur et transitions CSS gardent des courbes (`cssTiming`). Les boucles que
+  M3 fixe hors échelle (progression : 1,5 s, 3 s) prennent `{ duration, easing }` brut, avec
+  des images clés échantillonnées par segment (WAAPI n'a qu'une courbe par animation).
+- **Interruption** : on part de la valeur affichée seulement pendant un mouvement en cours ;
+  sinon d'images explicites (les adaptateurs changent le CSS avant le contrôleur). Les sauts
+  d'interruption de la Snackbar, du FabMenu, du DatePicker et du Switch ont disparu.
+- **Politique** : tous les contrôleurs suivent `html[data-motion-policy]`, plus seulement
+  `matchMedia` ; l'option `reducedMotion` reste un forçage.
+- **Appui** : `press` natif dans core (bouton principal, Entrée/Espace) ; il ne pose plus de
+  `tabindex="0"` sur un déclencheur non focusable comme le faisait Motion (le conteneur du
+  Search était un arrêt de tabulation en trop).
+- **Ripple** : propriété `--udixio-ripple-radius` enregistrée (`<percentage>`), absente sous
+  mouvement réduit.
+- **Mesures** : boucles de progression identiques à l'ancienne version (≤ 0,2°, ≤ 0,1 px sur
+  trois moteurs) ; `dist/dom.js` de core 134 → 61 Ko (anime.js n'est plus inliné).
+
+Défauts trouvés et corrigés pendant l'étape : `motion.css` injecté avec ses `@import` relatifs
+(WebKit) ; `badge.ts` non typé depuis `split` ; docgen bloqué par les attachments motion de
+Svelte ; Svelte FabMenu/Fab/Search/TextField recréaient leur contrôleur à chaque changement
+d'état ; throttle de CustomScroll qui perdait l'axe actif ; types des entrées à la demande.
+
+Points ouverts (étape 8) :
+
+- **Élément partagé** : sur une page qui défile avec un élément `sticky`, le morphing
+  `layout` + `shared` est parti à y = −23 px (barre latérale de la doc, contournée par
+  `animateStyle`) ; cause à trouver.
+- **Calibrage** : les ressorts allongent plusieurs mouvements (Snackbar 100 → 360 ms, Switch
+  150 → 360 ms, SideSheet et labels 300 → 435 ms, Search 250 → 435 ms) et les ressorts
+  spatiaux expressifs dépassent leur cible (label du FAB, résultats de Search, panneau
+  d'onglet, réarrangement de la galerie) ; le Carousel se pose en 0,34 s au lieu de 0,72 s.
+  Conteneur du FAB (courbe CSS de repli 500 ms) et label (`linear()` 435 ms) décalés.
+- Le FabMenu ouvert ne garde plus de `clip-path` en ligne (les ombres ne sont plus coupées) :
+  à valider visuellement.
+- `easedLoopKeyframes` (core) pourrait devenir une option de courbe par segment de
+  `animateStyle`.
+- Doc : la galerie de jetons démarre repliée (clé `Primary` jamais égale aux clés en
+  minuscules) ; erreur d'hydratation React #418 sur `/` et `/theme/builder/` (préexistantes).
+
 ### 8.4 Détails par famille — **rédigé (consolidation)**
 
 | # | Famille | Écriture | Chemin natif | Repli / moteur JS | Sources |
@@ -1483,8 +1547,10 @@ détail en §8.3.12) : les sept verbes existent. **Étape 4 livrée le
 livrée le 2026-11-15** (gestes, transitions de page, détail en §8.3.14). La
 suivante est l'étape 6 (découpage de texte, SVG, défilement programmé).
 **Étape 6 livrée le 2026-11-16** (texte, SVG, `scrollTo`, détail en
-§8.3.15). La suivante est l'étape 7 (migration des composants Udixio, retrait
-de `motion` et des classes `anim-*`).
+§8.3.15). **Étape 7 livrée le 2026-11-16** (migration des composants Udixio,
+retrait de `motion`, d'anime.js hors du moteur et de `anim-*`, détail en §8.3.16).
+La suivante est l'étape 8 (calibrage visuel, doc, outillage IA, accessibilité,
+performance, navigateurs anciens).
 
 ## 9. Questions ouvertes connues
 
@@ -1555,6 +1621,7 @@ D2 (en partie orientée par C15).
 | Date | Travail | Changement |
 |---|---|---|
 | 2026-11-03 | — | Création du document à l'issue du brainstorming initial. |
+| 2026-11-16 | Étape 7 | Entrée `@udixio/motion/animate` (`animateStyle`, `createSpring`) ; 18 composants migrés depuis `motion` et anime.js dans core et les trois adaptateurs ; prop `motion` unique (D2 : suppression immédiate de `transition`, `anim-*`, effets morts, `lenis`) ; doc sur `@udixio/motion`. Règles et limites en §8.3.16. Vérification : motion 2 121 tests + 7 ignorés, core 333 unitaires + 185 navigateur × 3, React 447, Svelte 326, Angular 402, tailwind 43 + 42 navigateur × 3, doc 60 tests navigateur sur le site construit. |
 | 2026-11-16 | Étape 6 | Texte découpé (`split`, `@udixio/motion/text`, copie accessible), SVG (`draw`, `along`, éléments SVG liés, `morph` dans `@udixio/motion/svg`), `scrollTo` (`@udixio/motion/scroll`) ; démo, README. Défaut antérieur corrigé : types des entrées à la demande. Règles et limites en §8.3.15. Vérification : motion 2 064 tests + 7 ignorés (trois navigateurs), core 433, React 443, Svelte 322, Angular 400, doc 60 tests navigateur sur le site construit. |
 | 2026-11-15 | Étape 5 | Gestes (`defineGesture` : `drag`, `swipe`, `reorder`, alternative clavier obligatoire, événements annulables), transitions de page (`navigate`, règles de route de `motion.css`, `connectAstroTransitions`) ; adaptateurs ; démo. Défauts corrigés en vérification : mélange `plus-lighter` perdu par les routes, vol de layout de l'élément tenu, image immobile au départ d'un ressort. Règles et limites en §8.3.14. Vérification : motion 1 815 tests + 7 ignorés (trois navigateurs), core 433, React 443, Svelte 322, Angular 400, doc 51 tests navigateur sur le site construit. |
 | 2026-11-16 | Étape 4 | Valeurs (`defineValue`, `--udx-motion-value-<nom>`), compteurs formatés et accessibles, séquences (`defineSequence`, `data-motion-step`) ; `MotionHandle.delay` et positionnement composé corrigé ; valeurs et séquences chargées à la demande ; adaptateurs ; démo. Vérification : motion 1 649 tests + 7 ignorés (trois navigateurs), core 433, React 433, Svelte 315, Angular 391, doc 39 tests navigateur sur le site construit. |
