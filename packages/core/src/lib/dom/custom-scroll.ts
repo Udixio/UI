@@ -1,5 +1,3 @@
-import { scroll as motionScroll } from 'motion';
-
 export type ScrollOrientation = 'horizontal' | 'vertical';
 
 export interface CustomScrollMetrics {
@@ -131,8 +129,6 @@ export function createCustomScrollController({
   onDraggingChange,
   onDimensionsChange,
 }: CustomScrollControllerOptions): CustomScrollController {
-  const lastProgress = { x: 0, y: 0 };
-
   const contentScrollSize = () => ({
     width: scrollSize() ?? content.scrollWidth,
     height: scrollSize() ?? content.scrollHeight,
@@ -166,21 +162,36 @@ export function createCustomScrollController({
     }
   });
 
-  // --- Scroll progress via Motion's vanilla listener -----------------------
-  const stopScrollX = motionScroll(
-    (progress: number) => {
-      lastProgress.x = progress;
-      notify(progress, 'x');
-    },
-    { axis: 'x', container },
-  );
-  const stopScrollY = motionScroll(
-    (progress: number) => {
-      lastProgress.y = progress;
-      notify(progress, 'y');
-    },
-    { axis: 'y', container },
-  );
+  // --- Scroll progress: a passive scroll listener, read at most once per frame ---------
+  type Axis = 'x' | 'y';
+  const lastReading: Partial<Record<Axis, string>> = {};
+  let progressFrame: number | undefined;
+  /** Reads the progress of one axis, and notifies it when the reading has changed since the last notification. */
+  const readAxis = (axis: Axis) => {
+    const horizontal = axis === 'x';
+    const range = horizontal
+      ? container.scrollWidth - container.clientWidth
+      : container.scrollHeight - container.clientHeight;
+    const position = Math.abs(horizontal ? container.scrollLeft : container.scrollTop);
+    const progress = range > 0 ? clamp(position / range, 0, 1) : 0;
+    const sizes = contentScrollSize();
+    const reading = `${progress}|${sizes.width}|${sizes.height}|${container.clientWidth}|${container.clientHeight}`;
+    if (lastReading[axis] === reading) return;
+    lastReading[axis] = reading;
+    notify(progress, axis);
+  };
+  // Only the active axis is read: the throttle keeps one pending call for both axes, so a call for the inactive axis
+  // would replace the pending call of the active one.
+  const readActiveAxis = () => readAxis(orientation() === 'horizontal' ? 'x' : 'y');
+  const scheduleRead = () => {
+    if (progressFrame !== undefined) return;
+    progressFrame = requestAnimationFrame(() => {
+      progressFrame = undefined;
+      readActiveAxis();
+    });
+  };
+  container.addEventListener('scroll', scheduleRead, { passive: true });
+  scheduleRead();
 
   // --- Dragging indicator + pointer drag -----------------------------------
   let isDragging = false;
@@ -226,6 +237,7 @@ export function createCustomScrollController({
   container.addEventListener('scroll', onNativeScroll);
 
   // --- Resize observation --------------------------------------------------
+  // The scroll range follows the container and the content, so both are observed.
   const resizeObserver = new ResizeObserver((entries) => {
     for (const entry of entries) {
       if (entry.target !== container) continue;
@@ -233,11 +245,11 @@ export function createCustomScrollController({
         width: entry.contentRect.width,
         height: entry.contentRect.height,
       });
-      if (entry.contentRect.width) notify(lastProgress.x, 'x');
-      if (entry.contentRect.height) notify(lastProgress.y, 'y');
     }
+    readActiveAxis();
   });
   resizeObserver.observe(container);
+  resizeObserver.observe(content);
 
   // --- Programmatic scrolling ----------------------------------------------
   const scrollTo = (target: CustomScrollTarget) => {
@@ -283,8 +295,9 @@ export function createCustomScrollController({
       });
     },
     destroy() {
-      stopScrollX();
-      stopScrollY();
+      if (progressFrame !== undefined) cancelAnimationFrame(progressFrame);
+      progressFrame = undefined;
+      container.removeEventListener('scroll', scheduleRead);
       notify.cancel();
       if (scrollFlagTimeout) clearTimeout(scrollFlagTimeout);
       resizeObserver.disconnect();

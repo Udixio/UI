@@ -1,39 +1,30 @@
 import { motionPolicy } from '@udixio/motion/policy';
-import type { AnimationPlaybackControls } from 'motion';
+import type { MotionHandle } from '@udixio/motion/animate';
 
 /** Owns a single indeterminate loop and its shared policy subscription. */
 export function createIndeterminatePolicyController(options: {
   reducedMotion?: () => boolean;
   staticFrame: () => void;
-  start: (animations: AnimationPlaybackControls[], isActive: () => boolean) => void;
+  start: (animations: MotionHandle[]) => void;
   restore: () => void;
 }): () => void {
-  let animations: AnimationPlaybackControls[] = [];
+  let animations: MotionHandle[] = [];
   let unsubscribe: (() => void) | undefined;
   let destroyed = false;
   let mode: boolean | undefined;
-  let generation = 0;
   const stop = () => {
-    generation++;
     const current = animations;
     animations = [];
     const errors: unknown[] = [];
     for (const animation of current) {
-      let stopped = false;
       try {
-        // cancel avoids Motion stop() committing a sampled frame asynchronously.
-        if (typeof animation.cancel === 'function') animation.cancel();
-        else animation.stop();
-        stopped = true;
+        // cancel() removes the motion's effect at once, so no frame is committed after it.
+        animation.cancel();
       } catch (error) {
         errors.push(error);
-        // A broken cancel must not leave this handle running.
-        if (typeof animation.cancel === 'function') {
-          try { animation.stop(); stopped = true; } catch (stopError) { errors.push(stopError); }
-        }
+        // A handle that could not be cancelled stays known, to be retried on the next transition or cleanup.
+        animations.push(animation);
       }
-      // Retry a handle that could not be stopped on the next transition or cleanup.
-      if (!stopped) animations.push(animation);
     }
     if (errors.length)
       throw new AggregateError(errors, 'Failed to stop progress animations');
@@ -52,8 +43,7 @@ export function createIndeterminatePolicyController(options: {
     mode = reduced;
     if (!reduced) {
       try {
-        const currentGeneration = generation;
-        options.start(animations, () => !destroyed && generation === currentGeneration);
+        options.start(animations);
       } catch (error) {
         let rollbackError: unknown;
         let rollbackFailed = false;

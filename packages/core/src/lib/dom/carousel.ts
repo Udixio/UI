@@ -1,17 +1,9 @@
-import { animate, type AnimationPlaybackControls, type Transition } from 'motion';
+import { createSpring, type SpringRef } from '@udixio/motion/animate';
 import { computeCarouselLayout } from '../behaviors/carousel.behavior.js';
 
-/**
- * Default spring used to smooth raw scroll progress. Shared by every adapter so
- * the carousel feels identical across frameworks.
- */
-export const DEFAULT_CAROUSEL_TRANSITION: Transition = {
-  type: 'spring',
-  stiffness: 260,
-  damping: 32,
-  mass: 0.6,
-  restDelta: 0.0005,
-};
+// The critically damped effects spring closest to the former carousel spring (settling to 99.9 % in 0.37 s, against 0.72 s).
+/** Spring that smooths the carousel's scroll progress, the same in every framework adapter. */
+export const DEFAULT_CAROUSEL_TIMING: SpringRef = 'spring.slow.effects';
 
 export interface CarouselControllerOptions {
   /** Element that receives the sub-item translate. */
@@ -29,7 +21,8 @@ export interface CarouselControllerOptions {
   /** Called when the centered item changes. */
   onSelectedIndexChange?: (index: number) => void;
   /** Spring used to smooth progress changes. */
-  transition?: Transition;
+  timing?: SpringRef;
+  /** Additional reduction: cannot override the shared policy. Re-read on each progress change. */
   reducedMotion?: () => boolean;
 }
 
@@ -45,13 +38,6 @@ export interface CarouselController {
   /** Current smoothed progress, 0..1. */
   getProgress(): number;
   destroy(): void;
-}
-
-function systemPrefersReducedMotion(): boolean {
-  return (
-    typeof globalThis.matchMedia === 'function' &&
-    globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
 }
 
 /**
@@ -70,12 +56,10 @@ export function createCarouselController({
   minItemWidth,
   maxItemWidth,
   onSelectedIndexChange,
-  transition = DEFAULT_CAROUSEL_TRANSITION,
-  reducedMotion = systemPrefersReducedMotion,
+  timing = DEFAULT_CAROUSEL_TIMING,
+  reducedMotion = () => false,
 }: CarouselControllerOptions): CarouselController {
-  let smoothedProgress = 0;
   let selectedIndex = -1;
-  let animation: AnimationPlaybackControls | undefined;
 
   const update = () => {
     const layout = computeCarouselLayout({
@@ -84,7 +68,7 @@ export function createCarouselController({
       gap: gap(),
       minItemWidth: minItemWidth(),
       maxItemWidth: maxItemWidth(),
-      progress: smoothedProgress,
+      progress: spring.value,
     });
 
     const elements = items();
@@ -102,34 +86,24 @@ export function createCarouselController({
     }
   };
 
-  const jumpTo = (progress: number) => {
-    animation?.stop();
-    animation = undefined;
-    smoothedProgress = progress;
-    update();
-  };
+  // The spring keeps its velocity when a new progress retargets it, and reaches it at once under the reduced policy.
+  const spring = createSpring(0, {
+    timing,
+    onUpdate: () => update(),
+  });
 
   return {
     setProgress(progress, options) {
       if (options?.animate === false || reducedMotion()) {
-        jumpTo(progress);
+        spring.jump(progress);
         return;
       }
-
-      animation?.stop();
-      animation = animate(smoothedProgress, progress, {
-        ...transition,
-        onUpdate: (value) => {
-          smoothedProgress = value;
-          update();
-        },
-      });
+      spring.to(progress);
     },
     update,
-    getProgress: () => smoothedProgress,
+    getProgress: () => spring.value,
     destroy() {
-      animation?.stop();
-      animation = undefined;
+      spring.stop();
     },
   };
 }

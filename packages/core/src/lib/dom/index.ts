@@ -12,6 +12,7 @@ export * from './linear-indeterminate.js';
 export * from './menu.js';
 export * from './navigation-rail-item.js';
 export * from './press.js';
+export * from './progress-loop.js';
 export * from './progress-visibility.js';
 export * from './search.js';
 export * from './side-sheet.js';

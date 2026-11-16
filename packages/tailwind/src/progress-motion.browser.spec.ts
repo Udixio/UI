@@ -33,8 +33,8 @@ for (const name of motionBrowsers(process.env.MOTION_BROWSERS)) {
         expect(await page.getByRole('progressbar').count()).toBe(2);
         expect(await page.getByRole('progressbar').first().getAttribute('aria-valuenow')).toBeNull();
         await page.emulateMedia({ reducedMotion: 'no-preference' });
-        await expect.poll(() => svg.evaluate(el => (el as SVGElement).style.transform)).not.toBe('rotate(-90deg)');
-        await expect.poll(() => leading.evaluate(el => (el as HTMLElement).style.width)).not.toBe('20%');
+        await expect.poll(() => svg.evaluate(el => el.getAnimations().length)).toBeGreaterThan(0);
+        await expect.poll(() => leading.evaluate(el => el.getAnimations().length)).toBeGreaterThan(0);
         await page.emulateMedia({ reducedMotion: 'reduce' });
         await expect.poll(() => svg.evaluate(el => (el as SVGElement).style.transform)).toBe('rotate(-90deg)');
         await page.waitForTimeout(120);
@@ -49,10 +49,9 @@ for (const name of motionBrowsers(process.env.MOTION_BROWSERS)) {
         expect(await leading.evaluate(el => (el as HTMLElement).style.width)).toBe('42%');
         expect(await circle.getAttribute('pathLength')).toBe('3');
         await page.emulateMedia({ reducedMotion: 'no-preference' });
-        await page.waitForTimeout(100);
-        const stoppedTransform = await svg.evaluate(el => (el as SVGElement).style.transform);
-        await page.waitForTimeout(100);
-        expect(await svg.evaluate(el => (el as SVGElement).style.transform)).toBe(stoppedTransform);
+        // Cleaned up: no motion is left on the elements.
+        expect(await svg.evaluate(el => el.getAnimations().length)).toBe(0);
+        expect(await leading.evaluate(el => el.getAnimations().length)).toBe(0);
       } finally { await browser.close(); }
     });
 
@@ -67,7 +66,7 @@ for (const name of motionBrowsers(process.env.MOTION_BROWSERS)) {
           const api = (window as any).ProgressControllers;
           (window as any).cleanups = [api.createLinearIndeterminateController({ leadingBar: document.querySelector('#leading'), gapTrack: document.querySelector('#gap'), trailingBar: document.querySelector('#trailing') }), api.createCircularProgressController({ svg: document.querySelector('#svg'), circle: document.querySelector('#circle') })];
         });
-        await expect.poll(() => page.locator('#svg').evaluate(el => (el as SVGElement).style.transform)).not.toBe('rotate(-90deg)');
+        await expect.poll(() => page.locator('#svg').evaluate(el => el.getAnimations().length)).toBeGreaterThan(0);
         await page.evaluate(() => {
           (document.querySelector('#leading') as HTMLElement).style.width = '42%';
           (document.querySelector('#svg') as SVGElement).style.transform = 'rotate(42deg)';
@@ -90,7 +89,7 @@ for (const name of motionBrowsers(process.env.MOTION_BROWSERS)) {
           const api = (window as any).ProgressControllers;
           (window as any).cleanups = [api.createLinearIndeterminateController({ leadingBar: document.querySelector('#leading'), gapTrack: document.querySelector('#gap'), trailingBar: document.querySelector('#trailing') }), api.createCircularProgressController({ svg: document.querySelector('#svg'), circle: document.querySelector('#circle') })];
         });
-        await expect.poll(() => page.locator('#svg').evaluate(el => (el as SVGElement).style.transform)).not.toBe('rotate(-90deg)');
+        await expect.poll(() => page.locator('#svg').evaluate(el => el.getAnimations().length)).toBeGreaterThan(0);
         expect(await page.locator('#circle').evaluate(el => getComputedStyle(el).transformBox)).toBe('fill-box');
         expect(await page.locator('#circle').evaluate(el => (el as SVGElement).style.transformOrigin)).toMatch(/^50% 50%(?: 0px)?$/);
         await page.evaluate(() => { for (const cleanup of (window as any).cleanups) cleanup(); });
@@ -115,9 +114,12 @@ for (const name of motionBrowsers(process.env.MOTION_BROWSERS)) {
           (window as any).cleanup = api.createLinearIndeterminateController({ leadingBar: document.querySelector('#leading'), gapTrack: document.querySelector('#gap'), trailingBar: document.querySelector('#trailing') });
         });
         const leading = page.locator('#leading');
-        await expect.poll(() => leading.evaluate(el => (el as HTMLElement).style.width)).not.toBe('20%');
+        await expect.poll(() => leading.evaluate(el => el.getAnimations().length)).toBeGreaterThan(0);
         await leading.evaluate(el => { (el as HTMLElement).style.width = '42%'; });
-        await expect.poll(() => leading.evaluate(el => (el as HTMLElement).style.width)).not.toBe('42%');
+        // The motion overrides the inline width while it runs, so the external write is kept inline until a reduction.
+        await page.waitForTimeout(50);
+        expect(await leading.evaluate(el => el.getAnimations().length)).toBeGreaterThan(0);
+        expect(await leading.evaluate(el => (el as HTMLElement).style.width)).toBe('42%');
         await page.emulateMedia({ reducedMotion: 'reduce' });
         await expect.poll(() => leading.evaluate(el => (el as HTMLElement).style.width)).toBe('20%');
         await page.evaluate(() => (window as any).cleanup());
@@ -143,6 +145,18 @@ for (const name of motionBrowsers(process.env.MOTION_BROWSERS)) {
           (window as any).reference = [api.animate(refSvg, { rotate: [-90, 270] }, { duration: 1.5, repeat: Infinity, ease: 'linear' }), api.animate(refCircle, { pathLength: [0.1, 0.9, 0.1], rotate: [0, 0, 360] }, { duration: 3, repeat: Infinity, ease: 'easeInOut' })];
         });
         await page.waitForTimeout(450);
+        // Hold both pairs at the same phase: a WAAPI motion starts on the next frame, Motion's reference at once.
+        await page.evaluate(async () => {
+          const pairs = [[document.querySelector('#svg')!, (window as any).reference[0]], [document.querySelector('#circle')!, (window as any).reference[1]]];
+          for (const [element, reference] of pairs) {
+            const [animation] = element.getAnimations();
+            animation.pause();
+            animation.currentTime = 450;
+            reference.pause();
+            reference.time = 0.45;
+          }
+          await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        });
         const geometry = await page.evaluate(() => {
           const values = (selector: string) => {
             const el = document.querySelector(selector)!;

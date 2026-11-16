@@ -61,26 +61,3 @@ export function createProgressOwnedStyles() {
     },
   };
 }
-
-/** Route Motion's object rendering through the controller's tracked writes.
- * A stopped generation ignores renders already queued by Motion's cancel().
- */
-export function createProgressMotionTarget<T extends Record<string, string | number>>(
-  initial: T,
-  isActive: () => boolean,
-  render: (key: keyof T, value: T[keyof T]) => void,
-): T {
-  const values = { ...initial };
-  const target = {} as T;
-  for (const key of Object.keys(initial) as (keyof T)[]) {
-    Object.defineProperty(target, key, {
-      enumerable: true,
-      get: () => values[key],
-      set: (value: T[keyof T]) => {
-        values[key] = value;
-        if (isActive()) render(key, value);
-      },
-    });
-  }
-  return target;
-}
