@@ -43,9 +43,9 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
  *   or a click on the built-in close button.
  * - Renders in normal document flow at the call site. Fixed/bottom positioning, stacking, and
  *   queueing multiple snackbars are the caller's responsibility.
- * - The height transition is implemented once on `@udixio/motion` in `@udixio/core/dom`,
- *   shared with React. It applies the initial `open` state immediately; only transitions after
- *   the first render animate.
+ * - The open and close transition (fade and scale, not height) is implemented once on
+ *   `@udixio/motion` in `@udixio/core/dom`, shared with React. It applies the initial `open`
+ *   state immediately; only transitions after the first render animate.
  * @a11y
  * - Renders `role="status"` and `aria-live="polite"` so assistive technology announces the
  *   message without interrupting the user. The element stays mounted and `inert` while closed
@@ -89,7 +89,7 @@ export class Snackbar implements OnInit {
   readonly defaultOpen = input(true, { transform: booleanAttribute });
   readonly duration = input<SnackbarProps['duration']>();
   readonly closeIcon = input<NonNullable<SnackbarProps['closeIcon']>>(iClose);
-  /** The motion of the open/close height, shared by every framework. */
+  /** The motion of the open/close scale, shared by every framework. */
   readonly motion: InputSignal<SnackbarProps['motion']> = input<
     SnackbarProps['motion']
   >();

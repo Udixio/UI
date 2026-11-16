@@ -17,7 +17,7 @@ export interface SnackbarProps {
   /** Icon for the built-in close button. */
   closeIcon?: Icon;
   /**
-   * The motion of the open/close height, shared by every framework. Defaults to the fast spatial spring.
+   * The motion of the open/close scale, shared by every framework. Defaults to the fast spatial spring; the opacity fades on the fast effects spring.
    */
   motion?: ComponentMotion;
 }

@@ -31,9 +31,9 @@ export const useSnackbarStyle = createUseStyle(snackbarStyle);
  *   or a click on the built-in close button.
  * - Renders in normal document flow at the call site. Fixed/bottom positioning, stacking, and
  *   queueing multiple snackbars are the caller's responsibility.
- * - The height transition is implemented once on `@udixio/motion` in `@udixio/core/dom`,
- *   shared with Angular. It applies the initial `open` state immediately; only transitions
- *   after the first render animate.
+ * - The open and close transition (fade and scale, not height) is implemented once on
+ *   `@udixio/motion` in `@udixio/core/dom`, shared with Angular. It applies the initial `open`
+ *   state immediately; only transitions after the first render animate.
  * @a11y
  * - Renders `role="status"` and `aria-live="polite"` so assistive technology announces the
  *   message without interrupting the user. The element stays mounted and `inert` while closed
