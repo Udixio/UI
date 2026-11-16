@@ -92,6 +92,14 @@ describe('motion attachment', () => {
     });
   });
 
+  it('binds an element already marked present as settled, as server-rendered content is', () => {
+    const binding = fakeBinding('appear');
+    bindDeferred(binding);
+    render(Fixture, { props: props({ marked: true }) });
+    flushSync();
+    expect(motionWhenDefined).toHaveBeenCalledExactlyOnceWith(screen.getByTestId('box'), 'slide', expect.objectContaining({ settled: true }));
+  });
+
   it('passes the settled option through to the binding', () => {
     bindDeferred(fakeBinding());
     render(Fixture, { props: props({ source: 'fade', settled: true }) });

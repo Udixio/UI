@@ -46,7 +46,9 @@ const lastKey = new WeakMap<MotionElement, string>();
  * one element can hold a presence and a layout at once.
  *
  * A motion named before it is defined waits for its definition. Server-rendered
- * content replays its entry on hydration unless `settled: true` is passed.
+ * content replays its entry on hydration unless `settled: true` is passed: the
+ * server cannot run an attachment, so it does not mark the element. An element
+ * already marked `data-presence="present"` is settled.
  *
  * ```svelte
  * {#if open}<div {@attach motion('slide')} transition:presence>…</div>{/if}
@@ -64,10 +66,12 @@ export function motion(
     const previousKey = lastKey.get(target);
     lastKey.set(target, key);
     const initial = untrack(options);
+    // An element already marked present is in place, as server-rendered content is: no entry replays on hydration.
+    const marked = target.getAttribute('data-presence') === 'present';
     const deferred = sources.map((each) =>
       motionWhenDefined(target, each, {
         present: initial.present ?? true,
-        settled: initial.settled ?? (previousKey !== undefined && previousKey !== key),
+        settled: initial.settled ?? ((previousKey !== undefined && previousKey !== key) || marked),
         shared: initial.shared,
         ...(initial.paused && { paused: true }),
       }),
