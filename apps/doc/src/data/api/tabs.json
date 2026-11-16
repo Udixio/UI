@@ -10,7 +10,7 @@
         "status": "beta",
         "category": "Navigation",
         "devx": "- Only `Tab` children are rendered; other children are ignored.\n- Use `selectedTab`/`onSelectedTabChange` for controlled selection, or\n  `defaultSelectedTab` (defaults to `0`) when uncontrolled.\n- Wrapping in a `TabGroup` shares its selection automatically; do not also\n  pass `selectedTab` directly to `Tabs` in that case, or the two owners\n  fight over selection.",
-        "a11y": "- `role=\"tablist\"` with a shared sliding indicator driven by a\n  `@udixio/core/dom` Motion controller, the same one the Angular adapter\n  uses.\n- Roving `tabIndex`: ArrowLeft/ArrowRight move focus and selection between\n  enabled tabs (wrapping), Home/End jump to the first/last enabled tab.",
+        "a11y": "- `role=\"tablist\"` with a shared sliding indicator driven by a\n  `@udixio/core/dom` controller on `@udixio/motion`, the same one the Angular\n  adapter uses.\n- Roving `tabIndex`: ArrowLeft/ArrowRight move focus and selection between\n  enabled tabs (wrapping), Home/End jump to the first/last enabled tab.",
         "limitations": "- Horizontal orientation only."
       },
       "methods": [],
@@ -75,7 +75,7 @@
         "status": "beta",
         "category": "Navigation",
         "devx": "- Project `udx-tab` children; other content is ignored.\n- Use `selectedTab`/`selectedTabChange` for controlled selection, or\n  `defaultSelectedTab` (defaults to `0`) when uncontrolled.\n- Wrapping in a `udx-tab-group` shares its selection automatically; do not\n  also bind `selectedTab` directly on `udx-tabs` in that case, or the two\n  owners fight over selection.",
-        "a11y": "- `role=\"tablist\"` with a shared sliding indicator driven by a\n  `@udixio/core/dom` Motion controller, the same one the React adapter\n  uses.\n- Roving `tabIndex`: ArrowLeft/ArrowRight move focus and selection between\n  enabled tabs (wrapping), Home/End jump to the first/last enabled tab.",
+        "a11y": "- `role=\"tablist\"` with a shared sliding indicator driven by a\n  `@udixio/core/dom` controller on `@udixio/motion`, the same one the React\n  adapter uses.\n- Roving `tabIndex`: ArrowLeft/ArrowRight move focus and selection between\n  enabled tabs (wrapping), Home/End jump to the first/last enabled tab.",
         "limitations": "- Horizontal orientation only.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`."
       },
       "inputs": {

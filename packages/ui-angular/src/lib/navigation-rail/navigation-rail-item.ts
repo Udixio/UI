@@ -249,7 +249,7 @@ export class NavigationRailItem {
   // first-paint markup is already correct before hydration, instead of both
   // labels being visible until afterRenderEffect runs. If this were a
   // computed() re-evaluated on every resolvedVariant() change, it would
-  // race the Motion controller: Angular would jump the style straight to
+  // race the @udixio/motion controller: Angular would jump the style straight to
   // the new target before the effect's animate() call ever reads a "from"
   // value to animate from, i.e. every transition would silently become a
   // no-op snap.

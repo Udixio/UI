@@ -312,7 +312,7 @@ describe('NavigationRailItem', () => {
 
   it('always renders one label per layout, and reveals only the one matching the resolved variant', () => {
     // Regression test: the label used to be a single mount/unmount span
-    // driven by `motion/react`'s AnimatePresence; it is now two always-
+    // driven by a presence animation; it is now two always-
     // mounted spans (horizontal/vertical) whose visibility is driven by the
     // shared `@udixio/core/dom` label controller, keyed off the rail's
     // `extended` state via `variant`.

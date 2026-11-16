@@ -120,9 +120,9 @@ trigger is small or large, matching the original FabMenu choreography. The
 closed trigger keeps its layout footprint while the control remains anchored
 to its top-right corner. Its container also morphs from the container color to
 the selected color family; closing reverses these transitions.
-The choreography uses the framework-independent Motion JavaScript controller in
-`@udixio/core/dom`, so React, Angular, and Svelte share the same timing, interruption,
-cleanup, and reduced-motion behavior. No `motion/react` adapter is required.
+The choreography uses the framework-independent controller in `@udixio/core/dom`,
+built on `@udixio/motion`, so React, Angular, and Svelte share the same timing,
+interruption, cleanup, and reduced-motion behavior. No `motion/react` adapter is required.
 
 ## Accessibility and interaction
 
@@ -140,5 +140,5 @@ appropriate for the product language.
 | --------------------------------------- | ------------------------------------------------ |
 | `<FabMenu><Button>…</Button></FabMenu>` | `<FabMenu actions={[…]} />`                      |
 | child callbacks                         | `onActionSelect(action, index)` / `actionSelect` |
-| React-only `motion/react` choreography  | shared Motion JavaScript, focus, and dismissal   |
+| React-only `motion/react` choreography  | shared `@udixio/motion` controller, focus, and dismissal |
 | explicit close child                    | `closeIcon` and `closeLabel`                     |

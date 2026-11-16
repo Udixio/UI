@@ -72,8 +72,8 @@ renders one. `container` redirects the modal's portal target away from
 
 The panel and, for the modal variant, the backdrop are always present; opening
 and closing animates the panel's width and the backdrop's opacity rather than
-mounting and unmounting them. The choreography is implemented once with Motion
-JavaScript in `@udixio/core/dom`, so React, Angular, and Svelte share the same timing,
+mounting and unmounting them. The choreography is implemented once with `@udixio/motion`
+in `@udixio/core/dom`, so React, Angular, and Svelte share the same timing,
 cleanup, and reduced-motion behavior — no `motion/react` is used, and Angular
 is not a static, unanimated adapter. Pass `transition` to override the default
 duration; reduced-motion preference applies the end state immediately.

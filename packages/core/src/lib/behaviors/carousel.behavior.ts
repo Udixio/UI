@@ -6,7 +6,7 @@
  * is produced entirely by redistributing item *widths* as a function of the
  * smoothed scroll progress. This module owns that redistribution as a pure
  * function so it can be unit-tested and reasoned about in isolation from React,
- * the DOM, and Motion.
+ * the DOM, and @udixio/motion.
  *
  * The behaviour is locked by the golden values in `carousel.behavior.spec.ts`,
  * captured from the original React-only implementation. Being framework-free, it

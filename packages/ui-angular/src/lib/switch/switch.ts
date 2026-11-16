@@ -41,7 +41,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
  * - `checked` is controlled; `defaultChecked` initializes uncontrolled use.
  * - `checkedChange` emits one accepted transition and supports `[(checked)]`.
  * - The thumb slide is driven by a shared `@udixio/core/dom` Anime.js tween controller, the same one the React
- *   adapter uses -- an accepted exception to the rest of `@udixio/core/dom`, which uses Motion.
+ *   adapter uses -- an accepted exception to the rest of `@udixio/core/dom`, which uses `@udixio/motion`.
  * @a11y
  * - Renders `role="switch"` with `aria-checked` and standard Space/Enter activation.
  * @limitations

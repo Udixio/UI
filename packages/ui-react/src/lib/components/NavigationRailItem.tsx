@@ -178,7 +178,7 @@ export const NavigationRailItem = ({
   // server-rendered/first-paint markup is already correct before
   // hydration, instead of both labels being visible until the layout
   // effect runs. If this were recomputed reactively on every render, it
-  // would race the Motion controller: React would jump the style straight
+  // would race the @udixio/motion controller: React would jump the style straight
   // to the new target before the effect's animate() call ever reads a
   // "from" value to animate from, i.e. every transition would silently
   // become a no-op snap.

@@ -23,8 +23,8 @@ export const useTabPanelsStyle = createUseStyle(tabPanelsStyle);
 /**
  * TabPanels renders the panel for the selected tab, sliding it in from the
  * direction the selection moved. The slide is driven by a shared
- * `@udixio/core/dom` Motion controller, the same one the Angular adapter
- * uses.
+ * `@udixio/core/dom` controller on `@udixio/motion`, the same one the Angular
+ * adapter uses.
  * @status beta
  * @parent Tabs
  * @category Navigation

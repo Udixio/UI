@@ -45,8 +45,8 @@ export const useTabsStyle = createUseStyle(tabsStyle);
  *   fight over selection.
  * @a11y
  * - `role="tablist"` with a shared sliding indicator driven by a
- *   `@udixio/core/dom` Motion controller, the same one the Angular adapter
- *   uses.
+ *   `@udixio/core/dom` controller on `@udixio/motion`, the same one the Angular
+ *   adapter uses.
  * - Roving `tabIndex`: ArrowLeft/ArrowRight move focus and selection between
  *   enabled tabs (wrapping), Home/End jump to the first/last enabled tab.
  * @limitations

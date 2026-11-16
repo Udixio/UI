@@ -69,7 +69,7 @@ let nextTextFieldId = 0;
  * - `mask` transforms typed/pasted input on every keystroke (a card number, a phone number, an
  *   ID); it defaults to the built-in `YYYY-MM-DD` mask for `type="date"`, and providing one
  *   overrides it.
- * - The outlined variant's legend notch uses one `@udixio/core/dom` Anime.js Layout controller, shared with the React adapter -- an accepted exception to the rest of `@udixio/core/dom`, which uses Motion; Motion has no free equivalent to `width: auto` layout diffing. The floating label itself is a plain CSS transition.
+ * - The outlined variant's legend notch uses one `@udixio/core/dom` Anime.js Layout controller, shared with the React adapter -- an accepted exception to the rest of `@udixio/core/dom`, which uses `@udixio/motion`; the `motion` package has no free equivalent to `width: auto` layout diffing. The floating label itself is a plain CSS transition.
  * @a11y
  * - `aria-describedby` links supporting text/error to the input.
  * - `aria-invalid` reflects `errorText`.

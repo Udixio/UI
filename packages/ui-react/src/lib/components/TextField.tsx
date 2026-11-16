@@ -77,7 +77,7 @@ export const useTextFieldStyle = createUseStyle(textFieldStyle);
  *   overrides it.
  * - The outlined variant's legend notch uses one `@udixio/core/dom` Anime.js Layout controller,
  *   shared with the Angular adapter -- an accepted exception to the rest of `@udixio/core/dom`,
- *   which uses Motion; Motion has no free equivalent to `width: auto` layout diffing. The floating
+ *   which uses `@udixio/motion`; the `motion` package has no free equivalent to `width: auto` layout diffing. The floating
  *   label itself is a plain CSS transition.
  * @a11y
  * - `aria-describedby` links supporting text/error to the input.

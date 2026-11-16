@@ -47,7 +47,7 @@ export interface FabMenuActionSelectEvent {
  * - Uses the framework-independent `actions` input.
  * - `open` is controlled; `defaultOpen` initializes uncontrolled usage.
  * - Opening contracts every trigger size to a small icon-only close control while preserving the closed footprint.
- * - Action choreography is implemented once with Motion JavaScript in `@udixio/core/dom`.
+ * - Action choreography is implemented once with `@udixio/motion` in `@udixio/core/dom`.
  * @a11y
  * - The trigger exposes `aria-expanded`/`aria-controls`.
  * - Opening focuses the first enabled action; Escape closes and restores trigger focus.
