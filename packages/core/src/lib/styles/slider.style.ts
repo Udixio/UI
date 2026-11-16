@@ -14,13 +14,13 @@ export const sliderConfig: ClassNameComponent<SliderInterface> = ({
     { 'pointer-events-none opacity-[0.38] cursor-default': disabled },
   ]),
   activeTrack: cx([
-    'h-4 relative transition-[flex] duration-100 duration-[calc(100ms*var(--udx-motion-scale,1))] motion-reduce:transition-none [[data-udx-slider-motion-reduce]_&]:transition-none bg-primary overflow-hidden rounded-l-full ',
+    'h-4 relative transition-[flex] duration-[var(--udx-motion-spring-fast-effects-duration,150ms)] ease-[var(--udx-motion-spring-fast-effects-easing,cubic-bezier(0.31,0.94,0.34,1))] motion-reduce:transition-none [[data-udx-slider-motion-reduce]_&]:transition-none bg-primary overflow-hidden rounded-l-full ',
   ]),
   inactiveTrack: cx([
-    'h-4 relative transition-[flex] duration-100 duration-[calc(100ms*var(--udx-motion-scale,1))] motion-reduce:transition-none [[data-udx-slider-motion-reduce]_&]:transition-none bg-primary-container rounded-r-full overflow-hidden',
+    'h-4 relative transition-[flex] duration-[var(--udx-motion-spring-fast-effects-duration,150ms)] ease-[var(--udx-motion-spring-fast-effects-easing,cubic-bezier(0.31,0.94,0.34,1))] motion-reduce:transition-none [[data-udx-slider-motion-reduce]_&]:transition-none bg-primary-container rounded-r-full overflow-hidden',
   ]),
   handle: cx([
-    'transform relative transition-[width] duration-100 duration-[calc(100ms*var(--udx-motion-scale,1))] motion-reduce:transition-none [[data-udx-slider-motion-reduce]_&]:transition-none bg-primary h-full rounded-full ',
+    'transform relative transition-[width] duration-[var(--udx-motion-spring-fast-effects-duration,150ms)] ease-[var(--udx-motion-spring-fast-effects-easing,cubic-bezier(0.31,0.94,0.34,1))] motion-reduce:transition-none [[data-udx-slider-motion-reduce]_&]:transition-none bg-primary h-full rounded-full ',
     { 'w-0.5': isChanging, 'w-1': !isChanging },
   ]),
   // Shown/hidden by `createSliderIndicatorController` (core/dom) animating

@@ -1,8 +1,7 @@
 import plugin, { PluginAPI } from 'tailwindcss/plugin';
 
-// Values copied verbatim from the previous state plugin: 150ms transition,
-// disabled text opacity 0.38, disabled background opacity 0.1.
-const DURATION = 150;
+// Values copied from the previous state plugin: disabled text opacity 0.38, disabled background opacity 0.1. The colour
+// fade is the short3 token (150 ms) on the standard curve of the motion tokens, as in `emit/state.css.ts`.
 const TEXT_OPACITY = 0.38;
 const BG_OPACITY = 0.1;
 
@@ -14,8 +13,8 @@ const groupBody = (groupName: string, includeActive: boolean) => {
       ? { [`@apply group-active${gv}:bg-[var(--state-color)]/[0.10]`]: {} }
       : {}),
     [`@apply group-focus-visible${gv}:bg-[var(--state-color)]/[0.10]`]: {},
-    [`@apply transition-colors`]: {},
-    [`@apply duration-${DURATION}`]: {},
+    [`@apply transition-[color,background-color,border-color,fill,stroke]`]: {},
+    [`@apply duration-[var(--udx-motion-duration-short3,150ms)] ease-[var(--udx-motion-easing-standard,cubic-bezier(0.2,0,0,1))]`]: {},
     [`@apply group-disabled${gv}:text-on-surface/[${TEXT_OPACITY}]`]: {},
     [`@apply group-disabled${gv}:bg-on-surface/[${BG_OPACITY}]`]: {},
   };

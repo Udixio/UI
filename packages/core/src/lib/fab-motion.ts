@@ -1,6 +1,6 @@
 /**
- * Static Tailwind colour timing of the `FabMenu` trigger: a 300 ms curve, for colour fades only. Its geometry moves on
- * the motion tokens of `@udixio/motion`.
+ * Static Tailwind colour timing of the `FabMenu` trigger: the 300 ms motion token curve, for colour fades only. Its
+ * geometry moves on the motion tokens of `@udixio/motion`.
  */
 export const FAB_MOTION_TIMING_CLASS =
-  'duration-300 ease-[cubic-bezier(0,0,0.58,1)] motion-reduce:transition-none';
+  'duration-[var(--udx-motion-duration-medium2,300ms)] ease-[var(--udx-motion-easing-standard,cubic-bezier(0.2,0,0,1))] motion-reduce:transition-none';

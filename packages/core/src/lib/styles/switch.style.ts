@@ -37,7 +37,7 @@ const switchConfig: ClassNameComponent<SwitchInterface> = ({
   // fixed center point instead of shifting it -- growth from only a
   // `left`-anchored edge is not growth from the center.
   handle: cx(
-    'absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex items-center justify-center rounded-full transition-[width,height] duration-100 duration-[calc(100ms*var(--udx-motion-scale,1))] motion-reduce:transition-none [html[data-motion-policy=reduce]_&]:transition-none [[data-udx-switch-motion-reduce]_&]:transition-none',
+    'absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex items-center justify-center rounded-full transition-[width,height] duration-[var(--udx-motion-spring-fast-spatial-duration,350ms)] ease-[var(--udx-motion-spring-fast-spatial-easing,cubic-bezier(0.42,1.67,0.21,0.9))] motion-reduce:transition-none [html[data-motion-policy=reduce]_&]:transition-none [[data-udx-switch-motion-reduce]_&]:transition-none',
     !isChecked && !inactiveIcon ? 'size-4' : 'size-6',
     !disabled && [
       'group-active/switch:size-7',
