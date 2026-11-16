@@ -595,12 +595,13 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
   }
 
   // Initial state. An emphasis waits for play(). `settled` only skips the entry of a present element:
-  // an absent element always takes its exited frame, so it is never visible.
+  // an absent element always takes its exited frame, so it is never visible. Without an explicit `settled`, an element the
+  // server marked present is settled: its content is in place, and hydration does not replay its entry.
   if (verb !== 'emphasize') {
     if (!present) {
       writeFrame(target, spec, runtime, exited);
       markExiting();
-    } else if (options.settled) {
+    } else if (options.settled ?? target.getAttribute('data-presence') === 'present') {
       target.setAttribute('data-presence', 'present');
     } else if (verb === 'disappear') {
       enterAtOnce();

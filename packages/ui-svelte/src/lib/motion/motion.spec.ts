@@ -88,16 +88,15 @@ describe('motion attachment', () => {
 
     expect(motionWhenDefined).toHaveBeenCalledExactlyOnceWith(screen.getByTestId('box'), 'slide', {
       present: true,
-      settled: false,
     });
   });
 
-  it('binds an element already marked present as settled, as server-rendered content is', () => {
+  it('leaves an element already marked present to the core, which binds it settled, as server-rendered content is', () => {
     const binding = fakeBinding('appear');
     bindDeferred(binding);
     render(Fixture, { props: props({ marked: true }) });
     flushSync();
-    expect(motionWhenDefined).toHaveBeenCalledExactlyOnceWith(screen.getByTestId('box'), 'slide', expect.objectContaining({ settled: true }));
+    expect(motionWhenDefined).toHaveBeenCalledExactlyOnceWith(screen.getByTestId('box'), 'slide', { present: true });
   });
 
   it('passes the settled option through to the binding', () => {
@@ -118,7 +117,6 @@ describe('motion attachment', () => {
 
     expect(motionWhenDefined).toHaveBeenCalledExactlyOnceWith(screen.getByTestId('box'), 'slide', {
       present: true,
-      settled: false,
       shared: 'pic',
     });
   });
@@ -233,11 +231,9 @@ describe('motion attachment', () => {
     expect(motionWhenDefined).toHaveBeenCalledTimes(2);
     expect(motionWhenDefined).toHaveBeenNthCalledWith(1, screen.getByTestId('box'), 'fade', {
       present: true,
-      settled: false,
     });
     expect(motionWhenDefined).toHaveBeenNthCalledWith(2, screen.getByTestId('box'), 'reflow', {
       present: true,
-      settled: false,
     });
 
     await rerender(props({ source: ['fade', 'reflow'], shown: false }));

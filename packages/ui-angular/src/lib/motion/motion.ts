@@ -135,9 +135,8 @@ export class Motion implements OnInit, OnDestroy {
         const rebinding = this.boundKey !== undefined;
         this.deferred.forEach((each) => each.destroy());
         const present = this.present();
-        // Server-rendered content is marked present by the server, so it is in place: no entry replays on hydration.
-        const marked = this.host.nativeElement.getAttribute('data-presence') === 'present';
-        const settled = rebinding || this.settled() || marked;
+        // A rebinding is in place; server-rendered content is marked present, and the core binds a marked element settled.
+        const settled = rebinding || this.settled() ? true : undefined;
         const paused = this.paused();
         this.deferred = sources.map((each) =>
           motionWhenDefined(this.host.nativeElement, each, { present, settled, shared, ...(paused && { paused: true }) }),

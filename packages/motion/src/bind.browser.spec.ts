@@ -51,6 +51,21 @@ it('writes its first frame at the motion scale, where a hidden appear begins: at
   expect([parseFloat(x), parseFloat(y)]).toEqual([0, 12]);
 });
 
+it('binds an element the server marked present settled: no entry replays, and nothing is written inline', () => {
+  target.setAttribute('data-presence', 'present');
+  const binding = bindTo(target, fade);
+  expect(binding.present).toBe(true);
+  expect(target.getAnimations()).toHaveLength(0);
+  expect(target.style.opacity).toBe('');
+  expect(target.getAttribute('data-presence')).toBe('present');
+});
+
+it('replays the entry of a marked element when settled is asked false', () => {
+  target.setAttribute('data-presence', 'present');
+  bindTo(target, fade, { settled: false });
+  expect(target.getAnimations()).toHaveLength(1);
+});
+
 it('plays a fade on bind and marks the element present when it ends', async () => {
   const binding = bindTo(target, fade);
   expect(target.dataset.presence).toBe('entering');

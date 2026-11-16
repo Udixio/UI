@@ -802,9 +802,11 @@ Svelte, on an element of an `{#if}` block:
 `presence` keeps the element until its exit has played. For an emphasis, pass `state`
 in the options: `{@attach motion('press', () => ({ state: count }))}`.
 
-Hydrated server content: React treats it as already in place, so it plays no entry.
-Angular and Svelte replay the entry of server-rendered content unless it is marked settled:
-`udxMotionSettled` in Angular, `settled: true` in the options of the Svelte `motion` attachment.
+Hydrated server content: React treats it as already in place, so it plays no entry. An element already marked
+`data-presence="present"` (the Angular server render marks its present elements) is bound settled by the core binding,
+whatever the framework, so no entry replays on hydration; a `motion()` call on it does the same. `settled: false` asks for
+the entry anyway; `udxMotionSettled` in Angular and `settled: true` in the options of the Svelte `motion` attachment
+settle an element that is not marked.
 
 ### Presence state
 

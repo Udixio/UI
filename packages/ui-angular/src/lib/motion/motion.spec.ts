@@ -210,19 +210,20 @@ describe('Motion (Angular directive)', () => {
       expect(motionWhenDefinedMock).toHaveBeenCalledWith(
         boxOf(fixture.nativeElement),
         'demo',
-        { present: true, settled: false },
+        { present: true },
       );
       fixture.destroy();
     });
 
-    it('binds an element that the server marked present as settled: no entry replays on hydration', () => {
+    it('leaves an element the server marked present to the core, which binds it settled: no entry replays on hydration', () => {
       const motion = fakeMotion();
       motionWhenDefinedMock.mockReturnValue(motion.deferred);
       const fixture = TestBed.createComponent(BindHost);
       boxOf(fixture.nativeElement).setAttribute('data-presence', 'present');
       fixture.detectChanges();
 
-      expect(motionWhenDefinedMock).toHaveBeenCalledWith(boxOf(fixture.nativeElement), 'demo', { present: true, settled: true });
+      expect(motionWhenDefinedMock).toHaveBeenCalledWith(boxOf(fixture.nativeElement), 'demo', { present: true });
+      expect(motionWhenDefinedMock.mock.calls[0][2]).not.toHaveProperty('settled', true);
       fixture.destroy();
     });
 
@@ -292,11 +293,9 @@ describe('Motion (Angular directive)', () => {
       expect(motionWhenDefinedMock).toHaveBeenCalledTimes(2);
       expect(motionWhenDefinedMock).toHaveBeenNthCalledWith(1, box, 'fade', {
         present: true,
-        settled: false,
       });
       expect(motionWhenDefinedMock).toHaveBeenNthCalledWith(2, box, 'reflow', {
         present: true,
-        settled: false,
       });
       fixture.destroy();
     });
@@ -310,7 +309,7 @@ describe('Motion (Angular directive)', () => {
       expect(motionWhenDefinedMock).toHaveBeenCalledWith(
         boxOf(fixture.nativeElement),
         'demo',
-        { present: false, settled: false },
+        { present: false },
       );
       fixture.destroy();
     });
@@ -324,7 +323,7 @@ describe('Motion (Angular directive)', () => {
       expect(motionWhenDefinedMock).toHaveBeenCalledWith(
         boxOf(fixture.nativeElement),
         'demo',
-        { present: true, settled: false, shared: 'pic' },
+        { present: true, shared: 'pic' },
       );
       fixture.destroy();
     });
