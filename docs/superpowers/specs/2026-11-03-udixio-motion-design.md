@@ -668,7 +668,7 @@ changement d'état observable ou par `handle.play()`.
 | Verbe | Familles | Déclencheur (fixé par le verbe) | Reprise | Rendu réduit | Ressort par défaut |
 |---|---|---|---|---|---|
 | `appear` | F3, F10 | `load` (montage) | `carry` | `fade` (non multiplié par `--udx-motion-scale`) | `spring.default.spatial` + `effects` pour l'opacité |
-| `disappear` | F3, F10 | démontage | `carry` | `fade` (non multiplié par `--udx-motion-scale`) | idem |
+| `disappear` | F3, F10 | démontage | `carry` | `fade` (non multiplié par `--udx-motion-scale`) | `spring.default.effects` pour le déplacement et l'opacité (calibrage, étape 8d : le déplacement reste visible pendant tout le fondu) |
 | `emphasize` | F2 (accent), F18 (press) | `state` | `restart` | `static` | `spring.fast.spatial` |
 | `reveal` | F4 | `view` | `restart` | `instant` | `spring.default.spatial` |
 | `scrub` | F5 | défilement | `carry` (position) | `neutral` (position neutre) | aucun : progression liée au défilement |
