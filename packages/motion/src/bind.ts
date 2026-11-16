@@ -15,12 +15,12 @@ import type { LayoutTracking } from './layout.js';
 import { flushLayoutAround, layoutEngine, loadLayoutEngine } from './layout-loader.js';
 import { motionManifest, NAME_PATTERN } from './manifest.js';
 import { pinOutOfFlow } from './pin.js';
-import { applyFrame, applyRestingFrame, motionDisabled, motionScale, playMotion, releaseFrame } from './play.js';
+import { applyRestingFrame, motionDisabled, motionScale, paintFrame, playMotion, releaseOwned } from './play.js';
 import { waapiProvider } from './providers/waapi.js';
 import { getMotionRuntime, retainMotionRuntime, type MotionRuntime } from './runtime.js';
 import { startScrub } from './scroll.js';
 import { staggered } from './stagger.js';
-import { isHtmlElement, restoreDraw, shapeFrames } from './svg-fields.js';
+import { isHtmlElement, releaseDraw, shapeFrames } from './svg-fields.js';
 import { resolveCurve } from './tokens.js';
 import { watchView } from './viewport.js';
 
@@ -240,7 +240,7 @@ function playLoaded(target: MotionElement, spec: Readonly<KeyframedSpec>, option
 function playEntry(target: MotionElement, spec: Readonly<KeyframedSpec>, options: Parameters<typeof playMotion>[2]): MotionHandle {
   if (textModule()) return playLoaded(target, spec, options);
   const pending = deferredHandle();
-  applyFrame(target, spec.keyframes[0]);
+  paintFrame(target, spec.keyframes[0], kindOf(spec.verb));
   // A failed load leaves the module unloaded, so the entry plays the element whole.
   void loadText().catch(() => undefined).then(() => {
     if (!pending.cancelled) pending.resolve(playLoaded(target, spec, options));
@@ -255,8 +255,8 @@ function playEntry(target: MotionElement, spec: Readonly<KeyframedSpec>, options
 function writeFrame(target: MotionElement, spec: Readonly<KeyframedSpec>, runtime: MotionRuntime, frame: VisualFrame, resting = false): void {
   const text = textModule();
   if (text) text.applySplitFrame(target, spec, runtime, frame, resting);
-  else if (resting) applyRestingFrame(target, frame);
-  else applyFrame(target, frame);
+  else if (resting) applyRestingFrame(target, frame, kindOf(spec.verb));
+  else paintFrame(target, frame, kindOf(spec.verb));
 }
 
 /**
@@ -363,8 +363,7 @@ function createRevealBinding(target: MotionElement, spec: Readonly<Extract<Motio
       stopWatching();
       handle?.cancel();
       handle = null;
-      releaseFrame(target, fields);
-      if (drawsShape(spec)) restoreDraw(target);
+      releaseOwned(target, fields, 'view');
       textModule()?.revertSplit(target, spec);
       unregister(target, binding);
       releaseRuntime();
@@ -423,7 +422,7 @@ function createScrubBinding(target: MotionElement, spec: Readonly<Extract<Motion
       stopPolicy();
       // Nothing was written inline: cancelling the animation gives the element back its stylesheet state.
       stop();
-      if (drawsShape(spec)) restoreDraw(target);
+      if (drawsShape(spec)) releaseDraw(target, 'view');
       unregister(target, binding);
       releaseRuntime();
     },
@@ -457,7 +456,7 @@ function createLoopBinding(target: MotionElement, spec: Readonly<Extract<MotionS
     const scale = motionScale(target);
     if (scale === 0) return;
     try {
-      animation = waapiProvider.animate({ target, keyframes: shapeFrames(spec.keyframes, target), timing: { duration: duration * scale, easing, iterations: Infinity } });
+      animation = waapiProvider.animate({ target, keyframes: shapeFrames(spec.keyframes, target, 'loop'), timing: { duration: duration * scale, easing, iterations: Infinity } });
     } catch (error) {
       // A loop that cannot animate leaves the element as it is: a scan never throws because of a motion.
       if (development) console.error('[@udixio/motion] a loop could not animate:', error);
@@ -511,7 +510,7 @@ function createLoopBinding(target: MotionElement, spec: Readonly<Extract<MotionS
       stopView();
       // Nothing was written inline: cancelling the animation gives the element back its stylesheet state.
       stop();
-      if (drawsShape(spec)) restoreDraw(target);
+      if (drawsShape(spec)) releaseDraw(target, 'loop');
       unregister(target, binding);
       releaseRuntime();
     },
@@ -653,8 +652,7 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
     const pinned = unpin !== undefined;
     unpin?.();
     unpin = undefined;
-    releaseFrame(target, writtenFields);
-    if (drawsShape(spec)) restoreDraw(target);
+    releaseOwned(target, writtenFields, kindOf(verb));
     textModule()?.revertSplit(target, spec);
     target.removeAttribute('data-presence');
     releaseInert();

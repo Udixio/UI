@@ -71,7 +71,7 @@ export function startScrub(target: MotionElement, keyframes: readonly VisualFram
       fill: 'both',
       easing: 'linear',
     };
-    return target.animate(shapeFrames(keyframes, target).map(frame => frameToKeyframe(frame)), animationOptions);
+    return target.animate(shapeFrames(keyframes, target, 'view').map(frame => frameToKeyframe(frame)), animationOptions);
   } catch (error) {
     if (options.development && !reported) {
       reported = true;

@@ -623,12 +623,14 @@ since it needs a box; a split plays the element whole, since its text is not cut
 bind to HTML elements only. Two visual fields are for shapes and paths:
 
 - `draw`, from 0 to 1, draws a path or a basic shape from nothing to its whole stroke. It sets `pathLength` to 1 and
-  the dash of the stroke, and both are given back to the author when the binding is destroyed. The `draw` preset is an
-  `appear` from nothing to the whole stroke. Another element keeps its stroke, with a development warning.
+  the dash of the stroke. A finished draw at 1 gives both back to the author at rest, and a binding gives them back when
+  it is destroyed. Two motions that draw one shape share its `pathLength`: it stays 1 while either draws, and the dash
+  of the last one written stays. The `draw` preset is an `appear` from nothing to the whole stroke. Another element
+  keeps its stroke, with a development warning.
 - `along`, from 0 to 1, moves an element along the `offset-path` its CSS gives it, by writing `offset-distance`.
 
-Under reduced motion an entry or an exit with `draw` keeps its stroke drawn over the short fade, with no movement, and
-an `along` moves at once and fades in place.
+Under reduced motion an entry or an exit with `draw` sets its stroke at once and fades only the opacity, and an `along`
+moves at once and fades in place.
 
 ```ts
 import { defineMotion } from '@udixio/motion';
@@ -860,7 +862,6 @@ The package is under construction, so:
   elements are not.
 - `lines` falls back to `words` when the text holds an element other than `br`.
 - Joining scripts (Arabic, Indic, Thai and the like) are split by words in `chars`, so that no letter loses its form.
-- Two motions drawing one shape: destroying the first gives the author's `pathLength` back while the second still draws.
 - `scrollTo` cancels when the user scrolls, and scroll anchoring is off on the scroller while it runs.
 
 ## Development

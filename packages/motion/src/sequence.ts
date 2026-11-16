@@ -1,10 +1,10 @@
 import { composeHandles, settledHandle } from './compose.js';
 import type { MotionHandle, VisualFrame } from './contract.js';
-import { assertName, validateMotionSpec, type MotionSpec } from './define-motion.js';
+import { assertName, kindOf, validateMotionSpec, type MotionSpec } from './define-motion.js';
 import { provideSequences } from './feature-loader.js';
 import { motionManifest, NAME_PATTERN, validateMotionDocument, type MotionValidationCode } from './manifest.js';
 import type { ReducedRender, SpringRef } from './motion-spec.js';
-import { applyFrame, playMotion, releaseFrame } from './play.js';
+import { paintFrame, playMotion, releaseOwned } from './play.js';
 import { resolveSequence, sequenceDefinitions, sequenceListeners } from './registries.js';
 import { getMotionRuntime, retainMotionRuntime, type MotionRuntime } from './runtime.js';
 import { staggerCap, staggerDelay, staggerStep, visualRanks, type StaggerOptions } from './stagger.js';
@@ -267,7 +267,7 @@ export function sequence(root: HTMLElement, source: SequenceRef | string, option
   /** Every element waits in the first frame of its step, out of sight. */
   function holdFirstFrames() {
     const members = membersOf(root, Object.keys(steps));
-    for (const [name, step] of Object.entries(steps)) for (const element of members.get(name) ?? []) applyFrame(element, step.keyframes[0]);
+    for (const [name, step] of Object.entries(steps)) for (const element of members.get(name) ?? []) paintFrame(element, step.keyframes[0], kindOf('appear'));
   }
 
   /** Cancel what runs, then play the whole sequence from its start. */
@@ -331,7 +331,7 @@ export function sequence(root: HTMLElement, source: SequenceRef | string, option
         const fields = new Set<keyof VisualFrame>(step.keyframes.flatMap(frame => Object.keys(frame) as (keyof VisualFrame)[]));
         // An appear writes opacity too, for its reduced fade.
         if (!reveal) fields.add('opacity');
-        for (const element of members.get(name) ?? []) releaseFrame(element, fields);
+        for (const element of members.get(name) ?? []) releaseOwned(element, fields, kindOf('appear'));
       }
       if (bindings.get(root) === binding) bindings.delete(root);
       releaseRuntime();

@@ -1,7 +1,7 @@
 import { composeHandles } from './compose.js';
 import type { MotionElement, MotionHandle, VisualFrame } from './contract.js';
-import type { MotionSpec } from './define-motion.js';
-import { applyFrame, applyRestingFrame, motionDisabled, playMotion, releaseFrame } from './play.js';
+import { kindOf, type MotionSpec } from './define-motion.js';
+import { applyRestingFrame, motionDisabled, paintFrame, playMotion, releaseOwned } from './play.js';
 import type { MotionRuntime } from './runtime.js';
 import { staggerCap, staggerDelay, staggerStep } from './stagger.js';
 import { isHtmlElement } from './svg-fields.js';
@@ -29,7 +29,7 @@ function writtenFields(spec: Splitting): Set<keyof VisualFrame> {
 function releasePieces(target: MotionElement, spec: Splitting): void {
   if (!isHtmlElement(target)) return;
   const split = getSplit(target);
-  if (split) for (const piece of split.pieces) releaseFrame(piece, writtenFields(spec));
+  if (split) for (const piece of split.pieces) releaseOwned(piece, writtenFields(spec), kindOf(spec.verb));
 }
 
 /** Rank of each piece of a text in text order, counted from `origin`: the pieces at the origin come first. */
@@ -67,7 +67,7 @@ export function playSplit(target: MotionElement, spec: Splitting, options: PlayO
   }
   // The cascade is the definition's `stagger` (`tight` by default), counted from its `origin`.
   // A frame the element holds, written before its text was split, would hide the pieces: they take the frame instead.
-  releaseFrame(target, writtenFields(spec));
+  releaseOwned(target, writtenFields(spec), kindOf(spec.verb));
   const style = (target.ownerDocument.defaultView ?? window).getComputedStyle(target);
   const step = staggerStep(style, spec.stagger ?? 'tight');
   const cap = staggerCap(style);
@@ -84,25 +84,26 @@ export function playSplit(target: MotionElement, spec: Splitting, options: PlayO
  * frame releases its neutral fields on each of them (`applyRestingFrame`).
  */
 export function applySplitFrame(target: MotionElement, spec: Splitting, runtime: MotionRuntime, frame: VisualFrame, resting = false): void {
-  const write = resting ? applyRestingFrame : applyFrame;
+  const owner = kindOf(spec.verb);
+  const write = (element: MotionElement) => (resting ? applyRestingFrame(element, frame, owner) : paintFrame(element, frame, owner));
   if (spec.split === undefined) {
-    write(target, frame);
+    write(target);
     return;
   }
   const pieces = splitPieces(target, spec, runtime);
   if (pieces === undefined) {
     releasePieces(target, spec);
-    write(target, frame);
+    write(target);
     return;
   }
-  releaseFrame(target, writtenFields(spec));
-  for (const piece of pieces) write(piece, frame);
+  releaseOwned(target, writtenFields(spec), owner);
+  for (const piece of pieces) write(piece);
 }
 
 /** Put the text of an element back as it was, releasing the frames of its pieces; a text that is not split is left alone. */
 export function revertSplit(target: MotionElement, spec: Splitting): void {
   const split = spec.split === undefined || !isHtmlElement(target) ? undefined : getSplit(target);
   if (!split) return;
-  for (const piece of split.pieces) releaseFrame(piece, writtenFields(spec));
+  for (const piece of split.pieces) releaseOwned(piece, writtenFields(spec), kindOf(spec.verb));
   split.revert();
 }

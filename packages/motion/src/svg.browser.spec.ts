@@ -217,3 +217,54 @@ describe('split on SVG', () => {
     binding.destroy();
   });
 });
+
+// Draw ownership and reduced motion (step 8a-5): the pathLength of a shape belongs to the motions that draw it, and a
+// reduced motion sets its draw at once, so that only the opacity fades.
+describe('draw ownership and reduced motion', () => {
+  it('keeps the pathLength and the dash of a shape that another motion still draws, when the first binding is destroyed', async () => {
+    root.innerHTML = '<svg viewBox="0 0 400 400" width="400" height="400"><path id="p" d="M20 20 L220 20" pathLength="12"/></svg>';
+    const path = one<SVGPathElement>('#p');
+    const presence = motion(path, drawIn, { present: false });
+    const emphasis = motion(path, { verb: 'emphasize', keyframes: [{ draw: 0.5 }, { draw: 0.25 }] });
+    expect(await emphasis.play().finished).toBe('finished');
+    expect(Number.parseFloat(path.style.strokeDashoffset)).toBeCloseTo(0.75, 3);
+
+    presence.destroy();
+    expect(path.getAttribute('pathLength')).toBe('1');
+    expect(Number.parseFloat(path.style.strokeDashoffset)).toBeCloseTo(0.75, 3);
+
+    emphasis.destroy();
+    expect(path.getAttribute('pathLength')).toBe('12');
+    expect(path.style.strokeDashoffset).toBe('');
+  });
+
+  it('gives the pathLength of its author back at rest, and takes it again when the next draw starts', async () => {
+    root.innerHTML = '<svg viewBox="0 0 400 400" width="400" height="400"><path id="p" d="M20 20 L220 20" pathLength="12"/></svg>';
+    const path = one<SVGPathElement>('#p');
+    const binding = motion(path, drawIn, { present: false });
+    expect(await binding.setPresent(true)).toBe('finished');
+    expect(path.getAttribute('pathLength')).toBe('12');
+
+    expect(await binding.setPresent(false)).toBe('finished');
+    expect(path.getAttribute('pathLength')).toBe('1');
+    expect(Number.parseFloat(path.style.strokeDashoffset)).toBeCloseTo(1, 3);
+    binding.destroy();
+    expect(path.getAttribute('pathLength')).toBe('12');
+  });
+
+  it('under reduced motion, sets the draw at once and fades only the opacity', () => {
+    document.documentElement.dataset.motionPolicy = 'reduce';
+    root.innerHTML = '<svg viewBox="0 0 400 400" width="400" height="400"><path id="p" d="M20 20 L220 20" stroke="black" fill="none"/></svg>';
+    const path = one<SVGPathElement>('#p');
+    const half = validateMotionSpec({ verb: 'appear', keyframes: [{ opacity: 0, draw: 0 }, { opacity: 1, draw: 0.5 }] });
+    const handle = playMotion(path, half, forward);
+    expect(dashOffsetOf(path)).toBeCloseTo(0.5, 3);
+    const [fade] = path.getAnimations();
+    expect(fade, 'the fade').toBeDefined();
+    expect((fade.effect as KeyframeEffect).getKeyframes().every(frame => !('strokeDashoffset' in frame))).toBe(true);
+    return handle.finished.then(result => {
+      expect(result).toBe('finished');
+      expect(dashOffsetOf(path)).toBeCloseTo(0.5, 3);
+    });
+  });
+});

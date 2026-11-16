@@ -1,6 +1,6 @@
 import { composeHandles, settledHandle, splitFrames } from './compose.js';
 import type { MotionElement, MotionHandle, VisualFrame } from './contract.js';
-import type { MotionSpec } from './define-motion.js';
+import { kindOf, type MotionSpec } from './define-motion.js';
 import { motionManifest, type ManifestVerb, type ManifestVisualField } from './manifest.js';
 import type { SpringRef } from './motion-spec.js';
 import { resolveReducedRender } from './reduced-render.js';
@@ -9,7 +9,7 @@ import { startRoutedMotion } from './timing-integration.js';
 import { routeTimingWithEvaluator, type TimingSupport } from './timing-routing.js';
 import type { CurveTiming, MotionScheme } from './tokens.js';
 import { waapiProvider } from './providers/waapi.js';
-import { alongDistance, canDraw, drawStyle, prepareDraw, shapeFrames } from './svg-fields.js';
+import { alongDistance, canDraw, drawStyle, prepareDraw, releaseDraw, shapeFrames, type DrawOwner } from './svg-fields.js';
 import { motionDisabledIn, motionScaleIn } from './motion-style.js';
 import { probeWaapiEasing } from './waapi-probe.js';
 
@@ -27,14 +27,19 @@ const OPACITY_ONLY: ReadonlySet<ManifestVisualField> = new Set<ManifestVisualFie
  * frame that is the state at rest goes through `applyRestingFrame`, which releases its neutral fields.
  */
 export function applyFrame(target: MotionElement, frame: VisualFrame): void {
+  paintFrame(target, frame, 'external');
+}
+
+/** Write a frame inline, for the motion of `owner`: a shape drawn to its end gives its draw back to the owner. */
+export function paintFrame(target: MotionElement, frame: VisualFrame, owner: DrawOwner): void {
   if (frame.opacity !== undefined) target.style.opacity = String(frame.opacity);
   if (frame.x !== undefined || frame.y !== undefined) target.style.translate = `${frame.x ?? 0}px ${frame.y ?? 0}px`;
   if (frame.scale !== undefined) target.style.scale = String(frame.scale);
   else if (frame.scaleX !== undefined || frame.scaleY !== undefined) target.style.scale = `${frame.scaleX ?? 1} ${frame.scaleY ?? 1}`;
   if (frame.rotate !== undefined) target.style.rotate = `${frame.rotate}deg`;
   if (frame.draw !== undefined && canDraw(target)) {
-    prepareDraw(target);
-    if (frame.draw === 1) releaseFrame(target, ['draw']);
+    prepareDraw(target, owner);
+    if (frame.draw === 1) releaseDraw(target, owner);
     else Object.assign(target.style, drawStyle(frame.draw));
   }
   if (frame.along !== undefined) target.style.offsetDistance = alongDistance(frame.along);
@@ -67,10 +72,20 @@ export function restingFields(frame: VisualFrame): (keyof VisualFrame)[] {
   return fields;
 }
 
-/** Write a frame that is a state at rest (not a motion in progress): its neutral fields go back to the stylesheet. */
-export function applyRestingFrame(target: MotionElement, frame: VisualFrame): void {
-  applyFrame(target, frame);
-  releaseFrame(target, restingFields(frame));
+/**
+ * Release the fields that `owner` wrote: its draw goes through `releaseDraw`, which keeps a shape that another owner still
+ * draws, and the other fields through `releaseFrame`.
+ */
+export function releaseOwned(target: MotionElement, fields: Iterable<keyof VisualFrame>, owner: DrawOwner): void {
+  const list = [...fields];
+  releaseFrame(target, list.filter(field => field !== 'draw'));
+  if (list.includes('draw')) releaseDraw(target, owner);
+}
+
+/** Write a frame that is a state at rest (not a motion in progress), for `owner`: its neutral fields go back to the stylesheet. */
+export function applyRestingFrame(target: MotionElement, frame: VisualFrame, owner: DrawOwner = 'external'): void {
+  paintFrame(target, frame, owner);
+  releaseOwned(target, restingFields(frame), owner);
 }
 
 function windowOf(target: MotionElement): Window {
@@ -116,11 +131,14 @@ function directedVerb(verb: ManifestVerb, direction: Direction): ManifestVerb {
   return verb;
 }
 
-/** Opacity frames of a reduced fade; a definition without opacity gets a plain fade. */
+/**
+ * Opacity frames of a reduced fade: the only field that fades under reduced motion. A definition without opacity gets a
+ * plain fade.
+ */
 function fadeFrames(frames: VisualFrame[], direction: Direction, carry: boolean): VisualFrame[] {
-  const { effects } = splitFrames(frames);
+  const opacity = frames.flatMap(frame => (frame.opacity === undefined ? [] : [{ opacity: frame.opacity }]));
   const plain: VisualFrame[] = direction === 'forward' ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 1 }, { opacity: 0 }];
-  const fade = effects.length > 0 ? effects : plain;
+  const fade = opacity.length > 0 ? opacity : plain;
   return carry ? fade.slice(-1) : fade;
 }
 
@@ -141,8 +159,8 @@ function planGroups(keyframes: VisualFrame[], verb: ManifestVerb, timing: Spring
 }
 
 /** Final state at once: the destination is applied and nothing animates. */
-function settle(target: MotionElement, destination: VisualFrame, development: boolean, report?: unknown): MotionHandle {
-  applyRestingFrame(target, destination);
+function settle(target: MotionElement, destination: VisualFrame, development: boolean, owner: DrawOwner, report?: unknown): MotionHandle {
+  applyRestingFrame(target, destination, owner);
   if (report !== undefined && development) console.error('[@udixio/motion] playMotion settled at its destination:', report);
   return settledHandle();
 }
@@ -186,16 +204,20 @@ export function playMotion(
   const development = options.development ?? runtime.development;
   const scheme = options.scheme ?? (target.ownerDocument.documentElement.dataset.motionScheme === 'standard' ? 'standard' : 'expressive');
   const verb = directedVerb(spec.verb, direction);
-  const frames: VisualFrame[] = shapeFrames(direction === 'backward' ? [...spec.keyframes].reverse() : spec.keyframes, target);
+  const owner = kindOf(spec.verb);
+  const frames: VisualFrame[] = shapeFrames(direction === 'backward' ? [...spec.keyframes].reverse() : spec.keyframes, target, owner);
   const destination = frames[frames.length - 1];
-  if (motionDisabled(target)) return settle(target, destination, development);
+  if (motionDisabled(target)) return settle(target, destination, development, owner);
   const reducedPolicy = runtime.policy.reduced;
-  if (reducedPolicy && resolveReducedRender(verb, spec.reduced).render !== 'fade') return settle(target, destination, development);
+  if (reducedPolicy && resolveReducedRender(verb, spec.reduced).render !== 'fade') return settle(target, destination, development, owner);
 
   // The carried animation writes only the destination's fields, so only those are frozen.
   if (carry) freezeCurrentStyle(target, reducedPolicy ? OPACITY_ONLY : fieldsOf([destination]));
   if (reducedPolicy) {
-    for (const frame of splitFrames([destination]).spatial) applyFrame(target, frame);
+    // Under reduced motion only the opacity fades: every other field of the destination, draw included, is set at once.
+    const atOnce: VisualFrame = { ...destination };
+    delete atOnce.opacity;
+    paintFrame(target, atOnce, owner);
   }
   const groups: Group[] = reducedPolicy
     ? [{ keyframes: fadeFrames(frames, direction, carry), timing: REDUCED_FADE_TIMING }]
@@ -224,12 +246,12 @@ export function playMotion(
   if (started.length === groups.length) {
     const handle = composeHandles(started);
     void handle.finished.then(result => {
-      if (result === 'finished') releaseFrame(target, restingFields(destination));
+      if (result === 'finished') releaseOwned(target, restingFields(destination), owner);
     });
     return handle;
   }
   for (const handle of started) handle.cancel();
-  return settle(target, destination, development, failure);
+  return settle(target, destination, development, owner, failure);
 }
 
 /**
@@ -246,7 +268,7 @@ export function playFrames(
   const scheme = options.scheme ?? (target.ownerDocument.documentElement.dataset.motionScheme === 'standard' ? 'standard' : 'expressive');
   try {
     const result = startRoutedMotion(
-      { target, keyframes: shapeFrames(keyframes, target), timing: options.timing, scheme, verb: options.verb, policy: 'normal', scale: motionScale(target), backend: 'waapi', ...(options.commit !== undefined && { commit: options.commit }) },
+      { target, keyframes: shapeFrames(keyframes, target, kindOf(options.verb)), timing: options.timing, scheme, verb: options.verb, policy: 'normal', scale: motionScale(target), backend: 'waapi', ...(options.commit !== undefined && { commit: options.commit }) },
       waapiProvider,
       waapiSupport,
     );
