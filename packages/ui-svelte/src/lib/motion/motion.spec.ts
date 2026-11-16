@@ -25,13 +25,24 @@ const fakeBinding = (verb: MotionBinding['verb'] = 'appear', duration = 300) => 
 });
 type FakeBinding = ReturnType<typeof fakeBinding>;
 
+/**
+ * A deferred motion holding `binding`, as the core answers it: the presence goes to a presence motion, the replay to an
+ * emphasis, and nothing else. Without a binding, it is a motion not defined yet.
+ */
+const deferredOf = (binding: FakeBinding | undefined, destroy: ReturnType<typeof vi.fn>) => ({
+  binding: binding as unknown as MotionBinding,
+  setPresent: (present: boolean) =>
+    binding?.kind === 'presence' ? binding.setPresent(present) : Promise.resolve('finished' as const),
+  play: () => {
+    if (binding?.kind === 'emphasis') binding.play();
+  },
+  destroy,
+});
+
 /** Makes `motionWhenDefined` return a deferred motion holding `binding`; returns its destroy spy. */
 const bindDeferred = (binding: FakeBinding | undefined) => {
   const destroy = vi.fn();
-  vi.mocked(motionWhenDefined).mockReturnValue({
-    binding: binding as unknown as MotionBinding,
-    destroy,
-  });
+  vi.mocked(motionWhenDefined).mockReturnValue(deferredOf(binding, destroy));
   return { destroy };
 };
 
@@ -45,7 +56,7 @@ const bindNamed = (bindings: Record<string, FakeBinding>) => {
     const name = source as string;
     const destroy = vi.fn();
     destroys[name] = destroy;
-    return { binding: bindings[name] as unknown as MotionBinding, destroy };
+    return deferredOf(bindings[name], destroy);
   });
   return destroys;
 };
@@ -151,6 +162,21 @@ describe('motion attachment', () => {
 
     expect(binding.play).toHaveBeenCalledOnce();
     expect(binding.setPresent).not.toHaveBeenCalled();
+  });
+
+  it('hands a presence set and a replay asked before the motion is defined to it, which keeps them for its definition', async () => {
+    // The name is not defined: the deferred motion has no binding yet, and keeps what it is asked.
+    const destroy = vi.fn();
+    const pending = { binding: undefined, setPresent: vi.fn(() => Promise.resolve('finished' as const)), play: vi.fn(), destroy };
+    vi.mocked(motionWhenDefined).mockReturnValue(pending as unknown as ReturnType<typeof motionWhenDefined>);
+    const { rerender } = render(Fixture, { props: props({ source: 'later', present: true, state: 1 }) });
+    flushSync();
+
+    await rerender(props({ source: 'later', present: false, state: 2 }));
+    flushSync();
+
+    expect(pending.setPresent).toHaveBeenLastCalledWith(false);
+    expect(pending.play).toHaveBeenCalledOnce();
   });
 
   it('never replays an appear motion when state changes', async () => {

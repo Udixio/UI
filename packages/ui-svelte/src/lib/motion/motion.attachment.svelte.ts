@@ -76,11 +76,10 @@ export function motion(
     // A loop bound while the author holds it starts paused.
     if (initial.paused) bindingOf(deferred, 'loop')?.pause();
 
-    // Presence follows the option; only appear and disappear have a presence to set.
+    // Presence follows the option: each motion takes it, and one not defined yet keeps it for its definition.
     $effect(() => {
       const present = options().present ?? true;
-      const binding = bindingOf(deferred, 'presence');
-      if (binding) void binding.setPresent(present);
+      for (const each of deferred) void each.setPresent(present);
     });
 
     // A change of `paused` pauses or plays the loop; the value read at bind is the baseline, so a bind does not repeat it.
@@ -106,7 +105,8 @@ export function motion(
       }
       if (Object.is(previous, state)) return;
       previous = state;
-      bindingOf(deferred, 'emphasis')?.play();
+      // A replay asked before the emphasis is defined plays once it is.
+      for (const each of deferred) each.play();
     });
 
     return () => deferred.forEach((each) => each.destroy());
