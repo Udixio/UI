@@ -6,6 +6,56 @@ import { chromium, firefox, webkit } from 'playwright';
 const base = process.env.MOTION_DOC_URL ?? 'http://localhost:4322';
 const browserTypes = { chromium, firefox, webkit };
 const browsers = (process.env.MOTION_BROWSERS ?? 'chromium').split(',').map(name => name.trim());
+/**
+ * Out of view, the heading holds its first frame: the text it shows is hidden, and no word has played. The frame is on the
+ * words when the text module was loaded before the view observer first reported, and on the heading otherwise. Both are
+ * the same to the reader, so the wait is for the frame itself, and the check is on the text the reader sees.
+ */
+async function expectHeldBelowFold(page, heading) {
+  await page.waitForFunction(selector => {
+    const element = document.querySelector(selector);
+    const words = [...element.querySelectorAll('[data-udx-piece]')];
+    return (words.length > 0 ? words : [element]).every(node => getComputedStyle(node).opacity === '0');
+  }, heading);
+  const atLoad = await page.evaluate(selector => {
+    const element = document.querySelector(selector);
+    return { below: element.getBoundingClientRect().top >= window.innerHeight, playing: element.getAnimations({ subtree: true }).length };
+  }, heading);
+  assert.ok(atLoad.below, 'the heading is in view at load');
+  assert.equal(atLoad.playing, 0, 'a word plays before the heading is in view');
+}
+
+/**
+ * Scrolled into view, the five words of the heading play in order and end at opacity 1, and the text is read once, in full.
+ */
+async function expectWordsPlayed(page, heading) {
+  await page.evaluate(selector => document.querySelector(selector).scrollIntoView(), heading);
+  // The wait is for the final state: the words exist, held, before the view, so their count says nothing about their play.
+  await page.waitForFunction(selector => {
+    const element = document.querySelector(selector);
+    const words = [...element.querySelectorAll('[data-udx-piece]')];
+    return words.length === 5 && words.every(word => getComputedStyle(word).opacity === '1') && element.getAnimations({ subtree: true }).length === 0;
+  }, heading);
+  const split = await page.evaluate(selector => {
+    const element = document.querySelector(selector);
+    const pieces = [...element.querySelectorAll('[data-udx-piece]')];
+    return {
+      words: pieces.map(piece => piece.textContent),
+      opacities: pieces.map(piece => getComputedStyle(piece).opacity),
+      headingOpacity: getComputedStyle(element).opacity,
+      copyHidden: element.querySelector('[data-udx-split]')?.getAttribute('aria-hidden'),
+      source: element.querySelector('[data-udx-split-source]')?.textContent,
+    };
+  }, heading);
+  assert.deepEqual(split.words, ['Each', 'word', 'arrives', 'in', 'turn']);
+  assert.deepEqual(split.opacities, ['1', '1', '1', '1', '1']);
+  assert.equal(split.headingOpacity, '1');
+  // The visual copy is hidden from the accessibility tree, and the text is read once, in full, from the source.
+  assert.equal(split.copyHidden, 'true');
+  assert.equal(split.source, 'Each word arrives in turn');
+  assert.equal(await page.getByRole('heading', { name: 'Each word arrives in turn', exact: true }).count(), 1);
+}
+
 for (const name of browsers) {
   if (!Object.hasOwn(browserTypes, name)) throw new Error(`Unknown MOTION_BROWSERS entry: ${name}`);
   const browserType = browserTypes[name];
@@ -793,43 +843,35 @@ test(`${name}: a heading is revealed word by word, and read once`, async () => {
     await page.goto(base + '/motion/demo/');
     const heading = '[data-motion="demo-title-words"]';
     await page.waitForSelector(heading);
-    // The reveal is bound at connect: wait for the page to be quiet, then two frames.
+    // The reveal is bound at connect: wait for the page to be quiet, then for the heading to hold its first frame.
     await page.waitForLoadState('networkidle');
-    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-    // Out of view, the heading waits in its first frame, and is not cut into words yet.
-    const atLoad = await page.evaluate(selector => {
-      const element = document.querySelector(selector);
-      return {
-        below: element.getBoundingClientRect().top >= window.innerHeight,
-        opacity: getComputedStyle(element).opacity,
-        pieces: element.querySelectorAll('[data-udx-piece]').length,
-      };
-    }, heading);
-    assert.ok(atLoad.below, 'the heading is in view at load');
-    assert.equal(atLoad.opacity, '0');
-    assert.equal(atLoad.pieces, 0);
-    // Scrolled into view, the five words play in order and end at opacity 1.
-    await page.evaluate(selector => document.querySelector(selector).scrollIntoView(), heading);
-    await page.waitForFunction(selector => document.querySelectorAll(`${selector} [data-udx-piece]`).length > 0, heading);
-    await page.waitForFunction(selector => document.querySelector(selector).getAnimations({ subtree: true }).length === 0, heading);
-    const split = await page.evaluate(selector => {
-      const element = document.querySelector(selector);
-      const pieces = [...element.querySelectorAll('[data-udx-piece]')];
-      return {
-        words: pieces.map(piece => piece.textContent),
-        opacities: pieces.map(piece => getComputedStyle(piece).opacity),
-        headingOpacity: getComputedStyle(element).opacity,
-        copyHidden: element.querySelector('[data-udx-split]')?.getAttribute('aria-hidden'),
-        source: element.querySelector('[data-udx-split-source]')?.textContent,
-      };
-    }, heading);
-    assert.deepEqual(split.words, ['Each', 'word', 'arrives', 'in', 'turn']);
-    assert.deepEqual(split.opacities, ['1', '1', '1', '1', '1']);
-    assert.equal(split.headingOpacity, '1');
-    // The visual copy is hidden from the accessibility tree, and the text is read once, in full, from the source.
-    assert.equal(split.copyHidden, 'true');
-    assert.equal(split.source, 'Each word arrives in turn');
-    assert.equal(await page.getByRole('heading', { name: 'Each word arrives in turn', exact: true }).count(), 1);
+    await expectHeldBelowFold(page, heading);
+    await expectWordsPlayed(page, heading);
+    assert.deepEqual(pageErrors, []);
+  } finally { await browser.close(); }
+});
+
+test(`${name}: a heading reached by a client navigation holds its first frame before it is in view`, async () => {
+  const browser = await browserType.launch();
+  try {
+    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
+    const page = await context.newPage();
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    const heading = '[data-motion="demo-title-words"]';
+    const navigation = page.getByRole('navigation', { name: 'Motion documentation' });
+    await page.goto(base + '/motion/demo/');
+    await page.waitForSelector(heading);
+    await page.waitForLoadState('networkidle');
+    // The first visit loads the text module: the client navigation back binds the heading with the module already there.
+    await navigation.getByRole('link', { name: 'Roadmap' }).click();
+    await page.waitForFunction(() => location.pathname.startsWith('/motion/roadmap'));
+    await navigation.getByRole('link', { name: 'Demo' }).click();
+    await page.waitForFunction(() => location.pathname.startsWith('/motion/demo'));
+    await page.waitForSelector(heading);
+    await page.waitForLoadState('networkidle');
+    await expectHeldBelowFold(page, heading);
+    await expectWordsPlayed(page, heading);
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
