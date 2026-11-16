@@ -8,6 +8,7 @@ import type { BindOptions, MotionBinding } from './bind.js';
 import { settledHandle } from './compose.js';
 import type { MotionSpec } from './define-motion.js';
 import { motionManifest } from './manifest.js';
+import { amplitudeOf } from './amplitude.js';
 import { motionDisabled, motionScale } from './play.js';
 import { waapiProvider } from './providers/waapi.js';
 import { getMotionRuntime, retainMotionRuntime } from './runtime.js';
@@ -102,7 +103,7 @@ export function createLoopBinding(target: MotionElement, spec: Readonly<Extract<
     const scale = motionScale(target);
     if (scale === 0) return;
     try {
-      animation = waapiProvider.animate({ target, keyframes: shapeFrames(spec.keyframes, target, 'loop'), timing: { duration: duration * scale, easing, iterations: Infinity } });
+      animation = waapiProvider.animate({ target, keyframes: shapeFrames(spec.keyframes, target, 'loop').map(frame => amplitudeOf(frame, scale)), timing: { duration: duration * scale, easing, iterations: Infinity } });
     } catch (error) {
       // A loop that cannot animate leaves the element as it is: a scan never throws because of a motion.
       if (development) console.error('[@udixio/motion] a loop could not animate:', error);

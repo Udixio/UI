@@ -44,6 +44,13 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+it('writes its first frame at the motion scale, where a hidden appear begins: at 0.5 it is 12px lower', () => {
+  target.style.setProperty('--udx-motion-scale', '0.5');
+  bindTo(target, slide, { present: false });
+  const [x = '0', y = '0'] = getComputedStyle(target).translate.split(' ');
+  expect([parseFloat(x), parseFloat(y)]).toEqual([0, 12]);
+});
+
 it('plays a fade on bind and marks the element present when it ends', async () => {
   const binding = bindTo(target, fade);
   expect(target.dataset.presence).toBe('entering');

@@ -121,6 +121,19 @@ it('jumps to the destination when the motion scale is zero', async () => {
   expect(await handle.finished).toBe('finished');
 });
 
+it('scales the distance of an appear by the motion scale: at 0.5 it starts 12px lower, and ends at rest', async () => {
+  target.style.setProperty('--udx-motion-scale', '0.5');
+  const handle = playMotion(target, slideSpec, forward);
+  for (const animation of target.getAnimations()) {
+    animation.pause();
+    animation.currentTime = 0;
+  }
+  expect(translateOf(target)).toEqual([0, 12]);
+  for (const animation of target.getAnimations()) animation.finish();
+  expect(await handle.finished).toBe('finished');
+  expect(translateOf(target)).toEqual([0, 0]);
+});
+
 it('multiplies the spatial duration by the motion scale', async () => {
   target.style.setProperty('--udx-motion-scale', '0.5');
   const handle = playMotion(target, slideSpec, forward);

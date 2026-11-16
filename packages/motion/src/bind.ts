@@ -15,7 +15,8 @@ import type { LayoutTracking } from './layout.js';
 import { flushLayoutAround, layoutEngine, loadLayoutEngine } from './layout-loader.js';
 import { NAME_PATTERN } from './manifest.js';
 import { pinOutOfFlow } from './pin.js';
-import { applyRestingFrame, paintFrame, playMotion, releaseOwned } from './play.js';
+import { amplitudeOf } from './amplitude.js';
+import { applyRestingFrame, distanceScaleOf, paintFrame, playMotion, releaseOwned } from './play.js';
 import { getMotionRuntime, retainMotionRuntime, type MotionRuntime } from './runtime.js';
 import { staggered } from './stagger.js';
 import { isHtmlElement } from './svg-fields.js';
@@ -255,7 +256,7 @@ function playLoaded(target: MotionElement, spec: Readonly<KeyframedSpec>, option
 function playEntry(target: MotionElement, spec: Readonly<KeyframedSpec>, options: Parameters<typeof playMotion>[2]): MotionHandle {
   if (textModule()) return playLoaded(target, spec, options);
   const pending = deferredHandle();
-  paintFrame(target, spec.keyframes[0], kindOf(spec.verb));
+  paintFrame(target, amplitudeOf(spec.keyframes[0], distanceScaleOf(target, options.runtime.policy.reduced)), kindOf(spec.verb));
   // A failed load leaves the module unloaded, so the entry plays the element whole.
   void loadText().catch(() => undefined).then(() => {
     if (!pending.cancelled) pending.resolve(playLoaded(target, spec, options));
@@ -268,10 +269,12 @@ function playEntry(target: MotionElement, spec: Readonly<KeyframedSpec>, options
  * frame, a state the element stays in, releases its neutral fields to the stylesheet.
  */
 function writeFrame(target: MotionElement, spec: Readonly<KeyframedSpec>, runtime: MotionRuntime, frame: VisualFrame, resting = false): void {
+  // A frame is written at the distance its motion plays, so that a hidden start is where the motion begins.
+  const shaped = amplitudeOf(frame, distanceScaleOf(target, runtime.policy.reduced));
   const text = textModule();
-  if (text) text.applySplitFrame(target, spec, runtime, frame, resting);
-  else if (resting) applyRestingFrame(target, frame, kindOf(spec.verb));
-  else paintFrame(target, frame, kindOf(spec.verb));
+  if (text) text.applySplitFrame(target, spec, runtime, shaped, resting);
+  else if (resting) applyRestingFrame(target, shaped, kindOf(spec.verb));
+  else paintFrame(target, shaped, kindOf(spec.verb));
 }
 
 /**

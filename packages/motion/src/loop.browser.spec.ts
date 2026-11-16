@@ -154,6 +154,18 @@ it('with --udx-motion: none, a loop does not play', async () => {
   expect(item.getAnimations()).toHaveLength(0);
 });
 
+it('scales the distances of a loop by the motion scale: at 0.5, rotate turns half a turn in its first iteration', async () => {
+  const [item] = layout(1, false);
+  item.style.setProperty('--udx-motion-scale', '0.5');
+  bindTo(item, rotate);
+  await twoFrames();
+  const [animation] = item.getAnimations();
+  animation.pause();
+  // Just before the end of the first iteration: at the end itself, the second iteration starts from 0.
+  animation.currentTime = (timingOf(item).duration as number) - 1;
+  expect(Math.abs(parseFloat(getComputedStyle(item).rotate) - 180)).toBeLessThanOrEqual(1);
+});
+
 it('with a motion scale of 0, a loop does not play', async () => {
   const [item] = layout(1, false);
   item.style.setProperty('--udx-motion-scale', '0');

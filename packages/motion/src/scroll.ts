@@ -1,4 +1,5 @@
 import type { MotionElement, VisualFrame } from './contract.js';
+import { amplitudeOf } from './amplitude.js';
 import { motionDisabledIn, motionScaleIn } from './play.js';
 import { frameToKeyframe } from './providers/waapi.js';
 import { shapeFrames } from './svg-fields.js';
@@ -51,22 +52,6 @@ interface ScrubOptions {
   axis: 'block' | 'inline';
   range: ScrollRangeToken;
   development?: boolean;
-}
-
-/**
- * The keyframe at `amplitude` of its distance: `x`, `y` and `rotate` are multiplied by it, and a scale keeps its distance
- * from 1 (a scale of 2 at an amplitude of 0.5 is 1.5). A scrub has no duration, so `--udx-motion-scale` acts here.
- */
-function amplitudeOf(frame: VisualFrame, amplitude: number): VisualFrame {
-  if (amplitude === 1) return frame;
-  const scaled: VisualFrame = { ...frame };
-  if (scaled.x !== undefined) scaled.x *= amplitude;
-  if (scaled.y !== undefined) scaled.y *= amplitude;
-  if (scaled.rotate !== undefined) scaled.rotate *= amplitude;
-  if (scaled.scale !== undefined) scaled.scale = 1 + (scaled.scale - 1) * amplitude;
-  if (scaled.scaleX !== undefined) scaled.scaleX = 1 + (scaled.scaleX - 1) * amplitude;
-  if (scaled.scaleY !== undefined) scaled.scaleY = 1 + (scaled.scaleY - 1) * amplitude;
-  return scaled;
 }
 
 /**

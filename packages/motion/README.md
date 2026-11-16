@@ -332,7 +332,7 @@ The page pauses a loop on demand:
   `{@attach motion('rotate', () => ({ paused }))}`.
 
 Under reduced motion, or with `--udx-motion: none`, a loop does not play: the element keeps its
-stylesheet state. `--udx-motion-scale` scales its duration, and 0 stops it. Its `timing` is a
+stylesheet state. `--udx-motion-scale` scales its duration and the distances of its keyframes, and 0 stops it. Its `timing` is a
 curve only, `{ duration, easing }`, not a spring. Without `timing` it runs for one second, linearly.
 
 ```ts
@@ -1000,7 +1000,9 @@ attribute, and unrecognized values follow the system preference; `auto` does not
 override a reduced system preference. A plain
 `:root` declaration supplies the same values in browsers without `@property`.
 The CSS is static and can be included in server-rendered HTML without JavaScript.
-This entry supplies token values and the scale; it does not apply them to animations or
+This entry supplies token values and the scale. A motion multiplies the distances of its keyframes and its durations by the
+scale, as a presence, an emphasis, a reveal, a scrub or a loop does; a layout flight keeps its real geometry, and a gesture its
+own release. The entry does not apply the scale to animations or
 implement a motion provider or integrate the policy reader (`@udixio/motion/policy`) into a runtime.
 
 The public motion vocabulary includes `Verb`, `SpringRef`, and `ReducedRender`.

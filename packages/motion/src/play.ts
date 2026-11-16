@@ -1,3 +1,4 @@
+import { amplitudeOf } from './amplitude.js';
 import { composeHandles, settledHandle, splitFrames } from './compose.js';
 import type { MotionElement, MotionHandle, VisualFrame } from './contract.js';
 import { kindOf, type MotionSpec } from './define-motion.js';
@@ -123,6 +124,14 @@ export function motionScale(target: MotionElement): number {
   return motionScaleIn(windowOf(target).getComputedStyle(target));
 }
 
+/**
+ * The amplitude of the distances a motion plays on `target`: its motion scale, or 1 where no distance moves, which is under
+ * reduced motion (`reduced`) and under `--udx-motion: none`.
+ */
+export function distanceScaleOf(target: MotionElement, reduced: boolean): number {
+  return reduced || motionDisabled(target) ? 1 : motionScale(target);
+}
+
 /** A backward appear plays with the disappear defaults, and the reverse. */
 function directedVerb(verb: ManifestVerb, direction: Direction): ManifestVerb {
   if (direction === 'forward') return verb;
@@ -205,10 +214,12 @@ export function playMotion(
   const scheme = options.scheme ?? (target.ownerDocument.documentElement.dataset.motionScheme === 'standard' ? 'standard' : 'expressive');
   const verb = directedVerb(spec.verb, direction);
   const owner = kindOf(spec.verb);
-  const frames: VisualFrame[] = shapeFrames(direction === 'backward' ? [...spec.keyframes].reverse() : spec.keyframes, target, owner);
+  const reducedPolicy = runtime.policy.reduced;
+  // The distances of the keyframes follow the motion scale, where a distance moves at all.
+  const amplitude = distanceScaleOf(target, reducedPolicy);
+  const frames: VisualFrame[] = shapeFrames(direction === 'backward' ? [...spec.keyframes].reverse() : spec.keyframes, target, owner).map(frame => amplitudeOf(frame, amplitude));
   const destination = frames[frames.length - 1];
   if (motionDisabled(target)) return settle(target, destination, development, owner);
-  const reducedPolicy = runtime.policy.reduced;
   if (reducedPolicy && resolveReducedRender(verb, spec.reduced).render !== 'fade') return settle(target, destination, development, owner);
 
   // The carried animation writes only the destination's fields, so only those are frozen.
