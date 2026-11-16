@@ -133,6 +133,25 @@ describe('createNavigationRailItemLabelController in the browser', () => {
     expect(opacityOf(label)).toBe(0);
   });
 
+  it('shrinks a hidden label on the effects spring of its timing speed, and grows it on the timing itself', async () => {
+    const label = mountLabel();
+    const state = { visible: false };
+    connect(label, state);
+
+    state.visible = true;
+    controller!.update();
+    expect(animationOf(label, 'width').effect!.getComputedTiming().duration).toBe(
+      tokenDuration(label, 'spring.default.spatial'),
+    );
+    await Promise.all(label.getAnimations().map((animation) => animation.finished));
+
+    state.visible = false;
+    controller!.update();
+    expect(animationOf(label, 'width').effect!.getComputedTiming().duration).toBe(
+      tokenDuration(label, 'spring.default.effects'),
+    );
+  });
+
   it('moves the height, not the width, on the vertical axis', async () => {
     const label = mountLabel();
     const state = { visible: false, axis: 'vertical' as NavigationRailItemLabelAxis };

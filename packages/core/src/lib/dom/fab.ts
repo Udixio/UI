@@ -6,6 +6,7 @@ import {
   type SpringRef,
 } from '@udixio/motion/animate';
 import { motionPolicy } from '@udixio/motion/policy';
+import { collapseTimingOf } from './component-motion.js';
 
 export interface FabLabelControllerOptions {
   /**
@@ -22,7 +23,10 @@ export interface FabLabelControllerOptions {
   extended: () => boolean;
   /** An extra reduced-motion switch, read at each change; the document policy always applies. */
   reducedMotion?: () => boolean;
-  /** The motion of the label's width; `spring.default.spatial` by default. Its opacity has its own effects spring. */
+  /**
+   * The motion of the label's width when it expands; `spring.default.spatial` by default. It collapses on the effects spring of
+   * the same speed, and its opacity has its own effects spring.
+   */
   timing?: SpringRef | CurveTiming;
 }
 
@@ -33,7 +37,7 @@ export interface FabLabelController {
   destroy(): void;
 }
 
-/** The label is a flex item that grows or shrinks as a whole: it moves on the spatial spring of its role. */
+/** The label is a flex item that grows as a whole: it expands on the spatial spring of its role. */
 const DEFAULT_TIMING: SpringRef = 'spring.default.spatial';
 /** The label fades in on the default effects spring, whatever the width's timing. */
 const OPACITY_TIMING: SpringRef = 'spring.default.effects';
@@ -87,7 +91,7 @@ export function createFabLabelController({
             { width: isExtended ? '0px' : 'auto' },
             { width: isExtended ? 'auto' : '0px' },
           ],
-          { timing, carry: interrupted },
+          { timing: isExtended ? timing : collapseTimingOf(timing), carry: interrupted },
         ),
         animateStyle(
           label,

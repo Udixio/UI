@@ -6,6 +6,7 @@ import {
   type SpringRef,
 } from '@udixio/motion/animate';
 import { motionPolicy } from '@udixio/motion/policy';
+import { collapseTimingOf } from './component-motion.js';
 
 export type NavigationRailItemLabelAxis = 'horizontal' | 'vertical';
 
@@ -15,7 +16,10 @@ export interface NavigationRailItemLabelControllerOptions {
   visible: () => boolean;
   /** An extra reduced-motion switch, read at each change; the document policy always applies. */
   reducedMotion?: () => boolean;
-  /** The motion of the label's width or height; `spring.default.spatial` by default. Its opacity has its own curve. */
+  /**
+   * The motion of the label's width or height when it shows; `spring.default.spatial` by default. It hides on the effects spring
+   * of the same speed, and its opacity has its own curve.
+   */
   timing?: SpringRef | CurveTiming;
 }
 
@@ -25,7 +29,7 @@ export interface NavigationRailItemLabelController {
   destroy(): void;
 }
 
-/** The label is a container that grows or shrinks as a whole: it moves on the spatial spring of its role. */
+/** The label is a container that grows as a whole: it shows on the spatial spring of its role. */
 const DEFAULT_TIMING: SpringRef = 'spring.default.spatial';
 /** The label fades on the short3 curve, and waits for its size to start when it appears. */
 const FADE_TIMING: CurveTiming = {
@@ -95,7 +99,7 @@ export function createNavigationRailItemLabelController({
       animateStyle(
         label,
         { [sizeProperty]: currentVisible ? 'auto' : '0px' },
-        { timing },
+        { timing: currentVisible ? timing : collapseTimingOf(timing) },
       ),
       animateStyle(
         label,

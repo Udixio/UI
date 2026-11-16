@@ -1,11 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import {
+  collapseTimingOf,
   getComponentTransition,
   getStaggeredComponentTransition,
   resolveComponentMotion,
 } from './component-motion.js';
 
 describe('component motion', () => {
+  it('collapses a spatial spring on the effects spring of its speed, and keeps any other timing', () => {
+    expect(collapseTimingOf('spring.default.spatial')).toBe('spring.default.effects');
+    expect(collapseTimingOf('spring.fast.spatial')).toBe('spring.fast.effects');
+    expect(collapseTimingOf('spring.slow.spatial')).toBe('spring.slow.effects');
+    expect(collapseTimingOf('spring.fast.effects')).toBe('spring.fast.effects');
+    const curve = { duration: 'duration.long1', easing: 'easing.standard' } as const;
+    expect(collapseTimingOf(curve)).toBe(curve);
+  });
+
   it('defaults to a 300 ms curve on the standard easing', () => {
     expect(resolveComponentMotion()).toEqual({
       timing: { duration: 'duration.medium2', easing: 'easing.standard' },

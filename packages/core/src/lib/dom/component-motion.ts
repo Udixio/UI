@@ -33,6 +33,15 @@ export function getComponentTransition(
 }
 
 /**
+ * The timing of a size that collapses to 0 (a height, a width): the effects spring of the speed of a spatial spring, since
+ * a spatial spring overshoots its target and the overshoot is clamped at 0 at full speed. A curve and an effects spring
+ * are kept as they are.
+ */
+export function collapseTimingOf(timing: SpringRef | CurveTiming): SpringRef | CurveTiming {
+  return typeof timing === 'string' && timing.endsWith('.spatial') ? (timing.replace(/\.spatial$/, '.effects') as SpringRef) : timing;
+}
+
+/**
  * The easing of a progress indicator's value, as a CSS easing: the slow effects spring, which settles without a bounce.
  * A progress indicator keeps its own duration, which its `transitionDuration` sets.
  */

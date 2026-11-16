@@ -101,7 +101,7 @@ describe('fab label controller in the browser', () => {
     );
   });
 
-  it('collapses on the default spatial spring for the width, and fades out on the fast effects spring', () => {
+  it('collapses on the default effects spring for the width, which never overshoots 0, and fades out on the fast effects spring', () => {
     extended = true;
     const label = mountLabel(true);
     connect(label);
@@ -110,10 +110,43 @@ describe('fab label controller in the browser', () => {
     controller!.update();
 
     expect(animationOf(label, 'width').effect!.getComputedTiming().duration).toBe(
-      tokenDuration(label, 'spring.default.spatial'),
+      tokenDuration(label, 'spring.default.effects'),
     );
     expect(animationOf(label, 'opacity').effect!.getComputedTiming().duration).toBe(
       tokenDuration(label, 'spring.fast.effects'),
+    );
+  });
+
+  it('collapses on the effects spring of the speed of its timing, and expands on the timing itself', async () => {
+    extended = false;
+    const label = mountLabel(false);
+    connect(label, { timing: 'spring.slow.spatial' });
+
+    extended = true;
+    controller!.update();
+    expect(animationOf(label, 'width').effect!.getComputedTiming().duration).toBe(
+      tokenDuration(label, 'spring.slow.spatial'),
+    );
+    await finishMotions(label);
+
+    extended = false;
+    controller!.update();
+    expect(animationOf(label, 'width').effect!.getComputedTiming().duration).toBe(
+      tokenDuration(label, 'spring.slow.effects'),
+    );
+  });
+
+  it('collapses on a curve it is given as the curve, since a curve never overshoots', () => {
+    extended = true;
+    const label = mountLabel(true);
+    const timing = { duration: 'duration.long1', easing: 'easing.standard' } as const;
+    connect(label, { timing });
+
+    extended = false;
+    controller!.update();
+
+    expect(animationOf(label, 'width').effect!.getComputedTiming().duration).toBe(
+      resolveWaapiTiming(label, timing, 'expressive')!.duration,
     );
   });
 
