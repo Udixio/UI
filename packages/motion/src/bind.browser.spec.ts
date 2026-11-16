@@ -454,3 +454,51 @@ it('a disappear that is present at bind leaves no inline opacity at rest', () =>
   expect(target.style.opacity).toBe('');
   expect(getComputedStyle(target).opacity).toBe('1');
 });
+
+it('applies a presence set to leave before its name is defined: the element leaves with its exit once defined', () => {
+  const deferred = deferTo(target, 'pending-leave');
+  void deferred.setPresent(false);
+  defineMotion('pending-leave', fade.spec);
+  expect(deferred.binding?.present).toBe(false);
+  expect(target.dataset.presence).toBe('exiting');
+  expect(deferred.binding?.handle).not.toBeNull();
+});
+
+it('keeps the element present when its presence is set back to true before its name is defined: no exit', () => {
+  const deferred = deferTo(target, 'pending-back');
+  void deferred.setPresent(false);
+  void deferred.setPresent(true);
+  defineMotion('pending-back', fade.spec);
+  expect(deferred.binding?.present).toBe(true);
+  expect(target.dataset.presence).toBe('present');
+  expect(deferred.binding?.handle).toBeNull();
+});
+
+it('hides an element that starts absent as soon as its name is defined, without an exit', () => {
+  const deferred = deferTo(target, 'pending-absent', { present: false });
+  void deferred.setPresent(false);
+  defineMotion('pending-absent', fade.spec);
+  expect(deferred.binding?.present).toBe(false);
+  expect(target.dataset.presence).toBe('exiting');
+  expect(target.style.opacity).toBe('0');
+  expect(deferred.binding?.handle).toBeNull();
+});
+
+it('replays an emphasis asked for before its name is defined, once it is defined', () => {
+  const deferred = deferTo(target, 'pending-press');
+  deferred.play();
+  defineMotion('pending-press', press.spec);
+  expect(deferred.binding?.kind).toBe('emphasis');
+  expect(deferred.binding?.handle).not.toBeNull();
+});
+
+it('treats setPresent and play as no-ops on a motion of another kind, bound or deferred', () => {
+  const layout = deferTo(target, reflow);
+  const presence = deferTo(target, fade);
+  expect(layout.binding?.kind).toBe('layout');
+  expect(presence.binding?.kind).toBe('presence');
+  expect(() => layout.play()).not.toThrow();
+  expect(() => presence.play()).not.toThrow();
+  expect(() => layout.setPresent(false)).not.toThrow();
+  expect(presence.binding?.present).toBe(true);
+});

@@ -134,6 +134,13 @@ export function motion(target: MotionElement, source: MotionSource, options: Bin
 export interface DeferredMotion {
   /** The binding, once the motion is defined. */
   readonly binding: MotionBinding | undefined;
+  /**
+   * Set the presence of the element: `setPresent` of the binding when it is a presence motion, else nothing. Asked before the
+   * name is defined, the last value is kept and applied when the motion is defined; resolves at once in that case.
+   */
+  setPresent(present: boolean): Promise<'finished' | 'cancelled'>;
+  /** Replay the emphasis; asked before the name is defined, the replay happens once the motion is defined. */
+  play(): void;
   destroy(): void;
 }
 
@@ -144,6 +151,9 @@ export interface DeferredMotion {
 export function motionWhenDefined(target: MotionElement, source: MotionSource, options: BindOptions = {}): DeferredMotion {
   let binding: MotionBinding | undefined;
   let unsubscribe: (() => void) | undefined;
+  // What was asked while the name was undefined: the last presence, and whether an emphasis replay is due.
+  let wanted: boolean | undefined;
+  let replay = false;
   if (typeof source === 'string' && !resolveMotion(source)) {
     const name = source;
     if (options.development) console.error(`[@udixio/motion] Unknown motion "${name}". Defined: ${definedMotions().join(', ')}`);
@@ -151,7 +161,11 @@ export function motionWhenDefined(target: MotionElement, source: MotionSource, o
       if (ref.name !== name) return;
       unsubscribe?.();
       unsubscribe = undefined;
-      binding = motion(target, ref, { ...options, settled: true });
+      // A presence asked to end meanwhile ends now, with its exit, as if the definition had been there.
+      const leaving = wanted === false && options.present !== false;
+      binding = motion(target, ref, { ...options, present: leaving || (wanted ?? options.present !== false), settled: true });
+      if (leaving && binding.kind === 'presence') void binding.setPresent(false);
+      if (replay && binding.kind === 'emphasis') binding.play();
     });
   } else {
     binding = motion(target, source, options);
@@ -159,6 +173,17 @@ export function motionWhenDefined(target: MotionElement, source: MotionSource, o
   return {
     get binding() {
       return binding;
+    },
+    setPresent(present) {
+      if (!binding) {
+        wanted = present;
+        return Promise.resolve('finished');
+      }
+      return binding.kind === 'presence' ? binding.setPresent(present) : Promise.resolve('finished');
+    },
+    play() {
+      if (!binding) replay = true;
+      else if (binding.kind === 'emphasis') binding.play();
     },
     destroy() {
       unsubscribe?.();
