@@ -1,8 +1,10 @@
-// The public entry `@udixio/motion/animate`: animating any CSS property over a motion token, and springs for numbers. Its
-// imports are the shared runtime, springs and tokens only, so the entry adds no code to the main one.
+// The public entry `@udixio/motion/animate`: animating any CSS property over a motion token, springs for numbers, and the
+// stagger steps of a cascade. Its imports are the shared runtime, springs, tokens and stagger only, so the entry adds no
+// code to the main one.
 export { animateStyle } from './animate.js';
 export type { AnimateStyleOptions, StyleKeyframe, StyleTiming } from './animate.js';
 export { composeHandles } from './compose.js';
+export { staggerCap, staggerDelay, staggerStep } from './stagger.js';
 export { createSpring } from './spring-number.js';
 export { cssTiming } from './css-timing.js';
 export type { SpringNumber, SpringNumberOptions } from './spring-number.js';
