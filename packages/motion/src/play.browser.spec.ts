@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { validateMotionSpec } from './define-motion.js';
 import { applyFrame, playMotion, releaseFrame } from './play.js';
+import { shake } from './presets.js';
 import { getMotionRuntime, retainMotionRuntime } from './runtime.js';
 import { resolveSpring } from './tokens.js';
 
@@ -294,6 +295,14 @@ it('releases nothing when the motion is cancelled: the value it froze stays inli
 /** The end time of every running animation of an element, in ms. */
 const endTimesOf = (element: HTMLElement) => element.getAnimations().map(animation => animation.effect!.getComputedTiming().endTime as number);
 
+/** Freezes every running animation of an element at a time, in ms. */
+const seekAll = (element: HTMLElement, time: number) => {
+  for (const animation of element.getAnimations()) {
+    animation.pause();
+    animation.currentTime = time;
+  }
+};
+
 it('plays an exit on the effects spring for its movement too, so its translate and its opacity end together', async () => {
   const handle = playMotion(target, exitSpec, forward);
   const ends = endTimesOf(target);
@@ -309,4 +318,16 @@ it('plays a backward appear, which leaves with the disappear defaults, on the ef
   const ends = endTimesOf(target);
   expect(ends.length).toBeGreaterThan(0);
   for (const end of ends) expect(end).toBe(spring('spring.default.effects'));
+});
+
+it('shakes to its 6 px peaks: four 80 ms linear segments of a 400 ms curve, then rest', async () => {
+  const handle = playMotion(target, shake.spec, forward);
+  expect(target.getAnimations()[0].effect!.getComputedTiming().duration).toBe(400);
+  for (const [time, x] of [[80, -6], [160, 6], [240, -4], [320, 4]] as const) {
+    seekAll(target, time);
+    expect(translateOf(target)[0]).toBeCloseTo(x, 1);
+  }
+  for (const animation of target.getAnimations()) animation.play();
+  expect(await handle.finished).toBe('finished');
+  expect(translateOf(target)).toEqual([0, 0]);
 });

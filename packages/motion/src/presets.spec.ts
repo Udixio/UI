@@ -53,6 +53,10 @@ describe('presets', () => {
     }
   });
 
+  it('shakes on a 400 ms linear curve, so its 6 px peaks are reached', () => {
+    expect(shake.spec.timing).toEqual({ duration: 'duration.medium4', easing: 'easing.linear' });
+  });
+
   it('makes each loop preset pausable by its user', () => {
     for (const ref of [rotate, breathe, blink]) expect(ref.spec.pause).toBe('control');
   });

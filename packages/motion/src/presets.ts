@@ -94,4 +94,6 @@ export const blink: MotionRef<'blink'> = defineMotion('blink', {
 export const shake: MotionRef<'shake'> = defineMotion('shake', {
   verb: 'emphasize',
   keyframes: [{ x: 0 }, { x: -6 }, { x: 6 }, { x: -4 }, { x: 4 }, { x: 0 }],
+  // A linear 400 ms curve: each of the five segments takes 80 ms, so the 6 px peaks are reached.
+  timing: { duration: 'duration.medium4', easing: 'easing.linear' },
 });
