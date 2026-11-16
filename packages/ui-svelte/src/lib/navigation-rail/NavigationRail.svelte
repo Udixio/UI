@@ -87,6 +87,7 @@ import { untrack } from 'svelte';
   });
 
   const styles = createStyle(navigationRailStyle, () => ({
+    motion,
     variant,
     alignment,
     menu,

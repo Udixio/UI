@@ -54,6 +54,7 @@
   const initialHorizontalStyle = mountedVariant === 'horizontal' ? 'overflow: hidden' : 'width: 0px; opacity: 0; overflow: hidden';
   const initialVerticalStyle = mountedVariant === 'vertical' ? 'overflow: hidden' : 'height: 0px; opacity: 0; overflow: hidden';
   const styles = createStyle(navigationRailItemStyle, () => ({
+    motion: resolvedMotion,
     label,
     icon,
     iconSelected,
