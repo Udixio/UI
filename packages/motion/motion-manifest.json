@@ -226,7 +226,6 @@
       "interrupt": "carry",
       "reduced": "fade",
       "timing": [
-        "spring.default.spatial",
         "spring.default.effects"
       ]
     },

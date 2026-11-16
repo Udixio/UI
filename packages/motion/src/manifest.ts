@@ -107,7 +107,8 @@ export const motionManifest = freezeDeep({
       trigger: 'unmount',
       interrupt: 'carry',
       reduced: 'fade',
-      timing: ['spring.default.spatial', 'spring.default.effects'],
+      // An exit has one spring: its movement fades with its opacity, so it is over within a frame of the opacity.
+      timing: ['spring.default.effects'],
     },
     emphasize: {
       trigger: 'state',

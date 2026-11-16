@@ -8,6 +8,7 @@ const fadeSpec = validateMotionSpec({ verb: 'appear', keyframes: [{ opacity: 0 }
 const slideSpec = validateMotionSpec({ verb: 'appear', keyframes: [{ opacity: 0, y: 24 }, { opacity: 1, y: 0 }] });
 const pressSpec = validateMotionSpec({ verb: 'emphasize', keyframes: [{ scale: 1 }, { scale: 0.96 }, { scale: 1 }] });
 const scaleXSpec = validateMotionSpec({ verb: 'appear', keyframes: [{ scaleX: 0 }, { scaleX: 1 }] });
+const exitSpec = validateMotionSpec({ verb: 'disappear', keyframes: [{ opacity: 1, y: 0 }, { opacity: 0, y: 24 }] });
 
 const runtime = getMotionRuntime({ development: true });
 const forward = { direction: 'forward', carry: false, runtime } as const;
@@ -288,4 +289,24 @@ it('releases nothing when the motion is cancelled: the value it froze stays inli
   handle.cancel();
   expect(await handle.finished).toBe('cancelled');
   expect(target.style.opacity).not.toBe('');
+});
+
+/** The end time of every running animation of an element, in ms. */
+const endTimesOf = (element: HTMLElement) => element.getAnimations().map(animation => animation.effect!.getComputedTiming().endTime as number);
+
+it('plays an exit on the effects spring for its movement too, so its translate and its opacity end together', async () => {
+  const handle = playMotion(target, exitSpec, forward);
+  const ends = endTimesOf(target);
+  expect(ends.length).toBeGreaterThan(0);
+  for (const end of ends) expect(end).toBe(spring('spring.default.effects'));
+  expect(await handle.finished).toBe('finished');
+  expect(getComputedStyle(target).opacity).toBe('0');
+  expect(translateOf(target)).toEqual([0, 24]);
+});
+
+it('plays a backward appear, which leaves with the disappear defaults, on the effects spring for its movement too', () => {
+  playMotion(target, slideSpec, { ...forward, direction: 'backward' });
+  const ends = endTimesOf(target);
+  expect(ends.length).toBeGreaterThan(0);
+  for (const end of ends) expect(end).toBe(spring('spring.default.effects'));
 });
