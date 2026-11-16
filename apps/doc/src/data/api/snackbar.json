@@ -9,7 +9,7 @@
       "tags": {
         "status": "beta",
         "category": "Communication",
-        "devx": "- `open` is controlled; `defaultOpen` initializes uncontrolled usage. Defaults to `true`.\n- `duration` (ms) auto-dismisses the snackbar; omit it to require an explicit `onOpenChange`\n  or a click on the built-in close button.\n- Renders in normal document flow at the call site. Fixed/bottom positioning, stacking, and\n  queueing multiple snackbars are the caller's responsibility.\n- The height transition is implemented once with Motion JavaScript in `@udixio/core/dom`,\n  shared with Angular. It applies the initial `open` state immediately; only transitions\n  after the first render animate.",
+        "devx": "- `open` is controlled; `defaultOpen` initializes uncontrolled usage. Defaults to `true`.\n- `duration` (ms) auto-dismisses the snackbar; omit it to require an explicit `onOpenChange`\n  or a click on the built-in close button.\n- Renders in normal document flow at the call site. Fixed/bottom positioning, stacking, and\n  queueing multiple snackbars are the caller's responsibility.\n- The height transition is implemented once on `@udixio/motion` in `@udixio/core/dom`,\n  shared with Angular. It applies the initial `open` state immediately; only transitions\n  after the first render animate.",
         "a11y": "- Renders `role=\"status\"` and `aria-live=\"polite\"` so assistive technology announces the\n  message without interrupting the user. The element stays mounted and `inert` while closed\n  instead of unmounting, so the live region is reliably present before it announces.",
         "limitations": "- No built-in queue/stacking for multiple simultaneous snackbars."
       },
@@ -73,12 +73,12 @@
             "value": "iClose"
           }
         },
-        "transition": {
-          "name": "transition",
-          "description": "Motion transition shared by every framework for the open/close height animation.",
+        "motion": {
+          "name": "motion",
+          "description": "The motion of the open/close height, shared by every framework. Defaults to the fast spatial spring.",
           "required": false,
           "type": {
-            "name": "Transition"
+            "name": "ComponentMotion"
           },
           "defaultValue": null
         },
@@ -99,7 +99,7 @@
       "tags": {
         "status": "beta",
         "category": "Communication",
-        "devx": "- `open` is controlled; `defaultOpen` initializes uncontrolled usage. Defaults to `true`.\n- `duration` (ms) auto-dismisses the snackbar; omit it to require an explicit `openChange`\n  or a click on the built-in close button.\n- Renders in normal document flow at the call site. Fixed/bottom positioning, stacking, and\n  queueing multiple snackbars are the caller's responsibility.\n- The height transition is implemented once with Motion JavaScript in `@udixio/core/dom`,\n  shared with React. It applies the initial `open` state immediately; only transitions after\n  the first render animate.",
+        "devx": "- `open` is controlled; `defaultOpen` initializes uncontrolled usage. Defaults to `true`.\n- `duration` (ms) auto-dismisses the snackbar; omit it to require an explicit `openChange`\n  or a click on the built-in close button.\n- Renders in normal document flow at the call site. Fixed/bottom positioning, stacking, and\n  queueing multiple snackbars are the caller's responsibility.\n- The height transition is implemented once on `@udixio/motion` in `@udixio/core/dom`,\n  shared with React. It applies the initial `open` state immediately; only transitions after\n  the first render animate.",
         "a11y": "- Renders `role=\"status\"` and `aria-live=\"polite\"` so assistive technology announces the\n  message without interrupting the user. The element stays mounted and `inert` while closed\n  instead of unmounting, so the live region is reliably present before it announces.",
         "limitations": "- No built-in queue/stacking for multiple simultaneous snackbars.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`."
       },
@@ -153,12 +153,12 @@
             "value": "iClose"
           }
         },
-        "transition": {
-          "name": "transition",
-          "description": "Motion transition shared by every framework for the open/close height animation.",
+        "motion": {
+          "name": "motion",
+          "description": "The motion of the open/close height, shared by every framework.",
           "required": false,
           "type": {
-            "name": "Transition | undefined"
+            "name": "ComponentMotion | undefined"
           },
           "defaultValue": null
         },
@@ -294,12 +294,12 @@
             "value": "iClose"
           }
         },
-        "transition": {
-          "name": "transition",
-          "description": "Motion transition shared by every framework for the open/close height animation.",
+        "motion": {
+          "name": "motion",
+          "description": "The motion of the open/close height, shared by every framework. Defaults to the fast spatial spring.",
           "required": false,
           "type": {
-            "name": "Transition"
+            "name": "ComponentMotion"
           },
           "defaultValue": null
         }

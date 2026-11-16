@@ -416,6 +416,15 @@
             "value": "'docked'"
           }
         },
+        "accessibleLabel": {
+          "name": "accessibleLabel",
+          "description": "Accessible name applied to the toolbar container.\nPrefer this prop for cross-framework parity; `aria-labelledby` remains\navailable through the framework's native attributes.",
+          "required": false,
+          "type": {
+            "name": "string"
+          },
+          "defaultValue": null
+        },
         "orientation": {
           "name": "orientation",
           "description": "Layout axis for the toolbar's children.",
@@ -426,15 +435,6 @@
           "defaultValue": {
             "value": "'horizontal'"
           }
-        },
-        "accessibleLabel": {
-          "name": "accessibleLabel",
-          "description": "Accessible name applied to the toolbar container.\nPrefer this prop for cross-framework parity; `aria-labelledby` remains\navailable through the framework's native attributes.",
-          "required": false,
-          "type": {
-            "name": "string"
-          },
-          "defaultValue": null
         },
         "maxVisible": {
           "name": "maxVisible",

@@ -451,7 +451,7 @@
           "description": "Popup relationship forwarded to the inner interactive element.",
           "required": false,
           "type": {
-            "name": "boolean | \"grid\" | \"menu\" | \"listbox\" | \"tree\" | \"dialog\" | undefined"
+            "name": "boolean | \"menu\" | \"listbox\" | \"tree\" | \"grid\" | \"dialog\" | undefined"
           },
           "defaultValue": null,
           "alias": "aria-haspopup"

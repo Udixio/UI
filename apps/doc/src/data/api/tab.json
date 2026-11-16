@@ -199,7 +199,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"label\" | \"icon\" | \"content\" | \"stateLayer\" | \"tab\", string>> | ClassNameComponent<TabInterface>"
+            "name": "Partial<Record<\"label\" | \"icon\" | \"stateLayer\" | \"content\" | \"tab\", string>> | ClassNameComponent<TabInterface>"
           },
           "defaultValue": null
         }

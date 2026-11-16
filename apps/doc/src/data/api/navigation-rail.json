@@ -84,6 +84,15 @@
             "value": "{\n    closed: {\n      icon: iMenu,\n      label: 'Open menu',\n    },\n    opened: {\n      icon: iClose,\n      label: 'Close menu',\n    },\n  }"
           }
         },
+        "motion": {
+          "name": "motion",
+          "description": "The motion of the rail's width and of its items' labels, shared by every framework. Defaults to a 300 ms curve.",
+          "required": false,
+          "type": {
+            "name": "ComponentMotion"
+          },
+          "defaultValue": null
+        },
         "footer": {
           "name": "footer",
           "description": "Content pinned below the item list (e.g. an account or sign-out action).",
@@ -178,6 +187,15 @@
           "defaultValue": {
             "value": "null"
           }
+        },
+        "motion": {
+          "name": "motion",
+          "description": "The motion of the rail's width, which its items take for their labels; a 300 ms curve by default.",
+          "required": false,
+          "type": {
+            "name": "ComponentMotion"
+          },
+          "defaultValue": null
         },
         "hostClass": {
           "name": "hostClass",
@@ -388,6 +406,15 @@
           "defaultValue": {
             "value": "DEFAULT_MENU"
           }
+        },
+        "motion": {
+          "name": "motion",
+          "description": "The motion of the rail's width and of its items' labels, shared by every framework. Defaults to a 300 ms curve.",
+          "required": false,
+          "type": {
+            "name": "ComponentMotion"
+          },
+          "defaultValue": null
         }
       },
       "snippets": {

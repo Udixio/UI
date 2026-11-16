@@ -755,7 +755,9 @@ const getSvelteComponents = async () => {
           `${kebabCase(path.basename(file, '.svelte'))}.types.ts`,
         ),
       })),
-    ...attachmentFiles.map((file) => {
+    // The attachments of `lib/motion` bind @udixio/motion to an element; they are not components, and the motion
+    // pages and the package README document them.
+    ...attachmentFiles.filter((file) => !file.includes(`${path.sep}motion${path.sep}`)).map((file) => {
       const stem = path.basename(file, '.attachment.svelte.ts');
       return {
         displayName: pascalCase(stem),

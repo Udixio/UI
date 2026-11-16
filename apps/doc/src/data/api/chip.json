@@ -24,12 +24,12 @@
           },
           "defaultValue": null
         },
-        "transition": {
-          "name": "transition",
-          "description": "Motion timing for the selection colour change. Defaults to 0.3s.\n\nIt lived only on the React adapter, so the Angular chip's selection\nsnapped where React's faded.",
+        "motion": {
+          "name": "motion",
+          "description": "The motion of the chip's selection colour change, on its surface and its\nstate layer alike. Its default is a 300 ms curve on the standard easing.",
           "required": false,
           "type": {
-            "name": "{ duration?: number; } & Transition"
+            "name": "ComponentMotion"
           },
           "defaultValue": null
         },
@@ -317,12 +317,12 @@
           },
           "defaultValue": null
         },
-        "transition": {
-          "name": "transition",
-          "description": "Motion timing for the selection colour change. Defaults to 0.3s.\n\nIt lived only on the React adapter, so the Angular chip's selection\nsnapped where React's faded.",
+        "motion": {
+          "name": "motion",
+          "description": "The motion of the selection colour change, on the surface and on the state layer alike; a 300 ms curve by default.",
           "required": false,
           "type": {
-            "name": "{ duration?: number; } | undefined"
+            "name": "ComponentMotion"
           },
           "defaultValue": null
         }
@@ -414,6 +414,15 @@
           },
           "defaultValue": null
         },
+        "motion": {
+          "name": "motion",
+          "description": "The motion of the chip's selection colour change, on its surface and its\nstate layer alike. Its default is a 300 ms curve on the standard easing.",
+          "required": false,
+          "type": {
+            "name": "ComponentMotion"
+          },
+          "defaultValue": null
+        },
         "icon": {
           "name": "icon",
           "description": "An optional icon to display in the chip.",
@@ -444,15 +453,6 @@
           "defaultValue": {
             "value": "false"
           }
-        },
-        "transition": {
-          "name": "transition",
-          "description": "Motion timing for the selection colour change. Defaults to 0.3s.\n\nIt lived only on the React adapter, so the Angular chip's selection\nsnapped where React's faded.",
-          "required": false,
-          "type": {
-            "name": "{ duration?: number; }"
-          },
-          "defaultValue": null
         },
         "selected": {
           "name": "selected",

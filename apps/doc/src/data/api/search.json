@@ -541,7 +541,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"container\" | \"search\" | \"stateLayer\" | \"input\" | \"leadingIcon\" | \"inputField\" | \"trailingActions\" | \"avatarSlot\" | \"clearButton\" | \"results\", string>> | ClassNameComponent<SearchInterface>"
+            "name": "Partial<Record<\"container\" | \"stateLayer\" | \"input\" | \"leadingIcon\" | \"search\" | \"inputField\" | \"trailingActions\" | \"avatarSlot\" | \"clearButton\" | \"results\", string>> | ClassNameComponent<SearchInterface>"
           },
           "defaultValue": null
         }

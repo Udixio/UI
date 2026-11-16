@@ -46,7 +46,7 @@
         },
         "motion": {
           "name": "motion",
-          "description": "Motion of the colour change of the layer, for a surface whose colour changes -- a chip being selected, say. Omitted, or without a `timing`, the layer snaps.\n\nThis is a typed prop rather than an inline-style passthrough so every adapter can express it: `style` is a React DOM idiom with no Angular counterpart, and routing it that way left the Angular chip snapping.",
+          "description": "Motion of the colour change of the layer, for a surface whose colour\nchanges -- a chip being selected, say. Omitted, or without a `timing`, the\nlayer snaps.\n\nThis is a typed prop rather than an inline-style passthrough so every\nadapter can express it: `style` is a React DOM idiom with no Angular\ncounterpart, and routing it that way left the Angular chip snapping.",
           "required": false,
           "type": {
             "name": "ComponentMotion"
@@ -127,7 +127,7 @@
         },
         "motion": {
           "name": "motion",
-          "description": "Motion of the colour change of the layer, for a surface whose colour changes -- a chip being selected, say. Omitted, or without a `timing`, the layer snaps.\n\nThis is a typed prop rather than an inline-style passthrough so every adapter can express it: `style` is a React DOM idiom with no Angular counterpart, and routing it that way left the Angular chip snapping.",
+          "description": "Motion of the colour change of the layer, for a surface whose colour\nchanges -- a chip being selected, say. Omitted, or without a `timing`, the\nlayer snaps.\n\nThis is a typed prop rather than an inline-style passthrough so every\nadapter can express it: `style` is a React DOM idiom with no Angular\ncounterpart, and routing it that way left the Angular chip snapping.",
           "required": false,
           "type": {
             "name": "ComponentMotion | undefined"
@@ -198,7 +198,7 @@
         },
         "motion": {
           "name": "motion",
-          "description": "Motion of the colour change of the layer, for a surface whose colour changes -- a chip being selected, say. Omitted, or without a `timing`, the layer snaps.\n\nThis is a typed prop rather than an inline-style passthrough so every adapter can express it: `style` is a React DOM idiom with no Angular counterpart, and routing it that way left the Angular chip snapping.",
+          "description": "Motion of the colour change of the layer, for a surface whose colour\nchanges -- a chip being selected, say. Omitted, or without a `timing`, the\nlayer snaps.\n\nThis is a typed prop rather than an inline-style passthrough so every\nadapter can express it: `style` is a React DOM idiom with no Angular\ncounterpart, and routing it that way left the Angular chip snapping.",
           "required": false,
           "type": {
             "name": "ComponentMotion"

@@ -591,6 +591,15 @@
           },
           "defaultValue": null
         },
+        "motion": {
+          "name": "motion",
+          "description": "Motion of the shape changes on press and release, timed by `@udixio/motion`.",
+          "required": false,
+          "type": {
+            "name": "ComponentMotion"
+          },
+          "defaultValue": null
+        },
         "type": {
           "name": "type",
           "description": "The HTML button type attribute. Only applies when rendered as `<button>`.",
@@ -707,15 +716,6 @@
           "defaultValue": {
             "value": "'morph'"
           }
-        },
-        "motion": {
-          "name": "motion",
-          "description": "Motion of the shape changes on press and release, timed by `@udixio/motion`.",
-          "required": false,
-          "type": {
-            "name": "ComponentMotion"
-          },
-          "defaultValue": null
         },
         "toggleable": {
           "name": "toggleable",
