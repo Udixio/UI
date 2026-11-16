@@ -174,7 +174,7 @@ for (const name of motionBrowsers(process.env.MOTION_BROWSERS)) {
           token: 'cubic-bezier(0, 0, 0, 1)',
           scale: '1',
         });
-        await page.keyboard.press('Tab');
+        // The search container is not a tab stop: one Tab reaches the field.
         await page.keyboard.press('Tab');
         expect(
           await input.evaluate((el) => el === document.activeElement),

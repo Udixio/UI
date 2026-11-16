@@ -86,7 +86,10 @@ for (const name of motionBrowsers(process.env.MOTION_BROWSERS)) {
     it('inherits document scale in Shadow DOM while respecting local overrides', async () => {
       const { build } = await compile('@import "tailwindcss";', { base: resolve(__dirname, '..'), onDependency: () => {} });
       const css = build(unchecked.handle.split(/\s+/));
-      const motionCss = readFileSync(resolve(__dirname, '../../motion/public/motion.css'), 'utf8');
+      // Flattened: a relative @import cannot load in a blank page, and WebKit then fails the injected style tag.
+      const motionCss = ['motion-springs.generated.css', 'motion-curves.generated.css', 'motion.css']
+        .map(file => readFileSync(resolve(__dirname, '../../motion/public', file), 'utf8').replace(/^@import.*;$/gm, ''))
+        .join('\n');
       const browser = await engine.launch();
       try {
         const page = await browser.newPage({ reducedMotion: 'no-preference' });
