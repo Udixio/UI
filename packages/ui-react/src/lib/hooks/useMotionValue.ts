@@ -4,8 +4,14 @@ import {
   useSyncExternalStore,
   type RefCallback,
 } from 'react';
-import type { ValueBinding, ValueRef } from '@udixio/motion';
-import { onValueDefined, resolveValue, value } from '@udixio/motion/value';
+import {
+  loadValues,
+  onValueDefined,
+  resolveValue,
+  valuesModule,
+  type ValueBinding,
+  type ValueRef,
+} from '@udixio/motion';
 
 export interface UseMotionValueReturn<T extends HTMLElement> {
   /** Put it on the element that writes the value. */
@@ -19,8 +25,8 @@ export interface UseMotionValueReturn<T extends HTMLElement> {
 }
 
 /**
- * Binds a value to an element now, or as soon as the named value is defined: until then the element is not touched, so a
- * render never throws because of a value. Returns the function that destroys the binding.
+ * Binds a value now, or as soon as the named value is defined, once the values module is loaded: until then the element is
+ * not touched, so a render never throws because of a value. Returns the function that destroys the binding.
  */
 function bindValueWhenDefined(
   target: HTMLElement,
@@ -29,8 +35,20 @@ function bindValueWhenDefined(
 ): () => void {
   let binding: ValueBinding | undefined;
   let stopWaiting: (() => void) | undefined;
+  let cancelled = false;
   const bind = (ref: ValueRef | string) => {
-    binding = value(target, ref);
+    const api = valuesModule();
+    if (!api) {
+      // The module loads once per page; a binding released before it arrives never binds.
+      void loadValues().then(
+        () => {
+          if (!cancelled) bind(ref);
+        },
+        () => {},
+      );
+      return;
+    }
+    binding = api.value(target, ref);
     onBound(binding);
   };
   if (typeof source === 'string' && !resolveValue(source)) {
@@ -44,6 +62,7 @@ function bindValueWhenDefined(
     bind(source);
   }
   return () => {
+    cancelled = true;
     stopWaiting?.();
     stopWaiting = undefined;
     binding?.destroy();

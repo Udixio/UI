@@ -3,13 +3,10 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup, render, screen } from '@testing-library/svelte';
 import { flushSync } from 'svelte';
 import type { GestureBinding } from '@udixio/motion';
-import { defineGesture, gesture } from '@udixio/motion/gesture';
+import { gesturesModule } from '@udixio/motion';
+import { defineGesture } from '@udixio/motion/gesture';
 import Fixture from './gesture.fixture.svelte';
 
-vi.mock('@udixio/motion/gesture', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@udixio/motion/gesture')>()),
-  gesture: vi.fn(),
-}));
 
 defineGesture('svelte-drag', { kind: 'drag', bounds: 'none', alternative: 'arrows' });
 defineGesture('svelte-dismiss', { kind: 'swipe', alternative: 'action' });
@@ -29,7 +26,7 @@ function fakeGesture(name: string) {
 
 type Fake = ReturnType<typeof fakeGesture>;
 
-const bindGesture = vi.mocked(gesture);
+const bindGesture = vi.spyOn(gesturesModule()!, 'gesture');
 let fakes: Fake[] = [];
 
 beforeEach(() => {

@@ -3,13 +3,10 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup, render, screen } from '@testing-library/svelte';
 import { flushSync } from 'svelte';
 import type { ValueBinding } from '@udixio/motion';
-import { defineValue, value } from '@udixio/motion/value';
+import { valuesModule } from '@udixio/motion';
+import { defineValue } from '@udixio/motion/value';
 import Fixture from './value.fixture.svelte';
 
-vi.mock('@udixio/motion/value', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@udixio/motion/value')>()),
-  value: vi.fn(),
-}));
 
 defineValue('tilt', { source: 'state', spring: 'none' });
 
@@ -40,7 +37,7 @@ function fakeValue(name: string) {
 
 type Fake = ReturnType<typeof fakeValue>;
 
-const bindValue = vi.mocked(value);
+const bindValue = vi.spyOn(valuesModule()!, 'value');
 let fakes: Fake[] = [];
 
 beforeEach(() => {

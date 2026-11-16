@@ -3,19 +3,16 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup, render, screen } from '@testing-library/svelte';
 import { flushSync } from 'svelte';
 import type { SequenceBinding } from '@udixio/motion';
-import { defineSequence, sequence } from '@udixio/motion/sequence';
+import { sequencesModule } from '@udixio/motion';
+import { defineSequence } from '@udixio/motion/sequence';
 import Fixture from './sequence.fixture.svelte';
 
-vi.mock('@udixio/motion/sequence', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@udixio/motion/sequence')>()),
-  sequence: vi.fn(),
-}));
 
 const steps = { title: { keyframes: [{ opacity: 0 }, { opacity: 1 }] } };
 defineSequence('hero', { steps });
 defineSequence('outro', { steps });
 
-const bindSequence = vi.mocked(sequence);
+const bindSequence = vi.spyOn(sequencesModule()!, 'sequence');
 let bindings: Array<{ destroy: ReturnType<typeof vi.fn> }> = [];
 
 beforeEach(() => {

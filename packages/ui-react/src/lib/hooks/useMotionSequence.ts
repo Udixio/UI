@@ -5,8 +5,15 @@ import {
   useSyncExternalStore,
   type RefCallback,
 } from 'react';
-import type { MotionHandle, SequenceBinding, SequenceRef } from '@udixio/motion';
-import { onSequenceDefined, resolveSequence, sequence } from '@udixio/motion/sequence';
+import {
+  loadSequences,
+  onSequenceDefined,
+  resolveSequence,
+  sequencesModule,
+  type MotionHandle,
+  type SequenceBinding,
+  type SequenceRef,
+} from '@udixio/motion';
 
 export interface UseMotionSequenceOptions {
   /** Treat the content as already in place: no entry. Default: true when hydrating server content, else false. */
@@ -25,8 +32,9 @@ export interface UseMotionSequenceReturn<T extends HTMLElement> {
 const subscribe = () => () => {};
 
 /**
- * Binds a sequence to a root now, or as soon as the named sequence is defined, as settled: until then the root is not
- * touched, so a render never throws because of a sequence. Returns the function that destroys the binding.
+ * Binds a sequence to a root now, or as soon as the named sequence is defined, settled, once the sequences module is loaded:
+ * until then the root is not touched, so a render never throws because of a sequence. Returns the function that destroys
+ * the binding.
  */
 function bindSequenceWhenDefined(
   root: HTMLElement,
@@ -36,19 +44,34 @@ function bindSequenceWhenDefined(
 ): () => void {
   let binding: SequenceBinding | undefined;
   let stopWaiting: (() => void) | undefined;
+  let cancelled = false;
+  const bind = (ref: SequenceRef | string, asSettled: boolean) => {
+    const api = sequencesModule();
+    if (!api) {
+      // The module loads once per page; a binding released before it arrives never binds.
+      void loadSequences().then(
+        () => {
+          if (!cancelled) bind(ref, asSettled);
+        },
+        () => {},
+      );
+      return;
+    }
+    binding = api.sequence(root, ref, { settled: asSettled });
+    onBound(binding);
+  };
   if (typeof source === 'string' && !resolveSequence(source)) {
     stopWaiting = onSequenceDefined((ref) => {
       if (ref.name !== source) return;
       stopWaiting?.();
       stopWaiting = undefined;
-      binding = sequence(root, ref, { settled: true });
-      onBound(binding);
+      bind(ref, true);
     });
   } else {
-    binding = sequence(root, source, { settled });
-    onBound(binding);
+    bind(source, settled);
   }
   return () => {
+    cancelled = true;
     stopWaiting?.();
     stopWaiting = undefined;
     binding?.destroy();

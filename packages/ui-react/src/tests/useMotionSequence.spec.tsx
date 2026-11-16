@@ -4,16 +4,14 @@ import { renderToString } from 'react-dom/server';
 import { act } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { MotionHandle } from '@udixio/motion';
-import { defineSequence, sequence, type SequenceBinding } from '@udixio/motion/sequence';
+import { sequencesModule } from '@udixio/motion';
+import { defineSequence } from '@udixio/motion/sequence';
+import type { SequenceBinding } from '@udixio/motion';
 import {
   useMotionSequence,
   type UseMotionSequenceReturn,
 } from '../lib/hooks/useMotionSequence.js';
 
-vi.mock('@udixio/motion/sequence', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@udixio/motion/sequence')>()),
-  sequence: vi.fn(),
-}));
 
 const steps = { title: { keyframes: [{ opacity: 0 }, { opacity: 1 }] } };
 defineSequence('hero', { steps });
@@ -42,7 +40,7 @@ function fakeSequence(settled: boolean) {
 
 type Fake = ReturnType<typeof fakeSequence>;
 
-const bindSequence = vi.mocked(sequence);
+const bindSequence = vi.spyOn(sequencesModule()!, 'sequence');
 let fakes: Fake[] = [];
 let hero: UseMotionSequenceReturn<HTMLDivElement>;
 

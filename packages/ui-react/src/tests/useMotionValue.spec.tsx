@@ -2,17 +2,14 @@ import { act } from 'react';
 import { render } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ValueBinding } from '@udixio/motion';
-import { defineValue, value } from '@udixio/motion/value';
+import { valuesModule } from '@udixio/motion';
+import { defineValue } from '@udixio/motion/value';
 import {
   useMotionValue,
   useMotionValueSnapshot,
   type UseMotionValueReturn,
 } from '../lib/hooks/useMotionValue.js';
 
-vi.mock('@udixio/motion/value', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@udixio/motion/value')>()),
-  value: vi.fn(),
-}));
 
 defineValue('tilt', { source: 'state', spring: 'none' });
 defineValue('tilt-b', { source: 'state', spring: 'none' });
@@ -53,7 +50,7 @@ function fakeValue(name: string) {
 
 type Fake = ReturnType<typeof fakeValue>;
 
-const bindValue = vi.mocked(value);
+const bindValue = vi.spyOn(valuesModule()!, 'value');
 let fakes: Fake[] = [];
 let handle: UseMotionValueReturn<HTMLDivElement>;
 let renders = 0;

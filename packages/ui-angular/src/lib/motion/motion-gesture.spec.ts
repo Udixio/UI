@@ -2,16 +2,13 @@ import { Component } from '@angular/core';
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import type { GestureBinding, GestureRef } from '@udixio/motion';
-import { defineGesture, gesture } from '@udixio/motion/gesture';
+import { gesturesModule } from '@udixio/motion';
+import { defineGesture } from '@udixio/motion/gesture';
 import { MotionGesture } from './motion-gesture';
 
 // The core binding is replaced for the whole file; the definitions stay real.
-jest.mock('@udixio/motion/gesture', () => ({
-  ...jest.requireActual('@udixio/motion/gesture'),
-  gesture: jest.fn(),
-}));
 
-const gestureMock = jest.mocked(gesture);
+const gestureMock = jest.spyOn(gesturesModule()!, 'gesture');
 
 defineGesture('ng-drag', { kind: 'drag', bounds: 'none', alternative: 'arrows' });
 defineGesture('ng-dismiss', { kind: 'swipe', alternative: 'action' });

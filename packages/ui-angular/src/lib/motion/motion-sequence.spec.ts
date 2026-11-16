@@ -2,16 +2,13 @@ import { Component } from '@angular/core';
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import type { MotionHandle, SequenceBinding, SequenceRef } from '@udixio/motion';
-import { defineSequence, sequence } from '@udixio/motion/sequence';
+import { sequencesModule } from '@udixio/motion';
+import { defineSequence } from '@udixio/motion/sequence';
 import { MotionSequence } from './motion-sequence';
 
 // The core binding is replaced for the whole file; the definitions stay real.
-jest.mock('@udixio/motion/sequence', () => ({
-  ...jest.requireActual('@udixio/motion/sequence'),
-  sequence: jest.fn(),
-}));
 
-const sequenceMock = jest.mocked(sequence);
+const sequenceMock = jest.spyOn(sequencesModule()!, 'sequence');
 
 const steps = { title: { keyframes: [{ opacity: 0 }, { opacity: 1 }] } };
 defineSequence('hero', { steps });

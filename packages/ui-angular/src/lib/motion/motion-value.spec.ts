@@ -2,16 +2,13 @@ import { Component } from '@angular/core';
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import type { ValueBinding, ValueRef } from '@udixio/motion';
-import { defineValue, value } from '@udixio/motion/value';
+import { valuesModule } from '@udixio/motion';
+import { defineValue } from '@udixio/motion/value';
 import { MotionValue } from './motion-value';
 
 // The core binding is replaced for the whole file; the definitions stay real.
-jest.mock('@udixio/motion/value', () => ({
-  ...jest.requireActual('@udixio/motion/value'),
-  value: jest.fn(),
-}));
 
-const valueMock = jest.mocked(value);
+const valueMock = jest.spyOn(valuesModule()!, 'value');
 
 defineValue('tilt', { source: 'state', spring: 'none' });
 defineValue('tilt-b', { source: 'state', spring: 'none' });

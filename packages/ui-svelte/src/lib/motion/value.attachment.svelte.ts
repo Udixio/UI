@@ -1,13 +1,22 @@
-import type { ValueBinding, ValueRef } from '@udixio/motion';
-import { onValueDefined, resolveValue, value } from '@udixio/motion/value';
+import {
+  loadValues,
+  onValueDefined,
+  resolveValue,
+  valuesModule,
+  type ValueBinding,
+  type ValueRef,
+} from '@udixio/motion';
 import type { Attachment } from 'svelte/attachments';
 import type { MotionValueAttachmentOptions } from './motion.types';
 
-export { getValue as getMotionValue } from '@udixio/motion/value';
+/** The value bound to an element by `motionValue`, or undefined while the values module is not loaded. */
+export function getMotionValue(target: Element, name: string): ValueBinding | undefined {
+  return valuesModule()?.getValue(target, name);
+}
 
 /**
- * Binds a value now, or as soon as the named value is defined: until then the element is not touched, so a render never
- * throws because of a value. Returns the function that destroys the binding.
+ * Binds a value now, or as soon as the named value is defined, once the values module is loaded: until then the element is
+ * not touched, so a render never throws because of a value. Returns the function that destroys the binding.
  */
 function bindValueWhenDefined(
   target: HTMLElement,
@@ -16,8 +25,20 @@ function bindValueWhenDefined(
 ): () => void {
   let binding: ValueBinding | undefined;
   let stopWaiting: (() => void) | undefined;
+  let cancelled = false;
   const bind = (ref: ValueRef | string) => {
-    binding = value(target, ref);
+    const api = valuesModule();
+    if (!api) {
+      // The module loads once per page; a binding released before it arrives never binds.
+      void loadValues().then(
+        () => {
+          if (!cancelled) bind(ref);
+        },
+        () => {},
+      );
+      return;
+    }
+    binding = api.value(target, ref);
     onBound(binding);
   };
   if (typeof source === 'string' && !resolveValue(source)) {
@@ -31,6 +52,7 @@ function bindValueWhenDefined(
     bind(source);
   }
   return () => {
+    cancelled = true;
     stopWaiting?.();
     stopWaiting = undefined;
     binding?.destroy();

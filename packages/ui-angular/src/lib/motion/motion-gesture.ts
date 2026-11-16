@@ -9,12 +9,19 @@ import {
   untracked,
   type OnDestroy,
 } from '@angular/core';
-import type { GestureBinding, GestureRef } from '@udixio/motion';
-import { gesture, onGestureDefined, resolveGesture } from '@udixio/motion/gesture';
+import {
+  gesturesModule,
+  loadGestures,
+  onGestureDefined,
+  resolveGesture,
+  type GestureBinding,
+  type GestureRef,
+} from '@udixio/motion';
 
 /**
- * Binds a gesture now, or as soon as the named gesture is defined: until then the element is not touched, so a render never
- * throws because of a gesture. Returns the function that destroys the binding.
+ * Binds a gesture to an element now, or as soon as the named gesture is defined, once the gestures module is loaded: until
+ * then the element is not touched, so a render never throws because of a gesture. Returns the function that destroys the
+ * binding.
  */
 function bindGestureWhenDefined(
   target: HTMLElement,
@@ -23,8 +30,20 @@ function bindGestureWhenDefined(
 ): () => void {
   let binding: GestureBinding | undefined;
   let stopWaiting: (() => void) | undefined;
+  let cancelled = false;
   const bind = (ref: GestureRef | string) => {
-    binding = gesture(target, ref);
+    const api = gesturesModule();
+    if (!api) {
+      // The module loads once per page; a binding released before it arrives never binds.
+      void loadGestures().then(
+        () => {
+          if (!cancelled) bind(ref);
+        },
+        () => {},
+      );
+      return;
+    }
+    binding = api.gesture(target, ref);
     onBound(binding);
   };
   if (typeof source === 'string' && !resolveGesture(source)) {
@@ -38,6 +57,7 @@ function bindGestureWhenDefined(
     bind(source);
   }
   return () => {
+    cancelled = true;
     stopWaiting?.();
     stopWaiting = undefined;
     binding?.destroy();
