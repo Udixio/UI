@@ -57,8 +57,8 @@ let nextSearchId = 0;
  * surrounding `SideSheet` or surface. Project an optional non-interactive avatar with
  * `[search-avatar]`. The built-in clear action occupies one of Material 3's two trailing action
  * slots while it is visible, and the avatar slot counts as one as well. Project selectable results with `role="option"` when using the
- * default listbox results role. The inline results surface uses one shared Anime.js height/opacity
- * transition; reduced motion applies the final state immediately. A pointer outside Search closes
+ * default listbox results role. The inline results surface uses one shared height/opacity transition
+ * on `@udixio/motion`; reduced motion applies the final state immediately. A pointer outside Search closes
  * the local results surface when expanded; surrounding modal dismissal remains owned by `SideSheet`
  * or the parent surface.
  * @a11y Renders a `search` landmark and a named `input[type="search"]`; the leading icon is

@@ -82,10 +82,10 @@ keeps the height of its size and takes its width from the label.
 ## Extended and compact
 
 `extended` reveals the label beside the icon. Toggling it animates the pill open
-and closed: a shared controller diffs the label's width and opacity with
-Anime.js Layout while the container's padding and gap transition alongside it,
-on the same duration and easing. Under `prefers-reduced-motion` the change is
-applied instantly instead.
+and closed: a shared controller animates the label's width and opacity on
+`@udixio/motion`, while the container's padding and gap transition alongside it
+on the same spring. Under reduced motion, whether requested by the system or by
+the document's motion policy, the change is applied instantly instead.
 
 In compact mode, `label` remains the accessible name without creating visible
 text. The label element stays mounted, collapsed to zero width and hidden from

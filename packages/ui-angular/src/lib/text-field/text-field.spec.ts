@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { createTextFieldLabelController } from '@udixio/core/dom';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { TextField } from './text-field';
 
@@ -141,6 +142,32 @@ describe('TextField (Angular)', () => {
     input.dispatchEvent(new FocusEvent('blur'));
     fixture.detectChanges();
     expect(blurEvents.length).toBe(1);
+  });
+
+  it('keeps one notch controller while the outlined label floats and settles, and reports the notch state', () => {
+    const labelController = { update: jest.fn(), destroy: jest.fn() };
+    const create = jest.mocked(createTextFieldLabelController);
+    create.mockClear();
+    // The real factory reads `notched` when it is created, so the mock does too: a creation effect that tracks that
+    // read would re-create the controller on every floating change.
+    create.mockImplementationOnce(({ notched }) => {
+      notched();
+      return labelController;
+    });
+    fixture.componentRef.setInput('variant', 'outlined');
+    fixture.componentRef.setInput('value', 'query');
+    fixture.detectChanges();
+
+    expect(create).toHaveBeenCalledTimes(1);
+    const [options] = create.mock.calls[0];
+    expect(options.notched()).toBe(true);
+
+    fixture.componentRef.setInput('value', '');
+    fixture.detectChanges();
+
+    expect(create).toHaveBeenCalledTimes(1);
+    expect(labelController.update).toHaveBeenCalled();
+    expect(options.notched()).toBe(false);
   });
 
   it('aligns an outlined floating label with its legend when a leading icon is present', () => {

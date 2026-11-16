@@ -192,9 +192,8 @@ export class Fab {
   // and opacity from its first call onward, and this only exists so the first
   // rendered markup is already correct before the effects below run. A
   // computed() re-evaluated on every extended() change would race the
-  // controller, jumping the width straight to its target before Anime.js
-  // Layout can diff the two, so every transition would silently become a
-  // snap.
+  // controller, jumping the width straight to its target before the motion
+  // can start, so every transition would silently become a snap.
   protected readonly initialLabelStyle: Record<string, string>;
 
   constructor() {

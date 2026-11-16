@@ -11,6 +11,7 @@ import {
   input,
   output,
   signal,
+  untracked,
   viewChild,
   type OnInit,
 } from '@angular/core';
@@ -69,7 +70,7 @@ let nextTextFieldId = 0;
  * - `mask` transforms typed/pasted input on every keystroke (a card number, a phone number, an
  *   ID); it defaults to the built-in `YYYY-MM-DD` mask for `type="date"`, and providing one
  *   overrides it.
- * - The outlined variant's legend notch uses one `@udixio/core/dom` Anime.js Layout controller, shared with the React adapter -- an accepted exception to the rest of `@udixio/core/dom`, which uses `@udixio/motion`; the `motion` package has no free equivalent to `width: auto` layout diffing. The floating label itself is a plain CSS transition.
+ * - The outlined variant's legend notch animates on `@udixio/motion` through one shared `@udixio/core/dom` controller, also used by the React and Svelte adapters. The floating label itself is a plain CSS transition.
  * @a11y
  * - `aria-describedby` links supporting text/error to the input.
  * - `aria-invalid` reflects `errorText`.
@@ -521,7 +522,14 @@ export class TextField implements OnInit {
       const root = this.legendElement()?.nativeElement;
       if (!root) return;
       this.isFirstLabelUpdate = true;
-      const controller = createTextFieldLabelController({ root });
+      // Created untracked: the controller reads the notch state once, at creation, and that read must not make this
+      // effect re-create the controller (which cancels the motion) on every floating change.
+      const controller = untracked(() =>
+        createTextFieldLabelController({
+          root,
+          notched: () => this.isFloating() && this.variant() === 'outlined',
+        }),
+      );
       this.labelController = controller;
       onCleanup(() => {
         controller.destroy();

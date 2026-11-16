@@ -1,6 +1,5 @@
 import { type ClassNameComponent, cx, defaultClassNames } from '../utils';
 import type { FabInterface } from '../interfaces/fab.interface';
-import { FAB_MOTION_TIMING_CLASS } from '../fab-motion';
 
 const fabConfig: ClassNameComponent<FabInterface> = ({
   size,
@@ -10,14 +9,13 @@ const fabConfig: ClassNameComponent<FabInterface> = ({
 }) => ({
   fab: cx(
     'relative inline-flex shrink-0 items-center justify-center overflow-hidden outline-none group/fab',
-    // `createFabLabelController` diffs the label's `width: 0` <-> `auto` with
-    // Anime.js Layout; the padding and gap below flip between two concrete
-    // values, so they only need a CSS transition -- matched to that
-    // controller's duration and easing (Motion's default tween curve, which
-    // this transition used before it moved to Anime.js) so the pill grows as
-    // one shape.
-    'transition-[padding,column-gap]',
-    FAB_MOTION_TIMING_CLASS,
+    // `createFabLabelController` animates the label's `width: 0` <-> `auto`
+    // on `@udixio/motion`. The padding and gap below flip between two concrete
+    // values, so they only need a CSS transition, on the same spring of the
+    // motion token (its expressive fallback, as `cssTiming` gives it, with the
+    // motion.css variables when the stylesheet is loaded), so the pill grows
+    // as one shape.
+    'transition-[padding,column-gap] duration-[var(--udx-motion-spring-default-spatial-duration,500ms)] ease-[var(--udx-motion-spring-default-spatial-easing,cubic-bezier(0.38,1.21,0.22,1))] motion-reduce:transition-none [html[data-motion-policy=reduce]_&]:transition-none',
     'shadow-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current',
     disabled ? 'cursor-default shadow-none' : 'cursor-pointer hover:shadow-4',
     // Sizes follow the current Material 3 scale (Compose's `Fab*Tokens` and
@@ -73,10 +71,9 @@ const fabConfig: ClassNameComponent<FabInterface> = ({
     size === 'large' && 'size-9',
   ),
   label: cx(
-    // The width and opacity are owned by `createFabLabelController`: Anime.js
-    // Layout diffs both, and needs the change to happen between its own
-    // record/animate pair. The adapters render the matching resting values as
-    // an inline style so first paint is already correct.
+    // The width and opacity are owned by `createFabLabelController`, which
+    // animates both on `@udixio/motion`. The adapters render the matching
+    // resting values as an inline style so first paint is already correct.
     //
     // Deliberately *not* clipped here: as the label narrows, its text has to
     // overflow its own box and stay visible until the shrinking pill passes

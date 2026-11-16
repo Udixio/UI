@@ -54,7 +54,6 @@ export default defineConfig(() => ({
         'react/jsx-runtime',
         'clsx',
         'tailwind-merge',
-        /^animejs(\/.*)?$/,
         '@fortawesome/fontawesome-svg-core',
       ],
     },

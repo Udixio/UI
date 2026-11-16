@@ -3,6 +3,7 @@
 </script>
 
 <script lang="ts">
+  import { untrack } from 'svelte';
   import {
     addDays,
     addMonthsClamped,
@@ -213,7 +214,14 @@
   $effect(() => {
     const root = legend;
     if (!root) return;
-    const created = createTextFieldLabelController({ root });
+    // Created untracked: the controller reads the notch state once, at creation, and that read must not make this
+    // effect re-create the controller (which cancels the motion) on every floating change.
+    const created = untrack(() =>
+      createTextFieldLabelController({
+        root,
+        notched: () => isFloating && variant === 'outlined',
+      }),
+    );
     labelController = created;
     isFirstLabelUpdate = true;
     return () => {

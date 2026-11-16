@@ -130,8 +130,8 @@ export const Fab = (props: ReactFabProps) => {
     );
 
   // The label stays mounted in both states; the shared `@udixio/core/dom`
-  // controller animates its width and opacity, so this adapter never has to
-  // coordinate an exit-animation-before-unmount sequence.
+  // controller animates its width and opacity on `@udixio/motion`, so this
+  // adapter never has to coordinate an exit-animation-before-unmount sequence.
   //
   // That controller also owns both values from its first call onward, so the
   // resting style below is captured once (lazy useState initializer, matching
@@ -139,8 +139,8 @@ export const Fab = (props: ReactFabProps) => {
   // updated by React afterward -- it exists only so server-rendered and
   // first-paint markup is already correct before hydration. If React kept
   // rewriting it on every render it would race the controller, jumping the
-  // width straight to its target before Anime.js Layout can diff the two, so
-  // every transition would silently become a snap.
+  // width straight to its target before the motion starts, so every
+  // transition would silently become a snap.
   const [initialLabelStyle] = useState<CSSProperties>(() =>
     extended ? { width: 'auto', opacity: 1 } : { width: 0, opacity: 0 },
   );

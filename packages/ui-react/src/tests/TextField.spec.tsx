@@ -10,10 +10,8 @@ import {
 
 expect.extend(toHaveNoViolations);
 
-// Mocking `animejs` directly (a transitive dependency of `@udixio/core/dom`)
-// corrupts the sibling `@udixio/core` entry's exports under Vite's
-// dependency pre-bundling in this workspace -- mocking the already-isolated
-// controller factories instead avoids that (see Switch.spec.tsx).
+// The controller factories are mocked, not the motion engine, so these specs
+// test the wiring rather than the motion (see Switch.spec.tsx).
 vi.mock('@udixio/core/dom', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@udixio/core/dom')>();
   return {
@@ -97,6 +95,20 @@ describe('TextField', () => {
 
     const lastCall = className.mock.calls.at(-1)?.[0];
     expect(lastCall).toMatchObject({ isFloating: true, isFocused: false });
+  });
+
+  it('tells the notch controller that an outlined floating label is in its notch', () => {
+    render(<TextField label="Email" variant="outlined" defaultValue="x" />);
+
+    const [options] = vi.mocked(createTextFieldLabelController).mock.calls.at(-1)!;
+    expect(options.notched()).toBe(true);
+  });
+
+  it('tells the notch controller that a filled field has no notch open', () => {
+    render(<TextField label="Email" variant="filled" defaultValue="x" />);
+
+    const [options] = vi.mocked(createTextFieldLabelController).mock.calls.at(-1)!;
+    expect(options.notched()).toBe(false);
   });
 
   it('aligns an outlined floating label with its legend when a leading icon is present', () => {

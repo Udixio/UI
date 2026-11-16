@@ -1,17 +1,11 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { animate } from 'animejs';
 import { renderToString } from 'react-dom/server';
 import { hydrateRoot } from 'react-dom/client';
 import { act } from 'react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 import { vi } from 'vitest';
 import { IconButton, Search } from '../lib/index.js';
-
-vi.mock('animejs', async (importOriginal) => ({
-  ...(await importOriginal()),
-  animate: vi.fn(),
-}));
 
 expect.extend(toHaveNoViolations);
 
@@ -273,10 +267,7 @@ describe('Search', () => {
     outside.remove();
   });
 
-  it('animates suggestions that arrive after an expanded search is mounted', async () => {
-    const animation = { pause: vi.fn() };
-    vi.mocked(animate).mockReset();
-    vi.mocked(animate).mockReturnValue(animation as never);
+  it('reveals suggestions that arrive after an expanded search is mounted', async () => {
     const { rerender } = render(<Search label="Search" defaultExpanded />);
 
     rerender(
@@ -290,12 +281,11 @@ describe('Search', () => {
     const results = await screen.findByRole('listbox', {
       name: 'Search suggestions',
     });
-    await waitFor(() =>
-      expect(animate).toHaveBeenCalledWith(
-        results,
-        expect.objectContaining({ opacity: 1, duration: 250 }),
-      ),
-    );
+    // jsdom has no Web Animations API, so the motion applies its final frame
+    // at once; the timing itself is covered by the core browser specs.
+    await waitFor(() => expect(results.hidden).toBe(false));
+    expect(results.style.opacity).toBe('1');
+    expect(results.style.height).toBe('');
   });
 
   it('does not expose an expanded popup while disabled', () => {

@@ -3,6 +3,7 @@
 </script>
 
 <script lang="ts">
+  import { untrack } from 'svelte';
   import {
     classNames,
     getSearchExpansionTransition,
@@ -195,7 +196,9 @@
 
   $effect(() => {
     if (!results || !hasResults) return;
-    const current = isExpanded;
+    // Read untracked: a change of `isExpanded` is animated by the `setOpen` effect below, and must not re-create
+    // this controller, which would apply the new state at once.
+    const current = untrack(() => isExpanded);
     const controller = createSearchResultsTransitionController({ element: results, open: current });
     transitionController = controller;
     return () => {

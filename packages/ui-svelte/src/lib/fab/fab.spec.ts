@@ -145,7 +145,12 @@ describe('Fab', () => {
 
   it('wires the label controller once and updates it on every extended change', async () => {
     const controller = mockController();
-    vi.mocked(createFabLabelController).mockReturnValue(controller as never);
+    // The real factory reads `extended` when it is created, so the mock does too: a creation effect that
+    // tracks that read would re-create the controller, and with it cancel the motion, on every change.
+    vi.mocked(createFabLabelController).mockImplementation(({ extended }) => {
+      extended();
+      return controller as never;
+    });
     const { rerender } = render(Fab, { props: { label: 'Create', icon: iAdd } });
 
     expect(createFabLabelController).toHaveBeenCalledTimes(1);

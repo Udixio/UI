@@ -75,10 +75,9 @@ export const useTextFieldStyle = createUseStyle(textFieldStyle);
  * - `mask` transforms typed/pasted input on every keystroke (a card number, a phone number, an
  *   ID); it defaults to the built-in `YYYY-MM-DD` mask for `type="date"`, and providing one
  *   overrides it.
- * - The outlined variant's legend notch uses one `@udixio/core/dom` Anime.js Layout controller,
- *   shared with the Angular adapter -- an accepted exception to the rest of `@udixio/core/dom`,
- *   which uses `@udixio/motion`; the `motion` package has no free equivalent to `width: auto` layout diffing. The floating
- *   label itself is a plain CSS transition.
+ * - The outlined variant's legend notch animates on `@udixio/motion` through one shared
+ *   `@udixio/core/dom` controller, also used by the Angular and Svelte adapters. The floating label
+ *   itself is a plain CSS transition.
  * @a11y
  * - `aria-describedby` links supporting text/error to the input.
  * - `aria-invalid` reflects `errorText`.
@@ -403,14 +402,18 @@ export const TextField = ({
         readOnly: isSelectInput,
       };
 
-  // Outlined legend notch: shared Anime.js Layout controller, scoped to the
-  // legend alone -- it is the only element with a genuine `width: auto`
+  // Outlined legend notch: the shared `@udixio/core/dom` controller, scoped to
+  // the legend alone -- it is the only element with a genuine `width: auto`
   // animation problem CSS cannot solve. Rooting this any wider (e.g. at
-  // `.content`) would also catch that fieldset's own unrelated CSS
+  // `.content`) would also animate that fieldset's own unrelated CSS
   // transitions (the active indicator's width, the outlined border's
-  // width/color on focus) in the same Layout diff, fighting them and
-  // producing a visible flash/jump -- the same class of bug documented on
-  // `createSwitchThumbController`'s `.handle-container` scoping.
+  // width/color on focus) at the same time, fighting them and producing a
+  // visible flash/jump -- the same class of bug documented on
+  // `createSwitchThumbController`'s `.handle-container` scoping. The controller
+  // reads whether the notch is open from `notchedRef`, which each render keeps
+  // current.
+  const notchedRef = useRef(false);
+  notchedRef.current = isFloating && variant === 'outlined';
   const labelControllerRef = useRef<TextFieldLabelController | null>(null);
   const isFirstLabelUpdateRef = useRef(true);
 
@@ -419,7 +422,10 @@ export const TextField = ({
     if (!root) return;
 
     isFirstLabelUpdateRef.current = true;
-    const controller = createTextFieldLabelController({ root });
+    const controller = createTextFieldLabelController({
+      root,
+      notched: () => notchedRef.current,
+    });
     labelControllerRef.current = controller;
 
     return () => {

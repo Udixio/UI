@@ -61,7 +61,7 @@
 
   // The controller owns width and opacity after the initial paint. Keeping
   // these values outside the reactive props prevents Svelte from writing the
-  // target state over Anime.js while an interrupted transition is running.
+  // target state over the motion while an interrupted transition is running.
   const initiallyExtended = untrack(() => extended);
   const initialLabelStyle = initiallyExtended
     ? { width: 'auto', opacity: '1' }
@@ -73,10 +73,14 @@
   $effect(() => {
     if (!labelElement) return;
     const element = labelElement;
-    const created = createFabLabelController({
-      label: element,
-      extended: () => extended,
-    });
+    // Created untracked: the controller reads `extended` once, at creation, and that read must not make this
+    // effect re-create the controller (which cancels the motion) on every change.
+    const created = untrack(() =>
+      createFabLabelController({
+        label: element,
+        extended: () => extended,
+      }),
+    );
     labelController = created;
 
     return () => {

@@ -51,8 +51,12 @@ const textFieldConfig: ClassNameComponent<TextFieldInterface> = ({
         'focus-state-on-surface': isFocused,
       },
     ),
+    // The width is animated by `createTextFieldLabelController`. The padding
+    // flips between two values, so it transitions on the same fast effects
+    // spring: a border-box cannot be narrower than its padding, and a padding
+    // that jumped would open the notch by 16 px before the width moved.
     legend: cx(
-      'ml-2 overflow-hidden whitespace-nowrap text-body-small h-0',
+      'ml-2 overflow-hidden whitespace-nowrap text-body-small h-0 transition-[padding] duration-[var(--udx-motion-spring-fast-effects-duration,150ms)] ease-[var(--udx-motion-spring-fast-effects-easing,cubic-bezier(0.31,0.94,0.34,1))] motion-reduce:transition-none [html[data-motion-policy=reduce]_&]:transition-none',
       showLegend ? 'w-auto px-2' : 'w-0 px-0',
     ),
     label: cx(

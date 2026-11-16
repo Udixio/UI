@@ -10,10 +10,8 @@ import { Fab } from '../lib/index.js';
 expect.extend(toHaveNoViolations);
 
 
-// Mocking `animejs` directly (a transitive dependency of `@udixio/core/dom`)
-// corrupts the sibling `@udixio/core` entry's exports under Vite's
-// dependency pre-bundling in this workspace -- mocking the already-isolated
-// controller factory instead avoids that (see Switch.spec.tsx).
+// The controller factory is mocked, not the motion engine, so these specs
+// test the wiring rather than the motion (see Switch.spec.tsx).
 vi.mock('@udixio/core/dom', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@udixio/core/dom')>();
   return {

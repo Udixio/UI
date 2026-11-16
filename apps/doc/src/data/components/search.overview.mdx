@@ -251,8 +251,8 @@ Search or provide it as an explicit trailing `IconButton`.
 Search does not fetch or filter data itself. Update the projected content from
 the owning feature and expose an appropriate empty, loading, or error state.
 When the expanded state changes, Search animates this inline surface with a
-short Anime.js height/opacity transition; the transition is skipped when
-reduced motion is requested.
+short height/opacity transition on `@udixio/motion`; the transition is skipped
+when reduced motion is requested.
 When the local results surface is expanded, a pointer outside Search closes it;
 modal dismissal remains owned by the surrounding `SideSheet` or surface.
 When Search is inside a `SideSheet`, the side sheet owns the modal surface while

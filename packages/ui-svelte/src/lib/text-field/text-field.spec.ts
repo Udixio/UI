@@ -281,6 +281,28 @@ describe('TextField', () => {
     expect(grid.querySelector('[tabindex="0"]')).toBeInTheDocument();
   });
 
+  it('keeps one notch controller while the outlined label floats and settles, and reports the notch state', async () => {
+    const labelController = { update: vi.fn(), destroy: vi.fn() };
+    // The real factory reads `notched` when it is created, so the mock does too: a creation effect that tracks that
+    // read would re-create the controller on every floating change.
+    vi.mocked(createTextFieldLabelController).mockImplementationOnce(({ notched }) => {
+      notched();
+      return labelController;
+    });
+    const { rerender } = render(TextField, {
+      props: { label: 'Notes', variant: 'outlined', value: 'Hello' },
+    });
+    expect(createTextFieldLabelController).toHaveBeenCalledTimes(1);
+    const [[options]] = vi.mocked(createTextFieldLabelController).mock.calls;
+    expect(options.notched()).toBe(true);
+
+    await rerender({ value: '' });
+
+    expect(createTextFieldLabelController).toHaveBeenCalledTimes(1);
+    expect(labelController.update).toHaveBeenCalled();
+    expect(options.notched()).toBe(false);
+  });
+
   it('creates and cleans up the shared label and textarea autosize controllers', () => {
     const labelController = { update: vi.fn(), destroy: vi.fn() };
     const autosizeController = { update: vi.fn(), destroy: vi.fn() };

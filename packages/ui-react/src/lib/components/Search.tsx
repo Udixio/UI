@@ -70,8 +70,8 @@ export const useSearchStyle = createUseStyle(searchStyle);
  *   docked/full-screen composition.
  * - `leadingIcon` is decorative and is not a button. Navigation or dismissal belongs to the
  *   surrounding `SideSheet` or surface; use `trailingActions` for interactive Search actions.
- * - The inline results surface uses one shared Anime.js height/opacity transition. Reduced motion
- *   applies the final state immediately.
+ * - The inline results surface uses one shared height/opacity transition on `@udixio/motion`. Reduced
+ *   motion applies the final state immediately.
  * - When projected results are expanded, a pointer outside Search closes the local results surface;
  *   surrounding modal dismissal remains owned by `SideSheet` or the parent surface.
  * - Use `trailingActions` for one or two interactive trailing controls, normally `IconButton`

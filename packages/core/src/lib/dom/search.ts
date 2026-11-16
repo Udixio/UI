@@ -1,4 +1,11 @@
-import { animate, type JSAnimation } from 'animejs';
+import {
+  animateStyle,
+  composeHandles,
+  type CurveTiming,
+  type MotionHandle,
+  type SpringRef,
+} from '@udixio/motion/animate';
+import { motionPolicy } from '@udixio/motion/policy';
 
 export interface SearchOutsideDismissControllerOptions {
   /** The Search root that owns the input and its projected results. */
@@ -43,10 +50,10 @@ export interface SearchResultsTransitionControllerOptions {
   element: HTMLElement;
   /** Whether the results surface should be visible when the controller connects. */
   open: boolean;
-  /** Overrides the system reduced-motion preference in tests or host integrations. */
+  /** An extra reduced-motion switch, read at each change; the document policy always applies. */
   reducedMotion?: () => boolean;
-  /** Material 3's short container transition duration, in milliseconds. */
-  duration?: number;
+  /** The motion of the results' height; `spring.default.spatial` by default. Its opacity has its own effects spring. */
+  timing?: SpringRef | CurveTiming;
 }
 
 export interface SearchResultsTransitionController {
@@ -56,18 +63,14 @@ export interface SearchResultsTransitionController {
   destroy(): void;
 }
 
-const DEFAULT_DURATION = 250;
-const DEFAULT_EASE = 'outCubic';
-
-function systemPrefersReducedMotion(): boolean {
-  return (
-    typeof globalThis.matchMedia === 'function' &&
-    globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
-}
+/** The results surface moves on the default spatial spring of its role: a contained reveal, not a slide. */
+const DEFAULT_TIMING: SpringRef = 'spring.default.spatial';
+/** The opacity fades on the default effects spring, whatever the height's timing. */
+const OPACITY_TIMING: SpringRef = 'spring.default.effects';
 
 /**
- * Connects the shared Anime.js reveal used by Search in every framework.
+ * Connects the shared reveal used by Search in every framework, on
+ * `@udixio/motion`.
  *
  * The inline results surface grows from the field with a short opacity/height
  * transition. There is deliberately no large slide, spring, or per-item
@@ -79,15 +82,15 @@ function systemPrefersReducedMotion(): boolean {
 export function createSearchResultsTransitionController({
   element,
   open,
-  reducedMotion = systemPrefersReducedMotion,
-  duration = DEFAULT_DURATION,
+  reducedMotion = () => false,
+  timing = DEFAULT_TIMING,
 }: SearchResultsTransitionControllerOptions): SearchResultsTransitionController {
   const initialState = {
     hidden: element.hidden,
     height: element.style.height,
     opacity: element.style.opacity,
   };
-  let animation: JSAnimation | undefined;
+  let motion: MotionHandle | undefined;
   let currentOpen = open;
   let destroyed = false;
 
@@ -102,54 +105,52 @@ export function createSearchResultsTransitionController({
   return {
     setOpen(nextOpen) {
       if (destroyed || nextOpen === currentOpen) return;
-
       currentOpen = nextOpen;
-      animation?.pause();
-      animation = undefined;
 
-      // A hidden element reports no useful height. Make it measurable before
-      // calculating the target, while keeping the surface inaccessible until
-      // the adapter's aria-hidden/inert state is updated by its render cycle.
+      // A hidden element has no size to measure, so it is shown before the
+      // motion reads `auto`. The adapter's aria-hidden/inert state follows in
+      // its own render cycle, and the surface is hidden again when it closes.
       element.hidden = false;
-      if (!nextOpen) {
-        const renderedHeight = element.getBoundingClientRect().height;
-        const currentHeight =
-          renderedHeight > 0 ? renderedHeight : element.scrollHeight;
-        element.style.height = `${currentHeight}px`;
-      }
 
-      if (reducedMotion()) {
+      if (reducedMotion() || motionPolicy.reduced) {
+        motion?.cancel();
+        motion = undefined;
         applyInstantState(nextOpen);
         return;
       }
 
-      const targetHeight = nextOpen ? `${element.scrollHeight}px` : '0px';
-      animation = animate(element, {
-        height: targetHeight,
-        opacity: nextOpen ? 1 : 0,
-        duration,
-        ease: DEFAULT_EASE,
-        onComplete: () => {
-          if (destroyed || currentOpen !== nextOpen) return;
-
-          if (nextOpen) {
-            element.hidden = false;
-            element.style.height = 'auto';
-            element.style.opacity = '1';
-          } else {
-            element.hidden = true;
-            element.style.height = '0px';
-            element.style.opacity = '0';
-          }
-          animation = undefined;
-        },
+      // A change that is still running is carried from the height and the
+      // opacity the surface shows; a fresh one starts from the state it leaves.
+      const interrupted = motion !== undefined;
+      const handle = composeHandles([
+        animateStyle(
+          element,
+          [
+            { height: nextOpen ? '0px' : 'auto' },
+            { height: nextOpen ? 'auto' : '0px' },
+          ],
+          { timing, carry: interrupted },
+        ),
+        animateStyle(
+          element,
+          [{ opacity: nextOpen ? 0 : 1 }, { opacity: nextOpen ? 1 : 0 }],
+          { timing: OPACITY_TIMING, carry: interrupted },
+        ),
+      ]);
+      motion = handle;
+      void handle.finished.then((result) => {
+        if (motion === handle) motion = undefined;
+        // A reversal that cancelled this change, or a destroyed controller,
+        // must not hide the surface.
+        if (result !== 'finished' || destroyed || currentOpen !== nextOpen) return;
+        element.hidden = !nextOpen;
       });
     },
     destroy() {
       if (destroyed) return;
       destroyed = true;
-      animation?.pause();
-      animation = undefined;
+      motion?.cancel();
+      motion = undefined;
       element.hidden = initialState.hidden;
       element.style.height = initialState.height;
       element.style.opacity = initialState.opacity;

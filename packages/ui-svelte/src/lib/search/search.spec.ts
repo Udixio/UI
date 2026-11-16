@@ -2,7 +2,17 @@ import '@testing-library/jest-dom/vitest';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
 import { createRawSnippet, flushSync } from 'svelte';
+import { createSearchResultsTransitionController } from '@udixio/core/dom';
 import Search from './Search.svelte';
+
+// The real controller runs; the spy only counts how often the results surface creates one.
+vi.mock('@udixio/core/dom', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@udixio/core/dom')>();
+  return {
+    ...actual,
+    createSearchResultsTransitionController: vi.fn(actual.createSearchResultsTransitionController),
+  };
+});
 
 describe('Search', () => {
   afterEach(cleanup);
@@ -41,6 +51,26 @@ describe('Search', () => {
     expect(onSearch).toHaveBeenCalledWith('chair');
     await fireEvent.click(screen.getByRole('button', { name: 'Clear search' }));
     expect(input).toHaveValue('');
+  });
+
+  it('creates one results transition controller and animates each expansion through it', async () => {
+    vi.mocked(createSearchResultsTransitionController).mockClear();
+    const options = createRawSnippet(() => ({
+      render: () => '<div role="option">Alpha</div>',
+    }));
+    const { rerender } = render(Search, {
+      props: { label: 'Search', expanded: false, children: options },
+    });
+    flushSync();
+    expect(createSearchResultsTransitionController).toHaveBeenCalledTimes(1);
+
+    await rerender({ expanded: true });
+    flushSync();
+    await rerender({ expanded: false });
+    flushSync();
+
+    // A creation effect that tracked `expanded` would re-create the controller, and with it apply the new state at once.
+    expect(createSearchResultsTransitionController).toHaveBeenCalledTimes(1);
   });
 
   it('generates a distinct input id for each instance', () => {
