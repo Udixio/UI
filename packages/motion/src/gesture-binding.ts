@@ -1,4 +1,5 @@
 import { provideGestures } from './feature-loader.js';
+import { flushLayoutAround } from './layout-loader.js';
 import { DEFAULT_AXIS, DEFAULT_RELEASE, type GestureKind, type GestureRef, type GestureSpec } from './gesture.js';
 import { motionDisabled } from './play.js';
 import { resolveGesture } from './registries.js';
@@ -203,6 +204,17 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
 
   function dispatch(type: string, detail: unknown, cancelable = false): boolean {
     return target.dispatchEvent(new CustomEvent(type, { bubbles: true, cancelable, detail }));
+  }
+
+  /**
+   * Write the position of a keyboard nudge with the layout holding the element, as it holds a pointer drag: the nudged
+   * element takes no layout flight, and the other followed elements fly as their own places change.
+   */
+  function writeHeld(): void {
+    target.setAttribute('data-gesture', 'dragging');
+    flushLayoutAround(target);
+    write();
+    updateDragging();
   }
 
   function updateDragging(): void {
@@ -533,7 +545,7 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
     const step = event.shiftKey ? NUDGE_LARGE : NUDGE;
     setOffset(within({ x: springs.x.x + dx * step, y: springs.y.x + dy * step }, boundsNow()));
     measured = { x: 0, y: 0 };
-    write();
+    writeHeld();
     if (dragEnded) dispatch('motion-dragend', { x: springs.x.x, y: springs.y.x });
   }
 

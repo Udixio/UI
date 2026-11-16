@@ -669,3 +669,28 @@ it('gives the dragged item no layout flight while it is dragged past a neighbour
   expect(getMotion(second, 'layout')!.handle).toBeNull();
   expect(Math.abs(second.getBoundingClientRect().top - (start.top + 40))).toBeLessThanOrEqual(1);
 });
+
+it('gives a drag nudged from the keyboard no layout flight, and its neighbours still fly', async () => {
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;width:600px;height:100px';
+  page.append(row);
+  const box = (): HTMLElement => {
+    const el = document.createElement('div');
+    el.style.cssText = 'flex:none;width:100px;height:100px;background:#888';
+    row.append(el);
+    return el;
+  };
+  const [nudged, gone, next] = [box(), box(), box()];
+  layouts.push(motion(nudged, reflow), motion(gone, reflow), motion(next, reflow));
+  const binding = bind(nudged, 'gb-card');
+  key(nudged, 'ArrowRight');
+  expect(binding.offset.x).toBe(16);
+  await tick();
+  // The element after the nudged one moves to take the place of the one removed: it flies, the nudged one does not.
+  gone.remove();
+  await tick();
+  expect(getMotion(next, 'layout')!.handle).not.toBeNull();
+  expect(getMotion(nudged, 'layout')!.handle).toBeNull();
+  expect(movingOnTranslate(nudged)).toBe(false);
+  expect(nudged.getAnimations()).toHaveLength(0);
+});
