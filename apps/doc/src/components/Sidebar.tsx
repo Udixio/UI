@@ -1,6 +1,5 @@
-import React, { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Button, classNames, Divider } from '@udixio/ui-react';
-import { animateStyle } from '@udixio/motion/animate';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
+import { Button, classNames, Divider, useMotion } from '@udixio/ui-react';
 
 // ─── Nav mode ─────────────────────────────────────────────────────────────────
 
@@ -165,36 +164,26 @@ type TocSidebarProps = {
   mode: 'toc';
 };
 
+/**
+ * The highlight of the active table-of-contents link. It is a shared element: when the active link changes, the highlight
+ * of the previous link morphs into the one of the new link, even while the page scrolls.
+ */
+const TocHighlight = () => {
+  const highlight = useMotion<HTMLDivElement>('reflow', {
+    shared: 'doc-sidebar-button',
+  });
+  return (
+    <div
+      ref={highlight.ref}
+      className="absolute pointer-events-none h-full w-full border border-outline-variant top-0 left-0 rounded-xl"
+    />
+  );
+};
+
 const TocSidebar = () => {
   const [headings, setHeadings] = useState<HeadingItem[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const headingsRef = useRef<HeadingItem[]>([]);
-  const linkRefs = useRef(new Map<string, HTMLDivElement>());
-  const highlightRef = useRef<HTMLDivElement>(null);
-
-  // One highlight moves from the box of the previous active link to the box of the new one, over a spring. The boxes
-  // are read in the sidebar's own coordinates, so the scroll of the page does not move the highlight.
-  useLayoutEffect(() => {
-    const highlight = highlightRef.current;
-    if (!highlight) return;
-    const link = activeId ? linkRefs.current.get(activeId) : undefined;
-    if (!link) {
-      highlight.hidden = true;
-      return;
-    }
-    const box = {
-      translate: `${link.offsetLeft}px ${link.offsetTop}px`,
-      width: `${link.offsetWidth}px`,
-      height: `${link.offsetHeight}px`,
-    };
-    if (highlight.hidden) {
-      // Its first place is not animated: it appears on its link.
-      highlight.hidden = false;
-      Object.assign(highlight.style, box);
-      return;
-    }
-    animateStyle(highlight, box, { timing: 'spring.default.spatial' });
-  }, [activeId, headings]);
 
   useEffect(() => {
     const nodes = Array.from(
@@ -293,16 +282,9 @@ const TocSidebar = () => {
             On this page
           </div>
           {title && <p className="mt-2 text-title-large">{title}</p>}
-          <nav className="relative flex flex-col mt-2 gap-1 w-fit">
+          <nav className="flex flex-col mt-2 gap-1 w-fit">
             {sections.map((h) => (
-              <div
-                key={h.id}
-                ref={(element) => {
-                  if (element) linkRefs.current.set(h.id, element);
-                  else linkRefs.current.delete(h.id);
-                }}
-                className="relative -mx-4"
-              >
+              <div key={h.id} className="relative -mx-4">
                 <Button
                   size="small"
                   variant="text"
@@ -318,13 +300,9 @@ const TocSidebar = () => {
                 >
                   {h.text}
                 </Button>
+                {h.id === activeId && <TocHighlight />}
               </div>
             ))}
-            <div
-              ref={highlightRef}
-              hidden
-              className="absolute pointer-events-none top-0 left-0 border border-outline-variant rounded-xl"
-            />
           </nav>
         </>
       )}
