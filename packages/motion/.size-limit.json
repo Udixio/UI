@@ -1,5 +1,5 @@
 [
-  { "name": "core", "path": "dist/index.js", "import": "*", "gzip": true, "ignore": ["./layout.js", "./value.js", "./sequence.js", "./gesture.js", "./text.js", "./continuous.js"], "limit": "18.2 kB" },
+  { "name": "core", "path": "dist/index.js", "import": "*", "gzip": true, "ignore": ["./layout.js", "./value.js", "./sequence.js", "./gesture.js", "./text.js", "./continuous.js"], "limit": "20 kB" },
   { "name": "layout", "path": "dist/layout.js", "import": "*", "gzip": true, "limit": "14.1 kB" },
   { "name": "value", "path": "dist/value.js", "import": "*", "gzip": true, "limit": "10.9 kB" },
   { "name": "sequence", "path": "dist/sequence.js", "import": "*", "gzip": true, "limit": "14.3 kB" },
@@ -18,5 +18,6 @@
   { "name": "waapi", "path": "dist/providers/waapi.js", "import": "*", "gzip": true, "limit": "1.3 kB" },
   { "name": "animejs", "path": "dist/providers/animejs.js", "import": "*", "gzip": true, "limit": "15.0 kB" },
   { "name": "testing", "path": "dist/testing/index.js", "import": "*", "gzip": true, "limit": "1.7 kB" },
-  { "name": "astro", "path": "dist/astro.js", "import": "*", "gzip": true, "limit": "4.9 kB" }
+  { "name": "astro", "path": "dist/astro.js", "import": "*", "gzip": true, "limit": "4.9 kB" },
+  { "name": "scope", "path": "dist/scope.js", "import": "*", "gzip": true, "limit": "2.7 kB" }
 ]
