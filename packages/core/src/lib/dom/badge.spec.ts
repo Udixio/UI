@@ -141,8 +141,9 @@ describe('badge transition controller', () => {
     }).setVisible(true);
 
     expect(element.style.visibility).toBe('');
-    expect(element.style.opacity).toBe('1');
-    expect(element.style.scale).toBe('1');
+    // At rest the end state (opacity 1, scale 1) is the stylesheet's: the motion writes nothing inline.
+    expect(element.style.opacity).toBe('');
+    expect(element.style.scale).toBe('');
     expect(element.hasAttribute('inert')).toBe(false);
   });
 
@@ -212,7 +213,7 @@ describe('badge transition controller', () => {
     await flushMotion();
 
     expect(element.style.visibility).toBe('');
-    expect(element.style.opacity).toBe('1');
+    expect(element.style.opacity).toBe('');
     expect(element.hasAttribute('inert')).toBe(false);
   });
 
