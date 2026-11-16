@@ -16,21 +16,27 @@ const valueMock = jest.mocked(value);
 defineValue('tilt', { source: 'state', spring: 'none' });
 defineValue('tilt-b', { source: 'state', spring: 'none' });
 
-/** A stand-in for one bound value: `emit` writes a number and calls each listener, as the core does. */
+/**
+ * A stand-in for one bound value, as the core binds it: `emit` writes a frame and calls the listeners that follow each
+ * frame; `settle` reports a rest or a change of target to the listeners that do not follow each frame.
+ */
 function fakeValue(name: string) {
-  const listeners = new Set<(next: number) => void>();
+  const frameListeners = new Set<(next: number) => void>();
+  const settledListeners = new Set<(next: number) => void>();
   let current = 0;
   const binding = {
     name,
     set: jest.fn(),
-    subscribe: jest.fn((listener: (next: number) => void) => {
+    subscribe: jest.fn((listener: (next: number) => void, options?: { perFrame?: boolean }) => {
+      const listeners = options?.perFrame === false ? settledListeners : frameListeners;
       listeners.add(listener);
       return () => {
         listeners.delete(listener);
       };
     }),
     destroy: jest.fn(() => {
-      listeners.clear();
+      frameListeners.clear();
+      settledListeners.clear();
     }),
     get current() {
       return current;
@@ -38,10 +44,14 @@ function fakeValue(name: string) {
   };
   return {
     binding,
-    listeners,
+    listeners: frameListeners,
     emit(next: number) {
       current = next;
-      for (const listener of [...listeners]) listener(next);
+      for (const listener of [...frameListeners]) listener(next);
+    },
+    settle(next: number) {
+      current = next;
+      for (const listener of [...settledListeners]) listener(next);
     },
   };
 }
@@ -143,14 +153,33 @@ describe('MotionValue (Angular directive)', () => {
     fixture.destroy();
   });
 
-  it('emits udxMotionValueChange with each new number, after it is written', () => {
+  it('emits udxMotionValueChange when the value comes to rest or its target changes, not on each frame', () => {
     const fixture = TestBed.createComponent(ValueHost);
     fixture.detectChanges();
 
     fakes[0].emit(0.1);
     fakes[0].emit(0.2);
+    expect(fixture.componentInstance.changes).toEqual([]);
 
-    expect(fixture.componentInstance.changes).toEqual([0.1, 0.2]);
+    fakes[0].settle(0.2);
+    fakes[0].settle(0.6);
+    expect(fixture.componentInstance.changes).toEqual([0.2, 0.6]);
+    fixture.destroy();
+  });
+
+  it('keeps the frames for a subscriber, which follows each number after the element is bound', () => {
+    const frames = jest.fn();
+    const fixture = TestBed.createComponent(ValueHost);
+    const tilt = directiveOf(fixture);
+    fixture.detectChanges();
+    const unsubscribe = tilt.subscribe(frames);
+
+    fakes[0].emit(0.1);
+    fakes[0].emit(0.2);
+    unsubscribe();
+    fakes[0].emit(0.3);
+
+    expect(frames.mock.calls).toEqual([[0.1], [0.2]]);
     fixture.destroy();
   });
 

@@ -381,12 +381,15 @@ import { defineValue, value } from '@udixio/motion/value';
 defineValue('level', { source: 'state', range: [0, 1] });
 const meter = value(bar, 'level'); // bar: an HTMLElement; it writes --udx-motion-value-level on it
 meter.set(0.8);                    // moves to 0.8, clamped to the range
-meter.subscribe(number => console.log(number)); // returns the unsubscribe function
+meter.subscribe(number => console.log(number)); // each frame; returns the unsubscribe function
+meter.subscribe(number => save(number), { perFrame: false }); // at rest, and at each change of target
 meter.destroy();                   // stops writing and removes the variable
 ```
 
 In the frameworks: `useMotionValue` and `useMotionValueSnapshot` (React), `[udxMotionValue]`
-(Angular) and the `motionValue` attachment (Svelte).
+(Angular) and the `motionValue` attachment (Svelte). `udxMotionValueChange` (Angular) emits when the
+value comes to rest and when its target changes, not on each frame: to follow each frame, read the
+variable, or call `subscribe()`.
 
 Under reduced motion, or with `--udx-motion: none`, a smoothed value is written at once, and a
 `time` value holds the first end of its range.
@@ -833,7 +836,8 @@ The package is under construction, so:
 - A value's number is rounded to four decimals. A `pointer` value is read over its element only.
   A `scroll` value follows the scroll of the window, not that of a scrolling element inside the page.
 - A `time` value keeps the clock of its binding: after a pause it resumes at the phase of the
-  clock, not where it stopped.
+  clock, not where it stopped. Its `--udx-motion` is read at each frame, so `none` holds it at the
+  start of its range at once, and removing `none` runs it again at once.
 - A counter's number is the only text of its element: once the counter moves, the content of the
   element is replaced by it.
 - A sequence is validated in development only, as a motion is. Within a step, the delays of a

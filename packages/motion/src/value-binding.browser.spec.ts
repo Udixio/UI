@@ -218,12 +218,14 @@ it('holds a time value at the start of its range under reduced motion, and freez
   expect(binding.current).toBe(0);
 });
 
-it('reads --udx-motion for a time value when it starts, not at each frame', async () => {
+it('reads --udx-motion at most once a frame for a time value, so that a change takes effect at once', async () => {
   const el = box();
   bindTo(el, 'bv-loop');
   const computed = vi.spyOn(window, 'getComputedStyle');
   await frames(30);
-  expect(computed.mock.calls.filter(([node]) => node === el).length).toBeLessThanOrEqual(2);
+  const reads = computed.mock.calls.filter(([node]) => node === el).length;
+  expect(reads).toBeGreaterThan(0);
+  expect(reads).toBeLessThanOrEqual(31);
 });
 
 it('reads --udx-motion again when a time value resumes after a pause', async () => {
@@ -315,4 +317,52 @@ it('removes its property and stops writing when destroyed', async () => {
   expect(getValue(el, 'bv-destroy')).toBeUndefined();
   await frames(10);
   expect(getComputedStyle(el).getPropertyValue('--udx-motion-value-bv-destroy').trim()).toBe('');
+});
+
+// Values (step 8a-4): a listener that asks for changes is called when the value comes to rest and when its target
+// changes, not on each frame; a time value reads --udx-motion at each frame.
+it('calls a listener with perFrame false when the value comes to rest and when its target changes, not on each frame', async () => {
+  const el = box();
+  const binding = bindTo(el, 'bv-effects');
+  const frame: number[] = [];
+  const settled: number[] = [];
+  binding.subscribe(next => frame.push(next));
+  binding.subscribe(next => settled.push(next), { perFrame: false });
+  binding.set(60);
+  expect(settled).toEqual([60]);
+  expect(await until(() => settled.length === 2)).toBe(true);
+  expect(settled).toEqual([60, 60]);
+  expect(frame.length).toBeGreaterThan(2);
+  expect(frame.at(-1)).toBe(60);
+  binding.set(40);
+  expect(settled).toEqual([60, 60, 40]);
+  expect(await until(() => settled.length === 4)).toBe(true);
+  expect(settled).toEqual([60, 60, 40, 40]);
+});
+
+it('announces the rest of an immediate state once for each change, and not again for the same target', () => {
+  const el = box();
+  const binding = bindTo(el, 'bv-instant');
+  const settled: number[] = [];
+  binding.subscribe(next => settled.push(next), { perFrame: false });
+  binding.set(30);
+  binding.set(30);
+  expect(settled).toEqual([30]);
+});
+
+it('freezes a time value at once when --udx-motion turns to none while it runs, and resumes when it is removed', async () => {
+  const el = box();
+  const binding = bindTo(el, 'bv-loop');
+  const settled: number[] = [];
+  binding.subscribe(next => settled.push(next), { perFrame: false });
+  expect(await until(() => read(el, 'bv-loop') > 0.2)).toBe(true);
+  page.style.setProperty('--udx-motion', 'none');
+  await frames(2);
+  expect(read(el, 'bv-loop')).toBe(0);
+  await frames(10);
+  expect(read(el, 'bv-loop')).toBe(0);
+  expect(settled).toEqual([0]);
+  page.style.removeProperty('--udx-motion');
+  expect(await until(() => read(el, 'bv-loop') > 0.05)).toBe(true);
+  expect(settled).toEqual([0]);
 });

@@ -15,8 +15,11 @@ export interface ValueBinding {
   readonly current: number;
   /** Source `state`: the target the value moves to (clamped to `range`). Other sources: TypeError. */
   set(target: number): void;
-  /** Call `listener` after each written change; returns an unsubscribe function. */
-  subscribe(listener: (value: number) => void): () => void;
+  /**
+   * Call `listener` after each written change, that is on each frame; with `perFrame: false`, only when the value comes to
+   * rest and when its target changes (with the number it moves to). Returns an unsubscribe function.
+   */
+  subscribe(listener: (value: number) => void, options?: { perFrame?: boolean }): () => void;
   /** Stop writing. A counter that showed a number shows its final number, the one it was moving to. */
   destroy(): void;
 }
@@ -128,6 +131,11 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
   const runtime: MotionRuntime = getMotionRuntime();
   const releaseRuntime = retainMotionRuntime(runtime);
   const listeners = new Set<(value: number) => void>();
+  // The listeners that are told of the rest and of the target changes, not of each frame.
+  const settledListeners = new Set<(value: number) => void>();
+  // Whether the rest of the value was told since it last moved: a value is told once at each stop, not on each frame.
+  // A time value starts running, so it has not rested.
+  let restAnnounced = source !== 'time';
   const spring = spec.spring;
   const params = source !== 'time' && spring !== undefined && spring !== 'none' ? springParams(spring, schemeOf(target)) : undefined;
   // A counter also writes its number as text: formatted for the page's language, and counting up when it comes into view.
@@ -143,14 +151,7 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
   let unsubscribe: (() => void) | undefined;
   let frameAt: number | undefined;
   let start = 0;
-  // A time value reads `--udx-motion` when its clock starts and when it can resume (back in view, page shown again,
-  // reduced motion turned off), not at each frame: a change made while the clock runs takes effect at its next resume.
-  let recheck = false;
   let frozen = false;
-  let stopTimeWatch: (() => void) | undefined;
-  const onVisibility = (): void => {
-    if (document.visibilityState === 'visible') recheck = true;
-  };
   const period = source === 'time' ? periodOf(spec) : 0;
   let detachInputs: () => void = () => {};
   let observer: MutationObserver | undefined;
@@ -168,6 +169,13 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
   const clamp = (amount: number) => Math.min(high, Math.max(low, amount));
   const clamp01 = (progress: number) => Math.min(1, Math.max(0, progress));
   const toValue = (progress: number) => first + progress * (last - first);
+
+  /** Tell the settled listeners that the value rests on `value`, once for each stop. */
+  function announceRest(value: number): void {
+    if (restAnnounced) return;
+    restAnnounced = true;
+    for (const listener of [...settledListeners]) listener(value);
+  }
 
   /** Write the number, rounded to four decimals, when it changed; then its text, and tell the listeners. */
   function write(amount: number): void {
@@ -239,6 +247,7 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
     springState.x = goal;
     springState.v = 0;
     write(goal);
+    announceRest(goal);
   }
 
   /** Whether the value is written at once rather than moved to: reduced motion, or `--udx-motion: none`. */
@@ -256,16 +265,18 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
     write(springState.x);
   }
 
-  /** The frame of a time value: its progress through the period, from the moment it was bound. */
+  /**
+   * The frame of a time value: its progress through the period, from the moment it was bound. `--udx-motion` is read at each
+   * frame, so that a change takes effect at once (about 15 µs a frame on Chromium, measured): `none` holds the start.
+   */
   function tickTime(now: number): void {
-    if (recheck) {
-      recheck = false;
-      frozen = motionDisabled(target);
-    }
+    frozen = motionDisabled(target);
     if (frozen) {
       write(first);
+      announceRest(first);
       return;
     }
+    restAnnounced = false;
     const elapsed = now - start;
     write(toValue((((elapsed % period) + period) % period) / period));
   }
@@ -276,7 +287,9 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
    */
   function aim(next: number): void {
     if (destroyed) return;
+    const changed = next !== goal;
     goal = next;
+    if (changed) restAnnounced = false;
     retarget();
     // A counter that has not started keeps its place: it moves once its view reports it in view.
     if (phase !== 'live') return;
@@ -284,6 +297,7 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
       snap();
       return;
     }
+    if (changed) for (const listener of [...settledListeners]) listener(next);
     if (!unsubscribe) {
       frameAt = undefined;
       unsubscribe = runtime.subscribe(`value:${name}`, { tick: step }, { pauseWhenReduced: false });
@@ -380,20 +394,15 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
 
   if (source === 'time') {
     unsubscribe = runtime.subscribe(`value:${name}`, { tick: tickTime }, { pauseWhenReduced: true, root: target });
-    stopTimeWatch = watchView(target, 'block', inView => {
-      if (inView) recheck = true;
-    });
-    document.addEventListener('visibilitychange', onVisibility);
   }
 
   // Under reduced motion, a smoothed value that is moving stops at its goal; a time value holds the start of its range.
   const stopPolicy = runtime.policy.subscribe(() => {
-    if (!runtime.policy.reduced) {
-      recheck = true;
-      return;
-    }
-    if (source === 'time') write(first);
-    else if (phase === 'live') snap();
+    if (!runtime.policy.reduced) return;
+    if (source === 'time') {
+      write(first);
+      announceRest(first);
+    } else if (phase === 'live') snap();
   });
 
   if (formatter) stopWatch = watchView(target, 'block', onView);
@@ -409,10 +418,11 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
       if (destroyed) return;
       aim(clamp(next));
     },
-    subscribe(listener) {
-      listeners.add(listener);
+    subscribe(listener, options = {}) {
+      const set = options.perFrame === false ? settledListeners : listeners;
+      set.add(listener);
       return () => {
-        listeners.delete(listener);
+        set.delete(listener);
       };
     },
     destroy() {
@@ -420,9 +430,6 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
       destroyed = true;
       stopWatch?.();
       stopWatch = undefined;
-      stopTimeWatch?.();
-      stopTimeWatch = undefined;
-      document.removeEventListener('visibilitychange', onVisibility);
       unsubscribe?.();
       unsubscribe = undefined;
       stopPolicy();
@@ -432,6 +439,7 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
       if (formatter && shownLabel !== undefined) collapse(formatter.format(goal));
       target.style.removeProperty(property);
       listeners.clear();
+      settledListeners.clear();
       unregister(target, binding);
       releaseRuntime();
     },

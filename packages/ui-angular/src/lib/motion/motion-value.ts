@@ -45,10 +45,17 @@ function bindValueWhenDefined(
 }
 
 /**
+ * A listener of the directive: whether it follows each frame, and its unsubscribe from the binding it is on now (none
+ * while the element is not bound).
+ */
+type Follower = { perFrame: boolean; unsubscribe?: () => void };
+
+/**
  * Writes a named value of `@udixio/motion` on the element it sits on, as `--udx-motion-value-<name>`.
  *
- * Reading the number with `get()` never re-renders anything. `udxMotionValueChange` emits each new number, for the
- * template that wants it.
+ * Reading the number with `get()` never re-renders anything. `udxMotionValueChange` emits when the value comes to rest and
+ * when its target changes, not on each frame: to follow each frame, read the CSS variable `--udx-motion-value-<name>`, or
+ * call `subscribe()`.
  *
  * @status beta
  * @devx
@@ -58,6 +65,8 @@ function bindValueWhenDefined(
  *   `#tilt="udxMotionValue"`.
  * @limitations
  * - The directive binds after the host has rendered, in the browser only: nothing is written during server rendering.
+ * - `udxMotionValueChange` does not emit on each frame: a pointer or scroll value emits at each change of its target, which
+ *   follows the input events.
  */
 @Directive({
   selector: '[udxMotionValue]',
@@ -67,7 +76,7 @@ function bindValueWhenDefined(
 export class MotionValue implements OnDestroy {
   /** The value: the name of a defined value, or its definition. A change binds the element again. */
   readonly source = input.required<ValueRef | string>({ alias: 'udxMotionValue' });
-  /** Emits each new number of the value, after it is written. */
+  /** Emits the number when the value comes to rest, and each change of its target: not on each frame. */
   readonly valueChange = output<number>({ alias: 'udxMotionValueChange' });
 
   private readonly host = inject(ElementRef<HTMLElement>);
@@ -78,8 +87,8 @@ export class MotionValue implements OnDestroy {
   private readonly relay = (next: number): void => {
     this.valueChange.emit(next);
   };
-  /** Each listener, with its unsubscribe from the binding it is on now (none while the element is not bound). */
-  private readonly listeners = new Map<(next: number) => void, (() => void) | undefined>([[this.relay, undefined]]);
+  /** Each listener, with how it follows the value and its unsubscribe from the binding it is on now. */
+  private readonly listeners = new Map<(next: number) => void, Follower>([[this.relay, { perFrame: false }]]);
 
   constructor() {
     // Browser only, after the host has rendered. A change of the name binds again.
@@ -92,8 +101,8 @@ export class MotionValue implements OnDestroy {
         this.boundKey = key;
         this.destroyBinding = bindValueWhenDefined(this.host.nativeElement, source, (binding) => {
           this.binding = binding;
-          for (const listener of this.listeners.keys()) {
-            this.listeners.set(listener, binding.subscribe(listener));
+          for (const [listener, follower] of this.listeners) {
+            follower.unsubscribe = binding.subscribe(listener, { perFrame: follower.perFrame });
           }
         });
       });
@@ -110,11 +119,15 @@ export class MotionValue implements OnDestroy {
     this.binding?.set(next);
   }
 
-  /** Calls the listener with each new number, and returns its unsubscribe. A listener follows the element when it is bound again. */
+  /**
+   * Calls the listener with each new number, on each frame, and returns its unsubscribe. A listener follows the element
+   * when it is bound again.
+   */
   subscribe(listener: (next: number) => void): () => void {
-    this.listeners.set(listener, this.binding?.subscribe(listener));
+    const follower: Follower = { perFrame: true, unsubscribe: this.binding?.subscribe(listener, { perFrame: true }) };
+    this.listeners.set(listener, follower);
     return () => {
-      this.listeners.get(listener)?.();
+      follower.unsubscribe?.();
       this.listeners.delete(listener);
     };
   }
@@ -124,9 +137,9 @@ export class MotionValue implements OnDestroy {
   }
 
   private unbind(): void {
-    for (const [listener, unsubscribe] of this.listeners) {
-      unsubscribe?.();
-      this.listeners.set(listener, undefined);
+    for (const follower of this.listeners.values()) {
+      follower.unsubscribe?.();
+      follower.unsubscribe = undefined;
     }
     this.binding = undefined;
     this.destroyBinding?.();
