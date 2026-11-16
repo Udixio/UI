@@ -24,13 +24,12 @@ export const sliderConfig: ClassNameComponent<SliderInterface> = ({
     { 'w-0.5': isChanging, 'w-1': !isChanging },
   ]),
   // Shown/hidden by `createSliderIndicatorController` (core/dom) animating
-  // `transform` via Motion JS, not by a class here — Motion writes the full
-  // `transform` shorthand, so this element must carry no other `transform`
-  // (the static `-translate-x-1/2` centering lives on a separate, unanimated
-  // wrapper around it instead of clobbering / getting clobbered). Keeping
-  // the animation itself in one shared controller keeps it identical (one
-  // implementation) across all three adapters. `pointer-events-none` always
-  // applies; this is a value tooltip, never a click target.
+  // the CSS `scale` property via `@udixio/motion`, not by a class here. The
+  // static `-translate-x-1/2` centering lives on a separate, unanimated
+  // wrapper around it. Keeping the animation itself in one shared controller
+  // keeps it identical (one implementation) across all three adapters.
+  // `pointer-events-none` always applies; this is a value tooltip, never a
+  // click target.
   valueIndicator: cx([
     'select-none pointer-events-none bg-inverse-surface text-inverse-on-surface py-3 px-4 text-label-large rounded-full origin-bottom text-nowrap',
   ]),

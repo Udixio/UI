@@ -1,4 +1,9 @@
-import { animate, type AnimationPlaybackControls } from 'motion';
+import {
+  animateStyle,
+  type CurveTiming,
+  type MotionHandle,
+  type SpringRef,
+} from '@udixio/motion/animate';
 import { motionPolicy } from '@udixio/motion/policy';
 import { getSliderValueFromPercent } from '../behaviors/slider.behavior.js';
 import type { SliderMark } from '../interfaces/slider.interface.js';
@@ -115,54 +120,54 @@ export function createSliderPointerController({
   };
 }
 
+/** The options of `createSliderIndicatorController`: the value bubble, the slider root and its motion. */
 export interface SliderIndicatorControllerOptions {
   /** The value-bubble element, scaled in/out around its bottom-center origin. */
   indicator: HTMLElement;
   /** Slider root containing the tracks and handle, including in Shadow DOM. */
   root: HTMLElement;
-  duration?: number;
+  /** The motion of the show and hide; `spring.fast.effects` by default. */
+  timing?: SpringRef | CurveTiming;
   /** Additional sampled preference, checked on calls and policy notifications. */
   reducedMotion?: () => boolean;
 }
 
+/** A value bubble that shows and hides with the slider's changing state; `destroy()` releases its policy. */
 export interface SliderIndicatorController {
+  /** Shows (`true`) or hides (`false`) the value indicator, animated unless the policy is reduced. */
   setVisible(visible: boolean): void;
+  /** Stops the indicator's motion and releases the document policy it holds. */
   destroy(): void;
 }
 
 /**
- * Owns the value indicator's show/hide animation: a 0↔1 scale, animated via
- * Motion JS. React, Angular and Svelte drive this from their `isChanging`
- * state instead of each carrying their own animation implementation, which
- * would inevitably drift.
+ * Owns the value indicator's show/hide animation: a 0↔1 `scale`, played on
+ * `@udixio/motion`. React, Angular and Svelte drive this from their
+ * `isChanging` state instead of each carrying their own animation
+ * implementation, which would inevitably drift.
  *
- * Motion writes the full `transform` shorthand for any transform-like key
- * it animates (including `scale`) rather than the standalone CSS `scale`
- * property, so this element must own no other `transform`: static
- * positioning (e.g. horizontal centering) belongs on a separate wrapper
- * around it, not on this element.
- *
- * Assumes the indicator starts hidden (all adapters render it with an
- * initial `transform: scale(0)` inline style before this controller ever
- * mounts, matching exactly what this controller itself would write), so the
- * first `setVisible(false)` a mount effect naturally fires is a no-op
- * instead of an animate-to-the-same-value call.
+ * The scale is the standalone CSS `scale` property, not `transform`, so the
+ * element may keep its own `transform` and the static positioning of a
+ * wrapper stays independent of it. Adapters render the indicator with an
+ * inline `scale: 0` before this controller mounts, so it starts hidden and
+ * the first `setVisible(false)` a mount effect fires is a no-op rather than
+ * an animation to the same value.
  */
 export function createSliderIndicatorController({
   indicator,
   root,
-  duration = 0.1,
+  timing = 'spring.fast.effects',
   reducedMotion,
 }: SliderIndicatorControllerOptions): SliderIndicatorController {
-  let animation: AnimationPlaybackControls | undefined;
+  let motion: MotionHandle | undefined;
   let requestedVisible = false;
   let destroyed = false;
   let unsubscribe: (() => void) | undefined;
 
   const settle = () => {
-    animation?.cancel();
-    animation = undefined;
-    indicator.style.transform = `scale(${requestedVisible ? 1 : 0})`;
+    motion?.cancel();
+    motion = undefined;
+    indicator.style.setProperty('scale', requestedVisible ? '1' : '0');
   };
   motionPolicy.retain();
   try {
@@ -190,24 +195,16 @@ export function createSliderIndicatorController({
         return;
       }
       if (!changed) return;
-      // Motion receives two scale functions: a computed matrix interpolates
-      // discretely against scale(), so normalize the indicator's owned transform.
-      const current = getComputedStyle(indicator).transform;
-      const matrix = typeof DOMMatrixReadOnly === 'function' && current !== 'none'
-        ? new DOMMatrixReadOnly(current) : undefined;
-      const scale = matrix ? Math.hypot(matrix.a, matrix.b)
-        : Number(current.match(/^scale\(([^)]+)\)$/)?.[1] ?? 1);
-      animation?.cancel();
-      const from = `scale(${scale})`;
-      indicator.style.transform = from;
-      animation = animate(indicator, { transform: [from, `scale(${visible ? 1 : 0})`] }, { duration });
+      // animateStyle carries the computed scale, so a change during a running
+      // show or hide continues from the size the indicator has now.
+      motion = animateStyle(indicator, { scale: visible ? '1' : '0' }, { timing });
     },
     destroy() {
       if (destroyed) return;
       destroyed = true;
       root.removeAttribute('data-udx-slider-motion-reduce');
       try { unsubscribe?.(); } finally {
-        try { animation?.cancel(); } finally { motionPolicy.release(); }
+        try { motion?.cancel(); } finally { motionPolicy.release(); }
       }
     },
   };

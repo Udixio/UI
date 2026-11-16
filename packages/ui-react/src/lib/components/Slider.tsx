@@ -244,7 +244,7 @@ export const Slider = ({
           <div
             ref={indicatorRef}
             className={styles.valueIndicator}
-            style={{ transform: 'scale(0)' }}
+            style={{ scale: '0' }}
           >
             {valueFormatter ? valueFormatter(resolvedValue) : resolvedValue}
           </div>

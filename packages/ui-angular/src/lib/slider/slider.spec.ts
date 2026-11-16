@@ -1,16 +1,31 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { animate } from 'motion';
 import { Slider } from './slider';
 
 expect.extend(toHaveNoViolations);
 
-// The value-indicator show/hide is a real Motion JS animation owned by
-// `createSliderIndicatorController` (core/dom) and already unit-tested
-// there; here we only need to verify the Angular wiring requests the right
-// visibility, not exercise jsdom's lack of a real WAAPI implementation.
-jest.mock('motion', () => ({ animate: jest.fn(() => ({ stop: jest.fn(), cancel: jest.fn() })) }));
+// The value-indicator show/hide is owned by `createSliderIndicatorController`
+// (core/dom), whose motion is browser-tested there; here we only verify that
+// the Angular wiring requests the right visibility. The real controller runs,
+// and every request is recorded.
+const mockVisibility: boolean[] = [];
+jest.mock('@udixio/core/dom', () => {
+  const actual = jest.requireActual<typeof import('@udixio/core/dom')>('@udixio/core/dom');
+  return {
+    ...actual,
+    createSliderIndicatorController: (options: Parameters<typeof actual.createSliderIndicatorController>[0]) => {
+      const controller = actual.createSliderIndicatorController(options);
+      return {
+        ...controller,
+        setVisible: (visible: boolean) => {
+          mockVisibility.push(visible);
+          controller.setVisible(visible);
+        },
+      };
+    },
+  };
+});
 
 function stubTrackWidth(track: HTMLElement, width = 200) {
   track.getBoundingClientRect = () =>
@@ -182,7 +197,7 @@ describe('Slider (Angular)', () => {
   });
 
   it('shows the value indicator during keyboard use, then hides it after inactivity or blur', async () => {
-    jest.mocked(animate).mockClear();
+    mockVisibility.length = 0;
     jest.useFakeTimers();
     fixture = await createFixture();
     fixture.componentRef.setInput('name', 'volume');
@@ -193,51 +208,29 @@ describe('Slider (Angular)', () => {
     const track: HTMLElement = fixture.nativeElement.querySelector(
       '[role="slider"]',
     );
-    const indicator: HTMLElement = track.querySelector('.handle > div > div')!;
-
-    expect(animate).not.toHaveBeenCalled();
+    expect(mockVisibility.every((visible) => !visible)).toBe(true);
 
     track.dispatchEvent(
       new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }),
     );
     fixture.detectChanges();
-    expect(animate).toHaveBeenLastCalledWith(
-      indicator,
-      { transform: [expect.any(String), 'scale(1)'] },
-      { duration: 0.1 },
-    );
+    expect(mockVisibility.at(-1)).toBe(true);
 
     jest.advanceTimersByTime(1499);
     fixture.detectChanges();
-    expect(animate).toHaveBeenLastCalledWith(
-      indicator,
-      { transform: [expect.any(String), 'scale(1)'] },
-      { duration: 0.1 },
-    );
+    expect(mockVisibility.at(-1)).toBe(true);
     jest.advanceTimersByTime(1);
     fixture.detectChanges();
-    expect(animate).toHaveBeenLastCalledWith(
-      indicator,
-      { transform: [expect.any(String), 'scale(0)'] },
-      { duration: 0.1 },
-    );
+    expect(mockVisibility.at(-1)).toBe(false);
 
     track.dispatchEvent(
       new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }),
     );
     fixture.detectChanges();
-    expect(animate).toHaveBeenLastCalledWith(
-      indicator,
-      { transform: [expect.any(String), 'scale(1)'] },
-      { duration: 0.1 },
-    );
+    expect(mockVisibility.at(-1)).toBe(true);
     track.dispatchEvent(new FocusEvent('blur', { bubbles: true }));
     fixture.detectChanges();
-    expect(animate).toHaveBeenLastCalledWith(
-      indicator,
-      { transform: [expect.any(String), 'scale(0)'] },
-      { duration: 0.1 },
-    );
+    expect(mockVisibility.at(-1)).toBe(false);
 
     jest.useRealTimers();
   });

@@ -2,6 +2,7 @@
 // imports are the shared runtime, springs and tokens only, so the entry adds no code to the main one.
 export { animateStyle } from './animate.js';
 export type { AnimateStyleOptions, StyleKeyframe, StyleTiming } from './animate.js';
+export { composeHandles } from './compose.js';
 export { createSpring } from './spring-number.js';
 export { cssTiming } from './css-timing.js';
 export type { SpringNumber, SpringNumberOptions } from './spring-number.js';

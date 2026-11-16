@@ -31,7 +31,7 @@ import { untrack } from 'svelte';
   $effect(() => {
     if (!active || !panel) return;
     const animation = animateTabPanelEnter({ panel, direction: group?.direction() ?? 0 });
-    return () => animation?.stop();
+    return () => animation?.cancel();
   });
 </script>
 

@@ -107,7 +107,7 @@ export class TabPanel {
     afterRenderEffect(() => {
       if (!this.isActive()) return;
       const direction = this.groupContext?.direction() ?? 0;
-      this.animation?.stop();
+      this.animation?.cancel();
       this.animation = animateTabPanelEnter({
         panel: this.elementRef.nativeElement,
         direction,

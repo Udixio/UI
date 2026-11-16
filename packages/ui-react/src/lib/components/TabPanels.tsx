@@ -57,7 +57,7 @@ export const TabPanels = ({ children, className }: ReactTabPanelsProps) => {
       panel: panelRef.current,
       direction,
     });
-    return () => animation?.stop();
+    return () => animation?.cancel();
     // direction is intentionally read fresh from the closure: TabGroup
     // resolves it during render, before TabPanels re-renders with the new
     // selectedTab, so it is already correct by the time this effect fires.

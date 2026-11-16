@@ -87,7 +87,7 @@ import { createStyle } from '../utils/create-style';
           <div
             #indicator
             [class]="styles()['valueIndicator']"
-            style="transform: scale(0)"
+            style="scale: 0"
           >
             {{ formattedValue() }}
           </div>

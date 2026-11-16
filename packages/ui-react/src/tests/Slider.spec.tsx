@@ -1,5 +1,4 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { animate } from 'motion';
 import { Slider } from '../lib/index.js';
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
@@ -7,11 +6,29 @@ import { axe, toHaveNoViolations } from 'jest-axe';
 
 expect.extend(toHaveNoViolations);
 
-// The value-indicator show/hide is a real Motion JS animation owned by
-// `createSliderIndicatorController` (core/dom) and already unit-tested
-// there; here we only need to verify the React wiring requests the right
-// visibility, not exercise jsdom's lack of a real WAAPI implementation.
-vi.mock('motion', () => ({ animate: vi.fn(() => ({ stop: vi.fn(), cancel: vi.fn() })) }));
+// The value-indicator show/hide is owned by `createSliderIndicatorController`
+// (core/dom), whose motion is browser-tested there; here we only verify that
+// the React wiring requests the right visibility. The real controller runs,
+// and every request is recorded.
+const visibility = vi.hoisted(() => ({ requests: [] as boolean[] }));
+vi.mock('@udixio/core/dom', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@udixio/core/dom')>();
+  return {
+    ...actual,
+    createSliderIndicatorController: (
+      options: Parameters<typeof actual.createSliderIndicatorController>[0],
+    ) => {
+      const controller = actual.createSliderIndicatorController(options);
+      return {
+        ...controller,
+        setVisible: (visible: boolean) => {
+          visibility.requests.push(visible);
+          controller.setVisible(visible);
+        },
+      };
+    },
+  };
+});
 
 function stubTrackWidth(track: HTMLElement, width = 200) {
   track.getBoundingClientRect = () =>
@@ -140,50 +157,29 @@ describe('Slider', () => {
   });
 
   it('shows the value indicator during keyboard use, then hides it after inactivity or blur', () => {
-    vi.mocked(animate).mockClear();
+    visibility.requests.length = 0;
     vi.useFakeTimers();
     render(<Slider name="volume" defaultValue={50} step={10} />);
     const slider = screen.getByRole('slider');
-    const indicator = slider.querySelector('.handle > div > div') as HTMLElement;
 
-    expect(animate).not.toHaveBeenCalled();
+    expect(visibility.requests.every((visible) => !visible)).toBe(true);
 
     fireEvent.keyDown(slider, { key: 'ArrowRight' });
-    expect(animate).toHaveBeenLastCalledWith(
-      indicator,
-      { transform: [expect.any(String), 'scale(1)'] },
-      { duration: 0.1 },
-    );
+    expect(visibility.requests.at(-1)).toBe(true);
 
     act(() => {
       vi.advanceTimersByTime(1499);
     });
-    expect(animate).toHaveBeenLastCalledWith(
-      indicator,
-      { transform: [expect.any(String), 'scale(1)'] },
-      { duration: 0.1 },
-    );
+    expect(visibility.requests.at(-1)).toBe(true);
     act(() => {
       vi.advanceTimersByTime(1);
     });
-    expect(animate).toHaveBeenLastCalledWith(
-      indicator,
-      { transform: [expect.any(String), 'scale(0)'] },
-      { duration: 0.1 },
-    );
+    expect(visibility.requests.at(-1)).toBe(false);
 
     fireEvent.keyDown(slider, { key: 'ArrowRight' });
-    expect(animate).toHaveBeenLastCalledWith(
-      indicator,
-      { transform: [expect.any(String), 'scale(1)'] },
-      { duration: 0.1 },
-    );
+    expect(visibility.requests.at(-1)).toBe(true);
     fireEvent.blur(slider);
-    expect(animate).toHaveBeenLastCalledWith(
-      indicator,
-      { transform: [expect.any(String), 'scale(0)'] },
-      { duration: 0.1 },
-    );
+    expect(visibility.requests.at(-1)).toBe(false);
 
     vi.useRealTimers();
   });

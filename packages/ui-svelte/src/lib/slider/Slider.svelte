@@ -234,7 +234,7 @@
       <div
         bind:this={indicator}
         class={styles.current['valueIndicator']}
-        style:transform="scale(0)"
+        style:scale="0"
       >
         {formattedValue}
       </div>

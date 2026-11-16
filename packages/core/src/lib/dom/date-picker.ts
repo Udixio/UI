@@ -1,12 +1,29 @@
-import { animate, type AnimationPlaybackControls } from 'motion';
+import {
+  animateStyle,
+  composeHandles,
+  type CurveTiming,
+  type MotionHandle,
+  type SpringRef,
+} from '@udixio/motion/animate';
+import { motionPolicy } from '@udixio/motion/policy';
 
+/** The slide into a new month rides the fast spatial spring: quick, and it does not overshoot the grid. */
+const DEFAULT_MONTH_TIMING: SpringRef = 'spring.fast.spatial';
+/** The fade into the new month keeps the fast effects spring, whatever the slide's timing. */
+const MONTH_FADE_TIMING: SpringRef = 'spring.fast.effects';
+
+/** The options of `createMonthTransitionController`: the calendar grid, its motion and its distance. */
 export interface MonthTransitionControllerOptions {
   container: HTMLElement;
-  duration?: number;
+  /** The motion of the slide into the new month; `spring.fast.spatial` by default. */
+  timing?: SpringRef | CurveTiming;
+  /** How far, in px, the new month comes from. */
   distance?: number;
+  /** An extra reduced-motion switch, read at each change; the document policy always applies. */
   reducedMotion?: () => boolean;
 }
 
+/** A month-change transition for a calendar grid; `play(direction)` on each month change, `destroy()` on unmount. */
 export interface MonthTransitionController {
   /**
    * Plays the enter transition for a newly displayed month. `direction` > 0
@@ -15,13 +32,6 @@ export interface MonthTransitionController {
    */
   play(direction: number): void;
   destroy(): void;
-}
-
-function systemPrefersReducedMotion(): boolean {
-  return (
-    typeof globalThis.matchMedia === 'function' &&
-    globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
 }
 
 /**
@@ -33,24 +43,55 @@ function systemPrefersReducedMotion(): boolean {
  */
 export function createMonthTransitionController({
   container,
-  duration = 0.22,
+  timing = DEFAULT_MONTH_TIMING,
   distance = 24,
-  reducedMotion = systemPrefersReducedMotion,
+  reducedMotion = () => false,
 }: MonthTransitionControllerOptions): MonthTransitionController {
-  let animation: AnimationPlaybackControls | undefined;
+  let motion: MotionHandle | undefined;
+
+  /** Ends a running change, if any, and leaves the grid at rest with no inline offset. */
+  const settle = () => {
+    if (!motion) return;
+    motion.cancel();
+    motion = undefined;
+    container.style.translate = '';
+    container.style.opacity = '';
+  };
 
   return {
     play(direction: number) {
-      animation?.stop();
-      if (direction === 0 || reducedMotion()) return;
-      animation = animate(
+      if (direction === 0 || motionPolicy.reduced || reducedMotion()) {
+        settle();
+        return;
+      }
+
+      // An interrupted change continues from the position and opacity the grid
+      // shows; a fresh one starts from the offset of its direction.
+      const interrupted = motion !== undefined;
+      const offset = direction > 0 ? distance : -distance;
+      const slide = animateStyle(
         container,
-        { x: [direction > 0 ? distance : -distance, 0], opacity: [0, 1] },
-        { duration, ease: 'easeOut' },
+        [{ translate: `${offset}px 0` }, { translate: '0 0' }],
+        { timing, carry: interrupted },
       );
+      const fade = animateStyle(container, [{ opacity: 0 }, { opacity: 1 }], {
+        timing: MONTH_FADE_TIMING,
+        carry: interrupted,
+      });
+      const handle = composeHandles([slide, fade]);
+      motion = handle;
+
+      void handle.finished.then((result) => {
+        if (motion !== handle) return;
+        motion = undefined;
+        if (result !== 'finished') return;
+        container.style.translate = '';
+        container.style.opacity = '';
+      });
     },
     destroy() {
-      animation?.stop();
+      motion?.cancel();
+      motion = undefined;
     },
   };
 }
