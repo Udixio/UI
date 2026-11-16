@@ -80,6 +80,13 @@ describe('animateStyle', () => {
     expect(target.getBoundingClientRect().width).toBe(320);
   });
 
+  it('leaves no inline value for a property whose last frame is null', async () => {
+    target.style.opacity = '0.5';
+    const handle = animateStyle(target, [{ opacity: 0 }, { opacity: null }], { timing: { duration: 40, easing: 'linear' } });
+    expect(await handle.finished).toBe('finished');
+    expect(target.style.opacity).toBe('');
+  });
+
   it('measures the content width of a padded box, not its border box', () => {
     inlineBoxOf(200);
     target.style.padding = '10px';

@@ -217,9 +217,9 @@ function measureAuto(element: MotionElement, property: string): string {
 function writeFrame(element: MotionElement, frame: StyleKeyframe): void {
   const { style } = element;
   for (const [key, value] of Object.entries(frame)) {
-    if (key === 'offset' || value === null) continue;
+    if (key === 'offset') continue;
     const property = cssName(key);
-    if (value === 'auto' && SIZES.has(property)) style.removeProperty(property);
+    if (value === null || (value === 'auto' && SIZES.has(property))) style.removeProperty(property);
     else style.setProperty(property, String(value), style.getPropertyPriority(property));
   }
 }
