@@ -3,6 +3,7 @@ import { motionDisabledIn, motionScaleIn } from '../play.js';
 import type { ContentPlan, Stretch } from '../project.js';
 import { waapiProvider } from '../providers/waapi.js';
 import type { MotionRuntime } from '../runtime.js';
+import { anchorOf, holdAnchor, releaseAnchor } from './anchor.js';
 import { playbackOf, restFrames, startContent, stopFlight } from './flight.js';
 import { centredOn, contentPlanOf, depthOf, flyingChange, isNegligible, resizes, scalesMoving, stretchesCorners } from './plan.js';
 import { contentOf, hasText, measure, measureWith, ownOf, radiiOf, referenceOf, unitOf, visualBoxOf } from './measure.js';
@@ -258,6 +259,8 @@ export function flush(scope: Scope, records: readonly MutationRecord[] = []): vo
     planned.push({ element, item, frames, velocity: carry, disabled, scale, content, radii, morph });
   }
   if (planned.length === 0) return;
+  // The scroller that anchors the scope is read before the writes: its anchoring is held while each flight runs.
+  const scroller = anchorOf(scope.root);
   // 4. Writes only: no style is read from here on. The scheme and the policy are read once, before the writes.
   const scheme = scope.root.ownerDocument.documentElement.dataset.motionScheme === 'standard' ? 'standard' : 'expressive';
   if (planned[0].item.runtime.policy.reduced) return;
@@ -268,9 +271,11 @@ export function flush(scope: Scope, records: readonly MutationRecord[] = []): vo
       const playback = playbackOf(move, scheme);
       if (!playback || !Number.isFinite(playback.duration) || playback.duration <= 0) continue;
       const handle = waapiProvider.animate({ target: element, keyframes: playback.keyframes, timing: { duration: playback.duration, easing: playback.easing }, commit: false, styles: playback.styles ?? undefined });
+      holdAnchor(scroller);
       item.handle = handle;
       item.flight = playback.flight;
       void handle.finished.then(() => {
+        releaseAnchor(scroller);
         if (item.handle === handle) stopFlight(item);
       });
       startContent(item, move, playback, nodes);

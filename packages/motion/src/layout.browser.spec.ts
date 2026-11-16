@@ -84,6 +84,7 @@ afterEach(() => {
   host.remove();
   style.remove();
   delete document.documentElement.dataset.motionPolicy;
+  window.scrollTo(0, 0);
 });
 
 it('starts from where the element was and ends in its new place with nothing inline', async () => {
@@ -1113,4 +1114,66 @@ it('once finished, the card and its content have their stylesheet radius and no 
 it('a plain box serialises its border-radius as zero, the value the planning pass takes as no radius', () => {
   page(roundCss, '<div id="plain"></div>');
   expect(['', '0px']).toContain(getComputedStyle(byId('plain')).borderRadius);
+});
+
+/** A padding of `height` px, put above the followed element by a test. */
+function padding(height: number): HTMLElement {
+  const el = document.createElement('div');
+  el.style.cssText = `flex:none;height:${height}px`;
+  return el;
+}
+
+// A flight holds the overflow anchoring of its scroller: the browser must not move the position while the move runs, so
+// an element inserted above the viewport during a flight leaves the content where it is (scrollTop stays the same).
+it('holds the overflow anchoring of a scrolling container while a flight runs, so an insertion above the viewport does not scroll it', async () => {
+  page(
+    css() + `
+      .scroller { width: 300px; height: 100px; overflow: auto; }
+      .column { display: flex; flex-direction: column; height: 800px; }
+      .column > .after { flex: none; height: 400px; }
+    `,
+    '<div class="scroller" id="scroller" data-motion-scope><div class="column" id="column"><div class="box" id="box"></div><div class="after"></div></div></div>',
+  );
+  const scroller = byId('scroller');
+  const column = byId('column');
+  const binding = bindTo(byId('box'));
+  scroller.scrollTop = 350;
+  // The first insertion moves the followed box down: its flight runs, and the browser may still anchor this one.
+  column.prepend(padding(50));
+  await Promise.resolve();
+  expect(binding.handle).not.toBeNull();
+  const before = scroller.scrollTop;
+  // The second insertion is above the viewport, during the flight: nothing may scroll.
+  column.prepend(padding(50));
+  await Promise.resolve();
+  expect(binding.handle).not.toBeNull();
+  expect(scroller.scrollTop).toBe(before);
+  expect(scroller.style.overflowAnchor).toBe('none');
+  await moving(binding).finished;
+  expect(scroller.style.overflowAnchor).toBe('');
+});
+
+it('holds the overflow anchoring of the page while a flight runs, and gives it back once the flight has ended', async () => {
+  page(
+    css() + `
+      .column { display: flex; flex-direction: column; height: 2400px; }
+      .column > .after { flex: none; height: 2000px; }
+    `,
+    '<div class="column" id="column"><div class="box" id="box"></div><div class="after"></div></div>',
+  );
+  const column = byId('column');
+  const binding = bindTo(byId('box'));
+  window.scrollTo(0, 350);
+  expect(window.scrollY).toBeCloseTo(350, 0);
+  column.prepend(padding(50));
+  await Promise.resolve();
+  expect(binding.handle).not.toBeNull();
+  const before = window.scrollY;
+  expect(before).toBeGreaterThan(0);
+  column.prepend(padding(50));
+  await Promise.resolve();
+  expect(binding.handle).not.toBeNull();
+  expect(window.scrollY).toBe(before);
+  await moving(binding).finished;
+  expect(document.documentElement.style.overflowAnchor).toBe('');
 });
