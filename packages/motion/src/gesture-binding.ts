@@ -1,5 +1,4 @@
 import { provideGestures } from './feature-loader.js';
-import { flushLayoutAround } from './layout-loader.js';
 import { DEFAULT_AXIS, DEFAULT_RELEASE, type GestureKind, type GestureRef, type GestureSpec } from './gesture.js';
 import { motionDisabled } from './play.js';
 import { resolveGesture } from './registries.js';
@@ -208,13 +207,13 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
 
   /**
    * Write the position of a keyboard nudge with the layout holding the element, as it holds a pointer drag: the nudged
-   * element takes no layout flight, and the other followed elements fly as their own places change.
+   * element takes no layout flight, and the other followed elements fly as their own places change. The layout observer
+   * reads the mark in the microtask of the write, which is queued before the one that gives the mark back.
    */
   function writeHeld(): void {
     target.setAttribute('data-gesture', 'dragging');
-    flushLayoutAround(target);
     write();
-    updateDragging();
+    queueMicrotask(updateDragging);
   }
 
   function updateDragging(): void {
