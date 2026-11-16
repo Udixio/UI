@@ -149,6 +149,43 @@ describe('createNavigationRailItemLabelController in the browser', () => {
     expect(label.style.width).toBe('');
   });
 
+  it('grows a vertical label to its content height when the item is still at its horizontal geometry', async () => {
+    // The item is a flex column of 66 px (4 px and 6 px of padding) holding a 56 px container. Until the collapsed layout
+    // applies, the column has no room for a 18 px label: the label clips, so its automatic minimum is 0 and it is squeezed
+    // to 0 when its `auto` height is measured.
+    document.body.innerHTML = `
+      <span id="item" style="display: flex; flex-direction: column; box-sizing: border-box; height: 66px; padding: 4px 0 6px">
+        <span id="container" style="display: block; height: 56px"><span style="display: block; height: 56px"></span></span>
+        <span id="label" style="display: block; overflow: hidden; height: 0px; opacity: 0"><span style="display: block; height: 18px"></span></span>
+      </span>
+    `;
+    const label = document.querySelector<HTMLElement>('#label')!;
+    const item = document.querySelector<HTMLElement>('#item')!;
+    const container = document.querySelector<HTMLElement>('#container')!;
+    const state = { visible: false, axis: 'vertical' as NavigationRailItemLabelAxis };
+    connect(label, state);
+
+    state.visible = true;
+    controller!.update();
+
+    const size = animationOf(label, 'height');
+    const [from, to] = (size.effect as KeyframeEffect).getKeyframes();
+    expect(parseFloat(String(from!.height))).toBe(0);
+    expect(parseFloat(String(to!.height))).toBeCloseTo(18, 0);
+
+    // The collapsed layout settles (the item is 68 px, the container 32 px), then the label grows through its height.
+    item.style.height = '68px';
+    container.style.height = '32px';
+    freezeAt(label, 0.2);
+    expect(heightOf(label)).toBeGreaterThan(5);
+    expect(heightOf(label)).toBeLessThan(17);
+
+    for (const animation of label.getAnimations()) animation.play();
+    await size.finished;
+    expect(label.style.height).toBe('');
+    expect(heightOf(label)).toBeCloseTo(18, 0);
+  });
+
   it('continues from the size it shows when the label reverses mid-way', () => {
     const label = mountLabel();
     const state = { visible: false };

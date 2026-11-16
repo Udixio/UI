@@ -61,6 +61,10 @@ export function createNavigationRailItemLabelController({
   let lastVisible: boolean | undefined;
   let isFirstApply = true;
 
+  // The label clips, so as a flex item it could shrink below its content. While the item still has its previous geometry
+  // (the collapsed column is not laid out yet), a shrunk label would measure its `auto` size as 0. It keeps its content size.
+  label.style.flexShrink = '0';
+
   const apply = () => {
     const currentAxis = axis();
     const currentVisible = visible();
