@@ -857,6 +857,86 @@ it('[Review Focus 3] a followed child keeps its size and its place while its fol
   }
 });
 
+it('a followed child centred in a followed card that resizes is, at each share, where a linear interpolation of its boxes puts it', async () => {
+  page(nestedCss + '.item.centred { margin: 0 auto; }', nestedMarkup.replace('class="item"', 'class="item centred"'));
+  const scope = byId('scope');
+  const card = byId('card');
+  const item = byId('item');
+  const cardBinding = bindTo(card);
+  bindTo(item);
+  // Centred in a card of 200 px (padding 20 px each side) the item is 80 px from the left; in one of 400 px, 180 px.
+  const startLeft = local(item, scope).left;
+  expect(startLeft).toBeCloseTo(80, 0);
+  card.classList.add('wide');
+  await Promise.resolve();
+  const endLeft = 180;
+  const handle = moving(cardBinding);
+  for (const share of SHARES) {
+    seekAll(handle, card, share * handle.duration);
+    const q = (card.getBoundingClientRect().width - 200) / 200;
+    const expected = startLeft + (endLeft - startLeft) * q;
+    const actual = local(item, scope).left;
+    expect(Math.abs(actual - expected), `left ${actual} px, interpolation ${expected} px at ${share * 100} %`).toBeLessThanOrEqual(2);
+    expectSize(item, 40, 40);
+  }
+});
+
+it('a followed child that also moves inside its resizing card is, at each share, where a linear interpolation of its boxes puts it', async () => {
+  page(nestedCss + '.item.centred { margin: 0 auto; }', nestedMarkup.replace('class="item"', 'class="item centred"'));
+  const scope = byId('scope');
+  const card = byId('card');
+  const item = byId('item');
+  const cardBinding = bindTo(card);
+  bindTo(item);
+  // Centred in the card, the item starts 80 px from its left edge; aligned to the start it ends 20 px from it.
+  const startLeft = local(item, scope).left;
+  expect(startLeft).toBeCloseTo(80, 0);
+  card.classList.add('wide');
+  item.classList.replace('centred', 'start');
+  await Promise.resolve();
+  const endLeft = 20;
+  const handle = moving(cardBinding);
+  for (const share of SHARES) {
+    seekAll(handle, card, share * handle.duration);
+    const q = (card.getBoundingClientRect().width - 200) / 200;
+    const expected = startLeft + (endLeft - startLeft) * q;
+    const actual = local(item, scope).left;
+    expect(Math.abs(actual - expected), `left ${actual} px, interpolation ${expected} px at ${share * 100} %`).toBeLessThanOrEqual(2);
+    expectSize(item, 40, 40);
+  }
+});
+
+it('a followed child centred in a card that resizes on both axes is, at each share, where a linear interpolation of its boxes puts it', async () => {
+  page(
+    nestedCss + '.item.centred { margin: 0 auto; } .card.wide { height: 120px; }',
+    nestedMarkup.replace('class="item"', 'class="item centred"'),
+  );
+  const scope = byId('scope');
+  const card = byId('card');
+  const item = byId('item');
+  const cardBinding = bindTo(card);
+  bindTo(item);
+  // Centred on both axes: 80 px from the left and 10 px from the top in a card of 200 by 60 px; 180 px and 40 px in one of 400 by 120 px.
+  const start = local(item, scope);
+  expect(start.left).toBeCloseTo(80, 0);
+  expect(start.top).toBeCloseTo(10, 0);
+  card.classList.add('wide');
+  await Promise.resolve();
+  const handle = moving(cardBinding);
+  for (const share of SHARES) {
+    seekAll(handle, card, share * handle.duration);
+    const r = card.getBoundingClientRect();
+    const qx = (r.width - 200) / 200;
+    const qy = (r.height - 60) / 60;
+    const actual = local(item, scope);
+    const expectedLeft = start.left + (180 - start.left) * qx;
+    const expectedTop = start.top + (40 - start.top) * qy;
+    expect(Math.abs(actual.left - expectedLeft), `left ${actual.left} px, interpolation ${expectedLeft} px at ${share * 100} %`).toBeLessThanOrEqual(2);
+    expect(Math.abs(actual.top - expectedTop), `top ${actual.top} px, interpolation ${expectedTop} px at ${share * 100} %`).toBeLessThanOrEqual(2);
+    expectSize(item, 40, 40);
+  }
+});
+
 it('[Review Focus 3] once the card has finished, its followed child and its dot are at their natural places, with nothing inline', async () => {
   page(nestedCss, nestedMarkup);
   const card = byId('card');
