@@ -160,7 +160,7 @@ export class NavigationRail implements OnInit, NavigationRailContext {
   private readonly sections = contentChildren(NavigationRailSection);
 
   protected readonly railTransition = computed(() =>
-    getComponentTransition(this.motion()),
+    getComponentTransition(this.motion(), 'spring.default.spatial'),
   );
 
   protected readonly styles = createStyle(navigationRailStyle, () => ({

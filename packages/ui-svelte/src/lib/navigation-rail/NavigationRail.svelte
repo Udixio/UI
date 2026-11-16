@@ -112,7 +112,7 @@ import { untrack } from 'svelte';
   });
 </script>
 
-<div {...rest} class={styles.current['navigationRail']} style={`${hostStyle ?? ''}${hostStyle && !hostStyle.endsWith(';') ? ';' : ''}transition: ${getComponentTransition(motion)}`}>
+<div {...rest} class={styles.current['navigationRail']} style={`${hostStyle ?? ''}${hostStyle && !hostStyle.endsWith(';') ? ';' : ''}transition: ${getComponentTransition(motion, 'spring.default.spatial')}`}>
   <div class={styles.current['header']}>
     <IconButton
       label={extendedState.current ? menu.opened.label : menu.closed.label}

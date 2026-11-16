@@ -49,7 +49,7 @@
   // size that the label controllers animate from.
   const resolvedMotion = $derived(context?.motion() ?? motion);
   const stateLayerMotion = $derived(resolveComponentMotion(resolvedMotion));
-  const hostTransition = $derived(getComponentTransition(resolvedMotion));
+  const hostTransition = $derived(getComponentTransition(resolvedMotion, 'spring.default.spatial'));
   const mountedVariant = untrack(() => resolvedVariant);
   const initialHorizontalStyle = mountedVariant === 'horizontal' ? 'overflow: hidden' : 'width: 0px; opacity: 0; overflow: hidden';
   const initialVerticalStyle = mountedVariant === 'vertical' ? 'overflow: hidden' : 'height: 0px; opacity: 0; overflow: hidden';
@@ -142,7 +142,7 @@
 {/if}
 
 {#snippet content()}
-  <span class={styles.current['container']} style:transition={getStaggeredComponentTransition(resolvedMotion, resolvedVariant === 'horizontal' ? 2 : 3)}>
+  <span class={styles.current['container']} style:transition={getStaggeredComponentTransition(resolvedMotion, resolvedVariant === 'horizontal' ? 2 : 3, 'spring.default.spatial')}>
     <StateLayer class={styles.current['stateLayer']} colorName={isSelected ? 'on-secondary-container' : 'on-surface'} stateClassName="state-ripple-group-[navigation-rail-item]" motion={stateLayerMotion} />
     {#if icon}
       {#if badge}

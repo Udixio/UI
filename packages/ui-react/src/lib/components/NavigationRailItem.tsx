@@ -269,13 +269,14 @@ export const NavigationRailItem = ({
       href={href}
       className={styles.navigationRailItem}
       onClick={handleClick}
-      style={{ transition: getComponentTransition(motion), ...style }}
+      style={{ transition: getComponentTransition(motion, 'spring.default.spatial'), ...style }}
     >
       <span
         style={{
           transition: getStaggeredComponentTransition(
             motion,
             variant == 'horizontal' ? 2 : 3,
+            'spring.default.spatial',
           ),
         }}
         className={styles.container}

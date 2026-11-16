@@ -19,22 +19,46 @@ export function resolveComponentMotion(motion?: ComponentMotion): {
 }
 
 /**
- * The inline `transition` of a surface that moves on its motion, for every property: a curve gives its duration and
- * easing, and a spring gives its stylesheet variables (with the expressive fallback curve).
+ * The inline `transition` of a surface that moves on its motion: a curve gives its duration and easing, and a spring gives
+ * its stylesheet variables (with the expressive fallback curve), for each listed property (`all` by default).
+ * `defaultTiming` replaces the 300 ms curve when `motion` names none, for a surface that moves on a spring of its own.
  */
-export function getComponentTransition(motion?: ComponentMotion): string {
-  const { duration, easing } = cssTiming(resolveComponentMotion(motion).timing);
-  return `all ${duration} ${easing}`;
+export function getComponentTransition(
+  motion?: ComponentMotion,
+  defaultTiming?: SpringRef | CurveTiming,
+  properties: readonly string[] = ['all'],
+): string {
+  const { duration, easing } = cssTiming(motion?.timing ?? defaultTiming ?? DEFAULT_TIMING);
+  return properties.map((property) => `${property} ${duration} ${easing}`).join(', ');
+}
+
+/**
+ * The easing of a progress indicator's value, as a CSS easing: the slow effects spring, which settles without a bounce.
+ * A progress indicator keeps its own duration, which its `transitionDuration` sets.
+ */
+export const PROGRESS_VALUE_EASING: string = cssTiming('spring.slow.effects').easing;
+
+/** The properties a chip's surface moves on: its colours, its border and shadow, and its padding, which changes with its icons. */
+const CHIP_SURFACE_PROPERTIES = ['background-color', 'border-color', 'color', 'box-shadow', 'padding'];
+
+/**
+ * The inline `transition` of a chip's surface: its colours and its padding on the default effects spring, and nothing else.
+ * It names its properties rather than `all`, so that a property a consumer adds is not animated by the chip.
+ */
+export function getChipSurfaceTransition(motion?: ComponentMotion): string {
+  return getComponentTransition(motion, 'spring.default.effects', CHIP_SURFACE_PROPERTIES);
 }
 
 /**
  * The inline `transition` of a container that also staggers its own `gap` behind the movement: the gap lasts
- * `1 / divisor` of the duration and starts after the rest of it (a divisor of 2 for a horizontal item, 3 for a vertical one).
+ * `1 / divisor` of the duration, starts after the rest of it (a divisor of 2 for a horizontal item, 3 for a vertical one),
+ * and eases on the same curve as the movement.
  */
 export function getStaggeredComponentTransition(
   motion: ComponentMotion | undefined,
   divisor: number,
+  defaultTiming?: SpringRef | CurveTiming,
 ): string {
-  const { duration, easing } = cssTiming(resolveComponentMotion(motion).timing);
-  return `all ${duration} ${easing}, gap calc(${duration} / ${divisor}) calc(${duration} - ${duration} / ${divisor})`;
+  const { duration, easing } = cssTiming(motion?.timing ?? defaultTiming ?? DEFAULT_TIMING);
+  return `all ${duration} ${easing}, gap calc(${duration} / ${divisor}) ${easing} calc(${duration} - ${duration} / ${divisor})`;
 }

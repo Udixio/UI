@@ -146,7 +146,7 @@ export const NavigationRail = ({
 
   return (
     <div
-      style={{ transition: getComponentTransition(motion), ...style }}
+      style={{ transition: getComponentTransition(motion, 'spring.default.spatial'), ...style }}
       ref={ref}
       className={styles.navigationRail}
     >

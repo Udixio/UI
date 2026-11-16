@@ -199,7 +199,7 @@ export class NavigationRailItem {
       !(this.context?.isExtended() ?? true),
   );
   protected readonly hostTransition = computed(() =>
-    getComponentTransition(this.resolvedMotion()),
+    getComponentTransition(this.resolvedMotion(), 'spring.default.spatial'),
   );
   // Staggers the container's own `gap` transition behind the label reveal,
   // as the React adapter does.
@@ -207,6 +207,7 @@ export class NavigationRailItem {
     getStaggeredComponentTransition(
       this.resolvedMotion(),
       this.resolvedVariant() === 'horizontal' ? 2 : 3,
+      'spring.default.spatial',
     ),
   );
 
