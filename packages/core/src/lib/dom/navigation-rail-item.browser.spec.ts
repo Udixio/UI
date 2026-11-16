@@ -100,7 +100,7 @@ describe('createNavigationRailItemLabelController in the browser', () => {
     expect(label.style.opacity).toBe('1');
   });
 
-  it('fades a label in after its size has started: 150 ms on the short3 curve, starting 150 ms late', () => {
+  it('fades a label in after its size has started: on the default effects spring, starting 150 ms late', () => {
     const label = mountLabel();
     const state = { visible: false };
     connect(label, state);
@@ -110,9 +110,11 @@ describe('createNavigationRailItemLabelController in the browser', () => {
 
     const fade = animationOf(label, 'opacity');
     const timing = fade.effect!.getComputedTiming();
+    const effects = resolveWaapiTiming(label, 'spring.default.effects', 'expressive')!;
     expect(timing.delay).toBe(150);
-    expect(timing.duration).toBe(150);
-    expect((fade.effect as KeyframeEffect).getTiming().easing).toBe('cubic-bezier(0.2, 0, 0, 1)');
+    expect(timing.duration).toBe(effects.duration);
+    // WebKit rounds the stops of a linear() easing when it reads it back: compare its kind, the duration is exact.
+    expect((fade.effect as KeyframeEffect).getTiming().easing.split('(')[0]).toBe(effects.easing.split('(')[0]);
   });
 
   it('shrinks a hidden label to zero and fades it out at once', async () => {
@@ -125,7 +127,7 @@ describe('createNavigationRailItemLabelController in the browser', () => {
 
     const fade = animationOf(label, 'opacity');
     expect(fade.effect!.getComputedTiming().delay).toBe(0);
-    expect(fade.effect!.getComputedTiming().duration).toBe(150);
+    expect(fade.effect!.getComputedTiming().duration).toBe(resolveWaapiTiming(label, 'spring.default.effects', 'expressive')!.duration);
     await Promise.all(label.getAnimations().map((animation) => animation.finished));
 
     expect(label.style.width).toBe('0px');
@@ -273,7 +275,7 @@ describe('createNavigationRailItemLabelController in the browser', () => {
     controller!.update();
 
     expect(animationOf(label, 'width').effect!.getComputedTiming().duration).toBe(450);
-    expect(animationOf(label, 'opacity').effect!.getComputedTiming().duration).toBe(150);
+    expect(animationOf(label, 'opacity').effect!.getComputedTiming().duration).toBe(resolveWaapiTiming(label, 'spring.default.effects', 'expressive')!.duration);
   });
 
   it('cancels both running motions on destroy', () => {

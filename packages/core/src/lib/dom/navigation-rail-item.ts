@@ -31,11 +31,8 @@ export interface NavigationRailItemLabelController {
 
 /** The label is a container that grows as a whole: it shows on the spatial spring of its role. */
 const DEFAULT_TIMING: SpringRef = 'spring.default.spatial';
-/** The label fades on the short3 curve, and waits for its size to start when it appears. */
-const FADE_TIMING: CurveTiming = {
-  duration: 'duration.short3',
-  easing: 'easing.standard',
-};
+/** The label fades on the default effects spring, and waits for its size to start when it appears. */
+const FADE_TIMING: SpringRef = 'spring.default.effects';
 const FADE_IN_DELAY = 150;
 
 /**

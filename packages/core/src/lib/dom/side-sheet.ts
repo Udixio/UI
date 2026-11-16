@@ -1,3 +1,4 @@
+import { collapseTimingOf } from './component-motion.js';
 import {
   animateStyle,
   type CurveTiming,
@@ -168,7 +169,8 @@ export function createSideSheetTransitionController({
       containerMotion = animateStyle(
         container,
         { width: open ? 'auto' : '0px' },
-        { timing },
+        // A width that closes to 0 does not use an underdamped spring: it would reach 0 at full speed and stop dead.
+        { timing: open ? timing : collapseTimingOf(timing) },
       );
       if (overlay) {
         overlayMotion = animateStyle(
