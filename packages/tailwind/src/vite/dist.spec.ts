@@ -52,7 +52,6 @@ async function bundle(
           : [
               '@udixio/theme',
               'tailwindcss/plugin',
-              'text-case',
               'pathe',
               'vite',
             ],

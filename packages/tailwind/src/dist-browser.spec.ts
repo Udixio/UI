@@ -115,7 +115,7 @@ console.log(await generateStaticThemeCss(defineConfig({ sourceColor: '#6750A4' }
 describe('dist/node.js', () => {
   it('keeps its dependencies external', async () => {
     const reached = await packagesReachedBy('node.js');
-    for (const dep of ['@udixio/theme', 'pathe', 'tailwindcss/plugin', 'text-case']) {
+    for (const dep of ['@udixio/theme', 'pathe', 'tailwindcss/plugin']) {
       expect(reached).toContain(dep);
     }
     expect(await packagesReachedBy('vite.node.js')).toContain('@udixio/theme');

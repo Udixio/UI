@@ -2,7 +2,6 @@ import { main } from './main';
 import { createGenerateThemeCss } from './generate-theme-css';
 import { TailwindPlugin } from './node/tailwind.plugin';
 
-export * from './plugins-tailwind';
 // Spell out the directory index: `dist/node.js` is also a package entry file,
 // and the ambiguous `./node` specifier can hide the subpath declarations from
 // TypeScript consumers that resolve the Node build's types condition.

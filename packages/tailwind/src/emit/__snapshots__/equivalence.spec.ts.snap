@@ -492,59 +492,6 @@ body {
   }
   color: var(--color-on-surface);
 }
-@layer base {
-  @keyframes enter {
-    from {
-      opacity: var(--anim-enter-opacity, 1);
-      transform: translate3d(var(--anim-enter-translate-x, 0), var(--anim-enter-translate-y, 0), 0) scale3d(var(--anim-enter-scale, 1), var(--anim-enter-scale, 1), var(--anim-enter-scale, 1)) rotate(var(--anim-enter-rotate, 0));
-    }
-  }
-  @keyframes exit {
-    to {
-      opacity: var(--anim-exit-opacity, 1);
-      transform: translate3d(var(--anim-exit-translate-x, 0), var(--anim-exit-translate-y, 0), 0) scale3d(var(--anim-exit-scale, 1), var(--anim-exit-scale, 1), var(--anim-exit-scale, 1)) rotate(var(--anim-exit-rotate, 0));
-    }
-  }
-  [data-anim-in-run] {
-    --anim-in-state: running;
-  }
-  [data-anim-in-paused] {
-    --anim-in-state: paused;
-  }
-  [data-anim-out-run] {
-    --anim-out-state: running;
-  }
-  [data-anim-out-paused] {
-    --anim-out-state: paused;
-  }
-  @keyframes anim-fade {
-    from {
-      opacity: var(--anim-opacity , 0);
-    }
-  }
-  @keyframes anim-scale {
-    from {
-      scale: var(--anim-scale-x , var(--anim-scale , .95)) var(--anim-scale-y , var(--anim-scale , .95));
-    }
-  }
-  @keyframes anim-slide {
-    from {
-      translate: calc(var(--anim-distance , 2rem) * var(--anim-dx )) calc(var(--anim-distance , 2rem) * var(--anim-dy ));;
-    }
-    to {
-      translate: var(--tw-translate-x, 0) var(--tw-translate-y, 0);
-    }
-  }
-  [class*="anim-"] {
-    animation-name: var(--anim-name-fade, noop), var(--anim-name-scale, noop), var(--anim-name-slide, noop);
-    will-change: var(--anim-dependencies-fade, noop), var(--anim-dependencies-scale, noop), var(--anim-dependencies-slide, noop);
-    animation-play-state: var(--anim-play-state-fade, running), var(--anim-play-state-scale, running), var(--anim-play-state-slide, running);
-  }
-  [class*="anim-"][class*="-scroll"] {
-    animation-timeline: var(--anim-timeline-fade, auto), var(--anim-timeline-scale, auto), var(--anim-timeline-slide, auto);
-    animation-range: var(--anim-range-fade, normal), var(--anim-range-scale, normal), var(--anim-range-slide, normal);
-  }
-}
 @property --tw-duration {
   syntax: "*";
   inherits: false;

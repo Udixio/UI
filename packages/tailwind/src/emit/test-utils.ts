@@ -10,7 +10,7 @@ import { TailwindPlugin } from '../node/tailwind.plugin';
  * Deliberately uses the NODE `TailwindPlugin` (not `ssr: true` / the browser
  * plugin) because only the node, non-SSR code path emits the
  * `@plugin "@udixio/tailwind" { ... }` directive that wires up the actual
- * typography/state-layer/shadow/animation utilities (`.text-display-large`,
+ * typography/state-layer/shadow utilities (`.text-display-large`,
  * `.state-primary`, `.shadow-1`, ...). `ssr: true` (as used by
  * `generateThemeCss` for SSR class-name generation) intentionally emits only
  * CSS color variables and skips `@plugin`/`@theme`/filesystem writes — using

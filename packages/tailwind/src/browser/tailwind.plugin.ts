@@ -279,7 +279,7 @@ ${resetColors ? '  --color-*: initial;\n' : ''}  ${keys
   /**
    * Assembles the full static theme CSS for the build-time generated file:
    * @theme colors (registers Tailwind color utilities) + static font/state/shadow
-   * utilities + @theme font families + the animation plugin. NOT used by the SSR
+   * utilities + @theme font families + the state-group plugin. NOT used by the SSR
    * onLoad path, which stays colors-only under `.dynamic`.
    */
   emitStaticCss() {
