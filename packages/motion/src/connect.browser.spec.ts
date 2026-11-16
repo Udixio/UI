@@ -1,9 +1,9 @@
-import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest';
 import { getMotion, getMotions, motion, motionWhenDefined } from './bind.js';
 import { connectMotion } from './connect.js';
 import { defineGesture } from './gesture.js';
 import { defineMotion } from './define-motion.js';
-import { gesturesModule, loadGestures } from './feature-loader.js';
+import { gesturesModule, loadContinuous, loadGestures } from './feature-loader.js';
 import { defineValue } from './value.js';
 import { getValue } from './value-binding.js';
 import { fade, press, reflow, slide } from './presets.js';
@@ -47,6 +47,11 @@ function make(name: string, hidden = false): HTMLElement {
   el.hidden = hidden;
   return el;
 }
+
+// The continuous module loads on the first bind of a loop or a scrub; the loop tests run with it loaded.
+beforeAll(async () => {
+  await loadContinuous();
+});
 
 beforeEach(() => {
   root = document.createElement('div');

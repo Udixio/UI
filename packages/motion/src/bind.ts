@@ -10,18 +10,15 @@ import {
   type MotionRef,
   type MotionSpec,
 } from './define-motion.js';
-import { loadText, textModule } from './feature-loader.js';
+import { continuousModule, loadContinuous, loadText, textModule, type ContinuousApi } from './feature-loader.js';
 import type { LayoutTracking } from './layout.js';
 import { flushLayoutAround, layoutEngine, loadLayoutEngine } from './layout-loader.js';
-import { motionManifest, NAME_PATTERN } from './manifest.js';
+import { NAME_PATTERN } from './manifest.js';
 import { pinOutOfFlow } from './pin.js';
-import { applyRestingFrame, motionDisabled, motionScale, paintFrame, playMotion, releaseOwned } from './play.js';
-import { waapiProvider } from './providers/waapi.js';
+import { applyRestingFrame, paintFrame, playMotion, releaseOwned } from './play.js';
 import { getMotionRuntime, retainMotionRuntime, type MotionRuntime } from './runtime.js';
-import { startScrub } from './scroll.js';
 import { staggered } from './stagger.js';
-import { isHtmlElement, releaseDraw, shapeFrames } from './svg-fields.js';
-import { resolveCurve } from './tokens.js';
+import { isHtmlElement } from './svg-fields.js';
 import { watchView } from './viewport.js';
 
 /** A definition reference, a raw spec (validated here), or the name of a defined motion. */
@@ -53,9 +50,6 @@ type KeyframedSpec = Exclude<MotionSpec, { verb: 'layout' }>;
 
 /** A layout follows HTML elements only: the layout engine measures the boxes of HTML. */
 const LAYOUT_ON_SVG = 'A layout motion applies to an HTML element, not to an SVG element';
-
-/** Whether a spec draws a shape at some point of its keyframes: its binding restores the shape's pathLength when it ends. */
-const drawsShape = (spec: { keyframes: readonly VisualFrame[] }): boolean => spec.keyframes.some(frame => frame.draw !== undefined);
 
 /** The kinds in the order `getMotion` and `getMotions` read them. */
 const KINDS: readonly MotionKind[] = ['presence', 'emphasis', 'layout', 'view', 'loop'];
@@ -121,11 +115,9 @@ export function motion(target: MotionElement, source: MotionSource, options: Bin
       ? createLayoutBinding(target, spec, options)
       : spec.verb === 'reveal'
         ? createRevealBinding(target, spec, options)
-        : spec.verb === 'scrub'
-          ? createScrubBinding(target, spec, options)
-          : spec.verb === 'loop'
-            ? createLoopBinding(target, spec, options)
-            : createBinding(target, spec, options);
+        : spec.verb === 'scrub' || spec.verb === 'loop'
+          ? createContinuousBinding(target, spec, options)
+          : createBinding(target, spec, options);
   register(target, binding);
   return binding;
 }
@@ -396,146 +388,60 @@ function createRevealBinding(target: MotionElement, spec: Readonly<Extract<Motio
 }
 
 /**
- * A scrub: the keyframes follow the scroll position of the element through its range, forwards and backwards. The
- * scroll drives the animation, which has no timing and no handle: there is nothing to replay or to pause. Under reduced
- * motion, or where the browser has no view timeline, the element stays in its stylesheet state.
+ * A scrub or a loop: its code is the continuous module, loaded the first time one is bound. Until it is loaded, the element
+ * keeps its stylesheet state, and a play or a pause asked meanwhile is applied once the binding exists (the last one asked
+ * wins). A failed load leaves the element in its stylesheet state, and a later bind tries again.
  */
-function createScrubBinding(target: MotionElement, spec: Readonly<Extract<MotionSpec, { verb: 'scrub' }>>, options: BindOptions): MotionBinding {
-  const development = options.development ?? false;
-  const runtime = getMotionRuntime();
-  const releaseRuntime = retainMotionRuntime(runtime);
-  const axis = spec.axis ?? 'block';
-  const range = spec.range ?? 'cross';
-  let animation: Animation | null = null;
+function createContinuousBinding(target: MotionElement, spec: Readonly<Extract<MotionSpec, { verb: 'scrub' | 'loop' }>>, options: BindOptions): MotionBinding {
+  let inner: MotionBinding | undefined;
+  let requested: 'play' | 'pause' | undefined;
   let destroyed = false;
 
-  function start() {
-    animation = runtime.policy.reduced ? null : startScrub(target, spec.keyframes, { axis, range, development });
-  }
-
-  function stop() {
-    animation?.cancel();
-    animation = null;
-  }
-
-  start();
-  // Turning reduced motion on stops the scroll link; turning it off resumes it at the current scroll position.
-  const stopPolicy = runtime.policy.subscribe(() => {
-    if (runtime.policy.reduced) stop();
-    else if (!animation) start();
-  });
-
-  const binding: MotionBinding = {
-    verb: 'scrub',
-    kind: 'view',
-    handle: null,
-    present: true,
-    play() {
-      return settledHandle();
-    },
-    pause() {
-      throw new TypeError('pause applies to a loop motion');
-    },
-    setPresent() {
-      throw new TypeError('setPresent does not apply to a scrub motion');
-    },
-    destroy() {
-      if (destroyed) return;
-      destroyed = true;
-      stopPolicy();
-      // Nothing was written inline: cancelling the animation gives the element back its stylesheet state.
-      stop();
-      if (drawsShape(spec)) releaseDraw(target, 'view');
-      unregister(target, binding);
-      releaseRuntime();
-    },
+  /** Bind the spec with the continuous module, then apply the request made before it was loaded. */
+  const bindWith = (api: ContinuousApi): void => {
+    inner = spec.verb === 'scrub' ? api.createScrubBinding(target, spec, options) : api.createLoopBinding(target, spec, options);
+    if (requested === 'pause') inner.pause();
+    else if (requested === 'play') inner.play();
   };
-  return binding;
-}
-
-/**
- * A loop: the element plays its keyframes forever from the moment it is bound. It pauses while it is out of view and
- * while the author pauses it (WCAG 2.2.2), and plays again when neither holds. Under reduced motion, or with no motion
- * (`--udx-motion: none`, a motion scale of 0), it does not play: the element stays in its stylesheet state.
- */
-function createLoopBinding(target: MotionElement, spec: Readonly<Extract<MotionSpec, { verb: 'loop' }>>, options: BindOptions): MotionBinding {
-  const development = options.development ?? false;
-  const runtime = getMotionRuntime();
-  const releaseRuntime = retainMotionRuntime(runtime);
-  const { duration, easing } = resolveCurve(spec.timing ?? motionManifest.defaults.loop.curve);
-  let animation: MotionHandle | null = null;
-  let authorPaused = options.paused ?? false;
-  let inView = true;
-  let destroyed = false;
-
-  /** Pause the animation while the author or the view holds it; play it otherwise. */
-  function apply() {
-    if (authorPaused || !inView) animation?.pause();
-    else animation?.play();
+  const loaded = continuousModule();
+  if (loaded) bindWith(loaded);
+  else {
+    void loadContinuous().then(
+      () => {
+        const api = continuousModule();
+        if (api && !destroyed) bindWith(api);
+      },
+      () => {},
+    );
   }
-
-  function start() {
-    if (runtime.policy.reduced || motionDisabled(target)) return;
-    const scale = motionScale(target);
-    if (scale === 0) return;
-    try {
-      animation = waapiProvider.animate({ target, keyframes: shapeFrames(spec.keyframes, target, 'loop'), timing: { duration: duration * scale, easing, iterations: Infinity } });
-    } catch (error) {
-      // A loop that cannot animate leaves the element as it is: a scan never throws because of a motion.
-      if (development) console.error('[@udixio/motion] a loop could not animate:', error);
-      return;
-    }
-    apply();
-  }
-
-  function stop() {
-    animation?.cancel();
-    animation = null;
-  }
-
-  const stopView = watchView(target, 'block', visible => {
-    if (destroyed) return;
-    inView = visible;
-    apply();
-  });
-  start();
-  // Turning reduced motion on stops the loop; turning it off starts it again, paused if the author has paused it.
-  const stopPolicy = runtime.policy.subscribe(() => {
-    if (runtime.policy.reduced) stop();
-    else if (!animation) start();
-  });
 
   const binding: MotionBinding = {
-    verb: 'loop',
-    kind: 'loop',
+    verb: spec.verb,
+    kind: kindOf(spec.verb),
     get handle() {
-      return animation;
+      return inner?.handle ?? null;
     },
-    present: true,
+    get present() {
+      return true;
+    },
     play() {
       if (destroyed) return settledHandle();
-      authorPaused = false;
-      if (!animation) start();
-      apply();
-      return animation ?? settledHandle();
+      requested = 'play';
+      return inner?.play() ?? settledHandle();
     },
     pause() {
-      authorPaused = true;
-      apply();
+      if (spec.verb !== 'loop') throw new TypeError('pause applies to a loop motion');
+      requested = 'pause';
+      inner?.pause();
     },
     setPresent() {
-      throw new TypeError('setPresent does not apply to a loop motion');
+      throw new TypeError(`setPresent does not apply to a ${spec.verb} motion`);
     },
     destroy() {
       if (destroyed) return;
       destroyed = true;
-      stopPolicy();
-      stopView();
-      // Nothing was written inline: cancelling the animation gives the element back its stylesheet state.
-      stop();
-      if (drawsShape(spec)) releaseDraw(target, 'loop');
+      inner?.destroy();
       unregister(target, binding);
-      releaseRuntime();
     },
   };
   return binding;

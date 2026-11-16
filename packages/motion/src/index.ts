@@ -26,12 +26,10 @@ export type { BindOptions, DeferredMotion, MotionBinding, MotionSource } from '.
 export type { ValueBinding } from './value-binding.js';
 export { watchView } from './viewport.js';
 export type { ViewAxis } from './viewport.js';
-export { startScrub, supportsViewTimeline, rangeOf } from './scroll.js';
-export type { ScrollRangeToken } from './scroll.js';
 export { layoutScopeOf } from './scope-of.js';
 export { loadLayoutEngine, layoutEngine, flushLayoutAround } from './layout-loader.js';
-export { loadValues, valuesModule, loadSequences, sequencesModule, loadGestures, gesturesModule, loadText, textModule } from './feature-loader.js';
-export type { ValueApi, SequenceApi, GestureApi, TextApi } from './feature-loader.js';
+export { loadValues, valuesModule, loadSequences, sequencesModule, loadGestures, gesturesModule, loadText, textModule, loadContinuous, continuousModule } from './feature-loader.js';
+export type { ValueApi, SequenceApi, GestureApi, TextApi, ContinuousApi } from './feature-loader.js';
 export { resolveGesture, onGestureDefined } from './registries.js';
 export type { GestureSpec, GestureRef, GestureKind } from './gesture.js';
 export type { GestureBinding } from './gesture-binding.js';

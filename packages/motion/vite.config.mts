@@ -36,6 +36,7 @@ export default defineConfig(() => ({
         scroll: 'src/scroll-entry.ts',
         animate: 'src/animate-entry.ts',
         page: 'src/page.ts',
+        continuous: 'src/continuous-entry.ts',
         astro: 'src/astro.ts',
         manifest: 'src/manifest.ts',
         'providers/css': 'src/providers/css.ts',

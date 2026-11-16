@@ -1,6 +1,12 @@
-import { afterEach, beforeEach, expect, it } from 'vitest';
+import { afterEach, beforeAll, beforeEach, expect, it } from 'vitest';
 import { getMotion, motion, type MotionBinding } from './bind.js';
 import type { MotionSpec } from './define-motion.js';
+import { loadContinuous } from './feature-loader.js';
+
+// The continuous module loads on the first bind of a loop or a scrub: these tests run with it loaded.
+beforeAll(async () => {
+  await loadContinuous();
+});
 
 /**
  * Whether the browser plays scroll-driven animations on a ViewTimeline (Chromium and WebKit; Firefox 157 does not).

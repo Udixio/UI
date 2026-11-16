@@ -462,3 +462,46 @@ test('the main entry holds none of the shared identity registry, which the layou
   const layout = await readFile(new URL('dist/layout.js', root), 'utf8');
   assert.match(layout, /Multiple live shared elements/);
 });
+
+test('continuous entry point is public in both export maps', () => {
+  assert.deepEqual(pkg.exports['./continuous'], {
+    development: './src/continuous-entry.ts', types: './dist/continuous-entry.d.ts',
+    import: './dist/continuous.js', require: './dist/continuous.cjs', default: './dist/continuous.js',
+  });
+  assert.deepEqual(pkg.publishConfig.exports['./continuous'], {
+    types: './dist/continuous-entry.d.ts', import: './dist/continuous.js',
+    require: './dist/continuous.cjs', default: './dist/continuous.js',
+  });
+});
+
+test('the main entry reaches the continuous module only through a dynamic import, and holds none of its code', async () => {
+  for (const [entry, extension] of [['dist/index.js', 'js'], ['dist/index.cjs', 'cjs']]) {
+    const sources = await staticClosure(entry);
+    const dynamicImport = extension === 'js'
+      ? /import\(["']\.\/continuous\.js["']\)/
+      : /=>\s*require\(["']\.\/continuous\.cjs["']\)/;
+    const staticImport = extension === 'js'
+      ? /^import\s[^;]*["']\.\/continuous\.js["']/m
+      : /(?:^|[=,;])\s*require\(["']\.\/continuous\.cjs["']\)/m;
+    assert.ok(sources.some(code => dynamicImport.test(code)), `${entry} does not load ./continuous dynamically`);
+    for (const code of sources) {
+      assert.doesNotMatch(code, staticImport);
+      assert.doesNotMatch(code, /cover 0%|A scrub could not start|a loop could not animate/);
+    }
+  }
+});
+
+test('the continuous entry imports only shared chunks, and hands its functions to the main entry', async () => {
+  const continuous = await readFile(new URL('dist/continuous.js', root), 'utf8');
+  const imports = [...continuous.matchAll(/^import\s[^;]*?from "(\.\/[^"]+)";/gm)].map(match => match[1]);
+  assert.ok(imports.length > 0);
+  for (const file of imports) {
+    assert.notEqual(file, './index.js', 'the continuous entry imports the main entry');
+    await readFile(new URL(file, new URL('dist/', root)), 'utf8');
+  }
+  const main = await import('@udixio/motion');
+  assert.equal(main.continuousModule(), undefined);
+  await import('@udixio/motion/continuous');
+  assert.equal(typeof main.continuousModule().createScrubBinding, 'function');
+  assert.equal(typeof main.continuousModule().createLoopBinding, 'function');
+});

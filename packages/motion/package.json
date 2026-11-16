@@ -110,6 +110,12 @@
         "require": "./dist/page.cjs",
         "default": "./dist/page.js"
       },
+      "./continuous": {
+        "types": "./dist/continuous-entry.d.ts",
+        "import": "./dist/continuous.js",
+        "require": "./dist/continuous.cjs",
+        "default": "./dist/continuous.js"
+      },
       "./astro": {
         "types": "./dist/astro.d.ts",
         "import": "./dist/astro.js",
@@ -263,6 +269,13 @@
       "import": "./dist/page.js",
       "require": "./dist/page.cjs",
       "default": "./dist/page.js"
+    },
+    "./continuous": {
+      "development": "./src/continuous-entry.ts",
+      "types": "./dist/continuous-entry.d.ts",
+      "import": "./dist/continuous.js",
+      "require": "./dist/continuous.cjs",
+      "default": "./dist/continuous.js"
     },
     "./astro": {
       "development": "./src/astro.ts",

@@ -293,14 +293,16 @@ duration, so the scale does not shorten it. It is read when the scrub starts (at
 off), not while it runs.
 
 The scroll link is made by the browser, on a view timeline. `supportsViewTimeline()` (from
-`@udixio/motion`) tells whether the browser has one. Where it has none (Firefox at the time of
+`@udixio/motion/continuous`) tells whether the browser has one. Where it has none (Firefox at the time of
 writing), under reduced motion and under `--udx-motion: none`, the element keeps its stylesheet
 state and nothing is written inline. Turning reduced motion on stops the scroll link, and
 turning it off resumes it at the current scroll position.
 
 ### Loop
 
-A loop plays its keyframes forever, from the moment it is bound. It pauses by itself while its
+A loop plays its keyframes forever, from the moment it is bound. The scrub and the loop are the
+`@udixio/motion/continuous` entry, which the main entry loads the first time one is bound: until it has
+loaded, the element keeps its stylesheet state, and a pause asked meanwhile holds once the loop starts. It pauses by itself while its
 element is out of view, and plays again when the element comes back. The presets `rotate` (a
 full turn each second), `breathe` (swells to 104 % and back) and `blink` (one dim flash each
 second) are loops:

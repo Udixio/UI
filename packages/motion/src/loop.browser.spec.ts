@@ -1,6 +1,7 @@
-import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest';
 import { motion, motionWhenDefined, type MotionBinding, type MotionSource } from './bind.js';
 import { defineMotion } from './define-motion.js';
+import { loadContinuous } from './feature-loader.js';
 import { blink, fade, parallax, press, reflow, rise, rotate } from './presets.js';
 
 const nextFrame = () => new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
@@ -9,6 +10,11 @@ const twoFrames = async () => {
   await nextFrame();
   await nextFrame();
 };
+
+// The continuous module loads on the first bind of a loop or a scrub: these tests run with it loaded.
+beforeAll(async () => {
+  await loadContinuous();
+});
 
 let page: HTMLElement;
 let bindings: MotionBinding[];
