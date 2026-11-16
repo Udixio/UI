@@ -12,7 +12,7 @@ describe('presets', () => {
     expect(cascade.spec).toEqual({
       verb: 'appear',
       keyframes: [
-        { opacity: 0, y: 16 },
+        { opacity: 0, y: 24 },
         { opacity: 1, y: 0 },
       ],
       stagger: 'normal',
