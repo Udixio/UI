@@ -98,6 +98,12 @@
         "require": "./dist/scroll.cjs",
         "default": "./dist/scroll.js"
       },
+      "./animate": {
+        "types": "./dist/animate-entry.d.ts",
+        "import": "./dist/animate.js",
+        "require": "./dist/animate.cjs",
+        "default": "./dist/animate.js"
+      },
       "./astro": {
         "types": "./dist/astro.d.ts",
         "import": "./dist/astro.js",
@@ -237,6 +243,13 @@
       "import": "./dist/scroll.js",
       "require": "./dist/scroll.cjs",
       "default": "./dist/scroll.js"
+    },
+    "./animate": {
+      "development": "./src/animate-entry.ts",
+      "types": "./dist/animate-entry.d.ts",
+      "import": "./dist/animate.js",
+      "require": "./dist/animate.cjs",
+      "default": "./dist/animate.js"
     },
     "./astro": {
       "development": "./src/astro.ts",

@@ -397,3 +397,37 @@ test('the scroll entry imports only shared chunks, never the main entry', async 
     await readFile(new URL(file, new URL('dist/', root)), 'utf8');
   }
 });
+
+test('animate entry point is public in both export maps', () => {
+  assert.deepEqual(pkg.exports['./animate'], {
+    development: './src/animate-entry.ts', types: './dist/animate-entry.d.ts',
+    import: './dist/animate.js', require: './dist/animate.cjs', default: './dist/animate.js',
+  });
+  assert.deepEqual(pkg.publishConfig.exports['./animate'], {
+    types: './dist/animate-entry.d.ts', import: './dist/animate.js',
+    require: './dist/animate.cjs', default: './dist/animate.js',
+  });
+});
+
+test('the animate entry loads from built ESM and CommonJS', async () => {
+  const esm = await import('@udixio/motion/animate');
+  const cjs = createRequire(import.meta.url)('@udixio/motion/animate');
+  for (const entry of [esm, cjs]) {
+    assert.equal(typeof entry.animateStyle, 'function');
+    assert.equal(typeof entry.createSpring, 'function');
+  }
+});
+
+test('the main entry holds none of the animate code', async () => {
+  for (const code of await staticClosure('dist/index.js')) assert.doesNotMatch(code, /animateStyle|createSpring|needs at least one keyframe|function measureAuto/);
+});
+
+test('the animate entry imports only shared chunks, never the main entry', async () => {
+  const animate = await readFile(new URL('dist/animate.js', root), 'utf8');
+  const imports = [...animate.matchAll(/^import\s[^;]*?from "(\.\/[^"]+)";/gm)].map(match => match[1]);
+  assert.ok(imports.length > 0);
+  for (const file of imports) {
+    assert.notEqual(file, './index.js', 'the animate entry imports the main entry');
+    await readFile(new URL(file, new URL('dist/', root)), 'utf8');
+  }
+});

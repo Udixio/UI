@@ -7,6 +7,7 @@
   { "name": "text", "path": "dist/text.js", "import": "*", "gzip": true, "limit": "11.3 kB" },
   { "name": "svg", "path": "dist/svg.js", "import": "*", "gzip": true, "limit": "22.6 kB" },
   { "name": "scroll", "path": "dist/scroll.js", "import": "*", "gzip": true, "limit": "8.2 kB" },
+  { "name": "animate", "path": "dist/animate.js", "import": "*", "gzip": true, "limit": "10.5 kB" },
   { "name": "presets", "path": "dist/presets.js", "import": "*", "gzip": true, "limit": "2.4 kB" },
   { "name": "policy", "path": "dist/policy.js", "import": "*", "gzip": true, "limit": "0.9 kB" },
   { "name": "manifest", "path": "dist/manifest.js", "import": "*", "gzip": true, "limit": "2.8 kB" },

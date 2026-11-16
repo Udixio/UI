@@ -34,6 +34,7 @@ export default defineConfig(() => ({
         text: 'src/text-entry.ts',
         svg: 'src/svg-entry.ts',
         scroll: 'src/scroll-entry.ts',
+        animate: 'src/animate-entry.ts',
         astro: 'src/astro.ts',
         manifest: 'src/manifest.ts',
         'providers/css': 'src/providers/css.ts',
