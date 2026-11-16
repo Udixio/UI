@@ -2,7 +2,7 @@
 const SCROLLING = new Set(['auto', 'scroll', 'overlay', 'hidden']);
 
 /** The scroll containers whose anchoring is held: the number of flights that hold each one, and the inline value it had. */
-const held = new Map<HTMLElement, { flights: number; previous: string }>();
+const held = new Map<HTMLElement | SVGElement, { flights: number; previous: string }>();
 
 /**
  * The scroll container that anchors the content of a scope: the nearest one, the scope root included, else the page.
@@ -21,7 +21,7 @@ export function anchorOf(root: HTMLElement): HTMLElement {
  * Hold the overflow anchoring of a scroller while a flight runs in it: the browser must not move the position under the
  * flight, so an element inserted above the viewport leaves the content where it is. Each flight holds it once.
  */
-export function holdAnchor(scroller: HTMLElement): void {
+export function holdAnchor(scroller: HTMLElement | SVGElement): void {
   const entry = held.get(scroller);
   if (entry) {
     entry.flights++;
@@ -32,7 +32,7 @@ export function holdAnchor(scroller: HTMLElement): void {
 }
 
 /** Give the anchoring of a scroller back to the author once the last flight that held it has ended. */
-export function releaseAnchor(scroller: HTMLElement): void {
+export function releaseAnchor(scroller: HTMLElement | SVGElement): void {
   const entry = held.get(scroller);
   if (!entry || --entry.flights > 0) return;
   held.delete(scroller);

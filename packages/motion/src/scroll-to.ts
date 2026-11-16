@@ -1,4 +1,5 @@
 import type { SpringRef } from './motion-spec.js';
+import { holdAnchor, releaseAnchor } from './anchor.js';
 import { motionDisabledIn } from './motion-style.js';
 import { getMotionRuntime, retainMotionRuntime } from './runtime.js';
 import { stepSpring, type SpringState } from './spring-step.js';
@@ -202,8 +203,8 @@ export function scrollTo(target: Element | ScrollPosition, options: ScrollToOpti
   });
   const handle: ScrollHandle = { finished, cancel: () => end('cancelled') };
   const takeover = (): void => end('cancelled');
-  // The overflow-anchor of the scroller while the scroll runs, set to none and given back at the end: the browser must not move the position itself.
-  let anchor: { style: CSSStyleDeclaration; previous: string } | undefined;
+  // The anchoring of the scroller is held while the scroll runs, and given back at the end: the browser must not move the position itself.
+  let held: HTMLElement | SVGElement | undefined;
 
   /** The end of the scroll: its listeners and subscriptions go, its lease on the runtime is given back, and it resolves. */
   function end(result: 'finished' | 'cancelled'): void {
@@ -214,10 +215,7 @@ export function scrollTo(target: Element | ScrollPosition, options: ScrollToOpti
     unsubscribePolicy?.();
     unsubscribePolicy = undefined;
     for (const type of TAKEOVER) listenTo.removeEventListener(type, takeover, { capture: true });
-    if (anchor) {
-      if (anchor.previous) anchor.style.setProperty('overflow-anchor', anchor.previous);
-      else anchor.style.removeProperty('overflow-anchor');
-    }
+    if (held) releaseAnchor(held);
     if (running.get(element) === handle) running.delete(element);
     releaseRuntime();
     resolve(result);
@@ -275,8 +273,8 @@ export function scrollTo(target: Element | ScrollPosition, options: ScrollToOpti
   }
   for (const type of TAKEOVER) listenTo.addEventListener(type, takeover, { capture: true, passive: true });
   if (element instanceof HTMLElement || element instanceof SVGElement) {
-    anchor = { style: element.style, previous: element.style.getPropertyValue('overflow-anchor') };
-    element.style.setProperty('overflow-anchor', 'none');
+    held = element;
+    holdAnchor(element);
   }
   unsubscribePolicy = runtime.policy.subscribe(() => {
     if (runtime.policy.reduced) arrive();

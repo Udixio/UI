@@ -3,7 +3,7 @@ import { motionDisabledIn, motionScaleIn } from '../play.js';
 import type { ContentPlan, Stretch } from '../project.js';
 import { waapiProvider } from '../providers/waapi.js';
 import type { MotionRuntime } from '../runtime.js';
-import { anchorOf, holdAnchor, releaseAnchor } from './anchor.js';
+import { anchorOf, holdAnchor, releaseAnchor } from '../anchor.js';
 import { playbackOf, restFrames, startContent, stopFlight } from './flight.js';
 import { centredOn, contentPlanOf, depthOf, flyingChange, isNegligible, resizes, scalesMoving, stretchesCorners } from './plan.js';
 import { contentOf, hasText, measure, measureWith, ownOf, radiiOf, referenceOf, unitOf, visualBoxOf } from './measure.js';
