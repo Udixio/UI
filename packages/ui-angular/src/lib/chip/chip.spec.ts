@@ -76,7 +76,8 @@ describe('Chip', () => {
 
     const button: HTMLElement =
       fixture.nativeElement.querySelector('button, a');
-    expect(button.style.transition).toBe('all 300ms cubic-bezier(0.2, 0, 0, 1)');
+    expect(button.style.transition).toContain('background-color var(--udx-motion-spring-default-effects-duration');
+    expect(button.style.transition).not.toContain('all ');
   });
 
   it('honours a caller motion timing', () => {
@@ -87,6 +88,6 @@ describe('Chip', () => {
 
     const button: HTMLElement =
       fixture.nativeElement.querySelector('button, a');
-    expect(button.style.transition).toBe('all 450ms cubic-bezier(0.2, 0, 0, 1)');
+    expect(button.style.transition).toContain('padding 450ms cubic-bezier(0.2, 0, 0, 1)');
   });
 });

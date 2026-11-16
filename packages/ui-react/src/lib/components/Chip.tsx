@@ -13,7 +13,7 @@ import {
   getChipSelectionTransition,
 } from '@udixio/core';
 import {
-  getComponentTransition,
+  getChipSurfaceTransition,
   resolveComponentMotion,
 } from '@udixio/core/dom';
 import { Icon } from '../icon';
@@ -393,7 +393,7 @@ export const Chip = ({
         : { disabled, type: 'button' })}
       {...(!href ? { form } : {})}
       aria-pressed={isSelectable ? isSelected : undefined}
-      style={{ transition: getComponentTransition(motion) }}
+      style={{ transition: getChipSurfaceTransition(motion) }}
     >
       {isInteractive && !disabled && !isEditing && (
         <StateLayer

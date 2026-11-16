@@ -22,7 +22,7 @@ import {
   mergeClassNames,
 } from '@udixio/core';
 import {
-  getComponentTransition,
+  getChipSurfaceTransition,
   resolveComponentMotion,
 } from '@udixio/core/dom';
 import { iCheck } from '@udixio/icons-rounded-400/check';
@@ -153,7 +153,7 @@ export class Chip implements OnInit {
 
   /** The chip's surface transition, from its motion. */
   protected readonly hostTransition = computed(() =>
-    getComponentTransition(this.motion()),
+    getChipSurfaceTransition(this.motion()),
   );
   /** The state layer's motion, which takes the same timing as the surface. */
   protected readonly stateLayerMotion = computed(() =>

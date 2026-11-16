@@ -6,7 +6,7 @@
     mergeClassNames,
     type ChipInterface,
   } from '@udixio/core';
-  import { getComponentTransition, resolveComponentMotion } from '@udixio/core/dom';
+  import { getChipSurfaceTransition, resolveComponentMotion } from '@udixio/core/dom';
   import { iCheck } from '@udixio/icons-rounded-400/check';
   import { iClose } from '@udixio/icons-rounded-400/close';
   import Icon from '../icon/Icon.svelte';
@@ -65,7 +65,7 @@
   const isEditing = $derived(!!editable && (editing ?? internalEditing));
   const hasTrailingIcon = $derived(!!onRemove && !isEditing);
   /** The surface's transition, and the state layer's motion, both from the chip's motion so that they match. */
-  const hostTransition = $derived(getComponentTransition(motion));
+  const hostTransition = $derived(getChipSurfaceTransition(motion));
   const stateLayerMotion = $derived(resolveComponentMotion(motion));
 
   const selectedState = createControllableState({
