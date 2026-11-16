@@ -11,6 +11,7 @@ import {
   createCircularProgressController,
   createLinearIndeterminateController,
   createProgressVisibilityController,
+  PROGRESS_VALUE_EASING,
 } from '@udixio/core/dom';
 import { createUseStyle } from '../utils/create-use-style';
 
@@ -158,21 +159,21 @@ export const ProgressIndicator = ({
           <div
             style={{
               width: `${completedPercentage}%`,
-              transition: `width ${transitionDuration}ms ease-in-out ${completedPercentage == 100 ? ', max-height 200ms 0.5s ease-in-out' : ''}`,
+              transition: `width ${transitionDuration}ms ${PROGRESS_VALUE_EASING} ${completedPercentage == 100 ? ', max-height 200ms 0.5s ease-in-out' : ''}`,
             }}
             className={styles.activeIndicator}
           ></div>
           <div
             style={{
               marginLeft: completedPercentage != 100 ? '6px' : '0px',
-              transition: `width ${transitionDuration}ms ease-in-out ${completedPercentage == 100 ? `, max-height 200ms 0.5s ease-in-out, margin-left ${transitionDuration}ms ${transitionDuration / 1.5}ms` : ''}`,
+              transition: `width ${transitionDuration}ms ${PROGRESS_VALUE_EASING} ${completedPercentage == 100 ? `, max-height 200ms 0.5s ease-in-out, margin-left ${transitionDuration}ms ${transitionDuration / 1.5}ms` : ''}`,
             }}
             className={styles.lastTrack}
           ></div>
           <div
             style={{
               width: `4px`,
-              transition: `width ${transitionDuration}ms ease-in-out, max-height 200ms 0.5s ease-in-out`,
+              transition: `width ${transitionDuration}ms ${PROGRESS_VALUE_EASING}, max-height 200ms 0.5s ease-in-out`,
             }}
             className={styles.stop}
           ></div>
@@ -222,7 +223,7 @@ export const ProgressIndicator = ({
               strokeLinecap: 'round',
               strokeDasharray: circumference,
               strokeDashoffset,
-              transition: `stroke-dashoffset ${transitionDuration}ms ease-in-out`,
+              transition: `stroke-dashoffset ${transitionDuration}ms ${PROGRESS_VALUE_EASING}`,
             }}
             className={styles.activeIndicator}
           />

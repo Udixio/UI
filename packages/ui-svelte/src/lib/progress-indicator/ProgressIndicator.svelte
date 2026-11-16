@@ -11,7 +11,8 @@
     createCircularProgressController,
     createLinearIndeterminateController,
     createProgressVisibilityController,
-  } from '@udixio/core/dom';
+    PROGRESS_VALUE_EASING,
+} from '@udixio/core/dom';
   import { createStyle } from '../utils/create-style.svelte';
   import type { SvelteProgressIndicatorProps } from './progress-indicator.types';
 
@@ -40,20 +41,20 @@
   const circumference = $derived(2 * Math.PI * circularRadius);
   const strokeDashoffset = $derived(circumference * (1 - completedPercentage / 100));
   const activeIndicatorTransition = $derived(
-    `width ${transitionDuration}ms ease-in-out${
+    `width ${transitionDuration}ms ${PROGRESS_VALUE_EASING}${
       completedPercentage === 100 ? ', max-height 200ms 0.5s ease-in-out' : ''
     }`,
   );
   const lastTrackMarginLeft = $derived(completedPercentage !== 100 ? '6px' : '0px');
   const lastTrackTransition = $derived(
-    `width ${transitionDuration}ms ease-in-out${
+    `width ${transitionDuration}ms ${PROGRESS_VALUE_EASING}${
       completedPercentage === 100
         ? `, max-height 200ms 0.5s ease-in-out, margin-left ${transitionDuration}ms ${transitionDuration / 1.5}ms`
         : ''
     }`,
   );
   const stopTransition = $derived(
-    `width ${transitionDuration}ms ease-in-out, max-height 200ms 0.5s ease-in-out`,
+    `width ${transitionDuration}ms ${PROGRESS_VALUE_EASING}, max-height 200ms 0.5s ease-in-out`,
   );
 
   const styles = createStyle(progressIndicatorStyle, () => ({
@@ -170,7 +171,7 @@
       style:stroke-linecap="round"
       style:stroke-dasharray={circumference}
       style:stroke-dashoffset={strokeDashoffset}
-      style:transition={`stroke-dashoffset ${transitionDuration}ms ease-in-out`}
+      style:transition={`stroke-dashoffset ${transitionDuration}ms ${PROGRESS_VALUE_EASING}`}
       class={styles.current['activeIndicator']}
     />
   </svg>

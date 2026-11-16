@@ -22,6 +22,7 @@ import {
   createCircularProgressController,
   createLinearIndeterminateController,
   createProgressVisibilityController,
+  PROGRESS_VALUE_EASING,
 } from '@udixio/core/dom';
 import { createStyle } from '../utils/create-style';
 
@@ -154,7 +155,7 @@ import { createStyle } from '../utils/create-style';
             [style.stroke-dasharray]="circumference()"
             [style.stroke-dashoffset]="strokeDashoffset()"
             [style.transition]="
-              'stroke-dashoffset ' + transitionDuration() + 'ms ease-in-out'
+              'stroke-dashoffset ' + transitionDuration() + 'ms ' + PROGRESS_VALUE_EASING
             "
             [class]="styles()['activeIndicator']"
           />
@@ -214,7 +215,7 @@ export class ProgressIndicator {
   );
   protected readonly activeIndicatorTransition = computed(
     () =>
-      `width ${this.transitionDuration()}ms ease-in-out${
+      `width ${this.transitionDuration()}ms ${PROGRESS_VALUE_EASING}${
         this.completedPercentage() === 100
           ? ', max-height 200ms 0.5s ease-in-out'
           : ''
@@ -225,7 +226,7 @@ export class ProgressIndicator {
   );
   protected readonly lastTrackTransition = computed(() => {
     const duration = this.transitionDuration();
-    return `width ${duration}ms ease-in-out${
+    return `width ${duration}ms ${PROGRESS_VALUE_EASING}${
       this.completedPercentage() === 100
         ? `, max-height 200ms 0.5s ease-in-out, margin-left ${duration}ms ${duration / 1.5}ms`
         : ''
@@ -233,7 +234,7 @@ export class ProgressIndicator {
   });
   protected readonly stopTransition = computed(
     () =>
-      `width ${this.transitionDuration()}ms ease-in-out, max-height 200ms 0.5s ease-in-out`,
+      `width ${this.transitionDuration()}ms ${PROGRESS_VALUE_EASING}, max-height 200ms 0.5s ease-in-out`,
   );
 
   protected readonly styles = createStyle(progressIndicatorStyle, () => ({
