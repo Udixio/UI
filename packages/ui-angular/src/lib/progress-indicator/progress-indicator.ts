@@ -155,7 +155,7 @@ import { createStyle } from '../utils/create-style';
             [style.stroke-dasharray]="circumference()"
             [style.stroke-dashoffset]="strokeDashoffset()"
             [style.transition]="
-              'stroke-dashoffset ' + transitionDuration() + 'ms ' + PROGRESS_VALUE_EASING
+              'stroke-dashoffset ' + transitionDuration() + 'ms ' + valueEasing
             "
             [class]="styles()['activeIndicator']"
           />
@@ -168,6 +168,8 @@ export class ProgressIndicator {
   readonly variant = input<ProgressIndicatorVariant>('linear-determinate');
   readonly value = input<number>(0);
   readonly transitionDuration = input<number>(1000);
+  /** The easing of the value, shared with the other adapters: the slow effects spring. */
+  protected readonly valueEasing = PROGRESS_VALUE_EASING;
   readonly minHeight = input<number>();
   /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
   readonly hostClass = input<string>('', { alias: 'class' });
