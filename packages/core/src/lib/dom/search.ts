@@ -52,7 +52,10 @@ export interface SearchResultsTransitionControllerOptions {
   open: boolean;
   /** An extra reduced-motion switch, read at each change; the document policy always applies. */
   reducedMotion?: () => boolean;
-  /** The motion of the results' height; `spring.default.spatial` by default. Its opacity has its own effects spring. */
+  /**
+   * The motion of the results' opening height; `spring.default.spatial` by default. Closing uses the default effects
+   * spring, so the height settles on zero without overshooting it. The opacity has its own effects spring.
+   */
   timing?: SpringRef | CurveTiming;
 }
 
@@ -67,6 +70,8 @@ export interface SearchResultsTransitionController {
 const DEFAULT_TIMING: SpringRef = 'spring.default.spatial';
 /** The opacity fades on the default effects spring, whatever the height's timing. */
 const OPACITY_TIMING: SpringRef = 'spring.default.effects';
+/** Closing settles the height on zero with the default effects spring: a spatial spring overshoots past zero and is clipped. */
+const CLOSE_HEIGHT_TIMING: SpringRef = 'spring.default.effects';
 
 /**
  * Connects the shared reveal used by Search in every framework, on
@@ -112,7 +117,9 @@ export function createSearchResultsTransitionController({
       // its own render cycle, and the surface is hidden again when it closes.
       element.hidden = false;
 
-      if (reducedMotion() || motionPolicy.reduced) {
+      // Without a layout box (the surface is in a subtree that is not rendered) there is nothing to see or to measure:
+      // the new state is applied at once, so that a page of hidden instances starts no animation.
+      if (reducedMotion() || motionPolicy.reduced || element.getClientRects().length === 0) {
         motion?.cancel();
         motion = undefined;
         applyInstantState(nextOpen);
@@ -129,7 +136,7 @@ export function createSearchResultsTransitionController({
             { height: nextOpen ? '0px' : 'auto' },
             { height: nextOpen ? 'auto' : '0px' },
           ],
-          { timing, carry: interrupted },
+          { timing: nextOpen ? timing : CLOSE_HEIGHT_TIMING, carry: interrupted },
         ),
         animateStyle(
           element,

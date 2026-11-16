@@ -120,6 +120,56 @@ describe('search results transition controller in the browser', () => {
     expect(element.style.opacity).toBe('0');
   });
 
+  it('closes its height on the default effects spring, which does not overshoot the zero height', () => {
+    const element = mountResults(true);
+    controller = createSearchResultsTransitionController({ element, open: true });
+
+    controller.setOpen(false);
+
+    expect(animationOf(element, 'height').effect!.getComputedTiming().duration).toBe(
+      tokenDuration(element, 'spring.default.effects'),
+    );
+  });
+
+  it('opens and closes with no animation inside a subtree that is not rendered, and ends at the new state', () => {
+    document.body.innerHTML = `
+      <div style="display: none">
+        <div id="results" hidden>
+          <div id="content" style="height: 144px"></div>
+        </div>
+      </div>`;
+    const element = document.querySelector<HTMLElement>('#results')!;
+    controller = createSearchResultsTransitionController({ element, open: false });
+
+    controller.setOpen(true);
+    expect(element.getAnimations()).toHaveLength(0);
+    expect(element.hidden).toBe(false);
+    expect(element.style.height).toBe('auto');
+    expect(element.style.opacity).toBe('1');
+
+    controller.setOpen(false);
+    expect(element.getAnimations()).toHaveLength(0);
+    expect(element.hidden).toBe(true);
+    expect(element.style.height).toBe('0px');
+    expect(element.style.opacity).toBe('0');
+  });
+
+  it('does not animate an open surface that is not rendered, so the animations of a page stay with the visible ones', () => {
+    document.body.innerHTML = `
+      <div style="display: none">
+        <div id="results">
+          <div id="content" style="height: 144px"></div>
+        </div>
+      </div>`;
+    const element = document.querySelector<HTMLElement>('#results')!;
+    controller = createSearchResultsTransitionController({ element, open: true });
+
+    controller.setOpen(false);
+
+    expect(element.getAnimations()).toHaveLength(0);
+    expect(element.hidden).toBe(true);
+  });
+
   it('starts a closing from the height the surface shows', () => {
     const element = mountResults(true);
     controller = createSearchResultsTransitionController({ element, open: true });
