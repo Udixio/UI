@@ -7,6 +7,25 @@ import { axe, toHaveNoViolations } from 'jest-axe';
 
 expect.extend(toHaveNoViolations);
 
+/**
+ * A primary pointer press as a browser sends it. jsdom has no PointerEvent, so testing-library would drop `button` and
+ * `isPrimary`: they are set on a plain event instead.
+ */
+function primaryPointerDown(target: Element): void {
+  fireEvent(
+    target,
+    Object.assign(new Event('pointerdown', { bubbles: true, cancelable: true }), {
+      button: 0,
+      buttons: 1,
+      isPrimary: true,
+      pointerId: 1,
+      pointerType: 'mouse',
+      clientX: 4,
+      clientY: 4,
+    }),
+  );
+}
+
 describe('Button', () => {
   it('renders correctly with default props', () => {
     render(<Button label="Test Button" />);
@@ -134,11 +153,7 @@ describe('Button', () => {
     const { unmount } = render(<Button label="Pointer action" />);
     const button = screen.getByRole('button', { name: 'Pointer action' });
 
-    fireEvent.pointerDown(button, {
-      pointerType: 'mouse',
-      clientX: 4,
-      clientY: 4,
-    });
+    primaryPointerDown(button);
     const ripple = button.querySelector('[data-udixio-ripple]');
     expect(ripple).not.toBeNull();
 

@@ -57,6 +57,8 @@
     "react": ">19.0.0"
   },
   "devDependencies": {
+    "@vitest/browser-playwright": "4.1.11",
+    "playwright": "^1.64.0",
     "react": "^19.1.1"
   }
 }

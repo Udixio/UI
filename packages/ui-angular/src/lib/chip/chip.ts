@@ -17,6 +17,7 @@ import {
   type ChipInterface,
   type ChipProps,
   type ClassNameComponent,
+  type ComponentMotion,
   type ElementClasses,
   mergeClassNames,
 } from '@udixio/core';
@@ -88,7 +89,7 @@ import { createStyle } from '../utils/create-style';
         <udx-state-layer
           [class]="styles()['stateLayer']"
           [colorName]="stateColor()"
-          [transitionDuration]="transitionDuration()"
+          [motion]="stateLayerMotion"
           stateClassName="state-ripple-group-[chip]"
         />
       }
@@ -149,6 +150,10 @@ export class Chip implements OnInit {
   protected readonly transitionDuration = computed(
     () => this.transition()?.duration ?? 0.3,
   );
+  /** The colour change of the layer, on the medium token; the chip's own transition still times its surface. */
+  protected readonly stateLayerMotion: ComponentMotion = {
+    timing: { duration: 'duration.medium2', easing: 'easing.standard' },
+  };
 
   readonly selectedChange = output<boolean>();
   /** Requests removal of this chip. */

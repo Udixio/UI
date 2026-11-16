@@ -7,6 +7,25 @@ import { iAdd } from '@udixio/icons-rounded-400/add';
 import Button from './Button.svelte';
 import Fixture from './button.fixture.svelte';
 
+/**
+ * A primary pointer press as a browser sends it. jsdom has no PointerEvent, so testing-library would drop `button` and
+ * `isPrimary`: they are set on a plain event instead.
+ */
+function primaryPointerDown(target: Element) {
+  return fireEvent(
+    target,
+    Object.assign(new Event('pointerdown', { bubbles: true, cancelable: true }), {
+      button: 0,
+      buttons: 1,
+      isPrimary: true,
+      pointerId: 1,
+      pointerType: 'mouse',
+      clientX: 4,
+      clientY: 4,
+    }),
+  );
+}
+
 describe('Button', () => {
   it('renders correctly with default props', () => {
     render(Button, { props: { label: 'Test Button' } });
@@ -107,7 +126,7 @@ describe('Button', () => {
     const { unmount } = render(Button, { props: { label: 'Pointer action' } });
     const button = screen.getByRole('button', { name: 'Pointer action' });
 
-    await fireEvent.pointerDown(button, { pointerType: 'mouse', clientX: 4, clientY: 4 });
+    await primaryPointerDown(button);
     const ripple = button.querySelector('[data-udixio-ripple]');
     expect(ripple).not.toBeNull();
 

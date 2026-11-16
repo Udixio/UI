@@ -1,6 +1,6 @@
-import type { Transition } from 'motion';
 import type { Icon } from '../icon';
 import type { ButtonShapeFeedback } from './button.interface';
+import type { ComponentMotion } from './motion.interface';
 
 export type IconButtonVariant = 'standard' | 'filled' | 'tonal' | 'outlined';
 export type IconButtonSize = 'xSmall' | 'small' | 'medium' | 'large' | 'xLarge';
@@ -36,8 +36,8 @@ export interface IconButtonProps {
   shape?: 'squared' | 'rounded';
   /** Shape feedback shown for accepted press and toggle interactions. */
   shapeFeedback?: ButtonShapeFeedback;
-  /** Motion transition shared by every framework for shape changes. */
-  transition?: Transition;
+  /** Motion of the shape changes on press and release, timed by `@udixio/motion`. */
+  motion?: ComponentMotion;
   /** Enables semantic pressed state for action buttons. */
   toggleable?: boolean;
   /** Controlled pressed state. */

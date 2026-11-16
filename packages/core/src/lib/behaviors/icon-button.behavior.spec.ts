@@ -1,7 +1,7 @@
 import {
-  DEFAULT_BUTTON_SHAPE_TRANSITION,
+  DEFAULT_BUTTON_SHAPE_TIMING,
   getIconButtonPressTransition,
-  getIconButtonShapeTransition,
+  getIconButtonShapeMotion,
   getIconButtonStateColor,
 } from './index.js';
 
@@ -52,7 +52,7 @@ describe('icon button behavior', () => {
 
   it('uses shared shape motion and respects static feedback', () => {
     expect(
-      getIconButtonShapeTransition({
+      getIconButtonShapeMotion({
         size: 'medium',
         shape: 'rounded',
         shapeFeedback: 'morph',
@@ -63,10 +63,10 @@ describe('icon button behavior', () => {
       restingBorderRadius: '40px',
       pressedBorderRadius: '16px',
       enabled: true,
-      transition: DEFAULT_BUTTON_SHAPE_TRANSITION,
+      timing: DEFAULT_BUTTON_SHAPE_TIMING,
     });
     expect(
-      getIconButtonShapeTransition({
+      getIconButtonShapeMotion({
         size: 'medium',
         shape: 'rounded',
         shapeFeedback: 'none',

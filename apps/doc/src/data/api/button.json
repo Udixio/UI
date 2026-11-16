@@ -132,12 +132,12 @@
             "value": "'morph'"
           }
         },
-        "transition": {
-          "name": "transition",
-          "description": "Motion transition shared by every framework for shape changes.",
+        "motion": {
+          "name": "motion",
+          "description": "Motion of the shape changes on press and release, timed by `@udixio/motion`.",
           "required": false,
           "type": {
-            "name": "Transition"
+            "name": "ComponentMotion"
           },
           "defaultValue": null
         },
@@ -356,12 +356,12 @@
             "value": "'morph'"
           }
         },
-        "transition": {
-          "name": "transition",
-          "description": "Motion transition shared by every framework for shape changes.",
+        "motion": {
+          "name": "motion",
+          "description": "Motion of the shape changes on press and release, timed by `@udixio/motion`.",
           "required": false,
           "type": {
-            "name": "Transition | undefined"
+            "name": "ComponentMotion | undefined"
           },
           "defaultValue": null
         },
@@ -708,12 +708,12 @@
             "value": "'morph'"
           }
         },
-        "transition": {
-          "name": "transition",
-          "description": "Motion transition shared by every framework for shape changes.",
+        "motion": {
+          "name": "motion",
+          "description": "Motion of the shape changes on press and release, timed by `@udixio/motion`.",
           "required": false,
           "type": {
-            "name": "Transition"
+            "name": "ComponentMotion"
           },
           "defaultValue": null
         },

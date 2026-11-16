@@ -124,25 +124,25 @@ describe('StateLayer', () => {
     expect(firstCall().disabled()).toBe(true);
   });
 
-  const shapeTransition = {
+  const shapeMotion = {
     restingBorderRadius: '8px',
     pressedBorderRadius: '4px',
     enabled: true,
-    transition: { duration: 0.2 },
+    timing: 'spring.fast.spatial' as const,
   };
 
-  it('pushes the shape transition to the controller on connect', () => {
-    render(Fixture, { props: { colorName: 'on-primary', shapeTransition } });
+  it('pushes the shape motion to the controller on connect', () => {
+    render(Fixture, { props: { colorName: 'on-primary', shapeMotion } });
 
-    expect(controller.updateShape).toHaveBeenCalledWith(shapeTransition);
+    expect(controller.updateShape).toHaveBeenCalledWith(shapeMotion);
   });
 
-  it('pushes a later shape transition without recreating the controller', async () => {
-    const { rerender } = render(Fixture, { props: { colorName: 'on-primary', shapeTransition } });
+  it('pushes a later shape motion without recreating the controller', async () => {
+    const { rerender } = render(Fixture, { props: { colorName: 'on-primary', shapeMotion } });
     controller.updateShape.mockClear();
-    const next = { ...shapeTransition, pressedBorderRadius: '2px' };
+    const next = { ...shapeMotion, pressedBorderRadius: '2px' };
 
-    await rerender({ colorName: 'on-primary', shapeTransition: next });
+    await rerender({ colorName: 'on-primary', shapeMotion: next });
     flushSync();
 
     expect(controller.updateShape).toHaveBeenCalledWith(next);
@@ -156,16 +156,25 @@ describe('StateLayer', () => {
     expect(createController).not.toHaveBeenCalled();
   });
 
-  it('applies a transition duration to the layer', () => {
-    render(Fixture, { props: { colorName: 'on-primary', transitionDuration: 0.3 } });
+  it('transitions the colour of the layer over the timing of its motion', () => {
+    render(Fixture, {
+      props: {
+        colorName: 'on-primary',
+        motion: { timing: { duration: 'duration.medium2', easing: 'easing.standard' } },
+      },
+    });
 
-    expect(layerIn(screen.getByTestId('trigger'))?.style.transition).toBe('0.3s');
+    const layer = layerIn(screen.getByTestId('trigger'));
+    expect(layer?.style.transitionProperty).toBe('background-color, opacity');
+    expect(layer?.style.transitionDuration).toBe('300ms');
+    expect(layer?.style.transitionTimingFunction).toBe('cubic-bezier(0.2, 0, 0, 1)');
   });
 
-  it('sets no transition when no duration is given', () => {
+  it('snaps the colour when no motion timing is given', () => {
     render(Fixture, { props: { colorName: 'on-primary' } });
 
-    expect(layerIn(screen.getByTestId('trigger'))?.style.transition).toBe('');
+    expect(layerIn(screen.getByTestId('trigger'))?.style.transitionDuration).toBe('');
+    expect(layerIn(screen.getByTestId('trigger'))?.style.transitionProperty).toBe('');
   });
 
   it('forwards class to the layer and classes to the style contract', () => {

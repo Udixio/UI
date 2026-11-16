@@ -166,7 +166,7 @@
     return buttonStyle({
       type: 'button', variant, size: 'small', icon: undefined, iconPosition: 'start', disabled: false,
       edgeAligned: true, loading: false, shape: 'rounded', shapeFeedback: 'none', stateColor: undefined,
-      transition: undefined, toggleable: false, pressed: undefined, defaultPressed: false,
+      motion: undefined, toggleable: false, pressed: undefined, defaultPressed: false,
       label: String(date.getDate()), isPressed: false,
       className: () => ({
         button: classNames(styles.current['dayButton'], 'p-0', { 'text-on-surface': !selected && !isTodayDate, 'opacity-50': disabledDay }),

@@ -180,7 +180,7 @@
         disabled={action.disabled}
         shape={action.shape}
         shapeFeedback={action.shapeFeedback}
-        transition={action.transition}
+        motion={action.motion}
         toggleable={action.toggleable}
         pressed={action.pressed}
         defaultPressed={action.defaultPressed}

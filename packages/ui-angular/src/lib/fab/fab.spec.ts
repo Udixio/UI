@@ -173,6 +173,7 @@ describe('Fab (Angular, consuming @udixio/core)', () => {
       cancelable: true,
     });
     Object.defineProperty(pointerDown, 'pointerType', { value: 'mouse' });
+    Object.defineProperty(pointerDown, 'isPrimary', { value: true });
     button.dispatchEvent(pointerDown);
     const ripple = button.querySelector('[data-udixio-ripple]');
 

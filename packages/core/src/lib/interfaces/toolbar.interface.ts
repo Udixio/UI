@@ -18,7 +18,7 @@ export interface ToolbarAction extends Pick<
   | 'disabled'
   | 'shape'
   | 'shapeFeedback'
-  | 'transition'
+  | 'motion'
   | 'toggleable'
   | 'pressed'
   | 'defaultPressed'

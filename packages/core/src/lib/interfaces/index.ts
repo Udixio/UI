@@ -20,6 +20,7 @@ export * from './menu-headline.interface';
 export * from './menu-item.interface';
 export * from './menu-submenu.interface';
 export * from './menu.interface';
+export * from './motion.interface';
 export * from './navigation-rail-item.interface';
 export * from './navigation-rail-section.interface';
 export * from './navigation-rail.interface';

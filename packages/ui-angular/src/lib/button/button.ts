@@ -22,7 +22,7 @@ import {
   type ElementClasses,
   getButtonPressTransition,
   getButtonProgressColor,
-  getButtonShapeTransition,
+  getButtonShapeMotion,
   getButtonStateColor,
   mergeClassNames,
   resolveButtonIconPosition,
@@ -104,7 +104,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         <udx-state-layer
           [class]="styles()['stateLayer']"
           [colorName]="resolvedStateColor()"
-          [shapeTransition]="shapeTransition()"
+          [shapeMotion]="shapeMotion()"
           stateClassName="state-ripple-group-[button]"
         />
         <ng-container [ngTemplateOutlet]="content" />
@@ -127,7 +127,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         <udx-state-layer
           [class]="styles()['stateLayer']"
           [colorName]="resolvedStateColor()"
-          [shapeTransition]="shapeTransition()"
+          [shapeMotion]="shapeMotion()"
           stateClassName="state-ripple-group-[button]"
         />
         <ng-container [ngTemplateOutlet]="content" />
@@ -147,8 +147,8 @@ export class Button implements OnInit {
   readonly shape = input<ButtonProps['shape']>('rounded');
   readonly shapeFeedback =
     input<NonNullable<ButtonProps['shapeFeedback']>>('morph');
-  readonly transition: InputSignal<ButtonProps['transition']> =
-    input<ButtonProps['transition']>();
+  readonly motion: InputSignal<ButtonProps['motion']> =
+    input<ButtonProps['motion']>();
   readonly toggleable = input(false, { transform: booleanAttribute });
   readonly pressed = input<boolean | undefined, unknown>(undefined, {
     transform: optionalBooleanAttribute,
@@ -260,8 +260,8 @@ export class Button implements OnInit {
   protected readonly resolvedEdgeAligned = computed(
     () => this.options().edgeAligned ?? this.edgeAligned(),
   );
-  protected readonly resolvedTransition = computed(
-    () => this.options().transition ?? this.transition(),
+  protected readonly resolvedMotion = computed(
+    () => this.options().motion ?? this.motion(),
   );
   protected readonly interactionBlocked = computed(
     () => this.disabled() || this.resolvedLoading() || !this.hasVisibleLabel(),
@@ -284,14 +284,14 @@ export class Button implements OnInit {
       isPressed: this.isToggleButton() && this.isPressed(),
     }),
   );
-  protected readonly shapeTransition = computed(() =>
-    getButtonShapeTransition({
+  protected readonly shapeMotion = computed(() =>
+    getButtonShapeMotion({
       size: this.size(),
       shape: this.shape(),
       shapeFeedback: this.shapeFeedback(),
       isPressed: this.isToggleButton() && this.isPressed(),
       disabled: this.disabled() || this.resolvedLoading(),
-      transition: this.resolvedTransition(),
+      motion: this.resolvedMotion(),
     }),
   );
 
@@ -307,7 +307,7 @@ export class Button implements OnInit {
     shape: this.shape(),
     shapeFeedback: this.shapeFeedback(),
     stateColor: this.resolvedStateColor(),
-    transition: this.resolvedTransition(),
+    motion: this.resolvedMotion(),
     toggleable: this.isToggleButton(),
     pressed: this.pressed(),
     defaultPressed: this.defaultPressed(),

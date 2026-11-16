@@ -131,8 +131,9 @@ sets `aria-busy` while keeping the label available as the accessible name.
 
 By default, the shared Motion controller transforms the button shape on press.
 Set `shapeFeedback="none"` in any framework to keep a static shape, or pass a
-Motion `transition` to customize the `morph` feedback. Reduced-motion
-preferences keep the feedback but remove the movement.
+`motion` with a `timing` (a `@udixio/motion` spring token, or a duration and
+easing pair) to customize the `morph` feedback. Reduced-motion preferences keep
+the feedback but remove the movement.
 
 Text buttons keep their full layout box by default. Set `edgeAligned` /
 `[edgeAligned]="true"` when the button should align to the surrounding inline

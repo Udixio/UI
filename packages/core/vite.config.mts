@@ -2,6 +2,12 @@
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import * as path from 'path';
+import { playwright } from '@vitest/browser-playwright';
+
+// Browser specs (`*.browser.spec.ts`) drive the controllers in real Chromium, Firefox and WebKit: CORE_BROWSERS selects them.
+const browsers = (process.env.CORE_BROWSERS ?? 'chromium,firefox,webkit')
+  .split(',')
+  .map((browser) => browser.trim() as 'chromium' | 'firefox' | 'webkit');
 
 export default defineConfig(() => ({
   root: import.meta.dirname,
@@ -43,6 +49,7 @@ export default defineConfig(() => ({
       external: [
         '@udixio/motion',
         '@udixio/motion/policy',
+        '@udixio/motion/animate',
         'react',
         'react/jsx-runtime',
         'clsx',
@@ -58,8 +65,30 @@ export default defineConfig(() => ({
     watch: false,
     globals: true,
     passWithNoTests: true,
-    environment: 'node',
-    include: ['{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    projects: [
+      {
+        test: {
+          name: 'unit',
+          globals: true,
+          environment: 'node',
+          include: ['{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+          exclude: ['**/*.browser.spec.ts', '**/node_modules/**'],
+        },
+      },
+      {
+        test: {
+          name: 'browser',
+          globals: true,
+          include: ['src/**/*.browser.spec.ts'],
+          browser: {
+            enabled: true,
+            provider: playwright(),
+            headless: true,
+            instances: browsers.map((browser) => ({ browser })),
+          },
+        },
+      },
+    ],
     reporters: ['default'],
     coverage: {
       reportsDirectory: './test-output/vitest/coverage',

@@ -16,7 +16,7 @@ import {
 } from '@angular/core';
 import {
   getIconButtonPressTransition,
-  getIconButtonShapeTransition,
+  getIconButtonShapeMotion,
   getIconButtonStateColor,
   iconButtonStyle,
   type ClassNameComponent,
@@ -66,7 +66,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
       <udx-state-layer
         [class]="styles()['stateLayer']"
         [colorName]="resolvedStateColor()"
-        [shapeTransition]="shapeTransition()"
+        [shapeMotion]="shapeMotion()"
         stateClassName="state-ripple-group-[icon-button]"
       />
       <udx-icon [icon]="resolvedIcon()" [class]="styles()['icon']" />
@@ -134,8 +134,8 @@ export class IconButton implements OnInit {
   readonly shape = input<IconButtonProps['shape']>('rounded');
   readonly shapeFeedback =
     input<NonNullable<IconButtonProps['shapeFeedback']>>('morph');
-  readonly transition: InputSignal<IconButtonProps['transition']> =
-    input<IconButtonProps['transition']>();
+  readonly motion: InputSignal<IconButtonProps['motion']> =
+    input<IconButtonProps['motion']>();
   readonly toggleable = input(false, { transform: booleanAttribute });
   readonly pressed = input<boolean | undefined, unknown>(undefined, {
     transform: optionalBooleanAttribute,
@@ -235,8 +235,8 @@ export class IconButton implements OnInit {
   protected readonly resolvedWidth = computed(
     () => this.options().width ?? this.width(),
   );
-  protected readonly resolvedTransition = computed(
-    () => this.options().transition ?? this.transition(),
+  protected readonly resolvedMotion = computed(
+    () => this.options().motion ?? this.motion(),
   );
   protected readonly isPressed = computed(
     () => this.isToggleButton() && this.pressedState.value(),
@@ -254,14 +254,14 @@ export class IconButton implements OnInit {
         isPressed: this.isPressed(),
       }),
   );
-  protected readonly shapeTransition = computed(() =>
-    getIconButtonShapeTransition({
+  protected readonly shapeMotion = computed(() =>
+    getIconButtonShapeMotion({
       size: this.size(),
       shape: this.shape(),
       shapeFeedback: this.effectiveShapeFeedback(),
       isPressed: this.isPressed(),
       disabled: this.disabled() || !this.hasAccessibleLabel(),
-      transition: this.resolvedTransition(),
+      motion: this.resolvedMotion(),
     }),
   );
   protected readonly styles = createStyle(iconButtonStyle, () => ({
@@ -276,7 +276,7 @@ export class IconButton implements OnInit {
     disabled: this.disabled(),
     shape: this.shape(),
     shapeFeedback: this.effectiveShapeFeedback(),
-    transition: this.resolvedTransition(),
+    motion: this.resolvedMotion(),
     toggleable: this.isToggleButton(),
     pressed: this.pressed(),
     defaultPressed: this.defaultPressed(),

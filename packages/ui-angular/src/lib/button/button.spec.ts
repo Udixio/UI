@@ -334,6 +334,7 @@ describe('Button (Angular, consuming @udixio/core)', () => {
       clientY: 4,
     });
     Object.defineProperty(pointerDown, 'pointerType', { value: 'mouse' });
+    Object.defineProperty(pointerDown, 'isPrimary', { value: true });
 
     button.dispatchEvent(pointerDown);
     const ripple = button.querySelector('[data-udixio-ripple]');

@@ -186,31 +186,31 @@ describe('StateLayer', () => {
     expect(disabled()).toBe(true);
   });
 
-  const shapeTransition = {
+  const shapeMotion = {
     restingBorderRadius: '8px',
     pressedBorderRadius: '4px',
     enabled: true,
-    transition: { duration: 0.2 },
+    timing: 'spring.fast.spatial' as const,
   };
 
-  it('pushes the shape transition to the controller on connect', () => {
+  it('pushes the shape motion to the controller on connect', () => {
     renderInTrigger(
-      <StateLayer colorName="on-primary" shapeTransition={shapeTransition} />,
+      <StateLayer colorName="on-primary" shapeMotion={shapeMotion} />,
     );
 
-    expect(controller.updateShape).toHaveBeenCalledWith(shapeTransition);
+    expect(controller.updateShape).toHaveBeenCalledWith(shapeMotion);
   });
 
-  it('pushes a later shape transition without recreating the controller', () => {
+  it('pushes a later shape motion without recreating the controller', () => {
     const { rerender } = renderInTrigger(
-      <StateLayer colorName="on-primary" shapeTransition={shapeTransition} />,
+      <StateLayer colorName="on-primary" shapeMotion={shapeMotion} />,
     );
     controller.updateShape.mockClear();
-    const next = { ...shapeTransition, pressedBorderRadius: '2px' };
+    const next = { ...shapeMotion, pressedBorderRadius: '2px' };
 
     rerender(
       <button className="group/button" data-testid="trigger">
-        <StateLayer colorName="on-primary" shapeTransition={next} />
+        <StateLayer colorName="on-primary" shapeMotion={next} />
       </button>,
     );
 
@@ -230,22 +230,32 @@ describe('StateLayer', () => {
     expect(createController).not.toHaveBeenCalled();
   });
 
-  // The colour change needs a duration, and Chip is the consumer. It used to
+  // The colour change needs a motion, and Chip is the consumer. It used to
   // arrive through a generic `style` passthrough -- a React DOM idiom with no
   // Angular counterpart, which is why the Angular chip's selection snapped.
-  it('applies a transition duration to the layer', () => {
+  it('transitions the colour of the layer over the timing of its motion', () => {
     renderInTrigger(
-      <StateLayer colorName="on-primary" transitionDuration={0.3} />,
+      <StateLayer
+        colorName="on-primary"
+        motion={{
+          timing: { duration: 'duration.medium2', easing: 'easing.standard' },
+        }}
+      />,
     );
 
     const layer = screen.getByTestId('trigger').querySelector('span');
-    expect(layer?.style.transition).toBe('0.3s');
+    expect(layer?.style.transitionProperty).toBe('background-color, opacity');
+    expect(layer?.style.transitionDuration).toBe('300ms');
+    expect(layer?.style.transitionTimingFunction).toBe(
+      'cubic-bezier(0.2, 0, 0, 1)',
+    );
   });
 
-  it('sets no transition when no duration is given', () => {
+  it('snaps the colour when no motion timing is given', () => {
     renderInTrigger(<StateLayer colorName="on-primary" />);
 
     const layer = screen.getByTestId('trigger').querySelector('span');
-    expect(layer?.style.transition).toBe('');
+    expect(layer?.style.transitionDuration).toBe('');
+    expect(layer?.style.transitionProperty).toBe('');
   });
 });

@@ -123,7 +123,7 @@ export interface ToolbarMoreContext {
             [disabled]="action.disabled ?? false"
             [shape]="action.shape"
             [shapeFeedback]="action.shapeFeedback ?? 'morph'"
-            [transition]="action.transition"
+            [motion]="action.motion"
             [toggleable]="action.toggleable ?? false"
             [pressed]="action.pressed"
             [defaultPressed]="action.defaultPressed ?? false"

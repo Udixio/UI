@@ -4,6 +4,7 @@
   import {
     createStateLayerController,
     findStateLayerTrigger,
+    getStateLayerTransitionStyle,
     type StateLayerController,
   } from '@udixio/core/dom';
   import { createStyle } from '../utils/create-style.svelte';
@@ -12,8 +13,8 @@
   let {
     colorName,
     stateClassName = 'state-ripple-group',
-    shapeTransition,
-    transitionDuration,
+    shapeMotion,
+    motion,
     class: hostClass = '',
     classes,
   }: SvelteStateLayerProps = $props();
@@ -25,11 +26,13 @@
   // controller on every unrelated update.
   const triggerClassName = $derived(stateClassName);
 
+  const transitionStyle = $derived(getStateLayerTransitionStyle(motion));
+
   const styles = createStyle(stateLayerStyle, () => ({
     colorName,
     stateClassName,
-    shapeTransition,
-    transitionDuration,
+    shapeMotion,
+    motion,
     className: mergeClassNames<StateLayerInterface>('stateLayer', classes, hostClass),
   }));
 
@@ -44,7 +47,7 @@
       disabled: () => trigger.matches(':disabled, [aria-disabled="true"]'),
     });
     controller = created;
-    created.updateShape(untrack(() => shapeTransition));
+    created.updateShape(untrack(() => shapeMotion));
 
     return () => {
       created.destroy();
@@ -55,7 +58,7 @@
   });
 
   $effect(() => {
-    controller?.updateShape(shapeTransition);
+    controller?.updateShape(shapeMotion);
   });
 </script>
 
@@ -64,5 +67,7 @@
   aria-hidden="true"
   class={styles.current['stateLayer']}
   style:--state-color={`var(--color-${colorName}, var(--color-on-surface))`}
-  style:transition={transitionDuration === undefined ? undefined : `${transitionDuration}s`}
+  style:transition-property={transitionStyle?.transitionProperty}
+  style:transition-duration={transitionStyle?.transitionDuration}
+  style:transition-timing-function={transitionStyle?.transitionTimingFunction}
 ></span>

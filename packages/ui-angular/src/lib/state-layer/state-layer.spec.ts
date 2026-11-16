@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import type { StateLayerShapeTransition } from '@udixio/core';
+import type { ComponentMotion, StateLayerShapeMotion } from '@udixio/core';
 import * as coreDom from '@udixio/core/dom';
 import { StateLayer } from './state-layer';
 
@@ -18,8 +18,8 @@ import { StateLayer } from './state-layer';
       <udx-state-layer
         [colorName]="colorName"
         [stateClassName]="stateClassName"
-        [shapeTransition]="shapeTransition"
-        [transitionDuration]="transitionDuration"
+        [shapeMotion]="shapeMotion"
+        [motion]="motion"
       />
     </button>
   `,
@@ -27,8 +27,8 @@ import { StateLayer } from './state-layer';
 class Harness {
   colorName = 'on-primary';
   stateClassName = 'state-ripple-group-[button]';
-  shapeTransition: StateLayerShapeTransition | undefined = undefined;
-  transitionDuration: number | undefined = undefined;
+  shapeMotion: StateLayerShapeMotion | undefined = undefined;
+  motion: ComponentMotion | undefined = undefined;
 }
 
 @Component({
@@ -60,11 +60,11 @@ class NestedGroupHarness {}
 })
 class DisabledHarness {}
 
-const shapeTransition = {
+const shapeMotion = {
   restingBorderRadius: '8px',
   pressedBorderRadius: '4px',
   enabled: true,
-  transition: { duration: 0.2 },
+  timing: 'spring.fast.spatial' as const,
 };
 
 describe('StateLayer', () => {
@@ -193,29 +193,29 @@ describe('StateLayer', () => {
     fixture.destroy();
   });
 
-  it('pushes the shape transition to the controller on connect', () => {
+  it('pushes the shape motion to the controller on connect', () => {
     const fixture = TestBed.createComponent(Harness);
-    fixture.componentInstance.shapeTransition = shapeTransition;
+    fixture.componentInstance.shapeMotion = shapeMotion;
     fixture.detectChanges();
 
-    expect(controller.updateShape).toHaveBeenCalledWith(shapeTransition);
+    expect(controller.updateShape).toHaveBeenCalledWith(shapeMotion);
     fixture.destroy();
   });
 
-  it('pushes a later shape transition without recreating the controller', () => {
+  it('pushes a later shape motion without recreating the controller', () => {
     const fixture = TestBed.createComponent(Harness);
-    fixture.componentInstance.shapeTransition = shapeTransition;
+    fixture.componentInstance.shapeMotion = shapeMotion;
     fixture.detectChanges();
     controller.updateShape.mockClear();
 
-    fixture.componentInstance.shapeTransition = {
-      ...shapeTransition,
+    fixture.componentInstance.shapeMotion = {
+      ...shapeMotion,
       pressedBorderRadius: '2px',
     };
     fixture.detectChanges();
 
     expect(controller.updateShape).toHaveBeenCalledWith(
-      fixture.componentInstance.shapeTransition,
+      fixture.componentInstance.shapeMotion,
     );
     expect(createController).toHaveBeenCalledTimes(1);
     fixture.destroy();
@@ -233,23 +233,29 @@ describe('StateLayer', () => {
     fixture.destroy();
   });
 
-  // The colour change needs a duration, and Chip is the consumer. It used to
+  // The colour change needs a motion, and Chip is the consumer. It used to
   // arrive through React's generic `style` passthrough, which has no Angular
   // counterpart -- which is exactly why the Angular chip's selection snapped.
-  it('applies a transition duration to the layer', () => {
+  it('transitions the colour of the layer over the timing of its motion', () => {
     const fixture = TestBed.createComponent(Harness);
-    fixture.componentInstance.transitionDuration = 0.3;
+    fixture.componentInstance.motion = {
+      timing: { duration: 'duration.medium2', easing: 'easing.standard' },
+    };
     fixture.detectChanges();
 
-    expect(layerOf(fixture.nativeElement)?.style.transition).toBe('0.3s');
+    const layer = layerOf(fixture.nativeElement);
+    expect(layer?.style.transitionProperty).toBe('background-color, opacity');
+    expect(layer?.style.transitionDuration).toBe('300ms');
+    expect(layer?.style.transitionTimingFunction).toBe('cubic-bezier(0.2, 0, 0, 1)');
     fixture.destroy();
   });
 
-  it('sets no transition when no duration is given', () => {
+  it('snaps the colour when no motion timing is given', () => {
     const fixture = TestBed.createComponent(Harness);
     fixture.detectChanges();
 
-    expect(layerOf(fixture.nativeElement)?.style.transition).toBe('');
+    expect(layerOf(fixture.nativeElement)?.style.transitionDuration).toBe('');
+    expect(layerOf(fixture.nativeElement)?.style.transitionProperty).toBe('');
     fixture.destroy();
   });
 });

@@ -3,7 +3,7 @@
     buttonStyle,
     getButtonPressTransition,
     getButtonProgressColor,
-    getButtonShapeTransition,
+    getButtonShapeMotion,
     getButtonStateColor,
     mergeClassNames,
     resolveButtonIconPosition,
@@ -39,7 +39,7 @@
     size = 'medium',
     shapeFeedback = 'morph',
     stateColor,
-    transition,
+    motion,
     children,
     onclick,
     ...rest
@@ -60,14 +60,14 @@
   const isPressed = $derived(isToggleButton && pressedState.current);
   const interactionBlocked = $derived(disabled || loading);
 
-  const shapeTransition = $derived(
-    getButtonShapeTransition({
+  const shapeMotion = $derived(
+    getButtonShapeMotion({
       size,
       shape,
       shapeFeedback,
       isPressed,
       disabled: interactionBlocked,
-      transition,
+      motion,
     }),
   );
   const resolvedStateColor = $derived(
@@ -83,7 +83,7 @@
     iconPosition,
     shapeFeedback,
     stateColor,
-    transition,
+    motion,
     size,
     edgeAligned,
     shape,
@@ -131,7 +131,7 @@
 {#snippet content()}
   <span class={styles.current['touchTarget']}></span>
   <StateLayer
-    {shapeTransition}
+    {shapeMotion}
     class={styles.current['stateLayer']}
     colorName={resolvedStateColor}
     stateClassName="state-ripple-group-[button]"

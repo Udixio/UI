@@ -22,6 +22,25 @@ vi.mock('@udixio/core/dom', async (importOriginal) => {
   };
 });
 
+/**
+ * A primary pointer press as a browser sends it. jsdom has no PointerEvent, so testing-library would drop `button` and
+ * `isPrimary`: they are set on a plain event instead.
+ */
+function primaryPointerDown(target: Element): void {
+  fireEvent(
+    target,
+    Object.assign(new Event('pointerdown', { bubbles: true, cancelable: true }), {
+      button: 0,
+      buttons: 1,
+      isPrimary: true,
+      pointerId: 1,
+      pointerType: 'mouse',
+      clientX: 4,
+      clientY: 4,
+    }),
+  );
+}
+
 describe('IconButton', () => {
   it('does not render an unnamed control', () => {
     const consoleError = vi
@@ -229,11 +248,7 @@ describe('IconButton', () => {
     );
     const button = screen.getByRole('button', { name: 'Pointer action' });
 
-    fireEvent.pointerDown(button, {
-      pointerType: 'mouse',
-      clientX: 4,
-      clientY: 4,
-    });
+    primaryPointerDown(button);
     const ripple = button.querySelector('[data-udixio-ripple]');
     expect(ripple).not.toBeNull();
     unmount();

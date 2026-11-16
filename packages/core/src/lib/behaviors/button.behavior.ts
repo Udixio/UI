@@ -1,3 +1,4 @@
+import type { SpringRef } from '@udixio/motion';
 import type {
   ButtonProps,
   ButtonIconPosition,
@@ -5,13 +6,13 @@ import type {
   ButtonVariant,
   ButtonVariantAlias,
 } from '../interfaces/button.interface';
-import type { StateLayerShapeTransition } from '../interfaces/state-layer.interface';
+import type { StateLayerShapeMotion } from '../interfaces/state-layer.interface';
 
-export const DEFAULT_BUTTON_SHAPE_TRANSITION = {
-  type: 'spring',
-  visualDuration: 0.3,
-  bounce: 0.2,
-} as const;
+/**
+ * The timing of the shape morph of a pressed button: a fast spatial spring, the Material 3 Expressive motion of a shape
+ * change.
+ */
+export const DEFAULT_BUTTON_SHAPE_TIMING: SpringRef = 'spring.fast.spatial';
 
 const BUTTON_SHAPE_RADII: Record<
   NonNullable<ButtonProps['size']>,
@@ -130,17 +131,17 @@ export function getButtonProgressColor({
   })})`;
 }
 
-export function getButtonShapeTransition({
+export function getButtonShapeMotion({
   size = 'medium',
   shape = 'rounded',
   shapeFeedback = 'morph',
   isPressed,
   disabled,
-  transition,
-}: Pick<ButtonProps, 'size' | 'shape' | 'shapeFeedback' | 'transition'> & {
+  motion,
+}: Pick<ButtonProps, 'size' | 'shape' | 'shapeFeedback' | 'motion'> & {
   isPressed: boolean;
   disabled: boolean;
-}): StateLayerShapeTransition {
+}): StateLayerShapeMotion {
   const radii = BUTTON_SHAPE_RADII[size];
   const useSquaredRestingShape =
     shape === 'squared' || (shapeFeedback === 'morph' && isPressed);
@@ -149,6 +150,6 @@ export function getButtonShapeTransition({
     restingBorderRadius: useSquaredRestingShape ? radii.squared : radii.rounded,
     pressedBorderRadius: radii.squared,
     enabled: shapeFeedback === 'morph' && !disabled,
-    transition: transition ?? DEFAULT_BUTTON_SHAPE_TRANSITION,
+    timing: motion?.timing ?? DEFAULT_BUTTON_SHAPE_TIMING,
   };
 }

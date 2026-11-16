@@ -1,6 +1,6 @@
 import type { IconButtonProps } from '../interfaces/icon-button.interface';
-import type { StateLayerShapeTransition } from '../interfaces/state-layer.interface';
-import { DEFAULT_BUTTON_SHAPE_TRANSITION } from './button.behavior';
+import type { StateLayerShapeMotion } from '../interfaces/state-layer.interface';
+import { DEFAULT_BUTTON_SHAPE_TIMING } from './button.behavior';
 
 const ICON_BUTTON_SHAPE_RADII: Record<
   NonNullable<IconButtonProps['size']>,
@@ -57,17 +57,17 @@ export function getIconButtonStateColor({
   }
 }
 
-export function getIconButtonShapeTransition({
+export function getIconButtonShapeMotion({
   size = 'medium',
   shape = 'rounded',
   shapeFeedback = 'morph',
   isPressed,
   disabled,
-  transition,
-}: Pick<IconButtonProps, 'size' | 'shape' | 'shapeFeedback' | 'transition'> & {
+  motion,
+}: Pick<IconButtonProps, 'size' | 'shape' | 'shapeFeedback' | 'motion'> & {
   isPressed: boolean;
   disabled: boolean;
-}): StateLayerShapeTransition {
+}): StateLayerShapeMotion {
   const radii = ICON_BUTTON_SHAPE_RADII[size];
   const useSquaredRestingShape =
     shape === 'squared' || (shapeFeedback === 'morph' && isPressed);
@@ -76,6 +76,6 @@ export function getIconButtonShapeTransition({
     restingBorderRadius: useSquaredRestingShape ? radii.squared : radii.rounded,
     pressedBorderRadius: radii.squared,
     enabled: shapeFeedback === 'morph' && !disabled,
-    transition: transition ?? DEFAULT_BUTTON_SHAPE_TRANSITION,
+    timing: motion?.timing ?? DEFAULT_BUTTON_SHAPE_TIMING,
   };
 }

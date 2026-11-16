@@ -5,6 +5,7 @@
     getChipSelectionTransition,
     mergeClassNames,
     type ChipInterface,
+    type ComponentMotion,
   } from '@udixio/core';
   import { iCheck } from '@udixio/icons-rounded-400/check';
   import { iClose } from '@udixio/icons-rounded-400/close';
@@ -64,6 +65,8 @@
   const isEditing = $derived(!!editable && (editing ?? internalEditing));
   const hasTrailingIcon = $derived(!!onRemove && !isEditing);
   const resolvedDuration = $derived(transition?.duration ?? 0.3);
+  /** The colour change of the layer, on the medium token; the chip's own transition still times its surface. */
+  const stateLayerMotion: ComponentMotion = { timing: { duration: 'duration.medium2', easing: 'easing.standard' } };
 
   const selectedState = createControllableState({
     value: () => selected,
@@ -284,7 +287,7 @@
 {#snippet content()}
   {#if isInteractive && !disabled && !isEditing}
     <StateLayer
-      transitionDuration={resolvedDuration}
+      motion={stateLayerMotion}
       class={styles.current['stateLayer']}
       colorName={classNames({
         'on-surface-variant': !isSelected,

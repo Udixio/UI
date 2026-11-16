@@ -1,5 +1,5 @@
 import { Icon } from '../icon';
-import type { Transition } from 'motion';
+import type { ComponentMotion } from './motion.interface';
 
 export type ButtonVariant =
   'filled' | 'elevated' | 'tonal' | 'outlined' | 'text';
@@ -75,8 +75,8 @@ export interface ButtonProps {
    */
   shapeFeedback?: ButtonShapeFeedback;
 
-  /** Motion transition shared by every framework for shape changes. */
-  transition?: Transition;
+  /** Motion of the shape changes on press and release, timed by `@udixio/motion`. */
+  motion?: ComponentMotion;
 
   /** Enables the semantic pressed state and its visual treatment. */
   toggleable?: boolean;

@@ -1,7 +1,7 @@
 <script lang="ts">
   import {
     getIconButtonPressTransition,
-    getIconButtonShapeTransition,
+    getIconButtonShapeMotion,
     getIconButtonStateColor,
     iconButtonStyle,
     mergeClassNames,
@@ -26,7 +26,7 @@
     stateColor,
     shape = 'rounded',
     shapeFeedback = 'morph',
-    transition,
+    motion,
     toggleable = false,
     pressed = $bindable(),
     defaultPressed = false,
@@ -63,8 +63,8 @@
     stateColor ?? getIconButtonStateColor({ variant, toggleable: isToggleButton, isPressed }),
   );
 
-  const shapeTransition = $derived(
-    getIconButtonShapeTransition({ size, shape, shapeFeedback: effectiveShapeFeedback, isPressed, disabled, transition }),
+  const shapeMotion = $derived(
+    getIconButtonShapeMotion({ size, shape, shapeFeedback: effectiveShapeFeedback, isPressed, disabled, motion }),
   );
   const styles = createStyle(iconButtonStyle, () => ({
     label,
@@ -78,7 +78,7 @@
     disabled,
     shape,
     shapeFeedback: effectiveShapeFeedback,
-    transition,
+    motion,
     toggleable: isToggleButton,
     pressed,
     defaultPressed,
@@ -127,7 +127,7 @@
 {#snippet content()}
   <span class={styles.current['touchTarget']}></span>
   <StateLayer
-    {shapeTransition}
+    {shapeMotion}
     class={styles.current['stateLayer']}
     colorName={resolvedStateColor}
     stateClassName="state-ripple-group-[icon-button]"

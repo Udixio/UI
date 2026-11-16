@@ -397,7 +397,7 @@ export const Chip = ({
     >
       {isInteractive && !disabled && !isEditing && (
         <StateLayer
-          transitionDuration={transition.duration}
+          motion={{ timing: { duration: 'duration.medium2', easing: 'easing.standard' } }}
           className={styles.stateLayer}
           colorName={classNames({
             'on-surface-variant': !isSelected,

@@ -1,10 +1,13 @@
-import type { Transition } from 'motion';
+import type { CurveTiming, SpringRef } from '@udixio/motion';
+import type { ComponentMotion } from './motion.interface';
 
-export interface StateLayerShapeTransition {
+/** The shape morph of a state layer's trigger between its resting and its pressed radius. */
+export interface StateLayerShapeMotion {
   restingBorderRadius: string;
   pressedBorderRadius: string;
   enabled: boolean;
-  transition: Transition;
+  /** The timing of the morph, from `@udixio/motion`. */
+  timing: SpringRef | CurveTiming;
 }
 
 /**
@@ -29,18 +32,19 @@ export interface StateLayerProps {
   /** Tailwind state utility selecting the interaction trigger. */
   stateClassName?: string;
 
-  /** Optional Motion animation applied to the state layer trigger. */
-  shapeTransition?: StateLayerShapeTransition;
+  /** Optional shape morph applied to the state layer trigger on press and release. */
+  shapeMotion?: StateLayerShapeMotion;
 
   /**
-   * Seconds over which the layer transitions, for a surface whose colour
-   * changes -- a chip being selected, say. Omitted, the layer snaps.
+   * Motion of the colour change of the layer, for a surface whose colour
+   * changes -- a chip being selected, say. Omitted, or without a `timing`, the
+   * layer snaps.
    *
-   * This is a typed prop rather than an inline-style passthrough so both
-   * adapters can express it: `style` is a React DOM idiom with no Angular
+   * This is a typed prop rather than an inline-style passthrough so every
+   * adapter can express it: `style` is a React DOM idiom with no Angular
    * counterpart, and routing it that way left the Angular chip snapping.
    */
-  transitionDuration?: number;
+  motion?: ComponentMotion;
 }
 
 export interface StateLayerInterface {

@@ -175,7 +175,7 @@ export const Tab = ({
       {...(restProps as any)}
     >
       <StateLayer
-        transitionDuration={0.3}
+        motion={{ timing: { duration: 'duration.medium2', easing: 'easing.standard' } }}
         className={styles.stateLayer}
         colorName={
           variant === 'primary' && isSelected ? 'primary' : 'on-surface'

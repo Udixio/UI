@@ -1,8 +1,8 @@
 import {
-  DEFAULT_BUTTON_SHAPE_TRANSITION,
+  DEFAULT_BUTTON_SHAPE_TIMING,
   getButtonProgressColor,
   getButtonPressTransition,
-  getButtonShapeTransition,
+  getButtonShapeMotion,
   getButtonStateColor,
   resolveButtonVariant,
   resolveButtonIconPosition,
@@ -122,9 +122,9 @@ describe('button behavior', () => {
     ).toBe('color-mix(in srgb, var(--color-on-surface) 38%, transparent)');
   });
 
-  it('resolves one Motion shape contract for every adapter', () => {
+  it('resolves one shape motion contract for every adapter', () => {
     expect(
-      getButtonShapeTransition({
+      getButtonShapeMotion({
         size: 'medium',
         shape: 'rounded',
         isPressed: false,
@@ -134,29 +134,29 @@ describe('button behavior', () => {
       restingBorderRadius: '40px',
       pressedBorderRadius: '16px',
       enabled: true,
-      transition: DEFAULT_BUTTON_SHAPE_TRANSITION,
+      timing: DEFAULT_BUTTON_SHAPE_TIMING,
     });
 
     expect(
-      getButtonShapeTransition({
+      getButtonShapeMotion({
         size: 'large',
         shape: 'rounded',
         shapeFeedback: 'morph',
         isPressed: true,
         disabled: false,
-        transition: { type: 'tween', duration: 0.5, ease: 'easeInOut' },
+        motion: { timing: { duration: 'duration.long2', easing: 'easing.standard' } },
       }),
     ).toEqual({
       restingBorderRadius: '28px',
       pressedBorderRadius: '28px',
       enabled: true,
-      transition: { type: 'tween', duration: 0.5, ease: 'easeInOut' },
+      timing: { duration: 'duration.long2', easing: 'easing.standard' },
     });
   });
 
   it('keeps the resting shape and disables shape motion when feedback is none', () => {
     expect(
-      getButtonShapeTransition({
+      getButtonShapeMotion({
         size: 'medium',
         shape: 'rounded',
         shapeFeedback: 'none',
@@ -167,7 +167,7 @@ describe('button behavior', () => {
       restingBorderRadius: '40px',
       pressedBorderRadius: '16px',
       enabled: false,
-      transition: DEFAULT_BUTTON_SHAPE_TRANSITION,
+      timing: DEFAULT_BUTTON_SHAPE_TIMING,
     });
   });
 });

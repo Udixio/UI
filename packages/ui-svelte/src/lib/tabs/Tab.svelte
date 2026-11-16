@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { resolveTabSelection, tabStyle, mergeClassNames, type TabInterface } from '@udixio/core';
+  import { resolveTabSelection, tabStyle, mergeClassNames, type ComponentMotion, type TabInterface } from '@udixio/core';
   import Icon from '../icon/Icon.svelte';
   import StateLayer from '../state-layer/StateLayer.svelte';
   import { createStyle } from '../utils/create-style.svelte';
@@ -18,6 +18,8 @@
   const domId = $derived(tabsId !== undefined && resolvedIndex !== undefined ? `tab-${tabsId}-${resolvedIndex}` : undefined);
   const panelId = $derived(context?.hasPanels() && tabsId !== undefined && resolvedIndex !== undefined ? `tabpanel-${tabsId}-${resolvedIndex}` : undefined);
   const resolvedLabel = $derived(label ?? (children === undefined ? undefined : label));
+  /** The colour change of the layer, on the medium token. */
+  const stateLayerMotion: ComponentMotion = { timing: { duration: 'duration.medium2', easing: 'easing.standard' } };
 
   const styles = createStyle(tabStyle, () => ({
     label: resolvedLabel,
@@ -91,7 +93,7 @@
 
 {#snippet contentMarkup()}
   <StateLayer
-    transitionDuration={0.3}
+    motion={stateLayerMotion}
     class={styles.current['stateLayer']}
     colorName={variant === 'primary' && isSelected ? 'primary' : 'on-surface'}
     stateClassName="state-ripple-group-[tab]"

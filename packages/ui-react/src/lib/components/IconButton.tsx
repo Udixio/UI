@@ -8,7 +8,7 @@ import type {
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   getIconButtonPressTransition,
-  getIconButtonShapeTransition,
+  getIconButtonShapeMotion,
   getIconButtonStateColor,
   iconButtonStyle,
   type ComponentClassName,
@@ -92,7 +92,7 @@ export const IconButton = (props: ReactIconButtonProps) => {
     width = 'default',
     shape = 'rounded',
     shapeFeedback = 'morph',
-    transition,
+    motion,
     stateColor,
     toggleable = false,
     pressed,
@@ -135,17 +135,17 @@ export const IconButton = (props: ReactIconButtonProps) => {
   const effectiveShapeFeedback = isFloatingToolbarButton
     ? 'none'
     : shapeFeedback;
-  const shapeTransition = useMemo(
+  const shapeMotion = useMemo(
     () =>
-      getIconButtonShapeTransition({
+      getIconButtonShapeMotion({
         size,
         shape,
         shapeFeedback: effectiveShapeFeedback,
         isPressed,
         disabled,
-        transition,
+        motion,
       }),
-    [disabled, effectiveShapeFeedback, isPressed, shape, size, transition],
+    [disabled, effectiveShapeFeedback, isPressed, shape, size, motion],
   );
   const styles = useIconButtonStyle({
     label,
@@ -158,7 +158,7 @@ export const IconButton = (props: ReactIconButtonProps) => {
     disabled,
     shape,
     shapeFeedback: effectiveShapeFeedback,
-    transition,
+    motion,
     stateColor,
     toggleable: isToggleButton,
     pressed,
@@ -191,7 +191,7 @@ export const IconButton = (props: ReactIconButtonProps) => {
     <>
       <span className={styles.touchTarget} />
       <StateLayer
-        shapeTransition={shapeTransition}
+        shapeMotion={shapeMotion}
         className={styles.stateLayer}
         colorName={
           stateColor ??
@@ -240,7 +240,7 @@ export const IconButton = (props: ReactIconButtonProps) => {
       size: _size,
       stateColor: _stateColor,
       toggleable: _toggleable,
-      transition: _transition,
+      motion: _motion,
       variant: _variant,
       width: _width,
       title: _title,
@@ -261,7 +261,7 @@ export const IconButton = (props: ReactIconButtonProps) => {
       _size,
       _stateColor,
       _toggleable,
-      _transition,
+      _motion,
       _variant,
       _width,
       _title,
@@ -317,7 +317,7 @@ export const IconButton = (props: ReactIconButtonProps) => {
     size: _size,
     stateColor: _stateColor,
     toggleable: _toggleable,
-    transition: _transition,
+    motion: _motion,
     variant: _variant,
     width: _width,
     title: _title,
@@ -339,7 +339,7 @@ export const IconButton = (props: ReactIconButtonProps) => {
     _size,
     _stateColor,
     _toggleable,
-    _transition,
+    _motion,
     _variant,
     _width,
     _title,

@@ -7,6 +7,7 @@ import {
 import {
   createStateLayerController,
   findStateLayerTrigger,
+  getStateLayerTransitionStyle,
   type StateLayerController,
 } from '@udixio/core/dom';
 import { useEffect, useRef } from 'react';
@@ -50,20 +51,20 @@ export type ReactStateLayerProps = StateLayerProps &
 export const StateLayer = ({
   colorName,
   stateClassName = 'state-ripple-group',
-  shapeTransition,
-  transitionDuration,
+  shapeMotion,
+  motion,
   className,
 }: ReactStateLayerProps) => {
   const ref = useRef<HTMLSpanElement>(null);
   const controllerRef = useRef<StateLayerController>(null);
-  const shapeTransitionRef = useRef(shapeTransition);
-  shapeTransitionRef.current = shapeTransition;
+  const shapeMotionRef = useRef(shapeMotion);
+  shapeMotionRef.current = shapeMotion;
   const styles = useStateLayerStyle({
     stateClassName,
     className,
     colorName,
-    shapeTransition,
-    transitionDuration,
+    shapeMotion,
+    motion,
   });
 
   useEffect(() => {
@@ -83,7 +84,7 @@ export const StateLayer = ({
       disabled: () => trigger.matches(':disabled, [aria-disabled="true"]'),
     });
     controllerRef.current = controller;
-    controller.updateShape(shapeTransitionRef.current);
+    controller.updateShape(shapeMotionRef.current);
 
     return () => {
       controller.destroy();
@@ -94,8 +95,8 @@ export const StateLayer = ({
   }, [stateClassName]);
 
   useEffect(() => {
-    controllerRef.current?.updateShape(shapeTransition);
-  }, [shapeTransition]);
+    controllerRef.current?.updateShape(shapeMotion);
+  }, [shapeMotion]);
 
   return (
     <span
@@ -104,9 +105,7 @@ export const StateLayer = ({
       className={styles.stateLayer}
       style={{
         ['--state-color' as any]: `var(--color-${colorName}, var(--color-on-surface))`,
-        ...(transitionDuration === undefined
-          ? {}
-          : { transition: `${transitionDuration}s` }),
+        ...getStateLayerTransitionStyle(motion),
       }}
     />
   );

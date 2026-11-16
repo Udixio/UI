@@ -532,7 +532,7 @@ export class DatePicker implements OnInit {
       shape: 'rounded',
       shapeFeedback: 'none',
       stateColor: undefined,
-      transition: undefined,
+      motion: undefined,
       toggleable: false,
       pressed: undefined,
       defaultPressed: false,

@@ -16,7 +16,7 @@ import {
   type ComponentClassName,
   getButtonPressTransition,
   getButtonProgressColor,
-  getButtonShapeTransition,
+  getButtonShapeMotion,
   getButtonStateColor,
   resolveButtonIconPosition,
 } from '@udixio/core';
@@ -116,7 +116,7 @@ function getNativeElementProps(props: ReactButtonProps) {
     size: _size,
     stateColor: _stateColor,
     toggleable: _toggleable,
-    transition: _transition,
+    motion: _motion,
     type: _type,
     variant: _variant,
     ...nativeProps
@@ -142,7 +142,7 @@ function getNativeElementProps(props: ReactButtonProps) {
     _size,
     _stateColor,
     _toggleable,
-    _transition,
+    _motion,
     _type,
     _variant,
   };
@@ -189,7 +189,7 @@ export const Button = (props: ReactButtonProps) => {
     size = 'medium',
     shapeFeedback = 'morph',
     stateColor,
-    transition,
+    motion,
     children,
   } = props;
   const hasCustomContent =
@@ -213,17 +213,17 @@ export const Button = (props: ReactButtonProps) => {
   });
   const isPressed = isToggleButton && pressedState;
 
-  const shapeTransition = useMemo(
+  const shapeMotion = useMemo(
     () =>
-      getButtonShapeTransition({
+      getButtonShapeMotion({
         size,
         shape,
         shapeFeedback,
         isPressed,
         disabled: disabled || loading,
-        transition,
+        motion,
       }),
-    [disabled, isPressed, loading, shape, shapeFeedback, size, transition],
+    [disabled, isPressed, loading, shape, shapeFeedback, size, motion],
   );
 
   const handlePress = (event: SyntheticEvent): boolean => {
@@ -253,7 +253,7 @@ export const Button = (props: ReactButtonProps) => {
     iconPosition,
     shapeFeedback,
     stateColor,
-    transition,
+    motion,
     size,
     edgeAligned,
     shape,
@@ -288,7 +288,7 @@ export const Button = (props: ReactButtonProps) => {
     <>
       <span className={styles.touchTarget}></span>
       <StateLayer
-        shapeTransition={shapeTransition}
+        shapeMotion={shapeMotion}
         className={styles.stateLayer}
         colorName={
           stateColor ??

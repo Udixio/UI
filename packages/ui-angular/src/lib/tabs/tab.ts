@@ -15,6 +15,7 @@ import {
   type ClassNameComponent,
   type ElementClasses,
   mergeClassNames,
+  type ComponentMotion,
   type Icon as IconType,
   type TabInterface,
   type TabsVariant,
@@ -84,7 +85,7 @@ import { TABS_CONTEXT } from './tabs-context';
 
     <ng-template #content>
       <udx-state-layer
-        style="transition: 0.3s"
+        [motion]="stateLayerMotion"
         [class]="styles()['stateLayer']"
         [colorName]="
           variant() === 'primary' && isSelected() ? 'primary' : 'on-surface'
@@ -123,6 +124,10 @@ export class Tab {
   protected readonly variant = computed<TabsVariant>(
     () => this.context?.variant() ?? 'primary',
   );
+  /** The colour change of the layer, on the medium token. */
+  protected readonly stateLayerMotion: ComponentMotion = {
+    timing: { duration: 'duration.medium2', easing: 'easing.standard' },
+  };
   protected readonly isSelected = computed(() =>
     resolveTabSelection({
       selectedTab: this.context?.selectedIndex() ?? null,

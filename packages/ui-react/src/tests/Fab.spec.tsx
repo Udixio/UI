@@ -37,6 +37,25 @@ beforeEach(() => {
   );
 });
 
+/**
+ * A primary pointer press as a browser sends it. jsdom has no PointerEvent, so testing-library would drop `button` and
+ * `isPrimary`: they are set on a plain event instead.
+ */
+function primaryPointerDown(target: Element): void {
+  fireEvent(
+    target,
+    Object.assign(new Event('pointerdown', { bubbles: true, cancelable: true }), {
+      button: 0,
+      buttons: 1,
+      isPrimary: true,
+      pointerId: 1,
+      pointerType: 'mouse',
+      clientX: 4,
+      clientY: 4,
+    }),
+  );
+}
+
 describe('Fab', () => {
   it('does not render an unnamed control', () => {
     const consoleError = vi
@@ -202,7 +221,7 @@ describe('Fab', () => {
   it('connects pointer feedback and cleans it up', () => {
     const { unmount } = render(<Fab label="Create" icon={iAdd} />);
     const button = screen.getByRole('button', { name: 'Create' });
-    fireEvent.pointerDown(button, { pointerType: 'mouse' });
+    primaryPointerDown(button);
     const ripple = button.querySelector('[data-udixio-ripple]');
 
     expect(ripple).not.toBeNull();

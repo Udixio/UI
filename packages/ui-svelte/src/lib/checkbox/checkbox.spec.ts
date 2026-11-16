@@ -6,6 +6,25 @@ import { axe } from 'jest-axe';
 import Checkbox from './Checkbox.svelte';
 import Fixture from './checkbox.fixture.svelte';
 
+/**
+ * A primary pointer press as a browser sends it. jsdom has no PointerEvent, so testing-library would drop `button` and
+ * `isPrimary`: they are set on a plain event instead.
+ */
+function primaryPointerDown(target: Element) {
+  return fireEvent(
+    target,
+    Object.assign(new Event('pointerdown', { bubbles: true, cancelable: true }), {
+      button: 0,
+      buttons: 1,
+      isPrimary: true,
+      pointerId: 1,
+      pointerType: 'mouse',
+      clientX: 4,
+      clientY: 4,
+    }),
+  );
+}
+
 describe('Checkbox', () => {
   afterEach(() => cleanup());
 
@@ -198,11 +217,7 @@ describe('Checkbox', () => {
     const checkbox = screen.getByRole('checkbox', { name: 'Updates' });
     const root = checkbox.parentElement;
 
-    await fireEvent.pointerDown(checkbox, {
-      pointerType: 'mouse',
-      clientX: 4,
-      clientY: 4,
-    });
+    await primaryPointerDown(checkbox);
     const ripple = root?.querySelector('[data-udixio-ripple]');
     expect(ripple).not.toBeNull();
     unmount();

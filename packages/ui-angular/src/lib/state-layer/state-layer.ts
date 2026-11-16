@@ -2,6 +2,7 @@ import {
   afterRenderEffect,
   ChangeDetectionStrategy,
   Component,
+  computed,
   ElementRef,
   input,
   untracked,
@@ -18,6 +19,7 @@ import {
 import {
   createStateLayerController,
   findStateLayerTrigger,
+  getStateLayerTransitionStyle,
   type StateLayerController,
 } from '@udixio/core/dom';
 import { createStyle } from '../utils/create-style';
@@ -68,9 +70,9 @@ import { createStyle } from '../utils/create-style';
       [style.--state-color]="
         'var(--color-' + colorName() + ', var(--color-on-surface))'
       "
-      [style.transition]="
-        transitionDuration() === undefined ? null : transitionDuration() + 's'
-      "
+      [style.transition-property]="transitionStyle()?.transitionProperty ?? null"
+      [style.transition-duration]="transitionStyle()?.transitionDuration ?? null"
+      [style.transition-timing-function]="transitionStyle()?.transitionTimingFunction ?? null"
     ></span>
   `,
 })
@@ -85,9 +87,11 @@ export class StateLayer {
   readonly classes = input<
     ElementClasses<StateLayerInterface> | ClassNameComponent<StateLayerInterface>
   >();
-  readonly shapeTransition = input<StateLayerProps['shapeTransition']>();
-  readonly transitionDuration =
-    input<StateLayerProps['transitionDuration']>();
+  readonly shapeMotion = input<StateLayerProps['shapeMotion']>();
+  readonly motion = input<StateLayerProps['motion']>();
+  protected readonly transitionStyle = computed(() =>
+    getStateLayerTransitionStyle(this.motion()),
+  );
 
   private readonly layer = viewChild.required<ElementRef<HTMLElement>>('layer');
   private controller?: StateLayerController;
@@ -95,8 +99,8 @@ export class StateLayer {
   protected readonly styles = createStyle(stateLayerStyle, () => ({
     colorName: this.colorName(),
     stateClassName: this.stateClassName(),
-    shapeTransition: this.shapeTransition(),
-    transitionDuration: this.transitionDuration(),
+    shapeMotion: this.shapeMotion(),
+    motion: this.motion(),
     className: mergeClassNames<StateLayerInterface>(
       'stateLayer',
       this.classes(),
@@ -118,7 +122,7 @@ export class StateLayer {
         disabled: () => trigger.matches(':disabled, [aria-disabled="true"]'),
       });
       this.controller = controller;
-      controller.updateShape(untracked(this.shapeTransition));
+      controller.updateShape(untracked(this.shapeMotion));
 
       onCleanup(() => {
         controller.destroy();
@@ -129,7 +133,7 @@ export class StateLayer {
     });
 
     afterRenderEffect(() => {
-      this.controller?.updateShape(this.shapeTransition());
+      this.controller?.updateShape(this.shapeMotion());
     });
   }
 }
