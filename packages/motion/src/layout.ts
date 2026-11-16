@@ -83,3 +83,7 @@ export function flushLayoutAround(element: HTMLElement): void {
   const scope = scopes.get(layoutScopeOf(element));
   if (scope) flush(scope);
 }
+
+/** The shared identities of a runtime, created by the layout engine the first time a shared element binds. */
+export { sharedOf } from './shared-registry.js';
+export type { SharedRegistry } from './shared-registry.js';
