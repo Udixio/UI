@@ -14,7 +14,7 @@ test(`${name}: Motion works without JavaScript and applies reduced-motion policy
   try {
     const context = await browser.newContext({ javaScriptEnabled: false, reducedMotion: 'no-preference' });
     const page = await context.newPage();
-    for (const path of ['/motion/', '/motion/roadmap/', '/motion/tokens/', '/motion/accessibility/', '/motion/demo/', '/animations/']) {
+    for (const path of ['/motion/', '/motion/roadmap/', '/motion/tokens/', '/motion/accessibility/', '/motion/demo/']) {
       assert.equal((await page.goto(base + path)).status(), 200, path);
     }
     await page.goto(base + '/motion/');
@@ -88,9 +88,9 @@ test(`${name}: Motion rail stays selected for both section and legacy URL`, asyn
     const rail = page.locator('a.navigation-rail-item[href="/motion"]');
     await page.waitForFunction(() => document.querySelector('a[href="/motion"][aria-current="page"]') !== null);
     assert.equal(await rail.getAttribute('aria-current'), 'page');
-    await page.getByRole('navigation', { name: 'Motion documentation' }).getByRole('link', { name: 'Existing animations' }).click();
-    await page.waitForFunction(() => location.pathname.startsWith('/animations'));
-    await page.waitForFunction(() => document.title.startsWith('Animations'));
+    await page.getByRole('navigation', { name: 'Motion documentation' }).getByRole('link', { name: 'Demo' }).click();
+    await page.waitForFunction(() => location.pathname.startsWith('/motion/demo'));
+    await page.waitForFunction(() => document.title.startsWith('Motion demo'));
     await page.waitForFunction(() => document.querySelector('a[href="/motion"][aria-current="page"]') !== null);
     assert.equal(await rail.getAttribute('aria-current'), 'page');
     await rail.evaluate(el => el.setAttribute('data-test-persisted', 'yes'));
@@ -104,7 +104,7 @@ test(`${name}: Motion rail stays selected for both section and legacy URL`, asyn
     await page.waitForFunction(() => document.querySelector('a[href="/motion"][aria-current="page"]') !== null);
     assert.equal(await rail.getAttribute('data-test-persisted'), 'yes');
     assert.equal(await rail.getAttribute('aria-current'), 'page');
-    for (const path of ['/motion/', '/motion/roadmap/', '/animations/']) {
+    for (const path of ['/motion/', '/motion/roadmap/', '/motion/demo/']) {
       await page.goto(base + path);
       await page.waitForSelector('a[aria-current="page"]');
       assert.equal(await page.getByRole('link', { name: 'Motion', exact: true }).getAttribute('aria-current'), 'page', path);

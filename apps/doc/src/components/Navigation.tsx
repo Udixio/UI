@@ -146,7 +146,7 @@ export const Navigation = ({
   lastShown.current = shown;
 
   // Server markup has no inline width, so a closed panel would flash at full
-  // width until the SideSheet's Motion controller collapses it after
+  // width until the SideSheet's `@udixio/motion` controller collapses it after
   // hydration; keep it invisible until then.
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => setHydrated(true), []);
@@ -234,7 +234,7 @@ export const Navigation = ({
     theme: 3,
   };
   const selectedRailItem =
-    /^\/(motion|animations)(?:\/|$)/.test(pathname)
+    /^\/motion(?:\/|$)/.test(pathname)
       ? 1
       : pinnedId ? RAIL_INDEX[pinnedId] : -1;
 
