@@ -100,11 +100,12 @@ for (const name of motionBrowsers(process.env.MOTION_BROWSERS)) {
           shadow.innerHTML = `<style>${css}</style><div id="handle" class="${cls}"></div>`;
         }, { css, cls: unchecked.handle });
         const handle = page.locator('#host').locator('#handle');
-        expect(await handle.evaluate(el => getComputedStyle(el).transitionDuration)).toBe('0.1s');
+        expect(await handle.evaluate(el => getComputedStyle(el).transitionDuration)).toBe('0.35s');
         await page.addStyleTag({ content: motionCss });
         expect(await handle.evaluate(el => getComputedStyle(el).transitionDuration)).toBe('0s');
         await handle.evaluate(el => (el as HTMLElement).style.setProperty('--udx-motion-scale', '0.5'));
-        expect(await handle.evaluate(el => getComputedStyle(el).transitionDuration)).toBe('0.05s');
+        // Half of 350 ms is 175 ms, which some engines serialise in 10 ms steps (0.18s): both read as 18 hundredths of a second.
+        expect(Math.round(parseFloat(await handle.evaluate(el => getComputedStyle(el).transitionDuration)) * 100)).toBe(18);
         await page.emulateMedia({ reducedMotion: 'reduce' });
         expect(await handle.evaluate(el => getComputedStyle(el).transitionProperty)).toBe('none');
       } finally { await browser.close(); }
@@ -118,9 +119,10 @@ for (const name of motionBrowsers(process.env.MOTION_BROWSERS)) {
         const page = await browser.newPage({ reducedMotion: 'no-preference' });
         await page.setContent(`<style>${css}</style><div id="handle" class="${unchecked.handle}"></div>`);
         const handle = page.locator('#handle');
-        expect(await handle.evaluate(el => getComputedStyle(el).transitionDuration)).toBe('0.1s');
+        expect(await handle.evaluate(el => getComputedStyle(el).transitionDuration)).toBe('0.35s');
         await handle.evaluate(el => (el as HTMLElement).style.setProperty('--udx-motion-scale', '0.5'));
-        expect(await handle.evaluate(el => getComputedStyle(el).transitionDuration)).toBe('0.05s');
+        // Half of 350 ms is 175 ms, which some engines serialise in 10 ms steps (0.18s): both read as 18 hundredths of a second.
+        expect(Math.round(parseFloat(await handle.evaluate(el => getComputedStyle(el).transitionDuration)) * 100)).toBe(18);
         await handle.evaluate(el => (el as HTMLElement).style.setProperty('--udx-motion-scale', '10'));
         await handle.evaluate((el, cls) => { el.className = cls; }, checked.handle);
         await page.waitForTimeout(50);
