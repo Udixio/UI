@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { motion, type MotionBinding, type MotionSource } from './bind.js';
 import type { MotionHandle } from './contract.js';
 import { defineMotion } from './define-motion.js';
+import { sharedOf } from './shared-registry.js';
 import { getMotionRuntime } from './runtime.js';
 import { loadLayoutEngine } from './layout-loader.js';
 import { reflow } from './presets.js';
@@ -314,15 +315,15 @@ it('[Review Focus 5] the memory lives on the page runtime, and recall never retu
   const rect = rectOf(a);
   const runtime = getMotionRuntime();
   a.remove();
-  runtime.shared.forget('card', a);
-  const box = runtime.shared.recall('card', card('b'), 600);
+  sharedOf(runtime).forget('card', a);
+  const box = sharedOf(runtime).recall('card', card('b'), 600);
   expect(box).toBeDefined();
   expectNear(
     { left: box!.left, top: box!.top, width: box!.width, height: box!.height },
     { left: rect.left + window.scrollX, top: rect.top + window.scrollY, width: 60, height: 40 },
     0.5,
   );
-  expect(runtime.shared.recall('card', a, 600)).toBeUndefined();
+  expect(sharedOf(runtime).recall('card', a, 600)).toBeUndefined();
   expect(binding.handle).toBeNull();
 });
 
@@ -330,7 +331,7 @@ it('[Review Focus 4] the memory of a holder is deleted a window after it went aw
   page();
   const a = byId('a');
   const old = bindTo(a);
-  const shared = getMotionRuntime().shared;
+  const shared = sharedOf(getMotionRuntime());
   old.destroy();
   a.remove();
   // Real timers: the memory is there at once, and gone once the window has passed (about 650 ms). A large maxAge
