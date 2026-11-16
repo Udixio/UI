@@ -4,6 +4,22 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { motionBrowsers } from './test-support/motion-browsers.mjs';
 
+/**
+ * Geometry of the circular progress loop 500 ms into its cycle, measured from
+ * Motion 12 before the migration to `@udixio/motion` (step 7b-5, Chromium;
+ * Firefox and WebKit agree to 1e-5). The measurement ran the controller on a
+ * 48 px SVG with a circle of radius 20, with the frame loop driven by a manual
+ * clock. The tests below no longer load Motion.
+ */
+const MOTION_LOOP_BASELINE = {
+  /** Milliseconds into the cycle at which the values were sampled. */
+  phaseMs: 500,
+  /** The SVG rotation matrix (30 degrees): its `a` and `b` terms. */
+  svgMatrix: { a: 0.866025, b: 0.5 },
+  /** The first value of the circle's stroke-dasharray, in pathLength units. */
+  circleDash: 0.285295,
+} as const;
+
 async function bundle() {
   const result = await build({ configFile: false, logLevel: 'error', define: { 'process.env.NODE_ENV': JSON.stringify('production') }, resolve: { conditions: ['development'] }, build: { write: false, minify: false, lib: { entry: resolve(__dirname, './test-support/progress-controller-entry.ts'), name: 'ProgressControllers', formats: ['iife'] } } });
   const chunk = (Array.isArray(result) ? result[0] : result).output.find(item => item.type === 'chunk');
@@ -128,51 +144,48 @@ for (const name of motionBrowsers(process.env.MOTION_BROWSERS)) {
       } finally { await browser.close(); }
     });
 
-    it('matches Motion SVG geometry during an active loop', async () => {
+    it('matches the geometry measured from Motion before the migration at the baseline phase', async () => {
       const script = await bundle();
       const browser = await engine.launch();
       try {
         const page = await browser.newPage({ reducedMotion: 'no-preference' });
-        await page.setContent('<svg id="svg" viewBox="0 0 48 48" width="48" height="48"><circle id="circle" cx="24" cy="24" r="18" /></svg><svg id="ref-svg" viewBox="0 0 48 48" width="48" height="48"><circle id="ref-circle" cx="24" cy="24" r="18" /></svg>');
+        await page.setContent('<svg id="svg" viewBox="0 0 48 48" width="48" height="48"><circle id="circle" cx="24" cy="24" r="20" /></svg>');
         await page.addScriptTag({ content: script });
         await page.evaluate(() => {
           const api = (window as any).ProgressControllers;
-          const svg = document.querySelector('#svg');
-          const circle = document.querySelector('#circle');
-          const refSvg = document.querySelector('#ref-svg');
-          const refCircle = document.querySelector('#ref-circle');
-          (window as any).cleanup = api.createCircularProgressController({ svg, circle });
-          (window as any).reference = [api.animate(refSvg, { rotate: [-90, 270] }, { duration: 1.5, repeat: Infinity, ease: 'linear' }), api.animate(refCircle, { pathLength: [0.1, 0.9, 0.1], rotate: [0, 0, 360] }, { duration: 3, repeat: Infinity, ease: 'easeInOut' })];
+          (window as any).cleanup = api.createCircularProgressController({ svg: document.querySelector('#svg'), circle: document.querySelector('#circle') });
         });
-        await page.waitForTimeout(450);
-        // Hold both pairs at the same phase: a WAAPI motion starts on the next frame, Motion's reference at once.
-        await page.evaluate(async () => {
-          const pairs = [[document.querySelector('#svg')!, (window as any).reference[0]], [document.querySelector('#circle')!, (window as any).reference[1]]];
-          for (const [element, reference] of pairs) {
-            const [animation] = element.getAnimations();
-            animation.pause();
-            animation.currentTime = 450;
-            reference.pause();
-            reference.time = 0.45;
+        await expect.poll(() => page.locator('#svg').evaluate(el => el.getAnimations().length)).toBeGreaterThan(0);
+        // Freeze the loop at the sampled phase, as the baseline was sampled: every animation of both elements.
+        await page.evaluate((phaseMs) => {
+          for (const element of [document.querySelector('#svg')!, document.querySelector('#circle')!]) {
+            for (const animation of element.getAnimations()) {
+              animation.pause();
+              animation.currentTime = phaseMs;
+            }
           }
-          await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-        });
+        }, MOTION_LOOP_BASELINE.phaseMs);
         const geometry = await page.evaluate(() => {
-          const values = (selector: string) => {
-            const el = document.querySelector(selector)!;
-            const style = getComputedStyle(el);
-            const matrix = new DOMMatrix(style.transform);
-            return { a: matrix.a, b: matrix.b, dash: parseFloat(style.strokeDasharray), box: style.transformBox, origin: style.transformOrigin, rect: el.getBoundingClientRect().toJSON() };
+          const svgMatrix = new DOMMatrix(getComputedStyle(document.querySelector('#svg')!).transform);
+          const circle = document.querySelector('#circle') as SVGCircleElement;
+          const style = getComputedStyle(circle);
+          return {
+            svg: { a: svgMatrix.a, b: svgMatrix.b },
+            dash: parseFloat(style.strokeDasharray),
+            box: style.transformBox,
+            inlineOrigin: circle.style.transformOrigin,
+            rectWidth: circle.getBoundingClientRect().width,
           };
-          return { svg: values('#svg'), refSvg: values('#ref-svg'), circle: values('#circle'), refCircle: values('#ref-circle') };
         });
-        expect(geometry.svg.a).toBeCloseTo(geometry.refSvg.a, 1);
-        expect(geometry.svg.b).toBeCloseTo(geometry.refSvg.b, 1);
-        expect(geometry.circle.dash).toBeCloseTo(geometry.refCircle.dash, 1);
-        expect(geometry.circle.box).toBe(geometry.refCircle.box);
-        expect(geometry.circle.origin).toBe(geometry.refCircle.origin);
-        expect(geometry.circle.rect.width).toBeCloseTo(geometry.refCircle.rect.width, 0);
-        await page.evaluate(() => { (window as any).cleanup(); for (const animation of (window as any).reference) animation.cancel(); });
+        expect(geometry.svg.a).toBeCloseTo(MOTION_LOOP_BASELINE.svgMatrix.a, 1);
+        expect(geometry.svg.b).toBeCloseTo(MOTION_LOOP_BASELINE.svgMatrix.b, 1);
+        expect(geometry.dash).toBeCloseTo(MOTION_LOOP_BASELINE.circleDash, 1);
+        expect(geometry.box).toBe('fill-box');
+        expect(geometry.inlineOrigin).toMatch(/^50% 50%(?: 0px)?$/);
+        // The box of the circle is its 40 px square turned with the SVG: the bounding box of the rotated square.
+        const { a, b } = MOTION_LOOP_BASELINE.svgMatrix;
+        expect(geometry.rectWidth).toBeCloseTo(40 * (Math.abs(a) + Math.abs(b)), 0);
+        await page.evaluate(() => { (window as any).cleanup(); });
       } finally { await browser.close(); }
     });
 
