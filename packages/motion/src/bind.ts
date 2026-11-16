@@ -15,7 +15,7 @@ import type { LayoutTracking } from './layout.js';
 import { flushLayoutAround, layoutEngine, loadLayoutEngine } from './layout-loader.js';
 import { motionManifest, NAME_PATTERN } from './manifest.js';
 import { pinOutOfFlow } from './pin.js';
-import { applyFrame, motionDisabled, motionScale, playMotion, releaseFrame } from './play.js';
+import { applyFrame, applyRestingFrame, motionDisabled, motionScale, playMotion, releaseFrame } from './play.js';
 import { waapiProvider } from './providers/waapi.js';
 import { getMotionRuntime, retainMotionRuntime, type MotionRuntime } from './runtime.js';
 import { startScrub } from './scroll.js';
@@ -248,10 +248,14 @@ function playEntry(target: MotionElement, spec: Readonly<KeyframedSpec>, options
   return pending.handle;
 }
 
-/** Write a frame where the definition plays it: on the pieces of its text when it is split, else on the element. */
-function writeFrame(target: MotionElement, spec: Readonly<KeyframedSpec>, runtime: MotionRuntime, frame: VisualFrame): void {
+/**
+ * Write a frame where the definition plays it: on the pieces of its text when it is split, else on the element. A resting
+ * frame, a state the element stays in, releases its neutral fields to the stylesheet.
+ */
+function writeFrame(target: MotionElement, spec: Readonly<KeyframedSpec>, runtime: MotionRuntime, frame: VisualFrame, resting = false): void {
   const text = textModule();
-  if (text) text.applySplitFrame(target, spec, runtime, frame);
+  if (text) text.applySplitFrame(target, spec, runtime, frame, resting);
+  else if (resting) applyRestingFrame(target, frame);
   else applyFrame(target, frame);
 }
 
@@ -603,7 +607,7 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
     releaseInert();
     returnToFlow();
     const done = track(replace(settledHandle()), false);
-    writeFrame(target, spec, runtime, entered);
+    writeFrame(target, spec, runtime, entered, true);
     target.setAttribute('data-presence', 'present');
     return done;
   }

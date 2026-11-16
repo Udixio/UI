@@ -49,7 +49,8 @@ it('plays a fade on bind and marks the element present when it ends', async () =
   expect(target.dataset.presence).toBe('entering');
   expect(await binding.setPresent(true)).toBe('finished');
   expect(target.dataset.presence).toBe('present');
-  expect(target.style.opacity).toBe('1');
+  expect(target.style.opacity).toBe('');
+  expect(getComputedStyle(target).opacity).toBe('1');
   expect(waapiProvider.activeCount()).toBe(0);
 });
 
@@ -71,7 +72,8 @@ it('applies the first frame without animation when not present, then enters from
   expect(target.hasAttribute('inert')).toBe(true);
   expect(await binding.setPresent(false)).toBe('finished');
   expect(await binding.setPresent(true)).toBe('finished');
-  expect(target.style.opacity).toBe('1');
+  expect(target.style.opacity).toBe('');
+  expect(getComputedStyle(target).opacity).toBe('1');
   expect(target.hasAttribute('inert')).toBe(false);
 });
 
@@ -101,7 +103,8 @@ it('plays a disappear entry instantly and its keyframes forward on exit', async 
   const binding = bindTo(target, disappear, { present: false });
   expect(target.style.opacity).toBe('0');
   binding.setPresent(true);
-  expect(target.style.opacity).toBe('1');
+  expect(target.style.opacity).toBe('');
+  expect(getComputedStyle(target).opacity).toBe('1');
   expect(document.getAnimations()).toHaveLength(0);
   expect(target.dataset.presence).toBe('present');
   const exit = binding.setPresent(false);
@@ -155,7 +158,8 @@ it('lands ten alternating presence toggles in one task on the last state', async
   for (let i = 0; i < 10; i++) last = binding.setPresent(i % 2 === 1);
   expect(await last).toBe('finished');
   expect(binding.present).toBe(true);
-  expect(target.style.opacity).toBe('1');
+  expect(target.style.opacity).toBe('');
+  expect(getComputedStyle(target).opacity).toBe('1');
   expect(target.hasAttribute('inert')).toBe(false);
   expect(target.dataset.presence).toBe('present');
   expect(waapiProvider.activeCount()).toBe(0);
@@ -176,7 +180,8 @@ it('writes the exited frame of an absent element even when it is settled', async
   expect(document.getAnimations()).toHaveLength(0);
   expect(target.dataset.presence).toBe('exiting');
   expect(await binding.setPresent(true)).toBe('finished');
-  expect(target.style.opacity).toBe('1');
+  expect(target.style.opacity).toBe('');
+  expect(getComputedStyle(target).opacity).toBe('1');
 });
 
 it('releases the inline opacity it wrote when destroyed mid-motion', async () => {
@@ -426,4 +431,26 @@ it('in-place: a leaving item keeps its place, and its neighbours do not move', a
   expect(first.style.getPropertyValue('position')).toBe('');
   expect(movingOnTranslate(second)).toBe(false);
   expect(movingOnTranslate(third)).toBe(false);
+});
+
+// Values at rest (step 8a-2): a presence or an emphasis that has ended leaves its neutral values to the stylesheet.
+it('an appear leaves no inline opacity or scale at rest, so that the author classes apply', async () => {
+  const binding = bindTo(target, fade);
+  expect(await binding.setPresent(true)).toBe('finished');
+  expect(target.style.opacity).toBe('');
+  expect(target.style.scale).toBe('');
+  expect(getComputedStyle(target).opacity).toBe('1');
+});
+
+it('an emphasis leaves nothing inline once it has ended', async () => {
+  const binding = bindTo(target, press);
+  expect(await binding.play().finished).toBe('finished');
+  expect(target.style.scale).toBe('');
+});
+
+it('a disappear that is present at bind leaves no inline opacity at rest', () => {
+  bindTo(target, disappear);
+  expect(target.dataset.presence).toBe('present');
+  expect(target.style.opacity).toBe('');
+  expect(getComputedStyle(target).opacity).toBe('1');
 });

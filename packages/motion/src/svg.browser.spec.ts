@@ -210,7 +210,8 @@ describe('split on SVG', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const binding = motion(text, { verb: 'appear', keyframes: [{ opacity: 0 }, { opacity: 1 }], split: 'chars' });
     expect(await binding.handle?.finished).toBe('finished');
-    expect(text.style.opacity).toBe('1');
+    expect(text.style.opacity).toBe('');
+    expect(getComputedStyle(text).opacity).toBe('1');
     expect(text.querySelector('[data-udx-piece]')).toBeNull();
     expect(warn).toHaveBeenCalledTimes(1);
     binding.destroy();

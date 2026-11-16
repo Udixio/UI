@@ -1,7 +1,7 @@
 import { composeHandles } from './compose.js';
 import type { MotionElement, MotionHandle, VisualFrame } from './contract.js';
 import type { MotionSpec } from './define-motion.js';
-import { applyFrame, motionDisabled, playMotion, releaseFrame } from './play.js';
+import { applyFrame, applyRestingFrame, motionDisabled, playMotion, releaseFrame } from './play.js';
 import type { MotionRuntime } from './runtime.js';
 import { staggerCap, staggerDelay, staggerStep } from './stagger.js';
 import { isHtmlElement } from './svg-fields.js';
@@ -79,20 +79,24 @@ export function playSplit(target: MotionElement, spec: Splitting, options: PlayO
   );
 }
 
-/** Write a frame on each piece of the text of an element, or on the element itself when its text does not split. */
-export function applySplitFrame(target: MotionElement, spec: Splitting, runtime: MotionRuntime, frame: VisualFrame): void {
+/**
+ * Write a frame on each piece of the text of an element, or on the element itself when its text does not split. A resting
+ * frame releases its neutral fields on each of them (`applyRestingFrame`).
+ */
+export function applySplitFrame(target: MotionElement, spec: Splitting, runtime: MotionRuntime, frame: VisualFrame, resting = false): void {
+  const write = resting ? applyRestingFrame : applyFrame;
   if (spec.split === undefined) {
-    applyFrame(target, frame);
+    write(target, frame);
     return;
   }
   const pieces = splitPieces(target, spec, runtime);
   if (pieces === undefined) {
     releasePieces(target, spec);
-    applyFrame(target, frame);
+    write(target, frame);
     return;
   }
   releaseFrame(target, writtenFields(spec));
-  for (const piece of pieces) applyFrame(piece, frame);
+  for (const piece of pieces) write(piece, frame);
 }
 
 /** Put the text of an element back as it was, releasing the frames of its pieces; a text that is not split is left alone. */

@@ -22,7 +22,10 @@ type Group = { keyframes: VisualFrame[]; timing: SpringRef | CurveTiming };
 const REDUCED_FADE_TIMING: SpringRef = 'spring.default.effects';
 const OPACITY_ONLY: ReadonlySet<ManifestVisualField> = new Set<ManifestVisualField>(['opacity']);
 
-/** Write the visual fields of a frame inline. Never writes `transform`. A fully drawn shape keeps no dash inline. */
+/**
+ * Write the visual fields of a frame inline. Never writes `transform`. A fully drawn shape keeps no dash inline. A
+ * frame that is the state at rest goes through `applyRestingFrame`, which releases its neutral fields.
+ */
 export function applyFrame(target: MotionElement, frame: VisualFrame): void {
   if (frame.opacity !== undefined) target.style.opacity = String(frame.opacity);
   if (frame.x !== undefined || frame.y !== undefined) target.style.translate = `${frame.x ?? 0}px ${frame.y ?? 0}px`;
@@ -45,6 +48,29 @@ const INLINE_PROPERTIES: Record<keyof VisualFrame, readonly string[]> = {
 /** Remove the inline properties written for the given fields, so that author CSS applies again. */
 export function releaseFrame(target: MotionElement, fields: Iterable<keyof VisualFrame>): void {
   for (const property of new Set([...fields].flatMap(field => INLINE_PROPERTIES[field]))) target.style.removeProperty(property);
+}
+
+/**
+ * The fields of a frame that rest at their neutral value, which the stylesheet supplies instead of an inline value: opacity
+ * 1, x and y 0, scale 1, rotate 0, a drawn shape (draw 1). A property is released only when every field that writes it is
+ * neutral: x and y share `translate`, and `scale` shares its property with `scaleX` and `scaleY`. `along` is never neutral.
+ */
+export function restingFields(frame: VisualFrame): (keyof VisualFrame)[] {
+  const fields: (keyof VisualFrame)[] = [];
+  if (frame.opacity === 1) fields.push('opacity');
+  if ((frame.x !== undefined || frame.y !== undefined) && (frame.x ?? 0) === 0 && (frame.y ?? 0) === 0) fields.push('x', 'y');
+  const scaled = frame.scale !== undefined || frame.scaleX !== undefined || frame.scaleY !== undefined;
+  const scaleNeutral = frame.scale !== undefined ? frame.scale === 1 : (frame.scaleX ?? 1) === 1 && (frame.scaleY ?? 1) === 1;
+  if (scaled && scaleNeutral) fields.push('scale', 'scaleX', 'scaleY');
+  if (frame.rotate === 0) fields.push('rotate');
+  if (frame.draw === 1) fields.push('draw');
+  return fields;
+}
+
+/** Write a frame that is a state at rest (not a motion in progress): its neutral fields go back to the stylesheet. */
+export function applyRestingFrame(target: MotionElement, frame: VisualFrame): void {
+  applyFrame(target, frame);
+  releaseFrame(target, restingFields(frame));
 }
 
 function windowOf(target: MotionElement): Window {
@@ -116,7 +142,7 @@ function planGroups(keyframes: VisualFrame[], verb: ManifestVerb, timing: Spring
 
 /** Final state at once: the destination is applied and nothing animates. */
 function settle(target: MotionElement, destination: VisualFrame, development: boolean, report?: unknown): MotionHandle {
-  applyFrame(target, destination);
+  applyRestingFrame(target, destination);
   if (report !== undefined && development) console.error('[@udixio/motion] playMotion settled at its destination:', report);
   return settledHandle();
 }
@@ -146,7 +172,9 @@ export function resolveWaapiTiming(target: MotionElement, timing: SpringRef | Cu
 /**
  * Play a validated motion spec on `target`. The returned handle never rejects its
  * `finished`; on any failure the target is left in its destination state. `delay`
- * (ms) postpones every group of the motion; reduced motion ignores it.
+ * (ms) postpones every group of the motion; reduced motion ignores it. A motion that
+ * ends releases the neutral fields of its destination (`restingFields`) to the
+ * stylesheet, so that author classes apply at rest; a cancelled one releases nothing.
  */
 export function playMotion(
   target: MotionElement,
@@ -193,7 +221,13 @@ export function playMotion(
   } catch (error) {
     failure = error;
   }
-  if (started.length === groups.length) return composeHandles(started);
+  if (started.length === groups.length) {
+    const handle = composeHandles(started);
+    void handle.finished.then(result => {
+      if (result === 'finished') releaseFrame(target, restingFields(destination));
+    });
+    return handle;
+  }
   for (const handle of started) handle.cancel();
   return settle(target, destination, development, failure);
 }

@@ -74,7 +74,8 @@ it('leaves content present at connect untouched, and plays the entry of an eleme
   await tick();
   expect(inserted.getAnimations()).toHaveLength(1);
   expect(await getMotion(inserted)!.setPresent(true)).toBe('finished');
-  expect(inserted.style.opacity).toBe('1');
+  expect(inserted.style.opacity).toBe('');
+  expect(getComputedStyle(inserted).opacity).toBe('1');
   expect(inserted.dataset.presence).toBe('present');
 });
 
@@ -112,7 +113,8 @@ it('shows an element again when hidden is removed during its exit', async () => 
   el.hidden = false;
   await tick();
   expect(await getMotion(el)!.setPresent(true)).toBe('finished');
-  expect(el.style.opacity).toBe('1');
+  expect(el.style.opacity).toBe('');
+  expect(getComputedStyle(el).opacity).toBe('1');
   expect(el.hasAttribute('inert')).toBe(false);
   expect(el.style.display).toBe('');
   expect(getComputedStyle(el).display).not.toBe('none');
@@ -149,7 +151,8 @@ it('inserts without animation under --udx-motion: none', async () => {
   root.append(el);
   await tick();
   expect(el.getAnimations()).toHaveLength(0);
-  expect(el.style.opacity).toBe('1');
+  expect(el.style.opacity).toBe('');
+  expect(getComputedStyle(el).opacity).toBe('1');
 });
 
 it('cancels the entry of an element removed mid-entry', async () => {

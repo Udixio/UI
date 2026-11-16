@@ -88,7 +88,7 @@ it('leaves content that is in view at bind untouched: no animation, no inline st
 
 it('holds content out of view in its first frame, then plays it forward when it scrolls into view', async () => {
   const [item] = layout(1);
-  bindTo(item);
+  const binding = bindTo(item);
   await twoFrames();
   expect(item.style.opacity).toBe('0');
   expect(getComputedStyle(item).translate).toBe('0px 24px');
@@ -98,11 +98,12 @@ it('holds content out of view in its first frame, then plays it forward when it 
   await twoFrames();
   expect(item.getAnimations()).toHaveLength(1);
   await finishAll(item);
+  await binding.handle?.finished;
   expect(getComputedStyle(item).opacity).toBe('1');
   expect(['none', '0px', '0px 0px']).toContain(getComputedStyle(item).translate);
-  // The end frame is written inline by the provider when the animation ends: nothing else is left.
-  expect(item.style.opacity).toBe('1');
-  expect(item.style.translate).toBe('0px');
+  // At rest the neutral end frame is released: the stylesheet supplies opacity 1 and no translation.
+  expect(item.style.opacity).toBe('');
+  expect(item.style.translate).toBe('');
 });
 
 it('cascades the items that enter the view together, by visual order and capped at 400 ms', async () => {
@@ -241,4 +242,24 @@ it('watches each element once on one observer per axis, and disconnects it when 
   expect(disconnect).not.toHaveBeenCalled();
   stopSecond();
   expect(disconnect).toHaveBeenCalledTimes(1);
+});
+
+// Values at rest (step 8a-2): a revealed item leaves its neutral values to the stylesheet once its reveal has ended.
+it('a revealed item leaves no inline value at rest, so that the author stylesheet sets its scale', async () => {
+  const rule = document.createElement('style');
+  rule.textContent = '.at-rest { scale: 1.05; }';
+  document.head.append(rule);
+  const scaled: MotionSpec = { verb: 'reveal', keyframes: [{ opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1 }] };
+  const [item] = layout(1);
+  item.classList.add('at-rest');
+  const binding = bindTo(item, scaled);
+  await twoFrames();
+  scrollToTop(item);
+  await twoFrames();
+  // The release follows the end of the animation by a few microtasks: the handle's end is awaited, not the animation's.
+  await binding.handle?.finished;
+  expect(item.style.opacity).toBe('');
+  expect(item.style.scale).toBe('');
+  expect(parseFloat(getComputedStyle(item).scale)).toBeCloseTo(1.05);
+  rule.remove();
 });

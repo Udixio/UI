@@ -97,7 +97,8 @@ it('an entry requested while the text loads holds the first frame, then plays sp
   expect(await entering).toBe('finished');
   const pieces = [...p.querySelectorAll<HTMLElement>('[data-udx-piece]')];
   expect(pieces.map(piece => piece.textContent)).toEqual(['Hello', 'big', 'world']);
-  expect(pieces.every(piece => piece.style.opacity === '1')).toBe(true);
+  expect(pieces.every(piece => piece.style.opacity === '')).toBe(true);
+  expect(pieces.every(piece => getComputedStyle(piece).opacity === '1')).toBe(true);
   expect(p.style.opacity).toBe('');
   expect(p.dataset.presence).toBe('present');
 });

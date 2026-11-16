@@ -800,6 +800,14 @@ The runtime writes `data-presence="entering" | "present" | "exiting"` on each el
 to a presence motion; authors should not set it. Style it with Tailwind variants, for example
 `data-[presence=exiting]:pointer-events-none`.
 
+**At rest.** When a presence, emphasis or reveal motion ends, the fields that rest at their neutral
+value leave the element's inline style, and the stylesheet supplies them: `opacity` 1, `x` and `y` 0,
+`scale` 1, `rotate` 0, and `draw` 1 for a shape. So `hover:scale-105` and an author class such as
+`scale-[1.05]` apply at rest. A value that is not neutral stays inline: the opacity 0 of an exit until
+`hidden` takes over, or the first frame of a reveal that is still out of view. A cancelled motion
+releases nothing, so the next motion carries from where it stopped. Under reduced motion, or with
+`--udx-motion: none`, the destination is released at once.
+
 ### Turning motion off, or reducing it
 
 - `--udx-motion: none` on an element or an ancestor applies the end state without

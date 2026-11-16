@@ -180,7 +180,8 @@ it('under reduced motion, a text split earlier plays whole, and its pieces hold 
   playSplit(p, words, { direction: 'forward', carry: false, runtime });
   expect(piecesOf(p).every(piece => piece.style.opacity === '')).toBe(true);
   expect(p.getAnimations()).toHaveLength(0);
-  expect(p.style.opacity).toBe('1');
+  expect(p.style.opacity).toBe('');
+  expect(getComputedStyle(p).opacity).toBe('1');
 });
 
 it('a text holding a link is animated whole, and warns once', async () => {
