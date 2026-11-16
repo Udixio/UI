@@ -274,6 +274,8 @@ export function flush(scope: Scope, records: readonly MutationRecord[] = []): vo
       holdAnchor(scroller);
       item.handle = handle;
       item.flight = playback.flight;
+      // A keyed element keeps the frames and the easing of its move: they tell where it is once it is detached.
+      if (item.shared !== undefined) item.path = { frames: playback.keyframes, easing: playback.easing, reference: referenceOf(scope, element) };
       void handle.finished.then(() => {
         releaseAnchor(scroller);
         if (item.handle === handle) stopFlight(item);

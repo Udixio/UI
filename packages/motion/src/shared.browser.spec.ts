@@ -6,6 +6,10 @@ import { sharedOf } from './shared-registry.js';
 import { getMotionRuntime } from './runtime.js';
 import { loadLayoutEngine } from './layout-loader.js';
 import { reflow } from './presets.js';
+import { easingFnOf } from './layout/flight.js';
+import { motionManifest } from './manifest.js';
+import type { SpringRef } from './motion-spec.js';
+import { resolveWaapiTiming } from './play.js';
 
 // Every test here binds a layout motion and expects it to follow at once: the engine is loaded before the first test.
 await loadLayoutEngine();
@@ -469,4 +473,89 @@ it('[Step 8a-1] a holder that leaves in mid-flight hands its place over where it
   await handle.finished;
   expectNear(rectOf(b), natural(), 0.5);
   expectNothingInline(b);
+});
+
+// ─── A holder that leaves the page before its binding is destroyed (step 8a-4) ───
+
+/**
+ * Freeze the holder a fifth of the way through its move, read the place it has on the screen, then take it off the page
+ * the way Svelte does: the node is removed first, and the binding is destroyed after it.
+ */
+function leaveMidFlight(element: HTMLElement, binding: MotionBinding): Rect {
+  const flight = moving(binding);
+  flight.pause();
+  flight.seek(flight.duration * 0.2);
+  const onScreen = rectOf(element);
+  element.remove();
+  binding.destroy();
+  return onScreen;
+}
+
+it('[Step 8a-4] a holder removed before its binding is destroyed hands over the place it has on the screen, not its rest place', async () => {
+  page();
+  style.textContent += '\n.list.moved { padding-left: 100px; }';
+  const a = byId('a');
+  const old = bindTo(a);
+  list().classList.add('moved');
+  await Promise.resolve();
+  const onScreen = leaveMidFlight(a, old);
+  expect(onScreen.left, `the holder is at ${onScreen.left}, between its rest (0) and its move (100)`).toBeGreaterThan(2);
+  expect(onScreen.left).toBeLessThan(98);
+  const b = card('b');
+  detail().append(b);
+  const binding = bindTo(b);
+  const handle = moving(binding);
+  handle.pause();
+  handle.seek(0);
+  expectNear(rectOf(b), onScreen, 1);
+  handle.play();
+  await handle.finished;
+  expectNear(rectOf(b), natural(), 0.5);
+  expectNothingInline(b);
+});
+
+it('[Step 8a-4] a rounded holder that resizes in flight, removed before its destruction, hands over the box it has on the screen', async () => {
+  page();
+  style.textContent += '\n.round { border-radius: 16px; }\n.list.grown { padding-left: 100px; }\n.list.grown .round { width: 120px; height: 80px; }';
+  const a = byId('a');
+  a.classList.add('round');
+  const old = bindTo(a);
+  list().classList.add('grown');
+  await Promise.resolve();
+  const onScreen = leaveMidFlight(a, old);
+  // The corners stay round through a resize, so the move is sampled: the box is between the thumbnail and its grown size.
+  expect(onScreen.width, `the holder is ${onScreen.width} px wide, between 60 and 120`).toBeGreaterThan(60.5);
+  expect(onScreen.width).toBeLessThan(119.5);
+  const b = card('b');
+  detail().append(b);
+  const binding = bindTo(b);
+  const handle = moving(binding);
+  handle.pause();
+  handle.seek(0);
+  expectNear(rectOf(b), onScreen, 1);
+  handle.play();
+  await handle.finished;
+  expectNear(rectOf(b), natural(), 0.5);
+  expectNothingInline(b);
+});
+
+it('[Step 8a-4] the progress the layout reads from an easing is the progress the browser plays, at each instant', async () => {
+  const probe = document.createElement('div');
+  document.body.append(probe);
+  const timing = motionManifest.defaults.layout.timing[0] as SpringRef;
+  const spring = resolveWaapiTiming(probe, timing, 'expressive');
+  if (!spring) throw new Error('the default layout spring has no WAAPI timing');
+  // The spring's linear() curve, a cubic-bezier() and a linear() written by hand: the three kinds a flight can carry.
+  for (const easing of [spring.easing, 'cubic-bezier(0.8, 0, 0.2, 1)', 'linear(0, 0.9, 0.9, 1)']) {
+    const ease = easingFnOf(easing);
+    expect(ease, `${easing} is read by the layout`).not.toBeNull();
+    const animation = probe.animate([{ translate: '0px 0px' }, { translate: '100px 0px' }], { duration: spring.duration, easing, fill: 'both' });
+    animation.pause();
+    for (const share of [0.1, 0.3, 0.5, 0.7, 0.9]) {
+      animation.currentTime = spring.duration * share;
+      expect(animation.effect?.getComputedTiming().progress, `${easing} at ${share}`).toBeCloseTo(ease?.(share) ?? Number.NaN, 4);
+    }
+    animation.cancel();
+  }
+  probe.remove();
 });

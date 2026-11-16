@@ -5,12 +5,12 @@
 import type { MotionHandle } from './contract.js';
 import type { MotionSpec } from './define-motion.js';
 import type { MotionRuntime } from './runtime.js';
-import { holdShared, measure, visualBoxOf } from './layout/measure.js';
+import { holdInFlight, measure } from './layout/measure.js';
 import { sharedOf } from './shared-registry.js';
 import { flush, scopeFor } from './layout/flush.js';
 import { stopFlight } from './layout/flight.js';
 import { dispose, layoutScopeOf, scopeOf, scopes } from './layout/scope.js';
-import type { Item, ReferenceRects } from './layout/types.js';
+import type { Item } from './layout/types.js';
 
 export { layoutScopeOf };
 export { flipFrames, sameBox, toLayoutBox, toVisualBox, parseOwnTransform } from './flip.js';
@@ -45,6 +45,7 @@ export function trackLayout(target: HTMLElement, spec: Readonly<MotionSpec>, opt
     contentHandles: [],
     projected: [],
     projector: null,
+    path: null,
   };
   const scope = scopeFor(layoutScopeOf(target));
   scope.items.set(target, item);
@@ -62,12 +63,9 @@ export function trackLayout(target: HTMLElement, spec: Readonly<MotionSpec>, opt
     },
     destroy() {
       const current = scopeOf.get(target);
-      // A keyed element that leaves in flight, while it is still on the page, is remembered where it is on the screen now:
-      // its arrival starts from there, not from the place it rests at. The flight is stopped after that.
-      if (item.shared !== undefined && item.handle !== null && current && target.isConnected) {
-        const rects: ReferenceRects = new Map();
-        holdShared(current, target, item.shared, options.runtime, visualBoxOf(current, target, rects), rects);
-      }
+      // A keyed element that leaves in flight is remembered where it is on the screen now, not where it rests: its arrival
+      // starts from there. A framework may have removed the element already: then the place is computed. The flight stops after that.
+      if (current && item.shared !== undefined) holdInFlight(current, target, item.shared, item);
       stopFlight(item);
       if (item.shared !== undefined) sharedOf(options.runtime).forget(item.shared, target);
       if (!current) return;

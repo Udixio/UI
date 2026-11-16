@@ -42,6 +42,71 @@ function sampleFlight(params: SpringParams, fields: Record<Field, FieldMotion>, 
   });
 }
 
+/**
+ * The own transform a move shows at `progress`, after its easing: its keyframes are spread evenly over the move, and each
+ * field is interpolated between the two keyframes around that instant, as the browser interpolates them.
+ */
+export function ownAt(keyframes: readonly VisualFrame[], progress: number): OwnTransform {
+  const last = keyframes.length - 1;
+  const segment = Math.min(Math.max(Math.floor(progress * last), 0), last - 1);
+  const local = progress * last - segment;
+  const from = keyframes[segment];
+  const to = keyframes[segment + 1];
+  const at = (name: Field, neutral: number): number => {
+    const start = from[name] ?? neutral;
+    return start + ((to[name] ?? neutral) - start) * local;
+  };
+  return { x: at('x', 0), y: at('y', 0), sx: at('scaleX', 1), sy: at('scaleY', 1) };
+}
+
+/**
+ * The function from the progress of a move in time to the progress its keyframes are interpolated at, for a WAAPI easing:
+ * `linear`, a `cubic-bezier()`, or a `linear()` (the curve of a spring). Null for any other easing.
+ */
+export function easingFnOf(easing: string): ((progress: number) => number) | null {
+  return easingOf(easing) ?? linearFnOf(easing);
+}
+
+/**
+ * A `linear()` easing as the browser draws it: straight segments between its stops, where a stop without a position is
+ * spread evenly between the stops around it. Null when a stop is not a number with at most one percentage.
+ */
+function linearFnOf(easing: string): ((progress: number) => number) | null {
+  const match = /^linear\((.+)\)$/.exec(easing.trim());
+  if (!match) return null;
+  const values: number[] = [];
+  const positions: Array<number | undefined> = [];
+  for (const stop of match[1].split(',')) {
+    const [value, position, extra] = stop.trim().split(/\s+/);
+    if (!value || extra !== undefined || !Number.isFinite(Number(value))) return null;
+    if (position !== undefined && !position.endsWith('%')) return null;
+    values.push(Number(value));
+    positions.push(position === undefined ? undefined : Number.parseFloat(position) / 100);
+  }
+  const last = values.length - 1;
+  if (last < 1) return null;
+  positions[0] ??= 0;
+  positions[last] ??= 1;
+  for (let i = 1; i < last; i++) {
+    if (positions[i] !== undefined) continue;
+    let end = i;
+    while (positions[end] === undefined) end++;
+    const start = positions[i - 1] as number;
+    const stop = positions[end] as number;
+    for (let k = i; k < end; k++) positions[k] = start + ((stop - start) * (k - i + 1)) / (end - i + 1);
+    i = end;
+  }
+  const at = positions as number[];
+  for (let k = 1; k <= last; k++) at[k] = Math.max(at[k], at[k - 1]);
+  return progress => {
+    let k = 1;
+    while (k < last && progress > at[k]) k++;
+    const span = at[k] - at[k - 1];
+    if (span <= 0) return values[k];
+    return values[k - 1] + ((values[k] - values[k - 1]) * (progress - at[k - 1])) / span;
+  };
+}
+
 /** The frames of a move from the rest state to itself: it only carries a velocity. */
 export function restFrames(rest: OwnTransform): [VisualFrame, VisualFrame] {
   const frame = { x: rest.x, y: rest.y, scaleX: rest.sx, scaleY: rest.sy };
@@ -138,6 +203,7 @@ export function stopFlight(item: Item): void {
   if (item.contentHandles.length > 0) item.contentHandles = [];
   if (item.projected.length > 0) item.projected = [];
   item.projector = null;
+  item.path = null;
 }
 
 /**

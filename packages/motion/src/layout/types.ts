@@ -50,6 +50,9 @@ export interface Item {
   contentHandles: MotionHandle[]; // the moves of the content, which run with the move in flight
   projected: Item[]; // the followed elements that the move in flight animates as its content, at any depth
   projector: Item | null; // the followed element whose move animates this one as its content; null when it moves by itself
+  // The frames and easing of the move in flight of a keyed element, with the reference its boxes are relative to: they tell
+  // where it is on the screen once it is detached. Null at rest, and for an element with no shared identity.
+  path: { frames: VisualFrame[]; easing: string; reference: HTMLElement } | null;
 }
 
 /** The followed elements under one root, watched together. */

@@ -1,8 +1,9 @@
-import { parseOwnTransform, toLayoutBox, type Box, type OwnTransform } from '../flip.js';
+import { parseOwnTransform, toLayoutBox, toVisualBox, type Box, type OwnTransform } from '../flip.js';
 import { parseRadii, type Radii, type Stretch } from '../project.js';
 import { CONTENT_BUDGET, CONTENT_DEPTH, type ContentNode, type Item, type ReferenceRects, type Scope } from './types.js';
 import type { MotionRuntime } from '../runtime.js';
 import { sharedOf } from '../shared-registry.js';
+import { easingFnOf, ownAt } from './flight.js';
 
 export function ownOf(element: HTMLElement): OwnTransform {
   const style = getComputedStyle(element);
@@ -92,27 +93,26 @@ export function contentOf(scope: Scope, element: HTMLElement): readonly ContentN
 /** Measure an element at rest, from the computed style its caller has just read. Returns its visual box. */
 export function measureWith(scope: Scope, element: HTMLElement, item: Item, style: CSSStyleDeclaration, rects: ReferenceRects, content = true): Box {
   item.rest = parseOwnTransform(style.translate, style.scale);
-  const visual = visualBoxOf(scope, element, rects);
+  const reference = referenceOf(scope, element);
+  const visual = visualBoxOf(scope, element, rects, reference);
   item.visual = visual;
   item.layout = toLayoutBox(visual, item.rest);
-  if (item.shared !== undefined) holdShared(scope, element, item.shared, item.runtime, visual, rects);
+  if (item.shared !== undefined) holdShared(reference, element, item.shared, item.runtime, visual, rects);
   if (content) item.content = contentOf(scope, element);
   return visual;
 }
 
 /**
- * Remember a keyed element as the holder of its shared identity, at its visual box: its page box when it is visible, and
- * nothing when it is hidden, which forgets it. The box is derived from the visual box and the reference rect it was taken
- * against, so no rect is read here. Once the holder has gone, its box is followed through its reference, which stays on
- * the page: a sticky or scrolled ancestor moves that reference, and the box moves with it instead of staying where it was.
+ * Remember a keyed element as the holder of its shared identity, at the visual box `visual`, which is relative to its
+ * `reference`: its page box when it is visible, and nothing when it is hidden, which forgets it. The reference rect is the
+ * one `rects` caches. Once the holder has gone, its box is followed through its reference, which stays on the page: a
+ * sticky or scrolled ancestor moves that reference, and the box moves with it instead of staying where it was.
  */
-export function holdShared(scope: Scope, element: HTMLElement, key: string, runtime: MotionRuntime, visual: Box, rects: ReferenceRects): void {
+function holdShared(reference: HTMLElement, element: HTMLElement, key: string, runtime: MotionRuntime, visual: Box, rects: ReferenceRects): void {
   if (visual.w === 0 || visual.h === 0) {
     sharedOf(runtime).forget(key, element);
     return;
   }
-  // visualBoxOf has cached the rect of this reference: the reference is the one the visual box is relative to.
-  const reference = referenceOf(scope, element);
   const rect = rects.get(reference);
   if (!rect) return;
   const win = element.ownerDocument.defaultView;
@@ -130,6 +130,29 @@ export function holdShared(scope: Scope, element: HTMLElement, key: string, runt
       return { left: now.left + left + (win?.scrollX ?? 0), top: now.top + top + (win?.scrollY ?? 0), width, height };
     },
   );
+}
+
+/**
+ * Remember a keyed element that leaves in flight where it is on the screen, not where it rests. Connected, its box is read
+ * from the element. Detached, the node having been removed before its binding is destroyed (as Svelte does), the box is
+ * computed from the frames of its move at the progress of its animation, which a detached animation keeps: its time is the
+ * handle's, and the easing of the move gives the progress. A reference that is not displayed leaves the rest place in memory.
+ */
+export function holdInFlight(scope: Scope, element: HTMLElement, key: string, item: Item): void {
+  const { handle, path, layout, runtime } = item;
+  if (!handle) return;
+  if (element.isConnected) {
+    const reference = referenceOf(scope, element);
+    const rects: ReferenceRects = new Map();
+    holdShared(reference, element, key, runtime, visualBoxOf(scope, element, rects, reference), rects);
+    return;
+  }
+  const ease = path && easingFnOf(path.easing);
+  if (!path || !layout || !ease || !(handle.duration > 0) || path.reference.getClientRects().length === 0) return;
+  const { reference } = path;
+  const time = Math.min(Math.max(handle.currentTime / handle.duration, 0), 1);
+  const rects: ReferenceRects = new Map([[reference, reference.getBoundingClientRect()]]);
+  holdShared(reference, element, key, runtime, toVisualBox(layout, ownAt(path.frames, ease(time))), rects);
 }
 
 /** Measure an element at rest. Its content is measured too, unless `content` is false. */
