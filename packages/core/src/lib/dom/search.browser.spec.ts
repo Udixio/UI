@@ -144,7 +144,7 @@ describe('search results transition controller in the browser', () => {
     controller.setOpen(true);
     expect(element.getAnimations()).toHaveLength(0);
     expect(element.hidden).toBe(false);
-    expect(element.style.height).toBe('auto');
+    expect(element.style.height).toBe('');
     expect(element.style.opacity).toBe('1');
 
     controller.setOpen(false);

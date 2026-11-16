@@ -119,10 +119,19 @@ export function createSearchResultsTransitionController({
 
       // Without a layout box (the surface is in a subtree that is not rendered) there is nothing to see or to measure:
       // the new state is applied at once, so that a page of hidden instances starts no animation.
-      if (reducedMotion() || motionPolicy.reduced || element.getClientRects().length === 0) {
+      if (reducedMotion() || motionPolicy.reduced) {
         motion?.cancel();
         motion = undefined;
         applyInstantState(nextOpen);
+        return;
+      }
+
+      // No layout box: the new state is applied as an animation would leave it, with no inline height when open.
+      if (element.getClientRects().length === 0) {
+        motion?.cancel();
+        motion = undefined;
+        applyInstantState(nextOpen);
+        if (nextOpen) element.style.height = '';
         return;
       }
 
