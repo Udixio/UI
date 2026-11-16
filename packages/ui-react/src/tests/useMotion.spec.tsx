@@ -55,7 +55,17 @@ function fakeMotion(verb: Verb) {
     }),
     destroy: vi.fn(),
   };
-  const deferred = { binding, destroy: vi.fn() };
+  // As the core's deferred motion: the presence goes to a presence motion, the replay to an emphasis, and nothing else.
+  const deferred = {
+    binding,
+    setPresent: vi.fn((present: boolean) =>
+      binding.kind === 'presence' ? binding.setPresent(present) : Promise.resolve<Outcome>('finished'),
+    ),
+    play: vi.fn(() => {
+      if (binding.kind === 'emphasis') binding.play();
+    }),
+    destroy: vi.fn(),
+  };
   return {
     deferred,
     binding,
@@ -276,6 +286,22 @@ describe('useMotion', () => {
     expect(fakes[0].binding.setPresent).not.toHaveBeenCalled();
     expect(queryByTestId('box')).toBeNull();
     expect(error).not.toHaveBeenCalled();
+  });
+
+  it('hands a replay and a change of state to a motion not defined yet, so that they play once it is defined', () => {
+    // The name is not defined: its motion is a deferred one with no binding, which keeps what it is asked.
+    const pending = { binding: undefined, setPresent: vi.fn(), play: vi.fn(), destroy: vi.fn() };
+    bindMotion.mockImplementationOnce(() => pending as unknown as DeferredMotion);
+    let panel: UseMotionReturn<HTMLElement> | undefined;
+    function Pending({ state }: { state: number }) {
+      panel = useMotion('later', { state });
+      return <div data-testid="box" ref={panel.ref} />;
+    }
+    const { rerender } = render(<Pending state={1} />);
+    rerender(<Pending state={2} />);
+    expect(pending.play).toHaveBeenCalledTimes(1);
+    act(() => panel?.play());
+    expect(pending.play).toHaveBeenCalledTimes(2);
   });
 
   it('returns a play that does nothing on a presence motion', () => {

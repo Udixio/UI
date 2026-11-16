@@ -195,19 +195,20 @@ export function useMotion<T extends MotionElement = HTMLElement>(
     });
   }, []);
 
+  // Each motion takes the presence: one that is not defined yet keeps it for its definition. The element stays while every exit plays.
   useEffect(() => {
-    const binding = bindingOf(deferred.current, 'presence');
     if (present) {
-      if (binding) void binding.setPresent(true);
+      for (const motion of deferred.current) void motion.setPresent(true);
       return undefined;
     }
-    if (!binding) {
+    // Without a bound presence there is no exit to wait for: the element is removed at once.
+    if (!deferred.current.some((motion) => motion.binding?.kind === 'presence')) {
       setLeaving(false);
       return undefined;
     }
     let current = true;
-    void binding.setPresent(false).then((outcome) => {
-      if (current && outcome === 'finished') setLeaving(false);
+    void Promise.all(deferred.current.map((motion) => motion.setPresent(false))).then((outcomes) => {
+      if (current && outcomes.every((outcome) => outcome === 'finished')) setLeaving(false);
     });
     return () => {
       current = false;
@@ -224,8 +225,9 @@ export function useMotion<T extends MotionElement = HTMLElement>(
     else loop?.play();
   }, [paused]);
 
+  // A replay asked before the emphasis is defined happens once it is.
   const play = useCallback(() => {
-    bindingOf(deferred.current, 'emphasis')?.play();
+    for (const motion of deferred.current) motion.play();
   }, []);
 
   const getBinding = useCallback(
