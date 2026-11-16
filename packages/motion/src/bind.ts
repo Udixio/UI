@@ -144,6 +144,9 @@ export interface DeferredMotion {
   destroy(): void;
 }
 
+/** The outcome of a presence that has nothing to wait for: already settled, and shared. */
+const settled = Promise.resolve<'finished' | 'cancelled'>('finished');
+
 /**
  * Bind a motion now when its source is known, or as soon as the named motion is defined. Until then the
  * element is not touched, so a render that runs before the definition never throws.
@@ -151,8 +154,9 @@ export interface DeferredMotion {
 export function motionWhenDefined(target: MotionElement, source: MotionSource, options: BindOptions = {}): DeferredMotion {
   let binding: MotionBinding | undefined;
   let unsubscribe: (() => void) | undefined;
-  // What was asked while the name was undefined: the last presence, and whether an emphasis replay is due.
-  let wanted: boolean | undefined;
+  // The presence asked for, the options' one until it changes, and whether an emphasis replay is due.
+  const initial = options.present !== false;
+  let wanted = initial;
   let replay = false;
   if (typeof source === 'string' && !resolveMotion(source)) {
     const name = source;
@@ -160,11 +164,9 @@ export function motionWhenDefined(target: MotionElement, source: MotionSource, o
     unsubscribe = onMotionDefined(ref => {
       if (ref.name !== name) return;
       unsubscribe?.();
-      unsubscribe = undefined;
+      binding = motion(target, ref, { ...options, present: wanted || initial, settled: true });
       // A presence asked to end meanwhile ends now, with its exit, as if the definition had been there.
-      const leaving = wanted === false && options.present !== false;
-      binding = motion(target, ref, { ...options, present: leaving || (wanted ?? options.present !== false), settled: true });
-      if (leaving && binding.kind === 'presence') void binding.setPresent(false);
+      if (!wanted && initial && binding.kind === 'presence') void binding.setPresent(false);
       if (replay && binding.kind === 'emphasis') binding.play();
     });
   } else {
@@ -175,11 +177,8 @@ export function motionWhenDefined(target: MotionElement, source: MotionSource, o
       return binding;
     },
     setPresent(present) {
-      if (!binding) {
-        wanted = present;
-        return Promise.resolve('finished');
-      }
-      return binding.kind === 'presence' ? binding.setPresent(present) : Promise.resolve('finished');
+      if (!binding) wanted = present;
+      return binding?.kind === 'presence' ? binding.setPresent(present) : settled;
     },
     play() {
       if (!binding) replay = true;
@@ -187,7 +186,6 @@ export function motionWhenDefined(target: MotionElement, source: MotionSource, o
     },
     destroy() {
       unsubscribe?.();
-      unsubscribe = undefined;
       binding?.destroy();
     },
   };
