@@ -25,6 +25,20 @@ export interface ConnectOptions {
   development?: boolean;
 }
 
+/** The scanners connected on this page, with their roots: `stopScanning` acts on those that cover a subtree. */
+const scanners = new Set<{ readonly root: Document | Element; disconnect(): void; suspend(scope: Element): void }>();
+
+/**
+ * Stop the scanners of the page within `scope`, for `revert`: a scanner rooted inside `scope` is disconnected, and a scanner
+ * that covers `scope` stops observing it. A scanner connected afterwards binds it again.
+ */
+export function stopScanning(scope: Element): void {
+  for (const scanner of [...scanners]) {
+    if (scope.contains(scanner.root)) scanner.disconnect();
+    else if (scanner.root.contains(scope)) scanner.suspend(scope);
+  }
+}
+
 /** The inline display held during an exit, with the author's inline value it replaces. */
 type Hold = { value: string; priority: string };
 /** A motion the scanner bound on an element: the name it came from, and its binding. */
@@ -106,9 +120,17 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   const refusedLayouts = new WeakSet<MotionElement>();
   /** False once the scanner is disconnected: a module that loads after that binds nothing. */
   let live = true;
+  /** The subtrees `stopScanning` released: the scanner does not bind inside them. */
+  const suspended = new WeakSet<Element>();
 
-  /** Whether `el` is still under the root: a binding for an element that has left it is not made. */
-  const current = (el: Element): boolean => live && root.contains(el);
+  /** Whether `el` is in a subtree that `stopScanning` released, or in one of its ancestors. */
+  function suspendedAt(el: Element): boolean {
+    for (let node: Element | null = el; node; node = node.parentElement) if (suspended.has(node)) return true;
+    return false;
+  }
+
+  /** Whether `el` is still under the root and not released: a binding for an element that has left it is not made. */
+  const current = (el: Element): boolean => live && root.contains(el) && !suspendedAt(el);
 
   /**
    * Run `task` with a module's functions: now when the module has evaluated, else once the scanner has loaded it. A
@@ -402,12 +424,12 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
         // A node moved within the root keeps its binding: it is still under root when its removal is read.
         for (const el of Array.from(record.removedNodes).flatMap(scannedElements)) if (!root.contains(el)) forget(el);
         for (const el of Array.from(record.addedNodes).flatMap(scannedElements)) {
-          if (root.contains(el) && !bound.has(el) && !boundValues.has(el) && !boundSequences.has(el) && !boundGestures.has(el)) bind(el, true);
+          if (current(el) && !bound.has(el) && !boundValues.has(el) && !boundSequences.has(el) && !boundGestures.has(el)) bind(el, true);
         }
         continue;
       }
       const el = record.target;
-      if (!(el instanceof Element) || !motionable(el) || !root.contains(el)) continue;
+      if (!(el instanceof Element) || !motionable(el) || !current(el)) continue;
       if (record.attributeName === 'data-motion') {
         forget(el);
         bind(el, false);
@@ -444,7 +466,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     if (!waiting) return;
     pending.delete(ref.name);
     // Only the defined name is bound: the other names of the element keep their bindings.
-    for (const el of waiting) if (root.contains(el) && namesOf(el).includes(ref.name)) bindRef(el, ref, false);
+    for (const el of waiting) if (current(el) && namesOf(el).includes(ref.name)) bindRef(el, ref, false);
   });
   const unsubscribeSequences = onSequenceDefined(ref => {
     const waiting = pending.get(ref.name);
@@ -472,16 +494,25 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     });
   });
 
-  return () => {
-    live = false;
-    observer.disconnect();
-    unsubscribe();
-    unsubscribeSequences();
-    unsubscribeValues();
-    unsubscribeGestures();
-    for (const el of new Set([...bound.keys(), ...boundSequences.keys(), ...boundValues.keys(), ...boundGestures.keys()])) forget(el);
-    pending.clear();
-    pendingValues.clear();
-    pendingGestures.clear();
+  const scanner = {
+    root,
+    suspend(scope: Element) {
+      suspended.add(scope);
+    },
+    disconnect() {
+      scanners.delete(scanner);
+      live = false;
+      observer.disconnect();
+      unsubscribe();
+      unsubscribeSequences();
+      unsubscribeValues();
+      unsubscribeGestures();
+      for (const el of new Set([...bound.keys(), ...boundSequences.keys(), ...boundValues.keys(), ...boundGestures.keys()])) forget(el);
+      pending.clear();
+      pendingValues.clear();
+      pendingGestures.clear();
+    },
   };
+  scanners.add(scanner);
+  return scanner.disconnect;
 }

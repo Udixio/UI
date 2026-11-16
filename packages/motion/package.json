@@ -116,6 +116,12 @@
         "require": "./dist/continuous.cjs",
         "default": "./dist/continuous.js"
       },
+      "./scope": {
+        "types": "./dist/scope-entry.d.ts",
+        "import": "./dist/scope.js",
+        "require": "./dist/scope.cjs",
+        "default": "./dist/scope.js"
+      },
       "./astro": {
         "types": "./dist/astro.d.ts",
         "import": "./dist/astro.js",
@@ -276,6 +282,13 @@
       "import": "./dist/continuous.js",
       "require": "./dist/continuous.cjs",
       "default": "./dist/continuous.js"
+    },
+    "./scope": {
+      "development": "./src/scope-entry.ts",
+      "types": "./dist/scope-entry.d.ts",
+      "import": "./dist/scope.js",
+      "require": "./dist/scope.cjs",
+      "default": "./dist/scope.js"
     },
     "./astro": {
       "development": "./src/astro.ts",

@@ -40,6 +40,11 @@ export function getValue(target: Element, name: string): ValueBinding | undefine
   return bindings.get(target)?.get(name);
 }
 
+/** The values bound on an element, whatever their names. */
+export function valuesOf(target: Element): ValueBinding[] {
+  return [...(bindings.get(target)?.values() ?? [])];
+}
+
 function register(target: Element, binding: ValueBinding): void {
   let map = bindings.get(target);
   if (!map) bindings.set(target, (map = new Map()));
@@ -453,4 +458,4 @@ function periodOf(spec: Readonly<ValueSpec>): number {
 }
 
 // Once this module has evaluated, the scanner binds values at once, without loading it again.
-provideValues({ value, getValue });
+provideValues({ value, getValue, valuesOf });

@@ -37,6 +37,7 @@ export default defineConfig(() => ({
         animate: 'src/animate-entry.ts',
         page: 'src/page.ts',
         continuous: 'src/continuous-entry.ts',
+        scope: 'src/scope-entry.ts',
         astro: 'src/astro.ts',
         manifest: 'src/manifest.ts',
         'providers/css': 'src/providers/css.ts',

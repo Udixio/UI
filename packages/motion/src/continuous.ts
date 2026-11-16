@@ -142,6 +142,9 @@ export function createLoopBinding(target: MotionElement, spec: Readonly<Extract<
       return animation;
     },
     present: true,
+    get paused() {
+      return authorPaused;
+    },
     play() {
       if (destroyed) return settledHandle();
       authorPaused = false;

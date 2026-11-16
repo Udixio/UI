@@ -848,6 +848,18 @@ Here the element rises on small screens and fades from `md` up. A name of anothe
 ignored: the element plays its own motion, and a development build reports it once. `none` still turns the motion off.
 The binding's own triggers and its view options (`axis`, `repeat`) stay those of its definition.
 
+### Scope: inspect and revert
+
+`@udixio/motion/scope` holds two functions that the main entry does not load:
+
+- `revert(root = document.documentElement)` destroys every motion under `root`, the root included: presence, emphasis,
+  layout, reveal, scrub, loop, values, gestures and sequences. Each element is left in its stylesheet state. A connection
+  that covers `root` stops observing it, and a connection made afterwards binds it again. Use it to tear down a section of
+  a page, or in a test.
+- `inspect(root = document.documentElement)` returns a plain report for development: the reduced-motion policy (and its
+  source), each binding with its element (a short CSS path), kind, name, verb and state, and the defined motions. It changes
+  nothing. Importing the entry also sets it as `udixio.motion.inspect` in development builds.
+
 ### Current limits
 
 The package is under construction, so:

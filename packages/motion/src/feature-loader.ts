@@ -2,10 +2,10 @@ import type { createLoopBinding, createScrubBinding } from './continuous.js';
 import type { getGesture, gesture } from './gesture-binding.js';
 import type { getSequence, sequence } from './sequence.js';
 import type { applySplitFrame, playSplit, revertSplit } from './split-play.js';
-import type { getValue, value } from './value-binding.js';
+import type { getValue, value, valuesOf } from './value-binding.js';
 
 /** The functions that bind values, as the values module provides them once it has evaluated in this copy of the package. */
-export type ValueApi = { readonly value: typeof value; readonly getValue: typeof getValue };
+export type ValueApi = { readonly value: typeof value; readonly getValue: typeof getValue; readonly valuesOf: typeof valuesOf };
 /** The functions that bind sequences, as the sequences module provides them once it has evaluated in this copy of the package. */
 export type SequenceApi = { readonly sequence: typeof sequence; readonly getSequence: typeof getSequence };
 

@@ -31,6 +31,8 @@ export interface MotionBinding {
   readonly present: boolean;
   readonly verb: MotionSpec['verb'];
   readonly kind: MotionKind;
+  /** Whether a loop is paused at the author's request; undefined for the other kinds. */
+  readonly paused?: boolean;
   play(): MotionHandle;
   /** Pause a loop, at the author's request (WCAG 2.2.2); `play()` resumes it. Refused for every other kind. */
   pause(): void;
@@ -58,6 +60,13 @@ const KINDS: readonly MotionKind[] = ['presence', 'emphasis', 'layout', 'view', 
 
 /** The binding of each kind on an element: at most one per kind. */
 const bindings = new WeakMap<Element, Map<MotionKind, MotionBinding>>();
+/** The name a binding was made from, when it was made from a name or a definition. */
+const names = new WeakMap<MotionBinding, string>();
+
+/** The name a binding was made from, if it was made from a defined motion. */
+export function nameOf(binding: MotionBinding): string | undefined {
+  return names.get(binding);
+}
 
 function isRef(source: MotionRef | Readonly<MotionSpec>): source is MotionRef {
   return 'name' in source && 'spec' in source;
@@ -121,6 +130,8 @@ export function motion(target: MotionElement, source: MotionSource, options: Bin
           ? createContinuousBinding(target, spec, options)
           : createBinding(target, spec, options);
   register(target, binding);
+  const name = typeof source === 'string' ? source : isRef(source) ? source.name : undefined;
+  if (name !== undefined) names.set(binding, name);
   return binding;
 }
 
@@ -472,6 +483,10 @@ function createContinuousBinding(target: MotionElement, spec: Readonly<Extract<M
     },
     get present() {
       return true;
+    },
+    // Until the module loads, a pause asked is the state the loop is in.
+    get paused() {
+      return inner?.paused ?? requested === 'pause';
     },
     play() {
       if (destroyed) return settledHandle();

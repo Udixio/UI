@@ -61,9 +61,10 @@ test('value and sequence entry points are public in both export maps', () => {
 });
 
 test('the main entry loads the layout engine with a dynamic import only', async () => {
-  const index = await readFile(new URL('dist/index.js', root), 'utf8');
-  assert.match(index, /import\(["']\.\/layout\.js["']\)/);
-  assert.doesNotMatch(index, /^import\b[^;]*["']\.\/layout\.js["']/m);
+  // The loader may sit in a chunk the main entry imports (the scope entry shares the binding modules with it).
+  const sources = await staticClosure('dist/index.js');
+  assert.ok(sources.some(code => /import\(["']\.\/layout\.js["']\)/.test(code)));
+  for (const code of sources) assert.doesNotMatch(code, /^import\b[^;]*["']\.\/layout\.js["']/m);
 });
 
 /** The source of each file a built entry loads at once: its static imports, followed through the chunks it imports. */
@@ -504,4 +505,29 @@ test('the continuous entry imports only shared chunks, and hands its functions t
   await import('@udixio/motion/continuous');
   assert.equal(typeof main.continuousModule().createScrubBinding, 'function');
   assert.equal(typeof main.continuousModule().createLoopBinding, 'function');
+});
+
+test('scope entry point is public in both export maps', () => {
+  assert.deepEqual(pkg.exports['./scope'], {
+    development: './src/scope-entry.ts', types: './dist/scope-entry.d.ts',
+    import: './dist/scope.js', require: './dist/scope.cjs', default: './dist/scope.js',
+  });
+  assert.deepEqual(pkg.publishConfig.exports['./scope'], {
+    types: './dist/scope-entry.d.ts', import: './dist/scope.js',
+    require: './dist/scope.cjs', default: './dist/scope.js',
+  });
+});
+
+test('the main entry holds none of the scope code', async () => {
+  for (const code of await staticClosure('dist/index.js')) assert.doesNotMatch(code, /\bmotion\.inspect\b|"system"|'system'/);
+});
+
+test('the scope entry imports only shared chunks, never the main entry', async () => {
+  const scope = await readFile(new URL('dist/scope.js', root), 'utf8');
+  const imports = [...scope.matchAll(/^import\s[^;]*?from "(\.\/[^"]+)";/gm)].map(match => match[1]);
+  assert.ok(imports.length > 0);
+  for (const file of imports) {
+    assert.notEqual(file, './index.js', 'the scope entry imports the main entry');
+    await readFile(new URL(file, new URL('dist/', root)), 'utf8');
+  }
 });
