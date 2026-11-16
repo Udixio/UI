@@ -5,7 +5,14 @@
     mergeClassNames,
     type NavigationRailItemInterface,
   } from '@udixio/core';
-  import { createNavigationRailItemLabelController, type NavigationRailItemLabelController } from '@udixio/core/dom';
+  import {
+    createNavigationRailItemLabelController,
+    getComponentTransition,
+    getStaggeredComponentTransition,
+    resolveComponentMotion,
+    type NavigationRailItemLabelController,
+  } from '@udixio/core/dom';
+  import { untrack } from 'svelte';
   import Badge from '../badge/Badge.svelte';
   import Icon from '../icon/Icon.svelte';
   import StateLayer from '../state-layer/StateLayer.svelte';
@@ -27,6 +34,7 @@
     classes,
     onclick,
     onItemSelected,
+    motion,
     ...rest
   }: SvelteNavigationRailItemProps = $props();
 
@@ -37,8 +45,14 @@
   const selectedIndex = $derived(context?.selectedIndex() ?? null);
   const isSelected = $derived(resolveNavigationRailItemSelection({ selectedItem: selectedIndex, index: resolvedIndex, selected }));
   const hidden = $derived(!!registration.extendedOnly && !(context?.isExtended() ?? true));
-  const initialHorizontalStyle = $derived(resolvedVariant === 'horizontal' ? 'overflow: hidden' : 'width: 0px; opacity: 0; overflow: hidden');
-  const initialVerticalStyle = $derived(resolvedVariant === 'vertical' ? 'overflow: hidden' : 'height: 0px; opacity: 0; overflow: hidden');
+  // The resting styles are read once, at mount: they only shape the first paint. A re-applied style would reset the
+  // size that the label controllers animate from.
+  const resolvedMotion = $derived(context?.motion() ?? motion);
+  const stateLayerMotion = $derived(resolveComponentMotion(resolvedMotion));
+  const hostTransition = $derived(getComponentTransition(resolvedMotion));
+  const mountedVariant = untrack(() => resolvedVariant);
+  const initialHorizontalStyle = mountedVariant === 'horizontal' ? 'overflow: hidden' : 'width: 0px; opacity: 0; overflow: hidden';
+  const initialVerticalStyle = mountedVariant === 'vertical' ? 'overflow: hidden' : 'height: 0px; opacity: 0; overflow: hidden';
   const styles = createStyle(navigationRailItemStyle, () => ({
     label,
     icon,
@@ -71,8 +85,9 @@
 
   $effect(() => {
     if (!horizontalLabel || !verticalLabel) return;
-    const horizontal = createNavigationRailItemLabelController({ label: horizontalLabel, axis: () => 'horizontal', visible: () => resolvedVariant === 'horizontal' });
-    const vertical = createNavigationRailItemLabelController({ label: verticalLabel, axis: () => 'vertical', visible: () => resolvedVariant === 'vertical' });
+    const timing = untrack(() => resolvedMotion?.timing);
+    const horizontal = createNavigationRailItemLabelController({ label: horizontalLabel, axis: () => 'horizontal', visible: () => resolvedVariant === 'horizontal', timing });
+    const vertical = createNavigationRailItemLabelController({ label: verticalLabel, axis: () => 'vertical', visible: () => resolvedVariant === 'vertical', timing });
     horizontalController = horizontal;
     verticalController = vertical;
     return () => {
@@ -102,7 +117,7 @@
       {...rest}
       bind:this={root}
       class={styles.current['navigationRailItem']}
-      style={`${hostStyle ?? ''}${hostStyle && !hostStyle.endsWith(';') ? ';' : ''}transition: 0.3s`}
+      style={`${hostStyle ?? ''}${hostStyle && !hostStyle.endsWith(';') ? ';' : ''}transition: ${hostTransition}`}
       href={href}
       aria-current={isSelected ? 'page' : undefined}
       onclick={handleClick}
@@ -116,7 +131,7 @@
       type="button"
     {form}
       class={styles.current['navigationRailItem']}
-      style={`${hostStyle ?? ''}${hostStyle && !hostStyle.endsWith(';') ? ';' : ''}transition: 0.3s`}
+      style={`${hostStyle ?? ''}${hostStyle && !hostStyle.endsWith(';') ? ';' : ''}transition: ${hostTransition}`}
       aria-current={isSelected ? 'page' : undefined}
       onclick={handleClick}
     >
@@ -126,8 +141,8 @@
 {/if}
 
 {#snippet content()}
-  <span class={styles.current['container']} style:transition={resolvedVariant === 'horizontal' ? '0.3s, gap 0.15s 0.15s' : '0.3s, gap 0.1s 0.2s'}>
-    <StateLayer class={styles.current['stateLayer']} colorName={isSelected ? 'on-secondary-container' : 'on-surface'} stateClassName="state-ripple-group-[navigation-rail-item]" />
+  <span class={styles.current['container']} style:transition={getStaggeredComponentTransition(resolvedMotion, resolvedVariant === 'horizontal' ? 2 : 3)}>
+    <StateLayer class={styles.current['stateLayer']} colorName={isSelected ? 'on-secondary-container' : 'on-surface'} stateClassName="state-ripple-group-[navigation-rail-item]" motion={stateLayerMotion} />
     {#if icon}
       {#if badge}
         <Badge {...badge} visible={badge !== undefined}><Icon icon={isSelected ? (iconSelected ?? icon) : icon} class={styles.current['icon']} /></Badge>

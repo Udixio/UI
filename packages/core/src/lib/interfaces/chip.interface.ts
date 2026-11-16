@@ -1,4 +1,5 @@
 import { Icon } from '../icon';
+import type { ComponentMotion } from './motion.interface';
 
 export type ChipVariant = 'outlined' | 'elevated';
 
@@ -8,12 +9,10 @@ export type ChipVariant = 'outlined' | 'elevated';
  */
 export type ChipProps = {
   /**
-   * Motion timing for the selection colour change. Defaults to 0.3s.
-   *
-   * It lived only on the React adapter, so the Angular chip's selection
-   * snapped where React's faded.
+   * The motion of the chip's selection colour change, on its surface and its
+   * state layer alike. Its default is a 300 ms curve on the standard easing.
    */
-  transition?: { duration?: number };
+  motion?: ComponentMotion;
 
   /**
    * The label is the text that is displayed on the chip.

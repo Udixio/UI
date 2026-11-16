@@ -10,6 +10,7 @@ import {
   inject,
   input,
   linkedSignal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import {
@@ -17,6 +18,7 @@ import {
   resolveNavigationRailItemSelection,
   type BadgeProps,
   type ClassNameComponent,
+  type ComponentMotion,
   type ElementClasses,
   mergeClassNames,
   type Icon as IconType,
@@ -24,7 +26,10 @@ import {
 } from '@udixio/core';
 import {
   createNavigationRailItemLabelController,
+  getComponentTransition,
+  getStaggeredComponentTransition,
   type NavigationRailItemLabelController,
+  resolveComponentMotion,
 } from '@udixio/core/dom';
 import { Badge } from '../badge/badge';
 import { Icon } from '../icon/icon';
@@ -47,8 +52,8 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
  *   destination is selected if the notification is meant to clear, and the
  *   badge animates out.
  * - The label reveal (width/height + opacity, on `extended` changes) is
- *   driven by a shared `@udixio/core/dom` Motion controller, the same one
- *   the React adapter uses.
+ *   driven by a shared `@udixio/core/dom` controller on `@udixio/motion`,
+ *   the same one the React adapter uses. The rail's `motion` sets its timing.
  * @a11y
  * - Exposes `aria-current="page"` when selected, since the rail is a
  *   navigation landmark rather than a tabbed panel switcher.
@@ -70,7 +75,7 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
           [class]="styles()['navigationRailItem']"
           [attr.href]="href()"
           [attr.aria-current]="isSelected() ? 'page' : null"
-          style="transition: 0.3s"
+          [style.transition]="hostTransition()"
           (click)="handleClick()"
         >
           <ng-container [ngTemplateOutlet]="content" />
@@ -80,7 +85,7 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
           type="button"
           [class]="styles()['navigationRailItem']"
           [attr.aria-current]="isSelected() ? 'page' : null"
-          style="transition: 0.3s"
+          [style.transition]="hostTransition()"
           (click)="handleClick()"
         >
           <ng-container [ngTemplateOutlet]="content" />
@@ -94,6 +99,7 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
           [class]="styles()['stateLayer']"
           [colorName]="isSelected() ? 'on-secondary-container' : 'on-surface'"
           stateClassName="state-ripple-group-[navigation-rail-item]"
+          [motion]="stateLayerMotion()"
         />
         @if (icon()) {
           @if (lastBadge(); as badge) {
@@ -160,10 +166,18 @@ export class NavigationRailItem {
   readonly classes = input<
     ElementClasses<NavigationRailItemInterface> | ClassNameComponent<NavigationRailItemInterface>
   >();
+  /** The motion of the item's label and surface. Inside a rail, the rail's `motion` takes precedence. */
+  readonly motion = input<ComponentMotion>();
 
   private readonly context = inject(NAVIGATION_RAIL_CONTEXT, {
     optional: true,
   });
+  private readonly resolvedMotion = computed(
+    () => this.context?.motion() ?? this.motion(),
+  );
+  protected readonly stateLayerMotion = computed(() =>
+    resolveComponentMotion(this.resolvedMotion()),
+  );
   private readonly elementRef = inject(ElementRef<HTMLElement>);
 
   protected readonly resolvedIndex = computed(() =>
@@ -184,16 +198,21 @@ export class NavigationRailItem {
       (this.context?.hasPrecedingSection(this) ?? false) &&
       !(this.context?.isExtended() ?? true),
   );
+  protected readonly hostTransition = computed(() =>
+    getComponentTransition(this.resolvedMotion()),
+  );
   // Staggers the container's own `gap` transition behind the label reveal,
-  // matching the React adapter's timing exactly.
+  // as the React adapter does.
   protected readonly containerTransition = computed(() =>
-    this.resolvedVariant() === 'horizontal'
-      ? '0.3s, gap 0.15s 0.15s'
-      : '0.3s, gap 0.1s 0.2s',
+    getStaggeredComponentTransition(
+      this.resolvedMotion(),
+      this.resolvedVariant() === 'horizontal' ? 2 : 3,
+    ),
   );
 
   protected readonly styles = createStyle(navigationRailItemStyle, () => ({
     label: this.label(),
+    motion: this.resolvedMotion(),
     icon: this.icon()!,
     iconSelected: this.iconSelected()!,
     badge: this.badge(),
@@ -280,15 +299,18 @@ export class NavigationRailItem {
 
       this.wiredHorizontalEl = horizontalEl;
       this.wiredVerticalEl = verticalEl;
+      const timing = untracked(() => this.resolvedMotion()?.timing);
       this.horizontalController = createNavigationRailItemLabelController({
         label: horizontalEl,
         axis: () => 'horizontal',
         visible: () => this.resolvedVariant() === 'horizontal',
+        timing,
       });
       this.verticalController = createNavigationRailItemLabelController({
         label: verticalEl,
         axis: () => 'vertical',
         visible: () => this.resolvedVariant() === 'vertical',
+        timing,
       });
     });
 

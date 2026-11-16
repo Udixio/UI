@@ -12,7 +12,10 @@ import {
   type ComponentClassName,
   getChipSelectionTransition,
 } from '@udixio/core';
-import type { Transition } from 'motion';
+import {
+  getComponentTransition,
+  resolveComponentMotion,
+} from '@udixio/core/dom';
 import { Icon } from '../icon';
 import { StateLayer } from './StateLayer';
 import React, { useEffect, useRef, useState } from 'react';
@@ -25,7 +28,6 @@ type ReactChipOwnProps = Omit<ChipProps, 'href'> & {
   // `children` is the fallback for `label` → typed string (as in the former contract)
   children?: string;
   className?: ComponentClassName<ChipInterface>['className'];
-  transition?: Transition;
 };
 
 type ReactChipActionProps = ReactChipOwnProps &
@@ -89,7 +91,7 @@ export const Chip = ({
   onEditCommit,
   onEditCancel,
   onChange,
-  transition,
+  motion,
   children,
   editing,
   // User handlers composed with the internal handlers
@@ -181,8 +183,6 @@ export const Chip = ({
     }
   }, [isEditing]);
 
-  transition = { duration: 0.3, ...transition };
-
   const handleClick = (e: React.MouseEvent<any, MouseEvent>) => {
     if (disabled) {
       e.preventDefault();
@@ -227,7 +227,7 @@ export const Chip = ({
   };
 
   const styles = useChipStyle({
-    transition,
+    motion,
     // props
     label,
     variant,
@@ -393,11 +393,11 @@ export const Chip = ({
         : { disabled, type: 'button' })}
       {...(!href ? { form } : {})}
       aria-pressed={isSelectable ? isSelected : undefined}
-      style={{ transition: transition.duration + 's' }}
+      style={{ transition: getComponentTransition(motion) }}
     >
       {isInteractive && !disabled && !isEditing && (
         <StateLayer
-          motion={{ timing: { duration: 'duration.medium2', easing: 'easing.standard' } }}
+          motion={resolveComponentMotion(motion)}
           className={styles.stateLayer}
           colorName={classNames({
             'on-surface-variant': !isSelected,

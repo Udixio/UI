@@ -1,5 +1,5 @@
-import type { Transition } from 'motion';
 import { Icon } from '../icon';
+import type { ComponentMotion } from './motion.interface';
 
 /**
  * Snackbars show short updates about app processes at the bottom of the
@@ -16,8 +16,10 @@ export interface SnackbarProps {
   duration?: number;
   /** Icon for the built-in close button. */
   closeIcon?: Icon;
-  /** Motion transition shared by every framework for the open/close height animation. */
-  transition?: Transition;
+  /**
+   * The motion of the open/close height, shared by every framework. Defaults to the fast spatial spring.
+   */
+  motion?: ComponentMotion;
 }
 
 export type SnackbarStates = {

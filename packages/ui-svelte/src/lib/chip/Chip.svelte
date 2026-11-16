@@ -5,8 +5,8 @@
     getChipSelectionTransition,
     mergeClassNames,
     type ChipInterface,
-    type ComponentMotion,
   } from '@udixio/core';
+  import { getComponentTransition, resolveComponentMotion } from '@udixio/core/dom';
   import { iCheck } from '@udixio/icons-rounded-400/check';
   import { iClose } from '@udixio/icons-rounded-400/close';
   import Icon from '../icon/Icon.svelte';
@@ -34,7 +34,7 @@
     onEditCommit,
     onEditCancel,
     onChange,
-    transition,
+    motion,
     class: hostClass = '',
     style: hostStyle,
     classes,
@@ -64,9 +64,9 @@
   );
   const isEditing = $derived(!!editable && (editing ?? internalEditing));
   const hasTrailingIcon = $derived(!!onRemove && !isEditing);
-  const resolvedDuration = $derived(transition?.duration ?? 0.3);
-  /** The colour change of the layer, on the medium token; the chip's own transition still times its surface. */
-  const stateLayerMotion: ComponentMotion = { timing: { duration: 'duration.medium2', easing: 'easing.standard' } };
+  /** The surface's transition, and the state layer's motion, both from the chip's motion so that they match. */
+  const hostTransition = $derived(getComponentTransition(motion));
+  const stateLayerMotion = $derived(resolveComponentMotion(motion));
 
   const selectedState = createControllableState({
     value: () => selected,
@@ -80,7 +80,7 @@
   const resolvedIcon = $derived(isSelected ? iCheck : icon);
 
   const styles = createStyle(chipStyle, () => ({
-    transition,
+    motion,
     label,
     variant,
     disabled,
@@ -244,7 +244,7 @@
     {...rest}
     bind:this={rootElement}
     class={styles.current['chip']}
-    style={`${hostStyle ?? ''}${hostStyle && !hostStyle.endsWith(';') ? ';' : ''}transition: ${resolvedDuration}s`}
+    style={`${hostStyle ?? ''}${hostStyle && !hostStyle.endsWith(';') ? ';' : ''}transition: ${hostTransition}`}
     href={disabled ? undefined : href}
     aria-disabled={disabled || undefined}
     aria-pressed={isSelectable ? isSelected : undefined}
@@ -268,7 +268,7 @@
     type="button"
     {form}
     class={styles.current['chip']}
-    style={`${hostStyle ?? ''}${hostStyle && !hostStyle.endsWith(';') ? ';' : ''}transition: ${resolvedDuration}s`}
+    style={`${hostStyle ?? ''}${hostStyle && !hostStyle.endsWith(';') ? ';' : ''}transition: ${hostTransition}`}
     disabled={disabled}
     aria-pressed={isSelectable ? isSelected : undefined}
     draggable={!disabled && draggable}

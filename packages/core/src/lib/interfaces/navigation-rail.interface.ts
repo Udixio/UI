@@ -1,4 +1,5 @@
 import { Icon } from '../icon';
+import type { ComponentMotion } from './motion.interface';
 
 export type NavigationRailMenuState = {
   icon: Icon;
@@ -25,6 +26,8 @@ export type NavigationRailProps = {
     closed: NavigationRailMenuState;
     opened: NavigationRailMenuState;
   };
+  /** The motion of the rail's width and of its items' labels, shared by every framework. Defaults to a 300 ms curve. */
+  motion?: ComponentMotion;
 };
 
 export type NavigationRailStates = {

@@ -1,5 +1,5 @@
-import type { Transition } from 'motion';
 import { Icon } from '../icon';
+import type { ComponentMotion } from './motion.interface';
 
 export type SideSheetVariant = 'standard' | 'modal';
 
@@ -26,8 +26,11 @@ export interface SideSheetProps {
    * Ignored for `variant="modal"`, which never renders a divider.
    */
   divider?: boolean;
-  /** Motion transition shared by every framework for the open/close width and opacity animation. */
-  transition?: Transition;
+  /**
+   * The motion of the open/close width; the backdrop fades on its own effects spring. Shared by every framework.
+   * Defaults to the default spatial spring.
+   */
+  motion?: ComponentMotion;
 }
 
 export type SideSheetStates = {

@@ -6,6 +6,7 @@ import {
   computed,
   inject,
   input,
+  type OnDestroy,
 } from '@angular/core';
 import {
   tabPanelStyle,
@@ -56,7 +57,7 @@ import { TAB_PANELS_CONTEXT } from './tab-panels-context';
   },
   template: `<ng-content />`,
 })
-export class TabPanel {
+export class TabPanel implements OnDestroy {
   /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
   readonly hostClass = input<string>('', { alias: 'class' });
 
@@ -113,5 +114,10 @@ export class TabPanel {
         direction,
       });
     });
+  }
+
+  /** A panel that leaves while it enters ends its motion with it, as React and Svelte do. */
+  ngOnDestroy(): void {
+    this.animation?.cancel();
   }
 }

@@ -38,9 +38,9 @@ export const useSideSheetStyle = createUseStyle(sideSheetStyle);
  *   portal elsewhere (for example to confine a demo to a bounded box). It renders nothing on the
  *   server and during the first client render, then portals once mounted.
  * - `divider` is ignored for `variant="modal"`, which never renders one.
- * - The open/close width and backdrop transitions are implemented once with Motion JavaScript in
+ * - The open/close width and backdrop transitions are implemented once on `@udixio/motion` in
  *   `@udixio/core/dom`, so React and Angular share the same timing, reduced-motion behavior, and
- *   cleanup. No `motion/react` is used.
+ *   cleanup. `motion` picks the timing of the width; the backdrop keeps its effects spring.
  * @a11y
  * - `variant="modal"` renders `role="dialog"` and `aria-modal`, traps focus by making every other
  *   child of `document.body` (or `container`) inert while open, moves initial focus into the panel,
@@ -67,7 +67,7 @@ export const SideSheet = ({
   divider,
   onOpenChange,
   closeIcon = iClose,
-  transition,
+  motion,
   container,
   ...rest
 }: ReactSideSheetProps) => {
@@ -99,7 +99,7 @@ export const SideSheet = ({
     defaultOpen,
     closeIcon,
     divider,
-    transition,
+    motion,
     isOpen,
     className,
   });
@@ -108,6 +108,8 @@ export const SideSheet = ({
     null,
   );
   const skipNextOpenEffectRef = useRef(true);
+  // The timing is keyed by value: an inline `motion` object is new on each render, and must not rebuild the controller.
+  const timingKey = JSON.stringify(motion?.timing ?? null);
 
   useEffect(() => {
     if (isModal && !isMounted) return;
@@ -115,7 +117,7 @@ export const SideSheet = ({
     const controller = createSideSheetTransitionController({
       container: panelRef.current,
       overlay: overlayRef.current,
-      transition,
+      timing: motion?.timing,
     });
     transitionControllerRef.current = controller;
     controller.setOpen(isOpen, true);
@@ -125,7 +127,8 @@ export const SideSheet = ({
         transitionControllerRef.current = null;
       }
     };
-  }, [isModal, isMounted, transition]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isModal, isMounted, timingKey]);
 
   useEffect(() => {
     if (skipNextOpenEffectRef.current) {

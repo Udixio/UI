@@ -43,7 +43,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
  *   or a click on the built-in close button.
  * - Renders in normal document flow at the call site. Fixed/bottom positioning, stacking, and
  *   queueing multiple snackbars are the caller's responsibility.
- * - The height transition is implemented once with Motion JavaScript in `@udixio/core/dom`,
+ * - The height transition is implemented once on `@udixio/motion` in `@udixio/core/dom`,
  *   shared with React. It applies the initial `open` state immediately; only transitions after
  *   the first render animate.
  * @a11y
@@ -89,8 +89,9 @@ export class Snackbar implements OnInit {
   readonly defaultOpen = input(true, { transform: booleanAttribute });
   readonly duration = input<SnackbarProps['duration']>();
   readonly closeIcon = input<NonNullable<SnackbarProps['closeIcon']>>(iClose);
-  readonly transition: InputSignal<SnackbarProps['transition']> = input<
-    SnackbarProps['transition']
+  /** The motion of the open/close height, shared by every framework. */
+  readonly motion: InputSignal<SnackbarProps['motion']> = input<
+    SnackbarProps['motion']
   >();
   /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
   readonly hostClass = input<string>('', { alias: 'class' });
@@ -118,7 +119,7 @@ export class Snackbar implements OnInit {
     defaultOpen: this.defaultOpen(),
     duration: this.duration(),
     closeIcon: this.closeIcon(),
-    transition: this.transition(),
+    motion: this.motion(),
     isOpen: this.isOpen(),
     className: mergeClassNames<SnackbarInterface>(
       'snackbar',
@@ -138,7 +139,7 @@ export class Snackbar implements OnInit {
       const controller = createSnackbarTransitionController({
         panel,
         open: untracked(() => this.isOpen()),
-        transition: untracked(() => this.transition()),
+        timing: untracked(() => this.motion()?.timing),
       });
       this.transitionController = controller;
       onCleanup(() => {

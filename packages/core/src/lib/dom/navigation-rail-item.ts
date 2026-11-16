@@ -1,4 +1,11 @@
-import { animate, type AnimationPlaybackControls } from 'motion';
+import {
+  animateStyle,
+  composeHandles,
+  type CurveTiming,
+  type MotionHandle,
+  type SpringRef,
+} from '@udixio/motion/animate';
+import { motionPolicy } from '@udixio/motion/policy';
 
 export type NavigationRailItemLabelAxis = 'horizontal' | 'vertical';
 
@@ -6,8 +13,10 @@ export interface NavigationRailItemLabelControllerOptions {
   label: HTMLElement;
   axis: () => NavigationRailItemLabelAxis;
   visible: () => boolean;
+  /** An extra reduced-motion switch, read at each change; the document policy always applies. */
   reducedMotion?: () => boolean;
-  duration?: number;
+  /** The motion of the label's width or height; `spring.default.spatial` by default. Its opacity has its own curve. */
+  timing?: SpringRef | CurveTiming;
 }
 
 export interface NavigationRailItemLabelController {
@@ -16,20 +25,22 @@ export interface NavigationRailItemLabelController {
   destroy(): void;
 }
 
-function systemPrefersReducedMotion(): boolean {
-  return (
-    typeof globalThis.matchMedia === 'function' &&
-    globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
-}
+/** The label is a container that grows or shrinks as a whole: it moves on the spatial spring of its role. */
+const DEFAULT_TIMING: SpringRef = 'spring.default.spatial';
+/** The label fades on the short3 curve, and waits for its size to start when it appears. */
+const FADE_TIMING: CurveTiming = {
+  duration: 'duration.short3',
+  easing: 'easing.standard',
+};
+const FADE_IN_DELAY = 150;
 
 /**
  * Reveals or hides a `NavigationRailItem` label by animating its width
  * (horizontal variant) or height (vertical variant) together with its
- * opacity. Both React and Angular adapters use this controller and only own
- * mount lifecycle wiring; the label element itself is always present in the
- * DOM so neither adapter needs to coordinate an exit-animation-before-unmount
- * sequence.
+ * opacity, on `@udixio/motion`. Both React and Angular adapters use this
+ * controller and only own mount lifecycle wiring; the label element itself is
+ * always present in the DOM so neither adapter needs to coordinate an
+ * exit-animation-before-unmount sequence.
  *
  * This controller only owns the *transition*. Each adapter renders the
  * correct resting width/height/opacity/`aria-hidden` declaratively (from the
@@ -42,10 +53,10 @@ export function createNavigationRailItemLabelController({
   label,
   axis,
   visible,
-  reducedMotion = systemPrefersReducedMotion,
-  duration = 0.3,
+  reducedMotion = () => false,
+  timing = DEFAULT_TIMING,
 }: NavigationRailItemLabelControllerOptions): NavigationRailItemLabelController {
-  let animation: AnimationPlaybackControls | undefined;
+  let motion: MotionHandle | undefined;
   let lastAxis: NavigationRailItemLabelAxis | undefined;
   let lastVisible: boolean | undefined;
   let isFirstApply = true;
@@ -61,32 +72,36 @@ export function createNavigationRailItemLabelController({
     lastAxis = currentAxis;
     lastVisible = currentVisible;
 
-    animation?.stop();
     const sizeProperty = currentAxis === 'horizontal' ? 'width' : 'height';
 
     // The initial call establishes the resting state instantly: it is not a
     // transition between two states the user witnessed, so there is nothing
     // to animate from.
-    if (reducedMotion() || wasFirstApply) {
+    if (reducedMotion() || motionPolicy.reduced || wasFirstApply) {
+      motion?.cancel();
+      motion = undefined;
       label.style[sizeProperty] = currentVisible ? 'auto' : '0px';
       label.style.opacity = currentVisible ? '1' : '0';
       return;
     }
 
-    animation = animate(
-      label,
-      {
-        [sizeProperty]: currentVisible ? 'auto' : 0,
-        opacity: currentVisible ? 1 : 0,
-      },
-      {
-        duration,
-        opacity: {
-          duration: duration / 2,
-          delay: currentVisible ? duration / 2 : 0,
+    // animateStyle starts each property from the size and opacity the label
+    // shows, so a change requested mid-way does not jump.
+    motion = composeHandles([
+      animateStyle(
+        label,
+        { [sizeProperty]: currentVisible ? 'auto' : '0px' },
+        { timing },
+      ),
+      animateStyle(
+        label,
+        { opacity: currentVisible ? 1 : 0 },
+        {
+          timing: FADE_TIMING,
+          delay: currentVisible ? FADE_IN_DELAY : 0,
         },
-      },
-    );
+      ),
+    ]);
   };
 
   apply();
@@ -94,7 +109,8 @@ export function createNavigationRailItemLabelController({
   return {
     update: apply,
     destroy() {
-      animation?.stop();
+      motion?.cancel();
+      motion = undefined;
     },
   };
 }

@@ -1,5 +1,5 @@
 import { getContext, setContext } from 'svelte';
-import type { Icon, NavigationRailMenuState } from '@udixio/core';
+import type { ComponentMotion, Icon, NavigationRailMenuState } from '@udixio/core';
 
 export interface RailItemRegistration {
   element?: HTMLElement;
@@ -11,6 +11,8 @@ export interface RailItemRegistration {
 export interface SvelteNavigationRailContext {
   isExtended: () => boolean;
   selectedIndex: () => number | null;
+  /** The motion of the rail, which its items take for their labels and surfaces. */
+  motion: () => ComponentMotion | undefined;
   indexOf: (registration: RailItemRegistration) => number | undefined;
   registerItem: (registration: RailItemRegistration) => () => void;
   registerSection: () => () => void;

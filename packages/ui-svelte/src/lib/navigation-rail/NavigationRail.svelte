@@ -6,6 +6,7 @@
     type NavigationRailInterface,
     type NavigationRailMenuState,
   } from '@udixio/core';
+  import { getComponentTransition } from '@udixio/core/dom';
   import { iClose } from '@udixio/icons-rounded-400/close';
   import { iMenu } from '@udixio/icons-rounded-400/menu';
   import IconButton from '../icon-button/IconButton.svelte';
@@ -33,6 +34,7 @@ import { untrack } from 'svelte';
     selectedItem = $bindable(),
     defaultSelectedItem = null,
     onExtendedChange,
+    motion,
     onSelectedItemChange,
     onItemSelected,
     class: hostClass = '',
@@ -66,6 +68,7 @@ import { untrack } from 'svelte';
   setNavigationRailContext({
     isExtended: () => extendedState.current,
     selectedIndex: () => selectedState.current,
+    motion: () => motion,
     indexOf: (registration) => {
       const index = registrations.indexOf(registration);
       return index === -1 ? undefined : index;
@@ -108,7 +111,7 @@ import { untrack } from 'svelte';
   });
 </script>
 
-<div {...rest} class={styles.current['navigationRail']} style={`${hostStyle ?? ''}${hostStyle && !hostStyle.endsWith(';') ? ';' : ''}transition: 0.3s`}>
+<div {...rest} class={styles.current['navigationRail']} style={`${hostStyle ?? ''}${hostStyle && !hostStyle.endsWith(';') ? ';' : ''}transition: ${getComponentTransition(motion)}`}>
   <div class={styles.current['header']}>
     <IconButton
       label={extendedState.current ? menu.opened.label : menu.closed.label}

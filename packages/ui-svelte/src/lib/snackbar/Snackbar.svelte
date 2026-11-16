@@ -15,7 +15,7 @@
     onOpenChange,
     duration,
     closeIcon = iClose,
-    transition,
+    motion,
     class: hostClass = '',
     style: hostStyle,
     classes,
@@ -39,14 +39,14 @@
     defaultOpen,
     duration,
     closeIcon,
-    transition,
+    motion,
     isOpen,
     className: mergeClassNames<SnackbarInterface>('snackbar', classes, hostClass),
   }));
 
   $effect(() => {
     if (!panel) return;
-    const created = createSnackbarTransitionController({ panel, open: untrack(() => isOpen), transition: untrack(() => transition) });
+    const created = createSnackbarTransitionController({ panel, open: untrack(() => isOpen), timing: untrack(() => motion?.timing) });
     transitionController = created;
     return () => {
       created.destroy();

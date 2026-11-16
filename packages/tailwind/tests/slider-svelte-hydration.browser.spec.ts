@@ -136,7 +136,7 @@ for (const name of motionBrowsers(process.env.MOTION_BROWSERS)) {
             window.serverSlider = document.querySelector('[role=slider]');
             window.serverNodes = [...window.serverSlider.querySelectorAll('*')];
             window.indicator = window.serverSlider.querySelector(':scope > div:nth-of-type(2) > div > div');
-            window.before = { min: window.serverSlider.getAttribute('aria-valuemin'), max: window.serverSlider.getAttribute('aria-valuemax'), now: window.serverSlider.getAttribute('aria-valuenow'), text: window.serverSlider.getAttribute('aria-valuetext'), transform: window.indicator.style.transform };
+            window.before = { min: window.serverSlider.getAttribute('aria-valuemin'), max: window.serverSlider.getAttribute('aria-valuemax'), now: window.serverSlider.getAttribute('aria-valuenow'), text: window.serverSlider.getAttribute('aria-valuetext'), scale: window.indicator.style.scale };
             window.startedAnimations = [];
             const animate = Element.prototype.animate;
             Element.prototype.animate = function(...args) {
@@ -148,7 +148,7 @@ for (const name of motionBrowsers(process.env.MOTION_BROWSERS)) {
               let hydratedAt;
               const sample = () => {
                 if (window.hydrated && hydratedAt === undefined) hydratedAt = performance.now();
-                samples.push([getComputedStyle(window.indicator).transform, window.serverSlider.getAnimations({subtree:true}).filter(a => a.playState === 'running').length, performance.now()]);
+                samples.push([getComputedStyle(window.indicator).scale, window.serverSlider.getAnimations({subtree:true}).filter(a => a.playState === 'running').length, performance.now()]);
                 if (hydratedAt !== undefined && performance.now() - hydratedAt >= 250) resolve({samples, hydratedAt});
                 else requestAnimationFrame(sample);
               };
@@ -186,7 +186,7 @@ for (const name of motionBrowsers(process.env.MOTION_BROWSERS)) {
               max: '100',
               now: '20',
               text: '20',
-              transform: 'scale(0)',
+              scale: '0',
             },
             errors: [],
           });
@@ -210,8 +210,8 @@ for (const name of motionBrowsers(process.env.MOTION_BROWSERS)) {
           ).toBeGreaterThanOrEqual(250);
           expect(
             samples.every(
-              ([transform, animations]: [string, number]) =>
-                transform === 'matrix(0, 0, 0, 0, 0, 0)' && animations === 0,
+              ([scale, animations]: [string, number]) =>
+                scale === '0' && animations === 0,
             ),
           ).toBe(true);
           expect(

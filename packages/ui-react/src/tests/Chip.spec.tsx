@@ -16,6 +16,11 @@ describe('Chip', () => {
 
     expect(screen.getByRole('button', { name: 'Filter' })).toHaveAttribute('form', 'filters');
   });
+  it('takes its surface transition from its motion timing', () => {
+    render(<Chip label="Filter" motion={{ timing: { duration: 'duration.long1', easing: 'easing.standard' } }} />);
+
+    expect(screen.getByRole('button', { name: 'Filter' }).style.transition).toBe('all 450ms cubic-bezier(0.2, 0, 0, 1)');
+  });
   it('applies Material label-large typography to the label', () => {
     render(<Chip label="Filter" />);
     expect(screen.getByText('Filter')).toHaveClass('text-label-large');

@@ -18,6 +18,12 @@ describe('Chip', () => {
     expect(onSelectedChange).toHaveBeenCalledWith(true);
   });
 
+  it('takes its surface transition from its motion timing', () => {
+    render(Chip, { props: { label: 'Filter', motion: { timing: { duration: 'duration.long1', easing: 'easing.standard' } } } });
+
+    expect(screen.getByRole('button', { name: 'Filter' }).style.transition).toBe('all 450ms cubic-bezier(0.2, 0, 0, 1)');
+  });
+
   it('forwards button-only native attributes to the action root', () => {
     render(Chip, { props: { label: 'Filter', form: 'filters' } });
 

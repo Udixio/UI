@@ -1,5 +1,10 @@
-import { animate, type AnimationPlaybackControlsWithThen } from 'motion';
-import type { Transition } from 'motion';
+import {
+  animateStyle,
+  type CurveTiming,
+  type MotionHandle,
+  type SpringRef,
+} from '@udixio/motion/animate';
+import { motionPolicy } from '@udixio/motion/policy';
 
 export interface SnackbarAutoDismissControllerOptions {
   duration: number;
@@ -32,7 +37,9 @@ export interface SnackbarTransitionControllerOptions {
   /** The animated surface. Its resting height reflects `open` on connect. */
   panel: HTMLElement;
   open: boolean;
-  transition?: Transition;
+  /** The motion of the height; `spring.fast.spatial` by default. */
+  timing?: SpringRef | CurveTiming;
+  /** An extra reduced-motion switch, read at each change; the document policy always applies. */
   reducedMotion?: () => boolean;
 }
 
@@ -42,32 +49,26 @@ export interface SnackbarTransitionController {
   destroy(): void;
 }
 
-const DEFAULT_TRANSITION: Transition = { duration: 0.1 };
-
-function systemPrefersReducedMotion(): boolean {
-  return (
-    typeof globalThis.matchMedia === 'function' &&
-    globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
-}
+/** The panel is a small, fast surface: it moves on the fast spatial spring. */
+const DEFAULT_TIMING: SpringRef = 'spring.fast.spatial';
 
 /**
- * Shared height mount transition used by every framework adapter, with
- * Motion JavaScript so React and Angular never choreograph it separately.
- * `aria-hidden`/`inert` stay owned by the adapter, which applies them
- * declaratively with render; this controller only owns the height value. It
- * applies the initial `open` state immediately without animating (there is
+ * Shared height mount transition used by every framework adapter, on
+ * `@udixio/motion`, so React, Angular and Svelte never choreograph it
+ * separately. `aria-hidden`/`inert` stay owned by the adapter, which applies
+ * them declaratively with render; this controller only owns the height value.
+ * It applies the initial `open` state immediately without animating (there is
  * no meaningful "from" state on connect); every subsequent `setOpen` call
- * animates.
+ * animates from the height the panel shows, so an interrupted change does not
+ * jump.
  */
 export function createSnackbarTransitionController({
   panel,
   open,
-  transition,
-  reducedMotion = systemPrefersReducedMotion,
+  timing = DEFAULT_TIMING,
+  reducedMotion = () => false,
 }: SnackbarTransitionControllerOptions): SnackbarTransitionController {
-  const resolvedTransition = { ...DEFAULT_TRANSITION, ...transition };
-  let animation: AnimationPlaybackControlsWithThen | undefined;
+  let motion: MotionHandle | undefined;
   let isOpen = open;
   let destroyed = false;
 
@@ -76,29 +77,25 @@ export function createSnackbarTransitionController({
   return {
     setOpen(nextOpen) {
       if (destroyed || nextOpen === isOpen) return;
-      const wasOpen = isOpen;
       isOpen = nextOpen;
-      animation?.stop();
 
-      if (reducedMotion()) {
+      if (reducedMotion() || motionPolicy.reduced) {
+        motion?.cancel();
+        motion = undefined;
         panel.style.height = nextOpen ? 'auto' : '0px';
         return;
       }
 
-      animation = animate(
+      motion = animateStyle(
         panel,
-        { height: [wasOpen ? 'auto' : '0px', nextOpen ? 'auto' : '0px'] },
-        resolvedTransition,
+        { height: nextOpen ? 'auto' : '0px' },
+        { timing },
       );
-      animation.then(() => {
-        if (!destroyed && isOpen === nextOpen) {
-          panel.style.height = nextOpen ? 'auto' : '0px';
-        }
-      });
     },
     destroy() {
       destroyed = true;
-      animation?.stop();
+      motion?.cancel();
+      motion = undefined;
       panel.style.height = '';
     },
   };

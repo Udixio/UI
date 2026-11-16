@@ -11,8 +11,6 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import type { Transition } from 'motion';
-
 import { Icon } from '../icon';
 import {
   classNames,
@@ -24,7 +22,10 @@ import {
 } from '@udixio/core';
 import {
   createNavigationRailItemLabelController,
+  getComponentTransition,
+  getStaggeredComponentTransition,
   type NavigationRailItemLabelController,
+  resolveComponentMotion,
 } from '@udixio/core/dom';
 import { createUseStyle } from '../utils/create-use-style';
 import { Badge } from './Badge';
@@ -43,7 +44,6 @@ type ReactNavigationRailItemOwnProps = NavigationRailItemProps & {
   // `children` is the fallback for `label` → typed string (like Fab / IconButton)
   children?: string;
   className?: ComponentClassName<NavigationRailItemInterface>['className'];
-  transition?: Transition;
   setSelectedItem?: Dispatch<SetStateAction<number | null>>;
   onItemSelected?: (args: NavigationRailItemSelectedEvent) => void;
 };
@@ -96,8 +96,8 @@ export const useNavigationRailItemStyle = createUseStyle(
  *   on a destination; pass `undefined` once the destination is selected if
  *   the notification is meant to clear, and the badge animates out.
  * - The label reveal (width/height + opacity, on `extended` changes) is
- *   driven by a shared `@udixio/core/dom` Motion controller, the same one
- *   the Angular adapter uses.
+ *   driven by a shared `@udixio/core/dom` controller on `@udixio/motion`,
+ *   the same one the Angular adapter uses. `motion` sets its timing.
  * @a11y
  * - Exposes `aria-current="page"` when selected, since the rail is a
  *   navigation landmark rather than a tabbed panel switcher.
@@ -120,7 +120,7 @@ export const NavigationRailItem = ({
   onItemSelected,
   selected = false,
   ref,
-  transition,
+  motion,
   isExtended,
   iconSelected,
   badge,
@@ -210,13 +210,13 @@ export const NavigationRailItem = ({
       label: horizontalLabelRef.current,
       axis: () => 'horizontal',
       visible: () => variantRef.current === 'horizontal',
-      duration: transition?.duration ?? 0.3,
+      timing: motion?.timing,
     });
     verticalController.current = createNavigationRailItemLabelController({
       label: verticalLabelRef.current,
       axis: () => 'vertical',
       visible: () => variantRef.current === 'vertical',
-      duration: transition?.duration ?? 0.3,
+      timing: motion?.timing,
     });
 
     return () => {
@@ -248,6 +248,7 @@ export const NavigationRailItem = ({
     iconSelected,
     badge,
     selected,
+    motion,
     variant,
     index,
     selectedItem,
@@ -256,8 +257,6 @@ export const NavigationRailItem = ({
     isSelected,
     className,
   });
-
-  transition = { duration: 0.3, ...transition };
 
   if (extendedOnly && !isExtended) return null;
 
@@ -270,21 +269,19 @@ export const NavigationRailItem = ({
       href={href}
       className={styles.navigationRailItem}
       onClick={handleClick}
-      style={{ transition: transition.duration + 's', ...style }}
+      style={{ transition: getComponentTransition(motion), ...style }}
     >
       <span
         style={{
-          transition:
-            variant == 'horizontal'
-              ? transition.duration +
-                `s, gap ${transition.duration! / 2}s ${transition.duration! - transition.duration! / 2}s`
-              : transition.duration +
-                `s, gap ${transition.duration! / 3}s ${transition.duration! - transition.duration! / 3}s`,
+          transition: getStaggeredComponentTransition(
+            motion,
+            variant == 'horizontal' ? 2 : 3,
+          ),
         }}
         className={styles.container}
       >
         <StateLayer
-          motion={{ timing: { duration: 'duration.medium2', easing: 'easing.standard' } }}
+          motion={resolveComponentMotion(motion)}
           className={styles.stateLayer}
           colorName={classNames({
             'on-surface': !isSelected,

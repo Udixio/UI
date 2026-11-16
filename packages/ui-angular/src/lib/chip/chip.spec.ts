@@ -76,15 +76,17 @@ describe('Chip', () => {
 
     const button: HTMLElement =
       fixture.nativeElement.querySelector('button, a');
-    expect(button.style.transition).toBe('0.3s');
+    expect(button.style.transition).toBe('all 300ms cubic-bezier(0.2, 0, 0, 1)');
   });
 
-  it('honours a caller transition duration', () => {
-    fixture.componentRef.setInput('transition', { duration: 1.2 });
+  it('honours a caller motion timing', () => {
+    fixture.componentRef.setInput('motion', {
+      timing: { duration: 'duration.long1', easing: 'easing.standard' },
+    });
     fixture.detectChanges();
 
     const button: HTMLElement =
       fixture.nativeElement.querySelector('button, a');
-    expect(button.style.transition).toBe('1.2s');
+    expect(button.style.transition).toBe('all 450ms cubic-bezier(0.2, 0, 0, 1)');
   });
 });

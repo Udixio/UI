@@ -52,7 +52,7 @@ let nextSideSheetId = 0;
  *   that would otherwise break `position: fixed`. Pass `container` to move it elsewhere instead
  *   (for example to confine a demo to a bounded box).
  * - `divider` is ignored for `variant="modal"`, which never renders one.
- * - The open/close width and backdrop transitions are implemented once with Motion JavaScript in
+ * - The open/close width and backdrop transitions are implemented once on `@udixio/motion` in
  *   `@udixio/core/dom`, so Angular and React share the same timing, reduced-motion behavior, and
  *   cleanup.
  * @a11y
@@ -145,9 +145,9 @@ export class SideSheet implements OnInit, OnDestroy {
   >();
   /** Portal target for `variant="modal"`. Defaults to `document.body`. */
   readonly container = input<Element | null | undefined>(undefined);
-  /** Motion transition shared by every framework for the open/close width and opacity animation. */
-  readonly transition: InputSignal<SideSheetProps['transition']> = input<
-    SideSheetProps['transition']
+  /** The motion of the open/close width, shared by every framework; the backdrop fades on its own effects spring. */
+  readonly motion: InputSignal<SideSheetProps['motion']> = input<
+    SideSheetProps['motion']
   >();
 
   /** Emits an accepted open-state request and supports `[(open)]`. */
@@ -177,7 +177,7 @@ export class SideSheet implements OnInit, OnDestroy {
     defaultOpen: this.defaultOpen(),
     closeIcon: this.closeIcon(),
     divider: this.divider(),
-    transition: this.transition(),
+    motion: this.motion(),
     isOpen: this.isOpen(),
     className: mergeClassNames<SideSheetInterface>(
       'sideSheet',
@@ -257,7 +257,7 @@ export class SideSheet implements OnInit, OnDestroy {
       const controller = createSideSheetTransitionController({
         container: panel,
         overlay: this.overlay()?.nativeElement,
-        transition: this.transition(),
+        timing: this.motion()?.timing,
       });
       this.transitionController = controller;
       controller.setOpen(untracked(this.isOpen), true);

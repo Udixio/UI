@@ -23,7 +23,7 @@
     onOpenChange,
     closeIcon = iClose,
     divider,
-    transition,
+    motion,
     container,
     class: hostClass = '',
     style: hostStyle,
@@ -60,7 +60,7 @@
     defaultOpen,
     closeIcon,
     divider,
-    transition,
+    motion,
     isOpen,
     className: mergeClassNames<SideSheetInterface>('sideSheet', classes, hostClass),
   }));
@@ -83,7 +83,7 @@
 
   $effect(() => {
     if (!panel) return;
-    const created = createSideSheetTransitionController({ container: panel.querySelector<HTMLElement>('[data-side-sheet-container]') ?? panel, overlay, transition: untrack(() => transition) });
+    const created = createSideSheetTransitionController({ container: panel.querySelector<HTMLElement>('[data-side-sheet-container]') ?? panel, overlay, timing: untrack(() => motion?.timing) });
     transitionController = created;
     created.setOpen(untrack(() => isOpen), true);
     return () => {

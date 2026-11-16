@@ -1,8 +1,10 @@
 import {
-  animate,
-  type AnimationPlaybackControlsWithThen,
-  type Transition,
-} from 'motion';
+  animateStyle,
+  type CurveTiming,
+  type MotionHandle,
+  type SpringRef,
+} from '@udixio/motion/animate';
+import { motionPolicy } from '@udixio/motion/policy';
 
 export interface SideSheetControllerOptions {
   /** The side sheet surface. Excluded from the background-inert set and receives initial focus. */
@@ -100,9 +102,11 @@ export function createSideSheetController({
 export interface SideSheetTransitionOptions {
   /** The width-animated inner wrapper: the `container` style element (header + content). */
   container: HTMLElement;
-  /** The modal backdrop, if rendered. Its opacity animates alongside the container. */
+  /** The modal backdrop, if rendered. Its opacity fades alongside the container. */
   overlay?: HTMLElement | null;
-  transition?: Transition;
+  /** The motion of the container's width; `spring.default.spatial` by default. The backdrop fades on `spring.default.effects`. */
+  timing?: SpringRef | CurveTiming;
+  /** An extra reduced-motion switch, read at each change; the document policy always applies. */
   reducedMotion?: () => boolean;
 }
 
@@ -115,66 +119,67 @@ export interface SideSheetTransitionController {
   destroy(): void;
 }
 
-function systemPrefersReducedMotion(): boolean {
-  return (
-    typeof globalThis.matchMedia === 'function' &&
-    globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
-}
-
-const DEFAULT_TRANSITION: Transition = { duration: 0.3 };
+/** The container's width follows the spatial spring of its role: a large surface that moves as a whole. */
+const DEFAULT_TIMING: SpringRef = 'spring.default.spatial';
+/** The backdrop fades on the effects spring, which does not overshoot. */
+const OVERLAY_TIMING: SpringRef = 'spring.default.effects';
 
 /**
- * Connects the shared Motion JavaScript width/opacity choreography for
- * `SideSheet`. Every adapter uses this single controller so React and Angular
- * animate identically; neither implements its own version of this effect.
- * Skips the animation and applies the end state immediately when `instant` is
- * passed to `setOpen` or the user prefers reduced motion.
+ * Connects the shared width/opacity choreography for `SideSheet`, on
+ * `@udixio/motion`. Every adapter uses this single controller so React, Angular
+ * and Svelte animate identically; neither implements its own version of this
+ * effect. Applies the end state at once when `instant` is passed to `setOpen`,
+ * or when the document or the `reducedMotion` option asks for reduced motion.
  */
 export function createSideSheetTransitionController({
   container,
   overlay,
-  transition = DEFAULT_TRANSITION,
-  reducedMotion = systemPrefersReducedMotion,
+  timing = DEFAULT_TIMING,
+  reducedMotion = () => false,
 }: SideSheetTransitionOptions): SideSheetTransitionController {
-  let containerAnimation: AnimationPlaybackControlsWithThen | undefined;
-  let overlayAnimation: AnimationPlaybackControlsWithThen | undefined;
+  let containerMotion: MotionHandle | undefined;
+  let overlayMotion: MotionHandle | undefined;
+
+  /** Ends the running motions; the end state is then written inline by the caller. */
+  const stopMotions = () => {
+    containerMotion?.cancel();
+    containerMotion = undefined;
+    overlayMotion?.cancel();
+    overlayMotion = undefined;
+  };
 
   return {
     setOpen(open, instant = false) {
-      containerAnimation?.stop();
-      overlayAnimation?.stop();
-      const resolvedTransition: Transition =
-        instant || reducedMotion() ? { duration: 0 } : transition;
-
-      containerAnimation = animate(
-        container,
-        // An explicit "0px" (not the bare number 0) is required: the container's
-        // own CSS gives it `width: 100%`, so Motion infers a percentage unit from
-        // a unitless target. "0%" resolves against the flex item's containing
-        // block, which is indefinite here (a `position: fixed` panel sized by its
-        // own content) — per CSS, a percentage against an indefinite containing
-        // block computes as `auto`, not zero, leaving the panel visible.
-        { width: open ? 'auto' : '0px' },
-        resolvedTransition,
-      );
-      if (open) {
-        containerAnimation.then(() => {
-          container.style.width = '';
-        });
+      if (instant || reducedMotion() || motionPolicy.reduced) {
+        stopMotions();
+        // An open sheet keeps no inline width, so its content sets the size.
+        container.style.width = open ? '' : '0px';
+        if (overlay) overlay.style.opacity = open ? '1' : '0';
+        return;
       }
 
+      // animateStyle reads the computed width before it replaces a running motion, so a change mid-way does not jump.
+      // An explicit "0px" (not the bare number 0) is required: the container's
+      // own CSS gives it `width: 100%`, so a unitless target would take a
+      // percentage unit. "0%" resolves against the flex item's containing
+      // block, which is indefinite here (a `position: fixed` panel sized by its
+      // own content) — per CSS, a percentage against an indefinite containing
+      // block computes as `auto`, not zero, leaving the panel visible.
+      containerMotion = animateStyle(
+        container,
+        { width: open ? 'auto' : '0px' },
+        { timing },
+      );
       if (overlay) {
-        overlayAnimation = animate(
+        overlayMotion = animateStyle(
           overlay,
           { opacity: open ? 1 : 0 },
-          resolvedTransition,
+          { timing: OVERLAY_TIMING },
         );
       }
     },
     destroy() {
-      containerAnimation?.stop();
-      overlayAnimation?.stop();
+      stopMotions();
     },
   };
 }

@@ -3,6 +3,7 @@ export * from './auto-layout.js';
 export * from './badge.js';
 export * from './carousel.js';
 export * from './circular-progress.js';
+export * from './component-motion.js';
 export * from './custom-scroll.js';
 export * from './date-picker.js';
 export * from './fab.js';

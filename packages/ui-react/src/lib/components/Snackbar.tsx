@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { iClose } from '@udixio/icons-rounded-400/close';
 import {
   type ReactProps,
@@ -31,7 +31,7 @@ export const useSnackbarStyle = createUseStyle(snackbarStyle);
  *   or a click on the built-in close button.
  * - Renders in normal document flow at the call site. Fixed/bottom positioning, stacking, and
  *   queueing multiple snackbars are the caller's responsibility.
- * - The height transition is implemented once with Motion JavaScript in `@udixio/core/dom`,
+ * - The height transition is implemented once on `@udixio/motion` in `@udixio/core/dom`,
  *   shared with Angular. It applies the initial `open` state immediately; only transitions
  *   after the first render animate.
  * @a11y
@@ -49,7 +49,7 @@ export const Snackbar = ({
   open: openProp,
   defaultOpen = true,
   onOpenChange,
-  transition,
+  motion,
   style,
   ...restProps
 }: ReactSnackbarProps) => {
@@ -69,8 +69,12 @@ export const Snackbar = ({
     defaultOpen,
     isOpen,
     message,
-    transition,
+    motion,
   });
+
+  // The resting height is captured once: it only shapes the server and first-paint markup. After that the controller
+  // owns the height, so a React re-render never rewrites it under an animation.
+  const [initialHeight] = useState<0 | undefined>(() => (isOpen ? undefined : 0));
 
   const panelRef = useRef<HTMLDivElement>(null);
   const controllerRef = useRef<SnackbarTransitionController | null>(null);
@@ -80,7 +84,7 @@ export const Snackbar = ({
     const controller = createSnackbarTransitionController({
       panel: panelRef.current,
       open: isOpen,
-      transition,
+      timing: motion?.timing,
     });
     controllerRef.current = controller;
     return () => {
@@ -107,7 +111,7 @@ export const Snackbar = ({
     <div
       {...restProps}
       ref={panelRef}
-      style={{ ...style, height: isOpen ? undefined : 0 }}
+      style={{ ...style, height: initialHeight }}
       className={styles.snackbar}
       role="status"
       aria-live="polite"

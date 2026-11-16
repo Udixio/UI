@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   afterRenderEffect,
+  computed,
   contentChildren,
   forwardRef,
   input,
@@ -12,6 +13,7 @@ import {
   getNextNavigationRailExtended,
   navigationRailStyle,
   type ClassNameComponent,
+  type ComponentMotion,
   type ElementClasses,
   mergeClassNames,
   type Icon,
@@ -19,6 +21,7 @@ import {
   type NavigationRailMenuState,
   type NavigationRailProps,
 } from '@udixio/core';
+import { getComponentTransition } from '@udixio/core/dom';
 import { iClose } from '@udixio/icons-rounded-400/close';
 import { iMenu } from '@udixio/icons-rounded-400/menu';
 import { IconButton } from '../icon-button/icon-button';
@@ -78,7 +81,7 @@ const DEFAULT_MENU: { closed: NavigationRailMenuState; opened: NavigationRailMen
   ],
   host: { style: 'display: contents' },
   template: `
-    <div [class]="styles()['navigationRail']" style="transition: 0.3s">
+    <div [class]="styles()['navigationRail']" [style.transition]="railTransition()">
       <div [class]="styles()['header']">
         <udx-icon-button
           [label]="isExtended() ? menu().opened.label : menu().closed.label"
@@ -118,6 +121,8 @@ export class NavigationRail implements OnInit, NavigationRailContext {
   readonly selectedItem = input<number | null>();
   /** Initial selected index when uncontrolled. */
   readonly defaultSelectedItem = input<number | null>(null);
+  /** The motion of the rail's width, which its items take for their labels; a 300 ms curve by default. */
+  readonly motion = input<ComponentMotion>();
   /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
   readonly hostClass = input<string>('', { alias: 'class' });
 
@@ -154,10 +159,15 @@ export class NavigationRail implements OnInit, NavigationRailContext {
   private readonly items = contentChildren(NavigationRailItem);
   private readonly sections = contentChildren(NavigationRailSection);
 
+  protected readonly railTransition = computed(() =>
+    getComponentTransition(this.motion()),
+  );
+
   protected readonly styles = createStyle(navigationRailStyle, () => ({
     variant: this.variant(),
     alignment: this.alignment(),
     menu: this.menu(),
+    motion: this.motion(),
     selectedItem: this.selectedItem(),
     extended: this.extended(),
     defaultExtended: this.defaultExtended(),

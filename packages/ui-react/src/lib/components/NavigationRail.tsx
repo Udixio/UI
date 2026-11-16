@@ -10,13 +10,13 @@ import {
   useRef,
   useState,
 } from 'react';
-import type { Transition } from 'motion';
 import {
   getNextNavigationRailExtended,
   type NavigationRailInterface,
   navigationRailStyle,
   type ReactProps,
 } from '@udixio/core';
+import { getComponentTransition } from '@udixio/core/dom';
 import {
   NavigationRailItem,
   type NavigationRailItemSelectedEvent,
@@ -34,7 +34,6 @@ export type ReactNavigationRailProps = ReactProps<NavigationRailInterface> & {
   children?: ReactNode;
   /** Content pinned below the item list (e.g. an account or sign-out action). */
   footer?: ReactNode;
-  transition?: Transition;
   setSelectedItem?: Dispatch<SetStateAction<number | null>>;
   onItemSelected?: (args: NavigationRailItemSelectedEvent) => void;
 };
@@ -78,7 +77,7 @@ export const NavigationRail = ({
   },
   style,
   onExtendedChange,
-  transition,
+  motion,
   setSelectedItem: externalSetSelectedItem,
 }: ReactNavigationRailProps) => {
   const [internalSelectedItem, internalSetSelectedItem] = useState<
@@ -137,17 +136,17 @@ export const NavigationRail = ({
     onExtendedChange,
     alignment,
     menu,
+    motion,
     isExtended,
     selectedIndex,
     className,
   });
-  transition = { duration: 0.3, ...transition };
   const extendedOnly = useRef(false);
   extendedOnly.current = false;
 
   return (
     <div
-      style={{ transition: transition.duration + 's', ...style }}
+      style={{ transition: getComponentTransition(motion), ...style }}
       ref={ref}
       className={styles.navigationRail}
     >
@@ -185,7 +184,7 @@ export const NavigationRail = ({
                   selectedItem: selectedIndex,
                   setSelectedItem: setSelectedItem,
                   onItemSelected: handleOnItemSelected,
-                  transition,
+                  motion,
                   extendedOnly: extendedOnly.current,
                   isExtended,
                 },

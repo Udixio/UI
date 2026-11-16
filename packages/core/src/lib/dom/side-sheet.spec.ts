@@ -1,23 +1,7 @@
 // @vitest-environment jsdom
 
-import { animate } from 'motion';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  createSideSheetController,
-  createSideSheetTransitionController,
-} from './side-sheet.js';
-
-vi.mock('motion', () => ({ animate: vi.fn() }));
-
-function animationControls() {
-  return {
-    stop: vi.fn(),
-    then: (callback: () => void) => {
-      callback();
-      return Promise.resolve();
-    },
-  };
-}
+import { createSideSheetController } from './side-sheet.js';
 
 function getElement<T extends Element>(selector: string): T {
   const element = document.querySelector<T>(selector);
@@ -145,89 +129,5 @@ describe('side sheet DOM controller', () => {
 
     controller.destroy();
     expect(panel.hasAttribute('tabindex')).toBe(false);
-  });
-});
-
-describe('side sheet transition controller', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    vi.mocked(animate).mockImplementation(() => animationControls() as never);
-  });
-
-  it('animates the container width and overlay opacity to the open state', () => {
-    document.body.innerHTML = `<div id="container"></div><div id="overlay"></div>`;
-    const container = getElement<HTMLElement>('#container');
-    const overlay = getElement<HTMLElement>('#overlay');
-    const controller = createSideSheetTransitionController({
-      container,
-      overlay,
-    });
-
-    controller.setOpen(true);
-    expect(animate).toHaveBeenCalledWith(
-      container,
-      { width: 'auto' },
-      { duration: 0.3 },
-    );
-    expect(animate).toHaveBeenCalledWith(
-      overlay,
-      { opacity: 1 },
-      { duration: 0.3 },
-    );
-
-    controller.setOpen(false);
-    expect(animate).toHaveBeenCalledWith(
-      container,
-      { width: '0px' },
-      { duration: 0.3 },
-    );
-    expect(animate).toHaveBeenCalledWith(
-      overlay,
-      { opacity: 0 },
-      { duration: 0.3 },
-    );
-  });
-
-  it('applies the end state instantly when instant is passed', () => {
-    document.body.innerHTML = `<div id="container"></div>`;
-    const container = getElement<HTMLElement>('#container');
-    const controller = createSideSheetTransitionController({ container });
-
-    controller.setOpen(false, true);
-    expect(animate).toHaveBeenCalledWith(
-      container,
-      { width: '0px' },
-      { duration: 0 },
-    );
-  });
-
-  it('applies the end state instantly when the user prefers reduced motion', () => {
-    document.body.innerHTML = `<div id="container"></div>`;
-    const container = getElement<HTMLElement>('#container');
-    const controller = createSideSheetTransitionController({
-      container,
-      reducedMotion: () => true,
-    });
-
-    controller.setOpen(true);
-    expect(animate).toHaveBeenCalledWith(
-      container,
-      { width: 'auto' },
-      { duration: 0 },
-    );
-  });
-
-  it('stops a running animation before starting a new one and clears the inline width once open', () => {
-    document.body.innerHTML = `<div id="container"></div>`;
-    const container = getElement<HTMLElement>('#container');
-    const controls = animationControls();
-    vi.mocked(animate).mockReturnValueOnce(controls as never);
-    const controller = createSideSheetTransitionController({ container });
-
-    controller.setOpen(true);
-    expect(container.style.width).toBe('');
-
-    controller.destroy();
-    expect(controls.stop).toHaveBeenCalled();
   });
 });

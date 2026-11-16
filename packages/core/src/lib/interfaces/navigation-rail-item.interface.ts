@@ -1,5 +1,6 @@
 import { Icon } from '../icon';
 import type { BadgeProps } from './badge.interface';
+import type { ComponentMotion } from './motion.interface';
 
 /**
  * Navigation rail items are the destinations a navigation rail switches
@@ -28,6 +29,8 @@ export type NavigationRailItemProps = {
   isExtended?: boolean;
   /** Injected by the parent NavigationRail: hide the item while the rail is collapsed. */
   extendedOnly?: boolean;
+  /** The motion of the item's label and surface, passed down from the parent rail. Defaults to a 300 ms curve. */
+  motion?: ComponentMotion;
 };
 
 export type NavigationRailItemStates = {

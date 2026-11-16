@@ -177,26 +177,26 @@ for (const name of motionBrowsers(process.env.MOTION_BROWSERS)) {
           await disabled.dispatchEvent('keydown', { key: 'ArrowRight' });
           expect(await disabled.getAttribute('aria-valuenow')).toBe('50');
           const indicator = enabled.locator(':scope > div:nth-of-type(2) > div > div');
-          await expect.poll(() => indicator.evaluate(el => (el as HTMLElement).style.transform)).toBe('scale(1)');
+          await expect.poll(() => indicator.evaluate(el => (el as HTMLElement).style.scale)).toBe('1');
           await page.emulateMedia({ reducedMotion: 'no-preference' });
           await expect.poll(() => enabled.getAttribute('data-udx-slider-motion-reduce')).toBe(null);
           await enabled.blur();
           await expect.poll(() => indicator.evaluate(el => el.getAnimations().length)).toBeGreaterThan(0);
           await indicator.evaluate(el => { (window as any).closingAnimation = el.getAnimations()[0]; });
           expect(await page.evaluate(() => (window as any).closingAnimation.effect.getTiming().duration)).toBe(10000);
-          expect(await page.evaluate(() => (window as any).closingAnimation.effect.getKeyframes().at(-1).transform)).toBe('scale(0)');
+          expect(await page.evaluate(() => (window as any).closingAnimation.effect.getKeyframes().at(-1).scale)).toBe('0');
           await enabled.focus();
           await page.keyboard.press('ArrowRight');
           await expect.poll(() => indicator.evaluate(el => {
             const previous = (window as any).closingAnimation as Animation;
             const current = el.getAnimations()[0];
             return previous.playState === 'idle' && !!current && current !== previous &&
-              (current.effect as KeyframeEffect).getKeyframes().at(-1)?.transform === 'scale(1)';
+              (current.effect as KeyframeEffect).getKeyframes().at(-1)?.scale === '1';
           })).toBe(true);
           expect(await indicator.evaluate(el => (el.getAnimations()[0].effect as KeyframeEffect).getTiming().duration)).toBe(10000);
           await page.emulateMedia({ reducedMotion: 'reduce' });
           await expect.poll(() => enabled.getAttribute('data-udx-slider-motion-reduce')).toBe('');
-          await expect.poll(() => indicator.evaluate(el => (el as HTMLElement).style.transform)).toBe('scale(1)');
+          await expect.poll(() => indicator.evaluate(el => (el as HTMLElement).style.scale)).toBe('1');
           expect(await indicator.evaluate(el => el.getAnimations().length)).toBe(0);
           expect(await page.evaluate(() => (window as any).changes)).toEqual([30, 100, 0, 10]);
           await expect.poll(() => page.evaluate(() => (window as any).policyObservers.size)).toBe(1);
