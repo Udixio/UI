@@ -145,7 +145,7 @@ export function createBadgeTransitionController({
   const spec: MotionSpec =
     badgeMotion?.timing === undefined
       ? badgeVisibility
-      : { ...badgeVisibility, timing: badgeMotion.timing };
+      : ({ ...badgeVisibility, timing: badgeMotion.timing } as MotionSpec);
   let binding: MotionBinding | undefined;
   // Bumped by every change of state, so an exit that finishes after a newer
   // change does not hide the badge.
