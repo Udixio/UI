@@ -287,6 +287,11 @@ defineMotion('drift-in', {
 });
 ```
 
+`--udx-motion-scale` scales the distances of the keyframes: `x`, `y`, `rotate`, and a scale's distance from 1.
+At 0.5 the element travels half as far, so its `x` at the end of the range is half the keyframe value. A scrub has no
+duration, so the scale does not shorten it. It is read when the scrub starts (at bind, or when reduced motion is turned
+off), not while it runs.
+
 The scroll link is made by the browser, on a view timeline. `supportsViewTimeline()` (from
 `@udixio/motion`) tells whether the browser has one. Where it has none (Firefox at the time of
 writing), under reduced motion and under `--udx-motion: none`, the element keeps its stylesheet

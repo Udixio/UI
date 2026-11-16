@@ -76,6 +76,14 @@ function expectY(expected: number): void {
   expect(Math.abs(measured - expected), `translate y measured ${measured}, expected ${expected}`).toBeLessThanOrEqual(2);
 }
 
+/** The horizontal translation of the element as computed, in px: 0 when no translation applies. */
+function computedX(): number {
+  const translate = getComputedStyle(el).translate;
+  if (translate === 'none') return 0;
+  const [x = '0px'] = translate.split(' ');
+  return Number.parseFloat(x);
+}
+
 /** Nothing is written inline: the element is in its stylesheet state. */
 function expectNothingInline(): void {
   expect(el.style.translate).toBe('');
@@ -165,6 +173,19 @@ it.runIf(nativeViewTimeline)('under reduced motion turned on after bind, plays n
   expect(el.getAnimations()).toHaveLength(1);
   expectY(-100);
   expectNothingInline();
+});
+
+// Amplitude (step 8a-7): --udx-motion-scale scales the distance of the keyframes, not their duration (a scrub has none).
+it.runIf(nativeViewTimeline)('scales the distance of its keyframes by --udx-motion-scale: at the end of the range, x is half the keyframe value', async () => {
+  const [start, , end] = coverPositions();
+  el.style.setProperty('--udx-motion-scale', '0.5');
+  bindTo({ verb: 'scrub', keyframes: [{ x: 0, scale: 1 }, { x: 100, scale: 2 }], range: 'cross' });
+  await scrollTo(start);
+  expect(Math.abs(computedX())).toBeLessThanOrEqual(2);
+  await scrollTo(end);
+  expect(Math.abs(computedX() - 50)).toBeLessThanOrEqual(2);
+  const scale = getComputedStyle(el).scale;
+  expect(Math.abs(Number.parseFloat(scale === 'none' ? '1' : scale) - 1.5)).toBeLessThanOrEqual(0.02);
 });
 
 it.runIf(nativeViewTimeline)('under --udx-motion: none, plays nothing', async () => {
