@@ -122,6 +122,25 @@ describe('animateStyle', () => {
     handle.cancel();
   });
 
+  it('multiplies its duration by the motion scale of the element, the token and a raw timing alike', () => {
+    target.style.setProperty('--udx-motion-scale', '0.5');
+    const token = animateStyle(target, { opacity: 0.5 }, { timing: 'spring.fast.effects' });
+    expect(token.duration).toBeCloseTo(resolveWaapiTiming(target, 'spring.fast.effects', 'expressive')!.duration * 0.5);
+    token.cancel();
+    const raw = animateStyle(target, { opacity: 0.5 }, { timing: { duration: 1000, easing: 'linear' } });
+    expect(raw.duration).toBe(500);
+    expect(target.getAnimations()[0].effect?.getTiming().duration).toBe(500);
+    raw.cancel();
+  });
+
+  it('shows its end frame at once, with no animation, when the motion scale is 0', async () => {
+    target.style.setProperty('--udx-motion-scale', '0');
+    const handle = animateStyle(target, { opacity: 0.5 }, { timing: 'spring.fast.effects' });
+    expect(target.getAnimations()).toHaveLength(0);
+    expect(target.style.opacity).toBe('0.5');
+    expect(await handle.finished).toBe('finished');
+  });
+
   it('plays a raw timing as given, and cancel() stops a loop', async () => {
     const handle = animateStyle(target, [{ opacity: 0 }, { opacity: 1 }], { timing: { duration: 1500, easing: 'linear' }, iterations: Infinity });
     expect(handle.duration).toBe(1500);

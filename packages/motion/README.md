@@ -1030,7 +1030,8 @@ override a reduced system preference. A plain
 The CSS is static and can be included in server-rendered HTML without JavaScript.
 This entry supplies token values and the scale. A motion multiplies the distances of its keyframes and its durations by the
 scale, as a presence, an emphasis, a reveal, a scrub or a loop does; a layout flight keeps its real geometry, and a gesture its
-own release. The entry does not apply the scale to animations or
+own release. `animateStyle` multiplies its duration only, since the distances of arbitrary CSS are not scaled, and a scale of 0 shows
+its end frame at once. The entry does not apply the scale to animations or
 implement a motion provider or integrate the policy reader (`@udixio/motion/policy`) into a runtime.
 
 The public motion vocabulary includes `Verb`, `SpringRef`, and `ReducedRender`.

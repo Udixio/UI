@@ -2,7 +2,7 @@ import { settledHandle } from './compose.js';
 import type { MotionElement, MotionHandle } from './contract.js';
 import type { SpringRef } from './motion-spec.js';
 import { resolveWaapiTiming } from './play.js';
-import { motionDisabledIn } from './motion-style.js';
+import { motionDisabledIn, motionScaleIn } from './motion-style.js';
 import { getMotionRuntime } from './runtime.js';
 import type { CurveTiming, MotionScheme } from './tokens.js';
 
@@ -14,14 +14,14 @@ import type { CurveTiming, MotionScheme } from './tokens.js';
  */
 export type StyleKeyframe = Record<string, string | number | null> & { offset?: number };
 
-/** The timing of `animateStyle`: a motion token, or `{ duration, easing }` in milliseconds and a CSS easing, used as given. */
+/** The timing of `animateStyle`: a motion token, or `{ duration, easing }` in milliseconds and a CSS easing. */
 export type StyleTiming = SpringRef | CurveTiming | { duration: number; easing: string };
 
 /** The options of `animateStyle`: its timing, its delay and repeats, whether it starts from the element, and its reduced frame. */
 export interface AnimateStyleOptions {
   /**
-   * The motion of the keyframes; `spring.default.spatial` by default. `--udx-motion-scale` does not shorten it: the
-   * durations are the tokens.
+   * The motion of the keyframes; `spring.default.spatial` by default. `--udx-motion-scale` multiplies its duration, and
+   * a scale of 0 shows the end frame at once.
    */
   timing?: StyleTiming;
   /** Milliseconds before the motion starts; 0 by default. */
@@ -30,7 +30,7 @@ export interface AnimateStyleOptions {
   iterations?: number;
   /** Start from the element's current computed values; true by default for a single keyframe. */
   carry?: boolean;
-  /** What reduced motion or `--udx-motion: none` shows: the last keyframe (the first one for a loop), the first, or a given frame. */
+  /** What reduced motion, `--udx-motion: none` or a motion scale of 0 shows: the last keyframe (the first one for a loop), the first, or a given frame. */
   reduced?: 'end' | 'start' | StyleKeyframe;
 }
 
@@ -72,7 +72,9 @@ export function animateStyle(element: MotionElement, keyframes: StyleKeyframe | 
   if (!Number.isFinite(delay) || delay < 0) throw new RangeError('Invalid delay');
   const properties = propertiesOf(frames);
   const runtime = getMotionRuntime();
-  if (runtime.policy.reduced || motionDisabledIn(styleOf(element))) {
+  // The motion scale shortens the duration of the motion; at 0 there is no motion, as under reduced motion.
+  const scale = motionScaleIn(styleOf(element));
+  if (runtime.policy.reduced || motionDisabledIn(styleOf(element)) || scale === 0) {
     interrupt(element, properties);
     writeFrame(element, reducedFrame(frames, options.reduced ?? (iterations === Infinity ? 'start' : 'end')));
     return settledHandle();
@@ -85,6 +87,7 @@ export function animateStyle(element: MotionElement, keyframes: StyleKeyframe | 
   } else {
     route = resolveWaapiTiming(element, timing, schemeOf(element));
   }
+  if (route) route = { duration: route.duration * scale, easing: route.easing };
   // The computed values are read before the running motions are cancelled: a carried motion starts from them.
   const carry = options.carry ?? frames.length === 1;
   const start = carry ? carriedFrames(frames, styleOf(element)) : frames;
