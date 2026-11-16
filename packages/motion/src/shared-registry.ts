@@ -15,10 +15,20 @@ export interface PageBox {
   height: number;
 }
 
-/** The last holder of a shared key: its box when it was last seen, when it went away (undefined while it is still the holder), and the timer that deletes it. */
+/**
+ * Where a departed holder is now, followed through the element it sat in: its box in page coordinates, or undefined
+ * while that element is not displayed. A page scroll moves the box with that element, as the holder moved with it.
+ */
+export type Follow = () => PageBox | undefined;
+
+/**
+ * The last holder of a shared key: its box when it was last seen, how to follow it once it went away (undefined while
+ * it is still the holder), and the timer that deletes it.
+ */
 interface Memory {
   element: Element;
   box: PageBox;
+  follow: Follow | undefined;
   goneAt: number | undefined;
   timer: ReturnType<typeof setTimeout> | undefined;
 }
@@ -82,11 +92,14 @@ export function createSharedRegistry(document: Document, development: boolean) {
       }
       return first;
     },
-    /** `element` now holds `key`, seen at `box`: it replaces the memory of the previous holder, whose pending deletion is cancelled. */
-    remember(key: string, element: Element, box: PageBox): void {
+    /**
+     * `element` now holds `key`, seen at `box`, and `follow` tells where it is once it has gone: it replaces the memory of
+     * the previous holder, whose pending deletion is cancelled.
+     */
+    remember(key: string, element: Element, box: PageBox, follow?: Follow): void {
       const previous = memories.get(key);
       if (previous?.timer !== undefined) clearTimeout(previous.timer);
-      memories.set(key, { element, box, goneAt: undefined, timer: undefined });
+      memories.set(key, { element, box, follow, goneAt: undefined, timer: undefined });
     },
     /** The holder of `key` is gone (destroyed, hidden): its box stays valid for a window, then its memory is deleted. */
     forget(key: string, element: Element): void {
@@ -101,8 +114,9 @@ export function createSharedRegistry(document: Document, development: boolean) {
       memory.timer = timer;
     },
     /**
-     * Where `key` was last seen on another element that is no longer a holder, if that was at most `maxAge` ms ago.
-     * A live holder other than `element` is reported in development, once per key, and blocks the recall.
+     * Where `key` was last seen on another element that is no longer a holder, if that was at most `maxAge` ms ago: where
+     * it is now when it can be followed, else where it was. A live holder other than `element` is reported in development,
+     * once per key, and blocks the recall.
      */
     recall(key: string, element: Element, maxAge = SHARED_WINDOW): PageBox | undefined {
       const memory = memories.get(key);
@@ -117,7 +131,7 @@ export function createSharedRegistry(document: Document, development: boolean) {
       const now = performance.now();
       // A holder that left without being forgotten is taken to have left just now.
       const goneAt = memory.goneAt ?? now;
-      return now - goneAt <= maxAge ? memory.box : undefined;
+      return now - goneAt <= maxAge ? (memory.follow?.() ?? memory.box) : undefined;
     },
     /** Empties the registrations only: the memories expire on their own, a window after their holder went away. */
     clear(): void {

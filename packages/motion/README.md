@@ -200,7 +200,9 @@ Rules:
   development an error is reported.
 - The last box of a holder is kept for 600 ms after the holder is hidden or removed. The
   600 ms are counted from the moment the layout engine learns that it is gone. An element
-  that arrives after that starts at its own place.
+  that arrives after that starts at its own place. While it is kept, the box follows the
+  element the holder sat in: when the page scrolls, or a sticky or scrolled ancestor moves,
+  the box moves with it.
 - During the morph the content of the element is scaled with it, and its rounded corners
   stay round.
 - The morph is a layout motion, so the layout engine must be loaded, as for any layout

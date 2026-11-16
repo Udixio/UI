@@ -100,25 +100,35 @@ export function measureWith(scope: Scope, element: HTMLElement, item: Item, styl
 }
 
 /**
- * Remember a keyed element at rest, as the holder of its shared identity: its page box when it is visible, and nothing
- * when it is hidden, which forgets it. The box is derived from the visual box and the reference rect it was taken
- * against, so no rect is read here.
+ * Remember a keyed element as the holder of its shared identity, at its visual box: its page box when it is visible, and
+ * nothing when it is hidden, which forgets it. The box is derived from the visual box and the reference rect it was taken
+ * against, so no rect is read here. Once the holder has gone, its box is followed through its reference, which stays on
+ * the page: a sticky or scrolled ancestor moves that reference, and the box moves with it instead of staying where it was.
  */
-function holdShared(scope: Scope, element: HTMLElement, key: string, runtime: MotionRuntime, visual: Box, rects: ReferenceRects): void {
+export function holdShared(scope: Scope, element: HTMLElement, key: string, runtime: MotionRuntime, visual: Box, rects: ReferenceRects): void {
   if (visual.w === 0 || visual.h === 0) {
     runtime.shared.forget(key, element);
     return;
   }
   // visualBoxOf has cached the rect of this reference: the reference is the one the visual box is relative to.
-  const reference = rects.get(referenceOf(scope, element));
-  if (!reference) return;
+  const reference = referenceOf(scope, element);
+  const rect = rects.get(reference);
+  if (!rect) return;
   const win = element.ownerDocument.defaultView;
-  runtime.shared.remember(key, element, {
-    left: visual.cx - visual.w / 2 + reference.left + (win?.scrollX ?? 0),
-    top: visual.cy - visual.h / 2 + reference.top + (win?.scrollY ?? 0),
-    width: visual.w,
-    height: visual.h,
-  });
+  const { w: width, h: height } = visual;
+  // The visual box gives its centre relative to the top-left corner of its reference: half its size gives its own corner.
+  const left = visual.cx - width / 2;
+  const top = visual.cy - height / 2;
+  runtime.shared.remember(
+    key,
+    element,
+    { left: left + rect.left + (win?.scrollX ?? 0), top: top + rect.top + (win?.scrollY ?? 0), width, height },
+    () => {
+      if (reference.getClientRects().length === 0) return undefined;
+      const now = reference.getBoundingClientRect();
+      return { left: now.left + left + (win?.scrollX ?? 0), top: now.top + top + (win?.scrollY ?? 0), width, height };
+    },
+  );
 }
 
 /** Measure an element at rest. Its content is measured too, unless `content` is false. */

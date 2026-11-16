@@ -93,6 +93,7 @@ afterEach(async () => {
   host.remove();
   style.remove();
   delete document.documentElement.dataset.motionPolicy;
+  window.scrollTo(0, 0);
   vi.restoreAllMocks();
   // The page memory outlives its holders for a window (600 ms): wait it out, so that no test meets the memory of the one before.
   await new Promise(resolve => setTimeout(resolve, 700));
@@ -338,4 +339,133 @@ it('[Review Focus 4] the memory of a holder is deleted a window after it went aw
   await new Promise(resolve => setTimeout(resolve, 700));
   expect(shared.recall('card', card('b'), 60_000)).toBeUndefined();
   expect(shared.recall('card', card('b'), 600)).toBeUndefined();
+});
+
+// ─── A page that scrolls between the departure and the arrival (step 8a-1) ───
+
+/** The table of contents in miniature: two links, and the highlight is a shared element inside the link it is on. */
+const scrollingCss = `
+  .doc { position: relative; display: flex; align-items: flex-start; width: 600px; height: 3000px; }
+  .main { width: 300px; height: 3000px; }
+  .aside { position: relative; width: 200px; height: 400px; }
+  .aside.sticky { position: sticky; top: 0; }
+  .link { position: absolute; left: 0; width: 180px; height: 40px; }
+  .highlight { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+  .scroller { position: relative; width: 600px; height: 300px; overflow: auto; }
+`;
+
+/** The links sit in an aside that is sticky or not, in the window or in a scroll container; `#l1` is at 100 px, `#l2` at 200 px. */
+function scrollingPage(sticky: boolean, inScroller: boolean): void {
+  style = document.createElement('style');
+  style.textContent = scrollingCss;
+  document.head.append(style);
+  const doc = `<div class="doc"><div class="main"></div><aside class="aside${sticky ? ' sticky' : ''}"><div class="link" id="l1" style="top: 100px"></div><div class="link" id="l2" style="top: 200px"></div></aside></div>`;
+  host = document.createElement('div');
+  host.innerHTML = inScroller ? `<div class="scroller" id="scroller">${doc}</div>` : doc;
+  document.body.append(host);
+}
+
+/** The highlight: a plain element, which is bound once it is inside a link. */
+function highlight(id: string): HTMLElement {
+  const element = document.createElement('div');
+  element.id = id;
+  element.className = 'highlight';
+  return element;
+}
+
+/**
+ * The highlight leaves link 1 and joins link 2 in one task, as a re-render does. `between` moves the page after the
+ * highlight was seen on link 1 and before it leaves. Its flight starts where link 1 is now, and in the middle it is
+ * between the two links (± 1 px): frozen with pause and seek, then played to the end.
+ */
+async function moveHighlight(key: string, between: () => void): Promise<void> {
+  const link1 = byId('l1');
+  const link2 = byId('l2');
+  const first = highlight(`${key}-first`);
+  link1.append(first);
+  const old = bindTo(first, { shared: key });
+  between();
+  const from = rectOf(link1);
+  const to = rectOf(link2);
+  old.destroy();
+  first.remove();
+  const second = highlight(`${key}-second`);
+  link2.append(second);
+  const binding = bindTo(second, { shared: key });
+  const handle = moving(binding);
+  handle.pause();
+  handle.seek(0);
+  expectNear(rectOf(second), from, 1);
+  handle.seek(handle.duration / 2);
+  const middle = rectOf(second).top;
+  const span = `links at ${from.top} and ${to.top}`;
+  expect(middle, `middle ${middle}, ${span}`).toBeGreaterThanOrEqual(Math.min(from.top, to.top) - 1);
+  expect(middle, `middle ${middle}, ${span}`).toBeLessThanOrEqual(Math.max(from.top, to.top) + 1);
+  handle.play();
+  await handle.finished;
+  expectNear(rectOf(second), to, 0.5);
+  expectNothingInline(second);
+}
+
+it('[Step 8a-1] on a scrolled page, the highlight leaves a sticky link from where that link is now', async () => {
+  scrollingPage(true, false);
+  window.scrollTo(0, 150);
+  await moveHighlight('toc-sticky', () => window.scrollTo(0, 400));
+});
+
+it('[Step 8a-1] without scrolling, the highlight leaves a sticky link from where that link is', async () => {
+  scrollingPage(true, false);
+  window.scrollTo(0, 150);
+  await moveHighlight('toc-still', () => {});
+});
+
+it('[Step 8a-1] when the links are not sticky, they move with the page and the highlight leaves them from there', async () => {
+  scrollingPage(false, false);
+  window.scrollTo(0, 150);
+  await moveHighlight('toc-static', () => window.scrollTo(0, 400));
+});
+
+it('[Step 8a-1] in a scroll container, the highlight leaves a link that the container scrolled from where the link is now', async () => {
+  scrollingPage(false, true);
+  const scroller = byId('scroller');
+  await moveHighlight('toc-scroller', () => {
+    scroller.scrollTop = 120;
+  });
+});
+
+it('[Step 8a-1] in a scroll container, a sticky link does not move, and the highlight leaves it from there', async () => {
+  scrollingPage(true, true);
+  const scroller = byId('scroller');
+  await moveHighlight('toc-scroller-sticky', () => {
+    scroller.scrollTop = 120;
+  });
+});
+
+it('[Step 8a-1] a holder that leaves in mid-flight hands its place over where it is on the screen, not where it rests', async () => {
+  page();
+  style.textContent += '\n.list.moved { padding-left: 100px; }';
+  const a = byId('a');
+  const old = bindTo(a);
+  // The thumbnail moves inside its list: its layout move starts, and it is frozen a fifth of the way.
+  list().classList.add('moved');
+  await Promise.resolve();
+  const flight = moving(old);
+  flight.pause();
+  flight.seek(flight.duration * 0.2);
+  const onScreen = rectOf(a);
+  expect(onScreen.left, `the holder is at ${onScreen.left}, between its rest (0) and its move (100)`).toBeGreaterThan(2);
+  expect(onScreen.left).toBeLessThan(98);
+  old.destroy();
+  a.remove();
+  const b = card('b');
+  detail().append(b);
+  const binding = bindTo(b);
+  const handle = moving(binding);
+  handle.pause();
+  handle.seek(0);
+  expectNear(rectOf(b), onScreen, 1);
+  handle.play();
+  await handle.finished;
+  expectNear(rectOf(b), natural(), 0.5);
+  expectNothingInline(b);
 });
