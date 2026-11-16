@@ -35,8 +35,10 @@ export interface FabLabelController {
 
 /** The label is a flex item that grows or shrinks as a whole: it moves on the spatial spring of its role. */
 const DEFAULT_TIMING: SpringRef = 'spring.default.spatial';
-/** The label fades on the default effects spring, whatever the width's timing. */
+/** The label fades in on the default effects spring, whatever the width's timing. */
 const OPACITY_TIMING: SpringRef = 'spring.default.effects';
+/** The label fades out on the fast effects spring: it must be gone before the closing edge of the pill reaches its text. */
+const FADE_OUT_TIMING: SpringRef = 'spring.fast.effects';
 
 /**
  * Reveals or hides a `Fab`'s label when `extended` changes, by animating its
@@ -90,7 +92,7 @@ export function createFabLabelController({
         animateStyle(
           label,
           [{ opacity: isExtended ? 0 : 1 }, { opacity: isExtended ? 1 : 0 }],
-          { timing: OPACITY_TIMING, carry: interrupted },
+          { timing: isExtended ? OPACITY_TIMING : FADE_OUT_TIMING, carry: interrupted },
         ),
       ]);
       motion = handle;

@@ -101,6 +101,22 @@ describe('fab label controller in the browser', () => {
     );
   });
 
+  it('collapses on the default spatial spring for the width, and fades out on the fast effects spring', () => {
+    extended = true;
+    const label = mountLabel(true);
+    connect(label);
+
+    extended = false;
+    controller!.update();
+
+    expect(animationOf(label, 'width').effect!.getComputedTiming().duration).toBe(
+      tokenDuration(label, 'spring.default.spatial'),
+    );
+    expect(animationOf(label, 'opacity').effect!.getComputedTiming().duration).toBe(
+      tokenDuration(label, 'spring.fast.effects'),
+    );
+  });
+
   it('ends an expansion at auto with no inline width and full opacity', async () => {
     extended = false;
     const label = mountLabel(false);
