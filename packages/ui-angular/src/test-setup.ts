@@ -6,11 +6,10 @@ setupZoneTestEnv({
 });
 
 // jsdom does not declare a global `CSS` object (unlike every real browser),
-// and Anime.js's WAAPI module references the bare `CSS` identifier to
-// feature-detect `CSS.registerProperty` support -- an undeclared global
-// throws a ReferenceError on read, not just `undefined`. An empty stub
-// makes that feature-detection see "not supported" and take Anime.js's own
-// existing fallback path, matching real unsupported browsers.
+// and code that feature-detects `CSS.supports` / `CSS.registerProperty` (the
+// state layer registers its ripple property) reads the bare `CSS` identifier:
+// an undeclared global throws a ReferenceError on read. An empty stub makes
+// that detection see "not supported", as an old browser would.
 if (typeof (globalThis as { CSS?: unknown }).CSS === 'undefined') {
   (globalThis as { CSS?: unknown }).CSS = {};
 }

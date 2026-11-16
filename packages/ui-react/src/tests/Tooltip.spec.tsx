@@ -8,10 +8,9 @@ import { createTooltipTransitionController } from '@udixio/core/dom';
 
 expect.extend(toHaveNoViolations);
 
-// Mocking `animejs` directly (a transitive dependency of `@udixio/core/dom`)
-// corrupts the sibling `@udixio/core` entry's exports under Vite's
-// dependency pre-bundling in this workspace -- mocking the already-isolated
-// `createTooltipTransitionController` factory instead avoids that.
+// The controller animates with WAAPI, which jsdom lacks: this suite mocks the
+// `createTooltipTransitionController` factory and stays about the component; the
+// motion itself is covered by the core controller's browser spec.
 vi.mock('@udixio/core/dom', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@udixio/core/dom')>();
   return {

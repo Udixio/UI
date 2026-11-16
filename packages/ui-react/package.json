@@ -37,7 +37,6 @@
   },
   "devDependencies": {
     "@types/jest-axe": "^3.5.9",
-    "animejs": "^4.5.0",
     "jest-axe": "^10.0.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"

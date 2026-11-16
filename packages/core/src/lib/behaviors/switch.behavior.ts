@@ -18,14 +18,13 @@ export function getSwitchChangeTransition({
 
 /**
  * Track/thumb geometry shared by the style layer, both adapters, and the
- * `@udixio/core/dom` Anime.js Layout controller.
+ * `@udixio/core/dom` thumb controller.
  *
  * `handleContainer` is a fixed 28px box (the visible handle's own largest,
  * pressed size) at a fixed `left: 0`; the entire resting offset is
- * expressed as a `translate`, not `left`/`right`. This is not a style
- * preference -- Anime.js's Layout engine only auto-animates
- * `transform`/`translate`-driven position changes; a `left`/`right` swap
- * resolves instantly as plain CSS with nothing left for it to animate.
+ * expressed as a `translate`, not `left`/`right`: one numeric property moves
+ * between the two resting offsets, which the thumb controller animates; a
+ * `left`/`right` swap would resolve instantly with nothing to animate.
  *
  * Being a *constant* size regardless of checked/pressed state means this
  * offset no longer depends on the visible handle's own size (16-28px) --

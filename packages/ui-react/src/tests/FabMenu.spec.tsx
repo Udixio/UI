@@ -10,12 +10,10 @@ import { FabMenu, type FabMenuAction } from '../lib/index.js';
 expect.extend(toHaveNoViolations);
 
 
-// The trigger is a `Fab`, whose label controller drives Anime.js Layout --
-// WAAPI-based, so unusable under jsdom. Mocking the already-isolated
-// controller factory (rather than `animejs`, which corrupts the sibling
-// `@udixio/core` entry under Vite's dependency pre-bundling) keeps this suite
-// about the menu itself; the label transition is covered in Fab.spec.tsx and
-// in the core controller's own spec.
+// The trigger is a `Fab`, whose label controller animates with WAAPI, which
+// jsdom lacks. Mocking the controller factory keeps this suite about the menu
+// itself; the label transition is covered in Fab.spec.tsx and in the core
+// controller's browser spec.
 vi.mock('@udixio/core/dom', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@udixio/core/dom')>();
   return {

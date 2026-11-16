@@ -580,9 +580,6 @@ importers:
       '@udixio/motion':
         specifier: 0.0.0
         version: link:../motion
-      animejs:
-        specifier: ^4.5.0
-        version: 4.5.0
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -982,9 +979,6 @@ importers:
       '@types/jest-axe':
         specifier: ^3.5.9
         version: 3.5.9
-      animejs:
-        specifier: ^4.5.0
-        version: 4.5.0
       jest-axe:
         specifier: ^10.0.0
         version: 10.0.0

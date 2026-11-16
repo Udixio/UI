@@ -70,32 +70,20 @@ fonction de nettoyage.
 - les adaptateurs rendent la même structure (`touchTarget`, `stateLayer`,
   contenu et indicateur de chargement).
 
-Lorsqu'un composant expose `transition`, il utilise directement le contrat
-`Transition` de Motion dans ses props communes. Les adaptateurs ne le
-convertissent jamais en raccourci CSS et le cœur ne fusionne pas une transition
-fournie avec des valeurs par défaut cachées. Pour une transformation de forme,
-Motion anime le rayon du composant interactif et le `stateLayer` hérite de ce
-rayon : ils partagent ainsi, à chaque frame, une seule valeur géométrique.
+Lorsqu'un composant expose un réglage de mouvement, c'est la prop `motion`
+(`{ timing }`), dont la valeur est un jeton de `@udixio/motion` (ressort M3 ou
+courbe `{ duration, easing }`). Les adaptateurs ne la convertissent pas en
+raccourci CSS eux-mêmes : le cœur fournit `cssTiming` / `getComponentTransition`
+pour les transitions CSS et passe le jeton aux contrôleurs. Pour une
+transformation de forme, le contrôleur anime le rayon du composant interactif et
+le `stateLayer` hérite de ce rayon : ils partagent ainsi, à chaque frame, une
+seule valeur géométrique.
 
-Une implémentation `motion/react` et une réécriture Angular équivalente sont
-interdites pour un même effet : elles dériveraient inévitablement.
-
-#### Exception : diff de layout avec Anime.js
-
-Un seul cas justifie de sortir de Motion : une transition dont une borne est
-`width: auto` (ou toute autre valeur calculée par le layout). Elle n'est pas
-transitionnable en CSS, et le diff avant/après de Motion (`animateLayout`) est
-une fonctionnalité payante de Motion+. Ces effets utilisent le moteur Layout
-d'Anime.js via `createAutoLayoutController`, partagé lui aussi entre les deux
-frameworks : `createTextFieldLabelController` (l'encoche du `<legend>`),
-`createFabLabelController` (le label étendu du FAB) et, pour un tween simple,
-`createSwitchThumbController`.
-
-La racine du Layout reste aussi étroite que l'effet l'exige : Anime.js remesure
-et réanime tous les descendants sous cette racine, et coupe leur `transition`
-inline pendant le diff. Les propriétés dont les deux bornes sont concrètes
-(padding, gap, opacité) restent donc en CSS — sauf sur la racine elle-même, où
-elles seraient neutralisées et doivent passer par un tween Anime.js.
+Tous les mouvements JavaScript des contrôleurs de `@udixio/core/dom` passent par
+le chemin public de `@udixio/motion` (`animateStyle`, `createSpring`, verbes) ;
+une implémentation propre à un framework pour un même effet est interdite : elle
+dériverait inévitablement. Une valeur calculée par le layout (`width: auto`) est
+mesurée par `animateStyle`, puis rendue au CSS à la fin du mouvement.
 
 ## 5. Matrice de tests obligatoire
 

@@ -27,7 +27,7 @@ const switchConfig: ClassNameComponent<SwitchInterface> = ({
   // A fixed 28px box (the handle's own largest, pressed size) at a fixed
   // `left-0`; the adapter applies the actual resting offset as an inline
   // `translate` (from `getSwitchHandleOffset`), not as a `left`/`right`
-  // class, so the Anime.js tween controller (switch.ts) has a single numeric
+  // class, so the thumb controller (switch.ts) has a single numeric
   // CSS property to animate between the two known resting offsets (see
   // switch.behavior.ts).
   handleContainer: cx('absolute left-0 size-7'),
