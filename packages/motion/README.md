@@ -567,14 +567,14 @@ In the frameworks: `useMotionGesture` (React), `[udxMotionGesture]` (Angular), w
 
 ### Page transitions
 
-`navigate(update, { direction })`, exported from `@udixio/motion`, changes the page inside a native View
-Transition. `update` makes the change, and may be async. `direction` is where the page goes: `forward` (the
+`navigate(update, { direction })`, exported from `@udixio/motion/page`, changes the page inside a native View
+Transition. The page entry is not in the main entry: a site that never changes its page does not load it. `update` makes the change, and may be async. `direction` is where the page goes: `forward` (the
 default) or `back`. The route rules of `motion.css`, which the document imports, slide the old view out and the
 new one in, both fading, over the slow spatial spring. The direction is also set as `data-motion-direction` on the
 `html` element, and the transition's type is `udx-forward` or `udx-back`.
 
 ```ts
-import { navigate } from '@udixio/motion';
+import { navigate } from '@udixio/motion/page';
 
 await navigate(() => showPage('roadmap'), { direction: 'forward' });
 await navigate(() => showPage('home'), { direction: 'back' });

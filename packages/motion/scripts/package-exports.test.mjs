@@ -431,3 +431,28 @@ test('the animate entry imports only shared chunks, never the main entry', async
     await readFile(new URL(file, new URL('dist/', root)), 'utf8');
   }
 });
+
+test('page entry point is public in both export maps', () => {
+  assert.deepEqual(pkg.exports['./page'], {
+    development: './src/page.ts', types: './dist/page.d.ts',
+    import: './dist/page.js', require: './dist/page.cjs', default: './dist/page.js',
+  });
+  assert.deepEqual(pkg.publishConfig.exports['./page'], {
+    types: './dist/page.d.ts', import: './dist/page.js',
+    require: './dist/page.cjs', default: './dist/page.js',
+  });
+});
+
+test('the main entry holds none of the page transition code', async () => {
+  for (const code of await staticClosure('dist/index.js')) assert.doesNotMatch(code, /startViewTransition|udx-forward|udx-back/);
+});
+
+test('the page entry imports only shared chunks, never the main entry', async () => {
+  const page = await readFile(new URL('dist/page.js', root), 'utf8');
+  const imports = [...page.matchAll(/^import\s[^;]*?from "(\.\/[^"]+)";/gm)].map(match => match[1]);
+  assert.ok(imports.length > 0);
+  for (const file of imports) {
+    assert.notEqual(file, './index.js', 'the page entry imports the main entry');
+    await readFile(new URL(file, new URL('dist/', root)), 'utf8');
+  }
+});

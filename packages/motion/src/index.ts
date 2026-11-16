@@ -45,6 +45,4 @@ export type { Stretch, AxisProgress, ContentPlan } from './project.js';
 export type { Box, OwnTransform } from './flip.js';
 export { connectMotion } from './connect.js';
 export type { ConnectOptions } from './connect.js';
-export { navigate } from './navigate.js';
-export type { NavigationDirection } from './navigate.js';
 export type { MotionRuntime } from './runtime.js';
