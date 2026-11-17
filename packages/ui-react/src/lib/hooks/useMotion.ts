@@ -8,6 +8,7 @@ import {
 } from 'react';
 import {
   motionWhenDefined,
+  type BindOptions,
   type DeferredMotion,
   type MotionBinding,
   type MotionElement,
@@ -32,6 +33,11 @@ export interface UseMotionOptions {
    * author too (WCAG 2.2.2), so a `pause: 'control'` loop needs a visible control that sets it. Ignored without a loop.
    */
   paused?: boolean;
+  /**
+   * Where focus goes when an exit starts with focus inside the element (WCAG 2.4.3): an element, or a function that gives one
+   * when the exit starts. Read when the element is attached, so pass a function to name an element that renders later.
+   */
+  restoreFocus?: BindOptions['restoreFocus'];
 }
 
 export interface UseMotionReturn<T extends MotionElement> {
@@ -131,7 +137,7 @@ export function useMotion<T extends MotionElement = HTMLElement>(
   source: MotionSource | readonly MotionSource[],
   options: UseMotionOptions = {},
 ): UseMotionReturn<T> {
-  const { present = true, state, settled, shared, paused = false } = options;
+  const { present = true, state, settled, shared, paused = false, restoreFocus } = options;
 
   // Hydrated content reads `true` on its first render; React then re-renders with `false`.
   const hydrated = useSyncExternalStore(
@@ -144,8 +150,8 @@ export function useMotion<T extends MotionElement = HTMLElement>(
   const sources = motionsOf(source);
   // A change of the shared identity is a change of the binding, as a change of a source is.
   const key = JSON.stringify([sources.map(sourceKey), shared ?? null]);
-  const latest = useRef({ sources, present, settled, shared, paused });
-  latest.current = { sources, present, settled, shared, paused };
+  const latest = useRef({ sources, present, settled, shared, paused, restoreFocus });
+  latest.current = { sources, present, settled, shared, paused, restoreFocus };
   const deferred = useRef<DeferredMotion[]>([]);
   const bound = useRef<{ element: MotionElement; key: string } | null>(null);
 
@@ -172,6 +178,7 @@ export function useMotion<T extends MotionElement = HTMLElement>(
           present: current.present,
           settled: settledNow,
           shared: current.shared,
+          restoreFocus: current.restoreFocus,
           ...(current.paused && { paused: true }),
         }),
       );

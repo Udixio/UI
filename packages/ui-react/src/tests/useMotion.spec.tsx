@@ -104,10 +104,11 @@ interface PanelProps {
   settled?: boolean;
   shared?: string;
   paused?: boolean;
+  restoreFocus?: HTMLElement;
 }
 
-function Panel({ source = 'slide', present = true, state, settled, shared, paused }: PanelProps) {
-  const panel = useMotion(source, { present, state, settled, shared, paused });
+function Panel({ source = 'slide', present = true, state, settled, shared, paused, restoreFocus }: PanelProps) {
+  const panel = useMotion(source, { present, state, settled, shared, paused, restoreFocus });
   return panel.mounted && <div data-testid="box" ref={panel.ref} />;
 }
 
@@ -383,6 +384,12 @@ describe('useMotion', () => {
     expect(bindMotion).toHaveBeenCalledTimes(2);
     expect(bindMotion).toHaveBeenNthCalledWith(1, expect.any(HTMLElement), 'fade', expect.objectContaining({ shared: 'pic' }));
     expect(bindMotion).toHaveBeenNthCalledWith(2, expect.any(HTMLElement), 'reflow', expect.objectContaining({ shared: 'pic' }));
+  });
+
+  it('passes restoreFocus to the motion it binds', () => {
+    const back = document.createElement('button');
+    render(<Panel restoreFocus={back} />);
+    expect(bindMotion).toHaveBeenCalledWith(expect.any(HTMLElement), 'slide', expect.objectContaining({ restoreFocus: back }));
   });
 
   it('binds again, settled, when the shared identity changes, and destroys the old binding once', () => {
