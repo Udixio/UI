@@ -6,6 +6,10 @@ import { z } from 'zod';
 import { loadComponentDoc, loadComponentsIndex } from './loaders/components.js';
 import { getDocByPath, searchDocs } from './loaders/docs.js';
 import {
+  loadMotionManifest,
+  MOTION_MANIFEST_SECTIONS,
+} from './loaders/motion.js';
+import {
   loadThemeTokens,
   getColor,
   listColors,
@@ -59,6 +63,37 @@ export function registerToolsAndResources(server: McpServer) {
           {
             type: 'text' as const,
             text: typeof doc === 'string' ? doc : toJsonText(doc),
+          },
+        ],
+      };
+    },
+  );
+
+  // ============ MOTION TOOLS ============
+
+  // Tool: the motion manifest (verbs, options, presets, tokens, entries and their exports)
+  server.registerTool(
+    'getMotionManifest',
+    {
+      title: 'Get Motion Manifest',
+      description:
+        'Gets the @udixio/motion manifest: verbs and their options, presets with their keyframes, tokens, entries and their exports. Pass a section to get only that part.',
+      inputSchema: {
+        section: z
+          .enum(MOTION_MANIFEST_SECTIONS)
+          .optional()
+          .describe('Top-level section of the manifest, such as verbs or presets'),
+      },
+    },
+    async ({ section }) => {
+      const manifest = await loadMotionManifest();
+      const value =
+        section === undefined ? manifest : { [section]: manifest[section] };
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: toJsonText(value),
           },
         ],
       };
@@ -282,6 +317,29 @@ export function registerToolsAndResources(server: McpServer) {
             uri: uri.href,
             mimeType: file.mimeType,
             text: file.content,
+          },
+        ],
+      };
+    },
+  );
+
+  // Resource: expose the motion manifest
+  server.registerResource(
+    'motion-manifest',
+    'motion://manifest',
+    {
+      title: 'Motion Manifest Resource',
+      description: 'The @udixio/motion manifest, as JSON',
+      mimeType: 'application/json',
+    },
+    async (uri) => {
+      const manifest = await loadMotionManifest();
+      return {
+        contents: [
+          {
+            uri: uri.href,
+            mimeType: 'application/json',
+            text: toJsonText(manifest),
           },
         ],
       };

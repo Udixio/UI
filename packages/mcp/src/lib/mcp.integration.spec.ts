@@ -51,6 +51,15 @@ The Button component handles user interactions.`,
   }),
 }));
 
+vi.mock('./loaders/motion', async importOriginal => ({
+  ...(await importOriginal<typeof import('./loaders/motion')>()),
+  loadMotionManifest: vi.fn().mockResolvedValue({
+    version: 1,
+    verbs: { appear: { keyframes: 'required' } },
+    presets: { fade: { verb: 'appear', keyframes: [{ opacity: 0 }, { opacity: 1 }] } },
+  }),
+}));
+
 vi.mock('./loaders/theme', () => {
   const snapshot: ThemeSnapshot = {
     config: {
@@ -175,7 +184,8 @@ describe('MCP Integration — AI client simulation', () => {
       expect(names).toContain('getColor');
       expect(names).toContain('listPalettes');
       expect(names).toContain('compareColor');
-      expect(tools.length).toBe(9);
+      expect(names).toContain('getMotionManifest');
+      expect(tools.length).toBe(10);
     });
 
     it('each tool should have a description and input schema', async () => {
@@ -360,6 +370,25 @@ describe('MCP Integration — AI client simulation', () => {
       expect(uris).toContain('theme://tokens');
     });
 
+    it('readResource motion://manifest should return the motion manifest', async () => {
+      const result = await client.readResource({ uri: 'motion://manifest' });
+
+      const data = JSON.parse((result.contents[0] as { text: string }).text);
+      expect(data.presets.fade.verb).toBe('appear');
+    });
+
+    it('getMotionManifest rejects a section the manifest does not have', async () => {
+      await expect(
+        client.callTool({ name: 'getMotionManifest', arguments: { section: 'nope' } }),
+      ).resolves.toMatchObject({ isError: true });
+    });
+
+    it('getMotionManifest returns only the section it is given', async () => {
+      const result = await client.callTool({ name: 'getMotionManifest', arguments: { section: 'presets' } });
+      const data = JSON.parse((result.content as { text: string }[])[0].text);
+      expect(Object.keys(data)).toEqual(['presets']);
+    });
+
     it('readResource theme://tokens should return theme JSON', async () => {
       const result = await client.readResource({ uri: 'theme://tokens' });
 
@@ -398,6 +427,7 @@ describe('MCP Integration — AI client simulation', () => {
         getColor: { name: 'primary', mode: 'light' },
         listPalettes: {},
         compareColor: { name: 'primary' },
+        getMotionManifest: {},
       };
 
       for (const tool of tools) {

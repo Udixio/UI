@@ -90,12 +90,19 @@ The server runs on `http://localhost:3000/mcp` by default. Use the `PORT` enviro
 | `listPalettes` | Lists all color palettes (hue, chroma) |
 | `compareColor` | Compares a color between light and dark modes |
 
+### Motion
+
+| Tool | Description |
+|------|-------------|
+| `getMotionManifest` | Gets the `@udixio/motion` manifest (verbs and options, presets with their keyframes, tokens, entries and their exports), or one section of it: `section` |
+
 ## Available Resources
 
 | Resource | URI Pattern | Description |
 |----------|-------------|-------------|
-| `doc` | `doc://{path}` | Access documentation files |
+| `doc` | `doc://{path}` | Access documentation files, including the motion pages under `pages/motion/` |
 | `theme` | `theme://tokens` | Access complete theme tokens |
+| `motion-manifest` | `motion://manifest` | Access the `@udixio/motion` manifest as JSON |
 
 ## Example Queries
 

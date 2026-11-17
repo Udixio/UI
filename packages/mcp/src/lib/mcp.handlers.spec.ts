@@ -75,6 +75,11 @@ vi.mock('./loaders/theme', () => ({
   getThemeConfig: vi.fn(),
 }));
 
+vi.mock('./loaders/motion', async importOriginal => ({
+  ...(await importOriginal<typeof import('./loaders/motion')>()),
+  loadMotionManifest: vi.fn(),
+}));
+
 import { loadComponentsIndex, loadComponentDoc } from './loaders/components';
 import { searchDocs, getDocByPath } from './loaders/docs';
 import {
@@ -84,6 +89,7 @@ import {
   listPalettes,
   getThemeConfig,
 } from './loaders/theme';
+import { loadMotionManifest } from './loaders/motion';
 import { registerToolsAndResources } from './mcp';
 
 // Minimal mock implementations to capture tool/resource handlers
@@ -95,6 +101,14 @@ type ResourceHandler = (
   uri: URL,
   params: Record<string, unknown>,
 ) => Promise<{ contents: { uri: string; mimeType?: string; text: string }[] }>;
+
+const mockMotionManifest = {
+  version: 1,
+  verbs: { appear: { keyframes: 'required', timing: 'spring-or-curve', options: ['timing', 'reduced'] } },
+  presets: { fade: { verb: 'appear', keyframes: [{ opacity: 0 }, { opacity: 1 }] } },
+  tokens: { duration: { short1: 50 } },
+  entries: [{ name: '@udixio/motion/presets', source: 'src/presets.ts', exports: ['fade'] }],
+};
 
 // Narrow stand-in: it only records what the handlers register, and is cast to
 // `McpServer` at the call site. Declaring `implements Partial<McpServer>` would
@@ -151,6 +165,7 @@ describe('MCP registered tools/resources', () => {
       content: mockDocContent,
     });
     vi.mocked(loadThemeTokens).mockResolvedValue(mockThemeSnapshot);
+    vi.mocked(loadMotionManifest).mockResolvedValue(mockMotionManifest);
     vi.mocked(getThemeConfig).mockResolvedValue(mockThemeSnapshot.config);
     vi.mocked(listColors).mockImplementation(async (mode = 'light') => {
       const colors =
@@ -362,6 +377,37 @@ describe('MCP registered tools/resources', () => {
     });
   });
 
+  describe('Motion manifest', () => {
+    it('getMotionManifest returns the whole manifest without a section', async () => {
+      const tool = server.tools.get('getMotionManifest');
+      expect(tool).toBeTruthy();
+
+      const data = parseJSON<typeof mockMotionManifest>(parseFirstText(await tool!.handler({})));
+      expect(data).toEqual(mockMotionManifest);
+    });
+
+    it('getMotionManifest returns only the requested section', async () => {
+      const tool = server.tools.get('getMotionManifest');
+
+      const data = parseJSON<Record<string, unknown>>(parseFirstText(await tool!.handler({ section: 'presets' })));
+      expect(Object.keys(data)).toEqual(['presets']);
+      expect(data.presets).toEqual(mockMotionManifest.presets);
+    });
+
+    it('the motion-manifest resource returns the manifest as JSON', async () => {
+      const resEntry = server.resources.get('motion-manifest');
+      expect(resEntry).toBeTruthy();
+
+      const url = new URL('motion://manifest');
+      const res = await resEntry!.handler(url, {});
+      const item = res.contents[0];
+
+      expect(item.uri).toBe(url.href);
+      expect(item.mimeType).toBe('application/json');
+      expect(parseJSON(item.text)).toEqual(mockMotionManifest);
+    });
+  });
+
   describe('Resources', () => {
     it('theme resource returns complete tokens', async () => {
       const resEntry = server.resources.get('theme');
@@ -405,6 +451,7 @@ describe('MCP registered tools/resources', () => {
         'getColor',
         'listPalettes',
         'compareColor',
+        'getMotionManifest',
       ];
 
       for (const toolName of expectedTools) {
@@ -413,7 +460,7 @@ describe('MCP registered tools/resources', () => {
     });
 
     it('should register all expected resources', () => {
-      const expectedResources = ['doc', 'theme'];
+      const expectedResources = ['doc', 'theme', 'motion-manifest'];
 
       for (const resourceName of expectedResources) {
         expect(server.resources.has(resourceName)).toBe(true);

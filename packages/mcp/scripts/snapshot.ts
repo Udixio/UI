@@ -15,6 +15,7 @@ const DOC_SRC = path.join(REPO_ROOT, 'apps/doc/src');
 const THEME_TS = path.join(REPO_ROOT, 'apps/doc/theme.config.ts');
 const THEME_JSON = path.join(REPO_ROOT, 'apps/doc/theme.config.json');
 const UI_SRC = path.join(REPO_ROOT, 'packages/ui-react/src');
+const MOTION_MANIFEST = path.join(REPO_ROOT, 'packages/motion/motion-manifest.json');
 
 // Targets for bundled assets
 const DIST_BUNDLED = path.join(PKG_ROOT, 'dist/bundled');
@@ -247,13 +248,24 @@ async function snapshotComponents() {
   console.log(`[snapshot] Components: ${components.length} exports found`);
 }
 
+async function snapshotMotion() {
+  // The generated manifest of @udixio/motion: the same file the package publishes.
+  const raw = await fs.readFile(MOTION_MANIFEST, 'utf8');
+  for (const dir of [DIST_BUNDLED, SRC_BUNDLED]) {
+    await ensureDir(dir);
+    await fs.writeFile(path.join(dir, 'motion-manifest.json'), raw, 'utf8');
+  }
+  console.log('[snapshot] Motion: manifest copied');
+}
+
 async function main() {
-  console.log('[snapshot] Bundling docs, theme, and components index...');
+  console.log('[snapshot] Bundling docs, theme, components index and motion manifest...');
   await ensureDir(DIST_BUNDLED);
   await ensureDir(SRC_BUNDLED);
   await snapshotDocs();
   await snapshotTheme();
   await snapshotComponents();
+  await snapshotMotion();
   console.log('[snapshot] Done.');
 }
 

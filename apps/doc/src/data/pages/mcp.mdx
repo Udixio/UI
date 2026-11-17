@@ -57,6 +57,7 @@ The server registers several "tools" available to the MCP client:
 - `getComponentDoc` — takes `{ name: string }` and returns the matching doc/story paths (embedded data).
 - `searchDocs` — takes `{ query: string, limit?: number }` and runs a full-text search in the embedded documentation.
 - `getThemeTokens` — returns the theme object from the embedded snapshot.
+- `getMotionManifest` — returns the `@udixio/motion` manifest (verbs, options, presets, tokens, entries and their exports), or one section of it with `{ section }`.
 
 Example call (from an MCP client):
 
@@ -74,6 +75,8 @@ A resource is registered to read doc files directly by path relative to `apps/do
 
 - Template: `doc://{path}`
 - Example: `doc://components/button.mdx`
+
+The motion manifest is also available as the resource `motion://manifest`.
 
 
 ## Integration with an MCP client (Claude Desktop)
