@@ -29,7 +29,7 @@ type FakeBinding = ReturnType<typeof fakeBinding>;
  * A deferred motion holding `binding`, as the core answers it: the presence goes to a presence motion, the replay to an
  * emphasis, and nothing else. Without a binding, it is a motion not defined yet.
  */
-const deferredOf = (binding: FakeBinding | undefined, destroy: ReturnType<typeof vi.fn>) => ({
+const deferredOf = (binding: FakeBinding | undefined, destroy: () => void) => ({
   binding: binding as unknown as MotionBinding,
   setPresent: (present: boolean) =>
     binding?.kind === 'presence' ? binding.setPresent(present) : Promise.resolve('finished' as const),

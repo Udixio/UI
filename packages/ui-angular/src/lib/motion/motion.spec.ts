@@ -558,7 +558,12 @@ describe('Motion (Angular directive)', () => {
         connectedAtRelease = box?.isConnected;
         order.push('release');
       });
-      motionWhenDefinedMock.mockReturnValue({ binding: undefined, destroy });
+      motionWhenDefinedMock.mockReturnValue({
+        binding: undefined,
+        setPresent: jest.fn(() => Promise.resolve<'finished' | 'cancelled'>('finished')),
+        play: jest.fn(),
+        destroy,
+      });
       const fixture = TestBed.createComponent(StaticHost);
       fixture.detectChanges();
       box = boxOf(fixture.nativeElement);
@@ -577,6 +582,8 @@ describe('Motion (Angular directive)', () => {
       const destroy = jest.fn();
       motionWhenDefinedMock.mockReturnValue({
         binding: undefined,
+        setPresent: jest.fn(() => Promise.resolve<'finished' | 'cancelled'>('finished')),
+        play: jest.fn(),
         destroy,
       });
       const fixture = TestBed.createComponent(StaticHost);
