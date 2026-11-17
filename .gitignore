@@ -69,3 +69,6 @@ out-tsc
 
 # svelte-package scratch
 .svelte-kit
+
+# Session token of the local brainstorm companion server
+.superpowers/brainstorm/.last-token
