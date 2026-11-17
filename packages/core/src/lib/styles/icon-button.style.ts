@@ -20,7 +20,7 @@ const iconButtonConfig: ClassNameComponent<IconButtonInterface> = ({
 
   return {
     iconButton: cx(
-      'relative inline-flex shrink-0 items-center justify-center overflow-visible outline-none group/icon-button',
+      'relative inline-flex shrink-0 items-center justify-center overflow-visible group/icon-button',
       'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current',
       disabled ? 'cursor-default' : 'cursor-pointer',
       size === 'xSmall' && 'p-1.5',

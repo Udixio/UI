@@ -8,7 +8,7 @@ const fabConfig: ClassNameComponent<FabInterface> = ({
   disabled,
 }) => ({
   fab: cx(
-    'relative inline-flex shrink-0 items-center justify-center overflow-hidden outline-none group/fab',
+    'relative inline-flex shrink-0 items-center justify-center overflow-hidden group/fab',
     // `createFabLabelController` animates the label's `width: 0` <-> `auto`
     // on `@udixio/motion`. The padding and gap below flip between two concrete
     // values, so they only need a CSS transition, on the same spring of the

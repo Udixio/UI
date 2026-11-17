@@ -15,7 +15,7 @@ const cardConfig: ClassNameComponent<CardInterface> = ({
     variant === 'elevated' && 'bg-surface-container-low shadow-1',
     variant === 'filled' && 'bg-surface-container-highest',
     {
-      'group/card cursor-pointer outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current':
+      'group/card cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current':
         interactive,
     },
   ),

@@ -7,7 +7,7 @@ const switchConfig: ClassNameComponent<SwitchInterface> = ({
   inactiveIcon,
 }) => ({
   switch: cx(
-    'group/switch relative inline-flex h-[32px] w-[52px] shrink-0 items-center rounded-full border-2 outline-none',
+    'group/switch relative inline-flex h-[32px] w-[52px] shrink-0 items-center rounded-full border-2',
     'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
     disabled
       ? // `pointer-events-none` (not just the `disabled`/`aria-disabled` JS
