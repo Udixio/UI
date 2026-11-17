@@ -1,0 +1,82 @@
+---
+import MotionPage from '@/components/MotionPage.astro';
+import { buttonClass, cardClass, demoClass } from '@/components/motionDemo';
+---
+<MotionPage title="Motion: getting started" description="Install @udixio/motion, connect it once, and attach a named motion to an element in HTML or in a framework.">
+  <h1>Getting started</h1>
+  <p><code>@udixio/motion</code> plays motions on the elements of a page. A motion is defined once, by name, and attached to an element by that name: with <code>data-motion</code> in HTML, or through the adapter of your framework. The runtime is framework-agnostic; its only animation engine is <a href="https://animejs.com">anime.js</a>, which you install alongside it.</p>
+
+  <h2>Install</h2>
+  <pre><code>npm install @udixio/motion animejs</code></pre>
+  <p>The stylesheet of the tokens is optional. Import it in the document stylesheet to expose the spring and duration variables and <code>--udx-motion-scale</code>:</p>
+  <pre><code>@import '@udixio/motion/motion.css';</code></pre>
+
+  <h2>Connect once</h2>
+  <p>Start the runtime once per page, with the presets you use. <code>connectMotion()</code> binds the <code>data-motion</code> elements under the document and keeps them in step with the DOM. It returns a function that disconnects them.</p>
+  <pre><code>{`import { connectMotion } from '@udixio/motion';
+import '@udixio/motion/presets';
+
+const disconnect = connectMotion();`}</code></pre>
+  <p>An element that is on the page when the runtime connects plays no entry. An element inserted later plays its entry, and an element that is hidden plays its exit.</p>
+
+  <h2>Define and attach</h2>
+  <p>Define a motion with <code>defineMotion</code>, then name it in the markup. The presets are motions that are already defined: see <a href="/motion/presets">Presets</a>.</p>
+  <pre><code>{`import { defineMotion } from '@udixio/motion';
+
+defineMotion('card-enter', {
+  verb: 'appear',
+  keyframes: [
+    { opacity: 0, y: 24 },
+    { opacity: 1, y: 0 },
+  ],
+  timing: 'spring.default.spatial',
+});`}</code></pre>
+  <pre><code>{`<div data-motion="card-enter">…</div>
+<div data-motion="fade">Fades in and out</div>`}</code></pre>
+
+  <h2>Try it</h2>
+  <p>The card below uses the <code>slide</code> preset. The button sets or removes its <code>hidden</code> attribute: hiding plays the exit, showing plays the entry.</p>
+  <div class={demoClass}>
+    <button type="button" class={buttonClass} data-start-toggle aria-expanded="true" aria-controls="start-card">Hide the card</button>
+    <div id="start-card" data-motion="slide" data-start-card class={cardClass}>This card uses the slide preset.</div>
+  </div>
+  <pre><code>{`<button type="button" data-start-toggle>Hide the card</button>
+<div id="start-card" data-motion="slide">…</div>
+
+// In a script, with the runtime connected once:
+card.hidden = true;  // plays the exit
+card.hidden = false; // plays the entry`}</code></pre>
+
+  <h2>In a framework</h2>
+  <p>Each adapter attaches the same named motion to its element. The adapters hold no animation: the motion is still defined and timed by <code>@udixio/motion</code>.</p>
+  <ul>
+    <li>React: <code>const card = useMotion&lt;HTMLDivElement&gt;('slide', &#123; present: open &#125;)</code>, then <code>&lt;div ref=&#123;card.ref&#125;&gt;</code> while <code>card.mounted</code> is true.</li>
+    <li>Angular: add <code>Motion</code> to the component's <code>imports</code>, then <code>&lt;div udxMotion="slide"&gt;</code>.</li>
+    <li>Svelte: <code>&#123;&#64;attach motion('slide')&#125; transition:presence</code> on an element of an <code>&#123;#if&#125;</code> block.</li>
+  </ul>
+  <p>The live examples of each family are on its page, and the <a href="/motion/demo">demo</a> shows them together.</p>
+
+  <h2>Reduced motion</h2>
+  <p>Under reduced motion (<code>prefers-reduced-motion: reduce</code>, or <code>data-motion-policy="reduce"</code> on <code>html</code>), entries and exits become a short fade, and an emphasis applies its end frame. See <a href="/motion/accessibility">Accessibility</a>.</p>
+
+  <h2>Limits</h2>
+  <ul>
+    <li>The package is under construction; see <a href="/motion/limits">Limits</a> for the current list.</li>
+    <li>A layout motion loads its engine the first time it is bound; a change made before that is not animated. <code>loadLayoutEngine()</code> loads it in advance.</li>
+  </ul>
+
+  <script>
+    // The runtime is connected by the layout. The card's hidden attribute is the whole interface.
+    document.addEventListener('click', event => {
+      if (!(event.target instanceof Element)) return;
+      const toggle = event.target.closest<HTMLButtonElement>('[data-start-toggle]');
+      if (!toggle) return;
+      const card = document.querySelector<HTMLElement>('[data-start-card]');
+      if (!card) return;
+      const hide = !card.hidden;
+      card.hidden = hide;
+      toggle.setAttribute('aria-expanded', String(!hide));
+      toggle.textContent = hide ? 'Show the card' : 'Hide the card';
+    });
+  </script>
+</MotionPage>

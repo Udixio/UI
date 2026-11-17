@@ -1,0 +1,80 @@
+---
+import MotionPage from '@/components/MotionPage.astro';
+import { buttonClass, demoClass } from '@/components/motionDemo';
+---
+<MotionPage title="Motion: text" description="Text split into words, characters or lines, each piece playing the keyframes in a cascade, with the text read once by screen readers.">
+  <h1>Text</h1>
+  <p>A definition with <code>split</code> cuts the text of its element into pieces, and plays its keyframes on the pieces in a cascade, in the order of the text. <code>split</code> is <code>words</code>, <code>chars</code> (the letters, as graphemes) or <code>lines</code>, and it applies to <code>appear</code>, <code>disappear</code> and <code>reveal</code>.</p>
+
+  <h2>Define</h2>
+  <pre><code>{`import { defineMotion } from '@udixio/motion';
+
+defineMotion('headline', {
+  verb: 'reveal',
+  split: 'words',
+  keyframes: [{ opacity: 0, y: 12 }, { opacity: 1, y: 0 }],
+});`}</code></pre>
+  <p>Without a <code>stagger</code> the pieces cascade <code>tight</code>, and <code>origin</code> applies to them. In HTML the element names the motion as any other: <code>&lt;h2 data-motion="headline"&gt;…&lt;/h2&gt;</code>.</p>
+
+  <h2>How the text is kept</h2>
+  <p>The original nodes move into a visually hidden copy, which keeps their semantics (<code>em</code>, <code>strong</code>, <code>abbr</code>). The cut copy that the eye sees is <code>aria-hidden="true"</code>, so a screen reader reads the text once, as written. A change of the text is cut again.</p>
+  <p>An element that holds an interactive descendant (<code>a[href]</code>, <code>button</code>, <code>input</code>, <code>select</code>, <code>textarea</code>, <code>[tabindex]</code>, <code>[contenteditable]</code>) is not split: it plays whole, and a development warning says why. <code>lines</code> groups the words by their position, and a resize rebuilds the lines once the motion in progress has ended.</p>
+
+  <h2>Try it</h2>
+  <p>The heading below is revealed word by word; the line is written letter by letter. Replay plays the line again.</p>
+  <div class={demoClass}>
+    <h3 data-motion="text-html-words" class="text-display-small text-on-surface">Each word arrives in turn</h3>
+    <div class="flex flex-wrap items-center gap-4">
+      <p data-motion="text-html-letters" data-text-letters class="text-title-medium text-on-surface">Letter by letter, this line is written.</p>
+      <button type="button" class={buttonClass} data-text-replay>Replay</button>
+    </div>
+  </div>
+
+  <h2>JavaScript</h2>
+  <pre><code>{`import { splitText, getSplit } from '@udixio/motion/text';
+
+const split = splitText(element, { by: 'words' }); // undefined when there is no text, or an interactive descendant
+getSplit(element);                                       // the split of the element, if it has one
+split?.revert();                                         // puts the original nodes back in place`}</code></pre>
+  <p>The split lives in <code>@udixio/motion/text</code>, which the main entry loads the first time a split definition is bound. <code>loadText()</code>, from <code>@udixio/motion</code>, loads it in advance.</p>
+  <p>The frameworks attach a split definition like any other motion: React <code>useMotion('headline')</code>, Angular <code>udxMotion="headline"</code>, Svelte <code>&#123;&#64;attach motion('headline')&#125;</code>.</p>
+
+  <h2>Reduced motion</h2>
+  <p>Under reduced motion, or with <code>--udx-motion: none</code>, the text is not split: the element plays whole, with the reduced rule of its verb.</p>
+
+  <h2>Limits</h2>
+  <ul>
+    <li><code>lines</code> falls back to <code>words</code> when the text holds an element other than <code>br</code>.</li>
+    <li>Joining scripts (Arabic, Indic, Thai and the like) are split by words in <code>chars</code>, so that no letter loses its form.</li>
+    <li>A split element's children must not be added or removed by a framework: its text changes are followed, its elements are not.</li>
+  </ul>
+
+  <script>
+    import { defineMotion } from '@udixio/motion';
+
+    // The two definitions of the try-it section: a heading by words, a line by letters.
+    defineMotion('text-html-words', {
+      verb: 'reveal',
+      split: 'words',
+      keyframes: [{ opacity: 0, y: 12 }, { opacity: 1, y: 0 }],
+    });
+    defineMotion('text-html-letters', {
+      verb: 'appear',
+      split: 'chars',
+      keyframes: [{ opacity: 0, y: 6 }, { opacity: 1, y: 0 }],
+    });
+
+    // Replay: the line is written again, by its presence. The motion's own handle plays it from its first frame.
+    document.addEventListener('click', async event => {
+      if (!(event.target instanceof Element)) return;
+      if (!event.target.closest('[data-text-replay]')) return;
+      const line = document.querySelector<HTMLElement>('[data-text-letters]');
+      if (!line) return;
+      const { getMotion } = await import('@udixio/motion');
+      const presence = getMotion(line, 'presence');
+      if (!presence) return;
+      await presence.setPresent(false);
+      await presence.setPresent(true);
+    });
+  </script>
+</MotionPage>

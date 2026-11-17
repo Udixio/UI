@@ -1,0 +1,108 @@
+---
+import MotionPage from '@/components/MotionPage.astro';
+import { buttonClass, cardClass, demoClass } from '@/components/motionDemo';
+const verbs = [
+  ['appear', 'Enters through its keyframes, and leaves backward.', 'A presence: it is inserted or shown, and its exit plays when it is hidden.'],
+  ['disappear', 'The reverse of appear: the exit of a presence.', 'See Presence.'],
+  ['emphasize', 'Plays its keyframes forward on each replay.', 'Replays on each change of data-state, or with play().'],
+  ['layout', 'Moves the element to its new place and size when the layout around it changes.', 'Keyframes are not used: see Layout.'],
+  ['reveal', 'Plays when the element scrolls into view.', 'See Reveal, scrub and loop.'],
+  ['scrub', 'Follows the scroll position.', 'See Reveal, scrub and loop.'],
+  ['loop', 'Plays forever, and can be paused.', 'See Reveal, scrub and loop.'],
+];
+const presets = [
+  ['fade', 'appear', 'Fades in.'],
+  ['slide', 'appear', 'Fades in while rising 24 px.'],
+  ['cascade', 'appear', 'A list entering together: each item fades in while rising 24 px, one step after the previous one (stagger normal).'],
+  ['scale', 'appear', 'Fades in while growing from 80 %.'],
+  ['draw', 'appear', 'Draws a path or a basic shape from nothing to its whole stroke (see SVG).'],
+  ['press', 'emphasize', 'Dips to 96 % and returns.'],
+  ['shake', 'emphasize', 'Shakes sideways by 6 px, then settles, to signal a refused action.'],
+  ['reflow', 'layout', 'Moves to the new place and size of the element when the layout changes.'],
+  ['rise', 'reveal', 'Fades in while rising 24 px, when it enters the view (stagger normal).'],
+  ['parallax', 'scrub', 'Drifts from 48 px below its place to 48 px above it, across the viewport.'],
+  ['rotate', 'loop', 'Turns a full turn in one second. The user can pause it.'],
+  ['breathe', 'loop', 'Swells to 104 % and back in one second. The user can pause it.'],
+  ['blink', 'loop', 'One dim flash each second. The user can pause it.'],
+];
+---
+<MotionPage title="Motion: presets and define" description="The verbs of @udixio/motion, the defineMotion function, and the presets that are defined by importing the presets entry.">
+  <h1>Presets and define</h1>
+  <p>A motion is a named, validated description of how an element enters, leaves or emphasizes. <code>defineMotion(name, spec)</code> defines it once; the name is kebab-case, and reserved names are refused. Identical definitions return the existing one; a different spec with the same name throws.</p>
+
+  <h2>Define</h2>
+  <pre><code>{`import { defineMotion } from '@udixio/motion';
+
+defineMotion('card-enter', {
+  verb: 'appear',
+  keyframes: [
+    { opacity: 0, y: 24 },
+    { opacity: 1, y: 0 },
+  ],
+  timing: 'spring.default.spatial', // optional
+});`}</code></pre>
+  <ul>
+    <li><code>verb</code> is one of the seven verbs below.</li>
+    <li><code>keyframes</code> are the visual states, from the first to the last. Their fields are <code>opacity</code>, <code>x</code>, <code>y</code>, <code>scale</code> and <code>rotate</code>; <code>draw</code> and <code>along</code> are for shapes and paths (see SVG). A layout motion has no keyframes.</li>
+    <li><code>timing</code> is optional: a spring token such as <code>spring.fast.spatial</code>, or <code>&#123; duration: 'duration.medium2', easing: 'easing.standard' &#125;</code>. It applies to every field.</li>
+  </ul>
+
+  <h2>Verbs</h2>
+  <table>
+    <thead><tr><th>Verb</th><th>What it does</th><th>Where it is documented</th></tr></thead>
+    <tbody>
+      {verbs.map(([verb, does, where]) => <tr><td><code>{verb}</code></td><td>{does}</td><td>{where}</td></tr>)}
+    </tbody>
+  </table>
+
+  <h2>Presets</h2>
+  <p>Importing the presets entry defines these motions, usable directly in <code>data-motion</code>:</p>
+  <pre><code>{`import '@udixio/motion/presets';
+// or name the ones you use, as references:
+import { fade, slide, reflow } from '@udixio/motion/presets';`}</code></pre>
+  <div class="overflow-x-auto">
+    <table>
+      <thead><tr><th>Preset</th><th>Verb</th><th>Effect</th></tr></thead>
+      <tbody>
+        {presets.map(([name, verb, effect]) => <tr><td><code>{name}</code></td><td><code>{verb}</code></td><td>{effect}</td></tr>)}
+      </tbody>
+    </table>
+  </div>
+  <p>The values of the presets are provisional and are not calibrated yet. <code>cascade</code> and <code>rise</code> stagger the elements that enter together; see <a href="/motion/layout">Layout</a> and <a href="/motion/reveal-scrub-loop">Reveal, scrub and loop</a>.</p>
+
+  <h2>Try it</h2>
+  <p>Three presets on one card. Each button toggles the <code>hidden</code> attribute of its card, which plays the exit or the entry of the preset.</p>
+  <div class={demoClass}>
+    <div class="flex flex-wrap gap-3">
+      <button type="button" class={buttonClass} data-preset-toggle="fade-card">Fade</button>
+      <button type="button" class={buttonClass} data-preset-toggle="scale-card">Scale</button>
+      <button type="button" class={buttonClass} data-preset-toggle="slide-card">Slide</button>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-3">
+      <div id="fade-card" data-motion="fade" class={cardClass}>fade</div>
+      <div id="scale-card" data-motion="scale" class={cardClass}>scale</div>
+      <div id="slide-card" data-motion="slide" class={cardClass}>slide</div>
+    </div>
+  </div>
+  <pre><code>{`<button type="button" data-preset-toggle="fade-card">Fade</button>
+<div id="fade-card" data-motion="fade">fade</div>`}</code></pre>
+
+  <h2>Reduced motion</h2>
+  <p>A preset follows the reduced-motion policy of its verb: an entry or an exit becomes a short fade, an emphasis applies its end frame, a reveal shows at once, a scrub stays still and a loop does not play. See <a href="/motion/accessibility">Accessibility</a>.</p>
+
+  <h2>Limits</h2>
+  <ul>
+    <li>Defining a name twice with different specs throws; a page that needs a variant defines a new name.</li>
+    <li>The validator runs in development only; a production build trusts the definition.</li>
+  </ul>
+
+  <script>
+    document.addEventListener('click', event => {
+      if (!(event.target instanceof Element)) return;
+      const toggle = event.target.closest<HTMLButtonElement>('[data-preset-toggle]');
+      if (!toggle) return;
+      const card = document.getElementById(toggle.dataset.presetToggle ?? '');
+      if (card) card.hidden = !card.hidden;
+    });
+  </script>
+</MotionPage>

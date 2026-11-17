@@ -1,11 +1,45 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
+const families = [
+  ['/motion/getting-started', 'Getting started', 'Install, connect once, attach a motion by name.'],
+  ['/motion/presets', 'Presets and define', 'defineMotion, the seven verbs and the presets.'],
+  ['/motion/presence', 'Presence', 'Entries and exits: the hidden attribute, focus, the frameworks.'],
+  ['/motion/emphasis', 'Emphasis', 'Replays on each change of state: press and shake.'],
+  ['/motion/layout', 'Layout, lists and shared elements', 'Elements that move to their new place, cascades, morphs.'],
+  ['/motion/reveal-scrub-loop', 'Reveal, scrub and loop', 'Motions on scroll into view, linked to the scroll, or forever.'],
+  ['/motion/values', 'Values and counters', 'Continuous numbers written as CSS variables; counters.'],
+  ['/motion/sequences', 'Sequences', 'Steps of one root, with one handle.'],
+  ['/motion/gestures', 'Gestures', 'Drag, swipe and reorder, each with a keyboard alternative.'],
+  ['/motion/page-transitions', 'Page transitions', 'navigate() and Astro’s client router, with the direction.'],
+  ['/motion/text', 'Text', 'Split by words, characters or lines, read once.'],
+  ['/motion/svg', 'SVG', 'Drawing a stroke, travelling along a path, morphing a path.'],
+  ['/motion/scroll', 'Scroll', 'scrollTo, over a spring.'],
+  ['/motion/animate', 'Animate', 'animateStyle, createSpring and the helpers.'],
+  ['/motion/scopes', 'Scopes and breakpoints', 'Motion per breakpoint, revert and inspect.'],
+  ['/motion/accessibility', 'Accessibility and reduced motion', 'The policy, and what each verb shows under it.'],
+  ['/motion/tokens', 'Tokens', 'Springs, durations, easings, distances and the document scale.'],
+  ['/motion/limits', 'Limits', 'The current limits, family by family.'],
+  ['/motion/roadmap', 'Roadmap', 'Status of the families and of the verification.'],
+  ['/motion/demo', 'Demo', 'Every family, live, on one page.'],
+];
 ---
-<MotionPage title="Motion" description="Experimental motion foundations and their current status.">
+<MotionPage title="Motion" description="@udixio/motion: named motions for presence, emphasis, layout, scroll, values, sequences, gestures and page transitions.">
   <h1>Motion</h1>
-  <p><strong>Experimental and under construction.</strong> <code>@udixio/motion</code> provides static CSS tokens and limited TypeScript exports including <code>defineTokens</code>, <code>resolveCurve</code> and <code>resolveSpring</code>. The repository version is 0.0.0; check publication before relying on an installation.</p>
-  <p>The experimental manifest is available from <code>@udixio/motion/manifest</code>. Its <code>supportedVerbs</code> describes experimental validation, not a complete family animation API. <code>RUNTIME_KEY</code> is reserved; a shared runtime is not registered.</p>
+  <p><strong>Under construction.</strong> <code>@udixio/motion</code> plays named motions on the elements of a page. It is framework-agnostic, and its only animation engine is anime.js, which you install alongside it. Its repository version is 0.0.0; check the published version before you rely on an installation.</p>
+  <p>A motion is defined once, by name, with <code>defineMotion</code>, and attached with <code>data-motion</code> in HTML or with the adapter of your framework: <code>useMotion</code> in React, the <code>udxMotion</code> directive in Angular, and the <code>motion</code> attachment in Svelte.</p>
+
   <h2>Start here</h2>
-  <ul><li><a href="/motion/tokens">Tokens</a>: use the CSS foundations and understand their limits.</li><li><a href="/motion/accessibility">Accessibility</a>: reduced motion and an interactive CSS example.</li><li><a href="/motion/roadmap">Roadmap</a>: family status and verification.</li></ul>
-  <p>The <code>anim-*</code> utilities were removed. Use <code>@udixio/motion</code> instead: <code>reveal</code> for entrances on scroll, <code>scrub</code> for scroll-linked motion, and the presets.</p>
+  <ul>
+    <li><a href="/motion/getting-started">Getting started</a>: install, connect the runtime once, and attach a first motion.</li>
+    <li><a href="/motion/presets">Presets and define</a>: the verbs and the motions you can use without defining them.</li>
+    <li><a href="/motion/accessibility">Accessibility and reduced motion</a>: read it before you apply timing to an effect.</li>
+  </ul>
+
+  <h2>Families</h2>
+  <ul>
+    {families.map(([href, label, does]) => <li><a href={href}>{label}</a>: {does}</li>)}
+  </ul>
+
+  <h2>For agents</h2>
+  <p>The generated manifest of the package lists the verbs and their options, the domains, the presets with their keyframes, the tokens, and each entry of the package with its public exports. It is published at <a href="/motion-manifest.json"><code>/motion-manifest.json</code></a>, and with the package as <code>@udixio/motion/motion-manifest.json</code>. The <a href="/llms.txt">llms.txt</a> index points to it.</p>
 </MotionPage>

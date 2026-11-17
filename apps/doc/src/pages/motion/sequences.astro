@@ -1,0 +1,98 @@
+---
+import MotionPage from '@/components/MotionPage.astro';
+import Code from '@/components/Code.astro';
+import { MotionSequenceReact } from '@/examples/react/motion-sequence.tsx';
+import { MotionSequenceAngular } from '@/examples/angular/motion-sequence.ts';
+import MotionSequenceSvelte from '@/examples/svelte/motion-sequence.svelte';
+import reactSource from '@/examples/react/motion-sequence.tsx?raw';
+import angularSource from '@/examples/angular/motion-sequence.ts?raw';
+import svelteSource from '@/examples/svelte/motion-sequence.svelte?raw';
+import { buttonClass, demoClass } from '@/components/motionDemo';
+---
+<MotionPage title="Motion: sequences" description="A sequence plays the children of one root in named steps, with one handle for the whole choreography.">
+  <h1>Sequences</h1>
+  <p>A sequence plays the children of one root in steps, with one handle for the whole choreography. Each child that carries <code>data-motion-step="&lt;name&gt;"</code> belongs to the step of that name. The steps are defined once, from <code>@udixio/motion/sequence</code>.</p>
+
+  <h2>Define</h2>
+  <pre><code>{`import { defineSequence } from '@udixio/motion/sequence';
+
+defineSequence('intro', {
+  verb: 'reveal',
+  steps: {
+    title: { keyframes: [{ opacity: 0, y: 24 }, { opacity: 1, y: 0 }] },
+    subtitle: { keyframes: [{ opacity: 0 }, { opacity: 1 }], at: '+=normal' },
+    actions: { keyframes: [{ opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1 }], stagger: 'tight' },
+  },
+});`}</code></pre>
+  <ul>
+    <li><code>verb</code>: <code>appear</code> (the default) plays when the root is bound while inserted, or on <code>play()</code>. <code>reveal</code> plays when the root enters the view, and waits in the first frames of its steps until then.</li>
+    <li><code>steps</code>: each named step has <code>keyframes</code> and, optionally, <code>timing</code>, <code>reduced</code>, <code>stagger</code> and <code>origin</code>, which mean what they mean for an appear motion. The elements of a step with <code>stagger</code> cascade in visual order.</li>
+    <li><code>at</code> places a step on the timeline. Without <code>at</code>, the step starts when everything before it has ended. <code>at: '&lt;step&gt;'</code> starts it with an earlier step. <code>at: '+=tight'</code>, <code>'+=normal'</code> or <code>'+=loose'</code> starts it that long after the previous step starts: the stagger tokens, 20, 50 and 100 ms by default.</li>
+  </ul>
+
+  <h2>HTML</h2>
+  <pre><code>{`<div data-motion="intro">
+  <h3 data-motion-step="title">…</h3>
+  <p data-motion-step="subtitle">…</p>
+  <button type="button" data-motion-step="actions">…</button>
+  <button type="button" data-motion-step="actions">…</button>
+</div>`}</code></pre>
+
+  <h2>JavaScript</h2>
+  <pre><code>{`import { sequence, getSequence } from '@udixio/motion/sequence';
+
+const binding = sequence(panel, 'intro', { settled: true }); // bound, no entry yet
+const handle = binding.play();                              // plays the steps from the start
+await handle.finished;                                      // 'finished' or 'cancelled'
+
+getSequence(panel)?.play();                                 // replays it`}</code></pre>
+  <p><code>binding.handle</code> is the handle of the latest play. <code>destroy()</code> releases the inline styles.</p>
+
+  <h2>Try it</h2>
+  <p>The sequence below has a title, a body that starts after it, and a button. Replay plays the steps again.</p>
+  <div class={demoClass}>
+    <div data-motion="sequence-html-intro" data-sequence-root class="flex flex-col items-start gap-3">
+      <h3 data-motion-step="title" class="text-title-large text-on-surface">Steps, in order</h3>
+      <p data-motion-step="body" class="text-body-large text-on-surface-variant">The body starts after the title.</p>
+    </div>
+    <button type="button" class={buttonClass} data-sequence-replay>Replay</button>
+  </div>
+
+  <h2>In the frameworks</h2>
+  <p>React <code>useMotionSequence('intro')</code>, which returns a <code>ref</code> and <code>play()</code>; Angular <code>udxMotionSequence="intro"</code>; Svelte <code>&#123;&#64;attach motionSequence('intro')&#125;</code>. The live examples replay their sequence with the button.</p>
+  <Code codes={{ react: reactSource, angular: angularSource, svelte: svelteSource }}>
+    <MotionSequenceReact slot="react" client:only="react" />
+    <MotionSequenceAngular slot="angular" client:load />
+    <MotionSequenceSvelte slot="svelte" client:only="svelte" />
+  </Code>
+
+  <h2>Reduced motion</h2>
+  <p>Under reduced motion every delay is 0, so the steps play together, each with its reduced render.</p>
+
+  <h2>Limits</h2>
+  <ul>
+    <li>A sequence is validated in development only, as a motion is.</li>
+    <li>Within a step, the delays of a cascade are capped at <code>--udx-motion-stagger-max</code>, as for lists; the delays of <code>at</code> are not.</li>
+    <li>A child that belongs to a nested sequence is not a step of the outer one.</li>
+  </ul>
+
+  <script>
+    import { defineSequence, getSequence } from '@udixio/motion/sequence';
+
+    // The sequence of the try-it section: a title, then a body that starts a fixed step after it.
+    defineSequence('sequence-html-intro', {
+      verb: 'appear',
+      steps: {
+        title: { keyframes: [{ opacity: 0, y: 12 }, { opacity: 1, y: 0 }] },
+        body: { keyframes: [{ opacity: 0 }, { opacity: 1 }], at: '+=normal' },
+      },
+    });
+
+    document.addEventListener('click', event => {
+      if (!(event.target instanceof Element)) return;
+      if (!event.target.closest('[data-sequence-replay]')) return;
+      const root = document.querySelector<HTMLElement>('[data-sequence-root]');
+      if (root) getSequence(root)?.play();
+    });
+  </script>
+</MotionPage>

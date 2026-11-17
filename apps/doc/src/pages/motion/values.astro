@@ -1,0 +1,98 @@
+---
+import MotionPage from '@/components/MotionPage.astro';
+import Code from '@/components/Code.astro';
+import { MotionValuesReact } from '@/examples/react/motion-values.tsx';
+import { MotionValuesAngular } from '@/examples/angular/motion-values.ts';
+import MotionValuesSvelte from '@/examples/svelte/motion-values.svelte';
+import reactSource from '@/examples/react/motion-values.tsx?raw';
+import angularSource from '@/examples/angular/motion-values.ts?raw';
+import svelteSource from '@/examples/svelte/motion-values.svelte?raw';
+import { buttonClass, demoClass } from '@/components/motionDemo';
+---
+<MotionPage title="Motion: values and counters" description="Continuous numbers that CSS can use, written on an element as --udx-motion-value-<name>, and counters that count to a new number.">
+  <h1>Values and counters</h1>
+  <p>A value is a continuous number that CSS can use. An element names the values it uses in <code>data-motion-value</code>, and the runtime writes each one on that element as <code>--udx-motion-value-&lt;name&gt;</code>, for as long as the element is bound.</p>
+
+  <h2>Define</h2>
+  <pre><code>{`import { defineValue } from '@udixio/motion/value';
+
+defineValue('tilt-x', { source: 'pointer', axis: 'x', range: [-8, 8] });`}</code></pre>
+  <ul>
+    <li><code>source</code> says where the number comes from: <code>pointer</code> (the place of the pointer across the element, on <code>axis</code> <code>x</code> or <code>y</code>; it returns to the middle when the pointer leaves), <code>scroll</code> (the progress of the page's scroll, on <code>axis</code> <code>block</code> or <code>inline</code>), <code>state</code> (a number the page sets, clamped to <code>range</code>), or <code>time</code> (a loop, whose period is its <code>timing</code> duration).</li>
+    <li><code>range</code> gives the two ends, and defaults to <code>[0, 1]</code>.</li>
+    <li><code>spring</code> is a spring token, or <code>'none'</code> to write the value at once. By default a value moves with <code>spring.default.spatial</code> (a counter: <code>spring.default.effects</code>), and keeps its velocity when its target moves again.</li>
+    <li><code>timing</code> is a curve, <code>&#123; duration, easing &#125;</code>, for <code>time</code> only. Without it the period is one second.</li>
+  </ul>
+
+  <h2>HTML</h2>
+  <pre><code>{`<div data-motion-value="tilt-x tilt-y"
+     style="transform: rotateY(calc(var(--udx-motion-value-tilt-x, 0) * 1deg))">…</div>`}</code></pre>
+
+  <h2>JavaScript</h2>
+  <pre><code>{`import { defineValue, value } from '@udixio/motion/value';
+
+defineValue('level', { source: 'state', range: [0, 1] });
+const meter = value(bar, 'level'); // writes --udx-motion-value-level on bar
+meter.set(0.8);                    // moves to 0.8, clamped to the range
+const stop = meter.subscribe(number => console.log(number)); // each frame
+meter.subscribe(number => save(number), { perFrame: false }); // at rest, and at each change of target
+meter.destroy();                   // stops writing and removes the variable`}</code></pre>
+  <p><code>udxMotionValueChange</code> in Angular emits when the value comes to rest and when its target changes, not on each frame. To follow each frame, read the variable, or call <code>subscribe()</code>.</p>
+
+  <h2>Counters</h2>
+  <p>A counter is a <code>state</code> value with a <code>format</code>. Its number is written as the variable, and also as the text of the element that names it, in the language of the nearest <code>lang</code> attribute:</p>
+  <pre><code>{`<data value="12480" data-motion-value="visitors">12480</data>
+
+import { defineValue } from '@udixio/motion/value';
+defineValue('visitors', { source: 'state', format: 'integer', range: [0, 100000] });
+
+visitors.set(13480); // counts up to 13,480 when it is in view`}</code></pre>
+  <ul>
+    <li><code>integer</code>: whole numbers.</li>
+    <li><code>decimal</code>: as many decimals as the <code>value</code> attribute has when the element is bound.</li>
+    <li><code>percent</code>: a fraction shown as a percentage, with no decimals: <code>0.42</code> is <code>42%</code>.</li>
+    <li><code>currency</code>: an amount in the currency named by <code>currency</code>, an ISO 4217 code such as <code>EUR</code>, which is required with this format and refused without it.</li>
+  </ul>
+  <p>A counter that is out of view when the page loads starts at 0, and counts up when it scrolls into view. While it counts, the element holds the number in an <code>aria-hidden</code> span and the final number in a visually hidden span, so that a screen reader reads the final number.</p>
+
+  <h2>Try it</h2>
+  <p>The counter below counts up to the new number when the button is pressed. The number is the one in its <code>value</code> attribute.</p>
+  <div class={demoClass}>
+    <data value="12480" data-motion-value="value-html-count" data-value-count class="block text-display-small text-on-surface">12480</data>
+    <button type="button" class={buttonClass} data-value-add>Add 1,000 visitors</button>
+  </div>
+  <pre><code>{`count.setAttribute('value', String(Number(count.getAttribute('value')) + 1000));`}</code></pre>
+
+  <h2>In the frameworks</h2>
+  <p>The value is attached to the element by its name: React <code>useMotionValue('visitors-count')</code>, with <code>ref</code>, <code>get()</code>, <code>set()</code> and <code>subscribe()</code>; Angular <code>udxMotionValue="visitors-count"</code>; Svelte <code>&#123;&#64;attach motionValue('visitors-count')&#125;</code>.</p>
+  <Code codes={{ react: reactSource, angular: angularSource, svelte: svelteSource }}>
+    <MotionValuesReact slot="react" client:only="react" />
+    <MotionValuesAngular slot="angular" client:load />
+    <MotionValuesSvelte slot="svelte" client:only="svelte" />
+  </Code>
+
+  <h2>Reduced motion</h2>
+  <p>Under reduced motion, or with <code>--udx-motion: none</code>, a smoothed value is written at once, and a <code>time</code> value holds the first end of its range.</p>
+
+  <h2>Limits</h2>
+  <ul>
+    <li>A value's number is rounded to four decimals.</li>
+    <li>A <code>pointer</code> value is read over its element only.</li>
+    <li>A <code>scroll</code> value follows the scroll of the window, not that of a scrolling element inside the page.</li>
+    <li>A counter's number is the only text of its element: once the counter moves, the content of the element is replaced by it.</li>
+  </ul>
+
+  <script>
+    import { defineValue } from '@udixio/motion/value';
+
+    // The counter of the try-it section: a state value, written as its number and as the text of its element.
+    defineValue('value-html-count', { source: 'state', format: 'integer', range: [0, 100000] });
+
+    document.addEventListener('click', event => {
+      if (!(event.target instanceof Element)) return;
+      if (!event.target.closest('[data-value-add]')) return;
+      const count = document.querySelector<HTMLElement>('[data-value-count]');
+      if (count) count.setAttribute('value', String(Number(count.getAttribute('value')) + 1000));
+    });
+  </script>
+</MotionPage>

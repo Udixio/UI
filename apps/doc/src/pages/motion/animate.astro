@@ -1,0 +1,77 @@
+---
+import MotionPage from '@/components/MotionPage.astro';
+import { buttonClass, demoClass } from '@/components/motionDemo';
+---
+<MotionPage title="Motion: animate" description="Animate CSS properties of an element over a motion token, follow a number with a spring, and compose handles, with the timing helpers of the stagger.">
+  <h1>Animate</h1>
+  <p>The entry <code>@udixio/motion/animate</code> holds the functions that animate without a definition: a CSS animation of an element with a motion token, a number that follows a spring, and the helpers that compose and time them.</p>
+
+  <h2>animateStyle</h2>
+  <p><code>animateStyle(element, keyframes, options)</code> animates CSS properties of an element over a motion token, and leaves the element at its last frame. The keyframes are camelCase properties, as in <code>style</code>. The timing is a spring token, a curve, or a raw <code>&#123; duration, easing &#125;</code> in milliseconds.</p>
+  <pre><code>{`import { animateStyle } from '@udixio/motion/animate';
+
+const handle = animateStyle(panel, [{ opacity: 0.35 }, { opacity: 1 }], {
+  timing: 'spring.default.effects',
+});
+await handle.finished; // 'finished' or 'cancelled'`}</code></pre>
+  <ul>
+    <li><code>timing</code> defaults to <code>spring.default.spatial</code>. <code>--udx-motion-scale</code> multiplies its duration, and a scale of 0 shows the end frame at once.</li>
+    <li><code>delay</code> and <code>iterations</code> (<code>Infinity</code> for a loop) are in the options; <code>carry</code> starts from the element's current computed values, which is true by default for a single keyframe.</li>
+    <li><code>reduced</code> is what reduced motion shows: the last keyframe (the first one for a loop), the first, or a given frame.</li>
+  </ul>
+  <p>The distances of arbitrary CSS are not scaled, so <code>animateStyle</code> multiplies its duration only.</p>
+
+  <h2>createSpring</h2>
+  <p><code>createSpring(initial, &#123; timing, onUpdate, onRest &#125;)</code> returns a number that follows its targets over a spring, for values that drive layout or script. <code>to(target)</code> moves it from where it is, keeping its velocity; <code>jump(value)</code> sets it at rest; <code>stop()</code> leaves it where it is.</p>
+  <pre><code>{`import { createSpring } from '@udixio/motion/animate';
+
+const offset = createSpring(0, {
+  timing: 'spring.default.spatial',
+  onUpdate: value => dot.style.translate = \`\${value}px 0\`,
+});
+offset.to(120); // moves the dot to 120 px, over the spring`}</code></pre>
+
+  <h2>Try it</h2>
+  <p>The dot moves over a spring, and returns to its place when pressed again.</p>
+  <div class={demoClass}>
+    <button type="button" class={buttonClass} data-animate-spring>Move the dot</button>
+    <div class="relative h-8 w-64 rounded-full bg-surface-container"><span data-animate-dot class="absolute left-1 top-1 block size-6 rounded-full bg-primary"></span></div>
+  </div>
+
+  <h2>cssTiming, composeHandles and the stagger helpers</h2>
+  <ul>
+    <li><code>cssTiming(timing)</code> returns the CSS duration and easing of a spring or a curve token, for a CSS transition.</li>
+    <li><code>composeHandles(handles)</code> joins several handles into one, whose delay is the earliest of their delays and whose end is the latest of their ends.</li>
+    <li><code>staggerDelay(rank, step, max)</code> returns the delay of a rank: <code>min(rank * step, max)</code>. <code>staggerStep(style, 'normal')</code> and <code>staggerCap(style)</code> read the stagger tokens of an element, as the runtime does for lists.</li>
+  </ul>
+  <pre><code>{`import { cssTiming, composeHandles, staggerDelay } from '@udixio/motion/animate';
+
+const { duration, easing } = cssTiming('spring.fast.effects');
+el.style.transition = \`opacity \${duration} \${easing}\`;`}</code></pre>
+
+  <h2>Reduced motion</h2>
+  <p>A number from <code>createSpring</code> reaches its target at once under reduced motion, or with <code>--udx-motion: none</code> on the document. <code>animateStyle</code> follows its <code>reduced</code> option.</p>
+
+  <h2>Limits</h2>
+  <ul>
+    <li>The spring of <code>createSpring</code> is one of the spring tokens; a curve is not accepted.</li>
+  </ul>
+
+  <script>
+    import { createSpring } from '@udixio/motion/animate';
+
+    // The dot of the try-it section: a spring number, written on the element as its translation.
+    const dot = document.querySelector<HTMLElement>('[data-animate-dot]');
+    const offset = dot
+      ? createSpring(0, { timing: 'spring.default.spatial', onUpdate: value => (dot.style.translate = `${value}px 0`) })
+      : undefined;
+    let out = false;
+
+    document.addEventListener('click', event => {
+      if (!(event.target instanceof Element)) return;
+      if (!event.target.closest('[data-animate-spring]') || !offset) return;
+      out = !out;
+      offset.to(out ? 200 : 0);
+    });
+  </script>
+</MotionPage>

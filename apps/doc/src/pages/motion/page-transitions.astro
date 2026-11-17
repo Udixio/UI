@@ -1,0 +1,61 @@
+---
+import MotionPage from '@/components/MotionPage.astro';
+import { buttonClass, demoClass } from '@/components/motionDemo';
+---
+<MotionPage title="Motion: page transitions" description="Changing the page inside a View Transition, with the direction of travel, for any router, and for Astro's client router.">
+  <h1>Page transitions</h1>
+  <p>A page transition is not a verb: it is a navigation. <code>navigate(update, &#123; direction &#125;)</code>, exported from <code>@udixio/motion/page</code>, changes the page inside a native View Transition. <code>update</code> makes the change, and may be asynchronous. <code>direction</code> is where the page goes: <code>forward</code> (the default) or <code>back</code>.</p>
+
+  <h2>Use</h2>
+  <pre><code>{`import { navigate } from '@udixio/motion/page';
+
+await navigate(() => showPage('roadmap'), { direction: 'forward' });
+await navigate(() => showPage('home'), { direction: 'back' });`}</code></pre>
+  <p>The page entry is not in the main entry: a site that never changes its page does not load it. The route rules of <code>motion.css</code>, which the document imports, slide the old view out and the new one in, both fading, over the slow spatial spring. The direction is also set as <code>data-motion-direction</code> on the <code>html</code> element, and the transition's type is <code>udx-forward</code> or <code>udx-back</code>.</p>
+
+  <h2>Try it</h2>
+  <p>Each button changes the panel inside a View Transition, in its direction. Where the browser has no View Transitions, the update runs alone.</p>
+  <div class={demoClass}>
+    <div class="flex flex-wrap gap-3">
+      <button type="button" class={buttonClass} data-transition-go="forward">Next panel</button>
+      <button type="button" class={buttonClass} data-transition-go="back">Previous panel</button>
+    </div>
+    <p id="transition-panel" class="rounded-2xl bg-surface-container-high p-6 text-title-medium text-on-surface">Panel 1</p>
+  </div>
+
+  <h2>Astro's client router</h2>
+  <p>For Astro's <code>ClientRouter</code>, call <code>connectAstroTransitions()</code>, from <code>@udixio/motion/astro</code>, once in the layout. It gives each navigation of the router the direction that Astro reports, and starts no transition of its own: the router's transition runs with the route rules. It returns a function that disconnects it. This documentation site does this in its layout.</p>
+  <pre><code>{`// In the layout of the site
+import { connectAstroTransitions } from '@udixio/motion/astro';
+
+connectAstroTransitions();`}</code></pre>
+
+  <h2>Reduced motion</h2>
+  <p>Under reduced motion, or with <code>--udx-motion: none</code>, <code>navigate()</code> runs the update alone, and <code>connectAstroTransitions()</code> does nothing.</p>
+
+  <h2>Limits</h2>
+  <ul>
+    <li><code>navigate()</code> needs the View Transitions API: where it is missing, the update runs alone.</li>
+    <li><code>connectAstroTransitions()</code> starts no transition; it sets the direction only.</li>
+    <li>The morph of a shared element does not use the View Transitions API (see <a href="/motion/layout">Layout</a>).</li>
+  </ul>
+
+  <script>
+    import { navigate } from '@udixio/motion/page';
+
+    // The panels of the try-it section: each change swaps the text of the panel, in the direction of the button.
+    let panel = 1;
+    document.addEventListener('click', event => {
+      if (!(event.target instanceof Element)) return;
+      const button = event.target.closest<HTMLElement>('[data-transition-go]');
+      if (!button) return;
+      const direction = button.dataset.transitionGo === 'back' ? 'back' : 'forward';
+      panel = direction === 'back' ? Math.max(1, panel - 1) : panel + 1;
+      const next = panel;
+      void navigate(() => {
+        const text = document.getElementById('transition-panel');
+        if (text) text.textContent = `Panel ${next}`;
+      }, { direction });
+    });
+  </script>
+</MotionPage>

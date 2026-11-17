@@ -1,15 +1,35 @@
 ---
 import Layout from '@/layouts/layout.astro';
 const { title, description } = Astro.props;
+/** The pages of the motion documentation, in reading order: the overview first, then the families, then the references. */
+const pages = [
+  ['/motion', 'Overview'],
+  ['/motion/roadmap', 'Roadmap'],
+  ['/motion/getting-started', 'Getting started'],
+  ['/motion/presets', 'Presets'],
+  ['/motion/presence', 'Presence'],
+  ['/motion/emphasis', 'Emphasis'],
+  ['/motion/layout', 'Layout'],
+  ['/motion/reveal-scrub-loop', 'Reveal, scrub and loop'],
+  ['/motion/values', 'Values'],
+  ['/motion/sequences', 'Sequences'],
+  ['/motion/gestures', 'Gestures'],
+  ['/motion/page-transitions', 'Page transitions'],
+  ['/motion/text', 'Text'],
+  ['/motion/svg', 'SVG'],
+  ['/motion/scroll', 'Scroll'],
+  ['/motion/animate', 'Animate'],
+  ['/motion/scopes', 'Scopes'],
+  ['/motion/accessibility', 'Accessibility'],
+  ['/motion/tokens', 'Tokens'],
+  ['/motion/limits', 'Limits'],
+  ['/motion/demo', 'Demo'],
+];
 ---
 <Layout title={title} description={description}>
   <article class="mx-auto max-w-5xl px-6 py-12 lg:px-12 lg:py-20 prose-markdown">
     <nav aria-label="Motion documentation" class="not-prose mb-10 flex flex-wrap gap-x-5 gap-y-3">
-      <a class="underline" href="/motion">Overview</a>
-      <a class="underline" href="/motion/roadmap">Roadmap</a>
-      <a class="underline" href="/motion/tokens">Tokens</a>
-      <a class="underline" href="/motion/accessibility">Accessibility</a>
-      <a class="underline" href="/motion/demo">Demo</a>
+      {pages.map(([href, label]) => <a class="underline" href={href}>{label}</a>)}
     </nav>
     <slot />
   </article>

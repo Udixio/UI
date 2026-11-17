@@ -1,14 +1,58 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
 ---
-<MotionPage title="Motion tokens" description="Experimental CSS and TypeScript motion tokens.">
+<MotionPage title="Motion tokens" description="The CSS and TypeScript motion tokens of @udixio/motion: springs, durations, easings, distances and staggers, and the document scale.">
   <h1>Motion tokens</h1>
-  <p>With <code>@udixio/motion</code> available to your workspace, load its stylesheet in the document stylesheet:</p>
-  <pre><code>@import '@udixio/motion/motion.css';</code></pre>
-  <p>A bundler that supports CSS imports can instead load it from an application entry point:</p>
-  <pre><code>import '@udixio/motion/motion.css';</code></pre>
-  <p>The stylesheet includes generated curves and springs. Tokens describe timing; defining one does not animate an element. Durations range from <code>--udx-motion-duration-short1</code> through <code>--udx-motion-duration-extra-long4</code>; easings include <code>--udx-motion-easing-linear</code>, <code>--udx-motion-easing-standard</code>, <code>--udx-motion-easing-standard-accelerate</code> and <code>--udx-motion-easing-standard-decelerate</code>.</p>
-  <p>Spring variables follow <code>--udx-motion-spring-{'{fast,default,slow}'}-{'{spatial,effects}'}-{'{duration,easing}'}</code>. A cubic-bezier fallback is provided; supported browsers select the generated <code>linear()</code> curve.</p>
-  <p>CSS <code>data-motion-scheme="standard"</code> and TypeScript <code>defineTokens({'{ scheme: \'standard\' }'})</code> are independent selections. Distance and stagger values are provisional and await visual calibration. Customization, complete runtime integration and Tailwind or framework adapters are not delivered as a complete family.</p>
-  <p>See <a href="/motion/accessibility">accessibility</a> before applying timing to an effect.</p>
+  <p>Tokens describe timing: they are the values that a motion names, such as <code>spring.default.spatial</code> or <code>duration.medium2</code>. Defining a token does not animate an element; a motion, a component or your own transition uses it.</p>
+
+  <h2>The stylesheet</h2>
+  <p>Import the stylesheet once in the document stylesheet, outside shadow roots:</p>
+  <pre><code>{`@import '@udixio/motion/motion.css';`}</code></pre>
+  <p>or, from an application entry point:</p>
+  <pre><code>{`import '@udixio/motion/motion.css';`}</code></pre>
+  <p>The stylesheet is static and works in server-rendered HTML without JavaScript. It starts with the official cubic-bezier fallback pairs and switches to the generated <code>linear()</code> pair where the browser accepts that syntax. Keep the sibling CSS files it imports together when serving or copying the package assets.</p>
+
+  <h2>Springs</h2>
+  <p>The stylesheet exposes six pairs, <code>--udx-motion-spring-&#123;fast,default,slow&#125;-&#123;spatial,effects&#125;-&#123;duration,easing&#125;</code>:</p>
+  <pre><code>{`transition-duration: var(--udx-motion-spring-fast-spatial-duration);
+transition-timing-function: var(--udx-motion-spring-fast-spatial-easing);`}</code></pre>
+  <p>The document defaults to the expressive scheme. Set <code>data-motion-scheme="standard"</code> on <code>&lt;html&gt;</code> to select the standard one. The CSS scheme and the scheme passed to <code>defineTokens()</code> are independent: configure both when you use both APIs.</p>
+
+  <h3>Choosing a spring</h3>
+  <p>The fast spatial spring overshoots its target by about 9.5 %, the default and slow spatial springs by about 1.5 %, and the effects springs not at all. Use the fast spatial spring only on transforms of small pieces: a switch thumb, a small scale, the items of a FAB menu. Do not use it on layout edges with clipped content (height or width), on corner radii, or on an indicator that travels more than about 50 px: the overshoot reads as a glitch there.</p>
+  <p>A property that collapses to 0 (height, width or scale) never uses an underdamped spring, spatial ones included: it reaches 0 at full speed, where the overshoot is clamped, so it moves on the effects spring of the same speed.</p>
+
+  <h2>Durations and easings</h2>
+  <p>The stylesheet names durations from <code>--udx-motion-duration-short1</code> through <code>--udx-motion-duration-extra-long4</code>, and easings <code>--udx-motion-easing-linear</code>, <code>--udx-motion-easing-standard</code>, <code>--udx-motion-easing-standard-accelerate</code> and <code>--udx-motion-easing-standard-decelerate</code>. In TypeScript, <code>defineTokens()</code> returns the durations in milliseconds and the easings as CSS strings; <code>resolveCurve(&#123; duration: 'duration.medium2', easing: 'easing.standard' &#125;)</code> returns the initial pair.</p>
+  <pre><code>{`transition-duration: calc(var(--udx-motion-duration-medium2) * var(--udx-motion-scale));
+transition-timing-function: var(--udx-motion-easing-standard);`}</code></pre>
+
+  <h2>Distances and staggers</h2>
+  <p>The distances are <code>--udx-motion-distance-sm</code>, <code>-md</code> and <code>-lg</code> (8, 24 and 64 CSS pixels). The staggers are <code>--udx-motion-stagger-tight</code>, <code>-normal</code>, <code>-loose</code> and <code>-max</code> (20, 50, 100 and 400 milliseconds). These values are provisional, have low confidence and require visual calibration; they do not come from M3. <code>stagger-max</code> caps the relative start delay, not the end time of the last animation.</p>
+  <p>Tokens alone do not implement motion policy: consumers must suppress nonessential translation and stagger under reduced motion, rather than relying on a smaller distance.</p>
+
+  <h2>Document scale</h2>
+  <p><code>--udx-motion-scale</code> is an inherited number, 1 by default, and 0 when <code>prefers-reduced-motion: reduce</code> is active or <code>data-motion-policy="reduce"</code> is set on <code>&lt;html&gt;</code>. The value <code>auto</code>, an absent attribute and an unknown value follow the system preference. A motion multiplies the distances of its keyframes and its durations by the scale; a layout flight keeps its real geometry, and a gesture its own release. A scale of 0 is not a reduced render by itself: each verb applies its own (see <a href="/motion/accessibility">Accessibility</a>).</p>
+  <p>Search has its own outline transition: it works without the stylesheet, with a 200 ms duration and a fixed easing, and the stylesheet provides its tokens.</p>
+
+  <h2>Experimental TypeScript tokens</h2>
+  <pre><code>{`import { defineTokens, resolveSpring } from '@udixio/motion';
+
+const tokens = defineTokens({ scheme: 'standard' }); // 'expressive' by default
+tokens.spring.fast.spatial.dampingRatio; // the physical parameters
+tokens.distance.md;                      // 24
+tokens.stagger.normal;                   // 50`}</code></pre>
+  <p>The spring of a reference is resolved for the backend that plays it: <code>resolveSpring('spring.fast.spatial', &#123; support &#125;)</code> picks the <code>linear()</code> curve where it is supported, and the fallback otherwise. The API shape may change while the shared motion model is designed.</p>
+
+  <h2>Reading the tokens from a manifest</h2>
+  <p>The machine-readable manifest lists every token name with its value, from <a href="/motion-manifest.json"><code>motion-manifest.json</code></a>, and the CSS variable each one is written as.</p>
+
+  <h2>Reduced motion</h2>
+  <p>The tokens do not disable animation. Apply the policy before you use a value (see <a href="/motion/accessibility">Accessibility</a>).</p>
+
+  <h2>Limits</h2>
+  <ul>
+    <li>The CSS spring pairs are static: the generated <code>linear()</code> curve's error bound applies to the analytical zero-velocity response over its own duration, not to the cubic-bezier fallback.</li>
+    <li>Browser support of <code>linear()</code> is detected for the CSS syntax in that document, not for rendering fidelity in every backend.</li>
+  </ul>
 </MotionPage>

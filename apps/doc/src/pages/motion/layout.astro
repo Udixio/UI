@@ -1,0 +1,110 @@
+---
+import MotionPage from '@/components/MotionPage.astro';
+import Code from '@/components/Code.astro';
+import { MotionLayoutReact } from '@/examples/react/motion-layout.tsx';
+import { MotionLayoutAngular } from '@/examples/angular/motion-layout.ts';
+import MotionLayoutSvelte from '@/examples/svelte/motion-layout.svelte';
+import reactSource from '@/examples/react/motion-layout.tsx?raw';
+import angularSource from '@/examples/angular/motion-layout.ts?raw';
+import svelteSource from '@/examples/svelte/motion-layout.svelte?raw';
+import { buttonClass, demoClass } from '@/components/motionDemo';
+---
+<MotionPage title="Motion: layout, lists and shared elements" description="Layout motions move an element to its new place when the layout around it changes; lists cascade and follow their neighbours; shared elements morph into one another.">
+  <h1>Layout, lists and shared elements</h1>
+  <p>A layout motion has no keyframes. Its element moves from where it was to its new place and size when the layout around it changes, and nothing is left inline at the end. The preset <code>reflow</code> is a layout motion.</p>
+
+  <h2>Define</h2>
+  <pre><code>{`import { defineMotion } from '@udixio/motion';
+
+defineMotion('card-move', { verb: 'layout' }); // timing is optional`}</code></pre>
+  <p>The layout engine is loaded the first time a layout motion is bound: it is not in the main entry, and a change made before it is loaded is not animated. <code>await loadLayoutEngine()</code>, from <code>@udixio/motion</code>, loads it in advance.</p>
+
+  <h2>HTML</h2>
+  <pre><code>{`<ul>
+  <li data-motion="reflow"><span>One</span></li>
+  <li data-motion="reflow"><span>Two</span></li>
+</ul>`}</code></pre>
+  <p>A change inside the scope moves the elements: a class or a <code>data-*</code> attribute changes on an element of the scope, a child is added, removed or reordered, or <code>hidden</code> changes. An element that appears or disappears does not animate itself, since it has no earlier box to move from or to. An interrupted move restarts with the velocity it had.</p>
+  <p>The scope is the closest ancestor with <code>data-motion-scope</code>, or else the element's parent. An inline <code>style</code> change is not observed: after one, call <code>play()</code> on the binding.</p>
+  <pre><code>{`import { getMotion } from '@udixio/motion';
+
+item.style.width = '50%'; // an inline style is not observed
+getMotion(item)?.play();  // compares the layout now and plays the move`}</code></pre>
+
+  <h2>Try it</h2>
+  <p>Each button moves the first row to the end of the list. The rows move to their new places.</p>
+  <div class={demoClass}>
+    <button type="button" class={buttonClass} data-layout-rotate>Move first to end</button>
+    <ul id="layout-rows" class="flex w-64 flex-col gap-2">
+      <li data-motion="reflow" class="rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface"><span>One</span></li>
+      <li data-motion="reflow" class="rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface"><span>Two</span></li>
+      <li data-motion="reflow" class="rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface"><span>Three</span></li>
+    </ul>
+  </div>
+  <pre><code>{`list.append(list.firstElementChild); // the first row moves to the end, and the others move up`}</code></pre>
+
+  <h2>Lists</h2>
+  <p>A list item names two motions: a presence, which makes it enter and leave, and <code>reflow</code>, which makes it follow its neighbours. The preset <code>cascade</code> is a presence with <code>stagger: 'normal'</code>:</p>
+  <pre><code>{`<ul>
+  <li data-motion="cascade reflow"><span>One</span></li>
+  <li data-motion="cascade reflow"><span>Two</span></li>
+</ul>`}</code></pre>
+  <ul>
+    <li><code>stagger</code> makes the elements that enter in the same task start one step after the previous one, in visual order. The steps are <code>tight</code> (20 ms), <code>normal</code> (50 ms) and <code>loose</code> (100 ms), and the delay is capped at 400 ms. Entries and exits cascade separately, and reduced motion drops the delays.</li>
+    <li><code>origin</code> chooses where the cascade starts: <code>first</code> (the default), <code>last</code>, or <code>center</code>.</li>
+    <li><code>exit</code> chooses how a leaving element moves its neighbours. <code>in-place</code> (the default) keeps it where it is until its exit ends; <code>out-of-flow</code> takes it out of the flow when its exit starts, so the neighbours close the gap while it fades. The parent must be positioned (<code>position: relative</code>) for <code>out-of-flow</code>. Under reduced motion the exit is <code>in-place</code>.</li>
+  </ul>
+  <pre><code>{`import { defineMotion } from '@udixio/motion';
+
+defineMotion('list-item', {
+  verb: 'appear',
+  keyframes: [{ opacity: 0, y: 16 }, { opacity: 1, y: 0 }],
+  stagger: 'normal',
+  exit: 'out-of-flow',
+});`}</code></pre>
+
+  <h2>Shared elements</h2>
+  <p>Two elements that carry the same shared key are one thing for the eye. When one of them appears while the other is gone, it starts from the other's last position and size and travels to its own place. A thumbnail that opens into a detail card is the typical case.</p>
+  <pre><code>{`<button type="button" data-motion="reflow" data-motion-shared="shot-1">1</button>
+<div data-motion="reflow" data-motion-shared="shot-1" hidden>Detail of 1</div>
+
+// Both changes in the same task: the detail morphs out of the thumbnail
+thumbnail.hidden = true;
+detail.hidden = false;`}</code></pre>
+  <p>The key is kebab-case. It is given by the attribute, or by the <code>shared</code> option of the binding, or by <code>shared</code> in a layout definition, where <code>defineShared('hero')</code> returns the name, typed. The live example of shared elements is on the <a href="/motion/demo#demo-shots">demo</a>.</p>
+  <ul>
+    <li>One live element holds a key at a time. When two elements with the same key are displayed, the second does not morph, and in development an error is reported.</li>
+    <li>The last box of a holder is kept for 600 ms after the holder is hidden or removed. An element that arrives after that starts at its own place.</li>
+    <li>The two elements do not cross-fade, and the morph does not use the View Transitions API.</li>
+  </ul>
+
+  <h2>In the frameworks</h2>
+  <p>React <code>useMotion('reflow')</code>, Angular <code>udxMotion="reflow"</code>, Svelte <code>&#123;&#64;attach motion('reflow')&#125;</code>. The adapters need nothing else: the element is in a keyed list and the framework moves it.</p>
+  <Code codes={{ react: reactSource, angular: angularSource, svelte: svelteSource }}>
+    <MotionLayoutReact slot="react" client:only="react" />
+    <MotionLayoutAngular slot="angular" client:load />
+    <MotionLayoutSvelte slot="svelte" client:only="svelte" />
+  </Code>
+
+  <h2>Reduced motion</h2>
+  <p>Under reduced motion, or with <code>--udx-motion: none</code>, the new layout applies at once.</p>
+
+  <h2>Limits</h2>
+  <ul>
+    <li>Elements inside a resizing element keep their natural size during the move, up to three levels deep and 24 elements.</li>
+    <li>Text placed directly in the followed element, with no element around it, is stretched during the move: wrap it in an element.</li>
+    <li><code>transform-origin</code> must stay at the centre, where the move scales the element.</li>
+    <li>A move caused by something outside the scope is not animated.</li>
+    <li>A layout motion is refused on an SVG element, since it needs a box.</li>
+  </ul>
+
+  <script>
+    document.addEventListener('click', event => {
+      if (!(event.target instanceof Element)) return;
+      if (!event.target.closest('[data-layout-rotate]')) return;
+      const list = document.getElementById('layout-rows');
+      const first = list?.firstElementChild;
+      if (list && first) list.append(first);
+    });
+  </script>
+</MotionPage>

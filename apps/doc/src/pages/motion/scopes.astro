@@ -1,0 +1,53 @@
+---
+import MotionPage from '@/components/MotionPage.astro';
+import { buttonClass, cardClass, demoClass } from '@/components/motionDemo';
+---
+<MotionPage title="Motion: scopes and breakpoints" description="Motion per breakpoint with --udx-motion, and the scope functions revert and inspect that tear down a section or report it in development.">
+  <h1>Scopes and breakpoints</h1>
+  <p>A page can use a different motion at each breakpoint, and a section of a page can be taken down as a whole. Two things make this possible: <code>--udx-motion</code> may name a defined motion as well as <code>none</code>, and the functions of <code>@udixio/motion/scope</code> act on everything under one root.</p>
+
+  <h2>Motion per breakpoint</h2>
+  <p><code>--udx-motion</code> may name a defined motion. At each trigger (an entry, an exit, a replay, a loop that starts or resumes), the element plays the named motion in place of its own, when the name is a defined motion of the same kind (a presence, an emphasis, a reveal or a loop). Tailwind picks the motion by breakpoint:</p>
+  <pre><code>{`<div data-motion="rise" class="md:[--udx-motion:fade]"></div>`}</code></pre>
+  <p>Here the element rises on small screens and fades from <code>md</code> up. A name of another kind, or one that is not defined, is ignored: the element plays its own motion, and a development build reports it once. <code>none</code> still turns the motion off. The binding's own triggers and its view options (<code>axis</code>, <code>repeat</code>) stay those of its definition.</p>
+
+  <h2>Try it</h2>
+  <p>The card below names the <code>fade</code> motion in place of its own <code>slide</code> while the attribute is set. Pressing the button toggles the attribute, and the next hide and show play that motion instead.</p>
+  <div class={demoClass}>
+    <button type="button" class={buttonClass} data-scope-toggle>Use the fade motion</button>
+    <div id="scope-card" data-motion="slide" class={cardClass}>slide, or fade when the variable names it</div>
+  </div>
+  <pre><code>{`card.style.setProperty('--udx-motion', 'fade'); // the next entry or exit plays fade`}</code></pre>
+
+  <h2>revert</h2>
+  <p><code>revert(root = document.documentElement)</code> destroys every motion under <code>root</code>, the root included: presence, emphasis, layout, reveal, scrub, loop, values, gestures and sequences. Each element is left in its stylesheet state. A connection that covers <code>root</code> stops observing it, and a connection made afterwards binds it again. Use it to tear down a section of a page, or in a test.</p>
+  <pre><code>{`import { revert } from '@udixio/motion/scope';
+
+revert(document.getElementById('gallery')!); // the gallery keeps its markup, and no motion`}</code></pre>
+
+  <h2>inspect</h2>
+  <p><code>inspect(root = document.documentElement)</code> returns a plain report for development: the reduced-motion policy and its source, each binding with its element (a short CSS path), its kind, name, verb and state, and the defined motions. It changes nothing. Importing the entry also sets it as <code>udixio.motion.inspect</code> in development builds.</p>
+  <pre><code>{`import { inspect } from '@udixio/motion/scope';
+
+console.table(inspect().bindings);`}</code></pre>
+
+  <h2>Reduced motion</h2>
+  <p>Under reduced motion, entries and exits become a short opacity fade. With <code>--udx-motion: none</code> on the element or an ancestor, the end state applies without animating. See <a href="/motion/accessibility">Accessibility</a>.</p>
+
+  <h2>Limits</h2>
+  <ul>
+    <li>A name of another kind, or one that is not defined, is ignored: the element plays its own motion.</li>
+    <li>A connection that covers the root of <code>revert</code> stops observing it; a connection made afterwards binds it again.</li>
+  </ul>
+
+  <script>
+    document.addEventListener('click', event => {
+      if (!(event.target instanceof Element)) return;
+      if (!event.target.closest('[data-scope-toggle]')) return;
+      const card = document.getElementById('scope-card');
+      if (!card) return;
+      if (card.style.getPropertyValue('--udx-motion')) card.style.removeProperty('--udx-motion');
+      else card.style.setProperty('--udx-motion', 'fade');
+    });
+  </script>
+</MotionPage>

@@ -7,6 +7,31 @@ const base = process.env.MOTION_DOC_URL ?? 'http://localhost:4322';
 const browserTypes = { chromium, firefox, webkit };
 const browsers = (process.env.MOTION_BROWSERS ?? 'chromium').split(',').map(name => name.trim());
 
+/** The motion documentation: every page loads, with no page error, and the families' live examples hydrate. */
+const motionPages = [
+  '/motion',
+  '/motion/roadmap',
+  '/motion/getting-started',
+  '/motion/presets',
+  '/motion/presence',
+  '/motion/emphasis',
+  '/motion/layout',
+  '/motion/reveal-scrub-loop',
+  '/motion/values',
+  '/motion/sequences',
+  '/motion/gestures',
+  '/motion/page-transitions',
+  '/motion/text',
+  '/motion/svg',
+  '/motion/scroll',
+  '/motion/animate',
+  '/motion/scopes',
+  '/motion/accessibility',
+  '/motion/tokens',
+  '/motion/limits',
+  '/motion/demo',
+];
+
 /** The pages that carry islands: the home page, the theme builder, and the overview and API pages of the components that failed. */
 const islandPages = [
   '/',
@@ -141,6 +166,40 @@ for (const name of browsers) {
       const tab = page.getByRole('tab', { name: 'Colors', exact: true });
       await tab.focus();
       await expectVisibleFocus(tab, 'The Colors tab');
+    } finally { await browser.close(); }
+  });
+
+  test(`${name}: every motion page loads without a page error`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+      const page = await context.newPage();
+      const errors = await recordErrors(page);
+      const failures = [];
+      for (const path of motionPages) {
+        const response = await page.goto(base + path, { waitUntil: 'load' });
+        assert.equal(response.status(), 200, path);
+        await settle(page);
+        const found = await errors();
+        if (found.length > 0) failures.push(`${path}: ${[...new Set(found)].join(' | ').slice(0, 400)}`);
+      }
+      assert.deepEqual(failures, []);
+    } finally { await browser.close(); }
+  });
+
+  test(`${name}: the motion manifest is served as JSON and llms.txt points to it`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const page = await browser.newPage();
+      const manifest = await page.request.get(base + '/motion-manifest.json');
+      assert.equal(manifest.status(), 200);
+      assert.match(manifest.headers()['content-type'], /application\/json/);
+      const data = await manifest.json();
+      assert.equal(data.version, 1);
+      assert.ok(Object.hasOwn(data.presets, 'fade'), 'the manifest lists the presets');
+      const llms = await page.request.get(base + '/llms.txt');
+      assert.equal(llms.status(), 200);
+      assert.match(await llms.text(), /\/motion-manifest\.json/);
     } finally { await browser.close(); }
   });
 }

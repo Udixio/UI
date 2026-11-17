@@ -14,10 +14,45 @@ const example = `<div class="example">
   #reduce:checked ~ .swatch { transition-duration: 0s; }
 </style>`;
 ---
-<MotionPage title="Motion accessibility" description="Reduced motion policy and an accessible CSS demonstration.">
-  <h1>Motion accessibility</h1>
-  <p>The document stylesheet defines <code>--udx-motion-scale</code> as 1 by default. The system reduced-motion preference or <code>html[data-motion-policy="reduce"]</code> sets it to 0. An absent attribute, <code>auto</code>, or an unknown value follows the system preference.</p>
-  <p>Multiplying a transition duration by this scale alone does not make every effect safe. Adapt or remove translation and loops as appropriate, and keep essential content available. Raw providers do not automatically consume this policy; consumers must choose and apply one.</p>
+<MotionPage title="Motion: accessibility and reduced motion" description="The reduced-motion policy of @udixio/motion, what each verb shows under it, and the focus, pause and reading rules that the runtime keeps.">
+  <h1>Accessibility and reduced motion</h1>
+  <p>The runtime follows the reduced-motion policy of the document. The system preference <code>prefers-reduced-motion: reduce</code>, or <code>&lt;html data-motion-policy="reduce"&gt;</code>, selects it. An absent attribute, <code>auto</code>, or an unknown value follows the system preference. The document stylesheet defines <code>--udx-motion-scale</code> as 1 by default, and as 0 under the reduced policy.</p>
+
+  <h2>What each verb shows under reduced motion</h2>
+  <div class="overflow-x-auto">
+    <table>
+      <thead><tr><th>Verb</th><th>Under reduced motion</th></tr></thead>
+      <tbody>
+        <tr><td><code>appear</code>, <code>disappear</code></td><td>A short opacity fade. An exit with <code>exit: 'out-of-flow'</code> is in place.</td></tr>
+        <tr><td><code>emphasize</code></td><td>Not animated: the element applies its end frame.</td></tr>
+        <tr><td><code>reveal</code></td><td>The element is shown at once, unless its definition sets another <code>reduced</code> value.</td></tr>
+        <tr><td><code>scrub</code></td><td>The element stays still; the scroll link is stopped.</td></tr>
+        <tr><td><code>loop</code></td><td>The loop does not play: the element keeps its stylesheet state.</td></tr>
+        <tr><td><code>layout</code></td><td>The new layout applies at once.</td></tr>
+        <tr><td>Gestures</td><td>The release is written at once, with no glide.</td></tr>
+        <tr><td>Page transitions</td><td><code>navigate()</code> runs the update alone.</td></tr>
+        <tr><td>Text</td><td>The text is not split: the element plays whole.</td></tr>
+        <tr><td>Scroll</td><td><code>scrollTo</code> jumps to its destination.</td></tr>
+        <tr><td>Values</td><td>A smoothed value is written at once; a <code>time</code> value holds the first end of its range.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><code>--udx-motion: none</code> on an element or an ancestor applies the end state without animating, whatever the policy. Use it per breakpoint with Tailwind: <code>md:[--udx-motion:none]</code>.</p>
+  <p>Multiplying a transition duration by <code>--udx-motion-scale</code> alone does not make every effect safe. Adapt or remove translation and loops as appropriate, and keep essential content available. A raw provider does not apply this policy.</p>
+
+  <h2>Focus when an element leaves (WCAG 2.4.3)</h2>
+  <p>An exit sets <code>inert</code> on its element. When the exit starts with focus inside it, <code>restoreFocus</code>, or <code>data-motion-restore-focus="&lt;selector&gt;"</code> in HTML, names the element that takes focus first. See <a href="/motion/presence">Presence</a>.</p>
+
+  <h2>Pausing a loop (WCAG 2.2.2)</h2>
+  <p>A loop never ends, so each loop states in its definition how it is paused: <code>pause: 'control'</code> when the page offers a control, or <code>pause: 'essential'</code> with a reason when the loop is the content itself. See <a href="/motion/reveal-scrub-loop">Reveal, scrub and loop</a>.</p>
+
+  <h2>Reading and keyboard</h2>
+  <ul>
+    <li>A counter holds its number in an <code>aria-hidden</code> span while it counts, and the final number in a visually hidden span, so a screen reader reads the final number.</li>
+    <li>A split text keeps its semantics, and its visual copy is <code>aria-hidden</code>: the text is read once, as written (see <a href="/motion/text">Text</a>).</li>
+    <li>Every gesture has a keyboard alternative, and a reorder announces each step in a live region (see <a href="/motion/gestures">Gestures</a>).</li>
+  </ul>
+
   <h2>Try it without JavaScript</h2>
   <p>The checkbox state remains visible and the final appearance is available without animation. The reduction checkbox only changes this demonstration, not your system or document policy.</p>
   <div class="demo not-prose">
