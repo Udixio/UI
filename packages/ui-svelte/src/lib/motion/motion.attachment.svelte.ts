@@ -72,6 +72,7 @@ export function motion(
         present: initial.present ?? true,
         settled: initial.settled ?? ((previousKey !== undefined && previousKey !== key) ? true : undefined),
         shared: initial.shared,
+        restoreFocus: initial.restoreFocus,
         ...(initial.paused && { paused: true }),
       }),
     );

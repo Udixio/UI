@@ -12,6 +12,7 @@
     settled,
     shared,
     paused,
+    restoreFocus,
     shown = true,
     marked = false,
   }: {
@@ -21,11 +22,12 @@
     settled?: boolean;
     shared?: string;
     paused?: boolean;
+    restoreFocus?: HTMLElement;
     shown?: boolean;
     marked?: boolean;
   } = $props();
 </script>
 
 {#if shown}
-  <div data-testid="box" data-presence={marked ? 'present' : undefined} {@attach motion(untrack(() => source), () => ({ present, state, settled, shared, paused }))}></div>
+  <div data-testid="box" data-presence={marked ? 'present' : undefined} {@attach motion(untrack(() => source), () => ({ present, state, settled, shared, paused, restoreFocus }))}></div>
 {/if}

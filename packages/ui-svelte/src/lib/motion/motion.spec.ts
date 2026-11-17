@@ -121,6 +121,18 @@ describe('motion attachment', () => {
     });
   });
 
+  it('passes restoreFocus to the binding', () => {
+    bindDeferred(fakeBinding());
+    const back = document.createElement('button');
+    render(Fixture, { props: props({ source: 'slide', restoreFocus: back }) });
+    flushSync();
+
+    expect(motionWhenDefined).toHaveBeenCalledExactlyOnceWith(screen.getByTestId('box'), 'slide', {
+      present: true,
+      restoreFocus: back,
+    });
+  });
+
   it('reads the shared identity when it binds: a later change does not bind the element again', async () => {
     bindDeferred(fakeBinding());
     const { rerender } = render(Fixture, { props: props({ shared: 'pic' }) });

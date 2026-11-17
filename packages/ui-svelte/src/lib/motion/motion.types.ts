@@ -1,3 +1,5 @@
+import type { BindOptions } from '@udixio/motion';
+
 /**
  * Options of the `motion` attachment. They are read through a getter, so a
  * change is followed without re-binding the element.
@@ -29,6 +31,16 @@ export interface MotionAttachmentOptions {
    * ```
    */
   paused?: boolean;
+  /**
+   * Where focus goes when an exit starts with focus inside the element (WCAG 2.4.3): an element, or a function that gives one when
+   * the exit starts. It is read when the attachment binds, as `shared` is, so a function names an element rendered later.
+   *
+   * @example
+   * ```svelte
+   * <div {@attach motion('fade', () => ({ restoreFocus: () => opener }))}>…</div>
+   * ```
+   */
+  restoreFocus?: BindOptions['restoreFocus'];
 }
 
 /**
