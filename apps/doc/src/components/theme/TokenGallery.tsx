@@ -37,24 +37,27 @@ const TokenItem = ({ name, color }: { name: string; color: Color }) => {
   );
 };
 
+// The palette names as the theme names them (`palette.name`), in display order.
 const paletteOrder = [
-  'Primary',
-  'Secondary',
-  'Tertiary',
-  'Neutral',
-  'NeutralVariant',
-  'Error',
-  'Success',
+  'primary',
+  'secondary',
+  'tertiary',
+  'neutral',
+  'neutralVariant',
+  'error',
+  'success',
 ] as const;
 
 export const TokenGallery: React.FC = () => {
-  const $themeApi = useStore(themeServiceStore);
+  const $themeApi = useStore(themeServiceStore, { ssr: 'initial' });
 
-  useStore(themeConfigStore); // re-render on theme change
-  const themeServiceVersion = useStore(themeServiceVersionStore);
+  useStore(themeConfigStore, { ssr: 'initial' }); // re-render on theme change
+  const themeServiceVersion = useStore(themeServiceVersionStore, {
+    ssr: 'initial',
+  });
   const [query, setQuery] = useState('');
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
-    { Primary: true },
+    { primary: true },
   );
 
   // The layout engine is loaded on demand: loading it now lets a filter move the tokens that remain.
