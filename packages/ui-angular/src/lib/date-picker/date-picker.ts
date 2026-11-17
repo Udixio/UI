@@ -1,9 +1,12 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ElementRef,
+  afterNextRender,
   afterRenderEffect,
   computed,
+  inject,
   input,
   output,
   signal,
@@ -89,7 +92,11 @@ function extractAnchorDate(
           [class]="headerButtonClassName()"
         >
           <span class="mr-2">{{
-            viewMode() === 'day' ? monthLabel() : viewDate().getFullYear()
+            viewMode() === 'day'
+              ? showsDate()
+                ? monthLabel()
+                : ''
+              : viewDate().getFullYear()
           }}</span>
           <udx-icon
             [icon]="chevronDownIcon"
@@ -141,11 +148,14 @@ function extractAnchorDate(
         <div
           #grid
           role="grid"
-          [attr.aria-label]="monthLabel()"
+          [attr.aria-label]="showsDate() ? monthLabel() : null"
           class="flex flex-col gap-y-2"
         >
           <div role="row" [class]="styles()['weekDays']">
-            @for (day of weekDayLabels(); track $index) {
+            @for (
+              day of showsDate() ? weekDayLabels() : emptyWeekDayLabels;
+              track $index
+            ) {
               <div role="columnheader" [class]="styles()['weekDay']">
                 {{ day }}
               </div>
@@ -153,56 +163,66 @@ function extractAnchorDate(
           </div>
 
           <div role="rowgroup" #weeksContainer>
-            @for (week of weeks(); track $index) {
-              <div role="row" [class]="styles()['daysGrid']">
-                @for (day of week; track day.date.getTime()) {
-                  @if (!day.isCurrentMonth) {
-                    <div
-                      role="gridcell"
-                      aria-hidden="true"
-                      [class]="styles()['dayCell']"
-                    ></div>
-                  } @else {
-                    @let selection = daySelection(day.date);
-                    @let isTodayDay = isTodayDate(day.date);
-                    @let isDisabledDay = isDayDisabled(day.date);
-                    @let dayStyles = dayButtonState(
-                      day,
-                      selection.isSelected,
-                      isTodayDay,
-                      isDisabledDay
-                    );
-                    <div
-                      role="gridcell"
-                      [attr.aria-selected]="selection.isSelected"
-                      [class]="dayCellClassName(day, selection)"
-                    >
-                      <button
-                        type="button"
-                        [class]="dayStyles['button']"
-                        [tabIndex]="isFocusTarget(day.date) ? 0 : -1"
-                        [attr.aria-current]="isTodayDay ? 'date' : null"
-                        [attr.aria-disabled]="isDisabledDay || null"
-                        [attr.data-date]="day.date.toDateString()"
-                        (click)="handleDateClick(day.date)"
-                        (keydown)="handleDayKeyDown($event, day.date)"
-                      >
-                        <span [class]="dayStyles['touchTarget']"></span>
-                        <udx-state-layer
-                          [class]="dayStyles['stateLayer']"
-                          [colorName]="
-                            dayStateColor(selection.isSelected, isTodayDay)
-                          "
-                          stateClassName="state-ripple-group-[button]"
-                        />
-                        <span [class]="dayStyles['label']">{{
-                          day.date.getDate()
-                        }}</span>
-                      </button>
-                    </div>
+            @if (!showsDate()) {
+              @for (week of placeholderWeeks; track $index) {
+                <div role="row" aria-hidden="true" [class]="styles()['daysGrid']">
+                  @for (cell of placeholderDays; track $index) {
+                    <div [class]="styles()['dayCell']"></div>
                   }
-                }
-              </div>
+                </div>
+              }
+            } @else {
+              @for (week of weeks(); track $index) {
+                <div role="row" [class]="styles()['daysGrid']">
+                  @for (day of week; track day.date.getTime()) {
+                    @if (!day.isCurrentMonth) {
+                      <div
+                        role="gridcell"
+                        aria-hidden="true"
+                        [class]="styles()['dayCell']"
+                      ></div>
+                    } @else {
+                      @let selection = daySelection(day.date);
+                      @let isTodayDay = isTodayDate(day.date);
+                      @let isDisabledDay = isDayDisabled(day.date);
+                      @let dayStyles = dayButtonState(
+                        day,
+                        selection.isSelected,
+                        isTodayDay,
+                        isDisabledDay
+                      );
+                      <div
+                        role="gridcell"
+                        [attr.aria-selected]="selection.isSelected"
+                        [class]="dayCellClassName(day, selection)"
+                      >
+                        <button
+                          type="button"
+                          [class]="dayStyles['button']"
+                          [tabIndex]="isFocusTarget(day.date) ? 0 : -1"
+                          [attr.aria-current]="isTodayDay ? 'date' : null"
+                          [attr.aria-disabled]="isDisabledDay || null"
+                          [attr.data-date]="day.date.toDateString()"
+                          (click)="handleDateClick(day.date)"
+                          (keydown)="handleDayKeyDown($event, day.date)"
+                        >
+                          <span [class]="dayStyles['touchTarget']"></span>
+                          <udx-state-layer
+                            [class]="dayStyles['stateLayer']"
+                            [colorName]="
+                              dayStateColor(selection.isSelected, isTodayDay)
+                            "
+                            stateClassName="state-ripple-group-[button]"
+                          />
+                          <span [class]="dayStyles['label']">{{
+                            day.date.getDate()
+                          }}</span>
+                        </button>
+                      </div>
+                    }
+                  }
+                </div>
+              }
             }
           </div>
         </div>
@@ -234,6 +254,9 @@ export class DatePicker implements OnInit {
   protected readonly chevronLeftIcon = iChevronLeft;
   protected readonly chevronRightIcon = iChevronRight;
   protected readonly years = getYearRange(new Date().getFullYear());
+  protected readonly emptyWeekDayLabels = Array.from({ length: 7 }, () => '');
+  protected readonly placeholderWeeks = [0, 1, 2, 3, 4, 5];
+  protected readonly placeholderDays = [0, 1, 2, 3, 4, 5, 6];
 
   protected readonly viewDate = signal<Date>(new Date());
   protected readonly focusedDate = signal<Date>(new Date());
@@ -248,6 +271,7 @@ export class DatePicker implements OnInit {
   private monthTransition?: ReturnType<typeof createMonthTransitionController>;
   private previousViewDate = this.viewDate();
 
+  private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly valueState = createControllableState<DatePickerValue>({
     value: this.value,
     defaultValue: this.defaultValue,
@@ -255,6 +279,21 @@ export class DatePicker implements OnInit {
     componentName: 'DatePicker',
     stateName: 'value',
   });
+
+  // The month name, the weekday letters, the grid's name and today's marker depend on the
+  // runtime's locale and clock, which a server cannot know. Until the first render has run in
+  // the browser they stay out of the markup, unless the consumer pins both an explicit locale
+  // and a Date anchor.
+  private readonly hydrated = signal(false);
+  private readonly pinned = computed(
+    () =>
+      this.locale() !== 'default' &&
+      (extractAnchorDate(this.value()) ??
+        extractAnchorDate(this.defaultValue())) !== null,
+  );
+  protected readonly showsDate = computed(
+    () => this.hydrated() || this.pinned(),
+  );
 
   protected readonly resolvedValue = this.valueState.value;
   protected readonly hasSelected = computed(() => this.resolvedValue() !== null);
@@ -295,6 +334,13 @@ export class DatePicker implements OnInit {
   );
 
   constructor() {
+    // Refreshes the view inside the same hook, so the mounted labels and days are
+    // rendered without waiting for another change-detection pass.
+    afterNextRender(() => {
+      this.hydrated.set(true);
+      this.changeDetector.detectChanges();
+    });
+
     afterRenderEffect(() => {
       if (this.viewMode() !== 'year') return;
       this.scrollToSelectedYear();
@@ -459,6 +505,7 @@ export class DatePicker implements OnInit {
   }
 
   protected isTodayDate(date: Date): boolean {
+    if (!this.hydrated()) return false;
     const today = new Date();
     return (
       date.getFullYear() === today.getFullYear() &&

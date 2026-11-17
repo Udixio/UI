@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import {
   addDays,
   addMonthsClamped,
@@ -31,6 +31,10 @@ import { Icon } from '../icon';
 export type ReactDatePickerProps = ReactProps<DatePickerInterface>;
 
 export const useDatePickerStyle = createUseStyle(datePickerStyle);
+
+const subscribeToNothing = () => () => {};
+const EMPTY_WEEK_DAY_LABELS = Array.from({ length: 7 }, () => '');
+const PLACEHOLDER_WEEK_INDEXES = [0, 1, 2, 3, 4, 5];
 
 function extractAnchorDate(value: DatePickerValue | undefined): Date | null {
   if (value instanceof Date) return value;
@@ -83,6 +87,18 @@ export const DatePicker = ({
     () => extractAnchorDate(valueProp) ?? extractAnchorDate(defaultValue) ?? new Date(),
   );
   const [viewMode, setViewMode] = useState<'day' | 'year'>('day');
+  // The month name, the weekday letters, the grid's name and today's marker depend on the
+  // runtime's locale and clock, which a server cannot know. Until hydration they stay out of
+  // the markup, unless the consumer pins both an explicit locale and a Date anchor.
+  const hydrated = useSyncExternalStore(
+    subscribeToNothing,
+    () => true,
+    () => false,
+  );
+  const pinned =
+    locale !== 'default' &&
+    (extractAnchorDate(valueProp) ?? extractAnchorDate(defaultValue)) !== null;
+  const showsDate = hydrated || pinned;
   const shouldFocusDayRef = useRef(false);
   const gridRef = useRef<HTMLDivElement>(null);
   const yearsContainerRef = useRef<HTMLDivElement>(null);
@@ -210,6 +226,7 @@ export const DatePicker = ({
   };
 
   const isToday = (date: Date) => {
+    if (!hydrated) return false;
     const today = new Date();
     return (
       date.getFullYear() === today.getFullYear() &&
@@ -251,7 +268,11 @@ export const DatePicker = ({
           )}
         >
           <span className="mr-2">
-            {viewMode === 'day' ? monthLabel : viewDate.getFullYear()}
+            {viewMode === 'day'
+              ? showsDate
+                ? monthLabel
+                : ''
+              : viewDate.getFullYear()}
           </span>
           <Icon
             icon={iKeyboardArrowDown}
@@ -305,12 +326,12 @@ export const DatePicker = ({
       ) : (
         <div
           role="grid"
-          aria-label={monthLabel}
+          aria-label={showsDate ? monthLabel : undefined}
           className="flex flex-col gap-y-2"
           ref={gridRef}
         >
           <div role="row" className={styles.weekDays}>
-            {weekDayLabels.map((day, i) => (
+            {(showsDate ? weekDayLabels : EMPTY_WEEK_DAY_LABELS).map((day, i) => (
               <div key={i} role="columnheader" className={styles.weekDay}>
                 {day}
               </div>
@@ -318,80 +339,94 @@ export const DatePicker = ({
           </div>
 
           <div role="rowgroup" ref={weeksContainerRef}>
-            {weeks.map((week, weekIndex) => (
-              <div role="row" className={styles.daysGrid} key={weekIndex}>
-                {week.map((day, dayIndex) => {
-                  if (!day.isCurrentMonth) {
+            {!showsDate &&
+              PLACEHOLDER_WEEK_INDEXES.map((weekIndex) => (
+                <div
+                  role="row"
+                  aria-hidden="true"
+                  className={styles.daysGrid}
+                  key={weekIndex}
+                >
+                  {Array.from({ length: 7 }, (_, dayIndex) => (
+                    <div key={dayIndex} className={styles.dayCell} />
+                  ))}
+                </div>
+              ))}
+            {showsDate &&
+              weeks.map((week, weekIndex) => (
+                <div role="row" className={styles.daysGrid} key={weekIndex}>
+                  {week.map((day, dayIndex) => {
+                    if (!day.isCurrentMonth) {
+                      return (
+                        <div
+                          key={dayIndex}
+                          role="gridcell"
+                          aria-hidden="true"
+                          className={styles.dayCell}
+                        />
+                      );
+                    }
+
+                    const { isSelected, isStart, isEnd, isInRange } =
+                      getDaySelectionState(mode, value, day.date);
+                    const isTodayDate = isToday(day.date);
+                    const isDisabledDay = isDateDisabled(day.date, {
+                      minDate,
+                      maxDate,
+                      shouldDisableDate,
+                    });
+                    const isFocusTarget =
+                      day.date.toDateString() === focusedDate.toDateString();
+                    const variant: ButtonVariant = isSelected
+                      ? 'filled'
+                      : isTodayDate
+                        ? 'outlined'
+                        : 'text';
+
                     return (
                       <div
                         key={dayIndex}
                         role="gridcell"
-                        aria-hidden="true"
-                        className={styles.dayCell}
-                      />
+                        aria-selected={isSelected}
+                        className={classNames(
+                          styles.dayCell,
+                          isInRange && 'bg-primary/20',
+                          isStart &&
+                            (value as DateRange)?.[1] &&
+                            'bg-gradient-to-r from-transparent to-primary/20',
+                          isEnd &&
+                            (value as DateRange)?.[0] &&
+                            'bg-gradient-to-l from-transparent to-primary/20',
+                        )}
+                      >
+                        <Button
+                          className={() => ({
+                            button: classNames(styles.dayButton, 'p-0', {
+                              'text-on-surface': !isSelected && !isTodayDate,
+                              'opacity-50': isDisabledDay,
+                            }),
+                            stateLayer: classNames({
+                              '!bg-transparent': isDisabledDay,
+                            }),
+                          })}
+                          size="small"
+                          shapeFeedback="none"
+                          variant={variant}
+                          label={day.date.getDate().toString()}
+                          onClick={() => handleDateClick(day.date)}
+                          onKeyDown={(event) =>
+                            handleDayKeyDown(event, day.date)
+                          }
+                          data-date={day.date.toDateString()}
+                          tabIndex={isFocusTarget ? 0 : -1}
+                          aria-current={isTodayDate ? 'date' : undefined}
+                          aria-disabled={isDisabledDay || undefined}
+                        />
+                      </div>
                     );
-                  }
-
-                  const { isSelected, isStart, isEnd, isInRange } =
-                    getDaySelectionState(mode, value, day.date);
-                  const isTodayDate = isToday(day.date);
-                  const isDisabledDay = isDateDisabled(day.date, {
-                    minDate,
-                    maxDate,
-                    shouldDisableDate,
-                  });
-                  const isFocusTarget =
-                    day.date.toDateString() === focusedDate.toDateString();
-                  const variant: ButtonVariant = isSelected
-                    ? 'filled'
-                    : isTodayDate
-                      ? 'outlined'
-                      : 'text';
-
-                  return (
-                    <div
-                      key={dayIndex}
-                      role="gridcell"
-                      aria-selected={isSelected}
-                      className={classNames(
-                        styles.dayCell,
-                        isInRange && 'bg-primary/20',
-                        isStart &&
-                          (value as DateRange)?.[1] &&
-                          'bg-gradient-to-r from-transparent to-primary/20',
-                        isEnd &&
-                          (value as DateRange)?.[0] &&
-                          'bg-gradient-to-l from-transparent to-primary/20',
-                      )}
-                    >
-                      <Button
-                        className={() => ({
-                          button: classNames(styles.dayButton, 'p-0', {
-                            'text-on-surface': !isSelected && !isTodayDate,
-                            'opacity-50': isDisabledDay,
-                          }),
-                          stateLayer: classNames({
-                            '!bg-transparent': isDisabledDay,
-                          }),
-                        })}
-                        size="small"
-                        shapeFeedback="none"
-                        variant={variant}
-                        label={day.date.getDate().toString()}
-                        onClick={() => handleDateClick(day.date)}
-                        onKeyDown={(event) =>
-                          handleDayKeyDown(event, day.date)
-                        }
-                        data-date={day.date.toDateString()}
-                        tabIndex={isFocusTarget ? 0 : -1}
-                        aria-current={isTodayDate ? 'date' : undefined}
-                        aria-disabled={isDisabledDay || undefined}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
+                  })}
+                </div>
+              ))}
           </div>
         </div>
       )}

@@ -1,3 +1,6 @@
+import { act } from 'react';
+import { hydrateRoot } from 'react-dom/client';
+import { renderToStaticMarkup, renderToString } from 'react-dom/server';
 import { fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -219,5 +222,99 @@ describe('DatePicker', () => {
   it('has no automated accessibility violations', async () => {
     const view = render(<DatePicker defaultValue={new Date(2024, 5, 1)} />);
     expect(await axe(view.container)).toHaveNoViolations();
+  });
+});
+
+describe('DatePicker first render', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  // `locale="default"` resolves through Intl to the runtime's locale: this
+  // stands in for a server or a browser running with another one.
+  function underRuntimeLocale<T>(runtimeLocale: string, run: () => T): T {
+    const RealDateTimeFormat = Intl.DateTimeFormat;
+    const spy = vi
+      .spyOn(Intl, 'DateTimeFormat')
+      .mockImplementation(function (
+        locales?: string | string[],
+        options?: Intl.DateTimeFormatOptions,
+      ) {
+        return new RealDateTimeFormat(
+          locales === 'default' ? runtimeLocale : locales,
+          options,
+        );
+      } as typeof Intl.DateTimeFormat);
+    try {
+      return run();
+    } finally {
+      spy.mockRestore();
+    }
+  }
+
+  it('renders the same first markup whatever the clock and the runtime locale', () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 10, 17));
+    const server = underRuntimeLocale('fr-FR', () =>
+      renderToStaticMarkup(<DatePicker />),
+    );
+    vi.setSystemTime(new Date(2027, 2, 3));
+    const browser = underRuntimeLocale('en-US', () =>
+      renderToStaticMarkup(<DatePicker />),
+    );
+
+    expect(browser).toBe(server);
+  });
+
+  it('hydrates a server render made under another clock and locale without a mismatch', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 10, 17));
+    const container = document.createElement('div');
+    container.innerHTML = underRuntimeLocale('fr-FR', () =>
+      renderToString(<DatePicker />),
+    );
+    document.body.append(container);
+    vi.setSystemTime(new Date(2027, 2, 3));
+
+    const errors: unknown[] = [];
+    const consoleError = vi
+      .spyOn(console, 'error')
+      .mockImplementation((...args) => errors.push(args));
+    let root: ReturnType<typeof hydrateRoot> | undefined;
+    try {
+      await act(async () => {
+        root = hydrateRoot(container, <DatePicker />, {
+          onRecoverableError: (error) => errors.push(error),
+        });
+      });
+      expect(errors).toEqual([]);
+      expect(container.querySelector('[role="grid"]')).toHaveAttribute(
+        'aria-label',
+        new Intl.DateTimeFormat(undefined, {
+          month: 'long',
+          year: 'numeric',
+        }).format(new Date(2027, 2, 1)),
+      );
+    } finally {
+      await act(async () => root?.unmount());
+      consoleError.mockRestore();
+      container.remove();
+    }
+  });
+
+  it('keeps a view pinned by an explicit locale and value identical whatever the clock', () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 10, 17));
+    const server = renderToStaticMarkup(
+      <DatePicker defaultValue={new Date(2026, 10, 17)} locale="en-US" />,
+    );
+    expect(server).toContain('November 2026');
+
+    vi.setSystemTime(new Date(2027, 2, 3));
+    const browser = renderToStaticMarkup(
+      <DatePicker defaultValue={new Date(2026, 10, 17)} locale="en-US" />,
+    );
+
+    expect(browser).toBe(server);
   });
 });

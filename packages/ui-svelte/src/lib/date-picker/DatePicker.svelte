@@ -28,7 +28,7 @@
   import IconButton from '../icon-button/IconButton.svelte';
   import { createControllableState } from '../utils/create-controllable-state.svelte';
   import { createStyle } from '../utils/create-style.svelte';
-  import { untrack } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import type { SvelteDatePickerProps } from './date-picker.types';
 
   const extractAnchorDate = (value: DatePickerValue | undefined): Date | null => {
@@ -36,7 +36,18 @@
     if (Array.isArray(value) && value[0]) return value[0];
     return null;
   };
+  // Month names, weekday letters, the grid's name and today's marker depend on the runtime's
+  // locale and clock, which a server cannot know. Until the component is mounted they stay out
+  // of the markup, unless the consumer pins both an explicit locale and a Date anchor.
+  let hydrated = $state(false);
+  onMount(() => {
+    hydrated = true;
+  });
+  const emptyWeekDayLabels = Array.from({ length: 7 }, () => '');
+  const placeholderWeeks = [0, 1, 2, 3, 4, 5];
+  const placeholderDays = [0, 1, 2, 3, 4, 5, 6];
   const today = (date: Date) => {
+    if (!hydrated) return false;
     const now = new Date();
     return now.getFullYear() === date.getFullYear() && now.getMonth() === date.getMonth() && now.getDate() === date.getDate();
   };
@@ -81,6 +92,10 @@
   const weeks = $derived(getCalendarWeeks(viewDate, weekStartDay));
   const weekDayLabels = $derived(getWeekDayLabels(locale, weekStartDay));
   const monthLabel = $derived(formatMonthLabel(viewDate, locale));
+  const pinned = $derived(
+    locale !== 'default' && (extractAnchorDate(value) ?? extractAnchorDate(defaultValue)) !== null,
+  );
+  const showsDate = $derived(hydrated || pinned);
   const years = getYearRange(new Date().getFullYear());
   const styles = createStyle(datePickerStyle, () => ({
     mode,
@@ -179,7 +194,7 @@
 <div {...rest} class={styles.current['datePicker']} style={hostStyle}>
   <div class={styles.current['header']}>
     <Button variant="text" size="small" aria-live="polite" onclick={() => { viewMode = viewMode === 'day' ? 'year' : 'day'; }}>
-      <span class="mr-2">{viewMode === 'day' ? monthLabel : viewDate.getFullYear()}</span>
+      <span class="mr-2">{viewMode === 'day' ? (showsDate ? monthLabel : '') : viewDate.getFullYear()}</span>
       <Icon icon={iKeyboardArrowDown} class={`w-3 h-3 transition-transform duration-200 ${viewMode === 'year' ? 'rotate-180' : ''}`} />
     </Button>
     {#if viewMode === 'day'}
@@ -204,40 +219,50 @@
       {/each}
     </div>
   {:else}
-    <div bind:this={grid} role="grid" aria-label={monthLabel} class="flex flex-col gap-y-2">
+    <div bind:this={grid} role="grid" aria-label={showsDate ? monthLabel : undefined} class="flex flex-col gap-y-2">
       <div role="row" class={styles.current['weekDays']}>
-        {#each weekDayLabels as day, index (index)}<div role="columnheader" class={styles.current['weekDay']}>{day}</div>{/each}
+        {#each showsDate ? weekDayLabels : emptyWeekDayLabels as day, index (index)}<div role="columnheader" class={styles.current['weekDay']}>{day}</div>{/each}
       </div>
       <div role="rowgroup" bind:this={weeksContainer}>
+        {#if showsDate}
         {#each weeks as week, weekIndex (weekIndex)}
-          <div role="row" class={styles.current['daysGrid']}>
-            {#each week as day (day.date.getTime())}
-              {#if !day.isCurrentMonth}
-                <div role="gridcell" aria-hidden="true" class={styles.current['dayCell']}></div>
-              {:else}
-                {@const selection = getDaySelectionState(mode, resolvedValue, day.date)}
-                {@const isTodayDate = today(day.date)}
-                {@const disabledDay = isDateDisabled(day.date, { minDate, maxDate, shouldDisableDate })}
-                {@const focusTarget = day.date.toDateString() === focusedDate.toDateString()}
-                <div role="gridcell" aria-selected={selection.isSelected} class={dayClasses(day.date, selection.isSelected, selection.isInRange, selection.isStart, selection.isEnd)}>
-                  <Button
-                    classes={dayButtonClasses(day.date, selection.isSelected, isTodayDate, disabledDay)}
-                    size="small"
-                    shapeFeedback="none"
-                    variant={selection.isSelected ? 'filled' : isTodayDate ? 'outlined' : 'text'}
-                    label={String(day.date.getDate())}
-                    data-date={day.date.toDateString()}
-                    tabindex={focusTarget ? 0 : -1}
-                    aria-current={isTodayDate ? 'date' : undefined}
-                    aria-disabled={disabledDay || undefined}
-                    onclick={() => selectDate(day.date)}
-                    onkeydown={(event) => dayKeydown(event, day.date)}
-                  />
-                </div>
-              {/if}
-            {/each}
-          </div>
+            <div role="row" class={styles.current['daysGrid']}>
+              {#each week as day (day.date.getTime())}
+                {#if !day.isCurrentMonth}
+                  <div role="gridcell" aria-hidden="true" class={styles.current['dayCell']}></div>
+                {:else}
+                  {@const selection = getDaySelectionState(mode, resolvedValue, day.date)}
+                  {@const isTodayDate = today(day.date)}
+                  {@const disabledDay = isDateDisabled(day.date, { minDate, maxDate, shouldDisableDate })}
+                  {@const focusTarget = day.date.toDateString() === focusedDate.toDateString()}
+                  <div role="gridcell" aria-selected={selection.isSelected} class={dayClasses(day.date, selection.isSelected, selection.isInRange, selection.isStart, selection.isEnd)}>
+                    <Button
+                      classes={dayButtonClasses(day.date, selection.isSelected, isTodayDate, disabledDay)}
+                      size="small"
+                      shapeFeedback="none"
+                      variant={selection.isSelected ? 'filled' : isTodayDate ? 'outlined' : 'text'}
+                      label={String(day.date.getDate())}
+                      data-date={day.date.toDateString()}
+                      tabindex={focusTarget ? 0 : -1}
+                      aria-current={isTodayDate ? 'date' : undefined}
+                      aria-disabled={disabledDay || undefined}
+                      onclick={() => selectDate(day.date)}
+                      onkeydown={(event) => dayKeydown(event, day.date)}
+                    />
+                  </div>
+                {/if}
+              {/each}
+            </div>
         {/each}
+        {:else}
+          {#each placeholderWeeks as index (index)}
+            <div role="row" aria-hidden="true" class={styles.current['daysGrid']}>
+              {#each placeholderDays as cell (cell)}
+                <div class={styles.current['dayCell']}></div>
+              {/each}
+            </div>
+          {/each}
+        {/if}
       </div>
     </div>
   {/if}

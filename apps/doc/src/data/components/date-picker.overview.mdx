@@ -118,6 +118,11 @@ its own day. Blocked days stay visible and focusable, but cannot be selected.
 `locale` formats the month label and weekday headers; `weekStartDay` shifts
 which day begins each row.
 
+The month, the weekdays and the days depend on the runtime's locale and clock,
+so without an explicit `locale` and a `value` or `defaultValue` date the picker
+renders an empty grid of the same size until it is mounted. Pass both to render
+the calendar on the server.
+
 <Code
   codes={{
     react: datePickerLocalizationReactSource,
